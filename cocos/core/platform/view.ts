@@ -34,7 +34,7 @@ import { EventTarget } from '../event/event-target';
 import '../game';
 import { Rect, Size, Vec2 } from '../math';
 import visibleRect from './visible-rect';
-import { EDITOR, MINIGAME, WECHAT, JSB } from 'internal:constants';
+import { EDITOR, MINIGAME, JSB, RUNTIME_BASED } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { logID, errorID } from './debug';
 
@@ -79,10 +79,6 @@ if (legacyCC.sys.os === legacyCC.sys.OS_IOS) { // All browsers are WebView
     __BrowserGetter.adaptationType = legacyCC.sys.BROWSER_TYPE_SAFARI;
 }
 
-if (WECHAT) {
-    __BrowserGetter.adaptationType = legacyCC.sys.BROWSER_TYPE_WECHAT_GAME;
-}
-
 switch (__BrowserGetter.adaptationType) {
     case legacyCC.sys.BROWSER_TYPE_SAFARI:
         __BrowserGetter.meta['minimal-ui'] = 'true';
@@ -93,23 +89,6 @@ switch (__BrowserGetter.adaptationType) {
         };
         __BrowserGetter.availHeight = (frame) => {
             return frame.clientHeight;
-        };
-        break;
-    case legacyCC.sys.BROWSER_TYPE_WECHAT_GAME:
-        __BrowserGetter.availWidth = () => {
-            return window.innerWidth;
-        };
-        __BrowserGetter.availHeight = () => {
-            return window.innerHeight;
-        };
-        break;
-    case legacyCC.sys.BROWSER_TYPE_WECHAT_GAME_SUB:
-        const sharedCanvas = window.sharedCanvas || wx.getSharedCanvas();
-        __BrowserGetter.availWidth = () => {
-            return sharedCanvas.width;
-        };
-        __BrowserGetter.availHeight = () => {
-            return sharedCanvas.height;
         };
         break;
 }
@@ -183,7 +162,7 @@ export class View extends EventTarget {
         this._autoFullScreen = false;
         // The device's pixel ratio (for retina displays)
         this._devicePixelRatio = 1;
-        if (JSB) {
+        if (JSB || RUNTIME_BASED) {
             this._maxPixelRatio = 4;
         } else {
             this._maxPixelRatio = 2;
@@ -263,11 +242,11 @@ export class View extends EventTarget {
 
     /**
      * @en
-     * Sets the callback function for cc.view's resize action,<br/>
+     * Sets the callback function for `view`'s resize action,<br/>
      * this callback will be invoked before applying resolution policy, <br/>
      * so you can do any additional modifications within the callback.<br/>
      * Useful only on web.
-     * @zh 设置 cc.view 调整视窗尺寸行为的回调函数，
+     * @zh 设置 `view` 调整视窗尺寸行为的回调函数，
      * 这个回调函数会在应用适配模式之前被调用，
      * 因此你可以在这个回调函数内添加任意附加改变，
      * 仅在 Web 平台下有效。
@@ -283,12 +262,12 @@ export class View extends EventTarget {
      * @en
      * Sets the orientation of the game, it can be landscape, portrait or auto.
      * When set it to landscape or portrait, and screen w/h ratio doesn't fit,
-     * cc.view will automatically rotate the game canvas using CSS.
+     * `view` will automatically rotate the game canvas using CSS.
      * Note that this function doesn't have any effect in native,
      * in native, you need to set the application orientation in native project settings
      * @zh 设置游戏屏幕朝向，它能够是横版，竖版或自动。
      * 当设置为横版或竖版，并且屏幕的宽高比例不匹配时，
-     * cc.view 会自动用 CSS 旋转游戏场景的 canvas，
+     * `view` 会自动用 CSS 旋转游戏场景的 canvas，
      * 这个方法不会对 native 部分产生任何影响，对于 native 而言，你需要在应用设置中的设置排版。
      * @param orientation - Possible values: macro.ORIENTATION_LANDSCAPE | macro.ORIENTATION_PORTRAIT | macro.ORIENTATION_AUTO
      */
@@ -667,7 +646,7 @@ export class View extends EventTarget {
      * @param resolutionPolicy The resolution policy desired
      */
     public setRealPixelResolution (width: number, height: number, resolutionPolicy: ResolutionPolicy|number) {
-        if (!JSB && !MINIGAME) {
+        if (!JSB && !RUNTIME_BASED && !MINIGAME) {
             // Set viewport's width
             this._setViewportMeta({width}, true);
 
@@ -770,7 +749,7 @@ export class View extends EventTarget {
             _view._initFrameSize();
         }
 
-        if (!JSB && !_view._orientationChanging && _view._isRotated === prevRotated && _view._frameSize.width === prevFrameW && _view._frameSize.height === prevFrameH) {
+        if (!JSB && !RUNTIME_BASED && !_view._orientationChanging && _view._isRotated === prevRotated && _view._frameSize.width === prevFrameW && _view._frameSize.height === prevFrameH) {
             return;
         }
 
@@ -885,7 +864,7 @@ export class View extends EventTarget {
     }
 
     private _adjustViewportMeta () {
-        if (this._isAdjustViewport && !JSB && !MINIGAME) {
+        if (this._isAdjustViewport && !JSB && !RUNTIME_BASED && !MINIGAME) {
             this._setViewportMeta(__BrowserGetter.meta, false);
             this._isAdjustViewport = false;
         }
@@ -981,15 +960,13 @@ class ContainerStrategy {
         const locCanvas = legacyCC.game.canvas;
         const locContainer = legacyCC.game.container;
 
-        if (legacyCC.sys.platform !== legacyCC.sys.WECHAT_GAME) {
-            if (legacyCC.sys.os === legacyCC.sys.OS_ANDROID) {
-                document.body.style.width = (_view._isRotated ? h : w) + 'px';
-                document.body.style.height = (_view._isRotated ? w : h) + 'px';
-            }
-            // Setup style
-            locContainer.style.width = locCanvas.style.width = w + 'px';
-            locContainer.style.height = locCanvas.style.height = h + 'px';
+        if (legacyCC.sys.os === legacyCC.sys.OS_ANDROID) {
+            document.body.style.width = (_view._isRotated ? h : w) + 'px';
+            document.body.style.height = (_view._isRotated ? w : h) + 'px';
         }
+        // Setup style
+        locContainer.style.width = locCanvas.style.width = w + 'px';
+        locContainer.style.height = locCanvas.style.height = h + 'px';
         // Setup pixel ratio for retina display
         let devicePixelRatio = _view._devicePixelRatio = 1;
         if (_view.isRetinaEnabled()) {

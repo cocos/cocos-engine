@@ -325,7 +325,6 @@ export class AnimationState extends Playable {
     protected _ignoreIndex = InvalidIndex;
     private _blendStateBuffer: BlendStateBuffer | null = null;
     private _blendStateWriters: IBlendStateWriter[] = [];
-    private _isBlendStateWriterInitialized = false;
     private _allowLastFrame = false;
 
     constructor (clip: AnimationClip, name = '') {
@@ -707,9 +706,6 @@ export class AnimationState extends Playable {
         if (!this.isPaused) {
             this._onPauseOrStop();
         }
-        for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
-            this._blendStateWriters[iBlendStateWriter].enable(false);
-        }
         this.emit(EventType.STOP, this);
     }
 
@@ -891,15 +887,6 @@ export class AnimationState extends Playable {
     }
 
     private _onReplayOrResume () {
-        if (!this._isBlendStateWriterInitialized) {
-            for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
-                this._blendStateWriters[iBlendStateWriter].initialize();
-            }
-            this._isBlendStateWriterInitialized = true;
-        }
-        for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
-            this._blendStateWriters[iBlendStateWriter].enable(true);
-        }
         legacyCC.director.getAnimationManager().addAnimation(this);
     }
 
@@ -912,7 +899,6 @@ export class AnimationState extends Playable {
             this._blendStateWriters[iBlendStateWriter].destroy();
         }
         this._blendStateWriters.length = 0;
-        this._isBlendStateWriterInitialized = false;
     }
 }
 

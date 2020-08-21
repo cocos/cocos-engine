@@ -29,7 +29,7 @@
  */
 
 import { InstanceMaterialType, UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
-import { ccclass, help, executionOrder, menu, property, tooltip } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property, tooltip, displayOrder, type, visible, override } from '../../core/data/class-decorator';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
 import { view, warnID } from '../../core/platform';
 import visibleRect from '../../core/platform/visible-rect';
@@ -111,10 +111,8 @@ export class MaskComponent extends UIRenderComponent {
      * @zh
      * 遮罩类型。
      */
-    @property({
-        type: MaskType,
-        displayOrder: 4,
-    })
+    @type(MaskType)
+    @displayOrder(4)
     @tooltip('遮罩类型')
     get type () {
         return this._type;
@@ -184,10 +182,8 @@ export class MaskComponent extends UIRenderComponent {
         return this._clearGraphics;
     }
 
-    @property({
-        visible: false,
-        override: true,
-    })
+    @override(true)
+    @visible(false)
     get dstBlendFactor () {
         return this._dstBlendFactor;
     }
@@ -201,10 +197,8 @@ export class MaskComponent extends UIRenderComponent {
         this._updateBlendFunc();
     }
 
-    @property({
-        visible: false,
-        override: true,
-    })
+    @override(true)
+    @visible(false)
     get srcBlendFactor () {
         return this._srcBlendFactor;
     }
@@ -218,10 +212,8 @@ export class MaskComponent extends UIRenderComponent {
         this._updateBlendFunc();
     }
 
-    @property({
-        visible: false,
-        override: true,
-    })
+    @override(true)
+    @visible(false)
     // @constget
     get color (): Readonly<Color> {
         return this._color;
@@ -253,6 +245,7 @@ export class MaskComponent extends UIRenderComponent {
     constructor () {
         super();
         this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
+        this._uiMaterialDirty = true;
     }
 
     public onLoad () {
@@ -388,7 +381,6 @@ export class MaskComponent extends UIRenderComponent {
             const node = new Node('clear-graphics');
             const clearGraphics = this._clearGraphics = node.addComponent(GraphicsComponent)!;
             clearGraphics.delegateSrc = this.node;
-            clearGraphics.helpInstanceMaterial();
             clearGraphics.lineWidth = 0;
             const color = Color.WHITE.clone();
             color.a = 0;
@@ -399,7 +391,6 @@ export class MaskComponent extends UIRenderComponent {
             const graphics = this._graphics = new GraphicsComponent();
             graphics.node = this.node;
             graphics.node.getWorldMatrix();
-            graphics.helpInstanceMaterial();
             graphics.lineWidth = 0;
             const color = Color.WHITE.clone();
             color.a = 0;

@@ -3,7 +3,7 @@
  * @category particle
  */
 
-import { ccclass, property } from '../../core/data/class-decorator';
+import { ccclass, property, displayOrder, type } from '../../core/data/class-decorator';
 import { pseudoRandom } from '../../core/math';
 import { Particle, PARTICLE_MODULE_NAME } from '../particle';
 import GradientRange from './gradient-range';
@@ -21,9 +21,7 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
     /**
      * @zh 是否启用。
      */
-    @property({
-        displayOrder: 0,
-    })
+    @displayOrder(0)
     public get enable () {
         return this._enable;
     }
@@ -38,10 +36,8 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
     /**
      * @zh 颜色随时间变化的参数，各个 key 之间线性差值变化。
      */
-    @property({
-        type: GradientRange,
-        displayOrder: 1,
-    })
+    @type(GradientRange)
+    @displayOrder(1)
     public color = new GradientRange();
     public name = PARTICLE_MODULE_NAME.COLOR;
 

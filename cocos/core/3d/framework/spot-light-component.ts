@@ -27,7 +27,7 @@
  * @category component/light
  */
 
-import { ccclass, help, executeInEditMode, menu, property, tooltip } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, menu, property, tooltip, type, slide, range, unit } from '../../data/class-decorator';
 import { toRadian } from '../../math';
 import { LightType, nt2lm } from '../../renderer/scene/light';
 import { SpotLight } from '../../renderer/scene/spot-light';
@@ -57,9 +57,7 @@ export class SpotLightComponent extends LightComponent {
      * @en Luminous power of the light.
      * @zh 光通量。
      */
-    @property({
-        unit: 'lm',
-    })
+    @unit('lm')
     @tooltip('i18n:lights.luminous_power')
     get luminousPower () {
         return this._luminance * nt2lm(this._size);
@@ -73,9 +71,7 @@ export class SpotLightComponent extends LightComponent {
      * @en Luminance of the light.
      * @zh 光亮度。
      */
-    @property({
-        unit: 'cd/m²',
-    })
+    @unit('cd/m²')
     @tooltip('i18n:lights.luminance')
     get luminance () {
         return this._luminance;
@@ -89,9 +85,7 @@ export class SpotLightComponent extends LightComponent {
      * @en The photometric term currently being used.
      * @zh 当前使用的光度学计量单位。
      */
-    @property({
-        type: PhotometricTerm,
-    })
+    @type(PhotometricTerm)
     @tooltip('i18n:lights.term')
     get term () {
         return this._term;
@@ -136,10 +130,8 @@ export class SpotLightComponent extends LightComponent {
      * @zh
      * 聚光灯锥角。
      */
-    @property({
-        slide: true,
-        range: [2, 180, 1],
-    })
+    @slide(true)
+    @range([2, 180, 1])
     @tooltip('The spot light cone angle')
     get spotAngle () {
         return this._spotAngle;

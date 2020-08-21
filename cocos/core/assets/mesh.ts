@@ -192,7 +192,7 @@ export class RenderingSubMesh implements IGFXInputAssemblerInfo {
             const vbCount = prim.indexView ? prim.indexView.count : vertexBundle.view.count;
             const vbStride = vertexBundle.view.stride;
             const vbSize = vbStride * vbCount;
-            const view = new Uint8Array(mesh.data!.buffer, vertexBundle.view.offset, vertexBundle.view.length);
+            const view = new Uint8Array(mesh.data.buffer, vertexBundle.view.offset, vertexBundle.view.length);
             if (!prim.indexView) {
                 this._flatBuffers.push({ stride: vbStride, count: vbCount, buffer: view });
                 continue;
@@ -242,7 +242,7 @@ export class RenderingSubMesh implements IGFXInputAssemblerInfo {
                 jointOffset += GFXFormatInfos[attr.format].size;
             }
             if (jointFormat) {
-                const data = new Uint8Array(this.mesh.data!.buffer, bundle.view.offset, bundle.view.length);
+                const data = new Uint8Array(this.mesh.data.buffer, bundle.view.offset, bundle.view.length);
                 const dataView = new DataView(data.slice().buffer);
                 const idxMap = struct.jointMaps[prim.jointMapIndex];
                 mapBuffer(dataView, (cur) => idxMap.indexOf(cur), jointFormat, jointOffset,
@@ -458,6 +458,7 @@ export declare namespace Mesh {
 
 const v3_1 = new Vec3();
 const v3_2 = new Vec3();
+const globalEmptyMeshBuffer = new Uint8Array();
 
 /**
  * 网格资源。
@@ -466,17 +467,16 @@ const v3_2 = new Vec3();
 export class Mesh extends Asset {
 
     get _nativeAsset (): ArrayBuffer {
-        return this._data!.buffer;
+        return this._data.buffer;
     }
 
     set _nativeAsset (value: ArrayBuffer) {
-        if (this._data && this._data.byteLength === value.byteLength) {
+        if (this._data.byteLength === value.byteLength) {
             this._data.set(new Uint8Array(value));
             if (legacyCC.loader._cache[this.nativeUrl]) {
                 legacyCC.loader._cache[this.nativeUrl].content = this._data.buffer;
             }
-        }
-        else {
+        } else {
             this._data = new Uint8Array(value);
         }
         this.loaded = true;
@@ -527,7 +527,7 @@ export class Mesh extends Asset {
      */
     get hash () {
         // hashes should already be computed offline, but if not, make one
-        if (!this._hash && this._data) { this._hash = murmurhash2_32_gc(this._data, 666); }
+        if (!this._hash) { this._hash = murmurhash2_32_gc(this._data, 666); }
         return this._hash;
     }
 
@@ -548,7 +548,7 @@ export class Mesh extends Asset {
     @property
     private _hash = 0;
 
-    private _data: Uint8Array | null = null;
+    private _data: Uint8Array = globalEmptyMeshBuffer;
     private _initialized = false;
     private _renderingSubMeshes: RenderingSubMesh[] | null = null;
     private _boneSpaceBounds = new Map<number, (aabb | null)[]>();
@@ -566,7 +566,9 @@ export class Mesh extends Asset {
 
         this._initialized = true;
 
-        if (!this._data) {
+        if (this._data.byteLength !== this._dataLength) {
+            // In the case of deferred loading, `this._data` is created before
+            // the actual binary buffer is loaded.
             this._data = new Uint8Array(this._dataLength);
             postLoadMesh(this);
         }
@@ -661,7 +663,6 @@ export class Mesh extends Asset {
                 this._renderingSubMeshes[i].destroy();
             }
             this._renderingSubMeshes = null;
-            this._data = null;
             this._initialized = false;
         }
     }
@@ -687,6 +688,7 @@ export class Mesh extends Asset {
         this.destroyRenderingMesh();
         this._struct = info.struct;
         this._data = info.data;
+        this._dataLength = this.data.byteLength;
         this._hash = 0;
         this.loaded = true;
         this.emit('load');
@@ -761,7 +763,7 @@ export class Mesh extends Asset {
         if (rotate) {
             worldMatrix!.getRotation(rotate);
         }
-        if (!this._initialized && mesh._data) {
+        if (!this._initialized) {
             const struct = JSON.parse(JSON.stringify(mesh._struct)) as Mesh.IStruct;
             const data = mesh._data.slice();
             if (worldMatrix) {
@@ -851,9 +853,9 @@ export class Mesh extends Asset {
             vb = new ArrayBuffer(vertCount * vertStride);
             vbView = new Uint8Array(vb);
 
-            srcVBView = this._data!.subarray(srcOffset, srcOffset + bundle.view.length);
+            srcVBView = this._data.subarray(srcOffset, srcOffset + bundle.view.length);
             srcOffset += srcVBView.length;
-            dstVBView = mesh._data!.subarray(dstOffset, dstOffset + dstBundle.view.length);
+            dstVBView = mesh._data.subarray(dstOffset, dstOffset + dstBundle.view.length);
             dstOffset += dstVBView.length;
 
             vbView.set(srcVBView);
@@ -958,11 +960,11 @@ export class Mesh extends Asset {
 
                 // merge src indices
                 if (prim.indexView.stride === 2) {
-                    srcIBView = new Uint16Array(this._data!.buffer, srcOffset, prim.indexView.count);
+                    srcIBView = new Uint16Array(this._data.buffer, srcOffset, prim.indexView.count);
                 } else if (prim.indexView.stride === 1) {
-                    srcIBView = new Uint8Array(this._data!.buffer, srcOffset, prim.indexView.count);
+                    srcIBView = new Uint8Array(this._data.buffer, srcOffset, prim.indexView.count);
                 } else { // Uint32
-                    srcIBView = new Uint32Array(this._data!.buffer, srcOffset, prim.indexView.count);
+                    srcIBView = new Uint32Array(this._data.buffer, srcOffset, prim.indexView.count);
                 }
 
                 if (idxStride === prim.indexView.stride) {
@@ -976,11 +978,11 @@ export class Mesh extends Asset {
 
                 // merge dst indices
                 if (dstPrim.indexView.stride === 2) {
-                    dstIBView = new Uint16Array(mesh._data!.buffer, dstOffset, dstPrim.indexView.count);
+                    dstIBView = new Uint16Array(mesh._data.buffer, dstOffset, dstPrim.indexView.count);
                 } else if (dstPrim.indexView.stride === 1) {
-                    dstIBView = new Uint8Array(mesh._data!.buffer, dstOffset, dstPrim.indexView.count);
+                    dstIBView = new Uint8Array(mesh._data.buffer, dstOffset, dstPrim.indexView.count);
                 } else { // Uint32
-                    dstIBView = new Uint32Array(mesh._data!.buffer, dstOffset, dstPrim.indexView.count);
+                    dstIBView = new Uint32Array(mesh._data.buffer, dstOffset, dstPrim.indexView.count);
                 }
                 for (let n = 0; n < dstPrim.indexView.count; ++n) {
                     ibView[prim.indexView.count + n] = vertBatchCount + dstIBView[n];
@@ -1051,10 +1053,6 @@ export class Mesh extends Asset {
      * @param mesh 指定的网格。
      */
     public validateMergingMesh (mesh: Mesh) {
-        if (!this._data && mesh._data) {
-            return true;
-        }
-
         // validate vertex bundles
         if (this._struct.vertexBundles.length !== mesh._struct.vertexBundles.length) {
             return false;
@@ -1125,7 +1123,7 @@ export class Mesh extends Asset {
             }
 
             const inputView = new DataView(
-                this._data!.buffer,
+                this._data.buffer,
                 vertexBundle.view.offset + getOffset(vertexBundle.attributes, iAttribute));
 
             const formatInfo = GFXFormatInfos[format];
@@ -1167,7 +1165,7 @@ export class Mesh extends Asset {
             const format = vertexBundle.attributes[iAttribute].format;
 
             const inputView = new DataView(
-                this._data!.buffer,
+                this._data.buffer,
                 vertexBundle.view.offset + getOffset(vertexBundle.attributes, iAttribute));
 
             const outputView = new DataView(buffer, offset);
@@ -1206,8 +1204,7 @@ export class Mesh extends Asset {
      * 否则，创建足够大的缓冲区包含所有索引数据，并为该缓冲区创建与索引类型对应的数组视图。
      */
     public readIndices (primitiveIndex: number) {
-        if (!this._data ||
-            primitiveIndex >= this._struct.primitives.length) {
+        if (primitiveIndex >= this._struct.primitives.length) {
             return null;
         }
         const primitive = this._struct.primitives[primitiveIndex];
@@ -1226,8 +1223,7 @@ export class Mesh extends Asset {
      * @returns 不存在指定的子网格或子网格不存在索引数据时返回 `false`，否则返回 `true`。
      */
     public copyIndices (primitiveIndex: number, outputArray: number[] | ArrayBufferView) {
-        if (!this._data ||
-            primitiveIndex >= this._struct.primitives.length) {
+        if (primitiveIndex >= this._struct.primitives.length) {
             return false;
         }
         const primitive = this._struct.primitives[primitiveIndex];
@@ -1247,8 +1243,7 @@ export class Mesh extends Asset {
         primitiveIndex: number,
         attributeName: GFXAttributeName,
         accessor: (vertexBundle: Mesh.IVertexBundle, iAttribute: number) => void) {
-        if (!this._data ||
-            primitiveIndex >= this._struct.primitives.length) {
+        if (primitiveIndex >= this._struct.primitives.length) {
             return;
         }
         const primitive = this._struct.primitives[primitiveIndex];

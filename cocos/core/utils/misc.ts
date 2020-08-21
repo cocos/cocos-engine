@@ -85,21 +85,6 @@ export function propertyDefine (ctor, sameNameGetSets, diffNameGetSets) {
     }
 }
 
-/**
- * @method nextPOT
- * @param {Number} x
- * @return {Number}
- */
-export function nextPOT (x) {
-    x = x - 1;
-    x = x | (x >> 1);
-    x = x | (x >> 2);
-    x = x | (x >> 4);
-    x = x | (x >> 8);
-    x = x | (x >> 16);
-    return x + 1;
-}
-
 // set value to map, if key exists, push to array
 export function pushToMap (map, key, value, pushFront) {
     const exists = map[key];
@@ -221,7 +206,6 @@ legacyCC.misc = {
     BUILTIN_CLASSID_RE,
     BASE64_VALUES,
     propertyDefine,
-    nextPOT,
     pushToMap,
     contains,
     isDomNode,

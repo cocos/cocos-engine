@@ -210,7 +210,7 @@ export class CCLoader extends Pipeline {
      * @en Add custom supported types handler or modify existing type handler for download process.
      * @zh 为下载程序添加自定义支持的类型处理程序或修改现有的类型处理程序。
      * @example
-     * ```typescript
+     * ```ts
      *  loader.addDownloadHandlers({
      *      // This will match all url with `.scene` extension or all url with `scene` type
      *      'scene' : function (url, callback) {}
@@ -226,7 +226,7 @@ export class CCLoader extends Pipeline {
      * @en Add custom supported types handler or modify existing type handler for load process.
      * @zh 为加载程序添加自定义支持的类型处理程序或修改现有的类型处理程序。
      * @example
-     * ```typescript
+     * ```ts
      *  loader.addLoadHandlers({
      *      // This will match all url with `.scene` extension or all url with `scene` type
      *      'scene' : function (url, callback) {}
@@ -253,22 +253,23 @@ export class CCLoader extends Pipeline {
      * 唯一的区别是当用户将单个 URL 作为资源传递时，完整的回调将其结果直接设置为第二个参数。
      * @example
      * ```TypeScript
+     * import { loader, log, Texture2D } from 'cc';
      * loader.load('a.png', function (err, tex) {
-     *     cc.log('Result should be a texture: ' + (tex instanceof cc.Texture2D));
+     *     log('Result should be a texture: ' + (tex instanceof Texture2D));
      * });
      *
      * loader.load('http://example.com/a.png', function (err, tex) {
-     *     cc.log('Should load a texture from external url: ' + (tex instanceof cc.Texture2D));
+     *     log('Should load a texture from external url: ' + (tex instanceof Texture2D));
      * });
      *
      * loader.load({url: 'http://example.com/getImageREST?file=a.png', type: 'png'}, function (err, tex) {
-     *     cc.log('Should load a texture from RESTful API by specify the type: ' + (tex instanceof cc.Texture2D));
+     *     log('Should load a texture from RESTful API by specify the type: ' + (tex instanceof Texture2D));
      * });
      *
      * loader.load(['a.png', 'b.json'], function (errors, results) {
      *     if (errors) {
      *         for (let i = 0; i < errors.length; i++) {
-     *             cc.log('Error url [' + errors[i] + ']: ' + results.getError(errors[i]));
+     *             log('Error url [' + errors[i] + ']: ' + results.getError(errors[i]));
      *         }
      *     }
      *     let aTex = results.getContent('a.png');
@@ -435,23 +436,24 @@ export class CCLoader extends Pipeline {
      * @param {Object} completeCallback.resource - The loaded resource if it can be found otherwise returns null.
      *
      * @example
-     * ```typescript
+     * ```ts
+     * import { loader, error, log, Prefab, SpriteFrame } from 'cc';
      * // load the prefab (project/assets/resources/misc/character/cocos) from resources folder
      * loader.loadRes('misc/character/cocos', function (err, prefab) {
      *     if (err) {
-     *         cc.error(err.message || err);
+     *         error(err.message || err);
      *         return;
      *     }
-     *     cc.log('Result should be a prefab: ' + (prefab instanceof cc.Prefab));
+     *     log('Result should be a prefab: ' + (prefab instanceof Prefab));
      * });
      *
      * // load the sprite frame of (project/assets/resources/imgs/cocos.png) from resources folder
-     * loader.loadRes('imgs/cocos', cc.SpriteFrame, function (err, spriteFrame) {
+     * loader.loadRes('imgs/cocos', SpriteFrame, function (err, spriteFrame) {
      *     if (err) {
-     *         cc.error(err.message || err);
+     *         error(err.message || err);
      *         return;
      *     }
-     *     cc.log('Result should be a sprite frame: ' + (spriteFrame instanceof cc.SpriteFrame));
+     *     log('Result should be a sprite frame: ' + (spriteFrame instanceof SpriteFrame));
      * });
      * ```
      */
@@ -512,11 +514,12 @@ export class CCLoader extends Pipeline {
      * @param {string[]} completeCallback.urls - An array that lists all the URLs of loaded assets.
      *
      * @example
-     * ```typescript
+     * ```ts
+     * import { loader, error, Texture2D } from 'cc';
      * // load the texture (resources/imgs/cocos.png) and the corresponding sprite frame
      * loader.loadResDir('imgs/cocos', function (err, assets) {
      *     if (err) {
-     *         cc.error(err);
+     *         error(err);
      *         return;
      *     }
      *     let texture = assets[0];
@@ -524,7 +527,7 @@ export class CCLoader extends Pipeline {
      * });
      *
      * // load all textures in "resources/imgs/"
-     * loader.loadResDir('imgs', cc.Texture2D, function (err, textures) {
+     * loader.loadResDir('imgs', Texture2D, function (err, textures) {
      *     let texture1 = textures[0];
      *     let texture2 = textures[1];
      * });
@@ -591,13 +594,14 @@ export class CCLoader extends Pipeline {
      * @param {Asset[]|Array} completeCallback.assets - An array of all loaded assets.
      *                                                     If nothing to load, assets will be an empty array.
      * @example
-     * ```typescript
+     * ```ts
+     * import { loader, error, SpriteFrame } from 'cc';
      * // load the SpriteFrames from resources folder
      * let spriteFrames;
      * let urls = ['misc/characters/character_01', 'misc/weapons/weapons_01'];
-     * loader.loadResArray(urls, cc.SpriteFrame, function (err, assets) {
+     * loader.loadResArray(urls, SpriteFrame, function (err, assets) {
      *     if (err) {
-     *         cc.error(err);
+     *         error(err);
      *         return;
      *     }
      *     spriteFrames = assets;
@@ -688,7 +692,8 @@ export class CCLoader extends Pipeline {
      * 想要释放一个资源及其依赖资源，可以参考 [[release]]。<br>
      * 下面是一些示例代码：
      * @example
-     * ```typescript
+     * ```ts
+     * import { loader, Texture2D } from 'cc';
      * // Release all dependencies of a loaded prefab
      * let deps = loader.getDependsRecursively(prefab);
      * loader.release(deps);
@@ -697,7 +702,7 @@ export class CCLoader extends Pipeline {
      * let textures = [];
      * for (let i = 0; i < deps.length; ++i) {
      *     let item = loader.getRes(deps[i]);
-     *     if (item instanceof cc.Texture2D) {
+     *     if (item instanceof Texture2D) {
      *         textures.push(item);
      *     }
      * }
@@ -733,7 +738,7 @@ export class CCLoader extends Pipeline {
      * 如果你只想删除一个资源的缓存引用，请使用 [[Pipeline.removeItem]]
      *
      * @example
-     * ```typescript
+     * ```ts
      * // Release a texture which is no longer need
      * loader.release(texture);
      * // Release all dependencies of a loaded prefab
@@ -862,7 +867,7 @@ export class CCLoader extends Pipeline {
      * 参考：{{setAutoReleaseRecursively}}，{{isAutoRelease}}
      *
      * @example
-     * ```typescript
+     * ```ts
      * // auto release the texture event if "Auto Release Assets" disabled in current scene
      * loader.setAutoRelease(texture2d, true);
      * // don't release the texture even if "Auto Release Assets" enabled in current scene
@@ -902,7 +907,7 @@ export class CCLoader extends Pipeline {
      * 参考：{{setAutoRelease}}，{{isAutoRelease}}
      *
      * @example
-     * ```typescript
+     * ```ts
      * // auto release the SpriteFrame and its Texture event if "Auto Release Assets" disabled in current scene
      * loader.setAutoReleaseRecursively(spriteFrame, true);
      * // don't release the SpriteFrame and its Texture even if "Auto Release Assets" enabled in current scene

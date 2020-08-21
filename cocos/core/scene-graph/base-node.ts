@@ -1001,7 +1001,8 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @deprecated please destroy the component to remove it.
      * @example
      * ```
-     * const sprite = node.getComponent(CC.Sprite);
+     * import { SpriteComponent } from 'cc';
+     * const sprite = node.getComponent(SpriteComponent);
      * if (sprite) {
      *     node.removeComponent(sprite);
      * }
@@ -1038,7 +1039,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * 3. Bubbling phase: dispatch in bubble targets (`_getBubblingTargets`), e.g. parents in node tree, from the real target to root
      * In any moment of the dispatching process, it can be stopped via `event.stopPropagation()` or `event.stopPropagationImmidiate()`.
      * It's the recommended way to register touch/mouse event for Node,
-     * please do not use cc.eventManager directly for Node.
+     * please do not use `eventManager` directly for Node.
      * You can also register custom event and use `emit` to trigger custom event on Node.
      * For such events, there won't be capturing and bubbling phase, your event will be dispatched directly to its listeners registered on the same node.
      * You can also pass event callback parameters with `emit` by passing parameters after `type`.
@@ -1049,7 +1050,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * 2. 目标阶段：派发给目标节点的监听器。
      * 3. 冒泡阶段：派发事件给冒泡目标（通过 `_getBubblingTargets` 获取），比如，节点树中注册了冒泡阶段的父节点，从目标节点开始派发直到根节点。
      * 同时您可以将事件派发到父节点或者通过调用 stopPropagation 拦截它。
-     * 推荐使用这种方式来监听节点上的触摸或鼠标事件，请不要在节点上直接使用 cc.eventManager。
+     * 推荐使用这种方式来监听节点上的触摸或鼠标事件，请不要在节点上直接使用 `eventManager`。
      * 你也可以注册自定义事件到节点上，并通过 emit 方法触发此类事件，对于这类事件，不会发生捕获冒泡阶段，只会直接派发给注册在该节点上的监听器
      * 你可以通过在 emit 方法调用时在 type 之后传递额外的参数作为事件回调的参数列表
      * @param type - A string representing the event type to listen for.<br>See {{#crossLink "Node/EventTyupe/POSITION_CHANGED"}}Node Events{{/crossLink}} for all builtin events.
@@ -1058,7 +1059,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @param useCapture - When set to true, the listener will be triggered at capturing phase which is ahead of the final target emit, otherwise it will be triggered during bubbling phase.
      * @return - Just returns the incoming callback so you can save the anonymous function easier.
      * @example
-     * ```typescript
+     * ```ts
      * this.node.on(SystemEventType.TOUCH_START, this.memberFunction, this);  // if "this" is component and the "memberFunction" declared in CCClass.
      * node.on(SystemEventType.TOUCH_START, callback, this);
      * node.on(SystemEventType.TOUCH_MOVE, callback, this);
@@ -1084,7 +1085,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @param target - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
      * @param useCapture - When set to true, the listener will be triggered at capturing phase which is ahead of the final target emit, otherwise it will be triggered during bubbling phase.
      * @example
-     * ```typescript
+     * ```ts
      * this.node.off(SystemEventType.TOUCH_START, this.memberFunction, this);
      * node.off(SystemEventType.TOUCH_START, callback, this.node);
      * ```
@@ -1131,7 +1132,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @param arg4 - Fourth argument in callback
      * @param arg5 - Fifth argument in callback
      * @example
-     * ```typescript
+     * ```ts
      * eventTarget.emit('fire', event);
      * eventTarget.emit('fire', message, emitter);
      * ```

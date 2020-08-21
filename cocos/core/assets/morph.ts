@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { GFXAttributeName, GFXDevice } from '../gfx';
+import { GFXAttributeName, GFXDevice, GFXDescriptorSet } from '../gfx';
 import { Mesh } from './mesh';
 import { StdMorphRendering } from './morph-rendering';
 import { IMacroPatch } from '../renderer';
@@ -70,7 +70,7 @@ export interface MorphRenderingInstance {
      * @param subMeshIndex
      * @param pipelineState
      */
-    adaptPipelineState (subMeshIndex: number, pipelineCreateInfo: number): void;
+    adaptPipelineState (subMeshIndex: number, descriptorSet: GFXDescriptorSet): void;
 
     requiredPatches (subMeshIndex: number): IMacroPatch[] | undefined;
 

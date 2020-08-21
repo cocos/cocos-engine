@@ -40,7 +40,7 @@ const matrix = new Mat4();
 
 /**
  * barFilled 组装器
- * 可通过 cc.UI.barFilled 获取该组装器。
+ * 可通过 `UI.barFilled` 获取该组装器。
  */
 export const barFilled: IAssembler = {
     useModel: false,

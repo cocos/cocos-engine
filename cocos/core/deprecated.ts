@@ -2,17 +2,19 @@
  * @hidden
  */
 
-import { replaceProperty } from './utils/deprecated';
+import { replaceProperty, removeProperty } from './utils/deprecated';
 import * as math from './math';
 import { Scheduler } from './scheduler';
 import { CameraComponent } from './3d';
 import { EventTouch } from './platform';
 import { legacyCC } from './global-exports';
+import { SubModel } from './renderer';
+import { GFXCommandBuffer } from './gfx';
 
 // VMATH
 
 const vmath = {};
-replaceProperty(vmath,'vmath',[
+replaceProperty(vmath, 'vmath', [
     {
         name: 'vec2',
         newName: 'Vec2',
@@ -210,6 +212,39 @@ replaceProperty(EventTouch.prototype, 'EventTouch.prototype', [
 replaceProperty(legacyCC, 'cc', [
     {
         name: 'GFXDynamicState',
-        newName: 'GFXDynamicStateFlagBit'
+        newName: 'GFXDynamicStateFlagBit',
+    },
+    {
+        name: 'GFXBindingType',
+        newName: 'GFXDescriptorType',
+    },
+    {
+        name: 'GFXBindingLayout',
+        newName: 'GFXDescriptorSet',
+    },
+]);
+
+removeProperty(GFXCommandBuffer.prototype,  'GFXCommandBuffer.prototype', [
+    {
+        name: 'bindBindingLayout',
+        suggest: 'Use `bindDescriptorSet` instead',
+    },
+]);
+
+replaceProperty(SubModel.prototype, 'SubModel.prototype', [
+    {
+        name: 'subMeshData',
+        newName: 'subMesh',
     }
+]);
+
+removeProperty(SubModel.prototype, 'SubModel.prototype', [
+    {
+        name: 'getSubModel',
+        suggest: 'Use `subModels[i]` instead',
+    },
+    {
+        name: 'subModelNum',
+        suggest: 'Use `subModels.length` instead',
+    },
 ]);

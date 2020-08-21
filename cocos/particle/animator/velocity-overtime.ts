@@ -3,7 +3,7 @@
  * @category particle
  */
 
-import { ccclass, property, tooltip } from '../../core/data/class-decorator';
+import { ccclass, property, tooltip, displayOrder, range, type } from '../../core/data/class-decorator';
 import { Mat4, pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
@@ -25,9 +25,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     /**
      * @zh 是否启用。
      */
-    @property({
-        displayOrder: 0,
-    })
+    @displayOrder(0)
     public get enable () {
         return this._enable;
     }
@@ -42,54 +40,44 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     /**
      * @zh X 轴方向上的速度分量。
      */
-    @property({
-        type: CurveRange,
-        range: [-1, 1],
-        displayOrder: 2,
-    })
+    @type(CurveRange)
+    @range([-1, 1])
+    @displayOrder(2)
     @tooltip('X 轴方向上的速度分量')
     public x = new CurveRange();
 
     /**
      * @zh Y 轴方向上的速度分量。
      */
-    @property({
-        type: CurveRange,
-        range: [-1, 1],
-        displayOrder: 3,
-    })
+    @type(CurveRange)
+    @range([-1, 1])
+    @displayOrder(3)
     @tooltip('Y 轴方向上的速度分量')
     public y = new CurveRange();
 
     /**
      * @zh Z 轴方向上的速度分量。
      */
-    @property({
-        type: CurveRange,
-        range: [-1, 1],
-        displayOrder: 4,
-    })
+    @type(CurveRange)
+    @range([-1, 1])
+    @displayOrder(4)
     @tooltip('Z 轴方向上的速度分量')
     public z = new CurveRange();
 
     /**
      * @zh 速度修正系数（只支持 CPU 粒子）。
      */
-    @property({
-        type: CurveRange,
-        range: [-1, 1],
-        displayOrder: 5,
-    })
+    @type(CurveRange)
+    @range([-1, 1])
+    @displayOrder(5)
     @tooltip('速度修正系数（只支持 CPU 粒子）')
     public speedModifier = new CurveRange();
 
     /**
      * @zh 速度计算时采用的坐标系[[Space]]。
      */
-    @property({
-        type: Space,
-        displayOrder: 1,
-    })
+    @type(Space)
+    @displayOrder(1)
     @tooltip('速度计算时采用的坐标系')
     public space = Space.Local;
 

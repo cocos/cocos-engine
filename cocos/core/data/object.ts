@@ -225,25 +225,25 @@ class CCObject {
      * Indicates whether the object is not yet destroyed. (It will not be available after being destroyed)<br>
      * When an object's `destroy` is called, it is actually destroyed after the end of this frame.
      * So `isValid` will return false from the next frame, while `isValid` in the current frame will still be true.
-     * If you want to determine whether the current frame has called `destroy`, use `cc.isValid(obj, true)`,
+     * If you want to determine whether the current frame has called `destroy`, use `isValid(obj, true)`,
      * but this is often caused by a particular logical requirements, which is not normally required.
      *
      * @zh
      * 表示该对象是否可用（被 destroy 后将不可用）。<br>
      * 当一个对象的 `destroy` 调用以后，会在这一帧结束后才真正销毁。<br>
      * 因此从下一帧开始 `isValid` 就会返回 false，而当前帧内 `isValid` 仍然会是 true。<br>
-     * 如果希望判断当前帧是否调用过 `destroy`，请使用 `cc.isValid(obj, true)`，不过这往往是特殊的业务需求引起的，通常情况下不需要这样。
+     * 如果希望判断当前帧是否调用过 `destroy`，请使用 `isValid(obj, true)`，不过这往往是特殊的业务需求引起的，通常情况下不需要这样。
      * @default true
      * @readOnly
      * @example
      * ```ts
-     * import * as cc from 'cc';
-     * var node = new cc.Node();
-     * cc.log(node.isValid);    // true
+     * import { Node, log } from 'cc';
+     * const node = new Node();
+     * log(node.isValid);    // true
      * node.destroy();
-     * cc.log(node.isValid);    // true, still valid in this frame
+     * log(node.isValid);    // true, still valid in this frame
      * // after a frame...
-     * cc.log(node.isValid);    // false, destroyed in the end of last frame
+     * log(node.isValid);    // false, destroyed in the end of last frame
      * ```
      */
     get isValid (): boolean {
@@ -255,11 +255,11 @@ class CCObject {
      * Destroy this Object, and release all its own references to other objects.<br/>
      * Actual object destruction will delayed until before rendering.
      * From the next frame, this object is not usable any more.
-     * You can use cc.isValid(obj) to check whether the object is destroyed before accessing it.
+     * You can use `isValid(obj)` to check whether the object is destroyed before accessing it.
      * @zh
      * 销毁该对象，并释放所有它对其它对象的引用。<br/>
      * 实际销毁操作会延迟到当前帧渲染前执行。从下一帧开始，该对象将不再可用。
-     * 您可以在访问对象之前使用 cc.isValid(obj) 来检查对象是否已被销毁。
+     * 您可以在访问对象之前使用 `isValid(obj)` 来检查对象是否已被销毁。
      * @return whether it is the first time the destroy being called
      * @example
      * ```
@@ -536,14 +536,14 @@ declare namespace CCObject {
  * Checks whether the object is non-nil and not yet destroyed.<br>
  * When an object's `destroy` is called, it is actually destroyed after the end of this frame.
  * So `isValid` will return false from the next frame, while `isValid` in the current frame will still be true.
- * If you want to determine whether the current frame has called `destroy`, use `cc.isValid(obj, true)`,
+ * If you want to determine whether the current frame has called `destroy`, use `isValid(obj, true)`,
  * but this is often caused by a particular logical requirements, which is not normally required.
  *
  * @zh
  * 检查该对象是否不为 null 并且尚未销毁。<br>
  * 当一个对象的 `destroy` 调用以后，会在这一帧结束后才真正销毁。<br>
  * 因此从下一帧开始 `isValid` 就会返回 false，而当前帧内 `isValid` 仍然会是 true。<br>
- * 如果希望判断当前帧是否调用过 `destroy`，请使用 `cc.isValid(obj, true)`，不过这往往是特殊的业务需求引起的，通常情况下不需要这样。
+ * 如果希望判断当前帧是否调用过 `destroy`，请使用 `isValid(obj, true)`，不过这往往是特殊的业务需求引起的，通常情况下不需要这样。
  *
  * @method isValid
  * @param value
@@ -551,13 +551,13 @@ declare namespace CCObject {
  * @return whether is valid
  * @example
  * ```
- * import * as cc from 'cc';
- * var node = new cc.Node();
- * cc.log(cc.isValid(node));    // true
+ * import { Node, log } from 'cc';
+ * var node = new Node();
+ * log(isValid(node));    // true
  * node.destroy();
- * cc.log(cc.isValid(node));    // true, still valid in this frame
+ * log(isValid(node));    // true, still valid in this frame
  * // after a frame...
- * cc.log(cc.isValid(node));    // false, destroyed in the end of last frame
+ * log(isValid(node));    // false, destroyed in the end of last frame
  * ```
  */
 export function isValid (value: any, strictMode?: boolean) {

@@ -28,7 +28,7 @@
  */
 
 // @ts-check
-import {ccclass, property} from '../data/class-decorator';
+import {ccclass, property, override} from '../data/class-decorator';
 import { GFXDevice, GFXFeature } from '../gfx/device';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
@@ -62,7 +62,7 @@ function fetchImageSource (imageSource: ImageSource) {
 @ccclass('cc.ImageAsset')
 export class ImageAsset extends Asset {
 
-    @property({override: true})
+    @override(true)
     get _nativeAsset () {
         // Maybe returned to pool in webgl.
         return this._nativeData;

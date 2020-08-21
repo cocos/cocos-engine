@@ -4,15 +4,16 @@
 
 import { ccclass } from '../../data/class-decorator';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { IGFXColor, IGFXRect } from '../../gfx/define';
+import { GFXColor, GFXRect } from '../../gfx/define';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from '../forward/enum';
 import { RenderShadowMapBatchedQueue } from '../render-shadowMap-batched-queue';
 import { GFXFramebuffer } from '../../gfx/framebuffer';
 import { ForwardPipeline } from '../forward/forward-pipeline';
+import { SetIndex, UBOShadow } from '../define';
 
-const colors: IGFXColor[] = [ { r: 1, g: 1, b: 1, a: 1 } ];
+const colors: GFXColor[] = [ { r: 1, g: 1, b: 1, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
 
 /**
@@ -31,8 +32,8 @@ export class ShadowStage extends RenderStage {
     }
 
     private _additiveShadowQueue: RenderShadowMapBatchedQueue;
-    private _shadowFrameBuffer: GFXFramebuffer|null = null;
-    private _renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
+    private _shadowFrameBuffer: GFXFramebuffer | null = null;
+    private _renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
 
     /**
      * 构造函数。
@@ -57,18 +58,18 @@ export class ShadowStage extends RenderStage {
      */
     public render (view: RenderView) {
         const pipeline = this._pipeline as ForwardPipeline;
-        this._additiveShadowQueue.clear(pipeline.shadowUBOBuffer);
+        const shadowInfo = pipeline.shadowMap;
+        this._additiveShadowQueue.clear(pipeline.descriptorSet.getBuffer(UBOShadow.BLOCK.binding));
 
-        const renderObjects = pipeline.renderObjects;
+        const shadowObjects = pipeline.shadowObjects;
         let m = 0; let p = 0;
-        for (let i = 0; i < renderObjects.length; ++i) {
-            const ro = renderObjects[i];
-            if (ro.model.castShadow) {
-                for (m = 0; m < ro.model.subModelNum; m++) {
-                    const passes = ro.model.getSubModel(m).passes;
-                    for (p = 0; p < passes.length; p++) {
-                        this._additiveShadowQueue.add(passes[p], ro, m);
-                    }
+        for (let i = 0; i < shadowObjects.length; ++i) {
+            const ro = shadowObjects[i];
+            const subModels = ro.model.subModels;
+            for (m = 0; m < subModels.length; m++) {
+                const passes = subModels[m].passes;
+                for (p = 0; p < passes.length; p++) {
+                    this._additiveShadowQueue.add(ro, m, p);
                 }
             }
         }
@@ -78,7 +79,7 @@ export class ShadowStage extends RenderStage {
         const cmdBuff = pipeline.commandBuffers[0];
 
         const vp = camera.viewport;
-        const shadowMapSize = pipeline.shadowMapSize;
+        const shadowMapSize = shadowInfo.size;
         this._renderArea!.x = vp.x * shadowMapSize.x;
         this._renderArea!.y = vp.y * shadowMapSize.y;
         this._renderArea!.width =  vp.width * shadowMapSize.x * pipeline.shadingScale;
@@ -90,6 +91,8 @@ export class ShadowStage extends RenderStage {
         cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, this._shadowFrameBuffer!, this._renderArea!,
             colors, camera.clearDepth, camera.clearStencil);
+
+        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         this._additiveShadowQueue.recordCommandBuffer(device, renderPass!, cmdBuff);
 

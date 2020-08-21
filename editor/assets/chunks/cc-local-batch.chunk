@@ -1,0 +1,55 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+#pragma define USE_INSTANCING editor(elevated: true)
+#pragma define USE_BATCHING editor(elevated: true)
+
+#if USE_INSTANCING
+  in vec4 a_matWorld0;
+  in vec4 a_matWorld1;
+  in vec4 a_matWorld2;
+  #if USE_LIGHTMAP
+    in vec4 a_lightingMapUVParam;
+  #endif
+#elif USE_BATCHING
+  in float a_dyn_batch_id;
+  #define BATCHING_COUNT 10
+  #pragma builtin(local)
+  layout(set = 2, binding = 0) uniform CCLocalBatched {
+    highp mat4 cc_matWorlds[BATCHING_COUNT];
+  };
+#else
+  #include <cc-local>
+#endif
+
+#define CCGetWorldMatrix(matWorld)                \
+  #if USE_INSTANCING                              \
+    matWorld = mat4(                              \
+      vec4(a_matWorld0.xyz, 0.0),                 \
+      vec4(a_matWorld1.xyz, 0.0),                 \
+      vec4(a_matWorld2.xyz, 0.0),                 \
+      vec4(a_matWorld0.w, a_matWorld1.w, a_matWorld2.w, 1.0) \
+    );                                            \
+  #elif USE_BATCHING                              \
+    matWorld = cc_matWorlds[int(a_dyn_batch_id)]; \
+  #else                                           \
+    matWorld = cc_matWorld;                       \
+  #endif                                          \
+  #pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
+
+#define CCGetWorldMatrixFull(matWorld, matWorldIT) \
+  #if USE_INSTANCING                               \
+    matWorld = mat4(                               \
+      vec4(a_matWorld0.xyz, 0.0),                  \
+      vec4(a_matWorld1.xyz, 0.0),                  \
+      vec4(a_matWorld2.xyz, 0.0),                  \
+      vec4(a_matWorld0.w, a_matWorld1.w, a_matWorld2.w, 1.0) \
+    );                                             \
+    matWorldIT = matWorld;                         \
+  #elif USE_BATCHING                               \
+    matWorld = cc_matWorlds[int(a_dyn_batch_id)];  \
+    matWorldIT = matWorld;                         \
+  #else                                            \
+    matWorld = cc_matWorld;                        \
+    matWorldIT = cc_matWorldIT;                    \
+  #endif                                           \
+  #pragma // empty pragma trick to get rid of trailing semicolons at effect compile time

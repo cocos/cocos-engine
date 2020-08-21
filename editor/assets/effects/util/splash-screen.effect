@@ -1,0 +1,49 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: splash-screen-vs:vert
+      frag: splash-screen-fs:frag
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      rasterizerState:
+        cullMode: none
+}%
+
+CCProgram splash-screen-vs %{
+  precision mediump float;
+
+  in vec2 a_position;
+  in vec2 a_texCoord;
+  out vec2 v_uv;
+
+  vec4 vert () {
+    vec4 pos = vec4(a_position, 0, 1);
+    v_uv = a_texCoord;
+    return pos;
+  }
+}%
+
+CCProgram splash-screen-fs %{
+  precision mediump float;
+
+  in vec2 v_uv;
+  uniform sampler2D mainTexture;
+  uniform splashFrag {
+    float u_precent;
+  };
+
+  vec4 frag () {
+    vec4 color = texture(mainTexture, v_uv);
+    float precent = clamp(u_precent, 0.0, 1.0);
+    color.xyz *= precent;
+    return color;
+  }
+}%

@@ -240,12 +240,13 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
  * @zh 将标准写法的 ES6 或者 TS Class 声明为 CCClass，具体用法请参阅[类型定义](https://docs.cocos.com/creator3d/manual/zh/scripting/ccclass.html)。
  * @param name - The class name used for serialization.
  * @example
- * ```typescript
- * const {ccclass} = cc._decorator;
+ * ```ts
+ * import { _decorator, Component } from 'cc';
+ * const {ccclass} = _decorator;
  *
  * // define a CCClass, omit the name
  *  @ccclass
- * class NewScript extends cc.Component {
+ * class NewScript extends Component {
  *     // ...
  * }
  *
@@ -395,12 +396,13 @@ function createDummyDecorator (argCheckFunc) {
  * @zh 允许继承自 Component 的 CCClass 在编辑器里执行。<br/>
  * 默认情况下，所有 Component 都只会在运行时才会执行，也就是说它们的生命周期回调不会在编辑器里触发。
  * @example
- * ```typescript
- * const {ccclass, executeInEditMode} = cc._decorator;
+ * ```ts
+ * import { _decorator, Component } from 'cc';
+ * const {ccclass, executeInEditMode} = _decorator;
  *
  *  @ccclass
  *  @executeInEditMode
- * class NewScript extends cc.Component {
+ * class NewScript extends Component {
  *     // ...
  * }
  * ```
@@ -413,7 +415,7 @@ export const executeInEditMode = (DEV ? createEditorDecorator : createDummyDecor
  * @zh 为声明为 CCClass 的组件添加依赖的其它组件。当组件添加到节点上时，如果依赖的组件不存在，引擎将会自动将依赖组件添加到同一个节点，防止脚本出错。该设置在运行时同样有效。
  * @param requiredComponent The required component type
  * @example
- * ```typescript
+ * ```ts
  * import {_decorator, SpriteComponent, Component} from cc;
  * import {ccclass, requireComponent} from _decorator;
  *
@@ -431,12 +433,13 @@ export const requireComponent: (requiredComponent: Function) => Function = creat
  * @zh 将当前组件添加到组件菜单中，方便用户查找。例如 "Rendering/CameraCtrl"。
  * @param path - The path is the menu represented like a pathname. For example the menu could be "Rendering/CameraCtrl".
  * @example
- * ```typescript
- * const {ccclass, menu} = cc._decorator;
+ * ```ts
+ * import { _decorator, Component } from 'cc';
+ * const {ccclass, menu} = _decorator;
  *
  * @ccclass
  * @menu("Rendering/CameraCtrl")
- * class NewScript extends cc.Component {
+ * class NewScript extends Component {
  *     // ...
  * }
  * ```
@@ -449,12 +452,13 @@ export const menu: (path: string) => ClassDecorator = DEV ? createEditorDecorato
  * @zh 设置脚本生命周期方法调用的优先级。优先级小于 0 的组件将会优先执行，优先级大于 0 的组件将会延后执行。优先级仅会影响 onLoad, onEnable, start, update 和 lateUpdate，而 onDisable 和 onDestroy 不受影响。
  * @param priority - The execution order of life cycle methods for Component. Smaller priority get invoked before larger priority.
  * @example
- * ```typescript
- * const {ccclass, executionOrder} = cc._decorator;
+ * ```ts
+ * import { _decorator, Component } from 'cc';
+ * const {ccclass, executionOrder} = _decorator;
  *
- *  @ccclass
- *  @executionOrder(1)
- * class CameraCtrl extends cc.Component {
+ * @ccclass
+ * @executionOrder(1)
+ * class CameraCtrl extends Component {
  *     // ...
  * }
  * ```
@@ -465,12 +469,13 @@ export const executionOrder: (priority: number) => ClassDecorator = createEditor
  * @en Forbid add multiple instances of the component to the same node.
  * @zh 防止多个相同类型（或子类型）的组件被添加到同一个节点。
  * @example
- * ```typescript
- * const {ccclass, disallowMultiple} = cc._decorator;
+ * ```ts
+ * import { _decorator, Component } from 'cc';
+ * const {ccclass, disallowMultiple} = _decorator;
  *
  * @ccclass
  * @disallowMultiple
- * class CameraCtrl extends cc.Component {
+ * class CameraCtrl extends Component {
  *     // ...
  * }
  * ```
@@ -481,13 +486,14 @@ export const disallowMultiple = (DEV ? createEditorDecorator : createDummyDecora
  * @en When {{executeInEditMode}} is set, this decorator will decide when a node with the component is on focus whether the editor should running in high FPS mode.
  * @zh 当指定了 "executeInEditMode" 以后，playOnFocus 可以在选中当前组件所在的节点时，提高编辑器的场景刷新频率到 60 FPS，否则场景就只会在必要的时候进行重绘。
  * @example
- * ```typescript
- * const {ccclass, playOnFocus, executeInEditMode} = cc._decorator;
+ * ```ts
+ * import { _decorator, Component } from 'cc';
+ * const {ccclass, playOnFocus, executeInEditMode} = _decorator;
  *
  * @ccclass
  * @executeInEditMode
  * @playOnFocus
- * class CameraCtrl extends cc.Component {
+ * class CameraCtrl extends Component {
  *     // ...
  * }
  * ```
@@ -499,12 +505,13 @@ export const playOnFocus = (DEV ? createEditorDecorator : createDummyDecorator)(
  * @zh 自定义当前组件在 **属性检查器** 中渲染时所用的 UI 页面描述。
  * @param url The url of the page definition in js
  * @example
- * ```typescript
- * const {ccclass, inspector} = cc._decorator;
+ * ```ts
+ * import { _decorator, Component } from 'cc';
+ * const {ccclass, inspector} = _decorator;
  *
  * @ccclass
  * @inspector("packages://inspector/inspectors/comps/camera-ctrl.js")
- * class NewScript extends cc.Component {
+ * class NewScript extends Component {
  *     // ...
  * }
  * ```
@@ -517,12 +524,13 @@ export const inspector: (url: string) => ClassDecorator = DEV ? createEditorDeco
  * @param url
  * @private
  * @example
- * ```typescript
- * const {ccclass, icon} = cc._decorator;
+ * ```ts
+ * import { _decorator, Component } from 'cc';
+ * const {ccclass, icon} = _decorator;
  *
  *  @ccclass
  *  @icon("xxxx.png")
- * class NewScript extends cc.Component {
+ * class NewScript extends Component {
  *     // ...
  * }
  * ```
@@ -534,12 +542,13 @@ export const icon: (url: string) => ClassDecorator = DEV ? createEditorDecorator
  * @zh 指定当前组件的帮助文档的 url，设置过后，在 **属性检查器** 中就会出现一个帮助图标，用户点击将打开指定的网页。
  * @param url The url of the help documentation
  * @example
- * ```typescript
- * const {ccclass, help} = cc._decorator;
+ * ```ts
+ * import { _decorator, Component } from 'cc';
+ * const {ccclass, help} = _decorator;
  *
  * @ccclass
  * @help("app://docs/html/components/spine.html")
- * class NewScript extends cc.Component {
+ * class NewScript extends Component {
  *     // ...
  * }
  * ```
@@ -577,7 +586,7 @@ export const string = type(CCString);
  * @zh 标记该属性的类型。
  * @param type
  */
-export function type (type: Function): PropertyDecorator;
+export function type (type: Function | any): PropertyDecorator;
 
 export function type (type: [Function]): PropertyDecorator;
 
@@ -591,16 +600,221 @@ export function type<T> (type: PrimitiveType<T> | Function | [PrimitiveType<T>] 
     });
 }
 
+export function serializable (value: boolean): PropertyDecorator {
+    return property({
+        serializable: value,
+    });
+}
+
+export function formerlySerializedAs (name: string): PropertyDecorator {
+    return property({
+        formerlySerializedAs: name,
+    });
+}
+
+export function override (value: boolean): PropertyDecorator {
+    return property({
+        override: value,
+    });
+}
+
+export function readOnly (value: boolean): PropertyDecorator {
+    return property({
+        readonly: value,
+    });
+}
+
+/**
+ * 
+ * @param value 
+ */
+export function animatable (value: boolean): PropertyDecorator {
+    return property({
+        animatable: value,
+    });
+}
+
 /**
  * @en
- * Set the editor tooltip content of the property.
+ * Sets whether the property is editor only.
+ * @zh
+ * 设置该属性是否仅在编辑器中生效。
+ * @param yes 是否仅在编辑器中生效。
+ */
+export function editorOnly (yes: boolean): PropertyDecorator {
+    return property({
+        editorOnly: yes,
+    });
+}
+
+/**
+ * @en
+ * Sets whether the property is visible in editor.
+ * @zh
+ * 设置是否在编辑器中展示该属性。
+ * @param text 工具提示。
+ */
+export const visible: (yes: boolean | (() => boolean)) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (yes) => {
+        return property({
+            visible: yes,
+        });
+    };
+
+/**
+ * @en
+ * Sets the display name of the property in editor.
+ * @zh
+ * 设置该属性在编辑器中的显示名称。
+ * @param text 显示名称。
+ */
+export const displayName: (text: string) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (text) => {
+        return property({
+            displayName: text,
+        });
+    };
+
+/**
+ * @en
+ * Sets the tooltip content of the property in editor.
  * @zh
  * 设置该属性在编辑器中的工具提示内容。
  * @param text 工具提示。
  */
 export const tooltip: (text: string) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
-    (text: string): PropertyDecorator => {
+    (text) => {
         return property({
             tooltip: text,
+        });
+    };
+
+/**
+ * @en
+ * Sets the allowed range of the property in editor.
+ * @zh
+ * 设置该属性在编辑器中允许设置的范围。
+ * @param values 范围。
+ */
+export const range: (values: [number, number, number] | [number, number]) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (values) => {
+        return property({
+            range: values,
+        });
+    };
+
+/**
+ * @en
+ * Sets the allowed min value of the property in editor.
+ * @zh
+ * 设置该属性在编辑器中允许的最小值。
+ * @param value 最小值。
+ */
+export const rangeMin: (value: number) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (value) => {
+        return property({
+            min: value,
+        });
+    };
+
+/**
+ * @en
+ * Sets the allowed max value of the property in editor.
+ * @zh
+ * 设置该属性在编辑器中允许的最大值。
+ * @param value 最大值。
+ */
+export const rangeMax: (value: number) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (value) => {
+        return property({
+            max: value,
+        });
+    };
+
+/**
+ * @en
+ * Sets the step of the property in editor.
+ * @zh
+ * 设置该属性在编辑器中的步进值。
+ * @param value 步进值。
+ */
+export const rangeStep: (value: number) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (value) => {
+        return property({
+            step: value,
+        });
+    };
+
+/**
+ * @en
+ * Sets whether a slider should be given to coordinate the property in editor.
+ * @zh
+ * 设置是否在编辑器中提供滑动条来调节值
+ * @param enabled 是否允许。
+ */
+export const slide: (enabled: boolean) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (enabled) => {
+        return property({
+            slide: enabled,
+        });
+    };
+
+/**
+ * @en
+ * Sets the display order of the property in editor.
+ * @zh
+ * 设置该属性在编辑器中的显示顺序。
+ * @param order 显示顺序。
+ */
+export const displayOrder: (order: number) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (order) => {
+        return property({
+            displayOrder: order,
+        });
+    };
+
+/**
+ * @en
+ * Sets the unit of the property in editor.
+ * @zh
+ * 设置该属性在编辑器中的计量单位。
+ * @param name 计量单位的名称。
+ */
+export const unit: (name:
+| 'lm'
+| 'lx'
+| 'cd/m²'
+) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (name) => {
+        return property({
+            unit: name,
+        });
+    };
+
+/**
+ * @en
+ * Sets whether to convert the value into radian before feed it to the property in editor.
+ * @zh
+ * 设置是否在赋值该属性前将值先转换为弧度制。
+ * @param enabled 是否进行转换。
+ */
+export const radian: (enabled: boolean) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (enabled) => {
+        return property({
+            radian: enabled,
+        });
+    };
+
+/**
+ * @en
+ * Sets whether to enable multi-line display of the property in editor.
+ * @zh
+ * 设置是否允许在编辑器中对该属性进行多行显示。
+ * @param enabled 是否允许多行显示。
+ */
+export const multiline: (enabled: boolean) => PropertyDecorator = !DEV ? ignoringArgsPropertyDecorator:
+    (enabled) => {
+        return property({
+            multiline: enabled,
         });
     };

@@ -1,0 +1,3 @@
+in vec2 v_luv;
+#pragma builtin(local)
+layout(set = 2, binding = 9) uniform sampler2D cc_lightingMap;

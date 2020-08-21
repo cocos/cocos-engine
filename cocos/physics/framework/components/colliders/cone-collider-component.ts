@@ -9,6 +9,7 @@ import {
     menu,
     property,
     tooltip,
+    type,
 } from '../../../../core/data/class-decorator';
 import { ColliderComponent } from './collider-component';
 import { IConeShape } from '../../../spec/i-physics-shape';
@@ -74,7 +75,7 @@ export class ConeColliderComponent extends ColliderComponent {
      * @zh
      * 获取或设置在圆锥体本地空间上的方向。
      */
-    @property({ type: EAxisDirection })
+    @type(EAxisDirection)
     public get direction () {
         return this._direction;
     }

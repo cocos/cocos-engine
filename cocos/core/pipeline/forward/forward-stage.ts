@@ -2,11 +2,11 @@
  * @category pipeline
  */
 
-import { ccclass, property } from '../../data/class-decorator';
-import { IRenderPass } from '../define';
+import { ccclass, property, visible, displayOrder, type } from '../../data/class-decorator';
+import { IRenderPass, SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
-import { GFXClearFlag, IGFXColor, IGFXRect } from '../../gfx/define';
+import { GFXClearFlag, GFXColor, GFXRect } from '../../gfx/define';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';
@@ -21,7 +21,7 @@ import { ForwardFlow } from './forward-flow';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 
-const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
+const colors: GFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 
 /**
  * @en The forward render stage
@@ -35,24 +35,23 @@ export class ForwardStage extends RenderStage {
         priority: ForwardStagePriority.FORWARD,
     };
 
-    @property({
-        type: [RenderQueueDesc],
-        displayOrder: 2,
-        visible: true,
-    })
+
+    @type([RenderQueueDesc])
+    @visible(true)
+    @displayOrder(2)
     protected renderQueues: RenderQueueDesc[] = [];
     protected _renderQueues: RenderQueue[] = [];
 
-    private _renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
+    private _renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
-    private _additiveLightQueue: RenderAdditiveLightQueue;
+    private _phaseID = getPhaseID('default');
+    private _additiveLightQueue!: RenderAdditiveLightQueue;
 
     constructor () {
         super();
         this._batchedQueue = new RenderBatchedQueue();
         this._instancedQueue = new RenderInstancedQueue();
-        this._additiveLightQueue = new RenderAdditiveLightQueue();
     }
 
     public initialize (info: IRenderStageInfo): boolean {
@@ -96,63 +95,52 @@ export class ForwardStage extends RenderStage {
                 sortFunc,
             });
         }
+
+        this._additiveLightQueue = new RenderAdditiveLightQueue(this._pipeline as ForwardPipeline);
     }
+
 
     public destroy () {
     }
 
     public render (view: RenderView) {
+
         this._instancedQueue.clear();
         this._batchedQueue.clear();
         const pipeline = this._pipeline as ForwardPipeline;
-        const validLights = pipeline.validLights;
-        const lightBuffers = pipeline.lightBuffers;
-        const lightIndices = pipeline.lightIndices;
-        this._additiveLightQueue.clear(validLights, lightBuffers, lightIndices);
+        const device = pipeline.device;
         this._renderQueues.forEach(this.renderQueueClearFunc);
 
         const renderObjects = pipeline.renderObjects;
-        const lightIndexOffset = pipeline.lightIndexOffsets;
         let m = 0; let p = 0; let k = 0;
         for (let i = 0; i < renderObjects.length; ++i) {
-            const nextLightIndex = i + 1 < renderObjects.length ? lightIndexOffset[i + 1] : lightIndices.length;
             const ro = renderObjects[i];
-            if (ro.model.isDynamicBatching) {
-                const subModels = ro.model.subModels;
-                for (m = 0; m < subModels.length; ++m) {
-                    const subModel = subModels[m];
-                    const passes = subModel.passes;
-                    for (p = 0; p < passes.length; ++p) {
-                        const pass = passes[p];
-                        if (pass.batchingScheme === BatchingSchemes.INSTANCING) {
-                            const instancedBuffer = InstancedBuffer.get(pass);
-                            instancedBuffer.merge(subModel, ro.model.instancedAttributes, subModel.psoInfos[p]);
-                            this._instancedQueue.queue.add(instancedBuffer);
-                        } else if (pass.batchingScheme === BatchingSchemes.VB_MERGING) {
-                            const batchedBuffer = BatchedBuffer.get(pass);
-                            batchedBuffer.merge(subModel, p, ro);
-                            this._batchedQueue.queue.add(batchedBuffer);
-                        } else {
-                            for (k = 0; k < this._renderQueues.length; k++) {
-                                this._renderQueues[k].insertRenderPass(ro, m, p);
-                            }
-                            this._additiveLightQueue.add(ro, m, pass, lightIndexOffset[i], nextLightIndex);
-                        }
-                    }
-                }
-            } else {
-                for (m = 0; m < ro.model.subModelNum; m++) {
-                    for (p = 0; p < ro.model.getSubModel(m).passes.length; p++) {
-                        const pass = ro.model.getSubModel(m).passes[p];
+            const subModels = ro.model.subModels;
+            for (m = 0; m < subModels.length; ++m) {
+                const subModel = subModels[m];
+                const passes = subModel.passes;
+                for (p = 0; p < passes.length; ++p) {
+                    const pass = passes[p];
+                    if (pass.phase !== this._phaseID) continue;
+                    const batchingScheme = pass.batchingScheme;
+                    if (batchingScheme === BatchingSchemes.INSTANCING) {
+                        const instancedBuffer = InstancedBuffer.get(pass);
+                        instancedBuffer.merge(subModel, ro.model.instancedAttributes, p);
+                        this._instancedQueue.queue.add(instancedBuffer);
+                    } else if (batchingScheme === BatchingSchemes.VB_MERGING) {
+                        const batchedBuffer = BatchedBuffer.get(pass);
+                        batchedBuffer.merge(subModel, p, ro);
+                        this._batchedQueue.queue.add(batchedBuffer);
+                    } else {
                         for (k = 0; k < this._renderQueues.length; k++) {
                             this._renderQueues[k].insertRenderPass(ro, m, p);
                         }
-                        this._additiveLightQueue.add(ro, m, pass, lightIndexOffset[i], nextLightIndex);
                     }
                 }
             }
         }
         this._renderQueues.forEach(this.renderQueueSortFunc);
+        this._additiveLightQueue.gatherLightPasses(view);
 
         const camera = view.camera;
 
@@ -181,18 +169,19 @@ export class ForwardStage extends RenderStage {
         colors[0].a = camera.clearColor.a;
 
         const framebuffer = view.window.framebuffer;
-        const device = pipeline.device;
         const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
             colors, camera.clearDepth, camera.clearStencil);
 
+        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
+
         this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._additiveLightQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-        camera.scene!.planarShadows.recordCommandBuffer(device, renderPass, cmdBuff);
+        pipeline.planarShadows.enabled && pipeline.planarShadows.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
 
         cmdBuff.endRenderPass();

@@ -28,7 +28,7 @@
  * @category asset
  */
 
-import { ccclass, property } from '../data/class-decorator';
+import { ccclass, property, type } from '../data/class-decorator';
 import { Font } from './font';
 import { SpriteFrame } from './sprite-frame';
 import { legacyCC } from '../global-exports';
@@ -43,7 +43,6 @@ export interface IConfig {
  *
  * @zh
  * 位图字体资源类。
- * 可通过 cc.BitmapFont 获取该组件。
  */
 @ccclass('cc.BitmapFont')
 export class BitmapFont extends Font {
@@ -54,9 +53,7 @@ export class BitmapFont extends Font {
      * @zh
      * bitmap font 依赖精灵。
      */
-    @property({
-        type: SpriteFrame,
-    })
+    @type(SpriteFrame)
     public spriteFrame: SpriteFrame | null = null;
 
     /**

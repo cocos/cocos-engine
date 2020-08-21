@@ -12,6 +12,9 @@ import {
     property,
     executionOrder,
     tooltip,
+    displayOrder,
+    visible,
+    type,
 } from '../../../core/data/class-decorator';
 import { Vec3 } from '../../../core/math';
 import { Component, error, Layers } from '../../../core';
@@ -45,10 +48,8 @@ export class RigidBodyComponent extends Component {
      * @zh
      * 获取或设置分组。
      */
-    @property({
-        type: Layers.Enum,
-        displayOrder: -2,
-    })
+    @type(Layers.Enum)
+    @displayOrder(-2)
     @tooltip('设置分组')
     public get group (): number {
         return this._group;
@@ -67,9 +68,7 @@ export class RigidBodyComponent extends Component {
      * @zh
      * 获取或设置刚体的质量。
      */
-    @property({
-        displayOrder: 0,
-    })
+    @displayOrder(0)
     @tooltip('刚体的质量')
     public get mass () {
         return this._mass;
@@ -89,10 +88,8 @@ export class RigidBodyComponent extends Component {
      * @zh
      * 获取或设置是否允许休眠。
      */
-    @property({
-        displayOrder: 0.5,
-        visible: function (this: RigidBodyComponent) { return this._mass != 0; },
-    })
+    @displayOrder(0.5)
+    @visible(function (this: RigidBodyComponent) { return this._mass != 0; })
     @tooltip('是否允许休眠')
     public get allowSleep (): boolean {
         return this._allowSleep;
@@ -111,10 +108,8 @@ export class RigidBodyComponent extends Component {
      * @zh
      * 获取或设置线性阻尼。
      */
-    @property({
-        displayOrder: 1,
-        visible: function (this: RigidBodyComponent) { return this._mass != 0; },
-    })
+    @displayOrder(1)
+    @visible(function (this: RigidBodyComponent) { return this._mass != 0; })
     @tooltip('线性阻尼')
     public get linearDamping () {
         return this._linearDamping;
@@ -133,10 +128,8 @@ export class RigidBodyComponent extends Component {
      * @zh
      * 获取或设置旋转阻尼。
      */
-    @property({
-        displayOrder: 2,
-        visible: function (this: RigidBodyComponent) { return this._mass != 0; },
-    })
+    @displayOrder(2)
+    @visible(function (this: RigidBodyComponent) { return this._mass != 0; })
     @tooltip('旋转阻尼')
     public get angularDamping () {
         return this._angularDamping;
@@ -155,10 +148,8 @@ export class RigidBodyComponent extends Component {
      * @zh
      * 获取或设置刚体是否由物理系统控制运动。
      */
-    @property({
-        displayOrder: 3,
-        visible: function (this: RigidBodyComponent) { return this._mass != 0; },
-    })
+    @displayOrder(3)
+    @visible(function (this: RigidBodyComponent) { return this._mass != 0; })
     @tooltip('刚体是否由物理系统控制运动')
     public get isKinematic () {
         return this._isKinematic;
@@ -177,10 +168,8 @@ export class RigidBodyComponent extends Component {
      * @zh
      * 获取或设置刚体是否使用重力。
      */
-    @property({
-        displayOrder: 4,
-        visible: function (this: RigidBodyComponent) { return this._mass != 0; },
-    })
+    @displayOrder(4)
+    @visible(function (this: RigidBodyComponent) { return this._mass != 0; })
     @tooltip('刚体是否使用重力')
     public get useGravity () {
         return this._useGravity;
@@ -199,10 +188,8 @@ export class RigidBodyComponent extends Component {
      * @zh
      * 获取或设置刚体是否固定旋转。
      */
-    @property({
-        displayOrder: 5,
-        visible: function (this: RigidBodyComponent) { return this._mass != 0; },
-    })
+    @displayOrder(5)
+    @visible(function (this: RigidBodyComponent) { return this._mass != 0; })
     @tooltip('刚体是否固定旋转')
     public get fixedRotation () {
         return this._fixedRotation;
@@ -221,10 +208,8 @@ export class RigidBodyComponent extends Component {
      * @zh
      * 获取或设置线性速度的因子，可以用来控制每个轴方向上的速度的缩放。
      */
-    @property({
-        displayOrder: 6,
-        visible: function (this: RigidBodyComponent) { return this._mass != 0; },
-    })
+    @displayOrder(6)
+    @visible(function (this: RigidBodyComponent) { return this._mass != 0; })
     @tooltip('线性速度的因子，可以用来控制每个轴方向上的速度的缩放')
     public get linearFactor () {
         return this._linearFactor;
@@ -243,10 +228,8 @@ export class RigidBodyComponent extends Component {
      * @zh
      * 获取或设置旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放。
      */
-    @property({
-        displayOrder: 7,
-        visible: function (this: RigidBodyComponent) { return this._mass != 0; },
-    })
+    @displayOrder(7)
+    @visible(function (this: RigidBodyComponent) { return this._mass != 0; })
     @tooltip('旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放')
     public get angularFactor () {
         return this._angularFactor;

@@ -233,7 +233,7 @@ function _generateUV (progressX: number, progressY: number, data: IRenderData[],
 
 /**
  * radialFilled 组装器
- * 可通过 cc.UI.radialFilled 获取该组装器。
+ * 可通过 `UI.radialFilled` 获取该组装器。
  */
 export const radialFilled: IAssembler = {
     useModel: false,
