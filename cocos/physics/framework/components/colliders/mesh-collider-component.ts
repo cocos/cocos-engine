@@ -8,6 +8,7 @@ import {
     executeInEditMode,
     menu,
     property,
+    type,
 } from '../../../../core/data/class-decorator';
 import { ColliderComponent } from './collider-component';
 import { Mesh } from '../../../../core';
@@ -35,9 +36,7 @@ export class MeshColliderComponent extends ColliderComponent {
      * @zh
      * 获取或设置此碰撞体引用的网格资源.
      */
-    @property({
-        type: Mesh,
-    })
+    @type(Mesh)
     get mesh () {
         return this._mesh;
     }

@@ -46,14 +46,15 @@ let mouseListener: EventListener | null = null;
 /**
 * @en
 * The System event, it currently supports keyboard events and accelerometer events.<br/>
-* You can get the SystemEvent instance with cc.systemEvent.<br/>
+* You can get the `SystemEvent` instance with `systemEvent`.<br/>
 * @zh
 * 系统事件，它目前支持按键事件和重力感应事件。<br/>
-* 你可以通过 cc.systemEvent 获取到 SystemEvent 的实例。<br/>
+* 你可以通过 `systemEvent` 获取到 `SystemEvent` 的实例。<br/>
 * @example
 * ```
-* cc.systemEvent.on(cc.SystemEvent.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
-* cc.systemEvent.off(cc.SystemEvent.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
+* import { systemEvent, SystemEvent } from 'cc';
+* systemEvent.on(SystemEvent.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
+* systemEvent.off(SystemEvent.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
 * ```
 */
 

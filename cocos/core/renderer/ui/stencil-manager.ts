@@ -59,11 +59,9 @@ export class StencilManager {
         ref: 1,
     };
 
-    private _defaultPipelineState = {
-        depthStencilState: {},
-        rasterizerState: {},
-        blendState: {},
-    };
+    get pattern () {
+        return this._stencilPattern;
+    }
 
     public pushMask (mask: any) {
         this._maskStack.push(mask);
@@ -77,7 +75,7 @@ export class StencilManager {
         this.stage = Stage.ENTER_LEVEL;
     }
 
-    public enableMask (){
+    public enableMask () {
         this.stage = Stage.ENABLED;
     }
 
@@ -123,33 +121,7 @@ export class StencilManager {
             }
         }
 
-        const pass = mat.passes[0];
-        if (this._changed(pass)){
-            const state = this._stencilPattern;
-            mat.overridePipelineStates({
-                depthStencilState: {
-                    stencilTestFront: state.stencilTest,
-                    stencilFuncFront: state.func,
-                    stencilReadMaskFront: state.stencilMask,
-                    stencilWriteMaskFront: state.writeMask,
-                    stencilFailOpFront: state.failOp,
-                    stencilZFailOpFront: state.zFailOp,
-                    stencilPassOpFront: state.passOp,
-                    stencilRefFront: state.ref,
-                    stencilTestBack: state.stencilTest,
-                    stencilFuncBack: state.func,
-                    stencilReadMaskBack: state.stencilMask,
-                    stencilWriteMaskBack: state.writeMask,
-                    stencilFailOpBack: state.failOp,
-                    stencilZFailOpBack: state.zFailOp,
-                    stencilPassOpBack: state.passOp,
-                    stencilRefBack: state.ref,
-                },
-            });
-            return true;
-        }
-
-        return false;
+        return this._changed(mat.passes[0]);
     }
 
     public getWriteMask () {

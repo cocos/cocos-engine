@@ -2,8 +2,8 @@
  * @category pipeline
  */
 
-import { ccclass, property } from '../../data/class-decorator';
-import { IGFXColor, IGFXRect } from '../../gfx/define';
+import { ccclass, property, visible, displayOrder, type } from '../../data/class-decorator';
+import { GFXColor, GFXRect } from '../../gfx/define';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from '../forward/enum';
@@ -12,9 +12,9 @@ import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
-import { IRenderPass } from '../define';
+import { IRenderPass, SetIndex } from '../define';
 
-const colors: IGFXColor[] = [];
+const colors: GFXColor[] = [];
 
 /**
  * @en The UI render stage
@@ -27,15 +27,13 @@ export class UIStage extends RenderStage {
         priority: ForwardStagePriority.UI,
     };
 
-    @property({
-        type: [RenderQueueDesc],
-        displayOrder: 2,
-        visible: true,
-    })
+    @type([RenderQueueDesc])
+    @visible(true)
+    @displayOrder(2)
     protected renderQueues: RenderQueueDesc[] = [];
     protected _renderQueues: RenderQueue[] = [];
 
-    private _renderArea: IGFXRect = { x: 0, y: 0, width: 0, height: 0 };
+    private _renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
 
     public initialize (info: IRenderStageInfo): boolean {
         super.initialize(info);
@@ -84,10 +82,14 @@ export class UIStage extends RenderStage {
         const device = pipeline.device;
         this._renderQueues[0].clear();
 
-        for (const ro of pipeline.renderObjects) {
-            for (let i = 0; i < ro.model.subModelNum; i++) {
-                for (let j = 0; j < ro.model.getSubModel(i).passes.length; j++) {
-                    this._renderQueues[0].insertRenderPass(ro, i, j);
+        const renderObjects = pipeline.renderObjects;
+        for (let i = 0; i < renderObjects.length; i++) {
+            const ro = renderObjects[i];
+            const subModels = ro.model.subModels;
+            for (let j = 0; j < subModels.length; j++) {
+                const passes = subModels[j].passes;
+                for (let k = 0; k < passes.length; k++) {
+                    this._renderQueues[0].insertRenderPass(ro, j, k);
                 }
             }
         }
@@ -110,6 +112,8 @@ export class UIStage extends RenderStage {
         cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
             [camera.clearColor], camera.clearDepth, camera.clearStencil);
+
+        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
 

@@ -40,7 +40,7 @@ const WHITE = Color.WHITE.clone();
 
 /**
  * ttf 组装器
- * 可通过 cc.UI.ttf 获取该组装器。
+ * 可通过 `UI.ttf` 获取该组装器。
  */
 export const ttf: IAssembler = {
     createData (comp: LabelComponent) {

@@ -28,7 +28,7 @@
  * @category asset
  */
 
-import {ccclass, property, string} from '../data/class-decorator';
+import {ccclass, property, string, override} from '../data/class-decorator';
 import { Font } from './font';
 import { legacyCC } from '../global-exports';
 
@@ -38,16 +38,13 @@ import { legacyCC } from '../global-exports';
  *
  * @zh
  * TTF 字体资源类。
- * 可通过 cc.TTFFont 获取该组件。
  */
 @ccclass('cc.TTFFont')
 export class TTFFont extends Font {
     @property
     public _fontFamily: any = null;
 
-    @property({
-        override: true,
-    })
+    @override(true)
     @string
     get _nativeAsset () {
         return this._fontFamily;

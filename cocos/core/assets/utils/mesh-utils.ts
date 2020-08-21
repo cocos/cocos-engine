@@ -40,7 +40,7 @@ export function postLoadMesh (mesh: Mesh, callback?: Function) {
     // load image
     legacyCC.loader.load({
         url: mesh.nativeUrl,
-    }, (err, arrayBuffer) => {
+    }, (err: Error | null, arrayBuffer: ArrayBuffer | null) => {
         if (arrayBuffer) {
             if (!mesh.loaded) {
                 mesh._nativeAsset = arrayBuffer;

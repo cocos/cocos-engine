@@ -9,6 +9,7 @@ import {
     menu,
     property,
     tooltip,
+    type,
 } from '../../../../core/data/class-decorator';
 import { Vec3 } from '../../../../core/math';
 import { ColliderComponent } from './collider-component';
@@ -36,9 +37,7 @@ export class PlaneColliderComponent extends ColliderComponent {
      * @zh
      * 获取或设置平面在本地坐标系下的法线。
      */
-    @property({
-        type: Vec3,
-    })
+    @type(Vec3)
     @tooltip('平面的法线')
     public get normal () {
         return this._normal;

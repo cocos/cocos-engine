@@ -1,0 +1,17 @@
+{
+  "__type__": "cc.AnimationClip",
+  "_name": "",
+  "_objFlags": 0,
+  "_native": "",
+  "sample": 60,
+  "speed": 1,
+  "wrapMode": 1,
+  "events": [],
+  "_duration": 0,
+  "_keys": [],
+  "_stepness": 0,
+  "curveDatas": {},
+  "_curves": [],
+  "_commonTargets": [],
+  "_hash": 0
+}

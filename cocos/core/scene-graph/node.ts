@@ -27,7 +27,7 @@
  * @category scene-graph
  */
 
-import { ccclass, property } from '../data/class-decorator';
+import { ccclass, property, type } from '../data/class-decorator';
 import { Mat3, Mat4, Quat, Size, Vec2, Vec3 } from '../math';
 import { SystemEventType } from '../platform/event-manager/event-enum';
 import { eventManager } from '../platform/event-manager/event-manager';
@@ -171,7 +171,7 @@ export class Node extends BaseNode {
      * @en Rotation in local coordinate system, represented by euler angles
      * @zh 本地坐标系下的旋转，用欧拉角表示
      */
-    @property({ type: Vec3 })
+    @type(Vec3)
     set eulerAngles (val: Readonly<Vec3>) {
         this.setRotationFromEuler(val.x, val.y, val.z);
     }
@@ -332,6 +332,17 @@ export class Node extends BaseNode {
     public _onBeforeSerialize () {
         // tslint:disable-next-line: no-unused-expression
         this.eulerAngles; // make sure we save the correct eulerAngles
+    }
+
+    public _onPostActivated (active: boolean) {
+        if (active) { // activated
+            eventManager.resumeTarget(this);
+            this.eventProcessor.reattach();
+            // in case transform updated during deactivated period
+            this.invalidateChildren(TransformBit.TRS);
+        } else { // deactivated
+            eventManager.pauseTarget(this);
+        }
     }
 
     // ===============================
@@ -950,18 +961,6 @@ export class Node extends BaseNode {
         // @ts-ignore
         eventManager.resumeTarget(this, recursive);
     }
-
-    public _onPostActivated (active) {
-        if (active) {
-            eventManager.resumeTarget(this);
-            this.eventProcessor.reattach();
-        }
-        else {
-            // deactivate
-            eventManager.pauseTarget(this);
-        }
-    }
-
 }
 
 legacyCC.Node = Node;

@@ -6,7 +6,7 @@
 import { EDITOR } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { ccclass, property } from '../data/class-decorator';
+import { ccclass, property, visible } from '../data/class-decorator';
 import { CompactValueTypeArray } from '../data/utils/compact-value-type-array';
 import { errorID } from '../platform/debug';
 import { DataPoolManager } from '../renderer/data-pool-manager';
@@ -102,7 +102,8 @@ export class AnimationClip extends Asset {
      * @zh 使用一组序列帧图片来创建动画剪辑
      * @example
      * ```
-     * const clip = cc.AnimationClip.createWithSpriteFrames(spriteFrames, 10);
+     * import { AnimationClip } from 'cc';
+     * const clip = AnimationClip.createWithSpriteFrames(spriteFrames, 10);
      * ```
      */
     public static createWithSpriteFrames (spriteFrames: SpriteFrame[], sample: number) {
@@ -163,7 +164,8 @@ export class AnimationClip extends Asset {
      * @zh 动画包含的事件数据。
      * @en Associated event data.
      */
-    @property({visible: false})
+    @property
+    @visible(false)
     public events: AnimationClip.IEvent[] = [];
 
     @property

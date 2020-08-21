@@ -16,13 +16,15 @@ import { GFXShader } from './shader';
 import { GFXTexture } from './texture';
 import { legacyCC } from '../global-exports';
 
-export * from './binding-layout';
+export * from './descriptor-set';
 export * from './buffer';
 export * from './command-buffer';
 export * from './define';
 export * from './device';
 export * from './framebuffer';
 export * from './input-assembler';
+export * from './descriptor-set-layout';
+export * from './pipeline-layout';
 export * from './pipeline-state';
 export * from './fence';
 export * from './queue';

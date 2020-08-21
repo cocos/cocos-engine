@@ -389,7 +389,7 @@ export class NodeEventProcessor {
      * 2. 目标阶段：派发给目标节点的监听器。<br/>
      * 3. 冒泡阶段：派发事件给冒泡目标（通过 `getBubblingTargets` 获取），比如，节点树中注册了冒泡阶段的父节点，从目标节点开始派发直到根节点。<br/>
      * 同时您可以将事件派发到父节点或者通过调用 stopPropagation 拦截它。<br/>
-     * 推荐使用这种方式来监听节点上的触摸或鼠标事件，请不要在节点上直接使用 cc.eventManager。<br/>
+     * 推荐使用这种方式来监听节点上的触摸或鼠标事件，请不要在节点上直接使用 `eventManager`。<br/>
      * 你也可以注册自定义事件到节点上，并通过 emit 方法触发此类事件，对于这类事件，不会发生捕获冒泡阶段，只会直接派发给注册在该节点上的监听器。<br/>
      * 你可以通过在 emit 方法调用时在 type 之后传递额外的参数作为事件回调的参数列表。<br/>
      *
@@ -405,10 +405,11 @@ export class NodeEventProcessor {
      * @return - 返回监听回调函数自身。
      *
      * @example
-     * ```typescript
-     * this.node.on(cc.Node.EventType.TOUCH_START, this.memberFunction, this);  // if "this" is component and the "memberFunction" declared in CCClass.
-     * this.node.on(cc.Node.EventType.TOUCH_START, callback, this);
-     * this.node.on(cc.Node.EventType.ANCHOR_CHANGED, callback);
+     * ```ts
+     * import { Node } from 'cc';
+     * this.node.on(Node.EventType.TOUCH_START, this.memberFunction, this);  // if "this" is component and the "memberFunction" declared in CCClass.
+     * this.node.on(Node.EventType.TOUCH_START, callback, this);
+     * this.node.on(Node.EventType.ANCHOR_CHANGED, callback);
      * ```
      */
     public on (type: string, callback: Function, target?: Object, useCapture?: Object) {
@@ -455,8 +456,9 @@ export class NodeEventProcessor {
      * @param useCapture - 当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
      *
      * @example
-     * ```typescript
-     * node.once(cc.Node.EventType.ANCHOR_CHANGED, callback);
+     * ```ts
+     * import { Node } from 'cc';
+     * node.once(Node.EventType.ANCHOR_CHANGED, callback);
      * ```
      */
     public once (type: string, callback: Function, target?: Object, useCapture?: Object) {
@@ -486,10 +488,11 @@ export class NodeEventProcessor {
      * @param useCapture - 当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
      *
      * @example
-     * ```typescript
-     * this.node.off(cc.Node.EventType.TOUCH_START, this.memberFunction, this);
-     * node.off(cc.Node.EventType.TOUCH_START, callback, this.node);
-     * node.off(cc.Node.EventType.ANCHOR_CHANGED, callback, this);
+     * ```ts
+     * import { Node } from 'cc';
+     * this.node.off(Node.EventType.TOUCH_START, this.memberFunction, this);
+     * node.off(Node.EventType.TOUCH_START, callback, this.node);
+     * node.off(Node.EventType.ANCHOR_CHANGED, callback, this);
      * ```
      */
     public off (type: string, callback?: Function, target?: Object, useCapture?: Object) {
@@ -547,7 +550,7 @@ export class NodeEventProcessor {
      * @param arg3 - 回调第四个参数。
      * @param arg4 - 回调第五个参数。
      * @example
-     * ```typescript
+     * ```ts
      * eventTarget.emit('fire', event);
      * eventTarget.emit('fire', message, emitter);
      * ```

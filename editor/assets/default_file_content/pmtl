@@ -1,0 +1,6 @@
+{
+    "__type__": "cc.PhysicMaterial",
+    "_name": "",
+    "_friction": 0.1,
+    "_restitution": 0.1
+}

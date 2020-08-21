@@ -31,12 +31,22 @@ export class Tween {
     private _actions: Action[] = [];
     private _finalAction: Action | null = null;
     private _target: object | null = null;
+    private _tag = Action.TAG_INVALID;
 
     constructor (target?: object | null) {
         this._target = target === undefined ? null : target;
         if (this._target && this._target instanceof Node) {
             this._target.on(SystemEventType.NODE_DESTROYED, this._destroy, this);
         }
+    }
+
+    /**
+     * @en Sets tween tag
+     * @zh 设置缓动的标签
+     */
+    tag (tag: number) {
+        this._tag = tag;
+        return this;
     }
 
     /**
@@ -97,6 +107,7 @@ export class Tween {
             TweenSystem.instance.ActionManager.removeAction(this._finalAction);
         }
         this._finalAction = this._union();
+        this._finalAction.setTag(this._tag);
         TweenSystem.instance.ActionManager.addAction(this._finalAction, this._target as any, false);
         return this;
     }
@@ -382,6 +393,34 @@ export class Tween {
         let action = removeSelf(false);
         this._actions.push(action);
         return this;
+    }
+
+    /**
+     * @en 
+     * Stop all tweens
+     * @zh 
+     * 停止所有缓动
+     */
+    static stopAll () {
+        TweenSystem.instance.ActionManager.removeAllActions();
+    }
+    /**
+     * @en 
+     * Stop all tweens by tag
+     * @zh 
+     * 停止所有指定标签的缓动
+     */
+    static stopAllByTag (tag: number, target?: object) {
+        TweenSystem.instance.ActionManager.removeActionByTag(tag, target as any);
+    }
+    /**
+     * @en 
+     * Stop all tweens by target
+     * @zh 
+     * 停止所有指定对象的缓动
+     */
+    static stopAllByTarget (target) {
+        TweenSystem.instance.ActionManager.removeAllActionsFromTarget(target);
     }
 
     private _union () {

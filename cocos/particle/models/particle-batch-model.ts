@@ -27,15 +27,15 @@
  * @hidden
  */
 
-import { Material } from '../../core/assets/material';
 import { RenderingSubMesh, Mesh } from '../../core/assets/mesh';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormatInfos,
-    GFXMemoryUsageBit, GFXPrimitiveMode, GFXStatus } from '../../core/gfx/define';
+    GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
 import { IGFXAttribute } from '../../core/gfx/input-assembler';
 import { Color } from '../../core/math/color';
 import { Model, ModelType } from '../../core/renderer/scene/model';
 import { Particle } from '../particle';
+import { Material } from '../../core/assets';
 
 const _uvs = [
     0, 0, // bottom-left
@@ -61,6 +61,8 @@ export default class ParticleBatchModel extends Model {
     private _indexCount: number = 0;
     private _startTimeOffset: number = 0;
     private _lifeTimeOffset: number = 0;
+    private _iaInfoBufferReady: boolean = true;
+    private _material: Material | null = null;
 
     constructor () {
         super();
@@ -98,7 +100,7 @@ export default class ParticleBatchModel extends Model {
         const capChanged = this._capacity !== capacity;
         this._capacity = capacity;
         if (this._inited && capChanged) {
-            this._recreateBuffer();
+            this.rebuild();
         }
     }
 
@@ -115,13 +117,10 @@ export default class ParticleBatchModel extends Model {
         }
         this._vertAttrsFloatCount = this._vertSize / 4; // number of float
         // rebuid
-        this._vBuffer = this._createSubMeshData();
-        this._vdataF32 = new Float32Array(this._vBuffer);
-        this._vdataUint32 = new Uint32Array(this._vBuffer);
-        this._inited = true;
+        this.rebuild();
     }
 
-    public _createSubMeshData (): ArrayBuffer {
+    private createSubMeshData (): ArrayBuffer {
         this.destroySubMeshData();
         this._vertCount = 4;
         this._indexCount = 6;
@@ -190,26 +189,27 @@ export default class ParticleBatchModel extends Model {
 
         this._iaInfo.drawInfos[0].vertexCount = this._capacity * this._vertCount;
         this._iaInfo.drawInfos[0].indexCount = this._capacity * this._indexCount;
-        if (this._iaInfoBuffer.status === GFXStatus.UNREADY) {
+        if (!this._iaInfoBufferReady) {
             this._iaInfoBuffer.initialize({
                 usage: GFXBufferUsageBit.INDIRECT,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: GFX_DRAW_INFO_SIZE,
                 stride: GFX_DRAW_INFO_SIZE,
             });
+            this._iaInfoBufferReady = true;
         }
         this._iaInfoBuffer.update(this._iaInfo);
 
         this._subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs!, GFXPrimitiveMode.TRIANGLE_LIST);
         this._subMeshData.indexBuffer = indexBuffer;
         this._subMeshData.indirectBuffer = this._iaInfoBuffer;
-        this.setSubModelMesh(0, this._subMeshData!);
+        this.initSubModel(0, this._subMeshData, this._material!);
         return vBuffer;
     }
 
-    public setSubModelMaterial (idx: number, mat: Material | null) {
-        this.initLocalBindings(mat);
-        super.setSubModelMaterial(idx, mat);
+    public updateMaterial (mat: Material) {
+        this._material = mat;
+        this.setSubModelMaterial(0, mat);
     }
 
     public addParticleVertexData (index: number, pvdata: any[]) {
@@ -324,7 +324,7 @@ export default class ParticleBatchModel extends Model {
     }
 
     public updateIA (count: number) {
-        const ia = this.getSubModel(0).inputAssembler!;
+        const ia = this._subModels[0].inputAssembler;
         ia.vertexBuffers[0].update(this._vdataF32!);
         ia.indexCount = this._indexCount * count;
         this._iaInfo.drawInfos[0] = ia;
@@ -332,7 +332,7 @@ export default class ParticleBatchModel extends Model {
     }
 
     public clear () {
-        this.getSubModel(0).inputAssembler!.indexCount = 0;
+        this._subModels[0].inputAssembler.indexCount = 0;
     }
 
     public destroy () {
@@ -343,16 +343,19 @@ export default class ParticleBatchModel extends Model {
         this._iaInfoBuffer.destroy();
     }
 
-    private _recreateBuffer () {
-        this._vBuffer = this._createSubMeshData();
+    private rebuild () {
+        this._vBuffer = this.createSubMeshData();
         this._vdataF32 = new Float32Array(this._vBuffer);
         this._vdataUint32 = new Uint32Array(this._vBuffer);
+        this._inited = true;
     }
 
     private destroySubMeshData () {
         if (this._subMeshData) {
             this._subMeshData.destroy();
             this._subMeshData = null;
+            this._inited = false;
+            this._iaInfoBufferReady = false;
         }
     }
 }

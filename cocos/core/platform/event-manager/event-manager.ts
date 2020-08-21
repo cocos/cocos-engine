@@ -393,9 +393,9 @@ class EventManager {
      * 那么事件管理器将移除该类型的所有事件监听器。<br/>
      *
      * 下列是目前存在监听器类型：       <br/>
-     * cc.EventListener.UNKNOWN       <br/>
-     * cc.EventListener.KEYBOARD      <br/>
-     * cc.EventListener.ACCELERATION，<br/>
+     * `EventListener.UNKNOWN`       <br/>
+     * `EventListener.KEYBOARD`      <br/>
+     * `EventListener.ACCELERATION`，<br/>
      *
      * @param listenerType - 监听器类型。
      * @param recursive - 递归子节点的同类型监听器一并移除。默认为 false。
@@ -1207,15 +1207,15 @@ class EventManager {
 
 /**
  * @en
- * This class has been deprecated, please use cc.systemEvent or cc.EventTarget instead.
+ * This class has been deprecated, please use `systemEvent` or `EventTarget` instead.
  * See [Listen to and launch events](../../../manual/en/scripting/events.md) for details.<br>
  * <br>
- * cc.eventManager is a singleton object which manages event listener subscriptions and event dispatching.
+ * `eventManager` is a singleton object which manages event listener subscriptions and event dispatching.
  * The EventListener list is managed in such way so that event listeners can be added and removed
  * while events are being dispatched.
  *
  * @zh
- * 该类已废弃，请使用 cc.systemEvent 或 cc.EventTarget 代替，详见 [监听和发射事件](../../../manual/zh/scripting/events.md)。<br>
+ * 该类已废弃，请使用 `systemEvent` 或 `EventTarget` 代替，详见 [监听和发射事件](../../../manual/zh/scripting/events.md)。<br>
  * <br>
  * 事件管理器，它主要管理事件监听器注册和派发系统事件。
  *

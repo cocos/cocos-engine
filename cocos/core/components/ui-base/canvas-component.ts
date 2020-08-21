@@ -30,7 +30,7 @@
 
 import { CameraComponent } from '../../3d/framework/camera-component';
 import { RenderTexture } from '../../assets/render-texture';
-import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, menu, property, requireComponent, tooltip } from '../../data/class-decorator';
+import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, menu, property, requireComponent, tooltip, type } from '../../data/class-decorator';
 import { director, Director } from '../../director';
 import { game } from '../../game';
 import { GFXClearFlag } from '../../gfx/define';
@@ -85,9 +85,7 @@ export class CanvasComponent extends Component {
      * @zh
      * 清理屏幕缓冲标记。
      */
-    @property({
-        type: CanvasClearFlag,
-    })
+    @type(CanvasClearFlag)
     @tooltip('清理屏幕缓冲标记')
     get clearFlag () {
         return this._clearFlag;
@@ -135,9 +133,7 @@ export class CanvasComponent extends Component {
      * intersperse 下可以指定 Canvas 与场景中的相机的渲染顺序，overlay 下 Canvas 会在所有场景相机渲染完成后渲染。
      * 注意：场景里的相机（包括 Canvas 内置的相机）必须有一个的 ClearFlag 选择 SOLID_COLOR，否则在移动端可能会出现闪屏。
      */
-    @property({
-        type: RenderMode,
-    })
+    @type(RenderMode)
     @tooltip('Canvas 渲染模式，intersperse 下可以指定 Canvas 与场景中的相机的渲染顺序，overlay 下 Canvas 会在所有场景相机渲染完成后渲染。\n注意：注意：场景里的相机（包括 Canvas 内置的相机）必须有一个的 ClearFlag 选择 SOLID_COLOR，否则在移动端可能会出现闪屏')
     get renderMode () {
         return this._renderMode;
@@ -184,9 +180,7 @@ export class CanvasComponent extends Component {
      * @zh
      * 设置目标渲染纹理。
      */
-    @property({
-        type: RenderTexture,
-    })
+    @type(RenderTexture)
     @tooltip('目标渲染纹理')
     get targetTexture (){
         return this._targetTexture;
@@ -225,15 +219,11 @@ export class CanvasComponent extends Component {
     protected _priority = 0;
     @property
     protected _targetTexture: RenderTexture | null = null;
-    @property({
-        type: CanvasClearFlag,
-    })
+    @type(CanvasClearFlag)
     protected _clearFlag = CanvasClearFlag.DONT_CLEAR;
     @property
     protected _color = new Color(0, 0, 0, 0);
-    @property({
-        type: RenderMode,
-    })
+    @type(RenderMode)
     protected _renderMode = RenderMode.OVERLAY;
 
     protected _thisOnResized: () => void;
@@ -277,6 +267,9 @@ export class CanvasComponent extends Component {
 
         if (EDITOR) {
             director.on(Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
+
+            // In Editor can not edit these attrs. (Position in Node, contentSize in uiTransformComponent) (anchor in uiTransformComponent, but it can edit, this is different from cocos creator)
+            this._objFlags |= legacyCC.Object.Flags.IsPositionLocked | legacyCC.Object.Flags.IsSizeLocked | legacyCC.Object.Flags.IsAnchorLocked;
         }
 
         view.on('design-resolution-changed', this._thisOnResized);

@@ -27,7 +27,7 @@
  * @category asset
  */
 
-import { ccclass, property } from '../../core/data/class-decorator';
+import { ccclass, property, type } from '../../core/data/class-decorator';
 import { CCString } from '../../core/data/utils/attribute';
 import { Mat4 } from '../../core/math';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
@@ -42,10 +42,10 @@ import { legacyCC } from '../global-exports';
 @ccclass('cc.Skeleton')
 export class Skeleton extends Asset {
 
-    @property([CCString])
+    @type([CCString])
     private _joints: string[] = [];
 
-    @property([Mat4])
+    @type([Mat4])
     private _bindposes: Mat4[] = [];
 
     @property

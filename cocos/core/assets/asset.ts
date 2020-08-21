@@ -42,16 +42,16 @@ import { errorID } from '../platform/debug';
  * You may want to override:<br/>
  * - createNode<br/>
  * - getset functions of _nativeAsset<br/>
- * - cc.Object._serialize<br/>
- * - cc.Object._deserialize<br/>
+ * - `Object._serialize`<br/>
+ * - `Object._deserialize`<br/>
  * @zh
  * Creator 中的资源基类。<br/>
  *
  * 您可能需要重写：<br/>
  * - createNode <br/>
  * - _nativeAsset 的 getset 方法<br/>
- * - cc.Object._serialize<br/>
- * - cc.Object._deserialize<br/>
+ * - `Object._serialize`<br/>
+ * - `Object._deserialize`<br/>
  *
  * @class Asset
  * @extends RawAsset
@@ -118,9 +118,6 @@ export class Asset extends Eventify(RawAsset) {
      * @type {String}
      * @readOnly
      */
-    @property({
-        visible: false,
-    })
     get nativeUrl () {
         if (this._native) {
             const name = this._native;

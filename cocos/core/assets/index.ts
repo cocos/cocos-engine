@@ -53,5 +53,4 @@ export { Material } from './material';
 export { Mesh } from './mesh';
 export { Skeleton } from './skeleton';
 export { RenderTexture } from './render-texture';
-export { default as RenderPipelineAsset } from './render-pipeline-asset';
 import './deprecation';

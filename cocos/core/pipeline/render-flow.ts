@@ -1,7 +1,7 @@
 /**
  * @category pipeline
  */
-import { ccclass, property } from '../data/class-decorator';
+import { ccclass, property, visible, displayOrder, type } from '../data/class-decorator';
 import { RenderStage } from './render-stage';
 import { RenderView } from './render-view';
 import { RenderPipeline } from './render-pipeline';
@@ -47,29 +47,33 @@ export abstract class RenderFlow {
         return this._tag;
     }
 
-    @property({
-        displayOrder: 0,
-        visible: true,
-    })
+    /**
+     * @en The stages of flow.
+     * @zh 渲染流程 stage 列表。
+     * @readonly
+     */
+    public get stages (): RenderStage[] {
+        return this._stages;
+    }
+
+    @property
+    @displayOrder(0)
+    @visible(true)
     protected _name: string = '';
 
-    @property({
-        displayOrder: 1,
-        visible: true,
-    })
+    @property
+    @displayOrder(1)
+    @visible(true)
     protected _priority: number = 0;
 
-    @property({
-        displayOrder: 2,
-        visible: true,
-    })
+    @property
+    @displayOrder(2)
+    @visible(true)
     protected _tag: number = 0;
 
-    @property({
-        type: [RenderStage],
-        displayOrder: 3,
-        visible: true,
-    })
+    @type([RenderStage])
+    @displayOrder(3)
+    @visible(true)
     protected _stages: RenderStage[] = [];
     protected _pipeline!: RenderPipeline;
 

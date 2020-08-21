@@ -50,7 +50,7 @@ export class ParticleUtils {
 
     private static onSceneUnload () {
         this.particleSystemPool.forEach((value) => {
-            value.clear((prefab) => {
+            value.destroy((prefab) => {
                 prefab.destroy();
             });
         });

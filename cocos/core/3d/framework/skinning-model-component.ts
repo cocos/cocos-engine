@@ -31,7 +31,7 @@ import { AnimationClip } from '../../animation/animation-clip';
 import { BatchingSchemes } from '../../renderer/core/pass';
 import { Material } from '../../assets';
 import { Skeleton } from '../../assets/skeleton';
-import { ccclass, executeInEditMode, executionOrder, help, menu, property, tooltip } from '../../data/class-decorator';
+import { ccclass, executeInEditMode, executionOrder, help, menu, property, tooltip, type } from '../../data/class-decorator';
 import { BakedSkinningModel } from '../../renderer/models/baked-skinning-model';
 import { SkinningModel } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
@@ -50,10 +50,10 @@ import { legacyCC } from '../../global-exports';
 @menu('Components/SkinningModel')
 export class SkinningModelComponent extends ModelComponent {
 
-    @property(Skeleton)
+    @type(Skeleton)
     protected _skeleton: Skeleton | null = null;
 
-    @property(Node)
+    @type(Node)
     protected _skinningRoot: Node | null = null;
 
     protected _clip: AnimationClip | null = null;
@@ -62,9 +62,7 @@ export class SkinningModelComponent extends ModelComponent {
      * @en The skeleton asset.
      * @zh 骨骼资源。
      */
-    @property({
-        type: Skeleton,
-    })
+    @type(Skeleton)
     get skeleton () {
         return this._skeleton;
     }
@@ -79,9 +77,7 @@ export class SkinningModelComponent extends ModelComponent {
      * @en The skinning root. (The node where the controlling AnimationComponent is located)
      * 骨骼根节点的引用，对应控制此模型的动画组件所在节点。
      */
-    @property({
-        type: Node,
-    })
+    @type(Node)
     @tooltip('i18n:model.skinning_root')
     get skinningRoot () {
         return this._skinningRoot;

@@ -30,7 +30,7 @@
 import { RenderableComponent } from '../../3d/framework/renderable-component';
 import { Material } from '../../assets/material';
 import { PassInstance } from './pass-instance';
-import { IDefineMap } from './pass-utils';
+import { MacroRecord } from './pass-utils';
 import { PassOverrides } from './pass';
 
 export interface IMaterialInstanceInfo {
@@ -67,7 +67,7 @@ export class MaterialInstance extends Material {
         this.copy(this._parent);
     }
 
-    public recompileShaders (overrides: IDefineMap, passIdx?: number): void {
+    public recompileShaders (overrides: MacroRecord, passIdx?: number): void {
         if (!this._passes || !this.effectAsset) { return; }
         if (passIdx === undefined) {
             for (const pass of this._passes) {

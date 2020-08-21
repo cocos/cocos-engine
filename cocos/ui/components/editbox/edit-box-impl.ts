@@ -45,6 +45,7 @@ import { sys } from '../../../core/platform/sys';
 import visibleRect from '../../../core/platform/visible-rect';
 import { Node } from '../../../core';
 import { EditBoxImplBase } from './edit-box-impl-base';
+import { legacyCC } from '../../../core/global-exports';
 
 // https://segmentfault.com/q/1010000002914610
 const SCROLLY = 40;
@@ -59,43 +60,24 @@ let _currentEditBoxImpl: EditBoxImpl | null = null;
 
 let _domCount = 0;
 
-// polyfill
-const polyfill = {
-    zoomInvalid: false,
-};
-
-if (sys.OS_ANDROID === sys.os &&
-    (sys.browserType === sys.BROWSER_TYPE_SOUGOU ||
-        sys.browserType === sys.BROWSER_TYPE_360)) {
-    polyfill.zoomInvalid = true;
-}
-
 export class EditBoxImpl extends EditBoxImplBase {
     public _delegate: EditBoxComponent | null = null;
     public _inputMode = InputMode.ANY;
     public _inputFlag = InputFlag.DEFAULT;
     public _returnType = KeyboardReturnType.DEFAULT;
-    public _maxLength = 50;
-    public _placeholderText = '';
-    public _size: Size = new Size();
-    public _node: Node | null = null;
-    public _editing = false;
     public __eventListeners: any = {};
     public __fullscreen = false;
     public __autoResize = false;
-    public __rotateScreen = false;
     public __orientationChanged: any;
     public _edTxt: HTMLInputElement | HTMLTextAreaElement | null = null;
-    public _textColor: Color = Color.WHITE.clone();
-    public _edFontSize = 14;
     private _isTextArea = false;
 
     private _textLabelFont = null;
-    private _textLabelFontSize = null;
+    private _textLabelFontSize: number | null = null;
     private _textLabelFontColor = null;
     private _textLabelAlign = null;
     private _placeholderLabelFont = null;
-    private _placeholderLabelFontSize = null;
+    private _placeholderLabelFontSize: number | null = null;
     private _placeholderLabelFontColor = null;
     private _placeholderLabelAlign = null;
     private _placeholderLineHeight = null;
@@ -122,16 +104,6 @@ export class EditBoxImpl extends EditBoxImplBase {
 
         this.__fullscreen = view.isAutoFullScreenEnabled();
         this.__autoResize = view._resizeWithBrowserSize;
-    }
-
-    public onEnable () {
-        // Do nothing
-    }
-
-    public onDisable () {
-        if (this._editing && this._edTxt) {
-            this._edTxt.blur();
-        }
     }
 
     public clear () {
@@ -166,19 +138,6 @@ export class EditBoxImpl extends EditBoxImplBase {
 
     }
 
-    public setFocus (value: boolean) {
-        if (value){
-            this.beginEditing();
-        }
-        else {
-            this._edTxt!.blur();
-        }
-    }
-
-    public isFocused () {
-        return this._editing;
-    }
-
     public beginEditing () {
         if (_currentEditBoxImpl && _currentEditBoxImpl !== this) {
             _currentEditBoxImpl.setFocus(false);
@@ -186,15 +145,13 @@ export class EditBoxImpl extends EditBoxImplBase {
 
         this._editing = true;
         _currentEditBoxImpl = this;
+        this._delegate!._editBoxEditingDidBegan();
         this._showDom();
-        if (this._edTxt && this._delegate){
-            this._edTxt.focus();
-            this._delegate._editBoxEditingDidBegan();
-        }
+        this._edTxt!.focus();
     }
 
     public endEditing () {
-        // Do nothing, handle endEditing on blur callback
+        this._edTxt!.blur();
     }
 
     private _createInput () {
@@ -270,13 +227,14 @@ export class EditBoxImpl extends EditBoxImplBase {
 
     private _hideDomOnMobile () {
         if (sys.os === sys.OS_ANDROID) {
+            if (this.__autoResize) {
+                view.resizeWithBrowserSize(true);
+            }
+            // In case enter full screen when soft keyboard still showing
             setTimeout(() => {
                 if (!_currentEditBoxImpl) {
                     if (this.__fullscreen) {
                         view.enableAutoFullScreen(true);
-                    }
-                    if (this.__autoResize) {
-                        view.resizeWithBrowserSize(true);
                     }
                 }
             }, DELAY_TIME);
@@ -360,12 +318,6 @@ export class EditBoxImpl extends EditBoxImplBase {
         offsetY += viewport.y / dpr;
         const tx = _matrix_temp.m12 * scaleX + offsetX;
         const ty = _matrix_temp.m13 * scaleY + offsetY;
-
-        if (polyfill.zoomInvalid) {
-            this.setSize(this._size.width * a, this._size.height * d);
-            a = 1;
-            d = 1;
-        }
 
         const matrix = 'matrix(' + a + ',' + -b + ',' + -c + ',' + d + ',' + tx + ',' + -ty + ')';
         this._edTxt.style.transform = matrix;
@@ -456,7 +408,6 @@ export class EditBoxImpl extends EditBoxImplBase {
             return;
         }
         let elem = this._edTxt;
-        elem.style.fontSize = this._edFontSize + 'px';
         elem.style.color = '#000000';
         elem.style.border = '0px';
         elem.style.background = 'transparent';
@@ -481,7 +432,6 @@ export class EditBoxImpl extends EditBoxImplBase {
         else {
             elem.style.resize = 'none';
             elem.style.overflowY = 'scroll';
-
         }
 
         this._placeholderStyleSheet = document.createElement('style');
@@ -512,15 +462,17 @@ export class EditBoxImpl extends EditBoxImplBase {
             font = textLabel.fontFamily;
         }
 
+        let fontSize = textLabel.fontSize * textLabel.node.scale.y;
+
         if (this._textLabelFont === font
-            && this._textLabelFontSize === textLabel.fontSize
+            && this._textLabelFontSize === fontSize
             && this._textLabelFontColor === textLabel.fontColor
             && this._textLabelAlign === textLabel.horizontalAlign) {
                 return;
         }
 
         this._textLabelFont = font;
-        this._textLabelFontSize = textLabel.fontSize;
+        this._textLabelFontSize = fontSize;
         this._textLabelFontColor = textLabel.fontColor;
         this._textLabelAlign = textLabel.horizontalAlign;
 
@@ -529,7 +481,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         }
 
         const elem = this._edTxt;
-        elem.style.fontSize = `${textLabel.fontSize}px`;
+        elem.style.fontSize = `${fontSize}px`;
         elem.style.color = textLabel.color.toCSS('rgba');
         elem.style.fontFamily = font;
 
@@ -559,8 +511,11 @@ export class EditBoxImpl extends EditBoxImplBase {
             font = placeholderLabel.fontFamily;
         }
 
+
+        let fontSize = placeholderLabel.fontSize * placeholderLabel.node.scale.y;
+
         if (this._placeholderLabelFont === font
-            && this._placeholderLabelFontSize === placeholderLabel.fontSize
+            && this._placeholderLabelFontSize === fontSize
             && this._placeholderLabelFontColor === placeholderLabel.fontColor
             && this._placeholderLabelAlign === placeholderLabel.horizontalAlign
             && this._placeholderLineHeight === placeholderLabel.fontSize) {
@@ -568,13 +523,12 @@ export class EditBoxImpl extends EditBoxImplBase {
         }
 
         this._placeholderLabelFont = font;
-        this._placeholderLabelFontSize = placeholderLabel.fontSize;
+        this._placeholderLabelFontSize = fontSize;
         this._placeholderLabelFontColor = placeholderLabel.fontColor;
         this._placeholderLabelAlign = placeholderLabel.horizontalAlign;
         this._placeholderLineHeight = placeholderLabel.fontSize;
 
         const styleEl = this._placeholderStyleSheet;
-        const fontSize = placeholderLabel.fontSize;
         const fontColor = placeholderLabel.color.toCSS('rgba');
         const lineHeight = placeholderLabel.fontSize;
 
@@ -591,32 +545,14 @@ export class EditBoxImpl extends EditBoxImplBase {
                 break;
         }
 
-        styleEl!.innerHTML = `
-            #${this._domId}::-webkit-input-placeholder {
-                text-transform: initial;
-                font-family: ${font};
-                font-size: ${fontSize}px;
-                color: ${fontColor};
-                line-height: ${lineHeight}px;
-                text-align: ${horizontalAlign};
-            }
-            #${this._domId}::-moz-placeholder {
-                text-transform: initial;
-                font-family: ${font};
-                font-size: ${fontSize}px;
-                color: ${fontColor};
-                line-height: ${lineHeight}px;
-                text-align: ${horizontalAlign};
-            }
-            #${this._domId}:-ms-input-placeholder {
-                text-transform: initial;
-                font-family: ${font};
-                font-size: ${fontSize}px;
-                color: ${fontColor};
-                line-height: ${lineHeight}px;
-                text-align: ${horizontalAlign};
-            }
-        `;
+        styleEl!.innerHTML = `#${this._domId}::-webkit-input-placeholder{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}` +
+                            `#${this._domId}::-moz-placeholder{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}` + 
+                            `#${this._domId}::-ms-input-placeholder{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}`;
+        // EDGE_BUG_FIX: hide clear button, because clearing input box in Edge does not emit input event 
+        // issue refference: https://github.com/angular/angular/issues/26307
+        if (legacyCC.sys.browserType === legacyCC.sys.BROWSER_TYPE_EDGE) {
+            styleEl!.innerHTML += `#${this._domId}::-ms-clear{display: none;}`;
+        }
     }
 
     private _registerEventListeners () {
@@ -642,7 +578,13 @@ export class EditBoxImpl extends EditBoxImplBase {
             if (inputLock) {
                 return;
             }
-            impl._delegate!._editBoxTextChanged(elem!.value);
+            let delegate = impl._delegate;
+            // input of number type doesn't support maxLength attribute
+            let maxLength = delegate!.maxLength;
+            if (maxLength >= 0) {
+                elem.value = elem.value.slice(0, maxLength);
+            }
+            delegate!._editBoxTextChanged(elem!.value);
         };
 
         cbs.onClick = () => {
@@ -670,6 +612,10 @@ export class EditBoxImpl extends EditBoxImplBase {
         };
 
         cbs.onBlur = () => {
+            // on mobile, sometimes input element doesn't fire compositionend event
+            if (sys.isMobile && inputLock) {
+                cbs.compositionEnd();
+            }
             impl._editing = false;
             _currentEditBoxImpl = null;
             impl._hideDom();

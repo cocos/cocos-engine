@@ -37,12 +37,16 @@ import {
     RUNTIME_BASED,
     SUPPORT_JIT,
     TEST,
+    BYTEDANCE,
     WECHAT,
     XIAOMI,
     HUAWEI,
     OPPO,
     VIVO,
 } from 'internal:constants';
+
+// @ts-ignore
+const _global = typeof window === 'undefined' ? global : window;
 
 /**
  * !#en
@@ -51,15 +55,14 @@ import {
  * Cocos 引擎的主要命名空间，引擎代码中所有的类，函数，属性和常量都在这个命名空间中定义。
  * @deprecated
  */
-export const legacyCC: Record<string, any> = {};
+export const legacyCC: Record<string, any> & {
+    _global: typeof globalThis;
+} = {
+    _global,
+};
 
 // For internal usage
 legacyCC.internal = {};
-
-// @ts-ignore
-const _global = typeof window === 'undefined' ? global : window;
-
-legacyCC._global = _global;
 
 if (BUILD) {
     // Supports dynamically access from external scripts such as adapters and debugger.
@@ -71,6 +74,7 @@ if (BUILD) {
     _global.CC_DEV = DEV;
     _global.CC_DEBUG = DEBUG;
     _global.CC_JSB = JSB;
+    _global.CC_BYTEDANCE = BYTEDANCE;
     _global.CC_WECHAT = WECHAT;
     _global.CC_ALIPAY = ALIPAY;
     _global.CC_XIAOMI = XIAOMI;
@@ -97,7 +101,7 @@ if (DEV) {
  * Please DO NOT remove this String, it is an important flag for bug tracking.<br/>
  * If you post a bug to forum, please attach this flag.
  */
-const engineVersion = '1.1.0';
+const engineVersion = '1.2.0';
 _global.CocosEngine = legacyCC.ENGINE_VERSION = engineVersion;
 
 _global.cc = legacyCC;

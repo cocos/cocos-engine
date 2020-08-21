@@ -2,13 +2,14 @@
  * @category pipeline
  */
 
-import { ccclass, property } from '../data/class-decorator';
+import { legacyCC } from '../global-exports';
+import { Asset } from '../assets/asset';
+import { ccclass, property, visible, displayOrder, type } from '../data/class-decorator';
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
-import { legacyCC } from '../global-exports';
-import { IDefineMap } from '../renderer/core/pass-utils';
-import { GFXDevice } from '../gfx/device';
-import { IInternalBindingInst } from './define';
+import { MacroRecord } from '../renderer/core/pass-utils';
+import { GFXDevice, GFXDescriptorSet, GFXCommandBuffer, GFXDescriptorSetLayout } from '../gfx';
+import { globalDescriptorSetLayout, IDescriptorSetLayoutInfo } from './define';
 
 /**
  * @en Render pipeline information descriptor
@@ -27,23 +28,34 @@ export interface IRenderPipelineInfo {
  * 这个类主要包含一些通用的管线配置，必要的渲染资源和一些 [[RenderFlow]]。
  * 渲染流程函数 [[render]] 会由 [[Root]] 发起调用并对所有 [[RenderView]] 执行预设的渲染流程。
  */
-@ccclass('RenderPipeline')
-export abstract class RenderPipeline {
+@ccclass('cc.RenderPipeline')
+export abstract class RenderPipeline extends Asset {
+
     /**
-     * @en The default global bindings.
-     * @zh 默认的全局绑定表。
+     * @en Layout of the pipeline-global descriptor set.
+     * @zh 管线层的全局描述符集布局。
      * @readonly
      */
-    public get globalBindings () {
-        return this._globalBindings;
+    get globalDescriptorSetLayout (): Readonly<IDescriptorSetLayoutInfo> {
+        return this._globalDescriptorSetLayout;
     }
+
+    /**
+     * @en Layout of the model-local descriptor set.
+     * @zh 逐模型的描述符集布局。
+     * @readonly
+     */
+    get localDescriptorSetLayout (): Readonly<IDescriptorSetLayoutInfo> {
+        return this._localDescriptorSetLayout;
+    }
+
 
     /**
      * @en The macros for this pipeline.
      * @zh 管线宏定义。
      * @readonly
      */
-    public get macros (): IDefineMap {
+    get macros (): MacroRecord {
         return this._macros;
     }
 
@@ -52,7 +64,7 @@ export abstract class RenderPipeline {
      * @zh 管线的渲染流程列表。
      * @readonly
      */
-    public get flows (): RenderFlow[] {
+    get flows (): RenderFlow[] {
         return this._flows;
     }
 
@@ -61,7 +73,7 @@ export abstract class RenderPipeline {
      * @zh 管线的标签。
      * @readonly
      */
-    public get tag (): number {
+    get tag (): number {
         return this._tag;
     }
 
@@ -70,10 +82,9 @@ export abstract class RenderPipeline {
      * @zh 标签
      * @readonly
      */
-    @property({
-        displayOrder: 0,
-        visible: true,
-    })
+    @property
+    @displayOrder(0)
+    @visible(true)
     protected _tag: number = 0;
 
     /**
@@ -81,32 +92,45 @@ export abstract class RenderPipeline {
      * @zh 渲染流程列表
      * @readonly
      */
-    @property({
-        displayOrder: 1,
-        type: [RenderFlow],
-        visible: true,
-    })
+    @type([RenderFlow])
+    @displayOrder(1)
+    @visible(true)
     protected _flows: RenderFlow[] = [];
-    protected _globalBindings: Map<string, IInternalBindingInst> = new Map<string, IInternalBindingInst>();
-    protected _macros: IDefineMap = {};
-    public device!: GFXDevice;
+
+    protected _globalDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: [], record: {} };
+    protected _localDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: [], record: {} };
+
+    protected _macros: MacroRecord = {};
+
+    get device () {
+        return this._device;
+    }
+
+    get descriptorSetLayout () {
+        return this._descriptorSetLayout;
+    }
+
+    get descriptorSet () {
+        return this._descriptorSet;
+    }
+
+    get commandBuffers () {
+        return this._commandBuffers;
+    }
+
+    protected _device!: GFXDevice;
+    protected _descriptorSetLayout!: GFXDescriptorSetLayout;
+    protected _descriptorSet!: GFXDescriptorSet;
+    protected _commandBuffers: GFXCommandBuffer[] = [];
 
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
      * @zh 初始化函数，正常情况下不会用到，仅用于程序化生成渲染管线的情况。
      * @param info The render pipeline information
      */
-    public initialize (info?: IRenderPipelineInfo): boolean {
-        if (info) {
-            for (let i = 0; i < info.flows.length; i++) {
-                this._flows[i] = info.flows[i];
-            }
-
-            if (info.tag) {
-                this._tag = info.tag;
-            }
-        }
-
+    public initialize (info: IRenderPipelineInfo): boolean {
+        this._flows = info.flows;
+        if (info.tag) { this._tag = info.tag; }
         return true;
     }
 
@@ -115,7 +139,15 @@ export abstract class RenderPipeline {
      * @zh 当渲染管线资源加载完成后，启用管线，主要是启用管线内的 flow
      */
     public activate (): boolean {
-        this.device = legacyCC.director.root.device;
+        this._device = legacyCC.director.root.device;
+
+        this._descriptorSetLayout = this._device.createDescriptorSetLayout({
+            bindings: globalDescriptorSetLayout.bindings,
+        });
+
+        this._descriptorSet = this._device.createDescriptorSet({
+            layout: this._descriptorSetLayout,
+        });
 
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].activate(this);
@@ -139,13 +171,24 @@ export abstract class RenderPipeline {
      * @en Internal destroy function
      * @zh 内部销毁函数。
      */
-    public destroy () {
+    public destroy (): boolean {
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].destroy();
         }
         this._flows.length = 0;
+
+        if (this._descriptorSet) {
+            this._descriptorSet.destroy();
+            this._descriptorSet = null!;
+        }
+
+        for (let i = 0; i < this._commandBuffers.length; i++) {
+            this._commandBuffers[i].destroy();
+        }
+        this._commandBuffers.length = 0;
+
+        return super.destroy();
     }
 }
 
 legacyCC.RenderPipeline = RenderPipeline;
-

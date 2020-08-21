@@ -3,93 +3,137 @@ import { createMesh } from '../../3d/misc/utils';
 import { Material } from '../../assets/material';
 import { Mesh } from '../../assets/mesh';
 import { TextureCube } from '../../assets/texture-cube';
-import { IInternalBindingInst, UNIFORM_ENVIRONMENT } from '../../pipeline/define';
+import { UNIFORM_ENVIRONMENT } from '../../pipeline/define';
 import { box } from '../../primitive';
 import { MaterialInstance } from '../core/material-instance';
 import { samplerLib } from '../core/sampler-lib';
 import { Model } from './model';
-import { RenderScene } from './render-scene';
+import { legacyCC } from '../../global-exports';
+import { GFXDescriptorSet } from '../../gfx';
 
 let skybox_mesh: Mesh | null = null;
 let skybox_material: Material | null = null;
 
-export class Skybox extends Model {
+export class Skybox {
+    get model () {
+        return this._model;
+    }
+
+    /**
+     * @en Whether activate skybox in the scene
+     * @zh 是否启用天空盒？
+     */
+    get enabled () {
+        return this._enabled;
+    }
+
+    set enabled (val) {
+        if (this._enabled === val) {
+            return;
+        }
+        this._enabled = val;
+        this._enabled ? this.activate() : this._updatePipeline();
+    }
+
+    /**
+     * @en Whether use environment lighting
+     * @zh 是否启用环境光照？
+     */
+    get useIBL () {
+        return this._useIBL;
+    }
 
     set useIBL (val) {
         this._useIBL = val;
         this._updatePipeline();
     }
-    get useIBL () {
-        return this._useIBL;
-    }
 
-    set isRGBE (val) {
-        this._isRGBE = val;
-        skybox_material!.recompileShaders({ USE_RGBE_CUBEMAP: this._isRGBE });
-        this.setSubModelMaterial(0, skybox_material);
-        this._updatePipeline();
-    }
+    /**
+     * @en Whether enable RGBE data support in skybox shader
+     * @zh 是否需要开启 shader 内的 RGBE 数据支持？
+     */
     get isRGBE () {
         return this._isRGBE;
     }
 
-    set envmap (val: TextureCube | null) {
-        const newEnvmap = val || this._default;
-        this._envmap = newEnvmap;
-        this.scene!.ambient.groundAlbedo[3] = this._envmap.mipmapLevel;
-        this._updateGlobalBinding();
-    }
-    get envmap () {
-        return this._envmap;
+    set isRGBE (val) {
+        this._isRGBE = val;
+
+        if (this._enabled) {
+            if (skybox_material) {
+                skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this._isRGBE });
+            }
+
+            if (this._model) {
+                this._model.setSubModelMaterial(0, skybox_material!);
+            }
+        }
+
+        this._updatePipeline();
     }
 
-    protected _default = builtinResMgr.get<TextureCube>('default-cube-texture');
-    protected _envmap = this._default;
+    /**
+     * @en The texture cube used for the skybox
+     * @zh 使用的立方体贴图
+     */
+    get envmap () {
+        return this._envmap || this._default;
+    }
+
+    set envmap (val: TextureCube | null) {
+        this._envmap = val;
+        if (this._enabled) {
+            legacyCC.director.root.pipeline.ambient.groundAlbedo[3] = this._envmap ? this._envmap.mipmapLevel : this._default!.mipmapLevel;
+            this._updateGlobalBinding();
+        }
+    }
+
+    protected _enabled = false;
     protected _isRGBE = false;
     protected _useIBL = false;
+    protected _envmap: TextureCube | null = null;
+    protected _globalDescriptorSet: GFXDescriptorSet | null = null;
+    protected _model: Model | null = null;
+    protected _default: TextureCube | null = null;
 
-    protected _globalBinding: IInternalBindingInst;
+    public activate () {
+        const pipeline = legacyCC.director.root.pipeline
+        this._globalDescriptorSet = pipeline.descriptorSet;
+        if (!this._model) {
+            this._model = new Model();
+        }
 
-    constructor (scene: RenderScene) {
-        super();
-        this.scene = scene;
-        this._globalBinding = this.scene.root.pipeline.globalBindings.get(UNIFORM_ENVIRONMENT.name)!;
+        this._default = builtinResMgr.get<TextureCube>('default-cube-texture');
+
+        pipeline.ambient.groundAlbedo[3] = this._envmap ? this._envmap.mipmapLevel : this._default.mipmapLevel;
+        this._updateGlobalBinding();
         if (!skybox_material) {
             const mat = new Material();
             mat.initialize({ effectName: 'pipeline/skybox', defines: { USE_RGBE_CUBEMAP: this._isRGBE } });
             skybox_material = new MaterialInstance({ parent: mat });
+        } else {
+            skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this._isRGBE });
         }
         if (!skybox_mesh) { skybox_mesh = createMesh(box({ width: 2, height: 2, length: 2 })); }
-        this.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
-    }
+        this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
 
-    public onGlobalPipelineStateChanged () {
-        super.onGlobalPipelineStateChanged();
-        this._updateGlobalBinding();
+        this._updatePipeline();
     }
 
     protected _updatePipeline () {
-        const value = this._useIBL ? this._isRGBE ? 2 : 1 : 0;
-        const pipeline = this.scene!.root.pipeline;
-        const current = pipeline.macros.CC_USE_IBL || 0;
+        const value = this._enabled ? (this._useIBL ? this._isRGBE ? 2 : 1 : 0) : 0;
+        const root = legacyCC.director.root;
+        const pipeline = root.pipeline;
+        const current = pipeline.macros.CC_USE_IBL;
         if (current === value) { return; }
         pipeline.macros.CC_USE_IBL = value;
-        this.scene!.onGlobalPipelineStateChanged();
+        root.onGlobalPipelineStateChanged();
     }
 
     protected _updateGlobalBinding () {
-        const texture = this._envmap.getGFXTexture()!;
-        const sampler = samplerLib.getSampler(this._device, this._envmap.getSamplerHash());
-        this._globalBinding.sampler = sampler;
-        this._globalBinding.texture = texture;
-        // update skybox material, need to do this every time pso is created
-        // because skybox.updateUBOs is not called in pipeline per frame
-        const mat = skybox_material!;
-        mat.passes[0].bindSampler(UNIFORM_ENVIRONMENT.binding, sampler);
-        mat.passes[0].bindTexture(UNIFORM_ENVIRONMENT.binding, texture);
-
-        for (let i = 0; i < this._subModels.length; ++i) {
-            this._subModels[i].updateLayout();
-        }
+        const texture = this.envmap!.getGFXTexture()!;
+        const sampler = samplerLib.getSampler(legacyCC.director._device, this.envmap!.getSamplerHash());
+        this._globalDescriptorSet!.bindSampler(UNIFORM_ENVIRONMENT.binding, sampler);
+        this._globalDescriptorSet!.bindTexture(UNIFORM_ENVIRONMENT.binding, texture);
     }
 }

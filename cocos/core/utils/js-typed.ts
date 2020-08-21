@@ -234,8 +234,9 @@ const REGEXP_STR = /%s/;
  * This gives you additional control over the format of the output.
  * @example
  * ```
- * cc.js.formatStr("a: %s, b: %s", a, b);
- * cc.js.formatStr(a, b, c);
+ * import { js } from 'cc';
+ * js.formatStr("a: %s, b: %s", a, b);
+ * js.formatStr(a, b, c);
  * ```
  */
 export function formatStr (msg: string | any, ...subst: any[]) {
@@ -342,7 +343,7 @@ export function mixin (object?: any, ...sources: any[]) {
 
 /**
  * Derive the class from the supplied base class.
- * Both classes are just native javascript constructors, not created by cc.Class, so
+ * Both classes are just native javascript constructors, not created by `Class`, so
  * usually you will want to inherit using [[Class]] instead.
  * @param base The baseclass to inherit.
  * @return The result class.
@@ -452,7 +453,7 @@ export function _setClassId (id, constructor) {
             if (TEST) {
                 err += ' (This may be caused by error of unit test.) \
 If you dont need serialization, you can set class id to "". You can also call \
-cc.js.unregisterClass to remove the id of unused class';
+js.unregisterClass to remove the id of unused class';
             }
             error(err);
         }
@@ -481,7 +482,7 @@ function doSetClassName (id, constructor) {
             if (TEST) {
                 err += ' (This may be caused by error of unit test.) \
 If you dont need serialization, you can set class id to "". You can also call \
-cc.js.unregisterClass to remove the id of unused class';
+js.unregisterClass to remove the id of unused class';
             }
             error(err);
         }
