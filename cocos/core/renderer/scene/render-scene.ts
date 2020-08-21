@@ -125,9 +125,21 @@ export class RenderScene {
     }
 
     public update (stamp: number) {
-        const mainLight = this.mainLight;
+        const mainLight = this._mainLight;
         if (mainLight) {
             mainLight.update();
+        }
+
+        const sphereLights = this._sphereLights;
+        for (let i = 0; i < sphereLights.length; i++) {
+            const light = sphereLights[i];
+            light.update();
+        }
+
+        const spotLights = this._spotLights;
+        for (let i = 0; i < spotLights.length; i++) {
+            const light = spotLights[i];
+            light.update();
         }
 
         const models = this._models;

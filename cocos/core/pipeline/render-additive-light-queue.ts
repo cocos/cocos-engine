@@ -122,7 +122,6 @@ export class RenderAdditiveLightQueue {
 
         for (let i = 0; i < sphereLights.length; i++) {
             const light = sphereLights[i];
-            light.update();
             sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
             if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
                 validLights.push(light);
@@ -131,7 +130,6 @@ export class RenderAdditiveLightQueue {
         const spotLights = view.camera.scene!.spotLights;
         for (let i = 0; i < spotLights.length; i++) {
             const light = spotLights[i];
-            light.update();
             sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
             if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
                 validLights.push(light);
