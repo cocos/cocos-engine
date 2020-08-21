@@ -43,22 +43,23 @@ export class RenderInstancedQueue {
         const it = this.queue.values(); let res = it.next();
         while (!res.done) {
             const { instances, hPass, hasPendingModels } = res.value;
-            if (!hasPendingModels) { continue; }
-            res.value.uploadBuffers();
-            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET)));
-            let lastPSO: GFXPipelineState | null = null;
-            for (let b = 0; b < instances.length; ++b) {
-                const instance = instances[b];
-                if (!instance.count) { continue; }
-                const shader = ShaderPool.get(instance.hShader);
-                const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, instance.ia);
-                if (lastPSO !== pso) {
-                    cmdBuff.bindPipelineState(pso);
-                    lastPSO = pso;
+            if (hasPendingModels) {
+                res.value.uploadBuffers();
+                cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET)));
+                let lastPSO: GFXPipelineState | null = null;
+                for (let b = 0; b < instances.length; ++b) {
+                    const instance = instances[b];
+                    if (!instance.count) { continue; }
+                    const shader = ShaderPool.get(instance.hShader);
+                    const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, instance.ia);
+                    if (lastPSO !== pso) {
+                        cmdBuff.bindPipelineState(pso);
+                        lastPSO = pso;
+                    }
+                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, DSPool.get(instance.hDescriptorSet), res.value.dynamicOffsets);
+                    cmdBuff.bindInputAssembler(instance.ia);
+                    cmdBuff.draw(instance.ia);
                 }
-                cmdBuff.bindDescriptorSet(SetIndex.LOCAL, DSPool.get(instance.hDescriptorSet), res.value.dynamicOffsets);
-                cmdBuff.bindInputAssembler(instance.ia);
-                cmdBuff.draw(instance.ia);
             }
             res = it.next();
         }
