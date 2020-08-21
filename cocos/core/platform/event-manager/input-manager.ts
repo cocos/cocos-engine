@@ -510,6 +510,7 @@ class InputManager {
             if (JSB || RUNTIME_BASED) {
                 // @ts-ignore
                 if (jsb.device && jsb.device.setMotionInterval) {
+                    // @ts-ignore
                     jsb.device.setMotionInterval(interval);
                 }
             }
