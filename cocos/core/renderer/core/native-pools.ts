@@ -39,3 +39,20 @@ export class NativeBufferPool {
 export class NativeObjectPool<T> {
     constructor (dataType: number, array: T[]) {}
 }
+
+export class NativeArrayPool {
+    private _size: number;
+    constructor (poolType: number, size: number) {
+        this._size = size;
+    }
+
+    public alloc (index: number) : Uint32Array {
+        return new Uint32Array(this._size);
+    }
+
+    public resize (origin: Uint32Array, size: number) : Uint32Array {
+        let array = new Uint32Array(size);
+        array.set(origin);
+        return array;
+    }
+}
