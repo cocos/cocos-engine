@@ -479,7 +479,6 @@ enum PoolType {
     NODE,
     ROOT,
     AABB,
-    DIRECTOR,
     RENDER_WINDOW,
     FRUSTUM,
     // array
@@ -504,7 +503,6 @@ export type SceneHandle = Handle<PoolType.SCENE>;
 export type CameraHandle = Handle<PoolType.CAMERA>;
 export type NodeHandle = Handle<PoolType.NODE>;
 export type RootHandle = Handle<PoolType.ROOT>;
-export type DirectorHandle = Handle<PoolType.DIRECTOR>;
 export type AABBHandle = Handle<PoolType.AABB>;
 export type FrustumHandle = Handle<PoolType.FRUSTUM>;
 export type RenderWindowHandle = Handle<PoolType.RENDER_WINDOW>;
@@ -645,12 +643,6 @@ export enum RootView {
     COUNT
 }
 export const RootPool = new BufferPool(PoolType.ROOT, Float32Array, RootView, 1);
-
-export enum DirectorView {
-    TOTAL_FRAMES,
-    COUNT
-}
-export const DirectorPool = new BufferPool(PoolType.DIRECTOR, Uint32Array, DirectorView, 1);
 
 export enum RenderWindowView {
     HAS_ON_SCREEN_ATTACHMENTS,
