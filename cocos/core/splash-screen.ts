@@ -296,7 +296,7 @@ export class SplashScreen {
 
         this.textTexture = this.device.createTexture({
             type: GFXTextureType.TEX2D,
-            usage: GFXTextureUsageBit.SAMPLED,
+            usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
             format: GFXFormat.RGBA8,
             width: this.textImg.width,
             height: this.textImg.height,
@@ -483,7 +483,7 @@ export class SplashScreen {
 
         this.texture = device.createTexture({
             type: GFXTextureType.TEX2D,
-            usage: GFXTextureUsageBit.SAMPLED,
+            usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
             format: GFXFormat.RGBA8,
             width: this.image.width,
             height: this.image.height,

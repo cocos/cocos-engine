@@ -37,7 +37,8 @@ import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { genHandle, MacroRecord, PropertyType } from './pass-utils';
 import { legacyCC } from '../../global-exports';
 import { ShaderPool, ShaderHandle, PipelineLayoutHandle, PipelineLayoutPool, NULL_HANDLE } from './memory-pools';
-import { DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE, GFXDescriptorSetLayout, IGFXDescriptorSetLayoutBinding } from '../..';
+import { DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE } from '../../gfx/descriptor-set';
+import { GFXDescriptorSetLayout, IGFXDescriptorSetLayoutBinding } from '../../gfx/descriptor-set-layout';
 
 interface IDefineRecord extends IDefineInfo {
     _map: (value: any) => number;
@@ -209,6 +210,7 @@ class ProgramLib {
 
         for (let i = 0; i < tmpl.blocks.length; i++) {
             const block = tmpl.blocks[i];
+            block.count = 1; // effect compiler guarantees this
             block.size = getSize(block);
             block.set = SetIndex.MATERIAL;
             if (!block.descriptorType) {
