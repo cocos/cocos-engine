@@ -182,15 +182,18 @@ export class Camera {
 
     public destroy () {
         legacyCC.director.root.detachCamera(this);
-        RenderViewPool.free(this._viewHandle);
-        this._view = null;
+        if (this._viewHandle) {
+            RenderViewPool.free(this._viewHandle);
+            this._viewHandle = NULL_HANDLE;
+            this._view = null;
+        }
         this._name = null;
         if (this._poolHandle) {
             CameraPool.free(this._poolHandle);
             this._poolHandle = NULL_HANDLE;
             FrustumPool.free(this._frustumHandle);
             this._frustumHandle = NULL_HANDLE;
-        } 
+        }
     }
 
     public attachToScene (scene: RenderScene) {
