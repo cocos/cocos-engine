@@ -919,7 +919,7 @@ export class Director extends EventTarget {
      * @zh 获取 director 启动以来游戏运行的总帧数。
      */
     public getTotalFrames () {
-        return DirectorPool.get(this._poolHandle, DirectorView.TOTAL_FRAMES);
+        return DirectorPool.get<number>(this._poolHandle, DirectorView.TOTAL_FRAMES);
     }
 
     /**

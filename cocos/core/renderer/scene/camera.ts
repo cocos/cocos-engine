@@ -134,7 +134,6 @@ export class Camera {
     private _ec: number = 0.0;
     private _poolHandle: CameraHandle = NULL_HANDLE;
     private _frustumHandle: FrustumHandle = NULL_HANDLE;  
-    private _ini = false;
 
     constructor (device: GFXDevice) {
         this._device = device;
@@ -157,7 +156,6 @@ export class Camera {
         CameraPool.set(handle, CameraView.HEIGHT, 1);
         CameraPool.set(handle, CameraView.CLEAR_FLAG, GFXClearFlag.NONE);
         CameraPool.set(handle, CameraView.CLEAR_DEPTH, 1.0);
-        CameraPool.set(handle, CameraView.CLEAR_STENCIL, 0);
         CameraPool.set(handle, CameraView.NODE, this._node.handle);
         if (this._scene) CameraPool.set(handle, CameraView.SCENE, this._scene.handle);
         if (JSB) {
@@ -574,7 +572,7 @@ export class Camera {
     }
 
     get exposure (): number {
-        return CameraPool.get(this._poolHandle, CameraView.EXPOSURE);
+        return CameraPool.get<number>(this._poolHandle, CameraView.EXPOSURE);
     }
 
     set flows (val: string[]) {
@@ -584,7 +582,7 @@ export class Camera {
     }
 
     get clearFlag () : GFXClearFlag {
-        return CameraPool.get(this._poolHandle, CameraView.CLEAR_FLAG);
+        return CameraPool.get<number>(this._poolHandle, CameraView.CLEAR_FLAG);
     }
 
     set clearFlag (flag: GFXClearFlag) {
@@ -592,7 +590,7 @@ export class Camera {
     }
 
     get clearDepth () : number {
-        return CameraPool.get(this._poolHandle, CameraView.CLEAR_DEPTH);
+        return CameraPool.get<number>(this._poolHandle, CameraView.CLEAR_DEPTH);
     }
 
     set clearDepth (depth: number) {
@@ -600,7 +598,7 @@ export class Camera {
     }
 
     get clearStencil () : number {
-        return CameraPool.get(this._poolHandle, CameraView.CLEAR_STENCIL);
+        return CameraPool.get<number>(this._poolHandle, CameraView.CLEAR_STENCIL);
     }
 
     set clearStencil (stencil: number) {

@@ -127,7 +127,7 @@ export class Root {
      * 累计时间（秒）
      */
     public get cumulativeTime (): number {
-        return RootPool.get(this._poolHandle, RootView.CUMULATIVE_TIME);
+        return RootPool.get<number>(this._poolHandle, RootView.CUMULATIVE_TIME);
     }
 
     /**
@@ -135,7 +135,7 @@ export class Root {
      * 帧时间（秒）
      */
     public get frameTime (): number {
-        return RootPool.get(this._poolHandle, RootView.FRAME_TIME);
+        return RootPool.get<number>(this._poolHandle, RootView.FRAME_TIME);
     }
 
     /**

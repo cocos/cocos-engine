@@ -171,8 +171,6 @@ export class Node extends BaseNode {
     public get worldPosition (): Readonly<Vec3> {
         this.updateWorldTransform();
         return this._pos;
-        // Keep to test
-        // return NodePool.getVec3(this._poolHandle, NodeView.WORLD_POSITION);
     }
     public set worldPosition (val: Readonly<Vec3>) {
         this.setWorldPosition(val);
@@ -857,8 +855,6 @@ export class Node extends BaseNode {
         } else {
             return Quat.copy(new Quat(), this._rot);
         }
-        // Keep to test
-        // return NodePool.getVec4(this._poolHandle, NodeView.WORLD_ROTATION) as Quat;
     }
 
     /**
@@ -931,8 +927,6 @@ export class Node extends BaseNode {
         this.updateWorldTransform();
         if (!out) { out = new Mat4(); }
         return Mat4.copy(out, this._mat);
-        // Keep to test
-        // return Mat4.copy(out, NodePool.getMat4(this._poolHandle, NodeView.WORLD_MATRIX));
     }
 
     /**
