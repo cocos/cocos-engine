@@ -419,7 +419,7 @@ export class Director extends EventTarget {
      * @deprecated since v2.0
      */
     public purgeCachedData () {
-        legacyCC.loader.releaseAll();
+        legacyCC.assetManager.releaseAll();
     }
 
     /**
@@ -450,7 +450,7 @@ export class Director extends EventTarget {
         this.stopAnimation();
 
         // Clear all caches
-        legacyCC.loader.releaseAll();
+        legacyCC.assetManager.releaseAll();
     }
 
     /**
