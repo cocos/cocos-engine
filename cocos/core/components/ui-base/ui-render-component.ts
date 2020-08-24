@@ -28,7 +28,7 @@
  */
 
 import { RenderableComponent } from '../../../core/3d/framework/renderable-component';
-import { ccclass, property, tooltip } from '../../../core/data/class-decorator';
+import { ccclass, property, executeInEditMode, requireComponent, disallowMultiple, tooltip, type, displayOrder } from '../../../core/data/class-decorator';
 import { Color } from '../../../core/math';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { ccenum } from '../../../core/value-types/enum';
@@ -42,8 +42,8 @@ import { RenderData } from '../../renderer/ui/render-data';
 import { UI } from '../../renderer/ui/ui';
 import { Node } from '../../scene-graph';
 import { TransformBit } from '../../scene-graph/node-enum';
-import { UIComponent } from './ui-component';
 import { legacyCC } from '../../global-exports';
+import { UITransformComponent } from './ui-transform-component';
 
 // hack
 ccenum(GFXBlendFactor);
@@ -116,7 +116,10 @@ const _matInsInfo: IMaterialInstanceInfo = {
  * 所有支持渲染的 UI 组件的基类。
  */
 @ccclass('cc.UIRenderComponent')
-export class UIRenderComponent extends UIComponent {
+@requireComponent(UITransformComponent)
+@disallowMultiple
+@executeInEditMode
+export class UIRenderComponent extends RenderableComponent {
 
     /**
      * @en
@@ -127,14 +130,12 @@ export class UIRenderComponent extends UIComponent {
      *
      * @param value 原图混合模式。
      * @example
-     * ```typescript
+     * ```ts
      * sprite.srcBlendFactor = GFXBlendFactor.ONE;
      * ```
      */
-    @property({
-        type: GFXBlendFactor,
-        displayOrder: 0,
-    })
+    @type(GFXBlendFactor)
+    @displayOrder(0)
     @tooltip('原图混合模式')
     get srcBlendFactor () {
         return this._srcBlendFactor;
@@ -158,14 +159,12 @@ export class UIRenderComponent extends UIComponent {
      *
      * @param value 目标混合模式。
      * @example
-     * ```typescript
+     * ```ts
      * sprite.dstBlendFactor = GFXBlendFactor.ONE;
      * ```
      */
-    @property({
-        type: GFXBlendFactor,
-        displayOrder: 1,
-    })
+    @type(GFXBlendFactor)
+    @displayOrder(1)
     @tooltip('目标混合模式')
     get dstBlendFactor () {
         return this._dstBlendFactor;
@@ -189,11 +188,8 @@ export class UIRenderComponent extends UIComponent {
      *
      * @param value 渲染颜色。
      */
-    @property({
-        displayOrder: 2,
-    })
+    @displayOrder(2)
     @tooltip('渲染颜色')
-    // @constget
     get color (): Readonly<Color> {
         return this._color;
     }
@@ -208,41 +204,32 @@ export class UIRenderComponent extends UIComponent {
         this.markForUpdateRenderData();
     }
 
-    /**
-     * @zh
-     * 渲染使用材质，实际使用材质是实例后材质。
-     *
-     * @param value 源材质。
-     */
-    @property({
-        type: Material,
-        displayOrder: 3,
-        visible: false,
-    })
-    @tooltip('源材质')
-    get sharedMaterial () {
-        return this._sharedMaterial;
+    // hack for builtinMaterial
+    protected _uiMaterial: Material | null = null;
+    protected _uiMaterialIns: MaterialInstance | null = null;
+
+    protected getUIRenderMaterial () {
+        return this._uiMaterialIns || this._uiMaterial;
     }
 
-    set sharedMaterial (value) {
-        if (this._sharedMaterial === value) {
-            return;
+    public getUIMaterialInstance () {
+        if (!this._uiMaterialIns || this._uiMatInsDirty) {
+            _matInsInfo.owner = this;
+            _matInsInfo.parent = this._uiMaterial!;
+            this._uiMaterialIns = new MaterialInstance(_matInsInfo);
+            this._uiMatInsDirty = false;
         }
-
-        this._sharedMaterial = value;
-        if (this._instanceMaterial) {
-            this._instanceMaterial();
-        }
+        return this._uiMaterialIns;
     }
 
-    get material () {
-        if (!this._material) {
-            if (this._instanceMaterial) {
-                this._instanceMaterial();
-            }
-        }
+    protected _uiMaterialDirty = false;
+    protected _uiMatInsDirty = false;
 
-        return this._material;
+    get uiMaterial () {
+        return this._uiMaterial;
+    }
+    set uiMaterial (val) {
+        this._uiMaterial = val;
     }
 
     get renderData () {
@@ -264,8 +251,6 @@ export class UIRenderComponent extends UIComponent {
     protected _dstBlendFactor = GFXBlendFactor.ONE_MINUS_SRC_ALPHA;
     @property
     protected _color: Color = Color.WHITE.clone();
-    @property
-    protected _sharedMaterial: Material | null = null;
 
     protected _assembler: IAssembler | null = null;
     protected _postAssembler: IAssembler | null = null;
@@ -274,7 +259,6 @@ export class UIRenderComponent extends UIComponent {
     protected _renderFlag = true;
     // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
     protected _delegateSrc: Node | null = null;
-    protected _material: Material | null = null;
     protected _instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
     protected _blendTemplate = {
         blendState: {
@@ -287,36 +271,40 @@ export class UIRenderComponent extends UIComponent {
         },
     };
 
-    public __preload () {
-        super.__preload();
-        this._instanceMaterial();
+    protected _lastParent: Node | null = null;
+
+    public __preload (){
+        this.node._uiProps.uiComp = this;
         if (this._flushAssembler){
             this._flushAssembler();
         }
     }
 
     public onEnable () {
-        super.onEnable();
         this.node.on(SystemEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.on(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this._renderFlag = this._canRender();
     }
 
     public onDisable () {
-        super.onDisable();
         this.node.off(SystemEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.off(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this._renderFlag = false;
     }
 
     public onDestroy () {
-        super.onDestroy();
-        this.destroyRenderData();
-        if (this._material){
-            this._material.destroy();
+        if (this.node._uiProps.uiComp === this) {
+            this.node._uiProps.uiComp = null;
         }
-
-        this._updateMaterial(null);
+        this.destroyRenderData();
+        if (this._materialInstances){
+            for(let i = 0; i < this._materialInstances.length; i++) {
+                this._materialInstances[i]!.destroy();
+            }
+        }
+        if (this._uiMaterialIns) {
+            this._uiMaterialIns.destroy();
+        }
         this._renderData = null;
     }
 
@@ -376,7 +364,6 @@ export class UIRenderComponent extends UIComponent {
 
     // Don't call it unless you know your purpose.
     public updateAssembler (render: UI) {
-        super.updateAssembler(render);
         if (this._renderFlag){
             this._checkAndUpdateRenderData();
             this._render(render);
@@ -385,7 +372,6 @@ export class UIRenderComponent extends UIComponent {
 
     // Don't call it unless you know your purpose.
     public postUpdateAssembler (render: UI) {
-        super.postUpdateAssembler(render);
         if (this._renderFlag) {
             this._postRender(render);
         }
@@ -403,7 +389,8 @@ export class UIRenderComponent extends UIComponent {
     }
 
     protected _canRender () {
-        return this.material !== null && this.enabled && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy);
+        // this.getMaterial(0) !== null still can render is hack for builtin Material
+        return this.enabled && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy);
     }
 
     protected _postCanRender () {}
@@ -414,23 +401,29 @@ export class UIRenderComponent extends UIComponent {
         }
     }
 
-    protected _updateMaterial (material: Material | null) {
-        this._material = material;
+    public _updateBlendFunc () {
+        let mat = this.getMaterial(0);
+        const target = this._blendTemplate.blendState.targets[0];
 
-        this._updateBlendFunc();
-    }
-
-    protected _updateBlendFunc () {
-        if (!this._material) {
-            return;
+        if(mat) {
+            if (target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor) {
+                mat = this.material!;
+                target.blendDst = this._dstBlendFactor;
+                target.blendSrc = this._srcBlendFactor;
+                mat.overridePipelineStates(this._blendTemplate, 0);
+            }
+            return mat;
         }
 
-        const target = this._blendTemplate.blendState.targets[0];
-        if (target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor) {
+        if ((this._uiMaterialIns !== null && this._uiMatInsDirty) ||
+            (target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor)) {
+            mat = this.getUIMaterialInstance();
             target.blendDst = this._dstBlendFactor;
             target.blendSrc = this._srcBlendFactor;
-            this._material.overridePipelineStates(this._blendTemplate);
+            mat.overridePipelineStates(this._blendTemplate, 0);
         }
+
+        return mat || this.getUIRenderMaterial();
     }
 
     // pos, rot, scale changed
@@ -447,38 +440,38 @@ export class UIRenderComponent extends UIComponent {
         }
     }
 
-    protected _instanceMaterial () {
-        let mat: Material | null = null;
-        _matInsInfo.owner = new RenderableComponent();
-        if (this._sharedMaterial) {
-            _matInsInfo.parent = this._sharedMaterial;
-            mat = new MaterialInstance(_matInsInfo);
+    public _updateBuiltinMaterial () : Material {
+        // not need _uiMaterialDirty at firstTime
+        let init = false;
+        if (!this._uiMaterial) { init = true; }
+
+        if (this._uiMaterial && !this._uiMaterialDirty) {
+            return this._uiMaterial;
         } else {
             switch (this._instanceMaterialType) {
                 case InstanceMaterialType.ADD_COLOR:
-                    _matInsInfo.parent = builtinResMgr.get('ui-base-material');
-                    mat = new MaterialInstance(_matInsInfo);
+                    this._uiMaterial = builtinResMgr.get('ui-base-material') as Material;
                     break;
                 case InstanceMaterialType.ADD_COLOR_AND_TEXTURE:
-                    _matInsInfo.parent = builtinResMgr.get('ui-sprite-material');
-                    mat = new MaterialInstance(_matInsInfo);
+                    this._uiMaterial = builtinResMgr.get('ui-sprite-material') as Material;
                     break;
                 case InstanceMaterialType.GRAYSCALE:
-                    _matInsInfo.parent = builtinResMgr.get('ui-sprite-gray-material');
-                    mat = new MaterialInstance(_matInsInfo);
+                    this._uiMaterial = builtinResMgr.get('ui-sprite-gray-material') as Material;
                     break;
                 case InstanceMaterialType.USE_ALPHA_SEPARATED:
-                    _matInsInfo.parent = builtinResMgr.get('ui-sprite-alpha-sep-material');
-                    mat = new MaterialInstance(_matInsInfo);
+                    this._uiMaterial = builtinResMgr.get('ui-sprite-alpha-sep-material') as Material;
                     break;
                 case InstanceMaterialType.USE_ALPHA_SEPARATED_AND_GRAY:
-                    _matInsInfo.parent = builtinResMgr.get('ui-sprite-gray-alpha-sep-material');
-                    mat = new MaterialInstance(_matInsInfo);
+                    this._uiMaterial = builtinResMgr.get('ui-sprite-gray-alpha-sep-material') as Material;
+                    break;
+                default:
+                    this._uiMaterial = builtinResMgr.get('ui-sprite-material') as Material;
                     break;
             }
+            this._uiMaterialDirty = false;
+            if(!init) {this._uiMatInsDirty = true;}
+            return this._uiMaterial;
         }
-
-        this._updateMaterial(mat);
     }
 
     protected _flushAssembler? (): void;

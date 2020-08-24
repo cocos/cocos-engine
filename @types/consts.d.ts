@@ -51,6 +51,11 @@ declare module "internal:constants" {
     export const XIAOMI: boolean;
 
     /**
+     * Running in the ByteDance's quick game.
+     */
+    export const BYTEDANCE: boolean;
+
+    /**
      * Running in the baidu's mini game.
      */
     export const BAIDU: boolean;

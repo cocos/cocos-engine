@@ -28,7 +28,7 @@
  */
 
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
-import { ccclass, executeInEditMode, executionOrder, help, menu, property, tooltip } from '../data/class-decorator';
+import { ccclass, executeInEditMode, executionOrder, help, menu, property, tooltip, type } from '../data/class-decorator';
 import { Mat4 } from '../math';
 import { DataPoolManager } from '../renderer/data-pool-manager';
 import { Node } from '../scene-graph/node';
@@ -54,7 +54,7 @@ export class Socket {
      * @en Transform output node.
      * @zh 此挂点的变换信息输出节点。
      */
-    @property(Node)
+    @type(Node)
     public target: Node | null = null;
 
     constructor (path = '', target: Node | null = null) {
@@ -104,9 +104,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
      * @zh
      * 当前动画组件维护的挂点数组。要挂载自定义节点到受动画驱动的骨骼上，必须先在此注册挂点。
      */
-    @property({
-        type: [Socket],
-    })
+    @type([Socket])
     @tooltip('i18n:animation.sockets')
     get sockets () {
         return this._sockets;
@@ -150,7 +148,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     @property
     protected _useBakedAnimation = true;
 
-    @property({ type: [Socket] })
+    @type([Socket])
     protected _sockets: Socket[] = [];
 
     public onDestroy () {

@@ -7,7 +7,8 @@ import { BatchedBuffer } from './batched-buffer';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { GFXDevice } from '../gfx/device';
 import { GFXRenderPass } from '../gfx';
-import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../renderer/core/memory-pools';
+import { DSPool, ShaderPool, PassPool, PassView } from '../renderer/core/memory-pools';
+import { SetIndex } from './define';
 
 /**
  * @en The render queue for dynamic batching
@@ -50,13 +51,12 @@ export class RenderBatchedQueue {
                     batch.vbs[v].update(batch.vbDatas[v]);
                 }
                 batch.vbIdx.update(batch.vbIdxData.buffer);
-                batch.ubo.update(batch.uboData.view);
-                const pso = PipelineStateManager.getOrCreatePipelineState(device, batch.psoCI, renderPass, batch.ia);
-                if (!boundPSO) {
-                    cmdBuff.bindPipelineState(pso);
-                    boundPSO = true;
-                }
-                cmdBuff.bindBindingLayout(BindingLayoutPool.get(PSOCIPool.get(batch.psoCI, PSOCIView.BINDING_LAYOUT)));
+                batch.ubo.update(batch.uboData);
+                const shader = ShaderPool.get(batch.hShader);
+                const pso = PipelineStateManager.getOrCreatePipelineState(device, batch.hPass, shader, renderPass, batch.ia);
+                if (!boundPSO) { cmdBuff.bindPipelineState(pso); boundPSO = true; }
+                cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(batch.hPass, PassView.DESCRIPTOR_SET)));
+                cmdBuff.bindDescriptorSet(SetIndex.LOCAL, batch.descriptorSet, res.value.dynamicOffsets);
                 cmdBuff.bindInputAssembler(batch.ia);
                 cmdBuff.draw(batch.ia);
             }

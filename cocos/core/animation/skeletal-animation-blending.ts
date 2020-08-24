@@ -5,6 +5,7 @@
 import { Vec3, Quat } from '../math';
 import { Node } from '../scene-graph';
 import { IValueProxyFactory } from './value-proxy';
+import { assertIsNonNullable } from '../data/utils/asserts';
 
 export class BlendStateBuffer {
     private _nodeBlendStates: Map<Node, NodeBlendState> = new Map();
@@ -12,16 +13,15 @@ export class BlendStateBuffer {
     public ref (node: Node, property: BlendingProperty) {
         let nodeBlendState = this._nodeBlendStates.get(node);
         if (!nodeBlendState) {
-            nodeBlendState = {  properties: {} };
+            nodeBlendState = { dirty: false, properties: {} };
             this._nodeBlendStates.set(node, nodeBlendState);
         }
         let propertyBlendState = nodeBlendState.properties[property];
         if (!propertyBlendState) {
-            propertyBlendState = nodeBlendState.properties[property] = {
-                refCount: 0,
-                weight: 0,
-                value: (isVec3Property(property) ? new Vec3() : new Quat()) as any,
-            };
+            propertyBlendState = nodeBlendState.properties[property] = new PropertyBlendState(
+                nodeBlendState,
+                (isVec3Property(property) ? new Vec3() : new Quat()) as any,
+            );
         }
         ++propertyBlendState.refCount;
         return propertyBlendState;
@@ -48,6 +48,10 @@ export class BlendStateBuffer {
 
     public apply () {
         this._nodeBlendStates.forEach((nodeBlendState, node) => {
+            if (!nodeBlendState.dirty) {
+                return;
+            }
+            nodeBlendState.dirty = false;
             const { position, scale, rotation, eulerAngles } = nodeBlendState.properties;
             let t: Vec3 | undefined;
             let s: Vec3 | undefined;
@@ -83,17 +87,13 @@ export class BlendStateBuffer {
     }
 }
 
-export type IBlendStateWriter = IValueProxyFactory & {
-    initialize: () => void;
-    destroy: () => void;
-    enable: (enabled: boolean) => void;
-};
+export type IBlendStateWriter = IValueProxyFactory & { destroy: () => void };
 
 export function createBlendStateWriter<P extends BlendingProperty> (
     blendState: BlendStateBuffer,
     node: Node,
     property: P,
-    weightProxy: { weight: number },
+    weightProxy: { weight: number }, // Effectively equals to AnimationState
     /**
      * True if this writer will write constant value each time.
      */
@@ -101,24 +101,16 @@ export function createBlendStateWriter<P extends BlendingProperty> (
 ): IBlendStateWriter {
     const blendFunction: BlendFunction<BlendingPropertyValue<P>> =
         isVec3Property(property) ? additive3D as any: additiveQuat as any;
-    let propertyBlendState: PropertyBlendState<BlendingPropertyValue<P>> | null = null;
+    let propertyBlendState: PropertyBlendState<BlendingPropertyValue<P>> | null = blendState.ref(node, property);
     let isConstCacheValid = false;
     let lastWeight = -1;
-    let isEnabled = true;
     return {
-        initialize () {
-            if (!propertyBlendState) {
-                propertyBlendState = blendState.ref(node, property);
-            }
-        },
         destroy () {
+            assertIsNonNullable(propertyBlendState);
             if (propertyBlendState) {
                 blendState.deRef(node, property);
                 propertyBlendState = null;
             }
-        },
-        enable (enabled: boolean) {
-            isEnabled = enabled;
         },
         forTarget: () => {
             return {
@@ -129,9 +121,6 @@ export function createBlendStateWriter<P extends BlendingProperty> (
                     return node[property];
                 },
                 set: (value: BlendingPropertyValue<P>) => {
-                    if (!isEnabled) {
-                        return;
-                    }
                     if (!propertyBlendState) {
                         return;
                     }
@@ -151,6 +140,7 @@ export function createBlendStateWriter<P extends BlendingProperty> (
                     }
                     blendFunction(value, weight, propertyBlendState);
                     propertyBlendState.weight += weight;
+                    propertyBlendState.markAsDirty();
                     isConstCacheValid = true;
                     lastWeight = weight;
                 },
@@ -171,17 +161,29 @@ type BlendingProperty = keyof NodeBlendState['properties'];
 
 type BlendingPropertyValue<P extends BlendingProperty> = NonNullable<NodeBlendState['properties'][P]>['value'];
 
-interface PropertyBlendState<T> {
-    weight: number;
-    value: T;
+class PropertyBlendState<T> {
+    public weight = 0;
+    public value: T;
 
     /**
      * How many writer reference this property.
      */
-    refCount: number;
+    public refCount = 0;
+
+    private _node: NodeBlendState;
+
+    constructor (node: NodeBlendState, value: T) {
+        this._node = node;
+        this.value = value;
+    }
+
+    public markAsDirty () {
+        this._node.dirty = true;
+    }
 }
 
 interface NodeBlendState {
+    dirty: boolean;
     properties: {
         position?: PropertyBlendState<Vec3>;
         rotation?: PropertyBlendState<Quat>;

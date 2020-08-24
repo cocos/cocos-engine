@@ -3,7 +3,7 @@
  * @category particle
  */
 
-import { ccclass, property, tooltip } from '../../core/data/class-decorator';
+import { ccclass, property, tooltip, displayOrder, range, type } from '../../core/data/class-decorator';
 import { lerp, pseudoRandom, Vec3, Mat4, Quat } from '../../core/math';
 import { Space, ModuleRandSeed } from '../enum';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
@@ -24,9 +24,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     /**
      * @zh 是否启用。
      */
-    @property({
-        displayOrder: 0,
-    })
+    @displayOrder(0)
     public get enable () {
         return this._enable;
     }
@@ -41,72 +39,60 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     /**
      * @zh X 轴方向上的速度下限。
      */
-    @property({
-        type: CurveRange,
-        range: [-1, 1],
-        displayOrder: 4,
-    })
+    @type(CurveRange)
+    @range([-1, 1])
+    @displayOrder(4)
     @tooltip('X 轴方向上的速度下限')
     public limitX = new CurveRange();
 
     /**
      * @zh Y 轴方向上的速度下限。
      */
-    @property({
-        type: CurveRange,
-        range: [-1, 1],
-        displayOrder: 5,
-    })
+    @type(CurveRange)
+    @range([-1, 1])
+    @displayOrder(5)
     @tooltip('Y 轴方向上的速度下限')
     public limitY = new CurveRange();
 
     /**
      * @zh Z 轴方向上的速度下限。
      */
-    @property({
-        type: CurveRange,
-        range: [-1, 1],
-        displayOrder: 6,
-    })
+    @type(CurveRange)
+    @range([-1, 1])
+    @displayOrder(6)
     @tooltip('Z 轴方向上的速度下限')
     public limitZ = new CurveRange();
 
     /**
      * @zh 速度下限。
      */
-    @property({
-        type: CurveRange,
-        range: [-1, 1],
-        displayOrder: 3,
-    })
+    @type(CurveRange)
+    @range([-1, 1])
+    @displayOrder(3)
     @tooltip('速度下限')
     public limit = new CurveRange();
 
     /**
      * @zh 当前速度与速度下限的插值。
      */
-    @property({
-        displayOrder: 7,
-    })
+    @property
+    @displayOrder(7)
     @tooltip('当前速度与速度下限的插值')
     public dampen = 3;
 
     /**
      * @zh 是否三个轴分开限制。
      */
-    @property({
-        displayOrder: 2,
-    })
+    @property
+    @displayOrder(2)
     @tooltip('是否三个轴分开限制')
     public separateAxes = false;
 
     /**
      * @zh 计算速度下限时采用的坐标系 [[Space]]。
      */
-    @property({
-        type: Space,
-        displayOrder: 1,
-    })
+    @type(Space)
+    @displayOrder(1)
     @tooltip('计算速度下限时采用的坐标系')
     public space = Space.Local;
 

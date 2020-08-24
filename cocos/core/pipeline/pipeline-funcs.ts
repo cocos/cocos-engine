@@ -2,7 +2,7 @@
  * @category pipeline
  */
 
-import { IGFXColor } from '../gfx/define';
+import { GFXColor } from '../gfx/define';
 
 /**
  * @en Convert color in SRGB space to linear space
@@ -10,7 +10,7 @@ import { IGFXColor } from '../gfx/define';
  * @param out Output color object
  * @param gamma Gamma value in SRGB space
  */
-export function SRGBToLinear (out: IGFXColor, gamma: IGFXColor) {
+export function SRGBToLinear (out: GFXColor, gamma: GFXColor) {
     // out.r = Math.pow(gamma.r, 2.2);
     // out.g = Math.pow(gamma.g, 2.2);
     // out.b = Math.pow(gamma.b, 2.2);
@@ -25,7 +25,7 @@ export function SRGBToLinear (out: IGFXColor, gamma: IGFXColor) {
  * @param out Output color object
  * @param linear Color value in linear space
  */
-export function LinearToSRGB (out: IGFXColor, linear: IGFXColor) {
+export function LinearToSRGB (out: GFXColor, linear: GFXColor) {
     // out.r = Math.pow(linear.r, 0.454545);
     // out.g = Math.pow(linear.g, 0.454545);
     // out.b = Math.pow(linear.b, 0.454545);

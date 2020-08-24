@@ -1,0 +1,221 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - passes:
+    - switch: USE_OUTLINE_PASS
+      vert: outline-vs:vert
+      frag: outline-fs:frag
+      rasterizerState:
+        cullMode: front
+      properties:
+        lineWidth:     { value: 10, target: outlineParams.x }
+        depthBias:     { value: 0,  target: outlineParams.y }
+        baseColor:     { editor: { type: color } }
+        baseColorMap:  { value: grey }
+      migrations:
+        properties:
+          lineWidth:   { formerlySerializedAs: outlineParams.x }
+          depthBias:   { formerlySerializedAs: outlineParams.y }
+    - vert: toon-vs:vert
+      frag: toon-fs:frag
+      properties: &props
+        tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:      { value: [0.6, 0.6, 0.6, 1.0], target: baseColor, editor: { displayName: BaseColor, type: color } }
+        colorScale:     { value: [1.0, 1.0, 1.0], target: colorScaleAndCutoff.xyz }
+        alphaThreshold: { value: 0.5, target: colorScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
+        shadeColor1:    { value: [0.4, 0.4, 0.4, 1.0], editor: { type: color } }
+        shadeColor2:    { value: [0.2, 0.2, 0.2, 1.0], editor: { type: color } }
+        specular:       { value: [1.0, 1.0, 1.0, 0.3], editor: { type: color } }
+        baseStep:       { value: 0.8,   target: shadeParams.x }
+        baseFeather:    { value: 0.001, target: shadeParams.y }
+        shadeStep:      { value: 0.5,   target: shadeParams.z }
+        shadeFeather:   { value: 0.001, target: shadeParams.w }
+        emissive:       { value: [0.0, 0.0, 0.0, 1.0], editor: { type: color } }
+        emissiveScale:  { value: [1.0, 1.0, 1.0], target: emissiveScaleAndStrenth.xyz }
+        normalStrenth:  { value: 1.0, target: emissiveScaleAndStrenth.w, editor: { parent: USE_NORMAL_MAP } }
+        normalMap:      { value: normal }
+        mainTexture:    { value: white, target: baseColorMap, editor: { displayName: BaseColorMap } }
+        shadeMap1:      { value: white  }
+        shadeMap2:      { value: white  }
+        specularMap:    { value: white  }
+        emissiveMap:    { value: grey   }
+      migrations:
+        properties:
+          mainColor:    { formerlySerializedAs: baseColor }
+          baseStep:     { formerlySerializedAs: shadeParams.x }
+          baseFeather:  { formerlySerializedAs: shadeParams.y }
+          shadeStep:    { formerlySerializedAs: shadeParams.z }
+          shadeFeather: { formerlySerializedAs: shadeParams.w }
+          mainTexture:  { formerlySerializedAs: baseColorMap }
+    - vert: toon-vs:vert
+      frag: toon-fs:frag
+      phase: forward-add
+      propertyIndex: 1
+      embeddedMacros: { CC_FORWARD_ADD: true }
+      depthStencilState:
+        depthFunc: equal
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: one
+          blendSrcAlpha: zero
+          blendDstAlpha: one
+      properties: *props
+}%
+
+CCProgram toon-vs %{
+  precision highp float;
+  #include <input-standard>
+  #include <cc-global>
+  #include <cc-local-batch>
+
+  out vec3 v_position;
+  out vec2 v_uv;
+  out vec3 v_normal;
+  #if USE_NORMAL_MAP
+    out vec3 v_tangent;
+    out vec3 v_bitangent;
+  #endif
+
+  uniform ToonVert {
+    vec4 tilingOffset;
+  };
+
+  vec4 vert () {
+    StandardVertInput In;
+    CCVertInput(In);
+
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+
+    vec4 pos = matWorld * In.position;
+    v_position = pos.xyz;
+    v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
+
+    v_normal = (matWorldIT * vec4(In.normal, 0.0)).xyz;
+    #if USE_NORMAL_MAP
+      v_tangent = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
+      v_bitangent = cross(v_normal, v_tangent) * In.tangent.w; // note the cross order
+    #endif
+
+    return cc_matProj * (cc_matView * matWorld) * In.position;
+  }
+}%
+
+CCProgram toon-fs %{
+  precision highp float;
+  #include <cc-global>
+  #include <shading-toon>
+  #include <gamma>
+  #include <output-standard>
+
+  in vec3 v_position;
+  in vec2 v_uv;
+
+  in vec3 v_normal;
+  #if USE_NORMAL_MAP
+    in vec3 v_tangent;
+    in vec3 v_bitangent;
+    uniform sampler2D normalMap;
+  #endif
+
+  #if USE_BASE_COLOR_MAP
+    uniform sampler2D baseColorMap;
+  #endif
+  #if USE_1ST_SHADE_MAP
+    uniform sampler2D shadeMap1;
+  #endif
+  #if USE_2ND_SHADE_MAP
+    uniform sampler2D shadeMap2;
+  #endif
+  #if USE_SPECULAR_MAP
+    uniform sampler2D specularMap;
+  #endif
+  #if USE_EMISSIVE_MAP
+    uniform sampler2D emissiveMap;
+  #endif
+
+  uniform ToonFrag {
+    vec4 baseColor;
+    vec4 colorScaleAndCutoff;
+    vec4 shadeColor1;
+    vec4 shadeColor2;
+    vec4 specular; // xyz: specular color, w: power
+    vec4 shadeParams;
+    vec4 emissive;
+    vec4 emissiveScaleAndStrenth;
+  };
+
+  #if USE_ALPHA_TEST
+    #pragma define ALPHA_TEST_CHANNEL options([a, r, g, b])
+  #endif
+
+  void surf (out ToonSurface s) {
+    s.shade2 = shadeColor2.rgb * colorScaleAndCutoff.rgb;
+    #if USE_2ND_SHADE_MAP
+      s.shade2 *= SRGBToLinear(texture(shadeMap2, v_uv).rgb);
+    #endif
+    s.shade1 = shadeColor1.rgb * colorScaleAndCutoff.rgb;
+    #if USE_1ST_SHADE_MAP
+      s.shade1 *= SRGBToLinear(texture(shadeMap1, v_uv).rgb);
+      #if SHADE_MAP_1_AS_SHADE_MAP_2
+        s.shade2 *= s.shade1.rgb;
+      #endif
+    #endif
+
+    vec4 baseColor = baseColor;
+    #if USE_BASE_COLOR_MAP
+      vec4 baseColorMap = texture(baseColorMap, v_uv);
+      baseColorMap.rgb = SRGBToLinear(baseColorMap.rgb);
+      baseColor *= baseColorMap;
+      #if BASE_COLOR_MAP_AS_SHADE_MAP_1
+        s.shade1 *= baseColorMap.rgb;
+      #endif
+      #if BASE_COLOR_MAP_AS_SHADE_MAP_2
+        s.shade2 *= baseColorMap.rgb;
+      #endif
+    #endif
+    s.baseColor = baseColor;
+    s.baseColor.rgb *= colorScaleAndCutoff.xyz;
+
+    #if USE_ALPHA_TEST
+      if (s.baseColor.ALPHA_TEST_CHANNEL < colorScaleAndCutoff.w) discard;
+    #endif
+
+    s.normal = v_normal;
+    #if USE_NORMAL_MAP
+      vec3 nmmp = texture(normalMap, v_uv).xyz - vec3(0.5);
+      s.normal =
+        (nmmp.x * emissiveScaleAndStrenth.w) * normalize(v_tangent) +
+        (nmmp.y * emissiveScaleAndStrenth.w) * normalize(v_bitangent) +
+        nmmp.z * normalize(s.normal);
+    #endif
+
+    s.position = v_position;
+
+    s.specular = specular;
+    #if USE_SPECULAR_MAP
+      s.specular.rgb *= SRGBToLinear(texture(specularMap, v_uv).rgb);
+    #endif
+
+    s.emissive = emissive.rgb * emissiveScaleAndStrenth.xyz;
+    #if USE_EMISSIVE_MAP
+      s.emissive *= SRGBToLinear(texture(emissiveMap, v_uv).rgb);
+    #endif
+
+    s.baseStep = shadeParams.x;
+    s.baseFeather = shadeParams.y;
+    s.shadeStep = shadeParams.z;
+    s.shadeFeather = shadeParams.w;
+  }
+
+  vec4 frag () {
+    ToonSurface s; surf(s);
+    vec4 color = CCToonShading(s);
+    return CCFragOutput(color);
+  }
+}%

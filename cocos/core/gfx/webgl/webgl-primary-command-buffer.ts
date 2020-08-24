@@ -1,34 +1,36 @@
 import { GFXBuffer, GFXBufferSource } from '../buffer';
 import { GFXCommandBuffer } from '../command-buffer';
-import { GFXBufferTextureCopy, GFXBufferUsageBit, GFXClearFlag, GFXTextureLayout, IGFXColor, IGFXRect } from '../define';
+import { GFXBufferTextureCopy, GFXBufferUsageBit, GFXColor, GFXRect } from '../define';
 import { GFXFramebuffer } from '../framebuffer';
 import { GFXInputAssembler } from '../input-assembler';
 import { GFXTexture } from '../texture';
-import { WebGLGFXBuffer } from './webgl-buffer';
-import { WebGLGFXCommandBuffer } from './webgl-command-buffer';
+import { WebGLBuffer } from './webgl-buffer';
+import { WebGLCommandBuffer } from './webgl-command-buffer';
 import {
     WebGLCmdFuncBeginRenderPass, WebGLCmdFuncBindStates, WebGLCmdFuncCopyBuffersToTexture,
     WebGLCmdFuncDraw, WebGLCmdFuncExecuteCmds, WebGLCmdFuncUpdateBuffer } from './webgl-commands';
-import { WebGLGFXDevice } from './webgl-device';
-import { WebGLGFXFramebuffer } from './webgl-framebuffer';
-import { WebGLGFXTexture } from './webgl-texture';
+import { WebGLDevice } from './webgl-device';
+import { WebGLFramebuffer } from './webgl-framebuffer';
+import { WebGLTexture } from './webgl-texture';
 import { GFXRenderPass } from '../render-pass';
-import { WebGLGFXRenderPass } from './webgl-render-pass';
+import { WebGLRenderPass } from './webgl-render-pass';
 
-export class WebGLGFXPrimaryCommandBuffer extends WebGLGFXCommandBuffer {
+const _dynamicOffsets: number[] = [];
+
+export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
 
     public beginRenderPass (
         renderPass: GFXRenderPass,
         framebuffer: GFXFramebuffer,
-        renderArea: IGFXRect,
-        clearColors: IGFXColor[],
+        renderArea: GFXRect,
+        clearColors: GFXColor[],
         clearDepth: number,
         clearStencil: number) {
 
         WebGLCmdFuncBeginRenderPass(
-            this._device as WebGLGFXDevice,
-            (renderPass as WebGLGFXRenderPass).gpuRenderPass,
-            (framebuffer as WebGLGFXFramebuffer).gpuFramebuffer,
+            this._device as WebGLDevice,
+            (renderPass as WebGLRenderPass).gpuRenderPass,
+            (framebuffer as WebGLFramebuffer).gpuFramebuffer,
             renderArea, clearColors, clearDepth, clearStencil);
         this._isInRenderPass = true;
     }
@@ -39,7 +41,7 @@ export class WebGLGFXPrimaryCommandBuffer extends WebGLGFXCommandBuffer {
                 this.bindStates();
             }
 
-            WebGLCmdFuncDraw(this._device as WebGLGFXDevice, inputAssembler);
+            WebGLCmdFuncDraw(this._device as WebGLDevice, inputAssembler);
 
             ++this._numDrawCalls;
             this._numInstances += inputAssembler.instanceCount;
@@ -65,7 +67,7 @@ export class WebGLGFXPrimaryCommandBuffer extends WebGLGFXCommandBuffer {
 
     public updateBuffer (buffer: GFXBuffer, data: GFXBufferSource, offset?: number, size?: number) {
         if (!this._isInRenderPass) {
-            const gpuBuffer = (buffer as WebGLGFXBuffer).gpuBuffer;
+            const gpuBuffer = (buffer as WebGLBuffer).gpuBuffer;
             if (gpuBuffer) {
                 if (offset === undefined) { offset = 0; }
 
@@ -78,7 +80,7 @@ export class WebGLGFXPrimaryCommandBuffer extends WebGLGFXCommandBuffer {
                     buffSize = (data as ArrayBuffer).byteLength;
                 }
 
-                WebGLCmdFuncUpdateBuffer(this._device as WebGLGFXDevice, gpuBuffer, data as ArrayBuffer, offset, buffSize);
+                WebGLCmdFuncUpdateBuffer(this._device as WebGLDevice, gpuBuffer, data as ArrayBuffer, offset, buffSize);
             }
         } else {
             console.error('Command \'updateBuffer\' must be recorded outside a render pass.');
@@ -88,9 +90,9 @@ export class WebGLGFXPrimaryCommandBuffer extends WebGLGFXCommandBuffer {
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
 
         if (!this._isInRenderPass) {
-            const gpuTexture = (texture as WebGLGFXTexture).gpuTexture;
+            const gpuTexture = (texture as WebGLTexture).gpuTexture;
             if (gpuTexture) {
-                WebGLCmdFuncCopyBuffersToTexture(this._device as WebGLGFXDevice, buffers, gpuTexture, regions);
+                WebGLCmdFuncCopyBuffersToTexture(this._device as WebGLDevice, buffers, gpuTexture, regions);
             }
         } else {
             console.error('Command \'copyBufferToTexture\' must be recorded outside a render pass.');
@@ -100,8 +102,8 @@ export class WebGLGFXPrimaryCommandBuffer extends WebGLGFXCommandBuffer {
     public execute (cmdBuffs: GFXCommandBuffer[], count: number) {
         for (let i = 0; i < count; ++i) {
             // actually they are secondary buffers, the cast here is only for type checking
-            const webGLCmdBuff = cmdBuffs[i] as WebGLGFXPrimaryCommandBuffer;
-            WebGLCmdFuncExecuteCmds(this._device as WebGLGFXDevice, webGLCmdBuff.cmdPackage);
+            const webGLCmdBuff = cmdBuffs[i] as WebGLPrimaryCommandBuffer;
+            WebGLCmdFuncExecuteCmds(this._device as WebGLDevice, webGLCmdBuff.cmdPackage);
             this._numDrawCalls += webGLCmdBuff._numDrawCalls;
             this._numInstances += webGLCmdBuff._numInstances;
             this._numTris += webGLCmdBuff._numTris;
@@ -109,8 +111,12 @@ export class WebGLGFXPrimaryCommandBuffer extends WebGLGFXCommandBuffer {
     }
 
     protected bindStates () {
-        WebGLCmdFuncBindStates(this._device as WebGLGFXDevice,
-            this._curGPUPipelineState, this._curGPUBindingLayout, this._curGPUInputAssembler,
+        _dynamicOffsets.length = 0;
+        for (let i = 0; i < this._curDynamicOffsets.length; i++) {
+            Array.prototype.push.apply(_dynamicOffsets, this._curDynamicOffsets[i]);
+        }
+        WebGLCmdFuncBindStates(this._device as WebGLDevice,
+            this._curGPUPipelineState, this._curGPUInputAssembler, this._curGPUDescriptorSets, _dynamicOffsets,
             this._curViewport, this._curScissor, this._curLineWidth, this._curDepthBias, this._curBlendConstants,
             this._curDepthBounds, this._curStencilWriteMask, this._curStencilCompareMask);
         this._isStateInvalied = false;

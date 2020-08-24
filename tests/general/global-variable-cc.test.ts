@@ -44,15 +44,13 @@ test('global variables are sealed', async () => {
     getMembersRecursive(cc, 'cc');
 
     const sealedGlobalVariablesFile = ps.join(__dirname, 'sealed-global-variables.json');
-    const output = false; // DO NOT CHANGE THIS PROPERTY EXCEPT IF YOU KNOW WHAT ARE YOU DOING.
+    const output = false;
     if (output) {
-        // Update the sealed-global-variables.json.
-        // Please take care.
         await fs.writeFile(sealedGlobalVariablesFile, JSON.stringify({
             thisFile: {
                 stamp: new Date().toISOString(),
             },
-            variables: globalVariables,
+            variables: globalVariables.sort(),
         }, undefined, 4));
     } else {
         const sealedGlobalVariables = (await fs.readJson(sealedGlobalVariablesFile)).variables as string[];

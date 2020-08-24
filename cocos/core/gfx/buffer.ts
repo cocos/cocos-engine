@@ -15,12 +15,6 @@ import {
 } from './define';
 import { GFXDevice } from './device';
 
-export interface IGFXUniformInfo {
-    name: string;
-    type: GFXType;
-    count: number;
-}
-
 export interface IGFXDrawInfo {
     vertexCount: number;
     firstVertex: number;
@@ -49,6 +43,12 @@ export interface IGFXBufferInfo {
      */
     stride?: number;
     flags?: GFXBufferFlags;
+}
+
+export interface IGFXBufferViewInfo {
+    buffer: GFXBuffer;
+    offset: number;
+    range: number;
 }
 
 /**
@@ -124,7 +124,7 @@ export abstract class GFXBuffer extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: IGFXBufferInfo): boolean;
+    public abstract initialize (info: IGFXBufferInfo | IGFXBufferViewInfo): boolean;
 
     public abstract destroy (): void;
 

@@ -31,7 +31,7 @@
 import { builtinResMgr } from '../../core/3d/builtin';
 import { RenderableComponent } from '../../core/3d/framework/renderable-component';
 import { InstanceMaterialType, UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
-import { ccclass, help, executionOrder, menu, property, tooltip } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property, tooltip, type, visible, override } from '../../core/data/class-decorator';
 import { director } from '../../core/director';
 import { Color } from '../../core/math';
 import { IMaterialInstanceInfo, MaterialInstance, Model } from '../../core/renderer';
@@ -87,9 +87,7 @@ export class GraphicsComponent extends UIRenderComponent {
      * @zh
      * 用来设置2个长度不为0的相连部分（线段，圆弧，曲线）如何连接在一起的属性。
      */
-    @property({
-        type: LineJoin,
-    })
+    @type(LineJoin)
     @tooltip('两条线相交时，所创建的拐角类型')
     get lineJoin () {
         return this._lineJoin;
@@ -111,9 +109,7 @@ export class GraphicsComponent extends UIRenderComponent {
      * @zh
      * 指定如何绘制每一条线段末端。
      */
-    @property({
-        type: LineCap,
-    })
+    @type(LineCap)
     @tooltip('线条的结束端点样式')
     get lineCap () {
         return this._lineCap;
@@ -189,10 +185,8 @@ export class GraphicsComponent extends UIRenderComponent {
         // this.impl.miterLimit = value;
     }
 
-    @property({
-        override: true,
-        visible: false,
-    })
+    @override(true)
+    @visible(false)
     get color () {
         return this._color;
     }
@@ -227,6 +221,7 @@ export class GraphicsComponent extends UIRenderComponent {
     constructor (){
         super();
         this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
+        this._uiMaterialDirty = true;
     }
 
     public onRestore () {
@@ -247,12 +242,7 @@ export class GraphicsComponent extends UIRenderComponent {
         if (!this.model) {
             this.model = director.root!.createModel(Model);
         }
-    }
-
-    public onEnable () {
-        super.onEnable();
-
-        this._activateMaterial();
+        this.helpInstanceMaterial();
     }
 
     public onDisable (){
@@ -275,14 +265,6 @@ export class GraphicsComponent extends UIRenderComponent {
 
         this.impl.clear();
         this.impl = null;
-    }
-
-    public _activateMaterial () {
-        if (!this._material) {
-            return;
-        }
-
-        this._updateMaterial(this._material);
     }
 
     /**
@@ -527,6 +509,9 @@ export class GraphicsComponent extends UIRenderComponent {
      * 根据当前的画线样式，绘制当前或已经存在的路径。
      */
     public stroke () {
+        if (!this._assembler) {
+            this._flushAssembler();
+        }
         (this._assembler as IAssembler).stroke!(this);
         this._attachToScene();
     }
@@ -539,6 +524,9 @@ export class GraphicsComponent extends UIRenderComponent {
      * 根据当前的画线样式，填充当前或已经存在的路径。
      */
     public fill () {
+        if (!this._assembler) {
+            this._flushAssembler();
+        }
         (this._assembler as IAssembler).fill!(this);
         this._attachToScene();
     }
@@ -552,17 +540,19 @@ export class GraphicsComponent extends UIRenderComponent {
      */
     public helpInstanceMaterial () {
         let mat: MaterialInstance | null = null;
-        _matInsInfo.owner = new RenderableComponent();
-        if (this._sharedMaterial) {
-            _matInsInfo.parent = this._sharedMaterial;
+        _matInsInfo.owner = this;
+        if (this.sharedMaterial) {
+            _matInsInfo.parent = this.sharedMaterial[0];
             mat = new MaterialInstance(_matInsInfo);
         } else {
-            _matInsInfo.parent = builtinResMgr.get('ui-base-material');
+            _matInsInfo.parent = builtinResMgr.get('ui-graphics-material');
             mat = new MaterialInstance(_matInsInfo);
             mat.recompileShaders({ USE_LOCAL: true });
         }
 
-        this._updateMaterial(mat);
+        this._uiMaterial = _matInsInfo.parent;
+        this._uiMaterialIns = mat;
+
         if (!this.impl){
             this._flushAssembler();
             this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
@@ -570,11 +560,7 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     protected _render (render: UI) {
-        render.commitModel(this, this.model, this._material);
-    }
-
-    protected _instanceMaterial (){
-        this.helpInstanceMaterial();
+        render.commitModel(this, this.model, this._uiMaterialIns);
     }
 
     protected _flushAssembler (){

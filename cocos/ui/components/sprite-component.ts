@@ -29,7 +29,7 @@
  */
 
 import { SpriteAtlas, SpriteFrame } from '../../core/assets';
-import { ccclass, help, executionOrder, menu, property, tooltip } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property, tooltip, displayOrder, type, range } from '../../core/data/class-decorator';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { Vec2 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
@@ -185,10 +185,8 @@ export class SpriteComponent extends UIRenderComponent {
      * @zh
      * 精灵的图集。
      */
-    @property({
-        type: SpriteAtlas,
-        displayOrder: 4,
-    })
+    @type(SpriteAtlas)
+    @displayOrder(4)
     @tooltip('图片资源所属的 Atlas 图集资源')
     get spriteAtlas () {
         return this._atlas;
@@ -210,10 +208,8 @@ export class SpriteComponent extends UIRenderComponent {
      * @zh
      * 精灵的精灵帧。
      */
-    @property({
-        type: SpriteFrame,
-        displayOrder: 5,
-    })
+    @type(SpriteFrame)
+    @displayOrder(5)
     @tooltip('渲染 Sprite 使用的 SpriteFrame 图片资源')
     get spriteFrame () {
         return this._spriteFrame;
@@ -243,14 +239,13 @@ export class SpriteComponent extends UIRenderComponent {
      * 精灵渲染类型。
      *
      * @example
-     * ```typescript
-     * sprite.type = cc.SpriteComponent.Type.SIMPLE;
+     * ```ts
+     * import { SpriteComponent } from 'cc';
+     * sprite.type = SpriteComponent.Type.SIMPLE;
      * ```
      */
-    @property({
-        type: SpriteType,
-        displayOrder: 6,
-    })
+    @type(SpriteType)
+    @displayOrder(6)
     @tooltip('渲染模式：\n- 普通（Simple）：修改尺寸会整体拉伸图像，适用于序列帧动画和普通图像 \n' +
     '- 九宫格（Sliced）：修改尺寸时四个角的区域不会拉伸，适用于 UI 按钮和面板背景 \n' +
     '- 填充（Filled）：设置一定的填充起始位置和方向，能够以一定比率剪裁显示图片')
@@ -272,13 +267,12 @@ export class SpriteComponent extends UIRenderComponent {
      * 精灵填充类型，仅渲染类型设置为 SpriteComponent.Type.FILLED 时有效。
      *
      * @example
-     * ```typescript
-     * sprite.fillType = cc.SpriteComponent.FillType.HORIZONTAL;
+     * ```ts
+     * import { SpriteComponent } from 'cc';
+     * sprite.fillType = SpriteComponent.FillType.HORIZONTAL;
      * ```
      */
-    @property({
-        type: FillType,
-    })
+    @type(FillType)
     @tooltip('填充方向，可以选择横向（Horizontal），纵向（Vertical）和扇形（Radial）三种方向')
     get fillType () {
         return this._fillType;
@@ -307,8 +301,9 @@ export class SpriteComponent extends UIRenderComponent {
      * 填充中心点，仅渲染类型设置为 SpriteComponent.Type.FILLED 时有效。
      *
      * @example
-     * ```typescript
-     * sprite.fillCenter = cc.v2(0, 0);
+     * ```ts
+     * import { Vec2 } from 'cc';
+     * sprite.fillCenter = new Vec2(0, 0);
      * ```
      */
     @tooltip('扇形填充时，指定扇形的中心点，取值范围 0 ~ 1')
@@ -331,14 +326,12 @@ export class SpriteComponent extends UIRenderComponent {
      * 填充起始点，仅渲染类型设置为 SpriteComponent.Type.FILLED 时有效。
      *
      * @example
-     * ```typescript
+     * ```ts
      * // -1 To 1 between the numbers
      * sprite.fillStart = 0.5;
      * ```
      */
-    @property({
-        range: [0, 1, 0.1],
-    })
+    @range([0, 1, 0.1])
     @tooltip('填充起始位置，输入一个 0 ~ 1 之间的小数表示起始位置的百分比')
     get fillStart () {
         return this._fillStart;
@@ -360,21 +353,19 @@ export class SpriteComponent extends UIRenderComponent {
      * 填充范围，仅渲染类型设置为 SpriteComponent.Type.FILLED 时有效。
      *
      * @example
-     * ```typescript
+     * ```ts
      * // -1 To 1 between the numbers
      * sprite.fillRange = 1;
      * ```
      */
-    @property({
-        range: [0, 1, 0.1],
-    })
+    @range([-1, 1, 0.1])
     @tooltip('填充总量，取值范围 0 ~ 1 指定显示图像范围的百分比')
     get fillRange () {
         return this._fillRange;
     }
     set fillRange (value) {
-        // ??? -1 ~ 1
-        this._fillRange = clamp(value, 0, 1);
+        // positive: counterclockwise, negative: clockwise
+        this._fillRange = clamp(value, -1, 1);
         if (this._type === SpriteType.FILLED && this._renderData) {
             this.markForUpdateRenderData();
             this._renderData.uvDirty = true;
@@ -388,13 +379,11 @@ export class SpriteComponent extends UIRenderComponent {
      * 是否使用裁剪模式。
      *
      * @example
-     * ```typescript
+     * ```ts
      * sprite.trim = true;
      * ```
      */
-    @property({
-        displayOrder: 8,
-    })
+    @displayOrder(8)
     @tooltip('节点约束框内是否包括透明像素区域，勾选此项会去除节点约束框内的透明区域')
     get trim () {
         return this._isTrimmedMode;
@@ -422,11 +411,11 @@ export class SpriteComponent extends UIRenderComponent {
         }
         this._useGrayscale = value;
         if (value === true) {
-            this._instanceMaterialType = InstanceMaterialType.GRAYSCALE; }
-        else {
+            this._instanceMaterialType = InstanceMaterialType.GRAYSCALE;
+        } else {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
-        this._instanceMaterial();
+        this._uiMaterialDirty = true;
     }
 
     /**
@@ -437,14 +426,13 @@ export class SpriteComponent extends UIRenderComponent {
      * 精灵尺寸调整模式。
      *
      * @example
-     * ```typescript
-     * sprite.sizeMode = cc.SpriteComponent.SizeMode.CUSTOM;
+     * ```ts
+     * import { SpriteComponent } from 'cc';
+     * sprite.sizeMode = SpriteComponent.SizeMode.CUSTOM;
      * ```
      */
-    @property({
-        type: SizeMode,
-        displayOrder: 7,
-    })
+    @type(SizeMode)
+    @displayOrder(7)
     @tooltip('指定 Sprite 所在节点的尺寸，CUSTOM 表示自定义尺寸，TRIMMED 表示取原始图片剪裁透明像素后的尺寸，RAW 表示取原始图片未剪裁的尺寸')
     get sizeMode () {
         return this._sizeMode;
@@ -527,6 +515,10 @@ export class SpriteComponent extends UIRenderComponent {
 
         // this._flushAssembler();
         this._activateMaterial();
+        // updateBlendFunc for custom material
+        if (this.getMaterial(0)) {
+            this._updateBlendFunc();
+        }
     }
 
     public onDestroy () {
@@ -561,7 +553,10 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     public changeMaterialForDefine () {
-        const texture = this._spriteFrame!.texture;
+        let texture;
+        if (this._spriteFrame) {
+            texture = this._spriteFrame.texture;
+        }
         let value = false;
         if (texture instanceof TextureBase) {
             const format = texture.getPixelFormat();
@@ -577,6 +572,7 @@ export class SpriteComponent extends UIRenderComponent {
         } else {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
+        this._uiMaterialDirty = true;
     }
 
     protected _render (render: UI) {
@@ -619,7 +615,7 @@ export class SpriteComponent extends UIRenderComponent {
         if (!this._renderData) {
             if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
-                this._renderData!.material = this._material;
+                this._renderData!.material = this.getRenderMaterial(0);
                 this.markForUpdateRenderData();
                 this._updateColor();
             }
@@ -668,7 +664,7 @@ export class SpriteComponent extends UIRenderComponent {
 
     private _activateMaterial () {
         const spriteFrame = this._spriteFrame;
-        const material = this._material;
+        const material = this.getRenderMaterial(0);
         // WebGL
         if (legacyCC.game.renderType !== legacyCC.game.RENDER_TYPE_CANVAS) {
             // if (!material) {
@@ -727,7 +723,6 @@ export class SpriteComponent extends UIRenderComponent {
         }
 
         this.changeMaterialForDefine();
-        this._instanceMaterial();
         this._applySpriteSize();
     }
 

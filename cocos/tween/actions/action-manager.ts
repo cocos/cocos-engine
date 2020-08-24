@@ -53,7 +53,7 @@ class HashElement {
 
 /**
  * !#en
- * cc.ActionManager is a class that can manage actions.<br/>
+ * `ActionManager` is a class that can manage actions.<br/>
  * Normally you won't need to use this class directly. 99% of the cases you will use the CCNode interface,
  * which uses this class's singleton object.
  * But there are some cases where you might need to use this class. <br/>
@@ -61,7 +61,7 @@ class HashElement {
  * - When you want to run an action where the target is different from a CCNode.<br/>
  * - When you want to pause / resume the actions<br/>
  * !#zh
- * cc.ActionManager 是可以管理动作的单例类。<br/>
+ * `ActionManager` 是可以管理动作的单例类。<br/>
  * 通常你并不需要直接使用这个类，99%的情况您将使用 CCNode 的接口。<br/>
  * 但也有一些情况下，您可能需要使用这个类。 <br/>
  * 例如：
@@ -171,9 +171,8 @@ export class ActionManager {
      * 属于该目标的所有的动作将被删除。
      * @method removeAllActionsFromTarget
      * @param {Node} target
-     * @param {Boolean} forceDelete
      */
-    removeAllActionsFromTarget (target: Node, forceDelete: boolean) {
+    removeAllActionsFromTarget (target: Node) {
         // explicit null handling
         if (target == null)
             return;
@@ -209,6 +208,19 @@ export class ActionManager {
         }
     }
 
+    _removeActionByTag (tag: number, element: any, target?: Node) {
+        for (var i = 0, l = element.actions.length; i < l; ++i) {
+            var action = element.actions[i];
+            if (action && action.getTag() === tag) {
+                if (target && action.getOriginalTarget() !== target) {
+                    continue;
+                }
+                this._removeActionAtIndex(i, element);
+                break;
+            }
+        }
+    }
+
     /**
      * !#en Removes an action given its tag and the target.
      * !#zh 删除指定对象下特定标签的一个动作，将删除首个匹配到的动作。
@@ -216,22 +228,21 @@ export class ActionManager {
      * @param {Number} tag
      * @param {Node} target
      */
-    removeActionByTag (tag: number, target: Node) {
+    removeActionByTag (tag: number, target?: Node) {
         if (tag === legacyCC.Action.TAG_INVALID)
             logID(1002);
 
-        assertID(target, 1003);
-
-        var element = this._hashTargets[target.uuid];
-
-        if (element) {
-            var limit = element.actions.length;
-            for (var i = 0; i < limit; ++i) {
-                var action = element.actions[i];
-                if (action && action.getTag() === tag && action.getOriginalTarget() === target) {
-                    this._removeActionAtIndex(i, element);
-                    break;
-                }
+        let hashTargets = this._hashTargets;
+        if (target) {
+            var element = hashTargets[target.uuid];
+            if (element) {
+                this._removeActionByTag(tag, element, target);
+            }
+        }
+        else {
+            for (let name in hashTargets) {
+                let element = hashTargets[name];
+                this._removeActionByTag(tag, element);
             }
         }
     }

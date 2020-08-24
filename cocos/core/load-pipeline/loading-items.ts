@@ -201,10 +201,11 @@ export class LoadingItems extends CallbacksInvoker {
      * @param item The latest item which flow out the pipeline.
      * @example
      * ```
-     *  loadingItems.onProgress (completedCount, totalCount, item) {
-     *      let progress = (100 * completedCount / totalCount).toFixed(2);
-     *      cc.log(progress + '%');
-     *  }
+     * import { log } from 'cc';
+     * loadingItems.onProgress (completedCount, totalCount, item) {
+     *     let progress = (100 * completedCount / totalCount).toFixed(2);
+     *     log(progress + '%');
+     * }
      * ```
      */
     public onProgress:((completedCount: number, totalCount: number, IItem) => void) | undefined;
@@ -217,12 +218,14 @@ export class LoadingItems extends CallbacksInvoker {
      * @param items All items.
      * @example
      * ```
-     *  loadingItems.onComplete (errors, items) {
-     *      if (error)
-     *          cc.log('Completed with ' + errors.length + ' errors');
-     *      else
-     *          cc.log('Completed ' + items.totalCount + ' items');
-     *  }
+     * import { log } from 'cc';
+     * loadingItems.onComplete (errors, items) {
+     *     if (error) {
+     *         log('Completed with ' + errors.length + ' errors');
+     *     } else {
+     *         log('Completed ' + items.totalCount + ' items');
+     *     }
+     * }
      * ```
      */
     public onComplete:((errors: string[]|null, items: LoadingItems) => void) | undefined;
@@ -303,20 +306,21 @@ export class LoadingItems extends CallbacksInvoker {
      * @return {LoadingItems} The LoadingItems queue object
      * @example
      * ```
-     *  cc.LoadingItems.create(cc.loader, ['a.png', 'b.plist'], function (completedCount, totalCount, item) {
-     *      let progress = (100 * completedCount / totalCount).toFixed(2);
-     *      cc.log(progress + '%');
-     *  }, function (errors, items) {
-     *      if (errors) {
-     *          for (let i = 0; i < errors.length; ++i) {
-     *              cc.log('Error url: ' + errors[i] + ', error: ' + items.getError(errors[i]));
-     *          }
-     *      }
-     *      else {
-     *          let result_a = items.getContent('a.png');
-     *          // ...
-     *      }
-     *  })
+     * import { log, LoadingItems } from 'cc';
+     * LoadingItems.create(loader, ['a.png', 'b.plist'], function (completedCount, totalCount, item) {
+     *     let progress = (100 * completedCount / totalCount).toFixed(2);
+     *     log(progress + '%');
+     * }, function (errors, items) {
+     *     if (errors) {
+     *         for (let i = 0; i < errors.length; ++i) {
+     *             log('Error url: ' + errors[i] + ', error: ' + items.getError(errors[i]));
+     *         }
+     *     }
+     *     else {
+     *         let result_a = items.getContent('a.png');
+     *         // ...
+     *     }
+     * })
      * ```
      */
     static create (pipeline, urlList, onProgress?, onComplete?) {

@@ -4,32 +4,30 @@ import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/mesh';
 import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
-import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
-import { GFXDevice, GFXFeature } from '../../gfx/device';
-import { Mat4, Vec3, Vec4 } from '../../math';
 import { Pool } from '../../memop';
-import { INST_MAT_WORLD, UBOLocal, UniformLightingMapSampler } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from './render-scene';
 import { Texture2D } from '../../assets/texture-2d';
-import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-import { IGFXAttribute } from '../../gfx';
 import { SubModel } from './submodel';
 import { Pass, IMacroPatch } from '../core/pass';
 import { legacyCC } from '../../global-exports';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { BatchingSchemes } from '../core/pass';
-import { BindingLayoutPool, ShaderPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
+import { Mat4, Vec3, Vec4 } from '../../math';
+import { GFXDevice, GFXFeature } from '../../gfx/device';
+import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
+import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool, SubModelArrayHandle, ModelPool, ModelView, AABBHandle, AABBPool, AABBView, NULL_HANDLE, ShaderHandle } from '../core/memory-pools';
+import { IGFXAttribute, GFXDescriptorSet } from '../../gfx';
+import { INST_MAT_WORLD, UBOLocal, UniformLightingMapSampler } from '../../pipeline/define';
+import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
 
 const m4_1 = new Mat4();
 
-const _subModelPool = new Pool(() => {
-    return new SubModel();
-}, 32);
+const _subModelPool = new Pool(() => new SubModel(), 32);
 
-const shadowMap_Patches: IMacroPatch[]= [
-    { name: 'CC_SHADOW', value: true },
+const shadowMapPatches: IMacroPatch[] = [
+    { name: 'CC_RECEIVE_SHADOW', value: true },
 ];
 
 export interface IInstancedAttribute {
@@ -85,10 +83,6 @@ export class Model {
         return this._subModels;
     }
 
-    get subModelNum () {
-        return this._subModels.length;
-    }
-
     get inited (): boolean {
         return this._inited;
     }
@@ -113,30 +107,69 @@ export class Model {
         return this._instMatWorldIdx >= 0;
     }
 
+    get handle () {
+        return this._poolHandle;
+    }
+
+    get node () : Node {
+        return this._node;
+    }
+
+    set node (n: Node) {
+        this._node = n;
+        ModelPool.set(this._poolHandle, ModelView.NODE, n.handle);
+    }
+
+    get transform () : Node {
+        return this._transform;
+    }
+
+    set transform (n: Node) {
+        this._transform = n;
+        ModelPool.set(this._poolHandle, ModelView.TRANSFORM, n.handle);
+    }
+
+    get visFlags () : number {
+        return ModelPool.get<number>(this._poolHandle, ModelView.VIS_FLAGS);
+    }
+
+    set visFlags (val: number) {
+        ModelPool.set(this._poolHandle, ModelView.VIS_FLAGS, val);
+    }
+
+    get enabled () : boolean {
+        return ModelPool.get<number>(this._poolHandle, ModelView.ENABLED) === 1 ? true : false;
+    }
+
+    set enabled (val: boolean) {
+        ModelPool.set(this._poolHandle, ModelView.ENABLED, val ? 1 : 0);
+    }
+
     public type = ModelType.DEFAULT;
     public scene: RenderScene | null = null;
-    public node: Node = null!;
-    public transform: Node = null!;
-    public enabled: boolean = true;
-    public visFlags = Layers.Enum.NONE;
     public castShadow = false;
     public receiveShadow = true;
     public isDynamicBatching = false;
     public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, list: [] };
 
-    protected _device: GFXDevice;
     protected _worldBounds: aabb | null = null;
     protected _modelBounds: aabb | null = null;
     protected _subModels: SubModel[] = [];
-    protected _implantPSOCIs: number[] = [];
-    protected _localData = new Float32Array(UBOLocal.COUNT);
-    protected _localBuffer: GFXBuffer | null = null;
+    protected _node: Node = null!;
+    protected _transform: Node = null!;
+
+    protected _device: GFXDevice;
     protected _inited = false;
+    protected _descriptorSetCount = 1;
     protected _updateStamp = -1;
     protected _transformUpdated = true;
+    protected _subModelArrayHandle: SubModelArrayHandle = NULL_HANDLE;
+    protected _poolHandle: ModelHandle = NULL_HANDLE;
+    protected _worldBoundsHandle: AABBHandle = NULL_HANDLE;
 
+    private _localData = new Float32Array(UBOLocal.COUNT);
+    private _localBuffer: GFXBuffer | null = null;
     private _instMatWorldIdx = -1;
-
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
 
@@ -144,15 +177,20 @@ export class Model {
      * Setup a default empty model
      */
     constructor () {
-        this._device = legacyCC.director.root!.device;
+        this._device = legacyCC.director.root.device;
+        // initialize() may not be invoked, so create handles here too.
+        this._createHandles();
     }
 
     public initialize (node: Node) {
+        this._createHandles();
         this.transform = this.node = node;
     }
 
     public destroy () {
-        for (const subModel of this._subModels) {
+        const subModels = this._subModels;
+        for (let i = 0; i < subModels.length; i++) {
+            const subModel = this._subModels[i];
             subModel.destroy();
             _subModelPool.free(subModel);
         }
@@ -166,6 +204,17 @@ export class Model {
         this._inited = false;
         this._transformUpdated = true;
         this.isDynamicBatching = false;
+
+        if (this._poolHandle) {
+            ModelPool.free(this._poolHandle);
+            this._poolHandle = NULL_HANDLE;
+            SubModelArrayPool.free(this._subModelArrayHandle);
+            this._subModelArrayHandle = NULL_HANDLE;
+        }
+        if (this._worldBoundsHandle) {
+            AABBPool.free(this._worldBoundsHandle);
+            this._worldBoundsHandle = NULL_HANDLE;
+        }
     }
 
     public attachToScene (scene: RenderScene) {
@@ -176,52 +225,32 @@ export class Model {
         this.scene = null;
     }
 
-    public getSubModel (idx: number) {
-        return this._subModels[idx];
-    }
-
     public updateTransform (stamp: number) {
         const node = this.transform!;
         // @ts-ignore TS2445
         if (node.hasChangedFlags || node._dirtyFlags) {
             node.updateWorldTransform();
             this._transformUpdated = true;
-            if (this._modelBounds && this._worldBounds) {
+            let worldBounds = this._worldBounds;
+            if (this._modelBounds && worldBounds) {
                 // @ts-ignore TS2445
-                this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, this._worldBounds);
-            }
-        }
-    }
-
-    public updateLightingmap (texture: Texture2D | null, uvParam: Vec4) {
-        Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
-
-        this._lightmap = texture;
-        this._lightmapUVParam = uvParam;
-
-        if (texture === null) {
-            texture = builtinResMgr.get<Texture2D>('empty-texture');
-        }
-
-        const gfxTexture = texture.getGFXTexture();
-        if (gfxTexture !== null) {
-            const sampler = samplerLib.getSampler(this._device, texture.mipmaps.length > 1 ? lightmapSamplerWithMipHash : lightmapSamplerHash);
-            for (const sub of this._subModels) {
-                for (let i = 0; i < sub.psoInfos.length; i++) {
-                    const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(sub.psoInfos[i], PSOCIView.BINDING_LAYOUT));
-                    bindingLayout.bindTexture(UniformLightingMapSampler.binding, gfxTexture);
-                    bindingLayout.bindSampler(UniformLightingMapSampler.binding, sampler);
-                    bindingLayout.update();
-                }
+                this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
+                AABBPool.setVec3(this._worldBoundsHandle, AABBView.CENTER, worldBounds.center);
+                AABBPool.setVec3(this._worldBoundsHandle, AABBView.HALF_EXTENSION, worldBounds.halfExtents);
             }
         }
     }
 
     public updateUBOs (stamp: number) {
-        this._subModels.forEach(this._updatePass, this);
+        const subModels = this._subModels;
+        for (let i = 0; i < subModels.length; i++) {
+            subModels[i].update();
+        }
         this._updateStamp = stamp;
+
         if (!this._transformUpdated) { return; }
         this._transformUpdated = false;
+
         // @ts-ignore
         const worldMatrix = this.transform._mat;
         const idx = this._instMatWorldIdx;
@@ -245,87 +274,106 @@ export class Model {
         if (!minPos || !maxPos) { return; }
         this._modelBounds = aabb.fromPoints(aabb.create(), minPos, maxPos);
         this._worldBounds = aabb.clone(this._modelBounds);
+        if (this._worldBoundsHandle === NULL_HANDLE) {
+            this._worldBoundsHandle = AABBPool.alloc();
+            ModelPool.set(this._poolHandle, ModelView.WORLD_BOUNDS, this._worldBoundsHandle);
+        }
+        AABBPool.setVec3(this._worldBoundsHandle, AABBView.CENTER, this._worldBounds.center);
+        AABBPool.setVec3(this._worldBoundsHandle, AABBView.HALF_EXTENSION, this._worldBounds.halfExtents);
+        
     }
 
     public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {
-        this.initLocalBindings(mat);
+        this._createHandles();
+        let isNewSubModel = false;
         if (this._subModels[idx] == null) {
             this._subModels[idx] = _subModelPool.alloc();
+            isNewSubModel = true;
         } else {
             this._subModels[idx].destroy();
         }
-        this._subModels[idx].initialize(subMeshData, mat, this.getMacroPatches(idx));
-        this.updateAttributesAndBinding(idx);
+        this._subModels[idx].initialize(subMeshData, mat.passes, this.getMacroPatches(idx));
+        this._updateAttributesAndBinding(idx);
+        if (isNewSubModel) {
+            SubModelArrayPool.assign(this._subModelArrayHandle, idx, this._subModels[idx].handle);
+        }
         this._inited = true;
     }
 
-    public setSubModelMesh (idx: number, subMeshData: RenderingSubMesh) {
-        if (this._subModels[idx] == null) {
-            this._subModels[idx] = _subModelPool.alloc();
-        }
-        this._subModels[idx].subMeshData = subMeshData;
+    public setSubModelMesh (idx: number, subMesh: RenderingSubMesh) {
+        if (!this._subModels[idx]) { return; }
+        this._subModels[idx].subMesh = subMesh;
     }
 
-    public setSubModelMaterial (idx: number, mat: Material | null) {
-        this.initLocalBindings(mat);
+    public setSubModelMaterial (idx: number, mat: Material) {
         if (!this._subModels[idx]) { return; }
-        this._subModels[idx].material = mat;
-
-        if (mat) {
-            this.updateAttributesAndBinding(idx);
-        }
+        this._subModels[idx].passes = mat.passes;
+        this._updateAttributesAndBinding(idx);
     }
 
     public onGlobalPipelineStateChanged () {
         const subModels = this._subModels;
-
-        for (let i = 0; i < subModels.length; ++i) {
+        for (let i = 0; i < subModels.length; i++) {
             subModels[i].onPipelineStateChanged();
-            this.updateAttributesAndBinding(i);
-        }
-
-        this.updateLightingmap(this._lightmap, this._lightmapUVParam);
-    }
-
-    public insertImplantPSOCI (psoci: number, submodelIdx: number) {
-        this.updateLocalBindings(psoci, submodelIdx);
-        this._implantPSOCIs.push(psoci);
-    }
-
-    public removeImplantPSOCI (psoci: number) {
-        const idx = this._implantPSOCIs.indexOf(psoci);
-        if (idx >= 0) { this._implantPSOCIs.splice(idx, 1); }
-    }
-
-    public updateLocalBindings (psoci: number, submodelIdx: number) {
-        if (this._localBuffer) {
-            const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoci, PSOCIView.BINDING_LAYOUT));
-            bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer);
         }
     }
 
-    protected updateAttributesAndBinding (subModelIndex: number) {
+    public updateLightingmap (texture: Texture2D | null, uvParam: Vec4) {
+        Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
+
+        this._lightmap = texture;
+        this._lightmapUVParam = uvParam;
+
+        if (texture === null) {
+            texture = builtinResMgr.get<Texture2D>('empty-texture');
+        }
+
+        const gfxTexture = texture.getGFXTexture();
+        if (gfxTexture !== null) {
+            const sampler = samplerLib.getSampler(this._device, texture.mipmaps.length > 1 ? lightmapSamplerWithMipHash : lightmapSamplerHash);
+            const subModels = this._subModels;
+            for (let i = 0; i < subModels.length; i++) {
+                const descriptorSet = subModels[i].descriptorSet;
+                descriptorSet.bindTexture(UniformLightingMapSampler.binding, gfxTexture);
+                descriptorSet.bindSampler(UniformLightingMapSampler.binding, sampler);
+                descriptorSet.update();
+            }
+        }
+    }
+
+    public getMacroPatches (subModelIndex: number) {
+        const pipeline = legacyCC.director.root.pipeline;
+        const shadowInfo = pipeline.shadowMap;
+        return (this.receiveShadow && shadowInfo.enabled) ? shadowMapPatches : null;
+    }
+
+    protected _updateAttributesAndBinding (subModelIndex: number) {
         const subModel = this._subModels[subModelIndex];
-        if (!subModel) {
-            return;
+        if (!subModel) { return; }
+
+        this._initLocalDescriptors(subModelIndex);
+        const subModels = this._subModels;
+        for (let i = 0; i < subModels.length; i++) {
+            const ds = subModels[i].descriptorSet;
+            this._updateLocalDescriptors(i, ds);
         }
 
-        const psoCreateInfos = subModel.psoInfos;
-        for (let i = 0; i < psoCreateInfos.length; ++i) {
-            this.updateLocalBindings(psoCreateInfos[i], subModelIndex);
+        const shader = ShaderPool.get(SubModelPool.get<ShaderHandle>(subModel.handle, SubModelView.SHADER_0));
+        this._updateInstancedAttributes(shader.attributes, subModel.passes[0]);
+    }
+
+    protected _getInstancedAttributeIndex (name: string) {
+        const list = this.instancedAttributes.list;
+        for (let i = 0; i < list.length; i++) {
+            if (list[i].name === name) { return i; }
         }
-
-        const shader = ShaderPool.get(PSOCIPool.get(psoCreateInfos[0], PSOCIView.SHADER));
-        this.updateInstancedAttributeList(shader.attributes, subModel.passes[0]);
+        return -1;
     }
 
-    public getMacroPatches (subModelIndex: number) : IMacroPatch[] | undefined {
-        if (this.receiveShadow) return shadowMap_Patches;
-        return undefined;
-    }
+    // sub-classes can override the following functions if needed
 
     // for now no submodel level instancing attributes
-    protected updateInstancedAttributeList (attributes: IGFXAttribute[], pass: Pass) {
+    protected _updateInstancedAttributes (attributes: IGFXAttribute[], pass: Pass) {
         if (!pass.device.hasFeature(GFXFeature.INSTANCED_ARRAYS)) { return; }
         let size = 0;
         for (let j = 0; j < attributes.length; j++) {
@@ -346,19 +394,11 @@ export class Model {
             offset += info.size; attrs.list.push({ name: attribute.name, format, isNormalized, view });
         }
         if (pass.batchingScheme === BatchingSchemes.INSTANCING) { InstancedBuffer.get(pass).destroy(); } // instancing IA changed
-        this._instMatWorldIdx = this.getInstancedAttributeIndex(INST_MAT_WORLD);
+        this._instMatWorldIdx = this._getInstancedAttributeIndex(INST_MAT_WORLD);
         this._transformUpdated = true;
     }
 
-    protected getInstancedAttributeIndex (name: string) {
-        const list = this.instancedAttributes.list;
-        for (let i = 0; i < list.length; i++) {
-            if (list[i].name === name) { return i; }
-        }
-        return -1;
-    }
-
-    protected initLocalBindings (mat: Material | null) {
+    protected _initLocalDescriptors (subModelIndex: number) {
         if (!this._localBuffer) {
             this._localBuffer = this._device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
@@ -369,7 +409,17 @@ export class Model {
         }
     }
 
-    private _updatePass (subModel: SubModel) {
-        subModel.update();
+    protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: GFXDescriptorSet) {
+        descriptorSet.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer!);
+    }
+
+    protected _createHandles () {
+        if (this._poolHandle === NULL_HANDLE) {
+            this._poolHandle = ModelPool.alloc();
+            this._subModelArrayHandle = SubModelArrayPool.alloc();
+            ModelPool.set(this._poolHandle, ModelView.SUB_MODEL_ARRAY, this._subModelArrayHandle);
+            ModelPool.set(this._poolHandle, ModelView.VIS_FLAGS, Layers.Enum.NONE);
+            ModelPool.set(this._poolHandle, ModelView.ENABLED, 1);
+        }  
     }
 }

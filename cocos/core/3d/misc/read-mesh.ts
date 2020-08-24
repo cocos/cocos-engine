@@ -13,7 +13,7 @@ enum _keyMap {
 
 export function readMesh (mesh: Mesh, iPrimitive: number = 0) {
     const out: IGeometry = { positions: [] };
-    const dataView = new DataView(mesh._nativeAsset);
+    const dataView = new DataView(mesh.data.buffer, mesh.data.byteOffset, mesh.data.byteLength);
     const struct = mesh.struct;
     const primitive = struct.primitives[iPrimitive];
     for (const idx of primitive.vertexBundelIndices) {

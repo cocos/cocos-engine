@@ -82,9 +82,10 @@ export class SubContextView extends Component {
     private _fps = 60;
     private _sprite: SpriteComponent | null;
     private _imageAsset: ImageAsset;
-    private _context: any;;
+    private _context: any;
     private _updatedTime = 0;
     private _updateInterval = 0;
+    private _firstlyEnabled = true;
 
     constructor () {
         super();
@@ -96,9 +97,9 @@ export class SubContextView extends Component {
 
     public onLoad () {
         // Setup subcontext canvas size
-        if (wx && wx.getOpenDataContext) {
+        if (window.__globalAdapter && __globalAdapter.getOpenDataContext) {
             this._updateInterval = 1000 / this._fps;
-            this._context = wx.getOpenDataContext();
+            this._context = __globalAdapter.getOpenDataContext();
             // reset sharedCanvas width and height
             this.reset();
 
@@ -125,7 +126,16 @@ export class SubContextView extends Component {
     }
 
     public onEnable () {
-        this._runSubContextMainLoop();
+        if (this._firstlyEnabled && this._context) {
+             this._context.postMessage({
+                fromEngine: true,
+                event: 'boot',
+            });
+            this._firstlyEnabled = false;
+        }
+        else {
+            this._runSubContextMainLoop();
+        }
         this._registerNodeEvent();
         this._updateSubContextFrameRate();
         this.updateSubContextViewport();

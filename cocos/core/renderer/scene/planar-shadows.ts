@@ -3,57 +3,93 @@ import { Material } from '../../assets/material';
 import { aabb, frustum, intersect } from '../../geometry';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Color, Mat4, Quat, Vec3 } from '../../math';
-import { IInternalBindingInst, UBOShadow } from '../../pipeline/define';
+import { UBOShadow, SetIndex} from '../../pipeline/define';
 import { DirectionalLight } from './directional-light';
 import { Model } from './model';
-import { RenderScene } from './render-scene';
 import { SphereLight } from './sphere-light';
-import { GFXCommandBuffer, GFXDevice, GFXRenderPass } from '../../gfx';
+import { GFXCommandBuffer, GFXDevice, GFXRenderPass, GFXDescriptorSet, GFXShader } from '../../gfx';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
-import { BindingLayoutPool, PSOCIPool, PSOCIView } from '../core/memory-pools';
+import { legacyCC } from '../../global-exports';
+import { RenderScene } from './render-scene';
+import { DSPool, ShaderPool, PassPool, PassView } from '../core/memory-pools';
+import { ForwardPipeline } from '../../pipeline';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
 const _ab = new aabb();
 const _qt = new Quat();
+const _up = new Vec3(0, 1, 0);
 
 interface IShadowRenderData {
     model: Model;
-    psoCIs: number[];
+    shaders: GFXShader[];
     instancedBuffer: InstancedBuffer | null;
 }
 
 export class PlanarShadows {
-
-    set enabled (enable: boolean) {
-        this._enabled = enable;
-        if (this._scene.mainLight) { this.updateDirLight(this._scene.mainLight); }
-    }
-
+    /**
+     * @en Whether activate planar shadow
+     * @zh 是否启用平面阴影？
+     */
     get enabled (): boolean {
         return this._enabled;
     }
 
-    set normal (val: Vec3) {
-        Vec3.copy(this._normal, val);
-        if (this._scene.mainLight) { this.updateDirLight(this._scene.mainLight); }
+    set enabled (val: boolean) {
+        if (this._enabled === val) {
+            return;
+        }
+        this._enabled = val;
+        this._dirty = true;
+        if (this._enabled) {
+            this.activate();
+        }
     }
+
+    /**
+     * @en The normal of the plane which receives shadow
+     * @zh 阴影接收平面的法线
+     */
     get normal () {
         return this._normal;
     }
 
-    set distance (val: number) {
-        this._distance = val;
-        if (this._scene.mainLight) { this.updateDirLight(this._scene.mainLight); }
+    set normal (val: Vec3) {
+        Vec3.copy(this._normal, val);
+        this._dirty = true;
     }
+
+    /**
+     * @en The distance from coordinate origin to the receiving plane.
+     * @zh 阴影接收平面与原点的距离
+     */
     get distance () {
         return this._distance;
     }
 
+    set distance (val: number) {
+        this._distance = val;
+        this._dirty = true;
+    }
+
+    /**
+     * @en Shadow color
+     * @zh 阴影颜色
+     */
+    get shadowColor () {
+        return this._shadowColor;
+    }
+
     set shadowColor (color: Color) {
-        Color.toArray(this._data, color, UBOShadow.SHADOW_COLOR_OFFSET);
-        this._globalBindings.buffer!.update(this.data);
+        this._shadowColor = color;
+        if (this._enabled) {
+            Color.toArray(this._data, color, UBOShadow.SHADOW_COLOR_OFFSET);
+            if (this._globalDescriptorSet) {
+                this._globalDescriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
+            }
+        }
+        this._dirty = true;
     }
 
     get matLight () {
@@ -64,31 +100,45 @@ export class PlanarShadows {
         return this._data;
     }
 
-    protected _scene: RenderScene;
     protected _enabled: boolean = false;
     protected _normal = new Vec3(0, 1, 0);
     protected _distance = 0;
+    protected _shadowColor = new Color(0, 0, 0, 76);
     protected _matLight = new Mat4();
     protected _data = Float32Array.from([
         1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, // matLightPlaneProj
         0.0, 0.0, 0.0, 0.3, // shadowColor
     ]);
-    protected _globalBindings: IInternalBindingInst;
     protected _record = new Map<Model, IShadowRenderData>();
     protected _pendingModels: IShadowRenderData[] = [];
-    protected _material: Material;
-    protected _instancingMaterial: Material;
+    protected _material: Material | null = null;
+    protected _instancingMaterial: Material | null = null;
+    protected _device: GFXDevice|null = null;
+    protected _globalDescriptorSet: GFXDescriptorSet | null = null;
+    protected _dirty: boolean = true;
 
-    constructor (scene: RenderScene) {
-        this._scene = scene;
-        this._globalBindings = scene.root.pipeline.globalBindings.get(UBOShadow.BLOCK.name)!;
-        this._material = new Material();
-        this._material.initialize({ effectName: 'pipeline/planar-shadow' });
-        this._instancingMaterial = new Material();
-        this._instancingMaterial.initialize({ effectName: 'pipeline/planar-shadow', defines: { USE_INSTANCING: true } });
+    public activate () {
+        const pipeline = legacyCC.director.root.pipeline;
+        this._globalDescriptorSet = pipeline.descriptorSet;
+        this._data = (pipeline as ForwardPipeline).shadowUBO;
+        Color.toArray(this._data, this._shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
+        this._globalDescriptorSet!.getBuffer(UBOShadow.BLOCK.binding).update(this._data);
+        this._dirty = true;
+        if (!this._material) {
+            this._material = new Material();
+            this._material.initialize({ effectName: 'pipeline/planar-shadow' });
+        }
+        if (!this._instancingMaterial) {
+            this._instancingMaterial = new Material();
+            this._instancingMaterial.initialize({ effectName: 'pipeline/planar-shadow', defines: { USE_INSTANCING: true } });
+        }
     }
 
     public updateSphereLight (light: SphereLight) {
+        if (!light.node!.hasChangedFlags && !this._dirty) {
+            return;
+        }
+        this._dirty = false;
         light.node!.getWorldPosition(_v3);
         const n = this._normal; const d = this._distance + 0.001; // avoid z-fighting
         const NdL = Vec3.dot(n, _v3);
@@ -111,11 +161,17 @@ export class PlanarShadows {
         m.m13 = ly * d;
         m.m14 = lz * d;
         m.m15 = NdL;
-        Mat4.toArray(this.data, this._matLight);
-        this._globalBindings.buffer!.update(this.data);
+        Mat4.toArray(this._data, this._matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
+        this._globalDescriptorSet!.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
     }
 
     public updateDirLight (light: DirectionalLight) {
+        if (!light.node!.hasChangedFlags && !this._dirty) {
+            return;
+        }
+
+        this._dirty = false;
+
         light.node!.getWorldRotation(_qt);
         Vec3.transformQuat(_v3, _forward, _qt);
         const n = this._normal; const d = this._distance + 0.001; // avoid z-fighting
@@ -139,14 +195,15 @@ export class PlanarShadows {
         m.m13 = ly * d;
         m.m14 = lz * d;
         m.m15 = 1;
-        Mat4.toArray(this.data, this._matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
-        this._globalBindings.buffer!.update(this.data);
+
+        Mat4.toArray(this._data, this._matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
+        this._globalDescriptorSet!.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
     }
 
-    public updateShadowList (frstm: frustum, stamp: number, shadowVisible = false) {
+    public updateShadowList (scene: RenderScene, frstm: frustum, stamp: number, shadowVisible = false) {
         this._pendingModels.length = 0;
-        if (!this._scene.mainLight || !shadowVisible) { return; }
-        const models = this._scene.models;
+        if (!scene.mainLight || !shadowVisible) { return; }
+        const models = scene.models;
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
             if (!model.enabled || !model.node || !model.castShadow) { continue; }
@@ -163,38 +220,45 @@ export class PlanarShadows {
     }
 
     public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
+        this._device = device;
         const models = this._pendingModels;
         const modelLen = models.length;
-        const buffer = InstancedBuffer.get(this._instancingMaterial.passes[0]);
+        if (!modelLen) { return; }
+        const buffer = InstancedBuffer.get(this._instancingMaterial!.passes[0]);
         if (buffer) { buffer.clear(); }
+        const hPass = this._material!.passes[0].handle;
+        let descriptorSet = DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET));
+        cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, descriptorSet);
         for (let i = 0; i < modelLen; i++) {
-            const { model, psoCIs: psocis, instancedBuffer } = models[i];
-            for (let j = 0; j < psocis.length; j++) {
-                const submodel = model.getSubModel(j);
-                const psoci = psocis[j];
+            const { model, shaders, instancedBuffer } = models[i];
+            for (let j = 0; j < shaders.length; j++) {
+                const subModel = model.subModels[j];
+                const shader = shaders[j];
                 if (instancedBuffer) {
-                    instancedBuffer.merge(submodel, model.instancedAttributes, psoci);
+                    instancedBuffer.merge(subModel, model.instancedAttributes, 0);
                 } else {
-                    const ia = submodel.inputAssembler!;
-                    const pso = PipelineStateManager.getOrCreatePipelineState(device, psoci, renderPass, ia);
-                    const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoci, PSOCIView.BINDING_LAYOUT));
+                    const ia = subModel.inputAssembler!;
+                    const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, ia);
                     cmdBuff.bindPipelineState(pso);
-                    cmdBuff.bindBindingLayout(bindingLayout);
+                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);
                     cmdBuff.bindInputAssembler(ia);
                     cmdBuff.draw(ia);
                 }
             }
         }
-        if (buffer && buffer.psoci) {
+        if (buffer && buffer.hasPendingModels) {
             buffer.uploadBuffers();
+            descriptorSet = DSPool.get(PassPool.get(buffer.hPass, PassView.DESCRIPTOR_SET));
+            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, descriptorSet);
             let lastPSO: GFXPipelineState | null = null;
             for (let b = 0; b < buffer.instances.length; ++b) {
                 const instance = buffer.instances[b];
                 if (!instance.count) { continue; }
-                const pso = PipelineStateManager.getOrCreatePipelineState(device, buffer.psoci, renderPass, instance.ia);
+                const shader = ShaderPool.get(instance.hShader);
+                const pso = PipelineStateManager.getOrCreatePipelineState(device, buffer.hPass, shader, renderPass, instance.ia);
                 if (lastPSO !== pso) {
                     cmdBuff.bindPipelineState(pso);
-                    cmdBuff.bindBindingLayout(BindingLayoutPool.get(PSOCIPool.get(buffer.psoci, PSOCIView.BINDING_LAYOUT)));
+                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, DSPool.get(instance.hDescriptorSet));
                     lastPSO = pso;
                 }
                 cmdBuff.bindInputAssembler(instance.ia);
@@ -204,42 +268,25 @@ export class PlanarShadows {
     }
 
     public createShadowData (model: Model): IShadowRenderData {
-        const psoCIs: number[] = [];
+        const shaders: GFXShader[] = [];
         const material = model.isInstancingEnabled ? this._instancingMaterial : this._material;
-        for (let i = 0; i < model.subModelNum; i++) {
-            const psoCI = material.passes[0].createPipelineStateCI(model.getMacroPatches(i));
-            if (psoCI) {
-                model.insertImplantPSOCI(psoCI, i); // add back to model to sync binding layouts
-                BindingLayoutPool.get(PSOCIPool.get(psoCI, PSOCIView.BINDING_LAYOUT)).update();
-                psoCIs.push(psoCI);
-            }
+        const instancedBuffer = model.isInstancingEnabled ? InstancedBuffer.get(material!.passes[0]) : null;
+        const subModels = model.subModels;
+        for (let i = 0; i < subModels.length; i++) {
+            const hShader = material!.passes[0].getShaderVariant(model.getMacroPatches(i));
+            shaders.push(ShaderPool.get(hShader));
         }
-        return { model, psoCIs, instancedBuffer: InstancedBuffer.get(material.passes[0]) };
+        return { model, shaders, instancedBuffer };
     }
 
     public destroyShadowData (model: Model) {
-        const data = this._record.get(model);
-        if (!data) { return; }
-        const material = data.instancedBuffer ? this._instancingMaterial : this._material;
-        for (let i = 0; i < data.psoCIs.length; i++) {
-            const psoCI = data.psoCIs[i];
-            model.removeImplantPSOCI(psoCI);
-            material.passes[0].destroyPipelineStateCI(psoCI);
-        }
         this._record.delete(model);
     }
 
-    public onGlobalPipelineStateChanged () {
-        const it = this._record.keys(); let res = it.next();
-        while (!res.done) {
-            this.destroyShadowData(res.value);
-            res = it.next();
-        }
-        this._record.clear();
-    }
-
     public destroy () {
-        this.onGlobalPipelineStateChanged();
-        this._material.destroy();
+        this._record.clear();
+        if (this._material) {
+            this._material.destroy();
+        }
     }
 }

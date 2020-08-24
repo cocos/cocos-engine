@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { ccclass, property } from '../../core/data/class-decorator';
+import { ccclass, property, type } from '../../core/data/class-decorator';
 import { lerp } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { AnimationCurve } from '../../core/geometry';
@@ -32,33 +32,25 @@ export default class CurveRange  {
     /**
      * @zh 曲线类型[[Mode]]。
      */
-    @property({
-        type: Mode,
-    })
+    @type(Mode)
     public mode = Mode.Constant;
 
     /**
      * @zh 当mode为Curve时，使用的曲线。
      */
-    @property({
-        type: AnimationCurve,
-    })
+    @type(AnimationCurve)
     public curve = new AnimationCurve();
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线下限。
      */
-    @property({
-        type: AnimationCurve,
-    })
+    @type(AnimationCurve)
     public curveMin = new AnimationCurve();
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线上限。
      */
-    @property({
-        type: AnimationCurve,
-    })
+    @type(AnimationCurve)
     public curveMax = new AnimationCurve();
 
     /**

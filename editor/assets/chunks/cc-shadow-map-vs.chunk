@@ -1,0 +1,7 @@
+out vec4 v_shadowPos;
+
+#include <cc-shadow>
+
+#define CCPassShadowParams(worldPos)              \
+    v_shadowPos = cc_matLightViewProj * worldPos; \
+    #pragma // empty pragma trick to get rid of trailing semicolons at effect compile time

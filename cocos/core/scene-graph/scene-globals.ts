@@ -1,8 +1,6 @@
 /*
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
-
  http://www.cocos.com
-
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
   worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -10,10 +8,8 @@
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
-
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
-
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,16 +24,16 @@
  */
 
 import { TextureCube } from '../assets/texture-cube';
-import { ccclass, float, property } from '../data/class-decorator';
+import { ccclass, property, visible, type, displayOrder, slide, range, rangeStep} from '../data/class-decorator';
 import { CCBoolean, CCFloat } from '../data/utils/attribute';
-import { Color, Quat, Vec3 } from '../math';
+import { Color, Quat, Vec3, Vec2 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
 import { PlanarShadows } from '../renderer/scene/planar-shadows';
-import { RenderScene } from '../renderer/scene/render-scene';
 import { Skybox } from '../renderer/scene/skybox';
 import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
+import { Shadow } from '../renderer/scene/shadow';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -62,10 +58,10 @@ export class AmbientInfo {
      * @en Sky color
      * @zh 天空颜色
      */
-    @property({ type: Color })
+    @type(Color)
     set skyColor (val: Color) {
         this._skyColor.set(val);
-        if (this._resource) { Color.toArray(this._resource.skyColor, this.skyColor); }
+        if (this._resource) { this._resource.skyColor = this._skyColor; }
     }
     get skyColor () {
         return this._skyColor;
@@ -75,7 +71,7 @@ export class AmbientInfo {
      * @en Sky illuminance
      * @zh 天空亮度
      */
-    @float
+    @type(CCFloat)
     set skyIllum (val: number) {
         this._skyIllum = val;
         if (this._resource) { this._resource.skyIllum = this.skyIllum; }
@@ -88,21 +84,21 @@ export class AmbientInfo {
      * @en Ground color
      * @zh 地面颜色
      */
-    @property({ type: Color })
+    @type(Color)
     set groundAlbedo (val: Color) {
         this._groundAlbedo.set(val);
         // only RGB channels are used, alpha channel are intensionally left unchanged here
-        if (this._resource) { Vec3.toArray(this._resource.groundAlbedo, this.groundAlbedo); }
+        if (this._resource) { this._resource.groundAlbedo = this._groundAlbedo; }
     }
     get groundAlbedo () {
         return this._groundAlbedo;
     }
 
-    set renderScene (rs: RenderScene) {
-        this._resource = rs.ambient;
-        this.skyColor = this._skyColor;
-        this.skyIllum = this._skyIllum;
-        this.groundAlbedo = this._groundAlbedo;
+    public activate (resource: Ambient) {
+        this._resource = resource;
+        this._resource.skyColor = this._skyColor;
+        this._resource.skyIllum = this._skyIllum;
+        this._resource.groundAlbedo = this._groundAlbedo;
     }
 }
 legacyCC.AmbientInfo = AmbientInfo;
@@ -113,7 +109,7 @@ legacyCC.AmbientInfo = AmbientInfo;
  */
 @ccclass('cc.SkyboxInfo')
 export class SkyboxInfo {
-    @property(TextureCube)
+    @type(TextureCube)
     protected _envmap: TextureCube | null = null;
     @property
     protected _isRGBE = false;
@@ -128,7 +124,7 @@ export class SkyboxInfo {
      * @en Whether activate skybox in the scene
      * @zh 是否启用天空盒？
      */
-    @property({ type: CCBoolean })
+    @type(CCBoolean)
     set enabled (val) {
         this._enabled = val;
         if (this._resource) { this._resource.enabled = this._enabled; }
@@ -141,7 +137,7 @@ export class SkyboxInfo {
      * @en Whether use environment lighting
      * @zh 是否启用环境光照？
      */
-    @property({ type: CCBoolean })
+    @type(CCBoolean)
     set useIBL (val) {
         this._useIBL = val;
         if (this._resource) { this._resource.useIBL = this._useIBL; }
@@ -154,7 +150,7 @@ export class SkyboxInfo {
      * @en The texture cube used for the skybox
      * @zh 使用的立方体贴图
      */
-    @property({ type: TextureCube })
+    @type(TextureCube)
     set envmap (val) {
         this._envmap = val;
         if (this._resource) { this._resource.envmap = this._envmap; }
@@ -167,7 +163,7 @@ export class SkyboxInfo {
      * @en Whether enable RGBE data support in skybox shader
      * @zh 是否需要开启 shader 内的 RGBE 数据支持？
      */
-    @property({ type: CCBoolean })
+    @type(CCBoolean)
     set isRGBE (val) {
         this._isRGBE = val;
         if (this._resource) { this._resource.isRGBE = this._isRGBE; }
@@ -176,12 +172,12 @@ export class SkyboxInfo {
         return this._isRGBE;
     }
 
-    set renderScene (val: RenderScene) {
-        this._resource = val.skybox;
-        this.isRGBE = this._isRGBE;
-        this.envmap = this._envmap;
-        this.enabled = this._enabled;
-        this.useIBL = this._useIBL;
+    public activate (resource: Skybox) {
+        this._resource = resource;
+        this._resource.enabled = this._enabled;
+        this._resource.isRGBE = this._isRGBE;
+        this._resource.envmap = this._envmap;
+        this._resource.useIBL = this._useIBL;
     }
 }
 legacyCC.SkyboxInfo = SkyboxInfo;
@@ -216,26 +212,26 @@ export class FogInfo {
      * @zh 是否启用全局雾效
      * @en Enable global fog
      */
-    @property({ type: CCBoolean })
+    @type(CCBoolean)
     set enabled (val: boolean) {
         this._enabled = val;
         if (this._resource) { this._resource.enabled = val; }
     }
-    
+
     get enabled () {
         return this._enabled;
     }
-    
+
     /**
      * @zh 全局雾颜色
      * @en Global fog color
      */
-    @property({ type: Color })
+    @type(Color)
     set fogColor (val: Color) {
         this._fogColor.set(val);
-        if (this._resource) { Color.toArray(this._resource.fogColor, this.fogColor); }
+        if (this._resource) { this._resource.fogColor = this._fogColor; }
     }
-    
+
     get fogColor () {
         return this._fogColor;
     }
@@ -244,9 +240,7 @@ export class FogInfo {
      * @zh 全局雾类型
      * @en Global fog type
      */
-    @property({
-        type: FogType
-    })
+    @type(FogType)
     get type () {
         return this._type;
     }
@@ -260,14 +254,13 @@ export class FogInfo {
      * @zh 全局雾浓度
      * @en Global fog density
      */
-    @property({
-        type: CCFloat,
-        range: [0, 1],
-        step: 0.01,
-        slide: true,
-        visible: function(this: FogInfo) {
-            return this._type !== FogType.LAYERED && this._type !== FogType.LINEAR;
-        }
+    @type(CCFloat)
+    @range([0, 1])
+    @rangeStep(0.01)
+    @slide(true)
+    @displayOrder(3)
+    @visible(function (this: Fog) {
+        return this._type !== FogType.LAYERED && this._type !== FogType.LINEAR;
     })
     get fogDensity () {
         return this._fogDensity;
@@ -282,18 +275,15 @@ export class FogInfo {
      * @zh 雾效起始位置，只适用于线性雾
      * @en Global fog start position, only for linear fog
      */
-    @property({
-        type: CCFloat,
-        step: 0.1,
-        visible: function(this: FogInfo) { 
-            return this._type === FogType.LINEAR;
-        }
-    })
-    get fogStart() {
+    @type(CCFloat)
+    @rangeStep(0.1)
+    @displayOrder(4)
+    @visible(function (this: Fog) { return this._type === FogType.LINEAR; })
+    get fogStart () {
         return this._fogStart;
     }
 
-    set fogStart(val) {
+    set fogStart (val) {
         this._fogStart = val;
         if (this._resource) { this._resource.fogStart = val; }
     }
@@ -302,18 +292,15 @@ export class FogInfo {
      * @zh 雾效结束位置，只适用于线性雾
      * @en Global fog end position, only for linear fog
      */
-    @property({
-        type: CCFloat,
-        step: 0.1,
-        visible: function (this: FogInfo){ 
-            return this._type === FogType.LINEAR;
-        }
-    })
-    get fogEnd() {
+    @type(CCFloat)
+    @rangeStep(0.1)
+    @displayOrder(5)
+    @visible(function (this: Fog) {  return this._type === FogType.LINEAR; })
+    get fogEnd () {
         return this._fogEnd;
     }
 
-    set fogEnd(val) {
+    set fogEnd (val) {
         this._fogEnd = val;
         if (this._resource) { this._resource.fogEnd = val; }
     }
@@ -322,18 +309,15 @@ export class FogInfo {
      * @zh 雾效衰减
      * @en Global fog attenuation
      */
-    @property({
-        type: CCFloat,
-        step: 0.1,
-        visible: function (this: FogInfo){ 
-            return this._type !== FogType.LINEAR;
-        }
-    })
-    get fogAtten() {
+    @type(CCFloat)
+    @rangeStep(0.1)
+    @displayOrder(6)
+    @visible(function (this: Fog) { return this._type !== FogType.LINEAR; })
+    get fogAtten () {
         return this._fogAtten;
     }
 
-    set fogAtten(val) {
+    set fogAtten (val) {
         this._fogAtten = val;
         if (this._resource) { this._resource.fogAtten = val; }
     }
@@ -342,18 +326,15 @@ export class FogInfo {
      * @zh 雾效顶部范围，只适用于层级雾
      * @en Global fog top range, only for layered fog
      */
-    @property({
-        type: CCFloat,
-        step: 0.1,
-        visible: function (this: FogInfo){ 
-            return this._type === FogType.LAYERED;
-        }
-    })
-    get fogTop() {
+    @type(CCFloat)
+    @rangeStep(0.1)
+    @displayOrder(7)
+    @visible(function (this: Fog) { return this._type === FogType.LAYERED; })
+    get fogTop () {
         return this._fogTop;
     }
 
-    set fogTop(val) {
+    set fogTop (val) {
         this._fogTop = val;
         if (this._resource) { this._resource.fogTop = val; }
     }
@@ -362,33 +343,30 @@ export class FogInfo {
      * @zh 雾效范围，只适用于层级雾
      * @en Global fog range, only for layered fog
      */
-    @property({
-        type: CCFloat,
-        step: 0.1,
-        visible: function (this: FogInfo){ 
-            return this._type === FogType.LAYERED;
-        }
-    })
-    get fogRange() {
+    @type(CCFloat)
+    @rangeStep(0.1)
+    @displayOrder(8)
+    @visible(function (this: Fog) { return this._type === FogType.LAYERED; })
+    get fogRange () {
         return this._fogRange;
     }
 
-    set fogRange(val) {
+    set fogRange (val) {
         this._fogRange = val;
         if (this._resource) { this._resource.fogRange = val; }
     }
 
-    set renderScene (val: RenderScene) {
-        this._resource = val.fog;
-        this.enabled = this._enabled;
-        this.fogColor = this._fogColor;
-        this.type = this._type;
-        this.fogDensity = this._fogDensity;
-        this.fogStart = this._fogStart;
-        this.fogEnd = this._fogEnd;
-        this.fogAtten = this._fogAtten;
-        this.fogTop = this._fogTop;
-        this.fogRange = this._fogRange;
+    public activate (resource: Fog) {
+        this._resource = resource;
+        this._resource.enabled = this._enabled;
+        this._resource.fogColor = this._fogColor;
+        this._resource.type = this._type;
+        this._resource.fogDensity = this._fogDensity;
+        this._resource.fogStart = this._fogStart;
+        this._resource.fogEnd = this._fogEnd;
+        this._resource.fogAtten = this._fogAtten;
+        this._resource.fogTop = this._fogTop;
+        this._resource.fogRange = this._fogRange;
     }
 }
 
@@ -413,7 +391,7 @@ export class PlanarShadowInfo {
      * @en Whether activate planar shadow
      * @zh 是否启用平面阴影？
      */
-    @property({ type: CCBoolean })
+    @type(CCBoolean)
     set enabled (val: boolean) {
         this._enabled = val;
         if (this._resource) { this._resource.enabled = val; }
@@ -426,7 +404,7 @@ export class PlanarShadowInfo {
      * @en The normal of the plane which receives shadow
      * @zh 阴影接收平面的法线
      */
-    @property({ type: Vec3 })
+    @type(Vec3)
     set normal (val: Vec3) {
         Vec3.copy(this._normal, val);
         if (this._resource) { this._resource.normal = val; }
@@ -439,7 +417,7 @@ export class PlanarShadowInfo {
      * @en The distance from coordinate origin to the receiving plane.
      * @zh 阴影接收平面与原点的距离
      */
-    @property({ type: CCFloat })
+    @type(CCFloat)
     set distance (val: number) {
         this._distance = val;
         if (this._resource) { this._resource.distance = val; }
@@ -452,7 +430,7 @@ export class PlanarShadowInfo {
      * @en Shadow color
      * @zh 阴影颜色
      */
-    @property({ type: Color })
+    @type(Color)
     set shadowColor (val: Color) {
         this._shadowColor.set(val);
         if (this._resource) { this._resource.shadowColor = val; }
@@ -473,15 +451,126 @@ export class PlanarShadowInfo {
         this.distance = Vec3.dot(this._normal, _v3);
     }
 
-    set renderScene (val: RenderScene) {
-        this._resource = val.planarShadows;
-        this.normal = this._normal;
-        this.distance = this._distance;
-        this.shadowColor = this._shadowColor;
-        this.enabled = this._enabled;
+    public activate (resource: PlanarShadows) {
+        this._resource = resource;
+        this._resource.normal = this._normal;
+        this._resource.distance = this._distance;
+        this._resource.shadowColor = this._shadowColor;
+        this._resource.enabled = this._enabled;
     }
 }
 legacyCC.PlanarShadowInfo = PlanarShadowInfo;
+
+/**
+ * @en Scene level shadow related information
+ * @zh 常规阴影相关信息
+ */
+@ccclass('cc.ShadowInfo')
+export class ShadowInfo {
+    @property
+    protected _enabled: boolean = false;
+    @property
+    protected _near: number = 1;
+    @property
+    protected _far: number = 30;
+    @property
+    protected _aspect: number = 1;
+    @property
+    protected _orthoSize: number = 5;
+    @property
+    protected _size: Vec2 = new Vec2(512, 512);
+
+    protected _resource: Shadow | null = null;
+
+    /**
+     * @en Whether activate shadow
+     * @zh 是否启用常规阴影？
+     */
+    @type(CCBoolean)
+    set enabled (val: boolean) {
+        this._enabled = val;
+        if (this._resource) {
+            this._resource.enabled = val;
+        }
+    }
+    get enabled () {
+        return this._enabled;
+    }
+
+    /**
+     * @en get or set shadow camera near
+     * @zh 获取或者设置阴影相机近裁剪面
+     */
+    @type(CCFloat)
+    set near (val: number) {
+        this._near = val;
+        if (this._resource) { this._resource.near = val; }
+    }
+    get near () {
+        return this._near;
+    }
+
+    /**
+     * @en get or set shadow camera far
+     * @zh 获取或者设置阴影相机远裁剪面
+     */
+    @type(CCFloat)
+    set far (val: number) {
+        this._far = val;
+        if (this._resource) { this._resource.far = val; }
+    }
+    get far () {
+        return this._far;
+    }
+
+    /**
+     * @en get or set shadow camera orthoSize
+     * @zh 获取或者设置阴影相机正交大小
+     */
+    @type(CCFloat)
+    set orthoSize (val: number) {
+        this._orthoSize = val;
+        if (this._resource) { this._resource.orthoSize = val; }
+    }
+    get orthoSize () {
+        return this._orthoSize;
+    }
+
+    /**
+     * @en get or set shadow camera orthoSize
+     * @zh 获取或者设置阴影纹理大小
+     */
+    @type(Vec2)
+    set shadowMapSize (val: Vec2) {
+        this._size.set(val);
+        if (this._resource) { this._resource.size = val; }
+    }
+    get shadowMapSize () {
+        return this._size;
+    }
+
+    /**
+     * @en get or set shadow camera orthoSize
+     * @zh 获取或者设置阴影纹理大小
+     */
+    @type(CCFloat)
+    set aspect (val: number) {
+        this._aspect = val;
+        if (this._resource) { this._resource.aspect = val; }
+    }
+    get aspect () {
+        return this._aspect;
+    }
+
+    public activate (resource: Shadow) {
+        this._resource = resource;
+        this._resource.enabled = this._enabled;
+        this._resource.near = this._near;
+        this._resource.far = this._far;
+        this._resource.orthoSize = this._orthoSize;
+        this._resource.size = this._size;
+    }
+}
 
 /**
  * @en All scene related global parameters, it affects all content in the corresponding scene
@@ -501,8 +590,14 @@ export class SceneGlobals {
      */
     @property
     public planarShadows = new PlanarShadowInfo();
+    /**
+     * @en shadow information
+     * @zn 普通阴影相关信息
+     */
     @property
-    private _skybox = new SkyboxInfo();
+    public shadowMap = new ShadowInfo();
+    @property
+    public _skybox = new SkyboxInfo();
     @property
     public fog = new FogInfo();
 
@@ -510,7 +605,7 @@ export class SceneGlobals {
      * @en Skybox related information
      * @zh 天空盒相关信息
      */
-    @property({ type: SkyboxInfo })
+    @type(SkyboxInfo)
     get skybox () {
         return this._skybox;
     }
@@ -518,11 +613,13 @@ export class SceneGlobals {
         this._skybox = value;
     }
 
-    set renderScene (rs: RenderScene) {
-        this.ambient.renderScene = rs;
-        this.skybox.renderScene = rs;
-        this.planarShadows.renderScene = rs;
-        this.fog.renderScene = rs;
+    public activate () {
+        const pipeline = legacyCC.director.root.pipeline;
+        this.ambient.activate(pipeline.ambient);
+        this.skybox.activate(pipeline.skybox);
+        this.planarShadows.activate(pipeline.planarShadows);
+        this.shadowMap.activate(pipeline.shadowMap);
+        this.fog.activate(pipeline.fog);
     }
 }
 legacyCC.SceneGlobals = SceneGlobals;
