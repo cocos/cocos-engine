@@ -32,6 +32,7 @@ THE SOFTWARE.
 #include "scripting/js-bindings/event/EventDispatcher.h"
 #include "base/CCScheduler.h"
 #include "base/CCAutoreleasePool.h"
+#include "base/TypeDef.h"
 #include "math/Vec2.h"
 
 #define NANOSECONDS_PER_SECOND 1000000000
@@ -99,6 +100,8 @@ public:
         static std::chrono::steady_clock::time_point now;
         static float dt = 0.f;
         static long dtNS = NANOSECONDS_60FPS;
+        
+        ++_totalFrames;
 
         // iOS/macOS use its own fps limitation algorithm.
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS)
@@ -133,6 +136,8 @@ public:
      * @brief Get the preferred frame rate for main loop callback.
      */
     inline int getPreferredFramesPerSecond() const { return _fps; }
+    
+    CC_INLINE uint getTotalFrames() const { return _totalFrames; }
 
     /**
      @brief Get current language config.
@@ -186,6 +191,7 @@ private:
     static std::shared_ptr<Scheduler> _scheduler;
     int _fps = 60;
     long _prefererredNanosecondsPerFrame = NANOSECONDS_60FPS;
+    uint _totalFrames = 0;
     cc::Vec2 _viewLogicalSize;
 };
 

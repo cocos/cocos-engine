@@ -218,12 +218,6 @@ struct CC_DLL Root {
     const static se::PoolType type = se::PoolType::ROOT;
 };
 
-struct CC_DLL Director {
-    float totalFrames = 0;
-
-    const static se::PoolType type = se::PoolType::DIRECTOR;
-};
-
 struct CC_DLL RenderWindow {
     uint32_t hasOnScreenAttachments = 0;
     uint32_t hasOffScreenAttachments = 0;
@@ -248,7 +242,6 @@ struct CC_DLL RenderWindow {
 #define GET_MAIN_LIGHT(index)                 SharedMemory::getBuffer<MainLight>(index)
 #define GET_AMBIENT(index)                    SharedMemory::getBuffer<Ambient>(index)
 #define GET_FOG(index)                        SharedMemory::getBuffer<Fog>(index)
-#define GET_DIRECTOR(index)                   SharedMemory::getBuffer<Director>(index)
 #define GET_PLANAR_SHADOW(index)              static_cast<PlanarShadow *>(0)
 #define GET_SKYBOX(index)                     SharedMemory::getBuffer<Skybox>(index)
 #define GET_FRUSTUM(index)                    SharedMemory::getBuffer<Frustum>(index)

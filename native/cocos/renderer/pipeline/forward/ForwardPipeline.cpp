@@ -6,6 +6,7 @@
 #include "ForwardFlow.h"
 #include "gfx/GFXDevice.h"
 #include "gfx/GFXRenderPass.h"
+#include "platform/CCApplication.h"
 
 namespace cc {
 namespace pipeline {
@@ -144,7 +145,6 @@ void ForwardPipeline::updateUBO(RenderView *view) {
     //    this._descriptorSet.update();
 
     const auto root = GET_ROOT(0);
-    const auto director = GET_DIRECTOR(0);
 
     const auto camera = view->getCamera();
     const auto scene = GET_SCENE(camera->sceneID);
@@ -160,7 +160,7 @@ void ForwardPipeline::updateUBO(RenderView *view) {
     // update UBOGlobal
     uboGlobalView[UBOGlobal::TIME_OFFSET] = root->cumulativeTime;
     uboGlobalView[UBOGlobal::TIME_OFFSET + 1] = root->frameTime;
-    uboGlobalView[UBOGlobal::TIME_OFFSET + 2] = director->totalFrames;
+    uboGlobalView[UBOGlobal::TIME_OFFSET + 2] = Application::getInstance()->getTotalFrames();
 
     uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET] = _device->getWidth();
     uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET + 1] = _device->getHeight();

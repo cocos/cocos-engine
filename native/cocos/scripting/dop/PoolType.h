@@ -20,7 +20,6 @@ enum class PoolType {
     NODE,
     ROOT,
     AABB,
-    DIRECTOR,
     RENDER_WINDOW,
     FRUSTUM,
 //    INSTANCED_ATTRIBUTE,

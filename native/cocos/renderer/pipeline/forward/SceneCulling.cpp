@@ -3,6 +3,7 @@
 #include "../RenderView.h"
 #include "../helper/SharedMemory.h"
 #include "ForwardPipeline.h"
+#include "platform/CCApplication.h"
 
 namespace cc {
 namespace pipeline {
@@ -39,7 +40,7 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
         renderObjects.emplace_back(genRenderObject(GET_SKYBOX(scene->skyboxID), camera));
     }
 
-    const auto stamp = GET_DIRECTOR(0)->totalFrames;
+    const auto stamp = Application::getInstance()->getTotalFrames();
     uint32_t *models = GET_MODEL_ARRAY(scene->modelsID);
     uint32_t modelCount = models[0];
     for (size_t i = 1; i <= modelCount; i++) {
