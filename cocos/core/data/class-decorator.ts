@@ -498,7 +498,7 @@ export const disallowMultiple = (DEV ? createEditorDecorator : createDummyDecora
  * }
  * ```
  */
-export const playOnFocus = (DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'playOnFocus');
+export const playOnFocus = (DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'playOnFocus', true);
 
 /**
  * @en Use a customized inspector page in the **inspector**
