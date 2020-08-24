@@ -478,7 +478,7 @@ export const letterFont = {
         }
 
         _comp = comp;
-        _uiTrans = null;
+        _uiTrans = comp.node._uiProps.uiTransformComp;
 
         this._updateFontFamily(comp);
         _labelInfo.fontFamily = _fontFamily;

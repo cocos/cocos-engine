@@ -995,7 +995,6 @@ export function WebGL2CmdFuncUpdateBuffer (device: WebGL2Device, gpuBuffer: IWeb
         const buff = buffer as ArrayBuffer;
         const gl = device.gl;
         const cache = device.stateCache;
-        const glOffset = offset + gpuBuffer.glOffset;
 
         switch (gpuBuffer.glTarget) {
             case gl.ARRAY_BUFFER: {
@@ -1010,9 +1009,9 @@ export function WebGL2CmdFuncUpdateBuffer (device: WebGL2Device, gpuBuffer: IWeb
                 }
 
                 if (size === buff.byteLength) {
-                    gl.bufferSubData(gpuBuffer.glTarget, glOffset, buff);
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
                 } else {
-                    gl.bufferSubData(gpuBuffer.glTarget, glOffset, buff.slice(0, size));
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
                 }
                 break;
             }
@@ -1028,9 +1027,9 @@ export function WebGL2CmdFuncUpdateBuffer (device: WebGL2Device, gpuBuffer: IWeb
                 }
 
                 if (size === buff.byteLength) {
-                    gl.bufferSubData(gpuBuffer.glTarget, glOffset, buff);
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
                 } else {
-                    gl.bufferSubData(gpuBuffer.glTarget, glOffset, buff.slice(0, size));
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
                 }
                 break;
             }
@@ -1041,9 +1040,9 @@ export function WebGL2CmdFuncUpdateBuffer (device: WebGL2Device, gpuBuffer: IWeb
                 }
 
                 if (size === buff.byteLength) {
-                    gl.bufferSubData(gpuBuffer.glTarget, glOffset, buff);
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
                 } else {
-                    gl.bufferSubData(gpuBuffer.glTarget, glOffset, new Float32Array(buff, 0, size / 4));
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, new Float32Array(buff, 0, size / 4));
                 }
                 break;
             }
@@ -1644,7 +1643,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
                 blockIdx = b;
                 blockSize = gl.getActiveUniformBlockParameter(gpuShader.glProgram, blockIdx, gl.UNIFORM_BLOCK_DATA_SIZE);
                 blockUniformCount = gl.getActiveUniformBlockParameter(gpuShader.glProgram, blockIdx, gl.UNIFORM_BLOCK_ACTIVE_UNIFORMS);
-                const glBinding = block.binding + (device.bindingMappingInfo && device.bindingMappingInfo.bufferOffsets[block.set] || 0);
+                const glBinding = block.binding + (device.bindingMappingInfo.bufferOffsets[block.set] || 0);
 
                 gl.uniformBlockBinding(gpuShader.glProgram, blockIdx, glBinding);
 
@@ -2331,7 +2330,7 @@ export function WebGL2CmdFuncBindStates (
             const gpuDescriptorSet = gpuDescriptorSets[glSampler.set];
             const gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[glSampler.binding];
 
-            if (!gpuDescriptor || !gpuDescriptor.gpuSampler) {
+            if (!gpuDescriptor || !gpuDescriptor.gpuTexture || !gpuDescriptor.gpuSampler) {
                 error(`Sampler binding '${glSampler.name}' at set ${glSampler.set} binding ${glSampler.binding} is not bounded`);
                 continue;
             }

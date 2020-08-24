@@ -41,7 +41,7 @@ import { isBuiltinBinding, RenderPassStage, RenderPriority, SetIndex } from '../
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
-import { IProgramInfo, programLib, IPipelineLayoutInfo } from './program-lib';
+import { IProgramInfo, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
 import { PassView, BlendStatePool, RasterizerStatePool, DepthStencilStatePool,
     PassPool, DSPool, PassHandle, ShaderHandle, NULL_HANDLE } from './memory-pools';
@@ -95,7 +95,7 @@ export declare namespace Pass {
     export type getPropertyTypeFromHandle = typeof getPropertyTypeFromHandle;
     export type getTypeFromHandle = typeof getTypeFromHandle;
     export type getBindingFromHandle = typeof getBindingFromHandle;
-    export type fillinPipelineInfo = typeof Pass.fillPipelineInfo;
+    export type fillPipelineInfo = typeof Pass.fillPipelineInfo;
     export type getPassHash = typeof Pass.getPassHash;
     export type getOffsetFromHandle = typeof getOffsetFromHandle;
     export type PropertyType = typeof PropertyType;

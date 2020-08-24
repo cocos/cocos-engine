@@ -6,16 +6,16 @@
   "files": [],
   "subMetas": {
     "17020": {
-      "ver": "1.1.0",
       "importer": "gltf-mesh",
-      "name": "sphere.mesh",
-      "id": "17020",
-      "displayName": "",
       "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@17020",
+      "displayName": "",
+      "id": "17020",
+      "name": "sphere.mesh",
+      "ver": "1.1.0",
       "imported": true,
       "files": [
-        ".json",
-        ".bin"
+        ".bin",
+        ".json"
       ],
       "subMetas": {},
       "userData": {
@@ -23,16 +23,16 @@
       }
     },
     "801ec": {
-      "ver": "1.1.0",
       "importer": "gltf-mesh",
-      "name": "capsule.mesh",
-      "id": "801ec",
-      "displayName": "",
       "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@801ec",
+      "displayName": "",
+      "id": "801ec",
+      "name": "capsule.mesh",
+      "ver": "1.1.0",
       "imported": true,
       "files": [
-        ".json",
-        ".bin"
+        ".bin",
+        ".json"
       ],
       "subMetas": {},
       "userData": {
@@ -40,16 +40,16 @@
       }
     },
     "2e76e": {
-      "ver": "1.1.0",
       "importer": "gltf-mesh",
-      "name": "plane.mesh",
-      "id": "2e76e",
-      "displayName": "",
       "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@2e76e",
+      "displayName": "",
+      "id": "2e76e",
+      "name": "plane.mesh",
+      "ver": "1.1.0",
       "imported": true,
       "files": [
-        ".json",
-        ".bin"
+        ".bin",
+        ".json"
       ],
       "subMetas": {},
       "userData": {
@@ -57,16 +57,16 @@
       }
     },
     "38fd2": {
-      "ver": "1.1.0",
       "importer": "gltf-mesh",
-      "name": "cone.mesh",
-      "id": "38fd2",
-      "displayName": "",
       "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@38fd2",
+      "displayName": "",
+      "id": "38fd2",
+      "name": "cone.mesh",
+      "ver": "1.1.0",
       "imported": true,
       "files": [
-        ".json",
-        ".bin"
+        ".bin",
+        ".json"
       ],
       "subMetas": {},
       "userData": {
@@ -74,16 +74,16 @@
       }
     },
     "40ece": {
-      "ver": "1.1.0",
       "importer": "gltf-mesh",
-      "name": "torus.mesh",
-      "id": "40ece",
-      "displayName": "",
       "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@40ece",
+      "displayName": "",
+      "id": "40ece",
+      "name": "torus.mesh",
+      "ver": "1.1.0",
       "imported": true,
       "files": [
-        ".json",
-        ".bin"
+        ".bin",
+        ".json"
       ],
       "subMetas": {},
       "userData": {
@@ -91,16 +91,16 @@
       }
     },
     "fc873": {
-      "ver": "1.1.0",
       "importer": "gltf-mesh",
-      "name": "quad.mesh",
-      "id": "fc873",
-      "displayName": "",
       "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@fc873",
+      "displayName": "",
+      "id": "fc873",
+      "name": "quad.mesh",
+      "ver": "1.1.0",
       "imported": true,
       "files": [
-        ".json",
-        ".bin"
+        ".bin",
+        ".json"
       ],
       "subMetas": {},
       "userData": {
@@ -108,16 +108,16 @@
       }
     },
     "8abdc": {
-      "ver": "1.1.0",
       "importer": "gltf-mesh",
-      "name": "cylinder.mesh",
-      "id": "8abdc",
-      "displayName": "",
       "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@8abdc",
+      "displayName": "",
+      "id": "8abdc",
+      "name": "cylinder.mesh",
+      "ver": "1.1.0",
       "imported": true,
       "files": [
-        ".json",
-        ".bin"
+        ".bin",
+        ".json"
       ],
       "subMetas": {},
       "userData": {
@@ -125,16 +125,16 @@
       }
     },
     "a804a": {
-      "ver": "1.1.0",
       "importer": "gltf-mesh",
-      "name": "box.mesh",
-      "id": "a804a",
-      "displayName": "",
       "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@a804a",
+      "displayName": "",
+      "id": "a804a",
+      "name": "box.mesh",
+      "ver": "1.1.0",
       "imported": true,
       "files": [
-        ".json",
-        ".bin"
+        ".bin",
+        ".json"
       ],
       "subMetas": {},
       "userData": {
@@ -142,12 +142,12 @@
       }
     },
     "ea6e2": {
-      "ver": "1.0.14",
       "importer": "gltf-material",
-      "name": "DefaultMaterial.material",
-      "id": "ea6e2",
-      "displayName": "",
       "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@ea6e2",
+      "displayName": "",
+      "id": "ea6e2",
+      "name": "DefaultMaterial.material",
+      "ver": "1.0.14",
       "imported": true,
       "files": [
         ".json"
@@ -158,12 +158,12 @@
       }
     },
     "aae0f": {
-      "ver": "1.0.11",
       "importer": "gltf-scene",
-      "name": "primitives.prefab",
-      "id": "aae0f",
-      "displayName": "",
       "uuid": "1263d74c-8167-4928-91a6-4e2672411f47@aae0f",
+      "displayName": "",
+      "id": "aae0f",
+      "name": "primitives.prefab",
+      "ver": "1.0.11",
       "imported": true,
       "files": [
         ".json"

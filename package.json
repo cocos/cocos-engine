@@ -43,7 +43,7 @@
     "jest": "^24.8.0",
     "spectorjs": "^0.9.15",
     "stats.js": "^0.17.0",
-    "tfig": "^1.2.5",
+    "tfig": "^2.0.3",
     "typedoc": "^0.17.7",
     "typedoc-plugin-external-module-name": "^4.0.3",
     "typescript": "^3.7.2",
