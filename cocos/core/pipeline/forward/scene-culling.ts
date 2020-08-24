@@ -8,6 +8,7 @@ import { ForwardPipeline } from './forward-pipeline';
 import { RenderView } from '../render-view';
 import { Pool } from '../../memop';
 import { IRenderObject } from '../define';
+import { ShadowType } from '../../renderer/scene/shadows';
 
 const _tempVec3 = new Vec3();
 
@@ -47,11 +48,11 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     shadowPool.freeArray(shadowObjects); shadowObjects.length = 0;
 
     const mainLight = scene.mainLight;
-    const planarShadows = pipeline.planarShadows;
+    const shadows = pipeline.shadows;
     if (mainLight) {
         mainLight.update();
-        if (planarShadows.enabled) {
-            planarShadows.updateDirLight(mainLight);
+        if (shadows.type === ShadowType.Planar) {
+            shadows.updateDirLight(mainLight);
         }
     }
 
@@ -98,7 +99,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
         }
     }
 
-    if (planarShadows.enabled) {
-        planarShadows.updateShadowList(scene, camera.frustum, stamp, (camera.visibility & Layers.BitMask.DEFAULT) !== 0);
+    if (shadows.type === ShadowType.Planar) {
+        shadows.updateShadowList(scene, camera.frustum, stamp, (camera.visibility & Layers.BitMask.DEFAULT) !== 0);
     }
 }

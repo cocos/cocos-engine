@@ -2,7 +2,7 @@
 import { Material } from '../../assets/material';
 import { aabb, frustum, intersect } from '../../geometry';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
-import { Color, Mat4, Quat, Vec3 } from '../../math';
+import { Color, Mat4, Quat, Vec3, Vec2 } from '../../math';
 import { UBOShadow, SetIndex} from '../../pipeline/define';
 import { DirectionalLight } from './directional-light';
 import { Model } from './model';
@@ -14,6 +14,7 @@ import { legacyCC } from '../../global-exports';
 import { RenderScene } from './render-scene';
 import { DSPool, ShaderPool, PassPool, PassView } from '../core/memory-pools';
 import { ForwardPipeline } from '../../pipeline';
+import { Enum } from '../../value-types';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -21,13 +22,37 @@ const _ab = new aabb();
 const _qt = new Quat();
 const _up = new Vec3(0, 1, 0);
 
+/**
+ * @zh 阴影类型。
+ * @en The shadow type
+ * @static
+ * @enum Shadows.ShadowType
+ */
+export const ShadowType = Enum({
+    /**
+     * @zh 平面阴影。
+     * @en Planar shadow
+     * @property Planar
+     * @readonly
+     */
+    Planar: 0,
+
+    /**
+     * @zh 阴影贴图。
+     * @en Shadow type
+     * @property ShadowMap
+     * @readonly
+     */
+    ShadowMap: 1,
+})
+
 interface IShadowRenderData {
     model: Model;
     shaders: GFXShader[];
     instancedBuffer: InstancedBuffer | null;
 }
 
-export class PlanarShadows {
+export class Shadows {
     /**
      * @en Whether activate planar shadow
      * @zh 是否启用平面阴影？
@@ -42,9 +67,7 @@ export class PlanarShadows {
         }
         this._enabled = val;
         this._dirty = true;
-        if (this._enabled) {
-            this.activate();
-        }
+        this._enabled ? this.activate() : this._updatePipeline();
     }
 
     /**
@@ -92,15 +115,27 @@ export class PlanarShadows {
         this._dirty = true;
     }
 
+    /**
+     * @en Shadow type
+     * @zh 阴影类型
+     */
+    get type () {
+        return this._enabled ? this._type : -1;
+    }
+
+    set type (val) {
+        this._type = val;
+        this._updatePipeline();
+        this._updatePlanarInfo();
+    }
     get matLight () {
         return this._matLight;
     }
-
     get data () {
         return this._data;
     }
-
     protected _enabled: boolean = false;
+    protected _type = ShadowType.Planar;
     protected _normal = new Vec3(0, 1, 0);
     protected _distance = 0;
     protected _shadowColor = new Color(0, 0, 0, 76);
@@ -116,6 +151,31 @@ export class PlanarShadows {
     protected _device: GFXDevice|null = null;
     protected _globalDescriptorSet: GFXDescriptorSet | null = null;
     protected _dirty: boolean = true;
+    /**
+     * @en get or set shadow camera near
+     * @zh 获取或者设置阴影相机近裁剪面
+     */
+    public near: number = 1;
+    /**
+     * @en get or set shadow camera far
+     * @zh 获取或者设置阴影相机远裁剪面
+     */
+    public far: number = 30;
+    /**
+     * @en get or set shadow camera aspect
+     * @zh 获取或者设置阴影相机的宽高比
+     */
+    public aspect: number = 1;
+    /**
+     * @en get or set shadow camera orthoSize
+     * @zh 获取或者设置阴影相机正交大小
+     */
+    public orthoSize: number = 5;
+    /**
+     * @en get or set shadow camera orthoSize
+     * @zh 获取或者设置阴影纹理大小
+     */
+    public size: Vec2 = new Vec2(512, 512);
 
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;
@@ -123,6 +183,14 @@ export class PlanarShadows {
         this._data = (pipeline as ForwardPipeline).shadowUBO;
         Color.toArray(this._data, this._shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
         this._globalDescriptorSet!.getBuffer(UBOShadow.BLOCK.binding).update(this._data);
+        if (this._type === ShadowType.ShadowMap) {
+            this._updatePipeline();
+        } else {
+            this._updatePlanarInfo();
+        }
+    }
+
+    protected _updatePlanarInfo () {
         this._dirty = true;
         if (!this._material) {
             this._material = new Material();
@@ -133,7 +201,14 @@ export class PlanarShadows {
             this._instancingMaterial.initialize({ effectName: 'pipeline/planar-shadow', defines: { USE_INSTANCING: true } });
         }
     }
-
+    protected _updatePipeline () {
+        const root = legacyCC.director.root
+        const pipeline = root.pipeline;
+        const enable = this._enabled && this._type === ShadowType.ShadowMap;
+        if (pipeline.macros.CC_RECEIVE_SHADOW === enable) { return; }
+        pipeline.macros.CC_RECEIVE_SHADOW = enable;
+        root.onGlobalPipelineStateChanged();
+    }
     public updateSphereLight (light: SphereLight) {
         if (!light.node!.hasChangedFlags && !this._dirty) {
             return;

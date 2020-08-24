@@ -44,8 +44,8 @@ for (const info of manifest) {
 const qt = cc.Quat.fromEuler(cc.quat(), 10, 20, 0);
 models.plane.node.setRotation(qt);
 
-scene.globals.planarShadows.enabled = true;
-scene.globals.planarShadows.setPlaneFromNode(models.plane.node);
-scene.globals.planarShadows.shadowColor = cc.color('#2a4e90');
+scene.globals.shadows.enabled = true;
+scene.globals.shadows.setPlaneFromNode(models.plane.node);
+scene.globals.shadows.shadowColor = cc.color('#2a4e90');
 
 cc.director.runSceneImmediate(scene);
