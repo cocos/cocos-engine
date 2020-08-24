@@ -210,6 +210,7 @@ class ProgramLib {
 
         for (let i = 0; i < tmpl.blocks.length; i++) {
             const block = tmpl.blocks[i];
+            block.count = 1; // effect compiler guarantees this
             block.size = getSize(block);
             block.set = SetIndex.MATERIAL;
             if (!block.descriptorType) {

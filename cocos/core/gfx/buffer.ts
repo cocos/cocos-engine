@@ -11,7 +11,6 @@ import {
     GFXMemoryUsageBit,
     GFXObject,
     GFXObjectType,
-    GFXType,
 } from './define';
 import { GFXDevice } from './device';
 
@@ -61,7 +60,7 @@ export abstract class GFXBuffer extends GFXObject {
      * @en Usage type of the buffer.
      * @zh 缓冲使用方式。
      */
-    public get usage (): GFXBufferUsage {
+    get usage (): GFXBufferUsage {
         return this._usage;
     }
 
@@ -69,7 +68,7 @@ export abstract class GFXBuffer extends GFXObject {
      * @en Memory usage of the buffer.
      * @zh 缓冲的内存使用方式。
      */
-    public get memUsage (): GFXMemoryUsage {
+    get memUsage (): GFXMemoryUsage {
         return this._memUsage;
     }
 
@@ -77,7 +76,7 @@ export abstract class GFXBuffer extends GFXObject {
      * @en Size of the buffer.
      * @zh 缓冲大小。
      */
-    public get size (): number {
+    get size (): number {
         return this._size;
     }
 
@@ -85,7 +84,7 @@ export abstract class GFXBuffer extends GFXObject {
      * @en Stride of the buffer.
      * @zh 缓冲步长。
      */
-    public get stride (): number {
+    get stride (): number {
         return this._stride;
     }
 
@@ -93,11 +92,11 @@ export abstract class GFXBuffer extends GFXObject {
      * @en Count of the buffer wrt. stride.
      * @zh 缓冲条目数量。
      */
-    public get count (): number {
+    get count (): number {
         return this._count;
     }
 
-    public get flags (): GFXBufferFlags {
+    get flags (): GFXBufferFlags {
         return this._flags;
     }
 
@@ -105,8 +104,16 @@ export abstract class GFXBuffer extends GFXObject {
      * @en View of the back-up buffer, if specified.
      * @zh 备份缓冲视图。
      */
-    public get bufferView (): Uint8Array | null {
-        return this._bufferView;
+    get backupBuffer (): Uint8Array | null {
+        return this._bakcupBuffer;
+    }
+
+    /**
+     * @en Whether this buffer instance is only a view on top of another buffer.
+     * @zh 此缓冲实例是否只是另一份缓冲的视图。
+     */
+    get isBufferView () {
+        return this._isBufferView;
     }
 
     protected _device: GFXDevice;
@@ -116,8 +123,9 @@ export abstract class GFXBuffer extends GFXObject {
     protected _stride: number = 1;
     protected _count: number = 0;
     protected _flags: GFXBufferFlags = GFXBufferFlagBit.NONE;
-    protected _bufferView: Uint8Array | null = null;
+    protected _bakcupBuffer: Uint8Array | null = null;
     protected _indirectBuffer: IGFXIndirectBuffer | null = null;
+    protected _isBufferView = false;
 
     constructor (device: GFXDevice) {
         super(GFXObjectType.BUFFER);

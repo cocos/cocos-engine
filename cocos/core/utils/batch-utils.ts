@@ -28,7 +28,7 @@ export class BatchingUtility {
      * @param batchedRoot the target output node
      */
     public static batchStaticModel (staticModelRoot: Node, batchedRoot: Node) {
-        const modelComponents = staticModelRoot.getComponentsInChildren(ModelComponent);
+        const modelComponents = staticModelRoot.getComponentsInChildren('cc.ModelComponent') as ModelComponent[];
         if (modelComponents.length < 2) {
             console.error('the number of static models to batch is less than 2,it needn\'t batch.');
             return false;
@@ -55,7 +55,7 @@ export class BatchingUtility {
             batchedMesh.merge(modelComponents[i].mesh!, worldMat);
             comp.enabled = false;
         }
-        const batchedModelComponent = batchedRoot.addComponent(ModelComponent)!;
+        const batchedModelComponent = batchedRoot.addComponent('cc.ModelComponent') as ModelComponent;
         batchedModelComponent.mesh = batchedMesh;
         batchedModelComponent.sharedMaterials = modelComponents[0].sharedMaterials;
         return true;

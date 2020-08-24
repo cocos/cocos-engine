@@ -76,12 +76,19 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
     protected _curStencilCompareMask: IWebGL2StencilCompareMask | null = null;
     protected _isStateInvalied: boolean = false;
 
+
     public initialize (info: IGFXCommandBufferInfo): boolean {
 
         this._type = info.type;
         this._queue = info.queue;
 
         this._webGLAllocator = (this._device as WebGL2Device).cmdAllocator;
+
+        const setCount = (this._device as WebGL2Device).bindingMappingInfo.bufferOffsets.length;
+        for (let i = 0; i < setCount; i++) {
+            this._curGPUDescriptorSets.push(null!);
+            this._curDynamicOffsets.push([]);
+        }
 
         return true;
     }
@@ -96,8 +103,11 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
     public begin (renderPass?: GFXRenderPass, subpass = 0, frameBuffer?: GFXFramebuffer) {
         this._webGLAllocator!.clearCmds(this.cmdPackage);
         this._curGPUPipelineState = null;
-        this._curGPUDescriptorSets.length = 0;
         this._curGPUInputAssembler = null;
+        this._curGPUDescriptorSets.length = 0;
+        for (let i = 0; i < this._curDynamicOffsets.length; i++) {
+            this._curDynamicOffsets[i].length = 0;
+        }
         this._curViewport = null;
         this._curScissor = null;
         this._curLineWidth = null;
@@ -109,9 +119,6 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
         this._numDrawCalls = 0;
         this._numInstances = 0;
         this._numTris = 0;
-        for (let i = 0; i < this._curDynamicOffsets.length; i++) {
-            if (this._curDynamicOffsets[i]) this._curDynamicOffsets[i].length = 0;
-        }
     }
 
     public end () {
@@ -164,9 +171,9 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
             this._isStateInvalied = true;
         }
         if (dynamicOffsets) {
-            const curOffsets = this._curDynamicOffsets[set] || (this._curDynamicOffsets[set] = []);
-            for (let i = 0; i < dynamicOffsets.length; i++) curOffsets[i] = dynamicOffsets[i];
-            curOffsets.length = dynamicOffsets.length;
+            const offsets = this._curDynamicOffsets[set];
+            for (let i = 0; i < dynamicOffsets.length; i++) offsets[i] = dynamicOffsets[i];
+            offsets.length = dynamicOffsets.length;
             this._isStateInvalied = true;
         }
     }

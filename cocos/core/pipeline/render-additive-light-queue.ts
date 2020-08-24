@@ -60,6 +60,7 @@ function getLightPassIndex (subModels: SubModel[]) {
  */
 export class RenderAdditiveLightQueue {
 
+    private _device: GFXDevice;
     private _validLights: Light[] = [];
     private _lightPasses: IAdditiveLightPass[] = [];
 
@@ -78,24 +79,24 @@ export class RenderAdditiveLightQueue {
     private _lightMeterScale: number = 10000.0;
 
     constructor (pipeline: ForwardPipeline) {
+        this._device = pipeline.device;
         this._isHDR = pipeline.isHDR;
         this._fpScale = pipeline.fpScale;
         this._renderObjects = pipeline.renderObjects;
         this._instancedQueue = new RenderInstancedQueue();
         this._batchedQueue = new RenderBatchedQueue();
 
-        const device = pipeline.device;
-        this._lightBufferStride = Math.ceil(UBOForwardLight.SIZE / device.uboOffsetAlignment) * device.uboOffsetAlignment;
+        this._lightBufferStride = Math.ceil(UBOForwardLight.SIZE / this._device.uboOffsetAlignment) * this._device.uboOffsetAlignment;
         this._lightBufferElementCount = this._lightBufferStride / Float32Array.BYTES_PER_ELEMENT;
 
-        this._lightBuffer = device.createBuffer({
+        this._lightBuffer = this._device.createBuffer({
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             usage: GFXBufferUsageBit.UNIFORM,
             stride: this._lightBufferStride,
             size: this._lightBufferStride * this._lightBufferCount,
         });
 
-        this._firstlightBufferView = device.createBuffer({
+        this._firstlightBufferView = this._device.createBuffer({
             buffer: this._lightBuffer,
             offset: 0,
             range: UBOForwardLight.SIZE,
@@ -236,9 +237,17 @@ export class RenderAdditiveLightQueue {
         const exposure = view.camera.exposure;
 
         if (this._validLights.length > this._lightBufferCount) {
+            this._firstlightBufferView.destroy();
+
             this._lightBufferCount = nextPow2(this._validLights.length);
             this._lightBuffer.resize(this._lightBufferStride * this._lightBufferCount);
             this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
+
+            this._firstlightBufferView = this._device.createBuffer({
+                buffer: this._lightBuffer,
+                offset: 0,
+                range: UBOForwardLight.SIZE,
+            });
         }
 
         for(let l = 0, offset = 0; l < this._validLights.length; l++, offset += this._lightBufferElementCount) {

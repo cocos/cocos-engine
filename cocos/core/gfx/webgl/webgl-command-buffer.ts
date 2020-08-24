@@ -49,9 +49,9 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
     protected _webGLAllocator: WebGLCommandAllocator | null = null;
     protected _isInRenderPass: boolean = false;
     protected _curGPUPipelineState: IWebGLGPUPipelineState | null = null;
+    protected _curGPUInputAssembler: IWebGLGPUInputAssembler | null = null;
     protected _curGPUDescriptorSets: IWebGLGPUDescriptorSet[] = [];
     protected _curDynamicOffsets: number[][] = [];
-    protected _curGPUInputAssembler: IWebGLGPUInputAssembler | null = null;
     protected _curViewport: GFXViewport | null = null;
     protected _curScissor: GFXRect | null = null;
     protected _curLineWidth: number | null = null;
@@ -69,6 +69,12 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
 
         this._webGLAllocator = (this._device as WebGLDevice).cmdAllocator;
 
+        const setCount = (this._device as WebGLDevice).bindingMappingInfo.bufferOffsets.length;
+        for (let i = 0; i < setCount; i++) {
+            this._curGPUDescriptorSets.push(null!);
+            this._curDynamicOffsets.push([]);
+        }
+
         return true;
     }
 
@@ -82,8 +88,11 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
     public begin (renderPass?: GFXRenderPass, subpass = 0, frameBuffer?: GFXFramebuffer) {
         this._webGLAllocator!.clearCmds(this.cmdPackage);
         this._curGPUPipelineState = null;
-        this._curGPUDescriptorSets.length = 0;
         this._curGPUInputAssembler = null;
+        this._curGPUDescriptorSets.length = 0;
+        for (let i = 0; i < this._curDynamicOffsets.length; i++) {
+            this._curDynamicOffsets[i].length = 0;
+        }
         this._curViewport = null;
         this._curScissor = null;
         this._curLineWidth = null;
@@ -95,9 +104,6 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
         this._numDrawCalls = 0;
         this._numInstances = 0;
         this._numTris = 0;
-        for (let i = 0; i < this._curDynamicOffsets.length; i++) {
-            if (this._curDynamicOffsets[i]) this._curDynamicOffsets[i].length = 0;
-        }
     }
 
     public end () {
@@ -151,8 +157,9 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
             this._isStateInvalied = true;
         }
         if (dynamicOffsets) {
-            const offsets = this._curDynamicOffsets[set] || (this._curDynamicOffsets[set] = []);
+            const offsets = this._curDynamicOffsets[set];
             for (let i = 0; i < dynamicOffsets.length; i++) offsets[i] = dynamicOffsets[i];
+            offsets.length = dynamicOffsets.length;
             this._isStateInvalied = true;
         }
     }

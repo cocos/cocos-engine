@@ -7,7 +7,7 @@ import { GFXDescriptorType, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 import { GFXSampler } from './sampler';
 import { GFXTexture } from './texture';
-import { GFXDescriptorSetLayout } from '..';
+import { GFXDescriptorSetLayout } from './descriptor-set-layout';
 
 export const DESCRIPTOR_BUFFER_TYPE =
     GFXDescriptorType.UNIFORM_BUFFER | GFXDescriptorType.DYNAMIC_UNIFORM_BUFFER |
