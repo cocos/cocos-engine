@@ -1,8 +1,8 @@
 #include "VKStd.h"
 
 #include "VKBuffer.h"
-#include "VKDevice.h"
 #include "VKCommands.h"
+#include "VKDevice.h"
 
 namespace cc {
 namespace gfx {
@@ -44,18 +44,54 @@ bool CCVKBuffer::initialize(const BufferInfo &info) {
 
     CCVKCmdFuncCreateBuffer((CCVKDevice *)_device, _gpuBuffer);
     _device->getMemoryStatus().bufferSize += _size;
+
+    _gpuBufferView = CC_NEW(CCVKGPUBufferView);
+    createBufferView();
+
     _status = Status::SUCCESS;
 
     return true;
 }
 
-void CCVKBuffer::destroy() {
-    if (_gpuBuffer) {
-        ((CCVKDevice *)_device)->gpuDescriptorHub()->disengage(_gpuBuffer);
-        ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuBuffer);
+bool CCVKBuffer::initialize(const BufferViewInfo &info) {
+    _isBufferView = true;
 
-        _device->getMemoryStatus().bufferSize -= _size;
-        CC_DELETE(_gpuBuffer);
+    CCVKBuffer *buffer = (CCVKBuffer *)info.buffer;
+
+    _usage = buffer->_usage;
+    _memUsage = buffer->_memUsage;
+    _size = _stride = info.range;
+    _count = 1u;
+    _flags = buffer->_flags;
+    _offset = info.offset;
+
+    _gpuBuffer = ((CCVKBuffer*)info.buffer)->gpuBuffer();
+    _gpuBufferView = CC_NEW(CCVKGPUBufferView);
+    createBufferView();
+
+    return true;
+}
+
+void CCVKBuffer::createBufferView() {
+    _gpuBufferView->gpuBuffer = _gpuBuffer;
+    _gpuBufferView->offset = _offset;
+    _gpuBufferView->range = _size;
+    ((CCVKDevice *)_device)->gpuDescriptorHub()->update(_gpuBufferView);
+}
+
+void CCVKBuffer::destroy() {
+    if (_gpuBufferView) {
+        ((CCVKDevice *)_device)->gpuDescriptorHub()->disengage(_gpuBufferView);
+        CC_DELETE(_gpuBufferView);
+        _gpuBufferView = nullptr;
+    }
+
+    if (_gpuBuffer) {
+        if (!_isBufferView) {
+            ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuBuffer);
+            _device->getMemoryStatus().bufferSize -= _size;
+            CC_DELETE(_gpuBuffer);
+        }
         _gpuBuffer = nullptr;
     }
 
@@ -69,16 +105,22 @@ void CCVKBuffer::destroy() {
 }
 
 void CCVKBuffer::resize(uint size) {
+    CCASSERT(!_isBufferView, "Cannot resize buffer views");
+
     if (_size != size) {
         const uint oldSize = _size;
         _size = size;
         _count = _size / _stride;
 
-        MemoryStatus &status = _device->getMemoryStatus();
+        ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuBuffer);
+
         _gpuBuffer->size = _size;
         _gpuBuffer->count = _count;
-        ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuBuffer);
         CCVKCmdFuncCreateBuffer((CCVKDevice *)_device, _gpuBuffer);
+
+        createBufferView();
+
+        MemoryStatus &status = _device->getMemoryStatus();
         status.bufferSize -= oldSize;
         status.bufferSize += _size;
 
@@ -102,6 +144,8 @@ void CCVKBuffer::resize(uint size) {
 }
 
 void CCVKBuffer::update(void *buffer, uint offset, uint size) {
+    CCASSERT(!_isBufferView, "Cannot update through buffer views");
+
 #if COCOS2D_DEBUG > 0
     if (_usage & BufferUsageBit::INDIRECT) {
         DrawInfo *drawInfo = static_cast<DrawInfo *>(buffer);
@@ -115,6 +159,7 @@ void CCVKBuffer::update(void *buffer, uint offset, uint size) {
         }
     }
 #endif
+
     if (_buffer) {
         memcpy(_buffer + offset, buffer, size);
     }

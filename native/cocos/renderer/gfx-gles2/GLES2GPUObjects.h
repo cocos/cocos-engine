@@ -20,6 +20,13 @@ public:
 };
 typedef vector<GLES2GPUBuffer *> GLES2GPUBufferList;
 
+class GLES2GPUBufferView : public Object {
+public:
+    GLES2GPUBuffer *gpuBuffer = nullptr;
+    uint offset = 0u;
+    uint range = 0u;
+};
+
 class GLES2GPUTexture : public Object {
 public:
     TextureType type = TextureType::TEX2D;
@@ -122,6 +129,7 @@ struct GLES2GPUUniform {
 typedef vector<GLES2GPUUniform> GLES2GPUUniformList;
 
 struct GLES2GPUUniformBlock {
+    uint set = 0;
     uint binding = 0;
     uint idx = 0;
     String name;
@@ -132,6 +140,7 @@ struct GLES2GPUUniformBlock {
 typedef vector<GLES2GPUUniformBlock> GLES2GPUUniformBlockList;
 
 struct GLES2GPUUniformSampler {
+    uint set = 0;
     uint binding = 0;
     String name;
     Type type = Type::UNKNOWN;
@@ -142,11 +151,10 @@ struct GLES2GPUUniformSampler {
 typedef vector<GLES2GPUUniformSampler> GLES2GPUUniformSamplerList;
 
 struct GLES2GPUShaderStage {
-    GLES2GPUShaderStage(ShaderType t, String s, ShaderMacroList m, GLuint shader = 0)
-    : type(t), source(s), macros(m), glShader(shader) {}
-    ShaderType type;
+    GLES2GPUShaderStage(ShaderStageFlagBit t, String s, GLuint shader = 0)
+    : type(t), source(s), glShader(shader) {}
+    ShaderStageFlagBit type;
     String source;
-    ShaderMacroList macros;
     GLuint glShader = 0;
 };
 typedef vector<GLES2GPUShaderStage> GLES2GPUShaderStageList;
@@ -203,8 +211,19 @@ public:
     bool isOffscreen = false;
 };
 
+class GLES2GPUDescriptorSetLayout : public Object {
+public:
+    DescriptorSetLayoutBindingList bindings;
+    vector<uint> dynamicBindings;
+};
+typedef vector<GLES2GPUDescriptorSetLayout *> GLES2GPUDescriptorSetLayoutList;
+
 class GLES2GPUPipelineLayout : public Object {
 public:
+    GLES2GPUDescriptorSetLayoutList setLayouts;
+    vector<vector<int>> dynamicOffsetIndices;
+    vector<uint> dynamicOffsetOffsets;
+    uint dynamicOffsetCount;
 };
 
 class GLES2GPUPipelineState : public Object {
@@ -217,21 +236,21 @@ public:
     DynamicStateList dynamicStates;
     GLES2GPUPipelineLayout *gpuLayout = nullptr;
     GLES2GPURenderPass *gpuRenderPass = nullptr;
+    GLES2GPUPipelineLayout *gpuPipelineLayout = nullptr;
 };
 
-struct GLES2GPUBinding {
-    uint binding = GFX_INVALID_BINDING;
-    BindingType type = BindingType::UNKNOWN;
-    String name;
+struct GLES2GPUDescriptor {
+    DescriptorType type = DescriptorType::UNKNOWN;
     GLES2GPUBuffer *gpuBuffer = nullptr;
+    GLES2GPUBufferView *gpuBufferView = nullptr;
     GLES2GPUTexture *gpuTexture = nullptr;
     GLES2GPUSampler *gpuSampler = nullptr;
 };
-typedef vector<GLES2GPUBinding> GLES2GPUBindingList;
+typedef vector<GLES2GPUDescriptor> GLES2GPUDescriptorList;
 
-class GLES2GPUBindingLayout : public Object {
+class GLES2GPUDescriptorSet : public Object {
 public:
-    GLES2GPUBindingList gpuBindings;
+    GLES2GPUDescriptorList gpuDescriptors;
 };
 
 class GLES2GPUFence : public Object {

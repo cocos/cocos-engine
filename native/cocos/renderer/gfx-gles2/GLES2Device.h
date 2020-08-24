@@ -24,6 +24,7 @@ public:
     virtual Fence *createFence(const FenceInfo &info) override;
     virtual Queue *createQueue(const QueueInfo &info) override;
     virtual Buffer *createBuffer(const BufferInfo &info) override;
+    virtual Buffer *createBuffer(const BufferViewInfo &info) override;
     virtual Texture *createTexture(const TextureInfo &info) override;
     virtual Texture *createTexture(const TextureViewInfo &info) override;
     virtual Sampler *createSampler(const SamplerInfo &info) override;
@@ -31,15 +32,18 @@ public:
     virtual InputAssembler *createInputAssembler(const InputAssemblerInfo &info) override;
     virtual RenderPass *createRenderPass(const RenderPassInfo &info) override;
     virtual Framebuffer *createFramebuffer(const FramebufferInfo &info) override;
-    virtual BindingLayout *createBindingLayout(const BindingLayoutInfo &info) override;
+    virtual DescriptorSet *createDescriptorSet(const DescriptorSetInfo &info) override;
+    virtual DescriptorSetLayout *createDescriptorSetLayout(const DescriptorSetLayoutInfo &info) override;
+    virtual PipelineLayout *createPipelineLayout(const PipelineLayoutInfo &info) override;
     virtual PipelineState *createPipelineState(const PipelineStateInfo &info) override;
-    virtual void copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions) override;
+    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
 
     CC_INLINE bool useVAO() const { return _useVAO; }
     CC_INLINE bool useDrawInstanced() const { return _useDrawInstanced; }
     CC_INLINE bool useInstancedArrays() const { return _useInstancedArrays; }
     CC_INLINE bool useDiscardFramebuffer() const { return _useDiscardFramebuffer; }
     CC_INLINE GLES2CommandAllocator *cmdAllocator() const { return _cmdAllocator; }
+    CC_INLINE const BindingMappingInfo &bindingMappingInfo() const { return _bindingMappingInfo; }
 
     CC_INLINE bool checkExtension(const String &extension) const {
         for (size_t i = 0; i < _extensions.size(); ++i) {
@@ -51,9 +55,10 @@ public:
     }
 
 private:
+    BindingMappingInfo _bindingMappingInfo;
     GLES2CommandAllocator *_cmdAllocator = nullptr;
-
     StringArray _extensions;
+
     bool _useVAO = false;
     bool _useDrawInstanced = false;
     bool _useInstancedArrays = false;

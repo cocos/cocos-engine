@@ -375,13 +375,15 @@ VkCommandBufferLevel MapVkCommandBufferLevel(CommandBufferType type) {
     }
 }
 
-VkDescriptorType MapVkDescriptorType(BindingType type) {
+VkDescriptorType MapVkDescriptorType(DescriptorType type) {
     switch (type) {
-        case BindingType::UNIFORM_BUFFER: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        case BindingType::SAMPLER: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        case BindingType::STORAGE_BUFFER: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        case DescriptorType::DYNAMIC_UNIFORM_BUFFER: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+        case DescriptorType::UNIFORM_BUFFER: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        case DescriptorType::DYNAMIC_STORAGE_BUFFER: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
+        case DescriptorType::STORAGE_BUFFER: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        case DescriptorType::SAMPLER: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         default: {
-            CCASSERT(false, "Unsupported BindingType, convert to VkDescriptorType failed.");
+            CCASSERT(false, "Unsupported DescriptorType, convert to VkDescriptorType failed.");
             return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         }
     }
@@ -397,29 +399,29 @@ VkColorComponentFlags MapVkColorComponentFlags(ColorMask colorMask) {
     return (VkColorComponentFlags)flags;
 }
 
-VkShaderStageFlagBits MapVkShaderStageFlagBits(ShaderType stage) {
+VkShaderStageFlagBits MapVkShaderStageFlagBits(ShaderStageFlagBit stage) {
     switch (stage) {
-        case ShaderType::VERTEX: return VK_SHADER_STAGE_VERTEX_BIT;
-        case ShaderType::CONTROL: return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
-        case ShaderType::EVALUATION: return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
-        case ShaderType::GEOMETRY: return VK_SHADER_STAGE_GEOMETRY_BIT;
-        case ShaderType::FRAGMENT: return VK_SHADER_STAGE_FRAGMENT_BIT;
-        case ShaderType::COMPUTE: return VK_SHADER_STAGE_COMPUTE_BIT;
+        case ShaderStageFlagBit::VERTEX: return VK_SHADER_STAGE_VERTEX_BIT;
+        case ShaderStageFlagBit::CONTROL: return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+        case ShaderStageFlagBit::EVALUATION: return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+        case ShaderStageFlagBit::GEOMETRY: return VK_SHADER_STAGE_GEOMETRY_BIT;
+        case ShaderStageFlagBit::FRAGMENT: return VK_SHADER_STAGE_FRAGMENT_BIT;
+        case ShaderStageFlagBit::COMPUTE: return VK_SHADER_STAGE_COMPUTE_BIT;
         default: {
-            CCASSERT(false, "Unsupported ShaderType, convert to VkShaderStageFlagBits failed.");
+            CCASSERT(false, "Unsupported ShaderStageFlagBit, convert to VkShaderStageFlagBits failed.");
             return VK_SHADER_STAGE_VERTEX_BIT;
         }
     }
 }
 
-VkShaderStageFlags MapVkShaderStageFlags(ShaderType stages) {
+VkShaderStageFlags MapVkShaderStageFlags(ShaderStageFlagBit stages) {
     uint flags = 0u;
-    if (stages & ShaderType::VERTEX) flags |= VK_SHADER_STAGE_VERTEX_BIT;
-    if (stages & ShaderType::CONTROL) flags |= VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
-    if (stages & ShaderType::EVALUATION) flags |= VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
-    if (stages & ShaderType::GEOMETRY) flags |= VK_SHADER_STAGE_GEOMETRY_BIT;
-    if (stages & ShaderType::FRAGMENT) flags |= VK_SHADER_STAGE_FRAGMENT_BIT;
-    if (stages & ShaderType::COMPUTE) flags |= VK_SHADER_STAGE_COMPUTE_BIT;
+    if (stages & ShaderStageFlagBit::VERTEX) flags |= VK_SHADER_STAGE_VERTEX_BIT;
+    if (stages & ShaderStageFlagBit::CONTROL) flags |= VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+    if (stages & ShaderStageFlagBit::EVALUATION) flags |= VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+    if (stages & ShaderStageFlagBit::GEOMETRY) flags |= VK_SHADER_STAGE_GEOMETRY_BIT;
+    if (stages & ShaderStageFlagBit::FRAGMENT) flags |= VK_SHADER_STAGE_FRAGMENT_BIT;
+    if (stages & ShaderStageFlagBit::COMPUTE) flags |= VK_SHADER_STAGE_COMPUTE_BIT;
     return (VkShaderStageFlags)flags;
 }
 

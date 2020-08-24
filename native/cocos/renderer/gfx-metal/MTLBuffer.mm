@@ -78,6 +78,11 @@ bool CCMTLBuffer::initialize(const BufferInfo &info) {
     return true;
 }
 
+bool CCMTLBuffer::initialize(const BufferViewInfo &info) {
+    *this = *static_cast<CCMTLBuffer*>(info.buffer);
+    return true;
+}
+
 bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
     if (_mtlBuffer)
         [_mtlBuffer release];
@@ -94,6 +99,11 @@ bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
 }
 
 void CCMTLBuffer::destroy() {
+    if(_isBufferView) {
+        _status = Status::UNREADY;
+        return;
+    }
+    
     if (_mtlBuffer) {
         [_mtlBuffer release];
         _mtlBuffer = nil;
@@ -120,6 +130,11 @@ void CCMTLBuffer::destroy() {
 }
 
 void CCMTLBuffer::resize(uint size) {
+    if(_isBufferView) {
+        CC_LOG_WARNING("Cannot resize a buffer view.");
+        return;
+    }
+    
     if (_size == size)
         return;
 
@@ -173,6 +188,10 @@ void CCMTLBuffer::resizeBuffer(uint8_t **buffer, uint size, uint oldSize) {
 }
 
 void CCMTLBuffer::update(void *buffer, uint offset, uint size) {
+    if(_isBufferView) {
+        CC_LOG_WARNING("Cannot update a buffer view.");
+        return;
+    }
     if (_buffer)
         memcpy(_buffer + offset, buffer, size);
 
@@ -229,13 +248,13 @@ void CCMTLBuffer::update(void *buffer, uint offset, uint size) {
     }
 }
 
-void CCMTLBuffer::encodeBuffer(id<MTLRenderCommandEncoder> encoder, uint offset, uint binding, ShaderType stages) {
+void CCMTLBuffer::encodeBuffer(id<MTLRenderCommandEncoder> encoder, uint offset, uint binding, ShaderStageFlags stages) {
     if (encoder == nil) {
         CC_LOG_ERROR("CCMTLBuffer::encodeBuffer: MTLRenderCommandEncoder should not be nil.");
         return;
     }
 
-    if (stages & ShaderType::VERTEX) {
+    if (stages & ShaderStageFlagBit::VERTEX) {
         if (_useOptimizedBufferEncoder) {
             [encoder setVertexBytes:_bufferBytes
                              length:_size
@@ -247,7 +266,7 @@ void CCMTLBuffer::encodeBuffer(id<MTLRenderCommandEncoder> encoder, uint offset,
         }
     }
 
-    if (stages & ShaderType::FRAGMENT) {
+    if (stages & ShaderStageFlagBit::FRAGMENT) {
         if (_useOptimizedBufferEncoder) {
             [encoder setFragmentBytes:_bufferBytes
                                length:_size

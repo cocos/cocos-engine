@@ -47,10 +47,10 @@ void CCMTLShader::destroy() {
 }
 
 bool CCMTLShader::createMTLFunction(const ShaderStage &stage) {
-    bool isVertexShader = stage.type == ShaderType::VERTEX;
+    bool isVertexShader = stage.stage == ShaderStageFlagBit::VERTEX;
     id<MTLDevice> mtlDevice = id<MTLDevice>(((CCMTLDevice *)_device)->getMTLDevice());
     auto mtlShader = mu::compileGLSLShader2Msl(stage.source,
-                                               stage.type,
+                                               stage.stage,
                                                _device,
                                                isVertexShader ? _mtlVertexSamplerBindings : _mtlFragmentSamplerBindings);
     NSString *shader = [NSString stringWithUTF8String:mtlShader.c_str()];
@@ -65,7 +65,7 @@ bool CCMTLShader::createMTLFunction(const ShaderStage &stage) {
         return false;
     }
 
-    if (stage.type == ShaderType::VERTEX) {
+    if (stage.stage == ShaderStageFlagBit::VERTEX) {
         _vertexMTLFunction = [library newFunctionWithName:@"main0"];
         if (!_vertexMTLFunction) {
             [library release];
@@ -95,12 +95,12 @@ bool CCMTLShader::createMTLFunction(const ShaderStage &stage) {
     return true;
 }
 
-uint CCMTLShader::getAvailableBufferBindingIndex(ShaderType stage, uint stream) {
-    if (stage & ShaderType::VERTEX) {
+uint CCMTLShader::getAvailableBufferBindingIndex(ShaderStageFlagBit stage, uint stream) {
+    if (stage & ShaderStageFlagBit::VERTEX) {
         return _availableVertexBufferBindingIndex.at(stream);
     }
 
-    if (stage & ShaderType::FRAGMENT) {
+    if (stage & ShaderStageFlagBit::FRAGMENT) {
         return _availableFragmentBufferBindingIndex.at(stream);
     }
 
@@ -109,21 +109,23 @@ uint CCMTLShader::getAvailableBufferBindingIndex(ShaderType stage, uint stream) 
 }
 
 void CCMTLShader::setAvailableBufferBindingIndex() {
+    CC_ASSERT(0);
     uint usedVertexBufferBindingIndexes = 0;
     uint usedFragmentBufferBindingIndexes = 0;
     size_t vertexBindingCount = 0;
     size_t fragmentBindingCount = 0;
-    for (const auto &block : _blocks) {
-        if (block.shaderStages & ShaderType::VERTEX) {
-            usedVertexBufferBindingIndexes |= 1 << block.binding;
-            vertexBindingCount++;
-        }
-
-        if (block.shaderStages & ShaderType::FRAGMENT) {
-            usedFragmentBufferBindingIndexes |= 1 << block.binding;
-            fragmentBindingCount++;
-        }
-    }
+    //TODO coulsonwang
+//    for (const auto &block : _blocks) {
+//        if (block.shaderStages & ShaderStageFlagBit::VERTEX) {
+//            usedVertexBufferBindingIndexes |= 1 << block.binding;
+//            vertexBindingCount++;
+//        }
+//
+//        if (block.shaderStages & ShaderStageFlagBit::FRAGMENT) {
+//            usedFragmentBufferBindingIndexes |= 1 << block.binding;
+//            fragmentBindingCount++;
+//        }
+//    }
     auto maxBufferBindinIndex = static_cast<CCMTLDevice *>(_device)->getMaximumBufferBindingIndex();
     _availableVertexBufferBindingIndex.resize(maxBufferBindinIndex - vertexBindingCount);
     _availableFragmentBufferBindingIndex.resize(maxBufferBindinIndex - fragmentBindingCount);

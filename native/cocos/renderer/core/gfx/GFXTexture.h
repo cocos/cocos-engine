@@ -29,6 +29,7 @@ public:
     CC_INLINE SampleCount getSamples() const { return _samples; }
     CC_INLINE TextureFlags getFlags() const { return _flags; }
     CC_INLINE uint8_t *getBuffer() const { return _buffer; }
+    CC_INLINE bool isTextureView() const { return _isTextureView; }
 
 protected:
     Device *_device = nullptr;
@@ -46,6 +47,7 @@ protected:
     SampleCount _samples = SampleCount::X1;
     TextureFlags _flags = TextureFlagBit::NONE;
     uint8_t *_buffer = nullptr;
+    bool _isTextureView = false;
 };
 
 } // namespace gfx

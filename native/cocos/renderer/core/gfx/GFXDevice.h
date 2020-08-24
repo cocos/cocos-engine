@@ -23,6 +23,7 @@ public:
     virtual Fence *createFence(const FenceInfo &info) = 0;
     virtual Queue *createQueue(const QueueInfo &info) = 0;
     virtual Buffer *createBuffer(const BufferInfo &info) = 0;
+    virtual Buffer *createBuffer(const BufferViewInfo &info) = 0;
     virtual Texture *createTexture(const TextureInfo &info) = 0;
     virtual Texture *createTexture(const TextureViewInfo &info) = 0;
     virtual Sampler *createSampler(const SamplerInfo &info) = 0;
@@ -30,9 +31,15 @@ public:
     virtual InputAssembler *createInputAssembler(const InputAssemblerInfo &info) = 0;
     virtual RenderPass *createRenderPass(const RenderPassInfo &info) = 0;
     virtual Framebuffer *createFramebuffer(const FramebufferInfo &info) = 0;
-    virtual BindingLayout *createBindingLayout(const BindingLayoutInfo &info) = 0;
+    virtual DescriptorSet *createDescriptorSet(const DescriptorSetInfo &info) = 0;
+    virtual DescriptorSetLayout *createDescriptorSetLayout(const DescriptorSetLayoutInfo &info) = 0;
+    virtual PipelineLayout *createPipelineLayout(const PipelineLayoutInfo &info) = 0;
     virtual PipelineState *createPipelineState(const PipelineStateInfo &info) = 0;
-    virtual void copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions) = 0;
+    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) = 0;
+
+    CC_INLINE void copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions) {
+        copyBuffersToTexture(buffers.data(), dst, regions.data(), regions.size());
+    }
 
     CC_INLINE API getGfxAPI() const { return _API; }
     CC_INLINE const String &getDeviceName() const { return _deviceName; }
@@ -57,6 +64,7 @@ public:
     CC_INLINE int getMaxUniformBlockSize() const { return _maxUniformBlockSize; }
     CC_INLINE int getMaxTextureSize() const { return _maxTextureSize; }
     CC_INLINE int getMaxCubeMapTextureSize() const { return _maxCubeMapTextureSize; }
+    CC_INLINE int getUboOffsetAlignment() const { return _uboOffsetAlignment; }
     CC_INLINE int getDepthBits() const { return _depthBits; }
     CC_INLINE int getStencilBits() const { return _stencilBits; }
     CC_INLINE uint getShaderIdGen() { return _shaderIdGen++; }
@@ -83,21 +91,22 @@ protected:
     uintptr_t _windowHandle = 0;
     Context *_context = nullptr;
     Queue *_queue = nullptr;
-    uint _numDrawCalls = 0;
-    uint _numInstances = 0;
-    uint _numTriangles = 0;
-    uint _maxVertexAttributes = 0;
-    uint _maxVertexUniformVectors = 0;
-    uint _maxFragmentUniformVectors = 0;
-    uint _maxTextureUnits = 0;
-    uint _maxVertexTextureUnits = 0;
+    uint _numDrawCalls = 0u;
+    uint _numInstances = 0u;
+    uint _numTriangles = 0u;
+    uint _maxVertexAttributes = 0u;
+    uint _maxVertexUniformVectors = 0u;
+    uint _maxFragmentUniformVectors = 0u;
+    uint _maxTextureUnits = 0u;
+    uint _maxVertexTextureUnits = 0u;
     uint _maxUniformBufferBindings = GFX_MAX_BUFFER_BINDINGS;
-    uint _maxUniformBlockSize = 0;
-    uint _maxTextureSize = 0;
-    uint _maxCubeMapTextureSize = 0;
-    uint _depthBits = 0;
-    uint _stencilBits = 0;
-    uint _shaderIdGen = 0;
+    uint _maxUniformBlockSize = 0u;
+    uint _maxTextureSize = 0u;
+    uint _maxCubeMapTextureSize = 0u;
+    uint _uboOffsetAlignment = 0u;
+    uint _depthBits = 0u;
+    uint _stencilBits = 0u;
+    uint _shaderIdGen = 0u;
     unordered_map<String, String> _macros;
     float _clipSpaceMinZ = -1.0f;
     float _screenSpaceSignY = 1.0f;

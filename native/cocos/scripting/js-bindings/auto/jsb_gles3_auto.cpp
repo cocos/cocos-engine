@@ -13,6 +13,24 @@
 se::Object* __jsb_cc_gfx_GLES3Device_proto = nullptr;
 se::Class* __jsb_cc_gfx_GLES3Device_class = nullptr;
 
+static bool js_gles3_GLES3Device_bindingMappingInfo(se::State& s)
+{
+    cc::gfx::GLES3Device* cobj = (cc::gfx::GLES3Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gles3_GLES3Device_bindingMappingInfo : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const cc::gfx::BindingMappingInfo& result = cobj->bindingMappingInfo();
+        ok &= native_ptr_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gles3_GLES3Device_bindingMappingInfo : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gles3_GLES3Device_bindingMappingInfo)
+
 static bool js_gles3_GLES3Device_checkExtension(se::State& s)
 {
     cc::gfx::GLES3Device* cobj = (cc::gfx::GLES3Device*)s.nativeThisObject();
@@ -66,6 +84,7 @@ bool js_register_gles3_GLES3Device(se::Object* obj)
 {
     auto cls = se::Class::create("GLES3Device", obj, __jsb_cc_gfx_Device_proto, _SE(js_gles3_GLES3Device_constructor));
 
+    cls->defineFunction("bindingMappingInfo", _SE(js_gles3_GLES3Device_bindingMappingInfo));
     cls->defineFunction("checkExtension", _SE(js_gles3_GLES3Device_checkExtension));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_GLES3Device_finalize));
     cls->install();

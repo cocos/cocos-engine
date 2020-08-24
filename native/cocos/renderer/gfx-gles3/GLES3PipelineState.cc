@@ -1,8 +1,10 @@
 #include "GLES3Std.h"
-#include "GLES3PipelineState.h"
+
 #include "GLES3Commands.h"
-#include "GLES3Shader.h"
+#include "GLES3PipelineState.h"
+#include "GLES3PipelineLayout.h"
 #include "GLES3RenderPass.h"
+#include "GLES3Shader.h"
 
 namespace cc {
 namespace gfx {
@@ -41,6 +43,7 @@ bool GLES3PipelineState::initialize(const PipelineStateInfo &info) {
     _blendState = info.blendState;
     _dynamicStates = info.dynamicStates;
     _renderPass = info.renderPass;
+    _pipelineLayout = info.pipelineLayout;
 
     _gpuPipelineState = CC_NEW(GLES3GPUPipelineState);
     _gpuPipelineState->glPrimitive = GLES3Primitives[(int)_primitive];
@@ -49,6 +52,7 @@ bool GLES3PipelineState::initialize(const PipelineStateInfo &info) {
     _gpuPipelineState->dss = _depthStencilState;
     _gpuPipelineState->bs = _blendState;
     _gpuPipelineState->gpuRenderPass = ((GLES3RenderPass *)_renderPass)->gpuRenderPass();
+    _gpuPipelineState->gpuPipelineLayout = ((GLES3PipelineLayout *)_pipelineLayout)->gpuPipelineLayout();
 
     for (uint i = 0; i < 31; i++) {
         if ((uint)_dynamicStates & (1 << i)) {

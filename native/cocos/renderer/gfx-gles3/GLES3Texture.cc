@@ -97,7 +97,8 @@ bool GLES3Texture::initialize(const TextureInfo &info) {
 }
 
 bool GLES3Texture::initialize(const TextureViewInfo &info) {
-    _Type = ObjectType::TEXTURE_VIEW;
+    _isTextureView = true;
+
     CC_LOG_ERROR("GLES3 doesn't support texture view.");
     _status = Status::FAILED;
     return false;

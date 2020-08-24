@@ -5,6 +5,11 @@
 namespace cc {
 namespace gfx {
 
+const uint DESCRIPTOR_BUFFER_TYPE = (uint)DescriptorType::STORAGE_BUFFER | (uint)DescriptorType::DYNAMIC_STORAGE_BUFFER |
+                                    (uint)DescriptorType::UNIFORM_BUFFER | (uint)DescriptorType::DYNAMIC_UNIFORM_BUFFER;
+const uint DESCRIPTOR_SAMPLER_TYPE = (uint)DescriptorType::SAMPLER;
+const uint DESCRIPTOR_DYNAMIC_TYPE = (uint)DescriptorType::DYNAMIC_STORAGE_BUFFER | (uint)DescriptorType::DYNAMIC_UNIFORM_BUFFER;
+
 const FormatInfo GFX_FORMAT_INFOS[] = {
     {"UNKNOWN", 0, 0, FormatType::NONE, false, false, false, false},
     {"A8", 1, 1, FormatType::UNORM, true, false, false, false},

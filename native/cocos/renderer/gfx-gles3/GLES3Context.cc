@@ -17,39 +17,39 @@ namespace gfx {
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
 
 void APIENTRY GLES3EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
-    String source_desc;
+    String sourceDesc;
     switch (source) {
-        case GL_DEBUG_SOURCE_API_KHR: source_desc = "API"; break;
-        case GL_DEBUG_SOURCE_SHADER_COMPILER_KHR: source_desc = "SHADER_COMPILER"; break;
-        case GL_DEBUG_SOURCE_WINDOW_SYSTEM_KHR: source_desc = "WINDOW_SYSTEM"; break;
-        case GL_DEBUG_SOURCE_THIRD_PARTY_KHR: source_desc = "THIRD_PARTY"; break;
-        case GL_DEBUG_SOURCE_APPLICATION_KHR: source_desc = "APPLICATION"; break;
-        default: source_desc = "OTHER";
+        case GL_DEBUG_SOURCE_API_KHR: sourceDesc = "API"; break;
+        case GL_DEBUG_SOURCE_SHADER_COMPILER_KHR: sourceDesc = "SHADER_COMPILER"; break;
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM_KHR: sourceDesc = "WINDOW_SYSTEM"; break;
+        case GL_DEBUG_SOURCE_THIRD_PARTY_KHR: sourceDesc = "THIRD_PARTY"; break;
+        case GL_DEBUG_SOURCE_APPLICATION_KHR: sourceDesc = "APPLICATION"; break;
+        default: sourceDesc = "OTHER";
     }
 
-    String type_desc;
+    String typeDesc;
     switch (severity) {
-        case GL_DEBUG_TYPE_ERROR_KHR: type_desc = "ERROR"; break;
-        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_KHR: type_desc = "PEPRECATED_BEHAVIOR"; break;
-        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_KHR: type_desc = "UNDEFINED_BEHAVIOR"; break;
-        case GL_DEBUG_TYPE_PERFORMANCE_KHR: type_desc = "PERFORMANCE"; break;
-        case GL_DEBUG_TYPE_PORTABILITY_KHR: type_desc = "PORTABILITY"; break;
-        case GL_DEBUG_TYPE_MARKER_KHR: type_desc = "MARKER"; break;
-        case GL_DEBUG_TYPE_PUSH_GROUP_KHR: type_desc = "PUSH_GROUP"; break;
-        case GL_DEBUG_TYPE_POP_GROUP_KHR: type_desc = "POP_GROUP"; break;
-        default: type_desc = "OTHER";
+        case GL_DEBUG_TYPE_ERROR_KHR: typeDesc = "ERROR"; break;
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_KHR: typeDesc = "PEPRECATED_BEHAVIOR"; break;
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_KHR: typeDesc = "UNDEFINED_BEHAVIOR"; break;
+        case GL_DEBUG_TYPE_PERFORMANCE_KHR: typeDesc = "PERFORMANCE"; break;
+        case GL_DEBUG_TYPE_PORTABILITY_KHR: typeDesc = "PORTABILITY"; break;
+        case GL_DEBUG_TYPE_MARKER_KHR: typeDesc = "MARKER"; break;
+        case GL_DEBUG_TYPE_PUSH_GROUP_KHR: typeDesc = "PUSH_GROUP"; break;
+        case GL_DEBUG_TYPE_POP_GROUP_KHR: typeDesc = "POP_GROUP"; break;
+        default: typeDesc = "OTHER";
     }
 
-    String severity_desc;
+    String severityDesc;
     switch (severity) {
-        case GL_DEBUG_SEVERITY_HIGH_KHR: severity_desc = "HIGH"; break;
-        case GL_DEBUG_SEVERITY_MEDIUM_KHR: severity_desc = "MEDIUM"; break;
-        case GL_DEBUG_SEVERITY_LOW_KHR: severity_desc = "LOW"; break;
-        default: severity_desc = "NOTIFICATION";
+        case GL_DEBUG_SEVERITY_HIGH_KHR: severityDesc = "HIGH"; break;
+        case GL_DEBUG_SEVERITY_MEDIUM_KHR: severityDesc = "MEDIUM"; break;
+        case GL_DEBUG_SEVERITY_LOW_KHR: severityDesc = "LOW"; break;
+        default: severityDesc = "NOTIFICATION";
     }
 
     String msg = StringUtil::Format("source: %s, type: %s, severity: %s, message: %s",
-                                    source_desc.c_str(), type_desc.c_str(), severity_desc.c_str(), message);
+                                    sourceDesc.c_str(), typeDesc.c_str(), severityDesc.c_str(), message);
 
     if (severity == GL_DEBUG_SEVERITY_HIGH_KHR) {
     #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
@@ -143,8 +143,8 @@ bool GLES3Context::initialize(const ContextInfo &info) {
         //    advanced applications choose to do. For this application however, taking the first EGLConfig that the function returns suits
         //    its needs perfectly, so we limit it to returning a single EGLConfig.
 
-        EGLint num_configs;
-        if (eglChooseConfig(_eglDisplay, attribs, &_eglConfig, 1, &num_configs) == EGL_FALSE || num_configs <= 0) {
+        EGLint numConfigs;
+        if (eglChooseConfig(_eglDisplay, attribs, &_eglConfig, 1, &numConfigs) == EGL_FALSE || numConfigs <= 0) {
             CC_LOG_ERROR("Choosing configuration failed.");
             return false;
         }
@@ -180,15 +180,15 @@ bool GLES3Context::initialize(const ContextInfo &info) {
     * ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID. */
 
     #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-        EGLint n_fmt;
-        if (eglGetConfigAttrib(_eglDisplay, _eglConfig, EGL_NATIVE_VISUAL_ID, &n_fmt) == EGL_FALSE) {
+        EGLint nFmt;
+        if (eglGetConfigAttrib(_eglDisplay, _eglConfig, EGL_NATIVE_VISUAL_ID, &nFmt) == EGL_FALSE) {
             CC_LOG_ERROR("Getting configuration attributes failed.");
             return false;
         }
 
         uint width = _device->getWidth();
         uint height = _device->getHeight();
-        ANativeWindow_setBuffersGeometry((ANativeWindow *)_windowHandle, width, height, n_fmt);
+        ANativeWindow_setBuffersGeometry((ANativeWindow *)_windowHandle, width, height, nFmt);
     #endif
 
         _eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, NULL);
@@ -197,42 +197,42 @@ bool GLES3Context::initialize(const ContextInfo &info) {
             return false;
         }
 
-        //String egl_vendor = eglQueryString(_eglDisplay, EGL_VENDOR);
-        //String egl_version = eglQueryString(_eglDisplay, EGL_VERSION);
+        //String eglVendor = eglQueryString(_eglDisplay, EGL_VENDOR);
+        //String eglVersion = eglQueryString(_eglDisplay, EGL_VERSION);
 
         _extensions = StringUtil::Split((const char *)eglQueryString(_eglDisplay, EGL_EXTENSIONS), " ");
 
         _majorVersion = 3;
         _minorVersion = 0;
-        EGLint ctx_attribs[32];
+        EGLint ctxAttribs[32];
         uint n = 0;
 
-        bool has_khr_create_ctx = CheckExtension(CC_TOSTR(EGL_KHR_create_context));
-        if (has_khr_create_ctx) {
+        bool hasKHRCreateCtx = CheckExtension(CC_TOSTR(EGL_KHR_create_context));
+        if (hasKHRCreateCtx) {
             for (int m = 2; m >= 0; --m) {
                 n = 0;
-                ctx_attribs[n++] = EGL_CONTEXT_MAJOR_VERSION_KHR;
-                ctx_attribs[n++] = _majorVersion;
-                ctx_attribs[n++] = EGL_CONTEXT_MINOR_VERSION_KHR;
-                ctx_attribs[n++] = m;
+                ctxAttribs[n++] = EGL_CONTEXT_MAJOR_VERSION_KHR;
+                ctxAttribs[n++] = _majorVersion;
+                ctxAttribs[n++] = EGL_CONTEXT_MINOR_VERSION_KHR;
+                ctxAttribs[n++] = m;
 
     #ifdef CC_GFX_DEBUG
-                ctx_attribs[n++] = EGL_CONTEXT_FLAGS_KHR;
-                ctx_attribs[n++] = EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR;
+                ctxAttribs[n++] = EGL_CONTEXT_FLAGS_KHR;
+                ctxAttribs[n++] = EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR;
     #endif
-                ctx_attribs[n] = EGL_NONE;
+                ctxAttribs[n] = EGL_NONE;
 
-                _eglContext = eglCreateContext(_eglDisplay, _eglConfig, NULL, ctx_attribs);
+                _eglContext = eglCreateContext(_eglDisplay, _eglConfig, NULL, ctxAttribs);
                 if (_eglContext) {
                     _minorVersion = m;
                     break;
                 }
             }
         } else {
-            ctx_attribs[n++] = EGL_CONTEXT_CLIENT_VERSION;
-            ctx_attribs[n++] = _majorVersion;
-            ctx_attribs[n] = EGL_NONE;
-            _eglContext = eglCreateContext(_eglDisplay, _eglConfig, NULL, ctx_attribs);
+            ctxAttribs[n++] = EGL_CONTEXT_CLIENT_VERSION;
+            ctxAttribs[n++] = _majorVersion;
+            ctxAttribs[n] = EGL_NONE;
+            _eglContext = eglCreateContext(_eglDisplay, _eglConfig, NULL, ctxAttribs);
         }
 
         if (!_eglContext) {
@@ -253,7 +253,7 @@ bool GLES3Context::initialize(const ContextInfo &info) {
         _colorFmt = sharedCtx->getColorFormat();
         _depthStencilFmt = sharedCtx->getDepthStencilFormat();
 
-        EGLint pbuff_attribs[] =
+        EGLint pbuffAttribs[] =
             {
                 EGL_WIDTH, 2,
                 EGL_HEIGHT, 2,
@@ -262,7 +262,7 @@ bool GLES3Context::initialize(const ContextInfo &info) {
                 EGL_TEXTURE_TARGET, EGL_NO_TEXTURE,
                 EGL_NONE};
 
-        _eglSurface = eglCreatePbufferSurface(_eglDisplay, _eglConfig, pbuff_attribs);
+        _eglSurface = eglCreatePbufferSurface(_eglDisplay, _eglConfig, pbuffAttribs);
         if (_eglSurface == EGL_NO_SURFACE) {
             CC_LOG_ERROR("eglCreatePbufferSurface - FAILED");
             return false;
@@ -271,33 +271,33 @@ bool GLES3Context::initialize(const ContextInfo &info) {
         _majorVersion = 3;
         _minorVersion = sharedCtx->minor_ver();
 
-        bool has_khr_create_ctx = CheckExtension(CC_TOSTR(EGL_KHR_create_context));
-        if (!has_khr_create_ctx) {
+        bool hasKHRCreateCtx = CheckExtension(CC_TOSTR(EGL_KHR_create_context));
+        if (!hasKHRCreateCtx) {
             CC_LOG_INFO("EGL context creation: EGL_KHR_create_context not supported. Minor version will be discarded, and debug disabled.");
             _minorVersion = 0;
         }
 
-        EGLint ctx_attribs[32];
+        EGLint ctxAttribs[32];
         uint n = 0;
 
-        if (has_khr_create_ctx) {
-            ctx_attribs[n++] = EGL_CONTEXT_MAJOR_VERSION_KHR;
-            ctx_attribs[n++] = _majorVersion;
-            ctx_attribs[n++] = EGL_CONTEXT_MINOR_VERSION_KHR;
-            ctx_attribs[n++] = _minorVersion;
+        if (hasKHRCreateCtx) {
+            ctxAttribs[n++] = EGL_CONTEXT_MAJOR_VERSION_KHR;
+            ctxAttribs[n++] = _majorVersion;
+            ctxAttribs[n++] = EGL_CONTEXT_MINOR_VERSION_KHR;
+            ctxAttribs[n++] = _minorVersion;
 
     #ifdef CC_GFX_DEBUG
-            ctx_attribs[n++] = EGL_CONTEXT_FLAGS_KHR;
-            ctx_attribs[n++] = EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR;
+            ctxAttribs[n++] = EGL_CONTEXT_FLAGS_KHR;
+            ctxAttribs[n++] = EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR;
     #endif
         } else {
-            ctx_attribs[n++] = EGL_CONTEXT_CLIENT_VERSION;
-            ctx_attribs[n++] = _majorVersion;
+            ctxAttribs[n++] = EGL_CONTEXT_CLIENT_VERSION;
+            ctxAttribs[n++] = _majorVersion;
         }
 
-        ctx_attribs[n] = EGL_NONE;
+        ctxAttribs[n] = EGL_NONE;
 
-        _eglContext = eglCreateContext(_eglDisplay, _eglConfig, _eglSharedContext, ctx_attribs);
+        _eglContext = eglCreateContext(_eglDisplay, _eglConfig, _eglSharedContext, ctxAttribs);
         if (!_eglContext) {
             CC_LOG_ERROR("Create EGL context with share context [0x%p] failed.", _eglSharedContext);
             return false;
@@ -319,14 +319,14 @@ bool GLES3Context::initialize(const ContextInfo &info) {
     EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [=](const CustomEvent &event) -> void {
         _windowHandle = (uintptr_t)event.args->ptrVal;
 
-        EGLint n_fmt;
-        if (eglGetConfigAttrib(_eglDisplay, _eglConfig, EGL_NATIVE_VISUAL_ID, &n_fmt) == EGL_FALSE) {
+        EGLint nFmt;
+        if (eglGetConfigAttrib(_eglDisplay, _eglConfig, EGL_NATIVE_VISUAL_ID, &nFmt) == EGL_FALSE) {
             CC_LOG_ERROR("Getting configuration attributes failed.");
             return;
         }
         uint width = _device->getWidth();
         uint height = _device->getHeight();
-        ANativeWindow_setBuffersGeometry((ANativeWindow *)_windowHandle, width, height, n_fmt);
+        ANativeWindow_setBuffersGeometry((ANativeWindow *)_windowHandle, width, height, nFmt);
 
         _eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, NULL);
         if (_eglSurface == EGL_NO_SURFACE) {

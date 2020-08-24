@@ -24,6 +24,7 @@ public:
     CC_INLINE const DepthStencilState &getDepthStencilState() const { return _depthStencilState; }
     CC_INLINE const BlendState &getBlendState() const { return _blendState; }
     CC_INLINE const RenderPass *getRenderPass() const { return _renderPass; }
+    CC_INLINE const PipelineLayout *getPipelineLayout() const { return _pipelineLayout; }
 
 protected:
     Device *_device = nullptr;
@@ -35,6 +36,7 @@ protected:
     DepthStencilState _depthStencilState;
     BlendState _blendState;
     RenderPass *_renderPass = nullptr;
+    PipelineLayout *_pipelineLayout = nullptr;
 };
 
 } // namespace gfx

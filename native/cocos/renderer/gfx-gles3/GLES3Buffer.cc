@@ -1,4 +1,5 @@
 #include "GLES3Std.h"
+
 #include "GLES3Buffer.h"
 #include "GLES3Commands.h"
 
@@ -54,10 +55,39 @@ bool GLES3Buffer::initialize(const BufferInfo &info) {
     return true;
 }
 
+bool GLES3Buffer::initialize(const BufferViewInfo &info) {
+
+    _isBufferView = true;
+
+    GLES3Buffer *buffer = (GLES3Buffer *)info.buffer;
+
+    _usage = buffer->_usage;
+    _memUsage = buffer->_memUsage;
+    _size = _stride = info.range;
+    _count = 1u;
+    _flags = buffer->_flags;
+
+    _gpuBuffer = CC_NEW(GLES3GPUBuffer);
+    _gpuBuffer->usage = _usage;
+    _gpuBuffer->memUsage = _memUsage;
+    _gpuBuffer->size = _size;
+    _gpuBuffer->stride = _stride;
+    _gpuBuffer->count = _count;
+    _gpuBuffer->glTarget = buffer->_gpuBuffer->glTarget;
+    _gpuBuffer->glBuffer = buffer->_gpuBuffer->glBuffer;
+    _gpuBuffer->glOffset = info.offset;
+    _gpuBuffer->buffer = buffer->_gpuBuffer->buffer;
+    _gpuBuffer->indirects = buffer->_gpuBuffer->indirects;
+
+    return true;
+}
+
 void GLES3Buffer::destroy() {
     if (_gpuBuffer) {
-        GLES3CmdFuncDestroyBuffer((GLES3Device *)_device, _gpuBuffer);
-        _device->getMemoryStatus().bufferSize -= _size;
+        if (!_isBufferView) {
+            GLES3CmdFuncDestroyBuffer((GLES3Device *)_device, _gpuBuffer);
+            _device->getMemoryStatus().bufferSize -= _size;
+        }
         CC_DELETE(_gpuBuffer);
         _gpuBuffer = nullptr;
     }
@@ -71,6 +101,8 @@ void GLES3Buffer::destroy() {
 }
 
 void GLES3Buffer::resize(uint size) {
+    CCASSERT(!_isBufferView, "Cannot resize buffer views");
+
     if (_size != size) {
         const uint oldSize = _size;
         _size = size;
@@ -102,6 +134,8 @@ void GLES3Buffer::resize(uint size) {
 }
 
 void GLES3Buffer::update(void *buffer, uint offset, uint size) {
+    CCASSERT(!_isBufferView, "Cannot update through buffer views");
+
     if (_buffer) {
         memcpy(_buffer + offset, buffer, size);
     }

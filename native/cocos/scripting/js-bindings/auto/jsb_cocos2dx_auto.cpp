@@ -130,10 +130,10 @@ static bool js_engine_FileUtils_renameFile(se::State& s)
     do {
         if (argc == 2) {
             std::string arg0;
-            ok &= seval_to_std_string(args[0], &arg0);
+            ok &= seval_to_std_string(args[0], &arg0);            
             if (!ok) { ok = true; break; }
             std::string arg1;
-            ok &= seval_to_std_string(args[1], &arg1);
+            ok &= seval_to_std_string(args[1], &arg1);            
             if (!ok) { ok = true; break; }
             bool result = cobj->renameFile(arg0, arg1);
             ok &= boolean_to_seval(result, &s.rval());
@@ -145,13 +145,13 @@ static bool js_engine_FileUtils_renameFile(se::State& s)
     do {
         if (argc == 3) {
             std::string arg0;
-            ok &= seval_to_std_string(args[0], &arg0);
+            ok &= seval_to_std_string(args[0], &arg0);            
             if (!ok) { ok = true; break; }
             std::string arg1;
-            ok &= seval_to_std_string(args[1], &arg1);
+            ok &= seval_to_std_string(args[1], &arg1);            
             if (!ok) { ok = true; break; }
             std::string arg2;
-            ok &= seval_to_std_string(args[2], &arg2);
+            ok &= seval_to_std_string(args[2], &arg2);            
             if (!ok) { ok = true; break; }
             bool result = cobj->renameFile(arg0, arg1, arg2);
             ok &= boolean_to_seval(result, &s.rval());

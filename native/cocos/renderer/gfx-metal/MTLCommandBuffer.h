@@ -22,25 +22,25 @@ public:
 
     virtual bool initialize(const CommandBufferInfo &info) override;
     virtual void destroy() override;
-    virtual void begin(RenderPass *renderPass = nullptr, uint subpass = 0, Framebuffer *frameBuffer = nullptr) override;
+    virtual void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
     virtual void end() override;
-    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const vector<Color> &colors, float depth, int stencil) override;
+    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil) override;
     virtual void endRenderPass() override;
     virtual void bindPipelineState(PipelineState *pso) override;
-    virtual void bindBindingLayout(BindingLayout *layout) override;
+    virtual void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) override;
     virtual void bindInputAssembler(InputAssembler *ia) override;
     virtual void setViewport(const Viewport &vp) override;
     virtual void setScissor(const Rect &rect) override;
     virtual void setLineWidth(const float width) override;
     virtual void setDepthBias(float constant, float clamp, float slope) override;
     virtual void setBlendConstants(const Color &constants) override;
-    virtual void setDepthBound(float min_bounds, float max_bounds) override;
+    virtual void setDepthBound(float minBounds, float maxBounds) override;
     virtual void setStencilWriteMask(StencilFace face, uint mask) override;
     virtual void setStencilCompareMask(StencilFace face, int ref, uint mask) override;
     virtual void draw(InputAssembler *ia) override;
     virtual void updateBuffer(Buffer *buff, void *data, uint size, uint offset = 0) override;
-    virtual void copyBuffersToTexture(const BufferDataList &buffers, Texture *texture, const BufferTextureCopyList &regions) override;
-    virtual void execute(const CommandBufferList &cmd_buffs, uint32_t count) override;
+    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
+    virtual void execute(const CommandBuffer *const *cmdBuffs, uint32_t count) override;
 
 private:
     void bindStates();
@@ -53,6 +53,9 @@ private:
     CCMTLDepthBias _depthBias;
     CCMTLDepthBounds _depthBounds;
     Color _blendConstants;
+    
+    vector<CCMTLGPUDescriptorSet *> _GPUDescriptorSets;
+    vector<vector<uint>> _dynamicOffsets;
 
     MTKView *_mtkView = nil;
     id<MTLCommandBuffer> _mtlCommandBuffer = nil;

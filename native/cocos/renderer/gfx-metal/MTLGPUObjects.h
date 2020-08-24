@@ -9,6 +9,10 @@
 
 namespace cc {
 namespace gfx {
+class CCMTLBuffer;
+class CCMTLTexture;
+class CCMTLSampler;
+class CCMTLShader;
 
 #define MAX_INFLIGHT_BUFFER 1
 
@@ -42,6 +46,19 @@ struct CCMTLGPUSamplerState {
 };
 typedef vector<CCMTLGPUSamplerState> CCMTLGPUSamplerStateList;
 
+class CCMTLGPUDescriptorSetLayout : public Object {
+public:
+    DescriptorSetLayoutBindingList bindings;
+    vector<uint> dynamicBindings;
+};
+typedef vector<CCMTLGPUDescriptorSetLayout*> MTLGPUDescriptorSetLayoutList;
+
+class CCMTLGPUPipelineLayout : public Object {
+public:
+    MTLGPUDescriptorSetLayoutList setLayouts;
+    vector<vector<int>> dynamicOffsetIndices;
+};
+
 struct CCMTLGPUPipelineState {
     MTLCullMode cullMode;
     MTLWinding winding;
@@ -55,6 +72,8 @@ struct CCMTLGPUPipelineState {
     vector<std::tuple<int /**vertexBufferBindingIndex*/, uint /**stream*/>> vertexBufferBindingInfo;
     unordered_map<uint, uint> vertexSamplerBinding;
     unordered_map<uint, uint> fragmentSamplerBinding;
+    CCMTLGPUPipelineLayout *gpuPipelineLayout = nullptr;
+    CCMTLShader *gpuShader = nullptr;
 };
 
 struct CCMTLGPUBuffer {
@@ -68,6 +87,20 @@ public:
     id<MTLBuffer> mtlIndexBuffer = nil;
     id<MTLBuffer> mtlIndirectBuffer = nil;
     vector<id<MTLBuffer>> mtlVertexBufers;
+};
+
+struct CCMTLGPUDescriptor {
+    DescriptorType type = DescriptorType::UNKNOWN;
+    
+    CCMTLBuffer *buffer = nullptr;
+    CCMTLTexture *texture = nullptr;
+    CCMTLSampler *sampler = nullptr;
+};
+typedef vector<CCMTLGPUDescriptor> MTLGPUDescriptorList;
+
+class CCMTLGPUDescriptorSet : public Object {
+public:
+    MTLGPUDescriptorList gpuDescriptors;
 };
 
 } // namespace gfx

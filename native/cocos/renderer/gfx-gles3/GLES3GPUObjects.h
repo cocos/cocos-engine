@@ -15,6 +15,7 @@ public:
     uint count = 0;
     GLenum glTarget = 0;
     GLuint glBuffer = 0;
+    GLuint glOffset = 0;
     uint8_t *buffer = nullptr;
     DrawInfoList indirects;
 };
@@ -58,7 +59,7 @@ public:
     Address addressW = Address::CLAMP;
     uint minLOD = 0;
     uint maxLOD = 1000;
-    GLuint gl_sampler = 0;
+    GLuint glSampler = 0;
     GLenum glMinFilter = 0;
     GLenum glMagFilter = 0;
     GLenum glWrapS = 0;
@@ -92,16 +93,19 @@ struct GLES3GPUUniform {
 typedef vector<GLES3GPUUniform> GLES3GPUUniformList;
 
 struct GLES3GPUUniformBlock {
-    uint binding = 0;
+    uint set = GFX_INVALID_BINDING;
+    uint binding = GFX_INVALID_BINDING;
     uint idx = 0;
     String name;
     uint size = 0;
+    uint glBinding = GFX_INVALID_BINDING;
     GLES3GPUUniformList glUniforms;
     GLES3GPUUniformList glActiveUniforms;
 };
 typedef vector<GLES3GPUUniformBlock> GLES3GPUUniformBlockList;
 
 struct GLES3GPUUniformSampler {
+    uint set = 0;
     uint binding = 0;
     String name;
     Type type = Type::UNKNOWN;
@@ -112,11 +116,10 @@ struct GLES3GPUUniformSampler {
 typedef vector<GLES3GPUUniformSampler> GLES3GPUUniformSamplerList;
 
 struct GLES3GPUShaderStage {
-    GLES3GPUShaderStage(ShaderType t, String s, ShaderMacroList m, GLuint shader = 0)
-    : type(t), source(s), macros(m), glShader(shader) {}
-    ShaderType type;
+    GLES3GPUShaderStage(ShaderStageFlagBit t, String s, GLuint shader = 0)
+    : type(t), source(s), glShader(shader) {}
+    ShaderStageFlagBit type;
     String source;
-    ShaderMacroList macros;
     GLuint glShader = 0;
 };
 typedef vector<GLES3GPUShaderStage> GLES3GPUShaderStageList;
@@ -175,8 +178,19 @@ public:
     bool isOffscreen = false;
 };
 
+class GLES3GPUDescriptorSetLayout : public Object {
+public:
+    DescriptorSetLayoutBindingList bindings;
+    vector<uint> dynamicBindings;
+};
+typedef vector<GLES3GPUDescriptorSetLayout *> GLES3GPUDescriptorSetLayoutList;
+
 class GLES3GPUPipelineLayout : public Object {
 public:
+    GLES3GPUDescriptorSetLayoutList setLayouts;
+    vector<vector<int>> dynamicOffsetIndices;
+    vector<uint> dynamicOffsetOffsets;
+    uint dynamicOffsetCount;
 };
 
 class GLES3GPUPipelineState : public Object {
@@ -189,21 +203,20 @@ public:
     DynamicStateList dynamicStates;
     GLES3GPUPipelineLayout *gpuLayout = nullptr;
     GLES3GPURenderPass *gpuRenderPass = nullptr;
+    GLES3GPUPipelineLayout *gpuPipelineLayout = nullptr;
 };
 
-struct GLES3GPUBinding {
-    uint binding = GFX_INVALID_BINDING;
-    BindingType type = BindingType::UNKNOWN;
-    String name;
+struct GLES3GPUDescriptor {
+    DescriptorType type = DescriptorType::UNKNOWN;
     GLES3GPUBuffer *gpuBuffer = nullptr;
     GLES3GPUTexture *gpuTexture = nullptr;
     GLES3GPUSampler *gpuSampler = nullptr;
 };
-typedef vector<GLES3GPUBinding> GLES3GPUBindingList;
+typedef vector<GLES3GPUDescriptor> GLES3GPUDescriptorList;
 
-class GLES3GPUBindingLayout : public Object {
+class GLES3GPUDescriptorSet : public Object {
 public:
-    GLES3GPUBindingList gpuBindings;
+    GLES3GPUDescriptorList gpuDescriptors;
 };
 
 class GLES3GPUFence : public Object {

@@ -13,6 +13,7 @@ public:
 
 public:
     virtual bool initialize(const BufferInfo &info) = 0;
+    virtual bool initialize(const BufferViewInfo &info) = 0;
     virtual void destroy() = 0;
     virtual void resize(uint size) = 0;
     virtual void update(void *buffer, uint offset = 0, uint size = 0) = 0;
@@ -24,17 +25,19 @@ public:
     CC_INLINE uint getCount() const { return _count; }
     CC_INLINE uint getSize() const { return _size; }
     CC_INLINE BufferFlags getFlags() const { return _flags; }
-    CC_INLINE uint8_t *getBufferView() const { return _buffer; }
+    CC_INLINE uint8_t *getBackupBuffer() const { return _buffer; }
 
 protected:
     Device *_device = nullptr;
     BufferUsage _usage = BufferUsageBit::NONE;
     MemoryUsage _memUsage = MemoryUsageBit::NONE;
-    uint _stride = 0;
-    uint _count = 0;
-    uint _size = 0;
+    uint _stride = 0u;
+    uint _count = 0u;
+    uint _size = 0u;
+    uint _offset = 0u;
     BufferFlags _flags = BufferFlagBit::NONE;
     uint8_t *_buffer = nullptr;
+    bool _isBufferView = false;
 };
 
 } // namespace gfx

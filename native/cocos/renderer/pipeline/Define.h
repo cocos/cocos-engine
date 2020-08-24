@@ -81,7 +81,7 @@ enum class CC_DLL RenderPassStage {
 };
 
 struct CC_DLL InternalBindingDesc {
-    gfx::BindingType type;
+    gfx::DescriptorType type;
     gfx::UniformBlock blockInfo;
     gfx::UniformSampler samplerInfo;
     Value defaultValue;

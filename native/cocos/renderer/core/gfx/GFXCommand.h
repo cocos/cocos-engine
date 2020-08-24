@@ -16,7 +16,7 @@ enum class GFXCmdType : uint8_t {
 class GFXCmd : public Object {
 public:
     GFXCmdType type;
-    uint ref_count = 0;
+    uint refCount = 0;
 
     GFXCmd(GFXCmdType _type) : type(_type) {}
     virtual ~GFXCmd() {}

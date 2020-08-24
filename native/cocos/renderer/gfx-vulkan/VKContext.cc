@@ -300,7 +300,6 @@ bool CCVKContext::initialize(const ContextInfo &info) {
         vkGetPhysicalDeviceFeatures(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceFeatures);
 
         if (_minorVersion >= 1 || checkExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)) {
-            _gpuContext->physicalDeviceProperties2.pNext = &_gpuContext->physicalDevicePushDescriptorProperties;
             vkGetPhysicalDeviceProperties2KHR(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceProperties2);
 
             _gpuContext->physicalDeviceFeatures2.pNext = &_gpuContext->physicalDeviceVulkan11Features;

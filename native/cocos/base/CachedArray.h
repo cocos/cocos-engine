@@ -19,7 +19,7 @@ public:
 
     CachedArray(const CachedArray &other)
     : _size(other._size), _capacity(other._capacity), _array(CC_NEW_ARRAY(T, other._capacity)) {
-        std::copy(other._array, other._array + _size, _array);
+        memcpy(_array, other._array, _size * sizeof(T));
     }
 
     CachedArray &operator=(const CachedArray &other) noexcept {
@@ -28,7 +28,7 @@ public:
             _size = other._size;
             _capacity = other._capacity;
             _array = CC_NEW_ARRAY(T, _capacity);
-            std::copy(other._array, other._array + _size, _array);
+            memcpy(_array, other._array, _size * sizeof(T));
         }
         return *this;
     }
@@ -66,13 +66,21 @@ public:
     CC_INLINE uint size() const { return _size; }
     CC_INLINE T pop() { return _array[--_size]; }
 
+    void reserve(uint size) {
+        if (size > _capacity) {
+            T *temp = _array;
+            _array = CC_NEW_ARRAY(T, size);
+            memcpy(_array, temp, _capacity * sizeof(T));
+            _capacity = size;
+            CC_DELETE_ARRAY(temp);
+        }
+    }
+
     void push(T item) {
         if (_size >= _capacity) {
             T *temp = _array;
             _array = CC_NEW_ARRAY(T, _capacity * 2);
-            for (uint i = 0; i < _capacity; ++i) {
-                _array[i] = temp[i];
-            }
+            memcpy(_array, temp, _capacity * sizeof(T));
             _capacity *= 2;
             CC_DELETE_ARRAY(temp);
         }
@@ -80,19 +88,29 @@ public:
     }
 
     void concat(const CachedArray<T> &array) {
-        if (_size + array._size >= _capacity) {
+        if (_size + array._size > _capacity) {
             T *temp = _array;
             uint size = std::max(_capacity * 2, _size + array._size);
             _array = CC_NEW_ARRAY(T, size);
-            for (uint i = 0; i < _size; ++i) {
-                _array[i] = temp[i];
-            }
+            memcpy(_array, temp, _size * sizeof(T));
             _capacity = size;
             CC_DELETE_ARRAY(temp);
         }
-        for (uint i = 0; i < array._size; ++i) {
-            _array[_size++] = array[i];
+        memcpy(_array + _size, array._array, array._size * sizeof(T));
+        _size += array._size;
+    }
+
+    void concat(T *array, uint count) {
+        if (_size + count > _capacity) {
+            T *temp = _array;
+            uint size = std::max(_capacity * 2, _size + count);
+            _array = CC_NEW_ARRAY(T, size);
+            memcpy(_array, temp, _size * sizeof(T));
+            _capacity = size;
+            CC_DELETE_ARRAY(temp);
         }
+        memcpy(_array + _size, array, count * sizeof(T));
+        _size += count;
     }
 
     void fastRemove(uint idx) {

@@ -18,7 +18,7 @@ bool CCMTLFramebuffer::initialize(const FramebufferInfo &info) {
     auto *mtlRenderPass = static_cast<CCMTLRenderPass *>(_renderPass);
     size_t slot = 0;
     size_t levelCount = info.colorMipmapLevels.size();
-    int i = 0;
+    size_t i = 0;
     size_t attachmentIndices = 0;
     for (const auto &colorTexture : info.colorTextures) {
         int level = 0;

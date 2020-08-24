@@ -96,7 +96,7 @@ bool GLES2Texture::initialize(const TextureInfo &info) {
 }
 
 bool GLES2Texture::initialize(const TextureViewInfo &info) {
-    _Type = ObjectType::TEXTURE_VIEW;
+    _isTextureView = true;
 
     CC_LOG_ERROR("GLES2 doesn't support texture view");
     _status = Status::FAILED;

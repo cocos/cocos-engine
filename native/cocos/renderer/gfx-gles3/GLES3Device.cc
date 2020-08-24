@@ -1,14 +1,16 @@
 #include "GLES3Std.h"
 
-#include "GLES3BindingLayout.h"
 #include "GLES3Buffer.h"
 #include "GLES3CommandAllocator.h"
 #include "GLES3CommandBuffer.h"
 #include "GLES3Context.h"
+#include "GLES3DescriptorSet.h"
+#include "GLES3DescriptorSetLayout.h"
 #include "GLES3Device.h"
 #include "GLES3Fence.h"
 #include "GLES3Framebuffer.h"
 #include "GLES3InputAssembler.h"
+#include "GLES3PipelineLayout.h"
 #include "GLES3PipelineState.h"
 #include "GLES3Queue.h"
 #include "GLES3RenderPass.h"
@@ -34,6 +36,14 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     _nativeWidth = info.nativeWidth;
     _nativeHeight = info.nativeHeight;
     _windowHandle = info.windowHandle;
+
+    _bindingMappingInfo = info.bindingMappingInfo;
+    if (!_bindingMappingInfo.bufferOffsets.size()) {
+        _bindingMappingInfo.bufferOffsets.push_back(0);
+    }
+    if (!_bindingMappingInfo.samplerOffsets.size()) {
+        _bindingMappingInfo.samplerOffsets.push_back(0);
+    }
 
     _cmdAllocator = CC_NEW(GLES3CommandAllocator);
     stateCache = CC_NEW(GLES3StateCache);
@@ -125,6 +135,7 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, (GLint *)&_maxVertexTextureUnits);
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint *)&_maxTextureSize);
     glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, (GLint *)&_maxCubeMapTextureSize);
+    glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, (GLint *)&_uboOffsetAlignment);
     glGetIntegerv(GL_DEPTH_BITS, (GLint *)&_depthBits);
     glGetIntegerv(GL_STENCIL_BITS, (GLint *)&_stencilBits);
 
@@ -197,6 +208,15 @@ Buffer *GLES3Device::createBuffer(const BufferInfo &info) {
     return nullptr;
 }
 
+Buffer *GLES3Device::createBuffer(const BufferViewInfo &info) {
+    Buffer *buffer = CC_NEW(GLES3Buffer(this));
+    if (buffer->initialize(info))
+        return buffer;
+
+    CC_SAFE_DESTROY(buffer);
+    return nullptr;
+}
+
 Texture *GLES3Device::createTexture(const TextureInfo &info) {
     Texture *texture = CC_NEW(GLES3Texture(this));
     if (texture->initialize(info))
@@ -260,12 +280,30 @@ Framebuffer *GLES3Device::createFramebuffer(const FramebufferInfo &info) {
     return nullptr;
 }
 
-BindingLayout *GLES3Device::createBindingLayout(const BindingLayoutInfo &info) {
-    BindingLayout *bindingLayout = CC_NEW(GLES3BindingLayout(this));
-    if (bindingLayout->initialize(info))
-        return bindingLayout;
+DescriptorSet *GLES3Device::createDescriptorSet(const DescriptorSetInfo &info) {
+    DescriptorSet *descriptorSet = CC_NEW(GLES3DescriptorSet(this));
+    if (descriptorSet->initialize(info))
+        return descriptorSet;
 
-    CC_SAFE_DESTROY(bindingLayout);
+    CC_SAFE_DESTROY(descriptorSet);
+    return nullptr;
+}
+
+DescriptorSetLayout *GLES3Device::createDescriptorSetLayout(const DescriptorSetLayoutInfo &info) {
+    DescriptorSetLayout *descriptorSetLayout = CC_NEW(GLES3DescriptorSetLayout(this));
+    if (descriptorSetLayout->initialize(info))
+        return descriptorSetLayout;
+
+    CC_SAFE_DESTROY(descriptorSetLayout);
+    return nullptr;
+}
+
+PipelineLayout *GLES3Device::createPipelineLayout(const PipelineLayoutInfo &info) {
+    PipelineLayout *pipelineLayout = CC_NEW(GLES3PipelineLayout(this));
+    if (pipelineLayout->initialize(info))
+        return pipelineLayout;
+
+    CC_SAFE_DESTROY(pipelineLayout);
     return nullptr;
 }
 
@@ -278,8 +316,8 @@ PipelineState *GLES3Device::createPipelineState(const PipelineStateInfo &info) {
     return nullptr;
 }
 
-void GLES3Device::copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions) {
-    GLES3CmdFuncCopyBuffersToTexture(this, buffers, ((GLES3Texture *)dst)->gpuTexture(), regions);
+void GLES3Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
+    GLES3CmdFuncCopyBuffersToTexture(this, buffers, ((GLES3Texture *)dst)->gpuTexture(), regions, count);
 }
 
 } // namespace gfx

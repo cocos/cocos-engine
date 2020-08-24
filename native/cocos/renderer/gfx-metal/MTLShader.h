@@ -19,7 +19,7 @@ public:
     CC_INLINE const unordered_map<uint, uint> &getVertexSamplerBindings() const { return _mtlVertexSamplerBindings; }
     CC_INLINE const unordered_map<uint, uint> &getFragmentSamplerBindings() const { return _mtlFragmentSamplerBindings; }
 
-    uint getAvailableBufferBindingIndex(ShaderType stage, uint stream);
+    uint getAvailableBufferBindingIndex(ShaderStageFlagBit stage, uint stream);
 
 #ifdef DEBUG_SHADER
     CC_INLINE const String &getVertGlslShader() const { return _vertGlslShader; }

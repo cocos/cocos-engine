@@ -90,7 +90,7 @@ bool CCMTLTexture::initialize(const TextureInfo &info) {
 }
 
 bool CCMTLTexture::initialize(const TextureViewInfo &info) {
-    _Type = ObjectType::TEXTURE_VIEW;
+    _isTextureView = true;
 
     if (!info.texture) {
         _status = Status::FAILED;
@@ -239,7 +239,7 @@ void CCMTLTexture::resize(uint width, uint height) {
     _status = Status::SUCCESS;
 }
 
-void CCMTLTexture::update(const uint8_t *const *datas, const BufferTextureCopyList &regions) {
+void CCMTLTexture::update(const uint8_t *const *datas, const BufferTextureCopy *regions, uint count) {
     if (!_mtlTexture)
         return;
 
@@ -249,7 +249,7 @@ void CCMTLTexture::update(const uint8_t *const *datas, const BufferTextureCopyLi
     auto mtlTextureType = mu::toMTLTextureType(_type);
     switch (mtlTextureType) {
         case MTLTextureType2D:
-            for (size_t i = 0; i < regions.size(); i++) {
+            for (size_t i = 0; i < count; i++) {
                 const auto &region = regions[i];
                 w = region.texExtent.width;
                 h = region.texExtent.height;
@@ -269,7 +269,7 @@ void CCMTLTexture::update(const uint8_t *const *datas, const BufferTextureCopyLi
             break;
         case MTLTextureType2DArray:
         case MTLTextureTypeCube:
-            for (size_t i = 0; i < regions.size(); i++) {
+            for (size_t i = 0; i < count; i++) {
                 const auto &region = regions[i];
                 auto layer = region.texSubres.baseArrayLayer;
                 auto layerCount = layer + region.texSubres.layerCount;

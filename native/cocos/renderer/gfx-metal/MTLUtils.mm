@@ -11,16 +11,16 @@ namespace cc {
 namespace gfx {
 namespace {
 
-EShLanguage getShaderStage(ShaderType type) {
+EShLanguage getShaderStage(ShaderStageFlagBit type) {
     switch (type) {
-        case ShaderType::VERTEX: return EShLangVertex;
-        case ShaderType::CONTROL: return EShLangTessControl;
-        case ShaderType::EVALUATION: return EShLangTessEvaluation;
-        case ShaderType::GEOMETRY: return EShLangGeometry;
-        case ShaderType::FRAGMENT: return EShLangFragment;
-        case ShaderType::COMPUTE: return EShLangCompute;
+        case ShaderStageFlagBit::VERTEX: return EShLangVertex;
+        case ShaderStageFlagBit::CONTROL: return EShLangTessControl;
+        case ShaderStageFlagBit::EVALUATION: return EShLangTessEvaluation;
+        case ShaderStageFlagBit::GEOMETRY: return EShLangGeometry;
+        case ShaderStageFlagBit::FRAGMENT: return EShLangFragment;
+        case ShaderStageFlagBit::COMPUTE: return EShLangCompute;
         default: {
-            CCASSERT(false, "Unsupported ShaderType, convert to EShLanguage failed.");
+            CCASSERT(false, "Unsupported ShaderStageFlagBit, convert to EShLanguage failed.");
             return EShLangVertex;
         }
     }
@@ -50,7 +50,7 @@ glslang::EShTargetLanguageVersion getTargetVersion(int vulkanMinorVersion) {
     }
 }
 
-const vector<unsigned int> GLSL2SPIRV(ShaderType type, const String &source, int vulkanMinorVersion = 2) {
+const vector<unsigned int> GLSL2SPIRV(ShaderStageFlagBit type, const String &source, int vulkanMinorVersion = 2) {
     static bool glslangInitialized = false;
     if (!glslangInitialized) {
         glslang::InitializeProcess();
@@ -512,7 +512,7 @@ MTLSamplerMipFilter toMTLSamplerMipFilter(Filter filter) {
 }
 
 String compileGLSLShader2Msl(const String &src,
-                             ShaderType shaderType,
+                             ShaderStageFlagBit shaderType,
                              Device *device,
                              unordered_map<uint, uint> &samplerBindings) {
 #if USE_METAL

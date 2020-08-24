@@ -13,6 +13,7 @@ public:
 
 public:
     virtual bool initialize(const BufferInfo &info) override;
+    virtual bool initialize(const BufferViewInfo &info) override;
     virtual void destroy() override;
     virtual void resize(uint size) override;
     virtual void update(void *buffer, uint offset, uint size) override;

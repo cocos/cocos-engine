@@ -19,7 +19,6 @@ public:
     VkPhysicalDeviceVulkan12Features physicalDeviceVulkan12Features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES};
     VkPhysicalDeviceProperties physicalDeviceProperties{};
     VkPhysicalDeviceProperties2 physicalDeviceProperties2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};
-    VkPhysicalDevicePushDescriptorPropertiesKHR physicalDevicePushDescriptorProperties{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES_KHR};
     VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties{};
     vector<VkQueueFamilyProperties> queueFamilyProperties;
     vector<VkBool32> queueFamilyPresentables;
@@ -28,19 +27,6 @@ public:
 
     VkSwapchainCreateInfoKHR swapchainCreateInfo{VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR};
 };
-
-class CCVKGPUDevice : public Object {
-public:
-    VkDevice vkDevice = VK_NULL_HANDLE;
-    vector<VkLayerProperties> layers;
-    vector<VkExtensionProperties> extensions;
-    VmaAllocator memoryAllocator = VK_NULL_HANDLE;
-
-    bool useDescriptorUpdateTemplate = false;
-    bool usePushDescriptorSet = false;
-    bool useMultiDrawIndirect = false;
-};
-
 class CCVKGPURenderPass : public Object {
 public:
     ColorAttachmentList colorAttachments;
@@ -130,6 +116,13 @@ public:
 };
 typedef vector<CCVKGPUBuffer *> CCVKGPUBufferList;
 
+class CCVKGPUBufferView : public Object {
+public:
+    CCVKGPUBuffer *gpuBuffer = nullptr;
+    uint offset = 0u;
+    uint range = 0u;
+};
+
 class CCVKGPUSwapchain;
 class CCVKGPUFramebuffer : public Object {
 public:
@@ -177,23 +170,15 @@ public:
 };
 
 struct CCVKGPUShaderStage {
-    CCVKGPUShaderStage(ShaderType t, String s, ShaderMacroList m)
-    : type(t), source(s), macros(m) {
+    CCVKGPUShaderStage(ShaderStageFlagBit t, String s)
+    : type(t), source(s) {
     }
-    ShaderType type;
+    ShaderStageFlagBit type;
     String source;
-    ShaderMacroList macros;
     VkShaderModule vkShader = VK_NULL_HANDLE;
 };
 typedef vector<CCVKGPUShaderStage> CCVKGPUShaderStageList;
 
-struct CCVKGPUPipelineLayout {
-    vector<VkDescriptorSetLayout> vkDescriptorSetLayouts;
-    vector<VkDescriptorUpdateTemplate> vkDescriptorUpdateTemplates;
-    VkPipelineLayout vkPipelineLayout = VK_NULL_HANDLE;
-    vector<vector<uint>> descriptorIndices;
-    vector<uint> descriptorCounts;
-};
 class CCVKGPUShader : public Object {
 public:
     String name;
@@ -201,7 +186,6 @@ public:
     UniformBlockList blocks;
     UniformSamplerList samplers;
     CCVKGPUShaderStageList gpuStages;
-    CCVKGPUPipelineLayout *pipelineLayout = nullptr;
 };
 
 class CCVKGPUInputAssembler : public Object {
@@ -214,34 +198,59 @@ public:
     vector<VkDeviceSize> vertexBufferOffsets;
 };
 
-union CCVKGPUDescriptorInfo {
+union CCVKDescriptorInfo {
     VkDescriptorImageInfo image;
     VkDescriptorBufferInfo buffer;
     VkBufferView texelBufferView;
 };
-class CCVKGPUBinding : public Object {
-public:
-    CCVKGPUBuffer *buffer = nullptr;
-    CCVKGPUTextureView *texView = nullptr;
-    CCVKGPUSampler *sampler = nullptr;
+struct CCVKGPUDescriptor {
+    DescriptorType type = DescriptorType::UNKNOWN;
+    CCVKGPUBufferView *gpuBufferView = nullptr;
+    CCVKGPUTextureView *gpuTextureView = nullptr;
+    CCVKGPUSampler *gpuSampler = nullptr;
 };
-class CCVKGPUBindingLayout : public Object {
+typedef vector<CCVKGPUDescriptor> CCVKGPUDescriptorList;
+
+class CCVKGPUDescriptorSet : public Object {
 public:
-    vector<vector<CCVKGPUBinding>> gpuBindings;
-    // contiguous across different sets
-    vector<CCVKGPUDescriptorInfo> descriptorInfos;
+    CCVKGPUDescriptorList gpuDescriptors;
+
+    vector<CCVKDescriptorInfo> descriptorInfos;
     vector<VkWriteDescriptorSet> descriptorUpdateEntries;
+};
 
+class CCVKGPUDescriptorSetLayout : public Object {
+public:
+    DescriptorSetLayoutBindingList bindings;
+    vector<uint> dynamicBindings;
+
+    vector<VkDescriptorSetLayoutBinding> vkBindings;
+    VkDescriptorSetLayout vkDescriptorSetLayout = VK_NULL_HANDLE;
+    vector<uint> descriptorIndices;
+    uint descriptorCount = 0u;
+};
+typedef vector<CCVKGPUDescriptorSetLayout *> CCVKGPUDescriptorSetLayoutList;
+
+class CCVKGPUPipelineLayout : public Object {
+public:
+    CCVKGPUDescriptorSetLayoutList setLayouts;
+    vector<uint> dynamicOffsetOffsets;
+    uint dynamicOffsetCount;
+
+    VkPipelineLayout vkPipelineLayout = VK_NULL_HANDLE;
+    vector<VkDescriptorUpdateTemplate> vkDescriptorUpdateTemplates;
+
+    // helper storage
+    vector<VkDescriptorSetLayout> descriptorSetLayouts;
     vector<VkDescriptorSet> descriptorSets;
-
-    // external references
-    const vector<vector<uint>> *descriptorIndices = nullptr;
+    vector<uint> dynamicOffsets;
 };
 
 class CCVKGPUPipelineState : public Object {
 public:
     PrimitiveMode primitive = PrimitiveMode::TRIANGLE_LIST;
     CCVKGPUShader *gpuShader = nullptr;
+    CCVKGPUPipelineLayout *gpuPipelineLayout = nullptr;
     InputState inputState;
     RasterizerState rs;
     DepthStencilState dss;
@@ -255,6 +264,22 @@ public:
 class CCVKGPUFence : public Object {
 public:
     VkFence vkFence;
+};
+
+class CCVKGPUDevice : public Object {
+public:
+    VkDevice vkDevice = VK_NULL_HANDLE;
+    vector<VkLayerProperties> layers;
+    vector<VkExtensionProperties> extensions;
+    VmaAllocator memoryAllocator = VK_NULL_HANDLE;
+
+    bool useDescriptorUpdateTemplate = false;
+    bool useMultiDrawIndirect = false;
+
+    CCVKGPUBuffer defaultBuffer;
+    CCVKGPUSampler defaultSampler;
+    CCVKGPUTexture defaultTexture;
+    CCVKGPUTextureView defaultTextureView;
 };
 
 /**
@@ -367,7 +392,7 @@ public:
         _counts.clear();
     }
 
-    void alloc(VkDescriptorSetLayout *layouts, VkDescriptorSet *output, uint count) {
+    void alloc(const VkDescriptorSetLayout *layouts, VkDescriptorSet *output, uint count) {
         VkDescriptorSetAllocateInfo info{VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO};
         info.pSetLayouts = layouts;
         info.descriptorSetCount = count;
@@ -444,7 +469,6 @@ public:
 
     void request(CCVKGPUCommandBuffer *gpuCommandBuffer) {
         if (!_pools.count(gpuCommandBuffer->queueFamilyIndex)) {
-            _pools.emplace(std::piecewise_construct, std::forward_as_tuple(gpuCommandBuffer->queueFamilyIndex), std::forward_as_tuple());
             VkCommandPoolCreateInfo createInfo{VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO};
             createInfo.queueFamilyIndex = gpuCommandBuffer->queueFamilyIndex;
             createInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
@@ -568,51 +592,6 @@ private:
 };
 
 /**
- * Pipeline layout pool, reuse if the hash matches.
- * Is more useful when compiling lots of shader variants with the same descriptor set layouts.
- */
-class CCVKGPUPipelineLayoutPool : public Object {
-public:
-    CCVKGPUPipelineLayoutPool(CCVKGPUDevice *device)
-    : _device(device) {
-    }
-
-    ~CCVKGPUPipelineLayoutPool() {
-        for (PipelineLayoutPool::iterator it = _pool.begin(); it != _pool.end(); it++) {
-            CCVKGPUPipelineLayout &pipelineLayout = it->second;
-            for (uint i = 0u; i < pipelineLayout.vkDescriptorUpdateTemplates.size(); i++) {
-                if (pipelineLayout.vkDescriptorUpdateTemplates[i] != VK_NULL_HANDLE) {
-                    vkDestroyDescriptorUpdateTemplateKHR(_device->vkDevice, pipelineLayout.vkDescriptorUpdateTemplates[i], nullptr);
-                }
-            }
-            pipelineLayout.vkDescriptorUpdateTemplates.clear();
-
-            if (pipelineLayout.vkPipelineLayout != VK_NULL_HANDLE) {
-                vkDestroyPipelineLayout(_device->vkDevice, pipelineLayout.vkPipelineLayout, nullptr);
-                pipelineLayout.vkPipelineLayout = VK_NULL_HANDLE;
-            }
-
-            for (uint i = 0u; i < pipelineLayout.vkDescriptorSetLayouts.size(); i++) {
-                if (pipelineLayout.vkDescriptorSetLayouts[i] != VK_NULL_HANDLE) {
-                    vkDestroyDescriptorSetLayout(_device->vkDevice, pipelineLayout.vkDescriptorSetLayouts[i], nullptr);
-                }
-            }
-            pipelineLayout.vkDescriptorSetLayouts.clear();
-        }
-        _pool.clear();
-    }
-
-    void request(CCVKGPUShader *gpuShader);
-
-private:
-    typedef map<uint, CCVKGPUPipelineLayout> PipelineLayoutPool;
-    typedef PipelineLayoutPool::iterator PipelineLayoutPoolIt;
-
-    CCVKGPUDevice *_device;
-    PipelineLayoutPool _pool;
-};
-
-/**
  * Descriptor data maintenance hub, events like buffer/texture resizing,
  * descriptor set binding change, etc. should all request an update operation here.
  */
@@ -623,8 +602,8 @@ public:
     }
 
 #define DEFINE_DESCRIPTOR_HUB_FN(name)                                                                                                  \
-    CC_INLINE void name(const CCVKGPUBuffer *buffer) { name(_buffers, buffer, (VkDescriptorBufferInfo *)nullptr); }                     \
-    CC_INLINE void name(const CCVKGPUBuffer *buffer, VkDescriptorBufferInfo *descriptor) { name(_buffers, buffer, descriptor); }        \
+    CC_INLINE void name(const CCVKGPUBufferView *buffer) { name(_buffers, buffer, (VkDescriptorBufferInfo *)nullptr); }                 \
+    CC_INLINE void name(const CCVKGPUBufferView *buffer, VkDescriptorBufferInfo *descriptor) { name(_buffers, buffer, descriptor); }    \
     CC_INLINE void name(const CCVKGPUTextureView *texture) { name(_textures, texture, (VkDescriptorImageInfo *)nullptr); }              \
     CC_INLINE void name(const CCVKGPUTextureView *texture, VkDescriptorImageInfo *descriptor) { name(_textures, texture, descriptor); } \
     CC_INLINE void name(const CCVKGPUSampler *sampler) { name(_samplers, sampler, (VkDescriptorImageInfo *)nullptr); }                  \
@@ -640,10 +619,10 @@ private:
         map[name].push(descriptor);
     }
 
-    CC_INLINE void _doUpdate(const CCVKGPUBuffer *buffer, VkDescriptorBufferInfo *descriptor) {
-        descriptor->buffer = buffer->vkBuffer;
-        descriptor->offset = buffer->startOffset;
-        descriptor->range = buffer->size;
+    CC_INLINE void _doUpdate(const CCVKGPUBufferView *buffer, VkDescriptorBufferInfo *descriptor) {
+        descriptor->buffer = buffer->gpuBuffer->vkBuffer;
+        descriptor->offset = buffer->gpuBuffer->startOffset + buffer->offset;
+        descriptor->range = buffer->range;
     }
 
     CC_INLINE void _doUpdate(const CCVKGPUTextureView *texture, VkDescriptorImageInfo *descriptor) {
@@ -686,7 +665,7 @@ private:
     }
 
     CCVKGPUDevice *_device = nullptr;
-    map<const CCVKGPUBuffer *, CachedArray<VkDescriptorBufferInfo *>> _buffers;
+    map<const CCVKGPUBufferView *, CachedArray<VkDescriptorBufferInfo *>> _buffers;
     map<const CCVKGPUTextureView *, CachedArray<VkDescriptorImageInfo *>> _textures;
     map<const CCVKGPUSampler *, CachedArray<VkDescriptorImageInfo *>> _samplers;
 }; // namespace gfx
@@ -711,19 +690,35 @@ public:
         res.type = typeValue;                                 \
         expr;                                                 \
     }
-    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUBuffer, ObjectType::BUFFER, (res.buffer = {gpuRes->vkBuffer, gpuRes->vmaAllocation}))
-    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUTexture, ObjectType::TEXTURE, (res.image = {gpuRes->vkImage, gpuRes->vmaAllocation}))
-    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUTextureView, ObjectType::TEXTURE_VIEW, res.vkImageView = gpuRes->vkImageView)
-    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPURenderPass, ObjectType::RENDER_PASS, res.gpuRenderPass = gpuRes)
-    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUFramebuffer, ObjectType::FRAMEBUFFER, res.gpuFramebuffer = gpuRes)
-    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUSampler, ObjectType::SAMPLER, res.gpuSampler = gpuRes)
-    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUShader, ObjectType::SHADER, res.gpuShader = gpuRes)
-    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUPipelineState, ObjectType::PIPELINE_STATE, res.gpuPipelineState = gpuRes)
-    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUFence, ObjectType::FENCE, res.gpuFence = gpuRes)
+    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUBuffer, RecycledType::BUFFER, (res.buffer = {gpuRes->vkBuffer, gpuRes->vmaAllocation}))
+    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUTexture, RecycledType::TEXTURE, (res.image = {gpuRes->vkImage, gpuRes->vmaAllocation}))
+    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUTextureView, RecycledType::TEXTURE_VIEW, res.vkImageView = gpuRes->vkImageView)
+    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPURenderPass, RecycledType::RENDER_PASS, res.gpuRenderPass = gpuRes)
+    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUFramebuffer, RecycledType::FRAMEBUFFER, res.gpuFramebuffer = gpuRes)
+    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUSampler, RecycledType::SAMPLER, res.gpuSampler = gpuRes)
+    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUShader, RecycledType::SHADER, res.gpuShader = gpuRes)
+    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUDescriptorSetLayout, RecycledType::DESCRIPTOR_SET_LAYOUT, res.gpuDescriptorSetLayout = gpuRes)
+    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUPipelineLayout, RecycledType::PIPELINE_LAYOUT, res.gpuPipelineLayout = gpuRes)
+    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUPipelineState, RecycledType::PIPELINE_STATE, res.gpuPipelineState = gpuRes)
+    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUFence, RecycledType::FENCE, res.gpuFence = gpuRes)
 
     void clear();
 
 private:
+    enum class RecycledType : uint8_t {
+        UNKNOWN,
+        BUFFER,
+        TEXTURE,
+        TEXTURE_VIEW,
+        RENDER_PASS,
+        FRAMEBUFFER,
+        SAMPLER,
+        SHADER,
+        DESCRIPTOR_SET_LAYOUT,
+        PIPELINE_LAYOUT,
+        PIPELINE_STATE,
+        FENCE,
+    };
     struct Buffer {
         VkBuffer vkBuffer;
         VmaAllocation vmaAllocation;
@@ -733,7 +728,8 @@ private:
         VmaAllocation vmaAllocation;
     };
     struct Resource {
-        ObjectType type = ObjectType::UNKNOWN;
+        RecycledType type = RecycledType::UNKNOWN;
+        bool isView = false;
         union {
             // resizable resources, cannot take over directly
             // or descriptor sets won't work
@@ -745,6 +741,8 @@ private:
             CCVKGPUFramebuffer *gpuFramebuffer;
             CCVKGPUSampler *gpuSampler;
             CCVKGPUShader *gpuShader;
+            CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout;
+            CCVKGPUPipelineLayout *gpuPipelineLayout;
             CCVKGPUPipelineState *gpuPipelineState;
             CCVKGPUFence *gpuFence;
         };

@@ -64,7 +64,7 @@ endif()
 if(COCOS_PLATFORM_OSX)
   list(REMOVE_ITEM ALL_FILES "${COCOS_SRC_PATH}/renderer/gfx-gles2/GLES2Context.mm")
 endif()
-	
+
 add_definitions("-DCC_GLES2_EXPORTS")
 if(WIN32)
 	add_definitions("-DGLEW_BUILD")
@@ -87,4 +87,4 @@ set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME_DEBUG CCGFXGLES2_d)
 
 use_precompiled_header("${CMAKE_CURRENT_SOURCE_DIR}/GLES2Std.h" "${CMAKE_CURRENT_SOURCE_DIR}/GLES2Std.cpp" SOURCE_CPP_FILES)
 
-message(STATUS "${TARGET_NAME} configuration completed.") 
+message(STATUS "${TARGET_NAME} configuration completed.")

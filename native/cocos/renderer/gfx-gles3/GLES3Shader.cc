@@ -24,7 +24,7 @@ bool GLES3Shader::initialize(const ShaderInfo &info) {
     _gpuShader->blocks = _blocks;
     _gpuShader->samplers = _samplers;
     for (const auto &stage : _stages) {
-        GLES3GPUShaderStage gpuShaderStage = {stage.type, stage.source, stage.macros, 0};
+        GLES3GPUShaderStage gpuShaderStage = {stage.stage, stage.source};
         _gpuShader->gpuStages.emplace_back(std::move(gpuShaderStage));
     }
 

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "MemTracker.h"
-#include "MemDef.h"
-#include "StlAlloc.h"
 #include "AllocatedObj.h"
+#include "MemDef.h"
+#include "MemTracker.h"
+#include "StlAlloc.h"
 
 // Global Interface Definitions
 
@@ -12,6 +12,16 @@
 #undef CC_SAFE_DELETE
 #undef CC_SAFE_DELETE_ARRAY
 #undef CC_SAFE_FREE
+
+#define CC_THROW_IF_OOM(ptr)                       \
+    if (!ptr) {                                    \
+        throw std::runtime_error("out of memory"); \
+    }
+
+#define CC_RETURN_IF_OOM(ptr, ret) \
+    if (!ptr) {                    \
+        return ret;                \
+    }
 
 #define CC_NEW(T)              _CC_NEW T
 #define CC_NEW_ARRAY(T, count) _CC_NEW T[count]
@@ -105,8 +115,8 @@
 
 #if 0
     #if (CC_PLATFORM == CC_PLATFORM_WINDOWS) && (CC_MODE == CC_MODE_DEBUG)
-CC_CORE_API void* BareNewErroneouslyCalled(size_t sz);
-CC_INLINE void* operator new(size_t sz) { return BareNewErroneouslyCalled(sz); }
-CC_INLINE void operator delete(void* ptr) throw() { free(ptr); }
+CC_CORE_API void *BareNewErroneouslyCalled(size_t sz);
+CC_INLINE void *operator new(size_t sz) { return BareNewErroneouslyCalled(sz); }
+CC_INLINE void operator delete(void *ptr) throw() { free(ptr); }
     #endif
 #endif

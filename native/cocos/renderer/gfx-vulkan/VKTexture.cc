@@ -91,7 +91,7 @@ bool CCVKTexture::initialize(const TextureInfo &info) {
 }
 
 bool CCVKTexture::initialize(const TextureViewInfo &info) {
-    _Type = ObjectType::TEXTURE_VIEW;
+    _isTextureView = true;
 
     if (!info.texture) {
         _status = Status::FAILED;
@@ -140,9 +140,11 @@ void CCVKTexture::destroy() {
     }
 
     if (_gpuTexture) {
-        ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuTexture);
-        _device->getMemoryStatus().textureSize -= _size;
-        CC_DELETE(_gpuTexture);
+        if (!_isTextureView) {
+            ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuTexture);
+            _device->getMemoryStatus().textureSize -= _size;
+            CC_DELETE(_gpuTexture);
+        }
         _gpuTexture = nullptr;
     }
 
@@ -155,6 +157,8 @@ void CCVKTexture::destroy() {
 }
 
 void CCVKTexture::resize(uint width, uint height) {
+    CCASSERT(!_isTextureView, "Cannot resize texture views");
+    
     uint size = FormatSize(_format, width, height, _depth);
     if (_size != size) {
         const uint old_size = _size;

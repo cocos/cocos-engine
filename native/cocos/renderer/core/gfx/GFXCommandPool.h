@@ -51,19 +51,19 @@ public:
 
         T *cmd = _frees[_freeIdx];
         _frees[_freeIdx--] = nullptr;
-        ++cmd->ref_count;
+        ++cmd->refCount;
         return cmd;
     }
 
     void free(T *cmd) {
-        if (--cmd->ref_count == 0) {
+        if (--cmd->refCount == 0) {
             _freeCmds.push(cmd);
         }
     }
 
     void freeCmds(CachedArray<T *> &cmds) {
         for (uint i = 0; i < cmds.size(); ++i) {
-            if (--cmds[i]->ref_count == 0) {
+            if (--cmds[i]->refCount == 0) {
                 _freeCmds.push(cmds[i]);
             }
         }

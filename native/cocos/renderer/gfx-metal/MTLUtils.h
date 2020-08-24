@@ -39,7 +39,7 @@ MTLSamplerAddressMode toMTLSamplerAddressMode(Address);
 MTLSamplerBorderColor toMTLSamplerBorderColor(const Color &);
 MTLSamplerMinMagFilter toMTLSamplerMinMagFilter(Filter);
 MTLSamplerMipFilter toMTLSamplerMipFilter(Filter);
-String compileGLSLShader2Msl(const String &src, ShaderType shaderType, Device* device, unordered_map<uint, uint> &samplerBindings);
+String compileGLSLShader2Msl(const String &src, ShaderStageFlagBit shaderType, Device *device, unordered_map<uint, uint> &samplerBindings);
 const uint8_t *convertRGB8ToRGBA8(const uint8_t *source, uint length);
 const uint8_t *convertRGB32FToRGBA32F(const uint8_t *source, uint length);
 NSUInteger highestSupportedFeatureSet(id<MTLDevice> device);

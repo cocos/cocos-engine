@@ -12,8 +12,10 @@ class Shader;
 class InputAssembler;
 class RenderPass;
 class Framebuffer;
-class BindingLayout;
+class DescriptorSetLayout;
+class PipelineLayout;
 class PipelineState;
+class DescriptorSet;
 class CommandAllocator;
 class CommandBuffer;
 class Fence;
@@ -32,13 +34,14 @@ enum class ObjectType : uint8_t {
     UNKNOWN,
     BUFFER,
     TEXTURE,
-    TEXTURE_VIEW,
     RENDER_PASS,
     FRAMEBUFFER,
     SAMPLER,
     SHADER,
+    DESCRIPTOR_SET_LAYOUT,
+    PIPELINE_LAYOUT,
     PIPELINE_STATE,
-    BINDING_LAYOUT,
+    DESCRIPTOR_SET,
     INPUT_ASSEMBLER,
     COMMAND_BUFFER,
     FENCE,
@@ -415,7 +418,7 @@ enum class ColorMask : uint8_t {
 };
 CC_ENUM_OPERATORS(ColorMask);
 
-enum class ShaderType : uint8_t {
+enum class ShaderStageFlagBit : uint8_t {
     NONE = 0x0,
     VERTEX = 0x1,
     CONTROL = 0x2,
@@ -425,7 +428,8 @@ enum class ShaderType : uint8_t {
     COMPUTE = 0x20,
     ALL = 0x3f,
 };
-CC_ENUM_OPERATORS(ShaderType);
+typedef ShaderStageFlagBit ShaderStageFlags;
+CC_ENUM_OPERATORS(ShaderStageFlagBit);
 
 enum class LoadOp : uint8_t {
     LOAD,    // Load the contents from the fbo from previous
@@ -513,11 +517,13 @@ enum class StencilFace : uint8_t {
     ALL,
 };
 
-enum class BindingType : uint8_t {
-    UNKNOWN,
-    UNIFORM_BUFFER,
-    SAMPLER,
-    STORAGE_BUFFER,
+enum class DescriptorType : uint8_t {
+    UNKNOWN = 0,
+    UNIFORM_BUFFER = 0x1,
+    DYNAMIC_UNIFORM_BUFFER = 0x2,
+    STORAGE_BUFFER = 0x4,
+    DYNAMIC_STORAGE_BUFFER = 0x8,
+    SAMPLER = 0x10,
 };
 
 enum class QueueType : uint8_t {
@@ -647,6 +653,22 @@ struct Color {
 #pragma pack(pop)
 typedef vector<Color> ColorList;
 
+/**
+ * For non-vulkan backends, to maintain compatibility and maximize
+ * descriptor cache-locality, descriptor-set-based binding numbers need
+ * to be mapped to backend-specific bindings based on maximum limit
+ * of available descriptor slots in each set.
+ *
+ * Because the binding numbers are guaranteed to be consecutive for each
+ * descriptor type inside each set, the mapping procedure can be reduced
+ * to a simple shifting operation. This data structure specifies the
+ * exact offsets for each descriptor type in each set.
+ */
+struct BindingMappingInfo {
+    vector<uint> bufferOffsets;
+    vector<uint> samplerOffsets;
+};
+
 struct DeviceInfo {
     uintptr_t windowHandle = 0;
     uint width = 0;
@@ -654,6 +676,7 @@ struct DeviceInfo {
     uint nativeWidth = 0;
     uint nativeHeight = 0;
     Context *sharedCtx = nullptr;
+    BindingMappingInfo bindingMappingInfo;
 };
 
 struct WindowInfo {
@@ -683,6 +706,12 @@ struct BufferInfo {
     uint stride = 1;
     uint size = 0;
     BufferFlags flags = BufferFlagBit::NONE;
+};
+
+struct BufferViewInfo {
+    Buffer *buffer = nullptr;
+    uint offset = 0u;
+    uint range = 0u;
 };
 
 #pragma pack(push, 1)
@@ -758,16 +787,17 @@ struct Uniform {
 typedef vector<Uniform> UniformList;
 
 struct UniformBlock {
-    ShaderType shaderStages = ShaderType::NONE;
+    uint set = 0;
     uint binding = 0;
     String name;
-    UniformList uniforms;
+    UniformList members;
+    uint count = 0;
 };
 
 typedef vector<UniformBlock> UniformBlockList;
 
 struct UniformSampler {
-    ShaderType shaderStages = ShaderType::NONE;
+    uint set = 0;
     uint binding = 0;
     String name;
     Type type = Type::UNKNOWN;
@@ -777,9 +807,8 @@ struct UniformSampler {
 typedef vector<UniformSampler> UniformSamplerList;
 
 struct ShaderStage {
-    ShaderType type;
+    ShaderStageFlagBit stage;
     String source;
-    ShaderMacroList macros;
 };
 
 typedef vector<ShaderStage> ShaderStageList;
@@ -857,32 +886,41 @@ struct RenderPassInfo {
     SubPassList subPasses;
 };
 
+typedef vector<Buffer *> BufferList;
 typedef vector<Texture *> TextureList;
+typedef vector<Sampler *> SamplerList;
 
 struct FramebufferInfo {
     RenderPass *renderPass = nullptr;
     TextureList colorTextures;
-    vector<int> colorMipmapLevels;
+    vector<uint> colorMipmapLevels;
     Texture *depthStencilTexture = nullptr;
-    int depthStencilMipmapLevel = 0;
+    uint depthStencilMipmapLevel = 0;
 };
 
-struct BindingLayoutInfo {
-    Shader *shader = nullptr;
+struct DescriptorSetLayoutBinding {
+    DescriptorType descriptorType;
+    uint count;
+    ShaderStageFlagBit stageFlags;
+    SamplerList immutableSamplers;
+};
+typedef vector<DescriptorSetLayoutBinding> DescriptorSetLayoutBindingList;
+
+struct DescriptorSetLayoutInfo {
+    // array index is used as the binding numbers,
+    // i.e. they should be strictly consecutive and start from 0
+    DescriptorSetLayoutBindingList bindings;
 };
 
-struct BindingUnit {
-    ShaderType shaderStages = ShaderType::NONE;
-    uint binding = 0;
-    BindingType type = BindingType::UNKNOWN;
-    String name;
-    uint count = 0;
-    Buffer *buffer = nullptr;
-    Texture *texture = nullptr;
-    Sampler *sampler = nullptr;
+struct DescriptorSetInfo {
+    DescriptorSetLayout *layout = nullptr;
 };
 
-typedef vector<BindingUnit> BindingUnitList;
+typedef vector<DescriptorSetLayout *> DescriptorSetLayoutList;
+
+struct PipelineLayoutInfo {
+    DescriptorSetLayoutList setLayouts;
+};
 
 struct InputState {
     AttributeList attributes;
@@ -958,6 +996,7 @@ struct PipelineStateInfo {
     BlendState blendState;
     DynamicStateFlags dynamicStates = DynamicStateFlagBit::NONE;
     RenderPass *renderPass = nullptr;
+    PipelineLayout *pipelineLayout = nullptr;
 };
 
 struct CommandBufferInfo {
@@ -983,6 +1022,10 @@ struct FormatInfo {
     bool hasStencil = false;
     bool isCompressed = false;
 };
+
+extern CC_DLL const uint DESCRIPTOR_BUFFER_TYPE;
+extern CC_DLL const uint DESCRIPTOR_SAMPLER_TYPE;
+extern CC_DLL const uint DESCRIPTOR_DYNAMIC_TYPE;
 
 extern CC_DLL const FormatInfo GFX_FORMAT_INFOS[];
 extern CC_DLL const uint GFX_TYPE_SIZES[];

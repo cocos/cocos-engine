@@ -2,6 +2,7 @@
 
 #include "VKCommands.h"
 #include "VKDevice.h"
+#include "VKPipelineLayout.h"
 #include "VKPipelineState.h"
 #include "VKRenderPass.h"
 #include "VKShader.h"
@@ -25,6 +26,7 @@ bool CCVKPipelineState::initialize(const PipelineStateInfo &info) {
     _blendState = info.blendState;
     _dynamicStates = info.dynamicStates;
     _renderPass = info.renderPass;
+    _pipelineLayout = info.pipelineLayout;
 
     _gpuPipelineState = CC_NEW(CCVKGPUPipelineState);
     _gpuPipelineState->primitive = _primitive;
@@ -34,6 +36,7 @@ bool CCVKPipelineState::initialize(const PipelineStateInfo &info) {
     _gpuPipelineState->dss = _depthStencilState;
     _gpuPipelineState->bs = _blendState;
     _gpuPipelineState->gpuRenderPass = ((CCVKRenderPass *)_renderPass)->gpuRenderPass();
+    _gpuPipelineState->gpuPipelineLayout = ((CCVKPipelineLayout *)_pipelineLayout)->gpuPipelineLayout();
 
     for (uint i = 0; i < 31; i++) {
         if ((uint)_dynamicStates & (1 << i)) {

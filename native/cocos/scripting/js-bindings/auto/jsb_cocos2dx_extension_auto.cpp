@@ -801,7 +801,7 @@ static bool js_extension_AssetsManagerEx_loadLocalManifest(se::State& s)
     do {
         if (argc == 1) {
             std::string arg0;
-            ok &= seval_to_std_string(args[0], &arg0);
+            ok &= seval_to_std_string(args[0], &arg0);            
             if (!ok) { ok = true; break; }
             bool result = cobj->loadLocalManifest(arg0);
             ok &= boolean_to_seval(result, &s.rval());
@@ -813,10 +813,10 @@ static bool js_extension_AssetsManagerEx_loadLocalManifest(se::State& s)
     do {
         if (argc == 2) {
             cc::extension::Manifest* arg0 = nullptr;
-            ok &= seval_to_native_ptr(args[0], &arg0);
+            ok &= seval_to_native_ptr(args[0], &arg0);            
             if (!ok) { ok = true; break; }
             std::string arg1;
-            ok &= seval_to_std_string(args[1], &arg1);
+            ok &= seval_to_std_string(args[1], &arg1);            
             if (!ok) { ok = true; break; }
             bool result = cobj->loadLocalManifest(arg0, arg1);
             ok &= boolean_to_seval(result, &s.rval());

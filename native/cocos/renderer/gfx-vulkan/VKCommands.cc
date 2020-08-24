@@ -175,8 +175,6 @@ void CCVKCmdFuncCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
 
     gpuBuffer->mappedData = (uint8_t *)res.pMappedData;
     gpuBuffer->startOffset = 0; // we are creating one VkBuffer each for now
-
-    device->gpuDescriptorHub()->update(gpuBuffer);
 }
 
 void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRenderPass) {
@@ -316,106 +314,6 @@ void CCVKCmdFuncCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFra
     }
 }
 
-void CCVKGPUPipelineLayoutPool::request(CCVKGPUShader *gpuShader) {
-    const UniformBlockList &blocks = gpuShader->blocks;
-    const UniformSamplerList &samplers = gpuShader->samplers;
-    const uint bindingCount = blocks.size() + samplers.size();
-
-    uint seed = bindingCount;
-    for (size_t i = 0u; i < blocks.size(); i++) {
-        const UniformBlock &block = blocks[i];
-        uint hash = block.binding | ((uint)block.shaderStages << 16);
-        seed ^= hash + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    }
-    for (size_t i = 0u; i < samplers.size(); i++) {
-        const UniformSampler sampler = samplers[i];
-        uint hash = sampler.binding | ((uint)sampler.shaderStages << 16) | (sampler.count << 22);
-        seed ^= hash + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    }
-
-    if (_pool.count(seed)) {
-        gpuShader->pipelineLayout = &_pool[seed];
-        return;
-    }
-
-    _pool.emplace(std::piecewise_construct, std::forward_as_tuple(seed), std::forward_as_tuple());
-
-    CCVKGPUPipelineLayout &pipelineLayout = _pool[seed];
-
-    pipelineLayout.vkDescriptorSetLayouts.resize(1);
-    pipelineLayout.descriptorCounts.resize(1);
-    pipelineLayout.descriptorIndices.resize(1);
-    pipelineLayout.descriptorIndices[0].resize(bindingCount);
-
-    vector<VkDescriptorSetLayoutBinding> setBindings(bindingCount);
-    for (size_t i = 0u; i < blocks.size(); i++) {
-        const UniformBlock &binding = blocks[i];
-        VkDescriptorSetLayoutBinding &setBinding = setBindings[i];
-        setBinding.stageFlags = MapVkShaderStageFlags(binding.shaderStages);
-        setBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        setBinding.binding = binding.binding;
-        setBinding.descriptorCount = 1; // the effect compiler guarantees this to be non-array
-        pipelineLayout.descriptorIndices[0][i] = i;
-    }
-    uint descriptorCount = blocks.size();
-    for (size_t i = 0u; i < samplers.size(); i++) {
-        const UniformSampler &binding = samplers[i];
-        VkDescriptorSetLayoutBinding &setBinding = setBindings[blocks.size() + i];
-        setBinding.stageFlags = MapVkShaderStageFlags(binding.shaderStages);
-        setBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        setBinding.binding = binding.binding;
-        setBinding.descriptorCount = binding.count;
-        pipelineLayout.descriptorIndices[0][blocks.size() + i] = descriptorCount;
-        descriptorCount += binding.count;
-    }
-    pipelineLayout.descriptorCounts[0] = descriptorCount;
-
-    VkDescriptorSetLayoutCreateInfo setCreateInfo{VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO};
-    if (_device->usePushDescriptorSet) setCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR;
-    setCreateInfo.bindingCount = bindingCount;
-    setCreateInfo.pBindings = setBindings.data();
-    VK_CHECK(vkCreateDescriptorSetLayout(_device->vkDevice, &setCreateInfo, nullptr, &pipelineLayout.vkDescriptorSetLayouts[0]));
-
-    VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO};
-    pipelineLayoutCreateInfo.setLayoutCount = pipelineLayout.vkDescriptorSetLayouts.size();
-    pipelineLayoutCreateInfo.pSetLayouts = pipelineLayout.vkDescriptorSetLayouts.data();
-    VK_CHECK(vkCreatePipelineLayout(_device->vkDevice, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout.vkPipelineLayout));
-
-    if (_device->useDescriptorUpdateTemplate) {
-        pipelineLayout.vkDescriptorUpdateTemplates.resize(1);
-
-        vector<VkDescriptorUpdateTemplateEntry> entries(bindingCount);
-        for (size_t i = 0u, j = 0u; i < bindingCount; i++) {
-            VkDescriptorSetLayoutBinding &binding = setBindings[i];
-            if (binding.descriptorType != VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT) {
-                entries[i].dstBinding = binding.binding;
-                entries[i].dstArrayElement = 0;
-                entries[i].descriptorCount = binding.descriptorCount;
-                entries[i].descriptorType = binding.descriptorType;
-                entries[i].offset = sizeof(CCVKGPUDescriptorInfo) * j;
-                entries[i].stride = sizeof(CCVKGPUDescriptorInfo);
-                j += binding.descriptorCount;
-            } // TODO: inline UBOs
-        }
-
-        VkDescriptorUpdateTemplateCreateInfo createInfo = {VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO};
-        createInfo.descriptorUpdateEntryCount = bindingCount;
-        createInfo.pDescriptorUpdateEntries = entries.data();
-        if (_device->usePushDescriptorSet) {
-            createInfo.templateType = VK_DESCRIPTOR_UPDATE_TEMPLATE_TYPE_PUSH_DESCRIPTORS_KHR;
-            createInfo.descriptorSetLayout = VK_NULL_HANDLE;
-        } else {
-            createInfo.templateType = VK_DESCRIPTOR_UPDATE_TEMPLATE_TYPE_DESCRIPTOR_SET;
-            createInfo.descriptorSetLayout = pipelineLayout.vkDescriptorSetLayouts[0];
-        }
-        createInfo.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-        createInfo.pipelineLayout = pipelineLayout.vkPipelineLayout;
-        VK_CHECK(vkCreateDescriptorUpdateTemplateKHR(_device->vkDevice, &createInfo, nullptr, &pipelineLayout.vkDescriptorUpdateTemplates[0]));
-    }
-
-    gpuShader->pipelineLayout = &pipelineLayout;
-}
-
 void CCVKCmdFuncCreateShader(CCVKDevice *device, CCVKGPUShader *gpuShader) {
     for (CCVKGPUShaderStage &stage : gpuShader->gpuStages) {
         vector<unsigned int> spirv = GLSL2SPIRV(stage.type, "#version 450\n" + stage.source, ((CCVKContext *)device->getContext())->minorVersion());
@@ -425,8 +323,81 @@ void CCVKCmdFuncCreateShader(CCVKDevice *device, CCVKGPUShader *gpuShader) {
         VK_CHECK(vkCreateShaderModule(device->gpuDevice()->vkDevice, &createInfo, nullptr, &stage.vkShader));
     }
     CC_LOG_INFO("Shader '%s' compilation succeeded.", gpuShader->name.c_str());
+}
 
-    device->gpuPipelineLayoutPool()->request(gpuShader);
+void CCVKCmdFuncCreateDescriptorSetLayout(CCVKDevice *device, CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout) {
+    CCVKGPUDevice *gpuDevice = device->gpuDevice();
+    size_t bindingCount = gpuDescriptorSetLayout->bindings.size();
+
+    uint descriptorCount = 0u;
+    gpuDescriptorSetLayout->vkBindings.resize(bindingCount);
+    gpuDescriptorSetLayout->descriptorIndices.resize(bindingCount);
+    for (size_t i = 0u; i < bindingCount; i++) {
+        const DescriptorSetLayoutBinding &binding = gpuDescriptorSetLayout->bindings[i];
+        VkDescriptorSetLayoutBinding &vkBinding = gpuDescriptorSetLayout->vkBindings[i];
+        vkBinding.stageFlags = MapVkShaderStageFlags(binding.stageFlags);
+        vkBinding.descriptorType = MapVkDescriptorType(binding.descriptorType);
+        vkBinding.binding = i;
+        vkBinding.descriptorCount = binding.count;
+        gpuDescriptorSetLayout->descriptorIndices[i] = descriptorCount;
+        descriptorCount += binding.count;
+    }
+    gpuDescriptorSetLayout->descriptorCount = descriptorCount;
+
+    VkDescriptorSetLayoutCreateInfo setCreateInfo{VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO};
+    setCreateInfo.bindingCount = bindingCount;
+    setCreateInfo.pBindings = gpuDescriptorSetLayout->vkBindings.data();
+    VK_CHECK(vkCreateDescriptorSetLayout(gpuDevice->vkDevice, &setCreateInfo, nullptr, &gpuDescriptorSetLayout->vkDescriptorSetLayout));
+}
+
+void CCVKCmdFuncCreatePipelineLayout(CCVKDevice *device, CCVKGPUPipelineLayout *gpuPipelineLayout) {
+    CCVKGPUDevice *gpuDevice = device->gpuDevice();
+    size_t layoutCount = gpuPipelineLayout->setLayouts.size();
+
+    gpuPipelineLayout->descriptorSets.resize(layoutCount);
+    gpuPipelineLayout->descriptorSetLayouts.resize(layoutCount);
+    for (uint i = 0; i < layoutCount; i++) {
+        gpuPipelineLayout->descriptorSetLayouts[i] = gpuPipelineLayout->setLayouts[i]->vkDescriptorSetLayout;
+    }
+
+
+    VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO};
+    pipelineLayoutCreateInfo.setLayoutCount = layoutCount;
+    pipelineLayoutCreateInfo.pSetLayouts = gpuPipelineLayout->descriptorSetLayouts.data();
+    VK_CHECK(vkCreatePipelineLayout(gpuDevice->vkDevice, &pipelineLayoutCreateInfo, nullptr, &gpuPipelineLayout->vkPipelineLayout));
+
+    if (gpuDevice->useDescriptorUpdateTemplate) {
+        gpuPipelineLayout->vkDescriptorUpdateTemplates.resize(layoutCount);
+
+        for (uint i = 0; i < layoutCount; i++) {
+            const vector<VkDescriptorSetLayoutBinding> &bindings = gpuPipelineLayout->setLayouts[i]->vkBindings;
+            uint bindingCount = bindings.size();
+            if (!bindingCount) continue;
+
+            vector<VkDescriptorUpdateTemplateEntry> entries(bindingCount);
+            for (size_t j = 0u, k = 0u; j < bindingCount; j++) {
+                const VkDescriptorSetLayoutBinding &binding = bindings[j];
+                if (binding.descriptorType != VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT) {
+                    entries[j].dstBinding = binding.binding;
+                    entries[j].dstArrayElement = 0;
+                    entries[j].descriptorCount = binding.descriptorCount;
+                    entries[j].descriptorType = binding.descriptorType;
+                    entries[j].offset = sizeof(CCVKDescriptorInfo) * k;
+                    entries[j].stride = sizeof(CCVKDescriptorInfo);
+                    k += binding.descriptorCount;
+                } // TODO: inline UBOs
+            }
+
+            VkDescriptorUpdateTemplateCreateInfo createInfo = {VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO};
+            createInfo.descriptorUpdateEntryCount = bindingCount;
+            createInfo.pDescriptorUpdateEntries = entries.data();
+            createInfo.templateType = VK_DESCRIPTOR_UPDATE_TEMPLATE_TYPE_DESCRIPTOR_SET;
+            createInfo.descriptorSetLayout = gpuPipelineLayout->setLayouts[i]->vkDescriptorSetLayout;
+            createInfo.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+            createInfo.pipelineLayout = gpuPipelineLayout->vkPipelineLayout;
+            VK_CHECK(vkCreateDescriptorUpdateTemplateKHR(gpuDevice->vkDevice, &createInfo, nullptr, &gpuPipelineLayout->vkDescriptorUpdateTemplates[i]));
+        }
+    }
 }
 
 void CCVKCmdFuncCreatePipelineState(CCVKDevice *device, CCVKGPUPipelineState *gpuPipelineState) {
@@ -488,7 +459,7 @@ void CCVKCmdFuncCreatePipelineState(CCVKDevice *device, CCVKGPUPipelineState *gp
                 break;
             }
         }
-        if (!attributeFound) { //handle absent attribute
+        if (!attributeFound) { // handle absent attribute
             attributeDescriptions[i].location = shaderAttrs[i].location;
             attributeDescriptions[i].format = MapVkFormat(shaderAttrs[i].format);
             attributeDescriptions[i].offset = 0; // reuse the first attribute as dummy data
@@ -613,7 +584,7 @@ void CCVKCmdFuncCreatePipelineState(CCVKDevice *device, CCVKGPUPipelineState *gp
 
     ///////////////////// References /////////////////////
 
-    createInfo.layout = gpuPipelineState->gpuShader->pipelineLayout->vkPipelineLayout;
+    createInfo.layout = gpuPipelineState->gpuPipelineLayout->vkPipelineLayout;
     createInfo.renderPass = gpuPipelineState->gpuRenderPass->vkRenderPass;
 
     ///////////////////// Creation /////////////////////
@@ -682,7 +653,7 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, void 
     }
 }
 
-void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, const BufferDataList &buffers, CCVKGPUTexture *gpuTexture, const BufferTextureCopyList &regions) {
+void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *buffers, CCVKGPUTexture *gpuTexture, const BufferTextureCopy *regions, uint count) {
     device->gpuTransportHub()->checkIn([&](VkCommandBuffer cmdBuff) {
         //bool isCompressed = GFX_FORMAT_INFOS[(int)gpuTexture->format].isCompressed;
 
@@ -701,9 +672,9 @@ void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, const BufferDataList &b
         vkCmdPipelineBarrier(cmdBuff, gpuTexture->targetStage, VK_PIPELINE_STAGE_TRANSFER_BIT,
                              VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1, barriers);
 
-        uint regionCount = regions.size(), totalSize = 0u;
-        vector<uint> regionSizes(regionCount);
-        for (size_t i = 0u; i < regionCount; ++i) {
+        uint totalSize = 0u;
+        vector<uint> regionSizes(count);
+        for (size_t i = 0u; i < count; ++i) {
             const BufferTextureCopy &region = regions[i];
             uint w = region.buffStride > 0 ? region.buffStride : region.texExtent.width;
             uint h = region.buffTexHeight > 0 ? region.buffTexHeight : region.texExtent.height;
@@ -715,9 +686,9 @@ void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, const BufferDataList &b
         uint texelSize = GFX_FORMAT_INFOS[(uint)gpuTexture->format].size;
         device->gpuStagingBufferPool()->alloc(&stagingBuffer, texelSize);
 
-        vector<VkBufferImageCopy> stagingRegions(regionCount);
+        vector<VkBufferImageCopy> stagingRegions(count);
         VkDeviceSize offset = 0;
-        for (size_t i = 0u; i < regionCount; ++i) {
+        for (size_t i = 0u; i < count; ++i) {
             const BufferTextureCopy &region = regions[i];
             VkBufferImageCopy &stagingRegion = stagingRegions[i];
             stagingRegion.bufferOffset = stagingBuffer.startOffset + offset;
@@ -831,7 +802,6 @@ void CCVKCmdFuncDestroyShader(CCVKGPUDevice *gpuDevice, CCVKGPUShader *gpuShader
         vkDestroyShaderModule(gpuDevice->vkDevice, stage.vkShader, nullptr);
         stage.vkShader = VK_NULL_HANDLE;
     }
-    gpuShader->pipelineLayout = nullptr;
 }
 
 void CCVKCmdFuncDestroyFramebuffer(CCVKGPUDevice *gpuDevice, CCVKGPUFramebuffer *gpuFramebuffer) {
@@ -853,6 +823,27 @@ void CCVKCmdFuncDestroyFramebuffer(CCVKGPUDevice *gpuDevice, CCVKGPUFramebuffer 
     }
 }
 
+void CCVKCmdFuncDestroyDescriptorSetLayout(CCVKGPUDevice *gpuDevice, CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout) {
+    if (gpuDescriptorSetLayout->vkDescriptorSetLayout != VK_NULL_HANDLE) {
+        vkDestroyDescriptorSetLayout(gpuDevice->vkDevice, gpuDescriptorSetLayout->vkDescriptorSetLayout, nullptr);
+        gpuDescriptorSetLayout->vkDescriptorSetLayout = VK_NULL_HANDLE;
+    }
+}
+
+void CCVKCmdFuncDestroyPipelineLayout(CCVKGPUDevice *gpuDevice, CCVKGPUPipelineLayout *gpuPipelineLayout) {
+    for (VkDescriptorUpdateTemplate updateTemplate : gpuPipelineLayout->vkDescriptorUpdateTemplates) {
+        if (updateTemplate != VK_NULL_HANDLE) {
+            vkDestroyDescriptorUpdateTemplateKHR(gpuDevice->vkDevice, updateTemplate, nullptr);
+        }
+    }
+    gpuPipelineLayout->vkDescriptorUpdateTemplates.clear();
+
+    if (gpuPipelineLayout->vkPipelineLayout != VK_NULL_HANDLE) {
+        vkDestroyPipelineLayout(gpuDevice->vkDevice, gpuPipelineLayout->vkPipelineLayout, nullptr);
+        gpuPipelineLayout->vkPipelineLayout = VK_NULL_HANDLE;
+    }
+}
+
 void CCVKCmdFuncDestroyPipelineState(CCVKGPUDevice *gpuDevice, CCVKGPUPipelineState *gpuPipelineState) {
     if (gpuPipelineState->vkPipeline != VK_NULL_HANDLE) {
         vkDestroyPipeline(gpuDevice->vkDevice, gpuPipelineState->vkPipeline, nullptr);
@@ -871,62 +862,76 @@ void CCVKGPURecycleBin::clear() {
     for (uint i = 0u; i < _count; i++) {
         Resource &res = _resources[i];
         switch (res.type) {
-            case ObjectType::BUFFER:
+            case RecycledType::BUFFER:
                 if (res.buffer.vkBuffer) {
                     vmaDestroyBuffer(_device->memoryAllocator, res.buffer.vkBuffer, res.buffer.vmaAllocation);
                     res.buffer.vkBuffer = VK_NULL_HANDLE;
                     res.buffer.vmaAllocation = VK_NULL_HANDLE;
                 }
                 break;
-            case ObjectType::TEXTURE:
+            case RecycledType::TEXTURE:
                 if (res.image.vkImage) {
                     vmaDestroyImage(_device->memoryAllocator, res.image.vkImage, res.image.vmaAllocation);
                     res.image.vkImage = VK_NULL_HANDLE;
                     res.image.vmaAllocation = VK_NULL_HANDLE;
                 }
                 break;
-            case ObjectType::TEXTURE_VIEW:
+            case RecycledType::TEXTURE_VIEW:
                 if (res.vkImageView) {
                     vkDestroyImageView(_device->vkDevice, res.vkImageView, nullptr);
                     res.vkImageView = VK_NULL_HANDLE;
                 }
                 break;
-            case ObjectType::RENDER_PASS:
+            case RecycledType::RENDER_PASS:
                 if (res.gpuRenderPass) {
                     CCVKCmdFuncDestroyRenderPass(_device, res.gpuRenderPass);
                     CC_DELETE(res.gpuRenderPass);
                     res.gpuRenderPass = nullptr;
                 }
                 break;
-            case ObjectType::FRAMEBUFFER:
+            case RecycledType::FRAMEBUFFER:
                 if (res.gpuFramebuffer) {
                     CCVKCmdFuncDestroyFramebuffer(_device, res.gpuFramebuffer);
                     CC_DELETE(res.gpuFramebuffer);
                     res.gpuFramebuffer = nullptr;
                 }
                 break;
-            case ObjectType::SAMPLER:
+            case RecycledType::SAMPLER:
                 if (res.gpuSampler) {
                     CCVKCmdFuncDestroySampler(_device, res.gpuSampler);
                     CC_DELETE(res.gpuSampler);
                     res.gpuSampler = nullptr;
                 }
                 break;
-            case ObjectType::SHADER:
+            case RecycledType::SHADER:
                 if (res.gpuShader) {
                     CCVKCmdFuncDestroyShader(_device, res.gpuShader);
                     CC_DELETE(res.gpuShader);
                     res.gpuShader = nullptr;
                 }
                 break;
-            case ObjectType::PIPELINE_STATE:
+            case RecycledType::DESCRIPTOR_SET_LAYOUT:
+                if (res.gpuDescriptorSetLayout) {
+                    CCVKCmdFuncDestroyDescriptorSetLayout(_device, res.gpuDescriptorSetLayout);
+                    CC_DELETE(res.gpuDescriptorSetLayout);
+                    res.gpuDescriptorSetLayout = nullptr;
+                }
+                break;
+            case RecycledType::PIPELINE_LAYOUT:
+                if (res.gpuPipelineLayout) {
+                    CCVKCmdFuncDestroyPipelineLayout(_device, res.gpuPipelineLayout);
+                    CC_DELETE(res.gpuPipelineLayout);
+                    res.gpuPipelineLayout = nullptr;
+                }
+                break;
+            case RecycledType::PIPELINE_STATE:
                 if (res.gpuPipelineState) {
                     CCVKCmdFuncDestroyPipelineState(_device, res.gpuPipelineState);
                     CC_DELETE(res.gpuPipelineState);
                     res.gpuPipelineState = nullptr;
                 }
                 break;
-            case ObjectType::FENCE:
+            case RecycledType::FENCE:
                 if (res.gpuFence) {
                     CCVKCmdFuncDestroyFence(_device, res.gpuFence);
                     CC_DELETE(res.gpuFence);
@@ -935,7 +940,7 @@ void CCVKGPURecycleBin::clear() {
                 break;
             default: break;
         }
-        res.type = ObjectType::UNKNOWN;
+        res.type = RecycledType::UNKNOWN;
     }
     _count = 0;
 }

@@ -1,14 +1,16 @@
 #include "GLES2Std.h"
 
-#include "GLES2BindingLayout.h"
 #include "GLES2Buffer.h"
 #include "GLES2CommandAllocator.h"
 #include "GLES2CommandBuffer.h"
 #include "GLES2Context.h"
+#include "GLES2DescriptorSet.h"
+#include "GLES2DescriptorSetLayout.h"
 #include "GLES2Device.h"
 #include "GLES2Fence.h"
 #include "GLES2Framebuffer.h"
 #include "GLES2InputAssembler.h"
+#include "GLES2PipelineLayout.h"
 #include "GLES2PipelineState.h"
 #include "GLES2Queue.h"
 #include "GLES2RenderPass.h"
@@ -34,6 +36,14 @@ bool GLES2Device::initialize(const DeviceInfo &info) {
     _nativeWidth = info.nativeWidth;
     _nativeHeight = info.nativeHeight;
     _windowHandle = info.windowHandle;
+
+    _bindingMappingInfo = info.bindingMappingInfo;
+    if (!_bindingMappingInfo.bufferOffsets.size()) {
+        _bindingMappingInfo.bufferOffsets.push_back(0);
+    }
+    if (!_bindingMappingInfo.samplerOffsets.size()) {
+        _bindingMappingInfo.samplerOffsets.push_back(0);
+    }
 
     _cmdAllocator = CC_NEW(GLES2CommandAllocator);
     stateCache = CC_NEW(GLES2StateCache);
@@ -131,6 +141,7 @@ bool GLES2Device::initialize(const DeviceInfo &info) {
     glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, (GLint *)&_maxCubeMapTextureSize);
     glGetIntegerv(GL_DEPTH_BITS, (GLint *)&_depthBits);
     glGetIntegerv(GL_STENCIL_BITS, (GLint *)&_stencilBits);
+    _uboOffsetAlignment = 1u;
 
     return true;
 }
@@ -193,6 +204,15 @@ Queue *GLES2Device::createQueue(const QueueInfo &info) {
 }
 
 Buffer *GLES2Device::createBuffer(const BufferInfo &info) {
+    Buffer *buffer = CC_NEW(GLES2Buffer(this));
+    if (buffer->initialize(info))
+        return buffer;
+
+    CC_SAFE_DESTROY(buffer);
+    return nullptr;
+}
+
+Buffer *GLES2Device::createBuffer(const BufferViewInfo &info) {
     Buffer *buffer = CC_NEW(GLES2Buffer(this));
     if (buffer->initialize(info))
         return buffer;
@@ -264,12 +284,30 @@ Framebuffer *GLES2Device::createFramebuffer(const FramebufferInfo &info) {
     return nullptr;
 }
 
-BindingLayout *GLES2Device::createBindingLayout(const BindingLayoutInfo &info) {
-    BindingLayout *bindingLayout = CC_NEW(GLES2BindingLayout(this));
-    if (bindingLayout->initialize(info))
-        return bindingLayout;
+DescriptorSet *GLES2Device::createDescriptorSet(const DescriptorSetInfo &info) {
+    DescriptorSet *descriptorSet = CC_NEW(GLES2DescriptorSet(this));
+    if (descriptorSet->initialize(info))
+        return descriptorSet;
 
-    CC_SAFE_DESTROY(bindingLayout);
+    CC_SAFE_DESTROY(descriptorSet);
+    return nullptr;
+}
+
+DescriptorSetLayout *GLES2Device::createDescriptorSetLayout(const DescriptorSetLayoutInfo &info) {
+    DescriptorSetLayout *descriptorSetLayout = CC_NEW(GLES2DescriptorSetLayout(this));
+    if (descriptorSetLayout->initialize(info))
+        return descriptorSetLayout;
+
+    CC_SAFE_DESTROY(descriptorSetLayout);
+    return nullptr;
+}
+
+PipelineLayout *GLES2Device::createPipelineLayout(const PipelineLayoutInfo &info) {
+    PipelineLayout *pipelineLayout = CC_NEW(GLES2PipelineLayout(this));
+    if (pipelineLayout->initialize(info))
+        return pipelineLayout;
+
+    CC_SAFE_DESTROY(pipelineLayout);
     return nullptr;
 }
 
@@ -282,8 +320,8 @@ PipelineState *GLES2Device::createPipelineState(const PipelineStateInfo &info) {
     return nullptr;
 }
 
-void GLES2Device::copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions) {
-    GLES2CmdFuncCopyBuffersToTexture(this, buffers, ((GLES2Texture *)dst)->gpuTexture(), regions);
+void GLES2Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
+    GLES2CmdFuncCopyBuffersToTexture(this, buffers, ((GLES2Texture *)dst)->gpuTexture(), regions, count);
 }
 
 } // namespace gfx
