@@ -189,6 +189,11 @@ export default class Prefab extends Asset {
 
         return node;
     }
+
+    public destroy () {
+        this.data && this.data.destroy();
+        return super.destroy();
+    }
 }
 
 legacyCC.Prefab = Prefab;
