@@ -409,7 +409,7 @@ class Component extends CCObject {
      * @param {function} callback 回调函数。
      * @param {Number} interval  时间间隔，0 表示每帧都重复。
      * @param {Number} repeat    将被重复执行（repeat+ 1）次，您可以使用 cc.macro.REPEAT_FOREVER 进行无限次循环。
-     * @param {Number} delay     第一次执行前等待的时间（延时执行）。
+     * @param {Number} delay     第一次执行前等待的时间（延时执行）。单位：秒
      * @example
      * ```ts
      * import { log } from 'cc';
@@ -441,7 +441,7 @@ class Component extends CCObject {
      * @method scheduleOnce
      * @see [[schedule]]
      * @param {function} callback  回调函数。
-     * @param {Number} delay  第一次执行前等待的时间（延时执行）。
+     * @param {Number} delay  第一次执行前等待的时间（延时执行）。单位：秒
      * @example
      * ```ts
      * import { log } from 'cc';
