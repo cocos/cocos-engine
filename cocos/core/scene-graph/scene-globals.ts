@@ -28,12 +28,11 @@ import { ccclass, property, visible, type, displayOrder, slide, range, rangeStep
 import { CCBoolean, CCFloat } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
-import { PlanarShadows, ShadowType } from '../renderer/scene/planar-shadows';
+import { Shadows, ShadowType } from '../renderer/scene/shadows';
 import { Skybox } from '../renderer/scene/skybox';
 import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
-import { Shadow } from '../renderer/scene/shadow';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -374,8 +373,8 @@ export class FogInfo {
  * @en Scene level planar shadow related information
  * @zh 平面阴影相关信息
  */
-@ccclass('cc.PlanarShadowInfo')
-export class PlanarShadowInfo {
+@ccclass('cc.ShadowsInfo')
+export class ShadowsInfo {
     @property
     protected _type = ShadowType.Planar;
     @property
@@ -397,7 +396,7 @@ export class PlanarShadowInfo {
     @property
     protected _size: Vec2 = new Vec2(512, 512);
 
-    protected _resource: PlanarShadows | null = null;
+    protected _resource: Shadows | null = null;
 
     /**
      * @en Whether activate planar shadow
@@ -439,7 +438,7 @@ export class PlanarShadowInfo {
      * @zh 阴影接收平面的法线
      */
     @type(Vec3)
-    @visible(function (this: PlanarShadowInfo) { return this._type === ShadowType.Planar; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.Planar; })
     set normal (val: Vec3) {
         Vec3.copy(this._normal, val);
         if (this._resource) { this._resource.normal = val; }
@@ -453,7 +452,7 @@ export class PlanarShadowInfo {
      * @zh 阴影接收平面与原点的距离
      */
     @type(CCFloat)
-    @visible(function (this: PlanarShadowInfo) { return this._type === ShadowType.Planar; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.Planar; })
     set distance (val: number) {
         this._distance = val;
         if (this._resource) { this._resource.distance = val; }
@@ -467,7 +466,7 @@ export class PlanarShadowInfo {
      * @zh 获取或者设置阴影相机近裁剪面
      */
     @type(CCFloat)
-    @visible(function (this: PlanarShadowInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
     set near (val: number) {
         this._near = val;
         if (this._resource) { this._resource.near = val; }
@@ -481,7 +480,7 @@ export class PlanarShadowInfo {
      * @zh 获取或者设置阴影相机远裁剪面
      */
     @type(CCFloat)
-    @visible(function (this: PlanarShadowInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
     set far (val: number) {
         this._far = val;
         if (this._resource) { this._resource.far = val; }
@@ -495,7 +494,7 @@ export class PlanarShadowInfo {
      * @zh 获取或者设置阴影相机正交大小
      */
     @type(CCFloat)
-    @visible(function (this: PlanarShadowInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
     set orthoSize (val: number) {
         this._orthoSize = val;
         if (this._resource) { this._resource.orthoSize = val; }
@@ -509,7 +508,7 @@ export class PlanarShadowInfo {
      * @zh 获取或者设置阴影纹理大小
      */
     @type(Vec2)
-    @visible(function (this: PlanarShadowInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
     set shadowMapSize (val: Vec2) {
         this._size.set(val);
         if (this._resource) { this._resource.size = val; }
@@ -523,7 +522,7 @@ export class PlanarShadowInfo {
      * @zh 获取或者设置阴影纹理大小
      */
     @type(CCFloat)
-    @visible(function (this: PlanarShadowInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
     set aspect (val: number) {
         this._aspect = val;
         if (this._resource) { this._resource.aspect = val; }
@@ -544,7 +543,7 @@ export class PlanarShadowInfo {
         this.distance = Vec3.dot(this._normal, _v3);
     }
 
-    public activate (resource: PlanarShadows) {
+    public activate (resource: Shadows) {
         this._resource = resource;
         this._resource.type = this._type;
         this._resource.near = this._near;
@@ -557,7 +556,7 @@ export class PlanarShadowInfo {
         this._resource.enabled = this._enabled;
     }
 }
-legacyCC.PlanarShadowInfo = PlanarShadowInfo;
+legacyCC.ShadowsInfo = ShadowsInfo;
 
 /**
  * @en All scene related global parameters, it affects all content in the corresponding scene
@@ -576,7 +575,7 @@ export class SceneGlobals {
      * @zh 平面阴影相关信息
      */
     @property
-    public planarShadows = new PlanarShadowInfo();
+    public shadows = new ShadowsInfo();
     @property
     public _skybox = new SkyboxInfo();
     @property
@@ -598,7 +597,7 @@ export class SceneGlobals {
         const pipeline = legacyCC.director.root.pipeline;
         this.ambient.activate(pipeline.ambient);
         this.skybox.activate(pipeline.skybox);
-        this.planarShadows.activate(pipeline.planarShadows);
+        this.shadows.activate(pipeline.shadows);
         this.fog.activate(pipeline.fog);
     }
 }

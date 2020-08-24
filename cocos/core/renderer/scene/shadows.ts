@@ -26,7 +26,7 @@ const _up = new Vec3(0, 1, 0);
  * @zh 阴影类型。
  * @en The shadow type
  * @static
- * @enum PlanarShadow.FogType
+ * @enum Shadows.ShadowType
  */
 export const ShadowType = Enum({
     /**
@@ -52,7 +52,7 @@ interface IShadowRenderData {
     instancedBuffer: InstancedBuffer | null;
 }
 
-export class PlanarShadows {
+export class Shadows {
     /**
      * @en Whether activate planar shadow
      * @zh 是否启用平面阴影？

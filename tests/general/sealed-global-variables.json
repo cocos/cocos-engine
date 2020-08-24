@@ -146,7 +146,7 @@
         "cc.PhysicsRayResult",
         "cc.PhysicsSystem",
         "cc.Pipeline",
-        "cc.PlanarShadowInfo",
+        "cc.ShadowsInfo",
         "cc.SkyboxInfo",
         "cc.Prefab",
         "cc.Primitive",
