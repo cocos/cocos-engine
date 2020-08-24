@@ -23,7 +23,7 @@ export * from './scene/deprecated';
 export * from './scene/directional-light';
 export * from './scene/light';
 export * from './scene/model';
-export * from './scene/planar-shadows';
+export * from './scene/shadows';
 export * from './scene/render-scene';
 export * from './scene/skybox';
 export * from './scene/sphere-light';
