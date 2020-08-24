@@ -178,13 +178,14 @@ export class Model {
      */
     constructor () {
         this._device = legacyCC.director.root.device;
-        // initialize() may not be invoked, so create handles here too.
-        this._createHandles();
     }
 
-    public initialize (node: Node) {
-        this._createHandles();
-        this.transform = this.node = node;
+    public initialize () {
+        this._poolHandle = ModelPool.alloc();
+        this._subModelArrayHandle = SubModelArrayPool.alloc();
+        ModelPool.set(this._poolHandle, ModelView.SUB_MODEL_ARRAY, this._subModelArrayHandle);
+        ModelPool.set(this._poolHandle, ModelView.VIS_FLAGS, Layers.Enum.NONE);
+        ModelPool.set(this._poolHandle, ModelView.ENABLED, 1);
     }
 
     public destroy () {
@@ -284,7 +285,6 @@ export class Model {
     }
 
     public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {
-        this._createHandles();
         let isNewSubModel = false;
         if (this._subModels[idx] == null) {
             this._subModels[idx] = _subModelPool.alloc();
@@ -411,15 +411,5 @@ export class Model {
 
     protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: GFXDescriptorSet) {
         descriptorSet.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer!);
-    }
-
-    protected _createHandles () {
-        if (this._poolHandle === NULL_HANDLE) {
-            this._poolHandle = ModelPool.alloc();
-            this._subModelArrayHandle = SubModelArrayPool.alloc();
-            ModelPool.set(this._poolHandle, ModelView.SUB_MODEL_ARRAY, this._subModelArrayHandle);
-            ModelPool.set(this._poolHandle, ModelView.VIS_FLAGS, Layers.Enum.NONE);
-            ModelPool.set(this._poolHandle, ModelView.ENABLED, 1);
-        }  
     }
 }

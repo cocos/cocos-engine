@@ -331,9 +331,10 @@ export class ModelComponent extends RenderableComponent {
             return;
         }
 
-        if (this._model) {
-            this._model.destroy();
-            this._model.initialize(this.node);
+        const model = this._model;
+        if (model) {
+            model.destroy();
+            model.node = model.transform = this.node;
         } else {
             this._createModel();
         }
@@ -352,13 +353,13 @@ export class ModelComponent extends RenderableComponent {
         // derived classes should use a morph-able model type(i.e. model type derived from `MorphModel`).
         // So we should take care of the edge case.
         const modelType = (preferMorphOverPlain && this._modelType === Model) ? MorphModel : this._modelType;
-        this._model = (legacyCC.director.root as Root).createModel(modelType);
-        this._model.initialize(this.node);
-        this._model.visFlags = this.visibility;
+        const model = this._model = (legacyCC.director.root as Root).createModel(modelType);
+        model.visFlags = this.visibility;
+        model.node = model.transform = this.node;
         this._models.length = 0;
         this._models.push(this._model);
-        if (this._morphInstance && this._model instanceof MorphModel) {
-            this._model.setMorphRendering(this._morphInstance);
+        if (this._morphInstance && model instanceof MorphModel) {
+            model.setMorphRendering(this._morphInstance);
         }
     }
 
