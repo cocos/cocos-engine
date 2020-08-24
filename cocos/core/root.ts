@@ -475,8 +475,8 @@ export class Root {
 
     /**
      * @zh
-     * 创建渲染视图
-     * @param info 渲染视图描述信息
+     * 添加渲染相机
+     * @param camera 渲染相机
      */
     public attachCamera (camera: Camera) {
         for (let i = 0; i < this._cameras.length; i++) {
@@ -504,7 +504,7 @@ export class Root {
 
     /**
      * @zh
-     * 销毁全部相机视图
+     * 销毁全部渲染相机
      */
     public clearCameras () {
         this._cameras.length = 0;
