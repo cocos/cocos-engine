@@ -587,3 +587,16 @@ export function _getClassId (obj, allowTempId?: Boolean) {
     }
     return '';
 }
+
+/**
+ * Checks whether obj is an empty object
+ * @method isEmptyObject
+ * @param {Object} obj 
+ * @return {Boolean}
+ */
+export function isEmptyObject (obj: any) {
+    for (const key in obj) {
+        return false;
+    }
+    return true;
+}

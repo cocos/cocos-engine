@@ -43,6 +43,7 @@ import {
     getset,
     getSuper,
     isChildClassOf,
+    isEmptyObject,
     isNumber,
     isString,
     mixin,
