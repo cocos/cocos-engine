@@ -218,7 +218,7 @@ public class Cocos2dxDownloader {
                                     while ((len = is.read(buf)) != -1) {
                                         current += len;
                                         fos.write(buf, 0, len);
-                                        downloader.onProgress(id, current, len, total);
+                                        downloader.onProgress(id, len, current, total);
                                     }
                                     fos.flush();
 
@@ -256,7 +256,7 @@ public class Cocos2dxDownloader {
                                     while ((len = is.read(buf)) != -1) {
                                         current += len;
                                         buffer.write(buf, 0, len);
-                                        downloader.onProgress(id, current, len, total);
+                                        downloader.onProgress(id, len, current, total);
                                     }
                                     downloader.onFinish(id, 0, null, buffer.toByteArray());
                                     downloader.runNextTaskIfExists();
