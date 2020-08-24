@@ -10,7 +10,7 @@ import { Camera } from '../scene/camera';
 import { Model } from '../scene/model';
 import { UI } from './ui';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
-import { IAHandle, IAPool, DescriptorSetHandle, NULL_HANDLE, DSPool } from '../core/memory-pools';
+import { InputAssemblerHandle, IAPool, DescriptorSetHandle, NULL_HANDLE, DSPool } from '../core/memory-pools';
 import { programLib } from '../core/program-lib';
 import { SetIndex } from '../../pipeline/define';
 import { legacyCC } from '../../global-exports';
@@ -25,7 +25,7 @@ export class UIDrawBatch {
 
     public camera: Camera | null = null;
     public ia: GFXInputAssembler | null = null;
-    public hIA: IAHandle = NULL_HANDLE;
+    public hIA: InputAssemblerHandle = NULL_HANDLE;
     public model: Model | null = null;
     public material: Material | null = null;
     public texture: GFXTexture | null = null;

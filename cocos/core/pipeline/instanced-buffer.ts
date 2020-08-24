@@ -65,8 +65,8 @@ export class InstancedBuffer {
         if (!stride) { return; } // we assume per-instance attributes are always present
         const sourceIA = subModel.inputAssembler;
         const lightingMap = subModel.descriptorSet.getTexture(UniformLightingMapSampler.binding);
-        const hShader = SubModelPool.get<ShaderHandle>(subModel.handle, SubModelView.SHADER_0 + passIdx);
-        const hDescriptorSet = SubModelPool.get<DescriptorSetHandle>(subModel.handle, SubModelView.DESCRIPTOR_SET);
+        const hShader = SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle;
+        const hDescriptorSet = SubModelPool.get(subModel.handle, SubModelView.DESCRIPTOR_SET);
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             if (instance.ia.indexBuffer !== sourceIA.indexBuffer || instance.count >= MAX_CAPACITY) { continue; }
