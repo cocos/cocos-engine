@@ -284,6 +284,10 @@ Design resolution not valid
 
 should set resolutionPolicy
 
+### 2202
+
+view.enableAntiAlias is deprecated now, please use Texture2D.setFilters instead
+
 ### 2300
 
 The touches is more than MAX_TOUCHES, nUnusedIndex = %s

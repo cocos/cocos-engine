@@ -36,7 +36,7 @@ import { Rect, Size, Vec2 } from '../math';
 import visibleRect from './visible-rect';
 import { EDITOR, MINIGAME, JSB, RUNTIME_BASED } from 'internal:constants';
 import { legacyCC } from '../global-exports';
-import { logID, errorID } from './debug';
+import { logID, errorID, warnID } from './debug';
 
 class BrowserGetter {
 
@@ -194,7 +194,6 @@ export class View extends EventTarget {
         __BrowserGetter.init();
 
         this._initFrameSize();
-        this.enableAntiAlias(true);
 
         const w = legacyCC.game.canvas.width;
         const h = legacyCC.game.canvas.height;
@@ -323,8 +322,10 @@ export class View extends EventTarget {
      * @en Whether to Enable on anti-alias
      * @zh 控制抗锯齿是否开启
      * @param enabled - Enable or not anti-alias
+     * @deprecated since v3.0, view.enableAntiAlias is deprecated now, please use Texture2D.setFilters instead
      */
     public enableAntiAlias (enabled: boolean) {
+        warnID(2202);
         if (this._antiAliasEnabled === enabled) {
             return;
         }
@@ -356,6 +357,7 @@ export class View extends EventTarget {
     /**
      * @en Returns whether the current enable on anti-alias
      * @zh 返回当前是否抗锯齿
+     * @deprecated since v3.0, view.isAntiAliasEnabled is deprecated
      */
     public isAntiAliasEnabled (): boolean {
         return this._antiAliasEnabled;
