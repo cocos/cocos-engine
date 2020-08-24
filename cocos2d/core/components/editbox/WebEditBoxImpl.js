@@ -316,13 +316,19 @@ Object.assign(WebEditBoxImpl.prototype, {
         }
         else {
             let camera = cc.Camera.findCamera(node);
+            if (!camera) {
+                return false;
+            }
             camera.getWorldToScreenMatrix2D(this._cameraMat);
             Mat4.mul(this._cameraMat, this._cameraMat, worldMat);
         }
+        return true;
     },
 
     _updateMatrix () {    
-        this._updateCameraMatrix();
+        if (CC_EDITOR || !this._updateCameraMatrix()) {
+            return;
+        }
         let cameraMatm = this._cameraMat.m;
         let node = this._delegate.node;
         let localView = cc.view;
