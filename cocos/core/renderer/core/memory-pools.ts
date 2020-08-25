@@ -485,8 +485,6 @@ enum PoolType {
     // array
     SUB_MODEL_ARRAY,
     MODEL_ARRAY,
-    // renderer
-    RENDER_VIEW,
 }
 
 export const NULL_HANDLE = 0 as unknown as Handle<any>;
@@ -661,5 +659,3 @@ export enum FrustumView {
     COUNT = PLANES + 24
 }
 export const FrustumPool = new BufferPool(PoolType.FRUSTUM, Float32Array, FrustumView);
-
-
