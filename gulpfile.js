@@ -47,7 +47,7 @@ gulp.task('build-code', gulp.series('build-debug-infos', () => {
         '--buildmode=universal',
         '--platform=HTML5',
         '--physics=cannon',
-        '--destination=./bin/dev/cc.js',
+        '--out=./bin/dev/cc',
     ], {
         shell: true,
         stdio: 'inherit',
@@ -65,7 +65,7 @@ gulp.task('build-code-minified', gulp.series('build-debug-infos', () => {
         '--buildmode=universal',
         '--platform=HTML5',
         '--physics=cannon',
-        '--destination=./bin/dev/cc.min.js',
+        '--out=./bin/dev/cc-min',
     ], {
         shell: true,
         stdio: 'inherit',
