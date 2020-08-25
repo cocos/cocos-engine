@@ -7,9 +7,8 @@ import { Node } from '../../scene-graph';
 import { RenderScene } from './render-scene';
 import { GFXDevice } from '../../gfx';
 import { legacyCC } from '../../global-exports';
-import { RenderWindow } from '../../pipeline';
-import { CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool,
-    FrustumView, NULL_HANDLE } from '../core/memory-pools';
+import { RenderWindow } from '../core/render-window';
+import { CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, FrustumView, NULL_HANDLE } from '../core/memory-pools';
 import { JSB } from 'internal:constants';
 
 export enum CameraFOVAxis {

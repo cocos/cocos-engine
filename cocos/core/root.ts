@@ -15,7 +15,7 @@ import { SphereLight } from './renderer/scene/sphere-light';
 import { SpotLight } from './renderer/scene/spot-light';
 import { UI } from './renderer/ui/ui';
 import { legacyCC } from './global-exports';
-import { RenderWindow, IRenderWindowInfo } from './pipeline/render-window';
+import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
 import { ForwardPipeline } from './pipeline/forward/forward-pipeline';
 import { GFXColorAttachment, GFXDepthStencilAttachment, GFXStoreOp } from './gfx';
 import { RootHandle, RootPool, RootView, NULL_HANDLE } from './renderer/core/memory-pools';
@@ -516,7 +516,9 @@ export class Root {
             this._modelPools.set(mClass, new Pool(() => new mClass(), 10));
             p = this._modelPools.get(mClass)!;
         }
-        return p.alloc() as T;
+        let model = p.alloc() as T;
+        model.initialize();
+        return model;
     }
 
     public destroyModel (m: Model) {

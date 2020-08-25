@@ -2,10 +2,10 @@ import {
     GFXTextureType,
     GFXTextureUsageBit,
     GFXFormat,
-} from '../gfx/define';
-import { GFXRenderPass, GFXTexture, GFXFramebuffer, IGFXRenderPassInfo, GFXDevice } from '../gfx';
-import { Root } from '../root';
-import { RenderWindowHandle, RenderWindowPool, RenderWindowView, FramebufferPool, NULL_HANDLE } from '../renderer/core/memory-pools';
+} from '../../gfx/define';
+import { GFXRenderPass, GFXTexture, GFXFramebuffer, IGFXRenderPassInfo, GFXDevice } from '../../gfx';
+import { Root } from '../../root';
+import { RenderWindowHandle, RenderWindowPool, RenderWindowView, FramebufferPool, NULL_HANDLE } from './memory-pools';
 
 export interface IRenderWindowInfo {
     title?: string;

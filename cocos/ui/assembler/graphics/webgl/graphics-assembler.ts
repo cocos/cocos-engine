@@ -244,8 +244,12 @@ export const graphicsAssembler: IAssembler = {
             indices,
         }, undefined, { calculateBounds: false });
         
-        graphics.model!.initialize(graphics.node);
-        graphics.model!.initSubModel(0, mesh.renderingSubMeshes[0], graphics.getUIMaterialInstance()!);
+        const model = graphics.model;
+        if (model) {
+            model.node = model.transform = graphics.node;
+            model.initSubModel(0, mesh.renderingSubMeshes[0], graphics.getUIMaterialInstance()!);
+        }
+        
         graphics.markForUpdateRenderData();
     },
 

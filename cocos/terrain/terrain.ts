@@ -307,9 +307,9 @@ export class TerrainBlock {
         const subMesh = this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes, GFXPrimitiveMode.TRIANGLE_LIST);
         subMesh.indexBuffer = this._terrain._getSharedIndexBuffer() || undefined;
 
-        this._renderable._model = (legacyCC.director.root as Root).createModel(Model);
-        this._renderable._model.initialize(this._node);
-        this._renderable._getRenderScene().addModel(this._renderable._model);
+        const model = this._renderable._model = (legacyCC.director.root as Root).createModel(Model);
+        model.node = model.transform = this._node;
+        this._renderable._getRenderScene().addModel(model);
 
         // reset weightmap
         this._updateWeightMap();

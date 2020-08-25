@@ -607,10 +607,13 @@ export default class TrailModule {
         this._subMeshData.indexBuffer = indexBuffer;
         this._subMeshData.indirectBuffer = this._iaInfoBuffer;
 
-        this._trailModel!.initialize(this._particleSystem.node);
-        this._trailModel!.visFlags = this._particleSystem.visibility;
-        this._trailModel!.initSubModel(0, this._subMeshData, this._material!);
-        this._trailModel!.enabled = true;
+        let trailModel = this._trailModel;
+        if (trailModel) {
+            trailModel.node = trailModel.transform = this._particleSystem.node;
+            trailModel.visFlags = this._particleSystem.visibility;
+            trailModel.initSubModel(0, this._subMeshData, this._material!);
+            trailModel.enabled = true;
+        }
     }
 
     private _updateTrailElement (module: any, trailEle: ITrailElement, p: Particle, dt: number): boolean {
