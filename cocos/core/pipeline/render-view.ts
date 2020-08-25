@@ -109,7 +109,7 @@ export class RenderView {
     private _window: RenderWindow | null = null;
     private _priority: number = 0;
     private _visibility: number = CAMERA_DEFAULT_MASK;
-    private _camera: Camera;
+    private _camera!: Camera;
     private _isEnable: boolean = false;
     private _flows: RenderFlow[] = [];
 
@@ -118,8 +118,7 @@ export class RenderView {
      * @zh 构造函数。
      * @param camera
      */
-    public constructor (camera: Camera) {
-        this._camera = camera;
+    public constructor () {
     }
 
     /**
@@ -128,7 +127,7 @@ export class RenderView {
      * @param info Render view information descriptor
      */
     public initialize (info: IRenderViewInfo): boolean {
-
+        this._camera = info.camera;
         this._name = info.name;
         this.priority = info.priority;
         this.setExecuteFlows(info.flows);

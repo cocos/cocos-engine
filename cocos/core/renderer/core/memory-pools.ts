@@ -30,7 +30,8 @@
 import { DEBUG, JSB } from 'internal:constants';
 import { NativeBufferPool, NativeObjectPool, NativeArrayPool } from './native-pools';
 import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, IGFXDescriptorSetInfo,
-    GFXDevice, GFXDescriptorSet, GFXShaderInfo, GFXShader, IGFXInputAssemblerInfo, GFXInputAssembler, IGFXPipelineLayoutInfo, GFXPipelineLayout, GFXFramebuffer, IGFXFramebufferInfo } from '../../gfx';
+    GFXDevice, GFXDescriptorSet, GFXShaderInfo, GFXShader, IGFXInputAssemblerInfo, GFXInputAssembler,
+    IGFXPipelineLayoutInfo, GFXPipelineLayout, GFXFramebuffer, IGFXFramebufferInfo } from '../../gfx';
 import { Vec3, Mat4, IVec4Like } from '../../math';
 
 interface ITypedArrayConstructor<T> {
@@ -613,7 +614,7 @@ export enum CameraView {
     SCENE,                                  // handle
     FRUSTUM,                                // handle
     FORWARD,                                // Vec3
-    POSITION = FORWARD + 3,                 // Vec3     
+    POSITION = FORWARD + 3,                 // Vec3
     VIEW_PORT = POSITION + 3,               // Rect
     CLEAR_COLOR = VIEW_PORT + 4,            // Color
     MAT_VIEW = CLEAR_COLOR + 4,             // Mat4

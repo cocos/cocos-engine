@@ -115,14 +115,6 @@ export class Root {
 
     /**
      * @zh
-     * 渲染视图列表
-     */
-    public get views (): RenderView[] {
-        return this._views;
-    }
-
-    /**
-     * @zh
      * 累计时间（秒）
      */
     public get cumulativeTime (): number {
@@ -190,6 +182,7 @@ export class Root {
     private _ui: UI | null = null;
     private _dataPoolMgr: DataPoolManager;
     private _scenes: RenderScene[] = [];
+    private _cameras: Camera[] = [];
     private _views: RenderView[] = [];
     private _modelPools = new Map<Constructor<Model>, Pool<Model>>();
     private _cameraPool: Pool<Camera> | null = null;
@@ -250,7 +243,7 @@ export class Root {
     }
 
     public destroy () {
-        this.destroyViews();
+        this.clearCameras();
         this.destroyScenes();
 
         if (this._pipeline) {
@@ -293,9 +286,9 @@ export class Root {
             }
         }
 
-        for (const view of this._views) {
-            if (view.camera.isWindowSize) {
-                view.camera.resize(width, height);
+        for (const camera of this._cameras) {
+            if (camera.isWindowSize) {
+                camera.resize(width, height);
             }
         }
     }
@@ -319,8 +312,8 @@ export class Root {
     }
 
     public onGlobalPipelineStateChanged () {
-        for (let i = 0; i < this._views.length; i++) {
-            this._views[i].onGlobalPipelineStateChanged();
+        for (let i = 0; i < this._cameras.length; i++) {
+            this._cameras[i].view.onGlobalPipelineStateChanged();
         }
         for (let i = 0; i < this._scenes.length; i++) {
             this._scenes[i].onGlobalPipelineStateChanged();
@@ -374,15 +367,20 @@ export class Root {
 
         if (this._pipeline) {
             this._device.acquire();
-
-            const views = this._views;
+            this._views.length = 0;
+            const views = this._cameras;
+            const stamp = legacyCC.director.getTotalFrames();
             for (let i = 0; i < views.length; i++) {
-                const view = views[i];
+                const camera = this._cameras[i];
+                const view = camera.view;
                 if (view.isEnable && view.window) {
-                    this._pipeline.render(view);
+                    camera.update();
+                    camera.scene!.update(stamp);
+                    this._views.push(view);
                 }
             }
 
+            this._pipeline.render(this._views);
             this._device.present();
         }
     }
@@ -469,24 +467,35 @@ export class Root {
      * @param info 渲染视图描述信息
      */
     public createView (info: IRenderViewInfo): RenderView {
-        const view: RenderView = new RenderView(info.camera);
+        const view: RenderView = new RenderView();
         view.initialize(info);
-        // view.camera.resize(cc.game.canvas.width, cc.game.canvas.height);
-        this._views.push(view);
-        this.sortViews();
         return view;
     }
 
     /**
      * @zh
-     * 销毁指定的渲染视图
-     * @param view 渲染视图
+     * 添加渲染相机
+     * @param camera 渲染相机
      */
-    public destroyView (view: RenderView) {
-        for (let i = 0; i < this._views.length; ++i) {
-            if (this._views[i] === view) {
-                this._views.splice(i, 1);
-                view.destroy();
+    public attachCamera (camera: Camera) {
+        for (let i = 0; i < this._cameras.length; i++) {
+            if (this._cameras[i] === camera) {
+                return;
+            }
+        }
+        this._cameras.push(camera);
+        this.sortViews();
+    }
+
+    /**
+     * @zh
+     * 移除渲染相机
+     * @param camera 相机
+     */
+    public detachCamera (camera: Camera) {
+        for (let i = 0; i < this._cameras.length; ++i) {
+            if (this._cameras[i] === camera) {
+                this._cameras.splice(i, 1);
                 return;
             }
         }
@@ -494,13 +503,10 @@ export class Root {
 
     /**
      * @zh
-     * 销毁全部渲染视图
+     * 销毁全部渲染相机
      */
-    public destroyViews () {
-        for (const view of this._views) {
-            view.destroy();
-        }
-        this._views = [];
+    public clearCameras () {
+        this._cameras.length = 0;
     }
 
     public createModel<T extends Model> (mClass: typeof Model): T {
@@ -568,8 +574,8 @@ export class Root {
     }
 
     public sortViews () {
-        this._views.sort((a: RenderView, b: RenderView) => {
-            return a.priority - b.priority;
+        this._cameras.sort((a: Camera, b: Camera) => {
+            return a.view.priority - b.view.priority;
         });
     }
 }
