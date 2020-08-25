@@ -50,7 +50,7 @@
 #define TRACE_DEBUGGER_SERVER(...) SE_LOGD(__VA_ARGS__)
 #else
 #define TRACE_DEBUGGER_SERVER(...)
-#endif // #if COCOS2D_DEBUG
+#endif // #if CC_DEBUG
 
 uint32_t __jsbInvocationCount = 0;
 

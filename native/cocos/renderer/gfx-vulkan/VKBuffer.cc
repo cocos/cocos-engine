@@ -146,7 +146,7 @@ void CCVKBuffer::resize(uint size) {
 void CCVKBuffer::update(void *buffer, uint offset, uint size) {
     CCASSERT(!_isBufferView, "Cannot update through buffer views");
 
-#if COCOS2D_DEBUG > 0
+#if CC_DEBUG > 0
     if (_usage & BufferUsageBit::INDIRECT) {
         DrawInfo *drawInfo = static_cast<DrawInfo *>(buffer);
         const size_t drawInfoCount = size / sizeof(DrawInfo);

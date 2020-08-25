@@ -47,7 +47,7 @@ extern "C" {
  * at the top of your source file) to change that behavior.
  */
 #ifndef LOG_NDEBUG
-#if defined(COCOS2D_DEBUG) && COCOS2D_DEBUG > 0
+#if defined(CC_DEBUG) && CC_DEBUG > 0
 #define LOG_NDEBUG 0
 #else
 #define LOG_NDEBUG 1

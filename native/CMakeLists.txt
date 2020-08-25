@@ -1066,7 +1066,7 @@ target_compile_definitions(cocos2d PUBLIC
     $<$<NOT:$<BOOL:${USE_EDIT_BOX}>>:CC_USE_EDITBOX=0>
     $<$<NOT:$<BOOL:${USE_V8_DEBUGGER}>>:USE_V8_DEBUGGER=0>
     $<$<BOOL:${USE_SE_JSC}>:SCRIPT_ENGINE_TYPE=3>
-    $<$<CONFIG:Debug>:COCOS2D_DEBUG=1>
+    $<$<CONFIG:Debug>:CC_DEBUG=1>
 )
 
 if(CC_USE_VULKAN)

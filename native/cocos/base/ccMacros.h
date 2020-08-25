@@ -70,7 +70,7 @@ typedef SSIZE_T ssize_t;
 #endif
 
 #ifndef CCASSERT
-    #if COCOS2D_DEBUG > 0
+    #if CC_DEBUG > 0
         // todo: minggo
         // #if CC_ENABLE_SCRIPT_BINDING
         // extern bool CC_DLL cc_assert_script_compatible(const char *msg);

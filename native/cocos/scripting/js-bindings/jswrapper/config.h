@@ -36,7 +36,7 @@
 
 
 #ifndef USE_V8_DEBUGGER
-#if defined(COCOS2D_DEBUG) && COCOS2D_DEBUG > 0
+#if defined(CC_DEBUG) && CC_DEBUG > 0
 #define USE_V8_DEBUGGER 1
 #else
 #define USE_V8_DEBUGGER 0

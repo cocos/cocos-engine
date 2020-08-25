@@ -1017,7 +1017,7 @@ classes_owned_by_cpp =
 The remote debugging and profile are valid in debug mode, if you need to enable in release mode, you need to manually modify the macro in `cocos/scripting/js-bindings/jswrapper/config.h`.
 
 ```c++
-#if defined(COCOS2D_DEBUG) && COCOS2D_DEBUG > 0
+#if defined(CC_DEBUG) && CC_DEBUG > 0
 #define SE_ENABLE_INSPECTOR 1
 #define SE_DEBUG 2
 #else

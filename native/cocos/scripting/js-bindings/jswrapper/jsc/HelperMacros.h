@@ -202,7 +202,7 @@
 //IDEA: implement this macro
 #define SE_REPORT_ERROR(fmt, ...) SE_LOGE("[ERROR] (" __FILE__ ", " SE_QUOTEME(__LINE__) "): " fmt "\n", ##__VA_ARGS__)
 
-#if COCOS2D_DEBUG > 0
+#if CC_DEBUG > 0
 
 #define SE_ASSERT(cond, fmt, ...) \
     do \
@@ -218,6 +218,6 @@
 
 #define SE_ASSERT(cond, fmt, ...) 
 
-#endif // #if COCOS2D_DEBUG > 0
+#endif // #if CC_DEBUG > 0
 
 #endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC

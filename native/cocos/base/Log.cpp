@@ -24,7 +24,7 @@
 namespace cc {
 
 #define LOG_USE_TIMESTAMP
-#if (COCOS2D_DEBUG == 1)
+#if (CC_DEBUG == 1)
 LogLevel Log::logLevel = LogLevel::DEBUG_;
 #else
 LogLevel Log::logLevel = LogLevel::INFO;

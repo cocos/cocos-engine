@@ -582,7 +582,7 @@ const VkAccessFlags FULL_ACCESS_FLAGS = VK_ACCESS_INDIRECT_COMMAND_READ_BIT |
                                         VK_ACCESS_HOST_WRITE_BIT;
 
 void fullPipelineBarrier(VkCommandBuffer cmdBuff) {
-#if COCOS2D_DEBUG > 0
+#if CC_DEBUG > 0
     VkMemoryBarrier memoryBarrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
     memoryBarrier.srcAccessMask = FULL_ACCESS_FLAGS;
     memoryBarrier.dstAccessMask = FULL_ACCESS_FLAGS;

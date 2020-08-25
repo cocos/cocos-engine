@@ -168,7 +168,7 @@ endif()
 add_library(${libsimulator_name} ${LIBSIMULATOR_SOURCE_LIST})
 
 target_compile_definitions(${libsimulator_name}
-    PRIVATE $<IF:$<CONFIG:Debug>,COCOS2D_DEBUG=1,COCOS2D_DEBUG=0>
+    PRIVATE $<IF:$<CONFIG:Debug>,CC_DEBUG=1,CC_DEBUG=0>
 )
 
 if(WINDOWS)

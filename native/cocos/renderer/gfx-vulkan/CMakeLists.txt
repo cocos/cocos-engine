@@ -68,5 +68,5 @@ use_precompiled_header("${CMAKE_CURRENT_SOURCE_DIR}/VKStd.h" "${CMAKE_CURRENT_SO
 message(STATUS "${TARGET_NAME} configuration completed.")
 
 target_compile_definitions(${TARGET_NAME} PUBLIC
-    $<$<CONFIG:Debug>:COCOS2D_DEBUG=1>
+    $<$<CONFIG:Debug>:CC_DEBUG=1>
 )

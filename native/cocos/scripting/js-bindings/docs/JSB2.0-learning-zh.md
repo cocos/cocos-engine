@@ -1005,7 +1005,7 @@ classes_owned_by_cpp =
 默认远程调试和 Profile 是在 debug 模式中生效的，如果需要在 release 模式下也启用，需要手动修改 cocos/scripting/js-bindings/jswrapper/config.h 中的宏开关。
 
 ```c++
-#if defined(COCOS2D_DEBUG) && COCOS2D_DEBUG > 0
+#if defined(CC_DEBUG) && CC_DEBUG > 0
 #define SE_ENABLE_INSPECTOR 1
 #define SE_DEBUG 2
 #else

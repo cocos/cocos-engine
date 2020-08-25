@@ -416,7 +416,7 @@ int ZipUtils::inflateCCZBuffer(const unsigned char *buffer, ssize_t bufferLen, u
 
         decodeEncodedPvr(ints, enclen);
 
-#if COCOS2D_DEBUG > 0
+#if CC_DEBUG > 0
         // verify checksum in debug mode
         unsigned int calculated = checksumPvr(ints, enclen);
         unsigned int required = CC_SWAP_INT32_BIG_TO_HOST( header->reserved );

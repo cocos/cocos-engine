@@ -64,7 +64,7 @@
 
 - (void) startRequest:(NSURLRequest *)request
 {
-#ifdef COCOS2D_DEBUG
+#ifdef CC_DEBUG
     // NSLog(@"Starting to load %@", srcURL);
 #endif
     
@@ -96,7 +96,7 @@
  **/
 - (void) connection:(NSURLConnection *)connection 
  didReceiveResponse:(NSURLResponse *)response {
-#ifdef COCOS2D_DEBUG
+#ifdef CC_DEBUG
     // NSLog(@"Received response from request to url %@", srcURL);
 #endif
     

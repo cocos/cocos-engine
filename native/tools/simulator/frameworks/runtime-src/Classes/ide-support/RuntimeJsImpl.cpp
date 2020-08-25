@@ -171,7 +171,7 @@ bool RuntimeJsImpl::initJsEnv()
     jsb_set_xxtea_key("");
     jsb_init_file_operation_delegate();
 
-#if defined(COCOS2D_DEBUG) && (COCOS2D_DEBUG > 0)
+#if defined(CC_DEBUG) && (CC_DEBUG > 0)
     // Enable debugger here
     auto parser = ConfigParser::getInstance();
     jsb_enable_debugger("0.0.0.0", parser->getDebugPort(), parser->isWaitForConnect());
@@ -282,4 +282,4 @@ bool RuntimeJsImpl::loadScriptFile(const std::string& path)
 }
 
 
-#endif // (COCOS2D_DEBUG > 0) && (CC_CODE_IDE_DEBUG_SUPPORT > 0)
+#endif // (CC_DEBUG > 0) && (CC_CODE_IDE_DEBUG_SUPPORT > 0)

@@ -42,7 +42,7 @@ bool Game::init()
     jsb_set_xxtea_key("");
     jsb_init_file_operation_delegate();
     
-#if defined(COCOS2D_DEBUG) && (COCOS2D_DEBUG > 0)
+#if defined(CC_DEBUG) && (CC_DEBUG > 0)
     // Enable debugger here
     jsb_enable_debugger("0.0.0.0", 6086, false);
 #endif

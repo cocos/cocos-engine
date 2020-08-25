@@ -17,7 +17,7 @@ constexpr uint FORCE_MINOR_VERSION = 0;             // 0 for default version, ot
 constexpr uint ALLOW_VALIDATION_ERRORS = 0;         // 0 for default behavior, otherwise assertions will be disabled
 constexpr uint PREFERRED_SWAPCHAIN_IMAGE_COUNT = 0; // 0 for default count, otherwise prefer the specified number
 
-#if COCOS2D_DEBUG > 0
+#if CC_DEBUG > 0
 VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                                            VkDebugUtilsMessageTypeFlagsEXT messageType,
                                                            const VkDebugUtilsMessengerCallbackDataEXT *callbackData,
@@ -123,7 +123,7 @@ bool CCVKContext::initialize(const ContextInfo &info) {
     #pragma error Platform not supported
 #endif
 
-#if COCOS2D_DEBUG > 0
+#if CC_DEBUG > 0
         // Determine the optimal validation layers to enable that are necessary for useful debugging
         vector<vector<const char *>> validationLayerPriorityList{
             // The preferred validation layer is "VK_LAYER_KHRONOS_validation"
@@ -200,7 +200,7 @@ bool CCVKContext::initialize(const ContextInfo &info) {
         instanceInfo.enabledLayerCount = toUint(_layers.size());
         instanceInfo.ppEnabledLayerNames = _layers.data();
 
-#if COCOS2D_DEBUG > 0
+#if CC_DEBUG > 0
         VkDebugUtilsMessengerCreateInfoEXT debugUtilsCreateInfo{VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT};
         VkDebugReportCallbackCreateInfoEXT debugReportCreateInfo{VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT};
         if (debugUtils) {
@@ -222,7 +222,7 @@ bool CCVKContext::initialize(const ContextInfo &info) {
 
         volkLoadInstance(_gpuContext->vkInstance);
 
-#if COCOS2D_DEBUG > 0
+#if CC_DEBUG > 0
         if (debugUtils) {
             VK_CHECK(vkCreateDebugUtilsMessengerEXT(_gpuContext->vkInstance, &debugUtilsCreateInfo, nullptr, &_gpuContext->vkDebugUtilsMessenger));
         } else {
@@ -487,7 +487,7 @@ void CCVKContext::destroy() {
             _gpuContext->vkSurface = VK_NULL_HANDLE;
         }
 
-#if COCOS2D_DEBUG > 0
+#if CC_DEBUG > 0
         if (_gpuContext->vkDebugUtilsMessenger != VK_NULL_HANDLE) {
             vkDestroyDebugUtilsMessengerEXT(_gpuContext->vkInstance, _gpuContext->vkDebugUtilsMessenger, nullptr);
             _gpuContext->vkDebugUtilsMessenger = VK_NULL_HANDLE;

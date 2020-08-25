@@ -68,7 +68,7 @@ void Ref::release()
 
     if (_referenceCount == 0)
     {
-#if defined(COCOS2D_DEBUG) && (COCOS2D_DEBUG > 0)
+#if defined(CC_DEBUG) && (CC_DEBUG > 0)
         auto poolManager = PoolManager::getInstance();
         if (!poolManager->getCurrentPool()->isClearing() && poolManager->isObjectInPools(this))
         {

@@ -30,7 +30,7 @@ namespace cc {
 
 AutoreleasePool::AutoreleasePool()
 : _name("")
-#if defined(COCOS2D_DEBUG) && (COCOS2D_DEBUG > 0)
+#if defined(CC_DEBUG) && (CC_DEBUG > 0)
 , _isClearing(false)
 #endif
 {
@@ -40,7 +40,7 @@ AutoreleasePool::AutoreleasePool()
 
 AutoreleasePool::AutoreleasePool(const std::string &name)
 : _name(name)
-#if defined(COCOS2D_DEBUG) && (COCOS2D_DEBUG > 0)
+#if defined(CC_DEBUG) && (CC_DEBUG > 0)
 , _isClearing(false)
 #endif
 {
@@ -63,7 +63,7 @@ void AutoreleasePool::addObject(Ref* object)
 
 void AutoreleasePool::clear()
 {
-#if defined(COCOS2D_DEBUG) && (COCOS2D_DEBUG > 0)
+#if defined(CC_DEBUG) && (CC_DEBUG > 0)
     _isClearing = true;
 #endif
     std::vector<Ref*> releasings;
@@ -72,7 +72,7 @@ void AutoreleasePool::clear()
     {
         obj->release();
     }
-#if defined(COCOS2D_DEBUG) && (COCOS2D_DEBUG > 0)
+#if defined(CC_DEBUG) && (CC_DEBUG > 0)
     _isClearing = false;
 #endif
 }

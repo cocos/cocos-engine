@@ -27,7 +27,7 @@ bool GLES2Texture::initialize(const TextureInfo &info) {
     _flags = info.flags;
     _size = FormatSize(_format, _width, _height, _depth);
 
-#if COCOS2D_DEBUG > 0
+#if CC_DEBUG > 0
     switch (_format) { // device feature validation
         case Format::D16:
             if (_device->hasFeature(Feature::FORMAT_D16)) break;

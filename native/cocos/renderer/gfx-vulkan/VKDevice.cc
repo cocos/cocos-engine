@@ -74,7 +74,7 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
 
     // only enable the absolute essentials for now
     vector<const char *> requestedValidationLayers{};
-#if COCOS2D_DEBUG > 0
+#if CC_DEBUG > 0
     requestedValidationLayers.push_back("VK_LAYER_KHRONOS_validation");
 #endif
     vector<const char *> requestedExtensions{

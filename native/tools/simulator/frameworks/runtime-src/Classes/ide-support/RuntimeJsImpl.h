@@ -57,6 +57,6 @@ private:
     bool loadScriptFile(const std::string& file);
 };
 
-#endif // (COCOS2D_DEBUG > 0) && (CC_CODE_IDE_DEBUG_SUPPORT > 0)
+#endif // (CC_DEBUG > 0) && (CC_CODE_IDE_DEBUG_SUPPORT > 0)
 
 #endif /* defined(__Simulator__RuntimeLua__) */
