@@ -44,7 +44,7 @@ import { Layers, Node, Scene } from '../../scene-graph';
 import { Enum } from '../../value-types';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { legacyCC } from '../../global-exports';
-import { RenderWindow } from '../../pipeline';
+import { RenderWindow } from '../../renderer/core/render-window';
 
 const _temp_vec3_1 = new Vec3();
 

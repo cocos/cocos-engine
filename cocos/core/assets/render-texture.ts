@@ -30,8 +30,8 @@
 import { ccclass, property, visible, rangeMin, rangeMax } from '../data/class-decorator';
 import { GFXTexture, GFXSampler, GFXColorAttachment, GFXDepthStencilAttachment, GFXTextureLayout, IGFXRenderPassInfo } from '../gfx';
 import { legacyCC } from '../global-exports';
-import { RenderWindow } from '../pipeline';
-import { IRenderWindowInfo } from '../pipeline/render-window';
+import { RenderWindow } from '../renderer/core/render-window';
+import { IRenderWindowInfo } from '../renderer/core/render-window';
 import { Root } from '../root';
 import { Asset } from './asset';
 import { samplerLib, defaultSamplerHash } from '../renderer/core/sampler-lib';

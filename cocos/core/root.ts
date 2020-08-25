@@ -15,7 +15,7 @@ import { SphereLight } from './renderer/scene/sphere-light';
 import { SpotLight } from './renderer/scene/spot-light';
 import { UI } from './renderer/ui/ui';
 import { legacyCC } from './global-exports';
-import { RenderWindow, IRenderWindowInfo } from './pipeline/render-window';
+import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
 import { ForwardPipeline } from './pipeline/forward/forward-pipeline';
 import { GFXColorAttachment, GFXDepthStencilAttachment, GFXStoreOp } from './gfx';
 import { RootHandle, RootPool, RootView, NULL_HANDLE } from './renderer/core/memory-pools';
