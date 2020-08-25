@@ -5,4 +5,4 @@
 #pragma define CC_USE_IBL range([0, 2])
 
 #pragma builtin(global)
-layout(binding = 26) uniform samplerCube cc_environment;
+layout(set = 0, binding = 3) uniform samplerCube cc_environment;

@@ -6,7 +6,7 @@
 import { EDITOR } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { ccclass, property } from '../data/class-decorator';
+import { ccclass, property, visible } from '../data/class-decorator';
 import { CompactValueTypeArray } from '../data/utils/compact-value-type-array';
 import { errorID } from '../platform/debug';
 import { DataPoolManager } from '../renderer/data-pool-manager';
@@ -164,7 +164,8 @@ export class AnimationClip extends Asset {
      * @zh 动画包含的事件数据。
      * @en Associated event data.
      */
-    @property({visible: false})
+    @property
+    @visible(false)
     public events: AnimationClip.IEvent[] = [];
 
     @property

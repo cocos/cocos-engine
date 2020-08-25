@@ -30,7 +30,7 @@
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 import { UI } from '../../core/renderer/ui/ui';
 import { MeshBuffer } from '../../core/renderer/ui/mesh-buffer';
-import { ccclass, help, menu, executionOrder, property } from '../../core/data/class-decorator';
+import { ccclass, help, menu, executionOrder, property, visible, type, displayName, override } from '../../core/data/class-decorator';
 import { UIDrawBatch } from '../../core/renderer/ui/ui-draw-batch';
 import { director, Color, Material, warnID } from '../../core';
 import { vfmt } from '../../core/renderer/ui/ui-vertex-format';
@@ -57,10 +57,8 @@ import { GFXBlendFactor } from '../../core/gfx';
 @menu('UI/Render/UIStaticBatch')
 @executionOrder(110)
 export class UIStaticBatchComponent extends UIRenderComponent {
-    @property({
-        visible: false,
-        override: true,
-    })
+    @override(true)
+    @visible(false)
     get dstBlendFactor () {
         return this._dstBlendFactor;
     }
@@ -74,10 +72,8 @@ export class UIStaticBatchComponent extends UIRenderComponent {
         this._updateBlendFunc();
     }
 
-    @property({
-        visible: false,
-        override: true,
-    })
+    @override(true)
+    @visible(false)
     get srcBlendFactor () {
         return this._srcBlendFactor;
     }
@@ -91,10 +87,8 @@ export class UIStaticBatchComponent extends UIRenderComponent {
         this._updateBlendFunc();
     }
 
-    @property({
-        visible: false,
-        override: true,
-    })
+    @override(true)
+    @visible(false)
     get color (): Readonly<Color> {
         return this._color;
     }
@@ -109,28 +103,19 @@ export class UIStaticBatchComponent extends UIRenderComponent {
         this.markForUpdateRenderData();
     }
 
-    @property({
-        type: Material,
-        displayOrder: 3,
-        visible: false,
-        override: true,
-    })
-    get sharedMaterial () {
-        return this._sharedMaterial;
+    @override(true)
+    @type(Material)
+    @displayName('Materials')
+    @visible(false)
+    get sharedMaterials () {
+        return super.sharedMaterials;
     }
 
-    set sharedMaterial (value) {
-        if (this._sharedMaterial === value) {
-            return;
-        }
-
-        this._sharedMaterial = value;
-        if (this._instanceMaterial) {
-            this._instanceMaterial();
-        }
+    set sharedMaterials (val) {
+        super.sharedMaterials = val;
     }
 
-    get drawBatchList (){
+    get drawBatchList () {
         return this._uiDrawBatchList;
     }
 
@@ -140,7 +125,7 @@ export class UIStaticBatchComponent extends UIRenderComponent {
     private _lastMeshBuffer: MeshBuffer | null = null;
     private _uiDrawBatchList: UIDrawBatch[] = [];
 
-    public onLoad() {
+    public onLoad () {
         const ui = this._getUI();
         if (!ui) {
             return;
@@ -152,7 +137,7 @@ export class UIStaticBatchComponent extends UIRenderComponent {
         this._meshBuffer = buffer;
     }
 
-    public onDestroy (){
+    public onDestroy () {
         super.onDestroy();
 
         this._clearData();
@@ -200,7 +185,7 @@ export class UIStaticBatchComponent extends UIRenderComponent {
      * 重新采集数据标记，会在当前帧的渲染阶段重新采集渲染数据，下一帧开始将会使用固定数据进行渲染。
      * 注意：尽量不要频繁调用此接口，因为会清空原先存储的 ia 数据重新采集，会有一定内存损耗。
      */
-    public markAsDirty() {
+    public markAsDirty () {
         if (!this._getUI()) {
             return;
         }
@@ -212,14 +197,14 @@ export class UIStaticBatchComponent extends UIRenderComponent {
         this._clearData();
     }
 
-    public _requireDrawBatch() {
+    public _requireDrawBatch () {
         const batch = new UIDrawBatch();
         batch.isStatic = true;
         this._uiDrawBatchList.push(batch);
         return batch;
     }
 
-    protected _clearData(){
+    protected _clearData () {
         if (this._meshBuffer) {
             this._meshBuffer!.reset();
 
@@ -235,7 +220,7 @@ export class UIStaticBatchComponent extends UIRenderComponent {
     }
 
     protected _getUI (){
-        if(director.root && director.root.ui){
+        if(director.root && director.root.ui) {
             return director.root.ui;
         }
 

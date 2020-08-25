@@ -3,17 +3,13 @@
  */
 
 import { GFXCommandBuffer } from '../gfx/command-buffer';
-import { Pass, IMacroPatch } from '../renderer';
+import { Pass } from '../renderer';
 import { SubModel } from '../renderer/scene/submodel';
-import { IRenderObject, UBOPCFShadow } from './define';
-import { GFXDevice, GFXRenderPass, GFXBuffer } from '../gfx';
+import { IRenderObject, SetIndex } from './define';
+import { GFXDevice, GFXRenderPass, GFXBuffer, GFXShader } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { BindingLayoutPool, PSOCIView, PSOCIPool } from '../renderer/core/memory-pools';
-
-const forwardShadowMapPatches: IMacroPatch[] = [
-    { name: 'CC_VSM_SHADOW', value: true },
-];
+import { DSPool, ShaderPool, PassHandle, PassPool, PassView, SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
 
 /**
  * @zh
@@ -21,12 +17,9 @@ const forwardShadowMapPatches: IMacroPatch[] = [
  */
 export class RenderShadowMapBatchedQueue {
     private _subModelsArray: SubModel[] = [];
-    private _psoCIArray: number[] = [];
-    private _shadowMapBuffer: GFXBuffer|null = null;
-
-    // psoCI cache
-    private _psoCICache: Map<SubModel, number> = new Map();
-
+    private _passArray: PassHandle[] = [];
+    private _shaderArray: GFXShader[] = [];
+    private _shadowMapBuffer: GFXBuffer | null = null;
     private _phaseID = getPhaseID('shadow-add');
 
     /**
@@ -35,36 +28,25 @@ export class RenderShadowMapBatchedQueue {
      */
     public clear (shadowMapBuffer: GFXBuffer) {
         this._subModelsArray.length = 0;
-        this._psoCIArray.length = 0;
+        this._shaderArray.length = 0;
+        this._passArray.length = 0;
         this._shadowMapBuffer = shadowMapBuffer;
     }
 
-    public add (pass: Pass, renderObj: IRenderObject, subModelIdx: number) {
+    public add (renderObj: IRenderObject, subModelIdx: number, passIdx: number) {
+        const subModel = renderObj.model.subModels[subModelIdx];
+        const pass = subModel.passes[passIdx];
+
         if (pass.phase === this._phaseID) {
-            const subModel = renderObj.model.subModels[subModelIdx];
-            const modelPatches = renderObj.model.getMacroPatches(subModelIdx);
-            const fullPatches = modelPatches ? forwardShadowMapPatches.concat(modelPatches) : forwardShadowMapPatches;
-
-            let psoCI: number;
-            if (this._psoCICache.has(subModel)) {
-                psoCI = this._psoCICache.get(subModel)!;
-            } else {
-                psoCI = pass.createPipelineStateCI(fullPatches)!;
-                this._psoCICache.set(subModel, psoCI);
-
-                renderObj.model.updateLocalBindings(psoCI, subModelIdx);
-                const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoCI, PSOCIView.BINDING_LAYOUT));
-                bindingLayout.bindBuffer(UBOPCFShadow.BLOCK.binding, this._shadowMapBuffer!);
-                bindingLayout.update();
-            }
-
             if (this._shadowMapBuffer) {
+                const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle);
                 this._subModelsArray.push(subModel);
-                this._psoCIArray.push(psoCI);
+                this._shaderArray.push(shader);
+                this._passArray.push(pass.handle);
             } else {
                 this._subModelsArray.length = 0;
-                this._psoCIArray.length = 0;
-                this._psoCICache.clear();
+                this._shaderArray.length = 0;
+                this._passArray.length = 0;
             }
         }
     }
@@ -76,13 +58,15 @@ export class RenderShadowMapBatchedQueue {
     public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
         for (let i = 0; i < this._subModelsArray.length; ++i) {
             const subModel = this._subModelsArray[i];
-            const psoCI = this._psoCIArray[i];
+            const shader = this._shaderArray[i];
+            const hPass = this._passArray[i];
             const ia = subModel.inputAssembler!;
-            const pso = PipelineStateManager.getOrCreatePipelineState(device, psoCI, renderPass, ia);
-            const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(psoCI, PSOCIView.BINDING_LAYOUT));
+            const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, ia);
+            const descriptorSet = DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET));
 
             cmdBuff.bindPipelineState(pso);
-            cmdBuff.bindBindingLayout(bindingLayout);
+            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, descriptorSet);
+            cmdBuff.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);
             cmdBuff.bindInputAssembler(ia);
             cmdBuff.draw(ia);
         }

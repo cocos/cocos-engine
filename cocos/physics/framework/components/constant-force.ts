@@ -11,10 +11,12 @@ import {
     requireComponent,
     disallowMultiple,
     tooltip,
+    displayOrder,
 } from '../../../core/data/class-decorator';
 import { Component } from '../../../core/components/component';
 import { RigidBodyComponent } from './rigid-body-component';
 import { Vec3 } from '../../../core/math/vec3';
+import { EDITOR } from 'internal:constants';
 
 /**
  * @en
@@ -52,9 +54,7 @@ export class ConstantForce extends Component {
      * @zh
      * 获取或设置世界坐标系下的力。
      */
-    @property({
-        displayOrder: 0,
-    })
+    @displayOrder(0)
     @tooltip('世界坐标系下的力')
     public get force () {
         return this._force;
@@ -71,9 +71,7 @@ export class ConstantForce extends Component {
      * @zh
      * 获取或设置本地坐标系下的力。
      */
-    @property({
-        displayOrder: 1,
-    })
+    @displayOrder(1)
     @tooltip('本地坐标系下的力')
     public get localForce () {
         return this._localForce;
@@ -90,9 +88,7 @@ export class ConstantForce extends Component {
      * @zh
      * 获取或设置世界坐标系下的扭转力。
      */
-    @property({
-        displayOrder: 2,
-    })
+    @displayOrder(2)
     @tooltip('世界坐标系下的扭转力')
     public get torque () {
         return this._torque;
@@ -109,9 +105,7 @@ export class ConstantForce extends Component {
      * @zh
      * 获取或设置本地坐标系下的扭转力。
      */
-    @property({
-        displayOrder: 3,
-    })
+    @displayOrder(3)
     @tooltip('本地坐标系下的扭转力')
     public get localTorque () {
         return this._localTorque;
@@ -131,22 +125,12 @@ export class ConstantForce extends Component {
     }
 
     public lateUpdate (dt: number) {
-        if (this._rigidBody != null && this._mask != 0) {
-
-            if (this._mask & 1) {
-                this._rigidBody.applyForce(this._force);
-            }
-
-            if (this._mask & 2) {
-                this._rigidBody.applyLocalForce(this.localForce);
-            }
-
-            if (this._mask & 4) {
-                this._rigidBody.applyTorque(this._torque);
-            }
-
-            if (this._mask & 8) {
-                this._rigidBody.applyLocalTorque(this._localTorque);
+        if (!EDITOR) {
+            if (this._rigidBody != null && this._mask != 0) {
+                if (this._mask & 1) this._rigidBody.applyForce(this._force);
+                if (this._mask & 2) this._rigidBody.applyLocalForce(this.localForce);
+                if (this._mask & 4) this._rigidBody.applyTorque(this._torque);
+                if (this._mask & 8) this._rigidBody.applyLocalTorque(this._localTorque);
             }
         }
     }

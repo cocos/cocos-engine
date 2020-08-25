@@ -194,6 +194,12 @@ class BuiltinResMgr {
         spriteAlphaGrayMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: true }, effectName: 'builtin-sprite' });
         resources[spriteAlphaGrayMtl._uuid] = spriteAlphaGrayMtl;
 
+        // ui graphics material
+        const defaultGraphicsMtl = new legacyCC.Material();
+        defaultGraphicsMtl._uuid = 'ui-graphics-material';
+        defaultGraphicsMtl.initialize({ effectName: 'builtin-graphics' });
+        resources[defaultGraphicsMtl._uuid] = defaultGraphicsMtl;
+
         // default particle material
         const defaultParticleMtl = new legacyCC.Material();
         defaultParticleMtl._uuid = 'default-particle-material';

@@ -6,10 +6,6 @@ import * as easing from './animation/easing';
 import { Material } from './assets/material';
 import { GFXBuffer } from './gfx/buffer';
 import { GFXCommandBuffer } from './gfx/command-buffer';
-import {
-    GFXBufferTextureCopy, GFXBufferUsageBit, GFXCommandBufferType, GFXFormat,
-    GFXMemoryUsageBit, GFXTextureType, GFXTextureUsageBit, IGFXRect, IGFXColor, GFXAddress
-} from './gfx/define';
 import { GFXDevice } from './gfx/device';
 import { GFXFramebuffer } from './gfx/framebuffer';
 import { GFXInputAssembler, IGFXAttribute } from './gfx/input-assembler';
@@ -17,11 +13,14 @@ import { GFXTexture } from './gfx/texture';
 import { clamp01 } from './math/utils';
 import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
 import { sys } from './platform/sys';
-import { GFXSampler } from './gfx';
+import { GFXSampler, GFXShader } from './gfx';
 import { PipelineStateManager } from './pipeline/pipeline-state-manager';
 import { legacyCC } from './global-exports';
 import { Root } from './root';
-import { BindingLayoutPool, PSOCIView, PSOCIPool } from './renderer/core/memory-pools';
+import { DSPool, ShaderPool, PassPool, PassView } from './renderer/core/memory-pools';
+import { SetIndex } from './pipeline/define';
+import { GFXBufferTextureCopy, GFXBufferUsageBit, GFXCommandBufferType, GFXFormat,
+    GFXMemoryUsageBit, GFXTextureType, GFXTextureUsageBit, GFXRect, GFXColor, GFXAddress } from './gfx/define';
 
 export type SplashEffectType = 'NONE' | 'FADE-INOUT';
 
@@ -29,7 +28,7 @@ export interface ISplashSetting {
     readonly totalTime: number;
     readonly base64src: string;
     readonly effect: SplashEffectType;
-    readonly clearColor: IGFXColor;
+    readonly clearColor: GFXColor;
     readonly displayRatio: number;
     readonly displayWatermark: boolean;
 }
@@ -57,13 +56,13 @@ export class SplashScreen {
     private assmebler!: GFXInputAssembler;
     private vertexBuffers!: GFXBuffer;
     private indicesBuffers!: GFXBuffer;
-    private psoCreateInfo!: number;
+    private shader!: GFXShader;
     private framebuffer!: GFXFramebuffer;
-    private renderArea!: IGFXRect;
+    private renderArea!: GFXRect;
     private region!: GFXBufferTextureCopy;
     private material!: Material;
     private texture!: GFXTexture;
-    private clearColors!: IGFXColor[];
+    private clearColors!: GFXColor[];
 
     private _splashFinish: boolean = false;
     private _loadFinish: boolean = false;
@@ -77,7 +76,7 @@ export class SplashScreen {
     private textIB!: GFXBuffer;
     private textAssmebler!: GFXInputAssembler;
     private textMaterial!: Material;
-    private textPSOCreateInfo!: number;
+    private textShader!: GFXShader;
 
     private screenWidth!: number;
     private screenHeight!: number;
@@ -90,7 +89,7 @@ export class SplashScreen {
             (this.setting.totalTime as number) = this.setting.totalTime != null ? this.setting.totalTime : 3000;
             (this.setting.base64src as string) = this.setting.base64src || '';
             (this.setting.effect as SplashEffectType) = this.setting.effect || 'FADE-INOUT';
-            (this.setting.clearColor as IGFXColor) = this.setting.clearColor || { r: 0.88, g: 0.88, b: 0.88, a: 1.0 };
+            (this.setting.clearColor as GFXColor) = this.setting.clearColor || { r: 0.88, g: 0.88, b: 0.88, a: 1.0 };
             (this.setting.displayRatio as number) = this.setting.displayRatio != null ? this.setting.displayRatio : 0.4;
             (this.setting.displayWatermark as boolean) = this.setting.displayWatermark != null ? this.setting.displayWatermark : true;
         } else {
@@ -250,16 +249,18 @@ export class SplashScreen {
         cmdBuff.beginRenderPass(framebuffer.renderPass, framebuffer, renderArea,
             this.clearColors, 1.0, 0);
 
-        const pso = PipelineStateManager.getOrCreatePipelineState(device, this.psoCreateInfo, framebuffer.renderPass!, this.assmebler);
+        const hPass = this.material.passes[0].handle;
+        const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, this.shader, framebuffer.renderPass, this.assmebler);
         cmdBuff.bindPipelineState(pso);
-        cmdBuff.bindBindingLayout(BindingLayoutPool.get(PSOCIPool.get(this.psoCreateInfo, PSOCIView.BINDING_LAYOUT)));
+        cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET)));
         cmdBuff.bindInputAssembler(this.assmebler);
         cmdBuff.draw(this.assmebler);
 
-        if (this.setting.displayWatermark && this.textPSOCreateInfo && this.textAssmebler) {
-            const psoWatermark = PipelineStateManager.getOrCreatePipelineState(device, this.textPSOCreateInfo, framebuffer.renderPass!, this.textAssmebler);
+        if (this.setting.displayWatermark && this.textShader && this.textAssmebler) {
+            const hPassText = this.textMaterial.passes[0].handle;
+            const psoWatermark = PipelineStateManager.getOrCreatePipelineState(device, hPassText, this.textShader, framebuffer.renderPass, this.textAssmebler);
             cmdBuff.bindPipelineState(psoWatermark);
-            cmdBuff.bindBindingLayout(BindingLayoutPool.get(PSOCIPool.get(this.textPSOCreateInfo, PSOCIView.BINDING_LAYOUT)));
+            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(hPassText, PassView.DESCRIPTOR_SET)));
             cmdBuff.bindInputAssembler(this.textAssmebler);
             cmdBuff.draw(this.textAssmebler);
         }
@@ -295,7 +296,7 @@ export class SplashScreen {
 
         this.textTexture = this.device.createTexture({
             type: GFXTextureType.TEX2D,
-            usage: GFXTextureUsageBit.SAMPLED,
+            usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
             format: GFXFormat.RGBA8,
             width: this.textImg.width,
             height: this.textImg.height,
@@ -312,8 +313,8 @@ export class SplashScreen {
         const binding = pass.getBinding('mainTexture');
         pass.bindTexture(binding!, this.textTexture!);
 
-        this.textPSOCreateInfo = pass.createPipelineStateCI();
-        BindingLayoutPool.get(PSOCIPool.get(this.textPSOCreateInfo, PSOCIView.BINDING_LAYOUT)).update();
+        this.textShader = ShaderPool.get(pass.getShaderVariant());
+        DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET)).update();
 
         /** Assembler */
         // create vertex buffer
@@ -482,7 +483,7 @@ export class SplashScreen {
 
         this.texture = device.createTexture({
             type: GFXTextureType.TEX2D,
-            usage: GFXTextureUsageBit.SAMPLED,
+            usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
             format: GFXFormat.RGBA8,
             width: this.image.width,
             height: this.image.height,
@@ -492,10 +493,10 @@ export class SplashScreen {
         const binding = pass.getBinding('mainTexture');
         pass.bindTexture(binding!, this.texture!);
 
-        this.psoCreateInfo = pass.createPipelineStateCI();
-        const bindingLayout = BindingLayoutPool.get(PSOCIPool.get(this.psoCreateInfo, PSOCIView.BINDING_LAYOUT));
-        bindingLayout.bindSampler(binding!, this.sampler);
-        bindingLayout.update();
+        this.shader = ShaderPool.get(pass.getShaderVariant());
+        const descriptorSet = DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET));
+        descriptorSet.bindSampler(binding!, this.sampler);
+        descriptorSet.update();
 
         this.region = new GFXBufferTextureCopy();
         this.region.texExtent.width = this.image.width;
@@ -516,8 +517,7 @@ export class SplashScreen {
         this.cmdBuff.destroy();
         this.cmdBuff = null!;
 
-        this.material.passes[0].destroyPipelineStateCI(this.psoCreateInfo);
-        this.psoCreateInfo = 0;
+        this.shader = null!;
 
         this.material.destroy();
         this.material = null!;
@@ -525,7 +525,7 @@ export class SplashScreen {
         this.texture.destroy();
         this.texture = null!;
 
-        this.assmebler.destroy();
+        // this.assmebler.destroy(); //TODO: IOS 导致崩溃, 临时绕过
         this.assmebler = null!;
 
         this.vertexBuffers.destroy();
@@ -542,8 +542,7 @@ export class SplashScreen {
             this.textImg = null!;
             this.textRegion = null!;
 
-            this.textMaterial.passes[0].destroyPipelineStateCI(this.textPSOCreateInfo);
-            this.textPSOCreateInfo = 0;
+            this.textShader = null!;
 
             this.textMaterial.destroy();
             this.textMaterial = null!;

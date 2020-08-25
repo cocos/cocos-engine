@@ -51,7 +51,8 @@ CCEffect %{
     - vert: toon-vs:vert
       frag: toon-fs:frag
       phase: forward-add
-      propertyIndex: 0
+      propertyIndex: 1
+      embeddedMacros: { CC_FORWARD_ADD: true }
       depthStencilState:
         depthFunc: equal
         depthTest: true
@@ -61,6 +62,8 @@ CCEffect %{
         - blend: true
           blendSrc: one
           blendDst: one
+          blendSrcAlpha: zero
+          blendDstAlpha: one
       properties: *props
 }%
 

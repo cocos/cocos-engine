@@ -29,7 +29,7 @@
  */
 
 import { Component, UITransformComponent } from '../../core/components';
-import { ccclass, help, executionOrder, menu, property, requireComponent, tooltip } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property, requireComponent, tooltip, displayOrder, type } from '../../core/data/class-decorator';
 import { Color, Size, Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp01 } from '../../core/math/utils';
@@ -95,10 +95,8 @@ export class ScrollBarComponent extends Component {
      * @zh
      * 作为当前滚动区域位置显示的滑块 Sprite。
      */
-    @property({
-        type: SpriteComponent,
-        displayOrder: 0,
-    })
+    @type(SpriteComponent)
+    @displayOrder(0)
     @tooltip('作为当前滚动区域位置显示的滑块 Sprite')
     get handle () {
         return this._handle;
@@ -109,7 +107,7 @@ export class ScrollBarComponent extends Component {
             return;
         }
         this._handle = value;
-        this.onScroll(new Vec3(0, 0, 0));
+        this.onScroll(ZERO);
     }
 
     /**
@@ -119,10 +117,8 @@ export class ScrollBarComponent extends Component {
      * @zh
      * ScrollBar 的滚动方向。
      */
-    @property({
-        type: Direction,
-        displayOrder: 1,
-    })
+    @type(Direction)
+    @displayOrder(1)
     @tooltip('ScrollBar 的滚动方向')
     get direction () {
         return this._direction;
@@ -144,9 +140,7 @@ export class ScrollBarComponent extends Component {
      * @zh
      * 是否在没有滚动动作时自动隐藏 ScrollBar。
      */
-    @property({
-        displayOrder: 2,
-    })
+    @displayOrder(2)
     @tooltip('是否在没有滚动动作时自动隐藏 ScrollBar')
     get enableAutoHide () {
         return this._enableAutoHide;
@@ -172,9 +166,7 @@ export class ScrollBarComponent extends Component {
      * 没有滚动动作后经过多久会自动隐藏。<br/>
      * 注意：只要当 “enableAutoHide” 为 true 时，才有效。
      */
-    @property({
-        displayOrder: 3,
-    })
+    @displayOrder(3)
     @tooltip('没有滚动动作后经过多久会自动隐藏。\n注意：只要当 “enableAutoHide” 为 true 时，才有效。')
     get autoHideTime () {
         return this._autoHideTime;
@@ -247,7 +239,7 @@ export class ScrollBarComponent extends Component {
             return;
         }
 
-        const contentSize = content._uiProps.uiTransformComp!.contentSize;
+        const contentSize = content.contentSize;
         const scrollViewSize = this._scrollView.node._uiProps.uiTransformComp!.contentSize;
         const barSize = this.node._uiProps.uiTransformComp!.contentSize;
 
@@ -321,10 +313,8 @@ export class ScrollBarComponent extends Component {
         if (this._scrollView) {
             const content = this._scrollView.content;
             if (content) {
-                const contentSize = content._uiProps.uiTransformComp!.contentSize;
                 const scrollViewSize = this._scrollView.node._uiProps.uiTransformComp!.contentSize;
-
-                if (this._conditionalDisableScrollBar(contentSize, scrollViewSize)) {
+                if (this._conditionalDisableScrollBar(content.contentSize, scrollViewSize)) {
                     return;
                 }
             }
@@ -350,13 +340,8 @@ export class ScrollBarComponent extends Component {
         this._processAutoHide(dt);
     }
 
-    protected _convertToScrollViewSpace (content: Node) {
-        if (!this._scrollView) {
-            return ZERO;
-        }
-
-        const scrollTrans = this._scrollView.node._uiProps.uiTransformComp;
-        const contentTrans = content._uiProps.uiTransformComp;
+    protected _convertToScrollViewSpace (contentTrans: UITransformComponent) {
+        const scrollTrans = this._scrollView && this._scrollView.node._uiProps.uiTransformComp;
         if (!scrollTrans || !contentTrans) {
             return ZERO;
         }

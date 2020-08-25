@@ -28,7 +28,7 @@
  * @category core
  */
 
-import { EDITOR, TEST, WECHAT, ALIPAY, XIAOMI, BAIDU, COCOSPLAY, JSB, MINIGAME, HUAWEI, OPPO, VIVO } from 'internal:constants';
+import { EDITOR, TEST, COCOSPLAY, JSB, MINIGAME, HUAWEI, OPPO, VIVO, RUNTIME_BASED } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID, log, logID } from './debug';
 
@@ -378,6 +378,12 @@ export const sys: { [x: string]: any; } = {
      */
     BROWSER_TYPE_IE: 'ie',
     /**
+     * @en Browser Type - Microsoft Edge
+     * @zh 浏览器类型 - 微软 Edge
+     * @default "edge"
+     */
+    BROWSER_TYPE_EDGE: "edge",
+    /**
      * @en Browser Type - QQ Browser
      * @zh 浏览器类型 - QQ 浏览器
      * @default "qqbrowser"
@@ -496,7 +502,7 @@ export const sys: { [x: string]: any; } = {
      * @en Whether the running platform is browser
      * @zh 指示运行平台是否是浏览器
      */
-    isBrowser: typeof window === 'object' && typeof document === 'object' && !MINIGAME && !JSB,
+    isBrowser: typeof window === 'object' && typeof document === 'object' && !MINIGAME && !JSB && !RUNTIME_BASED,
 
     /**
      * @en Indicate whether the current running context is a mobile system
@@ -661,7 +667,7 @@ export const sys: { [x: string]: any; } = {
      * @zh 尝试打开一个 web 页面，并非在所有平台都有效
      */
     openURL (url) {
-        if (JSB) {
+        if (JSB || RUNTIME_BASED) {
             // @ts-ignore
             jsb.openURL(url);
         }
@@ -747,7 +753,7 @@ if (_global.__globalAdapter && _global.__globalAdapter.adaptSys) {
 //     };
 //     sys.__audioSupport = {};
 // }
-else if (JSB) {
+else if (JSB || RUNTIME_BASED) {
     // @ts-ignore
     const platform = sys.platform = __getPlatform();
     sys.isMobile = (platform === sys.ANDROID ||
@@ -863,7 +869,7 @@ else {
     /* Determine the browser type */
     (function () {
         const typeReg1 = /mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
-        const typeReg2 = /qqbrowser|ucbrowser/i;
+        const typeReg2 = /qqbrowser|ucbrowser|edge/i;
         const typeReg3 = /chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
         let browserTypes = typeReg1.exec(ua);
         if (!browserTypes) { browserTypes = typeReg2.exec(ua); }
@@ -893,6 +899,9 @@ else {
         }
         else if (browserType === 'trident') {
             browserType = sys.BROWSER_TYPE_IE;
+        }
+        else if (browserType === 'edge') {
+            browserType === sys.BROWSER_TYPE_EDGE;
         }
         else if (browserType === '360 aphone') {
             browserType = sys.BROWSER_TYPE_360;
@@ -968,9 +977,6 @@ else {
     if (TEST) {
         _supportWebGL = false;
     }
-    else if (WECHAT) {
-        _supportWebGL = true;
-    }
     else if (win.WebGLRenderingContext) {
         // @ts-ignore
         if (create3DContext(document.createElement('CANVAS'))) {
@@ -1044,9 +1050,7 @@ else {
 
         // check if browser supports Web Audio
         // check Web Audio's context
-        const supportWebAudio = !WECHAT &&
-            // @ts-ignore
-            !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
+        const supportWebAudio = !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 
         __audioSupport = { ONLY_ONE: false, WEB_AUDIO: supportWebAudio, DELAY_CREATE_CTX: false };
 

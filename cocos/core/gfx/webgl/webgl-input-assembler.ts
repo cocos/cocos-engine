@@ -1,11 +1,10 @@
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
-import { WebGLGFXBuffer } from './webgl-buffer';
+import { WebGLBuffer } from './webgl-buffer';
 import { WebGLCmdFuncCreateInputAssember, WebGLCmdFuncDestroyInputAssembler } from './webgl-commands';
-import { WebGLGFXDevice } from './webgl-device';
-import { IWebGLGPUInputAssembler, WebGLGPUBuffer } from './webgl-gpu-objects';
-import { GFXStatus } from '../define';
+import { WebGLDevice } from './webgl-device';
+import { IWebGLGPUInputAssembler, IWebGLGPUBuffer } from './webgl-gpu-objects';
 
-export class WebGLGFXInputAssembler extends GFXInputAssembler {
+export class WebGLInputAssembler extends GFXInputAssembler {
 
     get gpuInputAssembler (): IWebGLGPUInputAssembler {
         return  this._gpuInputAssembler!;
@@ -34,18 +33,18 @@ export class WebGLGFXInputAssembler extends GFXInputAssembler {
 
         this._indirectBuffer = info.indirectBuffer || null;
 
-        const gpuVertexBuffers: WebGLGPUBuffer[] = new Array<WebGLGPUBuffer>(info.vertexBuffers.length);
+        const gpuVertexBuffers: IWebGLGPUBuffer[] = new Array<IWebGLGPUBuffer>(info.vertexBuffers.length);
         for (let i = 0; i < info.vertexBuffers.length; ++i) {
-            const vb = info.vertexBuffers[i] as WebGLGFXBuffer;
+            const vb = info.vertexBuffers[i] as WebGLBuffer;
             if (vb.gpuBuffer) {
                 gpuVertexBuffers[i] = vb.gpuBuffer;
             }
         }
 
-        let gpuIndexBuffer: WebGLGPUBuffer | null = null;
+        let gpuIndexBuffer: IWebGLGPUBuffer | null = null;
         let glIndexType = 0;
         if (info.indexBuffer) {
-            gpuIndexBuffer = (info.indexBuffer as WebGLGFXBuffer).gpuBuffer;
+            gpuIndexBuffer = (info.indexBuffer as WebGLBuffer).gpuBuffer;
             if (gpuIndexBuffer) {
                 switch (gpuIndexBuffer.stride) {
                     case 1: glIndexType = 0x1401; break; // WebGLRenderingContext.UNSIGNED_BYTE
@@ -58,9 +57,9 @@ export class WebGLGFXInputAssembler extends GFXInputAssembler {
             }
         }
 
-        let gpuIndirectBuffer: WebGLGPUBuffer | null = null;
+        let gpuIndirectBuffer: IWebGLGPUBuffer | null = null;
         if (info.indirectBuffer !== undefined) {
-            gpuIndirectBuffer = (info.indirectBuffer as WebGLGFXBuffer).gpuBuffer;
+            gpuIndirectBuffer = (info.indirectBuffer as WebGLBuffer).gpuBuffer;
         }
 
         this._gpuInputAssembler = {
@@ -74,19 +73,16 @@ export class WebGLGFXInputAssembler extends GFXInputAssembler {
             glVAOs: new Map<WebGLProgram, WebGLVertexArrayObjectOES>(),
         };
 
-        WebGLCmdFuncCreateInputAssember(this._device as WebGLGFXDevice, this._gpuInputAssembler);
-
-        this._status = GFXStatus.SUCCESS;
+        WebGLCmdFuncCreateInputAssember(this._device as WebGLDevice, this._gpuInputAssembler);
 
         return true;
     }
 
     public destroy () {
-        const webglDev = this._device as WebGLGFXDevice;
+        const webglDev = this._device as WebGLDevice;
         if (this._gpuInputAssembler && webglDev.useVAO) {
             WebGLCmdFuncDestroyInputAssembler(webglDev, this._gpuInputAssembler);
         }
         this._gpuInputAssembler = null;
-        this._status = GFXStatus.UNREADY;
     }
 }

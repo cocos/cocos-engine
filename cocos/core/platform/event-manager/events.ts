@@ -444,15 +444,18 @@ export class EventTouch extends Event {
 
     private _touches: Touch[];
 
+    private _allTouches: Touch[];
+
     /**
      * @param touches - An array of current touches
      * @param bubbles - Indicate whether the event bubbles up through the hierarchy or not.
      * @param eventCode - The type code of the touch event
      */
-    constructor (touches?: Touch[], bubbles?: boolean, eventCode?: number) {
+    constructor (changedTouches?: Touch[], bubbles?: boolean, eventCode?: number, touches?: Touch[]) {
         super(Event.TOUCH, bubbles);
         this._eventCode = eventCode || 0;
-        this._touches = touches || [];
+        this._touches = changedTouches || [];
+        this._allTouches = touches || [];
     }
 
     /**
@@ -465,10 +468,21 @@ export class EventTouch extends Event {
 
     /**
      * @en Returns touches of event.
-     * @zh 获取触摸点的列表。
+     * @zh 获取有变动的触摸点的列表。
+     * 注意：第一根手指按下不动，接着按第二根手指，这时候触点信息就只有变动的这根手指（第二根手指）的信息。
+     * 如果需要获取全部手指的信息，请使用 `getAllTouches`。
      */
     public getTouches () {
         return this._touches;
+    }
+
+    /**
+     * @en Returns touches of event.
+     * @zh 获取所有触摸点的列表。
+     * 注意：如果手指行为是 touch end，这个时候列表是没有该手指信息的。如需知道该手指信息，可通过 `getTouches` 获取识别。
+     */
+    public getAllTouches () {
+        return this._allTouches;
     }
 
     /**

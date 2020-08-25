@@ -1,18 +1,17 @@
-import { GFXShader, IGFXShaderInfo } from '../shader';
+import { GFXShader, GFXShaderInfo } from '../shader';
 import { WebGLCmdFuncCreateShader, WebGLCmdFuncDestroyShader } from './webgl-commands';
-import { WebGLGFXDevice } from './webgl-device';
-import { WebGLGPUShader, WebGLGPUShaderStage } from './webgl-gpu-objects';
-import { GFXStatus } from '../define';
+import { WebGLDevice } from './webgl-device';
+import { IWebGLGPUShader, IWebGLGPUShaderStage } from './webgl-gpu-objects';
 
-export class WebGLGFXShader extends GFXShader {
+export class WebGLShader extends GFXShader {
 
-    get gpuShader (): WebGLGPUShader {
+    get gpuShader (): IWebGLGPUShader {
         return  this._gpuShader!;
     }
 
-    private _gpuShader: WebGLGPUShader | null = null;
+    private _gpuShader: IWebGLGPUShader | null = null;
 
-    public initialize (info: IGFXShaderInfo): boolean {
+    public initialize (info: GFXShaderInfo): boolean {
 
         this._name = info.name;
         this._stages = info.stages;
@@ -22,10 +21,10 @@ export class WebGLGFXShader extends GFXShader {
 
         this._gpuShader = {
             name: info.name ? info.name : '',
-            blocks: (info.blocks !== undefined ? info.blocks : []),
-            samplers: (info.samplers !== undefined ? info.samplers : []),
+            blocks: info.blocks !== undefined ? info.blocks : [],
+            samplers: info.samplers !== undefined ? info.samplers : [],
 
-            gpuStages: new Array<WebGLGPUShaderStage>(info.stages.length),
+            gpuStages: new Array<IWebGLGPUShaderStage>(info.stages.length),
             glProgram: null,
             glInputs: [],
             glUniforms: [],
@@ -36,25 +35,21 @@ export class WebGLGFXShader extends GFXShader {
         for (let i = 0; i < info.stages.length; ++i) {
             const stage = info.stages[i];
             this._gpuShader.gpuStages[i] = {
-                type: stage.type,
+                type: stage.stage,
                 source: stage.source,
-                macros: stage.macros ? stage.macros : [],
                 glShader: null,
             };
         }
 
-        WebGLCmdFuncCreateShader(this._device as WebGLGFXDevice, this._gpuShader);
-
-        this._status = GFXStatus.SUCCESS;
+        WebGLCmdFuncCreateShader(this._device as WebGLDevice, this._gpuShader);
 
         return true;
     }
 
     public destroy () {
         if (this._gpuShader) {
-            WebGLCmdFuncDestroyShader(this._device as WebGLGFXDevice, this._gpuShader);
+            WebGLCmdFuncDestroyShader(this._device as WebGLDevice, this._gpuShader);
             this._gpuShader = null;
         }
-        this._status = GFXStatus.UNREADY;
     }
 }

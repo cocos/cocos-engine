@@ -2,48 +2,30 @@
  * @category pipeline
  */
 
-import { ccclass, property } from '../../data/class-decorator';
-import { RenderPipeline } from '../render-pipeline';
+import { ccclass, property, displayOrder, visible, type } from '../../data/class-decorator';
+import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
 import { UIFlow } from '../ui/ui-flow';
 import { ForwardFlow } from './forward-flow';
-import { Root } from '../../root';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
-import { Light, genSamplerHash, samplerLib } from '../../renderer';
-import { GFXBuffer } from '../../gfx/buffer';
-import { LightType } from '../../renderer/scene/light';
-import { SphereLight } from '../../renderer/scene/sphere-light';
-import { SpotLight } from '../../renderer/scene/spot-light';
-import { IRenderObject, UBOGlobal, UBOShadow, UBOPCFShadow,
-    UNIFORM_ENVIRONMENT, UBOForwardLight, UNIFORM_SHADOWMAP} from '../define';
-import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit,
-    GFXStoreOp, GFXCommandBufferType, GFXClearFlag, GFXFilter, GFXAddress } from '../../gfx/define';
-import { RenderTexture } from '../../assets/render-texture';
-import { Material } from '../../assets/material';
+import { genSamplerHash, samplerLib } from '../../renderer';
+import { IRenderObject, UBOGlobal, UBOShadow,
+    UNIFORM_SHADOWMAP, globalDescriptorSetLayout, localDescriptorSetLayout} from '../define';
+import { GFXBufferUsageBit, GFXMemoryUsageBit,
+    GFXClearFlag, GFXFilter, GFXAddress, GFXCommandBufferType } from '../../gfx/define';
 import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
-import { Mat4, Vec3, Vec2, Quat, Vec4 } from '../../math';
+import { Mat4, Vec3, Vec4} from '../../math';
 import { GFXFeature } from '../../gfx/device';
-import { GFXCommandBuffer } from '../../gfx/command-buffer';
+import { Fog } from '../../renderer/scene/fog';
+import { Ambient } from '../../renderer/scene/ambient';
+import { Skybox } from '../../renderer/scene/skybox';
+import { Shadows, ShadowType } from '../../renderer/scene/shadows';
 
-const _vec4Array = new Float32Array(4);
-const shadowCamera_W_P = new Vec3();
-const shadowCamera_W_R = new Quat();
-const shadowCamera_W_S = new Vec3();
-const shadowCamera_W_T = new Mat4();
-
-const shadowCamera_M_V = new Mat4();
-const shadowCamera_M_P = new Mat4();
-const shadowCamera_M_V_P = new Mat4();
-
-// Define shadwoMapCamera
-const shadowCamera_Near = 0.1;
-const shadowCamera_Far = 1000.0;
-const shadowCamera_Fov = 45.0;
-const shadowCamera_Aspect = 1.0;
-const shadowCamera_OrthoSize = 20.0;
+const matShadowView = new Mat4();
+const matShadowViewProj = new Mat4();
 
 /**
  * @en The forward render pipeline
@@ -51,111 +33,65 @@ const shadowCamera_OrthoSize = 20.0;
  */
 @ccclass('ForwardPipeline')
 export class ForwardPipeline extends RenderPipeline {
-    /**
-     * @en The lights participating the render process
-     * @zh 参与渲染的灯光。
-     */
-    public get validLights () {
-        return this._validLights;
-    }
 
-    /**
-     * @en The buffer array of lights
-     * @zh 灯光 buffer 数组。
-     */
-    public get lightBuffers () {
-        return this._lightBuffers;
-    }
-
-    /**
-     * @en The index buffer offset of lights
-     * @zh 灯光索引缓存偏移量数组。
-     */
-    public get lightIndexOffsets () {
-        return this._lightIndexOffsets;
-    };
-
-    /**
-     * @en The indices of lights
-     * @zh 灯光索引数组。
-     */
-    public get lightIndices () {
-        return this._lightIndices;
-    }
-
-    public get isHDR () {
+    get isHDR () {
         return this._isHDR;
     }
 
-    public set isHDR (val) {
+    set isHDR (val) {
         if (this._isHDR === val) {
             return
         }
 
         this._isHDR = val;
-        const defaultGlobalUBOData = this._uboGlobal.view;
+        const defaultGlobalUBOData = this._globalUBO;
         defaultGlobalUBOData[UBOGlobal.EXPOSURE_OFFSET + 2] = this._isHDR ? 1.0 : 0.0;
-        const globalUBOBuffer = this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!;
-        globalUBOBuffer.update(defaultGlobalUBOData);
     }
 
-    public get shadingScale (): number {
+    get shadingScale (): number {
         return this._shadingScale;
     }
 
-    public get fpScale (): number {
+    get fpScale (): number {
         return this._fpScale;
     }
 
     /**
-     * @zh
-     * 获取阴影UBO。
+     * @en Get shadow UBO.
+     * @zh 获取阴影UBO。
      */
-    public  get shadowUBOBuffer (){
-        return this._globalBindings.get(UBOPCFShadow.BLOCK.name)!.buffer!;
+    get shadowUBO (): Float32Array {
+        return this._shadowUBO;
     }
 
-    /**
-     * @zh
-     * 获取阴影贴图分辨率
-     */
-    public get shadowMapSize () {
-        return this._shadowMapSize;
-    }
-
-    @property({
-        type: [RenderTextureConfig],
-    })
+    @type([RenderTextureConfig])
+    @displayOrder(2)
     protected renderTextures: RenderTextureConfig[] = [];
-    @property({
-        type: [MaterialConfig],
-    })
+
+    @type([MaterialConfig])
+    @displayOrder(3)
     protected materials: MaterialConfig[] = [];
+
+    public fog: Fog = new Fog();
+    public ambient: Ambient = new Ambient();
+    public skybox: Skybox = new Skybox();
+    public shadows: Shadows = new Shadows();
     /**
      * @en The list for render objects, only available after the scene culling of the current frame.
      * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
      * @readonly
      */
     public renderObjects: IRenderObject[] = [];
-    public commandBuffers: GFXCommandBuffer[] = [];
-    protected _renderTextures: Map<string, RenderTexture> = new Map<string, RenderTexture>();
-    protected _materials: Map<string, Material> = new Map<string, Material>();
-    protected _validLights: Light[] = [];
-    protected _lightBuffers: GFXBuffer[] = [];
-    protected _lightIndexOffsets: number[] = [];
-    protected _lightIndices: number[] = [];
-    protected _uboGlobal: UBOGlobal = new UBOGlobal();
-    protected _uboLight: UBOForwardLight = new UBOForwardLight();
+    public shadowObjects: IRenderObject[] = [];
     protected _isHDR: boolean = false;
-    protected _lightMeterScale: number = 10000.0;
     protected _shadingScale: number = 1.0;
     protected _fpScale: number = 1.0 / 1024.0;
     protected _renderPasses = new Map<GFXClearFlag, GFXRenderPass>();
-    protected _root: Root | null = null;
-    protected _uboPCFShadow: UBOPCFShadow = new UBOPCFShadow();
-    protected _shadowMapSize: Vec2 = new Vec2(512, 512);
-    public initialize (): boolean {
-        super.initialize();
+    protected _globalUBO = new Float32Array(UBOGlobal.COUNT);
+    protected _shadowUBO = new Float32Array(UBOShadow.COUNT);
+
+    public initialize (info: IRenderPipelineInfo): boolean {
+        super.initialize(info);
 
         const shadowFlow = new ShadowFlow();
         shadowFlow.initialize(ShadowFlow.initInfo);
@@ -165,41 +101,22 @@ export class ForwardPipeline extends RenderPipeline {
         forwardFlow.initialize(ForwardFlow.initInfo);
         this._flows.push(forwardFlow);
 
-        // init textures
-        for (let i = 0; i < this.renderTextures.length; i++) {
-            const rtd = this.renderTextures[i];
-            if (rtd.name !== '' && rtd.texture !== null) {
-                this._renderTextures.set(rtd.name, rtd.texture);
-            }
-        }
-
-        // init materials
-        for (let i = 0; i < this.materials.length; i++) {
-            const mats = this.materials[i];
-            if (mats.name !== '' && mats.material !== null) {
-                this._materials.set(mats.name, mats.material);
-            }
-        }
-
         return true;
     }
 
     public activate (): boolean {
+        this._globalDescriptorSetLayout = globalDescriptorSetLayout;
+        this._localDescriptorSetLayout = localDescriptorSetLayout;
+        this._macros = {};
+
         if (!super.activate()) {
             return false;
         }
-
-        this._root = legacyCC.director.root;
 
         if (!this._activeRenderer()) {
             console.error('ForwardPipeline startup failed!');
             return false;
         }
-
-        const uiFlow = new UIFlow();
-        uiFlow.initialize(UIFlow.initInfo);
-        this._flows.push(uiFlow);
-        uiFlow.activate(this);
 
         return true;
     }
@@ -244,119 +161,64 @@ export class ForwardPipeline extends RenderPipeline {
      */
     public updateUBOs (view: RenderView) {
         this._updateUBO(view);
-        const exposure = view.camera.exposure;
-        const lightMeterScale = this._lightMeterScale;
         const mainLight = view.camera.scene!.mainLight;
         const device = this.device;
+        const shadowInfo = this.shadows;
 
-        if (mainLight) {
-            shadowCamera_W_P.set(mainLight!.node!.getWorldPosition());
-            shadowCamera_W_R.set(mainLight!.node!.getWorldRotation());
-            shadowCamera_W_S.set(mainLight!.node!.getWorldScale());
+        if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
+            // light view
+            Mat4.invert(matShadowView, mainLight!.node!.worldMatrix);
 
-            // world Transfrom
-            Mat4.fromRTS(shadowCamera_W_T, shadowCamera_W_R, shadowCamera_W_P, shadowCamera_W_S);
+            // light proj
+            const x = shadowInfo.orthoSize * shadowInfo.aspect;
+            const y = shadowInfo.orthoSize;
+            const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY;
+            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, shadowInfo.far,
+                device.clipSpaceMinZ, projectionSignY);
 
-            // camera view
-            Mat4.invert(shadowCamera_M_V, shadowCamera_W_T);
+            // light viewProj
+            Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
 
-            // camera proj
-            // Mat4.perspective(shadowCamera_M_P, shadowCamera_Fov, shadowCamera_Aspect, shadowCamera_Near, shadowCamera_Far);
-            const x = shadowCamera_OrthoSize * shadowCamera_Aspect;
-            const y = shadowCamera_OrthoSize;
-            Mat4.ortho(shadowCamera_M_P, -x, x, -y, y, shadowCamera_Near, shadowCamera_Far,
-                 device.clipSpaceMinZ, device.screenSpaceSignY);
-
-            // camera viewProj
-            Mat4.multiply(shadowCamera_M_V_P, shadowCamera_M_P, shadowCamera_M_V);
-
-            Mat4.toArray(this._uboGlobal.view, shadowCamera_M_V_P, UBOGlobal.MAIN_SHADOW_MATRIX_OFFSET);
-            // update ubos
-            this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._uboGlobal.view);
+            Mat4.toArray(this._shadowUBO, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
         }
 
-        // Fill Shadow UBO
-        // Fill cc_shadowMatViewProj
-        Mat4.toArray(this._uboPCFShadow.view, shadowCamera_M_V_P, UBOPCFShadow.MAT_SHADOW_VIEW_PROJ_OFFSET);
-        this._globalBindings.get(UBOPCFShadow.BLOCK.name)!.buffer!.update(this._uboPCFShadow.view);
-
-        // Fill UBOForwardLight, And update LightGFXBuffer[light_index]
-        for(let l = 0; l < this.validLights.length; ++l) {
-            this._uboLight.view.fill(0);
-            const light = this.validLights[l];
-            if (light) {
-                switch (light.type) {
-                    case LightType.SPHERE:
-                        const sphereLit = light as SphereLight;
-                        Vec3.toArray(_vec4Array, sphereLit.position);
-                        this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_POS_OFFSET);
-
-                        _vec4Array[0] = sphereLit.size;
-                        _vec4Array[1] = sphereLit.range;
-                        _vec4Array[2] = 0.0;
-                        this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
-
-                        Vec3.toArray(_vec4Array, light.color);
-                        if (light.useColorTemperature) {
-                            const tempRGB = light.colorTemperatureRGB;
-                            _vec4Array[0] *= tempRGB.x;
-                            _vec4Array[1] *= tempRGB.y;
-                            _vec4Array[2] *= tempRGB.z;
-                        }
-                        if (this._isHDR) {
-                            _vec4Array[3] = sphereLit.luminance * this._fpScale * lightMeterScale;
-                        } else {
-                            _vec4Array[3] = sphereLit.luminance * exposure * lightMeterScale;
-                        }
-                        this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_COLOR_OFFSET);
-                    break;
-                    case LightType.SPOT:
-                        const spotLit = light as SpotLight;
-
-                        Vec3.toArray(_vec4Array, spotLit.position);
-                        _vec4Array[3] = spotLit.size;
-                        this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_POS_OFFSET);
-
-                        _vec4Array[0] = spotLit.size;
-                        _vec4Array[1] = spotLit.range;
-                        _vec4Array[2] = spotLit.spotAngle;
-                        this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
-
-                        Vec3.toArray(_vec4Array, spotLit.direction);
-                        this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_DIR_OFFSET);
-
-                        Vec3.toArray(_vec4Array, light.color);
-                        if (light.useColorTemperature) {
-                            const tempRGB = light.colorTemperatureRGB;
-                            _vec4Array[0] *= tempRGB.x;
-                            _vec4Array[1] *= tempRGB.y;
-                            _vec4Array[2] *= tempRGB.z;
-                        }
-                        if (this._isHDR) {
-                            _vec4Array[3] = spotLit.luminance * this._fpScale * lightMeterScale;
-                        } else {
-                            _vec4Array[3] = spotLit.luminance * exposure * lightMeterScale;
-                        }
-                        this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_COLOR_OFFSET);
-                    break;
-                }
-            }
-            // update lightBuffer
-            this._lightBuffers[l].update(this._uboLight.view);
-        }
+        // update ubos
+        this._descriptorSet.getBuffer(UBOGlobal.BLOCK.binding).update(this._globalUBO);
+        this._descriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(this._shadowUBO);
     }
 
     private _activeRenderer () {
         const device = this.device;
 
-        this.commandBuffers[0] = device.createCommandBuffer({
+        this._commandBuffers.push(device.createCommandBuffer({
             type: GFXCommandBufferType.PRIMARY,
-            queue: device.queue,
-        });
+            queue: this._device.queue,
+        }));
 
-        if (!this._createUBOs()) {
-            return false;
-        }
+        const globalUBO = device.createBuffer({
+            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: UBOGlobal.SIZE,
+        });
+        this._descriptorSet.bindBuffer(UBOGlobal.BLOCK.binding, globalUBO);
+
+        const shadowUBO = device.createBuffer({
+            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: UBOShadow.SIZE,
+        });
+        this._descriptorSet.bindBuffer(UBOShadow.BLOCK.binding, shadowUBO);
+
+        const shadowMapSamplerHash = genSamplerHash([
+            GFXFilter.LINEAR,
+            GFXFilter.LINEAR,
+            GFXFilter.NONE,
+            GFXAddress.CLAMP,
+            GFXAddress.CLAMP,
+            GFXAddress.CLAMP,
+        ]);
+        const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
+        this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP.binding, shadowMapSampler);
 
         // update global defines when all states initialized.
         this.macros.CC_USE_HDR = this._isHDR;
@@ -365,96 +227,26 @@ export class ForwardPipeline extends RenderPipeline {
         return true;
     }
 
-    private _createUBOs (): boolean {
-        const device = this.device!;
-        const globalBindings = this._globalBindings;
-        if (!globalBindings.get(UBOGlobal.BLOCK.name)) {
-            const globalUBO = device.createBuffer({
-                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: UBOGlobal.SIZE,
-            });
-
-            globalBindings.set(UBOGlobal.BLOCK.name, {
-                type: GFXBindingType.UNIFORM_BUFFER,
-                blockInfo: UBOGlobal.BLOCK,
-                buffer: globalUBO,
-            });
-        }
-
-        if (!globalBindings.get(UBOShadow.BLOCK.name)) {
-            const shadowUBO = device.createBuffer({
-                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: UBOShadow.SIZE,
-            });
-
-            globalBindings.set(UBOShadow.BLOCK.name, {
-                type: GFXBindingType.UNIFORM_BUFFER,
-                blockInfo: UBOShadow.BLOCK,
-                buffer: shadowUBO,
-            });
-        }
-
-        if (!globalBindings.get(UNIFORM_ENVIRONMENT.name)) {
-            globalBindings.set(UNIFORM_ENVIRONMENT.name, {
-                type: GFXBindingType.SAMPLER,
-                samplerInfo: UNIFORM_ENVIRONMENT,
-            });
-        }
-
-        if (!globalBindings.get(UBOPCFShadow.BLOCK.name)) {
-            const shadowPCFUBO = device.createBuffer({
-                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: UBOPCFShadow.SIZE,
-            });
-
-            globalBindings.set(UBOPCFShadow.BLOCK.name, {
-                type: GFXBindingType.UNIFORM_BUFFER,
-                blockInfo: UBOPCFShadow.BLOCK,
-                buffer: shadowPCFUBO,
-            });
-        }
-
-        if (!globalBindings.get(UNIFORM_SHADOWMAP.name)) {
-            globalBindings.set(UNIFORM_SHADOWMAP.name, {
-                type: GFXBindingType.SAMPLER,
-                samplerInfo: UNIFORM_SHADOWMAP,
-            });
-            const shadowMapSamplerHash = genSamplerHash([
-                GFXFilter.LINEAR,
-                GFXFilter.LINEAR,
-                GFXFilter.NONE,
-                GFXAddress.CLAMP,
-                GFXAddress.CLAMP,
-                GFXAddress.CLAMP,
-            ]);
-            const shadowmapUniform = globalBindings.get(UNIFORM_SHADOWMAP.name);
-            const sampler = samplerLib.getSampler(device, shadowMapSamplerHash);
-            shadowmapUniform!.sampler = sampler;
-        }
-
-        return true;
-    }
-
     private _updateUBO (view: RenderView) {
+        this._descriptorSet.update();
+
+        const root = legacyCC.director.root;
+
         const camera = view.camera;
         const scene = camera.scene!;
 
         const mainLight = scene.mainLight;
-        const ambient = scene.ambient;
-        const fog = scene.fog;
-        const uboGlobal = this._uboGlobal;
-        const fv = uboGlobal.view;
+        const ambient = this.ambient;
+        const fog = this.fog;
+        const fv = this._globalUBO;
         const device = this.device;
 
         const shadingWidth = Math.floor(device.width);
         const shadingHeight = Math.floor(device.height);
 
         // update UBOGlobal
-        fv[UBOGlobal.TIME_OFFSET] = this._root!.cumulativeTime;
-        fv[UBOGlobal.TIME_OFFSET + 1] = this._root!.frameTime;
+        fv[UBOGlobal.TIME_OFFSET] = root.cumulativeTime;
+        fv[UBOGlobal.TIME_OFFSET + 1] = root.frameTime;
         fv[UBOGlobal.TIME_OFFSET + 2] = legacyCC.director.getTotalFrames();
 
         fv[UBOGlobal.SCREEN_SIZE_OFFSET] = device.width;
@@ -511,17 +303,17 @@ export class ForwardPipeline extends RenderPipeline {
             Vec4.toArray(fv, Vec4.ZERO, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
         }
 
-        const skyColor = ambient.skyColor;
+        const skyColor = ambient.colorArray;
         if (this._isHDR) {
             skyColor[3] = ambient.skyIllum * this._fpScale;
         } else {
             skyColor[3] = ambient.skyIllum * exposure;
         }
         fv.set(skyColor, UBOGlobal.AMBIENT_SKY_OFFSET);
-        fv.set(ambient.groundAlbedo, UBOGlobal.AMBIENT_GROUND_OFFSET);
+        fv.set(ambient.albedoArray, UBOGlobal.AMBIENT_GROUND_OFFSET);
 
         if (fog.enabled) {
-            fv.set(fog.fogColor, UBOGlobal.GLOBAL_FOG_COLOR_OFFSET);
+            fv.set(fog.colorArray, UBOGlobal.GLOBAL_FOG_COLOR_OFFSET);
 
             fv[UBOGlobal.GLOBAL_FOG_BASE_OFFSET] = fog.fogStart;
             fv[UBOGlobal.GLOBAL_FOG_BASE_OFFSET + 1] = fog.fogEnd;
@@ -531,33 +323,17 @@ export class ForwardPipeline extends RenderPipeline {
             fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 1] = fog.fogRange;
             fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 2] = fog.fogAtten;
         }
-
-        // update ubos
-        this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(uboGlobal.view);
     }
 
     private destroyUBOs () {
-        const globalUBO = this._globalBindings.get(UBOGlobal.BLOCK.name);
-        if (globalUBO) {
-            globalUBO.buffer!.destroy();
-            this._globalBindings.delete(UBOGlobal.BLOCK.name);
-        }
-        const shadowUBO = this._globalBindings.get(UBOShadow.BLOCK.name);
-        if (shadowUBO) {
-            shadowUBO.buffer!.destroy();
-            this._globalBindings.delete(UBOShadow.BLOCK.name);
+        if (this._descriptorSet) {
+            this._descriptorSet.getBuffer(UBOGlobal.BLOCK.binding).destroy();
+            this._descriptorSet.getBuffer(UBOShadow.BLOCK.binding).destroy();
         }
     }
 
     public destroy () {
         this.destroyUBOs();
-
-        const rtIter = this._renderTextures.values();
-        let rtRes = rtIter.next();
-        while (!rtRes.done) {
-            rtRes.value.destroy();
-            rtRes = rtIter.next();
-        }
 
         const rpIter = this._renderPasses.values();
         let rpRes = rpIter.next();

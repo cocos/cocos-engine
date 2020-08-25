@@ -33,6 +33,7 @@ CCEffect %{
       frag: standard-fs:frag
       phase: forward-add
       propertyIndex: 0
+      embeddedMacros: { CC_FORWARD_ADD: true }
       depthStencilState:
         depthFunc: equal
         depthTest: true
@@ -48,10 +49,8 @@ CCEffect %{
     - vert: shadowMap-vs:vert
       frag: shadowMap-fs:frag
       phase: shadow-add
-      depthStencilState:
-        depthFunc: less_equal
-        depthTest: true
-        depthWrite: false
+      rasterizerState:
+        cullMode: front
   - name: transparent
     passes:
     - vert: standard-vs:vert
@@ -83,10 +82,8 @@ CCEffect %{
     - vert: shadowMap-vs:vert
       frag: shadowMap-fs:frag
       phase: shadow-add
-      depthStencilState:
-        depthFunc: less_equal
-        depthTest: true
-        depthWrite: false
+      rasterizerState:
+        cullMode: front
 }%
 
 CCProgram shared-ubos %{
@@ -107,7 +104,7 @@ CCProgram standard-vs %{
   #include <cc-local-batch>
   #include <shared-ubos>
   #include <cc-fog>
-  #include <cc-calcShadow-vs>
+  #include <cc-shadow-map-vs>
 
   #if USE_VERTEX_COLOR
     in vec3 a_color;
@@ -129,7 +126,7 @@ CCProgram standard-vs %{
     in vec2 a_texCoord1;
   #endif
 
-  #if USE_LIGHTMAP && !USE_BATCHING && !USE_INSTANCING
+  #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
     #include <lightingmap-vs>
   #endif
 
@@ -159,11 +156,11 @@ CCProgram standard-vs %{
     #endif
     factor_fog = CC_TRANSFER_FOG(matWorld * In.position);
 
-    #if USE_LIGHTMAP && HAS_SECOND_UV && !USE_BATCHING && !USE_INSTANCING
+    #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
       CCLightingMapCaclUV();
     #endif
 
-    CCGetDirLightShadowPos(pos);
+    CCPassShadowParams(pos);
 
     return cc_matProj * (cc_matView * matWorld) * In.position;
   }
@@ -197,26 +194,25 @@ CCProgram standard-fs %{
     uniform sampler2D normalMap;
     #pragma define NORMAL_UV options([v_uv, v_uv1])
   #endif
+  #pragma define PBR_UV options([v_uv, v_uv1])
   #if USE_PBR_MAP
     uniform sampler2D pbrMap;
-    #pragma define PBR_UV options([v_uv, v_uv1])
   #endif
   #if USE_METALLIC_ROUGHNESS_MAP
     uniform sampler2D metallicRoughnessMap;
-    #pragma define METALLIC_ROUGHNESS_UV options([v_uv, v_uv1])
   #endif
   #if USE_OCCLUSION_MAP
     uniform sampler2D occlusionMap;
-    #pragma define OCCLUSION_UV options([v_uv, v_uv1])
   #endif
   #if USE_EMISSIVE_MAP
     uniform sampler2D emissiveMap;
     #pragma define EMISSIVE_UV options([v_uv, v_uv1])
   #endif
 
-  #pragma define OCCLUSION_CHANNEL options([r, g, b])
-  #pragma define ROUGHNESS_CHANNEL options([g, b, r])
-  #pragma define METALLIC_CHANNEL  options([b, r, g])
+  #define OCCLUSION_CHANNEL r
+  #define ROUGHNESS_CHANNEL g
+  #define METALLIC_CHANNEL  b
+
   #if USE_ALPHA_TEST
     #pragma define ALPHA_TEST_CHANNEL options([a, r])
   #endif
@@ -257,12 +253,12 @@ CCProgram standard-fs %{
       pbr.z *= res.METALLIC_CHANNEL;
     #endif
     #if USE_METALLIC_ROUGHNESS_MAP
-      vec4 metallicRoughness = texture(metallicRoughnessMap, METALLIC_ROUGHNESS_UV);
+      vec4 metallicRoughness = texture(metallicRoughnessMap, PBR_UV);
       pbr.z *= metallicRoughness.METALLIC_CHANNEL;
       pbr.y *= metallicRoughness.ROUGHNESS_CHANNEL;
     #endif
     #if USE_OCCLUSION_MAP
-      pbr.x *= texture(occlusionMap, OCCLUSION_UV).OCCLUSION_CHANNEL;
+      pbr.x *= texture(occlusionMap, PBR_UV).OCCLUSION_CHANNEL;
     #endif
     s.occlusion = clamp(pbr.x, 0.0, 0.96);
     s.roughness = clamp(pbr.y, 0.04, 1.0);
@@ -285,15 +281,10 @@ CCProgram standard-fs %{
 CCProgram shadowMap-vs %{
   precision highp float;
   #include <input-standard>
-  #include <cc-global>
-  #include <cc-pcf-shadow>
+  #include <cc-shadow>
   #include <cc-local-batch>
 
-  #if CC_VSM_SHADOW
-    out vec4 vTexCoord;
-  #else
-    out vec2 vTexCoord;
-  #endif
+  out vec4 vTexCoord;
 
   vec4 vert () {
     StandardVertInput In;
@@ -303,29 +294,19 @@ CCProgram shadowMap-vs %{
     CCGetWorldMatrixFull(matWorld, matWorldIT);
 
     vec4 worldPos = matWorld * In.position;
-    vec4 clipPos = cc_shadowMatViewProj * worldPos;
+    vec4 clipPos = cc_matLightViewProj * worldPos;
 
-  #if CC_VSM_SHADOW
     vTexCoord = vec4(a_texCoord, clipPos.z, clipPos.w);
-  #else
-    vTexCoord = a_texCoord;
-  #endif
 
-  return clipPos;
+    return clipPos;
   }
 }%
 
 CCProgram shadowMap-fs %{
   precision highp float;
-  #include <cc-global>
-  #include <output-standard>
-  #include <shading-standard>
+  #include <packing>
 
-  #if CC_VSM_SHADOW
-    in vec4 vTexCoord;
-  #else
-    in vec2 vTexCoord;
-  #endif
+  in vec4 vTexCoord;
 
   #if USE_ALBEDO_MAP
     uniform sampler2D albedoMap;
@@ -343,12 +324,6 @@ CCProgram shadowMap-fs %{
       #endif
     #endif
 
-    #if CC_VSM_SHADOW
-        float depth = vTexCoord.z / vTexCoord.w * 0.5 + 0.5;
-        color = vec4(depth, depth, depth, 1.0);
-        return color;
-    #else
-        return color;
-    #endif
+    return packDepthToRGBA(vTexCoord.z / vTexCoord.w * 0.5 + 0.5);
   }
 }%

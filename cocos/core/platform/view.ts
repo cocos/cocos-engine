@@ -34,7 +34,7 @@ import { EventTarget } from '../event/event-target';
 import '../game';
 import { Rect, Size, Vec2 } from '../math';
 import visibleRect from './visible-rect';
-import { EDITOR, MINIGAME, WECHAT, JSB } from 'internal:constants';
+import { EDITOR, MINIGAME, JSB, RUNTIME_BASED } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { logID, errorID } from './debug';
 
@@ -79,28 +79,18 @@ if (legacyCC.sys.os === legacyCC.sys.OS_IOS) { // All browsers are WebView
     __BrowserGetter.adaptationType = legacyCC.sys.BROWSER_TYPE_SAFARI;
 }
 
-if (WECHAT) {
-    __BrowserGetter.availWidth = () => {
-        return window.innerWidth;
-    };
-    __BrowserGetter.availHeight = () => {
-        return window.innerHeight;
-    };
-}
-else {
-    switch (__BrowserGetter.adaptationType) {
+switch (__BrowserGetter.adaptationType) {
     case legacyCC.sys.BROWSER_TYPE_SAFARI:
-            __BrowserGetter.meta['minimal-ui'] = 'true';
+        __BrowserGetter.meta['minimal-ui'] = 'true';
     case legacyCC.sys.BROWSER_TYPE_SOUGOU:
     case legacyCC.sys.BROWSER_TYPE_UC:
-            __BrowserGetter.availWidth = (frame) => {
-                return frame.clientWidth;
-            };
-            __BrowserGetter.availHeight = (frame) => {
-                return frame.clientHeight;
-            };
-            break;
-    }
+        __BrowserGetter.availWidth = (frame) => {
+            return frame.clientWidth;
+        };
+        __BrowserGetter.availHeight = (frame) => {
+            return frame.clientHeight;
+        };
+        break;
 }
 
 /**
@@ -172,7 +162,7 @@ export class View extends EventTarget {
         this._autoFullScreen = false;
         // The device's pixel ratio (for retina displays)
         this._devicePixelRatio = 1;
-        if (JSB) {
+        if (JSB || RUNTIME_BASED) {
             this._maxPixelRatio = 4;
         } else {
             this._maxPixelRatio = 2;
@@ -656,7 +646,7 @@ export class View extends EventTarget {
      * @param resolutionPolicy The resolution policy desired
      */
     public setRealPixelResolution (width: number, height: number, resolutionPolicy: ResolutionPolicy|number) {
-        if (!JSB && !MINIGAME) {
+        if (!JSB && !RUNTIME_BASED && !MINIGAME) {
             // Set viewport's width
             this._setViewportMeta({width}, true);
 
@@ -759,7 +749,7 @@ export class View extends EventTarget {
             _view._initFrameSize();
         }
 
-        if (!JSB && !_view._orientationChanging && _view._isRotated === prevRotated && _view._frameSize.width === prevFrameW && _view._frameSize.height === prevFrameH) {
+        if (!JSB && !RUNTIME_BASED && !_view._orientationChanging && _view._isRotated === prevRotated && _view._frameSize.width === prevFrameW && _view._frameSize.height === prevFrameH) {
             return;
         }
 
@@ -874,7 +864,7 @@ export class View extends EventTarget {
     }
 
     private _adjustViewportMeta () {
-        if (this._isAdjustViewport && !JSB && !MINIGAME) {
+        if (this._isAdjustViewport && !JSB && !RUNTIME_BASED && !MINIGAME) {
             this._setViewportMeta(__BrowserGetter.meta, false);
             this._isAdjustViewport = false;
         }
@@ -970,15 +960,13 @@ class ContainerStrategy {
         const locCanvas = legacyCC.game.canvas;
         const locContainer = legacyCC.game.container;
 
-        if (legacyCC.sys.platform !== legacyCC.sys.WECHAT_GAME) {
-            if (legacyCC.sys.os === legacyCC.sys.OS_ANDROID) {
-                document.body.style.width = (_view._isRotated ? h : w) + 'px';
-                document.body.style.height = (_view._isRotated ? w : h) + 'px';
-            }
-            // Setup style
-            locContainer.style.width = locCanvas.style.width = w + 'px';
-            locContainer.style.height = locCanvas.style.height = h + 'px';
+        if (legacyCC.sys.os === legacyCC.sys.OS_ANDROID) {
+            document.body.style.width = (_view._isRotated ? h : w) + 'px';
+            document.body.style.height = (_view._isRotated ? w : h) + 'px';
         }
+        // Setup style
+        locContainer.style.width = locCanvas.style.width = w + 'px';
+        locContainer.style.height = locCanvas.style.height = h + 'px';
         // Setup pixel ratio for retina display
         let devicePixelRatio = _view._devicePixelRatio = 1;
         if (_view.isRetinaEnabled()) {

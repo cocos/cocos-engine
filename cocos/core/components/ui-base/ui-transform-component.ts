@@ -28,7 +28,7 @@
  */
 
 import { Component } from '../component';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property, tooltip } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property, tooltip, displayOrder } from '../../data/class-decorator';
 import { SystemEventType } from '../../platform/event-manager/event-enum';
 import { EventListener, IListenerMask } from '../../platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../math';
@@ -67,9 +67,7 @@ export class UITransformComponent extends Component {
      * @zh
      * 内容尺寸。
      */
-    @property({
-        displayOrder: 0,
-    })
+    @displayOrder(0)
     @tooltip('内容尺寸')
     // @constget
     get contentSize (): Readonly<Size> {
@@ -149,9 +147,7 @@ export class UITransformComponent extends Component {
      * @zh
      * 锚点位置。
      */
-    @property({
-        displayOrder: 1,
-    })
+    @displayOrder(1)
     @tooltip('锚点位置')
     // @constget
     get anchorPoint (): Readonly<Vec2> {

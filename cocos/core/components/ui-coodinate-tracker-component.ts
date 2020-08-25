@@ -30,7 +30,7 @@
 
 import { Component } from './component';
 import { EventHandler } from './component-event-handler';
-import { ccclass, help, property, menu, executionOrder, tooltip } from '../data/class-decorator';
+import { ccclass, help, property, menu, executionOrder, tooltip, type } from '../data/class-decorator';
 import { Node } from '../scene-graph';
 import { convertUtils } from '../utils';
 import { CameraComponent } from '../3d';
@@ -49,9 +49,7 @@ export class UICoordinateTrackerComponent extends Component {
      * @zh
      * 目标对象。
      */
-    @property({
-        type: Node,
-    })
+    @type(Node)
     @tooltip('目标对象')
     get target () {
         return this._target;
@@ -70,9 +68,7 @@ export class UICoordinateTrackerComponent extends Component {
      * @zh
      * 照射相机。
      */
-    @property({
-        type: CameraComponent,
-    })
+    @type(CameraComponent)
     @tooltip('照射相机')
     get camera () {
         return this._camera;
@@ -125,9 +121,7 @@ export class UICoordinateTrackerComponent extends Component {
      * @zh
      * 映射数据事件。回调的第一个参数是映射后的本地坐标，第二个是距相机距离比。
      */
-    @property({
-        type: [EventHandler],
-    })
+    @type([EventHandler])
     @tooltip('映射数据事件。回调的第一个参数是映射后的本地坐标，第二个是距相机距离比')
     public syncEvents: EventHandler[] = [];
 

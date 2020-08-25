@@ -1,8 +1,7 @@
 
 import fs from 'fs-extra';
 import ps from 'path';
-// @ts-ignore
-import rpBabel from '@rollup/plugin-babel';
+import rpBabel, { RollupBabelInputPluginOptions } from '@rollup/plugin-babel';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
@@ -226,10 +225,22 @@ async function _doBuild ({
     if (split) {
         rollupEntries = Object.assign({}, engineEntries);
     } else {
-        rpVirtualOptions['cc'] = generateCCSource(Object.values(engineEntries).map(file => filePathToModuleRequest(file)));
         rollupEntries = {
             'cc': 'cc',
         };
+        const bundledModules = [];
+        for (const moduleName of Object.keys(engineEntries)) {
+            const moduleEntryFile = engineEntries[moduleName];
+            if (moduleName === 'cc.wait-for-ammo-instantiation') {
+                rollupEntries[moduleName] = moduleEntryFile;
+            } else {
+                bundledModules.push(filePathToModuleRequest(moduleEntryFile));
+            }
+        }
+
+        rpVirtualOptions['cc'] = generateCCSource(bundledModules);
+        rollupEntries['cc'] = 'cc';
+
         console.debug(`Module source "cc":\n${rpVirtualOptions['cc']}`);
     }
 
@@ -245,7 +256,7 @@ async function _doBuild ({
         }]);
     }
 
-    const babelOptions = {
+    const babelOptions: RollupBabelInputPluginOptions = {
         babelHelpers: 'bundled',
         extensions: ['.js', '.ts'],
         highlightCode: true,

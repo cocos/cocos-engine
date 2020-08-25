@@ -30,7 +30,7 @@
 import { Texture2D } from '../../assets';
 import { Material } from '../../assets/material';
 import { Mesh } from '../../assets/mesh';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property, tooltip } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property, tooltip, visible, type, formerlySerializedAs } from '../../data/class-decorator';
 import { Vec4 } from '../../math';
 import { Model } from '../../renderer/scene/model';
 import { MorphModel } from '../../renderer/models/morph-model';
@@ -83,21 +83,17 @@ const ModelShadowReceivingMode = Enum({
  */
 @ccclass('cc.ModelLightmapSettings')
 class ModelLightmapSettings {
-    @property({
-        visible: false,
-    })
+    @property
+    @visible(false)
     public texture: Texture2D|null = null;
-    @property({
-        visible: false,
-    })
+    @property
+    @visible(false)
     public uvParam: Vec4 = new Vec4();
     @property
     protected _bakeable: boolean = false;
     @property
     protected _castShadow: boolean = false;
-    @property({
-        formerlySerializedAs: '_recieveShadow',
-    })
+    @formerlySerializedAs('_recieveShadow')
     protected _receiveShadow: boolean = false;
     @property
     protected _lightmapSize: number = 64;
@@ -185,9 +181,7 @@ export class ModelComponent extends RenderableComponent {
      * @en Shadow projection mode.
      * @zh 阴影投射方式。
      */
-    @property({
-        type: ModelShadowCastingMode,
-    })
+    @type(ModelShadowCastingMode)
     @tooltip('i18n:model.shadow_casting_model')
     get shadowCastingMode () {
         return this._shadowCastingMode;
@@ -202,9 +196,7 @@ export class ModelComponent extends RenderableComponent {
      * @en receive shadow.
      * @zh 是否接受阴影。
      */
-    @property({
-        type: ModelShadowReceivingMode,
-    })
+    @type(ModelShadowReceivingMode)
     @tooltip('i18n:model.shadow_receiving_model')
     get receiveShadow () {
         return this._shadowReceivingMode;
@@ -219,9 +211,7 @@ export class ModelComponent extends RenderableComponent {
      * @en The mesh of the model.
      * @zh 模型的网格数据。
      */
-    @property({
-        type: Mesh,
-    })
+    @type(Mesh)
     @tooltip('i18n:model.mesh')
     get mesh () {
         return this._mesh;
@@ -243,14 +233,12 @@ export class ModelComponent extends RenderableComponent {
         return this._model;
     }
 
-    @property({
-        visible (this: ModelComponent) {
-            return !!(
-                this.mesh &&
-                this.mesh.struct.morph &&
-                this.mesh.struct.morph.subMeshMorphs.some((subMeshMorph) => !!subMeshMorph)
-            );
-        },
+    @visible(function (this: ModelComponent) {
+        return !!(
+            this.mesh &&
+            this.mesh.struct.morph &&
+            this.mesh.struct.morph.subMeshMorphs.some((subMeshMorph) => !!subMeshMorph)
+        );
     })
     get enableMorph () {
         return this._enableMorph;
@@ -440,7 +428,8 @@ export class ModelComponent extends RenderableComponent {
 
     protected _clearMaterials () {
         if (!this._model) { return; }
-        for (let i = 0; i < this._model.subModelNum; ++i) {
+        const subModels = this._model.subModels;
+        for (let i = 0; i < subModels.length; ++i) {
             this._onMaterialModified(i, null);
         }
     }

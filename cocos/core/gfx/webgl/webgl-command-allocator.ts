@@ -9,7 +9,7 @@ import {
     WebGLCmdUpdateBuffer,
 } from './webgl-commands';
 
-export class WebGLGFXCommandPool<T extends WebGLCmdObject> {
+export class WebGLCommandPool<T extends WebGLCmdObject> {
 
     private _frees: (T|null)[];
     private _freeIdx: number = 0;
@@ -79,20 +79,20 @@ export class WebGLGFXCommandPool<T extends WebGLCmdObject> {
     }
 }
 
-export class WebGLGFXCommandAllocator {
+export class WebGLCommandAllocator {
 
-    public beginRenderPassCmdPool: WebGLGFXCommandPool<WebGLCmdBeginRenderPass>;
-    public bindStatesCmdPool: WebGLGFXCommandPool<WebGLCmdBindStates>;
-    public drawCmdPool: WebGLGFXCommandPool<WebGLCmdDraw>;
-    public updateBufferCmdPool: WebGLGFXCommandPool<WebGLCmdUpdateBuffer>;
-    public copyBufferToTextureCmdPool: WebGLGFXCommandPool<WebGLCmdCopyBufferToTexture>;
+    public beginRenderPassCmdPool: WebGLCommandPool<WebGLCmdBeginRenderPass>;
+    public bindStatesCmdPool: WebGLCommandPool<WebGLCmdBindStates>;
+    public drawCmdPool: WebGLCommandPool<WebGLCmdDraw>;
+    public updateBufferCmdPool: WebGLCommandPool<WebGLCmdUpdateBuffer>;
+    public copyBufferToTextureCmdPool: WebGLCommandPool<WebGLCmdCopyBufferToTexture>;
 
     constructor () {
-        this.beginRenderPassCmdPool = new WebGLGFXCommandPool(WebGLCmdBeginRenderPass, 1);
-        this.bindStatesCmdPool = new WebGLGFXCommandPool(WebGLCmdBindStates, 1);
-        this.drawCmdPool = new WebGLGFXCommandPool(WebGLCmdDraw, 1);
-        this.updateBufferCmdPool = new WebGLGFXCommandPool(WebGLCmdUpdateBuffer, 1);
-        this.copyBufferToTextureCmdPool = new WebGLGFXCommandPool(WebGLCmdCopyBufferToTexture, 1);
+        this.beginRenderPassCmdPool = new WebGLCommandPool(WebGLCmdBeginRenderPass, 1);
+        this.bindStatesCmdPool = new WebGLCommandPool(WebGLCmdBindStates, 1);
+        this.drawCmdPool = new WebGLCommandPool(WebGLCmdDraw, 1);
+        this.updateBufferCmdPool = new WebGLCommandPool(WebGLCmdUpdateBuffer, 1);
+        this.copyBufferToTextureCmdPool = new WebGLCommandPool(WebGLCmdCopyBufferToTexture, 1);
     }
 
     public clearCmds (cmdPackage: WebGLCmdPackage) {

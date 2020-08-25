@@ -4,17 +4,20 @@
 
 import { MeshBuffer } from '../../../ui';
 import { Material } from '../../assets/material';
-import { GFXTexture, GFXSampler } from '../../gfx';
-import { GFXBindingLayout } from '../../gfx/binding-layout';
+import { GFXTexture, GFXSampler, IGFXDescriptorSetInfo } from '../../gfx';
 import { Node } from '../../scene-graph';
 import { Camera } from '../scene/camera';
 import { Model } from '../scene/model';
 import { UI } from './ui';
-import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../../gfx/input-assembler';
+import { GFXInputAssembler } from '../../gfx/input-assembler';
+import { InputAssemblerHandle, IAPool, DescriptorSetHandle, NULL_HANDLE, DSPool } from '../core/memory-pools';
+import { programLib } from '../core/program-lib';
+import { SetIndex } from '../../pipeline/define';
+import { legacyCC } from '../../global-exports';
+import { EffectAsset } from '../../assets';
 
-const _iaInfo: IGFXInputAssemblerInfo = {
-    attributes: [],
-    vertexBuffers: [],
+const _dsInfo: IGFXDescriptorSetInfo = {
+    layout: null!,
 };
 
 export class UIDrawBatch {
@@ -22,38 +25,40 @@ export class UIDrawBatch {
 
     public camera: Camera | null = null;
     public ia: GFXInputAssembler | null = null;
+    public hIA: InputAssemblerHandle = NULL_HANDLE;
     public model: Model | null = null;
     public material: Material | null = null;
     public texture: GFXTexture | null = null;
     public sampler: GFXSampler | null = null;
-    public psoCreateInfo = 0;
-    public bindingLayout: GFXBindingLayout | null = null;
+    public hDescriptorSet: DescriptorSetHandle = NULL_HANDLE;
     public useLocalData: Node | null = null;
     public isStatic = false;
 
+    constructor () {
+        const root = legacyCC.director.root;
+
+        const programName = EffectAsset.get('builtin-sprite')!.shaders[0].name;
+        programLib.getGFXShader(root.device, programName, { USE_TEXTURE: true }, root.pipeline);
+        _dsInfo.layout = programLib.getPipelineLayout(programName).setLayouts[SetIndex.LOCAL];
+        this.hDescriptorSet = DSPool.alloc(root.device, _dsInfo);
+    }
+
     public destroy (ui: UI) {
-        if (this.psoCreateInfo) {
-            ui._getUIMaterial(this.material!).revertPipelineCreateInfo(this.psoCreateInfo);
-            this.psoCreateInfo = 0;
-        }
-
-        if (this.bindingLayout) {
-            this.bindingLayout = null;
-        }
-
         if (this.ia) {
-            this.ia.destroy();
+            IAPool.free(this.hIA);
+            this.hIA = NULL_HANDLE;
             this.ia = null;
+        }
+
+        if (this.hDescriptorSet) {
+            DSPool.free(this.hDescriptorSet);
+            this.hDescriptorSet = NULL_HANDLE;
         }
     }
 
-    public clear (ui: UI) {
-        if (this.psoCreateInfo) {
-            ui._getUIMaterial(this.material!).revertPipelineCreateInfo(this.psoCreateInfo);
-            this.psoCreateInfo = 0;
-        }
-        this.camera = null;
+    public clear () {
         this._bufferBatch = null;
+        this.camera = null;
         this.material = null;
         this.texture = null;
         this.sampler = null;
@@ -73,14 +78,12 @@ export class UIDrawBatch {
         this._bufferBatch = meshBuffer;
 
         if (this._bufferBatch) {
-            _iaInfo.attributes = this._bufferBatch.attributes!;
-            _iaInfo.vertexBuffers[0] = this._bufferBatch.vb!;
-            _iaInfo.indexBuffer = this._bufferBatch.ib!;
             if (this.ia) {
                 this.ia.destroy();
-                this.ia.initialize(_iaInfo);
+                this.ia.initialize(this._bufferBatch);
             } else {
-                this.ia = this._bufferBatch.batcher.device.createInputAssembler(_iaInfo);
+                this.hIA = IAPool.alloc(this._bufferBatch.batcher.device, this._bufferBatch);
+                this.ia = IAPool.get(this.hIA);
             }
         }
     }

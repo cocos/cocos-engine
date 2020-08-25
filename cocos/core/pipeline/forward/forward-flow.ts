@@ -10,6 +10,8 @@ import { ForwardFlowPriority } from './enum';
 import { ForwardStage } from './forward-stage';
 import { sceneCulling } from './scene-culling';
 import { ForwardPipeline } from './forward-pipeline';
+import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
+import { RenderPipeline } from '../render-pipeline';
 /**
  * @en The forward flow in forward render pipeline
  * @zh 前向渲染流程。
@@ -34,6 +36,10 @@ export class ForwardFlow extends RenderFlow {
         this._stages.push(forwardStage);
 
         return true;
+    }
+
+    public activate (pipeline: RenderPipeline) {
+        super.activate(pipeline);
     }
 
     public render (view: RenderView) {

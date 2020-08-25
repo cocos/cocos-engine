@@ -5,7 +5,7 @@
 import { EDITOR } from 'internal:constants';
 import { Material } from '../../assets/material';
 import { Component } from '../../components/component';
-import { ccclass, property } from '../../data/class-decorator';
+import { ccclass, property, type, visible, displayName } from '../../data/class-decorator';
 import { IMaterialInstanceInfo, MaterialInstance } from '../../renderer/core/material-instance';
 import { Model } from '../../renderer/scene/model';
 import { Layers } from '../../scene-graph/layers';
@@ -18,15 +18,13 @@ const _matInsInfo: IMaterialInstanceInfo = {
 
 @ccclass('cc.RenderableComponent')
 export class RenderableComponent extends Component {
-    @property({
-        type: [Material],
-    })
+    @type([Material])
     protected _materials: (Material | null)[] = [];
 
     @property
     protected _visFlags = Layers.Enum.NONE;
 
-    @property({ visible: false })
+    @visible(false)
     get visibility () {
         return this._visFlags;
     }
@@ -36,10 +34,8 @@ export class RenderableComponent extends Component {
         this._onVisibilityChange(val);
     }
 
-    @property({
-        type: Material,
-        displayName: 'Materials',
-    })
+    @type(Material)
+    @displayName('Materials')
     get sharedMaterials () {
         // if we don't create an array copy, the editor will modify the original array directly.
         return EDITOR && this._materials.slice() || this._materials;

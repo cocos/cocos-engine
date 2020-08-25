@@ -2,7 +2,10 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable @typescript-eslint/no-var-requires */
 
+// @ts-check
+
 const { join, extname, basename, dirname, isAbsolute } = require('path');
+const fs = require('fs-extra');
 const { copyFileSync, existsSync, readFileSync, unlinkSync, writeFileSync, ensureDirSync, readdir } = require('fs-extra');
 const ts = require('typescript');
 const gift = require('tfig');
@@ -123,24 +126,48 @@ async function generate (options) {
         copyFileSync(file, destPath);
     });
 
-    const entries = await getEngineEntries(join(__dirname, '..', '..'));
+    const entryMap = await getEngineEntries(join(__dirname, '..', '..'));
+    const entries = Object.keys(entryMap);
+
+    
+    // The "cc" module, contents like:
+    // ```
+    // declare module "cc" {
+    //     export * from "exports/base";
+    // }
+    // ```
+    const ccDtsFile = join(dirName, 'virtual-cc.d.ts');
+    await (async () => {
+        const ccModules = entries.slice().map((extern) => entryMap[extern]);
+        const code = `declare module "cc" {\n${ccModules.map((moduleId) => `    export * from "${moduleId}";`).join('\n')}\n}`;
+        await fs.writeFile(ccDtsFile, code, { encoding: 'utf8' });
+    })();
 
     console.log(`Bundling...`);
-    const giftInputPath = tscOutputDtsFile;
-    const giftOutputPath = join(dirName,'cc.d.ts' );
-    const giftResult = gift.bundle({
-        input: giftInputPath,
-        output: giftOutputPath,
-        name: 'cc',
-        rootModule: 'index',
-        entries,
-    });
-    if (giftResult.error !== gift.GiftErrors.Ok) {
-        console.error(`Failed to bundle declaration files because of gift error: ${gift.GiftErrors[giftResult.error]}.`);
-        return false;
+    try {
+        const giftInputPath = tscOutputDtsFile;
+        const giftOutputPath = join(dirName,'cc.d.ts' );
+        const giftResult = gift.bundle({
+            input: [giftInputPath, ccDtsFile],
+            output: giftOutputPath,
+            name: 'cc',
+            rootModule: 'index',
+            entries: {
+                'cc': 'cc',
+            },
+        });
+        if (giftResult.error !== gift.GiftErrors.Ok) {
+            console.error(`Failed to bundle declaration files because of gift error: ${gift.GiftErrors[giftResult.error]}.`);
+            return false;
+        }
+        writeFileSync(giftOutputPath, giftResult.code);
+    } finally {
+        await Promise.all(([
+            tscOutputDtsFile,
+            ccDtsFile,
+        ].map(async (file) => fs.unlink(file))));
+        
     }
-    writeFileSync(giftOutputPath, giftResult.code);
-    unlinkSync(giftInputPath);
 
     return true;
 }

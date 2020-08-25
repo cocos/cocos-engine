@@ -4,7 +4,6 @@ CCEffect %{
   - passes:
     - vert: sprite-vs:vert
       frag: sprite-fs:frag
-      priority: max - 11
       depthStencilState:
         depthTest: false
         depthWrite: false
@@ -16,8 +15,6 @@ CCEffect %{
           blendDstAlpha: one_minus_src_alpha
       rasterizerState:
         cullMode: none
-      properties:
-        mainTexture: { value: white }
 }%
 
 CCProgram sprite-vs %{
@@ -38,7 +35,13 @@ CCProgram sprite-vs %{
     vec4 pos = vec4(a_position, 1);
 
     #if USE_LOCAL
-      pos = cc_matViewProj * cc_matWorld * pos;
+      pos = cc_matWorld * pos;
+    #endif
+
+    #if USE_PIXEL_ALIGNMENT
+      pos = cc_matView * pos;
+      pos.xyz = floor(pos.xyz);
+      pos = cc_matProj * pos;
     #else
       pos = cc_matViewProj * pos;
     #endif
@@ -59,14 +62,15 @@ CCProgram sprite-fs %{
 
   #if USE_TEXTURE
     in vec2 uv0;
-    uniform sampler2D mainTexture;
+    #pragma builtin(local)
+    layout(set = 2, binding = 10) uniform sampler2D cc_spriteTexture;
   #endif
 
   vec4 frag () {
     vec4 o = vec4(1, 1, 1, 1);
 
     #if USE_TEXTURE
-      o *= CCSampleTexture(mainTexture, uv0);
+      o *= CCSampleTexture(cc_spriteTexture, uv0);
       #if IS_GRAY
         float gray  = 0.2126 * o.r + 0.7152 * o.g + 0.0722 * o.b;
         o.r = o.g = o.b = gray;

@@ -26,7 +26,7 @@
  * @category component/light
  */
 
-import { ccclass, help, executeInEditMode, menu, property, tooltip } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, menu, property, tooltip, type, unit } from '../../data/class-decorator';
 import { LightType, nt2lm } from '../../renderer/scene/light';
 import { SphereLight } from '../../renderer/scene/sphere-light';
 import { LightComponent, PhotometricTerm } from './light-component';
@@ -53,9 +53,7 @@ export class SphereLightComponent extends LightComponent {
      * @en Luminous power of the light.
      * @zh 光通量。
      */
-    @property({
-        unit: 'lm',
-    })
+    @unit('lm')
     @tooltip('i18n:lights.luminous_power')
     get luminousPower () {
         return this._luminance * nt2lm(this._size);
@@ -69,9 +67,7 @@ export class SphereLightComponent extends LightComponent {
      * @en Luminance of the light.
      * @zh 光亮度。
      */
-    @property({
-        unit: 'cd/m²',
-    })
+    @unit('cd/m²')
     @tooltip('i18n:lights.luminance')
     get luminance () {
         return this._luminance;
@@ -85,9 +81,7 @@ export class SphereLightComponent extends LightComponent {
      * @en The photometric term currently being used.
      * @zh 当前使用的光度学计量单位。
      */
-    @property({
-        type: PhotometricTerm,
-    })
+    @type(PhotometricTerm)
     @tooltip('i18n:lights.term')
     get term () {
         return this._term;

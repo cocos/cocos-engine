@@ -8,6 +8,8 @@ import {
     executeInEditMode,
     menu,
     property,
+    visible,
+    type,
 } from '../../../../core/data/class-decorator';
 import { Vec3 } from '../../../../core/math';
 import { ColliderComponent } from './collider-component';
@@ -32,9 +34,7 @@ export class SimplexColliderComponent extends ColliderComponent {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
-    @property({
-        type: ESimplexType
-    })
+    @type(ESimplexType)
     get shapeType () {
         return this._shapeType;
     }
@@ -56,11 +56,7 @@ export class SimplexColliderComponent extends ColliderComponent {
         this.updateVertices();
     }
 
-    @property({
-        visible: function (this: SimplexColliderComponent) {
-            return this._shapeType > 1;
-        }
-    })
+    @visible(function (this: SimplexColliderComponent) { return this._shapeType > 1; })
     get vertex1 () {
         return this._vertices[1];
     }
@@ -70,11 +66,7 @@ export class SimplexColliderComponent extends ColliderComponent {
         this.updateVertices();
     }
 
-    @property({
-        visible: function (this: SimplexColliderComponent) {
-            return this._shapeType > 2;
-        }
-    })
+    @visible(function (this: SimplexColliderComponent) { return this._shapeType > 2; })
     get vertex2 () {
         return this._vertices[2];
     }
@@ -84,11 +76,7 @@ export class SimplexColliderComponent extends ColliderComponent {
         this.updateVertices();
     }
 
-    @property({
-        visible: function (this: SimplexColliderComponent) {
-            return this._shapeType > 3;
-        }
-    })
+    @visible(function (this: SimplexColliderComponent) { return this._shapeType > 3; })
     get vertex3 () {
         return this._vertices[3];
     }

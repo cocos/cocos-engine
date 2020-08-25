@@ -144,7 +144,7 @@ class InputManager {
         }
         if (handleTouches.length > 0) {
             // this._glView!._convertTouchesWithScale(handleTouches);
-            const touchEvent = new EventTouch(handleTouches, false, EventTouch.BEGAN);
+            const touchEvent = new EventTouch(handleTouches, false, EventTouch.BEGAN, this._getUsefulTouches());
             eventManager.dispatchEvent(touchEvent);
         }
     }
@@ -173,7 +173,7 @@ class InputManager {
         }
         if (handleTouches.length > 0) {
             // this._glView!._convertTouchesWithScale(handleTouches);
-            const touchEvent = new EventTouch(handleTouches, false, EventTouch.MOVED);
+            const touchEvent = new EventTouch(handleTouches, false, EventTouch.MOVED, this._getUsefulTouches());
             eventManager.dispatchEvent(touchEvent);
         }
     }
@@ -182,7 +182,7 @@ class InputManager {
         const handleTouches = this.getSetOfTouchesEndOrCancel(touches);
         if (handleTouches.length > 0) {
             // this._glView!._convertTouchesWithScale(handleTouches);
-            const touchEvent = new EventTouch(handleTouches, false, EventTouch.ENDED);
+            const touchEvent = new EventTouch(handleTouches, false, EventTouch.ENDED, this._getUsefulTouches());
             eventManager.dispatchEvent(touchEvent);
         }
         this._preTouchPool.length = 0;
@@ -192,7 +192,7 @@ class InputManager {
         const handleTouches = this.getSetOfTouchesEndOrCancel(touches);
         if (handleTouches.length > 0) {
             // this._glView!._convertTouchesWithScale(handleTouches);
-            const touchEvent = new EventTouch(handleTouches, false, EventTouch.CANCELLED);
+            const touchEvent = new EventTouch(handleTouches, false, EventTouch.CANCELLED, this._getUsefulTouches());
             eventManager.dispatchEvent(touchEvent);
         }
         this._preTouchPool.length = 0;
@@ -227,15 +227,6 @@ class InputManager {
     }
 
     public getHTMLElementPosition (element: HTMLElement): IHTMLElementPosition {
-        if (sys.platform === sys.WECHAT_GAME) {
-            return {
-                left: 0,
-                top: 0,
-                width: window.innerWidth,
-                height: window.innerHeight,
-            };
-        }
-
         const docElem = document.documentElement;
         let leftOffset = sys.os === sys.OS_IOS && sys.isBrowser ? window.screenLeft : window.pageXOffset;
         leftOffset -= docElem.clientLeft;
@@ -319,9 +310,7 @@ class InputManager {
         return touch;
     }
 
-    public getMouseEvent (
-        location: { x: number; y: number; }, pos: IHTMLElementPosition, eventType: number): EventMouse 
-    {
+    public getMouseEvent (location: { x: number; y: number; }, pos: IHTMLElementPosition, eventType: number): EventMouse {
         const locPreMouse = this._prevMousePoint;
         const mouseEvent = new EventMouse(eventType, false, locPreMouse);
         locPreMouse.x = location.x;
@@ -337,13 +326,9 @@ class InputManager {
             return {x: event.pageX, y: event.pageY};
         }
 
-        if (sys.platform === sys.WECHAT_GAME) {
-            pos.left = 0;
-            pos.top = 0;
-        } else {
-            pos.left -= document.body.scrollLeft;
-            pos.top -= document.body.scrollTop;
-        }
+        pos.left -= document.body.scrollLeft;
+        pos.top -= document.body.scrollTop;
+
         return {x: event.clientX, y: event.clientY};
     }
 
@@ -381,6 +366,10 @@ class InputManager {
             locPreTouch.x = location.x;
             locPreTouch.y = location.y;
             touches.push(touch);
+
+            if (!macro.ENABLE_MULTI_TOUCH) {
+                break;
+            }
         }
         return touches;
     }
@@ -395,11 +384,6 @@ class InputManager {
         let prohibition = sys.isMobile;
         let supportMouse = ('mouse' in sys.capabilities);
         let supportTouches = ('touches' in sys.capabilities);
-        if (sys.platform === sys.WECHAT_GAME) {
-            prohibition = false;
-            supportTouches = true;
-            supportMouse = false;
-        }
 
         // Register mouse events.
         if (supportMouse) {
@@ -575,7 +559,6 @@ class InputManager {
         // The known browser:
         //  liebiao
         //  miui
-        //  WECHAT
         this._registerPointerLockEvent();
         if (!prohibition) {
             this._registerWindowMouseEvents(element);
@@ -675,6 +658,7 @@ class InputManager {
 
         // @ts-ignore
         listenDOMMouseEvent('mousewheel', EventMouse.SCROLL, (event, mouseEvent, location, pos) => {
+            // @ts-ignore
             mouseEvent.setScrollData(0, event.wheelDelta);
         });
 
@@ -724,9 +708,7 @@ class InputManager {
 
         element.addEventListener('touchstart', makeTouchListener((touchesToHandle) => {
             this.handleTouchesBegin(touchesToHandle);
-            if (sys.platform !== sys.WECHAT_GAME) {
-                element.focus();
-            }
+            element.focus();
         }), false);
 
         element.addEventListener('touchmove', makeTouchListener((touchesToHandle) => {
@@ -788,6 +770,25 @@ class InputManager {
             window.removeEventListener(_deviceEventType, _didAccelerateFun, false);
         }
     }
+
+    private _getUsefulTouches () {
+        const touches: Touch[] = [];
+        const touchDict = this._touchesIntegerDict;
+        const touchesIntegerDict = Object.getOwnPropertyNames(touchDict);
+        for (let i = 0; i < touchesIntegerDict.length; i++) {
+            const id = parseInt(touchesIntegerDict[i]);
+            const usedId = touchDict[id];
+            if (usedId === undefined || usedId === null){
+                continue;
+            }
+
+            const touch = this._touches[usedId];
+            touches.push(touch);
+        }
+
+        return touches;
+    }
+
 }
 
 const inputManager = new InputManager();

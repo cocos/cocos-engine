@@ -30,17 +30,16 @@
 import { ALIPAY, EDITOR, JSB, PREVIEW, RUNTIME_BASED } from 'internal:constants';
 import AssetLibrary from './assets/asset-library';
 import { EventTarget } from './event/event-target';
-import { WebGLGFXDevice } from './gfx/webgl/webgl-device';
-import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
-import { ForwardPipeline, RenderPipeline } from './pipeline';
+import { RenderPipeline } from './pipeline';
 import * as debug from './platform/debug';
 import inputManager from './platform/event-manager/input-manager';
-import { GFXDevice } from './gfx';
+import { GFXDevice, IGFXDeviceInfo } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from './renderer';
 import { legacyCC } from './global-exports';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
+import { bindingMappingInfo } from './pipeline/define';
 
 /**
  * @zh
@@ -626,7 +625,7 @@ export class Game extends EventTarget {
             inputManager.registerSystemEvent(game.canvas);
         }
 
-        const useSplash = (!JSB && !EDITOR && !PREVIEW && legacyCC.internal.SplashScreen);
+        const useSplash = (!EDITOR && !PREVIEW && legacyCC.internal.SplashScreen);
 
         // Load render pipeline if needed
         const renderPipeline = this.config.renderPipeline;
@@ -639,7 +638,13 @@ export class Game extends EventTarget {
                     this.setRenderPipeline();
                 }
                 else {
-                    this.setRenderPipeline(asset);
+                    try {
+                        this.setRenderPipeline(asset);
+                    } catch (e) {
+                        console.warn(e);
+                        console.warn(`Failed load renderpipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);
+                        this.setRenderPipeline();
+                    }
                 }
                 this._safeEmit(Game.EVENT_GAME_INITED);
                 if (useSplash) {
@@ -751,7 +756,7 @@ export class Game extends EventTarget {
         const frameRate = legacyCC.game.config.frameRate;
         this._frameTime = 1000 / frameRate;
 
-        if (JSB) {
+        if (JSB || RUNTIME_BASED) {
             jsb.setPreferredFramesPerSecond(frameRate);
             window.rAF = window.requestAnimationFrame;
             window.cAF = window.cancelAnimationFrame;
@@ -812,7 +817,7 @@ export class Game extends EventTarget {
         callback = (time: number) => {
             if (this._paused) { return; }
             this._intervalId = window.rAF(callback);
-            if (!JSB && frameRate === 30) {
+            if (!JSB && !RUNTIME_BASED && frameRate === 30) {
                 skip = !skip;
                 if (skip) {
                     return;
@@ -908,7 +913,7 @@ export class Game extends EventTarget {
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
             const ctors: Constructor<GFXDevice>[] = [];
 
-            if (!RUNTIME_BASED && JSB && window.gfx) {
+            if (JSB && window.gfx) {
                 if (gfx.CCVKDevice) { ctors.push(gfx.CCVKDevice); }
                 if (gfx.CCMTLDevice) { ctors.push(gfx.CCMTLDevice); }
                 if (gfx.GLES3Device) { ctors.push(gfx.GLES3Device); }
@@ -921,21 +926,22 @@ export class Game extends EventTarget {
                 ) {
                     useWebGL2 = false;
                 }
-                if (useWebGL2 && legacyCC.WebGL2GFXDevice) {
-                    ctors.push(legacyCC.WebGL2GFXDevice);
+                if (useWebGL2 && legacyCC.WebGL2Device) {
+                    ctors.push(legacyCC.WebGL2Device);
                 }
-                if (legacyCC.WebGLGFXDevice) {
-                    ctors.push(legacyCC.WebGLGFXDevice);
+                if (legacyCC.WebGLDevice) {
+                    ctors.push(legacyCC.WebGLDevice);
                 }
             }
 
-            const opts = {
+            const opts: IGFXDeviceInfo = {
                 canvasElm: this.canvas as HTMLCanvasElement,
                 debug: true,
                 isAntialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
                 devicePixelRatio: window.devicePixelRatio,
                 nativeWidth: Math.floor(screen.width * window.devicePixelRatio),
                 nativeHeight: Math.floor(screen.height * window.devicePixelRatio),
+                bindingMappingInfo,
             };
             for (let i = 0; i < ctors.length; i++) {
                 this._gfxDevice = new ctors[i]();

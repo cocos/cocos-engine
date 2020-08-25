@@ -3,10 +3,10 @@
  */
 
 import { ccenum } from '../value-types/enum';
-import { GFXBindingLayout, IGFXBindingLayoutInfo } from './binding-layout';
-import { GFXBuffer, IGFXBufferInfo } from './buffer';
+import { GFXDescriptorSet, IGFXDescriptorSetInfo } from './descriptor-set';
+import { GFXBuffer, IGFXBufferInfo, IGFXBufferViewInfo } from './buffer';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from './command-buffer';
-import { GFX_MAX_BUFFER_BINDINGS, GFXBufferTextureCopy, GFXFilter, GFXFormat, IGFXMemoryStatus, IGFXRect } from './define';
+import { GFX_MAX_BUFFER_BINDINGS, GFXBufferTextureCopy, GFXFilter, GFXFormat, GFXMemoryStatus, GFXRect } from './define';
 import { GFXFence, IGFXFenceInfo } from './fence';
 import { GFXFramebuffer, IGFXFramebufferInfo } from './framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from './input-assembler';
@@ -14,8 +14,9 @@ import { GFXPipelineState, IGFXPipelineStateInfo } from './pipeline-state';
 import { GFXQueue, IGFXQueueInfo } from './queue';
 import { GFXRenderPass, IGFXRenderPassInfo } from './render-pass';
 import { GFXSampler, IGFXSamplerInfo } from './sampler';
-import { GFXShader, IGFXShaderInfo } from './shader';
+import { GFXShader, GFXShaderInfo } from './shader';
 import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo } from './texture';
+import { IGFXDescriptorSetLayoutInfo, GFXDescriptorSetLayout, IGFXPipelineLayoutInfo, GFXPipelineLayout } from '../../../exports/base';
 
 ccenum(GFXFormat);
 
@@ -57,6 +58,11 @@ export enum GFXFeature {
     COUNT,
 }
 
+export class GFXBindingMappingInfo {
+    public bufferOffsets: number[] = [];
+    public samplerOffsets: number[] = [];
+}
+
 export interface IGFXDeviceInfo {
     canvasElm: HTMLElement;
     isAntialias?: boolean;
@@ -65,6 +71,18 @@ export interface IGFXDeviceInfo {
     devicePixelRatio?: number;
     nativeWidth?: number;
     nativeHeight?: number;
+    /**
+     * For non-vulkan backends, to maintain compatibility and maximize
+     * descriptor cache-locality, descriptor-set-based binding numbers need
+     * to be mapped to backend-specific bindings based on maximum limit
+     * of available descriptor slots in each set.
+     *
+     * Because the binding numbers are guaranteed to be consecutive for each
+     * descriptor type inside each set, the mapping procedure can be reduced
+     * to a simple shifting operation. This data structure specifies the
+     * exact offsets for each descriptor type in each set.
+     */
+    bindingMappingInfo?: GFXBindingMappingInfo;
 }
 
 /**
@@ -203,7 +221,7 @@ export abstract class GFXDevice {
 
     /**
      * @en Max uniform buffer bindings supported.
-     * @zh 最大 UniformBuffer 绑定数量。
+     * @zh 最大 uniform 缓冲绑定数量。
      */
     get maxUniformBufferBindings (): number {
         return this._maxUniformBufferBindings;
@@ -211,7 +229,7 @@ export abstract class GFXDevice {
 
     /**
      * @en Max uniform block size supported.
-     * @zh 最大Uniform块大小。
+     * @zh 最大 uniform 缓冲大小。
      */
     get maxUniformBlockSize (): number {
         return this._maxUniformBlockSize;
@@ -231,6 +249,14 @@ export abstract class GFXDevice {
      */
     get maxCubeMapTextureSize (): number {
         return this._maxCubeMapTextureSize;
+    }
+
+    /**
+     * @en Uniform buffer offset alignment.
+     * @zh Uniform 缓冲偏移量的对齐单位。
+     */
+    get uboOffsetAlignment (): number {
+        return this._uboOffsetAlignment;
     }
 
     /**
@@ -301,7 +327,7 @@ export abstract class GFXDevice {
      * @en Total memory size currently allocated.
      * @zh 内存状态。
      */
-    get memoryStatus (): IGFXMemoryStatus {
+    get memoryStatus (): GFXMemoryStatus {
         return this._memoryStatus;
     }
 
@@ -352,6 +378,7 @@ export abstract class GFXDevice {
     protected _maxUniformBlockSize: number = 0;
     protected _maxTextureSize: number = 0;
     protected _maxCubeMapTextureSize: number = 0;
+    protected _uboOffsetAlignment: number = 1;
     protected _depthBits: number = 0;
     protected _stencilBits: number = 0;
     protected _colorFmt: GFXFormat = GFXFormat.UNKNOWN;
@@ -361,7 +388,7 @@ export abstract class GFXDevice {
     protected _numDrawCalls: number = 0;
     protected _numInstances: number = 0;
     protected _numTris: number = 0;
-    protected _memoryStatus: IGFXMemoryStatus = {
+    protected _memoryStatus: GFXMemoryStatus = {
         bufferSize: 0,
         textureSize: 0,
     };
@@ -405,7 +432,7 @@ export abstract class GFXDevice {
      * @zh 创建缓冲。
      * @param info GFX buffer description info.
      */
-    public abstract createBuffer (info: IGFXBufferInfo): GFXBuffer;
+    public abstract createBuffer (info: IGFXBufferInfo | IGFXBufferViewInfo): GFXBuffer;
 
     /**
      * @en Create texture.
@@ -422,18 +449,18 @@ export abstract class GFXDevice {
     public abstract createSampler (info: IGFXSamplerInfo): GFXSampler;
 
     /**
-     * @en Create binding layout.
-     * @zh 创建绑定布局。
-     * @param info GFX binding layout description info.
+     * @en Create descriptor sets.
+     * @zh 创建描述符集组。
+     * @param info GFX descriptor sets description info.
      */
-    public abstract createBindingLayout (info: IGFXBindingLayoutInfo): GFXBindingLayout;
+    public abstract createDescriptorSet (info: IGFXDescriptorSetInfo): GFXDescriptorSet;
 
     /**
      * @en Create shader.
      * @zh 创建着色器。
      * @param info GFX shader description info.
      */
-    public abstract createShader (info: IGFXShaderInfo): GFXShader;
+    public abstract createShader (info: GFXShaderInfo): GFXShader;
 
     /**
      * @en Create input assembler.
@@ -455,6 +482,20 @@ export abstract class GFXDevice {
      * @param info GFX frame buffer description info.
      */
     public abstract createFramebuffer (info: IGFXFramebufferInfo): GFXFramebuffer;
+
+    /**
+     * @en Create descriptor set layout.
+     * @zh 创建描述符集布局。
+     * @param info GFX descriptor set layout description info.
+     */
+    public abstract createDescriptorSetLayout (info: IGFXDescriptorSetLayoutInfo): GFXDescriptorSetLayout;
+
+    /**
+     * @en Create pipeline layout.
+     * @zh 创建管线布局。
+     * @param info GFX pipeline layout description info.
+     */
+    public abstract createPipelineLayout (info: IGFXPipelineLayoutInfo): GFXPipelineLayout;
 
     /**
      * @en Create pipeline state.
@@ -513,7 +554,7 @@ export abstract class GFXDevice {
      * @param dstRect The target region.
      * @param filter Filtering mode for the process.
      */
-    public abstract blitFramebuffer (src: GFXFramebuffer, dst: GFXFramebuffer, srcRect: IGFXRect, dstRect: IGFXRect, filter: GFXFilter): void;
+    public abstract blitFramebuffer (src: GFXFramebuffer, dst: GFXFramebuffer, srcRect: GFXRect, dstRect: GFXRect, filter: GFXFilter): void;
 
     /**
      * @en Whether the device has specific feature.

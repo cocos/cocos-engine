@@ -32,10 +32,10 @@ import { Mat4, Quat, Vec3 } from '../math';
 import { warnID, assert, getError } from '../platform/debug';
 import { RenderScene } from '../renderer/scene/render-scene';
 import { BaseNode } from './base-node';
-import { SceneGlobals } from './scene-globals';
 import { EDITOR, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
+import { SceneGlobals } from './scene-globals';
 
 /**
  * @en
@@ -55,11 +55,7 @@ export class Scene extends BaseNode {
         return this._renderScene;
     }
 
-    /**
-     * @en All scene related global parameters, it affects all content in the scene
-     * @zh 各类场景级别的渲染参数，将影响全场景的所有物体
-     */
-    get globals (): SceneGlobals {
+    get globals () {
         return this._globals;
     }
 
@@ -70,11 +66,15 @@ export class Scene extends BaseNode {
     @property
     public autoReleaseAssets = false;
 
+    /**
+     * @en Per-scene level rendering info
+     * @zh 场景级别的渲染信息
+     */
+    @property
+    public _globals = new SceneGlobals();
+
     public _renderScene: RenderScene | null = null;
     public dependAssets = null; // cache all depend assets for auto release
-
-    @property
-    protected _globals = new SceneGlobals();
 
     protected _inited: boolean;
     protected _prefabSyncedInLiveReload = false;
@@ -226,7 +226,7 @@ export class Scene extends BaseNode {
             this._registerIfAttached!(active);
         }
         legacyCC.director._nodeActivator.activateNode(this, active);
-        this._globals.renderScene = this._renderScene!;
+        this._globals.activate();
     }
 }
 

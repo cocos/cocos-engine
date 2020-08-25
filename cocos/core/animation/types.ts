@@ -6,9 +6,11 @@
 import { ccenum } from '../value-types/enum';
 
 export enum WrapModeMask {
+    Default = 0,
+    Normal = 1 << 0,
     Loop = 1 << 1,
     ShouldWrap = 1 << 2,
-    // Reserved: 1 << 3,
+    Clamp = 1 << 3,
     PingPong = 1 << 4 | 1 << 1 | 1 << 2,  // Loop, ShouldWrap
     Reverse = 1 << 5 | 1 << 2,      // ShouldWrap
 }
@@ -20,12 +22,12 @@ export enum WrapMode {
     /**
      * 向 Animation Component 或者 AnimationClip 查找 wrapMode
      */
-    Default = 0,
+    Default = WrapModeMask.Default,
 
     /**
      * 动画只播放一遍
      */
-    Normal = 1,
+    Normal = WrapModeMask.Normal,
 
     /**
      * 从最后一帧或结束位置开始反向播放，到第一帧或开始位置停止

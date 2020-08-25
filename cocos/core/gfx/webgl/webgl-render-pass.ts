@@ -1,14 +1,13 @@
 import { GFXRenderPass, IGFXRenderPassInfo } from '../render-pass';
-import { WebGLGPURenderPass } from './webgl-gpu-objects';
-import { GFXStatus } from '../define';
+import { IWebGLGPURenderPass } from './webgl-gpu-objects';
 
-export class WebGLGFXRenderPass extends GFXRenderPass {
+export class WebGLRenderPass extends GFXRenderPass {
 
-    public get gpuRenderPass (): WebGLGPURenderPass {
+    public get gpuRenderPass (): IWebGLGPURenderPass {
         return  this._gpuRenderPass!;
     }
 
-    private _gpuRenderPass: WebGLGPURenderPass | null = null;
+    private _gpuRenderPass: IWebGLGPURenderPass | null = null;
 
     public initialize (info: IGFXRenderPassInfo): boolean {
 
@@ -24,13 +23,11 @@ export class WebGLGFXRenderPass extends GFXRenderPass {
         };
 
         this._hash = this.computeHash();
-        this._status = GFXStatus.SUCCESS;
 
         return true;
     }
 
     public destroy () {
         this._gpuRenderPass = null;
-        this._status = GFXStatus.UNREADY;
     }
 }

@@ -137,6 +137,21 @@ export class PhysicsSystem extends System {
 
     /**
      * @en
+     * Turn on or off the automatic simulation.
+     * @zh
+     * 获取或设置是否自动模拟。
+     */
+    get autoSimulation () {
+        return this._autoSimulation;
+    }
+
+    set autoSimulation (value: boolean) {
+        if (!value) this._timeReset = true;
+        this._autoSimulation = value;
+    }
+
+    /**
+     * @en
      * Gets the global default physical material.
      * @zh
      * 获取全局的默认物理材质。
@@ -179,14 +194,6 @@ export class PhysicsSystem extends System {
 
     /**
      * @en
-     * Turn on or off the automatic simulation.
-     * @zh
-     * 获取或设置是否自动模拟。
-     */
-    autoSimulation: boolean = true;
-
-    /**
-     * @en
      * Gets or sets whether to use a collision matrix.
      * @zh
      * 获取或设置是否开启碰撞矩阵。
@@ -195,22 +202,20 @@ export class PhysicsSystem extends System {
 
     readonly useNodeChains: boolean;
 
-    static readonly physicsEngine: string;
-
     static get PHYSICS_NONE () {
-        return !this.physicsEngine;
+        return !physicsEngineId;
     }
 
     static get PHYSICS_BUILTIN () {
-        return globalThis['CC_PHYSICS_BUILTIN'];
+        return physicsEngineId === 'builtin';
     }
 
     static get PHYSICS_CANNON () {
-        return globalThis['CC_PHYSICS_CANNON'];
+        return physicsEngineId === 'cannon.js';
     }
 
     static get PHYSICS_AMMO () {
-        return globalThis['CC_PHYSICS_AMMO'];
+        return physicsEngineId === 'ammo.js';
     }
 
     /**
@@ -240,6 +245,7 @@ export class PhysicsSystem extends System {
     private _fixedTimeStep = 1.0 / 60.0;
     private _timeSinceLastCalled = 0;
     private _timeReset = true;
+    private _autoSimulation = true;
     private _accumulator = 0;
     private _sleepThreshold = 0.1;
     private readonly _gravity = new Vec3(0, -10, 0);
@@ -311,7 +317,7 @@ export class PhysicsSystem extends System {
             return;
         }
 
-        if (this.autoSimulation) {
+        if (this._autoSimulation) {
             if (this._timeReset) {
                 this._timeSinceLastCalled = 0;
                 this._timeReset = false;
@@ -334,6 +340,17 @@ export class PhysicsSystem extends System {
             }
             director.emit(Director.EVENT_AFTER_PHYSICS);
         }
+    }
+
+    /**
+     * @en
+     * Reset the accumulator of time to given value.
+     * @zh
+     * 重置时间累积总量为给定值。
+     */
+    resetAccumulator (time = 0) {
+        if (this._accumulator != time) this._timeReset = true;
+        this._accumulator = time;
     }
 
     /**
@@ -485,31 +502,14 @@ export class PhysicsSystem extends System {
 }
 
 import { legacyCC } from '../../core/global-exports';
-import { initPhysicsSelector } from './physics-selector';
+import { physicsEngineId } from './physics-selector';
 
 director.once(Director.EVENT_INIT, function () {
-    initPhysicsMacro();
-    initPhysicsSelector();
     initPhysicsSystem();
 });
 
-function initPhysicsMacro () {
-    let PHYSICS_ENGINE = PhysicsSystem.physicsEngine;
-    if (globalThis && globalThis['_CCSettings']) {
-        const physics: { physicsEngine: string } = globalThis['_CCSettings'].physics;
-        if (physics) PHYSICS_ENGINE = physics.physicsEngine;
-    } else if (game.config && game.config.physics) {
-        const physics: { physicsEngine: string } = game.config.physics;
-        if (physics) PHYSICS_ENGINE = physics.physicsEngine;
-    }
-    globalThis['CC_PHYSICS_BUILTIN'] = PHYSICS_ENGINE == "physics-builtin";
-    globalThis['CC_PHYSICS_CANNON'] = PHYSICS_ENGINE == "physics-cannon";
-    globalThis['CC_PHYSICS_AMMO'] = PHYSICS_ENGINE == "physics-ammo";
-    (PhysicsSystem.physicsEngine as any) = PHYSICS_ENGINE;
-}
-
 function initPhysicsSystem () {
-    if (!PhysicsSystem.PHYSICS_NONE) {
+    if (!PhysicsSystem.PHYSICS_NONE && !EDITOR) {
         const sys = new legacyCC.PhysicsSystem();
         legacyCC.PhysicsSystem._instance = sys;
         director.registerSystem(PhysicsSystem.ID, sys, 0);

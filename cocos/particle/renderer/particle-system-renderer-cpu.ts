@@ -4,7 +4,7 @@ import { GFXAttributeName, GFXFormat } from '../../core/gfx/define';
 import { Mat4, Vec2, Vec3, Vec4, pseudoRandom } from '../../core/math';
 import { RecyclePool } from '../../core/memop';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
-import { IDefineMap } from '../../core/renderer/core/pass-utils';
+import { MacroRecord } from '../../core/renderer/core/pass-utils';
 import { RenderMode, Space } from '../enum';
 import { Particle, IParticleModule, PARTICLE_MODULE_ORDER } from '../particle';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
@@ -74,8 +74,8 @@ const _matInsInfo: IMaterialInstanceInfo = {
 };
 
 export default class ParticleSystemRendererCPU extends ParticleSystemRendererBase {
-    private _defines: IDefineMap;
-    private _trailDefines: IDefineMap;
+    private _defines: MacroRecord;
+    private _trailDefines: MacroRecord;
     private _frameTile_velLenScale: Vec4;
     private _defaultMat: Material | null = null;
     private _node_scale: Vec4;
@@ -88,6 +88,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _fillDataFunc: any = null;
     private _uScaleHandle: number = 0;
     private _uLenHandle: number = 0;
+    private _inited: boolean = false;
 
     constructor (info: any) {
         super(info);
@@ -117,24 +118,28 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             return new Particle(this);
         }, 16);
         this._setVertexAttrib();
-        this._updateModel();
         this._setFillFunc();
         this._initModuleList();
+        this._initModel();
         this.updateMaterialParams();
         this.updateTrailMaterial();
+        this.setVertexAttributes();
+        this._inited = true;
     }
 
     public clear () {
         this._particles!.reset();
-        this._particleSystem!._trailModule && this._particleSystem!._trailModule.clear();
+        if (this._particleSystem!._trailModule) {
+            this._particleSystem!._trailModule.clear();
+        }
         this.updateRenderData();
     }
 
     public updateRenderMode () {
         this._setVertexAttrib();
-        this._updateModel();
         this._setFillFunc();
         this.updateMaterialParams();
+        this.setVertexAttributes();
     }
 
     public getFreeParticle (): Particle | null {
@@ -280,8 +285,11 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     }
 
     public onMaterialModified (index: number, material: Material) {
+        if (!this._inited) {
+            return;
+        }
+
         if (index === 0) {
-            this._updateModel();
             this.updateMaterialParams();
         } else {
             this.updateTrailMaterial();
@@ -430,7 +438,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
         mat.recompileShaders(this._defines);
         if (this._model) {
-            this._model.setSubModelMaterial(0, mat);
+            this._model.updateMaterial(mat);
         }
     }
 
@@ -455,7 +463,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             }
             mat = mat || this._defaultTrailMat;
             mat!.recompileShaders(this._trailDefines);
-            trailModule._updateMaterial();
+            trailModule.updateMaterial();
         }
     }
 }

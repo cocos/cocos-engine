@@ -32,7 +32,7 @@ import { math, UITransformComponent } from '../../../core';
 import { SpriteFrame } from '../../../core/assets/sprite-frame';
 import { Component } from '../../../core/components/component';
 import { EventHandler as ComponentEventHandler } from '../../../core/components/component-event-handler';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property, requireComponent, tooltip } from '../../../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property, requireComponent, tooltip, displayOrder, type } from '../../../core/data/class-decorator';
 import { Color, Size, Vec3 } from '../../../core/math';
 import { EventTouch } from '../../../core/platform';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
@@ -87,9 +87,7 @@ export class EditBoxComponent extends Component {
      * @zh
      * 输入框的初始输入内容，如果为空则会显示占位符的文本。
      */
-    @property({
-        displayOrder: 1,
-    })
+    @displayOrder(1)
     @tooltip('输入框的初始输入内容，如果为空则会显示占位符的文本')
     get string () {
         return this._string;
@@ -111,9 +109,7 @@ export class EditBoxComponent extends Component {
      * @zh
      * 输入框占位符的文本内容。
      */
-    @property({
-        displayOrder: 2,
-    })
+    @displayOrder(2)
     @tooltip('输入框占位符的文本内容')
     get placeholder () {
         if (!this._placeholderLabel) {
@@ -135,10 +131,8 @@ export class EditBoxComponent extends Component {
      * @zh
      * 输入框输入文本节点上挂载的 Label 组件对象
      */
-    @property({
-        type: LabelComponent,
-        displayOrder: 3,
-    })
+    @type(LabelComponent)
+    @displayOrder(3)
     @tooltip('输入框输入文本节点上挂载的 Label 组件对象')
     get textLabel () {
         return this._textLabel;
@@ -161,10 +155,8 @@ export class EditBoxComponent extends Component {
      * @zh
      * 输入框占位符节点上挂载的 Label 组件对象。
      */
-    @property({
-        type: LabelComponent,
-        displayOrder: 4,
-    })
+    @type(LabelComponent)
+    @displayOrder(4)
     @tooltip('输入框占位符节点上挂载的 Label 组件对象')
     get placeholderLabel () {
         return this._placeholderLabel;
@@ -187,10 +179,8 @@ export class EditBoxComponent extends Component {
      * @zh
      * 输入框的背景图片。
      */
-    @property({
-        type: SpriteFrame,
-        displayOrder: 5,
-    })
+    @type(SpriteFrame)
+    @displayOrder(5)
     @tooltip('输入框的背景图片')
     get backgroundImage () {
         return this._backgroundImage;
@@ -212,10 +202,8 @@ export class EditBoxComponent extends Component {
      * @zh
      * 指定输入标志位，可以指定输入方式为密码或者单词首字母大写。
      */
-    @property({
-        type: InputFlag,
-        displayOrder: 6,
-    })
+    @type(InputFlag)
+    @displayOrder(6)
     @tooltip('指定输入标志位，可以指定输入方式为密码或者单词首字母大写')
     get inputFlag () {
         return this._inputFlag;
@@ -234,10 +222,8 @@ export class EditBoxComponent extends Component {
      * @zh
      * 指定输入模式: ANY表示多行输入，其它都是单行输入，移动平台上还可以指定键盘样式。
      */
-    @property({
-        type: InputMode,
-        displayOrder: 7,
-    })
+    @type(InputMode)
+    @displayOrder(7)
     @tooltip('指定输入模式: ANY 表示多行输入，其它都是单行输入，移动平台上还可以指定键盘样式')
     get inputMode () {
         return this._inputMode;
@@ -260,10 +246,8 @@ export class EditBoxComponent extends Component {
      * 指定移动设备上面回车按钮的样式。
      * 注意：这个选项对 web 平台与 desktop 平台无效。
      */
-    @property({
-        type: KeyboardReturnType,
-        displayOrder: 8,
-    })
+    @type(KeyboardReturnType)
+    @displayOrder(8)
     @tooltip('指定移动设备上面回车按钮的样式')
     get returnType () {
         return this._returnType;
@@ -284,9 +268,7 @@ export class EditBoxComponent extends Component {
      * - 如果值为小于 0 的值，则不会限制输入字符个数。
      * - 如果值为 0，则不允许用户进行任何输入。
      */
-    @property({
-        displayOrder: 9,
-    })
+    @displayOrder(9)
     @tooltip('输入框最大允许输入的字符个数')
     get maxLength () {
         return this._maxLength;
@@ -302,9 +284,7 @@ export class EditBoxComponent extends Component {
      * @zh
      * 修改 DOM 输入元素的 tabIndex（这个属性只有在 Web 上面修改有意义）。
      */
-    @property({
-        displayOrder: 10,
-    })
+    @displayOrder(10)
     @tooltip('修改 DOM 输入元素的 tabIndex（这个属性只有在 Web 上面修改有意义）')
     get tabIndex () {
         return this._tabIndex;
@@ -331,10 +311,8 @@ export class EditBoxComponent extends Component {
      * @zh
      * 开始编辑文本输入框触发的事件回调。
      */
-    @property({
-        type: [ComponentEventHandler],
-        displayOrder: 11,
-    })
+    @type([ComponentEventHandler])
+    @displayOrder(11)
     @tooltip('该事件在用户点击输入框获取焦点的时候被触发')
     public editingDidBegan: ComponentEventHandler[] = [];
 
@@ -345,10 +323,8 @@ export class EditBoxComponent extends Component {
      * @zh
      * 编辑文本输入框时触发的事件回调。
      */
-    @property({
-        type: [ComponentEventHandler],
-        displayOrder: 12,
-    })
+    @type([ComponentEventHandler])
+    @displayOrder(12)
     @tooltip('编辑文本输入框时触发的事件回调')
     public textChanged: ComponentEventHandler[] = [];
 
@@ -359,10 +335,8 @@ export class EditBoxComponent extends Component {
      * @zh
      * 结束编辑文本输入框时触发的事件回调。
      */
-    @property({
-        type: [ComponentEventHandler],
-        displayOrder: 13,
-    })
+    @type([ComponentEventHandler])
+    @displayOrder(13)
     @tooltip('在单行模式下面，一般是在用户按下回车或者点击屏幕输入框以外的地方调用该函数。 如果是多行输入，一般是在用户点击屏幕输入框以外的地方调用该函数')
     public editingDidEnded: ComponentEventHandler[] = [];
 
@@ -373,10 +347,8 @@ export class EditBoxComponent extends Component {
      * @zh
      * 当用户按下回车按键时的事件回调，目前不支持 windows 平台
      */
-    @property({
-        type: [ComponentEventHandler],
-        displayOrder: 14,
-    })
+    @type([ComponentEventHandler])
+    @displayOrder(14)
     @tooltip('该事件在用户按下回车键的时候被触发, 如果是单行输入框，按回车键还会使输入框失去焦点')
     public editingReturn: ComponentEventHandler[] = [];
 

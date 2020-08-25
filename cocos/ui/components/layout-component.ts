@@ -29,7 +29,7 @@
  */
 
 import { Component } from '../../core/components/component';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property, requireComponent, tooltip } from '../../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property, requireComponent, tooltip, type } from '../../core/data/class-decorator';
 import { Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { UITransformComponent } from '../../core/components/ui-base/ui-transform-component';
@@ -198,9 +198,7 @@ export class LayoutComponent extends Component {
      * @zh
      * 布局类型。
      */
-    @property({
-        type: Type,
-    })
+    @type(Type)
     @tooltip('自动布局模式，包括：\n 1. NONE，不会对子节点进行自动布局 \n 2. HORIZONTAL，横向自动排布子物体 \n 3. VERTICAL，垂直自动排布子物体\n 4. GRID, 采用网格方式对子物体自动进行布局')
     get type () {
         return this._N$layoutType;
@@ -226,9 +224,7 @@ export class LayoutComponent extends Component {
      * @zh
      * 缩放模式。
      */
-    @property({
-        type: ResizeMode,
-    })
+    @type(ResizeMode)
     @tooltip('缩放模式，包括：\n 1. NONE，不会对子节点和容器进行大小缩放 \n 2. CONTAINER, 对容器的大小进行缩放 \n 3. CHILDREN, 对子节点的大小进行缩放')
     get resizeMode () {
         return this._resizeMode;
@@ -278,9 +274,7 @@ export class LayoutComponent extends Component {
      * @zh
      * 起始轴方向类型，可进行水平和垂直布局排列，只有布局类型为 GRID 的时候才有效。
      */
-    @property({
-        type: AxisDirection,
-    })
+    @type(AxisDirection)
     @tooltip('起始轴方向类型，可进行水平和垂直布局排列，只有布局类型为 GRID 的时候才有效')
     get startAxis () {
         return this._startAxis;
@@ -431,9 +425,7 @@ export class LayoutComponent extends Component {
      * @zh
      * 垂直排列子节点的方向。
      */
-    @property({
-        type: VerticalDirection,
-    })
+    @type(VerticalDirection)
     @tooltip('垂直排列子节点的方向')
     get verticalDirection () {
         return this._verticalDirection;
@@ -456,9 +448,7 @@ export class LayoutComponent extends Component {
      * @zh
      * 水平排列子节点的方向。
      */
-    @property({
-        type: HorizontalDirection,
-    })
+    @type(HorizontalDirection)
     @tooltip('水平排列子节点的方向')
     get horizontalDirection () {
         return this._horizontalDirection;
@@ -915,7 +905,7 @@ export class LayoutComponent extends Component {
                 }
             }
 
-            const finalPositionX = fnPositionX(child, columnMaxWidth, column);
+            const finalPositionX = fnPositionX(child, childTrans, columnMaxWidth, column);
             if (baseHeight >= (childBoundingBoxHeight + (this._paddingTop + this._paddingBottom))) {
                 if (applyChildren) {
                     child.getPosition(_tempPos);
