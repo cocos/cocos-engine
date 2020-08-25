@@ -210,7 +210,7 @@
     "skybox": {
       "__id__": 8
     },
-    "planarShadow": {
+    "shadows": {
       "__id__": 9
     }
   },
