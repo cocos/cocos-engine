@@ -666,9 +666,4 @@ export enum FrustumView {
 }
 export const FrustumPool = new BufferPool(PoolType.FRUSTUM, Float32Array, FrustumView);
 
-export const RenderViewPool = new ObjectPool(PoolType.RENDER_VIEW,
-    (args: [Root, IRenderViewInfo], obj?: RenderView) => obj ? (obj.initialize(args[1]), obj) : args[0].createView(args[1]),
-    (obj: RenderView) => obj && obj.destroy(),
-);
-
 

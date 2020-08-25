@@ -9,7 +9,7 @@ import { GFXDevice } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../../pipeline';
 import { CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool,
-    FrustumView, RenderViewPool, RenderViewHandle, NULL_HANDLE } from '../core/memory-pools';
+    FrustumView, RenderViewHandle, NULL_HANDLE } from '../core/memory-pools';
 import { JSB } from 'internal:constants';
 
 export enum CameraFOVAxis {
@@ -166,13 +166,12 @@ export class Camera {
         }
 
         this.updateExposure();
-        this._viewHandle = RenderViewPool.alloc(legacyCC.director.root, {
+        this._view = legacyCC.director.root.createView({
             camera: this,
             name: this._name,
             priority: this._priority,
             flows: info.flows,
         });
-        this._view = RenderViewPool.get(this._viewHandle);
         legacyCC.director.root.attachCamera(this);
         this.changeTargetWindow(info.window);
 
@@ -182,9 +181,8 @@ export class Camera {
 
     public destroy () {
         legacyCC.director.root.detachCamera(this);
-        if (this._viewHandle) {
-            RenderViewPool.free(this._viewHandle);
-            this._viewHandle = NULL_HANDLE;
+        if (this._view) {
+            this._view.destroy();
             this._view = null;
         }
         this._name = null;
