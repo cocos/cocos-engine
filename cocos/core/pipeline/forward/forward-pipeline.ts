@@ -24,6 +24,7 @@ import { Ambient } from '../../renderer/scene/ambient';
 import { Skybox } from '../../renderer/scene/skybox';
 import { PlanarShadows } from '../../renderer/scene/planar-shadows';
 import { Shadow } from '../../renderer/scene/shadow';
+import { sceneCulling } from './scene-culling';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
@@ -121,6 +122,16 @@ export class ForwardPipeline extends RenderPipeline {
         }
 
         return true;
+    }
+
+    public render (views: RenderView[]) {
+        for (let i = 0; i < views.length; i++) {
+            const view = views[i];
+            sceneCulling(this, view);
+            for (let j = 0; j < view.flows.length; j++) {
+                view.flows[j].render(view);
+            }
+        }
     }
 
     public getRenderPass (clearFlags: GFXClearFlag): GFXRenderPass {

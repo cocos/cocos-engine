@@ -161,9 +161,12 @@ export abstract class RenderPipeline extends Asset {
      * @zh 渲染函数，对指定的渲染视图按顺序执行所有渲染流程。
      * @param view Render view。
      */
-    public render (view: RenderView) {
-        for (let i = 0; i < view.flows.length; i++) {
-            view.flows[i].render(view);
+    public render (views: RenderView[]) {
+        for (let i = 0; i < views.length; i++) {
+            const view = views[i];
+            for (let j = 0; j < view.flows.length; j++) {
+                view.flows[j].render(view);
+            }
         }
     }
 

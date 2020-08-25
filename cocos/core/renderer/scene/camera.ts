@@ -164,13 +164,13 @@ export class Camera {
         }
 
         this.updateExposure();
-
         this._view = legacyCC.director.root.createView({
             camera: this,
             name: this._name,
             priority: this._priority,
             flows: info.flows,
         });
+        legacyCC.director.root.attachCamera(this);
         this.changeTargetWindow(info.window);
 
         console.log('Created Camera: ' + this._name + ' ' + CameraPool.get(handle
@@ -178,15 +178,18 @@ export class Camera {
     }
 
     public destroy () {
-        legacyCC.director.root.destroyView(this._view);
-        this._view = null;
+        legacyCC.director.root.detachCamera(this);
+        if (this._view) {
+            this._view.destroy();
+            this._view = null;
+        }
         this._name = null;
         if (this._poolHandle) {
             CameraPool.free(this._poolHandle);
             this._poolHandle = NULL_HANDLE;
             FrustumPool.free(this._frustumHandle);
             this._frustumHandle = NULL_HANDLE;
-        } 
+        }
     }
 
     public attachToScene (scene: RenderScene) {
