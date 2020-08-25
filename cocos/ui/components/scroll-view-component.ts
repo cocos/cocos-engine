@@ -392,11 +392,11 @@ export class ScrollViewComponent extends ViewGroupComponent {
     public scrollEvents: ComponentEventHandler[] = [];
 
     get view () {
-        if (!this._content) {
+        let parent = this._content && this._content.node.parent;
+        if (!parent) {
             return null;
         }
-
-        return this._content.node.parent;
+        return parent._uiProps.uiTransformComp;
     }
 
     protected _autoScrolling = false;
@@ -732,13 +732,11 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @return - 最大可滚动偏移量。
      */
     public getMaxScrollOffset () {
-        if (!this._content) {
+        if (!this._content || !this.view) {
             return ZERO;
         }
-        const scrollSize = this.node._uiProps.uiTransformComp!.contentSize;
-        const contentSize = this._content.contentSize;
-        let horizontalMaximizeOffset = contentSize.width - scrollSize.width;
-        let verticalMaximizeOffset = contentSize.height - scrollSize.height;
+        let horizontalMaximizeOffset = this._content.width - this.view.width;
+        let verticalMaximizeOffset = this._content.height - this.view.height;
         horizontalMaximizeOffset = horizontalMaximizeOffset >= 0 ? horizontalMaximizeOffset : 0;
         verticalMaximizeOffset = verticalMaximizeOffset >= 0 ? verticalMaximizeOffset : 0;
 
@@ -935,8 +933,8 @@ export class ScrollViewComponent extends ViewGroupComponent {
                 this._content.node.on(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
                 this._content.node.on(Node.EventType.TRANSFORM_CHANGED, this._scaleChanged, this);
                 if (this.view) {
-                    this.view.on(Node.EventType.TRANSFORM_CHANGED, this._scaleChanged, this);
-                    this.view.on(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
+                    this.view.node.on(Node.EventType.TRANSFORM_CHANGED, this._scaleChanged, this);
+                    this.view.node.on(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
                 }
             }
 
@@ -958,8 +956,8 @@ export class ScrollViewComponent extends ViewGroupComponent {
                 this._content.node.off(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
                 this._content.node.off(Node.EventType.TRANSFORM_CHANGED, this._scaleChanged, this);
                 if (this.view) {
-                    this.view.off(Node.EventType.TRANSFORM_CHANGED, this._scaleChanged, this);
-                    this.view.off(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
+                    this.view.node.off(Node.EventType.TRANSFORM_CHANGED, this._scaleChanged, this);
+                    this.view.node.off(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
                 }
             }
         }
@@ -1082,13 +1080,13 @@ export class ScrollViewComponent extends ViewGroupComponent {
     }
 
     protected _calculateBoundary () {
-        if (this._content) {
+        if (this._content && this.view) {
             // refresh content size
             const layout = this._content.node.getComponent(LayoutComponent);
             if (layout && layout.enabledInHierarchy) {
                 layout.updateLayout();
             }
-            const viewTrans = this.view!._uiProps.uiTransformComp!;
+            const viewTrans = this.view;
 
             const anchorX = viewTrans.width * viewTrans.anchorX;
             const anchorY = viewTrans.height * viewTrans.anchorY;
@@ -1147,9 +1145,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
     protected _startAttenuatingAutoScroll (deltaMove: Vec3, initialVelocity: Vec3) {
         const targetDelta = new Vec3(deltaMove);
         targetDelta.normalize();
-        if (this._content) {
+        if (this._content && this.view) {
             const contentSize = this._content.contentSize;
-            const scrollViewSize = this.node._uiProps.uiTransformComp!.contentSize;
+            const scrollViewSize = this.view.contentSize;
 
             const totalMoveWidth = (contentSize.width - scrollViewSize.width);
             const totalMoveHeight = (contentSize.height - scrollViewSize.height);
@@ -1386,10 +1384,10 @@ export class ScrollViewComponent extends ViewGroupComponent {
     }
 
     protected _updateScrollBarState () {
-        if (!this._content) {
+        if (!this._content || !this.view) {
             return;
         }
-        const viewTrans = this.view!._uiProps.uiTransformComp!;
+        const viewTrans = this.view;
         if (this.verticalScrollBar) {
             if (this._content.height < viewTrans.height) {
                 this.verticalScrollBar.hide();
@@ -1533,8 +1531,8 @@ export class ScrollViewComponent extends ViewGroupComponent {
     }
 
     protected _clampDelta (delta: Vec3) {
-        if (this._content) {
-            const scrollViewSize = this.node._uiProps.uiTransformComp!.contentSize;
+        if (this._content && this.view) {
+            const scrollViewSize = this.view.contentSize;
             if (this._content.width < scrollViewSize.width) {
                 delta.x = 0;
             }
@@ -1712,7 +1710,6 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
         anchor.clampf(new Vec2(0, 0), new Vec2(1, 1));
 
-        const scrollSize = this.node._uiProps.uiTransformComp!.contentSize;
         let bottomDelta = this._getContentBottomBoundary() - this._bottomBoundary;
         bottomDelta = -bottomDelta;
 
@@ -1720,9 +1717,10 @@ export class ScrollViewComponent extends ViewGroupComponent {
         leftDelta = -leftDelta;
 
         const moveDelta = new Vec3();
-        if (this._content) {
+        if (this._content && this.view) {
             let totalScrollDelta = 0;
             const contentSize = this._content.contentSize;
+            const scrollSize = this.view.contentSize;
             if (applyToHorizontal) {
                 totalScrollDelta = contentSize.width - scrollSize.width;
                 moveDelta.x = leftDelta - totalScrollDelta * anchor.x;
