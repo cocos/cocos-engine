@@ -30,7 +30,7 @@ import { Model, ModelType } from '../scene/model';
 import { SubModel } from '../scene/submodel';
 import { UIDrawBatch } from './ui-draw-batch';
 import { Pass } from '../core/pass';
-import { SubModelPool, IAHandle, DescriptorSetHandle, SubModelView, IAPool, DSPool, NULL_HANDLE } from '../core/memory-pools';
+import { SubModelPool, InputAssemblerHandle, DescriptorSetHandle, SubModelView, IAPool, DSPool, NULL_HANDLE } from '../core/memory-pools';
 import { RenderPriority } from '../../pipeline/define';
 
 export class UIBatchModel extends Model {
@@ -69,7 +69,7 @@ export class UIBatchModel extends Model {
 
 class UISubModel extends SubModel {
 
-    public directInitialize (passes: Pass[], iaHandle: IAHandle, dsHandle: DescriptorSetHandle) {
+    public directInitialize (passes: Pass[], iaHandle: InputAssemblerHandle, dsHandle: DescriptorSetHandle) {
         this._passes = passes;
         this._handle = SubModelPool.alloc();
         this._flushPassInfo();

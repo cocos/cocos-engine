@@ -9,7 +9,7 @@ import { IRenderObject, SetIndex } from './define';
 import { GFXDevice, GFXRenderPass, GFXBuffer, GFXShader } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { DSPool, ShaderPool, PassHandle, PassPool, PassView, SubModelPool, SubModelView } from '../renderer/core/memory-pools';
+import { DSPool, ShaderPool, PassHandle, PassPool, PassView, SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
 
 /**
  * @zh
@@ -39,7 +39,7 @@ export class RenderShadowMapBatchedQueue {
 
         if (pass.phase === this._phaseID) {
             if (this._shadowMapBuffer) {
-                const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx));
+                const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle);
                 this._subModelsArray.push(subModel);
                 this._shaderArray.push(shader);
                 this._passArray.push(pass.handle);

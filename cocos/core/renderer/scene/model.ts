@@ -290,7 +290,7 @@ export class Model {
             this._updateLocalDescriptors(i, ds);
         }
 
-        const shader = ShaderPool.get(SubModelPool.get<ShaderHandle>(subModel.handle, SubModelView.SHADER_0));
+        const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0));
         this._updateInstancedAttributes(shader.attributes, subModel.passes[0]);
     }
 

@@ -7,7 +7,7 @@ import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, UBOForwardLight, SetIndex } from './define';
 import { Light, LightType, SphereLight, SpotLight, BatchingSchemes, Model } from '../renderer';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView } from '../renderer/core/memory-pools';
+import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
 import { Vec3, nextPow2 } from '../../core/math';
 import { RenderView } from './render-view';
 import { sphere, intersect } from '../geometry';
@@ -214,7 +214,7 @@ export class RenderAdditiveLightQueue {
 
         for (let i = 0; i < this._lightPasses.length; i++) {
             const { subModel, passIdx, dynamicOffsets } = this._lightPasses[i];
-            const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx));
+            const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle);
             const pass = subModel.passes[passIdx];
             const ia = subModel.inputAssembler;
             const pso = PipelineStateManager.getOrCreatePipelineState(device, pass.handle, shader, renderPass, ia);

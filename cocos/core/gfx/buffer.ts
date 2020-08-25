@@ -108,14 +108,6 @@ export abstract class GFXBuffer extends GFXObject {
         return this._bakcupBuffer;
     }
 
-    /**
-     * @en Whether this buffer instance is only a view on top of another buffer.
-     * @zh 此缓冲实例是否只是另一份缓冲的视图。
-     */
-    get isBufferView () {
-        return this._isBufferView;
-    }
-
     protected _device: GFXDevice;
     protected _usage: GFXBufferUsage = GFXBufferUsageBit.NONE;
     protected _memUsage: GFXMemoryUsage = GFXMemoryUsageBit.NONE;

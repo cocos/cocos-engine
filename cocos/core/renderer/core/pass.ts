@@ -604,16 +604,16 @@ export class Pass {
     get blocks () { return this._blocks; }
     // states
     get handle () { return this._handle; }
-    get priority () { return PassPool.get<number>(this._handle, PassView.PRIORITY); }
-    get primitive () { return PassPool.get<GFXPrimitiveMode>(this._handle, PassView.PRIMITIVE); }
-    get stage () { return PassPool.get<RenderPassStage>(this._handle, PassView.STAGE); }
-    get phase () { return PassPool.get<number>(this._handle, PassView.PHASE); }
+    get priority () { return PassPool.get(this._handle, PassView.PRIORITY); }
+    get primitive () { return PassPool.get(this._handle, PassView.PRIMITIVE); }
+    get stage () { return PassPool.get(this._handle, PassView.STAGE); }
+    get phase () { return PassPool.get(this._handle, PassView.PHASE); }
     get rasterizerState () { return RasterizerStatePool.get(PassPool.get(this._handle, PassView.RASTERIZER_STATE)); }
     get depthStencilState () { return DepthStencilStatePool.get(PassPool.get(this._handle, PassView.DEPTH_STENCIL_STATE)); }
     get blendState () { return BlendStatePool.get(PassPool.get(this._handle, PassView.BLEND_STATE)); }
-    get dynamicStates () { return PassPool.get<GFXDynamicStateFlags>(this._handle, PassView.DYNAMIC_STATES); }
-    get batchingScheme () { return PassPool.get<BatchingSchemes>(this._handle, PassView.BATCHING_SCHEME); }
-    get hash () { return PassPool.get<number>(this._handle, PassView.HASH); }
+    get dynamicStates () { return PassPool.get(this._handle, PassView.DYNAMIC_STATES); }
+    get batchingScheme () { return PassPool.get(this._handle, PassView.BATCHING_SCHEME); }
+    get hash () { return PassPool.get(this._handle, PassView.HASH); }
 }
 
 function serializeBlendState (bs: GFXBlendState) {
