@@ -292,6 +292,7 @@ SE_DECLARE_FUNC(js_gfx_Device_createSampler);
 SE_DECLARE_FUNC(js_gfx_Device_initialize);
 SE_DECLARE_FUNC(js_gfx_Device_resize);
 SE_DECLARE_FUNC(js_gfx_Device_createQueue);
+SE_DECLARE_FUNC(js_gfx_Device_bindingMappingInfo);
 
 extern se::Object* __jsb_cc_gfx_Buffer_proto;
 extern se::Class* __jsb_cc_gfx_Buffer_class;

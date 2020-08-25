@@ -34,24 +34,6 @@ static bool js_gles2_GLES2Device_checkExtension(se::State& s)
 }
 SE_BIND_FUNC(js_gles2_GLES2Device_checkExtension)
 
-static bool js_gles2_GLES2Device_bindingMappingInfo(se::State& s)
-{
-    cc::gfx::GLES2Device* cobj = (cc::gfx::GLES2Device*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gles2_GLES2Device_bindingMappingInfo : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const cc::gfx::BindingMappingInfo& result = cobj->bindingMappingInfo();
-        ok &= native_ptr_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gles2_GLES2Device_bindingMappingInfo : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gles2_GLES2Device_bindingMappingInfo)
-
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_GLES2Device_finalize)
 
 static bool js_gles2_GLES2Device_constructor(se::State& s)
@@ -85,7 +67,6 @@ bool js_register_gles2_GLES2Device(se::Object* obj)
     auto cls = se::Class::create("GLES2Device", obj, __jsb_cc_gfx_Device_proto, _SE(js_gles2_GLES2Device_constructor));
 
     cls->defineFunction("checkExtension", _SE(js_gles2_GLES2Device_checkExtension));
-    cls->defineFunction("bindingMappingInfo", _SE(js_gles2_GLES2Device_bindingMappingInfo));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_GLES2Device_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::GLES2Device>(cls);

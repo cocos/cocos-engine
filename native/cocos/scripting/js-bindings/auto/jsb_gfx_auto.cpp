@@ -13045,6 +13045,24 @@ static bool js_gfx_Device_getDepthBits(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_Device_getDepthBits)
 
+static bool js_gfx_Device_bindingMappingInfo(se::State& s)
+{
+    cc::gfx::Device* cobj = (cc::gfx::Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_bindingMappingInfo : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const cc::gfx::BindingMappingInfo& result = cobj->bindingMappingInfo();
+        ok &= native_ptr_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_bindingMappingInfo : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Device_bindingMappingInfo)
+
 static bool js_gfx_Device_getMemoryStatus(se::State& s)
 {
     cc::gfx::Device* cobj = (cc::gfx::Device*)s.nativeThisObject();
@@ -13247,6 +13265,7 @@ bool js_register_gfx_Device(se::Object* obj)
     cls->defineFunction("initialize", _SE(js_gfx_Device_initialize));
     cls->defineFunction("resize", _SE(js_gfx_Device_resize));
     cls->defineFunction("createQueue", _SE(js_gfx_Device_createQueue));
+    cls->defineFunction("bindingMappingInfo", _SE(js_gfx_Device_bindingMappingInfo));
     cls->install();
     JSBClassType::registerClass<cc::gfx::Device>(cls);
 
