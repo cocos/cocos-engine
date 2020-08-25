@@ -32,13 +32,10 @@ bool CCMTLCommandBuffer::initialize(const CommandBufferInfo &info) {
     _type = info.type;
     _queue = info.queue;
 
-    _status = Status::SUCCESS;
-
     return true;
 }
 
 void CCMTLCommandBuffer::destroy() {
-    _status = Status::UNREADY;
     dispatch_semaphore_signal(_frameBoundarySemaphore);
 }
 

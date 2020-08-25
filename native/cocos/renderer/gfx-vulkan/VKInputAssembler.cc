@@ -54,7 +54,6 @@ bool CCVKInputAssembler::initialize(const InputAssemblerInfo &info) {
     }
 
     _attributesHash = computeAttributesHash();
-    _status = Status::SUCCESS;
 
     return true;
 }
@@ -66,8 +65,6 @@ void CCVKInputAssembler::destroy() {
         CC_DELETE(_gpuInputAssembler);
         _gpuInputAssembler = nullptr;
     }
-
-    _status = Status::UNREADY;
 }
 
 } // namespace gfx

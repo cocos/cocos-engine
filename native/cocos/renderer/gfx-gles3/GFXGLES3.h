@@ -1,5 +1,5 @@
-#ifndef CC_GFXGLES3_GLES3_H_
-#define CC_GFXGLES3_GLES3_H_
+#ifndef CC_GFXGLES3_H_
+#define CC_GFXGLES3_H_
 
 #include "GLES3Std.h"
 #include "GLES3Device.h"

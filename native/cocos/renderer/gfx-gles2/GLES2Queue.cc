@@ -15,13 +15,11 @@ GLES2Queue::~GLES2Queue() {
 
 bool GLES2Queue::initialize(const QueueInfo &info) {
     _type = info.type;
-    _status = Status::SUCCESS;
 
     return true;
 }
 
 void GLES2Queue::destroy() {
-    _status = Status::UNREADY;
 }
 
 void GLES2Queue::submit(const vector<CommandBuffer *> &cmdBuffs, Fence *fence) {

@@ -32,7 +32,6 @@ bool GLES2CommandBuffer::initialize(const CommandBufferInfo &info) {
     _curDynamicOffsets.resize(setCount);
 
     _cmdPackage = CC_NEW(GLES2CmdPackage);
-    _status = Status::SUCCESS;
 
     return true;
 }
@@ -42,7 +41,6 @@ void GLES2CommandBuffer::destroy() {
         _gles2Allocator->clearCmds(_cmdPackage);
         _gles2Allocator = nullptr;
     }
-    _status = Status::UNREADY;
 
     CC_SAFE_DELETE(_cmdPackage);
 }

@@ -12162,24 +12162,6 @@ static bool js_gfx_GFXObject_getType(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_GFXObject_getType)
 
-static bool js_gfx_GFXObject_getStatus(se::State& s)
-{
-    cc::gfx::GFXObject* cobj = (cc::gfx::GFXObject*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXObject_getStatus : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->getStatus();
-        ok &= int32_to_seval((int)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXObject_getStatus : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_GFXObject_getStatus)
-
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_GFXObject_finalize)
 
 static bool js_gfx_GFXObject_constructor(se::State& s)
@@ -12216,7 +12198,6 @@ bool js_register_gfx_GFXObject(se::Object* obj)
 {
     auto cls = se::Class::create("GFXObject", obj, nullptr, _SE(js_gfx_GFXObject_constructor));
 
-    cls->defineProperty("status", _SE(js_gfx_GFXObject_getStatus), nullptr);
     cls->defineProperty("gfxType", _SE(js_gfx_GFXObject_getType), nullptr);
     cls->defineFinalizeFunction(_SE(js_cc_gfx_GFXObject_finalize));
     cls->install();

@@ -1,5 +1,5 @@
-#ifndef CC_GFXVULKAN_CCVK_QUEUE_H_
-#define CC_GFXVULKAN_CCVK_QUEUE_H_
+#ifndef CC_GFXVULKAN_QUEUE_H_
+#define CC_GFXVULKAN_QUEUE_H_
 
 namespace cc {
 namespace gfx {

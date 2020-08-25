@@ -41,8 +41,6 @@ bool GLES3Framebuffer::initialize(const FramebufferInfo &info) {
 
     GLES3CmdFuncCreateFramebuffer((GLES3Device *)_device, _gpuFBO);
 
-    _status = Status::SUCCESS;
-
     return true;
 }
 
@@ -52,7 +50,6 @@ void GLES3Framebuffer::destroy() {
         CC_DELETE(_gpuFBO);
         _gpuFBO = nullptr;
     }
-    _status = Status::UNREADY;
 }
 
 } // namespace gfx

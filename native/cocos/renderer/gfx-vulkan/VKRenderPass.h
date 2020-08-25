@@ -1,5 +1,5 @@
-#ifndef CC_GFXVULKAN_CCVK_RENDER_PASS_H_
-#define CC_GFXVULKAN_CCVK_RENDER_PASS_H_
+#ifndef CC_GFXVULKAN_RENDER_PASS_H_
+#define CC_GFXVULKAN_RENDER_PASS_H_
 
 namespace cc {
 namespace gfx {

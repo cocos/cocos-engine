@@ -32,8 +32,6 @@ bool CCVKDescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
 
     CCVKCmdFuncCreateDescriptorSetLayout((CCVKDevice *)_device, _gpuDescriptorSetLayout);
 
-    _status = Status::SUCCESS;
-
     return true;
 }
 
@@ -42,8 +40,6 @@ void CCVKDescriptorSetLayout::destroy() {
         ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuDescriptorSetLayout);
         _gpuDescriptorSetLayout = nullptr;
     }
-
-    _status = Status::UNREADY;
 }
 
 } // namespace gfx

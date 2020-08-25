@@ -1,5 +1,5 @@
-#ifndef CC_GFXGLES2_GLES2_EGL_CONTEXT_H_
-#define CC_GFXGLES2_GLES2_EGL_CONTEXT_H_
+#ifndef CC_GFXGLES2_EGL_CONTEXT_H_
+#define CC_GFXGLES2_EGL_CONTEXT_H_
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     #ifdef __OBJC__
@@ -93,4 +93,4 @@ private:
 } // namespace gfx
 } // namespace cc
 
-#endif // CC_GFXGLES2_GLES2_EGL_CONTEXT_H_
+#endif // CC_GFXGLES2_EGL_CONTEXT_H_

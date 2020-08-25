@@ -13,13 +13,11 @@ CCMTLQueue::~CCMTLQueue() {
 
 bool CCMTLQueue::initialize(const QueueInfo &info) {
     _type = info.type;
-    _status = Status::SUCCESS;
 
     return true;
 }
 
 void CCMTLQueue::destroy() {
-    _status = Status::UNREADY;
 }
 
 void CCMTLQueue::submit(const vector<CommandBuffer *> &cmdBuffs, Fence *fence) {

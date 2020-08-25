@@ -30,7 +30,6 @@ bool CCMTLRenderPass::initialize(const RenderPassInfo &info) {
     _mtlRenderPassDescriptor.stencilAttachment.storeAction = mu::toMTLStoreAction(_depthStencilAttachment.stencilStoreOp);
 
     _hash = computeHash();
-    _status = Status::SUCCESS;
 
     return true;
 }
@@ -40,33 +39,26 @@ void CCMTLRenderPass::destroy() {
         [_mtlRenderPassDescriptor release];
         _mtlRenderPassDescriptor = nil;
     }
-
-    _status = Status::UNREADY;
 }
 
 void CCMTLRenderPass::setColorAttachment(size_t slot, id<MTLTexture> texture, int level) {
     if (!_mtlRenderPassDescriptor) {
         CC_LOG_ERROR("CCMTLRenderPass: MTLRenderPassDescriptor should not be nullptr.");
-        _status = Status::FAILED;
         return;
     }
 
     if (_colorRenderTargetNums < slot) {
         CC_LOG_ERROR("CCMTLRenderPass: invalid color attachment slot %d.", slot);
-        _status = Status::FAILED;
         return;
     }
 
     _mtlRenderPassDescriptor.colorAttachments[slot].texture = texture;
     _mtlRenderPassDescriptor.colorAttachments[slot].level = level;
-
-    _status = Status::SUCCESS;
 }
 
 void CCMTLRenderPass::setDepthStencilAttachment(id<MTLTexture> texture, int level) {
     if (!_mtlRenderPassDescriptor) {
         CC_LOG_ERROR("CCMTLRenderPass: MTLRenderPassDescriptor should not be nullptr.");
-        _status = Status::FAILED;
         return;
     }
 
@@ -74,8 +66,6 @@ void CCMTLRenderPass::setDepthStencilAttachment(id<MTLTexture> texture, int leve
     _mtlRenderPassDescriptor.depthAttachment.level = level;
     _mtlRenderPassDescriptor.stencilAttachment.texture = texture;
     _mtlRenderPassDescriptor.stencilAttachment.level = level;
-
-    _status = Status::SUCCESS;
 }
 
 } // namespace gfx

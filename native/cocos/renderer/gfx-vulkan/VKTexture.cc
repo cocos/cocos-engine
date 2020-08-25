@@ -86,7 +86,6 @@ bool CCVKTexture::initialize(const TextureInfo &info) {
     _gpuTextureView = CC_NEW(CCVKGPUTextureView);
     createTextureView();
 
-    _status = Status::SUCCESS;
     return true;
 }
 
@@ -94,7 +93,6 @@ bool CCVKTexture::initialize(const TextureViewInfo &info) {
     _isTextureView = true;
 
     if (!info.texture) {
-        _status = Status::FAILED;
         return false;
     }
 
@@ -116,7 +114,6 @@ bool CCVKTexture::initialize(const TextureViewInfo &info) {
     _gpuTextureView = CC_NEW(CCVKGPUTextureView);
     createTextureView();
 
-    _status = Status::SUCCESS;
     return true;
 }
 
@@ -153,7 +150,6 @@ void CCVKTexture::destroy() {
         _device->getMemoryStatus().textureSize -= _size;
         _buffer = nullptr;
     }
-    _status = Status::UNREADY;
 }
 
 void CCVKTexture::resize(uint width, uint height) {
@@ -189,8 +185,6 @@ void CCVKTexture::resize(uint width, uint height) {
             status.bufferSize += _size;
         }
     }
-
-    _status = Status::UNREADY;
 }
 
 } // namespace gfx

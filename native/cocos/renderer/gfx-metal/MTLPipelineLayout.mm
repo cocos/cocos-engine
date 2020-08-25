@@ -39,11 +39,11 @@ bool CCMTLPipelineLayout::initialize(const PipelineLayoutInfo &info) {
     _gpuPipelineLayout->dynamicOffsetIndices.emplace_back(offset);
     _gpuPipelineLayout->dynamicOffsetCount = offset;
 
-    _status = Status::SUCCESS;
     return true;
 }
 
 void CCMTLPipelineLayout::destroy() {
 }
+
 }
 }

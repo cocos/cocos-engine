@@ -1,5 +1,5 @@
-#ifndef CC_GFXVULKAN_CCVK_PIPELINE_LAYOUT_H_
-#define CC_GFXVULKAN_CCVK_PIPELINE_LAYOUT_H_
+#ifndef CC_GFXVULKAN_PIPELINE_LAYOUT_H_
+#define CC_GFXVULKAN_PIPELINE_LAYOUT_H_
 
 namespace cc {
 namespace gfx {
@@ -24,4 +24,4 @@ private:
 } // namespace gfx
 } // namespace cc
 
-#endif // CC_GFXVULKAN_CCVK_PIPELINE_LAYOUT_H_
+#endif // CC_GFXVULKAN_PIPELINE_LAYOUT_H_

@@ -35,7 +35,6 @@ bool CCVKCommandBuffer::initialize(const CommandBufferInfo &info) {
     _curGPUDescriptorSets.resize(setCount);
     _curDynamicOffsets.resize(setCount);
 
-    _status = Status::SUCCESS;
     return true;
 }
 
@@ -45,8 +44,6 @@ void CCVKCommandBuffer::destroy() {
         CC_DELETE(_gpuCommandBuffer);
         _gpuCommandBuffer = nullptr;
     }
-
-    _status = Status::UNREADY;
 }
 
 void CCVKCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {

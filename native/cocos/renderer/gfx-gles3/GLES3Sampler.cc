@@ -37,8 +37,6 @@ bool GLES3Sampler::initialize(const SamplerInfo &info) {
     _gpuSampler->minLOD = _minLOD;
     _gpuSampler->maxLOD = _maxLOD;
 
-    _status = Status::SUCCESS;
-
     GLES3CmdFuncCreateSampler((GLES3Device *)_device, _gpuSampler);
 
     return true;
@@ -50,7 +48,6 @@ void GLES3Sampler::destroy() {
         CC_DELETE(_gpuSampler);
         _gpuSampler = nullptr;
     }
-    _status = Status::UNREADY;
 }
 
 } // namespace gfx

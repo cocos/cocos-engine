@@ -60,8 +60,6 @@ bool GLES3PipelineState::initialize(const PipelineStateInfo &info) {
         }
     }
 
-    _status = Status::SUCCESS;
-
     return true;
 }
 
@@ -70,7 +68,6 @@ void GLES3PipelineState::destroy() {
         CC_DELETE(_gpuPipelineState);
         _gpuPipelineState = nullptr;
     }
-    _status = Status::UNREADY;
 }
 
 } // namespace gfx

@@ -1,5 +1,5 @@
-#ifndef CC_GFXVULKAN_CCVK_SAMPLER_H_
-#define CC_GFXVULKAN_CCVK_SAMPLER_H_
+#ifndef CC_GFXVULKAN_SAMPLER_H_
+#define CC_GFXVULKAN_SAMPLER_H_
 
 namespace cc {
 namespace gfx {

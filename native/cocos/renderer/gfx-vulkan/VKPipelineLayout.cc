@@ -36,8 +36,6 @@ bool CCVKPipelineLayout::initialize(const PipelineLayoutInfo &info) {
 
     CCVKCmdFuncCreatePipelineLayout((CCVKDevice *)_device, _gpuPipelineLayout);
 
-    _status = Status::SUCCESS;
-
     return true;
 }
 
@@ -47,8 +45,6 @@ void CCVKPipelineLayout::destroy() {
         ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuPipelineLayout);
         _gpuPipelineLayout = nullptr;
     }
-
-    _status = Status::UNREADY;
 }
 
 } // namespace gfx

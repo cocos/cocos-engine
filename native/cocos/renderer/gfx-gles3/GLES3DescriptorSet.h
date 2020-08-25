@@ -1,5 +1,5 @@
-#ifndef CC_GFXGLES3_GLES3_DESCRIPTOR_SET_H_
-#define CC_GFXGLES3_GLES3_DESCRIPTOR_SET_H_
+#ifndef CC_GFXGLES3_DESCRIPTOR_SET_H_
+#define CC_GFXGLES3_DESCRIPTOR_SET_H_
 
 namespace cc {
 namespace gfx {
@@ -25,4 +25,4 @@ private:
 } // namespace gfx
 } // namespace cc
 
-#endif // CC_GFXGLES3_GLES3_DESCRIPTOR_SET_H_
+#endif // CC_GFXGLES3_DESCRIPTOR_SET_H_

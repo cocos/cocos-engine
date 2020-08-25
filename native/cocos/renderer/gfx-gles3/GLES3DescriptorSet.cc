@@ -33,8 +33,6 @@ bool GLES3DescriptorSet::initialize(const DescriptorSetInfo &info) {
         _gpuDescriptorSet->gpuDescriptors[i].type = bindings[i].descriptorType;
     }
 
-    _status = Status::SUCCESS;
-
     return true;
 }
 
@@ -45,8 +43,6 @@ void GLES3DescriptorSet::destroy() {
         CC_DELETE(_gpuDescriptorSet);
         _gpuDescriptorSet = nullptr;
     }
-
-    _status = Status::UNREADY;
 }
 
 void GLES3DescriptorSet::update() {

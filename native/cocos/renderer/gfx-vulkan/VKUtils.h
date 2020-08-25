@@ -1,5 +1,5 @@
-#ifndef CC_GFXVULKAN_CCVK_UTILS_H_
-#define CC_GFXVULKAN_CCVK_UTILS_H_
+#ifndef CC_GFXVULKAN_UTILS_H_
+#define CC_GFXVULKAN_UTILS_H_
 
 #define WIN32_LEAN_AND_MEAN
 
@@ -643,4 +643,4 @@ bool isExtensionSupported(const char *required, const vector<VkExtensionProperti
 } // namespace gfx
 } // namespace cc
 
-#endif // CC_GFXVULKAN_CCVK_UTILS_H_
+#endif // CC_GFXVULKAN_UTILS_H_

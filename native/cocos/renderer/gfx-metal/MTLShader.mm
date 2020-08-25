@@ -22,7 +22,6 @@ bool CCMTLShader::initialize(const ShaderInfo &info) {
     for (const auto &stage : _stages) {
         if (!createMTLFunction(stage)) {
             destroy();
-            _status = Status::FAILED;
             return false;
         }
     }
@@ -35,7 +34,6 @@ bool CCMTLShader::initialize(const ShaderInfo &info) {
     _gpuShader->vertexSamplerBindings = _mtlVertexSamplerBindings;
     _gpuShader->fragmentSamplerBindings = _mtlFragmentSamplerBindings;
 
-    _status = Status::SUCCESS;
     CC_LOG_INFO("%s compile succeed.", _name.c_str());
     return true;
 }
@@ -52,7 +50,6 @@ void CCMTLShader::destroy() {
     }
 
     CC_SAFE_DELETE(_gpuShader);
-    _status = Status::UNREADY;
 }
 
 bool CCMTLShader::createMTLFunction(const ShaderStage &stage) {

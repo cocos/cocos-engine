@@ -31,10 +31,8 @@ bool CCMTLPipelineState::initialize(const PipelineStateInfo &info) {
     _pipelineLayout = info.pipelineLayout;
 
     if (!createGPUPipelineState()) {
-        _status = Status::FAILED;
         return false;
     }
-    _status = Status::SUCCESS;
     return true;
 }
 
@@ -50,7 +48,6 @@ void CCMTLPipelineState::destroy() {
     }
 
     CC_SAFE_DELETE(_GPUPipelineState);
-    _status = Status::UNREADY;
 }
 
 bool CCMTLPipelineState::createGPUPipelineState() {

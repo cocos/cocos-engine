@@ -23,7 +23,6 @@ bool CCVKFence::initialize(const FenceInfo &info) {
 
     CCVKCmdFuncCreateFence((CCVKDevice *)_device, _gpuFence);
 
-    _status = Status::SUCCESS;
     return true;
 }
 
@@ -32,7 +31,6 @@ void CCVKFence::destroy() {
         ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuFence);
         _gpuFence = nullptr;
     }
-    _status = Status::UNREADY;
 }
 
 // TODO: move these two to device

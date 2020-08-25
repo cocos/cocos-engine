@@ -42,8 +42,6 @@ bool GLES3PipelineLayout::initialize(const PipelineLayoutInfo &info) {
     _gpuPipelineLayout->dynamicOffsetOffsets.push_back(offset);
     _gpuPipelineLayout->dynamicOffsetCount = offset;
 
-    _status = Status::SUCCESS;
-
     return true;
 }
 
@@ -53,8 +51,6 @@ void GLES3PipelineLayout::destroy() {
         CC_DELETE(_gpuPipelineLayout);
         _gpuPipelineLayout = nullptr;
     }
-
-    _status = Status::UNREADY;
 }
 
 } // namespace gfx

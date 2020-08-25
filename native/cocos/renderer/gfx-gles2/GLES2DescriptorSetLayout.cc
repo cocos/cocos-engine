@@ -29,8 +29,6 @@ bool GLES2DescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
         _gpuDescriptorSetLayout->bindings.push_back(binding);
     }
 
-    _status = Status::SUCCESS;
-
     return true;
 }
 
@@ -39,8 +37,6 @@ void GLES2DescriptorSetLayout::destroy() {
         CC_DELETE(_gpuDescriptorSetLayout);
         _gpuDescriptorSetLayout = nullptr;
     }
-
-    _status = Status::UNREADY;
 }
 
 } // namespace gfx

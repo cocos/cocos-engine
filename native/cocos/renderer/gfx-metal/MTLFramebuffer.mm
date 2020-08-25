@@ -41,13 +41,10 @@ bool CCMTLFramebuffer::initialize(const FramebufferInfo &info) {
 
     _isOffscreen = (attachmentIndices != 0);
 
-    _status = Status::SUCCESS;
-
     return true;
 }
 
 void CCMTLFramebuffer::destroy() {
-    _status = Status::UNREADY;
 }
 
 } // namespace gfx

@@ -24,7 +24,6 @@ bool CCVKQueue::initialize(const QueueInfo &info) {
     _gpuQueue->type = _type;
     CCVKCmdFuncGetDeviceQueue((CCVKDevice *)_device, _gpuQueue);
 
-    _status = Status::SUCCESS;
     return true;
 }
 
@@ -34,7 +33,6 @@ void CCVKQueue::destroy() {
         CC_DELETE(_gpuQueue);
         _gpuQueue = nullptr;
     }
-    _status = Status::UNREADY;
 }
 
 void CCVKQueue::submit(const vector<CommandBuffer *> &cmdBuffs, Fence *fence) {

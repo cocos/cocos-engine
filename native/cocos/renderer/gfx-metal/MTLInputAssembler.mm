@@ -36,14 +36,12 @@ bool CCMTLInputAssembler::initialize(const InputAssemblerInfo &info) {
         _GPUInputAssembler->mtlVertexBufers.push_back(static_cast<CCMTLBuffer *>(vertexBuffer)->getMTLBuffer());
 
     _attributesHash = computeAttributesHash();
-    _status = Status::SUCCESS;
 
     return true;
 }
 
 void CCMTLInputAssembler::destroy() {
     CC_SAFE_DELETE(_GPUInputAssembler);
-    _status = Status::UNREADY;
 }
 
 } // namespace gfx

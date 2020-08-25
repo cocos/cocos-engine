@@ -38,8 +38,6 @@ bool CCVKFramebuffer::initialize(const FramebufferInfo &info) {
 
     CCVKCmdFuncCreateFramebuffer((CCVKDevice *)_device, _gpuFBO);
 
-    _status = Status::SUCCESS;
-
     return true;
 }
 
@@ -48,8 +46,6 @@ void CCVKFramebuffer::destroy() {
         ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuFBO);
         _gpuFBO = nullptr;
     }
-
-    _status = Status::UNREADY;
 }
 
 } // namespace gfx

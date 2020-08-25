@@ -1,5 +1,5 @@
-#ifndef CC_GFXVULKAN_CCVK_BUFFER_H_
-#define CC_GFXVULKAN_CCVK_BUFFER_H_
+#ifndef CC_GFXVULKAN_BUFFER_H_
+#define CC_GFXVULKAN_BUFFER_H_
 
 namespace cc {
 namespace gfx {

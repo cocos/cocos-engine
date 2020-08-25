@@ -22,7 +22,6 @@ bool GLES3Fence::initialize(const FenceInfo &info) {
 
     // TODO
 
-    _status = Status::SUCCESS;
     return true;
 }
 
@@ -33,7 +32,6 @@ void GLES3Fence::destroy() {
         CC_DELETE(_gpuFence);
         _gpuFence = nullptr;
     }
-    _status = Status::UNREADY;
 }
 
 void GLES3Fence::wait() {

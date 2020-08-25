@@ -32,8 +32,6 @@ bool CCVKShader::initialize(const ShaderInfo &info) {
 
     CCVKCmdFuncCreateShader((CCVKDevice *)_device, _gpuShader);
 
-    _status = Status::SUCCESS;
-
     return true;
 }
 
@@ -42,8 +40,6 @@ void CCVKShader::destroy() {
         ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuShader);
         _gpuShader = nullptr;
     }
-
-    _status = Status::UNREADY;
 }
 
 } // namespace gfx

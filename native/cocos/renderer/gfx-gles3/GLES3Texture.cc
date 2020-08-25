@@ -63,7 +63,6 @@ bool GLES3Texture::initialize(const TextureInfo &info) {
     if (_flags & TextureFlags::BAKUP_BUFFER) {
         _buffer = (uint8_t *)CC_MALLOC(_size);
         if (!_buffer) {
-            _status = Status::FAILED;
             CC_LOG_ERROR("GLES3Texture: CC_MALLOC backup buffer failed.");
             return false;
         }
@@ -72,7 +71,6 @@ bool GLES3Texture::initialize(const TextureInfo &info) {
 
     _gpuTexture = CC_NEW(GLES3GPUTexture);
     if (!_gpuTexture) {
-        _status = Status::FAILED;
         CC_LOG_ERROR("GLES3Texture: CC_NEW GLES3GPUTexture failed.");
         return false;
     }
@@ -91,7 +89,6 @@ bool GLES3Texture::initialize(const TextureInfo &info) {
 
     GLES3CmdFuncCreateTexture((GLES3Device *)_device, _gpuTexture);
     _device->getMemoryStatus().textureSize += _size;
-    _status = Status::SUCCESS;
 
     return true;
 }
@@ -100,7 +97,6 @@ bool GLES3Texture::initialize(const TextureViewInfo &info) {
     _isTextureView = true;
 
     CC_LOG_ERROR("GLES3 doesn't support texture view.");
-    _status = Status::FAILED;
     return false;
 }
 
@@ -117,8 +113,6 @@ void GLES3Texture::destroy() {
         _device->getMemoryStatus().textureSize -= _size;
         _buffer = nullptr;
     }
-
-    _status = Status::UNREADY;
 }
 
 void GLES3Texture::resize(uint width, uint height) {
@@ -141,7 +135,6 @@ void GLES3Texture::resize(uint width, uint height) {
             const uint8_t *oldBuffer = _buffer;
             uint8_t *buffer = (uint8_t *)CC_MALLOC(_size);
             if (!buffer) {
-                _status = Status::FAILED;
                 CC_LOG_ERROR("GLES3Texture: CC_MALLOC backup buffer failed when resize the texture.");
                 return;
             }
@@ -151,7 +144,6 @@ void GLES3Texture::resize(uint width, uint height) {
             status.bufferSize -= oldSize;
             status.bufferSize += _size;
         }
-        _status = Status::SUCCESS;
     }
 }
 

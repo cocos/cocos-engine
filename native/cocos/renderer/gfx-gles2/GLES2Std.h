@@ -1,5 +1,5 @@
-#ifndef __CC_GFXGLES2_GLES2_STD_H__
-#define __CC_GFXGLES2_GLES2_STD_H__
+#ifndef __CC_GFXGLES2_STD_H__
+#define __CC_GFXGLES2_STD_H__
 
 #include <Core.h>
 

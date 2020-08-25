@@ -31,13 +31,11 @@ bool CCMTLDescriptorSet::initialize(const DescriptorSetInfo &info) {
         _gpuDescriptorSet->gpuDescriptors[i].stages = bindings[i].stageFlags;
     }
 
-    _status = Status::SUCCESS;
     return true;
 }
 void CCMTLDescriptorSet::destroy() {
     _layout = nullptr;
     CC_SAFE_DELETE(_gpuDescriptorSet);
-    _status = Status::UNREADY;
 }
 
 void CCMTLDescriptorSet::update() {

@@ -45,8 +45,6 @@ bool CCMTLSampler::initialize(const SamplerInfo &info) {
 
     [descriptor release];
 
-    _status = Status::SUCCESS;
-
     return _mtlSamplerState != nil;
 }
 
@@ -55,8 +53,6 @@ void CCMTLSampler::destroy() {
         [_mtlSamplerState release];
         _mtlSamplerState = nil;
     }
-
-    _status = Status::UNREADY;
 }
 
 } // namespace gfx

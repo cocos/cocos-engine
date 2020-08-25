@@ -1,5 +1,5 @@
-#ifndef CC_GFXVULKAN_CCVK_CONTEXT_H_
-#define CC_GFXVULKAN_CCVK_CONTEXT_H_
+#ifndef CC_GFXVULKAN_CONTEXT_H_
+#define CC_GFXVULKAN_CONTEXT_H_
 
 namespace cc {
 namespace gfx {
@@ -45,4 +45,4 @@ private:
 } // namespace gfx
 } // namespace cc
 
-#endif // CC_GFXVULKAN_CCVK_CONTEXT_H_
+#endif // CC_GFXVULKAN_CONTEXT_H_

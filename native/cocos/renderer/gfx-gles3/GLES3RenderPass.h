@@ -1,5 +1,5 @@
-#ifndef CC_GFXGLES3_GLES3_RENDER_PASS_H_
-#define CC_GFXGLES3_GLES3_RENDER_PASS_H_
+#ifndef CC_GFXGLES3_RENDER_PASS_H_
+#define CC_GFXGLES3_RENDER_PASS_H_
 
 namespace cc {
 namespace gfx {

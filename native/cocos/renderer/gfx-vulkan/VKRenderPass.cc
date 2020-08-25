@@ -26,7 +26,6 @@ bool CCVKRenderPass::initialize(const RenderPassInfo &info) {
     CCVKCmdFuncCreateRenderPass((CCVKDevice *)_device, _gpuRenderPass);
 
     _hash = computeHash();
-    _status = Status::SUCCESS;
 
     return true;
 }
@@ -36,8 +35,6 @@ void CCVKRenderPass::destroy() {
         ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuRenderPass);
         _gpuRenderPass = nullptr;
     }
-
-    _status = Status::UNREADY;
 }
 
 } // namespace gfx

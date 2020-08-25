@@ -84,8 +84,6 @@ bool CCVKDescriptorSet::initialize(const DescriptorSetInfo &info) {
         }
     }
 
-    _status = Status::SUCCESS;
-
     return true;
 }
 
@@ -111,8 +109,6 @@ void CCVKDescriptorSet::destroy() {
         CC_DELETE(_gpuDescriptorSet);
         _gpuDescriptorSet = nullptr;
     }
-
-    _status = Status::UNREADY;
 }
 
 void CCVKDescriptorSet::update() {

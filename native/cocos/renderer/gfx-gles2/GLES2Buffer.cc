@@ -25,7 +25,6 @@ bool GLES2Buffer::initialize(const BufferInfo &info) {
     if ((_flags & BufferFlagBit::BAKUP_BUFFER) && _size > 0) {
         _buffer = (uint8_t *)CC_MALLOC(_size);
         if (!_buffer) {
-            _status = Status::FAILED;
             CC_LOG_ERROR("GLES2Buffer: CC_MALLOC backup buffer faild.");
             return false;
         }
@@ -34,7 +33,6 @@ bool GLES2Buffer::initialize(const BufferInfo &info) {
 
     _gpuBuffer = CC_NEW(GLES2GPUBuffer);
     if (!_gpuBuffer) {
-        _status = Status::FAILED;
         CC_LOG_ERROR("GLES2Buffer: CC_NEW GLES2GPUBuffer failed.");
         return false;
     }
@@ -52,8 +50,6 @@ bool GLES2Buffer::initialize(const BufferInfo &info) {
 
     GLES2CmdFuncCreateBuffer((GLES2Device *)_device, _gpuBuffer);
     _device->getMemoryStatus().bufferSize += _size;
-
-    _status = Status::SUCCESS;
 
     return true;
 }
@@ -93,8 +89,6 @@ void GLES2Buffer::destroy() {
         _device->getMemoryStatus().bufferSize -= _size;
         _buffer = nullptr;
     }
-
-    _status = Status::UNREADY;
 }
 
 void GLES2Buffer::resize(uint size) {
@@ -116,7 +110,6 @@ void GLES2Buffer::resize(uint size) {
             const uint8_t *oldBuffer = _buffer;
             uint8_t *buffer = (uint8_t *)CC_MALLOC(_size);
             if (!buffer) {
-                _status = Status::FAILED;
                 CC_LOG_ERROR("GLES2Buffer: CC_MALLOC backup buffer failed.");
                 return;
             }
@@ -126,7 +119,6 @@ void GLES2Buffer::resize(uint size) {
             status.bufferSize -= oldSize;
             status.bufferSize += _size;
         }
-        _status = Status::SUCCESS;
     }
 }
 

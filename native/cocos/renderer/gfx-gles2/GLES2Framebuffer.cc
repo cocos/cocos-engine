@@ -50,7 +50,6 @@ bool GLES2Framebuffer::initialize(const FramebufferInfo &info) {
 
     GLES2CmdFuncCreateFramebuffer((GLES2Device *)_device, _gpuFBO);
 
-    _status = Status::SUCCESS;
     return true;
 }
 
@@ -60,7 +59,6 @@ void GLES2Framebuffer::destroy() {
         CC_DELETE(_gpuFBO);
         _gpuFBO = nullptr;
     }
-    _status = Status::UNREADY;
 }
 
 } // namespace gfx

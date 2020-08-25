@@ -1,5 +1,5 @@
-#ifndef CC_GFXGLES3_GLES3_FRAMEBUFFER_H_
-#define CC_GFXGLES3_GLES3_FRAMEBUFFER_H_
+#ifndef CC_GFXGLES3_FRAMEBUFFER_H_
+#define CC_GFXGLES3_FRAMEBUFFER_H_
 
 namespace cc {
 namespace gfx {

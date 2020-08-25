@@ -30,8 +30,6 @@ bool GLES3Shader::initialize(const ShaderInfo &info) {
 
     GLES3CmdFuncCreateShader((GLES3Device *)_device, _gpuShader);
 
-    _status = Status::SUCCESS;
-
     return true;
 }
 
@@ -41,8 +39,6 @@ void GLES3Shader::destroy() {
         CC_DELETE(_gpuShader);
         _gpuShader = nullptr;
     }
-
-    _status = Status::UNREADY;
 }
 
 } // namespace gfx

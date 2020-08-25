@@ -1,5 +1,5 @@
-#ifndef CC_GFXGLES2_GLES2_TEXTURE_H_
-#define CC_GFXGLES2_GLES2_TEXTURE_H_
+#ifndef CC_GFXGLES2_TEXTURE_H_
+#define CC_GFXGLES2_TEXTURE_H_
 
 namespace cc {
 namespace gfx {

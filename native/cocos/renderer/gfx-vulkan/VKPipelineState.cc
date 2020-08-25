@@ -46,8 +46,6 @@ bool CCVKPipelineState::initialize(const PipelineStateInfo &info) {
 
     CCVKCmdFuncCreatePipelineState((CCVKDevice *)_device, _gpuPipelineState);
 
-    _status = Status::SUCCESS;
-
     return true;
 }
 
@@ -56,7 +54,6 @@ void CCVKPipelineState::destroy() {
         ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuPipelineState);
         _gpuPipelineState = nullptr;
     }
-    _status = Status::UNREADY;
 }
 
 } // namespace gfx

@@ -41,7 +41,6 @@ bool GLES2InputAssembler::initialize(const InputAssemblerInfo &info) {
 
     GLES2CmdFuncCreateInputAssembler((GLES2Device *)_device, _gpuInputAssembler);
     _attributesHash = computeAttributesHash();
-    _status = Status::SUCCESS;
 
     return true;
 }
@@ -52,7 +51,6 @@ void GLES2InputAssembler::destroy() {
         CC_DELETE(_gpuInputAssembler);
         _gpuInputAssembler = nullptr;
     }
-    _status = Status::UNREADY;
 }
 
 void GLES2InputAssembler::ExtractCmdDraw(GLES2CmdDraw *cmd) {

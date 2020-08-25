@@ -1,5 +1,5 @@
-#ifndef CC_GFXVULKAN_CCVK_SHADER_H_
-#define CC_GFXVULKAN_CCVK_SHADER_H_
+#ifndef CC_GFXVULKAN_SHADER_H_
+#define CC_GFXVULKAN_SHADER_H_
 
 namespace cc {
 namespace gfx {

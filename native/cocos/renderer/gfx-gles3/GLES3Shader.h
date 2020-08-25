@@ -1,5 +1,5 @@
-#ifndef CC_GFXGLES3_GLES3_SHADER_H_
-#define CC_GFXGLES3_GLES3_SHADER_H_
+#ifndef CC_GFXGLES3_SHADER_H_
+#define CC_GFXGLES3_SHADER_H_
 
 namespace cc {
 namespace gfx {
