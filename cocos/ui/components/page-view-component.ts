@@ -559,7 +559,7 @@ export class PageViewComponent extends ScrollViewComponent {
 
     // 刷新所有页面的大小
     protected _updateAllPagesSize() {
-        let viewTrans = this.view && this.view._uiProps.uiTransformComp;
+        let viewTrans = this.view;
         if (!this.content || !viewTrans) {
             return;
         }
@@ -614,7 +614,7 @@ export class PageViewComponent extends ScrollViewComponent {
     }
 
     protected _syncSizeMode() {
-        const viewTrans = this.view && this.view._uiProps.uiTransformComp;
+        const viewTrans = this.view;
         if (!this.content || !viewTrans) { return; }
         const layout = this.content.node.getComponent(LayoutComponent);
         if (layout) {
@@ -682,7 +682,7 @@ export class PageViewComponent extends ScrollViewComponent {
                 offset.y = this._scrollCenterOffsetY[idx];
             }
         } else {
-            const viewTrans = this.view && this.view._uiProps.uiTransformComp;
+            const viewTrans = this.view;
             if (!viewTrans) {
                 return offset;
             }
@@ -731,7 +731,7 @@ export class PageViewComponent extends ScrollViewComponent {
             }
         }
         else {
-            const viewTrans = this.view && this.view._uiProps.uiTransformComp;
+            const viewTrans = this.view;
             if (!viewTrans) {
                 return;
             }
