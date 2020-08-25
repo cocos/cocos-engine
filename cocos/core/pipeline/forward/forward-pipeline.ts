@@ -2,19 +2,18 @@
  * @category pipeline
  */
 
-import { ccclass, property, displayOrder, visible, type } from '../../data/class-decorator';
+import { ccclass, displayOrder, type } from '../../data/class-decorator';
 import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
-import { UIFlow } from '../ui/ui-flow';
 import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
-import { genSamplerHash, samplerLib } from '../../renderer';
+import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { IRenderObject, UBOGlobal, UBOShadow,
     UNIFORM_SHADOWMAP, globalDescriptorSetLayout, localDescriptorSetLayout} from '../define';
 import { GFXBufferUsageBit, GFXMemoryUsageBit,
     GFXClearFlag, GFXFilter, GFXAddress, GFXCommandBufferType } from '../../gfx/define';
 import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout } from '../../gfx';
-import { SKYBOX_FLAG } from '../../renderer';
+import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
 import { Mat4, Vec3, Vec4} from '../../math';

@@ -1,8 +1,8 @@
 import { intersect } from '../../geometry';
-import { Model, Camera } from '../../renderer';
+import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
+import { Model } from '../../renderer/scene/model';
 import { Layers } from '../../scene-graph';
 import { Vec3} from '../../math';
-import { SKYBOX_FLAG } from '../../renderer';
 import { legacyCC } from '../../global-exports';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderView } from '../render-view';
