@@ -7,7 +7,7 @@ import { CAMERA_DEFAULT_MASK } from './define';
 import { RenderFlowTag } from './pipeline-serialization';
 import { RenderFlow } from './render-flow';
 import { legacyCC } from '../global-exports';
-import { RenderWindow } from './render-window';
+import { RenderWindow } from '../renderer/core/render-window';
 
 /**
  * @en The predefined priority of render view

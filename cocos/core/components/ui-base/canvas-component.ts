@@ -44,7 +44,7 @@ import { Component } from '../component';
 import { UITransformComponent } from './ui-transform-component';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
-import { RenderWindow } from '../../pipeline';
+import { RenderWindow } from '../../renderer/core/render-window';
 
 const _worldPos = new Vec3();
 
