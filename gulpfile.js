@@ -84,7 +84,7 @@ gulp.task('build-declarations', async () => {
 gulp.task('build', gulp.parallel('build-code-minified', 'build-declarations'));
 
 gulp.task('code-check', () => {
-    return cp.spawn('tsc', ['--noEmit'], {
+    return cp.spawn('npx', ['tsc', '--noEmit'], {
         shell: true,
         stdio: 'inherit',
         cwd: __dirname,
@@ -92,7 +92,7 @@ gulp.task('code-check', () => {
 });
 
 gulp.task('unit-tests', () => {
-    return cp.spawn(`jest`, [], {
+    return cp.spawn('npx', ['jest'], {
         shell: true,
         stdio: 'inherit',
         cwd: __dirname,
