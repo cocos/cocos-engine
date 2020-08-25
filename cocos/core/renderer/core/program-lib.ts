@@ -33,7 +33,7 @@ import { GFXAPI, GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { GFXUniformBlock, GFXShaderInfo } from '../../gfx/shader';
 import { SetIndex, IDescriptorSetLayoutInfo } from '../../pipeline/define';
-import { RenderPipeline } from '../../pipeline/render-pipeline';
+import { RenderPipeline } from '../../pipeline';
 import { genHandle, MacroRecord, PropertyType } from './pass-utils';
 import { legacyCC } from '../../global-exports';
 import { ShaderPool, ShaderHandle, PipelineLayoutHandle, PipelineLayoutPool, NULL_HANDLE } from './memory-pools';

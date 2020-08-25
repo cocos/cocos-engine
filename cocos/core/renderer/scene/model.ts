@@ -12,7 +12,7 @@ import { Texture2D } from '../../assets/texture-2d';
 import { SubModel } from './submodel';
 import { Pass, IMacroPatch } from '../core/pass';
 import { legacyCC } from '../../global-exports';
-import { InstancedBuffer } from '../../pipeline/instanced-buffer';
+import { InstancedBuffer } from '../../pipeline';
 import { BatchingSchemes } from '../core/pass';
 import { Mat4, Vec3, Vec4 } from '../../math';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
