@@ -1,13 +1,12 @@
 #include "MTLStd.h"
 
-#include "MTLPipelineLayout.h"
-#include "MTLGPUObjects.h"
 #include "MTLDescriptorSetLayout.h"
+#include "MTLGPUObjects.h"
+#include "MTLPipelineLayout.h"
 namespace cc {
 namespace gfx {
 
 CCMTLPipelineLayout::CCMTLPipelineLayout(Device *device) : PipelineLayout(device) {
-    
 }
 CCMTLPipelineLayout::~CCMTLPipelineLayout() {
     destroy();
@@ -22,7 +21,7 @@ bool CCMTLPipelineLayout::initialize(const PipelineLayoutInfo &info) {
     uint set = 0;
     _gpuPipelineLayout->dynamicOffsetIndices.resize(_setLayouts.size());
     for (auto setLayout : _setLayouts) {
-        auto gpuDescriptorSetLayout = static_cast<CCMTLDescriptorSetLayout*>(setLayout)->gpuDescriptorSetLayout();
+        auto gpuDescriptorSetLayout = static_cast<CCMTLDescriptorSetLayout *>(setLayout)->gpuDescriptorSetLayout();
         auto bindingCount = gpuDescriptorSetLayout->bindings.size();
         auto dynamicCount = gpuDescriptorSetLayout->dynamicBindings.size();
 
@@ -31,18 +30,20 @@ bool CCMTLPipelineLayout::initialize(const PipelineLayoutInfo &info) {
 
         for (uint j = 0u; j < dynamicCount; j++) {
             uint binding = gpuDescriptorSetLayout->dynamicBindings[j];
-            if (indices[binding] < 0) indices[binding] = offset + j; //TODO?
+            if (indices[binding] < 0) indices[binding] = offset + j;
         }
+        _gpuPipelineLayout->dynamicOffsetIndices.emplace_back(offset);
         _gpuPipelineLayout->setLayouts.emplace_back(gpuDescriptorSetLayout);
         offset += dynamicCount;
     }
+    _gpuPipelineLayout->dynamicOffsetIndices.emplace_back(offset);
+    _gpuPipelineLayout->dynamicOffsetCount = offset;
 
     _status = Status::SUCCESS;
     return true;
 }
 
 void CCMTLPipelineLayout::destroy() {
-    
 }
 }
 }

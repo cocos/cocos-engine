@@ -586,6 +586,7 @@ String compileGLSLShader2Msl(const String &src,
         CC_LOG_ERROR("%s", shaderSource.c_str());
     }
     return output;
+
 #else
     return src;
 #endif
@@ -970,6 +971,23 @@ uint getMaxColorRenderTarget(uint family) {
             return 8;
         default:
             return 4;
+    }
+}
+
+uint getMinBufferOffsetAlignment(uint family) {
+    switch (static_cast<GPUFamily>(family)) {
+        case GPUFamily::Apple1:
+        case GPUFamily::Apple2:
+        case GPUFamily::Apple3:
+        case GPUFamily::Apple4:
+        case GPUFamily::Apple5:
+        case GPUFamily::Apple6:
+            return 4; //4 Bytes
+        case GPUFamily::Mac1:
+        case GPUFamily::Mac2:
+            return 256; //256 Bytes
+        default:
+            return 1;
     }
 }
 

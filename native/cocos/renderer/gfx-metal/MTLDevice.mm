@@ -3,10 +3,13 @@
 #include "MTLBuffer.h"
 #include "MTLCommandBuffer.h"
 #include "MTLContext.h"
+#include "MTLDescriptorSet.h"
+#include "MTLDescriptorSetLayout.h"
 #include "MTLDevice.h"
 #include "MTLFence.h"
 #include "MTLFrameBuffer.h"
 #include "MTLInputAssembler.h"
+#include "MTLPipelineLayout.h"
 #include "MTLPipelineState.h"
 #include "MTLQueue.h"
 #include "MTLRenderPass.h"
@@ -15,9 +18,6 @@
 #include "MTLStateCache.h"
 #include "MTLTexture.h"
 #include "MTLUtils.h"
-#include "MTLDescriptorSet.h"
-#include "MTLDescriptorSetLayout.h"
-#include "MTLPipelineLayout.h"
 #include <platform/mac/CCView.h>
 
 #import <MetalKit/MTKView.h>
@@ -41,6 +41,14 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _nativeWidth = info.nativeWidth;
     _nativeHeight = info.nativeHeight;
     _windowHandle = info.windowHandle;
+
+    _bindingMappingInfo = info.bindingMappingInfo;
+    if (!_bindingMappingInfo.bufferOffsets.size()) {
+        _bindingMappingInfo.bufferOffsets.push_back(0);
+    }
+    if (!_bindingMappingInfo.samplerOffsets.size()) {
+        _bindingMappingInfo.samplerOffsets.push_back(0);
+    }
 
     _stateCache = CC_NEW(CCMTLStateCache);
 
@@ -72,7 +80,9 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _maxCubeMapTextureSize = mu::getMaxCubeMapTextureWidthHeight(gpuFamily);
     _maxColorRenderTargets = mu::getMaxColorRenderTarget(gpuFamily);
     _maxBufferBindingIndex = mu::getMaxEntriesInBufferArgumentTable(gpuFamily);
+    _uboOffsetAlignment = mu::getMinBufferOffsetAlignment(gpuFamily);
     _icbSuppored = mu::isIndirectCommandBufferSupported(MTLFeatureSet(_mtlFeatureSet));
+
     if ([id<MTLDevice>(_mtlDevice) isDepth24Stencil8PixelFormatSupported]) {
         _depthBits = 24;
         _stencilBits = 8;

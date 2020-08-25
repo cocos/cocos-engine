@@ -7,7 +7,6 @@ namespace cc {
 namespace gfx {
 
 CCMTLDescriptorSetLayout::CCMTLDescriptorSetLayout(Device *device) : DescriptorSetLayout(device) {
-    
 }
 CCMTLDescriptorSetLayout::~CCMTLDescriptorSetLayout() {
     destroy();
@@ -26,7 +25,7 @@ bool CCMTLDescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
             }
         }
     }
-    
+
     _gpuDescriptorSetLayout->bindings = _bindings;
     _status = Status::SUCCESS;
     return true;

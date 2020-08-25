@@ -3,6 +3,7 @@
 #include "MTLBuffer.h"
 #include "MTLCommandBuffer.h"
 #include "MTLCommands.h"
+#include "MTLDescriptorSet.h"
 #include "MTLDevice.h"
 #include "MTLFramebuffer.h"
 #include "MTLInputAssembler.h"
@@ -12,7 +13,6 @@
 #include "MTLShader.h"
 #include "MTLTexture.h"
 #include "MTLUtils.h"
-#include "MTLDescriptorSet.h"
 
 namespace cc {
 namespace gfx {
@@ -21,6 +21,9 @@ CCMTLCommandBuffer::CCMTLCommandBuffer(Device *device)
 : CommandBuffer(device),
   _mtkView((MTKView *)((CCMTLDevice *)_device)->getMTKView()),
   _frameBoundarySemaphore(dispatch_semaphore_create(MAX_INFLIGHT_BUFFER)) {
+    uint setCount = device->bindingMappingInfo().bufferOffsets.size();
+    _GPUDescriptorSets.resize(setCount);
+    _dynamicOffsets.resize(setCount);
 }
 
 CCMTLCommandBuffer::~CCMTLCommandBuffer() { destroy(); }
@@ -48,9 +51,9 @@ void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer
     _numDrawCalls = 0;
     _gpuIndexBuffer = {0, 0, 0};
     _gpuIndirectBuffer = {0, 0, 0};
-    
-    _GPUDescriptorSets.assign(_GPUDescriptorSets.size(),nullptr);
-    for(auto & dynamicOffset : _dynamicOffsets) {
+
+    _GPUDescriptorSets.assign(_GPUDescriptorSets.size(), nullptr);
+    for (auto &dynamicOffset : _dynamicOffsets) {
         dynamicOffset.clear();
     }
 }
@@ -103,90 +106,91 @@ void CCMTLCommandBuffer::bindPipelineState(PipelineState *pso) {
                                 backReferenceValue:_gpuPipelineState->stencilRefBack];
         [_mtlEncoder setDepthStencilState:_gpuPipelineState->mtlDepthStencilState];
     }
-    
+
     _GPUDescriptorSets.resize(_gpuPipelineState->gpuPipelineLayout->setLayouts.size());
 }
 
 void CCMTLCommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) {
-    _GPUDescriptorSets[set] = static_cast<CCMTLDescriptorSet*>(descriptorSet)->gpuDescriptorSet();
-//    const auto *bindingLayout = static_cast<CCMTLBindingLayout *>(layout);
-    const auto &blocks = _gpuPipelineState->gpuShader->getBlocks();
+    auto &vertexBuffers = _inputAssembler->getVertexBuffers();
+    for (const auto &bindingInfo : _gpuPipelineState->vertexBufferBindingInfo) {
+        auto index = std::get<0>(bindingInfo);
+        auto stream = std::get<1>(bindingInfo);
+        static_cast<CCMTLBuffer *>(vertexBuffers[stream])->encodeBuffer(_mtlEncoder, 0, index, ShaderStageFlagBit::VERTEX);
+    }
+
+    if (dynamicOffsetCount) {
+        _dynamicOffsets[set].assign(dynamicOffsets, dynamicOffsets + dynamicOffsetCount);
+    }
+
+    _GPUDescriptorSets[set] = static_cast<CCMTLDescriptorSet *>(descriptorSet)->gpuDescriptorSet();
+    const auto &blocks = _gpuPipelineState->gpuShader->blocks;
     auto blockCount = blocks.size();
     const auto &dynamicOffsetIndices = _gpuPipelineState->gpuPipelineLayout->dynamicOffsetIndices;
     for (size_t i = 0; i < blockCount; i++) {
         const auto &block = blocks[i];
-        CCASSERT(_GPUDescriptorSets.size() > block.set, "Invalid block set value");
-        
+        CCASSERT(_GPUDescriptorSets.size() > block.set, "Invalid ubo set index");
+
         const auto gpuDescriptorSet = _GPUDescriptorSets[block.set];
-        CCASSERT(gpuDescriptorSet && gpuDescriptorSet->gpuDescriptors.size() > block.binding, "Invalid block binding value");
-        
         const auto &gpuDescriptor = gpuDescriptorSet->gpuDescriptors[block.binding];
-        CCASSERT(gpuDescriptor.buffer, "Buffer not bounded.");
-        
+
+        if (!gpuDescriptor.buffer) {
+            CC_LOG_ERROR("Buffer binding %s at set %d binding %d is not bounded.", block.name.c_str(), block.set, block.binding);
+            continue;
+        }
+
         int dynamicOffsetIndex = -1;
-        if(dynamicOffsetIndices.size() > block.set) {
+        if (dynamicOffsetIndices.size() > block.set) {
             const auto &dynamicOffsetIndexSet = dynamicOffsetIndices[block.set];
-            if(dynamicOffsetIndices.size() > block.binding) {
+            if (dynamicOffsetIndices.size() > block.binding) {
                 dynamicOffsetIndex = dynamicOffsetIndexSet[block.binding];
             }
         }
-        
-        if(dynamicOffsetIndex >= 0) { //dynamiclly bound
-            
-        } else {
-//            gpuDescriptor.buffer->encodeBuffer(_mtlEncoder, 0, block.binding, <#ShaderStageFlags stages#>);
+
+        if (gpuDescriptor.buffer) {
+            uint offset = (dynamicOffsetIndex >= 0) ? dynamicOffsets[0] : 0;
+            gpuDescriptor.buffer->encodeBuffer(_mtlEncoder, offset, block.binding, gpuDescriptor.stages);
         }
     }
-//    for (const auto &binding : bindingLayout->getBindingUnits()) {
-//        if (binding.buffer)
-//            static_cast<CCMTLBuffer *>(binding.buffer)->encodeBuffer(_mtlEncoder, 0, binding.binding, binding.shaderStages);
-//
-//        if (binding.shaderStages & ShaderStageFlagBit::VERTEX) {
-//            if (binding.texture)
-//                [_mtlEncoder setVertexTexture:static_cast<CCMTLTexture *>(binding.texture)->getMTLTexture()
-//                                      atIndex:binding.binding];
-//
-//            if (binding.sampler)
-//                [_mtlEncoder setVertexSamplerState:static_cast<CCMTLSampler *>(binding.sampler)->getMTLSamplerState()
-//                                           atIndex:_gpuPipelineState->vertexSamplerBinding.at(binding.binding)];
-//        }
-//
-//        if (binding.shaderStages & ShaderStageFlagBit::FRAGMENT) {
-//            if (binding.sampler && binding.texture) {
-//#if COCOS2D_DEBUG > 0
-//                if (_gpuPipelineState->fragmentSamplerBinding.find(binding.binding) == _gpuPipelineState->fragmentSamplerBinding.end()) {
-//                    CC_LOG_WARNING("%s(binding = %d) not used in shader.", binding.name.c_str(), binding.binding);
-//                    continue;
-//                }
-//#endif
-//                [_mtlEncoder setFragmentTexture:static_cast<CCMTLTexture *>(binding.texture)->getMTLTexture()
-//                                        atIndex:binding.binding];
-//
-//                [_mtlEncoder setFragmentSamplerState:static_cast<CCMTLSampler *>(binding.sampler)->getMTLSamplerState()
-//                                             atIndex:_gpuPipelineState->fragmentSamplerBinding.at(binding.binding)];
-//            }
-//        }
-//    }
+    const auto &samplers = _gpuPipelineState->gpuShader->samplers;
+    auto samplerCount = samplers.size();
+    for (size_t j = 0; j < samplerCount; j++) {
+        const auto sampler = samplers[j];
+        CCASSERT(_GPUDescriptorSets.size() > sampler.set, "Invalid sampler set index");
+
+        const auto gpuDescriptorSet = _GPUDescriptorSets[sampler.set];
+        const auto &gpuDescriptor = gpuDescriptorSet->gpuDescriptors[sampler.binding];
+
+        if (!gpuDescriptor.texture || !gpuDescriptor.sampler) {
+            CC_LOG_ERROR("Sampler binding %s at set %d binding %d is not bounded.", sampler.name.c_str(), sampler.set, sampler.binding);
+            continue;
+        }
+
+        const auto &vertexSamplerBinding = _gpuPipelineState->gpuShader->vertexSamplerBindings;
+        const auto &fragmentSamplerBinding = _gpuPipelineState->gpuShader->fragmentSamplerBindings;
+        if (gpuDescriptor.stages & ShaderStageFlagBit::VERTEX) {
+            [_mtlEncoder setVertexTexture:gpuDescriptor.texture->getMTLTexture() atIndex:sampler.binding];
+            [_mtlEncoder setVertexSamplerState:gpuDescriptor.sampler->getMTLSamplerState() atIndex:vertexSamplerBinding.at(sampler.binding)];
+        }
+
+        if (gpuDescriptor.stages & ShaderStageFlagBit::FRAGMENT) {
+            [_mtlEncoder setFragmentTexture:gpuDescriptor.texture->getMTLTexture() atIndex:sampler.binding];
+            [_mtlEncoder setFragmentSamplerState:gpuDescriptor.sampler->getMTLSamplerState() atIndex:fragmentSamplerBinding.at(sampler.binding)];
+        }
+    }
 }
 
 void CCMTLCommandBuffer::bindInputAssembler(InputAssembler *ia) {
     if (ia) {
-        const auto mtlInputAssembler = static_cast<CCMTLInputAssembler *>(ia);
-        if (mtlInputAssembler->getIndexBuffer()) {
-            _gpuIndexBuffer.mtlBuffer = static_cast<CCMTLBuffer *>(mtlInputAssembler->getIndexBuffer())->getMTLBuffer();
-            _gpuIndexBuffer.stride = mtlInputAssembler->getIndexBuffer()->getStride();
-            _indexType = static_cast<CCMTLBuffer *>(mtlInputAssembler->getIndexBuffer())->getIndexType();
+        _inputAssembler = static_cast<CCMTLInputAssembler *>(ia);
+        if (_inputAssembler->getIndexBuffer()) {
+            _gpuIndexBuffer.mtlBuffer = static_cast<CCMTLBuffer *>(_inputAssembler->getIndexBuffer())->getMTLBuffer();
+            _gpuIndexBuffer.stride = _inputAssembler->getIndexBuffer()->getStride();
+            _indexType = static_cast<CCMTLBuffer *>(_inputAssembler->getIndexBuffer())->getIndexType();
         }
 
-        if (mtlInputAssembler->getIndirectBuffer()) {
-            _gpuIndirectBuffer.mtlBuffer = static_cast<CCMTLBuffer *>(mtlInputAssembler->getIndirectBuffer())->getMTLBuffer();
-            _gpuIndirectBuffer.count = mtlInputAssembler->getIndirectBuffer()->getCount();
-        }
-        auto &vertexBuffers = mtlInputAssembler->getVertexBuffers();
-        for (const auto &bindingInfo : _gpuPipelineState->vertexBufferBindingInfo) {
-            auto index = std::get<0>(bindingInfo);
-            auto stream = std::get<1>(bindingInfo);
-            static_cast<CCMTLBuffer *>(vertexBuffers[stream])->encodeBuffer(_mtlEncoder, 0, index, ShaderStageFlagBit::VERTEX);
+        if (_inputAssembler->getIndirectBuffer()) {
+            _gpuIndirectBuffer.mtlBuffer = static_cast<CCMTLBuffer *>(_inputAssembler->getIndirectBuffer())->getMTLBuffer();
+            _gpuIndirectBuffer.count = _inputAssembler->getIndirectBuffer()->getCount();
         }
     }
 }
@@ -254,7 +258,7 @@ void CCMTLCommandBuffer::setStencilCompareMask(StencilFace face, int ref, uint m
 
 void CCMTLCommandBuffer::draw(InputAssembler *ia) {
     //
-    
+
     if (_type == CommandBufferType::PRIMARY) {
         if (_gpuIndirectBuffer.count) {
             for (size_t j = 0; j < _gpuIndirectBuffer.count; j++) {

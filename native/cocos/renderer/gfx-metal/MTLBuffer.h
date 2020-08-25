@@ -33,11 +33,8 @@ private:
     MTLIndexType _indexType = MTLIndexTypeUInt16;
     MTLResourceOptions _mtlResourceOptions = MTLResourceStorageModePrivate;
 
-    // to store vertex and ubo data when size is small, otherwise use MTLBuffer instead.
-    bool _useOptimizedBufferEncoder = false;
-    uint8_t *_bufferBytes = nullptr;
-
     bool _isDrawIndirectByIndex = false;
+    uint _bufferViewOffset = 0;
 };
 
 } // namespace gfx

@@ -39,7 +39,6 @@ public:
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
 
     CC_INLINE GLES3CommandAllocator *cmdAllocator() const { return _cmdAllocator; }
-    CC_INLINE const BindingMappingInfo &bindingMappingInfo() const { return _bindingMappingInfo; }
 
     CC_INLINE bool checkExtension(const String &extension) const {
         for (size_t i = 0; i < _extensions.size(); ++i) {
@@ -51,7 +50,6 @@ public:
     }
 
 private:
-    BindingMappingInfo _bindingMappingInfo;
     GLES3CommandAllocator *_cmdAllocator = nullptr;
     StringArray _extensions;
 };

@@ -43,7 +43,6 @@ public:
     CC_INLINE bool useInstancedArrays() const { return _useInstancedArrays; }
     CC_INLINE bool useDiscardFramebuffer() const { return _useDiscardFramebuffer; }
     CC_INLINE GLES2CommandAllocator *cmdAllocator() const { return _cmdAllocator; }
-    CC_INLINE const BindingMappingInfo &bindingMappingInfo() const { return _bindingMappingInfo; }
 
     CC_INLINE bool checkExtension(const String &extension) const {
         for (size_t i = 0; i < _extensions.size(); ++i) {
@@ -55,7 +54,6 @@ public:
     }
 
 private:
-    BindingMappingInfo _bindingMappingInfo;
     GLES2CommandAllocator *_cmdAllocator = nullptr;
     StringArray _extensions;
 

@@ -5,7 +5,7 @@
 
 namespace cc {
 namespace gfx {
-
+class CCMTLGPUShader;
 class CCMTLShader : public Shader {
 public:
     CCMTLShader(Device *device);
@@ -18,6 +18,7 @@ public:
     CC_INLINE id<MTLFunction> getFragmentMTLFunction() const { return _fragmentMTLFunction; }
     CC_INLINE const unordered_map<uint, uint> &getVertexSamplerBindings() const { return _mtlVertexSamplerBindings; }
     CC_INLINE const unordered_map<uint, uint> &getFragmentSamplerBindings() const { return _mtlFragmentSamplerBindings; }
+    CC_INLINE const CCMTLGPUShader *gpuShader() const { return _gpuShader; }
 
     uint getAvailableBufferBindingIndex(ShaderStageFlagBit stage, uint stream);
 
@@ -39,6 +40,8 @@ private:
     unordered_map<uint, uint> _mtlFragmentSamplerBindings;
     vector<uint> _availableVertexBufferBindingIndex;
     vector<uint> _availableFragmentBufferBindingIndex;
+
+    CCMTLGPUShader *_gpuShader = nullptr;
 
     // For debug
 #ifdef DEBUG_SHADER

@@ -1,6 +1,7 @@
 #include "MTLStd.h"
 
 #include "MTLDevice.h"
+#include "MTLGPUObjects.h"
 #include "MTLShader.h"
 #include "MTLUtils.h"
 #import <Metal/MTLDevice.h>
@@ -27,6 +28,13 @@ bool CCMTLShader::initialize(const ShaderInfo &info) {
     }
 
     setAvailableBufferBindingIndex();
+
+    _gpuShader = CC_NEW(CCMTLGPUShader);
+    _gpuShader->blocks = _blocks;
+    _gpuShader->samplers = _samplers;
+    _gpuShader->vertexSamplerBindings = _mtlVertexSamplerBindings;
+    _gpuShader->fragmentSamplerBindings = _mtlFragmentSamplerBindings;
+
     _status = Status::SUCCESS;
     CC_LOG_INFO("%s compile succeed.", _name.c_str());
     return true;
@@ -43,6 +51,7 @@ void CCMTLShader::destroy() {
         _fragmentMTLFunction = nil;
     }
 
+    CC_SAFE_DELETE(_gpuShader);
     _status = Status::UNREADY;
 }
 
@@ -109,23 +118,18 @@ uint CCMTLShader::getAvailableBufferBindingIndex(ShaderStageFlagBit stage, uint 
 }
 
 void CCMTLShader::setAvailableBufferBindingIndex() {
-    CC_ASSERT(0);
     uint usedVertexBufferBindingIndexes = 0;
     uint usedFragmentBufferBindingIndexes = 0;
     size_t vertexBindingCount = 0;
     size_t fragmentBindingCount = 0;
-    //TODO coulsonwang
-//    for (const auto &block : _blocks) {
-//        if (block.shaderStages & ShaderStageFlagBit::VERTEX) {
-//            usedVertexBufferBindingIndexes |= 1 << block.binding;
-//            vertexBindingCount++;
-//        }
-//
-//        if (block.shaderStages & ShaderStageFlagBit::FRAGMENT) {
-//            usedFragmentBufferBindingIndexes |= 1 << block.binding;
-//            fragmentBindingCount++;
-//        }
-//    }
+
+    for (const auto &block : _blocks) {
+        usedVertexBufferBindingIndexes |= 1 << block.binding;
+        vertexBindingCount++;
+
+        usedFragmentBufferBindingIndexes |= 1 << block.binding;
+        fragmentBindingCount++;
+    }
     auto maxBufferBindinIndex = static_cast<CCMTLDevice *>(_device)->getMaximumBufferBindingIndex();
     _availableVertexBufferBindingIndex.resize(maxBufferBindinIndex - vertexBindingCount);
     _availableFragmentBufferBindingIndex.resize(maxBufferBindinIndex - fragmentBindingCount);

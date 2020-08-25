@@ -1,23 +1,22 @@
 #include "MTLStd.h"
 
+#include "MTLBuffer.h"
 #include "MTLDescriptorSet.h"
 #include "MTLGPUObjects.h"
-#include "MTLTexture.h"
 #include "MTLSampler.h"
-#include "MTLBuffer.h"
+#include "MTLTexture.h"
 
 namespace cc {
 namespace gfx {
-CCMTLDescriptorSet::CCMTLDescriptorSet(Device *device) : DescriptorSet(device){
-    
+CCMTLDescriptorSet::CCMTLDescriptorSet(Device *device) : DescriptorSet(device) {
 }
 CCMTLDescriptorSet::~CCMTLDescriptorSet() {
     destroy();
 }
-   
+
 bool CCMTLDescriptorSet::initialize(const DescriptorSetInfo &info) {
     _layout = info.layout;
-    
+
     const auto &bindings = _layout->getBindings();
     const auto descriptorCount = bindings.size();
 
@@ -29,6 +28,7 @@ bool CCMTLDescriptorSet::initialize(const DescriptorSetInfo &info) {
     _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount);
     for (size_t i = 0; i < descriptorCount; i++) {
         _gpuDescriptorSet->gpuDescriptors[i].type = bindings[i].descriptorType;
+        _gpuDescriptorSet->gpuDescriptors[i].stages = bindings[i].stageFlags;
     }
 
     _status = Status::SUCCESS;
@@ -46,14 +46,14 @@ void CCMTLDescriptorSet::update() {
         for (size_t i = 0; i < bindings.size(); i++) {
             if (static_cast<uint>(bindings[i].descriptorType) & DESCRIPTOR_BUFFER_TYPE) {
                 if (_buffers[i]) {
-                    _gpuDescriptorSet->gpuDescriptors[i].buffer = static_cast<CCMTLBuffer*>(_buffers[i]);
+                    _gpuDescriptorSet->gpuDescriptors[i].buffer = static_cast<CCMTLBuffer *>(_buffers[i]);
                 }
             } else if (static_cast<uint>(bindings[i].descriptorType) & DESCRIPTOR_SAMPLER_TYPE) {
                 if (_textures[i]) {
-                    _gpuDescriptorSet->gpuDescriptors[i].texture = static_cast<CCMTLTexture*>(_textures[i]);
+                    _gpuDescriptorSet->gpuDescriptors[i].texture = static_cast<CCMTLTexture *>(_textures[i]);
                 }
                 if (_samplers[i]) {
-                    _gpuDescriptorSet->gpuDescriptors[i].sampler = static_cast<CCMTLSampler*>(_samplers[i]);
+                    _gpuDescriptorSet->gpuDescriptors[i].sampler = static_cast<CCMTLSampler *>(_samplers[i]);
                 }
             }
         }

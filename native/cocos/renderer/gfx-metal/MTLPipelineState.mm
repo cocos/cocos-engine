@@ -3,12 +3,12 @@
 #include "MTLBuffer.h"
 #include "MTLDevice.h"
 #include "MTLGPUObjects.h"
+#include "MTLPipelineLayout.h"
 #include "MTLPipelineState.h"
 #include "MTLSampler.h"
 #include "MTLShader.h"
 #include "MTLTexture.h"
 #include "MTLUtils.h"
-#include "MTLPipelineLayout.h"
 
 #import <Metal/MTLDevice.h>
 #import <Metal/MTLVertexDescriptor.h>
@@ -49,13 +49,13 @@ void CCMTLPipelineState::destroy() {
         _mtlDepthStencilState = nil;
     }
 
-    CC_SAFE_DELETE(_GPUPipelieState);
+    CC_SAFE_DELETE(_GPUPipelineState);
     _status = Status::UNREADY;
 }
 
 bool CCMTLPipelineState::createGPUPipelineState() {
-    _GPUPipelieState = CC_NEW(CCMTLGPUPipelineState);
-    if (!_GPUPipelieState) {
+    _GPUPipelineState = CC_NEW(CCMTLGPUPipelineState);
+    if (!_GPUPipelineState) {
         CC_LOG_ERROR("CCMTLPipelineState: CC_NEW CCMTLGPUPipelineState failed.");
         return false;
     }
@@ -65,18 +65,17 @@ bool CCMTLPipelineState::createGPUPipelineState() {
     // Application can run with wrong depth/stencil state.
     if (!createMTLDepthStencilState()) return false;
 
-    _GPUPipelieState->mtlDepthStencilState = _mtlDepthStencilState;
-    _GPUPipelieState->mtlRenderPipelineState = _mtlRenderPipelineState;
-    _GPUPipelieState->cullMode = mu::toMTLCullMode(_rasterizerState.cullMode);
-    _GPUPipelieState->fillMode = mu::toMTLTriangleFillMode(_rasterizerState.polygonMode);
-    _GPUPipelieState->depthClipMode = mu::toMTLDepthClipMode(_rasterizerState.isDepthClip);
-    _GPUPipelieState->winding = mu::toMTLWinding(_rasterizerState.isFrontFaceCCW);
-    _GPUPipelieState->stencilRefFront = _depthStencilState.stencilRefFront;
-    _GPUPipelieState->stencilRefBack = _depthStencilState.stencilRefBack;
-    _GPUPipelieState->primitiveType = mu::toMTLPrimitiveType(_primitive);
-    _GPUPipelieState->vertexSamplerBinding = static_cast<CCMTLShader *>(_shader)->getVertexSamplerBindings();
-    _GPUPipelieState->fragmentSamplerBinding = static_cast<CCMTLShader *>(_shader)->getFragmentSamplerBindings();
-    _GPUPipelieState->gpuPipelineLayout = static_cast<CCMTLPipelineLayout*>(_pipelineLayout)->gpuPipelineLayout();
+    _GPUPipelineState->mtlDepthStencilState = _mtlDepthStencilState;
+    _GPUPipelineState->mtlRenderPipelineState = _mtlRenderPipelineState;
+    _GPUPipelineState->cullMode = mu::toMTLCullMode(_rasterizerState.cullMode);
+    _GPUPipelineState->fillMode = mu::toMTLTriangleFillMode(_rasterizerState.polygonMode);
+    _GPUPipelineState->depthClipMode = mu::toMTLDepthClipMode(_rasterizerState.isDepthClip);
+    _GPUPipelineState->winding = mu::toMTLWinding(_rasterizerState.isFrontFaceCCW);
+    _GPUPipelineState->stencilRefFront = _depthStencilState.stencilRefFront;
+    _GPUPipelineState->stencilRefBack = _depthStencilState.stencilRefBack;
+    _GPUPipelineState->primitiveType = mu::toMTLPrimitiveType(_primitive);
+    _GPUPipelineState->gpuPipelineLayout = static_cast<CCMTLPipelineLayout *>(_pipelineLayout)->gpuPipelineLayout();
+    _GPUPipelineState->gpuShader = static_cast<CCMTLShader *>(_shader)->gpuShader();
     return true;
 }
 
@@ -183,7 +182,7 @@ void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descri
         descriptor.vertexDescriptor.layouts[index].stepFunction = std::get<1>(map[index]) ? MTLVertexStepFunctionPerInstance : MTLVertexStepFunctionPerVertex;
         descriptor.vertexDescriptor.layouts[index].stepRate = 1;
     }
-    _GPUPipelieState->vertexBufferBindingInfo = std::move(layouts);
+    _GPUPipelineState->vertexBufferBindingInfo = std::move(layouts);
 }
 
 void CCMTLPipelineState::setMTLFunctions(MTLRenderPipelineDescriptor *descriptor) {

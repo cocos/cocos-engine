@@ -33,12 +33,13 @@ bool CCMTLFramebuffer::initialize(const FramebufferInfo &info) {
         ++i;
     }
 
-    _isOffscreen = (attachmentIndices != 0);
-
     if (_depthStencilTexture) {
         id<MTLTexture> texture = static_cast<CCMTLTexture *>(_depthStencilTexture)->getMTLTexture();
         mtlRenderPass->setDepthStencilAttachment(texture, info.depthStencilMipmapLevel);
+        attachmentIndices |= (1 << i);
     }
+
+    _isOffscreen = (attachmentIndices != 0);
 
     _status = Status::SUCCESS;
 

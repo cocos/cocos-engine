@@ -12,6 +12,7 @@ struct CCMTLDepthBias;
 struct CCMTLDepthBounds;
 struct CCMTLGPUPipelineState;
 struct CCMTLGPUBuffer;
+class CCMTLInputAssembler;
 
 class CCMTLCommandBuffer : public CommandBuffer {
     friend class CCMTLQueue;
@@ -53,7 +54,7 @@ private:
     CCMTLDepthBias _depthBias;
     CCMTLDepthBounds _depthBounds;
     Color _blendConstants;
-    
+
     vector<CCMTLGPUDescriptorSet *> _GPUDescriptorSets;
     vector<vector<uint>> _dynamicOffsets;
 
@@ -63,6 +64,7 @@ private:
     dispatch_semaphore_t _frameBoundarySemaphore;
     CCMTLGPUBuffer _gpuIndexBuffer;
     CCMTLGPUBuffer _gpuIndirectBuffer;
+    CCMTLInputAssembler *_inputAssembler = nullptr;
     MTLIndexType _indexType = MTLIndexTypeUInt16;
     MTLPrimitiveType _mtlPrimitiveType = MTLPrimitiveType::MTLPrimitiveTypeTriangle;
 };

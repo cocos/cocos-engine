@@ -3,8 +3,8 @@
 #include "MTLGPUObjects.h"
 #include <tuple>
 
-#import <Metal/MTLRenderPipeline.h>
 #import <Metal/MTLDepthStencil.h>
+#import <Metal/MTLRenderPipeline.h>
 
 namespace cc {
 namespace gfx {
@@ -17,7 +17,7 @@ public:
     virtual bool initialize(const PipelineStateInfo &info) override;
     virtual void destroy() override;
 
-    CC_INLINE CCMTLGPUPipelineState *getGPUPipelineState() const { return _GPUPipelieState; }
+    CC_INLINE CCMTLGPUPipelineState *getGPUPipelineState() const { return _GPUPipelineState; }
 
 private:
     bool createMTLDepthStencilState();
@@ -32,7 +32,7 @@ private:
 private:
     id<MTLRenderPipelineState> _mtlRenderPipelineState = nil;
     id<MTLDepthStencilState> _mtlDepthStencilState = nil;
-    CCMTLGPUPipelineState *_GPUPipelieState = nullptr;
+    CCMTLGPUPipelineState *_GPUPipelineState = nullptr;
 };
 
 } // namespace gfx

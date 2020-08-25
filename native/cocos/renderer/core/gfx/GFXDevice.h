@@ -75,6 +75,7 @@ public:
     CC_INLINE float getClipSpaceMinZ() const { return _clipSpaceMinZ; }
     CC_INLINE float getScreenSpaceSignY() const { return _screenSpaceSignY; }
     CC_INLINE float getUVSpaceSignY() const { return _UVSpaceSignY; }
+    CC_INLINE const BindingMappingInfo &bindingMappingInfo() const { return _bindingMappingInfo; }
 
 protected:
     API _API = API::UNKNOWN;
@@ -111,6 +112,7 @@ protected:
     float _clipSpaceMinZ = -1.0f;
     float _screenSpaceSignY = 1.0f;
     float _UVSpaceSignY = -1.0f;
+    BindingMappingInfo _bindingMappingInfo;
 
 private:
     static Device *_instance;
