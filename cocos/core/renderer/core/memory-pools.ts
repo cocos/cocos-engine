@@ -33,9 +33,6 @@ import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, IGFXDescriptor
     GFXDevice, GFXDescriptorSet, GFXShaderInfo, GFXShader, IGFXInputAssemblerInfo, GFXInputAssembler,
     IGFXPipelineLayoutInfo, GFXPipelineLayout, GFXFramebuffer, IGFXFramebufferInfo } from '../../gfx';
 import { Vec3, Mat4, IVec4Like } from '../../math';
-import { IRenderViewInfo, RenderView } from '../../pipeline/render-view';
-import { Camera } from '../scene/camera';
-import { Root } from '../../root';
 
 interface ITypedArrayConstructor<T> {
     new(buffer: ArrayBufferLike, byteOffset: number, length?: number): T;
@@ -514,7 +511,6 @@ export type FrustumHandle = Handle<PoolType.FRUSTUM>;
 export type RenderWindowHandle = Handle<PoolType.RENDER_WINDOW>;
 export type SubModelArrayHandle = Handle<PoolType.SUB_MODEL_ARRAY>;
 export type ModelArrayHandle = Handle<PoolType.MODEL_ARRAY>;
-export type RenderViewHandle = Handle<PoolType.RENDER_VIEW>;
 
 // don't reuse any of these data-only structs, for GFX objects may directly reference them
 export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, (_: any) => new GFXRasterizerState());
