@@ -905,7 +905,7 @@ export class LayoutComponent extends Component {
                 }
             }
 
-            const finalPositionX = fnPositionX(child, columnMaxWidth, column);
+            const finalPositionX = fnPositionX(child, childTrans, columnMaxWidth, column);
             if (baseHeight >= (childBoundingBoxHeight + (this._paddingTop + this._paddingBottom))) {
                 if (applyChildren) {
                     child.getPosition(_tempPos);
