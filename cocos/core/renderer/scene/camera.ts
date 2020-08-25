@@ -9,7 +9,7 @@ import { GFXDevice } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../../pipeline';
 import { CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool,
-    FrustumView, RenderViewHandle, NULL_HANDLE } from '../core/memory-pools';
+    FrustumView, NULL_HANDLE } from '../core/memory-pools';
 import { JSB } from 'internal:constants';
 
 export enum CameraFOVAxis {
@@ -124,7 +124,6 @@ export class Camera {
     private _forward: Vec3 = new Vec3();
     private _position: Vec3 = new Vec3();
     private _view: RenderView | null = null;
-    private _viewHandle: RenderViewHandle = NULL_HANDLE;
     private _visibility = CAMERA_DEFAULT_MASK;
     private _priority: number = 0;
     private _aperture: CameraAperture = CameraAperture.F16_0;
