@@ -36,7 +36,6 @@ import {loadUuid} from './uuid-loader';
 import {loadFont} from './font-loader';
 import { legacyCC } from '../global-exports';
 import { PixelFormat } from '../assets/asset-enum';
-import {callFunc} from "../../tween/actions/action-instant";
 
 function loadNothing () {
     return null;
