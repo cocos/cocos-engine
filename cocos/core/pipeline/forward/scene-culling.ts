@@ -1,4 +1,4 @@
-import { intersect } from '../../geometry';
+import { intersect, sphere } from '../../geometry';
 import { Model, Camera } from '../../renderer';
 import { Layers } from '../../scene-graph';
 import { Vec3} from '../../math';
@@ -49,6 +49,9 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
 
     const mainLight = scene.mainLight;
     const shadows = pipeline.shadows;
+    const shadowSphere = shadows._sphere;
+    shadowSphere.center.set(0.0, 0.0, 0.0);
+    shadowSphere.radius = 0.01;
     if (mainLight) {
         mainLight.update();
         if (shadows.type === ShadowType.Planar) {
@@ -84,6 +87,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                     // shadow render Object
                     if (model.castShadow) {
                         model.updateUBOs(stamp);
+                        sphere.mergeBox(shadowSphere, shadowSphere, model.worldBounds!);
                         shadowObjects.push(getCastShadowRenderObject(model, camera));
                     }
 

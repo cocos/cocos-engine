@@ -1,6 +1,6 @@
 
 import { Material } from '../../assets/material';
-import { aabb, frustum, intersect } from '../../geometry';
+import { aabb, frustum, intersect, sphere } from '../../geometry';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Color, Mat4, Quat, Vec3, Vec2 } from '../../math';
 import { UBOShadow, SetIndex} from '../../pipeline/define';
@@ -15,6 +15,7 @@ import { RenderScene } from './render-scene';
 import { DSPool, ShaderPool, PassPool, PassView } from '../core/memory-pools';
 import { ForwardPipeline } from '../../pipeline';
 import { Enum } from '../../value-types';
+import { createShape } from '../../../physics/framework/instance';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -176,6 +177,11 @@ export class Shadows {
      * @zh 获取或者设置阴影纹理大小
      */
     public size: Vec2 = new Vec2(512, 512);
+    /**
+     * @zh
+     * 场景包围球
+     */
+    public _sphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
 
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;
@@ -189,6 +195,10 @@ export class Shadows {
             this._updatePlanarInfo();
         }
     }
+
+    // public getWorldMatrix (worldRotation: Quat, lightDir: Vec3) {
+    //     Vec3.multiplyScalar(vec3_p, dir_negate, Math.sqrt(2) * this.sphere.radius);
+    // }
 
     protected _updatePlanarInfo () {
         this._dirty = true;
