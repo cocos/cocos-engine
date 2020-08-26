@@ -166,7 +166,7 @@ export class Camera {
     }
 
     public destroy () {
-        legacyCC.director.root.attachCamera(this);
+        legacyCC.director.root.detachCamera(this);
         if (this._view) {
             this._view.destroy();
             this._view = null;
