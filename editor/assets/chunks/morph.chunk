@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
-#include <common> // decode32
+#include <decode32>
 #pragma define CC_MORPH_TARGET_COUNT range([2, 8])
 
 #if __VERSION__ < 300

@@ -1,0 +1,8 @@
+
+highp float decode32 (highp vec4 rgba) {
+    rgba = rgba * 255.0; // TODO: check if wzyx shuffle is needed on big endian devices
+    highp float Sign = 1.0 - step(128.0, rgba[3]) * 2.0;
+    highp float Exponent = 2.0 * mod(rgba[3], 128.0) + step(128.0, rgba[2]) - 127.0;
+    highp float Mantissa = mod(rgba[2], 128.0) * 65536.0 + rgba[1] * 256.0 + rgba[0] + 8388608.0;
+    return Sign * exp2(Exponent - 23.0) * Mantissa;
+}
