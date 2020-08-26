@@ -159,14 +159,19 @@ export class Camera {
             priority: this._priority,
             flows: info.flows,
         });
+        legacyCC.director.root.attachCamera(this);
         this.changeTargetWindow(info.window);
 
         console.log('Created Camera: ' + this._name + ' ' + this._width + 'x' + this._height);
     }
 
     public destroy () {
-        legacyCC.director.root.destroyView(this._view);
-        this._view = null;
+        legacyCC.director.root.attachCamera(this);
+        if (this._view) {
+            this._view.destroy();
+            this._view = null;
+        }
+
         this._name = null;
     }
 
