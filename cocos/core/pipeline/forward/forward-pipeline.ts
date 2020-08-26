@@ -26,6 +26,7 @@ import { Shadows, ShadowType } from '../../renderer/scene/shadows';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
+const vec4 = new Vec4();
 
 /**
  * @en The forward render pipeline
@@ -189,6 +190,12 @@ export class ForwardPipeline extends RenderPipeline {
             Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
 
             Mat4.toArray(this._shadowUBO, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
+
+            vec4.set(shadowInfo.pcf);
+            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_PCF_OFFSET);
+
+            vec4.set(shadowInfo.size.x, shadowInfo.size.y);
+            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_SIZE_OFFSET);
         }
 
         // update ubos

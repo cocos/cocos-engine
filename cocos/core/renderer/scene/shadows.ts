@@ -2,7 +2,7 @@
 import { Material } from '../../assets/material';
 import { aabb, frustum, intersect, sphere } from '../../geometry';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
-import { Color, Mat4, Quat, Vec3, Vec2 } from '../../math';
+import { Color, Mat4, Quat, Vec3, Vec2, Vec4 } from '../../math';
 import { UBOShadow, SetIndex} from '../../pipeline/define';
 import { DirectionalLight } from './directional-light';
 import { Model } from './model';
@@ -47,6 +47,38 @@ export const ShadowType = Enum({
      * @readonly
      */
     ShadowMap: 1,
+})
+
+/**
+ * @zh pcf阴影等级。
+ * @en The pcf type
+ * @static
+ * @enum Shadows.ShadowType
+ */
+export const PCFType = Enum({
+    /**
+     * @zh 8倍采样
+     * @en 8 times
+     * @property ShadowMap
+     * @readonly
+     */
+    Hard: 0,
+
+    /**
+     * @zh 4倍采样
+     * @en 4 times
+     * @property ShadowMap
+     * @readonly
+     */
+    X4: 1,
+
+    /**
+     * @zh 1倍采样
+     * @en 1 times
+     * @property ShadowMap
+     * @readonly
+     */
+    X1: 2,
 })
 
 interface IShadowRenderData {
@@ -179,6 +211,13 @@ export class Shadows {
      * @zh 获取或者设置阴影纹理大小
      */
     public size: Vec2 = new Vec2(512, 512);
+
+    /**
+     * @en get or set shadow pcf
+     * @zh 获取或者设置阴影pcf等级
+     */
+    public pcf = PCFType.Hard;
+
     /**
      * @zh
      * 场景包围球

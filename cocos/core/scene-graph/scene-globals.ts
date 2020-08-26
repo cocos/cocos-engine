@@ -28,7 +28,7 @@ import { ccclass, property, visible, type, displayOrder, slide, range, rangeStep
 import { CCBoolean, CCFloat } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
-import { Shadows, ShadowType } from '../renderer/scene/shadows';
+import { Shadows, ShadowType, PCFType } from '../renderer/scene/shadows';
 import { Skybox } from '../renderer/scene/skybox';
 import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
@@ -386,6 +386,8 @@ export class ShadowsInfo {
     @property
     protected _shadowColor = new Color(0, 0, 0, 76);
     @property
+    protected _pcf = PCFType.Hard;
+    @property
     protected _near: number = 1;
     @property
     protected _far: number = 30;
@@ -459,6 +461,20 @@ export class ShadowsInfo {
     }
     get distance () {
         return this._distance;
+    }
+
+    /**
+     * @en The normal of the plane which receives shadow
+     * @zh 阴影接收平面的法线
+     */
+    @type(PCFType)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    set pcf (val) {
+        this._pcf = val;
+        if (this._resource) { this._resource.pcf = val; }
+    }
+    get pcf () {
+        return this._pcf;
     }
 
     /**
