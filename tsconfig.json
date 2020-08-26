@@ -7,6 +7,7 @@
       "outDir": "./bin/.ts",
       "rootDir": "./",
       "strict": true,
+      "strictFunctionTypes": false,
       "noImplicitAny": false,
       "downlevelIteration": true,
       "esModuleInterop": true,

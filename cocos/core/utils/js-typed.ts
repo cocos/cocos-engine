@@ -31,6 +31,16 @@ export function isString (object: any) {
 }
 
 /**
+ * Checks whether the obj is empty
+ */
+export function isEmptyObject (obj: any) {
+    for (const key in obj) {
+        return false;
+    }
+    return true;
+}
+
+/**
  * Define value, just help to call Object.defineProperty.<br>
  * The configurable will be true.
  * @param [writable=false]
