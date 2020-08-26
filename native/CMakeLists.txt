@@ -233,7 +233,6 @@ cocos_source_files(
     cocos/base/ccRandom.h
     cocos/base/CCRef.cpp
     cocos/base/CCRef.h
-    cocos/base/CCRefPtr.h
     cocos/base/CCScheduler.cpp
     cocos/base/CCScheduler.h
     cocos/base/CCThreadPool.cpp
