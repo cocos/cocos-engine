@@ -187,8 +187,10 @@ export class Camera {
         if (this._poolHandle) {
             CameraPool.free(this._poolHandle);
             this._poolHandle = NULL_HANDLE;
-            FrustumPool.free(this._frustumHandle);
-            this._frustumHandle = NULL_HANDLE;
+            if (this._frustumHandle) {
+                FrustumPool.free(this._frustumHandle);
+                this._frustumHandle = NULL_HANDLE;
+            }
         }
     }
 

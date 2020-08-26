@@ -246,8 +246,8 @@ export const graphicsAssembler: IAssembler = {
         
         const model = graphics.model;
         if (model) {
-            model.node = model.transform = graphics.node;
             model.initSubModel(0, mesh.renderingSubMeshes[0], graphics.getUIMaterialInstance()!);
+            model.node = model.transform = graphics.node;
         }
         
         graphics.markForUpdateRenderData();

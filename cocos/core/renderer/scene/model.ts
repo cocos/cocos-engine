@@ -181,11 +181,14 @@ export class Model {
     }
 
     public initialize () {
-        this._poolHandle = ModelPool.alloc();
-        this._subModelArrayHandle = SubModelArrayPool.alloc();
-        ModelPool.set(this._poolHandle, ModelView.SUB_MODEL_ARRAY, this._subModelArrayHandle);
-        ModelPool.set(this._poolHandle, ModelView.VIS_FLAGS, Layers.Enum.NONE);
-        ModelPool.set(this._poolHandle, ModelView.ENABLED, 1);
+        if (!this._inited) {
+            this._poolHandle = ModelPool.alloc();
+            this._subModelArrayHandle = SubModelArrayPool.alloc();
+            ModelPool.set(this._poolHandle, ModelView.SUB_MODEL_ARRAY, this._subModelArrayHandle);
+            ModelPool.set(this._poolHandle, ModelView.VIS_FLAGS, Layers.Enum.NONE);
+            ModelPool.set(this._poolHandle, ModelView.ENABLED, 1);
+            this._inited = true;
+        }
     }
 
     public destroy () {
@@ -285,6 +288,8 @@ export class Model {
     }
 
     public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {
+        this.initialize();
+
         let isNewSubModel = false;
         if (this._subModels[idx] == null) {
             this._subModels[idx] = _subModelPool.alloc();
@@ -297,7 +302,6 @@ export class Model {
         if (isNewSubModel) {
             SubModelArrayPool.assign(this._subModelArrayHandle, idx, this._subModels[idx].handle);
         }
-        this._inited = true;
     }
 
     public setSubModelMesh (idx: number, subMesh: RenderingSubMesh) {
