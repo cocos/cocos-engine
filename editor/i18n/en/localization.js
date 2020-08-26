@@ -485,4 +485,17 @@ module.exports = {
             script: 'Custom Script',
         },
     },
+    video: {
+        resourceType: 'The resource type of video player, REMOTE for remote url and LOCAL for local file path.',
+        remoteURL: 'The remote URL of video.',
+        clip: 'The local video clip',
+        playOnAwake: 'Whether the video start playing automatically after loaded?',
+        volume: 'The volume of the video.(0.0 ~ 1.0)',
+        mute: 'Mutes the VideoPlayer. Mute sets the volume=0, Un-Mute restore the original volume.',
+        playbackRate: 'The Video playback rate',
+        loop: 'Whether the video should be played again at the end',
+        isFullscreen: 'Whether play video in fullscreen mode.',
+        stayOnBottom: 'Always below the game view (only useful on Web. Note: The specific effects are not guaranteed to be consistent, depending on whether each browser supports or restricts).',
+        videoPlayerEvent: 'The video player\'s callback, it will be triggered when certain event occurs, like: playing, paused, stopped and completed.',
+    }
 };

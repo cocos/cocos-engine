@@ -36,6 +36,7 @@ import {loadUuid} from './uuid-loader';
 import {loadFont} from './font-loader';
 import { legacyCC } from '../global-exports';
 import { PixelFormat } from '../assets/asset-enum';
+import {callFunc} from "../../tween/actions/action-instant";
 
 function loadNothing () {
     return null;
@@ -90,6 +91,19 @@ function loadAudioAsAsset (item, callback) {
     audioClip._setRawAsset(item.rawUrl, false);
     audioClip._nativeAsset = item.content;
     return audioClip;
+}
+
+function loadVideoAsAsset (item, callback) {
+    let loadByDeserializedAsset = (item._owner instanceof legacyCC.Asset);
+    if (loadByDeserializedAsset) {
+        // already has cc.Asset
+        return null;
+    }
+
+    let videoClip = new legacyCC.VideoClip();
+    videoClip._setRawAsset(item.rawUrl, false);
+    videoClip._nativeAsset = item.content;
+    return videoClip;
 }
 
 function loadPlist (item) {
@@ -339,6 +353,9 @@ let defaultMap = {
     'ogg' : loadAudioAsAsset,
     'wav' : loadAudioAsAsset,
     'm4a' : loadAudioAsAsset,
+
+    // video
+    'mp4' : loadVideoAsAsset,
 
     // json
     'json' : loadJSON,
