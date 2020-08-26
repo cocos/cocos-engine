@@ -116,7 +116,7 @@ const _matInsInfo: IMaterialInstanceInfo = {
  * 所有支持渲染的 UI 组件的基类。
  */
 @ccclass('cc.UIRenderable')
-@requireComponent(UITransformComponent)
+@requireComponent(UITransform)
 @disallowMultiple
 @executeInEditMode
 export class UIRenderable extends RenderableComponent {

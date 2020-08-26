@@ -1,8 +1,8 @@
 import { intersect, sphere } from '../../geometry';
-import { Model, Camera } from '../../renderer';
-import { Layers } from '../../scene-graph';
+import { Model } from '../../renderer/scene/model';
+import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
+import { Layers } from '../../scene-graph/layers';
 import { Vec3} from '../../math';
-import { SKYBOX_FLAG } from '../../renderer';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderView } from '../render-view';
 import { Pool } from '../../memop';

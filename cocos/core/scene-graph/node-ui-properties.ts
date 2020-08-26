@@ -27,7 +27,9 @@
  * @category scene-graph
  */
 
-import { UIComponent, UITransform, UIRenderable } from '../components/ui-base';
+import { UIComponent } from '../components/ui-base/ui-component';
+import { UITransform } from '../components/ui-base/ui-transform';
+import { UIRenderable } from '../components/ui-base/ui-renderable';
 
 /**
  * @en Node's UI properties abstraction

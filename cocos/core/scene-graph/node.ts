@@ -28,7 +28,7 @@
  */
 
 import { ccclass, type, serializable, editable } from 'cc.decorator';
-import { Mat3, Mat4, Quat, Size, Vec2, Vec3 } from '../math';
+import { Mat3, Mat4, Quat, Vec3 } from '../math';
 import { SystemEventType } from '../platform/event-manager/event-enum';
 import { eventManager } from '../platform/event-manager/event-manager';
 import { BaseNode, TRANSFORM_ON } from './base-node';
