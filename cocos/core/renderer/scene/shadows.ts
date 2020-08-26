@@ -15,13 +15,15 @@ import { RenderScene } from './render-scene';
 import { DSPool, ShaderPool, PassPool, PassView } from '../core/memory-pools';
 import { ForwardPipeline } from '../../pipeline';
 import { Enum } from '../../value-types';
-import { createShape } from '../../../physics/framework/instance';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
 const _ab = new aabb();
 const _qt = new Quat();
 const _up = new Vec3(0, 1, 0);
+const _dir_negate = new Vec3();
+const _vec3_p = new Vec3();
+const _mat4_trans = new Mat4();
 
 /**
  * @zh 阴影类型。
@@ -196,9 +198,15 @@ export class Shadows {
         }
     }
 
-    // public getWorldMatrix (worldRotation: Quat, lightDir: Vec3) {
-    //     Vec3.multiplyScalar(vec3_p, dir_negate, Math.sqrt(2) * this.sphere.radius);
-    // }
+    public getWorldMatrix (rotation: Quat, dir: Vec3) {
+        Vec3.negate(_dir_negate, dir);
+        Vec3.multiplyScalar(_vec3_p, _dir_negate, Math.sqrt(2) * this._sphere.radius);
+        Vec3.add(_vec3_p, _vec3_p, this._sphere.center);
+
+        Mat4.fromRT(_mat4_trans, rotation, _vec3_p);
+
+        return _mat4_trans;
+    }
 
     protected _updatePlanarInfo () {
         this._dirty = true;

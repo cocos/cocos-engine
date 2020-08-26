@@ -167,7 +167,8 @@ export class ForwardPipeline extends RenderPipeline {
 
         if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
             // light view
-            Mat4.invert(matShadowView, mainLight!.node!.worldMatrix);
+            const shadowCameraView = shadowInfo.getWorldMatrix(mainLight!.node!.worldRotation, mainLight!.direction);
+            Mat4.invert(matShadowView, shadowCameraView);
 
             // light proj
             const x = shadowInfo.orthoSize * shadowInfo.aspect;
