@@ -173,7 +173,7 @@ export class Shadows {
      * @en get or set shadow camera orthoSize
      * @zh 获取或者设置阴影相机正交大小
      */
-    public orthoSize: number = 5;
+    public orthoSize: number = 1;
     /**
      * @en get or set shadow camera orthoSize
      * @zh 获取或者设置阴影纹理大小
@@ -200,7 +200,8 @@ export class Shadows {
 
     public getWorldMatrix (rotation: Quat, dir: Vec3) {
         Vec3.negate(_dir_negate, dir);
-        Vec3.multiplyScalar(_vec3_p, _dir_negate, Math.sqrt(2) * this._sphere.radius);
+        const distance: number = Math.sqrt(2) * this._sphere.radius;
+        Vec3.multiplyScalar(_vec3_p, _dir_negate, distance);
         Vec3.add(_vec3_p, _vec3_p, this._sphere.center);
 
         Mat4.fromRT(_mat4_trans, rotation, _vec3_p);
