@@ -2212,16 +2212,17 @@ export function WebGLCmdFuncBindStates (
         for (let i = 0; i < samplerLen; i++) {
             const glSampler = gpuShader.glSamplers[i];
             const gpuDescriptorSet = gpuDescriptorSets[glSampler.set];
-            const gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[glSampler.binding];
-
-            if (!gpuDescriptor || !gpuDescriptor.gpuSampler) {
-                error(`Sampler binding '${glSampler.name}' at set ${glSampler.set} binding ${glSampler.binding} is not bounded`);
-                continue;
-            }
+            let descriptorIndex = gpuDescriptorSet && gpuDescriptorSet.descriptorIndices[glSampler.binding] || -1;
+            let gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[descriptorIndex];
 
             const texUnitLen = glSampler.units.length;
             for (let l = 0; l < texUnitLen; l++) {
                 const texUnit = glSampler.units[l];
+
+                if (!gpuDescriptor || !gpuDescriptor.gpuSampler) {
+                    error(`Sampler binding '${glSampler.name}' at set ${glSampler.set} binding ${glSampler.binding} index ${l} is not bounded`);
+                    continue;
+                }
 
                 if (gpuDescriptor.gpuTexture &&
                     gpuDescriptor.gpuTexture.size > 0) {
@@ -2305,6 +2306,8 @@ export function WebGLCmdFuncBindStates (
                         gpuTexture.glMagFilter = gpuSampler.glMagFilter;
                     }
                 }
+
+                gpuDescriptor = gpuDescriptorSet.gpuDescriptors[++descriptorIndex];
             }
         }
     } // bind descriptor sets

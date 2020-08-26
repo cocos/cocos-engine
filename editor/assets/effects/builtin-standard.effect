@@ -49,6 +49,7 @@ CCEffect %{
     - vert: shadowMap-vs:vert
       frag: shadowMap-fs:frag
       phase: shadow-add
+      propertyIndex: 0
       rasterizerState:
         cullMode: front
   - name: transparent
@@ -82,6 +83,7 @@ CCEffect %{
     - vert: shadowMap-vs:vert
       frag: shadowMap-fs:frag
       phase: shadow-add
+      propertyIndex: 0
       rasterizerState:
         cullMode: front
 }%

@@ -168,9 +168,7 @@ export class Pass {
     protected static getOffsetFromHandle = getOffsetFromHandle;
 
     // internal resources
-    protected _buffers: Record<number, GFXBuffer> = {};
-    protected _samplers: Record<number, GFXSampler> = {};
-    protected _textures: Record<number, GFXTexture> = {};
+    protected _buffers: GFXBuffer[] = []; // buffer bindings are guaranteed to be consecutive, start from 0 and non-array
     protected _descriptorSet: GFXDescriptorSet = null!;
     // internal data
     protected _passIndex = 0;
@@ -293,26 +291,12 @@ export class Pass {
 
     /**
      * @zh
-     * 绑定实际 [[GFXBuffer]] 到指定 binding。
-     * @param binding 目标 UBO 的 binding。
-     * @param value 目标 buffer。
-     */
-    public bindBuffer (binding: number, value: GFXBuffer) {
-        if (this._buffers[binding] === value) { return; }
-        this._buffers[binding] = value;
-        this._descriptorSet.bindBuffer(binding, value);
-    }
-
-    /**
-     * @zh
      * 绑定实际 [[GFXTexture]] 到指定 binding。
      * @param binding 目标贴图类 uniform 的 binding。
      * @param value 目标 texture
      */
-    public bindTexture (binding: number, value: GFXTexture) {
-        if (this._textures[binding] === value) { return; }
-        this._textures[binding] = value;
-        this._descriptorSet.bindTexture(binding, value);
+    public bindTexture (binding: number, value: GFXTexture, index?: number) {
+        this._descriptorSet.bindTexture(binding, value, index);
     }
 
     /**
@@ -321,10 +305,8 @@ export class Pass {
      * @param binding 目标贴图类 uniform 的 binding。
      * @param value 目标 sampler。
      */
-    public bindSampler (binding: number, value: GFXSampler) {
-        if (this._samplers[binding] === value) { return; }
-        this._samplers[binding] = value;
-        this._descriptorSet.bindSampler(binding, value);
+    public bindSampler (binding: number, value: GFXSampler, index?: number) {
+        this._descriptorSet.bindSampler(binding, value, index);
     }
 
     /**
@@ -375,10 +357,8 @@ export class Pass {
             if (isBuiltinBinding(u.set)) { continue; }
             this._buffers[u.binding].destroy();
         }
-        this._buffers = {};
+        this._buffers = [];
         // textures are reused
-        this._samplers = {};
-        this._textures = {};
         this._descriptorSet = null!;
 
         if (this._handle) {
@@ -410,7 +390,7 @@ export class Pass {
      * @zh
      * 重置指定贴图为 Effect 默认值。
      */
-    public resetTexture (name: string) {
+    public resetTexture (name: string, index?: number) {
         const handle = this.getHandle(name)!;
         const type = Pass.getTypeFromHandle(handle);
         const binding = Pass.getBindingFromHandle(handle);
@@ -421,10 +401,8 @@ export class Pass {
         const texture = textureBase && textureBase.getGFXTexture()!;
         const samplerHash = info && (info.samplerHash !== undefined) ? info.samplerHash : textureBase.getSamplerHash();
         const sampler = samplerLib.getSampler(this._device, samplerHash);
-        this._textures[binding] = texture;
-        this._samplers[binding] = sampler;
-        this._descriptorSet.bindSampler(binding, sampler);
-        this._descriptorSet.bindTexture(binding, texture);
+        this._descriptorSet.bindSampler(binding, sampler, index);
+        this._descriptorSet.bindTexture(binding, texture, index);
     }
 
     /**
@@ -459,7 +437,9 @@ export class Pass {
         for (let i = 0; i < this._shaderInfo.samplers.length; i++) {
             const u = this._shaderInfo.samplers[i];
             if (isBuiltinBinding(u.set)) { continue; }
-            this.resetTexture(u.name);
+            for (let j = 0; j < u.count; j++) {
+                this.resetTexture(u.name, j);
+            }
         }
     }
 

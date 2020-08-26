@@ -173,6 +173,8 @@ export interface IWebGL2GPUShader {
 export interface IWebGL2GPUDescriptorSetLayout {
     bindings: IGFXDescriptorSetLayoutBinding[];
     dynamicBindings: number[];
+    descriptorIndices: number[];
+    descriptorCount: number;
 }
 
 export interface IWebGL2GPUPipelineLayout {
@@ -202,6 +204,7 @@ export interface IWebGL2GPUDescriptor {
 
 export interface IWebGL2GPUDescriptorSet {
     gpuDescriptors: IWebGL2GPUDescriptor[];
+    descriptorIndices: number[];
 }
 
 export interface IWebGL2Attrib {
