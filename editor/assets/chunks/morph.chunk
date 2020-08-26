@@ -8,10 +8,14 @@
     int getVertexId() {
         return int(a_vertexId);
     }
-#else
+#elif __VERSION__ < 450
     int getVertexId() {
         // TODO: why gl_VertexID does not work??
         return gl_VertexID;
+    }
+#else
+    int getVertexId() {
+        return gl_VertexIndex; // vulkan convension
     }
 #endif
 

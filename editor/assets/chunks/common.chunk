@@ -14,3 +14,15 @@
 #define FP_MAX          65504.0
 #define FP_SCALE        0.0009765625
 #define FP_SCALE_INV    1024.0
+
+highp float decode32 (highp vec4 rgba) {
+  rgba = rgba * 255.0;
+  // Under the minimum highp precision, 1/1024 according to GLSL spec, it is
+  // particularly tricky to decode the first byte(sign + exponent) when the
+  // number is 128/255, and it has a significant impact on the final vertex
+  // transformation. We are using a nudge factor here to make sure it works.
+  highp float Sign = 1.0 - step(127.99, rgba[3]) * 2.0;
+  highp float Exponent = 2.0 * mod(rgba[3], 127.99) + step(128.0, rgba[2]) - 127.0;
+  highp float Mantissa = mod(rgba[2], 128.0) * 65536.0 + rgba[1] * 256.0 + rgba[0] + 8388608.0;
+  return Sign * exp2(Exponent - 23.0) * Mantissa;
+}
