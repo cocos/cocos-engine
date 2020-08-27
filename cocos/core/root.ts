@@ -580,3 +580,5 @@ export class Root {
         });
     }
 }
+
+legacyCC.Root = Root;

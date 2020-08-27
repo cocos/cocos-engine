@@ -358,3 +358,5 @@ export class ForwardPipeline extends RenderPipeline {
         return super.destroy();
     }
 }
+
+legacyCC.ForwardPipeline = ForwardPipeline;
