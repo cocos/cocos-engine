@@ -239,7 +239,7 @@ export class ScrollBarComponent extends Component {
             return;
         }
 
-        const contentSize = content.contentSize;
+        const contentSize = content._uiProps.uiTransformComp!.contentSize;
         const scrollViewSize = this._scrollView.node._uiProps.uiTransformComp!.contentSize;
         const barSize = this.node._uiProps.uiTransformComp!.contentSize;
 
@@ -313,8 +313,9 @@ export class ScrollBarComponent extends Component {
         if (this._scrollView) {
             const content = this._scrollView.content;
             if (content) {
+                const contentSize = content._uiProps.uiTransformComp!.contentSize;
                 const scrollViewSize = this._scrollView.node._uiProps.uiTransformComp!.contentSize;
-                if (this._conditionalDisableScrollBar(content.contentSize, scrollViewSize)) {
+                if (this._conditionalDisableScrollBar(contentSize, scrollViewSize)) {
                     return;
                 }
             }
@@ -340,12 +341,12 @@ export class ScrollBarComponent extends Component {
         this._processAutoHide(dt);
     }
 
-    protected _convertToScrollViewSpace (contentTrans: UITransformComponent) {
+    protected _convertToScrollViewSpace (content: Node) {
         const scrollTrans = this._scrollView && this._scrollView.node._uiProps.uiTransformComp;
+        const contentTrans = content._uiProps.uiTransformComp;
         if (!scrollTrans || !contentTrans) {
             return ZERO;
         }
-
         _tempPos_1.set(-contentTrans.anchorX * contentTrans.width, -contentTrans.anchorY * contentTrans.height, 0);
         contentTrans.convertToWorldSpaceAR(_tempPos_1, _tempPos_2);
         const scrollViewSpacePos = scrollTrans.convertToNodeSpaceAR(_tempPos_2);
