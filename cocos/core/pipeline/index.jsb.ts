@@ -1,14 +1,14 @@
-export const RenderPipeline = jsb.RenderPipeline;
-export const RenderFlow = jsb.RenderFlow;
-export const RenderStage = jsb.RenderStage;
-export const RenderView = jsb.RenderView;
+export const RenderPipeline = nr.RenderPipeline;
+export const RenderFlow = nr.RenderFlow;
+export const RenderStage = nr.RenderStage;
+export const RenderView = nr.RenderView;
 
-export const ForwardPipeline = jsb.ForwardPipeline;
-export const ForwardFlow = jsb.ForwardFlow;
-export const ForwardStage = jsb.ForwardStage;
-export const ShadowFlow = jsb.ShadowFlow;
-export const ShadowStage = jsb.ShadowStage;
-export const UIFlow = jsb.UIFlow;
-export const UIStage = jsb.UIStage;
+export const ForwardPipeline = nr.ForwardPipeline;
+export const ForwardFlow = nr.ForwardFlow;
+export const ForwardStage = nr.ForwardStage;
+export const ShadowFlow = nr.ShadowFlow;
+export const ShadowStage = nr.ShadowStage;
+export const UIFlow = nr.UIFlow;
+export const UIStage = nr.UIStage;
 
-export const InstancedBuffer = jsb.InstancedBuffer;
+export const InstancedBuffer = nr.InstancedBuffer;
