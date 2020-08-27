@@ -2311,16 +2311,15 @@ export function WebGL2CmdFuncBindStates (
 
             const dynamicOffsetIndexSet = dynamicOffsetIndices[glBlock.set];
             const dynamicOffsetIndex = dynamicOffsetIndexSet && dynamicOffsetIndexSet[glBlock.binding];
-            if (dynamicOffsetIndex >= 0) { // dynamically bound
+            let offset = gpuDescriptor.gpuBuffer.glOffset;
+            if (dynamicOffsetIndex >= 0) offset += dynamicOffsets[dynamicOffsetIndex];
+
+            if (cache.glBindUBOs[glBlock.glBinding] !== gpuDescriptor.gpuBuffer.glBuffer ||
+                cache.glBindUBOOffsets[glBlock.glBinding] !== offset) {
                 gl.bindBufferRange(gl.UNIFORM_BUFFER, glBlock.glBinding, gpuDescriptor.gpuBuffer.glBuffer,
-                    gpuDescriptor.gpuBuffer.glOffset + dynamicOffsets[dynamicOffsetIndex],
-                    gpuDescriptor.gpuBuffer.size);
+                    offset, gpuDescriptor.gpuBuffer.size);
                 cache.glUniformBuffer = cache.glBindUBOs[glBlock.glBinding] = gpuDescriptor.gpuBuffer.glBuffer;
-            } else { // statically bound
-                if (cache.glBindUBOs[glBlock.glBinding] !== gpuDescriptor.gpuBuffer.glBuffer) {
-                    gl.bindBufferBase(gl.UNIFORM_BUFFER, glBlock.glBinding, gpuDescriptor.gpuBuffer.glBuffer);
-                    cache.glUniformBuffer = cache.glBindUBOs[glBlock.glBinding] = gpuDescriptor.gpuBuffer.glBuffer;
-                }
+                cache.glBindUBOOffsets[glBlock.glBinding] = offset;
             }
         }
 

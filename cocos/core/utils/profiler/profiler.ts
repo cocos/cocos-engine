@@ -31,13 +31,13 @@ import { GFXBufferTextureCopy, GFXClearFlag, GFXFormat, GFXTextureType, GFXTextu
 import { GFXDevice } from '../../gfx/device';
 import { GFXTexture } from '../../gfx/texture';
 import { Vec4 } from '../../math';
-import { IBlock } from '../../renderer/core/pass';
 import { Layers } from '../../scene-graph';
 import { Node } from '../../scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
 import { TEST } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
+import { Pass } from '../../renderer';
 
 const _characters = '0123456789. ';
 
@@ -104,7 +104,8 @@ export class Profiler {
     private readonly _region: GFXBufferTextureCopy = new GFXBufferTextureCopy();
     private readonly _canvasArr: HTMLCanvasElement[] = [];
     private readonly _regionArr = [this._region];
-    private digitsData: IBlock = null!;
+    private digitsData: Float32Array = null!;
+    private pass: Pass = null!;
 
     private _canvasDone = false;
     private _statsDone = false;
@@ -317,7 +318,7 @@ export class Profiler {
         const _material = new Material();
         _material.initialize({ effectName: 'util/profiler' });
         _material.setProperty('offset', new Vec4(-0.9, -0.9 * ySign, this._eachNumWidth, 0));
-        const pass = _material.passes[0];
+        const pass = this.pass = _material.passes[0];
         const handle = pass.getBinding('mainTexture');
         const binding = pass.getBinding('digits')!;
         pass.bindTexture(handle!, this._texture!);
@@ -400,7 +401,7 @@ export class Profiler {
         (this._stats.tricount.counter as PerfCounter).value = device.numTris;
 
         let i = 0;
-        const view = this.digitsData.view;
+        const view = this.digitsData;
         for (const id in this._stats) {
             const stat = this._stats[id] as ICounterOption;
             stat.counter.sample(now);
@@ -415,7 +416,8 @@ export class Profiler {
             i++;
         }
 
-        this.digitsData.dirty = true;
+        // @ts-ignore
+        this.pass._rootBufferDirty = true;
     }
 }
 

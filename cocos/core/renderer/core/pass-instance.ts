@@ -52,9 +52,9 @@ export class PassInstance extends Pass {
             if (isBuiltinBinding(u.set)) { continue; }
             const block = this._blocks[u.binding];
             const parentBlock = this._parent.blocks[u.binding];
-            block.view.set(parentBlock.view);
-            block.dirty = true;
+            block.set(parentBlock);
         }
+        this._rootBufferDirty = true;
         const paren = this._parent as PassInstance;
         for (let i = 0; i < this._shaderInfo.samplers.length; i++) {
             const u = this._shaderInfo.samplers[i];

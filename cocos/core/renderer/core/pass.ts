@@ -32,7 +32,7 @@ import { builtinResMgr } from '../../3d/builtin/init';
 import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
 import { TextureBase } from '../../assets/texture-base';
 import { GFXDescriptorSet, IGFXDescriptorSetInfo } from '../../gfx/descriptor-set';
-import { GFXBuffer, IGFXBufferInfo } from '../../gfx/buffer';
+import { GFXBuffer, IGFXBufferInfo, IGFXBufferViewInfo } from '../../gfx/buffer';
 import { GFXFeature, GFXDevice } from '../../gfx/device';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
 import { GFXSampler } from '../../gfx/sampler';
@@ -58,11 +58,6 @@ export interface IPassInfoFull extends IPassInfo {
 }
 export type PassOverrides = RecursivePartial<IPassStates>;
 
-export interface IBlock {
-    view: Float32Array;
-    dirty: boolean;
-}
-
 export interface IMacroPatch {
     name: string;
     value: boolean | number | string;
@@ -75,10 +70,16 @@ interface IPassDynamics {
     };
 }
 
-const _bfInfo: IGFXBufferInfo = {
+const _bufferInfo: IGFXBufferInfo = {
     memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
     usage: GFXBufferUsageBit.UNIFORM,
     size: 0,
+};
+
+const _bufferViewInfo: IGFXBufferViewInfo = {
+    buffer: null!,
+    offset: 0,
+    range: 0,
 };
 
 const _dsInfo: IGFXDescriptorSetInfo = {
@@ -168,7 +169,9 @@ export class Pass {
     protected static getOffsetFromHandle = getOffsetFromHandle;
 
     // internal resources
-    protected _buffers: GFXBuffer[] = []; // buffer bindings are guaranteed to be consecutive, start from 0 and non-array
+    protected _rootBuffer: GFXBuffer | null = null;
+    protected _rootBufferDirty = false;
+    protected _buffers: GFXBuffer[] = [];
     protected _descriptorSet: GFXDescriptorSet = null!;
     // internal data
     protected _passIndex = 0;
@@ -176,7 +179,8 @@ export class Pass {
     protected _programName = '';
     protected _dynamics: IPassDynamics = {};
     protected _propertyHandleMap: Record<string, number> = {};
-    protected _blocks: IBlock[] = [];
+    protected _rootBlock: ArrayBuffer | null = null;
+    protected _blocks: Float32Array[] = [];
     protected _shaderInfo: IProgramInfo = null!;
     protected _defines: MacroRecord = {};
     protected _properties: Record<string, IPropertyInfo> = {};
@@ -252,8 +256,8 @@ export class Pass {
         const type = Pass.getTypeFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
         const block = this._blocks[binding];
-        type2writer[type](block.view, value, ofs);
-        block.dirty = true;
+        type2writer[type](block, value, ofs);
+        this._rootBufferDirty = true;
     }
 
     /**
@@ -267,7 +271,7 @@ export class Pass {
         const type = Pass.getTypeFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
         const block = this._blocks[binding];
-        return type2reader[type](block.view, out, ofs);
+        return type2reader[type](block, out, ofs);
     }
 
     /**
@@ -284,9 +288,9 @@ export class Pass {
         let ofs = Pass.getOffsetFromHandle(handle);
         for (let i = 0; i < value.length; i++, ofs += stride) {
             if (value[i] === null) { continue; }
-            type2writer[type](block.view, value[i], ofs);
+            type2writer[type](block, value[i], ofs);
         }
-        block.dirty = true;
+        this._rootBufferDirty = true;
     }
 
     /**
@@ -336,13 +340,9 @@ export class Pass {
      * 更新当前 Uniform 数据。
      */
     public update () {
-        const len = this._blocks.length;
-        for (let i = 0; i < len; i++) {
-            const block = this._blocks[i];
-            if (block.dirty) {
-                this._buffers[i].update(block.view);
-                block.dirty = false;
-            }
+        if (this._rootBufferDirty && this._rootBuffer) {
+            this._rootBuffer.update(this._rootBlock!);
+            this._rootBufferDirty = false;
         }
         this._descriptorSet.update();
     }
@@ -358,6 +358,12 @@ export class Pass {
             this._buffers[u.binding].destroy();
         }
         this._buffers = [];
+
+        if (this._rootBuffer) {
+            this._rootBuffer.destroy();
+            this._rootBlock = null;
+        }
+
         // textures are reused
         this._descriptorSet = null!;
 
@@ -382,8 +388,8 @@ export class Pass {
         const block = this._blocks[binding];
         const info = this._properties[name];
         const value = info && info.value || getDefaultFromType(type);
-        type2writer[type](block.view, value, ofs);
-        block.dirty = true;
+        type2writer[type](block, value, ofs);
+        this._rootBufferDirty = true;
     }
 
     /**
@@ -413,8 +419,7 @@ export class Pass {
         for (let i = 0; i < this._shaderInfo.blocks.length; i++) {
             const u = this._shaderInfo.blocks[i];
             if (isBuiltinBinding(u.set)) { continue; }
-            const block: IBlock = this._blocks[u.binding];
-            if (!block) { continue; }
+            const block = this._blocks[u.binding];
             let ofs = 0;
             for (let j = 0; j < u.members.length; j++) {
                 const cur = u.members[j];
@@ -422,11 +427,11 @@ export class Pass {
                 const givenDefault = info && info.value;
                 const value = (givenDefault ? givenDefault : getDefaultFromType(cur.type)) as number[];
                 const size = (GFXGetTypeSize(cur.type) >> 2) * cur.count;
-                for (let k = 0; k + value.length <= size; k += value.length) { block.view.set(value, ofs + k); }
+                for (let k = 0; k + value.length <= size; k += value.length) { block.set(value, ofs + k); }
                 ofs += size;
             }
-            block.dirty = true;
         }
+        this._rootBufferDirty = true;
     }
 
     /**
@@ -530,18 +535,36 @@ export class Pass {
         PassPool.set(this._handle, PassView.DESCRIPTOR_SET, dsHandle);
         this._descriptorSet = DSPool.get(dsHandle);
 
+        // calculate total size required
         const blocks = this._shaderInfo.blocks;
+        const alignment = device.uboOffsetAlignment;
+        const startOffsets: number[] = []; let lastOffset = 0;
         for (let i = 0; i < blocks.length; i++) {
+            const { size, set } = blocks[i];
+            if (isBuiltinBinding(set)) { continue; }
+            startOffsets.push(lastOffset);
+            lastOffset += Math.ceil(size / alignment) * alignment;
+        }
+        // create gfx buffer resource
+        // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
+        const totalSize = _bufferInfo.size = Math.ceil(lastOffset / 16) * 16;
+        if (totalSize) {
+            this._rootBuffer = device.createBuffer(_bufferInfo);
+            this._rootBlock = new ArrayBuffer(totalSize);
+        }
+        // create buffer views
+        for (let i = 0, count = 0; i < blocks.length; i++) {
             const { size, set, binding } = blocks[i];
             if (isBuiltinBinding(set)) { continue; }
-            // create gfx buffer resource
-            _bfInfo.size = Math.ceil(size / 16) * 16; // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
-            const buffer = this._buffers[binding] = device.createBuffer(_bfInfo);
+            _bufferViewInfo.buffer = this._rootBuffer!;
+            _bufferViewInfo.offset = startOffsets[count++];
+            _bufferViewInfo.range = size;
+            const bufferView = this._buffers[binding] = device.createBuffer(_bufferViewInfo);
             // non-builtin UBO data pools, note that the effect compiler
-            // guarantees these bindings to be consecutive, starting from 0
-            const data = new ArrayBuffer(size);
-            this._blocks[binding] = { view: new Float32Array(data), dirty: false };
-            this._descriptorSet.bindBuffer(binding, buffer);
+            // guarantees these bindings to be consecutive, starting from 0 and non-array-typed
+            this._blocks[binding] = new Float32Array(this._rootBlock!, _bufferViewInfo.offset,
+                size / Float32Array.BYTES_PER_ELEMENT);
+            this._descriptorSet.bindBuffer(binding, bufferView);
         }
         // store handles
         const directHandleMap = this._propertyHandleMap = this._shaderInfo.handleMap;

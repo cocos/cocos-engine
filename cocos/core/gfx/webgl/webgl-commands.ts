@@ -2036,14 +2036,15 @@ export function WebGLCmdFuncBindStates (
                 const gpuBuffer = gpuDescriptor.gpuBuffer;
                 const dynamicOffsetIndexSet = dynamicOffsetIndices[glBlock.set];
                 const dynamicOffsetIndex = dynamicOffsetIndexSet && dynamicOffsetIndexSet[glBlock.binding];
+                if (dynamicOffsetIndex >= 0) offset = dynamicOffsets[dynamicOffsetIndex];
 
                 if ('vf32' in gpuBuffer) {
-                    if (dynamicOffsetIndex >= 0) offset = dynamicOffsets[dynamicOffsetIndex] >> 2;
                     vf32 = gpuBuffer.vf32;
                 } else {
-                    if (dynamicOffsetIndex >= 0) offset = (dynamicOffsets[dynamicOffsetIndex] + gpuBuffer.offset) >> 2;
+                    offset += gpuBuffer.offset;
                     vf32 = gpuBuffer.gpuBuffer.vf32;
                 }
+                offset >>= 2;
             }
 
             if (!vf32) {
