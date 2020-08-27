@@ -134,10 +134,7 @@ export interface IWebGL2GPUUniformBlock {
     idx: number;
     name: string;
     size: number;
-
     glBinding: number;
-    glUniforms: IWebGL2GPUUniform[];
-    glActiveUniforms: IWebGL2GPUUniform[];
 }
 
 export interface IWebGL2GPUUniformSampler {

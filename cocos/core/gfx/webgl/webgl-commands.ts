@@ -1569,12 +1569,14 @@ export function WebGLCmdFuncDestroyInputAssembler (device: WebGLDevice, gpuInput
 }
 
 interface IWebGLStateCache {
+    gpuPipelineState: IWebGLGPUPipelineState | null;
     gpuInputAssembler: IWebGLGPUInputAssembler | null;
     gpuShader: IWebGLGPUShader | null;
     glPrimitive: number;
     reverseCW: boolean;
 }
 const gfxStateCache: IWebGLStateCache = {
+    gpuPipelineState: null,
     gpuInputAssembler: null,
     gpuShader: null,
     glPrimitive: 0,
@@ -1771,14 +1773,16 @@ export function WebGLCmdFuncBindStates (
 
     const gl = device.gl;
     const cache = device.stateCache;
+    const gpuShader = gfxStateCache.gpuShader = gpuPipelineState && gpuPipelineState.gpuShader;
 
     let isShaderChanged = false;
     let glWrapS: number;
     let glWrapT: number;
     let glMinFilter: number;
-    let gpuShader: IWebGLGPUShader | null = null;
 
-    if (gpuPipelineState) {
+    // bind pipeline
+    if (gpuPipelineState && gfxStateCache.gpuPipelineState !== gpuPipelineState) {
+        gfxStateCache.gpuPipelineState = gpuPipelineState;
         gfxStateCache.glPrimitive = gpuPipelineState.glPrimitive;
 
         if (gpuPipelineState.gpuShader) {
@@ -1789,8 +1793,6 @@ export function WebGLCmdFuncBindStates (
                 cache.glProgram = glProgram;
                 isShaderChanged = true;
             }
-
-            gfxStateCache.gpuShader = gpuShader = gpuPipelineState.gpuShader;
         }
 
         // rasterizer state
@@ -2019,8 +2021,9 @@ export function WebGLCmdFuncBindStates (
                 target0Cache.blendColorMask = target0.blendColorMask;
             }
         } // blend state
-    } // bind pso
+    } // bind pipeline
 
+    // bind descriptor sets
     if (gpuPipelineState && gpuPipelineState.gpuPipelineLayout && gpuShader) {
 
         const blockLen = gpuShader.glBlocks.length;
@@ -2313,6 +2316,7 @@ export function WebGLCmdFuncBindStates (
         }
     } // bind descriptor sets
 
+    // bind vertex/index buffer
     if (gpuInputAssembler && gpuShader &&
         (isShaderChanged || gfxStateCache.gpuInputAssembler !== gpuInputAssembler)) {
         gfxStateCache.gpuInputAssembler = gpuInputAssembler;
@@ -2438,8 +2442,8 @@ export function WebGLCmdFuncBindStates (
                     cache.glEnabledAttribLocs[a] = false;
                 }
             }
-        } // if (device.useVAO)
-    }
+        }
+    } // bind vertex/index buffer
 
     if (gpuPipelineState) {
         const dsLen = gpuPipelineState.dynamicStates.length;
