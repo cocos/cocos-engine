@@ -480,6 +480,7 @@ var Texture2D = cc.Class({
      * @method getImpl
      */
     getImpl () {
+        if (!this._texture) this._texture = new renderer.Texture2D(renderer.device, {});
         return this._texture;
     },
 
