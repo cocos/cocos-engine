@@ -386,7 +386,7 @@ export class ShadowsInfo {
     @property
     protected _shadowColor = new Color(0, 0, 0, 76);
     @property
-    protected _pcf = PCFType.Hard;
+    protected _pcf = PCFType.HARD;
     @property
     protected _near: number = 1;
     @property

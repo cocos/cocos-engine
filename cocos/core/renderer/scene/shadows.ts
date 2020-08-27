@@ -57,28 +57,25 @@ export const ShadowType = Enum({
  */
 export const PCFType = Enum({
     /**
-     * @zh 3X3倍采样
-     * @en 3X3 times
-     * @property ShadowMap
+     * @zh x1 次采样
+     * @en x1 times
      * @readonly
      */
-    Hard: 0,
+    HARD: 0,
 
     /**
-     * @zh 2X2倍采样
-     * @en 2X2 times
-     * @property ShadowMap
+     * @zh x5 次采样
+     * @en x5 times
      * @readonly
      */
-    X4: 1,
+    FILTER_X5: 1,
 
     /**
-     * @zh 1倍采样
-     * @en 1 times
-     * @property ShadowMap
+     * @zh x9 次采样
+     * @en x9 times
      * @readonly
      */
-    X1: 2,
+    FILTER_X9: 2,
 })
 
 interface IShadowRenderData {
@@ -224,7 +221,7 @@ export class Shadows {
      * @en get or set shadow pcf
      * @zh 获取或者设置阴影pcf等级
      */
-    public pcf = PCFType.Hard;
+    public pcf = PCFType.HARD;
 
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;
