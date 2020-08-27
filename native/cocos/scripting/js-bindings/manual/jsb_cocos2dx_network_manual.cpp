@@ -109,7 +109,7 @@ static bool js_network_Downloader_setOnFileTaskSuccess(se::State& s)
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
-                    jsThis.toObject()->unroot();
+                    thisObj->unroot();
                 };
                 arg0 = lambda;
             }
@@ -162,7 +162,7 @@ static bool js_network_Downloader_setOnTaskError(se::State& s)
                     if (!succeed) {
                         se::ScriptEngine::getInstance()->clearException();
                     }
-                    jsThis.toObject()->unroot();
+                    thisObj->unroot();
                 };
                 arg0 = lambda;
             }
