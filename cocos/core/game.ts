@@ -795,7 +795,8 @@ export class Game extends EventTarget {
     }
     private _stTime (callback) {
         const currTime = new Date().getTime();
-        const timeToCall = Math.max(0, legacyCC.game._frameTime - (currTime - legacyCC.game._lastTime));
+        const elapseTime = Math.max(0, (currTime - legacyCC.game._lastTime))
+        const timeToCall = Math.max(0, legacyCC.game._frameTime - elapseTime);
         const id = window.setTimeout(callback, timeToCall);
         legacyCC.game._lastTime = currTime + timeToCall;
         return id;
