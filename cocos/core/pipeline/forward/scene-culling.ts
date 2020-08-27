@@ -49,7 +49,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
 
     const mainLight = scene.mainLight;
     const shadows = pipeline.shadows;
-    const shadowSphere = shadows._sphere;
+    const shadowSphere = shadows.sphere;
     shadowSphere.center.set(0.0, 0.0, 0.0);
     shadowSphere.radius = 0.01;
     if (mainLight) {
@@ -87,7 +87,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                     // shadow render Object
                     if (model.castShadow) {
                         model.updateUBOs(stamp);
-                        sphere.mergeBox(shadowSphere, shadowSphere, model.worldBounds!);
+                        sphere.mergeAABB(shadowSphere, shadowSphere, model.worldBounds!);
                         shadowObjects.push(getCastShadowRenderObject(model, camera));
                     }
 

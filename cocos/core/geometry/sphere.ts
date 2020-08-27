@@ -103,6 +103,43 @@ export default class sphere {
     }
 
     /**
+     * @zh
+     * 球跟点合并
+     */
+    public static mergePoint (out: sphere, s: sphere, point: Vec3) {
+        if (s.radius < 0.0) {
+            out.center = point;
+            out.radius = 0.0;
+            return out;
+        }
+
+        Vec3.subtract(_offset, point, s.center);
+        const dist = _offset.length();
+
+        if (dist > s.radius) {
+            const half = (dist - s.radius) * 0.5;
+            out.radius += half;
+            Vec3.multiplyScalar(_offset, _offset, half / dist);
+            Vec3.add(out.center, out.center, _offset);
+        }
+
+        return out;
+    }
+
+    /**
+     * @zh
+     * 球跟立方体合并
+     */
+    public static mergeAABB (out: sphere, s:sphere, a: aabb) {
+        a.getBoundary(_min, _max);
+
+        sphere.mergePoint(out, s, _min);
+        sphere.mergePoint(out, s, _max);
+
+        return out;
+    }
+
+    /**
      * @en
      * The center of this sphere.
      * @zh
@@ -219,42 +256,5 @@ export default class sphere {
      */
     public setScale (scale: Vec3, out: sphere) {
         out.radius = this.radius * maxComponent(scale);
-    }
-
-    /**
-     * @zh
-     * 球跟点合并
-     */
-    public static mergePoint (out: sphere, s: sphere, point: Vec3) {
-        if (s.radius < 0.0) {
-            out.center = point;
-            out.radius = 0.0;
-            return out;
-        }
-
-        Vec3.subtract(_offset, point, s.center);
-        const dist = _offset.length();
-
-        if (dist > s.radius) {
-            const half = (dist - s.radius) * 0.5;
-            out.radius += half;
-            Vec3.multiplyScalar(_offset, _offset, half / dist);
-            Vec3.add(out.center, out.center, _offset);
-        }
-
-        return out;
-    }
-
-    /**
-     * @zh
-     * 球跟立方体合并
-     */
-    public static mergeBox (out: sphere, s:sphere, a: aabb) {
-        a.getBoundary(_min, _max);
-
-        sphere.mergePoint(out, s, _min);
-        sphere.mergePoint(out, s, _max);
-
-        return out;
     }
 }

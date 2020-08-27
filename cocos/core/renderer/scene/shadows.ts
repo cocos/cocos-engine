@@ -57,16 +57,16 @@ export const ShadowType = Enum({
  */
 export const PCFType = Enum({
     /**
-     * @zh 8倍采样
-     * @en 8 times
+     * @zh 3X3倍采样
+     * @en 3X3 times
      * @property ShadowMap
      * @readonly
      */
     Hard: 0,
 
     /**
-     * @zh 4倍采样
-     * @en 4 times
+     * @zh 2X2倍采样
+     * @en 2X2 times
      * @property ShadowMap
      * @readonly
      */
@@ -169,6 +169,9 @@ export class Shadows {
     get data () {
         return this._data;
     }
+    get sphere () {
+        return this._sphere;
+    }
     protected _enabled: boolean = false;
     protected _type = ShadowType.Planar;
     protected _normal = new Vec3(0, 1, 0);
@@ -186,6 +189,11 @@ export class Shadows {
     protected _device: GFXDevice|null = null;
     protected _globalDescriptorSet: GFXDescriptorSet | null = null;
     protected _dirty: boolean = true;
+    /**
+     * @zh
+     * 场景包围球
+     */
+    protected _sphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
     /**
      * @en get or set shadow camera near
      * @zh 获取或者设置阴影相机近裁剪面
@@ -217,12 +225,6 @@ export class Shadows {
      * @zh 获取或者设置阴影pcf等级
      */
     public pcf = PCFType.Hard;
-
-    /**
-     * @zh
-     * 场景包围球
-     */
-    public _sphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
 
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;
