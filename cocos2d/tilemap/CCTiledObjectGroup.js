@@ -355,15 +355,7 @@ let TiledObjectGroup = cc.Class({
             sp.spriteFrame = spf;
             sp.setVertsDirty();
         }
-    },
-
-    onDestroy () {
-        this._texGrids = null;
-        this._animations = null;
-        this.aniObjects = null;
-        this._hasAniObj = false;
     }
-
 });
 
 cc.TiledObjectGroup = module.exports = TiledObjectGroup;
