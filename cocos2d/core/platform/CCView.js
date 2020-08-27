@@ -375,7 +375,7 @@ cc.js.mixin(View.prototype, {
             }
             else if (overwrite) {
                 pattern = new RegExp(key+"\s*=\s*[^,]+");
-                content.replace(pattern, key + "=" + metas[key]);
+                content = content.replace(pattern, key + "=" + metas[key]);
             }
         }
         if(/^,/.test(content))
