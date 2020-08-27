@@ -43,6 +43,7 @@ gulp.task('build-code', gulp.series('build-debug-infos', () => {
     return cp.spawn('node', [
         cli,
         `--engine=${__dirname}`,
+        '--module=system',
         '--sourcemap',
         '--buildmode=universal',
         '--platform=HTML5',
@@ -60,6 +61,7 @@ gulp.task('build-code-minified', gulp.series('build-debug-infos', () => {
     return cp.spawn('node', [
         cli,
         `--engine=${__dirname}`,
+        '--module=system',
         '--compress',
         '--sourcemap',
         '--buildmode=universal',
