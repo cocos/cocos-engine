@@ -119,7 +119,7 @@ export enum Overflow {
      * @en In SHRINK mode, the font size will change dynamically to adapt the content size.
      * This mode may takes up more CPU resources when the label is refreshed.
      *
-     * @zh SHRINK 模式，字体大小会动态变化，以适应内容大小。
+     * @zh SHRINK 模式，字体大小会动态变化，以适应内容大小。这个模式在文本刷新的时候可能会占用较多 CPU 资源。
      */
     SHRINK = 2,
     /**
