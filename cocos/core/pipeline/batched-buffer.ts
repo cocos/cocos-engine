@@ -26,21 +26,15 @@ export interface IBatchedItem {
     hShader: ShaderHandle;
 }
 
-const _localBatched = new UBOLocalBatched();
-
 export class BatchedBuffer {
 
-    private static _buffers = new Map<Pass | number, BatchedBuffer>();
+    private static _buffers = new Map<Pass, Record<number, BatchedBuffer>>();
 
-    public static get (pass: Pass, extraKey?: number) {
-        const hash = extraKey ? pass.hash ^ extraKey : pass.hash;
+    public static get (pass: Pass, extraKey = 0) {
         const buffers = BatchedBuffer._buffers;
-        if (!buffers.has(hash)) {
-            const buffer = new BatchedBuffer(pass);
-            buffers.set(hash, buffer);
-            return buffer;
-        }
-        return buffers.get(hash)!;
+        if (!buffers.has(pass)) buffers.set(pass, {});
+        const record = buffers.get(pass)!;
+        return record[extraKey] || (record[extraKey] = new BatchedBuffer(pass));
     }
 
     public batches: IBatchedItem[] = [];

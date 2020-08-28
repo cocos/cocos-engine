@@ -27,17 +27,13 @@ const MAX_CAPACITY = 1024;
 
 export class InstancedBuffer {
 
-    private static _buffers = new Map<Pass | number, InstancedBuffer>();
+    private static _buffers = new Map<Pass, Record<number, InstancedBuffer>>();
 
-    public static get (pass: Pass, extraKey?: number) {
-        const hash = extraKey ? pass.hash ^ extraKey : pass.hash;
+    public static get (pass: Pass, extraKey = 0) {
         const buffers = InstancedBuffer._buffers;
-        if (!buffers.has(hash)) {
-            const buffer = new InstancedBuffer(pass);
-            buffers.set(hash, buffer);
-            return buffer;
-        }
-        return buffers.get(hash)!;
+        if (!buffers.has(pass)) buffers.set(pass, {});
+        const record = buffers.get(pass)!;
+        return record[extraKey] || (record[extraKey] = new InstancedBuffer(pass));
     }
 
     public instances: IInstancedItem[] = [];
