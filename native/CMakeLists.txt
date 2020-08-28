@@ -545,6 +545,7 @@ cocos_source_files(
     cocos/renderer/pipeline/helper/DefineMap.h
     cocos/renderer/pipeline/helper/DefineMap.cpp
     cocos/renderer/pipeline/helper/SharedMemory.h
+    cocos/renderer/pipeline/helper/SharedMemory.cpp
 )
 
 if(CC_USE_GLES2)
@@ -786,6 +787,8 @@ cocos_source_files(
     cocos/scripting/js-bindings/auto/jsb_gfx_auto.h
     cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.cpp
     cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.h
+    cocos/scripting/js-bindings/auto/jsb_pipeline_auto.cpp
+    cocos/scripting/js-bindings/auto/jsb_pipeline_auto.h
 )
 
 if(USE_AUDIO)

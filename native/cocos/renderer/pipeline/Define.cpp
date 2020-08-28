@@ -81,5 +81,8 @@ bool aabb_frustum(const AABB *aabb, const Frustum *frustum) {
 
 uint SKYBOX_FLAG = static_cast<uint>(gfx::ClearFlagBit::STENCIL) << 1;
 
+map<String, uint> PassPhase::phases;
+uint PassPhase::phaseNum = 0;
+
 } // namespace pipeline
 } // namespace cc

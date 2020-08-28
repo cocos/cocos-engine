@@ -31,9 +31,6 @@ void ForwardFlow::activate(RenderPipeline *pipeline) {
 void ForwardFlow::render(RenderView *view) {
     auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
 
-    //TODO coulsonwang
-    //view.camera.update();
-    sceneCulling(pipeline, view);
     pipeline->updateUBOs(view);
     RenderFlow::render(view);
 }

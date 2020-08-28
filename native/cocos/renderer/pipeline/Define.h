@@ -1,7 +1,7 @@
 #pragma once
 
 #include "base/Value.h"
-#include "core/CoreStd.h"
+#include "../core/CoreStd.h"
 
 namespace cc {
 namespace pipeline {
@@ -135,8 +135,6 @@ private:
     static map<String, uint> phases;
     static uint phaseNum;
 };
-map<String, uint> PassPhase::phases;
-uint PassPhase::phaseNum = 0;
 
 CC_INLINE int opaqueCompareFn(const RenderPass &a, const RenderPass &b) {
     return (a.hash - b.hash) || (a.depth - b.depth) || (a.shaderID - b.shaderID);

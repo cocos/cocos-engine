@@ -154,6 +154,7 @@ def main():
                     'gles3.ini': ('gles3', 'jsb_gles3_auto'),
                     'metal.ini': ('metal', 'jsb_mtl_auto'),
                     'vulkan.ini': ('vulkan', 'jsb_vk_auto'),
+                    'cocos2dx_pipeline.ini': ('cocos2dx_pipeline', 'jsb_pipeline_auto'),
                     }
         target = 'spidermonkey'
         generator_py = '%s/generator.py' % cxx_generator_root

@@ -14,7 +14,7 @@ public:
 
     ForwardFlow() = default;
     virtual ~ForwardFlow();
-
+    
     virtual bool initialize(const RenderFlowInfo &info) override;
     virtual void activate(RenderPipeline *pipeline) override;
     virtual void destroy() override;

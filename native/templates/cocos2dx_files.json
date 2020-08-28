@@ -2898,6 +2898,8 @@
         "cocos/scripting/js-bindings/auto/jsb_video_auto.h", 
         "cocos/scripting/js-bindings/auto/jsb_vk_auto.cpp", 
         "cocos/scripting/js-bindings/auto/jsb_vk_auto.h", 
+        "cocos/scripting/js-bindings/auto/jsb_pipeline_auto.cpp", 
+        "cocos/scripting/js-bindings/auto/jsb_pipeline_auto.h", 
         "cocos/scripting/js-bindings/docs/JSB2.0-Architecture.png", 
         "cocos/scripting/js-bindings/docs/JSB2.0-learning-en.md", 
         "cocos/scripting/js-bindings/docs/JSB2.0-learning-zh.md", 

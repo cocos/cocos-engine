@@ -2,7 +2,6 @@
 #include "ShadowFlow.h"
 #include "../Define.h"
 #include "../forward/ForwardPipeline.h"
-#include "../forward/SceneCulling.h"
 #include "ShadowStage.h"
 #include "gfx/GFXDevice.h"
 #include "gfx/GFXFramebuffer.h"
@@ -111,7 +110,6 @@ void ShadowFlow::render(RenderView *view) {
     //    const pipeline = this._pipeline as ForwardPipeline;
     //    view.camera.update();
     auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
-    sceneCulling(pipeline, view);
     pipeline->updateUBOs(view);
     RenderFlow::render(view);
 

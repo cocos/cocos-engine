@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Define.h"
-#include "core/CoreStd.h"
+#include "../core/CoreStd.h"
 #include "helper/DefineMap.h"
 
 namespace cc {
@@ -31,7 +31,7 @@ public:
     virtual bool activate();
     virtual void destroy();
     virtual bool initialize(const RenderPipelineInfo &info);
-    virtual void render(RenderView *view);
+    virtual void render(const vector<RenderView*>& views);
 
     CC_INLINE const RenderFlowList &getFlows() const { return _flows; }
     CC_INLINE uint getTag() const { return _tag; }

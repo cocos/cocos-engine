@@ -32,9 +32,6 @@ void UIFlow::activate(RenderPipeline *pipeline) {
 
 void UIFlow::render(RenderView *view) {
     auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
-    //TODO coulsonwang
-    //view.camera.update();
-    sceneCulling(pipeline, view);
     pipeline->updateUBOs(view);
     RenderFlow::render(view);
 }

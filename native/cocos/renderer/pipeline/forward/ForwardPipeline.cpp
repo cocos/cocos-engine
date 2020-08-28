@@ -7,6 +7,7 @@
 #include "gfx/GFXDevice.h"
 #include "gfx/GFXRenderPass.h"
 #include "platform/Application.h"
+#include "SceneCulling.h"
 
 namespace cc {
 namespace pipeline {
@@ -65,6 +66,18 @@ ForwardPipeline::~ForwardPipeline() {
     destroy();
 }
 
+bool ForwardPipeline::init() {
+    auto shadowFlow = CC_NEW(ShadowFlow);
+    shadowFlow->initialize(ShadowFlow::getInitializeInfo());
+    _flows.emplace_back(shadowFlow);
+
+    auto forwardFlow = CC_NEW(ForwardFlow);
+    forwardFlow->initialize(ForwardFlow::getInitializeInfo());
+    _flows.emplace_back(forwardFlow);
+
+    return true;
+}
+
 bool ForwardPipeline::initialize(const RenderPipelineInfo &info) {
     RenderPipeline::initialize(info);
 
@@ -96,6 +109,15 @@ bool ForwardPipeline::activate() {
 
     //TODO ambient, fog, skybox, planarShadows
     return true;
+}
+
+void ForwardPipeline::render(const vector<RenderView*>& views) {
+    for (const auto view : views) {
+        sceneCulling(this, view);
+        const auto &flows = view->getFlows();
+        for (const auto flow : flows)
+            flow->render(view);
+    }
 }
 
 void ForwardPipeline::updateUBOs(RenderView *view) {
