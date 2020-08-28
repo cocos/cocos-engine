@@ -42,10 +42,10 @@
 #include <errno.h>
 #include "network/WebSocket.h"
 #include "network/Uri.h"
-#include "base/CCScheduler.h"
-#include "platform/CCFileUtils.h"
-#include "platform/CCApplication.h"
-#include "platform/CCStdC.h"
+#include "base/Scheduler.h"
+#include "platform/FileUtils.h"
+#include "platform/Application.h"
+#include "platform/StdC.h"
 
 #define NS_NETWORK_BEGIN namespace cc { namespace network {
 #define NS_NETWORK_END }}

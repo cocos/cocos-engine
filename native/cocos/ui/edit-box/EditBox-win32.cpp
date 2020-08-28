@@ -22,7 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 #include "EditBox.h"
-#include "platform/CCApplication.h"
+#include "platform/Application.h"
 #include "platform/win32/View-win32.h"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"

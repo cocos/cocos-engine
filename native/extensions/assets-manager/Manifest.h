@@ -31,11 +31,11 @@
 #include <unordered_map>
 #include <vector>
 
-#include "base/CCRef.h"
+#include "base/Ref.h"
 #include "extensions/ExtensionMacros.h"
 #include "extensions/ExtensionExport.h"
-#include "network/CCDownloader.h"
-#include "platform/CCFileUtils.h"
+#include "network/Downloader.h"
+#include "platform/FileUtils.h"
 
 #include "json/document-wrapper.h"
 

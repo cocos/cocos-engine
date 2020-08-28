@@ -35,11 +35,11 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "platform/CCApplication.h"
-#include "platform/CCFileUtils.h"
+#include "platform/Application.h"
+#include "platform/FileUtils.h"
 #include "platform/android/jni/JniHelper.h"
 
-#include "base/ccUTF8.h"
+#include "base/UTF8.h"
 #include "base/Log.h"
 
 #ifndef JCLS_HTTPCLIENT

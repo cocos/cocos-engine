@@ -18,7 +18,7 @@
 #include <string.h>
 #include <vector>
 
-#include "base/ccUTF8.h" //cjh added
+#include "base/UTF8.h" //cjh added
 
 
 namespace node {

@@ -22,7 +22,7 @@
 
 #include "math/Vec2.h"
 #include "math/MathUtil.h"
-#include "base/ccMacros.h"
+#include "base/Macros.h"
 
 NS_CC_MATH_BEGIN
 

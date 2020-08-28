@@ -24,8 +24,8 @@
  ****************************************************************************/
 
 #include "audio/include/AudioEngine.h"
-#include "platform/CCFileUtils.h"
-#include "base/ccUtils.h"
+#include "platform/FileUtils.h"
+#include "base/Utils.h"
 #include "base/Log.h"
 
 #include <condition_variable>

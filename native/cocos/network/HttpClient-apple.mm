@@ -31,8 +31,8 @@
 
 #import "network/HttpAsynConnection-apple.h"
 #include "network/HttpCookie.h"
-#include "platform/CCFileUtils.h"
-#include "platform/CCApplication.h"
+#include "platform/FileUtils.h"
+#include "platform/Application.h"
 
 namespace cc {
 

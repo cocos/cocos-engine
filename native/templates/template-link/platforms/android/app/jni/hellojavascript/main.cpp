@@ -27,7 +27,7 @@
 #include <android/log.h>
 #include <unordered_map>
 #include "platform/android/jni/JniHelper.h"
-#include "platform/android/CCView.h"
+#include "platform/android/View.h"
 #include "Game.h"
 
 #define LOG_TAG "main"

@@ -30,7 +30,7 @@
 //  Created by James Chen on 5/15/17.
 //
 //
-#include "base/ccConfig.h"
+#include "base/Config.h"
 #include "jsb_xmlhttprequest.h"
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
 #include <unordered_map>
@@ -41,8 +41,8 @@
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.h"
 #include "cocos/network/HttpClient.h"
-#include "cocos/base/CCData.h"
-#include "platform/CCApplication.h"
+#include "cocos/base/Data.h"
+#include "platform/Application.h"
 
 using namespace cc;
 using namespace cc::network;

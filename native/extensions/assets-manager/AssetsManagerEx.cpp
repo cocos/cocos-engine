@@ -24,8 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 #include "AssetsManagerEx.h"
-#include "base/ccUTF8.h"
-#include "CCAsyncTaskPool.h"
+#include "base/UTF8.h"
+#include "AsyncTaskPool.h"
 
 #include <stdio.h>
 #include <errno.h>

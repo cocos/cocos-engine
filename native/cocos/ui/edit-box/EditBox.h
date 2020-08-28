@@ -24,7 +24,7 @@
 #pragma once
 
 #include <string>
-#include "base/ccMacros.h"
+#include "base/Macros.h"
 
 namespace cc {
 

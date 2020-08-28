@@ -37,10 +37,10 @@
 #endif
 
 #include "audio/include/AudioEngine.h"
-#include "platform/CCFileUtils.h"
-#include "platform/CCApplication.h"
-#include "base/CCScheduler.h"
-#include "base/ccUtils.h"
+#include "platform/FileUtils.h"
+#include "platform/Application.h"
+#include "base/Scheduler.h"
+#include "base/Utils.h"
 
 using namespace cc;
 

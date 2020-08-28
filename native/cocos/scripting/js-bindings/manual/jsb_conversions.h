@@ -30,7 +30,7 @@
 
 #include "cocos2d.h"
 #include "extensions/cocos-ext.h"
-#include "network/CCDownloader.h"
+#include "network/Downloader.h"
 
 //#include "Box2D/Box2D.h"
 

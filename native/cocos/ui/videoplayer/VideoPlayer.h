@@ -24,8 +24,8 @@
 
 #pragma once
 
-#include "base/ccMacros.h"
-#include "base/CCRef.h"
+#include "base/Macros.h"
+#include "base/Ref.h"
 #include <functional>
 #include <string>
 #include <map>

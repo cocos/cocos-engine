@@ -31,10 +31,10 @@
 #include <unordered_map>
 #include <vector>
 
-#include "platform/CCFileUtils.h"
-#include "network/CCDownloader.h"
+#include "platform/FileUtils.h"
+#include "network/Downloader.h"
 
-#include "CCEventAssetsManagerEx.h"
+#include "EventAssetsManagerEx.h"
 
 #include "Manifest.h"
 #include "extensions/ExtensionMacros.h"

@@ -37,8 +37,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "base/CCData.h"
-#include "platform/CCFileUtils.h"
+#include "base/Data.h"
+#include "platform/FileUtils.h"
 #include <map>
 
 // IDEA: Other platforms should use upstream minizip like mingw-w64

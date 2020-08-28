@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 #include "audio/android/OpenSLHelper.h"
 #include "audio/android/PcmData.h"
-#include "base/CCData.h"
+#include "base/Data.h"
 
 namespace cc { 
 

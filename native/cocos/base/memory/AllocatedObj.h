@@ -1,7 +1,7 @@
 #ifndef CC_CORE_ALLOCATED_OBJ_H_
 #define CC_CORE_ALLOCATED_OBJ_H_
 
-#include "../ccMacros.h"
+#include "../Macros.h"
 
 // Anything that has done a #define new <blah> will screw operator new definitions up
 // so undefine

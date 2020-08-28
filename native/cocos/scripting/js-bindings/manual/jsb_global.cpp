@@ -27,10 +27,10 @@
 #include "jsb_conversions.h"
 #include "xxtea/xxtea.h"
 
-#include "base/CCScheduler.h"
-#include "base/CCThreadPool.h"
+#include "base/Scheduler.h"
+#include "base/ThreadPool.h"
 #include "network/HttpClient.h"
-#include "platform/CCApplication.h"
+#include "platform/Application.h"
 #include "renderer/core/Core.h"
 #include "ui/edit-box/EditBox.h"
 

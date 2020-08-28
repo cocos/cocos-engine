@@ -23,7 +23,7 @@
  ****************************************************************************/
 
 #include <scripting/js-bindings/event/EventDispatcher.h>
-#include <platform/CCApplication.h>
+#include <platform/Application.h>
 #include "EditBox.h"
 #include "platform/android/jni/JniHelper.h"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"

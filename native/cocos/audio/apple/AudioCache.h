@@ -33,7 +33,7 @@
 #include <mutex>
 #include <vector>
 
-#include "base/ccMacros.h"
+#include "base/Macros.h"
 #include "audio/apple/AudioMacros.h"
 
 namespace cc {

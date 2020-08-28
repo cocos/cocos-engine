@@ -27,9 +27,9 @@
 
 #pragma once
 
-#include "base/ccMacros.h"
-#include "base/CCRef.h"
-#include "platform/CCStdC.h"
+#include "base/Macros.h"
+#include "base/Ref.h"
+#include "platform/StdC.h"
 
 #include <string>
 #include <vector>

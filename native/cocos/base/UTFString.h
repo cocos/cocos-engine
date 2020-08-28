@@ -1,7 +1,7 @@
 #ifndef CC_CORE_KERNEL_UTF_STRING_H_
 #define CC_CORE_KERNEL_UTF_STRING_H_
 
-#include "ccMacros.h"
+#include "Macros.h"
 #include "memory/StlAlloc.h"
 
 #if (CC_COMPILER == CC_COMPILER_MSVC && (CC_COMPILER_VERSION >= 70 && CC_COMPILER_VERSION < 100))

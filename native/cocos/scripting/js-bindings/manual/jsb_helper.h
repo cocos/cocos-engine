@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "base/CCRef.h"
+#include "base/Ref.h"
 
 #include <functional>
 

@@ -25,7 +25,7 @@
 #include "platform/android/jni/JniHelper.h"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.h"
-#include "cocos/base/ccUTF8.h"
+#include "cocos/base/UTF8.h"
 
 #include <android/log.h>
 #include <vector>

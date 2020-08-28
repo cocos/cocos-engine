@@ -39,10 +39,10 @@
 #include <mutex>
 
 #include "audio/include/AudioEngine.h"
-#include "platform/CCApplication.h"
-#include "base/CCScheduler.h"
-#include "base/ccUTF8.h"
-#include "platform/android/CCFileUtils-android.h"
+#include "platform/Application.h"
+#include "base/Scheduler.h"
+#include "base/UTF8.h"
+#include "platform/android/FileUtils-android.h"
 #include "platform/android/jni/JniImp.h"
 #include "platform/android/jni/JniHelper.h"
 

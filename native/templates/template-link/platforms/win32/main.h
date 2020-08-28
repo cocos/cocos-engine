@@ -32,6 +32,6 @@
 #include <tchar.h>
 
 // C RunTime Header Files
-#include "CCStdC.h"
+#include "StdC.h"
 
 #endif    // __WINMAIN_H__

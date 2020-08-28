@@ -36,26 +36,26 @@ THE SOFTWARE.
 //
 // all cocos2d include files
 //
-#include "base/ccConfig.h"
+#include "base/Config.h"
 
 // base
-#include "base/CCAutoreleasePool.h"
-#include "base/CCData.h"
-#include "base/CCMap.h"
-#include "base/CCRef.h"
-#include "base/CCValue.h"
-#include "base/CCVector.h"
+#include "base/AutoreleasePool.h"
+#include "base/Data.h"
+#include "base/Map.h"
+#include "base/Ref.h"
+#include "base/Value.h"
+#include "base/Vector.h"
 #include "base/ZipUtils.h"
 #include "base/base64.h"
-#include "base/ccConfig.h"
-#include "base/ccMacros.h"
-#include "base/ccUTF8.h"
-#include "base/ccUtils.h"
+#include "base/Config.h"
+#include "base/Macros.h"
+#include "base/UTF8.h"
+#include "base/Utils.h"
 
 
 // math
-#include "math/CCGeometry.h"
-#include "math/CCVertex.h"
+#include "math/Geometry.h"
+#include "math/Vertex.h"
 #include "math/Mat4.h"
 #include "math/MathUtil.h"
 #include "math/Quaternion.h"
@@ -69,12 +69,12 @@ THE SOFTWARE.
 // renderer
 
 // platform
-#include "platform/CCDevice.h"
-#include "platform/CCFileUtils.h"
-#include "platform/CCImage.h"
-#include "base/ccMacros.h"
-#include "platform/CCSAXParser.h"
-#include "platform/CCCanvasRenderingContext2D.h"
+#include "platform/Device.h"
+#include "platform/FileUtils.h"
+#include "platform/Image.h"
+#include "base/Macros.h"
+#include "platform/SAXParser.h"
+#include "platform/CanvasRenderingContext2D.h"
 
 
 namespace cc {

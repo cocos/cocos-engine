@@ -23,7 +23,7 @@
 #ifndef MATH_MAT4_H
 #define MATH_MAT4_H
 
-#include "base/ccMacros.h"
+#include "base/Macros.h"
 
 #include "math/Vec3.h"
 #include "math/Vec4.h"

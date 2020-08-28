@@ -33,8 +33,8 @@
 #include <unordered_map>
 #include <functional>
 
-#include "base/CCRef.h"
-#include "base/ccUtils.h"
+#include "base/Ref.h"
+#include "base/Utils.h"
 
 #define MAX_AUDIOINSTANCES 13
 

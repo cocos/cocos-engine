@@ -24,7 +24,7 @@
 #define MATH_VEC3_H
 
 #include <cmath>
-#include "math/CCMathBase.h"
+#include "math/MathBase.h"
 
 /**
  * @addtogroup base

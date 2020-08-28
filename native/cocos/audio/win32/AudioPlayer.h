@@ -38,7 +38,7 @@
 #else
 #include <OpenalSoft/al.h>
 #endif
-#include "base/ccMacros.h"
+#include "base/Macros.h"
 
 namespace cc {
 

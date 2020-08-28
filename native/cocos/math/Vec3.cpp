@@ -23,7 +23,7 @@
 #include "math/Vec3.h"
 #include "math/Mat3.h"
 #include "math/MathUtil.h"
-#include "base/ccMacros.h"
+#include "base/Macros.h"
 #include "math/Quaternion.h"
 
 NS_CC_MATH_BEGIN

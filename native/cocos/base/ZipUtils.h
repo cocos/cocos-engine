@@ -28,15 +28,15 @@ THE SOFTWARE.
 #define __SUPPORT_ZIPUTILS_H__
 /// @cond DO_NOT_SHOW
 
-#include "base/ccMacros.h"
-#include "platform/CCFileUtils.h"
+#include "base/Macros.h"
+#include "platform/FileUtils.h"
 #include <string>
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-#include "platform/android/CCFileUtils-android.h"
+#include "platform/android/FileUtils-android.h"
 #elif(CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_WINRT)
 // for import ssize_t on win32 platform
-#include "platform/CCStdC.h"
+#include "platform/StdC.h"
 #endif
 
 /**

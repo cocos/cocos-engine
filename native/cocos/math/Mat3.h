@@ -27,7 +27,7 @@
 
 #define MATRIX3_SIZE ( sizeof(float) * 9)
 
-#include "base/ccMacros.h"
+#include "base/Macros.h"
 
 #include "math/Vec2.h"
 #include "math/Vec3.h"

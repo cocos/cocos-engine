@@ -30,8 +30,8 @@
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 
 #include "cocos/network/SocketIO.h"
-#include "base/ccUTF8.h"
-#include "platform/CCApplication.h"
+#include "base/UTF8.h"
+#include "platform/Application.h"
 
 using namespace cc;
 using namespace cc::network;

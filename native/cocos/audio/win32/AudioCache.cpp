@@ -31,8 +31,8 @@
 
 #include "audio/win32/AudioCache.h"
 #include <thread>
-#include "platform/CCApplication.h"
-#include "base/CCScheduler.h"
+#include "platform/Application.h"
+#include "base/Scheduler.h"
 
 #include "audio/win32/AudioDecoderManager.h"
 #include "audio/win32/AudioDecoder.h"

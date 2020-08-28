@@ -5,7 +5,7 @@
 #include <MMSystem.h>
 #include <sstream>
 
-#include "platform/CCStdC.h"
+#include "platform/StdC.h"
 #include "platform/win32/View-win32.h"
 #include "scripting/js-bindings/jswrapper/SeApi.h"
 

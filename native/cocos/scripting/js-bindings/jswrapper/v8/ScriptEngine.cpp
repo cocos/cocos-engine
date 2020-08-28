@@ -32,7 +32,7 @@
 #include "Utils.h"
 #include "../State.h"
 #include "../MappingUtils.h"
-#include "platform/CCFileUtils.h"
+#include "platform/FileUtils.h"
 
 #include <sstream>
 

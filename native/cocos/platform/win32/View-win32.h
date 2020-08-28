@@ -25,8 +25,8 @@ THE SOFTWARE.
 #pragma once
 
 
-#include "base/ccMacros.h"
-#include "platform/CCStdC.h"
+#include "base/Macros.h"
+#include "platform/StdC.h"
 #include <Windows.h>
 #include <string>
 #include <array>

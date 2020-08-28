@@ -26,7 +26,7 @@ THE SOFTWARE.
 #define LOG_TAG "AudioDecoderOgg"
 
 #include "audio/android/AudioDecoderOgg.h"
-#include "platform/CCFileUtils.h"
+#include "platform/FileUtils.h"
 
 namespace cc { 
 

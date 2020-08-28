@@ -22,15 +22,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#include "base/ccConfig.h"
+#include "base/Config.h"
 #include "jsb_websocket.h"
 #if (USE_SOCKET > 0) && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.h"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 
-#include "base/ccUTF8.h"
-#include "platform/CCApplication.h"
+#include "base/UTF8.h"
+#include "platform/Application.h"
 
 using namespace cc;
 using namespace cc::network;

@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 #include "audio/android/AudioDecoderWav.h"
 #include "audio/android/tinysndfile.h"
-#include "platform/CCFileUtils.h"
+#include "platform/FileUtils.h"
 
 #include <assert.h>
 

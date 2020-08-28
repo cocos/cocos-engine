@@ -30,7 +30,7 @@
 #include "audio/android/AudioDecoderOgg.h"
 #include "audio/android/AudioDecoderMp3.h"
 #include "audio/android/AudioDecoderWav.h"
-#include "platform/CCFileUtils.h"
+#include "platform/FileUtils.h"
 
 namespace cc { 
 

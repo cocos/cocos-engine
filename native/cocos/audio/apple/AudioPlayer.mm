@@ -32,7 +32,7 @@
 
 #include "audio/apple/AudioPlayer.h"
 #include "audio/apple/AudioCache.h"
-#include "platform/CCFileUtils.h"
+#include "platform/FileUtils.h"
 #include "audio/apple/AudioDecoder.h"
 
 #ifdef VERY_VERY_VERBOSE_LOGGING

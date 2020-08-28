@@ -29,7 +29,7 @@ THE SOFTWARE.
 #include "audio/win32/AudioDecoderOgg.h"
 #include "audio/win32/AudioDecoderMp3.h"
 #include "audio/win32/AudioMacros.h"
-#include "platform/CCFileUtils.h"
+#include "platform/FileUtils.h"
 #include "mpg123/mpg123.h"
 
 namespace cc { 

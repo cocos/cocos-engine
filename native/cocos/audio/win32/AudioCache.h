@@ -39,7 +39,7 @@
 #else
 #include <OpenalSoft/al.h>
 #endif
-#include "base/ccMacros.h"
+#include "base/Macros.h"
 #include "audio/win32/AudioMacros.h"
 
 namespace cc {

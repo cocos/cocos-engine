@@ -38,9 +38,9 @@
 #include "OpenalSoft/alext.h"
 #endif
 #include "audio/include/AudioEngine.h"
-#include "platform/CCApplication.h"
-#include "base/CCScheduler.h"
-#include "platform/CCFileUtils.h"
+#include "platform/Application.h"
+#include "base/Scheduler.h"
+#include "platform/FileUtils.h"
 #include "audio/win32/AudioDecoderManager.h"
 
 #include <windows.h>

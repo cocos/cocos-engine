@@ -24,7 +24,7 @@
  ****************************************************************************/
 #pragma once
 
-#include "platform/CCApplication.h"
+#include "platform/Application.h"
 /**
  @brief    The cocos2d Application.
  

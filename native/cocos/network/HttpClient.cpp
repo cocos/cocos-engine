@@ -29,9 +29,9 @@
 #include <queue>
 #include <errno.h>
 #include <curl/curl.h>
-#include "platform/CCFileUtils.h"
-#include "platform/CCApplication.h"
-#include "platform/CCStdC.h"
+#include "platform/FileUtils.h"
+#include "platform/Application.h"
+#include "platform/StdC.h"
 #include "base/Log.h"
 
 namespace cc {

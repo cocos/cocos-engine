@@ -26,7 +26,7 @@ THE SOFTWARE.
 #define LOG_TAG "AudioDecoderSLES"
 
 #include "audio/android/AudioDecoderSLES.h"
-#include "platform/CCFileUtils.h"
+#include "platform/FileUtils.h"
 
 #include <thread>
 #include <mutex>

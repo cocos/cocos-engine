@@ -3,7 +3,7 @@
 
 #if (CC_MEMORY_ALLOCATOR == CC_MEMORY_ALLOCATOR_STD)
 
-#include "base/ccMacros.h"
+#include "base/Macros.h"
 #include <limits>
 #include <stdlib.h>
 

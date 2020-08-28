@@ -28,8 +28,8 @@
 #define __HTTP_REQUEST_H__
 
 
-#include "base/CCRef.h"
-#include "base/ccMacros.h"
+#include "base/Ref.h"
+#include "base/Macros.h"
 
 #include <string>
 #include <vector>

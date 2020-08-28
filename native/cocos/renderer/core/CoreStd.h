@@ -1,7 +1,7 @@
 #ifndef CC_CORE_CORE_STD_H_
 #define CC_CORE_CORE_STD_H_
 
-#include "base/ccMacros.h"
+#include "base/Macros.h"
 
 // STD including
 #include <stdio.h>
@@ -32,7 +32,7 @@
 
 #include "base/TypeDef.h"
 #include "base/memory/Memory.h"
-#include "math/CCCoreMath.h"
+#include "math/CoreMath.h"
 #include "base/Log.h"
 #include "base/Object.h"
 #include "gfx/GFXObject.h"

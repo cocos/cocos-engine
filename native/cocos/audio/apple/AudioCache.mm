@@ -32,8 +32,8 @@
 #import <Foundation/Foundation.h>
 #import <OpenAL/alc.h>
 #include <thread>
-#include "platform/CCApplication.h"
-#include "base/CCScheduler.h"
+#include "platform/Application.h"
+#include "base/Scheduler.h"
 
 #include "audio/apple/AudioDecoder.h"
 

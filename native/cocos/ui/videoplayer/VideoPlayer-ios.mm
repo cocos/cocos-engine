@@ -33,9 +33,9 @@ using namespace cc;
 
 #import <AVKit/AVPlayerViewController.h>
 #import <CoreMedia/CMTime.h>
-#include "platform/CCApplication.h"
-#include "platform/ios/CCEAGLView-ios.h"
-#include "platform/CCFileUtils.h"
+#include "platform/Application.h"
+#include "platform/ios/EAGLView-ios.h"
+#include "platform/FileUtils.h"
 
 @interface UIVideoViewWrapperIos : NSObject
 

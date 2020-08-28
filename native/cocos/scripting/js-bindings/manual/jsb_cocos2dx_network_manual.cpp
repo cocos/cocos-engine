@@ -22,12 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#include "base/ccConfig.h"
+#include "base/Config.h"
 #include "jsb_cocos2dx_network_manual.h"
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
 #include "scripting/js-bindings/manual/jsb_conversions.h"
 #include "scripting/js-bindings/manual/jsb_global.h"
-#include "network/CCDownloader.h"
+#include "network/Downloader.h"
 #include "scripting/js-bindings/auto/jsb_cocos2dx_network_auto.h"
 
 static bool js_cocos2dx_network_Downloader_createDownloadFileTask(se::State &s) {

@@ -23,7 +23,7 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #include "BufferPool.h"
-#include "base/ccMacros.h"
+#include "base/Macros.h"
 #include "base/memory/Memory.h"
 
 using namespace se;

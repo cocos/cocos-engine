@@ -29,10 +29,10 @@
 #include <stdlib.h>
 #include <jni.h>
 #include <string>
-#include "platform/CCApplication.h"
+#include "platform/Application.h"
 #include "platform/android/jni/JniHelper.h"
-#include "platform/CCFileUtils.h"
-#include "../../platform/CCApplication.h"
+#include "platform/FileUtils.h"
+#include "../../platform/Application.h"
 
 //-----------------------------------------------------------------------------------------------------------
 

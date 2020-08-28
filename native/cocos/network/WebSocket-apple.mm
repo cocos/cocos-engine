@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 #include "network/WebSocket.h"
-#include "base/CCData.h"
+#include "base/Data.h"
 
 #import "SocketRocket/SocketRocket.h"
 

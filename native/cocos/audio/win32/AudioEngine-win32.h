@@ -31,7 +31,7 @@
 
 #include <unordered_map>
 
-#include "base/CCRef.h"
+#include "base/Ref.h"
 #include "audio/win32/AudioCache.h"
 #include "audio/win32/AudioPlayer.h"
 

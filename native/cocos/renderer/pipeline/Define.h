@@ -1,6 +1,6 @@
 #pragma once
 
-#include "base/CCValue.h"
+#include "base/Value.h"
 #include "core/CoreStd.h"
 
 namespace cc {

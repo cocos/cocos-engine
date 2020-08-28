@@ -1,7 +1,7 @@
 #ifndef CC_CORE_KERNEL_LOG_H_
 #define CC_CORE_KERNEL_LOG_H_
 
-#include "ccMacros.h"
+#include "Macros.h"
 #include <string>
 
 namespace cc {

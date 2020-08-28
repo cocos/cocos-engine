@@ -18,7 +18,7 @@
 #include "MTLStateCache.h"
 #include "MTLTexture.h"
 #include "MTLUtils.h"
-#include <platform/mac/CCView.h>
+#include <platform/mac/View.h>
 
 #import <MetalKit/MTKView.h>
 

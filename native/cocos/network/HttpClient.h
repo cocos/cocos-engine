@@ -30,11 +30,11 @@
 
 #include <thread>
 #include <condition_variable>
-#include "base/CCVector.h"
+#include "base/Vector.h"
 #include "network/HttpRequest.h"
 #include "network/HttpResponse.h"
 #include "network/HttpCookie.h"
-#include "base/CCScheduler.h"
+#include "base/Scheduler.h"
 
 /**
  * @addtogroup network

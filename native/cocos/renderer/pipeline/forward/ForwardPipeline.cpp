@@ -6,7 +6,7 @@
 #include "ForwardFlow.h"
 #include "gfx/GFXDevice.h"
 #include "gfx/GFXRenderPass.h"
-#include "platform/CCApplication.h"
+#include "platform/Application.h"
 
 namespace cc {
 namespace pipeline {

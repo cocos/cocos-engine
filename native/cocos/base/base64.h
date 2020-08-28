@@ -28,7 +28,7 @@ THE SOFTWARE.
 #define __SUPPORT_BASE64_H__
 /// @cond DO_NOT_SHOW
 
-#include "base/ccMacros.h"
+#include "base/Macros.h"
 
 #ifdef __cplusplus
 extern "C" {

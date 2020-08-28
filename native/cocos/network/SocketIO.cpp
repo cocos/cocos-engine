@@ -33,9 +33,9 @@
 #include <algorithm>
 #include <sstream>
 #include <iterator>
-#include "base/ccUTF8.h"
+#include "base/UTF8.h"
 #include "base/Log.h"
-#include "platform/CCApplication.h"
+#include "platform/Application.h"
 #include "network/WebSocket.h"
 #include "network/HttpClient.h"
 

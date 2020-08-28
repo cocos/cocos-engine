@@ -3,7 +3,7 @@
 #include "../RenderView.h"
 #include "../helper/SharedMemory.h"
 #include "ForwardPipeline.h"
-#include "platform/CCApplication.h"
+#include "platform/Application.h"
 
 namespace cc {
 namespace pipeline {

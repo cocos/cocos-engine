@@ -220,30 +220,30 @@ cocos_source_files(
     cocos/base/base64.cpp
     cocos/base/base64.h
     cocos/base/CachedArray.h
-    cocos/base/CCAutoreleasePool.cpp
-    cocos/base/CCAutoreleasePool.h
-    cocos/base/ccCArray.cpp
-    cocos/base/ccCArray.h
-    cocos/base/ccConfig.h
-    cocos/base/CCData.cpp
-    cocos/base/CCData.h
-    cocos/base/ccMacros.h
-    cocos/base/CCMap.h
-    cocos/base/ccRandom.cpp
-    cocos/base/ccRandom.h
-    cocos/base/CCRef.cpp
-    cocos/base/CCRef.h
-    cocos/base/CCScheduler.cpp
-    cocos/base/CCScheduler.h
-    cocos/base/CCThreadPool.cpp
-    cocos/base/CCThreadPool.h
-    cocos/base/ccUTF8.cpp
-    cocos/base/ccUTF8.h
-    cocos/base/ccUtils.cpp
-    cocos/base/ccUtils.h
-    cocos/base/CCValue.cpp
-    cocos/base/CCValue.h
-    cocos/base/CCVector.h
+    cocos/base/AutoreleasePool.cpp
+    cocos/base/AutoreleasePool.h
+    cocos/base/Array.cpp
+    cocos/base/Array.h
+    cocos/base/Config.h
+    cocos/base/Data.cpp
+    cocos/base/Data.h
+    cocos/base/Macros.h
+    cocos/base/Map.h
+    cocos/base/Random.cpp
+    cocos/base/Random.h
+    cocos/base/Ref.cpp
+    cocos/base/Ref.h
+    cocos/base/Scheduler.cpp
+    cocos/base/Scheduler.h
+    cocos/base/ThreadPool.cpp
+    cocos/base/ThreadPool.h
+    cocos/base/UTF8.cpp
+    cocos/base/UTF8.h
+    cocos/base/Utils.cpp
+    cocos/base/Utils.h
+    cocos/base/Value.cpp
+    cocos/base/Value.h
+    cocos/base/Vector.h
     cocos/base/csscolorparser.cpp
     cocos/base/csscolorparser.h
     cocos/base/etc1.cpp
@@ -279,12 +279,12 @@ cocos_source_files(
 
 ##### math
 cocos_source_files(
-    cocos/math/CCGeometry.cpp
-    cocos/math/CCGeometry.h
-    cocos/math/CCMath.h
-    cocos/math/CCMathBase.h
-    cocos/math/CCVertex.cpp
-    cocos/math/CCVertex.h
+    cocos/math/Geometry.cpp
+    cocos/math/Geometry.h
+    cocos/math/Math.h
+    cocos/math/MathBase.h
+    cocos/math/Vertex.cpp
+    cocos/math/Vertex.h
     cocos/math/Mat3.cpp
     cocos/math/Mat3.h
     cocos/math/Mat4.cpp
@@ -312,9 +312,9 @@ cocos_source_files(
 
 ##### network
 cocos_source_files(
-    cocos/network/CCDownloader.cpp
-    cocos/network/CCDownloader.h
-    cocos/network/CCIDownloaderImpl.h
+    cocos/network/Downloader.cpp
+    cocos/network/Downloader.h
+    cocos/network/DownloaderImpl.h
     cocos/network/HttpClient.h
     cocos/network/HttpCookie.cpp
     cocos/network/HttpCookie.h
@@ -334,8 +334,8 @@ endif()
 
 if(APPLE)
     cocos_source_files(
-        cocos/network/CCDownloaderImpl-apple.h
-        cocos/network/CCDownloaderImpl-apple.mm
+        cocos/network/DownloaderImpl-apple.h
+        cocos/network/DownloaderImpl-apple.mm
         cocos/network/HttpAsynConnection-apple.h
         cocos/network/HttpAsynConnection-apple.m
         cocos/network/HttpClient-apple.mm
@@ -352,8 +352,8 @@ endif()
 
 if(ANDROID)
     cocos_source_files(
-        cocos/network/CCDownloader-android.cpp
-        cocos/network/CCDownloader-android.h
+        cocos/network/Downloader-android.cpp
+        cocos/network/Downloader-android.h
         cocos/network/HttpClient-android.cpp
     )
 endif()
@@ -366,8 +366,8 @@ endif()
 
 if(WINDOWS)
     cocos_source_files(
-        cocos/network/CCDownloader-curl.cpp
-        cocos/network/CCDownloader-curl.h
+        cocos/network/Downloader-curl.cpp
+        cocos/network/Downloader-curl.h
     )
 endif()
 
@@ -380,26 +380,26 @@ endif()
 
 ##### platform
 cocos_source_files(
-    cocos/platform/CCApplication.h
-    cocos/platform/CCCanvasRenderingContext2D.h
-    cocos/platform/CCDevice.h
-    cocos/platform/CCFileUtils.cpp
-    cocos/platform/CCFileUtils.h
-    cocos/platform/CCImage.cpp
-    cocos/platform/CCImage.h
-    cocos/platform/CCSAXParser.cpp
-    cocos/platform/CCSAXParser.h
-    cocos/platform/CCStdC.h
+    cocos/platform/Application.h
+    cocos/platform/CanvasRenderingContext2D.h
+    cocos/platform/Device.h
+    cocos/platform/FileUtils.cpp
+    cocos/platform/FileUtils.h
+    cocos/platform/Image.cpp
+    cocos/platform/Image.h
+    cocos/platform/SAXParser.cpp
+    cocos/platform/SAXParser.h
+    cocos/platform/StdC.h
 )
 if(WINDOWS)
     cocos_source_files(
-        cocos/platform/win32/CCApplication-win32.cpp
-        cocos/platform/win32/CCCanvasRenderingContext2D-win32.cpp
-        cocos/platform/win32/CCDevice-win32.cpp
-        cocos/platform/win32/CCFileUtils-win32.cpp
-        cocos/platform/win32/CCFileUtils-win32.h
-        cocos/platform/win32/CCUtils-win32.cpp
-        cocos/platform/win32/CCUtils-win32.h
+        cocos/platform/win32/Application-win32.cpp
+        cocos/platform/win32/CanvasRenderingContext2D-win32.cpp
+        cocos/platform/win32/Device-win32.cpp
+        cocos/platform/win32/FileUtils-win32.cpp
+        cocos/platform/win32/FileUtils-win32.h
+        cocos/platform/win32/Utils-win32.cpp
+        cocos/platform/win32/Utils-win32.h
         cocos/platform/win32/View-win32.cpp
         cocos/platform/win32/View-win32.h
         cocos/platform/win32/compat
@@ -409,13 +409,13 @@ if(WINDOWS)
     )
 elseif(ANDROID)
     cocos_source_files(
-        cocos/platform/android/CCApplication-android.cpp
-        cocos/platform/android/CCCanvasRenderingContext2D-android.cpp
-        cocos/platform/android/CCDevice-android.cpp
-        cocos/platform/android/CCFileUtils-android.cpp
-        cocos/platform/android/CCFileUtils-android.h
-        cocos/platform/android/CCView.cpp
-        cocos/platform/android/CCView.h
+        cocos/platform/android/Application-android.cpp
+        cocos/platform/android/CanvasRenderingContext2D-android.cpp
+        cocos/platform/android/Device-android.cpp
+        cocos/platform/android/FileUtils-android.cpp
+        cocos/platform/android/FileUtils-android.h
+        cocos/platform/android/View.cpp
+        cocos/platform/android/View.h
         cocos/platform/android/jni/JniHelper.cpp
         cocos/platform/android/jni/JniHelper.h
         cocos/platform/android/jni/JniImp.cpp
@@ -423,32 +423,32 @@ elseif(ANDROID)
     )
 elseif(APPLE)
     cocos_source_files(
-        cocos/platform/apple/CCFileUtils-apple.h
-        cocos/platform/apple/CCDevice-apple.mm
-        cocos/platform/apple/CCFileUtils-apple.mm
-        cocos/platform/apple/CCCanvasRenderingContext2D-apple.mm
-        cocos/platform/apple/CCDevice-apple.h
+        cocos/platform/apple/FileUtils-apple.h
+        cocos/platform/apple/Device-apple.mm
+        cocos/platform/apple/FileUtils-apple.mm
+        cocos/platform/apple/CanvasRenderingContext2D-apple.mm
+        cocos/platform/apple/Device-apple.h
     )
     #bad struct
     cocos_source_files(
-        cocos/platform/ios/CCReachability.h
-        cocos/platform/ios/CCReachability.cpp
+        cocos/platform/ios/Reachability.h
+        cocos/platform/ios/Reachability.cpp
     )
     if(MACOSX)
         cocos_source_files(
-            cocos/platform/mac/CCView.h
-            cocos/platform/mac/CCKeyCodeHelper.h
-            cocos/platform/mac/CCView.mm
-            cocos/platform/mac/CCDevice-mac.mm
-            cocos/platform/mac/CCApplication-mac.mm
-            cocos/platform/mac/CCKeyCodeHelper.cpp
+            cocos/platform/mac/View.h
+            cocos/platform/mac/KeyCodeHelper.h
+            cocos/platform/mac/View.mm
+            cocos/platform/mac/Device-mac.mm
+            cocos/platform/mac/Application-mac.mm
+            cocos/platform/mac/KeyCodeHelper.cpp
         )
     elseif(IOS)
         cocos_source_files(
-            cocos/platform/ios/CCView.h
-            cocos/platform/ios/CCView.mm
-            cocos/platform/ios/CCApplication-ios.mm
-            cocos/platform/ios/CCDevice-ios.mm
+            cocos/platform/ios/View.h
+            cocos/platform/ios/View.mm
+            cocos/platform/ios/Application-ios.mm
+            cocos/platform/ios/Device-ios.mm
         )
     endif()
 endif()
@@ -496,8 +496,8 @@ cocos_source_files(
     cocos/renderer/core/gfx/GFXTexture.h
     cocos/renderer/core/gfx/GFXFence.h
     cocos/renderer/core/gfx/GFXFence.cc
-    cocos/renderer/core/math/CCCoreMath.cc
-    cocos/renderer/core/math/CCCoreMath.h
+    cocos/renderer/core/math/CoreMath.cc
+    cocos/renderer/core/math/CoreMath.h
     cocos/renderer/pipeline/BatchedBuffer.cpp
     cocos/renderer/pipeline/BatchedBuffer.h
     cocos/renderer/pipeline/Define.h
@@ -1042,10 +1042,10 @@ endif()
 cocos_source_files(
     extensions/assets-manager/AssetsManagerEx.cpp
     extensions/assets-manager/AssetsManagerEx.h
-    extensions/assets-manager/CCAsyncTaskPool.cpp
-    extensions/assets-manager/CCAsyncTaskPool.h
-    extensions/assets-manager/CCEventAssetsManagerEx.cpp
-    extensions/assets-manager/CCEventAssetsManagerEx.h
+    extensions/assets-manager/AsyncTaskPool.cpp
+    extensions/assets-manager/AsyncTaskPool.h
+    extensions/assets-manager/EventAssetsManagerEx.cpp
+    extensions/assets-manager/EventAssetsManagerEx.h
     extensions/assets-manager/Manifest.cpp
     extensions/assets-manager/Manifest.h
     extensions/cocos-ext.h

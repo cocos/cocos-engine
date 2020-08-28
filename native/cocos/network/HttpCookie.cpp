@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 #include "network/HttpCookie.h"
-#include "platform/CCFileUtils.h"
+#include "platform/FileUtils.h"
 #include <sstream>
 #include <stdio.h>
 

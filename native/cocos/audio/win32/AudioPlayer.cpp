@@ -30,7 +30,7 @@
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
 #include "audio/win32/AudioPlayer.h"
 #include "audio/win32/AudioCache.h"
-#include "platform/CCFileUtils.h"
+#include "platform/FileUtils.h"
 #include "audio/win32/AudioDecoderManager.h"
 #include "audio/win32/Audiodecoder.h"
 
