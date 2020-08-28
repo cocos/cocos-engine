@@ -61,9 +61,9 @@ let TiledLayer = cc.Class({
     // because TiledLayer not create or maintains the sgNode by itself.
     extends: RenderComponent,
 
-    editor: {
-        inspector: 'packages://inspector/inspectors/comps/tiled-layer.js',
-    },
+    // editor: {
+    //     inspector: 'packages://inspector/inspectors/comps/tiled-layer.js',
+    // },
 
     ctor () {
         this._userNodeGrid = {};// [row][col] = {count: 0, nodesList: []};
