@@ -864,9 +864,11 @@ cc.Director.prototype = {
         renderer.render(this._scene, deltaTime);
         
         // After draw
-        this.emit(cc.Director.EVENT_AFTER_DRAW);
+        setTimeout(function() {
+            this.emit(cc.Director.EVENT_AFTER_DRAW);
 
-        this._totalFrames++;
+            this._totalFrames++;
+        }.bind(this), 0);
 
     } : function (now) {
         if (this._purgeDirectorInNextLoop) {
@@ -905,10 +907,12 @@ cc.Director.prototype = {
             renderer.render(this._scene, this._deltaTime);
 
             // After draw
-            this.emit(cc.Director.EVENT_AFTER_DRAW);
+            setTimeout(function() {
+                this.emit(cc.Director.EVENT_AFTER_DRAW);
 
-            eventManager.frameUpdateListeners();
-            this._totalFrames++;
+                eventManager.frameUpdateListeners();
+                this._totalFrames++;
+            }.bind(this), 0);
         }
     },
 
