@@ -36,6 +36,22 @@ let TiledObjectGroup = cc.Class({
     // because TiledLayer not create or maintains the sgNode by itself.
     extends: cc.Component,
 
+    properties: {
+        _premultiplyAlpha: {
+            default: false,
+            type: cc.Boolean
+        },
+        premultiplyAlpha : {
+            get () {
+                return this._premultiplyAlpha;
+            },
+            set (value) {
+                this._premultiplyAlpha = value;
+            },
+            type: cc.Boolean
+        }
+    },
+
     /**
      * !#en Offset position of child objects.
      * !#zh 获取子对象的偏移位置。
@@ -279,6 +295,11 @@ let TiledObjectGroup = cc.Class({
                 if (!sp) {
                     sp = imgNode.addComponent(cc.Sprite);
                 }
+
+                sp._srcBlendFactor = this._premultiplyAlpha ? cc.gfx.BLEND_ONE : cc.gfx.BLEND_SRC_ALPHA;
+                sp._dstBlendFactor = cc.gfx.BLEND_ONE_MINUS_SRC_ALPHA;
+                sp._updateBlendFunc(true);
+
                 let spf = sp.spriteFrame;
                 if (!spf) {
                     spf = new cc.SpriteFrame();

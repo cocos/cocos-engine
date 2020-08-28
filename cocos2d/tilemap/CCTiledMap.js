@@ -960,10 +960,9 @@ cc.TiledMap.fillTextureGrids = function (tileset, texGrids, texId, spFrame, name
         count = Math.max(1, rows * cols);
     }
 
-    let gid = tileset.firstGid,
-        grid = null,
-        override = texGrids[gid] ? true : false,
-        texelCorrect = cc.macro.FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX ? 0.5 : 0;
+    let gid = tileset.firstGid;
+    let grid = null;
+    let override = texGrids[gid] ? true : false;
 
     // Tiledmap may not be partitioned into blocks, resulting in a count value of 0
 
@@ -997,11 +996,6 @@ cc.TiledMap.fillTextureGrids = function (tileset, texGrids, texId, spFrame, name
 
         tileset.rectForGID(gid, grid);
 
-        grid.x += texelCorrect;
-        grid.y += texelCorrect;
-        grid.width -= texelCorrect*2;
-        grid.height -= texelCorrect*2;
-
         if (!spFrame || count > 1) {
             grid.l = grid.x / texWidth;
             grid.t = grid.y / texHeight;
@@ -1012,17 +1006,17 @@ cc.TiledMap.fillTextureGrids = function (tileset, texGrids, texId, spFrame, name
             grid.rotated = true;
             grid._name = spFrame.name;
             grid._rect = spFrame._rect;
-            grid.l = spFrame.uv[0] + texelCorrect / texWidth;
-            grid.t = spFrame.uv[1] + texelCorrect / texHeight;
-            grid.r = spFrame.uv[4] - texelCorrect / texWidth;
-            grid.b = spFrame.uv[3] - texelCorrect / texHeight;
+            grid.l = spFrame.uv[0];
+            grid.t = spFrame.uv[1];
+            grid.r = spFrame.uv[4];
+            grid.b = spFrame.uv[3];
         } else {
             grid._name = spFrame.name;
             grid._rect = spFrame._rect;
-            grid.l = spFrame.uv[0] + texelCorrect / texWidth;
-            grid.t = spFrame.uv[5] + texelCorrect / texHeight;
-            grid.r = spFrame.uv[2] - texelCorrect / texWidth;
-            grid.b = spFrame.uv[1] - texelCorrect / texHeight;
+            grid.l = spFrame.uv[0];
+            grid.t = spFrame.uv[5];
+            grid.r = spFrame.uv[2];
+            grid.b = spFrame.uv[1];
         }
 
         texGrids[gid] = grid;
