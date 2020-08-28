@@ -81,7 +81,6 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
 
                     // shadow render Object
                     if (model.castShadow) {
-                        model.updateUBOs(stamp);
                         sphere.mergeAABB(shadowSphere, shadowSphere, model.worldBounds!);
                         shadowObjects.push(getCastShadowRenderObject(model, camera));
                     }
