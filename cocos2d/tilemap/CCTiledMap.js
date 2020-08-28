@@ -576,9 +576,6 @@ let TiledMap = cc.Class({
         } else {
             this._applyFile(true);
         }
-
-        window["tiledMap"] = this;
-
     },
 
     onEnable () {
