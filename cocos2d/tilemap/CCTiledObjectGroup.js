@@ -322,9 +322,9 @@ let TiledObjectGroup = cc.Class({
                 sp.spriteFrame = spf;
                 sp.setVertsDirty();
 
-
                 // object group may has no width or height info
                 imgNode.setContentSize(object.width, object.height);
+                sp.sizeMode = cc.Sprite.SizeMode.CUSTOM;
             }
         }
         this._objects = objects;
