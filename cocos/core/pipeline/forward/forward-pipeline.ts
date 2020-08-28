@@ -27,6 +27,7 @@ import { sceneCulling } from './scene-culling';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
+const vec4 = new Vec4();
 
 /**
  * @en The forward render pipeline
@@ -178,11 +179,20 @@ export class ForwardPipeline extends RenderPipeline {
 
         if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
             // light view
-            Mat4.invert(matShadowView, mainLight!.node!.worldMatrix);
+            const shadowCameraView = shadowInfo.getWorldMatrix(mainLight!.node!.worldRotation, mainLight!.direction);
+            Mat4.invert(matShadowView, shadowCameraView);
 
             // light proj
-            const x = shadowInfo.orthoSize * shadowInfo.aspect;
-            const y = shadowInfo.orthoSize;
+            let x: number = 0;
+            let y: number = 0;
+            if (shadowInfo.orthoSize > shadowInfo.sphere.radius) {
+                x = shadowInfo.orthoSize * shadowInfo.aspect;
+                y = shadowInfo.orthoSize;
+            } else {
+                // if orthoSize is the smallest, auto calculate orthoSize.
+                x = shadowInfo.sphere.radius * shadowInfo.aspect;
+                y = shadowInfo.sphere.radius;
+            }
             const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY;
             Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, shadowInfo.far,
                 device.clipSpaceMinZ, projectionSignY);
@@ -191,6 +201,12 @@ export class ForwardPipeline extends RenderPipeline {
             Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
 
             Mat4.toArray(this._shadowUBO, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
+
+            vec4.set(shadowInfo.pcf);
+            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_PCF_OFFSET);
+
+            vec4.set(shadowInfo.size.x, shadowInfo.size.y);
+            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_SIZE_OFFSET);
         }
 
         // update ubos

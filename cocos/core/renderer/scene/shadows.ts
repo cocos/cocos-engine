@@ -1,8 +1,8 @@
 
 import { Material } from '../../assets/material';
-import { aabb, frustum, intersect } from '../../geometry';
+import { aabb, frustum, intersect, sphere } from '../../geometry';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
-import { Color, Mat4, Quat, Vec3, Vec2 } from '../../math';
+import { Color, Mat4, Quat, Vec3, Vec2, Vec4 } from '../../math';
 import { UBOShadow, SetIndex} from '../../pipeline/define';
 import { DirectionalLight } from './directional-light';
 import { Model } from './model';
@@ -21,6 +21,9 @@ const _v3 = new Vec3();
 const _ab = new aabb();
 const _qt = new Quat();
 const _up = new Vec3(0, 1, 0);
+const _dir_negate = new Vec3();
+const _vec3_p = new Vec3();
+const _mat4_trans = new Mat4();
 
 /**
  * @zh 阴影类型。
@@ -44,6 +47,42 @@ export const ShadowType = Enum({
      * @readonly
      */
     ShadowMap: 1,
+})
+
+/**
+ * @zh pcf阴影等级。
+ * @en The pcf type
+ * @static
+ * @enum Shadows.ShadowType
+ */
+export const PCFType = Enum({
+    /**
+     * @zh x1 次采样
+     * @en x1 times
+     * @readonly
+     */
+    HARD: 0,
+
+    /**
+     * @zh x5 次采样
+     * @en x5 times
+     * @readonly
+     */
+    FILTER_X5: 1,
+
+    /**
+     * @zh x9 次采样
+     * @en x9 times
+     * @readonly
+     */
+    FILTER_X9: 2,
+
+    /**
+     * @zh x25 次采样
+     * @en x25 times
+     * @readonly
+     */
+    FILTER_X25: 3,
 })
 
 interface IShadowRenderData {
@@ -134,6 +173,9 @@ export class Shadows {
     get data () {
         return this._data;
     }
+    get sphere () {
+        return this._sphere;
+    }
     protected _enabled: boolean = false;
     protected _type = ShadowType.Planar;
     protected _normal = new Vec3(0, 1, 0);
@@ -151,6 +193,11 @@ export class Shadows {
     protected _device: GFXDevice|null = null;
     protected _globalDescriptorSet: GFXDescriptorSet | null = null;
     protected _dirty: boolean = true;
+    /**
+     * @zh
+     * 场景包围球
+     */
+    protected _sphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
     /**
      * @en get or set shadow camera near
      * @zh 获取或者设置阴影相机近裁剪面
@@ -170,12 +217,18 @@ export class Shadows {
      * @en get or set shadow camera orthoSize
      * @zh 获取或者设置阴影相机正交大小
      */
-    public orthoSize: number = 5;
+    public orthoSize: number = 1;
     /**
      * @en get or set shadow camera orthoSize
      * @zh 获取或者设置阴影纹理大小
      */
     public size: Vec2 = new Vec2(512, 512);
+
+    /**
+     * @en get or set shadow pcf
+     * @zh 获取或者设置阴影pcf等级
+     */
+    public pcf = PCFType.HARD;
 
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;
@@ -188,6 +241,17 @@ export class Shadows {
         } else {
             this._updatePlanarInfo();
         }
+    }
+
+    public getWorldMatrix (rotation: Quat, dir: Vec3) {
+        Vec3.negate(_dir_negate, dir);
+        const distance: number = Math.sqrt(2) * this._sphere.radius;
+        Vec3.multiplyScalar(_vec3_p, _dir_negate, distance);
+        Vec3.add(_vec3_p, _vec3_p, this._sphere.center);
+
+        Mat4.fromRT(_mat4_trans, rotation, _vec3_p);
+
+        return _mat4_trans;
     }
 
     protected _updatePlanarInfo () {
