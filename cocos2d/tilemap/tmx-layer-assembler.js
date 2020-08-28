@@ -50,7 +50,7 @@ let _uvd = {x:0, y:0};
 
 let _renderData = null, _ia = null, _fillGrids = 0,
     _vfOffset = 0, _moveX = 0, _moveY = 0, _layerMat = null,
-    _renderer = null, _renderDataList = null, _buffer = null, 
+    _renderer = null, _renderDataList = null, _buffer = null,
     _curMaterial = null, _comp = null, _vbuf = null, _uintbuf = null;
 
 function _visitUserNode (userNode) {
@@ -121,18 +121,34 @@ function _renderNodes (nodeRow, nodeCol) {
 
 /*
 texture coordinate
-a b 
+a b
 c d
 */
 function _flipTexture (inGrid, gid) {
-    _uva.x = inGrid.l;
-    _uva.y = inGrid.t;
-    _uvb.x = inGrid.r;
-    _uvb.y = inGrid.t;
-    _uvc.x = inGrid.l;
-    _uvc.y = inGrid.b;
-    _uvd.x = inGrid.r;
-    _uvd.y = inGrid.b;
+
+    if (inGrid.rotated) {
+        // 2:c   1:a
+        // 4:d   3:b
+        _uva.x = inGrid.r;
+        _uva.y = inGrid.t;
+        _uvb.x = inGrid.r;
+        _uvb.y = inGrid.b;
+        _uvc.x = inGrid.l;
+        _uvc.y = inGrid.t;
+        _uvd.x = inGrid.l;
+        _uvd.y = inGrid.b;
+    } else {
+        // 1:a  3:b
+        // 2:c  4:d
+        _uva.x = inGrid.l;
+        _uva.y = inGrid.t;
+        _uvb.x = inGrid.r;
+        _uvb.y = inGrid.t;
+        _uvc.x = inGrid.l;
+        _uvc.y = inGrid.b;
+        _uvd.x = inGrid.r;
+        _uvd.y = inGrid.b;
+    }
 
     let tempVal = null;
 
@@ -212,7 +228,7 @@ export default class TmxAssembler extends Assembler {
             _buffer.request(maxGrids * 4, maxGrids * 6);
 
             switch (comp._renderOrder) {
-                // left top to right down, col add, row sub, 
+                // left top to right down, col add, row sub,
                 case RenderOrder.RightDown:
                     this.traverseGrids(leftDown, rightTop, -1, 1);
                     break;
@@ -298,7 +314,7 @@ export default class TmxAssembler extends Assembler {
         let tiles = _comp._tiles;
         let texIdToMatIdx = _comp._texIdToMatIndex;
         let mats = _comp._materials;
-    
+
         let vertices = _comp._vertices;
         let rowData, col, cols, row, rows, colData, tileSize, grid = null, gid = 0;
         let left = 0, bottom = 0, right = 0, top = 0; // x, y

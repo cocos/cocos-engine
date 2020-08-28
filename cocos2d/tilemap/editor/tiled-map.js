@@ -167,9 +167,14 @@ class TiledMapMeta extends CustomAssetMeta {
     var asset = new cc.TiledMapAsset();
     asset.name = Path.basenameNoExt(fspath);
     asset.tmxXmlStr = this._tmxData;
-    asset.textures = this._textures.map(p => {
-        var uuid = db.fspathToUuid(p);
-        return uuid ? Editor.serialize.asAsset(uuid) : null;
+    // asset.textures = this._textures.map(p => {
+    //     var uuid = db.fspathToUuid(p);
+    //     return uuid ? Editor.serialize.asAsset(uuid) : null;
+    // });
+    asset.spriteFrames = this._textures.map(p => {
+      p = Path.join(p,Path.basenameNoExt(p));
+      var uuid = db.fspathToUuid(p);
+      return uuid ? Editor.serialize.asAsset(uuid) : null;
     });
     asset.textureNames = this._textureNames;
     asset.textureSizes = this._textureSizes;
