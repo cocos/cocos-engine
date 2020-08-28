@@ -538,17 +538,20 @@ export class Pass {
         // calculate total size required
         const blocks = this._shaderInfo.blocks;
         const alignment = device.uboOffsetAlignment;
-        const startOffsets: number[] = []; let lastOffset = 0;
+        const startOffsets: number[] = [];
+        let lastSize = 0; let lastOffset = 0;
         for (let i = 0; i < blocks.length; i++) {
             const { size, set } = blocks[i];
             if (isBuiltinBinding(set)) { continue; }
             startOffsets.push(lastOffset);
             lastOffset += Math.ceil(size / alignment) * alignment;
+            lastSize = size;
         }
         // create gfx buffer resource
-        // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
-        const totalSize = _bufferInfo.size = Math.ceil(lastOffset / 16) * 16;
+        const totalSize = startOffsets[startOffsets.length - 1] + lastSize;
         if (totalSize) {
+            // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
+            _bufferInfo.size = Math.ceil(totalSize / 16) * 16;
             this._rootBuffer = device.createBuffer(_bufferInfo);
             this._rootBlock = new ArrayBuffer(totalSize);
         }
