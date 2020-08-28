@@ -3,7 +3,6 @@ import { Model, Camera } from '../../renderer';
 import { Layers } from '../../scene-graph';
 import { Vec3} from '../../math';
 import { SKYBOX_FLAG } from '../../renderer';
-import { legacyCC } from '../../global-exports';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderView } from '../render-view';
 import { Pool } from '../../memop';
@@ -64,7 +63,6 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     }
 
     const models = scene.models;
-    const stamp = legacyCC.director.getTotalFrames();
 
     for (let i = 0; i < models.length; i++) {
         const model = models[i];
@@ -75,14 +73,11 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
             if (vis) {
                 if ((model.node && (view.visibility === model.node.layer)) ||
                     view.visibility === model.visFlags) {
-                    model.updateTransform(stamp);
-                    model.updateUBOs(stamp);
                     renderObjects.push(getRenderObject(model, camera));
                 }
             } else {
                 if (model.node && ((view.visibility & model.node.layer) === model.node.layer) ||
                     (view.visibility & model.visFlags)) {
-                    model.updateTransform(stamp);
 
                     // shadow render Object
                     if (model.castShadow) {
@@ -96,7 +91,6 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                         continue;
                     }
 
-                    model.updateUBOs(stamp);
                     renderObjects.push(getRenderObject(model, camera));
                 }
             }
@@ -104,6 +98,6 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     }
 
     if (shadows.type === ShadowType.Planar) {
-        shadows.updateShadowList(scene, camera.frustum, stamp, (camera.visibility & Layers.BitMask.DEFAULT) !== 0);
+        shadows.updateShadowList(scene, camera.frustum, (camera.visibility & Layers.BitMask.DEFAULT) !== 0);
     }
 }
