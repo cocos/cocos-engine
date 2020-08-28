@@ -414,7 +414,7 @@ cc.TMXMapInfo = function (tmxFile, tsxMap, textures, textureSizes, imageLayerTex
     this.currentString = null;
     this.renderOrder = cc.TiledMap.RenderOrder.RightDown;
 
-    this._supportVersion = [1, 2, 0];
+    this._supportVersion = [1, 4, 0];
     this._parser = new cc.SAXParser();
     this._objectGroups = [];
     this._allChildren = [];
