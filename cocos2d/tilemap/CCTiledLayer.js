@@ -126,7 +126,6 @@ let TiledLayer = cc.Class({
     },
 
     properties: {
-
         _premultiplyAlpha: {
             default: false,
             type: cc.Boolean
@@ -1392,7 +1391,7 @@ let TiledLayer = cc.Class({
         material.define('CC_USE_MODEL', true);
         material.setProperty('texture', texture);
 
-        let srcBlendFactor = this._premultipliedAlpha ? cc.gfx.BLEND_ONE : cc.gfx.BLEND_SRC_ALPHA;
+        let srcBlendFactor = this._premultiplyAlpha ? cc.gfx.BLEND_ONE : cc.gfx.BLEND_SRC_ALPHA;
         let dstBlendFactor = cc.gfx.BLEND_ONE_MINUS_SRC_ALPHA;
 
         material.setBlend(
