@@ -92,7 +92,7 @@ export class VideoPlayerComponent extends Component {
     @property
     protected _controls = false;
     @property
-    protected _isFullscreen = false;
+    protected _fullScreenOnAwake = false;
     @property
     protected _stayOnBottom = false;
 
@@ -106,7 +106,7 @@ export class VideoPlayerComponent extends Component {
      * 视频来源：REMOTE 表示远程视频 URL，LOCAL 表示本地视频地址。
      */
     @type(ResourceType)
-    @tooltip('i18n:video.resourceType')
+    @tooltip('i18n:videoplayer.resourceType')
     get resourceType () {
         return this._resourceType;
     }
@@ -121,7 +121,7 @@ export class VideoPlayerComponent extends Component {
      * @zh
      * 远程视频的 URL
      */
-    @tooltip('i18n:video.remoteURL')
+    @tooltip('i18n:videoplayer.remoteURL')
     get remoteURL () {
         return this._remoteURL;
     }
@@ -137,7 +137,7 @@ export class VideoPlayerComponent extends Component {
      * 本地视频剪辑。
      */
     @type(VideoClip)
-    @tooltip('i18n:video.clip')
+    @tooltip('i18n:videoplayer.clip')
     get clip () {
         return this._clip;
     }
@@ -152,7 +152,7 @@ export class VideoPlayerComponent extends Component {
      * @zh
      * 视频加载后是否自动开始播放？
      */
-    @tooltip('i18n:video.playOnAwake')
+    @tooltip('i18n:videoplayer.playOnAwake')
     get playOnAwake() {
         return this._playOnAwake;
     }
@@ -168,7 +168,7 @@ export class VideoPlayerComponent extends Component {
      */
     @slide(true)
     @range([0.0, 10, 1.0])
-    @tooltip('i18n:video.playbackRate')
+    @tooltip('i18n:videoplayer.playbackRate')
     get playbackRate() {
         return this._playbackRate;
     }
@@ -187,7 +187,7 @@ export class VideoPlayerComponent extends Component {
      */
     @slide(true)
     @range([0.0, 1.0, 0.1])
-    @tooltip('i18n:video.volume')
+    @tooltip('i18n:videoplayer.volume')
     get volume() {
         return this._volume;
     }
@@ -204,7 +204,7 @@ export class VideoPlayerComponent extends Component {
      * @zh
      * 是否静音视频。静音时设置音量为 0，取消静音是恢复原来的音量。
      */
-    @tooltip('i18n:video.mute')
+    @tooltip('i18n:videoplayer.mute')
     get mute() {
         return this._mute;
     }
@@ -221,7 +221,7 @@ export class VideoPlayerComponent extends Component {
      * @zh
      * 视频是否应在结束时再次播放
      */
-    @tooltip('i18n:video.loop')
+    @tooltip('i18n:videoplayer.loop')
     get loop() {
         return this._loop;
     }
@@ -238,14 +238,17 @@ export class VideoPlayerComponent extends Component {
      * @zh
      * 是否全屏播放视频
      */
-    @tooltip('i18n:video.isFullscreen')
-    get isFullscreen () {
-        return this._isFullscreen;
+    @tooltip('i18n:videoplayer.fullScreenOnAwake')
+    get fullScreenOnAwake () {
+        if (!EDITOR) {
+            this._fullScreenOnAwake = this._player && this._player.fullScreenOnAwake;
+        }
+        return this._fullScreenOnAwake;
     }
-    set isFullscreen (value: boolean) {
-        this._isFullscreen = value;
+    set fullScreenOnAwake (value: boolean) {
+        this._fullScreenOnAwake = value;
         if (this._player) {
-            this._player.syncFullscreen(value);
+            this._player.syncFullScreenOnAwake(value);
         }
     }
 
@@ -255,7 +258,7 @@ export class VideoPlayerComponent extends Component {
      * @zh
      * 永远在游戏视图最底层（这个属性只有在 Web 平台上有效果。注意：具体效果无法保证一致，跟各个浏览器是否支持与限制有关）
      */
-    @tooltip('i18n:video.stayOnBottom')
+    @tooltip('i18n:videoplayer.stayOnBottom')
     get stayOnBottom () {
         return this._stayOnBottom;
     }
@@ -277,7 +280,7 @@ export class VideoPlayerComponent extends Component {
      */
     @type([ComponentEventHandler])
     @displayOrder(20)
-    @tooltip('i18n:video.videoPlayerEvent')
+    @tooltip('i18n:videoplayer.videoPlayerEvent')
     public videoPlayerEvent: ComponentEventHandler[] = [];
 
     /**
@@ -301,8 +304,8 @@ export class VideoPlayerComponent extends Component {
     }
     set controls(value) {
         this._controls = value;
-        if (this._player) {
-            this._player.syncControls(value);
+        if (this.nativeVideo) {
+            this.nativeVideo.controls = value;
         }
     }
 
@@ -380,18 +383,20 @@ export class VideoPlayerComponent extends Component {
             this.nativeVideo.muted = this._mute;
             this.nativeVideo.playbackRate = this._playbackRate;
             this.nativeVideo.currentTime = this._cachedCurrentTime;
+            this.nativeVideo.controls = this._controls;
         }
-        this._player.syncControls(this._controls);
-        this._player.syncFullscreen(this._isFullscreen);
+        this._player.syncFullScreenOnAwake(this._fullScreenOnAwake);
         this._player.syncStayOnBottom(this._stayOnBottom);
         if (this._playOnAwake && !EDITOR && this._player.loaded) { this.play(); }
-        this._player.eventList.set(EventType.META_LOADED, this.onMetaLoaded.bind(this));
-        this._player.eventList.set(EventType.READY_TO_PLAY, this.onReadyToPlay.bind(this));
-        this._player.eventList.set(EventType.PLAYING, this.onPlaying.bind(this));
-        this._player.eventList.set(EventType.PAUSED, this.onPasued.bind(this));
-        this._player.eventList.set(EventType.STOPPED, this.onStopped.bind(this));
-        this._player.eventList.set(EventType.COMPLETED, this.onCompleted.bind(this));
-        this._player.eventList.set(EventType.ERROR, this.onError.bind(this));
+        if (!EDITOR) {
+            this._player.eventList.set(EventType.META_LOADED, this.onMetaLoaded.bind(this));
+            this._player.eventList.set(EventType.READY_TO_PLAY, this.onReadyToPlay.bind(this));
+            this._player.eventList.set(EventType.PLAYING, this.onPlaying.bind(this));
+            this._player.eventList.set(EventType.PAUSED, this.onPasued.bind(this));
+            this._player.eventList.set(EventType.STOPPED, this.onStopped.bind(this));
+            this._player.eventList.set(EventType.COMPLETED, this.onCompleted.bind(this));
+            this._player.eventList.set(EventType.ERROR, this.onError.bind(this));
+        }
     }
 
     public onEnable() {
@@ -415,7 +420,7 @@ export class VideoPlayerComponent extends Component {
 
     public update (dt: number) {
         if (this._player && !EDITOR) {
-            this._player.syncMatrix(this.node);
+            this._player.syncMatrix();
         }
     }
 

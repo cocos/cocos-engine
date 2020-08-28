@@ -25,10 +25,11 @@
 
 import { legacyCC } from '../../core/global-exports';
 import { mat4 } from "../../core/math";
-import { error } from "../../core/platform";
+import { error, sys } from "../../core/platform";
 import { UITransformComponent } from "../../core/components/ui-base";
+import { VideoPlayerComponent } from "../video-player-component";
 
-let { game, Game, view, sys, screen } = legacyCC;
+const { game, Game, view, screen, visibleRect } = legacyCC;
 
 const MIN_ZINDEX = -Math.pow(2, 15);
 
@@ -91,8 +92,10 @@ export class VideoPlayer {
     protected _loadedMeta = false;
     protected _ignorePause = false;
     protected _waitingFullscreen = false;
-    protected _fullScreenEnabled = false;
+    protected _fullScreenOnAwake = false;
+    protected _useNativeFullScreen = false;
 
+    protected _videoComonent: VideoPlayerComponent | null = null;
     protected _uiTrans: UITransformComponent | null = null;
 
     protected _stayOnBottom = false;
@@ -107,6 +110,8 @@ export class VideoPlayer {
     protected _m12 = 0;
     protected _m13 = 0;
 
+    protected _clearColorA = -1;
+
     protected _loadedMetadataCb: (e) => void;
     protected _canplayCb: (e) => void;
     protected _playCb: (e) => void;
@@ -116,6 +121,7 @@ export class VideoPlayer {
     protected _errorCb: (e) => void;
 
     constructor (component) {
+        this._videoComonent = component;
         this._uiTrans = component.node.getComponent(UITransformComponent);
         this._onHide = () => {
             if (!this.video || this._state !== EventType.PLAYING) { return; }
@@ -186,41 +192,53 @@ export class VideoPlayer {
         };
     }
 
-    _toggleFullscreen (enable) {
+    _toggleFullscreen (enabled) {
         let video = this._video;
-        if (!video) {
+        if (!video && video.readyState !== READY_STATE.HAVE_ENOUGH_DATA) {
             return;
         }
 
-        if (enable) {
+        if (sys.os === sys.OS_IOS && sys.isBrowser) {
+            if (enabled) {
+                video.webkitEnterFullscreen && video.webkitEnterFullscreen();
+            }
+            else {
+                video.webkitExitFullscreen && video.webkitExitFullscreen();
+            }
+            this._fullScreenOnAwake = video.webkitDisplayingFullscreen;
+            return;
+        }
+
+        // If video does not support native full-screen playback,
+        // change to setting the video size to full screen.
+        if (!screen.supportsFullScreen) {
+            this._fullScreenOnAwake = enabled;
+            this._forceUpdate = true;
+            this.syncMatrix();
+            return;
+        }
+
+        if (enabled) {
             // fix IE full screen content is not centered
             if (sys.browserType === sys.BROWSER_TYPE_IE) {
                 video.style.transform = '';
             }
-            if (sys.os === sys.OS_IOS && sys.isBrowser && video.readyState > 0) {
-                video.webkitEnterFullscreen && video.webkitEnterFullscreen();
-            }
-            else {
-                // Monitor video entry and exit full-screen events
-                let handleFullscreenChange = (document: Document, event: any) => {
-                    let fullscreenElement = sys.browserType === sys.BROWSER_TYPE_IE ? document['msFullscreenElement'] : document.fullscreenElement;
-                    this._fullScreenEnabled = (fullscreenElement === video);
-                };
-                let handleFullScreenError = (document: Document, event: any) => {
-                    this._fullScreenEnabled = false;
-                };
-                video.setAttribute("x5-video-player-fullscreen", 'true');
-                screen.requestFullScreen(video, handleFullscreenChange, handleFullScreenError);
-            }
+            // Monitor video entry and exit full-screen events
+            video.setAttribute("x5-video-player-fullscreen", 'true');
+            screen.requestFullScreen(video, (document) => {
+                let fullscreenElement = sys.browserType === sys.BROWSER_TYPE_IE ? document.msFullscreenElement : document.fullscreenElement;
+                this._fullScreenOnAwake = (fullscreenElement === video);
+            }, () => {
+                this._fullScreenOnAwake = false;
+            });
         } else {
-            if (sys.os === sys.OS_IOS && sys.isBrowser) {
-                video.webkitExitFullscreen && video.webkitExitFullscreen();
-            }
-            else {
-                video.setAttribute("x5-video-player-fullscreen", "false");
-                screen.exitFullScreen();
-            }
+            video.removeAttribute("x5-video-player-fullscreen");
+            screen.exitFullScreen();
         }
+    }
+
+    get fullScreenOnAwake () {
+        return this._fullScreenOnAwake;
     }
 
     get loaded () {
@@ -256,7 +274,13 @@ export class VideoPlayer {
 
     public play () {
         if (this.video) {
-            this.video.play();
+            let requestPromise = this.video.play();
+            // the play API can only be initiated by user gesture.
+            if (window.Promise && requestPromise instanceof Promise) {
+                requestPromise.catch((err) => {
+                    // do nothing ...
+                });
+            }
         }
     }
 
@@ -290,13 +314,7 @@ export class VideoPlayer {
         this.appendDom(document.createElement('video'), url);
     }
 
-    public syncControls (enabled) {
-        if (this._video) {
-            this._video.controls = enabled ? 'controls' : '';
-        }
-    }
-
-    public syncFullscreen (enabled) {
+    public syncFullScreenOnAwake (enabled) {
         if (!this._loadedMeta && enabled) {
             this._waitingFullscreen = true;
         }
@@ -330,7 +348,7 @@ export class VideoPlayer {
         video.style.position = "absolute";
         video.style.bottom = "0px";
         video.style.left = "0px";
-        video.style['object-fit'] = 'fill';
+        // video.style['object-fit'] = 'none';
         video.style['transform-origin'] = '0px 100% 0px';
         video.style['-webkit-transform-origin'] = '0px 100% 0px';
         video.setAttribute('preload', 'auto');
@@ -409,11 +427,15 @@ export class VideoPlayer {
         return this._uiTrans._canvas.camera;
     }
 
-    public syncMatrix (node) {
-        if (!this._video || this._video.style.visibility === 'hidden' || this._fullScreenEnabled) return;
+    public syncMatrix () {
+        if (!this._video || this._video.style.visibility === 'hidden' || !this._videoComonent) return;
 
         const camera = this.getUICamera();
         if (!camera) {
+            return;
+        }
+
+        if (screen.fullScreen()) {
             return;
         }
 
@@ -421,15 +443,27 @@ export class VideoPlayer {
         if (this._dirty) {
             this._dirty = false;
             let clearColor = camera.clearColor;
-            clearColor.a = this._stayOnBottom ? 0 : 1;
+            if (this._clearColorA === -1) {
+                this._clearColorA = clearColor.a;
+            }
+            clearColor.a = this._stayOnBottom ? 0 : this._clearColorA;
             camera.clearColor = clearColor;
         }
 
-        node.getWorldMatrix(_mat4_temp);
+        this._videoComonent.node.getWorldMatrix(_mat4_temp);
         camera.update(true);
         camera.worldMatrixToScreen(_mat4_temp, _mat4_temp, game.canvas.width, game.canvas.height);
 
-        const { width, height } = this._uiTrans!.contentSize;
+        let width = 0, height = 0;
+        if (this._fullScreenOnAwake) {
+            width = visibleRect.width;
+            height = visibleRect.height;
+        }
+        else {
+            width = this._uiTrans!.contentSize.width;
+            height = this._uiTrans!.contentSize.height;
+        }
+
         if (!this._forceUpdate &&
             this._m00 === _mat4_temp.m00 && this._m01 === _mat4_temp.m01 &&
             this._m04 === _mat4_temp.m04 && this._m05 === _mat4_temp.m05 &&

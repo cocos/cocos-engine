@@ -81,7 +81,7 @@ const screen = {
             'MSFullscreenChange',
             'msFullscreenEnabled',
             'msFullscreenElement',
-        ],
+        ]
     ],
 
     /**
@@ -103,6 +103,10 @@ const screen = {
 
         this._supportsFullScreen = (this._fn.requestFullscreen !== undefined);
         this._touchEvent = ('ontouchstart' in window) ? 'touchstart' : 'mousedown';
+    },
+
+    get supportsFullScreen () {
+        return this._supportsFullScreen;
     },
 
     /**
@@ -161,6 +165,7 @@ const screen = {
             && window.Promise && requestPromise instanceof Promise) {
             requestPromise.catch((err) => {
                 // do nothing ...
+                console.log(err);
             });
         }
         return requestPromise;
@@ -172,10 +177,7 @@ const screen = {
      * @return Success or not
      */
     exitFullScreen (): boolean {
-        if (this.fullScreen()) {
-            return this._supportsFullScreen ? document[this._fn.exitFullscreen]() : true;
-        }
-        return true;
+        return (this.fullScreen() && this._supportsFullScreen) ? document[this._fn.exitFullscreen]() : true;
     },
 
     /**
