@@ -76,6 +76,13 @@ export const PCFType = Enum({
      * @readonly
      */
     FILTER_X9: 2,
+
+    /**
+     * @zh x25 次采样
+     * @en x25 times
+     * @readonly
+     */
+    FILTER_X25: 3,
 })
 
 interface IShadowRenderData {
