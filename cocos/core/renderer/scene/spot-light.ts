@@ -1,7 +1,6 @@
 import { aabb, frustum } from '../../geometry';
 import { Mat4, Quat, Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
-import { RenderScene } from './render-scene';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -22,6 +21,7 @@ export class SpotLight extends Light {
     protected _frustum: frustum;
     protected _angle: number = 0;
     protected _needUpdate = false;
+    protected _aspect: number = 1.0;
 
     get position () {
         return this._pos;
@@ -74,6 +74,15 @@ export class SpotLight extends Light {
         return this._frustum;
     }
 
+    set aspect (val: number) {
+        this._aspect = val;
+        this.update ();
+    }
+
+    get aspect () {
+        return this._aspect;
+    }
+
     constructor () {
         super();
         this._type = LightType.SPOT;
@@ -93,7 +102,7 @@ export class SpotLight extends Light {
             this._node.getWorldRT(_matView);
             Mat4.invert(_matView, _matView);
 
-            Mat4.perspective(_matProj, this._angle, 1, 0.001, this._range);
+            Mat4.perspective(_matProj, this._angle, this._aspect, 0.001, this._range);
 
             // view-projection
             Mat4.multiply(_matViewProj, _matProj, _matView);

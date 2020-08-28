@@ -97,7 +97,7 @@ export class ForwardStage extends RenderStage {
             });
         }
 
-        this._additiveLightQueue = new RenderAdditiveLightQueue(this._pipeline as ForwardPipeline);
+        this._additiveLightQueue = new RenderAdditiveLightQueue(pipeline);
     }
 
 

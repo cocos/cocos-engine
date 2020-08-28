@@ -13,7 +13,6 @@ import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
 import { legacyCC } from '../../global-exports';
 import { RenderScene } from './render-scene';
 import { DSPool, ShaderPool, PassPool, PassView } from '../core/memory-pools';
-import { ForwardPipeline } from '../../pipeline';
 import { Enum } from '../../value-types';
 
 const _forward = new Vec3(0, 0, -1);
@@ -233,9 +232,6 @@ export class Shadows {
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;
         this._globalDescriptorSet = pipeline.descriptorSet;
-        this._data = (pipeline as ForwardPipeline).shadowUBO;
-        Color.toArray(this._data, this._shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
-        this._globalDescriptorSet!.getBuffer(UBOShadow.BLOCK.binding).update(this._data);
         if (this._type === ShadowType.ShadowMap) {
             this._updatePipeline();
         } else {
