@@ -848,7 +848,7 @@ cc.TMXMapInfo.prototype = {
                 let multiTextures = images.length > 1;
                 let image = images[0];
                 let firstImageName = image.getAttribute('source');
-                firstImageName.replace(/\\/g, '\/');
+                firstImageName = firstImageName.replace(/\\/g, '\/');
 
                 let tiles = selTileset.getElementsByTagName('tile');
                 let tileCount = tiles && tiles.length || 1;
@@ -901,7 +901,7 @@ cc.TMXMapInfo.prototype = {
                     if (tileImages && tileImages.length > 0) {
                         image = tileImages[0];
                         let imageName = image.getAttribute('source');
-                        imageName.replace(/\\/g, '\/');
+                        imageName = imageName.replace(/\\/g, '\/');
                         tileset.sourceImage = this._textures[imageName];
                         if (!tileset.sourceImage) {
                             cc.errorID(7221, imageName);
