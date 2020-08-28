@@ -1,6 +1,6 @@
 import Ammo from '../ammo-instantiated';
 import { AmmoShape } from "./ammo-shape";
-import { CylinderColliderComponent } from '../../../../exports/physics-framework';
+import { CylinderCollider } from '../../../../exports/physics-framework';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ICylinderShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
@@ -41,7 +41,7 @@ export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
     }
 
     get collider () {
-        return this._collider as CylinderColliderComponent;
+        return this._collider as CylinderCollider;
     }
 
     readonly halfExtents: Ammo.btVector3;

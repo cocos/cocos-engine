@@ -163,7 +163,7 @@ export default class ParticleSystemRenderer {
         this._switchProcessor();
     }
 
-    private _particleSystem: any = null!; // ParticleSystemComponent
+    private _particleSystem: any = null!; // ParticleSystem
 
     onInit (ps: any) {
         this._particleSystem = ps;

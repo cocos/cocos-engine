@@ -7,7 +7,6 @@ import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializabl
 import { lerp, pseudoRandom, repeat } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
-import { ParticleSystemComponent } from '../particle-system-component';
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
 

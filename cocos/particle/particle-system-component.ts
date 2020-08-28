@@ -34,12 +34,12 @@ import { EDITOR } from 'internal:constants';
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
 
-@ccclass('cc.ParticleSystemComponent')
-@help('i18n:cc.ParticleSystemComponent')
+@ccclass('cc.ParticleSystem')
+@help('i18n:cc.ParticleSystem')
 @menu('Components/ParticleSystem')
 @executionOrder(99)
 @executeInEditMode
-export class ParticleSystemComponent extends RenderableComponent {
+export class ParticleSystem extends RenderableComponent {
 
     /**
      * @zh 粒子系统能生成的最大粒子数量。
@@ -543,7 +543,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     private _customData1: Vec2;
     private _customData2: Vec2;
 
-    private _subEmitters: any[]; // array of { emitter: ParticleSystemComponent, type: 'birth', 'collision' or 'death'}
+    private _subEmitters: any[]; // array of { emitter: ParticleSystem, type: 'birth', 'collision' or 'death'}
 
     @serializable
     private _prewarm = false;
@@ -579,7 +579,7 @@ export class ParticleSystemComponent extends RenderableComponent {
         this._customData1 = new Vec2();
         this._customData2 = new Vec2();
 
-        this._subEmitters = []; // array of { emitter: ParticleSystemComponent, type: 'birth', 'collision' or 'death'}
+        this._subEmitters = []; // array of { emitter: ParticleSystem, type: 'birth', 'collision' or 'death'}
     }
 
     public onLoad () {
@@ -944,3 +944,5 @@ export class ParticleSystemComponent extends RenderableComponent {
         return this.enableCulling ? props.filter(p => !PARTICLE_MODULE_PROPERTY.includes(p) || (this[p] && this[p].enable)) : props;
     }
 }
+
+export { ParticleSystem as ParticleSystemComponent };

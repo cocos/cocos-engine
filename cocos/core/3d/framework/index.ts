@@ -53,7 +53,6 @@ export {
     SpotLightComponent,
 };
 
-// cc.AnimationComponent = AnimationComponent;
 legacyCC.CameraComponent = CameraComponent;
 // legacyCC.EditorComponent = EditorCameraComponent;
 legacyCC.RenderableComponent = RenderableComponent;

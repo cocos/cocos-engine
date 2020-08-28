@@ -33,14 +33,14 @@ import { Mat4 } from '../math';
 import { DataPoolManager } from '../renderer/data-pool-manager';
 import { Node } from '../scene-graph/node';
 import { AnimationClip } from './animation-clip';
-import { AnimationComponent } from './animation-component';
+import { Animation } from './animation-component';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { SkeletalAnimationState } from './skeletal-animation-state';
 import { getWorldTransformUntilRoot } from './transform-utils';
 import { legacyCC } from '../global-exports';
 import { AnimationManager } from './animation-manager';
 
-@ccclass('cc.SkeletalAnimationComponent.Socket')
+@ccclass('cc.SkeletalAnimation.Socket')
 export class Socket {
 
     /**
@@ -80,7 +80,7 @@ function collectRecursively (node: Node, prefix = '', out: string[] = []) {
 
 /**
  * @en
- * Skeletal animation component, offers the following features on top of [[AnimationComponent]]:
+ * Skeletal animation component, offers the following features on top of [[Animation]]:
  * * Choice between baked animation and real-time calculation, to leverage efficiency and expressiveness.
  * * Joint socket system: Create any socket node directly under the animation component root node,
  *   find your target joint and register both to the socket list, so that the socket node would be in-sync with the joint.
@@ -89,12 +89,12 @@ function collectRecursively (node: Node, prefix = '', out: string[] = []) {
  * * 可选预烘焙动画模式或实时计算模式，用以权衡运行时效率与效果；
  * * 提供骨骼挂点功能：通过在动画根节点下创建挂点节点，并在骨骼动画组件上配置 socket 列表，挂点节点的 Transform 就能与骨骼保持同步。
  */
-@ccclass('cc.SkeletalAnimationComponent')
-@help('i18n:cc.SkeletalAnimationComponent')
+@ccclass('cc.SkeletalAnimation')
+@help('i18n:cc.SkeletalAnimation')
 @executionOrder(99)
 @executeInEditMode
 @menu('Components/SkeletalAnimation')
-export class SkeletalAnimationComponent extends AnimationComponent {
+export class SkeletalAnimation extends Animation {
 
     public static Socket = Socket;
 
@@ -220,4 +220,6 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     }
 }
 
-legacyCC.SkeletalAnimationComponent = SkeletalAnimationComponent;
+legacyCC.SkeletalAnimation = SkeletalAnimation;
+
+export { SkeletalAnimation as SkeletalAnimationComponent };

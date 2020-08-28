@@ -33,7 +33,7 @@ import { IAnimInfo, JointAnimationInfo } from '../renderer/models/skeletal-anima
 import { Node } from '../scene-graph/node';
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
 import { AnimationState } from './animation-state';
-import { SkeletalAnimationComponent, Socket } from './skeletal-animation-component';
+import { SkeletalAnimation, Socket } from './skeletal-animation-component';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { legacyCC } from '../global-exports';
 
@@ -61,7 +61,7 @@ export class SkeletalAnimationState extends AnimationState {
     protected _sockets: ISocketData[] = [];
     protected _animInfoMgr: JointAnimationInfo;
     protected _comps: SkinningModelComponent[] = [];
-    protected _parent: SkeletalAnimationComponent | null = null;
+    protected _parent: SkeletalAnimation | null = null;
     protected _curvesInited = false;
 
     constructor (clip: AnimationClip, name = '') {
@@ -79,7 +79,7 @@ export class SkeletalAnimationState extends AnimationState {
                 this._comps.push(comp);
             }
         }
-        this._parent = root.getComponent('cc.SkeletalAnimationComponent') as SkeletalAnimationComponent;
+        this._parent = root.getComponent('cc.SkeletalAnimation') as SkeletalAnimation;
         const baked = this._parent.useBakedAnimation;
         super.initialize(root, baked ? noCurves : undefined);
         this._curvesInited = !baked;

@@ -36,7 +36,7 @@ import { BakedSkinningModel } from '../../renderer/models/baked-skinning-model';
 import { SkinningModel } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
 import { ModelComponent } from './model-component';
-import { SkeletalAnimationComponent } from '../../animation/skeletal-animation-component';
+import { SkeletalAnimation } from '../../animation/skeletal-animation-component';
 import { legacyCC } from '../../global-exports';
 
 /**
@@ -74,7 +74,7 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     /**
-     * @en The skinning root. (The node where the controlling AnimationComponent is located)
+     * @en The skinning root. (The node where the controlling Animation is located)
      * 骨骼根节点的引用，对应控制此模型的动画组件所在节点。
      */
     @type(Node)
@@ -140,7 +140,7 @@ export class SkinningModelComponent extends ModelComponent {
 
     private _updateModelType () {
         if (!this._skinningRoot) { return; }
-        const comp = this._skinningRoot.getComponent('cc.SkeletalAnimationComponent') as SkeletalAnimationComponent;
+        const comp = this._skinningRoot.getComponent('cc.SkeletalAnimation') as SkeletalAnimation;
         if (comp) { this.setUseBakedAnimation(comp.useBakedAnimation); }
     }
 

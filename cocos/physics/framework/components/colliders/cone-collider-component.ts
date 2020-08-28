@@ -11,7 +11,7 @@ import {
     type,
     serializable,
 } from 'cc.decorator';
-import { ColliderComponent } from './collider-component';
+import { Collider } from './collider-component';
 import { IConeShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
 import { EAxisDirection, EColliderType } from '../../physics-enum';
@@ -22,11 +22,11 @@ import { EAxisDirection, EColliderType } from '../../physics-enum';
  * @zh
  * 圆锥体碰撞器。
  */
-@ccclass('cc.ConeColliderComponent')
-@help('i18n:cc.ConeColliderComponent')
+@ccclass('cc.ConeCollider')
+@help('i18n:cc.ConeCollider')
 @menu('Physics/ConeCollider(beta)')
 @executeInEditMode
-export class ConeColliderComponent extends ColliderComponent {
+export class ConeCollider extends Collider {
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
     /**

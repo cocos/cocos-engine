@@ -13,7 +13,7 @@ import {
     serializable,
 } from 'cc.decorator';
 import { Vec3 } from '../../../../core/math';
-import { ColliderComponent } from './collider-component';
+import { Collider } from './collider-component';
 import { ISimplexShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
 import { ESimplexType, EColliderType } from '../../physics-enum';
@@ -25,11 +25,11 @@ import { IVec3Like } from '../../../../core/math/type-define';
  * @zh
  * 单纯形碰撞器，支持点、线、三角形、四面体。
  */
-@ccclass('cc.SimplexColliderComponent')
-@help('i18n:cc.SimplexColliderComponent')
+@ccclass('cc.SimplexCollider')
+@help('i18n:cc.SimplexCollider')
 @menu('Physics/SimplexCollider')
 @executeInEditMode
-export class SimplexColliderComponent extends ColliderComponent {
+export class SimplexCollider extends Collider {
 
     static readonly ESimplexType = ESimplexType;
 
@@ -57,7 +57,7 @@ export class SimplexColliderComponent extends ColliderComponent {
         this.updateVertices();
     }
 
-    @visible(function (this: SimplexColliderComponent) { return this._shapeType > 1; })
+    @visible(function (this: SimplexCollider) { return this._shapeType > 1; })
     get vertex1 () {
         return this._vertices[1];
     }
@@ -67,7 +67,7 @@ export class SimplexColliderComponent extends ColliderComponent {
         this.updateVertices();
     }
 
-    @visible(function (this: SimplexColliderComponent) { return this._shapeType > 2; })
+    @visible(function (this: SimplexCollider) { return this._shapeType > 2; })
     get vertex2 () {
         return this._vertices[2];
     }
@@ -77,7 +77,7 @@ export class SimplexColliderComponent extends ColliderComponent {
         this.updateVertices();
     }
 
-    @visible(function (this: SimplexColliderComponent) { return this._shapeType > 3; })
+    @visible(function (this: SimplexCollider) { return this._shapeType > 3; })
     get vertex3 () {
         return this._vertices[3];
     }
@@ -126,6 +126,6 @@ export class SimplexColliderComponent extends ColliderComponent {
 
 }
 
-export namespace SimplexColliderComponent {
+export namespace SimplexCollider {
     export type ESimplexType = EnumAlias<typeof ESimplexType>;
 }

@@ -11,7 +11,7 @@ import {
     type,
     serializable,
 } from 'cc.decorator';
-import { ColliderComponent } from './collider-component';
+import { Collider } from './collider-component';
 import { ICylinderShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
 import { EAxisDirection, EColliderType } from '../../physics-enum';
@@ -22,11 +22,11 @@ import { EAxisDirection, EColliderType } from '../../physics-enum';
  * @zh
  * 圆柱体碰撞器。
  */
-@ccclass('cc.CylinderColliderComponent')
-@help('i18n:cc.CylinderColliderComponent')
+@ccclass('cc.CylinderCollider')
+@help('i18n:cc.CylinderCollider')
 @menu('Physics/CylinderCollider')
 @executeInEditMode
-export class CylinderColliderComponent extends ColliderComponent {
+export class CylinderCollider extends Collider {
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
     /**
@@ -107,5 +107,6 @@ export class CylinderColliderComponent extends ColliderComponent {
     constructor () {
         super(EColliderType.CYLINDER);
     }
-
 }
+
+export { CylinderCollider as CylinderColliderComponent };

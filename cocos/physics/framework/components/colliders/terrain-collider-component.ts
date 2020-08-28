@@ -10,7 +10,7 @@ import {
     type,
     serializable,
 } from 'cc.decorator';
-import { ColliderComponent } from './collider-component';
+import { Collider } from './collider-component';
 import { ITerrainShape } from '../../../spec/i-physics-shape';
 import { ITerrainAsset } from '../../../spec/i-external';
 import { EDITOR, TEST } from 'internal:constants';
@@ -23,11 +23,11 @@ import { EColliderType } from '../../physics-enum';
  * @zh
  * 地形碰撞器。
  */
-@ccclass('cc.TerrainColliderComponent')
-@help('i18n:cc.TerrainColliderComponent')
+@ccclass('cc.TerrainCollider')
+@help('i18n:cc.TerrainCollider')
 @menu('Physics/TerrainCollider(beta)')
 @executeInEditMode
-export class TerrainColliderComponent extends ColliderComponent {
+export class TerrainCollider extends Collider {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 

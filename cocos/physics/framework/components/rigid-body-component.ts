@@ -20,7 +20,7 @@ import { Vec3 } from '../../../core/math';
 import { Component, error } from '../../../core';
 import { IRigidBody } from '../../spec/i-rigid-body';
 import { createRigidBody } from '../instance';
-import { EDITOR, TEST } from 'internal:constants';
+import { EDITOR } from 'internal:constants';
 import { ERigidBodyType } from '../physics-enum';
 import { PhysicsSystem } from '../physics-system';
 import { legacyCC } from '../../../core/global-exports';
@@ -31,13 +31,13 @@ import { legacyCC } from '../../../core/global-exports';
  * @zh
  * 刚体组件。
  */
-@ccclass('cc.RigidBodyComponent')
-@help('i18n:cc.RigidBodyComponent')
+@ccclass('cc.RigidBody')
+@help('i18n:cc.RigidBody')
 @menu('Physics/RigidBody')
 @executeInEditMode
 @disallowMultiple
 @executionOrder(-1)
-export class RigidBodyComponent extends Component {
+export class RigidBody extends Component {
 
     static readonly ERigidBodyType = ERigidBodyType;
 
@@ -90,7 +90,7 @@ export class RigidBodyComponent extends Component {
      * 获取或设置是否允许休眠。
      */
     @displayOrder(0.5)
-    @visible(function (this: RigidBodyComponent) { return this._mass != 0; })
+    @visible(function (this: RigidBody) { return this._mass != 0; })
     @tooltip('是否允许休眠')
     public get allowSleep (): boolean {
         return this._allowSleep;
@@ -110,7 +110,7 @@ export class RigidBodyComponent extends Component {
      * 获取或设置线性阻尼。
      */
     @displayOrder(1)
-    @visible(function (this: RigidBodyComponent) { return this._mass != 0; })
+    @visible(function (this: RigidBody) { return this._mass != 0; })
     @tooltip('线性阻尼')
     public get linearDamping () {
         return this._linearDamping;
@@ -130,7 +130,7 @@ export class RigidBodyComponent extends Component {
      * 获取或设置旋转阻尼。
      */
     @displayOrder(2)
-    @visible(function (this: RigidBodyComponent) { return this._mass != 0; })
+    @visible(function (this: RigidBody) { return this._mass != 0; })
     @tooltip('旋转阻尼')
     public get angularDamping () {
         return this._angularDamping;
@@ -150,7 +150,7 @@ export class RigidBodyComponent extends Component {
      * 获取或设置刚体是否由物理系统控制运动。
      */
     @displayOrder(3)
-    @visible(function (this: RigidBodyComponent) { return this._mass != 0; })
+    @visible(function (this: RigidBody) { return this._mass != 0; })
     @tooltip('刚体是否由物理系统控制运动')
     public get isKinematic () {
         return this._isKinematic;
@@ -170,7 +170,7 @@ export class RigidBodyComponent extends Component {
      * 获取或设置刚体是否使用重力。
      */
     @displayOrder(4)
-    @visible(function (this: RigidBodyComponent) { return this._mass != 0; })
+    @visible(function (this: RigidBody) { return this._mass != 0; })
     @tooltip('刚体是否使用重力')
     public get useGravity () {
         return this._useGravity;
@@ -190,7 +190,7 @@ export class RigidBodyComponent extends Component {
      * 获取或设置刚体是否固定旋转。
      */
     @displayOrder(5)
-    @visible(function (this: RigidBodyComponent) { return this._mass != 0; })
+    @visible(function (this: RigidBody) { return this._mass != 0; })
     @tooltip('刚体是否固定旋转')
     public get fixedRotation () {
         return this._fixedRotation;
@@ -210,7 +210,7 @@ export class RigidBodyComponent extends Component {
      * 获取或设置线性速度的因子，可以用来控制每个轴方向上的速度的缩放。
      */
     @displayOrder(6)
-    @visible(function (this: RigidBodyComponent) { return this._mass != 0; })
+    @visible(function (this: RigidBody) { return this._mass != 0; })
     @tooltip('线性速度的因子，可以用来控制每个轴方向上的速度的缩放')
     public get linearFactor () {
         return this._linearFactor;
@@ -230,7 +230,7 @@ export class RigidBodyComponent extends Component {
      * 获取或设置旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放。
      */
     @displayOrder(7)
-    @visible(function (this: RigidBodyComponent) { return this._mass != 0; })
+    @visible(function (this: RigidBody) { return this._mass != 0; })
     @tooltip('旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放')
     public get angularFactor () {
         return this._angularFactor;
@@ -689,6 +689,8 @@ export class RigidBodyComponent extends Component {
 
 }
 
-export namespace RigidBodyComponent {
+export namespace RigidBody {
     export type ERigidBodyType = EnumAlias<typeof ERigidBodyType>;
 }
+
+export { RigidBody as RigidBodyComponent };

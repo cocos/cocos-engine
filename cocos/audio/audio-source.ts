@@ -39,10 +39,10 @@ import { AudioClip } from './assets/clip';
  * @zh
  * 音频组件，代表单个音源，提供播放、暂停、停止等基本功能。
  */
-@ccclass('cc.AudioSourceComponent')
-@help('i18n:cc.AudioSourceComponent')
+@ccclass('cc.AudioSource')
+@help('i18n:cc.AudioSource')
 @menu('Components/AudioSource')
-export class AudioSourceComponent extends Component {
+export class AudioSource extends Component {
     @type(AudioClip)
     protected _clip: AudioClip | null = null;
     @serializable
@@ -262,3 +262,5 @@ export class AudioSourceComponent extends Component {
         return this.state === AudioClip.PlayingState.PLAYING;
     }
 }
+
+export { AudioSource as AudioSourceComponent };

@@ -2,7 +2,7 @@ import Ammo from './ammo-instantiated';
 import { Vec3, Node } from "../../core";
 import { AmmoWorld } from "./ammo-world";
 import { cocos2AmmoVec3, ammo2CocosVec3 } from "./ammo-util";
-import { RigidBodyComponent, PhysicsSystem } from '../../../exports/physics-framework';
+import { RigidBody, PhysicsSystem } from '../../../exports/physics-framework';
 import { AmmoCollisionFlags, AmmoRigidBodyFlags, AmmoCollisionObjectStates, EAmmoSharedBodyDirty } from './ammo-enum';
 import { IRigidBody } from '../spec/i-rigid-body';
 import { ERigidBodyType } from '../framework/physics-enum';
@@ -121,7 +121,7 @@ export class AmmoRigidBody implements IRigidBody {
 
     private _isEnabled = false;
     private _sharedBody!: AmmoSharedBody;
-    private _rigidBody!: RigidBodyComponent;
+    private _rigidBody!: RigidBody;
 
     constructor () {
         this.id = AmmoRigidBody.idCounter++;
@@ -142,7 +142,7 @@ export class AmmoRigidBody implements IRigidBody {
 
     /** LIFECYCLE */
 
-    initialize (com: RigidBodyComponent) {
+    initialize (com: RigidBody) {
         this._rigidBody = com;
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as AmmoWorld).getSharedBody(this._rigidBody.node as Node, this);
         this._sharedBody.reference = true;

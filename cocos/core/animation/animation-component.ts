@@ -53,12 +53,12 @@ import { legacyCC } from '../global-exports';
  * 动画组件具有事件特性，它会派发一系列播放状态相关的事件。
  * 参考 [[EventType]]
  */
-@ccclass('cc.AnimationComponent')
-@help('i18n:cc.AnimationComponent')
+@ccclass('cc.Animation')
+@help('i18n:cc.Animation')
 @executionOrder(99)
 @executeInEditMode
 @menu('Components/Animation')
-export class AnimationComponent extends Eventify(Component) {
+export class Animation extends Eventify(Component) {
     /**
      * @en
      * Gets or sets clips this component governs.
@@ -494,11 +494,13 @@ export class AnimationComponent extends Eventify(Component) {
     }
 }
 
-export declare namespace AnimationComponent {
+export declare namespace Animation {
     export type EventType = EnumAlias<typeof EventType>;
 }
 
-legacyCC.AnimationComponent = AnimationComponent;
+legacyCC.Animation = Animation;
+
+export { Animation as AnimationComponent };
 
 function equalClips (clip1: AnimationClip | null, clip2: AnimationClip | null) {
     if (clip1 === clip2) {

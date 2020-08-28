@@ -1,18 +1,18 @@
 import Ammo from './ammo-instantiated';
-import { ColliderComponent, TriggerEventType, CollisionEventType, IContactEquation } from '../../../exports/physics-framework';
+import { Collider, TriggerEventType, CollisionEventType, IContactEquation } from '../../../exports/physics-framework';
 import { Vec3, Quat } from '../../core';
 
 export const TriggerEventObject = {
     type: 'onTriggerEnter' as unknown as TriggerEventType,
-    selfCollider: null as unknown as ColliderComponent,
-    otherCollider: null as unknown as ColliderComponent,
+    selfCollider: null as unknown as Collider,
+    otherCollider: null as unknown as Collider,
     impl: null,
 };
 
 export const CollisionEventObject = {
     type: 'onCollisionEnter' as CollisionEventType,
-    selfCollider: null as unknown as ColliderComponent,
-    otherCollider: null as unknown as ColliderComponent,
+    selfCollider: null as unknown as Collider,
+    otherCollider: null as unknown as Collider,
     contacts: [] as IContactEquation[],
     impl: null,
 };

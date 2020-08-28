@@ -1,7 +1,7 @@
 import Ammo from '../ammo-instantiated';
 import { absMax } from "../../../core";
 import { AmmoShape } from "./ammo-shape";
-import { CapsuleColliderComponent } from '../../../../exports/physics-framework';
+import { CapsuleCollider } from '../../../../exports/physics-framework';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ICapsuleShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
@@ -40,7 +40,7 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
     }
 
     get collider () {
-        return this._collider as CapsuleColliderComponent;
+        return this._collider as CapsuleCollider;
     }
 
     constructor () {

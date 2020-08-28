@@ -1,7 +1,7 @@
 
 const { cc, dgui } = window;
 const { CameraComponent, Component, DirectionalLightComponent, GFXBlendFactor, Scene,
-  SphereColliderComponent, Material, ModelComponent, Node } = cc;
+  SphereCollider, Material, ModelComponent, Node } = cc;
 const { Color, randomRange, toRadian, Vec3, Vec4 } = cc.math;
 const { sphere, capsule } = cc.primitives;
 const { createMesh } = cc.utils;
@@ -104,7 +104,7 @@ class Emitter {
       model.material = mat;
       model.mesh = sphereMesh;
       // collider
-      const col = node.addComponent(SphereColliderComponent);
+      const col = node.addComponent(SphereCollider);
       col.radius = 1;
       col.isTrigger = true;
       col.setGroup(this.group); col.setMask(this.mask);
@@ -166,7 +166,7 @@ class Emitter {
       Math.cos(phi) * speed, Math.sin(theta) * Math.sin(phi) * speed);
     ele.color.a = this.color.a; ele.collided = false;
     ele.pass.setUniform(ele.hColor, ele.color);
-    const col = ele.node.getComponent(SphereColliderComponent);
+    const col = ele.node.getComponent(SphereCollider);
     col.setGroup(this.group); col.setMask(this.mask);
     ele.node.setPosition(0, 0, 0);
     this._livepool.push(ele);

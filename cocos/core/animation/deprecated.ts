@@ -3,11 +3,11 @@
  */
 
 import { replaceProperty } from '../utils/deprecated';
-import { AnimationComponent } from './animation-component';
+import { Animation } from './animation-component';
 import { AnimationClip } from './animation-clip';
 
 // deprecated
-replaceProperty(AnimationComponent.prototype, 'AnimationComponent', [
+replaceProperty(Animation.prototype, 'Animation', [
     {
         'name': 'getAnimationState',
         'newName': 'getState'
@@ -21,7 +21,7 @@ replaceProperty(AnimationComponent.prototype, 'AnimationComponent', [
         'newName': 'removeState',
         'customFunction': function (...args: any) {
             let arg0 = args[0] as AnimationClip;
-            return AnimationComponent.prototype.removeState.call(this, arg0.name);
+            return Animation.prototype.removeState.call(this, arg0.name);
         }
     }
 ]);

@@ -12,7 +12,7 @@ import {
     serializable,
 } from 'cc.decorator';
 import { Vec3 } from '../../../../core/math';
-import { ColliderComponent } from './collider-component';
+import { Collider } from './collider-component';
 import { IBoxShape } from '../../../spec/i-physics-shape';
 import { EColliderType } from '../../physics-enum';
 
@@ -22,11 +22,11 @@ import { EColliderType } from '../../physics-enum';
  * @zh
  * 盒子碰撞器。
  */
-@ccclass('cc.BoxColliderComponent')
-@help('i18n:cc.BoxColliderComponent')
+@ccclass('cc.BoxCollider')
+@help('i18n:cc.BoxCollider')
 @menu('Physics/BoxCollider')
 @executeInEditMode
-export class BoxColliderComponent extends ColliderComponent {
+export class BoxCollider extends Collider {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -67,5 +67,6 @@ export class BoxColliderComponent extends ColliderComponent {
     constructor () {
         super(EColliderType.BOX);
     }
-
 }
+
+export { BoxCollider as BoxColliderComponent };

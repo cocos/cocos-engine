@@ -13,11 +13,11 @@ import { Color, toDegree, toRadian, Vec4 } from '../core/math';
 import { Model } from '../core/renderer/scene/model';
 import { legacyCC } from '../core/global-exports';
 
-@ccclass('cc.BillboardComponent')
-@help('i18n:cc.BillboardComponent')
+@ccclass('cc.Billboard')
+@help('i18n:cc.Billboard')
 @menu('Components/Billboard')
 @executeInEditMode
-export class BillboardComponent extends Component {
+export class Billboard extends Component {
 
     @type(Texture2D)
     private _texture = null;
@@ -171,3 +171,5 @@ export class BillboardComponent extends Component {
         this._model!.initSubModel(0, this._mesh.renderingSubMeshes[0], this._material!);
     }
 }
+
+export { Billboard as BillboardComponent };

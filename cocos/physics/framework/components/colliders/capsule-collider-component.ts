@@ -11,7 +11,7 @@ import {
     type,
     serializable,
 } from 'cc.decorator';
-import { ColliderComponent } from './collider-component';
+import { Collider } from './collider-component';
 import { ICapsuleShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
 import { EAxisDirection, EColliderType } from '../../physics-enum';
@@ -23,11 +23,11 @@ import { absMax } from '../../../../core';
  * @zh
  * 胶囊体碰撞器。
  */
-@ccclass('cc.CapsuleColliderComponent')
-@help('i18n:cc.CapsuleColliderComponent')
+@ccclass('cc.CapsuleCollider')
+@help('i18n:cc.CapsuleCollider')
 @menu('Physics/CapsuleCollider')
 @executeInEditMode
-export class CapsuleColliderComponent extends ColliderComponent {
+export class CapsuleCollider extends Collider {
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
     /**
@@ -162,3 +162,5 @@ export class CapsuleColliderComponent extends ColliderComponent {
             return Math.abs(ws.z);
     }
 }
+
+export { CapsuleCollider as CapsuleColliderComponent };

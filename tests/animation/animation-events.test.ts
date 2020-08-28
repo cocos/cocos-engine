@@ -1,4 +1,4 @@
-import { Node, AnimationComponent, director, AnimationClip, math, AnimationState } from '../../cocos/core';
+import { Node, Animation, AnimationClip, math, AnimationState } from '../../cocos/core';
 
 test('Animation events(general)', () => {
     const mockInstance = jest.spyOn((global as any).cc.director, 'getAnimationManager').mockImplementation(() => {
@@ -16,22 +16,22 @@ test('Animation events(general)', () => {
     const clip = new AnimationClip('default');
     clip.duration = 2.0;
     const node = new Node();
-    const animationComponent = node.addComponent(AnimationComponent);
-    animationComponent.defaultClip = clip;
-    const state = animationComponent.getState(clip.name);
+    const animation = node.addComponent(Animation);
+    animation.defaultClip = clip;
+    const state = animation.getState(clip.name);
 
     const testMagic = (() => {
-        const bitMaskMap: Record<AnimationComponent.EventType, number> = {
-            [AnimationComponent.EventType.PLAY]: 1 << 1,
-            [AnimationComponent.EventType.RESUME]: 1 << 2,
-            [AnimationComponent.EventType.PAUSE]: 1 << 3,
-            [AnimationComponent.EventType.STOP]: 1 << 4,
-            [AnimationComponent.EventType.LASTFRAME]: 1 << 5,
-            [AnimationComponent.EventType.FINISHED]: 1 << 6,
+        const bitMaskMap: Record<Animation.EventType, number> = {
+            [Animation.EventType.PLAY]: 1 << 1,
+            [Animation.EventType.RESUME]: 1 << 2,
+            [Animation.EventType.PAUSE]: 1 << 3,
+            [Animation.EventType.STOP]: 1 << 4,
+            [Animation.EventType.LASTFRAME]: 1 << 5,
+            [Animation.EventType.FINISHED]: 1 << 6,
         };
         let actual = 0;
         return {
-            makeMockFunction(eventType: AnimationComponent.EventType) {
+            makeMockFunction(eventType: Animation.EventType) {
                 const mask = bitMaskMap[eventType];
                 return jest.fn(() => {
                     actual |= mask;
@@ -42,7 +42,7 @@ test('Animation events(general)', () => {
                 actual = 0;
             },
 
-            expectAndClear(eventTypes: AnimationComponent.EventType | AnimationComponent.EventType[]) {
+            expectAndClear(eventTypes: Animation.EventType | Animation.EventType[]) {
                 let expected = 0;
                 if (Array.isArray(eventTypes)) {
                     for (const eventType of eventTypes) {
@@ -58,62 +58,62 @@ test('Animation events(general)', () => {
     })();
 
     [
-        AnimationComponent.EventType.PLAY,
-        AnimationComponent.EventType.RESUME,
-        AnimationComponent.EventType.PAUSE,
-        AnimationComponent.EventType.STOP,
-        AnimationComponent.EventType.LASTFRAME,
-        AnimationComponent.EventType.FINISHED,
+        Animation.EventType.PLAY,
+        Animation.EventType.RESUME,
+        Animation.EventType.PAUSE,
+        Animation.EventType.STOP,
+        Animation.EventType.LASTFRAME,
+        Animation.EventType.FINISHED,
     ].forEach((eventType) => {
-        animationComponent.on(eventType, testMagic.makeMockFunction(eventType));
+        animation.on(eventType, testMagic.makeMockFunction(eventType));
     });
 
-    animationComponent.play();
-    testMagic.expectAndClear(AnimationComponent.EventType.PLAY);
+    animation.play();
+    testMagic.expectAndClear(Animation.EventType.PLAY);
 
-    animationComponent.pause();
-    testMagic.expectAndClear(AnimationComponent.EventType.PAUSE);
+    animation.pause();
+    testMagic.expectAndClear(Animation.EventType.PAUSE);
 
-    animationComponent.resume();
-    testMagic.expectAndClear(AnimationComponent.EventType.RESUME);
+    animation.resume();
+    testMagic.expectAndClear(Animation.EventType.RESUME);
 
-    animationComponent.stop();
-    testMagic.expectAndClear(AnimationComponent.EventType.STOP);
+    animation.stop();
+    testMagic.expectAndClear(Animation.EventType.STOP);
 
     // Naturally end-of-life should trigger finished event
     // and stopped.
-    animationComponent.play();
+    animation.play();
     state.update(0);
     testMagic.clear();
     state.update(clip.duration);
     testMagic.expectAndClear([
-        AnimationComponent.EventType.FINISHED,
-        AnimationComponent.EventType.STOP,
+        Animation.EventType.FINISHED,
+        Animation.EventType.STOP,
     ]);
 
     // But in loop mode they won't be triggered.
     // Instead, the last frame event should be triggered.
     state.wrapMode = AnimationClip.WrapMode.Loop;
-    animationComponent.play();
+    animation.play();
     state.update(0);
     state.update(clip.duration / 2);
     testMagic.clear();
     state.update(clip.duration / 2 + clip.duration / 4);
-    testMagic.expectAndClear(AnimationComponent.EventType.LASTFRAME);
+    testMagic.expectAndClear(Animation.EventType.LASTFRAME);
 
     mockInstance.mockRestore();
 });
 
 test('Animation event(last-frame event optimization)', () => {
-    const animationComponent = createTestAnimationComponent();
+    const animation = createTestAnimation();
 
     const clip0 = createTestClip('clip0');
     const clip1 = createTestClip('clip1');
     const initialClips = [ clip0, clip1 ];
     const defaultClip = initialClips[0];
-    animationComponent.clips = initialClips;
-    animationComponent.defaultClip = defaultClip;
-    const initialStates = [clip0, clip0].map((clip) => animationComponent.getState(clip.name));
+    animation.clips = initialClips;
+    animation.defaultClip = defaultClip;
+    const initialStates = [clip0, clip0].map((clip) => animation.getState(clip.name));
 
     const handler1 = () => {};
     const handler2 = () => {};
@@ -122,34 +122,34 @@ test('Animation event(last-frame event optimization)', () => {
 
     expect(initialStates.every(state => !isLastFrameEventAllowed(state))).toBeTruthy();
 
-    animationComponent.on(AnimationComponent.EventType.LASTFRAME, handler1);
+    animation.on(Animation.EventType.LASTFRAME, handler1);
     // After subscribe the last-frame event, all states should have `allowLastFrameEvent` set to `true`.
     expect(initialStates.every(isLastFrameEventAllowed)).toBeTruthy();
 
-    animationComponent.on(AnimationComponent.EventType.LASTFRAME, handler2);
+    animation.on(Animation.EventType.LASTFRAME, handler2);
     // Should no problem.
     expect(initialStates.every(isLastFrameEventAllowed)).toBeTruthy();
 
-    animationComponent.off(AnimationComponent.EventType.LASTFRAME, handler2);
+    animation.off(Animation.EventType.LASTFRAME, handler2);
     // Now we unsubscribe one, but this should still true.
     expect(initialStates.every(isLastFrameEventAllowed)).toBeTruthy();
 
-    animationComponent.off(AnimationComponent.EventType.LASTFRAME, handler1);
+    animation.off(Animation.EventType.LASTFRAME, handler1);
     // All states should have `allowLastFrameEvent` set to `false`
     // if no any subscribe on 'last-frame' event.
     expect(initialStates.every(state => !isLastFrameEventAllowed(state))).toBeTruthy();
 
-    animationComponent.on(AnimationComponent.EventType.LASTFRAME, handler1);
+    animation.on(Animation.EventType.LASTFRAME, handler1);
     // The newly added state should automatically have `allowLastFrameEvent` set to `true`.
-    const newState = animationComponent.createState(createTestClip('clip-new'));
+    const newState = animation.createState(createTestClip('clip-new'));
     // The newly added state should also have `allowLastFrameEvent` set to `true`.
     expect(isLastFrameEventAllowed(newState)).toBeTruthy();
 });
 
-function createTestAnimationComponent() {
+function createTestAnimation() {
     const node = new Node();
-    const animationComponent = node.addComponent(AnimationComponent);
-    return animationComponent;
+    const animation = node.addComponent(Animation);
+    return animation;
 }
 
 function createTestClip(name: string, duration: number = math.randomRange(0, 1)) {

@@ -5,13 +5,13 @@
 import { ccclass, tooltip, displayOrder, displayName, readOnly, type, serializable } from 'cc.decorator';
 import { Eventify } from '../../../../core/event';
 import { Vec3 } from '../../../../core/math';
-import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventType } from '../../physics-interface';
-import { RigidBodyComponent } from '../rigid-body-component';
+import { CollisionEventType, TriggerEventType } from '../../physics-interface';
+import { RigidBody } from '../rigid-body-component';
 import { PhysicMaterial } from '../../assets/physic-material';
 import { PhysicsSystem } from '../../physics-system';
 import { Component, error, Node } from '../../../../core';
 import { IBaseShape } from '../../../spec/i-physics-shape';
-import { EDITOR, TEST } from 'internal:constants';
+import { EDITOR } from 'internal:constants';
 import { aabb, sphere } from '../../../../core/geometry';
 import { EColliderType, EAxisDirection } from '../../physics-enum';
 import { createShape } from '../../instance';
@@ -22,8 +22,8 @@ import { createShape } from '../../instance';
  * @zh
  * 碰撞器的基类。
  */
-@ccclass('cc.ColliderComponent')
-export class ColliderComponent extends Eventify(Component) {
+@ccclass('cc.Collider')
+export class Collider extends Eventify(Component) {
 
     static readonly EColliderType = EColliderType;
     static readonly EAxisDirection = EAxisDirection;
@@ -36,11 +36,11 @@ export class ColliderComponent extends Eventify(Component) {
      * @zh
      * 获取碰撞器所绑定的刚体组件，可能为 null 。
      */
-    @type(RigidBodyComponent)
+    @type(RigidBody)
     @readOnly
     @displayName('Attached')
     @displayOrder(-2)
-    public get attachedRigidBody (): RigidBodyComponent | null {
+    public get attachedRigidBody (): RigidBody | null {
         return findAttachedBody(this.node);
         // return this._attachedRigidBody;
     }
@@ -182,7 +182,7 @@ export class ColliderComponent extends Eventify(Component) {
     protected _isSharedMaterial: boolean = true;
     protected _needTriggerEvent: boolean = false;
     protected _needCollisionEvent: boolean = false;
-    // protected _attachedRigidBody: RigidBodyComponent | null = null;
+    // protected _attachedRigidBody: RigidBody | null = null;
 
     @type(PhysicMaterial)
     protected _material: PhysicMaterial | null = null;
@@ -470,13 +470,15 @@ export class ColliderComponent extends Eventify(Component) {
     }
 }
 
-export namespace ColliderComponent {
+export namespace Collider {
     export type EColliderType = EnumAlias<typeof EColliderType>;
     export type EAxisDirection = EnumAlias<typeof EAxisDirection>;
 }
 
-function findAttachedBody (node: Node): RigidBodyComponent | null {
-    const rb = node.getComponent(RigidBodyComponent);
+export { Collider as ColliderComponent };
+
+function findAttachedBody (node: Node): RigidBody | null {
+    const rb = node.getComponent(RigidBody);
     if (rb && rb.isValid) {
         return rb;
     } else {

@@ -4,11 +4,11 @@
 
 import { PhysicsSystem } from "./physics-system";
 import { replaceProperty, removeProperty } from "../../core";
-import { BoxColliderComponent } from "./components/colliders/box-collider-component";
-import { SphereColliderComponent } from "./components/colliders/sphere-collider-component";
-import { CapsuleColliderComponent } from "./components/colliders/capsule-collider-component";
-import { RigidBodyComponent } from "./components/rigid-body-component";
-import { ColliderComponent } from "./components/colliders/collider-component";
+import { BoxCollider } from "./components/colliders/box-collider-component";
+import { SphereCollider } from "./components/colliders/sphere-collider-component";
+import { CapsuleCollider } from "./components/colliders/capsule-collider-component";
+import { RigidBody } from "./components/rigid-body-component";
+import { Collider } from "./components/colliders/collider-component";
 
 replaceProperty(PhysicsSystem, 'PhysicsSystem', [
     {
@@ -34,35 +34,35 @@ removeProperty(PhysicsSystem.prototype, 'PhysicsSystem.prototype', [
     }
 ]);
 
-replaceProperty(ColliderComponent.prototype, 'ColliderComponent.prototype', [
+replaceProperty(Collider.prototype, 'Collider.prototype', [
     {
         "name": "attachedRigidbody",
         "newName": "attachedRigidBody"
     }
 ]);
 
-replaceProperty(BoxColliderComponent.prototype, 'BoxColliderComponent.prototype', [
+replaceProperty(BoxCollider.prototype, 'BoxCollider.prototype', [
     {
         "name": "boxShape",
         "newName": "shape"
     }
 ]);
 
-replaceProperty(SphereColliderComponent.prototype, 'SphereColliderComponent.prototype', [
+replaceProperty(SphereCollider.prototype, 'SphereCollider.prototype', [
     {
         "name": "sphereShape",
         "newName": "shape"
     }
 ]);
 
-replaceProperty(CapsuleColliderComponent.prototype, 'CapsuleColliderComponent.prototype', [
+replaceProperty(CapsuleCollider.prototype, 'CapsuleCollider.prototype', [
     {
         "name": "capsuleShape",
         "newName": "shape"
     }
 ]);
 
-replaceProperty(RigidBodyComponent.prototype, 'RigidBodyComponent.prototype', [
+replaceProperty(RigidBody.prototype, 'RigidBody.prototype', [
     {
         "name": "rigidBody",
         "newName": "body"

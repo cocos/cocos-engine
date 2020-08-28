@@ -4,33 +4,33 @@
 
 import { ccclass, requireComponent, displayOrder, type, readOnly, serializable } from 'cc.decorator';
 import { Component } from '../../../../core';
-import { RigidBodyComponent } from '../rigid-body-component';
+import { RigidBody } from '../rigid-body-component';
 import { Eventify } from '../../../../core/event';
 import { IBaseConstraint } from '../../../spec/i-physics-constraint';
 import { EDITOR } from 'internal:constants';
 import { createConstraint } from '../../instance';
 import { EConstraintType } from '../../physics-enum';
 
-@ccclass('cc.ConstraintComponent')
-@requireComponent(RigidBodyComponent)
-export class ConstraintComponent extends Eventify(Component) {
+@ccclass('cc.Constraint')
+@requireComponent(RigidBody)
+export class Constraint extends Eventify(Component) {
 
     static readonly EConstraintType = EConstraintType;
 
-    @type(RigidBodyComponent)
+    @type(RigidBody)
     @readOnly
     @displayOrder(-2)
-    get attachedBody (): RigidBodyComponent | null {
-        return this.getComponent(RigidBodyComponent);
+    get attachedBody (): RigidBody | null {
+        return this.getComponent(RigidBody);
     }
 
-    @type(RigidBodyComponent)
+    @type(RigidBody)
     @displayOrder(-1)
-    get connectedBody (): RigidBodyComponent | null {
+    get connectedBody (): RigidBody | null {
         return this._connectedBody;
     }
 
-    set connectedBody (v: RigidBodyComponent | null) {
+    set connectedBody (v: RigidBody | null) {
         this._connectedBody = v;
         if (!EDITOR) {
             if (this._constraint) this._constraint.setConnectedBody(v);
@@ -56,8 +56,8 @@ export class ConstraintComponent extends Eventify(Component) {
     @serializable
     protected _enableCollision = true;
 
-    @type(RigidBodyComponent)
-    protected _connectedBody: RigidBodyComponent | null = null;
+    @type(RigidBody)
+    protected _connectedBody: RigidBody | null = null;
 
     protected _constraint: IBaseConstraint | null = null;
 
@@ -95,6 +95,6 @@ export class ConstraintComponent extends Eventify(Component) {
     }
 }
 
-export namespace ConstraintComponent {
+export namespace Constraint {
     export type EConstraintType = EnumAlias<typeof EConstraintType>;
 }

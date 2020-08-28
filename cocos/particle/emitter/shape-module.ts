@@ -10,7 +10,7 @@ import CurveRange from '../animator/curve-range';
 import { ArcMode, EmitLocation, ShapeType } from '../enum';
 import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFixedAngle, randomPointBetweenSphere,
     randomPointInCube, randomSign, randomSortArray, randomUnitVector } from '../particle-general-function';
-import { ParticleSystemComponent } from '../particle-system-component';
+import { ParticleSystem } from '../particle-system-component';
 
 const _intermediVec = new Vec3(0, 0, 0);
 const _intermediArr = new Array();
@@ -267,7 +267,7 @@ export default class ShapeModule {
         this.totalAngle = 0;
     }
 
-    public onInit (ps: ParticleSystemComponent) {
+    public onInit (ps: ParticleSystem) {
         this.particleSystem = ps;
         this.constructMat();
         this.lastTime = this.particleSystem._time;

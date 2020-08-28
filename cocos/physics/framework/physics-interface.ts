@@ -3,7 +3,7 @@
  */
 
 import { IVec3Like } from '../../core/math';
-import { ColliderComponent } from './components/colliders/collider-component';
+import { Collider } from './components/colliders/collider-component';
 
 /**
  * @en
@@ -26,7 +26,7 @@ export interface ITriggerEvent {
      * @zh
      * 触发事件中的自己的碰撞器
      */
-    readonly selfCollider: ColliderComponent;
+    readonly selfCollider: Collider;
 
     /**
      * @en
@@ -34,7 +34,7 @@ export interface ITriggerEvent {
      * @zh
      * 触发事件中的另一个碰撞器
      */
-    readonly otherCollider: ColliderComponent;
+    readonly otherCollider: Collider;
 
     /**
      * @en
@@ -160,7 +160,7 @@ export interface ICollisionEvent {
      * @zh
      * 碰撞中的自己的碰撞器。
      */
-    readonly selfCollider: ColliderComponent;
+    readonly selfCollider: Collider;
 
     /**
      * @en
@@ -168,7 +168,7 @@ export interface ICollisionEvent {
      * @zh
      * 碰撞中的另一个碰撞器。
      */
-    readonly otherCollider: ColliderComponent;
+    readonly otherCollider: Collider;
 
     /**
      * @en

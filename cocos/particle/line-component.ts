@@ -25,11 +25,11 @@ const _matInsInfo: IMaterialInstanceInfo = {
 const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
 const define = { CC_USE_WORLD_SPACE: false };
 
-@ccclass('cc.LineComponent')
-@help('i18n:cc.LineComponent')
+@ccclass('cc.Line')
+@help('i18n:cc.Line')
 @menu('Components/Line')
 @executeInEditMode
-export class LineComponent extends Component {
+export class Line extends Component {
     @type(Texture2D)
     private _texture = null;
 
@@ -235,3 +235,5 @@ export class LineComponent extends Component {
         }
     }
 }
+
+export { Line as LineComponent };

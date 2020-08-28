@@ -4,7 +4,7 @@ import { ERigidBodyType } from '../framework/physics-enum';
 import { getWrap } from '../framework/util';
 import { CannonWorld } from './cannon-world';
 import { CannonShape } from './shapes/cannon-shape';
-import { ColliderComponent, PhysicsSystem } from '../../../exports/physics-framework';
+import { Collider, PhysicsSystem } from '../../../exports/physics-framework';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Node } from '../../core';
 import { CollisionEventType, IContactEquation } from '../framework/physics-interface';
@@ -17,8 +17,8 @@ const quat_0 = new Quat();
 const contactsPool: CannonContactEquation[] = [] as any;
 const CollisionEventObject = {
     type: 'onCollisionEnter' as CollisionEventType,
-    selfCollider: null as unknown as ColliderComponent,
-    otherCollider: null as unknown as ColliderComponent,
+    selfCollider: null as unknown as Collider,
+    otherCollider: null as unknown as Collider,
     contacts: [] as CannonContactEquation[],
     impl: null as unknown as CANNON.ICollisionEvent,
 };

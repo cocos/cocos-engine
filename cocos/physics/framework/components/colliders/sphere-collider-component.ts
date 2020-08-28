@@ -10,7 +10,7 @@ import {
     tooltip,
     serializable,
 } from 'cc.decorator';
-import { ColliderComponent } from './collider-component';
+import { Collider } from './collider-component';
 import { ISphereShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
 import { EColliderType } from '../../physics-enum';
@@ -21,11 +21,11 @@ import { EColliderType } from '../../physics-enum';
  * @zh
  * 球碰撞器。
  */
-@ccclass('cc.SphereColliderComponent')
-@help('i18n:cc.SphereColliderComponent')
+@ccclass('cc.SphereCollider')
+@help('i18n:cc.SphereCollider')
 @menu('Physics/SphereCollider')
 @executeInEditMode
-export class SphereColliderComponent extends ColliderComponent {
+export class SphereCollider extends Collider {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -66,3 +66,5 @@ export class SphereColliderComponent extends ColliderComponent {
         super(EColliderType.SPHERE);
     }
 }
+
+export { SphereCollider as SphereColliderComponent };
