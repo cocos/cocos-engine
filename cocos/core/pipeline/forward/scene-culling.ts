@@ -38,19 +38,41 @@ function getCastShadowRenderObject (model: Model, camera: Camera) {
     return ro;
 }
 
+export function shadowCollecting (pipeline: ForwardPipeline, view: RenderView) {
+    const camera = view.camera;
+    const scene = camera.scene!;
+    const shadowObjects = pipeline.shadowObjects;
+    shadowPool.freeArray(shadowObjects); shadowObjects.length = 0;
+    const shadows = pipeline.shadows;
+    const shadowSphere = shadows.sphere;
+    shadowSphere.center.set(0.0, 0.0, 0.0);
+    shadowSphere.radius = 0.01;
+
+    const models = scene.models;
+    for (let i = 0; i < models.length; i++) {
+        const model = models[i];
+        // filter model by view visibility
+        if (model.node && ((view.visibility & model.node.layer) === model.node.layer) ||
+            (view.visibility & model.visFlags)) {
+
+            // shadow render Object
+            if (model.castShadow) {
+                sphere.mergeAABB(shadowSphere, shadowSphere, model.worldBounds!);
+                shadowObjects.push(getCastShadowRenderObject(model, camera));
+            }
+        }
+    }
+}
+
 export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     const camera = view.camera;
     const scene = camera.scene!;
     const renderObjects = pipeline.renderObjects;
     roPool.freeArray(renderObjects); renderObjects.length = 0;
-    const shadowObjects = pipeline.shadowObjects;
-    shadowPool.freeArray(shadowObjects); shadowObjects.length = 0;
 
-    const mainLight = scene.mainLight;
     const shadows = pipeline.shadows;
-    const shadowSphere = shadows.sphere;
-    shadowSphere.center.set(0.0, 0.0, 0.0);
-    shadowSphere.radius = 0.01;
+    const mainLight = scene.mainLight;
+
     if (mainLight) {
         mainLight.update();
         if (shadows.type === ShadowType.Planar) {
@@ -78,12 +100,6 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
             } else {
                 if (model.node && ((view.visibility & model.node.layer) === model.node.layer) ||
                     (view.visibility & model.visFlags)) {
-
-                    // shadow render Object
-                    if (model.castShadow) {
-                        sphere.mergeAABB(shadowSphere, shadowSphere, model.worldBounds!);
-                        shadowObjects.push(getCastShadowRenderObject(model, camera));
-                    }
 
                     // frustum culling
                     if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, camera.frustum)) {
