@@ -577,6 +577,8 @@ let TiledMap = cc.Class({
             this._applyFile(true);
         }
 
+        window["tiledMap"] = this;
+
     },
 
     onEnable () {
@@ -1013,8 +1015,11 @@ cc.TiledMap.fillTextureGrids = function (tileset, texGrids, texId, spFrame, name
             offsetY: 0,
             rotated: false,
             gid: gid,
+            _texture: tex
         };
+
         tileset.rectForGID(gid, grid);
+
         grid.x += texelCorrect;
         grid.y += texelCorrect;
         grid.width -= texelCorrect*2;
@@ -1025,15 +1030,18 @@ cc.TiledMap.fillTextureGrids = function (tileset, texGrids, texId, spFrame, name
             grid.t = grid.y / texHeight;
             grid.r = (grid.x + grid.width) / texWidth;
             grid.b = (grid.y + grid.height) / texHeight;
+            grid._rect = cc.rect(grid);
         } else if (spFrame._rotated) {
             grid.rotated = true;
             grid._name = spFrame.name;
+            grid._rect = spFrame._rect;
             grid.l = spFrame.uv[0] + texelCorrect / texWidth;
             grid.t = spFrame.uv[1] + texelCorrect / texHeight;
             grid.r = spFrame.uv[4] - texelCorrect / texWidth;
             grid.b = spFrame.uv[3] - texelCorrect / texHeight;
         } else {
             grid._name = spFrame.name;
+            grid._rect = spFrame._rect;
             grid.l = spFrame.uv[0] + texelCorrect / texWidth;
             grid.t = spFrame.uv[5] + texelCorrect / texHeight;
             grid.r = spFrame.uv[2] - texelCorrect / texWidth;

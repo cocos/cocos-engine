@@ -908,7 +908,8 @@ cc.TMXMapInfo.prototype = {
 
                         tileset.spacing = tilesetSpacing;
                         tileset.margin = tilesetMargin;
-                        tileset._tileSize = tilesetSize;
+                        tileset._tileSize.width = tilesetSize.width;
+                        tileset._tileSize.height = tilesetSize.height;
 
                         this.setTilesets(tileset);
                     }

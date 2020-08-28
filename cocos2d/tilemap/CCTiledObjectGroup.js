@@ -296,16 +296,8 @@ let TiledObjectGroup = cc.Class({
                     spf.setFlipY(false);
                 }
 
-                let texture = grid.tileset.sourceImage;
-                let rect = cc.rect(grid);
-                if (grid.tileset.collection) {
-                    rect.x = 0;
-                    rect.y = 0;
-                    rect.width = grid.tileset.imageSize.width;
-                    rect.height = grid.tileset.imageSize.height;
-                }
-                let reduced = this.reduceRect(rect, spf._rotated, texture);
-                spf.setTexture(texture, rect);
+                spf.setTexture(grid._texture, grid._rect);
+                spf.setRotated(grid.rotated)
                 sp.spriteFrame = spf;
                 sp.setVertsDirty();
 
@@ -325,38 +317,6 @@ let TiledObjectGroup = cc.Class({
             let isUseless = uselessExp.test(cName);
             if (isUseless && !aliveNodes[cName]) c.destroy();
         }
-    },
-
-    reduceRect: function (rect, rotated, texture) {
-        let reduced = false;
-
-        let maxX = rect.x, maxY = rect.y;
-        if (rotated) {
-            maxX += rect.height;
-            maxY += rect.width;
-            if (maxX > texture.width) {
-                rect.height = texture.width - rect.x;
-                reduced = true;
-            }
-            if (maxY > texture.height) {
-                rect.width = texture.height - rect.y;
-                reduced = true;
-            }
-        }
-        else {
-            maxX += rect.width;
-            maxY += rect.height;
-            if (maxX > texture.width) {
-                rect.width = texture.width - rect.x;
-                reduced = true;
-            }
-            if (maxY > texture.height) {
-                rect.height = texture.height - rect.y;
-                reduced = true;
-            }
-        }
-
-        return reduced;
     },
 
     update(dt) {
@@ -392,7 +352,8 @@ let TiledObjectGroup = cc.Class({
 
             let sp = imgNode.getComponent(cc.Sprite);
             let spf = sp.spriteFrame;
-            spf.setTexture(grid.tileset.sourceImage, cc.rect(grid));
+            spf.setTexture(grid._texture, grid._rect);
+            spf.setRotated(grid.rotated)
             sp.spriteFrame = spf;
             sp.setVertsDirty();
         }
