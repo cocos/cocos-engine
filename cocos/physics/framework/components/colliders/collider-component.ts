@@ -2,7 +2,7 @@
  * @category physics
  */
 
-import { ccclass, property, tooltip, displayOrder, displayName, readOnly, type } from '../../../../core/data/class-decorator';
+import { ccclass, tooltip, displayOrder, displayName, readOnly, type, serializable } from 'cc.decorator';
 import { Eventify } from '../../../../core/event';
 import { Vec3 } from '../../../../core/math';
 import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventType } from '../../physics-interface';
@@ -37,7 +37,7 @@ export class ColliderComponent extends Eventify(Component) {
      * 获取碰撞器所绑定的刚体组件，可能为 null 。
      */
     @type(RigidBodyComponent)
-    @readOnly(true)
+    @readOnly
     @displayName('Attached')
     @displayOrder(-2)
     public get attachedRigidBody (): RigidBodyComponent | null {
@@ -187,10 +187,10 @@ export class ColliderComponent extends Eventify(Component) {
     @type(PhysicMaterial)
     protected _material: PhysicMaterial | null = null;
 
-    @property
+    @serializable
     protected _isTrigger: boolean = false;
 
-    @property
+    @serializable
     protected readonly _center: Vec3 = new Vec3();
 
     protected get _assertOnLoadCalled (): boolean {

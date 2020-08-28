@@ -31,7 +31,7 @@
 
 import { SpriteFrame } from '../../core/assets';
 import { Component, EventHandler as ComponentEventHandler, UITransformComponent } from '../../core/components';
-import { ccclass, help, executionOrder, menu, property, requireComponent, tooltip, displayOrder, type, rangeMin, rangeMax } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin, rangeMax, serializable } from 'cc.decorator';
 import { EventMouse, EventTouch, SystemEventType } from '../../core/platform';
 import { Color, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
@@ -475,34 +475,35 @@ export class ButtonComponent extends Component {
      * 按钮的点击事件列表。
      */
     @type([ComponentEventHandler])
+    @serializable
     @displayOrder(20)
     @tooltip('按钮点击事件的列表。先将数量改为1或更多，就可以为每个点击事件设置接受者和处理方法')
     public clickEvents: ComponentEventHandler[] = [];
-    @property
+    @serializable
     protected _interactable = true;
-    @property
+    @serializable
     protected _transition = Transition.NONE;
-    @property
+    @serializable
     protected _normalColor: Color = new Color(214, 214, 214, 255);
-    @property
+    @serializable
     protected _hoverColor: Color = new Color(211, 211, 211, 255);
-    @property
+    @serializable
     protected _pressColor: Color = Color.WHITE.clone();
-    @property
+    @serializable
     protected _disabledColor: Color = new Color(124, 124, 124, 255);
-    @property
+    @serializable
     protected _normalSprite: SpriteFrame | null = null;
-    @property
+    @serializable
     protected _hoverSprite: SpriteFrame | null = null;
-    @property
+    @serializable
     protected _pressedSprite: SpriteFrame | null = null;
-    @property
+    @serializable
     protected _disabledSprite: SpriteFrame | null = null;
-    @property
+    @serializable
     protected _duration = 0.1;
-    @property
+    @serializable
     protected _zoomScale = 1.2;
-    @property
+    @serializable
     protected _target: Node | null = null;
     private _pressed = false;
     private _hovered = false;

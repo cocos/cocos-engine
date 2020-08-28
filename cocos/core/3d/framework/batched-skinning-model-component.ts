@@ -33,7 +33,7 @@ import { Material } from '../../assets/material';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { Texture2D } from '../../assets/texture-2d';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property, tooltip, type, visible, override } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, visible, override, serializable, editable } from 'cc.decorator';
 import { CCString } from '../../data/utils/attribute';
 import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
 import { GFXFormat, GFXType } from '../../gfx/define';
@@ -73,18 +73,18 @@ export class SkinningModelUnit {
     @type(Material)
     public material: Material | null = null;
 
-    @property
+    @serializable
     public _localTransform = new Mat4();
-    @property
+    @serializable
     private _offset = new Vec2(0, 0);
-    @property
+    @serializable
     private _size = new Vec2(1, 1);
 
     /**
      * @en UV offset on texture atlas.
      * @zh 在图集中的 uv 坐标偏移。
      */
-    @property
+    @editable
     set offset (offset) {
         Vec2.copy(this._offset, offset);
     }
@@ -96,7 +96,7 @@ export class SkinningModelUnit {
      * @en UV extent on texture atlas.
      * @zh 在图集中占的 UV 尺寸。
      */
-    @property
+    @editable
     set size (size) {
         Vec2.copy(this._size, size);
     }
@@ -140,7 +140,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
      * @en Size of the generated texture atlas.
      * @zh 合图生成的最终图集的边长。
      */
-    @property
+    @serializable
     @tooltip('i18n:batched_skinning_model.atlas_size')
     public atlasSize: number = 1024;
 
@@ -152,6 +152,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
      * 材质中真正参与合图的贴图属性，不参与的属性统一使用第一个 unit 的贴图。
      */
     @type([CCString])
+    @serializable
     @tooltip('i18n:batched_skinning_model.batchable_texture_names')
     public batchableTextureNames: string[] = [];
 
@@ -160,13 +161,14 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
      * @zh 合批前的子蒙皮模型数组，最主要的数据来源。
      */
     @type([SkinningModelUnit])
+    @serializable
     @tooltip('i18n:batched_skinning_model.units')
     public units: SkinningModelUnit[] = [];
 
     private _textures: Record<string, Texture2D> = {};
     private _batchMaterial: Material | null = null;
 
-    @override(true)
+    @override
     @visible(false)
     get mesh () {
         return super.mesh;
@@ -175,7 +177,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         super.mesh = val;
     }
 
-    @override(true)
+    @override
     @visible(false)
     get skeleton () {
         return super.skeleton;

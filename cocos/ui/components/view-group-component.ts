@@ -43,7 +43,7 @@
  */
 
 import { Component } from '../../core/components';
-import { ccclass, executionOrder } from '../../core/data/class-decorator';
+import { ccclass, executionOrder } from 'cc.decorator';
 import { legacyCC } from '../../core/global-exports';
 
 @ccclass('cc.ViewGroupComponent')

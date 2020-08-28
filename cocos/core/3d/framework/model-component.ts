@@ -30,7 +30,7 @@
 import { Texture2D } from '../../assets';
 import { Material } from '../../assets/material';
 import { Mesh } from '../../assets/mesh';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property, tooltip, visible, type, formerlySerializedAs } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type, formerlySerializedAs, serializable, editable } from 'cc.decorator';
 import { Vec4 } from '../../math';
 import { Model } from '../../renderer/scene/model';
 import { MorphModel } from '../../renderer/models/morph-model';
@@ -83,26 +83,24 @@ const ModelShadowReceivingMode = Enum({
  */
 @ccclass('cc.ModelLightmapSettings')
 class ModelLightmapSettings {
-    @property
-    @visible(false)
+    @serializable
     public texture: Texture2D|null = null;
-    @property
-    @visible(false)
+    @serializable
     public uvParam: Vec4 = new Vec4();
-    @property
+    @serializable
     protected _bakeable: boolean = false;
-    @property
+    @serializable
     protected _castShadow: boolean = false;
     @formerlySerializedAs('_recieveShadow')
     protected _receiveShadow: boolean = false;
-    @property
+    @serializable
     protected _lightmapSize: number = 64;
 
     /**
      * @en bakeable.
      * @zh 是否可烘培。
      */
-    @property
+    @editable
     get bakeable () {
         return this._bakeable;
     }
@@ -115,7 +113,7 @@ class ModelLightmapSettings {
      * @en cast shadow.
      * @zh 是否投射阴影。
      */
-    @property
+    @editable
     get castShadow () {
         return this._castShadow;
     }
@@ -128,7 +126,7 @@ class ModelLightmapSettings {
      * @en receive shadow.
      * @zh 是否接受阴影。
      */
-    @property
+    @editable
     get receiveShadow () {
         return this._receiveShadow;
     }
@@ -141,7 +139,7 @@ class ModelLightmapSettings {
      * @en lightmap size.
      * @zh 光照图大小
      */
-    @property
+    @editable
     get lightmapSize () {
         return this._lightmapSize;
     }
@@ -165,16 +163,17 @@ export class ModelComponent extends RenderableComponent {
     public static ShadowCastingMode = ModelShadowCastingMode;
     public static ShadowReceivingMode = ModelShadowReceivingMode;
 
-    @property
+    @serializable
+    @editable
     public lightmapSettings = new ModelLightmapSettings();
 
-    @property
+    @serializable
     protected _mesh: Mesh | null = null;
 
-    @property
+    @serializable
     protected _shadowCastingMode = ModelShadowCastingMode.OFF;
 
-    @property
+    @serializable
     protected _shadowReceivingMode = ModelShadowReceivingMode.ON;
 
     /**
@@ -254,7 +253,7 @@ export class ModelComponent extends RenderableComponent {
 
     private _morphInstance: MorphRenderingInstance | null = null;
 
-    @property
+    @serializable
     private _enableMorph = true;
 
     constructor () {

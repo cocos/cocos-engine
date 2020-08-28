@@ -36,32 +36,26 @@ import { Enum } from '../../../core/value-types';
 export enum KeyboardReturnType {
     /**
      * 默认。
-     * @property {Number} DEFAULT
      */
     DEFAULT = 0,
     /**
      * 完成类型。
-     * @property {Number} DONE
      */
     DONE = 1,
     /**
      * 发送类型。
-     * @property {Number} SEND
      */
     SEND = 2,
     /**
      * 搜索类型。
-     * @property {Number} SEARCH
      */
     SEARCH = 3,
     /**
      * 跳转类型。
-     * @property {Number} GO
      */
     GO = 4,
     /**
      * 下一个类型。
-     * @property {Number} NEXT
      */
     NEXT = 5,
 }
@@ -75,37 +69,30 @@ Enum(KeyboardReturnType);
 export enum InputMode {
     /**
      * 用户可以输入任何文本，包括换行符。
-     * @property {Number} ANY
      */
     ANY = 0,
     /**
      * 允许用户输入一个电子邮件地址。
-     * @property {Number} EMAIL_ADDR
      */
     EMAIL_ADDR = 1,
     /**
      * 允许用户输入一个整数值。
-     * @property {Number} NUMERIC
      */
     NUMERIC = 2,
     /**
      * 允许用户输入一个电话号码。
-     * @property {Number} PHONE_NUMBER
      */
     PHONE_NUMBER = 3,
     /**
      * 允许用户输入一个 URL。
-     * @property {Number} URL
      */
     URL = 4,
     /**
      * 允许用户输入一个实数。
-     * @property {Number} DECIMAL
      */
     DECIMAL = 5,
     /**
      * 除了换行符以外，用户可以输入任何文本。
-     * @property {Number} SINGLE_LINE
      */
     SINGLE_LINE = 6,
 }
@@ -120,33 +107,27 @@ Enum(InputMode);
 export enum InputFlag {
     /**
      * 表明输入的文本是保密的数据，任何时候都应该隐藏起来，它隐含了 EDIT_BOX_INPUT_FLAG_SENSITIVE。
-     * @property {Number} PASSWORD
      */
     PASSWORD = 0,
     /**
      * 表明输入的文本是敏感数据，它禁止存储到字典或表里面，也不能用来自动补全和提示用户输入。
      * 一个信用卡号码就是一个敏感数据的例子。
-     * @property {Number} SENSITIVE
      */
     SENSITIVE = 1,
     /**
      * 这个标志用来指定在文本编辑的时候，是否把每一个单词的首字母大写。
-     * @property {Number} INITIAL_CAPS_WORD
      */
     INITIAL_CAPS_WORD = 2,
     /**
      * 这个标志用来指定在文本编辑是否每个句子的首字母大写。
-     * @property {Number} INITIAL_CAPS_SENTENCE
      */
     INITIAL_CAPS_SENTENCE = 3,
     /**
      * 自动把输入的所有字符大写。
-     * @property {Number} INITIAL_CAPS_ALL_CHARACTERS
      */
     INITIAL_CAPS_ALL_CHARACTERS = 4,
     /**
      * Don't do anything with the input text.
-     * @property {Number} DEFAULT
      */
     DEFAULT = 5,
 }

@@ -28,7 +28,7 @@
  */
 
 import { Component } from '../components/component';
-import { property, ccclass, help, menu, executionOrder, requireComponent, tooltip } from '../data/class-decorator';
+import { ccclass, help, menu, executionOrder, requireComponent, tooltip, serializable } from 'cc.decorator';
 import { view } from './view';
 import { SpriteComponent } from '../../ui/components/sprite-component';
 import { Node } from '../scene-graph';
@@ -78,7 +78,7 @@ export class SubContextView extends Component {
         this._updateSubContextFrameRate();
     }
 
-    @property
+    @serializable
     private _fps = 60;
     private _sprite: SpriteComponent | null;
     private _imageAsset: ImageAsset;

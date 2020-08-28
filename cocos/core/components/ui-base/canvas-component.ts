@@ -30,7 +30,7 @@
 
 import { CameraComponent } from '../../3d/framework/camera-component';
 import { RenderTexture } from '../../assets/render-texture';
-import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, menu, property, requireComponent, tooltip, type } from '../../data/class-decorator';
+import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, serializable } from 'cc.decorator';
 import { director, Director } from '../../director';
 import { game } from '../../game';
 import { GFXClearFlag } from '../../gfx/define';
@@ -215,13 +215,13 @@ export class CanvasComponent extends Component {
     //  */
     // public static instance: CanvasComponent | null = null;
 
-    @property
+    @serializable
     protected _priority = 0;
-    @property
+    @serializable
     protected _targetTexture: RenderTexture | null = null;
     @type(CanvasClearFlag)
     protected _clearFlag = CanvasClearFlag.DEPTH_ONLY;
-    @property
+    @serializable
     protected _color = new Color(0, 0, 0, 0);
     @type(RenderMode)
     protected _renderMode = RenderMode.OVERLAY;

@@ -31,7 +31,7 @@
 import { builtinResMgr } from '../../core/3d/builtin';
 import { RenderableComponent } from '../../core/3d/framework/renderable-component';
 import { InstanceMaterialType, UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
-import { ccclass, help, executionOrder, menu, property, tooltip, type, visible, override } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, tooltip, type, visible, override, editable, serializable } from 'cc.decorator';
 import { director } from '../../core/director';
 import { Color } from '../../core/math';
 import { IMaterialInstanceInfo, MaterialInstance, Model } from '../../core/renderer';
@@ -67,7 +67,7 @@ export class GraphicsComponent extends UIRenderComponent {
      * @zh
      * 当前线条宽度。
      */
-    @property
+    @editable
     get lineWidth () {
         return this._lineWidth;
     }
@@ -185,7 +185,7 @@ export class GraphicsComponent extends UIRenderComponent {
         // this.impl.miterLimit = value;
     }
 
-    @override(true)
+    @override
     @visible(false)
     get color () {
         return this._color;
@@ -205,17 +205,17 @@ export class GraphicsComponent extends UIRenderComponent {
     public static LineCap = LineCap;
     public impl: Impl | null = null;
     public model: Model | null = null;
-    @property
+    @serializable
     protected _lineWidth = 1;
-    @property
+    @serializable
     protected _strokeColor = Color.BLACK.clone();
-    @property
+    @serializable
     protected _lineJoin = LineJoin.MITER;
-    @property
+    @serializable
     protected _lineCap = LineCap.BUTT;
-    @property
+    @serializable
     protected _fillColor = Color.WHITE.clone();
-    @property
+    @serializable
     protected _miterLimit = 10;
 
     constructor (){

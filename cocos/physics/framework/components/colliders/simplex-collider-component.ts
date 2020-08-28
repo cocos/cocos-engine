@@ -7,10 +7,11 @@ import {
     help,
     executeInEditMode,
     menu,
-    property,
     visible,
     type,
-} from '../../../../core/data/class-decorator';
+    editable,
+    serializable,
+} from 'cc.decorator';
 import { Vec3 } from '../../../../core/math';
 import { ColliderComponent } from './collider-component';
 import { ISimplexShape } from '../../../spec/i-physics-shape';
@@ -46,7 +47,7 @@ export class SimplexColliderComponent extends ColliderComponent {
         }
     }
 
-    @property
+    @editable
     get vertex0 () {
         return this._vertices[0];
     }
@@ -102,10 +103,10 @@ export class SimplexColliderComponent extends ColliderComponent {
 
     /// PRIVATE PROPERTY ///
 
-    @property
+    @serializable
     private _shapeType: ESimplexType = ESimplexType.TETRAHEDRON;
 
-    @property
+    @serializable
     private _vertices: IVec3Like[] = [
         new Vec3(0, 0, 0),
         new Vec3(0, 0, 1),

@@ -7,10 +7,10 @@ import {
     help,
     executeInEditMode,
     menu,
-    property,
     tooltip,
     type,
-} from '../../../../core/data/class-decorator';
+    serializable,
+} from 'cc.decorator';
 import { ColliderComponent } from './collider-component';
 import { ICylinderShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
@@ -95,13 +95,13 @@ export class CylinderColliderComponent extends ColliderComponent {
 
     /// PRIVATE PROPERTY ///
 
-    @property
+    @serializable
     private _radius = 0.5;
 
-    @property
+    @serializable
     private _height = 2;
 
-    @property
+    @serializable
     private _direction = EAxisDirection.Y_AXIS;
 
     constructor () {

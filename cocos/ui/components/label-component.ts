@@ -29,7 +29,7 @@
  */
 
 import { BitmapFont, Font, ImageAsset, SpriteFrame, Texture2D, Material } from '../../core/assets';
-import { ccclass, help, executionOrder, menu, property, tooltip, displayOrder, visible, displayName, multiline, type, readOnly, override } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, displayName, multiline, type, readOnly, override, serializable } from 'cc.decorator';
 import { ccenum } from '../../core/value-types/enum';
 import { UI } from '../../core/renderer/ui/ui';
 import { FontAtlas } from '../assembler/label/bmfontUtils';
@@ -201,7 +201,7 @@ export class LabelComponent extends UIRenderComponent {
      */
     @displayOrder(4)
     @tooltip('Label 显示的文本内容字符串')
-    @multiline(true)
+    @multiline
     get string () {
         return this._string;
     }
@@ -268,10 +268,6 @@ export class LabelComponent extends UIRenderComponent {
      * @zh
      * SHRINK 模式下面文本实际渲染的字体大小。
      */
-    @property
-    @readOnly(true)
-    @displayName('Actual Font Size')
-    @visible(false)
     get actualFontSize () {
         return this._actualFontSize;
     }
@@ -577,7 +573,7 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     @type(Material)
-    @override(true)
+    @override
     @displayName('Materials')
     @visible(false)
     get sharedMaterials () {
@@ -628,38 +624,38 @@ export class LabelComponent extends UIRenderComponent {
     public static CacheMode = CacheMode;
     public static _canvasPool = new CanvasPool();
 
-    @property
+    @serializable
     protected _useOriginalSize = true;
-    @property
+    @serializable
     protected _string = 'label';
-    @property
+    @serializable
     protected _horizontalAlign = HorizontalTextAlignment.CENTER;
-    @property
+    @serializable
     protected _verticalAlign = VerticalTextAlignment.CENTER;
-    @property
+    @serializable
     protected _actualFontSize = 0;
-    @property
+    @serializable
     protected _fontSize = 40;
-    @property
+    @serializable
     protected _fontFamily = 'Arial';
-    @property
+    @serializable
     protected _lineHeight = 40;
-    @property
+    @serializable
     protected _overflow: Overflow = Overflow.NONE;
-    @property
+    @serializable
     protected _enableWrapText = true;
-    @property
+    @serializable
     protected _font: Font | null = null;
-    @property
+    @serializable
     protected _isSystemFontUsed = true;
     protected _spacingX = 0;
-    @property
+    @serializable
     protected _isItalic = false;
-    @property
+    @serializable
     protected _isBold = false;
-    @property
+    @serializable
     protected _isUnderline = false;
-    @property
+    @serializable
     protected _cacheMode = CacheMode.NONE;
 
     // don't need serialize

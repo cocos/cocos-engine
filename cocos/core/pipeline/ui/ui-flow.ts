@@ -1,7 +1,7 @@
 /**
  * @category pipeline
  */
-import { ccclass } from '../../data/class-decorator';
+import { ccclass } from 'cc.decorator';
 import { ForwardFlowPriority } from '../forward/enum';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';

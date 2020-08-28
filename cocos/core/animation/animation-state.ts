@@ -227,8 +227,6 @@ export class AnimationState extends Playable {
      *
      * @zh 迭代次数，指动画播放多少次后结束, normalize time。 如 2.5（2次半）。
      *
-     * @property repeatCount
-     * @type {Number}
      * @default 1
      */
     get repeatCount () {

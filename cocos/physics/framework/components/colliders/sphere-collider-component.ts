@@ -7,9 +7,9 @@ import {
     help,
     executeInEditMode,
     menu,
-    property,
     tooltip,
-} from '../../../../core/data/class-decorator';
+    serializable,
+} from 'cc.decorator';
 import { ColliderComponent } from './collider-component';
 import { ISphereShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
@@ -59,7 +59,7 @@ export class SphereColliderComponent extends ColliderComponent {
 
     /// PRIVATE PROPERTY ///
 
-    @property
+    @serializable
     private _radius: number = 0.5;
 
     constructor () {

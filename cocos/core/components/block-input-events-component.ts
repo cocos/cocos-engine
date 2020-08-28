@@ -39,7 +39,7 @@
  * 该组件没有任何 API 接口，直接添加到场景即可生效。
  */
 
-import { ccclass, help, menu } from '../data/class-decorator';
+import { ccclass, help, menu } from 'cc.decorator';
 import { Component } from './component';
 import { Event } from '../event';
 import { SystemEventType } from '../platform/event-manager/event-enum';

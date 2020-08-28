@@ -30,7 +30,7 @@
 
 import { SpriteFrame } from '../../core/assets';
 import { Component } from '../../core/components';
-import { ccclass, help, executionOrder, menu, property, tooltip, type } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
 import { Color, Size } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { Node } from '../../core/scene-graph';
@@ -149,14 +149,14 @@ export class PageViewIndicatorComponent extends Component {
      * @zh
      * 每个页面标记之间的边距
      */
-    @property
+    @serializable
     @tooltip('每个页面标记之间的边距')
     public spacing = 0;
-    @property
+    @serializable
     protected _spriteFrame: SpriteFrame | null = null;
-    @property
+    @serializable
     protected _direction: Direction = Direction.HORIZONTAL;
-    @property
+    @serializable
     protected _cellSize = new Size(20, 20);
     protected _layout: LayoutComponent | null = null;
     protected _pageView: PageViewComponent | null = null;

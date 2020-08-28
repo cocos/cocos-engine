@@ -28,7 +28,8 @@
  * @category asset
  */
 
-import { ccclass, property } from '../data/class-decorator';
+import { ccclass, serializable } from 'cc.decorator';
+import { property } from '../data/decorators/property';
 import { Eventify } from '../event';
 import { RawAsset } from './raw-asset';
 import { Node } from '../scene-graph';
@@ -62,20 +63,14 @@ export class Asset extends Eventify(RawAsset) {
     /**
      * @en Indicates whether its dependent raw assets can support deferred load if the owner scene (or prefab) is marked as `asyncLoadAssets`.
      * @zh 当场景或 Prefab 被标记为 `asyncLoadAssets`，禁止延迟加载该资源所依赖的其它 RawAsset。
-     *
-     * @property {Boolean} preventDeferredLoadDependents
      * @default false
-     * @static
      */
     public static preventDeferredLoadDependents = false;
 
     /**
      * @en Indicates whether its native object should be preloaded from native url.
      * @zh 禁止预加载原生对象。
-     *
-     * @property {Boolean} preventPreloadNativeObject
      * @default false
-     * @static
      */
     public static preventPreloadNativeObject = false;
 
@@ -104,7 +99,7 @@ export class Asset extends Eventify(RawAsset) {
      * 用于本机资产的可序列化URL。供内部使用。
      * @default ""
      */
-    @property
+    @serializable
     public _native: string = '';
 
     private _file: any = null;
@@ -114,8 +109,6 @@ export class Asset extends Eventify(RawAsset) {
      * Returns the url of this asset's native object, if none it will returns an empty string.
      * @zh
      * 返回该资源对应的目标平台资源的 URL，如果没有将返回一个空字符串。
-     * @property nativeUrl
-     * @type {String}
      * @readOnly
      */
     get nativeUrl () {
@@ -152,10 +145,8 @@ export class Asset extends Eventify(RawAsset) {
      * @zh
      * 此资源的基础资源（如果有）。 此属性可用于访问与资源相关的其他详细信息或功能。<br>
      * 如果`_native`可用，则此属性将由加载器初始化。
-     * @property {Object} _nativeAsset
      * @default null
      * @private
-     * @type {any}
      */
     @property
     get _nativeAsset (): any {

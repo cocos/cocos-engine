@@ -3,7 +3,7 @@
  */
 
 import { Component } from '../../core/components/component';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, editable, serializable } from 'cc.decorator';
 
 /**
  * @en
@@ -27,7 +27,7 @@ export class UIOpacityComponent extends Component {
      * @zh
      * 透明度。
      */
-    @property
+    @editable
     get opacity () {
         return this._opacity;
     }
@@ -41,7 +41,7 @@ export class UIOpacityComponent extends Component {
         this.node._uiProps.opacity = value / 255;
     }
 
-    @property
+    @serializable
     protected _opacity = 255;
 
     public onEnable () {

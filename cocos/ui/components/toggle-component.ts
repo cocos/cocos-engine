@@ -29,7 +29,7 @@
  */
 
 import { EventHandler as ComponentEventHandler, UITransformComponent } from '../../core/components';
-import { ccclass, help, requireComponent, executionOrder, menu, property, tooltip, displayOrder, type } from '../../core/data/class-decorator';
+import { ccclass, help, requireComponent, executionOrder, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { ButtonComponent } from './button-component';
 import { SpriteComponent } from './sprite-component';
 import { ToggleContainerComponent } from './toggle-container-component';
@@ -121,11 +121,12 @@ export class ToggleComponent extends ButtonComponent {
      * Toggle 按钮的点击事件列表。
      */
     @type([ComponentEventHandler])
+    @serializable
     @tooltip('列表类型，默认为空，用户添加的每一个事件由节点引用，组件名称和一个响应函数组成')
     public checkEvents: ComponentEventHandler[] = [];
-    @property
+    @serializable
     protected _isChecked: boolean = true;
-    @property
+    @serializable
     protected _checkMark: SpriteComponent | null = null;
 
     protected _internalToggle () {

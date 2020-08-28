@@ -27,7 +27,7 @@
  * @category asset
  */
 
-import { ccclass, property } from '../../core/data/class-decorator';
+import { ccclass, serializable } from 'cc.decorator';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { mapBuffer } from '../3d/misc/buffer';
 import { BufferBlob } from '../3d/misc/buffer-blob';
@@ -538,16 +538,16 @@ export class Mesh extends Asset {
         return this._jointBufferIndices = this._struct.primitives.map((p) => p.jointMapIndex || 0);
     }
 
-    @property
+    @serializable
     private _struct: Mesh.IStruct = {
         vertexBundles: [],
         primitives: [],
     };
 
-    @property
+    @serializable
     private _dataLength = 0;
 
-    @property
+    @serializable
     private _hash = 0;
 
     private _data: Uint8Array = globalEmptyMeshBuffer;

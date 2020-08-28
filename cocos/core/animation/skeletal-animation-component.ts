@@ -28,7 +28,7 @@
  */
 
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
-import { ccclass, executeInEditMode, executionOrder, help, menu, property, tooltip, type } from '../data/class-decorator';
+import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type, serializable, editable } from 'cc.decorator';
 import { Mat4 } from '../math';
 import { DataPoolManager } from '../renderer/data-pool-manager';
 import { Node } from '../scene-graph/node';
@@ -47,7 +47,8 @@ export class Socket {
      * @en Path of the target joint.
      * @zh 此挂点的目标骨骼路径。
      */
-    @property
+    @serializable
+    @editable
     public path: string = '';
 
     /**
@@ -145,7 +146,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
         else { (legacyCC.director.getAnimationManager() as AnimationManager).addSockets(this.node, this._sockets); }
     }
 
-    @property
+    @serializable
     protected _useBakedAnimation = true;
 
     @type([Socket])

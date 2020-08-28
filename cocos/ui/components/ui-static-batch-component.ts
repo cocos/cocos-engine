@@ -30,7 +30,7 @@
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 import { UI } from '../../core/renderer/ui/ui';
 import { MeshBuffer } from '../../core/renderer/ui/mesh-buffer';
-import { ccclass, help, menu, executionOrder, property, visible, type, displayName, override } from '../../core/data/class-decorator';
+import { ccclass, help, menu, executionOrder, visible, type, displayName, override } from 'cc.decorator';
 import { UIDrawBatch } from '../../core/renderer/ui/ui-draw-batch';
 import { director, Color, Material, warnID } from '../../core';
 import { vfmt } from '../../core/renderer/ui/ui-vertex-format';
@@ -57,7 +57,7 @@ import { GFXBlendFactor } from '../../core/gfx';
 @menu('UI/Render/UIStaticBatch')
 @executionOrder(110)
 export class UIStaticBatchComponent extends UIRenderComponent {
-    @override(true)
+    @override
     @visible(false)
     get dstBlendFactor () {
         return this._dstBlendFactor;
@@ -72,7 +72,7 @@ export class UIStaticBatchComponent extends UIRenderComponent {
         this._updateBlendFunc();
     }
 
-    @override(true)
+    @override
     @visible(false)
     get srcBlendFactor () {
         return this._srcBlendFactor;
@@ -87,7 +87,7 @@ export class UIStaticBatchComponent extends UIRenderComponent {
         this._updateBlendFunc();
     }
 
-    @override(true)
+    @override
     @visible(false)
     get color (): Readonly<Color> {
         return this._color;
@@ -103,7 +103,7 @@ export class UIStaticBatchComponent extends UIRenderComponent {
         this.markForUpdateRenderData();
     }
 
-    @override(true)
+    @override
     @type(Material)
     @displayName('Materials')
     @visible(false)

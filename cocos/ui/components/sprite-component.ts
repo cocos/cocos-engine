@@ -29,7 +29,7 @@
  */
 
 import { SpriteAtlas, SpriteFrame } from '../../core/assets';
-import { ccclass, help, executionOrder, menu, property, tooltip, displayOrder, type, range } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable } from 'cc.decorator';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { Vec2 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
@@ -83,7 +83,6 @@ enum SpriteType {
     // /**
     //  * @en The mesh type.
     //  * @zh  以 Mesh 三角形组成的类型
-    //  * @property {Number} MESH
     //  */
     // MESH: 4
 }
@@ -401,7 +400,7 @@ export class SpriteComponent extends UIRenderComponent {
         }
     }
 
-    @property
+    @editable
     get grayscale () {
         return this._useGrayscale;
     }
@@ -453,26 +452,26 @@ export class SpriteComponent extends UIRenderComponent {
     public static SizeMode = SizeMode;
     public static EventType = EventType;
 
-    @property
+    @serializable
     protected _spriteFrame: SpriteFrame | null = null;
-    @property
+    @serializable
     protected _type = SpriteType.SIMPLE;
-    @property
+    @serializable
     protected _fillType = FillType.HORIZONTAL;
-    @property
+    @serializable
     protected _sizeMode = SizeMode.TRIMMED;
-    @property
+    @serializable
     protected _fillCenter: Vec2 = new Vec2(0, 0);
-    @property
+    @serializable
     protected _fillStart = 0;
-    @property
+    @serializable
     protected _fillRange = 0;
-    @property
+    @serializable
     protected _isTrimmedMode = true;
-    @property
+    @serializable
     protected _useGrayscale = false;
     // _state = 0;
-    @property
+    @serializable
     protected _atlas: SpriteAtlas | null = null;
     // static State = State;
 

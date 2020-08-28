@@ -31,7 +31,7 @@ import { EDITOR } from 'internal:constants';
 import { RenderTexture } from '../../assets/render-texture';
 import { UITransformComponent } from '../../components';
 import { Component } from '../../components/component';
-import { ccclass, help, executeInEditMode, menu, property, tooltip, displayOrder, type } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { ray } from '../../geometry';
 import { GFXClearFlag } from '../../gfx/define';
 import { Color, Rect, toRadian, Vec3 } from '../../math';
@@ -92,41 +92,41 @@ export class CameraComponent extends Component {
     public static Shutter = Shutter;
     public static ISO = ISO;
 
-    @property
+    @serializable
     protected _projection = ProjectionType.PERSPECTIVE;
-    @property
+    @serializable
     protected _priority = 0;
-    @property
+    @serializable
     protected _fov = 45;
-    @property
+    @serializable
     protected _fovAxis = FOVAxis.VERTICAL;
-    @property
+    @serializable
     protected _orthoHeight = 10;
-    @property
+    @serializable
     protected _near = 1;
-    @property
+    @serializable
     protected _far = 1000;
-    @property
+    @serializable
     protected _color = new Color('#333333');
-    @property
+    @serializable
     protected _depth = 1;
-    @property
+    @serializable
     protected _stencil = 0;
-    @property
+    @serializable
     protected _clearFlags = ClearFlag.SOLID_COLOR;
-    @property
+    @serializable
     protected _rect = new Rect(0, 0, 1, 1);
-    @property
+    @serializable
     protected _aperture = Aperture.F16_0;
-    @property
+    @serializable
     protected _shutter = Shutter.D125;
-    @property
+    @serializable
     protected _iso = ISO.ISO100;
-    @property
+    @serializable
     protected _screenScale = 1;
-    @property
+    @serializable
     protected _visibility = CAMERA_DEFAULT_MASK;
-    @property
+    @serializable
     protected _targetTexture: RenderTexture | null = null;
 
     protected _camera: Camera | null = null;

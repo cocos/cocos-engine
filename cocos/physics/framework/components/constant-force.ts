@@ -7,12 +7,12 @@ import {
     help,
     executeInEditMode,
     menu,
-    property,
     requireComponent,
     disallowMultiple,
     tooltip,
     displayOrder,
-} from '../../../core/data/class-decorator';
+    serializable,
+} from 'cc.decorator';
 import { Component } from '../../../core/components/component';
 import { RigidBodyComponent } from './rigid-body-component';
 import { Vec3 } from '../../../core/math/vec3';
@@ -34,16 +34,16 @@ export class ConstantForce extends Component {
 
     private _rigidBody: RigidBodyComponent | null = null;
 
-    @property
+    @serializable
     private readonly _force: Vec3 = new Vec3();
 
-    @property
+    @serializable
     private readonly _localForce: Vec3 = new Vec3();
 
-    @property
+    @serializable
     private readonly _torque: Vec3 = new Vec3();
 
-    @property
+    @serializable
     private readonly _localTorque: Vec3 = new Vec3();
 
     private _mask: number = 0;

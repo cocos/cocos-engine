@@ -31,7 +31,7 @@
  */
 
 import { Script } from '../assets/scripts';
-import { ccclass, property, tooltip, visible, displayName, type } from '../data/class-decorator';
+import { ccclass, tooltip, displayName, type, serializable } from 'cc.decorator';
 import { CCObject } from '../data/object';
 import IDGenerator from '../utils/id-generator';
 import { getClassName, value } from '../utils/js';
@@ -67,8 +67,6 @@ const NullNode = null as unknown as Node;
  */
 @ccclass('cc.Component')
 class Component extends CCObject {
-
-    @visible(false)
     get name () {
         if (this._name) {
             return this._name;
@@ -87,8 +85,6 @@ class Component extends CCObject {
     /**
      * @en The uuid for editor.
      * @zh 组件的 uuid，用于编辑器。
-     * @property uuid
-     * @type {String}
      * @readOnly
      * @example
      * ```ts
@@ -96,12 +92,10 @@ class Component extends CCObject {
      * log(comp.uuid);
      * ```
      */
-    @visible(false)
     get uuid () {
         return this._id;
     }
 
-    @property
     @displayName('Script')
     @type(Script)
     @tooltip('i18n:INSPECTOR.component.script')
@@ -110,8 +104,6 @@ class Component extends CCObject {
     /**
      * @en indicates whether this component is enabled or not.
      * @zh 表示该组件自身是否启用。
-     * @property enabled
-     * @type {Boolean}
      * @default true
      * @example
      * ```ts
@@ -120,7 +112,6 @@ class Component extends CCObject {
      * log(comp.enabled);
      * ```
      */
-    @visible(false)
     get enabled () {
         return this._enabled;
     }
@@ -142,8 +133,6 @@ class Component extends CCObject {
     /**
      * @en indicates whether this component is enabled and its node is also active in the hierarchy.
      * @zh 表示该组件是否被启用并且所在的节点也处于激活状态。
-     * @property enabledInHierarchy
-     * @type {Boolean}
      * @readOnly
      * @example
      * ```ts
@@ -151,7 +140,6 @@ class Component extends CCObject {
      * log(comp.enabledInHierarchy);
      * ```
      */
-    @visible(false)
     get enabledInHierarchy () {
         return this._enabled && this.node && this.node.activeInHierarchy;
     }
@@ -159,8 +147,6 @@ class Component extends CCObject {
     /**
      * @en Returns a value which used to indicate the onLoad get called or not.
      * @zh 返回一个值用来判断 onLoad 是否被调用过，不等于 0 时调用过，等于 0 时未调用。
-     * @property _isOnLoadCalled
-     * @type {Number}
      * @readOnly
      * @example
      * ```ts
@@ -176,24 +162,19 @@ class Component extends CCObject {
     /**
      * @en The node this component is attached to. A component is always attached to a node.
      * @zh 该组件被附加到的节点。组件总会附加到一个节点。
-     * @property node
-     * @type {Node}
      * @example
      * ```ts
      * import { log } from 'cc';
      * log(comp.node);
      * ```
      */
-    @property
-    @visible(false)
+    @serializable
     public node: Node = NullNode;
 
     /**
-     * @property _enabled
-     * @type {Boolean}
      * @private
      */
-    @property
+    @serializable
     public _enabled = true;
 
     public _sceneGetter: null | (() => RenderScene) = null;

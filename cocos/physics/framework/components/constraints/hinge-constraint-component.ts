@@ -7,8 +7,9 @@ import {
     help,
     executeInEditMode,
     menu,
-    property,
-} from '../../../../core/data/class-decorator';
+    editable,
+    serializable,
+} from 'cc.decorator';
 import { ConstraintComponent } from './constraint-component';
 import { IVec3Like, Vec3 } from '../../../../core';
 import { EConstraintType } from '../../physics-enum';
@@ -18,16 +19,20 @@ import { EConstraintType } from '../../physics-enum';
 @menu('Physics/HingeConstraint(beta)')
 export class HingeConstraintComponent extends ConstraintComponent {
 
-    @property
+    @serializable
+    @editable
     axisA: IVec3Like = new Vec3();
 
-    @property
+    @serializable
+    @editable
     axisB: IVec3Like = new Vec3();
 
-    @property
+    @serializable
+    @editable
     pivotA: IVec3Like = new Vec3();
 
-    @property
+    @serializable
+    @editable
     pivotB: IVec3Like = new Vec3();
 
     constructor () {

@@ -1,4 +1,4 @@
-import { ccclass, property } from '../class-decorator';
+import { ccclass, serializable } from 'cc.decorator';
 import { Vec3, Quat, Vec4, Vec2, Mat4 } from '../../math';
 
 export enum StorageUnit {
@@ -40,25 +40,25 @@ export class CompactValueTypeArray {
     /**
      * Offset into buffer, in bytes.
      */
-    @property
+    @serializable
     private _byteOffset = 0;
 
     /**
      * Unit count this CVTA occupies.
      */
-    @property
+    @serializable
     private _unitCount = 0;
 
     /**
      * Element type this CVTA holds.
      */
-    @property
+    @serializable
     private _unitElement = combineStorageUnitElementType(StorageUnit.Uint8, ElementType.Scalar);
 
     /**
      * Element count this CVTA holds.
      */
-    @property
+    @serializable
     private _length = 0;
 
     /**
