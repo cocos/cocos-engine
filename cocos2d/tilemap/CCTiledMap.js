@@ -367,21 +367,6 @@ let TiledMap = cc.Class({
                 (this._preloaded || CC_EDITOR) && _applyFile(false);
             },
             type: [cc.SpriteAtlas]
-        },
-
-        _tileFrames: {
-            default: [],
-            type: cc.SpriteFrame
-        },
-        tileFrames : {
-            get () {
-                return this._tileFrames;
-            },
-            set (value) {
-                this._tileFrames = value;
-                (this._preloaded || CC_EDITOR) && _applyFile(false);
-            },
-            type: [cc.SpriteFrame]
         }
     },
 
@@ -571,7 +556,7 @@ let TiledMap = cc.Class({
             return;
         }
 
-        if (this._tileAtlases.length > 0 || this._tileFrames.length > 0) {
+        if (this._tileAtlases.length > 0) {
             this._applyFile(false);
         } else {
             this._applyFile(true);
@@ -623,15 +608,10 @@ let TiledMap = cc.Class({
                     });
                 });
 
-                let sfs = this._tileFrames;
-                sfs.forEach(function(sf){
-                    allSpriteFrames[sf.name] = sf;
-                });
-
                 for (let i = 0; i < texKeys.length; ++i) {
                     let frameName = cc.TiledMap.getShortName(texKeys[i]);
                     textureSizes[frameName] = texSizes[i];
-                    let frame = this._tileFrames[i] || allSpriteFrames[frameName] || spfValues[i];
+                    let frame = allSpriteFrames[frameName] || spfValues[i];
                     if (frame) {
                         this._spriteFrames[i] = frame;
                         textures[frameName] = frame.getTexture();
