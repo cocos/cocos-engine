@@ -298,14 +298,20 @@ let TiledObjectGroup = cc.Class({
 
                 let texture = grid.tileset.sourceImage;
                 let rect = cc.rect(grid);
+                if (grid.tileset.collection) {
+                    rect.x = 0;
+                    rect.y = 0;
+                    rect.width = grid.tileset.imageSize.width;
+                    rect.height = grid.tileset.imageSize.height;
+                }
                 let reduced = this.reduceRect(rect, spf._rotated, texture);
                 spf.setTexture(texture, rect);
                 sp.spriteFrame = spf;
                 sp.setVertsDirty();
 
+
                 // object group may has no width or height info
-                imgNode.width = object.width;
-                imgNode.height = object.height;
+                imgNode.setContentSize(object.width, object.height);
             }
         }
         this._objects = objects;
