@@ -1569,12 +1569,14 @@ export function WebGLCmdFuncDestroyInputAssembler (device: WebGLDevice, gpuInput
 }
 
 interface IWebGLStateCache {
+    gpuPipelineState: IWebGLGPUPipelineState | null;
     gpuInputAssembler: IWebGLGPUInputAssembler | null;
     gpuShader: IWebGLGPUShader | null;
     glPrimitive: number;
     reverseCW: boolean;
 }
 const gfxStateCache: IWebGLStateCache = {
+    gpuPipelineState: null,
     gpuInputAssembler: null,
     gpuShader: null,
     glPrimitive: 0,
@@ -1771,14 +1773,16 @@ export function WebGLCmdFuncBindStates (
 
     const gl = device.gl;
     const cache = device.stateCache;
+    const gpuShader = gfxStateCache.gpuShader = gpuPipelineState && gpuPipelineState.gpuShader;
 
     let isShaderChanged = false;
     let glWrapS: number;
     let glWrapT: number;
     let glMinFilter: number;
-    let gpuShader: IWebGLGPUShader | null = null;
 
-    if (gpuPipelineState) {
+    // bind pipeline
+    if (gpuPipelineState && gfxStateCache.gpuPipelineState !== gpuPipelineState) {
+        gfxStateCache.gpuPipelineState = gpuPipelineState;
         gfxStateCache.glPrimitive = gpuPipelineState.glPrimitive;
 
         if (gpuPipelineState.gpuShader) {
@@ -1789,8 +1793,6 @@ export function WebGLCmdFuncBindStates (
                 cache.glProgram = glProgram;
                 isShaderChanged = true;
             }
-
-            gfxStateCache.gpuShader = gpuShader = gpuPipelineState.gpuShader;
         }
 
         // rasterizer state
@@ -2019,8 +2021,9 @@ export function WebGLCmdFuncBindStates (
                 target0Cache.blendColorMask = target0.blendColorMask;
             }
         } // blend state
-    } // bind pso
+    } // bind pipeline
 
+    // bind descriptor sets
     if (gpuPipelineState && gpuPipelineState.gpuPipelineLayout && gpuShader) {
 
         const blockLen = gpuShader.glBlocks.length;
@@ -2036,14 +2039,15 @@ export function WebGLCmdFuncBindStates (
                 const gpuBuffer = gpuDescriptor.gpuBuffer;
                 const dynamicOffsetIndexSet = dynamicOffsetIndices[glBlock.set];
                 const dynamicOffsetIndex = dynamicOffsetIndexSet && dynamicOffsetIndexSet[glBlock.binding];
+                if (dynamicOffsetIndex >= 0) offset = dynamicOffsets[dynamicOffsetIndex];
 
                 if ('vf32' in gpuBuffer) {
-                    if (dynamicOffsetIndex >= 0) offset = dynamicOffsets[dynamicOffsetIndex] >> 2;
                     vf32 = gpuBuffer.vf32;
                 } else {
-                    if (dynamicOffsetIndex >= 0) offset = (dynamicOffsets[dynamicOffsetIndex] + gpuBuffer.offset) >> 2;
+                    offset += gpuBuffer.offset;
                     vf32 = gpuBuffer.gpuBuffer.vf32;
                 }
+                offset >>= 2;
             }
 
             if (!vf32) {
@@ -2212,16 +2216,17 @@ export function WebGLCmdFuncBindStates (
         for (let i = 0; i < samplerLen; i++) {
             const glSampler = gpuShader.glSamplers[i];
             const gpuDescriptorSet = gpuDescriptorSets[glSampler.set];
-            const gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[glSampler.binding];
-
-            if (!gpuDescriptor || !gpuDescriptor.gpuSampler) {
-                error(`Sampler binding '${glSampler.name}' at set ${glSampler.set} binding ${glSampler.binding} is not bounded`);
-                continue;
-            }
+            let descriptorIndex = gpuDescriptorSet && gpuDescriptorSet.descriptorIndices[glSampler.binding] || -1;
+            let gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[descriptorIndex];
 
             const texUnitLen = glSampler.units.length;
             for (let l = 0; l < texUnitLen; l++) {
                 const texUnit = glSampler.units[l];
+
+                if (!gpuDescriptor || !gpuDescriptor.gpuSampler) {
+                    error(`Sampler binding '${glSampler.name}' at set ${glSampler.set} binding ${glSampler.binding} index ${l} is not bounded`);
+                    continue;
+                }
 
                 if (gpuDescriptor.gpuTexture &&
                     gpuDescriptor.gpuTexture.size > 0) {
@@ -2305,10 +2310,13 @@ export function WebGLCmdFuncBindStates (
                         gpuTexture.glMagFilter = gpuSampler.glMagFilter;
                     }
                 }
+
+                gpuDescriptor = gpuDescriptorSet.gpuDescriptors[++descriptorIndex];
             }
         }
     } // bind descriptor sets
 
+    // bind vertex/index buffer
     if (gpuInputAssembler && gpuShader &&
         (isShaderChanged || gfxStateCache.gpuInputAssembler !== gpuInputAssembler)) {
         gfxStateCache.gpuInputAssembler = gpuInputAssembler;
@@ -2434,8 +2442,8 @@ export function WebGLCmdFuncBindStates (
                     cache.glEnabledAttribLocs[a] = false;
                 }
             }
-        } // if (device.useVAO)
-    }
+        }
+    } // bind vertex/index buffer
 
     if (gpuPipelineState) {
         const dsLen = gpuPipelineState.dynamicStates.length;
