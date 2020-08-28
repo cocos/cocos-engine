@@ -36,6 +36,7 @@ export class Ambient {
 
     set skyColor (color: Color) {
         this._skyColor = color;
+        Color.toArray(this._colorArray, this._skyColor);
     }
 
     /**
