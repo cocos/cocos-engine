@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 import Assembler from '../renderer/assembler';
+import Assembler2D from '../renderer/assembler-2d';
 import MaterialVariant from '../assets/material/material-variant';
 import { Color } from '../value-types';
 
