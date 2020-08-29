@@ -317,8 +317,8 @@ let TiledObjectGroup = cc.Class({
                     spf.setFlipY(false);
                 }
 
-                spf.setRotated(grid._rotated);
                 spf.setTexture(grid._texture, grid._rect);
+                spf.setRotated(grid._rotated);
 
                 sprite.spriteFrame = spf;
 
@@ -374,8 +374,8 @@ let TiledObjectGroup = cc.Class({
 
             let sp = imgNode.getComponent(cc.Sprite);
             let spf = sp.spriteFrame;
-            spf.setRotated(grid._rotated);
             spf.setTexture(grid._texture, grid._rect);
+            spf.setRotated(grid._rotated);
             sp.spriteFrame = spf;
             sp.setVertsDirty();
         }
