@@ -103,6 +103,10 @@ export class ForwardPipeline extends RenderPipeline {
         forwardFlow.initialize(ForwardFlow.initInfo);
         this._flows.push(forwardFlow);
 
+        const uiFlow = new UIFlow();
+        uiFlow.initialize(UIFlow.initInfo);
+        this._flows.push(uiFlow);
+
         return true;
     }
 
