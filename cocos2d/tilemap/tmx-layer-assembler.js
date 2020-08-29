@@ -227,7 +227,7 @@ export default class TmxAssembler extends Assembler {
 
             _buffer.request(maxGrids * 4, maxGrids * 6);
 
-            switch (comp._renderOrder) {
+            switch (comp.renderOrder) {
                 // left top to right down, col add, row sub,
                 case RenderOrder.RightDown:
                     this.traverseGrids(leftDown, rightTop, -1, 1);

@@ -1309,7 +1309,7 @@ let TiledLayer = cc.Class({
             this.node.color = this._tintColor;
         }
 
-        this._renderOrder = mapInfo.renderOrder;
+        this.renderOrder = mapInfo.renderOrder;
         this._staggerAxis = mapInfo.getStaggerAxis();
         this._staggerIndex = mapInfo.getStaggerIndex();
         this._hexSideLength = mapInfo.getHexSideLength();
