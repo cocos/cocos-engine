@@ -875,7 +875,7 @@ function deserialize (data, details, options) {
 
     return res;
 }
-deserialize.Details = Details;
+(deserialize as any).Details = Details;
 deserialize.reportMissingClass = (id) => {
     if (EDITOR && EditorExtends.UuidUtils.isUuid(id)) {
         id = EditorExtends.UuidUtils.decompressUuid(id);

@@ -51,7 +51,7 @@ else {
     }
     legacyCC.deserialize = deserialize;
     (deserialize as any).reportMissingClass = deserializeDynamic.reportMissingClass;
-    (deserialize as any).Details = deserializeDynamic.Details;
+    (deserialize as any).Details = (deserializeDynamic as any).Details;
 }
 
 export default legacyCC.deserialize;

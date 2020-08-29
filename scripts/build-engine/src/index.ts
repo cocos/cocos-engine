@@ -11,6 +11,8 @@ import babelPresetEnv from '@babel/preset-env';
 import babelPresetCc from '@cocos/babel-preset-cc';
 // @ts-ignore
 import babelPluginTransformForOf from '@babel/plugin-transform-for-of';
+// @ts-ignore
+import babelPluginConstEnum from 'babel-plugin-const-enum';
 import * as rollup from 'rollup';
 // @ts-ignore
 import rpProgress from 'rollup-plugin-progress';
@@ -21,6 +23,8 @@ import { generateCCSource } from './make-cc';
 import nodeResolve from 'resolve';
 import { getModuleName } from './module-name';
 import tsConfigPaths from './ts-paths';
+import { default as rpDropPureExport } from './plugins/drop-pure-export';
+import { inlineConst as rpInlineConst, inlineEnum as rpInlineEnum } from './plugins/inline-prop';
 
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
 
@@ -252,7 +256,11 @@ async function _doBuild ({
         presetEnvOptions.targets = options.targets;
     }
 
-    const babelPlugins: any[] = [];
+    const babelPlugins: any[] = [
+        [babelPluginConstEnum, {
+            transform: 'constObject'
+        }]
+    ];
     if (options.targets === undefined) {
         babelPlugins.push([babelPluginTransformForOf, {
             loose: true,
@@ -291,7 +299,12 @@ async function _doBuild ({
             preferConst: true,
         }),
 
+        rpDropPureExport(),
+        rpInlineConst(),
+
         rpBabel(babelOptions),
+
+        rpInlineEnum(),
 
         commonjs({
             namedExports: {

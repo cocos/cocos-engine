@@ -960,7 +960,7 @@ function deserialize (data: IFileData, details: Details, options?: IOptions): ob
     return instances[rootIndex];
 }
 
-deserialize.Details = Details;
+(deserialize as any).Details = Details;
 deserialize.reportMissingClass = (id) => {
     if (EDITOR && EditorExtends.UuidUtils.isUuid(id)) {
         id = EditorExtends.UuidUtils.decompressUuid(id);
