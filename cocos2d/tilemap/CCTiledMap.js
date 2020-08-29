@@ -1003,7 +1003,7 @@ cc.TiledMap.fillTextureGrids = function (tileset, texGrids, texId, spFrame, name
             grid.b = (grid.y + grid.height) / texHeight;
             grid._rect = cc.rect(grid);
         } else if (spFrame._rotated) {
-            grid.rotated = true;
+            grid._rotated = true;
             grid._name = spFrame.name;
             grid._rect = spFrame._rect;
             grid.l = spFrame.uv[0];

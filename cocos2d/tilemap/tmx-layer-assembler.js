@@ -126,7 +126,7 @@ c d
 */
 function _flipTexture (inGrid, gid) {
 
-    if (inGrid.rotated) {
+    if (inGrid._rotated) {
         // 2:c   1:a
         // 4:d   3:b
         _uva.x = inGrid.r;

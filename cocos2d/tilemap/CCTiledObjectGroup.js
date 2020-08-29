@@ -291,16 +291,16 @@ let TiledObjectGroup = cc.Class({
                 imgNode.opacity = this._opacity;
                 imgNode.setSiblingIndex(i);
 
-                let sp = imgNode.getComponent(cc.Sprite);
-                if (!sp) {
-                    sp = imgNode.addComponent(cc.Sprite);
+                let sprite = imgNode.getComponent(cc.Sprite);
+                if (!sprite) {
+                    sprite = imgNode.addComponent(cc.Sprite);
                 }
 
-                sp._srcBlendFactor = this._premultiplyAlpha ? cc.gfx.BLEND_ONE : cc.gfx.BLEND_SRC_ALPHA;
-                sp._dstBlendFactor = cc.gfx.BLEND_ONE_MINUS_SRC_ALPHA;
-                sp._updateBlendFunc(true);
+                sprite._srcBlendFactor = this._premultiplyAlpha ? cc.gfx.BLEND_ONE : cc.gfx.BLEND_SRC_ALPHA;
+                sprite._dstBlendFactor = cc.gfx.BLEND_ONE_MINUS_SRC_ALPHA;
+                sprite._updateBlendFunc(true);
 
-                let spf = sp.spriteFrame;
+                let spf = sprite.spriteFrame;
                 if (!spf) {
                     spf = new cc.SpriteFrame();
                 }
@@ -317,14 +317,15 @@ let TiledObjectGroup = cc.Class({
                     spf.setFlipY(false);
                 }
 
+                spf.setRotated(grid._rotated);
                 spf.setTexture(grid._texture, grid._rect);
-                spf.setRotated(grid.rotated)
-                sp.spriteFrame = spf;
-                sp.setVertsDirty();
 
-                // object group may has no width or height info
+                sprite.spriteFrame = spf;
+
                 imgNode.setContentSize(object.width, object.height);
-                sp.sizeMode = cc.Sprite.SizeMode.CUSTOM;
+                sprite.sizeMode = cc.Sprite.SizeMode.CUSTOM;
+
+                sprite.setVertsDirty();
             }
         }
         this._objects = objects;
@@ -373,8 +374,8 @@ let TiledObjectGroup = cc.Class({
 
             let sp = imgNode.getComponent(cc.Sprite);
             let spf = sp.spriteFrame;
+            spf.setRotated(grid._rotated);
             spf.setTexture(grid._texture, grid._rect);
-            spf.setRotated(grid.rotated)
             sp.spriteFrame = spf;
             sp.setVertsDirty();
         }
