@@ -295,6 +295,7 @@ let TiledObjectGroup = cc.Class({
                 if (!sprite) {
                     sprite = imgNode.addComponent(cc.Sprite);
                 }
+                sprite.sizeMode = cc.Sprite.SizeMode.CUSTOM;
 
                 sprite._srcBlendFactor = this._premultiplyAlpha ? cc.gfx.BLEND_ONE : cc.gfx.BLEND_SRC_ALPHA;
                 sprite._dstBlendFactor = cc.gfx.BLEND_ONE_MINUS_SRC_ALPHA;
@@ -324,7 +325,6 @@ let TiledObjectGroup = cc.Class({
                 sprite.spriteFrame = spf;
 
                 imgNode.setContentSize(object.width, object.height);
-                sprite.sizeMode = cc.Sprite.SizeMode.CUSTOM;
 
                 sprite.setVertsDirty();
             }
