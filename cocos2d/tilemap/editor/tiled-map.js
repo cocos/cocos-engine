@@ -183,7 +183,7 @@ class TiledMapMeta extends CustomAssetMeta {
         var uuid = db.fspathToUuid(p);
         return uuid ? Editor.serialize.asAsset(uuid) : null;
     });
-    asset.imageLayerTextureNames = this._imageLayerTextureNames;    
+    asset.imageLayerTextureNames = this._imageLayerTextureNames;
 
     asset.tsxFiles = this._tsxFiles.map(p => {
         var tsxPath = Path.join(Path.dirname(fspath), p);

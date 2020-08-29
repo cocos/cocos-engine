@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 /**
- * !#en TiledTile can control the specified map tile. 
+ * !#en TiledTile can control the specified map tile.
  * It will apply the node rotation, scale, translate to the map tile.
  * You can change the TiledTile's gid to change the map tile's style.
  * !#zh TiledTile 可以单独对某一个地图块进行操作。
