@@ -71,6 +71,8 @@ cc.TMXLayerInfo = function () {
     this._minGID = 100000;
     this._maxGID = 0;
     this.offset = cc.v2(0,0);
+
+    this.tintColor = null;
 };
 
 cc.TMXLayerInfo.prototype = {
@@ -106,6 +108,8 @@ cc.TMXImageLayerInfo = function () {
     this._opacity = 0;
     this._trans = new cc.Color(255, 255, 255, 255);
     this.sourceImage = null;
+
+    this.tintColor = null;
 };
 
 /**
@@ -132,6 +136,8 @@ cc.TMXObjectGroupInfo = function () {
     this._color = new cc.Color(255, 255, 255, 255);
     this.offset = cc.v2(0,0);
     this._draworder = 'topdown';
+
+    this.tintColor = null;
 };
 
 cc.TMXObjectGroupInfo.prototype = {
@@ -1014,6 +1020,8 @@ cc.TMXMapInfo.prototype = {
         let opacity = selLayer.getAttribute('opacity') || 1;
         imageLayer.opacity = parseInt(255 * parseFloat(opacity)) || 255;
 
+        imageLayer.tintColor = selGroup.getAttribute('tintcolor') || null;
+
         let data = datas[0];
         let source = data.getAttribute('source');
         imageLayer.sourceImage = this._imageLayerTextures[source];
@@ -1048,6 +1056,8 @@ cc.TMXMapInfo.prototype = {
         else
             layer._opacity = 255;
         layer.offset = cc.v2(parseFloat(selLayer.getAttribute('offsetx')) || 0, parseFloat(selLayer.getAttribute('offsety')) || 0);
+
+        layer.tintColor = selLayer.getAttribute('tintcolor') || null;
 
         let nodeValue = '';
         for (let j = 0; j < data.childNodes.length; j++) {
@@ -1114,6 +1124,8 @@ cc.TMXMapInfo.prototype = {
             objectGroup._opacity = parseInt(255 * parseFloat(opacity));
         else
             objectGroup._opacity = 255;
+
+        objectGroup.tintColor = selGroup.getAttribute('tintcolor') || null;
 
         let visible = selGroup.getAttribute('visible');
         if (visible && parseInt(visible) === 0)

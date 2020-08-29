@@ -1303,6 +1303,12 @@ let TiledLayer = cc.Class({
         this._minGID = layerInfo._minGID;
         this._maxGID = layerInfo._maxGID;
         this._opacity = layerInfo._opacity;
+
+        if (layerInfo.tintColor) {
+            this._tintColor = cc.color(layerInfo.tintColor);
+            this.node.color = this._tintColor;
+        }
+
         this._renderOrder = mapInfo.renderOrder;
         this._staggerAxis = mapInfo.getStaggerAxis();
         this._staggerIndex = mapInfo.getStaggerIndex();

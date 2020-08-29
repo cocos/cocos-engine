@@ -148,6 +148,10 @@ let TiledObjectGroup = cc.Class({
         this._offset = cc.v2(groupInfo.offset.x, -groupInfo.offset.y);
         this._opacity = groupInfo._opacity;
 
+        if (groupInfo.tintColor) {
+            this._tintColor = cc.color(groupInfo.tintColor);
+        }
+
         this._texGrids = texGrids;
         this._animations = mapInfo.getTileAnimations();
         this.aniObjects = [];
@@ -225,6 +229,10 @@ let TiledObjectGroup = cc.Class({
                 textNode.opacity = this._opacity;
                 textNode.setSiblingIndex(i);
 
+                if (this._tintColor) {
+                    textNode.color = this._tintColor;
+                }
+
                 let label = textNode.getComponent(cc.Label);
                 if (!label) {
                     label = textNode.addComponent(cc.Label);
@@ -261,6 +269,10 @@ let TiledObjectGroup = cc.Class({
 
                 if (!imgNode) {
                     imgNode = new cc.Node();
+                }
+
+                if (this._tintColor) {
+                    imgNode.color = this._tintColor;
                 }
 
                 if (this._animations[gridGID]) {
