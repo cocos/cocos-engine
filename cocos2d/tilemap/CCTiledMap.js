@@ -1005,14 +1005,14 @@ cc.TiledMap.fillTextureGrids = function (tileset, texGrids, texId, spFrame, name
         } else if (spFrame._rotated) {
             grid._rotated = true;
             grid._name = spFrame.name;
-            grid._rect = spFrame._rect;
+            grid._rect = spFrame.getRect();
             grid.l = spFrame.uv[0];
             grid.t = spFrame.uv[1];
             grid.r = spFrame.uv[4];
             grid.b = spFrame.uv[3];
         } else {
             grid._name = spFrame.name;
-            grid._rect = spFrame._rect;
+            grid._rect = spFrame.getRect();
             grid.l = spFrame.uv[0];
             grid.t = spFrame.uv[5];
             grid.r = spFrame.uv[2];
