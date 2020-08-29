@@ -491,6 +491,33 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
+     * !#en Change or refresh SpriteFrame with Texture, rect, rotated, offset and originalSize.<br/>
+     * !#zh 运行时，改变 SpriteFrame 的 Texture，rect，rotated，offset 和 originalSize。该方法比 setTexture 更简单快捷。
+     * @method setTexture
+     * @param {Texture2D} texture
+     * @param {Rect} [rect=null]
+     * @param {Boolean} [rotated=false]
+     * @param {Vec2} [offset=cc.v2(0,0)]
+     * @param {Size} [originalSize=rect.size]
+     * @return {Boolean}
+     */
+    refreshTexture (texture, rect, rotated, offset, originalSize) {
+        if (rect) {
+            this._rect = rect;
+        }
+        if (rotated === true || rotated === false) {
+            this._rotated = rotated;
+        }
+        if (offset) {
+            this._offset = offset;
+        }
+        if (originalSize) {
+            this._originalSize = originalSize;
+        }
+        this._refreshTexture(texture);
+    },
+    
+    /**
      * !#en If a loading scene (or prefab) is marked as `asyncLoadAssets`, all the textures of the SpriteFrame which
      * associated by user's custom Components in the scene, will not preload automatically.
      * These textures will be load when Sprite component is going to render the SpriteFrames.
