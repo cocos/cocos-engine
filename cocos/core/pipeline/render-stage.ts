@@ -6,7 +6,7 @@ import { ccclass, property, displayOrder, visible } from '../data/class-decorato
 import { RenderView } from './render-view';
 import { legacyCC } from '../global-exports';
 import { RenderPipeline } from './render-pipeline';
-import { RenderFlow } from '..';
+import { RenderFlow } from './render-flow';
 
 /**
  * @en The render stage information descriptor
