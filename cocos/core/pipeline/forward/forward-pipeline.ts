@@ -197,7 +197,7 @@ export class ForwardPipeline extends RenderPipeline {
                 x = shadowInfo.sphere.radius * shadowInfo.aspect;
                 y = shadowInfo.sphere.radius;
             }
-            const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY;
+            const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY; // always offscreen
             Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, shadowInfo.far,
                 device.clipSpaceMinZ, projectionSignY);
 

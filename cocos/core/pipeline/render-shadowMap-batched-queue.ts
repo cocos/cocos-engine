@@ -3,7 +3,6 @@
  */
 
 import { GFXCommandBuffer } from '../gfx/command-buffer';
-import { Pass } from '../renderer';
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, SetIndex } from './define';
 import { GFXDevice, GFXRenderPass, GFXBuffer, GFXShader } from '../gfx';

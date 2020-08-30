@@ -83,7 +83,7 @@ export class Skybox {
     set envmap (val: TextureCube | null) {
         this._envmap = val;
         if (this._enabled) {
-            legacyCC.director.root.pipeline.ambient.groundAlbedo[3] = this._envmap ? this._envmap.mipmapLevel : this._default!.mipmapLevel;
+            legacyCC.director.root.pipeline.ambient.albedoArray[3] = this._envmap ? this._envmap.mipmapLevel : this._default!.mipmapLevel;
             this._updateGlobalBinding();
         }
     }
@@ -97,7 +97,7 @@ export class Skybox {
     protected _default: TextureCube | null = null;
 
     public activate () {
-        const pipeline = legacyCC.director.root.pipeline
+        const pipeline = legacyCC.director.root.pipeline;
         this._globalDescriptorSet = pipeline.descriptorSet;
         if (!this._model) {
             this._model = new Model();
@@ -105,7 +105,7 @@ export class Skybox {
 
         this._default = builtinResMgr.get<TextureCube>('default-cube-texture');
 
-        pipeline.ambient.groundAlbedo[3] = this._envmap ? this._envmap.mipmapLevel : this._default.mipmapLevel;
+        pipeline.ambient.albedoArray[3] = this._envmap ? this._envmap.mipmapLevel : this._default.mipmapLevel;
         this._updateGlobalBinding();
         if (!skybox_material) {
             const mat = new Material();
