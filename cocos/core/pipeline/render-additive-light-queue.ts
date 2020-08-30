@@ -15,7 +15,7 @@ import { GFXDevice, GFXRenderPass, GFXBuffer, GFXBufferUsageBit, GFXMemoryUsageB
 import { Pool } from '../memop';
 import { InstancedBuffer } from './instanced-buffer';
 import { BatchedBuffer } from './batched-buffer';
-import { ForwardPipeline } from '../../../exports/base';
+import { ForwardPipeline } from './forward/forward-pipeline';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { getPhaseID } from './pass-phase';

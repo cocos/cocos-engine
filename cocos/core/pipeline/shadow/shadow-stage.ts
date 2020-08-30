@@ -25,6 +25,7 @@ export class ShadowStage extends RenderStage {
     public static initInfo: IRenderStageInfo = {
         name: 'ShadowStage',
         priority: ForwardStagePriority.FORWARD,
+        tag: 0
     };
 
     public setShadowFrameBuffer (shadowFrameBuffer: GFXFramebuffer) {

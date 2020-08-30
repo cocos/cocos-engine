@@ -30,7 +30,6 @@
 import { ALIPAY, EDITOR, JSB, PREVIEW, RUNTIME_BASED } from 'internal:constants';
 import AssetLibrary from './assets/asset-library';
 import { EventTarget } from './event/event-target';
-import { RenderPipeline } from './pipeline';
 import * as debug from './platform/debug';
 import inputManager from './platform/event-manager/input-manager';
 import { GFXDevice, IGFXDeviceInfo } from './gfx';
@@ -632,7 +631,7 @@ export class Game extends EventTarget {
         if (renderPipeline) {
             legacyCC.loader.load({ uuid: renderPipeline }, (err, asset) => {
                 // failed load renderPipeline
-                if (err || !(asset instanceof RenderPipeline)) {
+                if (err) {
                     console.warn(`Failed load renderpipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);
                     console.warn(err);
                     this.setRenderPipeline();
@@ -1042,7 +1041,7 @@ export class Game extends EventTarget {
         });
     }
 
-    private setRenderPipeline (rppl?: RenderPipeline) {
+    private setRenderPipeline (rppl?: any) {
         if (!legacyCC.director.root.setRenderPipeline(rppl)) {
             this.setRenderPipeline();
         }

@@ -16,7 +16,6 @@ import { SpotLight } from './renderer/scene/spot-light';
 import { UI } from './renderer/ui/ui';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
-import { ForwardPipeline } from './pipeline/forward/forward-pipeline';
 import { GFXColorAttachment, GFXDepthStencilAttachment, GFXStoreOp } from './gfx';
 import { RootHandle, RootPool, RootView, NULL_HANDLE } from './renderer/core/memory-pools';
 
@@ -296,8 +295,7 @@ export class Root {
 
     public setRenderPipeline (rppl: RenderPipeline): boolean {
         if (!rppl) {
-            rppl = new ForwardPipeline();
-            rppl.initialize({ flows: [] });
+            rppl = this.createDefaultPipeline();
         }
         this._pipeline = rppl;
         if (!this._pipeline.activate()) {
@@ -310,6 +308,12 @@ export class Root {
             return false;
         }
         return true;
+    }
+
+    public createDefaultPipeline () {
+        const rppl = new legacyCC.ForwardPipeline();
+        rppl.initialize({ flows: [] });
+        return rppl;
     }
 
     public onGlobalPipelineStateChanged () {

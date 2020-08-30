@@ -25,6 +25,14 @@ export class UIStage extends RenderStage {
     public static initInfo: IRenderStageInfo = {
         name: 'UIStage',
         priority: ForwardStagePriority.UI,
+        tag: 0,
+        renderQueues: [
+            {
+                isTransparent: true,
+                stages: ['default'],
+                sortMode: RenderQueueSortMode.BACK_TO_FRONT,
+            }
+        ]
     };
 
     @type([RenderQueueDesc])
@@ -37,15 +45,11 @@ export class UIStage extends RenderStage {
 
     public initialize (info: IRenderStageInfo): boolean {
         super.initialize(info);
-        this.renderQueues = [{
-            isTransparent: true,
-            stages: ['default'],
-            sortMode: RenderQueueSortMode.BACK_TO_FRONT,
-        }]
-
+        if (info.renderQueues) {
+            this.renderQueues = info.renderQueues;
+        }
         return true;
     }
-
     public activate (pipeline: ForwardPipeline, flow: UIFlow) {
         super.activate(pipeline, flow);
         for (let i = 0; i < this.renderQueues.length; i++) {

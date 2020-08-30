@@ -96,13 +96,20 @@ export class ForwardPipeline extends RenderPipeline {
     public initialize (info: IRenderPipelineInfo): boolean {
         super.initialize(info);
 
-        const shadowFlow = new ShadowFlow();
-        shadowFlow.initialize(ShadowFlow.initInfo);
-        this._flows.push(shadowFlow);
+        if (this._flows.length === 0) {
+            const shadowFlow = new ShadowFlow();
+            shadowFlow.initialize(ShadowFlow.initInfo);
+            this._flows.push(shadowFlow);
 
-        const forwardFlow = new ForwardFlow();
-        forwardFlow.initialize(ForwardFlow.initInfo);
-        this._flows.push(forwardFlow);
+            const forwardFlow = new ForwardFlow();
+            forwardFlow.initialize(ForwardFlow.initInfo);
+            this._flows.push(forwardFlow);
+
+            const uiFlow = new UIFlow();
+            uiFlow.initialize(UIFlow.initInfo);
+            this._flows.push(uiFlow);
+            uiFlow.activate(this);
+        }
 
         return true;
     }
