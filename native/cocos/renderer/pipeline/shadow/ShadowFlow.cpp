@@ -17,7 +17,9 @@ namespace pipeline {
 RenderFlowInfo ShadowFlow::_initInfo = {
     "ShadowFlow",
     static_cast<uint>(ForwardFlowPriority::SHADOW),
-    static_cast<uint>(RenderFlowTag::SCENE)};
+    static_cast<uint>(RenderFlowTag::SCENE),
+    {}
+};
 const RenderFlowInfo &ShadowFlow::getInitializeInfo() { return ShadowFlow::_initInfo; }
 
 ShadowFlow::~ShadowFlow() {
@@ -26,10 +28,11 @@ ShadowFlow::~ShadowFlow() {
 
 bool ShadowFlow::initialize(const RenderFlowInfo &info) {
     RenderFlow::initialize(info);
-
-    auto shadowStage = CC_NEW(ShadowStage);
-    shadowStage->initialize(ShadowStage::getInitializeInfo());
-    _stages.emplace_back(shadowStage);
+    if (_stages.size() == 0) {
+        auto shadowStage = CC_NEW(ShadowStage);
+        shadowStage->initialize(ShadowStage::getInitializeInfo());
+        _stages.emplace_back(shadowStage);
+    }
     return true;
 }
 

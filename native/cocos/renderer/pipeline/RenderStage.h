@@ -19,6 +19,7 @@ struct CC_DLL RenderStageInfo {
     String name;
     uint priority = 0;
     uint tag = 0;
+    RenderQueueDescList renderQueues;
 };
 
 class CC_DLL RenderStage : public Object {

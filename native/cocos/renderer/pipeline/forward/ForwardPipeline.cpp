@@ -68,28 +68,22 @@ ForwardPipeline::~ForwardPipeline() {
     destroy();
 }
 
-bool ForwardPipeline::init() {
-    auto shadowFlow = CC_NEW(ShadowFlow);
-    shadowFlow->initialize(ShadowFlow::getInitializeInfo());
-    _flows.emplace_back(shadowFlow);
-
-    auto forwardFlow = CC_NEW(ForwardFlow);
-    forwardFlow->initialize(ForwardFlow::getInitializeInfo());
-    _flows.emplace_back(forwardFlow);
-
-    return true;
-}
-
 bool ForwardPipeline::initialize(const RenderPipelineInfo &info) {
     RenderPipeline::initialize(info);
+    
+    if (_flows.size() == 0) {
+        auto shadowFlow = CC_NEW(ShadowFlow);
+        shadowFlow->initialize(ShadowFlow::getInitializeInfo());
+        _flows.emplace_back(shadowFlow);
 
-    auto shadowFlow = CC_NEW(ShadowFlow);
-    shadowFlow->initialize(ShadowFlow::getInitializeInfo());
-    _flows.emplace_back(shadowFlow);
-
-    auto forwardFlow = CC_NEW(ForwardFlow);
-    forwardFlow->initialize(ForwardFlow::getInitializeInfo());
-    _flows.emplace_back(forwardFlow);
+        auto forwardFlow = CC_NEW(ForwardFlow);
+        forwardFlow->initialize(ForwardFlow::getInitializeInfo());
+        _flows.emplace_back(forwardFlow);
+        
+        auto uiFlow = CC_NEW(UIFlow);
+        uiFlow->initialize(UIFlow::getInitializeInfo());
+        _flows.emplace_back(uiFlow);
+    }
 
     return true;
 }

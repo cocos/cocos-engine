@@ -33,7 +33,10 @@ void LinearToSRGB(gfx::Color &out, const gfx::Color &linear) {
 RenderStageInfo ForwardStage::_initInfo = {
     "ForwardStage",
     static_cast<uint>(ForwardStagePriority::FORWARD),
-    static_cast<uint>(RenderFlowTag::SCENE)};
+    static_cast<uint>(RenderFlowTag::SCENE),
+    {{false, RenderQueueSortMode::FRONT_TO_BACK, {"default"}},
+    {true, RenderQueueSortMode::BACK_TO_FRONT, {"default", "planarShadow"}}}
+};
 const RenderStageInfo &ForwardStage::getInitializeInfo() { return ForwardStage::_initInfo; }
 
 ForwardStage::ForwardStage() : RenderStage() {
@@ -48,10 +51,7 @@ ForwardStage::~ForwardStage() {
 
 bool ForwardStage::initialize(const RenderStageInfo &info) {
     RenderStage::initialize(info);
-    _renderQueueDescriptors = {
-        {false, RenderQueueSortMode::FRONT_TO_BACK, {"default"}},
-        {true, RenderQueueSortMode::BACK_TO_FRONT, {"default", "planarShadow"}}};
-
+    _renderQueueDescriptors = info.renderQueues;
     _phaseID = PassPhase::getPhaseID("default");
     return true;
 }

@@ -16,14 +16,15 @@ UIStage::~UIStage() {
 }
 RenderStageInfo UIStage::_initInfo = {
     "UIStage",
-    static_cast<uint>(ForwardStagePriority::UI)};
+    static_cast<uint>(ForwardStagePriority::UI),
+    static_cast<uint>(RenderFlowTag::SCENE),
+    {{true, RenderQueueSortMode::BACK_TO_FRONT, {"default"}}}
+};
 const RenderStageInfo &UIStage::getInitializeInfo() { return UIStage::_initInfo; }
 
 bool UIStage::initialize(const RenderStageInfo &info) {
     RenderStage::initialize(info);
-    RenderQueueDesc descriptor = {true, RenderQueueSortMode::BACK_TO_FRONT, {"default"}};
-    _renderQueueDescriptors.emplace_back(std::move(descriptor));
-
+    _renderQueueDescriptors = info.renderQueues;
     return true;
 }
 

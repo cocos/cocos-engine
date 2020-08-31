@@ -15,8 +15,8 @@ class DefineMap;
 class RenderView;
 
 struct CC_DLL RenderPipelineInfo {
-    RenderFlowList flows;
     uint tag = 0;
+    RenderFlowList flows;
 };
 
 class CC_DLL RenderPipeline : public Object {

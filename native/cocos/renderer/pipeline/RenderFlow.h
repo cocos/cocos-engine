@@ -13,6 +13,7 @@ struct CC_DLL RenderFlowInfo {
     String name;
     uint priority = 0;
     uint tag = 0;
+    RenderStageList stages;
 };
 
 class CC_DLL RenderFlow : public Object {

@@ -12,7 +12,7 @@ bool RenderFlow::initialize(const RenderFlowInfo &info) {
     _name = info.name;
     _priority = info.priority;
     _tag = info.tag;
-
+    _stages = info.stages;
     return true;
 }
 

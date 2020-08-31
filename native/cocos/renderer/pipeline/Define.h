@@ -125,7 +125,7 @@ enum class CC_DLL RenderQueueSortMode {
 struct CC_DLL RenderQueueDesc {
     bool isTransparent = false;
     RenderQueueSortMode sortMode = RenderQueueSortMode::FRONT_TO_BACK;
-    vector<String> stages;
+    StringArray stages;
 };
 typedef vector<RenderQueueDesc> RenderQueueDescList;
 
