@@ -35,7 +35,7 @@
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.h"
 #include "cocos/scripting/js-bindings/auto/jsb_gfx_auto.h"
 #include "cocos/scripting/js-bindings/auto/jsb_pipeline_auto.h"
-#include "cocos/scripting/js-bindings/auto/jsb_pipeline_manual.h"
+#include "cocos/scripting/js-bindings/manual/jsb_pipeline_manual.h"
 #include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_manual.h"
 #include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_network_manual.h"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.h"
