@@ -8,7 +8,7 @@ import { createPhysicsWorld, checkPhysicsModule } from './instance';
 import { director, Director } from '../../core/director';
 import { System } from '../../core/components';
 import { PhysicMaterial } from './assets/physic-material';
-import { Layers, RecyclePool, error, game } from '../../core';
+import { RecyclePool, error, game } from '../../core';
 import { ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
 import { EDITOR, DEBUG } from 'internal:constants';
@@ -389,7 +389,7 @@ export class PhysicsSystem extends System {
      * Updates the mask corresponding to the collision matrix for the lowLevel rigid-body instance.
      * Automatic execution during automatic simulation.
      * @zh
-     * 更新底层实例对应于碰撞矩阵的掩码，自动模拟时会自动更新。
+     * 更新底层实例对应于碰撞矩阵的掩码，开启自动模拟时会自动更新。
      */
     updateCollisionMatrix () {
         if (this.useCollisionMatrix) {
@@ -470,6 +470,7 @@ export class PhysicsSystem extends System {
      * @return boolean 表示是否有检测到碰撞盒
      */
     raycast (worldRay: ray, mask: number = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+        this.updateCollisionMatrix();
         this.raycastResultPool.reset();
         this.raycastResults.length = 0;
         this.raycastOptions.mask = mask;
@@ -490,6 +491,7 @@ export class PhysicsSystem extends System {
      * @return boolean 表示是否有检测到碰撞盒
      */
     raycastClosest (worldRay: ray, mask: number = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+        this.updateCollisionMatrix();
         this.raycastOptions.mask = mask;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;

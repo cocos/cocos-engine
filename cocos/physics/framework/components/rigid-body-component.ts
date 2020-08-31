@@ -17,12 +17,18 @@ import {
     type,
 } from '../../../core/data/class-decorator';
 import { Vec3 } from '../../../core/math';
-import { Component, error, Layers } from '../../../core';
+import { Component, error, Enum } from '../../../core';
 import { IRigidBody } from '../../spec/i-rigid-body';
 import { createRigidBody } from '../instance';
 import { EDITOR, TEST } from 'internal:constants';
 import { ERigidBodyType } from '../physics-enum';
 import { PhysicsSystem } from '../physics-system';
+import { legacyCC } from '../../../core/global-exports';
+
+legacyCC.internal.PhysicsGroup = {
+    DEFAULT: 1,
+};
+Enum(legacyCC.internal.PhysicsGroup)
 
 /**
  * @en
@@ -48,7 +54,7 @@ export class RigidBodyComponent extends Component {
      * @zh
      * 获取或设置分组。
      */
-    @type(Layers.Enum)
+    @type(legacyCC.internal.PhysicsGroup)
     @displayOrder(-2)
     @tooltip('设置分组')
     public get group (): number {
@@ -315,7 +321,7 @@ export class RigidBodyComponent extends Component {
     /// PRIVATE PROPERTY ///
 
     @property
-    private _group: number = Layers.Enum.DEFAULT;
+    private _group: number = 1 << 0;
 
     @property
     private _mass: number = 1;
