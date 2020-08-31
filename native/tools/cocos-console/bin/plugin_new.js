@@ -109,12 +109,9 @@ class CCPluginNEW extends cocos_cli_1.CCPlugin {
         if (template_names.length == 1) {
             return template_names[0];
         }
-        let dirs = template_names.filter(x => x.indexOf(tpn) >= 0);
+        let dirs = template_names.filter(x => x === `template-${tpn}`);
         if (dirs.length == 0) {
             console.error(`can not find template ${tpn} in ${template_names.join(",")}`);
-        }
-        if (dirs.length > 1) {
-            console.error(`find multiple template dirs in for ${tpn}`);
         }
         return dirs[0];
     }
