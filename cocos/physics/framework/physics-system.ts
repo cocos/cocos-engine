@@ -8,11 +8,17 @@ import { createPhysicsWorld, checkPhysicsModule } from './instance';
 import { director, Director } from '../../core/director';
 import { System } from '../../core/components';
 import { PhysicMaterial } from './assets/physic-material';
-import { RecyclePool, error, game } from '../../core';
+import { RecyclePool, error, game, Enum } from '../../core';
 import { ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
 import { EDITOR, DEBUG } from 'internal:constants';
 import { IPhysicsConfig, ICollisionMatrix } from './physics-config';
+
+const PhysicsGroup = {
+    DEFAULT: 1,
+};
+Enum(PhysicsGroup);
+legacyCC.internal.PhysicsGroup = PhysicsGroup;
 
 class CollisionMatrix {
 
@@ -46,6 +52,53 @@ class CollisionMatrix {
  */
 export class PhysicsSystem extends System {
 
+    static get PHYSICS_NONE () {
+        return !physicsEngineId;
+    }
+
+    static get PHYSICS_BUILTIN () {
+        return physicsEngineId === 'builtin';
+    }
+
+    static get PHYSICS_CANNON () {
+        return physicsEngineId === 'cannon.js';
+    }
+
+    static get PHYSICS_AMMO () {
+        return physicsEngineId === 'ammo.js';
+    }
+
+    /**
+     * @en
+     * Gets the ID of the system.
+     * @zh
+     * 获取此系统的ID。
+     */
+    static readonly ID = 'PHYSICS';
+
+    /**
+     * @en
+     * Gets the predefined physics groups.
+     * @zh
+     * 获取预定义的物理分组。
+     */
+    static get PhysicsGroup () {
+        return PhysicsGroup;
+    }
+
+    /**
+     * @en
+     * Gets the physical system instance.
+     * @zh
+     * 获取物理系统实例。
+     */
+    static get instance (): PhysicsSystem {
+        if (DEBUG && checkPhysicsModule(PhysicsSystem._instance)) { return null as any; }
+        return PhysicsSystem._instance;
+    }
+
+    private static readonly _instance: PhysicsSystem;
+
     /**
      * @en
      * Gets or sets whether the physical system is enabled, which can be used to pause or continue running the physical system.
@@ -55,6 +108,7 @@ export class PhysicsSystem extends System {
     get enable (): boolean {
         return this._enable;
     }
+
     set enable (value: boolean) {
         if (!value) this._timeReset = true;
         this._enable = value;
@@ -69,6 +123,7 @@ export class PhysicsSystem extends System {
     get allowSleep (): boolean {
         return this._allowSleep;
     }
+
     set allowSleep (v: boolean) {
         this._allowSleep = v;
         if (!EDITOR) {
@@ -201,43 +256,6 @@ export class PhysicsSystem extends System {
     readonly useCollisionMatrix: boolean;
 
     readonly useNodeChains: boolean;
-
-    static get PHYSICS_NONE () {
-        return !physicsEngineId;
-    }
-
-    static get PHYSICS_BUILTIN () {
-        return physicsEngineId === 'builtin';
-    }
-
-    static get PHYSICS_CANNON () {
-        return physicsEngineId === 'cannon.js';
-    }
-
-    static get PHYSICS_AMMO () {
-        return physicsEngineId === 'ammo.js';
-    }
-
-    /**
-     * @en
-     * Gets the ID of the system.
-     * @zh
-     * 获取此系统的ID。
-     */
-    static readonly ID = 'PHYSICS';
-
-    /**
-     * @en
-     * Gets the physical system instance.
-     * @zh
-     * 获取物理系统实例。
-     */
-    static get instance (): PhysicsSystem {
-        if (DEBUG && checkPhysicsModule(PhysicsSystem._instance)) { return null as any; }
-        return PhysicsSystem._instance;
-    }
-
-    private static readonly _instance: PhysicsSystem;
 
     private _enable = true;
     private _allowSleep = true;
