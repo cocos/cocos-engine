@@ -1851,12 +1851,7 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_RenderView_finalize)
 
 static bool js_pipeline_RenderView_constructor(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    unsigned int arg0 = 0;
-    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-    SE_PRECONDITION2(ok, false, "js_pipeline_RenderView_constructor : Error processing arguments");
-    cc::pipeline::RenderView* cobj = JSB_ALLOC(cc::pipeline::RenderView, arg0);
+    cc::pipeline::RenderView* cobj = JSB_ALLOC(cc::pipeline::RenderView);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;

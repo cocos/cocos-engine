@@ -37,6 +37,7 @@ bool ShadowFlow::initialize(const RenderFlowInfo &info) {
 }
 
 void ShadowFlow::activate(RenderPipeline *pipeline) {
+    return; //TODO coulsonwang
     RenderFlow::activate(pipeline);
 
     auto device = gfx::Device::getInstance();

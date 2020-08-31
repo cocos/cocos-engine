@@ -828,6 +828,8 @@ cocos_source_files(
     cocos/scripting/js-bindings/manual/jsb_cocos2dx_network_manual.h
     cocos/scripting/js-bindings/manual/jsb_xmlhttprequest.cpp
     cocos/scripting/js-bindings/manual/jsb_xmlhttprequest.h
+    cocos/scripting/js-bindings/manual/jsb_pipeline_manual.h
+    cocos/scripting/js-bindings/manual/jsb_pipeline_manual.cpp
 )
 
 if(USE_SOCKET)

@@ -6,8 +6,7 @@
 
 namespace cc {
 namespace pipeline {
-RenderView::RenderView(uint cameraID)
-: _camera(GET_CAMERA(cameraID)) {
+RenderView::RenderView() {
     _pipeline = RenderPipeline::getInstance();
 }
 
@@ -16,9 +15,11 @@ RenderView::~RenderView() {
 }
 
 bool RenderView::initialize(const RenderViewInfo &info) {
+    
     _name = info.name;
     _priority = info.priority;
     setExecuteFlows(info.flows);
+    _camera = GET_CAMERA(info.cameraID);
 
     return true;
 }

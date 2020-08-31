@@ -25,63 +25,63 @@
 
 #include "cocos2d.h"
 
-#include "cocos/scripting/js-bindings/manual/jsb_module_register.h"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
+#include "cocos/scripting/js-bindings/manual/jsb_module_register.h"
 
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_auto.h"
 
-#include "cocos/scripting/js-bindings/manual/jsb_global.h"
-#include "cocos/scripting/js-bindings/manual/jsb_conversions.h"
-#include "cocos/scripting/js-bindings/manual/jsb_platform.h"
-#include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_manual.h"
-#include "cocos/scripting/js-bindings/manual/jsb_xmlhttprequest.h"
-#include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_network_manual.h"
-#include "cocos/scripting/js-bindings/manual/jsb_gfx_manual.h"
 #include "cocos/scripting/dop/jsb_dop.h"
-#include "cocos/scripting/js-bindings/auto/jsb_gfx_auto.h"
-#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.h"
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.h"
+#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.h"
+#include "cocos/scripting/js-bindings/auto/jsb_gfx_auto.h"
 #include "cocos/scripting/js-bindings/auto/jsb_pipeline_auto.h"
+#include "cocos/scripting/js-bindings/auto/jsb_pipeline_manual.h"
+#include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_manual.h"
+#include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_network_manual.h"
+#include "cocos/scripting/js-bindings/manual/jsb_conversions.h"
+#include "cocos/scripting/js-bindings/manual/jsb_gfx_manual.h"
+#include "cocos/scripting/js-bindings/manual/jsb_global.h"
+#include "cocos/scripting/js-bindings/manual/jsb_platform.h"
+#include "cocos/scripting/js-bindings/manual/jsb_xmlhttprequest.h"
 
 #if USE_GFX_RENDERER
 #endif
 
 #if USE_SOCKET
-#include "cocos/scripting/js-bindings/manual/jsb_websocket.h"
-#include "cocos/scripting/js-bindings/manual/jsb_socketio.h"
+    #include "cocos/scripting/js-bindings/manual/jsb_socketio.h"
+    #include "cocos/scripting/js-bindings/manual/jsb_websocket.h"
 #endif // USE_SOCKET
 
 #if USE_AUDIO
-#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.h"
+    #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.h"
 #endif
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-#include "cocos/scripting/js-bindings/manual/JavaScriptObjCBridge.h"
+    #include "cocos/scripting/js-bindings/manual/JavaScriptObjCBridge.h"
 #endif
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-#include "cocos/scripting/js-bindings/manual/JavaScriptJavaBridge.h"
+    #include "cocos/scripting/js-bindings/manual/JavaScriptJavaBridge.h"
 #endif
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
-#if USE_VIDEO
-#include "cocos/scripting/js-bindings/auto/jsb_video_auto.h"
-#endif
+    #if USE_VIDEO
+        #include "cocos/scripting/js-bindings/auto/jsb_video_auto.h"
+    #endif
 
 #endif // (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
 using namespace cc;
 
-bool jsb_register_all_modules()
-{
-    se::ScriptEngine* se = se::ScriptEngine::getInstance();
+bool jsb_register_all_modules() {
+    se::ScriptEngine *se = se::ScriptEngine::getInstance();
 
-    se->addBeforeInitHook([](){
+    se->addBeforeInitHook([]() {
         JSBClassType::init();
     });
 
-    se->addBeforeCleanupHook([se](){
+    se->addBeforeCleanupHook([se]() {
         se->garbageCollect();
         PoolManager::getInstance()->getCurrentPool()->clear();
         se->garbageCollect();
@@ -94,7 +94,7 @@ bool jsb_register_all_modules()
     se->addRegisterCallback(register_platform_bindings);
     se->addRegisterCallback(register_all_gfx);
     se->addRegisterCallback(register_all_gfx_manual);
-    
+
     se->addRegisterCallback(register_all_network);
     se->addRegisterCallback(register_all_cocos2dx_network_manual);
     se->addRegisterCallback(register_all_xmlhttprequest);
@@ -102,6 +102,7 @@ bool jsb_register_all_modules()
     se->addRegisterCallback(register_all_extension);
     se->addRegisterCallback(register_all_dop_bindings);
     se->addRegisterCallback(register_all_pipeline);
+    se->addRegisterCallback(register_all_pipeline_manual);
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     se->addRegisterCallback(register_javascript_objc_bridge);
@@ -114,7 +115,7 @@ bool jsb_register_all_modules()
 #if USE_AUDIO
     se->addRegisterCallback(register_all_audioengine);
 #endif
-    
+
 #if USE_SOCKET
     se->addRegisterCallback(register_all_websocket);
     se->addRegisterCallback(register_all_socketio);
@@ -122,13 +123,13 @@ bool jsb_register_all_modules()
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
-#if USE_VIDEO
-//    se->addRegisterCallback(register_all_video);
-#endif
+    #if USE_VIDEO
+    //    se->addRegisterCallback(register_all_video);
+    #endif
 
 #endif // (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
-    se->addAfterCleanupHook([](){
+    se->addAfterCleanupHook([]() {
         PoolManager::getInstance()->getCurrentPool()->clear();
         JSBClassType::destroy();
     });

@@ -13,6 +13,9 @@ DescriptorSet::~DescriptorSet() {
 }
 
 void DescriptorSet::bindBuffer(uint binding, Buffer *buffer) {
+    if (!_layout->getBindings().size()) {
+        return;;
+    }
     const DescriptorSetLayoutBinding &descriptor = _layout->getBindings()[binding];
     if ((uint)descriptor.descriptorType & DESCRIPTOR_BUFFER_TYPE) {
         if (_buffers[binding] != buffer) {
@@ -25,6 +28,9 @@ void DescriptorSet::bindBuffer(uint binding, Buffer *buffer) {
 }
 
 void DescriptorSet::bindTexture(uint binding, Texture *texture) {
+    if (!_layout->getBindings().size()) {
+        return;
+    }
     const DescriptorSetLayoutBinding &descriptor = _layout->getBindings()[binding];
     if ((uint)descriptor.descriptorType & DESCRIPTOR_SAMPLER_TYPE) {
         if (_textures[binding] != texture) {
@@ -37,6 +43,9 @@ void DescriptorSet::bindTexture(uint binding, Texture *texture) {
 }
 
 void DescriptorSet::bindSampler(uint binding, Sampler *sampler) {
+    if(!_layout->getBindings().size()) {
+        return;
+    }
     const DescriptorSetLayoutBinding &descriptor = _layout->getBindings()[binding];
     if ((uint)descriptor.descriptorType & DESCRIPTOR_SAMPLER_TYPE) {
         if (_samplers[binding] != sampler) {

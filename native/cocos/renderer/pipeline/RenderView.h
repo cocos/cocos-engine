@@ -18,7 +18,7 @@ struct CC_DLL RenderViewInfo {
 
 class CC_DLL RenderView : public Object {
 public:
-    RenderView(uint cameraID);
+    RenderView();
     virtual ~RenderView();
 
     void destroy();
@@ -42,7 +42,7 @@ public:
     // setWindow
 
 private:
-    RenderView() = default;
+//    RenderView() = default;
 
 private:
     RenderFlowList _flows;
