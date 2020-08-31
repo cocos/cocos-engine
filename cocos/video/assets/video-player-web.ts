@@ -274,11 +274,14 @@ export class VideoPlayer {
 
     public play () {
         if (this.video) {
-            let requestPromise = this.video.play();
+            let promise = this.video.play();
             // the play API can only be initiated by user gesture.
-            if (window.Promise && requestPromise instanceof Promise) {
-                requestPromise.catch((err) => {
-                    // do nothing ...
+            if (window.Promise && promise instanceof Promise) {
+                promise.catch(error => {
+                    // Auto-play was prevented
+                    // Show a UI element to let the user manually start playback
+                }).then(() => {
+                    // Auto-play started
                 });
             }
         }

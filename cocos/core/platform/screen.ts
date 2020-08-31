@@ -165,7 +165,6 @@ const screen = {
             && window.Promise && requestPromise instanceof Promise) {
             requestPromise.catch((err) => {
                 // do nothing ...
-                console.log(err);
             });
         }
         return requestPromise;
