@@ -2,8 +2,8 @@
  * @hidden
  */
 
-import { Billboard } from './billboard-component';
-import { Line } from './line-component';
+import { Billboard } from './billboard';
+import { Line } from './line';
 import { ParticleSystem } from './particle-system-component';
 import { ParticleUtils } from './particle-utils';
 import './deprecated';

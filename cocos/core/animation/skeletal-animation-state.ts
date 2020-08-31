@@ -33,7 +33,7 @@ import { IAnimInfo, JointAnimationInfo } from '../renderer/models/skeletal-anima
 import { Node } from '../scene-graph/node';
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
 import { AnimationState } from './animation-state';
-import { SkeletalAnimation, Socket } from './skeletal-animation-component';
+import { SkeletalAnimation, Socket } from './skeletal-animation';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { legacyCC } from '../global-exports';
 

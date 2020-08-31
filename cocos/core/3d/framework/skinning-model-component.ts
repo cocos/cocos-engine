@@ -36,7 +36,7 @@ import { BakedSkinningModel } from '../../renderer/models/baked-skinning-model';
 import { SkinningModel } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
 import { ModelComponent } from './model-component';
-import { SkeletalAnimation } from '../../animation/skeletal-animation-component';
+import { SkeletalAnimation } from '../../animation/skeletal-animation';
 import { legacyCC } from '../../global-exports';
 
 /**
