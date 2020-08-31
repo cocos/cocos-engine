@@ -40,6 +40,7 @@ import { ICustomJointTextureLayout } from './renderer';
 import { legacyCC } from './global-exports';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
 import { bindingMappingInfo } from './pipeline/define';
+import { SplashScreen } from './splash-screen';
 
 /**
  * @zh
@@ -648,7 +649,7 @@ export class Game extends EventTarget {
                 }
                 this._safeEmit(Game.EVENT_GAME_INITED);
                 if (useSplash) {
-                    const splashScreen = legacyCC.internal.SplashScreen.instance
+                    const splashScreen = legacyCC.internal.SplashScreen.instance as SplashScreen;
                     splashScreen.main(legacyCC.director.root);
                     splashScreen.setOnFinish(() => {
                         if (this.onStart) { this.onStart(); }
@@ -664,7 +665,7 @@ export class Game extends EventTarget {
             this.setRenderPipeline();
             this._safeEmit(Game.EVENT_GAME_INITED);
             if (useSplash) {
-                const splashScreen = legacyCC.internal.SplashScreen.instance
+                const splashScreen = legacyCC.internal.SplashScreen.instance as SplashScreen;
                 splashScreen.main(legacyCC.director.root);
                 splashScreen.setOnFinish(() => {
                     if (this.onStart) { this.onStart(); }
