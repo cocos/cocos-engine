@@ -104,6 +104,11 @@ const screen = {
         this._touchEvent = ('ontouchstart' in window) ? 'touchstart' : 'mousedown';
     },
 
+    /**
+     * @en Whether it supports full screen？
+     * @zh 是否支持全屏？
+     * @returns {Boolean}
+     */
     get supportsFullScreen () {
         return this._supportsFullScreen;
     },
@@ -136,7 +141,7 @@ const screen = {
      */
     requestFullScreen (element: HTMLElement, onFullScreenChange?: (this: Document, ev: any) => any, onFullScreenError?: (this: Document, ev: any) => any): Promise<any> | undefined {
         if (!this._supportsFullScreen) {
-            return undefined;
+            return;
         }
 
         element = element || document.documentElement;
