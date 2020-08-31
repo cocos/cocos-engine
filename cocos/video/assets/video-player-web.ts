@@ -28,6 +28,7 @@ import { mat4 } from "../../core/math";
 import { error, sys } from "../../core/platform";
 import { UITransformComponent } from "../../core/components/ui-base";
 import { VideoPlayerComponent } from "../video-player-component";
+import { contains } from '../../core/utils/misc';
 
 const { game, Game, view, screen, visibleRect } = legacyCC;
 
@@ -57,26 +58,6 @@ export enum EventType {
 /**
  * @category component/video
  */
-
-function contains (refNode, otherNode) {
-    if (typeof refNode.contains === 'function') {
-        return refNode.contains(otherNode);
-    } else if (typeof refNode.compareDocumentPosition === 'function') {
-        return !!(refNode.compareDocumentPosition(otherNode) & 16);
-    } else {
-        let node = otherNode.parentNode;
-        if (node) {
-            do {
-                if (node === refNode) {
-                    return true;
-                } else {
-                    node = node.parentNode;
-                }
-            } while (node !== null);
-        }
-        return false;
-    }
-}
 
 export class VideoPlayer {
 

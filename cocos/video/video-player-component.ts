@@ -360,10 +360,6 @@ export class VideoPlayerComponent extends Component {
         return this.state === EventType.PLAYING;
     }
 
-    get Player () {
-        return this._player;
-    }
-
     protected syncSource () {
         if (!this._player) { return; }
         if (this._resourceType === ResourceType.REMOTE) {

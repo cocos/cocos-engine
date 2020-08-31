@@ -40,7 +40,6 @@ const screen = {
     _onfullscreenchange: null as any,
     _onfullscreenerror: null as any,
     // the pre fullscreenchange function
-    _preOnFullScreenChange: null as any,
     _preOnFullScreenError: null as any,
     _preOnTouch: null as any,
     _touchEvent: '',
@@ -133,10 +132,11 @@ const screen = {
      * @param element The element to request full screen state
      * @param onFullScreenChange callback function when full screen state changed
      * @param onFullScreenError callback function when full screen error
+     * @return {Promise|undefined}
      */
-    requestFullScreen (element: HTMLElement, onFullScreenChange?: (this: Document, ev: any) => any, onFullScreenError?: (this: Document, ev: any) => any) {
+    requestFullScreen (element: HTMLElement, onFullScreenChange?: (this: Document, ev: any) => any, onFullScreenError?: (this: Document, ev: any) => any): Promise<any> | undefined {
         if (!this._supportsFullScreen) {
-            return;
+            return undefined;
         }
 
         element = element || document.documentElement;
@@ -161,9 +161,8 @@ const screen = {
 
         let requestPromise = element[this._fn.requestFullscreen]();
         // the requestFullscreen API can only be initiated by user gesture.
-        if (typeof document[this._fn.fullscreenerror] === 'undefined'
-            && window.Promise && requestPromise instanceof Promise) {
-            requestPromise.catch((err) => {
+        if (window.Promise && requestPromise instanceof Promise) {
+            requestPromise.catch(err => {
                 // do nothing ...
             });
         }
@@ -173,10 +172,17 @@ const screen = {
     /**
      * @en Exit the full mode.
      * @zh 退出全屏模式
-     * @return Success or not
+     * @return {Promise|undefined}
      */
-    exitFullScreen (): boolean {
-        return (this.fullScreen() && this._supportsFullScreen) ? document[this._fn.exitFullscreen]() : true;
+    exitFullScreen (): Promise<any> | undefined {
+        let requestPromise;
+        if (this.fullScreen()) {
+            requestPromise = document[this._fn.exitFullscreen]();
+            requestPromise.catch(err => {
+                // do nothing ...
+            });
+        }
+        return requestPromise;
     },
 
     /**
