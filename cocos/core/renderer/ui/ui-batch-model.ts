@@ -47,7 +47,7 @@ export class UIBatchModel extends Model {
     public updateTransform () {}
 
     public updateUBOs (stamp: number) {
-        // Should updatePass when updateUBOS
+        // Should updatePass when updateUBOs
         const subModels = this._subModels;
         for (let i = 0; i < subModels.length; i++) {
             subModels[i].update();
