@@ -59,7 +59,7 @@ export class UIBatchModel extends Model {
     }
 
     public directInitialize (batch: UIDrawBatch) {
-        this._subModel.directInitialize(batch.material!.passes, batch.hIA, batch.hDescriptorSet!);
+        this._subModel.directInitialize(batch.material!.passes, batch.hInputAssembler, batch.hDescriptorSet!);
     }
 
     public destroy () {

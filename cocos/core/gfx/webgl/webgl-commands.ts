@@ -774,7 +774,8 @@ export function WebGLCmdFuncUpdateBuffer (device: WebGLDevice, gpuBuffer: IWebGL
             gpuBuffer.vf32!.set(new Float32Array(buffer as ArrayBuffer), offset / Float32Array.BYTES_PER_ELEMENT);
         }
     } else if (gpuBuffer.usage & GFXBufferUsageBit.INDIRECT) {
-        gpuBuffer.indirects = (buffer as IGFXIndirectBuffer).drawInfos;
+        gpuBuffer.indirects.length = offset;
+        Array.prototype.push.apply(gpuBuffer.indirects, (buffer as IGFXIndirectBuffer).drawInfos);
     } else {
         const buff = buffer as ArrayBuffer;
         const gl = device.gl;

@@ -990,7 +990,8 @@ export function WebGL2CmdFuncResizeBuffer (device: WebGL2Device, gpuBuffer: IWeb
 export function WebGL2CmdFuncUpdateBuffer (device: WebGL2Device, gpuBuffer: IWebGL2GPUBuffer, buffer: GFXBufferSource, offset: number, size: number) {
 
     if (gpuBuffer.usage & GFXBufferUsageBit.INDIRECT) {
-        gpuBuffer.indirects = (buffer as IGFXIndirectBuffer).drawInfos;
+        gpuBuffer.indirects.length = offset;
+        Array.prototype.push.apply(gpuBuffer.indirects, (buffer as IGFXIndirectBuffer).drawInfos);
     } else {
         const buff = buffer as ArrayBuffer;
         const gl = device.gl;

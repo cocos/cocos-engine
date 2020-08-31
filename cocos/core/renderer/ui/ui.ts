@@ -479,12 +479,11 @@ export class UI {
      */
     public autoMergeBatches (renderComp?: UIRenderComponent) {
         const buffer = this._currMeshBuffer!;
-        const indicsStart = buffer.indicesStart;
-        const vCount = buffer.indicesOffset - indicsStart;
         const uiCanvas = this._currCanvas;
+        const hIA = buffer.recordBatch();
         let mat = this._currMaterial;
 
-        if (!vCount || !mat) {
+        if (!hIA || !mat) {
             return;
         }
 
@@ -519,8 +518,7 @@ export class UI {
         curDrawBatch.material = mat;
         curDrawBatch.texture = this._currTexture!;
         curDrawBatch.sampler = this._currSampler;
-        curDrawBatch.ia!.firstIndex = indicsStart;
-        curDrawBatch.ia!.indexCount = vCount;
+        curDrawBatch.hInputAssembler = hIA;
 
         this._batches.push(curDrawBatch);
 
@@ -603,21 +601,21 @@ export class UI {
         }
     }
 
-    private _preprocess (c: Node) {
-        if (!c._uiProps.uiTransformComp) {
+    private _preprocess (node: Node) {
+        if (!node._uiProps.uiTransformComp) {
             return;
         }
 
         // parent changed can flush child visibility
-        c._uiProps.uiTransformComp._canvas = this._currCanvas;
-        const render = c._uiProps.uiComp;
+        node._uiProps.uiTransformComp._canvas = this._currCanvas;
+        const render = node._uiProps.uiComp;
         if (render && render.enabledInHierarchy) {
             render.updateAssembler(this);
         }
     }
 
-    private _postprocess (c: Node) {
-        const render = c._uiProps.uiComp;
+    private _postprocess (node: Node) {
+        const render = node._uiProps.uiComp;
         if (render && render.enabledInHierarchy) {
             render.postUpdateAssembler(this);
         }
