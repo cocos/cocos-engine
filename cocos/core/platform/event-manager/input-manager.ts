@@ -774,13 +774,14 @@ class InputManager {
     private _getUsefulTouches () {
         const touches: Touch[] = [];
         const touchDict = this._touchesIntegerDict;
-        for (const dict in touchDict) {
-            if (dict === undefined || dict === null) {
+        for (const id in touchDict) {
+            const index = parseInt(id);
+            const usedID = touchDict[index];
+            if (usedID === undefined || usedID === null) {
                 continue;
             }
 
-            const usedId = parseInt(dict);
-            const touch = this._touches[usedId];
+            const touch = this._touches[usedID];
             touches.push(touch);
         }
 
