@@ -220,7 +220,7 @@ export class CanvasComponent extends Component {
     @property
     protected _targetTexture: RenderTexture | null = null;
     @type(CanvasClearFlag)
-    protected _clearFlag = CanvasClearFlag.DONT_CLEAR;
+    protected _clearFlag = CanvasClearFlag.DEPTH_ONLY;
     @property
     protected _color = new Color(0, 0, 0, 0);
     @type(RenderMode)
