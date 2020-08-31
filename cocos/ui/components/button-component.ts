@@ -41,6 +41,7 @@ import { SpriteComponent } from './sprite-component';
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
+import { TransformBit } from '../../core/scene-graph/node-enum';
 
 const _tempColor = new Color();
 
@@ -177,14 +178,17 @@ export class ButtonComponent extends Component {
     @displayOrder(0)
     @tooltip('指定 Button 背景节点，Button 状态改变时会修改此节点的 Color 或 Sprite 属性')
     get target () {
-        return this._target;
+        return this._target || this.node;
     }
 
     set target (value) {
         if (this._target === value) {
             return;
         }
-
+        if (this._target) {
+            // need to remove the old target event listeners
+            this._unregisterTargetEvent(this._target);
+        }
         this._target = value;
         this._applyTarget();
     }
@@ -243,8 +247,16 @@ export class ButtonComponent extends Component {
         if (this._transition === value) {
             return;
         }
-
+        
+        // Reset to normal data when change transition.
+        if (this._transition === Transition.COLOR) {
+            this._updateColorTransition(State.NORMAL);
+        }
+        else if (this._transition === Transition.SPRITE) {
+            this._updateSpriteTransition(State.NORMAL);
+        }
         this._transition = value;
+        this._updateState();
     }
 
     // color transition
@@ -281,15 +293,15 @@ export class ButtonComponent extends Component {
     @tooltip('按下状态的按钮背景颜色')
     // @constget
     get pressedColor (): Readonly<Color> {
-        return this._pressColor;
+        return this._pressedColor;
     }
 
     set pressedColor (value) {
-        if (this._pressColor === value) {
+        if (this._pressedColor === value) {
             return;
         }
 
-        this._pressColor.set(value);
+        this._pressedColor.set(value);
     }
 
     /**
@@ -360,9 +372,13 @@ export class ButtonComponent extends Component {
      * @en
      * When user press the button, the button will zoom to a scale.
      * The final scale of the button equals (button original scale * zoomScale)
+     * NOTE: Setting zoomScale less than 1 is not adviced, which could fire the touchCancel event if the touch point is out of touch area after scaling. 
+     * if you need to do so, you should set target as another background node instead of the button node.
      *
      * @zh
      * 当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale。
+     * 注意：不建议 zoomScale 的值小于 1, 否则缩放后如果触摸点在触摸区域外, 则会触发 touchCancel 事件。
+     * 如果你需要这么做，你应该把 target 设置为另一个背景节点，而不是按钮节点。
      */
     @tooltip('当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale。')
     get zoomScale () {
@@ -397,7 +413,7 @@ export class ButtonComponent extends Component {
         }
 
         this._normalSprite = value;
-        const sprite = this.node.getComponent(SpriteComponent);
+        const sprite = this.target.getComponent(SpriteComponent);
         if (sprite) {
             sprite.spriteFrame = value;
         }
@@ -493,7 +509,7 @@ export class ButtonComponent extends Component {
     @property
     protected _hoverColor: Color = new Color(211, 211, 211, 255);
     @property
-    protected _pressColor: Color = Color.WHITE.clone();
+    protected _pressedColor: Color = Color.WHITE.clone();
     @property
     protected _disabledColor: Color = new Color(124, 124, 124, 255);
     @property
@@ -518,63 +534,36 @@ export class ButtonComponent extends Component {
     private _transitionFinished = true;
     private _fromScale: Vec3 = new Vec3();
     private _toScale: Vec3 = new Vec3();
-    private _originalScale: Vec3 = new Vec3();
+    private _originalScale: Vec3 | null = null;
     private _sprite: SpriteComponent | null = null;
     private _targetScale: Vec3 = new Vec3();
 
     public __preload () {
-        if (!this.target) {
-            this.target = this.node;
-        }
-
-        const sprite = this.node.getComponent(SpriteComponent);
+        const sprite = this.target.getComponent(SpriteComponent);
         if (sprite) {
             this._normalSprite = sprite.spriteFrame;
         }
 
         this._applyTarget();
-        this._updateState();
+        this._resetState();
     }
 
     public onEnable () {
-        // check sprite frames
-        //
-        if (!EDITOR || legacyCC.GAME_VIEW) {
-            this._registerEvent();
-        } else {
-            this.node.on(SpriteComponent.EventType.SPRITE_FRAME_CHANGED, (comp: SpriteComponent) => {
-                if (this._transition === Transition.SPRITE) {
-                    this._normalSprite = comp.spriteFrame;
-                } else {
-                    // avoid serialization data loss when in no-sprite mode
-                    this._normalSprite = null;
-                    this._hoverSprite = null;
-                    this._pressedSprite = null;
-                    this._disabledSprite = null;
-                }
-            }, this);
-        }
+        // DIFF: this.node need to do hit test, this.target need to do the button transition work
+        this._registerNodeEvent();
+        this._registerTargetEvent(this.target);
+        this._updateState();
     }
 
     public onDisable () {
         this._resetState();
-
-        if (!EDITOR || legacyCC.GAME_VIEW) {
-            this.node.off(SystemEventType.TOUCH_START, this._onTouchBegan, this);
-            this.node.off(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
-            this.node.off(SystemEventType.TOUCH_END, this._onTouchEnded, this);
-            this.node.off(SystemEventType.TOUCH_CANCEL, this._onTouchCancel, this);
-
-            this.node.off(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
-            this.node.off(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
-        } else {
-            this.node.off(SpriteComponent.EventType.SPRITE_FRAME_CHANGED);
-        }
+        this._unregisterNodeEvent();
+        this._unregisterTargetEvent(this.target);
     }
 
     public update (dt: number) {
-        const target = this._target ? this._target : this.node;
-        if (this._transitionFinished) {
+        const target = this.target;
+        if (this._transitionFinished || !target) {
             return;
         }
 
@@ -590,7 +579,6 @@ export class ButtonComponent extends Component {
 
         if (ratio >= 1) {
             ratio = 1;
-            this._transitionFinished = true;
         }
 
         const renderComp = target.getComponent(UIRenderComponent);
@@ -607,10 +595,17 @@ export class ButtonComponent extends Component {
             this._targetScale.y = lerp(this._fromScale.y, this._toScale.y, ratio);
             target.setScale(this._targetScale);
         }
+        
+        if (ratio === 1) {
+            this._transitionFinished = true;
+        }
     }
 
     protected _resizeNodeToTargetNode () {
-        let targetTrans = this._target && this._target._uiProps.uiTransformComp;
+        if (!this.target) {
+            return;
+        }
+        let targetTrans = this.target._uiProps.uiTransformComp;
         if (EDITOR && targetTrans) {
             this.node._uiProps.uiTransformComp!.setContentSize(targetTrans.contentSize);
         }
@@ -620,7 +615,7 @@ export class ButtonComponent extends Component {
         this._pressed = false;
         this._hovered = false;
         // Restore button status
-        const target = this._target;
+        const target = this.target;
         if (!target) {
             return;
         }
@@ -632,20 +627,50 @@ export class ButtonComponent extends Component {
         const transition = this._transition;
         if (transition === Transition.COLOR && this._interactable) {
             renderComp.color = this._normalColor;
-        } else if (transition === Transition.SCALE) {
+        } else if (transition === Transition.SCALE && this._originalScale) {
             target.setScale(this._originalScale);
         }
         this._transitionFinished = true;
     }
 
-    protected _registerEvent () {
-        this.node.on(SystemEventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.on(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
-        this.node.on(SystemEventType.TOUCH_END, this._onTouchEnded, this);
-        this.node.on(SystemEventType.TOUCH_CANCEL, this._onTouchCancel, this);
+    protected _registerNodeEvent () {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
+            this.node.on(SystemEventType.TOUCH_START, this._onTouchBegan, this);
+            this.node.on(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
+            this.node.on(SystemEventType.TOUCH_END, this._onTouchEnded, this);
+            this.node.on(SystemEventType.TOUCH_CANCEL, this._onTouchCancel, this);
 
-        this.node.on(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
-        this.node.on(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+            this.node.on(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
+            this.node.on(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+        }
+    }
+
+    protected _registerTargetEvent (target) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
+            target.on(SpriteComponent.EventType.SPRITE_FRAME_CHANGED, this._onTargetSpriteFrameChanged, this);
+            target.on(SystemEventType.COLOR_CHANGED, this._onTargetColorChanged, this);
+        }
+        target.on(SystemEventType.TRANSFORM_CHANGED, this._onTargetTransformChanged, this);
+    }
+
+    protected _unregisterNodeEvent () {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
+            this.node.off(SystemEventType.TOUCH_START, this._onTouchBegan, this);
+            this.node.off(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
+            this.node.off(SystemEventType.TOUCH_END, this._onTouchEnded, this);
+            this.node.off(SystemEventType.TOUCH_CANCEL, this._onTouchCancel, this);
+
+            this.node.off(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
+            this.node.off(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+        }
+    }
+
+    protected _unregisterTargetEvent (target) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
+            target.off(SpriteComponent.EventType.SPRITE_FRAME_CHANGED);
+            target.off(SystemEventType.COLOR_CHANGED);
+        }
+        target.off(SystemEventType.TRANSFORM_CHANGED);
     }
 
     protected _getTargetSprite (target: Node | null) {
@@ -657,9 +682,69 @@ export class ButtonComponent extends Component {
     }
 
     protected _applyTarget () {
-        this._sprite = this._getTargetSprite(this._target);
-        if (this._target) {
-            Vec3.copy(this._originalScale, this._target.getScale());
+        if (this.target) {
+            this._sprite = this._getTargetSprite(this.target);
+            if (!this._originalScale) {
+                this._originalScale = new Vec3();
+            }
+            Vec3.copy(this._originalScale, this.target.getScale());
+        }
+    }
+
+    private _onTargetSpriteFrameChanged (comp: SpriteComponent) {
+        if (this._transition === Transition.SPRITE) {
+            this._setCurrentStateSpriteFrame(comp.spriteFrame);
+        }
+    }
+
+    private _setCurrentStateSpriteFrame (spriteFrame: SpriteFrame | null) {
+        if (!spriteFrame) {
+            return;
+        }
+        switch (this._getButtonState()) {
+            case State.NORMAL:
+                this._normalSprite = spriteFrame;
+                break;
+            case State.HOVER:
+                this._hoverSprite = spriteFrame;
+                break;
+            case State.PRESSED:
+                this._pressedSprite = spriteFrame;
+                break;
+            case State.DISABLED:
+                this._disabledSprite = spriteFrame;
+                break;
+        }
+    }
+
+    private _onTargetColorChanged (color: Color) {
+        if (this._transition === Transition.COLOR) {
+            this._setCurrentStateColor(color);
+        }
+    }
+
+    private _setCurrentStateColor(color: Color) {
+        switch (this._getButtonState()) {
+            case State.NORMAL:
+                this._normalColor = color;
+                break;
+            case State.HOVER:
+                this._hoverColor = color;
+                break;
+            case State.PRESSED:
+                this._pressedColor = color;
+                break;
+            case State.DISABLED:
+                this._disabledColor = color;
+                break;
+        }
+    }
+
+    private _onTargetTransformChanged (transformBit: TransformBit) {
+        // update originalScale
+        if (transformBit | TransformBit.SCALE && this._originalScale
+            && this._transition === Transition.SCALE && this._transitionFinished) {
+            Vec3.copy(this._originalScale, this.target.getScale());
         }
     }
 
@@ -689,7 +774,7 @@ export class ButtonComponent extends Component {
 
         const hit = this.node._uiProps.uiTransformComp!.isHit(touch.getUILocation());
 
-        if (this._transition === Transition.SCALE && this._target) {
+        if (this._transition === Transition.SCALE && this.target && this._originalScale) {
             if (hit) {
                 Vec3.copy(this._fromScale, this._originalScale);
                 Vec3.multiplyScalar(this._toScale, this._originalScale, this._zoomScale);
@@ -697,9 +782,7 @@ export class ButtonComponent extends Component {
             } else {
                 this._time = 0;
                 this._transitionFinished = true;
-                if (this._target) {
-                    this._target!.setScale(this._originalScale);
-                }
+                this.target.setScale(this._originalScale);
             }
         } else {
             let state;
@@ -777,12 +860,8 @@ export class ButtonComponent extends Component {
 
     protected _updateColorTransition (state: string) {
         const color = this[state + 'Color'];
-        const target = this._target;
-        if (!target) {
-            return;
-        }
 
-        const renderComp = target.getComponent(UIRenderComponent);
+        const renderComp = this.target?.getComponent(UIRenderComponent);
         if (!renderComp) {
             return;
         }
@@ -817,6 +896,10 @@ export class ButtonComponent extends Component {
     }
 
     protected _zoomUp () {
+        // skip before __preload()
+        if (!this._originalScale) {
+            return;
+        }
         Vec3.copy(this._fromScale, this._originalScale);
         Vec3.multiplyScalar(this._toScale, this._originalScale, this._zoomScale);
         this._time = 0;
@@ -824,11 +907,10 @@ export class ButtonComponent extends Component {
     }
 
     protected _zoomBack () {
-        if (!this._target) {
+        if (!this.target || !this._originalScale) {
             return;
         }
-
-        Vec3.copy(this._fromScale, this._target.getScale());
+        Vec3.copy(this._fromScale, this.target.getScale());
         Vec3.copy(this._toScale, this._originalScale);
         this._time = 0;
         this._transitionFinished = false;
