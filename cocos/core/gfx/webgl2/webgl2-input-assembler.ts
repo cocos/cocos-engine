@@ -26,10 +26,15 @@ export class WebGL2InputAssembler extends GFXInputAssembler {
         if (info.indexBuffer !== undefined) {
             this._indexBuffer = info.indexBuffer;
             this._indexCount = this._indexBuffer.size / this._indexBuffer.stride;
+            this._firstIndex = 0;
         } else {
             const vertBuff = this._vertexBuffers[0];
             this._vertexCount = vertBuff.size / vertBuff.stride;
+            this._firstVertex = 0;
+            this._vertexOffset = 0;
         }
+        this._instanceCount = 0;
+        this._firstInstance = 0;
 
         this._indirectBuffer = info.indirectBuffer || null;
 
