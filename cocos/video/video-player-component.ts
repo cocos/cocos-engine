@@ -385,10 +385,10 @@ export class VideoPlayerComponent extends Component {
             this.nativeVideo.currentTime = this._cachedCurrentTime;
             this.nativeVideo.controls = this._controls;
         }
-        this._player.syncFullScreenOnAwake(this._fullScreenOnAwake);
         this._player.syncStayOnBottom(this._stayOnBottom);
-        if (this._playOnAwake && !EDITOR && this._player.loaded) { this.play(); }
         if (!EDITOR) {
+            this._player.syncFullScreenOnAwake(this._fullScreenOnAwake);
+            //
             this._player.eventList.set(EventType.META_LOADED, this.onMetaLoaded.bind(this));
             this._player.eventList.set(EventType.READY_TO_PLAY, this.onReadyToPlay.bind(this));
             this._player.eventList.set(EventType.PLAYING, this.onPlaying.bind(this));
@@ -397,6 +397,7 @@ export class VideoPlayerComponent extends Component {
             this._player.eventList.set(EventType.COMPLETED, this.onCompleted.bind(this));
             this._player.eventList.set(EventType.ERROR, this.onError.bind(this));
         }
+        if (this._playOnAwake && !EDITOR && this._player.loaded) { this.play(); }
     }
 
     public onEnable() {

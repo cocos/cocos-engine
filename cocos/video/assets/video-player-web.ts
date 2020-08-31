@@ -93,7 +93,6 @@ export class VideoPlayer {
     protected _ignorePause = false;
     protected _waitingFullscreen = false;
     protected _fullScreenOnAwake = false;
-    protected _useNativeFullScreen = false;
 
     protected _videoComonent: VideoPlayerComponent | null = null;
     protected _uiTrans: UITransformComponent | null = null;
@@ -194,7 +193,7 @@ export class VideoPlayer {
 
     _toggleFullscreen (enabled) {
         let video = this._video;
-        if (!video && video.readyState !== READY_STATE.HAVE_ENOUGH_DATA) {
+        if (!video || video.readyState !== READY_STATE.HAVE_ENOUGH_DATA) {
             return;
         }
 
