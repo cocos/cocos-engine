@@ -7,14 +7,12 @@
 namespace cc {
 namespace gfx {
 class CommandBuffer;
-}
+class DescriptorSet;
+class DescriptorSetLayout;
+} // namespace gfx
 namespace pipeline {
 class DefineMap;
 class RenderView;
-
-//TODO coulsonwang
-class DescriptorSetLayout;
-class DescriptorSet;
 
 struct CC_DLL RenderPipelineInfo {
     RenderFlowList flows;
@@ -31,12 +29,13 @@ public:
     virtual bool activate();
     virtual void destroy();
     virtual bool initialize(const RenderPipelineInfo &info);
-    virtual void render(const vector<RenderView*>& views);
+    virtual void render(const vector<RenderView *> &views);
 
     CC_INLINE const RenderFlowList &getFlows() const { return _flows; }
     CC_INLINE uint getTag() const { return _tag; }
     CC_INLINE const map<String, InternalBindingInst> &getGlobalBindings() const { return _globalBindings; }
     CC_INLINE const DefineMap &getMacro() const { return _macros; }
+    CC_INLINE gfx::DescriptorSet *getDescriptorSet() const { return _descriptorSet; }
 
 protected:
     static RenderPipeline *_instance;
@@ -47,8 +46,9 @@ protected:
     DefineMap _macros;
     uint _tag = 0;
 
-    DescriptorSetLayout *_descriptorSetLayout = nullptr;
-    DescriptorSet *_descriptorSet = nullptr;
+    gfx::Device *_device = nullptr;
+    gfx::DescriptorSetLayout *_descriptorSetLayout = nullptr;
+    gfx::DescriptorSet *_descriptorSet = nullptr;
 };
 
 } // namespace pipeline

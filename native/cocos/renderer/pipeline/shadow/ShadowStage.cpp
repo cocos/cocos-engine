@@ -6,6 +6,7 @@
 #include "../forward/ForwardPipeline.h"
 #include "../helper/SharedMemory.h"
 #include "gfx/GFXCommandBuffer.h"
+#include "gfx/GFXDescriptorSet.h"
 #include "gfx/GFXDevice.h"
 #include "gfx/GFXFramebuffer.h"
 #include "gfx/GFXQueue.h"
@@ -35,8 +36,8 @@ bool ShadowStage::initialize(const RenderStageInfo &info) {
 
 void ShadowStage::render(RenderView *view) {
     const auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
-    //TODO
-    //    _additiveShadowQueue->clear(pipeline.descriptorSet.getBuffer(UBOShadow.BLOCK.binding));
+    const auto shadowInfo = pipeline->getShadowMap();
+    _additiveShadowQueue->clear(pipeline->getDescriptorSet()->getBuffer(UBOShadow::BLOCK.binding));
 
     const auto shadowObjects = pipeline->getShadowObjects();
     for (const auto &shadowObject : shadowObjects) {
@@ -55,7 +56,7 @@ void ShadowStage::render(RenderView *view) {
     auto cmdBuffer = commandBuffers[0];
 
     const auto vp = camera->viewport;
-    cc::Vec2 shadowMapSize; //TODO = ShadowInfo.instance.shadowMapSize;
+    const auto shadowMapSize = shadowInfo->size;
     _renderArea.x = vp.x * shadowMapSize.x;
     _renderArea.y = vp.y * shadowMapSize.y;
     _renderArea.width = vp.width * shadowMapSize.x * pipeline->getShadingScale();
@@ -67,10 +68,7 @@ void ShadowStage::render(RenderView *view) {
     cmdBuffer->begin();
     cmdBuffer->beginRenderPass(renderPass, _framebuffer, _renderArea,
                                _clearColors, camera->clearDepth, camera->clearStencil);
-
-    //TODO
-    //    cmdBuffer.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
-
+    cmdBuffer->bindDescriptorSet(static_cast<uint>(SetIndex::GLOBAL), pipeline->getDescriptorSet());
     _additiveShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuffer);
 
     cmdBuffer->endRenderPass();

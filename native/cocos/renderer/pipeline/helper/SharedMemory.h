@@ -1,9 +1,10 @@
 #pragma once
 #include "core/CoreStd.h"
+#include "math/Vec2.h"
 #include "math/Vec3.h"
+#include "scripting/dop/ArrayPool.h"
 #include "scripting/dop/BufferPool.h"
 #include "scripting/dop/ObjectPool.h"
-#include "scripting/dop/ArrayPool.h"
 
 namespace cc {
 namespace gfx {
@@ -13,7 +14,6 @@ class DescriptorSet;
 namespace pipeline {
 struct RenderingSubMesh;
 struct FlatBuffer;
-struct PlanarShadow;
 class RenderPipeline;
 
 struct CC_DLL ModelView {
@@ -157,6 +157,23 @@ struct CC_DLL Fog {
     const static se::PoolType type;
 };
 
+struct CC_DLL ShadowMap {
+    uint32_t enabled = 0;
+    uint32_t nearValue = 0;
+    uint32_t farValue = 0;
+    uint32_t aspect = 0;
+    uint32_t orthoSize = 0;
+    cc::Vec2 size;
+
+    const static se::PoolType type;
+};
+
+struct CC_DLL PlanarShadow {
+    uint32_t enabled = 0;
+
+    const static se::PoolType type;
+};
+
 struct CC_DLL InstancedAttribute {
     uint32_t nameID = 0;
     uint32_t format = 0;
@@ -242,17 +259,18 @@ struct CC_DLL RenderWindow {
 #define GET_MAIN_LIGHT(index)                 SharedMemory::getBuffer<MainLight>(index)
 #define GET_AMBIENT(index)                    SharedMemory::getBuffer<Ambient>(index)
 #define GET_FOG(index)                        SharedMemory::getBuffer<Fog>(index)
-#define GET_PLANAR_SHADOW(index)              static_cast<PlanarShadow *>(0)
+#define GET_PLANAR_SHADOW(index)              SharedMemory::getBuffer<PlanarShadow>(index)
 #define GET_SKYBOX(index)                     SharedMemory::getBuffer<Skybox>(index)
 #define GET_FRUSTUM(index)                    SharedMemory::getBuffer<Frustum>(index)
 #define GET_AABB(index)                       SharedMemory::getBuffer<AABB>(index)
 #define GET_WINDOW(index)                     SharedMemory::getBuffer<RenderWindow>(index)
+#define GET_SHADOWMAP(index)                  SharedMemory::getBuffer<ShadowMap>(index)
 
 //TODO
 #define GET_NAME(index) (String(0))
 
 //Get object pool data
-#define GET_DESCRIPTOR_SET(index)      static_cast<gfx::DescriptorSet *>(0) // TODO
+#define GET_DESCRIPTOR_SET(index)      SharedMemory::getObject<gfx::DescriptorSet, se::PoolType::DESCRIPTOR_SETS>(index)
 #define GET_IA(index)                  SharedMemory::getObject<gfx::InputAssembler, se::PoolType::INPUT_ASSEMBLER>(index)
 #define GET_SHADER(index)              SharedMemory::getObject<gfx::Shader, se::PoolType::SHADER>(index)
 #define GET_RASTERIZER_STATE(index)    SharedMemory::getObject<gfx::RasterizerState, se::PoolType::RASTERIZER_STATE>(index)
@@ -277,19 +295,18 @@ public:
             return nullptr;
         }
     }
-    
+
     template <typename T, se::PoolType p>
     static T *getObject(uint index) {
         const auto &poolMap = se::ObjectPool::getPoolMap();
         if (poolMap.count(p) != 0) {
             const se::ObjectPool *objectPool = poolMap.at(p);
             return objectPool->getTypedObject<T>(index);
-        }
-        else {
+        } else {
             return nullptr;
         }
     }
-    
+
     static uint32_t *getArray(se::PoolType type, uint index) {
         return se::ArrayPool::getArray(type, index);
     }

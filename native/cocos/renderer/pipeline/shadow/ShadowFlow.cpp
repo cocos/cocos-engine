@@ -2,7 +2,10 @@
 #include "ShadowFlow.h"
 #include "../Define.h"
 #include "../forward/ForwardPipeline.h"
+#include "../forward/SceneCulling.h"
+#include "../helper/SharedMemory.h"
 #include "ShadowStage.h"
+#include "gfx/GFXDescriptorSet.h"
 #include "gfx/GFXDevice.h"
 #include "gfx/GFXFramebuffer.h"
 #include "gfx/GFXRenderPass.h"
@@ -34,7 +37,7 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
     RenderFlow::activate(pipeline);
 
     auto device = gfx::Device::getInstance();
-    cc::Vec2 shadowMapSize; //TODO
+    const auto shadowMapSize = static_cast<ForwardPipeline *>(pipeline)->getShadowMap()->size;
     _width = shadowMapSize.x;
     _height = shadowMapSize.y;
 
@@ -96,25 +99,20 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
 }
 
 void ShadowFlow::render(RenderView *view) {
-    //TODO
-    //    const shadowInfo = ShadowInfo.instance;
-    //    if (!shadowInfo.enabled) { return; }
-    //
-    //    const shadowMapSize = shadowInfo.shadowMapSize;
-    //    if (this._width !== shadowMapSize.x || this._height !== shadowMapSize.y) {
-    //        this.resizeShadowMap(shadowMapSize.x,shadowMapSize.y);
-    //        this._width = shadowMapSize.x;
-    //        this._height = shadowMapSize.y;
-    //    }
-    //
-    //    const pipeline = this._pipeline as ForwardPipeline;
-    //    view.camera.update();
     auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
+    const auto shadowInfo = pipeline->getShadowMap();
+    if (!shadowInfo->enabled) return;
+
+    const auto shadowMapSize = shadowInfo->size;
+    if (_width != shadowMapSize.x || _height != shadowMapSize.y) {
+        resizeShadowMap(shadowMapSize.x, shadowMapSize.y);
+        _width = shadowMapSize.x;
+        _height = shadowMapSize.y;
+    }
+
     pipeline->updateUBOs(view);
     RenderFlow::render(view);
-
-    //TODO
-    //    pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP.binding, this._shadowFrameBuffer!.colorTextures[0]!);
+    pipeline->getDescriptorSet()->bindTexture(UNIFORM_SHADOWMAP.binding, _framebuffer->getColorTextures()[0]);
 }
 
 void ShadowFlow::resizeShadowMap(uint width, uint height) {

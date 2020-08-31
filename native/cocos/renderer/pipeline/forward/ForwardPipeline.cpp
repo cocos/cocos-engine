@@ -4,6 +4,9 @@
 #include "../shadow/ShadowFlow.h"
 #include "../ui/UIFlow.h"
 #include "ForwardFlow.h"
+#include "SceneCulling.h"
+#include "gfx/GFXBuffer.h"
+#include "gfx/GFXDescriptorSet.h"
 #include "gfx/GFXDevice.h"
 #include "gfx/GFXRenderPass.h"
 #include "platform/Application.h"
@@ -58,8 +61,7 @@ gfx::RenderPass *ForwardPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFla
     return renderPass;
 }
 
-ForwardPipeline::ForwardPipeline()
-: _device(gfx::Device::getInstance()) {
+ForwardPipeline::ForwardPipeline() {
 }
 
 ForwardPipeline::~ForwardPipeline() {
@@ -93,10 +95,6 @@ bool ForwardPipeline::initialize(const RenderPipelineInfo &info) {
 }
 
 bool ForwardPipeline::activate() {
-    auto uiFlow = CC_NEW(UIFlow);
-    uiFlow->initialize(UIFlow::getInitializeInfo());
-    _flows.emplace_back(uiFlow);
-
     if (!RenderPipeline::activate()) {
         CC_LOG_ERROR("RenderPipeline active failed.");
         return false;
@@ -107,16 +105,15 @@ bool ForwardPipeline::activate() {
         return false;
     }
 
-    //TODO ambient, fog, skybox, planarShadows
     return true;
 }
 
-void ForwardPipeline::render(const vector<RenderView*>& views) {
+void ForwardPipeline::render(const vector<RenderView *> &views) {
     for (const auto view : views) {
         sceneCulling(this, view);
-        const auto &flows = view->getFlows();
-        for (const auto flow : flows)
+        for (const auto flow : view->getFlows()) {
             flow->render(view);
+        }
     }
 }
 
@@ -124,47 +121,32 @@ void ForwardPipeline::updateUBOs(RenderView *view) {
     updateUBO(view);
     const auto scene = GET_SCENE(view->getCamera()->sceneID);
     const auto mainLight = GET_MAIN_LIGHT(scene->mainLightID);
+    const auto shadowInfo = _shadowMap;
 
-    if (mainLight) {
+    if (mainLight && shadowInfo->enabled) {
         const auto node = GET_NODE(mainLight->nodeID);
-        const auto &shadowCamera_W_P = node->worldPosition;
-        const auto &shadowCamera_W_R = node->worldRotation;
-        const auto &shadowCamera_W_S = node->worldScale;
 
-        //TODO coulsonwang
-        //        // world Transfrom
-        //        Mat4.fromRTS(shadowCamera_W_T, shadowCamera_W_R, shadowCamera_W_P, shadowCamera_W_S);
-        //
-        //        // camera view
-        //        Mat4.invert(shadowCamera_M_V, shadowCamera_W_T);
-        //
-        //        // camera proj
-        //        // Mat4.perspective(shadowCamera_M_P, shadowCamera_Fov, shadowCamera_Aspect, shadowCamera_Near, shadowCamera_Far);
-        //        const x = shadowCamera_OrthoSize * shadowCamera_Aspect;
-        //        const y = shadowCamera_OrthoSize;
-        //        Mat4.ortho(shadowCamera_M_P, -x, x, -y, y, shadowCamera_Near, shadowCamera_Far,
-        //             device.clipSpaceMinZ, device.screenSpaceSignY);
-        //
-        //        // camera viewProj
-        //        Mat4.multiply(shadowCamera_M_V_P, shadowCamera_M_P, shadowCamera_M_V);
+        // shadow view
+        auto shadowView = node->worldMatrix.getInversed();
 
-        cc::Mat4 shadowCamera_M_V_P;
-        memcpy(_globalUBO.data() + UBOGlobal::MAIN_SHADOW_MATRIX_OFFSET, shadowCamera_M_V_P.m, sizeof(cc::Mat4));
+        // shadow view proj
+        const auto x = shadowInfo->orthoSize * shadowInfo->aspect;
+        const auto y = shadowInfo->orthoSize;
+        const auto projectionSinY = _device->getScreenSpaceSignY() * _device->getUVSpaceSignY();
+        Mat4 shadowViewProj;
+        Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, shadowInfo->farValue, _device->getClipSpaceMinZ(), projectionSinY, &shadowViewProj);
+
+        shadowViewProj.multiply(shadowView);
+        memcpy(_shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, shadowViewProj.m, sizeof(shadowViewProj));
     }
 
-    //TODO coulsonwang
-    //    // update ubos
-    //    this._descriptorSet.getBuffer(UBOGlobal.BLOCK.binding).update(this._uboGlobal.view);
-    //
-    //    // Fill Shadow UBO
-    //    // Fill cc_shadowMatViewProj
-    //    Mat4.toArray(this._uboPCFShadow.view, shadowCamera_M_V_P, UBOPCFShadow.MAT_SHADOW_VIEW_PROJ_OFFSET);
-    //    this._descriptorSet.getBuffer(UBOPCFShadow.BLOCK.binding).update(this._uboPCFShadow.view);
+    // update ubos
+    _descriptorSet->getBuffer(UBOGlobal::BLOCK.binding)->update(_globalUBO.data(), 0, _globalUBO.size());
+    _descriptorSet->getBuffer(UBOShadow::BLOCK.binding)->update(_shadowUBO.data(), 0, _shadowUBO.size());
 }
 
 void ForwardPipeline::updateUBO(RenderView *view) {
-    //TODO coulsonwang
-    //    this._descriptorSet.update();
+    _descriptorSet->update();
 
     const auto root = GET_ROOT(0);
 
@@ -272,21 +254,20 @@ bool ForwardPipeline::activeRenderer() {
                                             UBOGlobal::SIZE,
                                             UBOGlobal::SIZE,
                                             gfx::BufferFlagBit::NONE});
-    //TODO coulsonwang
-    //    this._descriptorSet.bindBuffer(UBOGlobal.BLOCK.binding, globalUBO);
+    _descriptorSet->bindBuffer(UBOGlobal::BLOCK.binding, globalUBO);
 
     auto shadowUBO = _device->createBuffer({gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
                                             gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
                                             UBOShadow::SIZE,
                                             UBOShadow::SIZE,
                                             gfx::BufferFlagBit::NONE});
-    //    this._descriptorSet.bindBuffer(UBOShadow.BLOCK.binding, shadowUBO);
+    _descriptorSet->bindBuffer(UBOShadow::BLOCK.binding, shadowUBO);
 
     gfx::SamplerInfo info;
     info.addressU = info.addressV = info.addressW = gfx::Address::CLAMP;
     auto shadowMapSamplerHash = genSamplerHash(std::move(info));
     auto shadowMapSampler = getSampler(shadowMapSamplerHash);
-    //    this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP.binding, shadowMapSampler);
+    _descriptorSet->bindSampler(UNIFORM_SHADOWMAP.binding, shadowMapSampler);
 
     // update global defines when all states initialized.
     _macros.setValue("CC_USE_HDR", _isHDR);
@@ -297,13 +278,16 @@ bool ForwardPipeline::activeRenderer() {
 
 void ForwardPipeline::destroy() {
 
-    //TODO coulsonwang
-    //destroyUBOs();
-    //descriptorSet.destroy();
+    if (_descriptorSet) {
+        _descriptorSet->getBuffer(UBOGlobal::BLOCK.binding)->destroy();
+        _descriptorSet->getBuffer(UBOShadow::BLOCK.binding)->destroy();
+    }
     for (auto &it : _renderPasses) {
         it.second->destroy();
     }
     _renderPasses.clear();
+
+    RenderPipeline::destroy();
 }
 
 } // namespace pipeline

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "base/Value.h"
 #include "../core/CoreStd.h"
+#include "base/Value.h"
 
 namespace cc {
 namespace pipeline {
@@ -13,6 +13,13 @@ struct Light;
 struct ModelView;
 struct AABB;
 struct Frustum;
+
+// The actual uniform vectors used is JointUniformCapacity * 3.
+// We think this is a reasonable default capacity considering MAX_VERTEX_UNIFORM_VECTORS in WebGL spec is just 128.
+// Skinning models with number of bones more than this capacity will be automatically switched to texture skinning.
+// But still, you can tweak this for your own need by changing the number below
+// and the JOINT_UNIFORM_CAPACITY macro in cc-skinning shader header.
+#define JOINT_UNIFORM_CAPACITY 30
 
 struct CC_DLL RenderObject {
     uint depth = 0;
@@ -174,14 +181,77 @@ enum class CC_DLL UniformBinding : uint8_t {
     CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 8,
 };
 
-struct CC_DLL UBOLocalBatched {
-    static const uint BATCHING_COUNT = 10;
-    static const uint MAT_WORLDS_OFFSET = 0;
-    static const uint COUNT = 16 * BATCHING_COUNT;
-    static const uint SIZE = COUNT * 4;
+struct CC_DLL BlockInfo : public gfx::UniformBlock, public gfx::DescriptorSetLayoutBinding {
+    BlockInfo(const gfx::UniformBlock &block, const gfx::DescriptorSetLayoutBinding &binding) : gfx::UniformBlock{block}, gfx::DescriptorSetLayoutBinding{} {}
+};
+struct CC_DLL SamplerInfo : public gfx::UniformSampler, public gfx::DescriptorSetLayoutBinding {
+    SamplerInfo(const gfx::UniformSampler &sampler, const gfx::DescriptorSetLayoutBinding &binding) : gfx::UniformSampler(sampler), gfx::DescriptorSetLayoutBinding{} {}
+};
 
-    static gfx::UniformBlock BLOCK;
-    std::array<float, COUNT> view;
+struct CC_DLL UBOLocalBatched {
+    static constexpr uint BATCHING_COUNT = 10;
+    static constexpr uint MAT_WORLDS_OFFSET = 0;
+    static constexpr uint COUNT = 16 * UBOLocalBatched::BATCHING_COUNT;
+    static constexpr uint SIZE = UBOLocalBatched::COUNT * 4;
+
+    static const BlockInfo BLOCK;
+};
+
+struct CC_DLL UBOLocal {
+    static constexpr uint MAT_WORLD_OFFSET = 0;
+    static constexpr uint MAT_WORLD_IT_OFFSET = UBOLocal::MAT_WORLD_OFFSET + 16;
+    static constexpr uint LIGHTINGMAP_UVPARAM = UBOLocal::MAT_WORLD_IT_OFFSET + 16;
+    static constexpr uint COUNT = UBOLocal::LIGHTINGMAP_UVPARAM + 4;
+    static constexpr uint SIZE = UBOLocal::COUNT * 4;
+
+    static const BlockInfo BLOCK;
+};
+
+struct CC_DLL UBOForwardLight {
+    static constexpr uint LIGHTS_PER_PASS = 1;
+    static constexpr uint LIGHT_POS_OFFSET = 0;
+    static constexpr uint LIGHT_COLOR_OFFSET = UBOForwardLight::LIGHT_POS_OFFSET + UBOForwardLight::LIGHTS_PER_PASS * 4;
+    static constexpr uint LIGHT_SIZE_RANGE_ANGLE_OFFSET = UBOForwardLight::LIGHT_COLOR_OFFSET + UBOForwardLight::LIGHTS_PER_PASS * 4;
+    static constexpr uint LIGHT_DIR_OFFSET = UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + UBOForwardLight::LIGHTS_PER_PASS * 4;
+    static constexpr uint COUNT = UBOForwardLight::LIGHT_DIR_OFFSET + UBOForwardLight::LIGHTS_PER_PASS * 4;
+    static constexpr uint SIZE = UBOForwardLight::COUNT * 4;
+
+    static const BlockInfo BLOCK;
+};
+
+struct CC_DLL UBOSkinningTexture {
+    static constexpr uint JOINTS_TEXTURE_INFO_OFFSET = 0;
+    static constexpr uint COUNT = UBOSkinningTexture::JOINTS_TEXTURE_INFO_OFFSET + 4;
+    static constexpr uint SIZE = UBOSkinningTexture::COUNT * 4;
+
+    static const BlockInfo BLOCK;
+};
+
+struct CC_DLL UBOSkinningAnimation {
+    static constexpr uint JOINTS_ANIM_INFO_OFFSET = 0;
+    static constexpr uint COUNT = UBOSkinningAnimation::JOINTS_ANIM_INFO_OFFSET + 4;
+    static constexpr uint SIZE = UBOSkinningAnimation::COUNT * 4;
+
+    static const BlockInfo BLOCK;
+};
+
+struct CC_DLL UBOSkinning {
+    static constexpr uint JOINTS_OFFSET = 0;
+    static constexpr uint COUNT = UBOSkinning::JOINTS_OFFSET + JOINT_UNIFORM_CAPACITY * 12;
+    static constexpr uint SIZE = UBOSkinning::COUNT * 4;
+
+    static const BlockInfo BLOCK;
+};
+
+struct CC_DLL UBOMorph {
+    static const uint MAX_MORPH_TARGET_COUNT;
+    static const uint OFFSET_OF_WEIGHTS;
+    static const uint OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH;
+    static const uint OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT;
+    static const uint COUNT_BASE_4_BYTES;
+    static const uint SIZE;
+
+    static const BlockInfo BLOCK;
 };
 
 enum class CC_DLL ForwardStagePriority : uint8_t {
@@ -202,37 +272,39 @@ enum class CC_DLL RenderFlowTag : uint8_t {
 };
 
 struct CC_DLL UBOGlobal : public Object {
-    static const uint TIME_OFFSET = 0;
-    static const uint SCREEN_SIZE_OFFSET = UBOGlobal::TIME_OFFSET + 4;
-    static const uint SCREEN_SCALE_OFFSET = UBOGlobal::SCREEN_SIZE_OFFSET + 4;
-    static const uint NATIVE_SIZE_OFFSET = UBOGlobal::SCREEN_SCALE_OFFSET + 4;
-    static const uint MAT_VIEW_OFFSET = UBOGlobal::NATIVE_SIZE_OFFSET + 4;
-    static const uint MAT_VIEW_INV_OFFSET = UBOGlobal::MAT_VIEW_OFFSET + 16;
-    static const uint MAT_PROJ_OFFSET = UBOGlobal::MAT_VIEW_INV_OFFSET + 16;
-    static const uint MAT_PROJ_INV_OFFSET = UBOGlobal::MAT_PROJ_OFFSET + 16;
-    static const uint MAT_VIEW_PROJ_OFFSET = UBOGlobal::MAT_PROJ_INV_OFFSET + 16;
-    static const uint MAT_VIEW_PROJ_INV_OFFSET = UBOGlobal::MAT_VIEW_PROJ_OFFSET + 16;
-    static const uint CAMERA_POS_OFFSET = UBOGlobal::MAT_VIEW_PROJ_INV_OFFSET + 16;
-    static const uint EXPOSURE_OFFSET = UBOGlobal::CAMERA_POS_OFFSET + 4;
-    static const uint MAIN_LIT_DIR_OFFSET = UBOGlobal::EXPOSURE_OFFSET + 4;
-    static const uint MAIN_LIT_COLOR_OFFSET = UBOGlobal::MAIN_LIT_DIR_OFFSET + 4;
-    static const uint MAIN_SHADOW_MATRIX_OFFSET = UBOGlobal::MAIN_LIT_COLOR_OFFSET + 4;
-    static const uint AMBIENT_SKY_OFFSET = UBOGlobal::MAIN_SHADOW_MATRIX_OFFSET + 16;
-    static const uint AMBIENT_GROUND_OFFSET = UBOGlobal::AMBIENT_SKY_OFFSET + 4;
-    static const uint GLOBAL_FOG_COLOR_OFFSET = UBOGlobal::AMBIENT_GROUND_OFFSET + 4;
-    static const uint GLOBAL_FOG_BASE_OFFSET = UBOGlobal::GLOBAL_FOG_COLOR_OFFSET + 4;
-    static const uint GLOBAL_FOG_ADD_OFFSET = UBOGlobal::GLOBAL_FOG_BASE_OFFSET + 4;
-    static const uint COUNT = UBOGlobal::GLOBAL_FOG_ADD_OFFSET + 4;
-    static const uint SIZE = UBOGlobal::COUNT * 4;
-    static gfx::UniformBlock BLOCK; //TODO
+    static constexpr uint TIME_OFFSET = 0;
+    static constexpr uint SCREEN_SIZE_OFFSET = UBOGlobal::TIME_OFFSET + 4;
+    static constexpr uint SCREEN_SCALE_OFFSET = UBOGlobal::SCREEN_SIZE_OFFSET + 4;
+    static constexpr uint NATIVE_SIZE_OFFSET = UBOGlobal::SCREEN_SCALE_OFFSET + 4;
+    static constexpr uint MAT_VIEW_OFFSET = UBOGlobal::NATIVE_SIZE_OFFSET + 4;
+    static constexpr uint MAT_VIEW_INV_OFFSET = UBOGlobal::MAT_VIEW_OFFSET + 16;
+    static constexpr uint MAT_PROJ_OFFSET = UBOGlobal::MAT_VIEW_INV_OFFSET + 16;
+    static constexpr uint MAT_PROJ_INV_OFFSET = UBOGlobal::MAT_PROJ_OFFSET + 16;
+    static constexpr uint MAT_VIEW_PROJ_OFFSET = UBOGlobal::MAT_PROJ_INV_OFFSET + 16;
+    static constexpr uint MAT_VIEW_PROJ_INV_OFFSET = UBOGlobal::MAT_VIEW_PROJ_OFFSET + 16;
+    static constexpr uint CAMERA_POS_OFFSET = UBOGlobal::MAT_VIEW_PROJ_INV_OFFSET + 16;
+    static constexpr uint EXPOSURE_OFFSET = UBOGlobal::CAMERA_POS_OFFSET + 4;
+    static constexpr uint MAIN_LIT_DIR_OFFSET = UBOGlobal::EXPOSURE_OFFSET + 4;
+    static constexpr uint MAIN_LIT_COLOR_OFFSET = UBOGlobal::MAIN_LIT_DIR_OFFSET + 4;
+    static constexpr uint AMBIENT_SKY_OFFSET = UBOGlobal::MAIN_LIT_COLOR_OFFSET + 4;
+    static constexpr uint AMBIENT_GROUND_OFFSET = UBOGlobal::AMBIENT_SKY_OFFSET + 4;
+    static constexpr uint GLOBAL_FOG_COLOR_OFFSET = UBOGlobal::AMBIENT_GROUND_OFFSET + 4;
+    static constexpr uint GLOBAL_FOG_BASE_OFFSET = UBOGlobal::GLOBAL_FOG_COLOR_OFFSET + 4;
+    static constexpr uint GLOBAL_FOG_ADD_OFFSET = UBOGlobal::GLOBAL_FOG_BASE_OFFSET + 4;
+    static constexpr uint COUNT = UBOGlobal::GLOBAL_FOG_ADD_OFFSET + 4;
+    static constexpr uint SIZE = UBOGlobal::COUNT * 4;
+
+    static const BlockInfo BLOCK;
 };
 
-struct  CC_DLL UBOShadow : public Object {
-    static const uint MAT_LIGHT_PLANE_PROJ_OFFSET = 0;
-    static const uint SHADOW_COLOR_OFFSET = UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
-    static const uint COUNT = UBOShadow::SHADOW_COLOR_OFFSET + 4;
-    static const uint SIZE = UBOShadow::COUNT * 4;
-    static gfx::UniformBlock BLOCK; //TODO
+struct CC_DLL UBOShadow : public Object {
+    static constexpr uint MAT_LIGHT_PLANE_PROJ_OFFSET = 0;
+    static constexpr uint MAT_LIGHT_VIEW_PROJ_OFFSET = UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
+    static constexpr uint SHADOW_COLOR_OFFSET = UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
+    static constexpr uint COUNT = UBOShadow::SHADOW_COLOR_OFFSET + 4;
+    static constexpr uint SIZE = UBOShadow::COUNT * 4;
+
+    static const BlockInfo BLOCK;
 };
 
 class CC_DLL SamplerLib : public Object {
@@ -240,9 +312,11 @@ public:
     gfx::Sampler *getSampler(uint hash);
 };
 
-struct CC_DLL DescriptorSetLayoutInfo {
-    //    bindings: GFXDescriptorSetLayoutBinding[];
-    //    record: Record<string, IBlockInfo | ISamplerInfo>;
+struct CC_DLL DescriptorSetLayoutInfos : public gfx::DescriptorSetLayoutInfo {
+    union record {
+        unordered_map<String, BlockInfo> block;
+        unordered_map<String, SamplerInfo> sampler;
+    };
 };
 
 uint genSamplerHash(const gfx::SamplerInfo &);
@@ -269,9 +343,49 @@ enum class CC_DLL BatchingSchemes {
     VB_MERGING = 2,
 };
 
-extern CC_DLL uint SKYBOX_FLAG;
-extern CC_DLL DescriptorSetLayoutInfo globalDescriptorSetLayout;
-extern CC_DLL DescriptorSetLayoutInfo localDescriptorSetLayout;
+enum class CC_DLL SetIndex : uint8_t {
+    GLOBAL,
+    MATERIAL,
+    LOCAL,
+};
 
+enum class CC_DLL PipelineGlobalBindings {
+    UBO_GLOBAL,
+    UBO_SHADOW,
+
+    SAMPLER_ENVIRONMENT,
+    SAMPLER_SHADOWMAP,
+
+    COUNT,
+};
+
+enum class CC_DLL ModelLocalBindings {
+    UBO_LOCAL,
+    UBO_FORWARD_LIGHTS,
+    UBO_SKINNING_ANIMATION,
+    UBO_SKINNING_TEXTURE,
+    UBO_MORPH,
+
+    SAMPLER_JOINTS,
+    SAMPLER_MORPH_POSITION,
+    SAMPLER_MORPH_NORMAL,
+    SAMPLER_MORPH_TANGENT,
+    SAMPLER_LIGHTING_MAP,
+    SAMPLER_SPRITE,
+
+    COUNT,
+};
+
+extern CC_DLL uint SKYBOX_FLAG;
+extern CC_DLL DescriptorSetLayoutInfos globalDescriptorSetLayout;
+extern CC_DLL DescriptorSetLayoutInfos localDescriptorSetLayout;
+extern CC_DLL const SamplerInfo UNIFORM_SHADOWMAP;
+extern CC_DLL const SamplerInfo UNIFORM_ENVIRONMENT;
+extern CC_DLL const SamplerInfo UniformJointTexture;
+extern CC_DLL const SamplerInfo UniformPositionMorphTexture;
+extern CC_DLL const SamplerInfo UniformNormalMorphTexture;
+extern CC_DLL const SamplerInfo UniformTangentMorphTexture;
+extern CC_DLL const SamplerInfo UniformLightingMapSampler;
+extern CC_DLL const SamplerInfo UniformSpriteSampler;
 } // namespace pipeline
 } // namespace cc

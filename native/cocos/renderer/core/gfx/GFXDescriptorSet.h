@@ -21,7 +21,7 @@ public:
     void bindSampler(uint binding, Sampler *sampler);
 
     CC_INLINE Device *getDevice() const { return _device; }
-    CC_INLINE const Buffer *getBuffer(uint binding) const { return _buffers[binding]; }
+    CC_INLINE Buffer *getBuffer(uint binding) const { return _buffers[binding]; }
     CC_INLINE const Texture *getTexture(uint binding) const { return _textures[binding]; }
     CC_INLINE const Sampler *getSampler(uint binding) const { return _samplers[binding]; }
 

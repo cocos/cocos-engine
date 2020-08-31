@@ -18,6 +18,9 @@ struct CC_DLL InstancedItem {
     uint size = 0;
     gfx::InputAssembler *ia = nullptr;
     uint stride = 0;
+    gfx::Shader *shader = nullptr;
+    gfx::DescriptorSet *descriptorSet = nullptr;
+    gfx::Texture *lightingMap = nullptr;
 };
 typedef vector<InstancedItem> InstancedItemList;
 
@@ -38,12 +41,14 @@ public:
     CC_INLINE const InstancedItemList &getInstances() const { return _instancedItems; }
     CC_INLINE PassView *getPass() const { return _pass; }
     CC_INLINE bool hasPendingModels() const { return _hasPendingModels; }
+    CC_INLINE const vector<uint> &dynamicOffsets() const { return _dynamicoffsets; }
 
 private:
     static map<const PassView *, std::shared_ptr<InstancedBuffer>> _buffers;
     InstancedItemList _instancedItems;
     PassView *_pass = nullptr;
     bool _hasPendingModels = false;
+    vector<uint> _dynamicoffsets;
 };
 
 } // namespace pipeline

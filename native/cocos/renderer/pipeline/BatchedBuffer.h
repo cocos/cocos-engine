@@ -13,11 +13,15 @@ struct CC_DLL BatchedItem {
 
     gfx::Buffer *vbIdx = nullptr;
     std::shared_ptr<float> vbIndexData;
+
     uint vbCount = 0;
     uint mergeCount = 0;
     gfx::InputAssembler *ia = nullptr;
     gfx::Buffer *ubo = nullptr;
     float *uboData = nullptr;
+    gfx::DescriptorSet *descriptorSet = nullptr;
+    const PassView *pass = nullptr;
+    gfx::Shader *shader = nullptr;
 };
 typedef vector<BatchedItem> BatchedItemList;
 

@@ -1,4 +1,5 @@
 #include "ShadowMapBatchedQueue.h"
+#include "Define.h"
 #include "PipelineStateManager.h"
 #include "gfx/GFXCommandBuffer.h"
 #include "helper/SharedMemory.h"
@@ -39,12 +40,10 @@ void ShadowMapBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::Render
         auto pass = _passes[i];
         auto ia = GET_IA(subModel->inputAssemblerID);
         auto pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass);
-        auto descriptorSet = GET_DESCRIPTOR_SET(subModel->descriptorSetID); //DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET));
 
         cmdBuffer->bindPipelineState(pso);
-        //TODO
-        //        cmdBuffer->bindDescriptorSet(SetIndex.MATERIAL, descriptorSet);
-        //        cmdBuffer->bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);
+        cmdBuffer->bindDescriptorSet(static_cast<uint>(SetIndex::MATERIAL), GET_DESCRIPTOR_SET(pass->descriptorSetID));
+        cmdBuffer->bindDescriptorSet(static_cast<uint>(SetIndex::LOCAL), GET_DESCRIPTOR_SET(subModel->descriptorSetID));
         cmdBuffer->bindInputAssembler(ia);
         cmdBuffer->draw(ia);
     }

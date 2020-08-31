@@ -2,7 +2,9 @@
 #include "RenderFlow.h"
 #include "RenderView.h"
 #include "gfx/GFXCommandBuffer.h"
-#include "renderer/core/gfx/GFXDevice.h"
+#include "gfx/GFXDescriptorSet.h"
+#include "gfx/GFXDescriptorSetLayout.h"
+#include "gfx/GFXDevice.h"
 
 namespace cc {
 namespace pipeline {
@@ -12,7 +14,8 @@ RenderPipeline *RenderPipeline::getInstance() {
     return RenderPipeline::_instance;
 }
 
-RenderPipeline::RenderPipeline() {
+RenderPipeline::RenderPipeline()
+: _device(gfx::Device::getInstance()) {
     RenderPipeline::_instance = this;
 }
 
@@ -27,31 +30,38 @@ bool RenderPipeline::initialize(const RenderPipelineInfo &info) {
 }
 
 bool RenderPipeline::activate() {
-    //TODO coulsonwang
-    //_device->createDescriptorSetLayout();
-    
+    if (_descriptorSetLayout) {
+        CC_DELETE(_descriptorSetLayout);
+    }
+    _descriptorSetLayout = _device->createDescriptorSetLayout({globalDescriptorSetLayout.bindings});
+
+    if (_descriptorSet) {
+        CC_DELETE(_descriptorSet);
+    }
+    _descriptorSet = _device->createDescriptorSet({_descriptorSetLayout});
+
     for (const auto flow : _flows)
         flow->activate(this);
 
     return true;
 }
 
-void RenderPipeline::render(const vector<RenderView*>& views) {
+void RenderPipeline::render(const vector<RenderView *> &views) {
     for (const auto view : views) {
-        const auto &flows = view->getFlows();
-        for (const auto flow : flows)
+        for (const auto flow : view->getFlows()) {
             flow->render(view);
+        }
     }
 }
 
 void RenderPipeline::destroy() {
-    for (const auto flow : _flows) {
+    for (auto flow : _flows) {
         flow->destroy();
     }
     _flows.clear();
 
-    //TODO coulsonwang
-    //destroy descritor set
+    CC_SAFE_DESTROY(_descriptorSetLayout);
+    CC_SAFE_DESTROY(_descriptorSet);
 
     for (const auto cmdBuffer : _commandBuffers) {
         cmdBuffer->destroy();

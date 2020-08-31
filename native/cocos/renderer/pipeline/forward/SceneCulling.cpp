@@ -30,8 +30,7 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
     const auto planarShadows = GET_PLANAR_SHADOW(scene->planarShadowID);
     if (mainLight) {
         //TODO coulsonwang
-        //        mainLight.update();
-        //        if (planarShadows.enabled && mainLight.node!.hasChangedFlags) {
+        //        if (planarShadows.enabled) {
         //            planarShadows.updateDirLight(mainLight);
         //        }
     }
@@ -53,21 +52,14 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
             if (vis) {
                 if ((model->nodeID && (visibility == GET_NODE(model->nodeID)->layer)) ||
                     visibility == model->visFlags) {
-                    //TODO coulsonwang
-                    //                    model.updateTransform(stamp);
-                    //                    model.updateUBOs(stamp);
                     renderObjects.emplace_back(genRenderObject(model, camera));
                 }
             } else {
                 if ((model->nodeID && ((visibility & GET_NODE(model->nodeID)->layer) == GET_NODE(model->nodeID)->layer)) ||
                     (visibility & model->visFlags)) {
-                    //TODO coulsonwang
-                    //                    model.updateTransform(stamp);
 
                     // shadow render Object
                     if (model->castShadow) {
-                        //TODO coulsonwang
-                        //                        model.updateUBOs(stamp);
                         shadowObjects.emplace_back(genRenderObject(model, camera));
                     }
 
@@ -76,17 +68,16 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
                         continue;
                     }
 
-                    //TODO coulsonwang
-                    //                    model.updateUBOs(stamp);
                     renderObjects.emplace_back(genRenderObject(model, camera));
                 }
             }
         }
     }
+
     //TODO coulsonwang
-    //    if (planarShadows->enabled) {
-    //        planarShadows.updateShadowList(camera.frustum, stamp, (camera.visibility & Layers.BitMask.DEFAULT) !== 0);
-    //    }
+    //        if (planarShadows->enabled) {
+    //            planarShadows.updateShadowList(camera.frustum, stamp, (camera.visibility & Layers.BitMask.DEFAULT) !== 0);
+    //        }
 }
 
 } // namespace pipeline
