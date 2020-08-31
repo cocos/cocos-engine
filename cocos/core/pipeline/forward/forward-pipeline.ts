@@ -24,6 +24,7 @@ import { Skybox } from '../../renderer/scene/skybox';
 import { PlanarShadows } from '../../renderer/scene/planar-shadows';
 import { Shadow } from '../../renderer/scene/shadow';
 import { sceneCulling } from './scene-culling';
+import { UIFlow } from '../ui/ui-flow';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
