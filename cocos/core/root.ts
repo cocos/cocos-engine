@@ -295,8 +295,7 @@ export class Root {
 
     public setRenderPipeline (rppl: RenderPipeline): boolean {
         if (!rppl) {
-            rppl = new ForwardPipeline();
-            rppl.initialize({ flows: [] });
+            rppl = this.createDefaultPipeline();
         }
         this._pipeline = rppl;
         if (!this._pipeline.activate()) {
@@ -309,6 +308,12 @@ export class Root {
             return false;
         }
         return true;
+    }
+
+    public createDefaultPipeline () {
+        const rppl = new ForwardPipeline();
+        rppl.initialize({ flows: [] });
+        return rppl;
     }
 
     public onGlobalPipelineStateChanged () {
@@ -579,3 +584,5 @@ export class Root {
         });
     }
 }
+
+legacyCC.Root = Root;

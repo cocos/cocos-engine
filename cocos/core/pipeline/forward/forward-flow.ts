@@ -24,15 +24,16 @@ export class ForwardFlow extends RenderFlow {
     public static initInfo: IRenderFlowInfo = {
         name: PIPELINE_FLOW_FORWARD,
         priority: ForwardFlowPriority.FORWARD,
+        stages: []
     };
 
     public initialize (info: IRenderFlowInfo): boolean {
         super.initialize(info);
-
-        const forwardStage = new ForwardStage();
-        forwardStage.initialize(ForwardStage.initInfo);
-        this._stages.push(forwardStage);
-
+        if (this._stages.length === 0) {
+            const forwardStage = new ForwardStage();
+            forwardStage.initialize(ForwardStage.initInfo);
+            this._stages.push(forwardStage);
+        }
         return true;
     }
 

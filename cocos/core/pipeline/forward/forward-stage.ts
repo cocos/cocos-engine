@@ -33,6 +33,19 @@ export class ForwardStage extends RenderStage {
     public static initInfo: IRenderStageInfo = {
         name: 'ForwardStage',
         priority: ForwardStagePriority.FORWARD,
+        tag: 0,
+        renderQueues: [
+            {
+                isTransparent: false,
+                sortMode: RenderQueueSortMode.FRONT_TO_BACK,
+                stages: ['default'],
+            },
+            {
+                isTransparent: true,
+                sortMode: RenderQueueSortMode.BACK_TO_FRONT,
+                stages: ['default', 'planarShadow'],
+            },
+        ]
     };
 
 
@@ -56,19 +69,9 @@ export class ForwardStage extends RenderStage {
 
     public initialize (info: IRenderStageInfo): boolean {
         super.initialize(info);
-        this.renderQueues = [
-            {
-                isTransparent: false,
-                sortMode: RenderQueueSortMode.FRONT_TO_BACK,
-                stages: ['default'],
-            },
-            {
-                isTransparent: true,
-                sortMode: RenderQueueSortMode.BACK_TO_FRONT,
-                stages: ['default', 'planarShadow'],
-            },
-        ]
-
+        if (info.renderQueues) {
+            this.renderQueues = info.renderQueues;
+        }
         return true;
     }
 

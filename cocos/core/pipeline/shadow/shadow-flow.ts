@@ -11,7 +11,8 @@ import { GFXFramebuffer, GFXRenderPass, GFXLoadOp,
     GFXStoreOp, GFXTextureLayout, GFXFormat, GFXTexture,
     GFXTextureType, GFXTextureUsageBit } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
-import { RenderView, ForwardPipeline } from '../..';
+import { ForwardPipeline } from '../forward/forward-pipeline';
+import { RenderView } from '../render-view';
 
 /**
  * @zh 阴影贴图绘制流程
@@ -27,6 +28,7 @@ export class ShadowFlow extends RenderFlow {
         name: PIPELINE_FLOW_SHADOW,
         priority: ForwardFlowPriority.SHADOW,
         tag: RenderFlowTag.SCENE,
+        stages: []
     };
 
     private _shadowRenderPass: GFXRenderPass|null = null;
@@ -38,12 +40,12 @@ export class ShadowFlow extends RenderFlow {
 
     public initialize (info: IRenderFlowInfo): boolean{
         super.initialize(info);
-
-        // add shadowMap-stages
-        const shadowMapStage = new ShadowStage();
-        shadowMapStage.initialize(ShadowStage.initInfo);
-        this._stages.push(shadowMapStage);
-
+        if (this._stages.length === 0) {
+            // add shadowMap-stages
+            const shadowMapStage = new ShadowStage();
+            shadowMapStage.initialize(ShadowStage.initInfo);
+            this._stages.push(shadowMapStage);
+        }
         return true;
     }
 
