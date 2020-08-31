@@ -5,7 +5,7 @@
 import { builtinResMgr } from './3d/builtin';
 import { GFXDevice } from './gfx/device';
 import { Pool } from './memop';
-import { RenderPipeline } from './pipeline/render-pipeline';
+import { RenderPipeline, ForwardPipeline } from './pipeline';
 import { IRenderViewInfo, RenderView } from './pipeline/render-view';
 import { Camera, Light, Model } from './renderer';
 import { DataPoolManager } from './renderer/data-pool-manager';
@@ -311,7 +311,7 @@ export class Root {
     }
 
     public createDefaultPipeline () {
-        const rppl = new legacyCC.ForwardPipeline();
+        const rppl = new ForwardPipeline();
         rppl.initialize({ flows: [] });
         return rppl;
     }
