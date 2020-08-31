@@ -10,7 +10,7 @@
 
 namespace cc {
 namespace gfx {
-
+class CCMTLGPUShader;
 namespace mu {
 MTLResourceOptions toMTLResourseOption(MemoryUsage usage);
 MTLLoadAction toMTLLoadAction(LoadOp op);
@@ -39,7 +39,7 @@ MTLSamplerAddressMode toMTLSamplerAddressMode(Address);
 MTLSamplerBorderColor toMTLSamplerBorderColor(const Color &);
 MTLSamplerMinMagFilter toMTLSamplerMinMagFilter(Filter);
 MTLSamplerMipFilter toMTLSamplerMipFilter(Filter);
-String compileGLSLShader2Msl(const String &src, ShaderStageFlagBit shaderType, Device *device, unordered_map<uint, uint> &samplerBindings);
+String compileGLSLShader2Msl(const String &src, ShaderStageFlagBit shaderType, Device *device, CCMTLGPUShader* gpuShader);
 const uint8_t *convertRGB8ToRGBA8(const uint8_t *source, uint length);
 const uint8_t *convertRGB32FToRGBA32F(const uint8_t *source, uint length);
 NSUInteger highestSupportedFeatureSet(id<MTLDevice> device);

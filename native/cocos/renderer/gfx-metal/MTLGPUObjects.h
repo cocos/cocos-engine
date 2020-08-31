@@ -14,18 +14,6 @@ class CCMTLTexture;
 class CCMTLSampler;
 class CCMTLShader;
 
-#define MAX_INFLIGHT_BUFFER 1
-
-struct CCMTLGPUUniformBlock {
-    uint mtlBinding = 0;
-    uint originBinding = 0;
-    id<MTLBuffer> buffer = nil;
-
-    CCMTLGPUUniformBlock(uint _mtlBinding, uint _originBinding, id<MTLBuffer> _buffer)
-    : mtlBinding(_mtlBinding), originBinding(_originBinding), buffer(_buffer) {}
-};
-typedef vector<CCMTLGPUUniformBlock> CCMTLGPUUniformBlockList;
-
 struct CCMTLGPUTexture {
     uint mtlBinding = 0;
     uint originBinding = 0;
@@ -57,15 +45,34 @@ class CCMTLGPUPipelineLayout : public Object {
 public:
     MTLGPUDescriptorSetLayoutList setLayouts;
     vector<vector<int>> dynamicOffsetIndices;
-    uint dynamicOffsetCount = 0;
 };
+
+struct CCMTLGPUUniformBlock {
+    String name;
+    uint set = GFX_INVALID_BINDING;
+    uint binding = GFX_INVALID_BINDING;
+    uint mappedBinding = GFX_INVALID_BINDING;
+    ShaderStageFlags stages = ShaderStageFlagBit::NONE;
+    uint count = 0;
+};
+typedef vector<CCMTLGPUUniformBlock> CCMTLGPUUniformBlockList;
+
+struct CCMTLGPUSamplerBlock {
+    String name;
+    uint set = GFX_INVALID_BINDING;
+    uint binding = GFX_INVALID_BINDING;
+    uint textureBinding = GFX_INVALID_BINDING;
+    uint samplerBinding = GFX_INVALID_BINDING;
+    ShaderStageFlags stages = ShaderStageFlagBit::NONE;
+    Type type = Type::UNKNOWN;
+    uint count = 0;
+};
+typedef vector<CCMTLGPUSamplerBlock> CCMTLGPUSamplerBlockList;
 
 class CCMTLGPUShader : public Object {
 public:
-    unordered_map<uint, uint> vertexSamplerBindings;
-    unordered_map<uint, uint> fragmentSamplerBindings;
-    UniformBlockList blocks;
-    UniformSamplerList samplers;
+    unordered_map<uint, CCMTLGPUUniformBlock> blocks;
+    unordered_map<uint, CCMTLGPUSamplerBlock> samplers;
 };
 
 struct CCMTLGPUPipelineState {
@@ -98,7 +105,6 @@ public:
 
 struct CCMTLGPUDescriptor {
     DescriptorType type = DescriptorType::UNKNOWN;
-    ShaderStageFlags stages = ShaderStageFlagBit::NONE;
     CCMTLBuffer *buffer = nullptr;
     CCMTLTexture *texture = nullptr;
     CCMTLSampler *sampler = nullptr;

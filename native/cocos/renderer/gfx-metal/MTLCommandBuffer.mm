@@ -53,6 +53,8 @@ void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer
     for (auto &dynamicOffset : _dynamicOffsets) {
         dynamicOffset.clear();
     }
+    _firstDirtyDescriptorSet = UINT_MAX;
+    CCMTLBufferManager::begin();
 }
 
 void CCMTLCommandBuffer::end() {
@@ -103,76 +105,20 @@ void CCMTLCommandBuffer::bindPipelineState(PipelineState *pso) {
                                 backReferenceValue:_gpuPipelineState->stencilRefBack];
         [_mtlEncoder setDepthStencilState:_gpuPipelineState->mtlDepthStencilState];
     }
-
-    _GPUDescriptorSets.resize(_gpuPipelineState->gpuPipelineLayout->setLayouts.size());
 }
 
 void CCMTLCommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) {
-    auto &vertexBuffers = _inputAssembler->getVertexBuffers();
-    for (const auto &bindingInfo : _gpuPipelineState->vertexBufferBindingInfo) {
-        auto index = std::get<0>(bindingInfo);
-        auto stream = std::get<1>(bindingInfo);
-        static_cast<CCMTLBuffer *>(vertexBuffers[stream])->encodeBuffer(_mtlEncoder, 0, index, ShaderStageFlagBit::VERTEX);
-    }
+    CCASSERT(set < _GPUDescriptorSets.size(), "Invalid set index");
 
     if (dynamicOffsetCount) {
         _dynamicOffsets[set].assign(dynamicOffsets, dynamicOffsets + dynamicOffsetCount);
+        if (set < _firstDirtyDescriptorSet) _firstDirtyDescriptorSet = set;
     }
 
-    _GPUDescriptorSets[set] = static_cast<CCMTLDescriptorSet *>(descriptorSet)->gpuDescriptorSet();
-    const auto &blocks = _gpuPipelineState->gpuShader->blocks;
-    auto blockCount = blocks.size();
-    const auto &dynamicOffsetIndices = _gpuPipelineState->gpuPipelineLayout->dynamicOffsetIndices;
-    for (size_t i = 0; i < blockCount; i++) {
-        const auto &block = blocks[i];
-        CCASSERT(_GPUDescriptorSets.size() > block.set, "Invalid ubo set index");
-
-        const auto gpuDescriptorSet = _GPUDescriptorSets[block.set];
-        const auto &gpuDescriptor = gpuDescriptorSet->gpuDescriptors[block.binding];
-
-        if (!gpuDescriptor.buffer) {
-            CC_LOG_ERROR("Buffer binding %s at set %d binding %d is not bounded.", block.name.c_str(), block.set, block.binding);
-            continue;
-        }
-
-        int dynamicOffsetIndex = -1;
-        if (dynamicOffsetIndices.size() > block.set) {
-            const auto &dynamicOffsetIndexSet = dynamicOffsetIndices[block.set];
-            if (dynamicOffsetIndices.size() > block.binding) {
-                dynamicOffsetIndex = dynamicOffsetIndexSet[block.binding];
-            }
-        }
-
-        if (gpuDescriptor.buffer) {
-            uint offset = (dynamicOffsetIndex >= 0) ? dynamicOffsets[0] : 0;
-            gpuDescriptor.buffer->encodeBuffer(_mtlEncoder, offset, block.binding, gpuDescriptor.stages);
-        }
-    }
-    const auto &samplers = _gpuPipelineState->gpuShader->samplers;
-    auto samplerCount = samplers.size();
-    for (size_t j = 0; j < samplerCount; j++) {
-        const auto sampler = samplers[j];
-        CCASSERT(_GPUDescriptorSets.size() > sampler.set, "Invalid sampler set index");
-
-        const auto gpuDescriptorSet = _GPUDescriptorSets[sampler.set];
-        const auto &gpuDescriptor = gpuDescriptorSet->gpuDescriptors[sampler.binding];
-
-        if (!gpuDescriptor.texture || !gpuDescriptor.sampler) {
-            CC_LOG_ERROR("Sampler binding %s at set %d binding %d is not bounded.", sampler.name.c_str(), sampler.set, sampler.binding);
-            continue;
-        }
-
-        const auto &vertexSamplerBinding = _gpuPipelineState->gpuShader->vertexSamplerBindings;
-        const auto &fragmentSamplerBinding = _gpuPipelineState->gpuShader->fragmentSamplerBindings;
-        if (gpuDescriptor.stages & ShaderStageFlagBit::VERTEX) {
-            [_mtlEncoder setVertexTexture:gpuDescriptor.texture->getMTLTexture() atIndex:sampler.binding];
-            [_mtlEncoder setVertexSamplerState:gpuDescriptor.sampler->getMTLSamplerState() atIndex:vertexSamplerBinding.at(sampler.binding)];
-        }
-
-        if (gpuDescriptor.stages & ShaderStageFlagBit::FRAGMENT) {
-            [_mtlEncoder setFragmentTexture:gpuDescriptor.texture->getMTLTexture() atIndex:sampler.binding];
-            [_mtlEncoder setFragmentSamplerState:gpuDescriptor.sampler->getMTLSamplerState() atIndex:fragmentSamplerBinding.at(sampler.binding)];
-        }
+    auto gpuDescriptorSet = static_cast<CCMTLDescriptorSet *>(descriptorSet)->gpuDescriptorSet();
+    if (_GPUDescriptorSets[set] != gpuDescriptorSet) {
+        _GPUDescriptorSets[set] = gpuDescriptorSet;
+        if (set < _firstDirtyDescriptorSet) _firstDirtyDescriptorSet = set;
     }
 }
 
@@ -254,7 +200,9 @@ void CCMTLCommandBuffer::setStencilCompareMask(StencilFace face, int ref, uint m
 }
 
 void CCMTLCommandBuffer::draw(InputAssembler *ia) {
-    //
+    if (_firstDirtyDescriptorSet < _GPUDescriptorSets.size()) {
+        bindDescriptorSets();
+    }
 
     if (_type == CommandBufferType::PRIMARY) {
         if (_gpuIndirectBuffer.count) {
@@ -346,6 +294,66 @@ void CCMTLCommandBuffer::execute(const CommandBuffer *const *commandBuffs, uint3
         _numInstances += commandBuffer->_numInstances;
         _numTriangles += commandBuffer->_numTriangles;
     }
+}
+
+void CCMTLCommandBuffer::bindDescriptorSets() {
+    auto &vertexBuffers = _inputAssembler->getVertexBuffers();
+    for (const auto &bindingInfo : _gpuPipelineState->vertexBufferBindingInfo) {
+        auto index = std::get<0>(bindingInfo);
+        auto stream = std::get<1>(bindingInfo);
+        static_cast<CCMTLBuffer *>(vertexBuffers[stream])->encodeBuffer(_mtlEncoder, 0, index, ShaderStageFlagBit::VERTEX);
+    }
+
+    const auto &dynamicOffsetIndices = _gpuPipelineState->gpuPipelineLayout->dynamicOffsetIndices;
+    const auto &blocks = _gpuPipelineState->gpuShader->blocks;
+    for (const auto &iter : blocks) {
+        const auto &block = iter.second;
+
+        const auto gpuDescriptorSet = _GPUDescriptorSets[block.set];
+        const auto &gpuDescriptor = gpuDescriptorSet->gpuDescriptors[block.binding];
+        if (!gpuDescriptor.buffer) {
+            CC_LOG_ERROR("Buffer binding %s at set %d binding %d is not bounded.", block.name.c_str(), block.set, block.binding);
+            continue;
+        }
+
+        auto dynamicOffsetIndex = dynamicOffsetIndices[block.set][block.binding];
+
+        if (gpuDescriptor.buffer) {
+            uint offset = (dynamicOffsetIndex >= 0) ? _dynamicOffsets[block.set][dynamicOffsetIndex] : 0;
+            gpuDescriptor.buffer->encodeBuffer(_mtlEncoder,
+                                               offset,
+                                               block.mappedBinding,
+                                               block.stages);
+        }
+    }
+
+    const auto &samplers = _gpuPipelineState->gpuShader->samplers;
+    for (const auto &iter : samplers) {
+        const auto &sampler = iter.second;
+
+        const auto gpuDescriptorSet = _GPUDescriptorSets[sampler.set];
+        const auto &gpuDescriptor = gpuDescriptorSet->gpuDescriptors[sampler.binding];
+
+        if (!gpuDescriptor.texture || !gpuDescriptor.sampler) {
+            CC_LOG_ERROR("Sampler binding %s at set %d binding %d is not bounded.", sampler.name.c_str(), sampler.set, sampler.binding);
+            continue;
+        }
+
+        if (sampler.stages & ShaderStageFlagBit::VERTEX) {
+            [_mtlEncoder setVertexTexture:gpuDescriptor.texture->getMTLTexture()
+                                  atIndex:sampler.textureBinding];
+            [_mtlEncoder setVertexSamplerState:gpuDescriptor.sampler->getMTLSamplerState()
+                                       atIndex:sampler.samplerBinding];
+        }
+
+        if (sampler.stages & ShaderStageFlagBit::FRAGMENT) {
+            [_mtlEncoder setFragmentTexture:gpuDescriptor.texture->getMTLTexture()
+                                    atIndex:sampler.textureBinding];
+            [_mtlEncoder setFragmentSamplerState:gpuDescriptor.sampler->getMTLSamplerState()
+                                         atIndex:sampler.samplerBinding];
+        }
+    }
+    _firstDirtyDescriptorSet = UINT_MAX;
 }
 
 } // namespace gfx

@@ -16,33 +16,29 @@ bool CCMTLPipelineLayout::initialize(const PipelineLayoutInfo &info) {
     _setLayouts = info.setLayouts;
 
     _gpuPipelineLayout = CC_NEW(CCMTLGPUPipelineLayout);
-
-    int offset = 0u;
-    uint set = 0;
     _gpuPipelineLayout->dynamicOffsetIndices.resize(_setLayouts.size());
+    
+    uint i = 0;
     for (auto setLayout : _setLayouts) {
         auto gpuDescriptorSetLayout = static_cast<CCMTLDescriptorSetLayout *>(setLayout)->gpuDescriptorSetLayout();
-        auto bindingCount = gpuDescriptorSetLayout->bindings.size();
         auto dynamicCount = gpuDescriptorSetLayout->dynamicBindings.size();
-
-        vector<int> &indices = _gpuPipelineLayout->dynamicOffsetIndices[set];
+        auto bindingCount = gpuDescriptorSetLayout->bindings.size();
+        
+        auto &indices = _gpuPipelineLayout->dynamicOffsetIndices[i++];
         indices.assign(bindingCount, -1);
-
-        for (uint j = 0u; j < dynamicCount; j++) {
-            uint binding = gpuDescriptorSetLayout->dynamicBindings[j];
-            if (indices[binding] < 0) indices[binding] = offset + j;
+        
+        for (size_t j = 0; j < dynamicCount; j++) {
+            auto binding = gpuDescriptorSetLayout->dynamicBindings[j];
+            if (indices[binding] < 0) indices[binding] = j;
         }
-        _gpuPipelineLayout->dynamicOffsetIndices.emplace_back(offset);
         _gpuPipelineLayout->setLayouts.emplace_back(gpuDescriptorSetLayout);
-        offset += dynamicCount;
     }
-    _gpuPipelineLayout->dynamicOffsetIndices.emplace_back(offset);
-    _gpuPipelineLayout->dynamicOffsetCount = offset;
-
+    
     return true;
 }
 
 void CCMTLPipelineLayout::destroy() {
+    CC_SAFE_DELETE(_gpuPipelineLayout);
 }
 
 }

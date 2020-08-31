@@ -7,7 +7,7 @@
 #include "MTLDescriptorSetLayout.h"
 #include "MTLDevice.h"
 #include "MTLFence.h"
-#include "MTLFrameBuffer.h"
+#include "MTLFramebuffer.h"
 #include "MTLInputAssembler.h"
 #include "MTLPipelineLayout.h"
 #include "MTLPipelineState.h"

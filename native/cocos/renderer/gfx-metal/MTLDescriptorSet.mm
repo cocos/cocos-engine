@@ -28,7 +28,6 @@ bool CCMTLDescriptorSet::initialize(const DescriptorSetInfo &info) {
     _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount);
     for (size_t i = 0; i < descriptorCount; i++) {
         _gpuDescriptorSet->gpuDescriptors[i].type = bindings[i].descriptorType;
-        _gpuDescriptorSet->gpuDescriptors[i].stages = bindings[i].stageFlags;
     }
 
     return true;

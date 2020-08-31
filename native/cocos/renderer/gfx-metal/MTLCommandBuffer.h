@@ -44,7 +44,7 @@ public:
     virtual void execute(const CommandBuffer *const *cmdBuffs, uint32_t count) override;
 
 private:
-    void bindStates();
+    void bindDescriptorSets();
 
 private:
     CCMTLGPUPipelineState *_gpuPipelineState = nullptr;
@@ -57,6 +57,7 @@ private:
 
     vector<CCMTLGPUDescriptorSet *> _GPUDescriptorSets;
     vector<vector<uint>> _dynamicOffsets;
+    uint _firstDirtyDescriptorSet = UINT_MAX;
 
     MTKView *_mtkView = nil;
     id<MTLCommandBuffer> _mtlCommandBuffer = nil;
