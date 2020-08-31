@@ -44,7 +44,21 @@ function deserialize (json, options) {
         classFinder = cc._MissingScript.safeFindClass;
     }
 
-    var tdInfo = cc.deserialize.Details.pool.get();
+    let pool = null;
+    if (!CC_PREVIEW) {
+        pool = cc.deserialize.Details.pool;
+    }
+    else {
+        let { default: deserializeForCompiled } = require('../platform/deserialize-compiled');
+        let deserializeForEditor = require('../platform/deserialize-editor');
+        if (deserializeForCompiled.isCompiledJson(json)) {
+            pool = deserializeForCompiled.Details.pool;
+        }
+        else {
+            pool = deserializeForEditor.Details.pool;
+        }
+    }
+    var tdInfo = pool.get();
 
     var asset;
     try {
@@ -54,7 +68,7 @@ function deserialize (json, options) {
         });
     }
     catch (e) {
-        cc.deserialize.Details.pool.put(tdInfo);
+        pool.put(tdInfo);
         throw e;
     }
 
@@ -81,7 +95,7 @@ function deserialize (json, options) {
     asset.__depends__ = depends;
     // native dep
     asset._native && (asset.__nativeDepend__ = true);
-    cc.deserialize.Details.pool.put(tdInfo);
+    pool.put(tdInfo);
     return asset;
 
 }
