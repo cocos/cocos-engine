@@ -229,8 +229,7 @@ export interface IGameConfig {
 /**
  * @en An object to boot the game.
  * @zh 包含游戏主体信息并负责驱动游戏的游戏对象。
- * @class game
- * @static
+ * @class Game
  */
 export class Game extends EventTarget {
     /**
@@ -987,10 +986,11 @@ export class Game extends EventTarget {
                 legacyCC.game.emit(Game.EVENT_HIDE);
             }
         }
-        function onShown () {
+        // In order to adapt the most of platforms the onshow API.
+        function onShown (arg0?, arg1?, arg2?, arg3?, arg4?) {
             if (hidden) {
                 hidden = false;
-                legacyCC.game.emit(Game.EVENT_SHOW);
+                legacyCC.game.emit(Game.EVENT_SHOW, arg0, arg1, arg2, arg3, arg4);
             }
         }
 
@@ -1067,4 +1067,11 @@ export class Game extends EventTarget {
 }
 
 legacyCC.Game = Game;
+
+/**
+ * @en
+ * This is a Game instance.
+ * @zh
+ * 这是一个 Game 类的实例，包含游戏主体信息并负责驱动游戏的游戏对象。
+ */
 export const game = legacyCC.game = new Game();

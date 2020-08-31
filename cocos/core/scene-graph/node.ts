@@ -992,8 +992,13 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @en Pause all system events which is dispatched by [[SystemEvent]]
-     * @zh 暂停所有 [[SystemEvent]] 派发的系统事件
+     * @en
+     * Pause all system events which is dispatched by [[SystemEvent]].
+     * If recursive is set to true, then this API will pause the node system events for the node and all nodes in its sub node tree.
+     * @zh
+     * 暂停所有 [[SystemEvent]] 派发的系统事件。
+     * 如果传递 recursive 为 true，那么这个 API 将暂停本节点和它的子树上所有节点的节点系统事件。
+     *
      * @param recursive Whether pause system events recursively for the child node tree
      */
     public pauseSystemEvents (recursive: boolean): void {
@@ -1002,8 +1007,14 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @en Resume all paused system events which is dispatched by [[SystemEvent]]
-     * @zh 恢复所有 [[SystemEvent]] 派发的系统事件
+     * @en
+     * Resume all paused system events which is dispatched by [[SystemEvent]].
+     * If recursive is set to true, then this API will resume the node system events for the node and all nodes in its sub node tree.
+     *
+     * @zh
+     * 恢复所有 [[SystemEvent]] 派发的系统事件。
+     * 如果传递 recursive 为 true，那么这个 API 将恢复本节点和它的子树上所有节点的节点系统事件。
+     *
      * @param recursive Whether resume system events recursively for the child node tree
      */
     public resumeSystemEvents (recursive: boolean): void {

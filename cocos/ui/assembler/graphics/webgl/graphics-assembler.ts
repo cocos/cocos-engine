@@ -246,8 +246,8 @@ export const graphicsAssembler: IAssembler = {
         
         const model = graphics.model;
         if (model) {
-            model.node = model.transform = graphics.node;
             model.initSubModel(0, mesh.renderingSubMeshes[0], graphics.getUIMaterialInstance()!);
+            model.node = model.transform = graphics.node;
         }
         
         graphics.markForUpdateRenderData();
@@ -573,7 +573,7 @@ export const graphicsAssembler: IAssembler = {
             let p0 = pts[pts.length - 1];
             let p1 = pts[0];
 
-            if (p0.equals(p1)) {
+            if (pts.length > 2 && p0.equals(p1)) {
                 path.closed = true;
                 pts.pop();
                 p0 = pts[pts.length - 1];

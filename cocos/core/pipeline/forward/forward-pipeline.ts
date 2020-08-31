@@ -9,7 +9,7 @@ import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { IRenderObject, UBOGlobal, UBOShadow,
-    UNIFORM_SHADOWMAP, globalDescriptorSetLayout, localDescriptorSetLayout} from '../define';
+    UNIFORM_SHADOWMAP} from '../define';
 import { GFXBufferUsageBit, GFXMemoryUsageBit,
     GFXClearFlag, GFXFilter, GFXAddress, GFXCommandBufferType } from '../../gfx/define';
 import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout } from '../../gfx';
@@ -107,8 +107,6 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     public activate (): boolean {
-        this._globalDescriptorSetLayout = globalDescriptorSetLayout;
-        this._localDescriptorSetLayout = localDescriptorSetLayout;
         this._macros = {};
 
         if (!super.activate()) {

@@ -32,8 +32,8 @@ import { GFXDescriptorType, GFXGetTypeSize, GFXShaderStageFlagBit } from '../../
 import { GFXAPI, GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { GFXUniformBlock, GFXShaderInfo } from '../../gfx/shader';
-import { SetIndex, IDescriptorSetLayoutInfo } from '../../pipeline/define';
-import { RenderPipeline } from '../../pipeline';
+import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../pipeline/define';
+import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { genHandle, MacroRecord, PropertyType } from './pass-utils';
 import { legacyCC } from '../../global-exports';
 import { ShaderPool, ShaderHandle, PipelineLayoutHandle, PipelineLayoutPool, NULL_HANDLE } from './memory-pools';
@@ -339,8 +339,8 @@ class ProgramLib {
         const layout = this._pipelineLayouts[name];
 
         if (!layout.hPipelineLayout) {
-            insertBuiltinBindings(tmpl, pipeline.globalDescriptorSetLayout, 'globals');
-            insertBuiltinBindings(tmpl, pipeline.localDescriptorSetLayout, 'locals');
+            insertBuiltinBindings(tmpl, globalDescriptorSetLayout, 'globals');
+            insertBuiltinBindings(tmpl, localDescriptorSetLayout, 'locals');
             layout.setLayouts[SetIndex.GLOBAL] = pipeline.descriptorSetLayout;
             // material set layout should already been created in pass, but if not
             // (like when the same shader is overriden) we create it again here
@@ -350,7 +350,7 @@ class ProgramLib {
                 });
             }
             layout.setLayouts[SetIndex.LOCAL] = _dsLayout = _dsLayout || device.createDescriptorSetLayout({
-                bindings: pipeline.localDescriptorSetLayout.bindings,
+                bindings: localDescriptorSetLayout.bindings,
             });
             layout.hPipelineLayout = PipelineLayoutPool.alloc(device, {
                 setLayouts: layout.setLayouts,
