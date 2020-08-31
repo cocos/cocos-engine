@@ -157,7 +157,7 @@ let TiledLayer = cc.Class({
      * @param value
      */
     enableCulling (value) {
-        if (this._enableCulling != value) {
+        if (this._enableCulling !== value) {
             this._enableCulling = value;
             this._cullingDirty = true;
         }
@@ -601,7 +601,7 @@ let TiledLayer = cc.Class({
         if (this._isInvalidPosition(pos)) {
             throw new Error("cc.TiledLayer.setTileGIDAt(): invalid position");
         }
-        if (!this._tiles || !this._tilesets || this._tilesets.length == 0) {
+        if (!this._tiles || !this._tilesets || this._tilesets.length === 0) {
             cc.logID(7238);
             return;
         }

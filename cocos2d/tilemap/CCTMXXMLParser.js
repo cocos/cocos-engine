@@ -1008,7 +1008,7 @@ cc.TMXMapInfo.prototype = {
 
     _parseImageLayer (selLayer) {
         let datas = selLayer.getElementsByTagName('image');
-        if (!datas || datas.length == 0) return null;
+        if (!datas || datas.length === 0) return null;
 
         let imageLayer = new cc.TMXImageLayerInfo();
         imageLayer.name = selLayer.getAttribute('name');

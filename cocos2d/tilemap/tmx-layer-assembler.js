@@ -90,7 +90,7 @@ function _flush () {
 
 function _renderNodes (nodeRow, nodeCol) {
     let nodesInfo = _comp._getNodesByRowCol(nodeRow, nodeCol);
-    if (!nodesInfo || nodesInfo.count == 0) return;
+    if (!nodesInfo || nodesInfo.count === 0) return;
     let nodesList = nodesInfo.list;
     let newIdx = 0, oldIdx = 0;
     // flush map render data
@@ -321,7 +321,7 @@ export default class TmxAssembler extends Assembler {
         let tiledNode = null, curTexIdx = -1, matIdx;
         let colNodesCount = 0, checkColRange = true;
 
-        if (rowMoveDir == -1) {
+        if (rowMoveDir === -1) {
             row = rightTop.row;
             rows = leftDown.row;
         } else {
@@ -333,10 +333,10 @@ export default class TmxAssembler extends Assembler {
         for (; (rows - row) * rowMoveDir >= 0; row += rowMoveDir) {
             rowData = vertices[row];
             colNodesCount = _comp._getNodesCountByRow(row);
-            checkColRange = (colNodesCount == 0 && rowData != undefined);
+            checkColRange = rowData && colNodesCount === 0;
 
             // limit min col and max col
-            if (colMoveDir == 1) {
+            if (colMoveDir === 1) {
                 col = checkColRange && leftDown.col < rowData.minCol ? rowData.minCol : leftDown.col;
                 cols = checkColRange && rightTop.col > rowData.maxCol ? rowData.maxCol : rightTop.col;
             } else {
