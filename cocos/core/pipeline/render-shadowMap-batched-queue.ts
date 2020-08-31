@@ -3,7 +3,7 @@
  */
 
 import { GFXCommandBuffer } from '../gfx/command-buffer';
-import { Light, Shadows, ShadowType, LightType, DirectionalLight, SpotLight, Model } from '../renderer';
+import { Light, Shadows, ShadowType, LightType, DirectionalLight, SpotLight, Model, BatchingSchemes } from '../renderer';
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, SetIndex, UBOShadow } from './define';
 import { GFXDevice, GFXDescriptorSet, GFXRenderPass, GFXBuffer, GFXShader, GFXMemoryUsageBit, GFXBufferUsageBit } from '../gfx';
@@ -14,6 +14,8 @@ import { DSPool, ShaderPool, PassHandle, PassPool, PassView, SubModelPool,
 import { Mat4, Vec4, Color} from '../math';
 import { ForwardPipeline } from './forward/forward-pipeline';
 import { intersect } from '../geometry';
+import { RenderInstancedQueue } from './render-instanced-queue';
+import { InstancedBuffer } from './instanced-buffer';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
@@ -48,6 +50,7 @@ export class RenderShadowMapBatchedQueue {
     private _descriptorSet: GFXDescriptorSet;
     private _shadowObjects: IRenderObject[];
     private _shadowUBO:Float32Array;
+    private _instancedQueue: RenderInstancedQueue;
 
     public constructor (pipeline: ForwardPipeline) {
         this._device = pipeline.device;
@@ -62,10 +65,13 @@ export class RenderShadowMapBatchedQueue {
                 size: UBOShadow.SIZE,
             });
         pipeline.descriptorSet.bindBuffer(UBOShadow.BLOCK.binding, this._shadowMapBuffer);
+
+        this._instancedQueue = new RenderInstancedQueue();
     }
 
     public gatherLightPasses (light: Light) {
         this.clear();
+        this._instancedQueue.clear();
 
         this._updateUBOs(light);
 
@@ -101,6 +107,7 @@ export class RenderShadowMapBatchedQueue {
      * record CommandBuffer
      */
     public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
+        this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         for (let i = 0; i < this._subModelsArray.length; ++i) {
             const subModel = this._subModelsArray[i];
             const shader = this._shaderArray[i];
@@ -127,6 +134,14 @@ export class RenderShadowMapBatchedQueue {
 
         for (let j = 0; j < subModels.length; j++) {
             const subModel = subModels[j];
+            const pass = subModel.passes[shadowPassIdx];
+            const batchingScheme = pass.batchingScheme;
+            if (batchingScheme === BatchingSchemes.INSTANCING) {
+                const buffer = InstancedBuffer.get(pass);
+                buffer.merge(subModel, model.instancedAttributes, shadowPassIdx);
+                //buffer.dynamicOffsets[0] = shadowPassIdx;
+                this._instancedQueue.queue.add(buffer);
+            }
             subModel.descriptorSet.bindBuffer(UBOShadow.BLOCK.binding, this._shadowMapBuffer);
             subModel.descriptorSet.update();
             const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + shadowPassIdx) as ShaderHandle);
