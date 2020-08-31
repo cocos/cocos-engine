@@ -895,6 +895,8 @@ deserialize.reportMissingClass = (id) => {
         warnID(5302, id);
     }
 };
+
+deserialize._Deserializer = _Deserializer;
 legacyCC.deserialize = deserialize;
 
 export default deserialize;
