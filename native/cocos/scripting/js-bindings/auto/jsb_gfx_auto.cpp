@@ -15714,7 +15714,7 @@ static bool js_gfx_DescriptorSet_getBuffer(se::State& s)
         unsigned int arg0 = 0;
         ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_getBuffer : Error processing arguments");
-        const cc::gfx::Buffer* result = cobj->getBuffer(arg0);
+        cc::gfx::Buffer* result = cobj->getBuffer(arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_getBuffer : Error processing arguments");
         return true;
