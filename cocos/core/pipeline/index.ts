@@ -17,3 +17,5 @@ export { ShadowFlow } from './shadow/shadow-flow';
 export { ShadowStage } from './shadow/shadow-stage';
 export { UIFlow } from './ui/ui-flow';
 export { UIStage } from './ui/ui-stage';
+
+export { InstancedBuffer } from './instanced-buffer';

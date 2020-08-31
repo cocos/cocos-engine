@@ -9,7 +9,7 @@ import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 import { MacroRecord } from '../renderer/core/pass-utils';
 import { GFXDevice, GFXDescriptorSet, GFXCommandBuffer, GFXDescriptorSetLayout } from '../gfx';
-import { globalDescriptorSetLayout, IDescriptorSetLayoutInfo } from './define';
+import { globalDescriptorSetLayout } from './define';
 
 /**
  * @en Render pipeline information descriptor
@@ -30,25 +30,6 @@ export interface IRenderPipelineInfo {
  */
 @ccclass('cc.RenderPipeline')
 export abstract class RenderPipeline extends Asset {
-
-    /**
-     * @en Layout of the pipeline-global descriptor set.
-     * @zh 管线层的全局描述符集布局。
-     * @readonly
-     */
-    get globalDescriptorSetLayout (): Readonly<IDescriptorSetLayoutInfo> {
-        return this._globalDescriptorSetLayout;
-    }
-
-    /**
-     * @en Layout of the model-local descriptor set.
-     * @zh 逐模型的描述符集布局。
-     * @readonly
-     */
-    get localDescriptorSetLayout (): Readonly<IDescriptorSetLayoutInfo> {
-        return this._localDescriptorSetLayout;
-    }
-
 
     /**
      * @en The macros for this pipeline.
@@ -96,9 +77,6 @@ export abstract class RenderPipeline extends Asset {
     @displayOrder(1)
     @visible(true)
     protected _flows: RenderFlow[] = [];
-
-    protected _globalDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: [], record: {} };
-    protected _localDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: [], record: {} };
 
     protected _macros: MacroRecord = {};
 

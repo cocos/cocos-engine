@@ -28,5 +28,8 @@
     "include": [
         "exports/**/*.ts",
         "index.ts"
+    ],
+    "exclude": [
+      "**/*.jsb.ts"
     ]
   }

@@ -47,7 +47,7 @@ import { Scheduler } from './scheduler';
 import { js } from './utils';
 import { DEBUG, EDITOR, BUILD } from 'internal:constants';
 import { legacyCC } from './global-exports';
-import { errorID, error, logID, assertID } from './platform/debug';
+import { errorID, error, logID, assertID, warnID } from './platform/debug';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -270,6 +270,7 @@ export class Director extends EventTarget {
     private _totalFrames: number;
     private _lastUpdate: number;
     private _deltaTime: number;
+    private _startTime: number;
     private _scheduler: Scheduler;
     private _systems: System[];
 
@@ -293,6 +294,7 @@ export class Director extends EventTarget {
         this._totalFrames = 0;
         this._lastUpdate = 0;
         this._deltaTime = 0.0;
+        this._startTime = 0.0;
 
         // Scheduler for user registration update
         this._scheduler = new Scheduler();
@@ -309,8 +311,8 @@ export class Director extends EventTarget {
     /**
      * calculates delta time since last time it was called
      */
-    public calculateDeltaTime () {
-        const now = performance.now();
+    public calculateDeltaTime (now) {
+        if (!now) now = performance.now();
 
         this._deltaTime = now > this._lastUpdate ? (now - this._lastUpdate) / 1000 : 0;
         if (DEBUG && (this._deltaTime > 1)) {
@@ -640,7 +642,7 @@ export class Director extends EventTarget {
      */
     public loadScene (sceneName: string, onLaunched?: Director.OnSceneLaunched, onUnloaded?: Director.OnUnload) {
         if (this._loadingScene) {
-            errorID(1208, sceneName, this._loadingScene);
+            warnID(1208, sceneName, this._loadingScene);
             return false;
         }
         const info = this._getSceneUuid(sceneName);
@@ -905,6 +907,14 @@ export class Director extends EventTarget {
     }
 
     /**
+     * @en Returns the total passed time since game start, unit: ms
+     * @zh 获取从游戏开始到现在总共经过的时间，单位为 ms
+     */
+    public getTotalTime () {
+        return performance.now() - this._startTime;
+    }
+
+    /**
      * @en Returns the current time.
      * @zh 获取当前帧的时间。
      */
@@ -1013,7 +1023,7 @@ export class Director extends EventTarget {
         }
         else if (!this._invalid) {
             // calculate "global" dt
-            this.calculateDeltaTime();
+            this.calculateDeltaTime(time);
             const dt = this._deltaTime;
 
             // Update
@@ -1053,6 +1063,7 @@ export class Director extends EventTarget {
     private _initOnRendererInitialized () {
         this._totalFrames = 0;
         this._lastUpdate = performance.now();
+        this._startTime = this._lastUpdate;
         this._paused = false;
         this._purgeDirectorInNextLoop = false;
 

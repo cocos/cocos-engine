@@ -418,9 +418,10 @@ class Component extends CCObject {
      */
     public schedule (callback, interval: number = 0, repeat: number = legacyCC.macro.REPEAT_FOREVER, delay: number = 0) {
         assertID(callback, 1619);
-        assertID(interval >= 0, 1620);
 
         interval = interval || 0;
+        assertID(interval >= 0, 1620);
+
         repeat = isNaN(repeat) ? legacyCC.macro.REPEAT_FOREVER : repeat;
         delay = delay || 0;
 

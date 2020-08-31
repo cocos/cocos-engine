@@ -5,8 +5,8 @@
 import { builtinResMgr } from './3d/builtin';
 import { GFXDevice } from './gfx/device';
 import { Pool } from './memop';
-import { RenderPipeline, ForwardPipeline } from './pipeline';
-import { IRenderViewInfo, RenderView } from './pipeline/render-view';
+import { RenderPipeline, RenderView, ForwardPipeline } from './pipeline';
+import { IRenderViewInfo } from './pipeline/define'
 import { Camera, Light, Model } from './renderer';
 import { DataPoolManager } from './renderer/data-pool-manager';
 import { LightType } from './renderer/scene/light';

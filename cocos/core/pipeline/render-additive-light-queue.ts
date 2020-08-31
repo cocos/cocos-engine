@@ -5,7 +5,11 @@
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, UBOForwardLight, SetIndex } from './define';
-import { Light, LightType, SphereLight, SpotLight, BatchingSchemes, Model } from '../renderer';
+import { Light, LightType } from '../renderer/scene/light';
+import { SphereLight } from '../renderer/scene/sphere-light';
+import { SpotLight } from '../renderer/scene/spot-light';
+import { BatchingSchemes } from '../renderer/core/pass'
+import { Model } from '../renderer/scene/model';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView } from '../renderer/core/memory-pools';
 import { Vec3, nextPow2 } from '../../core/math';
