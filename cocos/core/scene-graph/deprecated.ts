@@ -62,7 +62,7 @@ replaceProperty(Node.prototype, 'Node', [
         }
     },
     {
-        'name': 'getAnchorPoint',
+        'name': 'anchorPoint',
         'targetName': 'node.getComponent(UITransform)',
         'customFunction': function (this: Node, out?: Vec2) {
             if (!out) {
@@ -73,14 +73,14 @@ replaceProperty(Node.prototype, 'Node', [
         }
     },
     {
-        'name': 'setAnchorPoint',
+        'name': 'anchorPoint',
         'targetName': 'node.getComponent(UITransform)',
         'customFunction': function (this: Node, point: Vec2 | number, y?: number) {
             this._uiProps.uiTransformComp!.setAnchorPoint(point, y);
         }
     },
     {
-        'name': 'getContentSize',
+        'name': 'contentSize',
         'targetName': 'node.getComponent(UITransform)',
         'customFunction': function (this: Node, out?: Size): Size {
             if (!out) {
@@ -92,7 +92,7 @@ replaceProperty(Node.prototype, 'Node', [
         }
     },
     {
-        'name': 'setContentSize',
+        'name': 'contentSize',
         'targetName': 'node.getComponent(UITransform)',
         'customFunction': function (this: Node, size: Size | number, height?: number) {
             this._uiProps.uiTransformComp!.setContentSize(size, height);

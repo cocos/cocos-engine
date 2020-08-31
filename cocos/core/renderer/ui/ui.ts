@@ -35,9 +35,9 @@ import { GFXSampler } from '../../gfx/sampler';
 import { GFXTexture } from '../../gfx/texture';
 import { Pool, RecyclePool } from '../../memop';
 import { CachedArray } from '../../memop/cached-array';
-import { Camera } from '../../renderer/scene/camera';
-import { Model } from '../../renderer/scene/model';
-import { RenderScene } from '../../renderer/scene/render-scene';
+import { Camera } from '../scene/camera';
+import { Model } from '../scene/model';
+import { RenderScene } from '../scene/render-scene';
 import { Root } from '../../root';
 import { Layers, Node } from '../../scene-graph';
 import { MeshBuffer } from './mesh-buffer';
@@ -49,7 +49,6 @@ import * as UIVertexFormat from './ui-vertex-format';
 import { legacyCC } from '../../global-exports';
 import { DSPool } from '../core/memory-pools';
 import { ModelLocalBindings } from '../../pipeline/define';
-import { programLib } from '../core/program-lib';
 
 /**
  * @zh

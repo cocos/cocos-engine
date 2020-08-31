@@ -8,7 +8,7 @@ import { Scheduler } from './scheduler';
 import { CameraComponent } from './3d';
 import { EventTouch } from './platform';
 import { legacyCC } from './global-exports';
-import { SubModel } from './renderer';
+import { SubModel } from './renderer/scene/submodel';
 import { GFXCommandBuffer } from './gfx';
 
 // VMATH

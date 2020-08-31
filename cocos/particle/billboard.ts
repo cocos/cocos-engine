@@ -10,7 +10,7 @@ import { Component } from '../core/components/component';
 import { ccclass, help, executeInEditMode, menu, tooltip, type, serializable } from 'cc.decorator';
 import { GFXAttributeName, GFXFormat, GFXPrimitiveMode } from '../core/gfx';
 import { Color, toDegree, toRadian, Vec4 } from '../core/math';
-import { Model } from '../core/renderer/scene/model';
+import { scene } from '../core/renderer';
 import { legacyCC } from '../core/global-exports';
 
 @ccclass('cc.Billboard')
@@ -95,7 +95,7 @@ export class Billboard extends Component {
         }
     }
 
-    private _model: Model | null = null;
+    private _model: scene.Model | null = null;
 
     private _mesh: Mesh | null = null;
 
@@ -162,7 +162,7 @@ export class Billboard extends Component {
             ],
             indices: [0, 1, 2, 1, 2, 3],
         }, undefined, { calculateBounds: false });
-        this._model = legacyCC.director.root.createModel(Model, this.node);
+        this._model = legacyCC.director.root.createModel(scene.Model, this.node);
         this._model!.initialize(this.node);
         if (this._material == null) {
             this._material = new Material();

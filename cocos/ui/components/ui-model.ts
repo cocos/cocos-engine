@@ -34,7 +34,7 @@ import { ccclass, help, executionOrder, menu } from 'cc.decorator';
 import { director } from '../../core/director';
 import { RenderPriority } from '../../core/pipeline/define';
 import { UI } from '../../core/renderer/ui/ui';
-import { Model } from '../../core/renderer';
+import { scene } from '../../core/renderer';
 import { legacyCC } from '../../core/global-exports';
 
 /**
@@ -53,7 +53,7 @@ import { legacyCC } from '../../core/global-exports';
 @menu('UI/Model')
 export class UIModel extends UIComponent {
 
-    private _models: Model[] | null = null;
+    private _models: scene.Model[] | null = null;
 
     public get modelComponent () {
         return this._modelComponent;

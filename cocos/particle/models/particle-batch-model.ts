@@ -33,7 +33,7 @@ import { GFXAttributeName, GFXBufferUsageBit, GFXFormatInfos,
     GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
 import { IGFXAttribute } from '../../core/gfx/input-assembler';
 import { Color } from '../../core/math/color';
-import { Model, ModelType } from '../../core/renderer/scene/model';
+import { scene } from '../../core/renderer';
 import { Particle } from '../particle';
 import { Material } from '../../core/assets';
 
@@ -44,7 +44,7 @@ const _uvs = [
     1, 1, // top-right
 ];
 
-export default class ParticleBatchModel extends Model {
+export default class ParticleBatchModel extends scene.Model {
 
     private _capacity: number;
     private _vertAttrs: IGFXAttribute[] | null;
@@ -67,7 +67,7 @@ export default class ParticleBatchModel extends Model {
     constructor () {
         super();
 
-        this.type = ModelType.PARTICLE_BATCH;
+        this.type = scene.ModelType.PARTICLE_BATCH;
         this._capacity = 0;
         this._vertAttrs = null;
         this._vertSize = 0;

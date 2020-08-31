@@ -7,7 +7,7 @@ import { GFXDevice } from './gfx/device';
 import { Pool } from './memop';
 import { RenderPipeline } from './pipeline/render-pipeline';
 import { IRenderViewInfo, RenderView } from './pipeline/render-view';
-import { Camera, Light, Model } from './renderer';
+import { Camera, Light, Model } from './renderer/scene';
 import { DataPoolManager } from './renderer/data-pool-manager';
 import { LightType } from './renderer/scene/light';
 import { IRenderSceneInfo, RenderScene } from './renderer/scene/render-scene';

@@ -34,7 +34,7 @@ import { InstanceMaterialType, UIRenderable } from '../../core/components/ui-bas
 import { ccclass, help, executionOrder, menu, tooltip, type, visible, override, editable, serializable } from 'cc.decorator';
 import { director } from '../../core/director';
 import { Color } from '../../core/math';
-import { IMaterialInstanceInfo, MaterialInstance, Model } from '../../core/renderer';
+import { IMaterialInstanceInfo, MaterialInstance, scene } from '../../core/renderer';
 import { IAssembler } from '../../core/renderer/ui/base';
 import { UI } from '../../core/renderer/ui/ui';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
@@ -204,7 +204,7 @@ export class Graphics extends UIRenderable {
     public static LineJoin = LineJoin;
     public static LineCap = LineCap;
     public impl: Impl | null = null;
-    public model: Model | null = null;
+    public model: scene.Model | null = null;
     @serializable
     protected _lineWidth = 1;
     @serializable
@@ -240,7 +240,7 @@ export class Graphics extends UIRenderable {
     public onLoad () {
         this._sceneGetter = director.root!.ui.getRenderSceneGetter();
         if (!this.model) {
-            this.model = director.root!.createModel(Model);
+            this.model = director.root!.createModel(scene.Model);
         }
         this.helpInstanceMaterial();
     }
