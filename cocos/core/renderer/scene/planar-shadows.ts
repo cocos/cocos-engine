@@ -8,7 +8,7 @@ import { DirectionalLight } from './directional-light';
 import { Model } from './model';
 import { SphereLight } from './sphere-light';
 import { GFXCommandBuffer, GFXDevice, GFXRenderPass, GFXDescriptorSet, GFXShader } from '../../gfx';
-import { InstancedBuffer } from '../../pipeline/instanced-buffer';
+import { InstancedBuffer } from '../../pipeline';
 import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
 import { legacyCC } from '../../global-exports';
 import { RenderScene } from './render-scene';

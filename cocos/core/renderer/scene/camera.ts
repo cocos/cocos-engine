@@ -2,7 +2,7 @@ import { frustum, ray } from '../../geometry';
 import { GFXClearFlag, GFXColor } from '../../gfx/define';
 import { lerp, Mat4, Rect, toRadian, Vec3 } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
-import { RenderView } from '../../pipeline/render-view';
+import { RenderView } from '../../pipeline';
 import { Node } from '../../scene-graph';
 import { RenderScene } from './render-scene';
 import { GFXDevice } from '../../gfx';

@@ -3,7 +3,7 @@
  */
 
 import { Camera } from '../renderer/scene/camera';
-import { CAMERA_DEFAULT_MASK } from './define';
+import { CAMERA_DEFAULT_MASK, IRenderViewInfo } from './define';
 import { RenderFlowTag } from './pipeline-serialization';
 import { RenderFlow } from './render-flow';
 import { legacyCC } from '../global-exports';
@@ -15,17 +15,6 @@ import { RenderWindow } from '../renderer/core/render-window';
  */
 export enum RenderViewPriority {
     GENERAL = 100,
-}
-
-/**
- * @en Render view information descriptor
- * @zh 渲染视图描述信息。
- */
-export interface IRenderViewInfo {
-    camera: Camera;
-    name: string;
-    priority: number;
-    flows?: string[];
 }
 
 /**

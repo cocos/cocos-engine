@@ -9,6 +9,7 @@ import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
 import { GFXBindingMappingInfo, GFXDescriptorType, GFXType, GFXShaderStageFlagBit, IGFXDescriptorSetLayoutBinding } from '../gfx';
 import { IBlockInfo, ISamplerInfo } from '../assets/effect-asset';
+import { Camera } from '../renderer';
 
 export const PIPELINE_FLOW_FORWARD: string = 'ForwardFlow';
 export const PIPELINE_FLOW_SHADOW: string = 'ShadowFlow';
@@ -454,3 +455,14 @@ export const CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D,
 export const CAMERA_EDITOR_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.PROFILER]);
 
 export const MODEL_ALWAYS_MASK = Layers.Enum.ALL;
+
+/**
+ * @en Render view information descriptor
+ * @zh 渲染视图描述信息。
+ */
+export interface IRenderViewInfo {
+    camera: Camera;
+    name: string;
+    priority: number;
+    flows?: string[];
+}
