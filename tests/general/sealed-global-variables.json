@@ -116,7 +116,6 @@
         "cc.GFX_MAX_VERTEX_ATTRIBUTES",
         "cc.Game",
         "cc.Root",
-        "cc.ForwardPipeline",
         "cc.GraphicsComponent",
         "cc.HierachyModifier",
         "cc.ImageAsset",
