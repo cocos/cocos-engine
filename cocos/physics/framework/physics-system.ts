@@ -110,7 +110,6 @@ export class PhysicsSystem extends System {
     }
 
     set enable (value: boolean) {
-        if (!value) this._timeReset = true;
         this._enable = value;
     }
 
@@ -201,7 +200,6 @@ export class PhysicsSystem extends System {
     }
 
     set autoSimulation (value: boolean) {
-        if (!value) this._timeReset = true;
         this._autoSimulation = value;
     }
 
@@ -260,9 +258,8 @@ export class PhysicsSystem extends System {
     private _enable = true;
     private _allowSleep = true;
     private _maxSubSteps = 1;
+    private _subStepCount = 0;
     private _fixedTimeStep = 1.0 / 60.0;
-    private _timeSinceLastCalled = 0;
-    private _timeReset = true;
     private _autoSimulation = true;
     private _accumulator = 0;
     private _sleepThreshold = 0.1;
@@ -336,17 +333,10 @@ export class PhysicsSystem extends System {
         }
 
         if (this._autoSimulation) {
-            if (this._timeReset) {
-                this._timeSinceLastCalled = 0;
-                this._timeReset = false;
-            } else {
-                this._timeSinceLastCalled = deltaTime;
-            }
-
+            this._subStepCount = 0;
+            this._accumulator += deltaTime;
             director.emit(Director.EVENT_BEFORE_PHYSICS);
-            let i = 0;
-            this._accumulator += this._timeSinceLastCalled;
-            while (i < this._maxSubSteps && this._accumulator > this._fixedTimeStep) {
+            while (this._subStepCount < this._maxSubSteps && this._accumulator > this._fixedTimeStep) {
                 this.physicsWorld.emitEvents();
                 this.updateCollisionMatrix();
                 this.physicsWorld.syncSceneToPhysics();
@@ -354,7 +344,7 @@ export class PhysicsSystem extends System {
                 // TODO: nesting the dirty flag reset between the syncScenetoPhysics and the simulation to reduce calling syncScenetoPhysics.
                 this.physicsWorld.syncSceneToPhysics();
                 this._accumulator -= this._fixedTimeStep;
-                i++;
+                this._subStepCount++;
             }
             director.emit(Director.EVENT_AFTER_PHYSICS);
         }
@@ -367,7 +357,6 @@ export class PhysicsSystem extends System {
      * 重置时间累积总量为给定值。
      */
     resetAccumulator (time = 0) {
-        if (this._accumulator != time) this._timeReset = true;
         this._accumulator = time;
     }
 
