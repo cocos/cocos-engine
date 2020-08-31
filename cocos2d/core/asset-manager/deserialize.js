@@ -45,11 +45,11 @@ function deserialize (json, options) {
     }
 
     let pool = null;
-    if (CC_BUILD) {
+    if (!CC_PREVIEW) {
         pool = cc.deserialize.Details.pool;
     }
     else {
-        let deserializeForCompiled = require('../platform/deserialize-compiled');
+        let { default: deserializeForCompiled } = require('../platform/deserialize-compiled');
         let deserializeForEditor = require('../platform/deserialize-editor');
         if (deserializeForCompiled.isCompiledJson(json)) {
             pool = deserializeForCompiled.Details.pool;
