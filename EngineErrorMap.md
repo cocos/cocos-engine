@@ -491,7 +491,7 @@ Private node's zIndex can't be set, it will keep cc.macro.MIN_ZINDEX as its valu
 
 ### 1639
 
-cc.Action is not recommended to use, please use cc.Tween instead
+cc.Action is deprecated, please use cc.Tween instead
 
 ### 1700
 
