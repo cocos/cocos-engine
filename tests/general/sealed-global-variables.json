@@ -22,7 +22,7 @@
         "cc.Boolean",
         "cc.BoxCollider",
         "cc.Button",
-        "cc.CameraComponent",
+        "cc.Camera",
         "cc.CameraVisFlags",
         "cc.Canvas",
         "cc.Class",

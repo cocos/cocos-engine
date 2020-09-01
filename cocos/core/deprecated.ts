@@ -5,8 +5,7 @@
 import { replaceProperty, removeProperty } from './utils/deprecated';
 import * as math from './math';
 import { Scheduler } from './scheduler';
-import { CameraComponent } from './3d';
-import { EventTouch } from './platform';
+import { EventTouch } from './platform/event-manager/events';
 import { legacyCC } from './global-exports';
 import { SubModel } from './renderer/scene/submodel';
 import { GFXCommandBuffer } from './gfx';
@@ -179,23 +178,6 @@ replaceProperty(Scheduler.prototype, 'Scheduler.prototype', [
         target: Scheduler,
         targetName: 'Scheduler'
     }
-]);
-
-// Camera
-
-replaceProperty(CameraComponent.prototype, 'CameraComponent.prototype', [
-    {
-        name: 'color',
-        newName: 'clearColor',
-    },
-    {
-        name: 'depth',
-        newName: 'clearDepth',
-    },
-    {
-        name: 'stencil',
-        newName: 'clearStencil',
-    },
 ]);
 
 // Events

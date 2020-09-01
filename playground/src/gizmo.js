@@ -6,7 +6,7 @@ cameraNode.parent = scene;
 cameraNode.setPosition(20, 20, 20);
 cameraNode.lookAt(cc.v3());
 cameraNode.addComponent(FirstPersonCamera);
-cameraNode.addComponent(cc.CameraComponent);
+cameraNode.addComponent(cc.Camera);
 
 const material = new cc.Material();
 material.initialize({

@@ -10,7 +10,7 @@ module.exports = {
             Sprite: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/sprite.html',
             SubContextView: 'https://docs.cocos.com/creator3d/manual/zh/editor/publish/publish-wechatgame-subcontext.html',
             BlockInputEvents: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/block-input-enents.html',
-            CameraComponent: 'https://docs.cocos.com/creator3d/manual/zh/editor/components/camera-component.html',
+            Camera: 'https://docs.cocos.com/creator3d/manual/zh/editor/components/camera-component.html',
             Canvas: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/canvas.html',
             SkinningModel: 'https://docs.cocos.com/creator3d/manual/zh/engine/animation/skeletal-animation.html',
             BatchedSkinningModel: 'https://docs.cocos.com/creator3d/manual/zh/engine/animation/skeletal-animation.html',

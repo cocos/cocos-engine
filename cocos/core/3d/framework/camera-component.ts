@@ -37,7 +37,7 @@ import { GFXClearFlag } from '../../gfx/define';
 import { Color, Rect, toRadian, Vec3 } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { view } from '../../platform/view';
-import { Camera } from '../../renderer/scene/camera';
+import { scene } from '../../renderer';
 import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO, CameraShutter } from '../../renderer/scene/camera';
 import { Root } from '../../root';
 import { Node } from '../../scene-graph/node';
@@ -68,7 +68,7 @@ const ClearFlag = Enum({
 });
 
 // tslint:disable: no-shadowed-variable
-export declare namespace CameraComponent {
+export declare namespace Camera {
     export type ProjectionType = EnumAlias<typeof ProjectionType>;
     export type FOVAxis = EnumAlias<typeof FOVAxis>;
     export type ClearFlag = EnumAlias<typeof ClearFlag>;
@@ -82,11 +82,11 @@ export declare namespace CameraComponent {
  * @en The Camera Component.
  * @zh 相机组件。
  */
-@ccclass('cc.CameraComponent')
-@help('i18n:cc.CameraComponent')
+@ccclass('cc.Camera')
+@help('i18n:cc.Camera')
 @menu('Components/Camera')
 @executeInEditMode
-export class CameraComponent extends Component {
+export class Camera extends Component {
     public static ProjectionType = ProjectionType;
     public static FOVAxis = FOVAxis;
     public static ClearFlag = ClearFlag;
@@ -131,7 +131,7 @@ export class CameraComponent extends Component {
     @serializable
     protected _targetTexture: RenderTexture | null = null;
 
-    protected _camera: Camera | null = null;
+    protected _camera: scene.Camera | null = null;
     protected _inEditorMode = false;
     protected _flows: string[] | undefined = undefined;
 
@@ -632,3 +632,5 @@ export class CameraComponent extends Component {
         }
     }
 }
+
+export { Camera as CameraComponent };

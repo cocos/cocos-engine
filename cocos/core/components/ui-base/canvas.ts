@@ -28,7 +28,7 @@
  * @category ui
  */
 
-import { CameraComponent } from '../../3d/framework/camera-component';
+import { Camera } from '../../3d/framework/camera-component';
 import { RenderTexture } from '../../assets/render-texture';
 import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, serializable } from 'cc.decorator';
 import { director, Director } from '../../director';
@@ -37,7 +37,7 @@ import { GFXClearFlag } from '../../gfx/define';
 import { Color, Vec3, Rect } from '../../math';
 import { view } from '../../platform/view';
 import visibleRect from '../../platform/visible-rect';
-import { Camera } from '../../renderer';
+import { scene } from '../../renderer';
 import { Node } from '../../scene-graph/node';
 import { Enum } from '../../value-types';
 import { Component } from '../component';
@@ -228,7 +228,7 @@ export class Canvas extends Component {
 
     protected _thisOnResized: () => void;
 
-    protected _camera: Camera | null = null;
+    protected _camera: scene.Camera | null = null;
     private _pos = new Vec3();
 
     constructor () {
@@ -248,7 +248,7 @@ export class Canvas extends Component {
             this._camera.initialize({
                 name: 'ui_' + this.node.name,
                 node: cameraNode,
-                projection: CameraComponent.ProjectionType.ORTHO,
+                projection: Camera.ProjectionType.ORTHO,
                 priority: this._getViewPriority(),
                 flows: ['UIFlow'],
             });

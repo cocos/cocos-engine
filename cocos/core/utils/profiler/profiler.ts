@@ -25,7 +25,7 @@
 */
 
 import { Model } from '../../3d/framework/model-component';
-import { CameraComponent } from '../../3d/framework/camera-component';
+import { Camera } from '../../3d/framework/camera-component';
 import { createMesh } from '../../3d/misc/utils';
 import { Material } from '../../assets/material';
 import { GFXBufferTextureCopy, GFXClearFlag, GFXFormat, GFXTextureType, GFXTextureUsageBit } from '../../gfx/define';
@@ -250,8 +250,8 @@ export class Profiler {
         const cameraNode = new Node('Profiler_Camera');
         cameraNode.setPosition(0, 0, 1.5);
         cameraNode.parent = this._rootNode;
-        const camera = cameraNode.addComponent('cc.CameraComponent') as CameraComponent;
-        camera.projection = CameraComponent.ProjectionType.ORTHO;
+        const camera = cameraNode.addComponent('cc.Camera') as Camera;
+        camera.projection = Camera.ProjectionType.ORTHO;
         camera.near = 1;
         camera.far = 2;
         camera.orthoHeight = this._device!.height;

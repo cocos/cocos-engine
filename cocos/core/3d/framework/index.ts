@@ -29,7 +29,7 @@
  */
 import { legacyCC } from '../../global-exports';
 import { BatchedSkinningModel, SkinningModelUnit } from './batched-skinning-model-component';
-import { CameraComponent } from './camera-component';
+import { Camera } from './camera-component';
 import { DirectionalLight } from './directional-light-component';
 import { Light } from './light-component';
 import { Model } from './model-component';
@@ -39,7 +39,7 @@ import { SphereLight } from './sphere-light-component';
 import { SpotLight } from './spot-light-component';
 
 export {
-    CameraComponent,
+    Camera,
     Light,
     Model,
     SkinningModel,
@@ -53,8 +53,7 @@ export {
     SpotLight,
 };
 
-legacyCC.CameraComponent = CameraComponent;
-// legacyCC.EditorComponent = EditorCameraComponent;
+legacyCC.Camera = Camera;
 legacyCC.RenderableComponent = RenderableComponent;
 legacyCC.Model = Model;
 legacyCC.SkinningModel = SkinningModel;

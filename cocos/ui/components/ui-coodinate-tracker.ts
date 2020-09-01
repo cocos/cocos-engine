@@ -33,7 +33,7 @@ import { EventHandler } from '../../core/components/component-event-handler';
 import { ccclass, help, menu, executionOrder, tooltip, type, serializable } from 'cc.decorator';
 import { Node } from '../../core/scene-graph';
 import { convertUtils } from '../../core/utils';
-import { CameraComponent } from '../../core/3d';
+import { Camera } from '../../core/3d';
 import { Vec3 } from '../../core/math';
 
 /**
@@ -68,7 +68,7 @@ export class UICoordinateTracker extends Component {
      * @zh
      * 照射相机。
      */
-    @type(CameraComponent)
+    @type(Camera)
     @tooltip('照射相机')
     get camera () {
         return this._camera;
@@ -129,7 +129,7 @@ export class UICoordinateTracker extends Component {
     @serializable
     protected _target: Node | null = null;
     @serializable
-    protected _camera: CameraComponent | null = null;
+    protected _camera: Camera | null = null;
     @serializable
     protected _useScale = true;
     @serializable

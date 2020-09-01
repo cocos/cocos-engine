@@ -7,11 +7,11 @@ cameraNode.parent = scene;
 cameraNode.setPosition(-2.2, 3.6, -5.3);
 cameraNode.setRotationFromEuler(-13.6, -165.5, 0);
 cameraNode.addComponent(FirstPersonCamera);
-const camComp = cameraNode.addComponent(cc.CameraComponent);
+const camComp = cameraNode.addComponent(cc.Camera);
 
 const skybox = scene.globals.skybox;
 skybox.enabled = true;
-camComp.clearFlags = cc.CameraComponent.CameraClearFlag.SKYBOX;
+camComp.clearFlags = cc.Camera.CameraClearFlag.SKYBOX;
 
 const lightNode = new cc.Node('Light');
 lightNode.parent = scene;

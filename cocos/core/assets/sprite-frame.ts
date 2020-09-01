@@ -171,7 +171,7 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  *
  * // Third way to use a SpriteFrame
  * const self = this;
- * const cameraComp = this.getComponent(CameraComponent);
+ * const cameraComp = this.getComponent(Camera);
  * const renderTexture = new RenderTexture();
  * rendetTex.reset({
  *   width: 512,

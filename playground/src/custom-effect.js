@@ -16,7 +16,7 @@ const cameraNode = new cc.Node('Camera');
 cameraNode.parent = scene;
 cameraNode.setPosition(6, 0, 2);
 cameraNode.setRotationFromEuler(0, 70, 0);
-cameraNode.addComponent(cc.CameraComponent);
+cameraNode.addComponent(cc.Camera);
 cameraNode.addComponent(FirstPersonCamera);
 
 const modelNode = new cc.Node('test');

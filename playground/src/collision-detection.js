@@ -1,6 +1,6 @@
 
 const { cc, dgui } = window;
-const { CameraComponent, Component, DirectionalLight, GFXBlendFactor, Scene,
+const { Camera, Component, DirectionalLight, GFXBlendFactor, Scene,
   SphereCollider, Material, ModelComponent, Node } = cc;
 const { Color, randomRange, toRadian, Vec3, Vec4 } = cc.math;
 const { sphere, capsule } = cc.primitives;
@@ -179,7 +179,7 @@ const cameraNode = new Node('camera');
 cameraNode.parent = scene;
 cameraNode.setPosition(-20, 50, 12);
 cameraNode.lookAt(Vec3.ZERO);
-cameraNode.addComponent(CameraComponent);
+cameraNode.addComponent(Camera);
 cameraNode.addComponent(FirstPersonCamera);
 
 // light

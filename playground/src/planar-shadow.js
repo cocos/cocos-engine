@@ -9,7 +9,7 @@ const cameraNode = new cc.Node('Camera');
 cameraNode.parent = root;
 cameraNode.setPosition(-16, 2, 16);
 cameraNode.setRotationFromEuler(-12, -63, 0);
-cameraNode.addComponent(cc.CameraComponent);
+cameraNode.addComponent(cc.Camera);
 cameraNode.addComponent(FirstPersonCamera);
 
 const lightNode = new cc.Node('Light');
