@@ -91,7 +91,7 @@ export class AmmoSharedBody {
     readonly wrappedWorld: AmmoWorld;
     dirty: EAmmoSharedBodyDirty = 0;
 
-    private _collisionFilterGroup: number = 1;
+    private _collisionFilterGroup: number = PhysicsSystem.PhysicsGroup.DEFAULT;
     private _collisionFilterMask: number = -1;
 
     private ref: number = 0;

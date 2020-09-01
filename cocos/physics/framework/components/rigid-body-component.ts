@@ -316,7 +316,7 @@ export class RigidBodyComponent extends Component {
     /// PRIVATE PROPERTY ///
 
     @property
-    private _group: number = 1 << 0;
+    private _group: number = PhysicsSystem.PhysicsGroup.DEFAULT;
 
     @property
     private _mass: number = 1;

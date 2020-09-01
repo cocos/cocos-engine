@@ -87,7 +87,7 @@ export class CannonSharedBody {
         this.wrappedWorld = wrappedWorld;
         this.node = node;
         this.body = new CANNON.Body();
-        this.body.collisionFilterGroup = 1;
+        this.body.collisionFilterGroup = PhysicsSystem.PhysicsGroup.DEFAULT;
         this.body.sleepSpeedLimit = PhysicsSystem.instance.sleepThreshold;
         this.body.material = this.wrappedWorld.impl.defaultMaterial;
         this.body.addEventListener('cc-collide', this.onCollidedListener);
