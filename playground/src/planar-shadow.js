@@ -16,7 +16,7 @@ const lightNode = new cc.Node('Light');
 lightNode.parent = root;
 lightNode.setPosition(-10, 10, -10);
 lightNode.setRotationFromEuler(-50, 0, 0);
-const lightComp = lightNode.addComponent(cc.DirectionalLightComponent);
+const lightComp = lightNode.addComponent(cc.DirectionalLight);
 
 const material = new cc.Material();
 material.initialize({ effectName: 'builtin-standard' });

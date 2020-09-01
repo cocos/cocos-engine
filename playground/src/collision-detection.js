@@ -1,6 +1,6 @@
 
 const { cc, dgui } = window;
-const { CameraComponent, Component, DirectionalLightComponent, GFXBlendFactor, Scene,
+const { CameraComponent, Component, DirectionalLight, GFXBlendFactor, Scene,
   SphereCollider, Material, ModelComponent, Node } = cc;
 const { Color, randomRange, toRadian, Vec3, Vec4 } = cc.math;
 const { sphere, capsule } = cc.primitives;
@@ -186,7 +186,7 @@ cameraNode.addComponent(FirstPersonCamera);
 const light = new Node('light');
 light.parent = scene;
 light.setRotationFromEuler(-80, 20, -40);
-light.addComponent(DirectionalLightComponent);
+light.addComponent(DirectionalLight);
 
 cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, () => {
   for (let i = 0; i < emitters.length; i++) {

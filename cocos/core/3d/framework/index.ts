@@ -30,17 +30,17 @@
 import { legacyCC } from '../../global-exports';
 import { BatchedSkinningModel, SkinningModelUnit } from './batched-skinning-model-component';
 import { CameraComponent } from './camera-component';
-import { DirectionalLightComponent } from './directional-light-component';
-import { LightComponent } from './light-component';
+import { DirectionalLight } from './directional-light-component';
+import { Light } from './light-component';
 import { Model } from './model-component';
 import { RenderableComponent } from './renderable-component';
 import { SkinningModel } from './skinning-model-component';
-import { SphereLightComponent } from './sphere-light-component';
-import { SpotLightComponent } from './spot-light-component';
+import { SphereLight } from './sphere-light-component';
+import { SpotLight } from './spot-light-component';
 
 export {
     CameraComponent,
-    LightComponent,
+    Light,
     Model,
     SkinningModel,
     BatchedSkinningModel,
@@ -48,9 +48,9 @@ export {
 
     RenderableComponent,
 
-    DirectionalLightComponent,
-    SphereLightComponent,
-    SpotLightComponent,
+    DirectionalLight,
+    SphereLight,
+    SpotLight,
 };
 
 legacyCC.CameraComponent = CameraComponent;
@@ -62,10 +62,10 @@ legacyCC.SkinningModel = SkinningModel;
 legacyCC.BatchedSkinningModel = BatchedSkinningModel;
 legacyCC.SkinningModelUnit = SkinningModelUnit;
 
-legacyCC.LightComponent = LightComponent;
-legacyCC.DirectionalLightComponent = DirectionalLightComponent;
-legacyCC.SphereLightComponent = SphereLightComponent;
-legacyCC.SpotLightComponent = SpotLightComponent;
+legacyCC.Light = Light;
+legacyCC.DirectionalLight = DirectionalLight;
+legacyCC.SphereLight = SphereLight;
+legacyCC.SpotLight = SpotLight;
 
 /** deprecated */
 import './deprecated';

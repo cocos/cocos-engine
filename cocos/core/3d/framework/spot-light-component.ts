@@ -29,20 +29,19 @@
 
 import { ccclass, help, executeInEditMode, menu, tooltip, type, slide, range, unit, serializable } from 'cc.decorator';
 import { toRadian } from '../../math';
-import { LightType, nt2lm } from '../../renderer/scene/light';
-import { SpotLight } from '../../renderer/scene/spot-light';
-import { LightComponent, PhotometricTerm } from './light-component';
+import { scene } from '../../renderer';
+import { Light, PhotometricTerm } from './light-component';
 
-@ccclass('cc.SpotLightComponent')
-@help('i18n:cc.SpotLightComponent')
+@ccclass('cc.SpotLight')
+@help('i18n:cc.SpotLight')
 @menu('Light/SpotLight')
 @executeInEditMode
-export class SpotLightComponent extends LightComponent {
+export class SpotLight extends Light {
 
     @serializable
     protected _size = 0.15;
     @serializable
-    protected _luminance = 1700 / nt2lm(0.15);
+    protected _luminance = 1700 / scene.nt2lm(0.15);
     @serializable
     protected _term = PhotometricTerm.LUMINOUS_POWER;
     @serializable
@@ -50,8 +49,8 @@ export class SpotLightComponent extends LightComponent {
     @serializable
     protected _spotAngle = 60;
 
-    protected _type = LightType.SPOT;
-    protected _light: SpotLight | null = null;
+    protected _type = scene.LightType.SPOT;
+    protected _light: scene.SpotLight | null = null;
 
     /**
      * @en Luminous power of the light.
@@ -60,10 +59,10 @@ export class SpotLightComponent extends LightComponent {
     @unit('lm')
     @tooltip('i18n:lights.luminous_power')
     get luminousPower () {
-        return this._luminance * nt2lm(this._size);
+        return this._luminance * scene.nt2lm(this._size);
     }
     set luminousPower (val) {
-        this._luminance = val / nt2lm(this._size);
+        this._luminance = val / scene.nt2lm(this._size);
         if (this._light) { this._light.luminance = this._luminance; }
     }
 
@@ -144,7 +143,7 @@ export class SpotLightComponent extends LightComponent {
 
     constructor () {
         super();
-        this._lightType = SpotLight;
+        this._lightType = scene.SpotLight;
     }
 
     protected _createLight () {
@@ -156,3 +155,5 @@ export class SpotLightComponent extends LightComponent {
         this.spotAngle = this._spotAngle;
     }
 }
+
+export { SpotLight as SpotLightComponent };

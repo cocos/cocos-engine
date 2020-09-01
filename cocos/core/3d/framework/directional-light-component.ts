@@ -28,21 +28,20 @@
  */
 
 import { ccclass, help, executeInEditMode, menu, tooltip, unit, serializable } from 'cc.decorator';
-import { DirectionalLight } from '../../renderer/scene/directional-light';
-import { LightType } from '../../renderer/scene/light';
-import { LightComponent } from './light-component';
+import { scene } from '../../renderer';
+import { Light } from './light-component';
 
-@ccclass('cc.DirectionalLightComponent')
-@help('i18n:cc.DirectionalLightComponent')
+@ccclass('cc.DirectionalLight')
+@help('i18n:cc.DirectionalLight')
 @menu('Light/DirectionalLight')
 @executeInEditMode
-export class DirectionalLightComponent extends LightComponent {
+export class DirectionalLight extends Light {
 
     @serializable
     protected _illuminance = 65000;
 
-    protected _type = LightType.DIRECTIONAL;
-    protected _light: DirectionalLight | null = null;
+    protected _type = scene.LightType.DIRECTIONAL;
+    protected _light: scene.DirectionalLight | null = null;
 
     /**
      * @en
@@ -62,7 +61,7 @@ export class DirectionalLightComponent extends LightComponent {
 
     constructor () {
         super();
-        this._lightType = DirectionalLight;
+        this._lightType = scene.DirectionalLight;
     }
 
     protected _createLight () {
@@ -71,3 +70,5 @@ export class DirectionalLightComponent extends LightComponent {
         this.illuminance = this._illuminance;
     }
 }
+
+export { DirectionalLight as DirectionalLightComponent }

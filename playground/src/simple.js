@@ -16,7 +16,7 @@ camComp.clearFlags = cc.CameraComponent.CameraClearFlag.SKYBOX;
 const lightNode = new cc.Node('Light');
 lightNode.parent = scene;
 lightNode.setRotationFromEuler(-40, 0, 0);
-lightNode.addComponent(cc.DirectionalLightComponent);
+lightNode.addComponent(cc.DirectionalLight);
 
 // parsed effect file is embedded in cocos/3d/builtin/effects.js
 const material = new cc.Material();
