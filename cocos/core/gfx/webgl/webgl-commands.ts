@@ -1,7 +1,7 @@
 import { WECHAT } from 'internal:constants';
 import { CachedArray } from '../../memop/cached-array';
 import { error, errorID } from '../../platform/debug';
-import { GFXBufferSource, IGFXDrawInfo, IGFXIndirectBuffer } from '../buffer';
+import { GFXBufferSource, GFXDrawInfo, IGFXIndirectBuffer } from '../buffer';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { IWebGLDepthBias, IWebGLDepthBounds, IWebGLStencilCompareMask, IWebGLStencilWriteMask } from './webgl-command-buffer';
 import { WebGLEXT } from './webgl-define';
@@ -534,15 +534,7 @@ export class WebGLCmdBindStates extends WebGLCmdObject {
 
 export class WebGLCmdDraw extends WebGLCmdObject {
 
-    public drawInfo: IGFXDrawInfo = {
-        vertexCount: 0,
-        firstVertex: 0,
-        indexCount: 0,
-        firstIndex: 0,
-        vertexOffset: 0,
-        instanceCount: 0,
-        firstInstance: 0,
-    };
+    public drawInfo = new GFXDrawInfo();
 
     constructor () {
         super(WebGLCmd.DRAW);
@@ -2611,7 +2603,7 @@ export function WebGLCmdFuncBindStates (
     } // if
 }
 
-export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: IGFXDrawInfo) {
+export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: GFXDrawInfo) {
     const gl = device.gl;
     const ia = device.ANGLE_instanced_arrays;
     const { gpuInputAssembler, gpuShader, glPrimitive } = gfxStateCache;
@@ -2623,7 +2615,7 @@ export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: IGFXDrawInfo) {
                 const subDrawInfo = gpuInputAssembler.gpuIndirectBuffer.indirects[j];
                 const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
                 if (subDrawInfo.instanceCount && ia) {
-                    if (gpuBuffer && subDrawInfo.indexCount > -1) {
+                    if (gpuBuffer && subDrawInfo.indexCount > 0) {
                         const offset = subDrawInfo.firstIndex * gpuBuffer.stride;
                         ia.drawElementsInstancedANGLE(glPrimitive, subDrawInfo.indexCount,
                             gpuInputAssembler.glIndexType, offset, subDrawInfo.instanceCount);
@@ -2631,7 +2623,7 @@ export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: IGFXDrawInfo) {
                         ia.drawArraysInstancedANGLE(glPrimitive, subDrawInfo.firstVertex, subDrawInfo.vertexCount, subDrawInfo.instanceCount);
                     }
                 } else {
-                    if (gpuBuffer && subDrawInfo.indexCount > -1) {
+                    if (gpuBuffer && subDrawInfo.indexCount > 0) {
                         const offset = subDrawInfo.firstIndex * gpuBuffer.stride;
                         gl.drawElements(glPrimitive, subDrawInfo.indexCount, gpuInputAssembler.glIndexType, offset);
                     } else {
@@ -2642,7 +2634,7 @@ export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: IGFXDrawInfo) {
         } else {
             const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
             if (drawInfo.instanceCount && ia) {
-                if (gpuBuffer && drawInfo.indexCount > -1) {
+                if (gpuBuffer && drawInfo.indexCount > 0) {
                     const offset = drawInfo.firstIndex * gpuBuffer.stride;
                     ia.drawElementsInstancedANGLE(glPrimitive, drawInfo.indexCount,
                         gpuInputAssembler.glIndexType, offset, drawInfo.instanceCount);
@@ -2650,7 +2642,7 @@ export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: IGFXDrawInfo) {
                     ia.drawArraysInstancedANGLE(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount, drawInfo.instanceCount);
                 }
             } else {
-                if (gpuBuffer && drawInfo.indexCount > -1) {
+                if (gpuBuffer && drawInfo.indexCount > 0) {
                     const offset = drawInfo.firstIndex * gpuBuffer.stride;
                     gl.drawElements(glPrimitive, drawInfo.indexCount, gpuInputAssembler.glIndexType, offset);
                 } else {

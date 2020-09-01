@@ -302,7 +302,7 @@ interface IPassViewType extends IBufferTypeManifest {
     [PassView.PIPELINE_LAYOUT]: PipelineLayoutHandle;
     [PassView.COUNT]: number;
 }
-// Theoretically we only have to declare IPassViewType here while all the other arguments can be inferred.
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
 // but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
 // we'll have to explicitly declare all these types.
 export const PassPool = new BufferPool<PoolType.PASS, Uint32Array, typeof PassView, IPassViewType>(PoolType.PASS, Uint32Array, PassView);
@@ -337,5 +337,8 @@ interface ISubModelViewType extends IBufferTypeManifest {
     [SubModelView.INPUT_ASSEMBLER]: InputAssemblerHandle;
     [SubModelView.COUNT]: number;
 }
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
 export const SubModelPool = new BufferPool<PoolType.SUB_MODEL, Uint32Array, typeof SubModelView, ISubModelViewType>
     (PoolType.SUB_MODEL, Uint32Array, SubModelView);
