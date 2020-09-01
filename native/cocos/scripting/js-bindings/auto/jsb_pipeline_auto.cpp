@@ -14,6 +14,7 @@
 #include "renderer/pipeline/RenderStage.h"
 #include "renderer/pipeline/Define.h"
 #include "renderer/pipeline/RenderView.h"
+#include "renderer/pipeline/helper/SharedMemory.h"
 
 #ifndef JSB_ALLOC
 #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
@@ -1611,25 +1612,6 @@ bool js_register_pipeline_UIStage(se::Object* obj)
 se::Object* __jsb_cc_pipeline_RenderView_proto = nullptr;
 se::Class* __jsb_cc_pipeline_RenderView_class = nullptr;
 
-static bool js_pipeline_RenderView_enable(se::State& s)
-{
-    cc::pipeline::RenderView* cobj = (cc::pipeline::RenderView*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderView_enable : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        bool arg0;
-        ok &= seval_to_boolean(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_pipeline_RenderView_enable : Error processing arguments");
-        cobj->enable(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_RenderView_enable)
-
 static bool js_pipeline_RenderView_setExecuteFlows(se::State& s)
 {
     cc::pipeline::RenderView* cobj = (cc::pipeline::RenderView*)s.nativeThisObject();
@@ -1680,7 +1662,7 @@ static bool js_pipeline_RenderView_getName(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_pipeline_RenderView_getName)
+SE_BIND_PROP_GET(js_pipeline_RenderView_getName)
 
 static bool js_pipeline_RenderView_getPriority(se::State& s)
 {
@@ -1756,6 +1738,24 @@ static bool js_pipeline_RenderView_setVisibility(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_RenderView_setVisibility)
 
+static bool js_pipeline_RenderView_getWindow(se::State& s)
+{
+    cc::pipeline::RenderView* cobj = (cc::pipeline::RenderView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderView_getWindow : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::pipeline::RenderWindow* result = cobj->getWindow();
+        ok &= native_ptr_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_pipeline_RenderView_getWindow : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_pipeline_RenderView_getWindow)
+
 static bool js_pipeline_RenderView_initialize(se::State& s)
 {
     cc::pipeline::RenderView* cobj = (cc::pipeline::RenderView*)s.nativeThisObject();
@@ -1827,25 +1827,7 @@ static bool js_pipeline_RenderView_setWindow(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_pipeline_RenderView_setWindow)
-
-static bool js_pipeline_RenderView_isEnabled(se::State& s)
-{
-    cc::pipeline::RenderView* cobj = (cc::pipeline::RenderView*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderView_isEnabled : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        bool result = cobj->isEnabled();
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_pipeline_RenderView_isEnabled : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_RenderView_isEnabled)
+SE_BIND_PROP_SET(js_pipeline_RenderView_setWindow)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_RenderView_finalize)
 
@@ -1878,10 +1860,10 @@ bool js_register_pipeline_RenderView(se::Object* obj)
 {
     auto cls = se::Class::create("RenderView", obj, nullptr, _SE(js_pipeline_RenderView_constructor));
 
-    cls->defineFunction("enable", _SE(js_pipeline_RenderView_enable));
+    cls->defineProperty("window", _SE(js_pipeline_RenderView_getWindow), _SE(js_pipeline_RenderView_setWindow));
+    cls->defineProperty("name", _SE(js_pipeline_RenderView_getName), nullptr);
     cls->defineFunction("setExecuteFlows", _SE(js_pipeline_RenderView_setExecuteFlows));
     cls->defineFunction("onGlobalPipelineStateChanged", _SE(js_pipeline_RenderView_onGlobalPipelineStateChanged));
-    cls->defineFunction("getName", _SE(js_pipeline_RenderView_getName));
     cls->defineFunction("getPriority", _SE(js_pipeline_RenderView_getPriority));
     cls->defineFunction("getVisibility", _SE(js_pipeline_RenderView_getVisibility));
     cls->defineFunction("setPriority", _SE(js_pipeline_RenderView_setPriority));
@@ -1889,14 +1871,218 @@ bool js_register_pipeline_RenderView(se::Object* obj)
     cls->defineFunction("initialize", _SE(js_pipeline_RenderView_initialize));
     cls->defineFunction("destroy", _SE(js_pipeline_RenderView_destroy));
     cls->defineFunction("getFlows", _SE(js_pipeline_RenderView_getFlows));
-    cls->defineFunction("setWindow", _SE(js_pipeline_RenderView_setWindow));
-    cls->defineFunction("isEnabled", _SE(js_pipeline_RenderView_isEnabled));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_RenderView_finalize));
     cls->install();
     JSBClassType::registerClass<cc::pipeline::RenderView>(cls);
 
     __jsb_cc_pipeline_RenderView_proto = cls->getProto();
     __jsb_cc_pipeline_RenderView_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cc_pipeline_RenderWindow_proto = nullptr;
+se::Class* __jsb_cc_pipeline_RenderWindow_class = nullptr;
+
+static bool js_pipeline_RenderWindow_get_hasOnScreenAttachments(se::State& s)
+{
+    cc::pipeline::RenderWindow* cobj = (cc::pipeline::RenderWindow*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderWindow_get_hasOnScreenAttachments : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= uint32_to_seval((unsigned int)cobj->hasOnScreenAttachments, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_pipeline_RenderWindow_get_hasOnScreenAttachments)
+
+static bool js_pipeline_RenderWindow_set_hasOnScreenAttachments(se::State& s)
+{
+    const auto& args = s.args();
+    cc::pipeline::RenderWindow* cobj = (cc::pipeline::RenderWindow*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderWindow_set_hasOnScreenAttachments : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    unsigned int arg0 = 0;
+    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+    SE_PRECONDITION2(ok, false, "js_pipeline_RenderWindow_set_hasOnScreenAttachments : Error processing new value");
+    cobj->hasOnScreenAttachments = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_pipeline_RenderWindow_set_hasOnScreenAttachments)
+
+static bool js_pipeline_RenderWindow_get_hasOffScreenAttachments(se::State& s)
+{
+    cc::pipeline::RenderWindow* cobj = (cc::pipeline::RenderWindow*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderWindow_get_hasOffScreenAttachments : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= uint32_to_seval((unsigned int)cobj->hasOffScreenAttachments, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_pipeline_RenderWindow_get_hasOffScreenAttachments)
+
+static bool js_pipeline_RenderWindow_set_hasOffScreenAttachments(se::State& s)
+{
+    const auto& args = s.args();
+    cc::pipeline::RenderWindow* cobj = (cc::pipeline::RenderWindow*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderWindow_set_hasOffScreenAttachments : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    unsigned int arg0 = 0;
+    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+    SE_PRECONDITION2(ok, false, "js_pipeline_RenderWindow_set_hasOffScreenAttachments : Error processing new value");
+    cobj->hasOffScreenAttachments = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_pipeline_RenderWindow_set_hasOffScreenAttachments)
+
+static bool js_pipeline_RenderWindow_get_framebufferID(se::State& s)
+{
+    cc::pipeline::RenderWindow* cobj = (cc::pipeline::RenderWindow*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderWindow_get_framebufferID : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= uint32_to_seval((unsigned int)cobj->framebufferID, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_pipeline_RenderWindow_get_framebufferID)
+
+static bool js_pipeline_RenderWindow_set_framebufferID(se::State& s)
+{
+    const auto& args = s.args();
+    cc::pipeline::RenderWindow* cobj = (cc::pipeline::RenderWindow*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderWindow_set_framebufferID : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    unsigned int arg0 = 0;
+    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+    SE_PRECONDITION2(ok, false, "js_pipeline_RenderWindow_set_framebufferID : Error processing new value");
+    cobj->framebufferID = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_pipeline_RenderWindow_set_framebufferID)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_RenderWindow_finalize)
+
+static bool js_pipeline_RenderWindow_constructor(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0) 
+    {
+        cc::pipeline::RenderWindow* cobj = JSB_ALLOC(cc::pipeline::RenderWindow);
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
+    else if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+
+        cc::pipeline::RenderWindow* cobj = JSB_ALLOC(cc::pipeline::RenderWindow);
+        unsigned int arg0 = 0;
+        json->getProperty("hasOnScreenAttachments", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg0);
+            cobj->hasOnScreenAttachments = arg0;
+        }
+        unsigned int arg1 = 0;
+        json->getProperty("hasOffScreenAttachments", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg1);
+            cobj->hasOffScreenAttachments = arg1;
+        }
+        unsigned int arg2 = 0;
+        json->getProperty("framebufferID", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg2);
+            cobj->framebufferID = arg2;
+        }
+
+        if(!ok) {
+            JSB_FREE(cobj);
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
+    else if(argc == 3)
+    {
+        cc::pipeline::RenderWindow* cobj = JSB_ALLOC(cc::pipeline::RenderWindow);
+        unsigned int arg0 = 0;
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+            cobj->hasOnScreenAttachments = arg0;
+        }
+        unsigned int arg1 = 0;
+        if (!args[1].isUndefined()) {
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->hasOffScreenAttachments = arg1;
+        }
+        unsigned int arg2 = 0;
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->framebufferID = arg2;
+        }
+
+        if(!ok) {
+            JSB_FREE(cobj);
+            SE_REPORT_ERROR("Argument convertion error");
+            return false;
+        }
+
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_CTOR(js_pipeline_RenderWindow_constructor, __jsb_cc_pipeline_RenderWindow_class, js_cc_pipeline_RenderWindow_finalize)
+
+
+
+
+static bool js_cc_pipeline_RenderWindow_finalize(se::State& s)
+{
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cc::pipeline::RenderWindow* cobj = (cc::pipeline::RenderWindow*)s.nativeThisObject();
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_pipeline_RenderWindow_finalize)
+
+bool js_register_pipeline_RenderWindow(se::Object* obj)
+{
+    auto cls = se::Class::create("RenderWindow", obj, nullptr, _SE(js_pipeline_RenderWindow_constructor));
+
+    cls->defineProperty("hasOnScreenAttachments", _SE(js_pipeline_RenderWindow_get_hasOnScreenAttachments), _SE(js_pipeline_RenderWindow_set_hasOnScreenAttachments));
+    cls->defineProperty("hasOffScreenAttachments", _SE(js_pipeline_RenderWindow_get_hasOffScreenAttachments), _SE(js_pipeline_RenderWindow_set_hasOffScreenAttachments));
+    cls->defineProperty("framebufferID", _SE(js_pipeline_RenderWindow_get_framebufferID), _SE(js_pipeline_RenderWindow_set_framebufferID));
+    cls->defineFinalizeFunction(_SE(js_cc_pipeline_RenderWindow_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::pipeline::RenderWindow>(cls);
+
+    __jsb_cc_pipeline_RenderWindow_proto = cls->getProto();
+    __jsb_cc_pipeline_RenderWindow_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -1927,6 +2113,7 @@ bool register_all_pipeline(se::Object* obj)
     js_register_pipeline_RenderFlowInfo(ns);
     js_register_pipeline_UIStage(ns);
     js_register_pipeline_ForwardFlow(ns);
+    js_register_pipeline_RenderWindow(ns);
     js_register_pipeline_UIFlow(ns);
     js_register_pipeline_ShadowFlow(ns);
     return true;

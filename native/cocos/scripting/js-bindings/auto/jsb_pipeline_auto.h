@@ -118,10 +118,8 @@ extern se::Class* __jsb_cc_pipeline_RenderView_class;
 
 bool js_register_cc_pipeline_RenderView(se::Object* obj);
 bool register_all_pipeline(se::Object* obj);
-SE_DECLARE_FUNC(js_pipeline_RenderView_enable);
 SE_DECLARE_FUNC(js_pipeline_RenderView_setExecuteFlows);
 SE_DECLARE_FUNC(js_pipeline_RenderView_onGlobalPipelineStateChanged);
-SE_DECLARE_FUNC(js_pipeline_RenderView_getName);
 SE_DECLARE_FUNC(js_pipeline_RenderView_getPriority);
 SE_DECLARE_FUNC(js_pipeline_RenderView_getVisibility);
 SE_DECLARE_FUNC(js_pipeline_RenderView_setPriority);
@@ -129,8 +127,12 @@ SE_DECLARE_FUNC(js_pipeline_RenderView_setVisibility);
 SE_DECLARE_FUNC(js_pipeline_RenderView_initialize);
 SE_DECLARE_FUNC(js_pipeline_RenderView_destroy);
 SE_DECLARE_FUNC(js_pipeline_RenderView_getFlows);
-SE_DECLARE_FUNC(js_pipeline_RenderView_setWindow);
-SE_DECLARE_FUNC(js_pipeline_RenderView_isEnabled);
 SE_DECLARE_FUNC(js_pipeline_RenderView_RenderView);
+
+extern se::Object* __jsb_cc_pipeline_RenderWindow_proto;
+extern se::Class* __jsb_cc_pipeline_RenderWindow_class;
+
+bool js_register_cc_pipeline_RenderWindow(se::Object* obj);
+bool register_all_pipeline(se::Object* obj);
 
 #endif //#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
