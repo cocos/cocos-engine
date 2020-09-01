@@ -377,15 +377,15 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
                     let min = Number.POSITIVE_INFINITY;
                     let max = Number.NEGATIVE_INFINITY;
                     for (let i = 0; i < n; ++i) {
-                        const x = valueView[i * 3 + c];
+                        const x = valueView[i * 4 + c];
                         max = Math.max(x, max);
                         min = Math.min(x, min);
                     }
                     const d = max - min;
                     if (d !== 0) {
                         for (let i = 0; i < n; ++i) {
-                            const x = valueView[i * 3 + c];
-                            valueView[i * 3 + c] = (x - min) / d;
+                            const x = valueView[i * 4 + c];
+                            valueView[i * 4 + c] = (x - min) / d;
                         }
                     }
                 }
