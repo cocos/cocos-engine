@@ -99,7 +99,7 @@ const State = cc.Enum({
  * 以下事件可以在全平台上都触发：
  * 
  *   - cc.Node.EventType.TOUCH_START  // 按下时事件
- *   - cc.Node.EventType.TOUCH_Move   // 按住移动后事件
+ *   - cc.Node.EventType.TOUCH_MOVE   // 按住移动后事件
  *   - cc.Node.EventType.TOUCH_END    // 按下后松开后事件
  *   - cc.Node.EventType.TOUCH_CANCEL // 按下取消事件
  * 
