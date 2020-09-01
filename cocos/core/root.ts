@@ -359,10 +359,11 @@ export class Root {
 
         if (this._pipeline) {
             this._device.acquire();
+
             this._views.length = 0;
-            const views = this._cameras;
+            const cameras = this._cameras;
             const stamp = legacyCC.director.getTotalFrames();
-            for (let i = 0; i < views.length; i++) {
+            for (let i = 0; i < cameras.length; i++) {
                 const camera = this._cameras[i];
                 const view = camera.view;
                 if (view.isEnable && view.window) {

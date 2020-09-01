@@ -137,7 +137,7 @@ export class RenderScene {
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
 
-            if (model.enabled && model.node) {
+            if (model.enabled) {
                 model.updateTransform(stamp);
                 model.updateUBOs(stamp);
             }

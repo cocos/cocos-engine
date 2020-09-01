@@ -226,6 +226,8 @@ export class SplashScreen {
     }
 
     private frame (time: number) {
+        if (this.cancelAnimate) return;
+
         // TODO: hack for cocosPlay & XIAOMI cause on landscape canvas value is wrong
         if (COCOSPLAY || XIAOMI) {
             if (window._CCSettings.orientation === 'landscape' && this.device.width < this.device.height) {
@@ -525,7 +527,7 @@ export class SplashScreen {
         this.texture.destroy();
         this.texture = null!;
 
-        // this.assmebler.destroy(); //TODO: IOS 导致崩溃, 临时绕过
+        // this.assmebler.destroy(); // iOS crash workaround
         this.assmebler = null!;
 
         this.vertexBuffers.destroy();

@@ -174,7 +174,7 @@ export class Model {
     }
 
     public updateTransform (stamp: number) {
-        const node = this.transform!;
+        const node = this.transform;
         // @ts-ignore TS2445
         if (node.hasChangedFlags || node._dirtyFlags) {
             node.updateWorldTransform();

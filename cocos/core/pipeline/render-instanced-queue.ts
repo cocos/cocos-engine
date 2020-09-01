@@ -40,11 +40,17 @@ export class RenderInstancedQueue {
      * @param cmdBuff The command buffer to store the result
      */
     public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
-        const it = this.queue.values(); let res = it.next();
+        // upload buffers
+        let it = this.queue.values(); let res = it.next();
+        while (!res.done) {
+            if (res.value.hasPendingModels) res.value.uploadBuffers();
+            res = it.next();
+        }
+        // draw
+        it = this.queue.values(); res = it.next();
         while (!res.done) {
             const { instances, hPass, hasPendingModels } = res.value;
             if (hasPendingModels) {
-                res.value.uploadBuffers();
                 cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET)));
                 let lastPSO: GFXPipelineState | null = null;
                 for (let b = 0; b < instances.length; ++b) {
