@@ -11,7 +11,7 @@ import {
     type,
     serializable,
 } from 'cc.decorator';
-import { Collider } from './collider-component';
+import { Collider } from './collider';
 import { ICapsuleShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
 import { EAxisDirection, EColliderType } from '../../physics-enum';

@@ -5,19 +5,18 @@
 import {
     ccclass,
     help,
-    executeInEditMode,
     menu,
     editable,
     serializable,
 } from 'cc.decorator';
-import { ConstraintComponent } from './constraint-component';
+import { Constraint } from './constraint';
 import { IVec3Like, Vec3 } from '../../../../core';
 import { EConstraintType } from '../../physics-enum';
 
-@ccclass('cc.HingeConstraintComponent')
-@help('i18n:cc.HingeConstraintComponent')
+@ccclass('cc.HingeConstraint')
+@help('i18n:cc.HingeConstraint')
 @menu('Physics/HingeConstraint(beta)')
-export class HingeConstraintComponent extends ConstraintComponent {
+export class HingeConstraint extends Constraint {
 
     @serializable
     @editable

@@ -12,7 +12,7 @@ import {
     serializable,
 } from 'cc.decorator';
 import { Vec3 } from '../../../../core/math';
-import { Collider } from './collider-component';
+import { Collider } from './collider';
 import { IBoxShape } from '../../../spec/i-physics-shape';
 import { EColliderType } from '../../physics-enum';
 

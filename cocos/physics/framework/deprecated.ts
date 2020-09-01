@@ -4,11 +4,11 @@
 
 import { PhysicsSystem } from "./physics-system";
 import { replaceProperty, removeProperty } from "../../core";
-import { BoxCollider } from "./components/colliders/box-collider-component";
-import { SphereCollider } from "./components/colliders/sphere-collider-component";
-import { CapsuleCollider } from "./components/colliders/capsule-collider-component";
-import { RigidBody } from "./components/rigid-body-component";
-import { Collider } from "./components/colliders/collider-component";
+import { BoxCollider } from "./components/colliders/box-collider";
+import { SphereCollider } from "./components/colliders/sphere-collider";
+import { CapsuleCollider } from "./components/colliders/capsule-collider";
+import { RigidBody } from "./components/rigid-body";
+import { Collider } from "./components/colliders/collider";
 
 replaceProperty(PhysicsSystem, 'PhysicsSystem', [
     {

@@ -23,7 +23,6 @@ import { createRigidBody } from '../instance';
 import { EDITOR } from 'internal:constants';
 import { ERigidBodyType } from '../physics-enum';
 import { PhysicsSystem } from '../physics-system';
-import { legacyCC } from '../../../core/global-exports';
 
 /**
  * @en

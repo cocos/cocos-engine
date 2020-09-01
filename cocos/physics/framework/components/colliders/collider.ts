@@ -6,7 +6,7 @@ import { ccclass, tooltip, displayOrder, displayName, readOnly, type, serializab
 import { Eventify } from '../../../../core/event';
 import { Vec3 } from '../../../../core/math';
 import { CollisionEventType, TriggerEventType } from '../../physics-interface';
-import { RigidBody } from '../rigid-body-component';
+import { RigidBody } from '../rigid-body';
 import { PhysicMaterial } from '../../assets/physic-material';
 import { PhysicsSystem } from '../../physics-system';
 import { Component, error, Node } from '../../../../core';

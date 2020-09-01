@@ -5,7 +5,7 @@
 import { ILifecycle } from './i-lifecycle'
 import { IGroupMask } from './i-group-mask'
 import { IVec3Like } from "../../core/math/type-define";
-import { RigidBody } from '../framework/components/rigid-body-component';
+import { RigidBody } from '../framework/components/rigid-body';
 
 export interface IRigidBody extends ILifecycle, IGroupMask {
     readonly impl: any;

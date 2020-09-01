@@ -10,7 +10,7 @@ import {
     type,
     serializable,
 } from 'cc.decorator';
-import { Collider } from './collider-component';
+import { Collider } from './collider';
 import { ITerrainShape } from '../../../spec/i-physics-shape';
 import { ITerrainAsset } from '../../../spec/i-external';
 import { EDITOR, TEST } from 'internal:constants';
