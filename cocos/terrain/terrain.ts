@@ -669,7 +669,7 @@ export class TerrainBlock {
  * @zh 地形组件
  */
 @ccclass('cc.Terrain')
-@help('i18n:cc.TerrainComponent')
+@help('i18n:cc.Terrain')
 @executeInEditMode
 @disallowMultiple
 export class Terrain extends Component {

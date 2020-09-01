@@ -2,7 +2,7 @@ import Ammo from '../ammo-instantiated';
 import { AmmoConstraint } from "./ammo-constraint";
 import { IPointToPointConstraint } from "../../spec/i-physics-constraint";
 import { IVec3Like, Vec3 } from "../../../core";
-import { PointToPointConstraintComponent } from "../../framework";
+import { PointToPointConstraint } from "../../framework";
 import { AmmoRigidBody } from "../ammo-rigid-body";
 import { cocos2AmmoVec3 } from "../ammo-util";
 import { CC_V3_0, CC_V3_1 } from '../ammo-const';
@@ -35,8 +35,8 @@ export class AmmoPointToPointConstraint extends AmmoConstraint implements IPoint
         return this._impl as Ammo.btPoint2PointConstraint;
     }
 
-    get constraint (): PointToPointConstraintComponent {
-        return this._com as PointToPointConstraintComponent;
+    get constraint (): PointToPointConstraint {
+        return this._com as PointToPointConstraint;
     }
 
     private _pivotA!: Ammo.btVector3;

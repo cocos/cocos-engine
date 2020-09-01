@@ -41,11 +41,11 @@ import { legacyCC } from '../../core/global-exports';
  * @en
  * The component of model.
  * When you place particles or models in the UI, you must add this component to render.
- * The component must be placed on a node with the modelComponent or the particleComponent.
+ * The component must be placed on a node with the [[Model]] or the [[Particle]].
  *
  * @zh
  * UI 模型基础组件。
- * 当你在 UI 中放置模型或者粒子的时候，必须添加该组件才能渲染。该组件必须放置在带有 modelComponent 或者 particleComponent 组件的节点上。
+ * 当你在 UI 中放置模型或者粒子的时候，必须添加该组件才能渲染。该组件必须放置在带有 [[Model]] 或者 [[Particle]] 组件的节点上。
  */
 @ccclass('cc.UIModel')
 @help('i18n:cc.UIModel')

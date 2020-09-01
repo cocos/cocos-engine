@@ -3,7 +3,7 @@ import { AmmoConstraint } from "./ammo-constraint";
 import { IHingeConstraint } from "../../spec/i-physics-constraint";
 import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { cocos2AmmoVec3 } from '../ammo-util';
-import { HingeConstraintComponent } from '../../framework';
+import { HingeConstraint } from '../../framework';
 import { AmmoRigidBody } from '../ammo-rigid-body';
 import { CC_V3_0 } from '../ammo-const';
 
@@ -41,8 +41,8 @@ export class AmmoHingeConstraint extends AmmoConstraint implements IHingeConstra
         return this._impl as Ammo.btHingeConstraint;
     }
 
-    get constraint (): HingeConstraintComponent {
-        return this._com as HingeConstraintComponent;
+    get constraint (): HingeConstraint {
+        return this._com as HingeConstraint;
     }
 
     private _pivotA!: Ammo.btVector3;

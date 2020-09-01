@@ -862,11 +862,11 @@ Can not found the %s page.
 
 ### 4301
 
-Can not add a page without UITransformComponent.
+Can not add a page without UITransform.
 
 ### 4302
 
-Can not set the scroll view content when it hasn't UITransformComponent or its parent hasn't UITransformComponent.
+Can not set the scroll view content when it hasn't UITransform or its parent hasn't UITransform.
 
 ### 4400
 
@@ -1264,7 +1264,7 @@ Widget target must be one of the parent nodes of it
 
 ### 6501
 
-%s's widget target must have UITransformComponent, Please add it in target
+%s's widget target must have UITransform, Please add it in target
 
 ### 6600
 
