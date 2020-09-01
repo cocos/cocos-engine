@@ -25,9 +25,11 @@ public:
     setValue(const String &name, const T &value) {
         _values[name] = value;
     }
+    
+    const ValueMap &getValues() const { return _values; }
 
 private:
-    map<String, Value> _values;
+    ValueMap _values;
 };
 
 } // namespace pipeline

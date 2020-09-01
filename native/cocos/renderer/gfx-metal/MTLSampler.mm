@@ -35,7 +35,7 @@ bool CCMTLSampler::initialize(const SamplerInfo &info) {
     descriptor.minFilter = mu::toMTLSamplerMinMagFilter(_minFilter);
     descriptor.magFilter = mu::toMTLSamplerMinMagFilter(_magFilter);
     descriptor.mipFilter = mu::toMTLSamplerMipFilter(_mipFilter);
-    descriptor.maxAnisotropy = _maxAnisotropy;
+    descriptor.maxAnisotropy = _maxAnisotropy == 0 ? 1 : _maxAnisotropy;
     descriptor.compareFunction = mu::toMTLCompareFunction(_cmpFunc);
     descriptor.lodMinClamp = _minLOD;
     descriptor.lodMaxClamp = _maxLOD;

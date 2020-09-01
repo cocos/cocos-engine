@@ -72,9 +72,10 @@ bool ForwardPipeline::initialize(const RenderPipelineInfo &info) {
     RenderPipeline::initialize(info);
     
     if (_flows.size() == 0) {
-        auto shadowFlow = CC_NEW(ShadowFlow);
-        shadowFlow->initialize(ShadowFlow::getInitializeInfo());
-        _flows.emplace_back(shadowFlow);
+        //TODO coulsonwang
+//        auto shadowFlow = CC_NEW(ShadowFlow);
+//        shadowFlow->initialize(ShadowFlow::getInitializeInfo());
+//        _flows.emplace_back(shadowFlow);
 
         auto forwardFlow = CC_NEW(ForwardFlow);
         forwardFlow->initialize(ForwardFlow::getInitializeInfo());

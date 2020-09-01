@@ -20,6 +20,7 @@ bool CCMTLPipelineLayout::initialize(const PipelineLayoutInfo &info) {
     
     uint i = 0;
     for (auto setLayout : _setLayouts) {
+        if(setLayout == nullptr) continue;
         auto gpuDescriptorSetLayout = static_cast<CCMTLDescriptorSetLayout *>(setLayout)->gpuDescriptorSetLayout();
         auto dynamicCount = gpuDescriptorSetLayout->dynamicBindings.size();
         auto bindingCount = gpuDescriptorSetLayout->bindings.size();

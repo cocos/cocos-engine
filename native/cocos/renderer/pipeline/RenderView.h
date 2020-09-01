@@ -18,7 +18,7 @@ struct CC_DLL RenderViewInfo {
 
 class CC_DLL RenderView : public Object {
 public:
-    RenderView(uint cameraID);
+    RenderView();
     virtual ~RenderView();
 
     void destroy();
@@ -34,15 +34,9 @@ public:
     CC_INLINE void setVisibility(uint value) { _visibility = value; }
     CC_INLINE Camera *getCamera() const { return _camera; }
     CC_INLINE bool isEnabled() const { return _isEnabled; }
-    CC_INLINE void enable(bool value) { _isEnabled = value; }
+    CC_INLINE void setEnable(bool value) { _isEnabled = value; }
     CC_INLINE const RenderFlowList &getFlows() const { return _flows; }
     CC_INLINE RenderWindow *getWindow() const { return _window; }
-
-    // getWindow
-    // setWindow
-
-private:
-    RenderView() = default;
 
 private:
     RenderFlowList _flows;

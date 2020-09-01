@@ -224,17 +224,16 @@ static bool jsb_ArrayPool_alloc(se::State &s) {
         s.rval().setObject(arrayPool->alloc(index));
         return true;
     }
-    
+
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
-    
 }
 SE_BIND_FUNC(jsb_ArrayPool_alloc);
 
 static bool js_register_se_ArrayPool(se::Object *obj) {
     se::Class *cls = se::Class::create("NativeArrayPool", obj, nullptr, _SE(jsb_ArrayPool_constructor));
     cls->defineFunction("resize", _SE(jsb_ArrayPool_resize));
-    cls->defineFunction("getAlloc", _SE(jsb_ArrayPool_alloc));
+    cls->defineFunction("alloc", _SE(jsb_ArrayPool_alloc));
     cls->install();
     JSBClassType::registerClass<se::ArrayPool>(cls);
 

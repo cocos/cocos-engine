@@ -1,5 +1,5 @@
 #pragma once
-#include "core/CoreStd.h"
+#include "renderer/core/CoreStd.h"
 #include "math/Vec2.h"
 #include "math/Vec3.h"
 #include "scripting/dop/ArrayPool.h"

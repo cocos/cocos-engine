@@ -55,7 +55,7 @@ public:
         uint chunk = (_chunkMask & id) >> _entryBits;
         uint entry = _entryMask & id;
         CCASSERT(chunk < _chunks.size() && entry < _entriesPerChunk, "BufferPool: Invalid buffer pool entry id");
-        return reinterpret_cast<T *>(_chunks[chunk][entry]);
+        return reinterpret_cast<T *>(_chunks[chunk] + (entry * _bytesPerEntry));
     }
 
     Object *allocateNewChunk();
@@ -64,7 +64,6 @@ private:
     static cc::map<PoolType, BufferPool *> _poolMap;
 
     cc::vector<Chunk> _chunks;
-    cc::map<Chunk, Object *> _jsObjs;
     const uint _poolFlag = 1 << 30;
     uint _entryBits = 1 << 8;
     uint _chunkMask = 0;
