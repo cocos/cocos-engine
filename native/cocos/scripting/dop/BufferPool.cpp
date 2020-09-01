@@ -31,7 +31,7 @@ using namespace se;
 cc::map<PoolType, BufferPool *> BufferPool::_poolMap;
 
 BufferPool::BufferPool(PoolType type, uint entryBits, uint bytesPerEntry)
-: _entryBits(entryBits), _bytesPerEntry(bytesPerEntry) {
+: _entryBits(entryBits), _bytesPerEntry(bytesPerEntry), _type(type) {
     CCASSERT(BufferPool::_poolMap.count(type) == 0, "The type of pool is already exist");
 
     _entriesPerChunk = 1 << entryBits;
@@ -44,23 +44,19 @@ BufferPool::BufferPool(PoolType type, uint entryBits, uint bytesPerEntry)
 }
 
 BufferPool::~BufferPool() {
-    CCASSERT(_chunks.size() == _jsObjs.size(), "BufferPool: Page count doesn't match the number of javascript array buffer objects.");
-    for (auto element : _jsObjs) {
-        CC_FREE(element.first);
-        element.second->decRef();
-        element.second->unroot();
-    }
-
     BufferPool::_poolMap.erase(_type);
 }
 
 Object *BufferPool::allocateNewChunk() {
     Chunk chunk = (uint8_t *)CC_MALLOC(_bytesPerChunk);
-    _chunks.push_back(chunk);
-
     Object *jsObj = Object::createArrayBufferObject(chunk, _bytesPerChunk);
-    jsObj->root();
-    jsObj->incRef();
-    _jsObjs.emplace(chunk, jsObj);
+    
+    uint8_t *realPtr = nullptr;
+    size_t len = 0;
+    jsObj->getArrayBufferData(&realPtr, &len);
+    _chunks.push_back(realPtr);
+    
+    CC_FREE(chunk);
+    
     return jsObj;
 }
