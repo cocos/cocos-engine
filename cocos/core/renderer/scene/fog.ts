@@ -214,3 +214,4 @@ export class Fog {
         root.onGlobalPipelineStateChanged();
     }
 }
+legacyCC.Fog = Fog;
