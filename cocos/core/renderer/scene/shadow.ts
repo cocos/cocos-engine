@@ -75,3 +75,4 @@ export class Shadow {
         root.onGlobalPipelineStateChanged();
     }
 }
+legacyCC.Shadow = Shadow;

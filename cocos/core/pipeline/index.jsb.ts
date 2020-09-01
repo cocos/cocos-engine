@@ -12,3 +12,9 @@ export const UIFlow = nr.UIFlow;
 export const UIStage = nr.UIStage;
 
 export const InstancedBuffer = nr.InstancedBuffer;
+
+import '../renderer/scene/shadow';
+import '../renderer/scene/fog';
+import '../renderer/scene/planar-shadows';
+import '../renderer/scene/skybox';
+import '../renderer/scene/ambient';

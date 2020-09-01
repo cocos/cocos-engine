@@ -1,4 +1,5 @@
 import { Color, Vec3 } from '../../math';
+import { legacyCC } from '../../global-exports';
 
 export class Ambient {
     public static SUN_ILLUM = 65000.0;
@@ -75,3 +76,4 @@ export class Ambient {
         Vec3.toArray(this._albedoArray, this._groundAlbedo);
     }
 }
+legacyCC.Ambient = Ambient;

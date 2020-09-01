@@ -289,3 +289,4 @@ export class PlanarShadows {
         }
     }
 }
+legacyCC.PlanarShadows = PlanarShadows;

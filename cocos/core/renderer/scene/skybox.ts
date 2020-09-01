@@ -137,3 +137,4 @@ export class Skybox {
         this._globalDescriptorSet!.bindTexture(UNIFORM_ENVIRONMENT.binding, texture);
     }
 }
+legacyCC.Skybox = Skybox;
