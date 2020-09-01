@@ -44,6 +44,8 @@ const _uvs = [
     1, 1, // top-right
 ];
 
+const _iaInfo: IGFXIndirectBuffer = { drawInfos: [] };
+
 export default class ParticleBatchModel extends Model {
 
     private _capacity: number;
@@ -327,8 +329,8 @@ export default class ParticleBatchModel extends Model {
         const ia = this._subModels[0].inputAssembler;
         ia.vertexBuffers[0].update(this._vdataF32!);
         ia.indexCount = this._indexCount * count;
-        this._iaInfo.drawInfos[0] = ia;
-        this._iaInfoBuffer.update(this._iaInfo);
+        _iaInfo.drawInfos[0] = ia;
+        this._iaInfoBuffer.update(_iaInfo);
     }
 
     public clear () {
