@@ -103,6 +103,7 @@ export class PassInstance extends Pass {
 
     protected _syncBatchingScheme () {
         this._defines.USE_BATCHING = this._defines.USE_INSTANCING = false;
+        PassPool.set(this._handle, PassView.BATCHING_SCHEME, 0);
     }
 
     protected _onStateChange () {

@@ -114,32 +114,10 @@ export class SkinningModelComponent extends ModelComponent {
         const modelType = val ? BakedSkinningModel : SkinningModel;
         if (this._modelType === modelType) { return; }
         this._modelType = modelType;
-        const modelCreated = !!this._model;
-        if (modelCreated) {
+        if (this._model) {
             legacyCC.director.root.destroyModel(this._model);
             this._model = null;
             this._models.length = 0;
-        }
-        const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
-        // have to instantiate materials with multiple submodel references
-        if (this._modelType === SkinningModel) {
-            let last: Material | null = null;
-            for (let i = 0; i < meshCount; ++i) {
-                const cur = this.getRenderMaterial(i);
-                if (cur === last) {
-                    this.getMaterialInstance(i);
-                } else { last = cur; }
-            }
-        } else { // or assign the original material back if instancing is enabled
-            for (let i = 0; i < meshCount; ++i) {
-                const cur = this.getRenderMaterial(i);
-                if (cur && cur.parent && cur.parent.passes[0].batchingScheme === BatchingSchemes.INSTANCING) {
-                    this._materialInstances[i]!.destroy();
-                    this._materialInstances[i] = null;
-                }
-            }
-        }
-        if (modelCreated) {
             this._updateModels();
             this._updateCastShadow();
             if (this.enabledInHierarchy) {
