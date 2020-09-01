@@ -177,20 +177,12 @@ cc.js.getset(proto, "position", proto.getPosition, proto.setPosition);
 
 if (CC_EDITOR) {
     // check components to avoid missing node reference serialied in previous version
-    proto._onBatchCreated = function () {
+    proto._onBatchCreated = function (dontSyncChildPrefab) {
         for (let comp of this._components) {
             comp.node = this;
         }
 
-        Node.prototype._onBatchCreated.call(this);
-    };
-    // check components to avoid missing node reference serialied in previous version
-    proto._onBatchRestored = function () {
-        for (let comp of this._components) {
-            comp.node = this;
-        }
-        
-        Node.prototype._onBatchRestored.call(this);
+        Node.prototype._onBatchCreated.call(this, dontSyncChildPrefab);
     };
 }
 
