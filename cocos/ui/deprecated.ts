@@ -7,3 +7,9 @@ export class RenderComponent extends UIRenderable {
         warnID(5400, 'RenderComponent', 'UIRenderable');
     }
 }
+
+export class UIReorderComponent {
+    constructor () {
+        warnID(1408, 'UIReorderComponent');
+    }
+}

@@ -112,6 +112,10 @@ The '%s' will be removed in v2.0, please use '%s' instead.
 
 cc.pool is being removed from v2.0, you are getting cc.js.Pool instead
 
+### 1408
+
+'%s' is removed
+
 ### 1502
 
 cc.scheduler.scheduleCallbackForTarget(): target should be non-null.

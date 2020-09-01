@@ -36,7 +36,7 @@ import inputManager from './platform/event-manager/input-manager';
 import { GFXDevice, IGFXDeviceInfo } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
-import { ICustomJointTextureLayout } from './renderer';
+import { ICustomJointTextureLayout } from './renderer/models';
 import { legacyCC } from './global-exports';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
 import { bindingMappingInfo } from './pipeline/define';

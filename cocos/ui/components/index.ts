@@ -20,7 +20,6 @@ export { ViewGroup } from './view-group';
 export { Widget } from './widget';
 export { LabelOutline } from './label-outline';
 export { Graphics } from './graphics';
-export { UIReorder } from './ui-reorder';
 export { PageView } from './page-view';
 export { PageViewIndicator } from './page-view-indicator';
 export { UIStaticBatch } from './ui-static-batch';

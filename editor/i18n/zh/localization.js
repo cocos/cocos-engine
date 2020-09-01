@@ -40,7 +40,6 @@ module.exports = {
             Toggle: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/toggle.html',
             UIModel: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/ui-model.html',
             Widget: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/widget.html',
-            UIReorder: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/ui-reorder-component.html',
             PageViewIndicator: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/pageviewindicator.html',
             PageView: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/pageview.html',
             UIStaticBatch: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/ui-static.html',

@@ -199,7 +199,6 @@
         "cc.Touch",
         "cc.Tween",
         "cc.UI",
-        "cc.UIReorder",
         "cc.UIModel",
         "cc.UIRenderable",
         "cc.UITransform",
