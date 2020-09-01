@@ -36,8 +36,8 @@ import { Asset } from './asset';
 import { legacyCC } from '../global-exports';
 
 /**
- * 骨骼资源。
- * 骨骼资源记录了每个关节（相对于`SkinningModelComponent.skinningRoot`）的路径以及它的绑定姿势矩阵。
+ * @zh 骨骼资源。
+ * 骨骼资源记录了每个关节（相对于`SkinningModel.skinningRoot`）的路径以及它的绑定姿势矩阵。
  */
 @ccclass('cc.Skeleton')
 export class Skeleton extends Asset {

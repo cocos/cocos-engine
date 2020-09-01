@@ -32,10 +32,9 @@ import { BatchingSchemes } from '../../renderer/core/pass';
 import { Material } from '../../assets';
 import { Skeleton } from '../../assets/skeleton';
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type } from 'cc.decorator';
-import { BakedSkinningModel } from '../../renderer/models/baked-skinning-model';
-import { SkinningModel } from '../../renderer/models/skinning-model';
+import { models } from '../../renderer';
 import { Node } from '../../scene-graph/node';
-import { ModelComponent } from './model-component';
+import { Model } from './model-component';
 import { SkeletalAnimation } from '../../animation/skeletal-animation';
 import { legacyCC } from '../../global-exports';
 
@@ -43,12 +42,12 @@ import { legacyCC } from '../../global-exports';
  * @en The Skinning Model Component.
  * @zh 蒙皮模型组件。
  */
-@ccclass('cc.SkinningModelComponent')
-@help('i18n:cc.SkinningModelComponent')
+@ccclass('cc.SkinningModel')
+@help('i18n:cc.SkinningModel')
 @executionOrder(100)
 @executeInEditMode
 @menu('Components/SkinningModel')
-export class SkinningModelComponent extends ModelComponent {
+export class SkinningModel extends Model {
 
     @type(Skeleton)
     protected _skeleton: Skeleton | null = null;
@@ -91,12 +90,12 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     get model () {
-        return this._model as SkinningModel | BakedSkinningModel | null;
+        return this._model as models.SkinningModel | models.BakedSkinningModel | null;
     }
 
     constructor () {
         super();
-        this._modelType = BakedSkinningModel;
+        this._modelType = models.BakedSkinningModel;
     }
 
     public __preload () {
@@ -111,7 +110,7 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     public setUseBakedAnimation (val = true) {
-        const modelType = val ? BakedSkinningModel : SkinningModel;
+        const modelType = val ? models.BakedSkinningModel : models.SkinningModel;
         if (this._modelType === modelType) { return; }
         this._modelType = modelType;
         if (this._model) {
@@ -128,7 +127,7 @@ export class SkinningModelComponent extends ModelComponent {
 
     public setMaterial (material: Material | null, index: number) {
         super.setMaterial(material, index);
-        if (this._modelType === SkinningModel) {
+        if (this._modelType === models.SkinningModel) {
             this.getMaterialInstance(index);
         }
     }

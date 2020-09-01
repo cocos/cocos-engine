@@ -28,22 +28,22 @@
  * @hidden
  */
 import { legacyCC } from '../../global-exports';
-import { BatchedSkinningModelComponent, SkinningModelUnit } from './batched-skinning-model-component';
+import { BatchedSkinningModel, SkinningModelUnit } from './batched-skinning-model-component';
 import { CameraComponent } from './camera-component';
 import { DirectionalLightComponent } from './directional-light-component';
 import { LightComponent } from './light-component';
-import { ModelComponent } from './model-component';
+import { Model } from './model-component';
 import { RenderableComponent } from './renderable-component';
-import { SkinningModelComponent } from './skinning-model-component';
+import { SkinningModel } from './skinning-model-component';
 import { SphereLightComponent } from './sphere-light-component';
 import { SpotLightComponent } from './spot-light-component';
 
 export {
     CameraComponent,
     LightComponent,
-    ModelComponent,
-    SkinningModelComponent,
-    BatchedSkinningModelComponent,
+    Model,
+    SkinningModel,
+    BatchedSkinningModel,
     SkinningModelUnit,
 
     RenderableComponent,
@@ -56,10 +56,10 @@ export {
 legacyCC.CameraComponent = CameraComponent;
 // legacyCC.EditorComponent = EditorCameraComponent;
 legacyCC.RenderableComponent = RenderableComponent;
-legacyCC.ModelComponent = ModelComponent;
-legacyCC.SkinningModelComponent = SkinningModelComponent;
+legacyCC.Model = Model;
+legacyCC.SkinningModel = SkinningModel;
 
-legacyCC.BatchedSkinningModelComponent = BatchedSkinningModelComponent;
+legacyCC.BatchedSkinningModel = BatchedSkinningModel;
 legacyCC.SkinningModelUnit = SkinningModelUnit;
 
 legacyCC.LightComponent = LightComponent;

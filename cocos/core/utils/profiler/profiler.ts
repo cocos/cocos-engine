@@ -24,7 +24,8 @@
  THE SOFTWARE.
 */
 
-import { CameraComponent, ModelComponent } from '../../3d';
+import { Model } from '../../3d/framework/model-component';
+import { CameraComponent } from '../../3d/framework/camera-component';
 import { createMesh } from '../../3d/misc/utils';
 import { Material } from '../../assets/material';
 import { GFXBufferTextureCopy, GFXClearFlag, GFXFormat, GFXTextureType, GFXTextureUsageBit } from '../../gfx/define';
@@ -308,7 +309,7 @@ export class Profiler {
             vertexPos[i] *= ySign;
         }
 
-        const modelCom = managerNode.addComponent('cc.ModelComponent') as ModelComponent;
+        const modelCom = managerNode.addComponent('cc.Model') as Model;
         modelCom.mesh = createMesh({
             positions: vertexPos,
             indices: vertexindices,

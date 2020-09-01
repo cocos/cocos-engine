@@ -3,10 +3,10 @@
  */
 
 import { removeProperty, replaceProperty } from '../../utils';
-import { ModelComponent } from './model-component';
+import { Model } from './model-component';
 import { CameraComponent } from './camera-component';
 
-removeProperty(ModelComponent.prototype, 'ModelComponent.prototype', [
+removeProperty(Model.prototype, 'Model.prototype', [
     {
         name: 'enableDynamicBatching',
     },

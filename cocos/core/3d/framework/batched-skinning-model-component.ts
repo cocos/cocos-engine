@@ -41,7 +41,7 @@ import { GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { Mat4, Vec2, Vec3 } from '../../math';
 import { mapBuffer, readBuffer, writeBuffer } from '../misc/buffer';
-import { SkinningModelComponent } from './skinning-model-component';
+import { SkinningModel } from './skinning-model-component';
 import { legacyCC } from '../../global-exports';
 
 const repeat = (n: number) => n - Math.floor(n);
@@ -106,10 +106,10 @@ export class SkinningModelUnit {
 
     /**
      * @en Convenient setter, copying all necessary information from target skinning model component.
-     * @zh 复制目标 SkinningModelComponent 的所有属性到本单元，方便快速配置。
+     * @zh 复制目标 SkinningModel 的所有属性到本单元，方便快速配置。
      */
-    @type(SkinningModelComponent)
-    set copyFrom (comp: SkinningModelComponent | null) {
+    @type(SkinningModel)
+    set copyFrom (comp: SkinningModel | null) {
         if (!comp) { return; }
         this.mesh = comp.mesh;
         this.skeleton = comp.skeleton;
@@ -129,12 +129,12 @@ const v3_1 = new Vec3();
  * @en The Batched Skinning Model Component, batches multiple skeleton-sharing skinning models.
  * @zh 蒙皮模型合批组件，用于合并绘制共享同一骨骼资源的所有蒙皮模型。
  */
-@ccclass('cc.BatchedSkinningModelComponent')
-@help('i18n:cc.BatchedSkinningModelComponent')
+@ccclass('cc.BatchedSkinningModel')
+@help('i18n:cc.BatchedSkinningModel')
 @executionOrder(100)
 @executeInEditMode
 @menu('Components/BatchedSkinningModel')
-export class BatchedSkinningModelComponent extends SkinningModelComponent {
+export class BatchedSkinningModel extends SkinningModel {
 
     /**
      * @en Size of the generated texture atlas.

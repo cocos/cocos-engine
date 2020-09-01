@@ -19,7 +19,7 @@ test('sample from animation curve', () => {
 });
 
 test('Erroneous target path', () => {;
-    expect(createBoundTarget(new Node("TestNode"), [new ComponentPath('cc.ModelComponent'), 'position'])).toBeNull();
+    expect(createBoundTarget(new Node("TestNode"), [new ComponentPath('cc.Model'), 'position'])).toBeNull();
     expect(createBoundTarget(new Node("TestNode"), [new HierarchyPath('/absent'), 'position'])).toBeNull();
     expect(createBoundTarget(Object.create(null), ['property', 0])).toBeNull();
     expect(createBoundTarget([], [1, 0])).toBeNull();

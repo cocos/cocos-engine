@@ -149,15 +149,15 @@ class ModelLightmapSettings {
 }
 
 /**
- * 模型组件。
- * @class ModelComponent
+ * @en Model component
+ * @zh 模型组件。
  */
-@ccclass('cc.ModelComponent')
-@help('i18n:cc.ModelComponent')
+@ccclass('cc.Model')
+@help('i18n:cc.Model')
 @executionOrder(100)
 @menu('Components/Model')
 @executeInEditMode
-export class ModelComponent extends RenderableComponent {
+export class Model extends RenderableComponent {
 
     public static ShadowCastingMode = ModelShadowCastingMode;
     public static ShadowReceivingMode = ModelShadowReceivingMode;
@@ -231,7 +231,7 @@ export class ModelComponent extends RenderableComponent {
         return this._model;
     }
 
-    @visible(function (this: ModelComponent) {
+    @visible(function (this: Model) {
         return !!(
             this.mesh &&
             this.mesh.struct.morph &&
@@ -344,7 +344,7 @@ export class ModelComponent extends RenderableComponent {
         const preferMorphOverPlain = !!this._morphInstance;
         // Note we only change to use `MorphModel` if
         // we are required to render morph and the `this._modelType` is exactly the basic `Model`.
-        // We do this since the `this._modelType` might be changed in classes derived from `ModelComponent`.
+        // We do this since the `this._modelType` might be changed in classes derived from `Model`.
         // We shall not overwrite it.
         // Please notice that we do not enforce that
         // derived classes should use a morph-able model type(i.e. model type derived from `MorphModel`).
@@ -524,7 +524,9 @@ export class ModelComponent extends RenderableComponent {
     }
 }
 
-export declare namespace ModelComponent {
+export declare namespace Model {
     export type ShadowCastingMode = EnumAlias<typeof ModelShadowCastingMode>;
     export type ShadowReceivingMode = EnumAlias<typeof ModelShadowReceivingMode>;
 }
+
+export { Model as ModelComponent };

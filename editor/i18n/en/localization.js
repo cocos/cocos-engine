@@ -5,15 +5,15 @@ module.exports = {
 
     help: {
         cc: {
-            ModelComponent: 'https://docs.cocos.com/creator3d/manual/en/engine/renderable/model-component.html',
+            Model: 'https://docs.cocos.com/creator3d/manual/en/engine/renderable/model-component.html',
             UITransform: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/ui-transform.html',
             Sprite: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/sprite.html',
             SubContextView: 'https://docs.cocos.com/creator3d/manual/en/editor/publish/publish-wechatgame-subcontext.html',
             BlockInputEvents: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/block-input-enents.html',
             CameraComponent: 'https://docs.cocos.com/creator3d/manual/en/editor/components/camera-component.html',
             Canvas: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/canvas.html',
-            SkinningModelComponent: 'https://docs.cocos.com/creator3d/manual/en/engine/animation/skeletal-animation.html',
-            BatchedSkinningModelComponent: 'https://docs.cocos.com/creator3d/manual/en/engine/animation/skeletal-animation.html',
+            SkinningModel: 'https://docs.cocos.com/creator3d/manual/en/engine/animation/skeletal-animation.html',
+            BatchedSkinningModel: 'https://docs.cocos.com/creator3d/manual/en/engine/animation/skeletal-animation.html',
             DirectionalLightComponent: 'https://docs.cocos.com/creator3d/manual/en/concepts/scene/light/dir-light.html',
             SphereLightComponent: 'https://docs.cocos.com/creator3d/manual/en/concepts/scene/light/sphere-light.html',
             SpotLightComponent: 'https://docs.cocos.com/creator3d/manual/en/concepts/scene/light/spot-light.html',
