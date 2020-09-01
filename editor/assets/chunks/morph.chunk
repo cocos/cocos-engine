@@ -89,7 +89,9 @@ vec3 getVec3DisplacementFromTexture(sampler2D tex, int vertexIndex) {
 #else
     vec3 result = vec3(0, 0, 0);
     for (int iTarget = 0; iTarget < CC_MORPH_TARGET_COUNT; ++iTarget) {
-        int dataPixelStart = int(fetchVec3ArrayFromTexture(tex, iTarget).r);
+        // `+0.5` because in some platforms, the "fetched integer" may have small error.
+        // For example `26` may yeild `25.99999`, which is convert to `25` instead of `26` using `int()`.
+        int dataPixelStart = int(fetchVec3ArrayFromTexture(tex, iTarget).r + 0.5);
         result += (fetchVec3ArrayFromTexture(tex, dataPixelStart + vertexIndex).rgb * getDisplacementWeight(iTarget));
     }
     return result;
