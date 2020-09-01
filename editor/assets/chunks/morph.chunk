@@ -6,7 +6,7 @@
 #if __VERSION__ < 300
     in float a_vertexId;
     int getVertexId() {
-        return int(a_vertexId);
+        return int(a_vertexId + 0.5);
     }
 #elif __VERSION__ < 450
     int getVertexId() {
