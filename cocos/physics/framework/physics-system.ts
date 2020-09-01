@@ -345,10 +345,11 @@ export class PhysicsSystem extends System {
                     // TODO: nesting the dirty flag reset between the syncScenetoPhysics and the simulation to reduce calling syncScenetoPhysics.
                     this.physicsWorld.syncSceneToPhysics();
                     this._accumulator -= this._fixedTimeStep;
+                    this._subStepCount++;
                 } else {
                     this.physicsWorld.syncSceneToPhysics();
+                    break;
                 }
-                this._subStepCount++;
             }
             director.emit(Director.EVENT_AFTER_PHYSICS);
         }
