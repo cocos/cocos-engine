@@ -31,11 +31,15 @@ import { Component } from '../components/component';
 import { ccclass, help, menu, executionOrder, requireComponent, tooltip, serializable } from 'cc.decorator';
 import { view } from './view';
 import { Sprite } from '../../ui/components/sprite';
-import { Node } from '../scene-graph';
+import { Node, PrivateNode } from '../scene-graph';
 import { UITransform } from '../components/ui-base/ui-transform';
+
+import { SpriteFrame } from '../assets';
 import { ImageAsset } from '../assets/image-asset';
-import { Rect } from '../math';
+import { Rect, Size } from '../math';
+
 import { legacyCC } from '../global-exports';
+import { EDITOR } from 'internal:constants';
 
 /**
  * @en SubContextView is a view component which controls open data context viewport in WeChat game platform.<br/>
@@ -65,7 +69,18 @@ import { legacyCC } from '../global-exports';
 @requireComponent(UITransform)
 @menu('Components/SubContextView')
 export class SubContextView extends Component {
-    @tooltip('帧数')
+    @tooltip('子域的设计分辨率，禁止在运行时动态更新')
+    get designResolutionSize () {
+        return this._designResolutionSize;
+    }
+    set designResolutionSize (value) {
+        if (!EDITOR || value.equals(this._designResolutionSize)) {
+            return;
+        }
+        this._designResolutionSize.set(value);
+    }
+
+    @tooltip('主域更新子域贴图的频率')
     get fps (){
         return this._fps;
     }
@@ -74,85 +89,149 @@ export class SubContextView extends Component {
             return;
         }
         this._fps = value;
-        this._updateInterval = 1 / value;
-        this._updateSubContextFrameRate();
+        this._updateInterval = 1000 / value;
     }
 
     @serializable
     private _fps = 60;
     private _sprite: Sprite | null;
     private _imageAsset: ImageAsset;
-    private _context: any;
     private _updatedTime = 0;
     private _updateInterval = 0;
-    private _firstlyEnabled = true;
-
+    private _openDataContext: any;
+    private _content: PrivateNode;
+    @serializable
+    private _designResolutionSize: Size = new Size(640, 960);
+    
     constructor () {
         super();
+        this._content = new PrivateNode('content');
         this._sprite = null;
         this._imageAsset = new ImageAsset();
-        this._context = null;
+        this._openDataContext = null;
         this._updatedTime = performance.now();
     }
 
     public onLoad () {
-        // Setup subcontext canvas size
         if (window.__globalAdapter && __globalAdapter.getOpenDataContext) {
             this._updateInterval = 1000 / this._fps;
-            this._context = __globalAdapter.getOpenDataContext();
-            // reset sharedCanvas width and height
-            this.reset();
-
-            const image = this._imageAsset;
-            const sharedCanvas = this._context.canvas;
-            image.reset(sharedCanvas);
-            image._texture.create(sharedCanvas.width, sharedCanvas.height);
-
-            this._sprite = this.node.getComponent(Sprite);
-            if (!this._sprite) {
-                this._sprite = this.node.addComponent(Sprite);
-            }
-
-            if (this._sprite!.spriteFrame) {
-                this._sprite!.spriteFrame.texture = this._imageAsset._texture;
-            } else {
-                const sp = new legacyCC.SpriteFrame();
-                sp.texture = this._imageAsset._texture;
-                this._sprite!.spriteFrame = sp;
-            }
+            this._openDataContext = __globalAdapter.getOpenDataContext();
+            this._initSharedCanvas();
+            this._initContentNode();
+            this._updateSubContextView();
         } else {
             this.enabled = false;
         }
     }
 
     public onEnable () {
-        if (this._firstlyEnabled && this._context) {
-             this._context.postMessage({
-                fromEngine: true,
-                event: 'boot',
-            });
-            this._firstlyEnabled = false;
-        }
-        else {
-            this._runSubContextMainLoop();
-        }
         this._registerNodeEvent();
-        this._updateSubContextFrameRate();
-        this.updateSubContextViewport();
+        // this._updateSubContextViewport();
     }
 
     public onDisable () {
         this._unregisterNodeEvent();
-        this._stopSubContextMainLoop();
     }
 
-    public update (dt: number) {
+    private _initSharedCanvas () {
+        if (this._openDataContext) {
+            let sharedCanvas = this._openDataContext.canvas;
+            sharedCanvas.width = this._designResolutionSize!.width;
+            sharedCanvas.height = this._designResolutionSize!.height;
+        }
+    }
+
+    private _initContentNode () {
+        if (this._openDataContext) {
+            let sharedCanvas = this._openDataContext.canvas;
+            
+            const image = this._imageAsset;
+            image.reset(sharedCanvas);
+            image._texture.create(sharedCanvas.width, sharedCanvas.height);
+
+            this._sprite = this._content.getComponent(Sprite);
+            if (!this._sprite) {
+                this._sprite = this._content.addComponent(Sprite);
+            }
+
+            if (this._sprite.spriteFrame) {
+                this._sprite.spriteFrame.texture = this._imageAsset._texture;
+            } else {
+                const sp = new SpriteFrame();
+                sp.texture = this._imageAsset._texture;
+                this._sprite.spriteFrame = sp;
+            }
+
+            this._content.parent = this.node;
+        }
+    }
+
+    private _updateSubContextView () {
+        if (!(this._openDataContext && __globalAdapter && __globalAdapter.getSystemInfoSync)) {
+            return;
+        }
+
+        // update subContextView size
+        // use SHOW_ALL policy to adapt subContextView
+        let nodeTrans = this.node.getComponent(UITransform) as UITransform;
+        let contentTrans = this._content.getComponent(UITransform) as UITransform;
+
+        let scaleX = nodeTrans.width / contentTrans.width;
+        let scaleY = nodeTrans.height / contentTrans.height;
+        let scale = scaleX > scaleY ? scaleY : scaleX;
+        contentTrans.width = contentTrans.width * scale;
+        contentTrans.height = contentTrans.height * scale;
+
+        // update viewport in subContextView
+        let systemInfo = __globalAdapter.getSystemInfoSync();
+        let box = contentTrans.getBoundingBoxToWorld();
+        let visibleSize = view.getVisibleSize();
+
+        let x = systemInfo.screenWidth * (box.x / visibleSize.width);
+        let y = systemInfo.screenHeight * (box.y / visibleSize.height);
+        let width = systemInfo.screenWidth * (box.width / visibleSize.width);
+        let height = systemInfo.screenHeight * (box.height / visibleSize.height);
+
+        this._openDataContext.postMessage({
+            fromEngine: true,
+            event: 'viewport',
+            x, y,
+            width, height,
+        });
+    }
+
+    private _updateSubContextTexture () {
+        const img = this._imageAsset;
+        if (!img || !this._openDataContext) {
+            return;
+        }
+
+        if (img.width <= 0 || img.height <= 0) {
+            return;
+        }
+
+        const sharedCanvas = this._openDataContext.canvas;
+        img.reset(sharedCanvas);
+        if (sharedCanvas.width > img.width || sharedCanvas.height > img.height ){
+            this._imageAsset._texture.create(sharedCanvas.width, sharedCanvas.height);
+        }
+
+        this._imageAsset._texture.uploadData(sharedCanvas);
+    }
+
+    private _registerNodeEvent () {
+        this.node.on(Node.EventType.TRANSFORM_CHANGED, this._updateSubContextView, this);
+        this.node.on(Node.EventType.SIZE_CHANGED, this._updateSubContextView, this);
+    }
+
+    private _unregisterNodeEvent () {
+        this.node.off(Node.EventType.TRANSFORM_CHANGED, this._updateSubContextView, this);
+        this.node.off(Node.EventType.SIZE_CHANGED, this._updateSubContextView, this);
+    }
+
+    public update (dt?: number) {
         let calledUpdateManually = (dt === undefined);
         if (calledUpdateManually) {
-            this._context && this._context.postMessage({
-                fromEngine: true,
-                event: 'step',
-            });
             this._updateSubContextTexture();
             return;
         }
@@ -161,102 +240,6 @@ export class SubContextView extends Component {
         if (deltaTime >= this._updateInterval) {
             this._updatedTime += this._updateInterval;
             this._updateSubContextTexture();
-        }
-    }
-
-    /**
-     * @en Reset open data context size and viewport
-     * @zh 重置开放数据域的尺寸和视窗
-     */
-    public reset () {
-        if (this._context) {
-            this.updateSubContextViewport();
-            let sharedCanvas = this._context.canvas;
-            const transformComp = this.node.getComponent(UITransform)!;
-            if (sharedCanvas) {
-                sharedCanvas.width = transformComp.width;
-                sharedCanvas.height = transformComp.height;
-            }
-        }
-    }
-
-    /**
-     * @en Update the sub context viewport manually, it should be called whenever the node's bounding box changes.
-     * @zh 更新开放数据域相对于主域的 viewport，这个函数应该在节点包围盒改变时手动调用。
-     */
-    public updateSubContextViewport () {
-        if (this._context) {
-            let box = this.node.getComponent(UITransform)!.getBoundingBoxToWorld() as Rect;
-            let sx = view.getScaleX();
-            let sy = view.getScaleY();
-            const rect = view.getViewportRect();
-            this._context.postMessage({
-                fromEngine: true,
-                event: 'viewport',
-                x: box.x * sx + rect.x,
-                y: box.y * sy + rect.y,
-                width: box.width * sx,
-                height: box.height * sy
-            });
-        }
-    }
-
-    private _updateSubContextTexture () {
-        const img = this._imageAsset;
-        if (!img || !this._context) {
-            return;
-        }
-
-        if (img.width <= 0 || img.height <= 0) {
-            return;
-        }
-
-        const canvas = this._context.canvas;
-        img.reset(canvas);
-        if (canvas.width > img.width || canvas.height > img.height ){
-            this._imageAsset._texture.create(canvas.width, canvas.height);
-        }
-
-        this._imageAsset._texture.uploadData(canvas);
-    }
-
-    private _registerNodeEvent () {
-        this.node.on(Node.EventType.TRANSFORM_CHANGED, this.updateSubContextViewport, this);
-        this.node.on(Node.EventType.SIZE_CHANGED, this.updateSubContextViewport, this);
-    }
-
-    private _unregisterNodeEvent () {
-        this.node.off(Node.EventType.TRANSFORM_CHANGED, this.updateSubContextViewport, this);
-        this.node.off(Node.EventType.SIZE_CHANGED, this.updateSubContextViewport, this);
-    }
-
-    private _runSubContextMainLoop () {
-        if (this._context) {
-            this._context.postMessage({
-                fromEngine: true,
-                event: 'mainLoop',
-                value: true,
-            });
-        }
-    }
-
-    private _stopSubContextMainLoop () {
-        if (this._context) {
-            this._context.postMessage({
-                fromEngine: true,
-                event: 'mainLoop',
-                value: false,
-            });
-        }
-    }
-
-    private _updateSubContextFrameRate () {
-        if (this._context) {
-            this._context.postMessage({
-                fromEngine: true,
-                event: 'frameRate',
-                value: this._fps,
-            });
         }
     }
 }
