@@ -27,7 +27,7 @@
  * @category animation
  */
 
-import { SkinningModel } from '../3d/framework/skinning-model-component';
+import { SkinnedMeshRenderer } from '../3d/framework/skinned-mesh-renderer';
 import { Mat4, Quat, Vec3 } from '../math';
 import { IAnimInfo, JointAnimationInfo } from '../renderer/models/skeletal-animation-utils';
 import { Node } from '../scene-graph/node';
@@ -60,7 +60,7 @@ export class SkeletalAnimationState extends AnimationState {
     protected _animInfo: IAnimInfo | null = null;
     protected _sockets: ISocketData[] = [];
     protected _animInfoMgr: JointAnimationInfo;
-    protected _comps: SkinningModel[] = [];
+    protected _comps: SkinnedMeshRenderer[] = [];
     protected _parent: SkeletalAnimation | null = null;
     protected _curvesInited = false;
 
@@ -72,7 +72,7 @@ export class SkeletalAnimationState extends AnimationState {
     public initialize (root: Node) {
         if (this._curveLoaded) { return; }
         this._comps.length = 0;
-        const comps = root.getComponentsInChildren(SkinningModel);
+        const comps = root.getComponentsInChildren(SkinnedMeshRenderer);
         for (let i = 0; i < comps.length; ++i) {
             const comp = comps[i];
             if (comp.skinningRoot === root) {

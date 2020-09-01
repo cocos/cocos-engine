@@ -15,7 +15,7 @@ export { Slider } from './slider';
 export { Sprite } from './sprite';
 export { Toggle } from './toggle';
 export { ToggleContainer } from './toggle-container';
-export { UIModel } from './ui-model';
+export { UIMeshRenderer } from './ui-mesh-renderer';
 export { ViewGroup } from './view-group';
 export { Widget } from './widget';
 export { LabelOutline } from './label-outline';

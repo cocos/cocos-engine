@@ -28,23 +28,23 @@
  * @hidden
  */
 import { legacyCC } from '../../global-exports';
-import { BatchedSkinningModel, SkinningModelUnit } from './batched-skinning-model-component';
+import { SkinnedMeshBatchRenderer, SkinnedMeshUnit } from './skinned-mesh-batch-renderer';
 import { Camera } from './camera-component';
 import { DirectionalLight } from './directional-light-component';
 import { Light } from './light-component';
-import { Model } from './model-component';
+import { MeshRenderer } from './mesh-renderer';
 import { RenderableComponent } from './renderable-component';
-import { SkinningModel } from './skinning-model-component';
+import { SkinnedMeshRenderer } from './skinned-mesh-renderer';
 import { SphereLight } from './sphere-light-component';
 import { SpotLight } from './spot-light-component';
 
 export {
     Camera,
     Light,
-    Model,
-    SkinningModel,
-    BatchedSkinningModel,
-    SkinningModelUnit,
+    MeshRenderer,
+    SkinnedMeshRenderer,
+    SkinnedMeshBatchRenderer,
+    SkinnedMeshUnit,
 
     RenderableComponent,
 
@@ -55,11 +55,11 @@ export {
 
 legacyCC.Camera = Camera;
 legacyCC.RenderableComponent = RenderableComponent;
-legacyCC.Model = Model;
-legacyCC.SkinningModel = SkinningModel;
+legacyCC.MeshRenderer = MeshRenderer;
+legacyCC.SkinnedMeshRenderer = SkinnedMeshRenderer;
 
-legacyCC.BatchedSkinningModel = BatchedSkinningModel;
-legacyCC.SkinningModelUnit = SkinningModelUnit;
+legacyCC.SkinnedMeshBatchRenderer = SkinnedMeshBatchRenderer;
+legacyCC.SkinnedMeshUnit = SkinnedMeshUnit;
 
 legacyCC.Light = Light;
 legacyCC.DirectionalLight = DirectionalLight;

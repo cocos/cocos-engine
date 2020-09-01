@@ -28,26 +28,25 @@
  */
 
 import { AnimationClip } from '../../animation/animation-clip';
-import { BatchingSchemes } from '../../renderer/core/pass';
 import { Material } from '../../assets';
 import { Skeleton } from '../../assets/skeleton';
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type } from 'cc.decorator';
 import { models } from '../../renderer';
 import { Node } from '../../scene-graph/node';
-import { Model } from './model-component';
+import { MeshRenderer } from './mesh-renderer';
 import { SkeletalAnimation } from '../../animation/skeletal-animation';
 import { legacyCC } from '../../global-exports';
 
 /**
- * @en The Skinning Model Component.
- * @zh 蒙皮模型组件。
+ * @en The skinned mesh renderer component.
+ * @zh 蒙皮网格渲染器组件。
  */
-@ccclass('cc.SkinningModel')
-@help('i18n:cc.SkinningModel')
+@ccclass('cc.SkinnedMeshRenderer')
+@help('i18n:cc.SkinnedMeshRenderer')
 @executionOrder(100)
 @executeInEditMode
-@menu('Components/SkinningModel')
-export class SkinningModel extends Model {
+@menu('Components/SkinnedMeshRenderer')
+export class SkinnedMeshRenderer extends MeshRenderer {
 
     @type(Skeleton)
     protected _skeleton: Skeleton | null = null;
@@ -150,3 +149,5 @@ export class SkinningModel extends Model {
         }
     }
 }
+
+export { SkinnedMeshRenderer as SkinningModelComponent };

@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-import { Model } from '../../3d/framework/model-component';
+import { MeshRenderer } from '../../3d/framework/mesh-renderer';
 import { Camera } from '../../3d/framework/camera-component';
 import { createMesh } from '../../3d/misc/utils';
 import { Material } from '../../assets/material';
@@ -309,7 +309,7 @@ export class Profiler {
             vertexPos[i] *= ySign;
         }
 
-        const modelCom = managerNode.addComponent('cc.Model') as Model;
+        const modelCom = managerNode.addComponent(MeshRenderer);
         modelCom.mesh = createMesh({
             positions: vertexPos,
             indices: vertexindices,

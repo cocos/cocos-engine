@@ -469,10 +469,10 @@ const ray_mesh = (function () {
  * ray-model intersect detect, in world space.
  * @zh
  * 在世界空间中，射线和渲染模型的相交性检测。
- * @param {ray} ray
- * @param {Model} model
- * @param {IRayModelOptions} options
- * @return {number} 0 or !0
+ * @param ray
+ * @param model
+ * @param options
+ * @return 0 or !0
  */
 const ray_model = (function () {
     let minDis = 0;

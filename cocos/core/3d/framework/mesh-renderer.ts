@@ -149,15 +149,15 @@ class ModelLightmapSettings {
 }
 
 /**
- * @en Model component
- * @zh 模型组件。
+ * @en Mesh renderer component
+ * @zh 网格渲染器组件。
  */
-@ccclass('cc.Model')
-@help('i18n:cc.Model')
+@ccclass('cc.MeshRenderer')
+@help('i18n:cc.MeshRenderer')
 @executionOrder(100)
-@menu('Components/Model')
+@menu('Components/MeshRenderer')
 @executeInEditMode
-export class Model extends RenderableComponent {
+export class MeshRenderer extends RenderableComponent {
 
     public static ShadowCastingMode = ModelShadowCastingMode;
     public static ShadowReceivingMode = ModelShadowReceivingMode;
@@ -231,7 +231,7 @@ export class Model extends RenderableComponent {
         return this._model;
     }
 
-    @visible(function (this: Model) {
+    @visible(function (this: MeshRenderer) {
         return !!(
             this.mesh &&
             this.mesh.struct.morph &&
@@ -524,9 +524,9 @@ export class Model extends RenderableComponent {
     }
 }
 
-export declare namespace Model {
+export declare namespace MeshRenderer {
     export type ShadowCastingMode = EnumAlias<typeof ModelShadowCastingMode>;
     export type ShadowReceivingMode = EnumAlias<typeof ModelShadowReceivingMode>;
 }
 
-export { Model as ModelComponent };
+export { MeshRenderer as ModelComponent };

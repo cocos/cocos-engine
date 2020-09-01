@@ -41,7 +41,7 @@ import { GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { Mat4, Vec2, Vec3 } from '../../math';
 import { mapBuffer, readBuffer, writeBuffer } from '../misc/buffer';
-import { SkinningModel } from './skinning-model-component';
+import { SkinnedMeshRenderer } from './skinned-mesh-renderer';
 import { legacyCC } from '../../global-exports';
 
 const repeat = (n: number) => n - Math.floor(n);
@@ -49,11 +49,11 @@ const batch_id: IGFXAttribute = { name: GFXAttributeName.ATTR_BATCH_ID, format: 
 const batch_uv: IGFXAttribute = { name: GFXAttributeName.ATTR_BATCH_UV, format: GFXFormat.RG32F, isNormalized: false };
 const batch_extras_size = GFXFormatInfos[batch_id.format].size + GFXFormatInfos[batch_uv.format].size;
 
-@ccclass('cc.SkinningModelUnit')
-export class SkinningModelUnit {
+@ccclass('cc.SkinnedMeshUnit')
+export class SkinnedMeshUnit {
 
     /**
-     * @en Skinning mesh of this unit.
+     * @en Skinned mesh of this unit.
      * @zh 子蒙皮模型的网格模型。
      */
     @type(Mesh)
@@ -105,11 +105,11 @@ export class SkinningModelUnit {
     }
 
     /**
-     * @en Convenient setter, copying all necessary information from target skinning model component.
-     * @zh 复制目标 SkinningModel 的所有属性到本单元，方便快速配置。
+     * @en Convenient setter, copying all necessary information from target [[SkinnedMeshRenderer]] component.
+     * @zh 复制目标 [[SkinnedMeshRenderer]] 的所有属性到本单元，方便快速配置。
      */
-    @type(SkinningModel)
-    set copyFrom (comp: SkinningModel | null) {
+    @type(SkinnedMeshRenderer)
+    set copyFrom (comp: SkinnedMeshRenderer | null) {
         if (!comp) { return; }
         this.mesh = comp.mesh;
         this.skeleton = comp.skeleton;
@@ -126,15 +126,15 @@ const m4_1 = new Mat4();
 const v3_1 = new Vec3();
 
 /**
- * @en The Batched Skinning Model Component, batches multiple skeleton-sharing skinning models.
- * @zh 蒙皮模型合批组件，用于合并绘制共享同一骨骼资源的所有蒙皮模型。
+ * @en The skinned mesh batch renderer component, batches multiple skeleton-sharing [[SkinnedMeshRenderer]].
+ * @zh 蒙皮模型合批组件，用于合并绘制共享同一骨骼资源的所有蒙皮网格。
  */
-@ccclass('cc.BatchedSkinningModel')
-@help('i18n:cc.BatchedSkinningModel')
+@ccclass('cc.SkinnedMeshBatchRenderer')
+@help('i18n:cc.SkinnedMeshBatchRenderer')
 @executionOrder(100)
 @executeInEditMode
-@menu('Components/BatchedSkinningModel')
-export class BatchedSkinningModel extends SkinningModel {
+@menu('Components/SkinnedMeshBatchRenderer')
+export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
 
     /**
      * @en Size of the generated texture atlas.
@@ -160,10 +160,10 @@ export class BatchedSkinningModel extends SkinningModel {
      * @en Source skinning model components, containing all the data to be batched.
      * @zh 合批前的子蒙皮模型数组，最主要的数据来源。
      */
-    @type([SkinningModelUnit])
+    @type([SkinnedMeshUnit])
     @serializable
     @tooltip('i18n:batched_skinning_model.units')
-    public units: SkinningModelUnit[] = [];
+    public units: SkinnedMeshUnit[] = [];
 
     private _textures: Record<string, Texture2D> = {};
     private _batchMaterial: Material | null = null;
@@ -597,3 +597,5 @@ export class BatchedSkinningModel extends SkinningModel {
         return newMesh;
     }
 }
+
+export { SkinnedMeshBatchRenderer as BatchedSkinningModelComponent };

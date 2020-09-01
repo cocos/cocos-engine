@@ -5,15 +5,15 @@ module.exports = {
 
     help: {
         cc: {
-            Model: 'https://docs.cocos.com/creator3d/manual/zh/engine/renderable/model-component.html',
+            MeshRenderer: 'https://docs.cocos.com/creator3d/manual/zh/engine/renderable/model-component.html',
             UITransform: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/ui-transform.html',
             Sprite: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/sprite.html',
             SubContextView: 'https://docs.cocos.com/creator3d/manual/zh/editor/publish/publish-wechatgame-subcontext.html',
             BlockInputEvents: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/block-input-enents.html',
             Camera: 'https://docs.cocos.com/creator3d/manual/zh/editor/components/camera-component.html',
             Canvas: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/canvas.html',
-            SkinningModel: 'https://docs.cocos.com/creator3d/manual/zh/engine/animation/skeletal-animation.html',
-            BatchedSkinningModel: 'https://docs.cocos.com/creator3d/manual/zh/engine/animation/skeletal-animation.html',
+            SkinnedMeshRenderer: 'https://docs.cocos.com/creator3d/manual/zh/engine/animation/skeletal-animation.html',
+            SkinnedMeshBatchRenderer: 'https://docs.cocos.com/creator3d/manual/zh/engine/animation/skeletal-animation.html',
             DirectionalLight: 'https://docs.cocos.com/creator3d/manual/zh/concepts/scene/light/dir-light.html',
             SphereLight: 'https://docs.cocos.com/creator3d/manual/zh/concepts/scene/light/sphere-light.html',
             SpotLight: 'https://docs.cocos.com/creator3d/manual/zh/concepts/scene/light/spot-light.html',
@@ -38,7 +38,7 @@ module.exports = {
             Slider: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/slider.html',
             ToggleContainer: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/toggleContainer.html',
             Toggle: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/toggle.html',
-            UIModel: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/ui-model.html',
+            UIMeshRenderer: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/ui-model.html',
             Widget: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/widget.html',
             PageViewIndicator: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/pageviewindicator.html',
             PageView: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/pageview.html',

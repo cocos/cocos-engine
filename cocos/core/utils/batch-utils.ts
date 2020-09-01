@@ -1,9 +1,9 @@
-import { Model } from '../3d/framework/model-component';
+import { MeshRenderer } from '../3d/framework/mesh-renderer';
 import { Mesh } from '../assets/mesh';
 import { Mat4 } from '../math/mat4';
 import { Node } from '../scene-graph/node';
 
-function checkMaterialisSame (comp1: Model, comp2: Model): boolean {
+function checkMaterialisSame (comp1: MeshRenderer, comp2: MeshRenderer): boolean {
     const matNum = comp1.sharedMaterials.length;
     if (matNum !== comp2.sharedMaterials.length) {
         return false;
@@ -28,7 +28,7 @@ export class BatchingUtility {
      * @param batchedRoot the target output node
      */
     public static batchStaticModel (staticModelRoot: Node, batchedRoot: Node) {
-        const models = staticModelRoot.getComponentsInChildren('cc.Model') as Model[];
+        const models = staticModelRoot.getComponentsInChildren(MeshRenderer);
         if (models.length < 2) {
             console.error('the number of static models to batch is less than 2,it needn\'t batch.');
             return false;
@@ -55,7 +55,7 @@ export class BatchingUtility {
             batchedMesh.merge(models[i].mesh!, worldMat);
             comp.enabled = false;
         }
-        const batchedModel = batchedRoot.addComponent('cc.Model') as Model;
+        const batchedModel = batchedRoot.addComponent(MeshRenderer);
         batchedModel.mesh = batchedMesh;
         batchedModel.sharedMaterials = models[0].sharedMaterials;
         return true;
@@ -68,12 +68,12 @@ export class BatchingUtility {
      * @param batchedRoot the target output node
      */
     public static unbatchStaticModel (staticModelRoot: Node, batchedRoot: Node) {
-        const models = staticModelRoot.getComponentsInChildren(Model);
+        const models = staticModelRoot.getComponentsInChildren(MeshRenderer);
         for (let i = 0; i < models.length; i++) {
             const comp = models[i];
             comp.enabled = true;
         }
-        const batchedModel = batchedRoot.getComponent(Model);
+        const batchedModel = batchedRoot.getComponent(MeshRenderer);
         if (batchedModel) { batchedModel.destroy(); }
         return true;
     }
