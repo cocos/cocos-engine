@@ -41,9 +41,9 @@ export class RenderBatchedQueue {
      * @param cmdBuff The command buffer to store the result
      */
     public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
-        const it = this.queue.values(); let res = it.next();
+        // upload buffers
+        let it = this.queue.values(); let res = it.next();
         while (!res.done) {
-            let boundPSO = false;
             for (let b = 0; b < res.value.batches.length; ++b) {
                 const batch = res.value.batches[b];
                 if (!batch.mergeCount) { continue; }
@@ -52,10 +52,23 @@ export class RenderBatchedQueue {
                 }
                 batch.vbIdx.update(batch.vbIdxData.buffer);
                 batch.ubo.update(batch.uboData);
-                const shader = ShaderPool.get(batch.hShader);
-                const pso = PipelineStateManager.getOrCreatePipelineState(device, batch.hPass, shader, renderPass, batch.ia);
-                if (!boundPSO) { cmdBuff.bindPipelineState(pso); boundPSO = true; }
-                cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(batch.hPass, PassView.DESCRIPTOR_SET)));
+            }
+            res = it.next();
+        }
+        // draw
+        it = this.queue.values(); res = it.next();
+        while (!res.done) {
+            let boundPSO = false;
+            for (let b = 0; b < res.value.batches.length; ++b) {
+                const batch = res.value.batches[b];
+                if (!batch.mergeCount) { continue; }
+                if (!boundPSO) {
+                    const shader = ShaderPool.get(batch.hShader);
+                    const pso = PipelineStateManager.getOrCreatePipelineState(device, batch.hPass, shader, renderPass, batch.ia);
+                    cmdBuff.bindPipelineState(pso);
+                    cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(batch.hPass, PassView.DESCRIPTOR_SET)));
+                    boundPSO = true;
+                }
                 cmdBuff.bindDescriptorSet(SetIndex.LOCAL, batch.descriptorSet, res.value.dynamicOffsets);
                 cmdBuff.bindInputAssembler(batch.ia);
                 cmdBuff.draw(batch.ia);

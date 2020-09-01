@@ -146,14 +146,6 @@ export abstract class GFXInputAssembler extends GFXObject {
     }
 
     /**
-     * @en Is the assembler an indirect command?
-     * @zh 是否间接绘制。
-     */
-    get isIndirect (): boolean {
-        return this._isIndirect;
-    }
-
-    /**
      * @en Get the indirect buffer, if present.
      * @zh 间接绘制缓冲。
      */
@@ -183,7 +175,6 @@ export abstract class GFXInputAssembler extends GFXObject {
 
     protected _firstInstance: number = 0;
 
-    protected _isIndirect: boolean = false;
     protected _attributesHash: number = 0;
 
     protected _indirectBuffer: GFXBuffer | null = null;
