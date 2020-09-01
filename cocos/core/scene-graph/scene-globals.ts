@@ -173,6 +173,7 @@ export class SkyboxInfo {
 
     public activate (resource: Skybox) {
         this._resource = resource;
+        this._resource.activate(); // update global DS first
         this._resource.enabled = this._enabled;
         this._resource.isRGBE = this._isRGBE;
         this._resource.envmap = this._envmap;
