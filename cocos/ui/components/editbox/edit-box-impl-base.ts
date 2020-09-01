@@ -30,7 +30,7 @@
  * @hidden
  */
 
-import { EditBox } from './edit-box-component';
+import { EditBox } from './edit-box';
 
 export class EditBoxImplBase {
     public _editing = false;

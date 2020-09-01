@@ -4,7 +4,7 @@
 
 import { Billboard } from './billboard';
 import { Line } from './line';
-import { ParticleSystem } from './particle-system-component';
+import { ParticleSystem } from './particle-system';
 import { ParticleUtils } from './particle-utils';
 import './deprecated';
 import CurveRange from './animator/curve-range';

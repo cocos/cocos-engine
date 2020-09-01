@@ -38,7 +38,7 @@ import { screen, view } from '../../../core/platform';
 import { macro } from '../../../core/platform/macro';
 import { contains } from '../../../core/utils/misc';
 import { Label } from '../label';
-import { EditBox } from './edit-box-component';
+import { EditBox } from './edit-box';
 import { tabIndexUtil } from './tabIndexUtil';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { sys } from '../../../core/platform/sys';

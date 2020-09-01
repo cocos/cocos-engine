@@ -23,7 +23,7 @@ export class BatchingUtility {
      * and attach it to a new Model on `batchedRoot`.
      * The world transform of each model is guaranteed to be preserved.
      *
-     * For a more fine-grained controll over the process, use `Mesh.merge` directly.
+     * For a more fine-grained control over the process, use `Mesh.merge` directly.
      * @param staticModelRoot root of all the static models to be batched
      * @param batchedRoot the target output node
      */

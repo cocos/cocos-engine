@@ -10,7 +10,7 @@ import CurveRange from '../animator/curve-range';
 import { ArcMode, EmitLocation, ShapeType } from '../enum';
 import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFixedAngle, randomPointBetweenSphere,
     randomPointInCube, randomSign, randomSortArray, randomUnitVector } from '../particle-general-function';
-import { ParticleSystem } from '../particle-system-component';
+import { ParticleSystem } from '../particle-system';
 
 const _intermediVec = new Vec3(0, 0, 0);
 const _intermediArr = new Array();

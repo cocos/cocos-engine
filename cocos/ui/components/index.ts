@@ -3,7 +3,7 @@
  */
 
 export { Button } from './button';
-export { EditBox } from './editbox/edit-box-component';
+export { EditBox } from './editbox/edit-box';
 export * from './label';
 export { Layout } from './layout';
 export { Mask } from './mask';

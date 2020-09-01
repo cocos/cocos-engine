@@ -7,7 +7,7 @@ import { CCObject } from '../core/data/object';
 import { Director, director } from '../core/director';
 import { Pool } from '../core/memop';
 import { Node } from '../core/scene-graph';
-import { ParticleSystem } from './particle-system-component';
+import { ParticleSystem } from './particle-system';
 
 export class ParticleUtils {
 
