@@ -66,6 +66,7 @@ export class RenderShadowMapBatchedQueue {
                 this._shaderArray.length = 0;
                 this._passArray.length = 0;
                 this._instancedQueue.clear();
+                this._batchedQueue.clear();
             }
         }
     }
