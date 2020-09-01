@@ -3030,6 +3030,8 @@
         "cocos/scripting/js-bindings/manual/jsb_helper.h", 
         "cocos/scripting/js-bindings/manual/jsb_module_register.cpp", 
         "cocos/scripting/js-bindings/manual/jsb_module_register.h", 
+        "cocos/scripting/js-bindings/manual/jsb_pipeline_manual.cpp", 
+        "cocos/scripting/js-bindings/manual/jsb_pipeline_manual.h", 
         "cocos/scripting/js-bindings/manual/jsb_platform.h", 
         "cocos/scripting/js-bindings/manual/jsb_platform_android.cpp", 
         "cocos/scripting/js-bindings/manual/jsb_platfrom_apple.mm", 
