@@ -8,6 +8,9 @@ namespace cc {
 namespace pipeline {
 RenderView::RenderView() {
     _pipeline = RenderPipeline::getInstance();
+    
+    //TODO coulsong for test
+    _window = CC_NEW(RenderWindow);
 }
 
 RenderView::~RenderView() {
