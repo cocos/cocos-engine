@@ -336,14 +336,18 @@ export class PhysicsSystem extends System {
             this._subStepCount = 0;
             this._accumulator += deltaTime;
             director.emit(Director.EVENT_BEFORE_PHYSICS);
-            while (this._subStepCount < this._maxSubSteps && this._accumulator > this._fixedTimeStep) {
-                this.updateCollisionMatrix();
-                this.physicsWorld.syncSceneToPhysics();
-                this.physicsWorld.step(this._fixedTimeStep);
-                this.physicsWorld.emitEvents();
-                // TODO: nesting the dirty flag reset between the syncScenetoPhysics and the simulation to reduce calling syncScenetoPhysics.
-                this.physicsWorld.syncSceneToPhysics();
-                this._accumulator -= this._fixedTimeStep;
+            while (this._subStepCount < this._maxSubSteps) {
+                if (this._accumulator > this._fixedTimeStep) {
+                    this.updateCollisionMatrix();
+                    this.physicsWorld.syncSceneToPhysics();
+                    this.physicsWorld.step(this._fixedTimeStep);
+                    this.physicsWorld.emitEvents();
+                    // TODO: nesting the dirty flag reset between the syncScenetoPhysics and the simulation to reduce calling syncScenetoPhysics.
+                    this.physicsWorld.syncSceneToPhysics();
+                    this._accumulator -= this._fixedTimeStep;
+                } else {
+                    this.physicsWorld.syncSceneToPhysics();
+                }
                 this._subStepCount++;
             }
             director.emit(Director.EVENT_AFTER_PHYSICS);
