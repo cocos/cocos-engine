@@ -27,7 +27,7 @@
  * @category ui
  */
 
-import { ccclass, help, executionOrder, menu, executeInEditMode, requireComponent } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, executeInEditMode, requireComponent } from 'cc.decorator';
 import { Component } from '../../core/components';
 import { UITransformComponent } from '../../core/components/ui-base';
 import { view } from '../../core/platform';

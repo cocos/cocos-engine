@@ -27,7 +27,7 @@
  * @category component/light
  */
 
-import { ccclass, help, executeInEditMode, menu, property, tooltip, unit } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, unit, serializable } from 'cc.decorator';
 import { DirectionalLight } from '../../renderer/scene/directional-light';
 import { LightType } from '../../renderer/scene/light';
 import { LightComponent } from './light-component';
@@ -38,7 +38,7 @@ import { LightComponent } from './light-component';
 @executeInEditMode
 export class DirectionalLightComponent extends LightComponent {
 
-    @property
+    @serializable
     protected _illuminance = 65000;
 
     protected _type = LightType.DIRECTIONAL;

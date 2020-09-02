@@ -60,17 +60,14 @@ class Details {
     constructor () {
         /**
          * list of the depends assets' uuid
-         * @property {String[]} uuidList
          */
         this.uuidList = [];
         /**
          * the obj list whose field needs to load asset by uuid
-         * @property {Object[]} uuidObjList
          */
         this.uuidObjList = [];
         /**
          * the corresponding field name which referenced to the asset
-         * @property {String[]} uuidPropList
          */
         this.uuidPropList = [];
 

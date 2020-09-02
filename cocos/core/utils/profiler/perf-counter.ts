@@ -1,4 +1,4 @@
-import { ccclass } from '../../../core/data/class-decorator';
+import { ccclass } from 'cc.decorator';
 import { Counter, ICounterOption } from './counter';
 
 @ccclass('cc.PerfCounter')

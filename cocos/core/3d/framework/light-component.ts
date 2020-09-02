@@ -28,7 +28,7 @@
  */
 
 import { Component } from '../../components/component';
-import { ccclass, property, tooltip, range, slide, type } from '../../data/class-decorator';
+import { ccclass, tooltip, range, slide, type, serializable, editable } from 'cc.decorator';
 import { Color } from '../../math';
 import { Enum } from '../../value-types';
 
@@ -50,18 +50,18 @@ export const PhotometricTerm = Enum({
  */
 @ccclass('cc.StaticLightSettings')
 class StaticLightSettings {
-    @property
+    @serializable
     protected _editorOnly: boolean = false;
-    @property
+    @serializable
     protected _bakeable: boolean = false;
-    @property
+    @serializable
     protected _castShadow: boolean = false;
 
     /**
      * @en editor only.
      * @zh 是否只在编辑器里生效。
      */
-    @property
+    @editable
     get editorOnly () {
         return this._editorOnly;
     }
@@ -73,7 +73,7 @@ class StaticLightSettings {
      * @en bakeable.
      * @zh 是否可烘培。
      */
-    @property
+    @editable
     get bakeable () {
         return this._bakeable;
     }
@@ -86,7 +86,7 @@ class StaticLightSettings {
      * @en cast shadow.
      * @zh 是否投射阴影。
      */
-    @property
+    @editable
     get castShadow () {
         return this._castShadow;
     }
@@ -108,13 +108,13 @@ export class LightComponent extends Component {
     public static Type = LightType;
     public static PhotometricTerm = PhotometricTerm;
 
-    @property
+    @serializable
     protected _color = Color.WHITE.clone();
-    @property
+    @serializable
     protected _useColorTemperature = false;
-    @property
+    @serializable
     protected _colorTemperature = 6550;
-    @property
+    @serializable
     protected _staticSettings: StaticLightSettings = new StaticLightSettings();
 
     protected _type = LightType.UNKNOWN;
@@ -128,7 +128,6 @@ export class LightComponent extends Component {
      * 光源颜色。
      */
     @tooltip('i18n:lights.color')
-    // @constget
     get color (): Readonly<Color> {
         return this._color;
     }
@@ -162,7 +161,7 @@ export class LightComponent extends Component {
      * @zh
      * 光源色温。
      */
-    @slide(true)
+    @slide
     @range([1000, 15000, 1])
     @tooltip('i18n:lights.color_temperature')
     get colorTemperature () {

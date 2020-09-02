@@ -1,4 +1,4 @@
-import { IGFXDrawInfo } from '../buffer';
+import { GFXDrawInfo } from '../buffer';
 import {
     GFXDescriptorType,
     GFXBufferUsage,
@@ -44,7 +44,7 @@ export interface IWebGLGPUBuffer {
 
     buffer: ArrayBufferView | null;
     vf32: Float32Array | null;
-    indirects: IGFXDrawInfo[];
+    indirects: GFXDrawInfo[];
 }
 
 export interface IWebGLGPUTexture {

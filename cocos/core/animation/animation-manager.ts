@@ -3,7 +3,7 @@
  */
 
 import System from '../components/system';
-import { ccclass } from '../data/class-decorator';
+import { ccclass } from 'cc.decorator';
 import { director, Director } from '../director';
 import { errorID } from '../platform/debug';
 import { Node } from '../scene-graph';

@@ -7,9 +7,10 @@ import {
     help,
     executeInEditMode,
     menu,
-    property,
     type,
-} from '../../../../core/data/class-decorator';
+    editable,
+    serializable,
+} from 'cc.decorator';
 import { ColliderComponent } from './collider-component';
 import { Mesh } from '../../../../core';
 import { ITrimeshShape } from '../../../spec/i-physics-shape';
@@ -52,7 +53,7 @@ export class MeshColliderComponent extends ColliderComponent {
      * @zh
      * 获取或设置此碰撞体是否用凸形状代替网格.
      */
-    @property
+    @editable
     get convex () {
         return this._convex;
     }
@@ -73,10 +74,10 @@ export class MeshColliderComponent extends ColliderComponent {
 
     /// PRIVATE PROPERTY ///
 
-    @property
+    @serializable
     private _mesh: Mesh | null = null;
 
-    @property
+    @serializable
     private _convex: boolean = false;
 
     constructor () {

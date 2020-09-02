@@ -28,7 +28,8 @@
  */
 
 import { Component } from '../components/component';
-import { ccclass, property } from '../data/class-decorator';
+import { property } from '../data/decorators/property';
+import { ccclass, editable, serializable } from 'cc.decorator';
 import { CCObject } from '../data/object';
 import { Event } from '../event';
 import { errorID, warnID, error, log, assertID, getError } from '../platform/debug';
@@ -124,7 +125,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @en Name of node.
      * @zh 该节点名称。
      */
-    @property
+    @editable
     get name (): string {
         return this._name;
     }
@@ -141,7 +142,6 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @zh 主要用于编辑器的 uuid，在编辑器下可用于持久化存储，在项目构建之后将变成自增的 id。
      * @readOnly
      */
-    @property
     get uuid () {
         return this._id;
     }
@@ -151,7 +151,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @zh 节点的所有子节点。
      * @readOnly
      */
-    @property
+    @editable
     get children () {
         return this._children;
     }
@@ -168,7 +168,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * 如果你想检查节点在场景中实际的激活状态可以使用 [[activeInHierarchy]]
      * @default true
      */
-    @property
+    @editable
     get active () {
         return this._active;
     }
@@ -189,7 +189,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @en Indicates whether this node is active in the scene.
      * @zh 表示此节点是否在场景中激活。
      */
-    @property
+    @editable
     get activeInHierarchy () {
         return this._activeInHierarchy;
     }
@@ -198,7 +198,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @en The parent node
      * @zh 父节点
      */
-    @property
+    @editable
     get parent () {
         return this._parent;
     }
@@ -309,20 +309,20 @@ export class BaseNode extends CCObject implements ISchedulable {
         }
     }
 
-    @property
+    @serializable
     protected _parent: this | null = null;
 
-    @property
+    @serializable
     protected _children: this[] = [];
 
-    @property
+    @serializable
     protected _active = true;
 
-    @property
+    @serializable
     protected _components: Component[] = [];
 
     // The PrefabInfo object
-    @property
+    @serializable
     protected _prefab: any = null;
 
     protected _scene: any = NullScene;

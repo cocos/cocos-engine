@@ -28,7 +28,7 @@
  * @category material
  */
 
-import { ccclass, property, type } from '../../core/data/class-decorator';
+import { ccclass, type, serializable } from 'cc.decorator';
 import { builtinResMgr } from '../3d/builtin/init';
 import { RenderableComponent } from '../3d/framework/renderable-component';
 import { GFXTexture } from '../gfx/texture';
@@ -107,13 +107,13 @@ export class Material extends Asset {
 
     @type(EffectAsset)
     protected _effectAsset: EffectAsset | null = null;
-    @property
+    @serializable
     protected _techIdx = 0;
-    @property
+    @serializable
     protected _defines: MacroRecord[] = [];
-    @property
+    @serializable
     protected _states: PassOverrides[] = [];
-    @property
+    @serializable
     protected _props: Record<string, MaterialPropertyFull | MaterialPropertyFull[]>[] = [];
 
     protected _passes: Pass[] = [];

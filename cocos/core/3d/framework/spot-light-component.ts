@@ -27,7 +27,7 @@
  * @category component/light
  */
 
-import { ccclass, help, executeInEditMode, menu, property, tooltip, type, slide, range, unit } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, type, slide, range, unit, serializable } from 'cc.decorator';
 import { toRadian } from '../../math';
 import { LightType, nt2lm } from '../../renderer/scene/light';
 import { SpotLight } from '../../renderer/scene/spot-light';
@@ -39,15 +39,15 @@ import { LightComponent, PhotometricTerm } from './light-component';
 @executeInEditMode
 export class SpotLightComponent extends LightComponent {
 
-    @property
+    @serializable
     protected _size = 0.15;
-    @property
+    @serializable
     protected _luminance = 1700 / nt2lm(0.15);
-    @property
+    @serializable
     protected _term = PhotometricTerm.LUMINOUS_POWER;
-    @property
+    @serializable
     protected _range = 1;
-    @property
+    @serializable
     protected _spotAngle = 60;
 
     protected _type = LightType.SPOT;
@@ -130,7 +130,7 @@ export class SpotLightComponent extends LightComponent {
      * @zh
      * 聚光灯锥角。
      */
-    @slide(true)
+    @slide
     @range([2, 180, 1])
     @tooltip('The spot light cone angle')
     get spotAngle () {

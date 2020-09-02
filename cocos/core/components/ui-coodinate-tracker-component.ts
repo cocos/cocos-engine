@@ -30,7 +30,7 @@
 
 import { Component } from './component';
 import { EventHandler } from './component-event-handler';
-import { ccclass, help, property, menu, executionOrder, tooltip, type } from '../data/class-decorator';
+import { ccclass, help, menu, executionOrder, tooltip, type, serializable } from 'cc.decorator';
 import { Node } from '../scene-graph';
 import { convertUtils } from '../utils';
 import { CameraComponent } from '../3d';
@@ -122,16 +122,17 @@ export class UICoordinateTrackerComponent extends Component {
      * 映射数据事件。回调的第一个参数是映射后的本地坐标，第二个是距相机距离比。
      */
     @type([EventHandler])
+    @serializable
     @tooltip('映射数据事件。回调的第一个参数是映射后的本地坐标，第二个是距相机距离比')
     public syncEvents: EventHandler[] = [];
 
-    @property
+    @serializable
     protected _target: Node | null = null;
-    @property
+    @serializable
     protected _camera: CameraComponent | null = null;
-    @property
+    @serializable
     protected _useScale = true;
-    @property
+    @serializable
     protected _distance = 1;
 
     protected _transformPos = new Vec3();

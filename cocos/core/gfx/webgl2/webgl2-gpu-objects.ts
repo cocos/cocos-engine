@@ -1,4 +1,4 @@
-import { IGFXDrawInfo } from '../buffer';
+import { GFXDrawInfo } from '../buffer';
 import {
     GFXAddress,
     GFXDescriptorType,
@@ -40,7 +40,7 @@ export interface IWebGL2GPUBuffer {
     glOffset: number;
 
     buffer: ArrayBufferView | null;
-    indirects: IGFXDrawInfo[];
+    indirects: GFXDrawInfo[];
 }
 
 export interface IWebGL2GPUTexture {

@@ -31,7 +31,7 @@
 import { RenderableComponent } from '../../core/3d/framework/renderable-component';
 import { Material } from '../../core/assets';
 import { UIComponent } from '../../core/components/ui-base/ui-component';
-import { ccclass, help, executionOrder, menu } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu } from 'cc.decorator';
 import { director } from '../../core/director';
 import { RenderPriority } from '../../core/pipeline/define';
 import { UI } from '../../core/renderer/ui/ui';

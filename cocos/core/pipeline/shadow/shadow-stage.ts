@@ -2,7 +2,7 @@
  * @category pipeline.forward
  */
 
-import { ccclass } from '../../data/class-decorator';
+import { ccclass } from 'cc.decorator';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXColor, GFXRect } from '../../gfx/define';
 import { IRenderStageInfo, RenderStage } from '../render-stage';

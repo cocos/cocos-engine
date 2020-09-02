@@ -54,17 +54,8 @@ export interface IItem {
 }
 
 enum ItemState {
-    /**
-     * @property {Number} WORKING
-     */
     WORKING,
-    /**
-     * @property {Number} COMPLETE
-     */
     COMPLETE,
-    /**
-     * @property {Number} ERROR
-     */
     ERROR
 };
 

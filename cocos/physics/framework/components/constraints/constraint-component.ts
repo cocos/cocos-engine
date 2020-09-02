@@ -2,7 +2,7 @@
  * @category physics
  */
 
-import { ccclass, property, requireComponent, displayOrder, type, readOnly } from '../../../../core/data/class-decorator';
+import { ccclass, requireComponent, displayOrder, type, readOnly, serializable } from 'cc.decorator';
 import { Component } from '../../../../core';
 import { RigidBodyComponent } from '../rigid-body-component';
 import { Eventify } from '../../../../core/event';
@@ -18,7 +18,7 @@ export class ConstraintComponent extends Eventify(Component) {
     static readonly EConstraintType = EConstraintType;
 
     @type(RigidBodyComponent)
-    @readOnly(true)
+    @readOnly
     @displayOrder(-2)
     get attachedBody (): RigidBodyComponent | null {
         return this.getComponent(RigidBodyComponent);
@@ -53,7 +53,7 @@ export class ConstraintComponent extends Eventify(Component) {
 
     /// PROTECTED PROPERTY ///
 
-    @property
+    @serializable
     protected _enableCollision = true;
 
     @type(RigidBodyComponent)

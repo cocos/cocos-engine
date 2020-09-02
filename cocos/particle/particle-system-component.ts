@@ -8,7 +8,7 @@
 
 import { RenderableComponent } from '../core/3d/framework/renderable-component';
 import { Material } from '../core/assets/material';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property, tooltip, displayOrder, type, range, displayName, visible, formerlySerializedAs, override, radian } from '../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, visible, formerlySerializedAs, override, radian, serializable } from 'cc.decorator';
 import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
 import { Model } from '../core/renderer';
@@ -63,16 +63,18 @@ export class ParticleSystemComponent extends RenderableComponent {
      * @zh 粒子初始颜色。
      */
     @type(GradientRange)
+    @serializable
     @displayOrder(8)
     @tooltip('粒子初始颜色')
     public startColor = new GradientRange();
 
     @type(Space)
+    @serializable
     @displayOrder(9)
     @tooltip('选择缩放坐标系')
     public scaleSpace = Space.Local;
 
-    @property
+    @serializable
     @displayOrder(10)
     @tooltip('粒子初始大小')
     public startSize3D = false;
@@ -90,6 +92,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      * @zh 粒子初始大小。
      */
     @type(CurveRange)
+    @serializable
     @displayOrder(10)
     @tooltip('粒子初始大小')
     public startSizeY = new CurveRange();
@@ -98,6 +101,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      * @zh 粒子初始大小。
      */
     @type(CurveRange)
+    @serializable
     @displayOrder(10)
     @tooltip('粒子初始大小')
     public startSizeZ = new CurveRange();
@@ -106,12 +110,13 @@ export class ParticleSystemComponent extends RenderableComponent {
      * @zh 粒子初始速度。
      */
     @type(CurveRange)
+    @serializable
     @range([-1, 1])
     @displayOrder(11)
     @tooltip('粒子初始速度')
     public startSpeed = new CurveRange();
 
-    @property
+    @serializable
     @displayOrder(12)
     @tooltip('粒子初始旋转角度')
     public startRotation3D = false;
@@ -120,8 +125,9 @@ export class ParticleSystemComponent extends RenderableComponent {
      * @zh 粒子初始旋转角度。
      */
     @type(CurveRange)
+    @serializable
     @range([-1, 1])
-    @radian(true)
+    @radian
     @displayOrder(12)
     @tooltip('粒子初始旋转角度')
     public startRotationX = new CurveRange();
@@ -130,8 +136,9 @@ export class ParticleSystemComponent extends RenderableComponent {
      * @zh 粒子初始旋转角度。
      */
     @type(CurveRange)
+    @serializable
     @range([-1, 1])
-    @radian(true)
+    @radian
     @displayOrder(12)
     @tooltip('粒子初始旋转角度')
     public startRotationY = new CurveRange();
@@ -142,7 +149,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @type(CurveRange)
     @formerlySerializedAs('startRotation')
     @range([-1, 1])
-    @radian(true)
+    @radian
     @displayOrder(12)
     @tooltip('粒子初始旋转角度')
     public startRotationZ = new CurveRange();
@@ -151,6 +158,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      * @zh 粒子系统开始运行后，延迟粒子发射的时间。
      */
     @type(CurveRange)
+    @serializable
     @displayOrder(6)
     @tooltip('粒子系统开始运行后，延迟粒子发射的时间')
     public startDelay = new CurveRange();
@@ -159,6 +167,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      * @zh 粒子生命周期。
      */
     @type(CurveRange)
+    @serializable
     @displayOrder(7)
     @tooltip('粒子生命周期')
     public startLifetime = new CurveRange();
@@ -166,7 +175,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     /**
      * @zh 粒子系统运行时间。
      */
-    @property
+    @serializable
     @displayOrder(0)
     @tooltip('粒子系统运行时间')
     public duration = 5.0;
@@ -174,7 +183,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     /**
      * @zh 粒子系统是否循环播放。
      */
-    @property
+    @serializable
     @displayOrder(2)
     @tooltip('粒子系统是否循环播放')
     public loop = true;
@@ -199,6 +208,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      * @zh 选择粒子系统所在的坐标系[[Space]]。<br>
      */
     @type(Space)
+    @serializable
     @displayOrder(4)
     @tooltip('控制粒子坐标计算所在的坐标系')
     get simulationSpace () {
@@ -218,7 +228,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     /**
      * @zh 控制整个粒子系统的更新速度。
      */
-    @property
+    @serializable
     @displayOrder(5)
     @tooltip('控制整个粒子系统的更新速度')
     public simulationSpeed = 1.0;
@@ -226,7 +236,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     /**
      * @zh 粒子系统加载后是否自动开始播放。
      */
-    @property
+    @serializable
     @displayOrder(2)
     @tooltip('粒子系统加载后是否自动开始播放')
     public playOnAwake = true;
@@ -235,6 +245,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      * @zh 粒子受重力影响的重力系数。
      */
     @type(CurveRange)
+    @serializable
     @range([-1, 1])
     @displayOrder(13)
     @tooltip('粒子受重力影响的重力系数')
@@ -245,6 +256,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      * @zh 每秒发射的粒子数。
      */
     @type(CurveRange)
+    @serializable
     @displayOrder(14)
     @tooltip('每秒发射的粒子数')
     public rateOverTime = new CurveRange();
@@ -253,6 +265,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      * @zh 每移动单位距离发射的粒子数。
      */
     @type(CurveRange)
+    @serializable
     @displayOrder(15)
     @tooltip('每移动单位距离发射的粒子数')
     public rateOverDistance = new CurveRange();
@@ -261,12 +274,14 @@ export class ParticleSystemComponent extends RenderableComponent {
      * @zh 设定在指定时间发射指定数量的粒子的 burst 的数量。
      */
     @type([Burst])
+    @serializable
     @displayOrder(16)
     @tooltip('在某个时间点发射给定数量的粒子')
     public bursts: Burst[] = [];
 
-    @override(true)
+    @override
     @type(Material)
+    @serializable
     @displayName('Materials')
     @visible(false)
     get sharedMaterials () {
@@ -500,12 +515,13 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     // particle system renderer
     @type(ParticleSystemRenderer)
+    @serializable
     @displayOrder(26)
     @tooltip('渲染模块')
     public renderer: ParticleSystemRenderer = new ParticleSystemRenderer();
 
     // serilized culling
-    @property
+    @serializable
     @displayOrder(27)
     @tooltip('是否剔除非 enable 的模块数据')
     public enableCulling: boolean = false;
@@ -529,13 +545,13 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     private _subEmitters: any[]; // array of { emitter: ParticleSystemComponent, type: 'birth', 'collision' or 'death'}
 
-    @property
+    @serializable
     private _prewarm = false;
 
-    @property
+    @serializable
     private _capacity = 100;
 
-    @property
+    @serializable
     private _simulationSpace = Space.Local;
 
     public processor: IParticleSystemRenderer = null!;

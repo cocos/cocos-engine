@@ -28,7 +28,7 @@
  */
 
 import { Component } from '../core/components/component';
-import { ccclass, help, menu, property, tooltip, type, range } from '../core/data/class-decorator';
+import { ccclass, help, menu, tooltip, type, range, serializable } from 'cc.decorator';
 import { clamp } from '../core/math';
 import { AudioClip } from './assets/clip';
 
@@ -45,11 +45,11 @@ import { AudioClip } from './assets/clip';
 export class AudioSourceComponent extends Component {
     @type(AudioClip)
     protected _clip: AudioClip | null = null;
-    @property
+    @serializable
     protected _loop = false;
-    @property
+    @serializable
     protected _playOnAwake = true;
-    @property
+    @serializable
     protected _volume = 1;
 
     private _cachedCurrentTime = 0;
@@ -112,7 +112,6 @@ export class AudioSourceComponent extends Component {
      * 音频的音量（大小范围为 0.0 到 1.0）。<br>
      * 请注意，在某些平台上，音量控制可能不起效。<br>
      */
-    @property
     @range([0.0, 1.0])
     @tooltip('i18n:audio.volume')
     set volume (val) {

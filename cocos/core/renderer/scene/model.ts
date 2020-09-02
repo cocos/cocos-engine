@@ -174,7 +174,7 @@ export class Model {
     }
 
     public updateTransform (stamp: number) {
-        const node = this.transform!;
+        const node = this.transform;
         // @ts-ignore TS2445
         if (node.hasChangedFlags || node._dirtyFlags) {
             node.updateWorldTransform();
@@ -284,11 +284,7 @@ export class Model {
         if (!subModel) { return; }
 
         this._initLocalDescriptors(subModelIndex);
-        const subModels = this._subModels;
-        for (let i = 0; i < subModels.length; i++) {
-            const ds = subModels[i].descriptorSet;
-            this._updateLocalDescriptors(i, ds);
-        }
+        this._updateLocalDescriptors(subModelIndex, subModel.descriptorSet);
 
         const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0));
         this._updateInstancedAttributes(shader.attributes, subModel.passes[0]);

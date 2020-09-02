@@ -27,7 +27,7 @@
  * @category ui
  */
 
-import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, menu } from '../../core/data/class-decorator';
+import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, menu } from 'cc.decorator';
 import { UIComponent } from '../../core/components/ui-base/ui-component';
 import { legacyCC } from '../../core/global-exports';
 

@@ -29,7 +29,7 @@
  */
 
 import { Component } from '../../core/components/component';
-import { ccclass, help, executionOrder, menu, property, tooltip, requireComponent, executeInEditMode } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, tooltip, requireComponent, executeInEditMode, serializable } from 'cc.decorator';
 import { Color } from '../../core/math';
 import { LabelComponent } from './label-component';
 import { legacyCC } from '../../core/global-exports';
@@ -58,9 +58,9 @@ import { legacyCC } from '../../core/global-exports';
 @requireComponent(LabelComponent)
 @executeInEditMode
 export class LabelOutlineComponent extends Component {
-    @property
+    @serializable
     protected _color = new Color(0, 0, 0, 255);
-    @property
+    @serializable
     protected _width = 2;
 
     /**

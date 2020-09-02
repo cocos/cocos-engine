@@ -28,7 +28,7 @@
  * @category asset
  */
 
-import {ccclass} from '../data/class-decorator';
+import {ccclass} from 'cc.decorator';
 import { Asset } from './asset';
 import { legacyCC } from '../global-exports';
 

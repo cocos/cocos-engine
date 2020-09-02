@@ -28,7 +28,7 @@
  */
 
 import { EventHandler as ComponentEventHandler } from '../../core/components';
-import { ccclass, help, executionOrder, menu, property, tooltip, type, slide, range, visible, override } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, tooltip, type, slide, range, visible, override, serializable, editable } from 'cc.decorator';
 import { EventTouch, SystemEventType } from '../../core/platform';
 import { Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
@@ -159,7 +159,7 @@ export class PageViewComponent extends ScrollViewComponent {
      * @zh
      * 滚动临界值，默认单位百分比，当拖拽超出该数值时，松开会自动滚动下一页，小于时则还原。
      */
-    @slide(true)
+    @slide
     @range([0, 1, 0.01])
     @tooltip('滚动临界值，默认单位百分比，当拖拽超出该数值时，松开会自动滚动下一页，小于时则还原')
     get scrollThreshold() {
@@ -181,7 +181,7 @@ export class PageViewComponent extends ScrollViewComponent {
      * @zh
      * 设置 PageView PageTurning 事件的发送时机。
      */
-    @slide(true)
+    @slide
     @range([0, 1, 0.01])
     @tooltip('设置 PageView PageTurning 事件的发送时机')
     get pageTurningEventTiming () {
@@ -239,12 +239,12 @@ export class PageViewComponent extends ScrollViewComponent {
      * 当用户快速滑动时，会根据滑动开始和结束的距离与时间计算出一个速度值，
      * 该值与此临界值相比较，如果大于临界值，则进行自动翻页。
      */
-    @property
+    @serializable
     @tooltip('快速滑动翻页临界值\n当用户快速滑动时，会根据滑动开始和结束的距离与时间计算出一个速度值\n该值与此临界值相比较，如果大于临界值，则进行自动翻页')
     public autoPageTurningThreshold = 100;
 
     @type(ScrollBarComponent)
-    @override(true)
+    @override
     @visible(false)
     get verticalScrollBar () {
         return super.verticalScrollBar;
@@ -255,7 +255,7 @@ export class PageViewComponent extends ScrollViewComponent {
     }
 
     @type(ScrollBarComponent)
-    @override(true)
+    @override
     @visible(false)
     get horizontalScrollBar () {
         return super.horizontalScrollBar;
@@ -265,32 +265,33 @@ export class PageViewComponent extends ScrollViewComponent {
         super.horizontalScrollBar = value;
     }
 
-    @property
-    @override(true)
+    @override
+    @serializable
     @visible(false)
     public horizontal = true;
 
-    @property
-    @override(true)
+    @override
+    @serializable
     @visible(false)
     public vertical = true;
 
-    @property
-    @override(true)
+    @override
+    @serializable
     @visible(false)
     public cancelInnerEvents = true;
 
     @type([ComponentEventHandler])
-    @override(true)
+    @serializable
+    @override
     @visible(false)
     public scrollEvents: ComponentEventHandler[] = [];
 
     /**
      * @en The time required to turn over a page. unit: second
      * @zh 每个页面翻页时所需时间。单位：秒
-     * @property {Number} pageTurningSpeed
      */
-    @property
+    @serializable
+    @editable
     public pageTurningSpeed = 0.3;
 
     /**
@@ -298,18 +299,19 @@ export class PageViewComponent extends ScrollViewComponent {
      * @zh 滚动视图的事件回调函数
      */
     @type([ComponentEventHandler])
+    @serializable
     @tooltip('滚动视图的事件回调函数')
     public pageEvents: ComponentEventHandler[] = [];
 
-    @property
+    @serializable
     protected _sizeMode = SizeMode.Unified;
-    @property
+    @serializable
     protected _direction = Direction.Horizontal;
-    @property
+    @serializable
     protected _scrollThreshold = 0.5;
-    @property
+    @serializable
     protected _pageTurningEventTiming = 0.1;
-    @property
+    @serializable
     protected _indicator: PageViewIndicatorComponent | null = null;
 
     protected _curPageIdx = 0;

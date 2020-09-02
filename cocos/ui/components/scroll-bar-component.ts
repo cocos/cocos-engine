@@ -29,7 +29,7 @@
  */
 
 import { Component, UITransformComponent } from '../../core/components';
-import { ccclass, help, executionOrder, menu, property, requireComponent, tooltip, displayOrder, type } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { Color, Size, Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp01 } from '../../core/math/utils';
@@ -181,15 +181,15 @@ export class ScrollBarComponent extends Component {
     }
 
     public static Direction = Direction;
-    @property
+    @serializable
     protected _scrollView: ScrollViewComponent | null = null;
-    @property
+    @serializable
     protected _handle: SpriteComponent | null = null;
-    @property
+    @serializable
     protected _direction = Direction.HORIZONTAL;
-    @property
+    @serializable
     protected _enableAutoHide = false;
-    @property
+    @serializable
     protected _autoHideTime = 1.0;
 
     protected _touching = false;

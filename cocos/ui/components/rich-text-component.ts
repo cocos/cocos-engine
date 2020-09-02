@@ -29,7 +29,7 @@
  */
 
 import { Font, SpriteAtlas, TTFFont } from '../../core/assets';
-import { ccclass, executeInEditMode, executionOrder, help, menu, property, tooltip, multiline, type } from '../../core/data/class-decorator';
+import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, serializable } from 'cc.decorator';
 import { assert, EventTouch, warnID } from '../../core/platform';
 import { BASELINE_RATIO, fragmentText, HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack, isUnicodeCJK, isUnicodeSpace } from '../../core/utils';
 import Pool from '../../core/utils/pool';
@@ -145,7 +145,7 @@ export class RichTextComponent extends UIComponent {
      * @zh
      * 富文本显示的文本内容。
      */
-    @multiline(true)
+    @multiline
     @tooltip('富文本显示的文本内容')
     get string () {
         return this._string;
@@ -397,30 +397,30 @@ export class RichTextComponent extends UIComponent {
     public static HorizontalAlign = HorizontalTextAlignment;
     public static VerticalAlign = VerticalTextAlignment;
 
-    @property
+    @serializable
     protected _lineHeight = 40;
-    @property
+    @serializable
     protected _string = '<color=#00ff00>Rich</color><color=#0fffff>Text</color>';
     // protected _updateRichTextStatus =
-    @property
+    @serializable
     protected _horizontalAlign = HorizontalTextAlignment.LEFT;
-    @property
+    @serializable
     protected _fontSize = 40;
-    @property
+    @serializable
     protected _maxWidth = 0;
-    @property
+    @serializable
     protected _fontFamily: string = 'Arial';
-    @property
+    @serializable
     protected _font: TTFFont | null = null;
-    @property
+    @serializable
     protected _isSystemFontUsed: boolean = true;
-    @property
+    @serializable
     protected _userDefinedFont: TTFFont | null = null;
-    @property
+    @serializable
     protected _cacheMode: CacheMode = CacheMode.NONE;
-    @property
+    @serializable
     protected _imageAtlas: SpriteAtlas | null = null;
-    @property
+    @serializable
     protected _handleTouchEvent = true;
 
     protected _textArray: IHtmlTextParserResultObj[] = [];

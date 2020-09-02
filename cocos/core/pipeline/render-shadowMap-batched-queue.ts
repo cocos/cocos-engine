@@ -9,14 +9,12 @@ import { IRenderObject, SetIndex, UBOShadow } from './define';
 import { GFXDevice, GFXDescriptorSet, GFXRenderPass, GFXBuffer, GFXShader, GFXMemoryUsageBit, GFXBufferUsageBit } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { DSPool, ShaderPool, PassHandle, PassPool, PassView, SubModelPool,
-    SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
-import { Mat4, Vec4, Color} from '../math';
-import { ForwardPipeline } from './forward/forward-pipeline';
-import { intersect } from '../geometry';
+import { DSPool, ShaderPool, PassHandle, PassPool, PassView, SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
 import { RenderInstancedQueue } from './render-instanced-queue';
+import { BatchingSchemes } from '../renderer/core/pass';
 import { InstancedBuffer } from './instanced-buffer';
-
+import { RenderBatchedQueue } from './render-batched-queue';
+import { BatchedBuffer } from './batched-buffer';
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
 const vec4 = new Vec4();
@@ -43,7 +41,7 @@ export class RenderShadowMapBatchedQueue {
     private _passArray: PassHandle[] = [];
     private _shaderArray: GFXShader[] = [];
     private _shadowMapBuffer: GFXBuffer;
-
+    private _phaseID = getPhaseID('shadow-add');
     // changes
     private _device: GFXDevice;
     private _shadowInfo: Shadows;
@@ -100,6 +98,8 @@ export class RenderShadowMapBatchedQueue {
         this._subModelsArray.length = 0;
         this._shaderArray.length = 0;
         this._passArray.length = 0;
+        this._instancedQueue.clear();
+        this._batchedQueue.clear();
     }
 
     /**
@@ -108,6 +108,8 @@ export class RenderShadowMapBatchedQueue {
      */
     public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+        this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+
         for (let i = 0; i < this._subModelsArray.length; ++i) {
             const subModel = this._subModelsArray[i];
             const shader = this._shaderArray[i];

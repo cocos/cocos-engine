@@ -28,7 +28,7 @@
  */
 
 import { Component } from '../components/component';
-import { ccclass, executeInEditMode, executionOrder, help, menu, property, tooltip, type } from '../data/class-decorator';
+import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type, serializable } from 'cc.decorator';
 import { Eventify } from '../event/eventify';
 import { warnID } from '../platform/debug';
 import * as ArrayUtils from '../utils/array';
@@ -137,7 +137,7 @@ export class AnimationComponent extends Eventify(Component) {
      * 是否在组件开始运行时自动播放默认剪辑。
      * 注意，若在组件开始运行前调用了 `crossFade` 或 `play()`，此字段将不会生效。
      */
-    @property
+    @serializable
     @tooltip('是否在动画组件开始运行时自动播放默认动画剪辑')
     public playOnLoad = false;
 
@@ -148,7 +148,7 @@ export class AnimationComponent extends Eventify(Component) {
     @type([AnimationClip])
     protected _clips: (AnimationClip | null)[] = [];
 
-    @property
+    @serializable
     protected _defaultClip: AnimationClip | null = null;
 
     /**

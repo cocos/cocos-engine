@@ -29,7 +29,7 @@
  */
 
 import { Component, UITransformComponent} from '../../core/components';
-import { ccclass, help, executionOrder, menu, property, requireComponent, tooltip, type, range, slide } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, requireComponent, tooltip, type, range, slide, serializable } from 'cc.decorator';
 import { Size, Vec2, Vec3 } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { clamp01 } from '../../core/math/utils';
@@ -189,7 +189,7 @@ export class ProgressBarComponent extends Component {
      * 当前进度值，该数值的区间是 0-1 之间。
      */
     @range([0, 1, 0.1])
-    @slide(true)
+    @slide
     @tooltip('当前进度指示，范围从 0 到 1')
     get progress () {
         return this._progress;
@@ -229,15 +229,15 @@ export class ProgressBarComponent extends Component {
     }
 
     public static Mode = Mode;
-    @property
+    @serializable
     protected _barSprite: SpriteComponent | null = null;
-    @property
+    @serializable
     protected _mode = Mode.HORIZONTAL;
-    @property
+    @serializable
     protected _totalLength = 1;
-    @property
+    @serializable
     protected _progress = 0.1;
-    @property
+    @serializable
     protected _reverse = false;
 
     protected _initBarSprite () {

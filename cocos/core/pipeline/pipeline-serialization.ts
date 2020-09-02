@@ -3,7 +3,7 @@
  */
 
 import { CCString } from '../data';
-import { ccclass, property, type } from '../data/class-decorator';
+import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { GFXFormat, GFXLoadOp, GFXStoreOp, GFXTextureLayout, GFXTextureType, GFXTextureUsageBit} from '../gfx/define';
 import { ccenum } from '../value-types/enum';
 import { RenderTexture } from './../assets/render-texture';
@@ -29,7 +29,8 @@ ccenum(RenderFlowTag);
 
 @ccclass('RenderTextureDesc')
 export class RenderTextureDesc {
-    @property
+    @serializable
+    @editable
     public name: string = '';
     @type(GFXTextureType)
     public type: GFXTextureType = GFXTextureType.TEX2D;
@@ -37,15 +38,18 @@ export class RenderTextureDesc {
     public usage: GFXTextureUsageBit = GFXTextureUsageBit.COLOR_ATTACHMENT;
     @type(GFXFormat)
     public format: GFXFormat = GFXFormat.UNKNOWN;
-    @property
+    @serializable
+    @editable
     public width: number = -1;
-    @property
+    @serializable
+    @editable
     public height: number = -1;
 }
 
 @ccclass('RenderTextureConfig')
 export class RenderTextureConfig {
-    @property
+    @serializable
+    @editable
     public name: string = '';
     @type(RenderTexture)
     public texture: RenderTexture | null = null;
@@ -53,7 +57,8 @@ export class RenderTextureConfig {
 
 @ccclass('MaterialConfig')
 export class MaterialConfig {
-    @property
+    @serializable
+    @editable
     public name: string = '';
     @type(Material)
     public material: Material | null = null;
@@ -61,13 +66,16 @@ export class MaterialConfig {
 
 @ccclass('FrameBufferDesc')
 export class FrameBufferDesc {
-    @property
+    @serializable
+    @editable
     public name: string = '';
-    @property
+    @serializable
+    @editable
     public renderPass: number = 0;
     @type([CCString])
     public colorTextures: string[] = [];
-    @property
+    @serializable
+    @editable
     public depthStencilTexture: string = '';
     @type(RenderTexture)
     public texture: RenderTexture | null = null;
@@ -81,7 +89,8 @@ export class ColorDesc {
     public loadOp: GFXLoadOp = GFXLoadOp.CLEAR;
     @type(GFXStoreOp)
     public storeOp: GFXStoreOp = GFXStoreOp.STORE;
-    @property
+    @serializable
+    @editable
     public sampleCount: number = 1;
     @type(GFXTextureLayout)
     public beginLayout: GFXTextureLayout = GFXTextureLayout.UNDEFINED;
@@ -101,7 +110,8 @@ export class DepthStencilDesc {
     public stencilLoadOp: GFXLoadOp = GFXLoadOp.CLEAR;
     @type(GFXStoreOp)
     public stencilStoreOp: GFXStoreOp = GFXStoreOp.STORE;
-    @property
+    @serializable
+    @editable
     public sampleCount: number = 1;
     @type(GFXTextureLayout)
     public beginLayout: GFXTextureLayout = GFXTextureLayout.UNDEFINED;
@@ -111,7 +121,8 @@ export class DepthStencilDesc {
 
 @ccclass('RenderPassDesc')
 export class RenderPassDesc {
-    @property
+    @serializable
+    @editable
     public index: number = -1;
     @type([ColorDesc])
     public colorAttachments = [];
@@ -137,7 +148,8 @@ export class RenderQueueDesc {
      * @en Whether the render queue is a transparent queue
      * @zh 当前队列是否是半透明队列
      */
-    @property
+    @serializable
+    @editable
     public isTransparent: boolean = false;
 
     /**

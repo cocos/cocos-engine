@@ -29,7 +29,7 @@
  */
 
 import { Component, EventHandler, UITransformComponent } from '../../core/components';
-import { ccclass, help, executionOrder, menu, property, requireComponent, tooltip, type, slide, range } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, requireComponent, tooltip, type, slide, range, serializable } from 'cc.decorator';
 import { EventTouch, SystemEventType, Touch } from '../../core/platform';
 import { Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
@@ -134,7 +134,7 @@ export class SliderComponent extends Component {
      * @zh
      * 当前进度值，该数值的区间是 0-1 之间。
      */
-    @slide(true)
+    @slide
     @range([0, 1, 0.01])
     @tooltip('当前进度值，该数值的区间是 0 - 1 之间。')
     get progress () {
@@ -160,13 +160,14 @@ export class SliderComponent extends Component {
      * 滑动器组件事件回调函数。
      */
     @type([EventHandler])
+    @serializable
     @tooltip('滑动器组件事件回调函数')
     public slideEvents: EventHandler[] = [];
-    @property
+    @serializable
     private _handle: SpriteComponent | null = null;
-    @property
+    @serializable
     private _direction = Direction.Horizontal;
-    @property
+    @serializable
     private _progress = 0.1;
 
     private _offset: Vec3 = new Vec3();

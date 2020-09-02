@@ -30,7 +30,7 @@
  * @category asset
  */
 
-import { ccclass } from '../data/class-decorator';
+import { ccclass } from 'cc.decorator';
 import { Rect, Size, Vec2 } from '../math';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';

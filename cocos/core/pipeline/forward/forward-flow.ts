@@ -2,7 +2,7 @@
  * @category pipeline
  */
 
-import { ccclass } from '../../data/class-decorator';
+import { ccclass } from 'cc.decorator';
 import { PIPELINE_FLOW_FORWARD } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';

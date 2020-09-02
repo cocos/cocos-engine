@@ -32,7 +32,7 @@ import { math, UITransformComponent } from '../../../core';
 import { SpriteFrame } from '../../../core/assets/sprite-frame';
 import { Component } from '../../../core/components/component';
 import { EventHandler as ComponentEventHandler } from '../../../core/components/component-event-handler';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property, requireComponent, tooltip, displayOrder, type } from '../../../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { Color, Size, Vec3 } from '../../../core/math';
 import { EventTouch } from '../../../core/platform';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
@@ -324,6 +324,7 @@ export class EditBoxComponent extends Component {
      * 编辑文本输入框时触发的事件回调。
      */
     @type([ComponentEventHandler])
+    @serializable
     @displayOrder(12)
     @tooltip('编辑文本输入框时触发的事件回调')
     public textChanged: ComponentEventHandler[] = [];
@@ -336,6 +337,7 @@ export class EditBoxComponent extends Component {
      * 结束编辑文本输入框时触发的事件回调。
      */
     @type([ComponentEventHandler])
+    @serializable
     @displayOrder(13)
     @tooltip('在单行模式下面，一般是在用户按下回车或者点击屏幕输入框以外的地方调用该函数。 如果是多行输入，一般是在用户点击屏幕输入框以外的地方调用该函数')
     public editingDidEnded: ComponentEventHandler[] = [];
@@ -348,6 +350,7 @@ export class EditBoxComponent extends Component {
      * 当用户按下回车按键时的事件回调，目前不支持 windows 平台
      */
     @type([ComponentEventHandler])
+    @serializable
     @displayOrder(14)
     @tooltip('该事件在用户按下回车键的时候被触发, 如果是单行输入框，按回车键还会使输入框失去焦点')
     public editingReturn: ComponentEventHandler[] = [];
@@ -355,25 +358,25 @@ export class EditBoxComponent extends Component {
     public _impl: EditBoxImplBase | null = null;
     public _background: SpriteComponent | null = null;
 
-    @property
+    @serializable
     protected _textLabel: LabelComponent | null = null;
-    @property
+    @serializable
     protected _placeholderLabel: LabelComponent | null = null;
-    @property
+    @serializable
     protected  _returnType = KeyboardReturnType.DEFAULT;
-    @property
+    @serializable
     protected  _useOriginalSize = true;
-    @property
+    @serializable
     protected  _string = '';
-    @property
+    @serializable
     protected  _tabIndex = 0;
-    @property
+    @serializable
     protected  _backgroundImage: SpriteFrame | null = null;
-    @property
+    @serializable
     protected  _inputFlag = InputFlag.DEFAULT;
-    @property
+    @serializable
     protected  _inputMode = InputMode.ANY;
-    @property
+    @serializable
     protected  _maxLength = 20;
 
     private _isLabelVisible = false;
