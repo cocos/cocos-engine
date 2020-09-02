@@ -46,7 +46,7 @@ export {
 
     PhysicMaterial,
 
-    ConstantForce
+    ConstantForce,
 };
 
 import { legacyCC } from '../../core/global-exports';
@@ -65,4 +65,4 @@ legacyCC.ConstantForce = ConstantForce;
 export * from './physics-interface';
 export { EAxisDirection, ERigidBodyType } from './physics-enum';
 
-import './deprecated';
+export * from './deprecated';

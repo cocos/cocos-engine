@@ -691,5 +691,3 @@ export class RigidBody extends Component {
 export namespace RigidBody {
     export type ERigidBodyType = EnumAlias<typeof ERigidBodyType>;
 }
-
-export { RigidBody as RigidBodyComponent };

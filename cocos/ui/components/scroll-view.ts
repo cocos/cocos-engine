@@ -1783,8 +1783,6 @@ export class ScrollView extends ViewGroup {
 
 legacyCC.ScrollView = ScrollView;
 
-export { ScrollView as ScrollViewComponent };
-
 /**
  * @en
  * Note: This event is emitted from the node to which the component belongs.

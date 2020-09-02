@@ -414,6 +414,4 @@ export class Canvas extends Component {
     }
 }
 
-export { Canvas as CanvasComponent }
-
 legacyCC.Canvas = Canvas;

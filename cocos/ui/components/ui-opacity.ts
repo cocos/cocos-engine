@@ -52,5 +52,3 @@ export class UIOpacity extends Component {
         this.node._uiProps.opacity = 1;
     }
 }
-
-export { UIOpacity as UIOpacityComponent };

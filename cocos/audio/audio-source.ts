@@ -262,5 +262,3 @@ export class AudioSource extends Component {
         return this.state === AudioClip.PlayingState.PLAYING;
     }
 }
-
-export { AudioSource as AudioSourceComponent };

@@ -818,5 +818,3 @@ export class Label extends UIRenderable {
 }
 
 legacyCC.Label = Label;
-
-export { Label as LabelComponent };

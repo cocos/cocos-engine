@@ -235,5 +235,3 @@ export class Line extends Component {
         }
     }
 }
-
-export { Line as LineComponent };

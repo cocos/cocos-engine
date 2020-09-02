@@ -723,8 +723,6 @@ if (sys.isBrowser){
 
 legacyCC.EditBox = EditBox;
 
-export { EditBox as EditBoxComponent };
-
 /**
  * @en
  * Note: This event is emitted from the node to which the component belongs.

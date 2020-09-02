@@ -171,5 +171,3 @@ export class Billboard extends Component {
         this._model!.initSubModel(0, this._mesh.renderingSubMeshes[0], this._material!);
     }
 }
-
-export { Billboard as BillboardComponent };

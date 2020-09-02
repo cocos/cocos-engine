@@ -162,5 +162,3 @@ export class CapsuleCollider extends Collider {
             return Math.abs(ws.z);
     }
 }
-
-export { CapsuleCollider as CapsuleColliderComponent };

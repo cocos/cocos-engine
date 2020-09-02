@@ -264,5 +264,3 @@ export class PageViewIndicator extends Component {
 }
 
 legacyCC.PageViewIndicator = PageViewIndicator;
-
-export { PageViewIndicator as PageViewIndicatorComponent };

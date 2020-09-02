@@ -221,5 +221,3 @@ export class SkeletalAnimation extends Animation {
 }
 
 legacyCC.SkeletalAnimation = SkeletalAnimation;
-
-export { SkeletalAnimation as SkeletalAnimationComponent };

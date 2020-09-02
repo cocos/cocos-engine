@@ -174,5 +174,3 @@ export class UICoordinateTracker extends Component {
         this._canMove = !!(this._camera && this._target);
     }
 }
-
-export { UICoordinateTracker as UICoordinateTrackerComponent };

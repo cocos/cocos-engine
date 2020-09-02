@@ -132,5 +132,3 @@ export class SphereLight extends Light {
         this.range = this._range;
     }
 }
-
-export { SphereLight as SphereLightComponent };

@@ -84,5 +84,3 @@ export class MeshCollider extends Collider {
         super(EColliderType.MESH);
     }
 }
-
-export { MeshCollider as MeshColliderComponent };

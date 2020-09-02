@@ -123,5 +123,3 @@ export class SafeArea extends Component {
 }
 
 legacyCC.SafeArea = SafeArea;
-
-export { SafeArea as SafeAreaComponent };

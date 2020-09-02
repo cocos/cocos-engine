@@ -1115,5 +1115,3 @@ export class RichText extends UIComponent {
 }
 
 legacyCC.RichText = RichText;
-
-export { RichText as RichTextComponent };

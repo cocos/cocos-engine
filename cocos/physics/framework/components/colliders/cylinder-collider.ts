@@ -108,5 +108,3 @@ export class CylinderCollider extends Collider {
         super(EColliderType.CYLINDER);
     }
 }
-
-export { CylinderCollider as CylinderColliderComponent };

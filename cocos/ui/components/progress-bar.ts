@@ -345,5 +345,3 @@ export class ProgressBar extends Component {
 }
 
 legacyCC.ProgressBar = ProgressBar;
-
-export { ProgressBar as ProgressBarComponent };

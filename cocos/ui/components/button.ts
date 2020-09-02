@@ -842,8 +842,6 @@ export class Button extends Component {
 
 }
 
-export { Button as ButtonComponent };
-
 legacyCC.Button = Button;
 
 /**

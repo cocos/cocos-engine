@@ -68,5 +68,3 @@ export class BoxCollider extends Collider {
         super(EColliderType.BOX);
     }
 }
-
-export { BoxCollider as BoxColliderComponent };

@@ -475,8 +475,6 @@ export namespace Collider {
     export type EAxisDirection = EnumAlias<typeof EAxisDirection>;
 }
 
-export { Collider as ColliderComponent };
-
 function findAttachedBody (node: Node): RigidBody | null {
     const rb = node.getComponent(RigidBody);
     if (rb && rb.isValid) {

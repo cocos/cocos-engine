@@ -632,5 +632,3 @@ export class Camera extends Component {
         }
     }
 }
-
-export { Camera as CameraComponent };

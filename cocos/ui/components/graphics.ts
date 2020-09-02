@@ -599,5 +599,3 @@ export class Graphics extends UIRenderable {
 }
 
 legacyCC.Graphics = Graphics;
-
-export { Graphics as GraphicsComponent };

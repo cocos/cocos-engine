@@ -144,5 +144,3 @@ export class UIMeshRenderer extends UIComponent {
 }
 
 legacyCC.UIMeshRenderer = UIMeshRenderer;
-
-export { UIMeshRenderer as UIModelComponent };

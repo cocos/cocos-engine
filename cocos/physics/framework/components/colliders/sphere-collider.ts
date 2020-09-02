@@ -66,5 +66,3 @@ export class SphereCollider extends Collider {
         super(EColliderType.SPHERE);
     }
 }
-
-export { SphereCollider as SphereColliderComponent };

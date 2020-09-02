@@ -25,5 +25,7 @@ export { PageViewIndicator } from './page-view-indicator';
 export { UIStaticBatch } from './ui-static-batch';
 export { UIOpacity } from './ui-opacity';
 export { SafeArea } from './safe-area';
+export { UICoordinateTracker } from './ui-coodinate-tracker';
+export { BlockInputEvents } from './block-input-events';
 
 export { widgetManager } from './widget-manager';

@@ -232,5 +232,3 @@ export class UIStaticBatch extends UIRenderable {
         warnID(9300);
     }
 }
-
-export { UIStaticBatch as UIStaticBatchComponent };

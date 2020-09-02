@@ -70,5 +70,3 @@ export class DirectionalLight extends Light {
         this.illuminance = this._illuminance;
     }
 }
-
-export { DirectionalLight as DirectionalLightComponent }

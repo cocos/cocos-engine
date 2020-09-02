@@ -478,5 +478,3 @@ export class UIRenderable extends RenderableComponent {
 }
 
 legacyCC.UIRenderable = UIRenderable;
-
-export { UIRenderable as UIRenderComponent };

@@ -149,5 +149,3 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         }
     }
 }
-
-export { SkinnedMeshRenderer as SkinningModelComponent };

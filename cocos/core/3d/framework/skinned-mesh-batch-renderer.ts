@@ -597,5 +597,3 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
         return newMesh;
     }
 }
-
-export { SkinnedMeshBatchRenderer as BatchedSkinningModelComponent };

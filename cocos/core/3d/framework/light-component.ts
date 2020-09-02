@@ -270,5 +270,3 @@ export class Light extends Component {
         }
     }
 }
-
-export { Light as LightComponent };

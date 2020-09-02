@@ -67,4 +67,4 @@ legacyCC.SphereLight = SphereLight;
 legacyCC.SpotLight = SpotLight;
 
 /** deprecated */
-import './deprecated';
+export * from './deprecated';

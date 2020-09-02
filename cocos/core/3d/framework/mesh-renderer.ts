@@ -528,5 +528,3 @@ export declare namespace MeshRenderer {
     export type ShadowCastingMode = EnumAlias<typeof ModelShadowCastingMode>;
     export type ShadowReceivingMode = EnumAlias<typeof ModelShadowReceivingMode>;
 }
-
-export { MeshRenderer as ModelComponent };

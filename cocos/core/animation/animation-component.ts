@@ -500,8 +500,6 @@ export declare namespace Animation {
 
 legacyCC.Animation = Animation;
 
-export { Animation as AnimationComponent };
-
 function equalClips (clip1: AnimationClip | null, clip2: AnimationClip | null) {
     if (clip1 === clip2) {
         return true;

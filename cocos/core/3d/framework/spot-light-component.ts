@@ -155,5 +155,3 @@ export class SpotLight extends Light {
         this.spotAngle = this._spotAngle;
     }
 }
-
-export { SpotLight as SpotLightComponent };

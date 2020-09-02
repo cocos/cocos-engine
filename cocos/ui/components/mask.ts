@@ -481,5 +481,3 @@ export class Mask extends UIRenderable {
 
 // tslint:disable-next-line
 legacyCC.Mask = Mask;
-
-export { Mask as MaskComponent };
