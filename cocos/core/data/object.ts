@@ -28,7 +28,7 @@
  */
 
 import * as js from '../utils/js';
-import CCClass from './class';
+import { CCClass } from './class';
 import { errorID, warnID } from '../platform/debug';
 import { SUPPORT_JIT, EDITOR, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';

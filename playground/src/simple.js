@@ -35,7 +35,7 @@ const color = cc.color();
 for (let i = 0; i < len; i++) {
   const modelNode = new cc.Node(`${i}`);
   modelNode.parent = scene;
-  const modelCom = modelNode.addComponent('cc.ModelComponent');
+  const modelCom = modelNode.addComponent('cc.MeshRenderer');
   modelCom.material = material;
   modelCom.mesh = cc.utils.createMesh(cc.primitives[geomList[i % geomList.length]]());
   modelNode.setPosition(0, 0, i * 2);
@@ -47,14 +47,14 @@ const handle = passes[0].getHandle('mainColor');
 
 const canvasNode = new cc.Node('Canvas');
 canvasNode.parent = scene;
-canvasNode.addComponent(cc.CanvasComponent);
+canvasNode.addComponent(cc.Canvas);
 
 const spriteNode = new cc.Node('test-sprite');
 spriteNode.parent = canvasNode;
-const spriteComp = spriteNode.addComponent('cc.SpriteComponent');
-spriteComp.sizeMode = cc.SpriteComponent.SizeMode.CUSTOM;
-spriteNode.getComponent('cc.UITransformComponent').contentSize = cc.size(64, 64);
-const widgetComp = spriteNode.addComponent(cc.WidgetComponent);
+const spriteComp = spriteNode.addComponent('cc.Sprite');
+spriteComp.sizeMode = cc.Sprite.SizeMode.CUSTOM;
+spriteNode.getComponent('cc.UITransform').contentSize = cc.size(64, 64);
+const widgetComp = spriteNode.addComponent(cc.Widget);
 widgetComp.isAlignBottom = widgetComp.isAlignLeft = true;
 widgetComp.bottom = widgetComp.left = 10;
 
@@ -84,7 +84,7 @@ const material2 = new cc.Material();
 material2.initialize({ effectName: 'builtin-standard' });
 const modelNode2 = new cc.Node('test2');
 modelNode2.parent = scene;
-const modelCom2 = modelNode2.addComponent('cc.ModelComponent');
+const modelCom2 = modelNode2.addComponent('cc.MeshRenderer');
 modelCom2.material = material2;
 const shape2 = cc.primitives.sphere();
 modelCom2.mesh = cc.utils.createMesh(shape2);

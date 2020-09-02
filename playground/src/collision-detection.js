@@ -1,7 +1,7 @@
 
 const { cc, dgui } = window;
 const { Camera, Component, DirectionalLight, GFXBlendFactor, Scene,
-  SphereCollider, Material, ModelComponent, Node } = cc;
+  SphereCollider, Material, MeshRenderer, Node } = cc;
 const { Color, randomRange, toRadian, Vec3, Vec4 } = cc.math;
 const { sphere, capsule } = cc.primitives;
 const { createMesh } = cc.utils;
@@ -66,7 +66,7 @@ class Emitter {
     this._elements = [];
     // emitter hint
     const hint = new Node('hint');
-    const hintModel = hint.addComponent(ModelComponent);
+    const hintModel = hint.addComponent(MeshRenderer);
     const hintMat = new Material();
     hintMat.initialize({ effectName: 'builtin-standard' });
     hintMat.setProperty('albedo', this.color);
@@ -83,7 +83,7 @@ class Emitter {
       ele.node = node;
       ele.color.set(this.color);
       // model
-      const model = node.addComponent(ModelComponent);
+      const model = node.addComponent(MeshRenderer);
       const mat = new Material();
       mat.initialize({
           effectName: 'builtin-standard',

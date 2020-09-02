@@ -32,13 +32,13 @@ const createArrow = (color, rotation) => {
   const arrowHead = new cc.Node('arrowHead');
   arrowHead.parent = arrow;
   arrowHead.setPosition(0, 10, 0);
-  const headModel = arrowHead.addComponent(cc.ModelComponent);
+  const headModel = arrowHead.addComponent(cc.MeshRenderer);
   headModel.mesh = cc.utils.createMesh(cc.primitives.cone());
   headModel.material = material;
   headModel.material.setProperty('color', color);
   const arrowBody = new cc.Node('arrowBody');
   arrowBody.parent = arrow;
-  const bodyModel = arrowBody.addComponent(cc.ModelComponent);
+  const bodyModel = arrowBody.addComponent(cc.MeshRenderer);
   bodyModel.mesh = cc.utils.createMesh({
     positions: [0, 0, 0, 0, 10, 0],
     indices: [0, 1],
@@ -56,7 +56,7 @@ const createBorderPlane = (color, position, rotation) => {
   borderPlane.setRotation(rotation);
   const plane = new cc.Node('plane');
   plane.parent = borderPlane;
-  const planeModel = plane.addComponent(cc.ModelComponent);
+  const planeModel = plane.addComponent(cc.MeshRenderer);
   const mesh = planeModel.mesh = cc.utils.createMesh(cc.primitives.quad());
   const submesh = mesh.renderingMesh.getSubmesh(0);
 
@@ -69,7 +69,7 @@ const createBorderPlane = (color, position, rotation) => {
   planeModel.material.setProperty('color', cc.color(0, 0, 0, 0).lerp(color, 0.5));
   const border = new cc.Node('border');
   border.parent = borderPlane;
-  const borderModel = border.addComponent(cc.ModelComponent);
+  const borderModel = border.addComponent(cc.MeshRenderer);
   borderModel.mesh = cc.utils.createMesh({
     positions: [0.5, 0.5, 0, 0, 0.5, 0, 0.5, 0, 0],
     indices: [0, 1, 0, 2],

@@ -230,7 +230,7 @@ class Component extends CCObject {
      * 传入参数也可以是脚本的名称。
      * @example
      * ```ts
-     * import { SpriteComponent } from 'cc';
+     * import { Sprite } from 'cc';
      * // get sprite component.
      * var sprite = node.getComponent(Sprite);
      * ```

@@ -33,10 +33,10 @@ const models = {};
 for (const info of manifest) {
   const modelNode = new cc.Node(`${info.name}`);
   modelNode.parent = root;
-  const modelComp = modelNode.addComponent('cc.ModelComponent');
+  const modelComp = modelNode.addComponent('cc.MeshRenderer');
   modelComp.material = info.mat || material;
   modelComp.mesh = cc.utils.createMesh(cc.primitives[info.name](info.param));
-  if (info.name !== 'plane') modelComp.shadowCastingMode = cc.ModelComponent.ShadowCastingMode.ON;
+  if (info.name !== 'plane') modelComp.shadowCastingMode = cc.MeshRenderer.ShadowCastingMode.ON;
   modelNode.setPosition(info.pos);
   models[info.name] = modelComp;
 }

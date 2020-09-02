@@ -21,7 +21,7 @@ cameraNode.addComponent(FirstPersonCamera);
 
 const modelNode = new cc.Node('test');
 modelNode.parent = scene;
-const modelComp = modelNode.addComponent('cc.ModelComponent');
+const modelComp = modelNode.addComponent('cc.MeshRenderer');
 modelComp.mesh = cc.utils.createMesh(cc.primitives.sphere());
 cc.director.runSceneImmediate(scene);
 
