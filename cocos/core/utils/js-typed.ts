@@ -565,7 +565,7 @@ export function unregisterClass (...constructors: Function[]) {
         if (classId) {
             delete _idToClass[classId];
         }
-        const classname = p[classIdTag];
+        const classname = p[classNameTag];
         if (classname) {
             delete _nameToClass[classname];
         }
