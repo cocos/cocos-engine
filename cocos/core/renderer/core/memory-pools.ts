@@ -90,7 +90,7 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends BufferManif
         this._stride = bytesPerElement * this._elementCount;
         this._entriesPerChunk = 1 << entryBits;
         this._entryMask = this._entriesPerChunk - 1;
-        this._poolFlag = 1 << 30;
+        this._poolFlag = 1 << 20;
         this._chunkMask = ~(this._entryMask | this._poolFlag);
         this._nativePool = new NativeBufferPool(poolType, entryBits, this._stride);
     }
@@ -235,7 +235,7 @@ class ObjectPool<T, P extends PoolType, A extends any[]> {
     constructor (poolType: P, ctor: (args: A, obj?: T) => T, dtor?: (obj: T) => void) {
         this._ctor = ctor;
         if (dtor) { this._dtor = dtor; }
-        this._poolFlag = 1 << 29;
+        this._poolFlag = 1 << 20;
         this._indexMask = ~this._poolFlag;
         this._nativePool = new NativeObjectPool(poolType, this._array);
     }
@@ -296,8 +296,8 @@ export class ArrayPool<P extends PoolType, D extends PoolType> {
      * @param step The step size to extend the array when exceeding the array size.
      * It is the same as size if it is not set.
      */
-    constructor (arrayType: P, size: number, step?: number) {
-        this._arrayHandleFlag = 1 << 30;
+    constructor (arrayType: number, size: number, step? : number) {
+        this._arrayHandleFlag = 1 << 20;
         this._arrayHandleMask = ~this._arrayHandleFlag;
         this._size = size + 1;
         this._step = step || size;
