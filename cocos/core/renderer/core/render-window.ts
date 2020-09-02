@@ -62,6 +62,10 @@ export class RenderWindow {
         root._createWindowFun = (_root: Root): RenderWindow => new RenderWindow(_root);
     }
 
+    get handle () : RenderWindowHandle {
+        return this._poolHandle;
+    }
+
     protected _title: string = '';
     protected _width: number = 1;
     protected _height: number = 1;
