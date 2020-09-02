@@ -188,7 +188,7 @@ export class RenderAdditiveLightQueue {
                     for (let l = 0; l < _lightIndices.length; l++) {
                         const idx = _lightIndices[l];
                         const buffer = BatchedBuffer.get(pass, idx);
-                        buffer.merge(subModel, lightPassIdx, ro);
+                        buffer.merge(subModel, lightPassIdx, model);
                         buffer.dynamicOffsets[0] = this._lightBufferStride * idx;
                         this._batchedQueue.queue.add(buffer);
                     }
