@@ -3,18 +3,24 @@
  */
 
 import { GFXCommandBuffer } from '../gfx/command-buffer';
-import { Light, Shadows, ShadowType, LightType, DirectionalLight, SpotLight, Model, BatchingSchemes } from '../renderer';
+import { Light, Shadows, ShadowType, LightType, DirectionalLight,
+    SpotLight, Model, BatchingSchemes } from '../renderer';
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, SetIndex, UBOShadow } from './define';
-import { GFXDevice, GFXDescriptorSet, GFXRenderPass, GFXBuffer, GFXShader, GFXMemoryUsageBit, GFXBufferUsageBit } from '../gfx';
+import { GFXDevice, GFXDescriptorSet, GFXRenderPass, GFXBuffer,
+    GFXShader, GFXMemoryUsageBit, GFXBufferUsageBit } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { DSPool, ShaderPool, PassHandle, PassPool, PassView, SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
+import { DSPool, ShaderPool, PassHandle, PassPool, PassView,
+    SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
 import { RenderInstancedQueue } from './render-instanced-queue';
-import { BatchingSchemes } from '../renderer/core/pass';
 import { InstancedBuffer } from './instanced-buffer';
+import { ForwardPipeline } from './forward/forward-pipeline';
+import { Mat4, Vec4, Color } from '../math';
+import { intersect } from '../geometry';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { BatchedBuffer } from './batched-buffer';
+
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
 const vec4 = new Vec4();
@@ -41,7 +47,7 @@ export class RenderShadowMapBatchedQueue {
     private _passArray: PassHandle[] = [];
     private _shaderArray: GFXShader[] = [];
     private _shadowMapBuffer: GFXBuffer;
-    private _phaseID = getPhaseID('shadow-add');
+
     // changes
     private _device: GFXDevice;
     private _shadowInfo: Shadows;
@@ -49,6 +55,7 @@ export class RenderShadowMapBatchedQueue {
     private _shadowObjects: IRenderObject[];
     private _shadowUBO:Float32Array;
     private _instancedQueue: RenderInstancedQueue;
+    private _batchedQueue: RenderBatchedQueue;
 
     public constructor (pipeline: ForwardPipeline) {
         this._device = pipeline.device;
@@ -65,11 +72,11 @@ export class RenderShadowMapBatchedQueue {
         pipeline.descriptorSet.bindBuffer(UBOShadow.BLOCK.binding, this._shadowMapBuffer);
 
         this._instancedQueue = new RenderInstancedQueue();
+        this._batchedQueue = new RenderBatchedQueue();
     }
 
     public gatherLightPasses (light: Light) {
         this.clear();
-        this._instancedQueue.clear();
 
         this._updateUBOs(light);
 
@@ -138,18 +145,23 @@ export class RenderShadowMapBatchedQueue {
             const subModel = subModels[j];
             const pass = subModel.passes[shadowPassIdx];
             const batchingScheme = pass.batchingScheme;
-            if (batchingScheme === BatchingSchemes.INSTANCING) {
-                const buffer = InstancedBuffer.get(pass);
-                buffer.merge(subModel, model.instancedAttributes, shadowPassIdx);
-                //buffer.dynamicOffsets[0] = shadowPassIdx;
-                this._instancedQueue.queue.add(buffer);
-            }
             subModel.descriptorSet.bindBuffer(UBOShadow.BLOCK.binding, this._shadowMapBuffer);
             subModel.descriptorSet.update();
-            const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + shadowPassIdx) as ShaderHandle);
-            this._subModelsArray.push(subModel);
-            this._shaderArray.push(shader);
-            this._passArray.push(subModel.passes[shadowPassIdx].handle);
+
+            if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
+                const buffer = InstancedBuffer.get(pass);
+                buffer.merge(subModel, model.instancedAttributes, shadowPassIdx);
+                this._instancedQueue.queue.add(buffer);
+            } else if(pass.batchingScheme === BatchingSchemes.VB_MERGING) { // vb-merging
+                const buffer = BatchedBuffer.get(pass);
+                buffer.merge(subModel, shadowPassIdx, model);
+                this._batchedQueue.queue.add(buffer);
+            } else {
+                const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + shadowPassIdx) as ShaderHandle);
+                this._subModelsArray.push(subModel);
+                this._shaderArray.push(shader);
+                this._passArray.push(subModel.passes[shadowPassIdx].handle);
+            }
         }
     }
 
