@@ -3,17 +3,21 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP } from '../define';
+import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP, SetIndex } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
-import { ShadowStage } from './shadow-stage';
 import { GFXFramebuffer, GFXRenderPass, GFXLoadOp,
     GFXStoreOp, GFXTextureLayout, GFXFormat, GFXTexture,
     GFXTextureType, GFXTextureUsageBit } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
-import { RenderView, ForwardPipeline } from '../..';
+import { RenderView, ForwardPipeline, GFXColor, GFXCommandBuffer, GFXRect } from '../..';
 import { ShadowType } from '../../renderer/scene/shadows';
-import { shadowCollecting } from '../forward/scene-culling';
+import { shadowCollecting, lightCollecting } from '../forward/scene-culling';
+import { RenderShadowMapBatchedQueue } from '../render-shadowMap-batched-queue';
+import { Light } from 'cocos/core/renderer';
+
+const colors: GFXColor[] = [ { r: 1, g: 1, b: 1, a: 1 } ];
+const bufs: GFXCommandBuffer[] = [];
 
 /**
  * @zh 阴影贴图绘制流程
@@ -31,6 +35,8 @@ export class ShadowFlow extends RenderFlow {
         tag: RenderFlowTag.SCENE,
     };
 
+    private _additiveShadowQueue!: RenderShadowMapBatchedQueue;
+    private _renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
     private _shadowRenderPass: GFXRenderPass|null = null;
     private _shadowRenderTargets: GFXTexture[] = [];
     private _shadowFrameBuffer: GFXFramebuffer|null = null;
@@ -38,19 +44,10 @@ export class ShadowFlow extends RenderFlow {
     private _width: number = 0;
     private _height: number = 0;
 
-    public initialize (info: IRenderFlowInfo): boolean{
-        super.initialize(info);
-
-        // add shadowMap-stages
-        const shadowMapStage = new ShadowStage();
-        shadowMapStage.initialize(ShadowStage.initInfo);
-        this._stages.push(shadowMapStage);
-
-        return true;
-    }
-
     public activate (pipeline: ForwardPipeline) {
         super.activate(pipeline);
+
+        this._additiveShadowQueue = new RenderShadowMapBatchedQueue(pipeline);
 
         const device = pipeline.device;
         const shadowMapSize = pipeline.shadows.size;
@@ -107,10 +104,6 @@ export class ShadowFlow extends RenderFlow {
                 depthStencilTexture: this._depth,
             });
         }
-
-        for (let i = 0; i < this._stages.length; ++i) {
-            (this._stages[i] as ShadowStage).setShadowFrameBuffer(this._shadowFrameBuffer);
-        }
     }
 
     public render (view: RenderView) {
@@ -126,8 +119,13 @@ export class ShadowFlow extends RenderFlow {
         }
 
         shadowCollecting(pipeline, view);
-        pipeline.updateUBOs(view);
-        super.render(view);
+        const validLights = lightCollecting(view);
+        for (let l = 0; l < validLights.length; l++) {
+            const light = validLights[l];
+            this.draw(light, view, this._shadowRenderPass!, this._shadowFrameBuffer!);
+        }
+
+        // binding mainLight shadow map
         pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP.binding, this._shadowFrameBuffer!.colorTextures[0]!);
     }
 
@@ -151,5 +149,39 @@ export class ShadowFlow extends RenderFlow {
                 depthStencilTexture: this._depth,
             });
         }
+    }
+
+    private draw (light: Light, view: RenderView, renderPass: GFXRenderPass, frameBuffer: GFXFramebuffer) {
+        const pipeline = this._pipeline as ForwardPipeline;
+        const shadowInfo = pipeline.shadows;
+
+        this._additiveShadowQueue.gatherLightPasses(light);
+
+        const camera = view.camera;
+
+        const cmdBuff = pipeline.commandBuffers[0];
+
+        const vp = camera.viewport;
+        const shadowMapSize = shadowInfo.size;
+        this._renderArea!.x = vp.x * shadowMapSize.x;
+        this._renderArea!.y = vp.y * shadowMapSize.y;
+        this._renderArea!.width =  vp.width * shadowMapSize.x * pipeline.shadingScale;
+        this._renderArea!.height = vp.height * shadowMapSize.y * pipeline.shadingScale;
+
+        const device = pipeline.device;
+
+        cmdBuff.begin();
+        cmdBuff.beginRenderPass(renderPass, frameBuffer, this._renderArea!,
+            colors, camera.clearDepth, camera.clearStencil);
+
+        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
+
+        this._additiveShadowQueue.recordCommandBuffer(device, renderPass!, cmdBuff);
+
+        cmdBuff.endRenderPass();
+        cmdBuff.end();
+
+        bufs[0] = cmdBuff;
+        device.queue.submit(bufs);
     }
 }

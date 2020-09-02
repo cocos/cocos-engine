@@ -1,5 +1,5 @@
 import { intersect, sphere } from '../../geometry';
-import { Model, Camera } from '../../renderer';
+import { Model, Camera, Light } from '../../renderer';
 import { Layers } from '../../scene-graph';
 import { Vec3} from '../../math';
 import { SKYBOX_FLAG } from '../../renderer';
@@ -13,6 +13,9 @@ const _tempVec3 = new Vec3();
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 const shadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
+
+const _validLights: Light[] = [];
+const _sphere = sphere.create(0, 0, 0, 1);
 
 function getRenderObject (model: Model, camera: Camera) {
     let depth = 0;
@@ -62,6 +65,25 @@ export function shadowCollecting (pipeline: ForwardPipeline, view: RenderView) {
             }
         }
     }
+}
+
+export function lightCollecting (view: RenderView) {
+    _validLights.length = 0;
+
+    const camera = view.camera;
+    const scene = camera.scene!;
+    _validLights.push(scene.mainLight!);
+
+    const spotLights = scene.spotLights;
+    for (let i = 0; i < spotLights.length; i++) {
+        const light = spotLights[i];
+        sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+        if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
+            _validLights.push(light);
+        }
+    }
+
+    return _validLights;
 }
 
 export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
