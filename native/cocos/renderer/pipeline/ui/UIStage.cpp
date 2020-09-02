@@ -70,21 +70,20 @@ void UIStage::render(RenderView *view) {
     _renderQueues[0]->sort();
 
     const auto camera = view->getCamera();
-    const auto &vp = camera->viewport;
-    _renderArea.x = vp.x * camera->width;
-    _renderArea.y = vp.y * camera->height;
-    _renderArea.width = vp.width * camera->width;
-    _renderArea.height = vp.height * camera->height;
+    _renderArea.x = camera->getViewportX() * camera->getWidth();
+    _renderArea.y = camera->getViewportY() * camera->getHeight();
+    _renderArea.width = camera->getViewportWidth() * camera->getWidth();
+    _renderArea.height = camera->getViewportHeight() * camera->getHeight();
 
     auto &commandBuffers = pipeline->getCommandBuffers();
     auto cmdBuff = commandBuffers[0];
 
     auto framebuffer = GET_FRAMEBUFFER(view->getWindow()->framebufferID);
-    auto renderPass = framebuffer->getColorTextures().size() ? framebuffer->getRenderPass() : pipeline->getOrCreateRenderPass(static_cast<gfx::ClearFlags>(camera->clearFlag));
+    auto renderPass = framebuffer->getColorTextures().size() ? framebuffer->getRenderPass() : pipeline->getOrCreateRenderPass(static_cast<gfx::ClearFlags>(camera->getClearFlag()));
 
     cmdBuff->begin();
     cmdBuff->beginRenderPass(renderPass, framebuffer, _renderArea,
-                             {camera->clearColor}, camera->clearDepth, camera->clearStencil);
+                             {camera->getClearColor()}, camera->getClearDepth(), camera->getClearStencil());
     cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::GLOBAL), pipeline->getDescriptorSet());
     _renderQueues[0]->recordCommandBuffer(_device, renderPass, cmdBuff);
 

@@ -138,35 +138,34 @@ void ForwardStage::render(RenderView *view) {
     auto commandBuffers = pipeline->getCommandBuffers();
     auto cmdBuff = commandBuffers[0];
 
-    auto vp = camera->viewport;
-    _renderArea.x = vp.x * camera->width;
-    _renderArea.y = vp.y * camera->height;
-    _renderArea.width = vp.width * camera->width * pipeline->getShadingScale();
-    _renderArea.height = vp.height * camera->height * pipeline->getShadingScale();
+    _renderArea.x = camera->getViewportX() * camera->getWidth();
+    _renderArea.y = camera->getViewportY() * camera->getHeight();
+    _renderArea.width = camera->getViewportWidth() * camera->getWidth() * pipeline->getShadingScale();
+    _renderArea.height = camera->getViewportHeight() * camera->getHeight() * pipeline->getShadingScale();
 
-    if (static_cast<gfx::ClearFlags>(camera->clearFlag) & gfx::ClearFlagBit::COLOR) {
+    if (static_cast<gfx::ClearFlags>(camera->getClearFlag()) & gfx::ClearFlagBit::COLOR) {
         if (pipeline->isHDR()) {
-            SRGBToLinear(_clearColors[0], camera->clearColor);
-            auto scale = pipeline->getFpScale() / camera->exposure;
+            SRGBToLinear(_clearColors[0], camera->getClearColor());
+            auto scale = pipeline->getFpScale() / camera->getExposure();
             _clearColors[0].r *= scale;
             _clearColors[0].g *= scale;
             _clearColors[0].b *= scale;
         } else {
-            _clearColors[0].r = camera->clearColor.r;
-            _clearColors[0].g = camera->clearColor.g;
-            _clearColors[0].b = camera->clearColor.b;
+            _clearColors[0].r = camera->getClearColor().r;
+            _clearColors[0].g = camera->getClearColor().g;
+            _clearColors[0].b = camera->getClearColor().b;
         }
     }
 
-    _clearColors[0].a = camera->clearColor.a;
+    _clearColors[0].a = camera->getClearColor().a;
 
     auto framebuffer = GET_FRAMEBUFFER(view->getWindow()->framebufferID);
     const auto &colorTextures = framebuffer->getColorTextures();
 
-    auto renderPass = colorTextures.size() ? framebuffer->getRenderPass() : pipeline->getOrCreateRenderPass(static_cast<gfx::ClearFlagBit>(camera->clearFlag));
+    auto renderPass = colorTextures.size() ? framebuffer->getRenderPass() : pipeline->getOrCreateRenderPass(static_cast<gfx::ClearFlagBit>(camera->getClearFlag()));
 
     cmdBuff->begin();
-    cmdBuff->beginRenderPass(renderPass, framebuffer, _renderArea, _clearColors, camera->clearDepth, camera->clearStencil);
+    cmdBuff->beginRenderPass(renderPass, framebuffer, _renderArea, _clearColors, camera->getClearDepth(), camera->getClearStencil());
     cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::GLOBAL), _pipeline->getDescriptorSet());
 
     _renderQueues[0]->recordCommandBuffer(_device, renderPass, cmdBuff);

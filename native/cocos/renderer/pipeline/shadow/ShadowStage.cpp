@@ -58,19 +58,18 @@ void ShadowStage::render(RenderView *view) {
     const auto commandBuffers = pipeline->getCommandBuffers();
     auto cmdBuffer = commandBuffers[0];
 
-    const auto vp = camera->viewport;
     const auto shadowMapSize = shadowInfo->size;
-    _renderArea.x = vp.x * shadowMapSize.x;
-    _renderArea.y = vp.y * shadowMapSize.y;
-    _renderArea.width = vp.width * shadowMapSize.x * pipeline->getShadingScale();
-    _renderArea.height = vp.height * shadowMapSize.y * pipeline->getShadingScale();
+    _renderArea.x = camera->getViewportX() * shadowMapSize.x;
+    _renderArea.y = camera->getViewportY() * shadowMapSize.y;
+    _renderArea.width = camera->getViewportWidth() * shadowMapSize.x * pipeline->getShadingScale();
+    _renderArea.height = camera->getViewportHeight() * shadowMapSize.y * pipeline->getShadingScale();
 
     _clearColors[0] = {1.0f, 1.0f, 1.0f, 1.0f};
     auto renderPass = _framebuffer->getRenderPass();
 
     cmdBuffer->begin();
     cmdBuffer->beginRenderPass(renderPass, _framebuffer, _renderArea,
-                               _clearColors, camera->clearDepth, camera->clearStencil);
+                               _clearColors, camera->getClearDepth(), camera->getClearStencil());
     cmdBuffer->bindDescriptorSet(static_cast<uint>(SetIndex::GLOBAL), pipeline->getDescriptorSet());
     _additiveShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuffer);
 

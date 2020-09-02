@@ -5,7 +5,7 @@ namespace pipeline {
 
 struct RenderObject;
 struct Model;
-struct Camera;
+class Camera;
 class ForwardPipeline;
 class RenderView;
 

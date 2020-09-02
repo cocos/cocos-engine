@@ -114,7 +114,7 @@ void ForwardPipeline::render(const vector<RenderView *> &views) {
 
 void ForwardPipeline::updateUBOs(RenderView *view) {
     updateUBO(view);
-    const auto scene = GET_SCENE(view->getCamera()->sceneID);
+    const auto scene = GET_SCENE(view->getCamera()->getSceneID());
     const auto mainLight = GET_MAIN_LIGHT(scene->mainLightID);
     const auto shadowInfo = _shadowMap;
 
@@ -122,7 +122,7 @@ void ForwardPipeline::updateUBOs(RenderView *view) {
         const auto node = GET_NODE(mainLight->nodeID);
 
         // shadow view
-        auto shadowView = node->worldMatrix.getInversed();
+        auto shadowView = node->getWorldMatrix().getInversed();
 
         // shadow view proj
         const auto x = shadowInfo->orthoSize * shadowInfo->aspect;
@@ -146,7 +146,7 @@ void ForwardPipeline::updateUBO(RenderView *view) {
     const auto root = GET_ROOT(0);
 
     const auto camera = view->getCamera();
-    const auto scene = GET_SCENE(camera->sceneID);
+    const auto scene = GET_SCENE(camera->getSceneID());
 
     const auto mainLight = GET_MAIN_LIGHT(scene->mainLightID);
     const auto ambient = GET_AMBIENT(scene->ambientID);
@@ -166,8 +166,8 @@ void ForwardPipeline::updateUBO(RenderView *view) {
     uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET + 2] = 1.0f / uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET];
     uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET + 3] = 1.0f / uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET + 1];
 
-    uboGlobalView[UBOGlobal::SCREEN_SCALE_OFFSET] = camera->width / shadingWidth * _shadingScale;
-    uboGlobalView[UBOGlobal::SCREEN_SCALE_OFFSET + 1] = camera->height / shadingHeight * _shadingScale;
+    uboGlobalView[UBOGlobal::SCREEN_SCALE_OFFSET] = camera->getWidth() / shadingWidth * _shadingScale;
+    uboGlobalView[UBOGlobal::SCREEN_SCALE_OFFSET + 1] = camera->getHeight() / shadingHeight * _shadingScale;
     uboGlobalView[UBOGlobal::SCREEN_SCALE_OFFSET + 2] = 1.0 / uboGlobalView[UBOGlobal::SCREEN_SCALE_OFFSET];
     uboGlobalView[UBOGlobal::SCREEN_SCALE_OFFSET + 3] = 1.0 / uboGlobalView[UBOGlobal::SCREEN_SCALE_OFFSET + 1];
 
@@ -176,13 +176,13 @@ void ForwardPipeline::updateUBO(RenderView *view) {
     uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 2] = 1.0f / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET];
     uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 3] = 1.0f / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 1];
 
-    memcpy(uboGlobalView.data() + UBOGlobal::MAT_VIEW_OFFSET, camera->matView.m, sizeof(cc::Mat4));
-    memcpy(uboGlobalView.data() + UBOGlobal::MAT_VIEW_INV_OFFSET, GET_NODE(camera->nodeID)->worldMatrix.m, sizeof(cc::Mat4));
-    memcpy(uboGlobalView.data() + UBOGlobal::MAT_PROJ_OFFSET, camera->matProj.m, sizeof(cc::Mat4));
-    memcpy(uboGlobalView.data() + UBOGlobal::MAT_PROJ_INV_OFFSET, camera->matProjInv.m, sizeof(cc::Mat4));
-    memcpy(uboGlobalView.data() + UBOGlobal::MAT_VIEW_PROJ_OFFSET, camera->matViewProj.m, sizeof(cc::Mat4));
-    memcpy(uboGlobalView.data() + UBOGlobal::MAT_VIEW_PROJ_INV_OFFSET, camera->matViewProjInv.m, sizeof(cc::Mat4));
-    TO_VEC3(uboGlobalView, camera->position, UBOGlobal::CAMERA_POS_OFFSET);
+    memcpy(uboGlobalView.data() + UBOGlobal::MAT_VIEW_OFFSET, camera->getMatView().m, sizeof(cc::Mat4));
+    memcpy(uboGlobalView.data() + UBOGlobal::MAT_VIEW_INV_OFFSET, GET_NODE(camera->getNodeID())->getWorldMatrix().m, sizeof(cc::Mat4));
+    memcpy(uboGlobalView.data() + UBOGlobal::MAT_PROJ_OFFSET, camera->getMatProj().m, sizeof(cc::Mat4));
+    memcpy(uboGlobalView.data() + UBOGlobal::MAT_PROJ_INV_OFFSET, camera->getMatProjInv().m, sizeof(cc::Mat4));
+    memcpy(uboGlobalView.data() + UBOGlobal::MAT_VIEW_PROJ_OFFSET, camera->getMatViewProj().m, sizeof(cc::Mat4));
+    memcpy(uboGlobalView.data() + UBOGlobal::MAT_VIEW_PROJ_INV_OFFSET, camera->getMatViewProjInv().m, sizeof(cc::Mat4));
+    TO_VEC3(uboGlobalView, camera->getPosition(), UBOGlobal::CAMERA_POS_OFFSET);
 
     auto projectionSignY = _device->getScreenSpaceSignY();
     if (view->getWindow()->hasOffScreenAttachments) {
@@ -190,7 +190,7 @@ void ForwardPipeline::updateUBO(RenderView *view) {
     }
     uboGlobalView[UBOGlobal::CAMERA_POS_OFFSET + 3] = projectionSignY;
 
-    const auto exposure = camera->exposure;
+    const auto exposure = camera->getExposure();
     uboGlobalView[UBOGlobal::EXPOSURE_OFFSET] = exposure;
     uboGlobalView[UBOGlobal::EXPOSURE_OFFSET + 1] = 1.0f / exposure;
     uboGlobalView[UBOGlobal::EXPOSURE_OFFSET + 2] = _isHDR ? 1.0f : 0.0;

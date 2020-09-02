@@ -13,8 +13,8 @@ RenderObject genRenderObject(ModelView *model, const Camera *camera) {
     if (model->nodeID != 0) {
         const auto node = GET_NODE(model->nodeID);
         cc::Vec3 position;
-        cc::Vec3::subtract(node->worldPosition, camera->position, &position);
-        depth = position.dot(camera->forward);
+        cc::Vec3::subtract(node->getWorldPosition(), camera->getPosition(), &position);
+        depth = position.dot(camera->getForward());
     }
 
     return {depth, model};
@@ -22,7 +22,7 @@ RenderObject genRenderObject(ModelView *model, const Camera *camera) {
 
 void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
     const auto camera = view->getCamera();
-    const auto scene = GET_SCENE(camera->sceneID);
+    const auto scene = GET_SCENE(camera->getSceneID());
     RenderObjectList renderObjects;
     RenderObjectList shadowObjects;
 
@@ -35,7 +35,7 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
         //        }
     }
 
-    if (GET_SKYBOX(scene->skyboxID)->enabled && (camera->clearFlag & SKYBOX_FLAG)) {
+    if (GET_SKYBOX(scene->skyboxID)->enabled && (camera->getClearFlag() & SKYBOX_FLAG)) {
         renderObjects.emplace_back(genRenderObject(GET_SKYBOX(scene->skyboxID), camera));
     }
 
@@ -50,12 +50,12 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
             const auto visibility = view->getVisibility();
             const auto vis = visibility & static_cast<uint>(LayerList::UI_2D);
             if (vis) {
-                if ((model->nodeID && (visibility == GET_NODE(model->nodeID)->layer)) ||
+                if ((model->nodeID && (visibility == GET_NODE(model->nodeID)->getLayer())) ||
                     visibility == model->visFlags) {
                     renderObjects.emplace_back(genRenderObject(model, camera));
                 }
             } else {
-                if ((model->nodeID && ((visibility & GET_NODE(model->nodeID)->layer) == GET_NODE(model->nodeID)->layer)) ||
+                if ((model->nodeID && ((visibility & GET_NODE(model->nodeID)->getLayer()) == GET_NODE(model->nodeID)->getLayer())) ||
                     (visibility & model->visFlags)) {
 
                     // shadow render Object
@@ -64,7 +64,7 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
                     }
 
                     // frustum culling
-                    if (model->worldBoundsID && !aabb_frustum(GET_AABB(model->worldBoundsID), GET_FRUSTUM(camera->frustumID))) {
+                    if (model->worldBoundsID && !aabb_frustum(GET_AABB(model->worldBoundsID), GET_FRUSTUM(camera->getFrustumID()))) {
                         continue;
                     }
 
