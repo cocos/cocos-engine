@@ -74,121 +74,121 @@ export const sys: { [x: string]: any; } = {
      * @zh 语言代码 - 英语
      */
     LANGUAGE_ENGLISH: 'en',
-    
+
     /**
      * @en Chinese language code
      * @zh 语言代码 - 中文
      */
     LANGUAGE_CHINESE: 'zh',
-    
+
     /**
      * @en French language code
      * @zh 语言代码 - 法语
      */
     LANGUAGE_FRENCH: 'fr',
-    
+
     /**
      * @en Italian language code
      * @zh 语言代码 - 意大利语
      */
     LANGUAGE_ITALIAN: 'it',
-    
+
     /**
      * @en German language code
      * @zh 语言代码 - 德语
      */
     LANGUAGE_GERMAN: 'de',
-    
+
     /**
      * @en Spanish language code
      * @zh 语言代码 - 西班牙语
      */
     LANGUAGE_SPANISH: 'es',
-    
+
     /**
      * @en Spanish language code
      * @zh 语言代码 - 荷兰语
      */
     LANGUAGE_DUTCH: 'du',
-    
+
     /**
      * @en Russian language code
      * @zh 语言代码 - 俄罗斯语
      */
     LANGUAGE_RUSSIAN: 'ru',
-    
+
     /**
      * @en Korean language code
      * @zh 语言代码 - 韩语
      */
     LANGUAGE_KOREAN: 'ko',
-    
+
     /**
      * @en Japanese language code
      * @zh 语言代码 - 日语
      */
     LANGUAGE_JAPANESE: 'ja',
-    
+
     /**
      * @en Hungarian language code
      * @zh 语言代码 - 匈牙利语
      */
     LANGUAGE_HUNGARIAN: 'hu',
-    
+
     /**
      * @en Portuguese language code
      * @zh 语言代码 - 葡萄牙语
      */
     LANGUAGE_PORTUGUESE: 'pt',
-    
+
     /**
      * @en Arabic language code
      * @zh 语言代码 - 阿拉伯语
      */
     LANGUAGE_ARABIC: 'ar',
-    
+
     /**
      * @en Norwegian language code
      * @zh 语言代码 - 挪威语
      */
     LANGUAGE_NORWEGIAN: 'no',
-    
+
     /**
      * @en Polish language code
      * @zh 语言代码 - 波兰语
      */
     LANGUAGE_POLISH: 'pl',
-    
+
     /**
      * @en Turkish language code
      * @zh 语言代码 - 土耳其语
      */
     LANGUAGE_TURKISH: 'tr',
-    
+
     /**
      * @en Ukrainian language code
      * @zh 语言代码 - 乌克兰语
      */
     LANGUAGE_UKRAINIAN: 'uk',
-    
+
     /**
      * @en Romanian language code
      * @zh 语言代码 - 罗马尼亚语
      */
     LANGUAGE_ROMANIAN: 'ro',
-    
+
     /**
      * @en Bulgarian language code
      * @zh 语言代码 - 保加利亚语
      */
     LANGUAGE_BULGARIAN: 'bg',
-    
+
     /**
      * @en Unknown language code
      * @zh 语言代码 - 未知
      */
     LANGUAGE_UNKNOWN: 'unknown',
-    
+
     /**
      * @en Operating System - iOS
      * @zh 操作系统 - iOS
@@ -219,7 +219,7 @@ export const sys: { [x: string]: any; } = {
      * @zh 操作系统 - 未知
      */
     OS_UNKNOWN: 'Unknown',
-    
+
     /**
      * @en Platform - Unknown
      * @zh 平台 - 未知
@@ -491,13 +491,13 @@ export const sys: { [x: string]: any; } = {
      * @default "unknown"
      */
     BROWSER_TYPE_UNKNOWN: 'unknown',
-    
+
     /**
      * @en Whether the running platform is native app
      * @zh 指示运行平台是否是原生平台
      */
     isNative: JSB,
-    
+
     /**
      * @en Whether the running platform is browser
      * @zh 指示运行平台是否是浏览器
@@ -599,6 +599,13 @@ export const sys: { [x: string]: any; } = {
      * @private
      */
     __audioSupport: null,
+
+
+    /**
+     * Video support in the browser
+     * @private
+     */
+    __videoSupport: null,
 
     /**
      * @en Get the network type of current device, return `sys.NetworkType.LAN` if failure.
@@ -1099,7 +1106,7 @@ else {
         logID(5201);
     }
 
-    const formatSupport: string[] = [];
+    let formatSupport: string[] = [];
     (function () {
         const audio = document.createElement('audio');
         if (audio.canPlayType) {
@@ -1118,6 +1125,24 @@ else {
     __audioSupport.format = formatSupport;
 
     sys.__audioSupport = __audioSupport;
+
+    sys.__videoSupport = {
+        format: []
+    };
+    (function () {
+        const video = document.createElement('video');
+        if (video.canPlayType) {
+            const canPlayTypes = ['mp4', 'webm'];
+            let format = sys.__videoSupport.format;
+            canPlayTypes.forEach((type) => {
+                if (video.canPlayType(`video/${type}`)) {
+                    format.push(`.${type}`);
+                }
+            });
+            sys.__videoSupport.format = format;
+        }
+    })();
+
 }
 
 legacyCC.sys = sys;

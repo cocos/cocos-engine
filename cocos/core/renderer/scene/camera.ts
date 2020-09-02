@@ -714,6 +714,27 @@ export class Camera {
         return out;
     }
 
+    /**
+     * transform a world space matrix to screen space
+     * @param {Mat4} out the resulting vector
+     * @param {Mat4} worldMatrix the world space matrix to be transformed
+     * @param {number} width framebuffer width
+     * @param {number} height framebuffer height
+     * @returns {Mat4} the resulting vector
+     */
+    public worldMatrixToScreen (out: Mat4, worldMatrix: Mat4, width: number, height: number){
+        Mat4.multiply(out, this._matViewProj, worldMatrix);
+        const halfWidth = width / 2;
+        const halfHeight = height / 2;
+        Mat4.identity(_tempMat1);
+        Mat4.transform(_tempMat1, _tempMat1, Vec3.set(v_a, halfWidth, halfHeight, 0));
+        Mat4.scale(_tempMat1, _tempMat1, Vec3.set(v_a, halfWidth, halfHeight, 1));
+
+        Mat4.multiply(out, _tempMat1, out);
+
+        return out;
+    }
+
     private updateExposure () {
         const ev100 = Math.log2((this._apertureValue * this._apertureValue) / this._shutterValue * 100.0 / this._isoValue);
         CameraPool.set(this._poolHandle, CameraView.EXPOSURE, 0.833333 / Math.pow(2.0, ev100));
