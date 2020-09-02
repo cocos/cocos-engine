@@ -75,7 +75,7 @@ export class VideoPlayer {
     protected _waitingFullscreen = false;
     protected _fullScreenOnAwake = false;
 
-    protected _videoComonent: VideoPlayerComponent | null = null;
+    protected _videoComponent: VideoPlayerComponent | null = null;
     protected _uiTrans: UITransformComponent | null = null;
 
     protected _stayOnBottom = false;
@@ -101,7 +101,7 @@ export class VideoPlayer {
     protected _errorCb: (e) => void;
 
     constructor (component) {
-        this._videoComonent = component;
+        this._videoComponent = component;
         this._uiTrans = component.node.getComponent(UITransformComponent);
         this._onHide = () => {
             if (!this.video || this._state !== EventType.PLAYING) { return; }
@@ -411,7 +411,7 @@ export class VideoPlayer {
     }
 
     public syncMatrix () {
-        if (!this._video || this._video.style.visibility === 'hidden' || !this._videoComonent) return;
+        if (!this._video || this._video.style.visibility === 'hidden' || !this._videoComponent) return;
 
         const camera = this.getUICamera();
         if (!camera) {
@@ -433,7 +433,7 @@ export class VideoPlayer {
             camera.clearColor = clearColor;
         }
 
-        this._videoComonent.node.getWorldMatrix(_mat4_temp);
+        this._videoComponent.node.getWorldMatrix(_mat4_temp);
         camera.update(true);
         camera.worldMatrixToScreen(_mat4_temp, _mat4_temp, game.canvas.width, game.canvas.height);
 
