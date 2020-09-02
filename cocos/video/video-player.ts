@@ -28,13 +28,13 @@
  */
 
 import { warn } from '../core/platform';
-import { CanvasComponent, Component, EventHandler as ComponentEventHandler, UITransformComponent } from '../core/components';
-import { ccclass, displayOrder, executeInEditMode, help, menu, property, slide, range, requireComponent, tooltip, type } from '../core/data/class-decorator';
+import { Component, EventHandler as ComponentEventHandler } from '../core/components';
+import { UITransform } from '../core/components/ui-base';
+import { ccclass, displayOrder, executeInEditMode, help, menu, slide, range, requireComponent, tooltip, type, serializable } from 'cc.decorator';
 import { clamp } from '../core/math';
 import { VideoClip  } from './assets/video-clip';
 import { Enum } from '../core/value-types';
-import { VideoPlayer, EventType } from './assets/video-player-web';
-import { legacyCC } from "../core/global-exports";
+import { VideoPlayerImpl, EventType } from './assets/video-player-web';
 import { EDITOR } from 'internal:constants';
 
 /**
@@ -67,33 +67,34 @@ export const ResourceType = Enum({
  * Video 组件，用于在游戏中播放视频。
  * 由于不同平台对于 VideoPlayer 组件的授权、API、控制方式都不同，还没有形成统一的标准，所以目前只支持 Web、iOS 和 Android 平台。
  */
-@ccclass('cc.VideoPlayerComponent')
-@help('i18n:cc.VideoPlayerComponent')
+@ccclass('cc.VideoPlayer')
+@help('i18n:cc.VideoPlayer')
 @menu('Components/VideoPlayer')
-@requireComponent(UITransformComponent)
+@requireComponent(UITransform)
 @executeInEditMode
-export class VideoPlayerComponent extends Component {
-    @property
+export class VideoPlayer extends Component {
+    @serializable
     protected _resourceType = ResourceType.LOCAL;
-    @property
+    @serializable
     protected _remoteURL = '';
-    @property(VideoClip)
+    @type(VideoClip)
+    @serializable
     protected _clip: VideoClip | null = null;
-    @property
+    @serializable
     protected _playOnAwake = true;
-    @property
+    @serializable
     protected _volume = 1.0;
-    @property
+    @serializable
     protected _mute = false;
-    @property
+    @serializable
     protected _playbackRate = 1;
-    @property
+    @serializable
     protected _loop = false;
-    @property
+    @serializable
     protected _controls = false;
-    @property
+    @serializable
     protected _fullScreenOnAwake = false;
-    @property
+    @serializable
     protected _stayOnBottom = false;
 
     protected _player: any;
@@ -166,7 +167,7 @@ export class VideoPlayerComponent extends Component {
      * @zh
      * 视频播放时的速率（0.0 ~ 10.0）
      */
-    @slide(true)
+    @slide
     @range([0.0, 10, 1.0])
     @tooltip('i18n:videoplayer.playbackRate')
     get playbackRate() {
@@ -185,7 +186,7 @@ export class VideoPlayerComponent extends Component {
      * @zh
      * 视频的音量（0.0 ~ 1.0）
      */
-    @slide(true)
+    @slide
     @range([0.0, 1.0, 0.1])
     @tooltip('i18n:videoplayer.volume')
     get volume() {
@@ -371,7 +372,7 @@ export class VideoPlayerComponent extends Component {
     }
 
     public onLoad () {
-        this._player = new VideoPlayer(this);
+        this._player = new VideoPlayerImpl(this);
         this.syncSource();
         if (this.nativeVideo) {
             this.nativeVideo.loop = this._loop;

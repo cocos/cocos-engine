@@ -29,10 +29,10 @@
  * @category ui
  */
 
+import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin, rangeMax, serializable } from 'cc.decorator';
 import { SpriteFrame } from '../../core/assets';
 import { Component, EventHandler as ComponentEventHandler } from '../../core/components';
 import { UITransform, UIRenderable } from '../../core/components/ui-base';
-import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin, rangeMax, serializable } from 'cc.decorator';
 import { EventMouse, EventTouch, SystemEventType } from '../../core/platform';
 import { Color, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
@@ -557,7 +557,13 @@ export class Button extends Component {
         // check sprite frames
         //
         if (!EDITOR || legacyCC.GAME_VIEW) {
-            this._registerEvent();
+            this.node.on(SystemEventType.TOUCH_START, this._onTouchBegan, this);
+            this.node.on(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
+            this.node.on(SystemEventType.TOUCH_END, this._onTouchEnded, this);
+            this.node.on(SystemEventType.TOUCH_CANCEL, this._onTouchCancel, this);
+
+            this.node.on(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
+            this.node.on(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
         } else {
             this.node.on(Sprite.EventType.SPRITE_FRAME_CHANGED, (comp: Sprite) => {
                 if (this._transition === Transition.SPRITE) {
@@ -675,7 +681,7 @@ export class Button extends Component {
 
     protected _registerTargetEvent (target) {
         if (EDITOR && !legacyCC.GAME_VIEW) {
-            target.on(SpriteComponent.EventType.SPRITE_FRAME_CHANGED, this._onTargetSpriteFrameChanged, this);
+            target.on(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onTargetSpriteFrameChanged, this);
             target.on(SystemEventType.COLOR_CHANGED, this._onTargetColorChanged, this);
         }
         target.on(SystemEventType.TRANSFORM_CHANGED, this._onTargetTransformChanged, this);
@@ -695,7 +701,7 @@ export class Button extends Component {
 
     protected _unregisterTargetEvent (target) {
         if (EDITOR && !legacyCC.GAME_VIEW) {
-            target.off(SpriteComponent.EventType.SPRITE_FRAME_CHANGED);
+            target.off(Sprite.EventType.SPRITE_FRAME_CHANGED);
             target.off(SystemEventType.COLOR_CHANGED);
         }
         target.off(SystemEventType.TRANSFORM_CHANGED);
@@ -719,7 +725,7 @@ export class Button extends Component {
         }
     }
 
-    private _onTargetSpriteFrameChanged (comp: SpriteComponent) {
+    private _onTargetSpriteFrameChanged (comp: Sprite) {
         if (this._transition === Transition.SPRITE) {
             this._setCurrentStateSpriteFrame(comp.spriteFrame);
         }

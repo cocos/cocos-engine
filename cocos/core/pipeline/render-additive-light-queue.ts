@@ -9,6 +9,7 @@ import { SphereLight } from '../renderer/scene/sphere-light';
 import { SpotLight } from '../renderer/scene/spot-light';
 import { BatchingSchemes } from '../renderer/core/pass'
 import { Model } from '../renderer/scene/model';
+import { SubModel } from '../renderer/scene/submodel';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
 import { Vec3, nextPow2 } from '../../core/math';

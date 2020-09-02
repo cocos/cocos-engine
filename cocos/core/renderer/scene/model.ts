@@ -131,7 +131,7 @@ export class Model {
     }
 
     get visFlags () : number {
-        return ModelPool.get<number>(this._poolHandle, ModelView.VIS_FLAGS);
+        return ModelPool.get(this._poolHandle, ModelView.VIS_FLAGS) as number;
     }
 
     set visFlags (val: number) {
@@ -139,7 +139,7 @@ export class Model {
     }
 
     get enabled () : boolean {
-        return ModelPool.get<number>(this._poolHandle, ModelView.ENABLED) === 1 ? true : false;
+        return ModelPool.get(this._poolHandle, ModelView.ENABLED) === 1 ? true : false;
     }
 
     set enabled (val: boolean) {

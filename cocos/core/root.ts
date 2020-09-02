@@ -5,8 +5,10 @@
 import { builtinResMgr } from './3d/builtin';
 import { GFXDevice } from './gfx/device';
 import { Pool } from './memop';
-import { RenderPipeline, ForwardPipeline } from './pipeline/render-pipeline';
-import { IRenderViewInfo, RenderView } from './pipeline/render-view';
+import { RenderPipeline } from './pipeline/render-pipeline';
+import { ForwardPipeline } from './pipeline/forward/forward-pipeline';
+import { RenderView } from './pipeline/render-view';
+import { IRenderViewInfo } from './pipeline/define';
 import { Camera, Light, Model } from './renderer/scene';
 import { DataPoolManager } from './renderer/data-pool-manager';
 import { LightType } from './renderer/scene/light';
@@ -118,7 +120,7 @@ export class Root {
      * 累计时间（秒）
      */
     public get cumulativeTime (): number {
-        return RootPool.get<number>(this._poolHandle, RootView.CUMULATIVE_TIME);
+        return RootPool.get(this._poolHandle, RootView.CUMULATIVE_TIME);
     }
 
     /**
@@ -126,7 +128,7 @@ export class Root {
      * 帧时间（秒）
      */
     public get frameTime (): number {
-        return RootPool.get<number>(this._poolHandle, RootView.FRAME_TIME);
+        return RootPool.get(this._poolHandle, RootView.FRAME_TIME);
     }
 
     /**
@@ -362,7 +364,7 @@ export class Root {
         */
 
         ++this._frameCount;
-        RootPool.set(this._poolHandle, RootView.CUMULATIVE_TIME, RootPool.get<number>(this._poolHandle, RootView.CUMULATIVE_TIME) + deltaTime);
+        RootPool.set(this._poolHandle, RootView.CUMULATIVE_TIME, RootPool.get(this._poolHandle, RootView.CUMULATIVE_TIME) + deltaTime);
         this._fpsTime += deltaTime;
         if (this._fpsTime > 1.0) {
             this._fps = this._frameCount;

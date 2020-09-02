@@ -34,7 +34,7 @@ import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, IGFXDescriptor
     IGFXPipelineLayoutInfo, GFXPipelineLayout, GFXFramebuffer, IGFXFramebufferInfo, GFXPrimitiveMode, GFXDynamicStateFlags } from '../../gfx';
 import { RenderPassStage } from '../../pipeline/define';
 import { BatchingSchemes } from './pass';
-import { Vec3, Mat4, IVec4Like } from '../../math';
+import { Vec3, Mat4, IVec4Like, Color, Rect, Quat } from '../../math';
 
 interface ITypedArrayConstructor<T> {
     new(buffer: ArrayBufferLike, byteOffset: number, length?: number): T;
@@ -54,7 +54,7 @@ interface IHandle<T extends PoolType> extends Number {
     _: T;
 }
 
-type GeneralBufferElement = number | IHandle<any>;
+type GeneralBufferElement = number | IHandle<any> | Vec3 | Mat4 | Color | Rect | Quat;
 
 class BufferPool<P extends PoolType, T extends TypedArray, E extends IBufferManifest, H extends { [key in E[keyof E]]: GeneralBufferElement }> {
 
@@ -649,14 +649,29 @@ export enum ModelView {
     SUB_MODEL_ARRAY, // array handle
     COUNT
 }
-export const ModelPool = new BufferPool(PoolType.MODEL, Uint32Array, ModelView);
+interface IModelViewType extends IBufferTypeManifest {
+    [ModelView.ENABLED]: number;
+    [ModelView.VIS_FLAGS]: number;
+    [ModelView.CAST_SHADOW]: number;
+    [ModelView.WORLD_BOUNDS]: AABBHandle;
+    [ModelView.NODE]: NodeHandle;
+    [ModelView.TRANSFORM]: NodeHandle;
+    [ModelView.SUB_MODEL_ARRAY]: SubModelArrayHandle;
+    [ModelView.COUNT]: number;
+}
+export const ModelPool = new BufferPool<PoolType.MODEL, Uint32Array, typeof ModelView, IModelViewType>(PoolType.MODEL, Uint32Array, ModelView);
 
 export enum AABBView {
     CENTER,                      // Vec3
-    HALF_EXTENSION = CENTER + 3, // CENTER
-    COUNT = HALF_EXTENSION + 3   // HALF_EXTENSION
+    HALF_EXTENSION = 3,          // Vec3
+    COUNT = 6
 }
-export const AABBPool = new BufferPool(PoolType.AABB, Float32Array, AABBView);
+interface IAABBViewType extends IBufferTypeManifest {
+    [AABBView.CENTER]: Vec3;
+    [AABBView.HALF_EXTENSION]: Vec3;
+    [AABBView.COUNT]: number;
+}
+export const AABBPool = new BufferPool<PoolType.AABB, Float32Array, typeof AABBView, IAABBViewType>(PoolType.AABB, Float32Array, AABBView);
 
 export enum SceneView {
     MAIN_LIGHT,    // TODO
@@ -667,7 +682,16 @@ export enum SceneView {
     MODEL_ARRAY,   // array handle
     COUNT,
 }
-export const ScenePool = new BufferPool(PoolType.SCENE, Uint32Array, SceneView);
+interface ISceneViewType extends IBufferTypeManifest {
+    [SceneView.MAIN_LIGHT]: number;
+    [SceneView.AMBIENT]: number;
+    [SceneView.FOG]: number;
+    [SceneView.SKYBOX]: number;
+    [SceneView.PLANAR_SHADOW]: number;
+    [SceneView.MODEL_ARRAY]: ModelArrayHandle;
+    [SceneView.COUNT]: number;
+}
+export const ScenePool = new BufferPool<PoolType.SCENE, Uint32Array, typeof SceneView, ISceneViewType>(PoolType.SCENE, Uint32Array, SceneView);
 
 export enum CameraView {
     WIDTH,
@@ -680,14 +704,14 @@ export enum CameraView {
     SCENE,                                  // handle
     FRUSTUM,                                // handle
     FORWARD,                                // Vec3
-    POSITION = 12,                 // Vec3
-    VIEW_PORT = 15,               // Rect
-    CLEAR_COLOR = 19,            // Color
-    MAT_VIEW = 23,             // Mat4
-    MAT_VIEW_PROJ = 39,          // Mat4
-    MAT_VIEW_PROJ_INV = 55, // Mat4
-    MAT_PROJ = 71,      // Mat4
-    MAT_PROJ_INV = 87,           // Mat4
+    POSITION = 12,                          // Vec3
+    VIEW_PORT = 15,                         // Rect
+    CLEAR_COLOR = 19,                       // Color
+    MAT_VIEW = 23,                          // Mat4
+    MAT_VIEW_PROJ = 39,                     // Mat4
+    MAT_VIEW_PROJ_INV = 55,                 // Mat4
+    MAT_PROJ = 71,                          // Mat4
+    MAT_PROJ_INV = 87,                      // Mat4
     COUNT = 103
 }
 interface ICameraViewType extends IBufferTypeManifest {
@@ -698,17 +722,17 @@ interface ICameraViewType extends IBufferTypeManifest {
     [CameraView.CLEAR_DEPTH]: number;
     [CameraView.CLEAR_STENCIL]: number;
     [CameraView.NODE]: NodeHandle;
-    [CameraView.SCENE]: number;
-    [CameraView.FRUSTUM]: number;
-    [CameraView.FORWARD]: number;
-    [CameraView.POSITION]: number;
-    [CameraView.VIEW_PORT]: number;
-    [CameraView.CLEAR_COLOR]: number;
-    [CameraView.MAT_VIEW]: number;
-    [CameraView.MAT_VIEW_PROJ]: number;
-    [CameraView.MAT_VIEW_PROJ_INV]: number;
-    [CameraView.MAT_PROJ]: number;
-    [CameraView.MAT_PROJ_INV]: number;
+    [CameraView.SCENE]: SceneHandle;
+    [CameraView.FRUSTUM]: FrustumHandle;
+    [CameraView.FORWARD]: Vec3;
+    [CameraView.POSITION]: Vec3;
+    [CameraView.VIEW_PORT]: Rect;
+    [CameraView.CLEAR_COLOR]: Color;
+    [CameraView.MAT_VIEW]: Mat4;
+    [CameraView.MAT_VIEW_PROJ]: Mat4;
+    [CameraView.MAT_VIEW_PROJ_INV]: Mat4;
+    [CameraView.MAT_PROJ]: Mat4;
+    [CameraView.MAT_PROJ_INV]: Mat4;
     [CameraView.COUNT]: number;
 }
 export const CameraPool = new BufferPool<PoolType.CAMERA, Float32Array, typeof CameraView, ICameraViewType>(PoolType.CAMERA, Float32Array, CameraView);
@@ -716,21 +740,34 @@ export const CameraPool = new BufferPool<PoolType.CAMERA, Float32Array, typeof C
 export enum NodeView {
     LAYER,
     WORLD_SCALE,                         // Vec3
-    WORLD_POSITION = WORLD_SCALE + 3,    // Vec3
-    WORLD_ROTATION = WORLD_POSITION + 3, // Quat
-    WORLD_MATRIX = WORLD_ROTATION + 4,   // Mat4
+    WORLD_POSITION = 4,                  // Vec3
+    WORLD_ROTATION = 7,                  // Quat
+    WORLD_MATRIX = 11,                   // Mat4
     // Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed
     // by class member variable.
-    COUNT = JSB ?  NodeView.WORLD_MATRIX + 16 : NodeView.LAYER + 1
+    COUNT = 27 // JSB ?  NodeView.WORLD_MATRIX + 16 : NodeView.LAYER + 1
 }
-export const NodePool = new BufferPool(PoolType.NODE, Float32Array, NodeView);
+interface INodeViewType extends IBufferTypeManifest {
+    [NodeView.LAYER]: number;
+    [NodeView.WORLD_SCALE]: Vec3;
+    [NodeView.WORLD_POSITION]: Vec3;
+    [NodeView.WORLD_ROTATION]: Quat;
+    [NodeView.WORLD_MATRIX]: Mat4;
+    [NodeView.COUNT]: number;
+}
+export const NodePool = new BufferPool<PoolType.NODE, Float32Array, typeof NodeView, INodeViewType>(PoolType.NODE, Float32Array, NodeView);
 
 export enum RootView {
     CUMULATIVE_TIME,
     FRAME_TIME,
     COUNT
 }
-export const RootPool = new BufferPool(PoolType.ROOT, Float32Array, RootView, 1);
+interface IRootViewType extends IBufferTypeManifest {
+    [RootView.CUMULATIVE_TIME]: number;
+    [RootView.FRAME_TIME]: number;
+    [RootView.COUNT]: number;
+}
+export const RootPool = new BufferPool<PoolType.ROOT, Float32Array, typeof RootView, IRootViewType>(PoolType.ROOT, Float32Array, RootView, 1);
 
 export enum RenderWindowView {
     HAS_ON_SCREEN_ATTACHMENTS,
@@ -738,7 +775,13 @@ export enum RenderWindowView {
     FRAMEBUFFER,  // handle
     COUNT
 }
-export const RenderWindowPool = new BufferPool(PoolType.RENDER_WINDOW, Uint32Array, RenderWindowView, 2);
+interface IRenderWindowViewType extends IBufferTypeManifest {
+    [RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS]: number;
+    [RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS]: number;
+    [RenderWindowView.FRAMEBUFFER]: FramebufferHandle;
+    [RenderWindowView.COUNT]: number;
+}
+export const RenderWindowPool = new BufferPool<PoolType.RENDER_WINDOW, Uint32Array, typeof RenderWindowView, IRenderWindowViewType>(PoolType.RENDER_WINDOW, Uint32Array, RenderWindowView, 2);
 
 export enum FrustumView {
     VERTICES,               // Vec3[8]

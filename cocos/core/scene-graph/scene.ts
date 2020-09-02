@@ -29,7 +29,7 @@
 
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { Mat4, Quat, Vec3 } from '../math';
-import { warnID, assert, getError } from '../platform/debug';
+import { assert, getError } from '../platform/debug';
 import { RenderScene } from '../renderer/scene/render-scene';
 import { BaseNode } from './base-node';
 import { EDITOR, TEST } from 'internal:constants';
