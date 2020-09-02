@@ -487,5 +487,3 @@ export class ScrollBar extends Component {
         }
     }
 }
-
-legacyCC.ScrollBar = ScrollBar;

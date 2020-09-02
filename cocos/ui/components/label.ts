@@ -816,5 +816,3 @@ export class Label extends UIRenderable {
         }
     }
 }
-
-legacyCC.Label = Label;

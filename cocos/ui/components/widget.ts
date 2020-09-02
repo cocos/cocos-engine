@@ -1069,9 +1069,6 @@ export declare namespace Widget {
     export type AlignMode = EnumAlias<typeof AlignMode>;
 }
 
-// @ts-ignore
-legacyCC.Widget = Widget;
-
 // cc.Widget = module.exports = Widget;
 legacyCC.internal.computeInverseTransForTarget = computeInverseTransForTarget;
 legacyCC.internal.getReadonlyNodeSize = getReadonlyNodeSize;
