@@ -13,22 +13,9 @@ export * from './core/texture-buffer-pool';
 export * from './core/material-instance';
 export * from './core/pass-instance';
 
-export * from './models/skeletal-animation-utils';
-export * from './models/skinning-model';
-export * from './models/baked-skinning-model';
-
-export * from './scene/ambient';
-export * from './scene/camera';
-export * from './scene/deprecated';
-export * from './scene/directional-light';
-export * from './scene/light';
-export * from './scene/model';
-export * from './scene/shadows';
-export * from './scene/render-scene';
-export * from './scene/skybox';
-export * from './scene/sphere-light';
-export * from './scene/spot-light';
-export * from './scene/submodel';
+import * as models from './models';
+import * as scene from './scene';
+export { scene, models };
 
 import './scene/deprecated';
 import './ui/render-data';

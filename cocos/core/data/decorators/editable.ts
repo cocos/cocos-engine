@@ -1,3 +1,6 @@
+/**
+ * @category decorator
+ */
 
 import { IPropertyOptions } from './property';
 import { property } from './property';

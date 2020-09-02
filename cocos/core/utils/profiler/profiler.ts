@@ -24,7 +24,8 @@
  THE SOFTWARE.
 */
 
-import { CameraComponent, ModelComponent } from '../../3d';
+import { MeshRenderer } from '../../3d/framework/mesh-renderer';
+import { Camera } from '../../3d/framework/camera-component';
 import { createMesh } from '../../3d/misc/utils';
 import { Material } from '../../assets/material';
 import { GFXBufferTextureCopy, GFXClearFlag, GFXFormat, GFXTextureType, GFXTextureUsageBit } from '../../gfx/define';
@@ -249,8 +250,8 @@ export class Profiler {
         const cameraNode = new Node('Profiler_Camera');
         cameraNode.setPosition(0, 0, 1.5);
         cameraNode.parent = this._rootNode;
-        const camera = cameraNode.addComponent('cc.CameraComponent') as CameraComponent;
-        camera.projection = CameraComponent.ProjectionType.ORTHO;
+        const camera = cameraNode.addComponent('cc.Camera') as Camera;
+        camera.projection = Camera.ProjectionType.ORTHO;
         camera.near = 1;
         camera.far = 2;
         camera.orthoHeight = this._device!.height;
@@ -308,7 +309,7 @@ export class Profiler {
             vertexPos[i] *= ySign;
         }
 
-        const modelCom = managerNode.addComponent('cc.ModelComponent') as ModelComponent;
+        const modelCom = managerNode.addComponent(MeshRenderer);
         modelCom.mesh = createMesh({
             positions: vertexPos,
             indices: vertexindices,

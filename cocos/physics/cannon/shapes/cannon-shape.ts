@@ -7,16 +7,15 @@ import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { CannonSharedBody } from '../cannon-shared-body';
 import { CannonWorld } from '../cannon-world';
-import { Node } from '../../../core';
 import { TriggerEventType } from '../../framework/physics-interface';
 import { PhysicsSystem } from '../../framework/physics-system';
-import { ColliderComponent, RigidBodyComponent } from '../../framework';
+import { Collider, RigidBody } from '../../framework';
 import { aabb, sphere } from '../../../core/geometry';
 
 const TriggerEventObject = {
     type: 'onTriggerEnter' as TriggerEventType,
-    selfCollider: null as ColliderComponent | null,
-    otherCollider: null as ColliderComponent | null,
+    selfCollider: null as Collider | null,
+    otherCollider: null as Collider | null,
     impl: null as unknown as CANNON.ITriggeredEvent,
 };
 const cannonQuat_0 = new CANNON.Quaternion();
@@ -65,7 +64,7 @@ export class CannonShape implements IBaseShape {
         }
     }
 
-    setAttachedBody (v: RigidBodyComponent | null) {
+    setAttachedBody (v: RigidBody | null) {
         if (v) {
             if (this._sharedBody) {
                 if (this._sharedBody.wrappedBody == v.body) return;
@@ -99,7 +98,7 @@ export class CannonShape implements IBaseShape {
         Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }
 
-    protected _collider!: ColliderComponent;
+    protected _collider!: Collider;
     protected _shape!: CANNON.Shape;
     protected _offset = new CANNON.Vec3();
     protected _orient = new CANNON.Quaternion();
@@ -111,7 +110,7 @@ export class CannonShape implements IBaseShape {
 
     /** LIFECYCLE */
 
-    initialize (comp: ColliderComponent) {
+    initialize (comp: Collider) {
         this._collider = comp;
         this._isBinding = true;
         this.onComponentSet();

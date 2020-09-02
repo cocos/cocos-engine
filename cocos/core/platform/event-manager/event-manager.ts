@@ -40,7 +40,7 @@ import { errorID, warnID, logID, assertID } from '../../platform/debug';
 const ListenerID = EventListener.ListenerID;
 
 function checkUINode (node) {
-    if(node && node.getComponent('cc.UITransformComponent')) {
+    if(node && node.getComponent('cc.UITransform')) {
         return true;
     }
     return false;

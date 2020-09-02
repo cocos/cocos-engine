@@ -1,8 +1,8 @@
 import CANNON from '@cocos/cannon';
-import { Vec3, absMax } from '../../../core/math';
+import { Vec3 } from '../../../core/math';
 import { CannonShape } from './cannon-shape';
 import { ICylinderShape } from '../../spec/i-physics-shape';
-import { CylinderColliderComponent } from '../../../../exports/physics-framework';
+import { CylinderCollider } from '../../../../exports/physics-framework';
 import { EAxisDirection } from '../../framework/physics-enum';
 import { IVec3Like } from '../../../core/math/type-define';
 import { commitShapeUpdates } from '../cannon-util';
@@ -10,7 +10,7 @@ import { commitShapeUpdates } from '../cannon-util';
 export class CannonCylinderShape extends CannonShape implements ICylinderShape {
 
     get collider () {
-        return this._collider as CylinderColliderComponent;
+        return this._collider as CylinderCollider;
     }
 
     get impl () {

@@ -1,6 +1,6 @@
 import CANNON from '@cocos/cannon';
 import { CannonShape } from './cannon-shape';
-import { TerrainColliderComponent } from '../../framework';
+import { TerrainCollider } from '../../framework';
 import { Vec3, Quat } from '../../../core';
 import { ITerrainShape } from '../../spec/i-physics-shape';
 import { ITerrainAsset } from '../../spec/i-external';
@@ -27,7 +27,7 @@ CANNON.Heightfield.prototype.calculateWorldAABB = function (pos: CANNON.Vec3, qu
 export class CannonTerrainShape extends CannonShape implements ITerrainShape {
 
     get collider () {
-        return this._collider as TerrainColliderComponent;
+        return this._collider as TerrainCollider;
     }
 
     get impl () {

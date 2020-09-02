@@ -29,7 +29,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { RenderTexture } from '../../assets/render-texture';
-import { UITransformComponent } from '../../components';
+import { UITransform } from '../../components/ui-base';
 import { Component } from '../../components/component';
 import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { ray } from '../../geometry';
@@ -37,10 +37,12 @@ import { GFXClearFlag } from '../../gfx/define';
 import { Color, Rect, toRadian, Vec3 } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { view } from '../../platform/view';
-import { Camera } from '../../renderer';
+import { scene } from '../../renderer';
 import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO, CameraShutter } from '../../renderer/scene/camera';
 import { Root } from '../../root';
-import { Layers, Node, Scene } from '../../scene-graph';
+import { Node } from '../../scene-graph/node';
+import { Layers } from '../../scene-graph/layers';
+import { Scene } from '../../scene-graph/scene';
 import { Enum } from '../../value-types';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { legacyCC } from '../../global-exports';
@@ -66,7 +68,7 @@ const ClearFlag = Enum({
 });
 
 // tslint:disable: no-shadowed-variable
-export declare namespace CameraComponent {
+export declare namespace Camera {
     export type ProjectionType = EnumAlias<typeof ProjectionType>;
     export type FOVAxis = EnumAlias<typeof FOVAxis>;
     export type ClearFlag = EnumAlias<typeof ClearFlag>;
@@ -80,11 +82,11 @@ export declare namespace CameraComponent {
  * @en The Camera Component.
  * @zh 相机组件。
  */
-@ccclass('cc.CameraComponent')
-@help('i18n:cc.CameraComponent')
+@ccclass('cc.Camera')
+@help('i18n:cc.Camera')
 @menu('Components/Camera')
 @executeInEditMode
-export class CameraComponent extends Component {
+export class Camera extends Component {
     public static ProjectionType = ProjectionType;
     public static FOVAxis = FOVAxis;
     public static ClearFlag = ClearFlag;
@@ -129,7 +131,7 @@ export class CameraComponent extends Component {
     @serializable
     protected _targetTexture: RenderTexture | null = null;
 
-    protected _camera: Camera | null = null;
+    protected _camera: scene.Camera | null = null;
     protected _inEditorMode = false;
     protected _flows: string[] | undefined = undefined;
 
@@ -528,7 +530,7 @@ export class CameraComponent extends Component {
         if (!this._camera) { return out; }
 
         this.worldToScreen(wpos, _temp_vec3_1);
-        const cmp = uiNode.getComponent('cc.UITransformComponent') as UITransformComponent;
+        const cmp = uiNode.getComponent('cc.UITransform') as UITransform;
         const designSize = view.getVisibleSize();
         const xoffset = _temp_vec3_1.x - this._camera!.width * 0.5;
         const yoffset = _temp_vec3_1.y - this._camera!.height * 0.5;

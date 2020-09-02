@@ -101,7 +101,6 @@ export class PrivateNode extends Node {
         super(name);
         // this._originPos = cc.v2();
         this._objFlags |= HideInHierarchy;
-
     }
 
     // _posDirty (sendEvent) {

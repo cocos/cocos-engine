@@ -58,7 +58,7 @@
     "_id": ""
   },
   {
-    "__type__": "cc.UITransformComponent",
+    "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -79,7 +79,7 @@
     "_priority": 0
   },
   {
-    "__type__": "cc.MaskComponent",
+    "__type__": "cc.Mask",
     "_name": "",
     "_objFlags": 0,
     "node": {

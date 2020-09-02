@@ -1,7 +1,7 @@
 import Ammo from '../ammo-instantiated';
 import { AmmoShape } from "./ammo-shape";
 import { Mesh, warnID } from "../../../core";
-import { MeshColliderComponent } from '../../../../exports/physics-framework';
+import { MeshCollider } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3, cocos2AmmoTriMesh } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
@@ -10,7 +10,7 @@ import { AmmoConstant } from '../ammo-const';
 export class AmmoTrimeshShape extends AmmoShape implements ITrimeshShape {
 
     public get collider () {
-        return this._collider as MeshColliderComponent;
+        return this._collider as MeshCollider;
     }
 
     public get impl () {

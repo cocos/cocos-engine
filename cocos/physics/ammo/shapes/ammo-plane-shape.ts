@@ -1,6 +1,6 @@
 import Ammo from '../ammo-instantiated';
 import { AmmoShape } from "./ammo-shape";
-import { PlaneColliderComponent } from '../../../../exports/physics-framework';
+import { PlaneCollider } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3, ammoDeletePtr } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { IPlaneShape } from '../../spec/i-physics-shape';
@@ -30,7 +30,7 @@ export class AmmoPlaneShape extends AmmoShape implements IPlaneShape {
     }
 
     get collider () {
-        return this._collider as PlaneColliderComponent;
+        return this._collider as PlaneCollider;
     }
 
     readonly NORMAL: Ammo.btVector3;

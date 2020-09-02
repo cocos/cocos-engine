@@ -17,7 +17,7 @@ import { GFXDevice } from '../core/gfx/device';
 import { IGFXAttribute } from '../core/gfx/input-assembler';
 import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { MacroRecord } from '../core/renderer/core/pass-utils';
-import { Model } from '../core/renderer/scene/model';
+import { scene } from '../core/renderer';
 import { Root } from '../core/root';
 import { PrivateNode } from '../core/scene-graph/private-node';
 import { HeightField } from './height-field';
@@ -127,7 +127,7 @@ export class TerrainLayer {
  * @zh 地形渲染组件
  */
 class TerrainRenderable extends RenderableComponent {
-    public _model: Model | null = null;
+    public _model: scene.Model | null = null;
     public _meshData: RenderingSubMesh | null = null;
 
     public _brushMaterial: Material | null = null;
@@ -319,7 +319,7 @@ export class TerrainBlock {
         const subMesh = this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes, GFXPrimitiveMode.TRIANGLE_LIST);
         subMesh.indexBuffer = this._terrain._getSharedIndexBuffer() || undefined;
 
-        this._renderable._model = (legacyCC.director.root as Root).createModel(Model);
+        this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
         this._renderable._model.initialize(this._node);
         this._renderable._getRenderScene().addModel(this._renderable._model);
 
@@ -669,7 +669,7 @@ export class TerrainBlock {
  * @zh 地形组件
  */
 @ccclass('cc.Terrain')
-@help('i18n:cc.TerrainComponent')
+@help('i18n:cc.Terrain')
 @executeInEditMode
 @disallowMultiple
 export class Terrain extends Component {

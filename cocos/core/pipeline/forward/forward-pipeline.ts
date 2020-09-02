@@ -14,7 +14,7 @@ import { IRenderObject, UBOGlobal, UBOShadow,
 import { GFXBufferUsageBit, GFXMemoryUsageBit,
     GFXClearFlag, GFXFilter, GFXAddress, GFXCommandBufferType } from '../../gfx/define';
 import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout } from '../../gfx';
-import { SKYBOX_FLAG } from '../../renderer';
+import { SKYBOX_FLAG } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
 import { Mat4, Vec3, Vec4} from '../../math';

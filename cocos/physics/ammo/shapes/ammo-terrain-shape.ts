@@ -1,7 +1,7 @@
 import Ammo from '../ammo-instantiated';
 import { AmmoShape } from "./ammo-shape";
 import { Vec3, warn } from "../../../core";
-import { TerrainColliderComponent } from '../../../../exports/physics-framework';
+import { TerrainCollider } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ITerrainShape } from '../../spec/i-physics-shape';
@@ -12,7 +12,7 @@ import { IVec3Like } from '../../../core/math/type-define';
 export class AmmoTerrainShape extends AmmoShape implements ITerrainShape {
 
     public get collider () {
-        return this._collider as TerrainColliderComponent;
+        return this._collider as TerrainCollider;
     }
 
     public get impl () {

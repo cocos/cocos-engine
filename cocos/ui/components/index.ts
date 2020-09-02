@@ -2,29 +2,30 @@
  * @hidden
  */
 
-export { ButtonComponent } from './button-component';
-export { EditBoxComponent } from './editbox/edit-box-component';
-export * from './label-component';
-export { LayoutComponent } from './layout-component';
-export { MaskComponent } from './mask-component';
-export { ProgressBarComponent } from './progress-bar-component';
-export { RichTextComponent } from './rich-text-component';
-export { ScrollBarComponent } from './scroll-bar-component';
-export { ScrollViewComponent } from './scroll-view-component';
-export { SliderComponent } from './slider-component';
-export { SpriteComponent } from './sprite-component';
-export { ToggleComponent } from './toggle-component';
-export { ToggleContainerComponent } from './toggle-container-component';
-export { UIModelComponent } from './ui-model-component';
-export { ViewGroupComponent } from './view-group-component';
-export { WidgetComponent } from './widget-component';
-export { LabelOutlineComponent } from './label-outline-component';
-export { GraphicsComponent } from './graphics-component';
-export { UIReorderComponent } from './ui-reorder-component';
-export { PageViewComponent } from './page-view-component';
-export { PageViewIndicatorComponent } from './page-view-indicator-component';
-export { UIStaticBatchComponent } from './ui-static-batch-component';
-export { UIOpacityComponent } from './ui-opacity-component';
-export { SafeAreaComponent } from './safe-area-component';
+export { Button } from './button';
+export { EditBox } from './editbox/edit-box';
+export * from './label';
+export { Layout } from './layout';
+export { Mask } from './mask';
+export { ProgressBar } from './progress-bar';
+export { RichText } from './rich-text';
+export { ScrollBar } from './scroll-bar';
+export { ScrollView } from './scroll-view';
+export { Slider } from './slider';
+export { Sprite } from './sprite';
+export { Toggle } from './toggle';
+export { ToggleContainer } from './toggle-container';
+export { UIMeshRenderer } from './ui-mesh-renderer';
+export { ViewGroup } from './view-group';
+export { Widget } from './widget';
+export { LabelOutline } from './label-outline';
+export { Graphics } from './graphics';
+export { PageView } from './page-view';
+export { PageViewIndicator } from './page-view-indicator';
+export { UIStaticBatch } from './ui-static-batch';
+export { UIOpacity } from './ui-opacity';
+export { SafeArea } from './safe-area';
+export { UICoordinateTracker } from './ui-coodinate-tracker';
+export { BlockInputEvents } from './block-input-events';
 
 export { widgetManager } from './widget-manager';

@@ -892,7 +892,7 @@ function declareProperties (cls, className, properties, baseClass, mixins, es6?:
     });
 }
 
-function CCClass (options) {
+export function CCClass (options) {
     options = options || {};
 
     let name = options.name;
@@ -1237,7 +1237,5 @@ CCClass.getDefault = getDefault;
 CCClass.escapeForJS = escapeForJS;
 CCClass.IDENTIFIER_RE = IDENTIFIER_RE;
 CCClass.getNewValueTypeCode = (SUPPORT_JIT && getNewValueTypeCodeJit) as ((value: any) => string);
-
-export default CCClass;
 
 legacyCC.Class = CCClass;
