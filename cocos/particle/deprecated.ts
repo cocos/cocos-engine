@@ -1,14 +1,13 @@
 /**
- * @hidden
+ * @category particle
  */
 
 import { removeProperty } from '../core/utils/deprecated';
 import Burst from './burst';
-import { ccclass } from '../core/data/class-decorator';
-import { warnID } from '../core/platform/debug';
 import { ParticleSystem } from './particle-system';
 import { Billboard } from './billboard';
 import { Line } from './line';
+import { js } from '../core/utils/js';
 
 removeProperty(Burst.prototype, 'Burst.prototype', [
     {
@@ -19,24 +18,21 @@ removeProperty(Burst.prototype, 'Burst.prototype', [
     }
 ]);
 
-@ccclass('cc.ParticleSystemComponent')
-export class ParticleSystemComponent extends ParticleSystem {
-    constructor () {
-        warnID(5400, 'ParticleSystemComponent', 'ParticleSystem');
-        super();
-    }
-}
-@ccclass('cc.BillboardComponent')
-export class BillboardComponent extends Billboard {
-    constructor () {
-        warnID(5400, 'BillboardComponent', 'Billboard');
-        super();
-    }
-}
-@ccclass('cc.LineComponent')
-export class LineComponent extends Line {
-    constructor () {
-        warnID(5400, 'LineComponent', 'Line');
-        super();
-    }
-}
+/**
+ * Alias of [[ParticleSystem]]
+ * @deprecated Since v1.2
+ */
+export { ParticleSystem as ParticleSystemComponent };
+js.setClassAlias(ParticleSystem, 'cc.ParticleSystemComponent');
+/**
+ * Alias of [[Billboard]]
+ * @deprecated Since v1.2
+ */
+export { Billboard as BillboardComponent };
+js.setClassAlias(Billboard, 'cc.BillboardComponent');
+/**
+ * Alias of [[Line]]
+ * @deprecated Since v1.2
+ */
+export { Line as LineComponent };
+js.setClassAlias(Line, 'cc.LineComponent');

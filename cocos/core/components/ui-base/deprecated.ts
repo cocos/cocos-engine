@@ -1,5 +1,5 @@
 /**
- * @hidden
+ * @category ui
  */
 
 import { removeProperty } from '../../utils';
@@ -7,8 +7,7 @@ import { UIComponent } from './ui-component';
 import { UITransform } from './ui-transform';
 import { UIRenderable } from './ui-renderable';
 import { Canvas } from './canvas';
-import { ccclass } from '../../data/class-decorator';
-import { warnID } from '../../platform/debug';
+import { js } from '../../utils/js';
 
 removeProperty(UIComponent.prototype, 'UIComponent',[
     {
@@ -19,26 +18,23 @@ removeProperty(UIComponent.prototype, 'UIComponent',[
     },
 ]);
 
-@ccclass('cc.UITransformComponent')
-export class UITransformComponent extends UITransform {
-    constructor () {
-        warnID(5400, 'UITransformComponent', 'UITransform');
-        super();
-    }
-}
+/**
+ * Alias of [[UITransform]]
+ * @deprecated Since v1.2
+ */
+export { UITransform as UITransformComponent };
+js.setClassAlias(UITransform, 'cc.UITransformComponent');
 
-@ccclass('cc.RenderComponent')
-export class RenderComponent extends UIRenderable {
-    constructor () {
-        warnID(5400, 'RenderComponent', 'UIRenderable');
-        super();
-    }
-}
+/**
+ * Alias of [[UIRenderable]]
+ * @deprecated Since v1.2
+ */
+export { UIRenderable as RenderComponent };
+js.setClassAlias(UIRenderable, 'cc.RenderComponent');
 
-@ccclass('cc.CanvasComponent')
-export class CanvasComponent extends Canvas {
-    constructor () {
-        warnID(5400, 'CanvasComponent', 'Canvas');
-        super();
-    }
-}
+/**
+ * Alias of [[Canvas]]
+ * @deprecated Since v1.2
+ */
+export { Canvas as CanvasComponent };
+js.setClassAlias(Canvas, 'cc.CanvasComponent');

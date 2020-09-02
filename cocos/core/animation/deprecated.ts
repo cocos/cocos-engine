@@ -1,14 +1,12 @@
 /**
- * @hidden
+ * @category animation
  */
 
 import { replaceProperty } from '../utils/deprecated';
 import { Animation } from './animation-component';
 import { SkeletalAnimation } from './skeletal-animation';
 import { AnimationClip } from './animation-clip';
-import { ccclass } from '../data/class-decorator';
-import { warnID } from '../platform/debug';
-import { Node } from '../scene-graph/node';
+import { js } from '../utils/js';
 
 // deprecated
 replaceProperty(Animation.prototype, 'Animation', [
@@ -30,17 +28,15 @@ replaceProperty(Animation.prototype, 'Animation', [
     }
 ]);
 
-@ccclass('cc.AnimationComponent')
-export class AnimationComponent extends Animation {
-    constructor () {
-        warnID(5400, 'AnimationComponent', 'Animation');
-        super();
-    }
-}
-@ccclass('cc.SkeletalAnimationComponent')
-export class SkeletalAnimationComponent extends SkeletalAnimation {
-    constructor (path = '', target: Node | null = null) {
-        warnID(5400, 'SkeletalAnimationComponent', 'SkeletalAnimation');
-        super(path, target);
-    }
-}
+/**
+ * Alias of [[Animation]]
+ * @deprecated Since v1.2
+ */
+export { Animation as AnimationComponent };
+js.setClassAlias(Animation, 'cc.AnimationComponent');
+/**
+ * Alias of [[SkeletalAnimation]]
+ * @deprecated Since v1.2
+ */
+export { SkeletalAnimation as SkeletalAnimationComponent };
+js.setClassAlias(SkeletalAnimation, 'cc.SkeletalAnimationComponent');

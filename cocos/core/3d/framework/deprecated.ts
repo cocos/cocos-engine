@@ -1,10 +1,9 @@
+
 /**
- * @hidden
+ * @category component
  */
 
 import { removeProperty, replaceProperty } from '../../utils';
-import { ccclass } from '../../data/class-decorator';
-import { warnID } from '../../platform/debug';
 import { MeshRenderer } from './mesh-renderer';
 import { Camera } from './camera-component';
 import { Light } from './light-component';
@@ -13,6 +12,7 @@ import { SphereLight } from './sphere-light-component';
 import { DirectionalLight } from './directional-light-component';
 import { SkinnedMeshRenderer } from './skinned-mesh-renderer';
 import { SkinnedMeshBatchRenderer } from './skinned-mesh-batch-renderer';
+import { js } from '../../utils/js';
 
 removeProperty(MeshRenderer.prototype, 'MeshRenderer.prototype', [
     {
@@ -45,59 +45,51 @@ replaceProperty(Camera.prototype, 'Camera.prototype', [
     },
 ]);
 
-@ccclass('cc.CameraComponent')
-export class CameraComponent extends Camera {
-    constructor () {
-        warnID(5400, 'CameraComponent', 'UITransform');
-        super();
-    }
-}
-@ccclass('cc.LightComponent')
-export class LightComponent extends Light {
-    constructor () {
-        warnID(5400, 'LightComponent', 'Light');
-        super();
-    }
-}
-@ccclass('cc.DirectionalLightComponent')
-export class DirectionalLightComponent extends DirectionalLight {
-    constructor () {
-        warnID(5400, 'DirectionalLightComponent', 'DirectionalLight');
-        super();
-    }
-}
-@ccclass('cc.SphereLightComponent')
-export class SphereLightComponent extends SphereLight {
-    constructor () {
-        warnID(5400, 'SphereLightComponent', 'SphereLight');
-        super();
-    }
-}
-@ccclass('cc.SpotLightComponent')
-export class SpotLightComponent extends SpotLight {
-    constructor () {
-        warnID(5400, 'SpotLightComponent', 'SpotLight');
-        super();
-    }
-}
-@ccclass('cc.ModelComponent')
-export class ModelComponent extends MeshRenderer {
-    constructor () {
-        warnID(5400, 'ModelComponent', 'MeshRenderer');
-        super();
-    }
-}
-@ccclass('cc.SkinningModelComponent')
-export class SkinningModelComponent extends SkinnedMeshRenderer {
-    constructor () {
-        warnID(5400, 'SkinningModelComponent', 'SkinnedMeshRenderer');
-        super();
-    }
-}
-@ccclass('cc.BatchedSkinningModelComponent')
-export class BatchedSkinningModelComponent extends SkinnedMeshBatchRenderer {
-    constructor () {
-        warnID(5400, 'BatchedSkinningModelComponent', 'SkinnedMeshBatchRenderer');
-        super();
-    }
-}
+/**
+ * Alias of [[Camera]]
+ * @deprecated Since v1.2
+ */
+export { Camera as CameraComponent };
+js.setClassAlias(Camera, 'cc.CameraComponent');
+/**
+ * Alias of [[Light]]
+ * @deprecated Since v1.2
+ */
+export { Light as LightComponent };
+js.setClassAlias(Light, 'cc.LightComponent');
+/**
+ * Alias of [[DirectionalLight]]
+ * @deprecated Since v1.2
+ */
+export { DirectionalLight as DirectionalLightComponent };
+js.setClassAlias(DirectionalLight, 'cc.DirectionalLightComponent');
+/**
+ * Alias of [[SphereLight]]
+ * @deprecated Since v1.2
+ */
+export { SphereLight as SphereLightComponent };
+js.setClassAlias(SphereLight, 'cc.SphereLightComponent');
+/**
+ * Alias of [[SpotLight]]
+ * @deprecated Since v1.2
+ */
+export { SpotLight as SpotLightComponent };
+js.setClassAlias(SpotLight, 'cc.SpotLightComponent');
+/**
+ * Alias of [[MeshRenderer]]
+ * @deprecated Since v1.2
+ */
+export { MeshRenderer as ModelComponent };
+js.setClassAlias(MeshRenderer, 'cc.ModelComponent');
+/**
+ * Alias of [[SkinnedMeshRenderer]]
+ * @deprecated Since v1.2
+ */
+export { SkinnedMeshRenderer as SkinningModelComponent };
+js.setClassAlias(SkinnedMeshRenderer, 'cc.SkinningModelComponent');
+/**
+ * Alias of [[SkinnedMeshBatchRenderer]]
+ * @deprecated Since v1.2
+ */
+export { SkinnedMeshBatchRenderer as BatchedSkinningModelComponent };
+js.setClassAlias(SkinnedMeshBatchRenderer, 'cc.BatchedSkinningModelComponent');
