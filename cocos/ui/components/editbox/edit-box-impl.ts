@@ -62,9 +62,9 @@ let _domCount = 0;
 
 export class EditBoxImpl extends EditBoxImplBase {
     public _delegate: EditBox | null = null;
-    public _inputMode = InputMode.ANY;
-    public _inputFlag = InputFlag.DEFAULT;
-    public _returnType = KeyboardReturnType.DEFAULT;
+    public _inputMode: InputMode | null = null;
+    public _inputFlag: InputFlag | null = null;
+    public _returnType: KeyboardReturnType | null = null;
     public __eventListeners: any = {};
     public __fullscreen = false;
     public __autoResize = false;
