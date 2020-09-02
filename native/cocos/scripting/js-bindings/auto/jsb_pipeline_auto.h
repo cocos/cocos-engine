@@ -124,9 +124,11 @@ SE_DECLARE_FUNC(js_pipeline_RenderView_getPriority);
 SE_DECLARE_FUNC(js_pipeline_RenderView_getVisibility);
 SE_DECLARE_FUNC(js_pipeline_RenderView_setPriority);
 SE_DECLARE_FUNC(js_pipeline_RenderView_setVisibility);
+SE_DECLARE_FUNC(js_pipeline_RenderView_getWindow);
 SE_DECLARE_FUNC(js_pipeline_RenderView_initialize);
 SE_DECLARE_FUNC(js_pipeline_RenderView_destroy);
 SE_DECLARE_FUNC(js_pipeline_RenderView_getFlows);
+SE_DECLARE_FUNC(js_pipeline_RenderView_setWindow);
 SE_DECLARE_FUNC(js_pipeline_RenderView_RenderView);
 
 extern se::Object* __jsb_cc_pipeline_RenderWindow_proto;

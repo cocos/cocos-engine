@@ -1754,7 +1754,7 @@ static bool js_pipeline_RenderView_getWindow(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_pipeline_RenderView_getWindow)
+SE_BIND_FUNC(js_pipeline_RenderView_getWindow)
 
 static bool js_pipeline_RenderView_initialize(se::State& s)
 {
@@ -1827,7 +1827,7 @@ static bool js_pipeline_RenderView_setWindow(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_PROP_SET(js_pipeline_RenderView_setWindow)
+SE_BIND_FUNC(js_pipeline_RenderView_setWindow)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_RenderView_finalize)
 
@@ -1860,7 +1860,6 @@ bool js_register_pipeline_RenderView(se::Object* obj)
 {
     auto cls = se::Class::create("RenderView", obj, nullptr, _SE(js_pipeline_RenderView_constructor));
 
-    cls->defineProperty("window", _SE(js_pipeline_RenderView_getWindow), _SE(js_pipeline_RenderView_setWindow));
     cls->defineProperty("name", _SE(js_pipeline_RenderView_getName), nullptr);
     cls->defineFunction("setExecuteFlows", _SE(js_pipeline_RenderView_setExecuteFlows));
     cls->defineFunction("onGlobalPipelineStateChanged", _SE(js_pipeline_RenderView_onGlobalPipelineStateChanged));
@@ -1868,9 +1867,11 @@ bool js_register_pipeline_RenderView(se::Object* obj)
     cls->defineFunction("getVisibility", _SE(js_pipeline_RenderView_getVisibility));
     cls->defineFunction("setPriority", _SE(js_pipeline_RenderView_setPriority));
     cls->defineFunction("setVisibility", _SE(js_pipeline_RenderView_setVisibility));
+    cls->defineFunction("getWindow", _SE(js_pipeline_RenderView_getWindow));
     cls->defineFunction("initialize", _SE(js_pipeline_RenderView_initialize));
     cls->defineFunction("destroy", _SE(js_pipeline_RenderView_destroy));
     cls->defineFunction("getFlows", _SE(js_pipeline_RenderView_getFlows));
+    cls->defineFunction("setWindow", _SE(js_pipeline_RenderView_setWindow));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_RenderView_finalize));
     cls->install();
     JSBClassType::registerClass<cc::pipeline::RenderView>(cls);
