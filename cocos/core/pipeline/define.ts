@@ -9,7 +9,7 @@ import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
 import { GFXBindingMappingInfo, GFXDescriptorType, GFXType, GFXShaderStageFlagBit, IGFXDescriptorSetLayoutBinding } from '../gfx';
 import { IBlockInfo, ISamplerInfo } from '../assets/effect-asset';
-import { Camera } from '../renderer';
+import { Camera } from '../renderer/scene';
 
 export const PIPELINE_FLOW_FORWARD: string = 'ForwardFlow';
 export const PIPELINE_FLOW_SHADOW: string = 'ShadowFlow';

@@ -414,11 +414,11 @@ export class Camera {
     }
 
     get width () {
-        return CameraPool.get<number>(this._poolHandle, CameraView.WIDTH);
+        return CameraPool.get(this._poolHandle, CameraView.WIDTH);
     }
 
     get height () {
-        return CameraPool.get<number>(this._poolHandle, CameraView.HEIGHT);
+        return CameraPool.get(this._poolHandle, CameraView.HEIGHT);
     }
 
     get aspect () {
