@@ -91,6 +91,10 @@ Enum.update = <T> (obj: T): T => {
             value(obj, reverseKey, key);
         }
     }
+    // auto update list if __enums__ is array
+    if(Array.isArray(obj['__enums__'])) {
+        updateList(obj);
+    }
     return obj;
 }
 
@@ -135,7 +139,7 @@ Enum.getList = <EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator<Enu
         return enumType.__enums__;
     }
 
-    return Enum.updateList(enumType as EnumT);
+    return updateList(enumType as EnumT);
 };
 
 /**
@@ -143,7 +147,7 @@ Enum.getList = <EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator<Enu
  * @param enumType - the enum type defined from cc.Enum
  * @return {Object[]}
  */
-Enum.updateList = <EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator<EnumT>[] => {
+function updateList<EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator<EnumT>[] {
     assertIsEnum(enumType);
     const enums: any[] = enumType.__enums__ || [];
     enums.length = 0;
