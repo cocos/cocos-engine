@@ -163,5 +163,3 @@ export class ToggleContainer extends Component {
 
     }
 }
-
-legacyCC.ToggleContainer = ToggleContainer;

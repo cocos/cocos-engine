@@ -71,5 +71,3 @@ export class BlockInputEvents extends Component {
     }
   }
 }
-
-legacyCC.BlockInputEvents = BlockInputEvents;

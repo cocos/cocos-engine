@@ -721,8 +721,6 @@ if (sys.isBrowser){
     EditBox._EditBoxImpl = EditBoxImpl;
 }
 
-legacyCC.EditBox = EditBox;
-
 /**
  * @en
  * Note: This event is emitted from the node to which the component belongs.

@@ -219,5 +219,3 @@ export class SkeletalAnimation extends Animation {
         return state;
     }
 }
-
-legacyCC.SkeletalAnimation = SkeletalAnimation;

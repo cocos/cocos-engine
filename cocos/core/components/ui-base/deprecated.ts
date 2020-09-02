@@ -8,6 +8,7 @@ import { UITransform } from './ui-transform';
 import { UIRenderable } from './ui-renderable';
 import { Canvas } from './canvas';
 import { js } from '../../utils/js';
+import { legacyCC } from '../../global-exports';
 
 removeProperty(UIComponent.prototype, 'UIComponent',[
     {
@@ -23,6 +24,7 @@ removeProperty(UIComponent.prototype, 'UIComponent',[
  * @deprecated Since v1.2
  */
 export { UITransform as UITransformComponent };
+legacyCC.UITransformComponent = UITransform;
 js.setClassAlias(UITransform, 'cc.UITransformComponent');
 
 /**
@@ -37,4 +39,5 @@ js.setClassAlias(UIRenderable, 'cc.RenderComponent');
  * @deprecated Since v1.2
  */
 export { Canvas as CanvasComponent };
+legacyCC.CanvasComponent = Canvas;
 js.setClassAlias(Canvas, 'cc.CanvasComponent');
