@@ -47,7 +47,7 @@ import { legacyCC } from '../global-exports';
  * @class Details
  *
  */
-export class Details {
+class Details {
 
     public static pool: js.Pool<{}>;
 
@@ -485,7 +485,7 @@ class _Deserializer {
     public result: any;
     public customEnv: any;
     public deserializedList: any[];
-    public deserializedData: null;
+    public deserializedData: any;
     private _classFinder: any;
     private _target: any;
     private _ignoreEditorOnly: any;
@@ -840,7 +840,7 @@ _Deserializer.pool.get = function (result, target, classFinder, customEnv, ignor
  * @param {Object} [options]
  * @return {object} the main data(asset)
  */
-export function deserialize (data, details, options) {
+function deserialize (data, details, options) {
     options = options || {};
     const classFinder = options.classFinder || js._getClassById;
     // 启用 createAssetRefs 后，如果有 url 属性则会被统一强制设置为 { uuid: 'xxx' }，必须后面再特殊处理
@@ -858,7 +858,7 @@ export function deserialize (data, details, options) {
     const tempDetails = !details;
     details = details || Details.pool.get!();
     // @ts-ignore
-    const deserializer: any = _Deserializer.pool.get(details, target, classFinder, customEnv, ignoreEditorOnly);
+    const deserializer: _Deserializer = _Deserializer.pool.get(details, target, classFinder, customEnv, ignoreEditorOnly);
 
     legacyCC.game._isCloning = true;
     const res = deserializer.deserialize(data);
@@ -890,3 +890,5 @@ deserialize.reportMissingClass = (id) => {
     }
 };
 legacyCC.deserialize = deserialize;
+
+export { deserialize, Details };
