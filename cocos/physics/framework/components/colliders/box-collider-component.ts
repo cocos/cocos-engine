@@ -7,10 +7,10 @@ import {
     help,
     executeInEditMode,
     menu,
-    property,
     tooltip,
     type,
-} from '../../../../core/data/class-decorator';
+    serializable,
+} from 'cc.decorator';
 import { Vec3 } from '../../../../core/math';
 import { ColliderComponent } from './collider-component';
 import { IBoxShape } from '../../../spec/i-physics-shape';
@@ -61,7 +61,7 @@ export class BoxColliderComponent extends ColliderComponent {
 
     /// PRIVATE PROPERTY ///
 
-    @property
+    @serializable
     private _size: Vec3 = new Vec3(1, 1, 1);
 
     constructor () {

@@ -2,7 +2,7 @@
  * @category pipeline.forward
  */
 
-import { ccclass } from '../../data/class-decorator';
+import { ccclass } from 'cc.decorator';
 import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';

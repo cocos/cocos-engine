@@ -7,7 +7,7 @@
 
 import { Material, Texture2D } from '../core/assets';
 import { Component } from '../core/components';
-import { ccclass, help, executeInEditMode, menu, property, tooltip, displayOrder, type } from '../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { Vec3, Vec2, Vec4 } from '../core/math';
 import { LineModel } from './models/line-model';
 import { builtinResMgr } from '../core/3d/builtin';
@@ -53,7 +53,7 @@ export class LineComponent extends Component {
     private _material: Material | null = null;
     private _materialInstance: MaterialInstance | null = null;
 
-    @property
+    @serializable
     private _worldSpace = false;
 
     /**
@@ -116,7 +116,7 @@ export class LineComponent extends Component {
         }
     }
 
-    @property
+    @serializable
     private _tile = new Vec2(1, 1);
 
     /**
@@ -138,7 +138,7 @@ export class LineComponent extends Component {
         }
     }
 
-    @property
+    @serializable
     private _offset = new Vec2(0, 0);
 
     @type(Vec2)

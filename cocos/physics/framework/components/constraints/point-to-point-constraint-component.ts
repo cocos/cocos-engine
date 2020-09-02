@@ -7,9 +7,9 @@ import {
     help,
     executeInEditMode,
     menu,
-    property,
     type,
-} from '../../../../core/data/class-decorator';
+    serializable,
+} from 'cc.decorator';
 import { ConstraintComponent } from './constraint-component';
 import { Vec3, IVec3Like } from '../../../../core';
 import { EConstraintType } from '../../physics-enum';
@@ -49,10 +49,10 @@ export class PointToPointConstraintComponent extends ConstraintComponent {
         return this._constraint as IPointToPointConstraint;
     }
 
-    @property
+    @serializable
     private readonly _pivotA: Vec3 = new Vec3();
 
-    @property
+    @serializable
     private readonly _pivotB: Vec3 = new Vec3();
 
     constructor () {

@@ -28,7 +28,7 @@
  * @category asset
  */
 
-import { ccclass, property, type } from '../data/class-decorator';
+import { ccclass, type } from 'cc.decorator';
 import { GFXTextureType } from '../gfx/define';
 import { PixelFormat } from './asset-enum';
 import { ImageAsset } from './image-asset';

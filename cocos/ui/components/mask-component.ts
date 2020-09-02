@@ -29,7 +29,7 @@
  */
 
 import { InstanceMaterialType, UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
-import { ccclass, help, executionOrder, menu, property, tooltip, displayOrder, type, visible, override } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, editable, serializable } from 'cc.decorator';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
 import { view, warnID } from '../../core/platform';
 import visibleRect from '../../core/platform/visible-rect';
@@ -160,7 +160,7 @@ export class MaskComponent extends UIRenderComponent {
      * @zh
      * 椭圆遮罩的曲线细分数。
      */
-    @property
+    @editable
     get segments () {
         return this._segments;
     }
@@ -182,7 +182,7 @@ export class MaskComponent extends UIRenderComponent {
         return this._clearGraphics;
     }
 
-    @override(true)
+    @override
     @visible(false)
     get dstBlendFactor () {
         return this._dstBlendFactor;
@@ -197,7 +197,7 @@ export class MaskComponent extends UIRenderComponent {
         this._updateBlendFunc();
     }
 
-    @override(true)
+    @override
     @visible(false)
     get srcBlendFactor () {
         return this._srcBlendFactor;
@@ -212,7 +212,7 @@ export class MaskComponent extends UIRenderComponent {
         this._updateBlendFunc();
     }
 
-    @override(true)
+    @override
     @visible(false)
     // @constget
     get color (): Readonly<Color> {
@@ -230,13 +230,13 @@ export class MaskComponent extends UIRenderComponent {
 
     public static Type = MaskType;
 
-    @property
+    @serializable
     protected _type = MaskType.RECT;
 
-    @property
+    @serializable
     protected _inverted = false;
 
-    @property
+    @serializable
     protected _segments = 64;
 
     protected _graphics: GraphicsComponent | null = null;

@@ -28,7 +28,7 @@
  */
 
 import { RenderableComponent } from '../../../core/3d/framework/renderable-component';
-import { ccclass, property, executeInEditMode, requireComponent, disallowMultiple, tooltip, type, displayOrder } from '../../../core/data/class-decorator';
+import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip, type, displayOrder, serializable } from 'cc.decorator';
 import { Color } from '../../../core/math';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { ccenum } from '../../../core/value-types/enum';
@@ -245,11 +245,11 @@ export class UIRenderComponent extends RenderableComponent {
     public static Assembler: IAssemblerManager | null = null;
     public static PostAssembler: IAssemblerManager | null = null;
 
-    @property
+    @serializable
     protected _srcBlendFactor = GFXBlendFactor.SRC_ALPHA;
-    @property
+    @serializable
     protected _dstBlendFactor = GFXBlendFactor.ONE_MINUS_SRC_ALPHA;
-    @property
+    @serializable
     protected _color: Color = Color.WHITE.clone();
 
     protected _assembler: IAssembler | null = null;

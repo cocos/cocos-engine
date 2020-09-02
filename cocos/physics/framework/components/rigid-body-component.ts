@@ -9,13 +9,13 @@ import {
     disallowMultiple,
     executeInEditMode,
     menu,
-    property,
     executionOrder,
     tooltip,
     displayOrder,
     visible,
     type,
-} from '../../../core/data/class-decorator';
+    serializable,
+} from 'cc.decorator';
 import { Vec3 } from '../../../core/math';
 import { Component, error } from '../../../core';
 import { IRigidBody } from '../../spec/i-rigid-body';
@@ -315,34 +315,34 @@ export class RigidBodyComponent extends Component {
 
     /// PRIVATE PROPERTY ///
 
-    @property
+    @serializable
     private _group: number = PhysicsSystem.PhysicsGroup.DEFAULT;
 
-    @property
+    @serializable
     private _mass: number = 1;
 
-    @property
+    @serializable
     private _allowSleep: boolean = true;
 
-    @property
+    @serializable
     private _linearDamping: number = 0.1;
 
-    @property
+    @serializable
     private _angularDamping: number = 0.1;
 
-    @property
+    @serializable
     private _fixedRotation: boolean = false;
 
-    @property
+    @serializable
     private _isKinematic: boolean = false;
 
-    @property
+    @serializable
     private _useGravity: boolean = true;
 
-    @property
+    @serializable
     private _linearFactor: Vec3 = new Vec3(1, 1, 1);
 
-    @property
+    @serializable
     private _angularFactor: Vec3 = new Vec3(1, 1, 1);
 
     protected get _assertOnLoadCalled (): boolean {

@@ -588,7 +588,7 @@ value = 0;    // <--
 
 ### 3654
 
-Please specifiy a default value for "%s" property at its declaration:
+Please specifiy a default value for "%s.%s" property at its declaration:
 ```
 // Before:
 @property(...)

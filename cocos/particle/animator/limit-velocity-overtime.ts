@@ -3,7 +3,7 @@
  * @category particle
  */
 
-import { ccclass, property, tooltip, displayOrder, range, type } from '../../core/data/class-decorator';
+import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
 import { lerp, pseudoRandom, Vec3, Mat4, Quat } from '../../core/math';
 import { Space, ModuleRandSeed } from '../enum';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
@@ -19,7 +19,7 @@ const _temp_v3_1 = new Vec3();
 @ccclass('cc.LimitVelocityOvertimeModule')
 export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
 
-    @property
+    @serializable
     _enable: Boolean = false;
     /**
      * @zh 是否启用。
@@ -40,6 +40,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
      * @zh X 轴方向上的速度下限。
      */
     @type(CurveRange)
+    @serializable
     @range([-1, 1])
     @displayOrder(4)
     @tooltip('X 轴方向上的速度下限')
@@ -49,6 +50,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
      * @zh Y 轴方向上的速度下限。
      */
     @type(CurveRange)
+    @serializable
     @range([-1, 1])
     @displayOrder(5)
     @tooltip('Y 轴方向上的速度下限')
@@ -58,6 +60,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
      * @zh Z 轴方向上的速度下限。
      */
     @type(CurveRange)
+    @serializable
     @range([-1, 1])
     @displayOrder(6)
     @tooltip('Z 轴方向上的速度下限')
@@ -67,6 +70,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
      * @zh 速度下限。
      */
     @type(CurveRange)
+    @serializable
     @range([-1, 1])
     @displayOrder(3)
     @tooltip('速度下限')
@@ -75,7 +79,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     /**
      * @zh 当前速度与速度下限的插值。
      */
-    @property
+    @serializable
     @displayOrder(7)
     @tooltip('当前速度与速度下限的插值')
     public dampen = 3;
@@ -83,7 +87,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     /**
      * @zh 是否三个轴分开限制。
      */
-    @property
+    @serializable
     @displayOrder(2)
     @tooltip('是否三个轴分开限制')
     public separateAxes = false;
@@ -92,6 +96,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
      * @zh 计算速度下限时采用的坐标系 [[Space]]。
      */
     @type(Space)
+    @serializable
     @displayOrder(1)
     @tooltip('计算速度下限时采用的坐标系')
     public space = Space.Local;

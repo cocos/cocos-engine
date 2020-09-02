@@ -26,7 +26,7 @@
  * @category component/light
  */
 
-import { ccclass, help, executeInEditMode, menu, property, tooltip, type, unit } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, type, unit, serializable } from 'cc.decorator';
 import { LightType, nt2lm } from '../../renderer/scene/light';
 import { SphereLight } from '../../renderer/scene/sphere-light';
 import { LightComponent, PhotometricTerm } from './light-component';
@@ -37,13 +37,13 @@ import { LightComponent, PhotometricTerm } from './light-component';
 @executeInEditMode
 export class SphereLightComponent extends LightComponent {
 
-    @property
+    @serializable
     protected _size = 0.15;
-    @property
+    @serializable
     protected _luminance = 1700 / nt2lm(0.15);
-    @property
+    @serializable
     protected _term = PhotometricTerm.LUMINOUS_POWER;
-    @property
+    @serializable
     protected _range = 1;
 
     protected _type = LightType.SPHERE;

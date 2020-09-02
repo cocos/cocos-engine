@@ -27,7 +27,7 @@
  * @category scene-graph
  */
 
-import { ccclass } from '../data/class-decorator';
+import { ccclass } from 'cc.decorator';
 import { CCObject } from '../data/object';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';

@@ -7,9 +7,9 @@ import {
     help,
     executeInEditMode,
     menu,
-    property,
     type,
-} from '../../../../core/data/class-decorator';
+    serializable,
+} from 'cc.decorator';
 import { ColliderComponent } from './collider-component';
 import { ITerrainShape } from '../../../spec/i-physics-shape';
 import { ITerrainAsset } from '../../../spec/i-external';
@@ -59,7 +59,7 @@ export class TerrainColliderComponent extends ColliderComponent {
 
     /// PRIVATE PROPERTY ///
 
-    @property
+    @serializable
     private _terrain: ITerrainAsset | null = null;
 
     constructor () {

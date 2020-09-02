@@ -3,7 +3,7 @@
  * @category particle
  */
 
-import { ccclass, property, tooltip, displayOrder, range, type, radian } from '../../core/data/class-decorator';
+import { ccclass, tooltip, displayOrder, range, type, radian, serializable } from 'cc.decorator';
 import { pseudoRandom } from '../../core/math';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
@@ -14,7 +14,7 @@ const ROTATION_OVERTIME_RAND_OFFSET = ModuleRandSeed.ROTATION;
 
 @ccclass('cc.RotationOvertimeModule')
 export default class RotationOvertimeModule extends ParticleModuleBase {
-    @property
+    @serializable
     _enable: Boolean = false;
     /**
      * @zh 是否启用。
@@ -31,7 +31,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
         this.target.enableModule(this.name, val, this);
     }
 
-    @property
+    @serializable
     private _separateAxes = false;
 
     /**
@@ -51,8 +51,9 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
      * @zh 绕 X 轴设定旋转。
      */
     @type(CurveRange)
+    @serializable
     @range([-1, 1])
-    @radian(true)
+    @radian
     @displayOrder(2)
     @tooltip('绕 X 轴设定旋转')
     public x = new CurveRange();
@@ -61,8 +62,9 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
      * @zh 绕 Y 轴设定旋转。
      */
     @type(CurveRange)
+    @serializable
     @range([-1, 1])
-    @radian(true)
+    @radian
     @displayOrder(3)
     @tooltip('绕 Y 轴设定旋转')
     public y = new CurveRange();
@@ -71,8 +73,9 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
      * @zh 绕 Z 轴设定旋转。
      */
     @type(CurveRange)
+    @serializable
     @range([-1, 1])
-    @radian(true)
+    @radian
     @displayOrder(4)
     @tooltip('绕 Z 轴设定旋转')
     public z = new CurveRange();

@@ -30,7 +30,7 @@
 
 import { Component } from '../../core/components';
 import { UITransformComponent } from '../../core/components/ui-base/ui-transform-component';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property, requireComponent, tooltip, type, visible, editorOnly } from '../../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, editorOnly, editable, serializable } from 'cc.decorator';
 import { Size, Vec3 } from '../../core/math';
 import { errorID, warnID } from '../../core/platform/debug';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
@@ -360,7 +360,6 @@ export class WidgetComponent extends Component {
      * @zh
      * 当前是否水平拉伸。当同时启用左右对齐时，节点将会被水平拉伸。此时节点的宽度（只读）。
      */
-    @visible(false)
     get isStretchWidth () {
         return (this._alignFlags & LEFT_RIGHT) === LEFT_RIGHT;
     }
@@ -373,7 +372,6 @@ export class WidgetComponent extends Component {
      * @zh
      * 当前是否垂直拉伸。当同时启用上下对齐时，节点将会被垂直拉伸，此时节点的高度（只读）。
      */
-    @visible(false)
     get isStretchHeight () {
         return (this._alignFlags & TOP_BOT) === TOP_BOT;
     }
@@ -399,7 +397,7 @@ export class WidgetComponent extends Component {
     /**
      * @EditorOnly Not for user
      */
-    @property
+    @editable
     get editorTop () {
         return this._isAbsTop ? this._top : (this._top * 100);
     }
@@ -427,7 +425,7 @@ export class WidgetComponent extends Component {
     /**
      * @EditorOnly Not for user
      */
-    @property
+    @editable
     get editorBottom () {
         return this._isAbsBottom ? this._bottom : (this._bottom * 100);
     }
@@ -455,7 +453,7 @@ export class WidgetComponent extends Component {
     /**
      * @EditorOnly Not for user
      */
-    @property
+    @editable
     get editorLeft () {
         return this._isAbsLeft ? this._left : (this._left * 100);
     }
@@ -483,7 +481,7 @@ export class WidgetComponent extends Component {
     /**
      * @EditorOnly Not for user
      */
-    @property
+    @editable
     get editorRight () {
         return this._isAbsRight ? this._right : (this._right * 100);
     }
@@ -511,7 +509,7 @@ export class WidgetComponent extends Component {
     /**
      * @EditorOnly Not for user
      */
-    @property
+    @editable
     get editorHorizontalCenter () {
         return this._isAbsHorizontalCenter ? this._horizontalCenter : (this._horizontalCenter * 100);
     }
@@ -539,7 +537,7 @@ export class WidgetComponent extends Component {
     /**
      * @EditorOnly Not for user
      */
-    @property
+    @editable
     get editorVerticalCenter () {
         return this._isAbsVerticalCenter ? this._verticalCenter : (this._verticalCenter * 100);
     }
@@ -555,7 +553,7 @@ export class WidgetComponent extends Component {
      * @zh
      * 如果为 true，"top" 将会以像素作为边距，否则将会以相对父物体高度的比例（0 到 1）作为边距。
      */
-    @property
+    @editable
     get isAbsoluteTop () {
         return this._isAbsTop;
     }
@@ -575,7 +573,7 @@ export class WidgetComponent extends Component {
      * @zh
      * 如果为 true，"bottom" 将会以像素作为边距，否则将会以相对父物体高度的比例（0 到 1）作为边距。
      */
-    @property
+    @editable
     get isAbsoluteBottom () {
         return this._isAbsBottom;
     }
@@ -595,7 +593,7 @@ export class WidgetComponent extends Component {
      * @zh
      * 如果为 true，"left" 将会以像素作为边距，否则将会以相对父物体宽度的比例（0 到 1）作为边距。
      */
-    @property
+    @editable
     get isAbsoluteLeft () {
         return this._isAbsLeft;
     }
@@ -615,7 +613,7 @@ export class WidgetComponent extends Component {
      * @zh
      * 如果为 true，"right" 将会以像素作为边距，否则将会以相对父物体宽度的比例（0 到 1）作为边距。
      */
-    @property
+    @editable
     get isAbsoluteRight () {
         return this._isAbsRight;
     }
@@ -635,7 +633,7 @@ export class WidgetComponent extends Component {
      * @zh
      * 如果为 true，"horizontalCenter" 将会以像素作为偏移值，反之为比例（0 到 1）。
      */
-    @property
+    @editable
     get isAbsoluteHorizontalCenter () {
         return this._isAbsHorizontalCenter;
     }
@@ -655,7 +653,7 @@ export class WidgetComponent extends Component {
      * @zh
      * 如果为 true，"verticalCenter" 将会以像素作为偏移值，反之为比例（0 到 1）。
      */
-    @property
+    @editable
     get isAbsoluteVerticalCenter () {
         return this._isAbsVerticalCenter;
     }
@@ -695,7 +693,7 @@ export class WidgetComponent extends Component {
      * @zh
      * 对齐开关，由 AlignFlags 组成
      */
-    @property
+    @editable
     get alignFlags () {
         return this._alignFlags;
     }
@@ -714,43 +712,43 @@ export class WidgetComponent extends Component {
     public _lastSize = new Size();
     public _dirty = true;
 
-    @property
+    @serializable
     private _alignFlags = 0;
-    @property
+    @serializable
     private _target: Node | null = null;
-    @property
+    @serializable
     private _left = 0;
-    @property
+    @serializable
     private _right = 0;
-    @property
+    @serializable
     private _top = 0;
-    @property
+    @serializable
     private _bottom = 0;
-    @property
+    @serializable
     private _horizontalCenter = 0;
-    @property
+    @serializable
     private _verticalCenter = 0;
-    @property
+    @serializable
     private _isAbsLeft = true;
-    @property
+    @serializable
     private _isAbsRight = true;
-    @property
+    @serializable
     private _isAbsTop = true;
-    @property
+    @serializable
     private _isAbsBottom = true;
-    @property
+    @serializable
     private _isAbsHorizontalCenter = true;
-    @property
+    @serializable
     private _isAbsVerticalCenter = true;
     // original size before align
-    @property
+    @serializable
     private _originalWidth = 0;
-    @property
+    @serializable
     private _originalHeight = 0;
-    @property
+    @serializable
     private _alignMode = AlignMode.ON_WINDOW_RESIZE;
-    @property
-    @editorOnly(true)
+    @serializable
+    @editorOnly
     private _lockFlags = 0;
 
     /**

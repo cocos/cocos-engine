@@ -7,10 +7,11 @@ import {
     help,
     executeInEditMode,
     menu,
-    property,
     tooltip,
     type,
-} from '../../../../core/data/class-decorator';
+    editable,
+    serializable,
+} from 'cc.decorator';
 import { Vec3 } from '../../../../core/math';
 import { ColliderComponent } from './collider-component';
 import { IPlaneShape } from '../../../spec/i-physics-shape';
@@ -56,7 +57,7 @@ export class PlaneColliderComponent extends ColliderComponent {
      * @zh
      * 获取或设置平面在本地坐标系下沿着法线移动的数值。
      */
-    @property
+    @editable
     public get constant () {
         return this._constant;
     }
@@ -80,10 +81,10 @@ export class PlaneColliderComponent extends ColliderComponent {
 
     /// PRIVATE PROPERTY ///
 
-    @property
+    @serializable
     private _normal = new Vec3(0, 1, 0);
 
-    @property
+    @serializable
     private _constant = 0;
 
     constructor () {

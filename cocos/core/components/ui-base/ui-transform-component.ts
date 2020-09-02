@@ -28,7 +28,7 @@
  */
 
 import { Component } from '../component';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property, tooltip, displayOrder } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable } from 'cc.decorator';
 import { SystemEventType } from '../../platform/event-manager/event-enum';
 import { EventListener, IListenerMask } from '../../platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../math';
@@ -216,7 +216,7 @@ export class UITransformComponent extends Component {
         this._sortSiblings();
     }
 
-    @property
+    @serializable
     protected _priority = 0;
 
     /**
@@ -235,9 +235,9 @@ export class UITransformComponent extends Component {
 
     public _canvas: CanvasComponent | null = null;
 
-    @property
+    @serializable
     protected _contentSize = new Size(100, 100);
-    @property
+    @serializable
     protected _anchorPoint = new Vec2(0.5, 0.5);
 
     public __preload () {

@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { ccclass, property } from '../../data/class-decorator';
+import { ccclass, serializable } from 'cc.decorator';
 import { ModelComponent } from '../../3d/framework/model-component';
 import { IValueProxyFactory } from '../value-proxy';
 
@@ -18,7 +18,7 @@ export class MorphWeightsValueProxy implements IValueProxyFactory {
      * @en Sub-mesh index.
      * @zh 子网格索引。
      */
-    @property
+    @serializable
     public subMeshIndex: number = 0;
 
     public forTarget (target: ModelComponent) {

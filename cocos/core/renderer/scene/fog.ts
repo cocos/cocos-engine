@@ -16,7 +16,6 @@ export const FogType = Enum({
      * 线性雾。
      * @en
      * Linear fog
-     * @property LINEAR
      * @readonly
      */
     LINEAR: 0,
@@ -25,7 +24,6 @@ export const FogType = Enum({
      * 指数雾。
      * @en
      * Exponential fog
-     * @property EXP
      * @readonly
      */
     EXP: 1,
@@ -34,7 +32,6 @@ export const FogType = Enum({
      * 指数平方雾。
      * @en
      * Exponential square fog
-     * @property EXP_SQUARED
      * @readonly
      */
     EXP_SQUARED: 2,
@@ -43,7 +40,6 @@ export const FogType = Enum({
      * 层叠雾。
      * @en
      * Layered fog
-     * @property LAYERED
      * @readonly
      */
     LAYERED: 3,
@@ -56,7 +52,7 @@ export class Fog {
      */
     set enabled (val: boolean) {
         if (this._enabled === val) {
-            return
+            return;
         }
         this._enabled = val;
         if (!val) {

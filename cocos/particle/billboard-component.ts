@@ -7,7 +7,7 @@ import { builtinResMgr } from '../core/3d/builtin';
 import { createMesh } from '../core/3d/misc/utils';
 import { Material, Mesh, Texture2D } from '../core/assets';
 import { Component } from '../core/components/component';
-import { ccclass, help, executeInEditMode, menu, property, tooltip, type } from '../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, type, serializable } from 'cc.decorator';
 import { GFXAttributeName, GFXFormat, GFXPrimitiveMode } from '../core/gfx';
 import { Color, toDegree, toRadian, Vec4 } from '../core/math';
 import { Model } from '../core/renderer/scene/model';
@@ -38,7 +38,7 @@ export class BillboardComponent extends Component {
         }
     }
 
-    @property
+    @serializable
     private _height = 0;
 
     /**
@@ -57,7 +57,7 @@ export class BillboardComponent extends Component {
         }
     }
 
-    @property
+    @serializable
     private _width = 0;
 
     /**
@@ -76,7 +76,7 @@ export class BillboardComponent extends Component {
         }
     }
 
-    @property
+    @serializable
     private _rotation = 0;
 
     /**

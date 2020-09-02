@@ -2,7 +2,7 @@
  * @category pipeline
  */
 
-import { ccclass, property, displayOrder, visible, type } from '../../data/class-decorator';
+import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
 import { UIFlow } from '../ui/ui-flow';
 import { ForwardFlow } from './forward-flow';
@@ -67,15 +67,19 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     @type([RenderTextureConfig])
+    @serializable
     @displayOrder(2)
     protected renderTextures: RenderTextureConfig[] = [];
 
     @type([MaterialConfig])
+    @serializable
     @displayOrder(3)
     protected materials: MaterialConfig[] = [];
 
     public fog: Fog = new Fog();
+
     public ambient: Ambient = new Ambient();
+
     public skybox: Skybox = new Skybox();
     public shadows: Shadows = new Shadows();
     /**

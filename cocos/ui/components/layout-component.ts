@@ -29,7 +29,7 @@
  */
 
 import { Component } from '../../core/components/component';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property, requireComponent, tooltip, type } from '../../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, serializable } from 'cc.decorator';
 import { Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { UITransformComponent } from '../../core/components/ui-base/ui-transform-component';
@@ -505,34 +505,34 @@ export class LayoutComponent extends Component {
     public static ResizeMode = ResizeMode;
     public static AxisDirection = AxisDirection;
 
-    @property
+    @serializable
     protected _resizeMode = ResizeMode.NONE;
     // TODO: refactoring this name after data upgrade machanism is out.
-    @property
+    @serializable
     protected _N$layoutType = Type.NONE;
-    @property
+    @serializable
     protected _N$padding = 0;
-    @property
+    @serializable
     protected _cellSize = new Size(40, 40);
-    @property
+    @serializable
     protected _startAxis = AxisDirection.HORIZONTAL;
-    @property
+    @serializable
     protected _paddingLeft = 0;
-    @property
+    @serializable
     protected _paddingRight = 0;
-    @property
+    @serializable
     protected _paddingTop = 0;
-    @property
+    @serializable
     protected _paddingBottom = 0;
-    @property
+    @serializable
     protected _spacingX = 0;
-    @property
+    @serializable
     protected _spacingY = 0;
-    @property
+    @serializable
     protected _verticalDirection = VerticalDirection.TOP_TO_BOTTOM;
-    @property
+    @serializable
     protected _horizontalDirection = HorizontalDirection.LEFT_TO_RIGHT;
-    @property
+    @serializable
     protected _affectedByScale = false;
 
     protected _layoutSize = new Size(300, 200);

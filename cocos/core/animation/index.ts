@@ -1,7 +1,7 @@
 /**
  * @hidden
  */
-import { ccclass } from '../data/class-decorator';
+import { ccclass } from 'cc.decorator';
 import * as animation from './animation';
 import './deprecated';
 import * as easing from './easing';
