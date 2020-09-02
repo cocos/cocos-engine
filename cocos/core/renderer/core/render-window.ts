@@ -54,6 +54,10 @@ export class RenderWindow {
         return RenderWindowPool.get<number>(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS) === 1 ? true : false;
     }
 
+    get handle () : RenderWindowHandle {
+        return this._poolHandle;
+    }
+
     public static registerCreateFunc (root: Root) {
         root._createWindowFun = (_root: Root): RenderWindow => new RenderWindow(_root);
     }
