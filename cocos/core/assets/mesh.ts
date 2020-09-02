@@ -341,7 +341,9 @@ export class RenderingSubMesh implements IGFXInputAssemblerInfo {
             this.vertexBuffers[0].size / this.vertexBuffers[0].stride;
         const vertexIds = new Float32Array(vertexCount);
         for (let iVertex = 0; iVertex < vertexCount; ++iVertex) {
-            vertexIds[iVertex] = iVertex;
+            // `+0.5` because on some platforms, the "fetched integer" may have small error.
+            // For example `26` may yield `25.99999`, which is convert to `25` instead of `26` using `int()`.
+            vertexIds[iVertex] = iVertex + 0.5;
         }
 
         const vertexIdBuffer = device.createBuffer({
