@@ -148,10 +148,6 @@ function loadDepends (pipeline, item, asset, depends, callback) {
                 }
                 // @ts-ignore
                 this._owner[this._ownerProp] = value;
-                if (EDITOR && EditorExtends.Asset) {
-                    // @ts-ignore
-                    EditorExtends.Asset.onSetAssetProp(this._owner, this._ownerProp, value);
-                }
                 if (item.uuid !== asset._uuid && dependKeys.indexOf(item.id) < 0) {
                     dependKeys.push(item.id);
                 }
