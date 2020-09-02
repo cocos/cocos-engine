@@ -1,5 +1,8 @@
+/**
+ * @category decorator
+ */
 
-import { CCString, CCInteger, CCFloat, CCBoolean, PrimitiveType } from '../utils/attribute';
+import { CCString, CCInteger, CCFloat, CCBoolean } from '../utils/attribute';
 import { IExposedAttributes } from '../utils/attribute-defines';
 import { LegacyPropertyDecorator, getSubDict, getClassCache } from './utils';
 import { warnID, errorID } from '../../platform/debug';

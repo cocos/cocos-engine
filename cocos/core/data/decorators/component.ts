@@ -1,3 +1,7 @@
+/**
+ * @category decorator
+ */
+
 import { DEV } from 'internal:constants';
 import { makeEditorClassDecoratorFn, makeSmartEditorClassDecorator, emptySmartClassDecorator } from './utils';
 
