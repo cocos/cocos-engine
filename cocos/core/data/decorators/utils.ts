@@ -1,5 +1,8 @@
+/**
+ * @category decorator
+ */
 
-import CCClass from '../class';
+import { CCClass } from '../class';
 import { DEV } from 'internal:constants';
 import { error } from '../../platform/debug';
 import { js } from '../../utils/js';

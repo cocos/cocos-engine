@@ -13,13 +13,13 @@ import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { IVec3Like } from '../../core/math/type-define';
 import { PhysicMaterial } from './../framework/assets/physic-material';
 import { TriggerEventType } from '../framework/physics-interface';
-import { ColliderComponent } from '../../../exports/physics-framework';
+import { Collider } from '../../../exports/physics-framework';
 
 const hitPoint = new Vec3();
 const TriggerEventObject = {
     type: 'onTriggerEnter' as unknown as TriggerEventType,
-    selfCollider: null as unknown as ColliderComponent,
-    otherCollider: null as unknown as ColliderComponent,
+    selfCollider: null as unknown as Collider,
+    otherCollider: null as unknown as Collider,
     impl: {} as any,
 };
 

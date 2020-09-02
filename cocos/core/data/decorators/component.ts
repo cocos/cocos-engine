@@ -1,3 +1,7 @@
+/**
+ * @category decorator
+ */
+
 import { DEV } from 'internal:constants';
 import { makeEditorClassDecoratorFn, makeSmartEditorClassDecorator, emptySmartClassDecorator } from './utils';
 
@@ -8,11 +12,11 @@ import { makeEditorClassDecoratorFn, makeSmartEditorClassDecorator, emptySmartCl
  * @param requiredComponent The required component type
  * @example
  * ```ts
- * import {_decorator, SpriteComponent, Component} from cc;
+ * import {_decorator, Sprite, Component} from cc;
  * import {ccclass, requireComponent} from _decorator;
  *
  * @ccclass
- * @requireComponent(SpriteComponent)
+ * @requireComponent(Sprite)
  * class SpriteCtrl extends Component {
  *     // ...
  * }

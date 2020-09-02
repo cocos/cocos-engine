@@ -19,7 +19,7 @@ import { GFXPrimitiveMode } from '../gfx';
 import { IBArray, RenderingSubMesh, Mesh } from '../assets/mesh';
 import { IRaySubMeshOptions, ERaycastMode, IRaySubMeshResult, IRayMeshOptions, IRayModelOptions } from './spec';
 import { IVec3Like } from '../math/type-define';
-import { Model } from '../renderer';
+import { scene } from '../renderer';
 
 // tslint:disable:only-arrow-functions
 // tslint:disable:one-variable-per-declaration
@@ -469,17 +469,17 @@ const ray_mesh = (function () {
  * ray-model intersect detect, in world space.
  * @zh
  * 在世界空间中，射线和渲染模型的相交性检测。
- * @param {ray} ray
- * @param {Model} model
- * @param {IRayModelOptions} options
- * @return {number} 0 or !0
+ * @param ray
+ * @param model
+ * @param options
+ * @return 0 or !0
  */
 const ray_model = (function () {
     let minDis = 0;
     const deOpt: IRayModelOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
     const modelRay = new ray();
     const m4 = new Mat4();
-    return function (r: ray, model: Model, options?: IRayModelOptions) {
+    return function (r: ray, model: scene.Model, options?: IRayModelOptions) {
         minDis = 0;
         const opt = options === undefined ? deOpt : options;
         const wb = model.worldBounds;

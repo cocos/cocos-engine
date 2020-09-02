@@ -1,4 +1,8 @@
 
+/**
+ * @category decorator
+ */
+
 import { LegacyPropertyDecorator } from './utils';
 import { property } from './property';
 

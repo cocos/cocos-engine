@@ -3,7 +3,6 @@ import { Mat4, Quat, Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
 
 const _forward = new Vec3(0, 0, -1);
-const _v3 = new Vec3();
 const _qt = new Quat();
 const _matView = new Mat4();
 const _matProj = new Mat4();

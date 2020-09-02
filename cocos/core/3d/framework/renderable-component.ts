@@ -7,7 +7,7 @@ import { Material } from '../../assets/material';
 import { Component } from '../../components/component';
 import { ccclass, type, visible, displayName, serializable } from 'cc.decorator';
 import { IMaterialInstanceInfo, MaterialInstance } from '../../renderer/core/material-instance';
-import { Model } from '../../renderer/scene/model';
+import { scene } from '../../renderer';
 import { Layers } from '../../scene-graph/layers';
 
 const _matInsInfo: IMaterialInstanceInfo = {
@@ -84,7 +84,7 @@ export class RenderableComponent extends Component {
     }
 
     protected _materialInstances: (MaterialInstance | null)[] = [];
-    protected _models: Model[] = [];
+    protected _models: scene.Model[] = [];
 
     get sharedMaterial () {
         return this.getMaterial(0);
@@ -179,7 +179,7 @@ export class RenderableComponent extends Component {
         return this._materialInstances[index] || this._materials[index];
     }
 
-    public _collectModels (): Model[] {
+    public _collectModels (): scene.Model[] {
         return this._models;
     }
 

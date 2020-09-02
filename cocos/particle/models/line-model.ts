@@ -6,7 +6,7 @@ import { RenderingSubMesh } from '../../core/assets/mesh';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
 import { Vec3 } from '../../core/math';
-import { Model, ModelType } from '../../core/renderer/scene/model';
+import { scene } from '../../core/renderer';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 import { Material } from '../../core/assets';
@@ -21,7 +21,7 @@ const _vertex_attrs = [
 const _temp_v1 = new Vec3();
 const _temp_v2 = new Vec3();
 
-export class LineModel extends Model {
+export class LineModel extends scene.Model {
 
     private _capacity: number;
     private _vertSize: number = 0;
@@ -38,7 +38,7 @@ export class LineModel extends Model {
 
     constructor () {
         super();
-        this.type = ModelType.LINE;
+        this.type = scene.ModelType.LINE;
         this._capacity = 100;
         this._iaInfo = {
             drawInfos: [{

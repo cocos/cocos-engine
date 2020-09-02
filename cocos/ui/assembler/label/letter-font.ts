@@ -32,19 +32,19 @@ import { isUnicodeCJK, isUnicodeSpace, safeMeasureText} from '../../../core/util
 import { mixin } from '../../../core/utils/js';
 import { Color, Rect, Size, Vec2 } from '../../../core/math';
 import { GFXBufferTextureCopy } from '../../../core/gfx/define';
-import { LabelComponent, LabelOutlineComponent } from '../../components';
+import { Label, LabelOutline } from '../../components';
 import { ISharedLabelData } from './font-utils';
 import { PixelFormat } from '../../../core/assets/asset-enum';
 import { director, Director } from '../../../core/director';
 import { loader } from '../../../core/load-pipeline';
-import { UITransformComponent } from '../../../core/components/ui-base/ui-transform-component';
+import { UITransform } from '../../../core/components/ui-base/ui-transform';
 
-// const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutlineComponent, UIComponent);
-const Overflow = LabelComponent.Overflow;
+// const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutline, UIComponent);
+const Overflow = Label.Overflow;
 const WHITE = Color.WHITE.clone();
 const space = 2;
-const TextAlignment = LabelComponent.HorizontalAlign;
-const VerticalTextAlignment = LabelComponent.VerticalAlign;
+const TextAlignment = Label.HorizontalAlign;
+const VerticalTextAlignment = Label.VerticalAlign;
 
 interface ILabelInfo {
     fontSize: number;
@@ -106,11 +106,11 @@ class LetterTexture {
 
     public destroy () {
         this.image = null;
-        // LabelComponent._canvasPool.put(this._data);
+        // Label._canvasPool.put(this._data);
     }
 
     private _updateProperties () {
-        this.data = LabelComponent._canvasPool.get();
+        this.data = Label._canvasPool.get();
         this.canvas = this.data.canvas;
         this.context = this.data.context;
         if (this.context){
@@ -409,8 +409,8 @@ export class LetterAtlas {
 
 const _tmpRect = new Rect();
 
-let _comp: LabelComponent | null = null;
-let _uiTrans: UITransformComponent | null = null;
+let _comp: Label | null = null;
+let _uiTrans: UITransform | null = null;
 
 const _horizontalKerning: number[] = [];
 const _lettersInfo: LetterInfo[] = [];
@@ -468,7 +468,7 @@ export const letterFont = {
         return _fontAtlas.texture;
     },
 
-    updateRenderData (comp: LabelComponent) {
+    updateRenderData (comp: Label) {
         if (!comp.renderData || !comp.renderData.vertDirty) {
             return;
         }
@@ -532,7 +532,7 @@ export const letterFont = {
         }
 
         // outline
-        const outline: LabelOutlineComponent | null = /*OUTLINE_SUPPORTED && */_comp.getComponent(LabelOutlineComponent);
+        const outline: LabelOutline | null = /*OUTLINE_SUPPORTED && */_comp.getComponent(LabelOutline);
         if (outline && outline.enabled) {
             _labelInfo.isOutlined = true;
             _labelInfo.margin = outline.width;
@@ -554,7 +554,7 @@ export const letterFont = {
 
     },
 
-    _updateFontFamily (comp: LabelComponent) {
+    _updateFontFamily (comp: Label) {
         if (!comp.useSystemFont) {
             if (comp.font) {
                 if (comp.font._nativeAsset) {

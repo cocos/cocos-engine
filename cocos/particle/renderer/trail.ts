@@ -13,7 +13,7 @@ import { GFXDevice } from '../../core/gfx/device';
 import { IGFXAttribute } from '../../core/gfx/input-assembler';
 import { Color, Mat4, Quat, toRadian, Vec3 } from '../../core/math';
 import { Pool } from '../../core/memop';
-import { Model } from '../../core/renderer';
+import { scene } from '../../core/renderer';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
@@ -290,7 +290,7 @@ export default class TrailModule {
     private ibOffset: number = 0;
     private _trailSegments: Pool<TrailSegment> | null = null;
     private _particleTrail: Map<Particle, TrailSegment>;
-    private _trailModel: Model | null = null;
+    private _trailModel: scene.Model | null = null;
     private _iaInfo: IGFXIndirectBuffer;
     private _iaInfoBuffer: GFXBuffer | null = null;
     private _subMeshData: RenderingSubMesh | null = null;
@@ -570,7 +570,7 @@ export default class TrailModule {
             return;
         }
 
-        this._trailModel = legacyCC.director.root.createModel(Model);
+        this._trailModel = legacyCC.director.root.createModel(scene.Model);
     }
 
     private rebuild () {

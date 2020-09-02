@@ -1,3 +1,6 @@
+/**
+ * @category decorator
+ */
 
 import { LegacyPropertyDecorator } from './utils';
 import { property, IPropertyOptions } from './property';

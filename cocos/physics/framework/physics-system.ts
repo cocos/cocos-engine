@@ -14,20 +14,18 @@ import { PhysicsRayResult } from './physics-ray-result';
 import { EDITOR, DEBUG } from 'internal:constants';
 import { IPhysicsConfig, ICollisionMatrix } from './physics-config';
 
-const PhysicsGroup = {
-    DEFAULT: 1,
-};
+enum PhysicsGroup {
+    DEFAULT = 1,
+}
 Enum(PhysicsGroup);
 legacyCC.internal.PhysicsGroup = PhysicsGroup;
 
 class CollisionMatrix {
-
     updateArray: number[] = [];
-
     constructor () {
         for (let i = 0; i < 32; i++) {
             const key = 1 << i;
-            this[`_${key}`] = 0xffffffff;
+            this[`_${key}`] = 0;
             Object.defineProperty(this, key, {
                 'get': function () { return this[`_${key}`] },
                 'set': function (v: number) {
@@ -41,6 +39,7 @@ class CollisionMatrix {
                 }
             })
         }
+        this[`_1`] = PhysicsGroup.DEFAULT;
     }
 }
 
@@ -300,7 +299,7 @@ export class PhysicsSystem extends System {
             if (config.collisionMatrix) {
                 for (const i in config.collisionMatrix) {
                     const key = 1 << parseInt(i);
-                    this.collisionMatrix[`_${key}`] = config.collisionMatrix[key];
+                    this.collisionMatrix[`_${key}`] = config.collisionMatrix[i];
                 }
             }
         } else {
