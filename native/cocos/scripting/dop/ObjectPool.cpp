@@ -33,10 +33,12 @@ ObjectPool::ObjectPool(PoolType type, Object *jsArr)
     CCASSERT(jsArr->isArray(), "ObjectPool: It must be initialized with a JavaScript array");
     CCASSERT(ObjectPool::_poolMap.count(type) == 0, "This type of ObjectPool already exists.");
 
+    _jsArr->incRef();
     _indexMask = 0xffffffff & ~_poolFlag;
     ObjectPool::_poolMap.emplace(type, this);
 }
 
 ObjectPool::~ObjectPool() {
+    _jsArr->decRef();
     ObjectPool::_poolMap.erase(_type);
 }
