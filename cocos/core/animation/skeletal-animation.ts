@@ -40,7 +40,7 @@ import { getWorldTransformUntilRoot } from './transform-utils';
 import { legacyCC } from '../global-exports';
 import { AnimationManager } from './animation-manager';
 
-@ccclass('cc.SkeletalAnimation.Socket')
+@ccclass('cc.SkeletalAnimationComponent.Socket')
 export class Socket {
 
     /**
