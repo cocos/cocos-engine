@@ -1,6 +1,6 @@
 {
     "thisFile": {
-        "stamp": "2020-09-02T10:44:39.419Z"
+        "stamp": "2020-09-02T10:59:00.344Z"
     },
     "variables": [
         "cc.AffineTransform",
@@ -22,7 +22,7 @@
         "cc.Boolean",
         "cc.BoxColliderComponent",
         "cc.ButtonComponent",
-        "cc.CameraComponent",
+        "cc.Camera",
         "cc.CameraVisFlags",
         "cc.Canvas",
         "cc.Class",
