@@ -47,7 +47,7 @@ import { legacyCC } from '../global-exports';
  * @class Details
  *
  */
-class Details {
+export class Details {
 
     public static pool: js.Pool<{}>;
 
@@ -840,7 +840,7 @@ _Deserializer.pool.get = function (result, target, classFinder, customEnv, ignor
  * @param {Object} [options]
  * @return {object} the main data(asset)
  */
-function deserialize (data, details, options) {
+export function deserialize (data, details, options) {
     options = options || {};
     const classFinder = options.classFinder || js._getClassById;
     // 启用 createAssetRefs 后，如果有 url 属性则会被统一强制设置为 { uuid: 'xxx' }，必须后面再特殊处理
@@ -890,5 +890,3 @@ deserialize.reportMissingClass = (id) => {
     }
 };
 legacyCC.deserialize = deserialize;
-
-export { deserialize, Details };
