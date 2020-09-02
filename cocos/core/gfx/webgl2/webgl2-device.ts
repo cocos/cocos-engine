@@ -114,7 +114,7 @@ export class WebGL2Device extends GFXDevice {
     private _isAntialias: boolean = true;
     private _isPremultipliedAlpha: boolean = true;
     private _useVAO: boolean = true;
-    private _bindingMappingInfo: GFXBindingMappingInfo | null = null;
+    private _bindingMappingInfo: GFXBindingMappingInfo = new GFXBindingMappingInfo();
 
     private _extensions: string[] | null = null;
     private _EXT_texture_filter_anisotropic: EXT_texture_filter_anisotropic | null = null;
@@ -148,6 +148,8 @@ export class WebGL2Device extends GFXDevice {
         if (info.bindingMappingInfo !== undefined) {
             this._bindingMappingInfo = info.bindingMappingInfo;
         }
+        if (!this._bindingMappingInfo.bufferOffsets.length) this._bindingMappingInfo.bufferOffsets.push(0);
+        if (!this._bindingMappingInfo.samplerOffsets.length) this._bindingMappingInfo.samplerOffsets.push(0);
 
         try {
             const webGLCtxAttribs: WebGLContextAttributes = {

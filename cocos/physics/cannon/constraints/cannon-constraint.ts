@@ -1,6 +1,6 @@
 import CANNON from '@cocos/cannon';
 import { IBaseConstraint } from '../../spec/i-physics-constraint';
-import { ConstraintComponent, RigidBodyComponent } from '../../framework';
+import { Constraint, RigidBody } from '../../framework';
 import { CannonRigidBody } from '../cannon-rigid-body';
 
 CANNON.World['staticBody'] = new CANNON.Body();
@@ -8,7 +8,7 @@ CANNON.World['idToConstraintMap'] = {};
 
 export class CannonConstraint implements IBaseConstraint {
 
-    setConnectedBody (v: RigidBodyComponent | null): void {
+    setConnectedBody (v: RigidBody | null): void {
         if (v) {
             this._impl.bodyB = (v.body as CannonRigidBody).impl;
         } else {
@@ -24,10 +24,10 @@ export class CannonConstraint implements IBaseConstraint {
     get constraint () { return this._com }
 
     protected _impl!: CANNON.Constraint;
-    protected _com!: ConstraintComponent;
-    protected _rigidBody: RigidBodyComponent | null = null;
+    protected _com!: Constraint;
+    protected _rigidBody: RigidBody | null = null;
 
-    initialize (v: ConstraintComponent): void {
+    initialize (v: Constraint): void {
         this._com = v;
         this._rigidBody = v.attachedBody;
         this.onComponentSet();

@@ -7,9 +7,54 @@ in vec4 v_shadowPos;
 #pragma builtin(global)
 layout(set = 0, binding = 4) uniform sampler2D cc_shadowMap;
 
-vec4 CCGetShadowFactor () {
+vec4 CCGetShadowFactorX1 () {
   vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
   float depth = unpackRGBAToDepth(texture(cc_shadowMap, clipPos.xy));
+  if (depth < (clipPos.z - 0.001)) return cc_shadowColor;
+  else return vec4(0);
+}
+
+vec4 CCGetShadowFactorX5 () {
+  vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
+  float offsetx = 1.0 / cc_shadowSize.x;
+  float offsety = 1.0 / cc_shadowSize.y;
+  float depth = 0.0;
+  depth += unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x - offsetx, clipPos.y - offsety)));
+  depth += unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x - offsetx, clipPos.y + offsety)));
+  depth += unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos.y)));
+  depth += unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x + offsetx, clipPos.y - offsety)));
+  depth += unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x + offsetx, clipPos.y + offsety)));
+  depth /= 5.0;
+  if (depth < (clipPos.z - 0.001)) return cc_shadowColor;
+  else return vec4(0);
+}
+
+vec4 CCGetShadowFactorX9 () {
+  vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
+  float offsetx = 1.0 / cc_shadowSize.x;
+  float offsety = 1.0 / cc_shadowSize.y;
+  float depth = 0.0;
+  for (int i = -1; i <= 1; i++) {
+    for (int j = -1; j <= 1; j++) {
+      depth += unpackRGBAToDepth(texture(cc_shadowMap, clipPos.xy + vec2(i, j) * vec2(offsetx, offsety)));
+    }
+  }
+  depth /= 9.0;
+  if (depth < (clipPos.z - 0.001)) return cc_shadowColor;
+  else return vec4(0);
+}
+
+vec4 CCGetShadowFactorX25 () {
+  vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
+  float offsetx = 1.0 / cc_shadowSize.x;
+  float offsety = 1.0 / cc_shadowSize.y;
+  float depth = 0.0;
+  for (int i = -2; i <= 2; i++) {
+    for (int j = -2; j <= 2; j++) {
+      depth += unpackRGBAToDepth(texture(cc_shadowMap, clipPos.xy + vec2(i, j) * vec2(offsetx, offsety)));
+    }
+  }
+  depth /= 25.0;
   if (depth < (clipPos.z - 0.001)) return cc_shadowColor;
   else return vec4(0);
 }

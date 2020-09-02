@@ -64,7 +64,7 @@ export class SubModel {
     }
 
     public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null) {
-        this._device = legacyCC.director.root.device;
+        this._device = legacyCC.director.root.device as GFXDevice;
 
         this._subMesh = subMesh;
         this._patches = patches;

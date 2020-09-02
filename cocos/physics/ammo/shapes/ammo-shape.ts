@@ -1,6 +1,6 @@
 import Ammo from '../ammo-instantiated';
 import { Vec3, Quat } from "../../../core/math";
-import { ColliderComponent, RigidBodyComponent, PhysicMaterial, PhysicsSystem } from "../../../../exports/physics-framework";
+import { Collider, PhysicMaterial, PhysicsSystem } from "../../../../exports/physics-framework";
 import { AmmoWorld } from '../ammo-world';
 import { AmmoBroadphaseNativeTypes, EAmmoSharedBodyDirty } from '../ammo-enum';
 import { cocos2AmmoVec3, ammoDeletePtr, cocos2AmmoQuat } from '../ammo-util';
@@ -52,7 +52,7 @@ export class AmmoShape implements IBaseShape {
     }
 
     get impl () { return this._btShape!; }
-    get collider (): ColliderComponent { return this._collider; }
+    get collider (): Collider { return this._collider; }
     get sharedBody (): AmmoSharedBody { return this._sharedBody; }
     get index () { return this._index; }
 
@@ -67,7 +67,7 @@ export class AmmoShape implements IBaseShape {
     protected _sharedBody!: AmmoSharedBody;
     protected _btShape!: Ammo.btCollisionShape;
     protected _btCompound: Ammo.btCompoundShape | null = null;
-    protected _collider!: ColliderComponent;
+    protected _collider!: Collider;
 
     protected readonly transform: Ammo.btTransform;
     protected readonly pos: Ammo.btVector3;
@@ -102,7 +102,7 @@ export class AmmoShape implements IBaseShape {
         Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }
 
-    initialize (com: ColliderComponent) {
+    initialize (com: Collider) {
         this._collider = com;
         this._isBinding = true;
         this.onComponentSet();

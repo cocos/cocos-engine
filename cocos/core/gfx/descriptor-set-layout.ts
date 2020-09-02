@@ -31,9 +31,15 @@ export abstract class GFXDescriptorSetLayout extends GFXObject {
         return this._bindings;
     }
 
+    get descriptorIndices () {
+        return this._descriptorIndices;
+    }
+
     protected _device: GFXDevice;
 
     protected _bindings: IGFXDescriptorSetLayoutBinding[] = [];
+
+    protected _descriptorIndices: number[] = [];
 
     constructor (device: GFXDevice) {
         super(GFXObjectType.DESCRIPTOR_SET_LAYOUT);

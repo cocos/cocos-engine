@@ -41,10 +41,8 @@ export class Action {
     /**
      * !#en Default Action tag.
      * !#zh 默认动作标签。
-     * @property TAG_INVALID
      * @constant
      * @static
-     * @type {Number}
      * @default -1
      */
     static TAG_INVALID: number = -1;

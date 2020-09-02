@@ -1,7 +1,7 @@
 /**
  * @category pipeline
  */
-import { ccclass, property, visible, displayOrder, type } from '../data/class-decorator';
+import { ccclass, displayOrder, serializable } from 'cc.decorator';
 import { RenderStage } from './render-stage';
 import { RenderView } from './render-view';
 import { RenderPipeline } from './render-pipeline';
@@ -28,6 +28,7 @@ export abstract class RenderFlow {
      * @en The name of the render flow
      * @zh 渲染流程的名字
      */
+    @displayOrder(0)
     public get name (): string {
         return this._name;
     }
@@ -36,6 +37,7 @@ export abstract class RenderFlow {
      * @en Priority of the current flow
      * @zh 当前渲染流程的优先级。
      */
+    @displayOrder(1)
     public get priority (): number {
         return this._priority;
     }
@@ -44,6 +46,7 @@ export abstract class RenderFlow {
      * @en Tag of the current flow
      * @zh 当前渲染流程的标签。
      */
+    @displayOrder(2)
     public get tag (): number {
         return this._tag;
     }
@@ -53,28 +56,21 @@ export abstract class RenderFlow {
      * @zh 渲染流程 stage 列表。
      * @readonly
      */
+    @displayOrder(3)
     public get stages (): RenderStage[] {
         return this._stages;
     }
 
-    @property
-    @displayOrder(0)
-    @visible(true)
+    @serializable
     protected _name: string = '';
 
-    @property
-    @displayOrder(1)
-    @visible(true)
+    @serializable
     protected _priority: number = 0;
 
-    @property
-    @displayOrder(2)
-    @visible(true)
+    @serializable
     protected _tag: number = 0;
 
-    @type([RenderStage])
-    @displayOrder(3)
-    @visible(true)
+    @serializable
     protected _stages: RenderStage[] = [];
     protected _pipeline!: RenderPipeline;
 

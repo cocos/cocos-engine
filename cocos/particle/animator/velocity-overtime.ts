@@ -3,7 +3,7 @@
  * @category particle
  */
 
-import { ccclass, property, tooltip, displayOrder, range, type } from '../../core/data/class-decorator';
+import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
 import { Mat4, pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
@@ -20,7 +20,7 @@ const _temp_v3 = new Vec3();
 
 @ccclass('cc.VelocityOvertimeModule')
 export default class VelocityOvertimeModule extends ParticleModuleBase {
-    @property
+    @serializable
     _enable: Boolean = false;
     /**
      * @zh 是否启用。
@@ -41,6 +41,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
      * @zh X 轴方向上的速度分量。
      */
     @type(CurveRange)
+    @serializable
     @range([-1, 1])
     @displayOrder(2)
     @tooltip('X 轴方向上的速度分量')
@@ -50,6 +51,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
      * @zh Y 轴方向上的速度分量。
      */
     @type(CurveRange)
+    @serializable
     @range([-1, 1])
     @displayOrder(3)
     @tooltip('Y 轴方向上的速度分量')
@@ -59,6 +61,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
      * @zh Z 轴方向上的速度分量。
      */
     @type(CurveRange)
+    @serializable
     @range([-1, 1])
     @displayOrder(4)
     @tooltip('Z 轴方向上的速度分量')
@@ -68,6 +71,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
      * @zh 速度修正系数（只支持 CPU 粒子）。
      */
     @type(CurveRange)
+    @serializable
     @range([-1, 1])
     @displayOrder(5)
     @tooltip('速度修正系数（只支持 CPU 粒子）')
@@ -77,6 +81,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
      * @zh 速度计算时采用的坐标系[[Space]]。
      */
     @type(Space)
+    @serializable
     @displayOrder(1)
     @tooltip('速度计算时采用的坐标系')
     public space = Space.Local;

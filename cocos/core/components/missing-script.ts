@@ -28,7 +28,7 @@
  * @category component
  */
 
-import {ccclass, inspector, property, visible, editorOnly, serializable} from '../data/class-decorator';
+import {ccclass, inspector, editorOnly, serializable, editable} from 'cc.decorator';
 import {_getClassById} from '../utils/js';
 import {BUILTIN_CLASSID_RE} from '../utils/misc';
 import { Component } from './component';
@@ -45,9 +45,8 @@ import { warnID } from '../platform/debug';
 @ccclass('cc.MissingClass')
 class MissingClass {
     // the serialized data for original object
-    @property
-    @editorOnly(true)
-    @visible(false)
+    @serializable
+    @editorOnly
     public _$erialized = null;
 }
 
@@ -96,13 +95,12 @@ export default class MissingScript extends Component {
         }
     }
 
-    @serializable(false)
+    @editable
     public compiled = false;
 
     // the serialized data for original script object
-    @property
-    @visible(false)
-    @editorOnly(true)
+    @serializable
+    @editorOnly
     public _$erialized = null;
 
     constructor () {

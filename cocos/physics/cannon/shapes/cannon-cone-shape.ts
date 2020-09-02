@@ -2,7 +2,7 @@ import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../../core/math';
 import { CannonShape } from './cannon-shape';
 import { IConeShape } from '../../spec/i-physics-shape';
-import { ConeColliderComponent } from '../../../../exports/physics-framework';
+import { ConeCollider } from '../../../../exports/physics-framework';
 import { EAxisDirection } from '../../framework/physics-enum';
 import { IVec3Like } from '../../../core/math/type-define';
 import { commitShapeUpdates } from '../cannon-util';
@@ -13,7 +13,7 @@ const v3_1 = new Vec3();
 export class CannonConeShape extends CannonShape implements IConeShape {
 
     get collider () {
-        return this._collider as ConeColliderComponent;
+        return this._collider as ConeCollider;
     }
 
     get impl () {

@@ -5,7 +5,7 @@ import { AmmoWorld } from '../ammo/ammo-world';
 import { AmmoBoxShape } from '../ammo/shapes/ammo-box-shape';
 import { AmmoSphereShape } from '../ammo/shapes/ammo-sphere-shape';
 import { AmmoCapsuleShape } from '../ammo/shapes/ammo-capsule-shape';
-import { AmmoBvhTriangleMeshShape } from '../ammo/shapes/ammo-bvh-triangle-mesh-shape';
+import { AmmoTrimeshShape } from './shapes/ammo-trimesh-shape';
 import { AmmoCylinderShape } from '../ammo/shapes/ammo-cylinder-shape';
 import { AmmoConeShape } from "../ammo/shapes/ammo-cone-shape";
 import { AmmoTerrainShape } from "../ammo/shapes/ammo-terrain-shape";
@@ -22,7 +22,7 @@ select('ammo.js', {
     BoxShape: AmmoBoxShape,
     SphereShape: AmmoSphereShape,
     CapsuleShape: AmmoCapsuleShape,
-    TrimeshShape: AmmoBvhTriangleMeshShape,
+    TrimeshShape: AmmoTrimeshShape,
     CylinderShape: AmmoCylinderShape,
     ConeShape: AmmoConeShape,
     TerrainShape: AmmoTerrainShape,

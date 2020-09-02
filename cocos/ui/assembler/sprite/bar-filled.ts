@@ -30,12 +30,12 @@
 import { Mat4, Vec3 } from '../../../core/math';
 import { IRenderData, RenderData } from '../../../core/renderer/ui/render-data';
 import { UI } from '../../../core/renderer/ui/ui';
-import { SpriteComponent } from '../../components';
+import { Sprite } from '../../components';
 import { IAssembler } from '../../../core/renderer/ui/base';
 import { fillVerticesWithoutCalc3D } from '../utils';
 import { errorID } from '../../../core/platform/debug';
 
-const FillType = SpriteComponent.FillType;
+const FillType = Sprite.FillType;
 const matrix = new Mat4();
 
 /**
@@ -44,7 +44,7 @@ const matrix = new Mat4();
  */
 export const barFilled: IAssembler = {
     useModel: false,
-    updateRenderData (sprite: SpriteComponent) {
+    updateRenderData (sprite: Sprite) {
         const frame = sprite.spriteFrame;
 
         // TODO: Material API design and export from editor could affect the material activation process
@@ -100,7 +100,7 @@ export const barFilled: IAssembler = {
         }
     },
 
-    updateUVs (sprite: SpriteComponent, fillStart: number, fillEnd: number) {
+    updateUVs (sprite: Sprite, fillStart: number, fillEnd: number) {
         const spriteFrame = sprite.spriteFrame;
         const renderData = sprite.renderData;
         const dataList = renderData!.data;
@@ -173,7 +173,7 @@ export const barFilled: IAssembler = {
         renderData!.uvDirty = false;
     },
 
-    updateVertexData (sprite: SpriteComponent, fillStart: number, fillEnd: number) {
+    updateVertexData (sprite: Sprite, fillStart: number, fillEnd: number) {
         const renderData: RenderData|null = sprite.renderData;
         const dataList: IRenderData[] = renderData!.data;
         const uiTrans = sprite.node._uiProps.uiTransformComp!;
@@ -221,7 +221,7 @@ export const barFilled: IAssembler = {
         renderData!.vertDirty = false;
     },
 
-    createData (sprite: SpriteComponent) {
+    createData (sprite: Sprite) {
         const renderData: RenderData|null = sprite.requestRenderData();
         // 0-4 for world vertex
         // 5-8 for local vertex
@@ -237,7 +237,7 @@ export const barFilled: IAssembler = {
         return renderData as RenderData;
     },
 
-    updateWorldVertexData (sprite: SpriteComponent) {
+    updateWorldVertexData (sprite: Sprite) {
         const node = sprite.node;
         const dataList = sprite.renderData!.data;
 
@@ -249,7 +249,7 @@ export const barFilled: IAssembler = {
         }
     },
 
-    fillBuffers (sprite: SpriteComponent, renderer: UI) {
+    fillBuffers (sprite: Sprite, renderer: UI) {
         if (sprite.node.hasChangedFlags) {
             this.updateWorldVertexData(sprite);
         }

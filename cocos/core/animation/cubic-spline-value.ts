@@ -3,7 +3,7 @@
  * @category animation
  */
 
-import { ccclass, property } from '../data/class-decorator';
+import { ccclass, serializable } from 'cc.decorator';
 import { Quat, Vec2, Vec3, Vec4 } from '../math';
 import { ILerpable } from './types';
 import { legacyCC } from '../global-exports';
@@ -32,13 +32,13 @@ function makeCubicSplineValueConstructor<T> (
 
     @ccclass(name)
     class CubicSplineValueClass implements ICubicSplineValue<T> {
-        @property
+        @serializable
         public dataPoint: T = new constructorX();
 
-        @property
+        @serializable
         public inTangent: T = new constructorX();
 
-        @property
+        @serializable
         public outTangent: T = new constructorX();
 
         constructor (dataPoint?: T, inTangent?: T, outTangent?: T) {
@@ -102,13 +102,13 @@ legacyCC.CubicSplineQuatValue = CubicSplineQuatValue;
 
 @ccclass('cc.CubicSplineNumberValue')
 export class CubicSplineNumberValue implements ICubicSplineValue<number> {
-    @property
+    @serializable
     public dataPoint: number = 0;
 
-    @property
+    @serializable
     public inTangent: number = 0;
 
-    @property
+    @serializable
     public outTangent: number = 0;
 
     constructor (dataPoint: number, inTangent: number, outTangent: number) {

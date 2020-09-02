@@ -10,6 +10,8 @@ layout(location = 4) in vec4 a_joints;
 #endif
 layout(location = 5) in vec4 a_weights;
 
+#include <common>
+
 #if CC_USE_BAKED_ANIMATION
   #if USE_INSTANCING
     in highp vec4 a_jointAnimInfo; // frameID, totalJoints, offset
@@ -40,15 +42,6 @@ layout(location = 5) in vec4 a_weights;
     highp float x = temp - y * cc_jointTextureInfo.x;                            \
     y = (y + 0.5) * invSize;                                                     \
   #pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
-  #if !CC_SUPPORT_FLOAT_TEXTURE
-    highp float decode32 (highp vec4 rgba) {
-      rgba = rgba * 255.0; // TODO: check if wzyx shuffle is needed on big endian devices
-      highp float Sign = 1.0 - step(128.0, rgba[3]) * 2.0;
-      highp float Exponent = 2.0 * mod(rgba[3], 128.0) + step(128.0, rgba[2]) - 127.0;
-      highp float Mantissa = mod(rgba[2], 128.0) * 65536.0 + rgba[1] * 256.0 + rgba[0] + 8388608.0;
-      return Sign * exp2(Exponent - 23.0) * Mantissa;
-    }
-  #endif
 #else
   #define JOINT_UNIFORM_CAPACITY 30
   #pragma builtin(local)

@@ -129,8 +129,6 @@ export class Director extends EventTarget {
     /**
      * @en The event which will be triggered when the singleton of Director initialized.
      * @zh Director 单例初始化时触发的事件
-     * @property {String} EVENT_INIT
-     * @readonly
      */
     public static readonly EVENT_INIT = 'director_init';
 
@@ -142,8 +140,6 @@ export class Director extends EventTarget {
     /**
      * @en The event which will be triggered when the singleton of Director reset.
      * @zh Director 单例重置时触发的事件
-     * @property {String} EVENT_RESET
-     * @readonly
      */
     public static readonly EVENT_RESET = 'director_reset';
 
@@ -156,8 +152,6 @@ export class Director extends EventTarget {
     /**
      * @en The event which will be triggered before loading a new scene.
      * @zh 加载新场景之前所触发的事件。
-     * @property {String} EVENT_BEFORE_SCENE_LOADING
-     * @readonly
      */
     public static readonly EVENT_BEFORE_SCENE_LOADING = 'director_before_scene_loading';
 
@@ -170,8 +164,6 @@ export class Director extends EventTarget {
     /**
      * @en The event which will be triggered before launching a new scene.
      * @zh 运行新场景之前所触发的事件。
-     * @property {String} EVENT_BEFORE_SCENE_LAUNCH
-     * @readonly
      */
     public static readonly EVENT_BEFORE_SCENE_LAUNCH = 'director_before_scene_launch';
 
@@ -184,8 +176,6 @@ export class Director extends EventTarget {
     /**
      * @en The event which will be triggered after launching a new scene.
      * @zh 运行新场景之后所触发的事件。
-     * @property {String} EVENT_AFTER_SCENE_LAUNCH
-     * @readonly
      */
     public static readonly EVENT_AFTER_SCENE_LAUNCH = 'director_after_scene_launch';
 
@@ -197,8 +187,6 @@ export class Director extends EventTarget {
     /**
      * @en The event which will be triggered at the beginning of every frame.
      * @zh 每个帧的开始时所触发的事件。
-     * @property {String} EVENT_BEFORE_UPDATE
-     * @readonly
      */
     public static readonly EVENT_BEFORE_UPDATE = 'director_before_update';
 
@@ -210,8 +198,6 @@ export class Director extends EventTarget {
     /**
      * @en The event which will be triggered after engine and components update logic.
      * @zh 将在引擎和组件 “update” 逻辑之后所触发的事件。
-     * @property {String} EVENT_AFTER_UPDATE
-     * @readonly
      */
     public static readonly EVENT_AFTER_UPDATE = 'director_after_update';
 
@@ -223,37 +209,28 @@ export class Director extends EventTarget {
     /**
      * @en The event which will be triggered before the rendering process.
      * @zh 渲染过程之前所触发的事件。
-     * @property {String} EVENT_BEFORE_DRAW
-     * @readonly
      */
     public static readonly EVENT_BEFORE_DRAW = 'director_before_draw';
 
     /**
      * @en The event which will be triggered after the rendering process.
      * @zh 渲染过程之后所触发的事件。
-     * @event Director.EVENT_AFTER_DRAW
      */
     /**
      * @en The event which will be triggered after the rendering process.
      * @zh 渲染过程之后所触发的事件。
-     * @property {String} EVENT_AFTER_DRAW
-     * @readonly
      */
     public static readonly EVENT_AFTER_DRAW = 'director_after_draw';
 
     /**
      * The event which will be triggered before the physics process.<br/>
      * 物理过程之前所触发的事件。
-     * @event Director.EVENT_BEFORE_PHYSICS
-     * @readonly
      */
     public static readonly EVENT_BEFORE_PHYSICS = 'director_before_physics';
 
     /**
      * The event which will be triggered after the physics process.<br/>
      * 物理过程之后所触发的事件。
-     * @event Director.EVENT_AFTER_PHYSICS
-     * @readonly
      */
     public static readonly EVENT_AFTER_PHYSICS = 'director_after_physics';
 
@@ -1113,6 +1090,5 @@ legacyCC.Director = Director;
 
 /**
  * 导演类。
- * @property director
  */
 export const director: Director = Director.instance = legacyCC.director = new Director();

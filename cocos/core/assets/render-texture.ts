@@ -27,7 +27,7 @@
  * @category asset
  */
 
-import { ccclass, property, visible, rangeMin, rangeMax } from '../data/class-decorator';
+import { ccclass, rangeMin, rangeMax, serializable } from 'cc.decorator';
 import { GFXTexture, GFXSampler, GFXColorAttachment, GFXDepthStencilAttachment, GFXTextureLayout, IGFXRenderPassInfo } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { RenderWindow } from '../renderer/core/render-window';
@@ -60,24 +60,22 @@ const _windowInfo: IRenderWindowInfo = {
 @ccclass('cc.RenderTexture')
 export class RenderTexture extends Asset {
 
-    @property
-    @rangeMin(1)
-    @rangeMax(2048)
-    @visible(true)
+    @serializable
     private _width = 1;
 
-    @property
-    @rangeMin(1)
-    @rangeMax(2048)
-    @visible(true)
+    @serializable
     private _height = 1;
 
     private _window: RenderWindow | null = null;
 
+    @rangeMin(1)
+    @rangeMax(2048)
     get width () {
         return this._width;
     }
 
+    @rangeMin(1)
+    @rangeMax(2048)
     get height () {
         return this._height;
     }

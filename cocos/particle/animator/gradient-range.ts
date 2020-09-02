@@ -3,7 +3,7 @@
  * @hidden
  */
 
-import { ccclass, property, type } from '../../core/data/class-decorator';
+import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { Color } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
@@ -58,19 +58,22 @@ export default class GradientRange {
     /**
      * @zh 当mode为Color时的颜色。
      */
-    @property
+    @serializable
+    @editable
     public color = Color.WHITE.clone();
 
     /**
      * @zh 当mode为TwoColors时的颜色下限。
      */
-    @property
+    @serializable
+    @editable
     public colorMin = Color.WHITE.clone();
 
     /**
      * @zh 当mode为TwoColors时的颜色上限。
      */
-    @property
+    @serializable
+    @editable
     public colorMax = Color.WHITE.clone();
 
     /**

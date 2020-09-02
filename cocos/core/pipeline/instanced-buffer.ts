@@ -5,8 +5,8 @@
 import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXDevice, GFXTexture } from '../gfx';
 import { GFXBuffer } from '../gfx/buffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
-import { IInstancedAttributeBlock, Pass } from '../renderer';
-import { SubModel } from '../renderer/scene/submodel';
+import { Pass } from '../renderer';
+import { IInstancedAttributeBlock, SubModel } from '../renderer/scene';
 import { SubModelView, SubModelPool, ShaderHandle, DescriptorSetHandle, PassHandle, NULL_HANDLE } from '../renderer/core/memory-pools';
 import { UniformLightingMapSampler } from './define';
 
@@ -27,17 +27,13 @@ const MAX_CAPACITY = 1024;
 
 export class InstancedBuffer {
 
-    private static _buffers = new Map<Pass | number, InstancedBuffer>();
+    private static _buffers = new Map<Pass, Record<number, InstancedBuffer>>();
 
-    public static get (pass: Pass, extraKey?: number) {
-        const hash = extraKey ? pass.hash ^ extraKey : pass.hash;
+    public static get (pass: Pass, extraKey = 0) {
         const buffers = InstancedBuffer._buffers;
-        if (!buffers.has(hash)) {
-            const buffer = new InstancedBuffer(pass);
-            buffers.set(hash, buffer);
-            return buffer;
-        }
-        return buffers.get(hash)!;
+        if (!buffers.has(pass)) buffers.set(pass, {});
+        const record = buffers.get(pass)!;
+        return record[extraKey] || (record[extraKey] = new InstancedBuffer(pass));
     }
 
     public instances: IInstancedItem[] = [];
@@ -65,8 +61,8 @@ export class InstancedBuffer {
         if (!stride) { return; } // we assume per-instance attributes are always present
         const sourceIA = subModel.inputAssembler;
         const lightingMap = subModel.descriptorSet.getTexture(UniformLightingMapSampler.binding);
-        const hShader = SubModelPool.get<ShaderHandle>(subModel.handle, SubModelView.SHADER_0 + passIdx);
-        const hDescriptorSet = SubModelPool.get<DescriptorSetHandle>(subModel.handle, SubModelView.DESCRIPTOR_SET);
+        const hShader = SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle;
+        const hDescriptorSet = SubModelPool.get(subModel.handle, SubModelView.DESCRIPTOR_SET);
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             if (instance.ia.indexBuffer !== sourceIA.indexBuffer || instance.count >= MAX_CAPACITY) { continue; }

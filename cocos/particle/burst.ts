@@ -2,20 +2,20 @@
  * @hidden
  */
 
-import { ccclass, property, type } from '../core/data/class-decorator';
+import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { repeat } from '../core/math';
 import CurveRange from './animator/curve-range';
 
 @ccclass('cc.Burst')
 export default class Burst {
 
-    @property
+    @serializable
     private _time: number = 0;
 
     /**
      * @zh 粒子系统开始运行到触发此次 Brust 的时间。
      */
-    @property
+    @editable
     get time () {
         return this._time;
     }
@@ -25,13 +25,13 @@ export default class Burst {
         this._curTime = val;
     }
 
-    @property
+    @serializable
     private _repeatCount: number = 1;
 
     /**
      * @zh Burst 的触发次数。
      */
-    @property
+    @editable
     get repeatCount () {
         return this._repeatCount;
     }
@@ -44,7 +44,8 @@ export default class Burst {
     /**
      * @zh 每次触发的间隔时间。
      */
-    @property
+    @serializable
+    @editable
     public repeatInterval: number = 1;
 
     /**

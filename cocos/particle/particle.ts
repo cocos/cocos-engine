@@ -3,11 +3,11 @@
  */
 
 import { Color, Vec3, Mat4 } from '../core/math';
-import { ParticleSystemComponent } from './particle-system-component';
+import { ParticleSystem } from './particle-system';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
 
 export class Particle {
-    public particleSystem: ParticleSystemComponent;
+    public particleSystem: ParticleSystem;
     public position: Vec3;
     public velocity: Vec3;
     public animatedVelocity: Vec3;

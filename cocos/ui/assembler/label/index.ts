@@ -28,22 +28,20 @@
  */
 
 import { BitmapFont } from '../../../core/assets';
-import { LabelComponent} from '../../components';
+import { Label } from '../../components';
 import { IAssemblerManager } from '../../../core/renderer/ui/base';
 import { bmfont } from './bmfont';
 import { CanvasPool } from './font-utils';
 import { letter } from './letter';
 import { ttf } from './ttf';
-import { sys } from '../../../core/platform/sys';
-import { warn } from '../../../core/platform/debug';
 
 const labelAssembler: IAssemblerManager = {
-    getAssembler (comp: LabelComponent) {
+    getAssembler (comp: Label) {
         let assembler = ttf;
 
         if (comp.font instanceof BitmapFont) {
             assembler = bmfont;
-        }else if (comp.cacheMode === LabelComponent.CacheMode.CHAR){
+        }else if (comp.cacheMode === Label.CacheMode.CHAR){
             assembler = letter;
         }
 
@@ -64,4 +62,4 @@ export {
     CanvasPool,
 };
 
-LabelComponent.Assembler = labelAssembler;
+Label.Assembler = labelAssembler;

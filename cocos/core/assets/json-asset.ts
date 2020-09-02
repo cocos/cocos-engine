@@ -27,7 +27,7 @@
  * @category asset
  */
 
-import {ccclass, property} from '../data/class-decorator';
+import {ccclass, serializable, editable} from 'cc.decorator';
 import { Asset } from './asset';
 import { legacyCC } from '../global-exports';
 
@@ -41,7 +41,8 @@ export default class JsonAsset extends Asset {
     /**
      * 解析后的对象。
      */
-    @property
+    @serializable
+    @editable
     public json: object | null = null;
 }
 

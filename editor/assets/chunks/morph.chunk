@@ -8,10 +8,14 @@
     int getVertexId() {
         return int(a_vertexId);
     }
-#else
+#elif __VERSION__ < 450
     int getVertexId() {
         // TODO: why gl_VertexID does not work??
         return gl_VertexID;
+    }
+#else
+    int getVertexId() {
+        return gl_VertexIndex; // vulkan convension
     }
 #endif
 
@@ -24,46 +28,46 @@ layout(set = 2, binding = 4) uniform CCMorph {
 /**
  * Fetch n-th pixel from texture, row by row.
  */
-#if __VERSION__ >= 300
-    vec4 fetchVec3ArrayFromTexture(sampler2D tex, int pixelIndex) {
-        ivec2 texSize = textureSize(tex, 0);
-        return texelFetch(tex, ivec2(pixelIndex % texSize.x, pixelIndex / texSize.x), 0);
-    }
-#else
-    vec2 getPixelLocation(vec2 textureResolution, int pixelIndex) {
-        float pixelIndexF = float(pixelIndex);
-        float x = mod(pixelIndexF, textureResolution.x);
-        float y = floor(pixelIndexF / textureResolution.x);
-        return vec2(x, y);
-    }
+vec2 getPixelLocation(vec2 textureResolution, int pixelIndex) {
+    float pixelIndexF = float(pixelIndex);
+    float x = mod(pixelIndexF, textureResolution.x);
+    float y = floor(pixelIndexF / textureResolution.x);
+    return vec2(x, y);
+}
 
-    vec2 getPixelCoordFromLocation(vec2 location, vec2 textureResolution) {
-        return (vec2(location.x, location.y) + .5) / textureResolution;
-    }
+vec2 getPixelCoordFromLocation(vec2 location, vec2 textureResolution) {
+    return (vec2(location.x, location.y) + .5) / textureResolution;
+}
 
-    #if CC_SUPPORT_FLOAT_TEXTURE
+#if CC_SUPPORT_FLOAT_TEXTURE
+    #if __VERSION__ >= 300
+        vec4 fetchVec3ArrayFromTexture(sampler2D tex, int pixelIndex) {
+            ivec2 texSize = textureSize(tex, 0);
+            return texelFetch(tex, ivec2(pixelIndex % texSize.x, pixelIndex / texSize.x), 0);
+        }
+    #else
         vec4 fetchVec3ArrayFromTexture(sampler2D tex, int elementIndex) {
             int pixelIndex = elementIndex;
             vec2 location = getPixelLocation(cc_displacementTextureInfo.xy, pixelIndex);
             vec2 uv = getPixelCoordFromLocation(location, cc_displacementTextureInfo.xy);
             return texture(tex, uv);
         }
-    #else
-        vec4 fetchVec3ArrayFromTexture(sampler2D tex, int elementIndex) {
-            int pixelIndex = elementIndex * 4;
-            vec2 location = getPixelLocation(cc_displacementTextureInfo.xy, pixelIndex);
-            // Here implies that the texture's width must be multiple of 4.
-            vec2 x = getPixelCoordFromLocation(location + vec2(0.0, 0.0), cc_displacementTextureInfo.xy);
-            vec2 y = getPixelCoordFromLocation(location + vec2(1.0, 0.0), cc_displacementTextureInfo.xy);
-            vec2 z = getPixelCoordFromLocation(location + vec2(2.0, 0.0), cc_displacementTextureInfo.xy);
-            return vec4(
-                decode32(texture(tex, x)),
-                decode32(texture(tex, y)),
-                decode32(texture(tex, z)),
-                1.0
-            );
-        }
     #endif
+#else
+    vec4 fetchVec3ArrayFromTexture(sampler2D tex, int elementIndex) {
+        int pixelIndex = elementIndex * 4;
+        vec2 location = getPixelLocation(cc_displacementTextureInfo.xy, pixelIndex);
+        // Here implies that the texture's width must be multiple of 4.
+        vec2 x = getPixelCoordFromLocation(location + vec2(0.0, 0.0), cc_displacementTextureInfo.xy);
+        vec2 y = getPixelCoordFromLocation(location + vec2(1.0, 0.0), cc_displacementTextureInfo.xy);
+        vec2 z = getPixelCoordFromLocation(location + vec2(2.0, 0.0), cc_displacementTextureInfo.xy);
+        return vec4(
+            decode32(texture(tex, x)),
+            decode32(texture(tex, y)),
+            decode32(texture(tex, z)),
+            1.0
+        );
+    }
 #endif
 
 float getDisplacementWeight(int index) {

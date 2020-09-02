@@ -2,7 +2,7 @@ import CANNON from '@cocos/cannon';
 import { CannonConstraint } from './cannon-constraint';
 import { IPointToPointConstraint } from '../../spec/i-physics-constraint';
 import { IVec3Like, Vec3 } from '../../../core';
-import { PointToPointConstraintComponent } from '../../framework';
+import { PointToPointConstraint } from '../../framework';
 import { CannonRigidBody } from '../cannon-rigid-body';
 
 const v3_0 = new Vec3();
@@ -15,7 +15,7 @@ export class CannonPointToPointConstraint extends CannonConstraint implements IP
     }
 
     public get constraint () {
-        return this._com as PointToPointConstraintComponent;
+        return this._com as PointToPointConstraint;
     }
 
     setPivotA (v: IVec3Like): void {

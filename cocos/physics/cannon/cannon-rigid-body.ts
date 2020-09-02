@@ -5,7 +5,7 @@ import { CannonSharedBody } from './cannon-shared-body';
 import { Node } from '../../core';
 import { CannonWorld } from './cannon-world';
 import { PhysicsSystem } from '../framework/physics-system';
-import { RigidBodyComponent } from '../framework';
+import { RigidBody } from '../framework';
 import { IVec3Like } from '../../core/math/type-define';
 
 const v3_cannon0 = new CANNON.Vec3();
@@ -104,7 +104,7 @@ export class CannonRigidBody implements IRigidBody {
         return this._isEnabled;
     }
 
-    private _rigidBody!: RigidBodyComponent;
+    private _rigidBody!: RigidBody;
     private _sharedBody!: CannonSharedBody;
 
 
@@ -112,7 +112,7 @@ export class CannonRigidBody implements IRigidBody {
 
     /** LIFECYCLE */
 
-    initialize (com: RigidBodyComponent) {
+    initialize (com: RigidBody) {
         this._rigidBody = com;
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(this._rigidBody.node as Node);
         this._sharedBody.reference = true;

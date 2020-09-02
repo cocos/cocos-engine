@@ -29,7 +29,7 @@
 
 import { addon } from '../../../core/utils/js';
 import { UI } from '../../../core/renderer/ui/ui';
-import { LabelComponent } from '../../components/label-component';
+import { Label } from '../../components/label';
 import { fillMeshVertices3D } from '../utils';
 import { bmfont } from './bmfont';
 import { letterFont} from './letter-font';
@@ -42,11 +42,11 @@ const WHITE = new Color(255, 255, 255, 255);
  * 可通过 `UI.letter` 获取该组装器。
  */
 export const letter = {
-    createData (comp: LabelComponent) {
+    createData (comp: Label) {
         return comp.requestRenderData();
     },
 
-    fillBuffers (comp: LabelComponent, renderer: UI) {
+    fillBuffers (comp: Label, renderer: UI) {
         if (!comp.renderData){
             return;
         }

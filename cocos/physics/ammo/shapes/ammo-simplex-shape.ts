@@ -1,6 +1,6 @@
 import Ammo from '../ammo-instantiated';
 import { AmmoShape } from "./ammo-shape";
-import { SimplexColliderComponent } from '../../../../exports/physics-framework';
+import { SimplexCollider } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ISimplexShape } from '../../spec/i-physics-shape';
@@ -8,7 +8,7 @@ import { IVec3Like } from '../../../core/math/type-define';
 
 export class AmmoSimplexShape extends AmmoShape implements ISimplexShape {
 
-    setShapeType (v: SimplexColliderComponent.ESimplexType) {
+    setShapeType (v: SimplexCollider.ESimplexType) {
         if (this._isBinding) {
             //TODO: 
         }
@@ -32,7 +32,7 @@ export class AmmoSimplexShape extends AmmoShape implements ISimplexShape {
     }
 
     get collider () {
-        return this._collider as SimplexColliderComponent;
+        return this._collider as SimplexCollider;
     }
 
     readonly VERTICES: Ammo.btVector3[] = [];

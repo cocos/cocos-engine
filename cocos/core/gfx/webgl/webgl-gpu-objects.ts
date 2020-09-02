@@ -1,4 +1,4 @@
-import { IGFXDrawInfo } from '../buffer';
+import { GFXDrawInfo } from '../buffer';
 import {
     GFXDescriptorType,
     GFXBufferUsage,
@@ -44,7 +44,7 @@ export interface IWebGLGPUBuffer {
 
     buffer: ArrayBufferView | null;
     vf32: Float32Array | null;
-    indirects: IGFXDrawInfo[];
+    indirects: GFXDrawInfo[];
 }
 
 export interface IWebGLGPUTexture {
@@ -163,10 +163,14 @@ export interface IWebGLGPUShader {
 export interface IWebGLGPUDescriptorSetLayout {
     bindings: IGFXDescriptorSetLayoutBinding[];
     dynamicBindings: number[];
+    descriptorIndices: number[];
+    descriptorCount: number;
 }
 
 export interface IWebGLGPUPipelineLayout {
     gpuSetLayouts: IWebGLGPUDescriptorSetLayout[];
+    dynamicOffsetCount: number;
+    dynamicOffsetOffsets: number[];
     dynamicOffsetIndices: number[][];
 }
 
@@ -190,6 +194,7 @@ export interface IWebGLGPUDescriptor {
 
 export interface IWebGLGPUDescriptorSet {
     gpuDescriptors: IWebGLGPUDescriptor[];
+    descriptorIndices: number[];
 }
 
 export interface IWebGLAttrib {

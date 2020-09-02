@@ -35,10 +35,11 @@ import inputManager from './platform/event-manager/input-manager';
 import { GFXDevice, IGFXDeviceInfo } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
-import { ICustomJointTextureLayout } from './renderer';
+import { ICustomJointTextureLayout } from './renderer/models';
 import { legacyCC } from './global-exports';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
 import { bindingMappingInfo } from './pipeline/define';
+import { SplashScreen } from './splash-screen';
 
 /**
  * @zh
@@ -238,7 +239,6 @@ export class Game extends EventTarget {
      * @zh 游戏进入后台时触发的事件。<br>
      * 请注意，在 WEB 平台，这个事件不一定会 100% 触发，这完全取决于浏览器的回调行为。<br>
      * 在原生平台，它对应的是应用被切换到后台事件，下拉菜单和上拉状态栏等不一定会触发这个事件，这取决于系统行为。
-     * @property EVENT_HIDE
      * @example
      * ```ts
      * import { game, audioEngine } from 'cc';
@@ -257,16 +257,12 @@ export class Game extends EventTarget {
      * @zh 游戏进入前台运行时触发的事件。<br>
      * 请注意，在 WEB 平台，这个事件不一定会 100% 触发，这完全取决于浏览器的回调行为。<br>
      * 在原生平台，它对应的是应用被切换到前台事件。
-     * @property EVENT_SHOW
-     * @constant
      */
-    public static EVENT_SHOW: string = 'game_on_show';
+    public static readonly EVENT_SHOW: string = 'game_on_show';
 
     /**
      * @en Event triggered after game inited, at this point all engine objects and game scripts are loaded
      * @zh 游戏启动后的触发事件，此时加载所有的引擎对象和游戏脚本。
-     * @property EVENT_GAME_INITED
-     * @constant
      */
     public static EVENT_GAME_INITED: string = 'game_inited';
 
@@ -277,71 +273,56 @@ export class Game extends EventTarget {
      * @zh 在引擎初始化之后触发的事件，此时您能够使用引擎所有的类。<br>
      * 它在 cocos creator v1.x 版本中名字为 EVENT_RENDERER_INITED ,在 v2.0 版本中更名为 EVENT_ENGINE_INITED
      * 并在 cocos creator 3d 版本中将 EVENT_RENDERER_INITED 用作为渲染器初始化的事件。
-     * @property EVENT_ENGINE_INITED
-     * @constant
      */
     public static EVENT_ENGINE_INITED: string = 'engine_inited';
 
     /**
      * @en Event triggered after renderer inited, at this point you will be able to use all gfx renderer feature.<br>
      * @zh 在渲染器初始化之后触发的事件，此事件在 EVENT_ENGINE_INITED 之前触发，此时开始可使用 gfx 渲染框架。
-     * @property EVENT_RENDERER_INITED
-     * @readonly
      */
     public static readonly EVENT_RENDERER_INITED: string = 'renderer_inited';
 
     /**
      * @en Event triggered when game restart
      * @zh 调用restart后，触发事件
-     * @property EVENT_RESTART
      */
     public static EVENT_RESTART: string = 'game_on_restart';
 
     /**
      * @en Web Canvas 2d API as renderer backend.
      * @zh 使用 Web Canvas 2d API 作为渲染器后端。
-     * @property RENDER_TYPE_CANVAS
-     * @constant
      */
     public static RENDER_TYPE_CANVAS: number = 0;
     /**
      * @en WebGL API as renderer backend.
      * @zh 使用 WebGL API 作为渲染器后端。
-     * @property RENDER_TYPE_WEBGL
-     * @constant
      */
     public static RENDER_TYPE_WEBGL: number = 1;
     /**
      * @en OpenGL API as renderer backend.
      * @zh 使用 OpenGL API 作为渲染器后端。
-     * @property RENDER_TYPE_OPENGL
-     * @constant
      */
     public static RENDER_TYPE_OPENGL: number = 2;
 
     /**
      * @en The outer frame of the game canvas; parent of game container.
      * @zh 游戏画布的外框，container 的父容器。
-     * @property frame
      */
     public frame: Object | null = null;
     /**
      * @en The container of game canvas.
      * @zh 游戏画布的容器。
-     * @property container
      */
     public container: HTMLDivElement | null = null;
     /**
      * @en The canvas of the game.
      * @zh 游戏的画布。
-     * @property canvas
      */
     public canvas: HTMLCanvasElement | null = null;
 
     /**
      * @en The renderer backend of the game.
      * @zh 游戏的渲染器类型。
-     * @property renderType
      */
     public renderType: number = -1;
 
@@ -355,7 +336,6 @@ export class Game extends EventTarget {
      * @zh
      * 当前的游戏配置
      * 注意：请不要直接修改这个对象，它不会有任何效果。
-     * @property config
      */
     public config: IGameConfig = {};
 
@@ -646,7 +626,7 @@ export class Game extends EventTarget {
                 }
                 this._safeEmit(Game.EVENT_GAME_INITED);
                 if (useSplash) {
-                    const splashScreen = legacyCC.internal.SplashScreen.instance
+                    const splashScreen = legacyCC.internal.SplashScreen.instance as SplashScreen;
                     splashScreen.main(legacyCC.director.root);
                     splashScreen.setOnFinish(() => {
                         if (this.onStart) { this.onStart(); }
@@ -662,7 +642,7 @@ export class Game extends EventTarget {
             this.setRenderPipeline();
             this._safeEmit(Game.EVENT_GAME_INITED);
             if (useSplash) {
-                const splashScreen = legacyCC.internal.SplashScreen.instance
+                const splashScreen = legacyCC.internal.SplashScreen.instance as SplashScreen;
                 splashScreen.main(legacyCC.director.root);
                 splashScreen.setOnFinish(() => {
                     if (this.onStart) { this.onStart(); }
@@ -793,7 +773,8 @@ export class Game extends EventTarget {
     }
     private _stTime (callback) {
         const currTime = new Date().getTime();
-        const timeToCall = Math.max(0, legacyCC.game._frameTime - (currTime - legacyCC.game._lastTime));
+        const elapseTime = Math.max(0, (currTime - legacyCC.game._lastTime));
+        const timeToCall = Math.max(0, legacyCC.game._frameTime - elapseTime);
         const id = window.setTimeout(callback, timeToCall);
         legacyCC.game._lastTime = currTime + timeToCall;
         return id;

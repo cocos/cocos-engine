@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { ccclass, property } from '../data/class-decorator';
+import { ccclass, serializable } from 'cc.decorator';
 import { Node } from '../scene-graph/node';
 import { warn } from '../platform/debug';
 
@@ -28,7 +28,7 @@ export function isCustomPath<T extends ICustomTargetPath> (path: TargetPath, con
 
 @ccclass('cc.animation.HierarchyPath')
 export class HierarchyPath implements ICustomTargetPath {
-    @property
+    @serializable
     public path: string = '';
 
     constructor (path?: string) {
@@ -51,7 +51,7 @@ export class HierarchyPath implements ICustomTargetPath {
 
 @ccclass('cc.animation.ComponentPath')
 export class ComponentPath implements ICustomTargetPath {
-    @property
+    @serializable
     public component: string = '';
 
     constructor (component?: string) {

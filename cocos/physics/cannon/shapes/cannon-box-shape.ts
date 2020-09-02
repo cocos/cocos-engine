@@ -4,12 +4,12 @@ import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
 import { IBoxShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
-import { BoxColliderComponent } from '../../../../exports/physics-framework';
+import { BoxCollider } from '../../../../exports/physics-framework';
 
 export class CannonBoxShape extends CannonShape implements IBoxShape {
 
     public get collider () {
-        return this._collider as BoxColliderComponent;
+        return this._collider as BoxCollider;
     }
 
     public get impl () {

@@ -3,7 +3,7 @@
  */
 
 import System from '../components/system';
-import { ccclass } from '../data/class-decorator';
+import { ccclass } from 'cc.decorator';
 import { director, Director } from '../director';
 import { errorID } from '../platform/debug';
 import { Node } from '../scene-graph';
@@ -14,7 +14,7 @@ import { AnimationState } from './animation-state';
 import { CrossFade } from './cross-fade';
 import { legacyCC } from '../global-exports';
 import { IJointTransform, deleteTransform, getTransform, getWorldMatrix } from '../renderer/models/skinning-model';
-import { Socket } from './skeletal-animation-component';
+import { Socket } from './skeletal-animation';
 
 interface ISocketData {
     target: Node;

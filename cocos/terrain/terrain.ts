@@ -8,7 +8,7 @@ import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
 import { Material } from '../core/assets/material';
 import { RenderingSubMesh } from '../core/assets/mesh';
 import { Component } from '../core/components';
-import { ccclass, disallowMultiple, executeInEditMode, help, property, visible, animatable, type } from '../core/data/class-decorator';
+import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
 import { isValid } from '../core/data/object';
 import { director } from '../core/director';
 import { GFXBuffer } from '../core/gfx/buffer';
@@ -17,7 +17,7 @@ import { GFXDevice } from '../core/gfx/device';
 import { IGFXAttribute } from '../core/gfx/input-assembler';
 import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { MacroRecord } from '../core/renderer/core/pass-utils';
-import { Model } from '../core/renderer/scene/model';
+import { scene } from '../core/renderer';
 import { Root } from '../core/root';
 import { PrivateNode } from '../core/scene-graph/private-node';
 import { HeightField } from './height-field';
@@ -34,28 +34,32 @@ export class TerrainInfo {
      * @en tile size
      * @zh 栅格大小
      */
-    @property
+    @serializable
+    @editable
     public tileSize: number = 1;
 
     /**
      * @en block count
      * @zh 地形块的数量
      */
-    @property
+    @serializable
+    @editable
     public blockCount: number[] = [1, 1];
 
     /**
      * @en weight map size
      * @zh 权重图大小
      */
-    @property
+    @serializable
+    @editable
     public weightMapSize: number = 128;
 
     /**
      * @en light map size
      * @zh 光照图大小
      */
-    @property
+    @serializable
+    @editable
     public lightMapSize: number = 128;
 
     /**
@@ -105,14 +109,16 @@ export class TerrainLayer {
      * @en detail texture
      * @zh 细节纹理
      */
-    @property
+    @serializable
+    @editable
     public detailMap: Texture2D|null = null;
 
     /**
      * @en tile size
      * @zh 平铺大小
      */
-    @property
+    @serializable
+    @editable
     public tileSize: number = 1;
 }
 
@@ -121,7 +127,7 @@ export class TerrainLayer {
  * @zh 地形渲染组件
  */
 class TerrainRenderable extends RenderableComponent {
-    public _model: Model | null = null;
+    public _model: scene.Model | null = null;
     public _meshData: RenderingSubMesh | null = null;
 
     public _brushMaterial: Material | null = null;
@@ -213,7 +219,8 @@ class TerrainRenderable extends RenderableComponent {
  */
 @ccclass('cc.TerrainBlockInfo')
 export class TerrainBlockInfo {
-    @property
+    @serializable
+    @editable
     public layers: number[] = [-1, -1, -1, -1];
 }
 
@@ -223,15 +230,20 @@ export class TerrainBlockInfo {
  */
 @ccclass('cc.TerrainBlockLightmapInfo')
 export class TerrainBlockLightmapInfo {
-    @property
+    @serializable
+    @editable
     public texture: Texture2D|null = null;
-    @property
+    @serializable
+    @editable
     public UOff: number = 0;
-    @property
+    @serializable
+    @editable
     public VOff: number = 0;
-    @property
+    @serializable
+    @editable
     public UScale: number = 0;
-    @property
+    @serializable
+    @editable
     public VScale: number = 0;
 }
 
@@ -307,7 +319,7 @@ export class TerrainBlock {
         const subMesh = this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes, GFXPrimitiveMode.TRIANGLE_LIST);
         subMesh.indexBuffer = this._terrain._getSharedIndexBuffer() || undefined;
 
-        const model = this._renderable._model = (legacyCC.director.root as Root).createModel(Model);
+        const model = this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
         model.node = model.transform = this._node;
         this._renderable._getRenderScene().addModel(model);
 
@@ -657,33 +669,31 @@ export class TerrainBlock {
  * @zh 地形组件
  */
 @ccclass('cc.Terrain')
-@help('i18n:cc.TerrainComponent')
+@help('i18n:cc.Terrain')
 @executeInEditMode
 @disallowMultiple
 export class Terrain extends Component {
     @type(TerrainAsset)
-    @animatable(false)
-    @visible(false)
+    @disallowAnimation
     protected __asset: TerrainAsset|null = null;
 
     @type(EffectAsset)
-    @animatable(false)
+    @serializable
+    @disallowAnimation
     @visible(false)
     protected _effectAsset: EffectAsset|null = null;
 
     @type(TerrainLayer)
-    @animatable(false)
-    @visible(true)
+    @serializable
+    @disallowAnimation
     protected _layers: (TerrainLayer|null)[] = [];
 
-    @property
-    @animatable(false)
-    @visible(false)
+    @serializable
+    @disallowAnimation
     protected _blockInfos: TerrainBlockInfo[] = [];
 
-    @property
-    @animatable(false)
-    @visible(false)
+    @serializable
+    @disallowAnimation
     protected _lightmapInfos: TerrainBlockLightmapInfo[] = [];
 
     protected _tileSize: number = 1;
@@ -706,7 +716,6 @@ export class Terrain extends Component {
     }
 
     @type(TerrainAsset)
-    @visible(true)
     public set _asset (value: TerrainAsset|null) {
         if (this.__asset !== value) {
             this.__asset = value;
@@ -839,7 +848,6 @@ export class Terrain extends Component {
      * @zh 获得地形信息
      */
     @type(TerrainInfo)
-    @visible(true)
     public get info () {
         const ti = new TerrainInfo();
         ti.tileSize = this.tileSize;
