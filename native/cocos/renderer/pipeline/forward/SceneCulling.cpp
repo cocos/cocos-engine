@@ -43,7 +43,7 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
     uint32_t *models = GET_MODEL_ARRAY(scene->modelsID);
     uint32_t modelCount = models[0];
     for (size_t i = 1; i <= modelCount; i++) {
-        const auto model = GET_MODEL(i);
+        const auto model = GET_MODEL(models[i]);
 
         // filter model by view visibility
         if (model->enabled) {

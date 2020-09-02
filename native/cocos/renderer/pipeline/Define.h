@@ -182,10 +182,10 @@ enum class CC_DLL UniformBinding : uint8_t {
 };
 
 struct CC_DLL BlockInfo : public gfx::UniformBlock, public gfx::DescriptorSetLayoutBinding {
-    BlockInfo(const gfx::UniformBlock &block, const gfx::DescriptorSetLayoutBinding &binding) : gfx::UniformBlock{block}, gfx::DescriptorSetLayoutBinding{} {}
+    BlockInfo(const gfx::UniformBlock &block, const gfx::DescriptorSetLayoutBinding &binding) : gfx::UniformBlock{block}, gfx::DescriptorSetLayoutBinding{binding} {}
 };
 struct CC_DLL SamplerInfo : public gfx::UniformSampler, public gfx::DescriptorSetLayoutBinding {
-    SamplerInfo(const gfx::UniformSampler &sampler, const gfx::DescriptorSetLayoutBinding &binding) : gfx::UniformSampler(sampler), gfx::DescriptorSetLayoutBinding{} {}
+    SamplerInfo(const gfx::UniformSampler &sampler, const gfx::DescriptorSetLayoutBinding &binding) : gfx::UniformSampler(sampler), gfx::DescriptorSetLayoutBinding{binding} {}
 };
 
 struct CC_DLL UBOLocalBatched {
@@ -314,8 +314,8 @@ public:
 
 struct CC_DLL DescriptorSetLayoutInfos : public gfx::DescriptorSetLayoutInfo {
     union record {
-        unordered_map<String, BlockInfo> block;
-        unordered_map<String, SamplerInfo> sampler;
+        unordered_map<String, BlockInfo> blocks;
+        unordered_map<String, SamplerInfo> samplers;
     };
 };
 

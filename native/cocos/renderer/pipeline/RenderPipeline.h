@@ -42,6 +42,7 @@ public:
 
 protected:
     static RenderPipeline *_instance;
+    void setDescriptorSetLayout();
 
     gfx::CommandBufferList _commandBuffers;
     RenderFlowList _flows;
