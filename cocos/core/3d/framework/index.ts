@@ -53,18 +53,5 @@ export {
     SpotLight,
 };
 
-legacyCC.Camera = Camera;
-legacyCC.RenderableComponent = RenderableComponent;
-legacyCC.MeshRenderer = MeshRenderer;
-legacyCC.SkinnedMeshRenderer = SkinnedMeshRenderer;
-
-legacyCC.SkinnedMeshBatchRenderer = SkinnedMeshBatchRenderer;
-legacyCC.SkinnedMeshUnit = SkinnedMeshUnit;
-
-legacyCC.Light = Light;
-legacyCC.DirectionalLight = DirectionalLight;
-legacyCC.SphereLight = SphereLight;
-legacyCC.SpotLight = SpotLight;
-
 /** deprecated */
 export * from './deprecated';

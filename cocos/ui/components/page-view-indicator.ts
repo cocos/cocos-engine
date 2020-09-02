@@ -262,5 +262,3 @@ export class PageViewIndicator extends Component {
         this._changedState();
     }
 }
-
-legacyCC.PageViewIndicator = PageViewIndicator;

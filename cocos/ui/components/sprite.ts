@@ -784,5 +784,3 @@ export class Sprite extends UIRenderable {
         }
     }
 }
-
-legacyCC.Sprite = Sprite;

@@ -1113,5 +1113,3 @@ export class RichText extends UIComponent {
         label.updateRenderData(true);
     }
 }
-
-legacyCC.RichText = RichText;

@@ -121,5 +121,3 @@ export class SafeArea extends Component {
         widget.enabled = true;
     }
 }
-
-legacyCC.SafeArea = SafeArea;

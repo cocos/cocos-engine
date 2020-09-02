@@ -12,6 +12,7 @@ import { MeshCollider } from "./components/colliders/mesh-collider";
 import { RigidBody } from "./components/rigid-body";
 import { Collider } from "./components/colliders/collider";
 import { js } from "../../core/utils/js";
+import { legacyCC } from '../../core/global-exports';
 
 replaceProperty(PhysicsSystem, 'PhysicsSystem', [
     {
@@ -77,24 +78,28 @@ replaceProperty(RigidBody.prototype, 'RigidBody.prototype', [
  * @deprecated Since v1.2
  */
 export { RigidBody as RigidBodyComponent };
+legacyCC.RigidBodyComponent = RigidBody;
 js.setClassAlias(RigidBody, 'cc.RigidBodyComponent');
 /**
  * Alias of [[Collider]]
  * @deprecated Since v1.2
  */
 export { Collider as ColliderComponent };
+legacyCC.ColliderComponent = Collider;
 js.setClassAlias(Collider, 'cc.ColliderComponent');
 /**
  * Alias of [[BoxCollider]]
  * @deprecated Since v1.2
  */
 export { BoxCollider as BoxColliderComponent };
+legacyCC.BoxColliderComponent = BoxCollider;
 js.setClassAlias(BoxCollider, 'cc.BoxColliderComponent');
 /**
  * Alias of [[SphereCollider]]
  * @deprecated Since v1.2
  */
 export { SphereCollider as SphereColliderComponent };
+legacyCC.SphereColliderComponent = SphereCollider;
 js.setClassAlias(SphereCollider, 'cc.SphereColliderComponent');
 /**
  * Alias of [[CapsuleCollider]]

@@ -9,6 +9,7 @@ import { ccclass, type, visible, displayName, serializable } from 'cc.decorator'
 import { IMaterialInstanceInfo, MaterialInstance } from '../../renderer/core/material-instance';
 import { scene } from '../../renderer';
 import { Layers } from '../../scene-graph/layers';
+import { legacyCC } from '../../global-exports';
 
 const _matInsInfo: IMaterialInstanceInfo = {
     parent: null!,
@@ -201,3 +202,5 @@ export class RenderableComponent extends Component {
     protected _onVisibilityChange (val) {
     }
 }
+
+legacyCC.RenderableComponent = RenderableComponent;

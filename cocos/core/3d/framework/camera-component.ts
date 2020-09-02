@@ -632,3 +632,5 @@ export class Camera extends Component {
         }
     }
 }
+
+legacyCC.Camera = Camera;

@@ -597,5 +597,3 @@ export class Graphics extends UIRenderable {
         }
     }
 }
-
-legacyCC.Graphics = Graphics;
