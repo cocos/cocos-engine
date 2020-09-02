@@ -208,7 +208,8 @@ class GpuComputing implements SubMeshMorphRendering {
                     const displacementsView = morphTarget.displacements[attributeIndex];
                     const displacements = new Float32Array(mesh.data.buffer, mesh.data.byteOffset + displacementsView.offset, displacementsView.count);
                     const nVec3s = displacements.length / 3;
-                    valueView[pHead] = nVec4s;
+                    // See `Mesh.prototype.enableVertexIdChannel` for the magic `0.5`.
+                    valueView[pHead] = nVec4s + 0.5;
                     const displacementsOffset = nVec4s * 4;
                     for (let iVec3 = 0; iVec3 < nVec3s; ++iVec3) {
                         valueView[displacementsOffset + 4 * iVec3 + 0] = displacements[3 * iVec3 + 0];
