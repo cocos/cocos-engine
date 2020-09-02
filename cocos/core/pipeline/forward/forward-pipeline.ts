@@ -13,7 +13,7 @@ import { IRenderObject, UBOGlobal, UBOShadow,
 import { GFXBufferUsageBit, GFXMemoryUsageBit,
     GFXClearFlag, GFXFilter, GFXAddress, GFXCommandBufferType } from '../../gfx/define';
 import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout } from '../../gfx';
-import { SKYBOX_FLAG } from '../../renderer/scene';
+import { SKYBOX_FLAG, Light } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
 import { Mat4, Vec3, Vec4} from '../../math';
@@ -24,6 +24,7 @@ import { Skybox } from '../../renderer/scene/skybox';
 import { Shadows } from '../../renderer/scene/shadows';
 import { sceneCulling } from './scene-culling';
 import { UIFlow } from '../ui/ui-flow';
+import { GFXFramebuffer } from 'exports/base';
 
 
 
@@ -79,6 +80,7 @@ export class ForwardPipeline extends RenderPipeline {
      */
     public renderObjects: IRenderObject[] = [];
     public shadowObjects: IRenderObject[] = [];
+    public shadowFrameBufferMap: Map<Light, GFXFramebuffer> = new Map();
     protected _isHDR: boolean = false;
     protected _shadingScale: number = 1.0;
     protected _fpScale: number = 1.0 / 1024.0;
