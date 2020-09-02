@@ -1828,10 +1828,6 @@ Can't know status
 
 Video player's duration is not ready to get now!
 
-### 7703
-
-Video Downloader: video not supported on this browser!
-
 ### 7800
 
 Web does not support loading

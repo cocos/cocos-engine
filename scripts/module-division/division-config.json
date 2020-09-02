@@ -73,12 +73,6 @@
             "default": true
         },
         {
-            "text": "VideoPlayer",
-            "description": "VideoPlayer support.",
-            "entry": "video",
-            "default": true
-        },
-        {
             "text": "Tween",
             "description": "Tween support.",
             "entry": "tween",
