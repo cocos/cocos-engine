@@ -3,8 +3,7 @@
  */
 
 import { GFXCommandBuffer } from '../gfx/command-buffer';
-import { Light, Shadows, ShadowType, LightType, DirectionalLight,
-    SpotLight, Model, BatchingSchemes } from '../renderer';
+import { BatchingSchemes } from '../renderer';
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, SetIndex, UBOShadow } from './define';
 import { GFXDevice, GFXDescriptorSet, GFXRenderPass, GFXBuffer,
@@ -20,6 +19,8 @@ import { Mat4, Vec4, Color } from '../math';
 import { intersect } from '../geometry';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { BatchedBuffer } from './batched-buffer';
+import { Shadows, ShadowType } from '../renderer/scene/shadows';
+import { Light, LightType, SpotLight, Model, DirectionalLight } from '../renderer/scene';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();

@@ -8,6 +8,7 @@ import { RenderView } from '../render-view';
 import { Pool } from '../../memop';
 import { IRenderObject } from '../define';
 import { ShadowType } from '../../renderer/scene/shadows';
+import { Light } from 'cocos/core/renderer/scene';
 
 const _tempVec3 = new Vec3();
 
@@ -67,6 +68,7 @@ export function shadowCollecting (pipeline: ForwardPipeline, view: RenderView) {
     }
 }
 
+/// include directLight && spotLight
 export function lightCollecting (view: RenderView) {
     _validLights.length = 0;
 

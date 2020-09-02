@@ -14,7 +14,7 @@ import { RenderView, ForwardPipeline, GFXColor, GFXCommandBuffer, GFXRect } from
 import { ShadowType } from '../../renderer/scene/shadows';
 import { shadowCollecting, lightCollecting } from '../forward/scene-culling';
 import { RenderShadowMapBatchedQueue } from '../render-shadowMap-batched-queue';
-import { Light } from 'cocos/core/renderer';
+import { Light } from 'cocos/core/renderer/scene';
 
 const colors: GFXColor[] = [ { r: 1, g: 1, b: 1, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];

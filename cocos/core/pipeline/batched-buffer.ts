@@ -8,8 +8,9 @@ import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { Mat4 } from '../math';
 import { SubModel } from '../renderer/scene/submodel';
 import { UBOLocalBatched } from './define';
-import { Pass, Model } from '../renderer';
+import { Pass } from '../renderer';
 import { SubModelPool, SubModelView, PassHandle, ShaderHandle } from '../renderer/core/memory-pools';
+import { Model } from '../renderer/scene';
 
 export interface IBatchedItem {
     vbs: GFXBuffer[];
