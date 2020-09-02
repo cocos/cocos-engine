@@ -52,7 +52,17 @@ export function Enum<T> (obj: T): T {
         return obj;
     }
     value(obj, '__enums__', null, true);
+    return Enum.update(obj);
+}
 
+/**
+ * @en
+ * Update the enum object properties.
+ * @zh
+ * 更新枚举对象的属性列表。
+ * @param obj 
+ */
+Enum.update = <T> (obj: T): T => {
     let lastIndex: number = -1;
     const keys: string[] = Object.keys(obj);
 
@@ -125,7 +135,18 @@ Enum.getList = <EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator<Enu
         return enumType.__enums__;
     }
 
-    const enums: any[] = enumType.__enums__ = [];
+    return Enum.updateList(enumType as EnumT);
+};
+
+/**
+ * Update the enumerators from the enum type.
+ * @param enumType - the enum type defined from cc.Enum
+ * @return {Object[]}
+ */
+Enum.updateList = <EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator<EnumT>[] => {
+    assertIsEnum(enumType);
+    const enums: any[] = enumType.__enums__ || [];
+    enums.length = 0;
     // tslint:disable-next-line: forin
     for (const name in enumType) {
         const v = enumType[name];
@@ -134,6 +155,7 @@ Enum.getList = <EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator<Enu
         }
     }
     enums.sort((a, b) => a.value - b.value);
+    enumType.__enums__ = enums;
     return enums;
 };
 
