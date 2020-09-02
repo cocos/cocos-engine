@@ -529,11 +529,11 @@ export function setClassAlias (target: Function, alias: string) {
     const nameRegistry = _nameToClass[alias];
     const idRegistry = _idToClass[alias];
     let ok = true;
-    if (nameRegistry !== target) {
+    if (nameRegistry && nameRegistry !== target) {
         error(`"${alias}" has already been set as name or alias of another class.`);
         ok = false;
     }
-    if (idRegistry !== target) {
+    if (idRegistry && idRegistry !== target) {
         error(`"${alias}" has already been set as id or alias of another class.`);
         ok = false;
     }
