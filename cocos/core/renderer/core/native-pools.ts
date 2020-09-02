@@ -27,32 +27,35 @@
  * @hidden
  */
 
-export class NativeBufferPool {
-    private _arrayBuffers: ArrayBuffer[] = [];
-    private _chunkSize: number;
-    constructor (dataType: number, entryBits: number, stride: number) {
-        this._chunkSize = stride * (1 << entryBits);
-    }
-    public allocateNewChunk () { return new ArrayBuffer(this._chunkSize); }
-}
+// export class NativeBufferPool {
+//     private _arrayBuffers: ArrayBuffer[] = [];
+//     private _chunkSize: number;
+//     constructor (dataType: number, entryBits: number, stride: number) {
+//         this._chunkSize = stride * (1 << entryBits);
+//     }
+//     public allocateNewChunk () { return new ArrayBuffer(this._chunkSize); }
+// }
 
-export class NativeObjectPool<T> {
-    constructor (dataType: number, array: T[]) {}
-}
+// export class NativeObjectPool<T> {
+//     constructor (dataType: number, array: T[]) {}
+// }
 
-export class NativeArrayPool {
-    private _size: number;
-    constructor (poolType: number, size: number) {
-        this._size = size;
-    }
+// export class NativeArrayPool {
+//     private _size: number;
+//     constructor (poolType: number, size: number) {
+//         this._size = size;
+//     }
 
-    public alloc (index: number) : Uint32Array {
-        return new Uint32Array(this._size);
-    }
+//     public alloc (index: number) : Uint32Array {
+//         return new Uint32Array(this._size);
+//     }
 
-    public resize (origin: Uint32Array, size: number) : Uint32Array {
-        let array = new Uint32Array(size);
-        array.set(origin);
-        return array;
-    }
-}
+//     public resize (origin: Uint32Array, size: number) : Uint32Array {
+//         let array = new Uint32Array(size);
+//         array.set(origin);
+//         return array;
+//     }
+// }
+export const NativeBufferPool = jsb.NativeBufferPool;
+export const NativeObjectPool = jsb.NativeObjectPool;
+export const NativeArrayPool = jsb.NativeArrayPool;

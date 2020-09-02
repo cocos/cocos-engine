@@ -76,7 +76,7 @@ class BufferPool<T extends TypedArray, E extends IElementEnum, P extends PoolTyp
         this._stride = bytesPerElement * this._elementCount;
         this._entriesPerChunk = 1 << entryBits;
         this._entryMask = this._entriesPerChunk - 1;
-        this._poolFlag = 1 << 30;
+        this._poolFlag = 1 << 20;
         this._chunkMask = ~(this._entryMask | this._poolFlag);
         this._nativePool = new NativeBufferPool(dataType, entryBits, this._stride);
     }
@@ -293,7 +293,7 @@ class ObjectPool<T, P extends PoolType> {
     constructor (dataType: P, ctor: (args: any, obj?: T) => T, dtor?: (obj: T) => void) {
         this._ctor = ctor;
         if (dtor) { this._dtor = dtor; }
-        this._poolFlag = 1 << 29;
+        this._poolFlag = 1 << 20;
         this._indexMask = ~this._poolFlag;
         this._nativePool = new NativeObjectPool(dataType, this._array);
     }
@@ -355,7 +355,7 @@ export class ArrayPool<P extends PoolType, D extends PoolType> {
      * It is the same as size if it is not set.
      */
     constructor (arrayType: number, size: number, step? : number) {
-        this._arrayHandleFlag = 1 << 30;
+        this._arrayHandleFlag = 1 << 20;
         this._arrayHandleMask = ~this._arrayHandleFlag;
         this._size = size + 1;
         this._step = step || size;
