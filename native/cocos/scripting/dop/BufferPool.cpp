@@ -48,15 +48,12 @@ BufferPool::~BufferPool() {
 }
 
 Object *BufferPool::allocateNewChunk() {
-    Chunk chunk = (uint8_t *)CC_MALLOC(_bytesPerChunk);
-    Object *jsObj = Object::createArrayBufferObject(chunk, _bytesPerChunk);
+    Object *jsObj = Object::createArrayBufferObject(nullptr, _bytesPerChunk);
     
     uint8_t *realPtr = nullptr;
     size_t len = 0;
     jsObj->getArrayBufferData(&realPtr, &len);
     _chunks.push_back(realPtr);
-    
-    CC_FREE(chunk);
     
     return jsObj;
 }
