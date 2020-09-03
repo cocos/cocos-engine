@@ -1,4 +1,4 @@
-import { macro } from '../../platform';
+import { macro, warnID, warn } from '../../platform';
 import { GFXDescriptorSet, IGFXDescriptorSetInfo } from '../descriptor-set';
 import { GFXBuffer, IGFXBufferInfo, IGFXBufferViewInfo } from '../buffer';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
@@ -34,6 +34,8 @@ import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXCommandBufferType, G
 import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGL2CmdFuncBlitFramebuffer,
     WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
 import { GFXPipelineLayout, GFXDescriptorSetLayout, IGFXDescriptorSetLayoutInfo, IGFXPipelineLayoutInfo } from '../..';
+
+const eventWebGLContextLost = 'webglcontextlost';
 
 export class WebGL2Device extends GFXDevice {
 
@@ -115,6 +117,7 @@ export class WebGL2Device extends GFXDevice {
     private _isPremultipliedAlpha: boolean = true;
     private _useVAO: boolean = true;
     private _bindingMappingInfo: GFXBindingMappingInfo = new GFXBindingMappingInfo();
+    private _webGLContextLostHandler: null | ((event: Event) => void) = null;
 
     private _extensions: string[] | null = null;
     private _EXT_texture_filter_anisotropic: EXT_texture_filter_anisotropic | null = null;
@@ -173,6 +176,9 @@ export class WebGL2Device extends GFXDevice {
             console.error('This device does not support WebGL2.');
             return false;
         }
+
+        this._webGLContextLostHandler = this._onWebGLContextLost.bind(this);
+        this._canvas.addEventListener(eventWebGLContextLost, this._onWebGLContextLost);
 
         this._canvas2D = document.createElement('canvas');
 
@@ -397,6 +403,10 @@ export class WebGL2Device extends GFXDevice {
     }
 
     public destroy (): void {
+        if (this._canvas && this._webGLContextLostHandler) {
+            this._canvas.removeEventListener(eventWebGLContextLost, this._webGLContextLostHandler);
+            this._webGLContextLostHandler = null;
+        }
 
         if (this.nullTex2D) {
             this.nullTex2D.destroy();
@@ -680,5 +690,11 @@ export class WebGL2Device extends GFXDevice {
         gl.blendFuncSeparate(gl.ONE, gl.ZERO, gl.ONE, gl.ZERO);
         gl.colorMask(true, true, true, true);
         gl.blendColor(0.0, 0.0, 0.0, 0.0);
+    }
+
+    private _onWebGLContextLost (event: Event) {
+        warnID(11000);
+        warn(event);
+        event.preventDefault();
     }
 }
