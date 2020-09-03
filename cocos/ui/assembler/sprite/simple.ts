@@ -32,7 +32,7 @@ import { Vec3 } from '../../../core/math';
 import { IAssembler } from '../../../core/renderer/ui/base';
 import { IRenderData, RenderData } from '../../../core/renderer/ui/render-data';
 import { UI } from '../../../core/renderer/ui/ui';
-import { SpriteComponent } from '../../components';
+import { Sprite } from '../../components';
 
 const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
@@ -44,7 +44,7 @@ for (let i = 0; i < 4; i++) {
  * 可通过 `UI.simple` 获取该组装器。
  */
 export const simple: IAssembler = {
-    createData (sprite: SpriteComponent) {
+    createData (sprite: Sprite) {
         const renderData = sprite.requestRenderData();
         renderData!.dataLength = 4;
         renderData!.vertexCount = 4;
@@ -55,7 +55,7 @@ export const simple: IAssembler = {
         return renderData as RenderData;
     },
 
-    updateRenderData (sprite: SpriteComponent) {
+    updateRenderData (sprite: Sprite) {
         const frame = sprite.spriteFrame;
 
         // TODO: Material API design and export from editor could affect the material activation process
@@ -80,7 +80,7 @@ export const simple: IAssembler = {
         }
     },
 
-    fillBuffers (sprite: SpriteComponent, renderer: UI) {
+    fillBuffers (sprite: Sprite, renderer: UI) {
         if (sprite === null) {
             return;
         }
@@ -146,7 +146,7 @@ export const simple: IAssembler = {
         iBuf[indicesOffset++] = vertexId + 3;
     },
 
-    updateVertexData (sprite: SpriteComponent) {
+    updateVertexData (sprite: Sprite) {
         const renderData: RenderData | null = sprite.renderData;
         if (!renderData) {
             return;
@@ -200,7 +200,7 @@ export const simple: IAssembler = {
         renderData.vertDirty = false;
     },
 
-    updateUvs (sprite: SpriteComponent) {
+    updateUvs (sprite: Sprite) {
         const renderData = sprite.renderData!;
         const vData = renderData.vData!;
         const uv = sprite!.spriteFrame!.uv;
@@ -216,7 +216,7 @@ export const simple: IAssembler = {
         renderData.uvDirty = false;
     },
 
-    updateColor (sprite: SpriteComponent) {
+    updateColor (sprite: Sprite) {
         const vData = sprite.renderData!.vData;
 
         let colorOffset = 5;

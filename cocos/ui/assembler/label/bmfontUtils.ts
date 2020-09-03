@@ -31,10 +31,10 @@ import { BitmapFont, IConfig } from '../../../core/assets/bitmap-font';
 import { SpriteFrame } from '../../../core/assets/sprite-frame';
 import { isUnicodeCJK, isUnicodeSpace } from '../../../core/utils/text-utils';
 import { Rect, Size, Vec2 } from '../../../core/math';
-import { HorizontalTextAlignment, VerticalTextAlignment } from '../../components/label-component';
-import { LabelComponent, Overflow } from '../../components/label-component';
+import { HorizontalTextAlignment, VerticalTextAlignment } from '../../components/label';
+import { Label, Overflow } from '../../components/label';
 import { js } from '../../../core/utils';
-import { UITransformComponent } from '../../../core/components/ui-base/ui-transform-component';
+import { UITransform } from '../../../core/components/ui-base/ui-transform';
 import { legacyCC } from '../../../core/global-exports';
 
 class FontLetterDefinition {
@@ -110,8 +110,8 @@ class LetterInfo {
 
 const _tmpRect = new Rect();
 
-let _comp: LabelComponent | null = null;
-let _uiTrans: UITransformComponent | null = null;
+let _comp: Label | null = null;
+let _uiTrans: UITransform | null = null;
 
 const _horizontalKerning: number[] = [];
 const _lettersInfo: LetterInfo[] = [];
@@ -145,7 +145,7 @@ let _labelHeight = 0;
 let _maxLineWidth = 0;
 
 export const bmfontUtils = {
-    updateRenderData (comp: LabelComponent) {
+    updateRenderData (comp: Label) {
         if (!comp.renderData || !comp.renderData.vertDirty) {
             return;
         }

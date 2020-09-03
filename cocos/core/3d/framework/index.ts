@@ -28,45 +28,30 @@
  * @hidden
  */
 import { legacyCC } from '../../global-exports';
-import { BatchedSkinningModelComponent, SkinningModelUnit } from './batched-skinning-model-component';
-import { CameraComponent } from './camera-component';
-import { DirectionalLightComponent } from './directional-light-component';
-import { LightComponent } from './light-component';
-import { ModelComponent } from './model-component';
+import { SkinnedMeshBatchRenderer, SkinnedMeshUnit } from './skinned-mesh-batch-renderer';
+import { Camera } from './camera-component';
+import { DirectionalLight } from './directional-light-component';
+import { Light } from './light-component';
+import { MeshRenderer } from './mesh-renderer';
 import { RenderableComponent } from './renderable-component';
-import { SkinningModelComponent } from './skinning-model-component';
-import { SphereLightComponent } from './sphere-light-component';
-import { SpotLightComponent } from './spot-light-component';
+import { SkinnedMeshRenderer } from './skinned-mesh-renderer';
+import { SphereLight } from './sphere-light-component';
+import { SpotLight } from './spot-light-component';
 
 export {
-    CameraComponent,
-    LightComponent,
-    ModelComponent,
-    SkinningModelComponent,
-    BatchedSkinningModelComponent,
-    SkinningModelUnit,
+    Camera,
+    Light,
+    MeshRenderer,
+    SkinnedMeshRenderer,
+    SkinnedMeshBatchRenderer,
+    SkinnedMeshUnit,
 
     RenderableComponent,
 
-    DirectionalLightComponent,
-    SphereLightComponent,
-    SpotLightComponent,
+    DirectionalLight,
+    SphereLight,
+    SpotLight,
 };
 
-// cc.AnimationComponent = AnimationComponent;
-legacyCC.CameraComponent = CameraComponent;
-// legacyCC.EditorComponent = EditorCameraComponent;
-legacyCC.RenderableComponent = RenderableComponent;
-legacyCC.ModelComponent = ModelComponent;
-legacyCC.SkinningModelComponent = SkinningModelComponent;
-
-legacyCC.BatchedSkinningModelComponent = BatchedSkinningModelComponent;
-legacyCC.SkinningModelUnit = SkinningModelUnit;
-
-legacyCC.LightComponent = LightComponent;
-legacyCC.DirectionalLightComponent = DirectionalLightComponent;
-legacyCC.SphereLightComponent = SphereLightComponent;
-legacyCC.SpotLightComponent = SpotLightComponent;
-
 /** deprecated */
-import './deprecated';
+export * from './deprecated';

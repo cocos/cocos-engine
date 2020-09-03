@@ -11,7 +11,6 @@ export enum GFXObjectType {
     UNKNOWN,
     BUFFER,
     TEXTURE,
-    TEXTURE_VIEW,
     RENDER_PASS,
     FRAMEBUFFER,
     SAMPLER,

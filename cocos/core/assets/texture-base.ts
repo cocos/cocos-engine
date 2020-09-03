@@ -29,7 +29,7 @@
  */
 
 // @ts-check
-import {ccclass, property} from '../data/class-decorator';
+import {ccclass, serializable} from 'cc.decorator';
 import { GFXDevice } from '../gfx/device';
 import { GFXTexture } from '../gfx/texture';
 import { genSamplerHash, SamplerInfoIndex, samplerLib } from '../renderer/core/sampler-lib';
@@ -73,28 +73,28 @@ export class TextureBase extends Asset {
 
     public static Filter = Filter;
 
-    @property
+    @serializable
     protected _format: number = PixelFormat.RGBA8888;
 
-    @property
+    @serializable
     protected _minFilter: number = Filter.LINEAR;
 
-    @property
+    @serializable
     protected _magFilter: number = Filter.LINEAR;
 
-    @property
+    @serializable
     protected _mipFilter: number = Filter.NONE;
 
-    @property
+    @serializable
     protected _wrapS: number = WrapMode.REPEAT;
 
-    @property
+    @serializable
     protected _wrapT: number = WrapMode.REPEAT;
 
-    @property
+    @serializable
     protected _wrapR: number = WrapMode.REPEAT;
 
-    @property
+    @serializable
     protected _anisotropy = 8;
 
     protected _width: number = 1;

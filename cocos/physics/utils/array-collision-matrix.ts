@@ -7,8 +7,6 @@ export class ArrayCollisionMatrix {
 
     /**
      * The matrix storage
-     * @property matrix
-     * @type {Array}
      */
     public matrix: number[] = [];
 

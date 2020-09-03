@@ -26,8 +26,8 @@
 import { legacyCC } from '../../core/global-exports';
 import { mat4 } from "../../core/math";
 import { error, sys } from "../../core/platform";
-import { UITransformComponent } from "../../core/components/ui-base";
-import { VideoPlayerComponent } from "../video-player-component";
+import { UITransform } from "../../core/components/ui-base";
+import { VideoPlayer } from "../video-player";
 import { contains } from '../../core/utils/misc';
 
 const { game, Game, view, screen, visibleRect } = legacyCC;
@@ -59,7 +59,7 @@ export enum EventType {
  * @category component/video
  */
 
-export class VideoPlayer {
+export class VideoPlayerImpl {
 
     protected _eventList: Map<number, Function> = new Map<number, Function>();
     protected _state = EventType.NONE;
@@ -75,8 +75,8 @@ export class VideoPlayer {
     protected _waitingFullscreen = false;
     protected _fullScreenOnAwake = false;
 
-    protected _videoComponent: VideoPlayerComponent | null = null;
-    protected _uiTrans: UITransformComponent | null = null;
+    protected _videoComponent: VideoPlayer | null = null;
+    protected _uiTrans: UITransform | null = null;
 
     protected _stayOnBottom = false;
     protected _dirty = false;
@@ -102,7 +102,7 @@ export class VideoPlayer {
 
     constructor (component) {
         this._videoComponent = component;
-        this._uiTrans = component.node.getComponent(UITransformComponent);
+        this._uiTrans = component.node.getComponent(UITransform);
         this._onHide = () => {
             if (!this.video || this._state !== EventType.PLAYING) { return; }
             this.video.pause();

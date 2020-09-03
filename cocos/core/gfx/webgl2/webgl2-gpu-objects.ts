@@ -1,4 +1,4 @@
-import { IGFXDrawInfo } from '../buffer';
+import { GFXDrawInfo } from '../buffer';
 import {
     GFXAddress,
     GFXDescriptorType,
@@ -40,7 +40,7 @@ export interface IWebGL2GPUBuffer {
     glOffset: number;
 
     buffer: ArrayBufferView | null;
-    indirects: IGFXDrawInfo[];
+    indirects: GFXDrawInfo[];
 }
 
 export interface IWebGL2GPUTexture {
@@ -134,10 +134,7 @@ export interface IWebGL2GPUUniformBlock {
     idx: number;
     name: string;
     size: number;
-
     glBinding: number;
-    glUniforms: IWebGL2GPUUniform[];
-    glActiveUniforms: IWebGL2GPUUniform[];
 }
 
 export interface IWebGL2GPUUniformSampler {
@@ -173,10 +170,14 @@ export interface IWebGL2GPUShader {
 export interface IWebGL2GPUDescriptorSetLayout {
     bindings: IGFXDescriptorSetLayoutBinding[];
     dynamicBindings: number[];
+    descriptorIndices: number[];
+    descriptorCount: number;
 }
 
 export interface IWebGL2GPUPipelineLayout {
     gpuSetLayouts: IWebGL2GPUDescriptorSetLayout[];
+    dynamicOffsetCount: number;
+    dynamicOffsetOffsets: number[];
     dynamicOffsetIndices: number[][];
 }
 
@@ -200,6 +201,7 @@ export interface IWebGL2GPUDescriptor {
 
 export interface IWebGL2GPUDescriptorSet {
     gpuDescriptors: IWebGL2GPUDescriptor[];
+    descriptorIndices: number[];
 }
 
 export interface IWebGL2Attrib {

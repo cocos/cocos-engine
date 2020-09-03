@@ -1,6 +1,6 @@
-import { replaceProperty, removeProperty, markAsWarning } from '../../utils';
+import { replaceProperty, removeProperty, markAsWarning } from '../../utils/deprecated';
 import { RenderScene } from './render-scene';
-import { Layers } from '../../scene-graph';
+import { Layers } from '../../scene-graph/layers';
 import { legacyCC } from '../../global-exports';
 import { Pass } from '../core/pass';
 

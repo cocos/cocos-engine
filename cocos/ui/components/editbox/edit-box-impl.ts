@@ -37,8 +37,8 @@ import { Color, Mat4, Size, Vec3 } from '../../../core/math';
 import { screen, view } from '../../../core/platform';
 import { macro } from '../../../core/platform/macro';
 import { contains } from '../../../core/utils/misc';
-import { LabelComponent } from '../label-component';
-import { EditBoxComponent} from './edit-box-component';
+import { Label } from '../label';
+import { EditBox } from './edit-box';
 import { tabIndexUtil } from './tabIndexUtil';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { sys } from '../../../core/platform/sys';
@@ -61,10 +61,10 @@ let _currentEditBoxImpl: EditBoxImpl | null = null;
 let _domCount = 0;
 
 export class EditBoxImpl extends EditBoxImplBase {
-    public _delegate: EditBoxComponent | null = null;
-    public _inputMode = InputMode.ANY;
-    public _inputFlag = InputFlag.DEFAULT;
-    public _returnType = KeyboardReturnType.DEFAULT;
+    public _delegate: EditBox | null = null;
+    public _inputMode: InputMode = -1;
+    public _inputFlag: InputFlag = -1;
+    public _returnType: KeyboardReturnType = -1;
     public __eventListeners: any = {};
     public __fullscreen = false;
     public __autoResize = false;
@@ -84,7 +84,7 @@ export class EditBoxImpl extends EditBoxImplBase {
     private _placeholderStyleSheet: any = null;
     private _domId = `EditBoxId_${++_domCount}`;
 
-    public init (delegate: EditBoxComponent) {
+    public init (delegate: EditBox) {
         if (!delegate){
             return;
         }
@@ -486,13 +486,13 @@ export class EditBoxImpl extends EditBoxImplBase {
         elem.style.fontFamily = font;
 
         switch (textLabel.horizontalAlign) {
-            case LabelComponent.HorizontalAlign.LEFT:
+            case Label.HorizontalAlign.LEFT:
                 elem.style.textAlign = 'left';
                 break;
-            case LabelComponent.HorizontalAlign.CENTER:
+            case Label.HorizontalAlign.CENTER:
                 elem.style.textAlign = 'center';
                 break;
-            case LabelComponent.HorizontalAlign.RIGHT:
+            case Label.HorizontalAlign.RIGHT:
                 elem.style.textAlign = 'right';
                 break;
         }
@@ -534,13 +534,13 @@ export class EditBoxImpl extends EditBoxImplBase {
 
         let horizontalAlign = '';
         switch (placeholderLabel.horizontalAlign) {
-            case LabelComponent.HorizontalAlign.LEFT:
+            case Label.HorizontalAlign.LEFT:
                 horizontalAlign = 'left';
                 break;
-            case LabelComponent.HorizontalAlign.CENTER:
+            case Label.HorizontalAlign.CENTER:
                 horizontalAlign = 'center';
                 break;
-            case LabelComponent.HorizontalAlign.RIGHT:
+            case Label.HorizontalAlign.RIGHT:
                 horizontalAlign = 'right';
                 break;
         }

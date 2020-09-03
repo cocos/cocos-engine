@@ -55,7 +55,7 @@
     "_id": ""
   },
   {
-    "__type__": "cc.ModelComponent",
+    "__type__": "cc.MeshRenderer",
     "_name": "Quad<ModelComponent>",
     "_objFlags": 0,
     "node": {

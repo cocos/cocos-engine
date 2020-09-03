@@ -345,14 +345,12 @@ export class Scheduler extends System {
     /**
      * @en Priority level reserved for system services.
      * @zh 系统服务的优先级。
-     * @property PRIORITY_SYSTEM
      */
     public static PRIORITY_SYSTEM: number = 1 << 31;
 
     /**
      * @en Minimum priority level for user scheduling.
      * @zh 用户调度最低优先级。
-     * @property PRIORITY_NON_SYSTEM
      */
     public static PRIORITY_NON_SYSTEM: number = Scheduler.PRIORITY_SYSTEM + 1;
 

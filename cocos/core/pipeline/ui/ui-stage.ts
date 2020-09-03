@@ -2,7 +2,7 @@
  * @category pipeline
  */
 
-import { ccclass, property, visible, displayOrder, type } from '../../data/class-decorator';
+import { ccclass, visible, displayOrder, type, serializable } from 'cc.decorator';
 import { GFXColor, GFXRect } from '../../gfx/define';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
@@ -36,7 +36,7 @@ export class UIStage extends RenderStage {
     };
 
     @type([RenderQueueDesc])
-    @visible(true)
+    @serializable
     @displayOrder(2)
     protected renderQueues: RenderQueueDesc[] = [];
     protected _renderQueues: RenderQueue[] = [];

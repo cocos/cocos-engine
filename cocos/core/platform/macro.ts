@@ -972,7 +972,6 @@ const macro = {
      * 同时，在少部分使用软件级别抗锯齿算法的设备或浏览器上，这个选项会对性能产生比较大的影响。
      * 你可以在 {{game.init}} 之前设置这个值，否则它不会生效。
      * 仅支持 Web
-     * @property {Boolean} ENABLE_WEBGL_ANTIALIAS
      * @default false
      */
     ENABLE_WEBGL_ANTIALIAS: false,
@@ -1001,7 +1000,6 @@ const macro = {
       * Whether to enable multi-touch.
       * @zh
       * 是否开启多点触摸
-      * @property {Boolean} ENABLE_MULTI_TOUCH
       * @default true
       */
     ENABLE_MULTI_TOUCH: true,

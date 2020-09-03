@@ -5,7 +5,7 @@
 
 import { Material } from '../../core/assets/material';
 import { RenderingSubMesh } from '../../core/assets/mesh';
-import { ccclass, property, tooltip, displayOrder, type, visible } from '../../core/data/class-decorator';
+import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { director } from '../../core/director';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
@@ -13,7 +13,7 @@ import { GFXDevice } from '../../core/gfx/device';
 import { IGFXAttribute } from '../../core/gfx/input-assembler';
 import { Color, Mat4, Quat, toRadian, Vec3 } from '../../core/math';
 import { Pool } from '../../core/memop';
-import { Model } from '../../core/renderer';
+import { scene } from '../../core/renderer';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
@@ -175,13 +175,14 @@ export default class TrailModule {
         val ? this.onEnable() : this.onDisable();
     }
 
-    @property
+    @serializable
     public _enable = false;
 
     /**
      * 设定粒子生成轨迹的方式。
      */
     @type(TrailMode)
+    @serializable
     @displayOrder(1)
     @tooltip('Particle在每个粒子的运动轨迹上形成拖尾效果')
     public mode = TrailMode.Particles;
@@ -190,17 +191,17 @@ export default class TrailModule {
      * 轨迹存在的生命周期。
      */
     @type(CurveRange)
+    @serializable
     @displayOrder(3)
     @tooltip('拖尾的生命周期')
     public lifeTime = new CurveRange();
 
-    @property
+    @serializable
     public _minParticleDistance = 0.1;
 
     /**
      * 每个轨迹粒子之间的最小间距。
      */
-    @property
     @displayOrder(5)
     @tooltip('粒子每生成一个拖尾节点所运行的最短距离')
     public get minParticleDistance () {
@@ -229,21 +230,19 @@ export default class TrailModule {
     /**
      * 粒子本身是否存在。
      */
-    @property
-    @visible(false)
-    @displayOrder(7)
-    @tooltip('拖尾是否跟随粒子一起消失')
+    @serializable
     public existWithParticles = true;
 
     /**
      * 设定纹理填充方式。
      */
     @type(TextureMode)
+    @serializable
     @displayOrder(8)
     @tooltip('贴图在拖尾上的展开形式，Stretch贴图覆盖在整条拖尾上，Repeat贴图覆盖在一段拖尾上')
     public textureMode = TextureMode.Stretch;
 
-    @property
+    @serializable
     @displayOrder(9)
     @tooltip('拖尾宽度继承自粒子大小')
     public widthFromParticle = true;
@@ -252,21 +251,24 @@ export default class TrailModule {
      * 控制轨迹长度的曲线。
      */
     @type(CurveRange)
+    @serializable
     @displayOrder(10)
     @tooltip('拖尾宽度，如果继承自粒子则是粒子大小的比例')
     public widthRatio = new CurveRange();
 
-    @property
+    @serializable
     @displayOrder(11)
     @tooltip('拖尾颜色是否继承自粒子')
     public colorFromParticle = false;
 
     @type(GradientRange)
+    @serializable
     @displayOrder(12)
     @tooltip('拖尾颜色随拖尾自身长度的颜色渐变')
     public colorOverTrail = new GradientRange();
 
     @type(GradientRange)
+    @serializable
     @displayOrder(13)
     @tooltip('拖尾颜色随时间的颜色渐变')
     public colorOvertime = new GradientRange();
@@ -277,7 +279,7 @@ export default class TrailModule {
     @type(Space)
     private _space = Space.World;
 
-    @property
+    @serializable
     private _particleSystem: any = null;
 
     private _minSquaredDistance: number = 0;
@@ -288,7 +290,7 @@ export default class TrailModule {
     private ibOffset: number = 0;
     private _trailSegments: Pool<TrailSegment> | null = null;
     private _particleTrail: Map<Particle, TrailSegment>;
-    private _trailModel: Model | null = null;
+    private _trailModel: scene.Model | null = null;
     private _iaInfo: IGFXIndirectBuffer;
     private _iaInfoBuffer: GFXBuffer | null = null;
     private _subMeshData: RenderingSubMesh | null = null;
@@ -557,8 +559,8 @@ export default class TrailModule {
             const subModel = subModels[0];
             subModel.inputAssembler!.vertexBuffers[0].update(this._vbF32!);
             subModel.inputAssembler!.indexBuffer!.update(this._iBuffer!);
-            subModel.inputAssembler!.indexCount = count;
-            this._iaInfo.drawInfos[0] = subModel.inputAssembler!;
+            this._iaInfo.drawInfos[0].firstIndex = 0;
+            this._iaInfo.drawInfos[0].indexCount = count;
             this._iaInfoBuffer!.update(this._iaInfo);
         }
     }
@@ -568,7 +570,7 @@ export default class TrailModule {
             return;
         }
 
-        this._trailModel = legacyCC.director.root.createModel(Model);
+        this._trailModel = legacyCC.director.root.createModel(scene.Model);
     }
 
     private rebuild () {

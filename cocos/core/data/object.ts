@@ -28,7 +28,7 @@
  */
 
 import * as js from '../utils/js';
-import CCClass from './class';
+import { CCClass } from './class';
 import { errorID, warnID } from '../platform/debug';
 import { SUPPORT_JIT, EDITOR, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
@@ -187,14 +187,12 @@ class CCObject {
 
     constructor (name = '') {
         /**
-         * @property {String} _name
          * @default ""
          * @private
          */
         this._name = name;
 
         /**
-         * @property {Number} _objFlags
          * @default 0
          * @private
          */
@@ -206,7 +204,6 @@ class CCObject {
     /**
      * @en The name of the object.
      * @zh 该对象的名称。
-     * @property {String} name
      * @default ""
      * @example
      * ```
@@ -457,7 +454,6 @@ declare namespace CCObject {
         /**
          * @en Dont destroy automatically when loading a new scene.
          * @zh 加载一个新场景时，不自动删除该对象
-         * @property DontDestroy
          * @private
          */
         DontDestroy,
@@ -489,7 +485,6 @@ declare namespace CCObject {
         // * @zh
         // * 在游戏和层级中隐藏该对象。<br/>
         // * 该标记只读，它只能被用作 scene.addEntity()的一个参数。
-        // * @property {Number} HideInGame
         // */
         // HideInGame: HideInGame,
 

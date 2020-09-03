@@ -28,7 +28,7 @@
  */
 
 import { Asset } from '../../core/assets/asset';
-import { ccclass, property, type } from '../../core/data/class-decorator';
+import { ccclass, type, serializable } from 'cc.decorator';
 import { Enum } from '../../core/value-types';
 import { AudioPlayer, PlayingState } from './player';
 import { AudioPlayerDOM } from './player-dom';
@@ -61,7 +61,7 @@ export class AudioClip extends Asset {
     public static AudioType = AudioType;
     public static preventDeferredLoadDependents = true;
 
-    @property
+    @serializable
     protected _duration = 0; // we serialize this because it's unavailable at runtime on some platforms
 
     @type(AudioType)

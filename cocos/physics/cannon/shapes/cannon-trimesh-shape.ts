@@ -1,6 +1,6 @@
 import CANNON from '@cocos/cannon';
 import { CannonShape } from './cannon-shape';
-import { MeshColliderComponent } from '../../framework';
+import { MeshCollider } from '../../framework';
 import { Mesh, Vec3 } from '../../../core';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
 import { commitShapeUpdates } from '../cannon-util';
@@ -10,7 +10,7 @@ const v3_cannon0 = new CANNON.Vec3();
 export class CannonTrimeshShape extends CannonShape implements ITrimeshShape {
 
     get collider () {
-        return this._collider as MeshColliderComponent;
+        return this._collider as MeshCollider;
     }
 
     get impl () {
