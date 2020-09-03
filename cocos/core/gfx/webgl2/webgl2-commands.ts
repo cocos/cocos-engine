@@ -1655,6 +1655,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
                 name: sampler.name,
                 type: sampler.type,
                 units: [],
+                glUnits: null!,
                 glType: GFXTypeToWebGLType(sampler.type, gl),
                 glLoc: -1,
             };
@@ -1713,7 +1714,8 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
 
         for (let k = 0; k < glActiveSamplers.length; k++) {
             const glSampler = glActiveSamplers[k];
-            gl.uniform1iv(glSampler.glLoc, glSampler.units);
+            glSampler.glUnits = new Int32Array(glSampler.units);
+            gl.uniform1iv(glSampler.glLoc, glSampler.glUnits);
         }
 
         if (device.stateCache.glProgram !== gpuShader.glProgram) {
