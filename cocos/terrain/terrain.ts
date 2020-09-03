@@ -674,6 +674,7 @@ export class TerrainBlock {
 @disallowMultiple
 export class Terrain extends Component {
     @type(TerrainAsset)
+    @serializable
     @disallowAnimation
     protected __asset: TerrainAsset|null = null;
 
