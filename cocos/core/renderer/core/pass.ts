@@ -140,7 +140,7 @@ export class Pass {
             const bsInfo = info.blendState;
             if (bsInfo.targets) {
                 bsInfo.targets.forEach((t, i) => Object.assign(
-                bs.targets[i] || (bs.targets[i] = new GFXBlendTarget()), t));
+                bs.targets[i] || (bs.setTarget(i, new GFXBlendTarget()), t)));
             }
             if (bsInfo.isA2C !== undefined) { bs.isA2C = bsInfo.isA2C; }
             if (bsInfo.isIndepend !== undefined) { bs.isIndepend = bsInfo.isIndepend; }
