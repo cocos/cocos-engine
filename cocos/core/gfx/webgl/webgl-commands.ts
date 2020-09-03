@@ -849,7 +849,6 @@ export function WebGLCmdFuncCreateTexture (device: WebGLDevice, gpuTexture: IWeb
                     if (gpuTexture.glInternalFmt === gl.DEPTH_COMPONENT) {
                         gpuTexture.glInternalFmt = gl.DEPTH_COMPONENT16;
                     }
-
                     gl.renderbufferStorage(gl.RENDERBUFFER, gpuTexture.glInternalFmt, w, h);
                 }
             } else if (gpuTexture.samples === GFXSampleCount.X1) {
@@ -1019,7 +1018,13 @@ export function WebGLCmdFuncResizeTexture (device: WebGLDevice, gpuTexture: IWeb
                 errorID(9100, maxSize, device.maxTextureSize);
             }
 
-            if (gpuTexture.samples === GFXSampleCount.X1) {
+            if (gpuTexture.glRenderbuffer) {
+                if (device.stateCache.glRenderbuffer !== gpuTexture.glRenderbuffer) {
+                    gl.bindRenderbuffer(gl.RENDERBUFFER, gpuTexture.glRenderbuffer);
+                    device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
+                }
+                gl.renderbufferStorage(gl.RENDERBUFFER, gpuTexture.glInternalFmt, w, h);
+            } else if (gpuTexture.glTexture) {
                 const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
 
                 if (glTexUnit.glTexture !== gpuTexture.glTexture) {
