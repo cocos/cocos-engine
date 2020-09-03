@@ -479,7 +479,7 @@ function _deserializeFireClass (self, obj, serialized, klass, target) {
 // }
 
 // tslint:disable-next-line: class-name
-class _Deserializer {
+export class _Deserializer {
 
     public static pool: js.Pool<{}>;
     public result: any;
