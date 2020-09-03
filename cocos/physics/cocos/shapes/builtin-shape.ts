@@ -1,7 +1,7 @@
 import { Mat4, Quat, Vec3 } from '../../../core/math';
 import { BuiltinSharedBody } from '../builtin-shared-body';
 import { IBuiltinShape } from '../builtin-interface';
-import { ColliderComponent, RigidBodyComponent, PhysicMaterial, PhysicsSystem } from '../../../../exports/physics-framework';
+import { Collider, RigidBody, PhysicMaterial, PhysicsSystem } from '../../../../exports/physics-framework';
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { BuiltInWorld } from '../builtin-world';
@@ -13,7 +13,7 @@ export class BuiltinShape implements IBaseShape {
     getBoundingSphere (v: sphere) { }
     setMaterial (v: PhysicMaterial | null) { }
     setAsTrigger (v: boolean) { }
-    get attachedRigidBody (): RigidBodyComponent | null { return null; }
+    get attachedRigidBody (): RigidBody | null { return null; }
 
     setCenter (v: IVec3Like) {
         Vec3.copy(this._localShape.center, v);
@@ -44,11 +44,11 @@ export class BuiltinShape implements IBaseShape {
     readonly id: number = BuiltinShape.idCounter++;;
 
     protected _sharedBody!: BuiltinSharedBody;
-    protected _collider!: ColliderComponent;
+    protected _collider!: Collider;
     protected _localShape!: IBuiltinShape;
     protected _worldShape!: IBuiltinShape;
 
-    initialize (comp: ColliderComponent) {
+    initialize (comp: Collider) {
         this._collider = comp;
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as BuiltInWorld).getSharedBody(this._collider.node as Node);
         this._sharedBody.reference = true;

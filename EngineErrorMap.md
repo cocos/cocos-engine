@@ -112,6 +112,10 @@ The '%s' will be removed in v2.0, please use '%s' instead.
 
 cc.pool is being removed from v2.0, you are getting cc.js.Pool instead
 
+### 1408
+
+'%s' is removed
+
 ### 1502
 
 cc.scheduler.scheduleCallbackForTarget(): target should be non-null.
@@ -588,7 +592,7 @@ value = 0;    // <--
 
 ### 3654
 
-Please specifiy a default value for "%s" property at its declaration:
+Please specifiy a default value for "%s.%s" property at its declaration:
 ```
 // Before:
 @property(...)
@@ -820,16 +824,6 @@ already-playing
 
 Sorry, the cc.Font has been modified from Raw Asset to Asset. Please load the font asset before using.
 
-### 4001
-
-<!-- DEPRECATED -->
-_ccsg.Label._initBMFontWithString(): Impossible to create font. Please check file
-
-### 4002
-
-<!-- DEPRECATED -->
-_ccsg.Label._initBMFontWithString(): re-init is no longer supported
-
 ### 4003
 
 Label font size can't be shirnked less than 0!
@@ -837,36 +831,6 @@ Label font size can't be shirnked less than 0!
 ### 4004
 
 force notify all fonts loaded!
-
-### 4005
-
-<!-- DEPRECATED -->
-cc.LabelAtlas.initWithString(): Unsupported version. Upgrade cocos2d version
-
-### 4006
-
-<!-- DEPRECATED -->
-cc.LabelAtlas._updateAtlasValues(): Invalid String length
-
-### 4007
-
-<!-- DEPRECATED -->
-cc.LabelBMFont.initWithString(): re-init is no longer supported
-
-### 4008
-
-<!-- DEPRECATED -->
-cc.LabelBMFont.initWithString(): Impossible to create font. Please check file
-
-### 4009
-
-<!-- DEPRECATED -->
-cocos2d: LabelBMFont: character not found %s
-
-### 4010
-
-<!-- DEPRECATED -->
-cc.LabelBMFont.setFntFile() : Impossible to create font. Please check file
 
 ### 4011
 
@@ -902,11 +866,11 @@ Can not found the %s page.
 
 ### 4301
 
-Can not add a page without UITransformComponent.
+Can not add a page without UITransform.
 
 ### 4302
 
-Can not set the scroll view content when it hasn't UITransformComponent or its parent hasn't UITransformComponent.
+Can not set the scroll view content when it hasn't UITransform or its parent hasn't UITransform.
 
 ### 4400
 
@@ -936,56 +900,6 @@ No need to release non-cached asset.
 
 Can not get class '%s'
 
-### 4904
-
-<!-- DEPRECATED -->
-%s does not exist
-
-### 4905
-
-<!-- DEPRECATED -->
-%s load error, must be json file
-
-### 4906
-
-<!-- DEPRECATED -->
-Can't find the parser : %s
-
-### 4907
-
-<!-- DEPRECATED -->
-%s is armature. please use:
-
-### 4908
-
-<!-- DEPRECATED -->
-    ccs.armatureDataManager.addArmatureFileInfoAsync(%s);
-
-### 4909
-
-<!-- DEPRECATED -->
-    var armature = new ccs.Armature('name');
-
-### 4910
-
-<!-- DEPRECATED -->
-Can't find the parser : %s
-
-### 4911
-
-<!-- DEPRECATED -->
-register parser error
-
-### 4912
-
-<!-- DEPRECATED -->
-Can't find the parser : %s
-
-### 4913
-
-<!-- DEPRECATED -->
-Group versions haven't been loaded, you can also set group data with 'cc.LoaderLayer.groups'
-
 ### 4914
 
 Resources url '%s' does not exist.
@@ -997,21 +911,6 @@ Pack indices and data do not match in size
 ### 4916
 
 Failed to download package for %s
-
-### 4917
-
-<!-- DEPRECATED -->
-cc.LabelBMFont._parseCommonArguments(): page can't be larger than supported
-
-### 4918
-
-<!-- DEPRECATED -->
-cc.LabelBMFont._parseCommonArguments(): only supports 1 page
-
-### 4919
-
-<!-- DEPRECATED -->
-cc.LabelBMFont._parseImageFileName() : file could not be found
 
 ### 4920
 
@@ -1266,81 +1165,6 @@ Custom should not be false if file is not specified.
 
 The new %s must not be NaN
 
-### 6002
-
-<!-- DEPRECATED -->
-_ccsg.ParticleSystem.addChild() : Can't add a ParticleSystem that uses a different blending function
-
-### 6003
-
-<!-- DEPRECATED -->
-cc.ParticleBatchNode.removeChild(): doesn't contain the sprite. Can't remove it
-
-### 6004
-
-<!-- DEPRECATED -->
-cc.ParticleBatchNode.reorderChild(): Child doesn't belong to batch
-
-### 6005
-
-<!-- DEPRECATED -->
-cc.ParticleBatchNode._increaseAtlasCapacityTo() : WARNING: Not enough memory to resize the atlas
-
-### 6006
-
-<!-- DEPRECATED -->
-cocos2d: cc.ParticleBatchNode: resizing TextureAtlas capacity from [%d] to [%d]
-
-### 6007
-
-<!-- DEPRECATED -->
-cc.ParticleBatchNode._addChildHelper(): child already added. It can't be added again
-
-### 6008
-
-<!-- DEPRECATED -->
-_ccsg.ParticleSystem.initWithFile(): Particles: file not found
-
-### 6009
-
-<!-- DEPRECATED -->
-_ccsg.ParticleSystem.initWithDictionary(): Invalid emitterType in config file
-
-### 6010
-
-<!-- DEPRECATED -->
-_ccsg.ParticleSystem: error decoding or ungzipping textureImageData
-
-### 6011
-
-<!-- DEPRECATED -->
-_ccsg.ParticleSystem: unknown image format with Data
-
-### 6012
-
-<!-- DEPRECATED -->
-_ccsg.ParticleSystem.initWithDictionary() : error loading the texture
-
-### 6013
-
-<!-- DEPRECATED -->
-Particle system: not enough memory
-
-### 6014
-
-<!-- DEPRECATED -->
-Can't change blending functions when the particle is being batched
-
-### 6015
-
-<!-- DEPRECATED -->
-_ccsg.ParticleSystem.setDisplayFrame(): QuadParticle only supports SpriteFrames with no offsets
-
-### 6016
-
-<!-- DEPRECATED -->
-_ccsg.ParticleSystem._allocMemory(): Memory should not be allocated when not using batchNode
-
 ### 6017
 
 Incomplete or corrupt PNG file
@@ -1444,7 +1268,7 @@ Widget target must be one of the parent nodes of it
 
 ### 6501
 
-%s's widget target must have UITransformComponent, Please add it in target
+%s's widget target must have UITransform, Please add it in target
 
 ### 6600
 
@@ -1827,6 +1651,10 @@ Can't know status
 ### 7702
 
 Video player's duration is not ready to get now!
+
+### 7703
+
+Video Downloader: video not supported on this browser!
 
 ### 7800
 

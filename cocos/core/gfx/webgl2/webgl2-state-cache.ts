@@ -10,6 +10,7 @@ export class WebGL2StateCache {
     public glElementArrayBuffer: WebGLBuffer | null = null;
     public glUniformBuffer: WebGLBuffer | null = null;
     public glBindUBOs: (WebGLBuffer | null)[];
+    public glBindUBOOffsets: number[];
     public glVAO: WebGLVertexArrayObject | null = null;
     public texUnit: number = 0;
     public glTexUnits: IWebGL2TexUnit[];
@@ -29,6 +30,9 @@ export class WebGL2StateCache {
     constructor () {
         this.glBindUBOs = new Array<WebGLBuffer>(GFX_MAX_BUFFER_BINDINGS);
         this.glBindUBOs.fill(null);
+
+        this.glBindUBOOffsets = new Array<number>(GFX_MAX_BUFFER_BINDINGS);
+        this.glBindUBOOffsets.fill(0);
 
         this.glTexUnits = new Array<IWebGL2TexUnit>(GFX_MAX_TEXTURE_UNITS);
         this.glSamplerUnits = new Array<WebGLSampler>(GFX_MAX_TEXTURE_UNITS);

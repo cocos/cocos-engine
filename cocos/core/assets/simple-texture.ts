@@ -2,7 +2,7 @@
  * @category asset
  */
 
-import { ccclass } from '../data/class-decorator';
+import { ccclass } from 'cc.decorator';
 import { GFXBufferTextureCopy, GFXTextureFlagBit, GFXTextureUsageBit } from '../gfx/define';
 import { GFXAPI, GFXDevice } from '../gfx/device';
 import { GFXTexture, IGFXTextureInfo } from '../gfx/texture';

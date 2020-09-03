@@ -92,6 +92,19 @@ function loadAudioAsAsset (item, callback) {
     return audioClip;
 }
 
+function loadVideoAsAsset (item, callback) {
+    let loadByDeserializedAsset = (item._owner instanceof legacyCC.Asset);
+    if (loadByDeserializedAsset) {
+        // already has cc.Asset
+        return null;
+    }
+
+    let videoClip = new legacyCC.VideoClip();
+    videoClip._setRawAsset(item.rawUrl, false);
+    videoClip._nativeAsset = item.content;
+    return videoClip;
+}
+
 function loadPlist (item) {
     if (typeof item.content !== 'string') {
         return new Error('Plist Loader: Input item doesn\'t contain string content');
@@ -339,6 +352,9 @@ let defaultMap = {
     'ogg' : loadAudioAsAsset,
     'wav' : loadAudioAsAsset,
     'm4a' : loadAudioAsAsset,
+
+    // video
+    'mp4' : loadVideoAsAsset,
 
     // json
     'json' : loadJSON,

@@ -2,7 +2,7 @@
  * @category pipeline
  */
 
-import { ccclass, displayOrder, type } from '../../data/class-decorator';
+import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
 import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
@@ -21,13 +21,13 @@ import { GFXFeature } from '../../gfx/device';
 import { Fog } from '../../renderer/scene/fog';
 import { Ambient } from '../../renderer/scene/ambient';
 import { Skybox } from '../../renderer/scene/skybox';
-import { PlanarShadows } from '../../renderer/scene/planar-shadows';
-import { Shadow } from '../../renderer/scene/shadow';
+import { Shadows, ShadowType } from '../../renderer/scene/shadows';
 import { sceneCulling } from './scene-culling';
 import { UIFlow } from '../ui/ui-flow';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
+const vec4 = new Vec4();
 
 /**
  * @en The forward render pipeline
@@ -67,18 +67,21 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     @type([RenderTextureConfig])
+    @serializable
     @displayOrder(2)
     protected renderTextures: RenderTextureConfig[] = [];
 
     @type([MaterialConfig])
+    @serializable
     @displayOrder(3)
     protected materials: MaterialConfig[] = [];
 
     public fog: Fog = new Fog();
+
     public ambient: Ambient = new Ambient();
+
     public skybox: Skybox = new Skybox();
-    public planarShadows: PlanarShadows = new PlanarShadows();
-    public shadowMap: Shadow = new Shadow();
+    public shadows: Shadows = new Shadows();
     /**
      * @en The list for render objects, only available after the scene culling of the current frame.
      * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
@@ -110,6 +113,10 @@ export class ForwardPipeline extends RenderPipeline {
             this._flows.push(uiFlow);
             uiFlow.activate(this);
         }
+
+        const uiFlow = new UIFlow();
+        uiFlow.initialize(UIFlow.initInfo);
+        this._flows.push(uiFlow);
 
         return true;
     }
@@ -181,16 +188,25 @@ export class ForwardPipeline extends RenderPipeline {
         this._updateUBO(view);
         const mainLight = view.camera.scene!.mainLight;
         const device = this.device;
-        const shadowInfo = this.shadowMap;
+        const shadowInfo = this.shadows;
 
-        if (mainLight && shadowInfo.enabled) {
+        if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
             // light view
-            Mat4.invert(matShadowView, mainLight!.node!.worldMatrix);
+            const shadowCameraView = shadowInfo.getWorldMatrix(mainLight!.node!.worldRotation, mainLight!.direction);
+            Mat4.invert(matShadowView, shadowCameraView);
 
             // light proj
-            const x = shadowInfo.orthoSize * shadowInfo.aspect;
-            const y = shadowInfo.orthoSize;
-            const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY;
+            let x: number = 0;
+            let y: number = 0;
+            if (shadowInfo.orthoSize > shadowInfo.sphere.radius) {
+                x = shadowInfo.orthoSize * shadowInfo.aspect;
+                y = shadowInfo.orthoSize;
+            } else {
+                // if orthoSize is the smallest, auto calculate orthoSize.
+                x = shadowInfo.sphere.radius * shadowInfo.aspect;
+                y = shadowInfo.sphere.radius;
+            }
+            const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY; // always offscreen
             Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, shadowInfo.far,
                 device.clipSpaceMinZ, projectionSignY);
 
@@ -198,6 +214,12 @@ export class ForwardPipeline extends RenderPipeline {
             Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
 
             Mat4.toArray(this._shadowUBO, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
+
+            vec4.set(shadowInfo.pcf);
+            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_PCF_OFFSET);
+
+            vec4.set(shadowInfo.size.x, shadowInfo.size.y);
+            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_SIZE_OFFSET);
         }
 
         // update ubos

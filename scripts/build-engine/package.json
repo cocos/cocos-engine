@@ -1,6 +1,6 @@
 {
   "name": "@cocos/build-engine",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "description": "",
   "main": "dist/index.js",
   "dependencies": {
@@ -28,6 +28,9 @@
     "@types/resolve": "^1.17.1",
     "@types/yargs": "^15.0.4",
     "rollup-plugin-visualizer": "^4.0.4"
+  },
+  "peerDependencies": {
+    "typescript": "^3.7.2"
   },
   "scripts": {
     "build": "tsc"

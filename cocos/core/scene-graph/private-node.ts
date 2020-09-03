@@ -27,7 +27,7 @@
  * @category scene-graph
  */
 
-import { ccclass } from '../data/class-decorator';
+import { ccclass } from 'cc.decorator';
 import { CCObject } from '../data/object';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
@@ -101,7 +101,6 @@ export class PrivateNode extends Node {
         super(name);
         // this._originPos = cc.v2();
         this._objFlags |= HideInHierarchy;
-
     }
 
     // _posDirty (sendEvent) {

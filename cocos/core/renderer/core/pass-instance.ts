@@ -47,19 +47,24 @@ export class PassInstance extends Pass {
         this._parent = parent;
         this._owner = owner;
         this._doInit(this._parent, true); // defines may change now
-        for (const u of this._shaderInfo.blocks) {
+        for (let i = 0; i < this._shaderInfo.blocks.length; i++) {
+            const u = this._shaderInfo.blocks[i];
             if (isBuiltinBinding(u.set)) { continue; }
             const block = this._blocks[u.binding];
             const parentBlock = this._parent.blocks[u.binding];
-            block.view.set(parentBlock.view);
-            block.dirty = true;
+            block.set(parentBlock);
         }
-        for (const u of this._shaderInfo.samplers) {
+        this._rootBufferDirty = true;
+        const paren = this._parent as PassInstance;
+        for (let i = 0; i < this._shaderInfo.samplers.length; i++) {
+            const u = this._shaderInfo.samplers[i];
             if (isBuiltinBinding(u.set)) { continue; }
-            const sampler = this._samplers[u.binding] = (this._parent as PassInstance)._samplers[u.binding];
-            const texture = this._textures[u.binding] = (this._parent as PassInstance)._textures[u.binding];
-            this._descriptorSet.bindSampler(u.binding, sampler);
-            this._descriptorSet.bindTexture(u.binding, texture);
+            for (let j = 0; j < u.count; j++) {
+                const sampler = paren._descriptorSet.getSampler(u.binding, j);
+                const texture = paren._descriptorSet.getTexture(u.binding, j);
+                this._descriptorSet.bindSampler(u.binding, sampler, j);
+                this._descriptorSet.bindTexture(u.binding, texture, j);
+            }
         }
         super.tryCompile();
     }
@@ -98,6 +103,7 @@ export class PassInstance extends Pass {
 
     protected _syncBatchingScheme () {
         this._defines.USE_BATCHING = this._defines.USE_INSTANCING = false;
+        PassPool.set(this._handle, PassView.BATCHING_SCHEME, 0);
     }
 
     protected _onStateChange () {

@@ -37,8 +37,11 @@ import { legacyCC } from '../global-exports';
  */
 const screen = {
     _supportsFullScreen: false,
+    _onfullscreenchange: null as any,
+    _onfullscreenerror: null as any,
     // the pre fullscreenchange function
-    _preOnFullScreenChange: null as any,
+    _preOnFullScreenError: null as any,
+    _preOnTouch: null as any,
     _touchEvent: '',
     _fn: null as any,
     // Function mapping for cross browser support
@@ -77,7 +80,7 @@ const screen = {
             'MSFullscreenChange',
             'msFullscreenEnabled',
             'msFullscreenElement',
-        ],
+        ]
     ],
 
     /**
@@ -99,6 +102,15 @@ const screen = {
 
         this._supportsFullScreen = (this._fn.requestFullscreen !== undefined);
         this._touchEvent = ('ontouchstart' in window) ? 'touchstart' : 'mousedown';
+    },
+
+    /**
+     * @en Whether it supports full screen？
+     * @zh 是否支持全屏？
+     * @returns {Boolean}
+     */
+    get supportsFullScreen () {
+        return this._supportsFullScreen;
     },
 
     /**
@@ -124,8 +136,10 @@ const screen = {
      * 如果希望更简单一些，可以尝试用 {{autoFullScreen}} 来自动监听用户触摸事件并在下一次触摸事件中尝试进入全屏模式。
      * @param element The element to request full screen state
      * @param onFullScreenChange callback function when full screen state changed
+     * @param onFullScreenError callback function when full screen error
+     * @return {Promise|undefined}
      */
-    requestFullScreen (element: HTMLElement, onFullScreenChange: (this: Document, ev: any) => any) {
+    requestFullScreen (element: HTMLElement, onFullScreenChange?: (this: Document, ev: any) => any, onFullScreenError?: (this: Document, ev: any) => any): Promise<any> | undefined {
         if (!this._supportsFullScreen) {
             return;
         }
@@ -134,23 +148,46 @@ const screen = {
 
         if (onFullScreenChange) {
             const eventName = this._fn.fullscreenchange;
-            if (this._preOnFullScreenChange) {
-                document.removeEventListener(eventName, this._preOnFullScreenChange);
+            if (this._onfullscreenchange) {
+                document.removeEventListener(eventName, this._onfullscreenchange);
             }
-            this._preOnFullScreenChange = onFullScreenChange;
+            this._onfullscreenchange = onFullScreenChange;
             document.addEventListener(eventName, onFullScreenChange, false);
         }
 
-        return element[this._fn.requestFullscreen]();
+        if (onFullScreenError) {
+            let eventName = this._fn.fullscreenerror;
+            if (this._onfullscreenerror) {
+                document.removeEventListener(eventName, this._onfullscreenerror);
+            }
+            this._onfullscreenerror = onFullScreenError;
+            document.addEventListener(eventName, onFullScreenError, { once: true });
+        }
+
+        let requestPromise = element[this._fn.requestFullscreen]();
+        // the requestFullscreen API can only be initiated by user gesture.
+        if (window.Promise && requestPromise instanceof Promise) {
+            requestPromise.catch(err => {
+                // do nothing ...
+            });
+        }
+        return requestPromise;
     },
 
     /**
      * @en Exit the full mode.
      * @zh 退出全屏模式
-     * @return Success or not
+     * @return {Promise|undefined}
      */
-    exitFullScreen (): boolean {
-        return this._supportsFullScreen ? document[this._fn.exitFullscreen]() : true;
+    exitFullScreen (): Promise<any> | undefined {
+        let requestPromise;
+        if (this.fullScreen()) {
+            requestPromise = document[this._fn.exitFullscreen]();
+            requestPromise.catch(err => {
+                // do nothing ...
+            });
+        }
+        return requestPromise;
     },
 
     /**
@@ -161,15 +198,47 @@ const screen = {
      */
     autoFullScreen (element: HTMLElement, onFullScreenChange: (this: Document, ev: any) => any) {
         element = element || document.body;
-        const touchTarget = legacyCC.game.canvas || element;
-        const theScreen = this;
-        // Function bind will be too complicated here because we need the callback function's reference to remove the listener
-        function callback () {
-            touchTarget.removeEventListener(theScreen._touchEvent, callback);
-            theScreen.requestFullScreen(element, onFullScreenChange);
-        }
+
+        this._ensureFullScreen(element, onFullScreenChange);
         this.requestFullScreen(element, onFullScreenChange);
-        touchTarget.addEventListener(this._touchEvent, callback);
+    },
+
+    disableAutoFullScreen (element) {
+        if (this._preOnTouch) {
+            let touchTarget = legacyCC.game.canvas || element;
+            let touchEventName = this._touchEvent;
+            touchTarget.removeEventListener(touchEventName, this._preOnTouch);
+            this._preOnTouch = null;
+        }
+    },
+
+    // Register touch event if request full screen failed
+    _ensureFullScreen (element: HTMLElement, onFullScreenChange: (this: Document, ev: any) => any) {
+        let touchTarget = legacyCC.game.canvas || element;
+        let fullScreenErrorEventName = this._fn.fullscreenerror;
+        let touchEventName = this._touchEvent;
+
+        let onFullScreenError = () => {
+            this._preOnFullScreenError = null;
+
+            // handle touch event listener
+            let onTouch = () => {
+                this._preOnTouch = null;
+                this.requestFullScreen(element, onFullScreenChange);
+            };
+            if (this._preOnTouch) {
+                touchTarget.removeEventListener(touchEventName, this._preOnTouch);
+            }
+            this._preOnTouch = onTouch;
+            touchTarget.addEventListener(touchEventName, this._preOnTouch, { once: true });
+        };
+
+        // handle full screen error
+        if (this._preOnFullScreenError) {
+            element.removeEventListener(fullScreenErrorEventName, this._preOnFullScreenError);
+        }
+        this._preOnFullScreenError = onFullScreenError;
+        element.addEventListener(fullScreenErrorEventName, onFullScreenError, { once: true });
     },
 };
 screen.init();

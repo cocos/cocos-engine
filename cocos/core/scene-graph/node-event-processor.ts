@@ -272,7 +272,7 @@ function _doDispatchEvent (owner: BaseNode, event: Event) {
 }
 
 function _searchMaskInParent (node: Node | null) {
-    const Mask = legacyCC.MaskComponent;
+    const Mask = legacyCC.Mask;
     if (Mask) {
         let index = 0;
         for (let curr = node; curr && legacyCC.Node.isNode(curr); curr = curr.parent, ++index) {

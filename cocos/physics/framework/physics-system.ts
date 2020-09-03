@@ -8,20 +8,24 @@ import { createPhysicsWorld, checkPhysicsModule } from './instance';
 import { director, Director } from '../../core/director';
 import { System } from '../../core/components';
 import { PhysicMaterial } from './assets/physic-material';
-import { Layers, RecyclePool, error, game } from '../../core';
+import { RecyclePool, error, game, Enum } from '../../core';
 import { ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
 import { EDITOR, DEBUG } from 'internal:constants';
 import { IPhysicsConfig, ICollisionMatrix } from './physics-config';
 
+enum PhysicsGroup {
+    DEFAULT = 1,
+}
+Enum(PhysicsGroup);
+legacyCC.internal.PhysicsGroup = PhysicsGroup;
+
 class CollisionMatrix {
-
     updateArray: number[] = [];
-
     constructor () {
         for (let i = 0; i < 32; i++) {
             const key = 1 << i;
-            this[`_${key}`] = 0xffffffff;
+            this[`_${key}`] = 0;
             Object.defineProperty(this, key, {
                 'get': function () { return this[`_${key}`] },
                 'set': function (v: number) {
@@ -35,6 +39,7 @@ class CollisionMatrix {
                 }
             })
         }
+        this[`_1`] = PhysicsGroup.DEFAULT;
     }
 }
 
@@ -46,6 +51,53 @@ class CollisionMatrix {
  */
 export class PhysicsSystem extends System {
 
+    static get PHYSICS_NONE () {
+        return !physicsEngineId;
+    }
+
+    static get PHYSICS_BUILTIN () {
+        return physicsEngineId === 'builtin';
+    }
+
+    static get PHYSICS_CANNON () {
+        return physicsEngineId === 'cannon.js';
+    }
+
+    static get PHYSICS_AMMO () {
+        return physicsEngineId === 'ammo.js';
+    }
+
+    /**
+     * @en
+     * Gets the ID of the system.
+     * @zh
+     * 获取此系统的ID。
+     */
+    static readonly ID = 'PHYSICS';
+
+    /**
+     * @en
+     * Gets the predefined physics groups.
+     * @zh
+     * 获取预定义的物理分组。
+     */
+    static get PhysicsGroup () {
+        return PhysicsGroup;
+    }
+
+    /**
+     * @en
+     * Gets the physical system instance.
+     * @zh
+     * 获取物理系统实例。
+     */
+    static get instance (): PhysicsSystem {
+        if (DEBUG && checkPhysicsModule(PhysicsSystem._instance)) { return null as any; }
+        return PhysicsSystem._instance;
+    }
+
+    private static readonly _instance: PhysicsSystem;
+
     /**
      * @en
      * Gets or sets whether the physical system is enabled, which can be used to pause or continue running the physical system.
@@ -55,8 +107,8 @@ export class PhysicsSystem extends System {
     get enable (): boolean {
         return this._enable;
     }
+
     set enable (value: boolean) {
-        if (!value) this._timeReset = true;
         this._enable = value;
     }
 
@@ -69,6 +121,7 @@ export class PhysicsSystem extends System {
     get allowSleep (): boolean {
         return this._allowSleep;
     }
+
     set allowSleep (v: boolean) {
         this._allowSleep = v;
         if (!EDITOR) {
@@ -146,7 +199,6 @@ export class PhysicsSystem extends System {
     }
 
     set autoSimulation (value: boolean) {
-        if (!value) this._timeReset = true;
         this._autoSimulation = value;
     }
 
@@ -202,49 +254,11 @@ export class PhysicsSystem extends System {
 
     readonly useNodeChains: boolean;
 
-    static get PHYSICS_NONE () {
-        return !physicsEngineId;
-    }
-
-    static get PHYSICS_BUILTIN () {
-        return physicsEngineId === 'builtin';
-    }
-
-    static get PHYSICS_CANNON () {
-        return physicsEngineId === 'cannon.js';
-    }
-
-    static get PHYSICS_AMMO () {
-        return physicsEngineId === 'ammo.js';
-    }
-
-    /**
-     * @en
-     * Gets the ID of the system.
-     * @zh
-     * 获取此系统的ID。
-     */
-    static readonly ID = 'PHYSICS';
-
-    /**
-     * @en
-     * Gets the physical system instance.
-     * @zh
-     * 获取物理系统实例。
-     */
-    static get instance (): PhysicsSystem {
-        if (DEBUG && checkPhysicsModule(PhysicsSystem._instance)) { return null as any; }
-        return PhysicsSystem._instance;
-    }
-
-    private static readonly _instance: PhysicsSystem;
-
     private _enable = true;
     private _allowSleep = true;
     private _maxSubSteps = 1;
+    private _subStepCount = 0;
     private _fixedTimeStep = 1.0 / 60.0;
-    private _timeSinceLastCalled = 0;
-    private _timeReset = true;
     private _autoSimulation = true;
     private _accumulator = 0;
     private _sleepThreshold = 0.1;
@@ -285,7 +299,7 @@ export class PhysicsSystem extends System {
             if (config.collisionMatrix) {
                 for (const i in config.collisionMatrix) {
                     const key = 1 << parseInt(i);
-                    this.collisionMatrix[`_${key}`] = config.collisionMatrix[key];
+                    this.collisionMatrix[`_${key}`] = config.collisionMatrix[i];
                 }
             }
         } else {
@@ -318,25 +332,23 @@ export class PhysicsSystem extends System {
         }
 
         if (this._autoSimulation) {
-            if (this._timeReset) {
-                this._timeSinceLastCalled = 0;
-                this._timeReset = false;
-            } else {
-                this._timeSinceLastCalled = deltaTime;
-            }
-
+            this._subStepCount = 0;
+            this._accumulator += deltaTime;
             director.emit(Director.EVENT_BEFORE_PHYSICS);
-            let i = 0;
-            this._accumulator += this._timeSinceLastCalled;
-            while (i < this._maxSubSteps && this._accumulator > this._fixedTimeStep) {
-                this.physicsWorld.emitEvents();
-                this.updateCollisionMatrix();
-                this.physicsWorld.syncSceneToPhysics();
-                this.physicsWorld.step(this._fixedTimeStep);
-                // TODO: nesting the dirty flag reset between the syncScenetoPhysics and the simulation to reduce calling syncScenetoPhysics.
-                this.physicsWorld.syncSceneToPhysics();
-                this._accumulator -= this._fixedTimeStep;
-                i++;
+            while (this._subStepCount < this._maxSubSteps) {
+                if (this._accumulator > this._fixedTimeStep) {
+                    this.updateCollisionMatrix();
+                    this.physicsWorld.syncSceneToPhysics();
+                    this.physicsWorld.step(this._fixedTimeStep);
+                    this._accumulator -= this._fixedTimeStep;
+                    this._subStepCount++;
+                    this.physicsWorld.emitEvents();
+                    // TODO: nesting the dirty flag reset between the syncScenetoPhysics and the simulation to reduce calling syncScenetoPhysics.
+                    this.physicsWorld.syncSceneToPhysics();
+                } else {
+                    this.physicsWorld.syncSceneToPhysics();
+                    break;
+                }
             }
             director.emit(Director.EVENT_AFTER_PHYSICS);
         }
@@ -349,7 +361,6 @@ export class PhysicsSystem extends System {
      * 重置时间累积总量为给定值。
      */
     resetAccumulator (time = 0) {
-        if (this._accumulator != time) this._timeReset = true;
         this._accumulator = time;
     }
 
@@ -389,7 +400,7 @@ export class PhysicsSystem extends System {
      * Updates the mask corresponding to the collision matrix for the lowLevel rigid-body instance.
      * Automatic execution during automatic simulation.
      * @zh
-     * 更新底层实例对应于碰撞矩阵的掩码，自动模拟时会自动更新。
+     * 更新底层实例对应于碰撞矩阵的掩码，开启自动模拟时会自动更新。
      */
     updateCollisionMatrix () {
         if (this.useCollisionMatrix) {
@@ -470,6 +481,7 @@ export class PhysicsSystem extends System {
      * @return boolean 表示是否有检测到碰撞盒
      */
     raycast (worldRay: ray, mask: number = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+        this.updateCollisionMatrix();
         this.raycastResultPool.reset();
         this.raycastResults.length = 0;
         this.raycastOptions.mask = mask;
@@ -490,6 +502,7 @@ export class PhysicsSystem extends System {
      * @return boolean 表示是否有检测到碰撞盒
      */
     raycastClosest (worldRay: ray, mask: number = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+        this.updateCollisionMatrix();
         this.raycastOptions.mask = mask;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;

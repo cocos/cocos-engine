@@ -1,13 +1,14 @@
-import { intersect } from '../../geometry';
-import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
+import { intersect, sphere } from '../../geometry';
 import { Model } from '../../renderer/scene/model';
-import { Layers } from '../../scene-graph';
+import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
+import { Layers } from '../../scene-graph/layers';
 import { Vec3} from '../../math';
 import { legacyCC } from '../../global-exports';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderView } from '../render-view';
 import { Pool } from '../../memop';
 import { IRenderObject } from '../define';
+import { ShadowType } from '../../renderer/scene/shadows';
 
 const _tempVec3 = new Vec3();
 
@@ -47,10 +48,13 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     shadowPool.freeArray(shadowObjects); shadowObjects.length = 0;
 
     const mainLight = scene.mainLight;
-    const planarShadows = pipeline.planarShadows;
+    const shadows = pipeline.shadows;
+    const shadowSphere = shadows.sphere;
+    shadowSphere.center.set(0.0, 0.0, 0.0);
+    shadowSphere.radius = 0.01;
     if (mainLight) {
-        if (planarShadows.enabled) {
-            planarShadows.updateDirLight(mainLight);
+        if (shadows.type === ShadowType.Planar) {
+            shadows.updateDirLight(mainLight);
         }
     }
 
@@ -77,6 +81,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
 
                     // shadow render Object
                     if (model.castShadow) {
+                        sphere.mergeAABB(shadowSphere, shadowSphere, model.worldBounds!);
                         shadowObjects.push(getCastShadowRenderObject(model, camera));
                     }
 
@@ -91,7 +96,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
         }
     }
 
-    if (planarShadows.enabled) {
-        planarShadows.updateShadowList(scene, camera.frustum, (camera.visibility & Layers.BitMask.DEFAULT) !== 0);
+    if (shadows.type === ShadowType.Planar) {
+        shadows.updateShadowList(scene, camera.frustum, (camera.visibility & Layers.BitMask.DEFAULT) !== 0);
     }
 }

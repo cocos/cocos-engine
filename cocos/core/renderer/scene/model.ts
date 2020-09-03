@@ -21,6 +21,7 @@ import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool,
 import { IGFXAttribute, GFXDescriptorSet } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UniformLightingMapSampler } from '../../pipeline/define';
 import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
+import { ShadowType } from './shadows';
 
 const m4_1 = new Mat4();
 
@@ -130,7 +131,7 @@ export class Model {
     }
 
     get visFlags () : number {
-        return ModelPool.get<number>(this._poolHandle, ModelView.VIS_FLAGS);
+        return ModelPool.get(this._poolHandle, ModelView.VIS_FLAGS) as number;
     }
 
     set visFlags (val: number) {
@@ -138,7 +139,7 @@ export class Model {
     }
 
     get enabled () : boolean {
-        return ModelPool.get<number>(this._poolHandle, ModelView.ENABLED) === 1 ? true : false;
+        return ModelPool.get(this._poolHandle, ModelView.ENABLED) === 1 ? true : false;
     }
 
     set enabled (val: boolean) {
@@ -230,7 +231,7 @@ export class Model {
     }
 
     public updateTransform (stamp: number) {
-        const node = this.transform!;
+        const node = this.transform;
         // @ts-ignore TS2445
         if (node.hasChangedFlags || node._dirtyFlags) {
             node.updateWorldTransform();
@@ -347,8 +348,8 @@ export class Model {
 
     public getMacroPatches (subModelIndex: number) {
         const pipeline = legacyCC.director.root.pipeline;
-        const shadowInfo = pipeline.shadowMap;
-        return (this.receiveShadow && shadowInfo.enabled) ? shadowMapPatches : null;
+        const shadowInfo = pipeline.shadows;
+        return (this.receiveShadow && shadowInfo.type === ShadowType.ShadowMap) ? shadowMapPatches : null;
     }
 
     protected _updateAttributesAndBinding (subModelIndex: number) {
@@ -356,13 +357,9 @@ export class Model {
         if (!subModel) { return; }
 
         this._initLocalDescriptors(subModelIndex);
-        const subModels = this._subModels;
-        for (let i = 0; i < subModels.length; i++) {
-            const ds = subModels[i].descriptorSet;
-            this._updateLocalDescriptors(i, ds);
-        }
+        this._updateLocalDescriptors(subModelIndex, subModel.descriptorSet);
 
-        const shader = ShaderPool.get(SubModelPool.get<ShaderHandle>(subModel.handle, SubModelView.SHADER_0));
+        const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0));
         this._updateInstancedAttributes(shader.attributes, subModel.passes[0]);
     }
 

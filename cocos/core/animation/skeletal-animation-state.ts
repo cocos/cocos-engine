@@ -27,13 +27,13 @@
  * @category animation
  */
 
-import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
+import { SkinnedMeshRenderer } from '../3d/framework/skinned-mesh-renderer';
 import { Mat4, Quat, Vec3 } from '../math';
 import { IAnimInfo, JointAnimationInfo } from '../renderer/models/skeletal-animation-utils';
 import { Node } from '../scene-graph/node';
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
 import { AnimationState } from './animation-state';
-import { SkeletalAnimationComponent, Socket } from './skeletal-animation-component';
+import { SkeletalAnimation, Socket } from './skeletal-animation';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { legacyCC } from '../global-exports';
 
@@ -60,8 +60,8 @@ export class SkeletalAnimationState extends AnimationState {
     protected _animInfo: IAnimInfo | null = null;
     protected _sockets: ISocketData[] = [];
     protected _animInfoMgr: JointAnimationInfo;
-    protected _comps: SkinningModelComponent[] = [];
-    protected _parent: SkeletalAnimationComponent | null = null;
+    protected _comps: SkinnedMeshRenderer[] = [];
+    protected _parent: SkeletalAnimation | null = null;
     protected _curvesInited = false;
 
     constructor (clip: AnimationClip, name = '') {
@@ -72,14 +72,14 @@ export class SkeletalAnimationState extends AnimationState {
     public initialize (root: Node) {
         if (this._curveLoaded) { return; }
         this._comps.length = 0;
-        const comps = root.getComponentsInChildren(SkinningModelComponent);
+        const comps = root.getComponentsInChildren(SkinnedMeshRenderer);
         for (let i = 0; i < comps.length; ++i) {
             const comp = comps[i];
             if (comp.skinningRoot === root) {
                 this._comps.push(comp);
             }
         }
-        this._parent = root.getComponent('cc.SkeletalAnimationComponent') as SkeletalAnimationComponent;
+        this._parent = root.getComponent('cc.SkeletalAnimation') as SkeletalAnimation;
         const baked = this._parent.useBakedAnimation;
         super.initialize(root, baked ? noCurves : undefined);
         this._curvesInited = !baked;

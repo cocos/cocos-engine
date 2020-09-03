@@ -3,7 +3,7 @@
  * @category particle
  */
 
-import { ccclass, property, tooltip, displayOrder, range, type } from '../../core/data/class-decorator';
+import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
 import { pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
 import { calculateTransform } from '../particle-general-function';
@@ -18,7 +18,7 @@ const _temp_v3 = new Vec3();
 
 @ccclass('cc.ForceOvertimeModule')
 export default class ForceOvertimeModule extends ParticleModuleBase {
-    @property
+    @serializable
     _enable: Boolean = false;
     /**
      * @zh 是否启用。
@@ -39,6 +39,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
      * @zh X 轴方向上的加速度分量。
      */
     @type(CurveRange)
+    @serializable
     @range([-1, 1])
     @displayOrder(2)
     @tooltip('X 轴方向上的加速度分量')
@@ -48,6 +49,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
      * @zh Y 轴方向上的加速度分量。
      */
     @type(CurveRange)
+    @serializable
     @range([-1, 1])
     @displayOrder(3)
     @tooltip('Y 轴方向上的加速度分量')
@@ -57,6 +59,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
      * @zh Z 轴方向上的加速度分量。
      */
     @type(CurveRange)
+    @serializable
     @range([-1, 1])
     @displayOrder(4)
     @tooltip('Z 轴方向上的加速度分量')
@@ -66,6 +69,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
      * @zh 加速度计算时采用的坐标系 [[Space]]。
      */
     @type(Space)
+    @serializable
     @displayOrder(1)
     @tooltip('加速度计算时采用的坐标')
     public space = Space.Local;

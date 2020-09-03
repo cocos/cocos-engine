@@ -27,7 +27,7 @@
  * @category asset
  */
 
-import { ccclass, property } from '../data/class-decorator';
+import { ccclass, serializable } from 'cc.decorator';
 import { GFXTextureFlagBit, GFXTextureType } from '../gfx/define';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, SimpleTexture } from './simple-texture';
@@ -152,7 +152,7 @@ export class TextureCube extends SimpleTexture {
         return out;
     }
 
-    @property
+    @serializable
     public _mipmaps: ITextureCubeMipmap[] = [];
 
     public onLoaded () {

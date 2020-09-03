@@ -2,7 +2,7 @@
  * @category pipeline
  */
 
-import { ccclass, property, visible, displayOrder, type } from '../../data/class-decorator';
+import { ccclass, visible, displayOrder, type, serializable } from 'cc.decorator';
 import { IRenderPass, SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
@@ -20,6 +20,7 @@ import { BatchingSchemes } from '../../renderer/core/pass';
 import { ForwardFlow } from './forward-flow';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
+import { ShadowType } from '../../renderer/scene/shadows';
 
 const colors: GFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 
@@ -50,7 +51,7 @@ export class ForwardStage extends RenderStage {
 
 
     @type([RenderQueueDesc])
-    @visible(true)
+    @serializable
     @displayOrder(2)
     protected renderQueues: RenderQueueDesc[] = [];
     protected _renderQueues: RenderQueue[] = [];
@@ -184,7 +185,7 @@ export class ForwardStage extends RenderStage {
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._additiveLightQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-        pipeline.planarShadows.enabled && pipeline.planarShadows.recordCommandBuffer(device, renderPass, cmdBuff);
+        if (pipeline.shadows.type === ShadowType.Planar) pipeline.shadows.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
 
         cmdBuff.endRenderPass();

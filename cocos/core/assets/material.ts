@@ -28,7 +28,7 @@
  * @category material
  */
 
-import { ccclass, property, type } from '../../core/data/class-decorator';
+import { ccclass, type, serializable } from 'cc.decorator';
 import { builtinResMgr } from '../3d/builtin/init';
 import { RenderableComponent } from '../3d/framework/renderable-component';
 import { GFXTexture } from '../gfx/texture';
@@ -107,13 +107,13 @@ export class Material extends Asset {
 
     @type(EffectAsset)
     protected _effectAsset: EffectAsset | null = null;
-    @property
+    @serializable
     protected _techIdx = 0;
-    @property
+    @serializable
     protected _defines: MacroRecord[] = [];
-    @property
+    @serializable
     protected _states: PassOverrides[] = [];
-    @property
+    @serializable
     protected _props: Record<string, MaterialPropertyFull | MaterialPropertyFull[]>[] = [];
 
     protected _passes: Pass[] = [];
@@ -422,21 +422,31 @@ export class Material extends Asset {
             }
         } else if (propertyType === PropertyType.SAMPLER) {
             const binding = Pass.getBindingFromHandle(handle);
-            if (val instanceof GFXTexture) {
-                pass.bindTexture(binding, val);
-            } else if (val instanceof TextureBase || val instanceof SpriteFrame || val instanceof RenderTexture) {
-                const texture: GFXTexture | null = val.getGFXTexture();
-                if (!texture || !texture.width || !texture.height) {
-                    // console.warn(`material '${this._uuid}' received incomplete texture asset '${val._uuid}'`);
-                    return false;
+            if (Array.isArray(val)) {
+                for (let i = 0; i < val.length; i++) {
+                    this._bindTexture(pass, binding, val[i], i);
                 }
-                pass.bindTexture(binding, texture);
-                pass.bindSampler(binding, val.getGFXSampler());
-            } else if (!val) {
-                pass.resetTexture(name);
+            } else {
+                this._bindTexture(pass, binding, val);
             }
         }
         return true;
+    }
+
+    protected _bindTexture (pass: Pass, binding: number, val: MaterialPropertyFull, index?: number) {
+        if (val instanceof GFXTexture) {
+            pass.bindTexture(binding, val, index);
+        } else if (val instanceof TextureBase || val instanceof SpriteFrame || val instanceof RenderTexture) {
+            const texture: GFXTexture | null = val.getGFXTexture();
+            if (!texture || !texture.width || !texture.height) {
+                // console.warn(`material '${this._uuid}' received incomplete texture asset '${val._uuid}'`);
+                return false;
+            }
+            pass.bindTexture(binding, texture, index);
+            pass.bindSampler(binding, val.getGFXSampler(), index);
+        } else if (!val) {
+            pass.resetTexture(name, index);
+        }
     }
 
     protected _doDestroy () {

@@ -47,11 +47,15 @@ export class RenderWindow {
     }
 
     get hasOnScreenAttachments () {
-        return RenderWindowPool.get<number>(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS) === 1 ? true : false;
+        return RenderWindowPool.get(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS) === 1 ? true : false;
     }
 
     get hasOffScreenAttachments () {
-        return RenderWindowPool.get<number>(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS) === 1 ? true : false;
+        return RenderWindowPool.get(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS) === 1 ? true : false;
+    }
+
+    get handle () : RenderWindowHandle {
+        return this._poolHandle;
     }
 
     public static registerCreateFunc (root: Root) {

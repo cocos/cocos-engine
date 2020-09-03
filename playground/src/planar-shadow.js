@@ -9,14 +9,14 @@ const cameraNode = new cc.Node('Camera');
 cameraNode.parent = root;
 cameraNode.setPosition(-16, 2, 16);
 cameraNode.setRotationFromEuler(-12, -63, 0);
-cameraNode.addComponent(cc.CameraComponent);
+cameraNode.addComponent(cc.Camera);
 cameraNode.addComponent(FirstPersonCamera);
 
 const lightNode = new cc.Node('Light');
 lightNode.parent = root;
 lightNode.setPosition(-10, 10, -10);
 lightNode.setRotationFromEuler(-50, 0, 0);
-const lightComp = lightNode.addComponent(cc.DirectionalLightComponent);
+const lightComp = lightNode.addComponent(cc.DirectionalLight);
 
 const material = new cc.Material();
 material.initialize({ effectName: 'builtin-standard' });
@@ -33,10 +33,10 @@ const models = {};
 for (const info of manifest) {
   const modelNode = new cc.Node(`${info.name}`);
   modelNode.parent = root;
-  const modelComp = modelNode.addComponent('cc.ModelComponent');
+  const modelComp = modelNode.addComponent('cc.MeshRenderer');
   modelComp.material = info.mat || material;
   modelComp.mesh = cc.utils.createMesh(cc.primitives[info.name](info.param));
-  if (info.name !== 'plane') modelComp.shadowCastingMode = cc.ModelComponent.ShadowCastingMode.ON;
+  if (info.name !== 'plane') modelComp.shadowCastingMode = cc.MeshRenderer.ShadowCastingMode.ON;
   modelNode.setPosition(info.pos);
   models[info.name] = modelComp;
 }
@@ -44,8 +44,8 @@ for (const info of manifest) {
 const qt = cc.Quat.fromEuler(cc.quat(), 10, 20, 0);
 models.plane.node.setRotation(qt);
 
-scene.globals.planarShadows.enabled = true;
-scene.globals.planarShadows.setPlaneFromNode(models.plane.node);
-scene.globals.planarShadows.shadowColor = cc.color('#2a4e90');
+scene.globals.shadows.enabled = true;
+scene.globals.shadows.setPlaneFromNode(models.plane.node);
+scene.globals.shadows.shadowColor = cc.color('#2a4e90');
 
 cc.director.runSceneImmediate(scene);

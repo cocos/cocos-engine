@@ -28,10 +28,10 @@
  */
 
 import { SpriteFrame } from '../../../core/assets';
-import { Mat4, Vec2, Vec3 } from '../../../core/math';
+import { Vec2 } from '../../../core/math';
 import { IRenderData, RenderData } from '../../../core/renderer/ui/render-data';
 import { UI } from '../../../core/renderer/ui/ui';
-import { SpriteComponent } from '../../components';
+import { Sprite } from '../../components';
 import { IAssembler } from '../../../core/renderer/ui/base';
 import { fillVertices3D } from '../utils';
 
@@ -88,7 +88,7 @@ function _calcIntersectedPoints (left, right, bottom, top, center, angle, inters
     }
 }
 
-function _calculateVertices (sprite: SpriteComponent) {
+function _calculateVertices (sprite: Sprite) {
     const uiTrans = sprite.node._uiProps.uiTransformComp!;
     const width = uiTrans.width;
     const height = uiTrans.height;
@@ -238,11 +238,11 @@ function _generateUV (progressX: number, progressY: number, data: IRenderData[],
 export const radialFilled: IAssembler = {
     useModel: false,
 
-    createData (sprite: SpriteComponent) {
+    createData (sprite: Sprite) {
         return sprite.requestRenderData();
     },
 
-    updateRenderData (sprite: SpriteComponent) {
+    updateRenderData (sprite: Sprite) {
         const frame = sprite.spriteFrame;
 
         // TODO: Material API design and export from editor could affect the material activation process
@@ -365,7 +365,7 @@ export const radialFilled: IAssembler = {
         }
     },
 
-    fillBuffers (comp: SpriteComponent, renderer: UI) {
+    fillBuffers (comp: Sprite, renderer: UI) {
         const node = comp.node;
         const renderData: RenderData = comp.renderData!;
         fillVertices3D(node, renderer, renderData, comp.color);

@@ -32,7 +32,7 @@ import { isDomNode } from '../utils/misc';
 import { ValueType } from '../value-types';
 import { CCObject } from './object';
 import { js } from '../utils';
-import { errorID, getError, warn } from '../platform/debug';
+import { getError, warn } from '../platform/debug';
 import { DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import Prefab from '../assets/prefab';
@@ -64,7 +64,7 @@ type CustomInstantiation = <T>(this: T, instantiated?: T) => T;
  * node.parent = director.getScene();
  * ```
  */
-function instantiate (prefab: Prefab): Node;
+export function instantiate (prefab: Prefab): Node;
 
 /**
  * @en Clones the object `original.
@@ -83,9 +83,9 @@ function instantiate (prefab: Prefab): Node;
  * node.parent = director.getScene();
  * ```
  */
-function instantiate<T> (original: T): T;
+export function instantiate<T> (original: T): T;
 
-function instantiate (original: any, internalForce?: boolean) {
+export function instantiate (original: any, internalForce?: boolean) {
     if (!internalForce) {
         if (DEV) {
             if (typeof original !== 'object' || Array.isArray(original)) {
@@ -305,4 +305,3 @@ function instantiateObj (obj, parent) {
 
 instantiate._clone = doInstantiate;
 legacyCC.instantiate = instantiate;
-export default instantiate;

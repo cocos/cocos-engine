@@ -28,7 +28,7 @@
  * @category asset
  */
 
-import {ccclass, property} from '../data/class-decorator';
+import {ccclass, editable, serializable} from 'cc.decorator';
 import { Scene } from '../scene-graph';
 import { Asset } from './asset';
 import { legacyCC } from '../global-exports';
@@ -45,16 +45,17 @@ export default class SceneAsset extends Asset {
     /**
      * 场景结点。
      */
-    @property
+    @editable
+    @serializable
     public scene: Scene | null = null;
 
     /**
      * @en Indicates the raw assets of this scene can be load after scene launched.
      * @zh 指示该场景依赖的资源可否在场景切换后再延迟加载。
-     * @property {Boolean} asyncLoadAssets
      * @default false
      */
-    @property
+    @editable
+    @serializable
     public asyncLoadAssets = false;
 }
 

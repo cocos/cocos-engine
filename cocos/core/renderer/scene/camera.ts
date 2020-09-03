@@ -8,7 +8,7 @@ import { RenderScene } from './render-scene';
 import { GFXDevice } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../core/render-window';
-import { CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, FrustumView, NULL_HANDLE } from '../core/memory-pools';
+import { CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, FrustumView, NULL_HANDLE, SceneHandle } from '../core/memory-pools';
 import { JSB } from 'internal:constants';
 
 export enum CameraFOVAxis {
@@ -204,7 +204,7 @@ export class Camera {
 
     public detachFromScene () {
         this._scene = null;
-        CameraPool.set(this._poolHandle, CameraView.SCENE, 0);
+        CameraPool.set(this._poolHandle, CameraView.SCENE, 0 as unknown as SceneHandle);
         if (this._view) {
             this._view.enable(false);
         }
@@ -414,11 +414,11 @@ export class Camera {
     }
 
     get width () {
-        return CameraPool.get<number>(this._poolHandle, CameraView.WIDTH);
+        return CameraPool.get(this._poolHandle, CameraView.WIDTH);
     }
 
     get height () {
-        return CameraPool.get<number>(this._poolHandle, CameraView.HEIGHT);
+        return CameraPool.get(this._poolHandle, CameraView.HEIGHT);
     }
 
     get aspect () {
@@ -577,7 +577,7 @@ export class Camera {
     }
 
     get exposure (): number {
-        return CameraPool.get<number>(this._poolHandle, CameraView.EXPOSURE);
+        return CameraPool.get(this._poolHandle, CameraView.EXPOSURE);
     }
 
     set flows (val: string[]) {
@@ -587,7 +587,7 @@ export class Camera {
     }
 
     get clearFlag () : GFXClearFlag {
-        return CameraPool.get<number>(this._poolHandle, CameraView.CLEAR_FLAG);
+        return CameraPool.get(this._poolHandle, CameraView.CLEAR_FLAG);
     }
 
     set clearFlag (flag: GFXClearFlag) {
@@ -595,7 +595,7 @@ export class Camera {
     }
 
     get clearDepth () : number {
-        return CameraPool.get<number>(this._poolHandle, CameraView.CLEAR_DEPTH);
+        return CameraPool.get(this._poolHandle, CameraView.CLEAR_DEPTH);
     }
 
     set clearDepth (depth: number) {
@@ -603,7 +603,7 @@ export class Camera {
     }
 
     get clearStencil () : number {
-        return CameraPool.get<number>(this._poolHandle, CameraView.CLEAR_STENCIL);
+        return CameraPool.get(this._poolHandle, CameraView.CLEAR_STENCIL);
     }
 
     set clearStencil (stencil: number) {
@@ -627,8 +627,8 @@ export class Camera {
      */
     public screenPointToRay (out: ray, x: number, y: number): ray {
         const handle = this._poolHandle;
-        const width = CameraPool.get<number>(handle, CameraView.WIDTH);
-        const height = CameraPool.get<number>(handle, CameraView.HEIGHT);
+        const width = CameraPool.get(handle, CameraView.WIDTH);
+        const height = CameraPool.get(handle, CameraView.HEIGHT);
         const cx = this._viewport.x * width;
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;
@@ -657,8 +657,8 @@ export class Camera {
      */
     public screenToWorld (out: Vec3, screenPos: Vec3): Vec3 {
         const handle = this._poolHandle;
-        const width = CameraPool.get<number>(handle, CameraView.WIDTH);
-        const height = CameraPool.get<number>(handle, CameraView.HEIGHT);
+        const width = CameraPool.get(handle, CameraView.WIDTH);
+        const height = CameraPool.get(handle, CameraView.HEIGHT);
         const cx = this._viewport.x * width;
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;
@@ -698,8 +698,8 @@ export class Camera {
      */
     public worldToScreen (out: Vec3, worldPos: Vec3): Vec3 {
         const handle = this._poolHandle;
-        const width = CameraPool.get<number>(handle, CameraView.WIDTH);
-        const height = CameraPool.get<number>(handle, CameraView.HEIGHT);
+        const width = CameraPool.get(handle, CameraView.WIDTH);
+        const height = CameraPool.get(handle, CameraView.HEIGHT);
         const cx = this._viewport.x * width;
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;
@@ -710,6 +710,27 @@ export class Camera {
         out.x = cx + (out.x + 1) * 0.5 * cw;
         out.y = cy + (out.y + 1) * 0.5 * ch;
         out.z = out.z * 0.5 + 0.5;
+
+        return out;
+    }
+
+    /**
+     * transform a world space matrix to screen space
+     * @param {Mat4} out the resulting vector
+     * @param {Mat4} worldMatrix the world space matrix to be transformed
+     * @param {number} width framebuffer width
+     * @param {number} height framebuffer height
+     * @returns {Mat4} the resulting vector
+     */
+    public worldMatrixToScreen (out: Mat4, worldMatrix: Mat4, width: number, height: number){
+        Mat4.multiply(out, this._matViewProj, worldMatrix);
+        const halfWidth = width / 2;
+        const halfHeight = height / 2;
+        Mat4.identity(_tempMat1);
+        Mat4.transform(_tempMat1, _tempMat1, Vec3.set(v_a, halfWidth, halfHeight, 0));
+        Mat4.scale(_tempMat1, _tempMat1, Vec3.set(v_a, halfWidth, halfHeight, 1));
+
+        Mat4.multiply(out, _tempMat1, out);
 
         return out;
     }

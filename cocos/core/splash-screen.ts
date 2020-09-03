@@ -19,8 +19,10 @@ import { legacyCC } from './global-exports';
 import { Root } from './root';
 import { DSPool, ShaderPool, PassPool, PassView } from './renderer/core/memory-pools';
 import { SetIndex } from './pipeline/define';
-import { GFXBufferTextureCopy, GFXBufferUsageBit, GFXCommandBufferType, GFXFormat,
-    GFXMemoryUsageBit, GFXTextureType, GFXTextureUsageBit, GFXRect, GFXColor, GFXAddress } from './gfx/define';
+import {
+    GFXBufferTextureCopy, GFXBufferUsageBit, GFXCommandBufferType, GFXFormat,
+    GFXMemoryUsageBit, GFXTextureType, GFXTextureUsageBit, GFXRect, GFXColor, GFXAddress
+} from './gfx/define';
 
 export type SplashEffectType = 'NONE' | 'FADE-INOUT';
 
@@ -222,10 +224,13 @@ export class SplashScreen {
     private hide () {
         cancelAnimationFrame(this.handle);
         this.cancelAnimate = true;
-        this.destoy();
+        // here delay destroy：because ios immediately destroy input assmebler will crash & native renderer will mess.
+        setTimeout(this.destroy.bind(this));
     }
 
     private frame (time: number) {
+        if (this.cancelAnimate) return;
+
         // TODO: hack for cocosPlay & XIAOMI cause on landscape canvas value is wrong
         if (COCOSPLAY || XIAOMI) {
             if (window._CCSettings.orientation === 'landscape' && this.device.width < this.device.height) {
@@ -296,7 +301,7 @@ export class SplashScreen {
 
         this.textTexture = this.device.createTexture({
             type: GFXTextureType.TEX2D,
-            usage: GFXTextureUsageBit.SAMPLED,
+            usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
             format: GFXFormat.RGBA8,
             width: this.textImg.width,
             height: this.textImg.height,
@@ -483,7 +488,7 @@ export class SplashScreen {
 
         this.texture = device.createTexture({
             type: GFXTextureType.TEX2D,
-            usage: GFXTextureUsageBit.SAMPLED,
+            usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
             format: GFXFormat.RGBA8,
             width: this.image.width,
             height: this.image.height,
@@ -505,7 +510,7 @@ export class SplashScreen {
         device.copyTexImagesToTexture([this.image!], this.texture, [this.region]);
     }
 
-    private destoy () {
+    private destroy () {
         this.callBack = null;
         this.clearColors = null!;
         this.device = null!;
@@ -525,7 +530,7 @@ export class SplashScreen {
         this.texture.destroy();
         this.texture = null!;
 
-        // this.assmebler.destroy(); //TODO: IOS 导致崩溃, 临时绕过
+        this.assmebler.destroy();
         this.assmebler = null!;
 
         this.vertexBuffers.destroy();

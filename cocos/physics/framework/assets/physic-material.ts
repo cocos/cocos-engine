@@ -6,7 +6,7 @@
  */
 
 import { Asset } from '../../../core/assets/asset';
-import { ccclass, property } from '../../../core/data/class-decorator';
+import { ccclass, editable, serializable } from 'cc.decorator';
 import { math } from '../../../core';
 
 /**
@@ -32,7 +32,7 @@ export class PhysicMaterial extends Asset {
      * @zh
      * 此材质的摩擦系数。
      */
-    @property
+    @editable
     get friction () {
         return this._friction;
     }
@@ -50,7 +50,7 @@ export class PhysicMaterial extends Asset {
      * @zh
      * 此材质的滚动摩擦系数。
      */
-    @property
+    @editable
     get rollingFriction () {
         return this._rollingFriction;
     }
@@ -68,7 +68,7 @@ export class PhysicMaterial extends Asset {
      * @zh
      * 此材质的自旋摩擦系数。
      */
-    @property
+    @editable
     get spinningFriction () {
         return this._spinningFriction;
     }
@@ -86,7 +86,7 @@ export class PhysicMaterial extends Asset {
      * @zh
      * 此材质的回弹系数。
      */
-    @property
+    @editable
     get restitution () {
         return this._restitution;
     }
@@ -100,16 +100,16 @@ export class PhysicMaterial extends Asset {
 
     private static _idCounter: number = 0;
 
-    @property
+    @serializable
     private _friction = 0.5;
 
-    @property
+    @serializable
     private _rollingFriction = 0.1;
 
-    @property
+    @serializable
     private _spinningFriction = 0.1;
 
-    @property
+    @serializable
     private _restitution = 0.1;
 
     constructor () {
