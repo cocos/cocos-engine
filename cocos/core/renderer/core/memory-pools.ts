@@ -511,9 +511,9 @@ export type SubModelArrayHandle = Handle<PoolType.SUB_MODEL_ARRAY>;
 export type ModelArrayHandle = Handle<PoolType.MODEL_ARRAY>;
 
 // don't reuse any of these data-only structs, for GFX objects may directly reference them
-export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, (_: any) => JSB ? new gfx.RasterizerState() : new GFXRasterizerState());
-export const DepthStencilStatePool = new ObjectPool(PoolType.DEPTH_STENCIL_STATE, (_: any) => JSB ? new gfx.DepthStencilState() : new GFXDepthStencilState());
-export const BlendStatePool = new ObjectPool(PoolType.BLEND_STATE, (_: any) => JSB ? new gfx.BlendState() : new GFXBlendState());
+export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, (_: any) => new GFXRasterizerState());
+export const DepthStencilStatePool = new ObjectPool(PoolType.DEPTH_STENCIL_STATE, (_: any) => new GFXDepthStencilState());
+export const BlendStatePool = new ObjectPool(PoolType.BLEND_STATE, (_: any) => new GFXBlendState());
 
 export const ShaderPool = new ObjectPool(PoolType.SHADER,
     (args: [GFXDevice, GFXShaderInfo], obj?: GFXShader) => obj ? (obj.initialize(args[1]), obj) : args[0].createShader(args[1]),

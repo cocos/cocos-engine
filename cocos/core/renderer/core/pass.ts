@@ -27,7 +27,7 @@
  * @category material
  */
 
-import { EDITOR, JSB } from 'internal:constants';
+import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../3d/builtin/init';
 import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
 import { TextureBase } from '../../assets/texture-base';
@@ -139,7 +139,7 @@ export class Pass {
             const bsInfo = info.blendState;
             if (bsInfo.targets) {
                 bsInfo.targets.forEach((t, i) => Object.assign(
-                bs.targets[i] || (bs.targets[i] = JSB ? new gfx.BlendState() : new GFXBlendTarget()), t));
+                bs.targets[i] || (bs.targets[i] = new GFXBlendTarget()), t));
             }
             if (bsInfo.isA2C !== undefined) { bs.isA2C = bsInfo.isA2C; }
             if (bsInfo.isIndepend !== undefined) { bs.isIndepend = bsInfo.isIndepend; }
