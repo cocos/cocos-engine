@@ -50,7 +50,7 @@ legacyCC.textureUtil = textureUtil;
 export { textureUtil };
 export { EffectAsset } from './effect-asset';
 export { Material } from './material';
-export { Mesh } from './mesh';
+export { Mesh, RenderingSubMesh } from './mesh';
 export { Skeleton } from './skeleton';
 export { RenderTexture } from './render-texture';
 import './deprecation';

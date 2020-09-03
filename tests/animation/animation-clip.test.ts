@@ -1,6 +1,6 @@
 import { AnimationClip, js, AnimationState, Node, Component, Vec3, AnimationManager } from '../../cocos/core';
 import { ComponentPath, HierarchyPath } from '../../cocos/core/animation/animation';
-import { ccclass } from '../../cocos/core/data/class-decorator';
+import { ccclass } from 'cc.decorator';
 
 test('Common target', () => {
     @ccclass('TestComponent')

@@ -27,7 +27,7 @@
  * @category core/math
  */
 
-import CCClass from '../data/class';
+import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Quat } from './quat';
 import { IMat3Like, IMat4Like, IQuatLike, IVec2Like, IVec3Like } from './type-define';

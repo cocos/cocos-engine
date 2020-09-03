@@ -1,6 +1,6 @@
 import Ammo from '../ammo-instantiated';
 import { AmmoShape } from "./ammo-shape";
-import { ConeColliderComponent } from '../../../../exports/physics-framework';
+import { ConeCollider } from '../../../../exports/physics-framework';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ICylinderShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
@@ -40,7 +40,7 @@ export class AmmoConeShape extends AmmoShape implements ICylinderShape {
     }
 
     get collider () {
-        return this._collider as ConeColliderComponent;
+        return this._collider as ConeCollider;
     }
 
     constructor () {

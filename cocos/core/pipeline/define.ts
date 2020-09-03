@@ -9,7 +9,7 @@ import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
 import { GFXBindingMappingInfo, GFXDescriptorType, GFXType, GFXShaderStageFlagBit, IGFXDescriptorSetLayoutBinding } from '../gfx';
 import { IBlockInfo, ISamplerInfo } from '../assets/effect-asset';
-import { Camera } from '../renderer';
+import { Camera } from '../renderer/scene';
 
 export const PIPELINE_FLOW_FORWARD: string = 'ForwardFlow';
 export const PIPELINE_FLOW_SHADOW: string = 'ShadowFlow';
@@ -199,7 +199,9 @@ export class UBOShadow {
     public static MAT_LIGHT_PLANE_PROJ_OFFSET: number = 0;
     public static MAT_LIGHT_VIEW_PROJ_OFFSET: number = UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
     public static SHADOW_COLOR_OFFSET: number = UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
-    public static COUNT: number = UBOShadow.SHADOW_COLOR_OFFSET + 4;
+    public static SHADOW_PCF_OFFSET: number = UBOShadow.SHADOW_COLOR_OFFSET + 4;
+    public static SHADOW_SIZE_OFFSET: number = UBOShadow.SHADOW_PCF_OFFSET + 4;
+    public static COUNT: number = UBOShadow.SHADOW_SIZE_OFFSET + 4;
     public static SIZE: number = UBOShadow.COUNT * 4;
 
     public static BLOCK: IBlockInfo = {
@@ -208,6 +210,8 @@ export class UBOShadow {
             { name: 'cc_matLightPlaneProj', type: GFXType.MAT4, count: 1 },
             { name: 'cc_matLightViewProj', type: GFXType.MAT4, count: 1 },
             { name: 'cc_shadowColor', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_shadowPCF', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_shadowSize', type: GFXType.FLOAT4, count: 1 },
         ],
     };
 }

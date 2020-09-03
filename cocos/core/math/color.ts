@@ -28,7 +28,7 @@
  * @category core/math
  */
 
-import CCClass from '../data/class';
+import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { IColorLike } from './type-define';
 import { clamp, EPSILON } from './utils';

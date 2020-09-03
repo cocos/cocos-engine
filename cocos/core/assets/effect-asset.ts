@@ -27,7 +27,7 @@
  * @category material
  */
 
-import { ccclass, property } from '../../core/data/class-decorator';
+import { ccclass, serializable, editable } from 'cc.decorator';
 import { Root } from '../../core/root';
 import { GFXDynamicStateFlags, GFXPrimitiveMode } from '../gfx/define';
 import { IGFXAttribute } from '../gfx/input-assembler';
@@ -161,21 +161,24 @@ export class EffectAsset extends Asset {
      * @zh
      * 当前 effect 的所有可用 technique。
      */
-    @property
+    @serializable
+    @editable
     public techniques: ITechniqueInfo[] = [];
 
     /**
      * @zh
      * 当前 effect 使用的所有 shader。
      */
-    @property
+    @serializable
+    @editable
     public shaders: IShaderInfo[] = [];
 
     /**
      * @zh
      * 每个 shader 需要预编译的宏定义组合。
      */
-    @property
+    @serializable
+    @editable
     public combinations: IPreCompileInfo[] = [];
 
     /**

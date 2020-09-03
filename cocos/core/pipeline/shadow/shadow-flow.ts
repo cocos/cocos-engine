@@ -2,7 +2,7 @@
  * @category pipeline.forward
  */
 
-import { ccclass } from '../../data/class-decorator';
+import { ccclass } from 'cc.decorator';
 import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
@@ -13,6 +13,7 @@ import { GFXFramebuffer, GFXRenderPass, GFXLoadOp,
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderView } from '../render-view';
+import { ShadowType } from '../../renderer/scene/shadows';
 
 /**
  * @zh 阴影贴图绘制流程
@@ -53,7 +54,7 @@ export class ShadowFlow extends RenderFlow {
         super.activate(pipeline);
 
         const device = pipeline.device;
-        const shadowMapSize = pipeline.shadowMap.size;
+        const shadowMapSize = pipeline.shadows.size;
         this._width = shadowMapSize.x;
         this._height = shadowMapSize.y;
 
@@ -115,8 +116,8 @@ export class ShadowFlow extends RenderFlow {
 
     public render (view: RenderView) {
         const pipeline = this._pipeline as ForwardPipeline;
-        const shadowInfo = pipeline.shadowMap;
-        if (!shadowInfo.enabled) { return; }
+        const shadowInfo = pipeline.shadows;
+        if (shadowInfo.type !== ShadowType.ShadowMap) { return; }
 
         const shadowMapSize = shadowInfo.size;
         if (this._width !== shadowMapSize.x || this._height !== shadowMapSize.y) {

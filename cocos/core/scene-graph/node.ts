@@ -27,8 +27,8 @@
  * @category scene-graph
  */
 
-import { ccclass, property, type } from '../data/class-decorator';
-import { Mat3, Mat4, Quat, Size, Vec2, Vec3 } from '../math';
+import { ccclass, type, serializable, editable } from 'cc.decorator';
+import { Mat3, Mat4, Quat, Vec3 } from '../math';
 import { SystemEventType } from '../platform/event-manager/event-enum';
 import { eventManager } from '../platform/event-manager/event-manager';
 import { BaseNode, TRANSFORM_ON } from './base-node';
@@ -115,17 +115,17 @@ export class Node extends BaseNode {
     protected _mat = new Mat4();
 
     // local transform
-    @property
+    @serializable
     protected _lpos = new Vec3();
-    @property
+    @serializable
     protected _lrot = new Quat();
-    @property
+    @serializable
     protected _lscale = new Vec3(1, 1, 1);
-    @property
+    @serializable
     protected _layer = Layers.Enum.DEFAULT; // the layer this node belongs to
 
     // local rotation in euler angles, maintained here so that rotation angles could be greater than 360 degree.
-    @property
+    @serializable
     protected _euler = new Vec3();
 
     protected _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
@@ -285,7 +285,7 @@ export class Node extends BaseNode {
      * @en Layer of the current Node, it affects raycast, physics etc, refer to [[Layers]]
      * @zh 节点所属层，主要影响射线检测、物理碰撞等，参考 [[Layers]]
      */
-    @property
+    @editable
     set layer (l) {
         this._layer = l;
         NodePool.set(this._poolHandle, NodeView.LAYER, this._layer)

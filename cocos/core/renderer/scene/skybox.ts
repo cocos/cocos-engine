@@ -77,13 +77,13 @@ export class Skybox {
      * @zh 使用的立方体贴图
      */
     get envmap () {
-        return this._envmap || this._default;
+        return this._envmap;
     }
 
     set envmap (val: TextureCube | null) {
-        this._envmap = val;
-        if (this._enabled) {
-            legacyCC.director.root.pipeline.ambient.groundAlbedo[3] = this._envmap ? this._envmap.mipmapLevel : this._default!.mipmapLevel;
+        this._envmap = val || this._default;
+        if (this._envmap) {
+            legacyCC.director.root.pipeline.ambient.albedoArray[3] = this._envmap.mipmapLevel;
             this._updateGlobalBinding();
         }
     }
@@ -97,16 +97,14 @@ export class Skybox {
     protected _default: TextureCube | null = null;
 
     public activate () {
-        const pipeline = legacyCC.director.root.pipeline
+        const pipeline = legacyCC.director.root.pipeline;
         this._globalDescriptorSet = pipeline.descriptorSet;
+        this._default = builtinResMgr.get<TextureCube>('default-cube-texture');
+
         if (!this._model) {
             this._model = new Model();
         }
 
-        this._default = builtinResMgr.get<TextureCube>('default-cube-texture');
-
-        pipeline.ambient.groundAlbedo[3] = this._envmap ? this._envmap.mipmapLevel : this._default.mipmapLevel;
-        this._updateGlobalBinding();
         if (!skybox_material) {
             const mat = new Material();
             mat.initialize({ effectName: 'pipeline/skybox', defines: { USE_RGBE_CUBEMAP: this._isRGBE } });
@@ -114,9 +112,11 @@ export class Skybox {
         } else {
             skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this._isRGBE });
         }
+
         if (!skybox_mesh) { skybox_mesh = createMesh(box({ width: 2, height: 2, length: 2 })); }
         this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
 
+        this.envmap = this._envmap;
         this._updatePipeline();
     }
 

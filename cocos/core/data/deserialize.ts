@@ -31,7 +31,7 @@
 import { warnID } from '../platform/debug';
 import * as js from '../utils/js';
 import * as misc from '../utils/misc';
-import CCClass from './class';
+import { CCClass } from './class';
 import * as Attr from './utils/attribute';
 import MissingScript from '../components/missing-script';
 import { EDITOR, TEST, DEV, JSB, PREVIEW, SUPPORT_JIT } from 'internal:constants';
@@ -47,7 +47,7 @@ import { legacyCC } from '../global-exports';
  * @class Details
  *
  */
-class Details {
+export class Details {
 
     public static pool: js.Pool<{}>;
 
@@ -60,17 +60,14 @@ class Details {
     constructor () {
         /**
          * list of the depends assets' uuid
-         * @property {String[]} uuidList
          */
         this.uuidList = [];
         /**
          * the obj list whose field needs to load asset by uuid
-         * @property {Object[]} uuidObjList
          */
         this.uuidObjList = [];
         /**
          * the corresponding field name which referenced to the asset
-         * @property {String[]} uuidPropList
          */
         this.uuidPropList = [];
 
@@ -452,9 +449,6 @@ function _deserializeFireClass (self, obj, serialized, klass, target) {
         if (klass === legacyCC._PrefabInfo && !obj.sync) {
             unlinkUnusedPrefab(self, serialized, obj);
         }
-    }
-    if (obj.__postDeserialize) {
-        obj.__postDeserialize();
     }
 }
 
@@ -846,7 +840,7 @@ _Deserializer.pool.get = function (result, target, classFinder, customEnv, ignor
  * @param {Object} [options]
  * @return {object} the main data(asset)
  */
-function deserialize (data, details, options) {
+export function deserialize (data, details, options) {
     options = options || {};
     const classFinder = options.classFinder || js._getClassById;
     // 启用 createAssetRefs 后，如果有 url 属性则会被统一强制设置为 { uuid: 'xxx' }，必须后面再特殊处理
@@ -885,7 +879,7 @@ function deserialize (data, details, options) {
 
     return res;
 }
-(deserialize as any).Details = Details;
+deserialize.Details = Details;
 deserialize.reportMissingClass = (id) => {
     if (EDITOR && EditorExtends.UuidUtils.isUuid(id)) {
         id = EditorExtends.UuidUtils.decompressUuid(id);
@@ -898,5 +892,3 @@ deserialize.reportMissingClass = (id) => {
 
 deserialize._Deserializer = _Deserializer;
 legacyCC.deserialize = deserialize;
-
-export default deserialize;

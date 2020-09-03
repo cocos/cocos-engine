@@ -36,6 +36,7 @@ export class Ambient {
 
     set skyColor (color: Color) {
         this._skyColor = color;
+        Color.toArray(this._colorArray, this._skyColor);
     }
 
     /**
@@ -65,7 +66,9 @@ export class Ambient {
 
     protected _enabled = true;
     protected _skyColor = new Color(51, 128, 204, 1.0);
+
     protected _skyIllum: number = Ambient.SKY_ILLUM;
+
     protected _groundAlbedo = new Color(51, 51, 51, 255);
     protected _albedoArray = Float32Array.from([0.2, 0.2, 0.2, 1.0]);
     protected _colorArray = Float32Array.from([0.2, 0.5, 0.8, 1.0]);

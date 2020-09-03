@@ -1,5 +1,5 @@
 import { Node } from '../../cocos/core/scene-graph/node';
-import { ModelComponent } from '../../cocos/core/3d/framework/model-component';
+import { MeshRenderer } from '../../cocos/core/3d/framework/model-component';
 import { Material } from '../../cocos/core/assets/material';
 import { strictEqual } from 'assert';
 
@@ -17,7 +17,7 @@ test('Material hash', () => {
 //     const hash2 = mat2.hash;
 
 //     const node = new Node();
-//     const comp = node.addComponent(ModelComponent);
+//     const comp = node.addComponent(MeshRenderer);
 //     comp.material = mat1;
 
 //     strictEqual(comp.material.hash, hash1);

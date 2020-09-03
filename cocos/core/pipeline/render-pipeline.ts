@@ -4,7 +4,7 @@
 
 import { legacyCC } from '../global-exports';
 import { Asset } from '../assets/asset';
-import { ccclass, property, visible, displayOrder, type } from '../data/class-decorator';
+import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 import { MacroRecord } from '../renderer/core/pass-utils';
@@ -45,6 +45,8 @@ export abstract class RenderPipeline extends Asset {
      * @zh 管线的渲染流程列表。
      * @readonly
      */
+    @type([RenderFlow])
+    @displayOrder(1)
     get flows (): RenderFlow[] {
         return this._flows;
     }
@@ -54,6 +56,7 @@ export abstract class RenderPipeline extends Asset {
      * @zh 管线的标签。
      * @readonly
      */
+    @displayOrder(0)
     get tag (): number {
         return this._tag;
     }
@@ -63,9 +66,7 @@ export abstract class RenderPipeline extends Asset {
      * @zh 标签
      * @readonly
      */
-    @property
-    @displayOrder(0)
-    @visible(true)
+    @serializable
     protected _tag: number = 0;
 
     /**
@@ -74,8 +75,6 @@ export abstract class RenderPipeline extends Asset {
      * @readonly
      */
     @type([RenderFlow])
-    @displayOrder(1)
-    @visible(true)
     protected _flows: RenderFlow[] = [];
 
     protected _macros: MacroRecord = {};

@@ -28,7 +28,7 @@
  * @category event
  */
 
-import {ccclass, property, type} from '../data/class-decorator';
+import {ccclass, type, serializable, editable} from 'cc.decorator';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 
@@ -106,10 +106,11 @@ export class EventHandler {
      * 事件响应函数所在组件名（脚本名）, 比如例子中的脚本名 'MainMenu'
      */
     // only for deserializing old project component field
-    @property
+    @serializable
+    @editable
     public component = '';
 
-    @property
+    @serializable
     public _componentId = '';
 
     /**
@@ -118,7 +119,8 @@ export class EventHandler {
      * @zh
      * 响应事件函数名，比如例子中的 'onClick'
      */
-    @property
+    @serializable
+    @editable
     public handler = '';
 
     /**
@@ -127,7 +129,8 @@ export class EventHandler {
      * @zh
      * 自定义事件数据，比如例子中的 eventType
      */
-    @property
+    @serializable
+    @editable
     public customEventData = '';
 
     /**
