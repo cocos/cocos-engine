@@ -642,5 +642,3 @@ export class UITransform extends Component {
         }
     }
 }
-
-legacyCC.UITransform = UITransform;

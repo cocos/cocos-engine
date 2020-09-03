@@ -1189,5 +1189,3 @@ export class Layout extends Component {
     }
 
 }
-
-legacyCC.Layout = Layout;

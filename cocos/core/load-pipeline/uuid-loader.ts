@@ -36,6 +36,7 @@ import { getDependsRecursively } from './auto-release-utils';
 import { decompressJson } from './utils';
 import { EDITOR, DEBUG, JSB } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { Details } from '../data/deserialize';
 
 export function isSceneObj (json) {
     let SCENE_ID = 'cc.Scene';
@@ -47,10 +48,11 @@ export function isSceneObj (json) {
            );
 }
 
-function parseDepends (item, asset, tdInfo, deferredLoadRawAssetsInRuntime) {
+function parseDepends (item, asset, tdInfo: Details, deferredLoadRawAssetsInRuntime) {
     let uuidList = tdInfo.uuidList;
     let objList = tdInfo.uuidObjList;
     let propList = tdInfo.uuidPropList;
+    // @ts-ignore
     let stillUseUrl = tdInfo._stillUseUrl;
     let depends;
     let i, dependUuid;

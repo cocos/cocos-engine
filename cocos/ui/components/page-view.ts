@@ -787,8 +787,6 @@ export class PageView extends ScrollView {
 
 }
 
-legacyCC.PageView = PageView;
-
 /**
  * @en
  * Note: This event is emitted from the node to which the component belongs.

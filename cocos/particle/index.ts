@@ -19,8 +19,4 @@ export {
 
 export * from './deprecated';
 
-legacyCC.ParticleSystem = ParticleSystem;
-legacyCC.Billboard = Billboard;
-legacyCC.Line = Line;
-
 legacyCC.ParticleUtils = ParticleUtils;

@@ -204,8 +204,6 @@ export class Toggle extends Button {
     }
 }
 
-legacyCC.Toggle = Toggle;
-
 /**
  * @en
  * Note: This event is emitted from the node to which the component belongs.

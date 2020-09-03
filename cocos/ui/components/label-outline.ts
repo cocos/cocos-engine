@@ -132,5 +132,3 @@ export class LabelOutline extends Component {
         }
     }
 }
-
-legacyCC.LabelOutline = LabelOutline;
