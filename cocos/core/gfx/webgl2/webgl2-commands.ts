@@ -2271,8 +2271,12 @@ export function WebGL2CmdFuncBindStates (
 
             if (cache.glBindUBOs[glBlock.glBinding] !== gpuDescriptor.gpuBuffer.glBuffer ||
                 cache.glBindUBOOffsets[glBlock.glBinding] !== offset) {
-                gl.bindBufferRange(gl.UNIFORM_BUFFER, glBlock.glBinding, gpuDescriptor.gpuBuffer.glBuffer,
-                    offset, gpuDescriptor.gpuBuffer.size);
+                if (offset) {
+                    gl.bindBufferRange(gl.UNIFORM_BUFFER, glBlock.glBinding, gpuDescriptor.gpuBuffer.glBuffer,
+                        offset, gpuDescriptor.gpuBuffer.size);
+                } else {
+                    gl.bindBufferBase(gl.UNIFORM_BUFFER, glBlock.glBinding, gpuDescriptor.gpuBuffer.glBuffer);
+                }
                 cache.glUniformBuffer = cache.glBindUBOs[glBlock.glBinding] = gpuDescriptor.gpuBuffer.glBuffer;
                 cache.glBindUBOOffsets[glBlock.glBinding] = offset;
             }
