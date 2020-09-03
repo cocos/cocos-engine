@@ -15,7 +15,7 @@ import { DSPool, ShaderPool, PassHandle, PassPool, PassView,
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { InstancedBuffer } from './instanced-buffer';
 import { ForwardPipeline } from './forward/forward-pipeline';
-import { Mat4, Vec4, Color } from '../math';
+import { Mat4, Vec4, Color, toDegree } from '../math';
 import { intersect } from '../geometry';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { BatchedBuffer } from './batched-buffer';
@@ -91,7 +91,7 @@ export class RenderShadowMapBatchedQueue {
                     break;
                 case LightType.SPOT:
                     const spotLight = light as SpotLight;
-                    if (!(model.worldBounds && !intersect.aabb_frustum(model.worldBounds, spotLight.frustum))) continue;
+                    if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, spotLight.frustum)) continue;
                     this.add(model);
                     break;
             }
@@ -196,7 +196,7 @@ export class RenderShadowMapBatchedQueue {
                     Mat4.invert(matShadowView, spotLight.node!.getWorldMatrix());
 
                     // light proj
-                    Mat4.perspective(matShadowViewProj, spotLight.spotAngle, spotLight.aspect, 0.001, spotLight.range);
+                    Mat4.perspective(matShadowViewProj, toDegree(spotLight.spotAngle), spotLight.aspect, 0.001, spotLight.range);
                     break;
             }
 

@@ -32,7 +32,7 @@ export class ShadowFlow extends RenderFlow {
         tag: RenderFlowTag.SCENE,
     };
 
-    private static _shadowQueue = new Map<Light, RenderShadowMapBatchedQueue>();
+    private _shadowQueue!: RenderShadowMapBatchedQueue;
     private _renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
     private _width: number = 0;
     private _height: number = 0;
@@ -56,16 +56,8 @@ export class ShadowFlow extends RenderFlow {
         }
     }
 
-    private static get (light: Light, pipeline: ForwardPipeline) {
-        if (!ShadowFlow._shadowQueue.has(light)) {
-            const shadowQueue = new RenderShadowMapBatchedQueue(pipeline);
-            ShadowFlow._shadowQueue.set(light, shadowQueue);
-        }
-
-        return ShadowFlow._shadowQueue.get(light)!;
-    }
-
     private init (pipeline: ForwardPipeline, validLights: Light[]) {
+        if (!this._shadowQueue) { this._shadowQueue = new RenderShadowMapBatchedQueue(pipeline); }
         const device = pipeline.device;
         const shadowMapSize = pipeline.shadows.size;
         this._width = shadowMapSize.x;
@@ -165,8 +157,7 @@ export class ShadowFlow extends RenderFlow {
         const pipeline = this._pipeline as ForwardPipeline;
         const shadowInfo = pipeline.shadows;
 
-        const shadowQueue = ShadowFlow.get(light, pipeline);
-        shadowQueue.gatherLightPasses(light);
+        this._shadowQueue.gatherLightPasses(light);
 
         const camera = view.camera;
 
@@ -188,7 +179,7 @@ export class ShadowFlow extends RenderFlow {
 
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
-        shadowQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+        this._shadowQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 
         cmdBuff.endRenderPass();
         cmdBuff.end();
