@@ -131,4 +131,9 @@ export class Layers {
   }
 }
 
+export declare namespace Layers {
+    export type Enum = EnumAlias<typeof Layers.Enum>;
+    export type BitMask = EnumAlias<typeof Layers.BitMask>;
+}
+
 legacyCC.Layers = Layers;

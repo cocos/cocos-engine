@@ -133,7 +133,7 @@ export class Camera {
     private _isoValue: number = 0.0;
     private _ec: number = 0.0;
     private _poolHandle: CameraHandle = NULL_HANDLE;
-    private _frustumHandle: FrustumHandle = NULL_HANDLE;  
+    private _frustumHandle: FrustumHandle = NULL_HANDLE;
 
     constructor (device: GFXDevice) {
         this._device = device;
@@ -740,27 +740,26 @@ export class Camera {
         CameraPool.set(this._poolHandle, CameraView.EXPOSURE, 0.833333 / Math.pow(2.0, ev100));
     }
 
-    private recordFrustumInSharedMemory() {
+    private recordFrustumInSharedMemory () {
         const frustumHandle = this._frustumHandle;
-        const frustum = this._frustum;
-        if (!frustum || frustumHandle === NULL_HANDLE) {
+        const frstm = this._frustum;
+        if (!frstm || frustumHandle === NULL_HANDLE) {
             return;
         }
 
-        const vertices = frustum.vertices;
-        let offset = FrustumView.VERTICES;
+        const vertices = frstm.vertices;
+        let offset = FrustumView.VERTICES as const;
         for (let i = 0; i < 8; ++i) {
             FrustumPool.setVec3(frustumHandle, offset, vertices[i]);
             offset += 3;
         }
 
-        const planes = frustum.planes;
-        offset = FrustumView.PLANES;
-        for (let i = 0; i < 6; ++i) {
-            FrustumPool.set(frustumHandle, offset, planes[i].d);
-            ++offset;
-            FrustumPool.setVec3(frustumHandle, offset, planes[i].n);
-            offset += 3;
+        const planes = frstm.planes;
+        let distanceOffset = FrustumView.PLANE_DISTANCES as const;
+        let normalOffset = FrustumView.PLANE_NORMALS as const;
+        for (let i = 0; i < 6; i++, distanceOffset++, normalOffset += 3) {
+            FrustumPool.set(frustumHandle, distanceOffset, planes[i].d);
+            FrustumPool.setVec3(frustumHandle, normalOffset, planes[i].n);
         }
     }
 }

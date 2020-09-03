@@ -1798,17 +1798,15 @@ export function WebGL2CmdFuncDestroyInputAssembler (device: WebGL2Device, gpuInp
 interface IWebGL2StateCache {
     gpuPipelineState: IWebGL2GPUPipelineState | null;
     gpuInputAssembler: IWebGL2GPUInputAssembler | null;
-    gpuShader: IWebGL2GPUShader | null;
-    glPrimitive: number;
     reverseCW: boolean;
+    glPrimitive: number;
     invalidateAttachments: GLenum[];
 }
 const gfxStateCache: IWebGL2StateCache = {
     gpuPipelineState: null,
     gpuInputAssembler: null,
-    gpuShader: null,
-    glPrimitive: 0,
     reverseCW: false,
+    glPrimitive: 0,
     invalidateAttachments: [],
 };
 
@@ -1822,7 +1820,6 @@ export function WebGL2CmdFuncBeginRenderPass (
     clearStencil: number) {
 
     gfxStateCache.gpuInputAssembler = null;
-    gfxStateCache.gpuShader = null;
 
     const gl = device.gl;
     const cache = device.stateCache;
@@ -2010,7 +2007,7 @@ export function WebGL2CmdFuncBindStates (
 
     const gl = device.gl;
     const cache = device.stateCache;
-    const gpuShader = gfxStateCache.gpuShader = gpuPipelineState && gpuPipelineState.gpuShader;
+    const gpuShader = gpuPipelineState && gpuPipelineState.gpuShader;
 
     let isShaderChanged = false;
 
@@ -2616,9 +2613,9 @@ export function WebGL2CmdFuncBindStates (
 
 export function WebGL2CmdFuncDraw (device: WebGL2Device, drawInfo: GFXDrawInfo) {
     const gl = device.gl;
-    const { gpuInputAssembler, gpuShader, glPrimitive } = gfxStateCache;
+    const { gpuInputAssembler, glPrimitive } = gfxStateCache;
 
-    if (gpuInputAssembler && gpuShader) {
+    if (gpuInputAssembler) {
         if (gpuInputAssembler.gpuIndirectBuffer) {
             const indirects = gpuInputAssembler.gpuIndirectBuffer.indirects;
             for (let k = 0; k < indirects.length; k++) {

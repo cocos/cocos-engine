@@ -1604,16 +1604,14 @@ export function WebGLCmdFuncDestroyInputAssembler (device: WebGLDevice, gpuInput
 interface IWebGLStateCache {
     gpuPipelineState: IWebGLGPUPipelineState | null;
     gpuInputAssembler: IWebGLGPUInputAssembler | null;
-    gpuShader: IWebGLGPUShader | null;
-    glPrimitive: number;
     reverseCW: boolean;
+    glPrimitive: number;
 }
 const gfxStateCache: IWebGLStateCache = {
     gpuPipelineState: null,
     gpuInputAssembler: null,
-    gpuShader: null,
-    glPrimitive: 0,
     reverseCW: false,
+    glPrimitive: 0,
 };
 
 export function WebGLCmdFuncBeginRenderPass (
@@ -1626,7 +1624,6 @@ export function WebGLCmdFuncBeginRenderPass (
     clearStencil: number) {
 
     gfxStateCache.gpuInputAssembler = null;
-    gfxStateCache.gpuShader = null;
 
     const gl = device.gl;
     const cache = device.stateCache;
@@ -1812,7 +1809,7 @@ export function WebGLCmdFuncBindStates (
 
     const gl = device.gl;
     const cache = device.stateCache;
-    const gpuShader = gfxStateCache.gpuShader = gpuPipelineState && gpuPipelineState.gpuShader;
+    const gpuShader = gpuPipelineState && gpuPipelineState.gpuShader;
 
     let isShaderChanged = false;
     let glWrapS: number;
@@ -2646,9 +2643,9 @@ export function WebGLCmdFuncBindStates (
 export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: GFXDrawInfo) {
     const gl = device.gl;
     const ia = device.ANGLE_instanced_arrays;
-    const { gpuInputAssembler, gpuShader, glPrimitive } = gfxStateCache;
+    const { gpuInputAssembler, glPrimitive } = gfxStateCache;
 
-    if (gpuInputAssembler && gpuShader) {
+    if (gpuInputAssembler) {
         if (gpuInputAssembler.gpuIndirectBuffer) {
             const diLen = gpuInputAssembler.gpuIndirectBuffer.indirects.length;
             for (let j = 0; j < diLen; j++) {
