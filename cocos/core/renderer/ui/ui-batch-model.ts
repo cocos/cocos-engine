@@ -69,8 +69,8 @@ export class UIBatchModel extends Model {
     }
 
     public destroy () {
-        super.destroy();
         this._subModel.destroy();
+        super.destroy();
     }
 }
 
