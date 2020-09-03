@@ -41,7 +41,7 @@ import { isBuiltinBinding, RenderPassStage, RenderPriority, SetIndex } from '../
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
-import { IProgramInfo, programLib, IPipelineLayoutInfo } from './program-lib';
+import { IProgramInfo, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
 import { PassView, BlendStatePool, RasterizerStatePool, DepthStencilStatePool,
     PassPool, DSPool, PassHandle, ShaderHandle, NULL_HANDLE } from './memory-pools';
@@ -139,7 +139,7 @@ export class Pass {
             const bsInfo = info.blendState;
             if (bsInfo.targets) {
                 bsInfo.targets.forEach((t, i) => Object.assign(
-                bs.targets[i] || (bs.targets[i] = new GFXBlendTarget()), t));
+                bs.targets[i] || (bs.setTarget(i, new GFXBlendTarget()), t)));
             }
             if (bsInfo.isA2C !== undefined) { bs.isA2C = bsInfo.isA2C; }
             if (bsInfo.isIndepend !== undefined) { bs.isIndepend = bsInfo.isIndepend; }
