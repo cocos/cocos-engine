@@ -12,7 +12,7 @@ import { IRenderObject, UBOGlobal, UBOShadow,
     UNIFORM_SHADOWMAP, globalDescriptorSetLayout, localDescriptorSetLayout} from '../define';
 import { GFXBufferUsageBit, GFXMemoryUsageBit,
     GFXClearFlag, GFXFilter, GFXAddress, GFXCommandBufferType } from '../../gfx/define';
-import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout } from '../../gfx';
+import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout, GFXFramebuffer } from '../../gfx';
 import { SKYBOX_FLAG, Light } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
@@ -24,7 +24,6 @@ import { Skybox } from '../../renderer/scene/skybox';
 import { Shadows } from '../../renderer/scene/shadows';
 import { sceneCulling } from './scene-culling';
 import { UIFlow } from '../ui/ui-flow';
-import { GFXFramebuffer } from 'exports/base';
 
 
 

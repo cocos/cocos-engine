@@ -3,7 +3,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP, SetIndex } from '../define';
+import { PIPELINE_FLOW_SHADOW, SetIndex } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
 import { GFXFramebuffer, GFXLoadOp,
