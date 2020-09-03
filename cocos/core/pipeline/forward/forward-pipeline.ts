@@ -172,6 +172,13 @@ export class ForwardPipeline extends RenderPipeline {
      */
     public updateUBOs (view: RenderView) {
         this._updateUBO(view);
+        const camera = view.camera;
+        const scene = camera.scene;
+        const mainLight = scene!.mainLight!;
+
+        if (this.shadowFrameBufferMap.has(mainLight)) {
+            this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP.binding, this.shadowFrameBufferMap.get(mainLight)!.colorTextures[0]!);
+        }
 
         // update ubos
         this._descriptorSet.getBuffer(UBOGlobal.BLOCK.binding).update(this._globalUBO);
