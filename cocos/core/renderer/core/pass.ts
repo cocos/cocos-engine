@@ -27,7 +27,7 @@
  * @category material
  */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, JSB } from 'internal:constants';
 import { builtinResMgr } from '../../3d/builtin/init';
 import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
 import { TextureBase } from '../../assets/texture-base';
@@ -137,10 +137,21 @@ export class Pass {
         const bs = BlendStatePool.get(PassPool.get(hPass, PassView.BLEND_STATE));
         if (info.blendState) {
             const bsInfo = info.blendState;
-            if (bsInfo.targets) {
-                bsInfo.targets.forEach((t, i) => Object.assign(
-                bs.targets[i] || (bs.targets[i] = new GFXBlendTarget()), t));
+            const len = bsInfo.targets.length;
+            //hack it to run nativa pipeline
+            if(JSB) {
+                for (let i = 0; i < len; i++) {
+                    bs.setTarget(i, bsInfo.targets[i]);
+                    console.log(`hPass = ${hPass}, blendState = ${PassPool.get(hPass, PassView.BLEND_STATE)} enabled = ${bsInfo.targets[i].blend}`);
+                }
+            } else {
+                if (len) {
+                    bsInfo.targets.forEach((t, i) => Object.assign(
+                    bs.targets[i] || (bs.targets[i] = new GFXBlendTarget()), t));
+                }
             }
+            
+            
             if (bsInfo.isA2C !== undefined) { bs.isA2C = bsInfo.isA2C; }
             if (bsInfo.isIndepend !== undefined) { bs.isIndepend = bsInfo.isIndepend; }
             if (bsInfo.blendColor !== undefined) { Object.assign(bs.blendColor, bsInfo.blendColor); }

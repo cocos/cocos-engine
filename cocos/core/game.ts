@@ -623,7 +623,7 @@ export class Game extends EventTarget {
             inputManager.registerSystemEvent(game.canvas);
         }
 
-        const useSplash = (!EDITOR && !PREVIEW && legacyCC.internal.SplashScreen);
+        const useSplash = (0 && !EDITOR && !PREVIEW && legacyCC.internal.SplashScreen);
 
         // Load render pipeline if needed
         const renderPipeline = this.config.renderPipeline;
