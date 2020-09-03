@@ -385,6 +385,7 @@ export class Camera {
         this._clearColor.g = val.g;
         this._clearColor.b = val.b;
         this._clearColor.a = val.a;
+        CameraPool.setVec4(this._poolHandle, CameraView.CLEAR_COLOR, {x:val.r, y:val.g, z:val.b, w:val.r});
     }
 
     get clearColor () {

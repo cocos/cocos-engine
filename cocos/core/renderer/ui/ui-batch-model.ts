@@ -30,18 +30,24 @@ import { Model, ModelType } from '../scene/model';
 import { SubModel } from '../scene/submodel';
 import { UIDrawBatch } from './ui-draw-batch';
 import { Pass } from '../core/pass';
-import { SubModelPool, InputAssemblerHandle, DescriptorSetHandle, SubModelView, IAPool, DSPool, NULL_HANDLE } from '../core/memory-pools';
+import { SubModelPool, InputAssemblerHandle, DescriptorSetHandle, SubModelView, IAPool, DSPool, NULL_HANDLE, SubModelArrayPool } from '../core/memory-pools';
 import { RenderPriority } from '../../pipeline/define';
 
 export class UIBatchModel extends Model {
 
-    private _subModel: UISubModel;
+    private _subModel!: UISubModel;
 
     constructor () {
         super();
         this.type = ModelType.UI_BATCH;
+    }
+
+    public initialize () {
+        super.initialize();
+
         this._subModel = new UISubModel();
         this._subModels[0] = this._subModel;
+        SubModelArrayPool.assign(this._subModelArrayHandle, 0, this._subModel.handle);
     }
 
     public updateTransform () {}
@@ -64,6 +70,7 @@ export class UIBatchModel extends Model {
 
     public destroy () {
         this._subModel.destroy();
+        super.destroy();
     }
 }
 
