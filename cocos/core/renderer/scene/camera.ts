@@ -369,6 +369,7 @@ export class Camera {
         else { this._viewport.y = 1 - val.y - val.height; }
         this._viewport.width = val.width;
         this._viewport.height = val.height;
+        this.resize(this._width, this._height);
     }
 
     get scene () {
