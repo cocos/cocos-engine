@@ -695,6 +695,7 @@ export class WebGL2Device extends GFXDevice {
     private _onWebGLContextLost (event: Event) {
         warnID(11000);
         warn(event);
-        event.preventDefault();
+        // 2020.9.3: `preventDefault` is not available on some platforms
+        // event.preventDefault();
     }
 }
