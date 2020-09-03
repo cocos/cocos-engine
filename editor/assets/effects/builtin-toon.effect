@@ -65,6 +65,26 @@ CCEffect %{
           blendSrcAlpha: zero
           blendDstAlpha: one
       properties: *props
+    - vert: shadow-caster-vs:vert
+      frag: shadow-caster-fs:frag
+      phase: shadow-add
+      propertyIndex: 1
+      rasterizerState:
+        cullMode: front
+}%
+
+CCProgram shared-ubos %{
+  uniform Constants {
+    vec4 tilingOffset;
+    vec4 baseColor;
+    vec4 colorScaleAndCutoff;
+    vec4 shadeColor1;
+    vec4 shadeColor2;
+    vec4 specular; // xyz: specular color, w: power
+    vec4 shadeParams;
+    vec4 emissive;
+    vec4 emissiveScaleAndStrenth;
+  };
 }%
 
 CCProgram toon-vs %{
@@ -72,6 +92,7 @@ CCProgram toon-vs %{
   #include <input-standard>
   #include <cc-global>
   #include <cc-local-batch>
+  #include <shared-ubos>
 
   out vec3 v_position;
   out vec2 v_uv;
@@ -80,10 +101,6 @@ CCProgram toon-vs %{
     out vec3 v_tangent;
     out vec3 v_bitangent;
   #endif
-
-  uniform ToonVert {
-    vec4 tilingOffset;
-  };
 
   vec4 vert () {
     StandardVertInput In;
@@ -110,11 +127,16 @@ CCProgram toon-fs %{
   precision highp float;
   #include <cc-global>
   #include <shading-toon>
-  #include <gamma>
+  #include <shared-ubos>
   #include <output-standard>
+  #include <gamma>
 
   in vec3 v_position;
   in vec2 v_uv;
+
+  #if USE_BASE_COLOR_MAP
+    uniform sampler2D baseColorMap;
+  #endif
 
   in vec3 v_normal;
   #if USE_NORMAL_MAP
@@ -123,9 +145,6 @@ CCProgram toon-fs %{
     uniform sampler2D normalMap;
   #endif
 
-  #if USE_BASE_COLOR_MAP
-    uniform sampler2D baseColorMap;
-  #endif
   #if USE_1ST_SHADE_MAP
     uniform sampler2D shadeMap1;
   #endif
@@ -138,17 +157,6 @@ CCProgram toon-fs %{
   #if USE_EMISSIVE_MAP
     uniform sampler2D emissiveMap;
   #endif
-
-  uniform ToonFrag {
-    vec4 baseColor;
-    vec4 colorScaleAndCutoff;
-    vec4 shadeColor1;
-    vec4 shadeColor2;
-    vec4 specular; // xyz: specular color, w: power
-    vec4 shadeParams;
-    vec4 emissive;
-    vec4 emissiveScaleAndStrenth;
-  };
 
   #if USE_ALPHA_TEST
     #pragma define ALPHA_TEST_CHANNEL options([a, r, g, b])
@@ -217,5 +225,62 @@ CCProgram toon-fs %{
     ToonSurface s; surf(s);
     vec4 color = CCToonShading(s);
     return CCFragOutput(color);
+  }
+}%
+
+CCProgram shadow-caster-vs %{
+  precision highp float;
+  #include <input-standard>
+  #include <cc-local-batch>
+  #include <shared-ubos>
+  #include <cc-shadow>
+
+  out vec2 v_uv;
+  out vec2 v_clip_depth;
+
+  vec4 vert () {
+    StandardVertInput In;
+    CCVertInput(In);
+
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+
+    vec4 worldPos = matWorld * In.position;
+    vec4 clipPos = cc_matLightViewProj * worldPos;
+
+    v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
+    v_clip_depth = clipPos.zw;
+
+    return clipPos;
+  }
+}%
+
+CCProgram shadow-caster-fs %{
+  precision highp float;
+  #include <shared-ubos>
+  #include <packing>
+
+  in vec2 v_uv;
+  in vec2 v_clip_depth;
+
+  #if USE_BASE_COLOR_MAP
+    uniform sampler2D baseColorMap;
+  #endif
+
+  #if USE_ALPHA_TEST
+    #pragma define ALPHA_TEST_CHANNEL options([a, r, g, b])
+  #endif
+
+  vec4 frag () {
+    vec4 baseColor = baseColor;
+    #if USE_BASE_COLOR_MAP
+      baseColor *= texture(baseColorMap, v_uv);
+    #endif
+
+    #if USE_ALPHA_TEST
+      if (baseColor.ALPHA_TEST_CHANNEL < colorScaleAndCutoff.w) discard;
+    #endif
+
+    return packDepthToRGBA(v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5);
   }
 }%
