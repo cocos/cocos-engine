@@ -485,7 +485,7 @@ export class _Deserializer {
     public result: any;
     public customEnv: any;
     public deserializedList: any[];
-    public deserializedData: null;
+    public deserializedData: any;
     private _classFinder: any;
     private _target: any;
     private _ignoreEditorOnly: any;
@@ -858,7 +858,7 @@ export function deserialize (data, details, options) {
     const tempDetails = !details;
     details = details || Details.pool.get!();
     // @ts-ignore
-    const deserializer: any = _Deserializer.pool.get(details, target, classFinder, customEnv, ignoreEditorOnly);
+    const deserializer: _Deserializer = _Deserializer.pool.get(details, target, classFinder, customEnv, ignoreEditorOnly);
 
     legacyCC.game._isCloning = true;
     const res = deserializer.deserialize(data);

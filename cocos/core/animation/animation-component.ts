@@ -498,8 +498,6 @@ export declare namespace Animation {
     export type EventType = EnumAlias<typeof EventType>;
 }
 
-legacyCC.Animation = Animation;
-
 function equalClips (clip1: AnimationClip | null, clip2: AnimationClip | null) {
     if (clip1 === clip2) {
         return true;

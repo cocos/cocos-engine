@@ -52,12 +52,6 @@ export {
 import { legacyCC } from '../../core/global-exports';
 legacyCC.PhysicsSystem = PhysicsSystem;
 
-legacyCC.Collider = Collider;
-legacyCC.BoxCollider = BoxCollider;
-legacyCC.SphereCollider = SphereCollider;
-
-legacyCC.RigidBody = RigidBody;
-
 legacyCC.PhysicMaterial = PhysicMaterial;
 legacyCC.PhysicsRayResult = PhysicsRayResult;
 legacyCC.ConstantForce = ConstantForce;

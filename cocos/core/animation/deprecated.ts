@@ -7,6 +7,7 @@ import { Animation } from './animation-component';
 import { SkeletalAnimation } from './skeletal-animation';
 import { AnimationClip } from './animation-clip';
 import { js } from '../utils/js';
+import { legacyCC } from '../global-exports';
 
 // deprecated
 replaceProperty(Animation.prototype, 'Animation', [
@@ -33,10 +34,12 @@ replaceProperty(Animation.prototype, 'Animation', [
  * @deprecated Since v1.2
  */
 export { Animation as AnimationComponent };
+legacyCC.AnimationComponent = Animation;
 js.setClassAlias(Animation, 'cc.AnimationComponent');
 /**
  * Alias of [[SkeletalAnimation]]
  * @deprecated Since v1.2
  */
 export { SkeletalAnimation as SkeletalAnimationComponent };
+legacyCC.SkeletalAnimationComponent = SkeletalAnimation;
 js.setClassAlias(SkeletalAnimation, 'cc.SkeletalAnimationComponent');

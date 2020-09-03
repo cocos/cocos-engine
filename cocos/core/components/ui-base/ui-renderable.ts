@@ -481,5 +481,3 @@ export class UIRenderable extends RenderableComponent {
 
     protected _flushAssembler? (): void;
 }
-
-legacyCC.UIRenderable = UIRenderable;
