@@ -24,7 +24,7 @@
  */
 
 /**
- * @category component/audio
+ * @category component/video
  */
 
 import { warn } from '../core/platform';
@@ -97,7 +97,7 @@ export class VideoPlayer extends Component {
     @serializable
     protected _stayOnBottom = false;
 
-    protected _player: any;
+    protected _impl: any;
     protected _cachedCurrentTime = 0;
 
     /**
@@ -242,14 +242,14 @@ export class VideoPlayer extends Component {
     @tooltip('i18n:videoplayer.fullScreenOnAwake')
     get fullScreenOnAwake () {
         if (!EDITOR) {
-            this._fullScreenOnAwake = this._player && this._player.fullScreenOnAwake;
+            this._fullScreenOnAwake = this._impl && this._impl.fullScreenOnAwake;
         }
         return this._fullScreenOnAwake;
     }
     set fullScreenOnAwake (value: boolean) {
         this._fullScreenOnAwake = value;
-        if (this._player) {
-            this._player.syncFullScreenOnAwake(value);
+        if (this._impl) {
+            this._impl.syncFullScreenOnAwake(value);
         }
     }
 
@@ -265,8 +265,8 @@ export class VideoPlayer extends Component {
     }
     set stayOnBottom (value: boolean) {
         this._stayOnBottom = value;
-        if (this._player) {
-            this._player.syncStayOnBottom(value);
+        if (this._impl) {
+            this._impl.syncStayOnBottom(value);
         }
     }
 
@@ -291,7 +291,7 @@ export class VideoPlayer extends Component {
      * 原始视频对象，用于用户定制
      */
     get nativeVideo () {
-        return (this._player && this._player.video) || null;
+        return (this._impl && this._impl.video) || null;
     }
 
     /**
@@ -347,8 +347,8 @@ export class VideoPlayer extends Component {
      * 获取当前视频状态。
      */
     get state () {
-        if (!this.nativeVideo) { return EventType.NONE; }
-        return this.nativeVideo.state;
+        if (!this._impl) { return EventType.NONE; }
+        return this._impl.state;
     }
 
     /**
@@ -362,12 +362,12 @@ export class VideoPlayer extends Component {
     }
 
     protected syncSource () {
-        if (!this._player) { return; }
+        if (!this._impl) { return; }
         if (this._resourceType === ResourceType.REMOTE) {
-            this._player.syncURL(this._remoteURL);
+            this._impl.syncURL(this._remoteURL);
         }
         else {
-            this._player.syncClip(this._clip);
+            this._impl.syncClip(this._clip);
         }
     }
 
@@ -375,7 +375,7 @@ export class VideoPlayer extends Component {
         if (!EDITOR) {
             return;
         }
-        this._player = new VideoPlayerImpl(this);
+        this._impl = new VideoPlayerImpl(this);
         this.syncSource();
         if (this.nativeVideo) {
             this.nativeVideo.loop = this._loop;
@@ -385,43 +385,43 @@ export class VideoPlayer extends Component {
             this.nativeVideo.currentTime = this._cachedCurrentTime;
             this.nativeVideo.controls = this._controls;
         }
-        this._player.syncStayOnBottom(this._stayOnBottom);
-        this._player.syncFullScreenOnAwake(this._fullScreenOnAwake);
+        this._impl.syncStayOnBottom(this._stayOnBottom);
+        this._impl.syncFullScreenOnAwake(this._fullScreenOnAwake);
         //
-        this._player.eventList.set(EventType.META_LOADED, this.onMetaLoaded.bind(this));
-        this._player.eventList.set(EventType.READY_TO_PLAY, this.onReadyToPlay.bind(this));
-        this._player.eventList.set(EventType.PLAYING, this.onPlaying.bind(this));
-        this._player.eventList.set(EventType.PAUSED, this.onPasued.bind(this));
-        this._player.eventList.set(EventType.STOPPED, this.onStopped.bind(this));
-        this._player.eventList.set(EventType.COMPLETED, this.onCompleted.bind(this));
-        this._player.eventList.set(EventType.ERROR, this.onError.bind(this));
-        if (this._playOnAwake && this._player.loaded) {
+        this._impl.eventList.set(EventType.META_LOADED, this.onMetaLoaded.bind(this));
+        this._impl.eventList.set(EventType.READY_TO_PLAY, this.onReadyToPlay.bind(this));
+        this._impl.eventList.set(EventType.PLAYING, this.onPlaying.bind(this));
+        this._impl.eventList.set(EventType.PAUSED, this.onPasued.bind(this));
+        this._impl.eventList.set(EventType.STOPPED, this.onStopped.bind(this));
+        this._impl.eventList.set(EventType.COMPLETED, this.onCompleted.bind(this));
+        this._impl.eventList.set(EventType.ERROR, this.onError.bind(this));
+        if (this._playOnAwake && this._impl.loaded) {
             this.play();
         }
     }
 
     public onEnable() {
-        if (this._player) {
-            this._player.enable();
+        if (this._impl) {
+            this._impl.enable();
         }
     }
 
     public onDisable () {
-        if (this._player) {
-            this._player.disable();
+        if (this._impl) {
+            this._impl.disable();
         }
     }
 
     public onDestroy () {
-        if (this._player) {
-            this._player.destroy();
-            this._player = null;
+        if (this._impl) {
+            this._impl.destroy();
+            this._impl = null;
         }
     }
 
     public update (dt: number) {
-        if (this._player) {
-            this._player.syncMatrix();
+        if (this._impl) {
+            this._impl.syncMatrix();
         }
     }
 
@@ -472,8 +472,8 @@ export class VideoPlayer extends Component {
      * 如果视频处于暂停状态，则会继续播放视频。
      */
     public play () {
-        if (this._player) {
-            this._player.play();
+        if (this._impl) {
+            this._impl.play();
         }
     }
 
@@ -484,8 +484,8 @@ export class VideoPlayer extends Component {
      * 暂停播放。
      */
     public pause () {
-        if (this._player) {
-            this._player.pause();
+        if (this._impl) {
+            this._impl.pause();
         }
     }
 
@@ -496,8 +496,8 @@ export class VideoPlayer extends Component {
      * 停止播放。
      */
     public stop () {
-        if (this._player) {
-            this._player.stop();
+        if (this._impl) {
+            this._impl.stop();
         }
     }
 }
