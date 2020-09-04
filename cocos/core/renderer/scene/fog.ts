@@ -1,6 +1,7 @@
 import { Enum } from '../../value-types';
 import { Color } from '../../../core/math';
 import { legacyCC } from '../../global-exports';
+import { FogPool, NULL_HANDLE, FogView, FogHandle } from '../core/memory-pools';
 
 /**
  * @zh
@@ -60,6 +61,8 @@ export class Fog {
         } else {
             this._currType = this._type + 1;
         }
+        FogPool.set(this._handle, FogView.ENABLE, this._enabled ? 1 : 0);
+        FogPool.set(this._handle, FogView.TYPE, this._currType);
         this._enabled ? this.activate() : this._updatePipeline();
     }
 
@@ -74,6 +77,7 @@ export class Fog {
     set fogColor (val: Color) {
         this._fogColor.set(val);
         Color.toArray(this._colorArray, this._fogColor);
+        FogPool.setVec4(this._handle, FogView.TYPE, this._fogColor);
     }
 
     get fogColor () {
@@ -94,6 +98,7 @@ export class Fog {
             this._currType = val + 1;
             this._updatePipeline();
         }
+        FogPool.set(this._handle, FogView.TYPE, this._currType);
     }
 
     /**
@@ -106,6 +111,7 @@ export class Fog {
 
     set fogDensity (val) {
         this._fogDensity = val;
+        FogPool.set(this._handle, FogView.DENSITY, this._fogDensity);
     }
 
     /**
@@ -118,6 +124,7 @@ export class Fog {
 
     set fogStart (val) {
         this._fogStart = val;
+        FogPool.set(this._handle, FogView.START, this._fogStart);
     }
 
     /**
@@ -130,6 +137,7 @@ export class Fog {
 
     set fogEnd (val) {
         this._fogEnd = val;
+        FogPool.set(this._handle, FogView.END, this._fogEnd);
     }
 
     /**
@@ -142,6 +150,7 @@ export class Fog {
 
     set fogAtten (val) {
         this._fogAtten = val;
+        FogPool.set(this._handle, FogView.ATTEN, this._fogAtten);
     }
 
     /**
@@ -154,6 +163,7 @@ export class Fog {
 
     set fogTop (val) {
         this._fogTop = val;
+        FogPool.set(this._handle, FogView.TOP, this._fogTop);
     }
 
     /**
@@ -166,6 +176,7 @@ export class Fog {
 
     set fogRange (val) {
         this._fogRange = val;
+        FogPool.set(this._handle, FogView.RANGE, this._fogRange);
     }
     /**
      * @zh 当前雾化类型。
@@ -198,10 +209,17 @@ export class Fog {
 
     protected _currType = 0;
     protected _colorArray: Float32Array = new Float32Array([0.2, 0.2, 0.2, 1.0]);
+    protected _handle: FogHandle = NULL_HANDLE;
+
+    constructor () {
+        this._handle = FogPool.alloc();
+    }
 
     public activate () {
         Color.toArray(this._colorArray, this._fogColor);
         this._currType = this._enabled ? this._type + 1 : 0;
+        FogPool.setVec4(this._handle, FogView.COLOR, this._fogColor);
+        FogPool.set(this._handle, FogView.TYPE, this._currType);
         this._updatePipeline();
     }
 

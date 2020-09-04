@@ -10,6 +10,7 @@ import { samplerLib } from '../core/sampler-lib';
 import { Model } from './model';
 import { legacyCC } from '../../global-exports';
 import { GFXDescriptorSet } from '../../gfx';
+import { SkyboxPool, NULL_HANDLE, SkyboxView, SkyboxHandle } from '../core/memory-pools';
 
 let skybox_mesh: Mesh | null = null;
 let skybox_material: Material | null = null;
@@ -33,6 +34,7 @@ export class Skybox {
         }
         this._enabled = val;
         this._enabled ? this.activate() : this._updatePipeline();
+        SkyboxPool.set(this._handle, SkyboxView.ENABLE, this._enabled ? 1 : 0);
     }
 
     /**
@@ -45,6 +47,7 @@ export class Skybox {
 
     set useIBL (val) {
         this._useIBL = val;
+        SkyboxPool.set(this._handle, SkyboxView.USE_IBL, this._useIBL ? 1 : 0);
         this._updatePipeline();
     }
 
@@ -68,7 +71,7 @@ export class Skybox {
                 this._model.setSubModelMaterial(0, skybox_material!);
             }
         }
-
+        SkyboxPool.set(this._handle, SkyboxView.IS_RGBE, this._isRGBE ? 1 : 0);
         this._updatePipeline();
     }
 
@@ -95,6 +98,11 @@ export class Skybox {
     protected _globalDescriptorSet: GFXDescriptorSet | null = null;
     protected _model: Model | null = null;
     protected _default: TextureCube | null = null;
+    protected _handle: SkyboxHandle = NULL_HANDLE;
+
+    constructor () {
+        this._handle = SkyboxPool.alloc();
+    }
 
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;
@@ -104,6 +112,10 @@ export class Skybox {
         if (!this._model) {
             this._model = new Model();
         }
+
+        SkyboxPool.set(this._handle, SkyboxView.MODEL, this._model.handle);
+
+        pipeline.ambient.groundAlbedo[3] = this._envmap ? this._envmap.mipmapLevel : this._default.mipmapLevel;
 
         if (!skybox_material) {
             const mat = new Material();
@@ -117,6 +129,7 @@ export class Skybox {
         this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
 
         this.envmap = this._envmap;
+        this._updateGlobalBinding();
         this._updatePipeline();
     }
 

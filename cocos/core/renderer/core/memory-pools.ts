@@ -34,7 +34,7 @@ import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, IGFXDescriptor
     IGFXPipelineLayoutInfo, GFXPipelineLayout, GFXFramebuffer, IGFXFramebufferInfo, GFXPrimitiveMode, GFXDynamicStateFlags } from '../../gfx';
 import { RenderPassStage } from '../../pipeline/define';
 import { BatchingSchemes } from './pass';
-import { Vec3, Mat4, IVec4Like, Color, Rect, Quat } from '../../math';
+import { Vec3, Mat4, IVec4Like, Color, Rect, Quat, Vec4, Vec2 } from '../../math';
 
 interface ITypedArrayConstructor<T> {
     new(buffer: ArrayBufferLike, byteOffset: number, length?: number): T;
@@ -54,7 +54,7 @@ interface IHandle<T extends PoolType> extends Number {
     _: T;
 }
 
-type GeneralBufferElement = number | IHandle<any> | Vec3 | Mat4 | Color | Rect | Quat;
+type GeneralBufferElement = number | IHandle<any> | Vec3 | Mat4 | Color | Rect | Quat | Vec4 | Vec2;
 
 class BufferPool<P extends PoolType, T extends TypedArray, E extends IBufferManifest, H extends { [key in E[keyof E]]: GeneralBufferElement }> {
 
@@ -514,6 +514,11 @@ enum PoolType {
     // array
     SUB_MODEL_ARRAY,
     MODEL_ARRAY,
+    // pipeline
+    AMBIENT,
+    FOG,
+    SKYBOX,
+    SHADOWS,
 }
 
 export const NULL_HANDLE = 0 as unknown as IHandle<any>;
@@ -538,6 +543,10 @@ export type FrustumHandle = IHandle<PoolType.FRUSTUM>;
 export type RenderWindowHandle = IHandle<PoolType.RENDER_WINDOW>;
 export type SubModelArrayHandle = IHandle<PoolType.SUB_MODEL_ARRAY>;
 export type ModelArrayHandle = IHandle<PoolType.MODEL_ARRAY>;
+export type AmbientHandle = IHandle<PoolType.AMBIENT>;
+export type FogHandle = IHandle<PoolType.FOG>;
+export type SkyboxHandle = IHandle<PoolType.SKYBOX>;
+export type ShadowsHandle = IHandle<PoolType.SHADOWS>;
 
 // don't reuse any of these data-only structs, for GFX objects may directly reference them
 export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, () => new GFXRasterizerState());
@@ -789,3 +798,99 @@ export enum FrustumView {
     COUNT = PLANES + 24
 }
 export const FrustumPool = new BufferPool(PoolType.FRUSTUM, Float32Array, FrustumView);
+
+export enum AmbientView {
+    ENABLE,
+    ILLUM,
+    SKY_COLOR, // vec4
+    GROUND_ALBEDO = 18, // vec4
+    COUNT = 34
+}
+interface IAmbientViewType extends IBufferTypeManifest {
+    [AmbientView.ENABLE]: number;
+    [AmbientView.ILLUM]: number;
+    [AmbientView.SKY_COLOR]: Vec4;
+    [AmbientView.GROUND_ALBEDO]: FramebufferHandle;
+    [AmbientView.COUNT]: number;
+}
+export const AmbientPool = new BufferPool<PoolType.AMBIENT, Float32Array, typeof AmbientView, IAmbientViewType>(PoolType.AMBIENT, Float32Array, AmbientView, 1);
+
+export enum SkyboxView {
+    ENABLE,
+    IS_RGBE,
+    USE_IBL,
+    MODEL,
+    COUNT
+}
+interface ISkyboxViewType extends IBufferTypeManifest {
+    [SkyboxView.ENABLE]: number;
+    [SkyboxView.IS_RGBE]: number;
+    [SkyboxView.USE_IBL]: number;
+    [SkyboxView.MODEL]: ModelHandle;
+    [SkyboxView.COUNT]: number;
+}
+export const SkyboxPool = new BufferPool<PoolType.SKYBOX, Float32Array, typeof SkyboxView, ISkyboxViewType>(PoolType.SKYBOX, Float32Array, SkyboxView, 1);
+
+export enum FogView {
+    ENABLE,
+    TYPE,
+    DENSITY,
+    START,
+    END,
+    ATTEN,
+    TOP,
+    RANGE,
+    COLOR,
+    COUNT = 24
+}
+interface IFogViewType extends IBufferTypeManifest {
+    [FogView.ENABLE]: number;
+    [FogView.TYPE]: number;
+    [FogView.DENSITY]: number;
+    [FogView.START]: number;
+    [FogView.END]: number;
+    [FogView.ATTEN]: number;
+    [FogView.TOP]: number;
+    [FogView.RANGE]: number;
+    [FogView.COLOR]: Vec4;
+    [FogView.COUNT]: number;
+}
+export const FogPool = new BufferPool<PoolType.FOG, Float32Array, typeof FogView, IFogViewType>(PoolType.FOG, Float32Array, FogView);
+
+export enum ShadowsView {
+    ENABLE,
+    TYPE,
+    DISTANCE,
+    INSTANCE_PASS,
+    PLANAR_PASS,
+    NEAR,
+    FAR,
+    ASPECT,
+    PCF_TYPE,
+    DIRTY,
+    ORTHO_SIZE,
+    SIZE = 17, // Vec2
+    NORMAL= 25, // Vec3
+    COLOR = 37, // Vec4
+    SPHERE = 53, // Vec4
+    COUNT = 69
+}
+interface IShadowsViewType extends IBufferTypeManifest {
+    [ShadowsView.ENABLE]: number;
+    [ShadowsView.TYPE]: number;
+    [ShadowsView.DISTANCE]: number;
+    [ShadowsView.INSTANCE_PASS]: PassHandle;
+    [ShadowsView.PLANAR_PASS]: PassHandle;
+    [ShadowsView.NEAR]: number;
+    [ShadowsView.FAR]: number;
+    [ShadowsView.ASPECT]: number;
+    [ShadowsView.PCF_TYPE]: number;
+    [ShadowsView.DIRTY]: number;
+    [ShadowsView.ORTHO_SIZE]: number;
+    [ShadowsView.SIZE]: Vec2;
+    [ShadowsView.NORMAL]: Vec3;
+    [ShadowsView.COLOR]: Vec4;
+    [ShadowsView.SPHERE]: Vec4;
+    [ShadowsView.COUNT]: number;
+}
+export const ShadowsPool = new BufferPool<PoolType.SHADOWS, Float32Array, typeof ShadowsView, IShadowsViewType>(PoolType.SHADOWS, Float32Array, ShadowsView, 1);

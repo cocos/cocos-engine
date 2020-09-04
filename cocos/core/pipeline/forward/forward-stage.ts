@@ -20,7 +20,7 @@ import { BatchingSchemes } from '../../renderer/core/pass';
 import { ForwardFlow } from './forward-flow';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
-import { ShadowType } from '../../renderer/scene/shadows';
+import { PlanarShadowQueue } from './planar-shadow-queue';
 
 const colors: GFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 
@@ -60,7 +60,8 @@ export class ForwardStage extends RenderStage {
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
     private _phaseID = getPhaseID('default');
-    private _additiveLightQueue!: RenderAdditiveLightQueue;
+    private declare _additiveLightQueue: RenderAdditiveLightQueue;
+    private declare _planarQueue: PlanarShadowQueue;
 
     constructor () {
         super();
@@ -101,6 +102,7 @@ export class ForwardStage extends RenderStage {
         }
 
         this._additiveLightQueue = new RenderAdditiveLightQueue(this._pipeline as ForwardPipeline);
+        this._planarQueue = new PlanarShadowQueue(this._pipeline as ForwardPipeline);
     }
 
 
@@ -145,6 +147,7 @@ export class ForwardStage extends RenderStage {
         }
         this._renderQueues.forEach(this.renderQueueSortFunc);
         this._additiveLightQueue.gatherLightPasses(view);
+        this._planarQueue.updateShadowList(view);
 
         const camera = view.camera;
 
@@ -185,7 +188,7 @@ export class ForwardStage extends RenderStage {
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._additiveLightQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-        if (pipeline.shadows.type === ShadowType.Planar) pipeline.shadows.recordCommandBuffer(device, renderPass, cmdBuff);
+        this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
 
         cmdBuff.endRenderPass();

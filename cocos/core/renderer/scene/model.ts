@@ -10,26 +10,22 @@ import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from './render-scene';
 import { Texture2D } from '../../assets/texture-2d';
 import { SubModel } from './submodel';
-import { Pass, IMacroPatch } from '../core/pass';
+import { Pass } from '../core/pass';
 import { legacyCC } from '../../global-exports';
 import { InstancedBuffer } from '../../pipeline';
 import { BatchingSchemes } from '../core/pass';
 import { Mat4, Vec3, Vec4 } from '../../math';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool, SubModelArrayHandle, ModelPool, ModelView, AABBHandle, AABBPool, AABBView, NULL_HANDLE, ShaderHandle } from '../core/memory-pools';
+import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool,
+    SubModelArrayHandle, ModelPool, ModelView, AABBHandle, AABBPool, AABBView, NULL_HANDLE } from '../core/memory-pools';
 import { IGFXAttribute, GFXDescriptorSet } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UniformLightingMapSampler } from '../../pipeline/define';
 import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
-import { ShadowType } from './shadows';
 
 const m4_1 = new Mat4();
 
 const _subModelPool = new Pool(() => new SubModel(), 32);
-
-const shadowMapPatches: IMacroPatch[] = [
-    { name: 'CC_RECEIVE_SHADOW', value: true },
-];
 
 export interface IInstancedAttribute {
     name: string;
@@ -347,9 +343,7 @@ export class Model {
     }
 
     public getMacroPatches (subModelIndex: number) {
-        const pipeline = legacyCC.director.root.pipeline;
-        const shadowInfo = pipeline.shadows;
-        return (this.receiveShadow && shadowInfo.type === ShadowType.ShadowMap) ? shadowMapPatches : null;
+        return undefined;
     }
 
     protected _updateAttributesAndBinding (subModelIndex: number) {

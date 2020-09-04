@@ -22,7 +22,7 @@ import { Fog } from '../../renderer/scene/fog';
 import { Ambient } from '../../renderer/scene/ambient';
 import { Skybox } from '../../renderer/scene/skybox';
 import { Shadows, ShadowType } from '../../renderer/scene/shadows';
-import { sceneCulling } from './scene-culling';
+import { sceneCulling, getShadowWorldMatrix } from './scene-culling';
 import { UIFlow } from '../ui/ui-flow';
 
 const matShadowView = new Mat4();
@@ -77,9 +77,7 @@ export class ForwardPipeline extends RenderPipeline {
     protected materials: MaterialConfig[] = [];
 
     public fog: Fog = new Fog();
-
     public ambient: Ambient = new Ambient();
-
     public skybox: Skybox = new Skybox();
     public shadows: Shadows = new Shadows();
     /**
@@ -113,10 +111,6 @@ export class ForwardPipeline extends RenderPipeline {
             this._flows.push(uiFlow);
             uiFlow.activate(this);
         }
-
-        const uiFlow = new UIFlow();
-        uiFlow.initialize(UIFlow.initInfo);
-        this._flows.push(uiFlow);
 
         return true;
     }
@@ -192,7 +186,7 @@ export class ForwardPipeline extends RenderPipeline {
 
         if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
             // light view
-            const shadowCameraView = shadowInfo.getWorldMatrix(mainLight!.node!.worldRotation, mainLight!.direction);
+            const shadowCameraView = getShadowWorldMatrix(this, mainLight!.node!.worldRotation, mainLight!.direction);
             Mat4.invert(matShadowView, shadowCameraView);
 
             // light proj
