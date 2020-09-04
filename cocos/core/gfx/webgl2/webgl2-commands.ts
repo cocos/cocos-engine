@@ -817,7 +817,7 @@ export function WebGL2CmdFuncCreateBuffer (device: WebGL2Device, gpuBuffer: IWeb
                 if (device.useVAO) {
                     if (cache.glVAO) {
                         gl.bindVertexArray(null);
-                        cache.glVAO = null;
+                        cache.glVAO = gfxStateCache.gpuInputAssembler = null;
                     }
                 }
 
@@ -842,7 +842,7 @@ export function WebGL2CmdFuncCreateBuffer (device: WebGL2Device, gpuBuffer: IWeb
                 if (device.useVAO) {
                     if (cache.glVAO) {
                         gl.bindVertexArray(null);
-                        cache.glVAO = null;
+                        cache.glVAO = gfxStateCache.gpuInputAssembler = null;
                     }
                 }
 
@@ -894,7 +894,7 @@ export function WebGL2CmdFuncDestroyBuffer (device: WebGL2Device, gpuBuffer: IWe
             case gl.ARRAY_BUFFER:
                 if (device.useVAO && device.stateCache.glVAO) {
                     gl.bindVertexArray(null);
-                    device.stateCache.glVAO = null;
+                    device.stateCache.glVAO = gfxStateCache.gpuInputAssembler = null;
                 }
                 gl.bindBuffer(gl.ARRAY_BUFFER, null);
                 device.stateCache.glArrayBuffer = null;
@@ -902,7 +902,7 @@ export function WebGL2CmdFuncDestroyBuffer (device: WebGL2Device, gpuBuffer: IWe
             case gl.ELEMENT_ARRAY_BUFFER:
                 if (device.useVAO && device.stateCache.glVAO) {
                     gl.bindVertexArray(null);
-                    device.stateCache.glVAO = null;
+                    device.stateCache.glVAO = gfxStateCache.gpuInputAssembler = null;
                 }
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
                 device.stateCache.glElementArrayBuffer = null;
@@ -928,7 +928,7 @@ export function WebGL2CmdFuncResizeBuffer (device: WebGL2Device, gpuBuffer: IWeb
         if (device.useVAO) {
             if (cache.glVAO) {
                 gl.bindVertexArray(null);
-                cache.glVAO = null;
+                cache.glVAO = gfxStateCache.gpuInputAssembler = null;
             }
         }
 
@@ -947,7 +947,7 @@ export function WebGL2CmdFuncResizeBuffer (device: WebGL2Device, gpuBuffer: IWeb
         if (device.useVAO) {
             if (cache.glVAO) {
                 gl.bindVertexArray(null);
-                cache.glVAO = null;
+                cache.glVAO = gfxStateCache.gpuInputAssembler = null;
             }
         }
 
@@ -994,7 +994,7 @@ export function WebGL2CmdFuncUpdateBuffer (device: WebGL2Device, gpuBuffer: IWeb
             case gl.ARRAY_BUFFER: {
                 if (cache.glVAO) {
                     gl.bindVertexArray(null);
-                    cache.glVAO = null;
+                    cache.glVAO = gfxStateCache.gpuInputAssembler = null;
                 }
 
                 if (cache.glArrayBuffer !== gpuBuffer.glBuffer) {
@@ -1012,7 +1012,7 @@ export function WebGL2CmdFuncUpdateBuffer (device: WebGL2Device, gpuBuffer: IWeb
             case gl.ELEMENT_ARRAY_BUFFER: {
                 if (cache.glVAO) {
                     gl.bindVertexArray(null);
-                    cache.glVAO = null;
+                    cache.glVAO = gfxStateCache.gpuInputAssembler = null;
                 }
 
                 if (cache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
@@ -1654,59 +1654,77 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
                 binding: sampler.binding,
                 name: sampler.name,
                 type: sampler.type,
+                count: sampler.count,
                 units: [],
                 glType: GFXTypeToWebGLType(sampler.type, gl),
-                glLoc: -1,
+                glLoc: null!,
             };
         }
     }
 
-    // parse uniforms
-    const activeUniformCount = gl.getProgramParameter(gpuShader.glProgram, gl.ACTIVE_UNIFORMS);
-    let unitIdx = 0;
-
+    // texture unit index mapping optimization
     const glActiveSamplers: IWebGL2GPUUniformSampler[] = [];
+    const glActiveSamplerLocations: WebGLUniformLocation[] = [];
+    const bindingMappingInfo = device.bindingMappingInfo;
+    const texUnitCacheMap = device.stateCache.texUnitCacheMap;
 
-    for (let i = 0; i < activeUniformCount; ++i) {
-        const uniformInfo = gl.getActiveUniform(gpuShader.glProgram, i);
-        if (uniformInfo) {
-            const glLoc = gl.getUniformLocation(gpuShader.glProgram, uniformInfo.name);
-            if (glLoc !== null) {
-                let varName: string;
-                const nameOffset = uniformInfo.name.indexOf('[');
-                if (nameOffset !== -1) {
-                    varName = uniformInfo.name.substr(0, nameOffset);
-                } else {
-                    varName = uniformInfo.name;
-                }
+    let flexibleSetBaseOffset = 0;
+    for (let i = 0; i < gpuShader.blocks.length; ++i) {
+        if (gpuShader.blocks[i].set === bindingMappingInfo.flexibleSet) {
+            flexibleSetBaseOffset++;
+        }
+    }
 
-                const isSampler = (uniformInfo.type === gl.SAMPLER_2D) ||
-                    (uniformInfo.type === gl.SAMPLER_CUBE);
+    let arrayOffset = 0;
+    for (let i = 0; i < gpuShader.samplers.length; ++i) {
+        const sampler = gpuShader.samplers[i];
+        const glLoc = gl.getUniformLocation(gpuShader.glProgram, sampler.name);
+        if (glLoc) {
+            glActiveSamplers.push(gpuShader.glSamplers[i]);
+            glActiveSamplerLocations.push(glLoc);
+        }
+        if (texUnitCacheMap[sampler.name] === undefined) {
+            let binding = sampler.binding + bindingMappingInfo.samplerOffsets[sampler.set] + arrayOffset;
+            if (sampler.set === bindingMappingInfo.flexibleSet) binding -= flexibleSetBaseOffset;
+            texUnitCacheMap[sampler.name] = binding % device.maxTextureUnits;
+            arrayOffset += sampler.count - 1;
+        }
+    }
 
-                if (isSampler) {
-                    for (let k = 0; k < gpuShader.glSamplers.length; k++) {
-                        const glSampler = gpuShader.glSamplers[k];
-                        if (glSampler.name === varName) {
-                            // let varSize = stride * uniformInfo.size;
+    if (glActiveSamplers.length) {
+        const usedTexUnits: boolean[] = [];
+        // try to reuse existing mappings first
+        for (let i = 0; i < glActiveSamplers.length; ++i) {
+            const glSampler = glActiveSamplers[i];
 
-                            for (let t = 0; t < uniformInfo.size; ++t) {
-                                glSampler.units.push(unitIdx + t);
-                            }
-
-                            glSampler.glLoc = glLoc;
-
-                            unitIdx += uniformInfo.size;
-                            glActiveSamplers.push(glSampler);
-
-                            break;
-                        }
-                    } // for
+            const cachedUnit = texUnitCacheMap[glSampler.name];
+            if (cachedUnit !== undefined) {
+                glSampler.glLoc = glActiveSamplerLocations[i];
+                for (let t = 0, offset = 0; t < glSampler.count; ++t) {
+                    while (usedTexUnits[cachedUnit + t + offset]) offset++;
+                    glSampler.units.push(cachedUnit + t + offset);
+                    usedTexUnits[cachedUnit + t + offset] = true;
                 }
             }
         }
-    } // for
+        // fill in the rest sequencially
+        let unitIdx = 0;
+        for (let i = 0; i < glActiveSamplers.length; ++i) {
+            const glSampler = glActiveSamplers[i];
 
-    if (glActiveSamplers.length) {
+            if (!glSampler.glLoc) {
+                glSampler.glLoc = glActiveSamplerLocations[i];
+                while (usedTexUnits[unitIdx]) unitIdx++;
+                for (let t = 0; t < glSampler.count; ++t) {
+                    glSampler.units.push(unitIdx + t);
+                    usedTexUnits[unitIdx + t] = true;
+                }
+                if (texUnitCacheMap[glSampler.name] === undefined) {
+                    texUnitCacheMap[glSampler.name] = unitIdx;
+                }
+            }
+        }
+
         if (device.stateCache.glProgram !== gpuShader.glProgram) {
             gl.useProgram(gpuShader.glProgram);
         }
@@ -1721,15 +1739,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
         }
     }
 
-    // strip out the inactive ones
-    for (let i = 0; i < gpuShader.glSamplers.length;) {
-        if (gpuShader.glSamplers[i].units.length) {
-            i++;
-        } else {
-            gpuShader.glSamplers[i] = gpuShader.glSamplers[gpuShader.glSamplers.length - 1];
-            gpuShader.glSamplers.length--;
-        }
-    }
+    gpuShader.glSamplers = glActiveSamplers;
 }
 
 export function WebGL2CmdFuncDestroyShader (device: WebGL2Device, gpuShader: IWebGL2GPUShader) {
@@ -1788,17 +1798,15 @@ export function WebGL2CmdFuncDestroyInputAssembler (device: WebGL2Device, gpuInp
 interface IWebGL2StateCache {
     gpuPipelineState: IWebGL2GPUPipelineState | null;
     gpuInputAssembler: IWebGL2GPUInputAssembler | null;
-    gpuShader: IWebGL2GPUShader | null;
-    glPrimitive: number;
     reverseCW: boolean;
+    glPrimitive: number;
     invalidateAttachments: GLenum[];
 }
 const gfxStateCache: IWebGL2StateCache = {
     gpuPipelineState: null,
     gpuInputAssembler: null,
-    gpuShader: null,
-    glPrimitive: 0,
     reverseCW: false,
+    glPrimitive: 0,
     invalidateAttachments: [],
 };
 
@@ -1810,9 +1818,6 @@ export function WebGL2CmdFuncBeginRenderPass (
     clearColors: GFXColor[],
     clearDepth: number,
     clearStencil: number) {
-
-    gfxStateCache.gpuInputAssembler = null;
-    gfxStateCache.gpuShader = null;
 
     const gl = device.gl;
     const cache = device.stateCache;
@@ -2000,7 +2005,7 @@ export function WebGL2CmdFuncBindStates (
 
     const gl = device.gl;
     const cache = device.stateCache;
-    const gpuShader = gfxStateCache.gpuShader = gpuPipelineState && gpuPipelineState.gpuShader;
+    const gpuShader = gpuPipelineState && gpuPipelineState.gpuShader;
 
     let isShaderChanged = false;
 
@@ -2282,7 +2287,7 @@ export function WebGL2CmdFuncBindStates (
         for (let i = 0; i < samplerLen; i++) {
             const glSampler = gpuShader.glSamplers[i];
             const gpuDescriptorSet = gpuDescriptorSets[glSampler.set];
-            let descriptorIndex = gpuDescriptorSet && gpuDescriptorSet.descriptorIndices[glSampler.binding] || -1;
+            let descriptorIndex = gpuDescriptorSet && gpuDescriptorSet.descriptorIndices[glSampler.binding];
             let gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[descriptorIndex];
 
             for (let l = 0; l < glSampler.units.length; l++) {
@@ -2606,9 +2611,9 @@ export function WebGL2CmdFuncBindStates (
 
 export function WebGL2CmdFuncDraw (device: WebGL2Device, drawInfo: GFXDrawInfo) {
     const gl = device.gl;
-    const { gpuInputAssembler, gpuShader, glPrimitive } = gfxStateCache;
+    const { gpuInputAssembler, glPrimitive } = gfxStateCache;
 
-    if (gpuInputAssembler && gpuShader) {
+    if (gpuInputAssembler) {
         if (gpuInputAssembler.gpuIndirectBuffer) {
             const indirects = gpuInputAssembler.gpuIndirectBuffer.indirects;
             for (let k = 0; k < indirects.length; k++) {

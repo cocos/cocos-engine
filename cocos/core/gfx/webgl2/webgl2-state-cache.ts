@@ -26,6 +26,7 @@ export class WebGL2StateCache {
     public glProgram: WebGLProgram | null = null;
     public glEnabledAttribLocs: boolean[];
     public glCurrentAttribLocs: boolean[];
+    public texUnitCacheMap: Record<string, number> = {};
 
     constructor () {
         this.glBindUBOs = new Array<WebGLBuffer>(GFX_MAX_BUFFER_BINDINGS);

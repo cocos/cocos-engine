@@ -31,19 +31,18 @@ import { DEBUG, JSB } from 'internal:constants';
 import { NativeBufferPool, NativeObjectPool, NativeArrayPool } from './native-pools';
 import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, IGFXDescriptorSetInfo,
     GFXDevice, GFXDescriptorSet, GFXShaderInfo, GFXShader, IGFXInputAssemblerInfo, GFXInputAssembler,
-    IGFXPipelineLayoutInfo, GFXPipelineLayout, GFXFramebuffer, IGFXFramebufferInfo, GFXPrimitiveMode, GFXDynamicStateFlags } from '../../gfx';
+    IGFXPipelineLayoutInfo, GFXPipelineLayout, GFXFramebuffer, IGFXFramebufferInfo, GFXPrimitiveMode, GFXDynamicStateFlags, GFXClearFlag } from '../../gfx';
 import { RenderPassStage } from '../../pipeline/define';
 import { BatchingSchemes } from './pass';
-import { Vec3, Mat4, IVec4Like, Color, Rect, Quat } from '../../math';
+import { Vec3, Mat4, Color, Rect, Quat, Vec4 } from '../../math';
+import { Layers } from '../../scene-graph/layers';
+import { plane } from '../../geometry';
+
+type Vec4Compatibles = Color | Rect | Quat | Vec4 | plane;
 
 interface ITypedArrayConstructor<T> {
     new(buffer: ArrayBufferLike, byteOffset: number, length?: number): T;
     readonly BYTES_PER_ELEMENT: number;
-}
-
-interface IBufferManifest {
-    [key: string]: number | string;
-    COUNT: number;
 }
 
 // a little hacky, but works (different specializations should not be assignable to each other)
@@ -54,9 +53,14 @@ interface IHandle<T extends PoolType> extends Number {
     _: T;
 }
 
-type GeneralBufferElement = number | IHandle<any> | Vec3 | Mat4 | Color | Rect | Quat;
+type BufferManifest = { [key: string]: number | string; COUNT: number; };
+type StandardBufferElement = number | IHandle<any>;
+type GeneralBufferElement = StandardBufferElement | Vec3 | Mat4 | Vec4Compatibles;
+type BufferTypeManifest<E extends BufferManifest> = { [key in E[keyof E]]: GeneralBufferElement };
 
-class BufferPool<P extends PoolType, T extends TypedArray, E extends IBufferManifest, H extends { [key in E[keyof E]]: GeneralBufferElement }> {
+type Conditional<V, T> = T extends V ? T : never;
+
+class BufferPool<P extends PoolType, T extends TypedArray, E extends BufferManifest, M extends BufferTypeManifest<E>> {
 
     // naming convension:
     // this._bufferViews[chunk][entry][element]
@@ -77,7 +81,7 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends IBufferMani
 
     private _nativePool: NativeBufferPool;
 
-    constructor (dataType: P, viewCtor: ITypedArrayConstructor<T>, enumType: E, entryBits = 8) {
+    constructor (poolType: P, viewCtor: ITypedArrayConstructor<T>, enumType: E, entryBits = 8) {
         this._viewCtor = viewCtor;
         this._elementCount = enumType.COUNT;
         this._entryBits = entryBits;
@@ -88,7 +92,7 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends IBufferMani
         this._entryMask = this._entriesPerChunk - 1;
         this._poolFlag = 1 << 30;
         this._chunkMask = ~(this._entryMask | this._poolFlag);
-        this._nativePool = new NativeBufferPool(dataType, entryBits, this._stride);
+        this._nativePool = new NativeBufferPool(poolType, entryBits, this._stride);
     }
 
     public alloc (): IHandle<P> {
@@ -129,165 +133,78 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends IBufferMani
      * const hShader = SubModelPool.get<SubModelView.SHADER_0>(handle, SubModelView.SHADER_0 + passIndex); // option #2
      * ```
      */
-    public get<V extends E[keyof E]> (handle: IHandle<P>, element: V): H[V] {
+    public get<K extends E[keyof E]> (handle: IHandle<P>, element: K): Conditional<StandardBufferElement, M[K]> {
         const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
         const entry = this._entryMask & handle as unknown as number;
         if (DEBUG && (!handle || chunk < 0 || chunk >= this._bufferViews.length ||
             entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
-            console.warn('invalid native buffer pool handle');
-            return 0 as H[V];
+            console.warn('invalid buffer pool handle');
+            return 0 as Conditional<StandardBufferElement, M[K]>;
         }
-        return this._bufferViews[chunk][entry][element as number] as H[V];
+        return this._bufferViews[chunk][entry][element as number] as Conditional<StandardBufferElement, M[K]>;
     }
 
-    public set<V extends E[keyof E]> (handle: IHandle<P>, element: V, value: H[V]) {
+    public set<K extends E[keyof E]> (handle: IHandle<P>, element: K, value: Conditional<StandardBufferElement, M[K]>) {
         const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
         const entry = this._entryMask & handle as unknown as number;
         if (DEBUG && (!handle || chunk < 0 || chunk >= this._bufferViews.length ||
             entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
-            console.warn('invalid native buffer pool handle');
+            console.warn('invalid buffer pool handle');
             return;
         }
         this._bufferViews[chunk][entry][element as number] = value as number;
     }
 
-    // public getVec3 (handle: Handle<P>, element: E[keyof E]) : Vec3 {
-    //     const chunk = (this._chunkMask & handle as number) >> this._entryBits;
-    //     const entry = this._entryMask & handle as number;
-    //     const vec3 = new Vec3();
-    //     if (DEBUG && (!handle || chunk < 0 || chunk >= this._bufferViews.length ||
-    //         entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
-    //         console.warn('invalid native buffer pool handle');
-    //         return vec3;
-    //     }
-    //     let index = element as unknown as number;
-    //     const view = this._bufferViews[chunk][entry];
-    //     vec3.x = view[index++];
-    //     vec3.y = view[index++];
-    //     vec3.z = view[index];
-    //     return vec3;
-    // }
-
-    public setVec3<V extends E[keyof E]> (handle: IHandle<P>, element: V, vec3: Vec3) {
+    public setVec3<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec3: Conditional<Vec3, M[K]>) {
         // Web engine has Vec3 property, don't record it in shared memory.
-        if (!JSB) {
-            return;
-        }
+        if (!JSB) return;
 
         const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
         const entry = this._entryMask & handle as unknown as number;
         if (DEBUG && (!handle || chunk < 0 || chunk >= this._bufferViews.length ||
             entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
-            console.warn('invalid native buffer pool handle');
+            console.warn('invalid buffer pool handle');
             return;
         }
         let index = element as unknown as number;
         const view = this._bufferViews[chunk][entry];
-        view[index++] = vec3.x;
-        view[index++] = vec3.y;
-        view[index] = vec3.z;
+        view[index++] = vec3.x; view[index++] = vec3.y; view[index] = vec3.z;
     }
 
-    // public getVec4 (handle: Handle<P>, element: E[keyof E]) : IVec4Like {
-    //     const chunk = (this._chunkMask & handle as number) >> this._entryBits;
-    //     const entry = this._entryMask & handle as number;
-    //     const vec4 = new Vec4();
-    //     if (DEBUG && (!handle || chunk < 0 || chunk >= this._bufferViews.length ||
-    //         entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
-    //         console.warn('invalid native buffer pool handle');
-    //         return vec4;
-    //     }
-    //     let index = element as unknown as number;
-    //     const view = this._bufferViews[chunk][entry];
-    //     vec4.x = view[index++];
-    //     vec4.y = view[index++];
-    //     vec4.z = view[index++];
-    //     vec4.w = view[index];
-    //     return vec4;
-    // }
-
-    public setVec4<V extends E[keyof E]> (handle: IHandle<P>, element: V, vec4: IVec4Like) {
+    public setVec4<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec4: Conditional<Vec4Compatibles, M[K]>) {
         // Web engine has Vec4 property, don't record it in shared memory.
-        if (!JSB) {
-            return;
-        }
+        if (!JSB) return;
 
         const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
         const entry = this._entryMask & handle as unknown as number;
         if (DEBUG && (!handle || chunk < 0 || chunk >= this._bufferViews.length ||
             entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
-            console.warn('invalid native buffer pool handle');
+            console.warn('invalid buffer pool handle');
             return;
         }
         let index = element as unknown as number;
         const view = this._bufferViews[chunk][entry];
-        view[index++] = vec4.x;
-        view[index++] = vec4.y;
-        view[index++] = vec4.z;
-        view[index] = vec4.w;
+        view[index++] = vec4.x; view[index++] = vec4.y;
+        view[index++] = vec4.z; view[index]   = vec4.w;
     }
 
-    // public getMat4 (handle: Handle<P>, element: E[keyof E]) : Mat4 {
-    //     const chunk = (this._chunkMask & handle as number) >> this._entryBits;
-    //     const entry = this._entryMask & handle as number;
-    //     const mat4 = new Mat4();
-    //     if (DEBUG && (!handle || chunk < 0 || chunk >= this._bufferViews.length ||
-    //         entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
-    //         console.warn('invalid native buffer pool handle');
-    //         return mat4;
-    //     }
-    //     let index = element as unknown as number;
-    //     const view = this._bufferViews[chunk][entry];
-    //     mat4.m00 = view[index++];
-    //     mat4.m01 = view[index++];
-    //     mat4.m02 = view[index++];
-    //     mat4.m03 = view[index++];
-    //     mat4.m04 = view[index++];
-    //     mat4.m05 = view[index++];
-    //     mat4.m06 = view[index++];
-    //     mat4.m07 = view[index++];
-    //     mat4.m08 = view[index++];
-    //     mat4.m09 = view[index++];
-    //     mat4.m10 = view[index++];
-    //     mat4.m11 = view[index++];
-    //     mat4.m12 = view[index++];
-    //     mat4.m13 = view[index++];
-    //     mat4.m14 = view[index++];
-    //     mat4.m15 = view[index++];
-    //     return mat4;
-    // }
-
-    public setMat4<V extends E[keyof E]> (handle: IHandle<P>, element: V, mat4: Mat4) {
+    public setMat4<K extends E[keyof E]> (handle: IHandle<P>, element: K, mat4: Conditional<Mat4, M[K]>) {
         // Web engine has mat4 property, don't record it in shared memory.
-        if (!JSB) {
-            return;
-        }
+        if (!JSB) return;
 
         const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
         const entry = this._entryMask & handle as unknown as number;
         if (DEBUG && (!handle || chunk < 0 || chunk >= this._bufferViews.length ||
             entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
-            console.warn('invalid native buffer pool handle');
+            console.warn('invalid buffer pool handle');
             return;
         }
         let index = element as unknown as number;
         const view = this._bufferViews[chunk][entry];
-        view[index++] = mat4.m00;
-        view[index++] = mat4.m01;
-        view[index++] = mat4.m02;
-        view[index++] = mat4.m03;
-        view[index++] = mat4.m04;
-        view[index++] = mat4.m05;
-        view[index++] = mat4.m06;
-        view[index++] = mat4.m07;
-        view[index++] = mat4.m08;
-        view[index++] = mat4.m09;
-        view[index++] = mat4.m10;
-        view[index++] = mat4.m11;
-        view[index++] = mat4.m12;
-        view[index++] = mat4.m13;
-        view[index++] = mat4.m14;
-        view[index++] = mat4.m15;
+        view[index++] = mat4.m00; view[index++] = mat4.m01; view[index++] = mat4.m02; view[index++] = mat4.m03;
+        view[index++] = mat4.m04; view[index++] = mat4.m05; view[index++] = mat4.m06; view[index++] = mat4.m07;
+        view[index++] = mat4.m08; view[index++] = mat4.m09; view[index++] = mat4.m10; view[index++] = mat4.m11;
+        view[index++] = mat4.m12; view[index++] = mat4.m13; view[index++] = mat4.m14; view[index]   = mat4.m15;
     }
 
     public free (handle: IHandle<P>) {
@@ -295,7 +212,7 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends IBufferMani
         const entry = this._entryMask & handle as unknown as number;
         if (DEBUG && (!handle || chunk < 0 || chunk >= this._freelists.length ||
             entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
-            console.warn('invalid native buffer pool handle');
+            console.warn('invalid buffer pool handle');
             return;
         }
         this._bufferViews[chunk][entry].fill(0);
@@ -315,12 +232,12 @@ class ObjectPool<T, P extends PoolType, A extends any[]> {
 
     private _nativePool: NativeObjectPool<T>;
 
-    constructor (dataType: P, ctor: (args: A, obj?: T) => T, dtor?: (obj: T) => void) {
+    constructor (poolType: P, ctor: (args: A, obj?: T) => T, dtor?: (obj: T) => void) {
         this._ctor = ctor;
         if (dtor) { this._dtor = dtor; }
         this._poolFlag = 1 << 29;
         this._indexMask = ~this._poolFlag;
-        this._nativePool = new NativeObjectPool(dataType, this._array);
+        this._nativePool = new NativeObjectPool(poolType, this._array);
     }
 
     public alloc (...args: A): IHandle<P> {
@@ -343,7 +260,7 @@ class ObjectPool<T, P extends PoolType, A extends any[]> {
     public get (handle: IHandle<P>) {
         const index = this._indexMask & handle as unknown as number;
         if (DEBUG && (!handle || index < 0 || index >= this._array.length || this._freelist.find((n) => n === index))) {
-            console.warn('invalid native object pool handle');
+            console.warn('invalid object pool handle');
             return null!;
         }
         return this._array[index];
@@ -352,7 +269,7 @@ class ObjectPool<T, P extends PoolType, A extends any[]> {
     public free (handle: IHandle<P>) {
         const index = this._indexMask & handle as unknown as number;
         if (DEBUG && (!handle || index < 0 || index >= this._array.length || this._freelist.find((n) => n === index))) {
-            console.warn('invalid native object pool handle');
+            console.warn('invalid object pool handle');
             return;
         }
         if (this._dtor) { this._dtor(this._array[index]); }
@@ -379,7 +296,7 @@ export class ArrayPool<P extends PoolType, D extends PoolType> {
      * @param step The step size to extend the array when exceeding the array size.
      * It is the same as size if it is not set.
      */
-    constructor (arrayType: number, size: number, step? : number) {
+    constructor (arrayType: P, size: number, step?: number) {
         this._arrayHandleFlag = 1 << 30;
         this._arrayHandleMask = ~this._arrayHandleFlag;
         this._size = size + 1;
@@ -402,7 +319,7 @@ export class ArrayPool<P extends PoolType, D extends PoolType> {
     }
 
     public free (handle: IHandle<P>) {
-        let arrayHandle = this._arrayHandleMask & handle as unknown as number;
+        const arrayHandle = this._arrayHandleMask & handle as unknown as number;
         if (this._arrayMap.get(arrayHandle) === undefined) {
             if (DEBUG) console.warn('invalid array pool handle');
             return;
@@ -417,7 +334,7 @@ export class ArrayPool<P extends PoolType, D extends PoolType> {
             if (DEBUG) console.warn('invalid array pool handle');
             return;
         }
-        
+
         // First element is the length of array.
         index = index + 1;
         if (index >= array.length) {
@@ -425,12 +342,12 @@ export class ArrayPool<P extends PoolType, D extends PoolType> {
             while (index >= length) {
                 length += this._step;
             }
-            
+
             array = this._nativeArrayPool.resize(array, length);
             this._arrayMap.set(arrayHandle, array);
         }
         array[index] = value as unknown as number;
-        
+
         // There may be holes in the array.
         const len = array[0];
         array[0] = index > len ? index : len;
@@ -485,10 +402,6 @@ export class ArrayPool<P extends PoolType, D extends PoolType> {
         array[0] = 0;
     }
 };
-
-interface IBufferTypeManifest {
-    [key: string]: GeneralBufferElement;
-}
 
 enum PoolType {
     // objects
@@ -583,7 +496,7 @@ export enum PassView {
     PIPELINE_LAYOUT,     // handle
     COUNT,
 }
-interface IPassViewType extends IBufferTypeManifest {
+interface IPassViewType extends BufferTypeManifest<typeof PassView> {
     [PassView.PRIORITY]: number;
     [PassView.STAGE]: RenderPassStage;
     [PassView.PHASE]: number;
@@ -596,7 +509,7 @@ interface IPassViewType extends IBufferTypeManifest {
     [PassView.BLEND_STATE]: BlendStateHandle;
     [PassView.DESCRIPTOR_SET]: DescriptorSetHandle;
     [PassView.PIPELINE_LAYOUT]: PipelineLayoutHandle;
-    [PassView.COUNT]: number;
+    [PassView.COUNT]: never;
 }
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
 // but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
@@ -618,7 +531,7 @@ export enum SubModelView {
     INPUT_ASSEMBLER, // handle
     COUNT,
 }
-interface ISubModelViewType extends IBufferTypeManifest {
+interface ISubModelViewType extends BufferTypeManifest<typeof SubModelView> {
     [SubModelView.PRIORITY]: number;
     [SubModelView.PASS_COUNT]: number;
     [SubModelView.PASS_0]: PassHandle;
@@ -631,7 +544,7 @@ interface ISubModelViewType extends IBufferTypeManifest {
     [SubModelView.SHADER_3]: ShaderHandle;
     [SubModelView.DESCRIPTOR_SET]: DescriptorSetHandle;
     [SubModelView.INPUT_ASSEMBLER]: InputAssemblerHandle;
-    [SubModelView.COUNT]: number;
+    [SubModelView.COUNT]: never;
 }
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
 // but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
@@ -649,7 +562,7 @@ export enum ModelView {
     SUB_MODEL_ARRAY, // array handle
     COUNT
 }
-interface IModelViewType extends IBufferTypeManifest {
+interface IModelViewType extends BufferTypeManifest<typeof ModelView> {
     [ModelView.ENABLED]: number;
     [ModelView.VIS_FLAGS]: number;
     [ModelView.CAST_SHADOW]: number;
@@ -657,20 +570,26 @@ interface IModelViewType extends IBufferTypeManifest {
     [ModelView.NODE]: NodeHandle;
     [ModelView.TRANSFORM]: NodeHandle;
     [ModelView.SUB_MODEL_ARRAY]: SubModelArrayHandle;
-    [ModelView.COUNT]: number;
+    [ModelView.COUNT]: never;
 }
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
 export const ModelPool = new BufferPool<PoolType.MODEL, Uint32Array, typeof ModelView, IModelViewType>(PoolType.MODEL, Uint32Array, ModelView);
 
 export enum AABBView {
-    CENTER,                      // Vec3
-    HALF_EXTENSION = 3,          // Vec3
+    CENTER,             // Vec3
+    HALF_EXTENSION = 3, // Vec3
     COUNT = 6
 }
-interface IAABBViewType extends IBufferTypeManifest {
+interface IAABBViewType extends BufferTypeManifest<typeof AABBView> {
     [AABBView.CENTER]: Vec3;
     [AABBView.HALF_EXTENSION]: Vec3;
-    [AABBView.COUNT]: number;
+    [AABBView.COUNT]: never;
 }
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
 export const AABBPool = new BufferPool<PoolType.AABB, Float32Array, typeof AABBView, IAABBViewType>(PoolType.AABB, Float32Array, AABBView);
 
 export enum SceneView {
@@ -682,15 +601,18 @@ export enum SceneView {
     MODEL_ARRAY,   // array handle
     COUNT,
 }
-interface ISceneViewType extends IBufferTypeManifest {
+interface ISceneViewType extends BufferTypeManifest<typeof SceneView> {
     [SceneView.MAIN_LIGHT]: number;
     [SceneView.AMBIENT]: number;
     [SceneView.FOG]: number;
     [SceneView.SKYBOX]: number;
     [SceneView.PLANAR_SHADOW]: number;
     [SceneView.MODEL_ARRAY]: ModelArrayHandle;
-    [SceneView.COUNT]: number;
+    [SceneView.COUNT]: never;
 }
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
 export const ScenePool = new BufferPool<PoolType.SCENE, Uint32Array, typeof SceneView, ISceneViewType>(PoolType.SCENE, Uint32Array, SceneView);
 
 export enum CameraView {
@@ -700,25 +622,25 @@ export enum CameraView {
     CLEAR_FLAG,
     CLEAR_DEPTH,
     CLEAR_STENCIL,
-    NODE,                                   // handle
-    SCENE,                                  // handle
-    FRUSTUM,                                // handle
-    FORWARD,                                // Vec3
-    POSITION = 12,                          // Vec3
-    VIEW_PORT = 15,                         // Rect
-    CLEAR_COLOR = 19,                       // Color
-    MAT_VIEW = 23,                          // Mat4
-    MAT_VIEW_PROJ = 39,                     // Mat4
-    MAT_VIEW_PROJ_INV = 55,                 // Mat4
-    MAT_PROJ = 71,                          // Mat4
-    MAT_PROJ_INV = 87,                      // Mat4
+    NODE,                   // handle
+    SCENE,                  // handle
+    FRUSTUM,                // handle
+    FORWARD,                // Vec3
+    POSITION = 12,          // Vec3
+    VIEW_PORT = 15,         // Rect
+    CLEAR_COLOR = 19,       // Color
+    MAT_VIEW = 23,          // Mat4
+    MAT_VIEW_PROJ = 39,     // Mat4
+    MAT_VIEW_PROJ_INV = 55, // Mat4
+    MAT_PROJ = 71,          // Mat4
+    MAT_PROJ_INV = 87,      // Mat4
     COUNT = 103
 }
-interface ICameraViewType extends IBufferTypeManifest {
+interface ICameraViewType extends BufferTypeManifest<typeof CameraView> {
     [CameraView.WIDTH]: number;
     [CameraView.HEIGHT]: number;
     [CameraView.EXPOSURE]: number;
-    [CameraView.CLEAR_FLAG]: number;
+    [CameraView.CLEAR_FLAG]: GFXClearFlag;
     [CameraView.CLEAR_DEPTH]: number;
     [CameraView.CLEAR_STENCIL]: number;
     [CameraView.NODE]: NodeHandle;
@@ -733,28 +655,34 @@ interface ICameraViewType extends IBufferTypeManifest {
     [CameraView.MAT_VIEW_PROJ_INV]: Mat4;
     [CameraView.MAT_PROJ]: Mat4;
     [CameraView.MAT_PROJ_INV]: Mat4;
-    [CameraView.COUNT]: number;
+    [CameraView.COUNT]: never;
 }
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
 export const CameraPool = new BufferPool<PoolType.CAMERA, Float32Array, typeof CameraView, ICameraViewType>(PoolType.CAMERA, Float32Array, CameraView);
 
 export enum NodeView {
     LAYER,
-    WORLD_SCALE,                         // Vec3
-    WORLD_POSITION = 4,                  // Vec3
-    WORLD_ROTATION = 7,                  // Quat
-    WORLD_MATRIX = 11,                   // Mat4
-    // Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed
-    // by class member variable.
-    COUNT = 27 // JSB ?  NodeView.WORLD_MATRIX + 16 : NodeView.LAYER + 1
+    WORLD_SCALE,        // Vec3
+    WORLD_POSITION = 4, // Vec3
+    WORLD_ROTATION = 7, // Quat
+    WORLD_MATRIX = 11,  // Mat4
+    COUNT = 27
 }
-interface INodeViewType extends IBufferTypeManifest {
-    [NodeView.LAYER]: number;
+interface INodeViewType extends BufferTypeManifest<typeof NodeView> {
+    [NodeView.LAYER]: Layers.Enum;
     [NodeView.WORLD_SCALE]: Vec3;
     [NodeView.WORLD_POSITION]: Vec3;
     [NodeView.WORLD_ROTATION]: Quat;
     [NodeView.WORLD_MATRIX]: Mat4;
-    [NodeView.COUNT]: number;
+    [NodeView.COUNT]: never;
 }
+// @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
+if (!JSB) delete NodeView[NodeView.COUNT]; NodeView[NodeView.COUNT = NodeView.LAYER + 1] = 'COUNT';
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
 export const NodePool = new BufferPool<PoolType.NODE, Float32Array, typeof NodeView, INodeViewType>(PoolType.NODE, Float32Array, NodeView);
 
 export enum RootView {
@@ -762,11 +690,14 @@ export enum RootView {
     FRAME_TIME,
     COUNT
 }
-interface IRootViewType extends IBufferTypeManifest {
+interface IRootViewType extends BufferTypeManifest<typeof RootView> {
     [RootView.CUMULATIVE_TIME]: number;
     [RootView.FRAME_TIME]: number;
-    [RootView.COUNT]: number;
+    [RootView.COUNT]: never;
 }
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
 export const RootPool = new BufferPool<PoolType.ROOT, Float32Array, typeof RootView, IRootViewType>(PoolType.ROOT, Float32Array, RootView, 1);
 
 export enum RenderWindowView {
@@ -775,17 +706,29 @@ export enum RenderWindowView {
     FRAMEBUFFER,  // handle
     COUNT
 }
-interface IRenderWindowViewType extends IBufferTypeManifest {
+interface IRenderWindowViewType extends BufferTypeManifest<typeof RenderWindowView> {
     [RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS]: number;
     [RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS]: number;
     [RenderWindowView.FRAMEBUFFER]: FramebufferHandle;
-    [RenderWindowView.COUNT]: number;
+    [RenderWindowView.COUNT]: never;
 }
-export const RenderWindowPool = new BufferPool<PoolType.RENDER_WINDOW, Uint32Array, typeof RenderWindowView, IRenderWindowViewType>(PoolType.RENDER_WINDOW, Uint32Array, RenderWindowView, 2);
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
+export const RenderWindowPool = new BufferPool<PoolType.RENDER_WINDOW, Uint32Array, typeof RenderWindowView, IRenderWindowViewType>
+    (PoolType.RENDER_WINDOW, Uint32Array, RenderWindowView, 2);
 
 export enum FrustumView {
-    VERTICES,               // Vec3[8]
-    PLANES = VERTICES + 24, // Plane[6]
-    COUNT = PLANES + 24
+    VERTICES,    // Vec3[8]
+    PLANES = 24, // plane[6]
+    COUNT = 48
 }
-export const FrustumPool = new BufferPool(PoolType.FRUSTUM, Float32Array, FrustumView);
+interface IFrustumViewType extends BufferTypeManifest<typeof FrustumView> {
+    [FrustumView.VERTICES]: Vec3;
+    [FrustumView.PLANES]: plane;
+    [FrustumView.COUNT]: never;
+}
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
+export const FrustumPool = new BufferPool<PoolType.FRUSTUM, Float32Array, typeof FrustumView, IFrustumViewType>(PoolType.FRUSTUM, Float32Array, FrustumView);

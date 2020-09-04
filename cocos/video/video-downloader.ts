@@ -28,7 +28,7 @@
  */
 
 import {getError, log} from '../core/platform/debug';
-import { sys } from '../core/platform';
+import { sys } from '../core/platform/sys';
 
 const __videoSupport = sys.__videoSupport;
 const formatSupport = __videoSupport.format;

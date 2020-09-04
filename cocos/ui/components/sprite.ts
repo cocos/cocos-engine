@@ -28,7 +28,8 @@
  * @category ui
  */
 
-import { SpriteAtlas, SpriteFrame } from '../../core/assets';
+import { SpriteAtlas } from '../../core/assets/sprite-atlas';
+import { SpriteFrame } from '../../core/assets/sprite-frame';
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable } from 'cc.decorator';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { Vec2 } from '../../core/math';

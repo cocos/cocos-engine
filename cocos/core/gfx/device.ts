@@ -61,6 +61,7 @@ export enum GFXFeature {
 export class GFXBindingMappingInfo {
     public bufferOffsets: number[] = [];
     public samplerOffsets: number[] = [];
+    public flexibleSet: number = 0;
 }
 
 export interface IGFXDeviceInfo {

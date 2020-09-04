@@ -126,9 +126,11 @@ export class SubModel {
         if (!passes) { return; }
 
         SubModelPool.set(this._handle, SubModelView.PASS_COUNT, passes.length);
-        for (let i = 0; i < passes.length; i++) {
-            SubModelPool.set(this._handle, SubModelView.PASS_0 + i, passes[i].handle);
-            SubModelPool.set(this._handle, SubModelView.SHADER_0 + i, passes[i].getShaderVariant(this._patches));
+        let passOffset = SubModelView.PASS_0 as const;
+        let shaderOffset = SubModelView.SHADER_0 as const;
+        for (let i = 0; i < passes.length; i++, passOffset++, shaderOffset++) {
+            SubModelPool.set(this._handle, passOffset, passes[i].handle);
+            SubModelPool.set(this._handle, shaderOffset, passes[i].getShaderVariant(this._patches));
         }
     }
 }

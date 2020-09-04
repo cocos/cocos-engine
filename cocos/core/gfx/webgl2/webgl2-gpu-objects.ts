@@ -142,6 +142,7 @@ export interface IWebGL2GPUUniformSampler {
     binding: number;
     name: string;
     type: GFXType;
+    count: number;
     units: number[];
 
     glType: GLenum;
