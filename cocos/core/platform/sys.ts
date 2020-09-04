@@ -813,6 +813,11 @@ else if (JSB || RUNTIME_BASED) {
         DELAY_CREATE_CTX: false,
         format: ['.mp3'],
     };
+
+    sys.__videoSupport = {
+        format: ['.mp4']
+    }
+
 }
 else {
     // browser or runtime
