@@ -1033,12 +1033,21 @@ let NodeDefines = {
                 let trs = this._trs;
                 if (value !== trs[2]) {
                     if (!CC_EDITOR || isFinite(value)) {
+                        let oldValue;
+                        if (CC_EDITOR) {
+                            oldValue = trs[2];
+                        }
                         trs[2] = value;
                         this.setLocalDirty(LocalDirtyFlag.ALL_POSITION);
                         !CC_NATIVERENDERER && (this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM);
                         // fast check event
                         if (this._eventMask & POSITION_ON) {
-                            this.emit(EventType.POSITION_CHANGED);
+                            if (CC_EDITOR) {
+                                this.emit(EventType.POSITION_CHANGED, new cc.Vec3(trs[0], trs[1], oldValue));
+                            }
+                            else {
+                                this.emit(EventType.POSITION_CHANGED);
+                            }
                         }
                     }
                     else {
