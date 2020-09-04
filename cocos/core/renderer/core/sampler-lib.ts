@@ -27,7 +27,7 @@
  * @hidden
  */
 
-import { GFXAddress, GFXComparisonFunc, GFXFilter } from '../../gfx/define';
+import { GFXAddress, GFXComparisonFunc, GFXFilter, GFXColor } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXSampler, IGFXSamplerInfo } from '../../gfx/sampler';
 import { legacyCC } from '../../global-exports';
@@ -60,7 +60,7 @@ const defaultInfo = [
 ];
 export const defaultSamplerHash = genSamplerHash(defaultInfo);
 
-const borderColor = { r: 0, g: 0, b: 0, a: 0 };
+const borderColor = new GFXColor();
 
 const gfxInfo: IGFXSamplerInfo = {};
 
