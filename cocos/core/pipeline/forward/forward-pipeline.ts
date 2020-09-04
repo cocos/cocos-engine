@@ -16,16 +16,18 @@ import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp
 import { SKYBOX_FLAG, Light } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
-import { Mat4, Vec3, Vec4} from '../../math';
+import { Mat4, Vec3, Vec4, Color} from '../../math';
 import { GFXFeature } from '../../gfx/device';
 import { Fog } from '../../renderer/scene/fog';
 import { Ambient } from '../../renderer/scene/ambient';
 import { Skybox } from '../../renderer/scene/skybox';
-import { Shadows } from '../../renderer/scene/shadows';
+import { Shadows, ShadowType } from '../../renderer/scene/shadows';
 import { sceneCulling } from './scene-culling';
 import { UIFlow } from '../ui/ui-flow';
 
-
+const vec4 = new Vec4();
+const matShadowView = new Mat4();
+const matShadowViewProj = new Mat4();
 
 /**
  * @en The forward render pipeline
@@ -54,6 +56,14 @@ export class ForwardPipeline extends RenderPipeline {
 
     get fpScale (): number {
         return this._fpScale;
+    }
+
+    /**
+     * @en Get shadow UBO.
+     * @zh 获取阴影UBO。
+     */
+    get shadowUBO (): Float32Array {
+        return this._shadowUBO;
     }
 
     @type([RenderTextureConfig])
@@ -85,6 +95,7 @@ export class ForwardPipeline extends RenderPipeline {
     protected _fpScale: number = 1.0 / 1024.0;
     protected _renderPasses = new Map<GFXClearFlag, GFXRenderPass>();
     protected _globalUBO = new Float32Array(UBOGlobal.COUNT);
+    protected _shadowUBO = new Float32Array(UBOShadow.COUNT);
 
     public initialize (info: IRenderPipelineInfo): boolean {
         super.initialize(info);
@@ -173,14 +184,49 @@ export class ForwardPipeline extends RenderPipeline {
         this._updateUBO(view);
         const camera = view.camera;
         const scene = camera.scene;
-        const mainLight = scene!.mainLight!;
+        const mainLight = scene!.mainLight;
+        const device = this.device;
+        const shadowInfo = this.shadows;
 
-        if (this.shadowFrameBufferMap.has(mainLight)) {
-            this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP.binding, this.shadowFrameBufferMap.get(mainLight)!.colorTextures[0]!);
+        if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
+            if (this.shadowFrameBufferMap.has(mainLight)) {
+                this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP.binding, this.shadowFrameBufferMap.get(mainLight)!.colorTextures[0]!);
+            }
+
+            // light view
+            const shadowCameraView = shadowInfo.getWorldMatrix(mainLight!.node!.worldRotation, mainLight!.direction);
+            Mat4.invert(matShadowView, shadowCameraView);
+
+            // light proj
+            let x: number = 0;
+            let y: number = 0;
+            if (shadowInfo.orthoSize > shadowInfo.sphere.radius) {
+                x = shadowInfo.orthoSize * shadowInfo.aspect;
+                y = shadowInfo.orthoSize;
+            } else {
+                // if orthoSize is the smallest, auto calculate orthoSize.
+                x = shadowInfo.sphere.radius * shadowInfo.aspect;
+                y = shadowInfo.sphere.radius;
+            }
+            const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY; // always offscreen
+            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, shadowInfo.far,
+                device.clipSpaceMinZ, projectionSignY);
+
+            // light viewProj
+            Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
+
+            Mat4.toArray(this._shadowUBO, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
+
+            vec4.set(shadowInfo.pcf);
+            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_PCF_OFFSET);
+
+            vec4.set(shadowInfo.size.x, shadowInfo.size.y);
+            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_SIZE_OFFSET);
         }
 
         // update ubos
         this._descriptorSet.getBuffer(UBOGlobal.BLOCK.binding).update(this._globalUBO);
+        this._descriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(this._shadowUBO);
     }
 
     private _activeRenderer () {
@@ -197,6 +243,13 @@ export class ForwardPipeline extends RenderPipeline {
             size: UBOGlobal.SIZE,
         });
         this._descriptorSet.bindBuffer(UBOGlobal.BLOCK.binding, globalUBO);
+
+        const shadowUBO = device.createBuffer({
+            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: UBOShadow.SIZE,
+        });
+        this._descriptorSet.bindBuffer(UBOShadow.BLOCK.binding, shadowUBO);
 
         const shadowMapSamplerHash = genSamplerHash([
             GFXFilter.LINEAR,

@@ -63,14 +63,8 @@ export class RenderShadowMapBatchedQueue {
         this._shadowInfo = pipeline.shadows;
         this._descriptorSet = pipeline.descriptorSet;
         this._shadowObjects = pipeline.shadowObjects;
-        this._shadowUBO = new Float32Array(UBOShadow.COUNT);
-
-        this._shadowMapBuffer = this._device.createBuffer({
-                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: UBOShadow.SIZE,
-            });
-        pipeline.descriptorSet.bindBuffer(UBOShadow.BLOCK.binding, this._shadowMapBuffer);
+        this._shadowUBO = pipeline.shadowUBO;
+        this._shadowMapBuffer = pipeline.descriptorSet.getBuffer(UBOShadow.BLOCK.binding);
 
         this._instancedQueue = new RenderInstancedQueue();
         this._batchedQueue = new RenderBatchedQueue();
