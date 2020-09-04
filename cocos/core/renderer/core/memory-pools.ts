@@ -36,8 +36,9 @@ import { RenderPassStage } from '../../pipeline/define';
 import { BatchingSchemes } from './pass';
 import { Vec3, Mat4, Color, Rect, Quat, Vec4 } from '../../math';
 import { Layers } from '../../scene-graph/layers';
+import { plane } from '../../geometry';
 
-type Vec4Compatibles = Color | Rect | Quat | Vec4;
+type Vec4Compatibles = Color | Rect | Quat | Vec4 | plane;
 
 interface ITypedArrayConstructor<T> {
     new(buffer: ArrayBufferLike, byteOffset: number, length?: number): T;
@@ -718,15 +719,13 @@ export const RenderWindowPool = new BufferPool<PoolType.RENDER_WINDOW, Uint32Arr
     (PoolType.RENDER_WINDOW, Uint32Array, RenderWindowView, 2);
 
 export enum FrustumView {
-    VERTICES,             // Vec3[8]
-    PLANE_DISTANCES = 24, // number[6]
-    PLANE_NORMALS = 30,   // Vec3[6]
+    VERTICES,    // Vec3[8]
+    PLANES = 24, // plane[6]
     COUNT = 48
 }
 interface IFrustumViewType extends BufferTypeManifest<typeof FrustumView> {
     [FrustumView.VERTICES]: Vec3;
-    [FrustumView.PLANE_DISTANCES]: number;
-    [FrustumView.PLANE_NORMALS]: Vec3;
+    [FrustumView.PLANES]: plane;
     [FrustumView.COUNT]: never;
 }
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.

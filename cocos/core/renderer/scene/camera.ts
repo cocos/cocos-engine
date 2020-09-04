@@ -748,18 +748,16 @@ export class Camera {
         }
 
         const vertices = frstm.vertices;
-        let offset = FrustumView.VERTICES as const;
+        let vertexOffset = FrustumView.VERTICES as const;
         for (let i = 0; i < 8; ++i) {
-            FrustumPool.setVec3(frustumHandle, offset, vertices[i]);
-            offset += 3;
+            FrustumPool.setVec3(frustumHandle, vertexOffset, vertices[i]);
+            vertexOffset += 3;
         }
 
         const planes = frstm.planes;
-        let distanceOffset = FrustumView.PLANE_DISTANCES as const;
-        let normalOffset = FrustumView.PLANE_NORMALS as const;
-        for (let i = 0; i < 6; i++, distanceOffset++, normalOffset += 3) {
-            FrustumPool.set(frustumHandle, distanceOffset, planes[i].d);
-            FrustumPool.setVec3(frustumHandle, normalOffset, planes[i].n);
+        let planeOffset = FrustumView.PLANES as const;
+        for (let i = 0; i < 6; i++, planeOffset += 4) {
+            FrustumPool.setVec4(frustumHandle, planeOffset, planes[i]);
         }
     }
 }
