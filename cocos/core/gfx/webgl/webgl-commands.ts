@@ -1686,7 +1686,7 @@ export function WebGLCmdFuncBeginRenderPass (
                         }
 
                         const clearColor = clearColors[0];
-                        gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+                        gl.clearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
                         clears |= gl.COLOR_BUFFER_BIT;
                         break;
                     }
@@ -1995,17 +1995,17 @@ export function WebGLCmdFuncBindStates (
                 cache.bs.isA2C = bs.isA2C;
             }
 
-            if ((cache.bs.blendColor.r !== bs.blendColor.r) ||
-                (cache.bs.blendColor.g !== bs.blendColor.g) ||
-                (cache.bs.blendColor.b !== bs.blendColor.b) ||
-                (cache.bs.blendColor.a !== bs.blendColor.a)) {
+            if ((cache.bs.blendColor.x !== bs.blendColor.x) ||
+                (cache.bs.blendColor.y !== bs.blendColor.y) ||
+                (cache.bs.blendColor.z !== bs.blendColor.z) ||
+                (cache.bs.blendColor.w !== bs.blendColor.w)) {
 
-                gl.blendColor(bs.blendColor.r, bs.blendColor.g, bs.blendColor.b, bs.blendColor.a);
+                gl.blendColor(bs.blendColor.x, bs.blendColor.y, bs.blendColor.z, bs.blendColor.w);
 
-                cache.bs.blendColor.r = bs.blendColor.r;
-                cache.bs.blendColor.g = bs.blendColor.g;
-                cache.bs.blendColor.b = bs.blendColor.b;
-                cache.bs.blendColor.a = bs.blendColor.a;
+                cache.bs.blendColor.x = bs.blendColor.x;
+                cache.bs.blendColor.y = bs.blendColor.y;
+                cache.bs.blendColor.z = bs.blendColor.z;
+                cache.bs.blendColor.w = bs.blendColor.w;
             }
 
             const target0 = bs.targets[0];
@@ -2540,17 +2540,17 @@ export function WebGLCmdFuncBindStates (
                     break;
                 }
                 case GFXDynamicStateFlagBit.BLEND_CONSTANTS: {
-                    if ((cache.bs.blendColor.r !== blendConstants[0]) ||
-                        (cache.bs.blendColor.g !== blendConstants[1]) ||
-                        (cache.bs.blendColor.b !== blendConstants[2]) ||
-                        (cache.bs.blendColor.a !== blendConstants[3])) {
+                    if ((cache.bs.blendColor.x !== blendConstants[0]) ||
+                        (cache.bs.blendColor.y !== blendConstants[1]) ||
+                        (cache.bs.blendColor.z !== blendConstants[2]) ||
+                        (cache.bs.blendColor.w !== blendConstants[3])) {
 
                         gl.blendColor(blendConstants[0], blendConstants[1], blendConstants[2], blendConstants[3]);
 
-                        cache.bs.blendColor.r = blendConstants[0];
-                        cache.bs.blendColor.g = blendConstants[1];
-                        cache.bs.blendColor.b = blendConstants[2];
-                        cache.bs.blendColor.a = blendConstants[3];
+                        cache.bs.blendColor.x = blendConstants[0];
+                        cache.bs.blendColor.y = blendConstants[1];
+                        cache.bs.blendColor.z = blendConstants[2];
+                        cache.bs.blendColor.w = blendConstants[3];
                     }
                     break;
                 }

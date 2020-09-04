@@ -565,16 +565,16 @@ export class GFXViewport {
 }
 
 export class GFXColor {
-    public r: number;
-    public g: number;
-    public b: number;
-    public a: number;
+    public x: number;
+    public y: number;
+    public z: number;
+    public w: number;
 
-    constructor (r = 0, g = 0, b = 0, a = 0) {
-        this.r = r;
-        this.g = g;
-        this.b = b;
-        this.a = a;
+    constructor (x = 0, y = 0, z = 0, w = 0) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.w = w;
     }
 }
 

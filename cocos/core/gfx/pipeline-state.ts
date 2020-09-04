@@ -137,14 +137,14 @@ export class GFXBlendTarget {
 export class GFXBlendState {
     public isA2C: boolean = false;
     public isIndepend: boolean = false;
-    public blendColor: GFXColor = { r: 0, g: 0, b: 0, a: 0 };
-    public targets: GFXBlendTarget[] = [new GFXBlendTarget()]
+    public blendColor: GFXColor = new GFXColor();
+    public targets: GFXBlendTarget[] = [new GFXBlendTarget()];
 
     /**
      * @en Should use this function to set target, or it will not work
-     * on native platforms, as native can not support this feature, 
+     * on native platforms, as native can not support this feature,
      * such as `blendState[i] = target;`.
-     * 
+     *
      * @param index The index to set target.
      * @param target The target to be set.
      */
