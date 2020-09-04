@@ -89,14 +89,14 @@ var __getListenerID = function (event) {
 
 /**
  * !#en
- * This class has been deprecated, please use cc.systemEvent or cc.EventTarget instead. See [Listen to and launch events](../../../manual/en/scripting/events.md) for details.<br>
+ * This class has been deprecated, please use cc.systemEvent or cc.EventTarget instead. See [Listen to and launch events](../../../manual/en/scripting/events.html) for details.<br>
  * <br>
  * cc.eventManager is a singleton object which manages event listener subscriptions and event dispatching.
  * The EventListener list is managed in such way so that event listeners can be added and removed
  * while events are being dispatched.
  *
  * !#zh
- * 该类已废弃，请使用 cc.systemEvent 或 cc.EventTarget 代替，详见 [监听和发射事件](../../../manual/zh/scripting/events.md)。<br>
+ * 该类已废弃，请使用 cc.systemEvent 或 cc.EventTarget 代替，详见 [监听和发射事件](../../../manual/zh/scripting/events.html)。<br>
  * <br>
  * 事件管理器，它主要管理事件监听器注册和派发系统事件。
  *

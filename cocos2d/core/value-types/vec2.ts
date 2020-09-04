@@ -91,7 +91,7 @@ export default class Vec2 extends ValueType {
      * @example
      * var v = cc.v2(10, 10);
      * v.sub(cc.v2(5, 5));      // return Vec2 {x: 5, y: 5};
-     * var v1;
+     * var v1 = new Vec2;
      * v.sub(cc.v2(5, 5), v1);  // return Vec2 {x: 5, y: 5};
      */
     sub (vector: Vec2, out?: Vec2): Vec2 {
