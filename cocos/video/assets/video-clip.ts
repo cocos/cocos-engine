@@ -28,8 +28,7 @@
  */
 
 import { Asset } from '../../core/assets';
-import { ccclass, property } from '../../core/data/class-decorator';
-import { legacyCC } from '../../core/global-exports';
+import { ccclass, serializable } from 'cc.decorator';
 
 /**
  * @en
@@ -40,7 +39,7 @@ import { legacyCC } from '../../core/global-exports';
 @ccclass('cc.VideoClip')
 export class VideoClip extends Asset {
 
-    @property
+    @serializable
     protected _duration = 0;
     protected _video: any = null;
 

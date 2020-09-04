@@ -495,3 +495,5 @@ export class VideoPlayerImpl {
         }
     }
 }
+
+legacyCC.internal.VideoPlayerImpl = VideoPlayerImpl;
