@@ -1,4 +1,3 @@
-
 import { Material } from '../../assets/material';
 import { aabb, frustum, intersect, sphere } from '../../geometry';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
@@ -7,12 +6,12 @@ import { UBOShadow, SetIndex} from '../../pipeline/define';
 import { DirectionalLight } from './directional-light';
 import { Model } from './model';
 import { SphereLight } from './sphere-light';
-import { GFXCommandBuffer, GFXDevice, GFXRenderPass, GFXDescriptorSet, GFXShader } from '../../gfx';
+import { GFXCommandBuffer, GFXDevice, GFXRenderPass, GFXDescriptorSet } from '../../gfx';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
 import { legacyCC } from '../../global-exports';
 import { RenderScene } from './render-scene';
-import { DSPool, ShaderPool, PassPool, PassView } from '../core/memory-pools';
+import { DSPool, ShaderPool, PassPool, PassView, ShaderHandle } from '../core/memory-pools';
 import { ForwardPipeline } from '../../pipeline';
 import { Enum } from '../../value-types';
 
@@ -87,7 +86,7 @@ export const PCFType = Enum({
 
 interface IShadowRenderData {
     model: Model;
-    shaders: GFXShader[];
+    hShaders: ShaderHandle[];
     instancedBuffer: InstancedBuffer | null;
 }
 
@@ -368,14 +367,15 @@ export class Shadows {
         let descriptorSet = DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET));
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, descriptorSet);
         for (let i = 0; i < modelLen; i++) {
-            const { model, shaders, instancedBuffer } = models[i];
+            const { model, hShaders: shaders, instancedBuffer } = models[i];
             for (let j = 0; j < shaders.length; j++) {
                 const subModel = model.subModels[j];
-                const shader = shaders[j];
+                const hShader = shaders[j];
                 if (instancedBuffer) {
-                    instancedBuffer.merge(subModel, model.instancedAttributes, 0);
+                    instancedBuffer.merge(subModel, model.instancedAttributes, 0, hShader);
                 } else {
                     const ia = subModel.inputAssembler!;
+                    const shader = ShaderPool.get(hShader);
                     const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, ia);
                     cmdBuff.bindPipelineState(pso);
                     cmdBuff.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);
@@ -406,15 +406,15 @@ export class Shadows {
     }
 
     public createShadowData (model: Model): IShadowRenderData {
-        const shaders: GFXShader[] = [];
+        const hShaders: ShaderHandle[] = [];
         const material = model.isInstancingEnabled ? this._instancingMaterial : this._material;
         const instancedBuffer = model.isInstancingEnabled ? InstancedBuffer.get(material!.passes[0]) : null;
         const subModels = model.subModels;
         for (let i = 0; i < subModels.length; i++) {
             const hShader = material!.passes[0].getShaderVariant(model.getMacroPatches(i));
-            shaders.push(ShaderPool.get(hShader));
+            hShaders.push(hShader);
         }
-        return { model, shaders, instancedBuffer };
+        return { model, hShaders, instancedBuffer };
     }
 
     public destroyShadowData (model: Model) {
