@@ -302,7 +302,7 @@ export class Pass {
      * @param value 目标 texture
      */
     public bindTexture (binding: number, value: GFXTexture, index?: number) {
-        this._descriptorSet.bindTexture(binding, value, index);
+        this._descriptorSet.bindTexture(binding, value, index || 0);
     }
 
     /**
@@ -312,7 +312,7 @@ export class Pass {
      * @param value 目标 sampler。
      */
     public bindSampler (binding: number, value: GFXSampler, index?: number) {
-        this._descriptorSet.bindSampler(binding, value, index);
+        this._descriptorSet.bindSampler(binding, value, index || 0);
     }
 
     /**
