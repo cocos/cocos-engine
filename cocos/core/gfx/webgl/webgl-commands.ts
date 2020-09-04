@@ -633,7 +633,7 @@ export function WebGLCmdFuncCreateBuffer (device: WebGLDevice, gpuBuffer: IWebGL
                 if (device.useVAO) {
                     if (cache.glVAO) {
                         device.OES_vertex_array_object!.bindVertexArrayOES(null);
-                        cache.glVAO = null;
+                        cache.glVAO = gfxStateCache.gpuInputAssembler = null;
                     }
                 }
 
@@ -658,7 +658,7 @@ export function WebGLCmdFuncCreateBuffer (device: WebGLDevice, gpuBuffer: IWebGL
                 if (device.useVAO) {
                     if (cache.glVAO) {
                         device.OES_vertex_array_object!.bindVertexArrayOES(null);
-                        cache.glVAO = null;
+                        cache.glVAO = gfxStateCache.gpuInputAssembler = null;
                     }
                 }
 
@@ -708,7 +708,7 @@ export function WebGLCmdFuncResizeBuffer (device: WebGLDevice, gpuBuffer: IWebGL
         if (device.useVAO) {
             if (cache.glVAO) {
                 device.OES_vertex_array_object!.bindVertexArrayOES(null);
-                cache.glVAO = null;
+                cache.glVAO = gfxStateCache.gpuInputAssembler = null;
             }
         }
 
@@ -727,7 +727,7 @@ export function WebGLCmdFuncResizeBuffer (device: WebGLDevice, gpuBuffer: IWebGL
         if (device.useVAO) {
             if (cache.glVAO) {
                 device.OES_vertex_array_object!.bindVertexArrayOES(null);
-                cache.glVAO = null;
+                cache.glVAO = gfxStateCache.gpuInputAssembler = null;
             }
         }
 
@@ -778,7 +778,7 @@ export function WebGLCmdFuncUpdateBuffer (device: WebGLDevice, gpuBuffer: IWebGL
                 if (device.useVAO) {
                     if (cache.glVAO) {
                         device.OES_vertex_array_object!.bindVertexArrayOES(null);
-                        cache.glVAO = null;
+                        cache.glVAO = gfxStateCache.gpuInputAssembler = null;
                     }
                 }
 
@@ -792,7 +792,7 @@ export function WebGLCmdFuncUpdateBuffer (device: WebGLDevice, gpuBuffer: IWebGL
                 if (device.useVAO) {
                     if (cache.glVAO) {
                         device.OES_vertex_array_object!.bindVertexArrayOES(null);
-                        cache.glVAO = null;
+                        cache.glVAO = gfxStateCache.gpuInputAssembler = null;
                     }
                 }
 
@@ -1622,8 +1622,6 @@ export function WebGLCmdFuncBeginRenderPass (
     clearColors: GFXColor[],
     clearDepth: number,
     clearStencil: number) {
-
-    gfxStateCache.gpuInputAssembler = null;
 
     const gl = device.gl;
     const cache = device.stateCache;
