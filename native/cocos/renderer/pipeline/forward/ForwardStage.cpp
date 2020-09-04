@@ -157,7 +157,7 @@ void ForwardStage::render(RenderView *view) {
         }
     }
 
-    _clearColors[0].a = camera->getClearColor().a;
+    _clearColors[0].w = camera->getClearColor().w;
 
     auto framebuffer = GET_FRAMEBUFFER(view->getWindow()->framebufferID);
     const auto &colorTextures = framebuffer->getColorTextures();
