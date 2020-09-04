@@ -147,8 +147,8 @@ MTLStoreAction toMTLStoreAction(StoreOp op) {
 
 MTLClearColor toMTLClearColor(const Color &clearColor) {
     MTLClearColor mtlColor;
-    mtlColor = MTLClearColorMake(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-    return MTLClearColorMake(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+    mtlColor = MTLClearColorMake(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
+    return MTLClearColorMake(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
 }
 
 MTLVertexFormat toMTLVertexFormat(Format format, bool isNormalized) {
@@ -483,8 +483,8 @@ MTLSamplerAddressMode toMTLSamplerAddressMode(Address mode) {
 }
 
 MTLSamplerBorderColor toMTLSamplerBorderColor(const Color &color) {
-    float diff = color.r - 0.5f;
-    if (math::IsEqualF(color.a, 0.f))
+    float diff = color.x - 0.5f;
+    if (math::IsEqualF(color.w, 0.f))
         return MTLSamplerBorderColorTransparentBlack;
     else if (math::IsEqualF(diff, 0.f))
         return MTLSamplerBorderColorOpaqueBlack;

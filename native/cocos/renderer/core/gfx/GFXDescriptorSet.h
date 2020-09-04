@@ -16,14 +16,21 @@ public:
     virtual void destroy() = 0;
     virtual void update() = 0;
 
-    void bindBuffer(uint binding, Buffer *buffer);
-    void bindTexture(uint binding, Texture *texView);
-    void bindSampler(uint binding, Sampler *sampler);
+    void bindBuffer(uint binding, Buffer *buffer, uint index);
+    void bindTexture(uint binding, Texture *texture, uint index);
+    void bindSampler(uint binding, Sampler *sampler, uint index);
+
+    Buffer *getBuffer(uint binding, uint index) const;
+    Texture *getTexture(uint binding, uint index) const;
+    Sampler *getSampler(uint binding, uint index) const;
 
     CC_INLINE Device *getDevice() const { return _device; }
-    CC_INLINE Buffer *getBuffer(uint binding) const { return _buffers[binding]; }
-    CC_INLINE const Texture *getTexture(uint binding) const { return _textures[binding]; }
-    CC_INLINE const Sampler *getSampler(uint binding) const { return _samplers[binding]; }
+    CC_INLINE void bindBuffer(uint binding, Buffer *buffer) { bindBuffer(binding, buffer, 0u); }
+    CC_INLINE void bindTexture(uint binding, Texture *texture) { bindTexture(binding, texture, 0u); }
+    CC_INLINE void bindSampler(uint binding, Sampler *sampler) { bindSampler(binding, sampler, 0u); }
+    CC_INLINE Buffer *getBuffer(uint binding) const { return getBuffer(binding, 0u); }
+    CC_INLINE Texture *getTexture(uint binding) const { return getTexture(binding, 0u); }
+    CC_INLINE Sampler *getSampler(uint binding) const { return getSampler(binding, 0u); }
 
 protected:
     Device *_device = nullptr;

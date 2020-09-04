@@ -95,7 +95,7 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
 
     if (attachmentCount) {
         for (size_t i = 0u; i < attachmentCount - 1; i++) {
-            clearValues[i].color = {colors[i].r, colors[i].g, colors[i].b, colors[i].a};
+            clearValues[i].color = {colors[i].x, colors[i].y, colors[i].z, colors[i].w};
         }
         clearValues[attachmentCount - 1].depthStencil = {depth, (uint)stencil};
     }
@@ -210,14 +210,14 @@ void CCVKCommandBuffer::setDepthBias(float constant, float clamp, float slope) {
 }
 
 void CCVKCommandBuffer::setBlendConstants(const Color &constants) {
-    if (math::IsNotEqualF(_curBlendConstants.r, constants.r) ||
-        math::IsNotEqualF(_curBlendConstants.g, constants.g) ||
-        math::IsNotEqualF(_curBlendConstants.b, constants.b) ||
-        math::IsNotEqualF(_curBlendConstants.a, constants.a)) {
-        _curBlendConstants.r = constants.r;
-        _curBlendConstants.g = constants.g;
-        _curBlendConstants.b = constants.b;
-        _curBlendConstants.a = constants.a;
+    if (math::IsNotEqualF(_curBlendConstants.x, constants.x) ||
+        math::IsNotEqualF(_curBlendConstants.y, constants.y) ||
+        math::IsNotEqualF(_curBlendConstants.z, constants.z) ||
+        math::IsNotEqualF(_curBlendConstants.w, constants.w)) {
+        _curBlendConstants.x = constants.x;
+        _curBlendConstants.y = constants.y;
+        _curBlendConstants.z = constants.z;
+        _curBlendConstants.w = constants.w;
         vkCmdSetBlendConstants(_gpuCommandBuffer->vkCommandBuffer, reinterpret_cast<const float *>(&constants));
     }
 }
@@ -302,7 +302,7 @@ void CCVKCommandBuffer::draw(InputAssembler *ia) {
     } else {
         ((CCVKInputAssembler *)ia)->extractDrawInfo(drawInfo);
         uint instanceCount = std::max(drawInfo.instanceCount, 1u);
-        bool hasIndexBuffer = gpuInputAssembler->gpuIndexBuffer && drawInfo.indexCount >= 0;
+        bool hasIndexBuffer = gpuInputAssembler->gpuIndexBuffer && drawInfo.indexCount > 0;
 
         if (hasIndexBuffer) {
             vkCmdDrawIndexed(_gpuCommandBuffer->vkCommandBuffer, drawInfo.indexCount, instanceCount,

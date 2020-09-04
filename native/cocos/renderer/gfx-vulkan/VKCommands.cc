@@ -329,9 +329,7 @@ void CCVKCmdFuncCreateDescriptorSetLayout(CCVKDevice *device, CCVKGPUDescriptorS
     CCVKGPUDevice *gpuDevice = device->gpuDevice();
     size_t bindingCount = gpuDescriptorSetLayout->bindings.size();
 
-    uint descriptorCount = 0u;
     gpuDescriptorSetLayout->vkBindings.resize(bindingCount);
-    gpuDescriptorSetLayout->descriptorIndices.resize(bindingCount);
     for (size_t i = 0u; i < bindingCount; i++) {
         const DescriptorSetLayoutBinding &binding = gpuDescriptorSetLayout->bindings[i];
         VkDescriptorSetLayoutBinding &vkBinding = gpuDescriptorSetLayout->vkBindings[i];
@@ -339,10 +337,7 @@ void CCVKCmdFuncCreateDescriptorSetLayout(CCVKDevice *device, CCVKGPUDescriptorS
         vkBinding.descriptorType = MapVkDescriptorType(binding.descriptorType);
         vkBinding.binding = i;
         vkBinding.descriptorCount = binding.count;
-        gpuDescriptorSetLayout->descriptorIndices[i] = descriptorCount;
-        descriptorCount += binding.count;
     }
-    gpuDescriptorSetLayout->descriptorCount = descriptorCount;
 
     VkDescriptorSetLayoutCreateInfo setCreateInfo{VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO};
     setCreateInfo.bindingCount = bindingCount;
@@ -359,7 +354,6 @@ void CCVKCmdFuncCreatePipelineLayout(CCVKDevice *device, CCVKGPUPipelineLayout *
     for (uint i = 0; i < layoutCount; i++) {
         gpuPipelineLayout->descriptorSetLayouts[i] = gpuPipelineLayout->setLayouts[i]->vkDescriptorSetLayout;
     }
-
 
     VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO};
     pipelineLayoutCreateInfo.setLayoutCount = layoutCount;
@@ -576,10 +570,10 @@ void CCVKCmdFuncCreatePipelineState(CCVKDevice *device, CCVKGPUPipelineState *gp
     //colorBlendState.logicOp;
     colorBlendState.attachmentCount = blendTargetCount;
     colorBlendState.pAttachments = blendTargets.data();
-    colorBlendState.blendConstants[0] = blendColor.r;
-    colorBlendState.blendConstants[1] = blendColor.g;
-    colorBlendState.blendConstants[2] = blendColor.b;
-    colorBlendState.blendConstants[3] = blendColor.a;
+    colorBlendState.blendConstants[0] = blendColor.x;
+    colorBlendState.blendConstants[1] = blendColor.y;
+    colorBlendState.blendConstants[2] = blendColor.z;
+    colorBlendState.blendConstants[3] = blendColor.w;
     createInfo.pColorBlendState = &colorBlendState;
 
     ///////////////////// References /////////////////////

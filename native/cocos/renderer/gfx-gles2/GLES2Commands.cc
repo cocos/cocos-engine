@@ -428,7 +428,10 @@ const GLenum GLES2_BLEND_FACTORS[] = {
     GL_CONSTANT_ALPHA,
     GL_ONE_MINUS_CONSTANT_ALPHA,
 };
+
+GLES2GPUStateCache gfxStateCache;
 } // namespace
+
 
 void GLES2CmdFuncCreateBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer) {
     GLenum glUsage = (gpuBuffer->memUsage & MemoryUsageBit::HOST ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
@@ -441,6 +444,7 @@ void GLES2CmdFuncCreateBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer) {
                 if (device->stateCache->glVAO) {
                     glBindVertexArrayOES(0);
                     device->stateCache->glVAO = 0;
+                    gfxStateCache.gpuInputAssembler = nullptr;
                 }
             }
 
@@ -460,6 +464,7 @@ void GLES2CmdFuncCreateBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer) {
                 if (device->stateCache->glVAO) {
                     glBindVertexArrayOES(0);
                     device->stateCache->glVAO = 0;
+                    gfxStateCache.gpuInputAssembler = nullptr;
                 }
             }
 
@@ -489,11 +494,25 @@ void GLES2CmdFuncCreateBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer) {
 void GLES2CmdFuncDestroyBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer) {
     if (gpuBuffer->glBuffer) {
         if (gpuBuffer->usage & BufferUsageBit::VERTEX) {
+            if (device->useVAO()) {
+                if (device->stateCache->glVAO) {
+                    glBindVertexArrayOES(0);
+                    device->stateCache->glVAO = 0;
+                    gfxStateCache.gpuInputAssembler = nullptr;
+                }
+            }
             if (device->stateCache->glArrayBuffer == gpuBuffer->glBuffer) {
                 glBindBuffer(GL_ARRAY_BUFFER, 0);
                 device->stateCache->glArrayBuffer = 0;
             }
         } else if (gpuBuffer->usage & BufferUsageBit::INDEX) {
+            if (device->useVAO()) {
+                if (device->stateCache->glVAO) {
+                    glBindVertexArrayOES(0);
+                    device->stateCache->glVAO = 0;
+                    gfxStateCache.gpuInputAssembler = nullptr;
+                }
+            }
             if (device->stateCache->glElementArrayBuffer == gpuBuffer->glBuffer) {
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                 device->stateCache->glElementArrayBuffer = 0;
@@ -515,6 +534,7 @@ void GLES2CmdFuncResizeBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer) {
                 if (device->stateCache->glVAO) {
                     glBindVertexArrayOES(0);
                     device->stateCache->glVAO = 0;
+                    gfxStateCache.gpuInputAssembler = nullptr;
                 }
             }
 
@@ -533,6 +553,7 @@ void GLES2CmdFuncResizeBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer) {
                 if (device->stateCache->glVAO) {
                     glBindVertexArrayOES(0);
                     device->stateCache->glVAO = 0;
+                    gfxStateCache.gpuInputAssembler = nullptr;
                 }
             }
 
@@ -581,6 +602,7 @@ void GLES2CmdFuncUpdateBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer, vo
                     if (device->stateCache->glVAO) {
                         glBindVertexArrayOES(0);
                         device->stateCache->glVAO = 0;
+                        gfxStateCache.gpuInputAssembler = nullptr;
                     }
                 }
                 if (device->stateCache->glArrayBuffer != gpuBuffer->glBuffer) {
@@ -595,6 +617,7 @@ void GLES2CmdFuncUpdateBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer, vo
                     if (device->stateCache->glVAO) {
                         glBindVertexArrayOES(0);
                         device->stateCache->glVAO = 0;
+                        gfxStateCache.gpuInputAssembler = nullptr;
                     }
                 }
                 if (device->stateCache->glElementArrayBuffer != gpuBuffer->glBuffer) {
@@ -687,21 +710,10 @@ void GLES2CmdFuncCreateTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture)
 
 void GLES2CmdFuncDestroyTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture) {
     if (gpuTexture->glTexture) {
-        GLuint &glTexture = device->stateCache->glTextures[device->stateCache->texUint];
-        if (glTexture == gpuTexture->glTexture) {
-            switch (gpuTexture->type) {
-                case TextureType::TEX2D: {
-                    glBindTexture(GL_TEXTURE_2D, 0);
-                    break;
-                }
-                case TextureType::CUBE: {
-                    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-                    break;
-                }
-                default: // no supported
-                    break;
+        for (GLuint &glTexture : device->stateCache->glTextures) {
+            if (glTexture == gpuTexture->glTexture) {
+                glTexture = 0;
             }
-            glTexture = 0;
         }
         glDeleteTextures(1, &gpuTexture->glTexture);
         gpuTexture->glTexture = 0;
@@ -1042,12 +1054,15 @@ void GLES2CmdFuncCreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
     if (activeGPUSamplers.size()) {
         if (device->stateCache->glProgram != gpuShader->glProgram) {
             glUseProgram(gpuShader->glProgram);
-            device->stateCache->glProgram = gpuShader->glProgram;
         }
 
         for (size_t i = 0; i < activeGPUSamplers.size(); ++i) {
             GLES2GPUUniformSampler &gpuSampler = activeGPUSamplers[i];
             glUniform1iv(gpuSampler.glLoc, (GLsizei)gpuSampler.units.size(), gpuSampler.units.data());
+        }
+
+        if (device->stateCache->glProgram != gpuShader->glProgram) {
+            glUseProgram(device->stateCache->glProgram);
         }
     }
 
@@ -1075,6 +1090,7 @@ void GLES2CmdFuncDestroyShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
         if (device->stateCache->glProgram == gpuShader->glProgram) {
             glUseProgram(0);
             device->stateCache->glProgram = 0;
+            gfxStateCache.gpuPipelineState = nullptr;
         }
         glDeleteProgram(gpuShader->glProgram);
         gpuShader->glProgram = 0;
@@ -1125,6 +1141,7 @@ void GLES2CmdFuncDestroyInputAssembler(GLES2Device *device, GLES2GPUInputAssembl
         if (device->stateCache->glVAO == it->second) {
             glBindVertexArrayOES(0);
             device->stateCache->glVAO = 0;
+            gfxStateCache.gpuInputAssembler = nullptr;
         }
         glDeleteVertexArraysOES(1, &it->second);
     }
@@ -1226,15 +1243,15 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
 
     GLES2StateCache *cache = device->stateCache;
     GLES2GPURenderPass *gpuRenderPass = nullptr;
-    bool isShaderChanged = false;
-    GLES2GPUPipelineState *gpuPipelineState = nullptr;
-    GLenum glPrimitive = 0;
-    GLES2GPUInputAssembler *gpuInputAssembler = nullptr;
     GLES2CmdBeginRenderPass *cmdBeginRenderPass = nullptr;
+    bool isShaderChanged = false;
     GLenum glWrapS;
     GLenum glWrapT;
     GLenum glMinFilter;
-    bool reverseCW = false;
+
+    GLES2GPUPipelineState *&gpuPipelineState = gfxStateCache.gpuPipelineState;
+    GLES2GPUInputAssembler *&gpuInputAssembler = gfxStateCache.gpuInputAssembler;
+    GLenum &glPrimitive = gfxStateCache.glPrimitive;
 
     for (uint i = 0; i < cmdPackage->cmds.size(); ++i) {
         GFXCmdType cmdType = cmdPackage->cmds[i];
@@ -1249,7 +1266,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
                         glBindFramebuffer(GL_FRAMEBUFFER, cmd->gpuFBO->glFramebuffer);
                         cache->glFramebuffer = cmd->gpuFBO->glFramebuffer;
                         // render targets are drawn with flipped-Y
-                        reverseCW = !!cmd->gpuFBO->glFramebuffer;
+                        gfxStateCache.reverseCW = !!cmd->gpuFBO->glFramebuffer;
                     }
 
                     if (cache->viewport.left != cmd->renderArea.x ||
@@ -1289,7 +1306,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
                                     }
 
                                     const Color &color = cmd->clearColors[j];
-                                    glClearColor(color.r, color.g, color.b, color.a);
+                                    glClearColor(color.x, color.y, color.z, color.w);
                                     glClears |= GL_COLOR_BUFFER_BIT;
                                     break;
                                 }
@@ -1479,8 +1496,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
                         }
                         cache->rs.cullMode = gpuPipelineState->rs.cullMode;
                     }
-                    bool isFrontFaceCCW = gpuPipelineState->rs.isFrontFaceCCW;
-                    if (reverseCW) isFrontFaceCCW = !isFrontFaceCCW;
+                    bool isFrontFaceCCW = gpuPipelineState->rs.isFrontFaceCCW != gfxStateCache.reverseCW;
                     if (cache->rs.isFrontFaceCCW != isFrontFaceCCW) {
                         glFrontFace(isFrontFaceCCW ? GL_CCW : GL_CW);
                         cache->rs.isFrontFaceCCW = isFrontFaceCCW;
@@ -1589,15 +1605,15 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
                         }
                         cache->bs.isA2C = gpuPipelineState->bs.isA2C;
                     }
-                    if (cache->bs.blendColor.r != gpuPipelineState->bs.blendColor.r ||
-                        cache->bs.blendColor.g != gpuPipelineState->bs.blendColor.g ||
-                        cache->bs.blendColor.b != gpuPipelineState->bs.blendColor.b ||
-                        cache->bs.blendColor.a != gpuPipelineState->bs.blendColor.a) {
+                    if (cache->bs.blendColor.x != gpuPipelineState->bs.blendColor.x ||
+                        cache->bs.blendColor.y != gpuPipelineState->bs.blendColor.y ||
+                        cache->bs.blendColor.z != gpuPipelineState->bs.blendColor.z ||
+                        cache->bs.blendColor.w != gpuPipelineState->bs.blendColor.w) {
 
-                        glBlendColor(gpuPipelineState->bs.blendColor.r,
-                                     gpuPipelineState->bs.blendColor.g,
-                                     gpuPipelineState->bs.blendColor.b,
-                                     gpuPipelineState->bs.blendColor.a);
+                        glBlendColor(gpuPipelineState->bs.blendColor.x,
+                                     gpuPipelineState->bs.blendColor.y,
+                                     gpuPipelineState->bs.blendColor.z,
+                                     gpuPipelineState->bs.blendColor.w);
                         cache->bs.blendColor = gpuPipelineState->bs.blendColor;
                     }
 
@@ -1645,7 +1661,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
 
                     size_t blockLen = gpuPipelineState->gpuShader->glBlocks.size();
                     const vector<vector<int>> &dynamicOffsetIndices = cmd->gpuPipelineState->gpuPipelineLayout->dynamicOffsetIndices;
-                    uint8_t *uniformBuffBase, *uniformBuff;
+                    uint8_t *uniformBuffBase = nullptr, *uniformBuff;
 
                     for (size_t j = 0; j < blockLen; j++) {
                         const GLES2GPUUniformBlock &glBlock = gpuPipelineState->gpuShader->glBlocks[j];
@@ -1672,8 +1688,6 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
                                               gpuDescriptor.gpuBufferView->offset + offset;
                         } else if (gpuDescriptor.gpuBuffer) {
                             uniformBuffBase = gpuDescriptor.gpuBuffer->buffer + offset;
-                        } else {
-                            continue;
                         }
 
                         for (size_t u = 0; u < glBlock.glActiveUniforms.size(); ++u) {
@@ -1773,17 +1787,19 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
 
                         CCASSERT(cmd->gpuDescriptorSets.size() > glSampler.set, "Invalid set index");
                         const GLES2GPUDescriptorSet *gpuDescriptorSet = cmd->gpuDescriptorSets[glSampler.set];
-                        const GLES2GPUDescriptor &gpuDescriptor = gpuDescriptorSet->gpuDescriptors[glSampler.binding];
+                        uint descriptorIndex = gpuDescriptorSet->descriptorIndices->at(glSampler.binding);
+                        const GLES2GPUDescriptor *gpuDescriptor = &gpuDescriptorSet->gpuDescriptors[descriptorIndex];
 
-                        if (!gpuDescriptor.gpuTexture || !gpuDescriptor.gpuSampler) {
-                            CC_LOG_ERROR("Sampler binding '%s' at set %d binding %d is not bounded",
-                                         glSampler.name.c_str(), glSampler.set, glSampler.binding);
-                            continue;
-                        }
-
-                        for (size_t u = 0; u < glSampler.units.size(); ++u) {
+                        for (size_t u = 0; u < glSampler.units.size(); u++, gpuDescriptor++) {
                             uint unit = (uint)glSampler.units[u];
-                            GLES2GPUTexture *gpuTexture = gpuDescriptor.gpuTexture;
+
+                            if (!gpuDescriptor->gpuTexture || !gpuDescriptor->gpuSampler) {
+                                CC_LOG_ERROR("Sampler binding '%s' at set %d binding %d index %d is not bounded",
+                                            glSampler.name.c_str(), glSampler.set, glSampler.binding, u);
+                                continue;
+                            }
+
+                            GLES2GPUTexture *gpuTexture = gpuDescriptor->gpuTexture;
                             GLuint glTexture = gpuTexture->glTexture;
                             if (cache->glTextures[unit] != glTexture) {
                                 if (cache->texUint != unit) {
@@ -1794,25 +1810,25 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
                                 cache->glTextures[unit] = glTexture;
                             }
 
-                            if (gpuDescriptor.gpuTexture->isPowerOf2) {
-                                glWrapS = gpuDescriptor.gpuSampler->glWrapS;
-                                glWrapT = gpuDescriptor.gpuSampler->glWrapT;
+                            if (gpuDescriptor->gpuTexture->isPowerOf2) {
+                                glWrapS = gpuDescriptor->gpuSampler->glWrapS;
+                                glWrapT = gpuDescriptor->gpuSampler->glWrapT;
 
-                                if (gpuDescriptor.gpuTexture->mipLevel <= 1 &&
-                                    !(gpuDescriptor.gpuTexture->flags & TextureFlagBit::GEN_MIPMAP) &&
-                                    (gpuDescriptor.gpuSampler->glMinFilter == GL_LINEAR_MIPMAP_NEAREST ||
-                                     gpuDescriptor.gpuSampler->glMinFilter == GL_LINEAR_MIPMAP_LINEAR)) {
+                                if (gpuDescriptor->gpuTexture->mipLevel <= 1 &&
+                                    !(gpuDescriptor->gpuTexture->flags & TextureFlagBit::GEN_MIPMAP) &&
+                                    (gpuDescriptor->gpuSampler->glMinFilter == GL_LINEAR_MIPMAP_NEAREST ||
+                                     gpuDescriptor->gpuSampler->glMinFilter == GL_LINEAR_MIPMAP_LINEAR)) {
                                     glMinFilter = GL_LINEAR;
                                 } else {
-                                    glMinFilter = gpuDescriptor.gpuSampler->glMinFilter;
+                                    glMinFilter = gpuDescriptor->gpuSampler->glMinFilter;
                                 }
                             } else {
                                 glWrapS = GL_CLAMP_TO_EDGE;
                                 glWrapT = GL_CLAMP_TO_EDGE;
 
-                                if (gpuDescriptor.gpuSampler->glMinFilter == GL_LINEAR ||
-                                    gpuDescriptor.gpuSampler->glMinFilter == GL_LINEAR_MIPMAP_NEAREST ||
-                                    gpuDescriptor.gpuSampler->glMinFilter == GL_LINEAR_MIPMAP_LINEAR) {
+                                if (gpuDescriptor->gpuSampler->glMinFilter == GL_LINEAR ||
+                                    gpuDescriptor->gpuSampler->glMinFilter == GL_LINEAR_MIPMAP_NEAREST ||
+                                    gpuDescriptor->gpuSampler->glMinFilter == GL_LINEAR_MIPMAP_LINEAR) {
                                     glMinFilter = GL_LINEAR;
                                 } else {
                                     glMinFilter = GL_NEAREST;
@@ -1846,13 +1862,13 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
                                 gpuTexture->glMinFilter = glMinFilter;
                             }
 
-                            if (gpuTexture->glMagFilter != gpuDescriptor.gpuSampler->glMagFilter) {
+                            if (gpuTexture->glMagFilter != gpuDescriptor->gpuSampler->glMagFilter) {
                                 if (cache->texUint != unit) {
                                     glActiveTexture(GL_TEXTURE0 + unit);
                                     cache->texUint = unit;
                                 }
-                                glTexParameteri(gpuTexture->glTarget, GL_TEXTURE_MAG_FILTER, gpuDescriptor.gpuSampler->glMagFilter);
-                                gpuTexture->glMagFilter = gpuDescriptor.gpuSampler->glMagFilter;
+                                glTexParameteri(gpuTexture->glTarget, GL_TEXTURE_MAG_FILTER, gpuDescriptor->gpuSampler->glMagFilter);
+                                gpuTexture->glMagFilter = gpuDescriptor->gpuSampler->glMagFilter;
                             }
                         }
                     }
@@ -1997,14 +2013,14 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
                                 }
                                 break;
                             case DynamicStateFlagBit::BLEND_CONSTANTS:
-                                if ((cache->bs.blendColor.r != gpuPipelineState->bs.blendColor.r) ||
-                                    (cache->bs.blendColor.g != gpuPipelineState->bs.blendColor.g) ||
-                                    (cache->bs.blendColor.b != gpuPipelineState->bs.blendColor.b) ||
-                                    (cache->bs.blendColor.a != gpuPipelineState->bs.blendColor.a)) {
-                                    glBlendColor(gpuPipelineState->bs.blendColor.r,
-                                                 gpuPipelineState->bs.blendColor.g,
-                                                 gpuPipelineState->bs.blendColor.b,
-                                                 gpuPipelineState->bs.blendColor.a);
+                                if ((cache->bs.blendColor.x != gpuPipelineState->bs.blendColor.x) ||
+                                    (cache->bs.blendColor.y != gpuPipelineState->bs.blendColor.y) ||
+                                    (cache->bs.blendColor.z != gpuPipelineState->bs.blendColor.z) ||
+                                    (cache->bs.blendColor.w != gpuPipelineState->bs.blendColor.w)) {
+                                    glBlendColor(gpuPipelineState->bs.blendColor.x,
+                                                 gpuPipelineState->bs.blendColor.y,
+                                                 gpuPipelineState->bs.blendColor.z,
+                                                 gpuPipelineState->bs.blendColor.w);
                                     cache->bs.blendColor = gpuPipelineState->bs.blendColor;
                                 }
                                 break;
@@ -2090,7 +2106,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
                 if (gpuInputAssembler && gpuPipelineState) {
                     if (!gpuInputAssembler->gpuIndirectBuffer) {
 
-                        if (gpuInputAssembler->gpuIndexBuffer && cmd->drawInfo.indexCount >= 0) {
+                        if (gpuInputAssembler->gpuIndexBuffer && cmd->drawInfo.indexCount > 0) {
                             uint8_t *offset = 0;
                             offset += cmd->drawInfo.firstIndex * gpuInputAssembler->gpuIndexBuffer->stride;
                             if (cmd->drawInfo.instanceCount == 0) {
@@ -2112,7 +2128,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
                     } else {
                         for (size_t j = 0; j < gpuInputAssembler->gpuIndirectBuffer->indirects.size(); ++j) {
                             const DrawInfo &draw = gpuInputAssembler->gpuIndirectBuffer->indirects[j];
-                            if (gpuInputAssembler->gpuIndexBuffer && draw.indexCount >= 0) {
+                            if (gpuInputAssembler->gpuIndexBuffer && draw.indexCount > 0) {
                                 uint8_t *offset = 0;
                                 offset += draw.firstIndex * gpuInputAssembler->gpuIndexBuffer->stride;
                                 if (cmd->drawInfo.instanceCount == 0) {

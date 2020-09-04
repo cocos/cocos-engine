@@ -18,15 +18,15 @@ namespace cc {
 namespace pipeline {
 namespace {
 void SRGBToLinear(gfx::Color &out, const gfx::Color &gamma) {
-    out.r = gamma.r * gamma.r;
-    out.g = gamma.g * gamma.g;
-    out.b = gamma.b * gamma.b;
+    out.x = gamma.x * gamma.x;
+    out.y = gamma.y * gamma.y;
+    out.z = gamma.z * gamma.z;
 }
 
 void LinearToSRGB(gfx::Color &out, const gfx::Color &linear) {
-    out.r = std::sqrt(linear.r);
-    out.g = std::sqrt(linear.g);
-    out.b = std::sqrt(linear.b);
+    out.x = std::sqrt(linear.x);
+    out.y = std::sqrt(linear.y);
+    out.z = std::sqrt(linear.z);
 }
 } // namespace
 
@@ -147,13 +147,13 @@ void ForwardStage::render(RenderView *view) {
         if (pipeline->isHDR()) {
             SRGBToLinear(_clearColors[0], camera->getClearColor());
             auto scale = pipeline->getFpScale() / camera->getExposure();
-            _clearColors[0].r *= scale;
-            _clearColors[0].g *= scale;
-            _clearColors[0].b *= scale;
+            _clearColors[0].x *= scale;
+            _clearColors[0].y *= scale;
+            _clearColors[0].z *= scale;
         } else {
-            _clearColors[0].r = camera->getClearColor().r;
-            _clearColors[0].g = camera->getClearColor().g;
-            _clearColors[0].b = camera->getClearColor().b;
+            _clearColors[0].x = camera->getClearColor().x;
+            _clearColors[0].y = camera->getClearColor().y;
+            _clearColors[0].z = camera->getClearColor().z;
         }
     }
 

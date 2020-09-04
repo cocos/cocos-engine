@@ -8,6 +8,13 @@ namespace gfx {
 
 class GLES2Device;
 
+struct GLES2GPUStateCache {
+    GLES2GPUPipelineState *gpuPipelineState = nullptr;
+    GLES2GPUInputAssembler *gpuInputAssembler = nullptr;
+    bool reverseCW = false;
+    GLenum glPrimitive = 0;
+};
+
 struct GLES2DepthBias {
     float constant = 0.0f;
     float clamp = 0.0f;

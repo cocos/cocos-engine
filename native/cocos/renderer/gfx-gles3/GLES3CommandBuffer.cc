@@ -158,15 +158,15 @@ void GLES3CommandBuffer::setDepthBias(float constant, float clamp, float slope) 
 }
 
 void GLES3CommandBuffer::setBlendConstants(const Color &constants) {
-    if (math::IsNotEqualF(_curBlendConstants.r, constants.r) ||
-        math::IsNotEqualF(_curBlendConstants.g, constants.g) ||
-        math::IsNotEqualF(_curBlendConstants.b, constants.b) ||
-        math::IsNotEqualF(_curBlendConstants.a, constants.a)) {
+    if (math::IsNotEqualF(_curBlendConstants.x, constants.x) ||
+        math::IsNotEqualF(_curBlendConstants.y, constants.y) ||
+        math::IsNotEqualF(_curBlendConstants.z, constants.z) ||
+        math::IsNotEqualF(_curBlendConstants.w, constants.w)) {
 
-        _curBlendConstants.r = constants.r;
-        _curBlendConstants.g = constants.g;
-        _curBlendConstants.b = constants.b;
-        _curBlendConstants.a = constants.a;
+        _curBlendConstants.x = constants.x;
+        _curBlendConstants.y = constants.y;
+        _curBlendConstants.z = constants.z;
+        _curBlendConstants.w = constants.w;
         _isStateInvalid = true;
     }
 }
@@ -328,10 +328,10 @@ void GLES3CommandBuffer::BindStates() {
     cmd->scissor = _curScissor;
     cmd->lineWidth = _curLineWidth;
     cmd->depthBias = _curDepthBias;
-    cmd->blendConstants.r = _curBlendConstants.r;
-    cmd->blendConstants.g = _curBlendConstants.g;
-    cmd->blendConstants.b = _curBlendConstants.b;
-    cmd->blendConstants.a = _curBlendConstants.a;
+    cmd->blendConstants.x = _curBlendConstants.x;
+    cmd->blendConstants.y = _curBlendConstants.y;
+    cmd->blendConstants.z = _curBlendConstants.z;
+    cmd->blendConstants.w = _curBlendConstants.w;
     cmd->depthBounds = _curDepthBounds;
     cmd->stencilWriteMask = _curStencilWriteMask;
     cmd->stencilCompareMask = _curStencilCompareMask;

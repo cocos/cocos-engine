@@ -646,10 +646,10 @@ struct Viewport {
 
 #pragma pack(push, 1)
 struct Color {
-    float r = 0.0f;
-    float g = 0.0f;
-    float b = 0.0f;
-    float a = 0.0f;
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+    float w = 0.0f;
 };
 #pragma pack(pop)
 typedef vector<Color> ColorList;
@@ -792,7 +792,7 @@ struct UniformBlock {
     uint binding = 0;
     String name;
     UniformList members;
-    uint count = 0;
+    uint count = 0u;
 };
 
 typedef vector<UniformBlock> UniformBlockList;

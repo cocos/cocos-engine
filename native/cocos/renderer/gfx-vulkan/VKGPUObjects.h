@@ -226,6 +226,7 @@ public:
 
     vector<VkDescriptorSetLayoutBinding> vkBindings;
     VkDescriptorSetLayout vkDescriptorSetLayout = VK_NULL_HANDLE;
+
     vector<uint> descriptorIndices;
     uint descriptorCount = 0u;
 };

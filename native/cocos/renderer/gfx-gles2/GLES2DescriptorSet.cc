@@ -3,6 +3,7 @@
 #include "GLES2Buffer.h"
 #include "GLES2Commands.h"
 #include "GLES2DescriptorSet.h"
+#include "GLES2DescriptorSetLayout.h"
 #include "GLES2Sampler.h"
 #include "GLES2Texture.h"
 
@@ -20,8 +21,10 @@ bool GLES2DescriptorSet::initialize(const DescriptorSetInfo &info) {
 
     _layout = info.layout;
 
-    const DescriptorSetLayoutBindingList &bindings = _layout->getBindings();
-    const size_t descriptorCount = bindings.size();
+    const GLES2GPUDescriptorSetLayout *gpuDescriptorSetLayout = ((GLES2DescriptorSetLayout *)_layout)->gpuDescriptorSetLayout();
+    const size_t descriptorCount = gpuDescriptorSetLayout->descriptorCount;
+    const size_t bindingCount = gpuDescriptorSetLayout->bindings.size();
+    const vector<uint> &indices = gpuDescriptorSetLayout->descriptorIndices;
 
     _buffers.resize(descriptorCount);
     _textures.resize(descriptorCount);
@@ -29,16 +32,20 @@ bool GLES2DescriptorSet::initialize(const DescriptorSetInfo &info) {
 
     _gpuDescriptorSet = CC_NEW(GLES2GPUDescriptorSet);
     _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount);
-    for (size_t i = 0u; i < descriptorCount; i++) {
-        _gpuDescriptorSet->gpuDescriptors[i].type = bindings[i].descriptorType;
+    for (size_t i = 0u; i < bindingCount; i++) {
+        const DescriptorSetLayoutBinding &binding = gpuDescriptorSetLayout->bindings[i];
+        uint descriptorIndex = indices[i];
+        for (uint j = descriptorIndex; j < descriptorIndex + binding.count; j++) {
+            _gpuDescriptorSet->gpuDescriptors[j].type = binding.descriptorType;
+        }
     }
+
+    _gpuDescriptorSet->descriptorIndices = &gpuDescriptorSetLayout->descriptorIndices;
 
     return true;
 }
 
 void GLES2DescriptorSet::destroy() {
-    _layout = nullptr;
-
     if (_gpuDescriptorSet) {
         CC_DELETE(_gpuDescriptorSet);
         _gpuDescriptorSet = nullptr;
@@ -47,27 +54,24 @@ void GLES2DescriptorSet::destroy() {
 
 void GLES2DescriptorSet::update() {
     if (_isDirty && _gpuDescriptorSet) {
-        uint bindingCount = _gpuDescriptorSet->gpuDescriptors.size();
-
-        for (size_t i = 0; i < bindingCount; i++) {
-            GLES2GPUDescriptor &binding = _gpuDescriptorSet->gpuDescriptors[i];
-
-            if ((uint)binding.type & DESCRIPTOR_BUFFER_TYPE) {
+        const GLES2GPUDescriptorList &descriptors = _gpuDescriptorSet->gpuDescriptors;
+        for (size_t i = 0; i < descriptors.size(); i++) {
+            if ((uint)descriptors[i].type & DESCRIPTOR_BUFFER_TYPE) {
                 GLES2Buffer *buffer = (GLES2Buffer *)_buffers[i];
                 if (buffer) {
                     if (buffer->gpuBuffer()) {
-                        binding.gpuBuffer = buffer->gpuBuffer();
+                        _gpuDescriptorSet->gpuDescriptors[i].gpuBuffer = buffer->gpuBuffer();
                     } else if (buffer->gpuBufferView()) {
-                        binding.gpuBufferView = buffer->gpuBufferView();
+                        _gpuDescriptorSet->gpuDescriptors[i].gpuBufferView = buffer->gpuBufferView();
                     }
                 }
             }
-            else if ((uint)binding.type & DESCRIPTOR_SAMPLER_TYPE) {
+            else if ((uint)descriptors[i].type & DESCRIPTOR_SAMPLER_TYPE) {
                 if (_textures[i]) {
-                    binding.gpuTexture = ((GLES2Texture *)_textures[i])->gpuTexture();
+                    _gpuDescriptorSet->gpuDescriptors[i].gpuTexture = ((GLES2Texture *)_textures[i])->gpuTexture();
                 }
                 if (_samplers[i]) {
-                    binding.gpuSampler = ((GLES2Sampler *)_samplers[i])->gpuSampler();
+                    _gpuDescriptorSet->gpuDescriptors[i].gpuSampler = ((GLES2Sampler *)_samplers[i])->gpuSampler();
                 }
             }
         }

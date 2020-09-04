@@ -12,6 +12,7 @@ public:
     GLuint glElementArrayBuffer = 0;
     GLuint glUniformBuffer = 0;
     GLuint glBindUBOs[GFX_MAX_BUFFER_BINDINGS] = {0};
+    GLuint glBindUBOOffsets[GFX_MAX_BUFFER_BINDINGS] = {0};
     GLuint glVAO = 0;
     uint texUint = 0;
     GLuint glTextures[GFX_MAX_TEXTURE_UNITS] = {0};

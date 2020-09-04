@@ -172,18 +172,18 @@ void CCMTLCommandBuffer::setDepthBias(float constant, float clamp, float slope) 
 }
 
 void CCMTLCommandBuffer::setBlendConstants(const Color &constants) {
-    if (math::IsNotEqualF(constants.r, _blendConstants.r) ||
-        math::IsNotEqualF(constants.g, _blendConstants.g) ||
-        math::IsNotEqualF(constants.b, _blendConstants.b) ||
-        math::IsNotEqualF(constants.a, _blendConstants.a)) {
-        _blendConstants.r = constants.r;
-        _blendConstants.g = constants.g;
-        _blendConstants.b = constants.b;
-        _blendConstants.a = constants.a;
-        [_mtlEncoder setBlendColorRed:_blendConstants.r
-                                green:_blendConstants.g
-                                 blue:_blendConstants.b
-                                alpha:_blendConstants.a];
+    if (math::IsNotEqualF(constants.x, _blendConstants.x) ||
+        math::IsNotEqualF(constants.y, _blendConstants.y) ||
+        math::IsNotEqualF(constants.z, _blendConstants.z) ||
+        math::IsNotEqualF(constants.w, _blendConstants.w)) {
+        _blendConstants.x = constants.x;
+        _blendConstants.y = constants.y;
+        _blendConstants.z = constants.z;
+        _blendConstants.w = constants.w;
+        [_mtlEncoder setBlendColorRed:_blendConstants.x
+                                green:_blendConstants.y
+                                 blue:_blendConstants.z
+                                alpha:_blendConstants.w];
     }
 }
 

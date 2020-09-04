@@ -6,10 +6,10 @@ namespace gfx {
 
 Sampler::Sampler(Device *device)
 : GFXObject(ObjectType::SAMPLER), _device(device) {
-    _borderColor.r = 0.0f;
-    _borderColor.g = 0.0f;
-    _borderColor.b = 0.0f;
-    _borderColor.a = 0.0f;
+    _borderColor.x = 0.0f;
+    _borderColor.y = 0.0f;
+    _borderColor.z = 0.0f;
+    _borderColor.w = 0.0f;
 }
 
 Sampler::~Sampler() {
