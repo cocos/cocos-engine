@@ -250,7 +250,10 @@ export class CannonSharedBody {
 
             for (i = 0; i < this.shapes.length; i++) {
                 const shape = this.shapes[i];
-                shape.collider.emit(deprecatedEventMap[CollisionEventObject.type], CollisionEventObject);
+                CollisionEventObject.type = deprecatedEventMap[CollisionEventObject.type];
+                shape.collider.emit(CollisionEventObject.type, CollisionEventObject);
+                // adapt 
+                CollisionEventObject.type = event.event;
                 shape.collider.emit(CollisionEventObject.type, CollisionEventObject);
             }
         }

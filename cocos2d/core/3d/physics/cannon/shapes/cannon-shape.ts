@@ -169,7 +169,10 @@ export class CannonShape implements IBaseShape {
         if (self) {
             TriggerEventObject.selfCollider = self.collider;
             TriggerEventObject.otherCollider = other ? other.collider : null;
-            this._collider.emit(deprecatedEventMap[TriggerEventObject.type], TriggerEventObject);
+            TriggerEventObject.type = deprecatedEventMap[TriggerEventObject.type];
+            this._collider.emit(TriggerEventObject.type, TriggerEventObject);
+            // adapt 
+            TriggerEventObject.type = event.event;
             this._collider.emit(TriggerEventObject.type, TriggerEventObject);
         }
     }
