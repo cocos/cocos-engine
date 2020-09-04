@@ -126,7 +126,6 @@ export class SubContextView extends Component {
 
     public onEnable () {
         this._registerNodeEvent();
-        // this._updateSubContextViewport();
     }
 
     public onDisable () {
