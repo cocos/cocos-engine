@@ -674,6 +674,7 @@ export class TerrainBlock {
 @disallowMultiple
 export class Terrain extends Component {
     @type(TerrainAsset)
+    @serializable
     @disallowAnimation
     protected __asset: TerrainAsset|null = null;
 
@@ -716,6 +717,7 @@ export class Terrain extends Component {
     }
 
     @type(TerrainAsset)
+    @visible(true)
     public set _asset (value: TerrainAsset|null) {
         if (this.__asset !== value) {
             this.__asset = value;

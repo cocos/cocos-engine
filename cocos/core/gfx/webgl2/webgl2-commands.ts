@@ -1655,6 +1655,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
                 name: sampler.name,
                 type: sampler.type,
                 units: [],
+                glUnits: null!,
                 glType: GFXTypeToWebGLType(sampler.type, gl),
                 glLoc: -1,
             };
@@ -1713,7 +1714,8 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
 
         for (let k = 0; k < glActiveSamplers.length; k++) {
             const glSampler = glActiveSamplers[k];
-            gl.uniform1iv(glSampler.glLoc, glSampler.units);
+            glSampler.glUnits = new Int32Array(glSampler.units);
+            gl.uniform1iv(glSampler.glLoc, glSampler.glUnits);
         }
 
         if (device.stateCache.glProgram !== gpuShader.glProgram) {
@@ -2271,8 +2273,12 @@ export function WebGL2CmdFuncBindStates (
 
             if (cache.glBindUBOs[glBlock.glBinding] !== gpuDescriptor.gpuBuffer.glBuffer ||
                 cache.glBindUBOOffsets[glBlock.glBinding] !== offset) {
-                gl.bindBufferRange(gl.UNIFORM_BUFFER, glBlock.glBinding, gpuDescriptor.gpuBuffer.glBuffer,
-                    offset, gpuDescriptor.gpuBuffer.size);
+                if (offset) {
+                    gl.bindBufferRange(gl.UNIFORM_BUFFER, glBlock.glBinding, gpuDescriptor.gpuBuffer.glBuffer,
+                        offset, gpuDescriptor.gpuBuffer.size);
+                } else {
+                    gl.bindBufferBase(gl.UNIFORM_BUFFER, glBlock.glBinding, gpuDescriptor.gpuBuffer.glBuffer);
+                }
                 cache.glUniformBuffer = cache.glBindUBOs[glBlock.glBinding] = gpuDescriptor.gpuBuffer.glBuffer;
                 cache.glBindUBOOffsets[glBlock.glBinding] = offset;
             }

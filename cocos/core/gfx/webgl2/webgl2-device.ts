@@ -165,12 +165,12 @@ export class WebGL2Device extends GFXDevice {
 
             this._webGL2RC = this._canvas.getContext('webgl2', webGLCtxAttribs);
         } catch (err) {
-            console.error(err);
+            console.warn(err);
             return false;
         }
 
         if (!this._webGL2RC) {
-            console.error('This device does not support WebGL2.');
+            console.warn('This device does not support WebGL2.');
             return false;
         }
 
