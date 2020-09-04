@@ -40,15 +40,14 @@
 
         var PrefabUtils = Editor.require('scene://utils/prefab');
         PrefabUtils.createPrefabFrom(nodeToCreatePrefab);
-        //var asset = new cc.Prefab();
-        //asset.data = parent;
         nodeToCreatePrefab._prefab.asset._uuid = UUID;
         //PrefabUtils.setPrefabAsset(parent, Editor.serialize.asAsset());
         PrefabUtils.setPrefabSync(nodeToCreatePrefab, true);
-
         otherSyncedNode = cc.instantiate(nodeToCreatePrefab);
         otherSyncedNode.x = 1234;
         otherSyncedNode.name = 'otherSyncedNode';
+        var container = new cc.Node();
+        otherSyncedNode.parent = container;
 
         // apply sync property
         prefabAsset = PrefabUtils.createAppliedPrefab(nodeToCreatePrefab);
@@ -59,11 +58,11 @@
         prefabAsset._uuid = UUID;
 
         // SAVE SCENE ASSET
-        parentJson = Editor.serialize(otherSyncedNode, { stringify: false });
+        parentJson = Editor.serialize(container, { stringify: false });
         if (DEBUG_SERIALIZED_PREFAB) {
             console.log(JSON.stringify(parentJson, null, 4));
         }
-        reloadedParent = cc.deserialize(parentJson);
+        reloadedParent = cc.deserialize(parentJson).children[0];
         reloadedParent._prefab.asset = prefabAsset;
         //reloadedParent.children[0]._prefab.asset = prefabAsset;
     })();
@@ -103,14 +102,14 @@
         ok(prefabInfo, 'prefab info should be saved');
         ok(prefabInfo.asset, 'asset should be saved');
         strictEqual(prefabInfo.sync, true, 'sync should be saved');
-        strictEqual(prefabInfo.fileId, nodeToCreatePrefab.uuid, 'fileId should be saved');
+        notEqual(prefabInfo.fileId, nodeToCreatePrefab.uuid, 'fileId should not saved on root node');
     });
 
     test('prefab info in exported scene if syncable', function () {
         var exportedParent = cc.deserialize(Editor.serialize(nodeToCreatePrefab, { stringify: false, exporting: true }));
         ok(exportedParent._prefab, 'prefab info should be saved');
         strictEqual(exportedParent._prefab.sync, true, 'sync should be saved');
-        strictEqual(exportedParent._prefab.fileId, nodeToCreatePrefab.uuid, 'fileId should be saved');
+        notEqual(exportedParent._prefab.fileId, nodeToCreatePrefab.uuid, 'fileId should not be saved on root node');
     });
 
     function testInstantiatedNode (newNode) {
@@ -128,14 +127,13 @@
         var newNode = cc.instantiate(nodeToCreatePrefab);
         testInstantiatedNode(newNode);
         ok(newNode._prefab.sync === true, "sync should be instantiated");
-        // ok(newNode._prefab._synced === true, "instantiated node should be _synced");
     });
 
     test('load and sync scene', function () {
         // prepare dummy scene
         var scene = new cc.Scene();
         scene._inited = false;
-        scene.children.push(reloadedParent);
+        scene._children.push(reloadedParent);
         reloadedParent._parent = scene;
 
         // invoke sync
@@ -145,8 +143,7 @@
         var prefabInfo = reloadedParent._prefab;
         ok(prefabInfo, "new node should preserve the prefab info");
         ok(prefabInfo.sync === true, "sync should be instantiated");
-        ok(prefabInfo._synced === true, "instantiated node should be _synced");
-        strictEqual(prefabInfo.fileId, nodeToCreatePrefab.uuid, 'fileId should be kept');
+        notEqual(prefabInfo.fileId, nodeToCreatePrefab.uuid, 'fileId should not be kept on root node');
 
         // test parent
         strictEqual(reloadedParent.scaleX, nodeToCreatePrefab.scaleX, 'all scale should be synced');

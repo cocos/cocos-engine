@@ -41,24 +41,7 @@ cc._PrefabInfo = cc.Class({
 
         // Indicates whether this node should always synchronize with the prefab asset, only available in the root node
         sync: false,
-
-        // Indicates whether this node is synchronized, only available in the root node
-        _synced: {
-            default: false,
-            serializable: false
-        },
     },
-    // _instantiate (cloned) {
-    //     if (!cloned) {
-    //         cloned = new cc._PrefabInfo();
-    //     }
-    //     cloned.root = this.root;
-    //     cloned.asset = this.asset;
-    //     cloned.fileId = this.fileId;
-    //     cloned.sync = this.sync;
-    //     cloned._synced = this._synced;
-    //     return cloned;
-    // }
 });
 
 // prefab helper function
@@ -66,9 +49,7 @@ module.exports = {
     // update node to make it sync with prefab
     syncWithPrefab: function (node) {
         var _prefab = node._prefab;
-        // non-reentrant
-        _prefab._synced = true;
-        //
+
         if (!_prefab.asset) {
             if (CC_EDITOR) {
                 var NodeUtils = Editor.require('scene://utils/node');
@@ -107,7 +88,6 @@ module.exports = {
         else {
             // root in prefab asset is always synced
             var prefabRoot = _prefab.asset.data;
-            prefabRoot._prefab._synced = true;
 
             // use node as the instantiated prefabRoot to make references to prefabRoot in prefab redirect to node
             prefabRoot._iN$t = node;

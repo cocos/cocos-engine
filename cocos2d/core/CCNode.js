@@ -1889,19 +1889,8 @@ let NodeDefines = {
     /*
      * The initializer for Node which will be called before all components onLoad
      */
-    _onBatchCreated () {
-        let prefabInfo = this._prefab;
-        if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
-            if (CC_DEV) {
-                // TODO - remove all usage of _synced
-                cc.assert(!prefabInfo._synced, 'prefab should not synced');
-            }
-            PrefabHelper.syncWithPrefab(this);
-        }
-
+    _onBatchCreated (dontSyncChildPrefab) {
         this._initProperties();
-
-        this._updateOrderOfArrival();
 
         // Fixed a bug where children and parent node groups were forced to synchronize, instead of only synchronizing `_cullingMask` value
         this._cullingMask = 1 << _getActualGroupIndex(this);
@@ -1919,40 +1908,16 @@ let NodeDefines = {
 
         let children = this._children;
         for (let i = 0, len = children.length; i < len; i++) {
-            children[i]._onBatchCreated();
-        }
-
-        if (children.length > 0) {
-            this._renderFlag |= RenderFlow.FLAG_CHILDREN;
-        }
-
-        if (CC_JSB && CC_NATIVERENDERER) {
-            this._proxy.initNative();
-        }
-    },
-
-    // the same as _onBatchCreated but untouch prefab
-    _onBatchRestored () {
-        this._initProperties();
-
-        // Fixed a bug where children and parent node groups were forced to synchronize, instead of only synchronizing `_cullingMask` value
-        this._cullingMask = 1 << _getActualGroupIndex(this);
-        if (CC_JSB && CC_NATIVERENDERER) {
-            this._proxy && this._proxy.updateCullingMask();
-        }
-
-        if (!this._activeInHierarchy) {
-            if (CC_EDITOR ? cc.director.getActionManager() : ActionManagerExist) {
-                // deactivate ActionManager and EventManager by default
-                cc.director.getActionManager().pauseTarget(this);
+            let child = children[i];
+            if (!dontSyncChildPrefab) {
+                // sync child prefab
+                let prefabInfo = child._prefab;
+                if (prefabInfo && prefabInfo.sync && prefabInfo.root === child) {
+                    PrefabHelper.syncWithPrefab(child);
+                }
+                child._updateOrderOfArrival();
             }
-
-            eventManager.pauseTarget(this);
-        }
-
-        var children = this._children;
-        for (var i = 0, len = children.length; i < len; i++) {
-            children[i]._onBatchRestored();
+            child._onBatchCreated(dontSyncChildPrefab);
         }
 
         if (children.length > 0) {
