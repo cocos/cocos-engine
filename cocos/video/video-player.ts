@@ -32,10 +32,11 @@ import { Component, EventHandler as ComponentEventHandler } from '../core/compon
 import { UITransform } from '../core/components/ui-base';
 import { ccclass, displayOrder, executeInEditMode, help, menu, slide, range, requireComponent, tooltip, type, serializable } from 'cc.decorator';
 import { clamp } from '../core/math';
-import { VideoClip  } from './assets/video-clip';
+import { VideoClip } from './assets/video-clip';
 import { Enum } from '../core/value-types';
 import { VideoPlayerImpl, EventType } from './assets/video-player-web';
 import { EDITOR } from 'internal:constants';
+import { legacyCC } from '../core/global-exports';
 
 /**
  * @en Enum for video resource type.
@@ -498,3 +499,5 @@ export class VideoPlayer extends Component {
         }
     }
 }
+
+legacyCC.internal.VideoPlayer = VideoPlayer;

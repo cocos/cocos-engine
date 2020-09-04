@@ -33,7 +33,7 @@ import { view } from './view';
 import { Sprite } from '../../ui/components/sprite';
 import { Node } from '../scene-graph';
 import { UITransform } from '../components/ui-base/ui-transform';
-import { SpriteFrame, ImageAsset } from '../assets';
+import { ImageAsset } from '../assets/image-asset';
 import { Rect } from '../math';
 import { legacyCC } from '../global-exports';
 
@@ -116,7 +116,7 @@ export class SubContextView extends Component {
             if (this._sprite!.spriteFrame) {
                 this._sprite!.spriteFrame.texture = this._imageAsset._texture;
             } else {
-                const sp = new SpriteFrame();
+                const sp = new legacyCC.SpriteFrame();
                 sp.texture = this._imageAsset._texture;
                 this._sprite!.spriteFrame = sp;
             }
