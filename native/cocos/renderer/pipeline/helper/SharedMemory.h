@@ -129,8 +129,8 @@ struct CC_DLL AABB {
 };
 
 struct CC_DLL Plane {
-    float distance;
     cc::Vec3 normal;
+    float distance;
 };
 
 struct CC_DLL Frustum {
