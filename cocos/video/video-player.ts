@@ -34,7 +34,7 @@ import { ccclass, displayOrder, executeInEditMode, help, menu, slide, range, req
 import { clamp } from '../core/math';
 import { VideoClip } from './assets/video-clip';
 import { Enum } from '../core/value-types';
-import { VideoPlayerImpl, EventType } from './assets/video-player-Impl-web';
+import { VideoPlayerImpl, EventType } from './assets/video-player-impl';
 import { EDITOR } from 'internal:constants';
 
 /**
