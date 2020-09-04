@@ -1,17 +1,11 @@
 import { Color, Vec3 } from '../../math';
 import { AmbientPool, NULL_HANDLE, AmbientView, AmbientHandle } from '../core/memory-pools';
+import { legacyCC } from '../../global-exports';
 
 export class Ambient {
     public static SUN_ILLUM = 65000.0;
     public static SKY_ILLUM = 20000.0;
-    private static _instance: Ambient | null = null;
-    public static get instance () {
-        if (!Ambient._instance) {
-            Ambient._instance = new Ambient();
-        }
 
-        return Ambient._instance;
-    }
     get colorArray () {
         return this._colorArray;
     }
@@ -95,3 +89,7 @@ export class Ambient {
         AmbientPool.setVec4(this._handle, AmbientView.GROUND_ALBEDO, this._groundAlbedo);
     }
 }
+
+legacyCC.Ambient = Ambient;
+
+

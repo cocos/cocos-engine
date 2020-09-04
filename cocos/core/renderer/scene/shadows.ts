@@ -1,11 +1,8 @@
 
 import { Material } from '../../assets/material';
 import { sphere } from '../../geometry';
-import { Color, Mat4, Quat, Vec3, Vec2, Vec4 } from '../../math';
-import { UBOShadow } from '../../pipeline/define';
-import { GFXDescriptorSet } from '../../gfx';
+import { Color, Mat4, Vec3, Vec2 } from '../../math';
 import { legacyCC } from '../../global-exports';
-import { ForwardPipeline } from '../../pipeline';
 import { Enum } from '../../value-types';
 import { ShadowsPool, NULL_HANDLE, ShadowsView, ShadowsHandle } from '../core/memory-pools';
 
@@ -313,3 +310,5 @@ export class Shadows {
         }
     }
 }
+
+legacyCC.Shadows = Shadows;
