@@ -183,7 +183,7 @@ export default class ProgramLib {
     let key = 0;
     for (let i = 0; i < tmpl.defines.length; ++i) {
       let tmplDefs = tmpl.defines[i];
-      
+
       let value = defines[tmplDefs.name];
       if (value === undefined) {
         continue;
@@ -197,8 +197,8 @@ export default class ProgramLib {
     return tmpl.id + ':' + key;
   }
 
-  getProgram(name, defines, errPrefix) {
-    let key = this.getKey(name, defines);
+  getProgram(name, defines, errPrefix, pass) {
+    let key = pass._programKey = pass._programKey || this.getKey(name, defines);
     let program = this._cache[key];
     if (program) {
       return program;
