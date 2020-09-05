@@ -197,15 +197,15 @@ export default class ProgramLib {
     return tmpl.id + ':' + key;
   }
 
-  getProgram(name, defines, errPrefix, pass) {
-    let key = pass._programKey = pass._programKey || this.getKey(name, defines);
+  getProgram(pass, defines, errPrefix) {
+    let key = pass._programKey = pass._programKey || this.getKey(pass._programName, defines);
     let program = this._cache[key];
     if (program) {
       return program;
     }
 
     // get template
-    let tmpl = this._templates[name];
+    let tmpl = this._templates[pass._programName];
     let customDef = _generateDefines(tmpl.defines, defines);
     let vert = _replaceMacroNums(tmpl.vert, tmpl.defines, defines);
     vert = customDef + _unrollLoops(vert);

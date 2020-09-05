@@ -327,7 +327,7 @@ export default class Base {
       // set program
       Object.setPrototypeOf(defines, pass._defines);
 
-      let program = programLib.getProgram(pass._programName, defines, effect.name, pass);
+      let program = programLib.getProgram(pass, defines, effect.name);
       device.setProgram(program);
 
       let uniforms = program._uniforms;
