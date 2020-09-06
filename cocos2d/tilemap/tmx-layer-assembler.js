@@ -230,19 +230,19 @@ export default class TmxAssembler extends Assembler {
             switch (comp.renderOrder) {
                 // left top to right down, col add, row sub,
                 case RenderOrder.RightDown:
-                    this.traverseGrids(leftDown, rightTop, -1, 1);
+                    this.traverseGrids(leftDown, rightTop, -1, 1, comp);
                     break;
                 // right top to left down, col sub, row sub
                 case RenderOrder.LeftDown:
-                    this.traverseGrids(leftDown, rightTop, -1, -1);
+                    this.traverseGrids(leftDown, rightTop, -1, -1, comp);
                     break;
                 // left down to right up, col add, row add
                 case RenderOrder.RightUp:
-                    this.traverseGrids(leftDown, rightTop, 1, 1);
+                    this.traverseGrids(leftDown, rightTop, 1, 1, comp);
                     break;
                 // right down to left up, col sub, row add
                 case RenderOrder.LeftUp:
-                    this.traverseGrids(leftDown, rightTop, 1, -1);
+                    this.traverseGrids(leftDown, rightTop, 1, -1, comp);
                     break;
             }
             comp._setCullingDirty(false);
@@ -293,7 +293,7 @@ export default class TmxAssembler extends Assembler {
 
     // rowMoveDir is -1 or 1, -1 means decrease, 1 means increase
     // colMoveDir is -1 or 1, -1 means decrease, 1 means increase
-    traverseGrids (leftDown, rightTop, rowMoveDir, colMoveDir) {
+    traverseGrids (leftDown, rightTop, rowMoveDir, colMoveDir, comp) {
         _renderDataList.reset();
 
         // show nothing
@@ -371,10 +371,11 @@ export default class TmxAssembler extends Assembler {
                 }
                 if (!_curMaterial) continue;
 
+                tileSize = grid.tileset._tileSize;
+
                 // calc rect vertex
                 left = colData.left - _moveX;
                 bottom = colData.bottom - _moveY;
-                tileSize = grid.tileset._tileSize;
                 right = left + tileSize.width;
                 top = bottom + tileSize.height;
 
