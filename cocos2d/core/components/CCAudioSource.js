@@ -217,7 +217,10 @@ var AudioSource = cc.Class({
     },
 
     onLoad: function () {
-        this.audio.src = this._clip;
+        // this.audio.src is undefined, when the clip property is deserialized from the scene
+        if (!this.audio.src) {
+            this.audio.src = this._clip;
+        }
         if (this.preload) {
             this._clip._ensureLoaded();
         }
