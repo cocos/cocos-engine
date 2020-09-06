@@ -200,6 +200,7 @@ export default class Pass {
         }
 
         this._defines[name] = value;
+        this._programKey = null;
 
         return true;
     }

@@ -48,7 +48,6 @@ export default class EffectBase {
         else if (uniform.value === value) return;
 
         this._dirty = true;
-        pass._programKey = null;
         return Pass.prototype.setProperty.call(pass, name, value, directly);
     }
 
