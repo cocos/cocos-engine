@@ -89,7 +89,7 @@ export class Shadows {
      * @en The normal of the plane which receives shadow
      * @zh 阴影接收平面的法线
      */
-    get normal () {
+    get normal (): Vec3 {
         return this._normal;
     }
 
@@ -103,38 +103,38 @@ export class Shadows {
      * @en The distance from coordinate origin to the receiving plane.
      * @zh 阴影接收平面与原点的距离
      */
-    get distance () {
-        return this._distance;
+    get distance (): number {
+        return ShadowsPool.get(this._handle, ShadowsView.DISTANCE);
     }
 
     set distance (val: number) {
-        this._distance = val;
         this.dirty = true;
-        ShadowsPool.set(this._handle, ShadowsView.DISTANCE, this._distance);
+        ShadowsPool.set(this._handle, ShadowsView.DISTANCE, val);
     }
 
     /**
      * @en Shadow color
      * @zh 阴影颜色
      */
-    get shadowColor () {
+    get shadowColor (): Color {
         return this._shadowColor;
     }
 
     set shadowColor (color: Color) {
         this._shadowColor = color;
         this.dirty = true;
+        ShadowsPool.setVec4(this._handle, ShadowsView.COLOR, color);
     }
 
     /**
      * @en Shadow type
      * @zh 阴影类型
      */
-    get type () {
+    get type (): number {
         return this._enabled ? this._type : -1;
     }
 
-    set type (val) {
+    set type (val: number) {
         this._type = val;
         ShadowsPool.set(this._handle, ShadowsView.TYPE, this._enabled ? this._type : -1);
         this._updatePipeline();
@@ -145,58 +145,54 @@ export class Shadows {
      * @en get or set shadow camera near
      * @zh 获取或者设置阴影相机近裁剪面
      */
-    public get near () {
-        return this._near;
+    public get near (): number {
+        return ShadowsPool.get(this._handle, ShadowsView.NEAR);
     }
-    public set near (val) {
-        this._near = val;
-        ShadowsPool.set(this._handle, ShadowsView.NEAR, this._near);
+    public set near (val: number) {
+        ShadowsPool.set(this._handle, ShadowsView.NEAR, val);
     }
 
     /**
      * @en get or set shadow camera far
      * @zh 获取或者设置阴影相机远裁剪面
      */
-    public get far () {
-        return this._far;
+    public get far (): number {
+        return ShadowsPool.get(this._handle, ShadowsView.FAR);
     }
-    public set far (val) {
-        this._far = val;
-        ShadowsPool.set(this._handle, ShadowsView.FAR, this._far);
+    public set far (val: number) {
+        ShadowsPool.set(this._handle, ShadowsView.FAR, val);
     }
 
     /**
      * @en get or set shadow camera aspect
      * @zh 获取或者设置阴影相机的宽高比
      */
-    public get aspect () {
-        return this._aspect;
+    public get aspect (): number {
+        return ShadowsPool.get(this._handle, ShadowsView.ASPECT);
     }
-    public set aspect (val) {
-        this._aspect = val;
-        ShadowsPool.set(this._handle, ShadowsView.ASPECT, this._aspect);
+    public set aspect (val: number) {
+        ShadowsPool.set(this._handle, ShadowsView.ASPECT, val);
     }
 
     /**
      * @en get or set shadow camera orthoSize
      * @zh 获取或者设置阴影相机正交大小
      */
-    public get orthoSize () {
-        return this._orthoSize;
+    public get orthoSize (): number {
+        return ShadowsPool.get(this._handle, ShadowsView.ORTHO_SIZE);
     }
-    public set orthoSize (val) {
-        this._orthoSize = val;
-        ShadowsPool.set(this._handle, ShadowsView.ORTHO_SIZE, this._orthoSize);
+    public set orthoSize (val: number) {
+        ShadowsPool.set(this._handle, ShadowsView.ORTHO_SIZE, val);
     }
 
     /**
      * @en get or set shadow camera orthoSize
      * @zh 获取或者设置阴影纹理大小
      */
-    public get size () {
+    public get size (): Vec2 {
         return this._size;
     }
-    public set size (val) {
+    public set size (val: Vec2) {
         this._size = val;
         ShadowsPool.setVec2(this._handle, ShadowsView.SIZE, this._size);
     }
@@ -205,12 +201,11 @@ export class Shadows {
      * @en get or set shadow pcf
      * @zh 获取或者设置阴影pcf等级
      */
-    public get pcf () {
-        return this._pcf;
+    public get pcf (): number {
+        return ShadowsPool.get(this._handle, ShadowsView.PCF_TYPE);
     }
-    public set pcf (val) {
-        this._pcf = val;
-        ShadowsPool.set(this._handle, ShadowsView.PCF_TYPE, this._pcf);
+    public set pcf (val: number) {
+        ShadowsPool.set(this._handle, ShadowsView.PCF_TYPE, val);
     }
 
     public get matLight () {
@@ -224,29 +219,28 @@ export class Shadows {
      * @zh
      * 场景包围球
      */
-    public get sphere () {
+    public get sphere (): sphere {
         return this._sphere;
     }
-    public get dirty () {
+    public get dirty (): boolean {
         return this._dirty;
     }
-    public set dirty (val) {
+    public set dirty (val: boolean) {
         this._dirty = val;
         ShadowsPool.set(this._handle, ShadowsView.DIRTY, this._dirty ? 1 : 0);
     }
 
-    public get material () {
+    public get material (): Material | null {
         return this._material;
     }
 
-    public get instancingMaterial () {
+    public get instancingMaterial (): Material | null {
         return this._instancingMaterial;
     }
 
     protected _enabled: boolean = false;
     protected _type = ShadowType.Planar;
     protected _normal = new Vec3(0, 1, 0);
-    protected _distance = 0;
     protected _shadowColor = new Color(0, 0, 0, 76);
     protected _matLight = new Mat4();
     protected _data = Float32Array.from([
@@ -256,15 +250,10 @@ export class Shadows {
     protected _material: Material | null = null;
     protected _instancingMaterial: Material | null = null;
     protected _dirty: boolean = true;
-    protected _near: number = 1;
-    protected _far: number = 30;
-    protected _aspect: number = 1;
-    protected _orthoSize: number = 1;
     protected _size: Vec2 = new Vec2(512, 512);
-    protected _pcf = PCFType.HARD;
     protected _handle: ShadowsHandle = NULL_HANDLE;
     protected _sphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
-    
+
     constructor () {
         this._handle = ShadowsPool.alloc();
     }
@@ -307,6 +296,11 @@ export class Shadows {
 
         if (this._instancingMaterial) {
             this._instancingMaterial.destroy();
+        }
+
+        if (this._handle) {
+            ShadowsPool.free(this._handle);
+            this._handle = NULL_HANDLE;
         }
     }
 }

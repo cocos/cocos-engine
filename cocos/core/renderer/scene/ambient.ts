@@ -6,11 +6,11 @@ export class Ambient {
     public static SUN_ILLUM = 65000.0;
     public static SKY_ILLUM = 20000.0;
 
-    get colorArray () {
+    get colorArray (): Float32Array {
         return this._colorArray;
     }
 
-    get albedoArray () {
+    get albedoArray (): Float32Array {
         return this._albedoArray;
     }
 
@@ -18,15 +18,14 @@ export class Ambient {
      * @en Enable ambient
      * @zh 是否开启环境光
      */
-    set enabled (val) {
+    set enabled (val: boolean) {
         if (this._enabled === val) {
             return;
         }
-        this._enabled = val;
-        AmbientPool.set(this._handle, AmbientView.ENABLE, this._enabled ? 1 : 0);
+        AmbientPool.set(this._handle, AmbientView.ENABLE, val ? 1 : 0);
         this.activate();
     }
-    get enabled () {
+    get enabled (): boolean {
         return this._enabled;
     }
     /**
@@ -48,12 +47,11 @@ export class Ambient {
      * @zh 天空亮度
      */
     get skyIllum (): number {
-        return this._skyIllum;
+        return AmbientPool.get(this._handle, AmbientView.ILLUM);
     }
 
     set skyIllum (illum: number) {
-        this._skyIllum = illum;
-        AmbientPool.set(this._handle, AmbientView.ILLUM, this._skyIllum);
+        AmbientPool.set(this._handle, AmbientView.ILLUM, illum);
     }
 
     /**
@@ -71,9 +69,6 @@ export class Ambient {
     }
     protected _enabled = true;
     protected _skyColor = new Color(51, 128, 204, 1.0);
-
-    protected _skyIllum: number = Ambient.SKY_ILLUM;
-
     protected _groundAlbedo = new Color(51, 51, 51, 255);
     protected _albedoArray = Float32Array.from([0.2, 0.2, 0.2, 1.0]);
     protected _colorArray = Float32Array.from([0.2, 0.5, 0.8, 1.0]);
@@ -87,6 +82,13 @@ export class Ambient {
         Vec3.toArray(this._albedoArray, this._groundAlbedo);
         AmbientPool.setVec4(this._handle, AmbientView.SKY_COLOR, this._skyColor);
         AmbientPool.setVec4(this._handle, AmbientView.GROUND_ALBEDO, this._groundAlbedo);
+    }
+
+    public destroy () {
+        if (this._handle) {
+            AmbientPool.free(this._handle);
+            this._handle = NULL_HANDLE;
+        }
     }
 }
 

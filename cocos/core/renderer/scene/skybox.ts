@@ -16,7 +16,7 @@ let skybox_mesh: Mesh | null = null;
 let skybox_material: Material | null = null;
 
 export class Skybox {
-    get model () {
+    get model (): Model | null {
         return this._model;
     }
 
@@ -24,11 +24,11 @@ export class Skybox {
      * @en Whether activate skybox in the scene
      * @zh 是否启用天空盒？
      */
-    get enabled () {
+    get enabled (): boolean {
         return this._enabled;
     }
 
-    set enabled (val) {
+    set enabled (val: boolean) {
         if (this._enabled === val) {
             return;
         }
@@ -41,11 +41,11 @@ export class Skybox {
      * @en Whether use environment lighting
      * @zh 是否启用环境光照？
      */
-    get useIBL () {
+    get useIBL (): boolean {
         return this._useIBL;
     }
 
-    set useIBL (val) {
+    set useIBL (val: boolean) {
         this._useIBL = val;
         SkyboxPool.set(this._handle, SkyboxView.USE_IBL, this._useIBL ? 1 : 0);
         this._updatePipeline();
@@ -55,16 +55,16 @@ export class Skybox {
      * @en Whether enable RGBE data support in skybox shader
      * @zh 是否需要开启 shader 内的 RGBE 数据支持？
      */
-    get isRGBE () {
+    get isRGBE (): boolean {
         return this._isRGBE;
     }
 
-    set isRGBE (val) {
+    set isRGBE (val: boolean) {
         this._isRGBE = val;
 
         if (this._enabled) {
             if (skybox_material) {
-                skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this._isRGBE });
+                skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: val });
             }
 
             if (this._model) {
@@ -79,7 +79,7 @@ export class Skybox {
      * @en The texture cube used for the skybox
      * @zh 使用的立方体贴图
      */
-    get envmap () {
+    get envmap (): TextureCube | null {
         return this._envmap;
     }
 
@@ -148,6 +148,13 @@ export class Skybox {
         const sampler = samplerLib.getSampler(legacyCC.director._device, this.envmap!.getSamplerHash());
         this._globalDescriptorSet!.bindSampler(UNIFORM_ENVIRONMENT.binding, sampler);
         this._globalDescriptorSet!.bindTexture(UNIFORM_ENVIRONMENT.binding, texture);
+    }
+
+    public destroy () {
+        if (this._handle) {
+            SkyboxPool.free(this._handle);
+            this._handle = NULL_HANDLE;
+        }
     }
 }
 

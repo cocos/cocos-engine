@@ -704,7 +704,7 @@ interface INodeViewType extends BufferTypeManifest<typeof NodeView> {
     [NodeView.COUNT]: never;
 }
 // @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
-if (!JSB) delete NodeView[NodeView.COUNT]; NodeView[NodeView.COUNT = NodeView.LAYER + 1] = 'COUNT';
+if (!JSB) { delete NodeView[NodeView.COUNT]; NodeView[NodeView.COUNT = NodeView.LAYER + 1] = 'COUNT'; }
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
 // but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
 // we'll have to explicitly declare all these types.
@@ -772,6 +772,8 @@ interface IAmbientViewType extends BufferTypeManifest<typeof AmbientView> {
     [AmbientView.GROUND_ALBEDO]: Color;
     [AmbientView.COUNT]: never;
 }
+// @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
+if (!JSB) {delete AmbientView[AmbientView.COUNT]; AmbientView[AmbientView.COUNT = AmbientView.ILLUM + 1] = 'COUNT'; }
 export const AmbientPool = new BufferPool<PoolType.AMBIENT, Float32Array, typeof AmbientView, IAmbientViewType>(PoolType.AMBIENT, Float32Array, AmbientView, 1);
 
 export enum SkyboxView {
@@ -814,6 +816,8 @@ interface IFogViewType extends BufferTypeManifest<typeof FogView> {
     [FogView.COLOR]: Color;
     [FogView.COUNT]: never;
 }
+// @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
+if (!JSB) {delete FogView[FogView.COUNT]; FogView[FogView.COUNT = FogView.RANGE + 1] = 'COUNT'; }
 export const FogPool = new BufferPool<PoolType.FOG, Float32Array, typeof FogView, IFogViewType>(PoolType.FOG, Float32Array, FogView);
 
 export enum ShadowsView {
@@ -852,5 +856,7 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.SPHERE]: Vec4;
     [ShadowsView.COUNT]: never;
 }
+// @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
+if (!JSB) {delete ShadowsView[FogView.COUNT]; ShadowsView[ShadowsView.COUNT = ShadowsView.ORTHO_SIZE + 1] = 'COUNT'; }
 export const ShadowsPool = new BufferPool<PoolType.SHADOWS, Float32Array, typeof ShadowsView, IShadowsViewType>(PoolType.SHADOWS, Float32Array, ShadowsView, 1);
 

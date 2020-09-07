@@ -376,6 +376,11 @@ export class ForwardPipeline extends RenderPipeline {
             rpRes = rpIter.next();
         }
 
+        this.ambient.destroy();
+        this.skybox.destroy();
+        this.fog.destroy();
+        this.shadows.destroy();
+
         return super.destroy();
     }
 }
