@@ -243,6 +243,7 @@ function _flipDiamondTileTexture (inGrid, gid) {
 }
 
 export default class TmxAssembler extends Assembler {
+
     updateRenderData (comp) {
         if (!comp._renderDataList) {
             comp._buffer = new cc.TiledMapBuffer(renderer._handle, vfmtPosUvColor);
@@ -351,7 +352,7 @@ export default class TmxAssembler extends Assembler {
         _uintbuf = null;
     }
 
-    _flipTexture: null,
+    _flipTexture = null
 
     // rowMoveDir is -1 or 1, -1 means decrease, 1 means increase
     // colMoveDir is -1 or 1, -1 means decrease, 1 means increase
