@@ -484,69 +484,59 @@ export class Node extends BaseNode {
             cur = cur._parent;
         }
         let child: this; let dirtyBits = 0;
-        let posUpdated = false;
-        let scaleUpdated = false;
-        let rotateUpdated = false;
+
         while (i) {
             child = array_a[--i];
             dirtyBits |= child._dirtyFlags;
             if (cur) {
                 if (dirtyBits & TransformBit.POSITION) {
-                    posUpdated = true;
                     Vec3.transformMat4(child._pos, child._lpos, cur._mat);
                     child._mat.m12 = child._pos.x;
                     child._mat.m13 = child._pos.y;
                     child._mat.m14 = child._pos.z;
+                    NodePool.setVec3(child._poolHandle, NodeView.WORLD_POSITION, child._pos);
                 }
                 if (dirtyBits & TransformBit.RS) {
                     Mat4.fromRTS(child._mat, child._lrot, child._lpos, child._lscale);
                     Mat4.multiply(child._mat, cur._mat, child._mat);
                     if (dirtyBits & TransformBit.ROTATION) {
                         Quat.multiply(child._rot, cur._rot, child._lrot);
-                        rotateUpdated = true;
+                        NodePool.setVec4(child._poolHandle, NodeView.WORLD_ROTATION, child._rot);
                     }
                     Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, child._rot));
                     Mat3.multiplyMat4(m3_1, m3_1, child._mat);
                     child._scale.x = m3_1.m00;
                     child._scale.y = m3_1.m04;
                     child._scale.z = m3_1.m08;
-                    scaleUpdated = true;
+                    NodePool.setVec3(child._poolHandle, NodeView.WORLD_SCALE, child._scale);
                 }
             } else {
                 if (dirtyBits & TransformBit.POSITION) {
-                    posUpdated = true;
                     Vec3.copy(child._pos, child._lpos);
                     child._mat.m12 = child._pos.x;
                     child._mat.m13 = child._pos.y;
                     child._mat.m14 = child._pos.z;
+                    NodePool.setVec3(child._poolHandle, NodeView.WORLD_POSITION, child._pos);
                 }
                 if (dirtyBits & TransformBit.RS) {
                     if (dirtyBits & TransformBit.ROTATION) {
                         Quat.copy(child._rot, child._lrot);
-                        rotateUpdated = true;
+                        NodePool.setVec4(child._poolHandle, NodeView.WORLD_ROTATION, child._rot);
                     }
                     if (dirtyBits & TransformBit.SCALE) {
                         Vec3.copy(child._scale, child._lscale);
-                        scaleUpdated = true;
+                        NodePool.setVec3(child._poolHandle, NodeView.WORLD_SCALE, child._scale);
                     }
                     Mat4.fromRTS(child._mat, child._rot, child._pos, child._scale);
                 }
             }
+            
+            if (dirtyBits !== TransformBit.NONE) {
+                NodePool.setMat4(child._poolHandle, NodeView.WORLD_MATRIX, child._mat);
+            }
+
             child._dirtyFlags = TransformBit.NONE;
             cur = child;
-        }
-
-        if (posUpdated) {
-            NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, this._pos);
-        }
-        if (scaleUpdated) {
-            NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this._scale);
-        }
-        if (rotateUpdated) {
-            NodePool.setVec4(this._poolHandle, NodeView.WORLD_ROTATION, this._rot);
-        }
-        if (posUpdated || scaleUpdated || rotateUpdated) {
-            NodePool.setMat4(this._poolHandle, NodeView.WORLD_MATRIX, this._mat);
         }
     }
 
