@@ -192,14 +192,14 @@ export default class Pass {
     }
 
     define (name, value, force) {
-        let def = this._defines[name];
+        let oldValue = this._defines[name];
 
-        if (!force && def === undefined) {
+        if (!force && oldValue === undefined) {
             return false;
         }
 
         this._defines[name] = value;
-        if (value !== def) {
+        if (oldValue !== value) {
             this._programKey = null;
         }
 
