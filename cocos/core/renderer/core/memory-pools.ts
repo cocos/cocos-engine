@@ -157,7 +157,7 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends BufferManif
     }
 
     public setVec2<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec2: Conditional<Vec2, M[K]>) {
-        // Web engine has Vec3 property, don't record it in shared memory.
+        // Web engine has Vec2 property, don't record it in shared memory.
         if (!JSB) return;
 
         const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
@@ -762,15 +762,15 @@ export enum AmbientView {
     ENABLE,
     ILLUM,
     SKY_COLOR, // vec4
-    GROUND_ALBEDO = 18, // vec4
-    COUNT = 34
+    GROUND_ALBEDO = 6, // vec4
+    COUNT = 10
 }
 interface IAmbientViewType extends BufferTypeManifest<typeof AmbientView> {
     [AmbientView.ENABLE]: number;
     [AmbientView.ILLUM]: number;
     [AmbientView.SKY_COLOR]: Color;
     [AmbientView.GROUND_ALBEDO]: Color;
-    [AmbientView.COUNT]: number;
+    [AmbientView.COUNT]: never;
 }
 export const AmbientPool = new BufferPool<PoolType.AMBIENT, Float32Array, typeof AmbientView, IAmbientViewType>(PoolType.AMBIENT, Float32Array, AmbientView, 1);
 
@@ -786,7 +786,7 @@ interface ISkyboxViewType extends BufferTypeManifest<typeof SkyboxView> {
     [SkyboxView.IS_RGBE]: number;
     [SkyboxView.USE_IBL]: number;
     [SkyboxView.MODEL]: ModelHandle;
-    [SkyboxView.COUNT]: number;
+    [SkyboxView.COUNT]: never;
 }
 export const SkyboxPool = new BufferPool<PoolType.SKYBOX, Float32Array, typeof SkyboxView, ISkyboxViewType>(PoolType.SKYBOX, Float32Array, SkyboxView, 1);
 
@@ -800,7 +800,7 @@ export enum FogView {
     TOP,
     RANGE,
     COLOR,
-    COUNT = 24
+    COUNT = 12
 }
 interface IFogViewType extends BufferTypeManifest<typeof FogView> {
     [FogView.ENABLE]: number;
@@ -812,7 +812,7 @@ interface IFogViewType extends BufferTypeManifest<typeof FogView> {
     [FogView.TOP]: number;
     [FogView.RANGE]: number;
     [FogView.COLOR]: Color;
-    [FogView.COUNT]: number;
+    [FogView.COUNT]: never;
 }
 export const FogPool = new BufferPool<PoolType.FOG, Float32Array, typeof FogView, IFogViewType>(PoolType.FOG, Float32Array, FogView);
 
@@ -828,11 +828,11 @@ export enum ShadowsView {
     PCF_TYPE,
     DIRTY,
     ORTHO_SIZE,
-    SIZE = 17, // Vec2
-    NORMAL= 25, // Vec3
-    COLOR = 37, // Vec4
-    SPHERE = 53, // Vec4
-    COUNT = 69
+    SIZE, // Vec2
+    NORMAL = 13, // Vec3
+    COLOR = 16, // Vec4
+    SPHERE = 20, // Vec4
+    COUNT = 24
 }
 interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.ENABLE]: number;
@@ -850,7 +850,7 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.NORMAL]: Vec3;
     [ShadowsView.COLOR]: Color;
     [ShadowsView.SPHERE]: Vec4;
-    [ShadowsView.COUNT]: number;
+    [ShadowsView.COUNT]: never;
 }
 export const ShadowsPool = new BufferPool<PoolType.SHADOWS, Float32Array, typeof ShadowsView, IShadowsViewType>(PoolType.SHADOWS, Float32Array, ShadowsView, 1);
 
