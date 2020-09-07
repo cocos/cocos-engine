@@ -3,9 +3,6 @@
  */
 
 import {
-    GFXBlendFactor,
-    GFXBlendOp,
-    GFXColorMask,
     GFXDynamicStateFlags,
     GFXObject,
     GFXObjectType,
@@ -20,33 +17,8 @@ import { GFXPipelineLayout } from '..';
 
 export const GFXRasterizerState = gfx.RasterizerState;
 export const GFXDepthStencilState = gfx.DepthStencilState;
+export const GFXBlendTarget = gfx.BlendTarget;
 export const GFXBlendState = gfx.Blendstate;
-
-/**
- * @en GFX blend target.
- * @zh GFX 混合目标。
- */
-export class GFXBlendTarget {
-    public blend: boolean = false;
-    public blendSrc: GFXBlendFactor = GFXBlendFactor.ONE;
-    public blendDst: GFXBlendFactor = GFXBlendFactor.ZERO;
-    public blendEq: GFXBlendOp = GFXBlendOp.ADD;
-    public blendSrcAlpha: GFXBlendFactor = GFXBlendFactor.ONE;
-    public blendDstAlpha: GFXBlendFactor = GFXBlendFactor.ZERO;
-    public blendAlphaEq: GFXBlendOp = GFXBlendOp.ADD;
-    public blendColorMask: GFXColorMask = GFXColorMask.ALL;
-
-    public compare (target: GFXBlendTarget): boolean {
-        return (this.blend === target.blend) &&
-            (this.blendSrc === target.blendSrc) &&
-            (this.blendDst === target.blendDst) &&
-            (this.blendEq === target.blendEq) &&
-            (this.blendSrcAlpha === target.blendSrcAlpha) &&
-            (this.blendDstAlpha === target.blendDstAlpha) &&
-            (this.blendAlphaEq === target.blendAlphaEq) &&
-            (this.blendColorMask === target.blendColorMask);
-    }
-}
 
 /**
  * @en GFX input state.
