@@ -38,8 +38,7 @@ let TiledObjectGroup = cc.Class({
 
     properties: {
         _premultiplyAlpha: {
-            default: false,
-            type: cc.Boolean
+            default: false
         },
         premultiplyAlpha : {
             get () {

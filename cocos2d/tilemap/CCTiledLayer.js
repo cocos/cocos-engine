@@ -129,8 +129,7 @@ let TiledLayer = cc.Class({
 
     properties: {
         _premultiplyAlpha: {
-            default: false,
-            type: cc.Boolean
+            default: false
         },
         premultiplyAlpha: {
             get () {
@@ -144,8 +143,7 @@ let TiledLayer = cc.Class({
         },
 
         _diamondTile: {
-            default: false,
-            type: cc.Boolean
+            default: false
         },
         diamondTile: {
             get () {
