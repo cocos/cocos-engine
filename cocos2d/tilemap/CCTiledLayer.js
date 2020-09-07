@@ -98,6 +98,8 @@ let TiledLayer = cc.Class({
         this._leftOffset = 0;
         this._rightOffset = 0;
 
+        this._diamondTile = false;
+
         // store the layer tiles, index is caculated by 'x + width * y', format likes '[0]=gid0,[1]=gid1, ...'
         this._tiles = [];
         // vertex array
@@ -137,6 +139,20 @@ let TiledLayer = cc.Class({
             set (value) {
                 this._premultiplyAlpha = value;
                 this._activateMaterial();
+            },
+            type: cc.Boolean
+        },
+
+        _diamondTile: {
+            default: false,
+            type: cc.Boolean
+        },
+        diamondTile : {
+            get () {
+                return this._diamondTile;
+            },
+            set (value) {
+                this._diamondTile = value;
             },
             type: cc.Boolean
         }

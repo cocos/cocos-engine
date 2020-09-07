@@ -987,6 +987,7 @@ cc.TiledMap.fillTextureGrids = function (tileset, texGrids, texId, spFrame, name
             tileset: tileset,
             x: 0, y: 0, width: tw, height: th,
             t: 0, l: 0, r: 0, b: 0,
+            cx: 0, cy: 0,
             offsetX: 0,
             offsetY: 0,
             rotated: false,
@@ -1018,6 +1019,8 @@ cc.TiledMap.fillTextureGrids = function (tileset, texGrids, texId, spFrame, name
             grid.r = spFrame.uv[2];
             grid.b = spFrame.uv[1];
         }
+        grid.cx = (grid.l + grid.r) / 2;
+        grid.cy = (grid.t + grid.b) / 2;
 
         texGrids[gid] = grid;
     }

@@ -121,33 +121,60 @@ function _renderNodes (nodeRow, nodeCol) {
 
 /*
 texture coordinate
-a b
-c d
+a c
+b d
 */
-function _flipTexture (inGrid, gid) {
-
+function _flipTexture (inGrid, gid, diamondTile) {
     if (inGrid._rotated) {
-        // 2:c   1:a
-        // 4:d   3:b
-        _uva.x = inGrid.r;
-        _uva.y = inGrid.t;
-        _uvb.x = inGrid.r;
-        _uvb.y = inGrid.b;
-        _uvc.x = inGrid.l;
-        _uvc.y = inGrid.t;
-        _uvd.x = inGrid.l;
-        _uvd.y = inGrid.b;
+        if (diamondTile) {
+            //       2:b
+            // 4:d         1:a
+            //       3:c
+            _uva.x = inGrid.r;
+            _uva.y = inGrid.cy;
+            _uvb.x = inGrid.cx;
+            _uvb.y = inGrid.t;
+            _uvc.x = inGrid.cx;
+            _uvc.y = inGrid.b;
+            _uvd.x = inGrid.l;
+            _uvd.y = inGrid.cy;
+        } else {
+            // 2:b   1:a
+            // 4:d   3:c
+            _uva.x = inGrid.r;
+            _uva.y = inGrid.t;
+            _uvb.x = inGrid.l;
+            _uvb.y = inGrid.t;
+            _uvc.x = inGrid.r;
+            _uvc.y = inGrid.b;
+            _uvd.x = inGrid.l;
+            _uvd.y = inGrid.b;
+        }
     } else {
-        // 1:a  3:b
-        // 2:c  4:d
-        _uva.x = inGrid.l;
-        _uva.y = inGrid.t;
-        _uvb.x = inGrid.r;
-        _uvb.y = inGrid.t;
-        _uvc.x = inGrid.l;
-        _uvc.y = inGrid.b;
-        _uvd.x = inGrid.r;
-        _uvd.y = inGrid.b;
+        if (diamondTile) {
+            //       1:a
+            // 2:b         3:c
+            //       4:d
+            _uva.x = inGrid.cx;
+            _uva.y = inGrid.t;
+            _uvb.x = inGrid.l;
+            _uvb.y = inGrid.cy;
+            _uvc.x = inGrid.r;
+            _uvc.y = inGrid.cy;
+            _uvd.x = inGrid.cx;
+            _uvd.y = inGrid.b;
+        } else {
+            // 1:a  3:c
+            // 2:b  4:d
+            _uva.x = inGrid.l;
+            _uva.y = inGrid.t;
+            _uvb.x = inGrid.l;
+            _uvb.y = inGrid.b;
+            _uvc.x = inGrid.r;
+            _uvc.y = inGrid.t;
+            _uvd.x = inGrid.r;
+            _uvd.y = inGrid.b;
+        }
     }
 
     let tempVal = null;
@@ -162,22 +189,22 @@ function _flipTexture (inGrid, gid) {
     // flip x
     if ((gid & TileFlag.HORIZONTAL) >>> 0) {
         tempVal = _uva;
-        _uva = _uvb;
-        _uvb = tempVal;
+        _uva = _uvc;
+        _uvc = tempVal;
 
-        tempVal = _uvc;
-        _uvc = _uvd;
+        tempVal = _uvb;
+        _uvb = _uvd;
         _uvd = tempVal;
     }
 
     // flip y
     if ((gid & TileFlag.VERTICAL) >>> 0) {
         tempVal = _uva;
-        _uva = _uvc;
-        _uvc = tempVal;
+        _uva = _uvb;
+        _uvb = tempVal;
 
-        tempVal = _uvb;
-        _uvb = _uvd;
+        tempVal = _uvc;
+        _uvc = _uvd;
         _uvd = tempVal;
     }
 };
@@ -321,6 +348,8 @@ export default class TmxAssembler extends Assembler {
         let tiledNode = null, curTexIdx = -1, matIdx;
         let colNodesCount = 0, checkColRange = true;
 
+        let diamondTile = comp._diamondTile;
+
         if (rowMoveDir === -1) {
             row = rightTop.row;
             rows = leftDown.row;
@@ -382,44 +411,66 @@ export default class TmxAssembler extends Assembler {
                 // begin to fill vertex buffer
                 tiledNode = tiledTiles[colData.index];
                 if (!tiledNode) {
-                    // tl
-                    _vbuf[_vfOffset] = left;
-                    _vbuf[_vfOffset + 1] = top;
+                    if (diamondTile) {
+                        let centerX = (left + right) / 2;
+                        let centerY = (top + bottom) / 2;
+                        // ct
+                        _vbuf[_vfOffset] = centerX;
+                        _vbuf[_vfOffset + 1] = top;
+
+                        // lc
+                        _vbuf[_vfOffset + 5] = left;
+                        _vbuf[_vfOffset + 6] = centerY;
+
+                        // rc
+                        _vbuf[_vfOffset + 10] = right;
+                        _vbuf[_vfOffset + 11] = centerY;
+
+                        // cb
+                        _vbuf[_vfOffset + 15] = centerX;
+                        _vbuf[_vfOffset + 16] = bottom;
+                    } else {
+                        // lt
+                        _vbuf[_vfOffset] = left;
+                        _vbuf[_vfOffset + 1] = top;
+
+                        // lb
+                        _vbuf[_vfOffset + 5] = left;
+                        _vbuf[_vfOffset + 6] = bottom;
+
+                        // rt
+                        _vbuf[_vfOffset + 10] = right;
+                        _vbuf[_vfOffset + 11] = top;
+
+                        // rb
+                        _vbuf[_vfOffset + 15] = right;
+                        _vbuf[_vfOffset + 16] = bottom;
+                    }
+
                     _uintbuf[_vfOffset + 4] = color;
-
-                    // bl
-                    _vbuf[_vfOffset + 5] = left;
-                    _vbuf[_vfOffset + 6] = bottom;
                     _uintbuf[_vfOffset + 9] = color;
-
-                    // tr
-                    _vbuf[_vfOffset + 10] = right;
-                    _vbuf[_vfOffset + 11] = top;
                     _uintbuf[_vfOffset + 14] = color;
-
-                    // br
-                    _vbuf[_vfOffset + 15] = right;
-                    _vbuf[_vfOffset + 16] = bottom;
                     _uintbuf[_vfOffset + 19] = color;
+
                 } else {
-                    this.fillByTiledNode(tiledNode.node, _vbuf, _uintbuf, left, right, top, bottom);
+                    this.fillByTiledNode(tiledNode.node, _vbuf, _uintbuf, left, right, top, bottom, diamondTile);
                 }
 
-                _flipTexture(grid, gid);
+                _flipTexture(grid, gid, diamondTile);
 
-                // tl -> a
+                // lt/ct -> a
                 _vbuf[_vfOffset + 2] = _uva.x;
                 _vbuf[_vfOffset + 3] = _uva.y;
 
-                // bl -> c
-                _vbuf[_vfOffset + 7] = _uvc.x;
-                _vbuf[_vfOffset + 8] = _uvc.y;
+                // lb/lc -> b
+                _vbuf[_vfOffset + 7] = _uvb.x;
+                _vbuf[_vfOffset + 8] = _uvb.y;
 
-                // tr -> b
-                _vbuf[_vfOffset + 12] = _uvb.x;
-                _vbuf[_vfOffset + 13] = _uvb.y;
+                // rt/rc -> c
+                _vbuf[_vfOffset + 12] = _uvc.x;
+                _vbuf[_vfOffset + 13] = _uvc.y;
 
-                // br -> d
+                // rt/cb -> d
                 _vbuf[_vfOffset + 17] = _uvd.x;
                 _vbuf[_vfOffset + 18] = _uvd.y;
 
@@ -450,7 +501,7 @@ export default class TmxAssembler extends Assembler {
         }
     }
 
-    fillByTiledNode (tiledNode, vbuf, uintbuf, left, right, top, bottom) {
+    fillByTiledNode (tiledNode, vbuf, uintbuf, left, right, top, bottom, diamondTile) {
         tiledNode._updateLocalMatrix();
         Mat4.copy(_mat4_temp, tiledNode._matrix);
         Vec3.set(_vec3_temp, -(left + _moveX), -(bottom + _moveY), 0);
@@ -464,24 +515,45 @@ export default class TmxAssembler extends Assembler {
         let ty = m[13];
         let color = tiledNode._color._val;
 
-        // tl
-        vbuf[_vfOffset] = left * a + top * c + tx;
-        vbuf[_vfOffset + 1] = left * b + top * d + ty;
+        if (diamondTile) {
+            let centerX = (left + right) / 2;
+            let centerY = (top + bottom) / 2;
+            // ct
+            vbuf[_vfOffset] = centerX * a + top * c + tx;
+            vbuf[_vfOffset + 1] = centerX * b + top * d + ty;
+
+            // lc
+            vbuf[_vfOffset + 5] = left * a + centerY * c + tx;
+            vbuf[_vfOffset + 6] = left * b + centerY * d + ty;
+
+            // rc
+            vbuf[_vfOffset + 10] = right * a + centerY * c + tx;
+            vbuf[_vfOffset + 11] = right * b + centerY * d + ty;
+
+            // cb
+            vbuf[_vfOffset + 15] = centerX * a + bottom * c + tx;
+            vbuf[_vfOffset + 16] = centerX * b + bottom * d + ty;
+        } else {
+            // lt
+            vbuf[_vfOffset] = left * a + top * c + tx;
+            vbuf[_vfOffset + 1] = left * b + top * d + ty;
+
+            // lb
+            vbuf[_vfOffset + 5] = left * a + bottom * c + tx;
+            vbuf[_vfOffset + 6] = left * b + bottom * d + ty;
+
+            // rt
+            vbuf[_vfOffset + 10] = right * a + top * c + tx;
+            vbuf[_vfOffset + 11] = right * b + top * d + ty;
+
+            // rb
+            vbuf[_vfOffset + 15] = right * a + bottom * c + tx;
+            vbuf[_vfOffset + 16] = right * b + bottom * d + ty;
+        }
+
         uintbuf[_vfOffset + 4] = color;
-
-        // bl
-        vbuf[_vfOffset + 5] = left * a + bottom * c + tx;
-        vbuf[_vfOffset + 6] = left * b + bottom * d + ty;
         uintbuf[_vfOffset + 9] = color;
-
-        // tr
-        vbuf[_vfOffset + 10] = right * a + top * c + tx;
-        vbuf[_vfOffset + 11] = right * b + top * d + ty;
         uintbuf[_vfOffset + 14] = color;
-
-        // br
-        vbuf[_vfOffset + 15] = right * a + bottom * c + tx;
-        vbuf[_vfOffset + 16] = right * b + bottom * d + ty;
         uintbuf[_vfOffset + 19] = color;
     }
 }
