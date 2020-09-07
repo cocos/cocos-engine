@@ -28,114 +28,17 @@
  * @hidden
  */
 
+import { EDITOR, TEST, DEV, JSB, PREVIEW, SUPPORT_JIT } from 'internal:constants';
+import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 import * as js from '../utils/js';
 import * as misc from '../utils/misc';
-import CCClass from './class';
+import { CCClass } from './class';
 import * as Attr from './utils/attribute';
 import MissingScript from '../components/missing-script';
-import { EDITOR, TEST, DEV, JSB, PREVIEW, SUPPORT_JIT } from 'internal:constants';
-import { legacyCC } from '../global-exports';
-
-// HELPERS
+import { Details } from './deserialize';
 
 // tslint:disable: no-shadowed-variable
-
-/**
- * @en Contains information collected during deserialization
- * @zh 包含反序列化时的一些信息。
- * @class Details
- *
- */
-class Details {
-
-    public static pool: js.Pool<{}>;
-
-    public assignAssetsBy!: Function;
-    public uuidList: string[];
-    public uuidObjList: object[];
-    public uuidPropList: string[];
-    private _stillUseUrl: any;
-
-    constructor () {
-        /**
-         * list of the depends assets' uuid
-         */
-        this.uuidList = [];
-        /**
-         * the obj list whose field needs to load asset by uuid
-         */
-        this.uuidObjList = [];
-        /**
-         * the corresponding field name which referenced to the asset
-         */
-        this.uuidPropList = [];
-
-        // TODO - DELME since 2.0
-        this._stillUseUrl = js.createMap(true);
-
-        if (EDITOR || TEST) {
-            this.assignAssetsBy = (getter) => {
-                // ignore this._stillUseUrl
-                for (let i = 0, len = this.uuidList.length; i < len; i++) {
-                    const uuid = this.uuidList[i];
-                    const obj = this.uuidObjList[i];
-                    const prop = this.uuidPropList[i];
-                    obj[prop] = getter(uuid);
-                }
-            };
-        }
-    }
-
-    /**
-     * @zh
-     * 重置。
-     * @method reset
-     */
-    public reset () {
-        this.uuidList.length = 0;
-        this.uuidObjList.length = 0;
-        this.uuidPropList.length = 0;
-        js.clear(this._stillUseUrl);
-    }
-
-    // /**
-    //  * @method getUuidOf
-    //  * @param {Object} obj
-    //  * @param {String} propName
-    //  * @return {String}
-    //  */
-    // getUuidOf (obj, propName) {
-    //     for (var i = 0; i < this.uuidObjList.length; i++) {
-    //         if (this.uuidObjList[i] === obj && this.uuidPropList[i] === propName) {
-    //             return this.uuidList[i];
-    //         }
-    //     }
-    //     return "";
-    // }
-    /**
-     * @method push
-     * @param {Object} obj
-     * @param {String} propName
-     * @param {String} uuid
-     */
-    public push (obj: Object, propName: string, uuid: string, _stillUseUrl: any) {
-        if (_stillUseUrl) {
-            this._stillUseUrl[this.uuidList.length] = true;
-        }
-        this.uuidList.push(uuid);
-        this.uuidObjList.push(obj);
-        this.uuidPropList.push(propName);
-    }
-}
-
-Details.pool = new js.Pool((obj: any) => {
-    obj.reset();
-}, 10);
-
-Details.pool.get = function () {
-    return this._get() || new Details();
-};
 
 // IMPLEMENT OF DESERIALIZATION
 
@@ -485,7 +388,7 @@ class _Deserializer {
     public result: any;
     public customEnv: any;
     public deserializedList: any[];
-    public deserializedData: null;
+    public deserializedData: any;
     private _classFinder: any;
     private _target: any;
     private _ignoreEditorOnly: any;
@@ -556,7 +459,7 @@ class _Deserializer {
         return this.deserializedData;
     }
 
-    /**
+    /*
      * @param {Object} serialized - The obj to deserialize, must be non-nil
      * @param {Boolean} _stillUseUrl
      * @param {Object} [target=null] - editor only
@@ -585,7 +488,7 @@ class _Deserializer {
             if (!klass) {
                 const notReported = this._classFinder === js._getClassById;
                 if (notReported) {
-                    deserialize.reportMissingClass(type);
+                    legacyCC.deserialize.reportMissingClass(type);
                 }
                 return null;
             }
@@ -624,7 +527,7 @@ class _Deserializer {
                 catch (e) {
                     console.error('deserialize ' + klass.name + ' failed, ' + e.stack);
                     klass = MissingScript.getMissingWrapper(type, serialized);
-                    deserialize.reportMissingClass(type);
+                    legacyCC.deserialize.reportMissingClass(type);
                     deserializeByType();
                 }
             }
@@ -823,24 +726,7 @@ _Deserializer.pool.get = function (result, target, classFinder, customEnv, ignor
     }
 };
 
-/**
- * @module cc
- */
-
-/**
- * @en Deserialize json to `Asset`.
- * @zh 将 JSON 反序列化为对象实例。
- *
- * 当指定了 target 选项时，如果 target 引用的其它 asset 的 uuid 不变，则不会改变 target 对 asset 的引用，
- * 也不会将 uuid 保存到 result 对象中。
- *
- * @method deserialize
- * @param {String|Object} data - the serialized `Asset` json string or json object.
- * @param {Details} [details] - additional loading result
- * @param {Object} [options]
- * @return {object} the main data(asset)
- */
-function deserialize (data, details, options) {
+export function deserializeDynamic (data, details: Details, options) {
     options = options || {};
     const classFinder = options.classFinder || js._getClassById;
     // 启用 createAssetRefs 后，如果有 url 属性则会被统一强制设置为 { uuid: 'xxx' }，必须后面再特殊处理
@@ -851,10 +737,10 @@ function deserialize (data, details, options) {
 
     // var oldJson = JSON.stringify(data, null, 2);
 
-    const tempDetails = !details;
-    details = details || Details.pool.get!();
+    details.init();
+
     // @ts-ignore
-    const deserializer: any = _Deserializer.pool.get(details, target, classFinder, customEnv, ignoreEditorOnly);
+    const deserializer: _Deserializer = _Deserializer.pool.get(details, target, classFinder, customEnv, ignoreEditorOnly);
 
     legacyCC.game._isCloning = true;
     const res = deserializer.deserialize(data);
@@ -864,9 +750,6 @@ function deserialize (data, details, options) {
     if (createAssetRefs) {
         details.assignAssetsBy(EditorExtends.serialize.asAsset);
     }
-    if (tempDetails) {
-        Details.pool.put(details);
-    }
 
     // var afterJson = JSON.stringify(data, null, 2);
     // if (oldJson !== afterJson) {
@@ -875,16 +758,3 @@ function deserialize (data, details, options) {
 
     return res;
 }
-(deserialize as any).Details = Details;
-deserialize.reportMissingClass = (id) => {
-    if (EDITOR && EditorExtends.UuidUtils.isUuid(id)) {
-        id = EditorExtends.UuidUtils.decompressUuid(id);
-        warnID(5301, id);
-    }
-    else {
-        warnID(5302, id);
-    }
-};
-
-
-export default deserialize;

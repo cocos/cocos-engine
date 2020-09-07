@@ -587,7 +587,7 @@ Default value must be initialized at their declaration:
 value;
 // After:
 @integer
-value = 0;    // <--
+value = 0;                // <--
 ```
 
 ### 3654
