@@ -114,6 +114,8 @@ export default class Base {
         };
       }, 100);
     }, 16);
+
+    this._definesChanged = false;
   }
 
   _resetTextuerUnit () {
@@ -144,6 +146,8 @@ export default class Base {
   reset () {
     this._viewPools.reset();
     this._stageItemsPools.reset();
+
+    this._definesChanged = false;
   }
 
   _requestView () {
@@ -309,6 +313,11 @@ export default class Base {
     // for each pass
     for (let i = 0; i < passes.length; ++i) {
       let pass = passes[i];
+
+      if (this._definesChanged) {
+        pass._programKey = null;
+      }
+
       let count = ia.count;
 
       // set vertex buffer
@@ -359,7 +368,7 @@ export default class Base {
       }
 
       // depth test & write
-      if (pass._depthTest) {
+      if (passdepthTest) {
         device.enableDepthTest();
         device.setDepthFunc(pass._depthFunc);
       }

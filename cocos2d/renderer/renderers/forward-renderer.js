@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 import { Vec3, Vec4, Mat4 } from '../../core/value-types';
 import BaseRenderer from '../core/base-renderer';
@@ -91,14 +91,14 @@ export default class ForwardRenderer extends BaseRenderer {
     this.reset();
 
     this._updateLights(scene);
-    
+
     const canvas = this._device._gl.canvas;
     let width = canvas.width;
     let height = canvas.height;
 
     let view = this._requestView();
     camera.extractView(view, width, height);
-    
+
     // render by cameras
     this._viewPools.sort(sortView);
 
@@ -123,7 +123,7 @@ export default class ForwardRenderer extends BaseRenderer {
         }
         let view = this._requestView();
         light.extractView(view, ['shadowcast']);
-        
+
         this._lights.splice(0, 0, light);
       }
       else {
@@ -140,12 +140,29 @@ export default class ForwardRenderer extends BaseRenderer {
 
     for (let i = 0; i < this._lights.length; ++i) {
       let light = this._lights[i];
-      defines[`CC_LIGHT_${i}_TYPE`] = light._type;
-      defines[`CC_SHADOW_${i}_TYPE`] = light._shadowType;
+      let lightKey = `CC_LIGHT_${i}_TYPE`;
+      let shadowKey = `CC_SHADOW_${i}_TYPE`;
+      defines[lightKey] = light._type;
+      if (defines[lightKey] !== light._type){
+        defines[lightKey] = light._type;
+        this._definesChanged = true;
+      }
+      if (defines[shadowKey] !== light._shadowType){
+        defines[shadowKey] = light._shadowType;
+        this._definesChanged = true;
+      }
     }
 
-    defines.CC_NUM_LIGHTS = Math.min(CC_MAX_LIGHTS, this._lights.length);
-    defines.CC_NUM_SHADOW_LIGHTS = Math.min(CC_MAX_LIGHTS, this._shadowLights.length);
+    let newCount = Math.min(CC_MAX_LIGHTS, this._lights.length);
+    if (defines.CC_NUM_LIGHTS !== newCount) {
+      defines.CC_NUM_LIGHTS = newCount;
+      this._definesChanged = true;
+    }
+    newCount = Math.min(CC_MAX_LIGHTS, this._shadowLights.length);
+    if (defines.CC_NUM_SHADOW_LIGHTS !== newCount) {
+      defines.CC_NUM_SHADOW_LIGHTS = newCount;
+      this._definesChanged = true;
+    }
   }
 
   _submitLightsUniforms () {
@@ -159,7 +176,7 @@ export default class ForwardRenderer extends BaseRenderer {
       for (let i = 0; i < lightNum; ++i) {
         let light = this._lights[i];
         let index = i * 4;
-        
+
         colors.set(light._colorUniform, index);
         directions.set(light._directionUniform, index);
         positionAndRanges.set(light._positionUniform, index);
@@ -200,7 +217,7 @@ export default class ForwardRenderer extends BaseRenderer {
 
   _submitOtherStagesUniforms() {
     let shadowInfo = _float16_pool.add();
-    
+
     for (let i = 0; i < this._shadowLights.length; ++i) {
       let light = this._shadowLights[i];
       let view = _a16_shadow_lightViewProjs[i];
@@ -208,7 +225,7 @@ export default class ForwardRenderer extends BaseRenderer {
         view = _a16_shadow_lightViewProjs[i] = new Float32Array(_a64_shadow_lightViewProj.buffer, i * 64, 16);
       }
       Mat4.toArray(view, light.viewProjMatrix);
-      
+
       let index = i*4;
       shadowInfo[index] = light.shadowMinDepth;
       shadowInfo[index+1] = light.shadowMaxDepth;
@@ -264,7 +281,7 @@ export default class ForwardRenderer extends BaseRenderer {
         let item = items.data[i];
 
         for (let shadowIdx = 0; shadowIdx < shadowLights.length; ++shadowIdx) {
-          this._device.setTexture('cc_shadow_map_'+shadowIdx, shadowLights[shadowIdx].shadowMap, this._allocTextureUnit());  
+          this._device.setTexture('cc_shadow_map_'+shadowIdx, shadowLights[shadowIdx].shadowMap, this._allocTextureUnit());
         }
 
         this._draw(item);
