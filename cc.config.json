@@ -1,0 +1,11 @@
+{
+    "platforms": {
+        "native": {
+            "moduleOverrides": {
+                // "cocos/core/pipeline/index.ts": "cocos/core/pipeline/index.jsb.ts",
+                // "cocos/core/renderer/core/native-pools.ts": "cocos/core/renderer/core/native-pools.jsb.ts",
+                // "cocos/core/gfx/pipeline-state.ts": "cocos/core/gfx/pipeline-state.jsb.ts"
+            }
+        }
+    }
+} 

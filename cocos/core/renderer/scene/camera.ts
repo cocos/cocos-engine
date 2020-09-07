@@ -1,6 +1,6 @@
 import { frustum, ray } from '../../geometry';
-import { GFXClearFlag, GFXColor } from '../../gfx/define';
-import { lerp, Mat4, Rect, toRadian, Vec3 } from '../../math';
+import { GFXClearFlag } from '../../gfx/define';
+import { lerp, Mat4, Rect, toRadian, Vec3, Color } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { RenderView } from '../../pipeline';
 import { Node } from '../../scene-graph';
@@ -110,7 +110,7 @@ export class Camera {
     private _fov: number = toRadian(45);
     private _nearClip: number = 1.0;
     private _farClip: number = 1000.0;
-    private _clearColor: GFXColor = { r: 0.2, g: 0.2, b: 0.2, a: 1 };
+    private _clearColor: Color = new Color(51, 51, 51, 255);
     private _viewport: Rect = new Rect(0, 0, 1, 1);
     private _isProjDirty = true;
     private _matView: Mat4 = new Mat4();
@@ -133,7 +133,7 @@ export class Camera {
     private _isoValue: number = 0.0;
     private _ec: number = 0.0;
     private _poolHandle: CameraHandle = NULL_HANDLE;
-    private _frustumHandle: FrustumHandle = NULL_HANDLE;  
+    private _frustumHandle: FrustumHandle = NULL_HANDLE;
 
     constructor (device: GFXDevice) {
         this._device = device;
@@ -381,11 +381,8 @@ export class Camera {
     }
 
     set clearColor (val) {
-        this._clearColor.r = val.r;
-        this._clearColor.g = val.g;
-        this._clearColor.b = val.b;
-        this._clearColor.a = val.a;
-        CameraPool.setVec4(this._poolHandle, CameraView.CLEAR_COLOR, {x:val.r, y:val.g, z:val.b, w:val.r});
+        this._clearColor = val;
+        CameraPool.setVec4(this._poolHandle, CameraView.CLEAR_COLOR, val);
     }
 
     get clearColor () {
@@ -741,27 +738,24 @@ export class Camera {
         CameraPool.set(this._poolHandle, CameraView.EXPOSURE, 0.833333 / Math.pow(2.0, ev100));
     }
 
-    private recordFrustumInSharedMemory() {
+    private recordFrustumInSharedMemory () {
         const frustumHandle = this._frustumHandle;
-        const frustum = this._frustum;
-        if (!frustum || frustumHandle === NULL_HANDLE) {
+        const frstm = this._frustum;
+        if (!frstm || frustumHandle === NULL_HANDLE) {
             return;
         }
 
-        const vertices = frustum.vertices;
-        let offset = FrustumView.VERTICES;
+        const vertices = frstm.vertices;
+        let vertexOffset = FrustumView.VERTICES as const;
         for (let i = 0; i < 8; ++i) {
-            FrustumPool.setVec3(frustumHandle, offset, vertices[i]);
-            offset += 3;
+            FrustumPool.setVec3(frustumHandle, vertexOffset, vertices[i]);
+            vertexOffset += 3;
         }
 
-        const planes = frustum.planes;
-        offset = FrustumView.PLANES;
-        for (let i = 0; i < 6; ++i) {
-            FrustumPool.set(frustumHandle, offset, planes[i].d);
-            ++offset;
-            FrustumPool.setVec3(frustumHandle, offset, planes[i].n);
-            offset += 3;
+        const planes = frstm.planes;
+        let planeOffset = FrustumView.PLANES as const;
+        for (let i = 0; i < 6; i++, planeOffset += 4) {
+            FrustumPool.setVec4(frustumHandle, planeOffset, planes[i]);
         }
     }
 }

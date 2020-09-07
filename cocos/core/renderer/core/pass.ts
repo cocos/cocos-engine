@@ -139,8 +139,10 @@ export class Pass {
         if (info.blendState) {
             const bsInfo = info.blendState;
             if (bsInfo.targets) {
-                bsInfo.targets.forEach((t, i) => Object.assign(
-                bs.targets[i] || (bs.setTarget(i, new GFXBlendTarget()), t)));
+                bsInfo.targets.forEach((t, i) => {
+                    if (!bs.targets[i]) bs.setTarget(i, new GFXBlendTarget());
+                    Object.assign(bs.targets[i], t);
+                });
             }
             if (bsInfo.isA2C !== undefined) { bs.isA2C = bsInfo.isA2C; }
             if (bsInfo.isIndepend !== undefined) { bs.isIndepend = bsInfo.isIndepend; }
@@ -300,7 +302,7 @@ export class Pass {
      * @param value 目标 texture
      */
     public bindTexture (binding: number, value: GFXTexture, index?: number) {
-        this._descriptorSet.bindTexture(binding, value, index);
+        this._descriptorSet.bindTexture(binding, value, index || 0);
     }
 
     /**
@@ -310,7 +312,7 @@ export class Pass {
      * @param value 目标 sampler。
      */
     public bindSampler (binding: number, value: GFXSampler, index?: number) {
-        this._descriptorSet.bindSampler(binding, value, index);
+        this._descriptorSet.bindSampler(binding, value, index || 0);
     }
 
     /**

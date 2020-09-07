@@ -17,8 +17,8 @@ import { BatchingSchemes } from '../core/pass';
 import { Mat4, Vec3, Vec4 } from '../../math';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool,
-    SubModelArrayHandle, ModelPool, ModelView, AABBHandle, AABBPool, AABBView, NULL_HANDLE } from '../core/memory-pools';
+import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool, SubModelArrayHandle, ModelPool,
+    ModelView, AABBHandle, AABBPool, AABBView, NULL_HANDLE } from '../core/memory-pools';
 import { IGFXAttribute, GFXDescriptorSet } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UniformLightingMapSampler } from '../../pipeline/define';
 import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
@@ -127,7 +127,7 @@ export class Model {
     }
 
     get visFlags () : number {
-        return ModelPool.get(this._poolHandle, ModelView.VIS_FLAGS) as number;
+        return ModelPool.get(this._poolHandle, ModelView.VIS_FLAGS);
     }
 
     set visFlags (val: number) {
@@ -232,7 +232,7 @@ export class Model {
         if (node.hasChangedFlags || node._dirtyFlags) {
             node.updateWorldTransform();
             this._transformUpdated = true;
-            let worldBounds = this._worldBounds;
+            const worldBounds = this._worldBounds;
             if (this._modelBounds && worldBounds) {
                 // @ts-ignore TS2445
                 this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
@@ -281,7 +281,7 @@ export class Model {
         }
         AABBPool.setVec3(this._worldBoundsHandle, AABBView.CENTER, this._worldBounds.center);
         AABBPool.setVec3(this._worldBoundsHandle, AABBView.HALF_EXTENSION, this._worldBounds.halfExtents);
-        
+
     }
 
     public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {

@@ -47,7 +47,6 @@ export class UIBatchModel extends Model {
 
         this._subModel = new UISubModel();
         this._subModels[0] = this._subModel;
-        SubModelArrayPool.assign(this._subModelArrayHandle, 0, this._subModel.handle);
     }
 
     public updateTransform () {}
@@ -66,6 +65,7 @@ export class UIBatchModel extends Model {
 
     public directInitialize (batch: UIDrawBatch) {
         this._subModel.directInitialize(batch.material!.passes, batch.hInputAssembler, batch.hDescriptorSet!);
+        SubModelArrayPool.assign(this._subModelArrayHandle, 0, this._subModel.handle);
     }
 
     public destroy () {

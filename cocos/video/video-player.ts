@@ -32,9 +32,9 @@ import { Component, EventHandler as ComponentEventHandler } from '../core/compon
 import { UITransform } from '../core/components/ui-base';
 import { ccclass, displayOrder, executeInEditMode, help, menu, slide, range, requireComponent, tooltip, type, serializable } from 'cc.decorator';
 import { clamp } from '../core/math';
-import { VideoClip  } from './assets/video-clip';
+import { VideoClip } from './assets/video-clip';
 import { Enum } from '../core/value-types';
-import { VideoPlayerImpl, EventType } from './assets/video-player-web';
+import { VideoPlayerImpl, EventType } from './assets/video-player-Impl-web';
 import { EDITOR } from 'internal:constants';
 
 /**
@@ -372,6 +372,9 @@ export class VideoPlayer extends Component {
     }
 
     public onLoad () {
+        if (!EDITOR) {
+            return;
+        }
         this._player = new VideoPlayerImpl(this);
         this.syncSource();
         if (this.nativeVideo) {
@@ -383,28 +386,28 @@ export class VideoPlayer extends Component {
             this.nativeVideo.controls = this._controls;
         }
         this._player.syncStayOnBottom(this._stayOnBottom);
-        if (!EDITOR) {
-            this._player.syncFullScreenOnAwake(this._fullScreenOnAwake);
-            //
-            this._player.eventList.set(EventType.META_LOADED, this.onMetaLoaded.bind(this));
-            this._player.eventList.set(EventType.READY_TO_PLAY, this.onReadyToPlay.bind(this));
-            this._player.eventList.set(EventType.PLAYING, this.onPlaying.bind(this));
-            this._player.eventList.set(EventType.PAUSED, this.onPasued.bind(this));
-            this._player.eventList.set(EventType.STOPPED, this.onStopped.bind(this));
-            this._player.eventList.set(EventType.COMPLETED, this.onCompleted.bind(this));
-            this._player.eventList.set(EventType.ERROR, this.onError.bind(this));
+        this._player.syncFullScreenOnAwake(this._fullScreenOnAwake);
+        //
+        this._player.eventList.set(EventType.META_LOADED, this.onMetaLoaded.bind(this));
+        this._player.eventList.set(EventType.READY_TO_PLAY, this.onReadyToPlay.bind(this));
+        this._player.eventList.set(EventType.PLAYING, this.onPlaying.bind(this));
+        this._player.eventList.set(EventType.PAUSED, this.onPasued.bind(this));
+        this._player.eventList.set(EventType.STOPPED, this.onStopped.bind(this));
+        this._player.eventList.set(EventType.COMPLETED, this.onCompleted.bind(this));
+        this._player.eventList.set(EventType.ERROR, this.onError.bind(this));
+        if (this._playOnAwake && this._player.loaded) {
+            this.play();
         }
-        if (this._playOnAwake && !EDITOR && this._player.loaded) { this.play(); }
     }
 
     public onEnable() {
-        if (this._player && !EDITOR) {
+        if (this._player) {
             this._player.enable();
         }
     }
 
     public onDisable () {
-        if (this._player && !EDITOR) {
+        if (this._player) {
             this._player.disable();
         }
     }
@@ -417,7 +420,7 @@ export class VideoPlayer extends Component {
     }
 
     public update (dt: number) {
-        if (this._player && !EDITOR) {
+        if (this._player) {
             this._player.syncMatrix();
         }
     }
@@ -428,7 +431,7 @@ export class VideoPlayer extends Component {
     }
 
     public onReadyToPlay () {
-        if (this._playOnAwake && !EDITOR && !this.isPlaying) { this.play(); }
+        if (this._playOnAwake && !this.isPlaying) { this.play(); }
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.READY_TO_PLAY);
         this.node.emit('ready-to-play', this);
     }

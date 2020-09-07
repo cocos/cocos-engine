@@ -100,7 +100,7 @@ function getShaderInstanceName (name: string, macros: IMacroInfo[]) {
 
 function insertBuiltinBindings (tmpl: IProgramInfo, source: IDescriptorSetLayoutInfo, type: string) {
     const target = tmpl.builtins[type] as IBuiltinInfo;
-    const blocks = tmpl.blocks;
+    const tempBlocks: IBlockInfoRT[] = [];
     for (let i = 0; i < target.blocks.length; i++) {
         const b = target.blocks[i];
         const info = source.record[b.name] as IBlockInfo;
@@ -109,9 +109,10 @@ function insertBuiltinBindings (tmpl: IProgramInfo, source: IDescriptorSetLayout
             continue;
         }
         const builtin: IBlockInfoRT = Object.assign({ size: getSize(info) }, info);
-        blocks.push(builtin);
+        tempBlocks.push(builtin);
     }
-    const samplers = tmpl.samplers;
+    Array.prototype.unshift.apply(tmpl.blocks, tempBlocks);
+    const tempSamplers: ISamplerInfo[] = [];
     for (let i = 0; i < target.samplers.length; i++) {
         const s = target.samplers[i];
         const info = source.record[s.name] as ISamplerInfo;
@@ -119,8 +120,9 @@ function insertBuiltinBindings (tmpl: IProgramInfo, source: IDescriptorSetLayout
             console.warn(`builtin sampler '${s.name}' not available!`);
             continue;
         }
-        samplers.push(info);
+        tempSamplers.push(info);
     }
+    Array.prototype.unshift.apply(tmpl.samplers, tempSamplers);
 }
 
 function getSize (block: GFXUniformBlock) {
@@ -341,8 +343,8 @@ class ProgramLib {
         const layout = this._pipelineLayouts[name];
 
         if (!layout.hPipelineLayout) {
-            insertBuiltinBindings(tmpl, globalDescriptorSetLayout, 'globals');
             insertBuiltinBindings(tmpl, localDescriptorSetLayout, 'locals');
+            insertBuiltinBindings(tmpl, globalDescriptorSetLayout, 'globals');
             layout.setLayouts[SetIndex.GLOBAL] = pipeline.descriptorSetLayout;
             // material set layout should already been created in pass, but if not
             // (like when the same shader is overriden) we create it again here

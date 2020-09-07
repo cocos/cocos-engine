@@ -13,7 +13,7 @@ import { GFXFramebuffer } from '../../gfx/framebuffer';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { SetIndex, UBOShadow } from '../define';
 
-const colors: GFXColor[] = [ { r: 1, g: 1, b: 1, a: 1 } ];
+const colors: GFXColor[] = [ new GFXColor(1, 1, 1, 1) ];
 const bufs: GFXCommandBuffer[] = [];
 
 /**

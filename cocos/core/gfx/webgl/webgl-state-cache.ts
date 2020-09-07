@@ -21,6 +21,7 @@ export class WebGLStateCache {
     public glProgram: WebGLProgram | null = null;
     public glEnabledAttribLocs: boolean[];
     public glCurrentAttribLocs: boolean[];
+    public texUnitCacheMap: Record<string, number> = {};
 
     constructor () {
         this.glTexUnits = new Array<IWebGLTexUnit>(GFX_MAX_TEXTURE_UNITS);

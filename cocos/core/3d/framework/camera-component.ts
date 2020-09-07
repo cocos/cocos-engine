@@ -563,11 +563,7 @@ export class Camera extends Component {
             this._camera.orthoHeight = this._orthoHeight;
             this._camera.nearClip = this._near;
             this._camera.farClip = this._far;
-            const r = this._color.x;
-            const g = this._color.y;
-            const b = this._color.z;
-            const a = this._color.w;
-            this._camera.clearColor = { r, g, b, a };
+            this._camera.clearColor = this._color;
             this._camera.clearDepth = this._depth;
             this._camera.clearStencil = this._stencil;
             this._camera.clearFlag = this._clearFlags;
@@ -587,8 +583,8 @@ export class Camera extends Component {
         if (this._camera && this._camera.scene) {
             this._camera.scene.removeCamera(this._camera);
         }
-        const scene = this._getRenderScene();
-        scene.addCamera(this._camera);
+        const rs = this._getRenderScene();
+        rs.addCamera(this._camera);
     }
 
     protected _detachFromScene () {
@@ -597,7 +593,7 @@ export class Camera extends Component {
         }
     }
 
-    protected onSceneChanged (scene: Scene) {
+    protected onSceneChanged (_scene: Scene) {
         // to handle scene switch of editor camera
         if (this._camera && this._camera.scene == null) {
             this._attachToScene();

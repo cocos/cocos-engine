@@ -22,7 +22,7 @@ import { ForwardPipeline } from './forward-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 import { PlanarShadowQueue } from './planar-shadow-queue';
 
-const colors: GFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
+const colors: GFXColor[] = [ new GFXColor(0, 0, 0, 1) ];
 
 /**
  * @en The forward render stage
@@ -163,17 +163,17 @@ export class ForwardStage extends RenderStage {
             if (pipeline.isHDR) {
                 SRGBToLinear(colors[0], camera.clearColor);
                 const scale = pipeline.fpScale / camera.exposure;
-                colors[0].r *= scale;
-                colors[0].g *= scale;
-                colors[0].b *= scale;
+                colors[0].x *= scale;
+                colors[0].y *= scale;
+                colors[0].z *= scale;
             } else {
-                colors[0].r = camera.clearColor.r;
-                colors[0].g = camera.clearColor.g;
-                colors[0].b = camera.clearColor.b;
+                colors[0].x = camera.clearColor.x;
+                colors[0].y = camera.clearColor.y;
+                colors[0].z = camera.clearColor.z;
             }
         }
 
-        colors[0].a = camera.clearColor.a;
+        colors[0].w = camera.clearColor.w;
 
         const framebuffer = view.window.framebuffer;
         const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
