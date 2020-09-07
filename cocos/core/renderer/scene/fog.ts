@@ -77,7 +77,7 @@ export class Fog {
     set fogColor (val: Color) {
         this._fogColor.set(val);
         Color.toArray(this._colorArray, this._fogColor);
-        FogPool.setVec4(this._handle, FogView.TYPE, this._fogColor);
+        FogPool.setVec4(this._handle, FogView.COLOR, this._fogColor);
     }
 
     get fogColor () {

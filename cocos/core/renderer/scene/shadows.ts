@@ -96,7 +96,7 @@ export class Shadows {
     set normal (val: Vec3) {
         Vec3.copy(this._normal, val);
         this.dirty = true;
-        ShadowsPool.set(this._handle, ShadowsView.NORMAL, this._normal);
+        ShadowsPool.setVec3(this._handle, ShadowsView.NORMAL, this._normal);
     }
 
     /**
@@ -198,7 +198,7 @@ export class Shadows {
     }
     public set size (val) {
         this._size = val;
-        ShadowsPool.set(this._handle, ShadowsView.SIZE, this._size);
+        ShadowsPool.setVec2(this._handle, ShadowsView.SIZE, this._size);
     }
 
     /**

@@ -156,6 +156,22 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends BufferManif
         this._bufferViews[chunk][entry][element as number] = value as number;
     }
 
+    public setVec2<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec2: Conditional<Vec2, M[K]>) {
+        // Web engine has Vec3 property, don't record it in shared memory.
+        if (!JSB) return;
+
+        const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
+        const entry = this._entryMask & handle as unknown as number;
+        if (DEBUG && (!handle || chunk < 0 || chunk >= this._bufferViews.length ||
+            entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
+            console.warn('invalid buffer pool handle');
+            return;
+        }
+        let index = element as unknown as number;
+        const view = this._bufferViews[chunk][entry];
+        view[index++] = vec2.x; view[index++] = vec2.y;
+    }
+
     public setVec3<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec3: Conditional<Vec3, M[K]>) {
         // Web engine has Vec3 property, don't record it in shared memory.
         if (!JSB) return;
@@ -752,8 +768,8 @@ export enum AmbientView {
 interface IAmbientViewType extends BufferTypeManifest<typeof AmbientView> {
     [AmbientView.ENABLE]: number;
     [AmbientView.ILLUM]: number;
-    [AmbientView.SKY_COLOR]: Vec4;
-    [AmbientView.GROUND_ALBEDO]: FramebufferHandle;
+    [AmbientView.SKY_COLOR]: Color;
+    [AmbientView.GROUND_ALBEDO]: Color;
     [AmbientView.COUNT]: number;
 }
 export const AmbientPool = new BufferPool<PoolType.AMBIENT, Float32Array, typeof AmbientView, IAmbientViewType>(PoolType.AMBIENT, Float32Array, AmbientView, 1);
@@ -795,7 +811,7 @@ interface IFogViewType extends BufferTypeManifest<typeof FogView> {
     [FogView.ATTEN]: number;
     [FogView.TOP]: number;
     [FogView.RANGE]: number;
-    [FogView.COLOR]: Vec4;
+    [FogView.COLOR]: Color;
     [FogView.COUNT]: number;
 }
 export const FogPool = new BufferPool<PoolType.FOG, Float32Array, typeof FogView, IFogViewType>(PoolType.FOG, Float32Array, FogView);
@@ -832,7 +848,7 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.ORTHO_SIZE]: number;
     [ShadowsView.SIZE]: Vec2;
     [ShadowsView.NORMAL]: Vec3;
-    [ShadowsView.COLOR]: Vec4;
+    [ShadowsView.COLOR]: Color;
     [ShadowsView.SPHERE]: Vec4;
     [ShadowsView.COUNT]: number;
 }
