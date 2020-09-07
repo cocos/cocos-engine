@@ -368,7 +368,7 @@ export default class Base {
       }
 
       // depth test & write
-      if (passdepthTest) {
+      if (pass._depthTest) {
         device.enableDepthTest();
         device.setDepthFunc(pass._depthFunc);
       }

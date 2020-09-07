@@ -142,7 +142,6 @@ export default class ForwardRenderer extends BaseRenderer {
       let light = this._lights[i];
       let lightKey = `CC_LIGHT_${i}_TYPE`;
       let shadowKey = `CC_SHADOW_${i}_TYPE`;
-      defines[lightKey] = light._type;
       if (defines[lightKey] !== light._type){
         defines[lightKey] = light._type;
         this._definesChanged = true;
