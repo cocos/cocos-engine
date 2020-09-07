@@ -18,7 +18,7 @@ import { GFXPipelineLayout } from '..';
 export const GFXRasterizerState = gfx.RasterizerState;
 export const GFXDepthStencilState = gfx.DepthStencilState;
 export const GFXBlendTarget = gfx.BlendTarget;
-export const GFXBlendState = gfx.Blendstate;
+export const GFXBlendState = gfx.BlendState;
 
 /**
  * @en GFX input state.
