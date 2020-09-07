@@ -1385,15 +1385,15 @@ Default value must be initialized at their declaration:
 ```
 // Before:
 @property({
-  type: cc.Integer
-  default: 0  // <--
+  type: cc.SpriteFrame
+  default: null  // <--
 })
 myProp;
 // After:
 @property({
-  type: cc.Integer
+  type: cc.SpriteFrame
 })
-myProp = 0;   // <--
+myProp = null;   // <--
 ```
 
 ### 3654
