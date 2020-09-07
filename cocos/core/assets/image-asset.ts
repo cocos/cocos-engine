@@ -80,7 +80,7 @@ export class ImageAsset extends Asset {
      */
     get data () {
         const data = this._nativeData && (this._nativeData as IMemoryImageSource)._data;
-        return ArrayBuffer.isView(data) ? data : this._nativeData as (HTMLCanvasElement | HTMLImageElement);
+        return ArrayBuffer.isView(data) && this.isCompressed ? data : this._nativeData as (HTMLCanvasElement | HTMLImageElement);
     }
 
     /**
@@ -108,7 +108,8 @@ export class ImageAsset extends Asset {
      * 此图像资源是否为压缩像素格式。
      */
     get isCompressed () {
-        return this._format >= PixelFormat.RGB_ETC1 && this._format <= PixelFormat.RGBA_ASTC_12x12;
+        return (this._format >= PixelFormat.RGB_ETC1 && this._format <= PixelFormat.RGBA_ASTC_12x12) ||
+        (this._format >= PixelFormat.RGB_A_PVRTC_2BPPV1 && this._format <= PixelFormat.RGBA_ETC1);
     }
 
     /**
