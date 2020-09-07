@@ -511,14 +511,13 @@ enum PoolType {
     AABB,
     RENDER_WINDOW,
     FRUSTUM,
-    // array
-    SUB_MODEL_ARRAY,
-    MODEL_ARRAY,
-    // pipeline
     AMBIENT,
     FOG,
     SKYBOX,
     SHADOWS,
+    // array
+    SUB_MODEL_ARRAY,
+    MODEL_ARRAY,
 }
 
 export const NULL_HANDLE = 0 as unknown as IHandle<any>;
