@@ -526,11 +526,11 @@ export class Node extends BaseNode {
                     if (dirtyBits & TransformBit.SCALE) {
                         Vec3.copy(child._scale, child._lscale);
                         NodePool.setVec3(child._poolHandle, NodeView.WORLD_SCALE, child._scale);
+                        Mat4.fromRTS(child._mat, child._rot, child._pos, child._scale);
                     }
-                    Mat4.fromRTS(child._mat, child._rot, child._pos, child._scale);
                 }
             }
-            
+
             if (dirtyBits !== TransformBit.NONE) {
                 NodePool.setMat4(child._poolHandle, NodeView.WORLD_MATRIX, child._mat);
             }
