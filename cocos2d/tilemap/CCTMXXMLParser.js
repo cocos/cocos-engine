@@ -410,7 +410,7 @@ function getPropertyList (node, map) {
 /**
  * Creates a TMX Format with a tmx file or content string
  */
-cc.TMXMapInfo = function (tmxFile, tsxMap, textures, textureSizes, imageLayerTextures) {
+cc.TMXMapInfo = function (tmxFile, tsxMap, textures, textureSizes, imageLayerTextures, hasAtlases) {
     this.properties = [];
     this.orientation = null;
     this.parentElement = null;
@@ -440,6 +440,8 @@ cc.TMXMapInfo = function (tmxFile, tsxMap, textures, textureSizes, imageLayerTex
     this._staggerAxis = null;
     this._staggerIndex = null;
     this._hexSideLength = 0;
+
+    this._hasAtlases = hasAtlases || false;
 
     this._imageLayerTextures = null;
 
@@ -906,7 +908,7 @@ cc.TMXMapInfo.prototype = {
                                 let shortName = cc.TiledMap.getShortName(firstImageName);
                                 tileset.imageName = shortName;
                                 tileset.sourceImage = this._textures[shortName];
-                                if (!tileset.sourceImage) {
+                                if (!tileset.sourceImage && !this._hasAtlases) {
                                     cc.errorID(7221, firstImageName);
                                 }
                             }
@@ -944,7 +946,7 @@ cc.TMXMapInfo.prototype = {
                             let shortName = cc.TiledMap.getShortName(imageName);
                             tileset.imageName = shortName;
                             tileset.sourceImage = this._textures[shortName];
-                            if (!tileset.sourceImage) {
+                            if (!tileset.sourceImage && !this._hasAtlases) {
                                 cc.errorID(7221, imageName);
                             }
                         }

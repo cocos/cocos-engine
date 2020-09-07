@@ -317,6 +317,8 @@ let TiledMap = cc.Class({
         this._mapSize = cc.size(0, 0);
         this._tileSize = cc.size(0, 0);
 
+        this._hasAtlases = false;
+
         this._preloaded = false;
     },
 
@@ -578,6 +580,8 @@ let TiledMap = cc.Class({
         this.nameToGID = {};
 
         let file = this._tmxFile;
+        this._hasAtlases = this._tileAtlases.length > 0;
+
         if (file) {
             // let texValues = file.textures;
             let texKeys = file.textureNames;
@@ -635,10 +639,11 @@ let TiledMap = cc.Class({
                 }
             }
 
-            let mapInfo = new cc.TMXMapInfo(file.tmxXmlStr, tsxMap, textures, textureSizes, imageLayerTextures);
+            let mapInfo = new cc.TMXMapInfo(file.tmxXmlStr, tsxMap, textures, textureSizes, imageLayerTextures, this._hasAtlases);
             let tilesets = mapInfo.getTilesets();
-            if(!tilesets || tilesets.length === 0)
+            if(!tilesets || tilesets.length === 0) {
                 cc.logID(7241);
+            }
 
             this._buildWithMapInfo(mapInfo);
         }
