@@ -71,9 +71,9 @@ let TiledMapAsset = cc.Class({
          */
         imageLayerTextureNames: [cc.String],
 
-        spriteFrames: {
+        tileAtlases: {
             default: [],
-            type: [cc.SpriteFrames]
+            type: [cc.SpriteAtlas]
         },
 
         tsxFiles: [cc.TextAsset],
