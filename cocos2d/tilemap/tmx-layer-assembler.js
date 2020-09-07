@@ -149,6 +149,8 @@ function _flipTexture (inGrid, gid) {
         _uvd.y = inGrid.b;
     }
 
+    let tempVal;
+
     // vice
     if ((gid & TileFlag.DIAGONAL) >>> 0) {
         tempVal = _uvb;
@@ -212,7 +214,7 @@ function _flipDiamondTileTexture (inGrid, gid) {
         _uvd.y = inGrid.b;
     }
 
-    let tempVal = null;
+    let tempVal;
 
     // vice
     if ((gid & TileFlag.DIAGONAL) >>> 0) {
@@ -349,6 +351,8 @@ export default class TmxAssembler extends Assembler {
         _uintbuf = null;
     }
 
+    _flipTexture: null,
+
     // rowMoveDir is -1 or 1, -1 means decrease, 1 means increase
     // colMoveDir is -1 or 1, -1 means decrease, 1 means increase
     traverseGrids (leftDown, rightTop, rowMoveDir, colMoveDir, comp) {
@@ -380,6 +384,8 @@ export default class TmxAssembler extends Assembler {
         let colNodesCount = 0, checkColRange = true;
 
         let diamondTile = comp._diamondTile;
+
+        this._flipTexture = diamondTile ? _flipDiamondTileTexture : _flipTexture;
 
         if (rowMoveDir === -1) {
             row = rightTop.row;
@@ -487,11 +493,7 @@ export default class TmxAssembler extends Assembler {
                     this.fillByTiledNode(tiledNode.node, _vbuf, _uintbuf, left, right, top, bottom, diamondTile);
                 }
 
-                if (diamondTile) {
-                    _flipDiamondTileTexture(grid, gid);
-                } else {
-                    _flipTexture(grid, gid);
-                }
+                this._flipTexture(grid, gid);
 
                 // lt/ct -> a
                 _vbuf[_vfOffset + 2] = _uva.x;
