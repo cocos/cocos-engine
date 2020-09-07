@@ -198,8 +198,8 @@ export default class Pass {
             return false;
         }
 
-        this._defines[name] = value;
         if (oldValue !== value) {
+            this._defines[name] = value;
             this._programKey = null;
         }
 
