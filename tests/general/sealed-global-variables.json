@@ -116,7 +116,7 @@
         "cc.GFX_MAX_VERTEX_ATTRIBUTES",
         "cc.Game",
         "cc.Root",
-        "cc.Shadow",
+        "cc.Shadows",
         // "cc.PlanarShadows",
         "cc.Fog",
         "cc.Skybox",

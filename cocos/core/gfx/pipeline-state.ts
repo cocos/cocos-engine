@@ -24,127 +24,122 @@ import { GFXRenderPass } from './render-pass';
 import { GFXShader } from './shader';
 import { GFXPipelineLayout } from '..';
 
-// /**
-//  * @en GFX rasterizer state.
-//  * @zh GFX 光栅化状态。
-//  */
-// export class GFXRasterizerState {
-//     public isDiscard: boolean = false;
-//     public polygonMode: GFXPolygonMode = GFXPolygonMode.FILL;
-//     public shadeModel: GFXShadeModel = GFXShadeModel.GOURAND;
-//     public cullMode: GFXCullMode = GFXCullMode.BACK;
-//     public isFrontFaceCCW: boolean = true;
-//     public depthBias: number = 0;
-//     public depthBiasClamp: number = 0.0;
-//     public depthBiasSlop: number = 0.0;
-//     public isDepthClip: boolean = true;
-//     public isMultisample: boolean = false;
-//     public lineWidth: number = 1.0;
+/**
+ * @en GFX rasterizer state.
+ * @zh GFX 光栅化状态。
+ */
+export class GFXRasterizerState {
+    public isDiscard: boolean = false;
+    public polygonMode: GFXPolygonMode = GFXPolygonMode.FILL;
+    public shadeModel: GFXShadeModel = GFXShadeModel.GOURAND;
+    public cullMode: GFXCullMode = GFXCullMode.BACK;
+    public isFrontFaceCCW: boolean = true;
+    public depthBias: number = 0;
+    public depthBiasClamp: number = 0.0;
+    public depthBiasSlop: number = 0.0;
+    public isDepthClip: boolean = true;
+    public isMultisample: boolean = false;
+    public lineWidth: number = 1.0;
 
-//     public compare (state: GFXRasterizerState): boolean {
-//         return (this.isDiscard === state.isDiscard) &&
-//             (this.polygonMode === state.polygonMode) &&
-//             (this.shadeModel === state.shadeModel) &&
-//             (this.cullMode === state.cullMode) &&
-//             (this.isFrontFaceCCW === state.isFrontFaceCCW) &&
-//             (this.depthBias === state.depthBias) &&
-//             (this.depthBiasClamp === state.depthBiasClamp) &&
-//             (this.depthBiasSlop === state.depthBiasSlop) &&
-//             (this.isDepthClip === state.isDepthClip) &&
-//             (this.lineWidth === state.lineWidth) &&
-//             (this.isMultisample === state.isMultisample);
-//     }
-// }
+    public compare (state: GFXRasterizerState): boolean {
+        return (this.isDiscard === state.isDiscard) &&
+            (this.polygonMode === state.polygonMode) &&
+            (this.shadeModel === state.shadeModel) &&
+            (this.cullMode === state.cullMode) &&
+            (this.isFrontFaceCCW === state.isFrontFaceCCW) &&
+            (this.depthBias === state.depthBias) &&
+            (this.depthBiasClamp === state.depthBiasClamp) &&
+            (this.depthBiasSlop === state.depthBiasSlop) &&
+            (this.isDepthClip === state.isDepthClip) &&
+            (this.lineWidth === state.lineWidth) &&
+            (this.isMultisample === state.isMultisample);
+    }
+}
 
-// /**
-//  * @en GFX depth stencil state.
-//  * @zh GFX 深度模板状态。
-//  */
-// export class GFXDepthStencilState {
-//     public depthTest: boolean = true;
-//     public depthWrite: boolean = true;
-//     public depthFunc: GFXComparisonFunc = GFXComparisonFunc.LESS;
-//     public stencilTestFront: boolean = false;
-//     public stencilFuncFront: GFXComparisonFunc = GFXComparisonFunc.ALWAYS;
-//     public stencilReadMaskFront: number = 0xffff;
-//     public stencilWriteMaskFront: number = 0xffff;
-//     public stencilFailOpFront: GFXStencilOp = GFXStencilOp.KEEP;
-//     public stencilZFailOpFront: GFXStencilOp = GFXStencilOp.KEEP;
-//     public stencilPassOpFront: GFXStencilOp = GFXStencilOp.KEEP;
-//     public stencilRefFront: number = 1;
-//     public stencilTestBack: boolean = false;
-//     public stencilFuncBack: GFXComparisonFunc = GFXComparisonFunc.ALWAYS;
-//     public stencilReadMaskBack: number = 0xffff;
-//     public stencilWriteMaskBack: number = 0xffff;
-//     public stencilFailOpBack: GFXStencilOp = GFXStencilOp.KEEP;
-//     public stencilZFailOpBack: GFXStencilOp = GFXStencilOp.KEEP;
-//     public stencilPassOpBack: GFXStencilOp = GFXStencilOp.KEEP;
-//     public stencilRefBack: number = 1;
+/**
+ * @en GFX depth stencil state.
+ * @zh GFX 深度模板状态。
+ */
+export class GFXDepthStencilState {
+    public depthTest: boolean = true;
+    public depthWrite: boolean = true;
+    public depthFunc: GFXComparisonFunc = GFXComparisonFunc.LESS;
+    public stencilTestFront: boolean = false;
+    public stencilFuncFront: GFXComparisonFunc = GFXComparisonFunc.ALWAYS;
+    public stencilReadMaskFront: number = 0xffff;
+    public stencilWriteMaskFront: number = 0xffff;
+    public stencilFailOpFront: GFXStencilOp = GFXStencilOp.KEEP;
+    public stencilZFailOpFront: GFXStencilOp = GFXStencilOp.KEEP;
+    public stencilPassOpFront: GFXStencilOp = GFXStencilOp.KEEP;
+    public stencilRefFront: number = 1;
+    public stencilTestBack: boolean = false;
+    public stencilFuncBack: GFXComparisonFunc = GFXComparisonFunc.ALWAYS;
+    public stencilReadMaskBack: number = 0xffff;
+    public stencilWriteMaskBack: number = 0xffff;
+    public stencilFailOpBack: GFXStencilOp = GFXStencilOp.KEEP;
+    public stencilZFailOpBack: GFXStencilOp = GFXStencilOp.KEEP;
+    public stencilPassOpBack: GFXStencilOp = GFXStencilOp.KEEP;
+    public stencilRefBack: number = 1;
 
-//     public compare (state: GFXDepthStencilState): boolean {
-//         return (this.depthTest === state.depthTest) &&
-//             (this.depthWrite === state.depthWrite) &&
-//             (this.depthFunc === state.depthFunc) &&
-//             (this.stencilTestFront === state.stencilTestFront) &&
-//             (this.stencilFuncFront === state.stencilFuncFront) &&
-//             (this.stencilReadMaskFront === state.stencilReadMaskFront) &&
-//             (this.stencilWriteMaskFront === state.stencilWriteMaskFront) &&
-//             (this.stencilFailOpFront === state.stencilFailOpFront) &&
-//             (this.stencilZFailOpFront === state.stencilZFailOpFront) &&
-//             (this.stencilPassOpFront === state.stencilPassOpFront) &&
-//             (this.stencilRefFront === state.stencilRefFront) &&
-//             (this.stencilTestBack === state.stencilTestBack) &&
-//             (this.stencilFuncBack === state.stencilFuncBack) &&
-//             (this.stencilReadMaskBack === state.stencilReadMaskBack) &&
-//             (this.stencilWriteMaskBack === state.stencilWriteMaskBack) &&
-//             (this.stencilFailOpBack === state.stencilFailOpBack) &&
-//             (this.stencilZFailOpBack === state.stencilZFailOpBack) &&
-//             (this.stencilPassOpBack === state.stencilPassOpBack) &&
-//             (this.stencilRefBack === state.stencilRefBack);
-//     }
-// }
+    public compare (state: GFXDepthStencilState): boolean {
+        return (this.depthTest === state.depthTest) &&
+            (this.depthWrite === state.depthWrite) &&
+            (this.depthFunc === state.depthFunc) &&
+            (this.stencilTestFront === state.stencilTestFront) &&
+            (this.stencilFuncFront === state.stencilFuncFront) &&
+            (this.stencilReadMaskFront === state.stencilReadMaskFront) &&
+            (this.stencilWriteMaskFront === state.stencilWriteMaskFront) &&
+            (this.stencilFailOpFront === state.stencilFailOpFront) &&
+            (this.stencilZFailOpFront === state.stencilZFailOpFront) &&
+            (this.stencilPassOpFront === state.stencilPassOpFront) &&
+            (this.stencilRefFront === state.stencilRefFront) &&
+            (this.stencilTestBack === state.stencilTestBack) &&
+            (this.stencilFuncBack === state.stencilFuncBack) &&
+            (this.stencilReadMaskBack === state.stencilReadMaskBack) &&
+            (this.stencilWriteMaskBack === state.stencilWriteMaskBack) &&
+            (this.stencilFailOpBack === state.stencilFailOpBack) &&
+            (this.stencilZFailOpBack === state.stencilZFailOpBack) &&
+            (this.stencilPassOpBack === state.stencilPassOpBack) &&
+            (this.stencilRefBack === state.stencilRefBack);
+    }
+}
 
-// /**
-//  * @en GFX blend target.
-//  * @zh GFX 混合目标。
-//  */
-// export class GFXBlendTarget {
-//     public blend: boolean = false;
-//     public blendSrc: GFXBlendFactor = GFXBlendFactor.ONE;
-//     public blendDst: GFXBlendFactor = GFXBlendFactor.ZERO;
-//     public blendEq: GFXBlendOp = GFXBlendOp.ADD;
-//     public blendSrcAlpha: GFXBlendFactor = GFXBlendFactor.ONE;
-//     public blendDstAlpha: GFXBlendFactor = GFXBlendFactor.ZERO;
-//     public blendAlphaEq: GFXBlendOp = GFXBlendOp.ADD;
-//     public blendColorMask: GFXColorMask = GFXColorMask.ALL;
+/**
+ * @en GFX blend target.
+ * @zh GFX 混合目标。
+ */
+export class GFXBlendTarget {
+    public blend: boolean = false;
+    public blendSrc: GFXBlendFactor = GFXBlendFactor.ONE;
+    public blendDst: GFXBlendFactor = GFXBlendFactor.ZERO;
+    public blendEq: GFXBlendOp = GFXBlendOp.ADD;
+    public blendSrcAlpha: GFXBlendFactor = GFXBlendFactor.ONE;
+    public blendDstAlpha: GFXBlendFactor = GFXBlendFactor.ZERO;
+    public blendAlphaEq: GFXBlendOp = GFXBlendOp.ADD;
+    public blendColorMask: GFXColorMask = GFXColorMask.ALL;
 
-//     public compare (target: GFXBlendTarget): boolean {
-//         return (this.blend === target.blend) &&
-//             (this.blendSrc === target.blendSrc) &&
-//             (this.blendDst === target.blendDst) &&
-//             (this.blendEq === target.blendEq) &&
-//             (this.blendSrcAlpha === target.blendSrcAlpha) &&
-//             (this.blendDstAlpha === target.blendDstAlpha) &&
-//             (this.blendAlphaEq === target.blendAlphaEq) &&
-//             (this.blendColorMask === target.blendColorMask);
-//     }
-// }
+    public compare (target: GFXBlendTarget): boolean {
+        return (this.blend === target.blend) &&
+            (this.blendSrc === target.blendSrc) &&
+            (this.blendDst === target.blendDst) &&
+            (this.blendEq === target.blendEq) &&
+            (this.blendSrcAlpha === target.blendSrcAlpha) &&
+            (this.blendDstAlpha === target.blendDstAlpha) &&
+            (this.blendAlphaEq === target.blendAlphaEq) &&
+            (this.blendColorMask === target.blendColorMask);
+    }
+}
 
-// /**
-//  * @en GFX blend state.
-//  * @zh GFX混合状态。
-//  */
-// export class GFXBlendState {
-//     public isA2C: boolean = false;
-//     public isIndepend: boolean = false;
-//     public blendColor: GFXColor = { r: 0, g: 0, b: 0, a: 0 };
-//     public targets: GFXBlendTarget[] = [new GFXBlendTarget()];
-// }
-
-export const GFXRasterizerState = gfx.RasterizerState;
-export const GFXDepthStencilState = gfx.DepthStencilState;
-export const GFXBlendTarget = gfx.BlendTarget;
-export const GFXBlendState = gfx.BlendState;
+/**
+ * @en GFX blend state.
+ * @zh GFX混合状态。
+ */
+export class GFXBlendState {
+    public isA2C: boolean = false;
+    public isIndepend: boolean = false;
+    public blendColor: GFXColor = { x: 0, y: 0, z: 0, w: 0 };
+    public targets: GFXBlendTarget[] = [new GFXBlendTarget()];
+}
 
 /**
  * @en GFX input state.
