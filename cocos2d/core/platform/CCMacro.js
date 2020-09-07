@@ -180,28 +180,6 @@ cc.macro = {
     // General configurations
 
     /**
-     * <p>
-     *   If enabled, the texture coordinates will be calculated by using this formula: <br/>
-     *      - texCoord.left = (rect.x*2+1) / (texture.wide*2);                  <br/>
-     *      - texCoord.right = texCoord.left + (rect.width*2-2)/(texture.wide*2); <br/>
-     *                                                                                 <br/>
-     *  The same for bottom and top.                                                   <br/>
-     *                                                                                 <br/>
-     *  This formula prevents artifacts by using 99% of the texture.                   <br/>
-     *  The "correct" way to prevent artifacts is by expand the texture's border with the same color by 1 pixel<br/>
-     *                                                                                  <br/>
-     *  Affected component:                                                                 <br/>
-     *      - cc.TMXLayer                                                       <br/>
-     *                                                                                  <br/>
-     *  Enabled by default. To disabled set it to 0. <br/>
-     *  To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
-     * </p>
-     *
-     * @property {Number} FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX
-     */
-    FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX: true,
-
-    /**
      * Position of the FPS (Default: 0,0 (bottom-left corner))<br/>
      * To modify it, in Web engine please refer to CCMacro.js, in JSB please refer to CCConfig.h
      * @property {Vec2} DIRECTOR_STATS_POSITION
@@ -219,11 +197,11 @@ cc.macro = {
     ENABLE_STACKABLE_ACTIONS: true,
 
     /**
-     * !#en 
+     * !#en
      * The timeout to determine whether a touch is no longer active and should be removed.
-     * The reason to add this timeout is due to an issue in X5 browser core, 
+     * The reason to add this timeout is due to an issue in X5 browser core,
      * when X5 is presented in wechat on Android, if a touch is glissed from the bottom up, and leave the page area,
-     * no touch cancel event is triggered, and the touch will be considered active forever. 
+     * no touch cancel event is triggered, and the touch will be considered active forever.
      * After multiple times of this action, our maximum touches number will be reached and all new touches will be ignored.
      * So this new mechanism can remove the touch that should be inactive if it's not updated during the last 5000 milliseconds.
      * Though it might remove a real touch if it's just not moving for the last 5 seconds which is not easy with the sensibility of mobile touch screen.
@@ -241,7 +219,7 @@ cc.macro = {
     TOUCH_TIMEOUT: 5000,
 
     /**
-     * !#en 
+     * !#en
      * The maximum vertex count for a single batched draw call.
      * !#zh
      * 最大可以被单次批处理渲染的顶点数量。
@@ -250,7 +228,7 @@ cc.macro = {
     BATCH_VERTEX_COUNT: 20000,
 
     /**
-     * !#en 
+     * !#en
      * Whether or not enabled tiled map auto culling. If you set the TiledMap skew or rotation, then need to manually disable this, otherwise, the rendering will be wrong.
      * !#zh
      * 是否开启瓦片地图的自动裁减功能。瓦片地图如果设置了 skew, rotation 或者采用了摄像机的话，需要手动关闭，否则渲染会出错。
@@ -260,9 +238,9 @@ cc.macro = {
     ENABLE_TILEDMAP_CULLING: true,
 
     /**
-     * !#en 
+     * !#en
      * Boolean that indicates if the canvas contains an alpha channel, default sets to false for better performance.
-     * Though if you want to make your canvas background transparent and show other dom elements at the background, 
+     * Though if you want to make your canvas background transparent and show other dom elements at the background,
      * you can set it to true before `cc.game.run`.
      * Web only.
      * !#zh
@@ -278,8 +256,8 @@ cc.macro = {
      * !#en
      * Boolean that indicates if the WebGL context is created with `antialias` option turned on, default value is false.
      * Set it to true could make your game graphics slightly smoother, like texture hard edges when rotated.
-     * Whether to use this really depend on your game design and targeted platform, 
-     * device with retina display usually have good detail on graphics with or without this option, 
+     * Whether to use this really depend on your game design and targeted platform,
+     * device with retina display usually have good detail on graphics with or without this option,
      * you probably don't want antialias if your game style is pixel art based.
      * Also, it could have great performance impact with some browser / device using software MSAA.
      * You can set it to true before `cc.game.run`.
@@ -361,16 +339,16 @@ cc.macro = {
     ENABLE_MULTI_TOUCH: true,
 
     /**
-     * References: 
+     * References:
      * https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmap
      * https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/createImageBitmap
-     * 
+     *
      * !#en
      * Whether to use image bitmap first. If enabled, memory usage will increase.
-     * 
+     *
      * !#zh
      * 是否优先使用 image bitmap，启用之后，内存占用会变高
-     * 
+     *
      * @property {Boolean} ALLOW_IMAGE_BITMAP
      * @default true
      */
@@ -379,10 +357,10 @@ cc.macro = {
     /**
      * !#en
      * Whether to use native TTF renderer which is faster but layout slightly different.
-     * 
+     *
      * !#zh
      * 是否使用原生的文本渲染机制, 布局和编辑器有差异.
-     * 
+     *
      * @property {Boolean} ENABLE_NATIVE_TTF_RENDERER
      * @default true
      */

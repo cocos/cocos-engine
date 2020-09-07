@@ -265,6 +265,7 @@ if (CC_DEBUG) {
     markAsRemovedInObject(cc.macro, [
         'ENABLE_GL_STATE_CACHE',
         'FIX_ARTIFACTS_BY_STRECHING_TEXEL',
+        'FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX',
     ], 'cc.macro');
 
     provideClearError(cc.macro, {
@@ -710,7 +711,7 @@ if (CC_DEBUG) {
             return cc.renderer.InputAssembler;
         }
     };
-    
+
     // audio
     markAsRemovedInObject(cc.audioEngine, [
         'getProfile',
