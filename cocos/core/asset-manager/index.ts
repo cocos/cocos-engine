@@ -24,22 +24,7 @@
  THE SOFTWARE.
  */
 
-import Bundle, { resources } from './bundle';
-import Cache from './cache';
-import { Pipeline } from './pipeline';
-import RequestItem from './request-item';
-import { BuiltinBundleName } from './shared';
-import Task from './task';
-
-export declare module AssetManager {
-    export { Pipeline };
-    export { Task };
-    export { Cache };
-    export { RequestItem };
-    export { Bundle };
-    export { BuiltinBundleName };
-}
-
-export * from './deprecated';
-export { resources };
+// export * from './deprecated';
+export { resources } from './bundle';
 export { default as assetManager } from './asset-manager';
+export * from './asset-manager';

@@ -57,7 +57,14 @@ import { asyncify, parseParameters } from './utilities';
  * 此模块管理资源的行为和信息，包括加载，释放等，这是一个单例，所有成员能够通过 `cc.assetManager` 调用
  *
  */
-class AssetManager {
+export class AssetManager {
+
+    public static Pipeline = Pipeline;
+    public static Task = Task;
+    public static Cache = Cache;
+    public static RequestItem = RequestItem;
+    public static Bundle = Bundle;
+    public static BuiltinBundleName = BuiltinBundleName;
 
     /**
      * @en

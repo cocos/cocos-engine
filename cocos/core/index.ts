@@ -51,7 +51,7 @@ export * from './director';
 
 export * from './gfx';
 export * from './pipeline';
-// export * from './asset-manager';
+export * from './asset-manager';
 export * from './load-pipeline';
 export * from './scene-graph';
 export * from './components';
