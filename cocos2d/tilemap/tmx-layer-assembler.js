@@ -124,60 +124,30 @@ texture coordinate
 a c
 b d
 */
-function _flipTexture (inGrid, gid, diamondTile) {
+function _flipTexture (inGrid, gid) {
     if (inGrid._rotated) {
-        if (diamondTile) {
-            //       2:b
-            // 4:d         1:a
-            //       3:c
-            _uva.x = inGrid.r;
-            _uva.y = inGrid.cy;
-            _uvb.x = inGrid.cx;
-            _uvb.y = inGrid.t;
-            _uvc.x = inGrid.cx;
-            _uvc.y = inGrid.b;
-            _uvd.x = inGrid.l;
-            _uvd.y = inGrid.cy;
-        } else {
-            // 2:b   1:a
-            // 4:d   3:c
-            _uva.x = inGrid.r;
-            _uva.y = inGrid.t;
-            _uvb.x = inGrid.l;
-            _uvb.y = inGrid.t;
-            _uvc.x = inGrid.r;
-            _uvc.y = inGrid.b;
-            _uvd.x = inGrid.l;
-            _uvd.y = inGrid.b;
-        }
+        // 2:b   1:a
+        // 4:d   3:c
+        _uva.x = inGrid.r;
+        _uva.y = inGrid.t;
+        _uvb.x = inGrid.l;
+        _uvb.y = inGrid.t;
+        _uvc.x = inGrid.r;
+        _uvc.y = inGrid.b;
+        _uvd.x = inGrid.l;
+        _uvd.y = inGrid.b;
     } else {
-        if (diamondTile) {
-            //       1:a
-            // 2:b         3:c
-            //       4:d
-            _uva.x = inGrid.cx;
-            _uva.y = inGrid.t;
-            _uvb.x = inGrid.l;
-            _uvb.y = inGrid.cy;
-            _uvc.x = inGrid.r;
-            _uvc.y = inGrid.cy;
-            _uvd.x = inGrid.cx;
-            _uvd.y = inGrid.b;
-        } else {
-            // 1:a  3:c
-            // 2:b  4:d
-            _uva.x = inGrid.l;
-            _uva.y = inGrid.t;
-            _uvb.x = inGrid.l;
-            _uvb.y = inGrid.b;
-            _uvc.x = inGrid.r;
-            _uvc.y = inGrid.t;
-            _uvd.x = inGrid.r;
-            _uvd.y = inGrid.b;
-        }
+        // 1:a  3:c
+        // 2:b  4:d
+        _uva.x = inGrid.l;
+        _uva.y = inGrid.t;
+        _uvb.x = inGrid.l;
+        _uvb.y = inGrid.b;
+        _uvc.x = inGrid.r;
+        _uvc.y = inGrid.t;
+        _uvd.x = inGrid.r;
+        _uvd.y = inGrid.b;
     }
-
-    let tempVal = null;
 
     // vice
     if ((gid & TileFlag.DIAGONAL) >>> 0) {
@@ -207,7 +177,68 @@ function _flipTexture (inGrid, gid, diamondTile) {
         _uvc = _uvd;
         _uvd = tempVal;
     }
-};
+}
+
+/*
+texture coordinate
+   a
+b     c
+   d
+*/
+function _flipDiamondTileTexture (inGrid, gid) {
+    if (inGrid._rotated) {
+        //       2:b
+        // 4:d         1:a
+        //       3:c
+        _uva.x = inGrid.r;
+        _uva.y = inGrid.cy;
+        _uvb.x = inGrid.cx;
+        _uvb.y = inGrid.t;
+        _uvc.x = inGrid.cx;
+        _uvc.y = inGrid.b;
+        _uvd.x = inGrid.l;
+        _uvd.y = inGrid.cy;
+    } else {
+        //       1:a
+        // 2:b         3:c
+        //       4:d
+        _uva.x = inGrid.cx;
+        _uva.y = inGrid.t;
+        _uvb.x = inGrid.l;
+        _uvb.y = inGrid.cy;
+        _uvc.x = inGrid.r;
+        _uvc.y = inGrid.cy;
+        _uvd.x = inGrid.cx;
+        _uvd.y = inGrid.b;
+    }
+
+    let tempVal = null;
+
+    // vice
+    if ((gid & TileFlag.DIAGONAL) >>> 0) {
+        tempVal = _uva;
+        _uva = _uvb;
+        _uvb = tempVal;
+
+        tempVal = _uvc;
+        _uvc = _uvd;
+        _uvd = tempVal;
+    }
+
+    // flip x
+    if ((gid & TileFlag.HORIZONTAL) >>> 0) {
+        tempVal = _uvb;
+        _uvb = _uvc;
+        _uvc = tempVal;
+    }
+
+    // flip y
+    if ((gid & TileFlag.VERTICAL) >>> 0) {
+        tempVal = _uva;
+        _uva = _uvd;
+        _uvd = tempVal;
+    }
+}
 
 export default class TmxAssembler extends Assembler {
     updateRenderData (comp) {
@@ -456,7 +487,11 @@ export default class TmxAssembler extends Assembler {
                     this.fillByTiledNode(tiledNode.node, _vbuf, _uintbuf, left, right, top, bottom, diamondTile);
                 }
 
-                _flipTexture(grid, gid, diamondTile);
+                if (diamondTile) {
+                    _flipDiamondTileTexture(grid, gid);
+                } else {
+                    _flipTexture(grid, gid);
+                }
 
                 // lt/ct -> a
                 _vbuf[_vfOffset + 2] = _uva.x;
