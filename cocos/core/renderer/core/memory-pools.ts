@@ -53,10 +53,16 @@ interface IHandle<T extends PoolType> extends Number {
     _: T;
 }
 
+enum PoolDataType {
+    FLOAT32,
+    UINT32,
+}
+
 type BufferManifest = { [key: string]: number | string; COUNT: number; };
 type StandardBufferElement = number | IHandle<any>;
 type GeneralBufferElement = StandardBufferElement | Vec3 | Mat4 | Vec4Compatibles;
 type BufferTypeManifest<E extends BufferManifest> = { [key in E[keyof E]]: GeneralBufferElement };
+type BufferDataTypeManifest<E extends BufferManifest> = { [key in E[keyof E]]: PoolDataType };
 
 type Conditional<V, T> = T extends V ? T : never;
 
@@ -65,7 +71,6 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends BufferManif
     // naming convension:
     // this._bufferViews[chunk][entry][element]
 
-    private _viewCtor: ITypedArrayConstructor<T>;
     private _elementCount: number;
     private _entryBits: number;
 
@@ -77,17 +82,17 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends BufferManif
 
     private _arrayBuffers: ArrayBuffer[] = [];
     private _freelists: number[][] = [];
-    private _bufferViews: T[][] = [];
+    private _bufferViews: DataView[][] = [];
+    private _dataType: BufferDataTypeManifest<E>;
 
     private _nativePool: NativeBufferPool;
 
-    constructor (poolType: P, viewCtor: ITypedArrayConstructor<T>, enumType: E, entryBits = 8) {
-        this._viewCtor = viewCtor;
+    constructor (poolType: P, enumType: E, dataType: BufferDataTypeManifest<E>, entryBits = 8) {
         this._elementCount = enumType.COUNT;
         this._entryBits = entryBits;
+        this._dataType = dataType;
 
-        const bytesPerElement = viewCtor.BYTES_PER_ELEMENT || 1;
-        this._stride = bytesPerElement * this._elementCount;
+        this._stride = 4 * this._elementCount;
         this._entriesPerChunk = 1 << entryBits;
         this._entryMask = this._entriesPerChunk - 1;
         this._poolFlag = 1 << 30;
@@ -106,10 +111,10 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends BufferManif
         }
         // add a new chunk
         const buffer = this._nativePool.allocateNewChunk();
-        const bufferViews: T[] = [];
+        const bufferViews: DataView[] = [];
         const freelist: number[] = [];
         for (let j = 0; j < this._entriesPerChunk; j++) {
-            bufferViews.push(new this._viewCtor(buffer, this._stride * j, this._elementCount));
+            bufferViews.push(new DataView(buffer, this._stride * j, this._elementCount));
             if (j) { freelist.push(j); }
         }
         this._arrayBuffers.push(buffer);
@@ -141,7 +146,11 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends BufferManif
             console.warn('invalid buffer pool handle');
             return 0 as Conditional<StandardBufferElement, M[K]>;
         }
-        return this._bufferViews[chunk][entry][element as number] as Conditional<StandardBufferElement, M[K]>;
+        if (this._dataType[element] === PoolDataType.UINT32) {
+            return this._bufferViews[chunk][entry].getUint32(element as number * 4) as Conditional<StandardBufferElement, M[K]>;
+        } else {
+            return this._bufferViews[chunk][entry].getFloat32(element as number * 4) as Conditional<StandardBufferElement, M[K]>;
+        }
     }
 
     public set<K extends E[keyof E]> (handle: IHandle<P>, element: K, value: Conditional<StandardBufferElement, M[K]>) {
@@ -152,7 +161,11 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends BufferManif
             console.warn('invalid buffer pool handle');
             return;
         }
-        this._bufferViews[chunk][entry][element as number] = value as number;
+        if (this._dataType[element] === PoolDataType.UINT32) {
+            this._bufferViews[chunk][entry].setUint32(element as number * 4, value as number);
+        } else {
+            this._bufferViews[chunk][entry].setFloat32(element as number * 4, value as number);
+        }
     }
 
     public setVec3<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec3: Conditional<Vec3, M[K]>) {
@@ -168,7 +181,15 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends BufferManif
         }
         let index = element as unknown as number;
         const view = this._bufferViews[chunk][entry];
-        view[index++] = vec3.x; view[index++] = vec3.y; view[index] = vec3.z;
+        if (this._dataType[element] === PoolDataType.UINT32) {
+            view.setUint32(index++ * 4, vec3.x);
+            view.setUint32(index++ * 4, vec3.y);
+            view.setUint32(index * 4,   vec3.z);
+        } else {
+            view.setFloat32(index++ * 4, vec3.x);
+            view.setFloat32(index++ * 4, vec3.y);
+            view.setFloat32(index * 4,   vec3.z);
+        }
     }
 
     public setVec4<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec4: Conditional<Vec4Compatibles, M[K]>) {
@@ -184,8 +205,13 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends BufferManif
         }
         let index = element as unknown as number;
         const view = this._bufferViews[chunk][entry];
-        view[index++] = vec4.x; view[index++] = vec4.y;
-        view[index++] = vec4.z; view[index]   = vec4.w;
+        if (this._dataType[element] === PoolDataType.UINT32) {
+            view.setUint32(index++ * 4, vec4.x); view.setUint32(index++ * 4, vec4.y);
+            view.setUint32(index++ * 4, vec4.z); view.setUint32(index * 4,   vec4.w);
+        } else {
+            view.setFloat32(index++ * 4, vec4.x); view.setFloat32(index++ * 4, vec4.y);
+            view.setFloat32(index++ * 4, vec4.z); view.setFloat32(index * 4,   vec4.w);
+        }
     }
 
     public setMat4<K extends E[keyof E]> (handle: IHandle<P>, element: K, mat4: Conditional<Mat4, M[K]>) {
@@ -201,10 +227,25 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends BufferManif
         }
         let index = element as unknown as number;
         const view = this._bufferViews[chunk][entry];
-        view[index++] = mat4.m00; view[index++] = mat4.m01; view[index++] = mat4.m02; view[index++] = mat4.m03;
-        view[index++] = mat4.m04; view[index++] = mat4.m05; view[index++] = mat4.m06; view[index++] = mat4.m07;
-        view[index++] = mat4.m08; view[index++] = mat4.m09; view[index++] = mat4.m10; view[index++] = mat4.m11;
-        view[index++] = mat4.m12; view[index++] = mat4.m13; view[index++] = mat4.m14; view[index]   = mat4.m15;
+        if (this._dataType[element] === PoolDataType.UINT32) {
+            view.setUint32(index++ * 4, mat4.m00); view.setUint32(index++ * 4, mat4.m01);
+            view.setUint32(index++ * 4, mat4.m02); view.setUint32(index++ * 4, mat4.m03);
+            view.setUint32(index++ * 4, mat4.m04); view.setUint32(index++ * 4, mat4.m05);
+            view.setUint32(index++ * 4, mat4.m06); view.setUint32(index++ * 4, mat4.m07);
+            view.setUint32(index++ * 4, mat4.m08); view.setUint32(index++ * 4, mat4.m09);
+            view.setUint32(index++ * 4, mat4.m10); view.setUint32(index++ * 4, mat4.m11);
+            view.setUint32(index++ * 4, mat4.m12); view.setUint32(index++ * 4, mat4.m13);
+            view.setUint32(index++ * 4, mat4.m14); view.setUint32(index * 4,   mat4.m15);
+        } else {
+            view.setFloat32(index++ * 4, mat4.m00); view.setFloat32(index++ * 4, mat4.m01);
+            view.setFloat32(index++ * 4, mat4.m02); view.setFloat32(index++ * 4, mat4.m03);
+            view.setFloat32(index++ * 4, mat4.m04); view.setFloat32(index++ * 4, mat4.m05);
+            view.setFloat32(index++ * 4, mat4.m06); view.setFloat32(index++ * 4, mat4.m07);
+            view.setFloat32(index++ * 4, mat4.m08); view.setFloat32(index++ * 4, mat4.m09);
+            view.setFloat32(index++ * 4, mat4.m10); view.setFloat32(index++ * 4, mat4.m11);
+            view.setFloat32(index++ * 4, mat4.m12); view.setFloat32(index++ * 4, mat4.m13);
+            view.setFloat32(index++ * 4, mat4.m14); view.setFloat32(index * 4,   mat4.m15);
+        }
     }
 
     public free (handle: IHandle<P>) {
@@ -215,7 +256,8 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends BufferManif
             console.warn('invalid buffer pool handle');
             return;
         }
-        this._bufferViews[chunk][entry].fill(0);
+        const buffer = new Uint8Array(this._bufferViews[chunk][entry].buffer);
+        buffer.fill(0);
         this._freelists[chunk].push(entry);
     }
 }
@@ -511,10 +553,25 @@ interface IPassViewType extends BufferTypeManifest<typeof PassView> {
     [PassView.PIPELINE_LAYOUT]: PipelineLayoutHandle;
     [PassView.COUNT]: never;
 }
+const passViewDataType :BufferDataTypeManifest<typeof PassView> = {
+    [PassView.PRIORITY]: PoolDataType.UINT32,
+    [PassView.STAGE]: PoolDataType.UINT32,
+    [PassView.PHASE]: PoolDataType.UINT32,
+    [PassView.BATCHING_SCHEME]: PoolDataType.UINT32,
+    [PassView.PRIMITIVE]: PoolDataType.UINT32,
+    [PassView.DYNAMIC_STATES]: PoolDataType.UINT32,
+    [PassView.HASH]: PoolDataType.UINT32,
+    [PassView.RASTERIZER_STATE]: PoolDataType.UINT32,
+    [PassView.DEPTH_STENCIL_STATE]: PoolDataType.UINT32,
+    [PassView.BLEND_STATE]: PoolDataType.UINT32,
+    [PassView.DESCRIPTOR_SET]: PoolDataType.UINT32,
+    [PassView.PIPELINE_LAYOUT]: PoolDataType.UINT32,
+    [PassView.COUNT]: PoolDataType.UINT32
+}
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
 // but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
 // we'll have to explicitly declare all these types.
-export const PassPool = new BufferPool<PoolType.PASS, Uint32Array, typeof PassView, IPassViewType>(PoolType.PASS, Uint32Array, PassView);
+export const PassPool = new BufferPool<PoolType.PASS, Uint32Array, typeof PassView, IPassViewType>(PoolType.PASS, PassView, passViewDataType);
 
 export enum SubModelView {
     PRIORITY,
