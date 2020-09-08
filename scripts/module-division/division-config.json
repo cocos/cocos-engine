@@ -79,6 +79,12 @@
             "default": true
         },
         {
+            "text": "WebView",
+            "description": "WebView support.",
+            "entry": "webview",
+            "default": true
+        },
+        {
             "text": "Tween",
             "description": "Tween support.",
             "entry": "tween",
