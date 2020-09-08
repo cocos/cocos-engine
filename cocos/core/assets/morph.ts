@@ -17,6 +17,12 @@ export interface Morph {
      * Common initial weights of each sub-mesh.
      */
     weights?: number[];
+
+    /**
+     * Name of each target of each sub-mesh morph.
+     * This field is only meaningful if every sub-mesh has the same number of targets.
+     */
+    targetNames?: string[];
 }
 
 export interface MorphTarget {
