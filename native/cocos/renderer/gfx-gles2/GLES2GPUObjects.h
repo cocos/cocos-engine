@@ -144,6 +144,8 @@ struct GLES2GPUUniformSampler {
     uint binding = 0;
     String name;
     Type type = Type::UNKNOWN;
+    uint count = 0u;
+
     vector<int> units;
     GLenum glType = 0;
     GLint glLoc = -1;

@@ -668,6 +668,7 @@ typedef vector<Color> ColorList;
 struct BindingMappingInfo {
     vector<uint> bufferOffsets;
     vector<uint> samplerOffsets;
+    uint flexibleSet = 0u;
 };
 
 struct DeviceInfo {

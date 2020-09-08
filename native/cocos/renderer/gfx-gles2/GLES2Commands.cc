@@ -989,6 +989,7 @@ void GLES2CmdFuncCreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
             gpuSampler.binding = sampler.binding;
             gpuSampler.name = sampler.name;
             gpuSampler.type = sampler.type;
+            gpuSampler.count = sampler.count;
             gpuSampler.glType = MapGLType(gpuSampler.type);
             gpuSampler.glLoc = -1;
         }
@@ -997,10 +998,6 @@ void GLES2CmdFuncCreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
     // parse glUniforms
     GLint glActiveUniforms;
     glGetProgramiv(gpuShader->glProgram, GL_ACTIVE_UNIFORMS, &glActiveUniforms);
-
-    GLint unitIdx = 0;
-
-    GLES2GPUUniformSamplerList activeGPUSamplers;
 
     for (GLint i = 0; i < glActiveUniforms; ++i) {
         memset(glName, 0, sizeof(glName));
@@ -1018,23 +1015,7 @@ void GLES2CmdFuncCreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
                          (glType == GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW_OES) ||
                          (glType == GL_INT_SAMPLER_CUBE_MAP_ARRAY_OES) ||
                          (glType == GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY_OES);
-        if (isSampler) {
-            for (size_t s = 0; s < gpuShader->glSamplers.size(); ++s) {
-                GLES2GPUUniformSampler &gpuSampler = gpuShader->glSamplers[s];
-                if (gpuSampler.name == name) {
-                    gpuSampler.units.resize(glSize);
-                    for (GLsizei u = 0; u < glSize; ++u) {
-                        gpuSampler.units[u] = unitIdx + u;
-                    }
-
-                    gpuSampler.glLoc = glGetUniformLocation(gpuShader->glProgram, glName);
-                    unitIdx += glSize;
-
-                    activeGPUSamplers.push_back(gpuSampler);
-                    break;
-                }
-            }
-        } else {
+        if (!isSampler) {
             for (size_t b = 0; b < gpuShader->glBlocks.size(); ++b) {
                 GLES2GPUUniformBlock &gpuBlock = gpuShader->glBlocks[b];
                 for (size_t u = 0; u < gpuBlock.glUniforms.size(); ++u) {
@@ -1051,13 +1032,76 @@ void GLES2CmdFuncCreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
         }
     } // for
 
-    if (activeGPUSamplers.size()) {
+    // texture unit index mapping optimization
+    vector<GLES2GPUUniformSampler> glActiveSamplers;
+    vector<GLint> glActiveSamplerLocations;
+    const BindingMappingInfo &bindingMappingInfo = device->bindingMappingInfo();
+    map<String, uint> &texUnitCacheMap = device->stateCache->texUnitCacheMap;
+
+    uint flexibleSetBaseOffset = 0u;
+    for (uint i = 0u; i < gpuShader->blocks.size(); i++) {
+        if (gpuShader->blocks[i].set == bindingMappingInfo.flexibleSet) {
+            flexibleSetBaseOffset++;
+        }
+    }
+
+    uint arrayOffset = 0u;
+
+    for (uint i = 0u; i < gpuShader->samplers.size(); i++) {
+        const UniformSampler &sampler = gpuShader->samplers[i];
+        uint glLoc = glGetUniformLocation(gpuShader->glProgram, sampler.name.c_str());
+        if (glLoc >= 0) {
+            glActiveSamplers.push_back(gpuShader->glSamplers[i]);
+            glActiveSamplerLocations.push_back(glLoc);
+        }
+        if (!texUnitCacheMap.count(sampler.name)) {
+            uint binding = sampler.binding + bindingMappingInfo.samplerOffsets[sampler.set] + arrayOffset;
+            if (sampler.set == bindingMappingInfo.flexibleSet) binding -= flexibleSetBaseOffset;
+            texUnitCacheMap[sampler.name] = binding % device->getMaxTextureUnits();
+            arrayOffset += sampler.count - 1;
+        }
+    }
+
+    if (glActiveSamplers.size()) {
+        bool usedTexUnits[GFX_MAX_TEXTURE_UNITS]{};
+        // try to reuse existing mappings first
+        for (uint i = 0u; i < glActiveSamplers.size(); i++) {
+            GLES2GPUUniformSampler &glSampler = glActiveSamplers[i];
+
+            if (texUnitCacheMap.count(glSampler.name)) {
+                uint cachedUnit = texUnitCacheMap[glSampler.name];
+                glSampler.glLoc = glActiveSamplerLocations[i];
+                for (uint t = 0u, offset = 0u; t < glSampler.count; t++) {
+                    while (usedTexUnits[cachedUnit + t + offset]) offset++;
+                    glSampler.units.push_back(cachedUnit + t + offset);
+                    usedTexUnits[cachedUnit + t + offset] = true;
+                }
+            }
+        }
+        // fill in the rest sequencially
+        uint unitIdx = 0u;
+        for (uint i = 0u; i < glActiveSamplers.size(); i++) {
+            GLES2GPUUniformSampler &glSampler = glActiveSamplers[i];
+
+            if (glSampler.glLoc < 0) {
+                glSampler.glLoc = glActiveSamplerLocations[i];
+                for (uint t = 0u; t < glSampler.count; t++) {
+                    while (usedTexUnits[unitIdx + t]) unitIdx++;
+                    glSampler.units.push_back(unitIdx + t);
+                    usedTexUnits[unitIdx + t] = true;
+                }
+                if (!texUnitCacheMap.count(glSampler.name)) {
+                    texUnitCacheMap[glSampler.name] = unitIdx;
+                }
+            }
+        }
+
         if (device->stateCache->glProgram != gpuShader->glProgram) {
             glUseProgram(gpuShader->glProgram);
         }
 
-        for (size_t i = 0; i < activeGPUSamplers.size(); ++i) {
-            GLES2GPUUniformSampler &gpuSampler = activeGPUSamplers[i];
+        for (size_t i = 0; i < glActiveSamplers.size(); ++i) {
+            GLES2GPUUniformSampler &gpuSampler = glActiveSamplers[i];
             glUniform1iv(gpuSampler.glLoc, (GLsizei)gpuSampler.units.size(), gpuSampler.units.data());
         }
 
@@ -1075,14 +1119,7 @@ void GLES2CmdFuncCreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
             gpuShader->glBlocks.pop_back();
         }
     }
-    for (uint i = 0u; i < gpuShader->glSamplers.size();) {
-        if (gpuShader->glSamplers[i].units.size()) {
-            i++;
-        } else {
-            gpuShader->glSamplers[i] = gpuShader->glSamplers.back();
-            gpuShader->glSamplers.pop_back();
-        }
-    }
+    gpuShader->glSamplers = glActiveSamplers;
 }
 
 void GLES2CmdFuncDestroyShader(GLES2Device *device, GLES2GPUShader *gpuShader) {

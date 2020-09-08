@@ -28,6 +28,7 @@ public:
     BlendState bs;
     bool isCullFaceEnabled = true;
     bool isStencilTestEnabled = false;
+    map<String, uint> texUnitCacheMap;
 
     GLES2StateCache() {}
 };
