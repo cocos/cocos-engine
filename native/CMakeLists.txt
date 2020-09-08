@@ -1076,6 +1076,7 @@ target_compile_definitions(cocos2d PUBLIC
 if(CC_USE_VULKAN)
 
     target_compile_definitions(cocos2d PUBLIC VK_NO_PROTOTYPES)
+    target_compile_definitions(cocos2d PUBLIC CC_USE_VULKAN)
 
     if(WIN32)
         target_compile_definitions(cocos2d PUBLIC VK_USE_PLATFORM_WIN32_KHR)
@@ -1090,7 +1091,11 @@ if(CC_USE_VULKAN)
     endif()
 
 elseif(CC_USE_METAL)
-    target_compile_definitions(cocos2d PUBLIC USE_METAL)
+    target_compile_definitions(cocos2d PUBLIC CC_USE_METAL)
+elseif(CC_USE_GLES3)
+    target_compile_definitions(cocos2d PUBLIC CC_USE_GLES3)
+elseif(CC_USE_GLES2)
+    target_compile_definitions(cocos2d PUBLIC CC_USE_GLES2)
 endif()
 
 target_include_directories(cocos2d

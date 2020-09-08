@@ -4,36 +4,26 @@
 #include "scripting/js-bindings/manual/jsb_conversions.h"
 #include "scripting/js-bindings/manual/jsb_global.h"
 
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS)
-    #define USE_VULKAN
-    #define USE_GLES3
-    #define USE_GLES2
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    #define USE_GLES3
-#else
-    #define USE_METAL
-#endif
-
-#if !(defined(USE_GLES2) || defined(USE_GLES3) || defined(USE_VULKAN) || defined(USE_METAL))
+#if !(defined(CC_USE_GLES2) || defined(CC_USE_GLES3) || defined(CC_USE_VULKAN) || defined(CC_USE_METAL))
     #error "gfx backend is not defined!"
 #endif
 
-#ifdef USE_VULKAN
+#ifdef CC_USE_VULKAN
     #include "renderer/gfx-vulkan/GFXVulkan.h"
     #include "scripting/js-bindings/auto/jsb_vk_auto.h"
 #endif
 
-#ifdef USE_METAL
+#ifdef CC_USE_METAL
     #include "renderer/gfx-metal/GFXMTL.h"
     #include "scripting/js-bindings/auto/jsb_mtl_auto.h"
 #endif
 
-#ifdef USE_GLES3
+#ifdef CC_USE_GLES3
     #include "renderer/gfx-gles3/GFXGLES3.h"
     #include "scripting/js-bindings/auto/jsb_gles3_auto.h"
 #endif
 
-#ifdef USE_GLES2
+#ifdef CC_USE_GLES2
     #include "renderer/gfx-gles2/GFXGLES2.h"
     #include "scripting/js-bindings/auto/jsb_gles2_auto.h"
 #endif
@@ -879,16 +869,16 @@ bool register_all_gfx_manual(se::Object *obj) {
     js_register_gfx_BindingMappingInfo(ns);
     js_register_gfx_SubPass(ns);
 
-#if defined USE_VULKAN
+#ifdef CC_USE_VULKAN
     register_all_vk(obj);
 #endif
-#if defined USE_GLES3
+#ifdef CC_USE_GLES3
     register_all_gles3(obj);
 #endif
-#ifdef USE_GLES2
+#ifdef CC_USE_GLES2
     register_all_gles2(obj);
 #endif
-#if defined USE_METAL
+#ifdef CC_USE_METAL
     register_all_mtl(obj);
 #endif
 
