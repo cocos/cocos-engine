@@ -31,10 +31,10 @@ import {getError, log} from '../core/platform/debug';
 import { sys } from '../core/platform/sys';
 
 const __videoSupport = sys.__videoSupport;
-const formatSupport = __videoSupport.format;
+const formatSupport = __videoSupport && __videoSupport.format;
 
 export function downloadVideo (item, callback) {
-    if (formatSupport.length === 0) {
+    if (!formatSupport || formatSupport.length === 0) {
         return new Error(getError(7703));
     }
     const video = document.createElement('video');
