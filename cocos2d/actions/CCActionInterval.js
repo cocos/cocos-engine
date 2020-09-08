@@ -840,7 +840,7 @@ cc.Spawn = cc.Class({
  * @example
  * // example
  * var action = cc.spawn(cc.jumpBy(2, cc.v2(300, 0), 50, 4), cc.rotateBy(2, 720));
- * todo:It should be the direct use new
+ * todo: It should be the direct use new
  */
 cc.spawn = function (/*Multiple Arguments*/tempArray) {
     var paramArray = (tempArray instanceof Array) ? tempArray : arguments;

@@ -146,20 +146,17 @@ let SetAction = cc.Class({
 
 /**
  * !#en
- * Tween provide a simple and flexible way to create action.
- * Tween's api is more flexible than cc.Action:
- *  - Support creating an action sequence in chained api,
- *  - Support animate any objects' any properties, not limited to node's properties.
- *    By contrast, cc.Action needs to create a new action class to support new node property.
- *  - Support working with cc.Action,
+ * Tween provide a simple and flexible way to create action. Tween's api is more flexible than `cc.Action`:
+ *  - Support creating an action sequence in chained api.
+ *  - Support animate any objects' any properties, not limited to node's properties. By contrast, `cc.Action` needs to create a new action class to support new node property.
+ *  - Support working with `cc.Action`.
  *  - Support easing and progress function.
  * !#zh
- * Tween 提供了一个简单灵活的方法来创建 action。
- * 相对于 Cocos 传统的 cc.Action，cc.Tween 在创建动画上要灵活非常多：
+ * Tween 提供了一个简单灵活的方法来创建 action。相对于 Cocos 传统的 `cc.Action`，`cc.Tween` 在创建动画上要灵活非常多：
  *  - 支持以链式结构的方式创建一个动画序列。
- *  - 支持对任意对象的任意属性进行缓动，不再局限于节点上的属性，而 cc.Action 添加一个属性的支持时还需要添加一个新的 action 类型。
- *  - 支持与 cc.Action 混用
- *  - 支持设置 {{#crossLink "Easing"}}{{/crossLink}} 或者 progress 函数
+ *  - 支持对任意对象的任意属性进行缓动，不再局限于节点上的属性，而 `cc.Action` 添加一个属性的支持时还需要添加一个新的 action 类型。
+ *  - 支持与 `cc.Action` 混用。
+ *  - 支持设置 {{#crossLink "Easing"}}{{/crossLink}} 或者 progress 函数。
  * @class Tween
  * @example
  * cc.tween(node)
@@ -609,8 +606,7 @@ let actions = {
 let previousAsInputActions = {
     /**
      * !#en
-     * Add an repeat action.
-     * This action will integrate before actions to a sequence action as their parameters.
+     * Add an repeat action. This action will integrate before actions to a sequence action as their parameters.
      * !#zh
      * 添加一个重复 action，这个 action 会将前一个动作作为他的参数。
      * @method repeat
@@ -622,8 +618,7 @@ let previousAsInputActions = {
     repeat: cc.repeat,
     /**
      * !#en
-     * Add an repeat forever action
-     * This action will integrate before actions to a sequence action as their parameters.
+     * Add an repeat forever action. This action will integrate before actions to a sequence action as their parameters.
      * !#zh
      * 添加一个永久重复 action，这个 action 会将前一个动作作为他的参数。
      * @method repeatForever
@@ -637,8 +632,7 @@ let previousAsInputActions = {
     },
     /**
      * !#en
-     * Add an reverse time action.
-     * This action will integrate before actions to a sequence action as their parameters.
+     * Add an reverse time action. This action will integrate before actions to a sequence action as their parameters.
      * !#zh
      * 添加一个倒置时间 action，这个 action 会将前一个动作作为他的参数。
      * @method reverseTime
@@ -706,3 +700,4 @@ cc.tween = function (target) {
 };
 
 cc.Tween = Tween;
+  
