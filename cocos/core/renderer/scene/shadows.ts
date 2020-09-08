@@ -178,7 +178,6 @@ export class Shadows {
     protected _material: Material | null = null;
     protected _instancingMaterial: Material | null = null;
     protected _device: GFXDevice|null = null;
-    protected _globalDescriptorSet: GFXDescriptorSet | null = null;
     protected _dirty: boolean = true;
     /**
      * @zh
@@ -218,8 +217,6 @@ export class Shadows {
     public pcf = PCFType.HARD;
 
     public activate () {
-        const pipeline = legacyCC.director.root.pipeline;
-        this._globalDescriptorSet = pipeline.descriptorSet;
         if (this._type === ShadowType.ShadowMap) {
             this._updatePipeline();
         } else {
