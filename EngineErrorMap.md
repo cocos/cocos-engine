@@ -1848,3 +1848,7 @@ The sub-mesh contains %d vertices, which beyonds the capability (%d vertices mos
 ### 10002
 
 Sub-mesh may include at most %d morph targets, but you specified %d.
+
+### 11000
+
+WebGL context lost.
