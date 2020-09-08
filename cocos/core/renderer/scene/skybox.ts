@@ -25,16 +25,12 @@ export class Skybox {
      * @zh 是否启用天空盒？
      */
     get enabled (): boolean {
-        return this._enabled;
+        return SkyboxPool.get(this._handle, SkyboxView.ENABLE) as unknown as boolean;
     }
 
     set enabled (val: boolean) {
-        if (this._enabled === val) {
-            return;
-        }
-        this._enabled = val;
-        this._enabled ? this.activate() : this._updatePipeline();
-        SkyboxPool.set(this._handle, SkyboxView.ENABLE, this._enabled ? 1 : 0);
+        val ? this.activate() : this._updatePipeline();
+        SkyboxPool.set(this._handle, SkyboxView.ENABLE, val ? 1 : 0);
     }
 
     /**
@@ -42,12 +38,11 @@ export class Skybox {
      * @zh 是否启用环境光照？
      */
     get useIBL (): boolean {
-        return this._useIBL;
+        return SkyboxPool.get(this._handle, SkyboxView.USE_IBL) as unknown as boolean;
     }
 
     set useIBL (val: boolean) {
-        this._useIBL = val;
-        SkyboxPool.set(this._handle, SkyboxView.USE_IBL, this._useIBL ? 1 : 0);
+        SkyboxPool.set(this._handle, SkyboxView.USE_IBL, val ? 1 : 0);
         this._updatePipeline();
     }
 
@@ -56,13 +51,11 @@ export class Skybox {
      * @zh 是否需要开启 shader 内的 RGBE 数据支持？
      */
     get isRGBE (): boolean {
-        return this._isRGBE;
+        return SkyboxPool.get(this._handle, SkyboxView.IS_RGBE) as unknown as boolean;
     }
 
     set isRGBE (val: boolean) {
-        this._isRGBE = val;
-
-        if (this._enabled) {
+        if (val) {
             if (skybox_material) {
                 skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: val });
             }
@@ -71,7 +64,7 @@ export class Skybox {
                 this._model.setSubModelMaterial(0, skybox_material!);
             }
         }
-        SkyboxPool.set(this._handle, SkyboxView.IS_RGBE, this._isRGBE ? 1 : 0);
+        SkyboxPool.set(this._handle, SkyboxView.IS_RGBE, val ? 1 : 0);
         this._updatePipeline();
     }
 
@@ -91,9 +84,6 @@ export class Skybox {
         }
     }
 
-    protected _enabled = false;
-    protected _isRGBE = false;
-    protected _useIBL = false;
     protected _envmap: TextureCube | null = null;
     protected _globalDescriptorSet: GFXDescriptorSet | null = null;
     protected _model: Model | null = null;
@@ -119,10 +109,10 @@ export class Skybox {
 
         if (!skybox_material) {
             const mat = new Material();
-            mat.initialize({ effectName: 'pipeline/skybox', defines: { USE_RGBE_CUBEMAP: this._isRGBE } });
+            mat.initialize({ effectName: 'pipeline/skybox', defines: { USE_RGBE_CUBEMAP: this.isRGBE } });
             skybox_material = new MaterialInstance({ parent: mat });
         } else {
-            skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this._isRGBE });
+            skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
         }
 
         if (!skybox_mesh) { skybox_mesh = createMesh(box({ width: 2, height: 2, length: 2 })); }
@@ -134,7 +124,7 @@ export class Skybox {
     }
 
     protected _updatePipeline () {
-        const value = this._enabled ? (this._useIBL ? this._isRGBE ? 2 : 1 : 0) : 0;
+        const value = this.enabled ? (this.useIBL ? this.isRGBE ? 2 : 1 : 0) : 0;
         const root = legacyCC.director.root;
         const pipeline = root.pipeline;
         const current = pipeline.macros.CC_USE_IBL;

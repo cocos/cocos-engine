@@ -72,17 +72,13 @@ export class Shadows {
      * @zh 是否启用平面阴影？
      */
     get enabled (): boolean {
-        return this._enabled;
+        return ShadowsPool.get(this._handle, ShadowsView.ENABLE) as unknown as boolean;
     }
 
     set enabled (val: boolean) {
-        if (this._enabled === val) {
-            return;
-        }
-        this._enabled = val;
         this.dirty = true;
-        ShadowsPool.set(this._handle, ShadowsView.ENABLE, this._enabled ? 1 : 0);
-        this._enabled ? this.activate() : this._updatePipeline();
+        ShadowsPool.set(this._handle, ShadowsView.ENABLE, val ? 1 : 0);
+        val ? this.activate() : this._updatePipeline();
     }
 
     /**
@@ -131,12 +127,11 @@ export class Shadows {
      * @zh 阴影类型
      */
     get type (): number {
-        return this._enabled ? this._type : -1;
+        return ShadowsPool.get(this._handle, ShadowsView.TYPE);
     }
 
     set type (val: number) {
-        this._type = val;
-        ShadowsPool.set(this._handle, ShadowsView.TYPE, this._enabled ? this._type : -1);
+        ShadowsPool.set(this._handle, ShadowsView.TYPE, this.enabled ? val : -1);
         this._updatePipeline();
         this._updatePlanarInfo();
     }
@@ -211,9 +206,6 @@ export class Shadows {
     public get matLight () {
         return this._matLight;
     }
-    public get data () {
-        return this._data;
-    }
 
     /**
      * @zh
@@ -223,11 +215,10 @@ export class Shadows {
         return this._sphere;
     }
     public get dirty (): boolean {
-        return this._dirty;
+        return ShadowsPool.get(this._handle, ShadowsView.DIRTY) as unknown as boolean;
     }
     public set dirty (val: boolean) {
-        this._dirty = val;
-        ShadowsPool.set(this._handle, ShadowsView.DIRTY, this._dirty ? 1 : 0);
+        ShadowsPool.set(this._handle, ShadowsView.DIRTY, val ? 1 : 0);
     }
 
     public get material (): Material | null {
@@ -238,18 +229,11 @@ export class Shadows {
         return this._instancingMaterial;
     }
 
-    protected _enabled: boolean = false;
-    protected _type = ShadowType.Planar;
     protected _normal = new Vec3(0, 1, 0);
     protected _shadowColor = new Color(0, 0, 0, 76);
     protected _matLight = new Mat4();
-    protected _data = Float32Array.from([
-        1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, // matLightPlaneProj
-        0.0, 0.0, 0.0, 0.3, // shadowColor
-    ]);
     protected _material: Material | null = null;
     protected _instancingMaterial: Material | null = null;
-    protected _dirty: boolean = true;
     protected _size: Vec2 = new Vec2(512, 512);
     protected _handle: ShadowsHandle = NULL_HANDLE;
     protected _sphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
@@ -260,7 +244,7 @@ export class Shadows {
 
     public activate () {
         this.dirty = true;
-        if (this._type === ShadowType.ShadowMap) {
+        if (this.type === ShadowType.ShadowMap) {
             this._updatePipeline();
         } else {
             this._updatePlanarInfo();
@@ -283,7 +267,7 @@ export class Shadows {
     protected _updatePipeline () {
         const root = legacyCC.director.root
         const pipeline = root.pipeline;
-        const enable = this._enabled && this._type === ShadowType.ShadowMap;
+        const enable = this.enabled && this.type === ShadowType.ShadowMap;
         if (pipeline.macros.CC_RECEIVE_SHADOW === enable) { return; }
         pipeline.macros.CC_RECEIVE_SHADOW = enable;
         root.onGlobalPipelineStateChanged();

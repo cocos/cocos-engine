@@ -52,22 +52,13 @@ export class Fog {
      * @en Enable global fog
      */
     set enabled (val: boolean) {
-        if (this._enabled === val) {
-            return;
-        }
-        this._enabled = val;
-        if (!val) {
-            this._currType = 0;
-        } else {
-            this._currType = this._type + 1;
-        }
-        FogPool.set(this._handle, FogView.ENABLE, this._enabled ? 1 : 0);
-        FogPool.set(this._handle, FogView.TYPE, this._currType);
-        this._enabled ? this.activate() : this._updatePipeline();
+        FogPool.set(this._handle, FogView.ENABLE, val ? 1 : 0);
+        FogPool.set(this._handle, FogView.TYPE, val ? this._type + 1 : 0);
+        val ? this.activate() : this._updatePipeline();
     }
 
     get enabled (): boolean {
-        return this._enabled;
+        return FogPool.get(this._handle, FogView.ENABLE) as unknown as boolean;
     }
 
     /**
@@ -94,11 +85,8 @@ export class Fog {
 
     set type (val: number) {
         this._type = val;
-        if (this._enabled) {
-            this._currType = val + 1;
-            this._updatePipeline();
-        }
-        FogPool.set(this._handle, FogView.TYPE, this._currType);
+        if (this.enabled) this._updatePipeline();
+        FogPool.set(this._handle, FogView.TYPE, this.enabled ? this._type + 1 : 0);
     }
 
     /**
@@ -184,7 +172,7 @@ export class Fog {
      * - 4:Layered fog
      */
     get currType (): number {
-        return this._currType;
+        return FogPool.get(this._handle, FogView.TYPE);
     }
 
     get colorArray (): Float32Array {
@@ -193,8 +181,6 @@ export class Fog {
 
     protected _type = FogType.LINEAR;
     protected _fogColor = new Color('#C8C8C8');
-    protected _enabled = false;
-    protected _currType = 0;
     protected _colorArray: Float32Array = new Float32Array([0.2, 0.2, 0.2, 1.0]);
     protected _handle: FogHandle = NULL_HANDLE;
 
@@ -204,15 +190,14 @@ export class Fog {
 
     public activate () {
         Color.toArray(this._colorArray, this._fogColor);
-        this._currType = this._enabled ? this._type + 1 : 0;
         FogPool.setVec4(this._handle, FogView.COLOR, this._fogColor);
-        FogPool.set(this._handle, FogView.TYPE, this._currType);
+        FogPool.set(this._handle, FogView.TYPE, this.enabled ? this._type + 1 : 0);
         this._updatePipeline();
     }
 
     protected _updatePipeline () {
         const root = legacyCC.director.root
-        const value = this._currType;
+        const value = this.currType;
         const pipeline = root.pipeline;
         if (pipeline.macros.CC_USE_FOG === value) { return; }
         pipeline.macros.CC_USE_FOG = value;

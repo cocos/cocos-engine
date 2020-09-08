@@ -19,14 +19,11 @@ export class Ambient {
      * @zh 是否开启环境光
      */
     set enabled (val: boolean) {
-        if (this._enabled === val) {
-            return;
-        }
         AmbientPool.set(this._handle, AmbientView.ENABLE, val ? 1 : 0);
         this.activate();
     }
     get enabled (): boolean {
-        return this._enabled;
+        return AmbientPool.get(this._handle, AmbientView.ENABLE) as unknown as boolean;
     }
     /**
      * @en Sky color
@@ -67,7 +64,6 @@ export class Ambient {
         Vec3.toArray(this._albedoArray, this._groundAlbedo);
         AmbientPool.setVec4(this._handle, AmbientView.GROUND_ALBEDO, this._groundAlbedo);
     }
-    protected _enabled = true;
     protected _skyColor = new Color(51, 128, 204, 1.0);
     protected _groundAlbedo = new Color(51, 51, 51, 255);
     protected _albedoArray = Float32Array.from([0.2, 0.2, 0.2, 1.0]);
