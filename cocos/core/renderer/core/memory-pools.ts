@@ -444,7 +444,7 @@ enum PoolType {
     AMBIENT,
     FOG,
     SKYBOX,
-    SHADOWS,
+    SHADOW,
     // array
     SUB_MODEL_ARRAY = 200,
     MODEL_ARRAY,
@@ -475,7 +475,7 @@ export type ModelArrayHandle = IHandle<PoolType.MODEL_ARRAY>;
 export type AmbientHandle = IHandle<PoolType.AMBIENT>;
 export type FogHandle = IHandle<PoolType.FOG>;
 export type SkyboxHandle = IHandle<PoolType.SKYBOX>;
-export type ShadowsHandle = IHandle<PoolType.SHADOWS>;
+export type ShadowsHandle = IHandle<PoolType.SHADOW>;
 
 // don't reuse any of these data-only structs, for GFX objects may directly reference them
 export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, () => new GFXRasterizerState());
@@ -858,5 +858,5 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
 }
 // @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
 if (!JSB) {delete ShadowsView[FogView.COUNT]; ShadowsView[ShadowsView.COUNT = ShadowsView.ORTHO_SIZE + 1] = 'COUNT'; }
-export const ShadowsPool = new BufferPool<PoolType.SHADOWS, Float32Array, typeof ShadowsView, IShadowsViewType>(PoolType.SHADOWS, Float32Array, ShadowsView, 1);
+export const ShadowsPool = new BufferPool<PoolType.SHADOW, Float32Array, typeof ShadowsView, IShadowsViewType>(PoolType.SHADOW, Float32Array, ShadowsView, 1);
 
