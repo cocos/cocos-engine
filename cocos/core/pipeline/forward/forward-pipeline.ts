@@ -16,7 +16,7 @@ import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp
 import { SKYBOX_FLAG, Light } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
-import { Mat4, Vec3, Vec4, Color} from '../../math';
+import { Mat4, Vec3, Vec4, Color } from '../../math';
 import { GFXFeature } from '../../gfx/device';
 import { Fog } from '../../renderer/scene/fog';
 import { Ambient } from '../../renderer/scene/ambient';
@@ -188,40 +188,47 @@ export class ForwardPipeline extends RenderPipeline {
         const device = this.device;
         const shadowInfo = this.shadows;
 
-        if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
-            if (this.shadowFrameBufferMap.has(mainLight)) {
-                this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP.binding, this.shadowFrameBufferMap.get(mainLight)!.colorTextures[0]!);
+        if (mainLight) {
+            if (shadowInfo.type === ShadowType.ShadowMap) {
+                if (this.shadowFrameBufferMap.has(mainLight)) {
+                    this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP.binding, this.shadowFrameBufferMap.get(mainLight)!.colorTextures[0]!);
+                }
+
+                // light view
+                const shadowCameraView = shadowInfo.getWorldMatrix(mainLight!.node!.worldRotation, mainLight!.direction);
+                Mat4.invert(matShadowView, shadowCameraView);
+
+                // light proj
+                let x: number = 0;
+                let y: number = 0;
+                if (shadowInfo.orthoSize > shadowInfo.sphere.radius) {
+                    x = shadowInfo.orthoSize * shadowInfo.aspect;
+                    y = shadowInfo.orthoSize;
+                } else {
+                    // if orthoSize is the smallest, auto calculate orthoSize.
+                    x = shadowInfo.sphere.radius * shadowInfo.aspect;
+                    y = shadowInfo.sphere.radius;
+                }
+                const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY; // always offscreen
+                Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, shadowInfo.far,
+                    device.clipSpaceMinZ, projectionSignY);
+
+                // light viewProj
+                Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
+
+                Mat4.toArray(this._shadowUBO, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
+
+                vec4.set(shadowInfo.pcf);
+                Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_PCF_OFFSET);
+
+                vec4.set(shadowInfo.size.x, shadowInfo.size.y);
+                Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_SIZE_OFFSET);
+            } else if (shadowInfo.type === ShadowType.Planar) {
+                shadowInfo.updateDirLight(mainLight);
+                Mat4.toArray(this._shadowUBO, shadowInfo.matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
             }
 
-            // light view
-            const shadowCameraView = shadowInfo.getWorldMatrix(mainLight!.node!.worldRotation, mainLight!.direction);
-            Mat4.invert(matShadowView, shadowCameraView);
-
-            // light proj
-            let x: number = 0;
-            let y: number = 0;
-            if (shadowInfo.orthoSize > shadowInfo.sphere.radius) {
-                x = shadowInfo.orthoSize * shadowInfo.aspect;
-                y = shadowInfo.orthoSize;
-            } else {
-                // if orthoSize is the smallest, auto calculate orthoSize.
-                x = shadowInfo.sphere.radius * shadowInfo.aspect;
-                y = shadowInfo.sphere.radius;
-            }
-            const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY; // always offscreen
-            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, shadowInfo.far,
-                device.clipSpaceMinZ, projectionSignY);
-
-            // light viewProj
-            Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
-
-            Mat4.toArray(this._shadowUBO, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
-
-            vec4.set(shadowInfo.pcf);
-            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_PCF_OFFSET);
-
-            vec4.set(shadowInfo.size.x, shadowInfo.size.y);
-            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_SIZE_OFFSET);
+            Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
         }
 
         // update ubos

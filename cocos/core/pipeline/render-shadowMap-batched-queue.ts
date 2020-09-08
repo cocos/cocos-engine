@@ -7,7 +7,7 @@ import { BatchingSchemes } from '../renderer';
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, SetIndex, UBOShadow } from './define';
 import { GFXDevice, GFXDescriptorSet, GFXRenderPass, GFXBuffer,
-    GFXShader, GFXMemoryUsageBit, GFXBufferUsageBit } from '../gfx';
+    GFXShader } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { DSPool, ShaderPool, PassHandle, PassPool, PassView,

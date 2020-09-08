@@ -68,7 +68,7 @@ export function shadowCollecting (pipeline: ForwardPipeline, view: RenderView) {
     }
 }
 
-/// include directLight && spotLight
+// include directLight && spotLight
 export function lightCollecting (view: RenderView) {
     _validLights.length = 0;
 

@@ -3,7 +3,7 @@ import { Material } from '../../assets/material';
 import { aabb, frustum, intersect, sphere } from '../../geometry';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Color, Mat4, Quat, Vec3, Vec2, Vec4 } from '../../math';
-import { UBOShadow, SetIndex} from '../../pipeline/define';
+import { SetIndex} from '../../pipeline/define';
 import { DirectionalLight } from './directional-light';
 import { Model } from './model';
 import { SphereLight } from './sphere-light';
@@ -144,12 +144,6 @@ export class Shadows {
 
     set shadowColor (color: Color) {
         this._shadowColor = color;
-        if (this._enabled) {
-            Color.toArray(this._data, color, UBOShadow.SHADOW_COLOR_OFFSET);
-            if (this._globalDescriptorSet) {
-                this._globalDescriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
-            }
-        }
         this._dirty = true;
     }
 
@@ -169,9 +163,7 @@ export class Shadows {
     get matLight () {
         return this._matLight;
     }
-    get data () {
-        return this._data;
-    }
+
     get sphere () {
         return this._sphere;
     }
@@ -181,10 +173,6 @@ export class Shadows {
     protected _distance = 0;
     protected _shadowColor = new Color(0, 0, 0, 76);
     protected _matLight = new Mat4();
-    protected _data = Float32Array.from([
-        1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, // matLightPlaneProj
-        0.0, 0.0, 0.0, 0.3, // shadowColor
-    ]);
     protected _record = new Map<Model, IShadowRenderData>();
     protected _pendingModels: IShadowRenderData[] = [];
     protected _material: Material | null = null;
@@ -296,8 +284,6 @@ export class Shadows {
         m.m13 = ly * d;
         m.m14 = lz * d;
         m.m15 = NdL;
-        Mat4.toArray(this._data, this._matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
-        this._globalDescriptorSet!.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
     }
 
     public updateDirLight (light: DirectionalLight) {
@@ -330,9 +316,6 @@ export class Shadows {
         m.m13 = ly * d;
         m.m14 = lz * d;
         m.m15 = 1;
-
-        Mat4.toArray(this._data, this._matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
-        this._globalDescriptorSet!.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
     }
 
     public updateShadowList (scene: RenderScene, frstm: frustum, shadowVisible = false) {
