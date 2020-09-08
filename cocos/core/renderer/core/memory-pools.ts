@@ -431,7 +431,7 @@ enum PoolType {
     PIPELINE_LAYOUT,
     FRAMEBUFFER,
     // buffers
-    PASS,
+    PASS = 100,
     SUB_MODEL,
     MODEL,
     SCENE,
@@ -446,7 +446,7 @@ enum PoolType {
     SKYBOX,
     SHADOWS,
     // array
-    SUB_MODEL_ARRAY,
+    SUB_MODEL_ARRAY = 200,
     MODEL_ARRAY,
 }
 
@@ -822,6 +822,7 @@ export const FogPool = new BufferPool<PoolType.FOG, Float32Array, typeof FogView
 
 export enum ShadowsView {
     ENABLE,
+    DIRTY,
     TYPE,
     DISTANCE,
     INSTANCE_PASS,
@@ -830,7 +831,6 @@ export enum ShadowsView {
     FAR,
     ASPECT,
     PCF_TYPE,
-    DIRTY,
     ORTHO_SIZE,
     SIZE, // Vec2
     NORMAL = 13, // Vec3
