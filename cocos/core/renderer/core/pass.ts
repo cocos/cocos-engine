@@ -397,6 +397,9 @@ export class Pass {
      * 重置指定贴图为 Effect 默认值。
      */
     public resetTexture (name: string, index?: number) {
+        if (!name) {
+            return;
+        }
         const handle = this.getHandle(name)!;
         const type = Pass.getTypeFromHandle(handle);
         const binding = Pass.getBindingFromHandle(handle);

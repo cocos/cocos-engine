@@ -426,8 +426,10 @@ export class Material extends Asset {
                 for (let i = 0; i < val.length; i++) {
                     this._bindTexture(pass, binding, val[i], i);
                 }
-            } else {
+            } else if (val !== null) {
                 this._bindTexture(pass, binding, val);
+            } else {
+                pass.resetTexture(name);
             }
         }
         return true;
@@ -444,8 +446,6 @@ export class Material extends Asset {
             }
             pass.bindTexture(binding, texture, index);
             pass.bindSampler(binding, val.getGFXSampler(), index);
-        } else if (!val) {
-            pass.resetTexture(name, index);
         }
     }
 
