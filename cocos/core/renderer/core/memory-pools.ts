@@ -679,7 +679,7 @@ interface INodeViewType extends BufferTypeManifest<typeof NodeView> {
     [NodeView.COUNT]: never;
 }
 // @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
-if (!JSB) delete NodeView[NodeView.COUNT]; NodeView[NodeView.COUNT = NodeView.LAYER + 1] = 'COUNT';
+if (!JSB) { delete NodeView[NodeView.COUNT]; NodeView[NodeView.COUNT = NodeView.LAYER + 1] = 'COUNT';}
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
 // but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
 // we'll have to explicitly declare all these types.
