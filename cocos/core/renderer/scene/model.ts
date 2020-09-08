@@ -122,7 +122,6 @@ export class Model {
     public enabled: boolean = true;
     public visFlags = Layers.Enum.NONE;
     public castShadow = false;
-    public _receiveShadow = true;
     public isDynamicBatching = false;
     public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, list: [] };
 
@@ -141,6 +140,7 @@ export class Model {
     private _instMatWorldIdx = -1;
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
+    private _receiveShadow = true;
 
     /**
      * Setup a default empty model
