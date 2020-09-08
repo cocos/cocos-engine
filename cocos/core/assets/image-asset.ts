@@ -79,8 +79,7 @@ export class ImageAsset extends Asset {
      * 此图像资源的图像数据。
      */
     get data () {
-        const data = this._nativeData && (this._nativeData as IMemoryImageSource)._data;
-        return ArrayBuffer.isView(data) && this.isCompressed ? data : this._nativeData as (HTMLCanvasElement | HTMLImageElement);
+        return (this._nativeData instanceof HTMLElement) ? this._nativeData : this._nativeData._data;
     }
 
     /**
