@@ -128,7 +128,7 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                 progress.canInvoke && task.dispatch('progress', ++progress.finish, progress.total, item);
     
                 if (finish || checkCircleReference(uuid, uuid, exclude) ) {
-                    content && content.addRef();
+                    content && content.addRef && content.addRef();
                     item.content = content;
                     done(err);
                 }
