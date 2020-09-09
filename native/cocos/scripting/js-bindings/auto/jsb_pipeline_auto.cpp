@@ -512,6 +512,24 @@ bool js_register_pipeline_RenderPipeline(se::Object* obj)
 se::Object* __jsb_cc_pipeline_ForwardPipeline_proto = nullptr;
 se::Class* __jsb_cc_pipeline_ForwardPipeline_class = nullptr;
 
+static bool js_pipeline_ForwardPipeline_getShadows(se::State& s)
+{
+    cc::pipeline::ForwardPipeline* cobj = (cc::pipeline::ForwardPipeline*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_pipeline_ForwardPipeline_getShadows : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const cc::pipeline::Shadows* result = cobj->getShadows();
+        ok &= native_ptr_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_pipeline_ForwardPipeline_getShadows : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_ForwardPipeline_getShadows)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_ForwardPipeline_finalize)
 
 static bool js_pipeline_ForwardPipeline_constructor(se::State& s)
@@ -544,6 +562,7 @@ bool js_register_pipeline_ForwardPipeline(se::Object* obj)
 {
     auto cls = se::Class::create("ForwardPipeline", obj, __jsb_cc_pipeline_RenderPipeline_proto, _SE(js_pipeline_ForwardPipeline_constructor));
 
+    cls->defineFunction("getShadows", _SE(js_pipeline_ForwardPipeline_getShadows));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_ForwardPipeline_finalize));
     cls->install();
     JSBClassType::registerClass<cc::pipeline::ForwardPipeline>(cls);

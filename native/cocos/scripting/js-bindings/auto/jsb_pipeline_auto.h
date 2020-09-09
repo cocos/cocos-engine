@@ -32,6 +32,7 @@ extern se::Class* __jsb_cc_pipeline_ForwardPipeline_class;
 
 bool js_register_cc_pipeline_ForwardPipeline(se::Object* obj);
 bool register_all_pipeline(se::Object* obj);
+SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_getShadows);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_ForwardPipeline);
 
 extern se::Object* __jsb_cc_pipeline_RenderFlowInfo_proto;
