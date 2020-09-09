@@ -241,7 +241,7 @@ export class Pass {
      */
     public getBinding (name: string) {
         const handle = this.getHandle(name);
-        if (handle === undefined) { return; }
+        if (!handle) { return -1; }
         return Pass.getBindingFromHandle(handle);
     }
 
@@ -382,6 +382,7 @@ export class Pass {
      */
     public resetUniform (name: string) {
         const handle = this.getHandle(name)!;
+        if (!handle) return;
         const type = Pass.getTypeFromHandle(handle);
         const binding = Pass.getBindingFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
