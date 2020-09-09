@@ -10,8 +10,7 @@ struct UBOShadow;
 struct Fog;
 struct Ambient;
 struct Skybox;
-struct PlanarShadow;
-struct ShadowMap;
+struct Shadows;
 
 class CC_DLL ForwardPipeline : public RenderPipeline {
 public:
@@ -39,7 +38,7 @@ public:
     CC_INLINE float getShadingScale() const { return _shadingScale; }
     CC_INLINE float getFpScale() const { return _fpScale; }
     CC_INLINE bool isHDR() const { return _isHDR; }
-    CC_INLINE const ShadowMap *getShadowMap() const { return _shadowMap; }
+    CC_INLINE const Shadows *getShadows() const { return _shadows; }
 
     void setRenderObjcts(const RenderObjectList &ro) { _renderObjects = std::move(ro); }
     void setShadowObjects(const RenderObjectList &ro) { _shadowObjects = std::move(ro); }
@@ -52,8 +51,7 @@ private:
     Fog *_fog = nullptr;
     Ambient *_ambient = nullptr;
     Skybox *_skybox = nullptr;
-    PlanarShadow *_planarShadow = nullptr;
-    ShadowMap *_shadowMap = nullptr;
+    Shadows *_shadows = nullptr;
     gfx::Buffer *_lightsUBO = nullptr;
     LightList _validLights;
     gfx::BufferList _lightBuffers;

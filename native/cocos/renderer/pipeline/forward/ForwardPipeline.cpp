@@ -116,7 +116,7 @@ void ForwardPipeline::updateUBOs(RenderView *view) {
     updateUBO(view);
     const auto scene = GET_SCENE(view->getCamera()->getSceneID());
     const auto mainLight = GET_MAIN_LIGHT(scene->mainLightID);
-    const auto shadowInfo = _shadowMap;
+    const auto shadowInfo = _shadows;
 
     if (mainLight && shadowInfo->enabled) {
         const auto node = GET_NODE(mainLight->nodeID);

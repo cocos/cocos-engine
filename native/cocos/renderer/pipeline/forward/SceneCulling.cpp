@@ -27,7 +27,6 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
     RenderObjectList shadowObjects;
 
     const auto mainLight = GET_MAIN_LIGHT(scene->mainLightID);
-    const auto planarShadows = GET_PLANAR_SHADOW(scene->planarShadowID);
     if (mainLight) {
         //TODO coulsonwang
         //        if (planarShadows.enabled) {
@@ -36,7 +35,7 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
     }
 
     if (GET_SKYBOX(scene->skyboxID)->enabled && (camera->getClearFlag() & SKYBOX_FLAG)) {
-        renderObjects.emplace_back(genRenderObject(GET_SKYBOX(scene->skyboxID), camera));
+        renderObjects.emplace_back(genRenderObject(GET_MODEL(GET_SKYBOX(scene->skyboxID)->model), camera));
     }
 
     const auto stamp = Application::getInstance()->getTotalFrames();

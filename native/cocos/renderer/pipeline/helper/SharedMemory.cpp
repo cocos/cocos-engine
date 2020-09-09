@@ -11,8 +11,9 @@ const se::PoolType AABB::type = se::PoolType::AABB;
 const se::PoolType Frustum::type = se::PoolType::FRUSTUM;
 const se::PoolType Scene::type = se::PoolType::SCENE;
 const se::PoolType MainLight::type = se::PoolType::UNKNOWN;
-const se::PoolType Ambient::type = se::PoolType::UNKNOWN;
-const se::PoolType Fog::type = se::PoolType::UNKNOWN;
+const se::PoolType Ambient::type = se::PoolType::AMBIENT;
+const se::PoolType Fog::type = se::PoolType::FOG;
+const se::PoolType Skybox::type = se::PoolType::SKYBOX;
 const se::PoolType InstancedAttribute::type = se::PoolType::UNKNOWN;
 const se::PoolType BufferView::type = se::PoolType::UNKNOWN;
 const se::PoolType FlatBuffer::type = se::PoolType::UNKNOWN;
@@ -20,7 +21,6 @@ const se::PoolType RenderingSubMesh::type = se::PoolType::UNKNOWN;
 const se::PoolType Node::type = se::PoolType::NODE;
 const se::PoolType Root::type = se::PoolType::ROOT;
 const se::PoolType RenderWindow::type = se::PoolType::RENDER_WINDOW;
-const se::PoolType ShadowMap::type = se::PoolType::UNKNOWN;
-const se::PoolType PlanarShadow::type = se::PoolType::UNKNOWN;
+const se::PoolType Shadows::type = se::PoolType::SHADOW;
 } // namespace pipeline
 } // namespace cc
