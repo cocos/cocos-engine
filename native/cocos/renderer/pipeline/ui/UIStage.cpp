@@ -78,7 +78,8 @@ void UIStage::render(RenderView *view) {
     auto cmdBuff = commandBuffers[0];
 
     auto framebuffer = GET_FRAMEBUFFER(view->getWindow()->framebufferID);
-    auto renderPass = framebuffer->getColorTextures().size() ? framebuffer->getRenderPass() : pipeline->getOrCreateRenderPass(static_cast<gfx::ClearFlags>(camera->getClearFlag()));
+
+    auto renderPass = framebuffer->getColorTextures().size() && framebuffer->getColorTextures()[0] ? framebuffer->getRenderPass() : pipeline->getOrCreateRenderPass(static_cast<gfx::ClearFlags>(camera->getClearFlag()));
 
     cmdBuff->begin();
     cmdBuff->beginRenderPass(renderPass, framebuffer, _renderArea,

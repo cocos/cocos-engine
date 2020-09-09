@@ -9,7 +9,7 @@ namespace cc {
 namespace pipeline {
 
 RenderObject genRenderObject(ModelView *model, const Camera *camera) {
-    uint depth = 0;
+    float depth = 0;
     if (model->nodeID != 0) {
         const auto node = GET_NODE(model->nodeID);
         cc::Vec3 position;

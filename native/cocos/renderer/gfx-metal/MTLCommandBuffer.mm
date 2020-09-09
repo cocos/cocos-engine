@@ -316,8 +316,8 @@ void CCMTLCommandBuffer::bindDescriptorSets() {
             continue;
         }
 
-        auto dynamicOffsetIndex = dynamicOffsetIndices[block.set][block.binding];
-
+        const auto &dynamicOffset = dynamicOffsetIndices[block.set];
+        auto dynamicOffsetIndex = (dynamicOffset.size() == 0) ? -1 : dynamicOffset[block.binding];
         if (gpuDescriptor.buffer) {
             uint offset = (dynamicOffsetIndex >= 0) ? _dynamicOffsets[block.set][dynamicOffsetIndex] : 0;
             gpuDescriptor.buffer->encodeBuffer(_mtlEncoder,

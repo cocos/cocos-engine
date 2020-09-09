@@ -10,7 +10,6 @@
 #include "gfx/GFXDevice.h"
 #include "gfx/GFXRenderPass.h"
 #include "platform/Application.h"
-#include "SceneCulling.h"
 
 namespace cc {
 namespace pipeline {
@@ -70,17 +69,17 @@ ForwardPipeline::~ForwardPipeline() {
 
 bool ForwardPipeline::initialize(const RenderPipelineInfo &info) {
     RenderPipeline::initialize(info);
-    
+
     if (_flows.size() == 0) {
         //TODO coulsonwang
-//        auto shadowFlow = CC_NEW(ShadowFlow);
-//        shadowFlow->initialize(ShadowFlow::getInitializeInfo());
-//        _flows.emplace_back(shadowFlow);
+        //        auto shadowFlow = CC_NEW(ShadowFlow);
+        //        shadowFlow->initialize(ShadowFlow::getInitializeInfo());
+        //        _flows.emplace_back(shadowFlow);
 
         auto forwardFlow = CC_NEW(ForwardFlow);
         forwardFlow->initialize(ForwardFlow::getInitializeInfo());
         _flows.emplace_back(forwardFlow);
-        
+
         auto uiFlow = CC_NEW(UIFlow);
         uiFlow->initialize(UIFlow::getInitializeInfo());
         _flows.emplace_back(uiFlow);
@@ -136,8 +135,8 @@ void ForwardPipeline::updateUBOs(RenderView *view) {
     }
 
     // update ubos
-    _descriptorSet->getBuffer(UBOGlobal::BLOCK.binding)->update(_globalUBO.data(), 0, _globalUBO.size());
-    _descriptorSet->getBuffer(UBOShadow::BLOCK.binding)->update(_shadowUBO.data(), 0, _shadowUBO.size());
+    _descriptorSet->getBuffer(UBOGlobal::BLOCK.binding)->update(_globalUBO.data(), 0, _globalUBO.size() * sizeof(float));
+    _descriptorSet->getBuffer(UBOShadow::BLOCK.binding)->update(_shadowUBO.data(), 0, _shadowUBO.size() * sizeof(float));
 }
 
 void ForwardPipeline::updateUBO(RenderView *view) {
@@ -215,28 +214,28 @@ void ForwardPipeline::updateUBO(RenderView *view) {
         TO_VEC3(uboGlobalView, Vec3::UNIT_Z, UBOGlobal::MAIN_LIT_DIR_OFFSET);
         TO_VEC4(uboGlobalView, Vec4::ZERO, UBOGlobal::MAIN_LIT_COLOR_OFFSET);
     }
-    
+
     //TODO coulsonwang
-//    auto skyColor = ambient->skyColor;
-//    if (_isHDR) {
-//        skyColor.w = ambient->skyIllum * _fpScale;
-//    } else {
-//        skyColor.w = ambient->skyIllum * exposure;
-//    }
-//    TO_VEC4(uboGlobalView, skyColor, UBOGlobal::AMBIENT_SKY_OFFSET);
-//    TO_VEC4(uboGlobalView, ambient->groundAlbedo, UBOGlobal::AMBIENT_GROUND_OFFSET);
-//
-//    if (fog->enabled) {
-//        TO_VEC4(uboGlobalView, fog->fogColor, UBOGlobal::GLOBAL_FOG_COLOR_OFFSET);
-//
-//        uboGlobalView[UBOGlobal::GLOBAL_FOG_BASE_OFFSET] = fog->fogStart;
-//        uboGlobalView[UBOGlobal::GLOBAL_FOG_BASE_OFFSET + 1] = fog->fogEnd;
-//        uboGlobalView[UBOGlobal::GLOBAL_FOG_BASE_OFFSET + 2] = fog->fogDensity;
-//
-//        uboGlobalView[UBOGlobal::GLOBAL_FOG_ADD_OFFSET] = fog->fogTop;
-//        uboGlobalView[UBOGlobal::GLOBAL_FOG_ADD_OFFSET + 1] = fog->fogRange;
-//        uboGlobalView[UBOGlobal::GLOBAL_FOG_ADD_OFFSET + 2] = fog->fogAtten;
-//    }
+    //    auto skyColor = ambient->skyColor;
+    //    if (_isHDR) {
+    //        skyColor.w = ambient->skyIllum * _fpScale;
+    //    } else {
+    //        skyColor.w = ambient->skyIllum * exposure;
+    //    }
+    //    TO_VEC4(uboGlobalView, skyColor, UBOGlobal::AMBIENT_SKY_OFFSET);
+    //    TO_VEC4(uboGlobalView, ambient->groundAlbedo, UBOGlobal::AMBIENT_GROUND_OFFSET);
+    //
+    //    if (fog->enabled) {
+    //        TO_VEC4(uboGlobalView, fog->fogColor, UBOGlobal::GLOBAL_FOG_COLOR_OFFSET);
+    //
+    //        uboGlobalView[UBOGlobal::GLOBAL_FOG_BASE_OFFSET] = fog->fogStart;
+    //        uboGlobalView[UBOGlobal::GLOBAL_FOG_BASE_OFFSET + 1] = fog->fogEnd;
+    //        uboGlobalView[UBOGlobal::GLOBAL_FOG_BASE_OFFSET + 2] = fog->fogDensity;
+    //
+    //        uboGlobalView[UBOGlobal::GLOBAL_FOG_ADD_OFFSET] = fog->fogTop;
+    //        uboGlobalView[UBOGlobal::GLOBAL_FOG_ADD_OFFSET + 1] = fog->fogRange;
+    //        uboGlobalView[UBOGlobal::GLOBAL_FOG_ADD_OFFSET + 2] = fog->fogAtten;
+    //    }
 }
 
 bool ForwardPipeline::activeRenderer() {

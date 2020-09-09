@@ -22,7 +22,7 @@ struct Frustum;
 #define JOINT_UNIFORM_CAPACITY 30
 
 struct CC_DLL RenderObject {
-    uint depth = 0;
+    float depth = 0;
     ModelView *model = nullptr;
 };
 typedef vector<struct RenderObject> RenderObjectList;
@@ -34,7 +34,7 @@ struct CC_DLL RenderTargetInfo {
 
 struct CC_DLL RenderPass {
     uint hash = 0;
-    uint depth = 0;
+    float depth = 0;
     uint shaderID = 0;
     uint passIndex = 0;
     SubModelView *subModel = nullptr;
