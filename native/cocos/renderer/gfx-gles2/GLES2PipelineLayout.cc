@@ -24,6 +24,7 @@ bool GLES2PipelineLayout::initialize(const PipelineLayoutInfo &info) {
     _gpuPipelineLayout->dynamicOffsetIndices.resize(_setLayouts.size());
     for (uint i = 0u; i < _setLayouts.size(); i++) {
         DescriptorSetLayout *setLayout = _setLayouts[i];
+        CCASSERT(setLayout != nullptr, "SetLayout should not be nullptr.");
         GLES2GPUDescriptorSetLayout *gpuSetLayout = ((GLES2DescriptorSetLayout *)setLayout)->gpuDescriptorSetLayout();
         size_t bindingCount = gpuSetLayout->bindings.size();
         size_t dynamicCount = gpuSetLayout->dynamicBindings.size();

@@ -17,24 +17,24 @@ bool CCMTLPipelineLayout::initialize(const PipelineLayoutInfo &info) {
 
     _gpuPipelineLayout = CC_NEW(CCMTLGPUPipelineLayout);
     _gpuPipelineLayout->dynamicOffsetIndices.resize(_setLayouts.size());
-    
+
     uint i = 0;
     for (auto setLayout : _setLayouts) {
-        if(setLayout == nullptr) continue;
+        CCASSERT(setLayout != nullptr, "SetLayout should not be nullptr.");
         auto gpuDescriptorSetLayout = static_cast<CCMTLDescriptorSetLayout *>(setLayout)->gpuDescriptorSetLayout();
         auto dynamicCount = gpuDescriptorSetLayout->dynamicBindings.size();
         auto bindingCount = gpuDescriptorSetLayout->bindings.size();
-        
+
         auto &indices = _gpuPipelineLayout->dynamicOffsetIndices[i++];
         indices.assign(bindingCount, -1);
-        
+
         for (size_t j = 0; j < dynamicCount; j++) {
             auto binding = gpuDescriptorSetLayout->dynamicBindings[j];
             if (indices[binding] < 0) indices[binding] = j;
         }
         _gpuPipelineLayout->setLayouts.emplace_back(gpuDescriptorSetLayout);
     }
-    
+
     return true;
 }
 

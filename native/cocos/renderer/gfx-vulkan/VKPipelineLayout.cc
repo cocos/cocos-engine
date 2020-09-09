@@ -24,6 +24,7 @@ bool CCVKPipelineLayout::initialize(const PipelineLayoutInfo &info) {
     int offset = 0u;
     for (uint i = 0u; i < _setLayouts.size(); i++) {
         DescriptorSetLayout *setLayout = _setLayouts[i];
+        CCASSERT(setLayout != nullptr, "SetLayout should not be nullptr.");
         CCVKGPUDescriptorSetLayout *gpuSetLayout = ((CCVKDescriptorSetLayout *)setLayout)->gpuDescriptorSetLayout();
         size_t dynamicCount = gpuSetLayout->dynamicBindings.size();
         _gpuPipelineLayout->dynamicOffsetOffsets.push_back(offset);
