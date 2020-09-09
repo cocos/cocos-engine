@@ -980,7 +980,7 @@ var Texture2D = cc.Class({
                 cc.warnID(3120, result.defaultExt, result.defaultExt);
             }
             else {
-                throw new Error('No available format of image was found for this platform!');
+                throw new Error(cc.debug.getError(3121));
             }
         }
         if (fields.length === 8) {
