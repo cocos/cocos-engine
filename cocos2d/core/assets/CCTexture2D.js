@@ -975,9 +975,12 @@ var Texture2D = cc.Class({
                 this._setRawAsset(result.bestExt);
                 this._format = result.bestFormat;
             }
-            else {
+            else if (result.defaultExt) {
                 this._setRawAsset(result.defaultExt);
                 cc.warnID(3120, result.defaultExt, result.defaultExt);
+            }
+            else {
+                throw new Error('No available format of image was found for this platform!');
             }
         }
         if (fields.length === 8) {
