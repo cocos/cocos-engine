@@ -254,9 +254,6 @@ var AudioSource = cc.Class({
         if ( !this._clip ) return;
 
         var audio = this.audio;
-        if (this._clip.loaded) {
-            audio.stop();
-        }
         audio.setVolume(this._mute ? 0 : this._volume);
         audio.setLoop(this._loop);
         audio.setCurrentTime(0);
