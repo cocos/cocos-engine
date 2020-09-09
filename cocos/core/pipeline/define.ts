@@ -111,7 +111,6 @@ export enum ModelLocalBindings {
     SAMPLER_MORPH_TANGENT,
     SAMPLER_LIGHTING_MAP,
     SAMPLER_SPRITE,
-    SAMPLER_SPOT_LIGHT_MAP,
 
     COUNT,
 }
@@ -450,18 +449,6 @@ export const UniformSpriteSampler: Readonly<ISamplerInfo> = {
 };
 localDescriptorSetLayout.record[UniformSpriteSampler.name] = UniformSpriteSampler;
 localDescriptorSetLayout.bindings[UniformSpriteSampler.binding] = UniformSpriteSampler;
-
-/**
- * @en The sampler for others light
- * @zh 其他光源阴影贴图采样器
- */
-export const UniformSpotLightMapSampler: Readonly<ISamplerInfo> = {
-    stageFlags: GFXShaderStageFlagBit.FRAGMENT, descriptorType: GFXDescriptorType.SAMPLER, count: 1,
-    set: SetIndex.LOCAL, binding: ModelLocalBindings.SAMPLER_SPOT_LIGHT_MAP, name: 'cc_spotLightMap', type: GFXType.SAMPLER2D,
-};
-localDescriptorSetLayout.record[UniformSpotLightMapSampler.name] = UniformSpotLightMapSampler;
-localDescriptorSetLayout.bindings[UniformSpotLightMapSampler.binding] = UniformSpotLightMapSampler;
-
 
 export const CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
     Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);

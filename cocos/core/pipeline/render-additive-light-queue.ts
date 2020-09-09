@@ -3,35 +3,39 @@
  */
 
 import { GFXCommandBuffer } from '../gfx/command-buffer';
-import { IRenderObject, UBOForwardLight, SetIndex } from './define';
-import { Light, LightType, SphereLight, SpotLight, Model, SubModel } from '../renderer/scene';
+import { IRenderObject, UBOForwardLight, SetIndex, UBOShadow, UNIFORM_SHADOWMAP } from './define';
+import { Light, LightType, SphereLight, SpotLight, Model, SubModel, ShadowType } from '../renderer/scene';
 import { BatchingSchemes } from '../renderer/core/pass';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
-import { Vec3, nextPow2 } from '../../core/math';
+import { Vec3, nextPow2, Mat4, Vec4, toDegree, Color } from '../../core/math';
 import { RenderView } from './render-view';
 import { sphere, intersect } from '../geometry';
 import { GFXDevice, GFXRenderPass, GFXBuffer, GFXBufferUsageBit, GFXMemoryUsageBit } from '../gfx';
 import { Pool } from '../memop';
 import { InstancedBuffer } from './instanced-buffer';
 import { BatchedBuffer } from './batched-buffer';
-import { ForwardPipeline } from '../../../exports/base';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { getPhaseID } from './pass-phase';
+import { ForwardPipeline } from './forward/forward-pipeline';
 
 interface IAdditiveLightPass {
     subModel: SubModel;
     passIdx: number;
     dynamicOffsets: number[];
+    lights: Light[];
 }
 
-const _lightPassPool = new Pool<IAdditiveLightPass>(() => ({ subModel: null!, passIdx: -1, dynamicOffsets: [] }), 16);
+const _lightPassPool = new Pool<IAdditiveLightPass>(() => ({ subModel: null!, passIdx: -1, dynamicOffsets: [], lights: []}), 16);
 
 const _vec4Array = new Float32Array(4);
 const _sphere = sphere.create(0, 0, 0, 1);
 const _dynamicOffsets: number[] = [];
 const _lightIndices: number[] = [];
+const matShadowView = new Mat4();
+const matShadowViewProj = new Mat4();
+const vec4 = new Vec4();
 
 function cullSphereLight (light: SphereLight, model: Model) {
     return !!(model.worldBounds && !intersect.aabb_aabb(model.worldBounds, light.aabb));
@@ -60,6 +64,7 @@ function getLightPassIndex (subModels: SubModel[]) {
  */
 export class RenderAdditiveLightQueue {
 
+    private _pipeline: ForwardPipeline;
     private _device: GFXDevice;
     private _validLights: Light[] = [];
     private _lightPasses: IAdditiveLightPass[] = [];
@@ -79,6 +84,7 @@ export class RenderAdditiveLightQueue {
     private _lightMeterScale: number = 10000.0;
 
     constructor (pipeline: ForwardPipeline) {
+        this._pipeline = pipeline;
         this._device = pipeline.device;
         this._isHDR = pipeline.isHDR;
         this._fpScale = pipeline.fpScale;
@@ -197,6 +203,7 @@ export class RenderAdditiveLightQueue {
                     lp.subModel = subModel;
                     lp.passIdx = lightPassIdx;
                     for (let l = 0; l < _lightIndices.length; l++) {
+                        lp.lights.push(validLights[l]);
                         lp.dynamicOffsets.push(this._lightBufferStride * _lightIndices[l]);
                     }
 
@@ -211,7 +218,7 @@ export class RenderAdditiveLightQueue {
         this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 
         for (let i = 0; i < this._lightPasses.length; i++) {
-            const { subModel, passIdx, dynamicOffsets } = this._lightPasses[i];
+            const { subModel, passIdx, dynamicOffsets, lights } = this._lightPasses[i];
             const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle);
             const pass = subModel.passes[passIdx];
             const ia = subModel.inputAssembler;
@@ -224,11 +231,45 @@ export class RenderAdditiveLightQueue {
             cmdBuff.bindInputAssembler(ia);
 
             for (let j = 0; j < dynamicOffsets.length; ++j) {
+                const light = lights[j];
+                if (light.type === LightType.SPOT && this._pipeline.shadowFrameBufferMap.has(light) &&
+                this._pipeline.shadows.type === ShadowType.ShadowMap) {
+                    this._updateShadowUBO(light);
+                }
                 _dynamicOffsets[0] = dynamicOffsets[j];
                 cmdBuff.bindDescriptorSet(SetIndex.LOCAL, localDS, _dynamicOffsets);
                 cmdBuff.draw(ia);
             }
         }
+    }
+
+    // update spot light UBO
+    protected _updateShadowUBO (light: Light) {
+        const shadowInfo = this._pipeline.shadows;
+        const shadowUBO = this._pipeline.shadowUBO;
+        const spotLight = light as SpotLight;
+        // light view
+        Mat4.invert(matShadowView, spotLight.node!.getWorldMatrix());
+
+        // light proj
+        Mat4.perspective(matShadowViewProj, toDegree(spotLight.spotAngle), spotLight.aspect, 0.001, spotLight.range);
+
+        // light viewProj
+        Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
+
+        Mat4.toArray(shadowUBO, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
+
+        Color.toArray(shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
+
+        vec4.set(shadowInfo.pcf);
+        Vec4.toArray(shadowUBO, vec4, UBOShadow.SHADOW_PCF_OFFSET);
+
+        vec4.set(shadowInfo.size.x, shadowInfo.size.y);
+        Vec4.toArray(shadowUBO, vec4, UBOShadow.SHADOW_SIZE_OFFSET);
+
+        this._pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP.binding, this._pipeline.shadowFrameBufferMap.get(light)!.colorTextures[0]!);
+        this._pipeline.descriptorSet.update();
+        this._pipeline.descriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(shadowUBO);
     }
 
     protected _updateUBOs (view: RenderView) {
