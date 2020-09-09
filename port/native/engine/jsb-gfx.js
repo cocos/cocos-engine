@@ -532,3 +532,9 @@ textureProto.initialize = function(info) {
         oldTextureInitializeFunc.call(this, _converters.TextureInfo(info), false);
     }
 }
+
+let blendStateProto = gfx.BlendState.prototype;
+let oldSetTargetFunc = blendStateProto.setTarget;
+blendStateProto.setTarget = function(index, target) {
+    oldSetTargetFunc.call(this, index, _converters.BlendTarget(target));
+}
