@@ -1699,7 +1699,7 @@ static bool js_pipeline_RenderView_getPriority(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_pipeline_RenderView_getPriority)
+SE_BIND_PROP_GET(js_pipeline_RenderView_getPriority)
 
 static bool js_pipeline_RenderView_getVisibility(se::State& s)
 {
@@ -1717,7 +1717,7 @@ static bool js_pipeline_RenderView_getVisibility(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_pipeline_RenderView_getVisibility)
+SE_BIND_PROP_GET(js_pipeline_RenderView_getVisibility)
 
 static bool js_pipeline_RenderView_setPriority(se::State& s)
 {
@@ -1736,7 +1736,7 @@ static bool js_pipeline_RenderView_setPriority(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_pipeline_RenderView_setPriority)
+SE_BIND_PROP_SET(js_pipeline_RenderView_setPriority)
 
 static bool js_pipeline_RenderView_setVisibility(se::State& s)
 {
@@ -1755,7 +1755,7 @@ static bool js_pipeline_RenderView_setVisibility(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_pipeline_RenderView_setVisibility)
+SE_BIND_PROP_SET(js_pipeline_RenderView_setVisibility)
 
 static bool js_pipeline_RenderView_getWindow(se::State& s)
 {
@@ -1879,13 +1879,11 @@ bool js_register_pipeline_RenderView(se::Object* obj)
 {
     auto cls = se::Class::create("RenderView", obj, nullptr, _SE(js_pipeline_RenderView_constructor));
 
+    cls->defineProperty("priority", _SE(js_pipeline_RenderView_getPriority), _SE(js_pipeline_RenderView_setPriority));
     cls->defineProperty("name", _SE(js_pipeline_RenderView_getName), nullptr);
+    cls->defineProperty("visibility", _SE(js_pipeline_RenderView_getVisibility), _SE(js_pipeline_RenderView_setVisibility));
     cls->defineFunction("setExecuteFlows", _SE(js_pipeline_RenderView_setExecuteFlows));
     cls->defineFunction("onGlobalPipelineStateChanged", _SE(js_pipeline_RenderView_onGlobalPipelineStateChanged));
-    cls->defineFunction("getPriority", _SE(js_pipeline_RenderView_getPriority));
-    cls->defineFunction("getVisibility", _SE(js_pipeline_RenderView_getVisibility));
-    cls->defineFunction("setPriority", _SE(js_pipeline_RenderView_setPriority));
-    cls->defineFunction("setVisibility", _SE(js_pipeline_RenderView_setVisibility));
     cls->defineFunction("getWindow", _SE(js_pipeline_RenderView_getWindow));
     cls->defineFunction("initialize", _SE(js_pipeline_RenderView_initialize));
     cls->defineFunction("destroy", _SE(js_pipeline_RenderView_destroy));
