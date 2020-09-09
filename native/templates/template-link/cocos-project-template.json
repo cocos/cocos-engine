@@ -50,13 +50,15 @@
                 {"file": "${COMMON_DIR}/CMakeLists.txt", "default":"${CMAKE_CURRENT_LIST_DIR}/cocos2d-x", "needFix":true},
                 {"file": "proj/settings.gradle", "default":"${COMMON_DIR}/cocos2d-x", "needFix":true},
                 {"file": "proj/app/build.gradle", "default":"${COMMON_DIR}/cocos2d-x", "needFix":true},
+                {"file": "proj/game/build.gradle", "default":"${COMMON_DIR}/cocos2d-x", "needFix":true},
                 "proj/build-cfg.json"
             ]
         },
         "project_replace_projec_common" : {
             "pattern":"\\$\\{COCOS_PROJ_COMMON\\}",
             "files":[
-                "proj/app/build.gradle"
+                "proj/app/build.gradle",
+                "proj/game/build.gradle"
             ]
         }
     }

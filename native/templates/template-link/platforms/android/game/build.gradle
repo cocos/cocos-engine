@@ -1,13 +1,13 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.feature'
 
 android {
+    baseFeature true
     compileSdkVersion PROP_COMPILE_SDK_VERSION.toInteger()
     buildToolsVersion PROP_BUILD_TOOLS_VERSION
 
     defaultConfig {
-        applicationId "org.cocos2dx.hellojavascript"
         minSdkVersion PROP_MIN_SDK_VERSION
         targetSdkVersion PROP_TARGET_SDK_VERSION
         versionCode 1
@@ -70,7 +70,7 @@ android {
     }
 }
 
-android.applicationVariants.all { variant ->
+android.featureVariants.all { variant ->
 
     def outputDir ="${projectDir}/assets"
     def sourceDir = "${projectDir}/../.."
@@ -118,6 +118,6 @@ android.applicationVariants.all { variant ->
 dependencies {
     implementation fileTree(dir: '../libs', include: ['*.jar','*.aar'])
     implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
-    implementation fileTree(dir: "${COCOS_X_ROOT}/cocos/platform/android/java/libs", include: ['*.jar'])
+    implementation fileTree(dir: "/Users/wzm/cocos_creator/cocos2d-x-lite-3d/cocos/platform/android/java/libs", include: ['*.jar'])
     implementation project(':libcocos2dx')
 }

@@ -149,7 +149,7 @@ elseif(IOS)
     )
 elseif(ANDROID)
     list(APPEND PROJ_SOURCES
-        ${PROJ_SRC_DIR}/app/jni/hellojavascript/main.cpp
+        ${PROJ_SRC_DIR}/jni/hellojavascript/main.cpp
     )
 endif()
 
