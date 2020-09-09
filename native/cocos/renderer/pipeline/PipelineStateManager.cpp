@@ -2,6 +2,7 @@
 #include "gfx/GFXDevice.h"
 #include "gfx/GFXInputAssembler.h"
 #include "gfx/GFXRenderPass.h"
+#include "gfx/GFXShader.h"
 #include "helper/SharedMemory.h"
 
 namespace cc {
@@ -12,8 +13,10 @@ gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const PassVie
                                                                    gfx::InputAssembler *inputAssembler,
                                                                    gfx::RenderPass *renderPass) {
     const auto passHash = pass->hash;
+    const auto renderPassHash = renderPass->getHash();
     const auto iaHash = inputAssembler->getAttributesHash();
-    const auto hash = passHash ^ passHash ^ iaHash;
+    const auto shaderID = shader->getID();
+    const auto hash = passHash ^ renderPassHash ^ iaHash ^ shaderID;
 
     auto pso = _PSOHashMap[hash];
     if (!pso) {

@@ -76,6 +76,7 @@ public:
     CC_INLINE float getScreenSpaceSignY() const { return _screenSpaceSignY; }
     CC_INLINE float getUVSpaceSignY() const { return _UVSpaceSignY; }
     CC_INLINE const BindingMappingInfo &bindingMappingInfo() const { return _bindingMappingInfo; }
+    CC_INLINE uint genShaderId() { return _shaderIdGen++; }
 
 protected:
     API _API = API::UNKNOWN;
