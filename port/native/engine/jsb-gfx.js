@@ -478,7 +478,7 @@ replace(shaderProto, {
     initialize: replaceFunction('_initialize', _converters.ShaderInfo),
 });
 cc.js.get(shaderProto, 'id', function () {
-    return this.hash;
+    return this.shaderID;
 });
 
 let bufferProto = gfx.Buffer.prototype;
