@@ -210,6 +210,16 @@ Object.assign(RootProto, {
       flows: info.flows
     };
     view.initialize(new nr.RenderViewInfo(jsbInfo));
+    Object.defineProperty(view, 'window', {
+      get() {
+        return view.getWindow();
+      },
+      set(win) {
+        view.setWindow(win.handle);
+      },
+      enumerable: true,
+      configurable: true
+    });
     return view;
   },
 
