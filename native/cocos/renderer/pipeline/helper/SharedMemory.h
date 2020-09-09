@@ -1,5 +1,6 @@
 #pragma once
 #include "renderer/core/CoreStd.h"
+
 #include "math/Vec2.h"
 #include "math/Vec3.h"
 #include "math/Vec4.h"
@@ -38,7 +39,7 @@ struct CC_DLL SubModelView {
     uint32_t pass2ID = 0;
     uint32_t pass3ID = 0;
     uint32_t shader0ID = 0;
-    uint32_t shadere1ID = 0;
+    uint32_t shader1ID = 0;
     uint32_t shader2ID = 0;
     uint32_t shader3ID = 0;
     uint32_t descriptorSetID = 0;
@@ -97,21 +98,21 @@ private:
     cc::Mat4 matProjInv;
 
 public:
-    float getWidth() const { return width;}
-    float getHeight() const { return height;}
-    float getExposure() const { return exposure;}
-    float getClearDepth() const { return clearDepth;}
-    uint getClearFlag() const { return static_cast<uint>(clearFlag);}
-    uint getClearStencil() const { return static_cast<uint>(clearStencil);}
-    uint getNodeID() const { return static_cast<uint>(nodeID);}
-    uint getSceneID() const { return static_cast<uint>(sceneID);}
-    uint getFrustumID() const { return static_cast<uint>(frustumID);}
-    uint getViewportX() const { return static_cast<uint>(viewportX);}
-    uint getViewportY() const { return static_cast<uint>(viewportY);}
-    uint getViewportWidth() const { return static_cast<uint>(viewportWidth);}
-    uint getViewportHeight() const { return static_cast<uint>(viewportHeight);}
-    const cc::Vec3 &getForward() const { return forward;}
-    const cc::Vec3 &getPosition() const { return position;}
+    float getWidth() const { return width; }
+    float getHeight() const { return height; }
+    float getExposure() const { return exposure; }
+    float getClearDepth() const { return clearDepth; }
+    uint getClearFlag() const { return static_cast<uint>(clearFlag); }
+    uint getClearStencil() const { return static_cast<uint>(clearStencil); }
+    uint getNodeID() const { return static_cast<uint>(nodeID); }
+    uint getSceneID() const { return static_cast<uint>(sceneID); }
+    uint getFrustumID() const { return static_cast<uint>(frustumID); }
+    uint getViewportX() const { return static_cast<uint>(viewportX); }
+    uint getViewportY() const { return static_cast<uint>(viewportY); }
+    uint getViewportWidth() const { return static_cast<uint>(viewportWidth); }
+    uint getViewportHeight() const { return static_cast<uint>(viewportHeight); }
+    const cc::Vec3 &getForward() const { return forward; }
+    const cc::Vec3 &getPosition() const { return position; }
     const gfx::Color &getClearColor() const { return clearColor; }
     const cc::Mat4 &getMatView() const { return matView; }
     const cc::Mat4 &getMatViewProj() const { return matViewProj; }
@@ -266,11 +267,11 @@ private:
 
 public:
     uint getLayer() const { return static_cast<uint>(layer); }
-    const cc::Vec3 &getWorldScale() const { return worldScale;}
-    const cc::Vec3 &getWorldPosition() const { return worldPosition;}
-    const cc::Vec4 &getWorldRotation() const { return worldRotation;}
-    const cc::Mat4 &getWorldMatrix() const { return worldMatrix;}
-    
+    const cc::Vec3 &getWorldScale() const { return worldScale; }
+    const cc::Vec3 &getWorldPosition() const { return worldPosition; }
+    const cc::Vec4 &getWorldRotation() const { return worldRotation; }
+    const cc::Mat4 &getWorldMatrix() const { return worldMatrix; }
+
     const static se::PoolType type;
 };
 

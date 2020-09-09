@@ -108,7 +108,7 @@ const uint CAMERA_DEFAULT_MASK = 1;
 struct CC_DLL RenderQueueCreateInfo {
     bool isTransparent = false;
     uint phases = 0;
-    std::function<int(const RenderPass &a, const RenderPass &b)> sortFunc;
+    std::function<bool(const RenderPass &a, const RenderPass &b)> sortFunc;
 };
 
 enum class CC_DLL RenderPriority {
@@ -143,12 +143,22 @@ private:
     static uint phaseNum;
 };
 
-CC_INLINE int opaqueCompareFn(const RenderPass &a, const RenderPass &b) {
-    return (a.hash - b.hash) || (a.depth - b.depth) || (a.shaderID - b.shaderID);
+CC_INLINE bool opaqueCompareFn(const RenderPass &a, const RenderPass &b) {
+    if (a.hash != b.hash)
+        return a.hash < b.hash;
+    else if (gfx::math::IsNotEqualF(a.depth, b.depth))
+        return a.depth < b.depth;
+    else
+        return a.shaderID < b.shaderID;
 }
 
-CC_INLINE int transparentCompareFn(const RenderPass &a, const RenderPass &b) {
-    return (a.hash - b.hash) || (b.depth - a.depth) || (a.shaderID - b.shaderID);
+CC_INLINE bool transparentCompareFn(const RenderPass &a, const RenderPass &b) {
+    if (a.hash != b.hash)
+        return a.hash < b.hash;
+    else if (gfx::math::IsEqualF(a.depth, b.depth))
+        return b.depth < a.depth;
+    else
+        return a.shaderID < b.shaderID;
 }
 
 #define MAX_BINDING_SUPPORTED (24)

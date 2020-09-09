@@ -18,8 +18,7 @@ RenderStageInfo UIStage::_initInfo = {
     "UIStage",
     static_cast<uint>(ForwardStagePriority::UI),
     static_cast<uint>(RenderFlowTag::SCENE),
-    {{true, RenderQueueSortMode::BACK_TO_FRONT, {"default"}}}
-};
+    {{true, RenderQueueSortMode::BACK_TO_FRONT, {"default"}}}};
 const RenderStageInfo &UIStage::getInitializeInfo() { return UIStage::_initInfo; }
 
 bool UIStage::initialize(const RenderStageInfo &info) {
@@ -62,7 +61,7 @@ void UIStage::render(RenderView *view) {
         uint32_t subModelCount = subModels[0];
         for (uint32_t i = 1; i <= subModelCount; i++) {
             const auto subModel = GET_SUBMODEL(subModels[i]);
-            for (size_t j = 0; j < subModel->passCount; j++) {
+            for (uint j = 0; j < subModel->passCount; j++) {
                 _renderQueues[0]->insertRenderPass(ro, i, j);
             }
         }
