@@ -34,11 +34,12 @@ import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, IGFXDescriptor
     IGFXPipelineLayoutInfo, GFXPipelineLayout, GFXFramebuffer, IGFXFramebufferInfo, GFXPrimitiveMode, GFXDynamicStateFlags, GFXClearFlag } from '../../gfx';
 import { RenderPassStage } from '../../pipeline/define';
 import { BatchingSchemes } from './pass';
-import { Vec3, Mat4, Color, Rect, Quat, Vec4 } from '../../math';
+import { Vec3, Mat4, Color, Rect, Quat, Vec4, Vec2 } from '../../math';
 import { Layers } from '../../scene-graph/layers';
 import { plane } from '../../geometry';
 
 type Vec4Compatibles = Color | Rect | Quat | Vec4 | plane;
+
 
 interface ITypedArrayConstructor<T> {
     new(buffer: ArrayBufferLike, byteOffset: number, length?: number): T;
@@ -55,7 +56,7 @@ interface IHandle<T extends PoolType> extends Number {
 
 type BufferManifest = { [key: string]: number | string; COUNT: number; };
 type StandardBufferElement = number | IHandle<any>;
-type GeneralBufferElement = StandardBufferElement | Vec3 | Mat4 | Vec4Compatibles;
+type GeneralBufferElement = StandardBufferElement | Vec3 | Mat4 | Vec4Compatibles | Vec2;
 type BufferTypeManifest<E extends BufferManifest> = { [key in E[keyof E]]: GeneralBufferElement };
 
 type Conditional<V, T> = T extends V ? T : never;
@@ -153,6 +154,22 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends BufferManif
             return;
         }
         this._bufferViews[chunk][entry][element as number] = value as number;
+    }
+
+    public setVec2<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec2: Conditional<Vec2, M[K]>) {
+        // Web engine has Vec2 property, don't record it in shared memory.
+        if (!JSB) return;
+
+        const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
+        const entry = this._entryMask & handle as unknown as number;
+        if (DEBUG && (!handle || chunk < 0 || chunk >= this._bufferViews.length ||
+            entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
+            console.warn('invalid buffer pool handle');
+            return;
+        }
+        let index = element as unknown as number;
+        const view = this._bufferViews[chunk][entry];
+        view[index++] = vec2.x; view[index++] = vec2.y;
     }
 
     public setVec3<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec3: Conditional<Vec3, M[K]>) {
@@ -414,7 +431,7 @@ enum PoolType {
     PIPELINE_LAYOUT,
     FRAMEBUFFER,
     // buffers
-    PASS,
+    PASS = 100,
     SUB_MODEL,
     MODEL,
     SCENE,
@@ -424,8 +441,12 @@ enum PoolType {
     AABB,
     RENDER_WINDOW,
     FRUSTUM,
+    AMBIENT,
+    FOG,
+    SKYBOX,
+    SHADOW,
     // array
-    SUB_MODEL_ARRAY,
+    SUB_MODEL_ARRAY = 200,
     MODEL_ARRAY,
 }
 
@@ -451,6 +472,10 @@ export type FrustumHandle = IHandle<PoolType.FRUSTUM>;
 export type RenderWindowHandle = IHandle<PoolType.RENDER_WINDOW>;
 export type SubModelArrayHandle = IHandle<PoolType.SUB_MODEL_ARRAY>;
 export type ModelArrayHandle = IHandle<PoolType.MODEL_ARRAY>;
+export type AmbientHandle = IHandle<PoolType.AMBIENT>;
+export type FogHandle = IHandle<PoolType.FOG>;
+export type SkyboxHandle = IHandle<PoolType.SKYBOX>;
+export type ShadowsHandle = IHandle<PoolType.SHADOW>;
 
 // don't reuse any of these data-only structs, for GFX objects may directly reference them
 export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, () => new GFXRasterizerState());
@@ -679,7 +704,7 @@ interface INodeViewType extends BufferTypeManifest<typeof NodeView> {
     [NodeView.COUNT]: never;
 }
 // @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
-if (!JSB) delete NodeView[NodeView.COUNT]; NodeView[NodeView.COUNT = NodeView.LAYER + 1] = 'COUNT';
+if (!JSB) { delete NodeView[NodeView.COUNT]; NodeView[NodeView.COUNT = NodeView.LAYER + 1] = 'COUNT'; }
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
 // but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
 // we'll have to explicitly declare all these types.
@@ -732,3 +757,106 @@ interface IFrustumViewType extends BufferTypeManifest<typeof FrustumView> {
 // but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
 // we'll have to explicitly declare all these types.
 export const FrustumPool = new BufferPool<PoolType.FRUSTUM, Float32Array, typeof FrustumView, IFrustumViewType>(PoolType.FRUSTUM, Float32Array, FrustumView);
+
+export enum AmbientView {
+    ENABLE,
+    ILLUM,
+    SKY_COLOR, // vec4
+    GROUND_ALBEDO = 6, // vec4
+    COUNT = 10
+}
+interface IAmbientViewType extends BufferTypeManifest<typeof AmbientView> {
+    [AmbientView.ENABLE]: number;
+    [AmbientView.ILLUM]: number;
+    [AmbientView.SKY_COLOR]: Color;
+    [AmbientView.GROUND_ALBEDO]: Color;
+    [AmbientView.COUNT]: never;
+}
+// @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
+if (!JSB) {delete AmbientView[AmbientView.COUNT]; AmbientView[AmbientView.COUNT = AmbientView.ILLUM + 1] = 'COUNT'; }
+export const AmbientPool = new BufferPool<PoolType.AMBIENT, Float32Array, typeof AmbientView, IAmbientViewType>(PoolType.AMBIENT, Float32Array, AmbientView, 1);
+
+export enum SkyboxView {
+    ENABLE,
+    IS_RGBE,
+    USE_IBL,
+    MODEL,
+    COUNT
+}
+interface ISkyboxViewType extends BufferTypeManifest<typeof SkyboxView> {
+    [SkyboxView.ENABLE]: number;
+    [SkyboxView.IS_RGBE]: number;
+    [SkyboxView.USE_IBL]: number;
+    [SkyboxView.MODEL]: ModelHandle;
+    [SkyboxView.COUNT]: never;
+}
+export const SkyboxPool = new BufferPool<PoolType.SKYBOX, Float32Array, typeof SkyboxView, ISkyboxViewType>(PoolType.SKYBOX, Float32Array, SkyboxView, 1);
+
+export enum FogView {
+    ENABLE,
+    TYPE,
+    DENSITY,
+    START,
+    END,
+    ATTEN,
+    TOP,
+    RANGE,
+    COLOR,
+    COUNT = 12
+}
+interface IFogViewType extends BufferTypeManifest<typeof FogView> {
+    [FogView.ENABLE]: number;
+    [FogView.TYPE]: number;
+    [FogView.DENSITY]: number;
+    [FogView.START]: number;
+    [FogView.END]: number;
+    [FogView.ATTEN]: number;
+    [FogView.TOP]: number;
+    [FogView.RANGE]: number;
+    [FogView.COLOR]: Color;
+    [FogView.COUNT]: never;
+}
+// @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
+if (!JSB) {delete FogView[FogView.COUNT]; FogView[FogView.COUNT = FogView.RANGE + 1] = 'COUNT'; }
+export const FogPool = new BufferPool<PoolType.FOG, Float32Array, typeof FogView, IFogViewType>(PoolType.FOG, Float32Array, FogView);
+
+export enum ShadowsView {
+    ENABLE,
+    DIRTY,
+    TYPE,
+    DISTANCE,
+    INSTANCE_PASS,
+    PLANAR_PASS,
+    NEAR,
+    FAR,
+    ASPECT,
+    PCF_TYPE,
+    ORTHO_SIZE,
+    SIZE, // Vec2
+    NORMAL = 13, // Vec3
+    COLOR = 16, // Vec4
+    SPHERE = 20, // Vec4
+    COUNT = 24
+}
+interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
+    [ShadowsView.ENABLE]: number;
+    [ShadowsView.TYPE]: number;
+    [ShadowsView.DISTANCE]: number;
+    [ShadowsView.INSTANCE_PASS]: PassHandle;
+    [ShadowsView.PLANAR_PASS]: PassHandle;
+    [ShadowsView.NEAR]: number;
+    [ShadowsView.FAR]: number;
+    [ShadowsView.ASPECT]: number;
+    [ShadowsView.PCF_TYPE]: number;
+    [ShadowsView.DIRTY]: number;
+    [ShadowsView.ORTHO_SIZE]: number;
+    [ShadowsView.SIZE]: Vec2;
+    [ShadowsView.NORMAL]: Vec3;
+    [ShadowsView.COLOR]: Color;
+    [ShadowsView.SPHERE]: Vec4;
+    [ShadowsView.COUNT]: never;
+}
+// @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
+if (!JSB) {delete ShadowsView[FogView.COUNT]; ShadowsView[ShadowsView.COUNT = ShadowsView.ORTHO_SIZE + 1] = 'COUNT'; }
+export const ShadowsPool = new BufferPool<PoolType.SHADOW, Float32Array, typeof ShadowsView, IShadowsViewType>(PoolType.SHADOW, Float32Array, ShadowsView, 1);
+

@@ -272,10 +272,8 @@ export class RenderScene {
     }
 
     public removeModel (model: Model) {
-        const pipeline = legacyCC.director.root.pipeline;
         for (let i = 0; i < this._models.length; ++i) {
             if (this._models[i] === model) {
-                pipeline.shadows.destroyShadowData(model);
                 model.detachFromScene();
                 this._models.splice(i, 1);
                 ModelArrayPool.erase(this._modelArrayHandle, i);
@@ -285,9 +283,7 @@ export class RenderScene {
     }
 
     public removeModels () {
-        const pipeline = legacyCC.director.root.pipeline;
         for (const m of this._models) {
-            pipeline.shadows.destroyShadowData(m);
             m.detachFromScene();
         }
         this._models.length = 0;

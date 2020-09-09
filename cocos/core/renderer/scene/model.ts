@@ -10,7 +10,7 @@ import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from './render-scene';
 import { Texture2D } from '../../assets/texture-2d';
 import { SubModel } from './submodel';
-import { Pass, IMacroPatch } from '../core/pass';
+import { Pass } from '../core/pass';
 import { legacyCC } from '../../global-exports';
 import { InstancedBuffer } from '../../pipeline';
 import { BatchingSchemes } from '../core/pass';
@@ -22,15 +22,10 @@ import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool,
 import { IGFXAttribute, GFXDescriptorSet } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UniformLightingMapSampler } from '../../pipeline/define';
 import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
-import { ShadowType } from './shadows';
 
 const m4_1 = new Mat4();
 
 const _subModelPool = new Pool(() => new SubModel(), 32);
-
-const shadowMapPatches: IMacroPatch[] = [
-    { name: 'CC_RECEIVE_SHADOW', value: true },
-];
 
 export interface IInstancedAttribute {
     name: string;
@@ -348,9 +343,7 @@ export class Model {
     }
 
     public getMacroPatches (subModelIndex: number) {
-        const pipeline = legacyCC.director.root.pipeline;
-        const shadowInfo = pipeline.shadows;
-        return (this.receiveShadow && shadowInfo.type === ShadowType.ShadowMap) ? shadowMapPatches : null;
+        return undefined;
     }
 
     protected _updateAttributesAndBinding (subModelIndex: number) {
