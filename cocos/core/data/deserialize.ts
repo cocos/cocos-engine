@@ -154,35 +154,44 @@ function serializeBuiltinValueTypes (obj: ValueType): IValueTypeData | null {
 // Both T and U have non-negative integer ranges.
 // When the value >= 0 represents T
 // When the value is < 0, it represents ~U. Use ~x to extract the value of U.
-export type Bnot<T extends number, U extends number> = T|U;
+type Bnot<T extends number, U extends number> = T|U;
 
 // Combines a boolean and a number into one value.
 // The number must >= 0.
 // When the value >= 0, the boolean is true, the number is value.
 // When the value < 0, the boolean is false, the number is ~value.
-export type BoolAndNum<B extends boolean, N extends number> = Bnot<N, N>;
+type BoolAndNum<B extends boolean, N extends number> = Bnot<N, N>;
 
-export type SharedString = string;
-export type Empty = typeof EMPTY_PLACEHOLDER;
-export type StringIndex = number;
-export type InstanceIndex = number;
-export type RootInstanceIndex = InstanceIndex;
-export type NoNativeDep = boolean;  // Indicates whether the asset depends on a native asset
-export type RootInfo = BoolAndNum<NoNativeDep, RootInstanceIndex>;
+type SharedString = string;
+type Empty = typeof EMPTY_PLACEHOLDER;
+type StringIndex = number;
+type InstanceIndex = number;
+type RootInstanceIndex = InstanceIndex;
+type NoNativeDep = boolean;  // Indicates whether the asset depends on a native asset
+type RootInfo = BoolAndNum<NoNativeDep, RootInstanceIndex>;
 
 // When the value >= 0 represents the string index
 // When the value is < 0, it just represents non-negative integer. Use ~x to extract the value.
-export type StringIndexBnotNumber = Bnot<StringIndex, number>;
+type StringIndexBnotNumber = Bnot<StringIndex, number>;
 
 // A reverse index used to assign current parsing object to target command buffer so it could be assembled later.
 // Should >= REF.OBJ_OFFSET
-export type ReverseIndex = number;
+type ReverseIndex = number;
 
 // Used to index the current object
-export type InstanceBnotReverseIndex = Bnot<InstanceIndex, ReverseIndex>;
+type InstanceBnotReverseIndex = Bnot<InstanceIndex, ReverseIndex>;
+
+// shared with the editor
+export declare namespace deserialize.Internal {
+    export type SharedString_ = SharedString;
+    export type Empty_ = Empty;
+    export type StringIndex_ = StringIndex;
+    export type InstanceIndex_ = InstanceIndex;
+    export type StringIndexBnotNumber_ = StringIndexBnotNumber;
+}
 
 /*@__DROP_PURE_EXPORT__*/
-export const enum DataTypeID {
+const enum DataTypeID {
 
     // Fields that can be assigned directly, can be values in any JSON, or even a complex JSON array, object (no type).
     // Contains null, no undefined, JSON does not support serialization of undefined.
@@ -242,7 +251,12 @@ export const enum DataTypeID {
     ARRAY_LENGTH,
 }
 
-export type DataTypes = {
+export declare namespace deserialize.Internal {
+    export import DataTypeID_ = DataTypeID;
+    export type DataTypes_ = DataTypes;
+}
+
+type DataTypes = {
     [DataTypeID.SimpleType]: number | string | boolean | null | object;
     [DataTypeID.InstanceRef]: InstanceBnotReverseIndex;
     [DataTypeID.Array_InstanceRef]: DataTypes[DataTypeID.InstanceRef][];
@@ -259,7 +273,7 @@ export type DataTypes = {
     [DataTypeID.Array]: IArrayData;
 };
 
-export type PrimitiveObjectTypeID = (
+type PrimitiveObjectTypeID = (
     DataTypeID.SimpleType | // SimpleType also includes any pure JSON object
     DataTypeID.Array |
     DataTypeID.Array_Class |
@@ -268,26 +282,33 @@ export type PrimitiveObjectTypeID = (
     DataTypeID.Dict
 );
 
-export type AdvancedTypeID = Exclude<DataTypeID, DataTypeID.SimpleType>
+type AdvancedTypeID = Exclude<DataTypeID, DataTypeID.SimpleType>
 
 
 // Collection of all data types
-export type AnyData = DataTypes[keyof DataTypes];
+type AnyData = DataTypes[keyof DataTypes];
 
-export type AdvancedData = DataTypes[Exclude<keyof DataTypes, DataTypeID.SimpleType>];
+type AdvancedData = DataTypes[Exclude<keyof DataTypes, DataTypeID.SimpleType>];
 
-export type OtherObjectData = ICustomObjectDataContent | Exclude<DataTypes[PrimitiveObjectTypeID], (number|string|boolean|null)>;
+type OtherObjectData = ICustomObjectDataContent | Exclude<DataTypes[PrimitiveObjectTypeID], (number|string|boolean|null)>;
 
 // class Index of DataTypeID.CustomizedClass or PrimitiveObjectTypeID
-export type OtherObjectTypeID = Bnot<number, PrimitiveObjectTypeID>;
+type OtherObjectTypeID = Bnot<number, PrimitiveObjectTypeID>;
 
-export type Ctor<T> = new() => T;
+type Ctor<T> = new() => T;
 // Includes normal CCClass and fast defined class
-export interface CCClass<T> extends Ctor<T> {
+interface CCClass<T> extends Ctor<T> {
     __values__: string[]
 }
-export type AnyCtor = Ctor<Object>;
-export type AnyCCClass = CCClass<Object>;
+type AnyCtor = Ctor<Object>;
+type AnyCCClass = CCClass<Object>;
+
+export declare namespace deserialize.Internal {
+    export type AnyData_ = AnyData;
+    export type OtherObjectData_ = OtherObjectData;
+    export type OtherObjectTypeID_ = OtherObjectTypeID;
+    export type AnyCCClass_ = AnyCCClass;
+}
 
 /**
  * If the value type is different, different Classes will be generated
@@ -295,7 +316,7 @@ export type AnyCCClass = CCClass<Object>;
 const CLASS_TYPE = 0;
 const CLASS_KEYS = 1;
 const CLASS_PROP_TYPE_OFFSET = 2;
-export type IClass = [
+type IClass = [
     string|AnyCtor,
     string[],
     // offset - It is used to specify the correspondence between the elements in CLASS_KEYS and their AdvancedType,
@@ -312,7 +333,7 @@ export type IClass = [
  * Instances of the same class may have different Masks due to different default properties removed.
  */
 const MASK_CLASS = 0;
-export type IMask = [
+type IMask = [
     // The index of its Class
     number,
     // The indices of the property that needs to be deserialized in IClass, except that the last number represents OFFSET.
@@ -322,18 +343,18 @@ export type IMask = [
 ];
 
 const OBJ_DATA_MASK = 0;
-export type IClassObjectData = [
+type IClassObjectData = [
     // The index of its Mask
     number,
     // Starting from 1, the values corresponding to the properties in the Mask
     ...AnyData[]
 ];
 
-export type ICustomObjectDataContent = any;
+type ICustomObjectDataContent = any;
 
 const CUSTOM_OBJ_DATA_CLASS = 0;
 const CUSTOM_OBJ_DATA_CONTENT = 1;
-export interface ICustomObjectData extends Array<any> {
+interface ICustomObjectData extends Array<any> {
     // The index of its Class
     [CUSTOM_OBJ_DATA_CLASS]: number;
     // Content
@@ -341,18 +362,18 @@ export interface ICustomObjectData extends Array<any> {
 }
 
 const VALUETYPE_SETTER = 0;
-export type IValueTypeData = [
+type IValueTypeData = [
     // Predefined parsing function index
     number,
     // Starting with 1, the corresponding value in the attributes are followed in order
     ...number[]
 ];
 
-export type ITRSData = [number, number, number, number, number,
+type ITRSData = [number, number, number, number, number,
                         number, number, number, number, number];
 
 const DICT_JSON_LAYOUT = 0;
-export interface IDictData extends Array<any> {
+interface IDictData extends Array<any> {
     // The raw json object
     [DICT_JSON_LAYOUT]: any,
     // key
@@ -368,28 +389,39 @@ export interface IDictData extends Array<any> {
 }
 
 const ARRAY_ITEM_VALUES = 0;
-export type IArrayData = [
+type IArrayData = [
     AnyData[],
     // types
     ...DataTypeID[]
 ];
 
+export declare namespace deserialize.Internal {
+    export type IClass_ = IClass;
+    export type IMask_ = IMask;
+    export type IClassObjectData_ = IClassObjectData;
+    export type ICustomObjectDataContent_ = ICustomObjectDataContent;
+    export type ICustomObjectData_ = ICustomObjectData;
+    export type ITRSData_ = ITRSData;
+    export type IDictData_ = IDictData;
+    export type IArrayData_ = IArrayData;
+}
+
 // const TYPEDARRAY_TYPE = 0;
 // const TYPEDARRAY_ELEMENTS = 1;
-// export interface ITypedArrayData extends Array<number|number[]> {
+// interface ITypedArrayData extends Array<number|number[]> {
 //     [TYPEDARRAY_TYPE]: number,
 //     [TYPEDARRAY_ELEMENTS]: number[],
 // }
 
 /*@__DROP_PURE_EXPORT__*/
-export const enum Refs {
+const enum Refs {
     EACH_RECORD_LENGTH = 3,
     OWNER_OFFSET = 0,
     KEY_OFFSET = 1,
     TARGET_OFFSET = 2,
 }
 
-export interface IRefs extends Array<number> {
+interface IRefs extends Array<number> {
     // owner
     // The owner of all the objects in the front is of type object, starting from OFFSET * 3 are of type InstanceIndex
     [0]: (object | InstanceIndex),
@@ -403,7 +435,7 @@ export interface IRefs extends Array<number> {
 }
 
 /*@__DROP_PURE_EXPORT__*/
-export const enum File {
+const enum File {
     Version = 0,
     Context = 0,
 
@@ -425,7 +457,7 @@ export const enum File {
 }
 
 // Main file structure
-export interface IFileData extends Array<any> {
+interface IFileData extends Array<any> {
     // version
     [File.Version]: number | FileInfo | any;
 
@@ -458,8 +490,16 @@ export interface IFileData extends Array<any> {
 // type Body = Pick<IFileData, File.Instances | File.InstanceTypes | File.Refs | File.DependObjs | File.DependKeys | File.DependUuidIndices>
 type Shared = Pick<IFileData, File.Version | File.SharedUuids | File.SharedStrings | File.SharedClasses | File.SharedMasks>
 const PACKED_SECTIONS = File.Instances;
-export interface IPackedFileData extends Shared {
+interface IPackedFileData extends Shared {
     [PACKED_SECTIONS]: IFileData[];
+}
+
+export declare namespace deserialize.Internal {
+    export import Refs_ = Refs;
+    export type IRefs_ = IRefs;
+    export import File_ = File;
+    export type IFileData_ = IFileData;
+    export type IPackedFileData_ = IPackedFileData;
 }
 
 interface ICustomHandler {
@@ -1086,7 +1126,7 @@ if (PREVIEW) {
 if (EDITOR || TEST) {
     // TODO: rename to _internal
     legacyCC._deserializeCompiled = deserialize;
-    deserialize.macros = {
+    deserialize._macros = {
         EMPTY_PLACEHOLDER,
         CUSTOM_OBJ_DATA_CLASS,
         CUSTOM_OBJ_DATA_CONTENT,
@@ -1098,6 +1138,19 @@ if (EDITOR || TEST) {
         DICT_JSON_LAYOUT,
         ARRAY_ITEM_VALUES,
         PACKED_SECTIONS,
+    } as {
+        // freeze values (EMPTY_PLACEHOLDER: number -> EMPTY_PLACEHOLDER: 0)
+        EMPTY_PLACEHOLDER: typeof EMPTY_PLACEHOLDER,
+        CUSTOM_OBJ_DATA_CLASS: typeof CUSTOM_OBJ_DATA_CLASS,
+        CUSTOM_OBJ_DATA_CONTENT: typeof CUSTOM_OBJ_DATA_CONTENT,
+        CLASS_TYPE: typeof CLASS_TYPE,
+        CLASS_KEYS: typeof CLASS_KEYS,
+        CLASS_PROP_TYPE_OFFSET: typeof CLASS_PROP_TYPE_OFFSET,
+        MASK_CLASS: typeof MASK_CLASS,
+        OBJ_DATA_MASK: typeof OBJ_DATA_MASK,
+        DICT_JSON_LAYOUT: typeof DICT_JSON_LAYOUT,
+        ARRAY_ITEM_VALUES: typeof ARRAY_ITEM_VALUES,
+        PACKED_SECTIONS: typeof PACKED_SECTIONS,
     };
     deserialize._BuiltinValueTypes = BuiltinValueTypes;
     deserialize._serializeBuiltinValueTypes = serializeBuiltinValueTypes;
