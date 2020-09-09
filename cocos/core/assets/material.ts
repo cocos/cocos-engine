@@ -426,7 +426,7 @@ export class Material extends Asset {
                 for (let i = 0; i < val.length; i++) {
                     this._bindTexture(pass, binding, val[i], i);
                 }
-            } else if (val !== null) {
+            } else if (val) {
                 this._bindTexture(pass, binding, val);
             } else {
                 pass.resetTexture(name);
