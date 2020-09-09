@@ -80,7 +80,7 @@ export class ImageAsset extends Asset {
      */
     get data () {
         if (this._nativeData instanceof HTMLImageElement || this._nativeData instanceof HTMLCanvasElement) {
-            return this._nativeData as (HTMLCanvasElement | HTMLImageElement);
+            return this._nativeData;
         } else {
             return this._nativeData._data;
         }
