@@ -48,13 +48,15 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
         if (model->enabled) {
             const auto visibility = view->getVisibility();
             const auto vis = visibility & static_cast<uint>(LayerList::UI_2D);
+            const auto node = GET_NODE(model->nodeID);
             if (vis) {
-                if ((model->nodeID && (visibility == GET_NODE(model->nodeID)->getLayer())) ||
+                if ((model->nodeID && (visibility == node->getLayer())) ||
                     visibility == model->visFlags) {
                     renderObjects.emplace_back(genRenderObject(model, camera));
                 }
             } else {
-                if ((model->nodeID && ((visibility & GET_NODE(model->nodeID)->getLayer()) == GET_NODE(model->nodeID)->getLayer())) ||
+
+                if ((model->nodeID && ((visibility & node->getLayer()) == node->getLayer())) ||
                     (visibility & model->visFlags)) {
 
                     // shadow render Object
@@ -77,6 +79,8 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
     //        if (planarShadows->enabled) {
     //            planarShadows.updateShadowList(camera.frustum, stamp, (camera.visibility & Layers.BitMask.DEFAULT) !== 0);
     //        }
+    pipeline->setRenderObjcts(renderObjects);
+    pipeline->setShadowObjects(shadowObjects);
 }
 
 } // namespace pipeline

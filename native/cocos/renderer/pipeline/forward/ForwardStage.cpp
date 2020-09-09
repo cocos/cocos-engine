@@ -130,7 +130,7 @@ void ForwardStage::render(RenderView *view) {
         }
     }
     for (auto queue : _renderQueues) {
-        queue->clear();
+        queue->sort();
     }
 
     _additiveLightQueue->gatherLightPasses(view);

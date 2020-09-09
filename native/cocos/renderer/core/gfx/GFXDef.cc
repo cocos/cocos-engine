@@ -214,5 +214,12 @@ uint FormatSurfaceSize(Format format, uint width, uint height, uint depth, uint 
     return size;
 }
 
+void BlendState::setTarget(uint index, const BlendTarget &target) {
+    const auto size = targets.size();
+    if (size <= index) targets.resize(size << 1);
+
+    targets[index] = target;
+}
+
 } // namespace gfx
 } // namespace cc

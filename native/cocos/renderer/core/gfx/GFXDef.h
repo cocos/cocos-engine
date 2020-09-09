@@ -987,6 +987,7 @@ struct BlendState {
     BlendState() {
         targets.emplace_back(BlendTarget());
     }
+    void setTarget(uint, const BlendTarget &);
 };
 
 struct PipelineStateInfo {
