@@ -33,4 +33,4 @@ require('./jsb-loader.js');
 // require('./jsb-webview.js');
 require('./jsb-audio.js');
 require('./jsb-editbox.js');
-require('./jsb-pipeline.js');
+// require('./jsb-pipeline.js');
