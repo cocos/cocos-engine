@@ -241,7 +241,7 @@ export class RenderAdditiveLightQueue {
             this._lightBuffer.resize(this._lightBufferStride * this._lightBufferCount);
             this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
 
-            this._firstlightBufferView = this._device.createBuffer({
+            this._firstlightBufferView.initialize({
                 buffer: this._lightBuffer,
                 offset: 0,
                 range: UBOForwardLight.SIZE,

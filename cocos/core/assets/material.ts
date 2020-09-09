@@ -410,7 +410,7 @@ export class Material extends Asset {
 
     protected _uploadProperty (pass: Pass, name: string, val: MaterialPropertyFull | MaterialPropertyFull[]) {
         const handle = pass.getHandle(name);
-        if (handle === undefined) { return false; }
+        if (!handle) { return false; }
         const propertyType = Pass.getPropertyTypeFromHandle(handle);
         if (propertyType === PropertyType.UBO) {
             if (Array.isArray(val)) {
