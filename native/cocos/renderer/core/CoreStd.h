@@ -29,6 +29,7 @@
 #include <cmath>
 #include <atomic>
 #include <mutex>
+#include <cstdint>
 
 #include "base/TypeDef.h"
 #include "base/memory/Memory.h"
