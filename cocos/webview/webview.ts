@@ -32,29 +32,7 @@ import { EDITOR } from 'internal:constants';
 import { UITransform } from '../core/components/ui-base';
 import { Component, EventHandler as ComponentEventHandler } from '../core/components';
 import { WebViewImpl } from './webview-impl-web';
-
-export enum EventType {
-    /**
-     * @en None
-     * @zh 无
-     */
-    NONE,
-    /**
-     * @en Web page Load completed.
-     * @zh 网页加载完成
-     */
-    LOADING,
-    /**
-     * @en Web page is loading.
-     * @zh 网页加载中
-     */
-    LOADED,
-    /**
-     * @en Web page error occurs when loading.
-     * @zh 网页加载出错
-     */
-    ERROR,
-}
+import { EventType } from './webview-enums';
 
 /**
  * @en
@@ -212,7 +190,7 @@ export class WebView extends Component {
         this.node.emit('error', this);
     }
 
-    public onEnable() {
+    public onEnable () {
         if (this._impl) {
             this._impl.enable();
         }

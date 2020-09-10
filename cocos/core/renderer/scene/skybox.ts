@@ -100,7 +100,7 @@ export class Skybox {
         this._default = builtinResMgr.get<TextureCube>('default-cube-texture');
 
         if (!this._model) {
-            this._model = new Model();
+            this._model = new legacyCC.renderer.scene.Model() as Model;
         }
 
         SkyboxPool.set(this._handle, SkyboxView.MODEL, this._model.handle);
