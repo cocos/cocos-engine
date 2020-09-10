@@ -24,25 +24,26 @@
  THE SOFTWARE.
  */
 
-import { legacyCC } from "../core/global-exports";
-import { WebView } from "./webview";
-import { UITransform } from "../core/components/ui-base";
-import { error } from "../core/platform";
+/**
+ * @category component/webview
+ */
+
+import { legacyCC } from '../core/global-exports';
+import { WebView } from './webview';
+import { EventType } from './webview-enums';
+import { UITransform } from '../core/components/ui-base';
+import { error } from '../core/platform';
 
 const { game, view, mat4, misc, sys } = legacyCC;
 
 const MIN_ZINDEX = -Math.pow(2, 15);
 
-let _mat4_temp = mat4();
-
-/**
- * @category component/webview
- */
+const _mat4_temp = mat4();
 
 export class WebViewImpl {
 
     protected _eventList: Map<number, Function> = new Map<number, Function>();
-    protected _state = WebView.EventType.NONE;
+    protected _state = EventType.NONE;
     protected _webview: any;
 
     protected _loaded = false;
@@ -69,14 +70,14 @@ export class WebViewImpl {
 
         this._loadedCb = (e) => {
             this._forceUpdate = true;
-            this._dispatchEvent(WebView.EventType.LOADED);
+            this._dispatchEvent(EventType.LOADED);
         };
 
         this._errorCb = (e) => {
-            this._dispatchEvent(WebView.EventType.ERROR);
-            let errorObj = e.target.error;
+            this._dispatchEvent(EventType.ERROR);
+            const errorObj = e.target.error;
             if (errorObj) {
-                error("Error " + errorObj.code + "; details: " + errorObj.message);
+                error('Error ' + errorObj.code + '; details: ' + errorObj.message);
             }
         };
         this._appendDom();
@@ -102,18 +103,18 @@ export class WebViewImpl {
         if (this._webview) {
             this._webview.src = url;
             // emit loading event
-            this._dispatchEvent(WebView.EventType.LOADING);
+            this._dispatchEvent(EventType.LOADING);
         }
     }
 
     public evaluateJS (str: string) {
         if (this._webview) {
-            let win = this._webview.contentWindow;
+            const win = this._webview.contentWindow;
             if (win) {
                 try {
                     win.eval(str);
                 } catch (e) {
-                    this._dispatchEvent(WebView.EventType.ERROR);
+                    this._dispatchEvent(EventType.ERROR);
                     error(e);
                 }
             }
@@ -126,7 +127,7 @@ export class WebViewImpl {
     // ---
 
     protected _dispatchEvent (key) {
-        let callback = this._eventList.get(key);
+        const callback = this._eventList.get(key);
         if (callback) {
             this._state = key;
             callback.call(this);
@@ -134,11 +135,11 @@ export class WebViewImpl {
     }
 
     protected _appendDom () {
-        this._webview = document.createElement("iframe");
-        this._webview.style.border = "none";
-        this._webview.style.position = "absolute";
-        this._webview.style.bottom = "0px";
-        this._webview.style.left = "0px";
+        this._webview = document.createElement('iframe');
+        this._webview.style.border = 'none';
+        this._webview.style.position = 'absolute';
+        this._webview.style.bottom = '0px';
+        this._webview.style.left = '0px';
         this._webview.style['transform-origin'] = '0px 100% 0px';
         this._webview.style['-webkit-transform-origin'] = '0px 100% 0px';
         this._bindEvent();
@@ -146,7 +147,7 @@ export class WebViewImpl {
     }
 
     protected _removeDom () {
-        let webview = this._webview;
+        const webview = this._webview;
         if (misc.contains(game.container, webview)) {
             game.container.removeChild(webview);
             this._removeEvent();
@@ -156,13 +157,13 @@ export class WebViewImpl {
     }
 
     protected _bindEvent () {
-        let webview = this._webview;
+        const webview = this._webview;
         webview.addEventListener('load', this._loadedCb);
         webview.addEventListener('error', this._errorCb);
     }
 
     protected _removeEvent () {
-        let webview = this._webview;
+        const webview = this._webview;
         webview.removeEventListener('load', this._loadedCb);
         webview.removeEventListener('error', this._errorCb);
     }
@@ -185,7 +186,7 @@ export class WebViewImpl {
     }
 
     syncStyleSize (w, h) {
-        let webview = this._webview;
+        const webview = this._webview;
         if (webview) {
             webview.style.width = w + 'px';
             webview.style.height = h + 'px';
@@ -211,8 +212,8 @@ export class WebViewImpl {
         camera.update(true);
         camera.worldMatrixToScreen(_mat4_temp, _mat4_temp, game.canvas.width, game.canvas.height);
 
-        let width = this._uiTrans!.contentSize.width;
-        let height = this._uiTrans!.contentSize.height;
+        const width = this._uiTrans!.contentSize.width;
+        const height = this._uiTrans!.contentSize.height;
         if (!this._forceUpdate &&
             this._m00 === _mat4_temp.m00 && this._m01 === _mat4_temp.m01 &&
             this._m04 === _mat4_temp.m04 && this._m05 === _mat4_temp.m05 &&
@@ -231,27 +232,31 @@ export class WebViewImpl {
         this._w = width;
         this._h = height;
 
-        let dpr = view._devicePixelRatio;
-        let scaleX = 1 / dpr;
-        let scaleY = 1 / dpr;
+        const dpr = view._devicePixelRatio;
+        const scaleX = 1 / dpr;
+        const scaleY = 1 / dpr;
 
-        let container = game.container;
-        let sx = _mat4_temp.m00 * scaleX, b = _mat4_temp.m01, c = _mat4_temp.m04, sy = _mat4_temp.m05 * scaleY;
+        const container = game.container;
+        const sx = _mat4_temp.m00 * scaleX;
+        const b = _mat4_temp.m01;
+        const c = _mat4_temp.m04;
+        const sy = _mat4_temp.m05 * scaleY;
 
         this._webview.style.width = `${width}px`;
         this._webview.style.height = `${height}px`;
-        let w = this._w * scaleX;
-        let h = this._h * scaleY;
+        const w = this._w * scaleX;
+        const h = this._h * scaleY;
 
-        let appx = (w * _mat4_temp.m00) * this._uiTrans!.anchorX;
-        let appy = (h * _mat4_temp.m05) * this._uiTrans!.anchorY;
+        const appx = (w * _mat4_temp.m00) * this._uiTrans!.anchorX;
+        const appy = (h * _mat4_temp.m05) * this._uiTrans!.anchorY;
 
-        let offsetX = container && container.style.paddingLeft ? parseInt(container.style.paddingLeft) : 0;
-        let offsetY = container && container.style.paddingBottom ? parseInt(container.style.paddingBottom) : 0;
-        let tx = _mat4_temp.m12 * scaleX - appx + offsetX, ty = _mat4_temp.m13 * scaleY - appy + offsetY;
+        const offsetX = container && container.style.paddingLeft ? parseInt(container.style.paddingLeft) : 0;
+        const offsetY = container && container.style.paddingBottom ? parseInt(container.style.paddingBottom) : 0;
+        const tx = _mat4_temp.m12 * scaleX - appx + offsetX;
+        const ty = _mat4_temp.m13 * scaleY - appy + offsetY;
 
-        let matrix = "matrix(" + sx + "," + -b + "," + -c + "," + sy + "," + tx + "," + -ty + ")";
-        this._webview.style['transform'] = matrix;
+        const matrix = 'matrix(' + sx + ',' + -b + ',' + -c + ',' + sy + ',' + tx + ',' + -ty + ')';
+        this._webview.style.transform = matrix;
         this._webview.style['-webkit-transform'] = matrix;
         this._forceUpdate = false;
     }

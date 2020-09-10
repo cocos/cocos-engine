@@ -365,11 +365,11 @@ export class MeshRenderer extends RenderableComponent {
         if (!this.node.scene || !this._model) {
             return;
         }
-        const scene = this._getRenderScene();
+        const renderScene = this._getRenderScene();
         if (this._model.scene != null) {
             this._detachFromScene();
         }
-        scene.addModel(this._model);
+        renderScene.addModel(this._model);
     }
 
     protected _detachFromScene () {

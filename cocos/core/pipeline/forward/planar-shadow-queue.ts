@@ -2,7 +2,7 @@ import { aabb, intersect} from '../../geometry';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { SetIndex} from '../../pipeline/define';
 import { GFXCommandBuffer, GFXDevice, GFXRenderPass, GFXShader} from '../../gfx';
-import { InstancedBuffer } from '../../pipeline';
+import { InstancedBuffer } from '../instanced-buffer';
 import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
 import { Model } from '../../renderer/scene';
 import { DSPool, ShaderPool, PassPool, PassView, SubModelPool, SubModelView } from '../../renderer/core/memory-pools';
