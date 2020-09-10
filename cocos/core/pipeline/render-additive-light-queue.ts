@@ -252,7 +252,7 @@ export class RenderAdditiveLightQueue {
         Mat4.invert(matShadowView, spotLight.node!.getWorldMatrix());
 
         // light proj
-        Mat4.perspective(matShadowViewProj, toDegree(spotLight.spotAngle), spotLight.aspect, 0.001, spotLight.range);
+        Mat4.perspective(matShadowViewProj, spotLight.angle, spotLight.aspect, 0.001, spotLight.range);
 
         // light viewProj
         Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);

@@ -65,6 +65,10 @@ export class SpotLight extends Light {
         this._needUpdate = true;
     }
 
+    get angle () {
+        return this._angle;
+    }
+
     get aabb () {
         return this._aabb;
     }

@@ -58,3 +58,10 @@ vec4 CCGetShadowFactorX25 () {
   if (depth < (clipPos.z - 0.001)) return cc_shadowColor;
   else return vec4(0);
 }
+
+float CCGetShadowFactor () {
+  vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
+  float depth = unpackRGBAToDepth(texture(cc_shadowMap, clipPos.xy));
+  if (depth < (clipPos.z - 0.00001)) return 20.0;
+  else return 1.0;
+}

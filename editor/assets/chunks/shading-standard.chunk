@@ -96,17 +96,22 @@ struct StandardSurface {
         att *= GetAngleAtt(SL, -cc_lightDir[i].xyz, litAngleScale, litAngleOffset);
       }
 
-      finalColor += SNL * cc_lightColor[i].rgb * cc_lightColor[i].w * illum * att * (diffuseContrib + lspec);
+      vec3 lightColor = cc_lightColor[i].rgb;
     #if CC_RECEIVE_SHADOW
-      vec4 shadow = vec4(1.0);
-      float pcf = cc_shadowPCF.x + 0.001;
-      if (pcf > 3.0) {shadow = CCGetShadowFactorX25();}
-      else if (3.0 > pcf && pcf > 2.0) {shadow = CCGetShadowFactorX9();}
-      else if (2.0 > pcf && pcf > 1.0) {shadow = CCGetShadowFactorX5();}
-      else {shadow = CCGetShadowFactorX1();}
+      // vec4 shadow = vec4(1.0);
+      // float pcf = cc_shadowPCF.x + 0.001;
+      // if (pcf > 3.0) {shadow = CCGetShadowFactorX25();}
+      // else if (3.0 > pcf && pcf > 2.0) {shadow = CCGetShadowFactorX9();}
+      // else if (2.0 > pcf && pcf > 1.0) {shadow = CCGetShadowFactorX5();}
+      // else {shadow = CCGetShadowFactorX1();}
 
-      finalColor = shadow.rgb * shadow.a + finalColor * (1.0 - shadow.a);
+      float shadow = CCGetShadowFactor();
+
+      lightColor = lightColor * shadow;
     #endif
+
+
+      finalColor += SNL * lightColor * cc_lightColor[i].w * illum * att * (diffuseContrib + lspec);
     }
 
     finalColor = finalColor * s.occlusion;
