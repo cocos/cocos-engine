@@ -79,7 +79,7 @@ export class RenderWindow {
 
     public initialize (device: GFXDevice, info: IRenderWindowInfo): boolean {
         this._poolHandle = RenderWindowPool.alloc();
-        
+
         if (info.title !== undefined) {
             this._title = info.title;
         }
