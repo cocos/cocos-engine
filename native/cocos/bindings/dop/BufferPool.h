@@ -64,7 +64,7 @@ private:
     static cc::map<PoolType, BufferPool *> _poolMap;
 
     cc::vector<Chunk> _chunks;
-    const uint _poolFlag = 1 << 30;
+    const uint _poolFlag = 1 << 20;
     uint _entryBits = 1 << 8;
     uint _chunkMask = 0;
     uint _entryMask = 0;
