@@ -34,12 +34,9 @@ import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, IGFXDescriptor
     IGFXPipelineLayoutInfo, GFXPipelineLayout, GFXFramebuffer, IGFXFramebufferInfo, GFXPrimitiveMode, GFXDynamicStateFlags, GFXClearFlag } from '../../gfx';
 import { RenderPassStage } from '../../pipeline/define';
 import { BatchingSchemes } from './pass';
-import { Vec3, Mat4, Color, Rect, Quat, Vec4, Vec2 } from '../../math';
 import { Layers } from '../../scene-graph/layers';
+import { Vec2, Vec3, Vec4, Quat, Color, Rect, Mat4, IVec2Like, IVec3Like, IVec4Like, IMat4Like } from '../../math';
 import { plane } from '../../geometry';
-
-type Vec4Compatibles = Color | Rect | Quat | Vec4 | plane;
-
 
 interface ITypedArrayConstructor<T> {
     new(buffer: ArrayBufferLike, byteOffset: number, length?: number): T;
@@ -56,7 +53,7 @@ interface IHandle<T extends PoolType> extends Number {
 
 type BufferManifest = { [key: string]: number | string; COUNT: number; };
 type StandardBufferElement = number | IHandle<any>;
-type GeneralBufferElement = StandardBufferElement | Vec3 | Mat4 | Vec4Compatibles | Vec2;
+type GeneralBufferElement = StandardBufferElement | IVec2Like | IVec3Like | IVec4Like | IMat4Like;
 type BufferTypeManifest<E extends BufferManifest> = { [key in E[keyof E]]: GeneralBufferElement };
 
 type Conditional<V, T> = T extends V ? T : never;
@@ -156,7 +153,7 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends BufferManif
         this._bufferViews[chunk][entry][element as number] = value as number;
     }
 
-    public setVec2<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec2: Conditional<Vec2, M[K]>) {
+    public setVec2<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec2: Conditional<IVec2Like, M[K]>) {
         // Web engine has Vec2 property, don't record it in shared memory.
         if (!JSB) return;
 
@@ -172,7 +169,7 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends BufferManif
         view[index++] = vec2.x; view[index++] = vec2.y;
     }
 
-    public setVec3<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec3: Conditional<Vec3, M[K]>) {
+    public setVec3<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec3: Conditional<IVec3Like, M[K]>) {
         // Web engine has Vec3 property, don't record it in shared memory.
         if (!JSB) return;
 
@@ -188,7 +185,7 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends BufferManif
         view[index++] = vec3.x; view[index++] = vec3.y; view[index] = vec3.z;
     }
 
-    public setVec4<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec4: Conditional<Vec4Compatibles, M[K]>) {
+    public setVec4<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec4: Conditional<IVec4Like, M[K]>) {
         // Web engine has Vec4 property, don't record it in shared memory.
         if (!JSB) return;
 
@@ -205,7 +202,7 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends BufferManif
         view[index++] = vec4.z; view[index]   = vec4.w;
     }
 
-    public setMat4<K extends E[keyof E]> (handle: IHandle<P>, element: K, mat4: Conditional<Mat4, M[K]>) {
+    public setMat4<K extends E[keyof E]> (handle: IHandle<P>, element: K, mat4: Conditional<IMat4Like, M[K]>) {
         // Web engine has mat4 property, don't record it in shared memory.
         if (!JSB) return;
 
@@ -859,4 +856,3 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
 // @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
 if (!JSB) {delete ShadowsView[FogView.COUNT]; ShadowsView[ShadowsView.COUNT = ShadowsView.ORTHO_SIZE + 1] = 'COUNT'; }
 export const ShadowsPool = new BufferPool<PoolType.SHADOW, Float32Array, typeof ShadowsView, IShadowsViewType>(PoolType.SHADOW, Float32Array, ShadowsView, 1);
-

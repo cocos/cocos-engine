@@ -19,12 +19,27 @@ import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
  * @zh GFX 颜色附件。
  */
 export class GFXColorAttachment {
-    public format: GFXFormat = GFXFormat.UNKNOWN;
-    public sampleCount: number = 1;
-    public loadOp: GFXLoadOp = GFXLoadOp.CLEAR;
-    public storeOp: GFXStoreOp = GFXStoreOp.STORE;
-    public beginLayout: GFXTextureLayout = GFXTextureLayout.UNDEFINED;
-    public endLayout: GFXTextureLayout = GFXTextureLayout.PRESENT_SRC;
+    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    public format: GFXFormat;
+    public sampleCount: number;
+    public loadOp: GFXLoadOp;
+    public storeOp: GFXStoreOp;
+    public beginLayout: GFXTextureLayout;
+    public endLayout: GFXTextureLayout;
+
+    constructor (
+        format = GFXFormat.UNKNOWN, sampleCount = 1,
+        loadOp = GFXLoadOp.CLEAR, storeOp = GFXStoreOp.STORE,
+        beginLayout = GFXTextureLayout.UNDEFINED, endLayout = GFXTextureLayout.PRESENT_SRC
+    ) {
+        this.format = format;
+        this.sampleCount = sampleCount;
+        this.loadOp = loadOp;
+        this.storeOp = storeOp;
+        this.beginLayout = beginLayout;
+        this.endLayout = endLayout;
+    }
 }
 
 /**
@@ -32,14 +47,32 @@ export class GFXColorAttachment {
  * @zh GFX 深度模板附件。
  */
 export class GFXDepthStencilAttachment {
-    public format: GFXFormat = GFXFormat.UNKNOWN;
-    public sampleCount: number = 1;
-    public depthLoadOp: GFXLoadOp = GFXLoadOp.CLEAR;
-    public depthStoreOp: GFXStoreOp = GFXStoreOp.STORE;
-    public stencilLoadOp: GFXLoadOp = GFXLoadOp.CLEAR;
-    public stencilStoreOp: GFXStoreOp = GFXStoreOp.STORE;
-    public beginLayout: GFXTextureLayout = GFXTextureLayout.UNDEFINED;
-    public endLayout: GFXTextureLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    public format: GFXFormat;
+    public sampleCount: number;
+    public depthLoadOp: GFXLoadOp;
+    public depthStoreOp: GFXStoreOp;
+    public stencilLoadOp: GFXLoadOp;
+    public stencilStoreOp: GFXStoreOp;
+    public beginLayout: GFXTextureLayout;
+    public endLayout: GFXTextureLayout;
+
+    constructor (
+        format = GFXFormat.UNKNOWN, sampleCount = 1,
+        depthLoadOp = GFXLoadOp.CLEAR, depthStoreOp = GFXStoreOp.STORE,
+        stencilLoadOp = GFXLoadOp.CLEAR, stencilStoreOp = GFXStoreOp.STORE,
+        beginLayout = GFXTextureLayout.UNDEFINED, endLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+    ) {
+        this.format = format;
+        this.sampleCount = sampleCount;
+        this.depthLoadOp = depthLoadOp;
+        this.depthStoreOp = depthStoreOp;
+        this.stencilLoadOp = stencilLoadOp;
+        this.stencilStoreOp = stencilStoreOp;
+        this.beginLayout = beginLayout;
+        this.endLayout = endLayout;
+    }
 }
 
 export interface IGFXSubPassInfo {

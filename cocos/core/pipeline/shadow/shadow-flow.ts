@@ -9,7 +9,7 @@ import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
 import { GFXFramebuffer, GFXRenderPass, GFXLoadOp,
     GFXStoreOp, GFXTextureLayout, GFXFormat, GFXTexture,
-    GFXTextureType, GFXTextureUsageBit } from '../../gfx';
+    GFXTextureType, GFXTextureUsageBit, GFXColorAttachment, GFXDepthStencilAttachment } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderView } from '../render-view';
@@ -59,25 +59,28 @@ export class ShadowFlow extends RenderFlow {
         this._height = shadowMapSize.y;
 
         if(!this._shadowRenderPass) {
+
+            const colorAttachment = new GFXColorAttachment();
+            colorAttachment.format = GFXFormat.RGBA8;
+            colorAttachment.loadOp = GFXLoadOp.CLEAR; // should clear color attachment
+            colorAttachment.storeOp = GFXStoreOp.STORE;
+            colorAttachment.sampleCount = 1;
+            colorAttachment.beginLayout = GFXTextureLayout.UNDEFINED;
+            colorAttachment.endLayout = GFXTextureLayout.PRESENT_SRC;
+
+            const depthStencilAttachment = new GFXDepthStencilAttachment();
+            depthStencilAttachment.format = device.depthStencilFormat;
+            depthStencilAttachment.depthLoadOp = GFXLoadOp.CLEAR;
+            depthStencilAttachment.depthStoreOp = GFXStoreOp.STORE;
+            depthStencilAttachment.stencilLoadOp = GFXLoadOp.CLEAR;
+            depthStencilAttachment.stencilStoreOp = GFXStoreOp.STORE;
+            depthStencilAttachment.sampleCount = 1;
+            depthStencilAttachment.beginLayout = GFXTextureLayout.UNDEFINED;
+            depthStencilAttachment.endLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
             this._shadowRenderPass = device.createRenderPass({
-                colorAttachments: [{
-                    format: GFXFormat.RGBA8,
-                    loadOp: GFXLoadOp.CLEAR, // should clear color attachment
-                    storeOp: GFXStoreOp.STORE,
-                    sampleCount: 1,
-                    beginLayout: GFXTextureLayout.UNDEFINED,
-                    endLayout: GFXTextureLayout.PRESENT_SRC,
-                }],
-                depthStencilAttachment: {
-                    format : device.depthStencilFormat,
-                    depthLoadOp : GFXLoadOp.CLEAR,
-                    depthStoreOp : GFXStoreOp.STORE,
-                    stencilLoadOp : GFXLoadOp.CLEAR,
-                    stencilStoreOp : GFXStoreOp.STORE,
-                    sampleCount : 1,
-                    beginLayout : GFXTextureLayout.UNDEFINED,
-                    endLayout : GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                },
+                colorAttachments: [colorAttachment],
+                depthStencilAttachment,
             });
         }
 
