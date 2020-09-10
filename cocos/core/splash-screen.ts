@@ -23,7 +23,6 @@ import {
     GFXBufferTextureCopy, GFXBufferUsageBit, GFXCommandBufferType, GFXFormat,
     GFXMemoryUsageBit, GFXTextureType, GFXTextureUsageBit, GFXRect, GFXColor, GFXAddress
 } from './gfx/define';
-import { Color } from './math';
 
 export type SplashEffectType = 'NONE' | 'FADE-INOUT';
 
@@ -92,7 +91,7 @@ export class SplashScreen {
             (this.setting.totalTime as number) = this.setting.totalTime != null ? this.setting.totalTime : 3000;
             (this.setting.base64src as string) = this.setting.base64src || '';
             (this.setting.effect as SplashEffectType) = this.setting.effect || 'FADE-INOUT';
-            (this.setting.clearColor as GFXColor) = this.setting.clearColor || { r: 0.88, g: 0.88, b: 0.88, a: 1.0 };
+            (this.setting.clearColor as GFXColor) = this.setting.clearColor || new GFXColor(0.88, 0.88, 0.88, 1);
             (this.setting.displayRatio as number) = this.setting.displayRatio != null ? this.setting.displayRatio : 0.4;
             (this.setting.displayWatermark as boolean) = this.setting.displayWatermark != null ? this.setting.displayWatermark : true;
         } else {

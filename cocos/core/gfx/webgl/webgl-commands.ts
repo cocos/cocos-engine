@@ -1487,13 +1487,15 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
         for (let i = 0; i < glActiveSamplers.length; ++i) {
             const glSampler = glActiveSamplers[i];
 
-            const cachedUnit = texUnitCacheMap[glSampler.name];
+            let cachedUnit = texUnitCacheMap[glSampler.name];
             if (cachedUnit !== undefined) {
                 glSampler.glLoc = glActiveSamplerLocations[i];
-                for (let t = 0, offset = 0; t < glSampler.count; ++t) {
-                    while (usedTexUnits[cachedUnit + t + offset]) offset++;
-                    glSampler.units.push(cachedUnit + t + offset);
-                    usedTexUnits[cachedUnit + t + offset] = true;
+                for (let t = 0; t < glSampler.count; ++t) {
+                    while (usedTexUnits[cachedUnit]) {
+                        cachedUnit = (cachedUnit + 1) % device.maxTextureUnits;
+                    }
+                    glSampler.units.push(cachedUnit);
+                    usedTexUnits[cachedUnit] = true;
                 }
             }
         }
@@ -1504,13 +1506,15 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
 
             if (!glSampler.glLoc) {
                 glSampler.glLoc = glActiveSamplerLocations[i];
-                while (usedTexUnits[unitIdx]) unitIdx++;
                 for (let t = 0; t < glSampler.count; ++t) {
-                    glSampler.units.push(unitIdx + t);
-                    usedTexUnits[unitIdx + t] = true;
-                }
-                if (texUnitCacheMap[glSampler.name] === undefined) {
-                    texUnitCacheMap[glSampler.name] = unitIdx;
+                    while (usedTexUnits[unitIdx]) {
+                        unitIdx = (unitIdx + 1) % device.maxTextureUnits;
+                    }
+                    if (texUnitCacheMap[glSampler.name] === undefined) {
+                        texUnitCacheMap[glSampler.name] = unitIdx;
+                    }
+                    glSampler.units.push(unitIdx);
+                    usedTexUnits[unitIdx] = true;
                 }
             }
         }

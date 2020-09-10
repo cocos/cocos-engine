@@ -279,6 +279,8 @@ export class WebGLDevice extends GFXDevice {
         this._depthBits = gl.getParameter(gl.DEPTH_BITS);
         this._stencilBits = gl.getParameter(gl.STENCIL_BITS);
 
+        this.stateCache.initialize(this._maxTextureUnits, this._maxVertexAttributes);
+
         if (ALIPAY) {
             this._depthBits = 24;
         }

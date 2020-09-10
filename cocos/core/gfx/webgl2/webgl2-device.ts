@@ -213,6 +213,8 @@ export class WebGL2Device extends GFXDevice {
         // let maxVertexUniformBlocks = gl.getParameter(gl.MAX_VERTEX_UNIFORM_BLOCKS);
         // let maxFragmentUniformBlocks = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_BLOCKS);
 
+        this.stateCache.initialize(this._maxTextureUnits, this._maxUniformBufferBindings, this._maxVertexAttributes);
+
         this._devicePixelRatio = info.devicePixelRatio || 1.0;
         this._width = this._canvas.width;
         this._height = this._canvas.height;
