@@ -1,0 +1,102 @@
+/**
+ * @method ${func_name}
+#if $is_constructor
+ * @constructor
+#end if
+#set $max_count = 0
+#set $func_count = len($implementations)
+#set $func_index = 0
+#for func in $implementations
+    #if len($func.arguments) >= $max_count
+        #set $max_count = len($func.arguments)
+    #end if
+    #set $func_index = $func_index + 1
+#end for
+#if $max_count > 0
+    #set $arg_idx   = 0
+    #while $arg_idx < $max_count
+        #set $tip =  "@param {"
+        #set $sub_tip = ""
+        #set $is_sub_tip_set = False
+        #set $func_index = 0
+        #for func in $implementations
+            #set $loop_index = 0
+            #set $is_find    = False
+            #for $arg in $func.arguments
+                #if $loop_index < len($func.arguments)
+                    #if $loop_index == $arg_idx
+                        #set $tip = $tip + $generator.js_typename_from_natve($arg.namespaced_class_name)
+                        #set $is_find = True
+                        #if $is_sub_tip_set == False
+                            #set $is_sub_tip_set = True
+                            #set $sub_tip = $generator.api_param_name_from_native($arg.name.replace("*", "").replace("const ", ""))
+                        #end if
+                    #end if
+                    #set $loop_index = $loop_index + 1
+                #end if 
+            #end for
+            #if $func_index < $func_count - 1
+                #if $is_find == True
+                    #set $tip = $tip + "|"
+                #end if
+            #end if
+            #set $func_index = $func_index + 1
+        #end for
+        #if $tip.endswith('|')
+            #set $tip = $tip[:-1]
+        #end if
+        #set $tip = $tip + "} " + $sub_tip
+* $tip
+        #set $arg_idx   = $arg_idx + 1
+    #end while
+#end if
+#set $ret_tip = "{"
+#set $func_index = 0
+#set $have_ret = False
+#for func in $implementations
+    #if str($func.ret_type) != "void"
+        #set $ret_tip = $ret_tip + $generator.js_typename_from_natve($func.ret_type.namespaced_class_name) + "|"
+        #set $have_ret = True
+    #end if
+    #set $func_index = $func_index + 1
+#end for
+#if $ret_tip.endswith('|')
+    #set $ret_tip = $ret_tip[:-1] + "}"
+#end if
+#if $have_ret
+* @return $ret_tip
+#end if
+*/
+#set $max_count = 0
+#set $func_count = len($implementations)
+#set $func_index = 0
+#set $max_index  = 0
+#set $selected_func = 0
+#for func in $implementations
+    #if len($func.arguments) >= $max_count
+        #set $max_count = len($func.arguments)
+        #set $max_index = $func_index
+        #set $selected_func = func 
+    #end if
+    #set $func_index = $func_index + 1
+#end for
+${func_name} : function(
+#set $arg_idx = 0
+#for $arg in $selected_func.arguments
+    #set $argname = $arg.name.replace("*", "").replace("const ", "")
+    #if $arg_idx < $max_count - 1 
+$generator.api_param_name_from_native(argname),
+    #else 
+$generator.api_param_name_from_native(argname) 
+    #end if
+    #set $arg_idx = $arg_idx + 1
+#end for
+)
+{
+#if str($selected_func.ret_type) != "void"
+    #set $is_enum = $selected_func.ret_type.is_enum
+    #set $ret = $selected_func.ret_type.namespaced_class_name.replace("*", "").replace("const ", "")
+    return $generator.js_ret_name_from_native($ret,$is_enum);
+#end if
+},
+

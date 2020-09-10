@@ -1,0 +1,37 @@
+Core Developers:
+    Rolando Abarca (funkaster)
+        The original author of repo
+
+    Surith Thekkiam (folecr)
+
+    James Chen (dumganhar)
+        The main maintainer
+
+    samuele3hu
+        Added lua target support
+
+    Dhilan007
+
+    pandamicro
+
+Developers:
+    rohankuruvillak
+        The maintainer of this repo
+
+    carlomorgantinizynga
+        new manual conversion for type ccFontDefinition
+
+    jdmunro
+        Fixed an issue where cocos2d-x specific functionality was not appropriately wrapped with an #ifdef in binding code generated for default class constructors.
+
+    led42
+        Fixed native objects were left allocated with no references by the finalise routine
+
+    colesbury
+        Generated conversion from JS functions to std::function
+
+    lihex
+        Better support for Windows
+
+    dplusic
+        Fixed incorrect regular expression for std::function return type
