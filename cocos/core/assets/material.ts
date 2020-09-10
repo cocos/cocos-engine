@@ -410,7 +410,7 @@ export class Material extends Asset {
 
     protected _uploadProperty (pass: Pass, name: string, val: MaterialPropertyFull | MaterialPropertyFull[]) {
         const handle = pass.getHandle(name);
-        if (handle === undefined) { return false; }
+        if (!handle) { return false; }
         const propertyType = Pass.getPropertyTypeFromHandle(handle);
         if (propertyType === PropertyType.UBO) {
             if (Array.isArray(val)) {
@@ -426,8 +426,10 @@ export class Material extends Asset {
                 for (let i = 0; i < val.length; i++) {
                     this._bindTexture(pass, binding, val[i], i);
                 }
-            } else {
+            } else if (val) {
                 this._bindTexture(pass, binding, val);
+            } else {
+                pass.resetTexture(name);
             }
         }
         return true;
@@ -444,8 +446,6 @@ export class Material extends Asset {
             }
             pass.bindTexture(binding, texture, index);
             pass.bindSampler(binding, val.getGFXSampler(), index);
-        } else if (!val) {
-            pass.resetTexture(name, index);
         }
     }
 

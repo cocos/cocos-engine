@@ -401,6 +401,7 @@ export class Camera {
         this._viewport.width = val.width;
         this._viewport.height = val.height;
         CameraPool.setVec4(this._poolHandle, CameraView.VIEW_PORT, this._viewport);
+        this.resize(this._viewport.width, this._viewport.height);
     }
 
     get scene () {

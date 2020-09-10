@@ -46,8 +46,8 @@ CCEffect %{
           blendSrcAlpha: zero
           blendDstAlpha: one
       properties: *props
-    - vert: shadowMap-vs:vert
-      frag: shadowMap-fs:frag
+    - vert: shadow-caster-vs:vert
+      frag: shadow-caster-fs:frag
       phase: shadow-add
       propertyIndex: 0
       rasterizerState:
@@ -80,8 +80,8 @@ CCEffect %{
           blendSrc: one
           blendDst: one
       properties: *props
-    - vert: shadowMap-vs:vert
-      frag: shadowMap-fs:frag
+    - vert: shadow-caster-vs:vert
+      frag: shadow-caster-fs:frag
       phase: shadow-add
       propertyIndex: 0
       rasterizerState:
@@ -117,7 +117,7 @@ CCProgram standard-vs %{
   out vec3 v_normal;
   out vec2 v_uv;
   out vec2 v_uv1;
-  out float factor_fog;
+  out float v_fog_factor;
 
   #if USE_NORMAL_MAP
     out vec3 v_tangent;
@@ -156,7 +156,7 @@ CCProgram standard-vs %{
     #if USE_VERTEX_COLOR
       v_color = a_color;
     #endif
-    factor_fog = CC_TRANSFER_FOG(matWorld * In.position);
+    v_fog_factor = CC_TRANSFER_FOG(matWorld * In.position);
 
     #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
       CCLightingMapCaclUV();
@@ -181,6 +181,7 @@ CCProgram standard-fs %{
   in vec2 v_uv;
   in vec2 v_uv1;
   in vec3 v_normal;
+  in float v_fog_factor;
 
   #if USE_VERTEX_COLOR
     in vec3 v_color;
@@ -218,7 +219,7 @@ CCProgram standard-fs %{
   #if USE_ALPHA_TEST
     #pragma define ALPHA_TEST_CHANNEL options([a, r])
   #endif
-  in float factor_fog;
+
   void surf (out StandardSurface s) {
     vec4 baseColor = albedo;
     #if USE_VERTEX_COLOR
@@ -275,18 +276,26 @@ CCProgram standard-fs %{
   vec4 frag () {
     StandardSurface s; surf(s);
     vec4 color = CCStandardShading(s);
-    color = CC_APPLY_FOG(color, factor_fog);
+    color = CC_APPLY_FOG(color, v_fog_factor);
     return CCFragOutput(color);
   }
 }%
 
-CCProgram shadowMap-vs %{
+CCProgram shadow-caster-vs %{
   precision highp float;
   #include <input-standard>
-  #include <cc-shadow>
   #include <cc-local-batch>
+  #include <shared-ubos>
+  #include <cc-shadow>
 
-  out vec4 vTexCoord;
+  #if HAS_SECOND_UV || USE_LIGHTMAP
+    in vec2 a_texCoord1;
+  #endif
+
+  out vec2 v_uv;
+  out vec2 v_uv1;
+
+  out vec2 v_clip_depth;
 
   vec4 vert () {
     StandardVertInput In;
@@ -298,34 +307,46 @@ CCProgram shadowMap-vs %{
     vec4 worldPos = matWorld * In.position;
     vec4 clipPos = cc_matLightViewProj * worldPos;
 
-    vTexCoord = vec4(a_texCoord, clipPos.z, clipPos.w);
+    v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
+    #if HAS_SECOND_UV
+      v_uv1 = a_texCoord1 * tilingOffset.xy + tilingOffset.zw;
+    #endif
+
+    v_clip_depth = clipPos.zw;
 
     return clipPos;
   }
 }%
 
-CCProgram shadowMap-fs %{
+CCProgram shadow-caster-fs %{
   precision highp float;
+  #include <shared-ubos>
   #include <packing>
 
-  in vec4 vTexCoord;
+  in vec2 v_uv;
+  in vec2 v_uv1;
+  in vec2 v_clip_depth;
 
   #if USE_ALBEDO_MAP
     uniform sampler2D albedoMap;
     #pragma define ALBEDO_UV options([v_uv, v_uv1])
   #endif
 
-  vec4 frag () {
-    vec4 color = vec4(1.0);
+  #if USE_ALPHA_TEST
+    #pragma define ALPHA_TEST_CHANNEL options([a, r])
+  #endif
 
-    #if ALPHAMASK
-      #if USE_ALBEDO_MAP
-        float alpha = texture(albedoMap, vTexCoord.xy).a;
-        if (alpha < 0.5)
-            discard;
-      #endif
+  vec4 frag () {
+    vec4 baseColor = albedo;
+
+    #if USE_ALBEDO_MAP
+      baseColor *= texture(albedoMap, ALBEDO_UV);
     #endif
 
-    return packDepthToRGBA(vTexCoord.z / vTexCoord.w * 0.5 + 0.5);
+    #if USE_ALPHA_TEST
+      if (baseColor.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
+    #endif
+
+    return packDepthToRGBA(v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5);
   }
 }%

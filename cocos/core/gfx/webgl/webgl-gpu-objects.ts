@@ -137,6 +137,7 @@ export interface IWebGLGPUUniformSampler {
     type: GFXType;
     count: number;
     units: number[];
+    glUnits: Int32Array;
 
     glType: GLenum;
     glLoc: WebGLUniformLocation;
