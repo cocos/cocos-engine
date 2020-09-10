@@ -229,8 +229,8 @@ export class Pass {
      * pass.setUniform(hThreshold, 0.5); // now, albedoScale.w = 0.5
      * ```
      */
-    public getHandle (name: string, offset = 0, targetType = GFXType.UNKNOWN): number | undefined {
-        let handle = this._propertyHandleMap[name]; if (!handle) { return; }
+    public getHandle (name: string, offset = 0, targetType = GFXType.UNKNOWN) {
+        let handle = this._propertyHandleMap[name]; if (!handle) { return 0; }
         if (targetType) { handle = customizeType(handle, targetType); }
         else if (offset) { handle = customizeType(handle, getTypeFromHandle(handle) - offset); }
         return handle + offset;
@@ -243,7 +243,7 @@ export class Pass {
      */
     public getBinding (name: string) {
         const handle = this.getHandle(name);
-        if (handle === undefined) { return; }
+        if (!handle) { return -1; }
         return Pass.getBindingFromHandle(handle);
     }
 
@@ -384,6 +384,7 @@ export class Pass {
      */
     public resetUniform (name: string) {
         const handle = this.getHandle(name)!;
+        if (!handle) return;
         const type = Pass.getTypeFromHandle(handle);
         const binding = Pass.getBindingFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
@@ -399,7 +400,8 @@ export class Pass {
      * 重置指定贴图为 Effect 默认值。
      */
     public resetTexture (name: string, index?: number) {
-        const handle = this.getHandle(name)!;
+        const handle = this.getHandle(name);
+        if (!handle) return;
         const type = Pass.getTypeFromHandle(handle);
         const binding = Pass.getBindingFromHandle(handle);
         const info = this._properties[name];

@@ -321,8 +321,8 @@ export class Profiler {
         _material.setProperty('offset', new Vec4(-0.9, -0.9 * ySign, this._eachNumWidth, 0));
         const pass = this.pass = _material.passes[0];
         const handle = pass.getBinding('mainTexture');
-        const binding = pass.getBinding('digits')!;
-        pass.bindTexture(handle!, this._texture!);
+        const binding = pass.getBinding('digits');
+        pass.bindTexture(handle, this._texture!);
         this.digitsData = pass.blocks[binding];
         modelCom.material = _material;
         modelCom.node.layer = Layers.Enum.PROFILER;

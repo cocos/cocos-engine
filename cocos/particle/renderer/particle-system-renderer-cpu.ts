@@ -409,8 +409,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
 
         const pass = mat.passes[0];
-        this._uScaleHandle = pass.getHandle('scale')!;
-        this._uLenHandle = pass.getHandle('frameTile_velLenScale')!;
+        this._uScaleHandle = pass.getHandle('scale');
+        this._uLenHandle = pass.getHandle('frameTile_velLenScale');
 
         const renderMode = this._renderInfo!.renderMode;
         const vlenScale = this._frameTile_velLenScale;
