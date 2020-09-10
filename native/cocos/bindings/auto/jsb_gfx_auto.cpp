@@ -12987,6 +12987,24 @@ static bool js_gfx_Device_resize(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_Device_resize)
 
+static bool js_gfx_Device_genShaderId(se::State& s)
+{
+    cc::gfx::Device* cobj = (cc::gfx::Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_genShaderId : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->genShaderId();
+        ok &= uint32_to_seval((unsigned int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_genShaderId : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Device_genShaderId)
+
 static bool js_gfx_Device_createQueue(se::State& s)
 {
     cc::gfx::Device* cobj = (cc::gfx::Device*)s.nativeThisObject();
@@ -13245,6 +13263,7 @@ bool js_register_gfx_Device(se::Object* obj)
     cls->defineFunction("createSampler", _SE(js_gfx_Device_createSampler));
     cls->defineFunction("initialize", _SE(js_gfx_Device_initialize));
     cls->defineFunction("resize", _SE(js_gfx_Device_resize));
+    cls->defineFunction("genShaderId", _SE(js_gfx_Device_genShaderId));
     cls->defineFunction("createQueue", _SE(js_gfx_Device_createQueue));
     cls->defineFunction("bindingMappingInfo", _SE(js_gfx_Device_bindingMappingInfo));
     cls->install();
@@ -14208,6 +14227,24 @@ static bool js_gfx_Shader_getName(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_Shader_getName)
 
+static bool js_gfx_Shader_getID(se::State& s)
+{
+    cc::gfx::Shader* cobj = (cc::gfx::Shader*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_Shader_getID : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getID();
+        ok &= uint32_to_seval((unsigned int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_Shader_getID : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Shader_getID)
+
 static bool js_gfx_Shader_getAttributes(se::State& s)
 {
     cc::gfx::Shader* cobj = (cc::gfx::Shader*)s.nativeThisObject();
@@ -14225,24 +14262,6 @@ static bool js_gfx_Shader_getAttributes(se::State& s)
     return false;
 }
 SE_BIND_PROP_GET(js_gfx_Shader_getAttributes)
-
-static bool js_gfx_Shader_getHash(se::State& s)
-{
-    cc::gfx::Shader* cobj = (cc::gfx::Shader*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_Shader_getHash : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getHash();
-        ok &= uint32_to_seval((unsigned int)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_Shader_getHash : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Shader_getHash)
 
 static bool js_gfx_Shader_getSamplers(se::State& s)
 {
@@ -14368,10 +14387,10 @@ bool js_register_gfx_Shader(se::Object* obj)
     cls->defineProperty("blocks", _SE(js_gfx_Shader_getBlocks), nullptr);
     cls->defineProperty("name", _SE(js_gfx_Shader_getName), nullptr);
     cls->defineProperty("samplers", _SE(js_gfx_Shader_getSamplers), nullptr);
+    cls->defineProperty("shaderID", _SE(js_gfx_Shader_getID), nullptr);
     cls->defineProperty("device", _SE(js_gfx_Shader_getDevice), nullptr);
     cls->defineProperty("attributes", _SE(js_gfx_Shader_getAttributes), nullptr);
     cls->defineProperty("stages", _SE(js_gfx_Shader_getStages), nullptr);
-    cls->defineProperty("hash", _SE(js_gfx_Shader_getHash), nullptr);
     cls->defineFunction("initialize", _SE(js_gfx_Shader_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_Shader_destroy));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_Shader_finalize));

@@ -291,6 +291,7 @@ SE_DECLARE_FUNC(js_gfx_Device_defineMacro);
 SE_DECLARE_FUNC(js_gfx_Device_createSampler);
 SE_DECLARE_FUNC(js_gfx_Device_initialize);
 SE_DECLARE_FUNC(js_gfx_Device_resize);
+SE_DECLARE_FUNC(js_gfx_Device_genShaderId);
 SE_DECLARE_FUNC(js_gfx_Device_createQueue);
 SE_DECLARE_FUNC(js_gfx_Device_bindingMappingInfo);
 
