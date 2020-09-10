@@ -22,7 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 #import "View.h"
-#include "scripting/js-bindings/event/EventDispatcher.h"
+#include "bindings/event/EventDispatcher.h"
 
 namespace {
 void dispatchEvents(cc::TouchEvent &touchEvent, NSSet *touches) {

@@ -37,7 +37,7 @@ THE SOFTWARE.
 #include "sdl2/SDL.h"
 #include "sdl2/SDL_syswm.h"
 
-#include "scripting/js-bindings/event/EventDispatcher.h"
+#include "cocos/bindings/event/EventDispatcher.h"
 
 namespace cc {
 

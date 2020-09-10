@@ -1,8 +1,8 @@
 #include "platform/CanvasRenderingContext2D.h"
 #include "base/csscolorparser.h"
 
-#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
-#include "cocos/scripting/js-bindings/manual/jsb_platform.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
+#include "cocos/bindings/manual/jsb_platform.h"
 
 #import <Foundation/Foundation.h>
 

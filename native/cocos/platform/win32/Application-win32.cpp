@@ -33,8 +33,8 @@ THE SOFTWARE.
 #include <MMSystem.h>
 #include "platform/FileUtils.h"
 #include "platform/win32/View-win32.h"
-#include "scripting/js-bindings/jswrapper/SeApi.h"
-#include "scripting/js-bindings/event/EventDispatcher.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
+#include "cocos/bindings/event/EventDispatcher.h"
 #include "base/Scheduler.h"
 #include "base/AutoreleasePool.h"
 #include "audio/include/AudioEngine.h"

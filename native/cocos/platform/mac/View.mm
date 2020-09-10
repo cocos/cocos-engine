@@ -25,7 +25,7 @@
 #import <AppKit/NSTouch.h>
 #import <AppKit/NSEvent.h>
 #import "KeyCodeHelper.h"
-#import "scripting/js-bindings/event/EventDispatcher.h"
+#import "cocos/bindings/event/EventDispatcher.h"
 #include "platform/Application.h"
 
 @implementation View {

@@ -22,12 +22,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include <scripting/js-bindings/event/EventDispatcher.h>
-#include <platform/Application.h>
+#include "cocos/bindings/event/EventDispatcher.h"
+#include "platform/Application.h"
 #include "EditBox.h"
 #include "platform/android/jni/JniHelper.h"
-#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
-#include "cocos/scripting/js-bindings/manual/jsb_global.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
+#include "cocos/bindings/manual/jsb_global.h"
 
 #ifndef JCLS_EDITBOX
 #define JCLS_EDITBOX  "org/cocos2dx/lib/Cocos2dxEditBoxActivity"

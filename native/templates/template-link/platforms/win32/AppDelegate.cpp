@@ -7,7 +7,7 @@
 
 #include "platform/StdC.h"
 #include "platform/win32/View-win32.h"
-#include "scripting/js-bindings/jswrapper/SeApi.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
 
 namespace
 {

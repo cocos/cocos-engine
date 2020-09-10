@@ -8,7 +8,7 @@
     },
     "do_add_native_support": {
         "append_file": [{
-            "from": "cocos/scripting/js-bindings/manual/jsb_module_register.cpp",
+            "from": "cocos/bindings/manual/jsb_module_register.cpp",
             "to": "${COMMON_DIR}/Classes/jsb_module_register.cpp"
         }],
         "project_replace_project_name": {

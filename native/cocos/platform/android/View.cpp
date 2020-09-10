@@ -25,8 +25,8 @@ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
  ****************************************************************************/
 #include "View.h"
 #include <android_native_app_glue.h>
-#include "scripting/js-bindings/event/EventDispatcher.h"
-#include "scripting/js-bindings/event/CustomEventTypes.h"
+#include "cocos/bindings/event/EventDispatcher.h"
+#include "cocos/bindings/event/CustomEventTypes.h"
 #include "platform/Application.h"
 
 namespace

@@ -1,7 +1,7 @@
 #include "platform/CanvasRenderingContext2D.h"
 #include "base/csscolorparser.h"
 
-#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
 #include "platform/android/jni/JniHelper.h"
 #include "platform/android/jni/JniImp.h"
 

@@ -5,8 +5,8 @@
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include "android/native_window.h"
-    #include "scripting/js-bindings/event/CustomEventTypes.h"
-    #include "scripting/js-bindings/event/EventDispatcher.h"
+    #include "cocos/bindings/event/CustomEventTypes.h"
+    #include "cocos/bindings/event/EventDispatcher.h"
 #endif
 
 // #define CC_GFX_DEBUG

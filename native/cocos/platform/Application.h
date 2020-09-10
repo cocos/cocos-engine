@@ -29,7 +29,7 @@ THE SOFTWARE.
 #include <thread>    // // std::this_thread::sleep_for
 #include "base/Macros.h"
 
-#include "scripting/js-bindings/event/EventDispatcher.h"
+#include "bindings/event/EventDispatcher.h"
 #include "base/Scheduler.h"
 #include "base/AutoreleasePool.h"
 #include "base/TypeDef.h"

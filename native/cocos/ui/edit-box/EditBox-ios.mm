@@ -23,8 +23,8 @@
  ****************************************************************************/
 #include "EditBox.h"
 #include "platform/Application.h"
-#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
-#include "cocos/scripting/js-bindings/manual/jsb_global.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
+#include "cocos/bindings/manual/jsb_global.h"
 
 #import <UIKit/UIKit.h>
 

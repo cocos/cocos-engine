@@ -27,7 +27,7 @@ THE SOFTWARE.
 #include <algorithm>
 #include <mutex>
 #include "base/Scheduler.h"
-#include "scripting/js-bindings/jswrapper/SeApi.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
 #include "audio/include/AudioEngine.h"
 
 #import <AppKit/AppKit.h>

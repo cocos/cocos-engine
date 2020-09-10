@@ -26,8 +26,8 @@
 #import <UIKit/UIKit.h>
 #include "base/Scheduler.h"
 #include "base/AutoreleasePool.h"
-#include "scripting/js-bindings/event/EventDispatcher.h"
-#include "scripting/js-bindings/jswrapper/SeApi.h"
+#include "bindings/event/EventDispatcher.h"
+#include "bindings/jswrapper/SeApi.h"
 #include "audio/include/AudioEngine.h"
 
 @interface MyTimer : NSObject

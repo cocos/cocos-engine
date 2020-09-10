@@ -100,7 +100,7 @@ set(PROJ_COMMON_SOURCES
 )
 
 if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/Classes/jsb_module_register.cpp)
-    file(COPY "${cocosdir}/cocos/scripting/js-bindings/manual/jsb_module_register.cpp" 
+    file(COPY "${cocosdir}/cocos/bindings/manual/jsb_module_register.cpp" 
         DESTINATION ${CMAKE_CURRENT_LIST_DIR}/Classes/)
 endif()
 list(APPEND PROJ_COMMON_SOURCES ${CMAKE_CURRENT_LIST_DIR}/Classes/jsb_module_register.cpp)
@@ -149,7 +149,7 @@ elseif(IOS)
     )
 elseif(ANDROID)
     list(APPEND PROJ_SOURCES
-        ${PROJ_SRC_DIR}/jni/hellojavascript/main.cpp
+        ${PROJ_SRC_DIR}/jni/main.cpp
     )
 endif()
 

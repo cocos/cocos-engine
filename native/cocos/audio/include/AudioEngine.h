@@ -29,8 +29,8 @@
 #include "base/Macros.h"
 #include "audio/include/Export.h"
 
-#include "scripting/js-bindings/event/EventDispatcher.h"
-#include "scripting/js-bindings/event/CustomEventTypes.h"
+#include "bindings/event/EventDispatcher.h"
+#include "bindings/event/CustomEventTypes.h"
 
 #include <functional>
 #include <list>

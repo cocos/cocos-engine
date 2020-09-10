@@ -52,8 +52,8 @@
 #include "audio/android/cutils/log.h"
 #include "audio/android/UrlAudioPlayer.h"
 
-#include "scripting/js-bindings/event/EventDispatcher.h"
-#include "scripting/js-bindings/event/CustomEventTypes.h"
+#include "cocos/bindings/event/EventDispatcher.h"
+#include "cocos/bindings/event/CustomEventTypes.h"
 
 using namespace cc;
 

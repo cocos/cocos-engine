@@ -24,8 +24,8 @@
 #include "EditBox.h"
 #include "platform/Application.h"
 #include "platform/win32/View-win32.h"
-#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
-#include "cocos/scripting/js-bindings/manual/jsb_global.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
+#include "cocos/bindings/manual/jsb_global.h"
 #include <windows.h>
 #include <locale>
 #include <codecvt>

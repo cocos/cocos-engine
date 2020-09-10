@@ -29,8 +29,8 @@ THE SOFTWARE.
 #include "platform/android/jni/JniImp.h"
 #include "base/Scheduler.h"
 #include "audio/include/AudioEngine.h"
-#include "scripting/js-bindings/jswrapper/SeApi.h"
-#include "scripting/js-bindings/event/EventDispatcher.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
+#include "cocos/bindings/event/EventDispatcher.h"
 #include "platform/android/jni/JniHelper.h"
 
 #define  LOG_APP_TAG    "Application_android Debug"

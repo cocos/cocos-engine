@@ -4,9 +4,9 @@
 #include "math/Vec2.h"
 #include "math/Vec3.h"
 #include "math/Vec4.h"
-#include "scripting/dop/ArrayPool.h"
-#include "scripting/dop/BufferPool.h"
-#include "scripting/dop/ObjectPool.h"
+#include "bindings/dop/BufferPool.h"
+#include "bindings/dop/ObjectPool.h"
+#include "bindings/dop/ArrayPool.h"
 
 namespace cc {
 namespace gfx {
