@@ -73,11 +73,17 @@ export class RenderTexture extends Asset {
     get width () {
         return this._width;
     }
+    set width (val) {
+        this._width = val;
+    }
 
     @rangeMin(1)
     @rangeMax(2048)
     get height () {
         return this._height;
+    }
+    set height (val) {
+        this._height = val;
     }
 
     get window () {
