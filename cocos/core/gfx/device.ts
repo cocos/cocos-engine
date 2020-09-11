@@ -6,7 +6,7 @@ import { ccenum } from '../value-types/enum';
 import { GFXDescriptorSet, IGFXDescriptorSetInfo } from './descriptor-set';
 import { GFXBuffer, IGFXBufferInfo, IGFXBufferViewInfo } from './buffer';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from './command-buffer';
-import { GFX_MAX_BUFFER_BINDINGS, GFXBufferTextureCopy, GFXFilter, GFXFormat, GFXMemoryStatus, GFXRect } from './define';
+import { GFXBufferTextureCopy, GFXFilter, GFXFormat, GFXMemoryStatus, GFXRect } from './define';
 import { GFXFence, IGFXFenceInfo } from './fence';
 import { GFXFramebuffer, IGFXFramebufferInfo } from './framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from './input-assembler';
@@ -375,7 +375,7 @@ export abstract class GFXDevice {
     protected _maxFragmentUniformVectors: number = 0;
     protected _maxTextureUnits: number = 0;
     protected _maxVertexTextureUnits: number = 0;
-    protected _maxUniformBufferBindings: number = GFX_MAX_BUFFER_BINDINGS;
+    protected _maxUniformBufferBindings: number = 0;
     protected _maxUniformBlockSize: number = 0;
     protected _maxTextureSize: number = 0;
     protected _maxCubeMapTextureSize: number = 0;

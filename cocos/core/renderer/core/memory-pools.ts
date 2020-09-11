@@ -479,6 +479,7 @@ export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, () 
 export const DepthStencilStatePool = new ObjectPool(PoolType.DEPTH_STENCIL_STATE, () => new GFXDepthStencilState());
 export const BlendStatePool = new ObjectPool(PoolType.BLEND_STATE, () => new GFXBlendState());
 
+// TODO: could use Labeled Tuple Element feature here after next babel update (required TS4.0+ support)
 export const ShaderPool = new ObjectPool(PoolType.SHADER,
     (args: [GFXDevice, GFXShaderInfo], obj?: GFXShader) => obj ? (obj.initialize(args[1]), obj) : args[0].createShader(args[1]),
     (obj: GFXShader) => obj && obj.destroy(),
