@@ -563,7 +563,7 @@ export class Pass {
             if (isBuiltinBinding(set)) { continue; }
             _bufferViewInfo.buffer = this._rootBuffer!;
             _bufferViewInfo.offset = startOffsets[count++];
-            _bufferViewInfo.range = size;
+            _bufferViewInfo.range = Math.ceil(size / 16) * 16;
             const bufferView = this._buffers[binding] = device.createBuffer(_bufferViewInfo);
             // non-builtin UBO data pools, note that the effect compiler
             // guarantees these bindings to be consecutive, starting from 0 and non-array-typed
