@@ -195,7 +195,7 @@ export class UIRenderable extends RenderableComponent {
     }
 
     set color (value) {
-        if (this._color === value) {
+        if (this._color.equals(value)) {
             return;
         }
 
