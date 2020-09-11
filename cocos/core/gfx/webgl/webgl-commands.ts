@@ -2625,17 +2625,21 @@ export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: GFXDrawInfo) {
                 const subDrawInfo = gpuInputAssembler.gpuIndirectBuffer.indirects[j];
                 const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
                 if (subDrawInfo.instanceCount && ia) {
-                    if (gpuBuffer && subDrawInfo.indexCount > 0) {
-                        const offset = subDrawInfo.firstIndex * gpuBuffer.stride;
-                        ia.drawElementsInstancedANGLE(glPrimitive, subDrawInfo.indexCount,
-                            gpuInputAssembler.glIndexType, offset, subDrawInfo.instanceCount);
+                    if (gpuBuffer) {
+                        if (subDrawInfo.indexCount > 0) {
+                            const offset = subDrawInfo.firstIndex * gpuBuffer.stride;
+                            ia.drawElementsInstancedANGLE(glPrimitive, subDrawInfo.indexCount,
+                                gpuInputAssembler.glIndexType, offset, subDrawInfo.instanceCount);
+                        }
                     } else {
                         ia.drawArraysInstancedANGLE(glPrimitive, subDrawInfo.firstVertex, subDrawInfo.vertexCount, subDrawInfo.instanceCount);
                     }
                 } else {
-                    if (gpuBuffer && subDrawInfo.indexCount > 0) {
-                        const offset = subDrawInfo.firstIndex * gpuBuffer.stride;
-                        gl.drawElements(glPrimitive, subDrawInfo.indexCount, gpuInputAssembler.glIndexType, offset);
+                    if (gpuBuffer) {
+                        if (subDrawInfo.indexCount > 0) {
+                            const offset = subDrawInfo.firstIndex * gpuBuffer.stride;
+                            gl.drawElements(glPrimitive, subDrawInfo.indexCount, gpuInputAssembler.glIndexType, offset);
+                        }
                     } else {
                         gl.drawArrays(glPrimitive, subDrawInfo.firstVertex, subDrawInfo.vertexCount);
                     }
@@ -2644,17 +2648,21 @@ export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: GFXDrawInfo) {
         } else {
             const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
             if (drawInfo.instanceCount && ia) {
-                if (gpuBuffer && drawInfo.indexCount > 0) {
-                    const offset = drawInfo.firstIndex * gpuBuffer.stride;
-                    ia.drawElementsInstancedANGLE(glPrimitive, drawInfo.indexCount,
-                        gpuInputAssembler.glIndexType, offset, drawInfo.instanceCount);
+                if (gpuBuffer) {
+                    if (drawInfo.indexCount > 0) {
+                        const offset = drawInfo.firstIndex * gpuBuffer.stride;
+                        ia.drawElementsInstancedANGLE(glPrimitive, drawInfo.indexCount,
+                            gpuInputAssembler.glIndexType, offset, drawInfo.instanceCount);
+                    }
                 } else {
                     ia.drawArraysInstancedANGLE(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount, drawInfo.instanceCount);
                 }
             } else {
-                if (gpuBuffer && drawInfo.indexCount > 0) {
-                    const offset = drawInfo.firstIndex * gpuBuffer.stride;
-                    gl.drawElements(glPrimitive, drawInfo.indexCount, gpuInputAssembler.glIndexType, offset);
+                if (gpuBuffer) {
+                    if (drawInfo.indexCount > 0) {
+                        const offset = drawInfo.firstIndex * gpuBuffer.stride;
+                        gl.drawElements(glPrimitive, drawInfo.indexCount, gpuInputAssembler.glIndexType, offset);
+                    }
                 } else {
                     gl.drawArrays(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount);
                 }
