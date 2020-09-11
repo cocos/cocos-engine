@@ -2288,7 +2288,7 @@ export function WebGL2CmdFuncBindStates (
         for (let i = 0; i < samplerLen; i++) {
             const glSampler = gpuShader.glSamplers[i];
             const gpuDescriptorSet = gpuDescriptorSets[glSampler.set];
-            let descriptorIndex = gpuDescriptorSet && gpuDescriptorSet.descriptorIndices[glSampler.binding] || -1;
+            let descriptorIndex = gpuDescriptorSet?.descriptorIndices[glSampler.binding] ?? -1;
             let gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[descriptorIndex];
 
             for (let l = 0; l < glSampler.units.length; l++) {
