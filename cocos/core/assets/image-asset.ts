@@ -82,7 +82,9 @@ export class ImageAsset extends Asset {
         if (this._nativeData instanceof HTMLImageElement || this._nativeData instanceof HTMLCanvasElement) {
             return this._nativeData;
         } else {
-            return this._nativeData._data;
+            // Provide protection for non-standard types of some platforms(like AliPay)
+            let data = this._nativeData._data ? this._nativeData._data : this._nativeData;
+            return data;
         }
     }
 
