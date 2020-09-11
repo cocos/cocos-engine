@@ -61,29 +61,23 @@ const _windowInfo: IRenderWindowInfo = {
 export class RenderTexture extends Asset {
 
     @serializable
+    @rangeMin(1)
+    @rangeMax(2048)
     private _width = 1;
 
     @serializable
+    @rangeMin(1)
+    @rangeMax(2048)
     private _height = 1;
 
     private _window: RenderWindow | null = null;
 
-    @rangeMin(1)
-    @rangeMax(2048)
     get width () {
         return this._width;
     }
-    set width (val) {
-        this._width = val;
-    }
 
-    @rangeMin(1)
-    @rangeMax(2048)
     get height () {
         return this._height;
-    }
-    set height (val) {
-        this._height = val;
     }
 
     get window () {
