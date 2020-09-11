@@ -2225,7 +2225,7 @@ export function WebGLCmdFuncBindStates (
         for (let i = 0; i < samplerLen; i++) {
             const glSampler = gpuShader.glSamplers[i];
             const gpuDescriptorSet = gpuDescriptorSets[glSampler.set];
-            let descriptorIndex = gpuDescriptorSet && gpuDescriptorSet.descriptorIndices[glSampler.binding] || -1;
+            let descriptorIndex = gpuDescriptorSet?.descriptorIndices[glSampler.binding] ?? -1;
             let gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[descriptorIndex];
 
             const texUnitLen = glSampler.units.length;
