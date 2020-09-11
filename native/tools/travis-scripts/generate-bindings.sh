@@ -17,14 +17,14 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$DIR/../.."
 TOJS_ROOT="$PROJECT_ROOT/tools/tojs"
-JS_AUTO_GENERATED_DIR="$PROJECT_ROOT/cocos/scripting/js-bindings/auto"
+JS_AUTO_GENERATED_DIR="$PROJECT_ROOT/cocos/bindings/auto"
 COMMITTAG="[ci skip][AUTO]: updating jsbinding automatically"
 ELAPSEDSECS=`date +%s`
 COCOS_BRANCH="update_js_bindings_$ELAPSEDSECS"
 COCOS_ROBOT_REMOTE="https://${GH_USER}:${GH_PASSWORD}@github.com/${GH_USER}/cocos2d-x-lite.git"
 PULL_REQUEST_REPO="https://api.github.com/repos/cocos-creator/cocos2d-x-lite/pulls"
 FETCH_REMOTE_BRANCH=$1
-JS_COMMIT_PATH="cocos/scripting/js-bindings/auto"
+JS_COMMIT_PATH="cocos/bindings/auto"
 
 # Exit on error
 set -e

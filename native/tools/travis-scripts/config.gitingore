@@ -23,7 +23,7 @@ Thumbs.db
 /licenses
 /simulator
 /build/build
-/cocos/scripting/js-bindings/proj.ios_mac/build/cocos2d_js_bindings.build
+/cocos/bindings/proj.ios_mac/build/cocos2d_js_bindings.build
 
 
 .gitattributes

@@ -110,7 +110,6 @@ def main():
  
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
     cocos_root = os.path.abspath(project_root)
-    jsb_root = os.path.abspath(os.path.join(project_root, 'js-bindings'))
     cxx_generator_root = os.path.abspath(os.path.join(project_root, 'tools/bindings-generator'))
 
     # save config to file
