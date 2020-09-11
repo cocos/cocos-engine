@@ -273,6 +273,7 @@ public:
     vector<VkLayerProperties> layers;
     vector<VkExtensionProperties> extensions;
     VmaAllocator memoryAllocator = VK_NULL_HANDLE;
+    VkPipelineCache vkPipelineCache = VK_NULL_HANDLE;
 
     bool useDescriptorUpdateTemplate = false;
     bool useMultiDrawIndirect = false;
@@ -414,6 +415,7 @@ public:
             VkDescriptorPoolSize poolSizes[] = {
                 {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 128},
                 {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 128},
+                {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 128},
             };
 
             VkDescriptorPoolCreateInfo createInfo{VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO};
@@ -758,7 +760,6 @@ private:
  * Record all transfer requests until batched submission.
  */
 #define ASYNC_BUFFER_UPDATE
-#define ASYNC_COMMAND_SUBMISSION
 class CCVKGPUTransportHub : public Object {
 public:
     CCVKGPUTransportHub(CCVKGPUDevice *device)
@@ -800,7 +801,7 @@ public:
     }
 
     template <typename TFunc>
-    void checkIn(const TFunc &record) {
+    void checkIn(const TFunc &record, bool immediateSubmission = false) {
         if (!_cmdBuff.vkCommandBuffer) {
             _commandBufferPool->request(&_cmdBuff);
             VkCommandBufferBeginInfo beginInfo{VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
@@ -810,16 +811,16 @@ public:
 
         record(_cmdBuff.vkCommandBuffer);
 
-#ifndef ASYNC_COMMAND_SUBMISSION
-        VK_CHECK(vkEndCommandBuffer(_cmdBuff.vkCommandBuffer));
-        VkFence fence = _fencePool->alloc();
-        VkSubmitInfo submitInfo{VK_STRUCTURE_TYPE_SUBMIT_INFO};
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &_cmdBuff.vkCommandBuffer;
-        VK_CHECK(vkQueueSubmit(_queue->vkQueue, 1, &submitInfo, fence));
-        VK_CHECK(vkWaitForFences(_device->vkDevice, 1, &fence, VK_TRUE, DEFAULT_FENCE_TIMEOUT));
-        _commandBufferPool->yield(&_cmdBuff);
-#endif // ASYNC_COMMAND_SUBMISSION
+        if (immediateSubmission) {
+            VK_CHECK(vkEndCommandBuffer(_cmdBuff.vkCommandBuffer));
+            VkFence fence = _fencePool->alloc();
+            VkSubmitInfo submitInfo{VK_STRUCTURE_TYPE_SUBMIT_INFO};
+            submitInfo.commandBufferCount = 1;
+            submitInfo.pCommandBuffers = &_cmdBuff.vkCommandBuffer;
+            VK_CHECK(vkQueueSubmit(_queue->vkQueue, 1, &submitInfo, fence));
+            VK_CHECK(vkWaitForFences(_device->vkDevice, 1, &fence, VK_TRUE, DEFAULT_FENCE_TIMEOUT));
+            _commandBufferPool->yield(&_cmdBuff);
+        }
     }
 
     void depart() {

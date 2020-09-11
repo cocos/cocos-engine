@@ -5,7 +5,7 @@ message(STATUS "Target: ${TARGET_NAME}...")
 # ---------------------------------------------------------------------
 # set include files
 
-set(INCLUDE_FILES 
+set(INCLUDE_FILES
   ${GFX_EXTERNAL_PATH}/nedmalloc
   ${GFX_EXTERNAL_PATH}/tommyds
   ${COCOS_SRC_PATH}/renderer/core
@@ -44,7 +44,7 @@ macro(GROUP_FILES src_files out_del_files)
 		string(REGEX REPLACE ${cur_dir}/\(.*\) \\1 sgbd_fpath ${src_file})
 		string(REGEX REPLACE "\(.*\)/.*" \\1 sgbd_group_name ${sgbd_fpath})
 		string(COMPARE EQUAL ${sgbd_fpath} ${sgbd_group_name} sgbd_nogroup)
-			
+
 		string(REPLACE "\\" "/" sgbd_group_name ${sgbd_group_name})
 
 		if(sgbd_nogroup)
@@ -130,9 +130,10 @@ elseif(COCOS_PLATFORM_IOS)
 endif()
 
 
-target_include_directories(${TARGET_NAME} PUBLIC 
+target_include_directories(${TARGET_NAME} PUBLIC
 	${COCOS_SRC_PATH}/renderer
 	${COCOS_SRC_PATH}
+	${COCOS_SRC_PATH}/..
 	${COCOS_EXTERNAL_INCLUDE_PATH}
 )
 
@@ -141,4 +142,4 @@ set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME_DEBUG CCCore_d)
 
 use_precompiled_header("${CMAKE_CURRENT_SOURCE_DIR}/CoreStd.h" "${CMAKE_CURRENT_SOURCE_DIR}/CoreStd.cpp" SOURCE_CPP_FILES)
 
-message(STATUS "${TARGET_NAME} configuration completed.") 
+message(STATUS "${TARGET_NAME} configuration completed.")

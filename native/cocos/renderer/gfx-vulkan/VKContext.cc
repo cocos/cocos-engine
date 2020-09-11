@@ -22,15 +22,11 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSe
                                                            VkDebugUtilsMessageTypeFlagsEXT messageType,
                                                            const VkDebugUtilsMessengerCallbackDataEXT *callbackData,
                                                            void *userData) {
-    // We handle this explicitly
-    if (!strcmp(callbackData->pMessageIdName, "VUID-VkDescriptorSetAllocateInfo-descriptorPool-00307")) {
+    // The current allocation strategy will have invalid requests, and we handle them explicitly
+    if (strstr(callbackData->pMessageIdName, "VUID-VkDescriptorSetAllocateInfo-descriptorPool-00307")) {
         return VK_FALSE;
     }
-    // TODO: handle the few frames with no command submission at start up
-    if (!strcmp(callbackData->pMessageIdName, "VUID-VkPresentInfoKHR-pImageIndices-01296")) {
-        return VK_FALSE;
-    }
-    
+
     // Log debug messge
     if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
         CC_LOG_WARNING("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
@@ -49,6 +45,11 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(VkDebugReportFlagsEXT flags,
                                                    const char *layerPrefix,
                                                    const char *message,
                                                    void *userData) {
+    // The current allocation strategy will have invalid requests, and we handle them explicitly
+    if (strstr(message, "VUID-VkDescriptorSetAllocateInfo-descriptorPool-00307")) {
+        return VK_FALSE;
+    }
+
     if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
         CC_LOG_ERROR("VError: %s: %s", layerPrefix, message);
         CCASSERT(ALLOW_VALIDATION_ERRORS, "Validation Error");
@@ -180,10 +181,12 @@ bool CCVKContext::initialize(const ContextInfo &info) {
             }
         }
 
-        uint apiVersion;
-        vkEnumerateInstanceVersion(&apiVersion);
-        if (FORCE_MINOR_VERSION) {
-            apiVersion = VK_MAKE_VERSION(1, FORCE_MINOR_VERSION - 1, 0);
+        uint apiVersion = VK_API_VERSION_1_0;
+        if (vkEnumerateInstanceVersion) {
+            vkEnumerateInstanceVersion(&apiVersion);
+            if (FORCE_MINOR_VERSION) {
+                apiVersion = VK_MAKE_VERSION(1, FORCE_MINOR_VERSION - 1, 0);
+            }
         }
 
         _majorVersion = VK_VERSION_MAJOR(apiVersion);

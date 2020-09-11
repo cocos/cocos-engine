@@ -356,7 +356,9 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
 }
 
 void CCVKDevice::destroy() {
-    VK_CHECK(vkDeviceWaitIdle(_gpuDevice->vkDevice));
+    if (_gpuDevice && _gpuDevice->vkDevice) {
+        VK_CHECK(vkDeviceWaitIdle(_gpuDevice->vkDevice));
+    }
 
     if (_gpuSwapchain) {
         if (_gpuSwapchain->vkSwapchain != VK_NULL_HANDLE) {
@@ -388,7 +390,10 @@ void CCVKDevice::destroy() {
         CC_SAFE_DESTROY(texture);
     }
     _depthStencilTextures.clear();
-    _gpuRecycleBin->clear();
+
+    if (_gpuRecycleBin) {
+        _gpuRecycleBin->clear();
+    }
 
     CC_SAFE_DESTROY(_queue);
     CC_SAFE_DELETE(_gpuSwapchain);
@@ -456,7 +461,7 @@ void CCVKDevice::buildSwapchain() {
     uint newHeight = surfaceCapabilities.currentExtent.height;
 
     if (context->swapchainCreateInfo.imageExtent.width == newWidth &&
-        context->swapchainCreateInfo.imageExtent.height == newHeight) {
+        context->swapchainCreateInfo.imageExtent.height == newHeight && _swapchainReady) {
         return;
     }
 
@@ -519,6 +524,41 @@ void CCVKDevice::buildSwapchain() {
 
         VK_CHECK(vkCreateImageView(_gpuDevice->vkDevice, &imageViewCreateInfo, nullptr, &_gpuSwapchain->vkSwapchainImageViews[i]));
     }
+
+    _gpuTransportHub->checkIn(
+        [&](VkCommandBuffer cmdBuff) {
+            bool hasStencil = GFX_FORMAT_INFOS[(uint)_context->getDepthStencilFormat()].hasStencil;
+            vector<VkImageMemoryBarrier> barriers(imageCount * 2, {VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER});
+            for (uint i = 0u; i < imageCount; i++) {
+                barriers[i].image = _gpuSwapchain->swapchainImages[i];
+                barriers[i].srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                barriers[i].dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                barriers[i].subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                barriers[i].subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+                barriers[i].subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+                barriers[i].srcAccessMask = 0;
+                barriers[i].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+                barriers[i].oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                barriers[i].newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+                barriers[imageCount + i].image = _gpuSwapchain->depthStencilImages[i];
+                barriers[imageCount + i].srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                barriers[imageCount + i].dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                barriers[imageCount + i].subresourceRange.aspectMask = hasStencil ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_DEPTH_BIT;
+                barriers[imageCount + i].subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+                barriers[imageCount + i].subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+                barriers[imageCount + i].srcAccessMask = 0;
+                barriers[imageCount + i].dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+                barriers[imageCount + i].oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                barriers[imageCount + i].newLayout = hasStencil ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+            }
+            vkCmdPipelineBarrier(cmdBuff, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                 VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, imageCount, barriers.data());
+            vkCmdPipelineBarrier(cmdBuff, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+                                 VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, imageCount, barriers.data() + imageCount);
+        },
+        true); // submit immediately
+
     _swapchainReady = true;
 
     for (FramebufferListMapIter it = _gpuSwapchain->vkSwapchainFramebufferListMap.begin();
@@ -559,12 +599,18 @@ void CCVKDevice::present() {
     presentInfo.pSwapchains = &_gpuSwapchain->vkSwapchain;
     presentInfo.pImageIndices = &_gpuSwapchain->curImageIndex;
 
-    VK_CHECK(vkQueuePresentKHR(queue->gpuQueue()->vkQueue, &presentInfo));
+    VkResult res = vkQueuePresentKHR(queue->gpuQueue()->vkQueue, &presentInfo);
+    //if (res) {
+    //    _swapchainReady = false;
+    //    CC_LOG_WARNING("QueuePresent reported: %d", res);
+    //}
 
     // TODO: these can be moved to acquire-time after pipeline refactoring,
     // which should guarantee that no transfer operation will be issued before acquiring
 
     VK_CHECK(vkDeviceWaitIdle(_gpuDevice->vkDevice));
+
+    if (!_swapchainReady) buildSwapchain();
 
     queue->gpuQueue()->lastAutoFence = VK_NULL_HANDLE;
     // reset everything only when no pending commands
