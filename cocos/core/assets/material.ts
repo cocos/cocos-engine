@@ -306,16 +306,12 @@ export class Material extends Asset {
             const len = propsArray.length;
             for (let i = 0; i < len; i++) {
                 const props = propsArray[i];
-                for (const p in props) {
-                    if (p === name) { return props[p]; }
-                }
+                if (name in props) { return props[name]; }
             }
         } else {
             if (passIdx >= this._props.length) { console.warn(`illegal pass index: ${passIdx}.`); return null; }
             const props = this._props[this._passes[passIdx].propertyIndex];
-            for (const p in props) {
-                if (p === name) { return props[p]; }
-            }
+            if (name in props) { return props[name]; }
         }
         return null;
     }

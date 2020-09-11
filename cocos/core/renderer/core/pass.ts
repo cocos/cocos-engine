@@ -404,7 +404,7 @@ export class Pass {
         const textureBase = builtinResMgr.get<TextureBase>(texName);
         const texture = textureBase && textureBase.getGFXTexture()!;
         const samplerHash = info && (info.samplerHash !== undefined) ? info.samplerHash : textureBase && textureBase.getSamplerHash();
-        const sampler = samplerLib.getSampler(this._device, samplerHash || 0);
+        const sampler = samplerLib.getSampler(this._device, samplerHash);
         this._descriptorSet.bindSampler(binding, sampler, index);
         this._descriptorSet.bindTexture(binding, texture, index);
     }
@@ -618,6 +618,7 @@ export class Pass {
     get blendState () { return BlendStatePool.get(PassPool.get(this._handle, PassView.BLEND_STATE)); }
     get dynamicStates () { return PassPool.get(this._handle, PassView.DYNAMIC_STATES); }
     get batchingScheme () { return PassPool.get(this._handle, PassView.BATCHING_SCHEME); }
+    get descriptorSet () { return this._descriptorSet; }
     get hash () { return PassPool.get(this._handle, PassView.HASH); }
 }
 

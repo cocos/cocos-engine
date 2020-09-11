@@ -101,7 +101,7 @@ class SamplerLib {
      * @param info 目标 sampler 属性
      */
     public getSampler (device: GFXDevice, hash: number) {
-        if (hash === 0) { hash = defaultSamplerHash; }
+        if (!hash) { hash = defaultSamplerHash; }
         const cache = this._cache[hash];
         if (cache) { return cache; }
 
