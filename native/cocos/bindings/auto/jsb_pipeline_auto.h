@@ -1,6 +1,5 @@
 #pragma once
 #include "base/Config.h"
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
 
 #include "cocos/bindings/jswrapper/SeApi.h"
 
@@ -134,4 +133,3 @@ extern se::Class* __jsb_cc_pipeline_RenderWindow_class;
 bool js_register_cc_pipeline_RenderWindow(se::Object* obj);
 bool register_all_pipeline(se::Object* obj);
 
-#endif //#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)

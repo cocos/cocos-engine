@@ -1,5 +1,4 @@
 #include "cocos/bindings/auto/jsb_pipeline_auto.h"
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "renderer/pipeline/forward/ForwardPipeline.h"
@@ -15,6 +14,8 @@
 #include "renderer/pipeline/Define.h"
 #include "renderer/pipeline/RenderView.h"
 #include "renderer/pipeline/helper/SharedMemory.h"
+#include "cocos/renderer/core/Core.h"
+#include "cocos/renderer/core/gfx/GFXDescriptorSet.h"
 
 #ifndef JSB_ALLOC
 #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
@@ -435,6 +436,24 @@ static bool js_pipeline_RenderPipeline_render(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_render)
 
+static bool js_pipeline_RenderPipeline_getDescriptorSet(se::State& s)
+{
+    cc::pipeline::RenderPipeline* cobj = (cc::pipeline::RenderPipeline*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_getDescriptorSet : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::gfx::DescriptorSet* result = cobj->getDescriptorSet();
+        ok &= native_ptr_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_pipeline_RenderPipeline_getDescriptorSet : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_pipeline_RenderPipeline_getDescriptorSet)
+
 static bool js_pipeline_RenderPipeline_initialize(se::State& s)
 {
     cc::pipeline::RenderPipeline* cobj = (cc::pipeline::RenderPipeline*)s.nativeThisObject();
@@ -494,6 +513,7 @@ bool js_register_pipeline_RenderPipeline(se::Object* obj)
 {
     auto cls = se::Class::create("RenderPipeline", obj, nullptr, nullptr);
 
+    cls->defineProperty("descriptorSet", _SE(js_pipeline_RenderPipeline_getDescriptorSet), nullptr);
     cls->defineFunction("activate", _SE(js_pipeline_RenderPipeline_activate));
     cls->defineFunction("render", _SE(js_pipeline_RenderPipeline_render));
     cls->defineFunction("initialize", _SE(js_pipeline_RenderPipeline_initialize));
@@ -2137,4 +2157,3 @@ bool register_all_pipeline(se::Object* obj)
     return true;
 }
 
-#endif //#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
