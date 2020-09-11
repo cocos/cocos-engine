@@ -418,24 +418,24 @@ export class Material extends Asset {
             } else if (val !== null) {
                 pass.setUniform(handle, val as MaterialProperty);
             } else {
-                pass.resetUniform(name);
+                pass.resetUniform(handle);
             }
         } else if (propertyType === PropertyType.SAMPLER) {
-            const binding = Pass.getBindingFromHandle(handle);
             if (Array.isArray(val)) {
                 for (let i = 0; i < val.length; i++) {
-                    this._bindTexture(pass, binding, val[i], i);
+                    this._bindTexture(pass, handle, val[i], i);
                 }
             } else if (val) {
-                this._bindTexture(pass, binding, val);
+                this._bindTexture(pass, handle, val);
             } else {
-                pass.resetTexture(name);
+                pass.resetTexture(handle);
             }
         }
         return true;
     }
 
-    protected _bindTexture (pass: Pass, binding: number, val: MaterialPropertyFull, index?: number) {
+    protected _bindTexture (pass: Pass, handle: number, val: MaterialPropertyFull, index?: number) {
+        const binding = Pass.getBindingFromHandle(handle);
         if (val instanceof GFXTexture) {
             pass.bindTexture(binding, val, index);
         } else if (val instanceof TextureBase || val instanceof SpriteFrame || val instanceof RenderTexture) {

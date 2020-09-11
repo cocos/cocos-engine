@@ -380,9 +380,7 @@ export class Pass {
      * @zh
      * 重置指定（非数组） Uniform 为 Effect 默认值。
      */
-    public resetUniform (name: string) {
-        const handle = this.getHandle(name)!;
-        if (!handle) return;
+    public resetUniform (handle: number) {
         const type = Pass.getTypeFromHandle(handle);
         const binding = Pass.getBindingFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
@@ -397,9 +395,7 @@ export class Pass {
      * @zh
      * 重置指定贴图为 Effect 默认值。
      */
-    public resetTexture (name: string, index?: number) {
-        const handle = this.getHandle(name);
-        if (!handle) return;
+    public resetTexture (handle: number, index?: number) {
         const type = Pass.getTypeFromHandle(handle);
         const binding = Pass.getBindingFromHandle(handle);
         const info = this._properties[name];
@@ -407,8 +403,8 @@ export class Pass {
         const texName = value ? value + '-texture' : getDefaultFromType(type) as string;
         const textureBase = builtinResMgr.get<TextureBase>(texName);
         const texture = textureBase && textureBase.getGFXTexture()!;
-        const samplerHash = info && (info.samplerHash !== undefined) ? info.samplerHash : textureBase.getSamplerHash();
-        const sampler = samplerLib.getSampler(this._device, samplerHash);
+        const samplerHash = info && (info.samplerHash !== undefined) ? info.samplerHash : textureBase && textureBase.getSamplerHash();
+        const sampler = samplerLib.getSampler(this._device, samplerHash || 0);
         this._descriptorSet.bindSampler(binding, sampler, index);
         this._descriptorSet.bindTexture(binding, texture, index);
     }
@@ -444,8 +440,9 @@ export class Pass {
         for (let i = 0; i < this._shaderInfo.samplers.length; i++) {
             const u = this._shaderInfo.samplers[i];
             if (isBuiltinBinding(u.set)) { continue; }
+            const handle = this.getHandle(u.name);
             for (let j = 0; j < u.count; j++) {
-                this.resetTexture(u.name, j);
+                this.resetTexture(handle, j);
             }
         }
     }
