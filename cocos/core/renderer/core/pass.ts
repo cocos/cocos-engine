@@ -380,7 +380,9 @@ export class Pass {
      * @zh
      * 重置指定（非数组） Uniform 为 Effect 默认值。
      */
-    public resetUniform (handle: number) {
+    public resetUniform (name: string) {
+        const handle = this.getHandle(name);
+        if (!handle) return;
         const type = Pass.getTypeFromHandle(handle);
         const binding = Pass.getBindingFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
@@ -395,7 +397,9 @@ export class Pass {
      * @zh
      * 重置指定贴图为 Effect 默认值。
      */
-    public resetTexture (handle: number, index?: number) {
+    public resetTexture (name: string, index?: number) {
+        const handle = this.getHandle(name);
+        if (!handle) return;
         const type = Pass.getTypeFromHandle(handle);
         const binding = Pass.getBindingFromHandle(handle);
         const info = this._properties[name];
@@ -440,9 +444,8 @@ export class Pass {
         for (let i = 0; i < this._shaderInfo.samplers.length; i++) {
             const u = this._shaderInfo.samplers[i];
             if (isBuiltinBinding(u.set)) { continue; }
-            const handle = this.getHandle(u.name);
             for (let j = 0; j < u.count; j++) {
-                this.resetTexture(handle, j);
+                this.resetTexture(u.name, j);
             }
         }
     }
