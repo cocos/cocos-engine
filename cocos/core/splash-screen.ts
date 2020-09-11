@@ -569,16 +569,16 @@ export class SplashScreen {
         delete SplashScreen._ins;
     }
 
-    private static _ins: SplashScreen;
+    private static _ins?: SplashScreen;
 
     public static get instance () {
-        if (SplashScreen._ins == null) {
+        if (!SplashScreen._ins) {
             SplashScreen._ins = new SplashScreen();
         }
         return SplashScreen._ins;
     }
 
-    private constructor () { };
+    private constructor () {}
 }
 
 legacyCC.internal.SplashScreen = SplashScreen;
