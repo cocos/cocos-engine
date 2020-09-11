@@ -269,8 +269,11 @@ export class Shadows {
         const root = legacyCC.director.root
         const pipeline = root.pipeline;
         const enable = this._enabled && this._type === ShadowType.ShadowMap;
-        if (pipeline.macros.CC_RECEIVE_SHADOW === enable) { return; }
-        pipeline.macros.CC_RECEIVE_SHADOW = enable;
+        if (enable) {
+            delete pipeline.macros.CC_RECEIVE_SHADOW;
+        } else {
+            pipeline.macros.CC_RECEIVE_SHADOW = false;
+        }
         root.onGlobalPipelineStateChanged();
     }
     public updateSphereLight (light: SphereLight) {

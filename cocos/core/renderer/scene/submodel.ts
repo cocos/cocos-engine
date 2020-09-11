@@ -12,12 +12,10 @@ const _dsInfo: IGFXDescriptorSetInfo = {
 };
 
 export class SubModel {
-
     protected _device: GFXDevice | null = null;
     protected _passes: Pass[] | null = null;
     protected _subMesh: RenderingSubMesh | null = null;
     protected _patches: IMacroPatch[] | null = null;
-
     protected _handle: SubModelHandle = NULL_HANDLE;
     protected _priority: RenderPriority = RenderPriority.DEFAULT;
     protected _inputAssembler: GFXInputAssembler | null = null;
@@ -108,6 +106,22 @@ export class SubModel {
     }
 
     public onPipelineStateChanged () {
+        const passes = this._passes;
+        if (!passes) { return; }
+
+        for (let i = 0; i < passes.length; i++) {
+            const pass = passes[i];
+            pass.beginChangeStatesSilently();
+            pass.tryCompile(); // force update shaders
+            pass.endChangeStatesSilently();
+        }
+
+        this._flushPassInfo();
+    }
+
+    public onMacroPatchesStateChanged (patches) {
+        this._patches = patches;
+
         const passes = this._passes;
         if (!passes) { return; }
 
