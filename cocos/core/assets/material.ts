@@ -414,7 +414,7 @@ export class Material extends Asset {
             } else if (val !== null) {
                 pass.setUniform(handle, val as MaterialProperty);
             } else {
-                pass.resetUniform(handle);
+                pass.resetUniform(name);
             }
         } else if (propertyType === PropertyType.SAMPLER) {
             if (Array.isArray(val)) {
@@ -424,7 +424,7 @@ export class Material extends Asset {
             } else if (val) {
                 this._bindTexture(pass, handle, val);
             } else {
-                pass.resetTexture(handle);
+                pass.resetTexture(name);
             }
         }
         return true;
