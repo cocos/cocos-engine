@@ -11,15 +11,15 @@ public:
     GLuint glArrayBuffer = 0;
     GLuint glElementArrayBuffer = 0;
     GLuint glUniformBuffer = 0;
-    GLuint glBindUBOs[GFX_MAX_BUFFER_BINDINGS] = {0};
-    GLuint glBindUBOOffsets[GFX_MAX_BUFFER_BINDINGS] = {0};
+    vector<GLuint> glBindUBOs;
+    vector<GLuint> glBindUBOOffsets;
     GLuint glVAO = 0;
     uint texUint = 0;
-    GLuint glTextures[GFX_MAX_TEXTURE_UNITS] = {0};
-    GLuint glSamplers[GFX_MAX_TEXTURE_UNITS] = {0};
+    vector<GLuint> glTextures;
+    vector<GLuint> glSamplers;
     GLuint glProgram = 0;
-    bool glEnabledAttribLocs[GFX_MAX_VERTEX_ATTRIBUTES] = {false};
-    bool glCurrentAttribLocs[GFX_MAX_VERTEX_ATTRIBUTES] = {false};
+    vector<bool> glEnabledAttribLocs;
+    vector<bool> glCurrentAttribLocs;
     GLuint glFramebuffer = 0;
     GLuint glReadFBO = 0;
     Viewport viewport;
@@ -31,7 +31,14 @@ public:
     bool isStencilTestEnabled = false;
     map<String, uint> texUnitCacheMap;
 
-    GLES3StateCache() {}
+    void initialize(size_t texUnits, size_t bufferBindings, size_t vertexAttributes) {
+        glBindUBOs.resize(bufferBindings, 0u);
+        glBindUBOOffsets.resize(bufferBindings, 0u);
+        glTextures.resize(texUnits, 0u);
+        glSamplers.resize(texUnits, 0u);
+        glEnabledAttribLocs.resize(vertexAttributes, false);
+        glCurrentAttribLocs.resize(vertexAttributes, false);
+    }
 };
 
 } // namespace gfx

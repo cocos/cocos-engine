@@ -72,6 +72,11 @@ static bool js_gfx_BindingMappingInfo_constructor(se::State &s) {
             ok &= seval_to_std_vector(field, &cobj->samplerOffsets);
         }
 
+        json->getProperty("flexibleSet", &field);
+        if (!field.isUndefined()) {
+            ok &= seval_to_uint32(field, &cobj->flexibleSet);
+        }
+
         if (!ok) {
             JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");

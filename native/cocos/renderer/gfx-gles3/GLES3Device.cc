@@ -139,6 +139,8 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     glGetIntegerv(GL_DEPTH_BITS, (GLint *)&_depthBits);
     glGetIntegerv(GL_STENCIL_BITS, (GLint *)&_stencilBits);
 
+    stateCache->initialize(_maxTextureUnits, _maxUniformBufferBindings, _maxVertexAttributes);
+
     return true;
 }
 

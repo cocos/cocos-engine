@@ -574,8 +574,8 @@ void GLES3CmdFuncDestroyBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
                 device->stateCache->glElementArrayBuffer = 0;
             }
         } else if (gpuBuffer->usage & BufferUsageBit::UNIFORM) {
-            GLuint *ubo = device->stateCache->glBindUBOs;
-            for (auto i = 0; i < GFX_MAX_BUFFER_BINDINGS; i++) {
+            vector<GLuint> &ubo = device->stateCache->glBindUBOs;
+            for (size_t i = 0; i < ubo.size(); i++) {
                 if (ubo[i] == gpuBuffer->glBuffer) {
                     glBindBufferBase(GL_UNIFORM_BUFFER, i, 0);
                     device->stateCache->glUniformBuffer = 0;
@@ -1146,7 +1146,7 @@ void GLES3CmdFuncCreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
 
     for (uint i = 0u; i < gpuShader->samplers.size(); i++) {
         const UniformSampler &sampler = gpuShader->samplers[i];
-        uint glLoc = glGetUniformLocation(gpuShader->glProgram, sampler.name.c_str());
+        GLint glLoc = glGetUniformLocation(gpuShader->glProgram, sampler.name.c_str());
         if (glLoc >= 0) {
             glActiveSamplers.push_back(gpuShader->glSamplers[i]);
             glActiveSamplerLocations.push_back(glLoc);
@@ -1160,7 +1160,7 @@ void GLES3CmdFuncCreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
     }
 
     if (glActiveSamplers.size()) {
-        bool usedTexUnits[GFX_MAX_TEXTURE_UNITS]{};
+        vector<bool> usedTexUnits(device->getMaxTextureUnits(), false);
         // try to reuse existing mappings first
         for (uint i = 0u; i < glActiveSamplers.size(); i++) {
             GLES3GPUUniformSampler &glSampler = glActiveSamplers[i];
@@ -1168,10 +1168,12 @@ void GLES3CmdFuncCreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
             if (texUnitCacheMap.count(glSampler.name)) {
                 uint cachedUnit = texUnitCacheMap[glSampler.name];
                 glSampler.glLoc = glActiveSamplerLocations[i];
-                for (uint t = 0u, offset = 0u; t < glSampler.count; t++) {
-                    while (usedTexUnits[cachedUnit + t + offset]) offset++;
-                    glSampler.units.push_back(cachedUnit + t + offset);
-                    usedTexUnits[cachedUnit + t + offset] = true;
+                for (uint t = 0u; t < glSampler.count; t++) {
+                    while (usedTexUnits[cachedUnit]) {
+                        cachedUnit = (cachedUnit + 1) % device->getMaxTextureUnits();
+                    }
+                    glSampler.units.push_back(cachedUnit);
+                    usedTexUnits[cachedUnit] = true;
                 }
             }
         }
@@ -1183,12 +1185,14 @@ void GLES3CmdFuncCreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
             if (glSampler.glLoc < 0) {
                 glSampler.glLoc = glActiveSamplerLocations[i];
                 for (uint t = 0u; t < glSampler.count; t++) {
-                    while (usedTexUnits[unitIdx + t]) unitIdx++;
-                    glSampler.units.push_back(unitIdx + t);
-                    usedTexUnits[unitIdx + t] = true;
-                }
-                if (!texUnitCacheMap.count(glSampler.name)) {
-                    texUnitCacheMap[glSampler.name] = unitIdx;
+                    while (usedTexUnits[unitIdx]) {
+                        unitIdx = (unitIdx + 1) % device->getMaxTextureUnits();
+                    }
+                    if (!texUnitCacheMap.count(glSampler.name)) {
+                        texUnitCacheMap[glSampler.name] = unitIdx;
+                    }
+                    glSampler.units.push_back(unitIdx);
+                    usedTexUnits[unitIdx] = true;
                 }
             }
         }
@@ -1236,7 +1240,7 @@ void GLES3CmdFuncCreateInputAssembler(GLES3Device *device, GLES3GPUInputAssemble
         }
     }
 
-    uint streamOffsets[GFX_MAX_VERTEX_ATTRIBUTES] = {0};
+    vector<uint> streamOffsets(device->getMaxVertexAttributes(), 0u);
 
     gpuInputAssembler->glAttribs.resize(gpuInputAssembler->attributes.size());
     for (size_t i = 0; i < gpuInputAssembler->glAttribs.size(); ++i) {
@@ -1915,7 +1919,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
                             cache->glVAO = glVAO;
                         }
                     } else {
-                        for (uint a = 0; a < GFX_MAX_VERTEX_ATTRIBUTES; ++a) {
+                        for (uint a = 0; a < cache->glCurrentAttribLocs.size(); ++a) {
                             cache->glCurrentAttribLocs[a] = false;
                         }
 
@@ -1950,7 +1954,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
                             }
                         }
 
-                        for (uint a = 0; a < GFX_MAX_VERTEX_ATTRIBUTES; ++a) {
+                        for (uint a = 0; a < cache->glCurrentAttribLocs.size(); ++a) {
                             if (cache->glEnabledAttribLocs[a] != cache->glCurrentAttribLocs[a]) {
                                 glDisableVertexAttribArray(a);
                                 cache->glEnabledAttribLocs[a] = false;

@@ -1049,7 +1049,7 @@ void GLES2CmdFuncCreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
 
     for (uint i = 0u; i < gpuShader->samplers.size(); i++) {
         const UniformSampler &sampler = gpuShader->samplers[i];
-        uint glLoc = glGetUniformLocation(gpuShader->glProgram, sampler.name.c_str());
+        GLint glLoc = glGetUniformLocation(gpuShader->glProgram, sampler.name.c_str());
         if (glLoc >= 0) {
             glActiveSamplers.push_back(gpuShader->glSamplers[i]);
             glActiveSamplerLocations.push_back(glLoc);
@@ -1063,7 +1063,7 @@ void GLES2CmdFuncCreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
     }
 
     if (glActiveSamplers.size()) {
-        bool usedTexUnits[GFX_MAX_TEXTURE_UNITS]{};
+        vector<bool> usedTexUnits(device->getMaxTextureUnits(), false);
         // try to reuse existing mappings first
         for (uint i = 0u; i < glActiveSamplers.size(); i++) {
             GLES2GPUUniformSampler &glSampler = glActiveSamplers[i];
@@ -1147,7 +1147,7 @@ void GLES2CmdFuncCreateInputAssembler(GLES2Device *device, GLES2GPUInputAssemble
         }
     }
 
-    uint streamOffsets[GFX_MAX_VERTEX_ATTRIBUTES] = {0};
+    vector<uint> streamOffsets(device->getMaxVertexAttributes(), 0u);
 
     gpuInputAssembler->glAttribs.resize(gpuInputAssembler->attributes.size());
     for (size_t i = 0; i < gpuInputAssembler->glAttribs.size(); ++i) {
@@ -1965,7 +1965,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
                             cache->glVAO = glVAO;
                         }
                     } else {
-                        for (uint a = 0; a < GFX_MAX_VERTEX_ATTRIBUTES; ++a) {
+                        for (uint a = 0; a < cache->glCurrentAttribLocs.size(); ++a) {
                             cache->glCurrentAttribLocs[a] = false;
                         }
 
@@ -2003,7 +2003,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
                             }
                         }
 
-                        for (uint a = 0; a < GFX_MAX_VERTEX_ATTRIBUTES; ++a) {
+                        for (uint a = 0; a < cache->glCurrentAttribLocs.size(); ++a) {
                             if (cache->glEnabledAttribLocs[a] != cache->glCurrentAttribLocs[a]) {
                                 glDisableVertexAttribArray(a);
                                 cache->glEnabledAttribLocs[a] = false;

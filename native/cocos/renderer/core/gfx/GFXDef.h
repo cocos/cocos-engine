@@ -23,10 +23,7 @@ class Queue;
 class Window;
 class Context;
 
-#define GFX_MAX_VERTEX_ATTRIBUTES 16
-#define GFX_MAX_TEXTURE_UNITS     16
 #define GFX_MAX_ATTACHMENTS       4
-#define GFX_MAX_BUFFER_BINDINGS   24
 #define GFX_INVALID_BINDING       ((uint8_t)-1)
 #define GFX_INVALID_HANDLE        ((uint)-1)
 #define MAX_INFLIGHT_BUFFER       3
@@ -666,8 +663,8 @@ typedef vector<Color> ColorList;
  * exact offsets for each descriptor type in each set.
  */
 struct BindingMappingInfo {
-    vector<uint> bufferOffsets;
-    vector<uint> samplerOffsets;
+    vector<int> bufferOffsets;
+    vector<int> samplerOffsets;
     uint flexibleSet = 0u;
 };
 

@@ -143,6 +143,8 @@ bool GLES2Device::initialize(const DeviceInfo &info) {
     glGetIntegerv(GL_STENCIL_BITS, (GLint *)&_stencilBits);
     _uboOffsetAlignment = 1u;
 
+    stateCache->initialize(_maxTextureUnits, _maxVertexAttributes);
+
     return true;
 }
 

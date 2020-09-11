@@ -144,7 +144,7 @@ void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descri
 
     vector<std::tuple<int /**vertexBufferBindingIndex*/, uint /**stream*/>> layouts;
     unordered_map<int /**vertexBufferBindingIndex*/, std::tuple<uint /**stride*/, bool /**isInstanced*/>> map;
-    uint streamOffsets[GFX_MAX_VERTEX_ATTRIBUTES] = {0};
+    vector<uint> streamOffsets(_device->getMaxVertexAttributes(), 0u);
     bool attributeFound = false;
     for (const auto &activeAttribute : activeAttributes) {
         attributeFound = false;

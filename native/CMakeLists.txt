@@ -1088,12 +1088,17 @@ if(CC_USE_VULKAN)
     else()
         target_compile_definitions(cocos2d PUBLIC VK_USE_PLATFORM_XCB_KHR)
     endif()
+endif()
 
-elseif(CC_USE_METAL)
+if(CC_USE_METAL)
     target_compile_definitions(cocos2d PUBLIC CC_USE_METAL)
-elseif(CC_USE_GLES3)
+endif()
+
+if(CC_USE_GLES3)
     target_compile_definitions(cocos2d PUBLIC CC_USE_GLES3)
-elseif(CC_USE_GLES2)
+endif()
+
+if(CC_USE_GLES2)
     target_compile_definitions(cocos2d PUBLIC CC_USE_GLES2)
 endif()
 
