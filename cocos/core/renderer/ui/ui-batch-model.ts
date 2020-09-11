@@ -46,6 +46,7 @@ export class UIBatchModel extends Model {
         super.initialize();
 
         this._subModel = new UISubModel();
+        this._subModel.initialize();
         this._subModels[0] = this._subModel;
     }
 
@@ -76,12 +77,15 @@ export class UIBatchModel extends Model {
 
 class UISubModel extends SubModel {
 
+    public initialize () {
+        this._handle = SubModelPool.alloc();
+        SubModelPool.set(this._handle, SubModelView.PRIORITY, RenderPriority.DEFAULT);
+    }
+
     public directInitialize (passes: Pass[], iaHandle: InputAssemblerHandle, dsHandle: DescriptorSetHandle) {
         this._passes = passes;
-        this._handle = SubModelPool.alloc();
         this._flushPassInfo();
 
-        SubModelPool.set(this._handle, SubModelView.PRIORITY, RenderPriority.DEFAULT);
         SubModelPool.set(this._handle, SubModelView.INPUT_ASSEMBLER, iaHandle);
         SubModelPool.set(this._handle, SubModelView.DESCRIPTOR_SET, dsHandle);
 
@@ -91,6 +95,7 @@ class UISubModel extends SubModel {
 
     public destroy () {
         SubModelPool.free(this._handle);
+        this._handle = NULL_HANDLE;
 
         this._descriptorSet = null;
         this._inputAssembler = null;
