@@ -95,7 +95,6 @@ class UISubModel extends SubModel {
 
     public destroy () {
         SubModelPool.free(this._handle);
-        this._handle = NULL_HANDLE;
 
         this._descriptorSet = null;
         this._inputAssembler = null;
