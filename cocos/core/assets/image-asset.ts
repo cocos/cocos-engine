@@ -32,7 +32,7 @@ import {ccclass, override} from 'cc.decorator';
 import { GFXDevice, GFXFeature } from '../gfx/device';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
-import { EDITOR, MINIGAME } from 'internal:constants';
+import { EDITOR, MINIGAME, ALIPAY } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 
@@ -54,6 +54,19 @@ export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSou
 
 function fetchImageSource (imageSource: ImageSource) {
     return '_data' in imageSource ? imageSource._data : imageSource;
+}
+
+/**
+ * 返回该图像源是否是平台提供的图像对象。
+ * @param imageSource 
+ */
+function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement) {
+    if (ALIPAY) {
+        // We're unable to grab the constructors of Alipay native image or canvas object.
+        return !('_data' in imageSource);
+    } else {
+        return imageSource instanceof HTMLImageElement || imageSource instanceof HTMLCanvasElement;
+    }
 }
 
 /**
@@ -79,7 +92,7 @@ export class ImageAsset extends Asset {
      * 此图像资源的图像数据。
      */
     get data () {
-        if (this._nativeData instanceof HTMLImageElement || this._nativeData instanceof HTMLCanvasElement) {
+        if (isNativeImage(this._nativeData)) {
             return this._nativeData;
         } else {
             return this._nativeData._data;
