@@ -333,9 +333,10 @@ export class UI {
                     this._scene.addModel(uiModel);
                     uiModel.subModels[0].priority = batchPriority++;
                     if (batch.camera) {
-                        uiModel.visFlags = batch.camera.view.visibility;
-                        if (this._canvasMaterials.get(batch.camera.view.visibility)!.get(batch.material!.hash) == null) {
-                            this._canvasMaterials.get(batch.camera.view.visibility)!.set(batch.material!.hash, 1);
+                        const viewVisibility = batch.camera.view.visibility;
+                        uiModel.visFlags = viewVisibility;
+                        if (this._canvasMaterials.get(viewVisibility)!.get(batch.material!.hash) == null) {
+                            this._canvasMaterials.get(viewVisibility)!.set(batch.material!.hash, 1);
                         }
                     }
                     this._modelInUse.push(uiModel);
