@@ -38,13 +38,25 @@ import { IAssembler } from '../../core/renderer/ui/base';
 import { UI } from '../../core/renderer/ui/ui';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
-import { legacyCC } from '../../core/global-exports';
+import { Mesh, GFXFormat, GFXPrimitiveMode } from '../../core';
+import { BufferBlob } from '../../core/3d/misc/buffer-blob';
+import { SubModel } from '../../core/renderer/scene';
+import { vfmt, getAttributeStride } from '../../core/renderer/ui/ui-vertex-format';
 
 const _matInsInfo: IMaterialInstanceInfo = {
     parent: null!,
     owner: null!,
     subModelIdx: 0,
 };
+
+const attributes = vfmt.concat([
+    {
+        name: 'a_dist',
+        format: GFXFormat.R32F,
+    },
+]);
+
+const stride = getAttributeStride(attributes);
 
 /**
  * @en
@@ -217,6 +229,8 @@ export class Graphics extends UIRenderable {
     @serializable
     protected _miterLimit = 10;
 
+    protected _isDrawing = false;
+
     constructor (){
         super();
         this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
@@ -238,9 +252,8 @@ export class Graphics extends UIRenderable {
 
     public onLoad () {
         this._sceneGetter = director.root!.ui.getRenderSceneGetter();
-        if (!this.model) {
-            this.model = director.root!.createModel(scene.Model);
-        }
+        this._rebuildModel();
+
         this.helpInstanceMaterial();
     }
 
@@ -262,6 +275,7 @@ export class Graphics extends UIRenderable {
             return;
         }
 
+        this._isDrawing = false;
         this.impl.clear();
         this.impl = null;
     }
@@ -477,10 +491,13 @@ export class Graphics extends UIRenderable {
         }
 
         this.impl.clear(clean);
-        this._detachFromScene();
-        if(this.model){
+        this._isDrawing = false;
+        if (this.model) {
             this.model.destroy();
+            this._rebuildModel();
         }
+
+        this._detachFromScene();
         this.markForUpdateRenderData();
     }
 
@@ -511,6 +528,8 @@ export class Graphics extends UIRenderable {
         if (!this._assembler) {
             this._flushAssembler();
         }
+
+        this._isDrawing = true;
         (this._assembler as IAssembler).stroke!(this);
         this._attachToScene();
     }
@@ -526,6 +545,8 @@ export class Graphics extends UIRenderable {
         if (!this._assembler) {
             this._flushAssembler();
         }
+
+        this._isDrawing = true;
         (this._assembler as IAssembler).fill!(this);
         this._attachToScene();
     }
@@ -558,6 +579,57 @@ export class Graphics extends UIRenderable {
         }
     }
 
+    public activeSubModel (idx: number) {
+        if (!this.model) {
+            console.warn(`There is no model in ${this.node.name}`);
+            return;
+        }
+
+        if (this.model.subModels.length <= idx) {
+            const mesh = new Mesh();
+            const vertexBuffer = new ArrayBuffer(65535 * stride);
+            const bufferBlob = new BufferBlob();
+            bufferBlob.setNextAlignment(0);
+            const vertexBundle: Mesh.IVertexBundle = {
+                attributes,
+                view: {
+                    offset: bufferBlob.getLength(),
+                    length: vertexBuffer.byteLength,
+                    count: 65535,
+                    stride,
+                },
+            };
+            bufferBlob.addBuffer(vertexBuffer);
+
+            const primitive: Mesh.ISubMesh = {
+                primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
+                vertexBundelIndices: [0],
+            };
+            const idxStride = 2;
+            const indexBuffer = new ArrayBuffer(idxStride * 65535);
+            bufferBlob.setNextAlignment(idxStride);
+            primitive.indexView = {
+                offset: bufferBlob.getLength(),
+                length: indexBuffer.byteLength,
+                count: 65535,
+                stride: idxStride,
+            };
+            bufferBlob.addBuffer(indexBuffer);
+
+            const meshStruct = {
+                vertexBundles: [vertexBundle],
+                primitives: [primitive],
+            };
+
+            mesh.reset({
+                struct: meshStruct,
+                data: new Uint8Array(bufferBlob.getCombined()),
+            });
+
+            this.model.initSubModel(idx, mesh.renderingSubMeshes[0], this.getUIMaterialInstance());
+        }
+    }
+
     protected _render (render: UI) {
         render.commitModel(this, this.model, this._uiMaterialIns);
     }
@@ -575,7 +647,7 @@ export class Graphics extends UIRenderable {
             return false;
         }
 
-        return !!this.model && this.model.inited;
+        return !!this.model && this._isDrawing;
     }
 
     protected _attachToScene () {
@@ -594,6 +666,15 @@ export class Graphics extends UIRenderable {
         if (this.model && this.model.scene) {
             this.model.scene.removeModel(this.model);
             this.model.scene = null;
+        }
+    }
+
+    protected _rebuildModel () {
+        if (!this.model) {
+            this.model = director.root!.createModel(scene.Model);
+            this.model.node = this.model.transform = this.node;
+        } else if (!this.model.inited) {
+            this.model.initialize();
         }
     }
 }

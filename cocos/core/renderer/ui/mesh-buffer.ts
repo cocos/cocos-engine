@@ -32,6 +32,7 @@ import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { UI } from './ui';
 import { InputAssemblerHandle, NULL_HANDLE, IAPool } from '../core/memory-pools';
+import { getAttributeFormatBytes } from './ui-vertex-format';
 
 export class MeshBuffer {
     public static OPACITY_OFFSET = 8;
@@ -56,8 +57,8 @@ export class MeshBuffer {
     // include pos, uv, color in ui attributes
     private _batcher: UI;
     private _dirty = false;
-    private _vertexFormatBytes = 9 * Float32Array.BYTES_PER_ELEMENT;
-    private _initVDataCount = 256 * this._vertexFormatBytes;
+    private _vertexFormatBytes = 0;
+    private _initVDataCount = 0;
     private _initIDataCount = 256 * 6;
     private _outOfCallback: ((...args: number[]) => void) | null = null;
     private _hInputAssemblers: InputAssemblerHandle[] = [];
@@ -69,23 +70,30 @@ export class MeshBuffer {
 
     public initialize (attrs: IGFXAttribute[], outOfCallback: ((...args: number[]) => void) | null) {
         this._outOfCallback = outOfCallback;
-        const vbStride = Float32Array.BYTES_PER_ELEMENT * 9;
+        const formatBytes = getAttributeFormatBytes(attrs);
+        this._vertexFormatBytes = formatBytes * Float32Array.BYTES_PER_ELEMENT;
+        this._initVDataCount = 256 * this._vertexFormatBytes;
+        const vbStride = Float32Array.BYTES_PER_ELEMENT * formatBytes;
 
-        if (!this.vertexBuffers.length) this.vertexBuffers.push(this._batcher.device.createBuffer({
-            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: vbStride,
-            stride: vbStride,
-        }));
+        if (!this.vertexBuffers.length) {
+            this.vertexBuffers.push(this._batcher.device.createBuffer({
+                usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                size: vbStride,
+                stride: vbStride,
+            }));
+        }
 
         const ibStride = Uint16Array.BYTES_PER_ELEMENT;
 
-        if (!this.indexBuffer) this.indexBuffer = this._batcher.device.createBuffer({
-            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: ibStride,
-            stride: ibStride,
-        });
+        if (!this.indexBuffer) {
+            this.indexBuffer = this._batcher.device.createBuffer({
+                usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                size: ibStride,
+                stride: ibStride,
+            });
+        }
 
         this.attributes = attrs;
 
@@ -158,7 +166,9 @@ export class MeshBuffer {
 
     public recordBatch (): InputAssemblerHandle {
         const vCount = this.indicesOffset - this.indicesStart;
-        if (!vCount) return NULL_HANDLE;
+        if (!vCount) {
+            return NULL_HANDLE;
+        }
 
         if (this._hInputAssemblers.length <= this._nextFreeIAHandle) {
             this._hInputAssemblers.push(IAPool.alloc(this._batcher.device, this));
