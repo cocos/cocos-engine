@@ -26,9 +26,25 @@
  * @packageDocumentation
  * @hidden
  */
-import { GFXAttributeName, GFXFormat } from '../../gfx/define';
+import { GFXAttributeName, GFXFormat, GFXFormatInfos } from '../../gfx/define';
 
-export const vfmt = [
+interface IVfmt {
+    name: string;
+    format: GFXFormat;
+}
+
+export const vfmt: IVfmt[] = [
+    {
+        name: GFXAttributeName.ATTR_POSITION,
+        format: GFXFormat.RGB32F,
+    },
+    {
+        name: GFXAttributeName.ATTR_COLOR,
+        format: GFXFormat.RGBA32F,
+    },
+];
+
+export const vfmtPosUvColor = [
     {
         name: GFXAttributeName.ATTR_POSITION,
         format: GFXFormat.RGB32F,
@@ -42,3 +58,25 @@ export const vfmt = [
         format: GFXFormat.RGBA32F,
     },
 ];
+
+export function getAttributeFormatBytes (attrs: IVfmt[]) {
+    let count = 0;
+    for (let i = 0; i < attrs.length; i++) {
+        const attr = attrs[i];
+        const info = GFXFormatInfos[attr.format];
+        count += info.count;
+    }
+
+    return count;
+}
+
+export function getAttributeStride (attrs: IVfmt[]) {
+    let count = 0;
+    for (let i = 0; i < attrs.length; i++) {
+        const attr = attrs[i];
+        const info = GFXFormatInfos[attr.format];
+        count += info.size;
+    }
+
+    return count;
+}
