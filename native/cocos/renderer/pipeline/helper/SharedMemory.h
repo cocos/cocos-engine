@@ -1,6 +1,7 @@
 #pragma once
 #include "renderer/core/CoreStd.h"
 
+#undef __SSE__ //undefine it since variables of type __m128 are automatically aligned on 16-byte boundaries, result in incorrectly mapping to shared memory.
 #include "math/Vec2.h"
 #include "math/Vec3.h"
 #include "math/Vec4.h"
