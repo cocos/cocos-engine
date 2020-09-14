@@ -251,16 +251,7 @@ let VideoPlayerImpl = cc.Class({
     play: function () {
         let video = this._video;
         if (!video || !this._visible || this._playing) return;
-
-        if (VideoPlayerImpl._polyfill.autoplayAfterOperation) {
-            let self = this;
-            setTimeout(function () {
-                video.play();
-            }, 20);
-        }
-        else {
-            video.play();
-        }
+        video.play();
     },
 
     pause: function () {
@@ -306,11 +297,6 @@ let VideoPlayerImpl = cc.Class({
                 video.removeEventListener(VideoPlayerImpl._polyfill.event, cb);
             };
             video.addEventListener(VideoPlayerImpl._polyfill.event, cb);
-        }
-        if (VideoPlayerImpl._polyfill.autoplayAfterOperation && this.isPlaying()) {
-            setTimeout(function () {
-                video.play();
-            }, 20);
         }
     },
 
@@ -581,10 +567,6 @@ if (dom.canPlayType) {
     if (dom.canPlayType("video/webm")) {
         VideoPlayerImpl._polyfill.canPlayType.push(".webm");
     }
-}
-
-if (sys.browserType === sys.BROWSER_TYPE_FIREFOX) {
-    VideoPlayerImpl._polyfill.autoplayAfterOperation = true;
 }
 
 if (
