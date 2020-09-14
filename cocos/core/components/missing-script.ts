@@ -38,20 +38,6 @@ import { warnID } from '../platform/debug';
 
 /**
  * @en
- * A temp fallback to contain the original serialized data which can not be loaded.
- * @zh
- * 包含无法加载的原始序列化数据的临时回退。
- */
-@ccclass('cc.MissingClass')
-class MissingClass {
-    // the serialized data for original object
-    @serializable
-    @editorOnly
-    public _$erialized = null;
-}
-
-/**
- * @en
  * A temp fallback to contain the original component which can not be loaded.
  * @zh
  * 包含无法加载的原始组件的临时回退。
@@ -74,25 +60,12 @@ export default class MissingScript extends Component {
      * @param {string} id
      * @return {function} constructor
      */
-    public static safeFindClass (id: string, data) {
+    public static safeFindClass (id: string) {
         const cls = _getClassById(id);
         if (cls) {
             return cls;
         }
-        if (id) {
-            legacyCC.deserialize.reportMissingClass(id);
-            return MissingScript.getMissingWrapper(id, data);
-        }
-        return null;
-    }
-    public static getMissingWrapper (id, data) {
-        if (data.node && (/^[0-9a-zA-Z+/]{23}$/.test(id) || BUILTIN_CLASSID_RE.test(id))) {
-            // is component
-            return MissingScript;
-        }
-        else {
-            return MissingClass;
-        }
+        legacyCC.deserialize.reportMissingClass(id);
     }
 
     @editable

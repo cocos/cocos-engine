@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { EDITOR, TEST, DEV, JSB, PREVIEW, SUPPORT_JIT } from 'internal:constants';
+import { EDITOR, TEST, DEV, BUILD, JSB, PREVIEW, SUPPORT_JIT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 import * as js from '../utils/js';
@@ -402,7 +402,7 @@ class _Deserializer {
         this.deserializedList = [];
         this.deserializedData = null;
         this._classFinder = classFinder;
-        if (DEV) {
+        if (!BUILD) {
             this._target = target;
             this._ignoreEditorOnly = ignoreEditorOnly;
         }
@@ -461,7 +461,6 @@ class _Deserializer {
 
     /*
      * @param {Object} serialized - The obj to deserialize, must be non-nil
-     * @param {Boolean} _stillUseUrl
      * @param {Object} [target=null] - editor only
      * @param {Object} [owner] - debug only
      * @param {String} [propName] - debug only
@@ -526,7 +525,7 @@ class _Deserializer {
                 }
                 catch (e) {
                     console.error('deserialize ' + klass.name + ' failed, ' + e.stack);
-                    klass = MissingScript.getMissingWrapper(type, serialized);
+                    klass = MissingScript;
                     legacyCC.deserialize.reportMissingClass(type);
                     deserializeByType();
                 }
@@ -715,7 +714,7 @@ _Deserializer.pool.get = function (result, target, classFinder, customEnv, ignor
         cache.result = result;
         cache.customEnv = customEnv;
         cache._classFinder = classFinder;
-        if (DEV) {
+        if (!BUILD) {
             cache._target = target;
             cache._ignoreEditorOnly = ignoreEditorOnly;
         }

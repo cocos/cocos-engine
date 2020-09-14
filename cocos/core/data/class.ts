@@ -52,7 +52,7 @@ import { legacyCC } from '../global-exports';
 const DELIMETER = attributeUtils.DELIMETER;
 
 const BUILTIN_ENTRIES = ['name', 'extends', 'mixins', 'ctor', '__ctor__', 'properties', 'statics', 'editor', '__ES6__'];
-const INVALID_STATICS_DEV = ['name', '__ctors__', '__props__', 'arguments', 'call', 'apply', 'caller', 'length', 'prototype'];
+const INVALID_STATICS_DEV = ['name', '__ctors__', '__props__', '__values__', 'arguments', 'call', 'apply', 'caller', 'length', 'prototype'];
 
 function pushUnique (array, item) {
     if (array.indexOf(item) < 0) {

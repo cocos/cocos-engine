@@ -269,7 +269,8 @@ export function formatStr (msg: string | any, ...subst: any[]) {
         for (const arg of subst) {
             const regExpToTest = typeof arg === 'number' ? REGEXP_NUM_OR_STR : REGEXP_STR;
             if (regExpToTest.test(msg)) {
-                msg = msg.replace(regExpToTest, arg);
+                const notReplaceFunction = '' + arg;
+                msg = msg.replace(regExpToTest, notReplaceFunction);
             }
             else {
                 msg += ' ' + arg;

@@ -35,7 +35,7 @@ import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
 import { RenderTexture } from './render-texture';
 import { TextureBase } from './texture-base';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { ImageAsset, ImageSource } from './image-asset';
 import { Texture2D } from './texture-2d';
@@ -861,47 +861,49 @@ export class SpriteFrame extends Asset {
 
     // SERIALIZATION
     public _serialize (exporting?: any): any {
-        const rect = this._rect;
-        const offset = this._offset;
-        const originalSize = this._originalSize;
-        let uuid = this._uuid;
-        let texture;
-        if (this._texture) {
-            texture = this._texture._uuid;
-        }
+        if (EDITOR || TEST) {
+            const rect = this._rect;
+            const offset = this._offset;
+            const originalSize = this._originalSize;
+            let uuid = this._uuid;
+            let texture;
+            if (this._texture) {
+                texture = this._texture._uuid;
+            }
 
-        if (uuid && exporting) {
-            uuid = EditorExtends.UuidUtils.compressUuid(uuid, true);
-        }
-        if (texture && exporting) {
-            texture = EditorExtends.UuidUtils.compressUuid(texture, true);
-        }
+            if (uuid && exporting) {
+                uuid = EditorExtends.UuidUtils.compressUuid(uuid, true);
+            }
+            if (texture && exporting) {
+                texture = EditorExtends.UuidUtils.compressUuid(texture, true);
+            }
 
-        let vertices;
-        if (this.vertices) {
-            vertices = {
-                triangles: this.vertices.triangles,
-                x: this.vertices.x,
-                y: this.vertices.y,
-                u: this.vertices.u,
-                v: this.vertices.v,
+            let vertices;
+            if (this.vertices) {
+                vertices = {
+                    triangles: this.vertices.triangles,
+                    x: this.vertices.x,
+                    y: this.vertices.y,
+                    u: this.vertices.u,
+                    v: this.vertices.v,
+                };
+            }
+
+            const serialize = {
+                name: this._name,
+                atlas: exporting ? undefined : this._atlasUuid,  // strip from json if exporting
+                rect,
+                offset,
+                originalSize,
+                rotated: this._rotated,
+                capInsets: this._capInsets,
+                vertices,
+                texture,
             };
+
+            // 为 underfined 的数据则不在序列化文件里显示
+            return serialize;
         }
-
-        const serialize = {
-            name: this._name,
-            atlas: exporting ? undefined : this._atlasUuid,  // strip from json if exporting
-            rect,
-            offset,
-            originalSize,
-            rotated: this._rotated,
-            capInsets: this._capInsets,
-            vertices,
-            texture,
-        };
-
-        // 为 underfined 的数据则不在序列化文件里显示
-        return serialize;
     }
 
     public _deserialize (serializeData: any, handle: any) {

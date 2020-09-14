@@ -27,6 +27,7 @@
  * @category asset
  */
 
+import { EDITOR, TEST } from "internal:constants";
 import { ccclass, serializable } from 'cc.decorator';
 import { GFXTextureFlagBit, GFXTextureType } from '../gfx/define';
 import { ImageAsset } from './image-asset';
@@ -220,24 +221,26 @@ export class TextureCube extends SimpleTexture {
     }
 
     public _serialize (exporting?: any) {
-        return {
-            base: super._serialize(),
-            mipmaps: this._mipmaps.map((mipmap) => exporting ? {
-                front: EditorExtends.UuidUtils.compressUuid(mipmap.front._uuid, true),
-                back: EditorExtends.UuidUtils.compressUuid(mipmap.back._uuid, true),
-                left: EditorExtends.UuidUtils.compressUuid(mipmap.left._uuid, true),
-                right: EditorExtends.UuidUtils.compressUuid(mipmap.right._uuid, true),
-                top: EditorExtends.UuidUtils.compressUuid(mipmap.top._uuid, true),
-                bottom: EditorExtends.UuidUtils.compressUuid(mipmap.bottom._uuid, true),
-            } : {
-                front: mipmap.front._uuid,
-                back: mipmap.back._uuid,
-                left: mipmap.left._uuid,
-                right: mipmap.right._uuid,
-                top: mipmap.top._uuid,
-                bottom: mipmap.bottom._uuid,
-            }),
-        };
+        if (EDITOR || TEST) {
+            return {
+                base: super._serialize(),
+                mipmaps: this._mipmaps.map((mipmap) => exporting ? {
+                    front: EditorExtends.UuidUtils.compressUuid(mipmap.front._uuid, true),
+                    back: EditorExtends.UuidUtils.compressUuid(mipmap.back._uuid, true),
+                    left: EditorExtends.UuidUtils.compressUuid(mipmap.left._uuid, true),
+                    right: EditorExtends.UuidUtils.compressUuid(mipmap.right._uuid, true),
+                    top: EditorExtends.UuidUtils.compressUuid(mipmap.top._uuid, true),
+                    bottom: EditorExtends.UuidUtils.compressUuid(mipmap.bottom._uuid, true),
+                } : {
+                    front: mipmap.front._uuid,
+                    back: mipmap.back._uuid,
+                    left: mipmap.left._uuid,
+                    right: mipmap.right._uuid,
+                    top: mipmap.top._uuid,
+                    bottom: mipmap.bottom._uuid,
+                }),
+            };
+        }
     }
 
     public _deserialize (serializedData: ITextureCubeSerializeData, handle: any) {

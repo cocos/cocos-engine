@@ -28,6 +28,7 @@
  * @category asset
  */
 
+import { EDITOR, TEST } from "internal:constants";
 import { ccclass, type } from 'cc.decorator';
 import { GFXTextureType } from '../gfx/define';
 import { PixelFormat } from './asset-enum';
@@ -225,18 +226,20 @@ export class Texture2D extends SimpleTexture {
     }
 
     public _serialize (exporting?: any): any {
-        return {
-            base: super._serialize(exporting),
-            mipmaps: this._mipmaps.map((mipmap) => {
-                if (!mipmap || !mipmap._uuid) {
-                    return null;
-                }
-                if (exporting) {
-                    return EditorExtends.UuidUtils.compressUuid(mipmap._uuid, true);
-                }
-                return mipmap._uuid;
-            }),
-        };
+        if (EDITOR || TEST) {
+            return {
+                base: super._serialize(exporting),
+                mipmaps: this._mipmaps.map((mipmap) => {
+                    if (!mipmap || !mipmap._uuid) {
+                        return null;
+                    }
+                    if (exporting) {
+                        return EditorExtends.UuidUtils.compressUuid(mipmap._uuid, true);
+                    }
+                    return mipmap._uuid;
+                }),
+            };
+        }
     }
 
     public _deserialize (serializedData: any, handle: any) {

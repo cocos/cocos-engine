@@ -32,7 +32,7 @@ import {ccclass, override} from 'cc.decorator';
 import { GFXDevice, GFXFeature } from '../gfx/device';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
-import { EDITOR, MINIGAME, ALIPAY, XIAOMI, BYTEDANCE, JSB } from 'internal:constants';
+import { EDITOR, MINIGAME, ALIPAY, XIAOMI, BYTEDANCE, JSB, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 
@@ -245,26 +245,28 @@ export class ImageAsset extends Asset {
     // SERIALIZATION
 
     public _serialize () {
-        let targetExtensions = this._exportedExts;
-        if (!targetExtensions && this._native) {
-            targetExtensions = [this._native];
-        }
-
-        if (!targetExtensions) {
-            return '';
-        }
-
-        const extensionIndices: string[] = [];
-        for (const targetExtension of targetExtensions) {
-            const extensionFormat = targetExtension.split('@');
-            const i = ImageAsset.extnames.indexOf(extensionFormat[0]);
-            let exportedExtensionID = i < 0 ? targetExtension : `${i}`;
-            if (extensionFormat[1]) {
-                exportedExtensionID += '@' + extensionFormat[1];
+        if (EDITOR || TEST) {
+            let targetExtensions = this._exportedExts;
+            if (!targetExtensions && this._native) {
+                targetExtensions = [this._native];
             }
-            extensionIndices.push(exportedExtensionID);
+
+            if (!targetExtensions) {
+                return '';
+            }
+
+            const extensionIndices: string[] = [];
+            for (const targetExtension of targetExtensions) {
+                const extensionFormat = targetExtension.split('@');
+                const i = ImageAsset.extnames.indexOf(extensionFormat[0]);
+                let exportedExtensionID = i < 0 ? targetExtension : `${i}`;
+                if (extensionFormat[1]) {
+                    exportedExtensionID += '@' + extensionFormat[1];
+                }
+                extensionIndices.push(exportedExtensionID);
+            }
+            return { fmt: extensionIndices.join('_'), w: this.width, h: this.height };
         }
-        return { fmt: extensionIndices.join('_'), w: this.width, h: this.height };
     }
 
     public _deserialize (data: any, handle: any) {

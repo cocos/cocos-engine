@@ -53,7 +53,6 @@ function parseDepends (item, asset, tdInfo: Details, deferredLoadRawAssetsInRunt
     let objList = tdInfo.uuidObjList;
     let propList = tdInfo.uuidPropList;
     // @ts-ignore
-    let stillUseUrl = tdInfo._stillUseUrl;
     let depends;
     let i, dependUuid;
     // cache dependencies for auto release
@@ -81,7 +80,6 @@ function parseDepends (item, asset, tdInfo: Details, deferredLoadRawAssetsInRunt
                     deferredLoadRaw: true,
                     _owner: obj,
                     _ownerProp: prop,
-                    _stillUseUrl: stillUseUrl[i]
                 });
             }
         }
@@ -97,7 +95,6 @@ function parseDepends (item, asset, tdInfo: Details, deferredLoadRawAssetsInRunt
                 uuid: dependUuid,
                 _owner: objList[i],
                 _ownerProp: propList[i],
-                _stillUseUrl: stillUseUrl[i]
             };
         }
 
@@ -142,10 +139,6 @@ function loadDepends (pipeline, item, asset, depends, callback) {
             // @ts-ignore
             function loadCallback (item) {
                 let value = item.content;
-                // @ts-ignore
-                if (this._stillUseUrl) {
-                    value = value ? value.nativeUrl : item.rawUrl;
-                }
                 // @ts-ignore
                 this._owner[this._ownerProp] = value;
                 if (item.uuid !== asset._uuid && dependKeys.indexOf(item.id) < 0) {
@@ -265,7 +258,7 @@ export function loadUuid (item, callback) {
                 if (res) {
                     return res;
                 }
-                return legacyCC._MissingScript.getMissingWrapper(type, data);
+                return legacyCC._MissingScript;
             };
             classFinder.onDereferenced = MissingClass.classFinder.onDereferenced;
         }
