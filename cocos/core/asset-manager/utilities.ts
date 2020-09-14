@@ -242,9 +242,9 @@ interface ILoadResArgs<T> {
 export function parseParameters<T = any> (options: Options | ProgressCallback | CompleteCallback<T> | null | undefined,
                                           onProgress: ProgressCallback | CompleteCallback<T> | null | undefined,
                                           onComplete: CompleteCallback<T> | null | undefined): IParameters<T> {
-    let optionsOut: Options | null = null;
-    let onProgressOut: ProgressCallback | null = null;
-    let onCompleteOut: CompleteCallback | null = null;
+    let optionsOut: any = options;
+    let onProgressOut: any = onProgress;
+    let onCompleteOut: any = onComplete;
     if (onComplete === undefined) {
         const isCallback = typeof options === 'function';
         if (onProgress) {
@@ -271,9 +271,9 @@ export function parseLoadResArgs<T = any> (type: AssetType | ProgressCallback | 
                                            onProgress: ProgressCallback | CompleteCallback<T> | null | undefined,
                                            onComplete: CompleteCallback<T> | null | undefined): ILoadResArgs<T> {
 
-    let typeOut: AssetType | null = null;
-    let onProgressOut: ProgressCallback | null = null;
-    let onCompleteOut: CompleteCallback | null = null;
+    let typeOut: any = type;
+    let onProgressOut: any = onProgress;
+    let onCompleteOut: any = onComplete;
     if (onComplete === undefined) {
         const isValidType = js.isChildClassOf(type as AssetType, Asset);
         if (onProgress) {

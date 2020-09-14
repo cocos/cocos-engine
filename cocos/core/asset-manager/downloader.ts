@@ -135,10 +135,25 @@ const downloadBundle = (nameOrUrl: string, options: Options, onComplete: Complet
     downloadScript(jspath, options, (err) => {
         if (err) {
             error = err;
+            count++;
+            if (count === 2) {
+                onComplete(err);
+            }
         }
-        count++;
-        if (count === 2) {
-            onComplete(error, out);
+        else {
+            const System = typeof window === 'undefined' ? System : window.System;
+            System.import('virtual:///prerequisite-imports/' + bundleName).then(() => {
+                count++;
+                if (count === 2) {
+                    onComplete(error, out);
+                }
+            }).catch((e) => {
+                error = e;
+                count++;
+                if (count === 2) {
+                    onComplete(error);
+                }
+            });
         }
     });
 };
@@ -232,6 +247,7 @@ export class Downloader {
         '.image' : downloadImage,
         '.pvr': downloadArrayBuffer,
         '.pkm': downloadArrayBuffer,
+        '.astc': downloadArrayBuffer,
 
         // Audio
         '.mp3' : downloadAudio,

@@ -27,7 +27,7 @@
  * @category core
  */
 
-import { ALIPAY, EDITOR, JSB, PREVIEW, RUNTIME_BASED } from 'internal:constants';
+import { ALIPAY, EDITOR, JSB, PREVIEW, RUNTIME_BASED, BUILD } from 'internal:constants';
 import AssetLibrary from './assets/asset-library';
 import { EventTarget } from './event/event-target';
 import { RenderPipeline } from './pipeline';
@@ -585,7 +585,12 @@ export class Game extends EventTarget {
         this._initConfig(config);
         // Init AssetLibrary
         if (this.config.assetOptions) {
-            AssetLibrary.init(this.config.assetOptions);
+            if (BUILD) {
+                legacyCC.assetManager.init(this.config.assetOptions);
+            }
+            else {
+                AssetLibrary.init(this.config.assetOptions);
+            }
         }
 
         this._initEngine();

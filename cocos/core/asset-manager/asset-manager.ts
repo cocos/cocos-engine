@@ -508,31 +508,31 @@ export class AssetManager {
         });
     }
 
-    public loadScript (url: string|string[], options: Options | null, onComplete?: CompleteCallbackNoData | null): void;
-    public loadScript (url: string|string[], onComplete?: CompleteCallbackNoData | null): void;
+    // public loadScript (url: string|string[], options: Options | null, onComplete?: CompleteCallbackNoData | null): void;
+    // public loadScript (url: string|string[], onComplete?: CompleteCallbackNoData | null): void;
 
-    /**
-     * @en
-     * Load script
-     *
-     * @zh
-     * 加载脚本
-     *
-     * @param url - Url of the script
-     * @param options - Some optional paramters
-     * @param options.async - Indicate whether or not loading process should be async
-     * @param onComplete - Callback when script loaded or failed
-     * @param onComplete.err - The occurred error, null indicetes success
-     *
-     * @example
-     * loadScript('http://localhost:8080/index.js', null, (err) => console.log(err));
-     */
-    public loadScript (url: string|string[], options?: Options | CompleteCallbackNoData | null, onComplete?: CompleteCallbackNoData | null) {
-        const { options: opts, onComplete: onComp } = parseParameters(options, undefined, onComplete);
-        opts.__requestType__ = RequestType.URL;
-        opts.preset = opts.preset || 'script';
-        this.loadAny(url, opts, onComp);
-    }
+    // /**
+    //  * @en
+    //  * Load script
+    //  *
+    //  * @zh
+    //  * 加载脚本
+    //  *
+    //  * @param url - Url of the script
+    //  * @param options - Some optional paramters
+    //  * @param options.async - Indicate whether or not loading process should be async
+    //  * @param onComplete - Callback when script loaded or failed
+    //  * @param onComplete.err - The occurred error, null indicetes success
+    //  *
+    //  * @example
+    //  * loadScript('http://localhost:8080/index.js', null, (err) => console.log(err));
+    //  */
+    // public loadScript (url: string|string[], options?: Options | CompleteCallbackNoData | null, onComplete?: CompleteCallbackNoData | null) {
+    //     const { options: opts, onComplete: onComp } = parseParameters(options, undefined, onComplete);
+    //     opts.__requestType__ = RequestType.URL;
+    //     opts.preset = opts.preset || 'script';
+    //     this.loadAny(url, opts, onComp);
+    // }
 
     public loadBundle (nameOrUrl: string, options: Options | null, onComplete?: CompleteCallback<Bundle> | null): void;
     public loadBundle (nameOrUrl: string, onComplete?: CompleteCallback<Bundle> | null): void;
