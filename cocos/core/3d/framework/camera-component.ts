@@ -470,6 +470,7 @@ export class Camera extends Component {
         this.node.hasChangedFlags |= TransformBit.POSITION; // trigger camera matrix update
         if (this._camera) {
             this._attachToScene();
+            legacyCC.director.root.attachCamera(this._camera);
             return;
         }
     }
@@ -477,6 +478,7 @@ export class Camera extends Component {
     public onDisable () {
         if (this._camera) {
             this._detachFromScene();
+            legacyCC.director.root.detachCamera(this._camera);
         }
     }
 
