@@ -315,12 +315,6 @@ let VideoPlayerImpl = cc.Class({
     },
 
     isPlaying: function () {
-        let video = this._video;
-        if (VideoPlayerImpl._polyfill.autoplayAfterOperation && this._playing) {
-            setTimeout(function () {
-                video.play();
-            }, 20);
-        }
         return this._playing;
     },
 
