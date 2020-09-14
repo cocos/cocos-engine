@@ -432,7 +432,6 @@ const GLenum GLES2_BLEND_FACTORS[] = {
 GLES2GPUStateCache gfxStateCache;
 } // namespace
 
-
 void GLES2CmdFuncCreateBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer) {
     GLenum glUsage = (gpuBuffer->memUsage & MemoryUsageBit::HOST ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
 
@@ -1442,10 +1441,9 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
                 for (uint j = 0; j < cmd->numClearColors; ++j) {
                     const ColorAttachment &colorAttachment = gpuRenderPass->colorAttachments[j];
                     if (colorAttachment.format != Format::UNKNOWN) {
-                        switch (colorAttachment.loadOp) {
-                            case LoadOp::LOAD: break; // GL default behaviour
-                            case LoadOp::CLEAR: break;
-                            case LoadOp::DISCARD: {
+                        switch (colorAttachment.storeOp) {
+                            case StoreOp::STORE: break;
+                            case StoreOp::DISCARD: {
                                 // invalidate fbo
                                 glAttachments[numAttachments++] = (cmd->gpuFBO->isOffscreen ? GL_COLOR_ATTACHMENT0 + j : GL_COLOR_EXT);
                                 break;
@@ -1458,10 +1456,9 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
                 if (gpuRenderPass->depthStencilAttachment.format != Format::UNKNOWN) {
                     bool hasDepth = GFX_FORMAT_INFOS[(int)gpuRenderPass->depthStencilAttachment.format].hasDepth;
                     if (hasDepth) {
-                        switch (gpuRenderPass->depthStencilAttachment.depthLoadOp) {
-                            case LoadOp::LOAD: break; // GL default behaviour
-                            case LoadOp::CLEAR: break;
-                            case LoadOp::DISCARD: {
+                        switch (gpuRenderPass->depthStencilAttachment.depthStoreOp) {
+                            case StoreOp::STORE: break;
+                            case StoreOp::DISCARD: {
                                 // invalidate fbo
                                 glAttachments[numAttachments++] = (cmd->gpuFBO->isOffscreen ? GL_DEPTH_ATTACHMENT : GL_DEPTH_EXT);
                                 break;
@@ -1471,10 +1468,9 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
                     } // if (hasDepth)
                     bool hasStencils = GFX_FORMAT_INFOS[(int)gpuRenderPass->depthStencilAttachment.format].hasStencil;
                     if (hasStencils) {
-                        switch (gpuRenderPass->depthStencilAttachment.depthLoadOp) {
-                            case LoadOp::LOAD: break; // GL default behaviour
-                            case LoadOp::CLEAR: break;
-                            case LoadOp::DISCARD: {
+                        switch (gpuRenderPass->depthStencilAttachment.stencilStoreOp) {
+                            case StoreOp::STORE: break;
+                            case StoreOp::DISCARD: {
                                 // invalidate fbo
                                 glAttachments[numAttachments++] = (cmd->gpuFBO->isOffscreen ? GL_STENCIL_ATTACHMENT : GL_STENCIL_EXT);
                                 break;
@@ -1832,7 +1828,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
 
                             if (!gpuDescriptor->gpuTexture || !gpuDescriptor->gpuSampler) {
                                 CC_LOG_ERROR("Sampler binding '%s' at set %d binding %d index %d is not bounded",
-                                            glSampler.name.c_str(), glSampler.set, glSampler.binding, u);
+                                             glSampler.name.c_str(), glSampler.set, glSampler.binding, u);
                                 continue;
                             }
 
