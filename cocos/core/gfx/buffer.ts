@@ -14,20 +14,30 @@ import {
 } from './define';
 import { GFXDevice } from './device';
 
-export interface IGFXDrawInfo {
-    vertexCount: number;
-    firstVertex: number;
-    indexCount: number;
-    firstIndex: number;
-    vertexOffset: number;
-    instanceCount: number;
-    firstInstance: number;
+export class GFXDrawInfo {
+    public vertexCount: number;
+    public firstVertex: number;
+    public indexCount: number;
+    public firstIndex: number;
+    public vertexOffset: number;
+    public instanceCount: number;
+    public firstInstance: number;
+
+    constructor (vertexCount = 0, firstVertex = 0, indexCount = 0, firstIndex = 0, vertexOffset = 0, instanceCount = 0, firstInstance = 0) {
+        this.vertexCount = vertexCount;
+        this.firstVertex = firstVertex;
+        this.indexCount = indexCount;
+        this.firstIndex = firstIndex;
+        this.vertexOffset = vertexOffset;
+        this.instanceCount = instanceCount;
+        this.firstInstance = firstInstance;
+    }
 }
 
 export const GFX_DRAW_INFO_SIZE: number = 28;
 
 export interface IGFXIndirectBuffer {
-    drawInfos: IGFXDrawInfo[];
+    drawInfos: GFXDrawInfo[];
 }
 
 export type GFXBufferSource = ArrayBuffer | IGFXIndirectBuffer;

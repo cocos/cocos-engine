@@ -1,5 +1,5 @@
 import { Material, Mesh, Texture2D } from '../../core/assets';
-import { ccclass, property, tooltip, displayOrder, type } from '../../core/data/class-decorator';
+import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { RenderMode} from '../enum';
 import ParticleSystemRendererCPU from './particle-system-renderer-cpu';
 import ParticleSystemRendererGPU from './particle-system-renderer-gpu';
@@ -68,19 +68,16 @@ export default class ParticleSystemRenderer {
     }
 
     @type(RenderMode)
-    @displayOrder(3)
+    @serializable
     private _renderMode = RenderMode.Billboard;
 
-    @property
-    @displayOrder(4)
+    @serializable
     private _velocityScale = 1;
 
-    @property
-    @displayOrder(5)
+    @serializable
     private _lengthScale = 1;
 
-    @property
-    @displayOrder(6)
+    @serializable
     private _mesh: Mesh | null = null;
 
     /**
@@ -132,7 +129,7 @@ export default class ParticleSystemRenderer {
         this._particleSystem.setMaterial(val, 1);
     }
 
-    @property
+    @serializable
     private _mainTexture: Texture2D | null = null;
 
     public get mainTexture () {
@@ -143,7 +140,7 @@ export default class ParticleSystemRenderer {
         this._mainTexture = val;
     }
 
-    @property
+    @serializable
     private _useGPU: boolean = false;
 
     @displayOrder(10)
@@ -166,7 +163,7 @@ export default class ParticleSystemRenderer {
         this._switchProcessor();
     }
 
-    private _particleSystem: any = null!; // ParticleSystemComponent
+    private _particleSystem: any = null!; // ParticleSystem
 
     onInit (ps: any) {
         this._particleSystem = ps;

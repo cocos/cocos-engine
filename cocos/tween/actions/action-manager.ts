@@ -32,7 +32,7 @@
 import * as js from '../../core/utils/js';
 import { errorID, logID, assertID } from '../../core/platform/debug';
 import { Action } from './action';
-import { Node } from '../../core';
+import { Node, CCObject } from '../../core';
 import { legacyCC } from '../../core/global-exports';
 
 let ID_COUNTER = 0;
@@ -432,6 +432,14 @@ export class ActionManager {
         for (var elt = 0; elt < locTargets.length; elt++) {
             this._currentTarget = locTargets[elt];
             locCurrTarget = this._currentTarget;
+
+            let target = locCurrTarget.target;
+            if (target instanceof CCObject && !target.isValid) {
+                this.removeAllActionsFromTarget(target as any);
+                elt--;
+                continue;
+            }
+
             if (!locCurrTarget.paused && locCurrTarget.actions) {
                 locCurrTarget.lock = true;
                 // The 'actions' CCMutableArray may change while inside this loop.

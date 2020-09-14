@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-import { ccclass, property } from '../data/class-decorator';
+import { ccclass, serializable, editable } from 'cc.decorator';
 import { Quat } from '../math';
 import { EDITOR, SUPPORT_JIT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
@@ -33,24 +33,29 @@ import { errorID } from '../platform/debug';
 @ccclass('cc.PrefabInfo')
 export class PrefabInfo {
     // the most top node of this prefab in the scene
-    @property
+    @serializable
+    @editable
     public root = null;
 
     // 所属的 prefab 资源对象 (cc.Prefab)
     // In Editor, only asset._uuid is usable because asset will be changed.
-    @property
+    @serializable
+    @editable
     public asset = null;
 
     // 用来标识别该节点在 prefab 资源中的位置，因此这个 ID 只需要保证在 Assets 里不重复就行
-    @property
+    @serializable
+    @editable
     public fileId = '';
 
     // Indicates whether this node should always synchronize with the prefab asset, only available in the root node
-    @property
+    @serializable
+    @editable
     public sync = false;
 
     // Indicates whether this node is synchronized, only available in the root node
-    @property
+    @serializable
+    @editable
     public _synced = {
         default: false,
         serializable: false,

@@ -16,12 +16,12 @@ const cameraNode = new cc.Node('Camera');
 cameraNode.parent = scene;
 cameraNode.setPosition(6, 0, 2);
 cameraNode.setRotationFromEuler(0, 70, 0);
-cameraNode.addComponent(cc.CameraComponent);
+cameraNode.addComponent(cc.Camera);
 cameraNode.addComponent(FirstPersonCamera);
 
 const modelNode = new cc.Node('test');
 modelNode.parent = scene;
-const modelComp = modelNode.addComponent('cc.ModelComponent');
+const modelComp = modelNode.addComponent('cc.MeshRenderer');
 modelComp.mesh = cc.utils.createMesh(cc.primitives.sphere());
 cc.director.runSceneImmediate(scene);
 

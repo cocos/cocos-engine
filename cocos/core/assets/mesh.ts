@@ -27,7 +27,7 @@
  * @category asset
  */
 
-import { ccclass, property } from '../../core/data/class-decorator';
+import { ccclass, serializable } from 'cc.decorator';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { mapBuffer } from '../3d/misc/buffer';
 import { BufferBlob } from '../3d/misc/buffer-blob';
@@ -341,7 +341,9 @@ export class RenderingSubMesh implements IGFXInputAssemblerInfo {
             this.vertexBuffers[0].size / this.vertexBuffers[0].stride;
         const vertexIds = new Float32Array(vertexCount);
         for (let iVertex = 0; iVertex < vertexCount; ++iVertex) {
-            vertexIds[iVertex] = iVertex;
+            // `+0.5` because on some platforms, the "fetched integer" may have small error.
+            // For example `26` may yield `25.99999`, which is convert to `25` instead of `26` using `int()`.
+            vertexIds[iVertex] = iVertex + 0.5;
         }
 
         const vertexIdBuffer = device.createBuffer({
@@ -536,16 +538,16 @@ export class Mesh extends Asset {
         return this._jointBufferIndices = this._struct.primitives.map((p) => p.jointMapIndex || 0);
     }
 
-    @property
+    @serializable
     private _struct: Mesh.IStruct = {
         vertexBundles: [],
         primitives: [],
     };
 
-    @property
+    @serializable
     private _dataLength = 0;
 
-    @property
+    @serializable
     private _hash = 0;
 
     private _data: Uint8Array = globalEmptyMeshBuffer;

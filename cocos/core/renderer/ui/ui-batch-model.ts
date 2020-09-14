@@ -41,13 +41,14 @@ export class UIBatchModel extends Model {
         super();
         this.type = ModelType.UI_BATCH;
         this._subModel = new UISubModel();
+        this._subModel.initialize();
         this._subModels[0] = this._subModel;
     }
 
     public updateTransform () {}
 
     public updateUBOs (stamp: number) {
-        // Should updatePass when updateUBOS
+        // Should updatePass when updateUBOs
         const subModels = this._subModels;
         for (let i = 0; i < subModels.length; i++) {
             subModels[i].update();
@@ -59,7 +60,7 @@ export class UIBatchModel extends Model {
     }
 
     public directInitialize (batch: UIDrawBatch) {
-        this._subModel.directInitialize(batch.material!.passes, batch.hIA, batch.hDescriptorSet!);
+        this._subModel.directInitialize(batch.material!.passes, batch.hInputAssembler, batch.hDescriptorSet!);
     }
 
     public destroy () {
@@ -69,12 +70,15 @@ export class UIBatchModel extends Model {
 
 class UISubModel extends SubModel {
 
+    public initialize () {
+        this._handle = SubModelPool.alloc();
+        SubModelPool.set(this._handle, SubModelView.PRIORITY, RenderPriority.DEFAULT);
+    }
+
     public directInitialize (passes: Pass[], iaHandle: InputAssemblerHandle, dsHandle: DescriptorSetHandle) {
         this._passes = passes;
-        this._handle = SubModelPool.alloc();
         this._flushPassInfo();
 
-        SubModelPool.set(this._handle, SubModelView.PRIORITY, RenderPriority.DEFAULT);
         SubModelPool.set(this._handle, SubModelView.INPUT_ASSEMBLER, iaHandle);
         SubModelPool.set(this._handle, SubModelView.DESCRIPTOR_SET, dsHandle);
 

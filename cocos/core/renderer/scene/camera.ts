@@ -5,7 +5,7 @@ import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { RenderView } from '../../pipeline/render-view';
 import { Node } from '../../scene-graph';
 import { RenderScene } from './render-scene';
-import { GFXDevice, GFXAPI } from '../../gfx';
+import { GFXDevice } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../../pipeline';
 
@@ -159,14 +159,19 @@ export class Camera {
             priority: this._priority,
             flows: info.flows,
         });
+        legacyCC.director.root.attachCamera(this);
         this.changeTargetWindow(info.window);
 
         console.log('Created Camera: ' + this._name + ' ' + this._width + 'x' + this._height);
     }
 
     public destroy () {
-        legacyCC.director.root.destroyView(this._view);
-        this._view = null;
+        legacyCC.director.root.detachCamera(this);
+        if (this._view) {
+            this._view.destroy();
+            this._view = null;
+        }
+
         this._name = null;
     }
 
@@ -364,6 +369,7 @@ export class Camera {
         else { this._viewport.y = 1 - val.y - val.height; }
         this._viewport.width = val.width;
         this._viewport.height = val.height;
+        this.resize(this._width, this._height);
     }
 
     get scene () {

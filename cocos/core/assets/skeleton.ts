@@ -27,7 +27,7 @@
  * @category asset
  */
 
-import { ccclass, property, type } from '../../core/data/class-decorator';
+import { ccclass, type, serializable } from 'cc.decorator';
 import { CCString } from '../../core/data/utils/attribute';
 import { Mat4 } from '../../core/math';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
@@ -36,8 +36,8 @@ import { Asset } from './asset';
 import { legacyCC } from '../global-exports';
 
 /**
- * 骨骼资源。
- * 骨骼资源记录了每个关节（相对于`SkinningModelComponent.skinningRoot`）的路径以及它的绑定姿势矩阵。
+ * @zh 骨骼资源。
+ * 骨骼资源记录了每个关节（相对于 [[SkinnedMeshRenderer.skinningRoot]]）的路径以及它的绑定姿势矩阵。
  */
 @ccclass('cc.Skeleton')
 export class Skeleton extends Asset {
@@ -48,7 +48,7 @@ export class Skeleton extends Asset {
     @type([Mat4])
     private _bindposes: Mat4[] = [];
 
-    @property
+    @serializable
     private _hash = 0;
 
     private _invBindposes: Mat4[] | null = null;

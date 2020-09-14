@@ -19,8 +19,10 @@ import { legacyCC } from './global-exports';
 import { Root } from './root';
 import { DSPool, ShaderPool, PassPool, PassView } from './renderer/core/memory-pools';
 import { SetIndex } from './pipeline/define';
-import { GFXBufferTextureCopy, GFXBufferUsageBit, GFXCommandBufferType, GFXFormat,
-    GFXMemoryUsageBit, GFXTextureType, GFXTextureUsageBit, GFXRect, GFXColor, GFXAddress } from './gfx/define';
+import {
+    GFXBufferTextureCopy, GFXBufferUsageBit, GFXCommandBufferType, GFXFormat,
+    GFXMemoryUsageBit, GFXTextureType, GFXTextureUsageBit, GFXRect, GFXColor, GFXAddress
+} from './gfx/define';
 
 export type SplashEffectType = 'NONE' | 'FADE-INOUT';
 
@@ -222,10 +224,13 @@ export class SplashScreen {
     private hide () {
         cancelAnimationFrame(this.handle);
         this.cancelAnimate = true;
-        this.destoy();
+        // here delay destroy：because ios immediately destroy input assmebler will crash & native renderer will mess.
+        setTimeout(this.destroy.bind(this));
     }
 
     private frame (time: number) {
+        if (this.cancelAnimate) return;
+
         // TODO: hack for cocosPlay & XIAOMI cause on landscape canvas value is wrong
         if (COCOSPLAY || XIAOMI) {
             if (window._CCSettings.orientation === 'landscape' && this.device.width < this.device.height) {
@@ -311,7 +316,7 @@ export class SplashScreen {
 
         const pass = this.textMaterial.passes[0];
         const binding = pass.getBinding('mainTexture');
-        pass.bindTexture(binding!, this.textTexture!);
+        pass.bindTexture(binding, this.textTexture!);
 
         this.textShader = ShaderPool.get(pass.getShaderVariant());
         DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET)).update();
@@ -491,7 +496,7 @@ export class SplashScreen {
 
         const pass = this.material.passes[0];
         const binding = pass.getBinding('mainTexture');
-        pass.bindTexture(binding!, this.texture!);
+        pass.bindTexture(binding, this.texture!);
 
         this.shader = ShaderPool.get(pass.getShaderVariant());
         const descriptorSet = DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET));
@@ -505,7 +510,7 @@ export class SplashScreen {
         device.copyTexImagesToTexture([this.image!], this.texture, [this.region]);
     }
 
-    private destoy () {
+    private destroy () {
         this.callBack = null;
         this.clearColors = null!;
         this.device = null!;
@@ -525,7 +530,7 @@ export class SplashScreen {
         this.texture.destroy();
         this.texture = null!;
 
-        // this.assmebler.destroy(); //TODO: IOS 导致崩溃, 临时绕过
+        this.assmebler.destroy();
         this.assmebler = null!;
 
         this.vertexBuffers.destroy();
@@ -564,16 +569,16 @@ export class SplashScreen {
         delete SplashScreen._ins;
     }
 
-    private static _ins: SplashScreen;
+    private static _ins?: SplashScreen;
 
     public static get instance () {
-        if (SplashScreen._ins == null) {
+        if (!SplashScreen._ins) {
             SplashScreen._ins = new SplashScreen();
         }
         return SplashScreen._ins;
     }
 
-    private constructor () { };
+    private constructor () {}
 }
 
 legacyCC.internal.SplashScreen = SplashScreen;

@@ -6,8 +6,6 @@ export class TupleDictionary {
 
     /**
      * The data storage
-     * @property data
-     * @type {Object}
      */
     public data: { keys: string[] };
 

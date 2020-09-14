@@ -2,7 +2,7 @@
  * @category pipeline.forward
  */
 
-import { ccclass } from '../../data/class-decorator';
+import { ccclass } from 'cc.decorator';
 import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
@@ -12,7 +12,6 @@ import { GFXFramebuffer, GFXRenderPass, GFXLoadOp,
     GFXTextureType, GFXTextureUsageBit } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { RenderView, ForwardPipeline } from '../..';
-import { sceneCulling } from '../forward/scene-culling';
 import { ShadowType } from '../../renderer/scene/shadows';
 
 /**
@@ -125,8 +124,6 @@ export class ShadowFlow extends RenderFlow {
             this._height = shadowMapSize.y;
         }
 
-        view.camera.update();
-        sceneCulling(pipeline, view);
         pipeline.updateUBOs(view);
         super.render(view);
         pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP.binding, this._shadowFrameBuffer!.colorTextures[0]!);

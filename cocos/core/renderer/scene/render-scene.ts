@@ -115,6 +115,35 @@ export class RenderScene {
         return true;
     }
 
+    public update (stamp: number) {
+        const mainLight = this._mainLight;
+        if (mainLight) {
+            mainLight.update();
+        }
+
+        const sphereLights = this._sphereLights;
+        for (let i = 0; i < sphereLights.length; i++) {
+            const light = sphereLights[i];
+            light.update();
+        }
+
+        const spotLights = this._spotLights;
+        for (let i = 0; i < spotLights.length; i++) {
+            const light = spotLights[i];
+            light.update();
+        }
+
+        const models = this._models;
+        for (let i = 0; i < models.length; i++) {
+            const model = models[i];
+
+            if (model.enabled) {
+                model.updateTransform(stamp);
+                model.updateUBOs(stamp);
+            }
+        }
+    }
+
     public destroy () {
         this.removeCameras();
         this.removeSphereLights();
@@ -405,7 +434,7 @@ export class RenderScene {
      */
     public raycastAllCanvas (worldRay: ray, mask = Layers.Enum.UI_2D, distance = Infinity): boolean {
         poolUI.reset();
-        const canvasComs = legacyCC.director.getScene().getComponentsInChildren(legacyCC.CanvasComponent);
+        const canvasComs = legacyCC.director.getScene().getComponentsInChildren(legacyCC.Canvas);
         if (canvasComs != null && canvasComs.length > 0) {
             for (let i = 0; i < canvasComs.length; i++) {
                 const canvasNode = canvasComs[i].node;

@@ -1,18 +1,17 @@
-
 import { Material } from '../../assets/material';
-import { aabb, frustum, intersect } from '../../geometry';
+import { aabb, frustum, intersect, sphere } from '../../geometry';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
-import { Color, Mat4, Quat, Vec3, Vec2 } from '../../math';
+import { Color, Mat4, Quat, Vec3, Vec2, Vec4 } from '../../math';
 import { UBOShadow, SetIndex} from '../../pipeline/define';
 import { DirectionalLight } from './directional-light';
 import { Model } from './model';
 import { SphereLight } from './sphere-light';
-import { GFXCommandBuffer, GFXDevice, GFXRenderPass, GFXDescriptorSet, GFXShader } from '../../gfx';
+import { GFXCommandBuffer, GFXDevice, GFXRenderPass, GFXDescriptorSet } from '../../gfx';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
 import { legacyCC } from '../../global-exports';
 import { RenderScene } from './render-scene';
-import { DSPool, ShaderPool, PassPool, PassView } from '../core/memory-pools';
+import { DSPool, ShaderPool, PassPool, PassView, ShaderHandle } from '../core/memory-pools';
 import { ForwardPipeline } from '../../pipeline';
 import { Enum } from '../../value-types';
 
@@ -21,6 +20,9 @@ const _v3 = new Vec3();
 const _ab = new aabb();
 const _qt = new Quat();
 const _up = new Vec3(0, 1, 0);
+const _dir_negate = new Vec3();
+const _vec3_p = new Vec3();
+const _mat4_trans = new Mat4();
 
 /**
  * @zh 阴影类型。
@@ -46,9 +48,45 @@ export const ShadowType = Enum({
     ShadowMap: 1,
 })
 
+/**
+ * @zh pcf阴影等级。
+ * @en The pcf type
+ * @static
+ * @enum Shadows.ShadowType
+ */
+export const PCFType = Enum({
+    /**
+     * @zh x1 次采样
+     * @en x1 times
+     * @readonly
+     */
+    HARD: 0,
+
+    /**
+     * @zh x5 次采样
+     * @en x5 times
+     * @readonly
+     */
+    FILTER_X5: 1,
+
+    /**
+     * @zh x9 次采样
+     * @en x9 times
+     * @readonly
+     */
+    FILTER_X9: 2,
+
+    /**
+     * @zh x25 次采样
+     * @en x25 times
+     * @readonly
+     */
+    FILTER_X25: 3,
+})
+
 interface IShadowRenderData {
     model: Model;
-    shaders: GFXShader[];
+    hShaders: ShaderHandle[];
     instancedBuffer: InstancedBuffer | null;
 }
 
@@ -134,6 +172,9 @@ export class Shadows {
     get data () {
         return this._data;
     }
+    get sphere () {
+        return this._sphere;
+    }
     protected _enabled: boolean = false;
     protected _type = ShadowType.Planar;
     protected _normal = new Vec3(0, 1, 0);
@@ -151,6 +192,11 @@ export class Shadows {
     protected _device: GFXDevice|null = null;
     protected _globalDescriptorSet: GFXDescriptorSet | null = null;
     protected _dirty: boolean = true;
+    /**
+     * @zh
+     * 场景包围球
+     */
+    protected _sphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
     /**
      * @en get or set shadow camera near
      * @zh 获取或者设置阴影相机近裁剪面
@@ -170,12 +216,18 @@ export class Shadows {
      * @en get or set shadow camera orthoSize
      * @zh 获取或者设置阴影相机正交大小
      */
-    public orthoSize: number = 5;
+    public orthoSize: number = 1;
     /**
      * @en get or set shadow camera orthoSize
      * @zh 获取或者设置阴影纹理大小
      */
     public size: Vec2 = new Vec2(512, 512);
+
+    /**
+     * @en get or set shadow pcf
+     * @zh 获取或者设置阴影pcf等级
+     */
+    public pcf = PCFType.HARD;
 
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;
@@ -188,6 +240,17 @@ export class Shadows {
         } else {
             this._updatePlanarInfo();
         }
+    }
+
+    public getWorldMatrix (rotation: Quat, dir: Vec3) {
+        Vec3.negate(_dir_negate, dir);
+        const distance: number = Math.sqrt(2) * this._sphere.radius;
+        Vec3.multiplyScalar(_vec3_p, _dir_negate, distance);
+        Vec3.add(_vec3_p, _vec3_p, this._sphere.center);
+
+        Mat4.fromRT(_mat4_trans, rotation, _vec3_p);
+
+        return _mat4_trans;
     }
 
     protected _updatePlanarInfo () {
@@ -205,8 +268,11 @@ export class Shadows {
         const root = legacyCC.director.root
         const pipeline = root.pipeline;
         const enable = this._enabled && this._type === ShadowType.ShadowMap;
-        if (pipeline.macros.CC_RECEIVE_SHADOW === enable) { return; }
-        pipeline.macros.CC_RECEIVE_SHADOW = enable;
+        if (enable) {
+            delete pipeline.macros.CC_RECEIVE_SHADOW;
+        } else {
+            pipeline.macros.CC_RECEIVE_SHADOW = false;
+        }
         root.onGlobalPipelineStateChanged();
     }
     public updateSphereLight (light: SphereLight) {
@@ -275,7 +341,7 @@ export class Shadows {
         this._globalDescriptorSet!.getBuffer(UBOShadow.BLOCK.binding).update(this.data);
     }
 
-    public updateShadowList (scene: RenderScene, frstm: frustum, stamp: number, shadowVisible = false) {
+    public updateShadowList (scene: RenderScene, frstm: frustum, shadowVisible = false) {
         this._pendingModels.length = 0;
         if (!scene.mainLight || !shadowVisible) { return; }
         const models = scene.models;
@@ -289,7 +355,6 @@ export class Shadows {
             let data = this._record.get(model);
             if (data && (!!data.instancedBuffer !== model.isInstancingEnabled)) { this.destroyShadowData(model); data = undefined; }
             if (!data) { data = this.createShadowData(model); this._record.set(model, data); }
-            if (model.updateStamp !== stamp) { model.updateUBOs(stamp); } // for those outside the frustum
             this._pendingModels.push(data);
         }
     }
@@ -305,14 +370,15 @@ export class Shadows {
         let descriptorSet = DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET));
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, descriptorSet);
         for (let i = 0; i < modelLen; i++) {
-            const { model, shaders, instancedBuffer } = models[i];
+            const { model, hShaders: shaders, instancedBuffer } = models[i];
             for (let j = 0; j < shaders.length; j++) {
                 const subModel = model.subModels[j];
-                const shader = shaders[j];
+                const hShader = shaders[j];
                 if (instancedBuffer) {
-                    instancedBuffer.merge(subModel, model.instancedAttributes, 0);
+                    instancedBuffer.merge(subModel, model.instancedAttributes, 0, hShader);
                 } else {
                     const ia = subModel.inputAssembler!;
+                    const shader = ShaderPool.get(hShader);
                     const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, ia);
                     cmdBuff.bindPipelineState(pso);
                     cmdBuff.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);
@@ -343,15 +409,15 @@ export class Shadows {
     }
 
     public createShadowData (model: Model): IShadowRenderData {
-        const shaders: GFXShader[] = [];
+        const hShaders: ShaderHandle[] = [];
         const material = model.isInstancingEnabled ? this._instancingMaterial : this._material;
         const instancedBuffer = model.isInstancingEnabled ? InstancedBuffer.get(material!.passes[0]) : null;
         const subModels = model.subModels;
         for (let i = 0; i < subModels.length; i++) {
             const hShader = material!.passes[0].getShaderVariant(model.getMacroPatches(i));
-            shaders.push(ShaderPool.get(hShader));
+            hShaders.push(hShader);
         }
-        return { model, shaders, instancedBuffer };
+        return { model, hShaders, instancedBuffer };
     }
 
     public destroyShadowData (model: Model) {

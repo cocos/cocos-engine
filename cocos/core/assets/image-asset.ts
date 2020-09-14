@@ -28,11 +28,11 @@
  */
 
 // @ts-check
-import {ccclass, property, override} from '../data/class-decorator';
+import {ccclass, override} from 'cc.decorator';
 import { GFXDevice, GFXFeature } from '../gfx/device';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
-import { EDITOR, MINIGAME } from 'internal:constants';
+import { EDITOR, MINIGAME, ALIPAY } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 
@@ -57,12 +57,25 @@ function fetchImageSource (imageSource: ImageSource) {
 }
 
 /**
+ * 返回该图像源是否是平台提供的图像对象。
+ * @param imageSource 
+ */
+function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement) {
+    if (ALIPAY) {
+        // We're unable to grab the constructors of Alipay native image or canvas object.
+        return !('_data' in imageSource);
+    } else {
+        return imageSource instanceof HTMLImageElement || imageSource instanceof HTMLCanvasElement;
+    }
+}
+
+/**
  * 图像资源。
  */
 @ccclass('cc.ImageAsset')
 export class ImageAsset extends Asset {
 
-    @override(true)
+    @override
     get _nativeAsset () {
         // Maybe returned to pool in webgl.
         return this._nativeData;
@@ -79,8 +92,11 @@ export class ImageAsset extends Asset {
      * 此图像资源的图像数据。
      */
     get data () {
-        const data = this._nativeData && (this._nativeData as IMemoryImageSource)._data;
-        return ArrayBuffer.isView(data) ? data : this._nativeData as (HTMLCanvasElement | HTMLImageElement);
+        if (isNativeImage(this._nativeData)) {
+            return this._nativeData;
+        } else {
+            return this._nativeData._data;
+        }
     }
 
     /**
@@ -108,7 +124,8 @@ export class ImageAsset extends Asset {
      * 此图像资源是否为压缩像素格式。
      */
     get isCompressed () {
-        return this._format >= PixelFormat.RGB_ETC1 && this._format <= PixelFormat.RGBA_ASTC_12x12;
+        return (this._format >= PixelFormat.RGB_ETC1 && this._format <= PixelFormat.RGBA_ASTC_12x12) ||
+        (this._format >= PixelFormat.RGB_A_PVRTC_2BPPV1 && this._format <= PixelFormat.RGBA_ETC1);
     }
 
     /**

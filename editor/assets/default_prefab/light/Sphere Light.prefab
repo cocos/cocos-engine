@@ -55,7 +55,7 @@
     "_id": ""
   },
   {
-    "__type__": "cc.SphereLightComponent",
+    "__type__": "cc.SphereLight",
     "_name": "",
     "_objFlags": 0,
     "node": {

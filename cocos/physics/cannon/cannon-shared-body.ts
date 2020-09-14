@@ -4,9 +4,9 @@ import { ERigidBodyType } from '../framework/physics-enum';
 import { getWrap } from '../framework/util';
 import { CannonWorld } from './cannon-world';
 import { CannonShape } from './shapes/cannon-shape';
-import { ColliderComponent, PhysicsSystem } from '../../../exports/physics-framework';
+import { Collider, PhysicsSystem } from '../../../exports/physics-framework';
 import { TransformBit } from '../../core/scene-graph/node-enum';
-import { Node, Layers } from '../../core';
+import { Node } from '../../core';
 import { CollisionEventType, IContactEquation } from '../framework/physics-interface';
 import { CannonRigidBody } from './cannon-rigid-body';
 import { commitShapeUpdates } from './cannon-util';
@@ -17,8 +17,8 @@ const quat_0 = new Quat();
 const contactsPool: CannonContactEquation[] = [] as any;
 const CollisionEventObject = {
     type: 'onCollisionEnter' as CollisionEventType,
-    selfCollider: null as unknown as ColliderComponent,
-    otherCollider: null as unknown as ColliderComponent,
+    selfCollider: null as unknown as Collider,
+    otherCollider: null as unknown as Collider,
     contacts: [] as CannonContactEquation[],
     impl: null as unknown as CANNON.ICollisionEvent,
 };
@@ -87,7 +87,7 @@ export class CannonSharedBody {
         this.wrappedWorld = wrappedWorld;
         this.node = node;
         this.body = new CANNON.Body();
-        this.body.collisionFilterGroup = Layers.Enum.DEFAULT;
+        this.body.collisionFilterGroup = PhysicsSystem.PhysicsGroup.DEFAULT;
         this.body.sleepSpeedLimit = PhysicsSystem.instance.sleepThreshold;
         this.body.material = this.wrappedWorld.impl.defaultMaterial;
         this.body.addEventListener('cc-collide', this.onCollidedListener);

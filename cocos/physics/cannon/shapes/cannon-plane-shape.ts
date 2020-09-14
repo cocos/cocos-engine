@@ -4,12 +4,12 @@ import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
 import { IPlaneShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
-import { PlaneColliderComponent } from '../../../../exports/physics-framework';
+import { PlaneCollider } from '../../../../exports/physics-framework';
 
 export class CannonPlaneShape extends CannonShape implements IPlaneShape {
 
     public get collider () {
-        return this._collider as PlaneColliderComponent;
+        return this._collider as PlaneCollider;
     }
 
     public get impl () {

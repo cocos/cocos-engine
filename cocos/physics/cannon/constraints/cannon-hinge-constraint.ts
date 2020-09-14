@@ -2,7 +2,7 @@
 import CANNON, { RotationalEquation } from '@cocos/cannon';
 import { CannonConstraint } from './cannon-constraint';
 import { IHingeConstraint } from '../../spec/i-physics-constraint';
-import { HingeConstraintComponent } from '../../framework';
+import { HingeConstraint } from '../../framework';
 import { CannonRigidBody } from '../cannon-rigid-body';
 import { IVec3Like, Vec3 } from '../../../core';
 
@@ -16,7 +16,7 @@ export class CannonHingeConstraint extends CannonConstraint implements IHingeCon
     }
 
     public get constraint () {
-        return this._com as HingeConstraintComponent;
+        return this._com as HingeConstraint;
     }
 
     setPivotA (v: IVec3Like): void {

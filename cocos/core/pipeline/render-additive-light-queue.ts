@@ -3,9 +3,9 @@
  */
 
 import { GFXCommandBuffer } from '../gfx/command-buffer';
-import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, UBOForwardLight, SetIndex } from './define';
-import { Light, LightType, SphereLight, SpotLight, BatchingSchemes, Model } from '../renderer';
+import { Light, LightType, SphereLight, SpotLight, Model, SubModel } from '../renderer/scene';
+import { BatchingSchemes } from '../renderer/core/pass';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
 import { Vec3, nextPow2 } from '../../core/math';
@@ -123,7 +123,6 @@ export class RenderAdditiveLightQueue {
 
         for (let i = 0; i < sphereLights.length; i++) {
             const light = sphereLights[i];
-            light.update();
             sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
             if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
                 validLights.push(light);
@@ -132,7 +131,6 @@ export class RenderAdditiveLightQueue {
         const spotLights = view.camera.scene!.spotLights;
         for (let i = 0; i < spotLights.length; i++) {
             const light = spotLights[i];
-            light.update();
             sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
             if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
                 validLights.push(light);
@@ -243,7 +241,7 @@ export class RenderAdditiveLightQueue {
             this._lightBuffer.resize(this._lightBufferStride * this._lightBufferCount);
             this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
 
-            this._firstlightBufferView = this._device.createBuffer({
+            this._firstlightBufferView.initialize({
                 buffer: this._lightBuffer,
                 offset: 0,
                 range: UBOForwardLight.SIZE,

@@ -17,7 +17,7 @@ import { BatchingSchemes } from '../core/pass';
 import { Mat4, Vec3, Vec4 } from '../../math';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-import { ShaderPool, SubModelPool, SubModelView, ShaderHandle } from '../core/memory-pools';
+import { ShaderPool, SubModelPool, SubModelView } from '../core/memory-pools';
 import { IGFXAttribute, GFXDescriptorSet } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UniformLightingMapSampler } from '../../pipeline/define';
 import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
@@ -107,6 +107,13 @@ export class Model {
     get isInstancingEnabled () {
         return this._instMatWorldIdx >= 0;
     }
+    get receiveShadow () {
+        return this._receiveShadow;
+    }
+    set receiveShadow (val) {
+        this._receiveShadow = val;
+        this.onMacroPatchesStateChanged();
+    }
 
     public type = ModelType.DEFAULT;
     public scene: RenderScene | null = null;
@@ -115,7 +122,6 @@ export class Model {
     public enabled: boolean = true;
     public visFlags = Layers.Enum.NONE;
     public castShadow = false;
-    public receiveShadow = true;
     public isDynamicBatching = false;
     public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, list: [] };
 
@@ -134,6 +140,7 @@ export class Model {
     private _instMatWorldIdx = -1;
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
+    private _receiveShadow = true;
 
     /**
      * Setup a default empty model
@@ -174,7 +181,7 @@ export class Model {
     }
 
     public updateTransform (stamp: number) {
-        const node = this.transform!;
+        const node = this.transform;
         // @ts-ignore TS2445
         if (node.hasChangedFlags || node._dirtyFlags) {
             node.updateWorldTransform();
@@ -250,6 +257,13 @@ export class Model {
         }
     }
 
+    public onMacroPatchesStateChanged () {
+        const subModels = this._subModels;
+        for (let i = 0; i < subModels.length; i++) {
+            subModels[i].onMacroPatchesStateChanged(this.getMacroPatches(i));
+        }
+    }
+
     public updateLightingmap (texture: Texture2D | null, uvParam: Vec4) {
         Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
 
@@ -274,9 +288,7 @@ export class Model {
     }
 
     public getMacroPatches (subModelIndex: number) {
-        const pipeline = legacyCC.director.root.pipeline;
-        const shadowInfo = pipeline.shadows;
-        return (this.receiveShadow && shadowInfo.type === ShadowType.ShadowMap) ? shadowMapPatches : null;
+        return this.receiveShadow ? shadowMapPatches : null;
     }
 
     protected _updateAttributesAndBinding (subModelIndex: number) {
@@ -284,11 +296,7 @@ export class Model {
         if (!subModel) { return; }
 
         this._initLocalDescriptors(subModelIndex);
-        const subModels = this._subModels;
-        for (let i = 0; i < subModels.length; i++) {
-            const ds = subModels[i].descriptorSet;
-            this._updateLocalDescriptors(i, ds);
-        }
+        this._updateLocalDescriptors(subModelIndex, subModel.descriptorSet);
 
         const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0));
         this._updateInstancedAttributes(shader.attributes, subModel.passes[0]);

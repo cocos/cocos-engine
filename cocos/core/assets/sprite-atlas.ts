@@ -28,7 +28,7 @@
  * @category asset
  */
 
-import { ccclass, property } from '../data/class-decorator';
+import { ccclass, serializable, editable } from 'cc.decorator';
 import * as js from '../utils/js';
 import { Asset } from './asset';
 import { SpriteFrame } from './sprite-frame';
@@ -52,7 +52,8 @@ interface ISpriteFrameList {
  */
 @ccclass('cc.SpriteAtlas')
 export class SpriteAtlas extends Asset {
-    @property
+    @serializable
+    @editable
     public spriteFrames: ISpriteFrameList = js.createMap();
 
     /**

@@ -1,13 +1,12 @@
 /**
  * @category pipeline
  */
-import { ccclass } from '../../data/class-decorator';
+import { ccclass } from 'cc.decorator';
 import { ForwardFlowPriority } from '../forward/enum';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
 import { UIStage } from './ui-stage';
 import { RenderFlowTag } from '../pipeline-serialization';
-import { sceneCulling } from '../forward/scene-culling';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 
 /**
@@ -40,8 +39,6 @@ export class UIFlow extends RenderFlow {
 
     public render (view: RenderView) {
         const pipeline = this._pipeline as ForwardPipeline;
-        view.camera.update();
-        sceneCulling(pipeline, view);
         pipeline.updateUBOs(view);
         super.render(view);
     }

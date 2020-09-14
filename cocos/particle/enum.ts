@@ -50,31 +50,26 @@ export const RenderMode = Enum({
 export const ShapeType = Enum({
     /**
      * 立方体类型粒子发射器。
-     * @property {Number} Box
      */
     Box: 0,
 
     /**
      * 圆形粒子发射器。
-     * @property {Number} Circle
      */
     Circle: 1,
 
     /**
      * 圆锥体粒子发射器。
-     * @property {Number} Cone
      */
     Cone: 2,
 
     /**
      * 球体粒子发射器。
-     * @property {Number} Sphere
      */
     Sphere: 3,
 
     /**
      * 半球体粒子发射器。
-     * @property {Number} Hemisphere
      */
     Hemisphere: 4,
 });
@@ -86,25 +81,21 @@ export const ShapeType = Enum({
 export const EmitLocation = Enum({
     /**
      * 基础位置发射（仅对 Circle 类型及 Cone 类型的粒子发射器适用）。
-     * @property {Number} Base
      */
     Base: 0,
 
     /**
      * 边框位置发射（仅对 Box 类型及 Circle 类型的粒子发射器适用）。
-     * @property {Number} Edge
      */
     Edge: 1,
 
     /**
      * 表面位置发射（对所有类型的粒子发射器都适用）。
-     * @property {Number} Shell
      */
     Shell: 2,
 
     /**
      * 内部位置发射（对所有类型的粒子发射器都适用）。
-     * @property {Number} Volume
      */
     Volume: 3,
 });
@@ -116,19 +107,16 @@ export const EmitLocation = Enum({
 export const ArcMode = Enum({
     /**
      * 随机位置发射。
-     * @property {Number} Random
      */
     Random: 0,
 
     /**
      * 沿某一方向循环发射，每次循环方向相同。
-     * @property {Number} Loop
      */
     Loop: 1,
 
     /**
      * 循环发射，每次循环方向相反。
-     * @property {Number} PingPong
      */
     PingPong: 2,
 });

@@ -40,7 +40,7 @@ import { errorID, warnID, logID, assertID } from '../../platform/debug';
 const ListenerID = EventListener.ListenerID;
 
 function checkUINode (node) {
-    if(node && node.getComponent('cc.UITransformComponent')) {
+    if(node && node.getComponent('cc.UITransform')) {
         return true;
     }
     return false;
@@ -961,7 +961,10 @@ class EventManager {
                 isClaimed = listener.onTouchBegan(selTouch, event);
                 if (isClaimed && listener._isRegistered()) {
                     listener._claimedTouches.push(selTouch);
-                    eventManager._currentTouch = selTouch;
+                    if (macro.ENABLE_MULTI_TOUCH || !eventManager._currentTouch) {
+                        eventManager._currentTouch = selTouch;
+                    }
+
                     eventManager._currentTouchListener = listener;
                 }
             }
@@ -981,8 +984,13 @@ class EventManager {
                     if (listener._isRegistered()) {
                         listener._claimedTouches.splice(removedIdx, 1);
                     }
-                    eventManager._currentTouch = null;
+
+                    if (macro.ENABLE_MULTI_TOUCH || eventManager._currentTouch === selTouch) {
+                        eventManager._currentTouch = null;
+                    }
+
                     eventManager._currentTouchListener = null;
+
                 } else if (getCode === EventTouch.CANCELLED) {
                     if (listener.onTouchCancelled) {
                         listener.onTouchCancelled(selTouch, event);
@@ -990,7 +998,11 @@ class EventManager {
                     if (listener._isRegistered()) {
                         listener._claimedTouches.splice(removedIdx, 1);
                     }
-                    eventManager._currentTouch = null;
+
+                    if (macro.ENABLE_MULTI_TOUCH || eventManager._currentTouch === selTouch) {
+                        eventManager._currentTouch = null;
+                    }
+
                     eventManager._currentTouchListener = null;
                 }
             }
@@ -1066,11 +1078,11 @@ class EventManager {
             listener.onTouchesBegan(touches, event);
         } else if (getCode === EventTouch.MOVED && listener.onTouchesMoved) {
             listener.onTouchesMoved(touches, event);
-             } else if (getCode === EventTouch.ENDED && listener.onTouchesEnded) {
+        } else if (getCode === EventTouch.ENDED && listener.onTouchesEnded) {
             listener.onTouchesEnded(touches, event);
-             } else if (getCode === EventTouch.CANCELLED && listener.onTouchesCancelled) {
+        } else if (getCode === EventTouch.CANCELLED && listener.onTouchesCancelled) {
             listener.onTouchesCancelled(touches, event);
-             }
+        }
 
         // If the event was stopped, return directly.
         if (event.isStopped()) {

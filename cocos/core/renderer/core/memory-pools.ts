@@ -163,9 +163,9 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends IBufferMani
     }
 }
 
-class ObjectPool<T, P extends PoolType> {
+class ObjectPool<T, P extends PoolType, A extends any[]> {
 
-    private _ctor: (args: any, obj?: T) => T;
+    private _ctor: (args: A, obj?: T) => T;
     private _dtor?: (obj: T) => void;
     private _indexMask: number;
     private _poolFlag: number;
@@ -175,7 +175,7 @@ class ObjectPool<T, P extends PoolType> {
 
     private _nativePool: NativeObjectPool<T>;
 
-    constructor (dataType: P, ctor: (args: any, obj?: T) => T, dtor?: (obj: T) => void) {
+    constructor (dataType: P, ctor: (args: A, obj?: T) => T, dtor?: (obj: T) => void) {
         this._ctor = ctor;
         if (dtor) { this._dtor = dtor; }
         this._poolFlag = 1 << 29;
@@ -183,17 +183,17 @@ class ObjectPool<T, P extends PoolType> {
         this._nativePool = new NativeObjectPool(dataType, this._array);
     }
 
-    public alloc (...args: any[]): IHandle<P> {
+    public alloc (...args: A): IHandle<P> {
         const freelist = this._freelist;
         let i = -1;
         if (freelist.length) {
             i = freelist[freelist.length - 1];
             freelist.length--;
-            this._array[i] = this._ctor(arguments, this._array[i]);
+            this._array[i] = this._ctor(arguments as unknown as A, this._array[i]);
         }
         if (i < 0) {
             i = this._array.length;
-            const obj = this._ctor(arguments);
+            const obj = this._ctor(arguments as unknown as A);
             if (!obj) { return 0 as unknown as IHandle<P>; }
             this._array.push(obj);
         }
@@ -251,9 +251,9 @@ export type PassHandle = IHandle<PoolType.PASS>;
 export type SubModelHandle = IHandle<PoolType.SUB_MODEL>;
 
 // don't reuse any of these data-only structs, for GFX objects may directly reference them
-export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, (_: any) => new GFXRasterizerState());
-export const DepthStencilStatePool = new ObjectPool(PoolType.DEPTH_STENCIL_STATE, (_: any) => new GFXDepthStencilState());
-export const BlendStatePool = new ObjectPool(PoolType.BLEND_STATE, (_: any) => new GFXBlendState());
+export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, () => new GFXRasterizerState());
+export const DepthStencilStatePool = new ObjectPool(PoolType.DEPTH_STENCIL_STATE, () => new GFXDepthStencilState());
+export const BlendStatePool = new ObjectPool(PoolType.BLEND_STATE, () => new GFXBlendState());
 
 export const ShaderPool = new ObjectPool(PoolType.SHADER,
     (args: [GFXDevice, GFXShaderInfo], obj?: GFXShader) => obj ? (obj.initialize(args[1]), obj) : args[0].createShader(args[1]),
@@ -302,7 +302,7 @@ interface IPassViewType extends IBufferTypeManifest {
     [PassView.PIPELINE_LAYOUT]: PipelineLayoutHandle;
     [PassView.COUNT]: number;
 }
-// Theoretically we only have to declare IPassViewType here while all the other arguments can be inferred.
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
 // but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
 // we'll have to explicitly declare all these types.
 export const PassPool = new BufferPool<PoolType.PASS, Uint32Array, typeof PassView, IPassViewType>(PoolType.PASS, Uint32Array, PassView);
@@ -337,5 +337,8 @@ interface ISubModelViewType extends IBufferTypeManifest {
     [SubModelView.INPUT_ASSEMBLER]: InputAssemblerHandle;
     [SubModelView.COUNT]: number;
 }
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
 export const SubModelPool = new BufferPool<PoolType.SUB_MODEL, Uint32Array, typeof SubModelView, ISubModelViewType>
     (PoolType.SUB_MODEL, Uint32Array, SubModelView);

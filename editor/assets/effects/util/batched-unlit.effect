@@ -27,7 +27,7 @@ CCEffect %{
 }%
 
 // This is the batched reference for 'builtin-unlit.effect',
-// can be used in BatchedSkinningModelComponent as the master material.
+// can be used in BatchedSkinningModel as the master material.
 
 CCProgram unlit-vs %{
   precision highp float;

@@ -57,7 +57,7 @@
                     ]
                 },
                 {
-                    "text": "ammo.js(beta)",
+                    "text": "ammo.js",
                     "entry": [
                         "physics-ammo",
                         "physics-framework",

@@ -4,7 +4,7 @@
 
 import { legacyCC } from '../global-exports';
 import { Asset } from '../assets/asset';
-import { ccclass, property, visible, displayOrder, type } from '../data/class-decorator';
+import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 import { MacroRecord } from '../renderer/core/pass-utils';
@@ -64,6 +64,8 @@ export abstract class RenderPipeline extends Asset {
      * @zh 管线的渲染流程列表。
      * @readonly
      */
+    @type([RenderFlow])
+    @displayOrder(1)
     get flows (): RenderFlow[] {
         return this._flows;
     }
@@ -73,6 +75,7 @@ export abstract class RenderPipeline extends Asset {
      * @zh 管线的标签。
      * @readonly
      */
+    @displayOrder(0)
     get tag (): number {
         return this._tag;
     }
@@ -82,9 +85,7 @@ export abstract class RenderPipeline extends Asset {
      * @zh 标签
      * @readonly
      */
-    @property
-    @displayOrder(0)
-    @visible(true)
+    @serializable
     protected _tag: number = 0;
 
     /**
@@ -93,8 +94,6 @@ export abstract class RenderPipeline extends Asset {
      * @readonly
      */
     @type([RenderFlow])
-    @displayOrder(1)
-    @visible(true)
     protected _flows: RenderFlow[] = [];
 
     protected _globalDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: [], record: {} };
@@ -161,9 +160,12 @@ export abstract class RenderPipeline extends Asset {
      * @zh 渲染函数，对指定的渲染视图按顺序执行所有渲染流程。
      * @param view Render view。
      */
-    public render (view: RenderView) {
-        for (let i = 0; i < view.flows.length; i++) {
-            view.flows[i].render(view);
+    public render (views: RenderView[]) {
+        for (let i = 0; i < views.length; i++) {
+            const view = views[i];
+            for (let j = 0; j < view.flows.length; j++) {
+                view.flows[j].render(view);
+            }
         }
     }
 
