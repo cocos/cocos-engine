@@ -32,6 +32,14 @@ import { EDITOR, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
 
+/**
+ * @en
+ * Define an BitMask type.
+ * @zh
+ * 定义一个位掩码类型。
+ * @param obj A JavaScript literal object containing BitMask names and values
+ * @return The defined BitMask type
+ */
 export function BitMask<T> (obj: T): T {
     if ('__bitmask__' in obj) {
         return obj;

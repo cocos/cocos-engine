@@ -1,19 +1,17 @@
 
 /**
- * @category memop
- */
-
-/**
- * @zh 可变长数组。
+ * @en Array with optimized memory management.
+ * It accepts an initial size and pre-allocate, it also grow by size times two each time reaches the maximum size.
+ * @zh 可变长数组。接受一个初始长度并用来初始化数组，每当数组长度超界都会自动扩充到两倍长度。
  */
 export class OptimizedArray<T = {}> {
     private _size: number;
     private _data: Array<T | undefined>;
 
     /**
-     * 构造函数，指定数组起始大小。
+     * @zh 构造函数，指定数组起始大小。
      * @en Initialize this array with specified capacity.
-     * @param {Number} [size] The size.
+     * @param size The size.
      */
     constructor (size = 0) {
         this._size = size;
@@ -23,7 +21,6 @@ export class OptimizedArray<T = {}> {
     /**
      * @zh 数组大小。
      * @en Size of this array.
-     * @return {Number}
      */
     get size () {
         return this._size;
@@ -31,16 +28,15 @@ export class OptimizedArray<T = {}> {
 
     /**
      * @zh 返回对应的数组实例。
-     * @en The underlying Array of this array.
-     * @return {Array}
+     * @en The underlying Array of this OptimizedArray.
      */
     get data () {
         return this._data;
     }
 
     /**
-     * @zh 返回已经分配的数组大小。
-     * @en Capacity of this array.
+     * @zh 返回已经分配的数组容量。
+     * @en Current capacity of this array.
      */
     get capacity () {
         return this._data.length;
@@ -49,7 +45,7 @@ export class OptimizedArray<T = {}> {
     /**
      * @zh 在末尾添加一个元素。
      * @en Push a value to back of this array.
-     * @param {any} value
+     * @param value The element to be added
      */
     public push (value) {
         if (this._size > this._data.length) {
@@ -60,7 +56,7 @@ export class OptimizedArray<T = {}> {
     }
 
     /**
-     * @zh 删除末尾一个元素。
+     * @zh 移除并返回最末尾的元素。
      * @en Remove the last element and return it, if exists.
      */
     public pop () {
@@ -86,7 +82,7 @@ export class OptimizedArray<T = {}> {
 
     /**
      * @ignore
-     * @param {Number} size
+     * @private
      */
     public _extends (size) {
         const finalSize = this._data.length + size;
@@ -101,6 +97,7 @@ type Allocator<T> = () => T;
 type Deallocator<T> = (value: T) => void;
 
 /**
+ * @en Optimized Array for typed value
  * @zh 自动分配内存的数组。
  */
 export class OptimizedValueArray<T = {}> {
@@ -110,7 +107,6 @@ export class OptimizedValueArray<T = {}> {
     private _dtor;
 
     /**
-     * 构造函数，指定数组元素的构造函数，析构函数，和数组大小。
      * @param {any} ctor The constructor to create the value.
      * @param {Number} [size] The size.
      */
@@ -142,7 +138,7 @@ export class OptimizedValueArray<T = {}> {
 
     /**
      * @zh 获取已分配数组长度。
-     * Capacity of this array.
+     * @en Capacity of this array.
      */
     get capacity () {
         return this._data.length;
@@ -186,6 +182,7 @@ export class OptimizedValueArray<T = {}> {
     }
 
     /**
+     * @en Delete an element within an interval.
      * @zh 删除一段区间内的元素。
      * @param from 起始索引。
      * @param number 删除元素的个数。
@@ -215,6 +212,7 @@ export class OptimizedValueArray<T = {}> {
     }
 
     /**
+     * @en Traverse the entire array
      * @zh 遍历数组。
      * @param fx 遍历函数。
      */
@@ -225,6 +223,7 @@ export class OptimizedValueArray<T = {}> {
     }
 
     /**
+     * @en Map the array to another array and return the new array.
      * @zh 将数组映射为另一个数组，返回新数组。
      * @param fx 映射函数。
      */
