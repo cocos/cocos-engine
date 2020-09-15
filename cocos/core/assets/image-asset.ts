@@ -32,7 +32,7 @@ import {ccclass, override} from 'cc.decorator';
 import { GFXDevice, GFXFeature } from '../gfx/device';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
-import { EDITOR, MINIGAME, ALIPAY } from 'internal:constants';
+import { EDITOR, MINIGAME, ALIPAY, XIAOMI } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 
@@ -61,7 +61,7 @@ function fetchImageSource (imageSource: ImageSource) {
  * @param imageSource 
  */
 function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement) {
-    if (ALIPAY) {
+    if (ALIPAY || XIAOMI) {
         // We're unable to grab the constructors of Alipay native image or canvas object.
         return !('_data' in imageSource);
     } else {
