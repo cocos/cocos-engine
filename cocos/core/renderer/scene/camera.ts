@@ -159,6 +159,7 @@ export class Camera {
             priority: this._priority,
             flows: info.flows,
         });
+        legacyCC.director.root.attachCamera(this);
         this.changeTargetWindow(info.window);
 
         console.log('Created Camera: ' + this._name + ' ' + this._width + 'x' + this._height);
