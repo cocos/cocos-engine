@@ -1,6 +1,6 @@
 {
   "name": "@cocos/build-engine",
-  "version": "3.0.6",
+  "version": "3.0.8",
   "description": "",
   "main": "dist/index.js",
   "dependencies": {
@@ -16,7 +16,7 @@
     "@rollup/plugin-virtual": "^2.0.1",
     "fs-extra": "^8.1.0",
     "resolve": "^1.17.0",
-    "rollup": "^2.26.11",
+    "rollup": "2.26.6",
     "rollup-plugin-progress": "^1.1.1",
     "rollup-plugin-terser": "^5.2.0",
     "yargs": "^15.1.0"
