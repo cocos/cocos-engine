@@ -89,7 +89,6 @@ export class ShadowStage extends RenderStage {
         const device = pipeline.device;
         const renderPass = this._shadowFrameBuffer!.renderPass;
 
-        cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, this._shadowFrameBuffer!, this._renderArea!,
             colors, camera.clearDepth, camera.clearStencil);
 
@@ -98,9 +97,5 @@ export class ShadowStage extends RenderStage {
         this._additiveShadowQueue.recordCommandBuffer(device, renderPass!, cmdBuff);
 
         cmdBuff.endRenderPass();
-        cmdBuff.end();
-
-        bufs[0] = cmdBuff;
-        device.queue.submit(bufs);
     }
 }

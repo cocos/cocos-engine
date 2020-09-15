@@ -13,7 +13,7 @@ import { GFXDevice } from './device';
 import { IGFXAttribute } from './input-assembler';
 import { GFXRenderPass } from './render-pass';
 import { GFXShader } from './shader';
-import { GFXPipelineLayout } from '..';
+import { GFXPipelineLayout } from './pipeline-layout';
 
 export const GFXRasterizerState = gfx.RasterizerState;
 export const GFXDepthStencilState = gfx.DepthStencilState;

@@ -746,6 +746,6 @@ export const graphicsAssembler: IAssembler = {
         Color.toArray(vData!, _curColor, dataOffset);
         dataOffset += 4;
         vData[dataOffset++] = distance;
-        meshBuffer.vertexStart ++;
+        meshBuffer.vertexStart++;
     },
 };

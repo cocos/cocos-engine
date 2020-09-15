@@ -145,14 +145,13 @@ export class ForwardStage extends RenderStage {
                 }
             }
         }
+        const cmdBuff = pipeline.commandBuffers[0];
+
         this._renderQueues.forEach(this.renderQueueSortFunc);
-        this._additiveLightQueue.gatherLightPasses(view);
+        this._additiveLightQueue.gatherLightPasses(view, cmdBuff);
         this._planarQueue.updateShadowList(view);
 
         const camera = view.camera;
-
-        const cmdBuff = pipeline.commandBuffers[0];
-
         const vp = camera.viewport;
         this._renderArea!.x = vp.x * camera.width;
         this._renderArea!.y = vp.y * camera.height;
@@ -178,7 +177,6 @@ export class ForwardStage extends RenderStage {
         const framebuffer = view.window.framebuffer;
         const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
 
-        cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
             colors, camera.clearDepth, camera.clearStencil);
 
@@ -192,9 +190,6 @@ export class ForwardStage extends RenderStage {
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
 
         cmdBuff.endRenderPass();
-        cmdBuff.end();
-
-        device.queue.submit(pipeline.commandBuffers);
     }
 
     /**

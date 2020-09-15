@@ -520,7 +520,7 @@ export class Root {
             this._modelPools.set(mClass, new Pool(() => new mClass(), 10));
             p = this._modelPools.get(mClass)!;
         }
-        let model = p.alloc() as T;
+        const model = p.alloc() as T;
         model.initialize();
         return model;
     }

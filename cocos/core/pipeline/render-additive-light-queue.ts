@@ -95,7 +95,7 @@ export class RenderAdditiveLightQueue {
 
         this._lightBuffer = this._device.createBuffer({
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            usage: GFXBufferUsageBit.UNIFORM,
+            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
             stride: this._lightBufferStride,
             size: this._lightBufferStride * this._lightBufferCount,
         });
@@ -109,7 +109,7 @@ export class RenderAdditiveLightQueue {
         this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
     }
 
-    public gatherLightPasses (view: RenderView) {
+    public gatherLightPasses (view: RenderView, cmdBuff: GFXCommandBuffer) {
 
         const validLights = this._validLights;
         const sphereLights = view.camera.scene!.sphereLights;
@@ -143,7 +143,7 @@ export class RenderAdditiveLightQueue {
 
         if (!validLights.length) return;
 
-        this._updateUBOs(view);
+        this._updateUBOs(view, cmdBuff);
 
         for (let i = 0; i < this._renderObjects.length; i++) {
             const ro = this._renderObjects[i];
@@ -235,7 +235,7 @@ export class RenderAdditiveLightQueue {
         }
     }
 
-    protected _updateUBOs (view: RenderView) {
+    protected _updateUBOs (view: RenderView, cmdBuff: GFXCommandBuffer) {
         const exposure = view.camera.exposure;
 
         if (this._validLights.length > this._lightBufferCount) {
@@ -312,6 +312,7 @@ export class RenderAdditiveLightQueue {
                 break;
             }
         }
-        this._lightBuffer.update(this._lightBufferData);
+
+        cmdBuff.updateBuffer(this._lightBuffer, this._lightBufferData);
     }
 }

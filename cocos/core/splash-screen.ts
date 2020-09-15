@@ -396,10 +396,7 @@ export class SplashScreen {
         this.renderArea = { x: 0, y: 0, width: device.width, height: device.height };
         this.framebuffer = this.root.mainWindow!.framebuffer;
 
-        this.cmdBuff = device.createCommandBuffer({
-            queue: device.queue,
-            type: GFXCommandBufferType.PRIMARY,
-        });
+        this.cmdBuff = device.commandBuffer;
     }
 
     private initIA () {
@@ -519,7 +516,6 @@ export class SplashScreen {
         this.renderArea = null!;
         this.region = null!;
 
-        this.cmdBuff.destroy();
         this.cmdBuff = null!;
 
         this.shader = null!;
