@@ -307,7 +307,7 @@ export default class NativeTTF {
         if (!comp._vertsDirty) return;
 
         if (comp.font && comp.font.nativeUrl) {
-            this.setFontPath(comp.font.nativeUrl);
+            this.setFontPath(cc.assetManager.cacheManager.getCache(comp.font.nativeUrl) || comp.font.nativeUrl);
         }
         let layout = this._layout;
         let c = comp.node.color;
