@@ -153,11 +153,6 @@ export class RenderScene {
 
     public addCamera (cam: Camera) {
         cam.attachToScene(this);
-        for (let i = 0; i < this._cameras.length; ++i) {
-            if (this._cameras[i] === cam) {
-                return;
-            }
-        }
         this._cameras.push(cam);
     }
 
