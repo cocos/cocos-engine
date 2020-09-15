@@ -23,22 +23,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
+#include "audio/include/AudioEngine.h"
+#include "base/Scheduler.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
 #include "platform/Application.h"
 #include <algorithm>
 #include <mutex>
-#include "base/Scheduler.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
-#include "audio/include/AudioEngine.h"
 
 #import <AppKit/AppKit.h>
 
-@interface MyTimer : NSObject
-{
-    cc::Application* _app;
-    NSTimer* _timer;
+@interface MyTimer : NSObject {
+    cc::Application *_app;
+    NSTimer *_timer;
     int _fps;
 }
-- (instancetype)initWithApp:(cc::Application*)app fps:(int)fps;
+- (instancetype)initWithApp:(cc::Application *)app fps:(int)fps;
 - (void)start;
 - (void)changeFPS:(int)fps;
 - (void)pause;
@@ -47,18 +46,15 @@ THE SOFTWARE.
 
 @implementation MyTimer
 
-- (instancetype)initWithApp:(cc::Application*)app fps:(int)fps
-{
-    if (self = [super init])
-    {
+- (instancetype)initWithApp:(cc::Application *)app fps:(int)fps {
+    if (self = [super init]) {
         _fps = fps;
         _app = app;
     }
     return self;
 }
 
-- (void)start
-{
+- (void)start {
     _timer = [NSTimer scheduledTimerWithTimeInterval:1.0f / _fps
                                               target:self
                                             selector:@selector(renderScene)
@@ -66,27 +62,23 @@ THE SOFTWARE.
                                              repeats:YES];
 }
 
-- (void)pause
-{
+- (void)pause {
     [_timer invalidate];
 }
 
-- (void)resume
-{
+- (void)resume {
     [self start];
 }
 
-- (void)changeFPS:(int)fps
-{
+- (void)changeFPS:(int)fps {
     if (fps == _fps)
         return;
-    
+
     [self pause];
     [self resume];
 }
 
-- (void)renderScene
-{
+- (void)renderScene {
     _app->tick();
 }
 
@@ -94,47 +86,43 @@ THE SOFTWARE.
 
 namespace cc {
 
-namespace
-{
-    bool setCanvasCallback(se::Object* global)
-    {
-        auto viewLogicalSize = Application::getInstance()->getViewLogicalSize();
-        se::ScriptEngine* se = se::ScriptEngine::getInstance();
-        char commandBuf[200] = {0};
-        NSView* view = [[[[NSApplication sharedApplication] delegate] getWindow] contentView];
-        sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
-                (int)(viewLogicalSize.x),
-                (int)(viewLogicalSize.y),
-                (uintptr_t)view);
-        se->evalString(commandBuf);
-        return true;
-    }
+namespace {
+bool setCanvasCallback(se::Object *global) {
+    auto viewLogicalSize = Application::getInstance()->getViewLogicalSize();
+    se::ScriptEngine *se = se::ScriptEngine::getInstance();
+    char commandBuf[200] = {0};
+    NSView *view = [[[[NSApplication sharedApplication] delegate] getWindow] contentView];
+    sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
+            (int)(viewLogicalSize.x),
+            (int)(viewLogicalSize.y),
+            (uintptr_t)view);
+    se->evalString(commandBuf);
+    return true;
+}
 
-#ifndef USE_METAL
-    MyTimer* _timer;
+#ifndef CC_USE_METAL
+MyTimer *_timer;
 #endif
 }
 
-Application* Application::_instance = nullptr;
+Application *Application::_instance = nullptr;
 std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
 
-Application::Application(int width, int height)
-{
+Application::Application(int width, int height) {
     Application::_instance = this;
-    
+
     _viewLogicalSize.x = width;
     _viewLogicalSize.y = height;
-    
+
     _scheduler = std::make_shared<Scheduler>();
     EventDispatcher::init();
 
-#ifndef USE_METAL
+#ifndef CC_USE_METAL
     _timer = [[MyTimer alloc] initWithApp:this fps:_fps];
 #endif
 }
 
-Application::~Application()
-{
+Application::~Application() {
 
 #if USE_AUDIO
     AudioEngine::end();
@@ -144,48 +132,43 @@ Application::~Application()
     se::ScriptEngine::destroyInstance();
 
     Application::_instance = nullptr;
-  
-#ifndef USE_METAL
+
+#ifndef CC_USE_METAL
     [_timer release];
 #endif
 }
 
-bool Application::init()
-{
-    se::ScriptEngine* se = se::ScriptEngine::getInstance();
+bool Application::init() {
+    se::ScriptEngine *se = se::ScriptEngine::getInstance();
     se->addRegisterCallback(setCanvasCallback);
 
-#ifndef USE_METAL
+#ifndef CC_USE_METAL
     [_timer start];
 #endif
-    
+
     return true;
 }
 
-void Application::setPreferredFramesPerSecond(int fps)
-{
+void Application::setPreferredFramesPerSecond(int fps) {
     _fps = fps;
-    
-#ifndef USE_METAL
+
+#ifndef CC_USE_METAL
     [_timer changeFPS:_fps];
 #endif
 }
 
-Application::Platform Application::getPlatform() const
-{
+Application::Platform Application::getPlatform() const {
     return Platform::MAC;
 }
 
-std::string Application::getCurrentLanguageCode() const
-{
+std::string Application::getCurrentLanguageCode() const {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSArray *languages = [defaults objectForKey:@"AppleLanguages"];
     NSString *currentLanguage = [languages objectAtIndex:0];
     return [currentLanguage UTF8String];
 }
 
-bool Application::isDisplayStats()
-{
+bool Application::isDisplayStats() {
     se::AutoHandleScope hs;
     se::Value ret;
     char commandBuf[100] = "cc.debug.isDisplayStats();";
@@ -193,32 +176,29 @@ bool Application::isDisplayStats()
     return ret.toBoolean();
 }
 
-void Application::setDisplayStats(bool isShow)
-{
+void Application::setDisplayStats(bool isShow) {
     se::AutoHandleScope hs;
     char commandBuf[100] = {0};
     sprintf(commandBuf, "cc.debug.setDisplayStats(%s);", isShow ? "true" : "false");
     se::ScriptEngine::getInstance()->evalString(commandBuf);
 }
 
-void Application::setCursorEnabled(bool value)
-{
+void Application::setCursorEnabled(bool value) {
     if (value)
         CGDisplayShowCursor(kCGDirectMainDisplay);
     else
         CGDisplayHideCursor(kCGDirectMainDisplay);
 }
 
-Application::LanguageType Application::getCurrentLanguage() const
-{
+Application::LanguageType Application::getCurrentLanguage() const {
     // get the current language and country config
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSArray *languages = [defaults objectForKey:@"AppleLanguages"];
     NSString *currentLanguage = [languages objectAtIndex:0];
 
     // get the current language code.(such as English is "en", Chinese is "zh" and so on)
-    NSDictionary* temp = [NSLocale componentsFromLocaleIdentifier:currentLanguage];
-    NSString * languageCode = [temp objectForKey:NSLocaleLanguageCode];
+    NSDictionary *temp = [NSLocale componentsFromLocaleIdentifier:currentLanguage];
+    NSString *languageCode = [temp objectForKey:NSLocaleLanguageCode];
 
     if ([languageCode isEqualToString:@"zh"]) return LanguageType::CHINESE;
     if ([languageCode isEqualToString:@"en"]) return LanguageType::ENGLISH;
@@ -242,37 +222,32 @@ Application::LanguageType Application::getCurrentLanguage() const
     return LanguageType::ENGLISH;
 }
 
-bool Application::openURL(const std::string &url)
-{
-    NSString* msg = [NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding];
-    NSURL* nsUrl = [NSURL URLWithString:msg];
+bool Application::openURL(const std::string &url) {
+    NSString *msg = [NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding];
+    NSURL *nsUrl = [NSURL URLWithString:msg];
     return [[NSWorkspace sharedWorkspace] openURL:nsUrl];
 }
 
-void Application::copyTextToClipboard(const std::string &text)
-{
+void Application::copyTextToClipboard(const std::string &text) {
     NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
     [pasteboard clearContents];
-    NSString* tmp = [NSString stringWithCString:text.c_str() encoding:NSUTF8StringEncoding];
+    NSString *tmp = [NSString stringWithCString:text.c_str() encoding:NSUTF8StringEncoding];
     [pasteboard setString:tmp forType:NSStringPboardType];
 }
 
-void Application::onPause()
-{
-#ifndef USE_METAL
+void Application::onPause() {
+#ifndef CC_USE_METAL
     [_timer pause];
 #endif
 }
 
-void Application::onResume()
-{
-#ifndef USE_METAL
+void Application::onResume() {
+#ifndef CC_USE_METAL
     [_timer resume];
 #endif
 }
 
-std::string Application::getSystemVersion()
-{
+std::string Application::getSystemVersion() {
     NSOperatingSystemVersion v = NSProcessInfo.processInfo.operatingSystemVersion;
     char version[50] = {0};
     snprintf(version, sizeof(version), "%d.%d.%d", (int)v.majorVersion, (int)v.minorVersion, (int)v.patchVersion);

@@ -222,7 +222,7 @@ typedef vector<GLES3GPUDescriptor> GLES3GPUDescriptorList;
 class GLES3GPUDescriptorSet : public Object {
 public:
     GLES3GPUDescriptorList gpuDescriptors;
-    const vector<uint> *descriptorIndices;
+    const vector<uint> *descriptorIndices = nullptr;
 };
 
 class GLES3GPUFence : public Object {

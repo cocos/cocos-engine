@@ -332,7 +332,8 @@ void CCMTLCommandBuffer::bindDescriptorSets() {
         const auto &sampler = iter.second;
 
         const auto gpuDescriptorSet = _GPUDescriptorSets[sampler.set];
-        const auto &gpuDescriptor = gpuDescriptorSet->gpuDescriptors[sampler.binding];
+        const auto descriptorIndex = gpuDescriptorSet->descriptorIndices->at(sampler.binding);
+        const auto &gpuDescriptor = gpuDescriptorSet->gpuDescriptors[descriptorIndex];
 
         if (!gpuDescriptor.texture || !gpuDescriptor.sampler) {
             CC_LOG_ERROR("Sampler binding %s at set %d binding %d is not bounded.", sampler.name.c_str(), sampler.set, sampler.binding);

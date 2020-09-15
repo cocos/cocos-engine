@@ -30,7 +30,7 @@ else()
 	add_library(${TARGET_NAME} SHARED ${HEADER_FILES} ${ALL_FILES})
 endif()
 
-target_compile_definitions(${TARGET_NAME} PRIVATE USE_METAL)
+target_compile_definitions(${TARGET_NAME} PRIVATE CC_USE_METAL)
 find_library(METAL_LIBRARY Metal)
 find_library(METALKIT_LIBRARY MetalKit)
 set(glslang_libs_name glslang OGLCompiler OSDependent SPIRV glslang-default-resource-limits)

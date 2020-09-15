@@ -27,7 +27,7 @@ bool GLES2CommandBuffer::initialize(const CommandBufferInfo &info) {
 
     _gles2Allocator = ((GLES2Device *)_device)->cmdAllocator();
 
-    uint setCount = ((GLES2Device *)_device)->bindingMappingInfo().bufferOffsets.size();
+    size_t setCount = ((GLES2Device *)_device)->bindingMappingInfo().bufferOffsets.size();
     _curGPUDescriptorSets.resize(setCount);
     _curDynamicOffsets.resize(setCount);
 
@@ -72,7 +72,7 @@ void GLES2CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     cmd->gpuFBO = ((GLES2Framebuffer *)fbo)->gpuFBO();
     cmd->renderArea = renderArea;
     cmd->numClearColors = cmd->gpuRenderPass->colorAttachments.size();
-    for (uint i = 0; i < cmd->numClearColors; ++i) {
+    for (size_t i = 0; i < cmd->numClearColors; ++i) {
         cmd->clearColors[i] = colors[i];
     }
     cmd->clearDepth = depth;

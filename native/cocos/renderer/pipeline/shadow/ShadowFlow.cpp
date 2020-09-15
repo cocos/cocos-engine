@@ -18,8 +18,7 @@ RenderFlowInfo ShadowFlow::_initInfo = {
     "ShadowFlow",
     static_cast<uint>(ForwardFlowPriority::SHADOW),
     static_cast<uint>(RenderFlowTag::SCENE),
-    {}
-};
+    {}};
 const RenderFlowInfo &ShadowFlow::getInitializeInfo() { return ShadowFlow::_initInfo; }
 
 ShadowFlow::~ShadowFlow() {
@@ -104,6 +103,7 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
 
 void ShadowFlow::render(RenderView *view) {
     auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
+    return; //TODO coulsonwang
     const auto shadowInfo = pipeline->getShadows();
     if (!shadowInfo->enabled) return;
 

@@ -58,7 +58,7 @@ public:
     GLES3GPURenderPass *gpuRenderPass = nullptr;
     GLES3GPUFramebuffer *gpuFBO = nullptr;
     Rect renderArea;
-    uint numClearColors = 0;
+    size_t numClearColors = 0;
     Color clearColors[GFX_MAX_ATTACHMENTS];
     float clearDepth = 1.0f;
     int clearStencil = 0;

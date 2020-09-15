@@ -23,11 +23,11 @@
  ****************************************************************************/
 #import <AppKit/NSView.h>
 
-#ifdef USE_METAL
+#ifdef CC_USE_METAL
     #import <MetalKit/MetalKit.h>
 #endif
 
-#ifdef USE_METAL
+#ifdef CC_USE_METAL
 @interface View : MTKView <MTKViewDelegate>
 #else
 @interface View : NSView

@@ -15,10 +15,22 @@ CCMTLDescriptorSetLayout::~CCMTLDescriptorSetLayout() {
 
 bool CCMTLDescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
     _bindings = info.bindings;
-
+    const auto bindingCount = _bindings.size();
+    _descriptorIndices.resize(bindingCount + 1);
+    
+    uint descriptorCount = 0;
+    for(size_t i = 0; i < bindingCount; i++) {
+        _descriptorIndices[i] = descriptorCount;
+        descriptorCount += _bindings[i].count;
+    }
+    _descriptorIndices[bindingCount] = descriptorCount;
+    
     _gpuDescriptorSetLayout = CC_NEW(CCMTLGPUDescriptorSetLayout);
-
-    for (size_t i = 0; i < _bindings.size(); i++) {
+    _gpuDescriptorSetLayout->descriptorCount = descriptorCount;
+    _gpuDescriptorSetLayout->descriptorIndices = _descriptorIndices;
+    _gpuDescriptorSetLayout->bindings = _bindings;
+    
+    for (size_t i = 0; i < bindingCount; i++) {
         const auto binding = _bindings[i];
         if (static_cast<uint>(binding.descriptorType) & DESCRIPTOR_DYNAMIC_TYPE) {
             for (uint j = 0; j < binding.count; j++) {
@@ -26,8 +38,6 @@ bool CCMTLDescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
             }
         }
     }
-
-    _gpuDescriptorSetLayout->bindings = _bindings;
     return true;
 }
 

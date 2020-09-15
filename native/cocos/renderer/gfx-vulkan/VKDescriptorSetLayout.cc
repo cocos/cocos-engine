@@ -41,7 +41,6 @@ bool CCVKDescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
             }
         }
     }
-    _gpuDescriptorSetLayout->bindings = _bindings;
     CCVKCmdFuncCreateDescriptorSetLayout((CCVKDevice *)_device, _gpuDescriptorSetLayout);
 
     return true;

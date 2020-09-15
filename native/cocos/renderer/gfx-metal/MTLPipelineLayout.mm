@@ -14,18 +14,18 @@ CCMTLPipelineLayout::~CCMTLPipelineLayout() {
 
 bool CCMTLPipelineLayout::initialize(const PipelineLayoutInfo &info) {
     _setLayouts = info.setLayouts;
-
+    const auto setCount = _setLayouts.size();
     _gpuPipelineLayout = CC_NEW(CCMTLGPUPipelineLayout);
-    _gpuPipelineLayout->dynamicOffsetIndices.resize(_setLayouts.size());
+    _gpuPipelineLayout->dynamicOffsetIndices.resize(setCount);
 
-    uint i = 0;
-    for (auto setLayout : _setLayouts) {
+    for (size_t i = 0; i < setCount; i++) {
+        const auto setLayout = _setLayouts[i];
         CCASSERT(setLayout != nullptr, "SetLayout should not be nullptr.");
         auto gpuDescriptorSetLayout = static_cast<CCMTLDescriptorSetLayout *>(setLayout)->gpuDescriptorSetLayout();
         auto dynamicCount = gpuDescriptorSetLayout->dynamicBindings.size();
         auto bindingCount = gpuDescriptorSetLayout->bindings.size();
 
-        auto &indices = _gpuPipelineLayout->dynamicOffsetIndices[i++];
+        auto &indices = _gpuPipelineLayout->dynamicOffsetIndices[i];
         indices.assign(bindingCount, -1);
 
         for (size_t j = 0; j < dynamicCount; j++) {

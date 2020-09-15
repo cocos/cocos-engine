@@ -311,7 +311,9 @@ struct CC_DLL UBOShadow : public Object {
     static constexpr uint MAT_LIGHT_PLANE_PROJ_OFFSET = 0;
     static constexpr uint MAT_LIGHT_VIEW_PROJ_OFFSET = UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
     static constexpr uint SHADOW_COLOR_OFFSET = UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
-    static constexpr uint COUNT = UBOShadow::SHADOW_COLOR_OFFSET + 4;
+    static constexpr uint SHADOW_PCF_OFFSET = UBOShadow::SHADOW_COLOR_OFFSET + 4;
+    static constexpr uint SHADOW_SIZE_OFFSET = UBOShadow::SHADOW_PCF_OFFSET + 4;
+    static constexpr uint COUNT = UBOShadow::SHADOW_SIZE_OFFSET + 4;
     static constexpr uint SIZE = UBOShadow::COUNT * 4;
 
     static const BlockInfo BLOCK;

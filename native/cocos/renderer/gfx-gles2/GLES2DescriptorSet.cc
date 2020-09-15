@@ -65,8 +65,7 @@ void GLES2DescriptorSet::update() {
                         _gpuDescriptorSet->gpuDescriptors[i].gpuBufferView = buffer->gpuBufferView();
                     }
                 }
-            }
-            else if ((uint)descriptors[i].type & DESCRIPTOR_SAMPLER_TYPE) {
+            } else if ((uint)descriptors[i].type & DESCRIPTOR_SAMPLER_TYPE) {
                 if (_textures[i]) {
                     _gpuDescriptorSet->gpuDescriptors[i].gpuTexture = ((GLES2Texture *)_textures[i])->gpuTexture();
                 }

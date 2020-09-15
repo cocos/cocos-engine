@@ -20,7 +20,7 @@ bool GLES3PipelineLayout::initialize(const PipelineLayoutInfo &info) {
 
     _gpuPipelineLayout = CC_NEW(GLES3GPUPipelineLayout);
 
-    int offset = 0u;
+    uint offset = 0u;
     _gpuPipelineLayout->dynamicOffsetIndices.resize(_setLayouts.size());
     for (uint i = 0u; i < _setLayouts.size(); i++) {
         DescriptorSetLayout *setLayout = _setLayouts[i];

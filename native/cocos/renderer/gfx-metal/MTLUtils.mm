@@ -516,7 +516,7 @@ String compileGLSLShader2Msl(const String &src,
                              ShaderStageFlagBit shaderType,
                              Device *device,
                              CCMTLGPUShader *gpuShader) {
-#if USE_METAL
+#if CC_USE_METAL
     String shaderSource("#version 310 es\n");
     shaderSource.append(src);
     const auto &spv = GLSL2SPIRV(shaderType, shaderSource);
@@ -539,6 +539,7 @@ String compileGLSLShader2Msl(const String &src,
     for (const auto &ubo : resources.uniform_buffers) {
         auto set = msl.get_decoration(ubo.id, spv::DecorationDescriptorSet);
         auto binding = msl.get_decoration(ubo.id, spv::DecorationBinding);
+        auto size = msl.get_declared_struct_size(msl.get_type(ubo.base_type_id));
 
         if (binding >= maxBufferBindingIndex) {
             CC_LOG_ERROR("Implemention limits: %s binding at %d, should not use more than %d entries in the buffer argument table", ubo.name.c_str(), binding, maxBufferBindingIndex);
@@ -552,7 +553,7 @@ String compileGLSLShader2Msl(const String &src,
         msl.add_msl_resource_binding(newBinding);
 
         if (gpuShader->blocks.find(mappedBinding) == gpuShader->blocks.end())
-            gpuShader->blocks[mappedBinding] = {ubo.name, set, binding, mappedBinding, shaderType};
+            gpuShader->blocks[mappedBinding] = {ubo.name, set, binding, mappedBinding, shaderType, size};
         else {
             gpuShader->blocks[mappedBinding].stages |= shaderType;
         }

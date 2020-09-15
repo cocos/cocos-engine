@@ -28,27 +28,24 @@
 #include "platform/Application.h"
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
-#import <AppKit/AppKit.h>
+    #import <AppKit/AppKit.h>
 #endif
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS
-#import <UIKit/UIKit.h>
+    #import <UIKit/UIKit.h>
 #endif
-
 
 namespace cc {
 
-int Device::getDevicePixelRatio()
-{
-#if USE_METAL
+int Device::getDevicePixelRatio() {
+#if CC_USE_METAL
     return 1;
 #else
-#   if(CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-        return [[UIScreen mainScreen] scale];
-#   else
-        return [[[[NSApplication sharedApplication] delegate] getWindow] backingScaleFactor];
-#   endif 
-#endif //USE_METAL
+    #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+    return [[UIScreen mainScreen] scale];
+    #else
+    return [[[[NSApplication sharedApplication] delegate] getWindow] backingScaleFactor];
+    #endif
+#endif //CC_USE_METAL
 }
-
 
 }

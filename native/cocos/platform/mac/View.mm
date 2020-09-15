@@ -22,11 +22,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 #import "View.h"
-#import <AppKit/NSTouch.h>
-#import <AppKit/NSEvent.h>
 #import "KeyCodeHelper.h"
 #import "cocos/bindings/event/EventDispatcher.h"
 #include "platform/Application.h"
+#import <AppKit/NSEvent.h>
+#import <AppKit/NSTouch.h>
 
 @implementation View {
     cc::MouseEvent _mouseEvent;
@@ -36,7 +36,7 @@
 - (instancetype)initWithFrame:(NSRect)frameRect {
     if (self = [super initWithFrame:frameRect]) {
         [self.window makeFirstResponder:self];
-#ifdef USE_METAL
+#ifdef CC_USE_METAL
         self.device = MTLCreateSystemDefaultDevice();
         self.depthStencilPixelFormat = MTLPixelFormatDepth24Unorm_Stencil8;
         self.framebufferOnly = YES;
@@ -46,7 +46,7 @@
     return self;
 }
 
-#ifdef USE_METAL
+#ifdef CC_USE_METAL
 - (void)drawInMTKView:(MTKView *)view {
     cc::Application::getInstance()->tick();
 }
@@ -59,7 +59,7 @@
 - (void)keyDown:(NSEvent *)event {
     _keyboardEvent.key = translateKeycode(event.keyCode);
     _keyboardEvent.action = [event isARepeat] ? cc::KeyboardEvent::Action::REPEAT
-    : cc::KeyboardEvent::Action::PRESS;
+                                              : cc::KeyboardEvent::Action::PRESS;
     [self setModifierFlags:event];
     cc::EventDispatcher::dispatchKeyboardEvent(_keyboardEvent);
 }
@@ -71,23 +71,23 @@
     cc::EventDispatcher::dispatchKeyboardEvent(_keyboardEvent);
 }
 
-- (void)setModifierFlags:(NSEvent*)event {
+- (void)setModifierFlags:(NSEvent *)event {
     NSEventModifierFlags modifierFlags = event.modifierFlags;
     if (modifierFlags & NSEventModifierFlagShift)
         _keyboardEvent.shiftKeyActive = true;
     else
         _keyboardEvent.shiftKeyActive = false;
-    
+
     if (modifierFlags & NSEventModifierFlagControl)
         _keyboardEvent.ctrlKeyActive = true;
     else
         _keyboardEvent.ctrlKeyActive = false;
-    
+
     if (modifierFlags & NSEventModifierFlagOption)
         _keyboardEvent.altKeyActive = true;
     else
         _keyboardEvent.altKeyActive = false;
-    
+
     if (modifierFlags & NSEventModifierFlagCommand)
         _keyboardEvent.metaKeyActive = true;
     else
@@ -128,7 +128,7 @@
                    event:event];
 }
 
-- (int)translateButtonNumber:(int) buttonNumber {
+- (int)translateButtonNumber:(int)buttonNumber {
     if (buttonNumber == 1) // left
         return 0;
     else if (buttonNumber == 2) // right
@@ -140,12 +140,12 @@
 - (void)scrollWheel:(NSEvent *)event {
     double deltaX = [event scrollingDeltaX];
     double deltaY = [event scrollingDeltaY];
-    
+
     if ([event hasPreciseScrollingDeltas]) {
         deltaX *= 0.1;
         deltaY *= 0.1;
     }
-    
+
     if (fabs(deltaX) > 0.0 || fabs(deltaY) > 0.0) {
         _mouseEvent.type = cc::MouseEvent::Type::WHEEL;
         _mouseEvent.button = 0;
@@ -171,10 +171,10 @@
     return YES;
 }
 
-- (void)sendMouseEvent:(int)button type:(cc::MouseEvent::Type)type event:(NSEvent*)event {
+- (void)sendMouseEvent:(int)button type:(cc::MouseEvent::Type)type event:(NSEvent *)event {
     const NSRect contentRect = [self frame];
     const NSPoint pos = [event locationInWindow];
-    
+
     _mouseEvent.type = type;
     _mouseEvent.button = button;
     _mouseEvent.x = pos.x;

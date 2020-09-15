@@ -38,6 +38,8 @@ class CCMTLGPUDescriptorSetLayout : public Object {
 public:
     DescriptorSetLayoutBindingList bindings;
     vector<uint> dynamicBindings;
+    vector<uint> descriptorIndices;
+    uint descriptorCount = 0;
 };
 typedef vector<CCMTLGPUDescriptorSetLayout *> MTLGPUDescriptorSetLayoutList;
 
@@ -53,6 +55,7 @@ struct CCMTLGPUUniformBlock {
     uint binding = GFX_INVALID_BINDING;
     uint mappedBinding = GFX_INVALID_BINDING;
     ShaderStageFlags stages = ShaderStageFlagBit::NONE;
+    size_t size = 0;
     uint count = 0;
 };
 typedef vector<CCMTLGPUUniformBlock> CCMTLGPUUniformBlockList;
@@ -114,6 +117,7 @@ typedef vector<CCMTLGPUDescriptor> MTLGPUDescriptorList;
 class CCMTLGPUDescriptorSet : public Object {
 public:
     MTLGPUDescriptorList gpuDescriptors;
+    const vector<uint> *descriptorIndices = nullptr;
 };
 
 } // namespace gfx
