@@ -99,7 +99,7 @@ export default class ParticleBatchModel extends scene.Model {
     public setCapacity (capacity: number) {
         const capChanged = this._capacity !== capacity;
         this._capacity = capacity;
-        if (this._inited && capChanged) {
+        if (this._subMeshData && capChanged) {
             this.rebuild();
         }
     }
@@ -347,14 +347,12 @@ export default class ParticleBatchModel extends scene.Model {
         this._vBuffer = this.createSubMeshData();
         this._vdataF32 = new Float32Array(this._vBuffer);
         this._vdataUint32 = new Uint32Array(this._vBuffer);
-        this._inited = true;
     }
 
     private destroySubMeshData () {
         if (this._subMeshData) {
             this._subMeshData.destroy();
             this._subMeshData = null;
-            this._inited = false;
             this._iaInfoBufferReady = false;
         }
     }
