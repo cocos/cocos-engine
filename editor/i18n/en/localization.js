@@ -324,6 +324,7 @@ module.exports = {
         mute: 'Mutes the VideoPlayer. Mute sets the volume=0, Un-Mute restore the original volume.',
         playbackRate: 'The Video playback rate',
         loop: 'Whether the video should be played again at the end',
+        keepAspectRatio: 'Whether keep the aspect ration of the original video.',
         fullScreenOnAwake: 'Whether play video in fullscreen mode?',
         stayOnBottom: 'Always below the game view (only useful on Web. Note: The specific effects are not guaranteed to be consistent, depending on whether each browser supports or restricts).',
         videoPlayerEvent: 'The video player\'s callback, it will be triggered when certain event occurs, like: playing, paused, stopped and completed.',
