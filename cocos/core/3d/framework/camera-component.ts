@@ -470,7 +470,6 @@ export class Camera extends Component {
         this.node.hasChangedFlags |= TransformBit.POSITION; // trigger camera matrix update
         if (this._camera) {
             this._attachToScene();
-            legacyCC.director.root.attachCamera(this._camera);
             return;
         }
     }
@@ -478,7 +477,6 @@ export class Camera extends Component {
     public onDisable () {
         if (this._camera) {
             this._detachFromScene();
-            legacyCC.director.root.detachCamera(this._camera);
         }
     }
 
@@ -586,23 +584,23 @@ export class Camera extends Component {
         if (!this.node.scene || !this._camera) {
             return;
         }
-        if (this._camera && this._camera.scene) {
-            this._camera.scene.removeCamera(this._camera);
-        }
         const scene = this._getRenderScene();
         scene.addCamera(this._camera);
+        scene.root.attachCamera(this._camera);
     }
 
     protected _detachFromScene () {
         if (this._camera && this._camera.scene) {
-            this._camera.scene.removeCamera(this._camera);
+            const scene = this._getRenderScene();
+            scene.removeCamera(this._camera);
+            scene.root.detachCamera(this._camera);
         }
     }
 
     protected onSceneChanged (scene: Scene) {
         // to handle scene switch of editor camera
-        if (this._camera && this._camera.scene == null) {
-            this._attachToScene();
+        if (this._camera && this._camera.scene) {
+            this._camera.scene.addCamera(this._camera);
         }
     }
 
