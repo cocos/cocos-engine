@@ -23,37 +23,19 @@
  THE SOFTWARE.
  */
 
-import { legacyCC } from '../../core/global-exports';
-import { mat4 } from "../../core/math";
-import { error, sys } from "../../core/platform";
-import { UITransform } from "../../core/components/ui-base";
-import { VideoPlayer } from "../video-player";
-import { contains } from '../../core/utils/misc';
+import {legacyCC} from '../core/global-exports';
+import {mat4} from "../core/math";
+import {error, sys} from "../core/platform";
+import {UITransform} from "../core/components/ui-base";
+import {VideoPlayer} from "./video-player";
+import {contains} from '../core/utils/misc';
+import {EventType, READY_STATE} from './video-player-enums';
 
-const { game, Game, view, screen, visibleRect } = legacyCC;
+const { game, Game, view, screen, visibleRect, GFXClearFlag } = legacyCC;
 
 const MIN_ZINDEX = -Math.pow(2, 15);
 
 let _mat4_temp = mat4();
-
-const READY_STATE = {
-    HAVE_NOTHING: 0,      // 没有关于音频/视频是否就绪的信息
-    HAVE_METADATA: 1,     // 关于音频/视频就绪的元数据
-    HAVE_CURRENT_DATA: 2, // 关于当前播放位置的数据是可用的，但没有足够的数据来播放下一帧/毫秒
-    HAVE_FUTURE_DATA: 3,  // 当前及至少下一帧的数据是可用的
-    HAVE_ENOUGH_DATA: 4   // 可用数据足以开始播放
-};
-
-export enum EventType {
-    NONE,           //- 无
-    PLAYING,        //- 视频播放中
-    PAUSED,         //- 视频暂停中
-    STOPPED,        //- 视频停止中
-    COMPLETED,      //- 视频播放完毕
-    META_LOADED,    //- 视频元数据加载完毕
-    READY_TO_PLAY,  //- 视频加载完毕可播放
-    ERROR,          //- 视频错误
-}
 
 /**
  * @category component/video
@@ -75,6 +57,11 @@ export class VideoPlayerImpl {
     protected _waitingFullscreen = false;
     protected _fullScreenOnAwake = false;
 
+    protected _playing = false;
+    protected _cachedCurrentTime = -1;
+
+    protected _keepAspectRatio = false;
+
     protected _videoComponent: VideoPlayer | null = null;
     protected _uiTrans: UITransform | null = null;
 
@@ -91,6 +78,7 @@ export class VideoPlayerImpl {
     protected _m13 = 0;
 
     protected _clearColorA = -1;
+    protected _clearFlag;
 
     protected _loadedMetadataCb: (e) => void;
     protected _canplayCb: (e) => void;
@@ -99,6 +87,7 @@ export class VideoPlayerImpl {
     protected _playingCb: (e) => void;
     protected _endedCb: (e) => void;
     protected _errorCb: (e) => void;
+    protected _clickCb: (e) => void;
 
     constructor (component) {
         this._videoComponent = component;
@@ -120,7 +109,10 @@ export class VideoPlayerImpl {
         this._loadedMetadataCb = (e) => {
             this._forceUpdate = true;
             this._loadedMeta = true;
-            this.syncTrans(e.target.videoWidth, e.target.videoHeight);
+            this.enable();
+            if (this._keepAspectRatio) {
+                this.syncTrans(e.target.videoWidth, e.target.videoHeight);
+            }
             if (this._waitingFullscreen) {
                 this._waitingFullscreen = false;
                 this._toggleFullscreen(true);
@@ -147,6 +139,7 @@ export class VideoPlayerImpl {
         };
 
         this._pauseCb = (e) => {
+            this._playing = false;
             if (this._ignorePause) {
                 this._ignorePause = false;
             }
@@ -156,11 +149,16 @@ export class VideoPlayerImpl {
         };
 
         this._playingCb = (e) => {
+            this._playing = true;
             this._dispatchEvent(EventType.PLAYING);
         };
 
         this._endedCb = (e) => {
             this._dispatchEvent(EventType.COMPLETED);
+        };
+
+        this._clickCb = (e) => {
+            this._dispatchEvent(EventType.CLICKED);
         };
 
         this._errorCb = (e) => {
@@ -261,7 +259,11 @@ export class VideoPlayerImpl {
                     // Auto-play was prevented
                     // Show a UI element to let the user manually start playback
                 }).then(() => {
-                    // Auto-play started
+                    // calibration time
+                    if (this._cachedCurrentTime !== -1 && this.video.currentTime !== this._cachedCurrentTime) {
+                        this.video.currentTime = this._cachedCurrentTime;
+                        this._cachedCurrentTime = -1;
+                    }
                 });
             }
         }
@@ -270,6 +272,7 @@ export class VideoPlayerImpl {
     public pause () {
         if (this.video) {
             this.video.pause();
+            this._cachedCurrentTime = this.video.currentTime;
         }
     }
 
@@ -314,14 +317,24 @@ export class VideoPlayerImpl {
         this._dirty = true;
     }
 
+    public syncKeepAspectRatio (enabled) {
+        this._keepAspectRatio = enabled;
+        if (enabled && this._loadedMeta) {
+            this.syncTrans(this._video.videoWidth, this._video.videoHeight);
+        }
+    }
+
     public removeDom () {
         let video = this._video;
         if (contains(game.container, video)) {
             game.container.removeChild(video);
             this._removeEvent();
         }
+        this._cachedCurrentTime = 0;
+        this._playing = false;
         this._loaded = false;
         this._video = null;
+
     }
 
     public appendDom (video, url?) {
@@ -342,12 +355,17 @@ export class VideoPlayerImpl {
         this._bindEvent();
         game.container.appendChild(video);
         if (url) {
+            // play remote clip
             let source = document.createElement("source");
             source.src = url;
             video.appendChild(source);
         }
         else {
-            this.syncTrans(video.videoWidth, video.videoHeight);
+            // play local clip
+            this.enable();
+            if (this._keepAspectRatio) {
+                this.syncTrans(video.videoWidth, video.videoHeight);
+            }
         }
     }
 
@@ -359,6 +377,7 @@ export class VideoPlayerImpl {
         video.removeEventListener('play', this._playCb);
         video.removeEventListener('pause', this._pauseCb);
         video.removeEventListener('playing', this._playingCb);
+        video.removeEventListener('click', this._clickCb);
         video.removeEventListener('ended', this._endedCb);
         video.removeEventListener('error', this._errorCb);
     }
@@ -371,6 +390,7 @@ export class VideoPlayerImpl {
         video.addEventListener('play', this._playCb);
         video.addEventListener('pause', this._pauseCb);
         video.addEventListener('playing', this._playingCb);
+        video.addEventListener('click', this._clickCb);
         video.addEventListener('ended', this._endedCb);
         video.addEventListener('error', this._errorCb);
     }
@@ -403,17 +423,21 @@ export class VideoPlayerImpl {
         video.style.height = h + 'px';
     }
 
-    getUICamera () {
+    getUICanvas () {
         if (!this._uiTrans || !this._uiTrans._canvas) {
             return null;
         }
-        return this._uiTrans._canvas.camera;
+        return this._uiTrans._canvas;
     }
 
     public syncMatrix () {
         if (!this._video || this._video.style.visibility === 'hidden' || !this._videoComponent) return;
 
-        const camera = this.getUICamera();
+        const canvas = this.getUICanvas();
+        if (!canvas) {
+            return;
+        }
+        const camera = canvas.camera;
         if (!camera) {
             return;
         }
@@ -425,12 +449,20 @@ export class VideoPlayerImpl {
         // use stayOnBottom
         if (this._dirty) {
             this._dirty = false;
-            let clearColor = camera.clearColor;
-            if (this._clearColorA === -1) {
-                this._clearColorA = clearColor.a;
+            if (this._stayOnBottom) {
+                this._clearColorA = canvas.color.a;
+                this._clearFlag = canvas.clearFlag;
+                canvas.color.a = 0;
+                canvas.clearFlag = GFXClearFlag.ALL;
             }
-            clearColor.a = this._stayOnBottom ? 0 : this._clearColorA;
-            camera.clearColor = clearColor;
+            else {
+                if (this._clearFlag) {
+                    canvas.color.a = this._clearColorA;
+                    canvas.clearFlag = this._clearFlag;
+                    this._clearColorA = -1;
+                    this._clearFlag = null;
+                }
+            }
         }
 
         this._videoComponent.node.getWorldMatrix(_mat4_temp);
@@ -475,7 +507,9 @@ export class VideoPlayerImpl {
         let w, h;
         w = this._w * scaleX;
         h = this._h * scaleY;
-        this.syncSize(this._w, this._h);
+        if (!this._keepAspectRatio) {
+            this.syncSize(this._w, this._h);
+        }
 
         const { x, y } = this._uiTrans!.anchorPoint;
         let appx = (w * _mat4_temp.m00) * x;

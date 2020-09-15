@@ -33,30 +33,9 @@ import { UITransform } from '../core/components/ui-base';
 import { ccclass, displayOrder, executeInEditMode, help, menu, slide, range, requireComponent, tooltip, type, serializable } from 'cc.decorator';
 import { clamp } from '../core/math';
 import { VideoClip } from './assets/video-clip';
-import { Enum } from '../core/value-types';
-import { VideoPlayerImpl, EventType } from './assets/video-player-impl-web';
+import { VideoPlayerImpl } from './video-player-impl-web';
+import { EventType, ResourceType } from './video-player-enums';
 import { EDITOR } from 'internal:constants';
-
-/**
- * @en Enum for video resource type.
- * @zh 视频来源
- */
-export const ResourceType = Enum({
-    /**
-     * @en
-     * The remote resource type.
-     * @zh
-     * 远程视频
-     */
-    REMOTE: 0,
-    /**
-     * @en
-     * The local resource type.
-     * @zh
-     * 本地视频
-     */
-    LOCAL: 1
-});
 
 /**
  * @en
@@ -96,6 +75,8 @@ export class VideoPlayer extends Component {
     protected _fullScreenOnAwake = false;
     @serializable
     protected _stayOnBottom = false;
+    @serializable
+    protected _keepAspectRatio = true;
 
     protected _impl: any;
     protected _cachedCurrentTime = 0;
@@ -112,8 +93,10 @@ export class VideoPlayer extends Component {
         return this._resourceType;
     }
     set resourceType (val) {
-        this._resourceType = val;
-        this.syncSource();
+        if (this._resourceType !== val) {
+            this._resourceType = val;
+            this.syncSource();
+        }
     }
 
     /**
@@ -127,8 +110,10 @@ export class VideoPlayer extends Component {
         return this._remoteURL;
     }
     set remoteURL (val: string) {
-        this._remoteURL = val;
-        this.syncSource();
+        if (this._remoteURL !== val) {
+            this._remoteURL = val;
+            this.syncSource();
+        }
     }
 
     /**
@@ -143,8 +128,10 @@ export class VideoPlayer extends Component {
         return this._clip;
     }
     set clip (val) {
-        this._clip = val;
-        this.syncSource();
+        if (this._clip !== val) {
+            this._clip = val;
+            this.syncSource();
+        }
     }
 
     /**
@@ -235,6 +222,25 @@ export class VideoPlayer extends Component {
 
     /**
      * @en
+     * Whether keep the aspect ration of the original video.
+     * @zh
+     * 是否保持视频原来的宽高比
+     */
+    @tooltip('i18n:videoplayer.keepAspectRatio')
+    get keepAspectRatio() {
+        return this._keepAspectRatio;
+    }
+    set keepAspectRatio(value) {
+        if (this._keepAspectRatio !== value) {
+            this._keepAspectRatio = value;
+            if (this._impl) {
+                this._impl.syncKeepAspectRatio(value);
+            }
+        }
+    }
+
+    /**
+     * @en
      * Whether play video in fullscreen mode.
      * @zh
      * 是否全屏播放视频
@@ -247,9 +253,11 @@ export class VideoPlayer extends Component {
         return this._fullScreenOnAwake;
     }
     set fullScreenOnAwake (value: boolean) {
-        this._fullScreenOnAwake = value;
-        if (this._impl) {
-            this._impl.syncFullScreenOnAwake(value);
+        if (this._fullScreenOnAwake !== value) {
+            this._fullScreenOnAwake = value;
+            if (this._impl) {
+                this._impl.syncFullScreenOnAwake(value);
+            }
         }
     }
 
@@ -264,9 +272,11 @@ export class VideoPlayer extends Component {
         return this._stayOnBottom;
     }
     set stayOnBottom (value: boolean) {
-        this._stayOnBottom = value;
-        if (this._impl) {
-            this._impl.syncStayOnBottom(value);
+        if (this._stayOnBottom !== value) {
+            this._stayOnBottom = value;
+            if (this._impl) {
+                this._impl.syncStayOnBottom(value);
+            }
         }
     }
 
@@ -279,6 +289,7 @@ export class VideoPlayer extends Component {
      * @zh
      * 视频播放回调函数，该回调函数会在特定情况被触发，比如播放中，暂时，停止和完成播放。
      */
+    @serializable
     @type([ComponentEventHandler])
     @displayOrder(20)
     @tooltip('i18n:videoplayer.videoPlayerEvent')
@@ -372,7 +383,7 @@ export class VideoPlayer extends Component {
     }
 
     public onLoad () {
-        if (!EDITOR) {
+        if (EDITOR) {
             return;
         }
         this._impl = new VideoPlayerImpl(this);
@@ -386,6 +397,7 @@ export class VideoPlayer extends Component {
             this.nativeVideo.controls = this._controls;
         }
         this._impl.syncStayOnBottom(this._stayOnBottom);
+        this._impl.syncKeepAspectRatio(this._keepAspectRatio);
         this._impl.syncFullScreenOnAwake(this._fullScreenOnAwake);
         //
         this._impl.eventList.set(EventType.META_LOADED, this.onMetaLoaded.bind(this));
