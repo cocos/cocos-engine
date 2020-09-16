@@ -70,6 +70,10 @@ export class Ambient {
     protected _colorArray = Float32Array.from([0.2, 0.5, 0.8, 1.0]);
     protected _handle: AmbientHandle = NULL_HANDLE;
 
+    get handle () : AmbientHandle {
+        return this._handle;
+    }
+
     constructor () {
         this._handle = AmbientPool.alloc();
     }

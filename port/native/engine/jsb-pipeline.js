@@ -45,6 +45,10 @@ class ForwardPipeline extends nr.ForwardPipeline {
     this.ambient = new cc.Ambient();
     this.skybox = new cc.Skybox();
     this.shadows = new cc.Shadows();
+    this.setFog(this.fog.handle);
+    this.setAmbient(this.ambient.handle);
+    this.setSkybox(this.skybox.handle);
+    this.setShadows(this.shadows.handle);
     for (let i = 0; i < this._flows.length; i++) {
       this._flows[i].init();
     }
@@ -172,7 +176,6 @@ class RenderQueueDesc {
     return desc;
   }
 }
-
 cc.js.setClassName('ForwardPipeline', ForwardPipeline);
 cc.js.setClassName('ForwardFlow', ForwardFlow);
 cc.js.setClassName('ShadowFlow', ShadowFlow);
