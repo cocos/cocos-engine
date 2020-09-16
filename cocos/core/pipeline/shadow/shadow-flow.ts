@@ -15,6 +15,15 @@ import { RenderView, ForwardPipeline } from '../..';
 import { ShadowType } from '../../renderer/scene/shadows';
 import { genSamplerHash, samplerLib } from '../../renderer';
 
+const _samplerInfo = [
+    GFXFilter.LINEAR,
+    GFXFilter.LINEAR,
+    GFXFilter.NONE,
+    GFXAddress.CLAMP,
+    GFXAddress.CLAMP,
+    GFXAddress.CLAMP,
+];
+
 /**
  * @zh 阴影贴图绘制流程
  */
@@ -112,14 +121,7 @@ export class ShadowFlow extends RenderFlow {
             (this._stages[i] as ShadowStage).setShadowFrameBuffer(this._shadowFrameBuffer);
         }
 
-        const shadowMapSamplerHash = genSamplerHash([
-            GFXFilter.LINEAR,
-            GFXFilter.LINEAR,
-            GFXFilter.NONE,
-            GFXAddress.CLAMP,
-            GFXAddress.CLAMP,
-            GFXAddress.CLAMP,
-        ]);
+        const shadowMapSamplerHash = genSamplerHash(_samplerInfo);
         const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
         pipeline.descriptorSet.bindSampler(UNIFORM_SHADOWMAP.binding, shadowMapSampler);
         pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP.binding, this._shadowRenderTargets[0]);
