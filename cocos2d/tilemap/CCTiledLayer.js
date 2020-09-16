@@ -124,7 +124,7 @@ let TiledLayer = cc.Class({
         this._animations = null;
 
         // switch of culling
-        this._enableCulling = cc.macro.ENABLE_TILEDMAP_CULLING;
+        this._enableCulling = null;
     },
 
     properties: {

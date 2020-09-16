@@ -360,7 +360,7 @@ let TiledMap = cc.Class({
             default: [],
             type: cc.SpriteAtlas
         },
-        tileAtlases : {
+        tileAtlases: {
             get () {
                 return this._tileAtlases;
             },
@@ -369,6 +369,29 @@ let TiledMap = cc.Class({
                 (this._preloaded || CC_EDITOR) && _applyFile(false);
             },
             type: [cc.SpriteAtlas]
+        },
+
+        /**
+         * !#en
+         * Whether or not enabled tiled map auto culling. If you set the TiledMap skew or rotation, then need to manually disable this, otherwise, the rendering will be wrong.
+         * !#zh
+         * 是否开启瓦片地图的自动裁减功能。瓦片地图如果设置了 skew, rotation 或者采用了摄像机的话，需要手动关闭，否则渲染会出错。
+         */
+        _enableCulling: {
+            default: true
+        },
+        enableCulling: {
+            get () {
+                return this._enableCulling;
+            },
+            set (value) {
+                this._enableCulling = value;
+                let layers = this._layers;
+                for (let i = 0; i < layers.length; ++i) {
+                    layers[i].enableCulling(value);
+                }
+            },
+            type: cc.Boolean
         }
     },
 
@@ -446,19 +469,6 @@ let TiledMap = cc.Class({
         }
 
         return null;
-    },
-
-    /**
-     * !#en enable or disable culling
-     * !#zh 开启或关闭裁剪。
-     * @method enableCulling
-     * @param value
-     */
-    enableCulling (value) {
-        let layers = this._layers;
-        for (let i = 0; i < layers.length; ++i) {
-            layers[i].enableCulling(value);
-        }
     },
 
     /**
@@ -790,6 +800,8 @@ let TiledMap = cc.Class({
                     }
 
                     layer._init(layerInfo, mapInfo, tilesets, textures, texGrids);
+
+                    layer.enableCulling(this._enableCulling);
 
                     // tell the layerinfo to release the ownership of the tiles map.
                     layerInfo.ownTiles = false;

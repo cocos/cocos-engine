@@ -229,16 +229,6 @@ cc.macro = {
 
     /**
      * !#en
-     * Whether or not enabled tiled map auto culling. If you set the TiledMap skew or rotation, then need to manually disable this, otherwise, the rendering will be wrong.
-     * !#zh
-     * 是否开启瓦片地图的自动裁减功能。瓦片地图如果设置了 skew, rotation 或者采用了摄像机的话，需要手动关闭，否则渲染会出错。
-     * @property {Boolean} ENABLE_TILEDMAP_CULLING
-     * @default true
-     */
-    ENABLE_TILEDMAP_CULLING: true,
-
-    /**
-     * !#en
      * Boolean that indicates if the canvas contains an alpha channel, default sets to false for better performance.
      * Though if you want to make your canvas background transparent and show other dom elements at the background,
      * you can set it to true before `cc.game.run`.
