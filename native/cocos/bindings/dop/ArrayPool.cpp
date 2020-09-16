@@ -21,13 +21,13 @@ ArrayPool::~ArrayPool() {
 Object *ArrayPool::alloc(uint index) {
     uint bytes = _size * BYTES_PER_ELEMENT;
     auto obj = Object::createTypedArray(Object::TypedArrayType::UINT32, nullptr, bytes);
+    obj->incRef();
     _objects[index] = obj;
-    _indexes[obj] = index;
 
     return obj;
 }
 
-Object *ArrayPool::resize(Object *origin, uint size) {
+Object *ArrayPool::resize(Object *origin, uint size, uint index) {
     uint bytes = size * BYTES_PER_ELEMENT;
     uint8_t *buffer = static_cast<uint8_t *>(CC_MALLOC(bytes));
     if (!buffer) {
@@ -44,10 +44,8 @@ Object *ArrayPool::resize(Object *origin, uint size) {
     auto obj = Object::createTypedArray(Object::TypedArrayType::UINT32, buffer, bytes);
     CC_FREE(buffer);
     
-    uint originIndex = _indexes[origin];
-    _objects[originIndex] = obj;
-    _indexes[obj] = originIndex;
-    _indexes.erase(origin);
+    CC_ASSERT(_objects.count(index) != 0);
+    _objects[index] = obj;
 
     return obj;
 }

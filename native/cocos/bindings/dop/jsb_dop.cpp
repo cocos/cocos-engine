@@ -196,15 +196,22 @@ static bool jsb_ArrayPool_resize(se::State &s) {
 
     const auto &args = s.args();
     size_t argc = args.size();
-    if (argc == 2) {
+    if (argc == 3) {
         uint size = 0;
-        if (seval_to_uint(args[1], &size)) {
-            s.rval().setObject(arrayPool->resize(args[0].toObject(), size));
-            return true;
+        if (!seval_to_uint(args[1], &size)) {
+            SE_REPORT_ERROR("jsb_ArrayPool_reize: failed to get size.");
+            return false;
         }
-
-        SE_REPORT_ERROR("jsb_ArrayPool_reize: failed to resize array");
-        return false;
+        
+        uint index = 0;
+        if (!seval_to_uint(args[2], &index)) {
+            SE_REPORT_ERROR("jsb_ArrayPool_reize: failed to get index.");
+            return false;
+        } else {
+            s.rval().setObject(arrayPool->resize(args[0].toObject(), size, index));
+        }
+        
+        return true;
     }
 
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);

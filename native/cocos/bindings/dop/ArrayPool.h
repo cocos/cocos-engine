@@ -17,13 +17,12 @@ public:
     ~ArrayPool();
 
     Object *alloc(uint index);
-    Object *resize(Object *origin, uint size);
+    Object *resize(Object *origin, uint size, uint index);
 
 private:
     static cc::map<PoolType, ArrayPool *> _pools;
 
     cc::map<uint, Object *> _objects;
-    cc::map<Object *, uint> _indexes;
     PoolType _type;
     uint _size = 0;
 };
