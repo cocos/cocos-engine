@@ -357,7 +357,7 @@ export class ArrayPool<P extends PoolType, D extends PoolType> {
                 length += this._step;
             }
 
-            array = this._nativeArrayPool.resize(array, length);
+            array = this._nativeArrayPool.resize(array, length, arrayHandle);
             this._arrayMap.set(arrayHandle, array);
         }
         array[index] = value as unknown as number;
