@@ -488,7 +488,7 @@ bufferProto.update = function(buffer, offset, size) {
     let buffSize;
     if (size !== undefined ) {
         buffSize = size;
-    } else if (this.usage & 0x40) { // BufferUsageBit.INDIRECT
+    } else if (this.cachedUsage & 0x40) { // BufferUsageBit.INDIRECT
         // It is a IGFXIndirectBuffer object.
         let drawInfos = buffer.drawInfos;
         buffer = new Uint32Array(drawInfos.length * 7);
@@ -516,6 +516,7 @@ bufferProto.update = function(buffer, offset, size) {
 
 let oldBufferInitializeFunc = bufferProto.initialize;
 bufferProto.initialize = function(info) {
+    this.cachedUsage = info.usage;
     if (info.buffer) {
         oldBufferInitializeFunc.call(this, _converters.BufferViewInfo(info), true);
     } else {
