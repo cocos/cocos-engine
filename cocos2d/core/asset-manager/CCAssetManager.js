@@ -487,6 +487,7 @@ AssetManager.prototype = {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
         
         options.preset = options.preset || 'default';
+        requests = Array.isArray(requests) ? requests.concat() : requests;
         let task = new Task({input: requests, onProgress, onComplete: asyncify(onComplete), options});
         pipeline.async(task);
     },
@@ -527,6 +528,7 @@ AssetManager.prototype = {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
     
         options.preset = options.preset || 'preload';
+        requests = Array.isArray(requests) ? requests.concat() : requests;
         var task = new Task({input: requests, onProgress, onComplete: asyncify(onComplete), options});
         fetchPipeline.async(task);
     },
