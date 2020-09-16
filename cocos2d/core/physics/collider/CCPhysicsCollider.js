@@ -273,18 +273,18 @@ var PhysicsCollider = cc.Class({
         var minX = MAX, minY = MAX;
         var maxX = -MAX, maxY = -MAX;
         
-		var xf = this.body._getBody().GetTransform();
+        var xf = this.body._getBody().GetTransform();
         var fixtures = this._fixtures;
         for (var i = 0; i < fixtures.length; i++) {
-			var shape = fixtures[i].GetShape();
-			var count = shape.GetChildCount();
-			for(var j = 0; j < count; j++){
-				shape.ComputeAABB(b2_aabb_tmp, xf, j);
-				if (b2_aabb_tmp.lowerBound.x < minX) minX = b2_aabb_tmp.lowerBound.x;
+            var shape = fixtures[i].GetShape();
+            var count = shape.GetChildCount();
+            for(var j = 0; j < count; j++){
+                shape.ComputeAABB(b2_aabb_tmp, xf, j);
+                if (b2_aabb_tmp.lowerBound.x < minX) minX = b2_aabb_tmp.lowerBound.x;
                 if (b2_aabb_tmp.lowerBound.y < minY) minY = b2_aabb_tmp.lowerBound.y;
                 if (b2_aabb_tmp.upperBound.x > maxX) maxX = b2_aabb_tmp.upperBound.x;
                 if (b2_aabb_tmp.upperBound.y > maxY) maxY = b2_aabb_tmp.upperBound.y;
-			}
+            }
         }
 
         minX *= PTM_RATIO;
@@ -297,7 +297,7 @@ var PhysicsCollider = cc.Class({
         r.y = minY;
         r.width = maxX - minX;
         r.height = maxY - minY;
-		
+        
         return r;
     }
 });
