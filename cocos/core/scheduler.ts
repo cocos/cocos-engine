@@ -23,6 +23,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
 /**
  * @category core
  */
@@ -47,10 +48,10 @@ export interface ISchedulable {
  * @en A list double-linked list used for "updates with priority"
  * @zh 用于“优先更新”的列表
  * @class ListEntry
- * @param {Object} target not retained (retained by hashUpdateEntry)
- * @param {Number} priority
- * @param {Boolean} paused
- * @param {Boolean} markedForDeletion selector will no longer be called and entry will be removed at end of the next tick
+ * @param target not retained (retained by hashUpdateEntry)
+ * @param priority
+ * @param paused
+ * @param markedForDeletion selector will no longer be called and entry will be removed at end of the next tick
  */
 class ListEntry {
 
@@ -94,10 +95,10 @@ class ListEntry {
  * @en A update entry list
  * @zh 更新条目列表
  * @class HashUpdateEntry
- * @param {Array} list Which list does it belong to ?
- * @param {ListEntry} entry entry in the list
- * @param {Object} target hash key (retained)
- * @param {function} callback
+ * @param list Which list does it belong to ?
+ * @param entry entry in the list
+ * @param target hash key (retained)
+ * @param callback
  */
 class HashUpdateEntry {
 
@@ -141,12 +142,12 @@ class HashUpdateEntry {
  * @en Hash Element used for "selectors with interval"
  * @zh “用于间隔选择”的哈希元素
  * @class HashTimerEntry
- * @param {Array} timers
- * @param {Object} target  hash key (retained)
- * @param {Number} timerIndex
- * @param {Timer} currentTimer
- * @param {Boolean} currentTimerSalvaged
- * @param {Boolean} paused
+ * @param timers
+ * @param target  hash key (retained)
+ * @param timerIndex
+ * @param currentTimer
+ * @param currentTimerSalvaged
+ * @param paused
  */
 class HashTimerEntry {
 
@@ -250,21 +251,23 @@ class CallbackTimer {
         return true;
     }
     /**
-     * @return {Number} returns interval of timer
+     * @return returns interval of timer
      */
     public getInterval () {
         return this._interval;
     }
     /**
-     * @param {Number} interval set interval in seconds
+     * @en Set interval in seconds
+     * @zh 以秒为单位设置时间间隔
      */
     public setInterval (interval) {
         this._interval = interval;
     }
 
     /**
-     * triggers the timer
-     * @param {Number} dt delta time
+     * @en Update function which triggers the timer
+     * @zh 计时更新函数，用来触发计时器
+     * @param dt delta time
      */
     public update (dt: number) {
         if (this._elapsed === -1) {
@@ -372,7 +375,7 @@ export class Scheduler extends System {
      * This method will add a `id` property if it doesn't exist.
      * @zh 任何需要用 Scheduler 管理任务的对象主体都应该调用这个方法，并且应该在调用任何 Scheduler API 之前调用这个方法。<bg>
      * 这个方法会给对象添加一个 `id` 属性，如果这个属性不存在的话。
-     * @param {Object} target
+     * @param target
      */
     public static enableForTarget (target: ISchedulable) {
         let found = false;
@@ -424,7 +427,7 @@ export class Scheduler extends System {
      * 默认是 1.0。要创建一个 “slow motion（慢动作）” 效果,使用值低于 1.0。<br>
      * 要使用 “fast forward（快进）” 效果，使用值大于 1.0。<br>
      * 注意：它影响该 Scheduler 下管理的所有定时器。
-     * @param {Number} timeScale
+     * @param timeScale
      */
     public setTimeScale (timeScale) {
         this._timeScale = timeScale;
@@ -433,7 +436,6 @@ export class Scheduler extends System {
     /**
      * @en Returns time scale of scheduler.
      * @zh 获取时间间隔的缩放比例。
-     * @return {Number}
      */
     public getTimeScale (): number {
         return this._timeScale;
@@ -442,7 +444,7 @@ export class Scheduler extends System {
     /**
      * @en 'update' the scheduler. (You should NEVER call this method, unless you know what you are doing.)
      * @zh update 调度函数。(不应该直接调用这个方法，除非完全了解这么做的结果)
-     * @param {Number} dt delta time
+     * @param dt delta time
      */
     public update (dt) {
         this._updateHashLocked = true;
@@ -558,12 +560,12 @@ export class Scheduler extends System {
      * repeat 值可以让定时器触发 repeat + 1 次，使用 `macro.REPEAT_FOREVER`
      * 可以让定时器一直循环触发。<br/>
      * delay 值指定延迟时间，定时器会在延迟指定的时间之后开始计时。
-     * @param {Function} callback
-     * @param {Object} target
-     * @param {Number} interval
-     * @param {Number} [repeat]
-     * @param {Number} [delay=0]
-     * @param {Boolean} [paused=fasle]
+     * @param callback
+     * @param target
+     * @param interval
+     * @param [repeat]
+     * @param [delay=0]
+     * @param [paused=fasle]
      */
     public schedule (callback: Function, target: ISchedulable, interval: number, repeat?: number, delay?: number, paused?: boolean) {
         'use strict';
@@ -631,9 +633,9 @@ export class Scheduler extends System {
      * 使用指定的优先级为指定的对象设置 update 定时器。<br>
      * update 定时器每一帧都会被触发，触发时自动调用指定对象的 "update" 函数。<br>
      * 优先级的值越低，定时器被触发的越早。
-     * @param {Object} target
-     * @param {Number} priority
-     * @param {Boolean} paused
+     * @param target
+     * @param priority
+     * @param paused
      */
     public scheduleUpdate (target: ISchedulable, priority: Number, paused: Boolean) {
         let targetId = target.uuid || target.id;
@@ -686,8 +688,8 @@ export class Scheduler extends System {
      * @zh
      * 根据指定的回调函数和调用对象。<br>
      * 如果需要取消 update 定时器，请使用 unscheduleUpdate()。
-     * @param {Function} callback The callback to be unscheduled
-     * @param {Object} target The target bound to the callback.
+     * @param callback The callback to be unscheduled
+     * @param target The target bound to the callback.
      */
     public unschedule (callback, target:ISchedulable) {
         // callback, target
@@ -735,7 +737,7 @@ export class Scheduler extends System {
     /**
      * @en Unschedules the update callback for a given target.
      * @zh 取消指定对象的 update 定时器。
-     * @param {Object} target The target to be unscheduled.
+     * @param target The target to be unscheduled.
      */
     public unscheduleUpdate (target:ISchedulable) {
         if (!target) {
@@ -762,7 +764,7 @@ export class Scheduler extends System {
      * Unschedules all scheduled callbacks for a given target.
      * This also includes the "update" callback.
      * @zh 取消指定对象的所有定时器，包括 update 定时器。
-     * @param {Object} target The target to be unscheduled.
+     * @param target The target to be unscheduled.
      */
     public unscheduleAllForTarget (target) {
         // explicit nullptr handling
@@ -818,7 +820,7 @@ export class Scheduler extends System {
      * @zh
      * 取消所有优先级的值大于指定优先级的定时器。<br/>
      * 你应该只取消优先级的值大于 PRIORITY_NON_SYSTEM_MIN 的定时器。
-     * @param {Number} minPriority The minimum priority of selector to be unscheduled. Which means, all selectors which
+     * @param minPriority The minimum priority of selector to be unscheduled. Which means, all selectors which
      *        priority is higher than minPriority will be unscheduled.
      */
     public unscheduleAllWithMinPriority (minPriority: number){
@@ -875,9 +877,9 @@ export class Scheduler extends System {
     /**
      * @en Checks whether a callback for a given target is scheduled.
      * @zh 检查指定的回调函数和回调对象组合是否存在定时器。
-     * @param {Function} callback The callback to check.
-     * @param {Object} target The target of the callback.
-     * @return {Boolean} True if the specified callback is invoked, false if not.
+     * @param callback The callback to check.
+     * @param target The target of the callback.
+     * @return True if the specified callback is invoked, false if not.
      */
     public isScheduled (callback, target:ISchedulable){
         // key, target
@@ -931,7 +933,7 @@ export class Scheduler extends System {
      * @zh
      * 暂停所有优先级的值大于指定优先级的定时器。<br/>
      * 你应该只暂停优先级的值大于 PRIORITY_NON_SYSTEM_MIN 的定时器。
-     * @param {Number} minPriority
+     * @param minPriority
      */
     public pauseAllTargetsWithMinPriority (minPriority: number) {
         const idsWithSelectors: any = [];
@@ -993,7 +995,7 @@ export class Scheduler extends System {
      * @zh
      * 恢复指定数组中所有对象的定时器。<br/>
      * 这个函数是 pauseAllCallbacks 的逆操作。
-     * @param {Array} targetsToResume
+     * @param targetsToResume
      */
     public resumeTargets (targetsToResume) {
         if (!targetsToResume) {
@@ -1014,7 +1016,7 @@ export class Scheduler extends System {
      * 暂停指定对象的定时器。<br/>
      * 指定对象的所有定时器都会被暂停。<br/>
      * 如果指定的对象没有定时器，什么也不会发生。
-     * @param {Object} target
+     * @param target
      */
     public pauseTarget (target:ISchedulable) {
         assertID(target, 1503);
@@ -1047,7 +1049,7 @@ export class Scheduler extends System {
      * 恢复指定对象的所有定时器。<br/>
      * 指定对象的所有定时器将继续工作。<br/>
      * 如果指定的对象没有定时器，什么也不会发生。
-     * @param {Object} target
+     * @param target
      */
     public resumeTarget (target:ISchedulable) {
         assertID(target, 1504);
@@ -1074,8 +1076,7 @@ export class Scheduler extends System {
     /**
      * @en Returns whether or not the target is paused.
      * @zh 返回指定对象的定时器是否处于暂停状态。
-     * @param {Object} target
-     * @return {Boolean}
+     * @param target
      */
     public isTargetPaused (target:ISchedulable) {
         assertID(target, 1505);

@@ -25,7 +25,10 @@
 */
 
 /**
- * @class js.array.MutableForwardIterator
+ * @category core
+ */
+
+/**
  * @example
  * ```
  * import { js } from 'cc';

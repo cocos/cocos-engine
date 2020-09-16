@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
+
  // tslint:disable
 
 import { getClassName, getset } from './js';
@@ -42,16 +46,9 @@ for (let i = 0; i < 64; ++i) { values[BASE64_KEYS.charCodeAt(i)] = i; }
 export const BASE64_VALUES = values;
 
 /**
- * misc utilities
- * @class misc
- * @static
- */
-
-/**
- * @method propertyDefine
- * @param {Function} ctor
- * @param {Array} sameNameGetSets
- * @param {Object} diffNameGetSets
+ * @param ctor
+ * @param sameNameGetSets
+ * @param diffNameGetSets
  */
 export function propertyDefine (ctor, sameNameGetSets, diffNameGetSets) {
     function define (np, propName, getter, setter) {
