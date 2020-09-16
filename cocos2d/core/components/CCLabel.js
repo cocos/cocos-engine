@@ -196,8 +196,6 @@ let Label = cc.Class({
     },
 
     properties: {
-        _useOriginalSize: true,
-        
         /**
          * !#en Content string of label.
          * !#zh 标签显示的文本内容。
