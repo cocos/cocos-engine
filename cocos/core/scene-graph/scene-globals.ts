@@ -573,6 +573,7 @@ export class ShadowsInfo {
         this._resource.normal = this._normal;
         this._resource.distance = this._distance;
         this._resource.shadowColor = this._shadowColor;
+        this._resource.pcf = this._pcf;
         this._resource.enabled = this._enabled;
     }
 }
