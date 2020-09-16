@@ -23,10 +23,11 @@ RenderObject genRenderObject(ModelView *model, const Camera *camera) {
 void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
     const auto camera = view->getCamera();
     const auto scene = GET_SCENE(camera->getSceneID());
+    const auto mainLight = GET_MAIN_LIGHT(scene->mainLightID);
+    const auto skybox = pipeline->getSkybox();
     RenderObjectList renderObjects;
     RenderObjectList shadowObjects;
 
-    const auto mainLight = GET_MAIN_LIGHT(scene->mainLightID);
     if (mainLight) {
         //TODO coulsonwang
         //        if (planarShadows.enabled) {
@@ -34,8 +35,8 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
         //        }
     }
 
-    if (GET_SKYBOX(scene->skyboxID)->enabled && (camera->getClearFlag() & SKYBOX_FLAG)) {
-        renderObjects.emplace_back(genRenderObject(GET_MODEL(GET_SKYBOX(scene->skyboxID)->model), camera));
+    if (skybox->enabled && (camera->getClearFlag() & SKYBOX_FLAG)) {
+        renderObjects.emplace_back(genRenderObject(GET_MODEL(skybox->model), camera));
     }
 
     const auto stamp = Application::getInstance()->getTotalFrames();

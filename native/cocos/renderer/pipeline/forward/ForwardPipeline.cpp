@@ -67,14 +67,29 @@ ForwardPipeline::~ForwardPipeline() {
     destroy();
 }
 
+void ForwardPipeline::setFog(uint fog) {
+    _fog = GET_FOG(fog);
+}
+
+void ForwardPipeline::setAmbient(uint ambient) {
+    _ambient = GET_AMBIENT(ambient);
+}
+
+void ForwardPipeline::setSkybox(uint skybox) {
+    _skybox = GET_SKYBOX(skybox);
+}
+
+void ForwardPipeline::setShadows(uint shadows) {
+    _shadows = GET_SHADOWS(shadows);
+}
+
 bool ForwardPipeline::initialize(const RenderPipelineInfo &info) {
     RenderPipeline::initialize(info);
 
     if (_flows.size() == 0) {
-        //TODO coulsonwang
-        //        auto shadowFlow = CC_NEW(ShadowFlow);
-        //        shadowFlow->initialize(ShadowFlow::getInitializeInfo());
-        //        _flows.emplace_back(shadowFlow);
+        auto shadowFlow = CC_NEW(ShadowFlow);
+        shadowFlow->initialize(ShadowFlow::getInitializeInfo());
+        _flows.emplace_back(shadowFlow);
 
         auto forwardFlow = CC_NEW(ForwardFlow);
         forwardFlow->initialize(ForwardFlow::getInitializeInfo());
@@ -148,8 +163,8 @@ void ForwardPipeline::updateUBO(RenderView *view) {
     const auto scene = GET_SCENE(camera->getSceneID());
 
     const auto mainLight = GET_MAIN_LIGHT(scene->mainLightID);
-    const auto ambient = GET_AMBIENT(scene->ambientID);
-    const auto fog = GET_FOG(scene->fogID);
+    const auto ambient = _ambient;
+    const auto fog = _fog;
     auto &uboGlobalView = _globalUBO;
 
     const auto shadingWidth = std::floor(_device->getWidth());
@@ -215,27 +230,26 @@ void ForwardPipeline::updateUBO(RenderView *view) {
         TO_VEC4(uboGlobalView, Vec4::ZERO, UBOGlobal::MAIN_LIT_COLOR_OFFSET);
     }
 
-    //TODO coulsonwang
-    //    auto skyColor = ambient->skyColor;
-    //    if (_isHDR) {
-    //        skyColor.w = ambient->skyIllum * _fpScale;
-    //    } else {
-    //        skyColor.w = ambient->skyIllum * exposure;
-    //    }
-    //    TO_VEC4(uboGlobalView, skyColor, UBOGlobal::AMBIENT_SKY_OFFSET);
-    //    TO_VEC4(uboGlobalView, ambient->groundAlbedo, UBOGlobal::AMBIENT_GROUND_OFFSET);
-    //
-    //    if (fog->enabled) {
-    //        TO_VEC4(uboGlobalView, fog->fogColor, UBOGlobal::GLOBAL_FOG_COLOR_OFFSET);
-    //
-    //        uboGlobalView[UBOGlobal::GLOBAL_FOG_BASE_OFFSET] = fog->fogStart;
-    //        uboGlobalView[UBOGlobal::GLOBAL_FOG_BASE_OFFSET + 1] = fog->fogEnd;
-    //        uboGlobalView[UBOGlobal::GLOBAL_FOG_BASE_OFFSET + 2] = fog->fogDensity;
-    //
-    //        uboGlobalView[UBOGlobal::GLOBAL_FOG_ADD_OFFSET] = fog->fogTop;
-    //        uboGlobalView[UBOGlobal::GLOBAL_FOG_ADD_OFFSET + 1] = fog->fogRange;
-    //        uboGlobalView[UBOGlobal::GLOBAL_FOG_ADD_OFFSET + 2] = fog->fogAtten;
-    //    }
+    auto skyColor = ambient->skyColor;
+    if (_isHDR) {
+        skyColor.w = ambient->skyIllum * _fpScale;
+    } else {
+        skyColor.w = ambient->skyIllum * exposure;
+    }
+    TO_VEC4(uboGlobalView, skyColor, UBOGlobal::AMBIENT_SKY_OFFSET);
+    TO_VEC4(uboGlobalView, ambient->groundAlbedo, UBOGlobal::AMBIENT_GROUND_OFFSET);
+
+    if (fog->enabled) {
+        TO_VEC4(uboGlobalView, fog->fogColor, UBOGlobal::GLOBAL_FOG_COLOR_OFFSET);
+
+        uboGlobalView[UBOGlobal::GLOBAL_FOG_BASE_OFFSET] = fog->fogStart;
+        uboGlobalView[UBOGlobal::GLOBAL_FOG_BASE_OFFSET + 1] = fog->fogEnd;
+        uboGlobalView[UBOGlobal::GLOBAL_FOG_BASE_OFFSET + 2] = fog->fogDensity;
+
+        uboGlobalView[UBOGlobal::GLOBAL_FOG_ADD_OFFSET] = fog->fogTop;
+        uboGlobalView[UBOGlobal::GLOBAL_FOG_ADD_OFFSET + 1] = fog->fogRange;
+        uboGlobalView[UBOGlobal::GLOBAL_FOG_ADD_OFFSET + 2] = fog->fogAtten;
+    }
 }
 
 bool ForwardPipeline::activeRenderer() {
