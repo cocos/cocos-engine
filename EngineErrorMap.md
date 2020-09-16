@@ -1809,6 +1809,10 @@ texture size exceeds current device limits %d/%d
 
 Priority can't be set in Canvas node
 
+### 9201
+
+You should not move a UI node when that has a non-default priority
+
 ### 9300
 
 The current buffer beyond the limit in ui static component, please reduce the amount

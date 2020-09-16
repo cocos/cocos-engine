@@ -623,8 +623,13 @@ export class UITransform extends Component {
         this._sortSiblings();
     }
 
-    protected _sortSiblings() {
-        const siblings = this.node.parent && this.node.parent.children as Mutable<Node[]>;
+    public _sortSiblings(isParent?: boolean) {
+        let siblings;
+        if(isParent){
+            siblings = this.node && this.node.children as Mutable<Node[]>;
+        } else {
+            siblings = this.node.parent && this.node.parent.children as Mutable<Node[]>;
+        }
         if (siblings) {
             siblings.sort((a, b) => {
                 const aComp = a._uiProps.uiTransformComp;

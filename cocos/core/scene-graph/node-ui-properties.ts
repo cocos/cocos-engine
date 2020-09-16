@@ -63,6 +63,7 @@ export class NodeUIProperties {
     public opacity = 1;
     protected _uiTransformComp: UITransform | null = null;
     private _node: any;
+    public _reorderChildDirty = false;
 
     constructor (node: any) {
         this._node = node;

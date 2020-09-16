@@ -36,6 +36,7 @@ import { Layers } from './layers';
 import { NodeSpace, TransformBit } from './node-enum';
 import { NodeUIProperties } from './node-ui-properties';
 import { legacyCC } from '../global-exports';
+import { warnID } from '../platform/debug';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -960,6 +961,35 @@ export class Node extends BaseNode {
     public resumeSystemEvents (recursive: boolean): void {
         // @ts-ignore
         eventManager.resumeTarget(this, recursive);
+    }
+
+    protected _onPreDestroy () {
+        if (this._uiProps._reorderChildDirty) {
+            legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
+        }
+        super._onPreDestroy();
+    }
+
+    protected _onSiblingIndexChanged (siblingIndex: number) {
+        if (this._parent && this._parent._uiProps && this._parent._uiProps.uiTransformComp) {
+            this._parent._delaySort();
+        }
+    }
+
+    protected sortAllChildren () {
+        if (this._uiProps._reorderChildDirty && this._uiProps && this._uiProps.uiTransformComp) {
+            this._uiProps._reorderChildDirty = false;
+            this._uiProps.uiTransformComp._sortSiblings(true);
+            warnID(9201);
+            legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
+        }
+    }
+
+    protected _delaySort () {
+        if (!this._uiProps._reorderChildDirty) {
+            this._uiProps._reorderChildDirty = true;
+            legacyCC.director.on(legacyCC.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
+        }
     }
 }
 
