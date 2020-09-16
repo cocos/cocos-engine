@@ -617,19 +617,11 @@ export const AABBPool = new BufferPool<PoolType.AABB, Float32Array, typeof AABBV
 
 export enum SceneView {
     MAIN_LIGHT,    // TODO
-    AMBIENT,       // TODO
-    FOG,           // TODO
-    SKYBOX,        // TODO
-    PLANAR_SHADOW, // TODO
     MODEL_ARRAY,   // array handle
     COUNT,
 }
 interface ISceneViewType extends BufferTypeManifest<typeof SceneView> {
     [SceneView.MAIN_LIGHT]: number;
-    [SceneView.AMBIENT]: number;
-    [SceneView.FOG]: number;
-    [SceneView.SKYBOX]: number;
-    [SceneView.PLANAR_SHADOW]: number;
     [SceneView.MODEL_ARRAY]: ModelArrayHandle;
     [SceneView.COUNT]: never;
 }

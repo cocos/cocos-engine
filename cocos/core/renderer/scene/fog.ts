@@ -184,6 +184,10 @@ export class Fog {
     protected _colorArray: Float32Array = new Float32Array([0.2, 0.2, 0.2, 1.0]);
     protected _handle: FogHandle = NULL_HANDLE;
 
+    get handle () : FogHandle {
+        return this._handle;
+    }
+
     constructor () {
         this._handle = FogPool.alloc();
     }

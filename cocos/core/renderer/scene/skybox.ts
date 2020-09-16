@@ -90,6 +90,10 @@ export class Skybox {
     protected _default: TextureCube | null = null;
     protected _handle: SkyboxHandle = NULL_HANDLE;
 
+    get handle () : SkyboxHandle {
+        return this._handle;
+    }
+
     constructor () {
         this._handle = SkyboxPool.alloc();
     }

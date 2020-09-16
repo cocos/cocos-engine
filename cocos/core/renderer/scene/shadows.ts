@@ -238,6 +238,10 @@ export class Shadows {
     protected _handle: ShadowsHandle = NULL_HANDLE;
     protected _sphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
 
+    get handle () : ShadowsHandle {
+        return this._handle;
+    }
+
     constructor () {
         this._handle = ShadowsPool.alloc();
     }
