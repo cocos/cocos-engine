@@ -39,6 +39,7 @@ public:
     ENABLE_IF_T3_RET(float, bool, String)
     CC_INLINE setValue(const String &name, const T &value) { _macros.setValue(name, value);}
     CC_INLINE gfx::DescriptorSet *getDescriptorSet() const { return _descriptorSet; }
+    CC_INLINE gfx::DescriptorSetLayout *getDescriptorSetLayout() const { return _descriptorSetLayout; }
 
 protected:
     static RenderPipeline *_instance;
