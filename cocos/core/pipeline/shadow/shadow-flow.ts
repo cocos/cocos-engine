@@ -9,10 +9,11 @@ import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
 import { GFXFramebuffer, GFXRenderPass, GFXLoadOp,
     GFXStoreOp, GFXTextureLayout, GFXFormat, GFXTexture,
-    GFXTextureType, GFXTextureUsageBit } from '../../gfx';
+    GFXTextureType, GFXTextureUsageBit, GFXFilter, GFXAddress } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { RenderView, ForwardPipeline } from '../..';
 import { ShadowType } from '../../renderer/scene/shadows';
+import { genSamplerHash, samplerLib } from '../../renderer';
 
 /**
  * @zh 阴影贴图绘制流程
@@ -110,6 +111,18 @@ export class ShadowFlow extends RenderFlow {
         for (let i = 0; i < this._stages.length; ++i) {
             (this._stages[i] as ShadowStage).setShadowFrameBuffer(this._shadowFrameBuffer);
         }
+
+        const shadowMapSamplerHash = genSamplerHash([
+            GFXFilter.LINEAR,
+            GFXFilter.LINEAR,
+            GFXFilter.NONE,
+            GFXAddress.CLAMP,
+            GFXAddress.CLAMP,
+            GFXAddress.CLAMP,
+        ]);
+        const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
+        pipeline.descriptorSet.bindSampler(UNIFORM_SHADOWMAP.binding, shadowMapSampler);
+        pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP.binding, this._shadowRenderTargets[0]);
     }
 
     public render (view: RenderView) {
@@ -126,7 +139,6 @@ export class ShadowFlow extends RenderFlow {
 
         pipeline.updateUBOs(view);
         super.render(view);
-        pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP.binding, this._shadowFrameBuffer!.colorTextures[0]!);
     }
 
     private resizeShadowMap (width: number, height: number) {
