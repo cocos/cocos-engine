@@ -623,9 +623,9 @@ export class UITransform extends Component {
         this._sortSiblings();
     }
 
-    public _sortSiblings(isParent?: boolean) {
+    public _sortSiblings (isParent?: boolean) {
         let siblings;
-        if(isParent){
+        if(isParent) {
             siblings = this.node && this.node.children as Mutable<Node[]>;
         } else {
             siblings = this.node.parent && this.node.parent.children as Mutable<Node[]>;
