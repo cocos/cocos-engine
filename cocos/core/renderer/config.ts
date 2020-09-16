@@ -1,4 +1,6 @@
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+/**
+ * @hidden
+ */
 
 let _stageOffset = 0;
 const _name2stageID = {};

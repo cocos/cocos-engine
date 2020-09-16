@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core
+ */
+
 import { legacyCC } from '../global-exports';
 
 const EXTNAME_RE = /(\.[^\.\/\?\\]*)(\?.*)?$/;

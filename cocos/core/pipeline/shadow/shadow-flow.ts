@@ -25,15 +25,24 @@ const _samplerInfo = [
 ];
 
 /**
+ * @en Shadow map render flow
  * @zh 阴影贴图绘制流程
  */
 @ccclass('ShadowFlow')
 export class ShadowFlow extends RenderFlow {
 
+    /**
+     * @en Gets the frame buffer for shadow map
+     * @zh 获取渲染阴影的 Frame Buffer
+     */
     public get shadowFrameBuffer () {
         return this._shadowFrameBuffer;
     }
 
+    /**
+     * @en A common initialization info for shadow map render flow
+     * @zh 一个通用的 ShadowFlow 的初始化信息对象
+     */
     public static initInfo: IRenderFlowInfo = {
         name: PIPELINE_FLOW_SHADOW,
         priority: ForwardFlowPriority.SHADOW,
@@ -47,7 +56,7 @@ export class ShadowFlow extends RenderFlow {
     private _width: number = 0;
     private _height: number = 0;
 
-    public initialize (info: IRenderFlowInfo): boolean{
+    public initialize (info: IRenderFlowInfo): boolean {
         super.initialize(info);
 
         // add shadowMap-stages

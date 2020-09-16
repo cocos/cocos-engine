@@ -17,16 +17,25 @@ const colors: GFXColor[] = [ { r: 1, g: 1, b: 1, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
 
 /**
- * @zh
- * 阴影渲染阶段。
+ * @en Shadow map render stage
+ * @zh 阴影渲染阶段。
  */
 @ccclass('ShadowStage')
 export class ShadowStage extends RenderStage {
+    /**
+     * @en A common initialization info for shadow map render stage
+     * @zh 一个通用的 ShadowStage 的初始化信息对象
+     */
     public static initInfo: IRenderStageInfo = {
         name: 'ShadowStage',
         priority: ForwardStagePriority.FORWARD,
     };
 
+    /**
+     * @en Sets the frame buffer for shadow map
+     * @zh 设置阴影渲染的 FrameBuffer
+     * @param shadowFrameBuffer 
+     */
     public setShadowFrameBuffer (shadowFrameBuffer: GFXFramebuffer) {
         this._shadowFrameBuffer = shadowFrameBuffer;
     }
@@ -35,27 +44,14 @@ export class ShadowStage extends RenderStage {
     private _shadowFrameBuffer: GFXFramebuffer | null = null;
     private _renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
 
-    /**
-     * 构造函数。
-     * @param flow 渲染阶段。
-     */
     constructor () {
         super();
         this._additiveShadowQueue = new RenderShadowMapBatchedQueue();
     }
 
-    /**
-     * @zh
-     * 销毁函数。
-     */
     public destroy () {
     }
 
-    /**
-     * @zh
-     * 渲染函数。
-     * @param view 渲染视图。
-     */
     public render (view: RenderView) {
         const pipeline = this._pipeline as ForwardPipeline;
         const shadowInfo = pipeline.shadows;

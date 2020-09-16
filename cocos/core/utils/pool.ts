@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core
+ */
+
 type CleanUpFunction<T> = (value: T) => boolean | void;
 
 /**

@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
+
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { Quat } from '../math';
 import { EDITOR, SUPPORT_JIT } from 'internal:constants';
