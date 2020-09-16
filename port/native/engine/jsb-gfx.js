@@ -482,19 +482,6 @@ cc.js.get(shaderProto, 'id', function () {
 });
 
 let bufferProto = gfx.Buffer.prototype;
-
-let oldUpdate = bufferProto.update;
-bufferProto.update = function(buffer, offset, size) {
-    let buffSize;
-    if (size !== undefined ) {
-        buffSize = size;
-    } else {
-        buffSize = buffer.byteLength;
-    }
-
-    oldUpdate.call(this, buffer, offset || 0, buffSize);
-}
-
 let oldBufferInitializeFunc = bufferProto.initialize;
 bufferProto.initialize = function(info) {
     if (info.buffer) {
