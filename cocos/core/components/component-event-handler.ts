@@ -33,6 +33,9 @@ import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 
 /**
+ * @en
+ * The EventHandle class sets the event callback in the scene.
+ * This class allows the user to set the callback target node,target component name,component method name, and call the target method through the `emit` method.
  * @zh
  * “EventHandler” 类用来设置场景中的事件回调，该类允许用户设置回调目标节点，目标组件名，组件方法名，并可通过 emit 方法调用目标函数。
  *
@@ -59,11 +62,13 @@ export class EventHandler {
     }
 
     /**
+     * @en
+     * Dispatching component events.
      * @zh
      * 组件事件派发。
      *
-     * @param events - 需要派发的组件事件列表。
-     * @param args - 派发参数数组。
+     * @param events - The event list to be emitted
+     * @param args - The callback arguments
      */
     public static emitEvents (events: EventHandler[], ...args: any[]) {
         for (let i = 0, l = events.length; i < l; i++) {
@@ -76,14 +81,14 @@ export class EventHandler {
         }
     }
     /**
-     * @zh
-     * 目标节点。
+     * @en Target node.
+     * @zh 目标节点。
      */
     @type(legacyCC.Node)
     public target: Node | null = null;
     /**
-     * @zh
-     * 目标组件名。
+     * @en Target component name.
+     * @zh 目标组件名。
      */
     // only for deserializing old project component field
     @serializable
@@ -94,26 +99,25 @@ export class EventHandler {
     public _componentId = '';
 
     /**
-     * @zh
-     * 响应事件函数名。
+     * @en Response event function name.
+     * @zh 响应事件函数名。
      */
     @serializable
     @editable
     public handler = '';
 
     /**
-     * @zh
-     * 自定义事件数据。
+     * @en Custom event data.
+     * @zh 自定义事件数据。
      */
     @serializable
     @editable
     public customEventData = '';
 
     /**
-     * @zh
-     * 触发目标组件上的指定 handler 函数，该参数是回调函数的参数值（可不填）。
-     *
-     * @param params - 派发参数数组。
+     * @en Trigger the target callback with given arguments
+     * @zh 触发目标组件上的指定 handler 函数，可以选择传递参数。
+     * @param params - The arguments for invoking the callback
      * @example
      * ```ts
      * import { Component } from 'cc';
