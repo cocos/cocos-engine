@@ -52,7 +52,7 @@ function fetch (task, done) {
         packManager.load(item, task.options, function (err, data) {
             if (err) {
                 if (!task.isFinish) {
-                    if (!cc.assetManager.force) {
+                    if (!cc.assetManager.force || firstTask) {
                         cc.error(err.message, err.stack);
                         progress.canInvoke = false;
                         done(err);
@@ -119,15 +119,7 @@ function handle (item, task, content, file, loadDepends, depends, last, done) {
 
     if (loadDepends) {
         exclude[item.uuid] = true;
-        var err = getDepends(item.uuid, file || content, exclude, depends, true, false, item.config);
-        if (err) {
-            if (!cc.assetManager.force) {
-                cc.error(err.message, err.stack);
-                progress.canInvoke = false;
-                return done(err);
-            }
-            item.file = null;
-        }
+        getDepends(item.uuid, file || content, exclude, depends, true, false, item.config);
         progress.total = last + depends.length;
     }
 

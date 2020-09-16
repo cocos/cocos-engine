@@ -136,7 +136,6 @@ var utils = {
     },
 
     getDepends (uuid, data, exclude, depends, preload, asyncLoadAssets, config) {
-        var err = null;
         try {
             var info = dependUtil.parse(uuid, data);
             var includeNative = true;
@@ -171,9 +170,8 @@ var utils = {
             }
         }
         catch (e) {
-            err = e;
+            cc.error(e.message, e.stack);
         }
-        return err;
     },
     
     cache (id, asset, cacheAsset) {
