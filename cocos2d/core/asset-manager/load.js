@@ -31,8 +31,10 @@ const Task = require('./task');
 
 function load (task, done) {
 
+    let firstTask = false;
     if (!task.progress) {
         task.progress = { finish: 0, total: task.input.length, canInvoke: true };
+        firstTask = true;
     }
     
     var options = task.options, progress = task.progress;
@@ -49,9 +51,15 @@ function load (task, done) {
             options, 
             progress, 
             onComplete: function (err, item) {
-                if (err && !task.isFinish && !cc.assetManager.force) {
-                    progress.canInvoke = false;
-                    done(err);
+                if (err && !task.isFinish) {
+                    if (!cc.assetManager.force || firstTask) {
+                        cc.error(err.message, err.stack);
+                        progress.canInvoke = false;
+                        done(err);
+                    }
+                    else {
+                        progress.canInvoke && task.dispatch('progress', ++progress.finish, progress.total, item);
+                    }
                 }
                 task.output.push(item);
                 subTask.recycle();
@@ -86,15 +94,6 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
         if (file || (!reload && !isNative && assets.has(uuid))) return done();
 
         packManager.load(item, task.options, function (err, data) {
-            if (err) {
-                if (cc.assetManager.force) {
-                    err = null;
-                }
-                else {
-                    cc.error(err.message, err.stack);
-                }
-                data = null;
-            }
             item.file = data;
             done(err);
         });
@@ -107,12 +106,7 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
 
         if (item.isNative) {
             parser.parse(id, file, item.ext, options, function (err, asset) {
-                if (err) {
-                    if (!cc.assetManager.force) {
-                        cc.error(err.message, err.stack);
-                        return done(err);
-                    }
-                }
+                if (err) return done(err);
                 item.content = asset;
                 progress.canInvoke && task.dispatch('progress', ++progress.finish, progress.total, item);
                 files.remove(id);
@@ -150,16 +144,7 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                 }
                 else {
                     parser.parse(id, file, 'import', options, function (err, asset) {
-                        if (err) {
-                            if (cc.assetManager.force) {
-                                err = null;
-                            }
-                            else {
-                                cc.error(err.message, err.stack);
-                            }
-                            return done(err);
-                        }
-                        
+                        if (err) return done(err);
                         asset._uuid = uuid;
                         loadDepends(task, asset, done, true);
                     });
