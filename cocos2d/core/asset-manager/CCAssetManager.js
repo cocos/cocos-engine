@@ -138,8 +138,6 @@ function AssetManager () {
 
     this.generalNativeBase = '';
 
-    this._config = null;
-
     /**
      * !#en 
      * Manage relationship between asset and its dependencies
