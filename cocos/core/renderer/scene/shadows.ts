@@ -192,10 +192,15 @@ export class Shadows {
     protected _globalDescriptorSet: GFXDescriptorSet | null = null;
     protected _dirty: boolean = true;
     /**
-     * @zh
-     * 场景包围球
+     * @en bounding sphere
+     * @zh 场景包围球
      */
     protected _sphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
+    /**
+     * @en get or set shadow auto control
+     * @zh 获取或者设置阴影是否自动控制
+     */
+    public autoControl: boolean = true;
     /**
      * @en get or set shadow camera near
      * @zh 获取或者设置阴影相机近裁剪面

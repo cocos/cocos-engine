@@ -192,16 +192,25 @@ export class ForwardPipeline extends RenderPipeline {
             // light proj
             let x: number = 0;
             let y: number = 0;
-            if (shadowInfo.orthoSize > shadowInfo.sphere.radius) {
+            let far: number = 0;
+            if (shadowInfo.autoControl) {
+                // if orthoSize is the smallest, auto calculate orthoSize.
+                const radius = shadowInfo.sphere.radius;
+                x = radius* shadowInfo.aspect;
+                y = radius;
+
+                far = radius * 4.0;
+                if(radius >= 500) { shadowInfo.size.set(2048, 2048); }
+                else if (radius < 500 && radius >= 100) { shadowInfo.size.set(1024, 1024); }
+            } else {
                 x = shadowInfo.orthoSize * shadowInfo.aspect;
                 y = shadowInfo.orthoSize;
-            } else {
-                // if orthoSize is the smallest, auto calculate orthoSize.
-                x = shadowInfo.sphere.radius * shadowInfo.aspect;
-                y = shadowInfo.sphere.radius;
+
+                far = shadowInfo.far;
             }
+
             const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY; // always offscreen
-            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, shadowInfo.far,
+            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, far,
                 device.clipSpaceMinZ, projectionSignY);
 
             // light viewProj

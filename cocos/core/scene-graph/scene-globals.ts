@@ -150,7 +150,7 @@ export class SkyboxInfo {
      * @en The texture cube used for the skybox
      * @zh 使用的立方体贴图
      */
-    
+
     @editable
     @type(TextureCube)
     set envmap (val) {
@@ -391,6 +391,8 @@ export class ShadowsInfo {
     @serializable
     protected _shadowColor = new Color(0, 0, 0, 76);
     @serializable
+    protected _autoControl = true;
+    @serializable
     protected _pcf = PCFType.HARD;
     @serializable
     protected _near: number = 1;
@@ -483,11 +485,25 @@ export class ShadowsInfo {
     }
 
     /**
+     * @en The normal of the plane which receives shadow
+     * @zh 阴影接收平面的法线
+     */
+    @type (CCBoolean)
+    @visible(function (this: ShadowsInfo) {return this._type === ShadowType.ShadowMap; })
+    set autoControl (val) {
+        this._autoControl = val;
+        if (this._resource) { this._resource.autoControl = val; }
+    }
+    get autoControl (){
+        return this._autoControl;
+    }
+
+    /**
      * @en get or set shadow camera near
      * @zh 获取或者设置阴影相机近裁剪面
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoControl === false; })
     set near (val: number) {
         this._near = val;
         if (this._resource) { this._resource.near = val; }
@@ -501,7 +517,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影相机远裁剪面
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoControl === false; })
     set far (val: number) {
         this._far = val;
         if (this._resource) { this._resource.far = val; }
@@ -515,7 +531,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影相机正交大小
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoControl === false; })
     set orthoSize (val: number) {
         this._orthoSize = val;
         if (this._resource) { this._resource.orthoSize = val; }
@@ -528,7 +544,7 @@ export class ShadowsInfo {
      * @en get or set shadow camera orthoSize
      * @zh 获取或者设置阴影纹理大小
      */
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoControl === false; })
     set shadowMapSize (val: Vec2) {
         this._size.set(val);
         if (this._resource) { this._resource.size = val; }
@@ -542,7 +558,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影纹理大小
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoControl === false; })
     set aspect (val: number) {
         this._aspect = val;
         if (this._resource) { this._resource.aspect = val; }
@@ -566,6 +582,7 @@ export class ShadowsInfo {
     public activate (resource: Shadows) {
         this._resource = resource;
         this._resource.type = this._type;
+        this._resource.autoControl = this._autoControl;
         this._resource.near = this._near;
         this._resource.far = this._far;
         this._resource.orthoSize = this._orthoSize;
