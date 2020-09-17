@@ -117,6 +117,16 @@ export default class MeshSpriteAssembler extends Assembler2D {
                 local[offset + 1] = (originalHeight - y[i] - trimY) * scaleY - appy;
             }
         }
+        if (frame._flipX) {
+            for (let i = 0, l = this.verticesCount; i < l; i++) {
+                local[i * 2] =  - local[i * 2];
+            }
+        }
+        if (frame._flipY) {
+            for (let i = 0, l = this.verticesCount; i < l; i++) {
+                local[i * 2 + 1] =  - local[i * 2 + 1];
+            }
+        }
     }
 
     updateWorldVerts (sprite) {
