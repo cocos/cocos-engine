@@ -94,7 +94,11 @@ export class ImageAsset extends Asset {
     get data () {
         if (isNativeImage(this._nativeData)) {
             return this._nativeData;
-        } else {
+        } 
+        else if (window.sharedCanvas && this._nativeData instanceof window.sharedCanvas.constructor) {
+            return true;
+        }
+        else {
             return this._nativeData._data;
         }
     }
