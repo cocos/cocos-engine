@@ -35,7 +35,7 @@ import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 import { EDITOR } from 'internal:constants';
 import { HierarchyPath, evaluatePath, TargetPath } from './target-path';
-import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter } from './skeletal-animation-blending';
+import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter, IBlendStateWriterHost } from './skeletal-animation-blending';
 import { legacyCC } from '../global-exports';
 import { ccenum } from '../value-types/enum';
 import { IValueProxyFactory } from './value-proxy';
@@ -324,6 +324,10 @@ export class AnimationState extends Playable {
     private _blendStateBuffer: BlendStateBuffer | null = null;
     private _blendStateWriters: IBlendStateWriter[] = [];
     private _allowLastFrame = false;
+    private _blendStateWriterHost = {
+        weight: 0,
+        enabled: false,
+    };
 
     constructor (clip: AnimationClip, name = '') {
         super();
@@ -341,6 +345,9 @@ export class AnimationState extends Playable {
         this._destroyBlendStateWriters();
         this._samplerSharedGroups.length = 0;
         this._blendStateBuffer = legacyCC.director.getAnimationManager()?.blendState ?? null;
+        if (this._blendStateBuffer) {
+            this._blendStateBuffer.bindState(this);
+        }
         this._targetNode = root;
         const clip = this._clip;
 
@@ -375,7 +382,7 @@ export class AnimationState extends Playable {
                         this._blendStateBuffer,
                         targetNode,
                         propertyName,
-                        this,
+                        this._blendStateWriterHost,
                         isConstant,
                     );
                     this._blendStateWriters.push(blendStateWriter);
@@ -449,6 +456,13 @@ export class AnimationState extends Playable {
 
     public destroy () {
         this._destroyBlendStateWriters();
+    }
+
+    /**
+     * @private
+     */
+    public onBlendFinished () {
+        this._blendStateWriterHost.enabled = false;
     }
 
     /**
@@ -718,6 +732,9 @@ export class AnimationState extends Playable {
     }
 
     protected _sampleCurves (ratio: number) {
+        this._blendStateWriterHost.weight = this.weight;
+        this._blendStateWriterHost.enabled = true;
+
         // Before we sample, we pull values of common targets.
         for (let iCommonTarget = 0; iCommonTarget < this._commonTargetStatuses.length; ++iCommonTarget) {
             const commonTargetStatus = this._commonTargetStatuses[iCommonTarget];
@@ -897,6 +914,11 @@ export class AnimationState extends Playable {
             this._blendStateWriters[iBlendStateWriter].destroy();
         }
         this._blendStateWriters.length = 0;
+        if (this._blendStateBuffer) {
+            this._blendStateBuffer.unbindState(this);
+            this._blendStateBuffer = null;
+        }
+        this._blendStateWriterHost.enabled = false;
     }
 }
 
