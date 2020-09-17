@@ -454,6 +454,27 @@ static bool js_pipeline_RenderPipeline_getDescriptorSetLayout(se::State& s)
 }
 SE_BIND_PROP_GET(js_pipeline_RenderPipeline_getDescriptorSetLayout)
 
+static bool js_pipeline_RenderPipeline_setValue(se::State& s)
+{
+    cc::pipeline::RenderPipeline* cobj = (cc::pipeline::RenderPipeline*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_setValue : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        cc::String arg0;
+        bool arg1;
+        arg0 = args[0].toStringForce().c_str();
+        ok &= seval_to_boolean(args[1], &arg1);
+        SE_PRECONDITION2(ok, false, "js_pipeline_RenderPipeline_setValue : Error processing arguments");
+        cobj->setValue(arg0, arg1);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_RenderPipeline_setValue)
+
 static bool js_pipeline_RenderPipeline_getDescriptorSet(se::State& s)
 {
     cc::pipeline::RenderPipeline* cobj = (cc::pipeline::RenderPipeline*)s.nativeThisObject();
@@ -535,6 +556,7 @@ bool js_register_pipeline_RenderPipeline(se::Object* obj)
     cls->defineProperty("descriptorSetLayout", _SE(js_pipeline_RenderPipeline_getDescriptorSetLayout), nullptr);
     cls->defineFunction("activate", _SE(js_pipeline_RenderPipeline_activate));
     cls->defineFunction("render", _SE(js_pipeline_RenderPipeline_render));
+    cls->defineFunction("setValue", _SE(js_pipeline_RenderPipeline_setValue));
     cls->defineFunction("initialize", _SE(js_pipeline_RenderPipeline_initialize));
     cls->defineFunction("destroy", _SE(js_pipeline_RenderPipeline_destroy));
     cls->defineStaticFunction("getInstance", _SE(js_pipeline_RenderPipeline_getInstance));
@@ -1731,6 +1753,25 @@ bool js_register_pipeline_UIStage(se::Object* obj)
 se::Object* __jsb_cc_pipeline_RenderView_proto = nullptr;
 se::Class* __jsb_cc_pipeline_RenderView_class = nullptr;
 
+static bool js_pipeline_RenderView_setEnable(se::State& s)
+{
+    cc::pipeline::RenderView* cobj = (cc::pipeline::RenderView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderView_setEnable : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        bool arg0;
+        ok &= seval_to_boolean(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_pipeline_RenderView_setEnable : Error processing arguments");
+        cobj->setEnable(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_RenderView_setEnable)
+
 static bool js_pipeline_RenderView_setExecuteFlows(se::State& s)
 {
     cc::pipeline::RenderView* cobj = (cc::pipeline::RenderView*)s.nativeThisObject();
@@ -1817,7 +1858,7 @@ static bool js_pipeline_RenderView_getVisibility(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_pipeline_RenderView_getVisibility)
+SE_BIND_FUNC(js_pipeline_RenderView_getVisibility)
 
 static bool js_pipeline_RenderView_setPriority(se::State& s)
 {
@@ -1855,7 +1896,7 @@ static bool js_pipeline_RenderView_setVisibility(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_PROP_SET(js_pipeline_RenderView_setVisibility)
+SE_BIND_FUNC(js_pipeline_RenderView_setVisibility)
 
 static bool js_pipeline_RenderView_getWindow(se::State& s)
 {
@@ -1948,6 +1989,24 @@ static bool js_pipeline_RenderView_setWindow(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_RenderView_setWindow)
 
+static bool js_pipeline_RenderView_isEnabled(se::State& s)
+{
+    cc::pipeline::RenderView* cobj = (cc::pipeline::RenderView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderView_isEnabled : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isEnabled();
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_pipeline_RenderView_isEnabled : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_pipeline_RenderView_isEnabled)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_RenderView_finalize)
 
 static bool js_pipeline_RenderView_constructor(se::State& s)
@@ -1981,9 +2040,12 @@ bool js_register_pipeline_RenderView(se::Object* obj)
 
     cls->defineProperty("priority", _SE(js_pipeline_RenderView_getPriority), _SE(js_pipeline_RenderView_setPriority));
     cls->defineProperty("name", _SE(js_pipeline_RenderView_getName), nullptr);
-    cls->defineProperty("visibility", _SE(js_pipeline_RenderView_getVisibility), _SE(js_pipeline_RenderView_setVisibility));
+    cls->defineProperty("isEnable", _SE(js_pipeline_RenderView_isEnabled), nullptr);
+    cls->defineFunction("enable", _SE(js_pipeline_RenderView_setEnable));
     cls->defineFunction("setExecuteFlows", _SE(js_pipeline_RenderView_setExecuteFlows));
     cls->defineFunction("onGlobalPipelineStateChanged", _SE(js_pipeline_RenderView_onGlobalPipelineStateChanged));
+    cls->defineFunction("getVisibility", _SE(js_pipeline_RenderView_getVisibility));
+    cls->defineFunction("setVisibility", _SE(js_pipeline_RenderView_setVisibility));
     cls->defineFunction("getWindow", _SE(js_pipeline_RenderView_getWindow));
     cls->defineFunction("initialize", _SE(js_pipeline_RenderView_initialize));
     cls->defineFunction("destroy", _SE(js_pipeline_RenderView_destroy));
