@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Define.h"
 #include "../core/CoreStd.h"
+#include "Define.h"
 #include "helper/DefineMap.h"
 
 namespace cc {
@@ -34,10 +34,8 @@ public:
     CC_INLINE const RenderFlowList &getFlows() const { return _flows; }
     CC_INLINE uint getTag() const { return _tag; }
     CC_INLINE const map<String, InternalBindingInst> &getGlobalBindings() const { return _globalBindings; }
-    CC_INLINE const ValueMap &getMacros() const { return _macros.getValues(); }
-    template <class T, class RET = void>
-    ENABLE_IF_T3_RET(float, bool, String)
-    CC_INLINE setValue(const String &name, const T &value) { _macros.setValue(name, value);}
+    CC_INLINE const DefineMap &getMacros() const { return _macros; }
+    CC_INLINE void setValue(const String &name, bool value) { _macros.setValue(name, value); }
     CC_INLINE gfx::DescriptorSet *getDescriptorSet() const { return _descriptorSet; }
     CC_INLINE gfx::DescriptorSetLayout *getDescriptorSetLayout() const { return _descriptorSetLayout; }
 
