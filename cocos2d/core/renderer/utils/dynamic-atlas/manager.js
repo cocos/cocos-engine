@@ -237,6 +237,10 @@ let dynamicAtlasManager = {
         }
     },
 
+    get atlasCount () {
+        return _atlases.length;
+    },
+
     update () {
         if (!this.enabled) return;
 
