@@ -223,6 +223,18 @@ Object.assign(RootProto, {
       enumerable: true,
       configurable: true
     });
+
+    view.cachedVisibility = 0;
+    Object.defineProperty(view, 'visibility', {
+      get() {
+        return view.cachedVisibility;
+      },
+      set(val) {
+        view.cachedVisibility = val;
+        view.setVisibility(val);
+      }
+    });
+    
     return view;
   },
 
