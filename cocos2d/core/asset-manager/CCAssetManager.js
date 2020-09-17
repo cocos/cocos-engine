@@ -138,6 +138,8 @@ function AssetManager () {
 
     this.generalNativeBase = '';
 
+    this._config = null;
+
     /**
      * !#en 
      * Manage relationship between asset and its dependencies
@@ -377,7 +379,7 @@ AssetManager.prototype = {
         this.assets.clear();
         this.bundles.clear();
         this.packManager.init();
-        this.downloader.init(options.bundleVers);
+        this.downloader.init(options.bundleVers, options.server);
         this.parser.init();
         this.dependUtil.init();
         this.generalImportBase = options.importBase;
