@@ -9,6 +9,10 @@ layout(set = 0, binding = 4) uniform sampler2D cc_shadowMap;
 
 vec4 CCGetShadowFactorX1 () {
   vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
+  if (clipPos.x < 0.0 || clipPos.x > 1.0 || 
+	    clipPos.y < 0.0 || clipPos.y > 1.0 || 
+		  clipPos.z <-1.0 || clipPos.z > 1.0) { return vec4(0); }
+
   float depth = unpackRGBAToDepth(texture(cc_shadowMap, clipPos.xy));
   if (depth < (clipPos.z - cc_shadowPCF.y)) return cc_shadowColor;
   else return vec4(0);
@@ -16,6 +20,10 @@ vec4 CCGetShadowFactorX1 () {
 
 vec4 CCGetShadowFactorX5 () {
   vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
+  if (clipPos.x < 0.0 || clipPos.x > 1.0 || 
+	    clipPos.y < 0.0 || clipPos.y > 1.0 || 
+		  clipPos.z <-1.0 || clipPos.z > 1.0) { return vec4(0); }
+
   float offsetx = 1.0 / cc_shadowSize.x;
   float offsety = 1.0 / cc_shadowSize.y;
   float depth = 0.0;
@@ -31,6 +39,10 @@ vec4 CCGetShadowFactorX5 () {
 
 vec4 CCGetShadowFactorX9 () {
   vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
+  if (clipPos.x < 0.0 || clipPos.x > 1.0 || 
+	    clipPos.y < 0.0 || clipPos.y > 1.0 || 
+		  clipPos.z <-1.0 || clipPos.z > 1.0) { return vec4(0); }
+
   float offsetx = 1.0 / cc_shadowSize.x;
   float offsety = 1.0 / cc_shadowSize.y;
   float depth = 0.0;
@@ -46,6 +58,10 @@ vec4 CCGetShadowFactorX9 () {
 
 vec4 CCGetShadowFactorX25 () {
   vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
+  if (clipPos.x < 0.0 || clipPos.x > 1.0 || 
+	    clipPos.y < 0.0 || clipPos.y > 1.0 || 
+		  clipPos.z <-1.0 || clipPos.z > 1.0) { return vec4(0); }
+
   float offsetx = 1.0 / cc_shadowSize.x;
   float offsety = 1.0 / cc_shadowSize.y;
   float depth = 0.0;

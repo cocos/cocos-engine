@@ -200,7 +200,7 @@ export class Shadows {
      * @en get or set shadow auto control
      * @zh 获取或者设置阴影是否自动控制
      */
-    public autoControl: boolean = true;
+    public autoAdapt: boolean = true;
     /**
      * @en get or set shadow camera near
      * @zh 获取或者设置阴影相机近裁剪面
