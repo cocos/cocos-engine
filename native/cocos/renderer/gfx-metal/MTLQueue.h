@@ -12,7 +12,7 @@ public:
 
     virtual bool initialize(const QueueInfo &info) override;
     virtual void destroy() override;
-    virtual void submit(const vector<CommandBuffer *> &cmdBuffs, Fence *fence) override;
+    virtual void submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *fence) override;
 
 private:
     uint _numDrawCalls = 0;

@@ -50,6 +50,7 @@ public:
     CC_INLINE MemoryStatus &getMemoryStatus() { return _memoryStatus; }
     CC_INLINE Context *getContext() const { return _context; }
     CC_INLINE Queue *getQueue() const { return _queue; }
+    CC_INLINE CommandBuffer *getCommandBuffer() const { return _cmdBuff; }
     CC_INLINE const String &getRenderer() const { return _renderer; }
     CC_INLINE const String &getVendor() const { return _vendor; }
     CC_INLINE uint getNumDrawCalls() const { return _numDrawCalls; }
@@ -93,6 +94,7 @@ protected:
     uintptr_t _windowHandle = 0;
     Context *_context = nullptr;
     Queue *_queue = nullptr;
+    CommandBuffer *_cmdBuff = nullptr;
     uint _numDrawCalls = 0u;
     uint _numInstances = 0u;
     uint _numTriangles = 0u;

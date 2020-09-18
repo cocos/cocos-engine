@@ -68,6 +68,11 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     queue_info.type = QueueType::GRAPHICS;
     _queue = createQueue(queue_info);
 
+    CommandBufferInfo cmdBuffInfo;
+    cmdBuffInfo.type = CommandBufferType::PRIMARY;
+    cmdBuffInfo.queue = _queue;
+    _cmdBuff = createCommandBuffer(cmdBuffInfo);
+
     _depthBits = 24;
     _stencilBits = 8;
 
@@ -133,6 +138,9 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
 }
 
 void CCMTLDevice::destroy() {
+    CC_SAFE_DESTROY(_queue);
+    CC_SAFE_DESTROY(_cmdBuff);
+    CC_SAFE_DESTROY(_context);
     CC_SAFE_DELETE(_stateCache);
 }
 

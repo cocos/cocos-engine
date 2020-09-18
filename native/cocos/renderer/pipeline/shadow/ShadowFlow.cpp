@@ -22,7 +22,6 @@ RenderFlowInfo ShadowFlow::_initInfo = {
 const RenderFlowInfo &ShadowFlow::getInitializeInfo() { return ShadowFlow::_initInfo; }
 
 ShadowFlow::~ShadowFlow() {
-    destroy();
 }
 
 bool ShadowFlow::initialize(const RenderFlowInfo &info) {

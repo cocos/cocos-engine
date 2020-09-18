@@ -6,8 +6,10 @@
 #include "ForwardFlow.h"
 #include "SceneCulling.h"
 #include "gfx/GFXBuffer.h"
+#include "gfx/GFXCommandBuffer.h"
 #include "gfx/GFXDescriptorSet.h"
 #include "gfx/GFXDevice.h"
+#include "gfx/GFXQueue.h"
 #include "gfx/GFXRenderPass.h"
 #include "platform/Application.h"
 
@@ -64,7 +66,6 @@ ForwardPipeline::ForwardPipeline() {
 }
 
 ForwardPipeline::~ForwardPipeline() {
-    destroy();
 }
 
 void ForwardPipeline::setFog(uint fog) {
@@ -118,12 +119,15 @@ bool ForwardPipeline::activate() {
 }
 
 void ForwardPipeline::render(const vector<RenderView *> &views) {
+    _commandBuffers[0]->begin();
     for (const auto view : views) {
         sceneCulling(this, view);
         for (const auto flow : view->getFlows()) {
             flow->render(view);
         }
     }
+    _commandBuffers[0]->end();
+    _device->getQueue()->submit(_commandBuffers);
 }
 
 void ForwardPipeline::updateUBOs(RenderView *view) {
@@ -150,8 +154,8 @@ void ForwardPipeline::updateUBOs(RenderView *view) {
     }
 
     // update ubos
-    _descriptorSet->getBuffer(UBOGlobal::BLOCK.binding)->update(_globalUBO.data(), 0, _globalUBO.size() * sizeof(float));
-    _descriptorSet->getBuffer(UBOShadow::BLOCK.binding)->update(_shadowUBO.data(), 0, _shadowUBO.size() * sizeof(float));
+    _commandBuffers[0]->updateBuffer(_descriptorSet->getBuffer(UBOGlobal::BLOCK.binding), _globalUBO.data(), _globalUBO.size() * sizeof(float));
+    _commandBuffers[0]->updateBuffer(_descriptorSet->getBuffer(UBOShadow::BLOCK.binding), _shadowUBO.data(), _shadowUBO.size() * sizeof(float));
 }
 
 void ForwardPipeline::updateUBO(RenderView *view) {
@@ -253,10 +257,7 @@ void ForwardPipeline::updateUBO(RenderView *view) {
 }
 
 bool ForwardPipeline::activeRenderer() {
-    _commandBuffers.emplace_back(_device->createCommandBuffer({
-        _device->getQueue(),
-        gfx::CommandBufferType::PRIMARY,
-    }));
+    _commandBuffers.push_back(_device->getCommandBuffer());
 
     auto globalUBO = _device->createBuffer({gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
                                             gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
@@ -291,10 +292,13 @@ void ForwardPipeline::destroy() {
         _descriptorSet->getBuffer(UBOGlobal::BLOCK.binding)->destroy();
         _descriptorSet->getBuffer(UBOShadow::BLOCK.binding)->destroy();
     }
+
     for (auto &it : _renderPasses) {
         it.second->destroy();
     }
     _renderPasses.clear();
+
+    _commandBuffers.clear();
 
     RenderPipeline::destroy();
 }

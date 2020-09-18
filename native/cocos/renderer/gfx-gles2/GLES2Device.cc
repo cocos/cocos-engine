@@ -1,7 +1,6 @@
 #include "GLES2Std.h"
 
 #include "GLES2Buffer.h"
-#include "GLES2CommandAllocator.h"
 #include "GLES2CommandBuffer.h"
 #include "GLES2Context.h"
 #include "GLES2DescriptorSet.h"
@@ -16,7 +15,6 @@
 #include "GLES2RenderPass.h"
 #include "GLES2Sampler.h"
 #include "GLES2Shader.h"
-#include "GLES2StateCache.h"
 #include "GLES2Texture.h"
 
 namespace cc {
@@ -45,8 +43,9 @@ bool GLES2Device::initialize(const DeviceInfo &info) {
         _bindingMappingInfo.samplerOffsets.push_back(0);
     }
 
-    _cmdAllocator = CC_NEW(GLES2CommandAllocator);
-    stateCache = CC_NEW(GLES2StateCache);
+    _gpuStateCache = CC_NEW(GLES2GPUStateCache);
+    _gpuCmdAllocator = CC_NEW(GLES2GPUCommandAllocator);
+    _gpuStagingBufferPool = CC_NEW(GLES2GPUStagingBufferPool);
 
     ContextInfo ctxInfo;
     ctxInfo.windowHandle = _windowHandle;
@@ -132,6 +131,11 @@ bool GLES2Device::initialize(const DeviceInfo &info) {
     queueInfo.type = QueueType::GRAPHICS;
     _queue = createQueue(queueInfo);
 
+    CommandBufferInfo cmdBuffInfo;
+    cmdBuffInfo.type = CommandBufferType::PRIMARY;
+    cmdBuffInfo.queue = _queue;
+    _cmdBuff = createCommandBuffer(cmdBuffInfo);
+
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, (GLint *)&_maxVertexAttributes);
     glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, (GLint *)&_maxVertexUniformVectors);
     glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, (GLint *)&_maxFragmentUniformVectors);
@@ -143,16 +147,18 @@ bool GLES2Device::initialize(const DeviceInfo &info) {
     glGetIntegerv(GL_STENCIL_BITS, (GLint *)&_stencilBits);
     _uboOffsetAlignment = 1u;
 
-    stateCache->initialize(_maxTextureUnits, _maxVertexAttributes);
+    _gpuStateCache->initialize(_maxTextureUnits, _maxVertexAttributes);
 
     return true;
 }
 
 void GLES2Device::destroy() {
     CC_SAFE_DESTROY(_queue);
+    CC_SAFE_DESTROY(_cmdBuff);
     CC_SAFE_DESTROY(_context);
-    CC_SAFE_DELETE(_cmdAllocator);
-    CC_SAFE_DELETE(stateCache);
+    CC_SAFE_DELETE(_gpuStagingBufferPool);
+    CC_SAFE_DELETE(_gpuCmdAllocator);
+    CC_SAFE_DELETE(_gpuStateCache);
 }
 
 void GLES2Device::resize(uint width, uint height) {
@@ -161,7 +167,8 @@ void GLES2Device::resize(uint width, uint height) {
 }
 
 void GLES2Device::acquire() {
-    _cmdAllocator->releaseCmds();
+    _gpuCmdAllocator->reset();
+    _gpuStagingBufferPool->reset();
 }
 
 void GLES2Device::present() {

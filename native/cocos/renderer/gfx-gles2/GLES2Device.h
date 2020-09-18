@@ -4,15 +4,14 @@
 namespace cc {
 namespace gfx {
 
-class GLES2StateCache;
-class GLES2CommandAllocator;
+class GLES2GPUStateCache;
+class GLES2GPUCommandAllocator;
+class GLES2GPUStagingBufferPool;
 
 class CC_GLES2_API GLES2Device : public Device {
 public:
     GLES2Device();
     ~GLES2Device();
-
-    GLES2StateCache *stateCache = nullptr;
 
 public:
     virtual bool initialize(const DeviceInfo &info) override;
@@ -42,7 +41,10 @@ public:
     CC_INLINE bool useDrawInstanced() const { return _useDrawInstanced; }
     CC_INLINE bool useInstancedArrays() const { return _useInstancedArrays; }
     CC_INLINE bool useDiscardFramebuffer() const { return _useDiscardFramebuffer; }
-    CC_INLINE GLES2CommandAllocator *cmdAllocator() const { return _cmdAllocator; }
+
+    CC_INLINE GLES2GPUStateCache *stateCache() const { return _gpuStateCache; }
+    CC_INLINE GLES2GPUCommandAllocator *cmdAllocator() const { return _gpuCmdAllocator; }
+    CC_INLINE GLES2GPUStagingBufferPool *stagingBufferPool() const { return _gpuStagingBufferPool; }
 
     CC_INLINE bool checkExtension(const String &extension) const {
         for (size_t i = 0; i < _extensions.size(); ++i) {
@@ -54,7 +56,10 @@ public:
     }
 
 private:
-    GLES2CommandAllocator *_cmdAllocator = nullptr;
+    GLES2GPUStateCache *_gpuStateCache = nullptr;
+    GLES2GPUCommandAllocator *_gpuCmdAllocator = nullptr;
+    GLES2GPUStagingBufferPool *_gpuStagingBufferPool = nullptr;
+
     StringArray _extensions;
 
     bool _useVAO = false;

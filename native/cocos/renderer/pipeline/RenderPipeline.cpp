@@ -22,7 +22,6 @@ RenderPipeline::RenderPipeline()
 }
 
 RenderPipeline::~RenderPipeline() {
-    destroy();
 }
 
 void RenderPipeline::setDescriptorSetLayout() {

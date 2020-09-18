@@ -272,7 +272,6 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
 
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;
-    //queueInfo.forceSync = true;
     _queue = createQueue(queueInfo);
 
     _gpuFencePool = CC_NEW(CCVKGPUFencePool(_gpuDevice));
@@ -285,6 +284,11 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     _gpuStagingBufferPool = CC_NEW(CCVKGPUStagingBufferPool(_gpuDevice));
 
     _gpuTransportHub->link(((CCVKQueue *)_queue)->gpuQueue(), _gpuFencePool, _gpuCommandBufferPool, _gpuStagingBufferPool);
+
+    CommandBufferInfo cmdBuffInfo;
+    cmdBuffInfo.type = CommandBufferType::PRIMARY;
+    cmdBuffInfo.queue = _queue;
+    _cmdBuff = createCommandBuffer(cmdBuffInfo);
 
     CCVKCmdFuncCreateSampler(this, &_gpuDevice->defaultSampler);
 
@@ -316,7 +320,6 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     }
 
     _gpuSwapchain = CC_NEW(CCVKGPUSwapchain);
-    buildSwapchain();
 
     ///////////////////// Print Debug Info /////////////////////
 
@@ -396,6 +399,7 @@ void CCVKDevice::destroy() {
     }
 
     CC_SAFE_DESTROY(_queue);
+    CC_SAFE_DESTROY(_cmdBuff);
     CC_SAFE_DELETE(_gpuSwapchain);
     CC_SAFE_DELETE(_gpuStagingBufferPool);
     CC_SAFE_DELETE(_gpuCommandBufferPool);
@@ -447,172 +451,53 @@ void CCVKDevice::destroy() {
 void CCVKDevice::resize(uint width, uint height) {
     _width = width;
     _height = height;
-    buildSwapchain();
-}
-
-void CCVKDevice::buildSwapchain() {
-    CCVKGPUContext *context = ((CCVKContext *)_context)->gpuContext();
-    context->swapchainCreateInfo.oldSwapchain = _gpuSwapchain->vkSwapchain;
-    _gpuSwapchain->curImageIndex = 0;
-
-    VkSurfaceCapabilitiesKHR surfaceCapabilities;
-    VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(context->physicalDevice, context->vkSurface, &surfaceCapabilities));
-    uint newWidth = surfaceCapabilities.currentExtent.width;
-    uint newHeight = surfaceCapabilities.currentExtent.height;
-
-    if (context->swapchainCreateInfo.imageExtent.width == newWidth &&
-        context->swapchainCreateInfo.imageExtent.height == newHeight && _swapchainReady) {
-        return;
-    }
-
-    if (newWidth == (uint)-1) {
-        context->swapchainCreateInfo.imageExtent.width = _width;
-        context->swapchainCreateInfo.imageExtent.height = _height;
-    } else {
-        _width = context->swapchainCreateInfo.imageExtent.width = newWidth;
-        _height = context->swapchainCreateInfo.imageExtent.height = newHeight;
-    }
-
-    if (newWidth == 0 || newHeight == 0) {
-        _swapchainReady = false;
-        return;
-    }
-
-    VK_CHECK(vkCreateSwapchainKHR(_gpuDevice->vkDevice, &context->swapchainCreateInfo, nullptr, &_gpuSwapchain->vkSwapchain));
-
-    if (context->swapchainCreateInfo.oldSwapchain != VK_NULL_HANDLE) {
-        _gpuSwapchain->depthStencilImageViews.clear();
-        _gpuSwapchain->depthStencilImages.clear();
-
-        for (FramebufferListMapIter it = _gpuSwapchain->vkSwapchainFramebufferListMap.begin();
-             it != _gpuSwapchain->vkSwapchainFramebufferListMap.end(); it++) {
-            FramebufferList &list = it->second;
-            for (VkFramebuffer framebuffer : list) {
-                vkDestroyFramebuffer(_gpuDevice->vkDevice, framebuffer, nullptr);
-            }
-            list.clear();
-        }
-
-        for (VkImageView imageView : _gpuSwapchain->vkSwapchainImageViews) {
-            vkDestroyImageView(_gpuDevice->vkDevice, imageView, nullptr);
-        }
-        _gpuSwapchain->vkSwapchainImageViews.clear();
-        _gpuSwapchain->swapchainImages.clear();
-
-        vkDestroySwapchainKHR(_gpuDevice->vkDevice, context->swapchainCreateInfo.oldSwapchain, nullptr);
-    }
-
-    uint imageCount;
-    VK_CHECK(vkGetSwapchainImagesKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, nullptr));
-    _gpuSwapchain->swapchainImages.resize(imageCount);
-    VK_CHECK(vkGetSwapchainImagesKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, _gpuSwapchain->swapchainImages.data()));
-    assert(imageCount == context->swapchainCreateInfo.minImageCount); // assert if swapchain image count assumption is broken
-
-    _gpuSwapchain->vkSwapchainImageViews.resize(imageCount);
-    for (uint i = 0u; i < imageCount; i++) {
-        _depthStencilTextures[i]->resize(_width, _height);
-        _gpuSwapchain->depthStencilImages.push_back(((CCVKTexture *)_depthStencilTextures[i])->gpuTexture()->vkImage);
-        _gpuSwapchain->depthStencilImageViews.push_back(((CCVKTexture *)_depthStencilTextures[i])->gpuTextureView()->vkImageView);
-
-        VkImageViewCreateInfo imageViewCreateInfo{VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
-        imageViewCreateInfo.image = _gpuSwapchain->swapchainImages[i];
-        imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        imageViewCreateInfo.format = context->swapchainCreateInfo.imageFormat;
-        imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        imageViewCreateInfo.subresourceRange.levelCount = 1;
-        imageViewCreateInfo.subresourceRange.layerCount = 1;
-
-        VK_CHECK(vkCreateImageView(_gpuDevice->vkDevice, &imageViewCreateInfo, nullptr, &_gpuSwapchain->vkSwapchainImageViews[i]));
-    }
-
-    _gpuTransportHub->checkIn(
-        [&](VkCommandBuffer cmdBuff) {
-            bool hasStencil = GFX_FORMAT_INFOS[(uint)_context->getDepthStencilFormat()].hasStencil;
-            vector<VkImageMemoryBarrier> barriers(imageCount * 2, {VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER});
-            for (uint i = 0u; i < imageCount; i++) {
-                barriers[i].image = _gpuSwapchain->swapchainImages[i];
-                barriers[i].srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-                barriers[i].dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-                barriers[i].subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                barriers[i].subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
-                barriers[i].subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
-                barriers[i].srcAccessMask = 0;
-                barriers[i].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-                barriers[i].oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-                barriers[i].newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-                barriers[imageCount + i].image = _gpuSwapchain->depthStencilImages[i];
-                barriers[imageCount + i].srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-                barriers[imageCount + i].dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-                barriers[imageCount + i].subresourceRange.aspectMask = hasStencil ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_DEPTH_BIT;
-                barriers[imageCount + i].subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
-                barriers[imageCount + i].subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
-                barriers[imageCount + i].srcAccessMask = 0;
-                barriers[imageCount + i].dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-                barriers[imageCount + i].oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-                barriers[imageCount + i].newLayout = hasStencil ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
-            }
-            vkCmdPipelineBarrier(cmdBuff, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                                 VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, imageCount, barriers.data());
-            vkCmdPipelineBarrier(cmdBuff, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-                                 VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, imageCount, barriers.data() + imageCount);
-        },
-        true); // submit immediately
-
-    _swapchainReady = true;
-
-    for (FramebufferListMapIter it = _gpuSwapchain->vkSwapchainFramebufferListMap.begin();
-         it != _gpuSwapchain->vkSwapchainFramebufferListMap.end(); it++) {
-        CCVKCmdFuncCreateFramebuffer(this, it->first);
-    }
 }
 
 void CCVKDevice::acquire() {
-    if (!_swapchainReady) return;
-
-    _gpuSemaphorePool->reset();
-    VkSemaphore acquireSemaphore = _gpuSemaphorePool->alloc();
-    VK_CHECK(vkAcquireNextImageKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain,
-                                   ~0ull, acquireSemaphore, VK_NULL_HANDLE, &_gpuSwapchain->curImageIndex));
+    if (!checkSwapchainStatus()) return;
 
     CCVKQueue *queue = (CCVKQueue *)_queue;
     // Clear queue stats
     queue->_numDrawCalls = 0;
     queue->_numInstances = 0;
     queue->_numTriangles = 0;
+
+    _gpuSemaphorePool->reset();
+    VkSemaphore acquireSemaphore = _gpuSemaphorePool->alloc();
+    VK_CHECK(vkAcquireNextImageKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain,
+                                   ~0ull, acquireSemaphore, VK_NULL_HANDLE, &_gpuSwapchain->curImageIndex));
+
     queue->gpuQueue()->nextWaitSemaphore = acquireSemaphore;
     queue->gpuQueue()->nextSignalSemaphore = _gpuSemaphorePool->alloc();
 }
 
 void CCVKDevice::present() {
-    if (!_swapchainReady) return;
-
     CCVKQueue *queue = (CCVKQueue *)_queue;
     _numDrawCalls = queue->_numDrawCalls;
     _numInstances = queue->_numInstances;
     _numTriangles = queue->_numTriangles;
 
-    VkPresentInfoKHR presentInfo{VK_STRUCTURE_TYPE_PRESENT_INFO_KHR};
-    presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores = &queue->gpuQueue()->nextWaitSemaphore;
-    presentInfo.swapchainCount = 1;
-    presentInfo.pSwapchains = &_gpuSwapchain->vkSwapchain;
-    presentInfo.pImageIndices = &_gpuSwapchain->curImageIndex;
+    if (queue->gpuQueue()->nextWaitSemaphore) { // don't present if not acquired
+        VkPresentInfoKHR presentInfo{VK_STRUCTURE_TYPE_PRESENT_INFO_KHR};
+        presentInfo.waitSemaphoreCount = 1;
+        presentInfo.pWaitSemaphores = &queue->gpuQueue()->nextWaitSemaphore;
+        presentInfo.swapchainCount = 1;
+        presentInfo.pSwapchains = &_gpuSwapchain->vkSwapchain;
+        presentInfo.pImageIndices = &_gpuSwapchain->curImageIndex;
 
-    VkResult res = vkQueuePresentKHR(queue->gpuQueue()->vkQueue, &presentInfo);
-    //if (res) {
-    //    _swapchainReady = false;
-    //    CC_LOG_WARNING("QueuePresent reported: %d", res);
-    //}
+        VkResult res = vkQueuePresentKHR(queue->gpuQueue()->vkQueue, &presentInfo);
+        if (res) _swapchainReady = false;
+    }
 
     // TODO: these can be moved to acquire-time after pipeline refactoring,
     // which should guarantee that no transfer operation will be issued before acquiring
 
     VK_CHECK(vkDeviceWaitIdle(_gpuDevice->vkDevice));
 
-    if (!_swapchainReady) buildSwapchain();
-
     queue->gpuQueue()->lastAutoFence = VK_NULL_HANDLE;
+    queue->gpuQueue()->nextWaitSemaphore = VK_NULL_HANDLE;
+    queue->gpuQueue()->nextSignalSemaphore = VK_NULL_HANDLE;
+
     // reset everything only when no pending commands
     if (_gpuTransportHub->empty()) {
         _gpuFencePool->reset();
@@ -768,7 +653,130 @@ PipelineState *CCVKDevice::createPipelineState(const PipelineStateInfo &info) {
 }
 
 void CCVKDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
-    CCVKCmdFuncCopyBuffersToTexture(this, buffers, ((CCVKTexture *)dst)->gpuTexture(), regions, count);
+    // This assumes the default command buffer will get submitted every frame,
+    // which is true for now but may change in the future. This appoach gives us
+    // the wiggle room to leverage immediate update vs. copy-upload strategies without
+    // breaking compatabilities. When we reached some conclusion on this subject,
+    // getting rid of this interface all together may become a better option.
+    _cmdBuff->begin();
+    const CCVKGPUCommandBuffer *gpuCommandBuffer = ((CCVKCommandBuffer *)_cmdBuff)->gpuCommandBuffer();
+    CCVKCmdFuncCopyBuffersToTexture(this, buffers, ((CCVKTexture *)dst)->gpuTexture(), regions, count, gpuCommandBuffer);
+}
+
+bool CCVKDevice::checkSwapchainStatus() {
+    CCVKGPUContext *context = ((CCVKContext *)_context)->gpuContext();
+    context->swapchainCreateInfo.oldSwapchain = _gpuSwapchain->vkSwapchain;
+    _gpuSwapchain->curImageIndex = 0;
+
+    VkSurfaceCapabilitiesKHR surfaceCapabilities;
+    VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(context->physicalDevice, context->vkSurface, &surfaceCapabilities));
+    uint newWidth = surfaceCapabilities.currentExtent.width;
+    uint newHeight = surfaceCapabilities.currentExtent.height;
+
+    if (context->swapchainCreateInfo.imageExtent.width == newWidth &&
+        context->swapchainCreateInfo.imageExtent.height == newHeight && _swapchainReady) {
+        return true;
+    }
+
+    if (newWidth == (uint)-1) {
+        context->swapchainCreateInfo.imageExtent.width = _width;
+        context->swapchainCreateInfo.imageExtent.height = _height;
+    } else {
+        _width = context->swapchainCreateInfo.imageExtent.width = newWidth;
+        _height = context->swapchainCreateInfo.imageExtent.height = newHeight;
+    }
+
+    if (newWidth == 0 || newHeight == 0) {
+        return _swapchainReady = false;
+    }
+
+    VK_CHECK(vkCreateSwapchainKHR(_gpuDevice->vkDevice, &context->swapchainCreateInfo, nullptr, &_gpuSwapchain->vkSwapchain));
+
+    if (context->swapchainCreateInfo.oldSwapchain != VK_NULL_HANDLE) {
+        _gpuSwapchain->depthStencilImageViews.clear();
+        _gpuSwapchain->depthStencilImages.clear();
+
+        for (FramebufferListMapIter it = _gpuSwapchain->vkSwapchainFramebufferListMap.begin();
+             it != _gpuSwapchain->vkSwapchainFramebufferListMap.end(); it++) {
+            FramebufferList &list = it->second;
+            for (VkFramebuffer framebuffer : list) {
+                vkDestroyFramebuffer(_gpuDevice->vkDevice, framebuffer, nullptr);
+            }
+            list.clear();
+        }
+
+        for (VkImageView imageView : _gpuSwapchain->vkSwapchainImageViews) {
+            vkDestroyImageView(_gpuDevice->vkDevice, imageView, nullptr);
+        }
+        _gpuSwapchain->vkSwapchainImageViews.clear();
+        _gpuSwapchain->swapchainImages.clear();
+
+        vkDestroySwapchainKHR(_gpuDevice->vkDevice, context->swapchainCreateInfo.oldSwapchain, nullptr);
+    }
+
+    uint imageCount;
+    VK_CHECK(vkGetSwapchainImagesKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, nullptr));
+    _gpuSwapchain->swapchainImages.resize(imageCount);
+    VK_CHECK(vkGetSwapchainImagesKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, _gpuSwapchain->swapchainImages.data()));
+    assert(imageCount == context->swapchainCreateInfo.minImageCount); // assert if swapchain image count assumption is broken
+
+    _gpuSwapchain->vkSwapchainImageViews.resize(imageCount);
+    for (uint i = 0u; i < imageCount; i++) {
+        _depthStencilTextures[i]->resize(_width, _height);
+        _gpuSwapchain->depthStencilImages.push_back(((CCVKTexture *)_depthStencilTextures[i])->gpuTexture()->vkImage);
+        _gpuSwapchain->depthStencilImageViews.push_back(((CCVKTexture *)_depthStencilTextures[i])->gpuTextureView()->vkImageView);
+
+        VkImageViewCreateInfo imageViewCreateInfo{VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
+        imageViewCreateInfo.image = _gpuSwapchain->swapchainImages[i];
+        imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        imageViewCreateInfo.format = context->swapchainCreateInfo.imageFormat;
+        imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        imageViewCreateInfo.subresourceRange.levelCount = 1;
+        imageViewCreateInfo.subresourceRange.layerCount = 1;
+
+        VK_CHECK(vkCreateImageView(_gpuDevice->vkDevice, &imageViewCreateInfo, nullptr, &_gpuSwapchain->vkSwapchainImageViews[i]));
+    }
+
+    bool hasStencil = GFX_FORMAT_INFOS[(uint)_context->getDepthStencilFormat()].hasStencil;
+    vector<VkImageMemoryBarrier> barriers(imageCount * 2, {VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER});
+    for (uint i = 0u; i < imageCount; i++) {
+        barriers[i].image = _gpuSwapchain->swapchainImages[i];
+        barriers[i].srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barriers[i].dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barriers[i].subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        barriers[i].subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+        barriers[i].subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+        barriers[i].srcAccessMask = 0;
+        barriers[i].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        barriers[i].oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        barriers[i].newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+        barriers[imageCount + i].image = _gpuSwapchain->depthStencilImages[i];
+        barriers[imageCount + i].srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barriers[imageCount + i].dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barriers[imageCount + i].subresourceRange.aspectMask = hasStencil ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_DEPTH_BIT;
+        barriers[imageCount + i].subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+        barriers[imageCount + i].subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+        barriers[imageCount + i].srcAccessMask = 0;
+        barriers[imageCount + i].dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        barriers[imageCount + i].oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        barriers[imageCount + i].newLayout = hasStencil ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+    }
+    _gpuTransportHub->checkIn(
+        [&](const CCVKGPUCommandBuffer *cmdBuff) {
+            vkCmdPipelineBarrier(cmdBuff->vkCommandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                 VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, imageCount, barriers.data());
+            vkCmdPipelineBarrier(cmdBuff->vkCommandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+                                 VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, imageCount, barriers.data() + imageCount);
+        },
+        true); // submit immediately
+
+    for (FramebufferListMapIter it = _gpuSwapchain->vkSwapchainFramebufferListMap.begin();
+         it != _gpuSwapchain->vkSwapchainFramebufferListMap.end(); it++) {
+        CCVKCmdFuncCreateFramebuffer(this, it->first);
+    }
+
+    return _swapchainReady = true;
 }
 
 } // namespace gfx

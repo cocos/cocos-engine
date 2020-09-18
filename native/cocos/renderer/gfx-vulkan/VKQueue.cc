@@ -35,12 +35,11 @@ void CCVKQueue::destroy() {
     }
 }
 
-void CCVKQueue::submit(const vector<CommandBuffer *> &cmdBuffs, Fence *fence) {
+void CCVKQueue::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *fence) {
     CCVKDevice *device = (CCVKDevice *)_device;
     _gpuQueue->commandBuffers.clear();
     device->gpuTransportHub()->depart();
 
-    uint count = cmdBuffs.size();
     for (uint i = 0u; i < count; ++i) {
         CCVKCommandBuffer *cmdBuffer = (CCVKCommandBuffer *)cmdBuffs[i];
         _gpuQueue->commandBuffers.push(cmdBuffer->_gpuCommandBuffer->vkCommandBuffer);

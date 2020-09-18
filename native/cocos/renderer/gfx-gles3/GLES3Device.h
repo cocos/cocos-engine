@@ -4,15 +4,14 @@
 namespace cc {
 namespace gfx {
 
-class GLES3StateCache;
-class GLES3CommandAllocator;
+class GLES3GPUStateCache;
+class GLES3GPUCommandAllocator;
+class GLES3GPUStagingBufferPool;
 
 class CC_GLES3_API GLES3Device : public Device {
 public:
     GLES3Device();
     ~GLES3Device();
-
-    GLES3StateCache *stateCache = nullptr;
 
 public:
     virtual bool initialize(const DeviceInfo &info) override;
@@ -38,7 +37,9 @@ public:
     virtual PipelineState *createPipelineState(const PipelineStateInfo &info) override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
 
-    CC_INLINE GLES3CommandAllocator *cmdAllocator() const { return _cmdAllocator; }
+    CC_INLINE GLES3GPUStateCache *stateCache() const { return _gpuStateCache; }
+    CC_INLINE GLES3GPUCommandAllocator *cmdAllocator() const { return _gpuCmdAllocator; }
+    CC_INLINE GLES3GPUStagingBufferPool *stagingBufferPool() const { return _gpuStagingBufferPool; }
 
     CC_INLINE bool checkExtension(const String &extension) const {
         for (size_t i = 0; i < _extensions.size(); ++i) {
@@ -50,7 +51,10 @@ public:
     }
 
 private:
-    GLES3CommandAllocator *_cmdAllocator = nullptr;
+    GLES3GPUStateCache *_gpuStateCache = nullptr;
+    GLES3GPUCommandAllocator *_gpuCmdAllocator = nullptr;
+    GLES3GPUStagingBufferPool *_gpuStagingBufferPool = nullptr;
+
     StringArray _extensions;
 };
 

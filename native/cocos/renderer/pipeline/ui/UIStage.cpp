@@ -12,8 +12,8 @@
 namespace cc {
 namespace pipeline {
 UIStage::~UIStage() {
-    destroy();
 }
+
 RenderStageInfo UIStage::_initInfo = {
     "UIStage",
     static_cast<uint>(ForwardStagePriority::UI),
@@ -74,23 +74,19 @@ void UIStage::render(RenderView *view) {
     _renderArea.width = camera->getViewportWidth() * camera->getWidth();
     _renderArea.height = camera->getViewportHeight() * camera->getHeight();
 
-    auto &commandBuffers = pipeline->getCommandBuffers();
-    auto cmdBuff = commandBuffers[0];
+    auto cmdBuff = pipeline->getCommandBuffers()[0];
 
     auto framebuffer = GET_FRAMEBUFFER(view->getWindow()->framebufferID);
 
     auto renderPass = framebuffer->getColorTextures().size() && framebuffer->getColorTextures()[0] ? framebuffer->getRenderPass() : pipeline->getOrCreateRenderPass(static_cast<gfx::ClearFlags>(camera->getClearFlag()));
 
-    cmdBuff->begin();
     cmdBuff->beginRenderPass(renderPass, framebuffer, _renderArea,
                              {camera->getClearColor()}, camera->getClearDepth(), camera->getClearStencil());
     cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::GLOBAL), pipeline->getDescriptorSet());
     _renderQueues[0]->recordCommandBuffer(_device, renderPass, cmdBuff);
 
     cmdBuff->endRenderPass();
-    cmdBuff->end();
 
-    _device->getQueue()->submit(commandBuffers);
     pipeline->setHDR(isHDR);
 }
 

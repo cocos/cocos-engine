@@ -19,8 +19,8 @@ ShadowStage::ShadowStage()
 }
 
 ShadowStage::~ShadowStage() {
-    destroy();
 }
+
 RenderStageInfo ShadowStage::_initInfo = {
     "ShadowStage",
     static_cast<uint>(ForwardStagePriority::FORWARD),
@@ -55,8 +55,7 @@ void ShadowStage::render(RenderView *view) {
     }
 
     const auto camera = view->getCamera();
-    const auto commandBuffers = pipeline->getCommandBuffers();
-    auto cmdBuffer = commandBuffers[0];
+    auto cmdBuffer = pipeline->getCommandBuffers()[0];
 
     const auto shadowMapSize = shadowInfo->size;
     _renderArea.x = camera->getViewportX() * shadowMapSize.x;
@@ -67,16 +66,12 @@ void ShadowStage::render(RenderView *view) {
     _clearColors[0] = {1.0f, 1.0f, 1.0f, 1.0f};
     auto renderPass = _framebuffer->getRenderPass();
 
-    cmdBuffer->begin();
     cmdBuffer->beginRenderPass(renderPass, _framebuffer, _renderArea,
                                _clearColors, camera->getClearDepth(), camera->getClearStencil());
     cmdBuffer->bindDescriptorSet(static_cast<uint>(SetIndex::GLOBAL), pipeline->getDescriptorSet());
     _additiveShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuffer);
 
     cmdBuffer->endRenderPass();
-    cmdBuffer->end();
-
-    _device->getQueue()->submit(commandBuffers);
 }
 
 void ShadowStage::destroy() {

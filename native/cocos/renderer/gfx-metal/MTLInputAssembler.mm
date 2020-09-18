@@ -17,10 +17,14 @@ bool CCMTLInputAssembler::initialize(const InputAssemblerInfo &info) {
     _indexBuffer = info.indexBuffer;
     _indirectBuffer = info.indirectBuffer;
 
-    if (_indexBuffer)
+    if (_indexBuffer) {
         _indexCount = _indexBuffer->getCount();
-    else if (_vertexBuffers.size())
+        _firstIndex = 0;
+    } else if (_vertexBuffers.size()) {
         _vertexCount = _vertexBuffers[0]->getCount();
+        _firstVertex = 0;
+        _vertexOffset = 0;
+    }
 
     _GPUInputAssembler = CC_NEW(CCMTLGPUInputAssembler);
     if (!_GPUInputAssembler)

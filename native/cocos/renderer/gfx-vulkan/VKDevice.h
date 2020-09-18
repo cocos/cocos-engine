@@ -71,7 +71,7 @@ public:
     CC_INLINE CCVKGPUStagingBufferPool *gpuStagingBufferPool() { return _gpuStagingBufferPool; }
 
 private:
-    void buildSwapchain();
+    bool checkSwapchainStatus();
 
     CCVKGPUDevice *_gpuDevice = nullptr;
     CCVKGPUSwapchain *_gpuSwapchain = nullptr;

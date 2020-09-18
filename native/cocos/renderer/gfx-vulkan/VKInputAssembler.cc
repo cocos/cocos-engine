@@ -24,8 +24,11 @@ bool CCVKInputAssembler::initialize(const InputAssemblerInfo &info) {
 
     if (_indexBuffer) {
         _indexCount = _indexBuffer->getCount();
-    } else if (vbCount) {
+        _firstIndex = 0;
+    } else if (_vertexBuffers.size()) {
         _vertexCount = _vertexBuffers[0]->getCount();
+        _firstVertex = 0;
+        _vertexOffset = 0;
     }
 
     _gpuInputAssembler = CC_NEW(CCVKGPUInputAssembler);

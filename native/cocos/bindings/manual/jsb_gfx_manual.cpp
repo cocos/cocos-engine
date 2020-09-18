@@ -9,23 +9,23 @@
 #endif
 
 #ifdef CC_USE_VULKAN
-    #include "renderer/gfx-vulkan/GFXVulkan.h"
     #include "bindings/auto/jsb_vk_auto.h"
+    #include "renderer/gfx-vulkan/GFXVulkan.h"
 #endif
 
 #ifdef CC_USE_METAL
-    #include "renderer/gfx-metal/GFXMTL.h"
     #include "bindings/auto/jsb_mtl_auto.h"
+    #include "renderer/gfx-metal/GFXMTL.h"
 #endif
 
 #ifdef CC_USE_GLES3
-    #include "renderer/gfx-gles3/GFXGLES3.h"
     #include "bindings/auto/jsb_gles3_auto.h"
+    #include "renderer/gfx-gles3/GFXGLES3.h"
 #endif
 
 #ifdef CC_USE_GLES2
-    #include "renderer/gfx-gles2/GFXGLES2.h"
     #include "bindings/auto/jsb_gles2_auto.h"
+    #include "renderer/gfx-gles2/GFXGLES2.h"
 #endif
 
 #include <fstream>
@@ -757,6 +757,49 @@ static bool js_gfx_CommandBuffer_execute(se::State &s) {
 }
 SE_BIND_FUNC(js_gfx_CommandBuffer_execute)
 
+static bool js_gfx_CommandBuffer_updateBuffer(se::State &s) {
+    cc::gfx::CommandBuffer *cobj = (cc::gfx::CommandBuffer *)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_updateBuffer : Invalid Native Object");
+
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+
+    cc::gfx::Buffer *arg0 = nullptr;
+    SE_PRECONDITION2(args[0].isObject(), false, "js_gfx_CommandBuffer_updateBuffer : Invalid Native Object");
+    arg0 = (cc::gfx::Buffer *)args[0].toObject()->getPrivateData();
+
+    uint8_t *arg1 = nullptr;
+    CC_UNUSED size_t dataLength = 0;
+    se::Object *obj = args[1].toObject();
+    if (obj->isArrayBuffer()) {
+        ok = obj->getArrayBufferData(&arg1, &dataLength);
+        SE_PRECONDITION2(ok, false, "getArrayBufferData failed!");
+    } else if (obj->isTypedArray()) {
+        ok = obj->getTypedArrayData(&arg1, &dataLength);
+        SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
+    } else {
+        ok = false;
+    }
+
+    if (argc == 2) {
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_updateBuffer : Error processing arguments");
+        cobj->updateBuffer(arg0, arg1, static_cast<uint>(dataLength), 0);
+        return true;
+    }
+    if (argc == 3) {
+        unsigned int arg2 = 0;
+        ok &= seval_to_uint32(args[2], (uint32_t *)&arg2);
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_updateBuffer : Error processing arguments");
+        cobj->updateBuffer(arg0, arg1, static_cast<uint>(dataLength), arg2);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_CommandBuffer_updateBuffer)
+
 static bool js_gfx_CommandBuffer_copyBuffersToTexture(se::State &s) {
     cc::gfx::CommandBuffer *cobj = (cc::gfx::CommandBuffer *)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_copyBuffersToTexture : Invalid Native Object");
@@ -855,6 +898,7 @@ bool register_all_gfx_manual(se::Object *obj) {
     __jsb_cc_gfx_BlendState_proto->defineProperty("targets", _SE(js_gfx_BlendState_get_targets), _SE(js_gfx_BlendState_set_targets));
 
     __jsb_cc_gfx_CommandBuffer_proto->defineFunction("execute", _SE(js_gfx_CommandBuffer_execute));
+    __jsb_cc_gfx_CommandBuffer_proto->defineFunction("updateBuffer", _SE(js_gfx_CommandBuffer_updateBuffer));
     __jsb_cc_gfx_CommandBuffer_proto->defineFunction("copyBuffersToTexture", _SE(js_gfx_CommandBuffer_copyBuffersToTexture));
 
     __jsb_cc_gfx_InputAssembler_proto->defineFunction("extractDrawInfo", _SE(js_gfx_InputAssembler_extractDrawInfo));

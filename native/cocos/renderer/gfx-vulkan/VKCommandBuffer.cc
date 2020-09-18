@@ -47,6 +47,8 @@ void CCVKCommandBuffer::destroy() {
 }
 
 void CCVKCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
+    if (_gpuCommandBuffer->began) return;
+
     _curGPUPipelineState = nullptr;
     _curGPUInputAssember = nullptr;
     _curGPUDescriptorSets.assign(_curGPUDescriptorSets.size(), nullptr);
@@ -74,11 +76,14 @@ void CCVKCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer 
         beginInfo.pInheritanceInfo = &inheritanceInfo;
     }
     VK_CHECK(vkBeginCommandBuffer(_gpuCommandBuffer->vkCommandBuffer, &beginInfo));
+
+    _gpuCommandBuffer->began = true;
 }
 
 void CCVKCommandBuffer::end() {
     _curGPUFBO = nullptr;
     VK_CHECK(vkEndCommandBuffer(_gpuCommandBuffer->vkCommandBuffer));
+    _gpuCommandBuffer->began = false;
 }
 
 void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea,
@@ -331,9 +336,7 @@ void CCVKCommandBuffer::draw(InputAssembler *ia) {
 }
 
 void CCVKCommandBuffer::execute(const CommandBuffer *const *cmdBuffs, uint count) {
-    if (!count) {
-        return;
-    }
+    if (!count) return;
 
     vector<VkCommandBuffer> vkCmdBuffs(count);
 
@@ -349,15 +352,12 @@ void CCVKCommandBuffer::execute(const CommandBuffer *const *cmdBuffs, uint count
     vkCmdExecuteCommands(_gpuCommandBuffer->vkCommandBuffer, count, vkCmdBuffs.data());
 }
 
-void CCVKCommandBuffer::updateBuffer(Buffer *buff, void *data, uint size, uint offset) {
-    CCVKCmdFuncUpdateBuffer((CCVKDevice *)_device, ((CCVKBuffer *)buff)->gpuBuffer(), data, offset, size);
+void CCVKCommandBuffer::updateBuffer(Buffer *buffer, void *data, uint size, uint offset) {
+    CCVKCmdFuncUpdateBuffer((CCVKDevice *)_device, ((CCVKBuffer *)buffer)->gpuBuffer(), data, offset, size, _gpuCommandBuffer);
 }
 
 void CCVKCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
-    //const CCVKGPUBuffer* gpuBuffer = ((CCVKBuffer*)src)->gpuBuffer();
-    //const CCVKGPUTexture* gpuTexture = ((CCVKTexture*)dst)->gpuTexture();
-    //vkCmdCopyBufferToImage(_gpuCommandBuffer->vkCommandBuffer, gpuBuffer->vkBuffer, gpuTexture->vkImage, MapVkImageLayout(layout),
-    //    regions.size(), regions.data());
+    CCVKCmdFuncCopyBuffersToTexture((CCVKDevice *)_device, buffers, ((CCVKTexture *)texture)->gpuTexture(), regions, count, _gpuCommandBuffer);
 }
 
 void CCVKCommandBuffer::bindDescriptorSets() {

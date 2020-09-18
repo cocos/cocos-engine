@@ -8,7 +8,7 @@ namespace gfx {
 
 class GLES2Device;
 
-struct GLES2GPUStateCache {
+struct GLES2ObjectCache {
     GLES2GPUPipelineState *gpuPipelineState = nullptr;
     GLES2GPUInputAssembler *gpuInputAssembler = nullptr;
     bool reverseCW = false;
@@ -137,17 +137,17 @@ public:
 class GLES2CmdCopyBufferToTexture : public GFXCmd {
 public:
     GLES2GPUTexture *gpuTexture = nullptr;
-    const uint8_t *const *buffers = nullptr;
     const BufferTextureCopy *regions = nullptr;
     uint count = 0u;
+    vector<const uint8_t *> buffers;
 
     GLES2CmdCopyBufferToTexture() : GFXCmd(GFXCmdType::COPY_BUFFER_TO_TEXTURE) {}
 
     virtual void clear() override {
         gpuTexture = nullptr;
-        buffers = nullptr;
         regions = nullptr;
         count = 0u;
+        buffers.clear();
     }
 };
 
@@ -159,6 +159,43 @@ public:
     CachedArray<GLES2CmdDraw *> drawCmds;
     CachedArray<GLES2CmdUpdateBuffer *> updateBufferCmds;
     CachedArray<GLES2CmdCopyBufferToTexture *> copyBufferToTextureCmds;
+};
+
+class GLES2GPUCommandAllocator : public Object {
+public:
+    CommandPool<GLES2CmdBeginRenderPass> beginRenderPassCmdPool;
+    CommandPool<GLES2CmdBindStates> bindStatesCmdPool;
+    CommandPool<GLES2CmdDraw> drawCmdPool;
+    CommandPool<GLES2CmdUpdateBuffer> updateBufferCmdPool;
+    CommandPool<GLES2CmdCopyBufferToTexture> copyBufferToTextureCmdPool;
+
+    void clearCmds(GLES2CmdPackage *cmd_package) {
+        if (cmd_package->beginRenderPassCmds.size()) {
+            beginRenderPassCmdPool.freeCmds(cmd_package->beginRenderPassCmds);
+        }
+        if (cmd_package->bindStatesCmds.size()) {
+            bindStatesCmdPool.freeCmds(cmd_package->bindStatesCmds);
+        }
+        if (cmd_package->drawCmds.size()) {
+            drawCmdPool.freeCmds(cmd_package->drawCmds);
+        }
+        if (cmd_package->updateBufferCmds.size()) {
+            updateBufferCmdPool.freeCmds(cmd_package->updateBufferCmds);
+        }
+        if (cmd_package->copyBufferToTextureCmds.size()) {
+            copyBufferToTextureCmdPool.freeCmds(cmd_package->copyBufferToTextureCmds);
+        }
+
+        cmd_package->cmds.clear();
+    }
+
+    CC_INLINE void reset() {
+        beginRenderPassCmdPool.release();
+        bindStatesCmdPool.release();
+        drawCmdPool.release();
+        updateBufferCmdPool.release();
+        copyBufferToTextureCmdPool.release();
+    }
 };
 
 CC_GLES2_API void GLES2CmdFuncCreateBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer);

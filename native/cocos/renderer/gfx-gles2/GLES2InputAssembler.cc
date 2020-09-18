@@ -22,8 +22,11 @@ bool GLES2InputAssembler::initialize(const InputAssemblerInfo &info) {
 
     if (_indexBuffer) {
         _indexCount = _indexBuffer->getCount();
+        _firstIndex = 0;
     } else if (_vertexBuffers.size()) {
         _vertexCount = _vertexBuffers[0]->getCount();
+        _firstVertex = 0;
+        _vertexOffset = 0;
     }
 
     _gpuInputAssembler = CC_NEW(GLES2GPUInputAssembler);

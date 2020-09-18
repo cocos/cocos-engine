@@ -5,7 +5,6 @@ namespace cc {
 namespace pipeline {
 
 RenderFlow::~RenderFlow() {
-    destroy();
 }
 
 bool RenderFlow::initialize(const RenderFlowInfo &info) {

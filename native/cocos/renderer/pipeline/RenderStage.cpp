@@ -9,7 +9,6 @@ RenderStage::RenderStage()
 }
 
 RenderStage::~RenderStage() {
-    destroy();
 }
 
 bool RenderStage::initialize(const RenderStageInfo &info) {

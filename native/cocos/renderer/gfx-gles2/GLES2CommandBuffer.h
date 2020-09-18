@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class GLES2CommandAllocator;
+class GLES2GPUCommandAllocator;
 
 class CC_GLES2_API GLES2CommandBuffer : public CommandBuffer {
 public:
@@ -44,7 +44,7 @@ private:
 
 private:
     GLES2CmdPackage *_cmdPackage = nullptr;
-    GLES2CommandAllocator *_gles2Allocator = nullptr;
+    GLES2GPUCommandAllocator *_gles2Allocator = nullptr;
     bool _isInRenderPass = false;
     GLES2GPUPipelineState *_curGPUPipelineState = nullptr;
     vector<GLES2GPUDescriptorSet *> _curGPUDescriptorSets;

@@ -1,7 +1,6 @@
 #include "GLES3Std.h"
 
 #include "GLES3Buffer.h"
-#include "GLES3CommandAllocator.h"
 #include "GLES3CommandBuffer.h"
 #include "GLES3DescriptorSet.h"
 #include "GLES3Device.h"
@@ -246,9 +245,10 @@ void GLES3CommandBuffer::updateBuffer(Buffer *buff, void *data, uint size, uint 
         if (gpuBuffer) {
             GLES3CmdUpdateBuffer *cmd = _gles3Allocator->updateBufferCmdPool.alloc();
             cmd->gpuBuffer = gpuBuffer;
-            cmd->buffer = (uint8_t *)data;
             cmd->size = size;
             cmd->offset = offset;
+            cmd->buffer = ((GLES3Device *)_device)->stagingBufferPool()->alloc(size);
+            memcpy(cmd->buffer, data, size);
 
             _cmdPackage->updateBufferCmds.push(cmd);
             _cmdPackage->cmds.push(GFXCmdType::UPDATE_BUFFER);
@@ -267,9 +267,18 @@ void GLES3CommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
             GLES3CmdCopyBufferToTexture *cmd = _gles3Allocator->copyBufferToTextureCmdPool.alloc();
             cmd->gpuTexture = gpuTexture;
             cmd->gpuTexture = gpuTexture;
-            cmd->buffers = buffers;
             cmd->regions = regions;
             cmd->count = count;
+
+            for (uint i = 0u, n = 0u; i < count; i++) {
+                const BufferTextureCopy &region = regions[i];
+                GLsizei size = (GLsizei)FormatSize(gpuTexture->format, region.texExtent.width, region.texExtent.height, 1);
+                for (uint l = 0; l < region.texSubres.layerCount; l++) {
+                    uint8_t *buffer = ((GLES3Device *)_device)->stagingBufferPool()->alloc(size);
+                    memcpy(buffer, buffers[n++], size);
+                    cmd->buffers.push_back(buffer);
+                }
+            }
 
             _cmdPackage->copyBufferToTextureCmds.push(cmd);
             _cmdPackage->cmds.push(GFXCmdType::COPY_BUFFER_TO_TEXTURE);

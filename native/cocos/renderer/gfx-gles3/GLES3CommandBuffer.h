@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class GLES3CommandAllocator;
+class GLES3GPUCommandAllocator;
 
 class CC_GLES3_API GLES3CommandBuffer : public CommandBuffer {
     friend class GLES3Queue;
@@ -44,7 +44,7 @@ private:
 
 private:
     GLES3CmdPackage *_cmdPackage = nullptr;
-    GLES3CommandAllocator *_gles3Allocator = nullptr;
+    GLES3GPUCommandAllocator *_gles3Allocator = nullptr;
     bool _isInRenderPass = false;
     GLES3GPUPipelineState *_curGPUPipelineState = nullptr;
     GLES3GPUInputAssembler *_curGPUInputAssember = nullptr;

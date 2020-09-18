@@ -16,7 +16,6 @@ RenderFlowInfo UIFlow::_initInfo = {
 const RenderFlowInfo &UIFlow::getInitializeInfo() { return UIFlow::_initInfo; }
 
 UIFlow::~UIFlow() {
-    destroy();
 }
 
 bool UIFlow::initialize(const RenderFlowInfo &info) {

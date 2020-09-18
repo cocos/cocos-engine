@@ -20,8 +20,9 @@ bool CCMTLQueue::initialize(const QueueInfo &info) {
 void CCMTLQueue::destroy() {
 }
 
-void CCMTLQueue::submit(const vector<CommandBuffer *> &cmdBuffs, Fence *fence) {
-    for (const auto *cmdBuffer : cmdBuffs) {
+void CCMTLQueue::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *fence) {
+    for (uint i = 0u; i < count; ++i) {
+        const auto *cmdBuffer = cmdBuffs[i];
         _numDrawCalls += cmdBuffer->getNumDrawCalls();
         _numInstances += cmdBuffer->getNumInstances();
         _numTriangles += cmdBuffer->getNumTris();

@@ -417,7 +417,6 @@ SE_DECLARE_FUNC(js_gfx_CommandBuffer_setBlendConstants);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_setDepthBound);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_getQueue);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_setLineWidth);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_updateBuffer);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_end);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_setStencilWriteMask);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_getNumInstances);

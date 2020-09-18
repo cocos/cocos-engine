@@ -13170,6 +13170,24 @@ static bool js_gfx_Device_getUVSpaceSignY(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_Device_getUVSpaceSignY)
 
+static bool js_gfx_Device_getCommandBuffer(se::State& s)
+{
+    cc::gfx::Device* cobj = (cc::gfx::Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getCommandBuffer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::gfx::CommandBuffer* result = cobj->getCommandBuffer();
+        ok &= native_ptr_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getCommandBuffer : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getCommandBuffer)
+
 static bool js_gfx_Device_getNativeWidth(se::State& s)
 {
     cc::gfx::Device* cobj = (cc::gfx::Device*)s.nativeThisObject();
@@ -13222,6 +13240,7 @@ bool js_register_gfx_Device(se::Object* obj)
     cls->defineProperty("renderer", _SE(js_gfx_Device_getRenderer), nullptr);
     cls->defineProperty("maxUniformBufferBindings", _SE(js_gfx_Device_getMaxUniformBufferBindings), nullptr);
     cls->defineProperty("UVSpaceSignY", _SE(js_gfx_Device_getUVSpaceSignY), nullptr);
+    cls->defineProperty("commandBuffer", _SE(js_gfx_Device_getCommandBuffer), nullptr);
     cls->defineProperty("vendor", _SE(js_gfx_Device_getVendor), nullptr);
     cls->defineProperty("depthBits", _SE(js_gfx_Device_getDepthBits), nullptr);
     cls->defineProperty("uboOffsetAlignment", _SE(js_gfx_Device_getUboOffsetAlignment), nullptr);
@@ -16201,42 +16220,6 @@ static bool js_gfx_CommandBuffer_setLineWidth(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_CommandBuffer_setLineWidth)
 
-static bool js_gfx_CommandBuffer_updateBuffer(se::State& s)
-{
-    cc::gfx::CommandBuffer* cobj = (cc::gfx::CommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_updateBuffer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 3) {
-        cc::gfx::Buffer* arg0 = nullptr;
-        void* arg1 = nullptr;
-        unsigned int arg2 = 0;
-        ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_native_ptr(args[1], &arg1);
-        ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
-        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_updateBuffer : Error processing arguments");
-        cobj->updateBuffer(arg0, arg1, arg2);
-        return true;
-    }
-    if (argc == 4) {
-        cc::gfx::Buffer* arg0 = nullptr;
-        void* arg1 = nullptr;
-        unsigned int arg2 = 0;
-        unsigned int arg3 = 0;
-        ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_native_ptr(args[1], &arg1);
-        ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
-        ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
-        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_updateBuffer : Error processing arguments");
-        cobj->updateBuffer(arg0, arg1, arg2, arg3);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_CommandBuffer_updateBuffer)
-
 static bool js_gfx_CommandBuffer_end(se::State& s)
 {
     cc::gfx::CommandBuffer* cobj = (cc::gfx::CommandBuffer*)s.nativeThisObject();
@@ -16753,7 +16736,6 @@ bool js_register_gfx_CommandBuffer(se::Object* obj)
     cls->defineFunction("setDepthBound", _SE(js_gfx_CommandBuffer_setDepthBound));
     cls->defineFunction("getQueue", _SE(js_gfx_CommandBuffer_getQueue));
     cls->defineFunction("setLineWidth", _SE(js_gfx_CommandBuffer_setLineWidth));
-    cls->defineFunction("updateBuffer", _SE(js_gfx_CommandBuffer_updateBuffer));
     cls->defineFunction("end", _SE(js_gfx_CommandBuffer_end));
     cls->defineFunction("setStencilWriteMask", _SE(js_gfx_CommandBuffer_setStencilWriteMask));
     cls->defineFunction("getNumInstances", _SE(js_gfx_CommandBuffer_getNumInstances));
@@ -16933,6 +16915,22 @@ static bool js_gfx_Queue_submit(se::State& s)
             ok &= seval_to_std_vector(args[0], &arg0);            
             if (!ok) { ok = true; break; }
             cobj->submit(arg0);
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 3) {
+            const cc::gfx::CommandBuffer** arg0 = nullptr;
+            ok &= seval_to_native_ptr(args[0], &arg0);            
+            if (!ok) { ok = true; break; }
+            unsigned int arg1 = 0;
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);            
+            if (!ok) { ok = true; break; }
+            cc::gfx::Fence* arg2 = nullptr;
+            ok &= seval_to_native_ptr(args[2], &arg2);            
+            if (!ok) { ok = true; break; }
+            cobj->submit(arg0, arg1, arg2);
             return true;
         }
     } while(false);

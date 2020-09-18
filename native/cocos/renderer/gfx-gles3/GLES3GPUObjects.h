@@ -229,6 +229,85 @@ class GLES3GPUFence : public Object {
 public:
 };
 
+class GLES3GPUStateCache : public Object {
+public:
+    GLuint glArrayBuffer = 0;
+    GLuint glElementArrayBuffer = 0;
+    GLuint glUniformBuffer = 0;
+    vector<GLuint> glBindUBOs;
+    vector<GLuint> glBindUBOOffsets;
+    GLuint glVAO = 0;
+    uint texUint = 0;
+    vector<GLuint> glTextures;
+    vector<GLuint> glSamplers;
+    GLuint glProgram = 0;
+    vector<bool> glEnabledAttribLocs;
+    vector<bool> glCurrentAttribLocs;
+    GLuint glFramebuffer = 0;
+    GLuint glReadFBO = 0;
+    Viewport viewport;
+    Rect scissor;
+    RasterizerState rs;
+    DepthStencilState dss;
+    BlendState bs;
+    bool isCullFaceEnabled = true;
+    bool isStencilTestEnabled = false;
+    map<String, uint> texUnitCacheMap;
+
+    void initialize(size_t texUnits, size_t bufferBindings, size_t vertexAttributes) {
+        glBindUBOs.resize(bufferBindings, 0u);
+        glBindUBOOffsets.resize(bufferBindings, 0u);
+        glTextures.resize(texUnits, 0u);
+        glSamplers.resize(texUnits, 0u);
+        glEnabledAttribLocs.resize(vertexAttributes, false);
+        glCurrentAttribLocs.resize(vertexAttributes, false);
+    }
+};
+
+constexpr size_t chunkSize = 16 * 1024 * 1024; // 16M per block by default
+class GLES3GPUStagingBufferPool : public Object {
+public:
+    ~GLES3GPUStagingBufferPool() {
+        for (Buffer &buffer : _pool) {
+            CC_FREE(buffer.mappedData);
+        }
+        _pool.clear();
+    }
+
+    uint8_t *alloc(size_t size) {
+        size_t bufferCount = _pool.size();
+        Buffer *buffer = nullptr;
+        for (size_t idx = 0u; idx < bufferCount; idx++) {
+            Buffer *cur = &_pool[idx];
+            if (chunkSize - cur->curOffset >= size) {
+                buffer = cur;
+                break;
+            }
+        }
+        if (!buffer) {
+            _pool.resize(bufferCount + 1);
+            buffer = &_pool.back();
+            buffer->mappedData = (uint8_t *)CC_MALLOC(chunkSize);
+        }
+        uint8_t *data = buffer->mappedData + buffer->curOffset;
+        buffer->curOffset += size;
+        return data;
+    }
+
+    void reset() {
+        for (Buffer &buffer : _pool) {
+            buffer.curOffset = 0u;
+        }
+    }
+
+private:
+    struct Buffer {
+        uint8_t *mappedData = nullptr;
+        size_t curOffset = 0u;
+    };
+    vector<Buffer> _pool;
+};
+
 } // namespace gfx
 } // namespace cc
 

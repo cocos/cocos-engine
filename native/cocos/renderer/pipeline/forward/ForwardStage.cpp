@@ -45,7 +45,6 @@ ForwardStage::ForwardStage() : RenderStage() {
 }
 
 ForwardStage::~ForwardStage() {
-    destroy();
 }
 
 bool ForwardStage::initialize(const RenderStageInfo &info) {
@@ -136,8 +135,7 @@ void ForwardStage::render(RenderView *view) {
     _additiveLightQueue->gatherLightPasses(view);
 
     auto camera = view->getCamera();
-    auto commandBuffers = pipeline->getCommandBuffers();
-    auto cmdBuff = commandBuffers[0];
+    auto cmdBuff = pipeline->getCommandBuffers()[0];
 
     _renderArea.x = camera->getViewportX() * camera->getWidth();
     _renderArea.y = camera->getViewportY() * camera->getHeight();
@@ -165,7 +163,6 @@ void ForwardStage::render(RenderView *view) {
 
     auto renderPass = colorTextures.size() ? framebuffer->getRenderPass() : pipeline->getOrCreateRenderPass(static_cast<gfx::ClearFlagBit>(camera->getClearFlag()));
 
-    cmdBuff->begin();
     cmdBuff->beginRenderPass(renderPass, framebuffer, _renderArea, _clearColors, camera->getClearDepth(), camera->getClearStencil());
     cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::GLOBAL), _pipeline->getDescriptorSet());
 
@@ -177,8 +174,6 @@ void ForwardStage::render(RenderView *view) {
     _renderQueues[1]->recordCommandBuffer(_device, renderPass, cmdBuff);
 
     cmdBuff->endRenderPass();
-    cmdBuff->end();
-    _device->getQueue()->submit(commandBuffers);
 }
 
 } // namespace pipeline

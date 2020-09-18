@@ -553,8 +553,6 @@ if(CC_USE_GLES2)
         cocos/renderer/gfx-gles2/GFXGLES2.h
         cocos/renderer/gfx-gles2/GLES2Buffer.cc
         cocos/renderer/gfx-gles2/GLES2Buffer.h
-        cocos/renderer/gfx-gles2/GLES2CommandAllocator.cc
-        cocos/renderer/gfx-gles2/GLES2CommandAllocator.h
         cocos/renderer/gfx-gles2/GLES2CommandBuffer.cc
         cocos/renderer/gfx-gles2/GLES2CommandBuffer.h
         cocos/renderer/gfx-gles2/GLES2Commands.cc
@@ -583,7 +581,6 @@ if(CC_USE_GLES2)
         cocos/renderer/gfx-gles2/GLES2Sampler.h
         cocos/renderer/gfx-gles2/GLES2Shader.cc
         cocos/renderer/gfx-gles2/GLES2Shader.h
-        cocos/renderer/gfx-gles2/GLES2StateCache.h
         cocos/renderer/gfx-gles2/GLES2Std.cc
         cocos/renderer/gfx-gles2/GLES2Std.h
         cocos/renderer/gfx-gles2/GLES2Texture.cc
@@ -612,8 +609,6 @@ if(CC_USE_GLES3)
         cocos/renderer/gfx-gles3/GFXGLES3.h
         cocos/renderer/gfx-gles3/GLES3Buffer.cc
         cocos/renderer/gfx-gles3/GLES3Buffer.h
-        cocos/renderer/gfx-gles3/GLES3CommandAllocator.cc
-        cocos/renderer/gfx-gles3/GLES3CommandAllocator.h
         cocos/renderer/gfx-gles3/GLES3CommandBuffer.cc
         cocos/renderer/gfx-gles3/GLES3CommandBuffer.h
         cocos/renderer/gfx-gles3/GLES3Commands.cc
@@ -643,7 +638,6 @@ if(CC_USE_GLES3)
         cocos/renderer/gfx-gles3/GLES3Sampler.h
         cocos/renderer/gfx-gles3/GLES3Shader.cc
         cocos/renderer/gfx-gles3/GLES3Shader.h
-        cocos/renderer/gfx-gles3/GLES3StateCache.h
         cocos/renderer/gfx-gles3/GLES3Std.cc
         cocos/renderer/gfx-gles3/GLES3Std.h
         cocos/renderer/gfx-gles3/GLES3Texture.cc
