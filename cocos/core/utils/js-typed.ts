@@ -1,7 +1,11 @@
-import { warnID, error, errorID } from '../platform/debug';
+/**
+ * @category core
+ */
 
+import { warnID, error, errorID } from '../platform/debug';
 import IDGenerator from './id-generator';
 import { EDITOR, DEV, TEST } from 'internal:constants';
+
 const tempCIDGenerator = new IDGenerator('TmpCId.');
 
 const aliasesTag = typeof Symbol === 'undefined' ? '__aliases__' : Symbol('[[Aliases]]');
@@ -215,11 +219,10 @@ export function obsolete (object: any, obsoleted: string, newExpr: string, writa
 
 /**
  * Defines all polyfill fields for obsoleted codes corresponding to the enumerable properties of props.
- * @method obsoletes
- * @param {any} obj - YourObject or YourClass.prototype
- * @param {any} objName - "YourObject" or "YourClass"
- * @param {Object} props
- * @param {Boolean} [writable=false]
+ * @param obj - YourObject or YourClass.prototype
+ * @param objName - "YourObject" or "YourClass"
+ * @param props
+ * @param [writable=false]
  */
 export function obsoletes (obj, objName, props, writable) {
     for (const obsoleted in props) {
@@ -437,8 +440,8 @@ export const _nameToClass = {};
 /**
  * Register the class by specified id, if its classname is not defined, the class name will also be set.
  * @method _setClassId
- * @param {String} classId
- * @param {Function} constructor
+ * @param classId
+ * @param constructor
  * @private
  */
 export function _setClassId (id, constructor) {
@@ -500,8 +503,8 @@ js.unregisterClass to remove the id of unused class';
 /**
  * Register the class by specified name manually
  * @method setClassName
- * @param {String} className
- * @param {Function} constructor
+ * @param className
+ * @param constructor
  */
 export function setClassName (className, constructor) {
     doSetClassName(className, constructor);
@@ -515,9 +518,11 @@ export function setClassName (className, constructor) {
 }
 
 /**
- * @en
- * @zh
- * 为类设置别名。
+ * @en Set an alias name for class.
+ * If `setClassAlias(target, alias)`, `alias` will be a single way short cut for class `target`.
+ * If you try `js.getClassByName(alias)`, you will get target.
+ * But `js.getClassName(target)` will return the original name of `target`, not the alias.
+ * @zh 为类设置别名。
  * 当 `setClassAlias(target, alias)` 后，
  * `alias` 将作为类 `target`的“单向 ID” 和“单向名称”。
  * 因此，`_getClassById(alias)` 和 `getClassByName(alias)` 都会得到 `target`。
@@ -555,8 +560,7 @@ export function setClassAlias (target: Function, alias: string) {
  * If you dont need a registered class anymore, you should unregister the class so that Fireball will not keep its reference anymore.
  * Please note that its still your responsibility to free other references to the class.
  *
- * @method unregisterClass
- * @param {Function} ...constructor - the class you will want to unregister, any number of classes can be added
+ * @param ...constructor - the class you will want to unregister, any number of classes can be added
  */
 export function unregisterClass (...constructors: Function[]) {
     for (const constructor of constructors) {
@@ -582,9 +586,8 @@ export function unregisterClass (...constructors: Function[]) {
 
 /**
  * Get the registered class by id
- * @method _getClassById
- * @param {String} classId
- * @return {Function} constructor
+ * @param classId
+ * @return constructor
  * @private
  */
 export function _getClassById (classId) {
@@ -593,9 +596,8 @@ export function _getClassById (classId) {
 
 /**
  * Get the registered class by name
- * @method getClassByName
- * @param {String} classname
- * @return {Function} constructor
+ * @param classname
+ * @return constructor of the class
  */
 export function getClassByName (classname) {
     return _nameToClass[classname];
@@ -603,10 +605,9 @@ export function getClassByName (classname) {
 
 /**
  * Get class id of the object
- * @method _getClassId
- * @param {Object|Function} obj - instance or constructor
- * @param {Boolean} [allowTempId = true]   - can return temp id in editor
- * @return {String}
+ * @param obj - instance or constructor
+ * @param [allowTempId = true]   - can return temp id in editor
+ * @return
  * @private
  */
 export function _getClassId (obj, allowTempId?: Boolean) {

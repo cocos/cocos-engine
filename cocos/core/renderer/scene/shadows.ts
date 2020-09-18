@@ -27,7 +27,6 @@ const _mat4_trans = new Mat4();
 /**
  * @zh 阴影类型。
  * @en The shadow type
- * @static
  * @enum Shadows.ShadowType
  */
 export const ShadowType = Enum({

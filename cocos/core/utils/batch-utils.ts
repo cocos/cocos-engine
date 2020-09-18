@@ -1,3 +1,7 @@
+/**
+ * @category core
+ */
+
 import { MeshRenderer } from '../3d/framework/mesh-renderer';
 import { Mesh } from '../assets/mesh';
 import { Mat4 } from '../math/mat4';
@@ -16,6 +20,10 @@ function checkMaterialisSame (comp1: MeshRenderer, comp2: MeshRenderer): boolean
     return true;
 }
 
+/**
+ * @en Utility for 3d model static batching
+ * @zh 服务于 3D 模型静态合批的工具类
+ */
 export class BatchingUtility {
     /**
      * Collect the Models under `staticModelRoot`,

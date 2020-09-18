@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { Model } from '../scene/model';
 import { MorphRenderingInstance } from '../../assets/morph';
 import { Material } from '../../assets/material';

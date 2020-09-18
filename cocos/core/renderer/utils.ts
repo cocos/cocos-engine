@@ -1,4 +1,6 @@
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+/**
+ * @hidden
+ */
 
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit } from '../gfx/define';
 
