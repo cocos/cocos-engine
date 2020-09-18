@@ -541,7 +541,6 @@ export class Director extends EventTarget {
             this._root.resetCumulativeTime();
         }
         this.startAnimation();
-
         if (onLaunched) {
             onLaunched(null, scene);
         }
