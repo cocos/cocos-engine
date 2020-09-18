@@ -142,7 +142,8 @@ export class ActionManager {
         else if (!element.actions) {
             element.actions = [];
         }
-
+        // update target due to the same UUID is allowed for different scenarios
+        element.target = target;
         element.actions.push(action);
         action.startWithTarget(target);
     }
