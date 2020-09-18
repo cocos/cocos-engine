@@ -481,6 +481,7 @@ export class Game extends EventTarget {
             legacyCC.director.reset();
             legacyCC.game.pause();
             legacyCC.game._loadRenderPipeline(() => {
+                legacyCC.game.resume();
                 legacyCC.game._safeEmit(legacyCC.Game.EVENT_RESTART);
             });
         });
