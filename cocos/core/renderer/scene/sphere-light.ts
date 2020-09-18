@@ -29,12 +29,11 @@ export class SphereLight extends Light {
     }
 
     set luminance (lum: number) {
-        this._luminance = lum;
         LightPool.set(this._handle, LightView.ILLUMINANCE, lum);
     }
 
     get luminance (): number {
-        return this._luminance;
+        return LightPool.get(this._handle, LightView.ILLUMINANCE);
     }
 
     get aabb () {
@@ -43,7 +42,6 @@ export class SphereLight extends Light {
 
     protected _size: number = 0.15;
     protected _range: number = 1.0;
-    protected _luminance: number = 1700 / nt2lm(this._size);
     protected _pos: Vec3;
     protected _aabb: aabb;
 
@@ -52,6 +50,11 @@ export class SphereLight extends Light {
         this._type = LightType.SPHERE;
         this._aabb = aabb.create();
         this._pos = new Vec3();
+    }
+
+    public initialize () {
+        super.initialize();
+        LightPool.set(this._handle, LightView.ILLUMINANCE, 1700 / nt2lm(this._size));
     }
 
     public update () {

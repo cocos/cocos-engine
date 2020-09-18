@@ -66,7 +66,6 @@ export class DirectionalLight extends Light {
     }
 
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
-    protected _illum: number = Ambient.SUN_ILLUM;
 
     // shadow
     private _shadowRange: number = 1000.0;
@@ -91,17 +90,21 @@ export class DirectionalLight extends Light {
 
     // in Lux(lx)
     set illuminance (illum: number) {
-        this._illum = illum;
         LightPool.set(this._handle, LightView.ILLUMINANCE, illum);
     }
 
     get illuminance (): number {
-        return this._illum;
+        return LightPool.get(this._handle, LightView.ILLUMINANCE);
     }
 
     constructor () {
         super();
         this._type = LightType.DIRECTIONAL;
+    }
+
+    public initialize() {
+        super.initialize();
+        LightPool.set(this._handle, LightView.ILLUMINANCE, Ambient.SUN_ILLUM);
     }
 
     public update () {

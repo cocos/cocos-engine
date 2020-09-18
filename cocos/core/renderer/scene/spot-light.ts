@@ -14,7 +14,6 @@ export class SpotLight extends Light {
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
     protected _size: number = 0.15;
     protected _range: number = 5.0;
-    protected _luminance: number = 1700 / nt2lm(this._size);
     protected _spotAngle: number = Math.cos(Math.PI / 6);
     protected _pos: Vec3;
     protected _aabb: aabb;
@@ -44,12 +43,11 @@ export class SpotLight extends Light {
     }
 
     set luminance (lum: number) {
-        this._luminance = lum;
         LightPool.set(this._handle, LightView.ILLUMINANCE, lum);
     }
 
     get luminance (): number {
-        return this._luminance;
+        return LightPool.get(this._handle, LightView.ILLUMINANCE);
     }
 
     get direction (): Vec3 {
@@ -80,6 +78,11 @@ export class SpotLight extends Light {
         this._aabb = aabb.create();
         this._frustum = frustum.create();
         this._pos = new Vec3();
+    }
+
+    public initialize () {
+        super.initialize();
+        LightPool.set(this._handle, LightView.ILLUMINANCE, 1700 / nt2lm(this._size));
     }
 
     public update () {
