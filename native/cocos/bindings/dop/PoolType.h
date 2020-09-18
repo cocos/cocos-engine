@@ -26,6 +26,7 @@ enum class PoolType {
     FOG,
     SKYBOX,
     SHADOW,
+    LIGHT,
 //    INSTANCED_ATTRIBUTE,
 //    MAIN_LIGHT,
 //    AMBIENT,

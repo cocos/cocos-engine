@@ -150,14 +150,13 @@ struct CC_DLL Scene {
     const static se::PoolType type;
 };
 
-struct CC_DLL MainLight {
+struct CC_DLL Light {
     float useColorTemperature = 0;
     float illuminance = 0;
+    float nodeID = 0;
     cc::Vec3 direction;
     cc::Vec3 color;
     cc::Vec3 colorTemperatureRGB;
-
-    float nodeID = 0;
 
     const static se::PoolType type;
 };
@@ -300,7 +299,7 @@ struct CC_DLL RenderWindow {
 #define GET_ROOT()                            SharedMemory::getBuffer<Root>(se::BufferPool::getPoolFlag())
 #define GET_CAMERA(index)                     SharedMemory::getBuffer<Camera>(index)
 #define GET_SCENE(index)                      SharedMemory::getBuffer<Scene>(index)
-#define GET_MAIN_LIGHT(index)                 SharedMemory::getBuffer<MainLight>(index)
+#define GET_LIGHT(index)                      SharedMemory::getBuffer<Light>(index)
 #define GET_AMBIENT(index)                    SharedMemory::getBuffer<Ambient>(index)
 #define GET_FOG(index)                        SharedMemory::getBuffer<Fog>(index)
 #define GET_SKYBOX(index)                     SharedMemory::getBuffer<Skybox>(index)
