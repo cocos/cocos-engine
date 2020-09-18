@@ -32,7 +32,7 @@ import {ccclass, override} from 'cc.decorator';
 import { GFXDevice, GFXFeature } from '../gfx/device';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
-import { EDITOR, MINIGAME, ALIPAY, XIAOMI } from 'internal:constants';
+import { EDITOR, MINIGAME, ALIPAY, XIAOMI, BYTEDANCE } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 
@@ -95,7 +95,7 @@ export class ImageAsset extends Asset {
         if (isNativeImage(this._nativeData)) {
             return this._nativeData;
         } 
-        else if (window.sharedCanvas && this._nativeData instanceof window.sharedCanvas.constructor) {
+        else if (BYTEDANCE && typeof window.sharedCanvas === 'object' && this._nativeData instanceof window.sharedCanvas.constructor) {
             return true;
         }
         else {
