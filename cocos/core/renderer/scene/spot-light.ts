@@ -1,6 +1,7 @@
 import { aabb, frustum } from '../../geometry';
 import { Mat4, Quat, Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
+import { LightPool, LightView } from '../core/memory-pools';
 
 const _forward = new Vec3(0, 0, -1);
 const _qt = new Quat();
@@ -44,6 +45,7 @@ export class SpotLight extends Light {
 
     set luminance (lum: number) {
         this._luminance = lum;
+        LightPool.set(this._handle, LightView.ILLUMINANCE, lum);
     }
 
     get luminance (): number {
@@ -85,6 +87,7 @@ export class SpotLight extends Light {
             this._node.getWorldPosition(this._pos);
             Vec3.transformQuat(this._dir, _forward, this._node.getWorldRotation(_qt));
             Vec3.normalize(this._dir, this._dir);
+            LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
             aabb.set(this._aabb, this._pos.x, this._pos.y, this._pos.z, this._range, this._range, this._range);
 
             // view matrix

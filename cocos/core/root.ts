@@ -557,7 +557,9 @@ export class Root {
             this._lightPools.set(lClass, new Pool(() => new lClass(), 4));
             l = this._lightPools.get(lClass)!;
         }
-        return l.alloc() as T;
+        const light = l.alloc() as T;
+        light.initialize();
+        return light;
     }
 
     public destroyLight (l: Light) {

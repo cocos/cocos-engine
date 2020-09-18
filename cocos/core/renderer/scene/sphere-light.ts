@@ -1,6 +1,7 @@
 import { aabb } from '../../geometry';
 import { Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
+import { LightPool, LightView } from '../core/memory-pools';
 
 export class SphereLight extends Light {
 
@@ -29,6 +30,7 @@ export class SphereLight extends Light {
 
     set luminance (lum: number) {
         this._luminance = lum;
+        LightPool.set(this._handle, LightView.ILLUMINANCE, lum);
     }
 
     get luminance (): number {
