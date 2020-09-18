@@ -204,6 +204,23 @@ var handleQueue = function (maxConcurrency, maxRequestsPerFrame) {
  */
 var downloader = {
 
+    _remoteServerAddress: '',
+    
+    /**
+     * !#en 
+     * The address of remote server
+     * 
+     * !#zh
+     * 远程服务器地址
+     * 
+     * @property remoteServerAddress
+     * @type {string}
+     * @default ''
+     */
+    get remoteServerAddress () {
+        return this._remoteServerAddress;
+    },
+
     /**
      * !#en 
      * The maximum number of concurrent when downloading
@@ -365,9 +382,10 @@ var downloader = {
      */
     downloadScript: downloadScript,
 
-    init (bundleVers) {
+    init (bundleVers, remoteServerAddress) {
         _downloading.clear();
         _queue.length = 0;
+        this._remoteServerAddress = remoteServerAddress || '';
         this.bundleVers = bundleVers || Object.create(null);
     },
 
