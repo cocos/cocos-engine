@@ -137,9 +137,7 @@ let MeshBuffer = cc.Class({
         if (this.vertexOffset + vertexCount > 65535) {
             this.uploadData();
             this._batcher._flush();
-            if (!isIOS14Device) {
-                this.switchBuffer();
-            }
+            this.switchBuffer();
         }
     },
 
@@ -258,14 +256,21 @@ let MeshBuffer = cc.Class({
     },
 
     forwardIndiceStartToOffset () {
-        if (!isIOS14Device) {
-            this.indiceStart = this.indiceOffset;
-        }
-        else {
-            this.uploadData();
-            this.switchBuffer();
-        }
+        this.indiceStart = this.indiceOffset;
     }
 });
+
+if (isIOS14Device) {
+    MeshBuffer.prototype.checkAndSwitchBuffer = function (vertexCount) {
+        if (this.vertexOffset + vertexCount > 65535) {
+            this.uploadData();
+            this._batcher._flush();
+        }
+    };     
+    MeshBuffer.prototype.forwardIndiceStartToOffset = function () {
+        this.uploadData();
+        this.switchBuffer();
+    }  
+}
 
 cc.MeshBuffer = module.exports = MeshBuffer;
