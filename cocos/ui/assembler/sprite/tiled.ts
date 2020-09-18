@@ -275,7 +275,7 @@ export const tilled: IAssembler = {
         }
     },
 
-    updateVerts (sprite: SpriteComponent) {
+    updateVerts (sprite: Sprite) {
         const uiTrans = sprite.node._uiProps.uiTransformComp!;
         const data = sprite.renderData?.data!;
         const frame = sprite.spriteFrame!;
@@ -291,10 +291,10 @@ export const tilled: IAssembler = {
         const xScale = (uiTrans.width / (leftWidth + rightWidth)) > 1 ? 1 : (uiTrans.width / (leftWidth + rightWidth));
         const yScale = (uiTrans.height / (topHeight + bottomHeight)) > 1 ? 1 : (uiTrans.height / (topHeight + bottomHeight));
         let offsetWidth = 0, offsetHeight = 0;
-        
+
         if (centerWidth > 0) {
             /*
-             * Because the float numerical calculation in javascript is not accurate enough, 
+             * Because the float numerical calculation in javascript is not accurate enough,
              * there is an expected result of 1.0, but the actual result is 1.000001.
              */
             offsetWidth = Math.floor(this.sizableWidth * 1000) / 1000 % centerWidth === 0 ? centerWidth : this.sizableWidth % centerWidth;
