@@ -442,6 +442,7 @@ enum PoolType {
     FOG,
     SKYBOX,
     SHADOW,
+    LIGHT,
     // array
     SUB_MODEL_ARRAY = 200,
     MODEL_ARRAY,
@@ -473,6 +474,7 @@ export type AmbientHandle = IHandle<PoolType.AMBIENT>;
 export type FogHandle = IHandle<PoolType.FOG>;
 export type SkyboxHandle = IHandle<PoolType.SKYBOX>;
 export type ShadowsHandle = IHandle<PoolType.SHADOW>;
+export type LightHandle = IHandle<PoolType.LIGHT>;
 
 // don't reuse any of these data-only structs, for GFX objects may directly reference them
 export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, () => new GFXRasterizerState());
@@ -849,3 +851,23 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
 // @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
 if (!JSB) {delete ShadowsView[FogView.COUNT]; ShadowsView[ShadowsView.COUNT = ShadowsView.ORTHO_SIZE + 1] = 'COUNT'; }
 export const ShadowsPool = new BufferPool<PoolType.SHADOW, Float32Array, typeof ShadowsView, IShadowsViewType>(PoolType.SHADOW, Float32Array, ShadowsView, 1);
+
+export enum LightView {
+    USE_COLOR_TEMPERATURE,
+    ILLUMINANCE,
+    NODE,                       // handle
+    DIRECTION,                  // Vec3
+    COLOR = 6,                  // Vec3
+    COLOR_TEMPERATURE_RGB = 9,  // Vec3
+    COUNT = 12
+}
+interface ILightViewType extends BufferTypeManifest<typeof LightView> {
+    [LightView.USE_COLOR_TEMPERATURE]: number;
+    [LightView.ILLUMINANCE]: number;
+    [LightView.NODE]:NodeHandle;
+    [LightView.DIRECTION]: Vec3;
+    [LightView.COLOR]: Vec3;
+    [LightView.COLOR_TEMPERATURE_RGB]: Vec3;
+    [LightView.COUNT]: never;
+}
+export const LightPool = new BufferPool<PoolType.LIGHT, Float32Array, typeof LightView, ILightViewType>(PoolType.LIGHT, Float32Array, LightView, 3);
