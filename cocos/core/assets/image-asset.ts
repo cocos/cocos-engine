@@ -64,7 +64,11 @@ function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElem
     if (ALIPAY || XIAOMI) {
         // We're unable to grab the constructors of Alipay native image or canvas object.
         return !('_data' in imageSource);
-    } else {
+    }
+    else if (BYTEDANCE && typeof window.sharedCanvas === 'object' && imageSource instanceof window.sharedCanvas.constructor) {
+        return true;
+    }
+    else {
         return imageSource instanceof HTMLImageElement || imageSource instanceof HTMLCanvasElement;
     }
 }
@@ -94,9 +98,6 @@ export class ImageAsset extends Asset {
     get data () {
         if (isNativeImage(this._nativeData)) {
             return this._nativeData;
-        } 
-        else if (BYTEDANCE && typeof window.sharedCanvas === 'object' && this._nativeData instanceof window.sharedCanvas.constructor) {
-            return true;
         }
         else {
             return this._nativeData._data;
