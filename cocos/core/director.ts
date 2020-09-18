@@ -540,7 +540,6 @@ export class Director extends EventTarget {
         if (this._root) {
             this._root.resetCumulativeTime();
         }
-        legacyCC.game.resume();
         this.startAnimation();
         if (onLaunched) {
             onLaunched(null, scene);
