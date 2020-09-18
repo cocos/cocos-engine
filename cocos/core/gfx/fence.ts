@@ -25,16 +25,4 @@ export abstract class GFXFence extends GFXObject {
     public abstract initialize (info: IGFXFenceInfo): boolean;
 
     public abstract destroy (): void;
-
-    /**
-     * @en Wait for this fence.
-     * @zh 等待当前 fence 信号。
-     */
-    public abstract wait (): void;
-
-    /**
-     * @en Reset this fence to unsignaled state.
-     * @zh 重置当前 fence。
-     */
-    public abstract reset (): void;
 }

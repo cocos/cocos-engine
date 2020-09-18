@@ -367,27 +367,30 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
             const gpuBuffer = (buffer as WebGLBuffer).gpuBuffer;
             if (gpuBuffer) {
                 const cmd = this._webGLAllocator!.updateBufferCmdPool.alloc(WebGLCmdUpdateBuffer);
-                if (cmd) {
 
-                    let buffSize;
-                    if (size !== undefined ) {
+                let buffSize = 0;
+                let buff: GFXBufferSource | null = null;
+
+                // TODO: Have to copy to staging buffer first to make this work for the execution is deferred.
+                // But since we are using specialized primary command buffers in WebGL backends, we leave it as is for now
+                if (buffer.usage & GFXBufferUsageBit.INDIRECT) {
+                    buff = data;
+                } else {
+                    if (size !== undefined) {
                         buffSize = size;
-                    } else if (buffer.usage & GFXBufferUsageBit.INDIRECT) {
-                        buffSize = 0;
                     } else {
                         buffSize = (data as ArrayBuffer).byteLength;
                     }
-
-                    const buff = data as ArrayBuffer;
-
-                    cmd.gpuBuffer = gpuBuffer;
-                    cmd.buffer = buff;
-                    cmd.offset = (offset !== undefined ? offset : 0);
-                    cmd.size = buffSize;
-                    this.cmdPackage.updateBufferCmds.push(cmd);
-
-                    this.cmdPackage.cmds.push(WebGLCmd.UPDATE_BUFFER);
+                    buff = data;
                 }
+
+                cmd.gpuBuffer = gpuBuffer;
+                cmd.buffer = buff;
+                cmd.offset = (offset !== undefined ? offset : 0);
+                cmd.size = buffSize;
+                this.cmdPackage.updateBufferCmds.push(cmd);
+
+                this.cmdPackage.cmds.push(WebGLCmd.UPDATE_BUFFER);
             }
         } else {
             console.error('Command \'updateBuffer\' must be recorded outside a render pass.');
@@ -395,7 +398,6 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
     }
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
-
         if (this._type === GFXCommandBufferType.PRIMARY && !this._isInRenderPass ||
             this._type === GFXCommandBufferType.SECONDARY) {
             const gpuTexture = (texture as WebGLTexture).gpuTexture;
@@ -404,9 +406,11 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
                 if (cmd) {
                     cmd.gpuTexture = gpuTexture;
                     cmd.regions = regions;
+                    // TODO: Have to copy to staging buffer first to make this work for the execution is deferred.
+                    // But since we are using specialized primary command buffers in WebGL backends, we leave it as is for now
                     cmd.buffers = buffers;
-                    this.cmdPackage.copyBufferToTextureCmds.push(cmd);
 
+                    this.cmdPackage.copyBufferToTextureCmds.push(cmd);
                     this.cmdPackage.cmds.push(WebGLCmd.COPY_BUFFER_TO_TEXTURE);
                 }
             }

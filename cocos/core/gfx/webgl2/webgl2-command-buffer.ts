@@ -381,16 +381,21 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
             const gpuBuffer = (buffer as WebGL2Buffer).gpuBuffer;
             if (gpuBuffer) {
                 const cmd = this._webGLAllocator!.updateBufferCmdPool.alloc(WebGL2CmdUpdateBuffer);
-                let buffSize;
-                if (size !== undefined ) {
-                    buffSize = size;
-                } else if (buffer.usage & GFXBufferUsageBit.INDIRECT) {
-                    buffSize = 0;
-                } else {
-                    buffSize = (data as ArrayBuffer).byteLength;
-                }
+                let buffSize = 0;
+                let buff: GFXBufferSource | null = null;
 
-                const buff = data as ArrayBuffer;
+                // TODO: Have to copy to staging buffer first to make this work for the execution is deferred.
+                // But since we are using specialized primary command buffers in WebGL backends, we leave it as is for now
+                if (buffer.usage & GFXBufferUsageBit.INDIRECT) {
+                    buff = data;
+                } else {
+                    if (size !== undefined) {
+                        buffSize = size;
+                    } else {
+                        buffSize = (data as ArrayBuffer).byteLength;
+                    }
+                    buff = data;
+                }
 
                 cmd.gpuBuffer = gpuBuffer;
                 cmd.buffer = buff;
@@ -406,17 +411,18 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
     }
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
-
         if (this._type === GFXCommandBufferType.PRIMARY && !this._isInRenderPass ||
             this._type === GFXCommandBufferType.SECONDARY) {
             const gpuTexture = (texture as WebGL2Texture).gpuTexture;
             if (gpuTexture) {
                 const cmd = this._webGLAllocator!.copyBufferToTextureCmdPool.alloc(WebGL2CmdCopyBufferToTexture);
                 cmd.gpuTexture = gpuTexture;
-                cmd.buffers = buffers;
                 cmd.regions = regions;
-                this.cmdPackage.copyBufferToTextureCmds.push(cmd);
+                // TODO: Have to copy to staging buffer first to make this work for the execution is deferred.
+                // But since we are using specialized primary command buffers in WebGL backends, we leave it as is for now
+                cmd.buffers = buffers;
 
+                this.cmdPackage.copyBufferToTextureCmds.push(cmd);
                 this.cmdPackage.cmds.push(WebGL2Cmd.COPY_BUFFER_TO_TEXTURE);
             }
         } else {
@@ -425,7 +431,6 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
     }
 
     public execute (cmdBuffs: GFXCommandBuffer[], count: number) {
-
         for (let i = 0; i < count; ++i) {
             const webGL2CmdBuff = cmdBuffs[i] as WebGL2CommandBuffer;
 

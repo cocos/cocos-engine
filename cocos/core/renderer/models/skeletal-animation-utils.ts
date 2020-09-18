@@ -398,8 +398,9 @@ export class JointTexturePool {
             let bindposeCorrection: Mat4 | undefined;
             /**
              * It is regularly observed that developers may choose to delete the whole
-             * skeleton node tree for skinning models that only use baked animations,
-             * to reduce prefab file size.
+             * skeleton node tree for skinning models that only use baked animations
+             * as an effective optimization strategy (substantial improvements on both
+             * package size and runtime efficiency).
              *
              * This becomes troublesome in some cases during baking though, e.g. when a
              * skeleton joint node is not directly controlled by any animation curve,

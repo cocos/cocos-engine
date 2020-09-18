@@ -113,7 +113,6 @@ export class UIStage extends RenderStage {
         const framebuffer = view.window.framebuffer;
         const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
 
-        cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
             [camera.clearColor], camera.clearDepth, camera.clearStencil);
 
@@ -122,9 +121,7 @@ export class UIStage extends RenderStage {
         this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
 
         cmdBuff.endRenderPass();
-        cmdBuff.end();
 
-        device.queue.submit(pipeline.commandBuffers);
         pipeline.isHDR = isHDR;
     }
 }

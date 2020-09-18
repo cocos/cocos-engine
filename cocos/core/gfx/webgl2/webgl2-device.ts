@@ -349,6 +349,7 @@ export class WebGL2Device extends GFXDevice {
 
         // create queue
         this._queue = this.createQueue({ type: GFXQueueType.GRAPHICS });
+        this._cmdBuff = this.createCommandBuffer({ type: GFXCommandBufferType.PRIMARY, queue: this._queue });
 
         // create default null texture
         this.nullTex2D = new WebGL2Texture(this);
@@ -433,6 +434,11 @@ export class WebGL2Device extends GFXDevice {
         if (this._queue) {
             this._queue.destroy();
             this._queue = null;
+        }
+
+        if (this._cmdBuff) {
+            this._cmdBuff.destroy();
+            this._cmdBuff = null;
         }
 
         this._extensions = null;

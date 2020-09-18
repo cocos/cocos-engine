@@ -117,11 +117,19 @@ export abstract class GFXDevice {
     }
 
     /**
-     * @en GFX queue.
-     * @zh GFX 队列。
+     * @en GFX default queue.
+     * @zh GFX 默认队列。
      */
     get queue (): GFXQueue {
         return this._queue as GFXQueue;
+    }
+
+    /**
+     * @en GFX default command buffer.
+     * @zh GFX 默认命令缓冲。
+     */
+    get commandBuffer (): GFXCommandBuffer {
+        return this._cmdBuff as GFXCommandBuffer;
     }
 
     /**
@@ -365,6 +373,7 @@ export abstract class GFXDevice {
     protected _version: string = '';
     protected _features: boolean[] = new Array<boolean>(GFXFeature.COUNT);
     protected _queue: GFXQueue | null = null;
+    protected _cmdBuff: GFXCommandBuffer | null = null;
     protected _devicePixelRatio: number = 1.0;
     protected _width: number = 0;
     protected _height: number = 0;

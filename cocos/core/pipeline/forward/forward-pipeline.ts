@@ -131,6 +131,7 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     public render (views: RenderView[]) {
+        this._commandBuffers[0].begin();
         for (let i = 0; i < views.length; i++) {
             const view = views[i];
             sceneCulling(this, view);
@@ -138,6 +139,8 @@ export class ForwardPipeline extends RenderPipeline {
                 view.flows[j].render(view);
             }
         }
+        this._commandBuffers[0].end();
+        this._device.queue.submit(this._commandBuffers);
     }
 
     public getRenderPass (clearFlags: GFXClearFlag): GFXRenderPass {
@@ -217,17 +220,14 @@ export class ForwardPipeline extends RenderPipeline {
         }
 
         // update ubos
-        this._descriptorSet.getBuffer(UBOGlobal.BLOCK.binding).update(this._globalUBO);
-        this._descriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(this._shadowUBO);
+        this._commandBuffers[0].updateBuffer(this._descriptorSet.getBuffer(UBOGlobal.BLOCK.binding), this._globalUBO);
+        this._commandBuffers[0].updateBuffer(this._descriptorSet.getBuffer(UBOShadow.BLOCK.binding), this._shadowUBO);
     }
 
     private _activeRenderer () {
         const device = this.device;
 
-        this._commandBuffers.push(device.createCommandBuffer({
-            type: GFXCommandBufferType.PRIMARY,
-            queue: this._device.queue,
-        }));
+        this._commandBuffers.push(device.commandBuffer);
 
         const globalUBO = device.createBuffer({
             usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
@@ -375,6 +375,8 @@ export class ForwardPipeline extends RenderPipeline {
             rpRes.value.destroy();
             rpRes = rpIter.next();
         }
+
+        this._commandBuffers.length = 0;
 
         this.ambient.destroy();
         this.skybox.destroy();

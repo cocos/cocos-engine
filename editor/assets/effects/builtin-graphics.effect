@@ -19,7 +19,6 @@ CCEffect %{
         depthWrite: false
 }%
 
-
 CCProgram vs %{
   precision highp float;
 
@@ -44,7 +43,6 @@ CCProgram vs %{
     return pos;
   }
 }%
-
 
 CCProgram fs %{
   #pragma extension([GL_OES_standard_derivatives, __VERSION__ < 300])
