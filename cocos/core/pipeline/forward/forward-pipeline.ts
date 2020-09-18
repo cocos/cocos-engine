@@ -196,7 +196,7 @@ export class ForwardPipeline extends RenderPipeline {
             if (shadowInfo.autoControl) {
                 // if orthoSize is the smallest, auto calculate orthoSize.
                 const radius = shadowInfo.sphere.radius;
-                x = radius* shadowInfo.aspect;
+                x = radius * shadowInfo.aspect;
                 y = radius;
 
                 far = radius * 4.0;
@@ -218,7 +218,7 @@ export class ForwardPipeline extends RenderPipeline {
 
             Mat4.toArray(this._shadowUBO, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-            vec4.set(shadowInfo.pcf);
+            vec4.set(shadowInfo.pcf, shadowInfo.bias);
             Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_PCF_OFFSET);
 
             vec4.set(shadowInfo.size.x, shadowInfo.size.y);

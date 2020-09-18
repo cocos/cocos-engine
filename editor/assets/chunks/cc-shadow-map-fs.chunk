@@ -10,7 +10,7 @@ layout(set = 0, binding = 4) uniform sampler2D cc_shadowMap;
 vec4 CCGetShadowFactorX1 () {
   vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
   float depth = unpackRGBAToDepth(texture(cc_shadowMap, clipPos.xy));
-  if (depth < (clipPos.z - 0.001)) return cc_shadowColor;
+  if (depth < (clipPos.z - cc_shadowPCF.y)) return cc_shadowColor;
   else return vec4(0);
 }
 
@@ -25,7 +25,7 @@ vec4 CCGetShadowFactorX5 () {
   depth += unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x + offsetx, clipPos.y - offsety)));
   depth += unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x + offsetx, clipPos.y + offsety)));
   depth /= 5.0;
-  if (depth < (clipPos.z - 0.001)) return cc_shadowColor;
+  if (depth < (clipPos.z - cc_shadowPCF.y)) return cc_shadowColor;
   else return vec4(0);
 }
 
@@ -40,7 +40,7 @@ vec4 CCGetShadowFactorX9 () {
     }
   }
   depth /= 9.0;
-  if (depth < (clipPos.z - 0.001)) return cc_shadowColor;
+  if (depth < (clipPos.z - cc_shadowPCF.y)) return cc_shadowColor;
   else return vec4(0);
 }
 
@@ -55,6 +55,6 @@ vec4 CCGetShadowFactorX25 () {
     }
   }
   depth /= 25.0;
-  if (depth < (clipPos.z - 0.001)) return cc_shadowColor;
+  if (depth < (clipPos.z - cc_shadowPCF.y)) return cc_shadowColor;
   else return vec4(0);
 }

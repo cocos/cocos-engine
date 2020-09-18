@@ -232,6 +232,11 @@ export class Shadows {
      * @zh 获取或者设置阴影pcf等级
      */
     public pcf = PCFType.HARD;
+    /**
+     * @en get or set shadow offset
+     * @zh 获取或者设置阴影偏移量
+     */
+    public bias = 0.001;
 
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;

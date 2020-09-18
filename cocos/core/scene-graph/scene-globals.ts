@@ -404,6 +404,8 @@ export class ShadowsInfo {
     protected _orthoSize: number = 5;
     @serializable
     protected _size: Vec2 = new Vec2(512, 512);
+    @serializable
+    protected _bias: number = 0.001;
 
     protected _resource: Shadows | null = null;
 
@@ -568,6 +570,20 @@ export class ShadowsInfo {
     }
 
     /**
+     * @en get or set shadow map sampler offset
+     * @zh 获取或者设置阴影纹理偏移值
+     */
+    @type(CCFloat)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoControl === false; })
+    set bias (val: number) {
+        this._bias = val;
+        if (this._resource) { this._resource.bias = val; }
+    }
+    get bias () {
+        return this._bias;
+    }
+
+    /**
      * @en Set plane which receives shadow with the given node's world transformation
      * @zh 根据指定节点的世界变换设置阴影接收平面的信息
      * @param node The node for setting up the plane
@@ -590,6 +606,7 @@ export class ShadowsInfo {
         this._resource.normal = this._normal;
         this._resource.distance = this._distance;
         this._resource.shadowColor = this._shadowColor;
+        this._resource.bias = this._bias;
         this._resource.enabled = this._enabled;
     }
 }
