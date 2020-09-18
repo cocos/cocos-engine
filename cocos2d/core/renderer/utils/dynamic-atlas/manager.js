@@ -70,9 +70,9 @@ let dynamicAtlasManager = {
     },
 
     /**
-     * !#en The maximum number of atlas that can be created.
+     * !#en Get the current created atlas count.
      * !#zh 获取当前已经创建的图集数量。
-     * @property maxAtlasCount
+     * @property atlasCount
      * @type {Number}
      */
     get atlasCount () {
