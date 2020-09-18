@@ -297,7 +297,7 @@ struct CC_DLL RenderWindow {
 #define GET_FLAT_BUFFER(index, offset)        (SharedMemory::getBuffer<FlatBuffer>(index) + offset)
 #define GET_BUFFERVIEW(index)                 SharedMemory::getBuffer<BufferView>(index)
 #define GET_NODE(index)                       SharedMemory::getBuffer<Node>(index)
-#define GET_ROOT(index)                       SharedMemory::getBuffer<Root>(index)
+#define GET_ROOT()                            SharedMemory::getBuffer<Root>(se::BufferPool::getPoolFlag())
 #define GET_CAMERA(index)                     SharedMemory::getBuffer<Camera>(index)
 #define GET_SCENE(index)                      SharedMemory::getBuffer<Scene>(index)
 #define GET_MAIN_LIGHT(index)                 SharedMemory::getBuffer<MainLight>(index)

@@ -157,7 +157,7 @@ void ForwardPipeline::updateUBOs(RenderView *view) {
 void ForwardPipeline::updateUBO(RenderView *view) {
     _descriptorSet->update();
 
-    const auto root = GET_ROOT(0);
+    const auto root = GET_ROOT();
 
     const auto camera = view->getCamera();
     const auto scene = GET_SCENE(camera->getSceneID());
