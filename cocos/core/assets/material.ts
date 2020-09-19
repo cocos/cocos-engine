@@ -24,7 +24,6 @@
 */
 
 /**
- * 材质系统的相关内容
  * @category material
  */
 
@@ -42,15 +41,12 @@ import { TextureBase } from './texture-base';
 import { RenderTexture } from './render-texture';
 
 /**
- * @en
- * The basic infos for material initialization.
- * @zh
- * 用来初始化材质的基本信息。
+ * @en The basic infos for material initialization.
+ * @zh 用来初始化材质的基本信息。
  */
 interface IMaterialInfo {
     /**
-     * @en
-     * The EffectAsset to use. Must provide if `effectName` is not specified.
+     * @en The EffectAsset to use. Must provide if `effectName` is not specified.
      * @zh
      * 这个材质将使用的 EffectAsset，直接提供资源引用，和 `effectName` 至少要指定一个。
      */
@@ -89,14 +85,17 @@ interface IMaterialInfo {
 type MaterialPropertyFull = MaterialProperty | TextureBase | SpriteFrame | RenderTexture | GFXTexture | null;
 
 /**
- * @en
- * The material asset, specifies in details how a model is drawn on screen.
- * @zh
- * 材质资源类，包含模型绘制方式的全部细节描述。
+ * @en The material asset, specifies in details how a model is drawn on screen.
+ * @zh 材质资源类，包含模型绘制方式的全部细节描述。
  */
 @ccclass('cc.Material')
 export class Material extends Asset {
 
+    /**
+     * @en Get hash for a material
+     * @zh 获取一个材质的哈希值
+     * @param material 
+     */
     public static getHash (material: Material) {
         let hash = 0;
         for (const pass of material.passes) {
@@ -159,10 +158,18 @@ export class Material extends Asset {
         return this._hash;
     }
 
+    /**
+     * @en The parent material
+     * @zh 父材质
+     */
     get parent (): Material | null {
         return null;
     }
 
+    /**
+     * @en The owner render component
+     * @zh 该材质所归属的渲染组件
+     */
     get owner (): RenderableComponent | null {
         return null;
     }

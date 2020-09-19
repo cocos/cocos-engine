@@ -314,13 +314,10 @@ export class TerrainAsset extends Asset {
 
     /**
      * @en get layer
+     * @zh 获得纹理索引
      * @param xBlock block index x
      * @param yBlock block index y
      * @param layerId layer id
-     * @zh 获得纹理索引
-     * @param xBlock 地形块索引x
-     * @param yBlock 地形块索引y
-     * @param layerId 层Id
      */
     public getLayer (xBlock: number, yBlock: number, layerId: number) {
         const blockId = yBlock * this.blockCount[0] + xBlock;

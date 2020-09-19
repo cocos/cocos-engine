@@ -39,16 +39,13 @@ import { legacyCC } from '../global-exports';
 @ccclass('cc.TextAsset')
 export default class TextAsset extends Asset {
     /**
-     * 此资源包含的文本。
+     * @en The text content.
+     * @zh 此资源包含的文本。
      */
     @serializable
     @editable
     public text = '';
 
-    /**
-     * @zh
-     * 重载标准的 `toString()` 方法。
-     */
     public toString () {
         return this.text;
     }

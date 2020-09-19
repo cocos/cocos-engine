@@ -57,6 +57,10 @@ const _windowInfo: IRenderWindowInfo = {
     renderPassInfo: passInfo,
 };
 
+/**
+ * @en Render texture is a render target for [[Camera]] or [[Canvas]] component, the render pipeline will use its [[RenderWindow]] as the target of the rendering process.
+ * @zh 渲染贴图是 [[Camera]] 或 [[Canvas]] 组件的渲染目标对象，渲染管线会使用它的 [[RenderWindow]] 作为渲染的目标窗口。
+ */
 @ccclass('cc.RenderTexture')
 export class RenderTexture extends Asset {
 
@@ -72,14 +76,26 @@ export class RenderTexture extends Asset {
 
     private _window: RenderWindow | null = null;
 
+    /**
+     * @en The pixel width of the render texture
+     * @zh 渲染贴图的像素宽度
+     */
     get width () {
         return this._width;
     }
 
+    /**
+     * @en The pixel height of the render texture
+     * @zh 渲染贴图的像素高度
+     */
     get height () {
         return this._height;
     }
 
+    /**
+     * @en The render window for the render pipeline, it's created internally and cannot be modified.
+     * @zh 渲染管线所使用的渲染窗口，内部逻辑创建，无法被修改。
+     */
     get window () {
         return this._window;
     }
@@ -104,6 +120,12 @@ export class RenderTexture extends Asset {
         return super.destroy();
     }
 
+    /**
+     * @en Resize the render texture
+     * @zh 修改渲染贴图的尺寸
+     * @param width The pixel width
+     * @param height The pixel height
+     */
     public resize (width: number, height: number) {
         this._width = width;
         this._height = height;
@@ -114,9 +136,17 @@ export class RenderTexture extends Asset {
     }
 
     // To be compatible with material property interface
+    /**
+     * @en Gets the related [[GFXTexture]] resource, it's also the color attachment for the render window
+     * @zh 获取渲染贴图的 GFX 资源，同时也是渲染窗口所指向的颜色缓冲贴图资源
+     */
     public getGFXTexture (): GFXTexture | null {
         return this._window && this._window.framebuffer.colorTextures[0];
     }
+    /**
+     * @en Gets the sampler resource for the render texture
+     * @zh 获取渲染贴图的采样器
+     */
     public getGFXSampler (): GFXSampler {
         const root = legacyCC.director.root as Root;
         return samplerLib.getSampler(root.device, defaultSamplerHash);
