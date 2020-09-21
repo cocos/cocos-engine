@@ -190,6 +190,7 @@ export class RenderScene {
 
     public setMainLight (dl: DirectionalLight) {
         this._mainLight = dl;
+        ScenePool.set(this._scenePoolHandle, SceneView.MAIN_LIGHT, dl.handle);
     }
 
     public unsetMainLight (dl: DirectionalLight) {
@@ -492,7 +493,7 @@ export class RenderScene {
         }
     }
 
-    private _createHandles() {
+    private _createHandles () {
         if (!this._modelArrayHandle) {
             this._modelArrayHandle = ModelArrayPool.alloc();
             this._scenePoolHandle = ScenePool.alloc();

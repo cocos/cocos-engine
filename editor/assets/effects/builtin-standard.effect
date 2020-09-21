@@ -156,7 +156,7 @@ CCProgram standard-vs %{
     #if USE_VERTEX_COLOR
       v_color = a_color;
     #endif
-    v_fog_factor = CC_TRANSFER_FOG(matWorld * In.position);
+    v_fog_factor = CC_TRANSFER_FOG(pos);
 
     #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
       CCLightingMapCaclUV();

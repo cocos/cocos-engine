@@ -623,7 +623,7 @@ export enum SceneView {
     COUNT,
 }
 interface ISceneViewType extends BufferTypeManifest<typeof SceneView> {
-    [SceneView.MAIN_LIGHT]: number;
+    [SceneView.MAIN_LIGHT]: LightHandle;
     [SceneView.MODEL_ARRAY]: ModelArrayHandle;
     [SceneView.COUNT]: never;
 }
