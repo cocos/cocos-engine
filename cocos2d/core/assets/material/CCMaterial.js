@@ -230,6 +230,20 @@ let Material = cc.Class({
     },
 
     /**
+     * !#en Sets the Material property as fast as possible, but maybe not safe.
+     * !#zh 快速设置材质的属性, 需要用户在自己的代码中去确保该操作的正确性.
+     * @method setPropertyFast
+     * @param {string} name
+     * @param {Object} val
+     * @param {number} [passIdx]
+     * @param {boolean} [directly]
+     */
+    setPropertyFast (name, val, passIdx, directly) {
+        const effect = this._effect;
+        effect._setPassProperty(name, val, effect._passes[passIdx || 0], directly);
+    },
+
+    /**
      * !#en Gets the Material property.
      * !#zh 获取材质的属性。
      * @method getProperty
