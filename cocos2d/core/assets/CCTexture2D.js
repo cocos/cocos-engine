@@ -577,7 +577,7 @@ var Texture2D = cc.Class({
         }
 
         this._texture && this._texture.update(options);
-        
+
         this._hashDirty = true;
     },
 
