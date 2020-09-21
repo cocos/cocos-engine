@@ -27,36 +27,24 @@ export abstract class RenderFlow {
      * @en The name of the render flow
      * @zh 渲染流程的名字
      */
-    @displayOrder(0)
     public get name (): string {
         return this._name;
-    }
-    public set name (name: string) {
-        this._name = name;
     }
 
     /**
      * @en Priority of the current flow
      * @zh 当前渲染流程的优先级。
      */
-    @displayOrder(1)
     public get priority (): number {
         return this._priority;
-    }
-    public set priority (priority: number) {
-        this._priority = priority;
     }
 
     /**
      * @en Tag of the current flow
      * @zh 当前渲染流程的标签。
      */
-    @displayOrder(2)
     public get tag (): number {
         return this._tag;
-    }
-    public set tag (tag: number) {
-        this._tag = tag;
     }
 
     /**
@@ -64,25 +52,25 @@ export abstract class RenderFlow {
      * @zh 渲染流程 stage 列表。
      * @readonly
      */
-    @displayOrder(3)
-    @type([RenderStage])
     public get stages (): RenderStage[] {
         return this._stages;
     }
-    public set stages (stages: RenderStage[]) {
-        this._stages = stages;
-    }
 
+    @displayOrder(0)
     @serializable
     protected _name: string = '';
 
+    @displayOrder(1)
     @serializable
     protected _priority: number = 0;
 
+    @displayOrder(2)
     @serializable
     protected _tag: number = 0;
 
+    @displayOrder(3)
     @type([RenderStage])
+    @serializable
     protected _stages: RenderStage[] = [];
     protected _pipeline!: RenderPipeline;
 

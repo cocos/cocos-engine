@@ -31,42 +31,31 @@ export abstract class RenderStage {
      * @en Name of the current stage
      * @zh 当前渲染阶段的名字。
      */
-    @displayOrder(0)
     public get name (): string {
         return this._name;
-    }
-    public set name (name: string) {
-        this._name = name;
     }
 
     /**
      * @en Priority of the current stage
      * @zh 当前渲染阶段的优先级。
      */
-    @displayOrder(1)
     public get priority (): number {
         return this._priority;
-    }
-    public set priority (priority: number) {
-        this._priority = priority;
     }
 
     /**
      * @en Tag of the current stage
      * @zh 当前渲染阶段的标签。
      */
-    @displayOrder(2)
     public get tag (): number {
         return this._tag;
-    }
-    public set tag (tag: number) {
-        this._tag = tag;
     }
 
     /**
      * @en Name
      * @zh 名称。
      */
+    @displayOrder(0)
     @serializable
     protected _name: string = '';
 
@@ -74,6 +63,7 @@ export abstract class RenderStage {
      * @en Priority
      * @zh 优先级。
      */
+    @displayOrder(1)
     @serializable
     protected _priority: number = 0;
 
@@ -81,6 +71,7 @@ export abstract class RenderStage {
      * @en Type
      * @zh 类型。
      */
+    @displayOrder(2)
     @serializable
     protected _tag: number = 0;
     protected _pipeline!: RenderPipeline;
