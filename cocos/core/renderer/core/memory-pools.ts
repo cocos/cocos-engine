@@ -98,7 +98,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
         this._stride = bytesPerElement * this._elementCount;
         this._entriesPerChunk = 1 << entryBits;
         this._entryMask = this._entriesPerChunk - 1;
-        this._poolFlag = 1 << 20;
+        this._poolFlag = 1 << 30;
         this._chunkMask = ~(this._entryMask | this._poolFlag);
         this._nativePool = new NativeBufferPool(poolType, entryBits, this._stride);
         
