@@ -60,17 +60,6 @@ export abstract class RenderPipeline extends Asset {
     }
 
     /**
-     * @en The flows of pipeline.
-     * @zh 管线的渲染流程列表。
-     * @readonly
-     */
-    @type([RenderFlow])
-    @displayOrder(1)
-    get flows (): RenderFlow[] {
-        return this._flows;
-    }
-
-    /**
      * @en The tag of pipeline.
      * @zh 管线的标签。
      * @readonly
@@ -78,6 +67,23 @@ export abstract class RenderPipeline extends Asset {
     @displayOrder(0)
     get tag (): number {
         return this._tag;
+    }
+    set tag (tag: number) {
+        this._tag = tag;
+    }
+
+    /**
+     * @en The flows of pipeline.
+     * @zh 管线的渲染流程列表。
+     * @readonly
+     */
+    @displayOrder(1)
+    @type([RenderFlow])
+    get flows (): RenderFlow[] {
+        return this._flows;
+    }
+    set flows (flows: RenderFlow[]) {
+        this._flows = flows;
     }
 
     /**

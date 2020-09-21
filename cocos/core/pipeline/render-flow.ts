@@ -1,7 +1,7 @@
 /**
  * @category pipeline
  */
-import { ccclass, displayOrder, serializable } from 'cc.decorator';
+import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
 import { RenderStage } from './render-stage';
 import { RenderView } from './render-view';
 import { RenderPipeline } from './render-pipeline';
@@ -31,6 +31,9 @@ export abstract class RenderFlow {
     public get name (): string {
         return this._name;
     }
+    public set name (name: string) {
+        this._name = name;
+    }
 
     /**
      * @en Priority of the current flow
@@ -39,6 +42,9 @@ export abstract class RenderFlow {
     @displayOrder(1)
     public get priority (): number {
         return this._priority;
+    }
+    public set priority (priority: number) {
+        this._priority = priority;
     }
 
     /**
@@ -49,6 +55,9 @@ export abstract class RenderFlow {
     public get tag (): number {
         return this._tag;
     }
+    public set tag (tag: number) {
+        this._tag = tag;
+    }
 
     /**
      * @en The stages of flow.
@@ -56,8 +65,12 @@ export abstract class RenderFlow {
      * @readonly
      */
     @displayOrder(3)
+    @type([RenderStage])
     public get stages (): RenderStage[] {
         return this._stages;
+    }
+    public set stages (stages: RenderStage[]) {
+        this._stages = stages;
     }
 
     @serializable
@@ -69,7 +82,7 @@ export abstract class RenderFlow {
     @serializable
     protected _tag: number = 0;
 
-    @serializable
+    @type([RenderStage])
     protected _stages: RenderStage[] = [];
     protected _pipeline!: RenderPipeline;
 

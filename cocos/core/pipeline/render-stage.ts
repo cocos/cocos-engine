@@ -35,6 +35,9 @@ export abstract class RenderStage {
     public get name (): string {
         return this._name;
     }
+    public set name (name: string) {
+        this._name = name;
+    }
 
     /**
      * @en Priority of the current stage
@@ -44,6 +47,9 @@ export abstract class RenderStage {
     public get priority (): number {
         return this._priority;
     }
+    public set priority (priority: number) {
+        this._priority = priority;
+    }
 
     /**
      * @en Tag of the current stage
@@ -52,6 +58,9 @@ export abstract class RenderStage {
     @displayOrder(2)
     public get tag (): number {
         return this._tag;
+    }
+    public set tag (tag: number) {
+        this._tag = tag;
     }
 
     /**
