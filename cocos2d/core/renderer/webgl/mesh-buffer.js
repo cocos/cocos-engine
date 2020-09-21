@@ -25,6 +25,8 @@
 
 import gfx from '../../../renderer/gfx';
 
+const isIOS14Device = cc.sys.os === cc.sys.OS_IOS && cc.sys.isBrowser && cc.sys.isMobile && /iPhone OS 14/.test(window.navigator.userAgent);
+
 let MeshBuffer = cc.Class({
     name: 'cc.MeshBuffer',
     ctor (batcher, vertexFormat) {
@@ -257,5 +259,20 @@ let MeshBuffer = cc.Class({
         this.indiceStart = this.indiceOffset;
     }
 });
+
+// Should not share vb and id between multiple drawcalls on iOS14, it will cost a lot of time.
+// TODO: maybe remove it after iOS14 fix it?
+if (isIOS14Device) {
+    MeshBuffer.prototype.checkAndSwitchBuffer = function (vertexCount) {
+        if (this.vertexOffset + vertexCount > 65535) {
+            this.uploadData();
+            this._batcher._flush();
+        }
+    };     
+    MeshBuffer.prototype.forwardIndiceStartToOffset = function () {
+        this.uploadData();
+        this.switchBuffer();
+    }  
+}
 
 cc.MeshBuffer = module.exports = MeshBuffer;
