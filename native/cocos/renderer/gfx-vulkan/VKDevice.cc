@@ -74,9 +74,11 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
 
     // only enable the absolute essentials for now
     vector<const char *> requestedValidationLayers{};
+
 #if CC_DEBUG > 0
     requestedValidationLayers.push_back("VK_LAYER_KHRONOS_validation");
 #endif
+
     vector<const char *> requestedExtensions{
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
         VK_KHR_DESCRIPTOR_UPDATE_TEMPLATE_EXTENSION_NAME,
@@ -93,6 +95,12 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     requestedFeatures2.features.samplerAnisotropy = deviceFeatures.samplerAnisotropy;
     requestedFeatures2.features.depthBounds = deviceFeatures.depthBounds;
     requestedFeatures2.features.multiDrawIndirect = deviceFeatures.multiDrawIndirect;
+
+#if CC_DEBUG > 0
+    // GPU-assisted validation
+    requestedFeatures2.features.fragmentStoresAndAtomics = deviceFeatures.fragmentStoresAndAtomics;
+    requestedFeatures2.features.vertexPipelineStoresAndAtomics = deviceFeatures.vertexPipelineStoresAndAtomics;
+#endif
 
     ///////////////////// Device Creation /////////////////////
 

@@ -218,6 +218,18 @@ bool CCVKContext::initialize(const ContextInfo &info) {
 
             instanceInfo.pNext = &debugReportCreateInfo;
         }
+
+        VkValidationFeaturesEXT features = {VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT};
+        VkValidationFeatureEnableEXT enables[] = {VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT};
+        features.enabledValidationFeatureCount = 1;
+        features.pEnabledValidationFeatures = enables;
+        if (_minorVersion >= 1 && isLayerSupported("VK_LAYER_KHRONOS_validation", supportedLayers)) {
+            if (debugUtils) {
+                debugUtilsCreateInfo.pNext = &features;
+            } else {
+                debugReportCreateInfo.pNext = &features;
+            }
+        }
 #endif
 
         // Create the Vulkan instance
