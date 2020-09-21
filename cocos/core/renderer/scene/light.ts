@@ -120,6 +120,8 @@ export class Light {
 
     public initialize () {
         this._handle = LightPool.alloc();
+        LightPool.setVec3(this._handle, LightView.COLOR, this._color);
+        LightPool.setVec3(this._handle, LightView.COLOR_TEMPERATURE_RGB, this._colorTempRGB);
     }
 
     public attachToScene (scene: RenderScene) {
