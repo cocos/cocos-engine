@@ -33,11 +33,8 @@ import { Asset } from './asset';
 import { legacyCC } from '../global-exports';
 
 /**
- * @en
- * Class for Font handling.
- *
- * @zh
- * 字体资源类。
+ * @en Class for Font handling.
+ * @zh 字体资源类。
  */
 @ccclass('cc.Font')
 export class Font extends Asset {

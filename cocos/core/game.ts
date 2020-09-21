@@ -479,8 +479,11 @@ export class Game extends EventTarget {
             legacyCC.Object._deferredDestroy();
 
             legacyCC.director.reset();
-            legacyCC.game.onStart();
-            legacyCC.game._safeEmit(legacyCC.Game.EVENT_RESTART);
+            legacyCC.game.pause();
+            legacyCC.game._loadRenderPipeline(() => {
+                legacyCC.game.resume();
+                legacyCC.game._safeEmit(legacyCC.Game.EVENT_RESTART);
+            });
         });
     }
 
@@ -593,56 +596,7 @@ export class Game extends EventTarget {
             inputManager.registerSystemEvent(game.canvas);
         }
 
-        const useSplash = (!EDITOR && !PREVIEW && legacyCC.internal.SplashScreen);
-
-        // Load render pipeline if needed
-        const renderPipeline = this.config.renderPipeline;
-        if (renderPipeline) {
-            legacyCC.loader.load({ uuid: renderPipeline }, (err, asset) => {
-                // failed load renderPipeline
-                if (err || !(asset instanceof RenderPipeline)) {
-                    console.warn(`Failed load renderpipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);
-                    console.warn(err);
-                    this.setRenderPipeline();
-                }
-                else {
-                    try {
-                        this.setRenderPipeline(asset);
-                    } catch (e) {
-                        console.warn(e);
-                        console.warn(`Failed load renderpipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);
-                        this.setRenderPipeline();
-                    }
-                }
-                this._safeEmit(Game.EVENT_GAME_INITED);
-                if (useSplash) {
-                    const splashScreen = legacyCC.internal.SplashScreen.instance as SplashScreen;
-                    splashScreen.main(legacyCC.director.root);
-                    splashScreen.setOnFinish(() => {
-                        if (this.onStart) { this.onStart(); }
-                    });
-                    splashScreen.loadFinish = true;
-                }
-                else {
-                    if (this.onStart) { this.onStart(); }
-                }
-            });
-        }
-        else {
-            this.setRenderPipeline();
-            this._safeEmit(Game.EVENT_GAME_INITED);
-            if (useSplash) {
-                const splashScreen = legacyCC.internal.SplashScreen.instance as SplashScreen;
-                splashScreen.main(legacyCC.director.root);
-                splashScreen.setOnFinish(() => {
-                    if (this.onStart) { this.onStart(); }
-                });
-                splashScreen.loadFinish = true;
-            }
-            else {
-                if (this.onStart) { this.onStart(); }
-            }
-        }
+        this._loadRenderPipeline(null);
     }
 
     //  @ Persist root node section
@@ -1006,9 +960,66 @@ export class Game extends EventTarget {
         });
     }
 
-    private setRenderPipeline (rppl?: RenderPipeline) {
+    private _loadRenderPipeline (restart: Function | null) {
+        const useSplash = (!EDITOR && !PREVIEW && legacyCC.internal.SplashScreen);
+
+        // Load render pipeline if needed
+        const renderPipeline = this.config.renderPipeline;
+        if (renderPipeline) {
+            legacyCC.loader.load({ uuid: renderPipeline }, (err, asset) => {
+                // failed load renderPipeline
+                if (err || !(asset instanceof RenderPipeline)) {
+                    console.warn(`Failed load renderpipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);
+                    console.warn(err);
+                    this._setRenderPipeline();
+                }
+                else {
+                    try {
+                        this._setRenderPipeline(asset);
+                    } catch (e) {
+                        console.warn(e);
+                        console.warn(`Failed load renderpipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);
+                        this._setRenderPipeline();
+                    }
+                }
+                this._safeEmit(Game.EVENT_GAME_INITED);
+                if (useSplash) {
+                    const splashScreen = legacyCC.internal.SplashScreen.instance as SplashScreen;
+                    splashScreen.main(legacyCC.director.root);
+                    splashScreen.setOnFinish(() => {
+                        if (this.onStart) { this.onStart(); }
+                        if (restart) { restart(); }
+                    });
+                    splashScreen.loadFinish = true;
+                }
+                else {
+                    if (this.onStart) { this.onStart(); }
+                    if (restart) { restart(); }
+                }
+            });
+        }
+        else {
+            this._setRenderPipeline();
+            this._safeEmit(Game.EVENT_GAME_INITED);
+            if (useSplash) {
+                const splashScreen = legacyCC.internal.SplashScreen.instance as SplashScreen;
+                splashScreen.main(legacyCC.director.root);
+                splashScreen.setOnFinish(() => {
+                    if (this.onStart) { this.onStart(); }
+                    if (restart) { restart(); }
+                });
+                splashScreen.loadFinish = true;
+            }
+            else {
+                if (this.onStart) { this.onStart(); }
+                if (restart) { restart(); }
+            }
+        }
+    }
+
+    private _setRenderPipeline (rppl?: RenderPipeline) {
         if (!legacyCC.director.root.setRenderPipeline(rppl)) {
-            this.setRenderPipeline();
+            this._setRenderPipeline();
         }
 
         this._rendererInitialized = true;

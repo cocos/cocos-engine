@@ -15,6 +15,10 @@ export interface IRenderWindowInfo {
     shouldSyncSizeWithSwapchain?: boolean;
 }
 
+/**
+ * @en The render window represents the render target, it could be an off screen frame buffer or the on screen buffer.
+ * @zh 渲染窗口代表了一个渲染目标，可以是离屏的帧缓冲，也可以是屏幕缓冲
+ */
 export class RenderWindow {
 
     /**
@@ -35,7 +39,7 @@ export class RenderWindow {
 
     /**
      * @en Get window frame buffer.
-     * @zh GFX帧缓冲。
+     * @zh 帧缓冲对象。
      */
     get framebuffer (): GFXFramebuffer {
         return this._framebuffer!;
@@ -45,14 +49,25 @@ export class RenderWindow {
         return this._shouldSyncSizeWithSwapchain;
     }
 
+    /**
+     * @en Whether it has on screen attachments
+     * @zh 这个渲染窗口是否指向在屏缓冲
+     */
     get hasOnScreenAttachments () {
         return this._hasOnScreenAttachments;
     }
 
+    /**
+     * @en Whether it has off screen attachments
+     * @zh 这个渲染窗口是否指向离屏缓冲
+     */
     get hasOffScreenAttachments () {
         return this._hasOffScreenAttachments;
     }
 
+    /**
+     * @private
+     */
     public static registerCreateFunc (root: Root) {
         root._createWindowFun = (_root: Root): RenderWindow => new RenderWindow(_root);
     }

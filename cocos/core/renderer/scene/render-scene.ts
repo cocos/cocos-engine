@@ -272,6 +272,7 @@ export class RenderScene {
         for (const m of this._models) {
             pipeline.shadows.destroyShadowData(m);
             m.detachFromScene();
+            m.destroy();
         }
         this._models.length = 0;
     }
