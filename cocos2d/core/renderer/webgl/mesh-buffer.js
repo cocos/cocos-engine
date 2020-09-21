@@ -260,6 +260,8 @@ let MeshBuffer = cc.Class({
     }
 });
 
+// Should not share vb and id between multiple drawcalls on iOS14, it will cost a lot of time.
+// TODO: maybe remove it after iOS14 fix it?
 if (isIOS14Device) {
     MeshBuffer.prototype.checkAndSwitchBuffer = function (vertexCount) {
         if (this.vertexOffset + vertexCount > 65535) {
