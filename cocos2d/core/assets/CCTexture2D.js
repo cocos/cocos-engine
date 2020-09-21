@@ -577,9 +577,6 @@ var Texture2D = cc.Class({
         }
 
         this._texture && this._texture.update(options);
-        options.image = null;
-        options.images = null;
-        _images.length = 0;
         this._hashDirty = true;
     },
 
@@ -647,9 +644,6 @@ var Texture2D = cc.Class({
         else {
             this._texture.update(opts);
         }
-        opts.image = null;
-        opts.images = null;
-        _images.length = 0;
         this.width = pixelsWidth;
         this.height = pixelsHeight;
 
@@ -761,9 +755,6 @@ var Texture2D = cc.Class({
             this._texture.update(opts);
         }
 
-        opts.image = null;
-        opts.images = null;
-        _images.length = 0;
         this._updateFormat();
         this._checkPackable();
 
