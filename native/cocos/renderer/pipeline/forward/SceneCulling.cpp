@@ -22,9 +22,10 @@ RenderObject genRenderObject(ModelView *model, const Camera *camera) {
 
 void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
     const auto camera = view->getCamera();
-    const auto scene = GET_SCENE(camera->getSceneID());
-    const auto mainLight = GET_LIGHT(scene->mainLightID);
     const auto skybox = pipeline->getSkybox();
+    const auto scene = GET_SCENE(camera->getSceneID());
+    const Light *mainLight = nullptr;
+    if (scene->mainLightID) mainLight = GET_LIGHT(scene->mainLightID);
     RenderObjectList renderObjects;
     RenderObjectList shadowObjects;
 

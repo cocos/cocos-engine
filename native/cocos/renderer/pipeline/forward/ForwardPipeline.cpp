@@ -133,7 +133,8 @@ void ForwardPipeline::render(const vector<RenderView *> &views) {
 void ForwardPipeline::updateUBOs(RenderView *view) {
     updateUBO(view);
     const auto scene = GET_SCENE(view->getCamera()->getSceneID());
-    const auto mainLight = GET_LIGHT(scene->mainLightID);
+    const Light *mainLight = nullptr;
+    if (scene->mainLightID) mainLight = GET_LIGHT(scene->mainLightID);
     const auto shadowInfo = _shadows;
 
     if (mainLight && shadowInfo->enabled) {
@@ -166,7 +167,9 @@ void ForwardPipeline::updateUBO(RenderView *view) {
     const auto camera = view->getCamera();
     const auto scene = GET_SCENE(camera->getSceneID());
 
-    const auto mainLight = GET_LIGHT(scene->mainLightID);
+    const Light *mainLight = nullptr;
+    if (scene->mainLightID) mainLight = GET_LIGHT(scene->mainLightID);
+
     const auto ambient = _ambient;
     const auto fog = _fog;
     auto &uboGlobalView = _globalUBO;
