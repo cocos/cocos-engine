@@ -101,6 +101,10 @@ export class Light {
         return this._scene;
     }
 
+    get handle () {
+        return this._handle;
+    }
+
     protected _color: Vec3 = new Vec3(1, 1, 1);
     protected _colorTemp: number = 6550.0;
     protected _colorTempRGB: Vec3 = new Vec3(1, 1, 1);
