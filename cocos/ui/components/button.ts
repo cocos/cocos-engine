@@ -31,7 +31,7 @@
 import { SpriteFrame } from '../../core/assets';
 import { Component, EventHandler as ComponentEventHandler } from '../../core/components';
 import { UITransform, UIRenderable } from '../../core/components/ui-base';
-import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin, rangeMax, serializable } from 'cc.decorator';
+import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin, rangeMax, serializable, executeInEditMode } from 'cc.decorator';
 import { EventMouse, EventTouch, SystemEventType } from '../../core/platform';
 import { Color, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
@@ -158,6 +158,7 @@ export enum EventType {
 @executionOrder(110)
 @menu('UI/Button')
 @requireComponent(UITransform)
+@executeInEditMode
 export class Button extends Component {
 
     /**
