@@ -261,30 +261,6 @@ const FilterIndex = {
     9729: 1, // GL_LINEAR
 };
 
-let _images = [];
-let _sharedOpts = {
-    width: undefined,
-    height: undefined,
-    minFilter: undefined,
-    magFilter: undefined,
-    wrapS: undefined,
-    wrapT: undefined,
-    format: undefined,
-    genMipmaps: undefined,
-    images: undefined,
-    image: undefined,
-    flipY: undefined,
-    premultiplyAlpha: undefined
-};
-function _getSharedOptions () {
-    for (var key in _sharedOpts) {
-        _sharedOpts[key] = undefined;
-    }
-    _images.length = 0;
-    _sharedOpts.images = _images;
-    return _sharedOpts;
-}
-
 /**
  * This class allows to easily create OpenGL or Canvas 2D textures from images or raw data.
  *
@@ -337,9 +313,7 @@ var Texture2D = cc.Class({
             },
             set (genMipmaps) {
                 if (this._genMipmaps !== genMipmaps) {
-                    var opts = _getSharedOptions();
-                    opts.genMipmaps = genMipmaps;
-                    this.update(opts);
+                    this.update({ genMipmaps });
                 }
             }
         },
@@ -569,8 +543,7 @@ var Texture2D = cc.Class({
         else if (options.image !== undefined) {
             this._image = options.image;
             if (!options.images) {
-                _images.length = 0;
-                options.images = _images;
+                options.images = [];
             }
             // webgl texture 2d uses images
             options.images.push(options.image);
@@ -625,7 +598,7 @@ var Texture2D = cc.Class({
      * @return {Boolean}
      */
     initWithData (data, pixelFormat, pixelsWidth, pixelsHeight) {
-        var opts = _getSharedOptions();
+        var opts = {};
         opts.image = data;
         // webgl texture 2d uses images
         opts.images = [opts.image];
@@ -734,7 +707,7 @@ var Texture2D = cc.Class({
         
         this.width = this._image.width;
         this.height = this._image.height;
-        let opts = _getSharedOptions();
+        let opts = {};
         opts.image = this._image;
         // webgl texture 2d uses images
         opts.images = [opts.image];
@@ -807,10 +780,7 @@ var Texture2D = cc.Class({
      */
     setWrapMode (wrapS, wrapT) {
         if (this._wrapS !== wrapS || this._wrapT !== wrapT) {
-            var opts = _getSharedOptions();
-            opts.wrapS = wrapS;
-            opts.wrapT = wrapT;
-            this.update(opts);
+            this.update({ wrapS, wrapT });
         }
     },
 
@@ -823,10 +793,7 @@ var Texture2D = cc.Class({
      */
     setFilters (minFilter, magFilter) {
         if (this._minFilter !== minFilter || this._magFilter !== magFilter) {
-            var opts = _getSharedOptions();
-            opts.minFilter = minFilter;
-            opts.magFilter = magFilter;
-            this.update(opts);
+            this.update({ minFilter, magFilter });
         }
     },
 
@@ -839,10 +806,7 @@ var Texture2D = cc.Class({
      */
     setFlipY (flipY) {
         if (this._flipY !== flipY) {
-            var opts = _getSharedOptions();
-            opts.flipY = flipY;
-            opts.premultiplyAlpha = this._premultiplyAlpha;
-            this.update(opts);
+            this.update({ flipY, premultiplyAlpha: this._premultiplyAlpha });
         }
     },
 
@@ -855,10 +819,7 @@ var Texture2D = cc.Class({
      */
     setPremultiplyAlpha (premultiply) {
         if (this._premultiplyAlpha !== premultiply) {
-            var opts = _getSharedOptions();
-            opts.flipY = this._flipY;
-            opts.premultiplyAlpha = premultiply;
-            this.update(opts);
+            this.update({ premultiplyAlpha: premultiply, flipY: this._flipY });
         }
     },
 
@@ -892,7 +853,7 @@ var Texture2D = cc.Class({
     },
 
     _getOpts() {
-        let opts = _getSharedOptions();
+        let opts = {};
         opts.width = this.width;
         opts.height = this.height;
         opts.genMipmaps = this._genMipmaps;
