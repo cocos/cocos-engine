@@ -492,6 +492,17 @@ let Animation = cc.Class({
     },
 
     /**
+     * !#en Check whether the clip with the name already exists.
+     * !#zh 通过名称判断是否包含某动画剪辑。
+     * @method hasClip
+     * @param {String} name
+     * @return {boolean} - Whether the clip with the name already exists.
+     */
+    hasClip: function (name) {
+        return !!(this._nameToState && this._nameToState[name]);
+    },
+    
+    /**
      * !#en 
      * Remove clip from the animation list. This will remove the clip and any animation states based on it.
      * If there are animation states depand on the clip are playing or clip is defaultClip, it will not delete the clip.
