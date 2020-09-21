@@ -259,6 +259,9 @@ void ForwardPipeline::updateUBO(RenderView *view) {
 bool ForwardPipeline::activeRenderer() {
     _commandBuffers.push_back(_device->getCommandBuffer());
 
+    _globalUBO.fill(0.f);
+    _shadowUBO.fill(0.f);
+
     auto globalUBO = _device->createBuffer({gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
                                             gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
                                             UBOGlobal::SIZE,

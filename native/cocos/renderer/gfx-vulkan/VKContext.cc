@@ -27,6 +27,11 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSe
         return VK_FALSE;
     }
 
+    // GPU-assisted validation might throw this due to driver reasons which is safe to ignore
+    if (strstr(callbackData->pMessage, "Failure to instrument shader")) {
+        return VK_FALSE;
+    }
+
     // Log debug messge
     if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
         CC_LOG_WARNING("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
@@ -47,6 +52,11 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(VkDebugReportFlagsEXT flags,
                                                    void *userData) {
     // The current allocation strategy will have invalid requests, and we handle them explicitly
     if (strstr(message, "VUID-VkDescriptorSetAllocateInfo-descriptorPool-00307")) {
+        return VK_FALSE;
+    }
+
+    // GPU-assisted validation might throw this due to driver reasons which is safe to ignore
+    if (strstr(message, "Failure to instrument shader")) {
         return VK_FALSE;
     }
 

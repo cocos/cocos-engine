@@ -98,6 +98,7 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
 
 #if CC_DEBUG > 0
     // GPU-assisted validation
+    requestedFeatures2.features.shaderInt64 = deviceFeatures.shaderInt64;
     requestedFeatures2.features.fragmentStoresAndAtomics = deviceFeatures.fragmentStoresAndAtomics;
     requestedFeatures2.features.vertexPipelineStoresAndAtomics = deviceFeatures.vertexPipelineStoresAndAtomics;
 #endif
