@@ -1,6 +1,5 @@
 #pragma once
 #include "base/Config.h"
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
 
 #include "cocos/bindings/jswrapper/SeApi.h"
 
@@ -12,4 +11,3 @@ bool register_all_network(se::Object* obj);
 SE_DECLARE_FUNC(js_network_Downloader_setOnTaskProgress);
 SE_DECLARE_FUNC(js_network_Downloader_Downloader);
 
-#endif //#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)

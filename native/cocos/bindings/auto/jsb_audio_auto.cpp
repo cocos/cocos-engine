@@ -1,5 +1,5 @@
 #include "cocos/bindings/auto/jsb_audio_auto.h"
-#if (USE_AUDIO > 0) && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
+#if (USE_AUDIO > 0)
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "audio/include/AudioEngine.h"
@@ -830,4 +830,4 @@ bool register_all_audio(se::Object* obj)
     return true;
 }
 
-#endif //#if (USE_AUDIO > 0) && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
+#endif //#if (USE_AUDIO > 0)

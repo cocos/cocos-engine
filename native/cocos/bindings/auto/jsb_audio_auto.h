@@ -1,6 +1,6 @@
 #pragma once
 #include "base/Config.h"
-#if (USE_AUDIO > 0) && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
+#if (USE_AUDIO > 0)
 
 #include "cocos/bindings/jswrapper/SeApi.h"
 
@@ -46,4 +46,4 @@ SE_DECLARE_FUNC(js_audio_AudioEngine_setFinishCallback);
 SE_DECLARE_FUNC(js_audio_AudioEngine_getProfile);
 SE_DECLARE_FUNC(js_audio_AudioEngine_getPlayingAudioCount);
 
-#endif //#if (USE_AUDIO > 0) && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
+#endif //#if (USE_AUDIO > 0)
