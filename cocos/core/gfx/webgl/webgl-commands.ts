@@ -2488,7 +2488,8 @@ export function WebGLCmdFuncBindStates (
         }
     } // bind vertex/index buffer
 
-    if (gpuPipelineState) {
+    // update dynamic states
+    if (gpuPipelineState && gpuPipelineState.dynamicStates.length) {
         const dsLen = gpuPipelineState.dynamicStates.length;
         for (let j = 0; j < dsLen; j++) {
             const dynamicState = gpuPipelineState.dynamicStates[j];
@@ -2644,7 +2645,7 @@ export function WebGLCmdFuncBindStates (
                 }
             } // switch
         } // for
-    } // if
+    } // update dynamic states
 }
 
 export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: GFXDrawInfo) {

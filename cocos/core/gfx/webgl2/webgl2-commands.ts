@@ -2462,8 +2462,10 @@ export function WebGL2CmdFuncBindStates (
         }
     } // bind vertex/index buffer
 
-    if (gpuPipelineState) {
-        for (let k = 0; k < gpuPipelineState.dynamicStates.length; k++) {
+    // update dynamic states
+    if (gpuPipelineState && gpuPipelineState.dynamicStates.length) {
+        const dsLen = gpuPipelineState.dynamicStates.length;
+        for (let k = 0; k < dsLen; k++) {
             const dynamicState = gpuPipelineState.dynamicStates[k];
             switch (dynamicState) {
                 case GFXDynamicStateFlagBit.VIEWPORT: {
@@ -2617,7 +2619,7 @@ export function WebGL2CmdFuncBindStates (
                 }
             } // switch
         } // for
-    } // if
+    } // update dynamic states
 }
 
 export function WebGL2CmdFuncDraw (device: WebGL2Device, drawInfo: GFXDrawInfo) {
