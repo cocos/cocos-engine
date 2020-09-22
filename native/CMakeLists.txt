@@ -282,6 +282,7 @@ cocos_source_files(
     cocos/math/Geometry.cpp
     cocos/math/Geometry.h
     cocos/math/Math.h
+    cocos/math/Math.cpp
     cocos/math/MathBase.h
     cocos/math/Vertex.cpp
     cocos/math/Vertex.h
@@ -496,8 +497,6 @@ cocos_source_files(
     cocos/renderer/core/gfx/GFXTexture.h
     cocos/renderer/core/gfx/GFXFence.h
     cocos/renderer/core/gfx/GFXFence.cc
-    cocos/renderer/core/math/CoreMath.cc
-    cocos/renderer/core/math/CoreMath.h
     cocos/renderer/pipeline/BatchedBuffer.cpp
     cocos/renderer/pipeline/BatchedBuffer.h
     cocos/renderer/pipeline/Define.h

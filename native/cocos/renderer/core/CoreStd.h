@@ -33,7 +33,7 @@
 
 #include "base/TypeDef.h"
 #include "base/memory/Memory.h"
-#include "math/CoreMath.h"
+#include "math/Math.h"
 #include "base/Log.h"
 #include "base/Object.h"
 #include "gfx/GFXObject.h"

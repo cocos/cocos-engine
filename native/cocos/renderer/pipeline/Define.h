@@ -146,7 +146,7 @@ private:
 CC_INLINE bool opaqueCompareFn(const RenderPass &a, const RenderPass &b) {
     if (a.hash != b.hash)
         return a.hash < b.hash;
-    else if (gfx::math::IsNotEqualF(a.depth, b.depth))
+    else if (math::IsNotEqualF(a.depth, b.depth))
         return a.depth < b.depth;
     else
         return a.shaderID < b.shaderID;
@@ -155,7 +155,7 @@ CC_INLINE bool opaqueCompareFn(const RenderPass &a, const RenderPass &b) {
 CC_INLINE bool transparentCompareFn(const RenderPass &a, const RenderPass &b) {
     if (a.hash != b.hash)
         return a.hash < b.hash;
-    else if (gfx::math::IsEqualF(a.depth, b.depth))
+    else if (math::IsEqualF(a.depth, b.depth))
         return b.depth < a.depth;
     else
         return a.shaderID < b.shaderID;
