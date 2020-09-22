@@ -119,12 +119,12 @@ export default class MeshSpriteAssembler extends Assembler2D {
         }
         if (frame._flipX) {
             for (let i = 0, l = this.verticesCount; i < l; i++) {
-                local[i * 2] =  - local[i * 2];
+                local[i * 2] = contentWidth - local[i * 2] - 2 * appx;
             }
         }
         if (frame._flipY) {
             for (let i = 0, l = this.verticesCount; i < l; i++) {
-                local[i * 2 + 1] =  - local[i * 2 + 1];
+                local[i * 2 + 1] = contentHeight - local[i * 2 + 1] - 2 * appy;
             }
         }
     }
