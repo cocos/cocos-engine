@@ -243,9 +243,8 @@ export class Shadows {
 
     public getWorldMatrix (rotation: Quat, dir: Vec3) {
         Vec3.negate(_dir_negate, dir);
-        const distance: number = Math.sqrt(2) * this._sphere.radius;
+        const distance: number = this.far;
         Vec3.multiplyScalar(_vec3_p, _dir_negate, distance);
-        Vec3.add(_vec3_p, _vec3_p, this._sphere.center);
 
         Mat4.fromRT(_mat4_trans, rotation, _vec3_p);
 
