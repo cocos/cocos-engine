@@ -50,7 +50,7 @@ se::Object* __glObj = nullptr;
 static ThreadPool* __threadPool = nullptr;
 
 static std::shared_ptr<cc::network::Downloader> _localDownloader = nullptr;
-static std::map<std::string, std::function<void(const std::string&, unsigned char*, int )>> _localDownloaderHandlers;
+static std::map<std::string, std::function<void(const std::string&, unsigned char*, uint)>> _localDownloaderHandlers;
 static uint64_t _localDownloaderTaskId = 1000000;
 static std::string xxteaKey = "";
 void jsb_set_xxtea_key(const std::string& key)
@@ -81,7 +81,7 @@ static cc::network::Downloader *localDownloader()
             unsigned char* imageData = (unsigned char*)malloc(imageBytes);
             memcpy(imageData, data.data(), imageBytes);
 
-            (callback->second)("", imageData, imageBytes);
+            (callback->second)("", imageData, static_cast<uint>(imageBytes));
             //initImageFunc("", imageData, imageBytes);
             _localDownloaderHandlers.erase(callback);
         };

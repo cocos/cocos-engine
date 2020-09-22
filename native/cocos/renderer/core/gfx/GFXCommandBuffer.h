@@ -41,13 +41,13 @@ public:
     CC_INLINE void execute(const CommandBufferList &cmdBuffs, uint32_t count) { execute(cmdBuffs.data(), count); }
     CC_INLINE void bindDescriptorSet(uint set, DescriptorSet *descriptorSet) { bindDescriptorSet(set, descriptorSet, 0, nullptr); }
     CC_INLINE void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, const vector<uint> &dynamicOffsets) {
-        bindDescriptorSet(set, descriptorSet, dynamicOffsets.size(), dynamicOffsets.data());
+        bindDescriptorSet(set, descriptorSet, static_cast<uint>(dynamicOffsets.size()), dynamicOffsets.data());
     }
     CC_INLINE void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const vector<Color> &colors, float depth, int stencil) {
         beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil);
     }
     CC_INLINE void copyBuffersToTexture(const BufferDataList &buffers, Texture *texture, const BufferTextureCopyList &regions) {
-        copyBuffersToTexture(buffers.data(), texture, regions.data(), regions.size());
+        copyBuffersToTexture(buffers.data(), texture, regions.data(), static_cast<uint>(regions.size()));
     }
 
     CC_INLINE Device *getDevice() const { return _device; }

@@ -487,8 +487,8 @@ inline Environment* Environment::GetCurrent(
 inline Environment::Environment(IsolateData* isolate_data, v8::Local<v8::Context> context)
   : isolate_(context->GetIsolate()),
     isolate_data_(isolate_data),
-    makecallback_cntr_(0),
     inspector_agent_(this),
+    makecallback_cntr_(0),
     context_(context->GetIsolate(), context) {
     // We'll be creating new objects so make sure we've entered the context.
     v8::HandleScope handle_scope(isolate());

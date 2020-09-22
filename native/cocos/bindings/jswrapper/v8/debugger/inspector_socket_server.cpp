@@ -181,7 +181,7 @@ void SendProtocolJson(InspectorSocket* socket) {
   strm.avail_in = sizeof(PROTOCOL_JSON) - 3;
   std::string data(kDecompressedSize, '\0');
   strm.next_out = reinterpret_cast<Byte*>(&data[0]);
-  strm.avail_out = data.size();
+  strm.avail_out = static_cast<uInt>(data.size());
   CHECK_EQ(Z_STREAM_END, inflate(&strm, Z_FINISH));
   CHECK_EQ(0, strm.avail_out);
   CHECK_EQ(Z_OK, inflateEnd(&strm));

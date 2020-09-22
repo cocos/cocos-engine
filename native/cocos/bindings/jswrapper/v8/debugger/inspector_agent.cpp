@@ -217,7 +217,7 @@ class JsBindingsSessionDelegate : public InspectorSessionDelegate {
     Context::Scope context_scope(env_->context());
     MaybeLocal<String> v8string =
         String::NewFromTwoByte(isolate, message.characters16(),
-                               NewStringType::kNormal, message.length());
+                               NewStringType::kNormal, static_cast<int>(message.length()));
     Local<Value> argument = v8string.ToLocalChecked().As<Value>();
     Local<Function> callback = callback_.Get(isolate);
     Local<Object> receiver = receiver_.Get(isolate);
@@ -348,7 +348,7 @@ void InspectorConsoleCall(const v8::FunctionCallbackInfo<Value>& info) {
                                v8::True(isolate)).FromJust());
       CHECK(!inspector_method.As<Function>()->Call(context,
                                                    info.Holder(),
-                                                   call_args.size(),
+                                                   static_cast<int>(call_args.size()),
                                                    call_args.data()).IsEmpty());
     }
     CHECK(config_object->Delete(context, in_call_key).FromJust());
@@ -358,7 +358,7 @@ void InspectorConsoleCall(const v8::FunctionCallbackInfo<Value>& info) {
   CHECK(node_method->IsFunction());
   node_method.As<Function>()->Call(context,
                                    info.Holder(),
-                                   call_args.size(),
+                                   static_cast<int>(call_args.size()),
                                    call_args.data()).FromMaybe(Local<Value>());
 }
 
@@ -375,7 +375,7 @@ void CallAndPauseOnStart(
   env->inspector_agent()->PauseOnNextJavascriptStatement("Break on start");
   v8::MaybeLocal<v8::Value> retval =
       args[0].As<v8::Function>()->Call(env->context(), args[1],
-                                       call_args.size(), call_args.data());
+                                       static_cast<int>(call_args.size()), call_args.data());
   if (!retval.IsEmpty()) {
     args.GetReturnValue().Set(retval.ToLocalChecked());
   }
@@ -559,7 +559,7 @@ class NodeInspectorClient : public V8InspectorClient {
   void FatalException(Local<Value> error, Local<v8::Message> message) {
     Local<Context> context = env_->context();
 
-    int script_id = message->GetScriptOrigin().ScriptID()->Value();
+    int script_id = static_cast<int>(message->GetScriptOrigin().ScriptID()->Value());
 
     Local<v8::StackTrace> stack_trace = message->GetStackTrace();
 

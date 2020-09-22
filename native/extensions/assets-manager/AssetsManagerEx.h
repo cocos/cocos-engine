@@ -290,16 +290,16 @@ private:
     //! Reference to the global event dispatcher
 //    EventDispatcher *_eventDispatcher;
     //! Reference to the global file utils
-    FileUtils *_fileUtils;
+    FileUtils *_fileUtils = nullptr;
     
     //! State of update
-    State _updateState;
+    State _updateState = State::UNINITED;
     
     //! Downloader
-    std::shared_ptr<network::Downloader> _downloader;
+    std::shared_ptr<network::Downloader> _downloader = nullptr;
     
     //! The reference to the local assets
-    const std::unordered_map<std::string, Manifest::Asset> *_assets;
+    const std::unordered_map<std::string, Manifest::Asset> *_assets = nullptr;
     
     //! The path to store successfully downloaded version.
     std::string _storagePath;
@@ -320,13 +320,13 @@ private:
     std::string _manifestUrl;
     
     //! Local manifest
-    Manifest *_localManifest;
+    Manifest *_localManifest = nullptr;
     
     //! Local temporary manifest for download resuming
-    Manifest *_tempManifest;
+    Manifest *_tempManifest = nullptr;
     
     //! Remote manifest
-    Manifest *_remoteManifest;
+    Manifest *_remoteManifest = nullptr;
     
     //! Whether user have requested to update
     enum class UpdateEntry : char
@@ -336,7 +336,7 @@ private:
         DO_UPDATE
     };
 
-    UpdateEntry _updateEntry;
+    UpdateEntry _updateEntry = UpdateEntry::NONE;
     
     //! All assets unit to download
     DownloadUnits _downloadUnits;
@@ -347,53 +347,53 @@ private:
     //! Download queue
     std::vector<std::string> _queue;
     
-    bool _downloadResumed;
+    bool _downloadResumed = false;
     
     //! Max concurrent task count for downloading
-    int _maxConcurrentTask;
+    int _maxConcurrentTask = 32;
     
     //! Current concurrent task count
-    int _currConcurrentTask;
+    int _currConcurrentTask = 0;
     
     //! Download percent
-    float _percent;
+    float _percent = 0.f;
     
     //! Download percent by file
-    float _percentByFile;
+    float _percentByFile = 0.f;
     
     //! Indicate whether the total size should be enabled
-    int _totalEnabled;
+    bool _totalEnabled = false;
     
     //! Indicate the number of file whose total size have been collected
-    int _sizeCollected;
+    int _sizeCollected = 0;
     
     //! Total file size need to be downloaded (sum of all files)
-    double _totalSize;
+    double _totalSize = 0.f;
     
     //! Total downloaded file size (sum of all downloaded files)
-    double _totalDownloaded;
+    double _totalDownloaded = 0.f;
     
     //! Downloaded size for each file
     std::unordered_map<std::string, double> _downloadedSize;
     
     //! Total number of assets to download
-    int _totalToDownload;
+    int _totalToDownload = 0;
     //! Total number of assets still waiting to be downloaded
-    int _totalWaitToDownload;
+    int _totalWaitToDownload = 0;
     //! Next target percent for saving the manifest file
-    float _nextSavePoint;
+    float _nextSavePoint = 0.f;
     
     //! Handle function to compare versions between different manifests
-    VersionCompareHandle _versionCompareHandle;
+    VersionCompareHandle _versionCompareHandle = nullptr;
     
     //! Callback function to verify the downloaded assets
-    VerifyCallback _verifyCallback;
+    VerifyCallback _verifyCallback = nullptr;
     
     //! Callback function to dispatch events
-    EventCallback _eventCallback;
+    EventCallback _eventCallback = nullptr;
     
     //! Marker for whether the assets manager is inited
-    bool _inited;
+    bool _inited = false;
 };
 
 NS_CC_EXT_END

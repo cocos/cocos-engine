@@ -36,11 +36,6 @@ static const etc2_uint32 ETC2_PKM_ENCODED_HEIGHT_OFFSET = 10;
 static const etc2_uint32 ETC2_PKM_WIDTH_OFFSET = 12;
 static const etc2_uint32 ETC2_PKM_HEIGHT_OFFSET = 14;
 
-static void writeBEUint16(etc2_byte* pOut, etc2_uint32 data) {
-    pOut[0] = (etc2_byte) (data >> 8);
-    pOut[1] = (etc2_byte) data;
-}
-
 static etc2_uint32 readBEUint16(const etc2_byte* pIn) {
     return (pIn[0] << 8) | pIn[1];
 }

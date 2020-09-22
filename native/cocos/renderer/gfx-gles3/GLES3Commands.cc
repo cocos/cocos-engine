@@ -574,7 +574,7 @@ void GLES3CmdFuncDestroyBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
             }
         } else if (gpuBuffer->usage & BufferUsageBit::UNIFORM) {
             vector<GLuint> &ubo = device->stateCache()->glBindUBOs;
-            for (size_t i = 0; i < ubo.size(); i++) {
+            for (GLuint i = 0; i < ubo.size(); i++) {
                 if (ubo[i] == gpuBuffer->glBuffer) {
                     glBindBufferBase(GL_UNIFORM_BUFFER, i, 0);
                     device->stateCache()->glUniformBuffer = 0;
@@ -1277,7 +1277,7 @@ void GLES3CmdFuncDestroyInputAssembler(GLES3Device *device, GLES3GPUInputAssembl
 }
 
 void GLES3CmdFuncCreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpuFBO) {
-    uint colorViewCount = gpuFBO->gpuColorTextures.size();
+    size_t colorViewCount = gpuFBO->gpuColorTextures.size();
     uint swapchainImageIndices = 0;
     for (size_t i = 0; i < colorViewCount; ++i) {
         if (!gpuFBO->gpuColorTextures[i]) {

@@ -25,7 +25,7 @@ uint InputAssembler::computeAttributesHash() const {
     // https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector
     // 6: Attribute has 6 elements.
     std::size_t seed = _attributes.size() * 6;
-    for (const auto attribute : _attributes) {
+    for (const auto &attribute : _attributes) {
         seed ^= std::hash<std::string>{}(attribute.name) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         seed ^= (uint)(attribute.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         seed ^= attribute.isNormalized + 0x9e3779b9 + (seed << 6) + (seed >> 2);
@@ -33,7 +33,7 @@ uint InputAssembler::computeAttributesHash() const {
         seed ^= attribute.isInstanced + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         seed ^= attribute.location + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
-    return seed;
+    return static_cast<uint>(seed);
 }
 
 } // namespace gfx

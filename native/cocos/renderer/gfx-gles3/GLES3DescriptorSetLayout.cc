@@ -16,7 +16,7 @@ GLES3DescriptorSetLayout::~GLES3DescriptorSetLayout() {
 bool GLES3DescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
 
     _bindings = info.bindings;
-    uint bindingCount = _bindings.size();
+    size_t bindingCount = _bindings.size();
     _descriptorIndices.resize(bindingCount + 1);
 
     uint descriptorCount = 0u;

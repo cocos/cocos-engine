@@ -155,8 +155,10 @@ void ForwardPipeline::updateUBOs(RenderView *view) {
     }
 
     // update ubos
-    _commandBuffers[0]->updateBuffer(_descriptorSet->getBuffer(UBOGlobal::BLOCK.binding), _globalUBO.data(), _globalUBO.size() * sizeof(float));
-    _commandBuffers[0]->updateBuffer(_descriptorSet->getBuffer(UBOShadow::BLOCK.binding), _shadowUBO.data(), _shadowUBO.size() * sizeof(float));
+    _commandBuffers[0]->updateBuffer(_descriptorSet->getBuffer(UBOGlobal::BLOCK.binding), _globalUBO.data(),
+                                     static_cast<uint>(_globalUBO.size() * sizeof(float)));
+    _commandBuffers[0]->updateBuffer(_descriptorSet->getBuffer(UBOShadow::BLOCK.binding), _shadowUBO.data(),
+                                     static_cast<uint>(_shadowUBO.size() * sizeof(float)));
 }
 
 void ForwardPipeline::updateUBO(RenderView *view) {

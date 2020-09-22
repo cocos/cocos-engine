@@ -48,11 +48,9 @@ public:
     {
     public:
         CallInfo(const char *className, const char* methodName)
-        :_error(JSO_ERR_OK)
-        ,_methodName(methodName)
-        ,_className(className)
-        {
-        }
+        : _className(className)
+        , _methodName(methodName)
+        {}
 
         ~CallInfo() {}
 
@@ -66,7 +64,7 @@ public:
     private:
         se::Value objc_to_seval(id objcVal);
 
-        int _error;
+        int _error = JSO_ERR_OK;
         std::string _className;
         std::string _methodName;
     };

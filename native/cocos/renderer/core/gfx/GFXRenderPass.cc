@@ -14,9 +14,9 @@ RenderPass::~RenderPass() {
 // Based on render pass compatibility
 uint RenderPass::computeHash() const {
     // https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector
-    uint seed = _colorAttachments.size() * 2 + 2;
+    size_t seed = _colorAttachments.size() * 2 + 2;
     if (_subPasses.size()) {
-        for (const auto subPass : _subPasses) {
+        for (const auto &subPass : _subPasses) {
             for (const auto &iaIndex : subPass.inputs) {
                 if (iaIndex >= _colorAttachments.size()) break;
                 const auto ia = _colorAttachments[iaIndex];
@@ -44,7 +44,7 @@ uint RenderPass::computeHash() const {
         seed ^= _depthStencilAttachment.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
 
-    return seed;
+    return static_cast<uint>(seed);
 }
 
 } // namespace gfx

@@ -38,7 +38,7 @@ public:
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) = 0;
 
     CC_INLINE void copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions) {
-        copyBuffersToTexture(buffers.data(), dst, regions.data(), regions.size());
+        copyBuffersToTexture(buffers.data(), dst, regions.data(), static_cast<uint>(regions.size()) );
     }
 
     CC_INLINE API getGfxAPI() const { return _API; }
