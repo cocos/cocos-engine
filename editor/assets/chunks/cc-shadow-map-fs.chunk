@@ -87,7 +87,8 @@ float CCGetDirLightShadowFactor () {
 	    clipPos.y < 0.0 || clipPos.y > 1.0 || 
 		  clipPos.z <-1.0 || clipPos.z > 1.0) { return 0.0; }
 
-  float depth = unpackRGBAToDepth(texture(cc_shadowMap, clipPos.xy));
-  if (depth < (clipPos.z)) return 20.0;
-  else return 1.0;
+  float closestDepth = unpackRGBAToDepth(texture(cc_shadowMap, clipPos.xy));
+  float shadow = step(closestDepth, clipPos.z);
+
+  return shadow;
 }

@@ -105,9 +105,11 @@ struct StandardSurface {
       // else if (2.0 > pcf && pcf > 1.0) {shadow = CCGetShadowFactorX5();}
       // else {shadow = CCGetShadowFactorX1();}
 
-      float shadow = CCGetDirLightShadowFactor();
+      float spotLightAtten  = CCGetDirLightShadowFactor();
+      vec3 shadowColor = cc_shadowColor.rgb * cc_shadowColor.a + lightColor.rgb * (1.0 - cc_shadowColor.a);
+      lightColor = shadowColor.rgb * spotLightAtten * 50.0 + lightColor.rgb * (1.0 - spotLightAtten);
 
-      lightColor = lightColor * shadow;
+      // lightColor = lightColor * spotLightAtten * 20.0;
     #endif
 
 
