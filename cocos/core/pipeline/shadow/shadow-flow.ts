@@ -3,7 +3,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { PIPELINE_FLOW_SHADOW, SetIndex } from '../define';
+import { PIPELINE_FLOW_SHADOW, SetIndex, UNIFORM_SHADOWMAP } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
 import { GFXFramebuffer, GFXLoadOp,
@@ -16,7 +16,7 @@ import { shadowCollecting, lightCollecting } from '../forward/scene-culling';
 import { RenderShadowMapBatchedQueue } from '../render-shadowMap-batched-queue';
 import { Light } from 'cocos/core/renderer/scene';
 import { Vec2 } from '../../math';
-import { genSamplerHash, samplerLib } from '../../renderer';
+import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 
 const colors: GFXColor[] = [ { r: 1, g: 1, b: 1, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -123,6 +123,10 @@ export class ShadowFlow extends RenderFlow {
                 });
 
                 pipeline.shadowFrameBufferMap.set(light, frameBuffer);
+
+                const shadowMapSamplerHash = genSamplerHash(_samplerInfo);
+                const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
+                pipeline.descriptorSet.bindSampler(UNIFORM_SHADOWMAP.binding, shadowMapSampler);
             }
         }
     }
@@ -162,11 +166,6 @@ export class ShadowFlow extends RenderFlow {
             this._width = width;
             this._height = height;
         }
-
-        const shadowMapSamplerHash = genSamplerHash(_samplerInfo);
-        const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
-        pipeline.descriptorSet.bindSampler(UNIFORM_SHADOWMAP.binding, shadowMapSampler);
-        pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP.binding, this._shadowRenderTargets[0]);
     }
 
     private draw (light: Light, view: RenderView, frameBuffer: GFXFramebuffer) {

@@ -8,13 +8,11 @@ import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { IRenderObject, UBOGlobal, UBOShadow,
-    globalDescriptorSetLayout, localDescriptorSetLayout} from '../define';
+    globalDescriptorSetLayout, localDescriptorSetLayout, UNIFORM_SHADOWMAP} from '../define';
 import { GFXBufferUsageBit, GFXMemoryUsageBit,
-    GFXClearFlag, GFXCommandBufferType } from '../../gfx/define';
-import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout } from '../../gfx';
-import { SKYBOX_FLAG } from '../../renderer/scene';
-    GFXClearFlag, GFXFilter, GFXAddress, GFXCommandBufferType } from '../../gfx/define';
-import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout, GFXFramebuffer } from '../../gfx';
+    GFXClearFlag, GFXCommandBufferType, GFXFilter, GFXAddress } from '../../gfx/define';
+import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp,
+    GFXTextureLayout,  GFXFramebuffer } from '../../gfx';
 import { SKYBOX_FLAG, Light } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';

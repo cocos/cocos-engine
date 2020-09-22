@@ -1,19 +1,17 @@
 import { Material } from '../../assets/material';
 import { aabb, frustum, intersect, sphere } from '../../geometry';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
-import { Color, Mat4, Quat, Vec3, Vec2, Vec4 } from '../../math';
+import { Color, Mat4, Quat, Vec3, Vec2 } from '../../math';
 import { SetIndex} from '../../pipeline/define';
 import { DirectionalLight } from './directional-light';
 import { Model } from './model';
 import { SphereLight } from './sphere-light';
-import { GFXCommandBuffer, GFXDevice, GFXRenderPass, GFXDescriptorSet } from '../../gfx';
+import { GFXCommandBuffer, GFXDevice, GFXRenderPass } from '../../gfx';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
 import { legacyCC } from '../../global-exports';
 import { RenderScene } from './render-scene';
-import { DSPool, ShaderPool, PassPool, PassView } from '../core/memory-pools';
 import { DSPool, ShaderPool, PassPool, PassView, ShaderHandle } from '../core/memory-pools';
-import { ForwardPipeline } from '../../pipeline';
 import { Enum } from '../../value-types';
 
 const _forward = new Vec3(0, 0, -1);
