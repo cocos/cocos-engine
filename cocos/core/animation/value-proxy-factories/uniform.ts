@@ -58,13 +58,13 @@ export class UniformProxyFactory implements IValueProxyFactory {
     public forTarget (target: Material): IValueProxy {
         const pass = target.passes[this.passIndex];
         const handle = pass.getHandle(this.uniformName);
-        if (handle === undefined) {
+        if (!handle) {
             throw new Error(`Material "${target.name}" has no uniform "${this.uniformName}"`);
         }
         const propertyType = Pass.getPropertyTypeFromHandle(handle);
         if (propertyType === PropertyType.UBO) {
             const realHandle = this.channelIndex === undefined ? handle : pass.getHandle(this.uniformName, this.channelIndex, GFXType.FLOAT);
-            if (realHandle === undefined) {
+            if (!realHandle) {
                 throw new Error(`Uniform "${this.uniformName} (in material ${target.name}) has no channel ${this.channelIndex}"`);
             }
             if (isUniformArray(pass, this.uniformName)) {

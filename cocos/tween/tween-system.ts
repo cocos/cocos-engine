@@ -5,6 +5,7 @@
 import { System, Director, director } from "../core";
 import { ActionManager } from "./actions/action-manager";
 import { EDITOR } from 'internal:constants';
+import { legacyCC } from "../core/global-exports";
 
 /**
  * @en 
@@ -50,7 +51,7 @@ export class TweenSystem extends System {
      * @param dt 间隔时间
      */
     postUpdate (dt: number) {
-        if (!EDITOR || this._executeInEditMode) {
+        if (!EDITOR || legacyCC.GAME_VIEW || this._executeInEditMode) {
             this.actionMgr.update(dt);
         }
     }

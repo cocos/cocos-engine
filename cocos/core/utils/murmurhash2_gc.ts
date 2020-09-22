@@ -1,4 +1,4 @@
-/**
+/*
  * JS Implementation of MurmurHash2
  *
  * @author <a href="mailto:gary.court@gmail.com">Gary Court</a>
@@ -9,6 +9,10 @@
  * @param {string} str ASCII only
  * @param {number} seed Positive integer only
  * @return {number} 32-bit positive integer hash
+ */
+
+/**
+ * @hidden
  */
 
 const getUint8ForString = String.prototype.charCodeAt;

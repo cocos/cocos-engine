@@ -49,7 +49,6 @@ export abstract class RenderPipeline extends Asset {
         return this._localDescriptorSetLayout;
     }
 
-
     /**
      * @en The macros for this pipeline.
      * @zh 管线宏定义。
@@ -60,24 +59,21 @@ export abstract class RenderPipeline extends Asset {
     }
 
     /**
-     * @en The flows of pipeline.
-     * @zh 管线的渲染流程列表。
-     * @readonly
-     */
-    @type([RenderFlow])
-    @displayOrder(1)
-    get flows (): RenderFlow[] {
-        return this._flows;
-    }
-
-    /**
      * @en The tag of pipeline.
      * @zh 管线的标签。
      * @readonly
      */
-    @displayOrder(0)
     get tag (): number {
         return this._tag;
+    }
+
+    /**
+     * @en The flows of pipeline.
+     * @zh 管线的渲染流程列表。
+     * @readonly
+     */
+    get flows (): RenderFlow[] {
+        return this._flows;
     }
 
     /**
@@ -85,6 +81,7 @@ export abstract class RenderPipeline extends Asset {
      * @zh 标签
      * @readonly
      */
+    @displayOrder(0)
     @serializable
     protected _tag: number = 0;
 
@@ -93,7 +90,9 @@ export abstract class RenderPipeline extends Asset {
      * @zh 渲染流程列表
      * @readonly
      */
+    @displayOrder(1)
     @type([RenderFlow])
+    @serializable
     protected _flows: RenderFlow[] = [];
 
     protected _globalDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: [], record: {} };

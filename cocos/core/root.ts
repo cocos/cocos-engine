@@ -293,7 +293,16 @@ export class Root {
         if (!this._pipeline.activate()) {
             return false;
         }
+
+        const scene = legacyCC.director.getScene();
+        if (scene) {
+            scene.globals.activate();
+        }
+
         this.onGlobalPipelineStateChanged();
+        if (this._ui) {
+            this._ui.destroy();
+        }
         this._ui = new UI(this);
         if (!this._ui.initialize()) {
             this.destroy();

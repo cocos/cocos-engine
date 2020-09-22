@@ -1,4 +1,7 @@
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+/**
+ * @hidden
+ */
+
 import { AnimationClip } from '../animation/animation-clip';
 import { Skeleton } from '../assets';
 import { GFXDevice } from '../gfx/device';

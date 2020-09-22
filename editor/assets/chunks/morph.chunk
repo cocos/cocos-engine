@@ -3,15 +3,10 @@
 #include <common> // decode32
 #pragma define CC_MORPH_TARGET_COUNT range([2, 8])
 
-#if __VERSION__ < 300
+#if __VERSION__ < 450
     in float a_vertexId;
     int getVertexId() {
         return int(a_vertexId);
-    }
-#elif __VERSION__ < 450
-    int getVertexId() {
-        // TODO: why gl_VertexID does not work??
-        return gl_VertexID;
     }
 #else
     int getVertexId() {
@@ -71,15 +66,16 @@ vec2 getPixelCoordFromLocation(vec2 location, vec2 textureResolution) {
 #endif
 
 float getDisplacementWeight(int index) {
-    float m = mod(float(index), 4.0);
-    if (m < 1.0) {
-        return cc_displacementWeights[index / 4].x;
-    } else if (m < 2.0) {
-        return cc_displacementWeights[index / 4].y;
-    } else if (m < 3.0) {
-        return cc_displacementWeights[index / 4].z;
+    int quot = index / 4;
+    int remainder = index - quot * 4;
+    if (remainder == 0) {
+        return cc_displacementWeights[quot].x;
+    } else if (remainder == 1) {
+        return cc_displacementWeights[quot].y;
+    } else if (remainder == 2) {
+        return cc_displacementWeights[quot].z;
     } else {
-        return cc_displacementWeights[index / 4].w;
+        return cc_displacementWeights[quot].w;
     }
 }
 

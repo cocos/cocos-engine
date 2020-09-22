@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { intersect, sphere } from '../../geometry';
 import { Model } from '../../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';

@@ -7,10 +7,12 @@ import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
 import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
-import { genSamplerHash, samplerLib } from '../../renderer';
 import { IRenderObject, UBOGlobal, UBOShadow,
-    UNIFORM_SHADOWMAP, globalDescriptorSetLayout, localDescriptorSetLayout} from '../define';
+    globalDescriptorSetLayout, localDescriptorSetLayout} from '../define';
 import { GFXBufferUsageBit, GFXMemoryUsageBit,
+    GFXClearFlag, GFXCommandBufferType } from '../../gfx/define';
+import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout } from '../../gfx';
+import { SKYBOX_FLAG } from '../../renderer/scene';
     GFXClearFlag, GFXFilter, GFXAddress, GFXCommandBufferType } from '../../gfx/define';
 import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout, GFXFramebuffer } from '../../gfx';
 import { SKYBOX_FLAG, Light } from '../../renderer/scene';
@@ -257,17 +259,6 @@ export class ForwardPipeline extends RenderPipeline {
             size: UBOShadow.SIZE,
         });
         this._descriptorSet.bindBuffer(UBOShadow.BLOCK.binding, shadowUBO);
-
-        const shadowMapSamplerHash = genSamplerHash([
-            GFXFilter.LINEAR,
-            GFXFilter.LINEAR,
-            GFXFilter.NONE,
-            GFXAddress.CLAMP,
-            GFXAddress.CLAMP,
-            GFXAddress.CLAMP,
-        ]);
-        const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
-        this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP.binding, shadowMapSampler);
 
         // update global defines when all states initialized.
         this.macros.CC_USE_HDR = this._isHDR;

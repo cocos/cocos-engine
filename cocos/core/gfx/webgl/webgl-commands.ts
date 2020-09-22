@@ -2225,7 +2225,7 @@ export function WebGLCmdFuncBindStates (
         for (let i = 0; i < samplerLen; i++) {
             const glSampler = gpuShader.glSamplers[i];
             const gpuDescriptorSet = gpuDescriptorSets[glSampler.set];
-            let descriptorIndex = gpuDescriptorSet && gpuDescriptorSet.descriptorIndices[glSampler.binding] || -1;
+            let descriptorIndex = gpuDescriptorSet?.descriptorIndices[glSampler.binding] ?? -1;
             let gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[descriptorIndex];
 
             const texUnitLen = glSampler.units.length;
@@ -2625,17 +2625,21 @@ export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: GFXDrawInfo) {
                 const subDrawInfo = gpuInputAssembler.gpuIndirectBuffer.indirects[j];
                 const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
                 if (subDrawInfo.instanceCount && ia) {
-                    if (gpuBuffer && subDrawInfo.indexCount > 0) {
-                        const offset = subDrawInfo.firstIndex * gpuBuffer.stride;
-                        ia.drawElementsInstancedANGLE(glPrimitive, subDrawInfo.indexCount,
-                            gpuInputAssembler.glIndexType, offset, subDrawInfo.instanceCount);
+                    if (gpuBuffer) {
+                        if (subDrawInfo.indexCount > 0) {
+                            const offset = subDrawInfo.firstIndex * gpuBuffer.stride;
+                            ia.drawElementsInstancedANGLE(glPrimitive, subDrawInfo.indexCount,
+                                gpuInputAssembler.glIndexType, offset, subDrawInfo.instanceCount);
+                        }
                     } else {
                         ia.drawArraysInstancedANGLE(glPrimitive, subDrawInfo.firstVertex, subDrawInfo.vertexCount, subDrawInfo.instanceCount);
                     }
                 } else {
-                    if (gpuBuffer && subDrawInfo.indexCount > 0) {
-                        const offset = subDrawInfo.firstIndex * gpuBuffer.stride;
-                        gl.drawElements(glPrimitive, subDrawInfo.indexCount, gpuInputAssembler.glIndexType, offset);
+                    if (gpuBuffer) {
+                        if (subDrawInfo.indexCount > 0) {
+                            const offset = subDrawInfo.firstIndex * gpuBuffer.stride;
+                            gl.drawElements(glPrimitive, subDrawInfo.indexCount, gpuInputAssembler.glIndexType, offset);
+                        }
                     } else {
                         gl.drawArrays(glPrimitive, subDrawInfo.firstVertex, subDrawInfo.vertexCount);
                     }
@@ -2644,17 +2648,21 @@ export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: GFXDrawInfo) {
         } else {
             const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
             if (drawInfo.instanceCount && ia) {
-                if (gpuBuffer && drawInfo.indexCount > 0) {
-                    const offset = drawInfo.firstIndex * gpuBuffer.stride;
-                    ia.drawElementsInstancedANGLE(glPrimitive, drawInfo.indexCount,
-                        gpuInputAssembler.glIndexType, offset, drawInfo.instanceCount);
+                if (gpuBuffer) {
+                    if (drawInfo.indexCount > 0) {
+                        const offset = drawInfo.firstIndex * gpuBuffer.stride;
+                        ia.drawElementsInstancedANGLE(glPrimitive, drawInfo.indexCount,
+                            gpuInputAssembler.glIndexType, offset, drawInfo.instanceCount);
+                    }
                 } else {
                     ia.drawArraysInstancedANGLE(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount, drawInfo.instanceCount);
                 }
             } else {
-                if (gpuBuffer && drawInfo.indexCount > 0) {
-                    const offset = drawInfo.firstIndex * gpuBuffer.stride;
-                    gl.drawElements(glPrimitive, drawInfo.indexCount, gpuInputAssembler.glIndexType, offset);
+                if (gpuBuffer) {
+                    if (drawInfo.indexCount > 0) {
+                        const offset = drawInfo.firstIndex * gpuBuffer.stride;
+                        gl.drawElements(glPrimitive, drawInfo.indexCount, gpuInputAssembler.glIndexType, offset);
+                    }
                 } else {
                     gl.drawArrays(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount);
                 }
@@ -2796,19 +2804,13 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                         region.texOffset.x, region.texOffset.y, w, h,
                         gpuTexture.glFormat, gpuTexture.glType, pixels);
                 } else {
-                    if (gpuTexture.glInternalFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
+                    if (gpuTexture.glInternalFmt === WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL || device.noCompressedTexSubImage2D) {
+                        gl.compressedTexImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
+                            gpuTexture.glInternalFmt, w, h, 0, pixels);
+                    } else {
                         gl.compressedTexSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
                             region.texOffset.x, region.texOffset.y, w, h,
                             gpuTexture.glFormat, pixels);
-                    } else {
-                        if (gpuTexture.glInternalFmt === WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL || device.noCompressedTexSubImage2D) {
-                            gl.compressedTexImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
-                                gpuTexture.glInternalFmt, w, h, 0, pixels);
-                        } else {
-                            gl.compressedTexSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
-                                region.texOffset.x, region.texOffset.y, w, h,
-                                gpuTexture.glFormat, pixels);
-                        }
                     }
                 }
             }
@@ -2830,19 +2832,13 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                             region.texOffset.x, region.texOffset.y, w, h,
                             gpuTexture.glFormat, gpuTexture.glType, pixels);
                     } else {
-                        if (gpuTexture.glInternalFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
+                        if (gpuTexture.glInternalFmt === WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL || device.noCompressedTexSubImage2D) {
+                            gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
+                                gpuTexture.glInternalFmt, w, h, 0, pixels);
+                        } else {
                             gl.compressedTexSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
                                 region.texOffset.x, region.texOffset.y, w, h,
                                 gpuTexture.glFormat, pixels);
-                        } else {
-                            if (gpuTexture.glInternalFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
-                                gl.compressedTexSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
-                                    region.texOffset.x, region.texOffset.y, w, h,
-                                    gpuTexture.glFormat, pixels);
-                            } else {
-                                gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
-                                    gpuTexture.glInternalFmt, w, h, 0, pixels);
-                            }
                         }
                     }
                 }

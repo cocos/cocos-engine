@@ -56,12 +56,12 @@ export class InstancedBuffer {
         this.instances.length = 0;
     }
 
-    public merge (subModel: SubModel, attrs: IInstancedAttributeBlock, passIdx: number) {
+    public merge (subModel: SubModel, attrs: IInstancedAttributeBlock, passIdx: number, hShaderImplant: ShaderHandle | null = null) {
         const stride = attrs.buffer.length;
         if (!stride) { return; } // we assume per-instance attributes are always present
         const sourceIA = subModel.inputAssembler;
         const lightingMap = subModel.descriptorSet.getTexture(UniformLightingMapSampler.binding);
-        const hShader = SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle;
+        const hShader = hShaderImplant || SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle;
         const hDescriptorSet = SubModelPool.get(subModel.handle, SubModelView.DESCRIPTOR_SET);
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];

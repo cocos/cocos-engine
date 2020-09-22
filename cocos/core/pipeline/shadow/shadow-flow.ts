@@ -8,7 +8,7 @@ import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
 import { GFXFramebuffer, GFXLoadOp,
     GFXStoreOp, GFXTextureLayout, GFXFormat, GFXTexture,
-    GFXTextureType, GFXTextureUsageBit } from '../../gfx';
+    GFXTextureType, GFXTextureUsageBit, GFXFilter, GFXAddress } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { RenderView, ForwardPipeline, GFXColor, GFXCommandBuffer, GFXRect } from '../..';
 import { ShadowType } from '../../renderer/scene/shadows';
@@ -16,11 +16,22 @@ import { shadowCollecting, lightCollecting } from '../forward/scene-culling';
 import { RenderShadowMapBatchedQueue } from '../render-shadowMap-batched-queue';
 import { Light } from 'cocos/core/renderer/scene';
 import { Vec2 } from '../../math';
+import { genSamplerHash, samplerLib } from '../../renderer';
 
 const colors: GFXColor[] = [ { r: 1, g: 1, b: 1, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
 
+const _samplerInfo = [
+    GFXFilter.LINEAR,
+    GFXFilter.LINEAR,
+    GFXFilter.NONE,
+    GFXAddress.CLAMP,
+    GFXAddress.CLAMP,
+    GFXAddress.CLAMP,
+];
+
 /**
+ * @en Shadow map render flow
  * @zh 阴影贴图绘制流程
  */
 @ccclass('ShadowFlow')
@@ -151,6 +162,11 @@ export class ShadowFlow extends RenderFlow {
             this._width = width;
             this._height = height;
         }
+
+        const shadowMapSamplerHash = genSamplerHash(_samplerInfo);
+        const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
+        pipeline.descriptorSet.bindSampler(UNIFORM_SHADOWMAP.binding, shadowMapSampler);
+        pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP.binding, this._shadowRenderTargets[0]);
     }
 
     private draw (light: Light, view: RenderView, frameBuffer: GFXFramebuffer) {

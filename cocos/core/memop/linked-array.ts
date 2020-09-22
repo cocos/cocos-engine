@@ -15,7 +15,8 @@ interface INode {
 type NodeAllocator = () => INode;
 
 /**
- * @zh 链表，可以自动分配对象。
+ * @en Linked list, it can pre-allocate objects for the given size in constructor.
+ * @zh 链表，在构造时可以自动预创建指定数量的对象。
  */
 export default class LinkedArray<T = {}> {
     private _fn: NodeAllocator;
@@ -25,9 +26,8 @@ export default class LinkedArray<T = {}> {
     private _pool: Pool<INode>;
 
     /**
-     * 构造函数。
-     * @param fn 对象构建函数。
-     * @param size 内置元素个数。
+     * @param fn Allocator function
+     * @param size Initial size of the linked array
      */
     constructor (fn: NodeAllocator, size: number) {
         this._fn = fn;
@@ -39,6 +39,7 @@ export default class LinkedArray<T = {}> {
     }
 
     /**
+     * @en Get the head of the linked list.
      * @zh 获取链表头。
      */
     get head () {
@@ -46,6 +47,7 @@ export default class LinkedArray<T = {}> {
     }
 
     /**
+     * @en Get the tail of the linked list.
      * @zh 获取链表尾。
      */
     get tail () {
@@ -53,6 +55,7 @@ export default class LinkedArray<T = {}> {
     }
 
     /**
+     * @en Number of objects in the linked list.
      * @zh 链表结点个数。
      */
     get length () {
@@ -60,6 +63,7 @@ export default class LinkedArray<T = {}> {
     }
 
     /**
+     * @en Add an element to the end of the linked list.
      * @zh 在链表尾添加一个元素。
      */
     public add () {
@@ -78,8 +82,9 @@ export default class LinkedArray<T = {}> {
     }
 
     /**
+     * @en Remove an element in the linked list.
      * @zh 删除链表中的一个结点。
-     * @param node 要删除的结点。
+     * @param node The element to be deleted
      */
     public remove (node) {
         if (node._prev) {
@@ -101,10 +106,12 @@ export default class LinkedArray<T = {}> {
     }
 
     /**
+     * @en
+     * Execute an action on all elements of the linked list.
      * @zh
-     * 遍历整个链表。
-     * @param fn 遍历函数。
-     * @param binder 遍历函数的this对象。
+     * 遍历整个链表并执行目标函数，可以指定调用者。
+     * @param fn Function to be executed for each element
+     * @param binder The caller `this` to execute the function
      */
     public forEach (fn, binder) {
         let cursor = this._head;

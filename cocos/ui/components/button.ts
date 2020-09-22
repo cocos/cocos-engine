@@ -25,14 +25,13 @@
 */
 
 /**
- * 用户界面组件
  * @category ui
  */
 
 import { SpriteFrame } from '../../core/assets';
 import { Component, EventHandler as ComponentEventHandler } from '../../core/components';
 import { UITransform, UIRenderable } from '../../core/components/ui-base';
-import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin, rangeMax, serializable } from 'cc.decorator';
+import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin, rangeMax, serializable, executeInEditMode } from 'cc.decorator';
 import { EventMouse, EventTouch, SystemEventType } from '../../core/platform';
 import { Color, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
@@ -87,7 +86,16 @@ enum State {
     DISABLED = 'disabled',
 }
 
+/**
+ * @en The event types of [[Button]]. All button events are distributed by the owner Node, not the component
+ * @zh [[Button]] 的事件类型，注意：事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ */
 export enum EventType {
+    /**
+     * @event click
+     * @param {Event.EventCustom} event
+     * @param {Button} button - The Button component.
+     */
     CLICK = 'click',
 }
 
@@ -150,6 +158,7 @@ export enum EventType {
 @executionOrder(110)
 @menu('UI/Button')
 @requireComponent(UITransform)
+@executeInEditMode
 export class Button extends Component {
 
     /**
@@ -841,11 +850,3 @@ export class Button extends Component {
     }
 
 }
-
-/**
- * @zh
- * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
- * @event click
- * @param {Event.EventCustom} event
- * @param {Button} button - The Button component.
- */

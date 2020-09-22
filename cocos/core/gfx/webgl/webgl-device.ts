@@ -1,5 +1,5 @@
 import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, DEBUG, VIVO } from 'internal:constants';
-import { macro } from '../../platform';
+import { macro, warnID, warn } from '../../platform';
 import { sys } from '../../platform/sys';
 import { GFXDescriptorSet, IGFXDescriptorSetInfo } from '../descriptor-set';
 import { GFXBuffer, IGFXBufferInfo, IGFXBufferViewInfo } from '../buffer';
@@ -36,6 +36,8 @@ import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXCommandBufferType, G
 import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersToTexture,
     WebGLCmdFuncCopyTexImagesToTexture } from './webgl-commands';
 import { IGFXDescriptorSetLayoutInfo, GFXDescriptorSetLayout, IGFXPipelineLayoutInfo, GFXPipelineLayout } from '../..';
+
+const eventWebGLContextLost = 'webglcontextlost';
 
 export class WebGLDevice extends GFXDevice {
 
@@ -171,6 +173,7 @@ export class WebGLDevice extends GFXDevice {
     private _destroyShadersImmediately: boolean = true;
     private _noCompressedTexSubImage2D: boolean = false;
     private _bindingMappingInfo: GFXBindingMappingInfo = new GFXBindingMappingInfo();
+    private _webGLContextLostHandler: null | ((event: Event) => void) = null;
 
     private _extensions: string[] | null = null;
     private _EXT_texture_filter_anisotropic: EXT_texture_filter_anisotropic | null = null;
@@ -246,6 +249,9 @@ export class WebGLDevice extends GFXDevice {
             return false;
         }
 
+        this._webGLContextLostHandler = this._onWebGLContextLost.bind(this);
+        this._canvas.addEventListener(eventWebGLContextLost, this._onWebGLContextLost);
+
         this._canvas2D = document.createElement('canvas');
         console.info('WebGL device initialized.');
 
@@ -319,7 +325,10 @@ export class WebGLDevice extends GFXDevice {
         this._WEBGL_compressed_texture_etc1 = this.getExtension('WEBGL_compressed_texture_etc1');
         this._WEBGL_compressed_texture_etc = this.getExtension('WEBGL_compressed_texture_etc');
         this._WEBGL_compressed_texture_pvrtc = this.getExtension('WEBGL_compressed_texture_pvrtc');
-        this._WEBGL_compressed_texture_astc = this.getExtension('WEBGL_compressed_texture_astc');
+        // protect for iOS 14 browser crash on function:getExtension('WEBGL_compressed_texture_astc')
+        if (sys.os !== sys.OS_IOS || sys.osMainVersion !== 14 || !sys.isBrowser) {
+            this._WEBGL_compressed_texture_astc = this.getExtension('WEBGL_compressed_texture_astc');
+        }
         this._WEBGL_compressed_texture_s3tc = this.getExtension('WEBGL_compressed_texture_s3tc');
         this._WEBGL_compressed_texture_s3tc_srgb = this.getExtension('WEBGL_compressed_texture_s3tc_srgb');
         this._WEBGL_debug_shaders = this.getExtension('WEBGL_debug_shaders');
@@ -525,6 +534,10 @@ export class WebGLDevice extends GFXDevice {
     }
 
     public destroy (): void {
+        if (this._canvas && this._webGLContextLostHandler) {
+            this._canvas.removeEventListener(eventWebGLContextLost, this._webGLContextLostHandler);
+            this._webGLContextLostHandler = null;
+        }
 
         if (this.nullTex2D) {
             this.nullTex2D.destroy();
@@ -788,5 +801,12 @@ export class WebGLDevice extends GFXDevice {
         gl.blendFuncSeparate(gl.ONE, gl.ZERO, gl.ONE, gl.ZERO);
         gl.colorMask(true, true, true, true);
         gl.blendColor(0.0, 0.0, 0.0, 0.0);
+    }
+
+    private _onWebGLContextLost (event: Event) {
+        warnID(11000);
+        warn(event);
+        // 2020.9.3: `preventDefault` is not available on some platforms
+        // event.preventDefault();
     }
 }
