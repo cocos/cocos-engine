@@ -32,7 +32,7 @@ import {ccclass, override} from 'cc.decorator';
 import { GFXDevice, GFXFeature } from '../gfx/device';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
-import { EDITOR, MINIGAME, ALIPAY, XIAOMI, BYTEDANCE } from 'internal:constants';
+import { EDITOR, MINIGAME, ALIPAY, XIAOMI, BYTEDANCE, JSB } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 
@@ -66,6 +66,9 @@ function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElem
     }
     else if (BYTEDANCE && typeof window.sharedCanvas === 'object' && imageSource instanceof window.sharedCanvas.constructor) {
         return true;
+    }
+    else if (JSB && (imageSource as IMemoryImageSource)._compressed === true) {
+        return false;
     }
     else {
         return imageSource instanceof HTMLImageElement || imageSource instanceof HTMLCanvasElement;
