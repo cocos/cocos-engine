@@ -186,20 +186,13 @@ export class ForwardPipeline extends RenderPipeline {
 
         if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
             // light view
-            const shadowCameraView = shadowInfo.getWorldMatrix(mainLight!.node!.worldRotation, mainLight!.direction);
+            const shadowCameraView = mainLight.node!.getWorldMatrix();
             Mat4.invert(matShadowView, shadowCameraView);
 
             // light proj
-            let x: number = 0;
-            let y: number = 0;
-            if (shadowInfo.orthoSize > shadowInfo.sphere.radius) {
-                x = shadowInfo.orthoSize * shadowInfo.aspect;
-                y = shadowInfo.orthoSize;
-            } else {
-                // if orthoSize is the smallest, auto calculate orthoSize.
-                x = shadowInfo.sphere.radius * shadowInfo.aspect;
-                y = shadowInfo.sphere.radius;
-            }
+            const x: number = shadowInfo.orthoSize * shadowInfo.aspect;
+            const y: number = shadowInfo.orthoSize;
+
             const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY; // always offscreen
             Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, shadowInfo.far,
                 device.clipSpaceMinZ, projectionSignY);

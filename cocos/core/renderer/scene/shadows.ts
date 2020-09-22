@@ -241,6 +241,7 @@ export class Shadows {
         }
     }
 
+    // used to auto adapt
     public getWorldMatrix (rotation: Quat, dir: Vec3) {
         Vec3.negate(_dir_negate, dir);
         const distance: number = Math.sqrt(2) * this._sphere.radius;
