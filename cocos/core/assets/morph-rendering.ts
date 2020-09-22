@@ -170,6 +170,7 @@ class GpuComputing implements SubMeshMorphRendering {
         name: string;
         morphTexture: MorphTexture;
     }[];
+    private _verticesCount: number;
 
     constructor (mesh: Mesh, subMeshIndex: number, morph: Morph, gfxDevice: GFXDevice) {
         this._gfxDevice = gfxDevice;
@@ -180,11 +181,9 @@ class GpuComputing implements SubMeshMorphRendering {
         enableVertexId(mesh, subMeshIndex, gfxDevice);
 
         const nVertices = mesh.struct.vertexBundles[mesh.struct.primitives[subMeshIndex].vertexBundelIndices[0]].view.count;
+        this._verticesCount = nVertices;
         const nTargets = subMeshMorph.targets.length;
-        // Head includes N vector 4, where N is number of targets.
-        // Every r channel of the pixel denotes the index of the data pixel of corresponding target.
-        // [ (target1_data_offset), (target2_data_offset), .... ] target_data
-        const vec4Required = nTargets + nVertices * nTargets;
+        const vec4Required = nVertices * nTargets;
 
         const vec4TextureFactory = createVec4TextureFactory(gfxDevice, vec4Required);
         this._textureInfo = {
@@ -201,25 +200,16 @@ class GpuComputing implements SubMeshMorphRendering {
             //         valueView[i * 4 + 3] = 1.0;
             //     }
             // }
-            {
-                let pHead = 0;
-                let nVec4s = subMeshMorph.targets.length;
-                subMeshMorph.targets.forEach((morphTarget) => {
-                    const displacementsView = morphTarget.displacements[attributeIndex];
-                    const displacements = new Float32Array(mesh.data.buffer, mesh.data.byteOffset + displacementsView.offset, displacementsView.count);
-                    const nVec3s = displacements.length / 3;
-                    // See `Mesh.prototype.enableVertexIdChannel` for the magic `0.5`.
-                    valueView[pHead] = nVec4s + 0.5;
-                    const displacementsOffset = nVec4s * 4;
-                    for (let iVec3 = 0; iVec3 < nVec3s; ++iVec3) {
-                        valueView[displacementsOffset + 4 * iVec3 + 0] = displacements[3 * iVec3 + 0];
-                        valueView[displacementsOffset + 4 * iVec3 + 1] = displacements[3 * iVec3 + 1];
-                        valueView[displacementsOffset + 4 * iVec3 + 2] = displacements[3 * iVec3 + 2];
-                    }
-                    pHead += 4;
-                    nVec4s += nVec3s;
-                });
-            }
+            subMeshMorph.targets.forEach((morphTarget, morphTargetIndex) => {
+                const displacementsView = morphTarget.displacements[attributeIndex];
+                const displacements = new Float32Array(mesh.data.buffer, mesh.data.byteOffset + displacementsView.offset, displacementsView.count);
+                const displacementsOffset = (nVertices * morphTargetIndex) * 4;
+                for (let iVertex = 0; iVertex < nVertices; ++iVertex) {
+                    valueView[displacementsOffset + 4 * iVertex + 0] = displacements[3 * iVertex + 0];
+                    valueView[displacementsOffset + 4 * iVertex + 1] = displacements[3 * iVertex + 1];
+                    valueView[displacementsOffset + 4 * iVertex + 2] = displacements[3 * iVertex + 2];
+                }
+            });
             vec4Tex.updatePixels();
             return {
                 name: attributeName,
@@ -237,6 +227,7 @@ class GpuComputing implements SubMeshMorphRendering {
     public createInstance () {
         const morphUniforms = new MorphUniforms(this._gfxDevice, this._subMeshMorph.targets.length);
         morphUniforms.setMorphTextureInfo(this._textureInfo.width, this._textureInfo.height);
+        morphUniforms.setVerticesCount(this._verticesCount);
         morphUniforms.commit();
         return {
             setWeights: (weights: number[]) => {
@@ -480,6 +471,10 @@ class MorphUniforms {
     public setMorphTextureInfo (width: number, height: number) {
         this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH, width, legacyCC.sys.isLittleEndian);
         this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT, height, legacyCC.sys.isLittleEndian);
+    }
+
+    public setVerticesCount (count: number) {
+        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_VERTICES_COUNT, count, legacyCC.sys.isLittleEndian);
     }
 
     public commit () {
