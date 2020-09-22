@@ -71,7 +71,7 @@ class HashElement {
  * @example {@link cocos2d/core/CCActionManager/ActionManager.js}
  */
 export class ActionManager {
-    private _hashTargets = new Map;
+    private _hashTargets = new Map();
     private _arrayTargets: HashElement[] = [];
     private _currentTarget!: HashElement;
     private _elementPool: HashElement[] = [];
@@ -241,10 +241,9 @@ export class ActionManager {
             }
         }
         else {
-            for (let arr of hashTargets) {
-                let element = arr[1];
+            hashTargets.forEach(element => {
                 this._removeActionByTag(tag, element);
-            }
+            })
         }
     }
 
