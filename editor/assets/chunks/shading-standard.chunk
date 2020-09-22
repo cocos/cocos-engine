@@ -105,7 +105,7 @@ struct StandardSurface {
       // else if (2.0 > pcf && pcf > 1.0) {shadow = CCGetShadowFactorX5();}
       // else {shadow = CCGetShadowFactorX1();}
 
-      float shadow = CCGetShadowFactor();
+      float shadow = CCGetDirLightShadowFactor();
 
       lightColor = lightColor * shadow;
     #endif
