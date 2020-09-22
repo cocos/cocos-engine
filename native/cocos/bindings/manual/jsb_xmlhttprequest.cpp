@@ -32,7 +32,6 @@
 //
 #include "base/Config.h"
 #include "jsb_xmlhttprequest.h"
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
 #include <unordered_map>
 #include <string>
 #include <functional>
@@ -1148,4 +1147,3 @@ bool register_all_xmlhttprequest(se::Object* global)
 
     return true;
 }
-#endif //#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)

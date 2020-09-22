@@ -24,7 +24,7 @@
  ****************************************************************************/
 #include "base/Config.h"
 #include "jsb_websocket.h"
-#if (USE_SOCKET > 0) && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
+#if (USE_SOCKET > 0)
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
@@ -603,4 +603,4 @@ bool register_all_websocket(se::Object* obj)
 
     return true;
 }
-#endif //#if (USE_SOCKET > 0) && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
+#endif //#if (USE_SOCKET > 0)

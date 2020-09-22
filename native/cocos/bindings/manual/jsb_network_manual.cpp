@@ -24,7 +24,6 @@
  ****************************************************************************/
 #include "base/Config.h"
 #include "jsb_network_manual.h"
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
 #include "bindings/manual/jsb_conversions.h"
 #include "bindings/manual/jsb_global.h"
 #include "network/Downloader.h"
@@ -190,4 +189,3 @@ bool register_all_network_manual(se::Object *obj) {
                                                            _SE(js_network_Downloader_setOnFileTaskSuccess));
     return true;
 }
-#endif //#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
