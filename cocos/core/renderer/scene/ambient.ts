@@ -77,6 +77,7 @@ export class Ambient {
     constructor () {
         this._handle = AmbientPool.alloc();
     }
+
     public activate () {
         Color.toArray(this._colorArray, this._skyColor);
         Vec3.toArray(this._albedoArray, this._groundAlbedo);
@@ -93,5 +94,3 @@ export class Ambient {
 }
 
 legacyCC.Ambient = Ambient;
-
-
