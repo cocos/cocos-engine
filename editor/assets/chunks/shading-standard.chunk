@@ -98,20 +98,9 @@ struct StandardSurface {
 
       vec3 lightColor = cc_lightColor[i].rgb;
     #if CC_RECEIVE_SHADOW
-      // vec4 shadow = vec4(1.0);
-      // float pcf = cc_shadowPCF.x + 0.001;
-      // if (pcf > 3.0) {shadow = CCGetShadowFactorX25();}
-      // else if (3.0 > pcf && pcf > 2.0) {shadow = CCGetShadowFactorX9();}
-      // else if (2.0 > pcf && pcf > 1.0) {shadow = CCGetShadowFactorX5();}
-      // else {shadow = CCGetShadowFactorX1();}
-
       float spotLightAtten  = CCGetDirLightShadowFactor();
-      vec3 shadowColor = cc_shadowColor.rgb * cc_shadowColor.a + lightColor.rgb * (1.0 - cc_shadowColor.a);
-      lightColor = shadowColor.rgb * spotLightAtten * 50.0 + lightColor.rgb * (1.0 - spotLightAtten);
-
-      // lightColor = lightColor * spotLightAtten * 20.0;
+      lightColor = lightColor.rgb * spotLightAtten * 0.0 + lightColor.rgb * (1.0 - spotLightAtten);
     #endif
-
 
       finalColor += SNL * lightColor * cc_lightColor[i].w * illum * att * (diffuseContrib + lspec);
     }
