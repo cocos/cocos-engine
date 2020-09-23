@@ -177,7 +177,7 @@ export class RenderAdditiveLightQueue {
                 const subModel = subModels[j];
                 const pass = subModel.passes[lightPassIdx];
                 const batchingScheme = pass.batchingScheme;
-                subModel.descriptorSet.bindBuffer(UBOForwardLight.BLOCK.binding, this._firstlightBufferView);
+                subModel.descriptorSet.bindBuffer(UBOForwardLight.BINDING, this._firstlightBufferView);
                 subModel.descriptorSet.update();
 
                 if (batchingScheme === BatchingSchemes.INSTANCING) { // instancing

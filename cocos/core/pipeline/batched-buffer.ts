@@ -4,7 +4,7 @@
 
 import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXDevice, GFXDescriptorSet } from '../gfx';
 import { GFXBuffer } from '../gfx/buffer';
-import { GFXInputAssembler, GFXInputAssemblerInfo, IGFXAttribute } from '../gfx/input-assembler';
+import { GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute } from '../gfx/input-assembler';
 import { Mat4 } from '../math';
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, UBOLocalBatched } from './define';
@@ -115,7 +115,7 @@ export class BatchedBuffer {
                     // update world matrix
                     Mat4.toArray(batch.uboData, ro.model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET + batch.mergeCount * 16);
                     if (!batch.mergeCount) {
-                        descriptorSet.bindBuffer(UBOLocalBatched.BLOCK.binding, batch.ubo);
+                        descriptorSet.bindBuffer(UBOLocalBatched.BINDING, batch.ubo);
                         descriptorSet.update();
                         batch.hPass = hPass;
                         batch.hShader = hShader;
@@ -161,15 +161,11 @@ export class BatchedBuffer {
         totalVBs.push(vbIdx);
 
         const attributes = subModel.inputAssembler!.attributes;
-        const attrs = new Array<IGFXAttribute>(attributes.length + 1);
+        const attrs = new Array<GFXAttribute>(attributes.length + 1);
         for (let a = 0; a < attributes.length; ++a) {
             attrs[a] = attributes[a];
         }
-        attrs[attributes.length] = {
-            name: 'a_dyn_batch_id',
-            format: GFXFormat.R32F,
-            stream: flatBuffers.length,
-        };
+        attrs[attributes.length] = new GFXAttribute('a_dyn_batch_id', GFXFormat.R32F, false, flatBuffers.length);
 
         const iaInfo = new GFXInputAssemblerInfo(attrs, totalVBs);
         const ia = this._device.createInputAssembler(iaInfo);
@@ -180,7 +176,7 @@ export class BatchedBuffer {
             size: UBOLocalBatched.SIZE,
         });
 
-        descriptorSet.bindBuffer(UBOLocalBatched.BLOCK.binding, ubo);
+        descriptorSet.bindBuffer(UBOLocalBatched.BINDING, ubo);
         descriptorSet.update();
 
         const uboData = new Float32Array(UBOLocalBatched.COUNT);

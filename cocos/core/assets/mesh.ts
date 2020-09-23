@@ -44,7 +44,7 @@ import {
     GFXPrimitiveMode,
 } from '../gfx/define';
 import { GFXDevice, GFXFeature } from '../gfx/device';
-import { IGFXAttribute, GFXInputAssemblerInfo } from '../gfx/input-assembler';
+import { GFXAttribute, GFXInputAssemblerInfo } from '../gfx/input-assembler';
 import { warnID } from '../platform/debug';
 import { sys } from '../platform/sys';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
@@ -274,14 +274,14 @@ export class RenderingSubMesh {
     private _geometricInfo?: IGeometricInfo;
 
     private _vertexBuffers: GFXBuffer[];
-    private _attributes: IGFXAttribute[];
+    private _attributes: GFXAttribute[];
     private _indexBuffer: GFXBuffer | null = null;
     private _indirectBuffer: GFXBuffer | null = null;
     private _primitiveMode: GFXPrimitiveMode;
     private _iaInfo: GFXInputAssemblerInfo;
 
     constructor (
-        vertexBuffers: GFXBuffer[], attributes: IGFXAttribute[], primitiveMode: GFXPrimitiveMode,
+        vertexBuffers: GFXBuffer[], attributes: GFXAttribute[], primitiveMode: GFXPrimitiveMode,
         indexBuffer: GFXBuffer | null = null, indirectBuffer: GFXBuffer | null = null,
     ) {
         this._attributes = attributes;
@@ -331,12 +331,7 @@ export class RenderingSubMesh {
 
         const vertexIdBuffer = this._allocVertexIdBuffer(device);
         this.vertexBuffers.push(vertexIdBuffer);
-        this.attributes.push({
-            name: 'a_vertexId',
-            format: GFXFormat.R32F,
-            stream: streamIndex,
-            isNormalized: false,
-        });
+        this.attributes.push(new GFXAttribute('a_vertexId', GFXFormat.R32F, false, streamIndex));
 
         this._vertexIdChannel = {
             stream: streamIndex,
@@ -392,7 +387,7 @@ export declare namespace Mesh {
         /**
          * 包含的所有顶点属性。
          */
-        attributes: IGFXAttribute[];
+        attributes: GFXAttribute[];
     }
 
     /**
@@ -638,7 +633,7 @@ export class Mesh extends Asset {
 
             const vbReference = prim.vertexBundelIndices.map((idx) => vertexBuffers[idx]);
 
-            let gfxAttributes: IGFXAttribute[] = [];
+            let gfxAttributes: GFXAttribute[] = [];
             if (prim.vertexBundelIndices.length > 0) {
                 const idx = prim.vertexBundelIndices[0];
                 const vertexBundle = this._struct.vertexBundles[idx];
@@ -1298,7 +1293,7 @@ export class Mesh extends Asset {
 }
 legacyCC.Mesh = Mesh;
 
-function getOffset (attributes: IGFXAttribute[], attributeIndex: number) {
+function getOffset (attributes: GFXAttribute[], attributeIndex: number) {
     let result = 0;
     for (let i = 0; i < attributeIndex; ++i) {
         const attribute = attributes[i];

@@ -10,7 +10,7 @@ import { director } from '../../core/director';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
 import { GFXDevice } from '../../core/gfx/device';
-import { IGFXAttribute } from '../../core/gfx/input-assembler';
+import { GFXAttribute } from '../../core/gfx/input-assembler';
 import { Color, Mat4, Quat, toRadian, Vec3 } from '../../core/math';
 import { Pool } from '../../core/memop';
 import { scene } from '../../core/renderer';
@@ -294,7 +294,7 @@ export default class TrailModule {
     private _iaInfo: IGFXIndirectBuffer;
     private _iaInfoBuffer: GFXBuffer | null = null;
     private _subMeshData: RenderingSubMesh | null = null;
-    private _vertAttrs: IGFXAttribute[];
+    private _vertAttrs: GFXAttribute[];
     private _vbF32: Float32Array | null = null;
     private _vbUint32: Uint32Array | null = null;
     private _iBuffer: Uint16Array | null = null;
@@ -315,11 +315,11 @@ export default class TrailModule {
         };
 
         this._vertAttrs = [
-            { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F }, // xyz:position
-            { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RGBA32F }, // x:index y:size zw:texcoord
-            // { name: GFXAttributeName.ATTR_TEX_COORD2, format: GFXFormat.RGB32F }, // <wireframe debug>
-            { name: GFXAttributeName.ATTR_TEX_COORD1, format: GFXFormat.RGB32F }, // xyz:velocity
-            { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA8, isNormalized: true },
+            new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),   // xyz:position
+            new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RGBA32F), // x:index y:size zw:texcoord
+            // new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD2, GFXFormat.RGB32F), // <wireframe debug>
+            new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD1, GFXFormat.RGB32F), // xyz:velocity
+            new GFXAttribute(GFXAttributeName.ATTR_COLOR, GFXFormat.RGBA8, true),
         ];
         this._vertSize = 0;
         for (const a of this._vertAttrs) {

@@ -3,7 +3,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP } from '../define';
+import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP_BINDING } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
@@ -129,7 +129,7 @@ export class ShadowFlow extends RenderFlow {
 
         pipeline.updateUBOs(view);
         super.render(view);
-        pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP.binding, this._shadowFrameBuffer!.colorTextures[0]!);
+        pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, this._shadowFrameBuffer!.colorTextures[0]!);
     }
 
     private resizeShadowMap (width: number, height: number) {

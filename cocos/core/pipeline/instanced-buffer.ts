@@ -4,11 +4,11 @@
 
 import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXDevice, GFXTexture } from '../gfx';
 import { GFXBuffer } from '../gfx/buffer';
-import { GFXInputAssembler, GFXInputAssemblerInfo, IGFXAttribute } from '../gfx/input-assembler';
+import { GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute } from '../gfx/input-assembler';
 import { Pass } from '../renderer';
 import { IInstancedAttributeBlock, SubModel } from '../renderer/scene';
 import { SubModelView, SubModelPool, ShaderHandle, DescriptorSetHandle, PassHandle, NULL_HANDLE } from '../renderer/core/memory-pools';
-import { UniformLightingMapSampler } from './define';
+import { UNIFORM_LIGHTMAP_TEXTURE_BINDING } from './define';
 
 export interface IInstancedItem {
     count: number;
@@ -60,7 +60,7 @@ export class InstancedBuffer {
         const stride = attrs.buffer.length;
         if (!stride) { return; } // we assume per-instance attributes are always present
         const sourceIA = subModel.inputAssembler;
-        const lightingMap = subModel.descriptorSet.getTexture(UniformLightingMapSampler.binding);
+        const lightingMap = subModel.descriptorSet.getTexture(UNIFORM_LIGHTMAP_TEXTURE_BINDING);
         const hShader = SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle;
         const hDescriptorSet = SubModelPool.get(subModel.handle, SubModelView.DESCRIPTOR_SET);
         for (let i = 0; i < this.instances.length; ++i) {
@@ -104,13 +104,7 @@ export class InstancedBuffer {
 
         for (let i = 0; i < attrs.list.length; i++) {
             const attr = attrs.list[i];
-            const newAttr: IGFXAttribute = {
-                name: attr.name,
-                format: attr.format,
-                stream: vertexBuffers.length,
-                isInstanced: true,
-            };
-            if (attr.isNormalized !== undefined) { newAttr.isNormalized = attr.isNormalized; }
+            const newAttr = new GFXAttribute(attr.name, attr.format, attr.isNormalized, vertexBuffers.length, true);
             attributes.push(newAttr);
         }
         data.set(attrs.buffer);

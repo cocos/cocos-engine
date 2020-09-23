@@ -11,12 +11,12 @@ import { GFXFence, IGFXFenceInfo } from './fence';
 import { GFXFramebuffer, IGFXFramebufferInfo } from './framebuffer';
 import { GFXInputAssembler, GFXInputAssemblerInfo } from './input-assembler';
 import { GFXPipelineState, GFXPipelineStateInfo } from './pipeline-state';
-import { GFXQueue, IGFXQueueInfo } from './queue';
+import { GFXQueue, GFXQueueInfo } from './queue';
 import { GFXRenderPass, GFXRenderPassInfo } from './render-pass';
-import { GFXSampler, IGFXSamplerInfo } from './sampler';
+import { GFXSampler, GFXSamplerInfo } from './sampler';
 import { GFXShader, GFXShaderInfo } from './shader';
 import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo } from './texture';
-import { IGFXDescriptorSetLayoutInfo, GFXDescriptorSetLayout, IGFXPipelineLayoutInfo, GFXPipelineLayout } from '../../../exports/base';
+import { GFXDescriptorSetLayoutInfo, GFXDescriptorSetLayout, IGFXPipelineLayoutInfo, GFXPipelineLayout } from '../../../exports/base';
 
 ccenum(GFXFormat);
 
@@ -455,7 +455,7 @@ export abstract class GFXDevice {
      * @zh 创建采样器。
      * @param info GFX sampler description info.
      */
-    public abstract createSampler (info: IGFXSamplerInfo): GFXSampler;
+    public abstract createSampler (info: GFXSamplerInfo): GFXSampler;
 
     /**
      * @en Create descriptor sets.
@@ -497,7 +497,7 @@ export abstract class GFXDevice {
      * @zh 创建描述符集布局。
      * @param info GFX descriptor set layout description info.
      */
-    public abstract createDescriptorSetLayout (info: IGFXDescriptorSetLayoutInfo): GFXDescriptorSetLayout;
+    public abstract createDescriptorSetLayout (info: GFXDescriptorSetLayoutInfo): GFXDescriptorSetLayout;
 
     /**
      * @en Create pipeline layout.
@@ -518,7 +518,7 @@ export abstract class GFXDevice {
      * @zh 创建队列。
      * @param info GFX queue description info.
      */
-    public abstract createQueue (info: IGFXQueueInfo): GFXQueue;
+    public abstract createQueue (info: GFXQueueInfo): GFXQueue;
 
     /**
      * @en Create fence.

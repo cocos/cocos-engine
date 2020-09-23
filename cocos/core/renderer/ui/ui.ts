@@ -30,7 +30,7 @@ import { UIStaticBatch } from '../../../ui';
 import { Material } from '../../assets/material';
 import { Canvas, UIComponent, UIRenderable } from '../../components/ui-base';
 import { GFXDevice } from '../../gfx/device';
-import { IGFXAttribute } from '../../gfx/input-assembler';
+import { GFXAttribute } from '../../gfx/input-assembler';
 import { GFXSampler } from '../../gfx/sampler';
 import { GFXTexture } from '../../gfx/texture';
 import { Pool, RecyclePool } from '../../memop';
@@ -83,7 +83,7 @@ export class UI {
     }, 128);
     private _drawBatchPool: Pool<UIDrawBatch>;
     private _scene: RenderScene;
-    private _attributes: IGFXAttribute[] = [];
+    private _attributes: GFXAttribute[] = [];
     private _meshBuffers: MeshBuffer[] = [];
     private _meshBufferUseCount = 0;
     private _uiMaterials: Map<number, UIMaterial> = new Map<number, UIMaterial>();

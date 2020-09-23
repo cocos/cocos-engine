@@ -7,9 +7,9 @@ import { GFXFence, IGFXFenceInfo } from '../fence';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { GFXInputAssembler, GFXInputAssemblerInfo } from '../input-assembler';
 import { GFXPipelineState, GFXPipelineStateInfo } from '../pipeline-state';
-import { GFXQueue, IGFXQueueInfo } from '../queue';
+import { GFXQueue, GFXQueueInfo } from '../queue';
 import { GFXRenderPass, GFXRenderPassInfo } from '../render-pass';
-import { GFXSampler, IGFXSamplerInfo } from '../sampler';
+import { GFXSampler, GFXSamplerInfo } from '../sampler';
 import { GFXShader, GFXShaderInfo } from '../shader';
 import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo } from '../texture';
 import { WebGL2DescriptorSet } from './webgl2-descriptor-set';
@@ -33,7 +33,7 @@ import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXCommandBufferType, G
     GFXQueueType, GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, GFXRect } from '../define';
 import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGL2CmdFuncBlitFramebuffer,
     WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
-import { GFXPipelineLayout, GFXDescriptorSetLayout, IGFXDescriptorSetLayoutInfo, IGFXPipelineLayoutInfo } from '../..';
+import { GFXPipelineLayout, GFXDescriptorSetLayout, GFXDescriptorSetLayoutInfo, IGFXPipelineLayoutInfo } from '../..';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
@@ -348,7 +348,7 @@ export class WebGL2Device extends GFXDevice {
         this.initStates(gl);
 
         // create queue
-        this._queue = this.createQueue({ type: GFXQueueType.GRAPHICS });
+        this._queue = this.createQueue(new GFXQueueInfo(GFXQueueType.GRAPHICS));
         this._cmdBuff = this.createCommandBuffer({ type: GFXCommandBufferType.PRIMARY, queue: this._queue });
 
         // create default null texture
@@ -494,7 +494,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createSampler (info: IGFXSamplerInfo): GFXSampler {
+    public createSampler (info: GFXSamplerInfo): GFXSampler {
         const sampler = new WebGL2Sampler(this);
         if (sampler.initialize(info)) {
             return sampler;
@@ -542,7 +542,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createDescriptorSetLayout (info: IGFXDescriptorSetLayoutInfo): GFXDescriptorSetLayout {
+    public createDescriptorSetLayout (info: GFXDescriptorSetLayoutInfo): GFXDescriptorSetLayout {
         const descriptorSetLayout = new WebGL2DescriptorSetLayout(this);
         if (descriptorSetLayout.initialize(info)) {
             return descriptorSetLayout;
@@ -574,7 +574,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createQueue (info: IGFXQueueInfo): GFXQueue {
+    public createQueue (info: GFXQueueInfo): GFXQueue {
         const queue = new WebGL2Queue(this);
         if (queue.initialize(info)) {
             return queue;

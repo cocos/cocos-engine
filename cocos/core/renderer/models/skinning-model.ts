@@ -257,7 +257,7 @@ export class SkinningModel extends MorphModel {
     public _updateLocalDescriptors (submodelIdx: number, descriptorSet: GFXDescriptorSet) {
         super._updateLocalDescriptors(submodelIdx, descriptorSet);
         const buffer = this._buffers[this._bufferIndices![submodelIdx]];
-        if (buffer) { descriptorSet.bindBuffer(UBOSkinning.BLOCK.binding, buffer); }
+        if (buffer) { descriptorSet.bindBuffer(UBOSkinning.BINDING, buffer); }
     }
 
     private _ensureEnoughBuffers (count: number) {

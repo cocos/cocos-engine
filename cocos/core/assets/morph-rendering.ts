@@ -7,7 +7,7 @@ import { Mesh } from './mesh';
 import { Texture2D } from './texture-2d';
 import { ImageAsset } from './image-asset';
 import { samplerLib } from '../renderer/core/sampler-lib';
-import { UBOMorph, UniformNormalMorphTexture, UniformPositionMorphTexture, UniformTangentMorphTexture } from '../pipeline/define';
+import { UBOMorph, UNIFORM_NORMAL_MORPH_TEXTURE_BINDING, UNIFORM_POSITION_MORPH_TEXTURE_BINDING, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING } from '../pipeline/define';
 import { warn, warnID } from '../platform/debug';
 import { Morph, MorphRendering, MorphRenderingInstance, SubMeshMorph } from './morph';
 import { assertIsNonNullable, assertIsTrue } from '../data/utils/asserts';
@@ -252,9 +252,9 @@ class GpuComputing implements SubMeshMorphRendering {
                 for (const attribute of this._attributes) {
                     let binding: number | undefined;
                     switch (attribute.name) {
-                        case GFXAttributeName.ATTR_POSITION: binding = UniformPositionMorphTexture.binding; break;
-                        case GFXAttributeName.ATTR_NORMAL: binding = UniformNormalMorphTexture.binding; break;
-                        case GFXAttributeName.ATTR_TANGENT: binding = UniformTangentMorphTexture.binding; break;
+                        case GFXAttributeName.ATTR_POSITION: binding = UNIFORM_POSITION_MORPH_TEXTURE_BINDING; break;
+                        case GFXAttributeName.ATTR_NORMAL: binding = UNIFORM_NORMAL_MORPH_TEXTURE_BINDING; break;
+                        case GFXAttributeName.ATTR_TANGENT: binding = UNIFORM_TANGENT_MORPH_TEXTURE_BINDING; break;
                         default:
                             warn(`Unexpected attribute!`); break;
                     }
@@ -263,7 +263,7 @@ class GpuComputing implements SubMeshMorphRendering {
                         descriptorSet.bindTexture(binding, attribute.morphTexture.texture);
                     }
                 }
-                descriptorSet.bindBuffer(UBOMorph.BLOCK.binding, morphUniforms.buffer);
+                descriptorSet.bindBuffer(UBOMorph.BINDING, morphUniforms.buffer);
                 descriptorSet.update();
             },
 
@@ -419,9 +419,9 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
             const attributeName = attribute.attributeName;
             let binding: number | undefined;
             switch (attributeName) {
-                case GFXAttributeName.ATTR_POSITION: binding = UniformPositionMorphTexture.binding; break;
-                case GFXAttributeName.ATTR_NORMAL: binding = UniformNormalMorphTexture.binding; break;
-                case GFXAttributeName.ATTR_TANGENT: binding = UniformTangentMorphTexture.binding; break;
+                case GFXAttributeName.ATTR_POSITION: binding = UNIFORM_POSITION_MORPH_TEXTURE_BINDING; break;
+                case GFXAttributeName.ATTR_NORMAL: binding = UNIFORM_NORMAL_MORPH_TEXTURE_BINDING; break;
+                case GFXAttributeName.ATTR_TANGENT: binding = UNIFORM_TANGENT_MORPH_TEXTURE_BINDING; break;
                 default:
                     warn(`Unexpected attribute!`); break;
             }
@@ -430,7 +430,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
                 descriptorSet.bindTexture(binding, attribute.morphTexture.texture);
             }
         }
-        descriptorSet.bindBuffer(UBOMorph.BLOCK.binding, this._morphUniforms.buffer);
+        descriptorSet.bindBuffer(UBOMorph.BINDING, this._morphUniforms.buffer);
         descriptorSet.update();
     }
 

@@ -14,7 +14,6 @@ import { ForwardPipeline } from '../forward/forward-pipeline';
 import { SetIndex, UBOShadow } from '../define';
 
 const colors: GFXColor[] = [ new GFXColor(1, 1, 1, 1) ];
-const bufs: GFXCommandBuffer[] = [];
 
 /**
  * @zh
@@ -60,7 +59,7 @@ export class ShadowStage extends RenderStage {
     public render (view: RenderView) {
         const pipeline = this._pipeline as ForwardPipeline;
         const shadowInfo = pipeline.shadows;
-        this._additiveShadowQueue.clear(pipeline.descriptorSet.getBuffer(UBOShadow.BLOCK.binding));
+        this._additiveShadowQueue.clear(pipeline.descriptorSet.getBuffer(UBOShadow.BINDING));
 
         const shadowObjects = pipeline.shadowObjects;
         let m = 0; let p = 0;

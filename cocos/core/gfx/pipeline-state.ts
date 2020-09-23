@@ -19,7 +19,7 @@ import {
     GFXDynamicStateFlagBit,
 } from './define';
 import { GFXDevice } from './device';
-import { IGFXAttribute } from './input-assembler';
+import { GFXAttribute } from './input-assembler';
 import { GFXRenderPass } from './render-pass';
 import { GFXShader } from './shader';
 import { GFXPipelineLayout } from './pipeline-layout';
@@ -177,7 +177,7 @@ export class GFXInputState {
     declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public attributes: IGFXAttribute[] = [],
+        public attributes: GFXAttribute[] = [],
     ) {}
 }
 

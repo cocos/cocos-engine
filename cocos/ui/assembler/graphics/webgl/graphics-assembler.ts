@@ -27,7 +27,7 @@
  * @category ui-assembler
  */
 
-import { GFXFormat } from '../../../../core/gfx';
+import { GFXAttribute, GFXFormat } from '../../../../core/gfx';
 import { Color, Vec3 } from '../../../../core/math';
 import { IAssembler } from '../../../../core/renderer/ui/base';
 import { MeshRenderData } from '../../../../core/renderer/ui/render-data';
@@ -49,15 +49,11 @@ const acos = Math.acos;
 const cos = Math.cos;
 const sin = Math.sin;
 const atan2 = Math.atan2;
-const abs = Math.abs;
 
 const attrBytes = 8;
 
 const attributes = vfmt.concat([
-    {
-        name: 'a_dist',
-        format: GFXFormat.R32F,
-    },
+    new GFXAttribute('a_dist', GFXFormat.R32F),
 ]);
 
 const formatBytes = getAttributeFormatBytes(attributes);

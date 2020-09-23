@@ -8,19 +8,19 @@ import { GFXBuffer } from './gfx/buffer';
 import { GFXCommandBuffer } from './gfx/command-buffer';
 import { GFXDevice } from './gfx/device';
 import { GFXFramebuffer } from './gfx/framebuffer';
-import { GFXInputAssembler, GFXInputAssemblerInfo, IGFXAttribute } from './gfx/input-assembler';
+import { GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute } from './gfx/input-assembler';
 import { GFXTexture } from './gfx/texture';
 import { clamp01 } from './math/utils';
 import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
 import { sys } from './platform/sys';
-import { GFXSampler, GFXShader } from './gfx';
+import { GFXSampler, GFXSamplerInfo, GFXShader } from './gfx';
 import { PipelineStateManager } from './pipeline';
 import { legacyCC } from './global-exports';
 import { Root } from './root';
 import { DSPool, ShaderPool, PassPool, PassView } from './renderer/core/memory-pools';
 import { SetIndex } from './pipeline/define';
 import {
-    GFXBufferTextureCopy, GFXBufferUsageBit, GFXCommandBufferType, GFXFormat,
+    GFXBufferTextureCopy, GFXBufferUsageBit, GFXFormat,
     GFXMemoryUsageBit, GFXTextureType, GFXTextureUsageBit, GFXRect, GFXColor, GFXAddress
 } from './gfx/define';
 
@@ -379,9 +379,9 @@ export class SplashScreen {
         indices[3] = 1; indices[4] = 3; indices[5] = 2;
         this.textIB.update(indices);
 
-        const attributes: IGFXAttribute[] = [
-            { name: 'a_position', format: GFXFormat.RG32F },
-            { name: 'a_texCoord', format: GFXFormat.RG32F },
+        const attributes: GFXAttribute[] = [
+            new GFXAttribute('a_position', GFXFormat.RG32F),
+            new GFXAttribute('a_texCoord', GFXFormat.RG32F),
         ];
 
         const textIAInfo = new GFXInputAssemblerInfo(attributes, [this.textVB], this.textIB);
@@ -456,9 +456,9 @@ export class SplashScreen {
         indices[3] = 1; indices[4] = 3; indices[5] = 2;
         this.indicesBuffers.update(indices);
 
-        const attributes: IGFXAttribute[] = [
-            { name: 'a_position', format: GFXFormat.RG32F },
-            { name: 'a_texCoord', format: GFXFormat.RG32F },
+        const attributes: GFXAttribute[] = [
+            new GFXAttribute('a_position', GFXFormat.RG32F),
+            new GFXAttribute('a_texCoord', GFXFormat.RG32F),
         ];
 
         const IAInfo = new GFXInputAssemblerInfo(attributes, [this.vertexBuffers], this.indicesBuffers);
@@ -472,10 +472,10 @@ export class SplashScreen {
         this.material = new Material();
         this.material.initialize({ effectName: 'util/splash-screen' });
 
-        this.sampler = device.createSampler({
-            'addressU': GFXAddress.CLAMP,
-            'addressV': GFXAddress.CLAMP,
-        });
+        const samplerInfo = new GFXSamplerInfo();
+        samplerInfo.addressU = GFXAddress.CLAMP;
+        samplerInfo.addressV = GFXAddress.CLAMP;
+        this.sampler = device.createSampler(samplerInfo);
 
         this.texture = device.createTexture({
             type: GFXTextureType.TEX2D,

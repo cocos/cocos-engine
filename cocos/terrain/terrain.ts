@@ -14,7 +14,7 @@ import { director } from '../core/director';
 import { GFXBuffer } from '../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXPrimitiveMode } from '../core/gfx/define';
 import { GFXDevice } from '../core/gfx/device';
-import { IGFXAttribute } from '../core/gfx/input-assembler';
+import { GFXAttribute } from '../core/gfx/input-assembler';
 import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { MacroRecord } from '../core/renderer/core/pass-utils';
 import { scene } from '../core/renderer';
@@ -312,10 +312,10 @@ export class TerrainBlock {
         vertexBuffer.update(vertexData);
 
         // initialize renderable
-        const gfxAttributes: IGFXAttribute[] = [
-            { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },
-            { name: GFXAttributeName.ATTR_NORMAL, format: GFXFormat.RGB32F },
-            { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RG32F },
+        const gfxAttributes: GFXAttribute[] = [
+            new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),
+            new GFXAttribute(GFXAttributeName.ATTR_NORMAL, GFXFormat.RGB32F),
+            new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RG32F),
         ];
 
         this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes,

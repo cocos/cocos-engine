@@ -29,7 +29,7 @@
 
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
-import { GFXInputAssemblerInfo, IGFXAttribute } from '../../gfx/input-assembler';
+import { GFXInputAssemblerInfo, GFXAttribute } from '../../gfx/input-assembler';
 import { UI } from './ui';
 import { InputAssemblerHandle, NULL_HANDLE, IAPool } from '../core/memory-pools';
 import { getAttributeFormatBytes } from './ui-vertex-format';
@@ -52,7 +52,7 @@ export class MeshBuffer {
     public vertexOffset = 0;
     public lastByteOffset = 1;
 
-    private _attributes: IGFXAttribute[] = null!;
+    private _attributes: GFXAttribute[] = null!;
     private _vertexBuffers: GFXBuffer[] = [];
     private _indexBuffer: GFXBuffer = null!;
     private _iaInfo: GFXInputAssemblerInfo = null!;
@@ -73,7 +73,7 @@ export class MeshBuffer {
         this._batcher = batcher;
     }
 
-    public initialize (attrs: IGFXAttribute[], outOfCallback: ((...args: number[]) => void) | null) {
+    public initialize (attrs: GFXAttribute[], outOfCallback: ((...args: number[]) => void) | null) {
         this._outOfCallback = outOfCallback;
         const formatBytes = getAttributeFormatBytes(attrs);
         this._vertexFormatBytes = formatBytes * Float32Array.BYTES_PER_ELEMENT;

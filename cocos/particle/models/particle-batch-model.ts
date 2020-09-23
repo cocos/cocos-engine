@@ -31,7 +31,7 @@ import { RenderingSubMesh, Mesh } from '../../core/assets/mesh';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormatInfos,
     GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
-import { IGFXAttribute } from '../../core/gfx/input-assembler';
+import { GFXAttribute } from '../../core/gfx/input-assembler';
 import { Color } from '../../core/math/color';
 import { scene } from '../../core/renderer';
 import { Particle } from '../particle';
@@ -47,7 +47,7 @@ const _uvs = [
 export default class ParticleBatchModel extends scene.Model {
 
     private _capacity: number;
-    private _vertAttrs: IGFXAttribute[] | null;
+    private _vertAttrs: GFXAttribute[] | null;
     private _vertSize: number;
     private _vBuffer: ArrayBuffer | null;
     private _vertAttrsFloatCount: number;
@@ -104,7 +104,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    public setVertexAttributes (mesh: Mesh | null, attrs: IGFXAttribute[]) {
+    public setVertexAttributes (mesh: Mesh | null, attrs: GFXAttribute[]) {
         if (this._mesh === mesh && this._vertAttrs === attrs) {
             return;
         }

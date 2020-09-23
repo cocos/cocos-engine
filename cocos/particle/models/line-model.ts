@@ -10,12 +10,13 @@ import { scene } from '../../core/renderer';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 import { Material } from '../../core/assets';
+import { GFXAttribute } from '../../core';
 
 const _vertex_attrs = [
-    { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F }, // xyz:position
-    { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RGBA32F }, // x:index y:size zw:texcoord
-    { name: GFXAttributeName.ATTR_TEX_COORD1, format: GFXFormat.RGB32F }, // xyz:velocity
-    { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA8, isNormalized: true },
+    new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F), // xyz:position
+    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RGBA32F), // x:index y:size zw:texcoord
+    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD1, GFXFormat.RGB32F), // xyz:velocity
+    new GFXAttribute(GFXAttributeName.ATTR_COLOR, GFXFormat.RGBA8, true),
 ];
 
 const _temp_v1 = new Vec3();
