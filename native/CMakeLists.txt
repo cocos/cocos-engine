@@ -550,43 +550,43 @@ cocos_source_files(
 if(CC_USE_GLES2)
     cocos_source_files(
         cocos/renderer/gfx-gles2/GFXGLES2.h
-        cocos/renderer/gfx-gles2/GLES2Buffer.cc
+        cocos/renderer/gfx-gles2/GLES2Buffer.cpp
         cocos/renderer/gfx-gles2/GLES2Buffer.h
-        cocos/renderer/gfx-gles2/GLES2CommandBuffer.cc
+        cocos/renderer/gfx-gles2/GLES2CommandBuffer.cpp
         cocos/renderer/gfx-gles2/GLES2CommandBuffer.h
-        cocos/renderer/gfx-gles2/GLES2Commands.cc
+        cocos/renderer/gfx-gles2/GLES2Commands.cpp
         cocos/renderer/gfx-gles2/GLES2Commands.h
         cocos/renderer/gfx-gles2/GLES2Context.h
-        cocos/renderer/gfx-gles2/GLES2Device.cc
+        cocos/renderer/gfx-gles2/GLES2Device.cpp
         cocos/renderer/gfx-gles2/GLES2Device.h
-        cocos/renderer/gfx-gles2/GLES2Framebuffer.cc
+        cocos/renderer/gfx-gles2/GLES2Framebuffer.cpp
         cocos/renderer/gfx-gles2/GLES2Framebuffer.h
         cocos/renderer/gfx-gles2/GLES2GPUObjects.h
-        cocos/renderer/gfx-gles2/GLES2InputAssembler.cc
+        cocos/renderer/gfx-gles2/GLES2InputAssembler.cpp
         cocos/renderer/gfx-gles2/GLES2InputAssembler.h
-        cocos/renderer/gfx-gles2/GLES2DescriptorSet.cc
+        cocos/renderer/gfx-gles2/GLES2DescriptorSet.cpp
         cocos/renderer/gfx-gles2/GLES2DescriptorSet.h
-        cocos/renderer/gfx-gles2/GLES2DescriptorSetLayout.cc
+        cocos/renderer/gfx-gles2/GLES2DescriptorSetLayout.cpp
         cocos/renderer/gfx-gles2/GLES2DescriptorSetLayout.h
-        cocos/renderer/gfx-gles2/GLES2PipelineLayout.cc
+        cocos/renderer/gfx-gles2/GLES2PipelineLayout.cpp
         cocos/renderer/gfx-gles2/GLES2PipelineLayout.h
-        cocos/renderer/gfx-gles2/GLES2PipelineState.cc
+        cocos/renderer/gfx-gles2/GLES2PipelineState.cpp
         cocos/renderer/gfx-gles2/GLES2PipelineState.h
-        cocos/renderer/gfx-gles2/GLES2Queue.cc
+        cocos/renderer/gfx-gles2/GLES2Queue.cpp
         cocos/renderer/gfx-gles2/GLES2Queue.h
-        cocos/renderer/gfx-gles2/GLES2RenderPass.cc
+        cocos/renderer/gfx-gles2/GLES2RenderPass.cpp
         cocos/renderer/gfx-gles2/GLES2RenderPass.h
-        cocos/renderer/gfx-gles2/GLES2Sampler.cc
+        cocos/renderer/gfx-gles2/GLES2Sampler.cpp
         cocos/renderer/gfx-gles2/GLES2Sampler.h
-        cocos/renderer/gfx-gles2/GLES2Shader.cc
+        cocos/renderer/gfx-gles2/GLES2Shader.cpp
         cocos/renderer/gfx-gles2/GLES2Shader.h
-        cocos/renderer/gfx-gles2/GLES2Std.cc
+        cocos/renderer/gfx-gles2/GLES2Std.cpp
         cocos/renderer/gfx-gles2/GLES2Std.h
-        cocos/renderer/gfx-gles2/GLES2Texture.cc
+        cocos/renderer/gfx-gles2/GLES2Texture.cpp
         cocos/renderer/gfx-gles2/GLES2Texture.h
         cocos/renderer/gfx-gles2/gles2w.h
         cocos/renderer/gfx-gles2/GLES2Fence.h
-        cocos/renderer/gfx-gles2/GLES2Fence.cc
+        cocos/renderer/gfx-gles2/GLES2Fence.cpp
     )
 
     if(APPLE)
@@ -596,7 +596,7 @@ if(CC_USE_GLES2)
         )
     else()
         cocos_source_files(
-            cocos/renderer/gfx-gles2/GLES2Context.cc
+            cocos/renderer/gfx-gles2/GLES2Context.cpp
             cocos/renderer/gfx-gles2/gles2w.c
         )
     endif()
@@ -606,44 +606,44 @@ endif()
 if(CC_USE_GLES3)
     cocos_source_files(
         cocos/renderer/gfx-gles3/GFXGLES3.h
-        cocos/renderer/gfx-gles3/GLES3Buffer.cc
+        cocos/renderer/gfx-gles3/GLES3Buffer.cpp
         cocos/renderer/gfx-gles3/GLES3Buffer.h
-        cocos/renderer/gfx-gles3/GLES3CommandBuffer.cc
+        cocos/renderer/gfx-gles3/GLES3CommandBuffer.cpp
         cocos/renderer/gfx-gles3/GLES3CommandBuffer.h
-        cocos/renderer/gfx-gles3/GLES3Commands.cc
+        cocos/renderer/gfx-gles3/GLES3Commands.cpp
         cocos/renderer/gfx-gles3/GLES3Commands.h
-        cocos/renderer/gfx-gles3/GLES3Context.cc
+        cocos/renderer/gfx-gles3/GLES3Context.cpp
         cocos/renderer/gfx-gles3/GLES3Context.h
-        cocos/renderer/gfx-gles3/GLES3Device.cc
+        cocos/renderer/gfx-gles3/GLES3Device.cpp
         cocos/renderer/gfx-gles3/GLES3Device.h
-        cocos/renderer/gfx-gles3/GLES3Framebuffer.cc
+        cocos/renderer/gfx-gles3/GLES3Framebuffer.cpp
         cocos/renderer/gfx-gles3/GLES3Framebuffer.h
         cocos/renderer/gfx-gles3/GLES3GPUObjects.h
-        cocos/renderer/gfx-gles3/GLES3InputAssembler.cc
+        cocos/renderer/gfx-gles3/GLES3InputAssembler.cpp
         cocos/renderer/gfx-gles3/GLES3InputAssembler.h
-        cocos/renderer/gfx-gles3/GLES3DescriptorSet.cc
+        cocos/renderer/gfx-gles3/GLES3DescriptorSet.cpp
         cocos/renderer/gfx-gles3/GLES3DescriptorSet.h
-        cocos/renderer/gfx-gles3/GLES3DescriptorSetLayout.cc
+        cocos/renderer/gfx-gles3/GLES3DescriptorSetLayout.cpp
         cocos/renderer/gfx-gles3/GLES3DescriptorSetLayout.h
-        cocos/renderer/gfx-gles3/GLES3PipelineLayout.cc
+        cocos/renderer/gfx-gles3/GLES3PipelineLayout.cpp
         cocos/renderer/gfx-gles3/GLES3PipelineLayout.h
-        cocos/renderer/gfx-gles3/GLES3PipelineState.cc
+        cocos/renderer/gfx-gles3/GLES3PipelineState.cpp
         cocos/renderer/gfx-gles3/GLES3PipelineState.h
-        cocos/renderer/gfx-gles3/GLES3Queue.cc
+        cocos/renderer/gfx-gles3/GLES3Queue.cpp
         cocos/renderer/gfx-gles3/GLES3Queue.h
-        cocos/renderer/gfx-gles3/GLES3RenderPass.cc
+        cocos/renderer/gfx-gles3/GLES3RenderPass.cpp
         cocos/renderer/gfx-gles3/GLES3RenderPass.h
-        cocos/renderer/gfx-gles3/GLES3Sampler.cc
+        cocos/renderer/gfx-gles3/GLES3Sampler.cpp
         cocos/renderer/gfx-gles3/GLES3Sampler.h
-        cocos/renderer/gfx-gles3/GLES3Shader.cc
+        cocos/renderer/gfx-gles3/GLES3Shader.cpp
         cocos/renderer/gfx-gles3/GLES3Shader.h
-        cocos/renderer/gfx-gles3/GLES3Std.cc
+        cocos/renderer/gfx-gles3/GLES3Std.cpp
         cocos/renderer/gfx-gles3/GLES3Std.h
-        cocos/renderer/gfx-gles3/GLES3Texture.cc
+        cocos/renderer/gfx-gles3/GLES3Texture.cpp
         cocos/renderer/gfx-gles3/GLES3Texture.h
         cocos/renderer/gfx-gles3/gles3w.h
         cocos/renderer/gfx-gles3/GLES3Fence.h
-        cocos/renderer/gfx-gles3/GLES3Fence.cc
+        cocos/renderer/gfx-gles3/GLES3Fence.cpp
     )
     if(APPLE)
         cocos_source_files(
@@ -712,45 +712,45 @@ if(CC_USE_VULKAN)
     cocos_source_files(
         cocos/renderer/gfx-vulkan/GFXVulkan.h
         cocos/renderer/gfx-vulkan/vk_mem_alloc.h
-        cocos/renderer/gfx-vulkan/VKBuffer.cc
+        cocos/renderer/gfx-vulkan/VKBuffer.cpp
         cocos/renderer/gfx-vulkan/VKBuffer.h
-        cocos/renderer/gfx-vulkan/VKCommandBuffer.cc
+        cocos/renderer/gfx-vulkan/VKCommandBuffer.cpp
         cocos/renderer/gfx-vulkan/VKCommandBuffer.h
-        cocos/renderer/gfx-vulkan/VKCommands.cc
+        cocos/renderer/gfx-vulkan/VKCommands.cpp
         cocos/renderer/gfx-vulkan/VKCommands.h
-        cocos/renderer/gfx-vulkan/VKContext.cc
+        cocos/renderer/gfx-vulkan/VKContext.cpp
         cocos/renderer/gfx-vulkan/VKContext.h
-        cocos/renderer/gfx-vulkan/VKDevice.cc
+        cocos/renderer/gfx-vulkan/VKDevice.cpp
         cocos/renderer/gfx-vulkan/VKDevice.h
-        cocos/renderer/gfx-vulkan/VKFramebuffer.cc
+        cocos/renderer/gfx-vulkan/VKFramebuffer.cpp
         cocos/renderer/gfx-vulkan/VKFramebuffer.h
         cocos/renderer/gfx-vulkan/VKGPUObjects.h
-        cocos/renderer/gfx-vulkan/VKInputAssembler.cc
+        cocos/renderer/gfx-vulkan/VKInputAssembler.cpp
         cocos/renderer/gfx-vulkan/VKInputAssembler.h
-        cocos/renderer/gfx-vulkan/VKDescriptorSet.cc
+        cocos/renderer/gfx-vulkan/VKDescriptorSet.cpp
         cocos/renderer/gfx-vulkan/VKDescriptorSet.h
-        cocos/renderer/gfx-vulkan/VKDescriptorSetLayout.cc
+        cocos/renderer/gfx-vulkan/VKDescriptorSetLayout.cpp
         cocos/renderer/gfx-vulkan/VKDescriptorSetLayout.h
-        cocos/renderer/gfx-vulkan/VKPipelineLayout.cc
+        cocos/renderer/gfx-vulkan/VKPipelineLayout.cpp
         cocos/renderer/gfx-vulkan/VKPipelineLayout.h
-        cocos/renderer/gfx-vulkan/VKPipelineState.cc
+        cocos/renderer/gfx-vulkan/VKPipelineState.cpp
         cocos/renderer/gfx-vulkan/VKPipelineState.h
-        cocos/renderer/gfx-vulkan/VKQueue.cc
+        cocos/renderer/gfx-vulkan/VKQueue.cpp
         cocos/renderer/gfx-vulkan/VKQueue.h
-        cocos/renderer/gfx-vulkan/VKRenderPass.cc
+        cocos/renderer/gfx-vulkan/VKRenderPass.cpp
         cocos/renderer/gfx-vulkan/VKRenderPass.h
-        cocos/renderer/gfx-vulkan/VKSampler.cc
+        cocos/renderer/gfx-vulkan/VKSampler.cpp
         cocos/renderer/gfx-vulkan/VKSampler.h
-        cocos/renderer/gfx-vulkan/VKShader.cc
+        cocos/renderer/gfx-vulkan/VKShader.cpp
         cocos/renderer/gfx-vulkan/VKShader.h
         cocos/renderer/gfx-vulkan/VKSPIRV.h
-        cocos/renderer/gfx-vulkan/VKStd.cc
+        cocos/renderer/gfx-vulkan/VKStd.cpp
         cocos/renderer/gfx-vulkan/VKStd.h
-        cocos/renderer/gfx-vulkan/VKTexture.cc
+        cocos/renderer/gfx-vulkan/VKTexture.cpp
         cocos/renderer/gfx-vulkan/VKTexture.h
         cocos/renderer/gfx-vulkan/VKUtils.h
         cocos/renderer/gfx-vulkan/VKFence.h
-        cocos/renderer/gfx-vulkan/VKFence.cc
+        cocos/renderer/gfx-vulkan/VKFence.cpp
         cocos/renderer/gfx-vulkan/volk.h
         cocos/renderer/gfx-vulkan/volk.c
     )
