@@ -73,17 +73,18 @@ export class AudioPlayerWeb extends AudioPlayer {
 
     public play () {
         if (!this._audio || this._state === PlayingState.PLAYING) { return; }
-        if (this._blocking || this._context.state !== 'running') { 
-            this._interrupted = true; 
-            if ('interrupted' === this._context.state as any && this._context.resume) {
+        if (this._blocking || this._context.state !== 'running') {
+            this._interrupted = true;
+            if (this._context.state as string === 'interrupted' && this._context.resume) {
                 this._onGesture();
             }
-            return; 
+            return;
         }
         this._doPlay();
     }
 
     public pause () {
+        this._interrupted = false;
         if (this._state !== PlayingState.PLAYING) { return; }
         this._doStop();
         this._offset += this._context.currentTime - this._startTime;
@@ -92,7 +93,7 @@ export class AudioPlayerWeb extends AudioPlayer {
     }
 
     public stop () {
-        this._offset = 0;
+        this._offset = 0; this._interrupted = false;
         if (this._state !== PlayingState.PLAYING) { return; }
         this._doStop();
         this._state = PlayingState.STOPPED;

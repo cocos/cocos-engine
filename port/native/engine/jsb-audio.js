@@ -54,13 +54,16 @@ class AudioPlayerJSB extends AudioPlayer {
     }
 
     pause () {
-        if (this._audio < 0 || this._state !== PlayingState.PLAYING) { return; }
+        if (this._audio < 0) { return; }
+        this._interrupted = false;
+        if (this._state !== PlayingState.PLAYING) { return; }
         jsb.AudioEngine.pause(this._audio);
         this._onPause();
     }
 
     stop () {
         if (this._audio < 0) { return; }
+        this._interrupted = false;
         jsb.AudioEngine.stop(this._audio);
         this._audio = -1;
         this._onStop();

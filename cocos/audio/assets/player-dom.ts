@@ -108,7 +108,9 @@ export class AudioPlayerDOM extends AudioPlayer {
     }
 
     public pause () {
-        if (!this._audio || this._state !== PlayingState.PLAYING) { return; }
+        if (!this._audio) { return; }
+        this._interrupted = false;
+        if (this._state !== PlayingState.PLAYING) { return; }
         this._audio.pause();
         this._state = PlayingState.STOPPED;
         this._oneShotOngoing = false;
@@ -116,7 +118,7 @@ export class AudioPlayerDOM extends AudioPlayer {
 
     public stop () {
         if (!this._audio) { return; }
-        this._audio.currentTime = 0;
+        this._audio.currentTime = 0; this._interrupted = false;
         if (this._state !== PlayingState.PLAYING) { return; }
         this._audio.pause();
         this._state = PlayingState.STOPPED;
