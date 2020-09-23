@@ -1,4 +1,4 @@
-import { GFXPipelineState, IGFXPipelineStateInfo } from '../pipeline-state';
+import { GFXPipelineState, GFXPipelineStateInfo } from '../pipeline-state';
 import { IWebGLGPUPipelineState } from './webgl-gpu-objects';
 import { WebGLRenderPass } from './webgl-render-pass';
 import { WebGLShader } from './webgl-shader';
@@ -30,7 +30,7 @@ export class WebGLPipelineState extends GFXPipelineState {
 
     private _gpuPipelineState: IWebGLGPUPipelineState | null = null;
 
-    public initialize (info: IGFXPipelineStateInfo): boolean {
+    public initialize (info: GFXPipelineStateInfo): boolean {
 
         this._primitive = info.primitive;
         this._shader = info.shader;
@@ -40,6 +40,7 @@ export class WebGLPipelineState extends GFXPipelineState {
         this._bs = info.blendState;
         this._is = info.inputState;
         this._renderPass = info.renderPass;
+        this._dynamicStates = info.dynamicStates;
 
         const dynamicStates: GFXDynamicStateFlagBit[] = [];
         for (let i = 0; i < 31; i++) {

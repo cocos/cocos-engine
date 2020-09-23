@@ -8,7 +8,7 @@ import { GFXBuffer } from './gfx/buffer';
 import { GFXCommandBuffer } from './gfx/command-buffer';
 import { GFXDevice } from './gfx/device';
 import { GFXFramebuffer } from './gfx/framebuffer';
-import { GFXInputAssembler, IGFXAttribute } from './gfx/input-assembler';
+import { GFXInputAssembler, GFXInputAssemblerInfo, IGFXAttribute } from './gfx/input-assembler';
 import { GFXTexture } from './gfx/texture';
 import { clamp01 } from './math/utils';
 import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
@@ -141,7 +141,7 @@ export class SplashScreen {
     public setOnFinish (cb: Function) {
         if (this._directCall) {
             if (cb) {
-                delete SplashScreen._ins;
+                SplashScreen._ins = null;
                 return cb();
             }
         }
@@ -384,11 +384,8 @@ export class SplashScreen {
             { name: 'a_texCoord', format: GFXFormat.RG32F },
         ];
 
-        this.textAssmebler = this.device.createInputAssembler({
-            attributes,
-            vertexBuffers: [this.textVB],
-            indexBuffer: this.textIB,
-        });
+        const textIAInfo = new GFXInputAssemblerInfo(attributes, [this.textVB], this.textIB);
+        this.textAssmebler = this.device.createInputAssembler(textIAInfo);
     }
 
     private initCMD () {
@@ -464,11 +461,8 @@ export class SplashScreen {
             { name: 'a_texCoord', format: GFXFormat.RG32F },
         ];
 
-        this.assmebler = device.createInputAssembler({
-            attributes,
-            vertexBuffers: [this.vertexBuffers],
-            indexBuffer: this.indicesBuffers,
-        });
+        const IAInfo = new GFXInputAssemblerInfo(attributes, [this.vertexBuffers], this.indicesBuffers);
+        this.assmebler = device.createInputAssembler(IAInfo);
     }
 
     private initPSO () {
@@ -562,10 +556,10 @@ export class SplashScreen {
         }
 
         this.setting = null!;
-        delete SplashScreen._ins;
+        SplashScreen._ins = null;
     }
 
-    private static _ins: SplashScreen;
+    private static _ins: SplashScreen | null;
 
     public static get instance () {
         if (SplashScreen._ins == null) {

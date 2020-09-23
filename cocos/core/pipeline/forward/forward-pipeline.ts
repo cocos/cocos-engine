@@ -12,7 +12,7 @@ import { IRenderObject, UBOGlobal, UBOShadow,
     UNIFORM_SHADOWMAP} from '../define';
 import { GFXBufferUsageBit, GFXMemoryUsageBit,
     GFXClearFlag, GFXFilter, GFXAddress, GFXCommandBufferType } from '../../gfx/define';
-import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout } from '../../gfx';
+import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout, GFXRenderPassInfo } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
@@ -168,10 +168,8 @@ export class ForwardPipeline extends RenderPipeline {
             depthStencilAttachment.beginLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
         }
 
-        renderPass = device.createRenderPass({
-            colorAttachments: [colorAttachment],
-            depthStencilAttachment,
-        });
+        const renderPassInfo = new GFXRenderPassInfo([colorAttachment], depthStencilAttachment);
+        renderPass = device.createRenderPass(renderPassInfo);
         this._renderPasses.set(clearFlags, renderPass!);
 
         return renderPass;

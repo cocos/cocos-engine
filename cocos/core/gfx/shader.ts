@@ -59,6 +59,7 @@ export class GFXShaderInfo {
  * @zh GFX 着色器。
  */
 export abstract class GFXShader extends GFXObject {
+    private static _shaderIdGen: number = 0;
 
     /**
      * @en Get current shader id.
@@ -105,7 +106,7 @@ export abstract class GFXShader extends GFXObject {
     constructor (device: GFXDevice) {
         super(GFXObjectType.SHADER);
         this._device = device;
-        this._id = device.genShaderId();
+        this._id = GFXShader._shaderIdGen++;
     }
 
     public abstract initialize (info: GFXShaderInfo): boolean;

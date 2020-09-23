@@ -121,9 +121,7 @@ export class LineModel extends scene.Model {
         this._iaInfo.drawInfos[0].indexCount = (this._capacity - 1) * this._indexCount;
         this._iaInfoBuffer.update(this._iaInfo);
 
-        this._subMeshData = new RenderingSubMesh([vertexBuffer], _vertex_attrs, GFXPrimitiveMode.TRIANGLE_LIST);
-        this._subMeshData.indexBuffer = indexBuffer;
-        this._subMeshData.indirectBuffer = this._iaInfoBuffer;
+        this._subMeshData = new RenderingSubMesh([vertexBuffer], _vertex_attrs, GFXPrimitiveMode.TRIANGLE_LIST, indexBuffer, this._iaInfoBuffer);
         this.initSubModel(0, this._subMeshData, this._material!);
         return vBuffer;
     }

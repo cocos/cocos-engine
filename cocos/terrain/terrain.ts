@@ -22,7 +22,9 @@ import { Root } from '../core/root';
 import { PrivateNode } from '../core/scene-graph/private-node';
 import { HeightField } from './height-field';
 import { legacyCC } from '../core/global-exports';
-import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY, TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY, TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, } from './terrain-asset';
+import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY,
+    TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
+    TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, } from './terrain-asset';
 
 /**
  * @en Terrain info
@@ -316,8 +318,8 @@ export class TerrainBlock {
             { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RG32F },
         ];
 
-        const subMesh = this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes, GFXPrimitiveMode.TRIANGLE_LIST);
-        subMesh.indexBuffer = this._terrain._getSharedIndexBuffer() || undefined;
+        this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes,
+            GFXPrimitiveMode.TRIANGLE_LIST, this._terrain._getSharedIndexBuffer());
 
         const model = this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
         model.node = model.transform = this._node;

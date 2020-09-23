@@ -239,9 +239,10 @@ export class SkinningModel extends MorphModel {
 
     public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {
         const original = subMeshData.vertexBuffers;
-        subMeshData.vertexBuffers = subMeshData.jointMappedBuffers;
+        const iaInfo = subMeshData.iaInfo;
+        iaInfo.vertexBuffers = subMeshData.jointMappedBuffers;
         super.initSubModel(idx, subMeshData, mat);
-        subMeshData.vertexBuffers = original;
+        iaInfo.vertexBuffers = original;
     }
 
     public getMacroPatches (subModelIndex: number) : any {

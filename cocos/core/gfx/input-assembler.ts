@@ -16,11 +16,15 @@ export interface IGFXAttribute {
     location?: number;
 }
 
-export interface IGFXInputAssemblerInfo {
-    attributes: IGFXAttribute[];
-    vertexBuffers: GFXBuffer[];
-    indexBuffer?: GFXBuffer;
-    indirectBuffer?: GFXBuffer;
+export class GFXInputAssemblerInfo {
+    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public attributes: IGFXAttribute[] = [],
+        public vertexBuffers: GFXBuffer[] = [],
+        public indexBuffer: GFXBuffer | null = null,
+        public indirectBuffer: GFXBuffer | null = null,
+    ) {}
 }
 
 /**
@@ -184,7 +188,7 @@ export abstract class GFXInputAssembler extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: IGFXInputAssemblerInfo): boolean;
+    public abstract initialize (info: GFXInputAssemblerInfo): boolean;
     public abstract destroy (): void;
 
     /**

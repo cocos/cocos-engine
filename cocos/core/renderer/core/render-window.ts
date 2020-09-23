@@ -3,7 +3,7 @@ import {
     GFXTextureUsageBit,
     GFXFormat,
 } from '../../gfx/define';
-import { GFXRenderPass, GFXTexture, GFXFramebuffer, IGFXRenderPassInfo, GFXDevice } from '../../gfx';
+import { GFXRenderPass, GFXTexture, GFXFramebuffer, GFXRenderPassInfo, GFXDevice } from '../../gfx';
 import { Root } from '../../root';
 import { RenderWindowHandle, RenderWindowPool, RenderWindowView, FramebufferPool, NULL_HANDLE } from './memory-pools';
 
@@ -11,7 +11,7 @@ export interface IRenderWindowInfo {
     title?: string;
     width: number;
     height: number;
-    renderPassInfo: IGFXRenderPassInfo;
+    renderPassInfo: GFXRenderPassInfo;
     swapchainBufferIndices?: number;
     shouldSyncSizeWithSwapchain?: boolean;
 }

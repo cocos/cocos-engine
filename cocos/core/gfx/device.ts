@@ -9,10 +9,10 @@ import { GFXCommandBuffer, IGFXCommandBufferInfo } from './command-buffer';
 import { GFXBufferTextureCopy, GFXFilter, GFXFormat, GFXMemoryStatus, GFXRect } from './define';
 import { GFXFence, IGFXFenceInfo } from './fence';
 import { GFXFramebuffer, IGFXFramebufferInfo } from './framebuffer';
-import { GFXInputAssembler, IGFXInputAssemblerInfo } from './input-assembler';
-import { GFXPipelineState, IGFXPipelineStateInfo } from './pipeline-state';
+import { GFXInputAssembler, GFXInputAssemblerInfo } from './input-assembler';
+import { GFXPipelineState, GFXPipelineStateInfo } from './pipeline-state';
 import { GFXQueue, IGFXQueueInfo } from './queue';
-import { GFXRenderPass, IGFXRenderPassInfo } from './render-pass';
+import { GFXRenderPass, GFXRenderPassInfo } from './render-pass';
 import { GFXSampler, IGFXSamplerInfo } from './sampler';
 import { GFXShader, GFXShaderInfo } from './shader';
 import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo } from './texture';
@@ -393,7 +393,6 @@ export abstract class GFXDevice {
     protected _stencilBits: number = 0;
     protected _colorFmt: GFXFormat = GFXFormat.UNKNOWN;
     protected _depthStencilFmt: GFXFormat = GFXFormat.UNKNOWN;
-    protected _shaderIdGen: number = 0;
     protected _macros: Map<string, string> = new Map();
     protected _numDrawCalls: number = 0;
     protected _numInstances: number = 0;
@@ -477,14 +476,14 @@ export abstract class GFXDevice {
      * @zh 创建纹理。
      * @param info GFX input assembler description info.
      */
-    public abstract createInputAssembler (info: IGFXInputAssemblerInfo): GFXInputAssembler;
+    public abstract createInputAssembler (info: GFXInputAssemblerInfo): GFXInputAssembler;
 
     /**
      * @en Create render pass.
      * @zh 创建渲染过程。
      * @param info GFX render pass description info.
      */
-    public abstract createRenderPass (info: IGFXRenderPassInfo): GFXRenderPass;
+    public abstract createRenderPass (info: GFXRenderPassInfo): GFXRenderPass;
 
     /**
      * @en Create frame buffer.
@@ -512,7 +511,7 @@ export abstract class GFXDevice {
      * @zh 创建管线状态。
      * @param info GFX pipeline state description info.
      */
-    public abstract createPipelineState (info: IGFXPipelineStateInfo): GFXPipelineState;
+    public abstract createPipelineState (info: GFXPipelineStateInfo): GFXPipelineState;
 
     /**
      * @en Create queue.
@@ -573,24 +572,5 @@ export abstract class GFXDevice {
      */
     public hasFeature (feature: GFXFeature): boolean {
         return this._features[feature];
-    }
-
-    /**
-     * @en Generate shader ID.
-     * @zh 生成 Shader ID。
-     */
-    public genShaderId (): number {
-        return this._shaderIdGen++;
-    }
-
-    /**
-     * @en Define a macro.
-     * @zh 定义宏。
-     * @param macro The macro name.
-     * @param value The macro value.
-     */
-    public defineMacro (macro: string, value?: string) {
-        const val = (value !== undefined ? value : '');
-        this._macros.set(macro, val);
     }
 }

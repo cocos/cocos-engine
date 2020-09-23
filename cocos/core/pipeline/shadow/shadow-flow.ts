@@ -9,7 +9,7 @@ import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
 import { GFXFramebuffer, GFXRenderPass, GFXLoadOp,
     GFXStoreOp, GFXTextureLayout, GFXFormat, GFXTexture,
-    GFXTextureType, GFXTextureUsageBit, GFXColorAttachment, GFXDepthStencilAttachment } from '../../gfx';
+    GFXTextureType, GFXTextureUsageBit, GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPassInfo } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderView } from '../render-view';
@@ -78,10 +78,8 @@ export class ShadowFlow extends RenderFlow {
             depthStencilAttachment.beginLayout = GFXTextureLayout.UNDEFINED;
             depthStencilAttachment.endLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-            this._shadowRenderPass = device.createRenderPass({
-                colorAttachments: [colorAttachment],
-                depthStencilAttachment,
-            });
+            const renderPassInfo = new GFXRenderPassInfo([colorAttachment], depthStencilAttachment);
+            this._shadowRenderPass = device.createRenderPass(renderPassInfo);
         }
 
         if(this._shadowRenderTargets.length < 1) {

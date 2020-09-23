@@ -30,7 +30,7 @@
 import { DEBUG, JSB } from 'internal:constants';
 import { NativeBufferPool, NativeObjectPool, NativeArrayPool } from './native-pools';
 import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, IGFXDescriptorSetInfo,
-    GFXDevice, GFXDescriptorSet, GFXShaderInfo, GFXShader, IGFXInputAssemblerInfo, GFXInputAssembler,
+    GFXDevice, GFXDescriptorSet, GFXShaderInfo, GFXShader, GFXInputAssemblerInfo, GFXInputAssembler,
     IGFXPipelineLayoutInfo, GFXPipelineLayout, GFXFramebuffer, IGFXFramebufferInfo, GFXPrimitiveMode, GFXDynamicStateFlags, GFXClearFlag } from '../../gfx';
 import { RenderPassStage } from '../../pipeline/define';
 import { BatchingSchemes } from './pass';
@@ -534,7 +534,7 @@ export const DSPool = new ObjectPool(PoolType.DESCRIPTOR_SETS,
     (obj: GFXDescriptorSet) => obj && obj.destroy(),
 );
 export const IAPool = new ObjectPool(PoolType.INPUT_ASSEMBLER,
-    (args: [GFXDevice, IGFXInputAssemblerInfo], obj?: GFXInputAssembler) => obj ? (obj.initialize(args[1]), obj) : args[0].createInputAssembler(args[1]),
+    (args: [GFXDevice, GFXInputAssemblerInfo], obj?: GFXInputAssembler) => obj ? (obj.initialize(args[1]), obj) : args[0].createInputAssembler(args[1]),
     (obj: GFXInputAssembler) => obj && obj.destroy(),
 );
 export const PipelineLayoutPool = new ObjectPool(PoolType.PIPELINE_LAYOUT,

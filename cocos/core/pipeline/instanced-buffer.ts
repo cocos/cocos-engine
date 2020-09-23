@@ -4,7 +4,7 @@
 
 import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXDevice, GFXTexture } from '../gfx';
 import { GFXBuffer } from '../gfx/buffer';
-import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
+import { GFXInputAssembler, GFXInputAssemblerInfo, IGFXAttribute } from '../gfx/input-assembler';
 import { Pass } from '../renderer';
 import { IInstancedAttributeBlock, SubModel } from '../renderer/scene';
 import { SubModelView, SubModelPool, ShaderHandle, DescriptorSetHandle, PassHandle, NULL_HANDLE } from '../renderer/core/memory-pools';
@@ -100,7 +100,7 @@ export class InstancedBuffer {
         const data = new Uint8Array(stride * INITIAL_CAPACITY);
         const vertexBuffers = sourceIA.vertexBuffers.slice();
         const attributes = sourceIA.attributes.slice();
-        const indexBuffer = sourceIA.indexBuffer || undefined;
+        const indexBuffer = sourceIA.indexBuffer;
 
         for (let i = 0; i < attrs.list.length; i++) {
             const attr = attrs.list[i];
@@ -116,7 +116,8 @@ export class InstancedBuffer {
         data.set(attrs.buffer);
 
         vertexBuffers.push(vb);
-        const ia = this._device.createInputAssembler({ attributes, vertexBuffers, indexBuffer });
+        const iaInfo = new GFXInputAssemblerInfo(attributes, vertexBuffers, indexBuffer);
+        const ia = this._device.createInputAssembler(iaInfo);
         this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vb, data, ia, stride, hShader, hDescriptorSet, lightingMap});
         this.hasPendingModels = true;
     }

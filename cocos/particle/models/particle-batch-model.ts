@@ -200,9 +200,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
         this._iaInfoBuffer.update(this._iaInfo);
 
-        this._subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs!, GFXPrimitiveMode.TRIANGLE_LIST);
-        this._subMeshData.indexBuffer = indexBuffer;
-        this._subMeshData.indirectBuffer = this._iaInfoBuffer;
+        this._subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs!, GFXPrimitiveMode.TRIANGLE_LIST, indexBuffer, this._iaInfoBuffer);
         this.initSubModel(0, this._subMeshData, this._material!);
         return vBuffer;
     }

@@ -4,7 +4,7 @@
 
 import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXDevice, GFXDescriptorSet } from '../gfx';
 import { GFXBuffer } from '../gfx/buffer';
-import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
+import { GFXInputAssembler, GFXInputAssemblerInfo, IGFXAttribute } from '../gfx/input-assembler';
 import { Mat4 } from '../math';
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, UBOLocalBatched } from './define';
@@ -171,10 +171,8 @@ export class BatchedBuffer {
             stream: flatBuffers.length,
         };
 
-        const ia = this._device.createInputAssembler({
-            attributes: attrs,
-            vertexBuffers: totalVBs,
-        });
+        const iaInfo = new GFXInputAssemblerInfo(attrs, totalVBs);
+        const ia = this._device.createInputAssembler(iaInfo);
 
         const ubo = this._device.createBuffer({
             usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,

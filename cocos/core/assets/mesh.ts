@@ -44,7 +44,7 @@ import {
     GFXPrimitiveMode,
 } from '../gfx/define';
 import { GFXDevice, GFXFeature } from '../gfx/device';
-import { IGFXAttribute, IGFXInputAssemblerInfo } from '../gfx/input-assembler';
+import { IGFXAttribute, GFXInputAssemblerInfo } from '../gfx/input-assembler';
 import { warnID } from '../platform/debug';
 import { sys } from '../platform/sys';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
@@ -102,31 +102,29 @@ export interface IFlatBuffer {
 /**
  * 渲染子网格。
  */
-export class RenderingSubMesh implements IGFXInputAssemblerInfo {
-    /**
-     * 使用的所有顶点缓冲区。
-     */
-    public vertexBuffers: GFXBuffer[];
+export class RenderingSubMesh {
 
     /**
      * 所有顶点属性。
      */
-    public attributes: IGFXAttribute[];
+    get attributes () { return this._attributes; }
+    /**
+     * 使用的所有顶点缓冲区。
+     */
+    get vertexBuffers () { return this._vertexBuffers; }
+    /**
+     * 使用的索引缓冲区，若未使用则无需指定。
+     */
+    get indexBuffer () { return this._indexBuffer; }
+    /**
+     * 间接绘制缓冲区。
+     */
+    get indirectBuffer () { return this._indirectBuffer; }
 
     /**
      * 图元类型。
      */
-    public primitiveMode: GFXPrimitiveMode;
-
-    /**
-     * 使用的索引缓冲区，若未使用则无需指定。
-     */
-    public indexBuffer?: GFXBuffer;
-
-    /**
-     * 间接绘制缓冲区。
-     */
-    public indirectBuffer?: GFXBuffer;
+    get primitiveMode () { return this._primitiveMode; }
 
     /**
      * （用于射线检测的）几何信息。
@@ -264,22 +262,34 @@ export class RenderingSubMesh implements IGFXInputAssemblerInfo {
         return buffers;
     }
 
+    get iaInfo () { return this._iaInfo; }
+
     public mesh?: Mesh;
     public subMeshIdx?: number;
 
     private _flatBuffers?: IFlatBuffer[];
     private _jointMappedBuffers?: GFXBuffer[];
     private _jointMappedBufferIndices?: number[];
-    private _vertexIdChannel?: {
-        stream: number;
-        index: number;
-    };
+    private _vertexIdChannel?: { stream: number; index: number; };
     private _geometricInfo?: IGeometricInfo;
 
-    constructor (vertexBuffers: GFXBuffer[], attributes: IGFXAttribute[], primitiveMode: GFXPrimitiveMode) {
-        this.vertexBuffers = vertexBuffers;
-        this.attributes = attributes;
-        this.primitiveMode = primitiveMode;
+    private _vertexBuffers: GFXBuffer[];
+    private _attributes: IGFXAttribute[];
+    private _indexBuffer: GFXBuffer | null = null;
+    private _indirectBuffer: GFXBuffer | null = null;
+    private _primitiveMode: GFXPrimitiveMode;
+    private _iaInfo: GFXInputAssemblerInfo;
+
+    constructor (
+        vertexBuffers: GFXBuffer[], attributes: IGFXAttribute[], primitiveMode: GFXPrimitiveMode,
+        indexBuffer: GFXBuffer | null = null, indirectBuffer: GFXBuffer | null = null,
+    ) {
+        this._attributes = attributes;
+        this._vertexBuffers = vertexBuffers;
+        this._indexBuffer = indexBuffer;
+        this._indirectBuffer = indirectBuffer;
+        this._primitiveMode = primitiveMode;
+        this._iaInfo = new GFXInputAssemblerInfo(attributes, vertexBuffers, indexBuffer, indirectBuffer);
     }
 
     public destroy () {
@@ -287,9 +297,9 @@ export class RenderingSubMesh implements IGFXInputAssemblerInfo {
             this.vertexBuffers[i].destroy();
         }
         this.vertexBuffers.length = 0;
-        if (this.indexBuffer) {
-            this.indexBuffer.destroy();
-            this.indexBuffer = undefined;
+        if (this._indexBuffer) {
+            this._indexBuffer.destroy();
+            this._indexBuffer = null;
         }
         if (this._jointMappedBuffers && this._jointMappedBufferIndices) {
             for (let i = 0; i < this._jointMappedBufferIndices.length; i++) {
@@ -298,9 +308,9 @@ export class RenderingSubMesh implements IGFXInputAssemblerInfo {
             this._jointMappedBuffers = undefined;
             this._jointMappedBufferIndices = undefined;
         }
-        if (this.indirectBuffer) {
-            this.indirectBuffer.destroy();
-            this.indirectBuffer = undefined;
+        if (this._indirectBuffer) {
+            this._indirectBuffer.destroy();
+            this._indirectBuffer = null;
         }
     }
 
@@ -586,7 +596,7 @@ export class Mesh extends Asset {
                 continue;
             }
 
-            let indexBuffer: GFXBuffer | undefined;
+            let indexBuffer: GFXBuffer | null = null;
             let ib: any = null;
             if (prim.indexView) {
                 const idxView = prim.indexView;
@@ -635,8 +645,8 @@ export class Mesh extends Asset {
                 gfxAttributes = vertexBundle.attributes;
             }
 
-            const subMesh = new RenderingSubMesh(vbReference, gfxAttributes, prim.primitiveMode);
-            subMesh.mesh = this; subMesh.subMeshIdx = i; subMesh.indexBuffer = indexBuffer;
+            const subMesh = new RenderingSubMesh(vbReference, gfxAttributes, prim.primitiveMode, indexBuffer);
+            subMesh.mesh = this; subMesh.subMeshIdx = i;
 
             subMeshes.push(subMesh);
         }

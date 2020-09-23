@@ -2700,7 +2700,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2Device, cmdPackage: WebG
                 break;
             }
             case WebGL2Cmd.DRAW: {
-                const cmd3: WebGL2CmdDraw = cmdPackage.drawCmds.array[cmdId];
+                const cmd3 = cmdPackage.drawCmds.array[cmdId];
                 WebGL2CmdFuncDraw(device, cmd3.drawInfo);
                 break;
             }

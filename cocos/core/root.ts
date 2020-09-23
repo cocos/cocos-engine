@@ -16,7 +16,7 @@ import { SpotLight } from './renderer/scene/spot-light';
 import { UI } from './renderer/ui/ui';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
-import { GFXColorAttachment, GFXDepthStencilAttachment, GFXStoreOp } from './gfx';
+import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPassInfo, GFXStoreOp } from './gfx';
 import { RootHandle, RootPool, RootView, NULL_HANDLE } from './renderer/core/memory-pools';
 
 /**
@@ -219,14 +219,12 @@ export class Root {
         const depthStencilAttachment = new GFXDepthStencilAttachment();
         depthStencilAttachment.depthStoreOp = GFXStoreOp.DISCARD;
         depthStencilAttachment.stencilStoreOp = GFXStoreOp.DISCARD;
+        const renderPassInfo = new GFXRenderPassInfo([colorAttachment], depthStencilAttachment);
         this._mainWindow = this.createWindow({
             title: 'rootMainWindow',
             width: this._device.width,
             height: this._device.height,
-            renderPassInfo: {
-                colorAttachments: [colorAttachment],
-                depthStencilAttachment,
-            },
+            renderPassInfo,
             swapchainBufferIndices: -1, // always on screen
         });
         this._curWindow = this._mainWindow;

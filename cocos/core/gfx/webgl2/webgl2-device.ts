@@ -5,10 +5,10 @@ import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo, GFXBindingMappingInfo } from '../device';
 import { GFXFence, IGFXFenceInfo } from '../fence';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
-import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
-import { GFXPipelineState, IGFXPipelineStateInfo } from '../pipeline-state';
+import { GFXInputAssembler, GFXInputAssemblerInfo } from '../input-assembler';
+import { GFXPipelineState, GFXPipelineStateInfo } from '../pipeline-state';
 import { GFXQueue, IGFXQueueInfo } from '../queue';
-import { GFXRenderPass, IGFXRenderPassInfo } from '../render-pass';
+import { GFXRenderPass, GFXRenderPassInfo } from '../render-pass';
 import { GFXSampler, IGFXSamplerInfo } from '../sampler';
 import { GFXShader, GFXShaderInfo } from '../shader';
 import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo } from '../texture';
@@ -518,7 +518,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createInputAssembler (info: IGFXInputAssemblerInfo): GFXInputAssembler {
+    public createInputAssembler (info: GFXInputAssemblerInfo): GFXInputAssembler {
         const inputAssembler = new WebGL2InputAssembler(this);
         if (inputAssembler.initialize(info)) {
             return inputAssembler;
@@ -526,7 +526,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createRenderPass (info: IGFXRenderPassInfo): GFXRenderPass {
+    public createRenderPass (info: GFXRenderPassInfo): GFXRenderPass {
         const renderPass = new WebGL2RenderPass(this);
         if (renderPass.initialize(info)) {
             return renderPass;
@@ -558,7 +558,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createPipelineState (info: IGFXPipelineStateInfo): GFXPipelineState {
+    public createPipelineState (info: GFXPipelineStateInfo): GFXPipelineState {
         const pipelineState = new WebGL2PipelineState(this);
         if (pipelineState.initialize(info)) {
             return pipelineState;

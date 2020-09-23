@@ -29,7 +29,7 @@
 
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
-import { IGFXAttribute } from '../../gfx/input-assembler';
+import { GFXInputAssemblerInfo, IGFXAttribute } from '../../gfx/input-assembler';
 import { UI } from './ui';
 import { InputAssemblerHandle, NULL_HANDLE, IAPool } from '../core/memory-pools';
 import { getAttributeFormatBytes } from './ui-vertex-format';
@@ -37,12 +37,12 @@ import { getAttributeFormatBytes } from './ui-vertex-format';
 export class MeshBuffer {
     public static OPACITY_OFFSET = 8;
 
+    get attributes () { return this._attributes; }
+    get vertexBuffers () { return this._vertexBuffers; }
+    get indexBuffer () { return this._indexBuffer; }
+
     public vData: Float32Array | null = null;
     public iData: Uint16Array | null = null;
-
-    public attributes: IGFXAttribute[] = null!;
-    public vertexBuffers: GFXBuffer[] = [];
-    public indexBuffer: GFXBuffer = null!;
 
     public byteStart = 0;
     public byteOffset = 0;
@@ -51,6 +51,11 @@ export class MeshBuffer {
     public vertexStart = 0;
     public vertexOffset = 0;
     public lastByteOffset = 1;
+
+    private _attributes: IGFXAttribute[] = null!;
+    private _vertexBuffers: GFXBuffer[] = [];
+    private _indexBuffer: GFXBuffer = null!;
+    private _iaInfo: GFXInputAssemblerInfo = null!;
 
     // NOTE:
     // actually 256 * 4 * (vertexFormat._bytes / 4)
@@ -87,7 +92,7 @@ export class MeshBuffer {
         const ibStride = Uint16Array.BYTES_PER_ELEMENT;
 
         if (!this.indexBuffer) {
-            this.indexBuffer = this._batcher.device.createBuffer({
+            this._indexBuffer = this._batcher.device.createBuffer({
                 usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: ibStride,
@@ -95,7 +100,8 @@ export class MeshBuffer {
             });
         }
 
-        this.attributes = attrs;
+        this._attributes = attrs;
+        this._iaInfo = new GFXInputAssemblerInfo(this.attributes, this.vertexBuffers, this.indexBuffer);
 
         this._reallocBuffer();
     }
@@ -150,13 +156,13 @@ export class MeshBuffer {
     }
 
     public destroy () {
-        this.attributes = null!;
+        this._attributes = null!;
 
         this.vertexBuffers[0].destroy();
         this.vertexBuffers.length = 0;
 
         this.indexBuffer.destroy();
-        this.indexBuffer = null!;
+        this._indexBuffer = null!;
 
         for (let i = 0; i < this._hInputAssemblers.length; i++) {
             IAPool.free(this._hInputAssemblers[i]);
@@ -171,7 +177,7 @@ export class MeshBuffer {
         }
 
         if (this._hInputAssemblers.length <= this._nextFreeIAHandle) {
-            this._hInputAssemblers.push(IAPool.alloc(this._batcher.device, this));
+            this._hInputAssemblers.push(IAPool.alloc(this._batcher.device, this._iaInfo));
         }
 
         const hIA = this._hInputAssemblers[this._nextFreeIAHandle++];
