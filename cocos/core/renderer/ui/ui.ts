@@ -134,7 +134,9 @@ export class UI {
 
     public destroy () {
         for (let i = 0; i < this._batches.array.length; i++ ) {
-            this._batches.array[i].destroy(this);
+            if (this._batches.array[i]) {
+                this._batches.array[i].destroy(this);
+            }
         }
         this._batches.destroy();
 
