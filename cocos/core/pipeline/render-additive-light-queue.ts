@@ -3,15 +3,15 @@
  */
 
 import { GFXCommandBuffer } from '../gfx/command-buffer';
-import { IRenderObject, UBOForwardLight, SetIndex, UBOShadow, UNIFORM_SHADOWMAP } from './define';
+import { IRenderObject, UBOForwardLight, SetIndex, UBOShadow, UniformSpotLightingSampler } from './define';
 import { Light, LightType, SphereLight, SpotLight, Model, SubModel, ShadowType } from '../renderer/scene';
 import { BatchingSchemes } from '../renderer/core/pass';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
-import { Vec3, nextPow2, Mat4, Vec4, toDegree, Color } from '../../core/math';
+import { Vec3, nextPow2, Mat4, Vec4, Color } from '../../core/math';
 import { RenderView } from './render-view';
 import { sphere, intersect } from '../geometry';
-import { GFXDevice, GFXRenderPass, GFXBuffer, GFXBufferUsageBit, GFXMemoryUsageBit } from '../gfx';
+import { GFXDevice, GFXRenderPass, GFXBuffer, GFXBufferUsageBit, GFXMemoryUsageBit, GFXDescriptorSet, GFXFilter, GFXAddress, GFXSampler } from '../gfx';
 import { Pool } from '../memop';
 import { InstancedBuffer } from './instanced-buffer';
 import { BatchedBuffer } from './batched-buffer';
@@ -19,6 +19,7 @@ import { RenderInstancedQueue } from './render-instanced-queue';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { getPhaseID } from './pass-phase';
 import { ForwardPipeline } from './forward/forward-pipeline';
+import { genSamplerHash, samplerLib } from '../renderer/core/sampler-lib';
 
 interface IAdditiveLightPass {
     subModel: SubModel;
@@ -26,6 +27,15 @@ interface IAdditiveLightPass {
     dynamicOffsets: number[];
     lights: Light[];
 }
+
+const _samplerInfo = [
+    GFXFilter.LINEAR,
+    GFXFilter.LINEAR,
+    GFXFilter.NONE,
+    GFXAddress.CLAMP,
+    GFXAddress.CLAMP,
+    GFXAddress.CLAMP,
+];
 
 const _lightPassPool = new Pool<IAdditiveLightPass>(() => ({ subModel: null!, passIdx: -1, dynamicOffsets: [], lights: []}), 16);
 
@@ -82,6 +92,7 @@ export class RenderAdditiveLightQueue {
     private _instancedQueue: RenderInstancedQueue;
     private _batchedQueue: RenderBatchedQueue;
     private _lightMeterScale: number = 10000.0;
+    private _sampler: GFXSampler | null = null;
 
     constructor (pipeline: ForwardPipeline) {
         this._pipeline = pipeline;
@@ -119,6 +130,7 @@ export class RenderAdditiveLightQueue {
         this._instancedQueue.clear();
         this._batchedQueue.clear();
         validLights.length = 0;
+        this._sampler = null;
 
         for (let i = 0; i < this._lightPasses.length; i++) {
             const lp = this._lightPasses[i];
@@ -216,6 +228,11 @@ export class RenderAdditiveLightQueue {
     public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+        if (!this._sampler) {
+            const shadowMapSamplerHash = genSamplerHash(_samplerInfo);
+            this._sampler = samplerLib.getSampler(device, shadowMapSamplerHash);
+        }
+
 
         for (let i = 0; i < this._lightPasses.length; i++) {
             const { subModel, passIdx, dynamicOffsets, lights } = this._lightPasses[i];
@@ -234,7 +251,7 @@ export class RenderAdditiveLightQueue {
                 const light = lights[j];
                 if (light.type === LightType.SPOT && this._pipeline.shadowFrameBufferMap.has(light) &&
                 this._pipeline.shadows.type === ShadowType.ShadowMap) {
-                    this._updateShadowUBO(light);
+                    this._updateShadowUBO(localDS, light);
                 }
                 _dynamicOffsets[0] = dynamicOffsets[j];
                 cmdBuff.bindDescriptorSet(SetIndex.LOCAL, localDS, _dynamicOffsets);
@@ -244,7 +261,7 @@ export class RenderAdditiveLightQueue {
     }
 
     // update spot light UBO
-    protected _updateShadowUBO (light: Light) {
+    protected _updateShadowUBO (descriptorSet: GFXDescriptorSet, light: Light) {
         const shadowInfo = this._pipeline.shadows;
         const shadowUBO = this._pipeline.shadowUBO;
         const spotLight = light as SpotLight;
@@ -267,8 +284,9 @@ export class RenderAdditiveLightQueue {
         vec4.set(shadowInfo.size.x, shadowInfo.size.y);
         Vec4.toArray(shadowUBO, vec4, UBOShadow.SHADOW_SIZE_OFFSET);
 
-        this._pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP.binding, this._pipeline.shadowFrameBufferMap.get(light)!.colorTextures[0]!);
-        this._pipeline.descriptorSet.update();
+        descriptorSet.bindTexture(UniformSpotLightingSampler.binding, this._pipeline.shadowFrameBufferMap.get(light)!.colorTextures[0]!);
+        descriptorSet.bindSampler(UniformSpotLightingSampler.binding, this._sampler!);
+        descriptorSet.update();
         this._pipeline.descriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(shadowUBO);
     }
 
