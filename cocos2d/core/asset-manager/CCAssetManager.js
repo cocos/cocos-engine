@@ -713,7 +713,8 @@ AssetManager.prototype = {
      *
      * @method releaseAsset
      * @param {Asset} asset - The asset to be released
-     * 
+     * @param {boolean} [force = true] - If false , will do release after current frame.
+     *
      * @example
      * // release a texture which is no longer need
      * cc.assetManager.releaseAsset(texture);
@@ -721,8 +722,8 @@ AssetManager.prototype = {
      * @typescript
      * releaseAsset(asset: cc.Asset): void
      */
-    releaseAsset (asset) {
-        releaseManager.tryRelease(asset, true);
+    releaseAsset (asset, force) {
+        releaseManager.tryRelease(asset, force !== false);
     },
 
     /**
