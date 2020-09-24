@@ -76,21 +76,21 @@ struct CC_DLL PassView {
 
 class CC_DLL Camera {
 private:
-    float width = 0;
-    float height = 0;
+    uint32_t width = 0;
+    uint32_t height = 0;
     float exposure = 0;
-    float clearFlag = 0;
+    uint32_t clearFlag = 0;
     float clearDepth = 0;
-    float clearStencil = 0;
-    float nodeID = 0;
-    float sceneID = 0;
-    float frustumID = 0;
+    uint32_t clearStencil = 0;
+    uint32_t nodeID = 0;
+    uint32_t sceneID = 0;
+    uint32_t frustumID = 0;
     cc::Vec3 forward;
     cc::Vec3 position;
-    float viewportX;
-    float viewportY;
-    float viewportWidth;
-    float viewportHeight;
+    uint32_t viewportX;
+    uint32_t viewportY;
+    uint32_t viewportWidth;
+    uint32_t viewportHeight;
     gfx::Color clearColor;
     cc::Mat4 matView;
     cc::Mat4 matViewProj;
@@ -99,19 +99,19 @@ private:
     cc::Mat4 matProjInv;
 
 public:
-    float getWidth() const { return width; }
-    float getHeight() const { return height; }
+    uint32_t getWidth() const { return width; }
+    uint32_t getHeight() const { return height; }
     float getExposure() const { return exposure; }
     float getClearDepth() const { return clearDepth; }
-    uint getClearFlag() const { return static_cast<uint>(clearFlag); }
-    uint getClearStencil() const { return static_cast<uint>(clearStencil); }
-    uint getNodeID() const { return static_cast<uint>(nodeID); }
-    uint getSceneID() const { return static_cast<uint>(sceneID); }
-    uint getFrustumID() const { return static_cast<uint>(frustumID); }
-    uint getViewportX() const { return static_cast<uint>(viewportX); }
-    uint getViewportY() const { return static_cast<uint>(viewportY); }
-    uint getViewportWidth() const { return static_cast<uint>(viewportWidth); }
-    uint getViewportHeight() const { return static_cast<uint>(viewportHeight); }
+    uint32_t getClearFlag() const { return clearFlag; }
+    float getClearStencil() const { return clearStencil; }
+    uint32_t getNodeID() const { return nodeID; }
+    uint32_t getSceneID() const { return sceneID; }
+    uint32_t getFrustumID() const { return frustumID; }
+    uint32_t getViewportX() const { return viewportX; }
+    uint32_t getViewportY() const { return viewportY; }
+    uint32_t getViewportWidth() const { return viewportWidth; }
+    uint32_t getViewportHeight() const { return viewportHeight; }
     const cc::Vec3 &getForward() const { return forward; }
     const cc::Vec3 &getPosition() const { return position; }
     const gfx::Color &getClearColor() const { return clearColor; }
@@ -151,9 +151,9 @@ struct CC_DLL Scene {
 };
 
 struct CC_DLL Light {
-    float useColorTemperature = 0;
+    uint32_t useColorTemperature = 0;
     float illuminance = 0;
-    float nodeID = 0;
+    uint32_t nodeID = 0;
     cc::Vec3 direction;
     cc::Vec3 color;
     cc::Vec3 colorTemperatureRGB;
@@ -171,8 +171,8 @@ struct CC_DLL Ambient {
 };
 
 struct CC_DLL Fog {
-    float enabled = 0;
-    float fogType = 0;
+    uint32_t enabled = 0;
+    uint32_t fogType = 0;
     float fogDensity = 0;
     float fogStart = 0;
     float fogEnd = 0;
@@ -185,17 +185,17 @@ struct CC_DLL Fog {
 };
 
 struct CC_DLL Shadows {
-    float enabled = 0;
-    float dirty = 0;
-    float shadowType = 0;
+    uint32_t enabled = 0;
+    uint32_t shadowType = 0;
     float distance = 0;
-    float instancePass = 0;
-    float planarPass = 0;
+    uint32_t instancePass = 0;
+    uint32_t planarPass = 0;
     float nearValue = 0;
     float farValue = 0;
     float aspect = 0;
-    float pcfType = 0;
-    float orthoSize = 0;
+    uint32_t pcfType = 0;
+    uint32_t dirty = 0;
+    uint32_t orthoSize = 0;
     cc::Vec2 size;
     cc::Vec3 normal;
     cc::Vec4 color;
@@ -255,14 +255,14 @@ struct CC_DLL RenderingSubMesh {
 
 class CC_DLL Node {
 private:
-    float layer = 0;
+    uint32_t layer = 0;
     cc::Vec3 worldScale;
     cc::Vec3 worldPosition;
     cc::Vec4 worldRotation;
     cc::Mat4 worldMatrix;
 
 public:
-    uint getLayer() const { return static_cast<uint>(layer); }
+    uint getLayer() const { return layer; }
     const cc::Vec3 &getWorldScale() const { return worldScale; }
     const cc::Vec3 &getWorldPosition() const { return worldPosition; }
     const cc::Vec4 &getWorldRotation() const { return worldRotation; }
