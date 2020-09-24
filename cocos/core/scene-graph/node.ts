@@ -304,6 +304,7 @@ export class Node extends BaseNode {
     }
     set hasChangedFlags (val: number) {
         bookOfChange.set(this._id, val);
+        NodePool.set(this._poolHandle, NodeView.FLAGS_CHANGED, val);
     }
 
     // ===============================

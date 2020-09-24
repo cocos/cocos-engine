@@ -487,6 +487,7 @@ enum PoolType {
     SKYBOX,
     SHADOW,
     LIGHT,
+    SPHERE,
     // array
     SUB_MODEL_ARRAY = 200,
     MODEL_ARRAY,
@@ -795,14 +796,16 @@ const cameraViewDataType: BufferDataTypeManifest<typeof CameraView> = {
 export const CameraPool = new BufferPool<PoolType.CAMERA, typeof CameraView, ICameraViewType>(PoolType.CAMERA, cameraViewDataType, CameraView);
 
 export enum NodeView {
+    FLAGS_CHANGED,
     LAYER,
     WORLD_SCALE,        // Vec3
-    WORLD_POSITION = 4, // Vec3
-    WORLD_ROTATION = 7, // Quat
-    WORLD_MATRIX = 11,  // Mat4
-    COUNT = 27
+    WORLD_POSITION = 5, // Vec3
+    WORLD_ROTATION = 8, // Quat
+    WORLD_MATRIX = 12,  // Mat4
+    COUNT = 28
 }
 interface INodeViewType extends BufferTypeManifest<typeof NodeView> {
+    [NodeView.FLAGS_CHANGED]: number;
     [NodeView.LAYER]: Layers.Enum;
     [NodeView.WORLD_SCALE]: Vec3;
     [NodeView.WORLD_POSITION]: Vec3;
@@ -811,6 +814,7 @@ interface INodeViewType extends BufferTypeManifest<typeof NodeView> {
     [NodeView.COUNT]: never;
 }
 const nodeViewDataType: BufferDataTypeManifest<typeof NodeView> = {
+    [NodeView.FLAGS_CHANGED]: BufferDataType.UINT32,
     [NodeView.LAYER]: BufferDataType.UINT32,
     [NodeView.WORLD_SCALE]: BufferDataType.FLOAT32,
     [NodeView.WORLD_POSITION]: BufferDataType.FLOAT32,
@@ -990,11 +994,11 @@ export enum ShadowsView {
     PCF_TYPE,
     BIAS,
     ORTHO_SIZE,
+    SPHERE, // handle
     SIZE, // Vec2
-    NORMAL = 14, // Vec3
-    COLOR = 17, // Vec4
-    SPHERE = 21, // Vec4
-    COUNT = 25
+    NORMAL = 15, // Vec3
+    COLOR = 18, // Vec4
+    COUNT = 22
 }
 interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.ENABLE]: number;
@@ -1009,10 +1013,10 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.BIAS]: number;
     [ShadowsView.DIRTY]: number;
     [ShadowsView.ORTHO_SIZE]: number;
+    [ShadowsView.SPHERE]: number;
     [ShadowsView.SIZE]: Vec2;
     [ShadowsView.NORMAL]: Vec3;
     [ShadowsView.COLOR]: Color;
-    [ShadowsView.SPHERE]: Vec4;
     [ShadowsView.COUNT]: never;
 }
 const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
@@ -1031,12 +1035,12 @@ const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
     [ShadowsView.SIZE]: BufferDataType.FLOAT32,
     [ShadowsView.NORMAL]: BufferDataType.FLOAT32,
     [ShadowsView.COLOR]: BufferDataType.FLOAT32,
-    [ShadowsView.SPHERE]: BufferDataType.FLOAT32,
+    [ShadowsView.SPHERE]: BufferDataType.UINT32,
     [ShadowsView.COUNT]: BufferDataType.NEVER
 }
 // @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
-if (!JSB) {delete ShadowsView[FogView.COUNT]; ShadowsView[ShadowsView.COUNT = ShadowsView.ORTHO_SIZE + 1] = 'COUNT'; }
-export const ShadowsPool = new BufferPool<PoolType.SHADOW, typeof ShadowsView, IShadowsViewType>(PoolType.SHADOW, shadowsViewDataType, ShadowsView, 1);
+if (!JSB) {delete ShadowsView[ShadowsView.COUNT]; ShadowsView[ShadowsView.COUNT = ShadowsView.SPHERE + 1] = 'COUNT'; }
+export const ShadowsPool = new BufferPool<PoolType.SHADOW, typeof ShadowsView, IShadowsViewType>(PoolType.SHADOW, shadowsViewDataType, ShadowsView);
 
 export enum LightView {
     USE_COLOR_TEMPERATURE,
@@ -1065,4 +1069,24 @@ const lightViewDataType: BufferDataTypeManifest<typeof LightView> = {
     [LightView.COLOR_TEMPERATURE_RGB]: BufferDataType.FLOAT32,
     [LightView.COUNT]: BufferDataType.NEVER
 }
-export const LightPool = new BufferPool<PoolType.LIGHT, typeof LightView, ILightViewType>(PoolType.LIGHT, lightViewDataType, LightView, 3);
+export const LightPool = new BufferPool<PoolType.LIGHT, typeof LightView, ILightViewType>(PoolType.LIGHT, lightViewDataType, LightView);
+
+export enum SphereView {
+    RADIUS,
+    CENTER,     //Vec3
+    COUNT = 4
+}
+interface ISphereViewType extends BufferTypeManifest<typeof SphereView> {
+    [SphereView.RADIUS]: number;
+    [SphereView.CENTER]: Vec3;
+    [SphereView.COUNT]: never;
+}
+const sphereViewDataType: BufferDataTypeManifest<typeof SphereView> = {
+    [SphereView.RADIUS]: BufferDataType.FLOAT32,
+    [SphereView.CENTER]: BufferDataType.FLOAT32,
+    [SphereView.COUNT]: BufferDataType.NEVER
+}
+// @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
+if (!JSB) {delete SphereView[SphereView.COUNT]; SphereView[SphereView.COUNT = SphereView.RADIUS + 1] = 'COUNT'; }
+export const SpherePool = new BufferPool<PoolType.SPHERE, typeof SphereView, ISphereViewType>(PoolType.SPHERE, sphereViewDataType, SphereView);
+
