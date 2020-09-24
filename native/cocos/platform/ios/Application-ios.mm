@@ -64,12 +64,12 @@
 
 - (void)pause
 {
-    [_displayLink invalidate];
+    _displayLink.paused = TRUE;
 }
 
 - (void)resume
 {
-    [self start];
+    _displayLink.paused = FALSE;
 }
 
 - (void)changeFPS:(int)fps
