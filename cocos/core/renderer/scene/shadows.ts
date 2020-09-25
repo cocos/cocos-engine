@@ -177,6 +177,7 @@ export class Shadows {
     protected _instancingMaterial: Material | null = null;
     protected _device: GFXDevice|null = null;
     protected _dirty: boolean = true;
+
     /**
      * @zh
      * 场景包围球
@@ -213,6 +214,11 @@ export class Shadows {
      * @zh 获取或者设置阴影pcf等级
      */
     public pcf = PCFType.HARD;
+    /**
+     * @en shadow Map size has been modified
+     * @zh 阴影贴图大小是否被修改
+     */
+    public shadowMapDirty: boolean = false;
 
     public activate () {
         if (this._type === ShadowType.ShadowMap) {

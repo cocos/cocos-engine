@@ -45,8 +45,6 @@ export class ShadowFlow extends RenderFlow {
 
     private _shadowQueue!: RenderShadowMapBatchedQueue;
     private _renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
-    private _width: number = 0;
-    private _height: number = 0;
 
     public render (view: RenderView) {
         const pipeline = this._pipeline as ForwardPipeline;
@@ -57,7 +55,7 @@ export class ShadowFlow extends RenderFlow {
         const validLights = lightCollecting(view);
         this.init(pipeline, validLights);
 
-        this.resizeShadowMap(shadowInfo.size, validLights);
+        if (shadowInfo.shadowMapDirty) { this.resizeShadowMap(shadowInfo.size, validLights); }
 
         shadowCollecting(pipeline, view);
         for (let l = 0; l < validLights.length; l++) {
@@ -71,8 +69,6 @@ export class ShadowFlow extends RenderFlow {
         if (!this._shadowQueue) { this._shadowQueue = new RenderShadowMapBatchedQueue(pipeline); }
         const device = pipeline.device;
         const shadowMapSize = pipeline.shadows.size;
-        this._width = shadowMapSize.x;
-        this._height = shadowMapSize.y;
 
         for (let l = 0; l < validLights.length; l++) {
             const light = validLights[l];
@@ -104,16 +100,16 @@ export class ShadowFlow extends RenderFlow {
                     type: GFXTextureType.TEX2D,
                     usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
                     format: GFXFormat.RGBA8,
-                    width: this._width,
-                    height: this._height,
+                    width: shadowMapSize.x,
+                    height: shadowMapSize.y,
                 }));
 
                 const depth = device.createTexture({
                     type: GFXTextureType.TEX2D,
                     usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
                     format: device.depthStencilFormat,
-                    width: this._width,
-                    height: this._height,
+                    width: shadowMapSize.x,
+                    height: shadowMapSize.y,
                 });
 
                 const frameBuffer = device.createFramebuffer({
@@ -132,39 +128,34 @@ export class ShadowFlow extends RenderFlow {
     }
 
     private resizeShadowMap (size: Vec2, validLights: Light[]) {
-        if (this._width !== size.x || this._height !== size.y) {
-            const width = size.x;
-            const height = size.y;
-            for (let i = 0; i < validLights.length; i++) {
-                const light = validLights[i];
-                const frameBuffer = (this._pipeline as ForwardPipeline).shadowFrameBufferMap.get(light);
+        const width = size.x;
+        const height = size.y;
+        for (let i = 0; i < validLights.length; i++) {
+            const light = validLights[i];
+            const frameBuffer = (this._pipeline as ForwardPipeline).shadowFrameBufferMap.get(light);
 
-                if (!frameBuffer) { break; }
+            if (!frameBuffer) { break; }
 
-                const renderTargets = frameBuffer.colorTextures;
-                if (renderTargets && renderTargets.length > 0) {
-                    for (let j = 0; j < renderTargets.length; j++) {
-                        const renderTarget = renderTargets[j];
-                        if (renderTarget) { renderTarget.resize(width, height); }
-                    }
+            const renderTargets = frameBuffer.colorTextures;
+            if (renderTargets && renderTargets.length > 0) {
+                for (let j = 0; j < renderTargets.length; j++) {
+                    const renderTarget = renderTargets[j];
+                    if (renderTarget) { renderTarget.resize(width, height); }
                 }
-
-                const depth = frameBuffer.depthStencilTexture;
-                if (depth) {
-                    depth.resize(width, height);
-                }
-
-                const shadowRenderPass = frameBuffer.renderPass;
-                frameBuffer.destroy();
-                frameBuffer.initialize({
-                    renderPass: shadowRenderPass,
-                    colorTextures: renderTargets,
-                    depthStencilTexture: depth,
-                });
             }
 
-            this._width = width;
-            this._height = height;
+            const depth = frameBuffer.depthStencilTexture;
+            if (depth) {
+                depth.resize(width, height);
+            }
+
+            const shadowRenderPass = frameBuffer.renderPass;
+            frameBuffer.destroy();
+            frameBuffer.initialize({
+                renderPass: shadowRenderPass,
+                colorTextures: renderTargets,
+                depthStencilTexture: depth,
+            });
         }
     }
 

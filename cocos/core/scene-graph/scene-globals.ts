@@ -532,7 +532,10 @@ export class ShadowsInfo {
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
     set shadowMapSize (val: Vec2) {
         this._size.set(val);
-        if (this._resource) { this._resource.size = val; }
+        if (this._resource) {
+            this._resource.size = val;
+            this._resource.shadowMapDirty = true;
+        }
     }
     get shadowMapSize () {
         return this._size;
