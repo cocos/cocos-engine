@@ -656,6 +656,11 @@ let TiledMap = cc.Class({
             }
 
             this._buildWithMapInfo(mapInfo);
+
+            if (!CC_EDITOR) {
+                cc.assetManager.releaseAsset(this._tmxFile);
+                this._tmxFile = null;
+            }
         }
         else {
             this._releaseMapInfo();
