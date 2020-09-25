@@ -19,3 +19,4 @@ export { UIFlow } from './ui/ui-flow';
 export { UIStage } from './ui/ui-stage';
 
 export { InstancedBuffer } from './instanced-buffer';
+export { PipelineStateManager } from './pipeline-state-manager';

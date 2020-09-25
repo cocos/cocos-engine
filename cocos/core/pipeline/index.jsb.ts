@@ -12,3 +12,4 @@ export const UIFlow = nr.UIFlow;
 export const UIStage = nr.UIStage;
 
 export const InstancedBuffer = nr.InstancedBuffer;
+export const PipelineStateManager = nr.PipelineStateManager;
