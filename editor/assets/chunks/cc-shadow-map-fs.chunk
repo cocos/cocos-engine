@@ -28,9 +28,6 @@ float CCGetShadowFactorX5 () {
 	    clipPos.y < 0.0 || clipPos.y > 1.0 || 
 		  clipPos.z <-1.0 || clipPos.z > 1.0) { return 0.0; }
 
-  float tmp = CCGetShadowFactorX1();
-  if (tmp < 0.9) {return 0.0;}
-
   float offsetx = 1.0 / cc_shadowSize.x;
   float offsety = 1.0 / cc_shadowSize.y;
   float shadow = 0.0;
@@ -46,7 +43,7 @@ float CCGetShadowFactorX5 () {
   closestDepth = unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x + offsetx, clipPos.y + offsety)));
   shadow += step(closestDepth, clipPos.z - 0.001);
 
-  return shadow /= 5.0;
+  return shadow / 5.0;
 }
 
 float CCGetShadowFactorX9 () {
@@ -54,9 +51,6 @@ float CCGetShadowFactorX9 () {
   if (clipPos.x < 0.0 || clipPos.x > 1.0 || 
 	    clipPos.y < 0.0 || clipPos.y > 1.0 || 
 		  clipPos.z <-1.0 || clipPos.z > 1.0) { return 0.0; }
-
-  float tmp = CCGetShadowFactorX1();
-  if (tmp < 0.9) {return 0.0;}
 
   float offsetx = 1.0 / cc_shadowSize.x;
   float offsety = 1.0 / cc_shadowSize.y;
@@ -77,9 +71,6 @@ float CCGetShadowFactorX25 () {
 	    clipPos.y < 0.0 || clipPos.y > 1.0 || 
 		  clipPos.z <-1.0 || clipPos.z > 1.0) { return 0.0; }
 
-  float tmp = CCGetShadowFactorX1();
-  if (tmp < 0.9) {return 0.0;}
-
   float offsetx = 1.0 / cc_shadowSize.x;
   float offsety = 1.0 / cc_shadowSize.y;
   float shadow = 0.0;
@@ -90,7 +81,7 @@ float CCGetShadowFactorX25 () {
     }
   }
 
-  return shadow /= 25.0;
+  return shadow / 25.0;
 }
 
 float CCGetDirLightShadowFactor () {
