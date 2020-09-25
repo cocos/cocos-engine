@@ -14,7 +14,7 @@ import { clamp01 } from './math/utils';
 import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
 import { sys } from './platform/sys';
 import { GFXSampler, GFXShader } from './gfx';
-import { PipelineStateManager } from './pipeline/pipeline-state-manager';
+import { PipelineStateManager } from './pipeline';
 import { legacyCC } from './global-exports';
 import { Root } from './root';
 import { DSPool, ShaderPool, PassPool, PassView } from './renderer/core/memory-pools';
