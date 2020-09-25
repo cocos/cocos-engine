@@ -28,6 +28,9 @@ float CCGetShadowFactorX5 () {
 	    clipPos.y < 0.0 || clipPos.y > 1.0 || 
 		  clipPos.z <-1.0 || clipPos.z > 1.0) { return 0.0; }
 
+  float tmp = CCGetShadowFactorX1();
+  if (tmp < 0.9) {return 0.0;}
+
   float offsetx = 1.0 / cc_shadowSize.x;
   float offsety = 1.0 / cc_shadowSize.y;
   float shadow = 0.0;
@@ -52,6 +55,9 @@ float CCGetShadowFactorX9 () {
 	    clipPos.y < 0.0 || clipPos.y > 1.0 || 
 		  clipPos.z <-1.0 || clipPos.z > 1.0) { return 0.0; }
 
+  float tmp = CCGetShadowFactorX1();
+  if (tmp < 0.9) {return 0.0;}
+
   float offsetx = 1.0 / cc_shadowSize.x;
   float offsety = 1.0 / cc_shadowSize.y;
   float shadow = 0.0;
@@ -62,7 +68,7 @@ float CCGetShadowFactorX9 () {
     }
   }
 
-  return shadow /= 9.0;
+  return shadow / 9.0;
 }
 
 float CCGetShadowFactorX25 () {
@@ -70,6 +76,9 @@ float CCGetShadowFactorX25 () {
   if (clipPos.x < 0.0 || clipPos.x > 1.0 || 
 	    clipPos.y < 0.0 || clipPos.y > 1.0 || 
 		  clipPos.z <-1.0 || clipPos.z > 1.0) { return 0.0; }
+
+  float tmp = CCGetShadowFactorX1();
+  if (tmp < 0.9) {return 0.0;}
 
   float offsetx = 1.0 / cc_shadowSize.x;
   float offsety = 1.0 / cc_shadowSize.y;
