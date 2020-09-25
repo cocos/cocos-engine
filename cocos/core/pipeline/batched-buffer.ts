@@ -3,7 +3,7 @@
  */
 
 import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXDevice, GFXDescriptorSet } from '../gfx';
-import { GFXBuffer } from '../gfx/buffer';
+import { GFXBuffer, GFXBufferInfo } from '../gfx/buffer';
 import { GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute } from '../gfx/input-assembler';
 import { Mat4 } from '../math';
 import { SubModel } from '../renderer/scene/submodel';
@@ -137,24 +137,24 @@ export class BatchedBuffer {
         const totalVBs: GFXBuffer[] = [];
         for (let i = 0; i < flatBuffers.length; ++i) {
             const flatBuff = flatBuffers[i];
-            const newVB = this._device.createBuffer({
-                usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: flatBuff.count * flatBuff.stride,
-                stride: flatBuff.stride,
-            });
+            const newVB = this._device.createBuffer(new GFXBufferInfo(
+                GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+                GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                flatBuff.count * flatBuff.stride,
+                flatBuff.stride,
+            ));
             newVB.update(flatBuff.buffer.buffer);
             vbs.push(newVB);
             vbDatas.push(new Uint8Array(newVB.size));
             totalVBs.push(newVB);
         }
 
-        const vbIdx = this._device.createBuffer({
-            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: vbCount * 4,
-            stride: 4,
-        });
+        const vbIdx = this._device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            vbCount * 4,
+            4,
+        ));
         const vbIdxData = new Float32Array(vbCount);
         vbIdxData.fill(0);
         vbIdx.update(vbIdxData);
@@ -170,11 +170,12 @@ export class BatchedBuffer {
         const iaInfo = new GFXInputAssemblerInfo(attrs, totalVBs);
         const ia = this._device.createInputAssembler(iaInfo);
 
-        const ubo = this._device.createBuffer({
-            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: UBOLocalBatched.SIZE,
-        });
+        const ubo = this._device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            UBOLocalBatched.SIZE,
+            UBOLocalBatched.SIZE,
+        ));
 
         descriptorSet.bindBuffer(UBOLocalBatched.BINDING, ubo);
         descriptorSet.update();

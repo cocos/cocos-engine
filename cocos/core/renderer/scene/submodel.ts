@@ -4,12 +4,10 @@ import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { RenderPriority, SetIndex } from '../../pipeline/define';
 import { IMacroPatch, Pass } from '../core/pass';
 import { DSPool, IAPool, SubModelPool, SubModelView, SubModelHandle, NULL_HANDLE } from '../core/memory-pools';
-import { GFXDescriptorSet, IGFXDescriptorSetInfo } from '../../gfx';
+import { GFXDescriptorSet, GFXDescriptorSetInfo } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 
-const _dsInfo: IGFXDescriptorSetInfo = {
-    layout: null!,
-};
+const _dsInfo = new GFXDescriptorSetInfo(null!);
 
 export class SubModel {
 

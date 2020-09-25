@@ -4,7 +4,7 @@
 
 import { MeshBuffer } from '../../../ui';
 import { Material } from '../../assets/material';
-import { GFXTexture, GFXSampler, IGFXDescriptorSetInfo } from '../../gfx';
+import { GFXTexture, GFXSampler, GFXDescriptorSetInfo } from '../../gfx';
 import { Node } from '../../scene-graph';
 import { Camera } from '../scene/camera';
 import { Model } from '../scene/model';
@@ -15,9 +15,7 @@ import { SetIndex } from '../../pipeline/define';
 import { legacyCC } from '../../global-exports';
 import { EffectAsset } from '../../assets';
 
-const _dsInfo: IGFXDescriptorSetInfo = {
-    layout: null!,
-};
+const _dsInfo = new GFXDescriptorSetInfo(null!);
 
 export class UIDrawBatch {
 

@@ -31,7 +31,7 @@ import { AnimationClip } from '../../animation/animation-clip';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
-import { GFXBuffer } from '../../gfx/buffer';
+import { GFXBuffer, GFXBufferInfo } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { Vec3 } from '../../math';
 import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UNIFORM_JOINT_TEXTURE_BINDING } from '../../pipeline/define';
@@ -103,12 +103,12 @@ export class BakedSkinningModel extends MorphModel {
         const resMgr = this._dataPoolManager;
         this._jointsMedium.animInfo = resMgr.jointAnimationInfo.getData(skinningRoot.uuid);
         if (!this._jointsMedium.buffer) {
-            this._jointsMedium.buffer = this._device.createBuffer({
-                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: UBOSkinningTexture.SIZE,
-                stride: UBOSkinningTexture.SIZE,
-            });
+            this._jointsMedium.buffer = this._device.createBuffer(new GFXBufferInfo(
+                GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                UBOSkinningTexture.SIZE,
+                UBOSkinningTexture.SIZE,
+            ));
         }
     }
 

@@ -32,7 +32,7 @@ import { Mat4, Quat, Vec3 } from '../../core/math';
 import { mapBuffer } from '../3d/misc/buffer';
 import { BufferBlob } from '../3d/misc/buffer-blob';
 import { aabb } from '../geometry';
-import { GFXBuffer } from '../gfx/buffer';
+import { GFXBuffer, GFXBufferInfo } from '../gfx/buffer';
 import {
     getTypedArrayConstructor,
     GFXAttributeName,
@@ -245,12 +245,12 @@ export class RenderingSubMesh {
                 const idxMap = struct.jointMaps[prim.jointMapIndex];
                 mapBuffer(dataView, (cur) => idxMap.indexOf(cur), jointFormat, jointOffset,
                     bundle.view.length, bundle.view.stride, dataView);
-                const buffer = device.createBuffer({
-                    usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-                    memUsage: GFXMemoryUsageBit.DEVICE,
-                    size: bundle.view.length,
-                    stride: bundle.view.stride,
-                });
+                const buffer = device.createBuffer(new GFXBufferInfo(
+                    GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+                    GFXMemoryUsageBit.DEVICE,
+                    bundle.view.length,
+                    bundle.view.stride,
+                ));
                 buffer.update(dataView.buffer); buffers.push(buffer); indices.push(i);
             } else {
                 buffers.push(this.vertexBuffers[prim.vertexBundelIndices[i]]);
@@ -351,12 +351,12 @@ export class RenderingSubMesh {
             vertexIds[iVertex] = iVertex + 0.5;
         }
 
-        const vertexIdBuffer = device.createBuffer({
-            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.DEVICE,
-            size: vertexIds.byteLength,
-            stride: vertexIds.BYTES_PER_ELEMENT,
-        });
+        const vertexIdBuffer = device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.DEVICE,
+            vertexIds.byteLength,
+            vertexIds.BYTES_PER_ELEMENT,
+        ));
         vertexIdBuffer.update(vertexIds);
 
         return vertexIdBuffer;
@@ -609,12 +609,12 @@ export class Mesh extends Asset {
                     }
                 }
 
-                indexBuffer = gfxDevice.createBuffer({
-                    usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-                    memUsage: GFXMemoryUsageBit.DEVICE,
-                    size: dstSize,
-                    stride: dstStride,
-                });
+                indexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
+                    GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+                    GFXMemoryUsageBit.DEVICE,
+                    dstSize,
+                    dstStride,
+                ));
                 indexBuffers.push(indexBuffer);
 
                 ib = new (getIndexStrideCtor(idxView.stride))(buffer, idxView.offset, idxView.count);
@@ -1269,12 +1269,12 @@ export class Mesh extends Asset {
     private _createVertexBuffers (gfxDevice: GFXDevice, data: ArrayBuffer): GFXBuffer[] {
         return this._struct.vertexBundles.map((vertexBundle) => {
 
-            const vertexBuffer = gfxDevice.createBuffer({
-                usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.DEVICE,
-                size: vertexBundle.view.length,
-                stride: vertexBundle.view.stride,
-            });
+            const vertexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
+                GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+                GFXMemoryUsageBit.DEVICE,
+                vertexBundle.view.length,
+                vertexBundle.view.stride,
+            ));
 
             const view = new Uint8Array(data, vertexBundle.view.offset, vertexBundle.view.length);
             if (this.loaded) {

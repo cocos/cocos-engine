@@ -1,6 +1,6 @@
 import { GFXDescriptorSet } from '../descriptor-set';
 import { GFXBuffer, GFXBufferSource } from '../buffer';
-import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
+import { GFXCommandBuffer, GFXCommandBufferInfo } from '../command-buffer';
 import { GFXFramebuffer } from '../framebuffer';
 import { GFXInputAssembler } from '../input-assembler';
 import { GFXPipelineState } from '../pipeline-state';
@@ -62,7 +62,7 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
     protected _curStencilCompareMask: IWebGLStencilCompareMask | null = null;
     protected _isStateInvalied: boolean = false;
 
-    public initialize (info: IGFXCommandBufferInfo): boolean {
+    public initialize (info: GFXCommandBufferInfo): boolean {
 
         this._type = info.type;
         this._queue = info.queue;

@@ -31,7 +31,7 @@ import { Material } from '../../assets/material';
 import { Mesh, RenderingSubMesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
-import { GFXBuffer } from '../../gfx/buffer';
+import { GFXBuffer, GFXBufferInfo } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { Mat4, Vec3 } from '../../math';
 import { UBOSkinning } from '../../pipeline/define';
@@ -263,12 +263,12 @@ export class SkinningModel extends MorphModel {
     private _ensureEnoughBuffers (count: number) {
         for (let i = 0; i < count; i++) {
             if (!this._buffers[i]) {
-                this._buffers[i] = this._device.createBuffer({
-                    usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                    memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                    size: UBOSkinning.SIZE,
-                    stride: UBOSkinning.SIZE,
-                });
+                this._buffers[i] = this._device.createBuffer(new GFXBufferInfo(
+                    GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                    GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                    UBOSkinning.SIZE,
+                    UBOSkinning.SIZE,
+                ));
             }
             if (!this._dataArray[i]) {
                 this._dataArray[i] = new Float32Array(UBOSkinning.COUNT);

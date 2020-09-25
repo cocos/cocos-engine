@@ -31,8 +31,8 @@ import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../3d/builtin/init';
 import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
 import { TextureBase } from '../../assets/texture-base';
-import { GFXDescriptorSet, IGFXDescriptorSetInfo } from '../../gfx/descriptor-set';
-import { GFXBuffer, IGFXBufferInfo, IGFXBufferViewInfo } from '../../gfx/buffer';
+import { GFXDescriptorSet, GFXDescriptorSetInfo } from '../../gfx/descriptor-set';
+import { GFXBuffer, GFXBufferInfo, GFXBufferViewInfo } from '../../gfx/buffer';
 import { GFXFeature, GFXDevice } from '../../gfx/device';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
 import { GFXSampler } from '../../gfx/sampler';
@@ -71,22 +71,15 @@ interface IPassDynamics {
     };
 }
 
-const _bufferInfo: IGFXBufferInfo = {
-    memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-    usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-    size: 0,
-};
+const _bufferInfo = new GFXBufferInfo(
+    GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+    GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+);
 
-const _bufferViewInfo: IGFXBufferViewInfo = {
-    buffer: null!,
-    offset: 0,
-    range: 0,
-};
+const _bufferViewInfo = new GFXBufferViewInfo(null!);
 const _dsLayoutInfo = new GFXDescriptorSetLayoutInfo();
 
-const _dsInfo: IGFXDescriptorSetInfo = {
-    layout: null!,
-};
+const _dsInfo = new GFXDescriptorSetInfo(null!);
 
 export enum BatchingSchemes {
     INSTANCING = 1,

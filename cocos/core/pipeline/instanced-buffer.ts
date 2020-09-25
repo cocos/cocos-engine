@@ -3,7 +3,7 @@
  */
 
 import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXDevice, GFXTexture } from '../gfx';
-import { GFXBuffer } from '../gfx/buffer';
+import { GFXBuffer, GFXBufferInfo } from '../gfx/buffer';
 import { GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute } from '../gfx/input-assembler';
 import { Pass } from '../renderer';
 import { IInstancedAttributeBlock, SubModel } from '../renderer/scene';
@@ -92,11 +92,12 @@ export class InstancedBuffer {
         }
 
         // Create a new instance
-        const vb = this._device.createBuffer({
-            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: stride * INITIAL_CAPACITY, stride,
-        });
+        const vb = this._device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            stride * INITIAL_CAPACITY,
+            stride,
+        ));
         const data = new Uint8Array(stride * INITIAL_CAPACITY);
         const vertexBuffers = sourceIA.vertexBuffers.slice();
         const attributes = sourceIA.attributes.slice();

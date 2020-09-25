@@ -34,7 +34,7 @@ import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
-import { GFXBuffer } from '../../gfx/buffer';
+import { GFXBuffer, GFXBufferInfo } from '../../gfx/buffer';
 import { GFXAddress, GFXBufferUsageBit, GFXFilter, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { Mat4, Quat, Vec3 } from '../../math';
@@ -450,12 +450,12 @@ export class JointAnimationInfo {
     public getData (nodeID = '-1') {
         const res = this._pool.get(nodeID);
         if (res) { return res; }
-        const buffer = this._device.createBuffer({
-            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: UBOSkinningAnimation.SIZE,
-            stride: UBOSkinningAnimation.SIZE,
-        });
+        const buffer = this._device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            UBOSkinningAnimation.SIZE,
+            UBOSkinningAnimation.SIZE,
+        ));
         const data = new Float32Array([0, 0, 0, 0]);
         buffer.update(data);
         const info = { buffer, data, dirty: false };

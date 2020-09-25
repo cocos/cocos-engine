@@ -11,7 +11,7 @@ import { Component } from '../core/components';
 import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
 import { isValid } from '../core/data/object';
 import { director } from '../core/director';
-import { GFXBuffer } from '../core/gfx/buffer';
+import { GFXBuffer, GFXBufferInfo } from '../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXPrimitiveMode } from '../core/gfx/define';
 import { GFXDevice } from '../core/gfx/device';
 import { GFXAttribute } from '../core/gfx/input-assembler';
@@ -303,12 +303,12 @@ export class TerrainBlock {
             }
         }
 
-        const vertexBuffer = gfxDevice.createBuffer({
-            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: TERRAIN_BLOCK_VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY,
-            stride: TERRAIN_BLOCK_VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT,
-        });
+        const vertexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            TERRAIN_BLOCK_VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY,
+            TERRAIN_BLOCK_VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT,
+        ));
         vertexBuffer.update(vertexData);
 
         // initialize renderable
@@ -1047,12 +1047,12 @@ export class Terrain extends Component {
             }
         }
 
-        this._sharedIndexBuffer = gfxDevice.createBuffer({
-            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: Uint16Array.BYTES_PER_ELEMENT * TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6,
-            stride: Uint16Array.BYTES_PER_ELEMENT,
-        });
+        this._sharedIndexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            Uint16Array.BYTES_PER_ELEMENT * TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6,
+            Uint16Array.BYTES_PER_ELEMENT,
+        ));
         this._sharedIndexBuffer.update(indexData);
     }
 

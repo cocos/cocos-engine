@@ -4,12 +4,12 @@
 
 import * as easing from './animation/easing';
 import { Material } from './assets/material';
-import { GFXBuffer } from './gfx/buffer';
+import { GFXBuffer, GFXBufferInfo } from './gfx/buffer';
 import { GFXCommandBuffer } from './gfx/command-buffer';
 import { GFXDevice } from './gfx/device';
 import { GFXFramebuffer } from './gfx/framebuffer';
 import { GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute } from './gfx/input-assembler';
-import { GFXTexture } from './gfx/texture';
+import { GFXTexture, GFXTextureInfo } from './gfx/texture';
 import { clamp01 } from './math/utils';
 import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
 import { sys } from './platform/sys';
@@ -299,13 +299,13 @@ export class SplashScreen {
         this.textRegion.texExtent.height = this.textImg.height;
         this.textRegion.texExtent.depth = 1;
 
-        this.textTexture = this.device.createTexture({
-            type: GFXTextureType.TEX2D,
-            usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
-            format: GFXFormat.RGBA8,
-            width: this.textImg.width,
-            height: this.textImg.height,
-        });
+        this.textTexture = this.device.createTexture(new GFXTextureInfo(
+            GFXTextureType.TEX2D,
+            GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
+            GFXFormat.RGBA8,
+            this.textImg.width,
+            this.textImg.height,
+        ));
 
         this.device.copyTexImagesToTexture([this.textImg], this.textTexture, [this.textRegion]);
 
@@ -325,12 +325,12 @@ export class SplashScreen {
         // create vertex buffer
         const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
         const vbSize = vbStride * 4;
-        this.textVB = this.device.createBuffer({
-            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: vbSize,
-            stride: vbStride,
-        });
+        this.textVB = this.device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            vbSize,
+            vbStride,
+        ));
 
         const verts = new Float32Array(4 * 4);
         let w = -this.textImg.width / 2;
@@ -367,12 +367,12 @@ export class SplashScreen {
         const ibStride = Uint16Array.BYTES_PER_ELEMENT;
         const ibSize = ibStride * 6;
 
-        this.textIB = this.device.createBuffer({
-            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: ibSize,
-            stride: ibStride,
-        });
+        this.textIB = this.device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            ibSize,
+            ibStride,
+        ));
 
         const indices = new Uint16Array(6);
         indices[0] = 0; indices[1] = 1; indices[2] = 2;
@@ -402,12 +402,12 @@ export class SplashScreen {
         // create vertex buffer
         const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
         const vbSize = vbStride * 4;
-        this.vertexBuffers = device.createBuffer({
-            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: vbSize,
-            stride: vbStride,
-        });
+        this.vertexBuffers = device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            vbSize,
+            vbStride,
+        ));
 
         const verts = new Float32Array(4 * 4);
         let w = -this.image.width / 2;
@@ -444,12 +444,12 @@ export class SplashScreen {
         const ibStride = Uint16Array.BYTES_PER_ELEMENT;
         const ibSize = ibStride * 6;
 
-        this.indicesBuffers = device.createBuffer({
-            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: ibSize,
-            stride: ibStride,
-        });
+        this.indicesBuffers = device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            ibSize,
+            ibStride,
+        ));
 
         const indices = new Uint16Array(6);
         indices[0] = 0; indices[1] = 1; indices[2] = 2;
@@ -477,13 +477,13 @@ export class SplashScreen {
         samplerInfo.addressV = GFXAddress.CLAMP;
         this.sampler = device.createSampler(samplerInfo);
 
-        this.texture = device.createTexture({
-            type: GFXTextureType.TEX2D,
-            usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
-            format: GFXFormat.RGBA8,
-            width: this.image.width,
-            height: this.image.height,
-        });
+        this.texture = device.createTexture(new GFXTextureInfo(
+            GFXTextureType.TEX2D,
+            GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
+            GFXFormat.RGBA8,
+            this.image.width,
+            this.image.height,
+        ));
 
         const pass = this.material.passes[0];
         const binding = pass.getBinding('mainTexture');

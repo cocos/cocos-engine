@@ -27,7 +27,7 @@
  * @category ui
  */
 
-import { GFXBuffer } from '../../gfx/buffer';
+import { GFXBuffer, GFXBufferInfo } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXInputAssemblerInfo, GFXAttribute } from '../../gfx/input-assembler';
 import { UI } from './ui';
@@ -81,23 +81,23 @@ export class MeshBuffer {
         const vbStride = Float32Array.BYTES_PER_ELEMENT * formatBytes;
 
         if (!this.vertexBuffers.length) {
-            this.vertexBuffers.push(this._batcher.device.createBuffer({
-                usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: vbStride,
-                stride: vbStride,
-            }));
+            this.vertexBuffers.push(this._batcher.device.createBuffer(new GFXBufferInfo(
+                GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+                GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                vbStride,
+                vbStride,
+            )));
         }
 
         const ibStride = Uint16Array.BYTES_PER_ELEMENT;
 
         if (!this.indexBuffer) {
-            this._indexBuffer = this._batcher.device.createBuffer({
-                usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: ibStride,
-                stride: ibStride,
-            });
+            this._indexBuffer = this._batcher.device.createBuffer(new GFXBufferInfo(
+                GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+                GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                ibStride,
+                ibStride,
+            ));
         }
 
         this._attributes = attrs;

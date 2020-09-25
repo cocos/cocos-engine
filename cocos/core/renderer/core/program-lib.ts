@@ -39,6 +39,7 @@ import { legacyCC } from '../../global-exports';
 import { ShaderPool, ShaderHandle, PipelineLayoutHandle, PipelineLayoutPool, NULL_HANDLE } from './memory-pools';
 import { DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE } from '../../gfx/descriptor-set';
 import { GFXDescriptorSetLayout, GFXDescriptorSetLayoutBinding, GFXDescriptorSetLayoutInfo } from '../../gfx/descriptor-set-layout';
+import { GFXPipelineLayoutInfo } from '../../gfx';
 
 const _dsLayoutInfo = new GFXDescriptorSetLayoutInfo();
 
@@ -350,9 +351,7 @@ class ProgramLib {
             }
             _dsLayoutInfo.bindings = localDescriptorSetLayout.bindings;
             layout.setLayouts[SetIndex.LOCAL] = _dsLayout = _dsLayout || device.createDescriptorSetLayout(_dsLayoutInfo);
-            layout.hPipelineLayout = PipelineLayoutPool.alloc(device, {
-                setLayouts: layout.setLayouts,
-            });
+            layout.hPipelineLayout = PipelineLayoutPool.alloc(device, new GFXPipelineLayoutInfo(layout.setLayouts));
         }
 
         const macroArray = prepareDefines(defines, tmpl.defines);

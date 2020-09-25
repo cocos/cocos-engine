@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { GFXAttributeName, GFXBuffer, GFXBufferUsageBit, GFXDevice, GFXFeature, GFXMemoryUsageBit, GFXDescriptorSet } from '../gfx';
+import { GFXAttributeName, GFXBuffer, GFXBufferUsageBit, GFXDevice, GFXFeature, GFXMemoryUsageBit, GFXDescriptorSet, GFXBufferInfo } from '../gfx';
 import { Mesh } from './mesh';
 import { Texture2D } from './texture-2d';
 import { ImageAsset } from './image-asset';
@@ -454,12 +454,12 @@ class MorphUniforms {
     constructor (gfxDevice: GFXDevice, targetCount: number) {
         this._targetCount = targetCount;
         this._localBuffer = new DataView(new ArrayBuffer(UBOMorph.SIZE));
-        this._remoteBuffer = gfxDevice.createBuffer({
-            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: UBOMorph.SIZE,
-            stride: UBOMorph.SIZE,
-        });
+        this._remoteBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            UBOMorph.SIZE,
+            UBOMorph.SIZE,
+        ));
     }
 
     public destroy () {

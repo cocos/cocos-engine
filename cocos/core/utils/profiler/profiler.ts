@@ -30,7 +30,7 @@ import { createMesh } from '../../3d/misc/utils';
 import { Material } from '../../assets/material';
 import { GFXBufferTextureCopy, GFXClearFlag, GFXFormat, GFXTextureType, GFXTextureUsageBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
-import { GFXTexture } from '../../gfx/texture';
+import { GFXTexture, GFXTextureInfo } from '../../gfx/texture';
 import { Vec4 } from '../../math';
 import { Layers } from '../../scene-graph';
 import { Node } from '../../scene-graph/node';
@@ -194,13 +194,13 @@ export class Profiler {
         this._ctx.textBaseline = 'top';
         this._ctx.fillStyle = '#fff';
 
-        this._texture = this._device!.createTexture({
-            type: GFXTextureType.TEX2D,
-            usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
-            format: GFXFormat.RGBA8,
-            width: textureWidth,
-            height: textureHeight,
-        });
+        this._texture = this._device!.createTexture(new GFXTextureInfo(
+            GFXTextureType.TEX2D,
+            GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
+            GFXFormat.RGBA8,
+            textureWidth,
+            textureHeight,
+        ));
 
         this._region.texExtent.width = textureWidth;
         this._region.texExtent.height = textureHeight;

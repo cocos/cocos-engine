@@ -3,14 +3,14 @@
  */
 
 import { RenderingSubMesh } from '../../core/assets/mesh';
-import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
+import { GFX_DRAW_INFO_SIZE, GFXBuffer, GFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
 import { Vec3 } from '../../core/math';
 import { scene } from '../../core/renderer';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 import { Material } from '../../core/assets';
-import { GFXAttribute } from '../../core';
+import { GFXAttribute, GFXBufferInfo, GFXDrawInfo } from '../../core';
 
 const _vertex_attrs = [
     new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F), // xyz:position
@@ -30,7 +30,7 @@ export class LineModel extends scene.Model {
     private _vertAttrsFloatCount: number = 0;
     private _vdataF32: Float32Array | null = null;
     private _vdataUint32: Uint32Array | null = null;
-    private _iaInfo: IGFXIndirectBuffer;
+    private _iaInfo: GFXIndirectBuffer;
     private _iaInfoBuffer: GFXBuffer;
     private _subMeshData: RenderingSubMesh | null = null;
     private _vertCount: number = 0;
@@ -41,23 +41,13 @@ export class LineModel extends scene.Model {
         super();
         this.type = scene.ModelType.LINE;
         this._capacity = 100;
-        this._iaInfo = {
-            drawInfos: [{
-                vertexCount: 0,
-                firstVertex: 0,
-                indexCount: 0,
-                firstIndex: 0,
-                vertexOffset: 0,
-                instanceCount: 0,
-                firstInstance: 0,
-            }],
-        };
-        this._iaInfoBuffer = this._device.createBuffer({
-            usage: GFXBufferUsageBit.INDIRECT,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: GFX_DRAW_INFO_SIZE,
-            stride: GFX_DRAW_INFO_SIZE,
-        });
+        this._iaInfo = new GFXIndirectBuffer([new GFXDrawInfo()]);
+        this._iaInfoBuffer = this._device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.INDIRECT,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            GFX_DRAW_INFO_SIZE,
+            GFX_DRAW_INFO_SIZE,
+        ));
     }
 
     public setCapacity (capacity: number) {
@@ -88,12 +78,12 @@ export class LineModel extends scene.Model {
         }
         this._vertCount = 2;
         this._indexCount = 6;
-        const vertexBuffer = this._device.createBuffer({
-            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: this._vertSize * this._capacity * this._vertCount,
-            stride: this._vertSize,
-        });
+        const vertexBuffer = this._device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            this._vertSize * this._capacity * this._vertCount,
+            this._vertSize,
+        ));
         const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertSize * this._capacity * this._vertCount);
         vertexBuffer.update(vBuffer);
 
@@ -109,12 +99,12 @@ export class LineModel extends scene.Model {
             indices[dst++] = baseIdx + 1;
         }
 
-        const indexBuffer = this._device.createBuffer({
-            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: (this._capacity - 1) * this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
-            stride: Uint16Array.BYTES_PER_ELEMENT,
-        });
+        const indexBuffer = this._device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            (this._capacity - 1) * this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
+            Uint16Array.BYTES_PER_ELEMENT,
+        ));
 
         indexBuffer.update(indices);
 

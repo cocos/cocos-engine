@@ -34,6 +34,7 @@ import { PixelFormat } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, SimpleTexture } from './simple-texture';
 import { legacyCC } from '../global-exports';
+import { GFXTextureInfo } from '../gfx';
 
 /**
  * 贴图创建选项。
@@ -243,11 +244,10 @@ export class Texture2D extends SimpleTexture {
     }
 
     protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo) {
-        return Object.assign({
-            type: GFXTextureType.TEX2D,
-            width: this._width,
-            height: this._height,
-        }, presumed);
+        const texInfo = new GFXTextureInfo(GFXTextureType.TEX2D);
+        texInfo.width = this._width;
+        texInfo.height = this._height;
+        return Object.assign(texInfo, presumed);
     }
 
     protected _checkTextureLoaded () {

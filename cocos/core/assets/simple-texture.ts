@@ -5,7 +5,7 @@
 import { ccclass } from 'cc.decorator';
 import { GFXBufferTextureCopy, GFXTextureFlagBit, GFXTextureUsageBit } from '../gfx/define';
 import { GFXAPI, GFXDevice } from '../gfx/device';
-import { GFXTexture, IGFXTextureInfo } from '../gfx/texture';
+import { GFXTexture, GFXTextureInfo } from '../gfx/texture';
 import { error } from '../platform/debug';
 import { Filter } from './asset-enum';
 import { ImageAsset } from './image-asset';
@@ -34,7 +34,7 @@ const _regions: GFXBufferTextureCopy[] = [{
     },
 }];
 
-export type PresumedGFXTextureInfo = Pick<IGFXTextureInfo, 'usage' | 'flags' | 'format' | 'levelCount'>;
+export type PresumedGFXTextureInfo = Pick<GFXTextureInfo, 'usage' | 'flags' | 'format' | 'levelCount'>;
 
 function getMipLevel (width: number, height: number) {
     let size = Math.max(width, height);
@@ -186,7 +186,7 @@ export class SimpleTexture extends TextureBase {
      * @zh 这个方法被派生类重写以提供GFX纹理信息。
      * @param presumed The presumed GFX texture info.
      */
-    protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): IGFXTextureInfo | null {
+    protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): GFXTextureInfo | null {
         return null;
     }
 

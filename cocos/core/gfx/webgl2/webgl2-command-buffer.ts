@@ -1,6 +1,6 @@
 import { GFXDescriptorSet } from '../descriptor-set';
 import { GFXBuffer, GFXBufferSource } from '../buffer';
-import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
+import { GFXCommandBuffer, GFXCommandBufferInfo } from '../command-buffer';
 import {
     GFXBufferTextureCopy,
     GFXBufferUsageBit,
@@ -77,7 +77,7 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
     protected _isStateInvalied: boolean = false;
 
 
-    public initialize (info: IGFXCommandBufferInfo): boolean {
+    public initialize (info: GFXCommandBufferInfo): boolean {
 
         this._type = info.type;
         this._queue = info.queue;

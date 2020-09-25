@@ -11,7 +11,7 @@ import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { IRenderObject, UBOGlobal, UBOShadow, UNIFORM_SHADOWMAP_BINDING } from '../define';
 import { GFXBufferUsageBit, GFXMemoryUsageBit,
     GFXClearFlag, GFXFilter, GFXAddress } from '../../gfx/define';
-import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout, GFXRenderPassInfo } from '../../gfx';
+import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout, GFXRenderPassInfo, GFXBufferInfo } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
@@ -226,18 +226,20 @@ export class ForwardPipeline extends RenderPipeline {
 
         this._commandBuffers.push(device.commandBuffer);
 
-        const globalUBO = device.createBuffer({
-            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: UBOGlobal.SIZE,
-        });
+        const globalUBO = device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            UBOGlobal.SIZE,
+            UBOGlobal.SIZE,
+        ));
         this._descriptorSet.bindBuffer(UBOGlobal.BINDING, globalUBO);
 
-        const shadowUBO = device.createBuffer({
-            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: UBOShadow.SIZE,
-        });
+        const shadowUBO = device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            UBOShadow.SIZE,
+            UBOShadow.SIZE,
+        ));
         this._descriptorSet.bindBuffer(UBOShadow.BINDING, shadowUBO);
 
         const shadowMapSamplerHash = genSamplerHash([

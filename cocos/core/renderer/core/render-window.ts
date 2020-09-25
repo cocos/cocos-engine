@@ -3,7 +3,7 @@ import {
     GFXTextureUsageBit,
     GFXFormat,
 } from '../../gfx/define';
-import { GFXRenderPass, GFXTexture, GFXFramebuffer, GFXRenderPassInfo, GFXDevice } from '../../gfx';
+import { GFXRenderPass, GFXTexture, GFXFramebuffer, GFXRenderPassInfo, GFXDevice, GFXTextureInfo, GFXFramebufferInfo } from '../../gfx';
 import { Root } from '../../root';
 import { RenderWindowHandle, RenderWindowPool, RenderWindowView, FramebufferPool, NULL_HANDLE } from './memory-pools';
 
@@ -112,13 +112,13 @@ export class RenderWindow {
         for (let i = 0; i < colorAttachments.length; i++) {
             let colorTex: GFXTexture | null = null;
             if (!(this._swapchainBufferIndices & (1 << i))) {
-                colorTex = device.createTexture({
-                    type: GFXTextureType.TEX2D,
-                    usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                    format: colorAttachments[i].format,
-                    width: this._width,
-                    height: this._height,
-                });
+                colorTex = device.createTexture(new GFXTextureInfo(
+                    GFXTextureType.TEX2D,
+                    GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                    colorAttachments[i].format,
+                    this._width,
+                    this._height,
+                ));
                 RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS, 1);
             } else {
                 RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS, 1);
@@ -129,24 +129,25 @@ export class RenderWindow {
         // Use the sign bit to indicate depth attachment
         if (depthStencilAttachment) {
             if (this._swapchainBufferIndices >= 0) {
-                this._depthStencilTexture = device.createTexture({
-                    type: GFXTextureType.TEX2D,
-                    usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                    format: depthStencilAttachment.format,
-                    width: this._width,
-                    height: this._height,
-                });
+                this._depthStencilTexture = device.createTexture(new GFXTextureInfo(
+                    GFXTextureType.TEX2D,
+                    GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                    depthStencilAttachment.format,
+                    this._width,
+                    this._height,
+                ));
                 RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS, 1);
             } else {
                 RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS, 1);
             }
         }
 
-        RenderWindowPool.set(this._poolHandle, RenderWindowView.FRAMEBUFFER, FramebufferPool.alloc(device, {
-            renderPass: this._renderPass,
-            colorTextures: this._colorTextures,
-            depthStencilTexture: this._depthStencilTexture,
-        }));
+        const hFBO = FramebufferPool.alloc(device, new GFXFramebufferInfo(
+            this._renderPass,
+            this._colorTextures,
+            this._depthStencilTexture,
+        ));
+        RenderWindowPool.set(this._poolHandle, RenderWindowView.FRAMEBUFFER, hFBO);
 
         return true;
     }
@@ -205,11 +206,11 @@ export class RenderWindow {
             const framebuffer = FramebufferPool.get(RenderWindowPool.get(this._poolHandle, RenderWindowView.FRAMEBUFFER));
             if (needRebuild && framebuffer) {
                 framebuffer.destroy();
-                framebuffer.initialize({
-                    renderPass: this._renderPass!,
-                    colorTextures: this._colorTextures,
-                    depthStencilTexture: this._depthStencilTexture,
-                });
+                framebuffer.initialize(new GFXFramebufferInfo(
+                    this._renderPass!,
+                    this._colorTextures,
+                    this._depthStencilTexture,
+                ));
             }
         }
     }
