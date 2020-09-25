@@ -39,5 +39,14 @@ gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const PassVie
     return pso;
 }
 
+gfx::PipelineState *PipelineStateManager::getOrCreatePipelineStateByJS(uint32_t passHandle,
+                                                                       gfx::Shader *shader,
+                                                                       gfx::InputAssembler *inputAssembler,
+                                                                       gfx::RenderPass *renderPass) {
+    const auto pass = GET_PASS(passHandle);
+    CC_ASSERT(pass);
+    return PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass);
+}
+
 } // namespace pipeline
 } // namespace cc
