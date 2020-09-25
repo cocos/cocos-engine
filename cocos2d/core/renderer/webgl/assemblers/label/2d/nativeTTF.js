@@ -21,7 +21,7 @@ export default class NativeTTF {
         renderer.CustomAssembler.prototype.ctor.call(this);
         comp.node._proxy.setAssembler(this);
         this._layout = new jsb.LabelRenderer();
-        this._layout.init();
+        this._layout.init(comp);
         this._cfg = new DataView(this._layout._cfg);
         this._layoutInfo = new DataView(this._layout._layout);
 
