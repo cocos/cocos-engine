@@ -747,6 +747,10 @@ let TiledMap = cc.Class({
             let tilesetInfo = tilesets[i];
             if (!tilesetInfo) continue;
             let sf = this._spriteFrames[i];
+            if (!sf) {
+                console.warn("Can't find the spriteFrame of tilesets " + i);
+                continue;
+            }
             let tex = sf.getTexture();
             let idx = texIdCache[tex._id];
             if (idx === undefined) {
