@@ -350,7 +350,13 @@ let TiledMap = cc.Class({
             set (value, force) {
                 if (this._tmxFile !== value || (CC_EDITOR && force)) {
                     this._tmxFile = value;
-                    (this._preloaded || CC_EDITOR) && this._applyFile(true);
+                    if (this._preloaded || CC_EDITOR){
+                        if (this._tileAtlases && this._tileAtlases.length > 0) {
+                            this._applyFile(false);
+                        } else {
+                            this._applyFile(true);
+                        }
+                    }
                 }
             },
             type: cc.TiledMapAsset
