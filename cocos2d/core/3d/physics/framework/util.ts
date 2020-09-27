@@ -26,11 +26,11 @@
 import { IVec3Like, IQuatLike } from '../spec/i-common';
 
 export function stringfyVec3 (value: IVec3Like): string {
-        return `(x: ${value.x}, y: ${value.y}, z: ${value.z})`;    
+    return `(x: ${value.x}, y: ${value.y}, z: ${value.z})`;
 }
 
 export function stringfyQuat (value: IQuatLike): string {
-        return `(x: ${value.x}, y: ${value.y}, z: ${value.z}, w: ${value.w})`;
+    return `(x: ${value.x}, y: ${value.y}, z: ${value.z}, w: ${value.w})`;
 }
 
 interface IWrapped<T> {
@@ -180,4 +180,13 @@ export function updateWorldRT (node: cc.Node, position: cc.Vec3, rotation: cc.Qu
         node.setPosition(position);
         node.setRotation(rotation);
     }
+}
+
+export function worldDirty (node: cc.Node) {
+    let cur = node;
+    while (cur) {
+        if (cur._worldMatDirty) return true;
+        cur = cur._parent;
+    }
+    return false;
 }
