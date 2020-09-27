@@ -312,6 +312,7 @@ export class EditBox extends Component {
      * 开始编辑文本输入框触发的事件回调。
      */
     @type([ComponentEventHandler])
+    @serializable
     @displayOrder(11)
     @tooltip('该事件在用户点击输入框获取焦点的时候被触发')
     public editingDidBegan: ComponentEventHandler[] = [];
