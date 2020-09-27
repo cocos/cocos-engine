@@ -24,7 +24,8 @@
 */
 
 /**
- * @category animation
+ * @packageDocumentation
+ * @module animation
  */
 
 import { SkinnedMeshRenderer } from '../3d/framework/skinned-mesh-renderer';

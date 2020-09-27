@@ -25,7 +25,8 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 import { ccclass, type } from 'cc.decorator';

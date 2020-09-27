@@ -25,7 +25,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { Font, SpriteAtlas, TTFFont } from '../../core/assets';

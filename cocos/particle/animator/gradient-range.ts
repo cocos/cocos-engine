@@ -1,5 +1,6 @@
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 

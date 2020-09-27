@@ -1,5 +1,6 @@
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 import { GFXAddress, GFXFilter, GFXFormat } from '../gfx/define';

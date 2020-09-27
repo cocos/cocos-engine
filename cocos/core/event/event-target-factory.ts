@@ -24,7 +24,8 @@
 */
 
 /**
- * @category event
+ * @packageDocumentation
+ * @module event
  */
 
 import { EventTarget } from './event-target';

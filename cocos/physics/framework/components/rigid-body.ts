@@ -1,6 +1,6 @@
 /**
- * 物理模块
- * @category physics
+ * @packageDocumentation
+ * @module physics
  */
 
 import {

@@ -25,7 +25,8 @@
  */
 
 /**
- * @category loader
+ * @packageDocumentation
+ * @module loader
  */
 
 import { SpriteAtlas } from '../assets/sprite-atlas';

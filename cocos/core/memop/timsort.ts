@@ -1,6 +1,7 @@
 // reference: https://github.com/mziccard/node-timsort
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 

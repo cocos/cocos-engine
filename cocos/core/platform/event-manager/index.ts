@@ -25,7 +25,8 @@
 */
 
 /**
- * @category event
+ * @packageDocumentation
+ * @module event
  */
 
 export * from './event-manager';

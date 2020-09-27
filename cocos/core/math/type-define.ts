@@ -1,7 +1,9 @@
 /**
- * @category core/math
+ * @packageDocumentation
+ * @module core/math
  */
 /**
+ * @packageDocumentation
  * @hidden
  */
 export interface IColorLike {

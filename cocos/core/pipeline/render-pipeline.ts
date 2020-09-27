@@ -1,5 +1,6 @@
 /**
- * @category pipeline
+ * @packageDocumentation
+ * @module pipeline
  */
 
 import { legacyCC } from '../global-exports';

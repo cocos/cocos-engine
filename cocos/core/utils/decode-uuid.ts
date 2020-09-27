@@ -25,7 +25,8 @@
 */
 
 /**
- * @category core
+ * @packageDocumentation
+ * @module core
  */
 
 import { BASE64_VALUES } from './misc';

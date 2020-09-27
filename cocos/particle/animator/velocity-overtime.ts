@@ -1,6 +1,7 @@
 
 /**
- * @category particle
+ * @packageDocumentation
+ * @module particle
  */
 
 import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';

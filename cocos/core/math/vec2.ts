@@ -25,7 +25,8 @@
 */
 
 /**
- * @category core/math
+ * @packageDocumentation
+ * @module core/math
  */
 
 import { CCClass } from '../data/class';

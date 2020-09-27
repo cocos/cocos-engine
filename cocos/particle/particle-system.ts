@@ -1,7 +1,8 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 /**
- * @category particle
+ * @packageDocumentation
+ * @module particle
  */
 
 // tslint:disable: max-line-length

@@ -24,7 +24,8 @@
 */
 
 /**
- * @category animation
+ * @packageDocumentation
+ * @module animation
  */
 
 import { Node } from '../scene-graph/node';

@@ -26,7 +26,8 @@
 */
 
 /**
- * @category core
+ * @packageDocumentation
+ * @module core
  */
 
 import '../data/class';

@@ -24,7 +24,8 @@
 */
 
 /**
- * @category component/camera
+ * @packageDocumentation
+ * @module component/camera
  */
 
 import { EDITOR } from 'internal:constants';

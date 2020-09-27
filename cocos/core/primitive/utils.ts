@@ -1,6 +1,7 @@
 /**
  * 几何图形模块
- * @category 3d/primitive
+ * @packageDocumentation
+ * @module 3d/primitive
  */
 
 import { GFXPrimitiveMode } from '../gfx/define';

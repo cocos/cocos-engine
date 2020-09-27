@@ -25,7 +25,8 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 import decodeUuid from '../utils/decode-uuid';

@@ -25,7 +25,8 @@
 */
 
 /**
- * @category event
+ * @packageDocumentation
+ * @module event
  */
 
 import { ccclass, help, menu } from 'cc.decorator';

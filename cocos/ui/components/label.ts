@@ -25,7 +25,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { BitmapFont, Font, ImageAsset, SpriteFrame, Texture2D, Material } from '../../core/assets';

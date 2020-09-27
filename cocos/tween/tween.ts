@@ -1,5 +1,6 @@
 /**
- * @category tween
+ * @packageDocumentation
+ * @module tween
  */
 
 import { TweenSystem } from './tween-system';

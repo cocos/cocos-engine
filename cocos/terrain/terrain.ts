@@ -1,5 +1,6 @@
 /**
- * @category terrain
+ * @packageDocumentation
+ * @module terrain
  */
 import { builtinResMgr } from '../core/3d/builtin';
 import { RenderableComponent } from '../core/3d/framework/renderable-component';

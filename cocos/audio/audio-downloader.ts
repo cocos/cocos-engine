@@ -24,7 +24,8 @@
  THE SOFTWARE.
  */
 /**
- * @category loader
+ * @packageDocumentation
+ * @module loader
  */
 
 import { getError, log } from '../core/platform/debug';

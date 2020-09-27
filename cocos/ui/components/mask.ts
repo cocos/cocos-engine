@@ -25,7 +25,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, editable, serializable } from 'cc.decorator';

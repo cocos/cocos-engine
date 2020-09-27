@@ -1,5 +1,6 @@
 /**
- * @category pipeline.forward
+ * @packageDocumentation
+ * @module pipeline.forward
  */
 
 import { ccclass } from 'cc.decorator';

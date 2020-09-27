@@ -20,7 +20,8 @@
 */
 
 /**
- * @category scene-graph
+ * @packageDocumentation
+ * @module scene-graph
  */
 
 import { TextureCube } from '../assets/texture-cube';

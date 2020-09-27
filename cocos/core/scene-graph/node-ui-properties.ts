@@ -24,7 +24,8 @@
 */
 
 /**
- * @category scene-graph
+ * @packageDocumentation
+ * @module scene-graph
  */
 
 import { UIComponent } from '../components/ui-base/ui-component';
