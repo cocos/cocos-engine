@@ -508,7 +508,7 @@ export class WebGLCmdBeginRenderPass extends WebGLCmdObject {
 
     public gpuRenderPass: IWebGLGPURenderPass | null = null;
     public gpuFramebuffer: IWebGLGPUFramebuffer | null = null;
-    public renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
+    public renderArea = new GFXRect();
     public clearFlag: GFXClearFlag = GFXClearFlag.NONE;
     public clearColors: GFXColor[] = [];
     public clearDepth: number = 1.0;

@@ -41,7 +41,7 @@ export class UIStage extends RenderStage {
     protected renderQueues: RenderQueueDesc[] = [];
     protected _renderQueues: RenderQueue[] = [];
 
-    private _renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
+    private _renderArea = new GFXRect();
 
     public initialize (info: IRenderStageInfo): boolean {
         super.initialize(info);

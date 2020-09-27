@@ -204,10 +204,10 @@ export class Camera extends Component {
     set clearColor (val) {
         this._color.set(val);
         if (this._camera) {
-            this._camera.clearColor.r = this._color.x;
-            this._camera.clearColor.g = this._color.y;
-            this._camera.clearColor.b = this._color.z;
-            this._camera.clearColor.a = this._color.w;
+            this._camera.clearColor.x = this._color.x;
+            this._camera.clearColor.y = this._color.y;
+            this._camera.clearColor.z = this._color.z;
+            this._camera.clearColor.w = this._color.w;
         }
     }
 
@@ -563,7 +563,10 @@ export class Camera extends Component {
             this._camera.orthoHeight = this._orthoHeight;
             this._camera.nearClip = this._near;
             this._camera.farClip = this._far;
-            this._camera.clearColor = this._color;
+            this._camera.clearColor.x = this._color.x;
+            this._camera.clearColor.y = this._color.y;
+            this._camera.clearColor.z = this._color.z;
+            this._camera.clearColor.w = this._color.w;
             this._camera.clearDepth = this._depth;
             this._camera.clearStencil = this._stencil;
             this._camera.clearFlag = this._clearFlags;

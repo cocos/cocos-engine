@@ -19,7 +19,7 @@ import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
  * @zh GFX 颜色附件。
  */
 export class GFXColorAttachment {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public format: GFXFormat = GFXFormat.UNKNOWN,
@@ -36,7 +36,7 @@ export class GFXColorAttachment {
  * @zh GFX 深度模板附件。
  */
 export class GFXDepthStencilAttachment {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public format: GFXFormat = GFXFormat.UNKNOWN,
@@ -51,7 +51,7 @@ export class GFXDepthStencilAttachment {
 }
 
 export class GFXSubPassInfo {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public bindPoint: GFXPipelineBindPoint = GFXPipelineBindPoint.GRAPHICS,
@@ -64,7 +64,7 @@ export class GFXSubPassInfo {
 }
 
 export class GFXRenderPassInfo {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public colorAttachments: GFXColorAttachment[] = [],

@@ -16,11 +16,11 @@ export const DESCRIPTOR_BUFFER_TYPE =
 export const DESCRIPTOR_SAMPLER_TYPE = GFXDescriptorType.SAMPLER;
 
 export class GFXDescriptorSetInfo {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public layout: GFXDescriptorSetLayout,
-    ){}
+    ) {}
 }
 
 /**

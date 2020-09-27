@@ -12,7 +12,7 @@ export interface IGFXShaderStage {
 }
 
 export class GFXShaderStage implements IGFXShaderStage {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public stage: GFXShaderStageFlagBit = GFXShaderStageFlagBit.NONE,
@@ -31,7 +31,7 @@ export interface IGFXUniform {
  * @zh GFX uniform。
  */
 export class GFXUniform implements IGFXUniform {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public name: string = '',
@@ -45,7 +45,7 @@ export class GFXUniform implements IGFXUniform {
  * @zh GFX uniform 块。
  */
 export class GFXUniformBlock {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public set: number = -1,
@@ -61,7 +61,7 @@ export class GFXUniformBlock {
  * @zh GFX Uniform 采样器。
  */
 export class GFXUniformSampler {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public set: number = -1,
@@ -73,7 +73,7 @@ export class GFXUniformSampler {
 }
 
 export class GFXShaderInfo {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public name: string = '',

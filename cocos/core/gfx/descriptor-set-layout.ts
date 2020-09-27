@@ -7,7 +7,7 @@ import { GFXDevice } from './device';
 import { GFXSampler } from './sampler';
 
 export class GFXDescriptorSetLayoutBinding {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public descriptorType: GFXDescriptorType = GFXDescriptorType.UNKNOWN,
@@ -18,7 +18,7 @@ export class GFXDescriptorSetLayoutBinding {
 }
 
 export class GFXDescriptorSetLayoutInfo {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         // array index is used as the binding numbers,

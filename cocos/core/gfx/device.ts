@@ -59,7 +59,7 @@ export enum GFXFeature {
 }
 
 export class GFXBindingMappingInfo {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public bufferOffsets: number[] = [],
@@ -69,7 +69,7 @@ export class GFXBindingMappingInfo {
 }
 
 export class GFXDeviceInfo {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public canvasElm: HTMLElement,
@@ -404,10 +404,7 @@ export abstract class GFXDevice {
     protected _numDrawCalls: number = 0;
     protected _numInstances: number = 0;
     protected _numTris: number = 0;
-    protected _memoryStatus: GFXMemoryStatus = {
-        bufferSize: 0,
-        textureSize: 0,
-    };
+    protected _memoryStatus = new GFXMemoryStatus();
     protected _clipSpaceMinZ = -1;
     protected _screenSpaceSignY = 1;
     protected _UVSpaceSignY = -1;

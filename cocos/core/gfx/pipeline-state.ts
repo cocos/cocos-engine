@@ -29,7 +29,7 @@ import { GFXPipelineLayout } from './pipeline-layout';
  * @zh GFX 光栅化状态。
  */
 export class GFXRasterizerState {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public isDiscard: boolean = false,
@@ -65,7 +65,7 @@ export class GFXRasterizerState {
  * @zh GFX 深度模板状态。
  */
 export class GFXDepthStencilState {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public depthTest: boolean = true,
@@ -117,7 +117,7 @@ export class GFXDepthStencilState {
  * @zh GFX 混合目标。
  */
 export class GFXBlendTarget {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public blend: boolean = false,
@@ -147,7 +147,7 @@ export class GFXBlendTarget {
  * @zh GFX混合状态。
  */
 export class GFXBlendState {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public isA2C: boolean = false,
@@ -174,7 +174,7 @@ export class GFXBlendState {
  * @zh GFX 输入状态。
  */
 export class GFXInputState {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public attributes: GFXAttribute[] = [],
@@ -182,7 +182,7 @@ export class GFXInputState {
 }
 
 export class GFXPipelineStateInfo {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public shader: GFXShader,

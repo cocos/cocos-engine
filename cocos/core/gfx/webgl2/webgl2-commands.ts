@@ -665,7 +665,7 @@ export class WebGL2CmdBeginRenderPass extends WebGL2CmdObject {
 
     public gpuRenderPass: IWebGL2GPURenderPass | null = null;
     public gpuFramebuffer: IWebGL2GPUFramebuffer | null = null;
-    public renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
+    public renderArea = new GFXRect();
     public clearColors: GFXColor[] = [];
     public clearDepth: number = 1.0;
     public clearStencil: number = 0;

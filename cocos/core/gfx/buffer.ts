@@ -15,7 +15,7 @@ import {
 import { GFXDevice } from './device';
 
 export class GFXDrawInfo {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public vertexCount: number = 0,
@@ -31,7 +31,7 @@ export class GFXDrawInfo {
 export const GFX_DRAW_INFO_SIZE: number = 28;
 
 export class GFXIndirectBuffer {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public drawInfos: GFXDrawInfo[] = [],
@@ -41,7 +41,7 @@ export class GFXIndirectBuffer {
 export type GFXBufferSource = ArrayBuffer | GFXIndirectBuffer;
 
 export class GFXBufferInfo {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public usage: GFXBufferUsage,
@@ -53,7 +53,7 @@ export class GFXBufferInfo {
 }
 
 export class GFXBufferViewInfo {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public buffer: GFXBuffer,

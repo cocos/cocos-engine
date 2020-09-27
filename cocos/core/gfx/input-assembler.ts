@@ -8,7 +8,7 @@ import { GFXDevice } from './device';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 
 export class GFXAttribute {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public name: string = '',
@@ -21,7 +21,7 @@ export class GFXAttribute {
 }
 
 export class GFXInputAssemblerInfo {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public attributes: GFXAttribute[] = [],

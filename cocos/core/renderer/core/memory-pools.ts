@@ -31,7 +31,7 @@ import { DEBUG, JSB } from 'internal:constants';
 import { NativeBufferPool, NativeObjectPool, NativeArrayPool } from './native-pools';
 import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, GFXDescriptorSetInfo,
     GFXDevice, GFXDescriptorSet, GFXShaderInfo, GFXShader, GFXInputAssemblerInfo, GFXInputAssembler,
-    GFXPipelineLayoutInfo, GFXPipelineLayout, GFXFramebuffer, GFXFramebufferInfo, GFXPrimitiveMode, GFXDynamicStateFlags, GFXClearFlag } from '../../gfx';
+    GFXPipelineLayoutInfo, GFXPipelineLayout, GFXFramebuffer, GFXFramebufferInfo, GFXPrimitiveMode, GFXDynamicStateFlags, GFXClearFlag, GFXColor } from '../../gfx';
 import { RenderPassStage } from '../../pipeline/define';
 import { BatchingSchemes } from './pass';
 import { Layers } from '../../scene-graph/layers';
@@ -759,7 +759,7 @@ interface ICameraViewType extends BufferTypeManifest<typeof CameraView> {
     [CameraView.FORWARD]: Vec3;
     [CameraView.POSITION]: Vec3;
     [CameraView.VIEW_PORT]: Rect;
-    [CameraView.CLEAR_COLOR]: Color;
+    [CameraView.CLEAR_COLOR]: GFXColor;
     [CameraView.MAT_VIEW]: Mat4;
     [CameraView.MAT_VIEW_PROJ]: Mat4;
     [CameraView.MAT_VIEW_PROJ_INV]: Mat4;

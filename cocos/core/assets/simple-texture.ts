@@ -14,25 +14,7 @@ import { DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { macro } from '../platform/macro';
 
-const _regions: GFXBufferTextureCopy[] = [{
-    buffStride: 0,
-    buffTexHeight: 0,
-    texOffset: {
-        x: 0,
-        y: 0,
-        z: 0,
-    },
-    texExtent: {
-        width: 1,
-        height: 1,
-        depth: 1,
-    },
-    texSubres: {
-        mipLevel: 0,
-        baseArrayLayer: 0,
-        layerCount: 1,
-    },
-}];
+const _regions: GFXBufferTextureCopy[] = [new GFXBufferTextureCopy()];
 
 export type PresumedGFXTextureInfo = Pick<GFXTextureInfo, 'usage' | 'flags' | 'format' | 'levelCount'>;
 

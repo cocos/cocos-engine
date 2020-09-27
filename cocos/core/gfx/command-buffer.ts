@@ -23,7 +23,7 @@ import { GFXRenderPass } from './render-pass';
 import { GFXQueue } from './queue';
 
 export class GFXCommandBufferInfo {
-    declare private token: never; // make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public queue: GFXQueue,

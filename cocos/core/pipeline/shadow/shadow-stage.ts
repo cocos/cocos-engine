@@ -3,7 +3,6 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXColor, GFXRect } from '../../gfx/define';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
@@ -33,7 +32,7 @@ export class ShadowStage extends RenderStage {
 
     private _additiveShadowQueue: RenderShadowMapBatchedQueue;
     private _shadowFrameBuffer: GFXFramebuffer | null = null;
-    private _renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
+    private _renderArea = new GFXRect();
 
     /**
      * 构造函数。

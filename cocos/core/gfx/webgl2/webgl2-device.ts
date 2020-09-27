@@ -363,25 +363,9 @@ export class WebGL2Device extends GFXDevice {
             6,
         ));
 
-        const nullTexRegion: GFXBufferTextureCopy = {
-            buffStride: 0,
-            buffTexHeight: 0,
-            texOffset: {
-                x: 0,
-                y: 0,
-                z: 0,
-            },
-            texExtent: {
-                width: 2,
-                height: 2,
-                depth: 1,
-            },
-            texSubres: {
-                mipLevel: 0,
-                baseArrayLayer: 0,
-                layerCount: 1,
-            },
-        };
+        const nullTexRegion = new GFXBufferTextureCopy();
+        nullTexRegion.texExtent.width = 2;
+        nullTexRegion.texExtent.height = 2;
 
         const nullTexBuff = new Uint8Array(this.nullTex2D.size);
         nullTexBuff.fill(0);

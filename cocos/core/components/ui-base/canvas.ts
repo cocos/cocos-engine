@@ -113,10 +113,10 @@ export class Canvas extends Component {
     set color (val) {
         Color.copy(this._color, val);
         if (this._camera) {
-            this._camera.clearColor.r = val.r / 255;
-            this._camera.clearColor.g = val.g / 255;
-            this._camera.clearColor.b = val.b / 255;
-            this._camera.clearColor.a = val.a / 255;
+            this._camera.clearColor.x = val.x;
+            this._camera.clearColor.y = val.y;
+            this._camera.clearColor.z = val.z;
+            this._camera.clearColor.w = val.w;
         }
     }
 
@@ -268,7 +268,9 @@ export class Canvas extends Component {
         if (EDITOR) {
             director.on(Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
 
-            // In Editor can not edit these attrs. (Position in Node, contentSize in uiTransform) (anchor in uiTransform, but it can edit, this is different from cocos creator)
+            // In Editor can not edit these attrs.
+            // (Position in Node, contentSize in uiTransform)
+            // (anchor in uiTransform, but it can edit, this is different from cocos creator)
             this._objFlags |= legacyCC.Object.Flags.IsPositionLocked | legacyCC.Object.Flags.IsSizeLocked | legacyCC.Object.Flags.IsAnchorLocked;
         }
 

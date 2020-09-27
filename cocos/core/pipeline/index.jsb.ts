@@ -1,3 +1,6 @@
+
+declare const nr: any;
+
 export const RenderPipeline = nr.RenderPipeline;
 export const RenderFlow = nr.RenderFlow;
 export const RenderStage = nr.RenderStage;
