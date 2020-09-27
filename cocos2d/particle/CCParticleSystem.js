@@ -1010,8 +1010,8 @@ var ParticleSystem = cc.Class({
 
                 self._plistFile = file.nativeUrl;
                 
-                var isDiffFrame = self._spriteFrame !== file.spriteFrame;
                 if (!self._custom) {
+                    var isDiffFrame = self._spriteFrame !== file.spriteFrame;
                     if (isDiffFrame) self.spriteFrame = file.spriteFrame;
                     self._initWithDictionary(file._nativeAsset);
                 }
