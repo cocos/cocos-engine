@@ -58,37 +58,34 @@ export const tilled: IAssembler = {
         const uiTrans = sprite.node._uiProps.uiTransformComp!;
         const contentWidth = Math.abs(uiTrans.width);
         const contentHeight = Math.abs(uiTrans.height);
-        const appX = uiTrans.anchorX * contentWidth;
-        const appY = uiTrans.anchorY * contentHeight;
 
         const rect = frame.getRect();
-        const rectWidth = rect.width;
-        const rectHeight = rect.height;
-        const hRepeat = contentWidth / rectWidth;
-        const vRepeat = contentHeight / rectHeight;
-        const row = Math.ceil(vRepeat);
-        const col = Math.ceil(hRepeat);
+        let leftWidth = frame.insetLeft, rightWidth = frame.insetRight, centerWidth = rect.width - leftWidth - rightWidth,
+            topHeight = frame.insetTop, bottomHeight = frame.insetBottom, centerHeight = rect.height - topHeight - bottomHeight;
 
-        const dataList = renderData.data;
-        renderData.dataLength = Math.max(8, row + 1, col + 1);
+        this.sizableWidth = contentWidth - leftWidth - rightWidth;
+        this.sizableHeight = contentHeight - topHeight - bottomHeight;
+        this.sizableWidth = this.sizableWidth > 0 ? this.sizableWidth : 0;
+        this.sizableHeight = this.sizableHeight > 0 ? this.sizableHeight : 0;
 
-        for (let i = 0; i <= col; ++i) {
-            dataList[i].x = Math.min(rectWidth * i, contentWidth) - appX;
-        }
-        for (let i = 0; i <= row; ++i) {
-            dataList[i].y = Math.min(rectHeight * i, contentHeight) - appY;
-        }
+        this.hRepeat = centerWidth === 0 ? this.sizableWidth : this.sizableWidth / centerWidth;
+        this.vRepeat = centerHeight === 0 ? this.sizableHeight : this.sizableHeight / centerHeight;
+        this.row = Math.ceil(this.hRepeat + 2);
+        this.col = Math.ceil(this.vRepeat + 2);
+
+        renderData.dataLength = Math.max(8, this.row + 1, this.col + 1);
+
+        this.updateVerts(sprite);
 
         // update data property
-        renderData.vertexCount = row * col * 4;
-        renderData.indicesCount = row * col * 6;
+        renderData.vertexCount = this.row * this.col * 4;
+        renderData.indicesCount = this.row * this.col * 6;
         renderData.uvDirty = false;
         renderData.vertDirty = false;
     },
 
     fillBuffers (sprite: Sprite, renderer: UI) {
         const node = sprite.node;
-        const uiTrans = sprite.node._uiProps.uiTransformComp!;
         const renderData = sprite.renderData!;
 
         // buffer
@@ -113,25 +110,42 @@ export const tilled: IAssembler = {
         const frame = sprite.spriteFrame!;
         const rotated = frame.isRotated();
         const uv = frame.uv;
+        const uvSliced = sprite.spriteFrame?.uvSliced!;
         const rect = frame.getRect();
-        const contentWidth = Math.abs(uiTrans.width);
-        const contentHeight = Math.abs(uiTrans.height);
-        const hRepeat = contentWidth / rect.width;
-        const vRepeat = contentHeight / rect.height;
-        const row = Math.ceil(vRepeat);
-        const col = Math.ceil(hRepeat);
+        const leftWidth = frame.insetLeft, rightWidth = frame.insetRight, centerWidth = rect.width - leftWidth - rightWidth,
+            topHeight = frame.insetTop, bottomHeight = frame.insetBottom, centerHeight = rect.height - topHeight - bottomHeight;
 
         const matrix = node.worldMatrix;
 
-        this.fillVertices(vBuf, vertexOffset, matrix, row, col, renderData.data);
+        this.fillVertices(vBuf, vertexOffset, matrix, this.row, this.col, renderData.data);
 
         const offset = _perVertexLength;
         const offset1 = offset; const offset2 = offset * 2; const offset3 = offset * 3; const offset4 = offset * 4;
         let coefU = 0; let coefV = 0;
-        for (let yIndex = 0, yLength = row; yIndex < yLength; ++yIndex) {
-            coefV = Math.min(1, vRepeat - yIndex);
-            for (let xIndex = 0, xLength = col; xIndex < xLength; ++xIndex) {
-                coefU = Math.min(1, hRepeat - xIndex);
+        for (let yIndex = 0, yLength = this.row; yIndex < yLength; ++yIndex) {
+            if (this.sizableHeight > centerHeight) {
+                if (this.sizableHeight >= yIndex * centerHeight) {
+                    coefV = 1;
+                }
+                else {
+                    coefV = this.vRepeat % 1;
+                }
+            }
+            else {
+                coefV = this.vRepeat;
+            }
+            for (let xIndex = 0, xLength = this.col; xIndex < xLength; ++xIndex) {
+                if (this.sizableWidth > centerWidth) {
+                    if (this.sizableWidth >= xIndex * centerWidth) {
+                        coefU = 1;
+                    }
+                    else {
+                        coefU = this.hRepeat % 1;
+                    }
+                }
+                else {
+                    coefU = this.hRepeat;
+                }
 
                 const vertexOffsetU = vertexOffset + 3;
                 const vertexOffsetV = vertexOffsetU + 1;
@@ -152,14 +166,62 @@ export const tilled: IAssembler = {
                 }
                 else {
                     // lb
-                    vBuf[vertexOffsetU] = uv[0];
-                    vBuf[vertexOffsetV] = uv[1];
+                    if (xIndex === 0) {
+                        vBuf[vertexOffsetU] = uv[0];
+                    }
+                    else if (xIndex > 0 && xIndex < (this.col - 1)) {
+                        vBuf[vertexOffsetU] = uvSliced[1].u;
+                    }
+                    else if(xIndex === (this.col - 1)) {
+                        vBuf[vertexOffsetU] = uvSliced[2].u;
+                    }
+                    if (yIndex === 0) {
+                        vBuf[vertexOffsetV] = uvSliced[0].v;
+                    }
+                    else if (yIndex > 0 && yIndex < (this.row - 1)) {
+                        vBuf[vertexOffsetV] = uvSliced[4].v;
+                    }
+                    else if (yIndex === (this.row - 1)) {
+                        vBuf[vertexOffsetV] = uvSliced[8].v;
+                    }
                     // rb
-                    vBuf[vertexOffsetU + offset1] = uv[0] + (uv[6] - uv[0]) * coefU;
-                    vBuf[vertexOffsetV + offset1] = uv[1];
+                    if (xIndex === 0) {
+                        vBuf[vertexOffsetU + offset1] = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefU;
+                    }
+                    else if (xIndex > 0 && xIndex < (this.col - 1)) {
+                        vBuf[vertexOffsetU + offset1] = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefU;
+                    }
+                    else if (xIndex === (this.col - 1)){
+                        vBuf[vertexOffsetU + offset1] = uvSliced[3].u;
+                    }
+                    if (yIndex === 0) {
+                        vBuf[vertexOffsetV + offset1] = uvSliced[0].v;
+                    }
+                    else if (yIndex > 0 && yIndex < (this.row - 1)) {
+                        vBuf[vertexOffsetV + offset1] = uvSliced[4].v;
+                    }
+                    else if (yIndex === (this.row - 1)) {
+                        vBuf[vertexOffsetV + offset1] = uvSliced[8].v;
+                    }
                     // lt
-                    vBuf[vertexOffsetU + offset2] = uv[0];
-                    vBuf[vertexOffsetV + offset2] = uv[1] + (uv[7] - uv[1]) * coefV;
+                    if (xIndex === 0) {
+                        vBuf[vertexOffsetU + offset2] = uv[0];
+                    }
+                    else if (xIndex > 0 && xIndex < (this.col - 1)) {
+                        vBuf[vertexOffsetU + offset2] = uvSliced[1].u;
+                    }
+                    else if (xIndex === (this.col - 1)) {
+                        vBuf[vertexOffsetU + offset2] = uvSliced[2].u;
+                    }
+                    if (yIndex === 0) {
+                        vBuf[vertexOffsetV + offset2] = uvSliced[4].v + (uvSliced[8].v - uvSliced[4].v) * coefV;
+                    }
+                    else if (yIndex > 0 && yIndex < (this.row - 1)) {
+                        vBuf[vertexOffsetV + offset2] = uvSliced[4].v + (uvSliced[8].v - uvSliced[4].v) * coefV;
+                    }
+                    else if (yIndex === (this.row - 1)) {
+                        vBuf[vertexOffsetV + offset2] = uvSliced[12].v;
+                    }
                     // rt
                     vBuf[vertexOffsetU + offset3] = vBuf[vertexOffsetU + offset1];
                     vBuf[vertexOffsetV + offset3] = vBuf[vertexOffsetV + offset2];
@@ -212,4 +274,92 @@ export const tilled: IAssembler = {
             }
         }
     },
+
+    updateVerts (sprite: SpriteComponent) {
+        const uiTrans = sprite.node._uiProps.uiTransformComp!;
+        const data = sprite.renderData?.data!;
+        const frame = sprite.spriteFrame!;
+
+        const rect = frame.getRect();
+        const contentWidth = Math.abs(uiTrans.width);
+        const contentHeight = Math.abs(uiTrans.height);
+        const appx = uiTrans.anchorX * contentWidth;
+        const appy = uiTrans.anchorY * contentHeight;
+        const leftWidth = frame.insetLeft, rightWidth = frame.insetRight, centerWidth = rect.width - leftWidth - rightWidth,
+            topHeight = frame.insetTop, bottomHeight = frame.insetBottom, centerHeight = rect.height - topHeight - bottomHeight;
+
+        const xScale = (uiTrans.width / (leftWidth + rightWidth)) > 1 ? 1 : (uiTrans.width / (leftWidth + rightWidth));
+        const yScale = (uiTrans.height / (topHeight + bottomHeight)) > 1 ? 1 : (uiTrans.height / (topHeight + bottomHeight));
+        let offsetWidth = 0, offsetHeight = 0;
+        
+        if (centerWidth > 0) {
+            /*
+             * Because the float numerical calculation in javascript is not accurate enough, 
+             * there is an expected result of 1.0, but the actual result is 1.000001.
+             */
+            offsetWidth = Math.floor(this.sizableWidth * 1000) / 1000 % centerWidth === 0 ? centerWidth : this.sizableWidth % centerWidth;
+        }
+        else {
+            offsetWidth = this.sizableWidth;
+        }
+        if (centerHeight > 0) {
+            offsetHeight = Math.floor(this.sizableHeight * 1000) / 1000 % centerHeight === 0 ? centerHeight : this.sizableHeight % centerHeight;
+        }
+        else {
+            offsetHeight = this.sizableHeight;
+        }
+
+        for (let i = 0; i <= this.col; i++) {
+            if (i === 0) {
+                data[i].x = - appx;
+            }
+            else if (i > 0 && i < this.col) {
+                if (i === 1) {
+                    data[i].x = leftWidth * xScale + Math.min(centerWidth, this.sizableWidth) - appx;
+                }
+                else {
+                    if (centerWidth > 0) {
+                        if (i === (this.col - 1)) {
+                            data[i].x = leftWidth + offsetWidth + centerWidth * (i - 2) - appx;
+                        }
+                        else {
+                            data[i].x = leftWidth + Math.min(centerWidth, this.sizableWidth) + centerWidth * (i - 2) - appx;
+                        }
+                    }
+                    else {
+                        data[i].x = leftWidth + this.sizableWidth - appx;
+                    }
+                }
+            }
+            else if (i === this.col) {
+                data[i].x = Math.min(leftWidth + this.sizableWidth + rightWidth, contentWidth) - appx;
+            }
+        }
+        for (let i = 0; i <= this.row; i++) {
+            if (i === 0) {
+                data[i].y = - appy;
+            }
+            else if (i > 0 && i < this.row) {
+                if (i === 1) {
+                    data[i].y = bottomHeight * yScale + Math.min(centerHeight, this.sizableHeight) - appy;
+                }
+                else {
+                    if (centerHeight > 0) {
+                        if (i === (this.row - 1)) {
+                            data[i].y = bottomHeight + offsetHeight + (i - 2) * centerHeight - appy;
+                        }
+                        else {
+                            data[i].y = bottomHeight + Math.min(centerHeight, this.sizableHeight) + (i - 2) * centerHeight - appy;
+                        }
+                    }
+                    else {
+                        data[i].y = bottomHeight + this.sizableHeight - appy;
+                    }
+                }
+            }
+            else if (i === this.row) {
+                data[i].y = Math.min(bottomHeight + this.sizableHeight + topHeight, contentHeight) - appy;
+            }
+        }
+    }
 };
