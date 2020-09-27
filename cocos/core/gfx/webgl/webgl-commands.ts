@@ -1141,7 +1141,6 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLDevice, gpuFramebuff
 
         if (device.stateCache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
             gl.bindFramebuffer(gl.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
-            device.stateCache.glFramebuffer = gpuFramebuffer.glFramebuffer;
         }
 
         for (let i = 0; i < gpuFramebuffer.gpuColorTextures.length; ++i) {
@@ -1213,6 +1212,10 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLDevice, gpuFramebuff
                 }
                 default:
             }
+        }
+
+        if (device.stateCache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, device.stateCache.glFramebuffer);
         }
     }
 }
