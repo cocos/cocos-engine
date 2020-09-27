@@ -39,8 +39,9 @@ import { SkeletalAnimationState } from './skeletal-animation-state';
 import { getWorldTransformUntilRoot } from './transform-utils';
 import { legacyCC } from '../global-exports';
 import { AnimationManager } from './animation-manager';
+import { js } from '../utils/js';
 
-@ccclass('cc.SkeletalAnimationComponent.Socket')
+@ccclass('cc.SkeletalAnimation.Socket')
 export class Socket {
 
     /**
@@ -63,6 +64,8 @@ export class Socket {
         this.target = target;
     }
 }
+
+js.setClassAlias(Socket, 'cc.SkeletalAnimationComponent.Socket');
 
 const m4_1 = new Mat4();
 const m4_2 = new Mat4();
