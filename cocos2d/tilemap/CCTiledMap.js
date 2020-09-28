@@ -904,14 +904,14 @@ let TiledMap = cc.Class({
             if (this.cleanupImageCache) {
                 let tiledMap = this;
                 this._textures.forEach(function(tex){
-                    tiledMap._cleanupImageElement(tex)
+                    tiledMap._doCleanupImageCache(tex)
                 });
             }
 
         }.bind(this));
     },
 
-    _cleanupImageElement(texture) {
+    _doCleanupImageCache(texture) {
         if (texture._image instanceof HTMLImageElement) {
             texture._image.src = ''
         }
