@@ -27,6 +27,7 @@
 */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 

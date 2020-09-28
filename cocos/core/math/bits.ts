@@ -1,6 +1,7 @@
 /**
+ * @packageDocumentation
  * 数学库
- * @category core/math
+ * @module core/math
  */
 
 /**

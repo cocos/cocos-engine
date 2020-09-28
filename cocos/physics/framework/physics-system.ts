@@ -1,5 +1,6 @@
 /**
- * @category physics
+ * @packageDocumentation
+ * @module physics
  */
 
 import { Vec3 } from '../../core/math';

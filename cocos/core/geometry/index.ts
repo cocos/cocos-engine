@@ -1,5 +1,6 @@
 /**
- * @category geometry
+ * @packageDocumentation
+ * @module geometry
  */
 
 export { default as enums } from './enums';

@@ -24,7 +24,8 @@
 */
 
 /**
- * @category model
+ * @packageDocumentation
+ * @module model
  */
 
 import { Texture2D } from '../../assets';

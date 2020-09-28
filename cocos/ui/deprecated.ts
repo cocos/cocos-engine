@@ -1,5 +1,6 @@
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { warnID } from '../core/platform/debug';

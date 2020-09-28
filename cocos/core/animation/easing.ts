@@ -1,6 +1,7 @@
 
 /**
- * @category animation
+ * @packageDocumentation
+ * @module animation
  */
 
 export function constant () {

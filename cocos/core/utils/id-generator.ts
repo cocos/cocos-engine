@@ -24,7 +24,8 @@
 */
 
 /**
- * @category core
+ * @packageDocumentation
+ * @module core
  */
 
 import { EDITOR } from 'internal:constants';

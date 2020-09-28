@@ -1,5 +1,6 @@
 /**
- * @category core
+ * @packageDocumentation
+ * @module core
  */
 
 import { Camera } from '../3d/framework/camera-component';

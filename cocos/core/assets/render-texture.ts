@@ -24,7 +24,8 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 import { ccclass, rangeMin, rangeMax, serializable } from 'cc.decorator';

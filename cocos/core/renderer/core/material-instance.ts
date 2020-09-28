@@ -24,7 +24,8 @@
 */
 
 /**
- * @category material
+ * @packageDocumentation
+ * @module material
  */
 
 import { RenderableComponent } from '../../3d/framework/renderable-component';

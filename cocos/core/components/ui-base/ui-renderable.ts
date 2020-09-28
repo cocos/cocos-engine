@@ -24,7 +24,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip, type, displayOrder, serializable } from 'cc.decorator';

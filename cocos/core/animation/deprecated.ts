@@ -1,5 +1,6 @@
 /**
- * @category animation
+ * @packageDocumentation
+ * @module animation
  */
 
 import { replaceProperty } from '../utils/deprecated';

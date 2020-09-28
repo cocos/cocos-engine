@@ -25,7 +25,8 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 import { assertID, error } from '../platform/debug';

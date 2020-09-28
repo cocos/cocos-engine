@@ -24,7 +24,8 @@
 */
 
 /**
- * @category core/data
+ * @packageDocumentation
+ * @module core/data
  */
 
 import * as js from '../utils/js';

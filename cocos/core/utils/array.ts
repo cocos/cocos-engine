@@ -24,7 +24,8 @@
 */
 
 /**
- * @category core
+ * @packageDocumentation
+ * @module core
  */
 
 import { logID } from '../platform/debug';

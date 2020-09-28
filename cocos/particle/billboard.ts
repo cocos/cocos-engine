@@ -1,6 +1,7 @@
 
 /**
- * @category particle
+ * @packageDocumentation
+ * @module particle
  */
 
 import { builtinResMgr } from '../core/3d/builtin';

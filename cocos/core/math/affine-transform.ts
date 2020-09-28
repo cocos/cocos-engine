@@ -26,7 +26,8 @@
 */
 
 /**
- * @category core/math
+ * @packageDocumentation
+ * @module core/math
  */
 
 import { Mat4 } from './mat4';

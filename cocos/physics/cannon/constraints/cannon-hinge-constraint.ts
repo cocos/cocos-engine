@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 
 import CANNON, { RotationalEquation } from '@cocos/cannon';
 import { CannonConstraint } from './cannon-constraint';

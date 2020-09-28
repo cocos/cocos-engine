@@ -25,7 +25,8 @@
  */
 
 /**
- * @category loader
+ * @packageDocumentation
+ * @module loader
  */
 
 import {extname} from '../utils/path';

@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import Ammo from '../ammo-instantiated';
 import { IBaseConstraint } from "../../spec/i-physics-constraint";
 import { Constraint, RigidBody } from "../../framework";

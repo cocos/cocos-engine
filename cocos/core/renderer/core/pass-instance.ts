@@ -24,7 +24,8 @@
 */
 
 /**
- * @category material
+ * @packageDocumentation
+ * @module material
  */
 
 import { IPassInfo } from '../../assets/effect-asset';

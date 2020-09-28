@@ -25,7 +25,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { UITransform } from '../../../core/components/ui-base';

@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 export { AudioClip } from './assets/clip';
 import './audio-downloader';
 

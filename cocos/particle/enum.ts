@@ -1,6 +1,7 @@
 
 /**
- * @category particle
+ * @packageDocumentation
+ * @module particle
  */
 
 import { Enum } from '../core/value-types';

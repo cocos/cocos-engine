@@ -24,7 +24,8 @@
  THE SOFTWARE.
 */
 /**
- * @category core
+ * @packageDocumentation
+ * @module core
  */
 
 import { ALIPAY, EDITOR, JSB, PREVIEW, RUNTIME_BASED } from 'internal:constants';

@@ -27,7 +27,8 @@
 // tslint:disable
 
 /**
- * @category component
+ * @packageDocumentation
+ * @module component
  */
 
 import { Script } from '../assets/scripts';

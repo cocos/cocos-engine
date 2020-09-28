@@ -24,7 +24,8 @@
 */
 
 /**
- * @category ui-assembler
+ * @packageDocumentation
+ * @module ui-assembler
  */
 
 import { IRenderData, RenderData } from '../../../core/renderer/ui/render-data';

@@ -24,7 +24,8 @@
 */
 
 /**
- * @category ui-assembler
+ * @packageDocumentation
+ * @module ui-assembler
  */
 
 import { IUV, SpriteFrame } from '../../../core/assets';
