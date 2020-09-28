@@ -372,7 +372,6 @@ class ProgramLib {
 
         let loc = 0;
         src.frag = src.frag.replace(/(?<![0-9]\)\s*)out vec4/g, () => `layout(location = ${loc++}) out vec4`);
-        console.log("dpc:,%s", src.frag);
         // strip out the active attributes only, instancing depend on this
         const attributes = getActiveAttributes(tmpl, defines);
 

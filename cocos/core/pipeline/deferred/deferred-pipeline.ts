@@ -9,7 +9,7 @@ import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { IRenderObject, UBOGlobal, UBOShadow,
-    UNIFORM_SHADOWMAP} from '../define';
+    UNIFORM_SHADOWMAP, UNIFORM_ALBEDOMAP, UNIFORM_NORMALMAP} from '../define';
 import { GFXBufferUsageBit, GFXMemoryUsageBit,
     GFXClearFlag, GFXFilter, GFXAddress, GFXCommandBufferType } from '../../gfx/define';
 import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout } from '../../gfx';
@@ -253,6 +253,9 @@ export class DeferredPipeline extends RenderPipeline {
         ]);
         const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
         this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP.binding, shadowMapSampler);
+        // this._descriptorSet.bindSampler(UNIFORM_ALBEDOMAP.binding, shadowMapSampler);
+        // this._descriptorSet.bindSampler(UNIFORM_NORMALMAP.binding, shadowMapSampler);
+
 
         // update global defines when all states initialized.
         this.macros.CC_USE_HDR = this._isHDR;

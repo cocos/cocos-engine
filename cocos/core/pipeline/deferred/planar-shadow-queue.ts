@@ -6,7 +6,7 @@ import { InstancedBuffer } from '../instanced-buffer';
 import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
 import { Model } from '../../renderer/scene';
 import { DSPool, ShaderPool, PassPool, PassView, SubModelPool, SubModelView } from '../../renderer/core/memory-pools';
-import { ForwardPipeline } from './forward-pipeline';
+import { DeferredPipeline } from './deferred-pipeline';
 import { ShadowType } from '../../renderer/scene/shadows';
 import { RenderView } from '../render-view';
 import { Layers } from '../../scene-graph/layers';
@@ -24,7 +24,7 @@ export class PlanarShadowQueue {
     private _record = new Map<Model, IShadowRenderData>();
     protected declare _pipeline;
 
-    constructor (pipeline: ForwardPipeline) {
+    constructor (pipeline: DeferredPipeline) {
         this._pipeline = pipeline;
     }
 

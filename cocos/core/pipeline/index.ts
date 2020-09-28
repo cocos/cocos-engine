@@ -16,6 +16,8 @@ export { ForwardStage } from './forward/forward-stage';
 export { DeferredPipeline } from './deferred/deferred-pipeline';
 export { GbufferFlow } from './deferred/gbuffer-flow';
 export { GbufferStage } from './deferred/gbuffer-stage';
+export { LightingFlow } from './deferred/lighting-flow';
+export { LightingStage } from './deferred/lighting-stage';
 export { ShadowFlow } from './shadow/shadow-flow';
 export { ShadowStage } from './shadow/shadow-stage';
 export { UIFlow } from './ui/ui-flow';

@@ -17,23 +17,23 @@ import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { InstancedBuffer } from '../instanced-buffer';
 import { BatchedBuffer } from '../batched-buffer';
 import { BatchingSchemes } from '../../renderer/core/pass';
-import { GbufferFlow } from './gbuffer-flow';
+import { LightingFlow } from './lighting-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 import { PlanarShadowQueue } from './planar-shadow-queue';
 
-const colors: GFXColor[] = [ new GFXColor(0, 0, 0, 1), new GFXColor(0, 0, 0, 1), new GFXColor(0, 0, 0, 1), new GFXColor(0, 0, 0, 1) ];
+const colors: GFXColor[] = [ new GFXColor(0, 0, 0, 1) ];
 
 /**
- * @en The gbuffer render stage
+ * @en The lighting render stage
  * @zh 前向渲染阶段。
  */
-@ccclass('GbufferStage')
-export class GbufferStage extends RenderStage {
+@ccclass('LightingStage')
+export class LightingStage extends RenderStage {
 
     public static initInfo: IRenderStageInfo = {
-        name: 'GbufferStage',
-        priority: DeferredStagePriority.Gbuffer,
+        name: 'LightingStage',
+        priority: DeferredStagePriority.LIGHTING,
         tag: 0,
         renderQueues: [
             {
@@ -49,9 +49,6 @@ export class GbufferStage extends RenderStage {
         ]
     };
 
-    public setGbufferFrameBuffer (gbufferFrameBuffer: GFXFramebuffer) {
-        this._gbufferFrameBuffer = gbufferFrameBuffer;
-    }
 
     @type([RenderQueueDesc])
     @serializable
@@ -59,11 +56,10 @@ export class GbufferStage extends RenderStage {
     protected renderQueues: RenderQueueDesc[] = [];
     protected _renderQueues: RenderQueue[] = [];
 
-    private _gbufferFrameBuffer: GFXFramebuffer | null = null;
     private _renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
-    private _phaseID = getPhaseID('deferred-gbuffer');
+    private _phaseID = getPhaseID('default');
     private declare _additiveLightQueue: RenderAdditiveLightQueue;
     private declare _planarQueue: PlanarShadowQueue;
 
@@ -81,7 +77,7 @@ export class GbufferStage extends RenderStage {
         return true;
     }
 
-    public activate (pipeline: DeferredPipeline, flow: BufferFlow) {
+    public activate (pipeline: DeferredPipeline, flow: LightingFlow) {
         super.activate(pipeline, flow);
         for (let i = 0; i < this.renderQueues.length; i++) {
             let phase = 0;
@@ -179,8 +175,8 @@ export class GbufferStage extends RenderStage {
 
         colors[0].w = camera.clearColor.w;
 
-        const framebuffer = this._gbufferFrameBuffer!;
-        const renderPass = framebuffer.renderPass;
+        const framebuffer = view.window.framebuffer;
+        const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
@@ -188,13 +184,12 @@ export class GbufferStage extends RenderStage {
 
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
-        for (let i = 0; i < this.renderQueues.length; i++) {
-                this._renderQueues[i].recordCommandBuffer(device, renderPass, cmdBuff);
-        }
+        this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._additiveLightQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+        this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
 
         cmdBuff.endRenderPass();
         cmdBuff.end();

@@ -3,7 +3,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { PIPELINE_FLOW_GBUFFER } from '../define';
+import { PIPELINE_FLOW_GBUFFER, UNIFORM_SHADOWMAP, UNIFORM_ALBEDOMAP, UNIFORM_NORMALMAP } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
 import { DeferredFlowPriority } from './enum';
@@ -162,6 +162,8 @@ export class GbufferFlow extends RenderFlow {
         const pipeline = this._pipeline as DeferredPipeline;
         pipeline.updateUBOs(view);
         super.render(view);
+        // pipeline.descriptorSet.bindTexture(UNIFORM_ALBEDOMAP.binding, this._gbufferFrameBuffer!.colorTextures[0]!);
+        // pipeline.descriptorSet.bindTexture(UNIFORM_NORMALMAP.binding, this._gbufferFrameBuffer!.colorTextures[1]!);
     }
 
     public destroy () {

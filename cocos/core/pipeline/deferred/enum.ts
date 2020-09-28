@@ -8,6 +8,7 @@
  */
 export enum DeferredStagePriority {
     GBUFFER = 10,
+    LIGHTING = 15,
     UI = 20
 }
 
