@@ -456,7 +456,7 @@ void SIOClientImpl::handshakeResponse(HttpClient* /*sender*/, HttpResponse *resp
     sprintf(statusString, "HTTP Status Code: %ld, tag = %s", statusCode, response->getHttpRequest()->getTag());
     CC_LOG_INFO("response code: %ld", statusCode);
 
-    if (!response->isSucceed())
+    if (!response->isSucceed() || statusCode >= 400)
     {
         CC_LOG_ERROR("SIOClientImpl::handshake() failed");
         CC_LOG_ERROR("error buffer: %s", response->getErrorBuffer());
