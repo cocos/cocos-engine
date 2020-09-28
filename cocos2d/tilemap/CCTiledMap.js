@@ -904,21 +904,21 @@ let TiledMap = cc.Class({
             if (this.cleanupImageCache) {
                 let tiledMap = this;
                 this._textures.forEach(function(tex){
-                    tiledMap._doCleanupImageCache(tex)
+                    tiledMap.doCleanupImageCache(tex)
                 });
             }
 
         }.bind(this));
     },
 
-    _doCleanupImageCache(texture) {
+    doCleanupImageCache(texture) {
         if (texture._image instanceof HTMLImageElement) {
-            texture._image.src = ''
+            texture._image.src = '';
         }
         else if (cc.sys.capabilities.imageBitmap && texture._image instanceof ImageBitmap) {
             texture._image.close && texture._image.close();
         }
-        texture._image = null
+        texture._image = null;
     },
 
     getGIDByName (name) {
