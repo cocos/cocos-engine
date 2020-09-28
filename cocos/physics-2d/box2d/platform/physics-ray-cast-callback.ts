@@ -25,7 +25,7 @@
 
 import b2 from '@cocos/box2d';
 import { Vec2 } from '../../../core';
-import { ERaycast2DType } from 'cocos/physics-2d/framework';
+import { ERaycast2DType } from '../../../physics-2d/framework';
 
 export class PhysicsRayCastCallback extends b2.RayCastCallback {
     _type = ERaycast2DType.Closest;
