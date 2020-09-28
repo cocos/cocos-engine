@@ -303,7 +303,7 @@ export class Camera {
         out.update(_tempMat2, _tempMat1);
     }
 
-    public setClearColor (x, y, z, w) {
+    public setClearColor (x: number, y: number, z: number, w: number) {
         this._clearColor.x = x;
         this._clearColor.y = y;
         this._clearColor.z = z;
@@ -386,11 +386,6 @@ export class Camera {
 
     get farClip () {
         return this._farClip;
-    }
-
-    set clearColor (val) {
-        this._clearColor = val;
-        CameraPool.setVec4(this._poolHandle, CameraView.CLEAR_COLOR, val);
     }
 
     get clearColor () {
