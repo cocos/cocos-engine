@@ -51,9 +51,10 @@ jclass _getClassID(const char *className) {
                                                    cc::JniHelper::loadclassMethod_methodID,
                                                    _jstrClassName);
 
-    if (nullptr == _clazz) {
+    if (nullptr == _clazz || env->ExceptionCheck()) {
         LOGE("Classloader failed to find class of %s", className);
         env->ExceptionClear();
+        _clazz = nullptr;
     }
 
     env->DeleteLocalRef(_jstrClassName);
