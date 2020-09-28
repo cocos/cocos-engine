@@ -10,9 +10,12 @@ import { RigidBody2D } from '../rigid-body-2d';
 import { createShape } from '../../instance';
 import { ECollider2DType } from '../../physics-types';
 import { IBaseShape } from '../../../spec/i-physics-shape';
+import { editable } from 'cc.decorator';
 
 @ccclass('cc.Collider2D')
 export class Collider2D extends Eventify(Component) {
+    @editable
+    editing = false;
     /**
      * @en Tag. If a node has several collider components, you can judge which type of collider is collided according to the tag.
      * @zh 标签。当一个节点上有多个碰撞组件时，在发生碰撞后，可以使用此标签来判断是节点上的哪个碰撞组件被碰撞了。

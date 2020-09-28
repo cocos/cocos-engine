@@ -993,7 +993,41 @@ export class Director extends EventTarget {
      * @en Run main loop of director
      * @zh 运行主循环
      */
-    public mainLoop (time: number) {
+    public mainLoop = EDITOR? (deltaTime: number) => {
+        this._deltaTime = deltaTime;
+
+        // Update
+        if (!this._paused) {
+            this.emit(Director.EVENT_BEFORE_UPDATE);
+            // Call start for new added components
+            this._compScheduler.startPhase();
+            // Update for components
+            this._compScheduler.updatePhase(deltaTime);
+            // Update systems
+            for (let i = 0; i < this._systems.length; ++i) {
+                this._systems[i].update(deltaTime);
+            }
+            // Late update for components
+            this._compScheduler.lateUpdatePhase(deltaTime);
+            // User can use this event to do things after update
+            this.emit(Director.EVENT_AFTER_UPDATE);
+            // Destroy entities that have been removed recently
+            CCObject._deferredDestroy();
+
+            // Post update systems
+            for (let i = 0; i < this._systems.length; ++i) {
+                this._systems[i].postUpdate(deltaTime);
+            }
+        }
+
+        this.emit(Director.EVENT_BEFORE_DRAW);
+        this._root!.frameMove(this._deltaTime);
+        this.emit(Director.EVENT_AFTER_DRAW);
+
+        eventManager.frameUpdateListeners();
+        Node.bookOfChange.clear();
+        this._totalFrames++;
+    } : (time: number) => {
         if (this._purgeDirectorInNextLoop) {
             this._purgeDirectorInNextLoop = false;
             this.purgeDirector();
