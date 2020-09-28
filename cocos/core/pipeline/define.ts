@@ -95,8 +95,6 @@ export enum PipelineGlobalBindings {
 
     SAMPLER_ENVIRONMENT,
     SAMPLER_SHADOWMAP,
-    SAMPLER_ALBEDO,
-    SAMPLER_NORMAL,
 
     COUNT,
 }
@@ -213,36 +211,36 @@ export class UBOShadow {
         new GFXUniform('cc_shadowSize', GFXType.FLOAT4, 1),
     ], 1);
 }
-globalDescriptorSetLayout.record[UBOShadow.BLOCK.name] = UBOShadow.BLOCK;
-globalDescriptorSetLayout.bindings[UBOShadow.BLOCK.binding] = UBOShadow.BLOCK;
+globalDescriptorSetLayout.layouts[UBOShadow.NAME] = UBOShadow.LAYOUT;
+globalDescriptorSetLayout.bindings[UBOShadow.BINDING] = UBOShadow.DESCRIPTOR;
 
-export const UNIFORM_SHADOWMAP: ISamplerInfo = {
-    name: 'cc_shadowMap', set: SetIndex.GLOBAL, binding: PipelineGlobalBindings.SAMPLER_SHADOWMAP, type: GFXType.SAMPLER2D,
-    stageFlags: GFXShaderStageFlagBit.FRAGMENT, descriptorType: GFXDescriptorType.SAMPLER, count: 1,
-};
-globalDescriptorSetLayout.record[UNIFORM_SHADOWMAP.name] = UNIFORM_SHADOWMAP;
-globalDescriptorSetLayout.bindings[UNIFORM_SHADOWMAP.binding] = UNIFORM_SHADOWMAP;
+const UNIFORM_SHADOWMAP_NAME = 'cc_shadowMap';
+export const UNIFORM_SHADOWMAP_BINDING = PipelineGlobalBindings.SAMPLER_SHADOWMAP;
+const UNIFORM_SHADOWMAP_DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.SAMPLER, 1, GFXShaderStageFlagBit.FRAGMENT);
+const UNIFORM_SHADOWMAP_LAYOUT = new GFXUniformSampler(SetIndex.GLOBAL, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SHADOWMAP_NAME, GFXType.SAMPLER2D, 1);
+globalDescriptorSetLayout.layouts[UNIFORM_SHADOWMAP_NAME] = UNIFORM_SHADOWMAP_LAYOUT;
+globalDescriptorSetLayout.bindings[UNIFORM_SHADOWMAP_BINDING] = UNIFORM_SHADOWMAP_DESCRIPTOR;
 
-export const UNIFORM_ALBEDOMAP: ISamplerInfo = {
-    name: 'cc_albedoMap', set: SetIndex.GLOBAL, binding: PipelineGlobalBindings.SAMPLER_ALBEDOMAP, type: GFXType.SAMPLER2D,
-    stageFlags: GFXShaderStageFlagBit.FRAGMENT, descriptorType: GFXDescriptorType.SAMPLER, count: 1,
-};
-globalDescriptorSetLayout.record[UNIFORM_ALBEDOMAP.name] = UNIFORM_ALBEDOMAP;
-globalDescriptorSetLayout.bindings[UNIFORM_ALBEDOMAP.binding] = UNIFORM_ALBEDOMAP;
+const UNIFORM_ALBEDOMAP_NAME = 'cc_albedoMap';
+export const UNIFORM_ALBEDOMAP_BINDING = PipelineGlobalBindings.SAMPLER_ALBEDOMAP;
+const UNIFORM_ALBEDOMAP_DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.SAMPLER, 1, GFXShaderStageFlagBit.FRAGMENT);
+const UNIFORM_ALBEDOMAP_LAYOUT = new GFXUniformSampler(SetIndex.GLOBAL, UNIFORM_ALBEDOMAP_BINDING, UNIFORM_ALBEDOMAP_NAME, GFXType.SAMPLER2D, 1);
+globalDescriptorSetLayout.layouts[UNIFORM_ALBEDOMAP_NAME] = UNIFORM_ALBEDOMAP_LAYOUT;
+globalDescriptorSetLayout.bindings[UNIFORM_ALBEDOMAP_BINDING] = UNIFORM_ALBEDOMAP_DESCRIPTOR;
 
-export const UNIFORM_NORMALMAP: ISamplerInfo = {
-    name: 'cc_normalMap', set: SetIndex.GLOBAL, binding: PipelineGlobalBindings.SAMPLER_NORMALMAP, type: GFXType.SAMPLER2D,
-    stageFlags: GFXShaderStageFlagBit.FRAGMENT, descriptorType: GFXDescriptorType.SAMPLER, count: 1,
-};
-globalDescriptorSetLayout.record[UNIFORM_ALBEDOMAP.name] = UNIFORM_NORMALMAP;
-globalDescriptorSetLayout.bindings[UNIFORM_ALBEDOMAP.binding] = UNIFORM_NORMALMAP;
+const UNIFORM_NORMALMAP_NAME = 'cc_normalMap';
+export const UNIFORM_NORMALMAP_BINDING = PipelineGlobalBindings.SAMPLER_NORMALMAP;
+const UNIFORM_NORMALMAP_DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.SAMPLER, 1, GFXShaderStageFlagBit.FRAGMENT);
+const UNIFORM_NORMALMAP_LAYOUT = new GFXUniformSampler(SetIndex.GLOBAL, UNIFORM_NORMALMAP_BINDING, UNIFORM_NORMALMAP_NAME, GFXType.SAMPLER2D, 1);
+globalDescriptorSetLayout.layouts[UNIFORM_NORMALMAP_NAME] = UNIFORM_NORMALMAP_LAYOUT;
+globalDescriptorSetLayout.bindings[UNIFORM_NORMALMAP_BINDING] = UNIFORM_NORMALMAP_DESCRIPTOR;
 
-export const UNIFORM_ENVIRONMENT: ISamplerInfo = {
-    name: 'cc_environment', set: SetIndex.GLOBAL, binding: PipelineGlobalBindings.SAMPLER_ENVIRONMENT, type: GFXType.SAMPLER_CUBE,
-    stageFlags: GFXShaderStageFlagBit.FRAGMENT, descriptorType: GFXDescriptorType.SAMPLER, count: 1,
-};
-globalDescriptorSetLayout.record[UNIFORM_ENVIRONMENT.name] = UNIFORM_ENVIRONMENT;
-globalDescriptorSetLayout.bindings[UNIFORM_ENVIRONMENT.binding] = UNIFORM_ENVIRONMENT;
+const UNIFORM_ENVIRONMENT_NAME = 'cc_environment';
+export const UNIFORM_ENVIRONMENT_BINDING = PipelineGlobalBindings.SAMPLER_ENVIRONMENT;
+const UNIFORM_ENVIRONMENT_LAYOUT = new GFXUniformSampler(SetIndex.GLOBAL, UNIFORM_ENVIRONMENT_BINDING, UNIFORM_ENVIRONMENT_NAME, GFXType.SAMPLER_CUBE, 1);
+const UNIFORM_ENVIRONMENT_DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.SAMPLER, 1, GFXShaderStageFlagBit.FRAGMENT);
+globalDescriptorSetLayout.layouts[UNIFORM_ENVIRONMENT_NAME] = UNIFORM_ENVIRONMENT_LAYOUT;
+globalDescriptorSetLayout.bindings[UNIFORM_ENVIRONMENT_BINDING] = UNIFORM_ENVIRONMENT_DESCRIPTOR;
 
 /**
  * @en The local uniform buffer object

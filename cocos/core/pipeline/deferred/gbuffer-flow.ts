@@ -12,7 +12,7 @@ import { DeferredPipeline } from './deferred-pipeline';
 import { RenderPipeline } from '../render-pipeline';
 import { GFXFramebuffer, GFXRenderPass, GFXLoadOp,
     GFXStoreOp, GFXTextureLayout, GFXFormat, GFXTexture,
-    GFXTextureType, GFXTextureUsageBit, GFXColorAttachment, GFXDepthStencilAttachment } from '../../gfx';
+    GFXTextureType, GFXTextureUsageBit, GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPassInfo, GFXTextureInfo, GFXFramebufferInfo } from '../../gfx';
 /**
  * @en The gbuffer flow in deferred render pipeline
  * @zh 前向渲染流程。
@@ -99,7 +99,7 @@ export class GbufferFlow extends RenderFlow {
             depthStencilAttachment.endLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
             const renderPassInfo = new GFXRenderPassInfo([colorAttachment0, colorAttachment1, colorAttachment2, colorAttachment3], depthStencilAttachment);
-            this._shadowRenderPass = device.createRenderPass(renderPassInfo);
+            this._gbufferRenderPass = device.createRenderPass(renderPassInfo);
         }
 
         if(this._gbufferRenderTargets.length < 1) {
