@@ -606,7 +606,8 @@ export class Game extends EventTarget {
         const useSplash = (!EDITOR && !PREVIEW && legacyCC.internal.SplashScreen);
 
         // Load render pipeline if needed
-        const renderPipeline = this.config.renderPipeline;
+        // const renderPipeline = this.config.renderPipeline;
+        const renderPipeline = "5d45ba66-829a-46d3-948e-2ed3fa7ee421";
         if (renderPipeline) {
             legacyCC.loader.load({ uuid: renderPipeline }, (err, asset) => {
                 // failed load renderPipeline

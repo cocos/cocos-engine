@@ -12,6 +12,7 @@ import { GFXBindingMappingInfo, GFXDescriptorType, GFXType, GFXShaderStageFlagBi
 import { Camera } from '../renderer/scene';
 
 export const PIPELINE_FLOW_FORWARD: string = 'ForwardFlow';
+export const PIPELINE_FLOW_GBUFFER: string = 'GbufferFlow';
 export const PIPELINE_FLOW_SHADOW: string = 'ShadowFlow';
 export const PIPELINE_FLOW_SMAA: string = 'SMAAFlow';
 export const PIPELINE_FLOW_TONEMAP: string = 'ToneMapFlow';
