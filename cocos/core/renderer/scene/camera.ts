@@ -1,6 +1,6 @@
 import { frustum, ray } from '../../geometry';
 import { GFXClearFlag, GFXColor } from '../../gfx/define';
-import { lerp, Mat4, Rect, toRadian, Vec3, Color } from '../../math';
+import { lerp, Mat4, Rect, toRadian, Vec3, Color, IVec4Like } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { RenderView } from '../../pipeline';
 import { Node } from '../../scene-graph';
@@ -381,12 +381,15 @@ export class Camera {
     }
 
     set clearColor (val) {
-        this._clearColor = val;
+        this._clearColor.x = val.x;
+        this._clearColor.y = val.y;
+        this._clearColor.z = val.z;
+        this._clearColor.w = val.w;
         CameraPool.setVec4(this._poolHandle, CameraView.CLEAR_COLOR, val);
     }
 
     get clearColor () {
-        return this._clearColor;
+        return this._clearColor as IVec4Like;
     }
 
     get viewport () {

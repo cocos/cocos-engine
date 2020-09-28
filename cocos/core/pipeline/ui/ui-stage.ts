@@ -2,7 +2,7 @@
  * @category pipeline
  */
 
-import { ccclass, visible, displayOrder, type, serializable } from 'cc.decorator';
+import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { GFXColor, GFXRect } from '../../gfx/define';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
@@ -106,7 +106,7 @@ export class UIStage extends RenderStage {
         this._renderArea!.width = vp.width * camera.width;
         this._renderArea!.height = vp.height * camera.height;
 
-        colors[0] = camera.clearColor;
+        colors[0] = camera.clearColor as GFXColor;
 
         const cmdBuff = pipeline.commandBuffers[0];
 
@@ -114,7 +114,7 @@ export class UIStage extends RenderStage {
         const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
 
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
-            [camera.clearColor], camera.clearDepth, camera.clearStencil);
+            colors, camera.clearDepth, camera.clearStencil);
 
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 

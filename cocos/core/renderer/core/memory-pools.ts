@@ -759,7 +759,7 @@ interface ICameraViewType extends BufferTypeManifest<typeof CameraView> {
     [CameraView.FORWARD]: Vec3;
     [CameraView.POSITION]: Vec3;
     [CameraView.VIEW_PORT]: Rect;
-    [CameraView.CLEAR_COLOR]: GFXColor;
+    [CameraView.CLEAR_COLOR]: IVec4Like;
     [CameraView.MAT_VIEW]: Mat4;
     [CameraView.MAT_VIEW_PROJ]: Mat4;
     [CameraView.MAT_VIEW_PROJ_INV]: Mat4;
