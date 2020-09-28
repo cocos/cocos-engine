@@ -232,7 +232,7 @@
         "cocos/platform/android/java/build.xml", 
         "cocos/platform/android/java/libs/", 
         "cocos/platform/android/java/libs/com.android.vending.expansion.zipfile.jar", 
-        "cocos/platform/android/java/libs/okhttp-3.12.3.jar", 
+        "cocos/platform/android/java/libs/okhttp-3.12.7.jar", 
         "cocos/platform/android/java/libs/okio-1.15.0.jar", 
         "cocos/platform/android/java/proguard-project.txt", 
         "cocos/platform/android/java/project.properties", 
