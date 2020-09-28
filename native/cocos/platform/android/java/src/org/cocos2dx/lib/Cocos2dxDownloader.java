@@ -43,11 +43,14 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+// Rename package okhttp3 to org.cocos2dx.okhttp3
+// Github repo: https://github.com/PatriceJiang/okhttp/tree/cocos2dx-rename-3.12.x
+// and https://github.com/PatriceJiang/okio/tree/cocos2dx-rename-1.15.0
+import org.cocos2dx.okhttp3.Call;
+import org.cocos2dx.okhttp3.Callback;
+import org.cocos2dx.okhttp3.OkHttpClient;
+import org.cocos2dx.okhttp3.Request;
+import org.cocos2dx.okhttp3.Response;
 
 public class Cocos2dxDownloader {
 
@@ -190,7 +193,14 @@ public class Cocos2dxDownloader {
 
                             try {
 
-                                if(response.code() != 200) {
+                                if(!(response.code() >= 200 && response.code() <= 206)) {
+                                    // it is encourage to delete the tmp file when requested range not satisfiable.
+                                    if (response.code() == 416) {
+                                        File file = new File(path + downloader._tempFileNameSuffix);
+                                        if (file.exists() && file.isFile()) {
+                                            file.delete();
+                                        }
+                                    } 
                                     downloader.onFinish(id, -2, response.message(), null);
                                     return;
                                 }
