@@ -155,7 +155,7 @@ struct StandardSurface {
     finalColor += s.emissive;
 
     #if CC_RECEIVE_SHADOW
-      float pcf = cc_shadowPCF.x + 0.001;
+      float pcf = cc_shadowInfo.z + 0.001;
       float shadowAttenuation = 0.0;
       float atten = clamp(dot(N, cc_mainLitDir.xyz * -1.0), 0.0, 1.0);
       if (pcf > 3.0) {shadowAttenuation = CCGetShadowFactorX25();}

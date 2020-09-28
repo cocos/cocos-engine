@@ -403,6 +403,8 @@ export class ShadowsInfo {
     protected _orthoSize: number = 5;
     @serializable
     protected _size: Vec2 = new Vec2(512, 512);
+    @serializable
+    protected _bias: number = 0.0035;
 
     protected _resource: Shadows | null = null;
 
@@ -539,6 +541,19 @@ export class ShadowsInfo {
     }
 
     /**
+     * @en get or set shadow bias
+     * @zh 获取或者设置阴影偏移量
+     */
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    set bias (val: number) {
+        this._bias = val;
+        if (this._resource) {this._resource.bias = val; }
+    }
+    get bias () {
+        return this.bias;
+    }
+
+    /**
      * @en get or set shadow camera orthoSize
      * @zh 获取或者设置阴影纹理大小
      */
@@ -575,6 +590,7 @@ export class ShadowsInfo {
         this._resource.distance = this._distance;
         this._resource.shadowColor = this._shadowColor;
         this._resource.pcf = this._pcf;
+        this._resource.bias = this._bias;
         this._resource.enabled = this._enabled;
     }
 }
