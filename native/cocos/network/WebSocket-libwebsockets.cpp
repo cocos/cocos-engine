@@ -28,18 +28,19 @@
 
  ****************************************************************************/
 #include "websockets/libwebsockets.h"
-#include <string>
-#include <vector>
-#include <mutex>
-#include <memory>  // for std::shared_ptr
+
+#include <algorithm>
 #include <atomic>
 #include <condition_variable>
-#include <thread>
-#include <mutex>
-#include <queue>
-#include <list>
-#include <signal.h>
 #include <errno.h>
+#include <list>
+#include <mutex>
+#include <memory>  // for std::shared_ptr
+#include <queue>
+#include <string>
+#include <signal.h>
+#include <thread>
+#include <vector>
 #include "network/WebSocket.h"
 #include "network/Uri.h"
 #include "base/Scheduler.h"
@@ -563,11 +564,10 @@ public:
             return false;
         }
 
-        _data.reserve(LWS_PRE + len);
-        _data.resize(LWS_PRE, 0x00);
+        _data.resize(LWS_PRE + len);
         if (len > 0)
         {
-            _data.insert(_data.end(), buf, buf + len);
+            std::copy(buf, buf+len, _data.begin() + LWS_PRE);
         }
 
         _payload = _data.data() + LWS_PRE;
