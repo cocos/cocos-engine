@@ -58,7 +58,8 @@ var DragonBonesAsset = cc.Class({
             set: function (value) {
                 this._dragonBonesJson = value;
                 this._dragonBonesJsonData = JSON.parse(value);
-                this.reset();
+                // this.reset();
+                this._nativeAsset = null;
             }
         },
 
@@ -126,6 +127,10 @@ var DragonBonesAsset = cc.Class({
         if (dragonBonesData) return armatureKey;
 
         this._factory.parseDragonBonesData(rawData, armatureKey);
+
+        this._dragonBonesJsonData = null;
+        this._dragonBonesJson = null;
+
         return armatureKey;
     },
 

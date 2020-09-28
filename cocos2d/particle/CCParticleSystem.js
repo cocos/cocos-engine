@@ -105,7 +105,7 @@ var PositionType = cc.Enum({
 
     /**
      * !#en
-     * In the relative mode, the particle will move with the parent node, but not with the node where the particle is. 
+     * In the relative mode, the particle will move with the parent node, but not with the node where the particle is.
      * For example, the coffee in the cup is steaming. Then the steam moves (forward) with the train, rather than moves with the cup.
      * !#zh
      * 相对模式，粒子会跟随父节点移动，但不跟随粒子所在节点移动，例如在一列行进火车中，杯中的咖啡飘起雾气，
@@ -884,7 +884,7 @@ var ParticleSystem = cc.Class({
         else if (this._file) {
             if (this._custom) {
                 let missCustomTexture = !this._getTexture();
-                if (missCustomTexture) { 
+                if (missCustomTexture) {
                     this._applyFile();
                 }
             }
@@ -919,7 +919,7 @@ var ParticleSystem = cc.Class({
         this._simulator._uvFilled = 0;
         this._super();
     },
-    
+
     lateUpdate (dt) {
         if (!this._simulator.finished) {
             this._simulator.step(dt);
@@ -1022,6 +1022,9 @@ var ParticleSystem = cc.Class({
                 else if (!self._renderSpriteFrame && self._spriteFrame) {
                     self._applySpriteFrame(self.spriteFrame);
                 }
+
+                file._nativeAsset = null;
+                self._file = null;
             });
         }
     },
@@ -1046,7 +1049,7 @@ var ParticleSystem = cc.Class({
 
             if (textureData && textureData.length > 0) {
                 let tex = cc.assetManager.assets.get(imgPath);
-                
+
                 if (!tex) {
                     let buffer = codec.unzipBase64AsArray(textureData, 1);
                     if (!buffer) {
@@ -1069,7 +1072,7 @@ var ParticleSystem = cc.Class({
                     }
                     tex = textureUtil.cacheImage(imgPath, canvasObj);
                 }
-                
+
                 if (!tex)
                     cc.warnID(6032, this._file.name);
                 // TODO: Use cc.assetManager to load asynchronously the SpriteFrame object, avoid using textureUtil
