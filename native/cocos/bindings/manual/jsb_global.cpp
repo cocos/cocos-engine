@@ -817,8 +817,10 @@ bool jsb_global_load_image(const std::string& path, const se::Value& callbackVal
         callbackVal.toObject()->call(seArgs, nullptr);
         return true;
     }
+    
+    std::shared_ptr<se::Value> callbackPtr = std::make_shared<se::Value>(callbackVal);
 
-    auto initImageFunc = [path, callbackVal](const std::string& fullPath, unsigned char* imageData, int imageBytes){
+    auto initImageFunc = [path, callbackPtr](const std::string& fullPath, unsigned char* imageData, int imageBytes){
         Image* img = new (std::nothrow) Image();
 
         __threadPool->pushTask([=](int tid){
@@ -867,14 +869,12 @@ bool jsb_global_load_image(const std::string& path, const se::Value& callbackVal
                 {
                     SE_REPORT_ERROR("initWithImageFile: %s failed!", path.c_str());
                 }
-
-                callbackVal.toObject()->call(seArgs, nullptr);
+                callbackPtr->toObject()->call(seArgs, nullptr);
                 img->release();
             });
 
         });
     };
-
     size_t pos = std::string::npos;
     if (path.find("http://") == 0 || path.find("https://") == 0)
     {
