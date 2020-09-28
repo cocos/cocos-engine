@@ -377,11 +377,8 @@ let Mask = cc.Class({
     },
 
     _updateGraphics () {
+        if (!this.enabledInHierarchy) return;
         let node = this.node;
-        if (!this._graphics) {
-            this._resetAssembler();
-            this._createGraphics();
-        }
         let graphics = this._graphics;
         // Share render data with graphics content
         graphics.clear(false);
