@@ -1083,9 +1083,7 @@ export class RichText extends UIComponent {
                 labelOutline.width = textStyle.outline.width;
             }
 
-            if (textStyle.size) {
-                label.fontSize = textStyle.size;
-            }
+            label.fontSize = textStyle.size || this._fontSize;
 
             labelSeg.clickHandler = '';
             labelSeg.clickParam = '';
