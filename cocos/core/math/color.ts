@@ -38,6 +38,8 @@ import { legacyCC } from '../global-exports';
 const toFloat = 1 / 255;
 
 /**
+ * @en Representation of RGBA colors.<br/>
+ * Each color component is an integer value with a range from 0 to 255.<br/>
  * @zh 通过 Red、Green、Blue 颜色通道表示颜色，并通过 Alpha 通道表示不透明度。<br/>
  * 每个通道都为取值范围 [0, 255] 的整数。<br/>
  */
@@ -55,6 +57,7 @@ export class Color extends ValueType {
     public static YELLOW = Object.freeze(new Color(255, 255, 0, 255));
 
     /**
+     * @en Copy content of a color into another and save the results to out color.
      * @zh 获得指定颜色的拷贝
      */
     public static clone<Out extends IColorLike> (a: Out) {
@@ -68,6 +71,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Clone a color and save the results to out color.
      * @zh 复制目标颜色
      */
     public static copy<Out extends IColorLike> (out: Out, a: Out) {
@@ -79,6 +83,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Set the components of a color to the given values and save the results to out color.
      * @zh 设置颜色值
      */
     public static set<Out extends IColorLike> (out: Out, r: number, g: number, b: number, a: number) {
@@ -90,6 +95,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Converts the hexadecimal formal color into rgb formal and save the results to out color.
      * @zh 从十六进制颜色字符串中读入颜色到 out 中
      */
     public static fromHEX<Out extends IColorLike> (out: Out, hexString: string) {
@@ -103,6 +109,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Add two colors by components. And save the results to out color.
      * @zh 逐通道颜色加法
      */
     public static add<Out extends IColorLike> (out: Out, a: Out, b: Out) {
@@ -114,6 +121,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Subtract each components of color b from each components of color a. And save the results to out color.
      * @zh 逐通道颜色减法
      */
     public static subtract<Out extends IColorLike> (out: Out, a: Out, b: Out) {
@@ -125,6 +133,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Multiply each components of two colors. And save the results to out color.
      * @zh 逐通道颜色乘法
      */
     public static multiply<Out extends IColorLike> (out: Out, a: Out, b: Out) {
@@ -136,6 +145,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Divide each components of color a by each components of color b. And save the results to out color.
      * @zh 逐通道颜色除法
      */
     public static divide<Out extends IColorLike> (out: Out, a: Out, b: Out) {
@@ -147,6 +157,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Multiply all channels in a color with the given scale factor, and save the results to out color.
      * @zh 全通道统一缩放颜色
      */
     public static scale<Out extends IColorLike> (out: Out, a: Out, b: number) {
@@ -158,6 +169,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Performs a linear interpolation between two colors.
      * @zh 逐通道颜色线性插值：A + t * (B - A)
      */
     public static lerp<Out extends IColorLike> (out: Out, from: Out, to: Out, ratio: number) {
@@ -174,8 +186,9 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Convert a color object to a RGBA array, and save the results to out color.
      * @zh 颜色转数组
-     * @param ofs 数组起始偏移量
+     * @param ofs Array Start Offset
      */
     public static toArray<Out extends IWritableArrayLike<number>> (out: Out, a: IColorLike, ofs = 0) {
         const scale = (a instanceof Color || a.a > 1) ? 1 / 255 : 1;
@@ -187,8 +200,9 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Sets the given color with RGBA values in an array, and save the results to out color.
      * @zh 数组转颜色
-     * @param ofs 数组起始偏移量
+     * @param ofs Array Start Offset
      */
     public static fromArray<Out extends IColorLike> (arr: IWritableArrayLike<number>, out: Out, ofs = 0) {
         out.r = arr[ofs + 0] * 255;
@@ -199,6 +213,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Check whether the two given colors are identical
      * @zh 颜色等价判断
      */
     public static strictEquals<Out extends IColorLike> (a: Out, b: Out) {
@@ -206,6 +221,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Check whether the two given colors are approximately equivalent. Difference of each channel is smaller that the epsilon.
      * @zh 排除浮点数误差的颜色近似等价判断
      */
     public static equals<Out extends IColorLike> (a: Out, b: Out, epsilon = EPSILON) {
@@ -216,6 +232,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Convert the given color to a hex color value. And save the results to out color.
      * @zh 获取指定颜色的整型数据表示
      */
     public static hex<Out extends IColorLike> (a: Out) {
@@ -223,6 +240,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Get or set red channel value.
      * @zh 获取或设置当前颜色的 Red 通道。
      */
     get r () {
@@ -235,6 +253,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Get or set green channel value.
      * @zh 获取或设置当前颜色的 Green 通道。
      */
     get g () {
@@ -247,6 +266,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Get or set blue channel value.
      * @zh 获取或设置当前颜色的 Blue 通道。
      */
     get b () {
@@ -258,8 +278,8 @@ export class Color extends ValueType {
         this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
     }
 
-    /**
-     * @zh 获取或设置当前颜色的 Alpha 通道。
+    /**@en Get or set alpha channel value.
+     * @zh 获取或设置当前颜色的透明度通道。
      */
     get a () {
         return (this._val & 0xff000000) >>> 24;
@@ -283,24 +303,27 @@ export class Color extends ValueType {
     public _val = 0;
 
     /**
-     * 构造与指定颜色相等的颜色。
-     * @param other 指定的颜色。
+     * @en Construct a same color from the given color
+     * @zh 构造与指定颜色相等的颜色。
+     * @param other Specified color
      */
     constructor (other: Color);
 
     /**
+     * @en Construct a color form the hex color string
      * @zh 用十六进制颜色字符串中构造颜色。
-     * @param hexString 十六进制颜色字符串。
+     * @param hexString Hexadecimal color string.
      */
     // tslint:disable-next-line: unified-signatures
     constructor (hexString: string);
 
     /**
+     * @en Construct a color
      * @zh 构造具有指定通道的颜色。
-     * @param [r=0] 指定的 Red 通道。
-     * @param [g=0] 指定的 Green 通道。
-     * @param [b=0] 指定的 Blue 通道。
-     * @param [a=255] 指定的 Alpha 通道。
+     * @param r red component of the color, default value is 0.
+     * @param g green component of the color, default value is 0.
+     * @param b blue component of the color, default value is 0.
+     * @param a alpha component of the color, default value is 255.
      */
     constructor (r?: number, g?: number, b?: number, a?: number);
 
@@ -316,6 +339,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Clone a new color from the current color.
      * @zh 克隆当前颜色。
      */
     public clone () {
@@ -325,18 +349,20 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Check whether the current color is identical with the given color
      * @zh 判断当前颜色是否与指定颜色相等。
-     * @param other 相比较的颜色。
-     * @returns 两颜色的各通道都相等时返回 `true`；否则返回 `false`。
+     * @param other Specified color
+     * @returns Returns `true` when all channels of both colours are equal; otherwise returns `false`.
      */
     public equals (other: Color) {
         return other && this._val === other._val;
     }
 
     /**
+     * @en Calculate linear interpolation result between this color and another one with given ratio。
      * @zh 根据指定的插值比率，从当前颜色到目标颜色之间做插值。
-     * @param to 目标颜色。
-     * @param ratio 插值比率，范围为 [0,1]。
+     * @param to Target color
+     * @param ratio The interpolation coefficient.The range is [0,1].
      */
     public lerp (to: Color, ratio: number) {
         let r = this.r;
@@ -352,8 +378,9 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Convert to string with color informations
      * @zh 返回当前颜色的字符串表示。
-     * @returns 当前颜色的字符串表示。
+     * @returns A string representation of the current color.
      */
     public toString () {
         return 'rgba(' +
@@ -364,9 +391,10 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Convert color to css format.
      * @zh 将当前颜色转换为 CSS 格式。
-     * @param opt 格式选项。
-     * @returns 当前颜色的 CSS 格式。
+     * @param opt "rgba", "rgb", "#rgb" or "#rrggbb".
+     * @returns CSS format for the current color.
      */
     public toCSS (opt: 'rgba' | 'rgb' | '#rrggbb' | '#rrggbbaa') {
         if (opt === 'rgba') {
@@ -388,11 +416,12 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Read hex string and store color data into the current color object, the hex string must be formatted as rgba or rgb.
      * @zh 从十六进制颜色字符串中读入当前颜色。<br/>
      * 十六进制颜色字符串应该以可选的 "#" 开头，紧跟最多 8 个代表十六进制数字的字符；<br/>
      * 每两个连续字符代表的数值依次作为 Red、Green、Blue 和 Alpha 通道；<br/>
      * 缺省的颜色通道将视为 0；缺省的透明通道将视为 255。<br/>
-     * @param hexString 十六进制颜色字符串。
+     * @param hexString the hex string
      * @returns `this`
      */
     public fromHEX (hexString: string) {
@@ -406,11 +435,12 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en convert Color to HEX color string.
      * @zh 转换当前颜色为十六进制颜色字符串。
-     * @param fmt 格式选项。
-     * - `'#rrggbbaa'` 获取Red、Green、Blue、Alpha通道的十六进制值（**两位**，高位补 0）并依次连接；
-     * - `'#rrggbb` 与 `'#rrggbbaa'` 类似但不包括 Alpha 通道。
-     * @returns 十六进制颜色字符串。
+     * @param fmt "#rrggbb" or "#rrggbbaa".
+     * - `'#rrggbbaa'` obtains the hexadecimal value of the Red, Green, Blue, Alpha channels (**two**, high complement 0) and connects them sequentially.
+     * - `'#rrggbb'` is similar to `'#rrggbbaa'` but does not include the Alpha channel.
+     * @returns the Hex color string
      * @example
      * ```
      * const color = new Color(255, 14, 0, 255);
@@ -447,8 +477,9 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Convert to rgb value.
      * @zh 将当前颜色转换为 RGB 整数值。
-     * @returns RGB 整数值。从最低有效位开始，每8位分别是 Red、Green、Blue 通道的值。
+     * @returns RGB integer value. Starting from the lowest valid bit, each 8 bits is the value of the Red, Green, and Blue channels respectively.
      * @example
      * ```
      * const color = Color.YELLOW;
@@ -460,10 +491,11 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Read HSV model color and convert to RGB color.
      * @zh 从 HSV 颜色中读入当前颜色。
-     * @param h H 通道。
-     * @param s S 通道。
-     * @param v V 通道。
+     * @param h H value。
+     * @param s S value。
+     * @param v V value。
      * @returns `this`
      * @example
      * ```
@@ -537,8 +569,9 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Transform to HSV model color.
      * @zh 转换当前颜色为 HSV 颜色。
-     * @returns HSV 颜色。成员 `h`、`s`、`v` 分别代表 HSV 颜色的 H、S、V 通道。
+     * @returns HSV format color
      * @example
      * ```
      * import { Color } from 'cc';
@@ -572,14 +605,15 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Set the color.
      * @zh 设置当前颜色使其与指定颜色相等。
-     * @param other 相比较的颜色。
-     * @overload 重载
-     * @param [r=0] 指定的 Red 通道，[0-255]。
-     * @param [g=0] 指定的 Green 通道。
-     * @param [b=0] 指定的 Blue 通道。
-     * @param [a=255] 指定的 Alpha 通道。
-     * @returns 当前颜色。
+     * @param other The specified color.
+     * @overload
+     * @param [r=0] red component of the color, the range is [0-255]
+     * @param [g=0] green component of the color
+     * @param [b=0] blue component of the color
+     * @param [a=255] alpha component of the color
+     * @returns Current color.
      */
     public set(other: Color): Color;
     public set(r?: number, g?: number, b?: number, a?: number): Color;
@@ -605,8 +639,9 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Multiplies the current color by the specified color.
      * @zh 将当前颜色乘以与指定颜色
-     * @param other 指定的颜色。
+     * @param other The specified color.
      */
     public multiply (other: Color) {
         const r = ((this._val & 0x000000ff) * other.r) >> 8;

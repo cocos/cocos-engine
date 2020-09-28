@@ -388,6 +388,12 @@ replaceProperty(Mat3, 'Mat3', [
         target: Mat3,
         targetName: 'Mat3',
     },
+    {
+        name: 'transfrom',
+        newName: 'transform',
+        target: Mat3,
+        targetName: 'Mat3',
+    },
 ]);
 
 replaceProperty(Mat3.prototype, 'Mat3', [
