@@ -3,13 +3,13 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP } from '../define';
+import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP_BINDING } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
 import { GFXFramebuffer, GFXRenderPass, GFXLoadOp,
     GFXStoreOp, GFXTextureLayout, GFXFormat, GFXTexture,
-    GFXTextureType, GFXTextureUsageBit, GFXColorAttachment, GFXDepthStencilAttachment } from '../../gfx';
+    GFXTextureType, GFXTextureUsageBit, GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPassInfo, GFXTextureInfo, GFXFramebufferInfo } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderView } from '../render-view';
@@ -78,38 +78,36 @@ export class ShadowFlow extends RenderFlow {
             depthStencilAttachment.beginLayout = GFXTextureLayout.UNDEFINED;
             depthStencilAttachment.endLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-            this._shadowRenderPass = device.createRenderPass({
-                colorAttachments: [colorAttachment],
-                depthStencilAttachment,
-            });
+            const renderPassInfo = new GFXRenderPassInfo([colorAttachment], depthStencilAttachment);
+            this._shadowRenderPass = device.createRenderPass(renderPassInfo);
         }
 
         if(this._shadowRenderTargets.length < 1) {
-            this._shadowRenderTargets.push(device.createTexture({
-                type: GFXTextureType.TEX2D,
-                usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                format: GFXFormat.RGBA8,
-                width: this._width,
-                height: this._height,
-            }));
+            this._shadowRenderTargets.push(device.createTexture(new GFXTextureInfo(
+                GFXTextureType.TEX2D,
+                GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                GFXFormat.RGBA8,
+                this._width,
+                this._height,
+            )));
         }
 
         if(!this._depth) {
-            this._depth = device.createTexture({
-                type: GFXTextureType.TEX2D,
-                usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
-                format: device.depthStencilFormat,
-                width: this._width,
-                height: this._height,
-            });
+            this._depth = device.createTexture(new GFXTextureInfo(
+                GFXTextureType.TEX2D,
+                GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
+                device.depthStencilFormat,
+                this._width,
+                this._height,
+            ));
         }
 
         if(!this._shadowFrameBuffer) {
-            this._shadowFrameBuffer = device.createFramebuffer({
-                renderPass: this._shadowRenderPass,
-                colorTextures: this._shadowRenderTargets,
-                depthStencilTexture: this._depth,
-            });
+            this._shadowFrameBuffer = device.createFramebuffer(new GFXFramebufferInfo(
+                this._shadowRenderPass,
+                this._shadowRenderTargets,
+                this._depth,
+            ));
         }
 
         for (let i = 0; i < this._stages.length; ++i) {
@@ -131,7 +129,7 @@ export class ShadowFlow extends RenderFlow {
 
         pipeline.updateUBOs(view);
         super.render(view);
-        pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP.binding, this._shadowFrameBuffer!.colorTextures[0]!);
+        pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, this._shadowFrameBuffer!.colorTextures[0]!);
     }
 
     private resizeShadowMap (width: number, height: number) {
@@ -148,11 +146,11 @@ export class ShadowFlow extends RenderFlow {
 
         if(this._shadowFrameBuffer) {
             this._shadowFrameBuffer.destroy();
-            this._shadowFrameBuffer.initialize({
-                renderPass: this._shadowRenderPass!,
-                colorTextures: this._shadowRenderTargets,
-                depthStencilTexture: this._depth,
-            });
+            this._shadowFrameBuffer.initialize(new GFXFramebufferInfo(
+                this._shadowRenderPass!,
+                this._shadowRenderTargets,
+                this._depth,
+            ));
         }
     }
 }

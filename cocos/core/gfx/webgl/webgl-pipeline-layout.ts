@@ -1,4 +1,4 @@
-import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from '../pipeline-layout';
+import { GFXPipelineLayout, GFXPipelineLayoutInfo } from '../pipeline-layout';
 import { IWebGLGPUPipelineLayout, IWebGLGPUDescriptorSetLayout } from './webgl-gpu-objects';
 import { WebGLDescriptorSetLayout } from './webgl-descriptor-set-layout';
 
@@ -8,7 +8,7 @@ export class WebGLPipelineLayout extends GFXPipelineLayout {
 
     private _gpuPipelineLayout: IWebGLGPUPipelineLayout | null = null;
 
-    public initialize (info: IGFXPipelineLayoutInfo) {
+    public initialize (info: GFXPipelineLayoutInfo) {
         Array.prototype.push.apply(this._setLayouts, info.setLayouts);
 
         const dynamicOffsetIndices: number[][] = [];

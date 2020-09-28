@@ -3,8 +3,8 @@
  */
 
 import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXDevice, GFXDescriptorSet } from '../gfx';
-import { GFXBuffer } from '../gfx/buffer';
-import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
+import { GFXBuffer, GFXBufferInfo } from '../gfx/buffer';
+import { GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute } from '../gfx/input-assembler';
 import { Mat4 } from '../math';
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, UBOLocalBatched } from './define';
@@ -115,7 +115,7 @@ export class BatchedBuffer {
                     // update world matrix
                     Mat4.toArray(batch.uboData, ro.model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET + batch.mergeCount * 16);
                     if (!batch.mergeCount) {
-                        descriptorSet.bindBuffer(UBOLocalBatched.BLOCK.binding, batch.ubo);
+                        descriptorSet.bindBuffer(UBOLocalBatched.BINDING, batch.ubo);
                         descriptorSet.update();
                         batch.hPass = hPass;
                         batch.hShader = hShader;
@@ -137,52 +137,47 @@ export class BatchedBuffer {
         const totalVBs: GFXBuffer[] = [];
         for (let i = 0; i < flatBuffers.length; ++i) {
             const flatBuff = flatBuffers[i];
-            const newVB = this._device.createBuffer({
-                usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: flatBuff.count * flatBuff.stride,
-                stride: flatBuff.stride,
-            });
+            const newVB = this._device.createBuffer(new GFXBufferInfo(
+                GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+                GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                flatBuff.count * flatBuff.stride,
+                flatBuff.stride,
+            ));
             newVB.update(flatBuff.buffer.buffer);
             vbs.push(newVB);
             vbDatas.push(new Uint8Array(newVB.size));
             totalVBs.push(newVB);
         }
 
-        const vbIdx = this._device.createBuffer({
-            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: vbCount * 4,
-            stride: 4,
-        });
+        const vbIdx = this._device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            vbCount * 4,
+            4,
+        ));
         const vbIdxData = new Float32Array(vbCount);
         vbIdxData.fill(0);
         vbIdx.update(vbIdxData);
         totalVBs.push(vbIdx);
 
         const attributes = subModel.inputAssembler!.attributes;
-        const attrs = new Array<IGFXAttribute>(attributes.length + 1);
+        const attrs = new Array<GFXAttribute>(attributes.length + 1);
         for (let a = 0; a < attributes.length; ++a) {
             attrs[a] = attributes[a];
         }
-        attrs[attributes.length] = {
-            name: 'a_dyn_batch_id',
-            format: GFXFormat.R32F,
-            stream: flatBuffers.length,
-        };
+        attrs[attributes.length] = new GFXAttribute('a_dyn_batch_id', GFXFormat.R32F, false, flatBuffers.length);
 
-        const ia = this._device.createInputAssembler({
-            attributes: attrs,
-            vertexBuffers: totalVBs,
-        });
+        const iaInfo = new GFXInputAssemblerInfo(attrs, totalVBs);
+        const ia = this._device.createInputAssembler(iaInfo);
 
-        const ubo = this._device.createBuffer({
-            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: UBOLocalBatched.SIZE,
-        });
+        const ubo = this._device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            UBOLocalBatched.SIZE,
+            UBOLocalBatched.SIZE,
+        ));
 
-        descriptorSet.bindBuffer(UBOLocalBatched.BLOCK.binding, ubo);
+        descriptorSet.bindBuffer(UBOLocalBatched.BINDING, ubo);
         descriptorSet.update();
 
         const uboData = new Float32Array(UBOLocalBatched.COUNT);

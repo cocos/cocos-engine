@@ -4,21 +4,40 @@
 
 import { GFXObject, GFXObjectType, GFXShaderStageFlagBit, GFXType } from './define';
 import { GFXDevice } from './device';
-import { IGFXAttribute } from './input-assembler';
+import { GFXAttribute } from './input-assembler';
 
-export class GFXShaderStage {
-    public stage: GFXShaderStageFlagBit = GFXShaderStageFlagBit.NONE;
-    public source: string = '';
+export interface IGFXShaderStage {
+    stage: GFXShaderStageFlagBit;
+    source: string;
+}
+
+export class GFXShaderStage implements IGFXShaderStage {
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public stage: GFXShaderStageFlagBit = GFXShaderStageFlagBit.NONE,
+        public source: string = '',
+    ) {}
+}
+
+export interface IGFXUniform {
+    name: string;
+    type: GFXType;
+    count: number;
 }
 
 /**
  * @en GFX uniform.
  * @zh GFX uniform。
  */
-export class GFXUniform {
-    public name: string = '';
-    public type: GFXType = GFXType.UNKNOWN;
-    public count: number = 1;
+export class GFXUniform implements IGFXUniform {
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public name: string = '',
+        public type: GFXType = GFXType.UNKNOWN,
+        public count: number = 1,
+    ) {}
 }
 
 /**
@@ -26,11 +45,15 @@ export class GFXUniform {
  * @zh GFX uniform 块。
  */
 export class GFXUniformBlock {
-    public set: number = -1;
-    public binding: number = -1;
-    public name: string = '';
-    public members: GFXUniform[] = [];
-    public count: number = 1;
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public set: number = -1,
+        public binding: number = -1,
+        public name: string = '',
+        public members: GFXUniform[] = [],
+        public count: number = 1,
+    ) {}
 }
 
 /**
@@ -38,20 +61,27 @@ export class GFXUniformBlock {
  * @zh GFX Uniform 采样器。
  */
 export class GFXUniformSampler {
-    public set: number = -1;
-    public binding: number = -1;
-    public name: string = '';
-    public type: GFXType = GFXType.UNKNOWN;
-    public count: number = 1;
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public set: number = -1,
+        public binding: number = -1,
+        public name: string = '',
+        public type: GFXType = GFXType.UNKNOWN,
+        public count: number = 1,
+    ) {}
 }
 
 export class GFXShaderInfo {
-    public name: string = '';
-    public stages: GFXShaderStage[] = [];
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
-    public attributes: IGFXAttribute[] = [];
-    public blocks: GFXUniformBlock[] = [];
-    public samplers: GFXUniformSampler[] = [];
+    constructor (
+        public name: string = '',
+        public stages: GFXShaderStage[] = [],
+        public attributes: GFXAttribute[] = [],
+        public blocks: GFXUniformBlock[] = [],
+        public samplers: GFXUniformSampler[] = [],
+    ) {}
 }
 
 /**
@@ -59,6 +89,7 @@ export class GFXShaderInfo {
  * @zh GFX 着色器。
  */
 export abstract class GFXShader extends GFXObject {
+    private static _shaderIdGen: number = 0;
 
     /**
      * @en Get current shader id.
@@ -96,7 +127,7 @@ export abstract class GFXShader extends GFXObject {
 
     protected _stages: GFXShaderStage[] = [];
 
-    protected _attributes: IGFXAttribute[] = [];
+    protected _attributes: GFXAttribute[] = [];
 
     protected _blocks: GFXUniformBlock[] = [];
 
@@ -105,7 +136,7 @@ export abstract class GFXShader extends GFXObject {
     constructor (device: GFXDevice) {
         super(GFXObjectType.SHADER);
         this._device = device;
-        this._id = device.genShaderId();
+        this._id = GFXShader._shaderIdGen++;
     }
 
     public abstract initialize (info: GFXShaderInfo): boolean;

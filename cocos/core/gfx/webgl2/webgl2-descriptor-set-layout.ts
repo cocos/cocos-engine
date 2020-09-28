@@ -1,4 +1,4 @@
-import { GFXDescriptorSetLayout, IGFXDescriptorSetLayoutInfo, DESCRIPTOR_DYNAMIC_TYPE } from '../descriptor-set-layout';
+import { GFXDescriptorSetLayout, GFXDescriptorSetLayoutInfo, DESCRIPTOR_DYNAMIC_TYPE } from '../descriptor-set-layout';
 import { IWebGL2GPUDescriptorSetLayout } from './webgl2-gpu-objects';
 
 export class WebGL2DescriptorSetLayout extends GFXDescriptorSetLayout {
@@ -7,7 +7,7 @@ export class WebGL2DescriptorSetLayout extends GFXDescriptorSetLayout {
 
     private _gpuDescriptorSetLayout: IWebGL2GPUDescriptorSetLayout | null = null;
 
-    public initialize (info: IGFXDescriptorSetLayoutInfo) {
+    public initialize (info: GFXDescriptorSetLayoutInfo) {
         Array.prototype.push.apply(this._bindings, info.bindings);
 
         let descriptorCount = 0;

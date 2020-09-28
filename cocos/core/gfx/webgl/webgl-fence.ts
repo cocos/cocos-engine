@@ -1,8 +1,8 @@
-import { GFXFence, IGFXFenceInfo } from '../fence';
+import { GFXFence, GFXFenceInfo } from '../fence';
 
 export class WebGLFence extends GFXFence {
 
-    public initialize (info: IGFXFenceInfo): boolean {
+    public initialize (info: GFXFenceInfo): boolean {
         return true;
     }
 

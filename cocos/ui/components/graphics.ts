@@ -38,10 +38,9 @@ import { IAssembler } from '../../core/renderer/ui/base';
 import { UI } from '../../core/renderer/ui/ui';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
-import { Mesh, GFXFormat, GFXPrimitiveMode } from '../../core';
-import { BufferBlob } from '../../core/3d/misc/buffer-blob';
-import { SubModel } from '../../core/renderer/scene';
+import { GFXFormat, GFXPrimitiveMode, GFXAttribute, RenderingSubMesh, GFXDevice, GFXBufferUsageBit, GFXBufferInfo, GFXMemoryUsageBit } from '../../core';
 import { vfmt, getAttributeStride } from '../../core/renderer/ui/ui-vertex-format';
+import { legacyCC } from '../../core/global-exports';
 
 const _matInsInfo: IMaterialInstanceInfo = {
     parent: null!,
@@ -50,10 +49,7 @@ const _matInsInfo: IMaterialInstanceInfo = {
 };
 
 const attributes = vfmt.concat([
-    {
-        name: 'a_dist',
-        format: GFXFormat.R32F,
-    },
+    new GFXAttribute('a_dist', GFXFormat.R32F),
 ]);
 
 const stride = getAttributeStride(attributes);
@@ -230,6 +226,7 @@ export class Graphics extends UIRenderable {
     protected _miterLimit = 10;
 
     protected _isDrawing = false;
+    protected _renderingMeshCache: RenderingSubMesh[] = [];
 
     constructor (){
         super();
@@ -269,6 +266,18 @@ export class Graphics extends UIRenderable {
             this.model.destroy();
             director.root!.destroyModel(this.model);
             this.model = null;
+        }
+
+        if (this._renderingMeshCache.length > 0) {
+            const len = this._renderingMeshCache.length;
+            for (let i = 0; i < len; i++) {
+                const renderMesh = this._renderingMeshCache[i];
+                renderMesh.vertexBuffers[0].destroy();
+                renderMesh.indexBuffer?.destroy();
+                renderMesh.destroy();
+            }
+
+            this._renderingMeshCache.length = 0;
         }
 
         if (!this.impl) {
@@ -586,47 +595,31 @@ export class Graphics extends UIRenderable {
         }
 
         if (this.model.subModels.length <= idx) {
-            const mesh = new Mesh();
-            const vertexBuffer = new ArrayBuffer(65535 * stride);
-            const bufferBlob = new BufferBlob();
-            bufferBlob.setNextAlignment(0);
-            const vertexBundle: Mesh.IVertexBundle = {
-                attributes,
-                view: {
-                    offset: bufferBlob.getLength(),
-                    length: vertexBuffer.byteLength,
-                    count: 65535,
+            let renderMesh: RenderingSubMesh;
+            const len = this._renderingMeshCache.length;
+            if (len > 0 && len > idx) {
+                renderMesh = this._renderingMeshCache[idx];
+            } else {
+                const gfxDevice: GFXDevice = legacyCC.director.root.device;
+                const vertexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
+                    GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+                    GFXMemoryUsageBit.DEVICE,
+                    65535 * stride,
                     stride,
-                },
-            };
-            bufferBlob.addBuffer(vertexBuffer);
+                ));
+                const indexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
+                    GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+                    GFXMemoryUsageBit.DEVICE,
+                    65535 * 2,
+                    2,
+                ));
 
-            const primitive: Mesh.ISubMesh = {
-                primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
-                vertexBundelIndices: [0],
-            };
-            const idxStride = 2;
-            const indexBuffer = new ArrayBuffer(idxStride * 65535);
-            bufferBlob.setNextAlignment(idxStride);
-            primitive.indexView = {
-                offset: bufferBlob.getLength(),
-                length: indexBuffer.byteLength,
-                count: 65535,
-                stride: idxStride,
-            };
-            bufferBlob.addBuffer(indexBuffer);
+                renderMesh = new RenderingSubMesh([vertexBuffer], attributes, GFXPrimitiveMode.TRIANGLE_LIST, indexBuffer);
+                renderMesh.subMeshIdx = 0;
+                this._renderingMeshCache.push(renderMesh);
+            }
 
-            const meshStruct = {
-                vertexBundles: [vertexBundle],
-                primitives: [primitive],
-            };
-
-            mesh.reset({
-                struct: meshStruct,
-                data: new Uint8Array(bufferBlob.getCombined()),
-            });
-
-            this.model.initSubModel(idx, mesh.renderingSubMeshes[0], this.getUIMaterialInstance());
+            this.model.initSubModel(idx, renderMesh, this.getUIMaterialInstance());
         }
     }
 
@@ -651,15 +644,15 @@ export class Graphics extends UIRenderable {
     }
 
     protected _attachToScene () {
-        const scene = director.root!.ui.renderScene;
-        if (!this.model || this.model!.scene === scene) {
+        const renderScene = director.root!.ui.renderScene;
+        if (!this.model || this.model!.scene === renderScene) {
             return;
         }
 
         if (this.model!.scene !== null) {
             this._detachFromScene();
         }
-        scene.addModel(this.model!);
+        renderScene.addModel(this.model!);
     }
 
     protected _detachFromScene () {

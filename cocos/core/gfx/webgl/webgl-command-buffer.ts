@@ -1,6 +1,6 @@
 import { GFXDescriptorSet } from '../descriptor-set';
 import { GFXBuffer, GFXBufferSource } from '../buffer';
-import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
+import { GFXCommandBuffer, GFXCommandBufferInfo } from '../command-buffer';
 import { GFXFramebuffer } from '../framebuffer';
 import { GFXInputAssembler } from '../input-assembler';
 import { GFXPipelineState } from '../pipeline-state';
@@ -62,7 +62,7 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
     protected _curStencilCompareMask: IWebGLStencilCompareMask | null = null;
     protected _isStateInvalied: boolean = false;
 
-    public initialize (info: IGFXCommandBufferInfo): boolean {
+    public initialize (info: GFXCommandBufferInfo): boolean {
 
         this._type = info.type;
         this._queue = info.queue;
@@ -172,14 +172,7 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
 
     public setViewport (viewport: GFXViewport) {
         if (!this._curViewport) {
-            this._curViewport = {
-                left: viewport.left,
-                top: viewport.top,
-                width: viewport.width,
-                height: viewport.height,
-                minDepth: viewport.minDepth,
-                maxDepth: viewport.maxDepth,
-            };
+            this._curViewport = new GFXViewport(viewport.left, viewport.top, viewport.width, viewport.height, viewport.minDepth, viewport.maxDepth);
         } else {
             if (this._curViewport.left !== viewport.left ||
                 this._curViewport.top !== viewport.top ||
@@ -201,12 +194,7 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
 
     public setScissor (scissor: GFXRect) {
         if (!this._curScissor) {
-            this._curScissor = {
-                x: scissor.x,
-                y: scissor.y,
-                width: scissor.width,
-                height: scissor.height,
-            };
+            this._curScissor = new GFXRect(scissor.x, scissor.y, scissor.width, scissor.height);
         } else {
             if (this._curScissor.x !== scissor.x ||
                 this._curScissor.y !== scissor.y ||

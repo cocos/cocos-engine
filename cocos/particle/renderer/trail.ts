@@ -7,10 +7,10 @@ import { Material } from '../../core/assets/material';
 import { RenderingSubMesh } from '../../core/assets/mesh';
 import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { director } from '../../core/director';
-import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
+import { GFX_DRAW_INFO_SIZE, GFXBuffer, GFXIndirectBuffer, GFXBufferInfo, GFXDrawInfo } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
 import { GFXDevice } from '../../core/gfx/device';
-import { IGFXAttribute } from '../../core/gfx/input-assembler';
+import { GFXAttribute } from '../../core/gfx/input-assembler';
 import { Color, Mat4, Quat, toRadian, Vec3 } from '../../core/math';
 import { Pool } from '../../core/memop';
 import { scene } from '../../core/renderer';
@@ -291,10 +291,10 @@ export default class TrailModule {
     private _trailSegments: Pool<TrailSegment> | null = null;
     private _particleTrail: Map<Particle, TrailSegment>;
     private _trailModel: scene.Model | null = null;
-    private _iaInfo: IGFXIndirectBuffer;
+    private _iaInfo: GFXIndirectBuffer;
     private _iaInfoBuffer: GFXBuffer | null = null;
     private _subMeshData: RenderingSubMesh | null = null;
-    private _vertAttrs: IGFXAttribute[];
+    private _vertAttrs: GFXAttribute[];
     private _vbF32: Float32Array | null = null;
     private _vbUint32: Uint32Array | null = null;
     private _iBuffer: Uint16Array | null = null;
@@ -302,24 +302,14 @@ export default class TrailModule {
     private _material: Material | null = null;
 
     constructor () {
-        this._iaInfo = {
-            drawInfos: [{
-                vertexCount: 0,
-                firstVertex: 0,
-                indexCount: 0,
-                firstIndex: 0,
-                vertexOffset: 0,
-                instanceCount: 0,
-                firstInstance: 0,
-            }],
-        };
+        this._iaInfo = new GFXIndirectBuffer([new GFXDrawInfo()]);
 
         this._vertAttrs = [
-            { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F }, // xyz:position
-            { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RGBA32F }, // x:index y:size zw:texcoord
-            // { name: GFXAttributeName.ATTR_TEX_COORD2, format: GFXFormat.RGB32F }, // <wireframe debug>
-            { name: GFXAttributeName.ATTR_TEX_COORD1, format: GFXFormat.RGB32F }, // xyz:velocity
-            { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA8, isNormalized: true },
+            new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),   // xyz:position
+            new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RGBA32F), // x:index y:size zw:texcoord
+            // new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD2, GFXFormat.RGB32F), // <wireframe debug>
+            new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD1, GFXFormat.RGB32F), // xyz:velocity
+            new GFXAttribute(GFXAttributeName.ATTR_COLOR, GFXFormat.RGBA8, true),
         ];
         this._vertSize = 0;
         for (const a of this._vertAttrs) {
@@ -575,41 +565,39 @@ export default class TrailModule {
 
     private rebuild () {
         const device: GFXDevice = director.root!.device;
-        const vertexBuffer = device.createBuffer({
-            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: this._vertSize * (this._trailNum + 1) * 2,
-            stride: this._vertSize,
-        });
+        const vertexBuffer = device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            this._vertSize * (this._trailNum + 1) * 2,
+            this._vertSize,
+        ));
         const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertSize * (this._trailNum + 1) * 2);
         this._vbF32 = new Float32Array(vBuffer);
         this._vbUint32 = new Uint32Array(vBuffer);
         vertexBuffer.update(vBuffer);
 
-        const indexBuffer = device.createBuffer({
-            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: this._trailNum * 6 * Uint16Array.BYTES_PER_ELEMENT,
-            stride: Uint16Array.BYTES_PER_ELEMENT,
-        });
+        const indexBuffer = device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            this._trailNum * 6 * Uint16Array.BYTES_PER_ELEMENT,
+            Uint16Array.BYTES_PER_ELEMENT,
+        ));
         this._iBuffer = new Uint16Array(this._trailNum * 6);
         indexBuffer.update(this._iBuffer);
 
-        this._iaInfoBuffer = device.createBuffer({
-            usage: GFXBufferUsageBit.INDIRECT,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: GFX_DRAW_INFO_SIZE,
-            stride: GFX_DRAW_INFO_SIZE,
-        });
+        this._iaInfoBuffer = device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.INDIRECT,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            GFX_DRAW_INFO_SIZE,
+            GFX_DRAW_INFO_SIZE,
+        ));
         this._iaInfo.drawInfos[0].vertexCount = (this._trailNum + 1) * 2;
         this._iaInfo.drawInfos[0].indexCount = this._trailNum * 6;
         this._iaInfoBuffer.update(this._iaInfo);
 
-        this._subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs!, GFXPrimitiveMode.TRIANGLE_LIST);
-        this._subMeshData.indexBuffer = indexBuffer;
-        this._subMeshData.indirectBuffer = this._iaInfoBuffer;
+        this._subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs!, GFXPrimitiveMode.TRIANGLE_LIST, indexBuffer, this._iaInfoBuffer);
 
-        let trailModel = this._trailModel;
+        const trailModel = this._trailModel;
         if (trailModel) {
             trailModel.node = trailModel.transform = this._particleSystem.node;
             trailModel.visFlags = this._particleSystem.visibility;

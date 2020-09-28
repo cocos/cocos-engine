@@ -28,7 +28,7 @@
  */
 
 import { ccclass, rangeMin, rangeMax, serializable } from 'cc.decorator';
-import { GFXTexture, GFXSampler, GFXColorAttachment, GFXDepthStencilAttachment, GFXTextureLayout, IGFXRenderPassInfo } from '../gfx';
+import { GFXTexture, GFXSampler, GFXColorAttachment, GFXDepthStencilAttachment, GFXTextureLayout, GFXRenderPassInfo } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { RenderWindow } from '../renderer/core/render-window';
 import { IRenderWindowInfo } from '../renderer/core/render-window';
@@ -40,16 +40,13 @@ export interface IRenderTextureCreateInfo {
     name?: string;
     width: number;
     height: number;
-    passInfo?: IGFXRenderPassInfo;
+    passInfo?: GFXRenderPassInfo;
 }
 
 const _colorAttachment = new GFXColorAttachment();
 _colorAttachment.endLayout = GFXTextureLayout.SHADER_READONLY_OPTIMAL;
 const _depthStencilAttachment = new GFXDepthStencilAttachment();
-const passInfo = {
-    colorAttachments: [_colorAttachment],
-    depthStencilAttachment: _depthStencilAttachment,
-};
+const passInfo = new GFXRenderPassInfo([_colorAttachment], _depthStencilAttachment);
 
 const _windowInfo: IRenderWindowInfo = {
     width: 1,

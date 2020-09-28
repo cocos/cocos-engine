@@ -3,7 +3,7 @@ import { builtinResMgr } from '../../3d/builtin/init';
 import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/mesh';
 import { aabb } from '../../geometry';
-import { GFXBuffer } from '../../gfx/buffer';
+import { GFXBuffer, GFXBufferInfo } from '../../gfx/buffer';
 import { Pool } from '../../memop';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
@@ -19,8 +19,8 @@ import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool, SubModelArrayHandle, ModelPool,
     ModelView, AABBHandle, AABBPool, AABBView, NULL_HANDLE } from '../core/memory-pools';
-import { IGFXAttribute, GFXDescriptorSet } from '../../gfx';
-import { INST_MAT_WORLD, UBOLocal, UniformLightingMapSampler } from '../../pipeline/define';
+import { GFXAttribute, GFXDescriptorSet } from '../../gfx';
+import { INST_MAT_WORLD, UBOLocal, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
 import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
 
 const m4_1 = new Mat4();
@@ -335,8 +335,8 @@ export class Model {
             const subModels = this._subModels;
             for (let i = 0; i < subModels.length; i++) {
                 const descriptorSet = subModels[i].descriptorSet;
-                descriptorSet.bindTexture(UniformLightingMapSampler.binding, gfxTexture);
-                descriptorSet.bindSampler(UniformLightingMapSampler.binding, sampler);
+                descriptorSet.bindTexture(UNIFORM_LIGHTMAP_TEXTURE_BINDING, gfxTexture);
+                descriptorSet.bindSampler(UNIFORM_LIGHTMAP_TEXTURE_BINDING, sampler);
                 descriptorSet.update();
             }
         }
@@ -368,7 +368,7 @@ export class Model {
     // sub-classes can override the following functions if needed
 
     // for now no submodel level instancing attributes
-    protected _updateInstancedAttributes (attributes: IGFXAttribute[], pass: Pass) {
+    protected _updateInstancedAttributes (attributes: GFXAttribute[], pass: Pass) {
         if (!pass.device.hasFeature(GFXFeature.INSTANCED_ARRAYS)) { return; }
         let size = 0;
         for (let j = 0; j < attributes.length; j++) {
@@ -395,16 +395,16 @@ export class Model {
 
     protected _initLocalDescriptors (subModelIndex: number) {
         if (!this._localBuffer) {
-            this._localBuffer = this._device.createBuffer({
-                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: UBOLocal.SIZE,
-                stride: UBOLocal.SIZE,
-            });
+            this._localBuffer = this._device.createBuffer(new GFXBufferInfo(
+                GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                UBOLocal.SIZE,
+                UBOLocal.SIZE,
+            ));
         }
     }
 
     protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: GFXDescriptorSet) {
-        descriptorSet.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer!);
+        descriptorSet.bindBuffer(UBOLocal.BINDING, this._localBuffer!);
     }
 }

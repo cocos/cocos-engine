@@ -29,9 +29,9 @@
 
 import { DEBUG, JSB } from 'internal:constants';
 import { NativeBufferPool, NativeObjectPool, NativeArrayPool } from './native-pools';
-import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, IGFXDescriptorSetInfo,
-    GFXDevice, GFXDescriptorSet, GFXShaderInfo, GFXShader, IGFXInputAssemblerInfo, GFXInputAssembler,
-    IGFXPipelineLayoutInfo, GFXPipelineLayout, GFXFramebuffer, IGFXFramebufferInfo, GFXPrimitiveMode, GFXDynamicStateFlags, GFXClearFlag } from '../../gfx';
+import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, GFXDescriptorSetInfo,
+    GFXDevice, GFXDescriptorSet, GFXShaderInfo, GFXShader, GFXInputAssemblerInfo, GFXInputAssembler,
+    GFXPipelineLayoutInfo, GFXPipelineLayout, GFXFramebuffer, GFXFramebufferInfo, GFXPrimitiveMode, GFXDynamicStateFlags, GFXClearFlag, GFXColor } from '../../gfx';
 import { RenderPassStage } from '../../pipeline/define';
 import { BatchingSchemes } from './pass';
 import { Layers } from '../../scene-graph/layers';
@@ -101,9 +101,9 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
         this._poolFlag = 1 << 30;
         this._chunkMask = ~(this._entryMask | this._poolFlag);
         this._nativePool = new NativeBufferPool(poolType, entryBits, this._stride);
-        
+
         let type: BufferDataType = BufferDataType.NEVER;
-        let hasFloat32 = false, hasUint32 = false;
+        let hasFloat32 = false; let hasUint32 = false;
         for (const e in dataType) {
             hasFloat32 = this._hasFloat32;
             hasUint32 = this._hasUint32;
@@ -530,19 +530,19 @@ export const ShaderPool = new ObjectPool(PoolType.SHADER,
     (obj: GFXShader) => obj && obj.destroy(),
 );
 export const DSPool = new ObjectPool(PoolType.DESCRIPTOR_SETS,
-    (args: [GFXDevice, IGFXDescriptorSetInfo], obj?: GFXDescriptorSet) => obj ? (obj.initialize(args[1]), obj) : args[0].createDescriptorSet(args[1]),
+    (args: [GFXDevice, GFXDescriptorSetInfo], obj?: GFXDescriptorSet) => obj ? (obj.initialize(args[1]), obj) : args[0].createDescriptorSet(args[1]),
     (obj: GFXDescriptorSet) => obj && obj.destroy(),
 );
 export const IAPool = new ObjectPool(PoolType.INPUT_ASSEMBLER,
-    (args: [GFXDevice, IGFXInputAssemblerInfo], obj?: GFXInputAssembler) => obj ? (obj.initialize(args[1]), obj) : args[0].createInputAssembler(args[1]),
+    (args: [GFXDevice, GFXInputAssemblerInfo], obj?: GFXInputAssembler) => obj ? (obj.initialize(args[1]), obj) : args[0].createInputAssembler(args[1]),
     (obj: GFXInputAssembler) => obj && obj.destroy(),
 );
 export const PipelineLayoutPool = new ObjectPool(PoolType.PIPELINE_LAYOUT,
-    (args: [GFXDevice, IGFXPipelineLayoutInfo], obj?: GFXPipelineLayout) => obj ? (obj.initialize(args[1]), obj) : args[0].createPipelineLayout(args[1]),
+    (args: [GFXDevice, GFXPipelineLayoutInfo], obj?: GFXPipelineLayout) => obj ? (obj.initialize(args[1]), obj) : args[0].createPipelineLayout(args[1]),
     (obj: GFXPipelineLayout) => obj && obj.destroy(),
 );
 export const FramebufferPool = new ObjectPool(PoolType.FRAMEBUFFER,
-    (args: [GFXDevice, IGFXFramebufferInfo], obj?: GFXFramebuffer) => obj ? (obj.initialize(args[1]), obj) : args[0].createFramebuffer(args[1]),
+    (args: [GFXDevice, GFXFramebufferInfo], obj?: GFXFramebuffer) => obj ? (obj.initialize(args[1]), obj) : args[0].createFramebuffer(args[1]),
     (obj: GFXFramebuffer) => obj && obj.destroy(),
 );
 
@@ -759,7 +759,7 @@ interface ICameraViewType extends BufferTypeManifest<typeof CameraView> {
     [CameraView.FORWARD]: Vec3;
     [CameraView.POSITION]: Vec3;
     [CameraView.VIEW_PORT]: Rect;
-    [CameraView.CLEAR_COLOR]: Color;
+    [CameraView.CLEAR_COLOR]: GFXColor;
     [CameraView.MAT_VIEW]: Mat4;
     [CameraView.MAT_VIEW_PROJ]: Mat4;
     [CameraView.MAT_VIEW_PROJ_INV]: Mat4;

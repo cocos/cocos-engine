@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { GFXShader, GFXRenderPass, GFXInputAssembler, GFXDevice, GFXPipelineState, GFXInputState } from '../gfx';
+import { GFXShader, GFXRenderPass, GFXInputAssembler, GFXDevice, GFXPipelineState, GFXInputState, GFXPipelineStateInfo } from '../gfx';
 import { PassPool, PassView, RasterizerStatePool, BlendStatePool, DepthStencilStatePool, PassHandle, PipelineLayoutPool } from '../renderer/core/memory-pools';
 
 export class PipelineStateManager {
@@ -21,17 +21,15 @@ export class PipelineStateManager {
             const pipelineLayout = PipelineLayoutPool.get(PassPool.get(hPass, PassView.PIPELINE_LAYOUT));
             const inputState = new GFXInputState();
             inputState.attributes = ia.attributes;
-            pso = device.createPipelineState({
-                primitive: PassPool.get(hPass, PassView.PRIMITIVE),
-                rasterizerState: RasterizerStatePool.get(PassPool.get(hPass, PassView.RASTERIZER_STATE)),
-                depthStencilState: DepthStencilStatePool.get(PassPool.get(hPass, PassView.DEPTH_STENCIL_STATE)),
-                blendState: BlendStatePool.get(PassPool.get(hPass, PassView.BLEND_STATE)),
-                dynamicStates: PassPool.get(hPass, PassView.DYNAMIC_STATES),
-                inputState,
-                renderPass,
-                shader,
-                pipelineLayout,
-            });
+            const psoInfo = new GFXPipelineStateInfo(
+                shader, pipelineLayout, renderPass, inputState,
+                RasterizerStatePool.get(PassPool.get(hPass, PassView.RASTERIZER_STATE)),
+                DepthStencilStatePool.get(PassPool.get(hPass, PassView.DEPTH_STENCIL_STATE)),
+                BlendStatePool.get(PassPool.get(hPass, PassView.BLEND_STATE)),
+                PassPool.get(hPass, PassView.PRIMITIVE),
+                PassPool.get(hPass, PassView.DYNAMIC_STATES),
+            );
+            pso = device.createPipelineState(psoInfo);
             this._PSOHashMap.set(newHash, pso);
         }
 

@@ -32,7 +32,7 @@ import AssetLibrary from './assets/asset-library';
 import { EventTarget } from './event/event-target';
 import * as debug from './platform/debug';
 import inputManager from './platform/event-manager/input-manager';
-import { GFXDevice, IGFXDeviceInfo } from './gfx';
+import { GFXDevice, GFXDeviceInfo } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from './renderer/models';
@@ -917,15 +917,15 @@ export class Game extends EventTarget {
                 }
             }
 
-            const opts: IGFXDeviceInfo = {
-                canvasElm: this.canvas as HTMLCanvasElement,
-                debug: true,
-                isAntialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
-                devicePixelRatio: window.devicePixelRatio,
-                nativeWidth: Math.floor(screen.width * window.devicePixelRatio),
-                nativeHeight: Math.floor(screen.height * window.devicePixelRatio),
+            const opts = new GFXDeviceInfo(
+                this.canvas as HTMLCanvasElement,
+                EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
+                false,
+                window.devicePixelRatio,
+                Math.floor(screen.width * window.devicePixelRatio),
+                Math.floor(screen.height * window.devicePixelRatio),
                 bindingMappingInfo,
-            };
+            );
             for (let i = 0; i < ctors.length; i++) {
                 this._gfxDevice = new ctors[i]();
                 if (this._gfxDevice!.initialize(opts)) { break; }

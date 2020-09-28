@@ -3,7 +3,7 @@ import { createMesh } from '../../3d/misc/utils';
 import { Material } from '../../assets/material';
 import { Mesh } from '../../assets/mesh';
 import { TextureCube } from '../../assets/texture-cube';
-import { UNIFORM_ENVIRONMENT } from '../../pipeline/define';
+import { UNIFORM_ENVIRONMENT_BINDING } from '../../pipeline/define';
 import { box } from '../../primitive';
 import { MaterialInstance } from '../core/material-instance';
 import { samplerLib } from '../core/sampler-lib';
@@ -140,8 +140,8 @@ export class Skybox {
     protected _updateGlobalBinding () {
         const texture = this.envmap!.getGFXTexture()!;
         const sampler = samplerLib.getSampler(legacyCC.director._device, this.envmap!.getSamplerHash());
-        this._globalDescriptorSet!.bindSampler(UNIFORM_ENVIRONMENT.binding, sampler);
-        this._globalDescriptorSet!.bindTexture(UNIFORM_ENVIRONMENT.binding, texture);
+        this._globalDescriptorSet!.bindSampler(UNIFORM_ENVIRONMENT_BINDING, sampler);
+        this._globalDescriptorSet!.bindTexture(UNIFORM_ENVIRONMENT_BINDING, texture);
     }
 
     public destroy () {

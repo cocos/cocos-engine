@@ -8,7 +8,7 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 import { MacroRecord } from '../renderer/core/pass-utils';
-import { GFXDevice, GFXDescriptorSet, GFXCommandBuffer, GFXDescriptorSetLayout } from '../gfx';
+import { GFXDevice, GFXDescriptorSet, GFXCommandBuffer, GFXDescriptorSetLayout, GFXDescriptorSetLayoutInfo, GFXDescriptorSetInfo } from '../gfx';
 import { globalDescriptorSetLayout } from './define';
 
 /**
@@ -118,13 +118,10 @@ export abstract class RenderPipeline extends Asset {
     public activate (): boolean {
         this._device = legacyCC.director.root.device;
 
-        this._descriptorSetLayout = this._device.createDescriptorSetLayout({
-            bindings: globalDescriptorSetLayout.bindings,
-        });
+        const layoutInfo = new GFXDescriptorSetLayoutInfo(globalDescriptorSetLayout.bindings);
+        this._descriptorSetLayout = this._device.createDescriptorSetLayout(layoutInfo);
 
-        this._descriptorSet = this._device.createDescriptorSet({
-            layout: this._descriptorSetLayout,
-        });
+        this._descriptorSet = this._device.createDescriptorSet(new GFXDescriptorSetInfo(this._descriptorSetLayout));
 
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].activate(this);

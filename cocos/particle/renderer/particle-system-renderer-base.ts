@@ -1,4 +1,4 @@
-import { Component, IGFXAttribute } from '../../core';
+import { Component, GFXAttribute } from '../../core';
 import ParticleBatchModel from '../models/particle-batch-model';
 import ParticleSystemRenderer from './particle-system-renderer-data';
 import { Material } from '../../core/assets';
@@ -33,7 +33,7 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
     protected _particleSystem: any = null;
     protected _model: ParticleBatchModel | null = null;
     protected _renderInfo: ParticleSystemRenderer | null = null;
-    protected _vertAttrs: IGFXAttribute[] = [];
+    protected _vertAttrs: GFXAttribute[] = [];
 
     constructor (info: ParticleSystemRenderer) {
         this._renderInfo = info;
@@ -52,7 +52,7 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
         if (model) {
             model.node = model.transform = this._particleSystem.node;
             model.enabled = this._particleSystem.enabledInHierarchy;
-        } 
+        }
     }
 
     public onDisable () {
