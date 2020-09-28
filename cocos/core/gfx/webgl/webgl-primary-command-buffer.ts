@@ -14,6 +14,7 @@ import { WebGLFramebuffer } from './webgl-framebuffer';
 import { WebGLTexture } from './webgl-texture';
 import { GFXRenderPass } from '../render-pass';
 import { WebGLRenderPass } from './webgl-render-pass';
+import { GFXDrawInfo } from '../..';
 
 const _dynamicOffsets: number[] = [];
 
@@ -41,7 +42,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
                 this.bindStates();
             }
 
-            WebGLCmdFuncDraw(this._device as WebGLDevice, inputAssembler);
+            WebGLCmdFuncDraw(this._device as WebGLDevice, inputAssembler as unknown as GFXDrawInfo);
 
             ++this._numDrawCalls;
             this._numInstances += inputAssembler.instanceCount;

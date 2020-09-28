@@ -27,32 +27,36 @@
  * @category material
  */
 
-import { IBlockInfo, IBuiltinInfo, IDefineInfo, ISamplerInfo, IShaderInfo } from '../../assets/effect-asset';
+import { IBlockInfo, IBuiltinInfo, IDefineInfo, IShaderInfo } from '../../assets/effect-asset';
 import { GFXDescriptorType, GFXGetTypeSize, GFXShaderStageFlagBit } from '../../gfx/define';
 import { GFXAPI, GFXDevice } from '../../gfx/device';
-import { IGFXAttribute } from '../../gfx/input-assembler';
-import { GFXUniformBlock, GFXShaderInfo } from '../../gfx/shader';
+import { GFXAttribute } from '../../gfx/input-assembler';
+import { GFXUniformBlock, GFXShaderInfo, GFXUniformSampler, GFXUniform, GFXShaderStage } from '../../gfx/shader';
 import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { genHandle, MacroRecord, PropertyType } from './pass-utils';
 import { legacyCC } from '../../global-exports';
 import { ShaderPool, ShaderHandle, PipelineLayoutHandle, PipelineLayoutPool, NULL_HANDLE } from './memory-pools';
 import { DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE } from '../../gfx/descriptor-set';
-import { GFXDescriptorSetLayout, IGFXDescriptorSetLayoutBinding } from '../../gfx/descriptor-set-layout';
+import { GFXDescriptorSetLayout, GFXDescriptorSetLayoutBinding, GFXDescriptorSetLayoutInfo } from '../../gfx/descriptor-set-layout';
+import { GFXPipelineLayoutInfo } from '../../gfx';
+
+const _dsLayoutInfo = new GFXDescriptorSetLayoutInfo();
 
 interface IDefineRecord extends IDefineInfo {
     _map: (value: any) => number;
     _offset: number;
 }
-interface IBlockInfoRT extends IBlockInfo {
-    size: number;
-}
+
 export interface IProgramInfo extends IShaderInfo {
-    blocks: IBlockInfoRT[];
-    samplers: ISamplerInfo[];
+    blockSizes: number[];
+    gfxAttributes: GFXAttribute[];
+    gfxBlocks: GFXUniformBlock[];
+    gfxSamplers: GFXUniformSampler[];
+    gfxStages: GFXShaderStage[];
     defines: IDefineRecord[];
     handleMap: Record<string, number>;
-    bindings: IGFXDescriptorSetLayoutBinding[];
+    bindings: GFXDescriptorSetLayoutBinding[];
     samplerStartBinding: number;
     uber: boolean; // macro number exceeds default limits, will fallback to string hash
 }
@@ -100,32 +104,31 @@ function getShaderInstanceName (name: string, macros: IMacroInfo[]) {
 
 function insertBuiltinBindings (tmpl: IProgramInfo, source: IDescriptorSetLayoutInfo, type: string) {
     const target = tmpl.builtins[type] as IBuiltinInfo;
-    const tempBlocks: IBlockInfoRT[] = [];
+    const tempBlocks: GFXUniformBlock[] = [];
     for (let i = 0; i < target.blocks.length; i++) {
         const b = target.blocks[i];
-        const info = source.record[b.name] as IBlockInfo;
+        const info = source.layouts[b.name] as GFXUniformBlock | undefined;
         if (!info || !(source.bindings[info.binding].descriptorType & DESCRIPTOR_BUFFER_TYPE)) {
             console.warn(`builtin UBO '${b.name}' not available!`);
             continue;
         }
-        const builtin: IBlockInfoRT = Object.assign({ size: getSize(info) }, info);
-        tempBlocks.push(builtin);
+        tempBlocks.push(info);
     }
-    Array.prototype.unshift.apply(tmpl.blocks, tempBlocks);
-    const tempSamplers: ISamplerInfo[] = [];
+    Array.prototype.unshift.apply(tmpl.gfxBlocks, tempBlocks);
+    const tempSamplers: GFXUniformSampler[] = [];
     for (let i = 0; i < target.samplers.length; i++) {
         const s = target.samplers[i];
-        const info = source.record[s.name] as ISamplerInfo;
+        const info = source.layouts[s.name] as GFXUniformSampler;
         if (!info || !(source.bindings[info.binding].descriptorType & DESCRIPTOR_SAMPLER_TYPE)) {
             console.warn(`builtin sampler '${s.name}' not available!`);
             continue;
         }
         tempSamplers.push(info);
     }
-    Array.prototype.unshift.apply(tmpl.samplers, tempSamplers);
+    Array.prototype.unshift.apply(tmpl.gfxSamplers, tempSamplers);
 }
 
-function getSize (block: GFXUniformBlock) {
+function getSize (block: IBlockInfo) {
     return block.members.reduce((s, m) => s + GFXGetTypeSize(m.type) * m.count, 0);
 }
 
@@ -138,14 +141,14 @@ function genHandles (tmpl: IProgramInfo) {
         let offset = 0;
         for (let j = 0; j < members.length; j++) {
             const uniform = members[j];
-            handleMap[uniform.name] = genHandle(PropertyType.UBO, block.set, block.binding, uniform.type, offset);
+            handleMap[uniform.name] = genHandle(PropertyType.UBO, SetIndex.MATERIAL, block.binding, uniform.type, offset);
             offset += (GFXGetTypeSize(uniform.type) >> 2) * uniform.count;
         }
     }
     // sampler handles
     for (let i = 0; i < tmpl.samplers.length; i++) {
         const sampler = tmpl.samplers[i];
-        handleMap[sampler.name] = genHandle(PropertyType.SAMPLER, sampler.set, sampler.binding, sampler.type);
+        handleMap[sampler.name] = genHandle(PropertyType.SAMPLER, SetIndex.MATERIAL, sampler.binding, sampler.type);
     }
     return handleMap;
 }
@@ -158,13 +161,14 @@ function dependencyCheck (dependencies: string[], defines: MacroRecord) {
     }
     return true;
 }
-function getActiveAttributes (tmpl: IProgramInfo, defines: MacroRecord, outAttributes: IGFXAttribute[]) {
-    const attributes = tmpl.attributes;
+function getActiveAttributes (tmpl: IProgramInfo, defines: MacroRecord) {
+    const out: GFXAttribute[] = [];
+    const { attributes, gfxAttributes } = tmpl;
     for (let i = 0; i < attributes.length; i++) {
-        const attribute = attributes[i];
-        if (!dependencyCheck(attribute.defines, defines)) { continue; }
-        outAttributes.push(attribute);
+        if (!dependencyCheck(attributes[i].defines, defines)) { continue; }
+        out.push(gfxAttributes[i]);
     }
+    return out;
 }
 
 let _dsLayout: GFXDescriptorSetLayout | null = null;
@@ -185,7 +189,7 @@ class ProgramLib {
     public define (prog: IShaderInfo) {
         const curTmpl = this._templates[prog.name];
         if (curTmpl && curTmpl.hash === prog.hash) { return; }
-        const tmpl = prog as IProgramInfo;
+        const tmpl = Object.assign({}, prog) as IProgramInfo;
         // calculate option mask offset
         let offset = 0;
         for (let i = 0; i < tmpl.defines.length; i++) {
@@ -208,41 +212,34 @@ class ProgramLib {
 
         // cache material-specific descriptor set layout
         tmpl.samplerStartBinding = tmpl.blocks.length;
-        tmpl.bindings = (tmpl.blocks as IGFXDescriptorSetLayoutBinding[]).concat(tmpl.samplers);
-
+        tmpl.gfxBlocks = []; tmpl.gfxSamplers = [];
+        tmpl.bindings = []; tmpl.blockSizes = [];
         for (let i = 0; i < tmpl.blocks.length; i++) {
             const block = tmpl.blocks[i];
-            block.count = 1; // effect compiler guarantees this
-            block.size = getSize(block);
-            block.set = SetIndex.MATERIAL;
-            if (!block.descriptorType) {
-                block.descriptorType = GFXDescriptorType.UNIFORM_BUFFER;
-            }
+            tmpl.blockSizes.push(getSize(block));
+            tmpl.bindings.push(new GFXDescriptorSetLayoutBinding(block.descriptorType || GFXDescriptorType.UNIFORM_BUFFER, 1, block.stageFlags));
+            tmpl.gfxBlocks.push(new GFXUniformBlock(SetIndex.MATERIAL, block.binding, block.name,
+                block.members.map((m) => new GFXUniform(m.name, m.type, m.count)), 1)); // effect compiler guarantees block count = 1
         }
         for (let i = 0; i < tmpl.samplers.length; i++) {
             const sampler = tmpl.samplers[i];
-            sampler.set = SetIndex.MATERIAL;
-            if (!sampler.descriptorType) {
-                sampler.descriptorType = GFXDescriptorType.SAMPLER;
-            }
+            tmpl.bindings.push(new GFXDescriptorSetLayoutBinding(sampler.descriptorType || GFXDescriptorType.SAMPLER, sampler.count, sampler.stageFlags));
+            tmpl.gfxSamplers.push(new GFXUniformSampler(SetIndex.MATERIAL, sampler.binding, sampler.name, sampler.type, sampler.count));
         }
+        tmpl.gfxAttributes = [];
+        for (let i = 0; i < tmpl.attributes.length; i++) {
+            const attr = tmpl.attributes[i];
+            tmpl.gfxAttributes.push(new GFXAttribute(attr.name, attr.format, attr.isNormalized, 0, attr.isInstanced, attr.location));
+        }
+
+        tmpl.gfxStages = [];
+        tmpl.gfxStages.push(new GFXShaderStage(GFXShaderStageFlagBit.VERTEX, ''));
+        tmpl.gfxStages.push(new GFXShaderStage(GFXShaderStageFlagBit.FRAGMENT, ''));
 
         tmpl.handleMap = genHandles(tmpl);
 
         // store it
         this._templates[prog.name] = tmpl;
-
-        // const pl = this._pipelineLayouts[prog.name];
-        // if (pl) {
-        //     if (pl.hPipelineLayout) {
-        //         PipelineLayoutPool.free(pl.hPipelineLayout);
-        //     }
-        //     for (let i = 0; i < pl.setLayouts.length; i++) {
-        //         const setLayout = pl.setLayouts[i];
-        //         if (setLayout) setLayout.destroy();
-        //     }
-        // }
-
         this._pipelineLayouts[prog.name] = { hPipelineLayout: NULL_HANDLE, setLayouts: [] };
     }
 
@@ -349,16 +346,12 @@ class ProgramLib {
             // material set layout should already been created in pass, but if not
             // (like when the same shader is overriden) we create it again here
             if (!layout.setLayouts[SetIndex.MATERIAL]) {
-                layout.setLayouts[SetIndex.MATERIAL] = device.createDescriptorSetLayout({
-                    bindings: tmpl.bindings,
-                });
+                _dsLayoutInfo.bindings = tmpl.bindings;
+                layout.setLayouts[SetIndex.MATERIAL] = device.createDescriptorSetLayout(_dsLayoutInfo);
             }
-            layout.setLayouts[SetIndex.LOCAL] = _dsLayout = _dsLayout || device.createDescriptorSetLayout({
-                bindings: localDescriptorSetLayout.bindings,
-            });
-            layout.hPipelineLayout = PipelineLayoutPool.alloc(device, {
-                setLayouts: layout.setLayouts,
-            });
+            _dsLayoutInfo.bindings = localDescriptorSetLayout.bindings;
+            layout.setLayouts[SetIndex.LOCAL] = _dsLayout = _dsLayout || device.createDescriptorSetLayout(_dsLayoutInfo);
+            layout.hPipelineLayout = PipelineLayoutPool.alloc(device, new GFXPipelineLayoutInfo(layout.setLayouts));
         }
 
         const macroArray = prepareDefines(defines, tmpl.defines);
@@ -374,19 +367,15 @@ class ProgramLib {
             case GFXAPI.METAL: src = tmpl.glsl4; break;
             default: console.error('Invalid GFX API!'); break;
         }
+        tmpl.gfxStages[0].source = prefix + src.vert;
+        tmpl.gfxStages[1].source = prefix + src.frag;
 
         // strip out the active attributes only, instancing depend on this
-        const attributes: IGFXAttribute[] = [];
-        getActiveAttributes(tmpl, defines, attributes);
+        const attributes = getActiveAttributes(tmpl, defines);
 
-        return this._cache[key] = ShaderPool.alloc(device, {
-            name: getShaderInstanceName(name, macroArray),
-            blocks: tmpl.blocks, samplers: tmpl.samplers, attributes,
-            stages: [
-                { stage: GFXShaderStageFlagBit.VERTEX, source: prefix + src.vert },
-                { stage: GFXShaderStageFlagBit.FRAGMENT, source: prefix + src.frag },
-            ],
-        } as GFXShaderInfo);
+        const instanceName = getShaderInstanceName(name, macroArray);
+        const shaderInfo = new GFXShaderInfo(instanceName, tmpl.gfxStages, attributes, tmpl.gfxBlocks, tmpl.gfxSamplers);
+        return this._cache[key] = ShaderPool.alloc(device, shaderInfo);
     }
 }
 

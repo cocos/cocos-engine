@@ -56,7 +56,7 @@ export class ForwardStage extends RenderStage {
     protected renderQueues: RenderQueueDesc[] = [];
     protected _renderQueues: RenderQueue[] = [];
 
-    private _renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
+    private _renderArea = new GFXRect();
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
     private _phaseID = getPhaseID('default');

@@ -14,11 +14,11 @@ import {
     GFXType,
     GFXDynamicStateFlagBit,
 } from '../define';
-import { IGFXAttribute } from '../input-assembler';
+import { GFXAttribute } from '../input-assembler';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipeline-state';
 import { GFXColorAttachment, GFXDepthStencilAttachment } from '../render-pass';
 import { GFXUniformBlock, GFXUniformSampler } from '../shader';
-import { GFXDescriptorSetLayout, IGFXDescriptorSetLayoutBinding } from '../descriptor-set-layout';
+import { GFXDescriptorSetLayout, GFXDescriptorSetLayoutBinding } from '../descriptor-set-layout';
 
 export interface IWebGL2GPUUniformInfo {
     name: string;
@@ -170,7 +170,7 @@ export interface IWebGL2GPUShader {
 }
 
 export interface IWebGL2GPUDescriptorSetLayout {
-    bindings: IGFXDescriptorSetLayoutBinding[];
+    bindings: GFXDescriptorSetLayoutBinding[];
     dynamicBindings: number[];
     descriptorIndices: number[];
     descriptorCount: number;
@@ -220,7 +220,7 @@ export interface IWebGL2Attrib {
 }
 
 export interface IWebGL2GPUInputAssembler {
-    attributes: IGFXAttribute[];
+    attributes: GFXAttribute[];
     gpuVertexBuffers: IWebGL2GPUBuffer[];
     gpuIndexBuffer: IWebGL2GPUBuffer | null;
     gpuIndirectBuffer: IWebGL2GPUBuffer | null;

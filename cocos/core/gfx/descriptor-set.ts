@@ -15,8 +15,12 @@ export const DESCRIPTOR_BUFFER_TYPE =
 
 export const DESCRIPTOR_SAMPLER_TYPE = GFXDescriptorType.SAMPLER;
 
-export interface IGFXDescriptorSetInfo {
-    layout: GFXDescriptorSetLayout;
+export class GFXDescriptorSetInfo {
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public layout: GFXDescriptorSetLayout,
+    ) {}
 }
 
 /**
@@ -43,7 +47,7 @@ export abstract class GFXDescriptorSet extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: IGFXDescriptorSetInfo): boolean;
+    public abstract initialize (info: GFXDescriptorSetInfo): boolean;
 
     public abstract destroy (): void;
 

@@ -92,7 +92,7 @@ function updateSphereLight (pipeline: ForwardPipeline, light: SphereLight) {
     m.m15 = NdL;
 
     Mat4.toArray(_data, shadows.matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
-    pipeline.descriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(_data);
+    pipeline.descriptorSet.getBuffer(UBOShadow.BINDING).update(_data);
 }
 
 function updateDirLight (pipeline: ForwardPipeline, light: DirectionalLight) {
@@ -128,7 +128,7 @@ function updateDirLight (pipeline: ForwardPipeline, light: DirectionalLight) {
     m.m15 = 1;
 
     Mat4.toArray(_data, shadows.matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
-    pipeline.descriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(_data);
+    pipeline.descriptorSet.getBuffer(UBOShadow.BINDING).update(_data);
 }
 
 export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
@@ -147,7 +147,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
 
     if (shadows.enabled && shadows.dirty) {
         Color.toArray(_data, shadows.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
-        pipeline.descriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(_data);
+        pipeline.descriptorSet.getBuffer(UBOShadow.BINDING).update(_data);
     }
 
     if (mainLight) {

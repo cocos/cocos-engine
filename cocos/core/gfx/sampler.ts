@@ -5,59 +5,23 @@
 import { GFXAddress, GFXComparisonFunc, GFXFilter, GFXObject, GFXObjectType, GFXColor } from './define';
 import { GFXDevice } from './device';
 
-export interface IGFXSamplerInfo {
-    name?: string;
-    minFilter?: GFXFilter;
-    magFilter?: GFXFilter;
-    mipFilter?: GFXFilter;
-    addressU?: GFXAddress;
-    addressV?: GFXAddress;
-    addressW?: GFXAddress;
-    maxAnisotropy?: number;
-    cmpFunc?: GFXComparisonFunc;
-    borderColor?: GFXColor;
-    minLOD?: number;
-    maxLOD?: number;
-    mipLODBias?: number;
-}
+export class GFXSamplerInfo {
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
-/**
- * @en GFX sampler state.
- * @zh GFX 采样器状态。
- */
-export class GFXSamplerState {
-
-    public name: string = '';
-    public minFilter: GFXFilter = GFXFilter.LINEAR;
-    public magFilter: GFXFilter = GFXFilter.LINEAR;
-    public mipFilter: GFXFilter = GFXFilter.NONE;
-    public addressU: GFXAddress = GFXAddress.WRAP;
-    public addressV: GFXAddress = GFXAddress.WRAP;
-    public addressW: GFXAddress = GFXAddress.WRAP;
-    public maxAnisotropy: number = 16;
-    public cmpFunc: GFXComparisonFunc = GFXComparisonFunc.NEVER;
-    public borderColor: GFXColor = new GFXColor();
-    public minLOD: number = 0;
-    public maxLOD: number = 0;
-    public mipLODBias: number = 0.0;
-
-    public compare (state: GFXSamplerState): boolean {
-        return (this.minFilter === state.minFilter) &&
-        (this.magFilter === state.magFilter) &&
-        (this.mipFilter === state.mipFilter) &&
-        (this.addressU === state.addressU) &&
-        (this.addressV === state.addressV) &&
-        (this.addressW === state.addressW) &&
-        (this.maxAnisotropy === state.maxAnisotropy) &&
-        (this.cmpFunc === state.cmpFunc) &&
-        (this.borderColor.x === state.borderColor.x) &&
-        (this.borderColor.y === state.borderColor.y) &&
-        (this.borderColor.z === state.borderColor.z) &&
-        (this.borderColor.w === state.borderColor.w) &&
-        (this.minLOD === state.minLOD) &&
-        (this.maxLOD === state.maxLOD) &&
-        (this.mipLODBias === state.mipLODBias);
-    }
+    constructor (
+        public minFilter: GFXFilter = GFXFilter.LINEAR,
+        public magFilter: GFXFilter = GFXFilter.LINEAR,
+        public mipFilter: GFXFilter = GFXFilter.NONE,
+        public addressU: GFXAddress = GFXAddress.WRAP,
+        public addressV: GFXAddress = GFXAddress.WRAP,
+        public addressW: GFXAddress = GFXAddress.WRAP,
+        public maxAnisotropy: number = 16,
+        public cmpFunc: GFXComparisonFunc = GFXComparisonFunc.NEVER,
+        public borderColor: GFXColor = new GFXColor(),
+        public minLOD: number = 0,
+        public maxLOD: number = 0,
+        public mipLODBias: number = 0.0,
+    ) {}
 }
 
 /**
@@ -66,25 +30,40 @@ export class GFXSamplerState {
  */
 export abstract class GFXSampler extends GFXObject {
 
-    /**
-     * @en Get current sampler state.
-     * @zh GFX 采样器状态。
-     */
-    public get state (): GFXSamplerState {
-        return this._state;
-    }
+    get minFilter () { return this._minFilter; }
+    get magFilter () { return this._magFilter; }
+    get mipFilter () { return this._mipFilter; }
+    get addressU () { return this._addressU; }
+    get addressV () { return this._addressV; }
+    get addressW () { return this._addressW; }
+    get maxAnisotropy () { return this._maxAnisotropy; }
+    get cmpFunc () { return this._cmpFunc; }
+    get borderColor () { return this._borderColor; }
+    get minLOD () { return this._minLOD; }
+    get maxLOD () { return this._maxLOD; }
+    get mipLODBias () { return this._mipLODBias; }
 
     protected _device: GFXDevice;
 
-    protected _state: GFXSamplerState = new GFXSamplerState();
+    protected _minFilter: GFXFilter = GFXFilter.LINEAR;
+    protected _magFilter: GFXFilter = GFXFilter.LINEAR;
+    protected _mipFilter: GFXFilter = GFXFilter.NONE;
+    protected _addressU: GFXAddress = GFXAddress.WRAP;
+    protected _addressV: GFXAddress = GFXAddress.WRAP;
+    protected _addressW: GFXAddress = GFXAddress.WRAP;
+    protected _maxAnisotropy: number = 16;
+    protected _cmpFunc: GFXComparisonFunc = GFXComparisonFunc.NEVER;
+    protected _borderColor: GFXColor = new GFXColor();
+    protected _minLOD: number = 0;
+    protected _maxLOD: number = 0;
+    protected _mipLODBias: number = 0.0;
 
     constructor (device: GFXDevice) {
         super(GFXObjectType.SAMPLER);
         this._device = device;
-        this._state = new GFXSamplerState();
     }
 
-    public abstract initialize (info: IGFXSamplerInfo): boolean;
+    public abstract initialize (info: GFXSamplerInfo): boolean;
 
     public abstract destroy (): void;
 }

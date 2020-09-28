@@ -1,4 +1,5 @@
-import { GFXBuffer, GFXBufferSource, IGFXBufferInfo, IGFXBufferViewInfo } from '../buffer';
+import { GFXIndirectBuffer } from '../..';
+import { GFXBuffer, GFXBufferSource, GFXBufferInfo, GFXBufferViewInfo } from '../buffer';
 import { GFXBufferFlagBit, GFXBufferUsageBit } from '../define';
 import {
     WebGL2CmdFuncCreateBuffer,
@@ -17,7 +18,7 @@ export class WebGL2Buffer extends GFXBuffer {
 
     private _gpuBuffer: IWebGL2GPUBuffer | null = null;
 
-    public initialize (info: IGFXBufferInfo | IGFXBufferViewInfo): boolean {
+    public initialize (info: GFXBufferInfo | GFXBufferViewInfo): boolean {
 
         if ('buffer' in info) { // buffer view
 
@@ -50,10 +51,10 @@ export class WebGL2Buffer extends GFXBuffer {
             this._size = info.size;
             this._stride = Math.max(info.stride || this._size, 1);
             this._count = this._size / this._stride;
-            this._flags = (info.flags !== undefined ? info.flags : GFXBufferFlagBit.NONE);
+            this._flags = info.flags;
 
             if (this._usage & GFXBufferUsageBit.INDIRECT) {
-                this._indirectBuffer = { drawInfos: [] };
+                this._indirectBuffer = new GFXIndirectBuffer();
             }
 
             if (this._flags & GFXBufferFlagBit.BAKUP_BUFFER) {

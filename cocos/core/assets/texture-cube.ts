@@ -33,7 +33,7 @@ import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
 import { legacyCC } from '../global-exports';
-import { IGFXTextureInfo } from '../gfx';
+import { GFXTextureInfo } from '../gfx';
 
 export type ITextureCubeCreateInfo = ITexture2DCreateInfo;
 
@@ -253,15 +253,14 @@ export class TextureCube extends SimpleTexture {
         }
     }
 
-    protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): IGFXTextureInfo {
-        const result: IGFXTextureInfo = Object.assign({
-            type: GFXTextureType.CUBE,
-            width: this._width,
-            height: this._height,
-            layerCount: 6,
-        }, presumed);
-        result.flags = (result.flags || 0) | GFXTextureFlagBit.CUBEMAP;
-        return result;
+    protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): GFXTextureInfo {
+        const texInfo = new GFXTextureInfo(GFXTextureType.CUBE);
+        texInfo.width = this._width;
+        texInfo.height = this._height;
+        texInfo.layerCount = 6;
+        Object.assign(texInfo, presumed);
+        texInfo.flags = texInfo.flags | GFXTextureFlagBit.CUBEMAP;
+        return texInfo;
     }
 }
 

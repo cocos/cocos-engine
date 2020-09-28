@@ -8,11 +8,10 @@ import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-import { IRenderObject, UBOGlobal, UBOShadow,
-    UNIFORM_SHADOWMAP} from '../define';
+import { IRenderObject, UBOGlobal, UBOShadow, UNIFORM_SHADOWMAP_BINDING } from '../define';
 import { GFXBufferUsageBit, GFXMemoryUsageBit,
-    GFXClearFlag, GFXFilter, GFXAddress, GFXCommandBufferType } from '../../gfx/define';
-import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout } from '../../gfx';
+    GFXClearFlag, GFXFilter, GFXAddress } from '../../gfx/define';
+import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout, GFXRenderPassInfo, GFXBufferInfo } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
@@ -168,10 +167,8 @@ export class ForwardPipeline extends RenderPipeline {
             depthStencilAttachment.beginLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
         }
 
-        renderPass = device.createRenderPass({
-            colorAttachments: [colorAttachment],
-            depthStencilAttachment,
-        });
+        const renderPassInfo = new GFXRenderPassInfo([colorAttachment], depthStencilAttachment);
+        renderPass = device.createRenderPass(renderPassInfo);
         this._renderPasses.set(clearFlags, renderPass!);
 
         return renderPass;
@@ -220,8 +217,8 @@ export class ForwardPipeline extends RenderPipeline {
         }
 
         // update ubos
-        this._commandBuffers[0].updateBuffer(this._descriptorSet.getBuffer(UBOGlobal.BLOCK.binding), this._globalUBO);
-        this._commandBuffers[0].updateBuffer(this._descriptorSet.getBuffer(UBOShadow.BLOCK.binding), this._shadowUBO);
+        this._commandBuffers[0].updateBuffer(this._descriptorSet.getBuffer(UBOGlobal.BINDING), this._globalUBO);
+        this._commandBuffers[0].updateBuffer(this._descriptorSet.getBuffer(UBOShadow.BINDING), this._shadowUBO);
     }
 
     private _activeRenderer () {
@@ -229,19 +226,21 @@ export class ForwardPipeline extends RenderPipeline {
 
         this._commandBuffers.push(device.commandBuffer);
 
-        const globalUBO = device.createBuffer({
-            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: UBOGlobal.SIZE,
-        });
-        this._descriptorSet.bindBuffer(UBOGlobal.BLOCK.binding, globalUBO);
+        const globalUBO = device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            UBOGlobal.SIZE,
+            UBOGlobal.SIZE,
+        ));
+        this._descriptorSet.bindBuffer(UBOGlobal.BINDING, globalUBO);
 
-        const shadowUBO = device.createBuffer({
-            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: UBOShadow.SIZE,
-        });
-        this._descriptorSet.bindBuffer(UBOShadow.BLOCK.binding, shadowUBO);
+        const shadowUBO = device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            UBOShadow.SIZE,
+            UBOShadow.SIZE,
+        ));
+        this._descriptorSet.bindBuffer(UBOShadow.BINDING, shadowUBO);
 
         const shadowMapSamplerHash = genSamplerHash([
             GFXFilter.LINEAR,
@@ -252,7 +251,7 @@ export class ForwardPipeline extends RenderPipeline {
             GFXAddress.CLAMP,
         ]);
         const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
-        this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP.binding, shadowMapSampler);
+        this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
 
         // update global defines when all states initialized.
         this.macros.CC_USE_HDR = this._isHDR;
@@ -361,8 +360,8 @@ export class ForwardPipeline extends RenderPipeline {
 
     private destroyUBOs () {
         if (this._descriptorSet) {
-            this._descriptorSet.getBuffer(UBOGlobal.BLOCK.binding).destroy();
-            this._descriptorSet.getBuffer(UBOShadow.BLOCK.binding).destroy();
+            this._descriptorSet.getBuffer(UBOGlobal.BINDING).destroy();
+            this._descriptorSet.getBuffer(UBOShadow.BINDING).destroy();
         }
     }
 

@@ -31,7 +31,7 @@ import { ImageAsset, Texture2D } from '../../../core/assets';
 import { isUnicodeCJK, isUnicodeSpace, safeMeasureText} from '../../../core/utils';
 import { mixin } from '../../../core/utils/js';
 import { Color, Rect, Size, Vec2 } from '../../../core/math';
-import { GFXBufferTextureCopy } from '../../../core/gfx/define';
+import { GFXBufferTextureCopy, GFXExtent, GFXOffset, GFXTextureSubres } from '../../../core/gfx/define';
 import { Label, LabelOutline } from '../../components';
 import { ISharedLabelData } from './font-utils';
 import { PixelFormat } from '../../../core/assets/asset-enum';
@@ -212,26 +212,11 @@ export class LetterRenderTexture extends Texture2D {
             return;
         }
 
-        const region: GFXBufferTextureCopy = {
-            buffStride: 0,
-            buffTexHeight: 0,
-            texOffset: {
-                x,
-                y,
-                z: 0,
-            },
-            texExtent: {
-                width: image.width,
-                height: image.height,
-                depth: 1,
-            },
-            texSubres: {
-                mipLevel: 0,
-                baseArrayLayer: 0,
-                layerCount: 1,
-            },
-        };
-
+        const region = new GFXBufferTextureCopy();
+        region.texOffset.x = x;
+        region.texOffset.y = y;
+        region.texExtent.width = image.width;
+        region.texExtent.height = image.height;
         gfxDevice.copyTexImagesToTexture([image.data as HTMLCanvasElement], gfxTexture, [region]);
     }
 }

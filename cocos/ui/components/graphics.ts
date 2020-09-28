@@ -38,9 +38,8 @@ import { IAssembler } from '../../core/renderer/ui/base';
 import { UI } from '../../core/renderer/ui/ui';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
-import { Mesh, GFXFormat, GFXPrimitiveMode } from '../../core';
+import { Mesh, GFXFormat, GFXPrimitiveMode, GFXAttribute } from '../../core';
 import { BufferBlob } from '../../core/3d/misc/buffer-blob';
-import { SubModel } from '../../core/renderer/scene';
 import { vfmt, getAttributeStride } from '../../core/renderer/ui/ui-vertex-format';
 
 const _matInsInfo: IMaterialInstanceInfo = {
@@ -50,10 +49,7 @@ const _matInsInfo: IMaterialInstanceInfo = {
 };
 
 const attributes = vfmt.concat([
-    {
-        name: 'a_dist',
-        format: GFXFormat.R32F,
-    },
+    new GFXAttribute('a_dist', GFXFormat.R32F),
 ]);
 
 const stride = getAttributeStride(attributes);
@@ -651,15 +647,15 @@ export class Graphics extends UIRenderable {
     }
 
     protected _attachToScene () {
-        const scene = director.root!.ui.renderScene;
-        if (!this.model || this.model!.scene === scene) {
+        const renderScene = director.root!.ui.renderScene;
+        if (!this.model || this.model!.scene === renderScene) {
             return;
         }
 
         if (this.model!.scene !== null) {
             this._detachFromScene();
         }
-        scene.addModel(this.model!);
+        renderScene.addModel(this.model!);
     }
 
     protected _detachFromScene () {
