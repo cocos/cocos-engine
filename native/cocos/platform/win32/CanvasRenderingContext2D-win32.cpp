@@ -399,7 +399,7 @@ private:
         {
             CC_BREAK_IF(text.empty());
 
-            DWORD dwFmt = DT_SINGLELINE;
+            DWORD dwFmt = DT_SINGLELINE | DT_NOPREFIX;
 
             int bufferLen = 0;
             pwszBuffer = _utf8ToUtf16(text, &bufferLen);
@@ -441,7 +441,7 @@ private:
             CC_BREAK_IF(!pszText || nLen <= 0);
 
             RECT rc = { 0, 0, 0, 0 };
-            DWORD dwCalcFmt = DT_CALCRECT;
+            DWORD dwCalcFmt = DT_CALCRECT | DT_NOPREFIX;
 
             // measure text size
             DrawTextW(_DC, pszText, nLen, &rc, dwCalcFmt);
