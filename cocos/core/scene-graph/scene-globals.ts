@@ -550,7 +550,7 @@ export class ShadowsInfo {
         if (this._resource) {this._resource.bias = val; }
     }
     get bias () {
-        return this.bias;
+        return this._bias;
     }
 
     /**
