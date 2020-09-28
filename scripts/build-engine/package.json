@@ -20,7 +20,6 @@
     "rollup": "2.26.6",
     "rollup-plugin-progress": "^1.1.1",
     "rollup-plugin-terser": "^5.2.0",
-    "rollup-pluginutils": "^2.8.2",
     "yargs": "^15.1.0"
   },
   "devDependencies": {

@@ -23,8 +23,6 @@ import { generateCCSource } from './make-cc';
 import nodeResolve from 'resolve';
 import { getModuleName } from './module-name';
 import tsConfigPaths from './ts-paths';
-import { default as rpDropPureExport } from './plugins/drop-pure-export';
-import { inlineConst as rpInlineConst, inlineEnum as rpInlineEnum } from './plugins/inline-prop';
 
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
 
@@ -299,12 +297,7 @@ async function _doBuild ({
             preferConst: true,
         }),
 
-        rpDropPureExport(),
-        rpInlineConst(),
-
         rpBabel(babelOptions),
-
-        rpInlineEnum(),
 
         commonjs({
             namedExports: {

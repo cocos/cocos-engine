@@ -190,7 +190,6 @@ export declare namespace deserialize.Internal {
     export type StringIndexBnotNumber_ = StringIndexBnotNumber;
 }
 
-/*@__DROP_PURE_EXPORT__*/
 const enum DataTypeID {
 
     // Fields that can be assigned directly, can be values in any JSON, or even a complex JSON array, object (no type).
@@ -413,7 +412,6 @@ export declare namespace deserialize.Internal {
 //     [TYPEDARRAY_ELEMENTS]: number[],
 // }
 
-/*@__DROP_PURE_EXPORT__*/
 const enum Refs {
     EACH_RECORD_LENGTH = 3,
     OWNER_OFFSET = 0,
@@ -434,7 +432,6 @@ interface IRefs extends Array<number> {
     [index: number]: any;
 }
 
-/*@__DROP_PURE_EXPORT__*/
 const enum File {
     Version = 0,
     Context = 0,
