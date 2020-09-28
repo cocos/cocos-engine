@@ -156,7 +156,7 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
 -(void) seekTo:(float)sec
 {
     if (self.playerController.player)
-        [self.playerController.player seekToTime:CMTimeMake(sec, 1)];
+        [self.playerController.player seekToTime:CMTimeMake(sec * 600, 600) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero];
 }
 
 -(float) currentTime
