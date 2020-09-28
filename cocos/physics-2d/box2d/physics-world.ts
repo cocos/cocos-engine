@@ -119,7 +119,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         this._world.Step(deltaTime, velocityIterations, positionIterations);
     }
 
-    raycast (p1: Vec2, p2: Vec2, type: ERaycast2DType): RaycastResult2D[] {
+    raycast (p1: Vec2, p2: Vec2, type: ERaycast2DType, mask: number): RaycastResult2D[] {
         if (p1.equals(p2)) {
             return [];
         }
@@ -132,7 +132,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         tempVec2_2.y = p2.y / PHYSICS_2D_PTM_RATIO;
 
         let callback = this._raycastQueryCallback;
-        callback.init(type);
+        callback.init(type, mask);
         this._world.RayCast(callback, tempVec2_1, tempVec2_2);
 
         let fixtures = callback.getFixtures();

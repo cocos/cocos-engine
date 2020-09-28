@@ -8,6 +8,7 @@ import { IPhysicsConfig, ICollisionMatrix } from "../../physics/framework/physic
 import { CollisionMatrix } from "../../physics/framework/collision-matrix";
 import { ERaycast2DType, RaycastResult2D } from './physics-types';
 import { Collider2D } from "./components/colliders/collider-2d";
+import { PhysicsGroup } from 'cocos/physics/framework/physics-enum';
 
 let instance: PhysicsSystem2D | null = null;
 
@@ -22,7 +23,6 @@ export class PhysicsSystem2D extends Eventify(System) {
         return this._enable;
     }
     set enable (value: boolean) {
-        if (!value) this._timeReset = true;
         this._enable = value;
     }
 
@@ -97,7 +97,6 @@ export class PhysicsSystem2D extends Eventify(System) {
     }
 
     set autoSimulation (value: boolean) {
-        if (!value) this._timeReset = true;
         this._autoSimulation = value;
     }
 
@@ -222,8 +221,6 @@ export class PhysicsSystem2D extends Eventify(System) {
     private _allowSleep = true;
     private _maxSubSteps = 1;
     private _fixedTimeStep = 1.0 / 60.0;
-    private _timeSinceLastCalled = 0;
-    private _timeReset = true;
     private _autoSimulation = true;
     private _accumulator = 0;
     private _steping = false;
@@ -284,19 +281,12 @@ export class PhysicsSystem2D extends Eventify(System) {
 
         this._steping = true;
 
-        if (this._timeReset) {
-            this._timeSinceLastCalled = 0;
-            this._timeReset = false;
-        } else {
-            this._timeSinceLastCalled = deltaTime;
-        }
-
         let i = 0;
         let fixedTimeStep = this._fixedTimeStep;
         let velocityIterations = this.velocityIterations;
         let positionIterations = this.positionIterations;
 
-        this._accumulator += this._timeSinceLastCalled;
+        this._accumulator += deltaTime;
         while (i < this._maxSubSteps && this._accumulator > fixedTimeStep) {
             this.physicsWorld.step(fixedTimeStep, velocityIterations, positionIterations);
             this._accumulator -= fixedTimeStep;
@@ -338,7 +328,6 @@ export class PhysicsSystem2D extends Eventify(System) {
      * 重置时间累积总量为给定值。
      */
     resetAccumulator (time = 0) {
-        if (this._accumulator != time) this._timeReset = true;
         this._accumulator = time;
     }
 
@@ -363,10 +352,11 @@ export class PhysicsSystem2D extends Eventify(System) {
      * @param {Vec2} p1 - start point of the raycast
      * @param {Vec2} p2 - end point of the raycast
      * @param {RayCastType} type - optional, default is RayCastType.Closest
+     * @param {number} mask - optional, default is 0xffffffff
      * @return {[PhysicsRayCastResult]}
      */
-    raycast (p1: IVec2Like, p2: IVec2Like, type: ERaycast2DType = ERaycast2DType.Closest): readonly Readonly<RaycastResult2D>[] {
-        return this.physicsWorld.raycast(p1, p2, type);
+    raycast (p1: IVec2Like, p2: IVec2Like, type: ERaycast2DType = ERaycast2DType.Closest, mask = 0xffffffff): readonly Readonly<RaycastResult2D>[] {
+        return this.physicsWorld.raycast(p1, p2, type, mask);
     }
 
     /**
