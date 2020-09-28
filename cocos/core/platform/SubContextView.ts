@@ -192,7 +192,8 @@ export class SubContextView extends Component {
         let height = systemInfo.screenHeight * (box.height / visibleSize.height);
 
         this._openDataContext.postMessage({
-            fromEngine: true,
+            fromEngine: true,  // compatible deprecated property
+            type: 'engine',
             event: 'viewport',
             x, y,
             width, height,
