@@ -458,6 +458,12 @@ bool InspectorSocketServer::Start() {
   if (server_sockets_.empty()) {
       SE_LOGE("Starting inspector on %s:%d failed: %s\n",
               host_.c_str(), port_, uv_strerror(err));
+      if(err == UV_EADDRINUSE) {
+        SE_LOGE("[FATAL ERROR]: Port [:%s] is occupied by other processes, try to kill the previous debug process or change the port number in `jsb_enable_debugger`.\n", port_string.c_str());
+      } else {
+        SE_LOGE("[FATAL ERROR]: Failed to bind port [%s], error code: %d.\n", port_string.c_str(), err);
+      }
+      assert(false);//failed to start socket server for chrome debugger
     return false;
   }
   state_ = ServerState::kRunning;
