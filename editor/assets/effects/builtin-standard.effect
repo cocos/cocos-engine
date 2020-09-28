@@ -309,15 +309,15 @@ CCProgram gbuffer-fs %{
   precision highp float;
 
   layout(location = 0) out vec4 fragColor0;
-  // layout(location = 1) out vec4 fragColor1;
-  // layout(location = 2) out vec4 fragColor2;
-  // layout(location = 3) out vec4 fragColor3;
+  layout(location = 1) out vec4 fragColor1;
+  layout(location = 2) out vec4 fragColor2;
+  layout(location = 3) out vec4 fragColor3;
 
   void main () {
     fragColor0 = vec4(1.0, 0.0, 0.0, 1.0);
-   // fragColor1 = vec4(0.0, 1.0, 0.0, 1.0);
-   // fragColor2 = vec4(0.0, 0.0, 1.0, 1.0);
-   // fragColor3 = vec4(1.0, 1.0, 0.0, 1.0);
+    fragColor1 = vec4(0.0, 1.0, 0.0, 1.0);
+    fragColor2 = vec4(0.0, 0.0, 1.0, 1.0);
+    fragColor3 = vec4(1.0, 1.0, 0.0, 1.0);
   }
 }%
 
