@@ -79,6 +79,9 @@ bool CCMTLBuffer::initialize(const BufferInfo &info) {
         CCASSERT(false, "Unsupported BufferType, create buffer failed.");
         return false;
     }
+    if (_mtlBuffer && _mtlResourceOptions != MTLResourceStorageModePrivate) {
+        CCMTLBufferManager::addBuffer(this);
+    }
     return true;
 }
 
@@ -90,13 +93,15 @@ bool CCMTLBuffer::initialize(const BufferViewInfo &info) {
 }
 
 bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
-    if (_mtlBuffer)
-        [_mtlBuffer release];
-
     _mtlResourceOptions = mu::toMTLResourseOption(usage);
     if (_mtlResourceOptions == MTLResourceStorageModePrivate) {
+        if (_mtlBuffer)
+            [_mtlBuffer release];
         _mtlBuffer = [_mtlDevice newBufferWithLength:size options:_mtlResourceOptions];
     } else {
+        for (id<MTLBuffer> buffer in _dynamicDataBuffers) {
+            if (buffer) [buffer release];
+        }
         NSMutableArray *mutableDynamicDataBuffers = [NSMutableArray arrayWithCapacity:MAX_INFLIGHT_BUFFER];
         for (int i = 0; i < MAX_INFLIGHT_BUFFER; ++i) {
             // Create a new buffer with enough capacity to store one instance of the dynamic buffer data
@@ -106,7 +111,6 @@ bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
         _dynamicDataBuffers = [mutableDynamicDataBuffers copy];
 
         _mtlBuffer = _dynamicDataBuffers[0];
-        CCMTLBufferManager::addBuffer(this);
     }
     if (_mtlBuffer == nil) {
         CCASSERT(false, "Failed to create MTLBuffer.");
@@ -197,7 +201,7 @@ void CCMTLBuffer::update(void *buffer, uint offset, uint size) {
         return;
     }
 
-    updateInflightIndex();
+    updateInflightBuffer(offset, size);
 
     if (_buffer)
         memcpy(_buffer + offset, buffer, size);
@@ -279,10 +283,18 @@ void CCMTLBuffer::begin() {
     _inflightDirty = true;
 }
 
-void CCMTLBuffer::updateInflightIndex() {
+void CCMTLBuffer::updateInflightBuffer(uint offset, uint size) {
     if (_mtlResourceOptions != MTLResourceStorageModePrivate && _inflightDirty) {
         _inflightIndex = ((_inflightIndex + 1) % MAX_INFLIGHT_BUFFER);
+        id<MTLBuffer> prevFrameBuffer = _mtlBuffer;
         _mtlBuffer = _dynamicDataBuffers[_inflightIndex];
+        if (offset) {
+            memcpy((uint8_t *)_mtlBuffer.contents, prevFrameBuffer.contents, offset);
+        }
+        offset += size;
+        if (offset < _size) {
+            memcpy((uint8_t *)_mtlBuffer.contents + offset, (uint8_t *)prevFrameBuffer.contents + offset, _size - offset);
+        }
         _inflightDirty = false;
     }
 }

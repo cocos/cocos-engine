@@ -40,7 +40,7 @@ private:
     void resizeBuffer(uint8_t **, uint, uint);
     bool createMTLBuffer(uint size, MemoryUsage usage);
     void begin();
-    void updateInflightIndex();
+    void updateInflightBuffer(uint offset, uint size);
 
     id<MTLDevice> _mtlDevice = nil;
     bool _inflightDirty = false;
