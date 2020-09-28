@@ -265,6 +265,13 @@ namespace se {
         void setExceptionCallback(const ExceptionCallback& cb);
 
         /**
+         *  @brief Sets the callback function while an exception is fired in JS.
+         *  @param[in] cb The callback function to notify that an exception is fired.
+         */
+        void setJSExceptionCallback(const ExceptionCallback& cb);
+
+
+        /**
          *  @brief Gets the start time of script engine.
          *  @return The start time of script engine.
          */
@@ -317,6 +324,7 @@ namespace se {
          *  @return true if succeed, otherwise false.
          */
         bool runByteCodeFile(const std::string &path_bc, Value* ret/* = nullptr */);
+        void callExceptionCallback(const char*, const char*, const char*);
 
         std::chrono::steady_clock::time_point _startTime;
         std::vector<RegisterCallback> _registerCallbackArray;
@@ -335,7 +343,8 @@ namespace se {
         Object *_gcFunc = nullptr;
 
         FileOperationDelegate _fileOperationDelegate;
-        ExceptionCallback _exceptionCallback;
+        ExceptionCallback _nativeExceptionCallback = nullptr;
+        ExceptionCallback _jsExceptionCallback = nullptr;
 
 #if SE_ENABLE_INSPECTOR
         node::Environment* _env;

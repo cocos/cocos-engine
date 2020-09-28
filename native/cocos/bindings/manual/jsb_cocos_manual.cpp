@@ -563,8 +563,52 @@ static bool js_engine_FileUtils_listFilesRecursively(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_listFilesRecursively)
 
+static bool js_se_setExceptionCallback(se::State &s) {
+    
+    auto &args = s.args();
+    if (args.size() != 1 || !args[0].isObject() || !args[0].toObject()->isFunction()) {
+        SE_REPORT_ERROR("expect 1 arguments of Function type, %d provided", (int)args.size());
+        return false;
+    }
+
+    se::Object *objFunc = args[0].toObject();
+    // se::Value::reset will invoke decRef() while destroying s.args()
+    // increase ref here
+    objFunc->incRef(); 
+    if (s.thisObject()) {
+        s.thisObject()->attachObject(objFunc); // prevent GC
+    } else {
+        //prevent GC in C++ & JS
+        objFunc->root();
+    }
+    
+    se::ScriptEngine::getInstance()->setJSExceptionCallback([objFunc](const char *location, const char *message, const char *stack) {
+        se::ValueArray jsArgs;
+        jsArgs.resize(3);
+        jsArgs[0] = se::Value(location);
+        jsArgs[1] = se::Value(message);
+        jsArgs[2] = se::Value(stack);
+        objFunc->call(jsArgs, nullptr);
+    });
+    return true;
+}
+SE_BIND_FUNC(js_se_setExceptionCallback)
+
+
 static bool register_filetuils_ext(se::Object* obj) {
     __jsb_cc_FileUtils_proto->defineFunction("listFilesRecursively", _SE(js_engine_FileUtils_listFilesRecursively));
+    return true;
+}
+
+static bool register_se_setExceptionCallback(se::Object *obj)
+{
+    se::Value jsb;
+    if (!obj->getProperty("jsb", &jsb)) {
+        jsb.setObject(se::Object::createPlainObject());
+        obj->setProperty("jsb", jsb);
+    }
+    auto *jsbObj = jsb.toObject();
+    jsbObj->defineFunction("onError", _SE(js_se_setExceptionCallback));
     return true;
 }
 
@@ -575,6 +619,7 @@ bool register_all_cocos_manual(se::Object* obj)
     register_device(obj);
     register_canvas_context2d(obj);
     register_filetuils_ext(obj);
+    register_se_setExceptionCallback(obj);
     return true;
 }
 

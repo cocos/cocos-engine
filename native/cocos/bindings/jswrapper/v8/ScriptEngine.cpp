@@ -216,6 +216,15 @@ namespace se {
 
     } // namespace {
 
+    void ScriptEngine::callExceptionCallback(const char* location, const char* message, const char *stack) {
+        if (_nativeExceptionCallback) {
+            _nativeExceptionCallback(location, message, stack);
+        }
+        if (_jsExceptionCallback) {
+            _jsExceptionCallback(location, message, stack);
+        }
+    }
+
     void ScriptEngine::onFatalErrorCallback(const char* location, const char* message)
     {
         std::string errorStr = "[FATAL ERROR] location: ";
@@ -224,10 +233,8 @@ namespace se {
         errorStr += message;
 
         SE_LOGE("%s\n", errorStr.c_str());
-        if (getInstance()->_exceptionCallback != nullptr)
-        {
-            getInstance()->_exceptionCallback(location, message, "(no stack information)");
-        }
+
+        getInstance()->callExceptionCallback(location, message, "(no stack information)");
     }
 
     void ScriptEngine::onOOMErrorCallback(const char* location, bool is_heap_oom)
@@ -243,10 +250,8 @@ namespace se {
 
         errorStr += ", " + message;
         SE_LOGE("%s\n", errorStr.c_str());
-        if (getInstance()->_exceptionCallback != nullptr)
-        {
-            getInstance()->_exceptionCallback(location, message.c_str(), "(no stack information)");
-        }
+        getInstance()->callExceptionCallback(location, message.c_str(), "(no stack information)");
+        
     }
 
     void ScriptEngine::onMessageCallback(v8::Local<v8::Message> message, v8::Local<v8::Value> data)
@@ -278,10 +283,7 @@ namespace se {
         }
         SE_LOGE("ERROR: %s\n", errorStr.c_str());
 
-        if (thiz->_exceptionCallback != nullptr)
-        {
-            thiz->_exceptionCallback(location.c_str(), msgVal.toString().c_str(), stackStr.c_str());
-        }
+        thiz->callExceptionCallback(location.c_str(), msgVal.toString().c_str(), stackStr.c_str());
 
         if (!thiz->_isErrorHandleWorking)
         {
@@ -335,7 +337,8 @@ namespace se {
         auto stackStr = getInstance()->getCurrentStackTrace();
         ss << "stacktrace: " << std::endl;
         ss << stackStr << std::endl;
-        getInstance()->_exceptionCallback("", eventName, ss.str().c_str());
+        getInstance()->callExceptionCallback("", eventName, ss.str().c_str());
+        
     }
 
     void ScriptEngine::privateDataFinalize(void* nativeObj)
@@ -372,7 +375,6 @@ namespace se {
     , _isolate(nullptr)
     , _handleScope(nullptr)
     , _globalObj(nullptr)
-    , _exceptionCallback(nullptr)
 #if SE_ENABLE_INSPECTOR
     , _env(nullptr)
     , _isolateData(nullptr)
@@ -970,7 +972,12 @@ namespace se {
 
     void ScriptEngine::setExceptionCallback(const ExceptionCallback& cb)
     {
-        _exceptionCallback = cb;
+        _nativeExceptionCallback = cb;
+    }
+
+    void ScriptEngine::setJSExceptionCallback(const ExceptionCallback& cb)
+    {
+        _jsExceptionCallback = cb;
     }
 
     v8::Local<v8::Context> ScriptEngine::_getContext() const
