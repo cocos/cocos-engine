@@ -235,6 +235,8 @@ namespace se {
         SE_LOGD("Initializing JavaScriptCore \n");
         ++_vmId;
 
+        _engineThreadId = std::this_thread::get_id();
+
         for (const auto& hook : _beforeInitHookArray)
         {
             hook();
@@ -561,6 +563,13 @@ namespace se {
 
     bool ScriptEngine::evalString(const char* script, ssize_t length/* = -1 */, Value* ret/* = nullptr */, const char* fileName/* = nullptr */)
     {
+        if(_engineThreadId != std::this_thread::get_id())
+        {
+            // `evalString` should run in main thread
+            assert(false);
+            return false;
+        }
+
         assert(script != nullptr);
         if (length < 0)
             length = strlen(script);
