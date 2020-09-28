@@ -157,13 +157,14 @@ struct StandardSurface {
     #if CC_RECEIVE_SHADOW
       float pcf = cc_shadowPCF.x + 0.001;
       float shadowAttenuation = 0.0;
+      float atten = clamp(dot(N, cc_mainLitDir.xyz * -1.0), 0.0, 1.0);
       if (pcf > 3.0) {shadowAttenuation = CCGetShadowFactorX25();}
       else if (3.0 > pcf && pcf > 2.0) {shadowAttenuation = CCGetShadowFactorX9();}
       else if (2.0 > pcf && pcf > 1.0) {shadowAttenuation = CCGetShadowFactorX5();}
       else {shadowAttenuation = CCGetShadowFactorX1();}
 
       vec3 shadowColor = cc_shadowColor.rgb * cc_shadowColor.a + finalColor * (1.0 - cc_shadowColor.a);
-      finalColor = shadowColor.rgb * shadowAttenuation + finalColor.rgb * (1.0 - shadowAttenuation);
+      finalColor = shadowColor.rgb * shadowAttenuation * atten + finalColor.rgb * (1.0 - shadowAttenuation * atten);
     #endif
 
     return vec4(finalColor, s.albedo.a);
