@@ -125,6 +125,8 @@ let TiledLayer = cc.Class({
 
         // switch of culling
         this._enableCulling = null;
+
+        this._colorChanged = false;
     },
 
     properties: {
@@ -136,8 +138,11 @@ let TiledLayer = cc.Class({
                 return this._premultiplyAlpha;
             },
             set (value) {
-                this._premultiplyAlpha = value;
-                this._activateMaterial();
+                if (this._withColor !== value) {
+                    this._colorChanged = true;
+                    this._premultiplyAlpha = value;
+                    this._activateMaterial();
+                }
             },
             type: cc.Boolean
         },
@@ -151,6 +156,28 @@ let TiledLayer = cc.Class({
             },
             set (value) {
                 this._diamondTile = value;
+            },
+            type: cc.Boolean
+        },
+
+        _withColor: {
+            default: true
+        },
+        withColor: {
+            get () {
+                return this._withColor;
+            },
+            set (value) {
+                if (this._withColor !== value) {
+                    this._colorChanged = true;
+                    this._withColor = value;
+                    this._texIdToMatIndex = {};
+                    this._materials = [];
+                    if (this._renderDataList) {
+                        this._renderDataList = null;
+                    }
+                    this._activateMaterial();
+                }
             },
             type: cc.Boolean
         }
@@ -1404,7 +1431,7 @@ let TiledLayer = cc.Class({
         let texture = this._textures[tilesetIdx];
         let material = this._materials[index];
         if (!material) {
-            material = Material.getBuiltinMaterial('2d-sprite');
+            material = Material.getBuiltinMaterial(this._withColor ? '2d-sprite' : '2d-sprite-nocolor');
         }
         material = MaterialVariant.create(material, this);
 

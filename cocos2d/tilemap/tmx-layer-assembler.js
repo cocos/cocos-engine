@@ -32,6 +32,8 @@ const FLIPPED_MASK = TileFlag.FLIPPED_MASK;
 
 const renderer = require('../core/renderer/');
 const vfmtPosUvColor = require('../core/renderer/webgl/vertex-format').vfmtPosUvColor;
+const vfmtPosUv = require('../core/renderer/webgl/vertex-format').vfmtPosUv;
+
 
 const MaxGridsLimit = parseInt(65535 / 6);
 const RenderOrder = TiledMap.RenderOrder;
@@ -246,7 +248,10 @@ export default class TmxAssembler extends Assembler {
 
     updateRenderData (comp) {
         if (!comp._renderDataList) {
-            comp._buffer = new cc.TiledMapBuffer(renderer._handle, vfmtPosUvColor);
+            if (comp._buffer) {
+                comp._buffer.destroy();
+            }
+            comp._buffer = new cc.TiledMapBuffer(renderer._handle, comp._withColor ? vfmtPosUvColor : vfmtPosUv);
             comp._renderDataList = new cc.TiledMapRenderDataList();
         }
     }
@@ -266,7 +271,9 @@ export default class TmxAssembler extends Assembler {
         _renderDataList = comp._renderDataList;
         _buffer = comp._buffer;
 
-        if (comp._isCullingDirty() || comp._isUserNodeDirty() || comp._hasAnimation() || comp._hasTiledNode()) {
+        if (comp._colorChanged || comp._isCullingDirty() || comp._isUserNodeDirty() || comp._hasAnimation() || comp._hasTiledNode()) {
+            comp._colorChanged = false;
+
             _buffer.reset();
 
             let leftDown, rightTop;
@@ -378,6 +385,11 @@ export default class TmxAssembler extends Assembler {
         let texIdToMatIdx = _comp._texIdToMatIndex;
         let mats = _comp._materials;
 
+        const withColor = _comp._withColor;
+        const vertStep = withColor ? 5 : 4;
+        const vertStep2 = vertStep * 2;
+        const vertStep3 = vertStep * 3;
+
         let vertices = _comp._vertices;
         let rowData, col, cols, row, rows, colData, tileSize, grid = null, gid = 0;
         let left = 0, bottom = 0, right = 0, top = 0; // x, y
@@ -457,41 +469,43 @@ export default class TmxAssembler extends Assembler {
                         _vbuf[_vfOffset + 1] = top;
 
                         // lc
-                        _vbuf[_vfOffset + 5] = left;
-                        _vbuf[_vfOffset + 6] = centerY;
+                        _vbuf[_vfOffset + vertStep] = left;
+                        _vbuf[_vfOffset + vertStep + 1] = centerY;
 
                         // rc
-                        _vbuf[_vfOffset + 10] = right;
-                        _vbuf[_vfOffset + 11] = centerY;
+                        _vbuf[_vfOffset + vertStep2] = right;
+                        _vbuf[_vfOffset + vertStep2 + 1] = centerY;
 
                         // cb
-                        _vbuf[_vfOffset + 15] = centerX;
-                        _vbuf[_vfOffset + 16] = bottom;
+                        _vbuf[_vfOffset + vertStep3] = centerX;
+                        _vbuf[_vfOffset + vertStep3 + 1] = bottom;
                     } else {
                         // lt
                         _vbuf[_vfOffset] = left;
                         _vbuf[_vfOffset + 1] = top;
 
                         // lb
-                        _vbuf[_vfOffset + 5] = left;
-                        _vbuf[_vfOffset + 6] = bottom;
+                        _vbuf[_vfOffset + vertStep] = left;
+                        _vbuf[_vfOffset + vertStep + 1] = bottom;
 
                         // rt
-                        _vbuf[_vfOffset + 10] = right;
-                        _vbuf[_vfOffset + 11] = top;
+                        _vbuf[_vfOffset + vertStep2] = right;
+                        _vbuf[_vfOffset + vertStep2 + 1] = top;
 
                         // rb
-                        _vbuf[_vfOffset + 15] = right;
-                        _vbuf[_vfOffset + 16] = bottom;
+                        _vbuf[_vfOffset + vertStep3] = right;
+                        _vbuf[_vfOffset + vertStep3 + 1] = bottom;
                     }
 
-                    _uintbuf[_vfOffset + 4] = color;
-                    _uintbuf[_vfOffset + 9] = color;
-                    _uintbuf[_vfOffset + 14] = color;
-                    _uintbuf[_vfOffset + 19] = color;
+                    if (withColor) {
+                        _uintbuf[_vfOffset + 4] = color;
+                        _uintbuf[_vfOffset + vertStep + 4] = color;
+                        _uintbuf[_vfOffset + vertStep2 + 4] = color;
+                        _uintbuf[_vfOffset + vertStep2 + 4] = color;
+                    }
 
                 } else {
-                    this.fillByTiledNode(tiledNode.node, _vbuf, _uintbuf, left, right, top, bottom, diamondTile);
+                    this.fillByTiledNode(tiledNode.node, _vbuf, _uintbuf, left, right, top, bottom, diamondTile, withColor);
                 }
 
                 this._flipTexture(grid, gid);
@@ -501,19 +515,19 @@ export default class TmxAssembler extends Assembler {
                 _vbuf[_vfOffset + 3] = _uva.y;
 
                 // lb/lc -> b
-                _vbuf[_vfOffset + 7] = _uvb.x;
-                _vbuf[_vfOffset + 8] = _uvb.y;
+                _vbuf[_vfOffset + vertStep + 2] = _uvb.x;
+                _vbuf[_vfOffset + vertStep + 3] = _uvb.y;
 
                 // rt/rc -> c
-                _vbuf[_vfOffset + 12] = _uvc.x;
-                _vbuf[_vfOffset + 13] = _uvc.y;
+                _vbuf[_vfOffset + vertStep2 + 2] = _uvc.x;
+                _vbuf[_vfOffset + vertStep2 + 3] = _uvc.y;
 
                 // rt/cb -> d
-                _vbuf[_vfOffset + 17] = _uvd.x;
-                _vbuf[_vfOffset + 18] = _uvd.y;
+                _vbuf[_vfOffset + vertStep3 + 2] = _uvd.x;
+                _vbuf[_vfOffset + vertStep3 + 3] = _uvd.y;
 
                 // modify buffer all kinds of offset
-                _vfOffset += 20;
+                _vfOffset += 4 * vertStep;
                 _buffer.adjust(4, 6);
                 _ia._count += 6;
                 _fillGrids++;
@@ -539,7 +553,11 @@ export default class TmxAssembler extends Assembler {
         }
     }
 
-    fillByTiledNode (tiledNode, vbuf, uintbuf, left, right, top, bottom, diamondTile) {
+    fillByTiledNode (tiledNode, vbuf, uintbuf, left, right, top, bottom, diamondTile, withColor) {
+        const vertStep = withColor ? 5 : 4;
+        const vertStep2 = vertStep * 2;
+        const vertStep3 = vertStep * 3;
+
         tiledNode._updateLocalMatrix();
         Mat4.copy(_mat4_temp, tiledNode._matrix);
         Vec3.set(_vec3_temp, -(left + _moveX), -(bottom + _moveY), 0);
@@ -561,38 +579,40 @@ export default class TmxAssembler extends Assembler {
             vbuf[_vfOffset + 1] = centerX * b + top * d + ty;
 
             // lc
-            vbuf[_vfOffset + 5] = left * a + centerY * c + tx;
-            vbuf[_vfOffset + 6] = left * b + centerY * d + ty;
+            vbuf[_vfOffset + vertStep] = left * a + centerY * c + tx;
+            vbuf[_vfOffset + vertStep + 1] = left * b + centerY * d + ty;
 
             // rc
-            vbuf[_vfOffset + 10] = right * a + centerY * c + tx;
-            vbuf[_vfOffset + 11] = right * b + centerY * d + ty;
+            vbuf[_vfOffset + vertStep2] = right * a + centerY * c + tx;
+            vbuf[_vfOffset + vertStep2 + 1] = right * b + centerY * d + ty;
 
             // cb
-            vbuf[_vfOffset + 15] = centerX * a + bottom * c + tx;
-            vbuf[_vfOffset + 16] = centerX * b + bottom * d + ty;
+            vbuf[_vfOffset + vertStep3] = centerX * a + bottom * c + tx;
+            vbuf[_vfOffset + vertStep3 + 1] = centerX * b + bottom * d + ty;
         } else {
             // lt
             vbuf[_vfOffset] = left * a + top * c + tx;
             vbuf[_vfOffset + 1] = left * b + top * d + ty;
 
             // lb
-            vbuf[_vfOffset + 5] = left * a + bottom * c + tx;
-            vbuf[_vfOffset + 6] = left * b + bottom * d + ty;
+            vbuf[_vfOffset + vertStep] = left * a + bottom * c + tx;
+            vbuf[_vfOffset + vertStep + 1] = left * b + bottom * d + ty;
 
             // rt
-            vbuf[_vfOffset + 10] = right * a + top * c + tx;
-            vbuf[_vfOffset + 11] = right * b + top * d + ty;
+            vbuf[_vfOffset + vertStep2] = right * a + top * c + tx;
+            vbuf[_vfOffset + vertStep2 + 1] = right * b + top * d + ty;
 
             // rb
-            vbuf[_vfOffset + 15] = right * a + bottom * c + tx;
-            vbuf[_vfOffset + 16] = right * b + bottom * d + ty;
+            vbuf[_vfOffset + vertStep3] = right * a + bottom * c + tx;
+            vbuf[_vfOffset + vertStep3 + 1] = right * b + bottom * d + ty;
         }
 
-        uintbuf[_vfOffset + 4] = color;
-        uintbuf[_vfOffset + 9] = color;
-        uintbuf[_vfOffset + 14] = color;
-        uintbuf[_vfOffset + 19] = color;
+        if (withColor) {
+            uintbuf[_vfOffset + 4] = color;
+            uintbuf[_vfOffset + vertStep + 4] = color;
+            uintbuf[_vfOffset + vertStep2 + 4] = color;
+            uintbuf[_vfOffset + vertStep3 + 4] = color;
+        }
     }
 }
 
