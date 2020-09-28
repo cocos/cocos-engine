@@ -107,6 +107,10 @@ CC_DLL bool UTF32ToUTF8(const std::u32string& inUtf32, std::string& outUtf8);
  */
 CC_DLL bool UTF32ToUTF16(const std::u32string& inUtf32, std::u16string& outUtf16);
 
+/**
+ *  @brief Skip some bad char code.
+ */
+CC_DLL void UTF8LooseFix(const std::string &in, std::string &out);
 
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)

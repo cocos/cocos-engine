@@ -199,6 +199,24 @@ bool utfConvert(
     return true;
 };
 
+CC_DLL void UTF8LooseFix(const std::string &in, std::string &out)
+{
+    const UTF8 *p = (const UTF8*) in.c_str();
+    const UTF8 const *end = (const UTF8*) (in.c_str() + in.size());
+    unsigned ucharLen = 0;
+    while(p < end) {
+        ucharLen = getNumBytesForUTF8(*p);
+        if(isLegalUTF8Sequence(p, p  + ucharLen)) {
+            if( p + ucharLen < end) {
+                out.append(p, p+ucharLen);
+            }
+            p += ucharLen;
+        } else {
+            p += 1; //skip bad char
+        }
+    }
+}
+
 
 bool UTF8ToUTF16(const std::string& utf8, std::u16string& outUtf16)
 {

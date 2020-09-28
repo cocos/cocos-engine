@@ -72,7 +72,7 @@ namespace
 {
     bool g_isMultiline = false;
     bool g_confirmHold = false;
-    int g_maxLength = INT_MAX;
+    unsigned int g_maxLength = INT_MAX;
     KeyboardEventHandler* g_keyboardHandler = nil;
 
     // "#1fa014", a color of dark green, was used for confirm button background
