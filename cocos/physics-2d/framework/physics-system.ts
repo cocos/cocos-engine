@@ -8,7 +8,6 @@ import { IPhysicsConfig, ICollisionMatrix } from "../../physics/framework/physic
 import { CollisionMatrix } from "../../physics/framework/collision-matrix";
 import { ERaycast2DType, RaycastResult2D } from './physics-types';
 import { Collider2D } from "./components/colliders/collider-2d";
-import { PhysicsGroup } from 'cocos/physics/framework/physics-enum';
 
 let instance: PhysicsSystem2D | null = null;
 
