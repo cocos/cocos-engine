@@ -392,8 +392,8 @@ export const widgetManager = legacyCC._widgetManager = {
     refreshWidgetOnResized (node: Node) {
         if (Node.isNode(node)) {
             const widget = node.getComponent(WidgetComponent);
-            if (widget && widget.alignMode === AlignMode.ON_WINDOW_RESIZE) {
-                widget.enabled = true;
+            if (widget && widget.enabled && widget.alignMode === AlignMode.ON_WINDOW_RESIZE) {
+                this.add(widget);
             }
         }
 
