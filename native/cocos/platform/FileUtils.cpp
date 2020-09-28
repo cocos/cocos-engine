@@ -1002,7 +1002,7 @@ std::vector<std::string> FileUtils::listFiles(const std::string& dirPath) const
 void FileUtils::listFilesRecursively(const std::string& dirPath, std::vector<std::string> *files) const
 {
     std::string fullpath = fullPathForFilename(dirPath);
-    if (isDirectoryExist(fullpath))
+    if (!fullpath.empty() && isDirectoryExist(fullpath))
     {
         tinydir_dir dir;
 #ifdef UNICODE
