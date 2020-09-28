@@ -63,7 +63,7 @@ export class GbufferStage extends RenderStage {
     private _renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
-    private _phaseID = getPhaseID('default');
+    private _phaseID = getPhaseID('deferred-gbuffer');
     private declare _additiveLightQueue: RenderAdditiveLightQueue;
     private declare _planarQueue: PlanarShadowQueue;
 

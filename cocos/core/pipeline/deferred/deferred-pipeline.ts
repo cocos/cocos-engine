@@ -131,7 +131,6 @@ export class DeferredPipeline extends RenderPipeline {
     }
 
     public render (views: RenderView[]) {
-        console.log("dpc: deferred");
         for (let i = 0; i < views.length; i++) {
             const view = views[i];
             sceneCulling(this, view);
