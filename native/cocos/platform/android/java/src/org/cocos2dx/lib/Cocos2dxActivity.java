@@ -55,8 +55,6 @@ public abstract class Cocos2dxActivity extends NativeActivity {
         Log.d(TAG, "Cocos2dxActivity onCreate: " + this + ", savedInstanceState: " + savedInstanceState);
         super.onCreate(savedInstanceState);
 
-        GlobalObject.setActivity(this);
-
         // Workaround in https://stackoverflow.com/questions/16283079/re-launch-of-activity-on-home-button-but-only-the-first-time/16447508
         if (!isTaskRoot()) {
             // Android launched another instance of the root activity into an existing task
@@ -67,6 +65,7 @@ public abstract class Cocos2dxActivity extends NativeActivity {
             return;
         }
 
+        GlobalObject.setActivity(this);
         Utils.hideVirtualButton();
 
         Cocos2dxHelper.registerBatteryLevelReceiver(this);
@@ -108,6 +107,10 @@ public abstract class Cocos2dxActivity extends NativeActivity {
     protected void onDestroy() {
         super.onDestroy();
 
+         // Workaround in https://stackoverflow.com/questions/16283079/re-launch-of-activity-on-home-button-but-only-the-first-time/16447508
+        if (!isTaskRoot()) {
+            return;
+        }
         Cocos2dxHelper.unregisterBatteryLevelReceiver(this);;
         CanvasRenderingContext2DImpl.destroy();
     }
