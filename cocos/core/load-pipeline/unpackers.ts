@@ -74,7 +74,7 @@ export class TextureUnpacker {
         }
     }
 
-    retrieve (key) {
+    retrieve (key): any {
         let content = this.contents[key];
         if (content) {
             return packCustomObjData(js._getClassId(Texture2D), content);

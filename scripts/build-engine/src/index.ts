@@ -320,6 +320,7 @@ async function _doBuild ({
                 unsafe_Function: true,
                 unsafe_math: true,
                 unsafe_methods: true,
+                passes: 2,  // first: remove deadcodes and const objects, second: drop variables
             },
             mangle: doUglify,
             keep_fnames: !doUglify,

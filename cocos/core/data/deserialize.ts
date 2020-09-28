@@ -1121,8 +1121,6 @@ if (PREVIEW) {
 }
 
 if (EDITOR || TEST) {
-    // TODO: rename to _internal
-    legacyCC._deserializeCompiled = deserialize;
     deserialize._macros = {
         EMPTY_PLACEHOLDER,
         CUSTOM_OBJ_DATA_CLASS,

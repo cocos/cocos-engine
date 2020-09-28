@@ -49,9 +49,9 @@ export function isSceneObj (json) {
 }
 
 function parseDepends (item, asset, tdInfo: Details, deferredLoadRawAssetsInRuntime) {
-    let uuidList = tdInfo.uuidList;
-    let objList = tdInfo.uuidObjList;
-    let propList = tdInfo.uuidPropList;
+    let uuidList = tdInfo.uuidList!;
+    let objList = tdInfo.uuidObjList!;
+    let propList = tdInfo.uuidPropList!;
     // @ts-ignore
     let depends;
     let i, dependUuid;
