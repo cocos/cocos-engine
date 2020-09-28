@@ -8,12 +8,12 @@ export class b2SpringJoint extends b2Joint implements ISpringJoint {
 
     setDampingRatio (v: number) {
         if (this._b2joint) {
-            (this._b2joint as b2.DistanceJoint).SetDamping(v);
+            (this._b2joint as b2.DistanceJoint).SetDampingRatio(v);
         }
     }
     setFrequency (v: number) {
         if (this._b2joint) {
-            (this._b2joint as b2.DistanceJoint).SetStiffness(v);
+            (this._b2joint as b2.DistanceJoint).SetFrequency(v);
         }
     }
     setDistance (v: number) {
@@ -28,8 +28,8 @@ export class b2SpringJoint extends b2Joint implements ISpringJoint {
         def.localAnchorA.Set(comp.anchor.x / PHYSICS_2D_PTM_RATIO, comp.anchor.y / PHYSICS_2D_PTM_RATIO);
         def.localAnchorB.Set(comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO, comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO);
         def.length = comp.distance / PHYSICS_2D_PTM_RATIO;
-        def.damping = comp.dampingRatio;
-        def.stiffness = comp.frequency;
+        def.dampingRatio = comp.dampingRatio;
+        def.frequencyHz = comp.frequency;
         return def;
     }
 }

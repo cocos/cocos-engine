@@ -188,10 +188,10 @@ export class b2RigidBody2D implements IRigidBody2D {
         this._body!.SetSleepingAllowed(v);
     }
     isActive () {
-        return this._body!.IsEnabled();
+        return this._body!.IsActive();
     }
     setActive (v: boolean) {
-        this._body!.SetEnabled(v);
+        this._body!.SetActive(v);
     }
     wakeUp () {
         this._body!.SetAwake(true);

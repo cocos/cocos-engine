@@ -46,8 +46,8 @@ export class b2WheelJoint extends b2Joint implements IWheelJoint {
         def.maxMotorTorque = comp.maxMotorTorque;
         def.motorSpeed = toRadian(comp.motorSpeed);
         def.enableMotor = comp.enableMotor;
-        def.damping = comp.dampingRatio;
-        def.stiffness = comp.frequency;
+        def.dampingRatio = comp.dampingRatio;
+        def.frequencyHz = comp.frequency;
         return def;
     }
 }

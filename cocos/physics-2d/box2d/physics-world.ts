@@ -205,9 +205,6 @@ export class b2PhysicsWorld implements IPhysicsWorld {
 
             // rotation
             let angle = toDegree(b2body!.GetAngle());
-            if (node.name === 'back-wheel') {
-                console.log('angle : ' + angle)
-            }
             node.setWorldRotationFromEuler(0, 0, angle);
         }
     }
@@ -334,7 +331,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     drawDebug () {
         this._checkDebugDrawValid();
         this._debugGraphics!.clear();
-        this._world.DebugDraw();
+        this._world.DrawDebugData();
     }
 
     _onBeginContact (b2contact: b2ContactExtends) {

@@ -41,7 +41,7 @@ export class b2BoxShape extends b2Shape2D implements IBoxShape {
         let offsetX = comp.offset.x / PHYSICS_2D_PTM_RATIO * scaleX;
         let offsetY = comp.offset.y / PHYSICS_2D_PTM_RATIO * scaleY;
 
-        let shape = new b2.PolygonShape();
+        let shape = new b2.PolygonShape(); 
         shape.SetAsBox(width, height, new b2.Vec2(offsetX, offsetY), 0);
 
         return [shape];
