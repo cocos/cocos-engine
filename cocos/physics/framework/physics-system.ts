@@ -13,35 +13,10 @@ import { ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
 import { EDITOR, DEBUG } from 'internal:constants';
 import { IPhysicsConfig, ICollisionMatrix } from './physics-config';
+import { CollisionMatrix } from './collision-matrix';
+import { PhysicsGroup } from './physics-enum';
 
-enum PhysicsGroup {
-    DEFAULT = 1,
-}
-Enum(PhysicsGroup);
 legacyCC.internal.PhysicsGroup = PhysicsGroup;
-
-class CollisionMatrix {
-    updateArray: number[] = [];
-    constructor () {
-        for (let i = 0; i < 32; i++) {
-            const key = 1 << i;
-            this[`_${key}`] = 0;
-            Object.defineProperty(this, key, {
-                'get': function () { return this[`_${key}`] },
-                'set': function (v: number) {
-                    const self = this as CollisionMatrix;
-                    if (self[`_${key}`] != v) {
-                        self[`_${key}`] = v;
-                        if (self.updateArray.indexOf(key) < 0) {
-                            self.updateArray.push(key);
-                        }
-                    }
-                }
-            })
-        }
-        this[`_1`] = PhysicsGroup.DEFAULT;
-    }
-}
 
 /**
  * @en
