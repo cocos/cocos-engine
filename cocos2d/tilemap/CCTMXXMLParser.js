@@ -421,7 +421,6 @@ cc.TMXMapInfo = function (tmxFile, tsxMap, textures, textureSizes, imageLayerTex
     this.renderOrder = cc.TiledMap.RenderOrder.RightDown;
 
     this._supportVersion = [1, 4, 0];
-    this._parser = new cc.SAXParser();
     this._objectGroups = [];
     this._allChildren = [];
     this._mapSize = cc.size(0, 0);
@@ -763,7 +762,8 @@ cc.TMXMapInfo.prototype = {
      * @return {Element}
      */
     parseXMLString (xmlStr, tilesetFirstGid) {
-        let mapXML = this._parser._parseXML(xmlStr);
+        let parser = new cc.SAXParser();
+        let mapXML = parser._parseXML(xmlStr);
         let i;
 
         // PARSE <map>
