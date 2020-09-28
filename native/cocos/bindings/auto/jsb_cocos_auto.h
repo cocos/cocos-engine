@@ -41,7 +41,6 @@ SE_DECLARE_FUNC(js_engine_FileUtils_setWritablePath);
 SE_DECLARE_FUNC(js_engine_FileUtils_isDirectoryExist);
 SE_DECLARE_FUNC(js_engine_FileUtils_setDefaultResourceRootPath);
 SE_DECLARE_FUNC(js_engine_FileUtils_createDirectory);
-SE_DECLARE_FUNC(js_engine_FileUtils_listFilesRecursively);
 SE_DECLARE_FUNC(js_engine_FileUtils_getWritablePath);
 SE_DECLARE_FUNC(js_engine_FileUtils_setDelegate);
 SE_DECLARE_FUNC(js_engine_FileUtils_getInstance);

@@ -730,27 +730,6 @@ static bool js_engine_FileUtils_createDirectory(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_createDirectory)
 
-static bool js_engine_FileUtils_listFilesRecursively(se::State& s)
-{
-    cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_listFilesRecursively : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        std::string arg0;
-        std::vector<std::string>* arg1 = nullptr;
-        ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_native_ptr(args[1], &arg1);
-        SE_PRECONDITION2(ok, false, "js_engine_FileUtils_listFilesRecursively : Error processing arguments");
-        cobj->listFilesRecursively(arg0, arg1);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_engine_FileUtils_listFilesRecursively)
-
 static bool js_engine_FileUtils_getWritablePath(se::State& s)
 {
     cc::FileUtils* cobj = (cc::FileUtils*)s.nativeThisObject();
@@ -854,7 +833,6 @@ bool js_register_engine_FileUtils(se::Object* obj)
     cls->defineFunction("isDirectoryExist", _SE(js_engine_FileUtils_isDirectoryExist));
     cls->defineFunction("setDefaultResourceRootPath", _SE(js_engine_FileUtils_setDefaultResourceRootPath));
     cls->defineFunction("createDirectory", _SE(js_engine_FileUtils_createDirectory));
-    cls->defineFunction("listFilesRecursively", _SE(js_engine_FileUtils_listFilesRecursively));
     cls->defineFunction("getWritablePath", _SE(js_engine_FileUtils_getWritablePath));
     cls->defineStaticFunction("setDelegate", _SE(js_engine_FileUtils_setDelegate));
     cls->defineStaticFunction("getInstance", _SE(js_engine_FileUtils_getInstance));
