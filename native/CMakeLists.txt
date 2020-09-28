@@ -83,6 +83,10 @@ endif()
 ################################# external source code ################################
 
 
+if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt)
+    message(FATAL_ERROR "Please download external libraries!")
+endif()
+
 include(${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt)
 
 ################################# engine source code ##################################

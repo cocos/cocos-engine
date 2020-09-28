@@ -231,7 +231,7 @@ if(APPLE)
 
 elseif(WINDOWS)
     
-    if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/../${PLATFORM_DIR_NAME}/jsb-adapter)
+    if(EXISTS ${GAME_RES_ROOT}/jsb-adapter)
         set(bin_dir ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR})
         add_custom_target(copy_resource ALL
             COMMAND ${CMAKE_COMMAND} -E echo "Copying resources to ${bin_dir}"
