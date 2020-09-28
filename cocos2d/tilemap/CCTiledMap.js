@@ -398,7 +398,9 @@ let TiledMap = cc.Class({
                 }
             },
             type: cc.Boolean
-        }
+        },
+
+        cleanupImageCache : true
     },
 
     /**
@@ -896,9 +898,27 @@ let TiledMap = cc.Class({
             totalTextures.push(imageLayer.sourceImage);
         }
 
-        cc.TiledMap.loadAllTextures (totalTextures, function () {
+        cc.TiledMap.loadAllTextures(totalTextures, function () {
             this._buildLayerAndGroup();
+
+            if (this.cleanupImageCache) {
+                let tiledMap = this;
+                this._textures.forEach(function(tex){
+                    tiledMap._cleanupImageElement(tex)
+                });
+            }
+
         }.bind(this));
+    },
+
+    _cleanupImageElement(texture) {
+        if (texture._image instanceof HTMLImageElement) {
+            texture._image.src = ''
+        }
+        else if (cc.sys.capabilities.imageBitmap && texture._image instanceof ImageBitmap) {
+            texture._image.close && texture._image.close();
+        }
+        texture._image = null
     },
 
     getGIDByName (name) {
