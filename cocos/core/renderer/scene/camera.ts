@@ -303,6 +303,14 @@ export class Camera {
         out.update(_tempMat2, _tempMat1);
     }
 
+    public setClearColor (x, y, z, w) {
+        this._clearColor.x = x;
+        this._clearColor.y = y;
+        this._clearColor.z = z;
+        this._clearColor.w = w;
+        CameraPool.setVec4(this._poolHandle, CameraView.CLEAR_COLOR, this._clearColor);
+    }
+
     set node (val: Node) {
         this._node = val;
     }

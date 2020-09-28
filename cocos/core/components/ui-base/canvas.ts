@@ -113,10 +113,7 @@ export class Canvas extends Component {
     set color (val) {
         Color.copy(this._color, val);
         if (this._camera) {
-            this._camera.clearColor.x = val.x;
-            this._camera.clearColor.y = val.y;
-            this._camera.clearColor.z = val.z;
-            this._camera.clearColor.w = val.w;
+            this._camera.setClearColor(val.x, val.y, val.z, val.w);
         }
     }
 
