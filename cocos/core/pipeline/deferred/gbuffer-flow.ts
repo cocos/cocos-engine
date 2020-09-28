@@ -3,7 +3,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { PIPELINE_FLOW_GBUFFER, UNIFORM_SHADOWMAP, UNIFORM_ALBEDOMAP, UNIFORM_NORMALMAP } from '../define';
+import { PIPELINE_FLOW_GBUFFER, UNIFORM_SHADOWMAP_BINDING, UNIFORM_ALBEDOMAP_BINDING, UNIFORM_NORMALMAP_BINDING } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
 import { DeferredFlowPriority } from './enum';
@@ -98,59 +98,57 @@ export class GbufferFlow extends RenderFlow {
             depthStencilAttachment.beginLayout = GFXTextureLayout.UNDEFINED;
             depthStencilAttachment.endLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-            this._gbufferRenderPass = device.createRenderPass({
-                colorAttachments: [colorAttachment0, colorAttachment1, colorAttachment2, colorAttachment3],
-                depthStencilAttachment,
-            });
+            const renderPassInfo = new GFXRenderPassInfo([colorAttachment0, colorAttachment1, colorAttachment2, colorAttachment3], depthStencilAttachment);
+            this._shadowRenderPass = device.createRenderPass(renderPassInfo);
         }
 
         if(this._gbufferRenderTargets.length < 1) {
-            this._gbufferRenderTargets.push(device.createTexture({
-                type: GFXTextureType.TEX2D,
-                usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                format: GFXFormat.RGBA8,
-                width: this._width,
-                height: this._height,
-            }));
-            this._gbufferRenderTargets.push(device.createTexture({
-                type: GFXTextureType.TEX2D,
-                usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                format: GFXFormat.RGBA8,
-                width: this._width,
-                height: this._height,
-            }));
-            this._gbufferRenderTargets.push(device.createTexture({
-                type: GFXTextureType.TEX2D,
-                usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                format: GFXFormat.RGBA8,
-                width: this._width,
-                height: this._height,
-            }));
-            this._gbufferRenderTargets.push(device.createTexture({
-                type: GFXTextureType.TEX2D,
-                usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                format: GFXFormat.RGBA8,
-                width: this._width,
-                height: this._height,
-            }));
+            this._gbufferRenderTargets.push(device.createTexture(new GFXTextureInfo(
+                GFXTextureType.TEX2D,
+                GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                GFXFormat.RGBA8,
+                this._width,
+                this._height,
+            )));
+            this._gbufferRenderTargets.push(device.createTexture(new GFXTextureInfo(
+                GFXTextureType.TEX2D,
+                GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                GFXFormat.RGBA8,
+                this._width,
+                this._height,
+            )));
+            this._gbufferRenderTargets.push(device.createTexture(new GFXTextureInfo(
+                GFXTextureType.TEX2D,
+                GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                GFXFormat.RGBA8,
+                this._width,
+                this._height,
+            )));
+            this._gbufferRenderTargets.push(device.createTexture(new GFXTextureInfo(
+                GFXTextureType.TEX2D,
+                GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                GFXFormat.RGBA8,
+                this._width,
+                this._height,
+            )));
         }
 
         if(!this._depth) {
-            this._depth = device.createTexture({
-                type: GFXTextureType.TEX2D,
-                usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
-                format: device.depthStencilFormat,
-                width: this._width,
-                height: this._height,
-            });
+            this._depth = device.createTexture(new GFXTextureInfo(
+                GFXTextureType.TEX2D,
+                GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
+                device.depthStencilFormat,
+                this._width,
+                this._height,
+            ));
         }
 
         if(!this._gbufferFrameBuffer) {
-            this._gbufferFrameBuffer = device.createFramebuffer({
-                renderPass: this._gbufferRenderPass,
-                colorTextures: this._gbufferRenderTargets,
-                depthStencilTexture: this._depth,
-            });
+            this._gbufferFrameBuffer = device.createFramebuffer(new GFXFramebufferInfo(
+                this._gbufferRenderPass,
+                this._gbufferRenderTargets,
+                this._depth,
+            ));
         }
 
         for (let i = 0; i < this._stages.length; ++i) {
@@ -162,11 +160,7 @@ export class GbufferFlow extends RenderFlow {
         const pipeline = this._pipeline as DeferredPipeline;
         pipeline.updateUBOs(view);
         super.render(view);
-        // pipeline.descriptorSet.bindTexture(UNIFORM_ALBEDOMAP.binding, this._gbufferFrameBuffer!.colorTextures[0]!);
-        // pipeline.descriptorSet.bindTexture(UNIFORM_NORMALMAP.binding, this._gbufferFrameBuffer!.colorTextures[1]!);
-    }
-
-    public destroy () {
-        super.destroy();
+        // pipeline.descriptorSet.bindTexture(UNIFORM_ALBEDOMAP_BINDING, this._gbufferFrameBuffer!.colorTextures[0]!);
+        // pipeline.descriptorSet.bindTexture(UNIFORM_NORMALMAP_BINDING, this._gbufferFrameBuffer!.colorTextures[1]!);
     }
 }

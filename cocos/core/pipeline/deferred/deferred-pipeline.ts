@@ -8,11 +8,10 @@ import { GbufferFlow } from './gbuffer-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-import { IRenderObject, UBOGlobal, UBOShadow,
-    UNIFORM_SHADOWMAP, UNIFORM_ALBEDOMAP, UNIFORM_NORMALMAP} from '../define';
+import { IRenderObject, UBOGlobal, UBOShadow,  UNIFORM_SHADOWMAP_BINDING, UNIFORM_ALBEDOMAP_BINDING, UNIFORM_NORMALMAP_BINDING} from '../define';
 import { GFXBufferUsageBit, GFXMemoryUsageBit,
-    GFXClearFlag, GFXFilter, GFXAddress, GFXCommandBufferType } from '../../gfx/define';
-import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout } from '../../gfx';
+    GFXClearFlag, GFXFilter, GFXAddress } from '../../gfx/define';
+import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout, GFXRenderPassInfo, GFXBufferInfo } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
@@ -138,6 +137,8 @@ export class DeferredPipeline extends RenderPipeline {
                 view.flows[j].render(view);
             }
         }
+        this._commandBuffers[0].end();
+        this._device.queue.submit(this._commandBuffers);
     }
 
     public getRenderPass (clearFlags: GFXClearFlag): GFXRenderPass {
@@ -165,10 +166,8 @@ export class DeferredPipeline extends RenderPipeline {
             depthStencilAttachment.beginLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
         }
 
-        renderPass = device.createRenderPass({
-            colorAttachments: [colorAttachment],
-            depthStencilAttachment,
-        });
+        const renderPassInfo = new GFXRenderPassInfo([colorAttachment], depthStencilAttachment);
+        renderPass = device.createRenderPass(renderPassInfo);
         this._renderPasses.set(clearFlags, renderPass!);
 
         return renderPass;
@@ -217,31 +216,30 @@ export class DeferredPipeline extends RenderPipeline {
         }
 
         // update ubos
-        this._descriptorSet.getBuffer(UBOGlobal.BLOCK.binding).update(this._globalUBO);
-        this._descriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(this._shadowUBO);
+        this._commandBuffers[0].updateBuffer(this._descriptorSet.getBuffer(UBOGlobal.BINDING), this._globalUBO);
+        this._commandBuffers[0].updateBuffer(this._descriptorSet.getBuffer(UBOShadow.BINDING), this._shadowUBO);
     }
 
     private _activeRenderer () {
         const device = this.device;
 
-        this._commandBuffers.push(device.createCommandBuffer({
-            type: GFXCommandBufferType.PRIMARY,
-            queue: this._device.queue,
-        }));
+        this._commandBuffers.push(device.commandBuffer);
 
-        const globalUBO = device.createBuffer({
-            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: UBOGlobal.SIZE,
-        });
-        this._descriptorSet.bindBuffer(UBOGlobal.BLOCK.binding, globalUBO);
+        const globalUBO = device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            UBOGlobal.SIZE,
+            UBOGlobal.SIZE,
+        ));
+        this._descriptorSet.bindBuffer(UBOGlobal.BINDING, globalUBO);
 
-        const shadowUBO = device.createBuffer({
-            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: UBOShadow.SIZE,
-        });
-        this._descriptorSet.bindBuffer(UBOShadow.BLOCK.binding, shadowUBO);
+        const shadowUBO = device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            UBOShadow.SIZE,
+            UBOShadow.SIZE,
+        ));
+        this._descriptorSet.bindBuffer(UBOShadow.BINDING, shadowUBO);
 
         const shadowMapSamplerHash = genSamplerHash([
             GFXFilter.LINEAR,
@@ -252,9 +250,9 @@ export class DeferredPipeline extends RenderPipeline {
             GFXAddress.CLAMP,
         ]);
         const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
-        this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP.binding, shadowMapSampler);
-        // this._descriptorSet.bindSampler(UNIFORM_ALBEDOMAP.binding, shadowMapSampler);
-        // this._descriptorSet.bindSampler(UNIFORM_NORMALMAP.binding, shadowMapSampler);
+        this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
+        // this._descriptorSet.bindSampler(UNIFORM_ALBEDOMAP_BINDING, shadowMapSampler);
+        // this._descriptorSet.bindSampler(UNIFORM_NORMALMAP_BINDING, shadowMapSampler);
 
 
         // update global defines when all states initialized.
@@ -378,6 +376,8 @@ export class DeferredPipeline extends RenderPipeline {
             rpRes.value.destroy();
             rpRes = rpIter.next();
         }
+
+        this._commandBuffers.length = 0;
 
         this.ambient.destroy();
         this.skybox.destroy();

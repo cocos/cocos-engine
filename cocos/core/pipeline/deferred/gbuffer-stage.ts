@@ -60,7 +60,7 @@ export class GbufferStage extends RenderStage {
     protected _renderQueues: RenderQueue[] = [];
 
     private _gbufferFrameBuffer: GFXFramebuffer | null = null;
-    private _renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
+    private _renderArea = new GFXRect();
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
     private _phaseID = getPhaseID('deferred-gbuffer');
@@ -81,7 +81,7 @@ export class GbufferStage extends RenderStage {
         return true;
     }
 
-    public activate (pipeline: DeferredPipeline, flow: BufferFlow) {
+    public activate (pipeline: DeferredPipeline, flow: GbufferFlow) {
         super.activate(pipeline, flow);
         for (let i = 0; i < this.renderQueues.length; i++) {
             let phase = 0;
@@ -149,14 +149,13 @@ export class GbufferStage extends RenderStage {
                 }
             }
         }
+        const cmdBuff = pipeline.commandBuffers[0];
+
         this._renderQueues.forEach(this.renderQueueSortFunc);
-        this._additiveLightQueue.gatherLightPasses(view);
+        this._additiveLightQueue.gatherLightPasses(view, cmdBuff);
         this._planarQueue.updateShadowList(view);
 
         const camera = view.camera;
-
-        const cmdBuff = pipeline.commandBuffers[0];
-
         const vp = camera.viewport;
         this._renderArea!.x = vp.x * camera.width;
         this._renderArea!.y = vp.y * camera.height;
@@ -182,7 +181,6 @@ export class GbufferStage extends RenderStage {
         const framebuffer = this._gbufferFrameBuffer!;
         const renderPass = framebuffer.renderPass;
 
-        cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
             colors, camera.clearDepth, camera.clearStencil);
 
@@ -197,9 +195,6 @@ export class GbufferStage extends RenderStage {
         this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 
         cmdBuff.endRenderPass();
-        cmdBuff.end();
-
-        device.queue.submit(pipeline.commandBuffers);
     }
 
     /**
