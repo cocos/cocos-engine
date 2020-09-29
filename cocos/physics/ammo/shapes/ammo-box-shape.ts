@@ -1,7 +1,7 @@
 import Ammo from '../ammo-instantiated';
 import { AmmoShape } from "./ammo-shape";
 import { Vec3 } from "../../../core";
-import { BoxColliderComponent } from '../../../../exports/physics-framework';
+import { BoxCollider } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3, ammoDeletePtr } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { IBoxShape } from '../../spec/i-physics-shape';
@@ -24,7 +24,7 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
     }
 
     get collider () {
-        return this._collider as BoxColliderComponent;
+        return this._collider as BoxCollider;
     }
 
     readonly halfExt: Ammo.btVector3;

@@ -169,6 +169,18 @@ export enum SystemEventType {
 
     /**
      * @en
+     * The event type for color change events.
+     * Performance note, this event will be triggered every time corresponding properties being changed,
+     * if the event callback have heavy logic it may have great performance impact, try to avoid such scenario.
+     *
+     * @zh
+     * 当节点的 UI 渲染组件颜色属性改变时触发的事件。
+     * 性能警告：这个事件会在每次对应的属性被修改时触发，如果事件回调损耗较高，有可能对性能有很大的负面影响，请尽量避免这种情况。
+     */
+    COLOR_CHANGED = 'color-changed',
+
+    /**
+     * @en
      * The event type for adding a new child node to the target node.
      *
      * @zh

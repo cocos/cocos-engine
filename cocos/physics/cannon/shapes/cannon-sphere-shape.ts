@@ -4,12 +4,12 @@ import { maxComponent } from '../../framework/util';
 import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
 import { ISphereShape } from '../../spec/i-physics-shape';
-import { SphereColliderComponent } from '../../../../exports/physics-framework';
+import { SphereCollider } from '../../../../exports/physics-framework';
 
 export class CannonSphereShape extends CannonShape implements ISphereShape {
 
     get collider () {
-        return this._collider as SphereColliderComponent;
+        return this._collider as SphereCollider;
     }
 
     get impl () {

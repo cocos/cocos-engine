@@ -1,0 +1,197 @@
+[
+  {
+    "name": "Core",
+    "locked": true,
+    "entries": []
+  },
+  {
+    "name": "Canvas",
+    "locked": true,
+    "entries": []
+  },
+  {
+    "name": "Sprite",
+    "locked": true,
+    "entries": []
+  },
+  {
+    "name": "Label",
+    "locked": true,
+    "entries": []
+  },
+  {
+    "name": "Canvas Renderer",
+    "entries": []
+  },
+  {
+    "name": "WebGL Renderer",
+    "entries": []
+  },
+  {
+    "name": "Renderer Texture",
+    "entries": [],
+    "dependencies": ["WebGL Renderer"]
+  },
+  {
+    "name": "Dynamic Atlas",
+    "entries": [],
+    "dependencies": ["Renderer Texture"]
+  },
+  {
+    "name": "LabelOutline",
+    "entries": [],
+    "dependencies": ["Label"]
+  },
+  {
+    "name": "Mask",
+    "entries": [],
+    "dependencies": ["Graphics"]
+  },
+  {
+    "name": "Graphics",
+    "entries": []
+  },
+  {
+    "name": "ParticleSystem",
+    "entries": [],
+    "dependencies": ["WebGL Renderer"]
+  },
+  {
+    "name": "TiledMap",
+    "entries": [],
+    "dependencies": ["WebGL Renderer"]
+  },
+  {
+    "name": "Spine Skeleton",
+    "entries": ["./engine/jsb-spine-skeleton.js"],
+    "dependencies": ["WebGL Renderer"]
+  },
+  {
+    "name": "DragonBones",
+    "entries": ["./engine/jsb-dragonbones.js"],
+    "dependencies": ["WebGL Renderer"]
+  },
+  {
+    "name": "RichText",
+    "entries": [],
+    "dependencies": ["WebGL Renderer"]
+  },
+  {
+    "name": "MotionStreak",
+    "entries": ["./engine/assemblers/motion-streak.js"],
+    "dependencies": ["WebGL Renderer"]
+  },
+  {
+    "name": "Widget",
+    "entries": []
+  },
+  {
+    "name": "Button",
+    "entries": []
+  },
+  {
+    "name": "ProgressBar",
+    "entries": []
+  },
+  {
+    "name": "ScrollBar",
+    "entries": []
+  },
+  {
+    "name": "ScrollView",
+    "entries": [],
+    "dependencies": ["Layout"]
+  },
+  {
+    "name": "Toggle",
+    "entries": []
+  },
+  {
+    "name": "PageView",
+    "entries": []
+  },
+  {
+    "name": "PageViewIndicator",
+    "entries": []
+  },
+  {
+    "name": "Slider",
+    "entries": []
+  },
+  {
+    "name": "Layout",
+    "entries": []
+  },
+  {
+    "name": "EditBox",
+    "entries": [
+      "./dist/engine/jsb-editbox.js",
+      "./dist/engine/rt_input.js"
+    ],
+    "dependencies": ["WebGL Renderer"]
+  },
+  {
+    "name": "VideoPlayer",
+    "entries": [
+      "./dist/engine/jsb-videoplayer.js"
+    ]
+  },
+  {
+    "name": "WebView",
+    "entries": [
+      "./dist/engine/jsb-webview.js"
+    ]
+  },
+  {
+    "name": "Audio",
+    "entries": [
+      "./dist/engine/jsb-audio.js"
+    ]
+  },
+  {
+    "name": "AudioSource",
+    "entries": [],
+    "dependencies": ["Audio"]
+  },
+  {
+    "name": "Animation",
+    "entries": []
+  },
+  {
+    "name": "Collider",
+    "entries": []
+  },
+  {
+    "name": "Action",
+    "entries": []
+  },
+  {
+    "name": "Physics",
+    "entries": [],
+    "dependencies": ["Collider"]
+  },
+  {
+    "name": "NodePool",
+    "entries": []
+  },
+  {
+    "name": "StudioComponent",
+    "entries": []
+  },
+  {
+    "name": "Intersection",
+    "entries": []
+  },
+  {
+    "name": "Native NetWork"
+  },
+  {
+    "name": "3D",
+    "entries": [],
+    "dependencies": ["Mesh", "WebGL Renderer"]
+  },
+  {
+    "name": "Mesh",
+    "entries": []
+  }
+]

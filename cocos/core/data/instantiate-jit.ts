@@ -31,7 +31,7 @@
 // Some helper methods for compile instantiation code
 
 import * as js from '../utils/js';
-import CCClass from './class';
+import { CCClass } from './class';
 import { CCObject } from './object';
 import * as Attr from './utils/attribute';
 import {flattenCodeArray} from './utils/compiler';
@@ -52,12 +52,6 @@ const LOCAL_ARRAY = 'a';
 const LINE_INDEX_OF_NEW_OBJ = 0;
 
 const DEFAULT_MODULE_CACHE = {
-    'cc.Node': 'cc.Node',
-    'cc.Sprite': 'cc.Sprite',
-    'cc.Label': 'cc.Label',
-    'cc.Button': 'cc.Button',
-    'cc.Widget': 'cc.Widget',
-    'cc.Animation': 'cc.Animation',
     'cc.ClickEvent': false,
     'cc.PrefabInfo': false,
 };

@@ -28,7 +28,7 @@
  * @category asset
  */
 
-import {ccclass, property} from '../data/class-decorator';
+import {ccclass, serializable, editable} from 'cc.decorator';
 import { Asset } from './asset';
 import { legacyCC } from '../global-exports';
 
@@ -41,7 +41,8 @@ export default class TextAsset extends Asset {
     /**
      * 此资源包含的文本。
      */
-    @property
+    @serializable
+    @editable
     public text = '';
 
     /**

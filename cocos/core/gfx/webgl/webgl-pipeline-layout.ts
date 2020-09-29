@@ -1,4 +1,4 @@
-import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from '../pipeline-layout';
+import { GFXPipelineLayout, GFXPipelineLayoutInfo } from '../pipeline-layout';
 import { IWebGLGPUPipelineLayout, IWebGLGPUDescriptorSetLayout } from './webgl-gpu-objects';
 import { WebGLDescriptorSetLayout } from './webgl-descriptor-set-layout';
 
@@ -8,12 +8,14 @@ export class WebGLPipelineLayout extends GFXPipelineLayout {
 
     private _gpuPipelineLayout: IWebGLGPUPipelineLayout | null = null;
 
-    public initialize (info: IGFXPipelineLayoutInfo) {
+    public initialize (info: GFXPipelineLayoutInfo) {
         Array.prototype.push.apply(this._setLayouts, info.setLayouts);
 
         const dynamicOffsetIndices: number[][] = [];
 
-        const gpuSetLayouts: IWebGLGPUDescriptorSetLayout[] = []; let idx = 0;
+        const gpuSetLayouts: IWebGLGPUDescriptorSetLayout[] = [];
+        const dynamicOffsetOffsets: number[] = [];
+        let dynamicOffsetCount = 0; let idx = 0;
         for (let i = 0; i < this._setLayouts.length; i++) {
             const setLayout = this._setLayouts[i] as WebGLDescriptorSetLayout;
             const dynamicBindings = setLayout.gpuDescriptorSetLayout.dynamicBindings;
@@ -30,10 +32,14 @@ export class WebGLPipelineLayout extends GFXPipelineLayout {
             }
 
             dynamicOffsetIndices.push(indices);
+            dynamicOffsetOffsets.push(dynamicOffsetCount);
+            dynamicOffsetCount += dynamicBindings.length;
         }
 
         this._gpuPipelineLayout = {
             gpuSetLayouts,
+            dynamicOffsetCount,
+            dynamicOffsetOffsets,
             dynamicOffsetIndices,
         };
 

@@ -50,7 +50,7 @@ export class NativeArrayPool {
         return new Uint32Array(this._size);
     }
 
-    public resize (origin: Uint32Array, size: number) : Uint32Array {
+    public resize (origin: Uint32Array, size: number, handle: number) : Uint32Array {
         let array = new Uint32Array(size);
         array.set(origin);
         return array;

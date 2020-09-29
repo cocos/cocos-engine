@@ -27,19 +27,17 @@
  * @category material
  */
 
-import { ccclass, property } from '../../core/data/class-decorator';
+import { ccclass, serializable, editable } from 'cc.decorator';
 import { Root } from '../../core/root';
-import { GFXDynamicStateFlags, GFXPrimitiveMode } from '../gfx/define';
-import { IGFXAttribute } from '../gfx/input-assembler';
+import { GFXDescriptorType, GFXDynamicStateFlags, GFXFormat, GFXPrimitiveMode, GFXShaderStageFlags, GFXType } from '../gfx/define';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../gfx/pipeline-state';
-import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
+import { IGFXUniform } from '../gfx/shader';
 import { RenderPassStage } from '../pipeline/define';
 import { MacroRecord } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
 import { Asset } from './asset';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../global-exports';
-import { IGFXDescriptorSetLayoutBinding } from '../gfx';
 
 export interface IPropertyInfo {
     type: number; // auto-extracted from shader
@@ -70,10 +68,28 @@ export interface ITechniqueInfo {
     name?: string;
 }
 
-export interface IBlockInfo extends GFXUniformBlock, IGFXDescriptorSetLayoutBinding {}
-export interface ISamplerInfo extends GFXUniformSampler, IGFXDescriptorSetLayoutBinding {}
-
-export interface IAttributeInfo extends IGFXAttribute {
+export interface IBlockInfo {
+    binding: number;
+    name: string;
+    members: IGFXUniform[];
+    count: number;
+    stageFlags: GFXShaderStageFlags;
+    descriptorType?: GFXDescriptorType;
+}
+export interface ISamplerInfo {
+    binding: number;
+    name: string;
+    type: GFXType;
+    count: number;
+    stageFlags: GFXShaderStageFlags;
+    descriptorType?: GFXDescriptorType;
+}
+export interface IAttributeInfo {
+    name: string;
+    format: GFXFormat;
+    isNormalized: boolean;
+    isInstanced: boolean;
+    location: number;
     defines: string[];
 }
 export interface IDefineInfo {
@@ -161,21 +177,24 @@ export class EffectAsset extends Asset {
      * @zh
      * 当前 effect 的所有可用 technique。
      */
-    @property
+    @serializable
+    @editable
     public techniques: ITechniqueInfo[] = [];
 
     /**
      * @zh
      * 当前 effect 使用的所有 shader。
      */
-    @property
+    @serializable
+    @editable
     public shaders: IShaderInfo[] = [];
 
     /**
      * @zh
      * 每个 shader 需要预编译的宏定义组合。
      */
-    @property
+    @serializable
+    @editable
     public combinations: IPreCompileInfo[] = [];
 
     /**

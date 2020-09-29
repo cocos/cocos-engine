@@ -2,15 +2,13 @@
  * @category pipeline
  */
 
-import { ccclass } from '../../data/class-decorator';
+import { ccclass } from 'cc.decorator';
 import { PIPELINE_FLOW_FORWARD } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
 import { ForwardFlowPriority } from './enum';
 import { ForwardStage } from './forward-stage';
-import { sceneCulling } from './scene-culling';
 import { ForwardPipeline } from './forward-pipeline';
-import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { RenderPipeline } from '../render-pipeline';
 /**
  * @en The forward flow in forward render pipeline
@@ -26,15 +24,16 @@ export class ForwardFlow extends RenderFlow {
     public static initInfo: IRenderFlowInfo = {
         name: PIPELINE_FLOW_FORWARD,
         priority: ForwardFlowPriority.FORWARD,
+        stages: []
     };
 
     public initialize (info: IRenderFlowInfo): boolean {
         super.initialize(info);
-
-        const forwardStage = new ForwardStage();
-        forwardStage.initialize(ForwardStage.initInfo);
-        this._stages.push(forwardStage);
-
+        if (this._stages.length === 0) {
+            const forwardStage = new ForwardStage();
+            forwardStage.initialize(ForwardStage.initInfo);
+            this._stages.push(forwardStage);
+        }
         return true;
     }
 
@@ -44,8 +43,6 @@ export class ForwardFlow extends RenderFlow {
 
     public render (view: RenderView) {
         const pipeline = this._pipeline as ForwardPipeline;
-        view.camera.update();
-        sceneCulling(pipeline, view);
         pipeline.updateUBOs(view);
         super.render(view);
     }

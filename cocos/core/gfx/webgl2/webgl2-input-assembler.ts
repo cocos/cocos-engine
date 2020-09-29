@@ -1,4 +1,4 @@
-import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
+import { GFXInputAssembler, GFXInputAssemblerInfo } from '../input-assembler';
 import { WebGL2Buffer } from './webgl2-buffer';
 import { WebGL2CmdFuncCreateInputAssember, WebGL2CmdFuncDestroyInputAssembler } from './webgl2-commands';
 import { WebGL2Device } from './webgl2-device';
@@ -12,7 +12,7 @@ export class WebGL2InputAssembler extends GFXInputAssembler {
 
     private _gpuInputAssembler: IWebGL2GPUInputAssembler | null = null;
 
-    public initialize (info: IGFXInputAssemblerInfo): boolean {
+    public initialize (info: GFXInputAssemblerInfo): boolean {
 
         if (info.vertexBuffers.length === 0) {
             console.error('GFXInputAssemblerInfo.vertexBuffers is null.');
@@ -23,13 +23,18 @@ export class WebGL2InputAssembler extends GFXInputAssembler {
         this._attributesHash = this.computeAttributesHash();
         this._vertexBuffers = info.vertexBuffers;
 
-        if (info.indexBuffer !== undefined) {
+        if (info.indexBuffer) {
             this._indexBuffer = info.indexBuffer;
             this._indexCount = this._indexBuffer.size / this._indexBuffer.stride;
+            this._firstIndex = 0;
         } else {
             const vertBuff = this._vertexBuffers[0];
             this._vertexCount = vertBuff.size / vertBuff.stride;
+            this._firstVertex = 0;
+            this._vertexOffset = 0;
         }
+        this._instanceCount = 0;
+        this._firstInstance = 0;
 
         this._indirectBuffer = info.indirectBuffer || null;
 
@@ -58,7 +63,7 @@ export class WebGL2InputAssembler extends GFXInputAssembler {
         }
 
         let gpuIndirectBuffer: IWebGL2GPUBuffer | null = null;
-        if (info.indirectBuffer !== undefined) {
+        if (info.indirectBuffer) {
             gpuIndirectBuffer = (info.indirectBuffer as WebGL2Buffer).gpuBuffer;
         }
 

@@ -2,7 +2,7 @@ import { Vec3 } from '../../../core/math';
 import { obb } from '../../../core/geometry';
 import { BuiltinShape } from './builtin-shape';
 import { IBoxShape } from '../../spec/i-physics-shape';
-import { BoxColliderComponent } from '../../../../exports/physics-framework';
+import { BoxCollider } from '../../../../exports/physics-framework';
 import { IVec3Like } from '../../../core/math/type-define';
 
 export class BuiltinBoxShape extends BuiltinShape implements IBoxShape {
@@ -16,7 +16,7 @@ export class BuiltinBoxShape extends BuiltinShape implements IBoxShape {
     }
 
     get collider () {
-        return this._collider as BoxColliderComponent;
+        return this._collider as BoxCollider;
     }
 
     constructor () {

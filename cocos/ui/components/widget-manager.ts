@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { CanvasComponent } from '../../core/components/ui-base/canvas-component';
+import { Canvas } from '../../core/components/ui-base/canvas';
 import { Director, director } from '../../core/director';
 import { Vec2, Vec3 } from '../../core/math';
 import { sys } from '../../core/platform/sys';
@@ -37,8 +37,8 @@ import visibleRect from '../../core/platform/visible-rect';
 import { Scene } from '../../core/scene-graph';
 import { Node } from '../../core/scene-graph/node';
 import { array } from '../../core/utils/js';
-import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, WidgetComponent } from './widget-component';
-import { UITransformComponent } from '../../core/components';
+import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, Widget } from './widget';
+import { UITransform } from '../../core/components/ui-base';
 import { EDITOR, DEV } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 import { warnID } from '../../core/platform/debug';
@@ -50,7 +50,7 @@ const tInverseTranslate = new Vec3();
 const tInverseScale = new Vec3(1, 1, 1);
 
 // align to borders by adjusting node's position and size (ignore rotation)
-function align (node: Node, widget: WidgetComponent) {
+function align (node: Node, widget: Widget) {
     const hasTarget = widget.target;
     let target: Node | Scene;
     const inverseTranslate = tInverseTranslate;
@@ -63,12 +63,12 @@ function align (node: Node, widget: WidgetComponent) {
     } else {
         target = node.parent!;
     }
-    if (!target.getComponent(UITransformComponent)) {
+    if (!target.getComponent(UITransform)) {
         return;
     }
     const targetSize = getReadonlyNodeSize(target);
     const isScene = target instanceof Scene;
-    const targetAnchor = isScene ? _defaultAnchor : target.getComponent(UITransformComponent)!.anchorPoint;
+    const targetAnchor = isScene ? _defaultAnchor : target.getComponent(UITransform)!.anchorPoint;
 
     // @ts-ignore
     const isRoot = !EDITOR && isScene;
@@ -203,7 +203,7 @@ function align (node: Node, widget: WidgetComponent) {
 
 // TODO: type is hack, Change to the type actually used (Node or BaseNode) when BaseNode complete
 function visitNode (node: any) {
-    const widget = node.getComponent(WidgetComponent);
+    const widget = node.getComponent(Widget);
     if (widget) {
         // @ts-ignore
         if (DEV) {
@@ -281,7 +281,7 @@ function refreshScene () {
         }
         else {
             const i = 0;
-            let widget: WidgetComponent | null = null;
+            let widget: Widget | null = null;
             const iterator = widgetManager._activeWidgetsIterator;
             // var AnimUtils;
             // if (EDITOR &&
@@ -326,7 +326,7 @@ function refreshScene () {
     }
 }
 
-const activeWidgets: WidgetComponent[] = [];
+const activeWidgets: Widget[] = [];
 
 // updateAlignment from scene to node recursively
 function updateAlignment (node: Node) {
@@ -336,13 +336,13 @@ function updateAlignment (node: Node) {
     }
 
     // node._widget will be null when widget is disabled
-    const widget = node.getComponent(WidgetComponent);
+    const widget = node.getComponent(Widget);
     if (widget && parent) {
         align(node, widget);
     }
 }
 
-const canvasList: CanvasComponent[] = [];
+const canvasList: Canvas[] = [];
 
 export const widgetManager = legacyCC._widgetManager = {
     isAligning: false,
@@ -372,7 +372,7 @@ export const widgetManager = legacyCC._widgetManager = {
             }
         }
     },
-    add (widget: WidgetComponent) {
+    add (widget: Widget) {
         this._nodesOrderDirty = true;
         const canvasComp = director.root!.ui.getScreen(widget.node._uiProps.uiTransformComp!.visibility);
         if (canvasComp && canvasList.indexOf(canvasComp) === -1) {
@@ -380,7 +380,7 @@ export const widgetManager = legacyCC._widgetManager = {
             canvasComp.node.on('design-resolution-changed', this.onResized, this);
         }
     },
-    remove (widget: WidgetComponent) {
+    remove (widget: Widget) {
         this._activeWidgetsIterator.remove(widget);
     },
     onResized () {
@@ -391,7 +391,7 @@ export const widgetManager = legacyCC._widgetManager = {
     },
     refreshWidgetOnResized (node: Node) {
         if (Node.isNode(node)) {
-            const widget = node.getComponent(WidgetComponent);
+            const widget = node.getComponent(Widget);
             if (widget && widget.alignMode === AlignMode.ON_WINDOW_RESIZE) {
                 widget.enabled = true;
             }
@@ -402,7 +402,7 @@ export const widgetManager = legacyCC._widgetManager = {
             this.refreshWidgetOnResized(child);
         }
     },
-    updateOffsetsToStayPut (widget: WidgetComponent, e?: AlignFlags) {
+    updateOffsetsToStayPut (widget: Widget, e?: AlignFlags) {
         function i (t: number, c: number) {
             return Math.abs(t - c) > 1e-10 ? c : t;
         }

@@ -27,7 +27,7 @@
  * @category core/math
  */
 
-import CCClass from '../data/class';
+import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Mat3 } from './mat3';
 import { IQuatLike, IVec3Like } from './type-define';
@@ -689,7 +689,7 @@ export class Quat extends ValueType {
             this.x = x || 0;
             this.y = y || 0;
             this.z = z || 0;
-            this.w = w || 1;
+            this.w = w ?? 1;
         }
         return this;
     }

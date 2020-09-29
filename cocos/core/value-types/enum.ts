@@ -32,6 +32,7 @@ import { value } from '../utils/js';
 import { EDITOR, TEST, DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
+import { assertIsTrue } from '../data/utils/asserts';
 
 /**
  * @en
@@ -51,7 +52,17 @@ export function Enum<T> (obj: T): T {
         return obj;
     }
     value(obj, '__enums__', null, true);
+    return Enum.update(obj);
+}
 
+/**
+ * @en
+ * Update the enum object properties.
+ * @zh
+ * 更新枚举对象的属性列表。
+ * @param obj 
+ */
+Enum.update = <T> (obj: T): T => {
     let lastIndex: number = -1;
     const keys: string[] = Object.keys(obj);
 
@@ -80,31 +91,75 @@ export function Enum<T> (obj: T): T {
             value(obj, reverseKey, key);
         }
     }
+    // auto update list if __enums__ is array
+    if(Array.isArray(obj['__enums__'])) {
+        updateList(obj);
+    }
     return obj;
 }
 
-Enum.isEnum = (enumType) => {
+namespace Enum {
+    export interface Enumerator<EnumT> {
+        /**
+         * The name of the enumerator.
+         */
+        name: keyof EnumT;
+
+        /**
+         * The value of the numerator.
+         */
+        value: EnumT[typeof name];
+    }
+}
+
+interface EnumExtras<EnumT> {
+    __enums__: null | Enum.Enumerator<EnumT>[];
+}
+
+/**
+ * Determines if the object is an enum type.
+ * @param enumType The object to judge.
+ */
+Enum.isEnum = <EnumT extends {}>(enumType: EnumT) => {
     return enumType && enumType.hasOwnProperty('__enums__');
 };
 
+function assertIsEnum <EnumT extends {}>(enumType: EnumT): asserts enumType is EnumT & EnumExtras<EnumT> {
+    assertIsTrue(enumType.hasOwnProperty('__enums__'));
+}
+
 /**
- * @param enumDef - the enum type defined from cc.Enum
- * @return {Object[]}
+ * Get the enumerators from the enum type.
+ * @param enumType An enum type.
  */
-Enum.getList = (enumDef) => {
-    if (enumDef.__enums__) {
-        return enumDef.__enums__;
+Enum.getList = <EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator<EnumT>[] => {
+    assertIsEnum(enumType);
+
+    if (enumType.__enums__) {
+        return enumType.__enums__;
     }
 
-    const enums: any[] = enumDef.__enums__ = [];
+    return updateList(enumType as EnumT);
+};
+
+/**
+ * Update the enumerators from the enum type.
+ * @param enumType - the enum type defined from cc.Enum
+ * @return {Object[]}
+ */
+function updateList<EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator<EnumT>[] {
+    assertIsEnum(enumType);
+    const enums: any[] = enumType.__enums__ || [];
+    enums.length = 0;
     // tslint:disable-next-line: forin
-    for (const name in enumDef) {
-        const v = enumDef[name];
+    for (const name in enumType) {
+        const v = enumType[name];
         if (Number.isInteger(v)) {
             enums.push({ name, value: v });
         }
     }
     enums.sort((a, b) => a.value - b.value);
+    enumType.__enums__ = enums;
     return enums;
 };
 
@@ -121,11 +176,17 @@ if (DEV) {
     }
 }
 
-export function ccenum (enumx) {
-    if ('__enums__' in enumx) {
-        return;
+/**
+ * Make the enum type `enumType` as enumeration so that Creator may identify, operate on it.
+ * Formally, as a result of invocation on this function with enum type `enumType`:
+ * - `Enum.isEnum(enumType)` returns `true`;
+ * - `Enum.getList(enumType)` returns the enumerators of `enumType`.
+ * @param enumType An enum type, eg, a kind of type with similar semantic defined by TypeScript.
+ */
+export function ccenum<EnumT extends {}> (enumType: EnumT) {
+    if (!('__enums__' in enumType)) {
+        value(enumType, '__enums__', null, true);
     }
-    value(enumx, '__enums__', null, true);
 }
 
 legacyCC.Enum = Enum;

@@ -4,12 +4,10 @@ import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { RenderPriority, SetIndex } from '../../pipeline/define';
 import { IMacroPatch, Pass } from '../core/pass';
 import { DSPool, IAPool, SubModelPool, SubModelView, SubModelHandle, NULL_HANDLE } from '../core/memory-pools';
-import { GFXDescriptorSet, IGFXDescriptorSetInfo } from '../../gfx';
+import { GFXDescriptorSet, GFXDescriptorSetInfo } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 
-const _dsInfo: IGFXDescriptorSetInfo = {
-    layout: null!,
-};
+const _dsInfo = new GFXDescriptorSetInfo(null!);
 
 export class SubModel {
 
@@ -35,7 +33,7 @@ export class SubModel {
     set subMesh (subMesh) {
         this._subMesh = subMesh;
         this._inputAssembler!.destroy();
-        this._inputAssembler!.initialize(subMesh);
+        this._inputAssembler!.initialize(subMesh.iaInfo);
     }
 
     get subMesh () {
@@ -64,7 +62,7 @@ export class SubModel {
     }
 
     public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null) {
-        this._device = legacyCC.director.root.device;
+        this._device = legacyCC.director.root.device as GFXDevice;
 
         this._subMesh = subMesh;
         this._patches = patches;
@@ -75,7 +73,7 @@ export class SubModel {
 
         _dsInfo.layout = passes[0].setLayouts[SetIndex.LOCAL];
         const dsHandle = DSPool.alloc(this._device, _dsInfo);
-        const iaHandle = IAPool.alloc(this._device, subMesh);
+        const iaHandle = IAPool.alloc(this._device, subMesh.iaInfo);
         SubModelPool.set(this._handle, SubModelView.PRIORITY, RenderPriority.DEFAULT);
         SubModelPool.set(this._handle, SubModelView.INPUT_ASSEMBLER, iaHandle);
         SubModelPool.set(this._handle, SubModelView.DESCRIPTOR_SET, dsHandle);
@@ -126,9 +124,11 @@ export class SubModel {
         if (!passes) { return; }
 
         SubModelPool.set(this._handle, SubModelView.PASS_COUNT, passes.length);
-        for (let i = 0; i < passes.length; i++) {
-            SubModelPool.set(this._handle, SubModelView.PASS_0 + i, passes[i].handle);
-            SubModelPool.set(this._handle, SubModelView.SHADER_0 + i, passes[i].getShaderVariant(this._patches));
+        let passOffset = SubModelView.PASS_0 as const;
+        let shaderOffset = SubModelView.SHADER_0 as const;
+        for (let i = 0; i < passes.length; i++, passOffset++, shaderOffset++) {
+            SubModelPool.set(this._handle, passOffset, passes[i].handle);
+            SubModelPool.set(this._handle, shaderOffset, passes[i].getShaderVariant(this._patches));
         }
     }
 }

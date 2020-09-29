@@ -2,16 +2,12 @@
  * @category gfx
  */
 
-export const GFX_MAX_VERTEX_ATTRIBUTES: number = 16;
-export const GFX_MAX_TEXTURE_UNITS: number = 16;
 export const GFX_MAX_ATTACHMENTS: number = 4;
-export const GFX_MAX_BUFFER_BINDINGS: number = 24;
 
 export enum GFXObjectType {
     UNKNOWN,
     BUFFER,
     TEXTURE,
-    TEXTURE_VIEW,
     RENDER_PASS,
     FRAMEBUFFER,
     SAMPLER,
@@ -534,49 +530,38 @@ export enum GFXQueueType {
 }
 
 export class GFXRect {
-    public x: number;
-    public y: number;
-    public width: number;
-    public height: number;
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
-    constructor (x = 0, y = 0, width = 1, height = 1) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-    }
+    constructor (
+        public x: number = 0,
+        public y: number = 0,
+        public width: number = 1,
+        public height: number = 1,
+    ) {}
 }
 
 export class GFXViewport {
-    public left: number;
-    public top: number;
-    public width: number;
-    public height: number;
-    public minDepth: number;
-    public maxDepth: number;
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
-    constructor (left = 0, top = 0, width = 0, height = 0, minDepth = 0, maxDepth = 1) {
-        this.left = left;
-        this.top = top;
-        this.width = width;
-        this.height = height;
-        this.minDepth = minDepth;
-        this.maxDepth = maxDepth;
-    }
+    constructor (
+        public left: number = 0,
+        public top: number = 0,
+        public width: number = 0,
+        public height: number = 0,
+        public minDepth: number = 0,
+        public maxDepth: number = 1,
+    ) {}
 }
 
 export class GFXColor {
-    public r: number;
-    public g: number;
-    public b: number;
-    public a: number;
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
-    constructor (r = 0, g = 0, b = 0, a = 0) {
-        this.r = r;
-        this.g = g;
-        this.b = b;
-        this.a = a;
-    }
+    constructor (
+        public x: number = 0,
+        public y: number = 0,
+        public z: number = 0,
+        public w: number = 0,
+    ) {}
 }
 
 export enum GFXClearFlag {
@@ -589,73 +574,57 @@ export enum GFXClearFlag {
 }
 
 export class GFXOffset {
-    public x: number;
-    public y: number;
-    public z: number;
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
-    constructor (x = 0, y = 0, z = 0) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-    }
+    constructor (
+        public x: number = 0,
+        public y: number = 0,
+        public z: number = 0,
+    ) {}
 }
 
 export class GFXExtent {
-    public width: number;
-    public height: number;
-    public depth: number;
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
-    constructor (width = 0, height = 0, depth = 1) {
-        this.width = width;
-        this.height = height;
-        this.depth = depth;
-    }
+    constructor (
+        public width: number = 0,
+        public height: number = 0,
+        public depth: number = 1,
+    ) {}
 }
 
 export class GFXTextureSubres {
-    public mipLevel: number;
-    public baseArrayLayer: number;
-    public layerCount: number;
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
-    constructor (mipLevel = 0, baseArrayLayer = 0, layerCount = 1) {
-        this.mipLevel = mipLevel;
-        this.baseArrayLayer = baseArrayLayer;
-        this.layerCount = layerCount;
-    }
+    constructor (
+        public mipLevel: number = 0,
+        public baseArrayLayer: number = 0,
+        public layerCount: number = 1,
+    ) {}
 }
 
 export class GFXTextureCopy {
-    public srcSubres: GFXTextureSubres;
-    public srcOffset: GFXOffset;
-    public dstSubres: GFXTextureSubres;
-    public dstOffset: GFXOffset;
-    public extent: GFXExtent;
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
-    constructor (srcSubres = new GFXTextureSubres(), srcOffset = new GFXOffset(),
-                 dstSubres = new GFXTextureSubres(), dstOffset = new GFXOffset(), extent = new GFXExtent()) {
-        this.srcSubres = srcSubres;
-        this.srcOffset = srcOffset;
-        this.dstSubres = dstSubres;
-        this.dstOffset = dstOffset;
-        this.extent = extent;
-    }
+    constructor (
+        public srcSubres = new GFXTextureSubres(),
+        public srcOffset = new GFXOffset(),
+        public dstSubres = new GFXTextureSubres(),
+        public dstOffset = new GFXOffset(),
+        public extent = new GFXExtent(),
+    ) {}
 }
 
 export class GFXBufferTextureCopy {
-    public buffStride: number;
-    public buffTexHeight: number;
-    public texOffset: GFXOffset;
-    public texExtent: GFXExtent;
-    public texSubres: GFXTextureSubres;
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
-    constructor (buffStride = 0, buffTexHeight = 0,
-                 texOffset = new GFXOffset(), texExtent = new GFXExtent(), texSubres = new GFXTextureSubres()) {
-        this.buffStride = buffStride;
-        this.buffTexHeight = buffTexHeight;
-        this.texOffset = texOffset;
-        this.texExtent = texExtent;
-        this.texSubres = texSubres;
-    }
+    constructor (
+        public buffStride: number = 0,
+        public buffTexHeight: number = 0,
+        public texOffset = new GFXOffset(),
+        public texExtent = new GFXExtent(),
+        public texSubres = new GFXTextureSubres(),
+    ) {}
 }
 
 export enum GFXFormatType {
@@ -669,31 +638,27 @@ export enum GFXFormatType {
 }
 
 export class GFXFormatInfo {
-    public readonly name: string;
-    public readonly size: number;
-    public readonly count: number;
-    public readonly type: GFXFormatType;
-    public readonly hasAlpha: boolean;
-    public readonly hasDepth: boolean;
-    public readonly hasStencil: boolean;
-    public readonly isCompressed: boolean;
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
-    constructor (name: string, size: number, count: number, type: GFXFormatType,
-                 hasAlpha: boolean, hasDepth: boolean, hasStencil: boolean, isCompressed: boolean) {
-        this.name = name;
-        this.size = size;
-        this.count = count;
-        this.type = type;
-        this.hasAlpha = hasAlpha;
-        this.hasDepth = hasDepth;
-        this.hasStencil = hasStencil;
-        this.isCompressed = isCompressed;
-    }
+    constructor (
+        public readonly name: string,
+        public readonly size: number,
+        public readonly count: number,
+        public readonly type: GFXFormatType,
+        public readonly hasAlpha: boolean,
+        public readonly hasDepth: boolean,
+        public readonly hasStencil: boolean,
+        public readonly isCompressed: boolean,
+    ) {}
 }
 
 export class GFXMemoryStatus {
-    public bufferSize: number = 0;
-    public textureSize: number = 0;
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public bufferSize: number = 0,
+        public textureSize: number = 0,
+    ) {}
 }
 
 export const GFXFormatInfos = Object.freeze([

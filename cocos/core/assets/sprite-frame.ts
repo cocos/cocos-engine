@@ -30,7 +30,7 @@
  * @category asset
  */
 
-import { ccclass } from '../data/class-decorator';
+import { ccclass } from 'cc.decorator';
 import { Rect, Size, Vec2 } from '../math';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
@@ -147,7 +147,7 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  * const url = "assets/PurpleMonster/icon/spriteFrame";
  * loader.loadRes(url, (err, spriteFrame) => {
  *   const node = new Node("New Sprite");
- *   const sprite = node.addComponent(SpriteComponent);
+ *   const sprite = node.addComponent(Sprite);
  *   sprite.spriteFrame = spriteFrame;
  *   node.parent = self.node;
  * });
@@ -161,7 +161,7 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  *  }
  *
  *  const node = new Node("New Sprite");
- *  const sprite = node.addComponent(SpriteComponent);
+ *  const sprite = node.addComponent(Sprite);
  *  const spriteFrame = new SpriteFrame();
  *  const tex = imageAsset._texture;
  *  spriteFrame.texture = tex;
@@ -171,7 +171,7 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  *
  * // Third way to use a SpriteFrame
  * const self = this;
- * const cameraComp = this.getComponent(CameraComponent);
+ * const cameraComp = this.getComponent(Camera);
  * const renderTexture = new RenderTexture();
  * rendetTex.reset({
  *   width: 512,

@@ -35,7 +35,6 @@ import * as misc from './misc';
  * 用于处理文件与目录的路径的模块
  */
 import * as path from './path';
-import { legacyCC } from '../global-exports';
 
 export * from './deprecated';
 export * from './text-utils';
