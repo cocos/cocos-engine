@@ -45,6 +45,7 @@ CCEffect %{
           blendDst: one
           blendSrcAlpha: zero
           blendDstAlpha: one
+      properties: *props
     - vert: standard-vs:vert
       frag: gbuffer-fs
       phase: deferred-gbuffer

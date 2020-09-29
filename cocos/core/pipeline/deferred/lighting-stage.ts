@@ -56,7 +56,7 @@ export class LightingStage extends RenderStage {
     protected renderQueues: RenderQueueDesc[] = [];
     protected _renderQueues: RenderQueue[] = [];
 
-    private _renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
+    private _renderArea = new GFXRect();
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
     private _phaseID = getPhaseID('default');
@@ -145,14 +145,13 @@ export class LightingStage extends RenderStage {
                 }
             }
         }
+        const cmdBuff = pipeline.commandBuffers[0];
+
         this._renderQueues.forEach(this.renderQueueSortFunc);
-        this._additiveLightQueue.gatherLightPasses(view);
+        this._additiveLightQueue.gatherLightPasses(view, cmdBuff);
         this._planarQueue.updateShadowList(view);
 
         const camera = view.camera;
-
-        const cmdBuff = pipeline.commandBuffers[0];
-
         const vp = camera.viewport;
         this._renderArea!.x = vp.x * camera.width;
         this._renderArea!.y = vp.y * camera.height;
@@ -178,7 +177,6 @@ export class LightingStage extends RenderStage {
         const framebuffer = view.window.framebuffer;
         const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
 
-        cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
             colors, camera.clearDepth, camera.clearStencil);
 
@@ -192,9 +190,6 @@ export class LightingStage extends RenderStage {
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
 
         cmdBuff.endRenderPass();
-        cmdBuff.end();
-
-        device.queue.submit(pipeline.commandBuffers);
     }
 
     /**
