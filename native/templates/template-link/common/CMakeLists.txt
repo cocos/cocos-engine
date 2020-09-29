@@ -6,16 +6,17 @@ project(${APP_NAME} CXX)
 enable_language(C ASM)
 
 set(CMAKE_CXX_STANDARD 14)
-option(USE_SE_V8        "USE V8 JavaScript Engine"          ON)
-option(USE_V8_DEBUGGER  "Enable Chrome Remote inspector"    ON)
-option(USE_SOCKET       "Enable WebSocket & SocketIO"       ON)
-option(USE_AUDIO        "Enable Audio"                      ON)     #Enable AudioEngine
-option(USE_EDIT_BOX     "Enable EditBox"                    ON)
-option(USE_SE_JSC       "USE JavaScriptCore on MacOSX/iOS"  OFF)
-option(USE_VIDEOPLAYER  "Enable VideoPlayer Component"      OFF)
-option(USE_WEBVIEW      "Enable WebView Component"          OFF)
-option(USE_DRAGONBONES  "Enable Dragonbones"                OFF)
-option(USE_SPINE        "Enable Spine"                      OFF)
+option(USE_SE_V8                "USE V8 JavaScript Engine"          ON)
+option(USE_V8_DEBUGGER          "Enable Chrome Remote inspector"    ON)
+option(USE_SOCKET               "Enable WebSocket & SocketIO"       ON)
+option(USE_AUDIO                "Enable Audio"                      ON)     #Enable AudioEngine
+option(USE_EDIT_BOX             "Enable EditBox"                    ON)
+option(USE_SE_JSC               "USE JavaScriptCore on MacOSX/iOS"  OFF)
+option(USE_VIDEOPLAYER          "Enable VideoPlayer Component"      OFF)
+option(USE_WEBVIEW              "Enable WebView Component"          OFF)
+option(USE_DRAGONBONES          "Enable Dragonbones"                OFF)
+option(USE_SPINE                "Enable Spine"                      OFF)
+option(USE_WEBSOCKET_SERVER     "Enable WebSocket Server"           OFF)
 
 
 if(USE_SE_JSC AND APPLE)

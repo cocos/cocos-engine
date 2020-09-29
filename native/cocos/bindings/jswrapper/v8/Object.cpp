@@ -340,6 +340,7 @@ namespace se {
         if (maybeExist.IsNothing())
             return false;
 
+
         if (!maybeExist.FromJust())
             return false;
 
@@ -351,6 +352,33 @@ namespace se {
 
         return true;
     }
+
+    bool Object::deleteProperty(const char *name)
+    {
+
+        v8::HandleScope handle_scope(__isolate);
+
+        if (_obj.persistent().IsEmpty())
+        {
+            return false;
+        }
+
+        v8::MaybeLocal<v8::String> nameValue = v8::String::NewFromUtf8(__isolate, name, v8::NewStringType::kNormal);
+        if (nameValue.IsEmpty())
+            return false;
+
+        v8::Local<v8::String> nameValToLocal = nameValue.ToLocalChecked();
+        v8::Local<v8::Context> context = __isolate->GetCurrentContext();
+        v8::Maybe<bool> maybeExist = _obj.handle(__isolate)->Delete(context, nameValToLocal);
+        if (maybeExist.IsNothing())
+            return false;
+
+        if (!maybeExist.FromJust())
+            return false;
+
+        return true;
+    }
+
 
     bool Object::setProperty(const char *name, const Value& data)
     {

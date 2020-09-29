@@ -74,6 +74,9 @@ if(USE_SE_JSC)
     set(USE_V8_DEBUGGER OFF)
 endif()
 
+if(NOT USE_SOCKET)
+    set(USE_WEBSOCKET_SERVER OFF)
+endif()
 
 ## disable videoplay on non-mobile platforms
 if(NOT ANDROID AND NOT IOS)
@@ -334,6 +337,13 @@ if(USE_SOCKET)
         cocos/network/WebSocket.h
         cocos/network/SocketIO.cpp
         cocos/network/SocketIO.h
+    )
+endif()
+
+if(NOT IOS AND USE_WEBSOCKET_SERVER)
+    cocos_source_files(
+        cocos/network/WebSocketServer.h
+        cocos/network/WebSocketServer.cpp
     )
 endif()
 
@@ -837,6 +847,13 @@ if(USE_SOCKET)
     )
 endif()
 
+    
+if(NOT IOS AND USE_WEBSOCKET_SERVER)
+    cocos_source_files(
+        cocos/bindings/manual/jsb_websocket_server.cpp
+        cocos/bindings/manual/jsb_websocket_server.h
+    )
+endif()
 
 if(ANDROID)
     cocos_source_files(
@@ -1060,11 +1077,12 @@ add_library(cocos2d ${COCOS2D_SOURCE_LIST})
 
 # setup default flags
 target_compile_definitions(cocos2d PUBLIC
-    $<$<NOT:$<BOOL:${USE_VIDEO}>>:USE_VIDEO=0>
-    $<$<NOT:$<BOOL:${USE_AUDIO}>>:USE_AUDIO=0>
-    $<$<NOT:$<BOOL:${USE_SOCKET}>>:USE_SOCKET=0>
-    $<$<NOT:$<BOOL:${USE_EDIT_BOX}>>:CC_USE_EDITBOX=0>
-    $<$<NOT:$<BOOL:${USE_V8_DEBUGGER}>>:USE_V8_DEBUGGER=0>
+    $<IF:$<BOOL:${USE_VIDEO}>,USE_VIDEO=1,USE_VIDEO=0>
+    $<IF:$<BOOL:${USE_AUDIO}>,USE_AUDIO=1,USE_AUDIO=0>
+    $<IF:$<BOOL:${USE_SOCKET}>,USE_SOCKET=1,USE_SOCKET=0>
+    $<IF:$<BOOL:${USE_WEBSOCKET_SERVER}>,USE_WEBSOCKET_SERVER=1,USE_WEBSOCKET_SERVER=0>
+    $<IF:$<BOOL:${USE_EDIT_BOX}>,CC_USE_EDITBOX=1,CC_USE_EDITBOX=0>
+    $<IF:$<BOOL:${USE_V8_DEBUGGER}>,USE_V8_DEBUGGER=1,USE_V8_DEBUGGER=0>
     $<$<BOOL:${USE_SE_JSC}>:SCRIPT_ENGINE_TYPE=3>
     $<$<CONFIG:Debug>:CC_DEBUG=1>
 )

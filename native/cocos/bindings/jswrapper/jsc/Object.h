@@ -142,6 +142,13 @@ namespace se {
         bool setProperty(const char* name, const Value& value);
 
         /**
+         *  @brief Delete a property of an object.
+         *  @param[in] name A utf-8 string containing the property's name.
+         *  @return true if the property is deleted successfully, otherwise false.
+         */
+        bool deleteProperty(const char *name);
+        
+        /**
          *  @brief Defines a property with native accessor callbacks for an object.
          *  @param[in] name A utf-8 string containing the property's name.
          *  @param[in] getter The native callback for getter.

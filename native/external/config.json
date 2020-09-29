@@ -4,6 +4,6 @@
         "type": "github",
         "owner": "cocos-creator",
         "name": "cocos2d-x-lite-external",
-        "checkout": "v3d-gfx-23"
+        "checkout": "v3d-gfx-24"
     }
 }

@@ -496,6 +496,21 @@ namespace se {
         return internal::defineProperty(this, name, getter, setter);
     }
 
+    bool Object::deleteProperty(const char *name)
+    {
+        bool ret = true;
+        JSStringRef jsName = JSStringCreateWithUTF8CString(name);
+        JSValueRef exception = nullptr;
+        JSObjectDeleteProperty(__cx, _obj, jsName, &exception);
+        if (exception != nullptr)
+        {
+            ScriptEngine::getInstance()->_clearException(exception);
+            ret = false;
+        }
+        JSStringRelease(jsName);
+        return ret;
+    }
+    
     bool Object::call(const ValueArray& args, Object* thisObject, Value* rval/* = nullptr*/)
     {
         assert(isFunction());

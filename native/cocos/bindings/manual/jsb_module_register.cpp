@@ -72,6 +72,10 @@
 
 #endif // (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
+#if USE_SOCKET && USE_WEBSOCKET_SERVER
+#include "cocos/bindings/manual/jsb_websocket_server.h"
+#endif
+
 using namespace cc;
 
 bool jsb_register_all_modules() {
@@ -129,6 +133,9 @@ bool jsb_register_all_modules() {
 
 #endif // (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
+#if USE_SOCKET && USE_WEBSOCKET_SERVER
+    se->addRegisterCallback(register_all_websocket_server);
+#endif
     se->addAfterCleanupHook([]() {
         PoolManager::getInstance()->getCurrentPool()->clear();
         JSBClassType::destroy();
