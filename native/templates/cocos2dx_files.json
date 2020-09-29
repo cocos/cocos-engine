@@ -209,6 +209,8 @@
         "cocos/network/WebSocket-apple.mm", 
         "cocos/network/WebSocket-libwebsockets.cpp", 
         "cocos/network/WebSocket.h", 
+        "cocos/network/WebSocketServer.cpp", 
+        "cocos/network/WebSocketServer.h", 
         "cocos/platform/Application.h", 
         "cocos/platform/CanvasRenderingContext2D.h", 
         "cocos/platform/Device.h", 
@@ -3033,6 +3035,8 @@
         "cocos/bindings/manual/jsb_socketio.h", 
         "cocos/bindings/manual/jsb_websocket.cpp", 
         "cocos/bindings/manual/jsb_websocket.h", 
+        "cocos/bindings/manual/jsb_websocket_server.cpp", 
+        "cocos/bindings/manual/jsb_websocket_server.h", 
         "cocos/bindings/manual/jsb_xmlhttprequest.cpp", 
         "cocos/bindings/manual/jsb_xmlhttprequest.h"
     ]
