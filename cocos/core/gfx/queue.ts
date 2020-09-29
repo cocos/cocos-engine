@@ -7,12 +7,8 @@ import { GFXObject, GFXObjectType, GFXQueueType } from './define';
 import { GFXDevice } from './device';
 import { GFXFence } from './fence';
 
-export class GFXQueueInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public type: GFXQueueType = GFXQueueType.GRAPHICS,
-    ) {}
+export interface IGFXQueueInfo {
+    type: GFXQueueType;
 }
 
 /**
@@ -40,7 +36,7 @@ export abstract class GFXQueue extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: GFXQueueInfo): boolean;
+    public abstract initialize (info: IGFXQueueInfo): boolean;
 
     public abstract destroy (): void;
 

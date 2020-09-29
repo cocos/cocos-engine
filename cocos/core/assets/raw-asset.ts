@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { ccclass } from 'cc.decorator';
+import { ccclass } from '../data/class-decorator';
 import { CCObject } from '../data/object';
 import { isChildClassOf } from '../utils/js';
 import { legacyCC } from '../global-exports';

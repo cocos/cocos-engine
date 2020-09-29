@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { ccclass, serializable, editable } from 'cc.decorator';
+import { ccclass, property } from '../../core/data/class-decorator';
 import { Color, lerp, repeat } from '../../core/math';
 import { Enum } from '../../core/value-types';
 
@@ -16,12 +16,10 @@ const Mode = Enum({
 @ccclass('cc.ColorKey')
 export class ColorKey {
 
-    @serializable
-    @editable
+    @property
     public color = Color.WHITE.clone();
 
-    @serializable
-    @editable
+    @property
     public time = 0;
 }
 
@@ -33,12 +31,10 @@ export class ColorKey {
 @ccclass('cc.AlphaKey')
 export class AlphaKey {
 
-    @serializable
-    @editable
+    @property
     public alpha = 1;
 
-    @serializable
-    @editable
+    @property
     public time = 0;
 }
 
@@ -52,16 +48,13 @@ export default class Gradient {
 
     public static Mode = Mode;
 
-    @serializable
-    @editable
+    @property
     public colorKeys = new Array<ColorKey>();
 
-    @serializable
-    @editable
+    @property
     public alphaKeys = new Array<AlphaKey>();
 
-    @serializable
-    @editable
+    @property
     public mode = Mode.Blend;
 
     private _color: Color;

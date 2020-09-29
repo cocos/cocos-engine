@@ -24,21 +24,20 @@
  THE SOFTWARE.
 */
 
-import { MeshRenderer } from '../../3d/framework/mesh-renderer';
-import { Camera } from '../../3d/framework/camera-component';
+import { CameraComponent, ModelComponent } from '../../3d';
 import { createMesh } from '../../3d/misc/utils';
 import { Material } from '../../assets/material';
 import { GFXBufferTextureCopy, GFXClearFlag, GFXFormat, GFXTextureType, GFXTextureUsageBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
-import { GFXTexture, GFXTextureInfo } from '../../gfx/texture';
+import { GFXTexture } from '../../gfx/texture';
 import { Vec4 } from '../../math';
+import { IBlock } from '../../renderer/core/pass';
 import { Layers } from '../../scene-graph';
 import { Node } from '../../scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
 import { TEST } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
-import { Pass } from '../../renderer';
 
 const _characters = '0123456789. ';
 
@@ -105,8 +104,7 @@ export class Profiler {
     private readonly _region: GFXBufferTextureCopy = new GFXBufferTextureCopy();
     private readonly _canvasArr: HTMLCanvasElement[] = [];
     private readonly _regionArr = [this._region];
-    private digitsData: Float32Array = null!;
-    private pass: Pass = null!;
+    private digitsData: IBlock = null!;
 
     private _canvasDone = false;
     private _statsDone = false;
@@ -194,13 +192,13 @@ export class Profiler {
         this._ctx.textBaseline = 'top';
         this._ctx.fillStyle = '#fff';
 
-        this._texture = this._device!.createTexture(new GFXTextureInfo(
-            GFXTextureType.TEX2D,
-            GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
-            GFXFormat.RGBA8,
-            textureWidth,
-            textureHeight,
-        ));
+        this._texture = this._device!.createTexture({
+            type: GFXTextureType.TEX2D,
+            usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
+            format: GFXFormat.RGBA8,
+            width: textureWidth,
+            height: textureHeight,
+        });
 
         this._region.texExtent.width = textureWidth;
         this._region.texExtent.height = textureHeight;
@@ -250,8 +248,8 @@ export class Profiler {
         const cameraNode = new Node('Profiler_Camera');
         cameraNode.setPosition(0, 0, 1.5);
         cameraNode.parent = this._rootNode;
-        const camera = cameraNode.addComponent('cc.Camera') as Camera;
-        camera.projection = Camera.ProjectionType.ORTHO;
+        const camera = cameraNode.addComponent('cc.CameraComponent') as CameraComponent;
+        camera.projection = CameraComponent.ProjectionType.ORTHO;
         camera.near = 1;
         camera.far = 2;
         camera.orthoHeight = this._device!.height;
@@ -309,7 +307,7 @@ export class Profiler {
             vertexPos[i] *= ySign;
         }
 
-        const modelCom = managerNode.addComponent(MeshRenderer);
+        const modelCom = managerNode.addComponent('cc.ModelComponent') as ModelComponent;
         modelCom.mesh = createMesh({
             positions: vertexPos,
             indices: vertexindices,
@@ -319,10 +317,10 @@ export class Profiler {
         const _material = new Material();
         _material.initialize({ effectName: 'util/profiler' });
         _material.setProperty('offset', new Vec4(-0.9, -0.9 * ySign, this._eachNumWidth, 0));
-        const pass = this.pass = _material.passes[0];
+        const pass = _material.passes[0];
         const handle = pass.getBinding('mainTexture');
-        const binding = pass.getBinding('digits');
-        pass.bindTexture(handle, this._texture!);
+        const binding = pass.getBinding('digits')!;
+        pass.bindTexture(handle!, this._texture!);
         this.digitsData = pass.blocks[binding];
         modelCom.material = _material;
         modelCom.node.layer = Layers.Enum.PROFILER;
@@ -402,7 +400,7 @@ export class Profiler {
         (this._stats.tricount.counter as PerfCounter).value = device.numTris;
 
         let i = 0;
-        const view = this.digitsData;
+        const view = this.digitsData.view;
         for (const id in this._stats) {
             const stat = this._stats[id] as ICounterOption;
             stat.counter.sample(now);
@@ -417,8 +415,7 @@ export class Profiler {
             i++;
         }
 
-        // @ts-ignore
-        this.pass._rootBufferDirty = true;
+        this.digitsData.dirty = true;
     }
 }
 

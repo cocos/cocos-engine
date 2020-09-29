@@ -2,11 +2,11 @@
  * @hidden
  */
 
-import { PhysicsSystem } from "../../framework";
+import { Layers } from "../../../core";
 
 export class BuiltinObject {
 
-    public collisionFilterGroup: number = PhysicsSystem.PhysicsGroup.DEFAULT;
+    public collisionFilterGroup: number = Layers.Enum.DEFAULT;
 
     public collisionFilterMask: number = -1;
 

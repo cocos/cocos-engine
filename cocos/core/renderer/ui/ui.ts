@@ -26,18 +26,18 @@
  * @hidden
  */
 
-import { UIStaticBatch } from '../../../ui';
+import { UIStaticBatchComponent } from '../../../ui';
 import { Material } from '../../assets/material';
-import { Canvas, UIComponent, UIRenderable } from '../../components/ui-base';
+import { CanvasComponent, UIComponent, UIRenderComponent } from '../../components/ui-base';
 import { GFXDevice } from '../../gfx/device';
-import { GFXAttribute } from '../../gfx/input-assembler';
+import { IGFXAttribute } from '../../gfx/input-assembler';
 import { GFXSampler } from '../../gfx/sampler';
 import { GFXTexture } from '../../gfx/texture';
 import { Pool, RecyclePool } from '../../memop';
 import { CachedArray } from '../../memop/cached-array';
-import { Camera } from '../scene/camera';
-import { Model } from '../scene/model';
-import { RenderScene } from '../scene/render-scene';
+import { Camera } from '../../renderer/scene/camera';
+import { Model } from '../../renderer/scene/model';
+import { RenderScene } from '../../renderer/scene/render-scene';
 import { Root } from '../../root';
 import { Layers, Node } from '../../scene-graph';
 import { MeshBuffer } from './mesh-buffer';
@@ -49,6 +49,7 @@ import * as UIVertexFormat from './ui-vertex-format';
 import { legacyCC } from '../../global-exports';
 import { DSPool } from '../core/memory-pools';
 import { ModelLocalBindings } from '../../pipeline/define';
+import { programLib } from '../core/program-lib';
 
 /**
  * @zh
@@ -72,18 +73,18 @@ export class UI {
         this._currMeshBuffer = value;
     }
 
-    set currStaticRoot (value: UIStaticBatch | null) {
+    set currStaticRoot (value: UIStaticBatchComponent | null) {
         this._currStaticRoot = value;
     }
 
     public device: GFXDevice;
-    private _screens: Canvas[] = [];
+    private _screens: CanvasComponent[] = [];
     private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => {
         return new MeshBuffer(this);
     }, 128);
     private _drawBatchPool: Pool<UIDrawBatch>;
     private _scene: RenderScene;
-    private _attributes: GFXAttribute[] = [];
+    private _attributes: IGFXAttribute[] = [];
     private _meshBuffers: MeshBuffer[] = [];
     private _meshBufferUseCount = 0;
     private _uiMaterials: Map<number, UIMaterial> = new Map<number, UIMaterial>();
@@ -96,10 +97,10 @@ export class UI {
     private _currMaterial: Material = this._emptyMaterial;
     private _currTexture: GFXTexture | null = null;
     private _currSampler: GFXSampler | null = null;
-    private _currCanvas: Canvas | null = null;
+    private _currCanvas: CanvasComponent | null = null;
     private _currMeshBuffer: MeshBuffer | null = null;
-    private _currStaticRoot: UIStaticBatch | null = null;
-    private _currComponent: UIRenderable | null = null;
+    private _currStaticRoot: UIStaticBatchComponent | null = null;
+    private _currComponent: UIRenderComponent | null = null;
     private _parentOpacity = 1;
 
     constructor (private _root: Root) {
@@ -125,7 +126,7 @@ export class UI {
 
     public initialize () {
 
-        this._attributes = UIVertexFormat.vfmtPosUvColor;
+        this._attributes = UIVertexFormat.vfmt;
 
         this._requireBufferBatch();
 
@@ -169,14 +170,14 @@ export class UI {
 
     /**
      * @en
-     * Add the managed Canvas.
+     * Add the managed CanvasComponent.
      *
      * @zh
      * 添加屏幕组件管理。
      *
      * @param comp - 屏幕组件。
      */
-    public addScreen (comp: Canvas) {
+    public addScreen (comp: CanvasComponent) {
         const screens = this._screens;
         // clear the canvas old visibility cache in canvasMaterial list
         for (let i = 0; i < screens.length; i++) {
@@ -212,7 +213,7 @@ export class UI {
 
     /**
      * @en
-     * Get the Canvas by number.
+     * Get the CanvasComponent by number.
      *
      * @zh
      * 通过屏幕编号获得屏幕组件。
@@ -235,11 +236,11 @@ export class UI {
 
     /**
      * @zh
-     * Removes the Canvas from the list.
+     * Removes the CanvasComponent from the list.
      *
      * @param comp - 被移除的屏幕。
      */
-    public removeScreen (comp: Canvas) {
+    public removeScreen (comp: CanvasComponent) {
         const idx = this._screens.indexOf(comp);
         if (idx === -1) {
             return;
@@ -333,10 +334,9 @@ export class UI {
                     this._scene.addModel(uiModel);
                     uiModel.subModels[0].priority = batchPriority++;
                     if (batch.camera) {
-                        const viewVisibility = batch.camera.view.visibility;
-                        uiModel.visFlags = viewVisibility;
-                        if (this._canvasMaterials.get(viewVisibility)!.get(batch.material!.hash) == null) {
-                            this._canvasMaterials.get(viewVisibility)!.set(batch.material!.hash, 1);
+                        uiModel.visFlags = batch.camera.view.visibility;
+                        if (this._canvasMaterials.get(batch.camera.view.visibility)!.get(batch.material!.hash) == null) {
+                            this._canvasMaterials.get(batch.camera.view.visibility)!.set(batch.material!.hash, 1);
                         }
                     }
                     this._modelInUse.push(uiModel);
@@ -349,17 +349,17 @@ export class UI {
      * @en
      * Render component data submission process of UI.
      * The submitted vertex data is the UI for world coordinates.
-     * For example: The UI components except Graphics and UIModel.
+     * For example: The UI components except Graphics and UIModelComponent.
      *
      * @zh
-     * UI 渲染组件数据提交流程（针对提交的顶点数据是世界坐标的提交流程，例如：除 Graphics 和 UIModel 的大部分 ui 组件）。
+     * UI 渲染组件数据提交流程（针对提交的顶点数据是世界坐标的提交流程，例如：除 graphics 和 uimodel 的大部分 ui 组件）。
      * 此处的数据最终会生成需要提交渲染的 model 数据。
      *
      * @param comp - 当前执行组件。
      * @param frame - 当前执行组件贴图。
      * @param assembler - 当前组件渲染数据组装器。
      */
-    public commitComp (comp: UIRenderable, frame: GFXTexture | null = null, assembler: any, sampler: GFXSampler | null = null) {
+    public commitComp (comp: UIRenderComponent, frame: GFXTexture | null = null, assembler: any, sampler: GFXSampler | null = null) {
         const renderComp = comp;
         const texture = frame;
         const samp = sampler;
@@ -390,16 +390,16 @@ export class UI {
      * @en
      * Render component data submission process of UI.
      * The submitted vertex data is the UI for local coordinates.
-     * For example: The UI components of Graphics and UIModel.
+     * For example: The UI components of Graphics and UIModelComponent.
      *
      * @zh
-     * UI 渲染组件数据提交流程（针对例如： Graphics 和 UIModel 等数据量较为庞大的 ui 组件）。
+     * UI 渲染组件数据提交流程（针对例如： graphics 和 uimodel 等数据量较为庞大的 ui 组件）。
      *
      * @param comp - 当前执行组件。
      * @param model - 提交渲染的 model 数据。
      * @param mat - 提交渲染的材质。
      */
-    public commitModel (comp: UIComponent | UIRenderable, model: Model | null, mat: Material | null) {
+    public commitModel (comp: UIComponent | UIRenderComponent, model: Model | null, mat: Material | null) {
         // if the last comp is spriteComp, previous comps should be batched.
         if (this._currMaterial !== this._emptyMaterial) {
             this.autoMergeBatches();
@@ -465,7 +465,7 @@ export class UI {
      * 提交独立渲染数据.
      * @param comp 静态组件
      */
-    public commitStaticBatch (comp: UIStaticBatch) {
+    public commitStaticBatch (comp: UIStaticBatchComponent) {
         this._batches.concat(comp.drawBatchList);
         this.finishMergeBatches();
     }
@@ -477,13 +477,14 @@ export class UI {
      * @zh
      * 根据合批条件，结束一段渲染数据并提交。
      */
-    public autoMergeBatches (renderComp?: UIRenderable) {
+    public autoMergeBatches (renderComp?: UIRenderComponent) {
         const buffer = this._currMeshBuffer!;
+        const indicsStart = buffer.indicesStart;
+        const vCount = buffer.indicesOffset - indicsStart;
         const uiCanvas = this._currCanvas;
-        const hIA = buffer.recordBatch();
         let mat = this._currMaterial;
 
-        if (!hIA || !mat) {
+        if (!vCount || !mat) {
             return;
         }
 
@@ -508,7 +509,7 @@ export class UI {
                     stencilZFailOpBack: state.zFailOp,
                     stencilPassOpBack: state.passOp,
                     stencilRefBack: state.ref,
-                },
+                }
             });
         }
 
@@ -518,7 +519,8 @@ export class UI {
         curDrawBatch.material = mat;
         curDrawBatch.texture = this._currTexture!;
         curDrawBatch.sampler = this._currSampler;
-        curDrawBatch.hInputAssembler = hIA;
+        curDrawBatch.ia!.firstIndex = indicsStart;
+        curDrawBatch.ia!.indexCount = vCount;
 
         this._batches.push(curDrawBatch);
 
@@ -601,21 +603,21 @@ export class UI {
         }
     }
 
-    private _preprocess (node: Node) {
-        if (!node._uiProps.uiTransformComp) {
+    private _preprocess (c: Node) {
+        if (!c._uiProps.uiTransformComp) {
             return;
         }
 
         // parent changed can flush child visibility
-        node._uiProps.uiTransformComp._canvas = this._currCanvas;
-        const render = node._uiProps.uiComp;
+        c._uiProps.uiTransformComp._canvas = this._currCanvas;
+        const render = c._uiProps.uiComp;
         if (render && render.enabledInHierarchy) {
             render.updateAssembler(this);
         }
     }
 
-    private _postprocess (node: Node) {
-        const render = node._uiProps.uiComp;
+    private _postprocess (c: Node) {
+        const render = c._uiProps.uiComp;
         if (render && render.enabledInHierarchy) {
             render.postUpdateAssembler(this);
         }
@@ -670,12 +672,12 @@ export class UI {
         }
     }
 
-    private _screenSort (a: Canvas, b: Canvas) {
+    private _screenSort (a: CanvasComponent, b: CanvasComponent) {
         const delta = a.priority - b.priority;
         return delta === 0 ? a.node.getSiblingIndex() - b.node.getSiblingIndex() : delta;
     }
 
-    private _applyOpacity (comp: UIRenderable) {
+    private _applyOpacity (comp: UIRenderComponent) {
         const color = comp.color.a / 255;
         const opacity = (this._parentOpacity = this._parentOpacity * color);
         const byteOffset = this._currMeshBuffer!.byteOffset >> 2;

@@ -1,9 +1,10 @@
 import { aabb, frustum } from '../../geometry';
 import { Mat4, Quat, Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
-import { LightPool, LightView } from '../core/memory-pools';
+import { RenderScene } from './render-scene';
 
 const _forward = new Vec3(0, 0, -1);
+const _v3 = new Vec3();
 const _qt = new Quat();
 const _matView = new Mat4();
 const _matProj = new Mat4();
@@ -14,6 +15,7 @@ export class SpotLight extends Light {
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
     protected _size: number = 0.15;
     protected _range: number = 5.0;
+    protected _luminance: number = 1700 / nt2lm(this._size);
     protected _spotAngle: number = Math.cos(Math.PI / 6);
     protected _pos: Vec3;
     protected _aabb: aabb;
@@ -43,11 +45,11 @@ export class SpotLight extends Light {
     }
 
     set luminance (lum: number) {
-        LightPool.set(this._handle, LightView.ILLUMINANCE, lum);
+        this._luminance = lum;
     }
 
     get luminance (): number {
-        return LightPool.get(this._handle, LightView.ILLUMINANCE);
+        return this._luminance;
     }
 
     get direction (): Vec3 {
@@ -80,17 +82,11 @@ export class SpotLight extends Light {
         this._pos = new Vec3();
     }
 
-    public initialize () {
-        super.initialize();
-        LightPool.set(this._handle, LightView.ILLUMINANCE, 1700 / nt2lm(this._size));
-    }
-
     public update () {
         if (this._node && (this._node.hasChangedFlags || this._needUpdate)) {
             this._node.getWorldPosition(this._pos);
             Vec3.transformQuat(this._dir, _forward, this._node.getWorldRotation(_qt));
             Vec3.normalize(this._dir, this._dir);
-            LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
             aabb.set(this._aabb, this._pos.x, this._pos.y, this._pos.z, this._range, this._range, this._range);
 
             // view matrix

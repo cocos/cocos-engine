@@ -6,7 +6,7 @@
 import { EDITOR } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { ccclass, serializable } from 'cc.decorator';
+import { ccclass, property, visible } from '../data/class-decorator';
 import { CompactValueTypeArray } from '../data/utils/compact-value-type-array';
 import { errorID } from '../platform/debug';
 import { DataPoolManager } from '../renderer/data-pool-manager';
@@ -126,7 +126,7 @@ export class AnimationClip extends Asset {
         clip.keys = [keys];
         clip.curves = [{
             modifiers: [
-                new ComponentPath('cc.Sprite'),
+                new ComponentPath('cc.SpriteComponent'),
                 'spriteFrame',
             ],
             data: {
@@ -143,46 +143,47 @@ export class AnimationClip extends Asset {
      * @en Animation frame rate: frames per second.
      * Note this property is only used for animation editing in Editor.
      */
-    @serializable
+    @property
     public sample = 60;
 
     /**
      * @zh 动画的播放速度。
      * @en Animation playback speed.
      */
-    @serializable
+    @property
     public speed = 1;
 
     /**
      * @zh 动画的循环模式。
      * @en Animation loop mode.
      */
-    @serializable
+    @property
     public wrapMode = AnimationWrapMode.Normal;
 
     /**
      * @zh 动画包含的事件数据。
      * @en Associated event data.
      */
-    @serializable
+    @property
+    @visible(false)
     public events: AnimationClip.IEvent[] = [];
 
-    @serializable
+    @property
     private _duration = 0;
 
-    @serializable
+    @property
     private _keys: number[][] = [];
 
-    @serializable
+    @property
     private _stepness = 0;
 
-    @serializable
+    @property
     private _curves: AnimationClip.ICurve[] = [];
 
-    @serializable
+    @property
     private _commonTargets: AnimationClip.ICommonTarget[] = [];
 
-    @serializable
+    @property
     private _hash = 0;
 
     private frameRate = 0;

@@ -892,7 +892,7 @@ function declareProperties (cls, className, properties, baseClass, mixins, es6?:
     });
 }
 
-export function CCClass (options) {
+function CCClass (options) {
     options = options || {};
 
     let name = options.name;
@@ -1047,7 +1047,7 @@ interface IParsedAttribute {
     type: string;
     _onAfterProp?: OnAfterProp;
     ctor?: Function;
-    enumList?: readonly any[];
+    enumList?: any[];
     bitmaskList?: any[];
 }
 const tmpAttrs = [];
@@ -1159,20 +1159,14 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
     if (attributes.url) {
         (attrsProto || getAttrsProto())[attrsProtoKey + 'saveUrlAsAsset'] = true;
     }
-
-    if (attributes.__noImplicit) {
-        (attrsProto || getAttrsProto())[attrsProtoKey + 'serializable'] = attributes.serializable ?? false;
-    } else {
-        if (attributes.serializable === false) {
-            if (DEV && usedInGetter) {
-                errorID(3613, 'serializable', name, propertyName);
-            }
-            else {
-                (attrsProto || getAttrsProto())[attrsProtoKey + 'serializable'] = false;
-            }
+    if (attributes.serializable === false) {
+        if (DEV && usedInGetter) {
+            errorID(3613, 'serializable', name, propertyName);
+        }
+        else {
+            (attrsProto || getAttrsProto())[attrsProtoKey + 'serializable'] = false;
         }
     }
-
     parseSimpleAttribute('formerlySerializedAs', 'string');
 
     if (EDITOR) {
@@ -1182,23 +1176,19 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
     }
 
     if (DEV) {
-        if (attributes.__noImplicit) {
-            (attrsProto || getAttrsProto())[attrsProtoKey + 'visible'] = attributes.visible ?? false;
-        } else {
-            const visible = attributes.visible;
-            if (typeof visible !== 'undefined') {
-                if (!visible) {
-                    (attrsProto || getAttrsProto())[attrsProtoKey + 'visible'] = false;
-                }
-                else if (typeof visible === 'function') {
-                    (attrsProto || getAttrsProto())[attrsProtoKey + 'visible'] = visible;
-                }
+        const visible = attributes.visible;
+        if (typeof visible !== 'undefined') {
+            if (!visible) {
+                (attrsProto || getAttrsProto())[attrsProtoKey + 'visible'] = false;
             }
-            else {
-                const startsWithUS = (propertyName.charCodeAt(0) === 95);
-                if (startsWithUS) {
-                    (attrsProto || getAttrsProto())[attrsProtoKey + 'visible'] = false;
-                }
+            else if (typeof visible === 'function') {
+                (attrsProto || getAttrsProto())[attrsProtoKey + 'visible'] = visible;
+            }
+        }
+        else {
+            const startsWithUS = (propertyName.charCodeAt(0) === 95);
+            if (startsWithUS) {
+                (attrsProto || getAttrsProto())[attrsProtoKey + 'visible'] = false;
             }
         }
     }
@@ -1237,5 +1227,7 @@ CCClass.getDefault = getDefault;
 CCClass.escapeForJS = escapeForJS;
 CCClass.IDENTIFIER_RE = IDENTIFIER_RE;
 CCClass.getNewValueTypeCode = (SUPPORT_JIT && getNewValueTypeCodeJit) as ((value: any) => string);
+
+export default CCClass;
 
 legacyCC.Class = CCClass;

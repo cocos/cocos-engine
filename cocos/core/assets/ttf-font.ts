@@ -28,7 +28,7 @@
  * @category asset
  */
 
-import {ccclass, string, override, serializable} from 'cc.decorator';
+import {ccclass, property, string, override} from '../data/class-decorator';
 import { Font } from './font';
 import { legacyCC } from '../global-exports';
 
@@ -41,10 +41,10 @@ import { legacyCC } from '../global-exports';
  */
 @ccclass('cc.TTFFont')
 export class TTFFont extends Font {
-    @serializable
+    @property
     public _fontFamily: any = null;
 
-    @override
+    @override(true)
     @string
     get _nativeAsset () {
         return this._fontFamily;

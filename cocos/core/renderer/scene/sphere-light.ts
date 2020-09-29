@@ -1,7 +1,6 @@
 import { aabb } from '../../geometry';
 import { Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
-import { LightPool, LightView } from '../core/memory-pools';
 
 export class SphereLight extends Light {
 
@@ -29,11 +28,11 @@ export class SphereLight extends Light {
     }
 
     set luminance (lum: number) {
-        LightPool.set(this._handle, LightView.ILLUMINANCE, lum);
+        this._luminance = lum;
     }
 
     get luminance (): number {
-        return LightPool.get(this._handle, LightView.ILLUMINANCE);
+        return this._luminance;
     }
 
     get aabb () {
@@ -42,6 +41,7 @@ export class SphereLight extends Light {
 
     protected _size: number = 0.15;
     protected _range: number = 1.0;
+    protected _luminance: number = 1700 / nt2lm(this._size);
     protected _pos: Vec3;
     protected _aabb: aabb;
 
@@ -50,11 +50,6 @@ export class SphereLight extends Light {
         this._type = LightType.SPHERE;
         this._aabb = aabb.create();
         this._pos = new Vec3();
-    }
-
-    public initialize () {
-        super.initialize();
-        LightPool.set(this._handle, LightView.ILLUMINANCE, 1700 / nt2lm(this._size));
     }
 
     public update () {

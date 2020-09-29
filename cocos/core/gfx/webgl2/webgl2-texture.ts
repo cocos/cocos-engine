@@ -1,5 +1,5 @@
 import { GFXTextureFlagBit, GFXFormatSurfaceSize } from '../define';
-import { GFXTexture, GFXTextureInfo, IsPowerOf2, GFXTextureViewInfo } from '../texture';
+import { GFXTexture, IGFXTextureInfo, IsPowerOf2, IGFXTextureViewInfo } from '../texture';
 import { WebGL2CmdFuncCreateTexture, WebGL2CmdFuncDestroyTexture, WebGL2CmdFuncResizeTexture } from './webgl2-commands';
 import { WebGL2Device } from './webgl2-device';
 import { IWebGL2GPUTexture } from './webgl2-gpu-objects';
@@ -12,7 +12,7 @@ export class WebGL2Texture extends GFXTexture {
 
     private _gpuTexture: IWebGL2GPUTexture | null = null;
 
-    public initialize (info: GFXTextureInfo | GFXTextureViewInfo): boolean {
+    public initialize (info: IGFXTextureInfo | IGFXTextureViewInfo): boolean {
         if ('texture' in info) {
             console.log('WebGL2 does not support texture view.');
             return false;
@@ -23,12 +23,29 @@ export class WebGL2Texture extends GFXTexture {
         this._format = info.format;
         this._width = info.width;
         this._height = info.height;
-        this._depth = info.depth;
-        this._layerCount = info.layerCount;
-        this._levelCount = info.levelCount;
-        this._samples = info.samples;
-        this._flags = info.flags;
+
+        if (info.depth !== undefined) {
+            this._depth = info.depth;
+        }
+
+        if (info.layerCount !== undefined) {
+            this._layerCount = info.layerCount;
+        }
+
+        if (info.levelCount !== undefined) {
+            this._levelCount = info.levelCount;
+        }
+
+        if (info.samples !== undefined) {
+            this._samples = info.samples;
+        }
+
+        if (info.flags !== undefined) {
+            this._flags = info.flags;
+        }
+
         this._isPowerOf2 = IsPowerOf2(this._width) && IsPowerOf2(this._height);
+
         this._size = GFXFormatSurfaceSize(this._format, this.width, this.height,
             this.depth, this._levelCount) * this._layerCount;
 

@@ -41,6 +41,7 @@ let url = {
 
     /**
      * The base url of raw assets.
+     * @property {Object} _rawAssets
      * @private
      * @readOnly
      */

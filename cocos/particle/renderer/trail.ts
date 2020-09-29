@@ -5,15 +5,15 @@
 
 import { Material } from '../../core/assets/material';
 import { RenderingSubMesh } from '../../core/assets/mesh';
-import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
+import { ccclass, property, tooltip, displayOrder, type, visible } from '../../core/data/class-decorator';
 import { director } from '../../core/director';
-import { GFX_DRAW_INFO_SIZE, GFXBuffer, GFXIndirectBuffer, GFXBufferInfo, GFXDrawInfo } from '../../core/gfx/buffer';
+import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
 import { GFXDevice } from '../../core/gfx/device';
-import { GFXAttribute } from '../../core/gfx/input-assembler';
+import { IGFXAttribute } from '../../core/gfx/input-assembler';
 import { Color, Mat4, Quat, toRadian, Vec3 } from '../../core/math';
 import { Pool } from '../../core/memop';
-import { scene } from '../../core/renderer';
+import { Model } from '../../core/renderer';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
@@ -175,14 +175,13 @@ export default class TrailModule {
         val ? this.onEnable() : this.onDisable();
     }
 
-    @serializable
+    @property
     public _enable = false;
 
     /**
      * 设定粒子生成轨迹的方式。
      */
     @type(TrailMode)
-    @serializable
     @displayOrder(1)
     @tooltip('Particle在每个粒子的运动轨迹上形成拖尾效果')
     public mode = TrailMode.Particles;
@@ -191,17 +190,17 @@ export default class TrailModule {
      * 轨迹存在的生命周期。
      */
     @type(CurveRange)
-    @serializable
     @displayOrder(3)
     @tooltip('拖尾的生命周期')
     public lifeTime = new CurveRange();
 
-    @serializable
+    @property
     public _minParticleDistance = 0.1;
 
     /**
      * 每个轨迹粒子之间的最小间距。
      */
+    @property
     @displayOrder(5)
     @tooltip('粒子每生成一个拖尾节点所运行的最短距离')
     public get minParticleDistance () {
@@ -230,19 +229,21 @@ export default class TrailModule {
     /**
      * 粒子本身是否存在。
      */
-    @serializable
+    @property
+    @visible(false)
+    @displayOrder(7)
+    @tooltip('拖尾是否跟随粒子一起消失')
     public existWithParticles = true;
 
     /**
      * 设定纹理填充方式。
      */
     @type(TextureMode)
-    @serializable
     @displayOrder(8)
     @tooltip('贴图在拖尾上的展开形式，Stretch贴图覆盖在整条拖尾上，Repeat贴图覆盖在一段拖尾上')
     public textureMode = TextureMode.Stretch;
 
-    @serializable
+    @property
     @displayOrder(9)
     @tooltip('拖尾宽度继承自粒子大小')
     public widthFromParticle = true;
@@ -251,24 +252,21 @@ export default class TrailModule {
      * 控制轨迹长度的曲线。
      */
     @type(CurveRange)
-    @serializable
     @displayOrder(10)
     @tooltip('拖尾宽度，如果继承自粒子则是粒子大小的比例')
     public widthRatio = new CurveRange();
 
-    @serializable
+    @property
     @displayOrder(11)
     @tooltip('拖尾颜色是否继承自粒子')
     public colorFromParticle = false;
 
     @type(GradientRange)
-    @serializable
     @displayOrder(12)
     @tooltip('拖尾颜色随拖尾自身长度的颜色渐变')
     public colorOverTrail = new GradientRange();
 
     @type(GradientRange)
-    @serializable
     @displayOrder(13)
     @tooltip('拖尾颜色随时间的颜色渐变')
     public colorOvertime = new GradientRange();
@@ -279,7 +277,7 @@ export default class TrailModule {
     @type(Space)
     private _space = Space.World;
 
-    @serializable
+    @property
     private _particleSystem: any = null;
 
     private _minSquaredDistance: number = 0;
@@ -290,11 +288,11 @@ export default class TrailModule {
     private ibOffset: number = 0;
     private _trailSegments: Pool<TrailSegment> | null = null;
     private _particleTrail: Map<Particle, TrailSegment>;
-    private _trailModel: scene.Model | null = null;
-    private _iaInfo: GFXIndirectBuffer;
+    private _trailModel: Model | null = null;
+    private _iaInfo: IGFXIndirectBuffer;
     private _iaInfoBuffer: GFXBuffer | null = null;
     private _subMeshData: RenderingSubMesh | null = null;
-    private _vertAttrs: GFXAttribute[];
+    private _vertAttrs: IGFXAttribute[];
     private _vbF32: Float32Array | null = null;
     private _vbUint32: Uint32Array | null = null;
     private _iBuffer: Uint16Array | null = null;
@@ -302,14 +300,24 @@ export default class TrailModule {
     private _material: Material | null = null;
 
     constructor () {
-        this._iaInfo = new GFXIndirectBuffer([new GFXDrawInfo()]);
+        this._iaInfo = {
+            drawInfos: [{
+                vertexCount: 0,
+                firstVertex: 0,
+                indexCount: 0,
+                firstIndex: 0,
+                vertexOffset: 0,
+                instanceCount: 0,
+                firstInstance: 0,
+            }],
+        };
 
         this._vertAttrs = [
-            new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),   // xyz:position
-            new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RGBA32F), // x:index y:size zw:texcoord
-            // new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD2, GFXFormat.RGB32F), // <wireframe debug>
-            new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD1, GFXFormat.RGB32F), // xyz:velocity
-            new GFXAttribute(GFXAttributeName.ATTR_COLOR, GFXFormat.RGBA8, true),
+            { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F }, // xyz:position
+            { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RGBA32F }, // x:index y:size zw:texcoord
+            // { name: GFXAttributeName.ATTR_TEX_COORD2, format: GFXFormat.RGB32F }, // <wireframe debug>
+            { name: GFXAttributeName.ATTR_TEX_COORD1, format: GFXFormat.RGB32F }, // xyz:velocity
+            { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA8, isNormalized: true },
         ];
         this._vertSize = 0;
         for (const a of this._vertAttrs) {
@@ -549,8 +557,8 @@ export default class TrailModule {
             const subModel = subModels[0];
             subModel.inputAssembler!.vertexBuffers[0].update(this._vbF32!);
             subModel.inputAssembler!.indexBuffer!.update(this._iBuffer!);
-            this._iaInfo.drawInfos[0].firstIndex = 0;
-            this._iaInfo.drawInfos[0].indexCount = count;
+            subModel.inputAssembler!.indexCount = count;
+            this._iaInfo.drawInfos[0] = subModel.inputAssembler!;
             this._iaInfoBuffer!.update(this._iaInfo);
         }
     }
@@ -560,50 +568,49 @@ export default class TrailModule {
             return;
         }
 
-        this._trailModel = legacyCC.director.root.createModel(scene.Model);
+        this._trailModel = legacyCC.director.root.createModel(Model);
     }
 
     private rebuild () {
         const device: GFXDevice = director.root!.device;
-        const vertexBuffer = device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            this._vertSize * (this._trailNum + 1) * 2,
-            this._vertSize,
-        ));
+        const vertexBuffer = device.createBuffer({
+            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: this._vertSize * (this._trailNum + 1) * 2,
+            stride: this._vertSize,
+        });
         const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertSize * (this._trailNum + 1) * 2);
         this._vbF32 = new Float32Array(vBuffer);
         this._vbUint32 = new Uint32Array(vBuffer);
         vertexBuffer.update(vBuffer);
 
-        const indexBuffer = device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            this._trailNum * 6 * Uint16Array.BYTES_PER_ELEMENT,
-            Uint16Array.BYTES_PER_ELEMENT,
-        ));
+        const indexBuffer = device.createBuffer({
+            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: this._trailNum * 6 * Uint16Array.BYTES_PER_ELEMENT,
+            stride: Uint16Array.BYTES_PER_ELEMENT,
+        });
         this._iBuffer = new Uint16Array(this._trailNum * 6);
         indexBuffer.update(this._iBuffer);
 
-        this._iaInfoBuffer = device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.INDIRECT,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            GFX_DRAW_INFO_SIZE,
-            GFX_DRAW_INFO_SIZE,
-        ));
+        this._iaInfoBuffer = device.createBuffer({
+            usage: GFXBufferUsageBit.INDIRECT,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: GFX_DRAW_INFO_SIZE,
+            stride: GFX_DRAW_INFO_SIZE,
+        });
         this._iaInfo.drawInfos[0].vertexCount = (this._trailNum + 1) * 2;
         this._iaInfo.drawInfos[0].indexCount = this._trailNum * 6;
         this._iaInfoBuffer.update(this._iaInfo);
 
-        this._subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs!, GFXPrimitiveMode.TRIANGLE_LIST, indexBuffer, this._iaInfoBuffer);
+        this._subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs!, GFXPrimitiveMode.TRIANGLE_LIST);
+        this._subMeshData.indexBuffer = indexBuffer;
+        this._subMeshData.indirectBuffer = this._iaInfoBuffer;
 
-        const trailModel = this._trailModel;
-        if (trailModel) {
-            trailModel.node = trailModel.transform = this._particleSystem.node;
-            trailModel.visFlags = this._particleSystem.visibility;
-            trailModel.initSubModel(0, this._subMeshData, this._material!);
-            trailModel.enabled = true;
-        }
+        this._trailModel!.initialize(this._particleSystem.node);
+        this._trailModel!.visFlags = this._particleSystem.visibility;
+        this._trailModel!.initSubModel(0, this._subMeshData, this._material!);
+        this._trailModel!.enabled = true;
     }
 
     private _updateTrailElement (module: any, trailEle: ITrailElement, p: Particle, dt: number): boolean {

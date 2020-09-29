@@ -1,4 +1,4 @@
-import { GFXDescriptorSetLayout, GFXDescriptorSetLayoutInfo, DESCRIPTOR_DYNAMIC_TYPE } from '../descriptor-set-layout';
+import { GFXDescriptorSetLayout, IGFXDescriptorSetLayoutInfo, DESCRIPTOR_DYNAMIC_TYPE } from '../descriptor-set-layout';
 import { IWebGLGPUDescriptorSetLayout } from './webgl-gpu-objects';
 
 export class WebGLDescriptorSetLayout extends GFXDescriptorSetLayout {
@@ -7,16 +7,8 @@ export class WebGLDescriptorSetLayout extends GFXDescriptorSetLayout {
 
     private _gpuDescriptorSetLayout: IWebGLGPUDescriptorSetLayout | null = null;
 
-    public initialize (info: GFXDescriptorSetLayoutInfo) {
+    public initialize (info: IGFXDescriptorSetLayoutInfo) {
         Array.prototype.push.apply(this._bindings, info.bindings);
-
-        let descriptorCount = 0;
-        for (let i = 0; i < this._bindings.length; i++) {
-            const binding = this._bindings[i];
-            this._descriptorIndices.push(descriptorCount);
-            descriptorCount += binding.count;
-        }
-        this._descriptorIndices.push(descriptorCount);
 
         const dynamicBindings: number[] = [];
         for (let i = 0; i < this._bindings.length; i++) {
@@ -31,8 +23,6 @@ export class WebGLDescriptorSetLayout extends GFXDescriptorSetLayout {
         this._gpuDescriptorSetLayout = {
             bindings: this._bindings,
             dynamicBindings,
-            descriptorIndices: this._descriptorIndices,
-            descriptorCount,
         };
 
         return true;

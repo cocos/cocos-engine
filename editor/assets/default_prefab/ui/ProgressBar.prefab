@@ -114,7 +114,7 @@
     "_id": ""
   },
   {
-    "__type__": "cc.UITransform",
+    "__type__": "cc.UITransformComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -135,7 +135,7 @@
     "_priority": 0
   },
   {
-    "__type__": "cc.Sprite",
+    "__type__": "cc.SpriteComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -185,7 +185,7 @@
     }
   },
   {
-    "__type__": "cc.UITransform",
+    "__type__": "cc.UITransformComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -206,7 +206,7 @@
     "_priority": 0
   },
   {
-    "__type__": "cc.Sprite",
+    "__type__": "cc.SpriteComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -241,7 +241,7 @@
     "_id": ""
   },
   {
-    "__type__": "cc.ProgressBar",
+    "__type__": "cc.ProgressBarComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {

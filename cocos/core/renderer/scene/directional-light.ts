@@ -1,7 +1,6 @@
 import { Quat, Vec3, Vec4 } from '../../math';
 import { Ambient } from './ambient';
 import { Light, LightType } from './light';
-import { LightPool, LightView } from '../core/memory-pools';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -66,6 +65,7 @@ export class DirectionalLight extends Light {
     }
 
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
+    protected _illum: number = Ambient.SUN_ILLUM;
 
     // shadow
     private _shadowRange: number = 1000.0;
@@ -81,7 +81,6 @@ export class DirectionalLight extends Light {
     set direction (dir: Vec3) {
         this._dir = dir;
         Vec3.normalize(this._dir, this._dir);
-        LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
     }
 
     get direction (): Vec3 {
@@ -90,22 +89,16 @@ export class DirectionalLight extends Light {
 
     // in Lux(lx)
     set illuminance (illum: number) {
-        LightPool.set(this._handle, LightView.ILLUMINANCE, illum);
+        this._illum = illum;
     }
 
     get illuminance (): number {
-        return LightPool.get(this._handle, LightView.ILLUMINANCE);
+        return this._illum;
     }
 
     constructor () {
         super();
         this._type = LightType.DIRECTIONAL;
-    }
-
-    public initialize () {
-        super.initialize();
-        LightPool.set(this._handle, LightView.ILLUMINANCE, Ambient.SUN_ILLUM);
-        LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
     }
 
     public update () {

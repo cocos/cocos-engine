@@ -6,8 +6,6 @@ export * from './exports/base';
 export * from './exports/gfx-webgl';
 export * from './exports/gfx-webgl2';
 export * from './exports/audio';
-export * from './exports/video';
-export * from './exports/webview';
 export * from './exports/particle';
 export * from './exports/ui';
 export * from './exports/tween';

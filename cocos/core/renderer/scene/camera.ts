@@ -1,14 +1,14 @@
 import { frustum, ray } from '../../geometry';
 import { GFXClearFlag, GFXColor } from '../../gfx/define';
-import { lerp, Mat4, Rect, toRadian, Vec3, Color, IVec4Like } from '../../math';
+import { lerp, Mat4, Rect, toRadian, Vec3 } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
-import { RenderView } from '../../pipeline';
+import { RenderView } from '../../pipeline/render-view';
 import { Node } from '../../scene-graph';
 import { RenderScene } from './render-scene';
 import { GFXDevice } from '../../gfx';
 import { legacyCC } from '../../global-exports';
-import { RenderWindow } from '../core/render-window';
-import { CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, FrustumView, NULL_HANDLE, SceneHandle } from '../core/memory-pools';
+import { RenderWindow } from '../../pipeline';
+import { CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, FrustumView, NULL_HANDLE } from '../core/memory-pools';
 import { JSB } from 'internal:constants';
 
 export enum CameraFOVAxis {
@@ -110,7 +110,7 @@ export class Camera {
     private _fov: number = toRadian(45);
     private _nearClip: number = 1.0;
     private _farClip: number = 1000.0;
-    private _clearColor = new GFXColor(0.2, 0.2, 0.2, 1);
+    private _clearColor: GFXColor = { r: 0.2, g: 0.2, b: 0.2, a: 1 };
     private _viewport: Rect = new Rect(0, 0, 1, 1);
     private _isProjDirty = true;
     private _matView: Mat4 = new Mat4();
@@ -133,7 +133,7 @@ export class Camera {
     private _isoValue: number = 0.0;
     private _ec: number = 0.0;
     private _poolHandle: CameraHandle = NULL_HANDLE;
-    private _frustumHandle: FrustumHandle = NULL_HANDLE;
+    private _frustumHandle: FrustumHandle = NULL_HANDLE;  
 
     constructor (device: GFXDevice) {
         this._device = device;
@@ -164,13 +164,13 @@ export class Camera {
         }
 
         this.updateExposure();
+
         this._view = legacyCC.director.root.createView({
             camera: this,
             name: this._name,
             priority: this._priority,
             flows: info.flows,
         });
-        legacyCC.director.root.attachCamera(this);
         this.changeTargetWindow(info.window);
 
         console.log('Created Camera: ' + this._name + ' ' + CameraPool.get(handle
@@ -178,20 +178,15 @@ export class Camera {
     }
 
     public destroy () {
-        legacyCC.director.root.detachCamera(this);
-        if (this._view) {
-            this._view.destroy();
-            this._view = null;
-        }
+        legacyCC.director.root.destroyView(this._view);
+        this._view = null;
         this._name = null;
         if (this._poolHandle) {
             CameraPool.free(this._poolHandle);
             this._poolHandle = NULL_HANDLE;
-            if (this._frustumHandle) {
-                FrustumPool.free(this._frustumHandle);
-                this._frustumHandle = NULL_HANDLE;
-            }
-        }
+            FrustumPool.free(this._frustumHandle);
+            this._frustumHandle = NULL_HANDLE;
+        } 
     }
 
     public attachToScene (scene: RenderScene) {
@@ -204,7 +199,7 @@ export class Camera {
 
     public detachFromScene () {
         this._scene = null;
-        CameraPool.set(this._poolHandle, CameraView.SCENE, 0 as unknown as SceneHandle);
+        CameraPool.set(this._poolHandle, CameraView.SCENE, 0);
         if (this._view) {
             this._view.enable(false);
         }
@@ -381,15 +376,14 @@ export class Camera {
     }
 
     set clearColor (val) {
-        this._clearColor.x = val.x;
-        this._clearColor.y = val.y;
-        this._clearColor.z = val.z;
-        this._clearColor.w = val.w;
-        CameraPool.setVec4(this._poolHandle, CameraView.CLEAR_COLOR, val);
+        this._clearColor.r = val.r;
+        this._clearColor.g = val.g;
+        this._clearColor.b = val.b;
+        this._clearColor.a = val.a;
     }
 
     get clearColor () {
-        return this._clearColor as IVec4Like;
+        return this._clearColor;
     }
 
     get viewport () {
@@ -404,7 +398,6 @@ export class Camera {
         this._viewport.width = val.width;
         this._viewport.height = val.height;
         CameraPool.setVec4(this._poolHandle, CameraView.VIEW_PORT, this._viewport);
-        this.resize(this.width, this.height);
     }
 
     get scene () {
@@ -416,11 +409,11 @@ export class Camera {
     }
 
     get width () {
-        return CameraPool.get(this._poolHandle, CameraView.WIDTH);
+        return CameraPool.get<number>(this._poolHandle, CameraView.WIDTH);
     }
 
     get height () {
-        return CameraPool.get(this._poolHandle, CameraView.HEIGHT);
+        return CameraPool.get<number>(this._poolHandle, CameraView.HEIGHT);
     }
 
     get aspect () {
@@ -579,7 +572,7 @@ export class Camera {
     }
 
     get exposure (): number {
-        return CameraPool.get(this._poolHandle, CameraView.EXPOSURE);
+        return CameraPool.get<number>(this._poolHandle, CameraView.EXPOSURE);
     }
 
     set flows (val: string[]) {
@@ -589,7 +582,7 @@ export class Camera {
     }
 
     get clearFlag () : GFXClearFlag {
-        return CameraPool.get(this._poolHandle, CameraView.CLEAR_FLAG);
+        return CameraPool.get<number>(this._poolHandle, CameraView.CLEAR_FLAG);
     }
 
     set clearFlag (flag: GFXClearFlag) {
@@ -597,7 +590,7 @@ export class Camera {
     }
 
     get clearDepth () : number {
-        return CameraPool.get(this._poolHandle, CameraView.CLEAR_DEPTH);
+        return CameraPool.get<number>(this._poolHandle, CameraView.CLEAR_DEPTH);
     }
 
     set clearDepth (depth: number) {
@@ -605,7 +598,7 @@ export class Camera {
     }
 
     get clearStencil () : number {
-        return CameraPool.get(this._poolHandle, CameraView.CLEAR_STENCIL);
+        return CameraPool.get<number>(this._poolHandle, CameraView.CLEAR_STENCIL);
     }
 
     set clearStencil (stencil: number) {
@@ -629,8 +622,8 @@ export class Camera {
      */
     public screenPointToRay (out: ray, x: number, y: number): ray {
         const handle = this._poolHandle;
-        const width = CameraPool.get(handle, CameraView.WIDTH);
-        const height = CameraPool.get(handle, CameraView.HEIGHT);
+        const width = CameraPool.get<number>(handle, CameraView.WIDTH);
+        const height = CameraPool.get<number>(handle, CameraView.HEIGHT);
         const cx = this._viewport.x * width;
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;
@@ -659,8 +652,8 @@ export class Camera {
      */
     public screenToWorld (out: Vec3, screenPos: Vec3): Vec3 {
         const handle = this._poolHandle;
-        const width = CameraPool.get(handle, CameraView.WIDTH);
-        const height = CameraPool.get(handle, CameraView.HEIGHT);
+        const width = CameraPool.get<number>(handle, CameraView.WIDTH);
+        const height = CameraPool.get<number>(handle, CameraView.HEIGHT);
         const cx = this._viewport.x * width;
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;
@@ -700,8 +693,8 @@ export class Camera {
      */
     public worldToScreen (out: Vec3, worldPos: Vec3): Vec3 {
         const handle = this._poolHandle;
-        const width = CameraPool.get(handle, CameraView.WIDTH);
-        const height = CameraPool.get(handle, CameraView.HEIGHT);
+        const width = CameraPool.get<number>(handle, CameraView.WIDTH);
+        const height = CameraPool.get<number>(handle, CameraView.HEIGHT);
         const cx = this._viewport.x * width;
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;
@@ -716,50 +709,32 @@ export class Camera {
         return out;
     }
 
-    /**
-     * transform a world space matrix to screen space
-     * @param {Mat4} out the resulting vector
-     * @param {Mat4} worldMatrix the world space matrix to be transformed
-     * @param {number} width framebuffer width
-     * @param {number} height framebuffer height
-     * @returns {Mat4} the resulting vector
-     */
-    public worldMatrixToScreen (out: Mat4, worldMatrix: Mat4, width: number, height: number){
-        Mat4.multiply(out, this._matViewProj, worldMatrix);
-        const halfWidth = width / 2;
-        const halfHeight = height / 2;
-        Mat4.identity(_tempMat1);
-        Mat4.transform(_tempMat1, _tempMat1, Vec3.set(v_a, halfWidth, halfHeight, 0));
-        Mat4.scale(_tempMat1, _tempMat1, Vec3.set(v_a, halfWidth, halfHeight, 1));
-
-        Mat4.multiply(out, _tempMat1, out);
-
-        return out;
-    }
-
     private updateExposure () {
         const ev100 = Math.log2((this._apertureValue * this._apertureValue) / this._shutterValue * 100.0 / this._isoValue);
         CameraPool.set(this._poolHandle, CameraView.EXPOSURE, 0.833333 / Math.pow(2.0, ev100));
     }
 
-    private recordFrustumInSharedMemory () {
+    private recordFrustumInSharedMemory() {
         const frustumHandle = this._frustumHandle;
-        const frstm = this._frustum;
-        if (!frstm || frustumHandle === NULL_HANDLE) {
+        const frustum = this._frustum;
+        if (!frustum || frustumHandle === NULL_HANDLE) {
             return;
         }
 
-        const vertices = frstm.vertices;
-        let vertexOffset = FrustumView.VERTICES as const;
+        const vertices = frustum.vertices;
+        let offset = FrustumView.VERTICES;
         for (let i = 0; i < 8; ++i) {
-            FrustumPool.setVec3(frustumHandle, vertexOffset, vertices[i]);
-            vertexOffset += 3;
+            FrustumPool.setVec3(frustumHandle, offset, vertices[i]);
+            offset += 3;
         }
 
-        const planes = frstm.planes;
-        let planeOffset = FrustumView.PLANES as const;
-        for (let i = 0; i < 6; i++, planeOffset += 4) {
-            FrustumPool.setVec4(frustumHandle, planeOffset, planes[i]);
+        const planes = frustum.planes;
+        offset = FrustumView.PLANES;
+        for (let i = 0; i < 6; ++i) {
+            FrustumPool.set(frustumHandle, offset, planes[i].d);
+            ++offset;
+            FrustumPool.setVec3(frustumHandle, offset, planes[i].n);
+            offset += 3;
         }
     }
 }

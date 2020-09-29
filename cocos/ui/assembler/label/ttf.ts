@@ -31,7 +31,7 @@
 import * as js from '../../../core/utils/js';
 import { Color, Vec3 } from '../../../core/math';
 import { UI } from '../../../core/renderer/ui/ui';
-import { Label } from '../../components/label';
+import { LabelComponent } from '../../components/label-component';
 import { IAssembler} from '../../../core/renderer/ui/base';
 import { ttfUtils } from './ttfUtils';
 import { IRenderData } from '../../../core/renderer/ui/render-data';
@@ -43,7 +43,7 @@ const WHITE = Color.WHITE.clone();
  * 可通过 `UI.ttf` 获取该组装器。
  */
 export const ttf: IAssembler = {
-    createData (comp: Label) {
+    createData (comp: LabelComponent) {
         const renderData = comp.requestRenderData();
 
         renderData!.dataLength = 4;
@@ -62,7 +62,7 @@ export const ttf: IAssembler = {
         return renderData;
     },
 
-    fillBuffers (comp: Label, renderer: UI) {
+    fillBuffers (comp: LabelComponent, renderer: UI) {
         const renderData = comp.renderData!;
         const dataList: IRenderData[] = renderData.data;
         const node = comp.node;
@@ -123,7 +123,7 @@ export const ttf: IAssembler = {
         iBuf[indicesOffset++] = vertexId + 3;
     },
 
-    updateVertexData (comp: Label) {
+    updateVertexData (comp: LabelComponent) {
         const renderData = comp.renderData;
         if (!renderData){
             return;

@@ -3,7 +3,7 @@
  * @category particle
  */
 
-import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
+import { ccclass, property, tooltip, displayOrder, type } from '../../core/data/class-decorator';
 import { pseudoRandom, Vec3 } from '../../core/math';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
@@ -14,7 +14,7 @@ const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
 
 @ccclass('cc.SizeOvertimeModule')
 export default class SizeOvertimeModule extends ParticleModuleBase {
-    @serializable
+    @property
     _enable: Boolean = false;
     /**
      * @zh 是否启用。
@@ -34,7 +34,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
     /**
      * @zh 决定是否在每个轴上独立控制粒子大小。
      */
-    @serializable
+    @property
     @displayOrder(1)
     @tooltip('决定是否在每个轴上独立控制粒子大小')
     public separateAxes = false;
@@ -43,7 +43,6 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
      * @zh 定义一条曲线来决定粒子在其生命周期中的大小变化。
      */
     @type(CurveRange)
-    @serializable
     @displayOrder(2)
     @tooltip('定义一条曲线来决定粒子在其生命周期中的大小变化')
     public size = new CurveRange();
@@ -52,7 +51,6 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
      * @zh 定义一条曲线来决定粒子在其生命周期中 X 轴方向上的大小变化。
      */
     @type(CurveRange)
-    @serializable
     @displayOrder(3)
     @tooltip('定义一条曲线来决定粒子在其生命周期中 X 轴方向上的大小变化')
     public x = new CurveRange();
@@ -61,7 +59,6 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
      * @zh 定义一条曲线来决定粒子在其生命周期中 Y 轴方向上的大小变化。
      */
     @type(CurveRange)
-    @serializable
     @displayOrder(4)
     @tooltip('定义一条曲线来决定粒子在其生命周期中 Y 轴方向上的大小变化')
     public y = new CurveRange();
@@ -70,7 +67,6 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
      * @zh 定义一条曲线来决定粒子在其生命周期中 Z 轴方向上的大小变化。
      */
     @type(CurveRange)
-    @serializable
     @displayOrder(5)
     @tooltip('定义一条曲线来决定粒子在其生命周期中 Z 轴方向上的大小变化')
     public z = new CurveRange();

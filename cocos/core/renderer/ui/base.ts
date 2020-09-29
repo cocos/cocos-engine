@@ -29,12 +29,12 @@
  */
 
 
-import { UIRenderable } from '../../components/ui-base/ui-renderable';
+import { UIRenderComponent } from '../../components/ui-base/ui-render-component';
 
 export interface IAssembler {
     [key: string]: any;
 }
 
 export interface IAssemblerManager {
-    getAssembler (component: UIRenderable): IAssembler;
+    getAssembler (component: UIRenderComponent): IAssembler;
 }

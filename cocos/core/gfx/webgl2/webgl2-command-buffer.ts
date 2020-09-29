@@ -1,6 +1,6 @@
 import { GFXDescriptorSet } from '../descriptor-set';
 import { GFXBuffer, GFXBufferSource } from '../buffer';
-import { GFXCommandBuffer, GFXCommandBufferInfo } from '../command-buffer';
+import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import {
     GFXBufferTextureCopy,
     GFXBufferUsageBit,
@@ -76,19 +76,12 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
     protected _curStencilCompareMask: IWebGL2StencilCompareMask | null = null;
     protected _isStateInvalied: boolean = false;
 
-
-    public initialize (info: GFXCommandBufferInfo): boolean {
+    public initialize (info: IGFXCommandBufferInfo): boolean {
 
         this._type = info.type;
         this._queue = info.queue;
 
         this._webGLAllocator = (this._device as WebGL2Device).cmdAllocator;
-
-        const setCount = (this._device as WebGL2Device).bindingMappingInfo.bufferOffsets.length;
-        for (let i = 0; i < setCount; i++) {
-            this._curGPUDescriptorSets.push(null!);
-            this._curDynamicOffsets.push([]);
-        }
 
         return true;
     }
@@ -103,11 +96,8 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
     public begin (renderPass?: GFXRenderPass, subpass = 0, frameBuffer?: GFXFramebuffer) {
         this._webGLAllocator!.clearCmds(this.cmdPackage);
         this._curGPUPipelineState = null;
-        this._curGPUInputAssembler = null;
         this._curGPUDescriptorSets.length = 0;
-        for (let i = 0; i < this._curDynamicOffsets.length; i++) {
-            this._curDynamicOffsets[i].length = 0;
-        }
+        this._curGPUInputAssembler = null;
         this._curViewport = null;
         this._curScissor = null;
         this._curLineWidth = null;
@@ -119,6 +109,9 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
         this._numDrawCalls = 0;
         this._numInstances = 0;
         this._numTris = 0;
+        for (let i = 0; i < this._curDynamicOffsets.length; i++) {
+            if (this._curDynamicOffsets[i]) this._curDynamicOffsets[i].length = 0;
+        }
     }
 
     public end () {
@@ -171,9 +164,9 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
             this._isStateInvalied = true;
         }
         if (dynamicOffsets) {
-            const offsets = this._curDynamicOffsets[set];
-            for (let i = 0; i < dynamicOffsets.length; i++) offsets[i] = dynamicOffsets[i];
-            offsets.length = dynamicOffsets.length;
+            const curOffsets = this._curDynamicOffsets[set] || (this._curDynamicOffsets[set] = []);
+            for (let i = 0; i < dynamicOffsets.length; i++) curOffsets[i] = dynamicOffsets[i];
+            curOffsets.length = dynamicOffsets.length;
             this._isStateInvalied = true;
         }
     }
@@ -186,7 +179,14 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
 
     public setViewport (viewport: GFXViewport) {
         if (!this._curViewport) {
-            this._curViewport = new GFXViewport(viewport.left, viewport.top, viewport.width, viewport.height, viewport.minDepth, viewport.maxDepth);
+            this._curViewport = {
+                left: viewport.left,
+                top: viewport.top,
+                width: viewport.width,
+                height: viewport.height,
+                minDepth: viewport.minDepth,
+                maxDepth: viewport.maxDepth,
+            };
         } else {
             if (this._curViewport.left !== viewport.left ||
                 this._curViewport.top !== viewport.top ||
@@ -208,7 +208,12 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
 
     public setScissor (scissor: GFXRect) {
         if (!this._curScissor) {
-            this._curScissor = new GFXRect(scissor.x, scissor.y, scissor.width, scissor.height);
+            this._curScissor = {
+                x: scissor.x,
+                y: scissor.y,
+                width: scissor.width,
+                height: scissor.height,
+            };
         } else {
             if (this._curScissor.x !== scissor.x ||
                 this._curScissor.y !== scissor.y ||
@@ -369,21 +374,16 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
             const gpuBuffer = (buffer as WebGL2Buffer).gpuBuffer;
             if (gpuBuffer) {
                 const cmd = this._webGLAllocator!.updateBufferCmdPool.alloc(WebGL2CmdUpdateBuffer);
-                let buffSize = 0;
-                let buff: GFXBufferSource | null = null;
-
-                // TODO: Have to copy to staging buffer first to make this work for the execution is deferred.
-                // But since we are using specialized primary command buffers in WebGL backends, we leave it as is for now
-                if (buffer.usage & GFXBufferUsageBit.INDIRECT) {
-                    buff = data;
+                let buffSize;
+                if (size !== undefined ) {
+                    buffSize = size;
+                } else if (buffer.usage & GFXBufferUsageBit.INDIRECT) {
+                    buffSize = 0;
                 } else {
-                    if (size !== undefined) {
-                        buffSize = size;
-                    } else {
-                        buffSize = (data as ArrayBuffer).byteLength;
-                    }
-                    buff = data;
+                    buffSize = (data as ArrayBuffer).byteLength;
                 }
+
+                const buff = data as ArrayBuffer;
 
                 cmd.gpuBuffer = gpuBuffer;
                 cmd.buffer = buff;
@@ -399,18 +399,17 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
     }
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
+
         if (this._type === GFXCommandBufferType.PRIMARY && !this._isInRenderPass ||
             this._type === GFXCommandBufferType.SECONDARY) {
             const gpuTexture = (texture as WebGL2Texture).gpuTexture;
             if (gpuTexture) {
                 const cmd = this._webGLAllocator!.copyBufferToTextureCmdPool.alloc(WebGL2CmdCopyBufferToTexture);
                 cmd.gpuTexture = gpuTexture;
-                cmd.regions = regions;
-                // TODO: Have to copy to staging buffer first to make this work for the execution is deferred.
-                // But since we are using specialized primary command buffers in WebGL backends, we leave it as is for now
                 cmd.buffers = buffers;
-
+                cmd.regions = regions;
                 this.cmdPackage.copyBufferToTextureCmds.push(cmd);
+
                 this.cmdPackage.cmds.push(WebGL2Cmd.COPY_BUFFER_TO_TEXTURE);
             }
         } else {
@@ -419,6 +418,7 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
     }
 
     public execute (cmdBuffs: GFXCommandBuffer[], count: number) {
+
         for (let i = 0; i < count; ++i) {
             const webGL2CmdBuff = cmdBuffs[i] as WebGL2CommandBuffer;
 

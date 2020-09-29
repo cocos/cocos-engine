@@ -2,12 +2,12 @@
  * @hidden
  */
 
-import { GFXAttributeName, GFXBuffer, GFXBufferUsageBit, GFXDevice, GFXFeature, GFXMemoryUsageBit, GFXDescriptorSet, GFXBufferInfo } from '../gfx';
+import { GFXAttributeName, GFXBuffer, GFXBufferUsageBit, GFXDevice, GFXFeature, GFXMemoryUsageBit, GFXDescriptorSet } from '../gfx';
 import { Mesh } from './mesh';
 import { Texture2D } from './texture-2d';
 import { ImageAsset } from './image-asset';
 import { samplerLib } from '../renderer/core/sampler-lib';
-import { UBOMorph, UNIFORM_NORMAL_MORPH_TEXTURE_BINDING, UNIFORM_POSITION_MORPH_TEXTURE_BINDING, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING } from '../pipeline/define';
+import { UBOMorph, UniformNormalMorphTexture, UniformPositionMorphTexture, UniformTangentMorphTexture } from '../pipeline/define';
 import { warn, warnID } from '../platform/debug';
 import { Morph, MorphRendering, MorphRenderingInstance, SubMeshMorph } from './morph';
 import { assertIsNonNullable, assertIsTrue } from '../data/utils/asserts';
@@ -208,8 +208,7 @@ class GpuComputing implements SubMeshMorphRendering {
                     const displacementsView = morphTarget.displacements[attributeIndex];
                     const displacements = new Float32Array(mesh.data.buffer, mesh.data.byteOffset + displacementsView.offset, displacementsView.count);
                     const nVec3s = displacements.length / 3;
-                    // See `Mesh.prototype.enableVertexIdChannel` for the magic `0.5`.
-                    valueView[pHead] = nVec4s + 0.5;
+                    valueView[pHead] = nVec4s;
                     const displacementsOffset = nVec4s * 4;
                     for (let iVec3 = 0; iVec3 < nVec3s; ++iVec3) {
                         valueView[displacementsOffset + 4 * iVec3 + 0] = displacements[3 * iVec3 + 0];
@@ -252,9 +251,9 @@ class GpuComputing implements SubMeshMorphRendering {
                 for (const attribute of this._attributes) {
                     let binding: number | undefined;
                     switch (attribute.name) {
-                        case GFXAttributeName.ATTR_POSITION: binding = UNIFORM_POSITION_MORPH_TEXTURE_BINDING; break;
-                        case GFXAttributeName.ATTR_NORMAL: binding = UNIFORM_NORMAL_MORPH_TEXTURE_BINDING; break;
-                        case GFXAttributeName.ATTR_TANGENT: binding = UNIFORM_TANGENT_MORPH_TEXTURE_BINDING; break;
+                        case GFXAttributeName.ATTR_POSITION: binding = UniformPositionMorphTexture.binding; break;
+                        case GFXAttributeName.ATTR_NORMAL: binding = UniformNormalMorphTexture.binding; break;
+                        case GFXAttributeName.ATTR_TANGENT: binding = UniformTangentMorphTexture.binding; break;
                         default:
                             warn(`Unexpected attribute!`); break;
                     }
@@ -263,7 +262,7 @@ class GpuComputing implements SubMeshMorphRendering {
                         descriptorSet.bindTexture(binding, attribute.morphTexture.texture);
                     }
                 }
-                descriptorSet.bindBuffer(UBOMorph.BINDING, morphUniforms.buffer);
+                descriptorSet.bindBuffer(UBOMorph.BLOCK.binding, morphUniforms.buffer);
                 descriptorSet.update();
             },
 
@@ -378,15 +377,15 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
                     let min = Number.POSITIVE_INFINITY;
                     let max = Number.NEGATIVE_INFINITY;
                     for (let i = 0; i < n; ++i) {
-                        const x = valueView[i * 4 + c];
+                        const x = valueView[i * 3 + c];
                         max = Math.max(x, max);
                         min = Math.min(x, min);
                     }
                     const d = max - min;
                     if (d !== 0) {
                         for (let i = 0; i < n; ++i) {
-                            const x = valueView[i * 4 + c];
-                            valueView[i * 4 + c] = (x - min) / d;
+                            const x = valueView[i * 3 + c];
+                            valueView[i * 3 + c] = (x - min) / d;
                         }
                     }
                 }
@@ -419,9 +418,9 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
             const attributeName = attribute.attributeName;
             let binding: number | undefined;
             switch (attributeName) {
-                case GFXAttributeName.ATTR_POSITION: binding = UNIFORM_POSITION_MORPH_TEXTURE_BINDING; break;
-                case GFXAttributeName.ATTR_NORMAL: binding = UNIFORM_NORMAL_MORPH_TEXTURE_BINDING; break;
-                case GFXAttributeName.ATTR_TANGENT: binding = UNIFORM_TANGENT_MORPH_TEXTURE_BINDING; break;
+                case GFXAttributeName.ATTR_POSITION: binding = UniformPositionMorphTexture.binding; break;
+                case GFXAttributeName.ATTR_NORMAL: binding = UniformNormalMorphTexture.binding; break;
+                case GFXAttributeName.ATTR_TANGENT: binding = UniformTangentMorphTexture.binding; break;
                 default:
                     warn(`Unexpected attribute!`); break;
             }
@@ -430,7 +429,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
                 descriptorSet.bindTexture(binding, attribute.morphTexture.texture);
             }
         }
-        descriptorSet.bindBuffer(UBOMorph.BINDING, this._morphUniforms.buffer);
+        descriptorSet.bindBuffer(UBOMorph.BLOCK.binding, this._morphUniforms.buffer);
         descriptorSet.update();
     }
 
@@ -454,12 +453,12 @@ class MorphUniforms {
     constructor (gfxDevice: GFXDevice, targetCount: number) {
         this._targetCount = targetCount;
         this._localBuffer = new DataView(new ArrayBuffer(UBOMorph.SIZE));
-        this._remoteBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            UBOMorph.SIZE,
-            UBOMorph.SIZE,
-        ));
+        this._remoteBuffer = gfxDevice.createBuffer({
+            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: UBOMorph.SIZE,
+            stride: UBOMorph.SIZE,
+        });
     }
 
     public destroy () {

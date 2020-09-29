@@ -27,9 +27,9 @@
  * @hidden
  */
 
-import { GFXAddress, GFXComparisonFunc, GFXFilter, GFXColor } from '../../gfx/define';
+import { GFXAddress, GFXComparisonFunc, GFXFilter } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
-import { GFXSampler, GFXSamplerInfo } from '../../gfx/sampler';
+import { GFXSampler, IGFXSamplerInfo } from '../../gfx/sampler';
 import { legacyCC } from '../../global-exports';
 
 export enum SamplerInfoIndex {
@@ -60,9 +60,9 @@ const defaultInfo = [
 ];
 export const defaultSamplerHash = genSamplerHash(defaultInfo);
 
-const borderColor = new GFXColor();
+const borderColor = { r: 0, g: 0, b: 0, a: 0 };
 
-const _samplerInfo = new GFXSamplerInfo();
+const gfxInfo: IGFXSamplerInfo = {};
 
 export function genSamplerHash (info: (number | undefined)[]): number {
     let value = 0;
@@ -105,20 +105,20 @@ class SamplerLib {
         const cache = this._cache[hash];
         if (cache) { return cache; }
 
-        _samplerInfo.minFilter     = (hash & 3);
-        _samplerInfo.magFilter     = ((hash >> 2) & 3);
-        _samplerInfo.mipFilter     = ((hash >> 4) & 3);
-        _samplerInfo.addressU      = ((hash >> 6) & 3);
-        _samplerInfo.addressV      = ((hash >> 8) & 3);
-        _samplerInfo.addressW      = ((hash >> 10) & 3);
-        _samplerInfo.maxAnisotropy = ((hash >> 12) & 15);
-        _samplerInfo.cmpFunc       = ((hash >> 16) & 15);
-        _samplerInfo.minLOD        = ((hash >> 20) & 15);
-        _samplerInfo.maxLOD        = ((hash >> 24) & 15);
-        _samplerInfo.mipLODBias    = ((hash >> 28) & 15);
-        _samplerInfo.borderColor   = borderColor;
+        gfxInfo.minFilter     = (hash & 3);
+        gfxInfo.magFilter     = ((hash >> 2) & 3);
+        gfxInfo.mipFilter     = ((hash >> 4) & 3);
+        gfxInfo.addressU      = ((hash >> 6) & 3);
+        gfxInfo.addressV      = ((hash >> 8) & 3);
+        gfxInfo.addressW      = ((hash >> 10) & 3);
+        gfxInfo.maxAnisotropy = ((hash >> 12) & 15);
+        gfxInfo.cmpFunc       = ((hash >> 16) & 15);
+        gfxInfo.minLOD        = ((hash >> 20) & 15);
+        gfxInfo.maxLOD        = ((hash >> 24) & 15);
+        gfxInfo.mipLODBias    = ((hash >> 28) & 15);
+        gfxInfo.borderColor   = borderColor;
 
-        const sampler = this._cache[hash] = device.createSampler(_samplerInfo);
+        const sampler = this._cache[hash] = device.createSampler(gfxInfo);
         return sampler;
     }
 }

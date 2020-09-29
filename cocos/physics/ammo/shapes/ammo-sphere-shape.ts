@@ -1,6 +1,7 @@
 import Ammo from '../ammo-instantiated';
+import { Vec3 } from "../../../core";
 import { AmmoShape } from "./ammo-shape";
-import { SphereCollider } from '../../../../exports/physics-framework';
+import { SphereColliderComponent } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ISphereShape } from '../../spec/i-physics-shape';
@@ -20,7 +21,7 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
     }
 
     get collider () {
-        return this._collider as SphereCollider;
+        return this._collider as SphereColliderComponent;
     }
 
     constructor () {

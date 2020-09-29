@@ -27,9 +27,9 @@
  * @category scene-graph
  */
 
-import { ccclass, serializable, editable } from 'cc.decorator';
+import { ccclass, property } from '../data/class-decorator';
 import { Mat4, Quat, Vec3 } from '../math';
-import { assert, getError } from '../platform/debug';
+import { warnID, assert, getError } from '../platform/debug';
 import { RenderScene } from '../renderer/scene/render-scene';
 import { BaseNode } from './base-node';
 import { EDITOR, TEST } from 'internal:constants';
@@ -55,7 +55,6 @@ export class Scene extends BaseNode {
         return this._renderScene;
     }
 
-    @editable
     get globals () {
         return this._globals;
     }
@@ -64,15 +63,14 @@ export class Scene extends BaseNode {
      * @en Indicates whether all (directly or indirectly) static referenced assets of this scene are releasable by default after scene unloading.
      * @zh 指示该场景中直接或间接静态引用到的所有资源是否默认在场景切换后自动释放。
      */
-    @serializable
-    @editable
+    @property
     public autoReleaseAssets = false;
 
     /**
      * @en Per-scene level rendering info
      * @zh 场景级别的渲染信息
      */
-    @serializable
+    @property
     public _globals = new SceneGlobals();
 
     public _renderScene: RenderScene | null = null;

@@ -58,7 +58,7 @@
     "_id": ""
   },
   {
-    "__type__": "cc.UITransform",
+    "__type__": "cc.UITransformComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -78,7 +78,7 @@
     "_id": ""
   },
   {
-    "__type__": "cc.Canvas",
+    "__type__": "cc.CanvasComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {

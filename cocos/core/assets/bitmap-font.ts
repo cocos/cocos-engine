@@ -28,7 +28,7 @@
  * @category asset
  */
 
-import { ccclass, type, serializable, editable } from 'cc.decorator';
+import { ccclass, property, type } from '../data/class-decorator';
 import { Font } from './font';
 import { SpriteFrame } from './sprite-frame';
 import { legacyCC } from '../global-exports';
@@ -46,8 +46,7 @@ export interface IConfig {
  */
 @ccclass('cc.BitmapFont')
 export class BitmapFont extends Font {
-    @serializable
-    @editable
+    @property
     public fntDataStr = '';
 
     /**
@@ -61,16 +60,14 @@ export class BitmapFont extends Font {
      * @zh
      * 文字尺寸。
      */
-    @serializable
-    @editable
+    @property
     public fontSize = -1;
 
     /**
      * @zh
      * 文字配置。
      */
-    @serializable
-    @editable
+    @property
     public fntConfig: IConfig | null = null;
 }
 

@@ -54,7 +54,7 @@
     "_id": ""
   },
   {
-    "__type__": "cc.ParticleSystem",
+    "__type__": "cc.ParticleSystemComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {

@@ -227,6 +227,8 @@ export class AnimationState extends Playable {
      *
      * @zh 迭代次数，指动画播放多少次后结束, normalize time。 如 2.5（2次半）。
      *
+     * @property repeatCount
+     * @type {Number}
      * @default 1
      */
     get repeatCount () {
@@ -453,7 +455,7 @@ export class AnimationState extends Playable {
 
     /**
      * @deprecated Since V1.1.1, animation states were no longer defined as event targets.
-     * To process animation events, use `Animation` instead.
+     * To process animation events, use `AnimationComponent` instead.
      */
     public emit (...args: any[]) {
         legacyCC.director.getAnimationManager().pushDelayEvent(this._emit, this, args);
@@ -461,7 +463,7 @@ export class AnimationState extends Playable {
 
     /**
      * @deprecated Since V1.1.1, animation states were no longer defined as event targets.
-     * To process animation events, use `Animation` instead.
+     * To process animation events, use `AnimationComponent` instead.
      */
     public on (type: string, callback: Function, target?: any) {
         if (this._target && this._target.isValid) {
@@ -473,7 +475,7 @@ export class AnimationState extends Playable {
 
     /**
      * @deprecated Since V1.1.1, animation states were no longer defined as event targets.
-     * To process animation events, use `Animation` instead.
+     * To process animation events, use `AnimationComponent` instead.
      */
     public once (type: string, callback: Function, target?: any) {
         if (this._target && this._target.isValid) {
@@ -485,7 +487,7 @@ export class AnimationState extends Playable {
 
     /**
      * @deprecated Since V1.1.1, animation states were no longer defined as event targets.
-     * To process animation events, use `Animation` instead.
+     * To process animation events, use `AnimationComponent` instead.
      */
     public off (type: string, callback: Function, target?: any) {
         if (this._target && this._target.isValid) {

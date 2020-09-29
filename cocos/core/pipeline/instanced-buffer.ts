@@ -3,12 +3,12 @@
  */
 
 import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXDevice, GFXTexture } from '../gfx';
-import { GFXBuffer, GFXBufferInfo } from '../gfx/buffer';
-import { GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute } from '../gfx/input-assembler';
-import { Pass } from '../renderer';
-import { IInstancedAttributeBlock, SubModel } from '../renderer/scene';
+import { GFXBuffer } from '../gfx/buffer';
+import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
+import { IInstancedAttributeBlock, Pass } from '../renderer';
+import { SubModel } from '../renderer/scene/submodel';
 import { SubModelView, SubModelPool, ShaderHandle, DescriptorSetHandle, PassHandle, NULL_HANDLE } from '../renderer/core/memory-pools';
-import { UNIFORM_LIGHTMAP_TEXTURE_BINDING } from './define';
+import { UniformLightingMapSampler } from './define';
 
 export interface IInstancedItem {
     count: number;
@@ -27,13 +27,17 @@ const MAX_CAPACITY = 1024;
 
 export class InstancedBuffer {
 
-    private static _buffers = new Map<Pass, Record<number, InstancedBuffer>>();
+    private static _buffers = new Map<Pass | number, InstancedBuffer>();
 
-    public static get (pass: Pass, extraKey = 0) {
+    public static get (pass: Pass, extraKey?: number) {
+        const hash = extraKey ? pass.hash ^ extraKey : pass.hash;
         const buffers = InstancedBuffer._buffers;
-        if (!buffers.has(pass)) buffers.set(pass, {});
-        const record = buffers.get(pass)!;
-        return record[extraKey] || (record[extraKey] = new InstancedBuffer(pass));
+        if (!buffers.has(hash)) {
+            const buffer = new InstancedBuffer(pass);
+            buffers.set(hash, buffer);
+            return buffer;
+        }
+        return buffers.get(hash)!;
     }
 
     public instances: IInstancedItem[] = [];
@@ -60,9 +64,9 @@ export class InstancedBuffer {
         const stride = attrs.buffer.length;
         if (!stride) { return; } // we assume per-instance attributes are always present
         const sourceIA = subModel.inputAssembler;
-        const lightingMap = subModel.descriptorSet.getTexture(UNIFORM_LIGHTMAP_TEXTURE_BINDING);
-        const hShader = SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle;
-        const hDescriptorSet = SubModelPool.get(subModel.handle, SubModelView.DESCRIPTOR_SET);
+        const lightingMap = subModel.descriptorSet.getTexture(UniformLightingMapSampler.binding);
+        const hShader = SubModelPool.get<ShaderHandle>(subModel.handle, SubModelView.SHADER_0 + passIdx);
+        const hDescriptorSet = SubModelPool.get<DescriptorSetHandle>(subModel.handle, SubModelView.DESCRIPTOR_SET);
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             if (instance.ia.indexBuffer !== sourceIA.indexBuffer || instance.count >= MAX_CAPACITY) { continue; }
@@ -92,27 +96,31 @@ export class InstancedBuffer {
         }
 
         // Create a new instance
-        const vb = this._device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            stride * INITIAL_CAPACITY,
-            stride,
-        ));
+        const vb = this._device.createBuffer({
+            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: stride * INITIAL_CAPACITY, stride,
+        });
         const data = new Uint8Array(stride * INITIAL_CAPACITY);
         const vertexBuffers = sourceIA.vertexBuffers.slice();
         const attributes = sourceIA.attributes.slice();
-        const indexBuffer = sourceIA.indexBuffer;
+        const indexBuffer = sourceIA.indexBuffer || undefined;
 
         for (let i = 0; i < attrs.list.length; i++) {
             const attr = attrs.list[i];
-            const newAttr = new GFXAttribute(attr.name, attr.format, attr.isNormalized, vertexBuffers.length, true);
+            const newAttr: IGFXAttribute = {
+                name: attr.name,
+                format: attr.format,
+                stream: vertexBuffers.length,
+                isInstanced: true,
+            };
+            if (attr.isNormalized !== undefined) { newAttr.isNormalized = attr.isNormalized; }
             attributes.push(newAttr);
         }
         data.set(attrs.buffer);
 
         vertexBuffers.push(vb);
-        const iaInfo = new GFXInputAssemblerInfo(attributes, vertexBuffers, indexBuffer);
-        const ia = this._device.createInputAssembler(iaInfo);
+        const ia = this._device.createInputAssembler({ attributes, vertexBuffers, indexBuffer });
         this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vb, data, ia, stride, hShader, hDescriptorSet, lightingMap});
         this.hasPendingModels = true;
     }

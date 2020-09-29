@@ -14,7 +14,6 @@ import { WebGLFramebuffer } from './webgl-framebuffer';
 import { WebGLTexture } from './webgl-texture';
 import { GFXRenderPass } from '../render-pass';
 import { WebGLRenderPass } from './webgl-render-pass';
-import { GFXDrawInfo } from '../..';
 
 const _dynamicOffsets: number[] = [];
 
@@ -42,7 +41,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
                 this.bindStates();
             }
 
-            WebGLCmdFuncDraw(this._device as WebGLDevice, inputAssembler as unknown as GFXDrawInfo);
+            WebGLCmdFuncDraw(this._device as WebGLDevice, inputAssembler);
 
             ++this._numDrawCalls;
             this._numInstances += inputAssembler.instanceCount;
@@ -73,7 +72,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
                 if (offset === undefined) { offset = 0; }
 
                 let buffSize: number;
-                if (size !== undefined) {
+                if (size !== undefined ) {
                     buffSize = size;
                 } else if (buffer.usage & GFXBufferUsageBit.INDIRECT) {
                     buffSize = 0;
@@ -89,6 +88,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
     }
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
+
         if (!this._isInRenderPass) {
             const gpuTexture = (texture as WebGLTexture).gpuTexture;
             if (gpuTexture) {

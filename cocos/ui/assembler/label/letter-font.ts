@@ -31,20 +31,20 @@ import { ImageAsset, Texture2D } from '../../../core/assets';
 import { isUnicodeCJK, isUnicodeSpace, safeMeasureText} from '../../../core/utils';
 import { mixin } from '../../../core/utils/js';
 import { Color, Rect, Size, Vec2 } from '../../../core/math';
-import { GFXBufferTextureCopy, GFXExtent, GFXOffset, GFXTextureSubres } from '../../../core/gfx/define';
-import { Label, LabelOutline } from '../../components';
+import { GFXBufferTextureCopy } from '../../../core/gfx/define';
+import { LabelComponent, LabelOutlineComponent } from '../../components';
 import { ISharedLabelData } from './font-utils';
 import { PixelFormat } from '../../../core/assets/asset-enum';
 import { director, Director } from '../../../core/director';
 import { loader } from '../../../core/load-pipeline';
-import { UITransform } from '../../../core/components/ui-base/ui-transform';
+import { UITransformComponent } from '../../../core/components/ui-base/ui-transform-component';
 
-// const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutline, UIComponent);
-const Overflow = Label.Overflow;
+// const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutlineComponent, UIComponent);
+const Overflow = LabelComponent.Overflow;
 const WHITE = Color.WHITE.clone();
 const space = 2;
-const TextAlignment = Label.HorizontalAlign;
-const VerticalTextAlignment = Label.VerticalAlign;
+const TextAlignment = LabelComponent.HorizontalAlign;
+const VerticalTextAlignment = LabelComponent.VerticalAlign;
 
 interface ILabelInfo {
     fontSize: number;
@@ -106,11 +106,11 @@ class LetterTexture {
 
     public destroy () {
         this.image = null;
-        // Label._canvasPool.put(this._data);
+        // LabelComponent._canvasPool.put(this._data);
     }
 
     private _updateProperties () {
-        this.data = Label._canvasPool.get();
+        this.data = LabelComponent._canvasPool.get();
         this.canvas = this.data.canvas;
         this.context = this.data.context;
         if (this.context){
@@ -212,11 +212,26 @@ export class LetterRenderTexture extends Texture2D {
             return;
         }
 
-        const region = new GFXBufferTextureCopy();
-        region.texOffset.x = x;
-        region.texOffset.y = y;
-        region.texExtent.width = image.width;
-        region.texExtent.height = image.height;
+        const region: GFXBufferTextureCopy = {
+            buffStride: 0,
+            buffTexHeight: 0,
+            texOffset: {
+                x,
+                y,
+                z: 0,
+            },
+            texExtent: {
+                width: image.width,
+                height: image.height,
+                depth: 1,
+            },
+            texSubres: {
+                mipLevel: 0,
+                baseArrayLayer: 0,
+                layerCount: 1,
+            },
+        };
+
         gfxDevice.copyTexImagesToTexture([image.data as HTMLCanvasElement], gfxTexture, [region]);
     }
 }
@@ -394,8 +409,8 @@ export class LetterAtlas {
 
 const _tmpRect = new Rect();
 
-let _comp: Label | null = null;
-let _uiTrans: UITransform | null = null;
+let _comp: LabelComponent | null = null;
+let _uiTrans: UITransformComponent | null = null;
 
 const _horizontalKerning: number[] = [];
 const _lettersInfo: LetterInfo[] = [];
@@ -453,7 +468,7 @@ export const letterFont = {
         return _fontAtlas.texture;
     },
 
-    updateRenderData (comp: Label) {
+    updateRenderData (comp: LabelComponent) {
         if (!comp.renderData || !comp.renderData.vertDirty) {
             return;
         }
@@ -517,7 +532,7 @@ export const letterFont = {
         }
 
         // outline
-        const outline: LabelOutline | null = /*OUTLINE_SUPPORTED && */_comp.getComponent(LabelOutline);
+        const outline: LabelOutlineComponent | null = /*OUTLINE_SUPPORTED && */_comp.getComponent(LabelOutlineComponent);
         if (outline && outline.enabled) {
             _labelInfo.isOutlined = true;
             _labelInfo.margin = outline.width;
@@ -539,7 +554,7 @@ export const letterFont = {
 
     },
 
-    _updateFontFamily (comp: Label) {
+    _updateFontFamily (comp: LabelComponent) {
         if (!comp.useSystemFont) {
             if (comp.font) {
                 if (comp.font._nativeAsset) {

@@ -31,17 +31,17 @@ import { SpriteFrame, Texture2D } from '../../../core/assets';
 import { Component } from '../../../core/components/component';
 import { fragmentText, safeMeasureText, js, BASELINE_RATIO } from '../../../core/utils';
 import { Color, Size, Vec2 } from '../../../core/math';
-import { HorizontalTextAlignment, Label, LabelOutline, VerticalTextAlignment } from '../../components';
+import { HorizontalTextAlignment, LabelComponent, LabelOutlineComponent, VerticalTextAlignment } from '../../components';
 import { ISharedLabelData } from './font-utils';
 import { LetterRenderTexture } from './letter-font';
 import { loader } from '../../../core/load-pipeline';
 import { logID } from '../../../core/platform/debug';
 import { RUNTIME_BASED, MINIGAME } from 'internal:constants';
-import { UITransform } from '../../../core/components/ui-base/ui-transform';
+import { UITransformComponent } from '../../../core/components/ui-base/ui-transform-component';
 
-const Overflow = Label.Overflow;
+const Overflow = LabelComponent.Overflow;
 const WHITE = Color.WHITE.clone();
-const OUTLINE_SUPPORTED = js.isChildClassOf(LabelOutline, Component);
+const OUTLINE_SUPPORTED = js.isChildClassOf(LabelOutlineComponent, Component);
 
 let _context: CanvasRenderingContext2D | null = null;
 let _canvas: HTMLCanvasElement | null = null;
@@ -73,18 +73,18 @@ let _isUnderline = false;
 
 export const ttfUtils =  {
     getAssemblerData () {
-        const sharedLabelData = Label._canvasPool.get();
+        const sharedLabelData = LabelComponent._canvasPool.get();
         sharedLabelData.canvas.width = sharedLabelData.canvas.height = 1;
         return sharedLabelData;
     },
 
     resetAssemblerData (assemblerData: ISharedLabelData) {
         if (assemblerData) {
-            Label._canvasPool.put(assemblerData);
+            LabelComponent._canvasPool.put(assemblerData);
         }
     },
 
-    updateRenderData (comp: Label) {
+    updateRenderData (comp: LabelComponent) {
         if (!comp.renderData || !comp.renderData.vertDirty) { return; }
 
         let trans = comp.node._uiProps.uiTransformComp!;
@@ -108,10 +108,10 @@ export const ttfUtils =  {
         _texture = null;
     },
 
-    updateVertexData (comp: Label) {
+    updateVertexData (comp: LabelComponent) {
     },
 
-    _updateFontFamily (comp: Label) {
+    _updateFontFamily (comp: LabelComponent) {
         if (!comp.useSystemFont) {
             if (comp.font) {
                 if (comp.font._nativeAsset) {
@@ -134,7 +134,7 @@ export const ttfUtils =  {
         }
     },
 
-    _updateProperties (comp: Label, trans: UITransform) {
+    _updateProperties (comp: LabelComponent, trans: UITransformComponent) {
         const assemblerData = comp.assemblerData;
         if (!assemblerData){
             return;
@@ -169,7 +169,7 @@ export const ttfUtils =  {
         }
 
         // outline
-        const outline = OUTLINE_SUPPORTED && comp.getComponent(LabelOutline);
+        const outline = OUTLINE_SUPPORTED && comp.getComponent(LabelOutlineComponent);
         if (outline && outline.enabled) {
             _isOutlined = true;
             _margin = _outlineWidth = outline.width;

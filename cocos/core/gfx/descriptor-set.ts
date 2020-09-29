@@ -7,7 +7,7 @@ import { GFXDescriptorType, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 import { GFXSampler } from './sampler';
 import { GFXTexture } from './texture';
-import { GFXDescriptorSetLayout } from './descriptor-set-layout';
+import { GFXDescriptorSetLayout } from '..';
 
 export const DESCRIPTOR_BUFFER_TYPE =
     GFXDescriptorType.UNIFORM_BUFFER | GFXDescriptorType.DYNAMIC_UNIFORM_BUFFER |
@@ -15,12 +15,8 @@ export const DESCRIPTOR_BUFFER_TYPE =
 
 export const DESCRIPTOR_SAMPLER_TYPE = GFXDescriptorType.SAMPLER;
 
-export class GFXDescriptorSetInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public layout: GFXDescriptorSetLayout,
-    ) {}
+export interface IGFXDescriptorSetInfo {
+    layout: GFXDescriptorSetLayout;
 }
 
 /**
@@ -47,7 +43,7 @@ export abstract class GFXDescriptorSet extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: GFXDescriptorSetInfo): boolean;
+    public abstract initialize (info: IGFXDescriptorSetInfo): boolean;
 
     public abstract destroy (): void;
 
@@ -59,12 +55,11 @@ export abstract class GFXDescriptorSet extends GFXObject {
      * @param binding The target binding.
      * @param buffer The buffer to be bound.
      */
-    public bindBuffer (binding: number, buffer: GFXBuffer, index = 0) {
-        const info = this._layout!.bindings[binding];
-        const descriptorIndex = this._layout!.descriptorIndices[binding];
-        if (info && (info.descriptorType & DESCRIPTOR_BUFFER_TYPE)) {
-            if (this._buffers[descriptorIndex + index] !== buffer) {
-                this._buffers[descriptorIndex + index] = buffer;
+    public bindBuffer (binding: number, buffer: GFXBuffer) {
+        const descriptor = this._layout!.bindings[binding];
+        if (descriptor && (descriptor.descriptorType & DESCRIPTOR_BUFFER_TYPE)) {
+            if (this._buffers[binding] !== buffer) {
+                this._buffers[binding] = buffer;
                 this._isDirty = true;
             }
         } else {
@@ -78,12 +73,11 @@ export abstract class GFXDescriptorSet extends GFXObject {
      * @param binding The target binding.
      * @param sampler The sampler to be bound.
      */
-    public bindSampler (binding: number, sampler: GFXSampler, index = 0) {
-        const info = this._layout!.bindings[binding];
-        const descriptorIndex = this._layout!.descriptorIndices[binding];
-        if (info && (info.descriptorType & DESCRIPTOR_SAMPLER_TYPE)) {
-            if (this._samplers[descriptorIndex + index] !== sampler) {
-                this._samplers[descriptorIndex + index] = sampler;
+    public bindSampler (binding: number, sampler: GFXSampler) {
+        const descriptor = this._layout!.bindings[binding];
+        if (descriptor && (descriptor.descriptorType & DESCRIPTOR_SAMPLER_TYPE)) {
+            if (this._samplers[binding] !== sampler) {
+                this._samplers[binding] = sampler;
                 this._isDirty = true;
             }
         } else {
@@ -97,12 +91,11 @@ export abstract class GFXDescriptorSet extends GFXObject {
      * @param binding The target binding.
      * @param texture The texture to be bound.
      */
-    public bindTexture (binding: number, texture: GFXTexture, index = 0) {
-        const info = this._layout!.bindings[binding];
-        const descriptorIndex = this._layout!.descriptorIndices[binding];
-        if (info && (info.descriptorType & DESCRIPTOR_SAMPLER_TYPE)) {
-            if (this._textures[descriptorIndex + index] !== texture) {
-                this._textures[descriptorIndex + index] = texture;
+    public bindTexture (binding: number, texture: GFXTexture) {
+        const descriptor = this._layout!.bindings[binding];
+        if (descriptor && (descriptor.descriptorType & DESCRIPTOR_SAMPLER_TYPE)) {
+            if (this._textures[binding] !== texture) {
+                this._textures[binding] = texture;
                 this._isDirty = true;
             }
         } else {
@@ -115,9 +108,8 @@ export abstract class GFXDescriptorSet extends GFXObject {
      * @zh 获取当前指定绑定位置上的缓冲。
      * @param binding The target binding.
      */
-    public getBuffer (binding: number, index = 0) {
-        const descriptorIndex = this._layout!.descriptorIndices[binding];
-        return this._buffers[descriptorIndex + index];
+    public getBuffer (binding: number) {
+        return this._buffers[binding];
     }
 
     /**
@@ -125,9 +117,8 @@ export abstract class GFXDescriptorSet extends GFXObject {
      * @zh 获取当前指定绑定位置上的采样器。
      * @param binding The target binding.
      */
-    public getSampler (binding: number, index = 0) {
-        const descriptorIndex = this._layout!.descriptorIndices[binding];
-        return this._samplers[descriptorIndex + index];
+    public getSampler (binding: number) {
+        return this._samplers[binding];
     }
 
     /**
@@ -135,8 +126,7 @@ export abstract class GFXDescriptorSet extends GFXObject {
      * @zh 获取当前指定绑定位置上的贴图。
      * @param binding The target binding.
      */
-    public getTexture (binding: number, index = 0) {
-        const descriptorIndex = this._layout!.descriptorIndices[binding];
-        return this._textures[descriptorIndex + index];
+    public getTexture (binding: number) {
+        return this._textures[binding];
     }
 }

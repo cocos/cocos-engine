@@ -28,12 +28,12 @@
  */
 
 import { RenderingSubMesh, Mesh } from '../../core/assets/mesh';
-import { GFX_DRAW_INFO_SIZE, GFXBuffer, GFXIndirectBuffer, GFXBufferInfo, GFXDrawInfo } from '../../core/gfx/buffer';
+import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormatInfos,
     GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
-import { GFXAttribute } from '../../core/gfx/input-assembler';
+import { IGFXAttribute } from '../../core/gfx/input-assembler';
 import { Color } from '../../core/math/color';
-import { scene } from '../../core/renderer';
+import { Model, ModelType } from '../../core/renderer/scene/model';
 import { Particle } from '../particle';
 import { Material } from '../../core/assets';
 
@@ -44,16 +44,16 @@ const _uvs = [
     1, 1, // top-right
 ];
 
-export default class ParticleBatchModel extends scene.Model {
+export default class ParticleBatchModel extends Model {
 
     private _capacity: number;
-    private _vertAttrs: GFXAttribute[] | null;
+    private _vertAttrs: IGFXAttribute[] | null;
     private _vertSize: number;
     private _vBuffer: ArrayBuffer | null;
     private _vertAttrsFloatCount: number;
     private _vdataF32: Float32Array | null;
     private _vdataUint32: Uint32Array | null;
-    private _iaInfo: GFXIndirectBuffer;
+    private _iaInfo: IGFXIndirectBuffer;
     private _iaInfoBuffer: GFXBuffer;
     private _subMeshData: RenderingSubMesh | null;
     private _mesh: Mesh | null;
@@ -67,7 +67,7 @@ export default class ParticleBatchModel extends scene.Model {
     constructor () {
         super();
 
-        this.type = scene.ModelType.PARTICLE_BATCH;
+        this.type = ModelType.PARTICLE_BATCH;
         this._capacity = 0;
         this._vertAttrs = null;
         this._vertSize = 0;
@@ -75,13 +75,23 @@ export default class ParticleBatchModel extends scene.Model {
         this._vertAttrsFloatCount = 0;
         this._vdataF32 = null;
         this._vdataUint32 = null;
-        this._iaInfo = new GFXIndirectBuffer([new GFXDrawInfo()]);
-        this._iaInfoBuffer = this._device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.INDIRECT,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            GFX_DRAW_INFO_SIZE,
-            GFX_DRAW_INFO_SIZE,
-        ));
+        this._iaInfo = {
+            drawInfos: [{
+                vertexCount: 0,
+                firstVertex: 0,
+                indexCount: 0,
+                firstIndex: 0,
+                vertexOffset: 0,
+                instanceCount: 0,
+                firstInstance: 0,
+            }],
+        };
+        this._iaInfoBuffer = this._device.createBuffer({
+            usage: GFXBufferUsageBit.INDIRECT,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: GFX_DRAW_INFO_SIZE,
+            stride: GFX_DRAW_INFO_SIZE,
+        });
         this._subMeshData = null;
         this._mesh = null;
     }
@@ -89,12 +99,12 @@ export default class ParticleBatchModel extends scene.Model {
     public setCapacity (capacity: number) {
         const capChanged = this._capacity !== capacity;
         this._capacity = capacity;
-        if (this._subMeshData && capChanged) {
+        if (this._inited && capChanged) {
             this.rebuild();
         }
     }
 
-    public setVertexAttributes (mesh: Mesh | null, attrs: GFXAttribute[]) {
+    public setVertexAttributes (mesh: Mesh | null, attrs: IGFXAttribute[]) {
         if (this._mesh === mesh && this._vertAttrs === attrs) {
             return;
         }
@@ -118,12 +128,12 @@ export default class ParticleBatchModel extends scene.Model {
             this._vertCount = this._mesh.struct.vertexBundles[this._mesh.struct.primitives[0].vertexBundelIndices[0]].view.count;
             this._indexCount = this._mesh.struct.primitives[0].indexView!.count;
         }
-        const vertexBuffer = this._device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            this._vertSize * this._capacity * this._vertCount,
-            this._vertSize,
-        ));
+        const vertexBuffer = this._device.createBuffer({
+            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: this._vertSize * this._capacity * this._vertCount,
+            stride: this._vertSize,
+        });
         const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertSize * this._capacity * this._vertCount);
         if (this._mesh) {
             let vIdx = this._vertAttrs!.findIndex((val) => val.name === GFXAttributeName.ATTR_TEX_COORD3);
@@ -168,29 +178,31 @@ export default class ParticleBatchModel extends scene.Model {
             }
         }
 
-        const indexBuffer: GFXBuffer = this._device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            this._capacity * this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
-            Uint16Array.BYTES_PER_ELEMENT,
-        ));
+        const indexBuffer: GFXBuffer = this._device.createBuffer({
+            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: this._capacity * this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
+            stride: Uint16Array.BYTES_PER_ELEMENT,
+        });
 
         indexBuffer.update(indices);
 
         this._iaInfo.drawInfos[0].vertexCount = this._capacity * this._vertCount;
         this._iaInfo.drawInfos[0].indexCount = this._capacity * this._indexCount;
         if (!this._iaInfoBufferReady) {
-            this._iaInfoBuffer.initialize(new GFXBufferInfo(
-                GFXBufferUsageBit.INDIRECT,
-                GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                GFX_DRAW_INFO_SIZE,
-                GFX_DRAW_INFO_SIZE,
-            ));
+            this._iaInfoBuffer.initialize({
+                usage: GFXBufferUsageBit.INDIRECT,
+                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                size: GFX_DRAW_INFO_SIZE,
+                stride: GFX_DRAW_INFO_SIZE,
+            });
             this._iaInfoBufferReady = true;
         }
         this._iaInfoBuffer.update(this._iaInfo);
 
-        this._subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs!, GFXPrimitiveMode.TRIANGLE_LIST, indexBuffer, this._iaInfoBuffer);
+        this._subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs!, GFXPrimitiveMode.TRIANGLE_LIST);
+        this._subMeshData.indexBuffer = indexBuffer;
+        this._subMeshData.indirectBuffer = this._iaInfoBuffer;
         this.initSubModel(0, this._subMeshData, this._material!);
         return vBuffer;
     }
@@ -314,8 +326,8 @@ export default class ParticleBatchModel extends scene.Model {
     public updateIA (count: number) {
         const ia = this._subModels[0].inputAssembler;
         ia.vertexBuffers[0].update(this._vdataF32!);
-        this._iaInfo.drawInfos[0].firstIndex = 0;
-        this._iaInfo.drawInfos[0].indexCount = this._indexCount * count;
+        ia.indexCount = this._indexCount * count;
+        this._iaInfo.drawInfos[0] = ia;
         this._iaInfoBuffer.update(this._iaInfo);
     }
 
@@ -335,12 +347,14 @@ export default class ParticleBatchModel extends scene.Model {
         this._vBuffer = this.createSubMeshData();
         this._vdataF32 = new Float32Array(this._vBuffer);
         this._vdataUint32 = new Uint32Array(this._vBuffer);
+        this._inited = true;
     }
 
     private destroySubMeshData () {
         if (this._subMeshData) {
             this._subMeshData.destroy();
             this._subMeshData = null;
+            this._inited = false;
             this._iaInfoBufferReady = false;
         }
     }

@@ -2,7 +2,7 @@
  * @category terrain
  */
 import { Asset } from '../core/assets';
-import { ccclass } from 'cc.decorator';
+import { ccclass } from '../core/data/class-decorator';
 import { legacyCC } from '../core/global-exports';
 
 export const TERRAIN_MAX_LEVELS = 4;

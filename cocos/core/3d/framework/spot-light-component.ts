@@ -27,30 +27,31 @@
  * @category component/light
  */
 
-import { ccclass, help, executeInEditMode, menu, tooltip, type, slide, range, unit, serializable } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, menu, property, tooltip, type, slide, range, unit } from '../../data/class-decorator';
 import { toRadian } from '../../math';
-import { scene } from '../../renderer';
-import { Light, PhotometricTerm } from './light-component';
+import { LightType, nt2lm } from '../../renderer/scene/light';
+import { SpotLight } from '../../renderer/scene/spot-light';
+import { LightComponent, PhotometricTerm } from './light-component';
 
-@ccclass('cc.SpotLight')
-@help('i18n:cc.SpotLight')
+@ccclass('cc.SpotLightComponent')
+@help('i18n:cc.SpotLightComponent')
 @menu('Light/SpotLight')
 @executeInEditMode
-export class SpotLight extends Light {
+export class SpotLightComponent extends LightComponent {
 
-    @serializable
+    @property
     protected _size = 0.15;
-    @serializable
-    protected _luminance = 1700 / scene.nt2lm(0.15);
-    @serializable
+    @property
+    protected _luminance = 1700 / nt2lm(0.15);
+    @property
     protected _term = PhotometricTerm.LUMINOUS_POWER;
-    @serializable
+    @property
     protected _range = 1;
-    @serializable
+    @property
     protected _spotAngle = 60;
 
-    protected _type = scene.LightType.SPOT;
-    protected _light: scene.SpotLight | null = null;
+    protected _type = LightType.SPOT;
+    protected _light: SpotLight | null = null;
 
     /**
      * @en Luminous power of the light.
@@ -59,10 +60,10 @@ export class SpotLight extends Light {
     @unit('lm')
     @tooltip('i18n:lights.luminous_power')
     get luminousPower () {
-        return this._luminance * scene.nt2lm(this._size);
+        return this._luminance * nt2lm(this._size);
     }
     set luminousPower (val) {
-        this._luminance = val / scene.nt2lm(this._size);
+        this._luminance = val / nt2lm(this._size);
         if (this._light) { this._light.luminance = this._luminance; }
     }
 
@@ -129,7 +130,7 @@ export class SpotLight extends Light {
      * @zh
      * 聚光灯锥角。
      */
-    @slide
+    @slide(true)
     @range([2, 180, 1])
     @tooltip('The spot light cone angle')
     get spotAngle () {
@@ -143,7 +144,7 @@ export class SpotLight extends Light {
 
     constructor () {
         super();
-        this._lightType = scene.SpotLight;
+        this._lightType = SpotLight;
     }
 
     protected _createLight () {

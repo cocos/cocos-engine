@@ -3,11 +3,11 @@
  */
 
 import { Camera } from '../renderer/scene/camera';
-import { CAMERA_DEFAULT_MASK, IRenderViewInfo } from './define';
+import { CAMERA_DEFAULT_MASK } from './define';
 import { RenderFlowTag } from './pipeline-serialization';
 import { RenderFlow } from './render-flow';
 import { legacyCC } from '../global-exports';
-import { RenderWindow } from '../renderer/core/render-window';
+import { RenderWindow } from './render-window';
 
 /**
  * @en The predefined priority of render view
@@ -15,6 +15,17 @@ import { RenderWindow } from '../renderer/core/render-window';
  */
 export enum RenderViewPriority {
     GENERAL = 100,
+}
+
+/**
+ * @en Render view information descriptor
+ * @zh 渲染视图描述信息。
+ */
+export interface IRenderViewInfo {
+    camera: Camera;
+    name: string;
+    priority: number;
+    flows?: string[];
 }
 
 /**
@@ -109,7 +120,7 @@ export class RenderView {
     private _window: RenderWindow | null = null;
     private _priority: number = 0;
     private _visibility: number = CAMERA_DEFAULT_MASK;
-    private _camera!: Camera;
+    private _camera: Camera;
     private _isEnable: boolean = false;
     private _flows: RenderFlow[] = [];
 
@@ -118,7 +129,8 @@ export class RenderView {
      * @zh 构造函数。
      * @param camera
      */
-    public constructor () {
+    public constructor (camera: Camera) {
+        this._camera = camera;
     }
 
     /**
@@ -127,7 +139,7 @@ export class RenderView {
      * @param info Render view information descriptor
      */
     public initialize (info: IRenderViewInfo): boolean {
-        this._camera = info.camera;
+
         this._name = info.name;
         this.priority = info.priority;
         this.setExecuteFlows(info.flows);

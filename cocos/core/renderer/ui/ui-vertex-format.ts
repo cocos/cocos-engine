@@ -1,4 +1,3 @@
-import { GFXAttribute } from '../../gfx';
 /*
  Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
 
@@ -26,37 +25,19 @@ import { GFXAttribute } from '../../gfx';
 /**
  * @category ui
  */
-import { GFXAttributeName, GFXFormat, GFXFormatInfos } from '../../gfx/define';
+import { GFXAttributeName, GFXFormat } from '../../gfx/define';
 
 export const vfmt = [
-    new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),
-    new GFXAttribute(GFXAttributeName.ATTR_COLOR, GFXFormat.RGBA32F),
+    {
+        name: GFXAttributeName.ATTR_POSITION,
+        format: GFXFormat.RGB32F,
+    },
+    {
+        name: GFXAttributeName.ATTR_TEX_COORD,
+        format: GFXFormat.RG32F,
+    },
+    {
+        name: GFXAttributeName.ATTR_COLOR,
+        format: GFXFormat.RGBA32F,
+    },
 ];
-
-export const vfmtPosUvColor = [
-    new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),
-    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RG32F),
-    new GFXAttribute(GFXAttributeName.ATTR_COLOR, GFXFormat.RGBA32F),
-];
-
-export function getAttributeFormatBytes (attrs: GFXAttribute[]) {
-    let count = 0;
-    for (let i = 0; i < attrs.length; i++) {
-        const attr = attrs[i];
-        const info = GFXFormatInfos[attr.format];
-        count += info.count;
-    }
-
-    return count;
-}
-
-export function getAttributeStride (attrs: GFXAttribute[]) {
-    let count = 0;
-    for (let i = 0; i < attrs.length; i++) {
-        const attr = attrs[i];
-        const info = GFXFormatInfos[attr.format];
-        count += info.size;
-    }
-
-    return count;
-}

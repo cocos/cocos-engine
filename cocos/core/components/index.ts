@@ -27,7 +27,10 @@
  * @hidden
  */
 
-export { default as System } from './system';
-export { default as MissingScript } from './missing-script';
-export { EventHandler } from './component-event-handler';
 export { Component } from './component';
+export { EventHandler } from './component-event-handler';
+export { default as MissingScript } from './missing-script';
+export { BlockInputEventsComponent } from './block-input-events-component';
+export { default as System } from './system';
+export * from './ui-base';
+export { UICoordinateTrackerComponent } from './ui-coodinate-tracker-component';

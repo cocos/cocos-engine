@@ -103,7 +103,7 @@
     "_id": "c0y6F5f+pAvI805TdmxIjx"
   },
   {
-    "__type__": "cc.DirectionalLight",
+    "__type__": "cc.DirectionalLightComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -167,7 +167,7 @@
     "_id": "c9DMICJLFO5IeO07EPon7U"
   },
   {
-    "__type__": "cc.Camera",
+    "__type__": "cc.CameraComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -210,7 +210,7 @@
     "skybox": {
       "__id__": 8
     },
-    "shadows": {
+    "planarShadow": {
       "__id__": 9
     }
   },
@@ -239,7 +239,7 @@
     "_enabled": false
   },
   {
-    "__type__": "cc.ShadowsInfo",
+    "__type__": "cc.PlanarShadowInfo",
     "_enabled": false,
     "_normal": {
       "__type__": "cc.Vec3",
