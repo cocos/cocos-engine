@@ -31,17 +31,17 @@ import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../3d/builtin/init';
 import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
 import { TextureBase } from '../../assets/texture-base';
-import { GFXDescriptorSet, IGFXDescriptorSetInfo } from '../../gfx/descriptor-set';
-import { GFXBuffer, IGFXBufferInfo } from '../../gfx/buffer';
+import { GFXDescriptorSet, GFXDescriptorSetInfo } from '../../gfx/descriptor-set';
+import { GFXBuffer, GFXBufferInfo, GFXBufferViewInfo } from '../../gfx/buffer';
 import { GFXFeature, GFXDevice } from '../../gfx/device';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
 import { GFXSampler } from '../../gfx/sampler';
 import { GFXTexture } from '../../gfx/texture';
-import { isBuiltinBinding, RenderPassStage, RenderPriority, SetIndex } from '../../pipeline/define';
+import { RenderPassStage, RenderPriority, SetIndex } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
-import { IProgramInfo, programLib, IPipelineLayoutInfo } from './program-lib';
+import { IProgramInfo, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
 import { PassView, BlendStatePool, RasterizerStatePool, DepthStencilStatePool,
     PassPool, DSPool, PassHandle, ShaderHandle, NULL_HANDLE } from './memory-pools';
@@ -49,6 +49,7 @@ import { customizeType, getBindingFromHandle, getPropertyTypeFromHandle, getDefa
     getOffsetFromHandle, getTypeFromHandle, MacroRecord, MaterialProperty, type2reader, type2writer, PropertyType } from './pass-utils';
 import { GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode,
     GFXType, GFXDynamicStateFlagBit, GFXDynamicStateFlags } from '../../gfx/define';
+import { GFXDescriptorSetLayoutInfo } from '../../gfx';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
@@ -57,11 +58,6 @@ export interface IPassInfoFull extends IPassInfo {
     stateOverrides?: PassOverrides;
 }
 export type PassOverrides = RecursivePartial<IPassStates>;
-
-export interface IBlock {
-    view: Float32Array;
-    dirty: boolean;
-}
 
 export interface IMacroPatch {
     name: string;
@@ -75,15 +71,15 @@ interface IPassDynamics {
     };
 }
 
-const _bfInfo: IGFXBufferInfo = {
-    memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-    usage: GFXBufferUsageBit.UNIFORM,
-    size: 0,
-};
+const _bufferInfo = new GFXBufferInfo(
+    GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+    GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+);
 
-const _dsInfo: IGFXDescriptorSetInfo = {
-    layout: null!,
-};
+const _bufferViewInfo = new GFXBufferViewInfo(null!);
+const _dsLayoutInfo = new GFXDescriptorSetLayoutInfo();
+
+const _dsInfo = new GFXDescriptorSetInfo(null!);
 
 export enum BatchingSchemes {
     INSTANCING = 1,
@@ -95,7 +91,7 @@ export declare namespace Pass {
     export type getPropertyTypeFromHandle = typeof getPropertyTypeFromHandle;
     export type getTypeFromHandle = typeof getTypeFromHandle;
     export type getBindingFromHandle = typeof getBindingFromHandle;
-    export type fillinPipelineInfo = typeof Pass.fillPipelineInfo;
+    export type fillPipelineInfo = typeof Pass.fillPipelineInfo;
     export type getPassHash = typeof Pass.getPassHash;
     export type getOffsetFromHandle = typeof getOffsetFromHandle;
     export type PropertyType = typeof PropertyType;
@@ -138,8 +134,10 @@ export class Pass {
         if (info.blendState) {
             const bsInfo = info.blendState;
             if (bsInfo.targets) {
-                bsInfo.targets.forEach((t, i) => Object.assign(
-                bs.targets[i] || (bs.targets[i] = new GFXBlendTarget()), t));
+                bsInfo.targets.forEach((t, i) => {
+                    if (!bs.targets[i]) bs.setTarget(i, new GFXBlendTarget());
+                    Object.assign(bs.targets[i], t);
+                });
             }
             if (bsInfo.isA2C !== undefined) { bs.isA2C = bsInfo.isA2C; }
             if (bsInfo.isIndepend !== undefined) { bs.isIndepend = bsInfo.isIndepend; }
@@ -168,9 +166,9 @@ export class Pass {
     protected static getOffsetFromHandle = getOffsetFromHandle;
 
     // internal resources
-    protected _buffers: Record<number, GFXBuffer> = {};
-    protected _samplers: Record<number, GFXSampler> = {};
-    protected _textures: Record<number, GFXTexture> = {};
+    protected _rootBuffer: GFXBuffer | null = null;
+    protected _rootBufferDirty = false;
+    protected _buffers: GFXBuffer[] = [];
     protected _descriptorSet: GFXDescriptorSet = null!;
     // internal data
     protected _passIndex = 0;
@@ -178,7 +176,8 @@ export class Pass {
     protected _programName = '';
     protected _dynamics: IPassDynamics = {};
     protected _propertyHandleMap: Record<string, number> = {};
-    protected _blocks: IBlock[] = [];
+    protected _rootBlock: ArrayBuffer | null = null;
+    protected _blocks: Float32Array[] = [];
     protected _shaderInfo: IProgramInfo = null!;
     protected _defines: MacroRecord = {};
     protected _properties: Record<string, IPropertyInfo> = {};
@@ -225,8 +224,8 @@ export class Pass {
      * pass.setUniform(hThreshold, 0.5); // now, albedoScale.w = 0.5
      * ```
      */
-    public getHandle (name: string, offset = 0, targetType = GFXType.UNKNOWN): number | undefined {
-        let handle = this._propertyHandleMap[name]; if (!handle) { return; }
+    public getHandle (name: string, offset = 0, targetType = GFXType.UNKNOWN) {
+        let handle = this._propertyHandleMap[name]; if (!handle) { return 0; }
         if (targetType) { handle = customizeType(handle, targetType); }
         else if (offset) { handle = customizeType(handle, getTypeFromHandle(handle) - offset); }
         return handle + offset;
@@ -239,7 +238,7 @@ export class Pass {
      */
     public getBinding (name: string) {
         const handle = this.getHandle(name);
-        if (handle === undefined) { return; }
+        if (!handle) { return -1; }
         return Pass.getBindingFromHandle(handle);
     }
 
@@ -254,8 +253,8 @@ export class Pass {
         const type = Pass.getTypeFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
         const block = this._blocks[binding];
-        type2writer[type](block.view, value, ofs);
-        block.dirty = true;
+        type2writer[type](block, value, ofs);
+        this._rootBufferDirty = true;
     }
 
     /**
@@ -269,7 +268,7 @@ export class Pass {
         const type = Pass.getTypeFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
         const block = this._blocks[binding];
-        return type2reader[type](block.view, out, ofs);
+        return type2reader[type](block, out, ofs);
     }
 
     /**
@@ -286,21 +285,9 @@ export class Pass {
         let ofs = Pass.getOffsetFromHandle(handle);
         for (let i = 0; i < value.length; i++, ofs += stride) {
             if (value[i] === null) { continue; }
-            type2writer[type](block.view, value[i], ofs);
+            type2writer[type](block, value[i], ofs);
         }
-        block.dirty = true;
-    }
-
-    /**
-     * @zh
-     * 绑定实际 [[GFXBuffer]] 到指定 binding。
-     * @param binding 目标 UBO 的 binding。
-     * @param value 目标 buffer。
-     */
-    public bindBuffer (binding: number, value: GFXBuffer) {
-        if (this._buffers[binding] === value) { return; }
-        this._buffers[binding] = value;
-        this._descriptorSet.bindBuffer(binding, value);
+        this._rootBufferDirty = true;
     }
 
     /**
@@ -309,10 +296,8 @@ export class Pass {
      * @param binding 目标贴图类 uniform 的 binding。
      * @param value 目标 texture
      */
-    public bindTexture (binding: number, value: GFXTexture) {
-        if (this._textures[binding] === value) { return; }
-        this._textures[binding] = value;
-        this._descriptorSet.bindTexture(binding, value);
+    public bindTexture (binding: number, value: GFXTexture, index?: number) {
+        this._descriptorSet.bindTexture(binding, value, index || 0);
     }
 
     /**
@@ -321,10 +306,8 @@ export class Pass {
      * @param binding 目标贴图类 uniform 的 binding。
      * @param value 目标 sampler。
      */
-    public bindSampler (binding: number, value: GFXSampler) {
-        if (this._samplers[binding] === value) { return; }
-        this._samplers[binding] = value;
-        this._descriptorSet.bindSampler(binding, value);
+    public bindSampler (binding: number, value: GFXSampler, index?: number) {
+        this._descriptorSet.bindSampler(binding, value, index || 0);
     }
 
     /**
@@ -354,13 +337,9 @@ export class Pass {
      * 更新当前 Uniform 数据。
      */
     public update () {
-        const len = this._blocks.length;
-        for (let i = 0; i < len; i++) {
-            const block = this._blocks[i];
-            if (block.dirty) {
-                this._buffers[i].update(block.view);
-                block.dirty = false;
-            }
+        if (this._rootBufferDirty && this._rootBuffer) {
+            this._rootBuffer.update(this._rootBlock!);
+            this._rootBufferDirty = false;
         }
         this._descriptorSet.update();
     }
@@ -372,13 +351,16 @@ export class Pass {
     public destroy () {
         for (let i = 0; i < this._shaderInfo.blocks.length; i++) {
             const u = this._shaderInfo.blocks[i];
-            if (isBuiltinBinding(u.set)) { continue; }
             this._buffers[u.binding].destroy();
         }
-        this._buffers = {};
+        this._buffers = [];
+
+        if (this._rootBuffer) {
+            this._rootBuffer.destroy();
+            this._rootBlock = null;
+        }
+
         // textures are reused
-        this._samplers = {};
-        this._textures = {};
         this._descriptorSet = null!;
 
         if (this._handle) {
@@ -396,22 +378,24 @@ export class Pass {
      */
     public resetUniform (name: string) {
         const handle = this.getHandle(name)!;
+        if (!handle) return;
         const type = Pass.getTypeFromHandle(handle);
         const binding = Pass.getBindingFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
         const block = this._blocks[binding];
         const info = this._properties[name];
         const value = info && info.value || getDefaultFromType(type);
-        type2writer[type](block.view, value, ofs);
-        block.dirty = true;
+        type2writer[type](block, value, ofs);
+        this._rootBufferDirty = true;
     }
 
     /**
      * @zh
      * 重置指定贴图为 Effect 默认值。
      */
-    public resetTexture (name: string) {
-        const handle = this.getHandle(name)!;
+    public resetTexture (name: string, index?: number) {
+        const handle = this.getHandle(name);
+        if (!handle) return;
         const type = Pass.getTypeFromHandle(handle);
         const binding = Pass.getBindingFromHandle(handle);
         const info = this._properties[name];
@@ -421,10 +405,8 @@ export class Pass {
         const texture = textureBase && textureBase.getGFXTexture()!;
         const samplerHash = info && (info.samplerHash !== undefined) ? info.samplerHash : textureBase.getSamplerHash();
         const sampler = samplerLib.getSampler(this._device, samplerHash);
-        this._textures[binding] = texture;
-        this._samplers[binding] = sampler;
-        this._descriptorSet.bindSampler(binding, sampler);
-        this._descriptorSet.bindTexture(binding, texture);
+        this._descriptorSet.bindSampler(binding, sampler, index);
+        this._descriptorSet.bindTexture(binding, texture, index);
     }
 
     /**
@@ -434,9 +416,7 @@ export class Pass {
     public resetUBOs () {
         for (let i = 0; i < this._shaderInfo.blocks.length; i++) {
             const u = this._shaderInfo.blocks[i];
-            if (isBuiltinBinding(u.set)) { continue; }
-            const block: IBlock = this._blocks[u.binding];
-            if (!block) { continue; }
+            const block = this._blocks[u.binding];
             let ofs = 0;
             for (let j = 0; j < u.members.length; j++) {
                 const cur = u.members[j];
@@ -444,11 +424,11 @@ export class Pass {
                 const givenDefault = info && info.value;
                 const value = (givenDefault ? givenDefault : getDefaultFromType(cur.type)) as number[];
                 const size = (GFXGetTypeSize(cur.type) >> 2) * cur.count;
-                for (let k = 0; k + value.length <= size; k += value.length) { block.view.set(value, ofs + k); }
+                for (let k = 0; k + value.length <= size; k += value.length) { block.set(value, ofs + k); }
                 ofs += size;
             }
-            block.dirty = true;
         }
+        this._rootBufferDirty = true;
     }
 
     /**
@@ -458,8 +438,9 @@ export class Pass {
     public resetTextures () {
         for (let i = 0; i < this._shaderInfo.samplers.length; i++) {
             const u = this._shaderInfo.samplers[i];
-            if (isBuiltinBinding(u.set)) { continue; }
-            this.resetTexture(u.name);
+            for (let j = 0; j < u.count; j++) {
+                this.resetTexture(u.name, j);
+            }
         }
     }
 
@@ -541,27 +522,46 @@ export class Pass {
         // init descriptor set
         const setLayouts = programLib.getPipelineLayout(info.program).setLayouts;
         if (!setLayouts[SetIndex.MATERIAL]) {
-            setLayouts[SetIndex.MATERIAL] = device.createDescriptorSetLayout({
-                bindings: this._shaderInfo.bindings,
-            });
+            _dsLayoutInfo.bindings = this._shaderInfo.bindings;
+            setLayouts[SetIndex.MATERIAL] = device.createDescriptorSetLayout(_dsLayoutInfo);
         }
         _dsInfo.layout = setLayouts[SetIndex.MATERIAL];
         const dsHandle = DSPool.alloc(this._device, _dsInfo);
         PassPool.set(this._handle, PassView.DESCRIPTOR_SET, dsHandle);
         this._descriptorSet = DSPool.get(dsHandle);
 
-        const blocks = this._shaderInfo.blocks;
+        // calculate total size required
+        const { blocks, blockSizes } = this._shaderInfo;
+        const alignment = device.uboOffsetAlignment;
+        const startOffsets: number[] = [];
+        let lastSize = 0; let lastOffset = 0;
         for (let i = 0; i < blocks.length; i++) {
-            const { size, set, binding } = blocks[i];
-            if (isBuiltinBinding(set)) { continue; }
-            // create gfx buffer resource
-            _bfInfo.size = Math.ceil(size / 16) * 16; // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
-            const buffer = this._buffers[binding] = device.createBuffer(_bfInfo);
+            const size = blockSizes[i];
+            startOffsets.push(lastOffset);
+            lastOffset += Math.ceil(size / alignment) * alignment;
+            lastSize = size;
+        }
+        // create gfx buffer resource
+        const totalSize = startOffsets[startOffsets.length - 1] + lastSize;
+        if (totalSize) {
+            // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
+            _bufferInfo.size = Math.ceil(totalSize / 16) * 16;
+            this._rootBuffer = device.createBuffer(_bufferInfo);
+            this._rootBlock = new ArrayBuffer(totalSize);
+        }
+        // create buffer views
+        for (let i = 0, count = 0; i < blocks.length; i++) {
+            const binding = blocks[i].binding;
+            const size = blockSizes[i];
+            _bufferViewInfo.buffer = this._rootBuffer!;
+            _bufferViewInfo.offset = startOffsets[count++];
+            _bufferViewInfo.range = size;
+            const bufferView = this._buffers[binding] = device.createBuffer(_bufferViewInfo);
             // non-builtin UBO data pools, note that the effect compiler
-            // guarantees these bindings to be consecutive, starting from 0
-            const data = new ArrayBuffer(size);
-            this._blocks[binding] = { view: new Float32Array(data), dirty: false };
-            this._descriptorSet.bindBuffer(binding, buffer);
+            // guarantees these bindings to be consecutive, starting from 0 and non-array-typed
+            this._blocks[binding] = new Float32Array(this._rootBlock!, _bufferViewInfo.offset,
+                size / Float32Array.BYTES_PER_ELEMENT);
+            this._descriptorSet.bindBuffer(binding, bufferView);
         }
         // store handles
         const directHandleMap = this._propertyHandleMap = this._shaderInfo.handleMap;
@@ -604,16 +604,16 @@ export class Pass {
     get blocks () { return this._blocks; }
     // states
     get handle () { return this._handle; }
-    get priority () { return PassPool.get<number>(this._handle, PassView.PRIORITY); }
-    get primitive () { return PassPool.get<GFXPrimitiveMode>(this._handle, PassView.PRIMITIVE); }
-    get stage () { return PassPool.get<RenderPassStage>(this._handle, PassView.STAGE); }
-    get phase () { return PassPool.get<number>(this._handle, PassView.PHASE); }
+    get priority () { return PassPool.get(this._handle, PassView.PRIORITY); }
+    get primitive () { return PassPool.get(this._handle, PassView.PRIMITIVE); }
+    get stage () { return PassPool.get(this._handle, PassView.STAGE); }
+    get phase () { return PassPool.get(this._handle, PassView.PHASE); }
     get rasterizerState () { return RasterizerStatePool.get(PassPool.get(this._handle, PassView.RASTERIZER_STATE)); }
     get depthStencilState () { return DepthStencilStatePool.get(PassPool.get(this._handle, PassView.DEPTH_STENCIL_STATE)); }
     get blendState () { return BlendStatePool.get(PassPool.get(this._handle, PassView.BLEND_STATE)); }
-    get dynamicStates () { return PassPool.get<GFXDynamicStateFlags>(this._handle, PassView.DYNAMIC_STATES); }
-    get batchingScheme () { return PassPool.get<BatchingSchemes>(this._handle, PassView.BATCHING_SCHEME); }
-    get hash () { return PassPool.get<number>(this._handle, PassView.HASH); }
+    get dynamicStates () { return PassPool.get(this._handle, PassView.DYNAMIC_STATES); }
+    get batchingScheme () { return PassPool.get(this._handle, PassView.BATCHING_SCHEME); }
+    get hash () { return PassPool.get(this._handle, PassView.HASH); }
 }
 
 function serializeBlendState (bs: GFXBlendState) {

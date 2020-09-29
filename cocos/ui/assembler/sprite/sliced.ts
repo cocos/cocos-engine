@@ -31,7 +31,7 @@ import { IUV, SpriteFrame } from '../../../core/assets';
 import { Color, Mat4, Vec3 } from '../../../core/math';
 import { IRenderData, RenderData } from '../../../core/renderer/ui/render-data';
 import { UI } from '../../../core/renderer/ui/ui';
-import { SpriteComponent } from '../../components';
+import { Sprite } from '../../components';
 import { IAssembler } from '../../../core/renderer/ui/base';
 
 const vec3_temp = new Vec3();
@@ -44,7 +44,7 @@ const matrix = new Mat4();
 export const sliced: IAssembler = {
     useModel: false,
 
-    createData (sprite: SpriteComponent) {
+    createData (sprite: Sprite) {
         const renderData: RenderData | null = sprite.requestRenderData();
         // 0-4 for local vertex
         // 5-20 for world vertex
@@ -55,7 +55,7 @@ export const sliced: IAssembler = {
         return renderData as RenderData;
     },
 
-    updateRenderData (sprite: SpriteComponent) {
+    updateRenderData (sprite: Sprite) {
         const frame = sprite.spriteFrame;
 
         // TODO: Material API design and export from editor could affect the material activation process
@@ -79,7 +79,7 @@ export const sliced: IAssembler = {
         }
     },
 
-    updateVertexData (sprite: SpriteComponent) {
+    updateVertexData (sprite: Sprite) {
         const renderData: RenderData | null = sprite.renderData;
         const dataList: IRenderData[] = renderData!.data;
         const uiTrans = sprite.node._uiProps.uiTransformComp!;
@@ -115,7 +115,7 @@ export const sliced: IAssembler = {
         renderData!.vertDirty = false;
     },
 
-    fillBuffers (sprite: SpriteComponent, renderer: UI) {
+    fillBuffers (sprite: Sprite, renderer: UI) {
         if (sprite.node.hasChangedFlags) {
             this.updateWorldVertexData(sprite);
         }
@@ -173,7 +173,7 @@ export const sliced: IAssembler = {
         }
     },
 
-    updateWorldVertexData (sprite: SpriteComponent) {
+    updateWorldVertexData (sprite: Sprite) {
         const node = sprite.node;
         const dataList: IRenderData[] = sprite!.renderData!.data;
         node.getWorldMatrix(matrix);

@@ -8,7 +8,7 @@ import { MacroRecord } from '../../core/renderer/core/pass-utils';
 import { RenderMode, Space } from '../enum';
 import { Particle, IParticleModule, PARTICLE_MODULE_ORDER } from '../particle';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
-import { Component } from '../../core';
+import { Component, GFXAttribute } from '../../core';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
@@ -40,31 +40,31 @@ const RENDER_MODE_VERTICAL_BILLBOARD = 3;
 const RENDER_MODE_MESH = 4;
 
 const _vertex_attrs = [
-    { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },                     // position
-    { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RGB32F },                    // uv,frame idx
-    { name: GFXAttributeName.ATTR_TEX_COORD1, format: GFXFormat.RGB32F },                    // size
-    { name: GFXAttributeName.ATTR_TEX_COORD2, format: GFXFormat.RGB32F },                    // rotation
-    { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA8, isNormalized: true },     // color
+    new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),       // position
+    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RGB32F),      // uv,frame idx
+    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD1, GFXFormat.RGB32F),     // size
+    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD2, GFXFormat.RGB32F),     // rotation
+    new GFXAttribute(GFXAttributeName.ATTR_COLOR, GFXFormat.RGBA8, true),     // color
 ];
 
 const _vertex_attrs_stretch = [
-    { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },                     // position
-    { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RGB32F },                    // uv,frame idx
-    { name: GFXAttributeName.ATTR_TEX_COORD1, format: GFXFormat.RGB32F },                    // size
-    { name: GFXAttributeName.ATTR_TEX_COORD2, format: GFXFormat.RGB32F },                    // rotation
-    { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA8, isNormalized: true },     // color
-    { name: GFXAttributeName.ATTR_COLOR1, format: GFXFormat.RGB32F },                       // particle velocity
+    new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),       // position
+    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RGB32F),      // uv,frame idx
+    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD1, GFXFormat.RGB32F),     // size
+    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD2, GFXFormat.RGB32F),     // rotation
+    new GFXAttribute(GFXAttributeName.ATTR_COLOR, GFXFormat.RGBA8, true),     // color
+    new GFXAttribute(GFXAttributeName.ATTR_COLOR1, GFXFormat.RGB32F),         // particle velocity
 ];
 
 const _vertex_attrs_mesh = [
-    { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },                     // particle position
-    { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RGB32F },                    // uv,frame idx
-    { name: GFXAttributeName.ATTR_TEX_COORD1, format: GFXFormat.RGB32F },                    // size
-    { name: GFXAttributeName.ATTR_TEX_COORD2, format: GFXFormat.RGB32F },                    // rotation
-    { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA8, isNormalized: true },     // particle color
-    { name: GFXAttributeName.ATTR_TEX_COORD3, format: GFXFormat.RGB32F },                   // mesh position
-    { name: GFXAttributeName.ATTR_NORMAL, format: GFXFormat.RGB32F },                       // mesh normal
-    { name: GFXAttributeName.ATTR_COLOR1, format: GFXFormat.RGBA8, isNormalized: true },    // mesh color
+    new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),       // particle position
+    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RGB32F),      // uv,frame idx
+    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD1, GFXFormat.RGB32F),     // size
+    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD2, GFXFormat.RGB32F),     // rotation
+    new GFXAttribute(GFXAttributeName.ATTR_COLOR, GFXFormat.RGBA8, true),     // particle color
+    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD3, GFXFormat.RGB32F),     // mesh position
+    new GFXAttribute(GFXAttributeName.ATTR_NORMAL, GFXFormat.RGB32F),         // mesh normal
+    new GFXAttribute(GFXAttributeName.ATTR_COLOR1, GFXFormat.RGBA8, true),    // mesh color
 ];
 
 const _matInsInfo: IMaterialInstanceInfo = {
@@ -409,8 +409,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
 
         const pass = mat.passes[0];
-        this._uScaleHandle = pass.getHandle('scale')!;
-        this._uLenHandle = pass.getHandle('frameTile_velLenScale')!;
+        this._uScaleHandle = pass.getHandle('scale');
+        this._uLenHandle = pass.getHandle('frameTile_velLenScale');
 
         const renderMode = this._renderInfo!.renderMode;
         const vlenScale = this._frameTile_velLenScale;

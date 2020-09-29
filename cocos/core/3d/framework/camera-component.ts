@@ -29,22 +29,24 @@
 
 import { EDITOR } from 'internal:constants';
 import { RenderTexture } from '../../assets/render-texture';
-import { UITransformComponent } from '../../components';
+import { UITransform } from '../../components/ui-base';
 import { Component } from '../../components/component';
-import { ccclass, help, executeInEditMode, menu, property, tooltip, displayOrder, type } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { ray } from '../../geometry';
 import { GFXClearFlag } from '../../gfx/define';
 import { Color, Rect, toRadian, Vec3 } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { view } from '../../platform/view';
-import { Camera } from '../../renderer';
+import { scene } from '../../renderer';
 import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO, CameraShutter } from '../../renderer/scene/camera';
 import { Root } from '../../root';
-import { Layers, Node, Scene } from '../../scene-graph';
+import { Node } from '../../scene-graph/node';
+import { Layers } from '../../scene-graph/layers';
+import { Scene } from '../../scene-graph/scene';
 import { Enum } from '../../value-types';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { legacyCC } from '../../global-exports';
-import { RenderWindow } from '../../pipeline';
+import { RenderWindow } from '../../renderer/core/render-window';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -66,7 +68,7 @@ const ClearFlag = Enum({
 });
 
 // tslint:disable: no-shadowed-variable
-export declare namespace CameraComponent {
+export declare namespace Camera {
     export type ProjectionType = EnumAlias<typeof ProjectionType>;
     export type FOVAxis = EnumAlias<typeof FOVAxis>;
     export type ClearFlag = EnumAlias<typeof ClearFlag>;
@@ -80,11 +82,11 @@ export declare namespace CameraComponent {
  * @en The Camera Component.
  * @zh 相机组件。
  */
-@ccclass('cc.CameraComponent')
-@help('i18n:cc.CameraComponent')
+@ccclass('cc.Camera')
+@help('i18n:cc.Camera')
 @menu('Components/Camera')
 @executeInEditMode
-export class CameraComponent extends Component {
+export class Camera extends Component {
     public static ProjectionType = ProjectionType;
     public static FOVAxis = FOVAxis;
     public static ClearFlag = ClearFlag;
@@ -92,44 +94,44 @@ export class CameraComponent extends Component {
     public static Shutter = Shutter;
     public static ISO = ISO;
 
-    @property
+    @serializable
     protected _projection = ProjectionType.PERSPECTIVE;
-    @property
+    @serializable
     protected _priority = 0;
-    @property
+    @serializable
     protected _fov = 45;
-    @property
+    @serializable
     protected _fovAxis = FOVAxis.VERTICAL;
-    @property
+    @serializable
     protected _orthoHeight = 10;
-    @property
+    @serializable
     protected _near = 1;
-    @property
+    @serializable
     protected _far = 1000;
-    @property
+    @serializable
     protected _color = new Color('#333333');
-    @property
+    @serializable
     protected _depth = 1;
-    @property
+    @serializable
     protected _stencil = 0;
-    @property
+    @serializable
     protected _clearFlags = ClearFlag.SOLID_COLOR;
-    @property
+    @serializable
     protected _rect = new Rect(0, 0, 1, 1);
-    @property
+    @serializable
     protected _aperture = Aperture.F16_0;
-    @property
+    @serializable
     protected _shutter = Shutter.D125;
-    @property
+    @serializable
     protected _iso = ISO.ISO100;
-    @property
+    @serializable
     protected _screenScale = 1;
-    @property
+    @serializable
     protected _visibility = CAMERA_DEFAULT_MASK;
-    @property
+    @serializable
     protected _targetTexture: RenderTexture | null = null;
 
-    protected _camera: Camera | null = null;
+    protected _camera: scene.Camera | null = null;
     protected _inEditorMode = false;
     protected _flows: string[] | undefined = undefined;
 
@@ -202,10 +204,7 @@ export class CameraComponent extends Component {
     set clearColor (val) {
         this._color.set(val);
         if (this._camera) {
-            this._camera.clearColor.r = this._color.x;
-            this._camera.clearColor.g = this._color.y;
-            this._camera.clearColor.b = this._color.z;
-            this._camera.clearColor.a = this._color.w;
+            this._camera.clearColor = this._color;
         }
     }
 
@@ -528,7 +527,7 @@ export class CameraComponent extends Component {
         if (!this._camera) { return out; }
 
         this.worldToScreen(wpos, _temp_vec3_1);
-        const cmp = uiNode.getComponent('cc.UITransformComponent') as UITransformComponent;
+        const cmp = uiNode.getComponent('cc.UITransform') as UITransform;
         const designSize = view.getVisibleSize();
         const xoffset = _temp_vec3_1.x - this._camera!.width * 0.5;
         const yoffset = _temp_vec3_1.y - this._camera!.height * 0.5;
@@ -544,7 +543,7 @@ export class CameraComponent extends Component {
 
     protected _createCamera () {
         this._camera = (legacyCC.director.root as Root).createCamera();
-        this._camera.initialize({
+        this._camera!.initialize({
             name: this.node.name,
             node: this.node,
             projection: this._projection,
@@ -561,11 +560,7 @@ export class CameraComponent extends Component {
             this._camera.orthoHeight = this._orthoHeight;
             this._camera.nearClip = this._near;
             this._camera.farClip = this._far;
-            const r = this._color.x;
-            const g = this._color.y;
-            const b = this._color.z;
-            const a = this._color.w;
-            this._camera.clearColor = { r, g, b, a };
+            this._camera.clearColor = this._color;
             this._camera.clearDepth = this._depth;
             this._camera.clearStencil = this._stencil;
             this._camera.clearFlag = this._clearFlags;
@@ -585,8 +580,8 @@ export class CameraComponent extends Component {
         if (this._camera && this._camera.scene) {
             this._camera.scene.removeCamera(this._camera);
         }
-        const scene = this._getRenderScene();
-        scene.addCamera(this._camera);
+        const rs = this._getRenderScene();
+        rs.addCamera(this._camera);
     }
 
     protected _detachFromScene () {
@@ -595,7 +590,7 @@ export class CameraComponent extends Component {
         }
     }
 
-    protected onSceneChanged (scene: Scene) {
+    protected onSceneChanged (_scene: Scene) {
         // to handle scene switch of editor camera
         if (this._camera && this._camera.scene == null) {
             this._attachToScene();
@@ -630,3 +625,5 @@ export class CameraComponent extends Component {
         }
     }
 }
+
+legacyCC.Camera = Camera;

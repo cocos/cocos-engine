@@ -1,6 +1,6 @@
 import Ammo from './ammo-instantiated';
 import { TransformBit } from '../../core/scene-graph/node-enum';
-import { Node, Layers } from '../../core';
+import { Node } from '../../core';
 import { AmmoWorld } from './ammo-world';
 import { AmmoRigidBody } from './ammo-rigid-body';
 import { AmmoShape } from './shapes/ammo-shape';
@@ -91,7 +91,7 @@ export class AmmoSharedBody {
     readonly wrappedWorld: AmmoWorld;
     dirty: EAmmoSharedBodyDirty = 0;
 
-    private _collisionFilterGroup: number = Layers.Enum.DEFAULT;
+    private _collisionFilterGroup: number = PhysicsSystem.PhysicsGroup.DEFAULT;
     private _collisionFilterMask: number = -1;
 
     private ref: number = 0;

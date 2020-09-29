@@ -1,6 +1,6 @@
 import { GFXDescriptorSet } from '../descriptor-set';
 import { GFXBuffer, GFXBufferSource } from '../buffer';
-import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
+import { GFXCommandBuffer, GFXCommandBufferInfo } from '../command-buffer';
 import { GFXFramebuffer } from '../framebuffer';
 import { GFXInputAssembler } from '../input-assembler';
 import { GFXPipelineState } from '../pipeline-state';
@@ -49,9 +49,9 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
     protected _webGLAllocator: WebGLCommandAllocator | null = null;
     protected _isInRenderPass: boolean = false;
     protected _curGPUPipelineState: IWebGLGPUPipelineState | null = null;
+    protected _curGPUInputAssembler: IWebGLGPUInputAssembler | null = null;
     protected _curGPUDescriptorSets: IWebGLGPUDescriptorSet[] = [];
     protected _curDynamicOffsets: number[][] = [];
-    protected _curGPUInputAssembler: IWebGLGPUInputAssembler | null = null;
     protected _curViewport: GFXViewport | null = null;
     protected _curScissor: GFXRect | null = null;
     protected _curLineWidth: number | null = null;
@@ -62,12 +62,18 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
     protected _curStencilCompareMask: IWebGLStencilCompareMask | null = null;
     protected _isStateInvalied: boolean = false;
 
-    public initialize (info: IGFXCommandBufferInfo): boolean {
+    public initialize (info: GFXCommandBufferInfo): boolean {
 
         this._type = info.type;
         this._queue = info.queue;
 
         this._webGLAllocator = (this._device as WebGLDevice).cmdAllocator;
+
+        const setCount = (this._device as WebGLDevice).bindingMappingInfo.bufferOffsets.length;
+        for (let i = 0; i < setCount; i++) {
+            this._curGPUDescriptorSets.push(null!);
+            this._curDynamicOffsets.push([]);
+        }
 
         return true;
     }
@@ -82,8 +88,11 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
     public begin (renderPass?: GFXRenderPass, subpass = 0, frameBuffer?: GFXFramebuffer) {
         this._webGLAllocator!.clearCmds(this.cmdPackage);
         this._curGPUPipelineState = null;
-        this._curGPUDescriptorSets.length = 0;
         this._curGPUInputAssembler = null;
+        this._curGPUDescriptorSets.length = 0;
+        for (let i = 0; i < this._curDynamicOffsets.length; i++) {
+            this._curDynamicOffsets[i].length = 0;
+        }
         this._curViewport = null;
         this._curScissor = null;
         this._curLineWidth = null;
@@ -95,9 +104,6 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
         this._numDrawCalls = 0;
         this._numInstances = 0;
         this._numTris = 0;
-        for (let i = 0; i < this._curDynamicOffsets.length; i++) {
-            if (this._curDynamicOffsets[i]) this._curDynamicOffsets[i].length = 0;
-        }
     }
 
     public end () {
@@ -151,8 +157,9 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
             this._isStateInvalied = true;
         }
         if (dynamicOffsets) {
-            const offsets = this._curDynamicOffsets[set] || (this._curDynamicOffsets[set] = []);
+            const offsets = this._curDynamicOffsets[set];
             for (let i = 0; i < dynamicOffsets.length; i++) offsets[i] = dynamicOffsets[i];
+            offsets.length = dynamicOffsets.length;
             this._isStateInvalied = true;
         }
     }
@@ -165,14 +172,7 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
 
     public setViewport (viewport: GFXViewport) {
         if (!this._curViewport) {
-            this._curViewport = {
-                left: viewport.left,
-                top: viewport.top,
-                width: viewport.width,
-                height: viewport.height,
-                minDepth: viewport.minDepth,
-                maxDepth: viewport.maxDepth,
-            };
+            this._curViewport = new GFXViewport(viewport.left, viewport.top, viewport.width, viewport.height, viewport.minDepth, viewport.maxDepth);
         } else {
             if (this._curViewport.left !== viewport.left ||
                 this._curViewport.top !== viewport.top ||
@@ -194,12 +194,7 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
 
     public setScissor (scissor: GFXRect) {
         if (!this._curScissor) {
-            this._curScissor = {
-                x: scissor.x,
-                y: scissor.y,
-                width: scissor.width,
-                height: scissor.height,
-            };
+            this._curScissor = new GFXRect(scissor.x, scissor.y, scissor.width, scissor.height);
         } else {
             if (this._curScissor.x !== scissor.x ||
                 this._curScissor.y !== scissor.y ||
@@ -360,27 +355,30 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
             const gpuBuffer = (buffer as WebGLBuffer).gpuBuffer;
             if (gpuBuffer) {
                 const cmd = this._webGLAllocator!.updateBufferCmdPool.alloc(WebGLCmdUpdateBuffer);
-                if (cmd) {
 
-                    let buffSize;
-                    if (size !== undefined ) {
+                let buffSize = 0;
+                let buff: GFXBufferSource | null = null;
+
+                // TODO: Have to copy to staging buffer first to make this work for the execution is deferred.
+                // But since we are using specialized primary command buffers in WebGL backends, we leave it as is for now
+                if (buffer.usage & GFXBufferUsageBit.INDIRECT) {
+                    buff = data;
+                } else {
+                    if (size !== undefined) {
                         buffSize = size;
-                    } else if (buffer.usage & GFXBufferUsageBit.INDIRECT) {
-                        buffSize = 0;
                     } else {
                         buffSize = (data as ArrayBuffer).byteLength;
                     }
-
-                    const buff = data as ArrayBuffer;
-
-                    cmd.gpuBuffer = gpuBuffer;
-                    cmd.buffer = buff;
-                    cmd.offset = (offset !== undefined ? offset : 0);
-                    cmd.size = buffSize;
-                    this.cmdPackage.updateBufferCmds.push(cmd);
-
-                    this.cmdPackage.cmds.push(WebGLCmd.UPDATE_BUFFER);
+                    buff = data;
                 }
+
+                cmd.gpuBuffer = gpuBuffer;
+                cmd.buffer = buff;
+                cmd.offset = (offset !== undefined ? offset : 0);
+                cmd.size = buffSize;
+                this.cmdPackage.updateBufferCmds.push(cmd);
+
+                this.cmdPackage.cmds.push(WebGLCmd.UPDATE_BUFFER);
             }
         } else {
             console.error('Command \'updateBuffer\' must be recorded outside a render pass.');
@@ -388,7 +386,6 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
     }
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
-
         if (this._type === GFXCommandBufferType.PRIMARY && !this._isInRenderPass ||
             this._type === GFXCommandBufferType.SECONDARY) {
             const gpuTexture = (texture as WebGLTexture).gpuTexture;
@@ -397,9 +394,11 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
                 if (cmd) {
                     cmd.gpuTexture = gpuTexture;
                     cmd.regions = regions;
+                    // TODO: Have to copy to staging buffer first to make this work for the execution is deferred.
+                    // But since we are using specialized primary command buffers in WebGL backends, we leave it as is for now
                     cmd.buffers = buffers;
-                    this.cmdPackage.copyBufferToTextureCmds.push(cmd);
 
+                    this.cmdPackage.copyBufferToTextureCmds.push(cmd);
                     this.cmdPackage.cmds.push(WebGLCmd.COPY_BUFFER_TO_TEXTURE);
                 }
             }

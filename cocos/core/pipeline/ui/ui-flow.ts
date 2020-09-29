@@ -1,13 +1,12 @@
 /**
  * @category pipeline
  */
-import { ccclass } from '../../data/class-decorator';
+import { ccclass } from 'cc.decorator';
 import { ForwardFlowPriority } from '../forward/enum';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
 import { UIStage } from './ui-stage';
 import { RenderFlowTag } from '../pipeline-serialization';
-import { sceneCulling } from '../forward/scene-culling';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 
 /**
@@ -21,16 +20,16 @@ export class UIFlow extends RenderFlow {
         name: 'UIFlow',
         priority: ForwardFlowPriority.UI,
         tag: RenderFlowTag.UI,
+        stages: []
     };
 
     public initialize (info: IRenderFlowInfo): boolean {
-
         super.initialize(info);
-
-        const uiStage = new UIStage();
-        uiStage.initialize(UIStage.initInfo);
-        this._stages.push(uiStage);
-
+        if (this._stages.length === 0) {
+            const uiStage = new UIStage();
+            uiStage.initialize(UIStage.initInfo);
+            this._stages.push(uiStage);
+        }
         return true;
     }
 
@@ -40,8 +39,6 @@ export class UIFlow extends RenderFlow {
 
     public render (view: RenderView) {
         const pipeline = this._pipeline as ForwardPipeline;
-        view.camera.update();
-        sceneCulling(pipeline, view);
         pipeline.updateUBOs(view);
         super.render(view);
     }

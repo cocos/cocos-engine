@@ -8,21 +8,23 @@ import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
 import { Material } from '../core/assets/material';
 import { RenderingSubMesh } from '../core/assets/mesh';
 import { Component } from '../core/components';
-import { ccclass, disallowMultiple, executeInEditMode, help, property, visible, animatable, type } from '../core/data/class-decorator';
+import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
 import { isValid } from '../core/data/object';
 import { director } from '../core/director';
-import { GFXBuffer } from '../core/gfx/buffer';
+import { GFXBuffer, GFXBufferInfo } from '../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXPrimitiveMode } from '../core/gfx/define';
 import { GFXDevice } from '../core/gfx/device';
-import { IGFXAttribute } from '../core/gfx/input-assembler';
+import { GFXAttribute } from '../core/gfx/input-assembler';
 import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { MacroRecord } from '../core/renderer/core/pass-utils';
-import { Model } from '../core/renderer/scene/model';
+import { scene } from '../core/renderer';
 import { Root } from '../core/root';
 import { PrivateNode } from '../core/scene-graph/private-node';
 import { HeightField } from './height-field';
 import { legacyCC } from '../core/global-exports';
-import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY, TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY, TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, } from './terrain-asset';
+import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY,
+    TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
+    TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, } from './terrain-asset';
 
 /**
  * @en Terrain info
@@ -34,28 +36,32 @@ export class TerrainInfo {
      * @en tile size
      * @zh 栅格大小
      */
-    @property
+    @serializable
+    @editable
     public tileSize: number = 1;
 
     /**
      * @en block count
      * @zh 地形块的数量
      */
-    @property
+    @serializable
+    @editable
     public blockCount: number[] = [1, 1];
 
     /**
      * @en weight map size
      * @zh 权重图大小
      */
-    @property
+    @serializable
+    @editable
     public weightMapSize: number = 128;
 
     /**
      * @en light map size
      * @zh 光照图大小
      */
-    @property
+    @serializable
+    @editable
     public lightMapSize: number = 128;
 
     /**
@@ -105,14 +111,16 @@ export class TerrainLayer {
      * @en detail texture
      * @zh 细节纹理
      */
-    @property
+    @serializable
+    @editable
     public detailMap: Texture2D|null = null;
 
     /**
      * @en tile size
      * @zh 平铺大小
      */
-    @property
+    @serializable
+    @editable
     public tileSize: number = 1;
 }
 
@@ -121,7 +129,7 @@ export class TerrainLayer {
  * @zh 地形渲染组件
  */
 class TerrainRenderable extends RenderableComponent {
-    public _model: Model | null = null;
+    public _model: scene.Model | null = null;
     public _meshData: RenderingSubMesh | null = null;
 
     public _brushMaterial: Material | null = null;
@@ -213,7 +221,8 @@ class TerrainRenderable extends RenderableComponent {
  */
 @ccclass('cc.TerrainBlockInfo')
 export class TerrainBlockInfo {
-    @property
+    @serializable
+    @editable
     public layers: number[] = [-1, -1, -1, -1];
 }
 
@@ -223,15 +232,20 @@ export class TerrainBlockInfo {
  */
 @ccclass('cc.TerrainBlockLightmapInfo')
 export class TerrainBlockLightmapInfo {
-    @property
+    @serializable
+    @editable
     public texture: Texture2D|null = null;
-    @property
+    @serializable
+    @editable
     public UOff: number = 0;
-    @property
+    @serializable
+    @editable
     public VOff: number = 0;
-    @property
+    @serializable
+    @editable
     public UScale: number = 0;
-    @property
+    @serializable
+    @editable
     public VScale: number = 0;
 }
 
@@ -289,27 +303,27 @@ export class TerrainBlock {
             }
         }
 
-        const vertexBuffer = gfxDevice.createBuffer({
-            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: TERRAIN_BLOCK_VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY,
-            stride: TERRAIN_BLOCK_VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT,
-        });
+        const vertexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            TERRAIN_BLOCK_VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY,
+            TERRAIN_BLOCK_VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT,
+        ));
         vertexBuffer.update(vertexData);
 
         // initialize renderable
-        const gfxAttributes: IGFXAttribute[] = [
-            { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },
-            { name: GFXAttributeName.ATTR_NORMAL, format: GFXFormat.RGB32F },
-            { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RG32F },
+        const gfxAttributes: GFXAttribute[] = [
+            new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),
+            new GFXAttribute(GFXAttributeName.ATTR_NORMAL, GFXFormat.RGB32F),
+            new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RG32F),
         ];
 
-        const subMesh = this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes, GFXPrimitiveMode.TRIANGLE_LIST);
-        subMesh.indexBuffer = this._terrain._getSharedIndexBuffer() || undefined;
+        this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes,
+            GFXPrimitiveMode.TRIANGLE_LIST, this._terrain._getSharedIndexBuffer());
 
-        this._renderable._model = (legacyCC.director.root as Root).createModel(Model);
-        this._renderable._model.initialize(this._node);
-        this._renderable._getRenderScene().addModel(this._renderable._model);
+        const model = this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
+        model.node = model.transform = this._node;
+        this._renderable._getRenderScene().addModel(model);
 
         // reset weightmap
         this._updateWeightMap();
@@ -657,33 +671,32 @@ export class TerrainBlock {
  * @zh 地形组件
  */
 @ccclass('cc.Terrain')
-@help('i18n:cc.TerrainComponent')
+@help('i18n:cc.Terrain')
 @executeInEditMode
 @disallowMultiple
 export class Terrain extends Component {
     @type(TerrainAsset)
-    @animatable(false)
-    @visible(false)
+    @serializable
+    @disallowAnimation
     protected __asset: TerrainAsset|null = null;
 
     @type(EffectAsset)
-    @animatable(false)
+    @serializable
+    @disallowAnimation
     @visible(false)
     protected _effectAsset: EffectAsset|null = null;
 
     @type(TerrainLayer)
-    @animatable(false)
-    @visible(true)
+    @serializable
+    @disallowAnimation
     protected _layers: (TerrainLayer|null)[] = [];
 
-    @property
-    @animatable(false)
-    @visible(false)
+    @serializable
+    @disallowAnimation
     protected _blockInfos: TerrainBlockInfo[] = [];
 
-    @property
-    @animatable(false)
-    @visible(false)
+    @serializable
+    @disallowAnimation
     protected _lightmapInfos: TerrainBlockLightmapInfo[] = [];
 
     protected _tileSize: number = 1;
@@ -839,7 +852,6 @@ export class Terrain extends Component {
      * @zh 获得地形信息
      */
     @type(TerrainInfo)
-    @visible(true)
     public get info () {
         const ti = new TerrainInfo();
         ti.tileSize = this.tileSize;
@@ -1035,12 +1047,12 @@ export class Terrain extends Component {
             }
         }
 
-        this._sharedIndexBuffer = gfxDevice.createBuffer({
-            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: Uint16Array.BYTES_PER_ELEMENT * TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6,
-            stride: Uint16Array.BYTES_PER_ELEMENT,
-        });
+        this._sharedIndexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            Uint16Array.BYTES_PER_ELEMENT * TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6,
+            Uint16Array.BYTES_PER_ELEMENT,
+        ));
         this._sharedIndexBuffer.update(indexData);
     }
 

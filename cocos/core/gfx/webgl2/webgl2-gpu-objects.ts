@@ -1,4 +1,4 @@
-import { IGFXDrawInfo } from '../buffer';
+import { GFXDrawInfo } from '../buffer';
 import {
     GFXAddress,
     GFXDescriptorType,
@@ -14,11 +14,11 @@ import {
     GFXType,
     GFXDynamicStateFlagBit,
 } from '../define';
-import { IGFXAttribute } from '../input-assembler';
+import { GFXAttribute } from '../input-assembler';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipeline-state';
 import { GFXColorAttachment, GFXDepthStencilAttachment } from '../render-pass';
 import { GFXUniformBlock, GFXUniformSampler } from '../shader';
-import { GFXDescriptorSetLayout, IGFXDescriptorSetLayoutBinding } from '../descriptor-set-layout';
+import { GFXDescriptorSetLayout, GFXDescriptorSetLayoutBinding } from '../descriptor-set-layout';
 
 export interface IWebGL2GPUUniformInfo {
     name: string;
@@ -40,7 +40,7 @@ export interface IWebGL2GPUBuffer {
     glOffset: number;
 
     buffer: ArrayBufferView | null;
-    indirects: IGFXDrawInfo[];
+    indirects: GFXDrawInfo[];
 }
 
 export interface IWebGL2GPUTexture {
@@ -134,10 +134,7 @@ export interface IWebGL2GPUUniformBlock {
     idx: number;
     name: string;
     size: number;
-
     glBinding: number;
-    glUniforms: IWebGL2GPUUniform[];
-    glActiveUniforms: IWebGL2GPUUniform[];
 }
 
 export interface IWebGL2GPUUniformSampler {
@@ -145,7 +142,9 @@ export interface IWebGL2GPUUniformSampler {
     binding: number;
     name: string;
     type: GFXType;
+    count: number;
     units: number[];
+    glUnits: Int32Array;
 
     glType: GLenum;
     glLoc: WebGLUniformLocation;
@@ -171,12 +170,16 @@ export interface IWebGL2GPUShader {
 }
 
 export interface IWebGL2GPUDescriptorSetLayout {
-    bindings: IGFXDescriptorSetLayoutBinding[];
+    bindings: GFXDescriptorSetLayoutBinding[];
     dynamicBindings: number[];
+    descriptorIndices: number[];
+    descriptorCount: number;
 }
 
 export interface IWebGL2GPUPipelineLayout {
     gpuSetLayouts: IWebGL2GPUDescriptorSetLayout[];
+    dynamicOffsetCount: number;
+    dynamicOffsetOffsets: number[];
     dynamicOffsetIndices: number[][];
 }
 
@@ -200,6 +203,7 @@ export interface IWebGL2GPUDescriptor {
 
 export interface IWebGL2GPUDescriptorSet {
     gpuDescriptors: IWebGL2GPUDescriptor[];
+    descriptorIndices: number[];
 }
 
 export interface IWebGL2Attrib {
@@ -216,7 +220,7 @@ export interface IWebGL2Attrib {
 }
 
 export interface IWebGL2GPUInputAssembler {
-    attributes: IGFXAttribute[];
+    attributes: GFXAttribute[];
     gpuVertexBuffers: IWebGL2GPUBuffer[];
     gpuIndexBuffer: IWebGL2GPUBuffer | null;
     gpuIndirectBuffer: IWebGL2GPUBuffer | null;

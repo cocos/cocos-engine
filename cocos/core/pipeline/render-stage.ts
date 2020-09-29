@@ -2,11 +2,12 @@
  * @category pipeline
  */
 
-import { ccclass, property, displayOrder, visible } from '../data/class-decorator';
+import { ccclass, displayOrder, serializable } from 'cc.decorator';
 import { RenderView } from './render-view';
 import { legacyCC } from '../global-exports';
 import { RenderPipeline } from './render-pipeline';
-import { RenderFlow } from '..';
+import { RenderFlow } from './render-flow';
+import { RenderQueueDesc } from './pipeline-serialization';
 
 /**
  * @en The render stage information descriptor
@@ -16,6 +17,7 @@ export interface IRenderStageInfo {
     name: string;
     priority: number;
     tag?: number;
+    renderQueues?: RenderQueueDesc[];
 }
 
 /**
@@ -31,6 +33,7 @@ export abstract class RenderStage {
      * @en Name of the current stage
      * @zh 当前渲染阶段的名字。
      */
+    @displayOrder(0)
     public get name (): string {
         return this._name;
     }
@@ -39,6 +42,7 @@ export abstract class RenderStage {
      * @en Priority of the current stage
      * @zh 当前渲染阶段的优先级。
      */
+    @displayOrder(1)
     public get priority (): number {
         return this._priority;
     }
@@ -47,6 +51,7 @@ export abstract class RenderStage {
      * @en Tag of the current stage
      * @zh 当前渲染阶段的标签。
      */
+    @displayOrder(2)
     public get tag (): number {
         return this._tag;
     }
@@ -55,27 +60,21 @@ export abstract class RenderStage {
      * @en Name
      * @zh 名称。
      */
-    @property
-    @visible(true)
-    @displayOrder(0)
+    @serializable
     protected _name: string = '';
 
     /**
      * @en Priority
      * @zh 优先级。
      */
-    @property
-    @visible(true)
-    @displayOrder(1)
+    @serializable
     protected _priority: number = 0;
 
     /**
      * @en Type
      * @zh 类型。
      */
-    @property
-    @visible(true)
-    @displayOrder(2)
+    @serializable
     protected _tag: number = 0;
     protected _pipeline!: RenderPipeline;
     protected _flow!: RenderFlow;
@@ -88,11 +87,7 @@ export abstract class RenderStage {
     public initialize (info: IRenderStageInfo): boolean {
         this._name = info.name;
         this._priority = info.priority;
-
-        if (info.tag) {
-            this._tag = info.tag;
-        }
-
+        if (info.tag) { this._tag = info.tag; }
         return true;
     }
 

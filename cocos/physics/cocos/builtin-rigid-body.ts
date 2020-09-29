@@ -1,6 +1,6 @@
 import { IRigidBody } from "../spec/i-rigid-body";
 import { IVec3Like } from "../../core";
-import { RigidBodyComponent, PhysicsSystem } from "../framework";
+import { RigidBody, PhysicsSystem } from "../framework";
 import { BuiltinSharedBody } from "./builtin-shared-body";
 import { BuiltInWorld } from "./builtin-world";
 
@@ -13,10 +13,10 @@ export class BuiltinRigidBody implements IRigidBody {
     get rigidBody () { return this._rigidBody; }
     get sharedBody () { return this._sharedBody; }
 
-    private _rigidBody!: RigidBodyComponent;
+    private _rigidBody!: RigidBody;
     protected _sharedBody!: BuiltinSharedBody;
 
-    initialize (com: RigidBodyComponent): void {
+    initialize (com: RigidBody): void {
         this._rigidBody = com;
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as BuiltInWorld).getSharedBody(this._rigidBody.node);
         this._sharedBody.reference = true;

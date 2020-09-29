@@ -7,14 +7,14 @@ import {
     help,
     executeInEditMode,
     menu,
-    property,
     requireComponent,
     disallowMultiple,
     tooltip,
     displayOrder,
-} from '../../../core/data/class-decorator';
+    serializable,
+} from 'cc.decorator';
 import { Component } from '../../../core/components/component';
-import { RigidBodyComponent } from './rigid-body-component';
+import { RigidBody } from './rigid-body';
 import { Vec3 } from '../../../core/math/vec3';
 import { EDITOR } from 'internal:constants';
 
@@ -22,28 +22,28 @@ import { EDITOR } from 'internal:constants';
  * @en
  * A tool component to help apply force to the rigid body at each frame.
  * @zh
- * 在每帧对一个刚体施加持续的力，依赖 RigidBodyComponent 组件。
+ * 在每帧对一个刚体施加持续的力，依赖 RigidBody 组件。
  */
 @ccclass('cc.ConstantForce')
 @help('i18n:cc.ConstantForce')
-@requireComponent(RigidBodyComponent)
+@requireComponent(RigidBody)
 @menu('Physics/ConstantForce')
 @disallowMultiple
 @executeInEditMode
 export class ConstantForce extends Component {
 
-    private _rigidBody: RigidBodyComponent | null = null;
+    private _rigidBody: RigidBody | null = null;
 
-    @property
+    @serializable
     private readonly _force: Vec3 = new Vec3();
 
-    @property
+    @serializable
     private readonly _localForce: Vec3 = new Vec3();
 
-    @property
+    @serializable
     private readonly _torque: Vec3 = new Vec3();
 
-    @property
+    @serializable
     private readonly _localTorque: Vec3 = new Vec3();
 
     private _mask: number = 0;
@@ -117,7 +117,7 @@ export class ConstantForce extends Component {
     }
 
     public onLoad () {
-        this._rigidBody = this.node.getComponent(RigidBodyComponent);
+        this._rigidBody = this.node.getComponent(RigidBody);
         this._maskUpdate(this._force, 1);
         this._maskUpdate(this._localForce, 2);
         this._maskUpdate(this._torque, 4);

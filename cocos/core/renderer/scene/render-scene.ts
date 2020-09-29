@@ -124,6 +124,35 @@ export class RenderScene {
         return true;
     }
 
+    public update (stamp: number) {
+        const mainLight = this._mainLight;
+        if (mainLight) {
+            mainLight.update();
+        }
+
+        const sphereLights = this._sphereLights;
+        for (let i = 0; i < sphereLights.length; i++) {
+            const light = sphereLights[i];
+            light.update();
+        }
+
+        const spotLights = this._spotLights;
+        for (let i = 0; i < spotLights.length; i++) {
+            const light = spotLights[i];
+            light.update();
+        }
+
+        const models = this._models;
+        for (let i = 0; i < models.length; i++) {
+            const model = models[i];
+
+            if (model.enabled) {
+                model.updateTransform(stamp);
+                model.updateUBOs(stamp);
+            }
+        }
+    }
+
     public destroy () {
         this.removeCameras();
         this.removeSphereLights();
@@ -161,6 +190,7 @@ export class RenderScene {
 
     public setMainLight (dl: DirectionalLight) {
         this._mainLight = dl;
+        ScenePool.set(this._scenePoolHandle, SceneView.MAIN_LIGHT, dl.handle);
     }
 
     public unsetMainLight (dl: DirectionalLight) {
@@ -243,10 +273,8 @@ export class RenderScene {
     }
 
     public removeModel (model: Model) {
-        const pipeline = legacyCC.director.root.pipeline;
         for (let i = 0; i < this._models.length; ++i) {
             if (this._models[i] === model) {
-                pipeline.planarShadows.destroyShadowData(model);
                 model.detachFromScene();
                 this._models.splice(i, 1);
                 ModelArrayPool.erase(this._modelArrayHandle, i);
@@ -256,9 +284,7 @@ export class RenderScene {
     }
 
     public removeModels () {
-        const pipeline = legacyCC.director.root.pipeline;
         for (const m of this._models) {
-            pipeline.planarShadows.destroyShadowData(m);
             m.detachFromScene();
         }
         this._models.length = 0;
@@ -423,7 +449,7 @@ export class RenderScene {
      */
     public raycastAllCanvas (worldRay: ray, mask = Layers.Enum.UI_2D, distance = Infinity): boolean {
         poolUI.reset();
-        const canvasComs = legacyCC.director.getScene().getComponentsInChildren(legacyCC.CanvasComponent);
+        const canvasComs = legacyCC.director.getScene().getComponentsInChildren(legacyCC.Canvas);
         if (canvasComs != null && canvasComs.length > 0) {
             for (let i = 0; i < canvasComs.length; i++) {
                 const canvasNode = canvasComs[i].node;
@@ -467,7 +493,7 @@ export class RenderScene {
         }
     }
 
-    private _createHandles() {
+    private _createHandles () {
         if (!this._modelArrayHandle) {
             this._modelArrayHandle = ModelArrayPool.alloc();
             this._scenePoolHandle = ScenePool.alloc();

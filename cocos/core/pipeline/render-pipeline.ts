@@ -4,12 +4,12 @@
 
 import { legacyCC } from '../global-exports';
 import { Asset } from '../assets/asset';
-import { ccclass, property, visible, displayOrder, type } from '../data/class-decorator';
+import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 import { MacroRecord } from '../renderer/core/pass-utils';
-import { GFXDevice, GFXDescriptorSet, GFXCommandBuffer, GFXDescriptorSetLayout } from '../gfx';
-import { globalDescriptorSetLayout, IDescriptorSetLayoutInfo } from './define';
+import { GFXDevice, GFXDescriptorSet, GFXCommandBuffer, GFXDescriptorSetLayout, GFXDescriptorSetLayoutInfo, GFXDescriptorSetInfo } from '../gfx';
+import { globalDescriptorSetLayout } from './define';
 
 /**
  * @en Render pipeline information descriptor
@@ -32,25 +32,6 @@ export interface IRenderPipelineInfo {
 export abstract class RenderPipeline extends Asset {
 
     /**
-     * @en Layout of the pipeline-global descriptor set.
-     * @zh 管线层的全局描述符集布局。
-     * @readonly
-     */
-    get globalDescriptorSetLayout (): Readonly<IDescriptorSetLayoutInfo> {
-        return this._globalDescriptorSetLayout;
-    }
-
-    /**
-     * @en Layout of the model-local descriptor set.
-     * @zh 逐模型的描述符集布局。
-     * @readonly
-     */
-    get localDescriptorSetLayout (): Readonly<IDescriptorSetLayoutInfo> {
-        return this._localDescriptorSetLayout;
-    }
-
-
-    /**
      * @en The macros for this pipeline.
      * @zh 管线宏定义。
      * @readonly
@@ -64,6 +45,8 @@ export abstract class RenderPipeline extends Asset {
      * @zh 管线的渲染流程列表。
      * @readonly
      */
+    @type([RenderFlow])
+    @displayOrder(1)
     get flows (): RenderFlow[] {
         return this._flows;
     }
@@ -73,6 +56,7 @@ export abstract class RenderPipeline extends Asset {
      * @zh 管线的标签。
      * @readonly
      */
+    @displayOrder(0)
     get tag (): number {
         return this._tag;
     }
@@ -82,9 +66,7 @@ export abstract class RenderPipeline extends Asset {
      * @zh 标签
      * @readonly
      */
-    @property
-    @displayOrder(0)
-    @visible(true)
+    @serializable
     protected _tag: number = 0;
 
     /**
@@ -93,12 +75,7 @@ export abstract class RenderPipeline extends Asset {
      * @readonly
      */
     @type([RenderFlow])
-    @displayOrder(1)
-    @visible(true)
     protected _flows: RenderFlow[] = [];
-
-    protected _globalDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: [], record: {} };
-    protected _localDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: [], record: {} };
 
     protected _macros: MacroRecord = {};
 
@@ -141,13 +118,10 @@ export abstract class RenderPipeline extends Asset {
     public activate (): boolean {
         this._device = legacyCC.director.root.device;
 
-        this._descriptorSetLayout = this._device.createDescriptorSetLayout({
-            bindings: globalDescriptorSetLayout.bindings,
-        });
+        const layoutInfo = new GFXDescriptorSetLayoutInfo(globalDescriptorSetLayout.bindings);
+        this._descriptorSetLayout = this._device.createDescriptorSetLayout(layoutInfo);
 
-        this._descriptorSet = this._device.createDescriptorSet({
-            layout: this._descriptorSetLayout,
-        });
+        this._descriptorSet = this._device.createDescriptorSet(new GFXDescriptorSetInfo(this._descriptorSetLayout));
 
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].activate(this);
@@ -161,9 +135,12 @@ export abstract class RenderPipeline extends Asset {
      * @zh 渲染函数，对指定的渲染视图按顺序执行所有渲染流程。
      * @param view Render view。
      */
-    public render (view: RenderView) {
-        for (let i = 0; i < view.flows.length; i++) {
-            view.flows[i].render(view);
+    public render (views: RenderView[]) {
+        for (let i = 0; i < views.length; i++) {
+            const view = views[i];
+            for (let j = 0; j < view.flows.length; j++) {
+                view.flows[j].render(view);
+            }
         }
     }
 

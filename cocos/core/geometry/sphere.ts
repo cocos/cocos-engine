@@ -4,8 +4,12 @@
 
 import { Mat4, Quat, Vec3 } from '../math';
 import enums from './enums';
+import aabb from './aabb';
 
 const _v3_tmp = new Vec3();
+const _offset = new Vec3();
+const _min = new Vec3();
+const _max = new Vec3();
 function maxComponent (v: Vec3) { return Math.max(Math.max(v.x, v.y), v.z); }
 
 /**
@@ -79,7 +83,7 @@ export default class sphere {
     /**
      * @en
      * Set the components of a sphere to the given values
-     * @zh 
+     * @zh
      * 将球体的属性设置为给定的值。
      * @param {sphere} out 接受操作的 sphere。
      * @param cx 形状的相对于原点的 X 坐标。
@@ -94,6 +98,43 @@ export default class sphere {
         out.center.y = cy;
         out.center.z = cz;
         out.radius = r;
+
+        return out;
+    }
+
+    /**
+     * @zh
+     * 球跟点合并
+     */
+    public static mergePoint (out: sphere, s: sphere, point: Vec3) {
+        if (s.radius < 0.0) {
+            out.center = point;
+            out.radius = 0.0;
+            return out;
+        }
+
+        Vec3.subtract(_offset, point, s.center);
+        const dist = _offset.length();
+
+        if (dist > s.radius) {
+            const half = (dist - s.radius) * 0.5;
+            out.radius += half;
+            Vec3.multiplyScalar(_offset, _offset, half / dist);
+            Vec3.add(out.center, out.center, _offset);
+        }
+
+        return out;
+    }
+
+    /**
+     * @zh
+     * 球跟立方体合并
+     */
+    public static mergeAABB (out: sphere, s:sphere, a: aabb) {
+        a.getBoundary(_min, _max);
+
+        sphere.mergePoint(out, s, _min);
+        sphere.mergePoint(out, s, _max);
 
         return out;
     }

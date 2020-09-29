@@ -7,12 +7,16 @@ import { GFXDevice } from './device';
 import { GFXRenderPass } from './render-pass';
 import { GFXTexture } from './texture';
 
-export interface IGFXFramebufferInfo {
-    renderPass: GFXRenderPass;
-    colorTextures: (GFXTexture | null)[]; // pass null to use swapchain buffers
-    depthStencilTexture: GFXTexture | null;
-    colorMipmapLevels?: number[];
-    depStencilMipmapLevel?: number;
+export class GFXFramebufferInfo {
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public renderPass: GFXRenderPass,
+        public colorTextures: (GFXTexture | null)[] = [], // pass null to use swapchain buffers
+        public depthStencilTexture: GFXTexture | null = null,
+        public colorMipmapLevels: number[] = [],
+        public depStencilMipmapLevel: number = 0,
+    ) {}
 }
 
 /**
@@ -58,7 +62,7 @@ export abstract class GFXFramebuffer extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: IGFXFramebufferInfo): boolean;
+    public abstract initialize (info: GFXFramebufferInfo): boolean;
 
     public abstract destroy (): void;
 }

@@ -3,7 +3,7 @@
  * @category particle
  */
 
-import { ccclass, property, displayOrder, type } from '../../core/data/class-decorator';
+import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { pseudoRandom } from '../../core/math';
 import { Particle, PARTICLE_MODULE_NAME } from '../particle';
 import GradientRange from './gradient-range';
@@ -16,7 +16,7 @@ const COLOR_OVERTIME_RAND_OFFSET = ModuleRandSeed.COLOR;
 
 @ccclass('cc.ColorOvertimeModule')
 export default class ColorOvertimeModule extends ParticleModuleBase {
-    @property
+    @serializable
     _enable = false;
     /**
      * @zh 是否启用。
@@ -37,6 +37,7 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
      * @zh 颜色随时间变化的参数，各个 key 之间线性差值变化。
      */
     @type(GradientRange)
+    @serializable
     @displayOrder(1)
     public color = new GradientRange();
     public name = PARTICLE_MODULE_NAME.COLOR;

@@ -2,7 +2,7 @@
  * @category geometry
  */
 
-import CCClass from '../../core/data/class';
+import { CCClass } from '../../core/data/class';
 import { clamp, inverseLerp, pingPong, repeat } from '../../core/math/utils';
 import { Enum } from '../../core/value-types/enum';
 import { WrapModeMask } from '../../core/animation/types';

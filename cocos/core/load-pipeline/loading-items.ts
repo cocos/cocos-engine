@@ -54,17 +54,8 @@ export interface IItem {
 }
 
 enum ItemState {
-    /**
-     * @property {Number} WORKING
-     */
     WORKING,
-    /**
-     * @property {Number} COMPLETE
-     */
     COMPLETE,
-    /**
-     * @property {Number} ERROR
-     */
     ERROR
 };
 
@@ -637,17 +628,18 @@ export class LoadingItems extends CallbacksInvoker {
             this._errorUrls.splice(errorListId, 1);
         }
 
+        LoadingItems.finishDep(item.id);
+
+        this.emit(id, item);
+        this.removeAll(id);
+
         this.completed[id] = item;
         this.completedCount++;
 
-        LoadingItems.finishDep(item.id);
         if (this.onProgress) {
             let dep = _queueDeps[this._id];
             this.onProgress(dep ? dep.completed.length : this.completedCount, dep ? dep.deps.length : this.totalCount, item);
         }
-
-        this.emit(id, item);
-        this.removeAll(id);
 
         // All completed
         if (!this._appending && this.completedCount >= this.totalCount) {

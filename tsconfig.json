@@ -12,6 +12,12 @@
       "esModuleInterop": true,
       "experimentalDecorators": true,
       "isolatedModules": true,
+      "baseUrl": "./",
+      "paths": {
+          "cc.decorator": [
+              "cocos/core/data/decorators/index.ts"
+          ],
+      },
       "types": [
         "./@types/globals",
         "./@types/consts",
@@ -28,5 +34,8 @@
     "include": [
         "exports/**/*.ts",
         "index.ts"
+    ],
+    "exclude": [
+      "**/*.jsb.ts"
     ]
   }

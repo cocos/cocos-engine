@@ -7,8 +7,6 @@ export class ObjectCollisionMatrix {
 
     /**
      * The matrix storage
-     * @property matrix
-     * @type {Object}
      */
     public matrix: {};
 

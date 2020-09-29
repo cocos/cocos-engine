@@ -1,13 +1,16 @@
 /**
- * @hidden
+ * @category animation
  */
 
 import { replaceProperty } from '../utils/deprecated';
-import { AnimationComponent } from './animation-component';
+import { Animation } from './animation-component';
+import { SkeletalAnimation } from './skeletal-animation';
 import { AnimationClip } from './animation-clip';
+import { js } from '../utils/js';
+import { legacyCC } from '../global-exports';
 
 // deprecated
-replaceProperty(AnimationComponent.prototype, 'AnimationComponent', [
+replaceProperty(Animation.prototype, 'Animation', [
     {
         'name': 'getAnimationState',
         'newName': 'getState'
@@ -21,7 +24,22 @@ replaceProperty(AnimationComponent.prototype, 'AnimationComponent', [
         'newName': 'removeState',
         'customFunction': function (...args: any) {
             let arg0 = args[0] as AnimationClip;
-            return AnimationComponent.prototype.removeState.call(this, arg0.name);
+            return Animation.prototype.removeState.call(this, arg0.name);
         }
     }
 ]);
+
+/**
+ * Alias of [[Animation]]
+ * @deprecated Since v1.2
+ */
+export { Animation as AnimationComponent };
+legacyCC.AnimationComponent = Animation;
+js.setClassAlias(Animation, 'cc.AnimationComponent');
+/**
+ * Alias of [[SkeletalAnimation]]
+ * @deprecated Since v1.2
+ */
+export { SkeletalAnimation as SkeletalAnimationComponent };
+legacyCC.SkeletalAnimationComponent = SkeletalAnimation;
+js.setClassAlias(SkeletalAnimation, 'cc.SkeletalAnimationComponent');

@@ -156,10 +156,10 @@ export class MeshRenderData extends BaseRenderData {
                 indicesLength = iCount;
             }
             // copy old data
-            const oldVData = new Float32Array(this.vData.buffer);
+            const oldVData = this.vData;
             this.vData = new Float32Array(vCount);
             this.vData.set(oldVData, 0);
-            const oldIData = new Uint16Array(this.iData.buffer);
+            const oldIData = this.iData;
             this.iData = new Uint16Array(iCount);
             this.iData.set(oldIData, 0);
 
