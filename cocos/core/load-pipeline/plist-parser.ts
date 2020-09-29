@@ -164,6 +164,7 @@ class PlistParser extends SAXParser {
 }
 
 /**
+ * @type {PlistParser}
  * @name plistParser
  * A Plist Parser
  */

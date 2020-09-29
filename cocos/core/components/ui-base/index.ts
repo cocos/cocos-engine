@@ -27,8 +27,9 @@
  * @hidden
  */
 
-export * from './canvas';
+export * from './canvas-component';
 export * from './ui-component';
-export * from './ui-renderable';
-export * from './ui-transform';
-export * from './deprecated';
+export * from './ui-render-component';
+export * from './ui-transform-component';
+
+import './deprecated';

@@ -1,5 +1,5 @@
 import { GFXCommandBuffer } from '../command-buffer';
-import { GFXQueue, GFXQueueInfo } from '../queue';
+import { GFXQueue, IGFXQueueInfo } from '../queue';
 import { GFXFence } from '../fence';
 
 export class WebGLQueue extends GFXQueue {
@@ -8,7 +8,7 @@ export class WebGLQueue extends GFXQueue {
     public numInstances: number = 0;
     public numTris: number = 0;
 
-    public initialize (info: GFXQueueInfo): boolean {
+    public initialize (info: IGFXQueueInfo): boolean {
 
         this._type = info.type;
 

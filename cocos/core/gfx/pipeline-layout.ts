@@ -6,12 +6,8 @@ import { GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 import { GFXDescriptorSetLayout } from './descriptor-set-layout';
 
-export class GFXPipelineLayoutInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public setLayouts: GFXDescriptorSetLayout[] = [],
-    ) {}
+export interface IGFXPipelineLayoutInfo {
+    setLayouts: GFXDescriptorSetLayout[];
 }
 
 /**
@@ -33,7 +29,7 @@ export abstract class GFXPipelineLayout extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: GFXPipelineLayoutInfo): boolean;
+    public abstract initialize (info: IGFXPipelineLayoutInfo): boolean;
 
     public abstract destroy (): void;
 }

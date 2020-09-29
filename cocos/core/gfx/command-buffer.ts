@@ -6,10 +6,12 @@ import { GFXDescriptorSet } from './descriptor-set';
 import { GFXBuffer } from './buffer';
 import {
     GFXBufferTextureCopy,
+    GFXClearFlag,
     GFXCommandBufferType,
     GFXObject,
     GFXObjectType,
     GFXStencilFace,
+    GFXTextureLayout,
     GFXColor,
     GFXRect,
     GFXViewport,
@@ -22,13 +24,31 @@ import { GFXTexture } from './texture';
 import { GFXRenderPass } from './render-pass';
 import { GFXQueue } from './queue';
 
-export class GFXCommandBufferInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export interface IGFXCommandBufferInfo {
+    queue: GFXQueue;
+    type: GFXCommandBufferType;
+}
 
-    constructor (
-        public queue: GFXQueue,
-        public type: GFXCommandBufferType = GFXCommandBufferType.PRIMARY
-    ) {}
+export interface IGFXDepthBias {
+    constantFactor: number;
+    clamp: number;
+    slopeFactor: number;
+}
+
+export interface IGFXDepthBounds {
+    minBounds: number;
+    maxBounds: number;
+}
+
+export interface IGFXStencilWriteMask {
+    face: GFXStencilFace;
+    writeMask: number;
+}
+
+export interface IGFXStencilCompareMask {
+    face: GFXStencilFace;
+    reference: number;
+    compareMask: number;
 }
 
 /**
@@ -95,7 +115,7 @@ export abstract class GFXCommandBuffer extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: GFXCommandBufferInfo): boolean;
+    public abstract initialize (info: IGFXCommandBufferInfo): boolean;
 
     public abstract destroy (): void;
 

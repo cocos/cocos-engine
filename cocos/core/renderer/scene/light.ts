@@ -2,7 +2,6 @@ import { Vec3 } from '../../math';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { RenderScene } from './render-scene';
 import { Node } from '../../scene-graph';
-import { LightHandle, NULL_HANDLE, LightPool, LightView } from '../core/memory-pools';
 
 // Color temperature (in Kelvin) to RGB
 export function ColorTemperatureToRGB (rgb: Vec3, kelvin: number) {
@@ -44,7 +43,6 @@ export class Light {
 
     set color (color: Vec3) {
         this._color.set(color);
-        LightPool.setVec3(this._handle, LightView.COLOR, color);
     }
 
     get color (): Vec3 {
@@ -52,17 +50,16 @@ export class Light {
     }
 
     set useColorTemperature (enable: boolean) {
-        LightPool.set(this._handle, LightView.USE_COLOR_TEMPERATURE, enable ? 1 : 0);
+        this._useColorTemp = enable;
     }
 
     get useColorTemperature (): boolean {
-        return LightPool.get(this._handle, LightView.USE_COLOR_TEMPERATURE) === 1 ? true : false;
+        return this._useColorTemp;
     }
 
     set colorTemperature (val: number) {
         this._colorTemp = val;
         ColorTemperatureToRGB(this._colorTempRGB, this._colorTemp);
-        LightPool.setVec3(this._handle, LightView.COLOR_TEMPERATURE_RGB, this._colorTempRGB);
     }
 
     get colorTemperature (): number {
@@ -77,7 +74,6 @@ export class Light {
         this._node = n;
         if (this._node) {
             this._node.hasChangedFlags |= TransformBit.ROTATION;
-            LightPool.set(this._handle, LightView.NODE, this._node.handle);
         }
     }
 
@@ -93,35 +89,27 @@ export class Light {
         return this._name;
     }
 
-    set name (n) {
-        this._name = n;
-    }
-
     get scene () {
         return this._scene;
     }
 
-    get handle () {
-        return this._handle;
-    }
-
     protected _color: Vec3 = new Vec3(1, 1, 1);
+    protected _useColorTemp: boolean = false;
     protected _colorTemp: number = 6550.0;
     protected _colorTempRGB: Vec3 = new Vec3(1, 1, 1);
     protected _scene: RenderScene | null = null;
     protected _node: Node | null = null;
     protected _type: LightType;
     protected _name: string | null = null;
-    protected _handle: LightHandle = NULL_HANDLE;
 
     constructor () {
         this._type = LightType.UNKNOWN;
     }
 
-    public initialize () {
-        this._handle = LightPool.alloc();
-        LightPool.setVec3(this._handle, LightView.COLOR, this._color);
-        LightPool.setVec3(this._handle, LightView.COLOR_TEMPERATURE_RGB, this._colorTempRGB);
+    public initialize (name: string, node: Node) {
+        this._name = name;
+        this._type = LightType.UNKNOWN;
+        this._node = node;
     }
 
     public attachToScene (scene: RenderScene) {
@@ -136,10 +124,6 @@ export class Light {
         this._name = null;
         this._type = LightType.UNKNOWN;
         this._node = null;
-        if (this._handle) {
-            LightPool.free(this._handle);
-            this._handle = NULL_HANDLE;
-        }
     }
 
     public update () {}

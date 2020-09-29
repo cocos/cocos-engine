@@ -28,11 +28,14 @@
  */
 
 import { Component } from '../../components/component';
-import { ccclass, tooltip, range, slide, type, serializable, editable } from 'cc.decorator';
+import { ccclass, property, tooltip, range, slide, type } from '../../data/class-decorator';
 import { Color } from '../../math';
 import { Enum } from '../../value-types';
 
-import { scene } from '../../renderer';
+import { DirectionalLight } from '../../renderer/scene/directional-light';
+import { Light, LightType } from '../../renderer/scene/light';
+import { SphereLight } from '../../renderer/scene/sphere-light';
+import { SpotLight } from '../../renderer/scene/spot-light';
 import { Root } from '../../root';
 import { legacyCC } from '../../global-exports';
 
@@ -47,18 +50,18 @@ export const PhotometricTerm = Enum({
  */
 @ccclass('cc.StaticLightSettings')
 class StaticLightSettings {
-    @serializable
+    @property
     protected _editorOnly: boolean = false;
-    @serializable
+    @property
     protected _bakeable: boolean = false;
-    @serializable
+    @property
     protected _castShadow: boolean = false;
 
     /**
      * @en editor only.
      * @zh 是否只在编辑器里生效。
      */
-    @editable
+    @property
     get editorOnly () {
         return this._editorOnly;
     }
@@ -70,7 +73,7 @@ class StaticLightSettings {
      * @en bakeable.
      * @zh 是否可烘培。
      */
-    @editable
+    @property
     get bakeable () {
         return this._bakeable;
     }
@@ -83,7 +86,7 @@ class StaticLightSettings {
      * @en cast shadow.
      * @zh 是否投射阴影。
      */
-    @editable
+    @property
     get castShadow () {
         return this._castShadow;
     }
@@ -94,29 +97,29 @@ class StaticLightSettings {
 }
 
 // tslint:disable: no-shadowed-variable
-export declare namespace Light {
-    export type Type = EnumAlias<typeof scene.LightType>;
+export declare namespace LightComponent {
+    export type Type = EnumAlias<typeof LightType>;
     export type PhotometricTerm = EnumAlias<typeof PhotometricTerm>;
 }
 // tslint:enable: no-shadowed-variable
 
-@ccclass('cc.Light')
-export class Light extends Component {
-    public static Type = scene.LightType;
+@ccclass('cc.LightComponent')
+export class LightComponent extends Component {
+    public static Type = LightType;
     public static PhotometricTerm = PhotometricTerm;
 
-    @serializable
+    @property
     protected _color = Color.WHITE.clone();
-    @serializable
+    @property
     protected _useColorTemperature = false;
-    @serializable
+    @property
     protected _colorTemperature = 6550;
-    @serializable
+    @property
     protected _staticSettings: StaticLightSettings = new StaticLightSettings();
 
-    protected _type = scene.LightType.UNKNOWN;
-    protected _lightType: typeof scene.Light;
-    protected _light: scene.Light | null = null;
+    protected _type = LightType.UNKNOWN;
+    protected _lightType: typeof Light;
+    protected _light: Light | null = null;
 
     /**
      * @en
@@ -125,6 +128,7 @@ export class Light extends Component {
      * 光源颜色。
      */
     @tooltip('i18n:lights.color')
+    // @constget
     get color (): Readonly<Color> {
         return this._color;
     }
@@ -158,7 +162,7 @@ export class Light extends Component {
      * @zh
      * 光源色温。
      */
-    @slide
+    @slide(true)
     @range([1000, 15000, 1])
     @tooltip('i18n:lights.color_temperature')
     get colorTemperature () {
@@ -197,7 +201,7 @@ export class Light extends Component {
 
     constructor () {
         super();
-        this._lightType = scene.Light;
+        this._lightType = Light;
     }
 
     public onLoad (){
@@ -236,17 +240,16 @@ export class Light extends Component {
     protected _attachToScene () {
         this._detachFromScene();
         if (this._light && !this._light.scene && this.node.scene) {
-            const renderScene = this._getRenderScene();
             switch (this._type) {
-                case scene.LightType.DIRECTIONAL:
-                    renderScene.addDirectionalLight(this._light as scene.DirectionalLight);
-                    renderScene.setMainLight(this._light as scene.DirectionalLight);
+                case LightType.DIRECTIONAL:
+                    this._getRenderScene().addDirectionalLight(this._light as DirectionalLight);
+                    this._getRenderScene().setMainLight(this._light as DirectionalLight);
                     break;
-                case scene.LightType.SPHERE:
-                    renderScene.addSphereLight(this._light as scene.SphereLight);
+                case LightType.SPHERE:
+                    this._getRenderScene().addSphereLight(this._light as SphereLight);
                     break;
-                case scene.LightType.SPOT:
-                    renderScene.addSpotLight(this._light as scene.SpotLight);
+                case LightType.SPOT:
+                    this._getRenderScene().addSpotLight(this._light as SpotLight);
                     break;
             }
         }
@@ -254,17 +257,17 @@ export class Light extends Component {
 
     protected _detachFromScene () {
         if (this._light && this._light.scene) {
-            const renderScene = this._light.scene;
             switch (this._type) {
-                case scene.LightType.DIRECTIONAL:
-                    renderScene.removeDirectionalLight(this._light as scene.DirectionalLight);
-                    renderScene.unsetMainLight(this._light as scene.DirectionalLight);
+                case LightType.DIRECTIONAL:
+                    const scene = this._light.scene;
+                    scene.removeDirectionalLight(this._light as DirectionalLight);
+                    scene.unsetMainLight(this._light as DirectionalLight);
                     break;
-                case scene.LightType.SPHERE:
-                    renderScene.removeSphereLight(this._light as scene.SphereLight);
+                case LightType.SPHERE:
+                    this._light.scene.removeSphereLight(this._light as SphereLight);
                     break;
-                case scene.LightType.SPOT:
-                    renderScene.removeSpotLight(this._light as scene.SpotLight);
+                case LightType.SPOT:
+                    this._light.scene.removeSpotLight(this._light as SpotLight);
                     break;
             }
         }

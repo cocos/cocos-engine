@@ -27,11 +27,11 @@
  * @category asset
  */
 
-import { ccclass, rangeMin, rangeMax, serializable } from 'cc.decorator';
-import { GFXTexture, GFXSampler, GFXColorAttachment, GFXDepthStencilAttachment, GFXTextureLayout, GFXRenderPassInfo } from '../gfx';
+import { ccclass, property, visible, rangeMin, rangeMax } from '../data/class-decorator';
+import { GFXTexture, GFXSampler, GFXColorAttachment, GFXDepthStencilAttachment, GFXTextureLayout, IGFXRenderPassInfo } from '../gfx';
 import { legacyCC } from '../global-exports';
-import { RenderWindow } from '../renderer/core/render-window';
-import { IRenderWindowInfo } from '../renderer/core/render-window';
+import { RenderWindow } from '../pipeline';
+import { IRenderWindowInfo } from '../pipeline/render-window';
 import { Root } from '../root';
 import { Asset } from './asset';
 import { samplerLib, defaultSamplerHash } from '../renderer/core/sampler-lib';
@@ -40,13 +40,16 @@ export interface IRenderTextureCreateInfo {
     name?: string;
     width: number;
     height: number;
-    passInfo?: GFXRenderPassInfo;
+    passInfo?: IGFXRenderPassInfo;
 }
 
 const _colorAttachment = new GFXColorAttachment();
 _colorAttachment.endLayout = GFXTextureLayout.SHADER_READONLY_OPTIMAL;
 const _depthStencilAttachment = new GFXDepthStencilAttachment();
-const passInfo = new GFXRenderPassInfo([_colorAttachment], _depthStencilAttachment);
+const passInfo = {
+    colorAttachments: [_colorAttachment],
+    depthStencilAttachment: _depthStencilAttachment,
+};
 
 const _windowInfo: IRenderWindowInfo = {
     width: 1,
@@ -57,22 +60,24 @@ const _windowInfo: IRenderWindowInfo = {
 @ccclass('cc.RenderTexture')
 export class RenderTexture extends Asset {
 
-    @serializable
+    @property
+    @rangeMin(1)
+    @rangeMax(2048)
+    @visible(true)
     private _width = 1;
 
-    @serializable
+    @property
+    @rangeMin(1)
+    @rangeMax(2048)
+    @visible(true)
     private _height = 1;
 
     private _window: RenderWindow | null = null;
 
-    @rangeMin(1)
-    @rangeMax(2048)
     get width () {
         return this._width;
     }
 
-    @rangeMin(1)
-    @rangeMax(2048)
     get height () {
         return this._height;
     }

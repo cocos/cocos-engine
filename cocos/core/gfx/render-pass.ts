@@ -19,16 +19,12 @@ import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
  * @zh GFX 颜色附件。
  */
 export class GFXColorAttachment {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public format: GFXFormat = GFXFormat.UNKNOWN,
-        public sampleCount: number = 1,
-        public loadOp: GFXLoadOp = GFXLoadOp.CLEAR,
-        public storeOp: GFXStoreOp = GFXStoreOp.STORE,
-        public beginLayout: GFXTextureLayout = GFXTextureLayout.UNDEFINED,
-        public endLayout: GFXTextureLayout = GFXTextureLayout.PRESENT_SRC,
-    ) {}
+    public format: GFXFormat = GFXFormat.UNKNOWN;
+    public sampleCount: number = 1;
+    public loadOp: GFXLoadOp = GFXLoadOp.CLEAR;
+    public storeOp: GFXStoreOp = GFXStoreOp.STORE;
+    public beginLayout: GFXTextureLayout = GFXTextureLayout.UNDEFINED;
+    public endLayout: GFXTextureLayout = GFXTextureLayout.PRESENT_SRC;
 }
 
 /**
@@ -36,41 +32,29 @@ export class GFXColorAttachment {
  * @zh GFX 深度模板附件。
  */
 export class GFXDepthStencilAttachment {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public format: GFXFormat = GFXFormat.UNKNOWN,
-        public sampleCount: number = 1,
-        public depthLoadOp: GFXLoadOp = GFXLoadOp.CLEAR,
-        public depthStoreOp: GFXStoreOp = GFXStoreOp.STORE,
-        public stencilLoadOp: GFXLoadOp = GFXLoadOp.CLEAR,
-        public stencilStoreOp: GFXStoreOp = GFXStoreOp.STORE,
-        public beginLayout: GFXTextureLayout = GFXTextureLayout.UNDEFINED,
-        public endLayout: GFXTextureLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-    ) {}
+    public format: GFXFormat = GFXFormat.UNKNOWN;
+    public sampleCount: number = 1;
+    public depthLoadOp: GFXLoadOp = GFXLoadOp.CLEAR;
+    public depthStoreOp: GFXStoreOp = GFXStoreOp.STORE;
+    public stencilLoadOp: GFXLoadOp = GFXLoadOp.CLEAR;
+    public stencilStoreOp: GFXStoreOp = GFXStoreOp.STORE;
+    public beginLayout: GFXTextureLayout = GFXTextureLayout.UNDEFINED;
+    public endLayout: GFXTextureLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 }
 
-export class GFXSubPassInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public bindPoint: GFXPipelineBindPoint = GFXPipelineBindPoint.GRAPHICS,
-        public inputs: number[] = [],
-        public colors: number[] = [],
-        public resolves: number[] = [],
-        public depthStencil: number = -1,
-        public preserves: number[] = [],
-    ) {}
+export interface IGFXSubPassInfo {
+    bindPoint: GFXPipelineBindPoint;
+    inputs: number[];
+    colors: number[];
+    resolves: number[];
+    depthStencil?: number;
+    preserves: number[];
 }
 
-export class GFXRenderPassInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public colorAttachments: GFXColorAttachment[] = [],
-        public depthStencilAttachment: GFXDepthStencilAttachment | null = null,
-        public subPasses: GFXSubPassInfo[] = [],
-    ) {}
+export interface IGFXRenderPassInfo {
+    colorAttachments: GFXColorAttachment[];
+    depthStencilAttachment: GFXDepthStencilAttachment | null;
+    subPasses?: IGFXSubPassInfo[];
 }
 
 /**
@@ -85,7 +69,7 @@ export abstract class GFXRenderPass extends GFXObject {
 
     protected _depthStencilInfo: GFXDepthStencilAttachment | null = null;
 
-    protected _subPasses : GFXSubPassInfo[] = [];
+    protected _subPasses : IGFXSubPassInfo[] = [];
 
     protected _hash: number = 0;
 
@@ -99,7 +83,7 @@ export abstract class GFXRenderPass extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: GFXRenderPassInfo): boolean;
+    public abstract initialize (info: IGFXRenderPassInfo): boolean;
 
     public abstract destroy (): void;
 
@@ -123,7 +107,7 @@ export abstract class GFXRenderPass extends GFXObject {
                         res += `,${ca.format},${ca.sampleCount}`;
                     }
                 }
-                if (subpass.depthStencil >= 0) {
+                if (subpass.depthStencil !== undefined) {
                     const ds = this._colorInfos[subpass.depthStencil];
                     res += `ds,${ds.format},${ds.sampleCount}`;
                 }

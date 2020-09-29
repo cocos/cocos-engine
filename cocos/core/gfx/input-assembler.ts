@@ -7,28 +7,20 @@ import { GFXFormat, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 
-export class GFXAttribute {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public name: string = '',
-        public format: GFXFormat = GFXFormat.UNKNOWN,
-        public isNormalized: boolean = false,
-        public stream: number = 0,
-        public isInstanced: boolean = false,
-        public location: number = 0,
-    ) {}
+export interface IGFXAttribute {
+    name: string;
+    format: GFXFormat;
+    isNormalized?: boolean;
+    stream?: number;
+    isInstanced?: boolean;
+    location?: number;
 }
 
-export class GFXInputAssemblerInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public attributes: GFXAttribute[] = [],
-        public vertexBuffers: GFXBuffer[] = [],
-        public indexBuffer: GFXBuffer | null = null,
-        public indirectBuffer: GFXBuffer | null = null,
-    ) {}
+export interface IGFXInputAssemblerInfo {
+    attributes: IGFXAttribute[];
+    vertexBuffers: GFXBuffer[];
+    indexBuffer?: GFXBuffer;
+    indirectBuffer?: GFXBuffer;
 }
 
 /**
@@ -57,7 +49,7 @@ export abstract class GFXInputAssembler extends GFXObject {
      * @en Get current attributes.
      * @zh 顶点属性数组。
      */
-    get attributes (): GFXAttribute[] {
+    get attributes (): IGFXAttribute[] {
         return this._attributes;
     }
 
@@ -154,6 +146,14 @@ export abstract class GFXInputAssembler extends GFXObject {
     }
 
     /**
+     * @en Is the assembler an indirect command?
+     * @zh 是否间接绘制。
+     */
+    get isIndirect (): boolean {
+        return this._isIndirect;
+    }
+
+    /**
      * @en Get the indirect buffer, if present.
      * @zh 间接绘制缓冲。
      */
@@ -163,7 +163,7 @@ export abstract class GFXInputAssembler extends GFXObject {
 
     protected _device: GFXDevice;
 
-    protected _attributes: GFXAttribute[] = [];
+    protected _attributes: IGFXAttribute[] = [];
 
     protected _vertexBuffers: GFXBuffer[] = [];
 
@@ -183,6 +183,7 @@ export abstract class GFXInputAssembler extends GFXObject {
 
     protected _firstInstance: number = 0;
 
+    protected _isIndirect: boolean = false;
     protected _attributesHash: number = 0;
 
     protected _indirectBuffer: GFXBuffer | null = null;
@@ -192,7 +193,7 @@ export abstract class GFXInputAssembler extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: GFXInputAssemblerInfo): boolean;
+    public abstract initialize (info: IGFXInputAssemblerInfo): boolean;
     public abstract destroy (): void;
 
     /**

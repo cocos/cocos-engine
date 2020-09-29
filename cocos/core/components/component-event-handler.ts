@@ -28,30 +28,16 @@
  * @category event
  */
 
-import {ccclass, type, serializable, editable} from 'cc.decorator';
+import {ccclass, property, type} from '../data/class-decorator';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 
 /**
- * @en
- * Component will register a event to target component's handler. And it will trigger the handler when a certain event occurs.
- *
  * @zh
  * “EventHandler” 类用来设置场景中的事件回调，该类允许用户设置回调目标节点，目标组件名，组件方法名，并可通过 emit 方法调用目标函数。
  *
  * @example
  * ```ts
- * // Let's say we have a MainMenu component on newTarget
- * // file: MainMenu.ts
- * @ccclass('MainMenu')
- * export class MainMenu extends Component {
- *     // sender: the node MainMenu.ts belongs to
- *     // eventType: CustomEventData
- *     onClick (sender, eventType) {
- *         cc.log('click');
- *     }
- * }
- *
  * import { Component } from 'cc';
  * const eventHandler = new Component.EventHandler();
  * eventHandler.target = newTarget;
@@ -73,8 +59,6 @@ export class EventHandler {
     }
 
     /**
-     * @en
-     * For component event emit
      * @zh
      * 组件事件派发。
      *
@@ -92,50 +76,37 @@ export class EventHandler {
         }
     }
     /**
-     * @en
-     * The node that contains target callback, such as the node example script belongs to
      * @zh
-     * 事件响应函数所在节点 ，比如例子中脚本归属的节点本身
+     * 目标节点。
      */
     @type(legacyCC.Node)
     public target: Node | null = null;
     /**
-     * @en
-     * The name of the component(script) that contains target callback, such as the name 'MainMenu' of script in example
      * @zh
-     * 事件响应函数所在组件名（脚本名）, 比如例子中的脚本名 'MainMenu'
+     * 目标组件名。
      */
     // only for deserializing old project component field
-    @serializable
-    @editable
+    @property
     public component = '';
 
-    @serializable
+    @property
     public _componentId = '';
 
     /**
-     * @en
-     * Event handler, such as function's name 'onClick' in example
      * @zh
-     * 响应事件函数名，比如例子中的 'onClick'
+     * 响应事件函数名。
      */
-    @serializable
-    @editable
+    @property
     public handler = '';
 
     /**
-     * @en
-     * Custom Event Data, such as 'eventType' in example
      * @zh
-     * 自定义事件数据，比如例子中的 eventType
+     * 自定义事件数据。
      */
-    @serializable
-    @editable
+    @property
     public customEventData = '';
 
     /**
-     * @en
-     * Emit event with params
      * @zh
      * 触发目标组件上的指定 handler 函数，该参数是回调函数的参数值（可不填）。
      *

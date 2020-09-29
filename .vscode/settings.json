@@ -10,10 +10,9 @@
         ".github": true,
         "bin": true
     },
-    "typescript.preferences.importModuleSpecifier": "relative",
-    "typescript.tsdk": "node_modules/typescript/lib",
+    "javascript.implicitProjectConfig.experimentalDecorators": true,
     "eslint.validate": [
         "javascript",
-        "typescript"
+        { "language": "typescript", "autoFix": true },
     ]
 }

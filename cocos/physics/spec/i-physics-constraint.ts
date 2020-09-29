@@ -3,13 +3,13 @@
  */
 
 import { ILifecycle } from './i-lifecycle'
-import { Constraint, RigidBody } from '../framework';
+import { ConstraintComponent, RigidBodyComponent } from '../framework';
 import { IVec3Like } from '../../core';
 
 export interface IBaseConstraint extends ILifecycle {
     readonly impl: any;
-    initialize (v: Constraint): void;
-    setConnectedBody (v: RigidBody | null): void;
+    initialize (v: ConstraintComponent): void;
+    setConnectedBody (v: RigidBodyComponent | null): void;
     setEnableCollision (v: boolean): void;
 }
 

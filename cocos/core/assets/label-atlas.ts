@@ -28,7 +28,7 @@
  * @category asset
  */
 
-import { ccclass } from 'cc.decorator';
+import { ccclass } from '../data/class-decorator';
 import { BitmapFont } from './bitmap-font';
 import { legacyCC } from '../global-exports';
 /**

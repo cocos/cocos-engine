@@ -57,7 +57,7 @@
                     ]
                 },
                 {
-                    "text": "ammo.js",
+                    "text": "ammo.js(beta)",
                     "entry": [
                         "physics-ammo",
                         "physics-framework",
@@ -70,18 +70,6 @@
             "text": "Audio",
             "description": "Audio support.",
             "entry": "audio",
-            "default": true
-        },
-        {
-            "text": "VideoPlayer",
-            "description": "VideoPlayer support.",
-            "entry": "video",
-            "default": true
-        },
-        {
-            "text": "WebView",
-            "description": "WebView support.",
-            "entry": "webview",
             "default": true
         },
         {

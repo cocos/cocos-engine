@@ -1,11 +1,11 @@
 import Ammo from '../ammo-instantiated';
 import { IBaseConstraint } from "../../spec/i-physics-constraint";
-import { Constraint, RigidBody } from "../../framework";
+import { ConstraintComponent, RigidBodyComponent } from "../../framework";
 import { AmmoRigidBody } from '../ammo-rigid-body';
 
 export class AmmoConstraint implements IBaseConstraint {
 
-    setConnectedBody (v: RigidBody | null): void {
+    setConnectedBody (v: RigidBodyComponent | null): void {
         // TODO: support dynamic change connected body
     }
 
@@ -20,7 +20,7 @@ export class AmmoConstraint implements IBaseConstraint {
         return this._impl;
     }
 
-    get constraint (): Constraint {
+    get constraint (): ConstraintComponent {
         return this._com;
     }
 
@@ -28,8 +28,8 @@ export class AmmoConstraint implements IBaseConstraint {
     index: number = -1;
 
     protected _impl!: Ammo.btTypedConstraint;
-    protected _com!: Constraint;
-    protected _rigidBody: RigidBody | null = null;
+    protected _com!: ConstraintComponent;
+    protected _rigidBody: RigidBodyComponent | null = null;
     protected _collided = false;
 
     updateByReAdd () {
@@ -40,7 +40,7 @@ export class AmmoConstraint implements IBaseConstraint {
         }
     }
 
-    initialize (v: Constraint): void {
+    initialize (v: ConstraintComponent): void {
         this._com = v;
         this._rigidBody = v.attachedBody;
         this._collided = v.enableCollision;

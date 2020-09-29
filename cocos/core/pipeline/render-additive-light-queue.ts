@@ -3,23 +3,19 @@
  */
 
 import { GFXCommandBuffer } from '../gfx/command-buffer';
-import { IRenderObject, UBOForwardLight, SetIndex } from './define';
-import { Light, LightType } from '../renderer/scene/light';
-import { SphereLight } from '../renderer/scene/sphere-light';
-import { SpotLight } from '../renderer/scene/spot-light';
-import { BatchingSchemes } from '../renderer/core/pass'
-import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';
+import { IRenderObject, UBOForwardLight, SetIndex } from './define';
+import { Light, LightType, SphereLight, SpotLight, BatchingSchemes, Model } from '../renderer';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
+import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView } from '../renderer/core/memory-pools';
 import { Vec3, nextPow2 } from '../../core/math';
 import { RenderView } from './render-view';
 import { sphere, intersect } from '../geometry';
-import { GFXDevice, GFXRenderPass, GFXBuffer, GFXBufferUsageBit, GFXMemoryUsageBit, GFXBufferInfo, GFXBufferViewInfo } from '../gfx';
+import { GFXDevice, GFXRenderPass, GFXBuffer, GFXBufferUsageBit, GFXMemoryUsageBit } from '../gfx';
 import { Pool } from '../memop';
 import { InstancedBuffer } from './instanced-buffer';
 import { BatchedBuffer } from './batched-buffer';
-import { ForwardPipeline } from './forward/forward-pipeline';
+import { ForwardPipeline } from '../../../exports/base';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { getPhaseID } from './pass-phase';
@@ -64,7 +60,6 @@ function getLightPassIndex (subModels: SubModel[]) {
  */
 export class RenderAdditiveLightQueue {
 
-    private _device: GFXDevice;
     private _validLights: Light[] = [];
     private _lightPasses: IAdditiveLightPass[] = [];
 
@@ -83,29 +78,33 @@ export class RenderAdditiveLightQueue {
     private _lightMeterScale: number = 10000.0;
 
     constructor (pipeline: ForwardPipeline) {
-        this._device = pipeline.device;
         this._isHDR = pipeline.isHDR;
         this._fpScale = pipeline.fpScale;
         this._renderObjects = pipeline.renderObjects;
         this._instancedQueue = new RenderInstancedQueue();
         this._batchedQueue = new RenderBatchedQueue();
 
-        this._lightBufferStride = Math.ceil(UBOForwardLight.SIZE / this._device.uboOffsetAlignment) * this._device.uboOffsetAlignment;
+        const device = pipeline.device;
+        this._lightBufferStride = Math.ceil(UBOForwardLight.SIZE / device.uboOffsetAlignment) * device.uboOffsetAlignment;
         this._lightBufferElementCount = this._lightBufferStride / Float32Array.BYTES_PER_ELEMENT;
 
-        this._lightBuffer = this._device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            this._lightBufferStride * this._lightBufferCount,
-            this._lightBufferStride,
-        ));
+        this._lightBuffer = device.createBuffer({
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            usage: GFXBufferUsageBit.UNIFORM,
+            stride: this._lightBufferStride,
+            size: this._lightBufferStride * this._lightBufferCount,
+        });
 
-        this._firstlightBufferView = this._device.createBuffer(new GFXBufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
+        this._firstlightBufferView = device.createBuffer({
+            buffer: this._lightBuffer,
+            offset: 0,
+            range: UBOForwardLight.SIZE,
+        });
 
         this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
     }
 
-    public gatherLightPasses (view: RenderView, cmdBuff: GFXCommandBuffer) {
+    public gatherLightPasses (view: RenderView) {
 
         const validLights = this._validLights;
         const sphereLights = view.camera.scene!.sphereLights;
@@ -123,6 +122,7 @@ export class RenderAdditiveLightQueue {
 
         for (let i = 0; i < sphereLights.length; i++) {
             const light = sphereLights[i];
+            light.update();
             sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
             if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
                 validLights.push(light);
@@ -131,6 +131,7 @@ export class RenderAdditiveLightQueue {
         const spotLights = view.camera.scene!.spotLights;
         for (let i = 0; i < spotLights.length; i++) {
             const light = spotLights[i];
+            light.update();
             sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
             if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
                 validLights.push(light);
@@ -139,7 +140,7 @@ export class RenderAdditiveLightQueue {
 
         if (!validLights.length) return;
 
-        this._updateUBOs(view, cmdBuff);
+        this._updateUBOs(view);
 
         for (let i = 0; i < this._renderObjects.length; i++) {
             const ro = this._renderObjects[i];
@@ -173,7 +174,7 @@ export class RenderAdditiveLightQueue {
                 const subModel = subModels[j];
                 const pass = subModel.passes[lightPassIdx];
                 const batchingScheme = pass.batchingScheme;
-                subModel.descriptorSet.bindBuffer(UBOForwardLight.BINDING, this._firstlightBufferView);
+                subModel.descriptorSet.bindBuffer(UBOForwardLight.BLOCK.binding, this._firstlightBufferView);
                 subModel.descriptorSet.update();
 
                 if (batchingScheme === BatchingSchemes.INSTANCING) { // instancing
@@ -212,7 +213,7 @@ export class RenderAdditiveLightQueue {
 
         for (let i = 0; i < this._lightPasses.length; i++) {
             const { subModel, passIdx, dynamicOffsets } = this._lightPasses[i];
-            const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle);
+            const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx));
             const pass = subModel.passes[passIdx];
             const ia = subModel.inputAssembler;
             const pso = PipelineStateManager.getOrCreatePipelineState(device, pass.handle, shader, renderPass, ia);
@@ -231,17 +232,13 @@ export class RenderAdditiveLightQueue {
         }
     }
 
-    protected _updateUBOs (view: RenderView, cmdBuff: GFXCommandBuffer) {
+    protected _updateUBOs (view: RenderView) {
         const exposure = view.camera.exposure;
 
         if (this._validLights.length > this._lightBufferCount) {
-            this._firstlightBufferView.destroy();
-
             this._lightBufferCount = nextPow2(this._validLights.length);
             this._lightBuffer.resize(this._lightBufferStride * this._lightBufferCount);
             this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
-
-            this._firstlightBufferView.initialize(new GFXBufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
         }
 
         for(let l = 0, offset = 0; l < this._validLights.length; l++, offset += this._lightBufferElementCount) {
@@ -304,7 +301,6 @@ export class RenderAdditiveLightQueue {
                 break;
             }
         }
-
-        cmdBuff.updateBuffer(this._lightBuffer, this._lightBufferData);
+        this._lightBuffer.update(this._lightBufferData);
     }
 }

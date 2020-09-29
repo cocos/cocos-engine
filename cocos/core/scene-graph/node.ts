@@ -27,8 +27,8 @@
  * @category scene-graph
  */
 
-import { ccclass, type, serializable, editable } from 'cc.decorator';
-import { Mat3, Mat4, Quat, Vec3 } from '../math';
+import { ccclass, property, type } from '../data/class-decorator';
+import { Mat3, Mat4, Quat, Size, Vec2, Vec3 } from '../math';
 import { SystemEventType } from '../platform/event-manager/event-enum';
 import { eventManager } from '../platform/event-manager/event-manager';
 import { BaseNode, TRANSFORM_ON } from './base-node';
@@ -115,17 +115,17 @@ export class Node extends BaseNode {
     protected _mat = new Mat4();
 
     // local transform
-    @serializable
+    @property
     protected _lpos = new Vec3();
-    @serializable
+    @property
     protected _lrot = new Quat();
-    @serializable
+    @property
     protected _lscale = new Vec3(1, 1, 1);
-    @serializable
+    @property
     protected _layer = Layers.Enum.DEFAULT; // the layer this node belongs to
 
     // local rotation in euler angles, maintained here so that rotation angles could be greater than 360 degree.
-    @serializable
+    @property
     protected _euler = new Vec3();
 
     protected _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
@@ -285,7 +285,7 @@ export class Node extends BaseNode {
      * @en Layer of the current Node, it affects raycast, physics etc, refer to [[Layers]]
      * @zh 节点所属层，主要影响射线检测、物理碰撞等，参考 [[Layers]]
      */
-    @editable
+    @property
     set layer (l) {
         this._layer = l;
         NodePool.set(this._poolHandle, NodeView.LAYER, this._layer)
@@ -484,59 +484,69 @@ export class Node extends BaseNode {
             cur = cur._parent;
         }
         let child: this; let dirtyBits = 0;
-
+        let posUpdated = false;
+        let scaleUpdated = false;
+        let rotateUpdated = false;
         while (i) {
             child = array_a[--i];
             dirtyBits |= child._dirtyFlags;
             if (cur) {
                 if (dirtyBits & TransformBit.POSITION) {
+                    posUpdated = true;
                     Vec3.transformMat4(child._pos, child._lpos, cur._mat);
                     child._mat.m12 = child._pos.x;
                     child._mat.m13 = child._pos.y;
                     child._mat.m14 = child._pos.z;
-                    NodePool.setVec3(child._poolHandle, NodeView.WORLD_POSITION, child._pos);
                 }
                 if (dirtyBits & TransformBit.RS) {
                     Mat4.fromRTS(child._mat, child._lrot, child._lpos, child._lscale);
                     Mat4.multiply(child._mat, cur._mat, child._mat);
                     if (dirtyBits & TransformBit.ROTATION) {
                         Quat.multiply(child._rot, cur._rot, child._lrot);
-                        NodePool.setVec4(child._poolHandle, NodeView.WORLD_ROTATION, child._rot);
+                        rotateUpdated = true;
                     }
                     Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, child._rot));
                     Mat3.multiplyMat4(m3_1, m3_1, child._mat);
                     child._scale.x = m3_1.m00;
                     child._scale.y = m3_1.m04;
                     child._scale.z = m3_1.m08;
-                    NodePool.setVec3(child._poolHandle, NodeView.WORLD_SCALE, child._scale);
+                    scaleUpdated = true;
                 }
             } else {
                 if (dirtyBits & TransformBit.POSITION) {
+                    posUpdated = true;
                     Vec3.copy(child._pos, child._lpos);
                     child._mat.m12 = child._pos.x;
                     child._mat.m13 = child._pos.y;
                     child._mat.m14 = child._pos.z;
-                    NodePool.setVec3(child._poolHandle, NodeView.WORLD_POSITION, child._pos);
                 }
                 if (dirtyBits & TransformBit.RS) {
                     if (dirtyBits & TransformBit.ROTATION) {
                         Quat.copy(child._rot, child._lrot);
-                        NodePool.setVec4(child._poolHandle, NodeView.WORLD_ROTATION, child._rot);
+                        rotateUpdated = true;
                     }
                     if (dirtyBits & TransformBit.SCALE) {
                         Vec3.copy(child._scale, child._lscale);
-                        NodePool.setVec3(child._poolHandle, NodeView.WORLD_SCALE, child._scale);
-                        Mat4.fromRTS(child._mat, child._rot, child._pos, child._scale);
+                        scaleUpdated = true;
                     }
+                    Mat4.fromRTS(child._mat, child._rot, child._pos, child._scale);
                 }
             }
-
-            if (dirtyBits !== TransformBit.NONE) {
-                NodePool.setMat4(child._poolHandle, NodeView.WORLD_MATRIX, child._mat);
-            }
-
             child._dirtyFlags = TransformBit.NONE;
             cur = child;
+        }
+
+        if (posUpdated) {
+            NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, this._pos);
+        }
+        if (scaleUpdated) {
+            NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this._scale);
+        }
+        if (rotateUpdated) {
+            NodePool.setVec4(this._poolHandle, NodeView.WORLD_ROTATION, this._rot);
+        }
+        if (posUpdated || scaleUpdated || rotateUpdated) {
+            NodePool.setMat4(this._poolHandle, NodeView.WORLD_MATRIX, this._mat);
         }
     }
 
@@ -982,13 +992,8 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @en
-     * Pause all system events which is dispatched by [[SystemEvent]].
-     * If recursive is set to true, then this API will pause the node system events for the node and all nodes in its sub node tree.
-     * @zh
-     * 暂停所有 [[SystemEvent]] 派发的系统事件。
-     * 如果传递 recursive 为 true，那么这个 API 将暂停本节点和它的子树上所有节点的节点系统事件。
-     *
+     * @en Pause all system events which is dispatched by [[SystemEvent]]
+     * @zh 暂停所有 [[SystemEvent]] 派发的系统事件
      * @param recursive Whether pause system events recursively for the child node tree
      */
     public pauseSystemEvents (recursive: boolean): void {
@@ -997,14 +1002,8 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @en
-     * Resume all paused system events which is dispatched by [[SystemEvent]].
-     * If recursive is set to true, then this API will resume the node system events for the node and all nodes in its sub node tree.
-     *
-     * @zh
-     * 恢复所有 [[SystemEvent]] 派发的系统事件。
-     * 如果传递 recursive 为 true，那么这个 API 将恢复本节点和它的子树上所有节点的节点系统事件。
-     *
+     * @en Resume all paused system events which is dispatched by [[SystemEvent]]
+     * @zh 恢复所有 [[SystemEvent]] 派发的系统事件
      * @param recursive Whether resume system events recursively for the child node tree
      */
     public resumeSystemEvents (recursive: boolean): void {

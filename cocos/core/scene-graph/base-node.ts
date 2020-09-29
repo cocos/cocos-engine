@@ -28,8 +28,7 @@
  */
 
 import { Component } from '../components/component';
-import { property } from '../data/decorators/property';
-import { ccclass, editable, serializable } from 'cc.decorator';
+import { ccclass, property } from '../data/class-decorator';
 import { CCObject } from '../data/object';
 import { Event } from '../event';
 import { errorID, warnID, error, log, assertID, getError } from '../platform/debug';
@@ -125,7 +124,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @en Name of node.
      * @zh 该节点名称。
      */
-    @editable
+    @property
     get name (): string {
         return this._name;
     }
@@ -142,6 +141,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @zh 主要用于编辑器的 uuid，在编辑器下可用于持久化存储，在项目构建之后将变成自增的 id。
      * @readOnly
      */
+    @property
     get uuid () {
         return this._id;
     }
@@ -151,7 +151,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @zh 节点的所有子节点。
      * @readOnly
      */
-    @editable
+    @property
     get children () {
         return this._children;
     }
@@ -168,7 +168,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * 如果你想检查节点在场景中实际的激活状态可以使用 [[activeInHierarchy]]
      * @default true
      */
-    @editable
+    @property
     get active () {
         return this._active;
     }
@@ -189,7 +189,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @en Indicates whether this node is active in the scene.
      * @zh 表示此节点是否在场景中激活。
      */
-    @editable
+    @property
     get activeInHierarchy () {
         return this._activeInHierarchy;
     }
@@ -198,7 +198,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @en The parent node
      * @zh 父节点
      */
-    @editable
+    @property
     get parent () {
         return this._parent;
     }
@@ -309,20 +309,20 @@ export class BaseNode extends CCObject implements ISchedulable {
         }
     }
 
-    @serializable
+    @property
     protected _parent: this | null = null;
 
-    @serializable
+    @property
     protected _children: this[] = [];
 
-    @serializable
+    @property
     protected _active = true;
 
-    @serializable
+    @property
     protected _components: Component[] = [];
 
     // The PrefabInfo object
-    @serializable
+    @property
     protected _prefab: any = null;
 
     protected _scene: any = NullScene;
@@ -648,7 +648,6 @@ export class BaseNode extends CCObject implements ISchedulable {
             stack[index] = null;
             // Do not repeatly visit child tree, just do post call and continue walk
             if (afterChildren) {
-                if (parent === this._parent) break;
                 afterChildren = false;
             } else {
                 // Children not proceeded and has children, proceed to child tree
@@ -770,7 +769,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @example
      * ```
      * // get sprite component.
-     * var sprite = node.getComponent(Sprite);
+     * var sprite = node.getComponent(SpriteComponent);
      * ```
      */
     public getComponent<T extends Component> (classConstructor: Constructor<T>): T | null;
@@ -828,7 +827,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @param classConstructor The class of the target component
      * @example
      * ```
-     * var sprite = node.getComponentInChildren(Sprite);
+     * var sprite = node.getComponentInChildren(SpriteComponent);
      * ```
      */
     public getComponentInChildren<T extends Component> (classConstructor: Constructor<T>): T | null;
@@ -858,7 +857,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @param classConstructor The class of the target component
      * @example
      * ```
-     * var sprites = node.getComponentsInChildren(Sprite);
+     * var sprites = node.getComponentsInChildren(SpriteComponent);
      * ```
      */
     public getComponentsInChildren<T extends Component> (classConstructor: Constructor<T>): T[];
@@ -891,7 +890,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @throws `TypeError` if the `classConstructor` does not specify a cc-class constructor extending the `Component`.
      * @example
      * ```
-     * var sprite = node.addComponent(Sprite);
+     * var sprite = node.addComponent(SpriteComponent);
      * ```
      */
     public addComponent<T extends Component> (classConstructor: Constructor<T>): T;
@@ -986,7 +985,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @deprecated please destroy the component to remove it.
      * @example
      * ```
-     * node.removeComponent(Sprite);
+     * node.removeComponent(SpriteComponent);
      * ```
      */
     public removeComponent<T extends Component> (classConstructor: Constructor<T>): void;
@@ -1002,12 +1001,12 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @deprecated please destroy the component to remove it.
      * @example
      * ```
-     * import { Sprite } from 'cc';
-     * const sprite = node.getComponent(Sprite);
+     * import { SpriteComponent } from 'cc';
+     * const sprite = node.getComponent(SpriteComponent);
      * if (sprite) {
      *     node.removeComponent(sprite);
      * }
-     * node.removeComponent('Sprite');
+     * node.removeComponent('cc.SpriteComponent');
      * ```
      */
     public removeComponent (classNameOrInstance: string | Component): void;

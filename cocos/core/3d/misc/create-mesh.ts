@@ -1,29 +1,30 @@
 import { Mesh } from '../../assets/mesh';
 import { GFXAttributeName, GFXFormat, GFXFormatInfos, GFXPrimitiveMode } from '../../gfx/define';
-import { GFXAttribute } from '../../gfx/input-assembler';
+import { IGFXAttribute } from '../../gfx/input-assembler';
 import { Vec3 } from '../../math';
 import { IGeometry } from '../../primitive/define';
 import { writeBuffer } from './buffer';
 import { BufferBlob } from './buffer-blob';
+import { legacyCC } from '../../global-exports';
 
-const _defAttrs: GFXAttribute[] = [
-    new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),
-    new GFXAttribute(GFXAttributeName.ATTR_NORMAL, GFXFormat.RGB32F),
-    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RG32F),
-    new GFXAttribute(GFXAttributeName.ATTR_TANGENT, GFXFormat.RGBA32F),
-    new GFXAttribute(GFXAttributeName.ATTR_COLOR, GFXFormat.RGBA32F),
+const _defAttrs: IGFXAttribute[] = [
+    { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },
+    { name: GFXAttributeName.ATTR_NORMAL, format: GFXFormat.RGB32F },
+    { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RG32F },
+    { name: GFXAttributeName.ATTR_TANGENT, format: GFXFormat.RGBA32F },
+    { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA32F },
 ];
 
 const v3_1 = new Vec3();
 export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMesh.IOptions) {
     options = options || {};
     // Collect attributes and calculate length of result vertex buffer.
-    const attributes: GFXAttribute[] = [];
+    const attributes: IGFXAttribute[] = [];
     let stride = 0;
-    const channels: { offset: number; data: number[]; attribute: GFXAttribute; }[] = [];
+    const channels: { offset: number; data: number[]; attribute: IGFXAttribute; }[] = [];
     let vertCount = 0;
 
-    let attr: GFXAttribute | null;
+    let attr: IGFXAttribute | null;
 
     const positions = geometry.positions.slice();
     if (positions.length > 0) {

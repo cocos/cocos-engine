@@ -4,7 +4,7 @@
 
 import { createMesh } from '../3d/misc/utils';
 import { Mesh } from '../assets/mesh';
-import { ccclass, type, serializable, editable } from 'cc.decorator';
+import { ccclass, property, type } from '../data/class-decorator';
 import * as primitives from '../primitive';
 import { ccenum } from '../value-types/enum';
 import { legacyCC } from '../global-exports';
@@ -47,8 +47,7 @@ export class Primitive extends Mesh {
      * @zh
      * 创建此基础图形网格的可选参数，请在 onLoaded 调用之前设置。
      */
-    @serializable
-    @editable
+    @property
     public info: Record<string, number> = {};
 
     constructor (type = PrimitiveType.BOX) {

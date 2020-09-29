@@ -5,16 +5,16 @@
 import { ILifecycle } from './i-lifecycle'
 import { IGroupMask } from './i-group-mask'
 import { IVec3Like } from "../../core/math/type-define";
-import { RigidBody } from '../framework/components/rigid-body';
+import { RigidBodyComponent } from '../framework/components/rigid-body-component';
 
 export interface IRigidBody extends ILifecycle, IGroupMask {
     readonly impl: any;
-    readonly rigidBody: RigidBody;
+    readonly rigidBody: RigidBodyComponent;
     readonly isAwake: boolean;
     readonly isSleepy: boolean;
     readonly isSleeping: boolean;
 
-    initialize (v: RigidBody): void;
+    initialize (v: RigidBodyComponent): void;
 
     setMass: (v: number) => void;
     setLinearDamping: (v: number) => void;

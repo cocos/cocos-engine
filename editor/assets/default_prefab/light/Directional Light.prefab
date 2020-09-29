@@ -55,7 +55,7 @@
     "_id": ""
   },
   {
-    "__type__": "cc.DirectionalLight",
+    "__type__": "cc.DirectionalLightComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {

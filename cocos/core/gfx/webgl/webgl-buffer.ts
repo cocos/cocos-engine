@@ -1,5 +1,4 @@
-import { GFXIndirectBuffer } from '../..';
-import { GFXBuffer, GFXBufferSource, GFXBufferInfo, GFXBufferViewInfo } from '../buffer';
+import { GFXBuffer, GFXBufferSource, IGFXBufferInfo, IGFXBufferViewInfo } from '../buffer';
 import { GFXBufferUsageBit, GFXBufferFlagBit } from '../define';
 import {
     WebGLCmdFuncCreateBuffer,
@@ -24,11 +23,9 @@ export class WebGLBuffer extends GFXBuffer {
     private _gpuBufferView: IWebGLGPUBufferView | null = null;
     private _uniformBuffer: Uint8Array | null = null;
 
-    public initialize (info: GFXBufferInfo | GFXBufferViewInfo): boolean {
+    public initialize (info: IGFXBufferInfo | IGFXBufferViewInfo): boolean {
 
         if ('buffer' in info) { // buffer view
-
-            this._isBufferView = true;
 
             const buffer = info.buffer as WebGLBuffer;
 
@@ -51,14 +48,14 @@ export class WebGLBuffer extends GFXBuffer {
             this._size = info.size;
             this._stride = Math.max(info.stride || this._size, 1);
             this._count = this._size / this._stride;
-            this._flags = info.flags;
+            this._flags = (info.flags !== undefined ? info.flags : GFXBufferFlagBit.NONE);
 
             if (this._usage & GFXBufferUsageBit.INDIRECT) {
-                this._indirectBuffer = new GFXIndirectBuffer();
+                this._indirectBuffer = { drawInfos: [] };
             }
 
             if (this._flags & GFXBufferFlagBit.BAKUP_BUFFER) {
-                this._bakcupBuffer = new Uint8Array(this._size);
+                this._bufferView = new Uint8Array(this._size);
                 this._device.memoryStatus.bufferSize += this._size;
             }
 
@@ -71,7 +68,7 @@ export class WebGLBuffer extends GFXBuffer {
                 memUsage: this._memUsage,
                 size: this._size,
                 stride: this._stride,
-                buffer: this._bakcupBuffer,
+                buffer: this._bufferView,
                 vf32: null,
                 indirects: [],
                 glTarget: 0,
@@ -105,11 +102,11 @@ export class WebGLBuffer extends GFXBuffer {
             this._gpuBufferView = null;
         }
 
-        this._bakcupBuffer = null;
+        this._bufferView = null;
     }
 
     public resize (size: number) {
-        if (this._isBufferView) {
+        if (this._gpuBufferView) {
             console.warn('cannot resize buffer views!');
             return;
         }
@@ -120,10 +117,10 @@ export class WebGLBuffer extends GFXBuffer {
         this._size = size;
         this._count = this._size / this._stride;
 
-        if (this._bakcupBuffer) {
-            const oldView = this._bakcupBuffer;
-            this._bakcupBuffer = new Uint8Array(this._size);
-            this._bakcupBuffer.set(oldView);
+        if (this._bufferView) {
+            const oldView = this._bufferView;
+            this._bufferView = new Uint8Array(this._size);
+            this._bufferView.set(oldView);
             this._device.memoryStatus.bufferSize -= oldSize;
             this._device.memoryStatus.bufferSize += size;
         }
@@ -135,8 +132,8 @@ export class WebGLBuffer extends GFXBuffer {
         if (this._gpuBuffer) {
             if (this._uniformBuffer) {
                 this._gpuBuffer.buffer = this._uniformBuffer;
-            } else if (this._bakcupBuffer) {
-                this._gpuBuffer.buffer = this._bakcupBuffer;
+            } else if (this._bufferView) {
+                this._gpuBuffer.buffer = this._bufferView;
             }
 
             this._gpuBuffer.size = size;
@@ -149,7 +146,7 @@ export class WebGLBuffer extends GFXBuffer {
     }
 
     public update (buffer: GFXBufferSource, offset?: number, size?: number) {
-        if (this._isBufferView) {
+        if (this._gpuBufferView) {
             console.warn('cannot update through buffer views!');
             return;
         }
@@ -162,9 +159,9 @@ export class WebGLBuffer extends GFXBuffer {
         } else {
             buffSize = (buffer as ArrayBuffer).byteLength;
         }
-        if (this._bakcupBuffer && buffer !== this._bakcupBuffer.buffer) {
+        if (this._bufferView && buffer !== this._bufferView.buffer) {
             const view = new Uint8Array(buffer as ArrayBuffer, 0, size);
-            this._bakcupBuffer.set(view, offset);
+            this._bufferView.set(view, offset);
         }
 
         WebGLCmdFuncUpdateBuffer(

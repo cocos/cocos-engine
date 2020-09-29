@@ -28,7 +28,7 @@
  */
 
 import { Component } from '../components/component';
-import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type, serializable } from 'cc.decorator';
+import { ccclass, executeInEditMode, executionOrder, help, menu, property, tooltip, type } from '../data/class-decorator';
 import { Eventify } from '../event/eventify';
 import { warnID } from '../platform/debug';
 import * as ArrayUtils from '../utils/array';
@@ -53,12 +53,12 @@ import { legacyCC } from '../global-exports';
  * 动画组件具有事件特性，它会派发一系列播放状态相关的事件。
  * 参考 [[EventType]]
  */
-@ccclass('cc.Animation')
-@help('i18n:cc.Animation')
+@ccclass('cc.AnimationComponent')
+@help('i18n:cc.AnimationComponent')
 @executionOrder(99)
 @executeInEditMode
 @menu('Components/Animation')
-export class Animation extends Eventify(Component) {
+export class AnimationComponent extends Eventify(Component) {
     /**
      * @en
      * Gets or sets clips this component governs.
@@ -137,7 +137,7 @@ export class Animation extends Eventify(Component) {
      * 是否在组件开始运行时自动播放默认剪辑。
      * 注意，若在组件开始运行前调用了 `crossFade` 或 `play()`，此字段将不会生效。
      */
-    @serializable
+    @property
     @tooltip('是否在动画组件开始运行时自动播放默认动画剪辑')
     public playOnLoad = false;
 
@@ -148,7 +148,7 @@ export class Animation extends Eventify(Component) {
     @type([AnimationClip])
     protected _clips: (AnimationClip | null)[] = [];
 
-    @serializable
+    @property
     protected _defaultClip: AnimationClip | null = null;
 
     /**
@@ -494,9 +494,11 @@ export class Animation extends Eventify(Component) {
     }
 }
 
-export declare namespace Animation {
+export declare namespace AnimationComponent {
     export type EventType = EnumAlias<typeof EventType>;
 }
+
+legacyCC.AnimationComponent = AnimationComponent;
 
 function equalClips (clip1: AnimationClip | null, clip2: AnimationClip | null) {
     if (clip1 === clip2) {

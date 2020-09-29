@@ -43,12 +43,11 @@ gulp.task('build-code', gulp.series('build-debug-infos', () => {
     return cp.spawn('node', [
         cli,
         `--engine=${__dirname}`,
-        '--module=system',
         '--sourcemap',
         '--buildmode=universal',
         '--platform=HTML5',
         '--physics=cannon',
-        '--out=./bin/dev/cc',
+        '--destination=./bin/dev/cc.js',
     ], {
         shell: true,
         stdio: 'inherit',
@@ -61,13 +60,12 @@ gulp.task('build-code-minified', gulp.series('build-debug-infos', () => {
     return cp.spawn('node', [
         cli,
         `--engine=${__dirname}`,
-        '--module=system',
         '--compress',
         '--sourcemap',
         '--buildmode=universal',
         '--platform=HTML5',
         '--physics=cannon',
-        '--out=./bin/dev/cc-min',
+        '--destination=./bin/dev/cc.min.js',
     ], {
         shell: true,
         stdio: 'inherit',
@@ -86,7 +84,7 @@ gulp.task('build-declarations', async () => {
 gulp.task('build', gulp.parallel('build-code-minified', 'build-declarations'));
 
 gulp.task('code-check', () => {
-    return cp.spawn('npx', ['tsc', '--noEmit'], {
+    return cp.spawn('tsc', ['--noEmit'], {
         shell: true,
         stdio: 'inherit',
         cwd: __dirname,
@@ -94,7 +92,7 @@ gulp.task('code-check', () => {
 });
 
 gulp.task('unit-tests', () => {
-    return cp.spawn('npx', ['jest'], {
+    return cp.spawn(`jest`, [], {
         shell: true,
         stdio: 'inherit',
         cwd: __dirname,

@@ -28,12 +28,12 @@
  */
 
 import { Component } from '../components/component';
-import { ccclass, help, menu, executionOrder, requireComponent, tooltip, serializable } from 'cc.decorator';
+import { property, ccclass, help, menu, executionOrder, requireComponent, tooltip } from '../data/class-decorator';
 import { view } from './view';
-import { Sprite } from '../../ui/components/sprite';
+import { SpriteComponent } from '../../ui/components/sprite-component';
 import { Node } from '../scene-graph';
-import { UITransform } from '../components/ui-base/ui-transform';
-import { ImageAsset } from '../assets/image-asset';
+import { UITransformComponent } from '../components/ui-base/ui-transform-component';
+import { SpriteFrame, ImageAsset } from '../assets';
 import { Rect } from '../math';
 import { legacyCC } from '../global-exports';
 
@@ -62,7 +62,7 @@ import { legacyCC } from '../global-exports';
 @ccclass('cc.SubContextView')
 @help('i18n:cc.SubContextView')
 @executionOrder(110)
-@requireComponent(UITransform)
+@requireComponent(UITransformComponent)
 @menu('Components/SubContextView')
 export class SubContextView extends Component {
     @tooltip('帧数')
@@ -78,9 +78,9 @@ export class SubContextView extends Component {
         this._updateSubContextFrameRate();
     }
 
-    @serializable
+    @property
     private _fps = 60;
-    private _sprite: Sprite | null;
+    private _sprite: SpriteComponent | null;
     private _imageAsset: ImageAsset;
     private _context: any;
     private _updatedTime = 0;
@@ -108,15 +108,15 @@ export class SubContextView extends Component {
             image.reset(sharedCanvas);
             image._texture.create(sharedCanvas.width, sharedCanvas.height);
 
-            this._sprite = this.node.getComponent(Sprite);
+            this._sprite = this.node.getComponent(SpriteComponent);
             if (!this._sprite) {
-                this._sprite = this.node.addComponent(Sprite);
+                this._sprite = this.node.addComponent(SpriteComponent);
             }
 
             if (this._sprite!.spriteFrame) {
                 this._sprite!.spriteFrame.texture = this._imageAsset._texture;
             } else {
-                const sp = new legacyCC.SpriteFrame();
+                const sp = new SpriteFrame();
                 sp.texture = this._imageAsset._texture;
                 this._sprite!.spriteFrame = sp;
             }
@@ -172,7 +172,7 @@ export class SubContextView extends Component {
         if (this._context) {
             this.updateSubContextViewport();
             let sharedCanvas = this._context.canvas;
-            const transformComp = this.node.getComponent(UITransform)!;
+            const transformComp = this.node.getComponent(UITransformComponent)!;
             if (sharedCanvas) {
                 sharedCanvas.width = transformComp.width;
                 sharedCanvas.height = transformComp.height;
@@ -186,7 +186,7 @@ export class SubContextView extends Component {
      */
     public updateSubContextViewport () {
         if (this._context) {
-            let box = this.node.getComponent(UITransform)!.getBoundingBoxToWorld() as Rect;
+            let box = this.node.getComponent(UITransformComponent)!.getBoundingBoxToWorld() as Rect;
             let sx = view.getScaleX();
             let sy = view.getScaleY();
             const rect = view.getViewportRect();

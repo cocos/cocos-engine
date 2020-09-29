@@ -6,7 +6,7 @@ import { builtinResMgr } from '../../3d/builtin/init';
 import { Material } from '../../assets/material';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { TextureBase } from '../../assets/texture-base';
-import { ccclass, float, serializable } from 'cc.decorator';
+import { ccclass, float, property } from '../../data/class-decorator';
 import { GFXType } from '../../gfx/define';
 import { Pass } from '../../renderer/core/pass';
 import { getDefaultFromType, PropertyType } from '../../renderer/core/pass-utils';
@@ -27,14 +27,14 @@ export class UniformProxyFactory implements IValueProxyFactory {
      * @en Pass index.
      * @zh Pass 索引。
      */
-    @serializable
+    @property
     public passIndex: number = 0;
 
     /**
      * @en Uniform name.
      * @zh Uniform 名称。
      */
-    @serializable
+    @property
     public uniformName: string = '';
 
     /**
@@ -58,13 +58,13 @@ export class UniformProxyFactory implements IValueProxyFactory {
     public forTarget (target: Material): IValueProxy {
         const pass = target.passes[this.passIndex];
         const handle = pass.getHandle(this.uniformName);
-        if (!handle) {
+        if (handle === undefined) {
             throw new Error(`Material "${target.name}" has no uniform "${this.uniformName}"`);
         }
         const propertyType = Pass.getPropertyTypeFromHandle(handle);
         if (propertyType === PropertyType.UBO) {
             const realHandle = this.channelIndex === undefined ? handle : pass.getHandle(this.uniformName, this.channelIndex, GFXType.FLOAT);
-            if (!realHandle) {
+            if (realHandle === undefined) {
                 throw new Error(`Uniform "${this.uniformName} (in material ${target.name}) has no channel ${this.channelIndex}"`);
             }
             if (isUniformArray(pass, this.uniformName)) {

@@ -166,16 +166,6 @@ export default class plane {
         return this._type;
     }
 
-    // compatibility with vector interfaces
-    set x (val) { this.n.x = val; }
-    get x () { return this.n.x; }
-    set y (val) { this.n.y = val; }
-    get y () { return this.n.y; }
-    set z (val) { this.n.z = val; }
-    get z () { return this.n.z; }
-    set w (val) { this.d = val; }
-    get w () { return this.d; }
-
     protected readonly _type: number;
 
     /**

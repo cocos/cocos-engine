@@ -2,7 +2,7 @@ import { sphere } from '../../../core/geometry';
 import { BuiltinShape } from './builtin-shape';
 import { ISphereShape } from '../../spec/i-physics-shape';
 import { maxComponent } from '../../framework/util';
-import { SphereCollider } from '../../../../exports/physics-framework';
+import { SphereColliderComponent } from '../../../../exports/physics-framework';
 
 export class BuiltinSphereShape extends BuiltinShape implements ISphereShape {
 
@@ -21,7 +21,7 @@ export class BuiltinSphereShape extends BuiltinShape implements ISphereShape {
     }
 
     get collider () {
-        return this._collider as SphereCollider;
+        return this._collider as SphereColliderComponent;
     }
 
     constructor (radius = 0.5) {

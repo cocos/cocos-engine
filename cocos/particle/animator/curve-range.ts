@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { ccclass, type, serializable, editable } from 'cc.decorator';
+import { ccclass, property, type } from '../../core/data/class-decorator';
 import { lerp } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { AnimationCurve } from '../../core/geometry';
@@ -56,29 +56,25 @@ export default class CurveRange  {
     /**
      * @zh 当mode为Constant时，曲线的值。
      */
-    @serializable
-    @editable
+    @property
     public constant = 0;
 
     /**
      * @zh 当mode为TwoConstants时，曲线的上限。
      */
-    @serializable
-    @editable
+    @property
     public constantMin = 0;
 
     /**
      * @zh 当mode为TwoConstants时，曲线的下限。
      */
-    @serializable
-    @editable
+    @property
     public constantMax = 0;
 
     /**
      * @zh 应用于曲线插值的系数。
      */
-    @serializable
-    @editable
+    @property
     public multiplier = 1;
 
     constructor () {

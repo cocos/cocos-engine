@@ -2,7 +2,8 @@
  * @category pipeline.forward
  */
 
-import { ccclass } from 'cc.decorator';
+import { ccclass } from '../../data/class-decorator';
+import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXColor, GFXRect } from '../../gfx/define';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
@@ -12,7 +13,8 @@ import { GFXFramebuffer } from '../../gfx/framebuffer';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { SetIndex, UBOShadow } from '../define';
 
-const colors: GFXColor[] = [ new GFXColor(1, 1, 1, 1) ];
+const colors: GFXColor[] = [ { r: 1, g: 1, b: 1, a: 1 } ];
+const bufs: GFXCommandBuffer[] = [];
 
 /**
  * @zh
@@ -23,7 +25,6 @@ export class ShadowStage extends RenderStage {
     public static initInfo: IRenderStageInfo = {
         name: 'ShadowStage',
         priority: ForwardStagePriority.FORWARD,
-        tag: 0
     };
 
     public setShadowFrameBuffer (shadowFrameBuffer: GFXFramebuffer) {
@@ -32,7 +33,7 @@ export class ShadowStage extends RenderStage {
 
     private _additiveShadowQueue: RenderShadowMapBatchedQueue;
     private _shadowFrameBuffer: GFXFramebuffer | null = null;
-    private _renderArea = new GFXRect();
+    private _renderArea: GFXRect = { x: 0, y: 0, width: 0, height: 0 };
 
     /**
      * 构造函数。
@@ -57,8 +58,8 @@ export class ShadowStage extends RenderStage {
      */
     public render (view: RenderView) {
         const pipeline = this._pipeline as ForwardPipeline;
-        const shadowInfo = pipeline.shadows;
-        this._additiveShadowQueue.clear(pipeline.descriptorSet.getBuffer(UBOShadow.BINDING));
+        const shadowInfo = pipeline.shadowMap;
+        this._additiveShadowQueue.clear(pipeline.descriptorSet.getBuffer(UBOShadow.BLOCK.binding));
 
         const shadowObjects = pipeline.shadowObjects;
         let m = 0; let p = 0;
@@ -87,6 +88,7 @@ export class ShadowStage extends RenderStage {
         const device = pipeline.device;
         const renderPass = this._shadowFrameBuffer!.renderPass;
 
+        cmdBuff.begin();
         cmdBuff.beginRenderPass(renderPass, this._shadowFrameBuffer!, this._renderArea!,
             colors, camera.clearDepth, camera.clearStencil);
 
@@ -95,5 +97,9 @@ export class ShadowStage extends RenderStage {
         this._additiveShadowQueue.recordCommandBuffer(device, renderPass!, cmdBuff);
 
         cmdBuff.endRenderPass();
+        cmdBuff.end();
+
+        bufs[0] = cmdBuff;
+        device.queue.submit(bufs);
     }
 }

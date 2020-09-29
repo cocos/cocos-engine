@@ -176,7 +176,7 @@
     "_id": ""
   },
   {
-    "__type__": "cc.UITransform",
+    "__type__": "cc.UITransformComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -197,7 +197,7 @@
     "_priority": 0
   },
   {
-    "__type__": "cc.Sprite",
+    "__type__": "cc.SpriteComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -247,7 +247,7 @@
     }
   },
   {
-    "__type__": "cc.UITransform",
+    "__type__": "cc.UITransformComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -268,7 +268,7 @@
     "_priority": 0
   },
   {
-    "__type__": "cc.Sprite",
+    "__type__": "cc.SpriteComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -303,7 +303,7 @@
     "_id": ""
   },
   {
-    "__type__": "cc.Widget",
+    "__type__": "cc.WidgetComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -330,7 +330,7 @@
     "_id": ""
   },
   {
-    "__type__": "cc.ScrollBar",
+    "__type__": "cc.ScrollBarComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -349,7 +349,7 @@
     "_id": ""
   },
   {
-    "__type__": "cc.ScrollView",
+    "__type__": "cc.ScrollViewComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -477,7 +477,7 @@
     "_id": ""
   },
   {
-    "__type__": "cc.UITransform",
+    "__type__": "cc.UITransformComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -498,7 +498,7 @@
     "_priority": 0
   },
   {
-    "__type__": "cc.Mask",
+    "__type__": "cc.MaskComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -584,7 +584,7 @@
     "_id": ""
   },
   {
-    "__type__": "cc.UITransform",
+    "__type__": "cc.UITransformComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -605,7 +605,7 @@
     "_priority": 0
   },
   {
-    "__type__": "cc.Label",
+    "__type__": "cc.LabelComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -656,7 +656,7 @@
     }
   },
   {
-    "__type__": "cc.UITransform",
+    "__type__": "cc.UITransformComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -706,7 +706,7 @@
     }
   },
   {
-    "__type__": "cc.UITransform",
+    "__type__": "cc.UITransformComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -727,7 +727,7 @@
     "_priority": 0
   },
   {
-    "__type__": "cc.Sprite",
+    "__type__": "cc.SpriteComponent",
     "_name": "",
     "_objFlags": 0,
     "node": {

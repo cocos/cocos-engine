@@ -4,11 +4,11 @@ import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
 import { ISimplexShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
-import { SimplexCollider } from '../../../../exports/physics-framework';
+import { SimplexColliderComponent } from '../../../../exports/physics-framework';
 
 export class CannonSimplexShape extends CannonShape implements ISimplexShape {
 
-    setShapeType (v: SimplexCollider.ESimplexType) {
+    setShapeType (v: SimplexColliderComponent.ESimplexType) {
         if (this._isBinding) {
             //TODO: change the type after init
         }
@@ -35,7 +35,7 @@ export class CannonSimplexShape extends CannonShape implements ISimplexShape {
     }
 
     get collider () {
-        return this._collider as SimplexCollider;
+        return this._collider as SimplexColliderComponent;
     }
 
     get impl () {
@@ -46,13 +46,13 @@ export class CannonSimplexShape extends CannonShape implements ISimplexShape {
 
     protected onComponentSet () {
         const type = this.collider.shapeType;
-        if (type == SimplexCollider.ESimplexType.TETRAHEDRON) {
+        if (type == SimplexColliderComponent.ESimplexType.TETRAHEDRON) {
             for (let i = 0; i < 4; i++) {
                 this.VERTICES[i] = new CANNON.Vec3(0, 0, 0);
             }
             this._shape = createTetra(this.VERTICES);
         } else {
-            if (type != SimplexCollider.ESimplexType.VERTEX) {
+            if (type != SimplexColliderComponent.ESimplexType.VERTEX) {
                 // WARN
             }
             this._shape = new CANNON.Particle();

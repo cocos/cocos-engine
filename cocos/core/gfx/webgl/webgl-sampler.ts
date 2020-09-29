@@ -1,5 +1,5 @@
 import { GFXFilter } from '../define';
-import { GFXSampler, GFXSamplerInfo } from '../sampler';
+import { GFXSampler, IGFXSamplerInfo } from '../sampler';
 import { IWebGLGPUSampler } from './webgl-gpu-objects';
 
 const WebGLWraps: GLenum[] = [
@@ -17,27 +17,66 @@ export class WebGLSampler extends GFXSampler {
 
     private _gpuSampler: IWebGLGPUSampler | null = null;
 
-    public initialize (info: GFXSamplerInfo): boolean {
+    public initialize (info: IGFXSamplerInfo): boolean {
 
-        this._minFilter = info.minFilter;
-        this._magFilter = info.magFilter;
-        this._mipFilter = info.mipFilter;
-        this._addressU = info.addressU;
-        this._addressV = info.addressV;
-        this._addressW = info.addressW;
-        this._maxAnisotropy = info.maxAnisotropy;
-        this._cmpFunc = info.cmpFunc;
-        this._borderColor = info.borderColor;
-        this._minLOD = info.minLOD;
-        this._maxLOD = info.maxLOD;
-        this._mipLODBias = info.mipLODBias;
+        if (info.name !== undefined) {
+            this._state.name = info.name;
+        }
+
+        if (info.minFilter !== undefined) {
+            this._state.minFilter = info.minFilter;
+        }
+
+        if (info.magFilter !== undefined) {
+            this._state.magFilter = info.magFilter;
+        }
+
+        if (info.mipFilter !== undefined) {
+            this._state.mipFilter = info.mipFilter;
+        }
+
+        if (info.addressU !== undefined) {
+            this._state.addressU = info.addressU;
+        }
+
+        if (info.addressV !== undefined) {
+            this._state.addressV = info.addressV;
+        }
+
+        if (info.addressW !== undefined) {
+            this._state.addressW = info.addressW;
+        }
+
+        if (info.maxAnisotropy !== undefined) {
+            this._state.maxAnisotropy = info.maxAnisotropy;
+        }
+
+        if (info.cmpFunc !== undefined) {
+            this._state.cmpFunc = info.cmpFunc;
+        }
+
+        if (info.borderColor !== undefined) {
+            this._state.borderColor = info.borderColor;
+        }
+
+        if (info.minLOD !== undefined) {
+            this._state.minLOD = info.minLOD;
+        }
+
+        if (info.maxLOD !== undefined) {
+            this._state.maxLOD = info.maxLOD;
+        }
+
+        if (info.mipLODBias !== undefined) {
+            this._state.mipLODBias = info.mipLODBias;
+        }
 
         let glMinFilter = 0;
         let glMagFilter = 0;
 
-        const minFilter = this._minFilter;
-        const magFilter = this._magFilter;
-        const mipFilter = this._mipFilter;
+        const minFilter = this._state.minFilter;
+        const magFilter = this._state.magFilter;
+        const mipFilter = this._state.mipFilter;
 
         if (minFilter === GFXFilter.LINEAR || minFilter === GFXFilter.ANISOTROPIC) {
             if (mipFilter === GFXFilter.LINEAR || mipFilter === GFXFilter.ANISOTROPIC) {
@@ -63,9 +102,9 @@ export class WebGLSampler extends GFXSampler {
             glMagFilter = 0x2600; // WebGLRenderingContext.NEAREST;
         }
 
-        const glWrapS = WebGLWraps[this._addressU];
-        const glWrapT = WebGLWraps[this._addressV];
-        const glWrapR = WebGLWraps[this._addressW];
+        const glWrapS = WebGLWraps[this._state.addressU];
+        const glWrapT = WebGLWraps[this._state.addressV];
+        const glWrapR = WebGLWraps[this._state.addressW];
 
         this._gpuSampler = {
             glMinFilter,

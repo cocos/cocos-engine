@@ -2,8 +2,8 @@
  * @hidden
  */
 
-import { ccclass, serializable } from 'cc.decorator';
-import { MeshRenderer } from '../../3d/framework/mesh-renderer';
+import { ccclass, property } from '../../data/class-decorator';
+import { ModelComponent } from '../../3d/framework/model-component';
 import { IValueProxyFactory } from '../value-proxy';
 
 /**
@@ -18,10 +18,10 @@ export class MorphWeightsValueProxy implements IValueProxyFactory {
      * @en Sub-mesh index.
      * @zh 子网格索引。
      */
-    @serializable
+    @property
     public subMeshIndex: number = 0;
 
-    public forTarget (target: MeshRenderer) {
+    public forTarget (target: ModelComponent) {
         return {
             set: (value: number[]) => {
                 target.setWeights(value, this.subMeshIndex);
@@ -38,7 +38,7 @@ export class MorphWeightsValueProxy implements IValueProxyFactory {
  */
 @ccclass('cc.animation.MorphWeightsAllValueProxy')
 export class MorphWeightsAllValueProxy implements IValueProxyFactory {
-    public forTarget (target: MeshRenderer) {
+    public forTarget (target: ModelComponent) {
         return {
             set: (value: number[]) => {
                 const nSubMeshes = target.mesh?.struct.primitives.length ?? 0;

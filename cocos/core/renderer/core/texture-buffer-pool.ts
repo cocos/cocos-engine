@@ -4,7 +4,7 @@
 
 import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXFormat, GFXFormatInfos, GFXTextureType, GFXTextureUsageBit, GFXTextureFlagBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
-import { GFXTexture, GFXTextureInfo } from '../../gfx/texture';
+import { GFXTexture } from '../../gfx/texture';
 
 export function nearestPOT (num: number): number {
     --num;
@@ -144,13 +144,14 @@ export class TextureBufferPool {
 
         console.info('TextureBufferPool: Allocate chunk ' + this._chunkCount + ', size: ' + texSize + ', format: ' + this._format);
 
-        const texture: GFXTexture = this._device.createTexture(new GFXTextureInfo(
-            GFXTextureType.TEX2D,
-            GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
-            this._format,
-            length,
-            length,
-        ));
+        const texture: GFXTexture = this._device.createTexture({
+            type: GFXTextureType.TEX2D,
+            usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
+            format: this._format,
+            width: length,
+            height: length,
+            levelCount: 1,
+        });
 
         const chunk: ITextureBuffer = {
             texture,

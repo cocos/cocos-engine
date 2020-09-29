@@ -26,27 +26,28 @@
  * @category component/light
  */
 
-import { ccclass, help, executeInEditMode, menu, tooltip, type, unit, serializable } from 'cc.decorator';
-import { scene } from '../../renderer';
-import { Light, PhotometricTerm } from './light-component';
+import { ccclass, help, executeInEditMode, menu, property, tooltip, type, unit } from '../../data/class-decorator';
+import { LightType, nt2lm } from '../../renderer/scene/light';
+import { SphereLight } from '../../renderer/scene/sphere-light';
+import { LightComponent, PhotometricTerm } from './light-component';
 
-@ccclass('cc.SphereLight')
-@help('i18n:cc.SphereLight')
+@ccclass('cc.SphereLightComponent')
+@help('i18n:cc.SphereLightComponent')
 @menu('Light/SphereLight')
 @executeInEditMode
-export class SphereLight extends Light {
+export class SphereLightComponent extends LightComponent {
 
-    @serializable
+    @property
     protected _size = 0.15;
-    @serializable
-    protected _luminance = 1700 / scene.nt2lm(0.15);
-    @serializable
+    @property
+    protected _luminance = 1700 / nt2lm(0.15);
+    @property
     protected _term = PhotometricTerm.LUMINOUS_POWER;
-    @serializable
+    @property
     protected _range = 1;
 
-    protected _type = scene.LightType.SPHERE;
-    protected _light: scene.SphereLight | null = null;
+    protected _type = LightType.SPHERE;
+    protected _light: SphereLight | null = null;
 
     /**
      * @en Luminous power of the light.
@@ -55,10 +56,10 @@ export class SphereLight extends Light {
     @unit('lm')
     @tooltip('i18n:lights.luminous_power')
     get luminousPower () {
-        return this._luminance * scene.nt2lm(this._size);
+        return this._luminance * nt2lm(this._size);
     }
     set luminousPower (val) {
-        this._luminance = val / scene.nt2lm(this._size);
+        this._luminance = val / nt2lm(this._size);
         if (this._light) { this._light.luminance = this._luminance; }
     }
 
@@ -121,7 +122,7 @@ export class SphereLight extends Light {
 
     constructor () {
         super();
-        this._lightType = scene.SphereLight;
+        this._lightType = SphereLight;
     }
 
     protected _createLight () {

@@ -20,7 +20,6 @@ import { ModuleOption, enumerateModuleOptionReps, parseModuleOption } from './mo
 import { generateCCSource } from './make-cc';
 import nodeResolve from 'resolve';
 import { getModuleName } from './module-name';
-import tsConfigPaths from './ts-paths';
 
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
 
@@ -222,8 +221,6 @@ async function _doBuild ({
     console.debug(`Module source "internal-constants":\n${vmInternalConstants}`);
     rpVirtualOptions['internal:constants'] = vmInternalConstants;
 
-    const forceStandaloneModules = [ 'cc.wait-for-ammo-instantiation', 'cc.decorator' ];
-
     let rollupEntries: NonNullable<rollup.RollupOptions['input']> | undefined;
     if (split) {
         rollupEntries = Object.assign({}, engineEntries);
@@ -234,7 +231,7 @@ async function _doBuild ({
         const bundledModules = [];
         for (const moduleName of Object.keys(engineEntries)) {
             const moduleEntryFile = engineEntries[moduleName];
-            if (forceStandaloneModules.includes(moduleName)) {
+            if (moduleName === 'cc.wait-for-ammo-instantiation') {
                 rollupEntries[moduleName] = moduleEntryFile;
             } else {
                 bundledModules.push(filePathToModuleRequest(moduleEntryFile));
@@ -278,10 +275,6 @@ async function _doBuild ({
 
     const rollupPlugins: rollup.Plugin[] = [
         rpVirtual(rpVirtualOptions),
-
-        tsConfigPaths({
-            configFileName: ps.resolve(options.engine, 'tsconfig.json'),
-        }),
 
         resolve({
             extensions: ['.js', '.ts', '.json'],

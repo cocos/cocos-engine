@@ -345,12 +345,14 @@ export class Scheduler extends System {
     /**
      * @en Priority level reserved for system services.
      * @zh 系统服务的优先级。
+     * @property PRIORITY_SYSTEM
      */
     public static PRIORITY_SYSTEM: number = 1 << 31;
 
     /**
      * @en Minimum priority level for user scheduling.
      * @zh 用户调度最低优先级。
+     * @property PRIORITY_NON_SYSTEM
      */
     public static PRIORITY_NON_SYSTEM: number = Scheduler.PRIORITY_SYSTEM + 1;
 
@@ -681,10 +683,10 @@ export class Scheduler extends System {
 
     /**
      * @en
-     * Unschedules a callback for a callback and a given target.
+     * Unschedules a callback for a callback and a given target.<br>
      * If you want to unschedule the "update", use `unscheduleUpdate()`
      * @zh
-     * 取消指定对象定时器。
+     * 根据指定的回调函数和调用对象。<br>
      * 如果需要取消 update 定时器，请使用 unscheduleUpdate()。
      * @param {Function} callback The callback to be unscheduled
      * @param {Object} target The target bound to the callback.
@@ -805,7 +807,7 @@ export class Scheduler extends System {
      * You should NEVER call this method, unless you know what you are doing.
      * @zh
      * 取消所有对象的所有定时器，包括系统定时器。<br/>
-     * 不要调用此函数，除非你确定你在做什么。
+     * 不用调用此函数，除非你确定你在做什么。
      */
     public unscheduleAll (){
         this.unscheduleAllWithMinPriority(legacyCC.Scheduler.PRIORITY_SYSTEM);

@@ -144,7 +144,7 @@ class InputManager {
         }
         if (handleTouches.length > 0) {
             // this._glView!._convertTouchesWithScale(handleTouches);
-            const touchEvent = new EventTouch(handleTouches, false, EventTouch.BEGAN, macro.ENABLE_MULTI_TOUCH ? this._getUsefulTouches() : handleTouches);
+            const touchEvent = new EventTouch(handleTouches, false, EventTouch.BEGAN, this._getUsefulTouches());
             eventManager.dispatchEvent(touchEvent);
         }
     }
@@ -173,7 +173,7 @@ class InputManager {
         }
         if (handleTouches.length > 0) {
             // this._glView!._convertTouchesWithScale(handleTouches);
-            const touchEvent = new EventTouch(handleTouches, false, EventTouch.MOVED, macro.ENABLE_MULTI_TOUCH ? this._getUsefulTouches() : handleTouches);
+            const touchEvent = new EventTouch(handleTouches, false, EventTouch.MOVED, this._getUsefulTouches());
             eventManager.dispatchEvent(touchEvent);
         }
     }
@@ -182,7 +182,7 @@ class InputManager {
         const handleTouches = this.getSetOfTouchesEndOrCancel(touches);
         if (handleTouches.length > 0) {
             // this._glView!._convertTouchesWithScale(handleTouches);
-            const touchEvent = new EventTouch(handleTouches, false, EventTouch.ENDED, macro.ENABLE_MULTI_TOUCH ? this._getUsefulTouches() : handleTouches);
+            const touchEvent = new EventTouch(handleTouches, false, EventTouch.ENDED, this._getUsefulTouches());
             eventManager.dispatchEvent(touchEvent);
         }
         this._preTouchPool.length = 0;
@@ -192,7 +192,7 @@ class InputManager {
         const handleTouches = this.getSetOfTouchesEndOrCancel(touches);
         if (handleTouches.length > 0) {
             // this._glView!._convertTouchesWithScale(handleTouches);
-            const touchEvent = new EventTouch(handleTouches, false, EventTouch.CANCELLED, macro.ENABLE_MULTI_TOUCH ? this._getUsefulTouches() : handleTouches);
+            const touchEvent = new EventTouch(handleTouches, false, EventTouch.CANCELLED, this._getUsefulTouches());
             eventManager.dispatchEvent(touchEvent);
         }
         this._preTouchPool.length = 0;
@@ -775,14 +775,15 @@ class InputManager {
     private _getUsefulTouches () {
         const touches: Touch[] = [];
         const touchDict = this._touchesIntegerDict;
-        for (const id in touchDict) {
-            const index = parseInt(id);
-            const usedID = touchDict[index];
-            if (usedID === undefined || usedID === null) {
+        const touchesIntegerDict = Object.getOwnPropertyNames(touchDict);
+        for (let i = 0; i < touchesIntegerDict.length; i++) {
+            const id = parseInt(touchesIntegerDict[i]);
+            const usedId = touchDict[id];
+            if (usedId === undefined || usedId === null){
                 continue;
             }
 
-            const touch = this._touches[usedID];
+            const touch = this._touches[usedId];
             touches.push(touch);
         }
 

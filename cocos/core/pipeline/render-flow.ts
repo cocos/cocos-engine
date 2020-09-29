@@ -1,7 +1,7 @@
 /**
  * @category pipeline
  */
-import { ccclass, displayOrder, serializable } from 'cc.decorator';
+import { ccclass, property, visible, displayOrder, type } from '../data/class-decorator';
 import { RenderStage } from './render-stage';
 import { RenderView } from './render-view';
 import { RenderPipeline } from './render-pipeline';
@@ -14,7 +14,6 @@ import { legacyCC } from '../global-exports';
 export interface IRenderFlowInfo {
     name: string;
     priority: number;
-    stages: RenderStage[];
     tag?: number;
 }
 
@@ -28,7 +27,6 @@ export abstract class RenderFlow {
      * @en The name of the render flow
      * @zh 渲染流程的名字
      */
-    @displayOrder(0)
     public get name (): string {
         return this._name;
     }
@@ -37,7 +35,6 @@ export abstract class RenderFlow {
      * @en Priority of the current flow
      * @zh 当前渲染流程的优先级。
      */
-    @displayOrder(1)
     public get priority (): number {
         return this._priority;
     }
@@ -46,7 +43,6 @@ export abstract class RenderFlow {
      * @en Tag of the current flow
      * @zh 当前渲染流程的标签。
      */
-    @displayOrder(2)
     public get tag (): number {
         return this._tag;
     }
@@ -56,21 +52,28 @@ export abstract class RenderFlow {
      * @zh 渲染流程 stage 列表。
      * @readonly
      */
-    @displayOrder(3)
     public get stages (): RenderStage[] {
         return this._stages;
     }
 
-    @serializable
+    @property
+    @displayOrder(0)
+    @visible(true)
     protected _name: string = '';
 
-    @serializable
+    @property
+    @displayOrder(1)
+    @visible(true)
     protected _priority: number = 0;
 
-    @serializable
+    @property
+    @displayOrder(2)
+    @visible(true)
     protected _tag: number = 0;
 
-    @serializable
+    @type([RenderStage])
+    @displayOrder(3)
+    @visible(true)
     protected _stages: RenderStage[] = [];
     protected _pipeline!: RenderPipeline;
 
@@ -82,8 +85,11 @@ export abstract class RenderFlow {
     public initialize (info: IRenderFlowInfo): boolean{
         this._name = info.name;
         this._priority = info.priority;
-        this._stages = info.stages;
-        if (info.tag) { this._tag = info.tag; }
+
+        if (info.tag) {
+            this._tag = info.tag;
+        }
+
         return true;
     }
 

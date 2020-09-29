@@ -27,22 +27,21 @@
  * @category ui
  */
 
-import { GFXBuffer, GFXBufferInfo } from '../../gfx/buffer';
+import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
-import { GFXInputAssemblerInfo, GFXAttribute } from '../../gfx/input-assembler';
+import { IGFXAttribute } from '../../gfx/input-assembler';
 import { UI } from './ui';
-import { InputAssemblerHandle, NULL_HANDLE, IAPool } from '../core/memory-pools';
-import { getAttributeFormatBytes } from './ui-vertex-format';
 
 export class MeshBuffer {
     public static OPACITY_OFFSET = 8;
-
-    get attributes () { return this._attributes; }
-    get vertexBuffers () { return this._vertexBuffers; }
-    get indexBuffer () { return this._indexBuffer; }
+    public batcher: UI;
 
     public vData: Float32Array | null = null;
     public iData: Uint16Array | null = null;
+
+    public attributes: IGFXAttribute[] = null!;
+    public vertexBuffers: GFXBuffer[] = [];
+    public indexBuffer?: GFXBuffer;
 
     public byteStart = 0;
     public byteOffset = 0;
@@ -52,56 +51,41 @@ export class MeshBuffer {
     public vertexOffset = 0;
     public lastByteOffset = 1;
 
-    private _attributes: GFXAttribute[] = null!;
-    private _vertexBuffers: GFXBuffer[] = [];
-    private _indexBuffer: GFXBuffer = null!;
-    private _iaInfo: GFXInputAssemblerInfo = null!;
+    public dirty = false;
 
     // NOTE:
     // actually 256 * 4 * (vertexFormat._bytes / 4)
     // include pos, uv, color in ui attributes
-    private _batcher: UI;
-    private _dirty = false;
-    private _vertexFormatBytes = 0;
-    private _initVDataCount = 0;
+    private _vertexFormatBytes = 9 * Float32Array.BYTES_PER_ELEMENT;
+    private _initVDataCount = 256 * this._vertexFormatBytes;
     private _initIDataCount = 256 * 6;
     private _outOfCallback: ((...args: number[]) => void) | null = null;
-    private _hInputAssemblers: InputAssemblerHandle[] = [];
-    private _nextFreeIAHandle = 0;
 
     constructor (batcher: UI) {
-        this._batcher = batcher;
+        this.batcher = batcher;
     }
 
-    public initialize (attrs: GFXAttribute[], outOfCallback: ((...args: number[]) => void) | null) {
+    public initialize (attrs: IGFXAttribute[], outOfCallback: ((...args: number[]) => void) | null) {
         this._outOfCallback = outOfCallback;
-        const formatBytes = getAttributeFormatBytes(attrs);
-        this._vertexFormatBytes = formatBytes * Float32Array.BYTES_PER_ELEMENT;
-        this._initVDataCount = 256 * this._vertexFormatBytes;
-        const vbStride = Float32Array.BYTES_PER_ELEMENT * formatBytes;
+        const vbStride = Float32Array.BYTES_PER_ELEMENT * 9;
 
-        if (!this.vertexBuffers.length) {
-            this.vertexBuffers.push(this._batcher.device.createBuffer(new GFXBufferInfo(
-                GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-                GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                vbStride,
-                vbStride,
-            )));
-        }
+        if (!this.vertexBuffers.length) this.vertexBuffers.push(this.batcher.device.createBuffer({
+            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: vbStride,
+            stride: vbStride,
+        }));
 
         const ibStride = Uint16Array.BYTES_PER_ELEMENT;
 
-        if (!this.indexBuffer) {
-            this._indexBuffer = this._batcher.device.createBuffer(new GFXBufferInfo(
-                GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-                GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                ibStride,
-                ibStride,
-            ));
-        }
+        if (!this.indexBuffer) this.indexBuffer = this.batcher.device.createBuffer({
+            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: ibStride,
+            stride: ibStride,
+        });
 
-        this._attributes = attrs;
-        this._iaInfo = new GFXInputAssemblerInfo(this.attributes, this.vertexBuffers, this.indexBuffer);
+        this.attributes = attrs;
 
         this._reallocBuffer();
     }
@@ -113,9 +97,9 @@ export class MeshBuffer {
 
         if (vertexCount + this.vertexOffset > 65535) {
             // merge last state
-            this._batcher.autoMergeBatches();
+            this.batcher.autoMergeBatches();
             if (this._outOfCallback) {
-                this._outOfCallback.call(this._batcher, vertexCount, indicesCount);
+                this._outOfCallback.call(this.batcher, vertexCount, indicesCount);
             }
             return false;
         }
@@ -138,7 +122,7 @@ export class MeshBuffer {
         this.indicesOffset += indicesCount;
         this.byteOffset = byteOffset;
 
-        this._dirty = true;
+        this.dirty = true;
         return true;
     }
 
@@ -150,47 +134,24 @@ export class MeshBuffer {
         this.vertexStart = 0;
         this.vertexOffset = 0;
         this.lastByteOffset = 0;
-        this._nextFreeIAHandle = 0;
 
-        this._dirty = false;
+        this.dirty = false;
     }
 
     public destroy () {
-        this._attributes = null!;
+        this.attributes = null!;
 
         this.vertexBuffers[0].destroy();
         this.vertexBuffers.length = 0;
 
-        this.indexBuffer.destroy();
-        this._indexBuffer = null!;
-
-        for (let i = 0; i < this._hInputAssemblers.length; i++) {
-            IAPool.free(this._hInputAssemblers[i]);
+        if (this.indexBuffer) {
+            this.indexBuffer.destroy();
+            this.indexBuffer = undefined;
         }
-        this._hInputAssemblers.length = 0;
-    }
-
-    public recordBatch (): InputAssemblerHandle {
-        const vCount = this.indicesOffset - this.indicesStart;
-        if (!vCount) {
-            return NULL_HANDLE;
-        }
-
-        if (this._hInputAssemblers.length <= this._nextFreeIAHandle) {
-            this._hInputAssemblers.push(IAPool.alloc(this._batcher.device, this._iaInfo));
-        }
-
-        const hIA = this._hInputAssemblers[this._nextFreeIAHandle++];
-
-        const ia = IAPool.get(hIA);
-        ia.firstIndex = this.indicesStart;
-        ia.indexCount = vCount;
-
-        return hIA;
     }
 
     public uploadData () {
-        if (this.byteOffset === 0 || !this._dirty) {
+        if (this.byteOffset === 0 || !this.dirty) {
             return;
         }
 

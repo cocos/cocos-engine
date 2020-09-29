@@ -37,8 +37,8 @@ import { Color, Mat4, Size, Vec3 } from '../../../core/math';
 import { screen, view } from '../../../core/platform';
 import { macro } from '../../../core/platform/macro';
 import { contains } from '../../../core/utils/misc';
-import { Label } from '../label';
-import { EditBox } from './edit-box';
+import { LabelComponent } from '../label-component';
+import { EditBoxComponent} from './edit-box-component';
 import { tabIndexUtil } from './tabIndexUtil';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { sys } from '../../../core/platform/sys';
@@ -61,10 +61,10 @@ let _currentEditBoxImpl: EditBoxImpl | null = null;
 let _domCount = 0;
 
 export class EditBoxImpl extends EditBoxImplBase {
-    public _delegate: EditBox | null = null;
-    public _inputMode: InputMode = -1;
-    public _inputFlag: InputFlag = -1;
-    public _returnType: KeyboardReturnType = -1;
+    public _delegate: EditBoxComponent | null = null;
+    public _inputMode = InputMode.ANY;
+    public _inputFlag = InputFlag.DEFAULT;
+    public _returnType = KeyboardReturnType.DEFAULT;
     public __eventListeners: any = {};
     public __fullscreen = false;
     public __autoResize = false;
@@ -84,7 +84,7 @@ export class EditBoxImpl extends EditBoxImplBase {
     private _placeholderStyleSheet: any = null;
     private _domId = `EditBoxId_${++_domCount}`;
 
-    public init (delegate: EditBox) {
+    public init (delegate: EditBoxComponent) {
         if (!delegate){
             return;
         }
@@ -131,7 +131,7 @@ export class EditBoxImpl extends EditBoxImplBase {
 
     public setSize (width: number, height: number) {
         const elem = this._edTxt;
-        if (elem) {
+        if (elem){
             elem.style.width = width + 'px';
             elem.style.height = height + 'px';
         }
@@ -181,7 +181,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             document.head.removeChild(this._placeholderStyleSheet);
         }
 
-        this._edTxt = null;
+        delete this._edTxt;
         delete this._placeholderStyleSheet;
     }
 
@@ -307,10 +307,10 @@ export class EditBoxImpl extends EditBoxImplBase {
         scaleY /= dpr;
 
         const container = game.container;
-        const a = _matrix_temp.m00 * scaleX;
+        let a = _matrix_temp.m00 * scaleX;
         const b = _matrix.m01;
         const c = _matrix.m04;
-        const d = _matrix_temp.m05 * scaleY;
+        let d = _matrix_temp.m05 * scaleY;
 
         let offsetX = parseInt((container && container.style.paddingLeft) || '0');
         offsetX += viewport.x / dpr;
@@ -347,14 +347,14 @@ export class EditBoxImpl extends EditBoxImplBase {
         // FIX ME: TextArea actually dose not support password type.
         if (this._isTextArea) {
             // input flag
-            let textTrans = 'none';
+            let textTransform = 'none';
             if (inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
-                textTrans = 'uppercase';
+                textTransform = 'uppercase';
             }
             else if (inputFlag === InputFlag.INITIAL_CAPS_WORD) {
-                textTrans = 'capitalize';
+                textTransform = 'capitalize';
             }
-            elem!.style.textTransform = textTrans;
+            elem!.style.textTransform = textTransform;
             return;
         }
 
@@ -462,7 +462,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             font = textLabel.fontFamily;
         }
 
-        const fontSize = textLabel.fontSize * textLabel.node.scale.y;
+        let fontSize = textLabel.fontSize * textLabel.node.scale.y;
 
         if (this._textLabelFont === font
             && this._textLabelFontSize === fontSize
@@ -486,13 +486,13 @@ export class EditBoxImpl extends EditBoxImplBase {
         elem.style.fontFamily = font;
 
         switch (textLabel.horizontalAlign) {
-            case Label.HorizontalAlign.LEFT:
+            case LabelComponent.HorizontalAlign.LEFT:
                 elem.style.textAlign = 'left';
                 break;
-            case Label.HorizontalAlign.CENTER:
+            case LabelComponent.HorizontalAlign.CENTER:
                 elem.style.textAlign = 'center';
                 break;
-            case Label.HorizontalAlign.RIGHT:
+            case LabelComponent.HorizontalAlign.RIGHT:
                 elem.style.textAlign = 'right';
                 break;
         }
@@ -512,7 +512,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         }
 
 
-        const fontSize = placeholderLabel.fontSize * placeholderLabel.node.scale.y;
+        let fontSize = placeholderLabel.fontSize * placeholderLabel.node.scale.y;
 
         if (this._placeholderLabelFont === font
             && this._placeholderLabelFontSize === fontSize
@@ -534,21 +534,21 @@ export class EditBoxImpl extends EditBoxImplBase {
 
         let horizontalAlign = '';
         switch (placeholderLabel.horizontalAlign) {
-            case Label.HorizontalAlign.LEFT:
+            case LabelComponent.HorizontalAlign.LEFT:
                 horizontalAlign = 'left';
                 break;
-            case Label.HorizontalAlign.CENTER:
+            case LabelComponent.HorizontalAlign.CENTER:
                 horizontalAlign = 'center';
                 break;
-            case Label.HorizontalAlign.RIGHT:
+            case LabelComponent.HorizontalAlign.RIGHT:
                 horizontalAlign = 'right';
                 break;
         }
 
         styleEl!.innerHTML = `#${this._domId}::-webkit-input-placeholder{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}` +
-                            `#${this._domId}::-moz-placeholder{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}` +
+                            `#${this._domId}::-moz-placeholder{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}` + 
                             `#${this._domId}::-ms-input-placeholder{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}`;
-        // EDGE_BUG_FIX: hide clear button, because clearing input box in Edge does not emit input event
+        // EDGE_BUG_FIX: hide clear button, because clearing input box in Edge does not emit input event 
         // issue refference: https://github.com/angular/angular/issues/26307
         if (legacyCC.sys.browserType === legacyCC.sys.BROWSER_TYPE_EDGE) {
             styleEl!.innerHTML += `#${this._domId}::-ms-clear{display: none;}`;
@@ -578,9 +578,9 @@ export class EditBoxImpl extends EditBoxImplBase {
             if (inputLock) {
                 return;
             }
-            const delegate = impl._delegate;
+            let delegate = impl._delegate;
             // input of number type doesn't support maxLength attribute
-            const maxLength = delegate!.maxLength;
+            let maxLength = delegate!.maxLength;
             if (maxLength >= 0) {
                 elem.value = elem.value.slice(0, maxLength);
             }

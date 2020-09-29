@@ -1,4 +1,4 @@
-import { GFXFramebuffer, GFXFramebufferInfo } from '../framebuffer';
+import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { WebGL2CmdFuncCreateFramebuffer, WebGL2CmdFuncDestroyFramebuffer } from './webgl2-commands';
 import { WebGL2Device } from './webgl2-device';
 import { IWebGL2GPUFramebuffer, IWebGL2GPUTexture } from './webgl2-gpu-objects';
@@ -13,26 +13,30 @@ export class WebGL2Framebuffer extends GFXFramebuffer {
 
     private _gpuFramebuffer: IWebGL2GPUFramebuffer | null = null;
 
-    public initialize (info: GFXFramebufferInfo): boolean {
+    public initialize (info: IGFXFramebufferInfo): boolean {
 
         this._renderPass = info.renderPass;
         this._colorTextures = info.colorTextures || [];
         this._depthStencilTexture = info.depthStencilTexture || null;
 
-        if (info.depStencilMipmapLevel !== 0) {
+        if (info.depStencilMipmapLevel && info.depStencilMipmapLevel !== 0) {
             console.warn('The mipmap level of th texture image to be attached of depth stencil attachment should be 0. Convert to 0.');
         }
-        for (let i = 0; i < info.colorMipmapLevels.length; ++i) {
-            if (info.colorMipmapLevels[i] !== 0) {
-                console.warn(`The mipmap level of th texture image to be attached of color attachment ${i} should be 0. Convert to 0.`);
+        if (info.colorMipmapLevels && info.colorMipmapLevels.length > 0) {
+            for (let i = 0; i < info.colorMipmapLevels.length; ++i) {
+                if (info.colorMipmapLevels[i] !== 0) {
+                    console.warn(`The mipmap level of th texture image to be attached of color attachment ${i} should be 0. Convert to 0.`);
+                }
             }
         }
 
         const gpuColorTextures: IWebGL2GPUTexture[] = [];
-        for (let i = 0; i < info.colorTextures.length; i++) {
-            const colorTexture = info.colorTextures[i];
-            if (colorTexture) {
-                gpuColorTextures.push((colorTexture as WebGL2Texture).gpuTexture);
+        if (info.colorTextures !== undefined) {
+            for (let i = 0; i < info.colorTextures.length; i++) {
+                const colorTexture = info.colorTextures[i];
+                if (colorTexture) {
+                    gpuColorTextures.push((colorTexture as WebGL2Texture).gpuTexture);
+                }
             }
         }
 

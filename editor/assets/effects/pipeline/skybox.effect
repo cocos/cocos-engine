@@ -26,7 +26,7 @@ CCProgram sky-vs %{
     // use ~90 degree FOV when in orthographic projection
     // stretch x by 2 to remedy perspective effect
     vec2 f = cc_matProj[3][3] > 0.0 ? vec2(4.8, 2.4) : vec2(cc_matProj[1][1]);
-    pos.xy *= vec2(cc_matProj[0][0] / cc_matProj[1][1] * cc_cameraPos.w, 1.0) * f;
+    pos.xy *= vec2(cc_screenSize.y * cc_screenSize.z * cc_cameraPos.w, 1.0) * f;
     pos.zw = vec2(-0.99999 * pos.z, -pos.z);
     return pos;
   }

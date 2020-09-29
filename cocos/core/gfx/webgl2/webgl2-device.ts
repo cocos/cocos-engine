@@ -1,17 +1,17 @@
-import { macro, warnID, warn } from '../../platform';
-import { GFXDescriptorSet, GFXDescriptorSetInfo } from '../descriptor-set';
-import { GFXBuffer, GFXBufferInfo, GFXBufferViewInfo } from '../buffer';
-import { GFXCommandBuffer, GFXCommandBufferInfo } from '../command-buffer';
-import { GFXAPI, GFXDevice, GFXFeature, GFXDeviceInfo, GFXBindingMappingInfo } from '../device';
-import { GFXFence, GFXFenceInfo } from '../fence';
-import { GFXFramebuffer, GFXFramebufferInfo } from '../framebuffer';
-import { GFXInputAssembler, GFXInputAssemblerInfo } from '../input-assembler';
-import { GFXPipelineState, GFXPipelineStateInfo } from '../pipeline-state';
-import { GFXQueue, GFXQueueInfo } from '../queue';
-import { GFXRenderPass, GFXRenderPassInfo } from '../render-pass';
-import { GFXSampler, GFXSamplerInfo } from '../sampler';
+import { macro } from '../../platform';
+import { GFXDescriptorSet, IGFXDescriptorSetInfo } from '../descriptor-set';
+import { GFXBuffer, IGFXBufferInfo, IGFXBufferViewInfo } from '../buffer';
+import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
+import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo, GFXBindingMappingInfo } from '../device';
+import { GFXFence, IGFXFenceInfo } from '../fence';
+import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
+import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
+import { GFXPipelineState, IGFXPipelineStateInfo } from '../pipeline-state';
+import { GFXQueue, IGFXQueueInfo } from '../queue';
+import { GFXRenderPass, IGFXRenderPassInfo } from '../render-pass';
+import { GFXSampler, IGFXSamplerInfo } from '../sampler';
 import { GFXShader, GFXShaderInfo } from '../shader';
-import { GFXTexture, GFXTextureInfo, GFXTextureViewInfo } from '../texture';
+import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo } from '../texture';
 import { WebGL2DescriptorSet } from './webgl2-descriptor-set';
 import { WebGL2Buffer } from './webgl2-buffer';
 import { WebGL2CommandAllocator } from './webgl2-command-allocator';
@@ -33,9 +33,7 @@ import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXCommandBufferType, G
     GFXQueueType, GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, GFXRect } from '../define';
 import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGL2CmdFuncBlitFramebuffer,
     WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
-import { GFXPipelineLayout, GFXDescriptorSetLayout, GFXDescriptorSetLayoutInfo, GFXPipelineLayoutInfo } from '../..';
-
-const eventWebGLContextLost = 'webglcontextlost';
+import { GFXPipelineLayout, GFXDescriptorSetLayout, IGFXDescriptorSetLayoutInfo, IGFXPipelineLayoutInfo } from '../..';
 
 export class WebGL2Device extends GFXDevice {
 
@@ -116,8 +114,7 @@ export class WebGL2Device extends GFXDevice {
     private _isAntialias: boolean = true;
     private _isPremultipliedAlpha: boolean = true;
     private _useVAO: boolean = true;
-    private _bindingMappingInfo: GFXBindingMappingInfo = new GFXBindingMappingInfo();
-    private _webGLContextLostHandler: null | ((event: Event) => void) = null;
+    private _bindingMappingInfo: GFXBindingMappingInfo | null = null;
 
     private _extensions: string[] | null = null;
     private _EXT_texture_filter_anisotropic: EXT_texture_filter_anisotropic | null = null;
@@ -136,14 +133,21 @@ export class WebGL2Device extends GFXDevice {
     private _WEBGL_debug_shaders: WEBGL_debug_shaders | null = null;
     private _WEBGL_lose_context: WEBGL_lose_context | null = null;
 
-    public initialize (info: GFXDeviceInfo): boolean {
+    public initialize (info: IGFXDeviceInfo): boolean {
 
         this._canvas = info.canvasElm as HTMLCanvasElement;
-        this._isAntialias = info.isAntialias;
-        this._isPremultipliedAlpha = info.isPremultipliedAlpha;
-        this._bindingMappingInfo = info.bindingMappingInfo;
-        if (!this._bindingMappingInfo.bufferOffsets.length) this._bindingMappingInfo.bufferOffsets.push(0);
-        if (!this._bindingMappingInfo.samplerOffsets.length) this._bindingMappingInfo.samplerOffsets.push(0);
+
+        if (info.isAntialias !== undefined) {
+            this._isAntialias = info.isAntialias;
+        }
+
+        if (info.isPremultipliedAlpha !== undefined) {
+            this._isPremultipliedAlpha = info.isPremultipliedAlpha;
+        }
+
+        if (info.bindingMappingInfo !== undefined) {
+            this._bindingMappingInfo = info.bindingMappingInfo;
+        }
 
         try {
             const webGLCtxAttribs: WebGLContextAttributes = {
@@ -159,17 +163,14 @@ export class WebGL2Device extends GFXDevice {
 
             this._webGL2RC = this._canvas.getContext('webgl2', webGLCtxAttribs);
         } catch (err) {
-            console.warn(err);
+            console.error(err);
             return false;
         }
 
         if (!this._webGL2RC) {
-            console.warn('This device does not support WebGL2.');
+            console.error('This device does not support WebGL2.');
             return false;
         }
-
-        this._webGLContextLostHandler = this._onWebGLContextLost.bind(this);
-        this._canvas.addEventListener(eventWebGLContextLost, this._onWebGLContextLost);
 
         this._canvas2D = document.createElement('canvas');
 
@@ -203,8 +204,6 @@ export class WebGL2Device extends GFXDevice {
         this._stencilBits = gl.getParameter(gl.STENCIL_BITS);
         // let maxVertexUniformBlocks = gl.getParameter(gl.MAX_VERTEX_UNIFORM_BLOCKS);
         // let maxFragmentUniformBlocks = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_BLOCKS);
-
-        this.stateCache.initialize(this._maxTextureUnits, this._maxUniformBufferBindings, this._maxVertexAttributes);
 
         this._devicePixelRatio = info.devicePixelRatio || 1.0;
         this._width = this._canvas.width;
@@ -339,33 +338,49 @@ export class WebGL2Device extends GFXDevice {
         this.initStates(gl);
 
         // create queue
-        this._queue = this.createQueue(new GFXQueueInfo(GFXQueueType.GRAPHICS));
-        this._cmdBuff = this.createCommandBuffer(new GFXCommandBufferInfo(this._queue));
+        this._queue = this.createQueue({ type: GFXQueueType.GRAPHICS });
 
         // create default null texture
-        this.nullTex2D = this.createTexture(new GFXTextureInfo(
-            GFXTextureType.TEX2D,
-            GFXTextureUsageBit.SAMPLED,
-            GFXFormat.RGBA8,
-            2,
-            2,
-            GFXTextureFlagBit.GEN_MIPMAP,
-        )) as WebGL2Texture;
+        this.nullTex2D = new WebGL2Texture(this);
+        this.nullTex2D.initialize({
+            type: GFXTextureType.TEX2D,
+            usage: GFXTextureUsageBit.SAMPLED,
+            format: GFXFormat.RGBA8,
+            width: 2,
+            height: 2,
+            flags: GFXTextureFlagBit.GEN_MIPMAP,
+        });
 
         this.nullTexCube = new WebGL2Texture(this);
-        this.nullTexCube.initialize(new GFXTextureInfo(
-            GFXTextureType.TEX2D,
-            GFXTextureUsageBit.SAMPLED,
-            GFXFormat.RGBA8,
-            2,
-            2,
-            GFXTextureFlagBit.CUBEMAP | GFXTextureFlagBit.GEN_MIPMAP,
-            6,
-        ));
+        this.nullTexCube.initialize({
+            type: GFXTextureType.TEX2D,
+            usage: GFXTextureUsageBit.SAMPLED,
+            format: GFXFormat.RGBA8,
+            width: 2,
+            height: 2,
+            layerCount: 6,
+            flags: GFXTextureFlagBit.CUBEMAP |  GFXTextureFlagBit.GEN_MIPMAP,
+        });
 
-        const nullTexRegion = new GFXBufferTextureCopy();
-        nullTexRegion.texExtent.width = 2;
-        nullTexRegion.texExtent.height = 2;
+        const nullTexRegion: GFXBufferTextureCopy = {
+            buffStride: 0,
+            buffTexHeight: 0,
+            texOffset: {
+                x: 0,
+                y: 0,
+                z: 0,
+            },
+            texExtent: {
+                width: 2,
+                height: 2,
+                depth: 1,
+            },
+            texSubres: {
+                mipLevel: 0,
+                baseArrayLayer: 0,
+                layerCount: 1,
+            },
+        };
 
         const nullTexBuff = new Uint8Array(this.nullTex2D.size);
         nullTexBuff.fill(0);
@@ -380,10 +395,6 @@ export class WebGL2Device extends GFXDevice {
     }
 
     public destroy (): void {
-        if (this._canvas && this._webGLContextLostHandler) {
-            this._canvas.removeEventListener(eventWebGLContextLost, this._webGLContextLostHandler);
-            this._webGLContextLostHandler = null;
-        }
 
         if (this.nullTex2D) {
             this.nullTex2D.destroy();
@@ -408,11 +419,6 @@ export class WebGL2Device extends GFXDevice {
         if (this._queue) {
             this._queue.destroy();
             this._queue = null;
-        }
-
-        if (this._cmdBuff) {
-            this._cmdBuff.destroy();
-            this._cmdBuff = null;
         }
 
         this._extensions = null;
@@ -442,7 +448,7 @@ export class WebGL2Device extends GFXDevice {
         queue.clear();
     }
 
-    public createCommandBuffer (info: GFXCommandBufferInfo): GFXCommandBuffer {
+    public createCommandBuffer (info: IGFXCommandBufferInfo): GFXCommandBuffer {
         // const ctor = WebGLCommandBuffer; // opt to instant invocation
         const ctor = info.type === GFXCommandBufferType.PRIMARY ? WebGL2PrimaryCommandBuffer : WebGL2CommandBuffer;
         const cmdBuff = new ctor(this);
@@ -452,7 +458,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createBuffer (info: GFXBufferInfo | GFXBufferViewInfo): GFXBuffer {
+    public createBuffer (info: IGFXBufferInfo | IGFXBufferViewInfo): GFXBuffer {
         const buffer = new WebGL2Buffer(this);
         if (buffer.initialize(info)) {
             return buffer;
@@ -460,7 +466,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createTexture (info: GFXTextureInfo | GFXTextureViewInfo): GFXTexture {
+    public createTexture (info: IGFXTextureInfo | IGFXTextureViewInfo): GFXTexture {
         const texture = new WebGL2Texture(this);
         if (texture.initialize(info)) {
             return texture;
@@ -468,7 +474,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createSampler (info: GFXSamplerInfo): GFXSampler {
+    public createSampler (info: IGFXSamplerInfo): GFXSampler {
         const sampler = new WebGL2Sampler(this);
         if (sampler.initialize(info)) {
             return sampler;
@@ -476,7 +482,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createDescriptorSet (info: GFXDescriptorSetInfo): GFXDescriptorSet {
+    public createDescriptorSet (info: IGFXDescriptorSetInfo): GFXDescriptorSet {
         const descriptorSet = new WebGL2DescriptorSet(this);
         if (descriptorSet.initialize(info)) {
             return descriptorSet;
@@ -492,7 +498,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createInputAssembler (info: GFXInputAssemblerInfo): GFXInputAssembler {
+    public createInputAssembler (info: IGFXInputAssemblerInfo): GFXInputAssembler {
         const inputAssembler = new WebGL2InputAssembler(this);
         if (inputAssembler.initialize(info)) {
             return inputAssembler;
@@ -500,7 +506,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createRenderPass (info: GFXRenderPassInfo): GFXRenderPass {
+    public createRenderPass (info: IGFXRenderPassInfo): GFXRenderPass {
         const renderPass = new WebGL2RenderPass(this);
         if (renderPass.initialize(info)) {
             return renderPass;
@@ -508,7 +514,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createFramebuffer (info: GFXFramebufferInfo): GFXFramebuffer {
+    public createFramebuffer (info: IGFXFramebufferInfo): GFXFramebuffer {
         const framebuffer = new WebGL2Framebuffer(this);
         if (framebuffer.initialize(info)) {
             return framebuffer;
@@ -516,7 +522,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createDescriptorSetLayout (info: GFXDescriptorSetLayoutInfo): GFXDescriptorSetLayout {
+    public createDescriptorSetLayout (info: IGFXDescriptorSetLayoutInfo): GFXDescriptorSetLayout {
         const descriptorSetLayout = new WebGL2DescriptorSetLayout(this);
         if (descriptorSetLayout.initialize(info)) {
             return descriptorSetLayout;
@@ -524,7 +530,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createPipelineLayout (info: GFXPipelineLayoutInfo): GFXPipelineLayout {
+    public createPipelineLayout (info: IGFXPipelineLayoutInfo): GFXPipelineLayout {
         const pipelineLayout = new WebGL2PipelineLayout(this);
         if (pipelineLayout.initialize(info)) {
             return pipelineLayout;
@@ -532,7 +538,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createPipelineState (info: GFXPipelineStateInfo): GFXPipelineState {
+    public createPipelineState (info: IGFXPipelineStateInfo): GFXPipelineState {
         const pipelineState = new WebGL2PipelineState(this);
         if (pipelineState.initialize(info)) {
             return pipelineState;
@@ -540,7 +546,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createFence (info: GFXFenceInfo): GFXFence {
+    public createFence (info: IGFXFenceInfo): GFXFence {
         const fence = new WebGL2Fence(this);
         if (fence.initialize(info)) {
             return fence;
@@ -548,7 +554,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createQueue (info: GFXQueueInfo): GFXQueue {
+    public createQueue (info: IGFXQueueInfo): GFXQueue {
         const queue = new WebGL2Queue(this);
         if (queue.initialize(info)) {
             return queue;
@@ -672,12 +678,5 @@ export class WebGL2Device extends GFXDevice {
         gl.blendFuncSeparate(gl.ONE, gl.ZERO, gl.ONE, gl.ZERO);
         gl.colorMask(true, true, true, true);
         gl.blendColor(0.0, 0.0, 0.0, 0.0);
-    }
-
-    private _onWebGLContextLost (event: Event) {
-        warnID(11000);
-        warn(event);
-        // 2020.9.3: `preventDefault` is not available on some platforms
-        // event.preventDefault();
     }
 }

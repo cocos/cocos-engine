@@ -28,8 +28,8 @@
  */
 
 import { UIComponent } from '../components/ui-base/ui-component';
-import { UITransform } from '../components/ui-base/ui-transform';
-import { UIRenderable } from '../components/ui-base/ui-renderable';
+import { UITransformComponent } from '../components/ui-base/ui-transform-component';
+import { UIRenderComponent } from '../components';
 
 /**
  * @en Node's UI properties abstraction
@@ -42,7 +42,7 @@ export class NodeUIProperties {
      */
     get uiTransformComp () {
         if (!this._uiTransformComp) {
-            this._uiTransformComp = this._node.getComponent(UITransform);
+            this._uiTransformComp = this._node.getComponent(UITransformComponent);
         }
 
         return this._uiTransformComp;
@@ -55,13 +55,13 @@ export class NodeUIProperties {
      * @en The base UI component
      * @zh UI 基类组件
      */
-    public uiComp: UIComponent | UIRenderable | null = null;
+    public uiComp: UIComponent | UIRenderComponent | null = null;
     /**
      * @en The opacity of the UI node
      * @zh UI 透明度
      */
     public opacity = 1;
-    protected _uiTransformComp: UITransform | null = null;
+    protected _uiTransformComp: UITransformComponent | null = null;
     private _node: any;
 
     constructor (node: any) {

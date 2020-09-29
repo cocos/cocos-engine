@@ -2,7 +2,7 @@
 import { BuiltinShape } from './builtin-shape';
 import { ICapsuleShape } from '../../spec/i-physics-shape';
 import { capsule } from '../../../core/geometry';
-import { EAxisDirection, CapsuleCollider } from '../../framework';
+import { EAxisDirection, CapsuleColliderComponent } from '../../framework';
 
 export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
 
@@ -15,7 +15,7 @@ export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
     }
 
     get collider () {
-        return this._collider as CapsuleCollider;
+        return this._collider as CapsuleColliderComponent;
     }
 
     constructor (radius = 0.5, height = 2, direction = EAxisDirection.Y_AXIS) {

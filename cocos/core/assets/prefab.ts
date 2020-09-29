@@ -28,7 +28,7 @@
  * @category asset
  */
 
-import { ccclass, serializable, editable } from 'cc.decorator';
+import { ccclass, property } from '../data/class-decorator';
 import { compile } from '../data/instantiate-jit';
 import { obsolete } from '../utils/js';
 import { Enum } from '../value-types';
@@ -46,16 +46,19 @@ import { warnID } from '../platform/debug';
 const OptimizationPolicy = Enum({
     /**
      * 根据创建次数自动调整优化策略。初次创建实例时，行为等同 SINGLE_INSTANCE，多次创建后将自动采用 MULTI_INSTANCE。
+     * @property {Number} AUTO
      */
     AUTO: 0,
     /**
      * 优化单次创建性能。<br>
      * 该选项会跳过针对这个 prefab 的代码生成优化操作。当该 prefab 加载后，一般只会创建一个实例时，请选择此项。
+     * @property {Number} SINGLE_INSTANCE
      */
     SINGLE_INSTANCE: 1,
     /**
      * 优化多次创建性能。<br>
      * 该选项会启用针对这个 prefab 的代码生成优化操作。当该 prefab 加载后，一般会创建多个实例时，请选择此项。如果该 prefab 在场景中的节点启用了自动关联，并且在场景中有多份实例，也建议选择此项。
+     * @property {Number} MULTI_INSTANCE
      */
     MULTI_INSTANCE: 2,
 });
@@ -70,9 +73,10 @@ export default class Prefab extends Asset {
     public static OptimizationPolicy = OptimizationPolicy;
 
     public static OptimizationPolicyThreshold = 3;
-    
-    @serializable
-    @editable
+    /**
+     * @property {Node} data - the main cc.Node in the prefab
+     */
+    @property
     public data: any = null;
 
     /**
@@ -82,6 +86,7 @@ export default class Prefab extends Asset {
      * Indicates the optimization policy for instantiating this prefab.
      * Set to a suitable value based on usage, can optimize the time it takes to instantiate this prefab.
      *
+     * @property {Prefab.OptimizationPolicy} optimizationPolicy
      * @default Prefab.OptimizationPolicy.AUTO
      * @since 1.10.0
      * @example
@@ -90,8 +95,7 @@ export default class Prefab extends Asset {
      * prefab.optimizationPolicy = Prefab.OptimizationPolicy.MULTI_INSTANCE;
      * ```
      */
-    @serializable
-    @editable
+    @property
     public optimizationPolicy = OptimizationPolicy.AUTO;
 
     /**
@@ -99,8 +103,7 @@ export default class Prefab extends Asset {
      * @zh 指示该 Prefab 依赖的资源可否在 Prefab 加载后再延迟加载。
      * @default false
      */
-    @serializable
-    @editable
+    @property
     public asyncLoadAssets: Boolean = false;
 
     private _createFunction: Function | null;
@@ -109,6 +112,8 @@ export default class Prefab extends Asset {
         super();
         /**
          * Cache function to optimize instance creaton.
+         * @property {Function} _createFunction
+         * @private
          */
         this._createFunction = null;
 

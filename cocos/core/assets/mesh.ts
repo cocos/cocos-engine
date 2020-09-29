@@ -27,12 +27,12 @@
  * @category asset
  */
 
-import { ccclass, serializable } from 'cc.decorator';
+import { ccclass, property } from '../../core/data/class-decorator';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { mapBuffer } from '../3d/misc/buffer';
 import { BufferBlob } from '../3d/misc/buffer-blob';
 import { aabb } from '../geometry';
-import { GFXBuffer, GFXBufferInfo } from '../gfx/buffer';
+import { GFXBuffer } from '../gfx/buffer';
 import {
     getTypedArrayConstructor,
     GFXAttributeName,
@@ -44,7 +44,7 @@ import {
     GFXPrimitiveMode,
 } from '../gfx/define';
 import { GFXDevice, GFXFeature } from '../gfx/device';
-import { GFXAttribute, GFXInputAssemblerInfo } from '../gfx/input-assembler';
+import { IGFXAttribute, IGFXInputAssemblerInfo } from '../gfx/input-assembler';
 import { warnID } from '../platform/debug';
 import { sys } from '../platform/sys';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
@@ -102,29 +102,31 @@ export interface IFlatBuffer {
 /**
  * 渲染子网格。
  */
-export class RenderingSubMesh {
+export class RenderingSubMesh implements IGFXInputAssemblerInfo {
+    /**
+     * 使用的所有顶点缓冲区。
+     */
+    public vertexBuffers: GFXBuffer[];
 
     /**
      * 所有顶点属性。
      */
-    get attributes () { return this._attributes; }
-    /**
-     * 使用的所有顶点缓冲区。
-     */
-    get vertexBuffers () { return this._vertexBuffers; }
-    /**
-     * 使用的索引缓冲区，若未使用则无需指定。
-     */
-    get indexBuffer () { return this._indexBuffer; }
-    /**
-     * 间接绘制缓冲区。
-     */
-    get indirectBuffer () { return this._indirectBuffer; }
+    public attributes: IGFXAttribute[];
 
     /**
      * 图元类型。
      */
-    get primitiveMode () { return this._primitiveMode; }
+    public primitiveMode: GFXPrimitiveMode;
+
+    /**
+     * 使用的索引缓冲区，若未使用则无需指定。
+     */
+    public indexBuffer?: GFXBuffer;
+
+    /**
+     * 间接绘制缓冲区。
+     */
+    public indirectBuffer?: GFXBuffer;
 
     /**
      * （用于射线检测的）几何信息。
@@ -245,12 +247,12 @@ export class RenderingSubMesh {
                 const idxMap = struct.jointMaps[prim.jointMapIndex];
                 mapBuffer(dataView, (cur) => idxMap.indexOf(cur), jointFormat, jointOffset,
                     bundle.view.length, bundle.view.stride, dataView);
-                const buffer = device.createBuffer(new GFXBufferInfo(
-                    GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-                    GFXMemoryUsageBit.DEVICE,
-                    bundle.view.length,
-                    bundle.view.stride,
-                ));
+                const buffer = device.createBuffer({
+                    usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+                    memUsage: GFXMemoryUsageBit.DEVICE,
+                    size: bundle.view.length,
+                    stride: bundle.view.stride,
+                });
                 buffer.update(dataView.buffer); buffers.push(buffer); indices.push(i);
             } else {
                 buffers.push(this.vertexBuffers[prim.vertexBundelIndices[i]]);
@@ -262,34 +264,22 @@ export class RenderingSubMesh {
         return buffers;
     }
 
-    get iaInfo () { return this._iaInfo; }
-
     public mesh?: Mesh;
     public subMeshIdx?: number;
 
     private _flatBuffers?: IFlatBuffer[];
     private _jointMappedBuffers?: GFXBuffer[];
     private _jointMappedBufferIndices?: number[];
-    private _vertexIdChannel?: { stream: number; index: number; };
+    private _vertexIdChannel?: {
+        stream: number;
+        index: number;
+    };
     private _geometricInfo?: IGeometricInfo;
 
-    private _vertexBuffers: GFXBuffer[];
-    private _attributes: GFXAttribute[];
-    private _indexBuffer: GFXBuffer | null = null;
-    private _indirectBuffer: GFXBuffer | null = null;
-    private _primitiveMode: GFXPrimitiveMode;
-    private _iaInfo: GFXInputAssemblerInfo;
-
-    constructor (
-        vertexBuffers: GFXBuffer[], attributes: GFXAttribute[], primitiveMode: GFXPrimitiveMode,
-        indexBuffer: GFXBuffer | null = null, indirectBuffer: GFXBuffer | null = null,
-    ) {
-        this._attributes = attributes;
-        this._vertexBuffers = vertexBuffers;
-        this._indexBuffer = indexBuffer;
-        this._indirectBuffer = indirectBuffer;
-        this._primitiveMode = primitiveMode;
-        this._iaInfo = new GFXInputAssemblerInfo(attributes, vertexBuffers, indexBuffer, indirectBuffer);
+    constructor (vertexBuffers: GFXBuffer[], attributes: IGFXAttribute[], primitiveMode: GFXPrimitiveMode) {
+        this.vertexBuffers = vertexBuffers;
+        this.attributes = attributes;
+        this.primitiveMode = primitiveMode;
     }
 
     public destroy () {
@@ -297,9 +287,9 @@ export class RenderingSubMesh {
             this.vertexBuffers[i].destroy();
         }
         this.vertexBuffers.length = 0;
-        if (this._indexBuffer) {
-            this._indexBuffer.destroy();
-            this._indexBuffer = null;
+        if (this.indexBuffer) {
+            this.indexBuffer.destroy();
+            this.indexBuffer = undefined;
         }
         if (this._jointMappedBuffers && this._jointMappedBufferIndices) {
             for (let i = 0; i < this._jointMappedBufferIndices.length; i++) {
@@ -308,9 +298,9 @@ export class RenderingSubMesh {
             this._jointMappedBuffers = undefined;
             this._jointMappedBufferIndices = undefined;
         }
-        if (this._indirectBuffer) {
-            this._indirectBuffer.destroy();
-            this._indirectBuffer = null;
+        if (this.indirectBuffer) {
+            this.indirectBuffer.destroy();
+            this.indirectBuffer = undefined;
         }
     }
 
@@ -331,7 +321,12 @@ export class RenderingSubMesh {
 
         const vertexIdBuffer = this._allocVertexIdBuffer(device);
         this.vertexBuffers.push(vertexIdBuffer);
-        this.attributes.push(new GFXAttribute('a_vertexId', GFXFormat.R32F, false, streamIndex));
+        this.attributes.push({
+            name: 'a_vertexId',
+            format: GFXFormat.R32F,
+            stream: streamIndex,
+            isNormalized: false,
+        });
 
         this._vertexIdChannel = {
             stream: streamIndex,
@@ -346,17 +341,15 @@ export class RenderingSubMesh {
             this.vertexBuffers[0].size / this.vertexBuffers[0].stride;
         const vertexIds = new Float32Array(vertexCount);
         for (let iVertex = 0; iVertex < vertexCount; ++iVertex) {
-            // `+0.5` because on some platforms, the "fetched integer" may have small error.
-            // For example `26` may yield `25.99999`, which is convert to `25` instead of `26` using `int()`.
-            vertexIds[iVertex] = iVertex + 0.5;
+            vertexIds[iVertex] = iVertex;
         }
 
-        const vertexIdBuffer = device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.DEVICE,
-            vertexIds.byteLength,
-            vertexIds.BYTES_PER_ELEMENT,
-        ));
+        const vertexIdBuffer = device.createBuffer({
+            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.DEVICE,
+            size: vertexIds.byteLength,
+            stride: vertexIds.BYTES_PER_ELEMENT,
+        });
         vertexIdBuffer.update(vertexIds);
 
         return vertexIdBuffer;
@@ -387,7 +380,7 @@ export declare namespace Mesh {
         /**
          * 包含的所有顶点属性。
          */
-        attributes: GFXAttribute[];
+        attributes: IGFXAttribute[];
     }
 
     /**
@@ -543,16 +536,16 @@ export class Mesh extends Asset {
         return this._jointBufferIndices = this._struct.primitives.map((p) => p.jointMapIndex || 0);
     }
 
-    @serializable
+    @property
     private _struct: Mesh.IStruct = {
         vertexBundles: [],
         primitives: [],
     };
 
-    @serializable
+    @property
     private _dataLength = 0;
 
-    @serializable
+    @property
     private _hash = 0;
 
     private _data: Uint8Array = globalEmptyMeshBuffer;
@@ -591,7 +584,7 @@ export class Mesh extends Asset {
                 continue;
             }
 
-            let indexBuffer: GFXBuffer | null = null;
+            let indexBuffer: GFXBuffer | undefined;
             let ib: any = null;
             if (prim.indexView) {
                 const idxView = prim.indexView;
@@ -609,12 +602,12 @@ export class Mesh extends Asset {
                     }
                 }
 
-                indexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
-                    GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-                    GFXMemoryUsageBit.DEVICE,
-                    dstSize,
-                    dstStride,
-                ));
+                indexBuffer = gfxDevice.createBuffer({
+                    usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+                    memUsage: GFXMemoryUsageBit.DEVICE,
+                    size: dstSize,
+                    stride: dstStride,
+                });
                 indexBuffers.push(indexBuffer);
 
                 ib = new (getIndexStrideCtor(idxView.stride))(buffer, idxView.offset, idxView.count);
@@ -633,15 +626,15 @@ export class Mesh extends Asset {
 
             const vbReference = prim.vertexBundelIndices.map((idx) => vertexBuffers[idx]);
 
-            let gfxAttributes: GFXAttribute[] = [];
+            let gfxAttributes: IGFXAttribute[] = [];
             if (prim.vertexBundelIndices.length > 0) {
                 const idx = prim.vertexBundelIndices[0];
                 const vertexBundle = this._struct.vertexBundles[idx];
                 gfxAttributes = vertexBundle.attributes;
             }
 
-            const subMesh = new RenderingSubMesh(vbReference, gfxAttributes, prim.primitiveMode, indexBuffer);
-            subMesh.mesh = this; subMesh.subMeshIdx = i;
+            const subMesh = new RenderingSubMesh(vbReference, gfxAttributes, prim.primitiveMode);
+            subMesh.mesh = this; subMesh.subMeshIdx = i; subMesh.indexBuffer = indexBuffer;
 
             subMeshes.push(subMesh);
         }
@@ -1269,12 +1262,12 @@ export class Mesh extends Asset {
     private _createVertexBuffers (gfxDevice: GFXDevice, data: ArrayBuffer): GFXBuffer[] {
         return this._struct.vertexBundles.map((vertexBundle) => {
 
-            const vertexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
-                GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-                GFXMemoryUsageBit.DEVICE,
-                vertexBundle.view.length,
-                vertexBundle.view.stride,
-            ));
+            const vertexBuffer = gfxDevice.createBuffer({
+                usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+                memUsage: GFXMemoryUsageBit.DEVICE,
+                size: vertexBundle.view.length,
+                stride: vertexBundle.view.stride,
+            });
 
             const view = new Uint8Array(data, vertexBundle.view.offset, vertexBundle.view.length);
             if (this.loaded) {
@@ -1293,7 +1286,7 @@ export class Mesh extends Asset {
 }
 legacyCC.Mesh = Mesh;
 
-function getOffset (attributes: GFXAttribute[], attributeIndex: number) {
+function getOffset (attributes: IGFXAttribute[], attributeIndex: number) {
     let result = 0;
     for (let i = 0; i < attributeIndex; ++i) {
         const attribute = attributes[i];

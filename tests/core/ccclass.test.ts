@@ -1,6 +1,5 @@
-import { ccclass } from 'cc.decorator';
+import { ccclass, property } from '../../cocos/core/data/class-decorator';
 import { warnID } from '../../cocos/core';
-import { property } from '../../cocos/core/data/class-decorator';
 
 /**
  * Happened when:

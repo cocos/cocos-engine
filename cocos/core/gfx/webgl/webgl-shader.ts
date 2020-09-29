@@ -20,9 +20,9 @@ export class WebGLShader extends GFXShader {
         this._samplers = info.samplers;
 
         this._gpuShader = {
-            name: info.name,
-            blocks: info.blocks,
-            samplers: info.samplers,
+            name: info.name ? info.name : '',
+            blocks: info.blocks !== undefined ? info.blocks : [],
+            samplers: info.samplers !== undefined ? info.samplers : [],
 
             gpuStages: new Array<IWebGLGPUShaderStage>(info.stages.length),
             glProgram: null,

@@ -11,55 +11,44 @@ import {
     GFXMemoryUsageBit,
     GFXObject,
     GFXObjectType,
+    GFXType,
 } from './define';
 import { GFXDevice } from './device';
 
-export class GFXDrawInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public vertexCount: number = 0,
-        public firstVertex: number = 0,
-        public indexCount: number = 0,
-        public firstIndex: number = 0,
-        public vertexOffset: number = 0,
-        public instanceCount: number = 0,
-        public firstInstance: number = 0,
-    ) {}
+export interface IGFXDrawInfo {
+    vertexCount: number;
+    firstVertex: number;
+    indexCount: number;
+    firstIndex: number;
+    vertexOffset: number;
+    instanceCount: number;
+    firstInstance: number;
 }
 
 export const GFX_DRAW_INFO_SIZE: number = 28;
 
-export class GFXIndirectBuffer {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public drawInfos: GFXDrawInfo[] = [],
-    ) {}
+export interface IGFXIndirectBuffer {
+    drawInfos: IGFXDrawInfo[];
 }
 
-export type GFXBufferSource = ArrayBuffer | GFXIndirectBuffer;
+export type GFXBufferSource = ArrayBuffer | IGFXIndirectBuffer;
 
-export class GFXBufferInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export interface IGFXBufferInfo {
+    usage: GFXBufferUsage;
+    memUsage: GFXMemoryUsage;
+    size: number;
 
-    constructor (
-        public usage: GFXBufferUsage,
-        public memUsage: GFXMemoryUsage,
-        public size: number = 0,
-        public stride: number = 0, // in bytes
-        public flags: GFXBufferFlags = GFXBufferFlagBit.NONE,
-    ) {}
+    /**
+     * In bytes.
+     */
+    stride?: number;
+    flags?: GFXBufferFlags;
 }
 
-export class GFXBufferViewInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public buffer: GFXBuffer,
-        public offset: number = 0,
-        public range: number = 0,
-    ) {}
+export interface IGFXBufferViewInfo {
+    buffer: GFXBuffer;
+    offset: number;
+    range: number;
 }
 
 /**
@@ -72,7 +61,7 @@ export abstract class GFXBuffer extends GFXObject {
      * @en Usage type of the buffer.
      * @zh 缓冲使用方式。
      */
-    get usage (): GFXBufferUsage {
+    public get usage (): GFXBufferUsage {
         return this._usage;
     }
 
@@ -80,7 +69,7 @@ export abstract class GFXBuffer extends GFXObject {
      * @en Memory usage of the buffer.
      * @zh 缓冲的内存使用方式。
      */
-    get memUsage (): GFXMemoryUsage {
+    public get memUsage (): GFXMemoryUsage {
         return this._memUsage;
     }
 
@@ -88,7 +77,7 @@ export abstract class GFXBuffer extends GFXObject {
      * @en Size of the buffer.
      * @zh 缓冲大小。
      */
-    get size (): number {
+    public get size (): number {
         return this._size;
     }
 
@@ -96,7 +85,7 @@ export abstract class GFXBuffer extends GFXObject {
      * @en Stride of the buffer.
      * @zh 缓冲步长。
      */
-    get stride (): number {
+    public get stride (): number {
         return this._stride;
     }
 
@@ -104,11 +93,11 @@ export abstract class GFXBuffer extends GFXObject {
      * @en Count of the buffer wrt. stride.
      * @zh 缓冲条目数量。
      */
-    get count (): number {
+    public get count (): number {
         return this._count;
     }
 
-    get flags (): GFXBufferFlags {
+    public get flags (): GFXBufferFlags {
         return this._flags;
     }
 
@@ -116,8 +105,8 @@ export abstract class GFXBuffer extends GFXObject {
      * @en View of the back-up buffer, if specified.
      * @zh 备份缓冲视图。
      */
-    get backupBuffer (): Uint8Array | null {
-        return this._bakcupBuffer;
+    public get bufferView (): Uint8Array | null {
+        return this._bufferView;
     }
 
     protected _device: GFXDevice;
@@ -127,16 +116,15 @@ export abstract class GFXBuffer extends GFXObject {
     protected _stride: number = 1;
     protected _count: number = 0;
     protected _flags: GFXBufferFlags = GFXBufferFlagBit.NONE;
-    protected _bakcupBuffer: Uint8Array | null = null;
-    protected _indirectBuffer: GFXIndirectBuffer | null = null;
-    protected _isBufferView = false;
+    protected _bufferView: Uint8Array | null = null;
+    protected _indirectBuffer: IGFXIndirectBuffer | null = null;
 
     constructor (device: GFXDevice) {
         super(GFXObjectType.BUFFER);
         this._device = device;
     }
 
-    public abstract initialize (info: GFXBufferInfo | GFXBufferViewInfo): boolean;
+    public abstract initialize (info: IGFXBufferInfo | IGFXBufferViewInfo): boolean;
 
     public abstract destroy (): void;
 

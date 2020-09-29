@@ -1,15 +1,14 @@
 /**
  * @hidden
  */
-import { ccclass } from 'cc.decorator';
+import { ccclass } from '../data/class-decorator';
 import * as animation from './animation';
+import './deprecated';
 import * as easing from './easing';
 import { ComponentPath, HierarchyPath, ICustomTargetPath, TargetPath } from './target-path';
 import { IValueProxyFactory } from './value-proxy';
 import { UniformProxyFactory } from './value-proxy-factories/uniform';
 import { legacyCC } from '../global-exports';
-
-export * from './deprecated';
 
 legacyCC.easing = easing;
 export * from './bezier';
@@ -23,7 +22,7 @@ export {
 export * from './animation-component';
 export * from './skeletal-animation-data-hub';
 export * from './skeletal-animation-state';
-export * from './skeletal-animation';
+export * from './skeletal-animation-component';
 export * from './transform-utils';
 export { animation };
 

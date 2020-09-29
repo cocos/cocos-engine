@@ -1,7 +1,7 @@
 
 const { cc, dgui } = window;
-const { Camera, Component, DirectionalLight, GFXBlendFactor, Scene,
-  SphereCollider, Material, MeshRenderer, Node } = cc;
+const { CameraComponent, Component, DirectionalLightComponent, GFXBlendFactor, Scene,
+  SphereColliderComponent, Material, ModelComponent, Node } = cc;
 const { Color, randomRange, toRadian, Vec3, Vec4 } = cc.math;
 const { sphere, capsule } = cc.primitives;
 const { createMesh } = cc.utils;
@@ -66,7 +66,7 @@ class Emitter {
     this._elements = [];
     // emitter hint
     const hint = new Node('hint');
-    const hintModel = hint.addComponent(MeshRenderer);
+    const hintModel = hint.addComponent(ModelComponent);
     const hintMat = new Material();
     hintMat.initialize({ effectName: 'builtin-standard' });
     hintMat.setProperty('albedo', this.color);
@@ -83,7 +83,7 @@ class Emitter {
       ele.node = node;
       ele.color.set(this.color);
       // model
-      const model = node.addComponent(MeshRenderer);
+      const model = node.addComponent(ModelComponent);
       const mat = new Material();
       mat.initialize({
           effectName: 'builtin-standard',
@@ -104,7 +104,7 @@ class Emitter {
       model.material = mat;
       model.mesh = sphereMesh;
       // collider
-      const col = node.addComponent(SphereCollider);
+      const col = node.addComponent(SphereColliderComponent);
       col.radius = 1;
       col.isTrigger = true;
       col.setGroup(this.group); col.setMask(this.mask);
@@ -166,7 +166,7 @@ class Emitter {
       Math.cos(phi) * speed, Math.sin(theta) * Math.sin(phi) * speed);
     ele.color.a = this.color.a; ele.collided = false;
     ele.pass.setUniform(ele.hColor, ele.color);
-    const col = ele.node.getComponent(SphereCollider);
+    const col = ele.node.getComponent(SphereColliderComponent);
     col.setGroup(this.group); col.setMask(this.mask);
     ele.node.setPosition(0, 0, 0);
     this._livepool.push(ele);
@@ -179,14 +179,14 @@ const cameraNode = new Node('camera');
 cameraNode.parent = scene;
 cameraNode.setPosition(-20, 50, 12);
 cameraNode.lookAt(Vec3.ZERO);
-cameraNode.addComponent(Camera);
+cameraNode.addComponent(CameraComponent);
 cameraNode.addComponent(FirstPersonCamera);
 
 // light
 const light = new Node('light');
 light.parent = scene;
 light.setRotationFromEuler(-80, 20, -40);
-light.addComponent(DirectionalLight);
+light.addComponent(DirectionalLightComponent);
 
 cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, () => {
   for (let i = 0; i < emitters.length; i++) {

@@ -55,7 +55,7 @@
     "_id": ""
   },
   {
-    "__type__": "cc.Camera",
+    "__type__": "cc.CameraComponent",
     "_name": "Camera<CameraComponent>",
     "_objFlags": 0,
     "node": {
