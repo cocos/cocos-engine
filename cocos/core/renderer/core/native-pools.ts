@@ -43,6 +43,6 @@ export class NativeObjectPool<T> {
 
 export class NativeBufferAllocator {
     constructor (poolType: number) {}
-    public alloc (index: number, bytes: number) { return new Uint32Array(bytes); }
+    public alloc (index: number, bytes: number) { return new ArrayBuffer(bytes); }
     public free (index: number) {}
 }

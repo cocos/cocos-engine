@@ -45,12 +45,16 @@ interface ITypedArrayConstructor<T> {
     readonly BYTES_PER_ELEMENT: number;
 }
 
+interface IMemoryPool<P extends PoolType> {
+    free (handle: IHandle<P>): void;
+}
+
 // a little hacky, but works (different specializations should not be assignable to each other)
-interface IHandle<T extends PoolType> extends Number {
+interface IHandle<P extends PoolType> extends Number {
     // we make this non-optional so that even plain numbers would not be directly assignable to handles.
     // this strictness will introduce some casting hassle in the pool implementation itself
     // but becomes generally more useful for client code type checking.
-    _: T;
+    _: P;
 }
 
 enum BufferDataType {
@@ -67,7 +71,7 @@ type BufferDataTypeManifest<E extends BufferManifest> = { [key in E[keyof E]]: B
 
 type Conditional<V, T> = T extends V ? T : never;
 
-class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferTypeManifest<E>> {
+class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferTypeManifest<E>> implements IMemoryPool<P> {
 
     // naming convension:
     // this._bufferViews[chunk][entry][element]
@@ -275,7 +279,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
     }
 }
 
-class ObjectPool<T, P extends PoolType, A extends any[]> {
+class ObjectPool<T, P extends PoolType, A extends any[]> implements IMemoryPool<P> {
 
     private _ctor: (args: A, obj?: T) => T;
     private _dtor?: (obj: T) => void;
@@ -332,7 +336,7 @@ class ObjectPool<T, P extends PoolType, A extends any[]> {
     }
 }
 
-class BufferAllocator<P extends PoolType> {
+class BufferAllocator<P extends PoolType> implements IMemoryPool<P> {
 
     protected _nativeBufferAllocator: NativeBufferAllocator;
     protected _buffers = new Map<number, ArrayBuffer>();
@@ -362,11 +366,21 @@ class BufferAllocator<P extends PoolType> {
         this._nativeBufferAllocator.free(bufferIdx);
         this._buffers.delete(bufferIdx);
     }
+
+    public getBuffer (handle: IHandle<P>): ArrayBuffer {
+        const bufferIdx = this._bufferIdxMask & handle as unknown as number;
+        const buffer = this._buffers.get(bufferIdx);
+        if (!buffer) {
+            if (DEBUG) console.warn('invalid array pool index or invalid array handle');
+            return null!;
+        }
+        return buffer;
+    }
 }
 
-class TypedArrayPool<P extends PoolType, T extends TypedArray, D extends StandardBufferElement> extends BufferAllocator<P> {
+class TypedArrayPool<P extends PoolType, T extends TypedArray, D extends StandardBufferElement> extends BufferAllocator<P> implements IMemoryPool<P> {
 
-    protected _buffers = new Map<number, T>();
+    declare protected _buffers: Map<number, T>;
     protected _viewCtor: ITypedArrayConstructor<T>;
     protected _size: number;
     protected _step: number;
@@ -384,6 +398,9 @@ class TypedArrayPool<P extends PoolType, T extends TypedArray, D extends Standar
         this._buffers.set(bufferIdx, new this._viewCtor(buffer));
         return (bufferIdx | this._poolFlag) as unknown as IHandle<P>;
     }
+
+    // no direct buffer accesses for array pools
+    public getBuffer (handle: IHandle<P>): never { return null!; }
 
     public assign (handle: IHandle<P>, index: number, value: D) {
         const bufferIdx = this._bufferIdxMask & handle as unknown as number;
@@ -458,6 +475,41 @@ class TypedArrayPool<P extends PoolType, T extends TypedArray, D extends Standar
         }
         array[0] = 0;
     }
+
+    public get (handle: IHandle<P>, index: number): D {
+        const bufferIdx = this._bufferIdxMask & handle as unknown as number;
+        const array = this._buffers.get(bufferIdx);
+        if (!array || index >= array[0]) {
+            if (DEBUG) console.warn('invalid array pool handle');
+            return 0 as D;
+        }
+        return array[index + 1] as D;
+    }
+
+    public length (handle: IHandle<P>) {
+        const bufferIdx = this._bufferIdxMask & handle as unknown as number;
+        const array = this._buffers.get(bufferIdx);
+        if (!array) {
+            if (DEBUG) console.warn('invalid array pool handle');
+            return 0;
+        }
+        return array[0];
+    }
+}
+
+export function freeHandleArray<P extends PoolType, H extends IHandle<PoolType>> (
+    arrayHandle: IHandle<P>,
+    arrayPool: TypedArrayPool<P, Uint32Array, H>,
+    elementPool: IMemoryPool<H['_']>,
+    freeArrayItself = true,
+) {
+    const count = arrayPool.length(arrayHandle);
+    for (let i = 0; i < count; i++) {
+        const element = arrayPool.get(arrayHandle, i);
+        if (element) elementPool.free(element);
+    }
+    if (freeArrayItself) arrayPool.free(arrayHandle);
+    else arrayPool.clear(arrayHandle);
 }
 
 enum PoolType {
@@ -487,9 +539,12 @@ enum PoolType {
     SKYBOX,
     SHADOW,
     LIGHT,
-    // array
+    // arrays
     SUB_MODEL_ARRAY = 200,
     MODEL_ARRAY,
+    ATTRIBUTE_ARRAY,
+    // raw buffer
+    RAW_BUFFER = 300,
 }
 
 export const NULL_HANDLE = 0 as unknown as IHandle<any>;
@@ -514,7 +569,9 @@ export type AABBHandle = IHandle<PoolType.AABB>;
 export type FrustumHandle = IHandle<PoolType.FRUSTUM>;
 export type RenderWindowHandle = IHandle<PoolType.RENDER_WINDOW>;
 export type SubModelArrayHandle = IHandle<PoolType.SUB_MODEL_ARRAY>;
+export type AttributeArrayHandle = IHandle<PoolType.ATTRIBUTE_ARRAY>;
 export type ModelArrayHandle = IHandle<PoolType.MODEL_ARRAY>;
+export type RawBufferHandle = IHandle<PoolType.RAW_BUFFER>;
 export type AmbientHandle = IHandle<PoolType.AMBIENT>;
 export type FogHandle = IHandle<PoolType.FOG>;
 export type SkyboxHandle = IHandle<PoolType.SKYBOX>;
@@ -522,11 +579,11 @@ export type ShadowsHandle = IHandle<PoolType.SHADOW>;
 export type LightHandle = IHandle<PoolType.LIGHT>;
 
 // don't reuse any of these data-only structs, for GFX objects may directly reference them
-export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, () => new GFXRasterizerState());
-export const DepthStencilStatePool = new ObjectPool(PoolType.DEPTH_STENCIL_STATE, () => new GFXDepthStencilState());
-export const BlendStatePool = new ObjectPool(PoolType.BLEND_STATE, () => new GFXBlendState());
+export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, (_: never[]) => new GFXRasterizerState());
+export const DepthStencilStatePool = new ObjectPool(PoolType.DEPTH_STENCIL_STATE, (_: never[]) => new GFXDepthStencilState());
+export const BlendStatePool = new ObjectPool(PoolType.BLEND_STATE, (_: never[]) => new GFXBlendState());
 
-export const AttributePool = new ObjectPool(PoolType.ATTRIBUTE, (_: never, obj?: GFXAttribute) => obj || new GFXAttribute());
+export const AttrPool = new ObjectPool(PoolType.ATTRIBUTE, (_: never[], obj?: GFXAttribute) => obj || new GFXAttribute());
 
 // TODO: could use Labeled Tuple Element feature here after next babel update (required TS4.0+ support)
 export const ShaderPool = new ObjectPool(PoolType.SHADER,
@@ -550,8 +607,11 @@ export const FramebufferPool = new ObjectPool(PoolType.FRAMEBUFFER,
     (obj: GFXFramebuffer) => obj && obj.destroy(),
 );
 
-export const SubModelArrayPool = new TypedArrayPool<PoolType.SUB_MODEL_ARRAY, Uint32Array, SubModelHandle>(PoolType.SUB_MODEL_ARRAY, Uint32Array, 10);
-export const ModelArrayPool = new TypedArrayPool<PoolType.MODEL_ARRAY, Uint32Array, ModelHandle>(PoolType.MODEL_ARRAY, Uint32Array, 50, 10);
+export const SubModelArrayPool = new TypedArrayPool<PoolType.SUB_MODEL_ARRAY, Uint32Array, SubModelHandle>(PoolType.SUB_MODEL_ARRAY, Uint32Array, 8, 4);
+export const ModelArrayPool = new TypedArrayPool<PoolType.MODEL_ARRAY, Uint32Array, ModelHandle>(PoolType.MODEL_ARRAY, Uint32Array, 32, 16);
+export const AttributeArrayPool = new TypedArrayPool<PoolType.ATTRIBUTE_ARRAY, Uint32Array, AttributeHandle>(PoolType.ATTRIBUTE_ARRAY, Uint32Array, 8, 4);
+
+export const RawBufferPool = new BufferAllocator(PoolType.RAW_BUFFER);
 
 export enum PassView {
     PRIORITY,
@@ -658,11 +718,13 @@ export enum ModelView {
     ENABLED,
     VIS_FLAGS,
     CAST_SHADOW,
-    WORLD_BOUNDS,    // handle
-    NODE,            // handle
-    TRANSFORM,       // handle
-    SUB_MODEL_ARRAY, // array handle
-    COUNT
+    WORLD_BOUNDS,         // handle
+    NODE,                 // handle
+    TRANSFORM,            // handle
+    SUB_MODEL_ARRAY,      // array handle
+    INSTANCED_BUFFER,     // raw buffer handle
+    INSTANCED_ATTR_ARRAY, // array handle
+    COUNT,
 }
 interface IModelViewType extends BufferTypeManifest<typeof ModelView> {
     [ModelView.ENABLED]: number;
@@ -672,6 +734,8 @@ interface IModelViewType extends BufferTypeManifest<typeof ModelView> {
     [ModelView.NODE]: NodeHandle;
     [ModelView.TRANSFORM]: NodeHandle;
     [ModelView.SUB_MODEL_ARRAY]: SubModelArrayHandle;
+    [ModelView.INSTANCED_BUFFER]: RawBufferHandle;
+    [ModelView.INSTANCED_ATTR_ARRAY]: AttributeArrayHandle;
     [ModelView.COUNT]: never;
 }
 const modelViewDataType: BufferDataTypeManifest<typeof ModelView> = {
@@ -682,6 +746,8 @@ const modelViewDataType: BufferDataTypeManifest<typeof ModelView> = {
     [ModelView.NODE]: BufferDataType.UINT32,
     [ModelView.TRANSFORM]: BufferDataType.UINT32,
     [ModelView.SUB_MODEL_ARRAY]: BufferDataType.UINT32,
+    [ModelView.INSTANCED_BUFFER]: BufferDataType.UINT32,
+    [ModelView.INSTANCED_ATTR_ARRAY]: BufferDataType.UINT32,
     [ModelView.COUNT]: BufferDataType.NEVER
 }
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
@@ -692,7 +758,7 @@ export const ModelPool = new BufferPool<PoolType.MODEL, typeof ModelView, IModel
 export enum AABBView {
     CENTER,             // Vec3
     HALF_EXTENSION = 3, // Vec3
-    COUNT = 6
+    COUNT = 6,
 }
 interface IAABBViewType extends BufferTypeManifest<typeof AABBView> {
     [AABBView.CENTER]: Vec3;

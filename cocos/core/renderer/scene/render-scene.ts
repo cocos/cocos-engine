@@ -14,7 +14,7 @@ import { SpotLight } from './spot-light';
 import { PREVIEW } from 'internal:constants';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { legacyCC } from '../../global-exports';
-import { ScenePool, SceneView, ModelArrayPool, ModelArrayHandle, SceneHandle, NULL_HANDLE } from '../core/memory-pools';
+import { ScenePool, SceneView, ModelArrayPool, ModelArrayHandle, SceneHandle, NULL_HANDLE, freeHandleArray, ModelPool } from '../core/memory-pools';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -159,9 +159,11 @@ export class RenderScene {
         this.removeSpotLights();
         this.removeModels();
         if (this._modelArrayHandle) {
-            ModelArrayPool.free(this._modelArrayHandle);
-            ScenePool.free(this._scenePoolHandle);
+            freeHandleArray(this._modelArrayHandle, ModelArrayPool, ModelPool);
             this._modelArrayHandle = NULL_HANDLE;
+        }
+        if (this._scenePoolHandle) {
+            ScenePool.free(this._scenePoolHandle);
             this._scenePoolHandle = NULL_HANDLE;
         }
     }
