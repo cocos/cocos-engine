@@ -21,7 +21,7 @@ import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool,
     ModelView, AABBHandle, AABBPool, AABBView, NULL_HANDLE } from '../core/memory-pools';
 import { GFXAttribute, GFXDescriptorSet } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
-import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
+import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
 
 const m4_1 = new Mat4();
 
@@ -31,15 +31,10 @@ const shadowMapPatches: IMacroPatch[] = [
     { name: 'CC_RECEIVE_SHADOW', value: true },
 ];
 
-export interface IInstancedAttribute {
-    name: string;
-    format: GFXFormat;
-    isNormalized?: boolean;
-    view: ArrayBufferView;
-}
 export interface IInstancedAttributeBlock {
     buffer: Uint8Array;
-    list: IInstancedAttribute[];
+    views: TypedArray[];
+    attributes: GFXAttribute[];
 }
 
 export enum ModelType {
@@ -158,7 +153,7 @@ export class Model {
     public scene: RenderScene | null = null;
     public castShadow = false;
     public isDynamicBatching = false;
-    public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, list: [] };
+    public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, views: [], attributes: [] };
 
     protected _worldBounds: aabb | null = null;
     protected _modelBounds: aabb | null = null;
@@ -270,8 +265,8 @@ export class Model {
         const worldMatrix = this.transform._mat;
         const idx = this._instMatWorldIdx;
         if (idx >= 0) {
-            const attrs = this.instancedAttributes!.list;
-            uploadMat4AsVec4x3(worldMatrix, attrs[idx].view, attrs[idx + 1].view, attrs[idx + 2].view);
+            const attrs = this.instancedAttributes!.views;
+            uploadMat4AsVec4x3(worldMatrix, attrs[idx], attrs[idx + 1], attrs[idx + 2]);
         } else {
             Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
             Mat4.inverseTranspose(m4_1, worldMatrix);
@@ -379,9 +374,9 @@ export class Model {
     }
 
     protected _getInstancedAttributeIndex (name: string) {
-        const list = this.instancedAttributes.list;
-        for (let i = 0; i < list.length; i++) {
-            if (list[i].name === name) { return i; }
+        const attributes = this.instancedAttributes.attributes;
+        for (let i = 0; i < attributes.length; i++) {
+            if (attributes[i].name === name) { return i; }
         }
         return -1;
     }
@@ -398,16 +393,17 @@ export class Model {
             size += GFXFormatInfos[attribute.format].size;
         }
         const attrs = this.instancedAttributes;
-        attrs.buffer = new Uint8Array(size); attrs.list.length = 0;
+        attrs.buffer = new Uint8Array(size); attrs.views.length = attrs.attributes.length = 0;
         let offset = 0; const buffer = attrs.buffer.buffer;
         for (let j = 0; j < attributes.length; j++) {
             const attribute = attributes[j];
             if (!attribute.isInstanced) { continue; }
             const format = attribute.format;
             const info = GFXFormatInfos[format];
-            const view = new (getTypedArrayConstructor(info))(buffer, offset, info.count);
             const isNormalized = attribute.isNormalized;
-            offset += info.size; attrs.list.push({ name: attribute.name, format, isNormalized, view });
+            offset += info.size;
+            attrs.views.push(new (getTypedArrayConstructor(info))(buffer, offset, info.count));
+            attrs.attributes.push(new GFXAttribute(attribute.name, format, isNormalized));
         }
         if (pass.batchingScheme === BatchingSchemes.INSTANCING) { InstancedBuffer.get(pass).destroy(); } // instancing IA changed
         this._instMatWorldIdx = this._getInstancedAttributeIndex(INST_MAT_WORLD);

@@ -131,7 +131,7 @@ export class BakedSkinningModel extends MorphModel {
         const info = this._jointsMedium.animInfo;
         const idx = this._instAnimInfoIdx;
         if (idx >= 0) {
-            const view = this.instancedAttributes.list[idx].view;
+            const view = this.instancedAttributes.views[idx];
             view[0] = info.data[0];
         } else if (info.dirty) {
             info.buffer.update(info.data);
@@ -209,7 +209,7 @@ export class BakedSkinningModel extends MorphModel {
         const { jointTextureInfo, animInfo } = this._jointsMedium;
         const idx = this._instAnimInfoIdx;
         if (idx >= 0) { // update instancing data too
-            const view = this.instancedAttributes.list[idx].view;
+            const view = this.instancedAttributes.views[idx];
             view[0] = animInfo.data[0];
             view[1] = jointTextureInfo[1];
             view[2] = jointTextureInfo[2];
