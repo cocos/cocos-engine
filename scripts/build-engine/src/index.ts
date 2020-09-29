@@ -11,8 +11,6 @@ import babelPresetEnv from '@babel/preset-env';
 import babelPresetCc from '@cocos/babel-preset-cc';
 // @ts-ignore
 import babelPluginTransformForOf from '@babel/plugin-transform-for-of';
-// @ts-ignore
-import babelPluginConstEnum from 'babel-plugin-const-enum';
 import * as rollup from 'rollup';
 // @ts-ignore
 import rpProgress from 'rollup-plugin-progress';
@@ -254,11 +252,7 @@ async function _doBuild ({
         presetEnvOptions.targets = options.targets;
     }
 
-    const babelPlugins: any[] = [
-        [babelPluginConstEnum, {
-            transform: 'constObject'
-        }]
-    ];
+    const babelPlugins: any[] = [];
     if (options.targets === undefined) {
         babelPlugins.push([babelPluginTransformForOf, {
             loose: true,

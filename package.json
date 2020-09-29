@@ -25,7 +25,7 @@
   "devDependencies": {
     "@babel/core": "^7.9.0",
     "@babel/preset-env": "7.8.7",
-    "@cocos/babel-preset-cc": "2.1.0",
+    "@cocos/babel-preset-cc": "^2.2.0",
     "@cocos/build-engine": "3.0.8",
     "@cocos/typedoc-plugin-internal-external": "^1.0.0",
     "@cocos/typedoc-plugin-localization": "^1.0.0",
@@ -34,7 +34,6 @@
     "@types/yargs": "^12.0.14",
     "@typescript-eslint/eslint-plugin": "^2.24.0",
     "@typescript-eslint/parser": "^2.24.0",
-    "babel-plugin-const-enum": "^1.0.1",
     "commander": "^2.20.3",
     "dat.gui": "^0.7.5",
     "eslint": "^6.8.0",
