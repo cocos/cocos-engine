@@ -41,7 +41,7 @@ audioDownloader.setOnFileTaskSuccess(task => {
 
     item.url = task.storagePath;
     item.rawUrl = task.storagePath;
-    
+
     callback(null, item);
     delete audioUrlMap[task.requestURL];
 });
@@ -89,6 +89,21 @@ function loadAudio (item, callback) {
         audioClip._nativeAsset = item.url;
         return audioClip;
     }
+}
+
+function loadVideo(item) {
+    let loadByDeserializedAsset = (item._owner instanceof cc.Asset);
+    if (loadByDeserializedAsset) {
+        // already has cc.Asset
+        return null;
+    }
+
+    let videoClip = new cc.VideoClip();
+    // obtain user url through nativeUrl
+    videoClip._setRawAsset(item.rawUrl, false);
+    // obtain download url through _nativeAsset
+    videoClip._nativeAsset = item.url;
+    return videoClip;
 }
 
 function downloadImage(item, callback) {
@@ -184,8 +199,10 @@ cc.loader.addDownloadHandlers({
     'mp3' : downloadAudio,
     'ogg' : downloadAudio,
     'wav' : downloadAudio,
-    'mp4' : downloadAudio,
     'm4a' : downloadAudio,
+
+    // video
+    'mp4' : downloadAudio,
 
     // Text
     'txt' : downloadText,
@@ -223,8 +240,10 @@ cc.loader.addLoadHandlers({
     'mp3' : loadAudio,
     'ogg' : loadAudio,
     'wav' : loadAudio,
-    'mp4' : loadAudio,
     'm4a' : loadAudio,
+
+    // video
+    'mp4' : loadVideo,
 
     // compressed texture
     'pvr': loadCompressedTex,
