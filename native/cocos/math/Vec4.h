@@ -23,6 +23,7 @@
 #ifndef MATH_VEC4_H
 #define MATH_VEC4_H
 
+#undef __SSE__
 #ifdef __SSE__
 #include <xmmintrin.h>
 #endif

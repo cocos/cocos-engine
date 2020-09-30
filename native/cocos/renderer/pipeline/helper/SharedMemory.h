@@ -1,7 +1,6 @@
 #pragma once
 #include "renderer/core/CoreStd.h"
 
-#undef __SSE__ //undefine it since variables of type __m128 are automatically aligned on 16-byte boundaries, result in incorrectly mapping to shared memory.
 #include "bindings/dop/ArrayPool.h"
 #include "bindings/dop/BufferPool.h"
 #include "bindings/dop/ObjectPool.h"
