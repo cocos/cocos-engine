@@ -48,9 +48,10 @@ public abstract class Cocos2dxActivity extends NativeActivity {
     private boolean hasFocus = false;
     private boolean paused = true;
 
-    private Cocos2dxVideoHelper mVideoHelper = null;
-
     protected FrameLayout mFrameLayout = null;
+
+    private Cocos2dxVideoHelper   mVideoHelper   = null;
+    private Cocos2dxWebViewHelper mWebViewHelper = null;
 
     // ===========================================================
     // Override functions
@@ -81,16 +82,24 @@ public abstract class Cocos2dxActivity extends NativeActivity {
         Cocos2dxHelper.init(this);
         CanvasRenderingContext2DImpl.init(this);
 
-        ViewGroup.LayoutParams frameLayoutParams =
-                        new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                                   ViewGroup.LayoutParams.MATCH_PARENT);
-        mFrameLayout = new FrameLayout(this);
-        mFrameLayout.setLayoutParams(frameLayoutParams);
 
-        setContentView(mFrameLayout);
+        if (mFrameLayout == null) {
+            ViewGroup.LayoutParams frameLayoutParams = new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT);
+            mFrameLayout = new FrameLayout(this);
+            mFrameLayout.setLayoutParams(frameLayoutParams);
+
+            //
+            setContentView(mFrameLayout);
+        }
 
         if (mVideoHelper == null) {
             mVideoHelper = new Cocos2dxVideoHelper(this, mFrameLayout);
+        }
+        
+        if (mWebViewHelper == null) {
+            mWebViewHelper = new Cocos2dxWebViewHelper(mFrameLayout);
         }
 
         this.setVolumeControlStream(AudioManager.STREAM_MUSIC);

@@ -42,6 +42,10 @@ THE SOFTWARE.
 #define USE_VIDEO 1
 #endif
 
+#ifndef USE_WEBVIEW
+#define USE_WEBVIEW 1
+#endif
+
 #ifndef USE_AUDIO
 #define USE_AUDIO 1
 #endif
@@ -94,7 +98,7 @@ THE SOFTWARE.
 #define CC_USE_WEBP  1
 #endif // CC_USE_WEBP
 
-/** Support EditBox 
+/** Support EditBox
  */
 #ifndef CC_USE_EDITBOX
 #define CC_USE_EDITBOX 1

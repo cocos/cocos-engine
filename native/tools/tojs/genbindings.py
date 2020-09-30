@@ -107,7 +107,7 @@ def main():
         print 'gcc toolchain not found!'
         print 'path: %s or path: %s are not valid! ' % (x64_gcc_toolchain_path, x86_gcc_toolchain_path)
         sys.exit(1)
- 
+
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
     cocos_root = os.path.abspath(project_root)
     cxx_generator_root = os.path.abspath(os.path.join(project_root, 'tools/bindings-generator'))
@@ -120,7 +120,7 @@ def main():
     config.set('DEFAULT', 'cocosdir', cocos_root)
     config.set('DEFAULT', 'cxxgeneratordir', cxx_generator_root)
     config.set('DEFAULT', 'extra_flags', '')
-    
+
     conf_ini_file = os.path.abspath(os.path.join(os.path.dirname(__file__), 'userconf.ini'))
 
     print 'generating userconf.ini...'
@@ -145,6 +145,7 @@ def main():
         cmd_args = {
                     'cocos.ini' : ('cocos', 'jsb_cocos_auto'),
                     'video.ini': ('video', 'jsb_video_auto'),
+                    'webview.ini': ('webview', 'jsb_webview_auto'),
                     'audio.ini' : ('audio', 'jsb_audio_auto'),
                     'extension.ini' : ('extension', 'jsb_extension_auto'),
                     'network.ini' : ('network', 'jsb_network_auto'),

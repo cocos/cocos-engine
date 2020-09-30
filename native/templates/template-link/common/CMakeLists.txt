@@ -13,7 +13,7 @@ option(USE_AUDIO                "Enable Audio"                      ON)     #Ena
 option(USE_EDIT_BOX             "Enable EditBox"                    ON)
 option(USE_SE_JSC               "USE JavaScriptCore on MacOSX/iOS"  OFF)
 option(USE_VIDEO                "Enable VideoPlayer Component"      ON)
-option(USE_WEBVIEW              "Enable WebView Component"          OFF)
+option(USE_WEBVIEW              "Enable WebView Component"          ON)
 option(USE_DRAGONBONES          "Enable Dragonbones"                OFF)
 option(USE_SPINE                "Enable Spine"                      OFF)
 option(USE_WEBSOCKET_SERVER     "Enable WebSocket Server"           OFF)

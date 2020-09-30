@@ -81,6 +81,7 @@ endif()
 ## disable videoplay on non-mobile platforms
 if(NOT ANDROID AND NOT IOS)
     set(USE_VIDEO OFF)
+    set(USE_WEBVIEW OFF)
 endif()
 
 ################################# external source code ################################
@@ -812,6 +813,13 @@ if(USE_VIDEO)
     )
 endif()
 
+if(USE_WEBVIEW)
+    cocos_source_files(
+        cocos/bindings/auto/jsb_webview_auto.cpp
+        cocos/bindings/auto/jsb_webview_auto.h
+    )
+endif()
+
 ######## manual
 cocos_source_files(
     cocos/bindings/manual/jsb_classtype.cpp
@@ -1017,6 +1025,14 @@ if(ANDROID OR IOS)
             cocos/ui/videoplayer/VideoPlayer.h
         )
     endif()
+    if(USE_WEBVIEW)
+        cocos_source_files(
+            cocos/ui/webview/WebViewImpl-android.h
+            cocos/ui/webview/WebViewImpl-ios.h
+            cocos/ui/webview/WebView-inl.h
+            cocos/ui/webview/WebView.h
+        )
+    endif()
 endif()
 
 if(ANDROID)
@@ -1028,6 +1044,11 @@ if(ANDROID)
     if(USE_VIDEO)
         cocos_source_files(
             cocos/ui/videoplayer/VideoPlayer-android.cpp
+        )
+    endif()
+    if(USE_WEBVIEW)
+        cocos_source_files(
+            cocos/ui/webview/WebViewImpl-android.cpp
         )
     endif()
 elseif(MACOSX)
@@ -1047,6 +1068,11 @@ elseif(IOS)
             cocos/ui/videoplayer/VideoPlayer-ios.mm
         )
     endif()
+    if(USE_WEBVIEW)
+       cocos_source_files(
+           cocos/ui/webview/WebViewImpl-ios.mm
+       )
+   endif()
 elseif(WIN32)
     if(USE_EDIT_BOX)
         cocos_source_files(
@@ -1078,6 +1104,7 @@ add_library(cocos2d ${COCOS2D_SOURCE_LIST})
 # setup default flags
 target_compile_definitions(cocos2d PUBLIC
     $<IF:$<BOOL:${USE_VIDEO}>,USE_VIDEO=1,USE_VIDEO=0>
+    $<IF:$<BOOL:${USE_WEBVIEW}>,USE_WEBVIEW=1,USE_WEBVIEW=0>
     $<IF:$<BOOL:${USE_AUDIO}>,USE_AUDIO=1,USE_AUDIO=0>
     $<IF:$<BOOL:${USE_SOCKET}>,USE_SOCKET=1,USE_SOCKET=0>
     $<IF:$<BOOL:${USE_WEBSOCKET_SERVER}>,USE_WEBSOCKET_SERVER=1,USE_WEBSOCKET_SERVER=0>

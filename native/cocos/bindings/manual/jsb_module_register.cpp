@@ -70,6 +70,10 @@
         #include "cocos/bindings/auto/jsb_video_auto.h"
     #endif
 
+    #if USE_WEBVIEW
+        #include "cocos/bindings/auto/jsb_webview_auto.h"
+    #endif
+
 #endif // (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
 #if USE_SOCKET && USE_WEBSOCKET_SERVER
@@ -129,6 +133,10 @@ bool jsb_register_all_modules() {
 
     #if USE_VIDEO
         se->addRegisterCallback(register_all_video);
+    #endif
+
+    #if USE_WEBVIEW
+        se->addRegisterCallback(register_all_webview);
     #endif
 
 #endif // (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
