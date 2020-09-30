@@ -943,23 +943,23 @@ struct RasterizerState {
 struct DepthStencilState {
     bool depthTest = true;
     bool depthWrite = true;
+    ComparisonFunc depthFunc = ComparisonFunc::LESS;
     bool stencilTestFront = false;
-    bool stencilTestBack = false;
     ComparisonFunc stencilFuncFront = ComparisonFunc::ALWAYS;
+    uint32_t stencilReadMaskFront = 0xffffffff;
+    uint32_t stencilWriteMaskFront = 0xffffffff;
     StencilOp stencilFailOpFront = StencilOp::KEEP;
     StencilOp stencilZFailOpFront = StencilOp::KEEP;
     StencilOp stencilPassOpFront = StencilOp::KEEP;
+    uint32_t stencilRefFront = 1;
+    bool stencilTestBack = false;
     ComparisonFunc stencilFuncBack = ComparisonFunc::ALWAYS;
+    uint32_t stencilReadMaskBack = 0xffffffff;
+    uint32_t stencilWriteMaskBack = 0xffffffff;
     StencilOp stencilFailOpBack = StencilOp::KEEP;
     StencilOp stencilZFailOpBack = StencilOp::KEEP;
     StencilOp stencilPassOpBack = StencilOp::KEEP;
-    uint32_t stencilRefFront = 1;
-    uint32_t stencilReadMaskFront = 0xffffffff;
-    uint32_t stencilWriteMaskFront = 0xffffffff;
     uint32_t stencilRefBack = 1;
-    uint32_t stencilReadMaskBack = 0xffffffff;
-    uint32_t stencilWriteMaskBack = 0xffffffff;
-    ComparisonFunc depthFunc = ComparisonFunc::LESS;
 };
 
 struct BlendTarget {
@@ -988,15 +988,15 @@ struct BlendState {
 };
 
 struct PipelineStateInfo {
-    PrimitiveMode primitive = PrimitiveMode::TRIANGLE_LIST;
     Shader *shader = nullptr;
+    PipelineLayout *pipelineLayout = nullptr;
+    RenderPass *renderPass = nullptr;
     InputState inputState;
     RasterizerState rasterizerState;
     DepthStencilState depthStencilState;
     BlendState blendState;
+    PrimitiveMode primitive = PrimitiveMode::TRIANGLE_LIST;
     DynamicStateFlags dynamicStates = DynamicStateFlagBit::NONE;
-    RenderPass *renderPass = nullptr;
-    PipelineLayout *pipelineLayout = nullptr;
 };
 
 struct CommandBufferInfo {

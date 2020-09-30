@@ -22,15 +22,15 @@ gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const PassVie
     if (!pso) {
         auto pipelineLayout = GET_PIPELINE_LAYOUT(pass->pipelineLayoutID);
         gfx::PipelineStateInfo info = {
-            static_cast<gfx::PrimitiveMode>(pass->primitive),
             shader,
+            pipelineLayout,
+            renderPass,
             {inputAssembler->getAttributes()},
             *(GET_RASTERIZER_STATE(pass->rasterizerStateID)),
             *(GET_DEPTH_STENCIL_STATE(pass->depthStencilStateID)),
             *(GET_BLEND_STATE(pass->blendStateID)),
-            static_cast<gfx::DynamicStateFlags>(pass->dynamicState),
-            renderPass,
-            pipelineLayout};
+            static_cast<gfx::PrimitiveMode>(pass->primitive),
+            static_cast<gfx::DynamicStateFlags>(pass->dynamicState)};
 
         pso = gfx::Device::getInstance()->createPipelineState(std::move(info));
         _PSOHashMap[hash] = pso;
