@@ -46,10 +46,7 @@ static void executeVideoCallback(int index,int event);
 
 extern "C" {
     void Java_org_cocos2dx_lib_Cocos2dxVideoHelper_nativeExecuteVideoCallback(JNIEnv * env, jobject obj, jint index,jint event) {
-        auto func = []() -> void {
-            executeVideoCallback(index,event);
-        };
-        cc::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
+        executeVideoCallback(index,event);
     }
 }
 

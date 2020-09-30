@@ -30,7 +30,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.RelativeLayout;
+import android.widget.FrameLayout;
 import android.app.Activity;
 
 import java.io.IOException;
@@ -42,12 +42,11 @@ public class Cocos2dxVideoView extends SurfaceView {
     // Internal classes and interfaces.
     // ===========================================================
 
-    public interface OnVideoEventListener
-    {
+    public interface OnVideoEventListener {
         void onVideoEvent(int tag,int event);
     }
 
-    private enum State{
+    private enum State {
         IDLE,
         ERROR,
         INITIALIZED,
@@ -117,7 +116,7 @@ public class Cocos2dxVideoView extends SurfaceView {
     // Constructors
     // ===========================================================
 
-    public Cocos2dxVideoView(Activity activity,int tag) {
+    public Cocos2dxVideoView(Activity activity, int tag) {
         super(activity);
 
         mViewTag = tag;
@@ -334,8 +333,8 @@ public class Cocos2dxVideoView extends SurfaceView {
 
         getHolder().setFixedSize(mVisibleWidth, mVisibleHeight);
 
-        RelativeLayout.LayoutParams lParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
-                RelativeLayout.LayoutParams.MATCH_PARENT);
+        FrameLayout.LayoutParams lParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT);
         lParams.leftMargin = mVisibleLeft;
         lParams.topMargin = mVisibleTop;
         setLayoutParams(lParams);

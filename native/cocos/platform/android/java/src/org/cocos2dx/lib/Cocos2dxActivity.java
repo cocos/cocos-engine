@@ -29,6 +29,8 @@ import android.app.NativeActivity;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.FrameLayout;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.content.pm.PackageManager;
 import android.content.pm.ApplicationInfo;
@@ -45,6 +47,10 @@ public abstract class Cocos2dxActivity extends NativeActivity {
     // ===========================================================
     private boolean hasFocus = false;
     private boolean paused = true;
+
+    private Cocos2dxVideoHelper mVideoHelper = null;
+
+    protected FrameLayout mFrameLayout = null;
 
     // ===========================================================
     // Override functions
@@ -75,6 +81,18 @@ public abstract class Cocos2dxActivity extends NativeActivity {
         Cocos2dxHelper.init(this);
         CanvasRenderingContext2DImpl.init(this);
 
+        ViewGroup.LayoutParams frameLayoutParams =
+                        new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                                   ViewGroup.LayoutParams.MATCH_PARENT);
+        mFrameLayout = new FrameLayout(this);
+        mFrameLayout.setLayoutParams(frameLayoutParams);
+
+        setContentView(mFrameLayout);
+
+        if (mVideoHelper == null) {
+            mVideoHelper = new Cocos2dxVideoHelper(this, mFrameLayout);
+        }
+
         this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
     }
@@ -91,7 +109,7 @@ public abstract class Cocos2dxActivity extends NativeActivity {
     public void onWindowFocusChanged(boolean hasFocus) {
     	Log.d(TAG, "onWindowFocusChanged() hasFocus=" + hasFocus);
         super.onWindowFocusChanged(hasFocus);
-        
+
         this.hasFocus = hasFocus;
         resumeIfHasFocus();
     }

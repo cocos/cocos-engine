@@ -80,7 +80,7 @@ endif()
 
 ## disable videoplay on non-mobile platforms
 if(NOT ANDROID AND NOT IOS)
-    set(USE_VIDEOPLAYER OFF)
+    set(USE_VIDEO OFF)
 endif()
 
 ################################# external source code ################################
@@ -805,7 +805,7 @@ if(USE_AUDIO)
     )
 endif()
 
-if(USE_VIDEOPLAYER)
+if(USE_VIDEO)
     cocos_source_files(
         cocos/bindings/auto/jsb_video_auto.cpp
         cocos/bindings/auto/jsb_video_auto.h
@@ -847,7 +847,7 @@ if(USE_SOCKET)
     )
 endif()
 
-    
+
 if(NOT IOS AND USE_WEBSOCKET_SERVER)
     cocos_source_files(
         cocos/bindings/manual/jsb_websocket_server.cpp
@@ -1012,7 +1012,7 @@ if(USE_EDIT_BOX)
 endif()
 
 if(ANDROID OR IOS)
-    if(USE_VIDEOPLAYER)
+    if(USE_VIDEO)
         cocos_source_files(
             cocos/ui/videoplayer/VideoPlayer.h
         )
@@ -1025,7 +1025,7 @@ if(ANDROID)
             cocos/ui/edit-box/EditBox-android.cpp
         )
     endif()
-    if(USE_VIDEOPLAYER)
+    if(USE_VIDEO)
         cocos_source_files(
             cocos/ui/videoplayer/VideoPlayer-android.cpp
         )
@@ -1042,7 +1042,7 @@ elseif(IOS)
             cocos/ui/edit-box/EditBox-ios.mm
         )
     endif()
-    if(USE_VIDEOPLAYER)
+    if(USE_VIDEO)
         cocos_source_files(
             cocos/ui/videoplayer/VideoPlayer-ios.mm
         )
@@ -1212,6 +1212,8 @@ if(APPLE)
     elseif(IOS)
         find_library(QUARTZCORE_LIBRARY QuartzCore)
         find_library(UIKIT_LIBRARY UIKit)
+        find_library(AVKIT_LIBRARY AVKit)
+        find_library(WebKit_LIBRARY WebKit)
         find_library(CORE_MOTION_LIBRARY CoreMotion)
         find_library(CFNETWORK_LIBRARY CFNetwork)
         find_library(CORE_MEDIA_LIBRARY CoreMedia)
@@ -1232,6 +1234,9 @@ if(APPLE)
             ${CORE_MOTION_LIBRARY}
             ${OPENGLES_LIBRARY}
             ${JAVASCRIPTCORE_LIBRARY}
+            ${CORE_MEDIA_LIBRARY}
+            ${AVKIT_LIBRARY}
+            ${WebKit_LIBRARY}
         )
         set_property(TARGET cocos2d PROPERTY XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${TARGET_IOS_VERSION})
         set_property(TARGET cocos2d PROPERTY XCODE_ATTRIBUTE_ENABLE_BITCODE "NO")

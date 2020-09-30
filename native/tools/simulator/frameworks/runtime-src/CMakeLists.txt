@@ -15,7 +15,7 @@ option(USE_SOCKET       "Enable WebSocket & SocketIO"       ON)
 option(USE_AUDIO        "Enable Audio"                      ON)     #Enable AudioEngine
 option(USE_EDIT_BOX     "Enable EditBox"                    ON)
 option(USE_SE_JSC       "USE JavaScriptCore on MacOSX/iOS"  OFF)
-option(USE_VIDEOPLAYER  "Enable VideoPlayer Component"      OFF)
+option(USE_VIDEO        "Enable VideoPlayer Component"      ON)
 option(USE_WEBVIEW      "Enable WebView Component"          OFF)
 option(USE_DRAGONBONES  "Enable Dragonbones"                OFF)
 option(USE_SPINE        "Enable Spine"                      OFF)
@@ -52,7 +52,7 @@ set(GAME_RES_FILES
     ${GAME_RES_ROOT}/main.js
     ${GAME_RES_ROOT}/project.json
 )
-set(GAME_RES_FOLDERS 
+set(GAME_RES_FOLDERS
     ${GAME_RES_ROOT}/jsb-adapter
     ${GAME_RES_ROOT}/subpackages
     ${GAME_RES_ROOT}/res
@@ -65,7 +65,7 @@ set(GAME_RES_ALL
 
 set(UI_RESOURCES)
 set(PROJ_EXTRA_SOURCE)
-set(PROJ_SOURCES 
+set(PROJ_SOURCES
     Classes/Game.cpp
     Classes/Game.h
     Classes/ide-support/CodeIDESupport.h
@@ -147,12 +147,12 @@ endforeach()
 if(APPLE OR MSVC)
     add_executable(${LIB_NAME} ${PROJ_SOURCES} ${asset_files} ${PROJ_EXTRA_SOURCE})
     source_group(TREE ${GAME_RES_ROOT} PREFIX "Resources" FILES ${asset_files})
-else() 
+else()
     add_executable(${LIB_NAME} ${PROJ_SOURCES} ${PROJ_EXTRA_SOURCE})
 endif()
 
 target_link_libraries(${LIB_NAME} cocos2d simulator)
-target_include_directories(${LIB_NAME} PRIVATE 
+target_include_directories(${LIB_NAME} PRIVATE
     Classes
 )
 
@@ -179,7 +179,7 @@ if(APPLE)
     endif()
 
 elseif(WINDOWS)
-    
+
     set_target_properties(${LIB_NAME} PROPERTIES RESOURCE "${UI_RESOURCES}")
 
     if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/../../jsb-adapter)
@@ -193,12 +193,12 @@ elseif(WINDOWS)
             COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_LIST_DIR}/../../project.json ${bin_dir}/project.json
         )
     endif()
-        
-    target_include_directories(${LIB_NAME} PRIVATE 
+
+    target_include_directories(${LIB_NAME} PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/proj.win32
     )
 
-    if(MSVC) 
+    if(MSVC)
         foreach(item ${WIN32_DLLS})
             get_filename_component(filename ${item} NAME)
             get_filename_component(abs ${item} ABSOLUTE)

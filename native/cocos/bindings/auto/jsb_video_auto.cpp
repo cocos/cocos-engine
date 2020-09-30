@@ -313,11 +313,23 @@ SE_BIND_CTOR(js_video_VideoPlayer_constructor, __jsb_cc_VideoPlayer_class, js_cc
 
 static bool js_cc_VideoPlayer_finalize(se::State& s)
 {
-    cc::VideoPlayer* cobj = (cc::VideoPlayer*)s.nativeThisObject();
-    cobj->release();
+    // destructor is skipped
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_VideoPlayer_finalize)
+
+static bool js_cc_VideoPlayer_destroy(se::State& s)
+{
+    cc::VideoPlayer* cobj = (cc::VideoPlayer*)s.nativeThisObject();
+    cobj->release();
+    auto objIter = se::NativePtrToObjectMap::find(s.nativeThisObject());
+    if(objIter != se::NativePtrToObjectMap::end())
+    {
+        objIter->second->clearPrivateData(true);
+    }
+    return true;
+}
+SE_BIND_FUNC(js_cc_VideoPlayer_destroy)
 
 bool js_register_video_VideoPlayer(se::Object* obj)
 {
@@ -337,6 +349,7 @@ bool js_register_video_VideoPlayer(se::Object* obj)
     cls->defineFunction("duration", _SE(js_video_VideoPlayer_duration));
     cls->defineFunction("setVisible", _SE(js_video_VideoPlayer_setVisible));
     cls->defineFunction("seekTo", _SE(js_video_VideoPlayer_seekTo));
+    cls->defineFunction("destroy", _SE(js_cc_VideoPlayer_destroy));
     cls->defineFinalizeFunction(_SE(js_cc_VideoPlayer_finalize));
     cls->install();
     JSBClassType::registerClass<cc::VideoPlayer>(cls);

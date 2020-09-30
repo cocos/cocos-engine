@@ -33,7 +33,6 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 import android.app.Activity;
 
 import org.cocos2dx.lib.Cocos2dxVideoView.OnVideoEventListener;
@@ -45,17 +44,17 @@ import java.util.concurrent.FutureTask;
 
 public class Cocos2dxVideoHelper {
 
-    private RelativeLayout mLayout = null;
+    private FrameLayout mLayout = null;
     private Activity mActivity = null;
     private static SparseArray<Cocos2dxVideoView> sVideoViews = null;
     static VideoHandler mVideoHandler = null;
     private static Handler sHandler = null;
-    
-    Cocos2dxVideoHelper(Activity activity,RelativeLayout layout)
+
+    Cocos2dxVideoHelper(Activity activity, FrameLayout layout)
     {
         mActivity = activity;
         mLayout = layout;
-        
+
         mVideoHandler = new VideoHandler(this);
         sVideoViews = new SparseArray<Cocos2dxVideoView>();
         sHandler = new Handler(Looper.myLooper());
@@ -185,7 +184,7 @@ public class Cocos2dxVideoHelper {
         msg.what = VideoTaskCreate;
         msg.arg1 = videoTag;
         mVideoHandler.sendMessage(msg);
-        
+
         return videoTag++;
     }
 
@@ -196,6 +195,7 @@ public class Cocos2dxVideoHelper {
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT);
         mLayout.addView(videoView, lParams);
+
         videoView.setZOrderOnTop(true);
         videoView.setVideoViewEventListener(videoEventListener);
     }
@@ -252,7 +252,7 @@ public class Cocos2dxVideoHelper {
     private void _setVideoRect(int index, int left, int top, int maxWidth, int maxHeight) {
         Cocos2dxVideoView videoView = sVideoViews.get(index);
         if (videoView != null) {
-            videoView.setVideoRect(left,top,maxWidth,maxHeight);
+            videoView.setVideoRect(left, top, maxWidth, maxHeight);
         }
     }
 
@@ -412,7 +412,7 @@ public class Cocos2dxVideoHelper {
         } else {
             msg.arg2 = 0;
         }
-        
+
         mVideoHandler.sendMessage(msg);
     }
 

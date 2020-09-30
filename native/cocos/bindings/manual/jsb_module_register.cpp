@@ -128,7 +128,7 @@ bool jsb_register_all_modules() {
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
     #if USE_VIDEO
-    //    se->addRegisterCallback(register_all_video);
+        se->addRegisterCallback(register_all_video);
     #endif
 
 #endif // (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)

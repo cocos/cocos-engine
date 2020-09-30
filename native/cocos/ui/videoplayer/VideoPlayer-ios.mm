@@ -27,14 +27,13 @@
 using namespace cc;
 
 // No Available on tvOS
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS && !defined(CC_TARGET_OS_TVOS)
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
 
 //-------------------------------------------------------------------------------------
 
 #import <AVKit/AVPlayerViewController.h>
 #import <CoreMedia/CMTime.h>
 #include "platform/Application.h"
-#include "platform/ios/EAGLView-ios.h"
 #include "platform/FileUtils.h"
 
 @interface UIVideoViewWrapperIos : NSObject
@@ -116,7 +115,7 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
 {
     if (_left == left && _width == width && _top == top && _height == height)
         return;
-    
+
     _left = left;
     _width = width;
     _top = top;
@@ -293,7 +292,7 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
 }
 
 -(void)addPlayerControllerSubView {
-    auto eaglview = (CCEAGLView*)cc::Application::getInstance()->getView();
+    auto eaglview = UIApplication.sharedApplication.delegate.window.rootViewController.view;
     [eaglview addSubview:self.playerController.view];
 }
 
@@ -334,7 +333,7 @@ void VideoPlayer::setURL(const std::string& videoUrl)
         _videoURL = videoUrl;
         _videoSource = VideoPlayer::Source::URL;
     }
-    
+
     [((UIVideoViewWrapperIos*)_videoView) setURL:(int)_videoSource :_videoURL];
 }
 
@@ -444,7 +443,7 @@ void VideoPlayer::onPlayEvent(int event)
 
 void VideoPlayer::setFrame(float x, float y, float width, float height)
 {
-    auto eaglview = (CCEAGLView*)cc::Application::getInstance()->getView();
+    auto eaglview = UIApplication.sharedApplication.delegate.window.rootViewController.view;
     auto scaleFactor = [eaglview contentScaleFactor];
     [((UIVideoViewWrapperIos*)_videoView) setFrame:x/scaleFactor
                                                   :y/scaleFactor

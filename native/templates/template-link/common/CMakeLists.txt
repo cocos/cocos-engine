@@ -12,7 +12,7 @@ option(USE_SOCKET               "Enable WebSocket & SocketIO"       ON)
 option(USE_AUDIO                "Enable Audio"                      ON)     #Enable AudioEngine
 option(USE_EDIT_BOX             "Enable EditBox"                    ON)
 option(USE_SE_JSC               "USE JavaScriptCore on MacOSX/iOS"  OFF)
-option(USE_VIDEOPLAYER          "Enable VideoPlayer Component"      OFF)
+option(USE_VIDEO                "Enable VideoPlayer Component"      ON)
 option(USE_WEBVIEW              "Enable WebView Component"          OFF)
 option(USE_DRAGONBONES          "Enable Dragonbones"                OFF)
 option(USE_SPINE                "Enable Spine"                      OFF)
@@ -80,7 +80,7 @@ set(GAME_RES_FILES
     ${GAME_RES_ROOT}/main.js
     ${GAME_RES_ROOT}/project.json
 )
-set(GAME_RES_FOLDERS 
+set(GAME_RES_FOLDERS
     ${GAME_RES_ROOT}/jsb-adapter
     ${GAME_RES_ROOT}/res
     ${GAME_RES_ROOT}/src
@@ -95,13 +95,13 @@ set(GAME_RES_ALL
 set(UI_RESOURCES)
 set(PROJ_SOURCES)
 set(PROJ_EXTRA_SOURCE)
-set(PROJ_COMMON_SOURCES 
+set(PROJ_COMMON_SOURCES
     Classes/Game.h
     Classes/Game.cpp
 )
 
 if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/Classes/jsb_module_register.cpp)
-    file(COPY "${cocosdir}/cocos/bindings/manual/jsb_module_register.cpp" 
+    file(COPY "${cocosdir}/cocos/bindings/manual/jsb_module_register.cpp"
         DESTINATION ${CMAKE_CURRENT_LIST_DIR}/Classes/)
 endif()
 list(APPEND PROJ_COMMON_SOURCES ${CMAKE_CURRENT_LIST_DIR}/Classes/jsb_module_register.cpp)
@@ -184,12 +184,12 @@ if(ANDROID)
 elseif(APPLE OR MSVC)
     add_executable(${LIB_NAME} ${PROJ_SOURCES} ${asset_files} ${PROJ_EXTRA_SOURCE} ${PROJ_COMMON_SOURCES})
     source_group(TREE ${GAME_RES_ROOT} PREFIX "Resources" FILES ${asset_files})
-else() 
+else()
     add_executable(${LIB_NAME} ${PROJ_SOURCES} ${PROJ_EXTRA_SOURCE} ${PROJ_COMMON_SOURCES})
 endif()
 
 target_link_libraries(${LIB_NAME} cocos2d)
-target_include_directories(${LIB_NAME} PRIVATE 
+target_include_directories(${LIB_NAME} PRIVATE
     Classes
 )
 
@@ -231,7 +231,7 @@ if(APPLE)
     endif()
 
 elseif(WINDOWS)
-    
+
     if(EXISTS ${GAME_RES_ROOT}/jsb-adapter)
         set(bin_dir ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR})
         add_custom_target(copy_resource ALL
@@ -249,12 +249,12 @@ elseif(WINDOWS)
         add_dependencies(${LIB_NAME} copy_resource)
         set_target_properties(copy_resource PROPERTIES FOLDER Utils)
     endif()
-        
-    target_include_directories(${LIB_NAME} PRIVATE 
+
+    target_include_directories(${LIB_NAME} PRIVATE
         ${GAME_RES_ROOT}/proj
     )
 
-    if(MSVC) 
+    if(MSVC)
         foreach(item ${WIN32_DLLS})
             get_filename_component(filename ${item} NAME)
             get_filename_component(abs ${item} ABSOLUTE)
