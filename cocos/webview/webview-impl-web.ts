@@ -29,191 +29,128 @@
  */
 
 import { legacyCC } from '../core/global-exports';
-import { WebView } from './webview';
 import { EventType } from './webview-enums';
-import { UITransform } from '../core/components/ui-base';
 import { error } from '../core/platform';
+import {WebViewImpl} from "./webview-impl";
 
-const { game, view, mat4, misc, sys } = legacyCC;
-
-const MIN_ZINDEX = -Math.pow(2, 15);
-
+const { game, view, mat4, misc, sys, warn } = legacyCC;
 const _mat4_temp = mat4();
 
-export class WebViewImpl {
+export class WebViewImplWeb extends WebViewImpl {
 
-    protected _eventList: Map<number, Function> = new Map<number, Function>();
-    protected _state = EventType.NONE;
-    protected _webview: any;
+    constructor(component: any) {
+        super(component);
+    }
 
-    protected _loaded = false;
-
-    protected _webViewComponent: WebView | null = null;
-    protected _uiTrans: UITransform | null = null;
-
-    protected _w = 0;
-    protected _h = 0;
-    protected _m00 = 0;
-    protected _m01 = 0;
-    protected _m04 = 0;
-    protected _m05 = 0;
-    protected _m12 = 0;
-    protected _m13 = 0;
-    protected _forceUpdate = false;
-
-    protected _loadedCb: (e) => void;
-    protected _errorCb: (e) => void;
-
-    constructor (component) {
-        this._webViewComponent = component;
-        this._uiTrans = component.node.getComponent(UITransform);
-
-        this._loadedCb = (e) => {
+    _bindDomEvent () {
+        let onLoaded = (e) => {
             this._forceUpdate = true;
-            this._dispatchEvent(EventType.LOADED);
+            this.dispatchEvent(EventType.LOADED);
+
+            let iframe = e.target;
+            let body = iframe.contentDocument && iframe.contentDocument.body;
+            if (body && body.innerHTML.includes('404')) {
+                this.dispatchEvent(EventType.ERROR);
+            }
         };
 
-        this._errorCb = (e) => {
-            this._dispatchEvent(EventType.ERROR);
+        let onError = (e) => {
+            this.dispatchEvent(EventType.ERROR);
             const errorObj = e.target.error;
             if (errorObj) {
                 error('Error ' + errorObj.code + '; details: ' + errorObj.message);
             }
         };
-        this._appendDom();
+        this.webview.addEventListener('load', onLoaded);
+        this.webview.addEventListener('error', onError);
     }
 
-    get loaded () {
-        return this._loaded;
-    }
-
-    get eventList () {
-        return this._eventList;
-    }
-
-    get webview () {
-        return this._webview;
-    }
-
-    get state () {
-        return this._state;
-    }
-
-    public loadURL (url: string) {
-        if (this._webview) {
-            this._webview.src = url;
+    public loadURL(url: string) {
+        if (this.webview) {
+            this.webview.src = url;
             // emit loading event
-            this._dispatchEvent(EventType.LOADING);
+            this.dispatchEvent(EventType.LOADING);
         }
     }
 
-    public evaluateJS (str: string) {
-        if (this._webview) {
-            const win = this._webview.contentWindow;
+    public createWebView() {
+        const warpper = document.createElement('div');
+        this._warpper = warpper;
+        warpper.id = "webview-wrapper";
+        warpper.style['-webkit-overflow'] = 'auto';
+        warpper.style['-webkit-overflow-scrolling'] = 'touch';
+        warpper.style.position = 'absolute';
+        warpper.style.bottom = '0px';
+        warpper.style.left = '0px';
+        warpper.style.transformOrigin = '0px 100% 0px';
+        warpper.style['-webkit-transform-origin'] = '0px 100% 0px';
+        game.container.appendChild(warpper);
+
+        let webview = document.createElement('iframe');
+        this._webview = webview;
+        webview.id = "webview";
+        webview.style.border = 'none';
+        webview.style.width = '100%';
+        webview.style.height = '100%';
+        warpper.appendChild(webview);
+        this._bindDomEvent();
+    }
+
+    public removeWebView() {
+        const warpper = this._warpper;
+        if (misc.contains(game.container, warpper)) {
+            game.container.removeChild(warpper);
+        }
+        this.reset();
+    }
+
+    public enable() {
+        if (this._warpper) {
+            this._warpper.style.visibility = 'visible';
+        }
+    }
+
+    public disable() {
+        if (this._warpper) {
+            this._warpper.style.visibility = 'hidden';
+        }
+    }
+
+    public evaluateJS(str: string) {
+        if (this.webview) {
+            const win = this.webview.contentWindow;
             if (win) {
                 try {
                     win.eval(str);
                 } catch (e) {
-                    this._dispatchEvent(EventType.ERROR);
+                    this.dispatchEvent(EventType.ERROR);
                     error(e);
                 }
             }
         }
     }
 
-    // Native method
-    setOnJSCallback (callback: Function) {}
-    setJavascriptInterfaceScheme (scheme: string) {}
-    // ---
-
-    protected _dispatchEvent (key) {
-        const callback = this._eventList.get(key);
-        if (callback) {
-            this._state = key;
-            callback.call(this);
-        }
+    public setOnJSCallback(callback: Function) {
+        warn('The platform does not support');
     }
 
-    protected _appendDom () {
-        this._webview = document.createElement('iframe');
-        this._webview.style.border = 'none';
-        this._webview.style.position = 'absolute';
-        this._webview.style.bottom = '0px';
-        this._webview.style.left = '0px';
-        this._webview.style['transform-origin'] = '0px 100% 0px';
-        this._webview.style['-webkit-transform-origin'] = '0px 100% 0px';
-        this._bindEvent();
-        game.container.appendChild(this._webview);
-    }
-
-    protected _removeDom () {
-        const webview = this._webview;
-        if (misc.contains(game.container, webview)) {
-            game.container.removeChild(webview);
-            this._removeEvent();
-        }
-        this._loaded = false;
-        this._webview = null;
-    }
-
-    protected _bindEvent () {
-        const webview = this._webview;
-        webview.addEventListener('load', this._loadedCb);
-        webview.addEventListener('error', this._errorCb);
-    }
-
-    protected _removeEvent () {
-        const webview = this._webview;
-        webview.removeEventListener('load', this._loadedCb);
-        webview.removeEventListener('error', this._errorCb);
-    }
-
-    public enable () {
-        if (this._webview) {
-            this._webview.style.visibility = 'visible';
-        }
-    }
-
-    public disable () {
-        if (this._webview) {
-            this._webview.style.visibility = 'hidden';
-        }
-    }
-
-    public destroy () {
-        this._removeDom();
-        this._eventList.clear();
-    }
-
-    syncStyleSize (w, h) {
-        const webview = this._webview;
-        if (webview) {
-            webview.style.width = w + 'px';
-            webview.style.height = h + 'px';
-        }
-    }
-
-    getUICamera () {
-        if (!this._uiTrans || !this._uiTrans._canvas) {
-            return null;
-        }
-        return this._uiTrans._canvas.camera;
+    public setJavascriptInterfaceScheme(scheme: string) {
+        warn('The platform does not support');
     }
 
     public syncMatrix () {
-        if (!this._webview || this._webview.style.visibility === 'hidden' || !this._webViewComponent) return;
+        if (!this._warpper || !this._uiTrans ||!this._component || this._warpper.style.visibility === 'hidden') return;
 
-        const camera = this.getUICamera();
+        const camera = this.UICamera;
         if (!camera) {
             return;
         }
 
-        this._webViewComponent.node.getWorldMatrix(_mat4_temp);
+        this._component.node.getWorldMatrix(_mat4_temp);
         camera.update(true);
         camera.worldMatrixToScreen(_mat4_temp, _mat4_temp, game.canvas.width, game.canvas.height);
 
-        const width = this._uiTrans!.contentSize.width;
-        const height = this._uiTrans!.contentSize.height;
+        const { width, height } = this._uiTrans.contentSize;
         if (!this._forceUpdate &&
             this._m00 === _mat4_temp.m00 && this._m01 === _mat4_temp.m01 &&
             this._m04 === _mat4_temp.m04 && this._m05 === _mat4_temp.m05 &&
@@ -242,13 +179,13 @@ export class WebViewImpl {
         const c = _mat4_temp.m04;
         const sy = _mat4_temp.m05 * scaleY;
 
-        this._webview.style.width = `${width}px`;
-        this._webview.style.height = `${height}px`;
+        this._warpper.style.width = width + 'px';
+        this._warpper.style.height = height + 'px';
         const w = this._w * scaleX;
         const h = this._h * scaleY;
 
-        const appx = (w * _mat4_temp.m00) * this._uiTrans!.anchorX;
-        const appy = (h * _mat4_temp.m05) * this._uiTrans!.anchorY;
+        const appx = (w * _mat4_temp.m00) * this._uiTrans.anchorX;
+        const appy = (h * _mat4_temp.m05) * this._uiTrans.anchorY;
 
         const offsetX = container && container.style.paddingLeft ? parseInt(container.style.paddingLeft) : 0;
         const offsetY = container && container.style.paddingBottom ? parseInt(container.style.paddingBottom) : 0;
@@ -256,10 +193,9 @@ export class WebViewImpl {
         const ty = _mat4_temp.m13 * scaleY - appy + offsetY;
 
         const matrix = 'matrix(' + sx + ',' + -b + ',' + -c + ',' + sy + ',' + tx + ',' + -ty + ')';
-        this._webview.style.transform = matrix;
-        this._webview.style['-webkit-transform'] = matrix;
+        this._warpper.style.transform = matrix;
+        this._warpper.style['-webkit-transform'] = matrix;
         this._forceUpdate = false;
     }
 }
 
-legacyCC.internal.WebViewImpl = WebViewImpl;

@@ -1,5 +1,5 @@
-/****************************************************************************
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+/*
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,16 +21,16 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
-require('./jsb-reflection.js');
-require('./jsb-assets-manager.js');
+ */
 
-require('./jsb-sys.js');
-require('./jsb-game.js');
-require('./jsb-gfx.js');
-require('./jsb-loader.js');
-require('./jsb-videoplayer.js');
-require('./jsb-webview.js');
-require('./jsb-audio.js');
-require('./jsb-editbox.js');
-require('./jsb-pipeline.js');
+import {legacyCC} from "../core/global-exports";
+import {WebViewImplWeb} from "./webview-impl-web";
+
+export class WebViewImplManager {
+    // default web
+    static getImpl (component) {
+        return new WebViewImplWeb(component);
+    }
+}
+
+legacyCC.internal.WebViewImplManager = WebViewImplManager;
