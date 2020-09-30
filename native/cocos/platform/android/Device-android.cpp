@@ -134,7 +134,9 @@ namespace {
             else if (event.type == ASENSOR_TYPE_LINEAR_ACCELERATION) {
                 g_sensor->motionValue.accelerationX = event.acceleration.x;
                 g_sensor->motionValue.accelerationY = event.acceleration.y;
-                g_sensor->motionValue.accelerationZ = event.acceleration.z;
+                // Issue https://github.com/cocos-creator/2d-tasks/issues/2532
+                // use negative event.acceleration.z to match iOS value
+                g_sensor->motionValue.accelerationZ = - event.acceleration.z;
             }
         }
         // return 1 to continue receiving callbacks
