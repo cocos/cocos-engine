@@ -286,6 +286,7 @@ export class RenderScene {
     public removeModels () {
         for (const m of this._models) {
             m.detachFromScene();
+            m.destroy();
         }
         this._models.length = 0;
         ModelArrayPool.clear(this._modelArrayHandle);

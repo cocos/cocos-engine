@@ -24,7 +24,8 @@
 */
 
 /**
- * @category ui-assembler
+ * @packageDocumentation
+ * @module ui-assembler
  */
 
 import { BitmapFont } from '../../../core/assets';

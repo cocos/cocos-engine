@@ -23,11 +23,12 @@
  THE SOFTWARE.
 */
 
-import { legacyCC } from '../global-exports';
-
 /**
- * @category scene-graph
+ * @packageDocumentation
+ * @module scene-graph
  */
+
+import { legacyCC } from '../global-exports';
 
 /**
  * @en Node's coordinate space

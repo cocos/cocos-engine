@@ -24,7 +24,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { ccclass, disallowMultiple, executeInEditMode, executionOrder, requireComponent } from 'cc.decorator';
@@ -34,8 +35,11 @@ import { UITransform } from './ui-transform';
 import { Node } from '../../scene-graph';
 
 /**
- * @zh
- * UI 及 UI 模型渲染基类。
+ * @en Legacy UI base class for rendering component, please use [[UIRenderable]] instead.
+ * This component will setup [[NodeUIProperties.uiComp]] in its owner [[Node]]
+ * @zh 旧的 UI 渲染组件基类，请使用 [[UIRenderable]] 替代。
+ * 这个组件会设置 [[Node]] 上的 [[NodeUIProperties.uiComp]]。
+ * @deprecated
  */
 @ccclass('cc.UIComponent')
 @requireComponent(UITransform)
@@ -63,9 +67,26 @@ export class UIComponent extends Component {
         }
     }
 
+    /**
+     * @en Render data submission procedure, it update and assemble the render data to 2D data buffers before all children submission process.
+     * Usually called each frame when the ui flow assemble all render data to geometry buffers.
+     * Don't call it unless you know what you are doing.
+     * @zh 渲染数据组装程序，这个方法会在所有子节点数据组装之前更新并组装当前组件的渲染数据到 UI 的顶点数据缓冲区中。
+     * 一般在 UI 渲染流程中调用，用于组装所有的渲染数据到顶点数据缓冲区。
+     * 注意：不要手动调用该函数，除非你理解整个流程。
+     */
     public updateAssembler (render: UI) {
     }
 
+
+    /**
+     * @en Post render data submission procedure, it's executed after assembler updated for all children.
+     * It may assemble some extra render data to the geometry buffers, or it may only change some render states.
+     * Don't call it unless you know what you are doing.
+     * @zh 后置渲染数据组装程序，它会在所有子节点的渲染数据组装完成后被调用。
+     * 它可能会组装额外的渲染数据到顶点数据缓冲区，也可能只是重置一些渲染状态。
+     * 注意：不要手动调用该函数，除非你理解整个流程。
+     */
     public postUpdateAssembler (render: UI) {
     }
 }

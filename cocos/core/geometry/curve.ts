@@ -1,5 +1,6 @@
 /**
- * @category geometry
+ * @packageDocumentation
+ * @module geometry
  */
 
 import { CCClass } from '../../core/data/class';

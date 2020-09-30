@@ -24,6 +24,7 @@
 */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 
@@ -987,12 +988,13 @@ export enum ShadowsView {
     FAR,
     ASPECT,
     PCF_TYPE,
+    BIAS,
     ORTHO_SIZE,
     SIZE, // Vec2
-    NORMAL = 13, // Vec3
-    COLOR = 16, // Vec4
-    SPHERE = 20, // Vec4
-    COUNT = 24
+    NORMAL = 14, // Vec3
+    COLOR = 17, // Vec4
+    SPHERE = 21, // Vec4
+    COUNT = 25
 }
 interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.ENABLE]: number;
@@ -1004,6 +1006,7 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.FAR]: number;
     [ShadowsView.ASPECT]: number;
     [ShadowsView.PCF_TYPE]: number;
+    [ShadowsView.BIAS]: number;
     [ShadowsView.DIRTY]: number;
     [ShadowsView.ORTHO_SIZE]: number;
     [ShadowsView.SIZE]: Vec2;
@@ -1022,6 +1025,7 @@ const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
     [ShadowsView.FAR]: BufferDataType.FLOAT32,
     [ShadowsView.ASPECT]: BufferDataType.FLOAT32,
     [ShadowsView.PCF_TYPE]: BufferDataType.UINT32,
+    [ShadowsView.BIAS]: BufferDataType.FLOAT32,
     [ShadowsView.DIRTY]: BufferDataType.UINT32,
     [ShadowsView.ORTHO_SIZE]: BufferDataType.UINT32,
     [ShadowsView.SIZE]: BufferDataType.FLOAT32,

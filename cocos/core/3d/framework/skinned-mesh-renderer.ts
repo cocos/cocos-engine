@@ -24,7 +24,8 @@
 */
 
 /**
- * @category model
+ * @packageDocumentation
+ * @module model
  */
 
 import { AnimationClip } from '../../animation/animation-clip';

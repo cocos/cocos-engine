@@ -24,7 +24,8 @@
 */
 
 /**
- * @category material
+ * @packageDocumentation
+ * @module material
  */
 
 import { GFXType } from '../../gfx/define';
@@ -36,8 +37,18 @@ const setMask     = 0x00300000; //  2 bits => 4 sets
 const bindingMask = 0x000fc000; //  6 bits => 64 bindings
 const offsetMask  = 0x00003fff; // 14 bits => 4096 vectors
 
+/**
+ * @en The type enums of the property
+ * @zh Uniform 的绑定类型（UBO 或贴图等）
+ */
 export enum PropertyType {
+    /**
+     * Uniform buffer object
+     */
     UBO,
+    /**
+     * Texture sampler
+     */
     SAMPLER,
 }
 
@@ -50,6 +61,10 @@ export const getBindingFromHandle = (handle: number) => (handle & bindingMask) >
 export const getOffsetFromHandle = (handle: number) => (handle & offsetMask);
 export const customizeType = (handle: number, type: GFXType) => (handle & ~typeMask) | ((type << 22) & typeMask);
 
+/**
+ * @en Vector type uniforms
+ * @zh 向量类型 uniform
+ */
 export type MaterialProperty = number | Vec2 | Vec3 | Vec4 | Color | Mat3 | Mat4 | Quat;
 
 export const type2reader = {
@@ -87,6 +102,11 @@ const defaultValues = [
     Object.freeze([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]),
 ];
 
+/**
+ * @en Gets the default values for the given type of uniform
+ * @zh 根据指定的 Uniform 类型来获取默认值
+ * @param type The type of the uniform
+ */
 export function getDefaultFromType (type: GFXType) {
     switch (type) {
         case GFXType.BOOL:
@@ -114,8 +134,18 @@ export function getDefaultFromType (type: GFXType) {
     return defaultValues[0];
 }
 
+/**
+ * @en Combination of preprocess macros
+ * @zh 预处理宏组合
+ */
 export type MacroRecord = Record<string, number | boolean | string>;
 
+/**
+ * @en Override the preprocess macros
+ * @zh 覆写预处理宏
+ * @param target Target preprocess macros to be overridden
+ * @param source Preprocess macros used for override
+ */
 export function overrideMacros (target: MacroRecord, source: MacroRecord): boolean {
     const entries = Object.entries(source);
     let isDifferent: boolean = false;

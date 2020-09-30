@@ -2,7 +2,8 @@
 // @ts-check
 
 /**
- * @category physics
+ * @packageDocumentation
+ * @module physics
  */
 
 import { Asset } from '../../../core/assets/asset';

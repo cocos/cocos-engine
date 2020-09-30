@@ -24,7 +24,8 @@
 */
 
 /**
- * @category scene-graph
+ * @packageDocumentation
+ * @module scene-graph
  */
 
 import { BitMask, Enum } from '../value-types';

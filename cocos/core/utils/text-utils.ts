@@ -25,7 +25,8 @@
 */
 
 /**
- * @hide
+ * @packageDocumentation
+ * @hidden
  */
 
 export const BASELINE_RATIO = 0.26;

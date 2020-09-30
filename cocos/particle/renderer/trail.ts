@@ -1,6 +1,7 @@
 
 /**
- * @category particle
+ * @packageDocumentation
+ * @module particle
  */
 
 import { Material } from '../../core/assets/material';

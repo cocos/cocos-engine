@@ -24,7 +24,8 @@
 */
 
 /**
- * @category ui-assembler
+ * @packageDocumentation
+ * @module ui-assembler
  */
 
 import { GFXAttribute, GFXFormat } from '../../../../core/gfx';

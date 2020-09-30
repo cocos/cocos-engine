@@ -24,7 +24,8 @@ import { GFXAttribute } from '../../gfx';
  THE SOFTWARE.
 */
 /**
- * @category ui
+ * @packageDocumentation
+ * @hidden
  */
 import { GFXAttributeName, GFXFormat, GFXFormatInfos } from '../../gfx/define';
 

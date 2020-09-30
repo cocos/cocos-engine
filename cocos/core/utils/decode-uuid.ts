@@ -24,6 +24,11 @@
  THE SOFTWARE.
 */
 
+/**
+ * @packageDocumentation
+ * @module core
+ */
+
 import { BASE64_VALUES } from './misc';
 import { TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
@@ -41,7 +46,6 @@ const Indices = UuidTemplate.map((x, i) => x === '-' ? NaN : i).filter(isFinite)
  * @zh
  * 解码 uuid，返回原始 uuid
  *
- * @method decodeUuid
  * @param  base64 - the encoded uuid
  * @returns the original uuid
  *

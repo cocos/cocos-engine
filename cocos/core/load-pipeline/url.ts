@@ -25,7 +25,8 @@
  */
 
 /**
- * @category loader
+ * @packageDocumentation
+ * @module loader
  */
 
 import { EDITOR } from 'internal:constants';

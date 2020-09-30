@@ -25,7 +25,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { Component, EventHandler } from '../../core/components';

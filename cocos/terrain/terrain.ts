@@ -1,5 +1,6 @@
 /**
- * @category terrain
+ * @packageDocumentation
+ * @module terrain
  */
 import { builtinResMgr } from '../core/3d/builtin';
 import { RenderableComponent } from '../core/3d/framework/renderable-component';
@@ -1406,15 +1407,11 @@ export class Terrain extends Component {
 
     /**
      * @en ray check
+     * @zh 射线检测
      * @param start ray start
      * @param dir ray direction
      * @param step ray step
      * @param worldSpace is world space
-     * @zh 射线检测
-     * @param start 射线原点
-     * @param dir 射线方向
-     * @param step 射线步长
-     * @param worldSpace 是否在世界空间
      */
     public rayCheck (start: Vec3, dir: Vec3, step: number, worldSpace: boolean = true) {
         const MAX_COUNT = 2000;

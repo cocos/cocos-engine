@@ -24,6 +24,7 @@
  THE SOFTWARE.
  */
 /**
+ * @packageDocumentation
  * @hidden
  */
 

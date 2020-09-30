@@ -1,7 +1,7 @@
 
 /**
- * 粒子系统模块
- * @category particle
+ * @packageDocumentation
+ * @module particle
  */
 
 

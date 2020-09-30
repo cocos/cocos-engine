@@ -24,7 +24,8 @@
 */
 
 /**
- * @category material
+ * @packageDocumentation
+ * @module material
  */
 
 import { EDITOR } from 'internal:constants';
@@ -99,30 +100,39 @@ export declare namespace Pass {
 // tslint:enable: no-shadowed-variable
 
 /**
- * @zh
- * 渲染 pass，储存实际描述绘制过程的各项资源。
+ * @en Render pass, store actual resources for the rendering process
+ * @zh 渲染 pass，储存实际描述绘制过程的各项资源。
  */
 export class Pass {
     /**
-     * @zh
-     * 根据 handle 获取 unform 的绑定类型（UBO 或贴图等）。
+     * @en The binding type enums of the property
+     * @zh Uniform 的绑定类型（UBO 或贴图等）
      */
     public static PropertyType = PropertyType;
+
+    /**
+     * @en Gets the binding type of the property with handle
+     * @zh 根据 handle 获取 uniform 的绑定类型（UBO 或贴图等）。
+     */
     public static getPropertyTypeFromHandle = getPropertyTypeFromHandle;
 
     /**
-     * @zh
-     * 根据 handle 获取 UBO member 的具体类型。
+     * @en Gets the type of member in uniform buffer object with the handle
+     * @zh 根据 handle 获取 UBO member 的具体类型。
      */
     public static getTypeFromHandle = getTypeFromHandle;
 
     /**
-     * @zh
-     * 根据 handle 获取 binding。
+     * @en Gets the binding with handle
+     * @zh 根据 handle 获取 binding。
      */
     public static getBindingFromHandle = getBindingFromHandle;
 
-
+    /**
+     * @en Fill a pass represented by the given pass handle with the given override info
+     * @param hPass The pass handle point to the pass
+     * @param info The pass override info
+     */
     public static fillPipelineInfo (hPass: PassHandle, info: PassOverrides) {
         if (info.priority !== undefined) { PassPool.set(hPass, PassView.PRIORITY, info.priority); }
         if (info.primitive !== undefined) { PassPool.set(hPass, PassView.PRIMITIVE, info.primitive); }
@@ -148,10 +158,8 @@ export class Pass {
     }
 
     /**
-     * @en
-     * Get pass hash value by [[Pass]] hash information.
-     * @zh
-     * 根据 [[Pass]] 的哈希信息获取哈希值。
+     * @en Get pass hash value by [[Pass]] hash information.
+     * @zh 根据 [[Pass]] 的哈希信息获取哈希值。
      *
      * @param hPass Handle of the pass info used to compute hash value.
      */
@@ -194,8 +202,8 @@ export class Pass {
     }
 
     /**
-     * @zh
-     * 根据指定参数初始化当前 pass，shader 会在这一阶段就尝试编译。
+     * @en Initialize the pass with given pass info, shader will be compiled in the init process
+     * @zh 根据指定参数初始化当前 pass，shader 会在这一阶段就尝试编译。
      */
     public initialize (info: IPassInfoFull) {
         this._doInit(info);
@@ -205,10 +213,8 @@ export class Pass {
     }
 
     /**
-     * @en
-     * Get the handle of a UBO member, or specific channels of it.
-     * @zh
-     * 获取指定 UBO 成员，或其更具体分量的读写句柄。默认以成员自身的类型为目标读写类型（即读写时必须传入与成员类型相同的变量）。
+     * @en Get the handle of a UBO member, or specific channels of it.
+     * @zh 获取指定 UBO 成员，或其更具体分量的读写句柄。默认以成员自身的类型为目标读写类型（即读写时必须传入与成员类型相同的变量）。
      * @param name Name of the target UBO member.
      * @param offset Channel offset into the member.
      * @param targetType Target type of the handle, i.e. the type of data when read/write to it.
@@ -232,9 +238,9 @@ export class Pass {
     }
 
     /**
-     * @zh
-     * 获取指定 uniform 的 binding。
-     * @param name 目标 uniform 名。
+     * @en Gets the uniform binding with its name
+     * @zh 获取指定 uniform 的 binding。
+     * @param name The name of target uniform
      */
     public getBinding (name: string) {
         const handle = this.getHandle(name);
@@ -243,10 +249,10 @@ export class Pass {
     }
 
     /**
-     * @zh
-     * 设置指定普通向量类 uniform 的值，如果需要频繁更新请尽量使用此接口。
-     * @param handle 目标 uniform 的 handle。
-     * @param value 目标值。
+     * @en Sets a vector type uniform value, if a uniform requires frequent update, please use this method.
+     * @zh 设置指定普通向量类 uniform 的值，如果需要频繁更新请尽量使用此接口。
+     * @param handle The handle for the target uniform
+     * @param value New value
      */
     public setUniform (handle: number, value: MaterialProperty) {
         const binding = Pass.getBindingFromHandle(handle);
@@ -258,10 +264,10 @@ export class Pass {
     }
 
     /**
-     * @zh
-     * 获取指定普通向量类 uniform 的值。
-     * @param handle 目标 uniform 的 handle。
-     * @param out 输出向量。
+     * @en Gets a uniform's value.
+     * @zh 获取指定普通向量类 uniform 的值。
+     * @param handle The handle for the target uniform
+     * @param out The output property to store the result
      */
     public getUniform (handle: number, out: MaterialProperty) {
         const binding = Pass.getBindingFromHandle(handle);
@@ -272,10 +278,10 @@ export class Pass {
     }
 
     /**
-     * @zh
-     * 设置指定数组类 uniform 的值，如果需要频繁更新请尽量使用此接口。
-     * @param handle 目标 uniform 的 handle。
-     * @param value 目标值。
+     * @en Sets an array type uniform value, if a uniform requires frequent update, please use this method.
+     * @zh 设置指定数组类 uniform 的值，如果需要频繁更新请尽量使用此接口。
+     * @param handle The handle for the target uniform
+     * @param value New value
      */
     public setUniformArray (handle: number, value: MaterialProperty[]) {
         const binding = Pass.getBindingFromHandle(handle);
@@ -291,30 +297,30 @@ export class Pass {
     }
 
     /**
-     * @zh
-     * 绑定实际 [[GFXTexture]] 到指定 binding。
-     * @param binding 目标贴图类 uniform 的 binding。
-     * @param value 目标 texture
+     * @en Bind a [[GFXTexture]] the the given uniform binding
+     * @zh 绑定实际 [[GFXTexture]] 到指定 binding。
+     * @param binding The binding for target uniform of texture type
+     * @param value Target texture
      */
     public bindTexture (binding: number, value: GFXTexture, index?: number) {
         this._descriptorSet.bindTexture(binding, value, index || 0);
     }
 
     /**
-     * @zh
-     * 绑定实际 [[GFXSampler]] 到指定 binding。
-     * @param binding 目标贴图类 uniform 的 binding。
-     * @param value 目标 sampler。
+     * @en Bind a [[GFXSampler]] the the given uniform binding
+     * @zh 绑定实际 [[GFXSampler]] 到指定 binding。
+     * @param binding The binding for target uniform of sampler type
+     * @param value Target sampler
      */
     public bindSampler (binding: number, value: GFXSampler, index?: number) {
         this._descriptorSet.bindSampler(binding, value, index || 0);
     }
 
     /**
-     * @zh
-     * 设置运行时 pass 内可动态更新的管线状态属性。
-     * @param state 目标管线状态。
-     * @param value 目标值。
+     * @en Sets the dynamic pipeline state property at runtime
+     * @zh 设置运行时 pass 内可动态更新的管线状态属性。
+     * @param state Target dynamic state
+     * @param value Target value
      */
     public setDynamicState (state: GFXDynamicStateFlagBit, value: any) {
         const ds = this._dynamics[state];
@@ -323,18 +329,18 @@ export class Pass {
     }
 
     /**
-     * @zh
-     * 重载当前所有管线状态。
-     * @param original 原始管线状态。
-     * @param value 管线状态重载值。
+     * @en Override all pipeline states with the given pass override info.
+     * @zh 重载当前所有管线状态。
+     * @param original The original pass info
+     * @param value The override pipeline state info
      */
     public overridePipelineStates (original: IPassInfo, overrides: PassOverrides) {
         console.warn('base pass cannot override states, please use pass instance instead.');
     }
 
     /**
-     * @zh
-     * 更新当前 Uniform 数据。
+     * @en Update the current uniforms data.
+     * @zh 更新当前 Uniform 数据。
      */
     public update () {
         if (this._rootBufferDirty && this._rootBuffer) {
@@ -345,8 +351,8 @@ export class Pass {
     }
 
     /**
-     * @zh
-     * 销毁当前 pass。
+     * @en Destroy the current pass.
+     * @zh 销毁当前 pass。
      */
     public destroy () {
         for (let i = 0; i < this._shaderInfo.blocks.length; i++) {
@@ -373,11 +379,12 @@ export class Pass {
     }
 
     /**
-     * @zh
-     * 重置指定（非数组） Uniform 为 Effect 默认值。
+     * @en Resets the value of the given uniform by name to the default value in [[EffectAsset]].
+     * This method does not support array type uniform.
+     * @zh 重置指定（非数组） Uniform 为 [[EffectAsset]] 默认值。
      */
     public resetUniform (name: string) {
-        const handle = this.getHandle(name)!;
+        const handle = this.getHandle(name);
         if (!handle) return;
         const type = Pass.getTypeFromHandle(handle);
         const binding = Pass.getBindingFromHandle(handle);
@@ -390,8 +397,8 @@ export class Pass {
     }
 
     /**
-     * @zh
-     * 重置指定贴图为 Effect 默认值。
+     * @en Resets the value of the given texture by name to the default value in [[EffectAsset]].
+     * @zh 重置指定贴图为 [[EffectAsset]] 默认值。
      */
     public resetTexture (name: string, index?: number) {
         const handle = this.getHandle(name);
@@ -403,15 +410,15 @@ export class Pass {
         const texName = value ? value + '-texture' : getDefaultFromType(type) as string;
         const textureBase = builtinResMgr.get<TextureBase>(texName);
         const texture = textureBase && textureBase.getGFXTexture()!;
-        const samplerHash = info && (info.samplerHash !== undefined) ? info.samplerHash : textureBase.getSamplerHash();
+        const samplerHash = info && (info.samplerHash !== undefined) ? info.samplerHash : textureBase && textureBase.getSamplerHash();
         const sampler = samplerLib.getSampler(this._device, samplerHash);
         this._descriptorSet.bindSampler(binding, sampler, index);
         this._descriptorSet.bindTexture(binding, texture, index);
     }
 
     /**
-     * @zh
-     * 重置所有 UBO 为默认值。
+     * @en Resets all uniform buffer objects to the default values in [[EffectAsset]]
+     * @zh 重置所有 UBO 为默认值。
      */
     public resetUBOs () {
         for (let i = 0; i < this._shaderInfo.blocks.length; i++) {
@@ -432,8 +439,8 @@ export class Pass {
     }
 
     /**
-     * @zh
-     * 重置所有 texture 和 sampler 为初始默认值。
+     * @en Resets all textures and samplers to the default values in [[EffectAsset]]
+     * @zh 重置所有 texture 和 sampler 为初始默认值。
      */
     public resetTextures () {
         for (let i = 0; i < this._shaderInfo.samplers.length; i++) {
@@ -445,9 +452,8 @@ export class Pass {
     }
 
     /**
-     * @zh
-     * 尝试编译 shader 并获取相关资源引用。
-     * @param defineOverrides shader 预处理宏定义重载
+     * @en Try to compile the shader and retrieve related resources references.
+     * @zh 尝试编译 shader 并获取相关资源引用。
      */
     public tryCompile () {
         const pipeline = this._root.pipeline;
@@ -460,6 +466,11 @@ export class Pass {
         return true;
     }
 
+    /**
+     * @en Gets the shader variant of the current pass and given macro patches
+     * @zh 结合指定的编译宏组合获取当前 Pass 的 Shader Variant
+     * @param patches The macro patches
+     */
     public getShaderVariant (patches: IMacroPatch[] | null = null): ShaderHandle {
         if (!this._hShaderDefault && !this.tryCompile()) {
             console.warn(`pass resources incomplete`);
@@ -495,7 +506,13 @@ export class Pass {
     }
 
     // internal use
+    /**
+     * @private
+     */
     public beginChangeStatesSilently () {}
+    /**
+     * @private
+     */
     public endChangeStatesSilently () {}
 
     protected _doInit (info: IPassInfoFull, copyDefines = false) {
@@ -555,7 +572,7 @@ export class Pass {
             const size = blockSizes[i];
             _bufferViewInfo.buffer = this._rootBuffer!;
             _bufferViewInfo.offset = startOffsets[count++];
-            _bufferViewInfo.range = size;
+            _bufferViewInfo.range = Math.ceil(size / 16) * 16;
             const bufferView = this._buffers[binding] = device.createBuffer(_bufferViewInfo);
             // non-builtin UBO data pools, note that the effect compiler
             // guarantees these bindings to be consecutive, starting from 0 and non-array-typed
@@ -613,6 +630,7 @@ export class Pass {
     get blendState () { return BlendStatePool.get(PassPool.get(this._handle, PassView.BLEND_STATE)); }
     get dynamicStates () { return PassPool.get(this._handle, PassView.DYNAMIC_STATES); }
     get batchingScheme () { return PassPool.get(this._handle, PassView.BATCHING_SCHEME); }
+    get descriptorSet () { return this._descriptorSet; }
     get hash () { return PassPool.get(this._handle, PassView.HASH); }
 }
 

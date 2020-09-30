@@ -24,7 +24,8 @@
 */
 
 /**
- * @category component/camera
+ * @packageDocumentation
+ * @module component/camera
  */
 
 import { EDITOR } from 'internal:constants';
@@ -459,7 +460,6 @@ export class Camera extends Component {
     }
 
     public onLoad () {
-        legacyCC.director.on(legacyCC.Director.EVENT_AFTER_SCENE_LAUNCH, this.onSceneChanged, this);
         this._createCamera();
     }
 
@@ -587,13 +587,6 @@ export class Camera extends Component {
     protected _detachFromScene () {
         if (this._camera && this._camera.scene) {
             this._camera.scene.removeCamera(this._camera);
-        }
-    }
-
-    protected onSceneChanged (_scene: Scene) {
-        // to handle scene switch of editor camera
-        if (this._camera && this._camera.scene == null) {
-            this._attachToScene();
         }
     }
 

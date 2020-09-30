@@ -25,7 +25,8 @@
  */
 
 /**
- * @category loader
+ * @packageDocumentation
+ * @module loader
  */
 
 import {mixin} from '../utils/js';

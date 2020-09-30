@@ -1,5 +1,6 @@
 /**
- * @category pipeline
+ * @packageDocumentation
+ * @module pipeline
  */
 
 import { ccclass, displayOrder, serializable } from 'cc.decorator';
@@ -33,7 +34,6 @@ export abstract class RenderStage {
      * @en Name of the current stage
      * @zh 当前渲染阶段的名字。
      */
-    @displayOrder(0)
     public get name (): string {
         return this._name;
     }
@@ -42,7 +42,6 @@ export abstract class RenderStage {
      * @en Priority of the current stage
      * @zh 当前渲染阶段的优先级。
      */
-    @displayOrder(1)
     public get priority (): number {
         return this._priority;
     }
@@ -51,7 +50,6 @@ export abstract class RenderStage {
      * @en Tag of the current stage
      * @zh 当前渲染阶段的标签。
      */
-    @displayOrder(2)
     public get tag (): number {
         return this._tag;
     }
@@ -60,6 +58,7 @@ export abstract class RenderStage {
      * @en Name
      * @zh 名称。
      */
+    @displayOrder(0)
     @serializable
     protected _name: string = '';
 
@@ -67,6 +66,7 @@ export abstract class RenderStage {
      * @en Priority
      * @zh 优先级。
      */
+    @displayOrder(1)
     @serializable
     protected _priority: number = 0;
 
@@ -74,6 +74,7 @@ export abstract class RenderStage {
      * @en Type
      * @zh 类型。
      */
+    @displayOrder(2)
     @serializable
     protected _tag: number = 0;
     protected _pipeline!: RenderPipeline;

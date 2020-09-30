@@ -25,7 +25,8 @@
 */
 
 /**
- * @category event
+ * @packageDocumentation
+ * @module event
  */
 
 import * as js from '../utils/js';

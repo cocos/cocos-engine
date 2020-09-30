@@ -25,7 +25,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { Camera } from '../../3d/framework/camera-component';
@@ -256,10 +257,8 @@ export class Canvas extends Component {
             this._camera.viewport = new Rect(0, 0, 1, 1);
             this.color = this._color;
 
-            if (this._targetTexture) {
-                const win = this._targetTexture.window;
-                this._camera.changeTargetWindow(win);
-            }
+            this._checkTargetTextureEvent(null);
+            this._updateTargetTexture();
         }
 
         if (EDITOR) {
@@ -361,7 +360,8 @@ export class Canvas extends Component {
         const camera = this._camera;
         if (camera) {
             if (this._targetTexture) {
-                camera.setFixedSize(visibleSize.width, visibleSize.height);
+                let win = this._targetTexture.window;
+                camera.setFixedSize(win!.width, win!.height);
                 camera.orthoHeight = visibleSize.height / 2;
             } else {
                 const size = game.canvas!;

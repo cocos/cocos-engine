@@ -24,7 +24,8 @@
 */
 
 /**
- * @category material
+ * @packageDocumentation
+ * @module material
  */
 
 import { IBlockInfo, IBuiltinInfo, IDefineInfo, IShaderInfo } from '../../assets/effect-asset';
@@ -174,8 +175,8 @@ function getActiveAttributes (tmpl: IProgramInfo, defines: MacroRecord) {
 let _dsLayout: GFXDescriptorSetLayout | null = null;
 
 /**
- * @zh
- * 维护 shader 资源实例的全局管理器。
+ * @en The global maintainer of all shader resources.
+ * @zh 维护 shader 资源实例的全局管理器。
  */
 class ProgramLib {
     protected _templates: Record<string, IProgramInfo> = {};
@@ -183,8 +184,9 @@ class ProgramLib {
     protected _cache: Record<string, ShaderHandle> = {};
 
     /**
-     * @zh
-     * 根据 effect 信息注册 shader 模板。
+     * @en Register the shader template with the given info
+     * @zh 根据 effect 信息注册 shader 模板。
+     * @param name Target shader name
      */
     public define (prog: IShaderInfo) {
         const curTmpl = this._templates[prog.name];
@@ -243,30 +245,40 @@ class ProgramLib {
         this._pipelineLayouts[prog.name] = { hPipelineLayout: NULL_HANDLE, setLayouts: [] };
     }
 
+    /**
+     * @en Gets the shader template with its name
+     * @zh 通过名字获取 Shader 模板
+     * @param name Target shader name
+     */
     public getTemplate (name: string) {
         return this._templates[name];
     }
 
+    /**
+     * @en Gets the pipeline layout of the shader template given its name
+     * @zh 通过名字获取 Shader 模板相关联的管线布局
+     * @param name Target shader name
+     */
     public getPipelineLayout (name: string) {
         return this._pipelineLayouts[name];
     }
 
     /**
      * @en
-     * Does this library has the specified program?
+     * Does this library has the specified program
      * @zh
-     * 当前是否有已注册的指定名字的 shader？
-     * @param name 目标 shader 名
+     * 当前是否有已注册的指定名字的 shader
+     * @param name Target shader name
      */
     public hasProgram (name: string) {
         return this._templates[name] !== undefined;
     }
 
     /**
-     * @zh
-     * 根据 shader 名和预处理宏列表获取 shader key。
-     * @param name 目标 shader 名
-     * @param defines 目标预处理宏列表
+     * @en Gets the shader key with the name and a macro combination
+     * @zh 根据 shader 名和预处理宏列表获取 shader key。
+     * @param name Target shader name
+     * @param defines The combination of preprocess macros
      */
     public getKey (name: string, defines: MacroRecord) {
         const tmpl = this._templates[name];
@@ -301,9 +313,9 @@ class ProgramLib {
     }
 
     /**
-     * @zh
-     * 销毁所有完全满足指定预处理宏特征的 shader 实例。
-     * @param defines 用于筛选的预处理宏列表
+     * @en Destroy all shader instance match the preprocess macros
+     * @zh 销毁所有完全满足指定预处理宏特征的 shader 实例。
+     * @param defines The preprocess macros as filter
      */
     public destroyShaderByDefines (defines: MacroRecord) {
         const names = Object.keys(defines); if (!names.length) { return; }
@@ -323,12 +335,12 @@ class ProgramLib {
     }
 
     /**
-     * @zh
-     * 获取指定 shader 的渲染资源实例
-     * @param device 渲染设备 [[GFXDevice]]
-     * @param name shader 名字
-     * @param defines 预处理宏列表
-     * @param pipeline 实际渲染命令执行时所属的 [[RenderPipeline]]
+     * @en Gets the shader resource instance with given information
+     * @zh 获取指定 shader 的渲染资源实例
+     * @param device The device
+     * @param name Shader name
+     * @param defines Preprocess macros
+     * @param pipeline The [[RenderPipeline]] which owns the render command
      */
     public getGFXShader (device: GFXDevice, name: string, defines: MacroRecord, pipeline: RenderPipeline, key?: string) {
         Object.assign(defines, pipeline.macros);

@@ -1,4 +1,5 @@
 /**
+ * @packageDocumentation
  * @hidden
  */
 
@@ -559,16 +560,16 @@ export class SplashScreen {
         SplashScreen._ins = null;
     }
 
-    private static _ins: SplashScreen | null;
+    private static _ins?: SplashScreen;
 
     public static get instance () {
-        if (SplashScreen._ins == null) {
+        if (!SplashScreen._ins) {
             SplashScreen._ins = new SplashScreen();
         }
         return SplashScreen._ins;
     }
 
-    private constructor () { };
+    private constructor () {}
 }
 
 legacyCC.internal.SplashScreen = SplashScreen;

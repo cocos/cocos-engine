@@ -1,5 +1,6 @@
 /**
- * @category gfx
+ * @packageDocumentation
+ * @module gfx
  */
 
 import { GFXCommandBuffer } from './command-buffer';

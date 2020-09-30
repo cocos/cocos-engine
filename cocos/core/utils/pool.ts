@@ -23,6 +23,11 @@
  THE SOFTWARE.
 */
 
+/**
+ * @packageDocumentation
+ * @module core
+ */
+
 type CleanUpFunction<T> = (value: T) => boolean | void;
 
 /**

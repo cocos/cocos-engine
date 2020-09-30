@@ -27,6 +27,7 @@
 */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 
@@ -81,7 +82,7 @@ export class EditBoxImpl extends EditBoxImplBase {
     private _placeholderLabelFontColor = null;
     private _placeholderLabelAlign = null;
     private _placeholderLineHeight = null;
-    private _placeholderStyleSheet: any = null;
+    private _placeholderStyleSheet: HTMLStyleElement | null = null;
     private _domId = `EditBoxId_${++_domCount}`;
 
     public init (delegate: EditBox) {
@@ -167,7 +168,7 @@ export class EditBoxImpl extends EditBoxImplBase {
     private _addDomToGameContainer () {
         if (game.container && this._edTxt) {
             game.container.appendChild(this._edTxt);
-            document.head.appendChild(this._placeholderStyleSheet);
+            document.head.appendChild(this._placeholderStyleSheet!);
         }
     }
 
@@ -178,11 +179,11 @@ export class EditBoxImpl extends EditBoxImplBase {
         }
         const hasStyleSheet = contains(document.head, this._placeholderStyleSheet);
         if (hasStyleSheet) {
-            document.head.removeChild(this._placeholderStyleSheet);
+            document.head.removeChild(this._placeholderStyleSheet!);
         }
 
         this._edTxt = null;
-        delete this._placeholderStyleSheet;
+        this._placeholderStyleSheet = null;
     }
 
     private _showDom () {
@@ -347,14 +348,14 @@ export class EditBoxImpl extends EditBoxImplBase {
         // FIX ME: TextArea actually dose not support password type.
         if (this._isTextArea) {
             // input flag
-            let textTrans = 'none';
+            let transform = 'none';
             if (inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
-                textTrans = 'uppercase';
+                transform = 'uppercase';
             }
             else if (inputFlag === InputFlag.INITIAL_CAPS_WORD) {
-                textTrans = 'capitalize';
+                transform = 'capitalize';
             }
-            elem!.style.textTransform = textTrans;
+            elem!.style.textTransform = transform;
             return;
         }
 

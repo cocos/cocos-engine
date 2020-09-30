@@ -10,7 +10,7 @@ import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from './render-scene';
 import { Texture2D } from '../../assets/texture-2d';
 import { SubModel } from './submodel';
-import { Pass } from '../core/pass';
+import { Pass, IMacroPatch } from '../core/pass';
 import { legacyCC } from '../../global-exports';
 import { InstancedBuffer } from '../../pipeline';
 import { BatchingSchemes } from '../core/pass';
@@ -26,6 +26,10 @@ import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos,
 const m4_1 = new Mat4();
 
 const _subModelPool = new Pool(() => new SubModel(), 32);
+
+const shadowMapPatches: IMacroPatch[] = [
+    { name: 'CC_RECEIVE_SHADOW', value: true },
+];
 
 export interface IInstancedAttribute {
     name: string;
@@ -104,6 +108,14 @@ export class Model {
         return this._instMatWorldIdx >= 0;
     }
 
+    get receiveShadow () {
+        return this._receiveShadow;
+    }
+    set receiveShadow (val) {
+        this._receiveShadow = val;
+        this.onMacroPatchesStateChanged();
+    }
+
     get handle () {
         return this._poolHandle;
     }
@@ -145,7 +157,6 @@ export class Model {
     public type = ModelType.DEFAULT;
     public scene: RenderScene | null = null;
     public castShadow = false;
-    public receiveShadow = true;
     public isDynamicBatching = false;
     public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, list: [] };
 
@@ -169,6 +180,7 @@ export class Model {
     private _instMatWorldIdx = -1;
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
+    private _receiveShadow = true;
 
     /**
      * Setup a default empty model
@@ -179,6 +191,8 @@ export class Model {
 
     public initialize () {
         if (!this._inited) {
+            this.castShadow = false;
+            this._receiveShadow = true;
             this._poolHandle = ModelPool.alloc();
             this._subModelArrayHandle = SubModelArrayPool.alloc();
             ModelPool.set(this._poolHandle, ModelView.SUB_MODEL_ARRAY, this._subModelArrayHandle);
@@ -319,6 +333,13 @@ export class Model {
         }
     }
 
+    public onMacroPatchesStateChanged () {
+        const subModels = this._subModels;
+        for (let i = 0; i < subModels.length; i++) {
+            subModels[i].onMacroPatchesStateChanged(this.getMacroPatches(i));
+        }
+    }
+
     public updateLightingmap (texture: Texture2D | null, uvParam: Vec4) {
         Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
 
@@ -343,7 +364,7 @@ export class Model {
     }
 
     public getMacroPatches (subModelIndex: number) {
-        return undefined;
+        return this._receiveShadow ? shadowMapPatches : null;
     }
 
     protected _updateAttributesAndBinding (subModelIndex: number) {

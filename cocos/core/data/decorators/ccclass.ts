@@ -1,5 +1,6 @@
 /**
- * @category decorator
+ * @packageDocumentation
+ * @module decorator
  */
 
 import { js } from '../../utils/js';

@@ -318,7 +318,10 @@ export class WebGLDevice extends GFXDevice {
         this._WEBGL_compressed_texture_etc1 = this.getExtension('WEBGL_compressed_texture_etc1');
         this._WEBGL_compressed_texture_etc = this.getExtension('WEBGL_compressed_texture_etc');
         this._WEBGL_compressed_texture_pvrtc = this.getExtension('WEBGL_compressed_texture_pvrtc');
-        this._WEBGL_compressed_texture_astc = this.getExtension('WEBGL_compressed_texture_astc');
+        // protect for iOS 14 browser crash on function:getExtension('WEBGL_compressed_texture_astc')
+        if (sys.os !== sys.OS_IOS || sys.osMainVersion !== 14 || !sys.isBrowser) {
+            this._WEBGL_compressed_texture_astc = this.getExtension('WEBGL_compressed_texture_astc');
+        }
         this._WEBGL_compressed_texture_s3tc = this.getExtension('WEBGL_compressed_texture_s3tc');
         this._WEBGL_compressed_texture_s3tc_srgb = this.getExtension('WEBGL_compressed_texture_s3tc_srgb');
         this._WEBGL_debug_shaders = this.getExtension('WEBGL_debug_shaders');

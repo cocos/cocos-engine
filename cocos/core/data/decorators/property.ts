@@ -1,5 +1,6 @@
 /**
- * @category decorator
+ * @packageDocumentation
+ * @module decorator
  */
 
 import { CCString, CCInteger, CCFloat, CCBoolean } from '../utils/attribute';

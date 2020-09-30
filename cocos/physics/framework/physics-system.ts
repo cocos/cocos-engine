@@ -1,5 +1,6 @@
 /**
- * @category physics
+ * @packageDocumentation
+ * @module physics
  */
 
 import { Vec3 } from '../../core/math';
@@ -322,7 +323,7 @@ export class PhysicsSystem extends System {
      * @param deltaTime the time since last frame.
      */
     postUpdate (deltaTime: number) {
-        if (EDITOR && !this._executeInEditMode) {
+        if (EDITOR && !legacyCC.GAME_VIEW && !this._executeInEditMode) {
             return;
         }
 
