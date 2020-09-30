@@ -1,6 +1,4 @@
-/**
- * @category gfx
- */
+declare const gfx: any;
 
 import { GFXBuffer } from './buffer';
 import { GFXCommandBuffer } from './command-buffer';
@@ -30,8 +28,14 @@ export * from './render-pass';
 export * from './sampler';
 export * from './shader';
 export * from './texture';
-export * from './pipeline-state.jsb';
 
+export const GFXRasterizerState = gfx.RasterizerState;
+export const GFXDepthStencilState = gfx.DepthStencilState;
+export const GFXBlendTarget = gfx.BlendTarget;
+export const GFXBlendState = gfx.BlendState;
+export const GFXPipelineState = gfx.PipelineState;
+export const GFXPipelineStateInfo = gfx.PipelineStateInfo;
+export const GFXInputState = gfx.InputState;
 
 legacyCC.GFXDevice = GFXDevice;
 legacyCC.GFXBuffer = GFXBuffer;
@@ -41,7 +45,7 @@ legacyCC.GFXShader = GFXShader;
 legacyCC.GFXInputAssembler = GFXInputAssembler;
 legacyCC.GFXRenderPass = GFXRenderPass;
 legacyCC.GFXFramebuffer = GFXFramebuffer;
-legacyCC.GFXPipelineState = gfx.PipelineState;
+legacyCC.GFXPipelineState = GFXPipelineState;
 legacyCC.GFXCommandBuffer = GFXCommandBuffer;
 legacyCC.GFXQueue = GFXQueue;
 
