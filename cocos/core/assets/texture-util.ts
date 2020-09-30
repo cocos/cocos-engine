@@ -25,7 +25,8 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 import { assertID, error } from '../platform/debug';
@@ -41,11 +42,13 @@ export type LoadImageCallback<T> = (
     ) => void;
 
 /**
- * 加载指定的图像资源。
- * @param url 图像资源的链接。
- * @param callback 回调函数。
- * @param target 回调函数的 `this` 参数。
- * @returns 图像资源，返回时可能还未完成加载；加载完成或失败时会调用回调函数。
+ * @en Load an image asset with the given url.
+ * @zh 加载指定的图像资源。
+ * @param url The url of the image
+ * @param callback Callback for receiving the loaded asset
+ * @param target The callee of the callback function
+ * @returns The ImageAsset, it could be in the loading process, the callback will tell whether the loading process succeed or failed.
+ * @private
  */
 export function loadImage<T extends object> (url: string, callback?: LoadImageCallback<T>, target?: T) {
     assertID(!!url, 3103);
@@ -83,9 +86,11 @@ export function loadImage<T extends object> (url: string, callback?: LoadImageCa
 }
 
 /**
- * 缓存指定的图像源，为它指定链接。此后，可以通过该链接直接加载它。
- * @param url 指定的链接。
- * @param image 缓存的图像源。
+ * @en Cache the [[ImageAsset]] with url as key.
+ * @zh 缓存指定的图像源，为它指定链接。此后，可以通过该链接直接加载它。
+ * @param url The url as key
+ * @param image The image to be cached
+ * @private
  */
 export function cacheImage (url: string, image: ImageSource) {
     if (url && image) {
@@ -103,9 +108,11 @@ export function cacheImage (url: string, image: ImageSource) {
 }
 
 /**
- * 尝试加载图像资源的实际数据。
- * @param imageAsset 图像资源。
- * @param callback 回调函数。
+ * @en Try to load the actual data of the image asset.
+ * @zh 尝试加载图像资源的实际数据。
+ * @param imageAsset The image asset
+ * @param callback The callback function after loaded
+ * @private
  */
 export function postLoadImage (imageAsset: ImageAsset, callback?: Function) {
     if (imageAsset.loaded) {

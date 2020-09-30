@@ -25,7 +25,8 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 import { ccclass, type, serializable, editable } from 'cc.decorator';
@@ -38,11 +39,8 @@ export interface IConfig {
 }
 
 /**
- * @en
- * Class for BitmapFont handling.
- *
- * @zh
- * 位图字体资源类。
+ * @en Class for BitmapFont handling.
+ * @zh 位图字体资源类。
  */
 @ccclass('cc.BitmapFont')
 export class BitmapFont extends Font {
@@ -51,23 +49,23 @@ export class BitmapFont extends Font {
     public fntDataStr = '';
 
     /**
-     * @zh
-     * bitmap font 依赖精灵。
+     * @en [[SpriteFrame]] of the bitmap font
+     * @zh 位图字体所使用的精灵。
      */
     @type(SpriteFrame)
     public spriteFrame: SpriteFrame | null = null;
 
     /**
-     * @zh
-     * 文字尺寸。
+     * @en The font size
+     * @zh 文字尺寸。
      */
     @serializable
     @editable
     public fontSize = -1;
 
     /**
-     * @zh
-     * 文字配置。
+     * @en Font configuration
+     * @zh 字体配置。
      */
     @serializable
     @editable

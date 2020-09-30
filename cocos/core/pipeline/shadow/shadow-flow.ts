@@ -1,5 +1,6 @@
 /**
- * @category pipeline.forward
+ * @packageDocumentation
+ * @module pipeline.forward
  */
 
 import { ccclass } from 'cc.decorator';
@@ -7,24 +8,43 @@ import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP_BINDING } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
-import { GFXFramebuffer, GFXRenderPass, GFXLoadOp,
-    GFXStoreOp, GFXTextureLayout, GFXFormat, GFXTexture,
-    GFXTextureType, GFXTextureUsageBit, GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPassInfo, GFXTextureInfo, GFXFramebufferInfo } from '../../gfx';
+import { GFXFramebuffer, GFXRenderPass, GFXLoadOp, GFXStoreOp,
+    GFXTextureLayout, GFXFormat, GFXTexture, GFXTextureType, GFXTextureUsageBit, GFXFilter, GFXAddress,
+    GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPassInfo, GFXTextureInfo, GFXFramebufferInfo } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderView } from '../render-view';
 import { ShadowType } from '../../renderer/scene/shadows';
+import { genSamplerHash, samplerLib } from '../../renderer';
+
+const _samplerInfo = [
+    GFXFilter.LINEAR,
+    GFXFilter.LINEAR,
+    GFXFilter.NONE,
+    GFXAddress.CLAMP,
+    GFXAddress.CLAMP,
+    GFXAddress.CLAMP,
+];
 
 /**
+ * @en Shadow map render flow
  * @zh 阴影贴图绘制流程
  */
 @ccclass('ShadowFlow')
 export class ShadowFlow extends RenderFlow {
 
+    /**
+     * @en Gets the frame buffer for shadow map
+     * @zh 获取渲染阴影的 Frame Buffer
+     */
     public get shadowFrameBuffer () {
         return this._shadowFrameBuffer;
     }
 
+    /**
+     * @en A common initialization info for shadow map render flow
+     * @zh 一个通用的 ShadowFlow 的初始化信息对象
+     */
     public static initInfo: IRenderFlowInfo = {
         name: PIPELINE_FLOW_SHADOW,
         priority: ForwardFlowPriority.SHADOW,
@@ -39,7 +59,7 @@ export class ShadowFlow extends RenderFlow {
     private _width: number = 0;
     private _height: number = 0;
 
-    public initialize (info: IRenderFlowInfo): boolean{
+    public initialize (info: IRenderFlowInfo): boolean {
         super.initialize(info);
         if (this._stages.length === 0) {
             // add shadowMap-stages
@@ -113,6 +133,11 @@ export class ShadowFlow extends RenderFlow {
         for (let i = 0; i < this._stages.length; ++i) {
             (this._stages[i] as ShadowStage).setShadowFrameBuffer(this._shadowFrameBuffer);
         }
+
+        const shadowMapSamplerHash = genSamplerHash(_samplerInfo);
+        const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
+        pipeline.descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
+        pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, this._shadowRenderTargets[0]);
     }
 
     public render (view: RenderView) {
@@ -129,7 +154,6 @@ export class ShadowFlow extends RenderFlow {
 
         pipeline.updateUBOs(view);
         super.render(view);
-        pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, this._shadowFrameBuffer!.colorTextures[0]!);
     }
 
     private resizeShadowMap (width: number, height: number) {

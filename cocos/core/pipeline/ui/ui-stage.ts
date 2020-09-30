@@ -1,5 +1,6 @@
 /**
- * @category pipeline
+ * @packageDocumentation
+ * @module pipeline
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';

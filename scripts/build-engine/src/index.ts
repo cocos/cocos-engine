@@ -263,9 +263,9 @@ async function _doBuild ({
         babelHelpers: 'bundled',
         extensions: ['.js', '.ts'],
         highlightCode: true,
-        ignore: [
-            ps.join(options.engine, 'node_modules/@cocos/ammo/**'),
-            ps.join(options.engine, 'node_modules/@cocos/cannon/**'),
+        exclude: [
+            /@cocos[\/\\]ammo/g,
+            /@cocos[\/\\]cannon/g
         ],
         plugins: babelPlugins,
         presets: [

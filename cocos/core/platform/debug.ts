@@ -23,7 +23,8 @@
  THE SOFTWARE.
 */
 /**
- * @category core
+ * @packageDocumentation
+ * @module core
  */
 
 /* eslint-disable no-console */

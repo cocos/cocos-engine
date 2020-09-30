@@ -24,7 +24,8 @@
 */
 
 /**
- * @category ui-assembler
+ * @packageDocumentation
+ * @module ui-assembler
  */
 
 import { Mat4, Vec3 } from '../../../core/math';

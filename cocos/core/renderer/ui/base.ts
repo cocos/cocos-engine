@@ -25,7 +25,7 @@
 
 /**
  * ui 相关模块
- * @category ui
+ * @module ui
  */
 
 

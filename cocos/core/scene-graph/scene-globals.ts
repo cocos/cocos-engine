@@ -20,12 +20,13 @@
 */
 
 /**
- * @category scene-graph
+ * @packageDocumentation
+ * @module scene-graph
  */
 
 import { TextureCube } from '../assets/texture-cube';
-import { ccclass, visible, type, displayOrder, slide, range, rangeStep, editable, serializable} from 'cc.decorator';
-import { CCBoolean, CCFloat } from '../data/utils/attribute';
+import { ccclass, visible, type, displayOrder, slide, range, rangeStep, editable, serializable, rangeMin } from 'cc.decorator';
+import { CCFloat } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
 import { Shadows, ShadowType, PCFType } from '../renderer/scene/shadows';
@@ -258,14 +259,14 @@ export class FogInfo {
      * @zh 全局雾浓度
      * @en Global fog density
      */
+    @visible(function (this: FogInfo) {
+        return this._type !== FogType.LAYERED && this._type !== FogType.LINEAR;
+    })
     @type(CCFloat)
     @range([0, 1])
     @rangeStep(0.01)
     @slide
     @displayOrder(3)
-    @visible(function (this: FogInfo) {
-        return this._type !== FogType.LAYERED && this._type !== FogType.LINEAR;
-    })
     get fogDensity () {
         return this._fogDensity;
     }
@@ -279,10 +280,10 @@ export class FogInfo {
      * @zh 雾效起始位置，只适用于线性雾
      * @en Global fog start position, only for linear fog
      */
-    @type(CCFloat)
-    @rangeStep(0.1)
-    @displayOrder(4)
     @visible(function (this: FogInfo) { return this._type === FogType.LINEAR; })
+    @type(CCFloat)
+    @rangeStep(0.01)
+    @displayOrder(4)
     get fogStart () {
         return this._fogStart;
     }
@@ -296,10 +297,10 @@ export class FogInfo {
      * @zh 雾效结束位置，只适用于线性雾
      * @en Global fog end position, only for linear fog
      */
+    @visible(function (this: FogInfo) { return this._type === FogType.LINEAR; })
     @type(CCFloat)
-    @rangeStep(0.1)
+    @rangeStep(0.01)
     @displayOrder(5)
-    @visible(function (this: FogInfo) {  return this._type === FogType.LINEAR; })
     get fogEnd () {
         return this._fogEnd;
     }
@@ -313,10 +314,11 @@ export class FogInfo {
      * @zh 雾效衰减
      * @en Global fog attenuation
      */
-    @type(CCFloat)
-    @rangeStep(0.1)
-    @displayOrder(6)
     @visible(function (this: FogInfo) { return this._type !== FogType.LINEAR; })
+    @type(CCFloat)
+    @rangeMin(0.01)
+    @rangeStep(0.01)
+    @displayOrder(6)
     get fogAtten () {
         return this._fogAtten;
     }
@@ -330,10 +332,10 @@ export class FogInfo {
      * @zh 雾效顶部范围，只适用于层级雾
      * @en Global fog top range, only for layered fog
      */
-    @type(CCFloat)
-    @rangeStep(0.1)
-    @displayOrder(7)
     @visible(function (this: FogInfo) { return this._type === FogType.LAYERED; })
+    @type(CCFloat)
+    @rangeStep(0.01)
+    @displayOrder(7)
     get fogTop () {
         return this._fogTop;
     }
@@ -347,10 +349,10 @@ export class FogInfo {
      * @zh 雾效范围，只适用于层级雾
      * @en Global fog range, only for layered fog
      */
-    @type(CCFloat)
-    @rangeStep(0.1)
-    @displayOrder(8)
     @visible(function (this: FogInfo) { return this._type === FogType.LAYERED; })
+    @type(CCFloat)
+    @rangeStep(0.01)
+    @displayOrder(8)
     get fogRange () {
         return this._fogRange;
     }
@@ -392,6 +394,8 @@ export class ShadowsInfo {
     protected _shadowColor = new Color(0, 0, 0, 76);
     @serializable
     protected _pcf = PCFType.HARD;
+    @serializable
+    protected _bias = 0.0035;
     @serializable
     protected _near: number = 1;
     @serializable
@@ -480,6 +484,19 @@ export class ShadowsInfo {
     }
     get pcf () {
         return this._pcf;
+    }
+
+    /**
+     * @en get or set shadow bias
+     * @zh 获取或者设置阴影偏移量
+     */
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    set bias (val: number) {
+        this._bias = val;
+        if (this._resource) {this._resource.bias = val; }
+    }
+    get bias () {
+        return this._bias;
     }
 
     /**
@@ -573,6 +590,8 @@ export class ShadowsInfo {
         this._resource.normal = this._normal;
         this._resource.distance = this._distance;
         this._resource.shadowColor = this._shadowColor;
+        this._resource.pcf = this._pcf;
+        this._resource.bias = this._bias;
         this._resource.enabled = this._enabled;
     }
 }

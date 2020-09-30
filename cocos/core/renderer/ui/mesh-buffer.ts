@@ -24,7 +24,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { GFXBuffer, GFXBufferInfo } from '../../gfx/buffer';

@@ -24,7 +24,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { UIRenderable } from '../../core/components/ui-base/ui-renderable';

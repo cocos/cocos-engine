@@ -22,12 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+/**
+ * @packageDocumentation
+ * @module component/audio
+ */
 
 import { legacyCC } from '../../core/global-exports';
-
-/**
- * @category component/audio
- */
 
 export const PlayingState = {
     INITIALIZING: 0,

@@ -1,5 +1,6 @@
 /**
- * @category pipeline.forward
+ * @packageDocumentation
+ * @module pipeline.forward
  */
 
 import { ccclass } from 'cc.decorator';
@@ -15,17 +16,26 @@ import { SetIndex, UBOShadow } from '../define';
 const colors: GFXColor[] = [ new GFXColor(1, 1, 1, 1) ];
 
 /**
- * @zh
- * 阴影渲染阶段。
+ * @en Shadow map render stage
+ * @zh 阴影渲染阶段。
  */
 @ccclass('ShadowStage')
 export class ShadowStage extends RenderStage {
+    /**
+     * @en A common initialization info for shadow map render stage
+     * @zh 一个通用的 ShadowStage 的初始化信息对象
+     */
     public static initInfo: IRenderStageInfo = {
         name: 'ShadowStage',
         priority: ForwardStagePriority.FORWARD,
         tag: 0
     };
 
+    /**
+     * @en Sets the frame buffer for shadow map
+     * @zh 设置阴影渲染的 FrameBuffer
+     * @param shadowFrameBuffer 
+     */
     public setShadowFrameBuffer (shadowFrameBuffer: GFXFramebuffer) {
         this._shadowFrameBuffer = shadowFrameBuffer;
     }
@@ -34,41 +44,30 @@ export class ShadowStage extends RenderStage {
     private _shadowFrameBuffer: GFXFramebuffer | null = null;
     private _renderArea = new GFXRect();
 
-    /**
-     * 构造函数。
-     * @param flow 渲染阶段。
-     */
     constructor () {
         super();
         this._additiveShadowQueue = new RenderShadowMapBatchedQueue();
     }
 
-    /**
-     * @zh
-     * 销毁函数。
-     */
     public destroy () {
     }
 
-    /**
-     * @zh
-     * 渲染函数。
-     * @param view 渲染视图。
-     */
     public render (view: RenderView) {
         const pipeline = this._pipeline as ForwardPipeline;
         const shadowInfo = pipeline.shadows;
         this._additiveShadowQueue.clear(pipeline.descriptorSet.getBuffer(UBOShadow.BINDING));
 
-        const shadowObjects = pipeline.shadowObjects;
-        let m = 0; let p = 0;
-        for (let i = 0; i < shadowObjects.length; ++i) {
-            const ro = shadowObjects[i];
-            const subModels = ro.model.subModels;
-            for (m = 0; m < subModels.length; m++) {
-                const passes = subModels[m].passes;
-                for (p = 0; p < passes.length; p++) {
-                    this._additiveShadowQueue.add(ro, m, p);
+        if (view.camera.scene?.mainLight) {
+            const shadowObjects = pipeline.shadowObjects;
+            let m = 0; let p = 0;
+            for (let i = 0; i < shadowObjects.length; ++i) {
+                const ro = shadowObjects[i];
+                const subModels = ro.model.subModels;
+                for (m = 0; m < subModels.length; m++) {
+                    const passes = subModels[m].passes;
+                    for (p = 0; p < passes.length; p++) {
+                        this._additiveShadowQueue.add(ro, m, p);
+                    }
                 }
             }
         }

@@ -25,7 +25,7 @@
 
 /**
  * ui-assembler 相关模块
- * @category ui-assembler
+ * @module ui-assembler
  */
 
 import * as js from '../../../core/utils/js';

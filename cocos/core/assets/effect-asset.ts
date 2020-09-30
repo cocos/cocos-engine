@@ -24,7 +24,8 @@
 */
 
 /**
- * @category material
+ * @packageDocumentation
+ * @module material
  */
 
 import { ccclass, serializable, editable } from 'cc.decorator';
@@ -126,21 +127,23 @@ export interface IPreCompileInfo {
 const effects: Record<string, EffectAsset> = {};
 
 /**
- * @zh
- * Effect 资源，作为材质实例初始化的模板，每个 effect 资源都应是全局唯一的。
+ * @en Effect asset is the base template for instantiating material, all effects should be unique globally.
+ * All effects are managed in a static map of EffectAsset.
+ * @zh Effect 资源，作为材质实例初始化的模板，每个 effect 资源都应是全局唯一的。
+ * 所有 Effect 资源都由此类的一个静态对象管理。
  */
 @ccclass('cc.EffectAsset')
 export class EffectAsset extends Asset {
 
     /**
-     * @zh
-     * 将指定 effect 注册到全局管理器。
+     * @en Register the effect asset to the static map
+     * @zh 将指定 effect 注册到全局管理器。
      */
     public static register (asset: EffectAsset) { effects[asset.name] = asset; }
 
     /**
-     * @zh
-     * 将指定 effect 从全局管理器移除。
+     * @en Unregister the effect asset from the static map
+     * @zh 将指定 effect 从全局管理器移除。
      */
     public static remove (name: string) {
         if (effects[name]) { delete effects[name]; return; }
@@ -153,8 +156,8 @@ export class EffectAsset extends Asset {
     }
 
     /**
-     * @zh
-     * 获取指定名字的 effect 资源。
+     * @en Get the effect asset by the given name.
+     * @zh 获取指定名字的 effect 资源。
      */
     public static get (name: string) {
         if (effects[name]) { return effects[name]; }
@@ -167,39 +170,39 @@ export class EffectAsset extends Asset {
     }
 
     /**
-     * @zh
-     * 获取所有已注册的 effect 资源。
+     * @en Get all registered effect assets.
+     * @zh 获取所有已注册的 effect 资源。
      */
     public static getAll () { return effects; }
     protected static _effects: Record<string, EffectAsset> = {};
 
     /**
-     * @zh
-     * 当前 effect 的所有可用 technique。
+     * @en The techniques used by the current effect.
+     * @zh 当前 effect 的所有可用 technique。
      */
     @serializable
     @editable
     public techniques: ITechniqueInfo[] = [];
 
     /**
-     * @zh
-     * 当前 effect 使用的所有 shader。
+     * @en The shaders used by the current effect.
+     * @zh 当前 effect 使用的所有 shader。
      */
     @serializable
     @editable
     public shaders: IShaderInfo[] = [];
 
     /**
-     * @zh
-     * 每个 shader 需要预编译的宏定义组合。
+     * @en The preprocess macro combinations for the shader
+     * @zh 每个 shader 需要预编译的宏定义组合。
      */
     @serializable
     @editable
     public combinations: IPreCompileInfo[] = [];
 
     /**
-     * @zh
-     * 通过 Loader 加载完成时的回调，将自动注册 effect 资源。
+     * @en The loaded callback which should be invoked by the [[Loader]], will automatically register the effect.
+     * @zh 通过 [[Loader]] 加载完成时的回调，将自动注册 effect 资源。
      */
     public onLoaded () {
         this.shaders.forEach((s) => programLib.define(s));

@@ -1,5 +1,6 @@
 /**
- * @category pipeline
+ * @packageDocumentation
+ * @module pipeline
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
@@ -7,10 +8,8 @@ import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
 import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
-import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-import { IRenderObject, UBOGlobal, UBOShadow, UNIFORM_SHADOWMAP_BINDING } from '../define';
-import { GFXBufferUsageBit, GFXMemoryUsageBit,
-    GFXClearFlag, GFXFilter, GFXAddress } from '../../gfx/define';
+import { IRenderObject, UBOGlobal, UBOShadow } from '../define';
+import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXClearFlag } from '../../gfx/define';
 import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout, GFXRenderPassInfo, GFXBufferInfo } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { legacyCC } from '../../global-exports';
@@ -190,16 +189,9 @@ export class ForwardPipeline extends RenderPipeline {
             Mat4.invert(matShadowView, shadowCameraView);
 
             // light proj
-            let x: number = 0;
-            let y: number = 0;
-            if (shadowInfo.orthoSize > shadowInfo.sphere.radius) {
-                x = shadowInfo.orthoSize * shadowInfo.aspect;
-                y = shadowInfo.orthoSize;
-            } else {
-                // if orthoSize is the smallest, auto calculate orthoSize.
-                x = shadowInfo.sphere.radius * shadowInfo.aspect;
-                y = shadowInfo.sphere.radius;
-            }
+            const x: number = shadowInfo.orthoSize * shadowInfo.aspect;
+            const y: number = shadowInfo.orthoSize;
+
             const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY; // always offscreen
             Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, shadowInfo.far,
                 device.clipSpaceMinZ, projectionSignY);
@@ -209,11 +201,8 @@ export class ForwardPipeline extends RenderPipeline {
 
             Mat4.toArray(this._shadowUBO, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-            vec4.set(shadowInfo.pcf);
-            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_PCF_OFFSET);
-
-            vec4.set(shadowInfo.size.x, shadowInfo.size.y);
-            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_SIZE_OFFSET);
+            vec4.set(shadowInfo.size.x, shadowInfo.size.y, shadowInfo.pcf, shadowInfo.bias);
+            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_INFO_OFFSET);
         }
 
         // update ubos
@@ -241,17 +230,6 @@ export class ForwardPipeline extends RenderPipeline {
             UBOShadow.SIZE,
         ));
         this._descriptorSet.bindBuffer(UBOShadow.BINDING, shadowUBO);
-
-        const shadowMapSamplerHash = genSamplerHash([
-            GFXFilter.LINEAR,
-            GFXFilter.LINEAR,
-            GFXFilter.NONE,
-            GFXAddress.CLAMP,
-            GFXAddress.CLAMP,
-            GFXAddress.CLAMP,
-        ]);
-        const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
-        this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
 
         // update global defines when all states initialized.
         this.macros.CC_USE_HDR = this._isHDR;

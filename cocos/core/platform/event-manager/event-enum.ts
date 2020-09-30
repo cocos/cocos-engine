@@ -1,5 +1,6 @@
 /**
- * @category event
+ * @packageDocumentation
+ * @module event
  */
 import { ccenum } from '../../value-types/enum';
 import { legacyCC } from '../../global-exports';

@@ -1,6 +1,7 @@
 
 /**
- * @category animation
+ * @packageDocumentation
+ * @module animation
  */
 
 import { ccclass, serializable } from 'cc.decorator';

@@ -28,7 +28,8 @@
 /* spell-checker:words COORD, Quesada, INITED, Renerer */
 
 /**
- * @category core
+ * @packageDocumentation
+ * @module core
  */
 
 import { SceneAsset } from './assets';
@@ -115,9 +116,6 @@ import { errorID, error, logID, assertID, warnID } from './platform/debug';
  *      - 将计时器 & 渲染与显示器的刷新频率同步。<br/>
  *      - 只支持动画的间隔 1/60 1/30 & 1/15。<br/>
  * </p>
- *
- * @class Director
- * @extends EventTarget
  */
 export class Director extends EventTarget {
 
@@ -286,7 +284,8 @@ export class Director extends EventTarget {
     }
 
     /**
-     * calculates delta time since last time it was called
+     * @en Calculates delta time since last time it was called, the result is saved to an internal property.
+     * @zh 计算从上一帧到现在的时间间隔，结果保存在私有属性中
      */
     public calculateDeltaTime (now) {
         if (!now) now = performance.now();
@@ -345,7 +344,8 @@ export class Director extends EventTarget {
     }
 
     /**
-     * End the life of director in the next frame
+     * @en End the life of director in the next frame
+     * @zh 执行完当前帧后停止 director 的执行
      */
     public end () {
         this._purgeDirectorInNextLoop = true;
@@ -544,7 +544,6 @@ export class Director extends EventTarget {
             this._root.resetCumulativeTime();
         }
         this.startAnimation();
-
         if (onLaunched) {
             onLaunched(null, scene);
         }
@@ -709,6 +708,7 @@ export class Director extends EventTarget {
      * @zh 通过 uuid 加载场景。
      * @param uuid 场景资源的 uuid。
      * @param doNotRun 仅加载和初始化场景，但并不运行。此参数仅在编辑器环境中生效。
+     * @private
      */
     public _loadSceneByUuid (uuid: string, doNotRun?: boolean): void;
 

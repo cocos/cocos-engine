@@ -1,5 +1,6 @@
 /**
- * @category animation
+ * @packageDocumentation
+ * @module animation
  */
 
 import { binarySearchEpsilon as binarySearch } from '../data/utils/binary-search';

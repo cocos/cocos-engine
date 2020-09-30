@@ -25,7 +25,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { RenderableComponent } from '../../core/3d/framework/renderable-component';

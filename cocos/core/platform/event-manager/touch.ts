@@ -25,7 +25,8 @@
 */
 
 /**
- * @category event
+ * @packageDocumentation
+ * @module event
  */
 
 import { Vec2 } from '../../math';

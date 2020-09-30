@@ -1,4 +1,3 @@
-
 import { Material } from '../../assets/material';
 import { sphere } from '../../geometry';
 import { Color, Mat4, Vec3, Vec2 } from '../../math';
@@ -9,7 +8,6 @@ import { ShadowsPool, NULL_HANDLE, ShadowsView, ShadowsHandle } from '../core/me
 /**
  * @zh 阴影类型。
  * @en The shadow type
- * @static
  * @enum Shadows.ShadowType
  */
 export const ShadowType = Enum({
@@ -201,6 +199,17 @@ export class Shadows {
     }
     public set pcf (val: number) {
         ShadowsPool.set(this._handle, ShadowsView.PCF_TYPE, val);
+    }
+
+    /**
+     * @en get or set shadow bias
+     * @zh 获取或者设置阴影偏移量
+     */
+    public get bias (): number {
+        return ShadowsPool.get(this._handle, ShadowsView.BIAS);
+    }
+    public set bias (val: number) {
+        ShadowsPool.set(this._handle, ShadowsView.BIAS, val);
     }
 
     public get matLight () {

@@ -1,5 +1,6 @@
 /**
- * @category pipeline
+ * @packageDocumentation
+ * @module core
  */
 
 import { Camera } from '../3d/framework/camera-component';
@@ -54,7 +55,9 @@ export function WorldNode3DToWorldNodeUI (mainCamera: Camera, wpos: Vec3, out?: 
 }
 
 /**
- * @deprecated 将在 1.2 移除，请使用 Camera 的 `convertToUINode`。
+ * @en It will be removed in v1.2. Please use [[Camera.convertToUINode]]。
+ * @zh 将在 v1.2 移除，请使用 Camera 的 `convertToUINode`。
+ * @deprecated 
  */
 const convertUtils = {
     WorldNode3DToLocalNodeUI,

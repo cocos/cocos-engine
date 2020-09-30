@@ -1,5 +1,6 @@
 /**
- * @category pipeline
+ * @packageDocumentation
+ * @module pipeline
  */
 
 import { Pass } from '../renderer/core/pass';
@@ -193,11 +194,9 @@ export class UBOShadow {
     public static readonly MAT_LIGHT_PLANE_PROJ_OFFSET = 0;
     public static readonly MAT_LIGHT_VIEW_PROJ_OFFSET = UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
     public static readonly SHADOW_COLOR_OFFSET = UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
-    public static readonly SHADOW_PCF_OFFSET = UBOShadow.SHADOW_COLOR_OFFSET + 4;
-    public static readonly SHADOW_SIZE_OFFSET = UBOShadow.SHADOW_PCF_OFFSET + 4;
-    public static readonly COUNT = UBOShadow.SHADOW_SIZE_OFFSET + 4;
+    public static SHADOW_INFO_OFFSET: number = UBOShadow.SHADOW_COLOR_OFFSET + 4;
+    public static COUNT: number = UBOShadow.SHADOW_INFO_OFFSET + 4;
     public static readonly SIZE = UBOShadow.COUNT * 4;
-
     public static readonly NAME = 'CCShadow';
     public static readonly BINDING = PipelineGlobalBindings.UBO_SHADOW;
     public static readonly DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.UNIFORM_BUFFER, 1, GFXShaderStageFlagBit.ALL);
@@ -205,8 +204,7 @@ export class UBOShadow {
         new GFXUniform('cc_matLightPlaneProj', GFXType.MAT4, 1),
         new GFXUniform('cc_matLightViewProj', GFXType.MAT4, 1),
         new GFXUniform('cc_shadowColor', GFXType.FLOAT4, 1),
-        new GFXUniform('cc_shadowPCF', GFXType.FLOAT4, 1),
-        new GFXUniform('cc_shadowSize', GFXType.FLOAT4, 1),
+        new GFXUniform('cc_shadowInfo', GFXType.FLOAT4, 1),
     ], 1);
 }
 globalDescriptorSetLayout.layouts[UBOShadow.NAME] = UBOShadow.LAYOUT;
@@ -360,6 +358,7 @@ export class UBOMorph {
     public static readonly OFFSET_OF_WEIGHTS = 0;
     public static readonly OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH = 4 * UBOMorph.MAX_MORPH_TARGET_COUNT;
     public static readonly OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT = UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH + 4;
+    public static readonly OFFSET_OF_VERTICES_COUNT = UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT + 4;
     public static readonly COUNT_BASE_4_BYTES = 4 * Math.ceil(UBOMorph.MAX_MORPH_TARGET_COUNT / 4) + 4;
     public static readonly SIZE = UBOMorph.COUNT_BASE_4_BYTES * 4;
 

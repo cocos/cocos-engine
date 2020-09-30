@@ -23,7 +23,8 @@
  THE SOFTWARE.
 */
 /**
- * @category component/light
+ * @packageDocumentation
+ * @module component/light
  */
 
 import { ccclass, help, executeInEditMode, menu, tooltip, type, unit, serializable } from 'cc.decorator';

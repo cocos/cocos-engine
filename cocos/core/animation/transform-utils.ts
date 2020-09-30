@@ -24,7 +24,8 @@
 */
 
 /**
- * @category animation
+ * @packageDocumentation
+ * @module animation
  */
 
 import { Mat4 } from '../math';

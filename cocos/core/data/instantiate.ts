@@ -25,7 +25,8 @@
 */
 
 /**
- * @category core/data
+ * @packageDocumentation
+ * @module core/data
  */
 
 import { isDomNode } from '../utils/misc';

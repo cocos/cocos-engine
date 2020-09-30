@@ -24,8 +24,8 @@
 */
 
 /**
- * UI 组装器
- * @category ui-assembler
+ * @packageDocumentation
+ * @module ui-assembler
  */
 
 import { Vec3 } from '../../../core/math';
