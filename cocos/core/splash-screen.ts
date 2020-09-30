@@ -142,7 +142,7 @@ export class SplashScreen {
     public setOnFinish (cb: Function) {
         if (this._directCall) {
             if (cb) {
-                SplashScreen._ins = null;
+                SplashScreen._ins = undefined;
                 return cb();
             }
         }
@@ -557,7 +557,7 @@ export class SplashScreen {
         }
 
         this.setting = null!;
-        SplashScreen._ins = null;
+        SplashScreen._ins = undefined;
     }
 
     private static _ins?: SplashScreen;
