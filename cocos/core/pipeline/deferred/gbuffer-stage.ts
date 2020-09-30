@@ -187,7 +187,7 @@ export class GbufferStage extends RenderStage {
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         for (let i = 0; i < this.renderQueues.length; i++) {
-                this._renderQueues[i].recordCommandBuffer(device, renderPass, cmdBuff);
+            this._renderQueues[i].recordCommandBuffer(device, renderPass, cmdBuff);
         }
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);

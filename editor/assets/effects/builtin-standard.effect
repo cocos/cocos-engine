@@ -52,25 +52,12 @@ CCEffect %{
       blendState:
         targets:
         - blend: false
-          blendSrc: one
-          blendDst: one
-          blendSrcAlpha: zero
-          blendDstAlpha: one
         - blend: false
-          blendSrc: one
-          blendDst: one
-          blendSrcAlpha: zero
-          blendDstAlpha: one
         - blend: false
-          blendSrc: one
-          blendDst: one
-          blendSrcAlpha: zero
-          blendDstAlpha: one
         - blend: false
-          blendSrc: one
-          blendDst: one
-          blendSrcAlpha: zero
-          blendDstAlpha: one
+    - vert: standard-vs:vert
+      frag: lighting-fs
+      phase: deferred-lighting
     - vert: shadow-caster-vs:vert
       frag: shadow-caster-fs:frag
       phase: shadow-add
@@ -319,6 +306,16 @@ CCProgram gbuffer-fs %{
     fragColor1 = vec4(0.0, 1.0, 0.0, 1.0);
     fragColor2 = vec4(0.0, 0.0, 1.0, 1.0);
     fragColor3 = vec4(1.0, 1.0, 0.0, 1.0);
+  }
+}%
+
+CCProgram lighting-fs %{
+  precision highp float;
+
+  layout(location = 0) out vec4 fragColor0;
+
+  void main () {
+    fragColor0 = vec4(1.0, 0.0, 0.0, 1.0);
   }
 }%
 

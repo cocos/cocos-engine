@@ -59,7 +59,7 @@ export class LightingStage extends RenderStage {
     private _renderArea = new GFXRect();
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
-    private _phaseID = getPhaseID('default');
+    private _phaseID = getPhaseID('deferred-lighting');
     private declare _additiveLightQueue: RenderAdditiveLightQueue;
     private declare _planarQueue: PlanarShadowQueue;
 
@@ -182,12 +182,13 @@ export class LightingStage extends RenderStage {
 
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
-        this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
+        for (let i = 0; i < this.renderQueues.length; i++) {
+            this._renderQueues[i].recordCommandBuffer(device, renderPass, cmdBuff);
+        }
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._additiveLightQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-        this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
 
         cmdBuff.endRenderPass();
     }

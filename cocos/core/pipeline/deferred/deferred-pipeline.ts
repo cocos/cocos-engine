@@ -105,6 +105,10 @@ export class DeferredPipeline extends RenderPipeline {
             gbufferFlow.initialize(GbufferFlow.initInfo);
             this._flows.push(gbufferFlow);
 
+            const lightingFlow = new LightingFlow();
+            lightingrFlow.initialize(LightingFlow.initInfo);
+            this._flows.push(lightingFlow);
+
             const uiFlow = new UIFlow();
             uiFlow.initialize(UIFlow.initInfo);
             this._flows.push(uiFlow);
