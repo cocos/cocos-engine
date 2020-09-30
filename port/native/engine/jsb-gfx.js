@@ -251,52 +251,6 @@ let _converters = {
     PushConstantRange: function (range) {
         return new gfx.PushConstantRange(range.shaderType, range.offset, range.count);
     },
-    InputState: function (info) {
-        let attrs = info.attributes;
-        let jsbAttrs;
-        if (attrs) {
-            jsbAttrs = [];
-            for (let i = 0; i < attrs.length; ++i) {
-                jsbAttrs.push(_converters.Attribute(attrs[i]));
-            }
-        }
-        return new gfx.InputState(jsbAttrs);
-    },
-    RasterizerState: function (info) {
-        return new gfx.RasterizerState(info);
-    },
-    DepthStencilState: function (info) {
-        return new gfx.DepthStencilState(info);
-    },
-    BlendTarget: function (info) {
-        return new gfx.BlendTarget(info);
-    },
-    BlendState: function (state) {
-        let targets = state.targets;
-        let jsbTargets;
-        if (targets) {
-            jsbTargets = [];
-            for (let i = 0; i < targets.length; ++i) {
-                jsbTargets.push(_converters.BlendTarget(targets[i]));
-            }
-        }
-        let color = _converters.Color(state.blendColor);
-        return new gfx.BlendState(state.isA2c, state.isIndepend, color, jsbTargets);
-    },
-    PipelineStateInfo: function (info) {
-        let jsbInfo = {
-            primitive: info.primitive,
-            shader: info.shader,
-            inputState: _converters.InputState(info.inputState),
-            rasterizerState: _converters.RasterizerState(info.rasterizerState),
-            depthStencilState: _converters.DepthStencilState(info.depthStencilState),
-            blendState: _converters.BlendState(info.blendState),
-            dynamicStates: info.dynamicStates,
-            renderPass: info.renderPass,
-            pipelineLayout: info.pipelineLayout,
-        }
-        return new gfx.PipelineStateInfo(jsbInfo);
-    },
     CommandBufferInfo: function (info) {
         return new gfx.CommandBufferInfo(info);
     },
@@ -388,7 +342,6 @@ deviceProtos.forEach(function(item, index) {
             createDescriptorSet: replaceFunction('_createDescriptorSet', _converters.DescriptorSetInfo),
             createDescriptorSetLayout: replaceFunction('_createDescriptorSetLayout', _converters.DescriptorSetLayoutInfo),
             createPipelineLayout: replaceFunction('_createPipelineLayout', _converters.PipelineLayoutInfo),
-            createPipelineState: replaceFunction('_createPipelineState', _converters.PipelineStateInfo),
             copyBuffersToTexture: replaceFunction('_copyBuffersToTexture', _converters.origin, _converters.origin, _converters.BufferTextureCopyList),
             copyTexImagesToTexture: replaceFunction('_copyTexImagesToTexture', _converters.texImagesToBuffers, _converters.origin, _converters.BufferTextureCopyList),
         });
@@ -451,11 +404,6 @@ replace(descriptorSetLayoutProto, {
 let pipelineLayoutProto = gfx.PipelineLayout.prototype;
 replace(pipelineLayoutProto, {
     initialize: replaceFunction('_initialize', _converters.PipelineLayoutInfo),
-});
-
-let pipelineStateProto = gfx.PipelineState.prototype;
-replace(pipelineStateProto, {
-    initialize: replaceFunction('_initialize', _converters.PipelineStateInfo),
 });
 
 let queueProto = gfx.Queue.prototype;

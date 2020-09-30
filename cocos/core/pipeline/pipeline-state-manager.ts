@@ -19,8 +19,7 @@ export class PipelineStateManager {
         let pso = this._PSOHashMap.get(newHash);
         if (!pso) {
             const pipelineLayout = PipelineLayoutPool.get(PassPool.get(hPass, PassView.PIPELINE_LAYOUT));
-            const inputState = new GFXInputState();
-            inputState.attributes = ia.attributes;
+            const inputState = new GFXInputState(ia.attributes);
             const psoInfo = new GFXPipelineStateInfo(
                 shader, pipelineLayout, renderPass, inputState,
                 RasterizerStatePool.get(PassPool.get(hPass, PassView.RASTERIZER_STATE)),
