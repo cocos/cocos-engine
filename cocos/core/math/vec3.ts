@@ -626,34 +626,65 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * x 分量。
+     * @en The x value of the vector.
+     * @zh x 分量。
      */
-    public declare x: number;
+    public get x (): number {
+        return this.v[0];
+    }
+    public set x (x: number) {
+        this.v[0] = x;
+    }
 
     /**
-     * y 分量。
+     * @en The y value of the vector.
+     * @zh y 分量。
      */
-    public declare y: number;
+    public get y (): number {
+        return this.v[1];
+    }
+    public set y (y: number) {
+        this.v[1] = y;
+    }
 
     /**
-     * z 分量。
+     * @en The z value of the vector.
+     * @zh z 分量。
      */
-    public declare z: number;
+    public get z (): number {
+        return this.v[2];
+    }
+    public set z (z: number) {
+        this.v[2] = z;
+    }
 
-    constructor (v: Vec3);
+    /**
+     * @en Get the internal data in vec3.
+     * @zh 获取 Vec3 的内部数据。
+     */
+    public declare v: Float32Array;
+
+    constructor (x: Vec3 | Float32Array);
 
     constructor (x?: number, y?: number, z?: number);
 
-    constructor (x?: number | Vec3, y?: number, z?: number) {
+    constructor (x?: number | Vec3 | Float32Array, y?: number, z?: number) {
         super();
         if (x && typeof x === 'object') {
-            this.x = x.x;
-            this.y = x.y;
-            this.z = x.z;
+            if (ArrayBuffer.isView(x)) {
+                this.v = x;
+            } else {
+                const v = x.v;
+                this.v = new Float32Array(3);
+                this.v[0] = v[0];
+                this.v[1] = v[1];
+                this.v[2] = v[2];
+            }
         } else {
-            this.x = x || 0;
-            this.y = y || 0;
-            this.z = z || 0;
+            this.v = new Float32Array(3);
+            this.v[0] = x || 0;
+            this.v[1] = y || 0;
+            this.v[2] = z || 0;
         }
     }
 
@@ -661,7 +692,7 @@ export class Vec3 extends ValueType {
      * @zh 克隆当前向量。
      */
     public clone () {
-        return new Vec3(this.x, this.y, this.z);
+        return new Vec3(this.v[0], this.v[1], this.v[2]);
     }
 
     /**
@@ -682,13 +713,14 @@ export class Vec3 extends ValueType {
 
     public set (x?: number | Vec3, y?: number, z?: number) {
         if (x && typeof x === 'object') {
-            this.x = x.x;
-            this.y = x.y;
-            this.z = x.z;
+            const v = x.v;
+            this.v[0] = v[0];
+            this.v[1] = v[1];
+            this.v[2] = v[2];
         } else {
-            this.x = x || 0;
-            this.y = y || 0;
-            this.z = z || 0;
+            this.v[0] = x || 0;
+            this.v[1] = y || 0;
+            this.v[2] = z || 0;
         }
         return this;
     }
@@ -700,13 +732,14 @@ export class Vec3 extends ValueType {
      * @returns 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
      */
     public equals (other: Vec3, epsilon = EPSILON) {
+        const v = other.v;
         return (
-            Math.abs(this.x - other.x) <=
-            epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x)) &&
-            Math.abs(this.y - other.y) <=
-            epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(other.y)) &&
-            Math.abs(this.z - other.z) <=
-            epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(other.z))
+            Math.abs(this.v[0] - v[0]) <=
+            epsilon * Math.max(1.0, Math.abs(this.v[0]), Math.abs(v[0])) &&
+            Math.abs(this.v[1] - v[1]) <=
+            epsilon * Math.max(1.0, Math.abs(this.v[1]), Math.abs(v[1])) &&
+            Math.abs(this.v[2] - v[2]) <=
+            epsilon * Math.max(1.0, Math.abs(this.v[2]), Math.abs(v[2]))
         );
     }
 
@@ -720,12 +753,12 @@ export class Vec3 extends ValueType {
      */
     public equals3f (x: number, y: number, z: number, epsilon = EPSILON) {
         return (
-            Math.abs(this.x - x) <=
-            epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(x)) &&
-            Math.abs(this.y - y) <=
-            epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(y)) &&
-            Math.abs(this.z - z) <=
-            epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(z))
+            Math.abs(this.v[0] - x) <=
+            epsilon * Math.max(1.0, Math.abs(this.v[0]), Math.abs(x)) &&
+            Math.abs(this.v[1] - y) <=
+            epsilon * Math.max(1.0, Math.abs(this.v[1]), Math.abs(y)) &&
+            Math.abs(this.v[2] - z) <=
+            epsilon * Math.max(1.0, Math.abs(this.v[2]), Math.abs(z))
         );
     }
 
@@ -735,7 +768,8 @@ export class Vec3 extends ValueType {
      * @returns 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
      */
     public strictEquals (other: Vec3) {
-        return this.x === other.x && this.y === other.y && this.z === other.z;
+        const v = other.v;
+        return this.v[0] === v[0] && this.v[1] === v[1] && this.v[2] === v[2];
     }
 
     /**
@@ -746,7 +780,7 @@ export class Vec3 extends ValueType {
      * @returns 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
      */
     public strictEquals3f (x: number, y: number, z: number) {
-        return this.x === x && this.y === y && this.z === z;
+        return this.v[0] === x && this.v[1] === y && this.v[2] === z;
     }
 
     /**
@@ -754,7 +788,7 @@ export class Vec3 extends ValueType {
      * @returns 当前向量的字符串表示。
      */
     public toString () {
-        return `(${this.x.toFixed(2)}, ${this.y.toFixed(2)}, ${this.z.toFixed(2)})`;
+        return `(${this.v[0].toFixed(2)}, ${this.v[1].toFixed(2)}, ${this.v[2].toFixed(2)})`;
     }
 
     /**
@@ -763,9 +797,9 @@ export class Vec3 extends ValueType {
      * @param ratio 插值比率，范围为 [0,1]。
      */
     public lerp (to: Vec3, ratio: number) {
-        this.x = this.x + ratio * (to.x - this.x);
-        this.y = this.y + ratio * (to.y - this.y);
-        this.z = this.z + ratio * (to.z - this.z);
+        this.v[0] = this.v[0] + ratio * (to.x - this.v[0]);
+        this.v[1] = this.v[1] + ratio * (to.y - this.v[1]);
+        this.v[2] = this.v[2] + ratio * (to.z - this.v[2]);
         return this;
     }
 
@@ -774,9 +808,10 @@ export class Vec3 extends ValueType {
      * @param other 指定的向量。
      */
     public add (other: Vec3) {
-        this.x = this.x + other.x;
-        this.y = this.y + other.y;
-        this.z = this.z + other.z;
+        const v = other.v;
+        this.v[0] = this.v[0] + v[0];
+        this.v[1] = this.v[1] + v[1];
+        this.v[2] = this.v[2] + v[2];
         return this;
     }
 
@@ -787,9 +822,9 @@ export class Vec3 extends ValueType {
      * @param z 指定的向量的 z 分量。
      */
     public add3f (x: number, y: number, z: number) {
-        this.x = this.x + x;
-        this.y = this.y + y;
-        this.z = this.z + z;
+        this.v[0] = this.v[0] + x;
+        this.v[1] = this.v[1] + y;
+        this.v[2] = this.v[2] + z;
         return this;
     }
 
@@ -798,9 +833,10 @@ export class Vec3 extends ValueType {
      * @param other 减数向量。
      */
     public subtract (other: Vec3) {
-        this.x = this.x - other.x;
-        this.y = this.y - other.y;
-        this.z = this.z - other.z;
+        const v = other.v;
+        this.v[0] = this.v[0] - v[0];
+        this.v[1] = this.v[1] - v[1];
+        this.v[2] = this.v[2] - v[2];
         return this;
     }
 
@@ -811,9 +847,9 @@ export class Vec3 extends ValueType {
      * @param z 指定的向量的 z 分量。
      */
     public subtract3f (x: number, y: number, z: number) {
-        this.x = this.x - x;
-        this.y = this.y - y;
-        this.z = this.z - z;
+        this.v[0] = this.v[0] - x;
+        this.v[1] = this.v[1] - y;
+        this.v[2] = this.v[2] - z;
         return this;
     }
 
@@ -823,9 +859,9 @@ export class Vec3 extends ValueType {
      */
     public multiplyScalar (scalar: number) {
         if (typeof scalar === 'object') { console.warn('should use Vec3.multiply for vector * vector operation'); }
-        this.x = this.x * scalar;
-        this.y = this.y * scalar;
-        this.z = this.z * scalar;
+        this.v[0] = this.v[0] * scalar;
+        this.v[1] = this.v[1] * scalar;
+        this.v[2] = this.v[2] * scalar;
         return this;
     }
 
@@ -835,9 +871,10 @@ export class Vec3 extends ValueType {
      */
     public multiply (other: Vec3) {
         if (typeof other !== 'object') { console.warn('should use Vec3.scale for vector * scalar operation'); }
-        this.x = this.x * other.x;
-        this.y = this.y * other.y;
-        this.z = this.z * other.z;
+        const v = other.v;
+        this.v[0] = this.v[0] * v[0];
+        this.v[1] = this.v[1] * v[1];
+        this.v[2] = this.v[2] * v[2];
         return this;
     }
 
@@ -848,9 +885,9 @@ export class Vec3 extends ValueType {
      * @param z 指定的向量的 z 分量。
      */
     public multiply3f (x: number, y: number, z: number) {
-        this.x = this.x * x;
-        this.y = this.y * y;
-        this.z = this.z * z;
+        this.v[0] = this.v[0] * x;
+        this.v[1] = this.v[1] * y;
+        this.v[2] = this.v[2] * z;
         return this;
     }
 
@@ -859,9 +896,10 @@ export class Vec3 extends ValueType {
      * @param other 指定的向量
      */
     public divide (other: Vec3) {
-        this.x = this.x / other.x;
-        this.y = this.y / other.y;
-        this.z = this.z / other.z;
+        const v = other.v;
+        this.v[0] = this.v[0] / v[0];
+        this.v[1] = this.v[1] / v[1];
+        this.v[2] = this.v[2] / v[2];
         return this;
     }
 
@@ -872,9 +910,9 @@ export class Vec3 extends ValueType {
      * @param z 指定的向量的 z 分量。
      */
     public divide3f (x: number, y: number, z: number) {
-        this.x = this.x / x;
-        this.y = this.y / y;
-        this.z = this.z / z;
+        this.v[0] = this.v[0] / x;
+        this.v[1] = this.v[1] / y;
+        this.v[2] = this.v[2] / z;
         return this;
     }
 
@@ -882,9 +920,9 @@ export class Vec3 extends ValueType {
      * @zh 将当前向量的各个分量取反
      */
     public negative () {
-        this.x = -this.x;
-        this.y = -this.y;
-        this.z = -this.z;
+        this.v[0] = -this.v[0];
+        this.v[1] = -this.v[1];
+        this.v[2] = -this.v[2];
         return this;
     }
 
@@ -895,9 +933,11 @@ export class Vec3 extends ValueType {
      * @returns `this`
      */
     public clampf (minInclusive: Vec3, maxInclusive: Vec3) {
-        this.x = clamp(this.x, minInclusive.x, maxInclusive.x);
-        this.y = clamp(this.y, minInclusive.y, maxInclusive.y);
-        this.z = clamp(this.z, minInclusive.z, maxInclusive.z);
+        const min = minInclusive.v;
+        const max = maxInclusive.v;
+        this.v[0] = clamp(this.v[0], min[0], max[0]);
+        this.v[1] = clamp(this.v[1], min[1], max[1]);
+        this.v[2] = clamp(this.v[2], min[2], max[2]);
         return this;
     }
 
@@ -907,7 +947,8 @@ export class Vec3 extends ValueType {
      * @returns 当前向量与指定向量点乘的结果。
      */
     public dot (other: Vec3) {
-        return this.x * other.x + this.y * other.y + this.z * other.z;
+        const v = other.v;
+        return this.v[0] * v[0] + this.v[1] * v[1] + this.v[2] * v[2];
     }
 
     /**
@@ -915,12 +956,16 @@ export class Vec3 extends ValueType {
      * @param other 指定的向量。
      */
     public cross (other: Vec3) {
-        const { x: ax, y: ay, z: az } = this;
-        const { x: bx, y: by, z: bz } = other;
+        const ax = this.v[0];
+        const ay = this.v[1];
+        const az = this.v[2];
+        const bx = other.v[0];
+        const by = other.v[1];
+        const bz = other.v[2];
 
-        this.x = ay * bz - az * by;
-        this.y = az * bx - ax * bz;
-        this.z = ax * by - ay * bx;
+        this.v[0] = ay * bz - az * by;
+        this.v[1] = az * bx - ax * bz;
+        this.v[2] = ax * by - ay * bx;
         return this;
     }
 
@@ -929,7 +974,7 @@ export class Vec3 extends ValueType {
      * @returns 向量的长度（模）。
      */
     public length () {
-        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+        return Math.sqrt(this.v[0] * this.v[0] + this.v[1] * this.v[1] + this.v[2] * this.v[2]);
     }
 
     /**
@@ -937,23 +982,23 @@ export class Vec3 extends ValueType {
      * @returns 向量长度（模）的平方。
      */
     public lengthSqr () {
-        return this.x * this.x + this.y * this.y + this.z * this.z;
+        return this.v[0] * this.v[0] + this.v[1] * this.v[1] + this.v[2] * this.v[2];
     }
 
     /**
      * @zh 将当前向量归一化
      */
     public normalize () {
-        const x = this.x;
-        const y = this.y;
-        const z = this.z;
+        const x = this.v[0];
+        const y = this.v[1];
+        const z = this.v[2];
 
         let len = x * x + y * y + z * z;
         if (len > 0) {
             len = 1 / Math.sqrt(len);
-            this.x = x * len;
-            this.y = y * len;
-            this.z = z * len;
+            this.v[0] = x * len;
+            this.v[1] = y * len;
+            this.v[2] = z * len;
         }
         return this;
     }
@@ -963,14 +1008,15 @@ export class Vec3 extends ValueType {
      * @param matrix 变换矩阵。
      */
     public transformMat4 (matrix: Mat4) {
-        const x = this.x;
-        const y = this.y;
-        const z = this.z;
-        let rhw = matrix.m03 * x + matrix.m07 * y + matrix.m11 * z + matrix.m15;
+        const x = this.v[0];
+        const y = this.v[1];
+        const z = this.v[2];
+        const v = matrix.v;
+        let rhw = v[3] * x + v[7] * y + v[11] * z + v[15];
         rhw = rhw ? 1 / rhw : 1;
-        this.x = (matrix.m00 * x + matrix.m04 * y + matrix.m08 * z + matrix.m12) * rhw;
-        this.y = (matrix.m01 * x + matrix.m05 * y + matrix.m09 * z + matrix.m13) * rhw;
-        this.z = (matrix.m02 * x + matrix.m06 * y + matrix.m10 * z + matrix.m14) * rhw;
+        this.v[0] = (v[0] * x + v[4] * y + v[8] * z + v[12]) * rhw;
+        this.v[1] = (v[1] * x + v[5] * y + v[9] * z + v[13]) * rhw;
+        this.v[2] = (v[2] * x + v[6] * y + v[10] * z + v[14]) * rhw;
         return this;
     }
 }

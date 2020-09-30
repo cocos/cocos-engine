@@ -11,7 +11,7 @@ const _matViewProj = new Mat4();
 const _matViewProjInv = new Mat4();
 
 export class SpotLight extends Light {
-    protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
+    protected declare _dir: Vec3;
     protected _size: number = 0.15;
     protected _range: number = 5.0;
     protected _spotAngle: number = Math.cos(Math.PI / 6);
@@ -83,6 +83,9 @@ export class SpotLight extends Light {
     public initialize () {
         super.initialize();
         LightPool.set(this._handle, LightView.ILLUMINANCE, 1700 / nt2lm(this._size));
+        const dir = LightPool.getTypedArray(this._handle, LightView.DIRECTION, LightView.DIRECTION+3);
+        dir.set([1.0, -1.0, -1.0]);
+        this._dir = new Vec3(dir);
     }
 
     public update () {
@@ -90,7 +93,6 @@ export class SpotLight extends Light {
             this._node.getWorldPosition(this._pos);
             Vec3.transformQuat(this._dir, _forward, this._node.getWorldRotation(_qt));
             Vec3.normalize(this._dir, this._dir);
-            LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
             aabb.set(this._aabb, this._pos.x, this._pos.y, this._pos.z, this._range, this._range, this._range);
 
             // view matrix

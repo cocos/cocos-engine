@@ -68,7 +68,6 @@ export class Fog {
     set fogColor (val: Color) {
         this._fogColor.set(val);
         Color.toArray(this._colorArray, this._fogColor);
-        FogPool.setVec4(this._handle, FogView.COLOR, this._fogColor);
     }
 
     get fogColor () {
@@ -181,7 +180,7 @@ export class Fog {
 
     protected _type = FogType.LINEAR;
     protected _fogColor = new Color('#C8C8C8');
-    protected _colorArray: Float32Array = new Float32Array([0.2, 0.2, 0.2, 1.0]);
+    protected declare _colorArray: Float32Array;
     protected _handle: FogHandle = NULL_HANDLE;
 
     get handle () : FogHandle {
@@ -190,11 +189,12 @@ export class Fog {
 
     constructor () {
         this._handle = FogPool.alloc();
+        this._colorArray = FogPool.getTypedArray(this._handle, FogView.COLOR, FogView.COLOR + 4);
+        this._colorArray.set([0.2, 0.2, 0.2, 1.0]);
     }
 
     public activate () {
         Color.toArray(this._colorArray, this._fogColor);
-        FogPool.setVec4(this._handle, FogView.COLOR, this._fogColor);
         FogPool.set(this._handle, FogView.TYPE, this.enabled ? this._type + 1 : 0);
         this._updatePipeline();
     }

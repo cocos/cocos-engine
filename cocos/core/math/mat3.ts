@@ -333,8 +333,7 @@ export class Mat3 extends ValueType {
             return out;
         }
 
-        up = up || Vec3.UNIT_Y;
-        Vec3.normalize(v3_1, Vec3.cross(v3_1, up, view));
+        Vec3.normalize(v3_1, Vec3.cross(v3_1, up || Vec3.UNIT_Y, view));
 
         if (Vec3.lengthSqr(v3_1) < EPSILON * EPSILON) {
             Mat3.identity(out);
@@ -612,49 +611,104 @@ export class Mat3 extends ValueType {
     /**
      * 矩阵第 0 列第 0 行的元素。
      */
-    public declare m00: number;
+    public get m00 (): number {
+        return this.v[0];
+    }
+    public set m00 (m: number) {
+        this.v[0] = m;
+    }
 
     /**
      * 矩阵第 0 列第 1 行的元素。
      */
-    public declare m01: number;
+    public get m01 (): number {
+        return this.v[1];
+    }
+    public set m01 (m: number) {
+        this.v[1] = m;
+    }
 
     /**
      * 矩阵第 0 列第 2 行的元素。
      */
-    public declare m02: number;
+    public get m02 (): number {
+        return this.v[2];
+    }
+    public set m02 (m: number) {
+        this.v[2] = m;
+    }
 
     /**
      * 矩阵第 1 列第 0 行的元素。
      */
-    public declare m03: number;
+    public get m03 (): number {
+        return this.v[3];
+    }
+    public set m03 (m: number) {
+        this.v[3] = m;
+    }
 
     /**
      * 矩阵第 1 列第 1 行的元素。
      */
-    public declare m04: number;
+    public get m04 (): number {
+        return this.v[4];
+    }
+    public set m04 (m: number) {
+        this.v[4] = m;
+    }
 
     /**
      * 矩阵第 1 列第 2 行的元素。
      */
-    public declare m05: number;
+    public get m05 (): number {
+        return this.v[5];
+    }
+    public set m05 (m: number) {
+        this.v[5] = m;
+    }
 
     /**
      * 矩阵第 2 列第 0 行的元素。
      */
-    public declare m06: number;
+    public get m06 (): number {
+        return this.v[6];
+    }
+    public set m06 (m: number) {
+        this.v[6] = m;
+    }
 
     /**
      * 矩阵第 2 列第 1 行的元素。
      */
-    public declare m07: number;
+    public get m07 (): number {
+        return this.v[7];
+    }
+    public set m07 (m: number) {
+        this.v[7] = m;
+    }
 
     /**
      * 矩阵第 2 列第 2 行的元素。
      */
-    public declare m08: number;
+    public get m08 (): number {
+        return this.v[8];
+    }
+    public set m08 (m: number) {
+        this.v[8] = m;
+    }
 
-    constructor (other: Mat3);
+    public get data (): Float32Array {
+        return this.v;
+    }
+
+    /**
+     * @en Get the internal data in mat3.
+     * @zh 获取 Mat3 的内部数据。
+     */
+    public declare v: Float32Array;
+
+    constructor (m00: Mat3 | Float32Array);
 
     constructor (
         m00?: number, m01?: number, m02?: number,
@@ -662,18 +716,26 @@ export class Mat3 extends ValueType {
         m06?: number, m07?: number, m08?: number);
 
     constructor (
-        m00: number | Mat3 = 1, m01: number = 0, m02: number = 0,
+        m00: number | Mat3 | Float32Array = 1, m01: number = 0, m02: number = 0,
         m03: number = 0, m04: number = 1, m05: number = 0,
-        m06: number = 0, m07: number = 0, m08: number = 1 ) {
+        m06: number = 0, m07: number = 0, m08: number = 1) {
         super();
-        if (typeof m00 === 'object') {
-            this.m00 = m00.m00; this.m01 = m00.m01; this.m02 = m00.m02;
-            this.m03 = m00.m03; this.m04 = m00.m04; this.m05 = m00.m05;
-            this.m06 = m00.m06; this.m07 = m00.m07; this.m08 = m00.m08;
+        if (m00 && typeof m00 === 'object') {
+            if (ArrayBuffer.isView(m00)) {
+                this.v = m00;
+                this.v.set([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+            } else {
+                const v = m00.v;
+                this.v = new Float32Array(12);
+                this.v[0] = v[0]; this.v[1] = v[1]; this.v[2] = v[2];
+                this.v[3] = v[3]; this.v[4] = v[4]; this.v[5] = v[5];
+                this.v[6] = v[6]; this.v[7] = v[7]; this.v[8] = v[8];
+            }
         } else {
-            this.m00 = m00; this.m01 = m01; this.m02 = m02;
-            this.m03 = m03; this.m04 = m04; this.m05 = m05;
-            this.m06 = m06; this.m07 = m07; this.m08 = m08;
+            this.v = new Float32Array(12);
+            this.v[0] = m00; this.v[1] = m01; this.v[2] = m02;
+            this.v[3] = m03; this.v[4] = m04; this.v[5] = m05;
+            this.v[6] = m06; this.v[7] = m07; this.v[8] = m08;
         }
     }
 
@@ -681,11 +743,11 @@ export class Mat3 extends ValueType {
      * @zh 克隆当前矩阵。
      */
     public clone () {
-        const t = this;
+        const m = this.v;
         return new Mat3(
-            t.m00, t.m01, t.m02,
-            t.m03, t.m04, t.m05,
-            t.m06, t.m07, t.m08);
+            m[0], m[1], m[2],
+            m[3], m[4], m[5],
+            m[6], m[7], m[8]);
     }
 
     /**
@@ -706,14 +768,15 @@ export class Mat3 extends ValueType {
     public set (m00: number | Mat3 = 1, m01: number = 0, m02: number = 0,
                 m03: number = 0, m04: number = 1, m05: number = 0,
                 m06: number = 0, m07: number = 0, m08: number = 1 ) {
-        if (typeof m00 === 'object') {
-            this.m00 = m00.m00; this.m01 = m00.m01; this.m02 = m00.m02;
-            this.m03 = m00.m03; this.m04 = m00.m04; this.m05 = m00.m05;
-            this.m06 = m00.m06; this.m07 = m00.m07; this.m08 = m00.m08;
+        if (m00 && typeof m00 === 'object') {
+            const v = m00.v;
+            this.v[0] = v[0]; this.v[1] = v[1]; this.v[2] = v[2];
+            this.v[3] = v[3]; this.v[4] = v[4]; this.v[5] = v[5];
+            this.v[6] = v[6]; this.v[7] = v[7]; this.v[8] = v[8];
         } else {
-            this.m00 = m00; this.m01 = m01; this.m02 = m02;
-            this.m03 = m03; this.m04 = m04; this.m05 = m05;
-            this.m06 = m06; this.m07 = m07; this.m08 = m08;
+            this.v[0] = m00; this.v[1] = m01; this.v[2] = m02;
+            this.v[3] = m03; this.v[4] = m04; this.v[5] = m05;
+            this.v[6] = m06; this.v[7] = m07; this.v[8] = m08;
         }
         return this;
     }
@@ -725,16 +788,17 @@ export class Mat3 extends ValueType {
      * @return 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
      */
     public equals (other: Mat3, epsilon = EPSILON): boolean {
+        const v = other.v;
         return (
-            Math.abs(this.m00 - other.m00) <= epsilon * Math.max(1.0, Math.abs(this.m00), Math.abs(other.m00)) &&
-            Math.abs(this.m01 - other.m01) <= epsilon * Math.max(1.0, Math.abs(this.m01), Math.abs(other.m01)) &&
-            Math.abs(this.m02 - other.m02) <= epsilon * Math.max(1.0, Math.abs(this.m02), Math.abs(other.m02)) &&
-            Math.abs(this.m03 - other.m03) <= epsilon * Math.max(1.0, Math.abs(this.m03), Math.abs(other.m03)) &&
-            Math.abs(this.m04 - other.m04) <= epsilon * Math.max(1.0, Math.abs(this.m04), Math.abs(other.m04)) &&
-            Math.abs(this.m05 - other.m05) <= epsilon * Math.max(1.0, Math.abs(this.m05), Math.abs(other.m05)) &&
-            Math.abs(this.m06 - other.m06) <= epsilon * Math.max(1.0, Math.abs(this.m06), Math.abs(other.m06)) &&
-            Math.abs(this.m07 - other.m07) <= epsilon * Math.max(1.0, Math.abs(this.m07), Math.abs(other.m07)) &&
-            Math.abs(this.m08 - other.m08) <= epsilon * Math.max(1.0, Math.abs(this.m08), Math.abs(other.m08))
+            Math.abs(this.v[0] - v[0]) <= epsilon * Math.max(1.0, Math.abs(this.v[0]), Math.abs(v[0])) &&
+            Math.abs(this.v[1] - v[1]) <= epsilon * Math.max(1.0, Math.abs(this.v[1]), Math.abs(v[1])) &&
+            Math.abs(this.v[2] - v[2]) <= epsilon * Math.max(1.0, Math.abs(this.v[2]), Math.abs(v[2])) &&
+            Math.abs(this.v[3] - v[3]) <= epsilon * Math.max(1.0, Math.abs(this.v[3]), Math.abs(v[3])) &&
+            Math.abs(this.v[4] - v[4]) <= epsilon * Math.max(1.0, Math.abs(this.v[4]), Math.abs(v[4])) &&
+            Math.abs(this.v[5] - v[5]) <= epsilon * Math.max(1.0, Math.abs(this.v[5]), Math.abs(v[5])) &&
+            Math.abs(this.v[6] - v[6]) <= epsilon * Math.max(1.0, Math.abs(this.v[6]), Math.abs(v[6])) &&
+            Math.abs(this.v[7] - v[7]) <= epsilon * Math.max(1.0, Math.abs(this.v[7]), Math.abs(v[7])) &&
+            Math.abs(this.v[8] - v[8]) <= epsilon * Math.max(1.0, Math.abs(this.v[8]), Math.abs(v[8]))
         );
     }
 
@@ -744,9 +808,10 @@ export class Mat3 extends ValueType {
      * @return 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
      */
     public strictEquals (other: Mat3): boolean {
-        return this.m00 === other.m00 && this.m01 === other.m01 && this.m02 === other.m02 &&
-            this.m03 === other.m03 && this.m04 === other.m04 && this.m05 === other.m05 &&
-            this.m06 === other.m06 && this.m07 === other.m07 && this.m08 === other.m08;
+        const v = other.v;
+        return this.v[0] === v[0] && this.v[1] === v[1] && this.v[2] === v[2] &&
+            this.v[3] === v[3] && this.v[4] === v[4] && this.v[5] === v[5] &&
+            this.v[6] === v[6] && this.v[7] === v[7] && this.v[8] === v[8];
     }
 
     /**
@@ -754,11 +819,10 @@ export class Mat3 extends ValueType {
      * @return 当前矩阵的字符串表示。
      */
     public toString () {
-        const t = this;
         return '[\n' +
-            t.m00 + ', ' + t.m01 + ', ' + t.m02 + ',\n' +
-            t.m03 + ',\n' + t.m04 + ', ' + t.m05 + ',\n' +
-            t.m06 + ', ' + t.m07 + ',\n' + t.m08 + '\n' +
+            this.v[0] + ', ' + this.v[1] + ', ' + this.v[2] + ',\n' +
+            this.v[3] + ',\n' + this.v[4] + ', ' + this.v[5] + ',\n' +
+            this.v[6] + ', ' + this.v[7] + ',\n' + this.v[8] + '\n' +
             ']';
     }
 
@@ -767,15 +831,15 @@ export class Mat3 extends ValueType {
      * @return `this`
      */
     public identity () {
-        this.m00 = 1;
-        this.m01 = 0;
-        this.m02 = 0;
-        this.m03 = 0;
-        this.m04 = 1;
-        this.m05 = 0;
-        this.m06 = 0;
-        this.m07 = 0;
-        this.m08 = 1;
+        this.v[0] = 1;
+        this.v[1] = 0;
+        this.v[2] = 0;
+        this.v[3] = 0;
+        this.v[4] = 1;
+        this.v[5] = 0;
+        this.v[6] = 0;
+        this.v[7] = 0;
+        this.v[8] = 1;
         return this;
     }
 
@@ -783,13 +847,13 @@ export class Mat3 extends ValueType {
      * @zh 计算当前矩阵的转置矩阵。
      */
     public transpose () {
-        const a01 = this.m01, a02 = this.m02, a12 = this.m05;
-        this.m01 = this.m03;
-        this.m02 = this.m06;
-        this.m03 = a01;
-        this.m05 = this.m07;
-        this.m06 = a02;
-        this.m07 = a12;
+        const a01 = this.v[1], a02 = this.v[2], a12 = this.v[5];
+        this.v[1] = this.v[3];
+        this.v[2] = this.v[6];
+        this.v[3] = a01;
+        this.v[5] = this.v[7];
+        this.v[6] = a02;
+        this.v[7] = a12;
         return this;
     }
 
@@ -797,9 +861,9 @@ export class Mat3 extends ValueType {
      * @zh 计算当前矩阵的逆矩阵。注意，在矩阵不可逆时，会返回一个全为 0 的矩阵。
      */
     public invert () {
-        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02;
-        const a10 = this.m03; const a11 = this.m04; const a12 = this.m05;
-        const a20 = this.m06; const a21 = this.m07; const a22 = this.m08;
+        const a00 = this.v[0]; const a01 = this.v[1]; const a02 = this.v[2];
+        const a10 = this.v[3]; const a11 = this.v[4]; const a12 = this.v[5];
+        const a20 = this.v[6]; const a21 = this.v[7]; const a22 = this.v[8];
 
         const b01 = a22 * a11 - a12 * a21;
         const b11 = -a22 * a10 + a12 * a20;
@@ -814,15 +878,15 @@ export class Mat3 extends ValueType {
         }
         det = 1.0 / det;
 
-        this.m00 = b01 * det;
-        this.m01 = (-a22 * a01 + a02 * a21) * det;
-        this.m02 = (a12 * a01 - a02 * a11) * det;
-        this.m03 = b11 * det;
-        this.m04 = (a22 * a00 - a02 * a20) * det;
-        this.m05 = (-a12 * a00 + a02 * a10) * det;
-        this.m06 = b21 * det;
-        this.m07 = (-a21 * a00 + a01 * a20) * det;
-        this.m08 = (a11 * a00 - a01 * a10) * det;
+        this.v[0] = b01 * det;
+        this.v[1] = (-a22 * a01 + a02 * a21) * det;
+        this.v[2] = (a12 * a01 - a02 * a11) * det;
+        this.v[3] = b11 * det;
+        this.v[4] = (a22 * a00 - a02 * a20) * det;
+        this.v[5] = (-a12 * a00 + a02 * a10) * det;
+        this.v[6] = b21 * det;
+        this.v[7] = (-a21 * a00 + a01 * a20) * det;
+        this.v[8] = (a11 * a00 - a01 * a10) * det;
         return this;
     }
 
@@ -831,9 +895,9 @@ export class Mat3 extends ValueType {
      * @return 当前矩阵的行列式。
      */
     public determinant (): number {
-        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02;
-        const a10 = this.m03; const a11 = this.m04; const a12 = this.m05;
-        const a20 = this.m06; const a21 = this.m07; const a22 = this.m08;
+        const a00 = this.v[0]; const a01 = this.v[1]; const a02 = this.v[2];
+        const a10 = this.v[3]; const a11 = this.v[4]; const a12 = this.v[5];
+        const a20 = this.v[6]; const a21 = this.v[7]; const a22 = this.v[8];
 
         return a00 * (a22 * a11 - a12 * a21) + a01 * (-a22 * a10 + a12 * a20) + a02 * (a21 * a10 - a11 * a20);
     }
@@ -843,15 +907,16 @@ export class Mat3 extends ValueType {
      * @param mat 相加的矩阵
      */
     public add (mat: Mat3) {
-        this.m00 = this.m00 + mat.m00;
-        this.m01 = this.m01 + mat.m01;
-        this.m02 = this.m02 + mat.m02;
-        this.m03 = this.m03 + mat.m03;
-        this.m04 = this.m04 + mat.m04;
-        this.m05 = this.m05 + mat.m05;
-        this.m06 = this.m06 + mat.m06;
-        this.m07 = this.m07 + mat.m07;
-        this.m08 = this.m08 + mat.m08;
+        const v = mat.v;
+        this.v[0] += v[0];
+        this.v[1] += v[1];
+        this.v[2] += v[2];
+        this.v[3] += v[3];
+        this.v[4] += v[4];
+        this.v[5] += v[5];
+        this.v[6] += v[6];
+        this.v[7] += v[7];
+        this.v[8] += v[8];
         return this;
     }
 
@@ -860,15 +925,16 @@ export class Mat3 extends ValueType {
      * @param mat 减数矩阵。
      */
     public subtract (mat: Mat3) {
-        this.m00 = this.m00 - mat.m00;
-        this.m01 = this.m01 - mat.m01;
-        this.m02 = this.m02 - mat.m02;
-        this.m03 = this.m03 - mat.m03;
-        this.m04 = this.m04 - mat.m04;
-        this.m05 = this.m05 - mat.m05;
-        this.m06 = this.m06 - mat.m06;
-        this.m07 = this.m07 - mat.m07;
-        this.m08 = this.m08 - mat.m08;
+        const v = mat.v;
+        this.v[0] -= v[0];
+        this.v[1] -= v[1];
+        this.v[2] -= v[2];
+        this.v[3] -= v[3];
+        this.v[4] -= v[4];
+        this.v[5] -= v[5];
+        this.v[6] -= v[6];
+        this.v[7] -= v[7];
+        this.v[8] -= v[8];
         return this;
     }
 
@@ -877,25 +943,26 @@ export class Mat3 extends ValueType {
      * @param mat 指定的矩阵。
      */
     public multiply (mat: Mat3) {
-        const a00 = this.m00, a01 = this.m01, a02 = this.m02,
-        a10 = this.m03, a11 = this.m04, a12 = this.m05,
-        a20 = this.m06, a21 = this.m07, a22 = this.m08;
+        const a00 = this.v[0], a01 = this.v[1], a02 = this.v[2],
+        a10 = this.v[3], a11 = this.v[4], a12 = this.v[5],
+        a20 = this.v[6], a21 = this.v[7], a22 = this.v[8];
 
-        const b00 = mat.m00, b01 = mat.m01, b02 = mat.m02;
-        const b10 = mat.m03, b11 = mat.m04, b12 = mat.m05;
-        const b20 = mat.m06, b21 = mat.m07, b22 = mat.m08;
+        const v = mat.v;
+        const b00 = v[0], b01 = v[1], b02 = v[2];
+        const b10 = v[3], b11 = v[4], b12 = v[5];
+        const b20 = v[6], b21 = v[7], b22 = v[8];
 
-        this.m00 = b00 * a00 + b01 * a10 + b02 * a20;
-        this.m01 = b00 * a01 + b01 * a11 + b02 * a21;
-        this.m02 = b00 * a02 + b01 * a12 + b02 * a22;
+        this.v[0] = b00 * a00 + b01 * a10 + b02 * a20;
+        this.v[1] = b00 * a01 + b01 * a11 + b02 * a21;
+        this.v[2] = b00 * a02 + b01 * a12 + b02 * a22;
 
-        this.m03 = b10 * a00 + b11 * a10 + b12 * a20;
-        this.m04 = b10 * a01 + b11 * a11 + b12 * a21;
-        this.m05 = b10 * a02 + b11 * a12 + b12 * a22;
+        this.v[3] = b10 * a00 + b11 * a10 + b12 * a20;
+        this.v[4] = b10 * a01 + b11 * a11 + b12 * a21;
+        this.v[5] = b10 * a02 + b11 * a12 + b12 * a22;
 
-        this.m06 = b20 * a00 + b21 * a10 + b22 * a20;
-        this.m07 = b20 * a01 + b21 * a11 + b22 * a21;
-        this.m08 = b20 * a02 + b21 * a12 + b22 * a22;
+        this.v[6] = b20 * a00 + b21 * a10 + b22 * a20;
+        this.v[7] = b20 * a01 + b21 * a11 + b22 * a21;
+        this.v[8] = b20 * a02 + b21 * a12 + b22 * a22;
         return this;
     }
 
@@ -904,15 +971,15 @@ export class Mat3 extends ValueType {
      * @param scalar 指定的标量。
      */
     public multiplyScalar (scalar: number) {
-        this.m00 = this.m00 * scalar;
-        this.m01 = this.m01 * scalar;
-        this.m02 = this.m02 * scalar;
-        this.m03 = this.m03 * scalar;
-        this.m04 = this.m04 * scalar;
-        this.m05 = this.m05 * scalar;
-        this.m06 = this.m06 * scalar;
-        this.m07 = this.m07 * scalar;
-        this.m08 = this.m08 * scalar;
+        this.v[0] *= scalar;
+        this.v[1] *= scalar;
+        this.v[2] *= scalar;
+        this.v[3] *= scalar;
+        this.v[4] *= scalar;
+        this.v[5] *= scalar;
+        this.v[6] *= scalar;
+        this.v[7] *= scalar;
+        this.v[8] *= scalar;
         return this;
     }
 
@@ -921,19 +988,14 @@ export class Mat3 extends ValueType {
      * @param vec 各个轴的缩放。
      */
     public scale (vec: Vec3) {
-        const x = vec.x, y = vec.y;
+        const x = vec.v[0], y = vec.v[1];
+        this.v[0] *= x;
+        this.v[1] *= x;
+        this.v[2] *= x;
 
-        this.m00 = x * this.m00;
-        this.m01 = x * this.m01;
-        this.m02 = x * this.m02;
-
-        this.m03 = y * this.m03;
-        this.m04 = y * this.m04;
-        this.m05 = y * this.m05;
-
-        this.m06 = this.m06;
-        this.m07 = this.m07;
-        this.m08 = this.m08;
+        this.v[3] *= y;
+        this.v[4] *= y;
+        this.v[5] *= y;
         return this;
     }
 
@@ -943,24 +1005,24 @@ export class Mat3 extends ValueType {
      * @param rad 旋转角度（弧度制）
      */
     public rotate (rad: number) {
-        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02;
-        const a10 = this.m03; const a11 = this.m04; const a12 = this.m05;
-        const a20 = this.m06; const a21 = this.m07; const a22 = this.m08;
+        const a00 = this.v[0]; const a01 = this.v[1]; const a02 = this.v[2];
+        const a10 = this.v[3]; const a11 = this.v[4]; const a12 = this.v[5];
+        const a20 = this.v[6]; const a21 = this.v[7]; const a22 = this.v[8];
 
         const s = Math.sin(rad);
         const c = Math.cos(rad);
 
-        this.m00 = c * a00 + s * a10;
-        this.m01 = c * a01 + s * a11;
-        this.m02 = c * a02 + s * a12;
+        this.v[0] = c * a00 + s * a10;
+        this.v[1] = c * a01 + s * a11;
+        this.v[2] = c * a02 + s * a12;
 
-        this.m03 = c * a10 - s * a00;
-        this.m04 = c * a11 - s * a01;
-        this.m05 = c * a12 - s * a02;
+        this.v[3] = c * a10 - s * a00;
+        this.v[4] = c * a11 - s * a01;
+        this.v[5] = c * a12 - s * a02;
 
-        this.m06 = a20;
-        this.m07 = a21;
-        this.m08 = a22;
+        this.v[6] = a20;
+        this.v[7] = a21;
+        this.v[8] = a22;
         return this;
     }
 
@@ -985,17 +1047,17 @@ export class Mat3 extends ValueType {
         const wy = w * y2;
         const wz = w * z2;
 
-        this.m00 = 1 - yy - zz;
-        this.m03 = yx - wz;
-        this.m06 = zx + wy;
+        this.v[0] = 1 - yy - zz;
+        this.v[3] = yx - wz;
+        this.v[6] = zx + wy;
 
-        this.m01 = yx + wz;
-        this.m04 = 1 - xx - zz;
-        this.m07 = zy - wx;
+        this.v[1] = yx + wz;
+        this.v[4] = 1 - xx - zz;
+        this.v[7] = zy - wx;
 
-        this.m02 = zx - wy;
-        this.m05 = zy + wx;
-        this.m08 = 1 - xx - yy;
+        this.v[2] = zx - wy;
+        this.v[5] = zy + wx;
+        this.v[8] = 1 - xx - yy;
         return this;
     }
 }

@@ -92,7 +92,6 @@ export class Shadows {
     set normal (val: Vec3) {
         Vec3.copy(this._normal, val);
         this.dirty = true;
-        ShadowsPool.setVec3(this._handle, ShadowsView.NORMAL, this._normal);
     }
 
     /**
@@ -189,7 +188,6 @@ export class Shadows {
     }
     public set size (val: Vec2) {
         this._size = val;
-        ShadowsPool.setVec2(this._handle, ShadowsView.SIZE, this._size);
     }
 
     /**
@@ -229,12 +227,12 @@ export class Shadows {
         return this._instancingMaterial;
     }
 
-    protected _normal = new Vec3(0, 1, 0);
+    protected declare _normal: Vec3;
     protected _shadowColor = new Color(0, 0, 0, 76);
     protected _matLight = new Mat4();
     protected _material: Material | null = null;
     protected _instancingMaterial: Material | null = null;
-    protected _size: Vec2 = new Vec2(512, 512);
+    protected declare _size: Vec2;
     protected _handle: ShadowsHandle = NULL_HANDLE;
     protected _sphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
 
@@ -244,6 +242,12 @@ export class Shadows {
 
     constructor () {
         this._handle = ShadowsPool.alloc();
+        const normal = ShadowsPool.getTypedArray(this._handle, ShadowsView.NORMAL, ShadowsView.NORMAL + 3);
+        const size = ShadowsPool.getTypedArray(this._handle, ShadowsView.SIZE, ShadowsView.SIZE + 2);
+        normal.set([0, 1, 0]);
+        size.set([512, 512]);
+        this._normal = new Vec3(normal);
+        this._size = new Vec2(size);
     }
 
     public activate () {

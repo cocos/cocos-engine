@@ -111,17 +111,17 @@ export class Camera {
     private _nearClip: number = 1.0;
     private _farClip: number = 1000.0;
     private _clearColor: Color = new Color(51, 51, 51, 255);
-    private _viewport: Rect = new Rect(0, 0, 1, 1);
+    private declare _viewport: Rect;
     private _isProjDirty = true;
-    private _matView: Mat4 = new Mat4();
+    private declare _matView: Mat4;
     private _matViewInv: Mat4 | null = null;
-    private _matProj: Mat4 = new Mat4();
-    private _matProjInv: Mat4 = new Mat4();
-    private _matViewProj: Mat4 = new Mat4();
-    private _matViewProjInv: Mat4 = new Mat4();
+    private declare _matProj: Mat4;
+    private declare _matProjInv: Mat4;
+    private declare _matViewProj: Mat4;
+    private declare _matViewProjInv: Mat4;
     private _frustum: frustum = new frustum();
-    private _forward: Vec3 = new Vec3();
-    private _position: Vec3 = new Vec3();
+    private declare _forward: Vec3;
+    private declare _position: Vec3;
     private _view: RenderView | null = null;
     private _visibility = CAMERA_DEFAULT_MASK;
     private _priority: number = 0;
@@ -140,7 +140,6 @@ export class Camera {
         this._apertureValue = FSTOPS[this._aperture];
         this._shutterValue = SHUTTERS[this._shutter];
         this._isoValue = ISOS[this._iso];
-
         this._aspect = this.screenScale = 1;
     }
 
@@ -157,6 +156,14 @@ export class Camera {
         CameraPool.set(handle, CameraView.CLEAR_FLAG, GFXClearFlag.NONE);
         CameraPool.set(handle, CameraView.CLEAR_DEPTH, 1.0);
         CameraPool.set(handle, CameraView.NODE, this._node.handle);
+        this._viewport = new Rect(CameraPool.getTypedArray(handle, CameraView.VIEW_PORT, CameraView.VIEW_PORT + 4));
+        this._position = new Vec3(CameraPool.getTypedArray(handle, CameraView.POSITION, CameraView.POSITION + 3));
+        this._forward = new Vec3(CameraPool.getTypedArray(handle, CameraView.FORWARD, CameraView.FORWARD + 3));
+        this._matView = new Mat4(CameraPool.getTypedArray(handle, CameraView.MAT_VIEW, CameraView.MAT_VIEW + 16));
+        this._matViewProj = new Mat4(CameraPool.getTypedArray(handle, CameraView.MAT_VIEW_PROJ, CameraView.MAT_VIEW_PROJ + 16));
+        this._matViewProjInv = new Mat4(CameraPool.getTypedArray(handle, CameraView.MAT_VIEW_PROJ_INV, CameraView.MAT_VIEW_PROJ_INV + 16));
+        this._matProj = new Mat4(CameraPool.getTypedArray(handle, CameraView.MAT_PROJ, CameraView.MAT_PROJ + 16));
+        this._matProjInv = new Mat4(CameraPool.getTypedArray(handle, CameraView.MAT_PROJ_INV, CameraView.MAT_PROJ_INV + 16));
         if (this._scene) CameraPool.set(handle, CameraView.SCENE, this._scene.handle);
         if (JSB) {
             this._frustumHandle = FrustumPool.alloc();
@@ -233,14 +240,10 @@ export class Camera {
         // view matrix
         if (this._node.hasChangedFlags || forceUpdate) {
             Mat4.invert(this._matView, this._node.worldMatrix);
-            CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW, this._matView);
-
             this._forward.x = -this._matView.m02;
             this._forward.y = -this._matView.m06;
             this._forward.z = -this._matView.m10;
             this._node.getWorldPosition(this._position);
-            CameraPool.setVec3(this._poolHandle, CameraView.POSITION, this._position);
-            CameraPool.setVec3(this._poolHandle, CameraView.FORWARD, this._forward);
         }
 
         // projection matrix
@@ -259,8 +262,6 @@ export class Camera {
                     this._device.clipSpaceMinZ, projectionSignY);
             }
             Mat4.invert(this._matProjInv, this._matProj);
-            CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ, this._matProj);
-            CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ_INV, this._matProjInv);
         }
 
         // view-projection
@@ -268,8 +269,6 @@ export class Camera {
             Mat4.multiply(this._matViewProj, this._matProj, this._matView);
             Mat4.invert(this._matViewProjInv, this._matViewProj);
             this._frustum.update(this._matViewProj, this._matViewProjInv);
-            CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ, this._matViewProj);
-            CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ_INV, this._matViewProjInv);
             this.recordFrustumInSharedMemory();
         }
 
@@ -284,7 +283,6 @@ export class Camera {
 
         // view matrix
         Mat4.invert(this._matView,  this._node.worldMatrix);
-        CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW, this._matView);
 
         // projection matrix
         if (this._proj === CameraProjection.PERSPECTIVE) {
@@ -400,7 +398,6 @@ export class Camera {
         else { this._viewport.y = 1 - val.y - val.height; }
         this._viewport.width = val.width;
         this._viewport.height = val.height;
-        CameraPool.setVec4(this._poolHandle, CameraView.VIEW_PORT, this._viewport);
         this.resize(this.width, this.height);
     }
 
@@ -425,8 +422,7 @@ export class Camera {
     }
 
     set matView (val) {
-        this._matView = val;
-        CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW, this._matView);
+        this._matView.set(val);
     }
 
     get matView () {
@@ -442,8 +438,7 @@ export class Camera {
     }
 
     set matProj (val) {
-        this._matProj = val;
-        CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ, this._matProj);
+        this._matProj.set(val);
     }
 
     get matProj () {
@@ -451,8 +446,7 @@ export class Camera {
     }
 
     set matProjInv (val) {
-        this._matProjInv = val;
-        CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ_INV, this._matProjInv);
+        this._matProjInv.set(val);
     }
 
     get matProjInv () {
@@ -460,8 +454,7 @@ export class Camera {
     }
 
     set matViewProj (val) {
-        this._matViewProj = val;
-        CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ, this._matViewProj);
+        this._matViewProj.set(val);
     }
 
     get matViewProj () {
@@ -469,8 +462,7 @@ export class Camera {
     }
 
     set matViewProjInv (val) {
-        this._matViewProjInv = val;
-        CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ_INV, this._matViewProjInv);
+        this._matViewProjInv.set(val);
     }
 
     get matViewProjInv () {
@@ -487,8 +479,7 @@ export class Camera {
     }
 
     set forward (val) {
-        this._forward = val;
-        CameraPool.setVec3(this._poolHandle, CameraView.FORWARD, this._forward);
+        this._forward.set(val);
     }
 
     get forward () {
@@ -496,8 +487,7 @@ export class Camera {
     }
 
     set position (val) {
-        this._position = val;
-        CameraPool.setVec3(this._poolHandle, CameraView.POSITION, this._position);
+        this._position.set(val);
     }
 
     get position () {

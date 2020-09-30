@@ -44,7 +44,6 @@ export class Light {
 
     set color (color: Vec3) {
         this._color.set(color);
-        LightPool.setVec3(this._handle, LightView.COLOR, color);
     }
 
     get color (): Vec3 {
@@ -62,7 +61,6 @@ export class Light {
     set colorTemperature (val: number) {
         this._colorTemp = val;
         ColorTemperatureToRGB(this._colorTempRGB, this._colorTemp);
-        LightPool.setVec3(this._handle, LightView.COLOR_TEMPERATURE_RGB, this._colorTempRGB);
     }
 
     get colorTemperature (): number {
@@ -105,9 +103,9 @@ export class Light {
         return this._handle;
     }
 
-    protected _color: Vec3 = new Vec3(1, 1, 1);
+    protected declare _color: Vec3;
     protected _colorTemp: number = 6550.0;
-    protected _colorTempRGB: Vec3 = new Vec3(1, 1, 1);
+    protected declare _colorTempRGB: Vec3;
     protected _scene: RenderScene | null = null;
     protected _node: Node | null = null;
     protected _type: LightType;
@@ -120,8 +118,12 @@ export class Light {
 
     public initialize () {
         this._handle = LightPool.alloc();
-        LightPool.setVec3(this._handle, LightView.COLOR, this._color);
-        LightPool.setVec3(this._handle, LightView.COLOR_TEMPERATURE_RGB, this._colorTempRGB);
+        const color = LightPool.getTypedArray(this._handle, LightView.COLOR, LightView.COLOR + 3);
+        const colorTempRGB = LightPool.getTypedArray(this._handle, LightView.COLOR_TEMPERATURE_RGB, LightView.COLOR_TEMPERATURE_RGB + 3);
+        color.set([1, 1, 1]);
+        colorTempRGB.set([1, 1, 1])
+        this._color = new Vec3(color);
+        this._colorTempRGB = new Vec3(colorTempRGB);
     }
 
     public attachToScene (scene: RenderScene) {

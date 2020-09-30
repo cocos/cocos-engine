@@ -153,26 +153,21 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends BufferManif
         this._bufferViews[chunk][entry][element as number] = value as number;
     }
 
-    public setVec2<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec2: Conditional<IVec2Like, M[K]>) {
-        // Web engine has Vec2 property, don't record it in shared memory.
-        if (!JSB) return;
-
+    public getTypedArray<K extends E[keyof E]> (handle: IHandle<P>, begin: K, end: K): T {
         const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
         const entry = this._entryMask & handle as unknown as number;
         if (DEBUG && (!handle || chunk < 0 || chunk >= this._bufferViews.length ||
             entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
             console.warn('invalid buffer pool handle');
-            return;
+            return [] as unknown as T;
         }
-        let index = element as unknown as number;
-        const view = this._bufferViews[chunk][entry];
-        view[index++] = vec2.x; view[index++] = vec2.y;
+        return this._bufferViews[chunk][entry].subarray(begin as number, end as number) as T;
     }
 
     public setVec3<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec3: Conditional<IVec3Like, M[K]>) {
-        // Web engine has Vec3 property, don't record it in shared memory.
         if (!JSB) return;
 
+        // Web engine has Vec3 property, don't record it in shared memory.
         const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
         const entry = this._entryMask & handle as unknown as number;
         if (DEBUG && (!handle || chunk < 0 || chunk >= this._bufferViews.length ||
@@ -186,7 +181,6 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends BufferManif
     }
 
     public setVec4<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec4: Conditional<IVec4Like, M[K]>) {
-        // Web engine has Vec4 property, don't record it in shared memory.
         if (!JSB) return;
 
         const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
@@ -200,25 +194,7 @@ class BufferPool<P extends PoolType, T extends TypedArray, E extends BufferManif
         const view = this._bufferViews[chunk][entry];
         view[index++] = vec4.x; view[index++] = vec4.y;
         view[index++] = vec4.z; view[index]   = vec4.w;
-    }
 
-    public setMat4<K extends E[keyof E]> (handle: IHandle<P>, element: K, mat4: Conditional<IMat4Like, M[K]>) {
-        // Web engine has mat4 property, don't record it in shared memory.
-        if (!JSB) return;
-
-        const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
-        const entry = this._entryMask & handle as unknown as number;
-        if (DEBUG && (!handle || chunk < 0 || chunk >= this._bufferViews.length ||
-            entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
-            console.warn('invalid buffer pool handle');
-            return;
-        }
-        let index = element as unknown as number;
-        const view = this._bufferViews[chunk][entry];
-        view[index++] = mat4.m00; view[index++] = mat4.m01; view[index++] = mat4.m02; view[index++] = mat4.m03;
-        view[index++] = mat4.m04; view[index++] = mat4.m05; view[index++] = mat4.m06; view[index++] = mat4.m07;
-        view[index++] = mat4.m08; view[index++] = mat4.m09; view[index++] = mat4.m10; view[index++] = mat4.m11;
-        view[index++] = mat4.m12; view[index++] = mat4.m13; view[index++] = mat4.m14; view[index]   = mat4.m15;
     }
 
     public free (handle: IHandle<P>) {
@@ -695,8 +671,6 @@ interface INodeViewType extends BufferTypeManifest<typeof NodeView> {
     [NodeView.WORLD_MATRIX]: Mat4;
     [NodeView.COUNT]: never;
 }
-// @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
-if (!JSB) { delete NodeView[NodeView.COUNT]; NodeView[NodeView.COUNT = NodeView.LAYER + 1] = 'COUNT'; }
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
 // but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
 // we'll have to explicitly declare all these types.
@@ -765,7 +739,6 @@ interface IAmbientViewType extends BufferTypeManifest<typeof AmbientView> {
     [AmbientView.COUNT]: never;
 }
 // @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
-if (!JSB) {delete AmbientView[AmbientView.COUNT]; AmbientView[AmbientView.COUNT = AmbientView.ILLUM + 1] = 'COUNT'; }
 export const AmbientPool = new BufferPool<PoolType.AMBIENT, Float32Array, typeof AmbientView, IAmbientViewType>(PoolType.AMBIENT, Float32Array, AmbientView, 1);
 
 export enum SkyboxView {
@@ -809,7 +782,6 @@ interface IFogViewType extends BufferTypeManifest<typeof FogView> {
     [FogView.COUNT]: never;
 }
 // @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
-if (!JSB) {delete FogView[FogView.COUNT]; FogView[FogView.COUNT = FogView.RANGE + 1] = 'COUNT'; }
 export const FogPool = new BufferPool<PoolType.FOG, Float32Array, typeof FogView, IFogViewType>(PoolType.FOG, Float32Array, FogView);
 
 export enum ShadowsView {
@@ -849,7 +821,6 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.COUNT]: never;
 }
 // @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
-if (!JSB) {delete ShadowsView[FogView.COUNT]; ShadowsView[ShadowsView.COUNT = ShadowsView.ORTHO_SIZE + 1] = 'COUNT'; }
 export const ShadowsPool = new BufferPool<PoolType.SHADOW, Float32Array, typeof ShadowsView, IShadowsViewType>(PoolType.SHADOW, Float32Array, ShadowsView, 1);
 
 export enum LightView {
@@ -871,3 +842,4 @@ interface ILightViewType extends BufferTypeManifest<typeof LightView> {
     [LightView.COUNT]: never;
 }
 export const LightPool = new BufferPool<PoolType.LIGHT, Float32Array, typeof LightView, ILightViewType>(PoolType.LIGHT, Float32Array, LightView, 3);
+

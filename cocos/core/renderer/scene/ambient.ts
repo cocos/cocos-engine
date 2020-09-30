@@ -36,7 +36,6 @@ export class Ambient {
     set skyColor (color: Color) {
         this._skyColor = color;
         Color.toArray(this._colorArray, this._skyColor);
-        AmbientPool.setVec4(this._handle, AmbientView.SKY_COLOR, this._skyColor);
     }
 
     /**
@@ -62,12 +61,11 @@ export class Ambient {
     set groundAlbedo (color: Color) {
         this._groundAlbedo = color;
         Vec3.toArray(this._albedoArray, this._groundAlbedo);
-        AmbientPool.setVec4(this._handle, AmbientView.GROUND_ALBEDO, this._groundAlbedo);
     }
     protected _skyColor = new Color(51, 128, 204, 1.0);
     protected _groundAlbedo = new Color(51, 51, 51, 255);
-    protected _albedoArray = Float32Array.from([0.2, 0.2, 0.2, 1.0]);
-    protected _colorArray = Float32Array.from([0.2, 0.5, 0.8, 1.0]);
+    protected declare _albedoArray: Float32Array;
+    protected declare _colorArray: Float32Array;
     protected _handle: AmbientHandle = NULL_HANDLE;
 
     get handle () : AmbientHandle {
@@ -76,13 +74,15 @@ export class Ambient {
 
     constructor () {
         this._handle = AmbientPool.alloc();
+        this._colorArray = AmbientPool.getTypedArray(this._handle, AmbientView.SKY_COLOR, AmbientView.SKY_COLOR + 4);
+        this._albedoArray = AmbientPool.getTypedArray(this._handle, AmbientView.GROUND_ALBEDO, AmbientView.GROUND_ALBEDO + 4);
+        this._colorArray.set([0.2, 0.5, 0.8, 1.0]);
+        this._albedoArray.set([0.2, 0.2, 0.2, 1.0]);
     }
 
     public activate () {
         Color.toArray(this._colorArray, this._skyColor);
         Vec3.toArray(this._albedoArray, this._groundAlbedo);
-        AmbientPool.setVec4(this._handle, AmbientView.SKY_COLOR, this._skyColor);
-        AmbientPool.setVec4(this._handle, AmbientView.GROUND_ALBEDO, this._groundAlbedo);
     }
 
     public destroy () {

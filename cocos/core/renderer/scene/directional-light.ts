@@ -65,7 +65,7 @@ export class DirectionalLight extends Light {
         return this._biasAutoAdjust;
     }
 
-    protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
+    protected declare _dir: Vec3;
 
     // shadow
     private _shadowRange: number = 1000.0;
@@ -79,9 +79,8 @@ export class DirectionalLight extends Light {
     private _biasAutoAdjust: number = 1.0;
 
     set direction (dir: Vec3) {
-        this._dir = dir;
+        this._dir.set(dir);
         Vec3.normalize(this._dir, this._dir);
-        LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
     }
 
     get direction (): Vec3 {
@@ -105,7 +104,9 @@ export class DirectionalLight extends Light {
     public initialize () {
         super.initialize();
         LightPool.set(this._handle, LightView.ILLUMINANCE, Ambient.SUN_ILLUM);
-        LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
+        const dir = LightPool.getTypedArray(this._handle, LightView.DIRECTION, LightView.DIRECTION+3);
+        dir.set([1.0, -1.0, -1.0]);
+        this._dir = new Vec3(dir);
     }
 
     public update () {

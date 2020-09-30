@@ -619,39 +619,72 @@ export class Quat extends ValueType {
     /**
      * x 分量。
      */
-    public declare x: number;
+    public get x (): number {
+        return this.v[0];
+    }
+    public set x (x: number) {
+        this.v[0] = x;
+    }
 
     /**
      * y 分量。
      */
-    public declare y: number;
+    public get y (): number {
+        return this.v[1];
+    }
+    public set y (y: number) {
+        this.v[1] = y;
+    }
 
     /**
      * z 分量。
      */
-    public declare z: number;
+    public get z (): number {
+        return this.v[2];
+    }
+    public set z (z: number) {
+        this.v[2] = z;
+    }
 
     /**
      * w 分量。
      */
-    public declare w: number;
+    public get w (): number {
+        return this.v[3];
+    }
+    public set w (w: number) {
+        this.v[3] = w;
+    }
 
-    constructor (other: Quat);
+    /**
+     * @en Get the internal data in quat.
+     * @zh 获取 Quat 的内部数据。
+     */
+    public declare v: Float32Array;
+
+    constructor (x: Quat | Float32Array);
 
     constructor (x?: number, y?: number, z?: number, w?: number);
 
-    constructor (x?: number | IQuatLike, y?: number, z?: number, w?: number) {
+    constructor (x?: number | Quat | Float32Array, y?: number, z?: number, w?: number) {
         super();
         if (x && typeof x === 'object') {
-            this.x = x.x;
-            this.y = x.y;
-            this.z = x.z;
-            this.w = x.w;
+            if (ArrayBuffer.isView(x)) {
+                this.v = x;
+            } else {
+                const v = x.v;
+                this.v = new Float32Array(4);
+                this.v[0] = v[0];
+                this.v[1] = v[1];
+                this.v[2] = v[2];
+                this.v[3] = v[3];
+            }
         } else {
-            this.x = x || 0;
-            this.y = y || 0;
-            this.z = z || 0;
-            this.w = w ?? 1;
+            this.v = new Float32Array(4);
+            this.v[0] = x || 0;
+            this.v[1] = y || 0;
+            this.v[2] = z || 0;
+            this.v[3] = w ?? 1;
         }
     }
 
@@ -659,7 +692,7 @@ export class Quat extends ValueType {
      * @zh 克隆当前四元数。
      */
     public clone () {
-        return new Quat(this.x, this.y, this.z, this.w);
+        return new Quat(this.v[0], this.v[1], this.v[2], this.v[3]);
     }
 
     /**
@@ -681,15 +714,16 @@ export class Quat extends ValueType {
 
     public set (x?: number | Quat, y?: number, z?: number, w?: number) {
         if (x && typeof x === 'object') {
-            this.x = x.x;
-            this.y = x.y;
-            this.z = x.z;
-            this.w = x.w;
+            const v = x.v;
+            this.v[0] = v[0];
+            this.v[1] = v[1];
+            this.v[2] = v[2];
+            this.v[3] = v[3];
         } else {
-            this.x = x || 0;
-            this.y = y || 0;
-            this.z = z || 0;
-            this.w = w ?? 1;
+            this.v[0] = x || 0;
+            this.v[1] = y || 0;
+            this.v[2] = z || 0;
+            this.v[3] = w ?? 1;
         }
         return this;
     }
@@ -701,10 +735,11 @@ export class Quat extends ValueType {
      * @returns 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
      */
     public equals (other: Quat, epsilon = EPSILON) {
-        return (Math.abs(this.x - other.x) <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x)) &&
-            Math.abs(this.y - other.y) <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(other.y)) &&
-            Math.abs(this.z - other.z) <= epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(other.z)) &&
-            Math.abs(this.w - other.w) <= epsilon * Math.max(1.0, Math.abs(this.w), Math.abs(other.w)));
+        const v = other.v;
+        return (Math.abs(this.v[0] - v[0]) <= epsilon * Math.max(1.0, Math.abs(this.v[0]), Math.abs(v[0])) &&
+            Math.abs(this.v[1] - v[1]) <= epsilon * Math.max(1.0, Math.abs(this.v[1]), Math.abs(v[1])) &&
+            Math.abs(this.v[2] - v[2]) <= epsilon * Math.max(1.0, Math.abs(this.v[2]), Math.abs(v[2])) &&
+            Math.abs(this.v[3] - v[3]) <= epsilon * Math.max(1.0, Math.abs(this.v[3]), Math.abs(v[3])));
     }
 
     /**
@@ -713,7 +748,8 @@ export class Quat extends ValueType {
      * @returns 两四元数的各分量都相等时返回 `true`；否则返回 `false`。
      */
     public strictEquals (other: Quat) {
-        return other && this.x === other.x && this.y === other.y && this.z === other.z && this.w === other.w;
+        const v = other.v;
+        return other && this.v[0] === v[0] && this.v[1] === v[1] && this.v[2] === v[2] && this.v[3] === v[3];
     }
 
     /**
@@ -730,10 +766,11 @@ export class Quat extends ValueType {
      * @param ratio 插值比率，范围为 [0,1]。
      */
     public lerp (to: Quat, ratio: number) {
-        this.x = this.x + ratio * (to.x - this.x);
-        this.y = this.y + ratio * (to.y - this.y);
-        this.z = this.z + ratio * (to.z - this.z);
-        this.w = this.w + ratio * (to.w - this.w);
+        const tq = to.v;
+        this.v[0] += ratio * (tq[0] - this.v[0]);
+        this.v[1] += ratio * (tq[1] - this.v[1]);
+        this.v[2] += ratio * (tq[2] - this.v[2]);
+        this.v[3] += ratio * (tq[3] - this.v[3]);
         return this;
     }
 
@@ -750,14 +787,16 @@ export class Quat extends ValueType {
      * @zh 求四元数长度
      */
     public length () {
-        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
+        const v = this.v;
+        return Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2] + v[3] * v[3]);
     }
 
     /**
      * @zh 求四元数长度平方
      */
     public lengthSqr () {
-        return this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w;
+        const v = this.v;
+        return v[0] * v[0] + v[1] * v[1] + v[2] * v[2] + v[3] * v[3];
     }
 }
 
