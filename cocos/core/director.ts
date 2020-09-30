@@ -1000,7 +1000,7 @@ export class Director extends EventTarget {
         }
         else if (!this._invalid) {
             // calculate "global" dt
-            if (!EDITOR) {
+            if (!EDITOR || legacyCC.GAME_VIEW) {
                 this.calculateDeltaTime(time);
             }
             const dt = this._deltaTime;
