@@ -39,10 +39,10 @@ import { CacheMode, HorizontalTextAlignment, Label, VerticalTextAlignment } from
 import { LabelOutline } from './label-outline';
 import { Sprite } from './sprite';
 import { UIComponent, UIRenderable, UITransform } from '../../core/components/ui-base';
-import { loader } from '../../core/load-pipeline';
 import { DEV, EDITOR } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 import { Component } from "../../core/components";
+import assetManager from '../../core/asset-manager/asset-manager';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
@@ -519,7 +519,7 @@ export class RichText extends UIComponent {
             }
             else {
                 const self = this;
-                loader.load(this._font.nativeUrl, (err, fontFamily) => {
+                assetManager.postLoadNative(this._font, (err) => {
                     self._layoutDirty = true;
                     self._updateRichText();
                 });

@@ -44,6 +44,7 @@ import { assets, BuiltinBundleName, bundles, ProgressCallback, CompleteCallback 
 import Task from './task';
 import { parseLoadResArgs, setDefaultProgressCallback } from './utilities';
 import { ISceneInfo } from './config';
+import factory from './factory';
 
 const ImageFmts = ['.png', '.jpg', '.bmp', '.jpeg', '.gif', '.ico', '.tiff', '.webp', '.image', '.pvr', '.pkm'];
 const AudioFmts = ['.mp3', '.ogg', '.wav', '.m4a'];
@@ -179,18 +180,14 @@ export class CCLoader {
                         let asset = item;
                         const url = (requests[i] as Record<string, any>).url;
                         if (images.includes(asset)) {
-                            asset = new ImageAsset();
-                            asset._nativeUrl = url;
-                            asset._nativeAsset = item;
-                            native[i] = asset;
-                            asset._uuid = url;
+                            factory.create(url, item, '.png', null, (err, image) => {
+                                asset = native[i] = image;
+                            });
                         }
                         else if (audios.includes(asset)) {
-                            asset = new AudioClip();
-                            asset._nativeUrl = url;
-                            asset._nativeAsset = item;
-                            native[i] = asset;
-                            asset._uuid = url;
+                            factory.create(url, item, '.mp3', null, (err, audio) => {
+                                asset = native[i] = audio;
+                            });
                         }
                         assets.add(url, asset);
                     }

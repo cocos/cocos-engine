@@ -300,6 +300,10 @@ textureUtil.addImage(): path should be non-null
 
 Lazy init texture with image element failed due to image loading failure: %s
 
+### 3121
+
+Can't find a texture format supported by the current platform! Please add a fallback format in the editor.
+
 ### 3300
 
 Rect width exceeds maximum margin: %s

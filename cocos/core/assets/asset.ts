@@ -30,11 +30,16 @@
 
 import { ccclass, serializable } from 'cc.decorator';
 import { property } from '../data/decorators/property';
+import { getUrlWithUuid } from '../asset-manager/helper';
 import { Eventify } from '../event';
 import { RawAsset } from './raw-asset';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
+import { extname } from '../utils/path';
+import { EDITOR } from 'internal:constants';
+
+const references = new WeakMap<Asset, any[]>();
 
 /**
  * @en
@@ -114,29 +119,24 @@ export class Asset extends Eventify(RawAsset) {
      * @readOnly
      */
     get nativeUrl () {
-        if (this._native) {
+        if (!this._nativeUrl) {
+            if (!this._native) return '';
             const name = this._native;
             if (name.charCodeAt(0) === 47) {    // '/'
                 // remove library tag
                 // not imported in library, just created on-the-fly
                 return name.slice(1);
             }
-            if (legacyCC.AssetLibrary) {
-                const base = legacyCC.AssetLibrary.getLibUrlNoExt(this._uuid, true);
-                if (name.charCodeAt(0) === 46) {  // '.'
-                    // imported in dir where json exist
-                    return base + name;
-                }
-                else {
-                    // imported in an independent dir
-                    return base + '/' + name;
-                }
+            if (name.charCodeAt(0) === 46) {  // '.'
+                // imported in dir where json exist
+                this._nativeUrl = getUrlWithUuid(this._uuid, { nativeExt: name, isNative: true });
             }
             else {
-                errorID(6400);
+                // imported in an independent dir
+                this._nativeUrl = getUrlWithUuid(this._uuid, { __nativeName__: name, nativeExt: extname(name), isNative: true });
             }
         }
-        return '';
+        return this._nativeUrl;
     }
 
     /**
@@ -241,6 +241,13 @@ export class Asset extends Eventify(RawAsset) {
         return this._ref;
     }
 
+    public constructor () {
+        super();
+        if (EDITOR) {
+            references.set(this, []);
+        }
+    }
+
     /**
      * @en
      * Add references of asset
@@ -253,6 +260,9 @@ export class Asset extends Eventify(RawAsset) {
      */
     public addRef (): Asset {
         this._ref++;
+        if (EDITOR && arguments.length > 0) {
+            references.get(this)!.push(arguments);
+        }
         return this;
     }
 

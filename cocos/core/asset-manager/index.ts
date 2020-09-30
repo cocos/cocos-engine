@@ -1,4 +1,5 @@
 
+import Bundle from './bundle';
 /*
  Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
 
@@ -24,7 +25,6 @@
  THE SOFTWARE.
  */
 
-// export * from './deprecated';
+export * from './deprecated';
 export { resources } from './bundle';
-export { default as assetManager } from './asset-manager';
-export * from './asset-manager';
+export { default as assetManager, AssetManager } from './asset-manager';

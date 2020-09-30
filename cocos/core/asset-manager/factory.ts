@@ -25,16 +25,18 @@
 import { AudioClip } from '../../audio/assets/clip';
 import { ImageAsset, JsonAsset, TextAsset, TTFFont, Asset } from '../assets';
 import { BufferAsset } from '../assets/buffer-asset';
+import { legacyCC } from '../global-exports';
 import { js } from '../utils/js';
 import Bundle, { resources } from './bundle';
 import Cache from './cache';
 import { IConfigOption } from './config';
-import { assets, BuiltinBundleName, CompleteCallback } from './shared';
-import { Options } from './shared';
+import { assets, BuiltinBundleName, bundles, CompleteCallback, IRemoteOptions } from './shared';
+import { IDownloadParseOptions } from './shared';
+import { cache } from './utilities';
 
-export type CreateHandler = (id: string, data: any, options: Options, onComplete: CompleteCallback<Asset|Bundle>) => void;
+export type CreateHandler = (id: string, data: any, options: IDownloadParseOptions, onComplete: CompleteCallback<Asset|Bundle>) => void;
 
-function createTexture (id: string, data: HTMLImageElement, options: Options, onComplete: CompleteCallback<ImageAsset>) {
+function createTexture (id: string, data: HTMLImageElement, options: IDownloadParseOptions, onComplete: CompleteCallback<ImageAsset>) {
     let out: ImageAsset | null = null;
     let err = null;
     try {
@@ -48,40 +50,40 @@ function createTexture (id: string, data: HTMLImageElement, options: Options, on
     onComplete(err, out);
 }
 
-function createAudioClip (id: string, data: HTMLAudioElement | AudioBuffer, options: Options, onComplete: CompleteCallback<AudioClip>) {
+function createAudioClip (id: string, data: HTMLAudioElement | AudioBuffer, options: IDownloadParseOptions, onComplete: CompleteCallback<AudioClip>) {
     const out = new AudioClip();
     out._nativeUrl = id;
     out._nativeAsset = data;
     onComplete(null, out);
 }
 
-function createJsonAsset (id: string, data: Record<string, any>, options: Options, onComplete: CompleteCallback<JsonAsset>) {
+function createJsonAsset (id: string, data: Record<string, any>, options: IDownloadParseOptions, onComplete: CompleteCallback<JsonAsset>) {
     const out = new JsonAsset();
     out.json = data;
     onComplete(null, out);
 }
 
-function createTextAsset (id: string, data: string, options: Options, onComplete: CompleteCallback<TextAsset>) {
+function createTextAsset (id: string, data: string, options: IDownloadParseOptions, onComplete: CompleteCallback<TextAsset>) {
     const out = new TextAsset();
     out.text = data;
     onComplete(null, out);
 }
 
-function createFont (id: string, data: string, options: Options, onComplete: CompleteCallback<TTFFont>) {
+function createFont (id: string, data: string, options: IDownloadParseOptions, onComplete: CompleteCallback<TTFFont>) {
     const out = new TTFFont();
     out._nativeUrl = id;
     out._nativeAsset = data;
     onComplete(null, out);
 }
 
-function createBufferAsset (id: string, data: ArrayBufferView, options: Options, onComplete: CompleteCallback<BufferAsset>) {
+function createBufferAsset (id: string, data: ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<BufferAsset>) {
     const out = new BufferAsset();
     out._nativeUrl = id;
     out._nativeAsset = data;
     onComplete(null, out);
 }
 
-function createAsset (id: string, data: any, options: Options, onComplete: CompleteCallback<Asset>) {
+function createAsset (id: string, data: any, options: IDownloadParseOptions, onComplete: CompleteCallback<Asset>) {
     const out = new Asset();
     out._nativeUrl = id;
     out._nativeAsset = data;
@@ -89,9 +91,12 @@ function createAsset (id: string, data: any, options: Options, onComplete: Compl
 }
 
 function createBundle (id: string, data: IConfigOption, options, onComplete) {
-    const bundle = data.name === BuiltinBundleName.RESOURCES ? resources : new Bundle();
-    data.base = data.base || id + '/';
-    bundle.init(data);
+    let bundle = bundles.get(data.name);
+    if (!bundle) {
+        bundle = data.name === BuiltinBundleName.RESOURCES ? resources : new Bundle();
+        data.base = data.base || id + '/';
+        bundle.init(data);
+    }
     onComplete(null, bundle);
 }
 
@@ -162,10 +167,10 @@ export class Factory {
         }
     }
 
-    public create (id: string, data: any, type: string, options: Options, onComplete: CompleteCallback<Asset | Bundle>): void {
+    public create (id: string, data: any, type: string, options: IRemoteOptions, onComplete: CompleteCallback<Asset | Bundle>): void {
         const handler = this._producers[type] || this._producers.default;
         const asset = assets.get(id);
-        if (asset) {
+        if (!options.reloadAsset && asset) {
             return onComplete(null, asset);
         }
         const creating = this._creating.get(id);
@@ -178,7 +183,9 @@ export class Factory {
         handler(id, data, options, (err, result) => {
             if (!err && result instanceof Asset) {
                 result._uuid = id;
-                assets.add(id, result);
+                if (options.cacheAsset) {
+                    cache(id, result, options.cacheAsset);
+                }
             }
             const callbacks = this._creating.remove(id);
             for (let i = 0, l = callbacks!.length; i < l; i++) {

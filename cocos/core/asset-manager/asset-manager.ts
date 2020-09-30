@@ -23,30 +23,97 @@
  THE SOFTWARE.
  */
 
+import { EDITOR } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { legacyCC } from '../global-exports';
 import { error } from '../platform/debug';
 import { basename, extname } from '../utils/path';
 import Bundle from './bundle';
+import { IAddressableInfo, IAssetInfo, ISceneInfo } from './config';
 import Cache from './cache';
 import CacheManager from './cache-manager';
 import dependUtil from './depend-util';
-import downloader from './downloader';
+import downloader, { DownloadHandler } from './downloader';
 import factory from './factory';
 import fetch from './fetch';
 import * as helper from './helper';
 import load from './load';
-import packManager from './pack-manager';
-import parser from './parser';
-import { IPipe, Pipeline } from './pipeline';
+import packManager, { Unpacker } from './pack-manager';
+import parser, { ParseHandler } from './parser';
+import { IPipe, Pipeline, IAsyncPipe, ISyncPipe } from './pipeline';
 import preprocess from './preprocess';
 import releaseManager from './releaseManager';
 import RequestItem from './request-item';
-import { CompleteCallback, CompleteCallbackNoData, Options, presets, ProgressCallback, Request } from './shared';
-import { assets, BuiltinBundleName, bundles, fetchPipeline, files, parsed, pipeline, RequestType, transformPipeline } from './shared';
-import Task from './task';
+import { 
+    CompleteCallback,
+    CompleteCallbackNoData,
+    ProgressCallback,
+    IBundleOptions,
+    INativeAssetOptions, 
+    IOptions,
+    IRemoteOptions,
+    presets,
+    Request,
+    IXHROptions,
+    IRequest,
+    IAssetOptions,
+    IDownloadParseOptions,
+} from './shared';
+import { assets, BuiltinBundleName, bundles, fetchPipeline, files, parsed, pipeline, transformPipeline } from './shared';
+import Task, { ITaskOption, TaskCompleteCallback, TaskProgressCallback, TaskErrorCallback } from './task';
 import { combine, parse } from './urlTransformer';
 import { asyncify, parseParameters } from './utilities';
+
+/**
+ * @zh
+ * AssetManager 配置。
+ * @en
+ * AssetManager configuration.
+ */
+export interface IAssetManagerOptions {
+    /* Only valid on Editor */
+    importBase?: string;
+    /* Only valid on Editor */
+    nativeBase?: string;
+    /* Only valid on native */
+    jsbDownloaderMaxTasks?: number;
+    /* Only valid on native */
+    jsbDownloaderTimeout?: number;
+
+    /**
+     * @zh
+     * 所有 bundle 的版本信息
+     * @en
+     * Version for all bundles
+     */
+    bundleVers?: Record<string, string>;
+
+    /**
+     * @zh
+     * 远程服务器地址
+     * @en
+     * Remote server address
+     */
+    server?: string;
+
+    /**
+     * @zh
+     * 配置为子包的 bundle
+     * @en
+     * All subpackages
+     */
+    subpackages?: string[];
+
+    /**
+     * @zh
+     * 配置为远程包的 bundle
+     * @en
+     * All remote bundles
+     */
+    remoteBundles?: string[];
+
+}
+
 
 /**
  * @en
@@ -58,13 +125,6 @@ import { asyncify, parseParameters } from './utilities';
  *
  */
 export class AssetManager {
-
-    public static Pipeline = Pipeline;
-    public static Task = Task;
-    public static Cache = Cache;
-    public static RequestItem = RequestItem;
-    public static Bundle = Bundle;
-    public static BuiltinBundleName = BuiltinBundleName;
 
     /**
      * @en
@@ -135,7 +195,7 @@ export class AssetManager {
      * 是否强制加载资源, 如果为 true ，加载资源将会忽略报错
      *
      */
-    public force = false;
+    public force = EDITOR ? true : false;
 
     /**
      * @en
@@ -209,13 +269,13 @@ export class AssetManager {
 
     public factory = factory;
 
+    public preprocessPipe: IPipe = preprocess;
+
+    public fetchPipe: IPipe = fetch;
+
+    public loadPipe: IPipe = load;
+
     private _releaseManager = releaseManager;
-
-    private _preprocessPipe: IPipe = preprocess;
-
-    private _fetchPipe: IPipe = fetch;
-
-    private _loadPipe: IPipe = load;
 
     private _files = files;
 
@@ -254,18 +314,18 @@ export class AssetManager {
      * @param options - the configuration
      *
      */
-    public init (options: Record<string, any> = Object.create(null)) {
+    public init (options: IAssetManagerOptions = {}) {
         this._files.clear();
         this._parsed.clear();
         this._releaseManager.init();
         this.assets.clear();
         this.bundles.clear();
         this.packManager.init();
-        this.downloader.init(options.bundleVers);
+        this.downloader.init(options.bundleVers, options.server);
         this.parser.init();
         this.dependUtil.init();
-        this.generalImportBase = options.importBase;
-        this.generalNativeBase = options.nativeBase;
+        this.generalImportBase = options.importBase || '';
+        this.generalNativeBase = options.nativeBase || '';
     }
 
     /**
@@ -307,9 +367,9 @@ export class AssetManager {
         bundles.remove(bundle.name);
     }
 
-    public loadAny (requests: Request, options: Options | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback | null): void;
+    public loadAny (requests: Request, options: IOptions | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback | null): void;
     public loadAny (requests: Request, onProgress: ProgressCallback | null, onComplete: CompleteCallback | null): void;
-    public loadAny (requests: Request, options: Options | null, onComplete?: CompleteCallback | null): void;
+    public loadAny (requests: Request, options: IOptions | null, onComplete?: CompleteCallback | null): void;
     public loadAny (requests: Request, onComplete?: CompleteCallback | null): void;
 
     /**
@@ -322,8 +382,8 @@ export class AssetManager {
      * and `parser` as `options`. You can register you own handler downloader or parser to collect these custom parameters for some effect.
      *
      * Reserved Keyword: `uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`,
-     * `bundle`, `onFileProgress`, `maxConcurrency`, `maxRequestsPerFrame`, `maxRetryCount`, `version`, `responseType`,
-     * `withCredentials`, `mimeType`, `timeout`, `header`, `reload`, `cacheAsset`, `cacheEnabled`,
+     * `bundle`, `onFileProgress`, `maxConcurrency`, `maxRequestsPerFrame`, `maxRetryCount`, `version`, `xhrResponseType`,
+     * `xhrWithCredentials`, `xhrMimeType`, `xhrTimeout`, `xhrHeader`, `reloadAsset`, `cacheAsset`, `cacheEnabled`,
      * Please DO NOT use these words as custom options!
      *
      * @zh
@@ -333,8 +393,8 @@ export class AssetManager {
      * 形式传入加载流程中的 `downloader`, `parser` 的方法中, 你可以扩展 `downloader`, `parser` 收集参数完成想实现的效果。
      *
      * 保留关键字: `uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`, `bundle`, `onFileProgress`,
-     *  `maxConcurrency`, `maxRequestsPerFrame`, `maxRetryCount`, `version`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`,
-     *  `reload`, `cacheAsset`, `cacheEnabled`, 请不要使用这些字段为自定义参数!
+     *  `maxConcurrency`, `maxRequestsPerFrame`, `maxRetryCount`, `version`, `xhrResponseType`, `xhrWithCredentials`, `xhrMimeType`, `xhrTimeout`, `xhrHeader`,
+     *  `reloadAsset`, `cacheAsset`, `cacheEnabled`, 请不要使用这些字段为自定义参数!
      *
      * @param requests - The request you want to load
      * @param options - Optional parameters
@@ -364,19 +424,20 @@ export class AssetManager {
      *
      */
     public loadAny (requests: Request,
-                    options?: Options | ProgressCallback | CompleteCallback | null,
+                    options?: IOptions | ProgressCallback | CompleteCallback | null,
                     onProgress?: ProgressCallback | CompleteCallback | null,
                     onComplete?: CompleteCallback | null) {
 
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);
         opts.preset = opts.preset || 'default';
+        requests = Array.isArray(requests) ? requests.slice() : requests;
         const task = new Task({ input: requests, onProgress: onProg, onComplete: asyncify(onComp), options: opts });
         pipeline.async(task);
     }
 
-    public preloadAny (requests: Request, options: Options | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback<RequestItem[]>|null): void;
+    public preloadAny (requests: Request, options: IOptions | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback<RequestItem[]>|null): void;
     public preloadAny (requests: Request, onProgress: ProgressCallback | null, onComplete: CompleteCallback<RequestItem[]> | null): void;
-    public preloadAny (requests: Request, options: Options | null, onComplete?: CompleteCallback<RequestItem[]> | null): void;
+    public preloadAny (requests: Request, options: IOptions | null, onComplete?: CompleteCallback<RequestItem[]> | null): void;
     public preloadAny (requests: Request, onComplete?: CompleteCallback<RequestItem[]> | null): void;
 
     /**
@@ -405,17 +466,18 @@ export class AssetManager {
      *
      */
     public preloadAny (requests: Request,
-                       options?: Options | ProgressCallback | CompleteCallback<RequestItem[]> | null,
+                       options?: IOptions | ProgressCallback | CompleteCallback<RequestItem[]> | null,
                        onProgress?: ProgressCallback | CompleteCallback<RequestItem[]> | null,
                        onComplete?: CompleteCallback<RequestItem[]> | null) {
 
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);
         opts.preset = opts.preset || 'preload';
+        requests = Array.isArray(requests) ? requests.slice() : requests;
         const task = new Task({ input: requests, onProgress: onProg, onComplete: asyncify(onComp), options: opts });
         fetchPipeline.async(task);
     }
 
-    public postLoadNative (asset: Asset, options: Options | null, onComplete: CompleteCallbackNoData | null): void;
+    public postLoadNative (asset: Asset, options: INativeAssetOptions | null, onComplete: CompleteCallbackNoData | null): void;
     public postLoadNative (asset: Asset, onComplete?: CompleteCallbackNoData | null): void;
 
     /**
@@ -434,7 +496,7 @@ export class AssetManager {
      * cc.assetManager.postLoadNative(texture, (err) => console.log(err));
      *
      */
-    public postLoadNative (asset: Asset, options?: Options | CompleteCallbackNoData | null, onComplete?: CompleteCallbackNoData | null) {
+    public postLoadNative (asset: Asset, options?: INativeAssetOptions | CompleteCallbackNoData | null, onComplete?: CompleteCallbackNoData | null) {
         const { options: opts, onComplete: onComp } = parseParameters(options, undefined, onComplete);
 
         if (!asset._native || asset._nativeAsset) {
@@ -461,9 +523,8 @@ export class AssetManager {
         });
     }
 
-    public loadRemote<T extends Asset> (url: string, options: Options | null, onComplete?: CompleteCallback<T> | null): void;
+    public loadRemote<T extends Asset> (url: string, options: IRemoteOptions | null, onComplete?: CompleteCallback<T> | null): void;
     public loadRemote<T extends Asset> (url: string, onComplete?: CompleteCallback<T> | null): void;
-    public loadRemote<T extends Bundle> (url: string, options: Options | null, onComplete: CompleteCallback<T> | null): void;
     /**
      * @en
      * Load remote asset with url, such as audio, image, text and so on.
@@ -485,11 +546,11 @@ export class AssetManager {
      * cc.assetManager.loadRemote('http://www.cloud.com/test3', { ext: '.png' }, (err, texture) => console.log(err));
      *
      */
-    public loadRemote<T extends Asset|Bundle> (url: string, options?: Options | CompleteCallback<T> | null, onComplete?: CompleteCallback<T> | null) {
+    public loadRemote<T extends Asset> (url: string, options?: IRemoteOptions | CompleteCallback<T> | null, onComplete?: CompleteCallback<T> | null) {
 
         const { options: opts, onComplete: onComp } = parseParameters(options, undefined, onComplete);
 
-        if (this.assets.has(url)) {
+        if (!opts.reloadAsset && this.assets.has(url)) {
             return asyncify(onComp)(null, this.assets.get(url));
         }
 
@@ -508,33 +569,7 @@ export class AssetManager {
         });
     }
 
-    // public loadScript (url: string|string[], options: Options | null, onComplete?: CompleteCallbackNoData | null): void;
-    // public loadScript (url: string|string[], onComplete?: CompleteCallbackNoData | null): void;
-
-    // /**
-    //  * @en
-    //  * Load script
-    //  *
-    //  * @zh
-    //  * 加载脚本
-    //  *
-    //  * @param url - Url of the script
-    //  * @param options - Some optional paramters
-    //  * @param options.async - Indicate whether or not loading process should be async
-    //  * @param onComplete - Callback when script loaded or failed
-    //  * @param onComplete.err - The occurred error, null indicetes success
-    //  *
-    //  * @example
-    //  * loadScript('http://localhost:8080/index.js', null, (err) => console.log(err));
-    //  */
-    // public loadScript (url: string|string[], options?: Options | CompleteCallbackNoData | null, onComplete?: CompleteCallbackNoData | null) {
-    //     const { options: opts, onComplete: onComp } = parseParameters(options, undefined, onComplete);
-    //     opts.__requestType__ = RequestType.URL;
-    //     opts.preset = opts.preset || 'script';
-    //     this.loadAny(url, opts, onComp);
-    // }
-
-    public loadBundle (nameOrUrl: string, options: Options | null, onComplete?: CompleteCallback<Bundle> | null): void;
+    public loadBundle (nameOrUrl: string, options: IBundleOptions | null, onComplete?: CompleteCallback<Bundle> | null): void;
     public loadBundle (nameOrUrl: string, onComplete?: CompleteCallback<Bundle> | null): void;
 
     /**
@@ -555,7 +590,7 @@ export class AssetManager {
      * loadBundle('http://localhost:8080/test', null, (err, bundle) => console.log(err));
      *
      */
-    public loadBundle (nameOrUrl: string, options?: Options | CompleteCallback<Bundle> | null, onComplete?: CompleteCallback<Bundle> | null) {
+    public loadBundle (nameOrUrl: string, options?: IBundleOptions | CompleteCallback<Bundle> | null, onComplete?: CompleteCallback<Bundle> | null) {
         const { options: opts, onComplete: onComp } = parseParameters(options, undefined, onComplete);
 
         const bundleName = basename(nameOrUrl);
@@ -565,8 +600,18 @@ export class AssetManager {
         }
 
         opts.preset = opts.preset || 'bundle';
-        opts.ext = 'bundle';
-        this.loadRemote(nameOrUrl, opts, onComp);
+        opts.__isNative__ = true;
+        this.loadAny({ url: nameOrUrl }, opts, null, (err, data) => {
+            if (err) {
+                error(err.message, err.stack);
+                if (onComp) { onComp(err, null); }
+            }
+            else {
+                factory.create(nameOrUrl, data, 'bundle', opts, (p1, p2) => {
+                    if (onComp) { onComp(p1, p2 as Bundle); }
+                });
+            }
+        });
     }
 
     /**
@@ -622,6 +667,30 @@ export class AssetManager {
             releaseManager.tryRelease(asset, true);
         });
     }
+}
+
+export declare namespace AssetManager {
+    export { CompleteCallback, CompleteCallbackNoData, IOptions, ProgressCallback, Request }
+    export { Pipeline, IPipe, IAsyncPipe, ISyncPipe };
+    export { Task };
+    export { Cache };
+    export { RequestItem };
+    export { Bundle };
+    export { BuiltinBundleName };
+    export {
+        IAssetOptions,
+        IAssetManagerOptions,
+        IBundleOptions,
+        INativeAssetOptions,
+        IRemoteOptions,
+        presets,
+        IXHROptions,
+        IRequest,
+        IDownloadParseOptions,
+    };
+    export { IAddressableInfo, IAssetInfo, ISceneInfo };
+    export { ParseHandler, DownloadHandler, Unpacker };
+    export { ITaskOption, TaskCompleteCallback, TaskProgressCallback, TaskErrorCallback };
 }
 
 export default legacyCC.assetManager = new AssetManager();

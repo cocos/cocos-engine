@@ -24,11 +24,15 @@
  THE SOFTWARE.
  */
 import { getError } from '../platform/debug';
-import { CompleteCallback, Options } from './shared';
+import { CompleteCallback, IBundleOptions } from './shared';
 
 const downloaded = {};
 
-export default function downloadScript (url: string, options: Options, onComplete: CompleteCallback): HTMLScriptElement | null{
+export default function downloadScript (
+    url: string,
+    options: IBundleOptions,
+    onComplete: CompleteCallback
+    ): HTMLScriptElement | null{
 
     // no need to load script again
     if (downloaded[url]) {
@@ -42,7 +46,7 @@ export default function downloadScript (url: string, options: Options, onComplet
         script.crossOrigin = 'anonymous';
     }
 
-    script.async = options.async;
+    script.async = options.scriptAsyncLoading || false;
     script.src = url;
     function loadHandler () {
         script.parentNode!.removeChild(script);

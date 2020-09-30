@@ -22,12 +22,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { log } from '../platform';
+import { log } from '../platform/debug';
 import { sys } from '../platform/sys';
-import { CompleteCallback, Options } from './shared';
+import { CompleteCallback, IDownloadParseOptions } from './shared';
 const __audioSupport = sys.__audioSupport;
 
-export default function downloadDomAudio (url: string, options: Options, onComplete: CompleteCallback<HTMLAudioElement>): HTMLAudioElement {
+export default function downloadDomAudio (
+    url: string,
+    options: IDownloadParseOptions,
+    onComplete: CompleteCallback<HTMLAudioElement>
+    ): HTMLAudioElement {
 
     const dom = document.createElement('audio');
     dom.src = url;

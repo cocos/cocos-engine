@@ -23,9 +23,9 @@
  THE SOFTWARE.
  */
 
-import { warnID } from '../platform';
+import { warnID } from '../platform/debug';
 import { safeMeasureText } from '../utils/text-utils';
-import { CompleteCallback, Options } from './shared';
+import { CompleteCallback, IDownloadParseOptions } from './shared';
 
 interface IFontLoadHandle {
     fontFamilyName: string;
@@ -153,7 +153,7 @@ function nativeCheckFontLoaded (start: number, font: string, callback: CompleteC
     });
 }
 
-export function loadFont (url: string, options: Options, onComplete: CompleteCallback) {
+export function loadFont (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
     const fontFamilyName = _getFontFamily(url);
 
     // Already loaded fonts

@@ -22,11 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import SceneAsset from '../assets/scene-asset';
+import { legacyCC } from '../global-exports';
 import { error } from '../platform/debug';
-import { Scene } from '../scene-graph';
 import RequestItem from './request-item';
-import { bundles, Request, Options, transformPipeline } from './shared';
+import { bundles, Request, IOptions, transformPipeline } from './shared';
 import Task from './task';
 
 const _uuidRegex = /.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-]{8,})/;
@@ -76,7 +75,7 @@ export function getUuidFromURL (url: string): string {
  * var url = getUrlWithUuid('fcmR3XADNLgJ1ByKhqcC5Z', {isNative: true, nativeExt: '.png'});
  *
  */
-export function getUrlWithUuid (uuid: string, options?: Options | null): string {
+export function getUrlWithUuid (uuid: string, options?: IOptions | null): string {
     options = options || Object.create(null);
     options!.__isNative__ = options!.isNative;
     options!.ext = options!.nativeExt;
@@ -104,7 +103,7 @@ export function getUrlWithUuid (uuid: string, options?: Options | null): string 
  *
  */
 export function isScene (asset) {
-    return asset && (asset instanceof SceneAsset || asset instanceof Scene);
+    return asset && (asset instanceof legacyCC.SceneAsset || asset instanceof legacyCC.Scene);
 }
 
 /**
@@ -131,7 +130,7 @@ export function normalize (url: string): string {
     return url;
 }
 
-export function transform (input: Request, options?: Options | null): string | string[] {
+export function transform (input: Request, options?: IOptions | null): string | string[] {
     const subTask = Task.create({ input, options });
     const urls: string[] = [];
     try {

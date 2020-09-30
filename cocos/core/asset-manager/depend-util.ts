@@ -137,7 +137,7 @@ export class DependUtil {
      * @returns dependency list, include non-native and native dependency
      *
      * @example
-     * downloader.downloadFile('test.json', {responseType: 'json'}, null, (err, file) => {
+     * downloader.downloadFile('test.json', { xhrResponseType: 'json'}, null, (err, file) => {
      *     var dependencies = parse('fcmR3XADNLgJ1ByKhqcC5Z', file);
      * });
      *

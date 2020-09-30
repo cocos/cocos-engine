@@ -24,6 +24,7 @@
  */
 import { EDITOR } from 'internal:constants';
 import { Asset, Prefab, SceneAsset } from '../assets';
+import { legacyCC } from '../global-exports';
 import { error } from '../platform/debug';
 import { js } from '../utils/js';
 import { callInNextTick } from '../utils/misc';
@@ -32,7 +33,7 @@ import dependUtil from './depend-util';
 import { IDependProp } from './deserialize';
 import { isScene } from './helper';
 import RequestItem from './request-item';
-import { assets, AssetType, CompleteCallback, CompleteCallbackNoData, Options, ProgressCallback } from './shared';
+import { assets, AssetType, CompleteCallback, CompleteCallbackNoData, IOptions, ProgressCallback } from './shared';
 import Task from './task';
 
 let defaultProgressCallback: ProgressCallback | null = null;
@@ -85,8 +86,7 @@ export function retry (process: RetryFunction, times: number, wait: number, onCo
 }
 
 export function getDepends (uuid: string, data: Asset | Record<string, any>, exclude: Record<string, any>,
-                            depends: any[], preload: boolean, asyncLoadAssets: boolean, config: Config): Error | null {
-    let err = null;
+                            depends: any[], preload: boolean, asyncLoadAssets: boolean, config: Config): void {
     try {
         const info = dependUtil.parse(uuid, data);
         let includeNative = true;
@@ -126,13 +126,13 @@ export function getDepends (uuid: string, data: Asset | Record<string, any>, exc
         }
     }
     catch (e) {
-        err = e;
+        error(e.message, e.stack);
     }
-    return err;
 }
 
 export function cache (id: string, asset: Asset, cacheAsset: boolean) {
     if (!asset) { return; }
+    cacheAsset = cacheAsset !== undefined ? cacheAsset : legacyCC.assetManager.cacheAsset;
     if (!isScene(asset) && cacheAsset) {
         assets.add(id, asset);
     }
@@ -161,7 +161,46 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
                 missingAsset = true;
             }
             else {
-                depend.owner[depend.prop] = dependAsset.addRef();
+                depend.owner[depend.prop] = dependAsset.addRef(asset, depend.owner, depend.prop);
+            }
+            if (EDITOR && !isScene(asset)) {
+                let dependListener = legacyCC.assetManager.dependListener;
+                let assetListener = legacyCC.assetManager.assetListener;
+    
+                // @ts-ignore
+                function propSetter (asset, obj, propName, oldAsset, newAsset) {
+                    if (oldAsset === newAsset || obj[propName] === newAsset) {
+                        return;
+                    }
+                    if (asset instanceof legacyCC.Material && newAsset instanceof legacyCC.Texture2D) {
+                        for (let i = 0, l = asset.passes.length; i < l; i++) {
+                            if (asset.getProperty(propName, i) === oldAsset) {
+                                asset.setProperty(propName, newAsset, i);
+                            }
+                        }
+                    } else {
+                        obj[propName] = newAsset;
+                        asset.onLoaded && asset.onLoaded();
+                    }
+    
+                    dependListener.emit(asset._uuid, asset);
+                    assetListener.emit(asset._uuid, asset);
+                };
+    
+                if (dependListener) {
+                    item.references = {};
+                    for (let i = 0, l = depends.length; i < l; i++) {
+                        let dep = depends[i];
+                        let dependSrc = dep.uuid;
+                        if (dependSrc) {
+                            let dependObj = dep._owner;
+                            let dependProp = dep._ownerProp;
+                            let onDirty = propSetter.bind(null, asset, dependObj, dependProp);
+                            dependListener.on(dependSrc, onDirty);
+                            item.references[dependSrc] = onDirty;
+                        }
+                    }
+                }
             }
         }
 
@@ -228,7 +267,7 @@ export function forEach<T = any> (array: T[], process: ForEachFunction<T>, onCom
 }
 
 interface IParameters<T> {
-    options: Options;
+    options: IOptions;
     onProgress: ProgressCallback | null;
     onComplete: CompleteCallback<T> | null;
 }
@@ -239,7 +278,7 @@ interface ILoadResArgs<T> {
     onComplete: CompleteCallback<T> | null;
 }
 
-export function parseParameters<T = any> (options: Options | ProgressCallback | CompleteCallback<T> | null | undefined,
+export function parseParameters<T = any> (options: IOptions | ProgressCallback | CompleteCallback<T> | null | undefined,
                                           onProgress: ProgressCallback | CompleteCallback<T> | null | undefined,
                                           onComplete: CompleteCallback<T> | null | undefined): IParameters<T> {
     let optionsOut: any = options;

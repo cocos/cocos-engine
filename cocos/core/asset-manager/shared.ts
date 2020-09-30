@@ -31,8 +31,65 @@ import RequestItem from './request-item';
 export type CompleteCallback<T = any> = (err: Error | null, data?: T | null) => void;
 export type CompleteCallbackNoData = (err?: Error | null) => void;
 export type ProgressCallback = (finished: number, total: number, item: RequestItem) => void;
-export type Request = string | string[] | Record<string, any> | Array<Record<string, any>>;
-export type Options = Record<string, any>;
+export type Request = string | string[] | IRequest | Array<IRequest>;
+
+export interface IRequest extends IOptions {
+    uuid?: string;
+    url?: string;
+    path?: string;
+    dir?: string;
+    scene?: string;
+    [ k : string ]: any;
+}
+
+export interface IOptions extends IAssetOptions, IBundleOptions, IRemoteOptions {
+    type?: typeof Asset; 
+    bundle?: string;
+    [ k : string ]: any;
+};
+
+export interface IRemoteOptions extends IAssetOptions {
+    ext?: string;
+    [ k : string ]: any;
+}
+
+export interface IXHROptions {
+    xhrResponseType?: XMLHttpRequestResponseType;
+    xhrWithCredentials?: boolean;
+    xhrTimeout?: number;
+    xhrHeader?: Record<string, string>;
+    xhrMimeType?: string;
+    [ k : string ]: any;
+}
+
+export interface IAssetOptions extends INativeAssetOptions {
+    reloadAsset?: boolean;
+    cacheAsset?: boolean;
+    [ k : string ]: any;
+};
+
+export interface IDownloadParseOptions extends IXHROptions {
+    priority?: number;
+    audioLoadMode?: number; 
+    onFileProgress?: (loaded: number, total: number) => void; 
+    maxConcurrency?: number; 
+    maxRequestsPerFrame?: number; 
+    maxRetryCount?: number;
+    cacheEnabled?: boolean;
+    [ k : string ]: any;
+};
+
+export interface IBundleOptions extends INativeAssetOptions {
+    version?: string; 
+    scriptAsyncLoading?: boolean;
+    [ k : string ]: any;
+};
+
+export interface INativeAssetOptions extends IDownloadParseOptions {
+    preset?: string;
+    [ k : string ]: any;
+}
+
 export type AssetType = Constructor<Asset>;
 
 export const assets = new Cache<Asset>();

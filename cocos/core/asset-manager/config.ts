@@ -228,8 +228,8 @@ export default class Config {
     }
 
     public getSceneInfo (name: string): ISceneInfo | null {
-        if (!name.endsWith('.fire')) {
-            name += '.fire';
+        if (!name.endsWith('.scene')) {
+            name += '.scene';
         }
         if (name[0] !== '/' && !name.startsWith('db://')) {
             name = '/' + name;

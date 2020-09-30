@@ -1568,7 +1568,7 @@ export class Terrain extends Component {
                 for (const i of this._asset.layerInfos) {
                     const layer = new TerrainLayer();
                     layer.tileSize = i.tileSize;
-                    legacyCC.loader.loadRes(i.detailMap, Texture2D, (err, asset) => {
+                    legacyCC.resources.load(i.detailMap, Texture2D, (err, asset) => {
                         layer.detailMap = asset;
                     });
 

@@ -28,7 +28,7 @@ import { error, errorID } from '../platform/debug';
 import Config, { IAddressableInfo, IAssetInfo, IConfigOption, ISceneInfo } from './config';
 import releaseManager from './releaseManager';
 import RequestItem from './request-item';
-import { assets, AssetType, bundles, CompleteCallback, CompleteCallbackNoData, Options, ProgressCallback, RequestType } from './shared';
+import { assets, AssetType, bundles, CompleteCallback, CompleteCallbackNoData, IAssetOptions, ProgressCallback, RequestType } from './shared';
 import { parseLoadResArgs, parseParameters } from './utilities';
 
 /**
@@ -379,9 +379,9 @@ export default class Bundle {
         legacyCC.assetManager.preloadAny(dir, { __requestType__: RequestType.DIR, type: _type, bundle: this.name }, onProg, onComp);
     }
 
-    public loadScene (sceneName: string, options: Options | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback<SceneAsset> | null): void;
+    public loadScene (sceneName: string, options: IAssetOptions | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback<SceneAsset> | null): void;
     public loadScene (sceneName: string, onProgress: ProgressCallback | null, onComplete: CompleteCallback<SceneAsset> | null): void;
-    public loadScene (sceneName: string, options: Options | null, onComplete?: CompleteCallback<SceneAsset> | null): void;
+    public loadScene (sceneName: string, options: IAssetOptions | null, onComplete?: CompleteCallback<SceneAsset> | null): void;
     public loadScene (sceneName: string, onComplete?: CompleteCallback<SceneAsset> | null): void;
     /**
      * @en
@@ -405,7 +405,7 @@ export default class Bundle {
      *
      */
     public loadScene (sceneName: string,
-                      options?: Options | ProgressCallback | CompleteCallback<SceneAsset> | null,
+                      options?: IAssetOptions | ProgressCallback | CompleteCallback<SceneAsset> | null,
                       onProgress?: ProgressCallback | CompleteCallback<SceneAsset> | null,
                       onComplete?: CompleteCallback<SceneAsset> | null) {
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);
@@ -430,9 +430,9 @@ export default class Bundle {
         });
     }
 
-    public preloadScene (sceneName: string, options: Options | null, onProgress: ProgressCallback, onComplete: CompleteCallbackNoData | null): void;
+    public preloadScene (sceneName: string, options: IAssetOptions | null, onProgress: ProgressCallback, onComplete: CompleteCallbackNoData | null): void;
     public preloadScene (sceneName: string, onProgress: ProgressCallback | null, onComplete: CompleteCallbackNoData | null): void;
-    public preloadScene (sceneName: string, options: Options | null, onComplete?: CompleteCallbackNoData | null): void;
+    public preloadScene (sceneName: string, options: IAssetOptions | null, onComplete?: CompleteCallbackNoData | null): void;
     public preloadScene (sceneName: string, onComplete?: CompleteCallbackNoData | null): void;
 
     /**
@@ -461,7 +461,7 @@ export default class Bundle {
      *
      */
     public preloadScene (sceneName: string,
-                         options?: Options | ProgressCallback | CompleteCallbackNoData | null,
+                         options?: IAssetOptions | ProgressCallback | CompleteCallbackNoData | null,
                          onProgress?: ProgressCallback | CompleteCallbackNoData | null,
                          onComplete?: CompleteCallbackNoData | null) {
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);

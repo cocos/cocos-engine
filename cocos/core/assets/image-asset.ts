@@ -34,7 +34,7 @@ import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { EDITOR, MINIGAME, ALIPAY } from 'internal:constants';
 import { legacyCC } from '../global-exports';
-import { warnID } from '../platform/debug';
+import { warnID, getError } from '../platform/debug';
 
 /**
  * 内存图像源。
@@ -222,7 +222,6 @@ export class ImageAsset extends Asset {
         if (this.data && this.data instanceof HTMLImageElement) {
             this.data.src = "";
             this._setRawAsset("");
-            legacyCC.loader.removeItem(this.data.id);
         }
         return super.destroy();
     }
@@ -302,13 +301,8 @@ export class ImageAsset extends Asset {
             this._setRawAsset(ext);
             this._format = format;
         }
-
-        // preset uuid to get correct nativeUrl
-        const loadingItem = handle.customEnv;
-        const uuid = loadingItem && loadingItem.uuid;
-        if (uuid) {
-            this._uuid = uuid;
-            this._url = this.nativeUrl;
+        else {
+            throw new Error(getError(3121));
         }
     }
 

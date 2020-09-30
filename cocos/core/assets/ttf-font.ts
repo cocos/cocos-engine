@@ -29,6 +29,7 @@
  */
 
 import {ccclass, string, override, serializable} from 'cc.decorator';
+import { extname } from '../utils/path';
 import { Font } from './font';
 import { legacyCC } from '../global-exports';
 
@@ -51,6 +52,11 @@ export class TTFFont extends Font {
     }
     set _nativeAsset (value) {
         this._fontFamily = value || 'Arial';
+    }
+
+    @override
+    get _nativeDep () {
+        return { uuid: this._uuid, __nativeName__: this._native, ext: extname(this._native), __isNative__: true };
     }
 }
 

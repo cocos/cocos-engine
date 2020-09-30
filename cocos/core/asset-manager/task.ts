@@ -23,12 +23,10 @@
  THE SOFTWARE.
  */
 
-import { Options } from './shared';
-
-type TaskCompleteCallback = (err: Error | null | undefined, data: any) => void;
-type TaskProgressCallback = (...args: any[]) => void;
-type TaskErrorCallback = (...args: any[]) => void;
-interface ITaskOption {
+export type TaskCompleteCallback = (err: Error | null | undefined, data: any) => void;
+export type TaskProgressCallback = (...args: any[]) => void;
+export type TaskErrorCallback = (...args: any[]) => void;
+export interface ITaskOption {
     onComplete?: TaskCompleteCallback | null;
     onProgress?: TaskProgressCallback | null;
     onError?: TaskErrorCallback | null;
@@ -171,7 +169,7 @@ export default class Task {
      * 自定义参数
      *
      */
-    public options: Options | null = null;
+    public options: Record<string, any> | null = null;
 
     /**
      * @en

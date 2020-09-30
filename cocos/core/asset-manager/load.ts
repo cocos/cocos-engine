@@ -36,6 +36,7 @@ import { legacyCC } from '../global-exports';
 interface IProgress {
     finish: number;
     total: number;
+    canInvoke: boolean;
 }
 
 interface ILoadingRequest {
@@ -47,8 +48,10 @@ interface ILoadingRequest {
 
 export default function load (task: Task, done: CompleteCallbackNoData) {
 
+    let firstTask = false;
     if (!task.progress) {
-        task.progress = { finish: 0, total: task.input.length };
+        task.progress = { finish: 0, total: task.input.length, canInvoke: true };
+        firstTask = true;
     }
 
     const { options, progress } = task;
@@ -65,7 +68,15 @@ export default function load (task: Task, done: CompleteCallbackNoData) {
             options,
             progress,
             onComplete: (err, result) => {
-                if (err && !task.isFinish && !legacyCC.assetManager.force) { done(err); }
+                if (err && !task.isFinish) {
+                    if (!legacyCC.assetManager.force || firstTask) {
+                        error(err.message, err.stack);
+                        progress.canInvoke = false;
+                        done(err);
+                    } else if (progress.canInvoke) {
+                        task.dispatch('progress', ++progress.finish, progress.total, item);
+                    }
+                }
                 task.output.push(result);
                 subTask.recycle();
                 cb(null);
@@ -94,20 +105,11 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
     function fetch (task, done) {
         const item = task.output = task.input as RequestItem;
         const { options, isNative, uuid, file } = item;
-        const { reload } = options;
+        const { reloadAsset } = options;
 
-        if (file || (!reload && !isNative && assets.has(uuid))) { return done(); }
+        if (file || (!reloadAsset && !isNative && assets.has(uuid))) { return done(); }
 
         packManager.load(item, task.options, (err, data) => {
-            if (err) {
-                if (legacyCC.assetManager.force) {
-                    err = null;
-                }
-                else {
-                    error(err.message, err.stack);
-                }
-                data = null;
-            }
             item.file = data;
             done(err);
         });
@@ -122,14 +124,11 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
 
         if (item.isNative) {
             parser.parse(id, file, item.ext, options, (err, asset) => {
-                if (err) {
-                    if (!legacyCC.assetManager.force) {
-                        error(err.message, err.stack);
-                        return done(err);
-                    }
-                }
+                if (err) { return done(err); }
                 item.content = asset;
-                task.dispatch('progress', ++progress.finish, progress.total, item);
+                if (progress.canInvoke) {
+                    task.dispatch('progress', ++progress.finish, progress.total, item);
+                }
                 files.remove(id);
                 parsed.remove(id);
                 done();
@@ -140,7 +139,9 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
             if (uuid in exclude) {
 
                 const { finish, content, err, callbacks } = exclude[uuid];
-                task.dispatch('progress', ++progress.finish, progress.total, item);
+                if (progress.canInvoke) {
+                    task.dispatch('progress', ++progress.finish, progress.total, item);
+                }
 
                 if (finish || checkCircleReference(uuid, uuid, exclude)) {
                     if (content) { content.addRef(); }
@@ -152,12 +153,14 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                 }
             }
             else {
-                if (!options.reload && assets.has(uuid)) {
+                if (!options.reloadAsset && assets.has(uuid)) {
                     const asset = assets.get(uuid)!;
                     // @ts-ignore
                     if (options.__asyncLoadAssets__ || !asset.__asyncLoadAssets__) {
                         item.content = asset.addRef();
-                        task.dispatch('progress', ++progress.finish, progress.total, item);
+                        if (progress.canInvoke) {
+                            task.dispatch('progress', ++progress.finish, progress.total, item);
+                        }
                         done();
                     }
                     else {
@@ -166,16 +169,7 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                 }
                 else {
                     parser.parse(id, file, 'import', options, (err, asset: Asset) => {
-                        if (err) {
-                            if (legacyCC.assetManager.force) {
-                                err = null;
-                            }
-                            else {
-                                error(err.message, err.stack);
-                            }
-                            return done(err);
-                        }
-
+                        if (err) { return done(err); }
                         asset._uuid = uuid;
                         loadDepends(task, asset, done, true);
                     });
@@ -195,7 +189,9 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
     // add reference avoid being released during loading dependencies
     asset.addRef();
     getDepends(uuid, asset, Object.create(null), depends, false, __asyncLoadAssets__, config!);
-    task.dispatch('progress', ++progress.finish, progress.total += depends.length, item);
+    if (progress.canInvoke) {
+        task.dispatch('progress', ++progress.finish, progress.total += depends.length, item);
+    }
 
     const repeatItem: ILoadingRequest = task.options!.__exclude__[uuid] = { content: asset, finish: false, callbacks: [{ done, item }] };
 
@@ -245,7 +241,7 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
                     }
                     files.remove(id);
                     parsed.remove(id);
-                    cache(uuid, asset, cacheAsset !== undefined ? cacheAsset : legacyCC.assetManager.cacheAsset);
+                    cache(uuid, asset, cacheAsset);
                 }
                 subTask.recycle();
             }

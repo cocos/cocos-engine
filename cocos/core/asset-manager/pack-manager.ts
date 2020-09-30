@@ -32,9 +32,9 @@ import Cache from './cache';
 import downloader from './downloader';
 import { transform } from './helper';
 import RequestItem from './request-item';
-import { CompleteCallback, files, Options } from './shared';
+import { CompleteCallback, files, IDownloadParseOptions } from './shared';
 
-type Unpacker = (packUuid: string[], data: any, options: Options, onComplete: CompleteCallback) => void;
+export type Unpacker = (packUuid: string[], data: any, options: IDownloadParseOptions, onComplete: CompleteCallback) => void;
 
 interface IUnpackRequest {
     onComplete: CompleteCallback;
@@ -71,12 +71,12 @@ export class PackManager {
      * @param onComplete.content - The unpacked assets
      *
      * @example
-     * downloader.downloadFile('pack.json', {responseType: 'json'}, null, (err, file) => {
+     * downloader.downloadFile('pack.json', { xhrResponseType: 'json'}, null, (err, file) => {
      *      packManager.unpackJson(['a', 'b'], file, null, (err, data) => console.log(err));
      * });
      *
      */
-    public unpackJson (pack: string[], json: any, options: Options, onComplete: CompleteCallback<Record<string, any>>): void {
+    public unpackJson (pack: string[], json: any, options: IDownloadParseOptions, onComplete: CompleteCallback<Record<string, any>>): void {
 
         let out = js.createMap(true);
         let err: Error | null = null;
@@ -166,12 +166,12 @@ export class PackManager {
      * @param onComplete.data - Original assets
      *
      * @example
-     * downloader.downloadFile('pack.json', {responseType: 'json'}, null, (err, file) => {
+     * downloader.downloadFile('pack.json', {xhrResponseType: 'json'}, null, (err, file) => {
      *      packManager.unpack(['2fawq123d', '1zsweq23f'], file, '.json', null, (err, data) => console.log(err));
      * });
      *
      */
-    public unpack (pack: string[], data: any, type: string, options: Options, onComplete: CompleteCallback): void {
+    public unpack (pack: string[], data: any, type: string, options: IDownloadParseOptions, onComplete: CompleteCallback): void {
         if (!data) {
             onComplete(new Error('package data is wrong!'));
             return;
@@ -201,7 +201,7 @@ export class PackManager {
      * packManager.load(requestItem, null, (err, data) => console.log(err));
      *
      */
-    public load (item: RequestItem, options: Options | null, onComplete: CompleteCallback): void {
+    public load (item: RequestItem, options: IDownloadParseOptions | null, onComplete: CompleteCallback): void {
         // if not in any package, download as uausl
         if (item.isNative || !item.info || !item.info.packs) {
             return downloader.download(item.id, item.url, item.ext, item.options, onComplete);

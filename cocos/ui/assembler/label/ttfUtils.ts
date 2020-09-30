@@ -34,10 +34,10 @@ import { Color, Size, Vec2 } from '../../../core/math';
 import { HorizontalTextAlignment, Label, LabelOutline, VerticalTextAlignment } from '../../components';
 import { ISharedLabelData } from './font-utils';
 import { LetterRenderTexture } from './letter-font';
-import { loader } from '../../../core/load-pipeline';
 import { logID } from '../../../core/platform/debug';
 import { RUNTIME_BASED, MINIGAME } from 'internal:constants';
 import { UITransform } from '../../../core/components/ui-base/ui-transform';
+import { assetManager } from '../../../core';
 
 const Overflow = Label.Overflow;
 const WHITE = Color.WHITE.clone();
@@ -118,11 +118,11 @@ export const ttfUtils =  {
                     _fontFamily = comp.font._nativeAsset;
                 }
                 else {
-                    loader.load(comp.font.nativeUrl, (err, fontFamily) => {
-                        _fontFamily = fontFamily || 'Arial';
-                        comp.font!._nativeAsset = fontFamily;
+                    assetManager.postLoadNative(comp.font, (err) => {
+                        _fontFamily = comp.font!._nativeAsset || 'Arial';
                         comp.updateRenderData(true);
                     });
+                    _fontFamily = 'Arial';
                 }
             }
             else {

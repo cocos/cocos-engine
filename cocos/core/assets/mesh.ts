@@ -50,7 +50,6 @@ import { sys } from '../platform/sys';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
 import { Skeleton } from './skeleton';
-import { postLoadMesh } from './utils/mesh-utils';
 import { Morph, createMorphRendering, MorphRendering } from './morph';
 import { legacyCC } from '../global-exports';
 
@@ -475,9 +474,6 @@ export class Mesh extends Asset {
     set _nativeAsset (value: ArrayBuffer) {
         if (this._data.byteLength === value.byteLength) {
             this._data.set(new Uint8Array(value));
-            if (legacyCC.loader._cache[this.nativeUrl]) {
-                legacyCC.loader._cache[this.nativeUrl].content = this._data.buffer;
-            }
         } else {
             this._data = new Uint8Array(value);
         }
@@ -572,7 +568,7 @@ export class Mesh extends Asset {
             // In the case of deferred loading, `this._data` is created before
             // the actual binary buffer is loaded.
             this._data = new Uint8Array(this._dataLength);
-            postLoadMesh(this);
+            legacyCC.assetManager.postLoadNative(this);
         }
         const buffer = this._data.buffer;
         const gfxDevice: GFXDevice = legacyCC.director.root.device;

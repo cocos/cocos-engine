@@ -25,7 +25,7 @@
 
 import { EDITOR } from 'internal:constants';
 import MissingScript from '../components/missing-script';
-import deserialize, { Details } from '../data/deserialize';
+import { deserialize, Details } from '../data/deserialize';
 import { decodeUuid } from './helper';
 
 let missingClass;

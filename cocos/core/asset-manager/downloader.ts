@@ -24,8 +24,7 @@
  */
 
 import { AudioType } from '../../audio/assets/clip';
-import { director } from '../director';
-import { macro } from '../platform';
+import { macro } from '../platform/macro';
 import { getError } from '../platform/debug';
 import { sys } from '../platform/sys';
 import { js } from '../utils';
@@ -37,18 +36,19 @@ import downloadDomImage from './download-dom-image';
 import downloadFile from './download-file';
 import downloadScript from './download-script';
 import { loadFont } from './font-loader';
-import { CompleteCallback, CompleteCallbackNoData, Options } from './shared';
+import { CompleteCallback, CompleteCallbackNoData, IBundleOptions, IDownloadParseOptions } from './shared';
 import { files } from './shared';
 import { retry, RetryFunction, urlAppendTimestamp } from './utilities';
 import { legacyCC } from '../global-exports';
+import { EDITOR } from 'internal:constants';
 
-export type DownloadHandler = (url: string, opitons: Options, onComplete: CompleteCallback) => void;
+export type DownloadHandler = (url: string, opitons: IDownloadParseOptions, onComplete: CompleteCallback) => void;
 
 interface IDownloadRequest {
     id: string;
     priority: number;
     url: string;
-    options: Options;
+    options: IDownloadParseOptions;
     done: CompleteCallback;
     handler: DownloadHandler;
 }
@@ -56,11 +56,11 @@ interface IDownloadRequest {
 const REGEX = /^\w+:\/\/.*/;
 const formatSupport = sys.__audioSupport.format;
 
-const unsupported = (url: string, options: Options, onComplete: CompleteCallback) => {
+const unsupported = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
     onComplete(new Error(getError(4927)));
 };
 
-const downloadAudio = (url: string, options: Options, onComplete: CompleteCallback) => {
+const downloadAudio = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
     let handler: DownloadHandler | null = null;
     if (formatSupport.length === 0) {
         handler = unsupported;
@@ -80,37 +80,37 @@ const downloadAudio = (url: string, options: Options, onComplete: CompleteCallba
     handler(url, options, onComplete);
 };
 
-const downloadImage = (url: string, options: Options, onComplete: CompleteCallback) => {
+const downloadImage = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
     // if createImageBitmap is valid, we can transform blob to ImageBitmap. Otherwise, just use HTMLImageElement to load
     const func = sys.capabilities.imageBitmap && macro.ALLOW_IMAGE_BITMAP ? downloadBlob : downloadDomImage;
     func(url, options, onComplete);
 };
 
-const downloadBlob = (url: string, options: Options, onComplete: CompleteCallback) => {
-    options.responseType = 'blob';
+const downloadBlob = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
+    options.xhrResponseType = 'blob';
     downloadFile(url, options, options.onFileProgress, onComplete);
 };
 
-const downloadJson = (url: string, options: Options, onComplete: CompleteCallback<Record<string, any>>) => {
-    options.responseType = 'json';
+const downloadJson = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback<Record<string, any>>) => {
+    options.xhrResponseType = 'json';
     downloadFile(url, options, options.onFileProgress, onComplete);
 };
 
-const downloadArrayBuffer = (url: string, options: Options, onComplete: CompleteCallback) => {
-    options.responseType = 'arraybuffer';
+const downloadArrayBuffer = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
+    options.xhrResponseType = 'arraybuffer';
     downloadFile(url, options, options.onFileProgress, onComplete);
 };
 
-const downloadText = (url: string, options: Options, onComplete: CompleteCallback) => {
-    options.responseType = 'text';
+const downloadText = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
+    options.xhrResponseType = 'text';
     downloadFile(url, options, options.onFileProgress, onComplete);
 };
 
-const downloadVideo = (url: string, options: Options, onComplete: CompleteCallback) => {
+const downloadVideo = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
     onComplete(null, url);
 };
 
-const downloadBundle = (nameOrUrl: string, options: Options, onComplete: CompleteCallback) => {
+const downloadBundle = (nameOrUrl: string, options: IBundleOptions, onComplete: CompleteCallback) => {
     const bundleName = basename(nameOrUrl);
     let url = nameOrUrl;
     if (!REGEX.test(url)) { url = 'assets/' + bundleName; }
@@ -199,6 +199,18 @@ export class Downloader {
 
     /**
      * @en
+     * The address of remote server
+     * 
+     * @zh
+     * 远程服务器地址
+     * 
+     */
+    public get remoteServerAddress () {
+        return this._remoteServerAddress;
+    }
+
+    /**
+     * @en
      * The max number of retries when fail
      *
      * @zh
@@ -207,11 +219,11 @@ export class Downloader {
      * @property maxRetryCount
      * @type {Number}
      */
-    public maxRetryCount = 3;
+    public maxRetryCount = EDITOR ? 0 : 3;
 
-    public appendTimeStamp = false;
+    public appendTimeStamp = EDITOR ? true : false;
 
-    public limited = true;
+    public limited = EDITOR ? false : true;
 
     /**
      * @en
@@ -312,11 +324,13 @@ export class Downloader {
     private _lastDate = -1;
     // if _totalNumThisPeriod equals max, move request to next period using setTimeOut.
     private _checkNextPeriod = false;
+    private _remoteServerAddress = '';
 
-    public init (bundleVers) {
+    public init (bundleVers: Record<string, string> = {}, remoteServerAddress = '') {
         this._downloading.clear();
         this._queue.length = 0;
-        this.bundleVers = bundleVers || Object.create(null);
+        this._remoteServerAddress = remoteServerAddress;
+        this.bundleVers = bundleVers;
     }
 
     public register (type: string, handler: DownloadHandler): void;
@@ -373,7 +387,7 @@ export class Downloader {
      * download('http://example.com/test.tga', '.tga', {onFileProgress: (loaded, total) => console.lgo(loaded/total)}, onComplete: (err) => console.log(err));
      *
      */
-    public download (id: string, url: string, type: string, options: Record<string, any>, onComplete: CompleteCallback): void {
+    public download (id: string, url: string, type: string, options: IDownloadParseOptions, onComplete: CompleteCallback): void {
         // if it is downloaded, don't download again
         const file = files.get(id);
         if (file) { return onComplete(null, file); }
@@ -456,7 +470,7 @@ export class Downloader {
     private _updateTime () {
         const now = Date.now();
         // use deltaTime as period
-        if (now - this._lastDate > director.getDeltaTime() * 1000) {
+        if (now - this._lastDate > legacyCC.director.getDeltaTime() * 1000) {
             this._totalNumThisPeriod = 0;
             this._lastDate = now;
         }

@@ -35,7 +35,7 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
 
     let firstTask = false;
     if (!task.progress) {
-        task.progress = { finish: 0, total: task.input.length };
+        task.progress = { finish: 0, total: task.input.length, canInvoke: true };
         firstTask = true;
     }
 
@@ -59,8 +59,9 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
         packManager.load(item, task.options, (err, data) => {
             if (err) {
                 if (!task.isFinish) {
-                    if (!legacyCC.assetManager.force) {
+                    if (!legacyCC.assetManager.force || firstTask) {
                         error(err.message, err.stack);
+                        progress.canInvoke = false;
                         done(err);
                     }
                     else {
@@ -128,16 +129,9 @@ function handle (item: RequestItem, task: Task, content: any, file: any, loadDep
 
     if (loadDepends) {
         exclude[item.uuid] = true;
-        const err = getDepends(item.uuid, file || content, exclude, depends, true, false, item.config!);
-        if (err) {
-            if (!legacyCC.assetManager.force) {
-                error(err.message, err.stack);
-                return done(err);
-            }
-            item.file = null;
-        }
+        getDepends(item.uuid, file || content, exclude, depends, true, false, item.config!);
         progress.total = last + depends.length;
     }
 
-    task.dispatch('progress', ++progress.finish, progress.total, item);
+    progress.canInvoke && task.dispatch('progress', ++progress.finish, progress.total, item);
 }

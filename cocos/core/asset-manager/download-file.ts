@@ -22,25 +22,30 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { CompleteCallback, Options } from './shared';
+import { CompleteCallback, IXHROptions } from './shared';
 
 type FileProgressCallback = (loaded: number, total: number) => void;
 
-export default function downloadFile (url: string, options: Options, onProgress: FileProgressCallback, onComplete: CompleteCallback): XMLHttpRequest {
+export default function downloadFile (
+    url: string, 
+    options: IXHROptions, 
+    onProgress: FileProgressCallback | null | undefined, 
+    onComplete: CompleteCallback
+    ): XMLHttpRequest {
 
     const xhr = new XMLHttpRequest();
     const errInfo = 'download failed: ' + url + ', status: ';
 
     xhr.open('GET', url, true);
 
-    if (options.responseType !== undefined) { xhr.responseType = options.responseType; }
-    if (options.withCredentials !== undefined) { xhr.withCredentials = options.withCredentials; }
-    if (options.mimeType !== undefined && xhr.overrideMimeType) { xhr.overrideMimeType(options.mimeType); }
-    if (options.timeout !== undefined) { xhr.timeout = options.timeout; }
+    if (options.xhrResponseType !== undefined) { xhr.responseType = options.xhrResponseType; }
+    if (options.xhrWithCredentials !== undefined) { xhr.withCredentials = options.xhrWithCredentials; }
+    if (options.xhrMimeType !== undefined && xhr.overrideMimeType) { xhr.overrideMimeType(options.xhrMimeType); }
+    if (options.xhrTimeout !== undefined) { xhr.timeout = options.xhrTimeout; }
 
-    if (options.header) {
-        for (const header in options.header) {
-            xhr.setRequestHeader(header, options.header[header]);
+    if (options.xhrHeader) {
+        for (const header in options.xhrHeader) {
+            xhr.setRequestHeader(header, options.xhrHeader[header]);
         }
     }
 

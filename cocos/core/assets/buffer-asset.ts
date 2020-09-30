@@ -27,7 +27,7 @@
  * @category asset
  */
 
-import {ccclass, property} from '../data/class-decorator';
+import {ccclass, override } from 'cc.decorator';
 import { legacyCC } from '../global-exports';
 import { Asset } from './asset';
 
@@ -36,7 +36,7 @@ export class BufferAsset extends Asset {
 
     private _buffer: ArrayBuffer | null = null;
 
-    @property({override: true})
+    @override
     get _nativeAsset () {
         return this._buffer as ArrayBuffer;
     }

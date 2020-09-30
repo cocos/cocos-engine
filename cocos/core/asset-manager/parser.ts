@@ -30,7 +30,7 @@ import Cache from './cache';
 import deserialize from './deserialize';
 import { isScene } from './helper';
 import plistParser from './plist-parser';
-import { CompleteCallback, Options } from './shared';
+import { CompleteCallback, IDownloadParseOptions } from './shared';
 import { files, parsed } from './shared';
 import { PixelFormat } from '../assets/asset-enum';
 
@@ -130,7 +130,7 @@ function readBEUint16 (header, offset) {
     return (header[offset] << 8) | header[offset + 1];
 }
 
-export type ParseHandler = (file: any, options: Options, onComplete: CompleteCallback) => void;
+export type ParseHandler = (file: any, options: IDownloadParseOptions, onComplete: CompleteCallback) => void;
 
 /**
  * @en
@@ -168,26 +168,26 @@ export class Parser {
         'import' : this.parseImport,
     };
 
-    public parseImage (file: HTMLImageElement | Blob, options: Options, onComplete: CompleteCallback<HTMLImageElement|ImageBitmap>) {
+    public parseImage (file: HTMLImageElement | Blob, options: IDownloadParseOptions, onComplete: CompleteCallback<HTMLImageElement|ImageBitmap>) {
         if (file instanceof HTMLImageElement) {
             return onComplete(null, file);
         }
-        const imageOptions: ImageBitmapOptions = {
-            imageOrientation: options.__flipY__ ? 'flipY' : 'none',
-            premultiplyAlpha: options.__premultiplyAlpha__ ? 'premultiply' : 'none',
-        };
-        createImageBitmap(file, imageOptions).then((result) => {
-            // @ts-ignore
-            result.flipY = !!options.__flipY__;
-            // @ts-ignore
-            result.premultiplyAlpha = !!options.__premultiplyAlpha__;
+        // const imageOptions: ImageBitmapOptions = {
+        //     imageOrientation: options.__flipY__ ? 'flipY' : 'none',
+        //     premultiplyAlpha: options.__premultiplyAlpha__ ? 'premultiply' : 'none',
+        // };
+        createImageBitmap(file).then((result) => {
+            // // @ts-ignore
+            // result.flipY = !!options.__flipY__;
+            // // @ts-ignore
+            // result.premultiplyAlpha = !!options.__premultiplyAlpha__;
             onComplete(null, result);
         }, (err) => {
             onComplete(err, null);
         });
     }
 
-    public parseAudio (file: ArrayBuffer | HTMLAudioElement, options: Options, onComplete: CompleteCallback<AudioBuffer|HTMLAudioElement>) {
+    public parseAudio (file: ArrayBuffer | HTMLAudioElement, options: IDownloadParseOptions, onComplete: CompleteCallback<AudioBuffer|HTMLAudioElement>) {
         if (file instanceof ArrayBuffer) {
             sys.__audioSupport.context.decodeAudioData(file).then((buffer) => {
                 onComplete(null, buffer);
@@ -200,7 +200,7 @@ export class Parser {
         }
     }
 
-    public parsePVRTex (file: ArrayBuffer | ArrayBufferView, options: Options, onComplete: CompleteCallback<IMemoryImageSource>) {
+    public parsePVRTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
         let err: Error | null = null;
         let out: IMemoryImageSource | null = null;
         try {
@@ -250,7 +250,7 @@ export class Parser {
         onComplete(err, out);
     }
 
-    public parsePKMTex (file: ArrayBuffer | ArrayBufferView, options: Options, onComplete: CompleteCallback<IMemoryImageSource>) {
+    public parsePKMTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
         let err: Error | null = null;
         let out: IMemoryImageSource | null = null;
         try {
@@ -280,7 +280,7 @@ export class Parser {
         onComplete(err, out);
     }
 
-    public parseASTCTex (file: ArrayBuffer | ArrayBufferView, options: Options, onComplete: CompleteCallback<IMemoryImageSource>) {
+    public parseASTCTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
         let err: Error | null = null;
         let out: IMemoryImageSource | null = null;
         try {
@@ -324,14 +324,14 @@ export class Parser {
         onComplete(err, out);
     }
 
-    public parsePlist (file: string, options: Options, onComplete: CompleteCallback) {
+    public parsePlist (file: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
         let err: Error | null = null;
         const result = plistParser.parse(file);
         if (!result) { err = new Error('parse failed'); }
         onComplete(err, result);
     }
 
-    public parseImport (file: Record<string, any>, options: Options, onComplete: CompleteCallback<Asset>) {
+    public parseImport (file: Record<string, any>, options: IDownloadParseOptions, onComplete: CompleteCallback<Asset>) {
         if (!file) { return onComplete(new Error('Json is empty')); }
         let result: Asset | null = null;
         let err: Error | null = null;
@@ -399,7 +399,7 @@ export class Parser {
      * });
      *
      */
-    public parse (id: string, file: any, type: string, options: Record<string, any>, onComplete: CompleteCallback): void {
+    public parse (id: string, file: any, type: string, options: IDownloadParseOptions, onComplete: CompleteCallback): void {
         const parsedAsset = parsed.get(id);
         if (parsedAsset) {
             return onComplete(null, parsedAsset);

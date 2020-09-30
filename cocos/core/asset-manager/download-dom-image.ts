@@ -25,9 +25,13 @@
  */
 
 import { getError } from '../platform/debug';
-import { CompleteCallback, Options } from './shared';
+import { CompleteCallback, IDownloadParseOptions } from './shared';
 
-export default function downloadDomImage (url: string, options: Options, onComplete: CompleteCallback<HTMLImageElement>): HTMLImageElement {
+export default function downloadDomImage (
+    url: string,
+    options: IDownloadParseOptions,
+    onComplete: CompleteCallback<HTMLImageElement>
+    ): HTMLImageElement {
 
     const img = new Image();
 
