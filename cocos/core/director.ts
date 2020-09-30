@@ -1000,7 +1000,9 @@ export class Director extends EventTarget {
         }
         else if (!this._invalid) {
             // calculate "global" dt
-            this.calculateDeltaTime(time);
+            if (!EDITOR) {
+                this.calculateDeltaTime(time);
+            }
             const dt = this._deltaTime;
 
             // Update
