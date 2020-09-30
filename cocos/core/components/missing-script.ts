@@ -25,7 +25,8 @@
 */
 
 /**
- * @category component
+ * @packageDocumentation
+ * @module component
  */
 
 import {ccclass, inspector, editorOnly, serializable, editable} from 'cc.decorator';

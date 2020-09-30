@@ -25,7 +25,8 @@
 */
 
 /**
- * @category event
+ * @packageDocumentation
+ * @module event
  */
 
 import {ccclass, type, serializable, editable} from 'cc.decorator';

@@ -25,7 +25,8 @@
  */
 
 /**
- * @category loader
+ * @packageDocumentation
+ * @module loader
  */
 
 import {CallbacksInvoker} from '../event/callbacks-invoker';

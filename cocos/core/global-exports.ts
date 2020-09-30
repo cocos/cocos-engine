@@ -24,7 +24,8 @@
  */
 
 /**
- * @core
+ * @packageDocumentation
+ * @module core
  */
 
 import {

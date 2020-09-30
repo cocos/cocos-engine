@@ -226,17 +226,16 @@ export class Shadows {
      * @zh 获取或者设置阴影纹理大小
      */
     public size: Vec2 = new Vec2(512, 512);
-
     /**
      * @en get or set shadow pcf
      * @zh 获取或者设置阴影pcf等级
      */
     public pcf = PCFType.HARD;
     /**
-     * @en get or set shadow offset
+     * @en get or set shadow bias
      * @zh 获取或者设置阴影偏移量
      */
-    public bias = 0.001;
+    public bias: number = 0.0035;
 
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;
@@ -251,6 +250,7 @@ export class Shadows {
         }
     }
 
+    // used to auto adapt
     public getWorldMatrix (rotation: Quat, dir: Vec3) {
         Vec3.negate(_dir_negate, dir);
         const distance: number = Math.sqrt(2) * this._sphere.radius;

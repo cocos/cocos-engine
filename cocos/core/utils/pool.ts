@@ -24,7 +24,8 @@
 */
 
 /**
- * @category core
+ * @packageDocumentation
+ * @module core
  */
 
 type CleanUpFunction<T> = (value: T) => boolean | void;

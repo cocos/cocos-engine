@@ -1,5 +1,6 @@
 /**
- * @category particle
+ * @packageDocumentation
+ * @module particle
  */
 
 import { removeProperty } from '../core/utils/deprecated';

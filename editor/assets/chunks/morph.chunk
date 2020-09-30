@@ -84,9 +84,9 @@ vec3 getVec3DisplacementFromTexture(sampler2D tex, int vertexIndex) {
     return fetchVec3ArrayFromTexture(tex, vertexIndex).rgb;
 #else
     vec3 result = vec3(0, 0, 0);
+    int nVertices = int(cc_displacementTextureInfo.z);
     for (int iTarget = 0; iTarget < CC_MORPH_TARGET_COUNT; ++iTarget) {
-        int dataPixelStart = int(fetchVec3ArrayFromTexture(tex, iTarget).r);
-        result += (fetchVec3ArrayFromTexture(tex, dataPixelStart + vertexIndex).rgb * getDisplacementWeight(iTarget));
+        result += (fetchVec3ArrayFromTexture(tex, nVertices * iTarget + vertexIndex).rgb * getDisplacementWeight(iTarget));
     }
     return result;
 #endif

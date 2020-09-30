@@ -1,5 +1,6 @@
 /**
- * @category physics
+ * @packageDocumentation
+ * @module physics
  */
 
 import { ccclass, requireComponent, displayOrder, type, readOnly, serializable } from 'cc.decorator';

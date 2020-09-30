@@ -24,12 +24,12 @@
  THE SOFTWARE.
 */
 
-import { legacyCC } from '../global-exports';
-
 /**
- * 事件相关
- * @category event
+ * @packageDocumentation
+ * @module event
  */
+
+import { legacyCC } from '../global-exports';
 
 /**
  * @en

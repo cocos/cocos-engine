@@ -26,6 +26,7 @@
 import { legacyCC } from '../global-exports';
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 

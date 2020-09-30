@@ -25,7 +25,8 @@
 */
 
 /**
- * @category core
+ * @packageDocumentation
+ * @module core
  */
 
 import IdGenerator from './utils/id-generator';

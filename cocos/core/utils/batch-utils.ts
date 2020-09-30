@@ -1,5 +1,6 @@
 /**
- * @category core
+ * @packageDocumentation
+ * @module core
  */
 
 import { MeshRenderer } from '../3d/framework/mesh-renderer';

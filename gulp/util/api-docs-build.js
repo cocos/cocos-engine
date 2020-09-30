@@ -9,7 +9,7 @@ program
     .option('-o --output <s>', 'API docs output fold')
     .parse(process.argv);
 
-const mode = 'modules';
+const mode = 'commonjs';
 const docsName = 'Creator-3d-API';
 const exclude = '"**/cocos/**/+(webgl|webgl2|utils|builtin|renderer|scene|models|misc|ammo|shapes|constraint|cannon|graphics|profiler)/*.ts"';
 const readme = 'none';

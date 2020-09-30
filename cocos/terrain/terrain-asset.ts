@@ -1,5 +1,6 @@
 /**
- * @category terrain
+ * @packageDocumentation
+ * @module terrain
  */
 import { Asset } from '../core/assets';
 import { ccclass } from 'cc.decorator';

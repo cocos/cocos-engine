@@ -1,5 +1,6 @@
 /**
- * @category gfx
+ * @packageDocumentation
+ * @module gfx
  */
 
 export const GFX_MAX_VERTEX_ATTRIBUTES: number = 16;

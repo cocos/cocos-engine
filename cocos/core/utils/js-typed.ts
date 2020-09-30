@@ -1,5 +1,6 @@
 /**
- * @category core
+ * @packageDocumentation
+ * @module core
  */
 
 import { warnID, error, errorID } from '../platform/debug';

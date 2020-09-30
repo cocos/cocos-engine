@@ -1,5 +1,6 @@
 /**
- * @category memop
+ * @packageDocumentation
+ * @module memop
  */
 
 /**
