@@ -998,7 +998,9 @@ export class Widget extends Component {
     }
 
     protected _targetChangedOperation () {
-        this._recursiveDirty();
+        if (this.alignMode === AlignMode.ALWAYS) {
+            this._recursiveDirty();
+        }
     }
 
     private _setAlign (flag: AlignFlags, isAlign: boolean) {

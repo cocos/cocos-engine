@@ -211,7 +211,7 @@ function visitNode (node: any) {
         }
         align(node, widget);
         // @ts-ignore
-        if ((!EDITOR || widgetManager.animationState!.animatedSinceLastFrame) && widget.alignMode !== AlignMode.ALWAYS) {
+        if ((!EDITOR || widgetManager.animationState!.animatedSinceLastFrame) && widget.alignMode === AlignMode.ONCE) {
             widget.enabled = false;
         } else {
             if (legacyCC.isValid(node, true)) {
@@ -393,7 +393,7 @@ export const widgetManager = legacyCC._widgetManager = {
         if (Node.isNode(node)) {
             const widget = node.getComponent(Widget);
             if (widget && widget.enabled && widget.alignMode === AlignMode.ON_WINDOW_RESIZE) {
-                this.add(widget);
+                widget.setDirty();
             }
         }
 
