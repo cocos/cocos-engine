@@ -95,7 +95,7 @@ class VideoPlayerImplJSB extends cc.internal.VideoPlayerImpl {
             video.destroy();
             this._playing = false;
             this._loaded = false;
-            this._loadedmeta = false;
+            this._loadedMeta = false;
             this._ignorePause = false;
             this._cachedCurrentTime = 0;
             this._video = null;

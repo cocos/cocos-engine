@@ -270,11 +270,6 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         this.addListener('error', this.onError.bind(this));
     }
 
-    public onLoadedMetadata(e) {
-        super.onLoadedMetadata(e);
-
-    }
-
     public onCanPlay(e) {
         if (this._loaded) {
             return;
