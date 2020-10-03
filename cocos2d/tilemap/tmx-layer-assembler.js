@@ -386,6 +386,7 @@ export default class TmxAssembler extends Assembler {
         let mats = _comp._materials;
 
         const withColor = _comp._withColor;
+        const justTranslate = _comp._justTranslate;
         const vertStep = withColor ? 5 : 4;
         const vertStep2 = vertStep * 2;
         const vertStep3 = vertStep * 3;
@@ -505,7 +506,7 @@ export default class TmxAssembler extends Assembler {
                     }
 
                 } else {
-                    this.fillByTiledNode(tiledNode.node, _vbuf, _uintbuf, left, right, top, bottom, diamondTile, withColor);
+                    this.fillByTiledNode(tiledNode.node, _vbuf, _uintbuf, left, right, top, bottom, diamondTile, withColor, justTranslate);
                 }
 
                 this._flipTexture(grid, gid);
@@ -553,7 +554,7 @@ export default class TmxAssembler extends Assembler {
         }
     }
 
-    fillByTiledNode (tiledNode, vbuf, uintbuf, left, right, top, bottom, diamondTile, withColor) {
+    fillByTiledNode (tiledNode, vbuf, uintbuf, left, right, top, bottom, diamondTile, withColor, justTranslate) {
         const vertStep = withColor ? 5 : 4;
         const vertStep2 = vertStep * 2;
         const vertStep3 = vertStep * 3;
@@ -574,21 +575,51 @@ export default class TmxAssembler extends Assembler {
         if (diamondTile) {
             let centerX = (left + right) / 2;
             let centerY = (top + bottom) / 2;
-            // ct
-            vbuf[_vfOffset] = centerX * a + top * c + tx;
-            vbuf[_vfOffset + 1] = centerX * b + top * d + ty;
+            if (justTranslate) {
+                // ct
+                vbuf[_vfOffset] = centerX + tx;
+                vbuf[_vfOffset + 1] = top + ty;
 
-            // lc
-            vbuf[_vfOffset + vertStep] = left * a + centerY * c + tx;
-            vbuf[_vfOffset + vertStep + 1] = left * b + centerY * d + ty;
+                // lc
+                vbuf[_vfOffset + vertStep] = left + tx;
+                vbuf[_vfOffset + vertStep + 1] = centerY + ty;
 
-            // rc
-            vbuf[_vfOffset + vertStep2] = right * a + centerY * c + tx;
-            vbuf[_vfOffset + vertStep2 + 1] = right * b + centerY * d + ty;
+                // rc
+                vbuf[_vfOffset + vertStep2] = right + tx;
+                vbuf[_vfOffset + vertStep2 + 1] = centerY + ty;
 
-            // cb
-            vbuf[_vfOffset + vertStep3] = centerX * a + bottom * c + tx;
-            vbuf[_vfOffset + vertStep3 + 1] = centerX * b + bottom * d + ty;
+                // cb
+                vbuf[_vfOffset + vertStep3] = centerX + tx;
+                vbuf[_vfOffset + vertStep3 + 1] = bottom + ty;
+            } else {
+                // ct
+                vbuf[_vfOffset] = centerX * a + top * c + tx;
+                vbuf[_vfOffset + 1] = centerX * b + top * d + ty;
+
+                // lc
+                vbuf[_vfOffset + vertStep] = left * a + centerY * c + tx;
+                vbuf[_vfOffset + vertStep + 1] = left * b + centerY * d + ty;
+
+                // rc
+                vbuf[_vfOffset + vertStep2] = right * a + centerY * c + tx;
+                vbuf[_vfOffset + vertStep2 + 1] = right * b + centerY * d + ty;
+
+                // cb
+                vbuf[_vfOffset + vertStep3] = centerX * a + bottom * c + tx;
+                vbuf[_vfOffset + vertStep3 + 1] = centerX * b + bottom * d + ty;
+            }
+        } else if (justTranslate) {
+            vbuf[_vfOffset] = left + tx;
+            vbuf[_vfOffset + 1] = top + ty;
+
+            vbuf[_vfOffset + vertStep] = left + tx;
+            vbuf[_vfOffset + vertStep + 1] = bottom + ty;
+
+            vbuf[_vfOffset + vertStep2] = right + tx;
+            vbuf[_vfOffset + vertStep2 + 1] = top + ty;
+
+            vbuf[_vfOffset + vertStep3] = right + tx;
+            vbuf[_vfOffset + vertStep3 + 1] = bottom + ty;
         } else {
             // lt
             vbuf[_vfOffset] = left * a + top * c + tx;

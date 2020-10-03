@@ -180,6 +180,21 @@ let TiledLayer = cc.Class({
                 }
             },
             type: cc.Boolean
+        },
+
+        _justTranslate: {
+            default: true
+        },
+        justTranslate : {
+            get () {
+                return this._justTranslate;
+            },
+            set (value) {
+                if (this._justTranslate !== value) {
+                    this._justTranslate = value
+                }
+            },
+            type: cc.Boolean
         }
     },
 
