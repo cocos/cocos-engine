@@ -126,6 +126,7 @@ let TiledLayer = cc.Class({
         // switch of culling
         this._enableCulling = null;
 
+        this._translateOnly = false;
         this._colorChanged = false;
     },
 
@@ -177,21 +178,6 @@ let TiledLayer = cc.Class({
                         this._renderDataList = null;
                     }
                     this._activateMaterial();
-                }
-            },
-            type: cc.Boolean
-        },
-
-        _justTranslate: {
-            default: true
-        },
-        justTranslate : {
-            get () {
-                return this._justTranslate;
-            },
-            set (value) {
-                if (this._justTranslate !== value) {
-                    this._justTranslate = value
                 }
             },
             type: cc.Boolean
