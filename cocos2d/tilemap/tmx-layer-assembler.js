@@ -564,13 +564,13 @@ export default class TmxAssembler extends Assembler {
         Vec3.set(_vec3_temp, -(left + _moveX), -(bottom + _moveY), 0);
         Mat4.transform(_mat4_temp, _mat4_temp, _vec3_temp);
         let m = _mat4_temp.m;
+        let tx = m[12];
+        let ty = m[13];
+
         let a = m[0];
         let b = m[1];
         let c = m[4];
         let d = m[5];
-        let tx = m[12];
-        let ty = m[13];
-        let color = tiledNode._color._val;
 
         if (diamondTile) {
             let centerX = (left + right) / 2;
@@ -639,6 +639,7 @@ export default class TmxAssembler extends Assembler {
         }
 
         if (withColor) {
+            let color = tiledNode._color._val;
             uintbuf[_vfOffset + 4] = color;
             uintbuf[_vfOffset + vertStep + 4] = color;
             uintbuf[_vfOffset + vertStep2 + 4] = color;
