@@ -126,7 +126,6 @@ let TiledLayer = cc.Class({
         // switch of culling
         this._enableCulling = null;
 
-        this._translateOnly = false;
         this._colorChanged = false;
     },
 

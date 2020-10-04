@@ -400,24 +400,6 @@ let TiledMap = cc.Class({
             type: cc.Boolean
         },
 
-        _translateOnly: {
-            default: true
-        },
-        translateOnly : {
-            get () {
-                return this._translateOnly;
-            },
-            set (value) {
-                if (this._translateOnly !== value) {
-                    this._translateOnly = value
-                    this._layers.forEach(function(layer) {
-                        layer && (layer._translateOnly = value);
-                    });
-                }
-            },
-            type: cc.Boolean
-        },
-
         cleanupImageCache : true
     },
 
@@ -833,8 +815,6 @@ let TiledMap = cc.Class({
                     if (!layer) {
                         layer = child.addComponent(cc.TiledLayer);
                     }
-
-                    layer._translateOnly = this._translateOnly;
 
                     layer._init(layerInfo, mapInfo, tilesets, textures, texGrids);
 

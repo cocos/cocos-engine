@@ -386,7 +386,6 @@ export default class TmxAssembler extends Assembler {
         let mats = _comp._materials;
 
         const withColor = _comp._withColor;
-        const translateOnly = _comp._translateOnly;
         const vertStep = withColor ? 5 : 4;
         const vertStep2 = vertStep * 2;
         const vertStep3 = vertStep * 3;
@@ -506,7 +505,7 @@ export default class TmxAssembler extends Assembler {
                     }
 
                 } else {
-                    this.fillByTiledNode(tiledNode.node, _vbuf, _uintbuf, left, right, top, bottom, translateOnly, diamondTile, withColor);
+                    this.fillByTiledNode(tiledNode.node, _vbuf, _uintbuf, left, right, top, bottom, diamondTile, withColor);
                 }
 
                 this._flipTexture(grid, gid);
@@ -554,7 +553,7 @@ export default class TmxAssembler extends Assembler {
         }
     }
 
-    fillByTiledNode (tiledNode, vbuf, uintbuf, left, right, top, bottom, translateOnly, diamondTile, withColor) {
+    fillByTiledNode (tiledNode, vbuf, uintbuf, left, right, top, bottom, diamondTile, withColor) {
         const vertStep = withColor ? 5 : 4;
         const vertStep2 = vertStep * 2;
         const vertStep3 = vertStep * 3;
@@ -572,10 +571,12 @@ export default class TmxAssembler extends Assembler {
         let c = m[4];
         let d = m[5];
 
+        let justTranslate = a === 1 && b === 0 && c === 0 && d === 1;
+
         if (diamondTile) {
             let centerX = (left + right) / 2;
             let centerY = (top + bottom) / 2;
-            if (translateOnly) {
+            if (justTranslate) {
                 // ct
                 vbuf[_vfOffset] = centerX + tx;
                 vbuf[_vfOffset + 1] = top + ty;
@@ -608,7 +609,7 @@ export default class TmxAssembler extends Assembler {
                 vbuf[_vfOffset + vertStep3] = centerX * a + bottom * c + tx;
                 vbuf[_vfOffset + vertStep3 + 1] = centerX * b + bottom * d + ty;
             }
-        } else if (translateOnly) {
+        } else if (justTranslate) {
             vbuf[_vfOffset] = left + tx;
             vbuf[_vfOffset + 1] = top + ty;
 
