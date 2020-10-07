@@ -166,10 +166,12 @@ cc.Scheduler: scheduler stopped using `__instanceId` as id since v2.0, you shoul
 
 ### 1605
 
+<!-- DEPRECATED -->
 child already added. It can't be added again
 
 ### 1606
 
+<!-- DEPRECATED -->
 child must be non-null
 
 ### 1607
@@ -242,6 +244,7 @@ Internal error, should not remove unknown node from parent.
 
 ### 1634
 
+<!-- DEPRECATED -->
 addChild: The child to add must be instance of cc.Node, not %s.
 
 ### 1635
