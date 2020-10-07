@@ -1174,11 +1174,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     public destroy () {
         if (super.destroy()) {
-            // disable hierarchy
-            if (this._activeInHierarchy) {
-                this._disableChildComps();
-            }
-
+            this.active = false;
             return true;
         }
 
@@ -1371,25 +1367,6 @@ export class BaseNode extends CCObject implements ISchedulable {
         }
 
         return destroyByParent;
-    }
-
-    protected _disableChildComps () {
-        // leave this._activeInHierarchy unmodified
-        const comps = this._components;
-        for (let i = 0; i < comps.length; ++i) {
-            const component = comps[i];
-            if (component._enabled) {
-                legacyCC.director._compScheduler.disableComp(component);
-            }
-        }
-        // deactivate recursively
-        const children = this._children;
-        for (let i = 0; i < children.length; ++i) {
-            const node = children[i];
-            if (node._active) {
-                node._disableChildComps();
-            }
-        }
     }
 
     protected _onSiblingIndexChanged? (siblingIndex: number): void;
