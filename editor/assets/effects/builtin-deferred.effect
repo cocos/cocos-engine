@@ -1,0 +1,127 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - name: deferrd-rendering
+    passes:
+    - vert: standard-vs:vert
+      frag: gbuffer-fs
+      phase: deferred-gbuffer
+      propertyIndex: 0
+      blendState:
+        targets:
+        - blend: false
+        - blend: false
+        - blend: false
+        - blend: false
+    - vert: standard-vs:vert
+      frag: lighting-fs
+      phase: deferred-lighting
+      propertyIndex: 0
+}%
+
+CCProgram shared-ubos %{
+  uniform Constants {
+    vec4 tilingOffset;
+    vec4 albedo;
+    vec4 albedoScaleAndCutoff;
+    vec4 pbrParams;
+    vec4 emissive;
+    vec4 emissiveScaleParam;
+  };
+}%
+
+CCProgram standard-vs %{
+  precision highp float;
+  #include <input-standard>
+  #include <cc-global>
+  #include <cc-local-batch>
+  #include <shared-ubos>
+  #include <cc-fog>
+  #include <cc-shadow-map-vs>
+
+  #if USE_VERTEX_COLOR
+    in vec3 a_color;
+    out vec3 v_color;
+  #endif
+
+  out vec3 v_position;
+  out vec3 v_normal;
+  out vec2 v_uv;
+  out vec2 v_uv1;
+  out float v_fog_factor;
+
+  #if USE_NORMAL_MAP
+    out vec3 v_tangent;
+    out vec3 v_bitangent;
+  #endif
+
+  #if HAS_SECOND_UV || USE_LIGHTMAP
+    in vec2 a_texCoord1;
+  #endif
+
+  #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+    #include <lightingmap-vs>
+  #endif
+
+  vec4 vert () {
+    StandardVertInput In;
+    CCVertInput(In);
+
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+
+    vec4 pos = matWorld * In.position;
+
+    v_position = pos.xyz;
+    v_normal = normalize((matWorldIT * vec4(In.normal, 0.0)).xyz);
+    #if USE_NORMAL_MAP
+      v_tangent = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
+      v_bitangent = cross(v_normal, v_tangent) * In.tangent.w; // note the cross order
+    #endif
+
+    v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
+    #if HAS_SECOND_UV
+      v_uv1 = a_texCoord1 * tilingOffset.xy + tilingOffset.zw;
+    #endif
+
+    #if USE_VERTEX_COLOR
+      v_color = a_color;
+    #endif
+    v_fog_factor = CC_TRANSFER_FOG(pos);
+
+    #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+      CCLightingMapCaclUV();
+    #endif
+
+    CCPassShadowParams(pos);
+
+    return cc_matProj * (cc_matView * matWorld) * In.position;
+  }
+}%
+
+CCProgram gbuffer-fs %{
+  precision highp float;
+
+  layout(location = 0) out vec4 fragColor0;
+  layout(location = 1) out vec4 fragColor1;
+  layout(location = 2) out vec4 fragColor2;
+  layout(location = 3) out vec4 fragColor3;
+
+  void main () {
+    fragColor0 = vec4(1.0, 0.0, 0.0, 1.0);
+    fragColor1 = vec4(0.0, 1.0, 0.0, 1.0);
+    fragColor2 = vec4(0.0, 0.0, 1.0, 1.0);
+    fragColor3 = vec4(1.0, 1.0, 0.0, 1.0);
+  }
+}%
+
+CCProgram lighting-fs %{
+  precision highp float;
+
+  layout(location = 0) out vec4 fragColor0;
+
+  void main () {
+    fragColor0 = vec4(1.0, 1.0, 0.0, 1.0);
+  }
+}%
