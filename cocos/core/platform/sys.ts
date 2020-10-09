@@ -920,7 +920,7 @@ else {
     sys.browserVersion = '';
     /* Determine the browser version number */
     (function () {
-        const versionReg1 = /(mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|uc|ucbs|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui)(mobile)?(browser)?\/?([\d.]+)/i;
+        const versionReg1 = /(mqqbrowser|micromessenger|qqbrowser|sogou|qzone|liebao|maxthon|uc|ucbs|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui(?:.hybrid)?)(mobile)?(browser)?\/?([\d.]+)/i;
         const versionReg2 = /(qqbrowser|chrome|safari|firefox|trident|opera|opr\/|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
         let tmp = ua.match(versionReg1);
         if (!tmp) { tmp = ua.match(versionReg2); }
@@ -979,50 +979,7 @@ else {
         _supportWebGL = false;
     }
     else if (win.WebGLRenderingContext) {
-        // @ts-ignore
-        if (create3DContext(document.createElement('CANVAS'))) {
-            _supportWebGL = true;
-        }
-        if (_supportWebGL && sys.os === sys.OS_ANDROID) {
-            const browserVer = parseFloat(sys.browserVersion);
-            switch (sys.browserType) {
-                case sys.BROWSER_TYPE_MOBILE_QQ:
-                case sys.BROWSER_TYPE_BAIDU:
-                case sys.BROWSER_TYPE_BAIDU_APP:
-                    // QQ & Baidu Brwoser 6.2+ (using blink kernel)
-                    if (browserVer >= 6.2) {
-                        _supportWebGL = true;
-                    }
-                    else {
-                        _supportWebGL = false;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_ANDROID:
-                    // Android 5+ default browser
-                    if (sys.osMainVersion && sys.osMainVersion >= 5) {
-                        _supportWebGL = true;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_CHROME:
-                    // Chrome on android supports WebGL from v. 30
-                    if (browserVer >= 30.0) {
-                        _supportWebGL = true;
-                    } else {
-                        _supportWebGL = false;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_UC:
-                    if (browserVer > 11.0) {
-                        _supportWebGL = true;
-                    } else {
-                        _supportWebGL = false;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_360:
-                    _supportWebGL = false;
-                    break;
-            }
-        }
+        _supportWebGL = true;
     }
 
     const capabilities = sys.capabilities = {
