@@ -89,7 +89,7 @@ export abstract class CacheManager {
      * @property cachedFiles
      * @type {Cache}
      * @typescript 
-     * cachedFiles: Cache<{ bundle: string, url: string, lastTime: url }>
+     * cachedFiles: Cache<{ bundle: string, url: string, lastTime: number }>
      */
     public abstract cachedFiles: Cache;
 
