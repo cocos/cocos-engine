@@ -227,7 +227,6 @@ export class Graphics extends UIRenderable {
     protected _miterLimit = 10;
 
     protected _isDrawing = false;
-    protected _renderingMeshCache: RenderingSubMesh[] = [];
 
     constructor (){
         super();
@@ -250,7 +249,8 @@ export class Graphics extends UIRenderable {
 
     public onLoad () {
         this._sceneGetter = director.root!.ui.getRenderSceneGetter();
-        this._rebuildModel();
+        this.model = director.root!.createModel(scene.Model);
+        this.model.node = this.model.transform = this.node;
 
         this.helpInstanceMaterial();
     }
@@ -264,21 +264,8 @@ export class Graphics extends UIRenderable {
 
         this._sceneGetter = null;
         if (this.model) {
-            this.model.destroy();
             director.root!.destroyModel(this.model);
             this.model = null;
-        }
-
-        if (this._renderingMeshCache.length > 0) {
-            const len = this._renderingMeshCache.length;
-            for (let i = 0; i < len; i++) {
-                const renderMesh = this._renderingMeshCache[i];
-                renderMesh.vertexBuffers[0].destroy();
-                renderMesh.indexBuffer?.destroy();
-                renderMesh.destroy();
-            }
-
-            this._renderingMeshCache.length = 0;
         }
 
         if (!this.impl) {
@@ -503,8 +490,10 @@ export class Graphics extends UIRenderable {
         this.impl.clear(clean);
         this._isDrawing = false;
         if (this.model) {
-            this.model.destroy();
-            this._rebuildModel();
+            for (let i = 0; i < this.model.subModels.length; i++) {
+                const subModel = this.model.subModels[i];
+                subModel.inputAssembler.indexCount = 0;
+            }
         }
 
         this._detachFromScene();
@@ -597,28 +586,22 @@ export class Graphics extends UIRenderable {
 
         if (this.model.subModels.length <= idx) {
             let renderMesh: RenderingSubMesh;
-            const len = this._renderingMeshCache.length;
-            if (len > 0 && len > idx) {
-                renderMesh = this._renderingMeshCache[idx];
-            } else {
-                const gfxDevice: GFXDevice = legacyCC.director.root.device;
-                const vertexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
-                    GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-                    GFXMemoryUsageBit.DEVICE,
-                    65535 * stride,
-                    stride,
-                ));
-                const indexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
-                    GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-                    GFXMemoryUsageBit.DEVICE,
-                    65535 * 2,
-                    2,
-                ));
+            const gfxDevice: GFXDevice = legacyCC.director.root.device;
+            const vertexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
+                GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+                GFXMemoryUsageBit.DEVICE,
+                65535 * stride,
+                stride,
+            ));
+            const indexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
+                GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+                GFXMemoryUsageBit.DEVICE,
+                65535 * 2,
+                2,
+            ));
 
-                renderMesh = new RenderingSubMesh([vertexBuffer], attributes, GFXPrimitiveMode.TRIANGLE_LIST, indexBuffer);
-                renderMesh.subMeshIdx = 0;
-                this._renderingMeshCache.push(renderMesh);
-            }
+            renderMesh = new RenderingSubMesh([vertexBuffer], attributes, GFXPrimitiveMode.TRIANGLE_LIST, indexBuffer);
+            renderMesh.subMeshIdx = 0;
 
             this.model.initSubModel(idx, renderMesh, this.getUIMaterialInstance());
         }
@@ -660,15 +643,6 @@ export class Graphics extends UIRenderable {
         if (this.model && this.model.scene) {
             this.model.scene.removeModel(this.model);
             this.model.scene = null;
-        }
-    }
-
-    protected _rebuildModel () {
-        if (!this.model) {
-            this.model = director.root!.createModel(scene.Model);
-            this.model.node = this.model.transform = this.node;
-        } else if (!this.model.inited) {
-            this.model.initialize();
         }
     }
 }
