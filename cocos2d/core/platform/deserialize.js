@@ -24,9 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import deserialize from './deserialize-compiled';
+import deserializeForCompiled from './deserialize-compiled';
 
-deserialize.reportMissingClass = function (id) {
+deserializeForCompiled.reportMissingClass = function (id) {
     if (CC_EDITOR && Editor.Utils.UuidUtils.isUuid(id)) {
         id = Editor.Utils.UuidUtils.decompressUuid(id);
         cc.warnID(5301, id);
@@ -37,9 +37,26 @@ deserialize.reportMissingClass = function (id) {
 };
 
 if (CC_BUILD) {
-    cc.deserialize = deserialize;
+    cc.deserialize = deserializeForCompiled;
 }
 else {
-    cc.deserialize = require('./deserialize-editor');
-    cc.deserialize.reportMissingClass = deserialize.reportMissingClass;
+    let deserializeForEditor = require('./deserialize-editor');
+
+    cc.deserialize = function (data, details, options) {
+        if (CC_EDITOR && Buffer.isBuffer(data)) {
+            data = data.toString();
+        }
+        if (typeof data === 'string') {
+            data = JSON.parse(data);
+        }
+        if (CC_PREVIEW) {
+            // support for loading Asset Bundle from server
+            if (deserializeForCompiled.isCompiledJson(data)) {
+                return deserializeForCompiled(data, details, options);
+            }
+        }
+        return deserializeForEditor(data, details, options);
+    };
+    cc.deserialize.reportMissingClass = deserializeForCompiled.reportMissingClass;
+    cc.deserialize.Details = deserializeForEditor.Details;
 }

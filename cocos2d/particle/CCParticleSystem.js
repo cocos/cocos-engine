@@ -243,9 +243,7 @@ var properties = {
                 this._spriteFrame = value;
             }
 
-            if ((lastSprite && lastSprite.getTexture()) !== (value && value.getTexture())) {
-                this._applySpriteFrame(lastSprite);
-            }
+            this._applySpriteFrame(lastSprite);
             if (CC_EDITOR) {
                 this.node.emit('spriteframe-changed', this);
             }
@@ -1052,13 +1050,13 @@ var ParticleSystem = cc.Class({
                 if (!tex) {
                     let buffer = codec.unzipBase64AsArray(textureData, 1);
                     if (!buffer) {
-                        cc.logID(6030);
+                        cc.warnID(6030, this._file.name);
                         return false;
                     }
 
                     let imageFormat = getImageFormatByData(buffer);
                     if (imageFormat !== macro.ImageFormat.TIFF && imageFormat !== macro.ImageFormat.PNG) {
-                        cc.logID(6031);
+                        cc.warnID(6031, this._file.name);
                         return false;
                     }
 
@@ -1073,7 +1071,7 @@ var ParticleSystem = cc.Class({
                 }
                 
                 if (!tex)
-                    cc.logID(6032);
+                    cc.warnID(6032, this._file.name);
                 // TODO: Use cc.assetManager to load asynchronously the SpriteFrame object, avoid using textureUtil
                 this.spriteFrame = new cc.SpriteFrame(tex);
             }
@@ -1142,12 +1140,12 @@ var ParticleSystem = cc.Class({
         // position
         // Make empty positionType value and old version compatible
         this.positionType = parseFloat(dict['positionType'] !== undefined ? dict['positionType'] : PositionType.RELATIVE);
-        // for 
+        // for
         this.sourcePos.x = 0;
         this.sourcePos.y = 0;
         this.posVar.x = parseFloat(dict["sourcePositionVariancex"] || 0);
         this.posVar.y = parseFloat(dict["sourcePositionVariancey"] || 0);
-        
+
         // angle
         this.angle = parseFloat(dict["angle"] || 0);
         this.angleVar = parseFloat(dict["angleVariance"] || 0);
@@ -1244,13 +1242,13 @@ var ParticleSystem = cc.Class({
     _updateMaterial () {
         let material = this.getMaterial(0);
         if (!material) return;
-        
+
         material.define('CC_USE_MODEL', this._positionType !== PositionType.FREE);
         material.setProperty('texture', this._getTexture());
 
         BlendFunc.prototype._updateMaterial.call(this);
     },
-    
+
     _finishedSimulation: function () {
         if (CC_EDITOR) {
             if (this.preview && this._focused && !this.active && !cc.engine.isPlaying) {

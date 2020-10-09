@@ -261,10 +261,16 @@ export default class Quat extends ValueType {
         const bx = Math.sin(rad);
         const bw = Math.cos(rad);
 
-        out.x = a.x * bw + a.w * bx;
-        out.y = a.y * bw + a.z * bx;
-        out.z = a.z * bw - a.y * bx;
-        out.w = a.w * bw - a.x * bx;
+        _x = a.x * bw + a.w * bx;
+        _y = a.y * bw + a.z * bx;
+        _z = a.z * bw - a.y * bx;
+        _w = a.w * bw - a.x * bx;
+
+        out.x = _x;
+        out.y = _y;
+        out.z = _z;
+        out.w = _w;
+
         return out;
     }
 
@@ -283,10 +289,16 @@ export default class Quat extends ValueType {
         const by = Math.sin(rad);
         const bw = Math.cos(rad);
 
-        out.x = a.x * bw - a.z * by;
-        out.y = a.y * bw + a.w * by;
-        out.z = a.z * bw + a.x * by;
-        out.w = a.w * bw - a.y * by;
+        _x = a.x * bw - a.z * by;
+        _y = a.y * bw + a.w * by;
+        _z = a.z * bw + a.x * by;
+        _w = a.w * bw - a.y * by;
+
+        out.x = _x;
+        out.y = _y;
+        out.z = _z;
+        out.w = _w;
+
         return out;
     }
 
@@ -305,10 +317,16 @@ export default class Quat extends ValueType {
         const bz = Math.sin(rad);
         const bw = Math.cos(rad);
 
-        out.x = a.x * bw + a.y * bz;
-        out.y = a.y * bw - a.x * bz;
-        out.z = a.z * bw + a.w * bz;
-        out.w = a.w * bw - a.z * bz;
+        _x = a.x * bw + a.y * bz;
+        _y = a.y * bw - a.x * bz;
+        _z = a.z * bw + a.w * bz;
+        _w = a.w * bw - a.z * bz;
+
+        out.x = _x;
+        out.y = _y;
+        out.z = _z;
+        out.w = _w;
+
         return out;
     }
 
@@ -396,6 +414,7 @@ export default class Quat extends ValueType {
     /**
      * !#zh 四元数球面插值
      * !#en Spherical quaternion interpolation
+     * @method slerp
      * @typescript
      * slerp<Out extends IQuatLike, QuatLike_1 extends IQuatLike, QuatLike_2 extends IQuatLike>(out: Out, a: QuatLike_1, b: QuatLike_2, t: number): Out
      * @static

@@ -39,9 +39,9 @@ function generateStats () {
     if (_stats) return;
     
     _stats = {
-        frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: 500 },
         fps: { desc: 'Framerate (FPS)', below: 30, average: 500 },
-        draws: { desc: 'Draw call' },
+        draws: { desc: 'Draw Call' },
+        frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: 500 },
         logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: 500, color: '#080' },
         render: { desc: 'Renderer (ms)', min: 0, max: 50, average: 500, color: '#f90' },
         mode: { desc: cc.game.renderType === cc.game.RENDER_TYPE_WEBGL ? 'WebGL' : 'Canvas', min: 1 }
@@ -82,8 +82,8 @@ function generateNode () {
     rightLabel.fontSize = _fontSize;
     rightLabel.lineHeight = _fontSize;
     right.parent = _rootNode;
-    if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_BAIDU_GAME_SUB &&
-        cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+    if (cc.sys.platform !== cc.sys.BAIDU_GAME_SUB &&
+        cc.sys.platform !== cc.sys.WECHAT_GAME_SUB) {
         leftLabel.cacheMode = cc.Label.CacheMode.CHAR;
         rightLabel.cacheMode = cc.Label.CacheMode.CHAR;
     }

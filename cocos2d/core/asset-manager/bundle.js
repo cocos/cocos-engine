@@ -430,8 +430,8 @@ Bundle.prototype = {
      * loadScene(sceneName: string, options: Record<string, any>, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, sceneAsset: cc.SceneAsset) => void): void
      * loadScene(sceneName: string, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, sceneAsset: cc.SceneAsset) => void): void
      * loadScene(sceneName: string, options: Record<string, any>, onComplete: (error: Error, sceneAsset: cc.SceneAsset) => void): void
-     * loadScene(sceneName: string, options: Record<string, any>): void
      * loadScene(sceneName: string, onComplete: (error: Error, sceneAsset: cc.SceneAsset) => void): void
+     * loadScene(sceneName: string, options: Record<string, any>): void
      * loadScene(sceneName: string): void
      */
     loadScene (sceneName, options, onProgress, onComplete) {
@@ -484,8 +484,8 @@ Bundle.prototype = {
      * preloadScene(sceneName: string, options: Record<string, any>, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error) => void): void
      * preloadScene(sceneName: string, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error) => void): void
      * preloadScene(sceneName: string, options: Record<string, any>, onComplete: (error: Error) => void): void
-     * preloadScene(sceneName: string, options: Record<string, any>): void
      * preloadScene(sceneName: string, onComplete: (error: Error) => void): void
+     * preloadScene(sceneName: string, options: Record<string, any>): void
      * preloadScene(sceneName: string): void
      */
     preloadScene (sceneName, options, onProgress, onComplete) {

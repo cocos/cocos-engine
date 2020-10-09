@@ -77,9 +77,9 @@ Assembler.register(cc.Label, {
             ctor = is3DNode ? Bmfont3D : Bmfont;
         } else if (label.cacheMode === Label.CacheMode.CHAR) {
 
-            if(CC_JSB && !is3DNode && !!jsb.LabelRenderer && label.font instanceof cc.TTFFont){
+            if(CC_JSB && !is3DNode && !!jsb.LabelRenderer && label.font instanceof cc.TTFFont && label._useNativeTTF()){
                 ctor = NativeTTF;
-            } else if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+            } else if (cc.sys.platform === cc.sys.WECHAT_GAME_SUB) {
                 cc.warn('sorry, subdomain does not support CHAR mode currently!');
             } else {
                 ctor = is3DNode ? Letter3D : Letter;

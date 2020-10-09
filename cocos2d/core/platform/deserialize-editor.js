@@ -29,6 +29,8 @@ var Attr = require('./attribute');
 var CCClass = require('./CCClass');
 var misc = require('../utils/misc');
 
+import deserializeCompiled from './deserialize-compiled';
+
 // HELPERS
 
 /**
@@ -115,7 +117,7 @@ var _Deserializer = (function () {
         this.deserializedList = [];
         this.deserializedData = null;
         this._classFinder = classFinder;
-        if (CC_DEV) {
+        if (!CC_BUILD) {
             this._ignoreEditorOnly = ignoreEditorOnly;
         }
         this._idList = [];
@@ -681,7 +683,7 @@ var _Deserializer = (function () {
             cache.result = result;
             cache.customEnv = customEnv;
             cache._classFinder = classFinder;
-            if (CC_DEV) {
+            if (!CC_BUILD) {
                 cache._ignoreEditorOnly = ignoreEditorOnly;
             }
             return cache;
@@ -715,14 +717,6 @@ let deserialize = module.exports = function (data, details, options) {
     var createAssetRefs = options.createAssetRefs || cc.sys.platform === cc.sys.EDITOR_CORE;
     var customEnv = options.customEnv;
     var ignoreEditorOnly = options.ignoreEditorOnly;
-
-    if (CC_EDITOR && Buffer.isBuffer(data)) {
-        data = data.toString();
-    }
-
-    if (typeof data === 'string') {
-        data = JSON.parse(data);
-    }
 
     //var oldJson = JSON.stringify(data, null, 2);
 

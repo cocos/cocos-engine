@@ -215,4 +215,24 @@ proto.dispatchEvent = function (event) {
     this.emit(event.type, event);
 };
 
+/**
+ * !#en
+ * Destroy all callbackInfos.
+ * !#zh
+ * 销毁记录的事件
+ *
+ * @method clear
+ */
+proto.clear = function () {
+    // remove all callback
+    for (const key in this._callbackTable) {
+        const list = this._callbackTable[key];
+        const infos = list.callbackInfos;
+        for (let i = infos.length - 1; i >= 0; i--) {
+            const info = infos[i];
+            this.off(key, info.callback, info.target);
+        }
+    }
+};
+
 cc.EventTarget = module.exports = EventTarget;

@@ -149,17 +149,25 @@ function serializeBuiltinValueTypes(obj: ValueType): IValueTypeData | null {
  * TYPE DECLARATIONS
  ****************************************************************************/
 
-export type SharedString = string;
-export type Empty = typeof EMPTY_PLACEHOLDER;
-export type StringIndex = number;
-export type InstanceIndex = number;
-export type RootInstanceIndex = InstanceIndex;
-
 // Includes Bitwise NOT value.
 // Both T and U have non-negative integer ranges.
 // When the value >= 0 represents T
 // When the value is < 0, it represents ~U. Use ~x to extract the value of U.
 export type Bnot<T extends number, U extends number> = T|U;
+
+// Combines a boolean and a number into one value.
+// The number must >= 0.
+// When the value >= 0, the boolean is true, the number is value.
+// When the value < 0, the boolean is false, the number is ~value.
+export type BoolAndNum<B extends boolean, N extends number> = Bnot<N, N>;
+
+export type SharedString = string;
+export type Empty = typeof EMPTY_PLACEHOLDER;
+export type StringIndex = number;
+export type InstanceIndex = number;
+export type RootInstanceIndex = InstanceIndex;
+export type NoNativeDep = boolean;  // Indicates whether the asset depends on a native asset
+export type RootInfo = BoolAndNum<NoNativeDep, RootInstanceIndex>;
 
 // When the value >= 0 represents the string index
 // When the value is < 0, it just represents non-negative integer. Use ~x to extract the value.
@@ -267,7 +275,6 @@ export type AnyData = DataTypes[keyof DataTypes];
 
 export type AdvancedData = DataTypes[Exclude<keyof DataTypes, DataTypeID.SimpleType>];
 
-// Instances will be [...IClassObjectData[], ...AdvancedObjectData[], RootInstanceIndex]
 export type OtherObjectData = ICustomObjectDataContent | Exclude<DataTypes[PrimitiveObjectTypeID], (number|string|boolean|null)>;
 
 // class Index of DataTypeID.CustomizedClass or PrimitiveObjectTypeID
@@ -421,7 +428,7 @@ export const enum File {
 // Main file structure
 export interface IFileData extends Array<any> {
     // version
-    [File.Version]: number | any;
+    [File.Version]: number | FileInfo | any;
 
     // Shared data area, the higher the number of references, the higher the position
 
@@ -432,9 +439,9 @@ export interface IFileData extends Array<any> {
 
     // Data area
 
-    // A one-dimensional array to represent object datas, layout is [...IClassObjectData[], ...AdvancedObjectData[], RootInstanceIndex]
-    // If the last element is not RootInstanceIndex, the first element will be the root object to return
-    [File.Instances]: (IClassObjectData|OtherObjectData|RootInstanceIndex)[];
+    // A one-dimensional array to represent object datas, layout is [...IClassObjectData[], ...OtherObjectData[], RootInfo]
+    // If the last element is not RootInfo(number), the first element will be the root object to return and it doesn't have native asset
+    [File.Instances]: (IClassObjectData|OtherObjectData|RootInfo)[];
     [File.InstanceTypes]: OtherObjectTypeID[] | Empty;
     // Object references infomation
     [File.Refs]: IRefs | Empty;
@@ -747,6 +754,9 @@ function parseInstances (data: IFileData): RootInstanceIndex {
         rootIndex = 0;
     }
     else {
+        if (rootIndex < 0) {
+            rootIndex = ~rootIndex;
+        }
         --normalObjectCount;
     }
 
@@ -921,7 +931,7 @@ export default function deserialize (data: IFileData, details: Details, options?
     let version = data[File.Version];
     let preprocessed = false;
     if (typeof version === 'object') {
-        preprocessed = true;
+        preprocessed = version.preprocessed;
         version = version.version;
     }
     if (version < SUPPORT_MIN_FORMAT_VERSION) {
@@ -956,6 +966,14 @@ export default function deserialize (data: IFileData, details: Details, options?
 
 deserialize.Details = Details;
 
+class FileInfo {
+    declare version: number;
+    preprocessed = true;
+    constructor (version: number) {
+        this.version = version;
+    }
+}
+
 export function unpackJSONs (data: IPackedFileData, classFinder?: ClassFinder): IFileData[] {
     if (data[File.Version] < SUPPORT_MIN_FORMAT_VERSION) {
         throw new Error(cc.debug.getError(5304, data[File.Version]));
@@ -963,7 +981,7 @@ export function unpackJSONs (data: IPackedFileData, classFinder?: ClassFinder): 
     lookupClasses(data, true, classFinder);
     cacheMasks(data);
 
-    let version = { version: data[File.Version] };  // use an object to marked as preprocessed
+    let version = new FileInfo(data[File.Version]);
     let sharedUuids = data[File.SharedUuids];
     let sharedStrings = data[File.SharedStrings];
     let sharedClasses = data[File.SharedClasses];
@@ -985,6 +1003,35 @@ export function packCustomObjData (type: string, data: IClassObjectData|OtherObj
         [0],
         EMPTY_PLACEHOLDER, [], [], []
     ];
+}
+
+export function hasNativeDep (data: IFileData): boolean {
+    let instances = data[File.Instances];
+    let rootInfo = instances[instances.length - 1];
+    if (typeof rootInfo !== 'number') {
+        return false;
+    }
+    else {
+        return rootInfo < 0;
+    }
+}
+
+if (CC_PREVIEW) {
+    deserialize.isCompiledJson = function (json: object): boolean {
+        if (Array.isArray(json)) {
+            let version = json[0];
+            // array[0] will not be a number in the editor version
+            return typeof version === 'number' || version instanceof FileInfo;
+        }
+        else {
+            return false;
+        }
+    };
+}
+
+export function getDependUuidList (json: IFileData): Array<string> {
+    let sharedUuids = json[File.SharedUuids];
+    return json[File.DependUuidIndices].map(index => sharedUuids[index]);
 }
 
 if (CC_EDITOR || CC_TEST) {
@@ -1013,6 +1060,7 @@ if (CC_TEST) {
         deserializeCCObject,
         deserializeCustomCCObject,
         parseInstances,
+        parseResult,
         cacheMasks,
         File: {
             Version: File.Version,

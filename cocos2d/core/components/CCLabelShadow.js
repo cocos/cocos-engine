@@ -63,7 +63,7 @@ let LabelShadow = cc.Class({
         color: {
             tooltip: CC_DEV && 'i18n:COMPONENT.shadow.color',
             get: function () {
-                return this._color;
+                return this._color.clone();
             },
             set: function (value) {
                 if (!this._color.equals(value)) {

@@ -38,6 +38,7 @@ let _m4_tmp2 = cc.mat4();
  * !#zh
  * 蒙皮渲染组件
  * @class SkinnedMeshRenderer
+ * @extends MeshRenderer
  */
 let SkinnedMeshRenderer = cc.Class({
     name: 'cc.SkinnedMeshRenderer',

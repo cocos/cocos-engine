@@ -92,7 +92,6 @@ let PrivateNode = cc.Class({
                 return cc.macro.MIN_ZINDEX;
             },
             set () {
-                cc.warnID(1638);
             },
             override: true
         },
@@ -172,7 +171,27 @@ let PrivateNode = cc.Class({
     _updateOrderOfArrival() {},
 });
 
-cc.js.getset(PrivateNode.prototype, "parent", PrivateNode.prototype.getParent, PrivateNode.prototype.setParent);
-cc.js.getset(PrivateNode.prototype, "position", PrivateNode.prototype.getPosition, PrivateNode.prototype.setPosition);
+let proto = PrivateNode.prototype;
+cc.js.getset(proto, "parent", proto.getParent, proto.setParent);
+cc.js.getset(proto, "position", proto.getPosition, proto.setPosition);
+
+if (CC_EDITOR) {
+    // check components to avoid missing node reference serialied in previous version
+    proto._onBatchCreated = function () {
+        for (let comp of this._components) {
+            comp.node = this;
+        }
+
+        Node.prototype._onBatchCreated.call(this);
+    };
+    // check components to avoid missing node reference serialied in previous version
+    proto._onBatchRestored = function () {
+        for (let comp of this._components) {
+            comp.node = this;
+        }
+        
+        Node.prototype._onBatchRestored.call(this);
+    };
+}
 
 cc.PrivateNode = module.exports = PrivateNode;

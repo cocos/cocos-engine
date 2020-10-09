@@ -29,6 +29,7 @@ const RenderComponent = require('./CCRenderComponent');
 const Material = require('../assets/material/CCMaterial');
 const LabelFrame = require('../renderer/utils/label/label-frame');
 const BlendFunc = require('../utils/blend-func');
+const deleteFromDynamicAtlas = require('../renderer/utils/utils').deleteFromDynamicAtlas;
 
 /**
  * !#en Enum for text alignment.
@@ -620,6 +621,7 @@ let Label = cc.Class({
         // Keep track of Node size
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this._nodeSizeChanged, this);
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this.setVertsDirty, this);
+        this.node.on(cc.Node.EventType.COLOR_CHANGED, this._nodeColorChanged, this);
 
         this._forceUpdateRenderData();
     },
@@ -628,6 +630,7 @@ let Label = cc.Class({
         this._super();
         this.node.off(cc.Node.EventType.SIZE_CHANGED, this._nodeSizeChanged, this);
         this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this.setVertsDirty, this);
+        this.node.off(cc.Node.EventType.COLOR_CHANGED, this._nodeColorChanged, this);
     },
 
     onDestroy () {
@@ -645,6 +648,12 @@ let Label = cc.Class({
         // Because the content size is automatically updated when overflow is NONE.
         // And this will conflict with the alignment of the CCWidget.
         if (CC_EDITOR || this.overflow !== Overflow.NONE) {
+            this.setVertsDirty();
+        }
+    },
+
+    _nodeColorChanged () {
+        if (!(this.font instanceof cc.BitmapFont)) {
             this.setVertsDirty();
         }
     },
@@ -690,8 +699,15 @@ let Label = cc.Class({
     },
 
     _resetAssembler () {
-        this._frame = null;
+        this._resetFrame();
         RenderComponent.prototype._resetAssembler.call(this);
+    },
+
+    _resetFrame () {
+        if (this._frame) {
+            deleteFromDynamicAtlas(this, this._frame);
+            this._frame = null;
+        }
     },
 
     _checkStringEmpty () {
@@ -773,8 +789,14 @@ let Label = cc.Class({
         BlendFunc.prototype._updateMaterial.call(this);
     },
 
+    _forceUseCanvas: false,
+ 
+    _useNativeTTF() {
+        return cc.macro.ENABLE_NATIVE_TTF_RENDERER && !this._forceUseCanvas;
+    }, 
+
     _nativeTTF() {
-        return !!this._assembler && !!this._assembler._updateTTFMaterial
+        return this._useNativeTTF() && !!this._assembler && !!this._assembler._updateTTFMaterial;
     },
 
     _forceUpdateRenderData () {

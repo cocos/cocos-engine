@@ -179,7 +179,7 @@ var MotionStreak = cc.Class({
         _color: cc.Color.WHITE,
         color: {
             get () {
-                return this._color;
+                return this._color.clone();
             },
             set (value) {
                 if (!this._color.equals(value)) {

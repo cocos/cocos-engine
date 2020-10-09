@@ -260,7 +260,7 @@ var downloader = {
 
     bundleVers: null,
 
-    /**
+    /*
      * !#en
      * Use Image element to download image
      *  
@@ -284,7 +284,7 @@ var downloader = {
      */
     downloadDomImage: downloadDomImage,
 
-    /**
+    /*
      * !#en
      * Use audio element to download audio
      * 
@@ -308,7 +308,7 @@ var downloader = {
      */
     downloadDomAudio: downloadDomAudio,
     
-    /**
+    /*
      * !#en
      * Use XMLHttpRequest to download file
      * 
@@ -342,7 +342,7 @@ var downloader = {
      */
     downloadFile: downloadFile,
 
-    /**
+    /*
      * !#en
      * Load script 
      * 

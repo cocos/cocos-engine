@@ -189,7 +189,7 @@ const loader = {
      * @method getItem
      * @param {Object} id The id of the item
      * @return {Object}
-     * @deprecated cc.loader.getItem is deprecated, please use cc.assetManager.asset.get instead
+     * @deprecated cc.loader.getItem is deprecated, please use cc.assetManager.assets.get instead
      */
     getItem (key) {
         return cc.assetManager.assets.has(key) ? { content: cc.assetManager.assets.get(key) } : null;

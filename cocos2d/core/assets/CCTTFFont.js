@@ -59,16 +59,6 @@ var TTFFont = cc.Class({
             },
             override: true
         }
-    },
-
-    statics: {
-        _parseDepsFromJson () {
-            return [];
-        },
-
-        _parseNativeDepFromJson (json) {
-            return { __nativeName__: json._native,  ext: cc.path.extname(json._native), __isNative__: true };
-        }
     }
 });
 

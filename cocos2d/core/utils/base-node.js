@@ -1139,12 +1139,23 @@ var BaseNode = cc.Class({
             if (myPrefabInfo) {
                 if (newPrefabRoot) {
                     if (myPrefabInfo.root !== newPrefabRoot) {
-                        // change prefab
-                        PrefabUtils.unlinkPrefab(this);
-                        PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                        if (myPrefabInfo.root === this) {
+                            // nest prefab
+                            myPrefabInfo.fileId || (myPrefabInfo.fileId = Editor.Utils.UuidUtils.uuid());
+                            PrefabUtils.checkCircularReference(myPrefabInfo.root);
+                        }
+                        else {
+                            // change prefab
+                            PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                            PrefabUtils.checkCircularReference(newPrefabRoot);
+                        }
                     }
                 }
-                else if (myPrefabInfo.root !== this) {
+                else if (myPrefabInfo.root === this) {
+                    // nested prefab to root prefab
+                    myPrefabInfo.fileId = '';   // root prefab doesn't have fileId
+                }
+                else {
                     // detach from prefab
                     PrefabUtils.unlinkPrefab(this);
                 }
@@ -1152,6 +1163,7 @@ var BaseNode = cc.Class({
             else if (newPrefabRoot) {
                 // attach to prefab
                 PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                PrefabUtils.checkCircularReference(newPrefabRoot);
             }
 
             // conflict detection
@@ -1173,7 +1185,7 @@ var BaseNode = cc.Class({
         if (CC_EDITOR && thisPrefabInfo) {
             if (this !== thisPrefabInfo.root) {
                 var PrefabUtils = Editor.require('scene://utils/prefab');
-                PrefabUtils.initClonedChildOfPrefab(cloned);
+                PrefabUtils.unlinkPrefab(cloned);
             }
         }
         var syncing = thisPrefabInfo && this === thisPrefabInfo.root && thisPrefabInfo.sync;

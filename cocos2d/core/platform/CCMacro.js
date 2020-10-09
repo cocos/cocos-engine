@@ -366,15 +366,28 @@ cc.macro = {
      * https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/createImageBitmap
      * 
      * !#en
-     * Whether to use image bitmap first.
+     * Whether to use image bitmap first. If enabled, memory usage will increase.
      * 
      * !#zh
-     * 是否优先使用 image bitmap
+     * 是否优先使用 image bitmap，启用之后，内存占用会变高
      * 
      * @property {Boolean} ALLOW_IMAGE_BITMAP
      * @default true
      */
-    ALLOW_IMAGE_BITMAP: true
+    ALLOW_IMAGE_BITMAP: !cc.sys.isMobile,
+
+    /**
+     * !#en
+     * Whether to use native TTF renderer which is faster but layout slightly different.
+     * 
+     * !#zh
+     * 是否使用原生的文本渲染机制, 布局和编辑器有差异.
+     * 
+     * @property {Boolean} ENABLE_NATIVE_TTF_RENDERER
+     * @default true
+     */
+    ENABLE_NATIVE_TTF_RENDERER: true
+
 };
 
 Object.defineProperty(cc.macro, 'ROTATE_ACTION_CCW', {
