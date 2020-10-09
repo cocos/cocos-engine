@@ -4,17 +4,31 @@ CCEffect %{
   techniques:
   - name: deferrd-rendering
     passes:
-    - vert: standard-vs:vert
+    - vert: gbuffer-vs
       frag: gbuffer-fs
       phase: deferred-gbuffer
-      propertyIndex: 0
+      depthStencilState:
+        depthFunc: less
+        depthTest: true
+        depthWrite: true
       blendState:
         targets:
         - blend: false
         - blend: false
         - blend: false
         - blend: false
-    - vert: standard-vs:vert
+      properties: &props
+        tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
+        albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
+        alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
+        occlusion:      { value: 1.0, target: pbrParams.x }
+        roughness:      { value: 0.8, target: pbrParams.y }
+        metallic:       { value: 0.6, target: pbrParams.z }
+        normalStrenth:  { value: 1.0, target: pbrParams.w, editor: { parent: USE_NORMAL_MAP } }
+        emissive:       { value: [0.0, 0.0, 0.0, 1.0], editor: { type: color } }
+        emissiveScale:  { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
+    - vert: lighting-vs
       frag: lighting-fs
       phase: deferred-lighting
       propertyIndex: 0
@@ -31,7 +45,7 @@ CCProgram shared-ubos %{
   };
 }%
 
-CCProgram standard-vs %{
+CCProgram gbuffer-vs %{
   precision highp float;
   #include <input-standard>
   #include <cc-global>
@@ -64,7 +78,7 @@ CCProgram standard-vs %{
     #include <lightingmap-vs>
   #endif
 
-  vec4 vert () {
+  void main () {
     StandardVertInput In;
     CCVertInput(In);
 
@@ -96,12 +110,114 @@ CCProgram standard-vs %{
 
     CCPassShadowParams(pos);
 
-    return cc_matProj * (cc_matView * matWorld) * In.position;
+    gl_Position = cc_matProj * (cc_matView * matWorld) * In.position;
   }
 }%
 
 CCProgram gbuffer-fs %{
   precision highp float;
+  #include <cc-global>
+  #include <shading-standard>
+  #include <output-standard>
+  #include <gamma>
+  #include <shared-ubos>
+  #include <cc-fog>
+
+  in vec3 v_position;
+  in vec2 v_uv;
+  in vec2 v_uv1;
+  in vec3 v_normal;
+  in float v_fog_factor;
+
+  #if USE_VERTEX_COLOR
+    in vec3 v_color;
+  #endif
+
+  #if USE_ALBEDO_MAP
+    uniform sampler2D albedoMap;
+    #pragma define ALBEDO_UV options([v_uv, v_uv1])
+  #endif
+  #if USE_NORMAL_MAP
+    in vec3 v_tangent;
+    in vec3 v_bitangent;
+    uniform sampler2D normalMap;
+    #pragma define NORMAL_UV options([v_uv, v_uv1])
+  #endif
+  #pragma define PBR_UV options([v_uv, v_uv1])
+  #if USE_PBR_MAP
+    uniform sampler2D pbrMap;
+  #endif
+  #if USE_METALLIC_ROUGHNESS_MAP
+    uniform sampler2D metallicRoughnessMap;
+  #endif
+  #if USE_OCCLUSION_MAP
+    uniform sampler2D occlusionMap;
+  #endif
+  #if USE_EMISSIVE_MAP
+    uniform sampler2D emissiveMap;
+    #pragma define EMISSIVE_UV options([v_uv, v_uv1])
+  #endif
+
+  #define OCCLUSION_CHANNEL r
+  #define ROUGHNESS_CHANNEL g
+  #define METALLIC_CHANNEL  b
+
+  #if USE_ALPHA_TEST
+    #pragma define ALPHA_TEST_CHANNEL options([a, r])
+  #endif
+
+  void surf (out StandardSurface s) {
+    vec4 baseColor = albedo;
+    #if USE_VERTEX_COLOR
+      baseColor.rgb *= v_color;
+    #endif
+    #if USE_ALBEDO_MAP
+      vec4 texColor = texture(albedoMap, ALBEDO_UV);
+      texColor.rgb = SRGBToLinear(texColor.rgb);
+      baseColor *= texColor;
+    #endif
+    s.albedo = baseColor;
+    s.albedo.rgb *= albedoScaleAndCutoff.xyz;
+
+    #if USE_ALPHA_TEST
+      if (s.albedo.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
+    #endif
+
+    s.normal = v_normal;
+    #if USE_NORMAL_MAP
+      vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
+      s.normal =
+        (nmmp.x * pbrParams.w) * normalize(v_tangent) +
+        (nmmp.y * pbrParams.w) * normalize(v_bitangent) +
+        nmmp.z * normalize(s.normal);
+    #endif
+
+    s.position = v_position;
+
+    vec4 pbr = pbrParams;
+    #if USE_PBR_MAP
+      vec4 res = texture(pbrMap, PBR_UV);
+      pbr.x *= res.OCCLUSION_CHANNEL;
+      pbr.y *= res.ROUGHNESS_CHANNEL;
+      pbr.z *= res.METALLIC_CHANNEL;
+    #endif
+    #if USE_METALLIC_ROUGHNESS_MAP
+      vec4 metallicRoughness = texture(metallicRoughnessMap, PBR_UV);
+      pbr.z *= metallicRoughness.METALLIC_CHANNEL;
+      pbr.y *= metallicRoughness.ROUGHNESS_CHANNEL;
+    #endif
+    #if USE_OCCLUSION_MAP
+      pbr.x *= texture(occlusionMap, PBR_UV).OCCLUSION_CHANNEL;
+    #endif
+    s.occlusion = clamp(pbr.x, 0.0, 0.96);
+    s.roughness = clamp(pbr.y, 0.04, 1.0);
+    s.metallic = pbr.z;
+
+    s.emissive = emissive.rgb * emissiveScaleParam.xyz;
+    #if USE_EMISSIVE_MAP
+      s.emissive *= SRGBToLinear(texture(emissiveMap, EMISSIVE_UV).rgb);
+    #endif
+  }
 
   layout(location = 0) out vec4 fragColor0;
   layout(location = 1) out vec4 fragColor1;
@@ -109,19 +225,71 @@ CCProgram gbuffer-fs %{
   layout(location = 3) out vec4 fragColor3;
 
   void main () {
-    fragColor0 = vec4(1.0, 0.0, 0.0, 1.0);
-    fragColor1 = vec4(0.0, 1.0, 0.0, 1.0);
-    fragColor2 = vec4(0.0, 0.0, 1.0, 1.0);
-    fragColor3 = vec4(1.0, 1.0, 0.0, 1.0);
+    StandardSurface s; surf(s);
+    fragColor0 = s.albedo;
+    fragColor1 = vec4(s.position, s.roughness);
+    fragColor2 = vec4(s.normal, s.metallic);
+    fragColor3 = vec4(s.emissive, s.occlusion);
+  }
+}%
+
+CCProgram lighting-vs %{
+  precision highp float;
+  #include <input-standard>
+
+  void main () {
+    StandardVertInput In;
+    CCVertInput(In);
+    
+    gl_Position = In.position;
+    gl_Position.x = gl_Position.x * 3.0;
+    gl_Position.y = gl_Position.y * 3.0;
   }
 }%
 
 CCProgram lighting-fs %{
   precision highp float;
+  #include <cc-global>
+  #include <shading-standard>
+  #include <output-standard>
+  #include <gamma>
+  #include <shared-ubos>
+  #include <cc-fog>
+
+  #pragma builtin(global)
+  layout(set = 0, binding = 5) uniform sampler2D cc_gbuffer_albedoMap;
+  #pragma builtin(global)
+  layout(set = 0, binding = 6) uniform sampler2D cc_gbuffer_positionMap;
+  #pragma builtin(global)
+  layout(set = 0, binding = 7) uniform sampler2D cc_gbuffer_normalMap;
+  #pragma builtin(global)
+  layout(set = 0, binding = 8) uniform sampler2D cc_gbuffer_emissiveMap;
 
   layout(location = 0) out vec4 fragColor0;
 
   void main () {
-    fragColor0 = vec4(1.0, 1.0, 0.0, 1.0);
+    StandardSurface s;
+    vec2 uv = gl_FragCoord.xy/vec2(960,640);
+    uv.y = 1.0 - uv.y;
+    // uv = vec2(1.0) - uv;
+    vec4 albedoMap = texture(cc_gbuffer_albedoMap,uv);
+    vec4 positionMap =  texture(cc_gbuffer_positionMap,uv);
+    vec4 normalMap = texture(cc_gbuffer_normalMap,uv);
+    vec4 emissiveMap = texture(cc_gbuffer_emissiveMap,uv);
+
+    s.albedo = albedoMap;
+    s.position = positionMap.xyz;
+    s.roughness = positionMap.w;
+    s.normal = normalMap.xyz;
+    s.metallic = normalMap.w;
+    s.emissive = emissiveMap.xyz;
+    s.occlusion = emissiveMap.w;
+
+    vec4 color = CCStandardShading(s);
+    float fog_factor = CC_TRANSFER_FOG(vec4(s.position,1)); 
+    color = CC_APPLY_FOG(color, fog_factor);
+    fragColor0 = CCFragOutput(color);
+    // fragColor0 = vec4(uv,0,1);
+    // fragColor0 = vec4(s.normal, 1.0);
   }
 }%

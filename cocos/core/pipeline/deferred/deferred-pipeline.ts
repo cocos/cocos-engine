@@ -8,7 +8,8 @@ import { GbufferFlow } from './gbuffer-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-import { IRenderObject, UBOGlobal, UBOShadow,  UNIFORM_SHADOWMAP_BINDING, UNIFORM_ALBEDOMAP_BINDING, UNIFORM_NORMALMAP_BINDING} from '../define';
+import { IRenderObject, UBOGlobal, UBOShadow,  UNIFORM_SHADOWMAP_BINDING, UNIFORM_GBUFFER_ALBEDOMAP_BINDING, 
+    UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING} from '../define';
 import { GFXBufferUsageBit, GFXMemoryUsageBit,
     GFXClearFlag, GFXFilter, GFXAddress } from '../../gfx/define';
 import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout, GFXRenderPassInfo, GFXBufferInfo } from '../../gfx';
@@ -255,8 +256,10 @@ export class DeferredPipeline extends RenderPipeline {
         ]);
         const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
         this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
-        // this._descriptorSet.bindSampler(UNIFORM_ALBEDOMAP_BINDING, shadowMapSampler);
-        // this._descriptorSet.bindSampler(UNIFORM_NORMALMAP_BINDING, shadowMapSampler);
+        this._descriptorSet.bindSampler(UNIFORM_GBUFFER_ALBEDOMAP_BINDING, shadowMapSampler);
+        this._descriptorSet.bindSampler(UNIFORM_GBUFFER_POSITIONMAP_BINDING, shadowMapSampler);
+        this._descriptorSet.bindSampler(UNIFORM_GBUFFER_NORMALMAP_BINDING, shadowMapSampler);
+        this._descriptorSet.bindSampler(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, shadowMapSampler);
 
 
         // update global defines when all states initialized.

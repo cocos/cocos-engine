@@ -22,7 +22,7 @@ import { DeferredPipeline } from './deferred-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 import { PlanarShadowQueue } from './planar-shadow-queue';
 
-const colors: GFXColor[] = [ new GFXColor(0, 0, 0, 1), new GFXColor(0, 0, 0, 1), new GFXColor(0, 0, 0, 1), new GFXColor(0, 0, 0, 1) ];
+const colors: GFXColor[] = [ new GFXColor(0, 0, 0, 0), new GFXColor(0, 0, 0, 0), new GFXColor(0, 0, 0, 0), new GFXColor(0, 0, 0, 0) ];
 
 /**
  * @en The gbuffer render stage
@@ -78,6 +78,8 @@ export class GbufferStage extends RenderStage {
         if (info.renderQueues) {
             this.renderQueues = info.renderQueues;
         }
+        // const mat = new Material();
+        // mat.initialize({ effectName: 'builtin-gbuffer' });
         return true;
     }
 
@@ -161,22 +163,6 @@ export class GbufferStage extends RenderStage {
         this._renderArea!.y = vp.y * camera.height;
         this._renderArea!.width = vp.width * camera.width * pipeline.shadingScale;
         this._renderArea!.height = vp.height * camera.height * pipeline.shadingScale;
-
-        if (camera.clearFlag & GFXClearFlag.COLOR) {
-            if (pipeline.isHDR) {
-                SRGBToLinear(colors[0], camera.clearColor);
-                const scale = pipeline.fpScale / camera.exposure;
-                colors[0].x *= scale;
-                colors[0].y *= scale;
-                colors[0].z *= scale;
-            } else {
-                colors[0].x = camera.clearColor.x;
-                colors[0].y = camera.clearColor.y;
-                colors[0].z = camera.clearColor.z;
-            }
-        }
-
-        colors[0].w = camera.clearColor.w;
 
         const framebuffer = this._gbufferFrameBuffer!;
         const renderPass = framebuffer.renderPass;

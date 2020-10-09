@@ -3,7 +3,8 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { PIPELINE_FLOW_GBUFFER, UNIFORM_SHADOWMAP_BINDING, UNIFORM_ALBEDOMAP_BINDING, UNIFORM_NORMALMAP_BINDING } from '../define';
+import { PIPELINE_FLOW_GBUFFER, UNIFORM_SHADOWMAP_BINDING, UNIFORM_GBUFFER_ALBEDOMAP_BINDING, 
+    UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
 import { DeferredFlowPriority } from './enum';
@@ -57,7 +58,7 @@ export class GbufferFlow extends RenderFlow {
         if(!this._gbufferRenderPass) {
 
             const colorAttachment0 = new GFXColorAttachment();
-            colorAttachment0.format = GFXFormat.RGBA8;
+            colorAttachment0.format = GFXFormat.RGBA32F;
             colorAttachment0.loadOp = GFXLoadOp.CLEAR; // should clear color attachment
             colorAttachment0.storeOp = GFXStoreOp.STORE;
             colorAttachment0.sampleCount = 1;
@@ -65,7 +66,7 @@ export class GbufferFlow extends RenderFlow {
             colorAttachment0.endLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
 
             const colorAttachment1 = new GFXColorAttachment();
-            colorAttachment1.format = GFXFormat.RGBA8;
+            colorAttachment1.format = GFXFormat.RGBA32F;
             colorAttachment1.loadOp = GFXLoadOp.CLEAR; // should clear color attachment
             colorAttachment1.storeOp = GFXStoreOp.STORE;
             colorAttachment1.sampleCount = 1;
@@ -73,7 +74,7 @@ export class GbufferFlow extends RenderFlow {
             colorAttachment1.endLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
 
             const colorAttachment2 = new GFXColorAttachment();
-            colorAttachment2.format = GFXFormat.RGBA8;
+            colorAttachment2.format = GFXFormat.RGBA32F;
             colorAttachment2.loadOp = GFXLoadOp.CLEAR; // should clear color attachment
             colorAttachment2.storeOp = GFXStoreOp.STORE;
             colorAttachment2.sampleCount = 1;
@@ -81,7 +82,7 @@ export class GbufferFlow extends RenderFlow {
             colorAttachment2.endLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
 
             const colorAttachment3 = new GFXColorAttachment();
-            colorAttachment3.format = GFXFormat.RGBA8;
+            colorAttachment3.format = GFXFormat.RGBA32F;
             colorAttachment3.loadOp = GFXLoadOp.CLEAR; // should clear color attachment
             colorAttachment3.storeOp = GFXStoreOp.STORE;
             colorAttachment3.sampleCount = 1;
@@ -106,28 +107,28 @@ export class GbufferFlow extends RenderFlow {
             this._gbufferRenderTargets.push(device.createTexture(new GFXTextureInfo(
                 GFXTextureType.TEX2D,
                 GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                GFXFormat.RGBA8,
+                GFXFormat.RGBA32F,
                 this._width,
                 this._height,
             )));
             this._gbufferRenderTargets.push(device.createTexture(new GFXTextureInfo(
                 GFXTextureType.TEX2D,
                 GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                GFXFormat.RGBA8,
+                GFXFormat.RGBA32F,
                 this._width,
                 this._height,
             )));
             this._gbufferRenderTargets.push(device.createTexture(new GFXTextureInfo(
                 GFXTextureType.TEX2D,
                 GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                GFXFormat.RGBA8,
+                GFXFormat.RGBA32F,
                 this._width,
                 this._height,
             )));
             this._gbufferRenderTargets.push(device.createTexture(new GFXTextureInfo(
                 GFXTextureType.TEX2D,
                 GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                GFXFormat.RGBA8,
+                GFXFormat.RGBA32F,
                 this._width,
                 this._height,
             )));
@@ -160,7 +161,10 @@ export class GbufferFlow extends RenderFlow {
         const pipeline = this._pipeline as DeferredPipeline;
         pipeline.updateUBOs(view);
         super.render(view);
-        // pipeline.descriptorSet.bindTexture(UNIFORM_ALBEDOMAP_BINDING, this._gbufferFrameBuffer!.colorTextures[0]!);
-        // pipeline.descriptorSet.bindTexture(UNIFORM_NORMALMAP_BINDING, this._gbufferFrameBuffer!.colorTextures[1]!);
+        pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_ALBEDOMAP_BINDING, this._gbufferFrameBuffer!.colorTextures[0]!);
+        pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_POSITIONMAP_BINDING, this._gbufferFrameBuffer!.colorTextures[1]!);
+        pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_NORMALMAP_BINDING, this._gbufferFrameBuffer!.colorTextures[2]!);
+        pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, this._gbufferFrameBuffer!.colorTextures[3]!);
+
     }
 }
