@@ -36,7 +36,7 @@ import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
 import { RenderTexture } from './render-texture';
 import { TextureBase } from './texture-base';
-import { BUILD, EDITOR } from 'internal:constants';
+import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { ImageAsset, ImageSource } from './image-asset';
 import { Texture2D } from './texture-2d';
@@ -436,6 +436,7 @@ export class SpriteFrame extends Asset {
     set _textureSource (value: TextureBase) {
         // Optimization for build
         if (window.Build) {
+            this._texture = value;
             return;
         }
         if (value) {
