@@ -168,6 +168,12 @@ var Slider = cc.Class({
         if (!this.handle) { return; }
         this._dragging = true;
         if (!this._touchHandle) {
+            let worldPos = this.handle.node.convertToWorldSpaceAR(cc.v2());
+
+            let screenPos = cc.Camera.findCamera(this.handle.node).getWorldToScreenPoint(worldPos);
+
+            this._offset = this.handle.node.convertToNodeSpaceAR(screenPos);
+
             this._handleSliderLogic(event.touch);
         }
         event.stopPropagation();
