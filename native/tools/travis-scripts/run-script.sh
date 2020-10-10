@@ -48,19 +48,19 @@ function build_android()
 {
     echo "Compiling Android ... "
     cd $COCOS2DX_ROOT/templates/template-link/platforms/android
-    sed -i "s@\${COCOS_X_ROOT}@$COCOS2DX_ROOT@g" app/build.gradle
-    sed -i "s@\${COCOS_X_ROOT}@$COCOS2DX_ROOT@g" game/build.gradle
-    sed -i "s@\${COCOS_X_ROOT}@$COCOS2DX_ROOT@g" ../../common/CMakeLists.txt
-    sed -i "s@\${COCOS_X_ROOT}@$COCOS2DX_ROOT@g" settings.gradle
+    sed -i "s@\${COCOS_ROOT}@$COCOS2DX_ROOT@g" app/build.gradle
+    sed -i "s@\${COCOS_ROOT}@$COCOS2DX_ROOT@g" game/build.gradle
+    sed -i "s@\${COCOS_ROOT}@$COCOS2DX_ROOT@g" ../../common/CMakeLists.txt
+    sed -i "s@\${COCOS_ROOT}@$COCOS2DX_ROOT@g" settings.gradle
     sed -i "s@\${COCOS_PROJ_COMMON}@$COCOS2DX_ROOT/templates/template-link/common@g" app/build.gradle
     sed -i "s@\${COCOS_PROJ_COMMON}@$COCOS2DX_ROOT/templates/template-link/common@g" game/build.gradle
     sed -i "s/^RELEASE_/#RELEASE_/g" gradle.properties
 
     #echo "Compile Android - ndk-build ..."
     #./gradlew assembleDebug --quiet
-    
+
     echo "Compile Android - cmake ..."
-    echo "ANDORID_NDK ${ANDROID_NDK} or ${ANDROID_NDK_HOME}" 
+    echo "ANDORID_NDK ${ANDROID_NDK} or ${ANDROID_NDK_HOME}"
     ./gradlew assembleDebug --quiet
     echo "Compile Android Debug Done!"
     # ./gradlew assembleRelease # --quiet
@@ -68,7 +68,7 @@ function build_android()
 }
 
 function mac_install_cmake()
-{   
+{
     echo "Compiling CMake ... "
     NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
     cd $HOME/bin
@@ -100,9 +100,9 @@ function build_macosx()
 
     echo "Compiling MacOSX ... "
     cd  $COCOS2DX_ROOT/templates/template-link/platforms/mac
-    mkdir build-mac 
+    mkdir build-mac
     cd build-mac
-    cmake ../../../common -GXcode -DCOCOS_X_ROOT=$COCOS2DX_ROOT
+    cmake ../../../common -GXcode -DCOCOS_ROOT=$COCOS2DX_ROOT
     cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES
     echo "Compile MacOSX Debug Done!"
     cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES
@@ -115,11 +115,11 @@ function build_ios()
 
     echo "Compiling iOS ... "
     cd  $COCOS2DX_ROOT/templates/template-link/platforms/ios
-    mkdir build-ios 
+    mkdir build-ios
     cd build-ios
-    cmake ../../../common -GXcode -DCOCOS_X_ROOT=$COCOS2DX_ROOT -DCMAKE_SYSTEM_NAME=iOS \
+    cmake ../../../common -GXcode -DCOCOS_ROOT=$COCOS2DX_ROOT -DCMAKE_SYSTEM_NAME=iOS \
         -DCMAKE_OSX_SYSROOT=iphonesimulator \
-        -DCMAKE_OSX_ARCHITECTURES=x86_64 
+        -DCMAKE_OSX_ARCHITECTURES=x86_64
     cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES
     echo "Compile iOS Done!"
 }
@@ -128,10 +128,10 @@ function build_windows()
 {
     echo "Compiling Win32 ... "
     cd  $COCOS2DX_ROOT/templates/template-link/platforms/win32
-    mkdir build-win32 
+    mkdir build-win32
     cd build-win32
-    cmake ../../../common -G"Visual Studio 15 2017" -DCOCOS_X_ROOT=$COCOS2DX_ROOT 
-    cmake --build . --config Debug 
+    cmake ../../../common -G"Visual Studio 15 2017" -DCOCOS_ROOT=$COCOS2DX_ROOT
+    cmake --build . --config Debug
     echo "Compile Win32 Debug Done!"
     cmake --build . --config Release
     echo "Compile Win32 Debug Done!"

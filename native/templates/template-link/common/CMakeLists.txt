@@ -33,9 +33,9 @@ else()
 endif()
 set(TARGET_OSX_VERSION "10.10")
 
-set(cocosdir "${COCOS_X_ROOT}")
+set(cocosdir "${COCOS_ROOT}")
 if(NOT cocosdir)
-    message(FATAL_ERROR "COCOS_X_ROOT is not set!")
+    message(FATAL_ERROR "COCOS_ROOT is not set!")
 endif()
 include(${cocosdir}/CMakeLists.txt)
 

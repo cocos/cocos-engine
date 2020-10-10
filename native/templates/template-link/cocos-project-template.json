@@ -1,18 +1,18 @@
 {
-    "do_default": {
+    "doDefault": {
         "exclude_from_template": [
             "cocos-project-template.json",
             "platforms",
             "common"
         ]
     },
-    "do_add_native_support": {
-        "append_file": [{
+    "doAddNativeSupport": {
+        "appendFile": [{
             "from": "cocos/bindings/manual/jsb_module_register.cpp",
             "to": "${COMMON_DIR}/Classes/jsb_module_register.cpp"
         }],
-        "project_replace_project_name": {
-            "src_project_name": "HelloJavascript",
+        "projectReplaceProjectName": {
+            "srcProjectName": "HelloJavascript",
             "files": [
                 "proj/main.cpp",
                 "proj/settings.gradle",
@@ -21,31 +21,31 @@
                 "${COMMON_DIR}/CMakeLists.txt"
             ]
         },
-        "append_x_engine": {
+        "appendXEngine": {
             "from": ".",
             "to": "${COMMON_DIR}/cocos2d-x"
         },
-        "project_replace_package_name": {
-            "src_package_name": "org.cocos2dx.hellojavascript",
+        "projectReplacePackageName": {
+            "srcPackageName": "com.cocos.helloworld",
             "files": [
                 "proj/app/build.gradle",
                 "proj/app/AndroidManifest.xml"
             ]
         },
-        "project_replace_mac_bundleid": {
-            "src_bundle_id": "org.cocos2dx.hellojavascript.mac",
+        "projectReplaceMacBundleid": {
+            "srcBundleId": "com.cocos.helloworld.mac",
             "files": [
                 "${COMMON_DIR}/CMakeLists.txt"
             ]
         },
-        "project_replace_ios_bundleid": {
-            "src_bundle_id": "org.cocos2dx.hellojavascript.ios",
+        "projectReplaceIosBundleid": {
+            "srcBundleId": "com.cocos.helloworld.ios",
             "files": [
                 "${COMMON_DIR}/CMakeLists.txt"
             ]
         },
-        "project_replace_cocos_x_root": {
-            "pattern":"\\$\\{COCOS_X_ROOT\\}",
+        "projectReplaceCocosRoot": {
+            "pattern":"\\$\\{COCOS_ROOT\\}",
             "files": [
                 {"file": "${COMMON_DIR}/CMakeLists.txt", "default":"${CMAKE_CURRENT_LIST_DIR}/cocos2d-x", "needFix":true},
                 {"file": "proj/settings.gradle", "default":"${COMMON_DIR}/cocos2d-x", "needFix":true},
@@ -54,7 +54,7 @@
                 "proj/build-cfg.json"
             ]
         },
-        "project_replace_projec_common" : {
+        "projectReplaceProjectCommon" : {
             "pattern":"\\$\\{COCOS_PROJ_COMMON\\}",
             "files":[
                 "proj/app/build.gradle",

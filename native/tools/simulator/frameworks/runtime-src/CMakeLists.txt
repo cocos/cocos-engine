@@ -33,7 +33,7 @@ endif()
 
 set(cocosdir ${CMAKE_CURRENT_LIST_DIR}/../../../..)
 if(NOT cocosdir)
-    message(FATAL_ERROR "COCOS_X_ROOT is not set!")
+    message(FATAL_ERROR "COCOS_ROOT is not set!")
 endif()
 
 include(${cocosdir}/CMakeLists.txt)

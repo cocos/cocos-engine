@@ -79,7 +79,7 @@ function getGitUrl(repo) {
     const origin = getNormalizedOrigin(repo);
     switch (repo.type) {
         case 'github': return `${origin}${repo.owner}/${repo.name}.git`;
-        case 'gitlab': return `${origin}${repo.owner}/${repo.name}.git`;
+        case 'gitlab': return `${origin}publics/${repo.name}.git`;
         default: throwUnknownExternType();
     }
 }
@@ -89,7 +89,7 @@ function getNormalizedOrigin(repo) {
     if (origin === undefined) {
         switch (repo.type) {
             case 'github': origin = 'github.com'; break;
-            case 'gitlab': origin = 'gitlab.com'; break;
+            case 'gitlab': origin = 'gitlab.cocos.net'; break;
             default: throwUnknownExternType();
         }
     }
