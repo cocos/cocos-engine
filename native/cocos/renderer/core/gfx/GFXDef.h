@@ -737,11 +737,11 @@ struct TextureInfo {
     Format format = Format::UNKNOWN;
     uint width = 0u;
     uint height = 0u;
-    uint depth = 1u;
+    TextureFlags flags = TextureFlagBit::NONE;
     uint layerCount = 1u;
     uint levelCount = 1u;
     SampleCount samples = SampleCount::X1;
-    TextureFlags flags = TextureFlagBit::NONE;
+    uint depth = 1u;
 };
 
 struct TextureViewInfo {
@@ -841,9 +841,9 @@ struct InputAssemblerInfo {
 
 struct ColorAttachment {
     Format format = Format::UNKNOWN;
+    uint sampleCount = 1;
     LoadOp loadOp = LoadOp::CLEAR;
     StoreOp storeOp = StoreOp::STORE;
-    uint sampleCount = 1;
     TextureLayout beginLayout = TextureLayout::UNDEFINED;
     TextureLayout endLayout = TextureLayout::PRESENT_SRC;
 };

@@ -47,9 +47,9 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
         _renderPass = device->createRenderPass({
             {{
                 gfx::Format::RGBA8,
+                1,
                 gfx::LoadOp::CLEAR, // should clear color attachment
                 gfx::StoreOp::STORE,
-                1,
                 gfx::TextureLayout::UNDEFINED,
                 gfx::TextureLayout::PRESENT_SRC,
             }},
