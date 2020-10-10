@@ -22,6 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+/**
+ * @packageDocumentation
+ * @module asset-manager
+ */
 import { Asset, SceneAsset } from '../assets';
 import { legacyCC } from '../global-exports';
 import { error, errorID } from '../platform/debug';

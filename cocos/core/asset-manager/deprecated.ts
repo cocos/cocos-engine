@@ -23,6 +23,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { BUILD, DEBUG } from 'internal:constants';
 import { AudioClip } from '../../audio/assets/clip';
 import { Asset, ImageAsset } from '../assets';

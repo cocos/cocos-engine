@@ -22,6 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { legacyCC } from '../global-exports';
 import { js } from '../utils';
 import { path } from '../utils';

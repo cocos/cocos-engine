@@ -22,6 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+/**
+ * @packageDocumentation
+ * @module asset-manager
+ */
 
 import { Texture2D } from '../assets';
 // import MissingScript from '../components/missing-script';

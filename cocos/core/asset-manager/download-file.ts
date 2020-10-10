@@ -22,6 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { CompleteCallback, IXHROptions } from './shared';
 
 type FileProgressCallback = (loaded: number, total: number) => void;

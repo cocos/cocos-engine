@@ -23,6 +23,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { CompleteCallbackNoData, RequestType, transformPipeline } from './shared';
 import Task from './task';
 

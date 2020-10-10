@@ -22,6 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { log } from '../platform/debug';
 import { sys } from '../platform/sys';
 import { CompleteCallback, IDownloadParseOptions } from './shared';

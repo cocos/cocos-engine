@@ -22,6 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import { Asset } from '../assets';
 import { error } from '../platform/debug';
 import packManager from './pack-manager';

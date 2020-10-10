@@ -22,6 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+/**
+ * @packageDocumentation
+ * @module asset-manager
+ */
 
 import { AudioType } from '../../audio/assets/clip';
 import { macro } from '../platform/macro';

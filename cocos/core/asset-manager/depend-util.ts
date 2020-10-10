@@ -22,6 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+/**
+ * @packageDocumentation
+ * @module asset-manager
+ */
 import { BUILD, DEV, EDITOR } from 'internal:constants';
 import { Asset } from '..';
 // import { getDependUuidList , hasNativeDep } from '../platform/deserialize-compiled';

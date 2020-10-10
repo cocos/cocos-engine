@@ -22,10 +22,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import { AudioClip } from '../../audio/assets/clip';
 import { ImageAsset, JsonAsset, TextAsset, TTFFont, Asset } from '../assets';
 import { BufferAsset } from '../assets/buffer-asset';
-import { legacyCC } from '../global-exports';
 import { js } from '../utils/js';
 import Bundle, { resources } from './bundle';
 import Cache from './cache';

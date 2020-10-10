@@ -22,7 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { EDITOR } from 'internal:constants';
 import MissingScript from '../components/missing-script';
 import { deserialize, Details } from '../data/deserialize';

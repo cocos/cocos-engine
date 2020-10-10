@@ -22,6 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import { EDITOR, TEST } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { isValid } from '../data/object';
