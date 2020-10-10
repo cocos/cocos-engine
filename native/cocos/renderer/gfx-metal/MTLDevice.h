@@ -5,6 +5,7 @@ namespace gfx {
 
 class CCMTLStateCache;
 class CCMTLCommandAllocator;
+class CCMTLGPUStagingBufferPool;
 
 class CCMTLDevice : public Device {
 public:
@@ -43,6 +44,7 @@ public:
     CC_INLINE uint getMaximumColorRenderTargets() const { return _maxColorRenderTargets; }
     CC_INLINE uint getMaximumBufferBindingIndex() const { return _maxBufferBindingIndex; }
     CC_INLINE bool isIndirectCommandBufferSupported() const { return _icbSuppored; }
+    CC_INLINE CCMTLGPUStagingBufferPool *gpuStagingBufferPool() { return _gpuStagingBufferPool; }
 
 private:
     CCMTLStateCache *_stateCache = nullptr;
@@ -56,6 +58,7 @@ private:
     uint _maxBufferBindingIndex = 0;
     bool _icbSuppored = false;
     void *_blitedBuffer = nullptr;
+    CCMTLGPUStagingBufferPool *_gpuStagingBufferPool = nullptr;
 };
 
 } // namespace gfx

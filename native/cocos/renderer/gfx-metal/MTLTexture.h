@@ -6,9 +6,6 @@ namespace cc {
 namespace gfx {
 
 class CCMTLTexture : public Texture {
-    friend class CCMTLDevice;
-    friend class CCMTLCommandBuffer;
-
 public:
     CCMTLTexture(Device *device);
     ~CCMTLTexture();
@@ -22,7 +19,6 @@ public:
     CC_INLINE Format getConvertedFormat() const { return _convertedFormat; }
 
 private:
-    void update(const uint8_t *const *datas, const BufferTextureCopy *regions, uint count);
     bool createMTLTexture();
     void generateMipmaps();
 

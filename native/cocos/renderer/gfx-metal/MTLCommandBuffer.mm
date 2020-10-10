@@ -19,7 +19,9 @@ namespace gfx {
 
 CCMTLCommandBuffer::CCMTLCommandBuffer(Device *device)
 : CommandBuffer(device),
-  _mtkView((MTKView *)((CCMTLDevice *)_device)->getMTKView()),
+  _mtlDevice((CCMTLDevice *)device),
+  _mtlCommandQueue(id<MTLCommandQueue>(((CCMTLDevice *)device)->getMTLCommandQueue())),
+  _mtkView((MTKView *)(((CCMTLDevice *)device)->getMTKView())),
   _frameBoundarySemaphore(dispatch_semaphore_create(MAX_INFLIGHT_BUFFER)) {
     uint setCount = device->bindingMappingInfo().bufferOffsets.size();
     _GPUDescriptorSets.resize(setCount);
@@ -31,7 +33,6 @@ CCMTLCommandBuffer::~CCMTLCommandBuffer() { destroy(); }
 bool CCMTLCommandBuffer::initialize(const CommandBufferInfo &info) {
     _type = info.type;
     _queue = info.queue;
-
     return true;
 }
 
@@ -40,8 +41,10 @@ void CCMTLCommandBuffer::destroy() {
 }
 
 void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
+    if (_commandBufferBegan) return;
+
     dispatch_semaphore_wait(_frameBoundarySemaphore, DISPATCH_TIME_FOREVER);
-    _mtlCommandBuffer = [id<MTLCommandQueue>(((CCMTLDevice *)(_device))->getMTLCommandQueue()) commandBuffer];
+    _mtlCommandBuffer = [_mtlCommandQueue commandBuffer];
     [_mtlCommandBuffer enqueue];
     [_mtlCommandBuffer retain];
     _numTriangles = 0;
@@ -55,6 +58,7 @@ void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer
     }
     _firstDirtyDescriptorSet = UINT_MAX;
     CCMTLBufferManager::begin();
+    _commandBufferBegan = true;
 }
 
 void CCMTLCommandBuffer::end() {
@@ -65,14 +69,15 @@ void CCMTLCommandBuffer::end() {
     }];
     [_mtlCommandBuffer commit];
     [_mtlCommandBuffer release];
+    _commandBufferBegan = false;
 }
 
 void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil) {
 
     auto isOffscreen = static_cast<CCMTLFramebuffer *>(fbo)->isOffscreen();
     if (!isOffscreen) {
-        static_cast<CCMTLRenderPass *>(renderPass)->setColorAttachment(0, ((MTKView *)_mtkView).currentDrawable.texture, 0);
-        static_cast<CCMTLRenderPass *>(renderPass)->setDepthStencilAttachment(((MTKView *)_mtkView).depthStencilTexture, 0);
+        static_cast<CCMTLRenderPass *>(renderPass)->setColorAttachment(0, _mtkView.currentDrawable.texture, 0);
+        static_cast<CCMTLRenderPass *>(renderPass)->setDepthStencilAttachment(_mtkView.depthStencilTexture, 0);
     }
     MTLRenderPassDescriptor *mtlRenderPassDescriptor = static_cast<CCMTLRenderPass *>(renderPass)->getMTLRenderPassDescriptor();
     auto colorAttachmentCount = renderPass->getColorAttachments().size();
@@ -262,29 +267,84 @@ void CCMTLCommandBuffer::draw(InputAssembler *ia) {
 }
 
 void CCMTLCommandBuffer::updateBuffer(Buffer *buff, void *data, uint size, uint offset) {
-    if ((_type == CommandBufferType::PRIMARY) ||
-        (_type == CommandBufferType::SECONDARY)) {
-        if (buff) {
-            buff->update(data, offset, size);
-        } else {
-            CC_LOG_ERROR("CCMTLCommandBuffer::updateBuffer: buffer is nullptr.");
-        }
-    } else {
-        CC_LOG_ERROR("CCMTLCommandBuffer::updateBuffer: invalid command buffer type.");
+    if (!buff) {
+        CC_LOG_ERROR("CCMTLCommandBuffer::updateBuffer: buffer is nullptr.");
+        return;
     }
+    CCMTLGPUBuffer stagingBuffer;
+    stagingBuffer.size = size;
+    _mtlDevice->gpuStagingBufferPool()->alloc(&stagingBuffer);
+    memcpy(stagingBuffer.mappedData, data, size);
+    id<MTLBlitCommandEncoder> encoder = [_mtlCommandBuffer blitCommandEncoder];
+    [encoder copyFromBuffer:stagingBuffer.mtlBuffer
+               sourceOffset:stagingBuffer.startOffset
+                   toBuffer:((CCMTLBuffer *)buff)->getMTLBuffer()
+          destinationOffset:offset
+                       size:size];
+    [encoder endEncoding];
 }
 
 void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
-    if ((_type == CommandBufferType::PRIMARY) ||
-        (_type == CommandBufferType::SECONDARY)) {
-        if (texture) {
-            static_cast<CCMTLTexture *>(texture)->update(buffers, regions, count);
-        } else {
-            CC_LOG_ERROR("CCMTLCommandBuffer::copyBufferToTexture: texture is nullptr");
-        }
-    } else {
-        CC_LOG_ERROR("CCMTLCommandBuffer::copyBufferToTexture: invalid command buffer type %d.", _type);
+    if (!texture) {
+        CC_LOG_ERROR("CCMTLCommandBuffer::copyBufferToTexture: texture is nullptr");
+        return;
     }
+
+    uint totalSize = 0;
+    vector<uint> bufferSize(count);
+    vector<CCMTLGPUBufferImageCopy> stagingRegions(count);
+    auto format = texture->getFormat();
+    auto convertedFormat = static_cast<CCMTLTexture *>(texture)->getConvertedFormat();
+    for (size_t i = 0; i < count; i++) {
+        const auto &region = regions[i];
+        auto &stagingRegion = stagingRegions[i];
+        auto w = region.buffStride > 0 ? region.buffStride : region.texExtent.width;
+        auto h = region.buffTexHeight > 0 ? region.buffTexHeight : region.texExtent.height;
+        bufferSize[i] = w * h;
+        stagingRegion.sourceBytesPerRow = GFX_FORMAT_INFOS[static_cast<uint>(convertedFormat)].size * w;
+        stagingRegion.sourceBytesPerImage = FormatSize(convertedFormat, w, h, region.texExtent.depth);
+        stagingRegion.sourceSize = {w, h, region.texExtent.depth};
+        stagingRegion.destinationSlice = region.texSubres.baseArrayLayer;
+        stagingRegion.destinationLevel = region.texSubres.mipLevel;
+        stagingRegion.destinationOrigin = {
+            static_cast<uint>(region.texOffset.x),
+            static_cast<uint>(region.texOffset.y),
+            static_cast<uint>(region.texOffset.z)};
+        totalSize += stagingRegion.sourceBytesPerImage;
+    }
+
+    CCMTLGPUBuffer stagingBuffer;
+    stagingBuffer.size = totalSize;
+    auto texelSize = GFX_FORMAT_INFOS[static_cast<uint>(convertedFormat)].size;
+    _mtlDevice->gpuStagingBufferPool()->alloc(&stagingBuffer, texelSize);
+
+    size_t offset = 0;
+    id<MTLBlitCommandEncoder> encoder = [_mtlCommandBuffer blitCommandEncoder];
+    id<MTLTexture> dstTexture = static_cast<CCMTLTexture *>(texture)->getMTLTexture();
+    for (size_t i = 0; i < count; i++) {
+        const auto &stagingRegion = stagingRegions[i];
+        const auto convertedData = mu::convertData(buffers[i], bufferSize[i], format);
+        memcpy(stagingBuffer.mappedData + offset, convertedData, stagingRegion.sourceBytesPerImage);
+
+        [encoder copyFromBuffer:stagingBuffer.mtlBuffer
+                   sourceOffset:stagingBuffer.startOffset + offset
+              sourceBytesPerRow:stagingRegion.sourceBytesPerRow
+            sourceBytesPerImage:stagingRegion.sourceBytesPerImage
+                     sourceSize:stagingRegion.sourceSize
+                      toTexture:dstTexture
+               destinationSlice:stagingRegion.destinationSlice
+               destinationLevel:stagingRegion.destinationLevel
+              destinationOrigin:stagingRegion.destinationOrigin];
+
+        offset += stagingRegion.sourceBytesPerImage;
+        if (convertedData != buffers[i]) {
+            CC_FREE(convertedData);
+        }
+    }
+    if (texture->getFlags() & TextureFlags::GEN_MIPMAP) {
+        [encoder generateMipmapsForTexture:dstTexture];
+    }
+    [encoder endEncoding];
 }
 
 void CCMTLCommandBuffer::execute(const CommandBuffer *const *commandBuffs, uint32_t count) {

@@ -39,7 +39,7 @@ MTLSamplerAddressMode toMTLSamplerAddressMode(Address);
 MTLSamplerBorderColor toMTLSamplerBorderColor(const Color &);
 MTLSamplerMinMagFilter toMTLSamplerMinMagFilter(Filter);
 MTLSamplerMipFilter toMTLSamplerMipFilter(Filter);
-String compileGLSLShader2Msl(const String &src, ShaderStageFlagBit shaderType, Device *device, CCMTLGPUShader* gpuShader);
+String compileGLSLShader2Msl(const String &src, ShaderStageFlagBit shaderType, Device *device, CCMTLGPUShader *gpuShader);
 const uint8_t *convertRGB8ToRGBA8(const uint8_t *source, uint length);
 const uint8_t *convertRGB32FToRGBA32F(const uint8_t *source, uint length);
 NSUInteger highestSupportedFeatureSet(id<MTLDevice> device);
@@ -62,7 +62,9 @@ bool isLinearTextureSupported(uint family);
 bool isIndirectCommandBufferSupported(MTLFeatureSet featureSet);
 bool isDepthStencilFormatSupported(Format format, uint family);
 String featureSetToString(MTLFeatureSet featureSet);
+const uint8_t *const convertData(const uint8_t *source, uint length, Format type);
 
+CC_INLINE uint alignUp(uint inSize, uint align) { return ((inSize + align - 1) / align) * align; }
 } // namespace mu
 
 } // namespace gfx

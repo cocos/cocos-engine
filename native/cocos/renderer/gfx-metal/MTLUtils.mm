@@ -1185,6 +1185,14 @@ String featureSetToString(MTLFeatureSet featureSet) {
 #endif
 }
 
+const uint8_t *const convertData(const uint8_t *source, uint length, Format type) {
+    switch (type) {
+        case Format::RGB8: return mu::convertRGB8ToRGBA8(source, length);
+        case Format::RGB32F: return mu::convertRGB32FToRGBA32F(source, length);
+        default: return source;
+    }
+}
+
 } //namespace mu
 
 } // namespace gfx

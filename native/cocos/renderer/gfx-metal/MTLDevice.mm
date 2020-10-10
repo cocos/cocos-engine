@@ -73,6 +73,8 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     cmdBuffInfo.queue = _queue;
     _cmdBuff = createCommandBuffer(cmdBuffInfo);
 
+    _gpuStagingBufferPool = CC_NEW(CCMTLGPUStagingBufferPool(id<MTLDevice>(_mtlDevice)));
+
     _depthBits = 24;
     _stencilBits = 8;
 
@@ -142,6 +144,7 @@ void CCMTLDevice::destroy() {
     CC_SAFE_DESTROY(_cmdBuff);
     CC_SAFE_DESTROY(_context);
     CC_SAFE_DELETE(_stateCache);
+    CC_SAFE_DELETE(_gpuStagingBufferPool);
 }
 
 void CCMTLDevice::resize(uint width, uint height) {}
@@ -156,6 +159,8 @@ void CCMTLDevice::present() {
     queue->_numDrawCalls = 0;
     queue->_numInstances = 0;
     queue->_numTriangles = 0;
+
+    _gpuStagingBufferPool->reset();
 
     [((MTKView *)(_mtkView)).currentDrawable present];
 }
@@ -305,7 +310,13 @@ PipelineState *CCMTLDevice::createPipelineState(const PipelineStateInfo &info) {
 }
 
 void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
-    static_cast<CCMTLTexture *>(texture)->update(buffers, regions, count);
+    // This assumes the default command buffer will get submitted every frame,
+    // which is true for now but may change in the future. This appoach gives us
+    // the wiggle room to leverage immediate update vs. copy-upload strategies without
+    // breaking compatabilities. When we reached some conclusion on this subject,
+    // getting rid of this interface all together may become a better option.
+    _cmdBuff->begin();
+    static_cast<CCMTLCommandBuffer *>(_cmdBuff)->copyBuffersToTexture(buffers, texture, regions, count);
 }
 
 void CCMTLDevice::blitBuffer(void *srcData, uint offset, uint size, void *dstBuffer) {

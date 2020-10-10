@@ -13,6 +13,7 @@ struct CCMTLDepthBounds;
 struct CCMTLGPUPipelineState;
 struct CCMTLGPUBuffer;
 class CCMTLInputAssembler;
+class CCMTLDevice;
 
 class CCMTLCommandBuffer : public CommandBuffer {
     friend class CCMTLQueue;
@@ -59,6 +60,9 @@ private:
     vector<vector<uint>> _dynamicOffsets;
     uint _firstDirtyDescriptorSet = UINT_MAX;
 
+    bool _commandBufferBegan = false;
+    CCMTLDevice *_mtlDevice = nullptr;
+    id<MTLCommandQueue> _mtlCommandQueue = nil;
     MTKView *_mtkView = nil;
     id<MTLCommandBuffer> _mtlCommandBuffer = nil;
     id<MTLRenderCommandEncoder> _mtlEncoder = nil;

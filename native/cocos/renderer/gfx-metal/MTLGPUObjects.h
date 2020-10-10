@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#import "MTLUtils.h"
 #import <Metal/MTLBuffer.h>
 #import <Metal/MTLRenderCommandEncoder.h>
 #import <Metal/MTLRenderPipeline.h>
@@ -96,6 +97,9 @@ struct CCMTLGPUPipelineState {
 struct CCMTLGPUBuffer {
     uint stride = 0;
     uint count = 0;
+    uint size = 0;
+    uint startOffset = 0;
+    uint8_t *mappedData = nullptr;
     id<MTLBuffer> mtlBuffer = nil;
 };
 
@@ -118,6 +122,72 @@ class CCMTLGPUDescriptorSet : public Object {
 public:
     MTLGPUDescriptorList gpuDescriptors;
     const vector<uint> *descriptorIndices = nullptr;
+};
+
+constexpr size_t chunkSize = 16 * 1024 * 1024; // 16M per block by default
+class CCMTLGPUStagingBufferPool : public Object {
+public:
+    CCMTLGPUStagingBufferPool(id<MTLDevice> device)
+    : _device(device) {
+    }
+
+    ~CCMTLGPUStagingBufferPool() {
+        for (auto &buffer : _pool) {
+            [buffer.mtlBuffer release];
+        }
+        _pool.clear();
+    }
+
+    CC_INLINE void alloc(CCMTLGPUBuffer *gpuBuffer) { alloc(gpuBuffer, 1); }
+    void alloc(CCMTLGPUBuffer *gpuBuffer, uint alignment) {
+        auto bufferCount = _pool.size();
+        Buffer *buffer = nullptr;
+        size_t offset = 0;
+        for (size_t idx = 0; idx < bufferCount; idx++) {
+            auto *cur = &_pool[idx];
+            offset = mu::alignUp(cur->curOffset, alignment);
+            if (gpuBuffer->size + offset <= chunkSize) {
+                buffer = cur;
+                break;
+            }
+        }
+        if (!buffer) {
+            _pool.resize(bufferCount + 1);
+            buffer = &_pool.back();
+            buffer->mtlBuffer = [_device newBufferWithLength:chunkSize options:MTLResourceStorageModeShared];
+            buffer->mappedData = (uint8_t *)buffer->mtlBuffer.contents;
+            offset = 0;
+        }
+        gpuBuffer->mtlBuffer = buffer->mtlBuffer;
+        gpuBuffer->startOffset = offset;
+        gpuBuffer->mappedData = buffer->mappedData + offset;
+        buffer->curOffset = offset + gpuBuffer->size;
+    }
+
+    void reset() {
+        for (auto &buffer : _pool) {
+            buffer.curOffset = 0;
+        }
+    }
+
+private:
+    struct Buffer {
+        id<MTLBuffer> mtlBuffer = nil;
+        uint8_t *mappedData = nullptr;
+        size_t curOffset = 0;
+    };
+
+    id<MTLDevice> _device = nil;
+    vector<Buffer> _pool;
+};
+
+struct CCMTLGPUBufferImageCopy {
+    NSUInteger sourceBytesPerRow = 0;
+    NSUInteger sourceBytesPerImage = 0;
+    MTLSize sourceSize = {0, 0, 0};
+    NSUInteger destinationSlice = 0;
+    NSUInteger destinationLevel = 0;
+    MTLOrigin destinationOrigin = {0, 0, 0};
 };
 
 } // namespace gfx
