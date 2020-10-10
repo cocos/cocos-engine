@@ -24,7 +24,8 @@
  THE SOFTWARE.
 */
 /**
- * @category core
+ * @packageDocumentation
+ * @module core
  */
 
 import { ALIPAY, EDITOR, JSB, PREVIEW, RUNTIME_BASED, BUILD } from 'internal:constants';
@@ -178,8 +179,6 @@ export interface IGameConfig {
 /**
  * @en An object to boot the game.
  * @zh 包含游戏主体信息并负责驱动游戏的游戏对象。
- * @class game
- * @static
  */
 export class Game extends EventTarget {
     /**
@@ -348,7 +347,7 @@ export class Game extends EventTarget {
     /**
      * @en Get frame rate set for the game, it doesn't represent the real frame rate.
      * @zh 获取设置的游戏帧率（不等同于实际帧率）。
-     * @return {Number} frame rate
+     * @return frame rate
      */
     public getFrameRate (): number {
         return this.config.frameRate || 0;
@@ -406,7 +405,6 @@ export class Game extends EventTarget {
     /**
      * @en Check whether the game is paused.
      * @zh 判断游戏是否暂停。
-     * @return {Boolean}
      */
     public isPaused (): boolean {
         return this._paused;
@@ -428,8 +426,11 @@ export class Game extends EventTarget {
             legacyCC.Object._deferredDestroy();
 
             legacyCC.director.reset();
-            legacyCC.game.onStart();
-            legacyCC.game._safeEmit(legacyCC.Game.EVENT_RESTART);
+            legacyCC.game.pause();
+            legacyCC.game._loadRenderPipeline(() => {
+                legacyCC.game.resume();
+                legacyCC.game._safeEmit(legacyCC.Game.EVENT_RESTART);
+            });
         });
     }
 
@@ -453,16 +454,12 @@ export class Game extends EventTarget {
      * @zh
      * 注册 game 的特定事件类型回调。这种类型的事件应该被 `emit` 触发。<br>
      *
-     * @param {String} type - A string representing the event type to listen for.
-     * @param {Function} callback - The callback that will be invoked when the event is dispatched.<br>
+     * @param type - A string representing the event type to listen for.
+     * @param callback - The callback that will be invoked when the event is dispatched.<br>
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
-     * @param {any} [callback.arg1] arg1
-     * @param {any} [callback.arg2] arg2
-     * @param {any} [callback.arg3] arg3
-     * @param {any} [callback.arg4] arg4
-     * @param {any} [callback.arg5] arg5
-     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
-     * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
+     * @param target - The target (this object) to invoke the callback, can be null
+     * @param once - After the first invocation, whether the callback should be unregistered.
+     * @return - Just returns the incoming callback so you can save the anonymous function easier.
      */
     public on (type: string, callback: Function, target?: object, once?: boolean): any {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
@@ -481,15 +478,10 @@ export class Game extends EventTarget {
      * @zh
      * 注册 game 的特定事件类型回调，回调会在第一时间被触发后删除自身。
      *
-     * @param {String} type - A string representing the event type to listen for.
-     * @param {Function} callback - The callback that will be invoked when the event is dispatched.<br>
+     * @param type - A string representing the event type to listen for.
+     * @param callback - The callback that will be invoked when the event is dispatched.<br>
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
-     * @param {any} [callback.arg1] arg1
-     * @param {any} [callback.arg2] arg2
-     * @param {any} [callback.arg3] arg3
-     * @param {any} [callback.arg4] arg4
-     * @param {any} [callback.arg5] arg5
-     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
+     * @param target - The target (this object) to invoke the callback, can be null
      */
     // @ts-ignore
     public once (type: string, callback: Function, target?: object) {
@@ -505,7 +497,7 @@ export class Game extends EventTarget {
     /**
      * @en Init game with configuration object.
      * @zh 使用指定的配置初始化引擎。
-     * @param {Object} config - Pass configuration object
+     * @param config - Pass configuration object
      */
     public init (config: IGameConfig) {
         this._initConfig(config);
@@ -528,7 +520,7 @@ export class Game extends EventTarget {
     /**
      * @en Run game with configuration object and onStart function.
      * @zh 运行游戏，并且指定引擎配置和 onStart 的回调。
-     * @param {Function} onStart - function to be executed after game initialized
+     * @param onStart - function to be executed after game initialized
      */
     public run (onStart: Function | null, legacyOnStart?: Function | null) {
         if (!EDITOR) {
@@ -551,57 +543,7 @@ export class Game extends EventTarget {
             inputManager.registerSystemEvent(game.canvas);
         }
 
-        const useSplash = (!EDITOR && !PREVIEW && legacyCC.internal.SplashScreen);
-
-        // Load render pipeline if needed
-        const renderPipeline = this.config.renderPipeline;
-        if (renderPipeline) {
-            const bundle = assetManager.getBundle('start-scene') ? 'start-scene' : 'main';
-            assetManager.loadAny(renderPipeline, { bundle }, (err, asset) => {
-                // failed load renderPipeline
-                if (err || !(asset instanceof RenderPipeline)) {
-                    console.warn(`Failed load renderpipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);
-                    console.warn(err);
-                    this.setRenderPipeline();
-                }
-                else {
-                    try {
-                        this.setRenderPipeline(asset);
-                    } catch (e) {
-                        console.warn(e);
-                        console.warn(`Failed load renderpipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);
-                        this.setRenderPipeline();
-                    }
-                }
-                this._safeEmit(Game.EVENT_GAME_INITED);
-                if (useSplash) {
-                    const splashScreen = legacyCC.internal.SplashScreen.instance as SplashScreen;
-                    splashScreen.main(legacyCC.director.root);
-                    splashScreen.setOnFinish(() => {
-                        if (this.onStart) { this.onStart(); }
-                    });
-                    splashScreen.loadFinish = true;
-                }
-                else {
-                    if (this.onStart) { this.onStart(); }
-                }
-            });
-        }
-        else {
-            this.setRenderPipeline();
-            this._safeEmit(Game.EVENT_GAME_INITED);
-            if (useSplash) {
-                const splashScreen = legacyCC.internal.SplashScreen.instance as SplashScreen;
-                splashScreen.main(legacyCC.director.root);
-                splashScreen.setOnFinish(() => {
-                    if (this.onStart) { this.onStart(); }
-                });
-                splashScreen.loadFinish = true;
-            }
-            else {
-                if (this.onStart) { this.onStart(); }
-            }
-        }
+        this._loadRenderPipeline(null);
     }
 
     //  @ Persist root node section
@@ -612,7 +554,7 @@ export class Game extends EventTarget {
      * @zh
      * 声明常驻根节点，该节点不会被在场景切换中被销毁。<br>
      * 目标节点必须位于为层级的根节点，否则无效。
-     * @param {Node} node - The node to be made persistent
+     * @param node - The node to be made persistent
      */
     public addPersistRootNode (node: { uuid: any; parent: any; _persistNode: boolean; }) {
         if (!legacyCC.Node.isNode(node) || !node.uuid) {
@@ -644,7 +586,7 @@ export class Game extends EventTarget {
     /**
      * @en Remove a persistent root node.
      * @zh 取消常驻根节点。
-     * @param {Node} node - The node to be removed from persistent node list
+     * @param node - The node to be removed from persistent node list
      */
     public removePersistRootNode (node: { uuid: string; _persistNode: boolean; }) {
         const id = node.uuid || '';
@@ -658,10 +600,9 @@ export class Game extends EventTarget {
     /**
      * @en Check whether the node is a persistent root node.
      * @zh 检查节点是否是常驻根节点。
-     * @param {Node} node - The node to be checked
-     * @return {Boolean}
+     * @param node - The node to be checked
      */
-    public isPersistRootNode (node: { _persistNode: any; }) {
+    public isPersistRootNode (node: { _persistNode: any; }): boolean {
         return node._persistNode;
     }
 
@@ -965,9 +906,67 @@ export class Game extends EventTarget {
         });
     }
 
-    private setRenderPipeline (rppl?: RenderPipeline) {
+    private _loadRenderPipeline (restart: Function | null) {
+        const useSplash = (!EDITOR && !PREVIEW && legacyCC.internal.SplashScreen);
+
+        // Load render pipeline if needed
+        const renderPipeline = this.config.renderPipeline;
+        if (renderPipeline) {
+            const bundle = assetManager.getBundle('start-scene') ? 'start-scene' : 'main';
+            legacyCC.assetManager.loadAny(renderPipeline, { bundle }, (err, asset) => {
+                // failed load renderPipeline
+                if (err || !(asset instanceof RenderPipeline)) {
+                    console.warn(`Failed load renderpipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);
+                    console.warn(err);
+                    this._setRenderPipeline();
+                }
+                else {
+                    try {
+                        this._setRenderPipeline(asset);
+                    } catch (e) {
+                        console.warn(e);
+                        console.warn(`Failed load renderpipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);
+                        this._setRenderPipeline();
+                    }
+                }
+                this._safeEmit(Game.EVENT_GAME_INITED);
+                if (useSplash) {
+                    const splashScreen = legacyCC.internal.SplashScreen.instance as SplashScreen;
+                    splashScreen.main(legacyCC.director.root);
+                    splashScreen.setOnFinish(() => {
+                        if (this.onStart) { this.onStart(); }
+                        if (restart) { restart(); }
+                    });
+                    splashScreen.loadFinish = true;
+                }
+                else {
+                    if (this.onStart) { this.onStart(); }
+                    if (restart) { restart(); }
+                }
+            });
+        }
+        else {
+            this._setRenderPipeline();
+            this._safeEmit(Game.EVENT_GAME_INITED);
+            if (useSplash) {
+                const splashScreen = legacyCC.internal.SplashScreen.instance as SplashScreen;
+                splashScreen.main(legacyCC.director.root);
+                splashScreen.setOnFinish(() => {
+                    if (this.onStart) { this.onStart(); }
+                    if (restart) { restart(); }
+                });
+                splashScreen.loadFinish = true;
+            }
+            else {
+                if (this.onStart) { this.onStart(); }
+                if (restart) { restart(); }
+            }
+        }
+    }
+
+    private _setRenderPipeline (rppl?: RenderPipeline) {
         if (!legacyCC.director.root.setRenderPipeline(rppl)) {
-            this.setRenderPipeline();
+            this._setRenderPipeline();
         }
 
         this._rendererInitialized = true;

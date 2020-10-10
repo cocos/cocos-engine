@@ -24,7 +24,8 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 import { ccclass, serializable } from 'cc.decorator';
@@ -63,35 +64,45 @@ function getIndexStrideCtor (stride: number) {
 }
 
 /**
- * 允许存储索引的数组视图。
+ * @en Array views for index buffer
+ * @zh 允许存储索引的数组视图。
  */
 export type IBArray = Uint8Array | Uint16Array | Uint32Array;
 
 /**
- * 几何信息。
+ * @en The interface of geometric information
+ * @zh 几何信息。
  */
 export interface IGeometricInfo {
     /**
-     * 顶点位置。
+     * @en Vertex positions
+     * @zh 顶点位置。
      */
     positions: Float32Array;
 
     /**
-     * 索引数据。
+     * @en Indices data
+     * @zh 索引数据。
      */
     indices?: IBArray;
 
     /**
-     * 是否将图元按双面对待。
+     * @en Whether the geometry is treated as double sided
+     * @zh 是否将图元按双面对待。
      */
     doubleSided?: boolean;
 
     /**
-     * 此几何体的轴对齐包围盒。
+     * @en The bounding box
+     * @zh 此几何体的轴对齐包围盒。
      */
     boundingBox: { max: Vec3; min: Vec3; }
 }
 
+/**
+ * @en Flat vertex buffer
+ * @zh 扁平化顶点缓冲区
+ */
 export interface IFlatBuffer {
     stride: number;
     count: number;
@@ -99,36 +110,43 @@ export interface IFlatBuffer {
 }
 
 /**
- * 渲染子网格。
+ * @en Sub mesh for rendering which contains all geometry data, it can be used to create [[GFXInputAssembler]].
+ * @zh 包含所有顶点数据的渲染子网格，可以用来创建 [[GFXInputAssembler]]。
  */
 export class RenderingSubMesh implements IGFXInputAssemblerInfo {
     /**
-     * 使用的所有顶点缓冲区。
+     * @en All vertex buffers used by the sub mesh
+     * @zh 使用的所有顶点缓冲区。
      */
     public vertexBuffers: GFXBuffer[];
 
     /**
-     * 所有顶点属性。
+     * @en All vertex attributes used by the sub mesh
+     * @zh 所有顶点属性。
      */
     public attributes: IGFXAttribute[];
 
     /**
-     * 图元类型。
+     * @en Primitive mode used by the sub mesh
+     * @zh 图元类型。
      */
     public primitiveMode: GFXPrimitiveMode;
 
     /**
-     * 使用的索引缓冲区，若未使用则无需指定。
+     * @en Index buffer used by the sub mesh
+     * @zh 使用的索引缓冲区，若未使用则无需指定。
      */
     public indexBuffer?: GFXBuffer;
 
     /**
-     * 间接绘制缓冲区。
+     * @en Indirect buffer used by the sub mesh
+     * @zh 间接绘制缓冲区。
      */
     public indirectBuffer?: GFXBuffer;
 
     /**
-     * （用于射线检测的）几何信息。
+     * @en The geometric info of the sub mesh, used for raycast.
+     * @zh （用于射线检测的）几何信息。
      */
     get geometricInfo () {
         if (this._geometricInfo) {
@@ -176,7 +194,8 @@ export class RenderingSubMesh implements IGFXInputAssemblerInfo {
     }
 
     /**
-     * 扁平化的顶点缓冲区。
+     * @en Flatted vertex buffers
+     * @zh 扁平化的顶点缓冲区。
      */
     get flatBuffers () {
         if (this._flatBuffers) { return this._flatBuffers; }
@@ -213,7 +232,8 @@ export class RenderingSubMesh implements IGFXInputAssemblerInfo {
     }
 
     /**
-     * 骨骼索引按映射表处理后的顶点缓冲。
+     * @en The vertex buffer for joint after mapping
+     * @zh 骨骼索引按映射表处理后的顶点缓冲。
      */
     get jointMappedBuffers () {
         if (this._jointMappedBuffers) { return this._jointMappedBuffers; }
@@ -304,7 +324,7 @@ export class RenderingSubMesh implements IGFXInputAssemblerInfo {
     }
 
     /**
-     * Adds a vertex attribute input called 'a_vertexId' into this sub-mesh.
+     * @en Adds a vertex attribute input called 'a_vertexId' into this sub-mesh.
      * This is useful if you want to simulate `gl_VertexId` in WebGL context prior to 2.0.
      * Once you call this function, the vertex attribute is permanently added.
      * Subsequent calls to this function take no effect.
@@ -366,92 +386,111 @@ export declare namespace Mesh {
     }
 
     /**
-     * @zh
-     * 顶点块。顶点块描述了一组**交错排列**（interleaved）的顶点属性并存储了顶点属性的实际数据。<br>
+     * @en Vertex bundle, it describes a set of interleaved vertex attributes and their values.
+     * @zh 顶点块。顶点块描述了一组**交错排列**（interleaved）的顶点属性并存储了顶点属性的实际数据。<br>
      * 交错排列是指在实际数据的缓冲区中，每个顶点的所有属性总是依次排列，并总是出现在下一个顶点的所有属性之前。
      */
     export interface IVertexBundle {
         /**
-         * 所有顶点属性的实际数据块。
+         * @en The actual value for all vertex attributes.
+         * You must use DataView to access the data.
+         * @zh 所有顶点属性的实际数据块。
          * 你必须使用 DataView 来读取数据。
          * 因为不能保证所有属性的起始偏移都按 TypedArray 要求的字节对齐。
          */
         view: IBufferView;
 
         /**
-         * 包含的所有顶点属性。
+         * @en All attributes included in the bundle
+         * @zh 包含的所有顶点属性。
          */
         attributes: IGFXAttribute[];
     }
 
     /**
-     * 子网格。子网格由一系列相同类型的图元组成（例如点、线、面等）。
+     * @en Sub mesh contains a list of primitives with the same type (Point, Line or Triangle)
+     * @zh 子网格。子网格由一系列相同类型的图元组成（例如点、线、面等）。
      */
     export interface ISubMesh {
         /**
-         * 此子网格引用的顶点块，索引至网格的顶点块数组。
+         * @en The vertex bundle references used by the sub mesh.
+         * @zh 此子网格引用的顶点块，索引至网格的顶点块数组。
          */
         vertexBundelIndices: number[];
 
         /**
-         * 此子网格的图元类型。
+         * @en The primitive mode of the sub mesh
+         * @zh 此子网格的图元类型。
          */
         primitiveMode: GFXPrimitiveMode;
 
         /**
-         * 此子网格使用的索引数据。
+         * @en The index data of the sub mesh
+         * @zh 此子网格使用的索引数据。
          */
         indexView?: IBufferView;
 
         /**
-         * 此子网格使用的关节索引映射表在 IStruct.jointMaps 中的索引。
+         * @en The joint map index in [[IStruct.jointMaps]]. Could be absent
+         * @zh 此子网格使用的关节索引映射表在 [[IStruct.jointMaps]] 中的索引。
          * 如未定义或指向的映射表不存在，则默认 VB 内所有关节索引数据直接对应骨骼资源数据。
          */
         jointMapIndex?: number;
-
     }
 
     /**
-     * 描述了网格的结构。
+     * @en The structure of the mesh
+     * @zh 描述了网格的结构。
      */
     export interface IStruct {
         /**
-         * 此网格所有的顶点块。
+         * @en All vertex bundles of the mesh
+         * @zh 此网格所有的顶点块。
          */
         vertexBundles: IVertexBundle[];
 
         /**
-         * 此网格的所有子网格。
+         * @en All sub meshes
+         * @zh 此网格的所有子网格。
          */
         primitives: ISubMesh[];
 
         /**
-         * （各分量都）小于等于此网格任何顶点位置的最大位置。
+         * @en The minimum position of all vertices in the mesh
+         * @zh （各分量都）小于等于此网格任何顶点位置的最大位置。
          */
         minPosition?: Vec3;
 
         /**
-         * （各分量都）大于等于此网格任何顶点位置的最小位置。
+         * @en The maximum position of all vertices in the mesh
+         * @zh （各分量都）大于等于此网格任何顶点位置的最小位置。
          */
         maxPosition?: Vec3;
 
         /**
-         * 此网格使用的关节索引映射关系列表，数组长度应为子模型中实际使用到的所有关节，
+         * @en The joint index map list.
+         * @zh 此网格使用的关节索引映射关系列表，数组长度应为子模型中实际使用到的所有关节，
          * 每个元素都对应一个原骨骼资源里的索引，按子模型 VB 内的实际索引排列。
          */
         jointMaps?: number[][];
 
+        /**
+         * @en The morph information of the mesh
+         * @zh 网格的形变数据
+         */
         morph?: Morph;
     }
 
     export interface ICreateInfo {
         /**
-         * 网格结构。
+         * @en Mesh structure
+         * @zh 网格结构。
          */
         struct: Mesh.IStruct;
 
         /**
-         * 网格二进制数据。
+         * @en Mesh binary data
+         * @zh 网格二进制数据。
          */
         data: Uint8Array;
     }
@@ -462,7 +501,8 @@ const v3_2 = new Vec3();
 const globalEmptyMeshBuffer = new Uint8Array();
 
 /**
- * 网格资源。
+ * @en Mesh asset
+ * @zh 网格资源。
  */
 @ccclass('cc.Mesh')
 export class Mesh extends Asset {
@@ -482,8 +522,9 @@ export class Mesh extends Asset {
     }
 
     /**
-     * 此网格的子网格数量。
-     * @deprecated 请使用 `this.renderingMesh.subMeshCount`。
+     * @en The sub meshes count of the mesh.
+     * @zh 此网格的子网格数量。
+     * @deprecated Please use [[renderingSubMeshes.length]] instead
      */
     get subMeshCount () {
         const renderingMesh = this.renderingSubMeshes;
@@ -491,37 +532,42 @@ export class Mesh extends Asset {
     }
 
     /**
-     * （各分量都）小于等于此网格任何顶点位置的最大位置。
-     * @deprecated 请使用 `this.struct.minPosition`。
+     * @en The minimum position of all vertices in the mesh
+     * @zh （各分量都）小于等于此网格任何顶点位置的最大位置。
+     * @deprecated Please use [[struct.minPosition]] instead
      */
     get minPosition () {
         return this.struct.minPosition;
     }
 
     /**
-     * （各分量都）大于等于此网格任何顶点位置的最大位置。
-     * @deprecated 请使用 `this.struct.maxPosition`。
+     * @en The maximum position of all vertices in the mesh
+     * @zh （各分量都）大于等于此网格任何顶点位置的最大位置。
+     * @deprecated Please use [[struct.maxPosition]] instead
      */
     get maxPosition () {
         return this.struct.maxPosition;
     }
 
     /**
-     * 此网格的结构。
+     * @en The struct of the mesh
+     * @zh 此网格的结构。
      */
     get struct () {
         return this._struct;
     }
 
     /**
-     * 此网格的数据。
+     * @en The actual data of the mesh
+     * @zh 此网格的数据。
      */
     get data () {
         return this._data;
     }
 
     /**
-     * 此网格的哈希值。
+     * @en The hash of the mesh
+     * @zh 此网格的哈希值。
      */
     get hash () {
         // hashes should already be computed offline, but if not, make one
@@ -529,9 +575,21 @@ export class Mesh extends Asset {
         return this._hash;
     }
 
+    /**
+     * The index of the joint buffer of all sub meshes in the joint map buffers
+     */
     get jointBufferIndices () {
         if (this._jointBufferIndices) { return this._jointBufferIndices; }
         return this._jointBufferIndices = this._struct.primitives.map((p) => p.jointMapIndex || 0);
+    }
+
+    /**
+     * @en The sub meshes for rendering. Mesh could be split into different sub meshes for rendering.
+     * @zh 此网格创建的渲染网格。
+     */
+    public get renderingSubMeshes () {
+        this.initialize();
+        return this._renderingSubMeshes!;
     }
 
     @serializable
@@ -645,7 +703,8 @@ export class Mesh extends Asset {
     }
 
     /**
-     * 销毁此网格，并释放它占有的所有 GPU 资源。
+     * @en Destroy the mesh and release all related GPU resources
+     * @zh 销毁此网格，并释放它占有的所有 GPU 资源。
      */
     public destroy () {
         this.destroyRenderingMesh();
@@ -653,7 +712,8 @@ export class Mesh extends Asset {
     }
 
     /**
-     * 释放此网格占有的所有 GPU 资源。
+     * @en Release all related GPU resources
+     * @zh 释放此网格占有的所有 GPU 资源。
      */
     public destroyRenderingMesh () {
         if (this._renderingSubMeshes) {
@@ -666,10 +726,11 @@ export class Mesh extends Asset {
     }
 
     /**
-     * 重置此网格的结构和数据。
-     * @param struct 新的结构。
-     * @param data 新的数据。
-     * @deprecated 将在 V1.0.0 移除，请转用 `this.reset()`。
+     * @en Reset the struct and data of the mesh
+     * @zh 重置此网格的结构和数据。
+     * @param struct The new struct
+     * @param data The new data
+     * @deprecated Will be removed in v3.0.0, please use [[reset]] instead
      */
     public assign (struct: Mesh.IStruct, data: Uint8Array) {
         this.reset({
@@ -679,8 +740,9 @@ export class Mesh extends Asset {
     }
 
     /**
-     * 重置此网格。
-     * @param info 网格重置选项。
+     * @en Reset the mesh with mesh creation information
+     * @zh 重置此网格。
+     * @param info Mesh creation information including struct and data
      */
     public reset (info: Mesh.ICreateInfo) {
         this.destroyRenderingMesh();
@@ -693,13 +755,10 @@ export class Mesh extends Asset {
     }
 
     /**
-     * 此网格创建的渲染网格。
+     * @en Get [[AABB]] bounds in the skeleton's bone space
+     * @zh 获取骨骼变换空间内下的 [[AABB]] 包围盒
+     * @param skeleton
      */
-    public get renderingSubMeshes () {
-        this.initialize();
-        return this._renderingSubMeshes!;
-    }
-
     public getBoneSpaceBounds (skeleton: Skeleton) {
         if (this._boneSpaceBounds.has(skeleton.hash)) {
             return this._boneSpaceBounds.get(skeleton.hash)!;
@@ -742,11 +801,12 @@ export class Mesh extends Asset {
     }
 
     /**
-     * 合并指定的网格到此网格中。
-     * @param mesh 合并的网格。
-     * @param worldMatrix 合并的网格的世界变换矩阵
-     * @param [validate=false] 是否进行验证。
-     * @returns 是否验证成功。若验证选项为 `true` 且验证未通过则返回 `false`，否则返回 `true`。
+     * @en Merge the given mesh into the current mesh
+     * @zh 合并指定的网格到此网格中。
+     * @param mesh The mesh to be merged
+     * @param worldMatrix The world matrix of the given mesh
+     * @param [validate=false] Whether to validate the mesh
+     * @returns Check the mesh state and return the validation result.
      */
     public merge (mesh: Mesh, worldMatrix?: Mat4, validate?: boolean): boolean {
         if (validate) {
@@ -1036,7 +1096,15 @@ export class Mesh extends Asset {
     }
 
     /**
-     * 验证指定网格是否可以合并至当前网格。
+     * @en Validation for whether the given mesh can be merged into the current mesh.
+     * To pass the validation, it must satisfy either of these two requirements:
+     * - When the current mesh have no data
+     * - When the two mesh have the same vertex bundle count, the same sub meshes count, and the same sub mesh layout.
+     * 
+     * Same mesh layout means:
+     * - They have the same primitive type and reference to the same amount vertex bundle with the same indices.
+     * - And they all have or don't have index view
+     * @zh 验证指定网格是否可以合并至当前网格。
      *
      * 当满足以下条件之一时，指定网格可以合并至当前网格：
      *  - 当前网格无数据而待合并网格有数据；
@@ -1048,7 +1116,7 @@ export class Mesh extends Asset {
      * 两个子网格布局一致，当且仅当：
      *  - 它们具有相同的图元类型并且引用相同数量、相同索引的顶点块；并且，
      *  - 要么都需要索引绘制，要么都不需要索引绘制。
-     * @param mesh 指定的网格。
+     * @param mesh The other mesh to be validated
      */
     public validateMergingMesh (mesh: Mesh) {
         // validate vertex bundles
@@ -1104,11 +1172,12 @@ export class Mesh extends Asset {
     }
 
     /**
-     * 读取子网格的指定属性。
-     * @param primitiveIndex 子网格索引。
-     * @param attributeName 属性名称。
-     * @returns 不存在指定的子网格、子网格不存在指定的属性或属性无法读取时返回 `null`，
-     * 否则，创建足够大的缓冲区包含指定属性的所有数据，并为该缓冲区创建与属性类型对应的数组视图。
+     * @en Read the requested attribute of the given sub mesh
+     * @zh 读取子网格的指定属性。
+     * @param primitiveIndex Sub mesh index
+     * @param attributeName Attribute name
+     * @returns Return null if not found or can't read, otherwise, will create a large enough typed array to contain all data of the attribute, 
+     * the array type will match the data type of the attribute.
      */
     public readAttribute (primitiveIndex: number, attributeName: GFXAttributeName): Storage | null {
         let result: TypedArray | null = null;
@@ -1144,13 +1213,14 @@ export class Mesh extends Asset {
     }
 
     /**
-     * 读取子网格的指定属性到目标缓冲区中。
-     * @param primitiveIndex 子网格索引。
-     * @param attributeName 属性名称。
-     * @param buffer 目标缓冲区。
-     * @param stride 相邻属性在目标缓冲区的字节间隔。
-     * @param offset 首个属性在目标缓冲区中的偏移。
-     * @returns 不存在指定的子网格、子网格不存在指定的属性或属性无法读取时返回 `false`，否则返回 `true`。
+     * @en Read the requested attribute of the given sub mesh and fill into the given buffer.
+     * @zh 读取子网格的指定属性到目标缓冲区中。
+     * @param primitiveIndex Sub mesh index
+     * @param attributeName Attribute name
+     * @param buffer The target array buffer
+     * @param stride Byte distance between two attributes in the target buffer
+     * @param offset The offset of the first attribute in the target buffer
+     * @returns Return false if failed to access attribute, return true otherwise.
      */
     public copyAttribute (primitiveIndex: number, attributeName: GFXAttributeName, buffer: ArrayBuffer, stride: number, offset: number) {
         let written = false;
@@ -1196,10 +1266,11 @@ export class Mesh extends Asset {
     }
 
     /**
-     * 读取子网格的索引数据。
-     * @param primitiveIndex 子网格索引。
-     * @returns 不存在指定的子网格或子网格不存在索引数据时返回 `null`，
-     * 否则，创建足够大的缓冲区包含所有索引数据，并为该缓冲区创建与索引类型对应的数组视图。
+     * @en Read the indices data of the given sub mesh
+     * @zh 读取子网格的索引数据。
+     * @param primitiveIndex Sub mesh index
+     * @returns Return null if not found or can't read, otherwise, will create a large enough typed array to contain all indices data, 
+     * the array type will use the corresponding stride size.
      */
     public readIndices (primitiveIndex: number) {
         if (primitiveIndex >= this._struct.primitives.length) {
@@ -1215,10 +1286,11 @@ export class Mesh extends Asset {
     }
 
     /**
-     * 读取子网格的索引数据到目标数组中。
-     * @param primitiveIndex 子网格索引。
-     * @param outputArray 目标数组。
-     * @returns 不存在指定的子网格或子网格不存在索引数据时返回 `false`，否则返回 `true`。
+     * @en Read the indices data of the given sub mesh and fill into the given array
+     * @zh 读取子网格的索引数据到目标数组中。
+     * @param primitiveIndex Sub mesh index
+     * @param outputArray The target output array
+     * @returns Return false if failed to access the indices data, return true otherwise.
      */
     public copyIndices (primitiveIndex: number, outputArray: number[] | ArrayBufferView) {
         if (primitiveIndex >= this._struct.primitives.length) {

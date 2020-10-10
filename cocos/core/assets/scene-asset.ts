@@ -25,7 +25,8 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 import {ccclass, editable, serializable} from 'cc.decorator';
@@ -34,16 +35,15 @@ import { Asset } from './asset';
 import { legacyCC } from '../global-exports';
 
 /**
- * @en Class for scene handling.
+ * @en Class for scene loading.
  * @zh 场景资源类。
- * @class SceneAsset
- * @extends Asset
  *
  */
 @ccclass('cc.SceneAsset')
 export default class SceneAsset extends Asset {
     /**
-     * 场景结点。
+     * @en The scene node
+     * @zh 场景节点。
      */
     @editable
     @serializable

@@ -1,5 +1,6 @@
 /**
- * @category 3d/primitive
+ * @packageDocumentation
+ * @module 3d/primitive
  */
 
 import { applyDefaultGeometryOptions, IGeometry, IGeometryOptions } from './define';

@@ -23,7 +23,8 @@
  THE SOFTWARE.
 */
 /**
- * @category ui
+ * @packageDocumentation
+ * @hidden
  */
 import { GFXAttributeName, GFXFormat } from '../../gfx/define';
 

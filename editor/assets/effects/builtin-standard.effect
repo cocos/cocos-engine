@@ -51,7 +51,7 @@ CCEffect %{
       phase: shadow-add
       propertyIndex: 0
       rasterizerState:
-        cullMode: front
+        cullMode: back
   - name: transparent
     passes:
     - vert: standard-vs:vert
@@ -85,7 +85,7 @@ CCEffect %{
       phase: shadow-add
       propertyIndex: 0
       rasterizerState:
-        cullMode: front
+        cullMode: back
 }%
 
 CCProgram shared-ubos %{

@@ -1,5 +1,6 @@
 /**
- * @category physics
+ * @packageDocumentation
+ * @module physics
  */
 
 import { PhysicsSystem } from "./physics-system";

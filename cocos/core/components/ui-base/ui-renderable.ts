@@ -24,7 +24,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip, type, displayOrder, serializable } from 'cc.decorator';
@@ -41,7 +42,6 @@ import { RenderData } from '../../renderer/ui/render-data';
 import { UI } from '../../renderer/ui/ui';
 import { Node } from '../../scene-graph';
 import { TransformBit } from '../../scene-graph/node-enum';
-import { legacyCC } from '../../global-exports';
 import { UITransform } from './ui-transform';
 import { RenderableComponent } from '../../3d/framework/renderable-component';
 
@@ -109,11 +109,11 @@ const _matInsInfo: IMaterialInstanceInfo = {
 };
 
 /**
- * @en
- * Base class for components which supports rendering features.
+ * @en Base class for 2D components which supports rendering features.
+ * This component will setup [[NodeUIProperties.uiComp]] in its owner [[Node]]
  *
- * @zh
- * 所有支持渲染的 UI 组件的基类。
+ * @zh 所有支持渲染的 2D 组件的基类。
+ * 这个组件会设置 [[Node]] 上的 [[NodeUIProperties.uiComp]]。
  */
 @ccclass('cc.UIRenderable')
 @requireComponent(UITransform)
@@ -122,13 +122,8 @@ const _matInsInfo: IMaterialInstanceInfo = {
 export class UIRenderable extends RenderableComponent {
 
     /**
-     * @en
-     * Specifies the blend mode for the original image, it will clone a new material object.
-     *
-     * @zh
-     * 指定原图的混合模式，这会克隆一个新的材质对象，注意这带来的。
-     *
-     * @param value 原图混合模式。
+     * @en Specifies the source blend mode, it will clone a new material object.
+     * @zh 指定源的混合模式，这会克隆一个新的材质对象，注意这带来的性能和内存损耗。
      * @example
      * ```ts
      * sprite.srcBlendFactor = GFXBlendFactor.ONE;
@@ -136,7 +131,7 @@ export class UIRenderable extends RenderableComponent {
      */
     @type(GFXBlendFactor)
     @displayOrder(0)
-    @tooltip('原图混合模式')
+    @tooltip('Source blend factor')
     get srcBlendFactor () {
         return this._srcBlendFactor;
     }
@@ -151,21 +146,16 @@ export class UIRenderable extends RenderableComponent {
     }
 
     /**
-     * @en
-     * Specifies the blend mode for the target image.
-     *
-     * @zh
-     * 指定目标的混合模式。
-     *
-     * @param value 目标混合模式。
+     * @en Specifies the destination blend mode.
+     * @zh 指定目标的混合模式，这会克隆一个新的材质对象，注意这带来的性能和内存损耗。
      * @example
      * ```ts
-     * sprite.dstBlendFactor = GFXBlendFactor.ONE;
+     * sprite.dstBlendFactor = GFXBlendFactor.ONE_MINUS_SRC_ALPHA;
      * ```
      */
     @type(GFXBlendFactor)
     @displayOrder(1)
-    @tooltip('目标混合模式')
+    @tooltip('destination blend factor')
     get dstBlendFactor () {
         return this._dstBlendFactor;
     }
@@ -180,13 +170,8 @@ export class UIRenderable extends RenderableComponent {
     }
 
     /**
-     * @en
-     * Render color.
-     *
-     * @zh
-     * 渲染颜色。
-     *
-     * @param value 渲染颜色。
+     * @en Main color for rendering, it normally multiplies with texture color.
+     * @zh 渲染颜色，一般情况下会和贴图颜色相乘。
      */
     @displayOrder(2)
     @tooltip('渲染颜色')
@@ -225,6 +210,10 @@ export class UIRenderable extends RenderableComponent {
     protected _uiMaterialDirty = false;
     protected _uiMatInsDirty = false;
 
+    /**
+     * @en The user customized material, if not set, it will use builtin material resources, and will show nothing on inspector field.
+     * @zh 用户自定义材质，如果没有设置过，那么将使用引擎内置的材质资源，在面板上也不会显示。
+     */
     get uiMaterial () {
         return this._uiMaterial;
     }
@@ -241,8 +230,21 @@ export class UIRenderable extends RenderableComponent {
         this._delegateSrc = value;
     }
 
+    /**
+     * @en The blend factor enums
+     * @zh 混合模式枚举类型
+     * @see [[GFXBlendFactor]]
+     */
     public static BlendState = GFXBlendFactor;
+    /**
+     * @en The render data assembler
+     * @zh 渲染数据组装器
+     */
     public static Assembler: IAssemblerManager | null = null;
+    /**
+     * @en The post render data assembler
+     * @zh 后置渲染数据组装器
+     */
     public static PostAssembler: IAssemblerManager | null = null;
 
     @serializable
@@ -309,13 +311,9 @@ export class UIRenderable extends RenderableComponent {
     }
 
     /**
-     * @en
-     * Marks the render data of the current component as modified so that the render data is recalculated.
-     *
-     * @zh
-     * 标记当前组件的渲染数据为已修改状态，这样渲染数据才会重新计算。
-     *
-     * @param enable 是否标记为已修改。
+     * @en Marks the render data of the current component as modified so that the render data is recalculated.
+     * @zh 标记当前组件的渲染数据为已修改状态，这样渲染数据才会重新计算。
+     * @param enable Marked necessary to update or not
      */
     public markForUpdateRenderData (enable: boolean = true) {
         this._renderFlag = this._canRender();
@@ -332,13 +330,9 @@ export class UIRenderable extends RenderableComponent {
     }
 
     /**
-     * @en
-     * Request a new render data.
-     *
-     * @zh
-     * 请求渲染数据。
-     *
-     * @return 渲染数据 RenderData。
+     * @en Request new render data object.
+     * @zh 请求新的渲染数据对象。
+     * @return The new render data
      */
     public requestRenderData () {
         const data = RenderData.add();
@@ -347,11 +341,8 @@ export class UIRenderable extends RenderableComponent {
     }
 
     /**
-     * @en
-     * Destroy render data.
-     *
-     * @zh
-     * 渲染数据销毁。
+     * @en Destroy current render data.
+     * @zh 销毁当前渲染数据。
      */
     public destroyRenderData () {
         if (!this._renderData) {
@@ -362,7 +353,14 @@ export class UIRenderable extends RenderableComponent {
         this._renderData = null;
     }
 
-    // Don't call it unless you know your purpose.
+    /**
+     * @en Render data submission procedure, it update and assemble the render data to 2D data buffers before all children submission process.
+     * Usually called each frame when the ui flow assemble all render data to geometry buffers.
+     * Don't call it unless you know what you are doing.
+     * @zh 渲染数据组装程序，这个方法会在所有子节点数据组装之前更新并组装当前组件的渲染数据到 UI 的顶点数据缓冲区中。
+     * 一般在 UI 渲染流程中调用，用于组装所有的渲染数据到顶点数据缓冲区。
+     * 注意：不要手动调用该函数，除非你理解整个流程。
+     */
     public updateAssembler (render: UI) {
         if (this._renderFlag){
             this._checkAndUpdateRenderData();
@@ -370,7 +368,14 @@ export class UIRenderable extends RenderableComponent {
         }
     }
 
-    // Don't call it unless you know your purpose.
+    /**
+     * @en Post render data submission procedure, it's executed after assembler updated for all children.
+     * It may assemble some extra render data to the geometry buffers, or it may only change some render states.
+     * Don't call it unless you know what you are doing.
+     * @zh 后置渲染数据组装程序，它会在所有子节点的渲染数据组装完成后被调用。
+     * 它可能会组装额外的渲染数据到顶点数据缓冲区，也可能只是重置一些渲染状态。
+     * 注意：不要手动调用该函数，除非你理解整个流程。
+     */
     public postUpdateAssembler (render: UI) {
         if (this._renderFlag) {
             this._postRender(render);

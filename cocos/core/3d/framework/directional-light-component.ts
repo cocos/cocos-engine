@@ -24,7 +24,8 @@
 */
 
 /**
- * @category component/light
+ * @packageDocumentation
+ * @module component/light
  */
 
 import { ccclass, help, executeInEditMode, menu, tooltip, unit, serializable } from 'cc.decorator';

@@ -151,6 +151,8 @@ export class Model {
 
     public initialize (node: Node) {
         this.transform = this.node = node;
+        this._receiveShadow = true;
+        this.castShadow = false;
     }
 
     public destroy () {

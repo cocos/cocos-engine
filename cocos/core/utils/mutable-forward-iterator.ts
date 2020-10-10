@@ -25,7 +25,11 @@
 */
 
 /**
- * @class js.array.MutableForwardIterator
+ * @packageDocumentation
+ * @module core
+ */
+
+/**
  * @example
  * ```
  * import { js } from 'cc';

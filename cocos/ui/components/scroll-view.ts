@@ -25,7 +25,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { EventHandler as ComponentEventHandler } from '../../core/components/component-event-handler';

@@ -23,6 +23,7 @@
  THE SOFTWARE.
 */
 /**
+ * @packageDocumentation
  * @hidden
  */
 
@@ -133,15 +134,32 @@ export class UI {
     }
 
     public destroy () {
-
-        for (let i = 0; i < this._batches.array.length; i++ ) {
-            this._batches.array[i].destroy(this);
+        for (let i = 0; i < this._batches.length; i++ ) {
+            if (this._batches.array[i]) {
+                this._batches.array[i].destroy(this);
+            }
         }
+        this._batches.destroy();
 
         for (let i = 0; i < this._meshBuffers.length; i++) {
             this._meshBuffers[i].destroy();
         }
+
+        if (this._drawBatchPool) {
+            this._drawBatchPool.destroy((obj) => {
+                obj.destroy(this);
+            });
+        }
+
+        if (this._uiModelPool) {
+            this._uiModelPool.destroy((obj) => {
+                obj.destroy();
+            });
+        }
+
         this._meshBuffers.splice(0);
+        legacyCC.director.root.destroyScene(this._scene);
+        legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_DRAW, this.update, this);
     }
 
     public getRenderSceneGetter () {

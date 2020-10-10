@@ -24,7 +24,8 @@
 */
 
 /**
- * @category core/data
+ * @packageDocumentation
+ * @module core/data
  */
 
 import * as _decorator from './class-decorator';

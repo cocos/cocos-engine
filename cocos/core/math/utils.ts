@@ -1,5 +1,6 @@
 /**
- * @category core/math
+ * @packageDocumentation
+ * @module core/math
  */
 
 import { IVec3Like } from "./type-define";

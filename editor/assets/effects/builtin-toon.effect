@@ -93,6 +93,7 @@ CCProgram toon-vs %{
   #include <cc-global>
   #include <cc-local-batch>
   #include <shared-ubos>
+  #include <cc-shadow-map-vs>
 
   out vec3 v_position;
   out vec2 v_uv;
@@ -118,6 +119,8 @@ CCProgram toon-vs %{
       v_tangent = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
       v_bitangent = cross(v_normal, v_tangent) * In.tangent.w; // note the cross order
     #endif
+
+    CCPassShadowParams(pos);
 
     return cc_matProj * (cc_matView * matWorld) * In.position;
   }

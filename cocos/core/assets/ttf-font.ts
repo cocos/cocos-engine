@@ -25,7 +25,8 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 import {ccclass, string, override, serializable} from 'cc.decorator';
@@ -34,11 +35,8 @@ import { Font } from './font';
 import { legacyCC } from '../global-exports';
 
 /**
- * @en
- * Class for TTFFont handling.
- *
- * @zh
- * TTF 字体资源类。
+ * @en Class for TTFFont asset.
+ * @zh TTF 字体资源类。
  */
 @ccclass('cc.TTFFont')
 export class TTFFont extends Font {

@@ -26,6 +26,7 @@
  */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 
@@ -71,7 +72,7 @@ class HashElement {
  * @example {@link cocos2d/core/CCActionManager/ActionManager.js}
  */
 export class ActionManager {
-    private _hashTargets = js.createMap(true);
+    private _hashTargets = new Map();
     private _arrayTargets: HashElement[] = [];
     private _currentTarget!: HashElement;
     private _elementPool: HashElement[] = [];
@@ -132,17 +133,18 @@ export class ActionManager {
         }
 
         //check if the action target already exists
-        var element = this._hashTargets[target.uuid];
+        var element = this._hashTargets.get(target);
         //if doesn't exists, create a hashelement and push in mpTargets
         if (!element) {
             element = this._getElement(target, paused);
-            this._hashTargets[target.uuid] = element;
+            this._hashTargets.set(target, element);
             this._arrayTargets.push(element);
         }
         else if (!element.actions) {
             element.actions = [];
         }
-
+        // update target due to the same UUID is allowed for different scenarios
+        element.target = target;
         element.actions.push(action);
         action.startWithTarget(target);
     }
@@ -160,7 +162,7 @@ export class ActionManager {
                 this._putElement(element);
         }
         this._arrayTargets.length = 0;
-        this._hashTargets = js.createMap(true);
+        this._hashTargets = new Map();
     }
     /**
      * !#en
@@ -176,7 +178,7 @@ export class ActionManager {
         // explicit null handling
         if (target == null)
             return;
-        var element = this._hashTargets[target.uuid];
+        var element = this._hashTargets.get(target);
         if (element) {
             element.actions.length = 0;
             this._deleteHashElement(element);
@@ -193,7 +195,7 @@ export class ActionManager {
         if (action == null)
             return;
         var target = action.getOriginalTarget()!;
-        var element = this._hashTargets[target.uuid];
+        var element = this._hashTargets.get(target);
 
         if (element) {
             for (var i = 0; i < element.actions.length; i++) {
@@ -234,16 +236,15 @@ export class ActionManager {
 
         let hashTargets = this._hashTargets;
         if (target) {
-            var element = hashTargets[target.uuid];
+            var element = hashTargets.get(target);
             if (element) {
                 this._removeActionByTag(tag, element, target);
             }
         }
         else {
-            for (let name in hashTargets) {
-                let element = hashTargets[name];
+            hashTargets.forEach(element => {
                 this._removeActionByTag(tag, element);
-            }
+            })
         }
     }
 
@@ -259,7 +260,7 @@ export class ActionManager {
         if (tag === legacyCC.Action.TAG_INVALID)
             logID(1004);
 
-        var element = this._hashTargets[target.uuid];
+        var element = this._hashTargets.get(target);
         if (element) {
             if (element.actions != null) {
                 for (var i = 0; i < element.actions.length; ++i) {
@@ -293,7 +294,7 @@ export class ActionManager {
      * @return {Number}
      */
     getNumberOfRunningActionsInTarget (target: Node): number {
-        var element = this._hashTargets[target.uuid];
+        var element = this._hashTargets.get(target);
         if (element)
             return (element.actions) ? element.actions.length : 0;
 
@@ -306,7 +307,7 @@ export class ActionManager {
      * @param {Node} target
      */
     pauseTarget (target: Node) {
-        var element = this._hashTargets[target.uuid];
+        var element = this._hashTargets.get(target);
         if (element)
             element.paused = true;
     }
@@ -317,7 +318,7 @@ export class ActionManager {
      * @param {Node} target
      */
     resumeTarget (target: Node) {
-        var element = this._hashTargets[target.uuid];
+        var element = this._hashTargets.get(target);
         if (element)
             element.paused = false;
     }
@@ -404,8 +405,8 @@ export class ActionManager {
     private _deleteHashElement (element) {
         var ret = false;
         if (element && !element.lock) {
-            if (this._hashTargets[element.target.uuid]) {
-                delete this._hashTargets[element.target.uuid];
+            if (this._hashTargets.get(element.target)) {
+                this._hashTargets.delete(element.target);
                 var targets = this._arrayTargets;
                 for (var i = 0, l = targets.length; i < l; i++) {
                     if (targets[i] === element) {

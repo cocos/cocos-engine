@@ -1,5 +1,6 @@
 /**
- * @category animation
+ * @packageDocumentation
+ * @module animation
  */
 
 import { clamp01 } from '../math/utils';

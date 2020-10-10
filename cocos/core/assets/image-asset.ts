@@ -24,7 +24,8 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 // @ts-check
@@ -32,12 +33,13 @@ import {ccclass, override} from 'cc.decorator';
 import { GFXDevice, GFXFeature } from '../gfx/device';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
-import { EDITOR, MINIGAME, ALIPAY } from 'internal:constants';
+import { EDITOR, MINIGAME, ALIPAY, XIAOMI, BYTEDANCE, JSB } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID, getError } from '../platform/debug';
 
 /**
- * 内存图像源。
+ * @en Image source in memory
+ * @zh 内存图像源。
  */
 export interface IMemoryImageSource {
     _data: ArrayBufferView | null;
@@ -48,7 +50,8 @@ export interface IMemoryImageSource {
 }
 
 /**
- * 图像资源的原始图像源。可以来源于 HTML 元素也可以来源于内存。
+ * @en The image source, can be HTML canvas, image type or image in memory data
+ * @zh 图像资源的原始图像源。可以来源于 HTML 元素也可以来源于内存。
  */
 export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource;
 
@@ -56,21 +59,26 @@ function fetchImageSource (imageSource: ImageSource) {
     return '_data' in imageSource ? imageSource._data : imageSource;
 }
 
-/**
- * 返回该图像源是否是平台提供的图像对象。
- * @param imageSource 
- */
+// 返回该图像源是否是平台提供的图像对象。
 function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement) {
-    if (ALIPAY) {
+    if (ALIPAY || XIAOMI) {
         // We're unable to grab the constructors of Alipay native image or canvas object.
         return !('_data' in imageSource);
-    } else {
+    }
+    else if (BYTEDANCE && typeof window.sharedCanvas === 'object' && imageSource instanceof window.sharedCanvas.constructor) {
+        return true;
+    }
+    else if (JSB && (imageSource as IMemoryImageSource)._compressed === true) {
+        return false;
+    }
+    else {
         return imageSource instanceof HTMLImageElement || imageSource instanceof HTMLCanvasElement;
     }
 }
 
 /**
- * 图像资源。
+ * @en Image Asset.
+ * @zh 图像资源。
  */
 @ccclass('cc.ImageAsset')
 export class ImageAsset extends Asset {
@@ -89,39 +97,45 @@ export class ImageAsset extends Asset {
     }
 
     /**
-     * 此图像资源的图像数据。
+     * @en Image data.
+     * @zh 此图像资源的图像数据。
      */
     get data () {
         if (isNativeImage(this._nativeData)) {
             return this._nativeData;
-        } else {
+        }
+        else {
             return this._nativeData._data;
         }
     }
 
     /**
-     * 此图像资源的像素宽度。
+     * @en The pixel width of the image.
+     * @zh 此图像资源的像素宽度。
      */
     get width () {
         return this._nativeData.width || this._width;
     }
 
     /**
-     * 此图像资源的像素高度。
+     * @en The pixel height of the image.
+     * @zh 此图像资源的像素高度。
      */
     get height () {
         return this._nativeData.height || this._height;
     }
 
     /**
-     * 此图像资源的像素格式。
+     * @en The pixel format of the image.
+     * @zh 此图像资源的像素格式。
      */
     get format () {
         return this._format;
     }
 
     /**
-     * 此图像资源是否为压缩像素格式。
+     * @en Whether the image is in compressed texture format.
+     * @zh 此图像资源是否为压缩像素格式。
      */
     get isCompressed () {
         return (this._format >= PixelFormat.RGB_ETC1 && this._format <= PixelFormat.RGBA_ASTC_12x12) ||
@@ -129,13 +143,17 @@ export class ImageAsset extends Asset {
     }
 
     /**
-     * 此图像资源的原始图像源的 URL。当原始图像元不是 HTML 文件时可能为空。
-     * @deprecated 请转用 `this.nativeUrl`。
+     * @en The original source image URL, it could be empty.
+     * @zh 此图像资源的原始图像源的 URL。当原始图像元不是 HTML 文件时可能为空。
+     * @deprecated Please use [[nativeUrl]]
      */
     get url () {
         return this._url;
     }
 
+    /**
+     * @private
+     */
     set _texture (tex) {
         this._tex = tex;
     }
@@ -166,9 +184,6 @@ export class ImageAsset extends Asset {
 
     private _height: number = 0;
 
-    /**
-     * @param nativeAsset
-     */
     constructor (nativeAsset?: ImageSource) {
         super();
 
@@ -193,8 +208,9 @@ export class ImageAsset extends Asset {
     }
 
     /**
-     * 重置此图像资源使用的原始图像源。
-     * @param data 新的原始图像源。
+     * @en Reset the source of the image asset.
+     * @zh 重置此图像资源使用的原始图像源。
+     * @param data The new source
      */
     public reset (data: ImageSource) {
         if (!(data instanceof HTMLElement)) {
@@ -326,7 +342,7 @@ function _getGlobalDevice (): GFXDevice | null {
  * @en
  * This event is emitted when the asset is loaded
  *
- * @event loads
+ * @event load
  */
 
 legacyCC.ImageAsset = ImageAsset;

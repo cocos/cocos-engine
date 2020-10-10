@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import { warnID } from '../platform/debug';
 import { safeMeasureText } from '../utils/text-utils';
 import { CompleteCallback, IDownloadParseOptions } from './shared';

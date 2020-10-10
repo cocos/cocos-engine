@@ -25,7 +25,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { Font, SpriteAtlas, TTFFont } from '../../core/assets';
@@ -1083,9 +1084,7 @@ export class RichText extends UIComponent {
                 labelOutline.width = textStyle.outline.width;
             }
 
-            if (textStyle.size) {
-                label.fontSize = textStyle.size;
-            }
+            label.fontSize = textStyle.size || this._fontSize;
 
             labelSeg.clickHandler = '';
             labelSeg.clickParam = '';

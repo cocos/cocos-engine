@@ -24,6 +24,7 @@
 */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 import { assetManager } from '../../../core/asset-manager';

@@ -1,5 +1,6 @@
 /**
- * @category gfx
+ * @packageDocumentation
+ * @module gfx
  */
 
 import { GFXObject, GFXObjectType, GFXShaderStageFlagBit, GFXType } from './define';

@@ -1,5 +1,6 @@
 /**
- * @category event
+ * @packageDocumentation
+ * @module event
  */
 
 import { CallbacksInvoker } from './callbacks-invoker';

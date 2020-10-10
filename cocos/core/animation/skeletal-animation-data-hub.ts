@@ -24,7 +24,8 @@
 */
 
 /**
- * @category animation
+ * @packageDocumentation
+ * @module animation
  */
 
 import { clamp01, Mat4, Quat, Vec3 } from '../math';

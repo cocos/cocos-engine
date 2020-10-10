@@ -30,11 +30,9 @@ const EPSILON = 1e-6;
 
 /**
  * Searches the entire sorted Array for an element and returns the index of the element.
- *
- * @method binarySearch
- * @param {number[]} array
- * @param {number} value
- * @return {number} The index of item in the sorted Array, if item is found; otherwise, a negative number that is the bitwise complement of the index of the next element that is larger than item or, if there is no larger element, the bitwise complement of array's length.
+ * @param array
+ * @param value
+ * @return The index of item in the sorted Array, if item is found; otherwise, a negative number that is the bitwise complement of the index of the next element that is larger than item or, if there is no larger element, the bitwise complement of array's length.
  */
 // function binarySearch (array, value) {
 //     for (var l = 0, h = array.length - 1, m = h >>> 1;
@@ -59,12 +57,10 @@ const EPSILON = 1e-6;
  * Searches the entire sorted Array for an element and returns the index of the element.
  * It accepts iteratee which is invoked for value and each element of array to compute their sort ranking.
  * The iteratee is invoked with one argument: (value).
- *
- * @method binarySearchBy
- * @param {number[]} array
- * @param {number} value
- * @param {function} iteratee - the iteratee invoked per element
- * @return {number} The index of item in the sorted Array, if item is found; otherwise, a negative number that is the bitwise complement of the index of the next element that is larger than item or, if there is no larger element, the bitwise complement of array's length.
+ * @param array
+ * @param value
+ * @param iteratee - the iteratee invoked per element
+ * @return The index of item in the sorted Array, if item is found; otherwise, a negative number that is the bitwise complement of the index of the next element that is larger than item or, if there is no larger element, the bitwise complement of array's length.
  */
 // function binarySearchBy (array, value, iteratee) {
 //     for (var l = 0, h = array.length - 1, m = h >>> 1;
