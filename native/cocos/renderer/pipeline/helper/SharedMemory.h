@@ -193,6 +193,7 @@ struct CC_DLL Shadows {
     float farValue = 0;
     float aspect = 0;
     uint32_t pcfType = 0;
+    float bias = 0;
     uint32_t dirty = 0;
     uint32_t orthoSize = 0;
     cc::Vec2 size;
