@@ -5,7 +5,7 @@
 
 import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXFormat, GFXFormatInfos, GFXTextureType, GFXTextureUsageBit, GFXTextureFlagBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
-import { GFXTexture, GFXTextureInfo } from '../../gfx/texture';
+import { GFXTexture, GFXTextureInfo } from '../../gfx';
 
 export function nearestPOT (num: number): number {
     --num;
