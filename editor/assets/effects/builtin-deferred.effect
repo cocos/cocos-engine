@@ -2,7 +2,7 @@
 
 CCEffect %{
   techniques:
-  - name: deferrd-rendering
+  - name: deferrd-opaque
     passes:
     - vert: gbuffer-vs
       frag: gbuffer-fs
@@ -237,13 +237,14 @@ CCProgram lighting-vs %{
   precision highp float;
   #include <input-standard>
 
+  out vec2 v_uv;
+
   void main () {
     StandardVertInput In;
     CCVertInput(In);
     
     gl_Position = In.position;
-    gl_Position.x = gl_Position.x * 3.0;
-    gl_Position.y = gl_Position.y * 3.0;
+    v_uv = a_texCoord;
   }
 }%
 
@@ -255,6 +256,8 @@ CCProgram lighting-fs %{
   #include <gamma>
   #include <shared-ubos>
   #include <cc-fog>
+
+  in vec2 v_uv;
 
   #pragma builtin(global)
   layout(set = 0, binding = 5) uniform sampler2D cc_gbuffer_albedoMap;
@@ -269,9 +272,9 @@ CCProgram lighting-fs %{
 
   void main () {
     StandardSurface s;
-    vec2 uv = gl_FragCoord.xy/vec2(960,640);
+    vec2 uv = v_uv;
     uv.y = 1.0 - uv.y;
-    // uv = vec2(1.0) - uv;
+
     vec4 albedoMap = texture(cc_gbuffer_albedoMap,uv);
     vec4 positionMap =  texture(cc_gbuffer_positionMap,uv);
     vec4 normalMap = texture(cc_gbuffer_normalMap,uv);
@@ -289,7 +292,5 @@ CCProgram lighting-fs %{
     float fog_factor = CC_TRANSFER_FOG(vec4(s.position,1)); 
     color = CC_APPLY_FOG(color, fog_factor);
     fragColor0 = CCFragOutput(color);
-    // fragColor0 = vec4(uv,0,1);
-    // fragColor0 = vec4(s.normal, 1.0);
   }
 }%

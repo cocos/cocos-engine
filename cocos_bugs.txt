@@ -2,3 +2,4 @@
 2.现有shader增加tech报错 -> 创建新的mtl/effect
 3.增加gbuffer后，图元绘制方向CCW->CW
 4.引擎正常运行，编辑器无法正常显示，不兼容新的材质/effect
+5.没有现成的绘制全图quad的代码

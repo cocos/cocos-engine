@@ -21,8 +21,13 @@ import { LightingFlow } from './lighting-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 import { PlanarShadowQueue } from './planar-shadow-queue';
+import { Material } from '../../assets/material';
+import { BlendStatePool, PassPool, PassView, DSPool, SubModelView, 
+    SubModelPool, ShaderPool, PassHandle, ShaderHandle } from '../../renderer/core/memory-pools';
+import { PipelineStateManager } from '../pipeline-state-manager';
 
 const colors: GFXColor[] = [ new GFXColor(0, 0, 0, 1) ];
+const LIGHTINGPASS_INDEX = 1;
 
 /**
  * @en The lighting render stage
@@ -62,6 +67,21 @@ export class LightingStage extends RenderStage {
     private _phaseID = getPhaseID('deferred-lighting');
     private declare _additiveLightQueue: RenderAdditiveLightQueue;
     private declare _planarQueue: PlanarShadowQueue;
+
+    @type(Material)
+    @serializable
+    @displayOrder(3)
+    private _deferredMaterial: Material | null = null;
+
+    set material (val) {
+        if (this._deferredMaterial === val) {
+            return
+        }
+
+        this._deferredMaterial = val;
+    }
+
+    private _pso : GFXPipelineState | null = null;
 
     constructor () {
         super();
@@ -110,46 +130,10 @@ export class LightingStage extends RenderStage {
     }
 
     public render (view: RenderView) {
-
-        this._instancedQueue.clear();
-        this._batchedQueue.clear();
         const pipeline = this._pipeline as DeferredPipeline;
         const device = pipeline.device;
-        this._renderQueues.forEach(this.renderQueueClearFunc);
-
-        const renderObjects = pipeline.renderObjects;
-        let m = 0; let p = 0; let k = 0;
-        for (let i = 0; i < renderObjects.length; ++i) {
-            const ro = renderObjects[i];
-            const subModels = ro.model.subModels;
-            for (m = 0; m < subModels.length; ++m) {
-                const subModel = subModels[m];
-                const passes = subModel.passes;
-                for (p = 0; p < passes.length; ++p) {
-                    const pass = passes[p];
-                    if (pass.phase !== this._phaseID) continue;
-                    const batchingScheme = pass.batchingScheme;
-                    if (batchingScheme === BatchingSchemes.INSTANCING) {
-                        const instancedBuffer = InstancedBuffer.get(pass);
-                        instancedBuffer.merge(subModel, ro.model.instancedAttributes, p);
-                        this._instancedQueue.queue.add(instancedBuffer);
-                    } else if (batchingScheme === BatchingSchemes.VB_MERGING) {
-                        const batchedBuffer = BatchedBuffer.get(pass);
-                        batchedBuffer.merge(subModel, p, ro);
-                        this._batchedQueue.queue.add(batchedBuffer);
-                    } else {
-                        for (k = 0; k < this._renderQueues.length; k++) {
-                            this._renderQueues[k].insertRenderPass(ro, m, p);
-                        }
-                    }
-                }
-            }
-        }
+       
         const cmdBuff = pipeline.commandBuffers[0];
-
-        this._renderQueues.forEach(this.renderQueueSortFunc);
-        this._additiveLightQueue.gatherLightPasses(view, cmdBuff);
-        this._planarQueue.updateShadowList(view);
 
         const camera = view.camera;
         const vp = camera.viewport;
@@ -182,13 +166,13 @@ export class LightingStage extends RenderStage {
 
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
-        for (let i = 0; i < this.renderQueues.length; i++) {
-            this._renderQueues[i].recordCommandBuffer(device, renderPass, cmdBuff);
-        }
-        this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-        this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-        this._additiveLightQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-        this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+        const hPass = this._deferredMaterial.passes[LIGHTINGPASS_INDEX]._handle;
+        const shader = ShaderPool.get(this._deferredMaterial.passes[LIGHTINGPASS_INDEX]._hShaderDefault);
+        const inputAssembler = this._pipeline._quadIA;
+        const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, inputAssembler);
+        cmdBuff.bindPipelineState(pso);
+        cmdBuff.bindInputAssembler(inputAssembler);
+        cmdBuff.draw(inputAssembler);
 
         cmdBuff.endRenderPass();
     }

@@ -8,10 +8,18 @@ import { GbufferFlow } from './gbuffer-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
+import {
+    GFXBindingType,
+    GFXBufferUsageBit,
+    GFXFormat,
+    GFXFormatInfos,
+    GFXMemoryUsageBit,
+    GFXClearFlag,
+    GFXFilter, 
+    GFXAddress,
+    GFXTextureUsageBit } from '../../gfx/define';
 import { IRenderObject, UBOGlobal, UBOShadow,  UNIFORM_SHADOWMAP_BINDING, UNIFORM_GBUFFER_ALBEDOMAP_BINDING, 
     UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING} from '../define';
-import { GFXBufferUsageBit, GFXMemoryUsageBit,
-    GFXClearFlag, GFXFilter, GFXAddress } from '../../gfx/define';
 import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout, GFXRenderPassInfo, GFXBufferInfo } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { legacyCC } from '../../global-exports';
@@ -59,6 +67,14 @@ export class DeferredPipeline extends RenderPipeline {
     }
 
     /**
+     * @zh
+     * 四边形输入汇集器。
+     */
+    public get quadIA (): GFXInputAssembler {
+        return this._quadIA!;
+    }
+
+    /**
      * @en Get shadow UBO.
      * @zh 获取阴影UBO。
      */
@@ -93,6 +109,9 @@ export class DeferredPipeline extends RenderPipeline {
     protected _renderPasses = new Map<GFXClearFlag, GFXRenderPass>();
     protected _globalUBO = new Float32Array(UBOGlobal.COUNT);
     protected _shadowUBO = new Float32Array(UBOShadow.COUNT);
+    protected _quadVB: GFXBuffer | null = null;
+    protected _quadIB: GFXBuffer | null = null;
+    protected _quadIA: GFXInputAssembler | null = null;
 
     public initialize (info: IRenderPipelineInfo): boolean {
         super.initialize(info);
@@ -266,6 +285,10 @@ export class DeferredPipeline extends RenderPipeline {
         this.macros.CC_USE_HDR = this._isHDR;
         this.macros.CC_SUPPORT_FLOAT_TEXTURE = this.device.hasFeature(GFXFeature.TEXTURE_FLOAT);
 
+        if (!this.createQuadInputAssembler()) {
+            return false;
+        }
+
         return true;
     }
 
@@ -376,6 +399,7 @@ export class DeferredPipeline extends RenderPipeline {
 
     public destroy () {
         this.destroyUBOs();
+        this.destroyQuadInputAssembler();
 
         const rpIter = this._renderPasses.values();
         let rpRes = rpIter.next();
@@ -392,5 +416,94 @@ export class DeferredPipeline extends RenderPipeline {
         this.shadows.destroy();
 
         return super.destroy();
+    }
+
+    /**
+     * @zh
+     * 创建四边形输入汇集器。
+     */
+    protected createQuadInputAssembler (): boolean {
+
+        // create vertex buffer
+
+        const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
+        const vbSize = vbStride * 4;
+
+        this._quadVB = this._device.createBuffer({
+            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: vbSize,
+            stride: vbStride,
+        });
+
+        if (!this._quadVB) {
+            return false;
+        }
+
+        const verts = new Float32Array(4 * 4);
+        let n = 0;
+        verts[n++] = -1.0; verts[n++] = -1.0; verts[n++] = 0.0; verts[n++] = 0.0;
+        verts[n++] = 1.0; verts[n++] = -1.0; verts[n++] = 1.0; verts[n++] = 0.0;
+        verts[n++] = -1.0; verts[n++] = 1.0; verts[n++] = 0.0; verts[n++] = 1.0;
+        verts[n++] = 1.0; verts[n++] = 1.0; verts[n++] = 1.0; verts[n++] = 1.0;
+
+        this._quadVB.update(verts);
+
+        // create index buffer
+        const ibStride = Uint8Array.BYTES_PER_ELEMENT;
+        const ibSize = ibStride * 6;
+
+        this._quadIB = this._device.createBuffer({
+            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: ibSize,
+            stride: ibStride,
+        });
+
+        if (!this._quadIB) {
+            return false;
+        }
+
+        const indices = new Uint8Array(6);
+        indices[0] = 0; indices[1] = 1; indices[2] = 2;
+        indices[3] = 1; indices[4] = 3; indices[5] = 2;
+
+        this._quadIB.update(indices);
+
+        // create input assembler
+
+        const attributes: IGFXAttribute[] = [
+            { name: 'a_position', format: GFXFormat.RG32F },
+            { name: 'a_texCoord', format: GFXFormat.RG32F },
+        ];
+
+        this._quadIA = this._device.createInputAssembler({
+            attributes,
+            vertexBuffers: [this._quadVB],
+            indexBuffer: this._quadIB,
+        });
+
+        return true;
+    }
+
+    /**
+     * @zh
+     * 销毁四边形输入汇集器。
+     */
+    protected destroyQuadInputAssembler () {
+        if (this._quadVB) {
+            this._quadVB.destroy();
+            this._quadVB = null;
+        }
+
+        if (this._quadIB) {
+            this._quadIB.destroy();
+            this._quadIB = null;
+        }
+
+        if (this._quadIA) {
+            this._quadIA.destroy();
+            this._quadIA = null;
+        }
     }
 }

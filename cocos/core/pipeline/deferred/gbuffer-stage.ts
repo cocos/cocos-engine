@@ -78,8 +78,6 @@ export class GbufferStage extends RenderStage {
         if (info.renderQueues) {
             this.renderQueues = info.renderQueues;
         }
-        // const mat = new Material();
-        // mat.initialize({ effectName: 'builtin-gbuffer' });
         return true;
     }
 
