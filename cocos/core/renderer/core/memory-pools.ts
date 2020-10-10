@@ -520,6 +520,7 @@ export type FogHandle = IHandle<PoolType.FOG>;
 export type SkyboxHandle = IHandle<PoolType.SKYBOX>;
 export type ShadowsHandle = IHandle<PoolType.SHADOW>;
 export type LightHandle = IHandle<PoolType.LIGHT>;
+export type SphereHandle = IHandle<PoolType.SPHERE>;
 
 // don't reuse any of these data-only structs, for GFX objects may directly reference them
 export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, () => new GFXRasterizerState());
@@ -998,7 +999,8 @@ export enum ShadowsView {
     SIZE, // Vec2
     NORMAL = 15, // Vec3
     COLOR = 18, // Vec4
-    COUNT = 22
+    MAT_LIGHT = 22, //Mat4
+    COUNT = 38
 }
 interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.ENABLE]: number;
@@ -1017,6 +1019,7 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.SIZE]: Vec2;
     [ShadowsView.NORMAL]: Vec3;
     [ShadowsView.COLOR]: Color;
+    [ShadowsView.MAT_LIGHT]: Mat4;
     [ShadowsView.COUNT]: never;
 }
 const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
@@ -1036,11 +1039,12 @@ const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
     [ShadowsView.NORMAL]: BufferDataType.FLOAT32,
     [ShadowsView.COLOR]: BufferDataType.FLOAT32,
     [ShadowsView.SPHERE]: BufferDataType.UINT32,
+    [ShadowsView.MAT_LIGHT]: BufferDataType.FLOAT32,
     [ShadowsView.COUNT]: BufferDataType.NEVER
 }
 // @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
 if (!JSB) {delete ShadowsView[ShadowsView.COUNT]; ShadowsView[ShadowsView.COUNT = ShadowsView.SPHERE + 1] = 'COUNT'; }
-export const ShadowsPool = new BufferPool<PoolType.SHADOW, typeof ShadowsView, IShadowsViewType>(PoolType.SHADOW, shadowsViewDataType, ShadowsView);
+export const ShadowsPool = new BufferPool<PoolType.SHADOW, typeof ShadowsView, IShadowsViewType>(PoolType.SHADOW, shadowsViewDataType, ShadowsView, 1);
 
 export enum LightView {
     USE_COLOR_TEMPERATURE,
@@ -1069,7 +1073,7 @@ const lightViewDataType: BufferDataTypeManifest<typeof LightView> = {
     [LightView.COLOR_TEMPERATURE_RGB]: BufferDataType.FLOAT32,
     [LightView.COUNT]: BufferDataType.NEVER
 }
-export const LightPool = new BufferPool<PoolType.LIGHT, typeof LightView, ILightViewType>(PoolType.LIGHT, lightViewDataType, LightView);
+export const LightPool = new BufferPool<PoolType.LIGHT, typeof LightView, ILightViewType>(PoolType.LIGHT, lightViewDataType, LightView, 3);
 
 export enum SphereView {
     RADIUS,
@@ -1088,5 +1092,5 @@ const sphereViewDataType: BufferDataTypeManifest<typeof SphereView> = {
 }
 // @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
 if (!JSB) {delete SphereView[SphereView.COUNT]; SphereView[SphereView.COUNT = SphereView.RADIUS + 1] = 'COUNT'; }
-export const SpherePool = new BufferPool<PoolType.SPHERE, typeof SphereView, ISphereViewType>(PoolType.SPHERE, sphereViewDataType, SphereView);
+export const SpherePool = new BufferPool<PoolType.SPHERE, typeof SphereView, ISphereViewType>(PoolType.SPHERE, sphereViewDataType, SphereView, 3);
 
