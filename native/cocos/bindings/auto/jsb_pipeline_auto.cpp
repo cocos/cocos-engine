@@ -126,56 +126,24 @@ static bool js_pipeline_RenderQueueDesc_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
-    else if(argc == 1 && args[0].isObject())
-    {
-        se::Object *json = args[0].toObject();
-        se::Value field;
-
-        cc::pipeline::RenderQueueDesc* cobj = JSB_ALLOC(cc::pipeline::RenderQueueDesc);
-        bool arg0;
-        json->getProperty("isTransparent", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_boolean(field, &arg0);
-            cobj->isTransparent = arg0;
-        }
-        cc::pipeline::RenderQueueSortMode arg1;
-        json->getProperty("sortMode", &field);
-        if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cc::pipeline::RenderQueueSortMode)tmp; } while(false);
-            cobj->sortMode = arg1;
-        }
-        std::vector<std::string> arg2;
-        json->getProperty("stages", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_std_vector(field, &arg2);
-            cobj->stages = arg2;
-        }
-
-        if(!ok) {
-            JSB_FREE(cobj);
-            SE_REPORT_ERROR("argument convertion error");
-            return false;
-        }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-    else if(argc == 3)
+    else
     {
         cc::pipeline::RenderQueueDesc* cobj = JSB_ALLOC(cc::pipeline::RenderQueueDesc);
-        bool arg0;
+
         if (!args[0].isUndefined()) {
+            bool arg0;
             ok &= seval_to_boolean(args[0], &arg0);
             cobj->isTransparent = arg0;
         }
-        cc::pipeline::RenderQueueSortMode arg1;
+
         if (!args[1].isUndefined()) {
+            cc::pipeline::RenderQueueSortMode arg1;
             do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::pipeline::RenderQueueSortMode)tmp; } while(false);
             cobj->sortMode = arg1;
         }
-        std::vector<std::string> arg2;
+
         if (!args[2].isUndefined()) {
+            std::vector<std::string> arg2;
             ok &= seval_to_std_vector(args[2], &arg2);
             cobj->stages = arg2;
         }
@@ -304,45 +272,18 @@ static bool js_pipeline_RenderPipelineInfo_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
-    else if(argc == 1 && args[0].isObject())
-    {
-        se::Object *json = args[0].toObject();
-        se::Value field;
-
-        cc::pipeline::RenderPipelineInfo* cobj = JSB_ALLOC(cc::pipeline::RenderPipelineInfo);
-        unsigned int arg0 = 0;
-        json->getProperty("tag", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg0);
-            cobj->tag = arg0;
-        }
-        std::vector<cc::pipeline::RenderFlow *> arg1;
-        json->getProperty("flows", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_std_vector(field, &arg1);
-            cobj->flows = arg1;
-        }
-
-        if(!ok) {
-            JSB_FREE(cobj);
-            SE_REPORT_ERROR("argument convertion error");
-            return false;
-        }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-    else if(argc == 2)
+    else
     {
         cc::pipeline::RenderPipelineInfo* cobj = JSB_ALLOC(cc::pipeline::RenderPipelineInfo);
-        unsigned int arg0 = 0;
+
         if (!args[0].isUndefined()) {
+            unsigned int arg0 = 0;
             ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
             cobj->tag = arg0;
         }
-        std::vector<cc::pipeline::RenderFlow *> arg1;
+
         if (!args[1].isUndefined()) {
+            std::vector<cc::pipeline::RenderFlow *> arg1;
             ok &= seval_to_std_vector(args[1], &arg1);
             cobj->flows = arg1;
         }
@@ -826,67 +767,30 @@ static bool js_pipeline_RenderFlowInfo_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
-    else if(argc == 1 && args[0].isObject())
-    {
-        se::Object *json = args[0].toObject();
-        se::Value field;
-
-        cc::pipeline::RenderFlowInfo* cobj = JSB_ALLOC(cc::pipeline::RenderFlowInfo);
-        cc::String arg0;
-        json->getProperty("name", &field);
-        if(!field.isUndefined()) {
-            arg0 = field.toStringForce().c_str();
-            cobj->name = arg0;
-        }
-        unsigned int arg1 = 0;
-        json->getProperty("priority", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg1);
-            cobj->priority = arg1;
-        }
-        unsigned int arg2 = 0;
-        json->getProperty("tag", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg2);
-            cobj->tag = arg2;
-        }
-        std::vector<cc::pipeline::RenderStage *> arg3;
-        json->getProperty("stages", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_std_vector(field, &arg3);
-            cobj->stages = arg3;
-        }
-
-        if(!ok) {
-            JSB_FREE(cobj);
-            SE_REPORT_ERROR("argument convertion error");
-            return false;
-        }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-    else if(argc == 4)
+    else
     {
         cc::pipeline::RenderFlowInfo* cobj = JSB_ALLOC(cc::pipeline::RenderFlowInfo);
-        cc::String arg0;
+
         if (!args[0].isUndefined()) {
+            cc::String arg0;
             arg0 = args[0].toStringForce().c_str();
             cobj->name = arg0;
         }
-        unsigned int arg1 = 0;
+
         if (!args[1].isUndefined()) {
+            unsigned int arg1 = 0;
             ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
             cobj->priority = arg1;
         }
-        unsigned int arg2 = 0;
+
         if (!args[2].isUndefined()) {
+            unsigned int arg2 = 0;
             ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
             cobj->tag = arg2;
         }
-        std::vector<cc::pipeline::RenderStage *> arg3;
+
         if (!args[3].isUndefined()) {
+            std::vector<cc::pipeline::RenderStage *> arg3;
             ok &= seval_to_std_vector(args[3], &arg3);
             cobj->stages = arg3;
         }
@@ -1216,67 +1120,30 @@ static bool js_pipeline_RenderStageInfo_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
-    else if(argc == 1 && args[0].isObject())
-    {
-        se::Object *json = args[0].toObject();
-        se::Value field;
-
-        cc::pipeline::RenderStageInfo* cobj = JSB_ALLOC(cc::pipeline::RenderStageInfo);
-        cc::String arg0;
-        json->getProperty("name", &field);
-        if(!field.isUndefined()) {
-            arg0 = field.toStringForce().c_str();
-            cobj->name = arg0;
-        }
-        unsigned int arg1 = 0;
-        json->getProperty("priority", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg1);
-            cobj->priority = arg1;
-        }
-        unsigned int arg2 = 0;
-        json->getProperty("tag", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg2);
-            cobj->tag = arg2;
-        }
-        std::vector<cc::pipeline::RenderQueueDesc> arg3;
-        json->getProperty("renderQueues", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_std_vector(field, &arg3);
-            cobj->renderQueues = arg3;
-        }
-
-        if(!ok) {
-            JSB_FREE(cobj);
-            SE_REPORT_ERROR("argument convertion error");
-            return false;
-        }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-    else if(argc == 4)
+    else
     {
         cc::pipeline::RenderStageInfo* cobj = JSB_ALLOC(cc::pipeline::RenderStageInfo);
-        cc::String arg0;
+
         if (!args[0].isUndefined()) {
+            cc::String arg0;
             arg0 = args[0].toStringForce().c_str();
             cobj->name = arg0;
         }
-        unsigned int arg1 = 0;
+
         if (!args[1].isUndefined()) {
+            unsigned int arg1 = 0;
             ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
             cobj->priority = arg1;
         }
-        unsigned int arg2 = 0;
+
         if (!args[2].isUndefined()) {
+            unsigned int arg2 = 0;
             ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
             cobj->tag = arg2;
         }
-        std::vector<cc::pipeline::RenderQueueDesc> arg3;
+
         if (!args[3].isUndefined()) {
+            std::vector<cc::pipeline::RenderQueueDesc> arg3;
             ok &= seval_to_std_vector(args[3], &arg3);
             cobj->renderQueues = arg3;
         }
@@ -2164,56 +2031,24 @@ static bool js_pipeline_RenderWindow_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
-    else if(argc == 1 && args[0].isObject())
-    {
-        se::Object *json = args[0].toObject();
-        se::Value field;
-
-        cc::pipeline::RenderWindow* cobj = JSB_ALLOC(cc::pipeline::RenderWindow);
-        unsigned int arg0 = 0;
-        json->getProperty("hasOnScreenAttachments", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg0);
-            cobj->hasOnScreenAttachments = arg0;
-        }
-        unsigned int arg1 = 0;
-        json->getProperty("hasOffScreenAttachments", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg1);
-            cobj->hasOffScreenAttachments = arg1;
-        }
-        unsigned int arg2 = 0;
-        json->getProperty("framebufferID", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg2);
-            cobj->framebufferID = arg2;
-        }
-
-        if(!ok) {
-            JSB_FREE(cobj);
-            SE_REPORT_ERROR("argument convertion error");
-            return false;
-        }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-    else if(argc == 3)
+    else
     {
         cc::pipeline::RenderWindow* cobj = JSB_ALLOC(cc::pipeline::RenderWindow);
-        unsigned int arg0 = 0;
+
         if (!args[0].isUndefined()) {
+            unsigned int arg0 = 0;
             ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
             cobj->hasOnScreenAttachments = arg0;
         }
-        unsigned int arg1 = 0;
+
         if (!args[1].isUndefined()) {
+            unsigned int arg1 = 0;
             ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
             cobj->hasOffScreenAttachments = arg1;
         }
-        unsigned int arg2 = 0;
+
         if (!args[2].isUndefined()) {
+            unsigned int arg2 = 0;
             ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
             cobj->framebufferID = arg2;
         }
