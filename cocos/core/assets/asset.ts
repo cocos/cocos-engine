@@ -35,11 +35,7 @@ import { Eventify } from '../event';
 import { RawAsset } from './raw-asset';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
-import { errorID } from '../platform/debug';
 import { extname } from '../utils/path';
-import { EDITOR } from 'internal:constants';
-
-const references = new WeakMap<Asset, any[]>();
 
 /**
  * @en
@@ -241,13 +237,6 @@ export class Asset extends Eventify(RawAsset) {
         return this._ref;
     }
 
-    public constructor () {
-        super();
-        if (EDITOR) {
-            references.set(this, []);
-        }
-    }
-
     /**
      * @en
      * Add references of asset
@@ -260,9 +249,6 @@ export class Asset extends Eventify(RawAsset) {
      */
     public addRef (): Asset {
         this._ref++;
-        if (EDITOR && arguments.length > 0) {
-            references.get(this)!.push(arguments);
-        }
         return this;
     }
 

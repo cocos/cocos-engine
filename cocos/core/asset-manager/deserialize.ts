@@ -36,10 +36,11 @@ export interface IDependProp {
     prop: string;
 }
 
-export default function (json: Record<string, any>, options?: Record<string, any>) {
+export default function (json: Record<string, any>, options: Record<string, any>) {
     let classFinder;
     if (EDITOR) {
         missingClass = missingClass || EditorExtends.MissingReporter.classInstance;
+        missingClass.hasMissingClass = false;
         classFinder = (type, data, owner, propName) => {
             const res = missingClass.classFinder(type, data, owner, propName);
             if (res) {
@@ -63,13 +64,15 @@ export default function (json: Record<string, any>, options?: Record<string, any
         });
     }
     catch (e) {
+        console.error(e);
         Details.pool.put(tdInfo);
         throw e;
     }
 
-    if (EDITOR && missingClass) {
+    asset._uuid = options.__uuid__ || '';
+
+    if (EDITOR && missingClass.hasMissingClass) {
         missingClass.reportMissingClass(asset);
-        missingClass.reset();
     }
 
     const uuidList = tdInfo.uuidList;

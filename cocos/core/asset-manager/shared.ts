@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+import { EDITOR } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import Bundle from './bundle';
 import Cache from './cache';
@@ -99,6 +100,7 @@ export const bundles = new Cache<Bundle>();
 export const pipeline = new Pipeline('normal load', []);
 export const fetchPipeline = new Pipeline('fetch', []);
 export const transformPipeline = new Pipeline('transform url', []);
+export const references = EDITOR ? new Cache<any[]>() : null;
 
 export enum RequestType {
 

@@ -33,7 +33,7 @@ import dependUtil from './depend-util';
 import { IDependProp } from './deserialize';
 import { isScene } from './helper';
 import RequestItem from './request-item';
-import { assets, AssetType, CompleteCallback, CompleteCallbackNoData, IOptions, ProgressCallback } from './shared';
+import { assets, AssetType, CompleteCallback, CompleteCallbackNoData, IOptions, ProgressCallback, references } from './shared';
 import Task from './task';
 
 let defaultProgressCallback: ProgressCallback | null = null;
@@ -91,7 +91,7 @@ export function getDepends (uuid: string, data: Asset | Record<string, any>, exc
         const info = dependUtil.parse(uuid, data);
         let includeNative = true;
         // @ts-ignore
-        if (data instanceof Asset && (!data.__nativeDepend__ || data._nativeAsset)) { includeNative = false; }
+        if (data instanceof Asset && (!data.__nativeDepend__)) { includeNative = false; }
         if (!preload) {
             asyncLoadAssets = !EDITOR && (!!(data as SceneAsset|Prefab).asyncLoadAssets || (asyncLoadAssets && !info.preventDeferredLoadDependents));
             for (let i = 0, l = info.deps.length; i < l; i++) {
@@ -161,45 +161,14 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
                 missingAsset = true;
             }
             else {
-                depend.owner[depend.prop] = dependAsset.addRef(asset, depend.owner, depend.prop);
-            }
-            if (EDITOR && !isScene(asset)) {
-                let dependListener = legacyCC.assetManager.dependListener;
-                let assetListener = legacyCC.assetManager.assetListener;
-    
-                // @ts-ignore
-                function propSetter (asset, obj, propName, oldAsset, newAsset) {
-                    if (oldAsset === newAsset || obj[propName] === newAsset) {
-                        return;
+                depend.owner[depend.prop] = dependAsset.addRef();
+                if (EDITOR) {
+                    let reference = references!.get(dependAsset);
+                    if (!reference || isScene(asset)) {
+                        reference = [];
+                        references!.add(depend.uuid, reference);
                     }
-                    if (asset instanceof legacyCC.Material && newAsset instanceof legacyCC.Texture2D) {
-                        for (let i = 0, l = asset.passes.length; i < l; i++) {
-                            if (asset.getProperty(propName, i) === oldAsset) {
-                                asset.setProperty(propName, newAsset, i);
-                            }
-                        }
-                    } else {
-                        obj[propName] = newAsset;
-                        asset.onLoaded && asset.onLoaded();
-                    }
-    
-                    dependListener.emit(asset._uuid, asset);
-                    assetListener.emit(asset._uuid, asset);
-                };
-    
-                if (dependListener) {
-                    item.references = {};
-                    for (let i = 0, l = depends.length; i < l; i++) {
-                        let dep = depends[i];
-                        let dependSrc = dep.uuid;
-                        if (dependSrc) {
-                            let dependObj = dep._owner;
-                            let dependProp = dep._ownerProp;
-                            let onDirty = propSetter.bind(null, asset, dependObj, dependProp);
-                            dependListener.on(dependSrc, onDirty);
-                            item.references[dependSrc] = onDirty;
-                        }
-                    }
+                    reference.push([asset, depend.owner, depend.prop]);
                 }
             }
         }
@@ -213,15 +182,13 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
 
     // @ts-ignore
     if (asset.__nativeDepend__) {
-        if (!asset._nativeAsset) {
-            if (assetsMap[uuid + '@native']) {
-                asset._nativeAsset = assetsMap[uuid + '@native'];
-            }
-            else {
-                missingAsset = true;
-                if (EDITOR) {
-                    console.error(`the native asset of ${uuid} is missing!`);
-                }
+        if (assetsMap[uuid + '@native']) {
+            asset._nativeAsset = assetsMap[uuid + '@native'];
+        }
+        else {
+            missingAsset = true;
+            if (EDITOR) {
+                console.error(`the native asset of ${uuid} is missing!`);
             }
         }
         // @ts-ignore

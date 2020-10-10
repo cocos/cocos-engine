@@ -22,13 +22,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { TEST } from 'internal:constants';
+import { EDITOR, TEST } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { isValid } from '../data/object';
 import { Node, Scene } from '../scene-graph';
 import Cache from './cache';
 import dependUtil from './depend-util';
-import { assets } from './shared';
+import { assets, references } from './shared';
 import { legacyCC } from '../global-exports';
 
 function visitAsset (asset: Asset, deps: string[]) {
@@ -108,7 +108,7 @@ function checkCircularReference (asset: Asset) {
 
     for (const uuid in refs) {
         if (refs[uuid] !== 0) {
-            descendOpRef(assets.get(uuid) as Asset, refs, _temp, 1);
+            descendOpRef(assets.get(uuid)!, refs, _temp, 1);
         }
     }
     _temp.length = 0;
@@ -222,7 +222,8 @@ class ReleaseManager {
     }
 
     private _free (asset: Asset, force = false) {
-        this._toDelete.remove(asset._uuid);
+        const uuid = asset._uuid;
+        this._toDelete.remove(uuid);
 
         if (!isValid(asset, true)) { return; }
 
@@ -233,8 +234,8 @@ class ReleaseManager {
         }
 
         // remove from cache
-        assets.remove(asset._uuid);
-        const depends = dependUtil.getDeps(asset._uuid);
+        assets.remove(uuid);
+        const depends = dependUtil.getDeps(uuid);
         for (let i = 0, l = depends.length; i < l; i++) {
             const dependAsset = assets.get(depends[i]);
             if (dependAsset) {
@@ -243,7 +244,10 @@ class ReleaseManager {
             }
         }
         asset.destroy();
-        dependUtil.remove(asset._uuid);
+        dependUtil.remove(uuid);
+        if (EDITOR) {
+            references!.remove(uuid);
+        }
     }
 }
 

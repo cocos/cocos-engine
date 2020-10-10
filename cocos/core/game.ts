@@ -320,8 +320,6 @@ export class Game extends EventTarget {
     public _lastTime: Date | null = null;
     public _frameTime: number | null = null;
 
-    // Scenes list
-    public _sceneInfos: ISceneInfo[] = [];
     public collisionMatrix = [];
     public groupList: any[] = [];
 
@@ -785,9 +783,6 @@ export class Game extends EventTarget {
             config.registerSystemEvent = true;
         }
         config.showFPS = !!config.showFPS;
-
-        // Scene parser
-        this._sceneInfos = config.scenes || [];
 
         // Collide Map and Group List
         this.collisionMatrix = config.collisionMatrix || [];

@@ -116,9 +116,6 @@ export class PackManager {
         this._loading.clear();
     }
 
-    public register (type: string, handler: Unpacker): void;
-    public register (map: Record<string, Unpacker>): void;
-
     /**
      * @en
      * Register custom handler if you want to change default behavior or extend packManager to unpack other format pack
@@ -140,6 +137,8 @@ export class PackManager {
      *  '.ab': (packUuid, file, options, onComplete) => onComplete(null, null),
      * });
      */
+    public register (type: string, handler: Unpacker): void;
+    public register (map: Record<string, Unpacker>): void;
     public register (type: string | Record<string, Unpacker>, handler?: Unpacker) {
         if (typeof type === 'object') {
             js.mixin(this._unpackers, type);

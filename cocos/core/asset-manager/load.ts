@@ -168,9 +168,9 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                     }
                 }
                 else {
+                    options.__uuid__ = uuid;
                     parser.parse(id, file, 'import', options, (err, asset: Asset) => {
                         if (err) { return done(err); }
-                        asset._uuid = uuid;
                         loadDepends(task, asset, done, true);
                     });
                 }
@@ -219,7 +219,7 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
 
                 if (!init) {
                     // @ts-ignore
-                    if (asset.__nativeDepend__ && !asset._nativeAsset) {
+                    if (asset.__nativeDepend__) {
                         if (!setProperties(uuid, asset, map)) {
                             try {
                                 asset.onLoaded();

@@ -58,6 +58,7 @@ import {
     IRequest,
     IAssetOptions,
     IDownloadParseOptions,
+    references,
 } from './shared';
 import { assets, BuiltinBundleName, bundles, fetchPipeline, files, parsed, pipeline, transformPipeline } from './shared';
 import Task, { ITaskOption, TaskCompleteCallback, TaskProgressCallback, TaskErrorCallback } from './task';
@@ -275,6 +276,8 @@ export class AssetManager {
 
     public loadPipe: IPipe = load;
 
+    public references = references;
+
     private _releaseManager = releaseManager;
 
     private _files = files;
@@ -367,11 +370,6 @@ export class AssetManager {
         bundles.remove(bundle.name);
     }
 
-    public loadAny (requests: Request, options: IOptions | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback | null): void;
-    public loadAny (requests: Request, onProgress: ProgressCallback | null, onComplete: CompleteCallback | null): void;
-    public loadAny (requests: Request, options: IOptions | null, onComplete?: CompleteCallback | null): void;
-    public loadAny (requests: Request, onComplete?: CompleteCallback | null): void;
-
     /**
      * @en
      * General interface used to load assets with a progression callback and a complete callback. You can achieve almost all
@@ -423,6 +421,10 @@ export class AssetManager {
      * cc.assetManager.loadAny({ url: 'http://example.com/my.asset', skin: 'xxx', model: 'xxx', userName: 'xxx', password: 'xxx' });
      *
      */
+    public loadAny (requests: Request, options: IOptions | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback | null): void;
+    public loadAny (requests: Request, onProgress: ProgressCallback | null, onComplete: CompleteCallback | null): void;
+    public loadAny (requests: Request, options: IOptions | null, onComplete?: CompleteCallback | null): void;
+    public loadAny (requests: Request, onComplete?: CompleteCallback | null): void;
     public loadAny (requests: Request,
                     options?: IOptions | ProgressCallback | CompleteCallback | null,
                     onProgress?: ProgressCallback | CompleteCallback | null,
@@ -434,11 +436,6 @@ export class AssetManager {
         const task = new Task({ input: requests, onProgress: onProg, onComplete: asyncify(onComp), options: opts });
         pipeline.async(task);
     }
-
-    public preloadAny (requests: Request, options: IOptions | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback<RequestItem[]>|null): void;
-    public preloadAny (requests: Request, onProgress: ProgressCallback | null, onComplete: CompleteCallback<RequestItem[]> | null): void;
-    public preloadAny (requests: Request, options: IOptions | null, onComplete?: CompleteCallback<RequestItem[]> | null): void;
-    public preloadAny (requests: Request, onComplete?: CompleteCallback<RequestItem[]> | null): void;
 
     /**
      * @en
@@ -465,6 +462,10 @@ export class AssetManager {
      * cc.assetManager.preloadAny('0cbZa5Y71CTZAccaIFluuZ', (err) => cc.assetManager.loadAny('0cbZa5Y71CTZAccaIFluuZ'));
      *
      */
+    public preloadAny (requests: Request, options: IOptions | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback<RequestItem[]>|null): void;
+    public preloadAny (requests: Request, onProgress: ProgressCallback | null, onComplete: CompleteCallback<RequestItem[]> | null): void;
+    public preloadAny (requests: Request, options: IOptions | null, onComplete?: CompleteCallback<RequestItem[]> | null): void;
+    public preloadAny (requests: Request, onComplete?: CompleteCallback<RequestItem[]> | null): void;
     public preloadAny (requests: Request,
                        options?: IOptions | ProgressCallback | CompleteCallback<RequestItem[]> | null,
                        onProgress?: ProgressCallback | CompleteCallback<RequestItem[]> | null,
@@ -476,9 +477,6 @@ export class AssetManager {
         const task = new Task({ input: requests, onProgress: onProg, onComplete: asyncify(onComp), options: opts });
         fetchPipeline.async(task);
     }
-
-    public postLoadNative (asset: Asset, options: INativeAssetOptions | null, onComplete: CompleteCallbackNoData | null): void;
-    public postLoadNative (asset: Asset, onComplete?: CompleteCallbackNoData | null): void;
 
     /**
      * @en
@@ -496,10 +494,13 @@ export class AssetManager {
      * cc.assetManager.postLoadNative(texture, (err) => console.log(err));
      *
      */
+    public postLoadNative (asset: Asset, options: INativeAssetOptions | null, onComplete: CompleteCallbackNoData | null): void;
+    public postLoadNative (asset: Asset, onComplete?: CompleteCallbackNoData | null): void;
     public postLoadNative (asset: Asset, options?: INativeAssetOptions | CompleteCallbackNoData | null, onComplete?: CompleteCallbackNoData | null) {
         const { options: opts, onComplete: onComp } = parseParameters(options, undefined, onComplete);
 
-        if (!asset._native || asset._nativeAsset) {
+        // @ts-ignore
+        if (!asset._native || !asset.__nativeDepend__) {
             return asyncify(onComp)(null);
         }
 
@@ -514,7 +515,12 @@ export class AssetManager {
 
         this.loadAny(depend, opts, (err, native) => {
             if (!err) {
-                if (!asset._nativeAsset) { asset._nativeAsset = native; }
+                // @ts-ignore
+                if (asset.__nativeDepend__) { 
+                    asset._nativeAsset = native;
+                    // @ts-ignore
+                    asset.__nativeDepend__ = false;
+                }
             }
             else {
                 error(err.message, err.stack);
@@ -523,8 +529,6 @@ export class AssetManager {
         });
     }
 
-    public loadRemote<T extends Asset> (url: string, options: IRemoteOptions | null, onComplete?: CompleteCallback<T> | null): void;
-    public loadRemote<T extends Asset> (url: string, onComplete?: CompleteCallback<T> | null): void;
     /**
      * @en
      * Load remote asset with url, such as audio, image, text and so on.
@@ -546,6 +550,8 @@ export class AssetManager {
      * cc.assetManager.loadRemote('http://www.cloud.com/test3', { ext: '.png' }, (err, texture) => console.log(err));
      *
      */
+    public loadRemote<T extends Asset> (url: string, options: IRemoteOptions | null, onComplete?: CompleteCallback<T> | null): void;
+    public loadRemote<T extends Asset> (url: string, onComplete?: CompleteCallback<T> | null): void;
     public loadRemote<T extends Asset> (url: string, options?: IRemoteOptions | CompleteCallback<T> | null, onComplete?: CompleteCallback<T> | null) {
 
         const { options: opts, onComplete: onComp } = parseParameters(options, undefined, onComplete);
@@ -569,9 +575,6 @@ export class AssetManager {
         });
     }
 
-    public loadBundle (nameOrUrl: string, options: IBundleOptions | null, onComplete?: CompleteCallback<Bundle> | null): void;
-    public loadBundle (nameOrUrl: string, onComplete?: CompleteCallback<Bundle> | null): void;
-
     /**
      * @en
      * load bundle
@@ -590,6 +593,8 @@ export class AssetManager {
      * loadBundle('http://localhost:8080/test', null, (err, bundle) => console.log(err));
      *
      */
+    public loadBundle (nameOrUrl: string, options: IBundleOptions | null, onComplete?: CompleteCallback<Bundle> | null): void;
+    public loadBundle (nameOrUrl: string, onComplete?: CompleteCallback<Bundle> | null): void;
     public loadBundle (nameOrUrl: string, options?: IBundleOptions | CompleteCallback<Bundle> | null, onComplete?: CompleteCallback<Bundle> | null) {
         const { options: opts, onComplete: onComp } = parseParameters(options, undefined, onComplete);
 
@@ -669,6 +674,13 @@ export class AssetManager {
     }
 }
 
+AssetManager.Pipeline = Pipeline;
+AssetManager.Task = Task;
+AssetManager.Cache = Cache;
+AssetManager.RequestItem = RequestItem;
+AssetManager.Bundle = Bundle;
+AssetManager.BuiltinBundleName = BuiltinBundleName;
+
 export declare namespace AssetManager {
     export { CompleteCallback, CompleteCallbackNoData, IOptions, ProgressCallback, Request }
     export { Pipeline, IPipe, IAsyncPipe, ISyncPipe };
@@ -683,7 +695,6 @@ export declare namespace AssetManager {
         IBundleOptions,
         INativeAssetOptions,
         IRemoteOptions,
-        presets,
         IXHROptions,
         IRequest,
         IDownloadParseOptions,

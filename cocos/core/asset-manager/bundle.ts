@@ -43,7 +43,7 @@ export default class Bundle {
 
     private _config: Config = new Config();
 
-    get config (): Config {
+    public get config (): Config {
         return this._config;
     }
 
@@ -55,7 +55,7 @@ export default class Bundle {
      * 此 bundle 的名称
      *
      */
-    get name (): string {
+    public get name (): string {
         return this._config.name;
     }
 
@@ -67,7 +67,7 @@ export default class Bundle {
      * 此 bundle 的依赖
      *
      */
-    get deps (): string[] {
+    public get deps (): string[] {
         return this._config.deps!;
     }
 
@@ -79,7 +79,7 @@ export default class Bundle {
      * 此 bundle 的根路径, 例如 'http://example.com/bundle1'
      *
      */
-    get base (): string {
+    public get base (): string {
         return this._config.base;
     }
 
@@ -175,19 +175,6 @@ export default class Bundle {
         bundles.add(options.name, this);
     }
 
-    public load<T extends Asset> (paths: string, type: AssetType | null,
-                                  onProgress: ProgressCallback | null,
-                                  onComplete: CompleteCallback<T> | null): void;
-    public load<T extends Asset> (paths: string[], type: AssetType | null,
-                                  onProgress: ProgressCallback | null,
-                                  onComplete: CompleteCallback<T[]> | null): void;
-    public load<T extends Asset> (paths: string, onProgress: ProgressCallback | null, onComplete: CompleteCallback<T> | null): void;
-    public load<T extends Asset> (paths: string[], onProgress: ProgressCallback | null, onComplete: CompleteCallback<T[]> | null): void;
-    public load<T extends Asset> (paths: string, type: AssetType | null, onComplete?: CompleteCallback<T> | null): void;
-    public load<T extends Asset> (paths: string[], type: AssetType | null, onComplete?: CompleteCallback<T[]> | null): void;
-    public load<T extends Asset> (paths: string, onComplete?: CompleteCallback<T> | null): void;
-    public load<T extends Asset> (paths: string[], onComplete?: CompleteCallback<T[]> | null): void;
-
     /**
      * @en
      * Load the asset within this bundle by the path which is relative to bundle's path
@@ -219,6 +206,18 @@ export default class Bundle {
      * bundle2.load('imgs/cocos', cc.SpriteFrame, null, (err, spriteFrame) => console.log(err));
      *
      */
+    public load<T extends Asset> (paths: string, type: AssetType | null,
+        onProgress: ProgressCallback | null,
+        onComplete: CompleteCallback<T> | null): void;
+    public load<T extends Asset> (paths: string[], type: AssetType | null,
+            onProgress: ProgressCallback | null,
+            onComplete: CompleteCallback<T[]> | null): void;
+    public load<T extends Asset> (paths: string, onProgress: ProgressCallback | null, onComplete: CompleteCallback<T> | null): void;
+    public load<T extends Asset> (paths: string[], onProgress: ProgressCallback | null, onComplete: CompleteCallback<T[]> | null): void;
+    public load<T extends Asset> (paths: string, type: AssetType | null, onComplete?: CompleteCallback<T> | null): void;
+    public load<T extends Asset> (paths: string[], type: AssetType | null, onComplete?: CompleteCallback<T[]> | null): void;
+    public load<T extends Asset> (paths: string, onComplete?: CompleteCallback<T> | null): void;
+    public load<T extends Asset> (paths: string[], onComplete?: CompleteCallback<T[]> | null): void;
     public load<T extends Asset> (paths: string|string[],
                                   type?: AssetType | ProgressCallback | CompleteCallback<T|T[]> | null,
                                   onProgress?: ProgressCallback | CompleteCallback<T|T[]> | null,
@@ -227,11 +226,6 @@ export default class Bundle {
         const options = { __requestType__: RequestType.PATH, type: _type, bundle: this.name, __outputAsArray__: Array.isArray(paths) };
         legacyCC.assetManager.loadAny(paths, options, onProg, onComp);
     }
-
-    public preload (paths: string|string[], type: AssetType|null, onProgress: ProgressCallback|null, onComplete: CompleteCallback<RequestItem[]>|null): void;
-    public preload (paths: string|string[], onProgress: ProgressCallback | null, onComplete: CompleteCallback<RequestItem[]> | null): void;
-    public preload (paths: string|string[], type: AssetType | null, onComplete?: CompleteCallback<RequestItem[]> | null): void;
-    public preload (paths: string|string[], onComplete?: CompleteCallback<RequestItem[]> | null): void;
 
     /**
      * @en
@@ -272,6 +266,10 @@ export default class Bundle {
      * bundle2.load('imgs/cocos', cc.SpriteFrame, (err, spriteFrame) => {});
      *
      */
+    public preload (paths: string|string[], type: AssetType|null, onProgress: ProgressCallback|null, onComplete: CompleteCallback<RequestItem[]>|null): void;
+    public preload (paths: string|string[], onProgress: ProgressCallback | null, onComplete: CompleteCallback<RequestItem[]> | null): void;
+    public preload (paths: string|string[], type: AssetType | null, onComplete?: CompleteCallback<RequestItem[]> | null): void;
+    public preload (paths: string|string[], onComplete?: CompleteCallback<RequestItem[]> | null): void;
     public preload (paths: string|string[],
                     type?: AssetType | ProgressCallback | CompleteCallback<RequestItem[]> | null,
                     onProgress?: ProgressCallback | CompleteCallback<RequestItem[]> | null,
@@ -280,10 +278,6 @@ export default class Bundle {
         legacyCC.assetManager.preloadAny(paths, { __requestType__: RequestType.PATH, type: _type, bundle: this.name }, onProg, onComp);
     }
 
-    public loadDir<T extends Asset> (dir: string, type: AssetType | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback<T[]> | null): void;
-    public loadDir<T extends Asset> (dir: string, onProgress: ProgressCallback | null, onComplete: CompleteCallback<T[]> | null): void;
-    public loadDir<T extends Asset> (dir: string, type: AssetType | null, onComplete?: CompleteCallback<T[]> | null): void;
-    public loadDir<T extends Asset> (dir: string, onComplete?: CompleteCallback<T[]> | null): void;
     /**
      * @en
      * Load all assets under a folder inside the bundle folder.<br>
@@ -321,6 +315,10 @@ export default class Bundle {
      * bundle2.loadDir('skills', cc.SpriteFrame, null, (err, spriteFrames) => console.log(err));
      *
      */
+    public loadDir<T extends Asset> (dir: string, type: AssetType | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback<T[]> | null): void;
+    public loadDir<T extends Asset> (dir: string, onProgress: ProgressCallback | null, onComplete: CompleteCallback<T[]> | null): void;
+    public loadDir<T extends Asset> (dir: string, type: AssetType | null, onComplete?: CompleteCallback<T[]> | null): void;
+    public loadDir<T extends Asset> (dir: string, onComplete?: CompleteCallback<T[]> | null): void;
     public loadDir<T extends Asset> (dir: string,
                                      type?: AssetType | ProgressCallback | CompleteCallback<T[]> | null,
                                      onProgress?: ProgressCallback | CompleteCallback<T[]> | null,
@@ -328,11 +326,6 @@ export default class Bundle {
         const { type: _type, onProgress: onProg, onComplete: onComp } = parseLoadResArgs(type, onProgress, onComplete);
         legacyCC.assetManager.loadAny(dir, { __requestType__: RequestType.DIR, type: _type, bundle: this.name, __outputAsArray__: true }, onProg, onComp);
     }
-
-    public preloadDir (dir: string, type: AssetType | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback<RequestItem[]> | null): void;
-    public preloadDir (dir: string, onProgress: ProgressCallback | null, onComplete: CompleteCallback<RequestItem[]> | null): void;
-    public preloadDir (dir: string, type: AssetType | null, onComplete?: CompleteCallback<RequestItem[]> | null): void;
-    public preloadDir (dir: string, onComplete?: CompleteCallback<RequestItem[]> | null): void;
 
     /**
      * @en
@@ -371,6 +364,10 @@ export default class Bundle {
      * // wait for while
      * bundle2.loadDir('skills', cc.SpriteFrame, (err, spriteFrames) => {});
      */
+    public preloadDir (dir: string, type: AssetType | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback<RequestItem[]> | null): void;
+    public preloadDir (dir: string, onProgress: ProgressCallback | null, onComplete: CompleteCallback<RequestItem[]> | null): void;
+    public preloadDir (dir: string, type: AssetType | null, onComplete?: CompleteCallback<RequestItem[]> | null): void;
+    public preloadDir (dir: string, onComplete?: CompleteCallback<RequestItem[]> | null): void;
     public preloadDir (dir: string,
                        type?: AssetType | ProgressCallback | CompleteCallback<RequestItem[]>| null,
                        onProgress?: ProgressCallback | CompleteCallback<RequestItem[]>| null,
@@ -379,10 +376,6 @@ export default class Bundle {
         legacyCC.assetManager.preloadAny(dir, { __requestType__: RequestType.DIR, type: _type, bundle: this.name }, onProg, onComp);
     }
 
-    public loadScene (sceneName: string, options: IAssetOptions | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback<SceneAsset> | null): void;
-    public loadScene (sceneName: string, onProgress: ProgressCallback | null, onComplete: CompleteCallback<SceneAsset> | null): void;
-    public loadScene (sceneName: string, options: IAssetOptions | null, onComplete?: CompleteCallback<SceneAsset> | null): void;
-    public loadScene (sceneName: string, onComplete?: CompleteCallback<SceneAsset> | null): void;
     /**
      * @en
      * Loads the scene within this bundle by its name.
@@ -404,6 +397,10 @@ export default class Bundle {
      * bundle1.loadScene('first', (err, sceneAsset) => cc.director.runScene(sceneAsset));
      *
      */
+    public loadScene (sceneName: string, options: IAssetOptions | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback<SceneAsset> | null): void;
+    public loadScene (sceneName: string, onProgress: ProgressCallback | null, onComplete: CompleteCallback<SceneAsset> | null): void;
+    public loadScene (sceneName: string, options: IAssetOptions | null, onComplete?: CompleteCallback<SceneAsset> | null): void;
+    public loadScene (sceneName: string, onComplete?: CompleteCallback<SceneAsset> | null): void;
     public loadScene (sceneName: string,
                       options?: IAssetOptions | ProgressCallback | CompleteCallback<SceneAsset> | null,
                       onProgress?: ProgressCallback | CompleteCallback<SceneAsset> | null,
@@ -430,11 +427,6 @@ export default class Bundle {
         });
     }
 
-    public preloadScene (sceneName: string, options: IAssetOptions | null, onProgress: ProgressCallback, onComplete: CompleteCallbackNoData | null): void;
-    public preloadScene (sceneName: string, onProgress: ProgressCallback | null, onComplete: CompleteCallbackNoData | null): void;
-    public preloadScene (sceneName: string, options: IAssetOptions | null, onComplete?: CompleteCallbackNoData | null): void;
-    public preloadScene (sceneName: string, onComplete?: CompleteCallbackNoData | null): void;
-
     /**
      * @en
      * Preloads the scene within this bundle by its name. After calling this method, you still need to finish loading
@@ -460,6 +452,10 @@ export default class Bundle {
      * bundle1.loadScene('first', (err, scene) => cc.director.runScene(scene));
      *
      */
+    public preloadScene (sceneName: string, options: IAssetOptions | null, onProgress: ProgressCallback, onComplete: CompleteCallbackNoData | null): void;
+    public preloadScene (sceneName: string, onProgress: ProgressCallback | null, onComplete: CompleteCallbackNoData | null): void;
+    public preloadScene (sceneName: string, options: IAssetOptions | null, onComplete?: CompleteCallbackNoData | null): void;
+    public preloadScene (sceneName: string, onComplete?: CompleteCallbackNoData | null): void;
     public preloadScene (sceneName: string,
                          options?: IAssetOptions | ProgressCallback | CompleteCallbackNoData | null,
                          onProgress?: ProgressCallback | CompleteCallbackNoData | null,

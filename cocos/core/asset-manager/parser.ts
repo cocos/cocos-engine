@@ -172,15 +172,7 @@ export class Parser {
         if (file instanceof HTMLImageElement) {
             return onComplete(null, file);
         }
-        // const imageOptions: ImageBitmapOptions = {
-        //     imageOrientation: options.__flipY__ ? 'flipY' : 'none',
-        //     premultiplyAlpha: options.__premultiplyAlpha__ ? 'premultiply' : 'none',
-        // };
         createImageBitmap(file).then((result) => {
-            // // @ts-ignore
-            // result.flipY = !!options.__flipY__;
-            // // @ts-ignore
-            // result.premultiplyAlpha = !!options.__premultiplyAlpha__;
             onComplete(null, result);
         }, (err) => {
             onComplete(err, null);
@@ -310,7 +302,7 @@ export class Parser {
             // buffer = buffer.slice(ASTC_HEADER_LENGTH, buffer.byteLength);
             const astcData = new Uint8Array(buffer, ASTC_HEADER_LENGTH);
 
-            const astcAsset = {
+            out = {
                 _data: astcData,
                 _compressed: true,
                 width: xsize,
@@ -348,9 +340,6 @@ export class Parser {
         this._parsing.clear();
     }
 
-    public register (type: string, handler: ParseHandler): void;
-    public register (map: Record<string, ParseHandler>): void;
-
     /**
      * @en
      * Register custom handler if you want to change default behavior or extend parser to parse other format file
@@ -369,6 +358,8 @@ export class Parser {
      * parser.register({'.tga': (file, options, onComplete) => onComplete(null, null), '.ext': (file, options, onComplete) => onComplete(null, null)});
      *
      */
+    public register (type: string, handler: ParseHandler): void;
+    public register (map: Record<string, ParseHandler>): void;
     public register (type: string | Record<string, ParseHandler>, handler?: ParseHandler) {
         if (typeof type === 'object') {
             js.mixin(this._parsers, type);
@@ -412,7 +403,7 @@ export class Parser {
 
         const parseHandler = this._parsers[type];
         if (!parseHandler) {
-            onComplete(null, file);
+            return onComplete(null, file);
         }
 
         this._parsing.add(id, [onComplete]);

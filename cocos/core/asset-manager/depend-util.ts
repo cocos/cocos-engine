@@ -157,7 +157,7 @@ export class DependUtil {
             }
             else {
                 try {
-                    const asset = deserialize(json);
+                    const asset = deserialize(json, { __uuid__: uuid });
                     out = this._parseDepsFromAsset(asset);
                     if (out.nativeDep) {
                         out.nativeDep.uuid = uuid;

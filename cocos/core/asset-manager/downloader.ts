@@ -333,9 +333,6 @@ export class Downloader {
         this.bundleVers = bundleVers;
     }
 
-    public register (type: string, handler: DownloadHandler): void;
-    public register (map: Record<string, DownloadHandler>): void;
-
     /**
      * @en
      * Register custom handler if you want to change default behavior or extend downloader to download other format file
@@ -354,6 +351,8 @@ export class Downloader {
      * downloader.register({'.tga': (url, options, onComplete) => onComplete(null, null), '.ext': (url, options, onComplete) => onComplete(null, null)});
      *
      */
+    public register (type: string, handler: DownloadHandler): void;
+    public register (map: Record<string, DownloadHandler>): void;
     public register (type: string | Record<string, DownloadHandler>, handler?: DownloadHandler) {
         if (typeof type === 'object') {
             js.mixin(this._downloaders, type);
