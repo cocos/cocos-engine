@@ -3930,33 +3930,33 @@ static bool js_gfx_TextureInfo_set_height(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_TextureInfo_set_height)
 
-static bool js_gfx_TextureInfo_get_depth(se::State& s)
+static bool js_gfx_TextureInfo_get_flags(se::State& s)
 {
     cc::gfx::TextureInfo* cobj = (cc::gfx::TextureInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_get_depth : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_get_flags : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= uint32_to_seval((unsigned int)cobj->depth, &jsret);
+    ok &= int32_to_seval((int)cobj->flags, &jsret);
     s.rval() = jsret;
     return true;
 }
-SE_BIND_PROP_GET(js_gfx_TextureInfo_get_depth)
+SE_BIND_PROP_GET(js_gfx_TextureInfo_get_flags)
 
-static bool js_gfx_TextureInfo_set_depth(se::State& s)
+static bool js_gfx_TextureInfo_set_flags(se::State& s)
 {
     const auto& args = s.args();
     cc::gfx::TextureInfo* cobj = (cc::gfx::TextureInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_set_depth : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_set_flags : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    unsigned int arg0 = 0;
-    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_TextureInfo_set_depth : Error processing new value");
-    cobj->depth = arg0;
+    cc::gfx::TextureFlagBit arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::TextureFlagBit)tmp; } while(false);
+    SE_PRECONDITION2(ok, false, "js_gfx_TextureInfo_set_flags : Error processing new value");
+    cobj->flags = arg0;
     return true;
 }
-SE_BIND_PROP_SET(js_gfx_TextureInfo_set_depth)
+SE_BIND_PROP_SET(js_gfx_TextureInfo_set_flags)
 
 static bool js_gfx_TextureInfo_get_layerCount(se::State& s)
 {
@@ -4042,33 +4042,33 @@ static bool js_gfx_TextureInfo_set_samples(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_TextureInfo_set_samples)
 
-static bool js_gfx_TextureInfo_get_flags(se::State& s)
+static bool js_gfx_TextureInfo_get_depth(se::State& s)
 {
     cc::gfx::TextureInfo* cobj = (cc::gfx::TextureInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_get_flags : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_get_depth : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= int32_to_seval((int)cobj->flags, &jsret);
+    ok &= uint32_to_seval((unsigned int)cobj->depth, &jsret);
     s.rval() = jsret;
     return true;
 }
-SE_BIND_PROP_GET(js_gfx_TextureInfo_get_flags)
+SE_BIND_PROP_GET(js_gfx_TextureInfo_get_depth)
 
-static bool js_gfx_TextureInfo_set_flags(se::State& s)
+static bool js_gfx_TextureInfo_set_depth(se::State& s)
 {
     const auto& args = s.args();
     cc::gfx::TextureInfo* cobj = (cc::gfx::TextureInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_set_flags : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_set_depth : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    cc::gfx::TextureFlagBit arg0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::TextureFlagBit)tmp; } while(false);
-    SE_PRECONDITION2(ok, false, "js_gfx_TextureInfo_set_flags : Error processing new value");
-    cobj->flags = arg0;
+    unsigned int arg0 = 0;
+    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_TextureInfo_set_depth : Error processing new value");
+    cobj->depth = arg0;
     return true;
 }
-SE_BIND_PROP_SET(js_gfx_TextureInfo_set_flags)
+SE_BIND_PROP_SET(js_gfx_TextureInfo_set_depth)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_TextureInfo_finalize)
 
@@ -4121,11 +4121,11 @@ static bool js_gfx_TextureInfo_constructor(se::State& s)
             ok &= seval_to_uint32(field, (uint32_t*)&arg4);
             cobj->height = arg4;
         }
-        unsigned int arg5 = 0;
-        json->getProperty("depth", &field);
+        cc::gfx::TextureFlagBit arg5;
+        json->getProperty("flags", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg5);
-            cobj->depth = arg5;
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg5 = (cc::gfx::TextureFlagBit)tmp; } while(false);
+            cobj->flags = arg5;
         }
         unsigned int arg6 = 0;
         json->getProperty("layerCount", &field);
@@ -4145,11 +4145,11 @@ static bool js_gfx_TextureInfo_constructor(se::State& s)
             do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg8 = (cc::gfx::SampleCount)tmp; } while(false);
             cobj->samples = arg8;
         }
-        cc::gfx::TextureFlagBit arg9;
-        json->getProperty("flags", &field);
+        unsigned int arg9 = 0;
+        json->getProperty("depth", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg9 = (cc::gfx::TextureFlagBit)tmp; } while(false);
-            cobj->flags = arg9;
+            ok &= seval_to_uint32(field, (uint32_t*)&arg9);
+            cobj->depth = arg9;
         }
 
         if(!ok) {
@@ -4210,11 +4210,11 @@ static bool js_gfx_TextureInfo_constructor(se::State& s)
                 SE_REPORT_ERROR("Argument %d is undefined", 4);
             }
         }
-        unsigned int arg5 = 0;
+        cc::gfx::TextureFlagBit arg5;
         if (argc > 5) {
             if (!args[5].isUndefined()) {
-                ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
-                cobj->depth = arg5;
+                do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cc::gfx::TextureFlagBit)tmp; } while(false);
+                cobj->flags = arg5;
             } else {
                 SE_REPORT_ERROR("Argument %d is undefined", 5);
             }
@@ -4246,11 +4246,11 @@ static bool js_gfx_TextureInfo_constructor(se::State& s)
                 SE_REPORT_ERROR("Argument %d is undefined", 8);
             }
         }
-        cc::gfx::TextureFlagBit arg9;
+        unsigned int arg9 = 0;
         if (argc > 9) {
             if (!args[9].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[9], &tmp); arg9 = (cc::gfx::TextureFlagBit)tmp; } while(false);
-                cobj->flags = arg9;
+                ok &= seval_to_uint32(args[9], (uint32_t*)&arg9);
+                cobj->depth = arg9;
             } else {
                 SE_REPORT_ERROR("Argument %d is undefined", 9);
             }
@@ -4297,11 +4297,11 @@ bool js_register_gfx_TextureInfo(se::Object* obj)
     cls->defineProperty("format", _SE(js_gfx_TextureInfo_get_format), _SE(js_gfx_TextureInfo_set_format));
     cls->defineProperty("width", _SE(js_gfx_TextureInfo_get_width), _SE(js_gfx_TextureInfo_set_width));
     cls->defineProperty("height", _SE(js_gfx_TextureInfo_get_height), _SE(js_gfx_TextureInfo_set_height));
-    cls->defineProperty("depth", _SE(js_gfx_TextureInfo_get_depth), _SE(js_gfx_TextureInfo_set_depth));
+    cls->defineProperty("flags", _SE(js_gfx_TextureInfo_get_flags), _SE(js_gfx_TextureInfo_set_flags));
     cls->defineProperty("layerCount", _SE(js_gfx_TextureInfo_get_layerCount), _SE(js_gfx_TextureInfo_set_layerCount));
     cls->defineProperty("levelCount", _SE(js_gfx_TextureInfo_get_levelCount), _SE(js_gfx_TextureInfo_set_levelCount));
     cls->defineProperty("samples", _SE(js_gfx_TextureInfo_get_samples), _SE(js_gfx_TextureInfo_set_samples));
-    cls->defineProperty("flags", _SE(js_gfx_TextureInfo_get_flags), _SE(js_gfx_TextureInfo_set_flags));
+    cls->defineProperty("depth", _SE(js_gfx_TextureInfo_get_depth), _SE(js_gfx_TextureInfo_set_depth));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_TextureInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::TextureInfo>(cls);
@@ -7492,6 +7492,34 @@ static bool js_gfx_ColorAttachment_set_format(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_ColorAttachment_set_format)
 
+static bool js_gfx_ColorAttachment_get_sampleCount(se::State& s)
+{
+    cc::gfx::ColorAttachment* cobj = (cc::gfx::ColorAttachment*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_ColorAttachment_get_sampleCount : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= uint32_to_seval((unsigned int)cobj->sampleCount, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_ColorAttachment_get_sampleCount)
+
+static bool js_gfx_ColorAttachment_set_sampleCount(se::State& s)
+{
+    const auto& args = s.args();
+    cc::gfx::ColorAttachment* cobj = (cc::gfx::ColorAttachment*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_ColorAttachment_set_sampleCount : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    unsigned int arg0 = 0;
+    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_ColorAttachment_set_sampleCount : Error processing new value");
+    cobj->sampleCount = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_ColorAttachment_set_sampleCount)
+
 static bool js_gfx_ColorAttachment_get_loadOp(se::State& s)
 {
     cc::gfx::ColorAttachment* cobj = (cc::gfx::ColorAttachment*)s.nativeThisObject();
@@ -7547,34 +7575,6 @@ static bool js_gfx_ColorAttachment_set_storeOp(se::State& s)
     return true;
 }
 SE_BIND_PROP_SET(js_gfx_ColorAttachment_set_storeOp)
-
-static bool js_gfx_ColorAttachment_get_sampleCount(se::State& s)
-{
-    cc::gfx::ColorAttachment* cobj = (cc::gfx::ColorAttachment*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_ColorAttachment_get_sampleCount : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= uint32_to_seval((unsigned int)cobj->sampleCount, &jsret);
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_ColorAttachment_get_sampleCount)
-
-static bool js_gfx_ColorAttachment_set_sampleCount(se::State& s)
-{
-    const auto& args = s.args();
-    cc::gfx::ColorAttachment* cobj = (cc::gfx::ColorAttachment*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_ColorAttachment_set_sampleCount : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    unsigned int arg0 = 0;
-    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_ColorAttachment_set_sampleCount : Error processing new value");
-    cobj->sampleCount = arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_ColorAttachment_set_sampleCount)
 
 static bool js_gfx_ColorAttachment_get_beginLayout(se::State& s)
 {
@@ -7659,23 +7659,23 @@ static bool js_gfx_ColorAttachment_constructor(se::State& s)
             do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cc::gfx::Format)tmp; } while(false);
             cobj->format = arg0;
         }
-        cc::gfx::LoadOp arg1;
-        json->getProperty("loadOp", &field);
-        if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cc::gfx::LoadOp)tmp; } while(false);
-            cobj->loadOp = arg1;
-        }
-        cc::gfx::StoreOp arg2;
-        json->getProperty("storeOp", &field);
-        if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cc::gfx::StoreOp)tmp; } while(false);
-            cobj->storeOp = arg2;
-        }
-        unsigned int arg3 = 0;
+        unsigned int arg1 = 0;
         json->getProperty("sampleCount", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg3);
-            cobj->sampleCount = arg3;
+            ok &= seval_to_uint32(field, (uint32_t*)&arg1);
+            cobj->sampleCount = arg1;
+        }
+        cc::gfx::LoadOp arg2;
+        json->getProperty("loadOp", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cc::gfx::LoadOp)tmp; } while(false);
+            cobj->loadOp = arg2;
+        }
+        cc::gfx::StoreOp arg3;
+        json->getProperty("storeOp", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cc::gfx::StoreOp)tmp; } while(false);
+            cobj->storeOp = arg3;
         }
         cc::gfx::TextureLayout arg4;
         json->getProperty("beginLayout", &field);
@@ -7712,29 +7712,29 @@ static bool js_gfx_ColorAttachment_constructor(se::State& s)
                 SE_REPORT_ERROR("Argument %d is undefined", 0);
             }
         }
-        cc::gfx::LoadOp arg1;
+        unsigned int arg1 = 0;
         if (argc > 1) {
             if (!args[1].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::LoadOp)tmp; } while(false);
-                cobj->loadOp = arg1;
+                ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+                cobj->sampleCount = arg1;
             } else {
                 SE_REPORT_ERROR("Argument %d is undefined", 1);
             }
         }
-        cc::gfx::StoreOp arg2;
+        cc::gfx::LoadOp arg2;
         if (argc > 2) {
             if (!args[2].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::StoreOp)tmp; } while(false);
-                cobj->storeOp = arg2;
+                do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::LoadOp)tmp; } while(false);
+                cobj->loadOp = arg2;
             } else {
                 SE_REPORT_ERROR("Argument %d is undefined", 2);
             }
         }
-        unsigned int arg3 = 0;
+        cc::gfx::StoreOp arg3;
         if (argc > 3) {
             if (!args[3].isUndefined()) {
-                ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
-                cobj->sampleCount = arg3;
+                do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::gfx::StoreOp)tmp; } while(false);
+                cobj->storeOp = arg3;
             } else {
                 SE_REPORT_ERROR("Argument %d is undefined", 3);
             }
@@ -7795,9 +7795,9 @@ bool js_register_gfx_ColorAttachment(se::Object* obj)
     auto cls = se::Class::create("ColorAttachment", obj, nullptr, _SE(js_gfx_ColorAttachment_constructor));
 
     cls->defineProperty("format", _SE(js_gfx_ColorAttachment_get_format), _SE(js_gfx_ColorAttachment_set_format));
+    cls->defineProperty("sampleCount", _SE(js_gfx_ColorAttachment_get_sampleCount), _SE(js_gfx_ColorAttachment_set_sampleCount));
     cls->defineProperty("loadOp", _SE(js_gfx_ColorAttachment_get_loadOp), _SE(js_gfx_ColorAttachment_set_loadOp));
     cls->defineProperty("storeOp", _SE(js_gfx_ColorAttachment_get_storeOp), _SE(js_gfx_ColorAttachment_set_storeOp));
-    cls->defineProperty("sampleCount", _SE(js_gfx_ColorAttachment_get_sampleCount), _SE(js_gfx_ColorAttachment_set_sampleCount));
     cls->defineProperty("beginLayout", _SE(js_gfx_ColorAttachment_get_beginLayout), _SE(js_gfx_ColorAttachment_set_beginLayout));
     cls->defineProperty("endLayout", _SE(js_gfx_ColorAttachment_get_endLayout), _SE(js_gfx_ColorAttachment_set_endLayout));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_ColorAttachment_finalize));
