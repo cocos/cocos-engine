@@ -30,7 +30,7 @@ import { createMesh } from '../../3d/misc/utils';
 import { Material } from '../../assets/material';
 import { GFXBufferTextureCopy, GFXClearFlag, GFXFormat, GFXTextureType, GFXTextureUsageBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
-import { GFXTexture, GFXTextureInfo } from '../../gfx/texture';
+import { GFXTexture, GFXTextureInfo } from '../../gfx';
 import { Vec4 } from '../../math';
 import { Layers } from '../../scene-graph';
 import { Node } from '../../scene-graph/node';

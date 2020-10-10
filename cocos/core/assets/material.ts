@@ -31,7 +31,7 @@
 import { ccclass, type, serializable } from 'cc.decorator';
 import { builtinResMgr } from '../3d/builtin/init';
 import { RenderableComponent } from '../3d/framework/renderable-component';
-import { GFXTexture } from '../gfx/texture';
+import { GFXTexture } from '../gfx';
 import { MacroRecord, MaterialProperty, PropertyType } from '../renderer/core/pass-utils';
 import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';
 import { legacyCC } from '../global-exports';
