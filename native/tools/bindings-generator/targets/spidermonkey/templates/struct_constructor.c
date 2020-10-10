@@ -98,13 +98,17 @@ static bool ${struct_constructor_name}(se::State& s)
             #else
         ${field_type} arg${arg_idx};
             #end if
-        if (!args[${arg_idx}].isUndefined()) {
-            $conv_text;
-            #if "seval_to_reference" in $conv_text_array[$arg_idx]
-            cobj->${field.name} = *arg${arg_idx};
-            #else
-            cobj->${field.name} = arg${arg_idx};
-            #end if
+        if (argc > ${arg_idx}) {
+            if (!args[${arg_idx}].isUndefined()) {
+                $conv_text;
+                #if "seval_to_reference" in $conv_text_array[$arg_idx]
+                cobj->${field.name} = *arg${arg_idx};
+                #else
+                cobj->${field.name} = arg${arg_idx};
+                #end if
+            } else {
+                SE_REPORT_ERROR("Argument %d is undefined", ${arg_idx});
+            }
         }
         #set $arg_idx = $arg_idx + 1
         #end for 
