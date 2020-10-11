@@ -144,7 +144,7 @@ CCProgram terrain-fs %{
     color.rgb *= lighting;
 
     #if CC_RECEIVE_SHADOW
-      CC_SHADOW_FACTOR(color, NL);
+      CC_SHADOW_FACTOR(color.rgb, NL);
     #endif
 
     color = CC_APPLY_FOG(color, factor_fog);
