@@ -268,16 +268,64 @@ export default class TiledAssembler extends Assembler2D {
                 // UV
                 if (rotated) {
                     // lb
-                    verts[uvOffset] = uv[0];
-                    verts[uvOffset + 1] = uv[1];
+                    if (yindex === 0) {
+                        verts[uvOffset] = uvSliced[0].u;
+                    }
+                    else if (yindex > 0 && yindex < (row - 1)) {
+                        verts[uvOffset] = uvSliced[4].u;
+                    }
+                    else if (yindex === (row - 1)) {
+                        verts[uvOffset] = uvSliced[8].u;
+                    }
+                    if (xindex === 0) {
+                        verts[uvOffset + 1] = uvSliced[0].v;
+                    }
+                    else if (xindex > 0 && xindex < (col - 1)) {
+                        verts[uvOffset + 1] = uvSliced[1].v;
+                    }
+                    else if (xindex === (col - 1)) {
+                        verts[uvOffset + 1] = uvSliced[2].v;
+                    }
                     uvOffset += floatsPerVert;
                     // rb
-                    verts[uvOffset] = uv[0];
-                    verts[uvOffset + 1] = uv[1] + (uv[7] - uv[1]) * coefu;
+                    if (yindex === 0) {
+                        verts[uvOffset] = uvSliced[0].u;
+                    }
+                    else if (yindex > 0 && yindex < (row - 1)) {
+                        verts[uvOffset] = uvSliced[4].u;
+                    }
+                    else if (yindex === (row - 1)) {
+                        verts[uvOffset] = uvSliced[8].u;
+                    }
+                    if (xindex === 0) {
+                        verts[uvOffset + 1] = uvSliced[1].v + (uvSliced[2].v - uvSliced[1].v) * coefu;
+                    }
+                    else if (xindex > 0 && xindex < (col - 1)) {
+                        verts[uvOffset + 1] = uvSliced[1].v + (uvSliced[2].v - uvSliced[1].v) * coefu;
+                    }
+                    else if (xindex === (col - 1)) {
+                        verts[uvOffset + 1] = uvSliced[3].v;
+                    }
                     uvOffset += floatsPerVert;
                     // lt
-                    verts[uvOffset] = uv[0] + (uv[6] - uv[0]) * coefv;
-                    verts[uvOffset + 1] = uv[1];
+                    if (yindex === 0) {
+                        verts[uvOffset] = uvSliced[4].u + (uvSliced[8].u - uvSliced[4].u) * coefv;
+                    }
+                    else if (yindex > 0 && yindex < (row - 1)) {
+                        verts[uvOffset] = uvSliced[4].u + (uvSliced[8].u - uvSliced[4].u) * coefv;
+                    }
+                    else if (yindex === (row - 1)){
+                        verts[uvOffset] = uvSliced[12].u;
+                    }
+                    if (xindex === 0) {
+                        verts[uvOffset + 1] = uvSliced[0].v;
+                    }
+                    else if (xindex > 0 && xindex < (col - 1)) {
+                        verts[uvOffset + 1] = uvSliced[1].v;
+                    }
+                    else if (xindex === (col - 1)) {
+                        verts[uvOffset + 1] = uvSliced[2].v;
+                    }
                     uvOffset += floatsPerVert;
                     // rt
                     verts[uvOffset] = verts[uvOffset - floatsPerVert];
@@ -287,7 +335,7 @@ export default class TiledAssembler extends Assembler2D {
                 else {
                     // lb
                     if (xindex === 0) {
-                        verts[uvOffset] = uv[0];
+                        verts[uvOffset] = uvSliced[0].u;
                     }
                     else if (xindex > 0 && xindex < (col - 1)) {
                         verts[uvOffset] = uvSliced[1].u;
@@ -327,7 +375,7 @@ export default class TiledAssembler extends Assembler2D {
                     uvOffset += floatsPerVert;
                     // lt
                     if (xindex === 0) {
-                        verts[uvOffset] = uv[0];
+                        verts[uvOffset] = uvSliced[0].u;
                     }
                     else if (xindex > 0 && xindex < (col - 1)) {
                         verts[uvOffset] = uvSliced[1].u;
