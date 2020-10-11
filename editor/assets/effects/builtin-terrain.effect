@@ -14,6 +14,12 @@ CCEffect %{
         detailMap2:   { value: grey }
         detailMap3:   { value: grey }
         lightMap:     { value: grey }
+    - vert: shadow-caster-vs:vert
+      frag: shadow-caster-fs:frag
+      phase: shadow-add
+      propertyIndex: 1
+      rasterizerState:
+        cullMode: back
 }%
 
 CCProgram terrain-vs %{
@@ -21,6 +27,7 @@ CCProgram terrain-vs %{
   #include <cc-global>
   #include <cc-local>
   #include <cc-fog>
+  #include <cc-shadow-map-vs>
 
   in vec3 a_position;
   in vec3 a_normal;
@@ -67,14 +74,19 @@ CCProgram terrain-vs %{
     luv = lightMapUVParam.xy + a_texCoord * lightMapUVParam.zw;
 #endif
     factor_fog = CC_TRANSFER_FOG(vec4(worldPos, 1));
+    CCPassShadowParams(pos);
     return pos;
   }
 }%
 
 CCProgram terrain-fs %{
   precision mediump float;
+  #include <cc-global>
   #include <output>
   #include <cc-fog>
+  #if CC_RECEIVE_SHADOW
+    #include <cc-shadow-map-fs>
+  #endif
   #pragma define LAYERS range([0, 4])
 
     in vec2 uvw;
@@ -94,6 +106,11 @@ CCProgram terrain-fs %{
     in float factor_fog;
   vec4 frag () {
     vec4 color = vec4(0, 0, 0, 0);
+
+    //vec3 N = normalize(s.normal);
+
+    //vec3 L = normalize(-cc_mainLitDir.xyz);
+    float NL = 1.0;//0.5 * dot(N, L) + 0.5;
 
     #if LAYERS == 1
       color = texture(detailMap0, uv0);
@@ -125,7 +142,69 @@ CCProgram terrain-fs %{
     #endif
 
     color.rgb *= lighting;
+
+    #if CC_RECEIVE_SHADOW
+      CC_SHADOW_FACTOR(color, NL);
+    #endif
+
     color = CC_APPLY_FOG(color, factor_fog);
     return CCFragOutput(color);
+  }
+}%
+
+CCProgram shadow-caster-vs %{
+  precision highp float;
+  #include <input-standard>
+  #include <cc-local-batch>
+  #include <shared-ubos>
+  #include <cc-shadow>
+
+  out vec2 v_uv;
+  out vec2 v_clip_depth;
+
+  vec4 vert () {
+    StandardVertInput In;
+    CCVertInput(In);
+
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+
+    vec4 worldPos = matWorld * In.position;
+    vec4 clipPos = cc_matLightViewProj * worldPos;
+
+    v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
+    v_clip_depth = clipPos.zw;
+
+    return clipPos;
+  }
+}%
+
+CCProgram shadow-caster-fs %{
+  precision highp float;
+  #include <shared-ubos>
+  #include <packing>
+
+  in vec2 v_uv;
+  in vec2 v_clip_depth;
+
+  #if USE_BASE_COLOR_MAP
+    uniform sampler2D baseColorMap;
+  #endif
+
+  #if USE_ALPHA_TEST
+    #pragma define ALPHA_TEST_CHANNEL options([a, r, g, b])
+  #endif
+
+  vec4 frag () {
+    vec4 baseColor = baseColor;
+    #if USE_BASE_COLOR_MAP
+      baseColor *= texture(baseColorMap, v_uv);
+    #endif
+
+    #if USE_ALPHA_TEST
+      if (baseColor.ALPHA_TEST_CHANNEL < colorScaleAndCutoff.w) discard;
+    #endif
+
+    return packDepthToRGBA(v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5);
   }
 }%
