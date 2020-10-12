@@ -33,7 +33,7 @@ void RenderBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPas
                 cmdBuff->bindPipelineState(pso);
                 boundPSO = true;
             }
-            cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::MATERIAL), GET_DESCRIPTOR_SET(batch.pass->descriptorSetID));
+            cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::MATERIAL), batch.pass->getDescriptorSet());
             cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::LOCAL), batch.descriptorSet);
             cmdBuff->bindInputAssembler(batch.ia);
             cmdBuff->draw(batch.ia);

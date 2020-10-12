@@ -22,7 +22,7 @@ void RenderInstancedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderP
 
         instanceBuffer->uploadBuffers();
         const auto pass = instanceBuffer->getPass();
-        cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::MATERIAL), GET_DESCRIPTOR_SET(pass->descriptorSetID));
+        cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::MATERIAL), pass->getDescriptorSet());
         gfx::PipelineState *lastPSO = nullptr;
         for (size_t b = 0; b < instances.size(); ++b) {
             const auto &instance = instances[b];
@@ -30,7 +30,7 @@ void RenderInstancedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderP
                 continue;
             }
             auto pso = PipelineStateManager::getOrCreatePipelineState(pass, instance.shader, instance.ia, renderPass);
-            if(lastPSO != pso) {
+            if (lastPSO != pso) {
                 cmdBuff->bindPipelineState(pso);
                 lastPSO = pso;
             }

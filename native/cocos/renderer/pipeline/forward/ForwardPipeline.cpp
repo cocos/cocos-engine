@@ -62,12 +62,6 @@ gfx::RenderPass *ForwardPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFla
     return renderPass;
 }
 
-ForwardPipeline::ForwardPipeline() {
-}
-
-ForwardPipeline::~ForwardPipeline() {
-}
-
 void ForwardPipeline::setFog(uint fog) {
     _fog = GET_FOG(fog);
 }
@@ -132,45 +126,56 @@ void ForwardPipeline::render(const vector<RenderView *> &views) {
 
 void ForwardPipeline::updateUBOs(RenderView *view) {
     updateUBO(view);
-    const auto scene = GET_SCENE(view->getCamera()->getSceneID());
+    const auto scene = view->getCamera()->getScene();
     const Light *mainLight = nullptr;
-    if (scene->mainLightID) mainLight = GET_LIGHT(scene->mainLightID);
+    if (scene->mainLightID) mainLight = scene->getMainLight();
     const auto shadowInfo = _shadows;
 
-    if (mainLight && shadowInfo->enabled) {
-        const auto node = GET_NODE(mainLight->nodeID);
-
-        // shadow view
-        auto shadowView = node->getWorldMatrix().getInversed();
+    if (mainLight && shadowInfo->getShadowType() == ShadowType::SHADOWMAP) {
+        const auto node = mainLight->getNode();
+        const auto sphere = shadowInfo->getSphere();
+        cc::Mat4 shadowCameraView;
+        getShadowWorldMatrix(shadowInfo, node->worldRotation, mainLight->direction, shadowCameraView);
+        const auto &matShadowView = shadowCameraView.getInversed();
 
         // shadow view proj
-        const auto x = shadowInfo->orthoSize * shadowInfo->aspect;
-        const auto y = shadowInfo->orthoSize;
-        const auto projectionSinY = _device->getScreenSpaceSignY() * _device->getUVSpaceSignY();
-        Mat4 shadowViewProj;
-        Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, shadowInfo->farValue, _device->getClipSpaceMinZ(), projectionSinY, &shadowViewProj);
 
-        shadowViewProj.multiply(shadowView);
-        memcpy(_shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, shadowViewProj.m, sizeof(shadowViewProj));
+        float x = 0;
+        float y = 0;
+        if (shadowInfo->orthoSize > sphere->radius) {
+            x = shadowInfo->orthoSize * shadowInfo->aspect;
+            y = shadowInfo->orthoSize;
+        } else {
+            x = sphere->radius * shadowInfo->aspect;
+            y = sphere->radius;
+        }
+
+        const auto projectionSinY = _device->getScreenSpaceSignY() * _device->getUVSpaceSignY();
+        Mat4 matShadowViewProj;
+        Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, shadowInfo->farValue, _device->getClipSpaceMinZ(), projectionSinY, &matShadowViewProj);
+
+        matShadowViewProj.multiply(matShadowView);
+        const auto pcf = shadowInfo->pcfType;
+        float shadowSize[2] = {shadowInfo->size.x, shadowInfo->size.y};
+        memcpy(_shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
+        memcpy(_shadowUBO.data() + UBOShadow::SHADOW_PCF_OFFSET, &pcf, sizeof(pcf));
+        memcpy(_shadowUBO.data() + UBOShadow::SHADOW_SIZE_OFFSET, shadowSize, sizeof(shadowSize));
     }
 
     // update ubos
-    _commandBuffers[0]->updateBuffer(_descriptorSet->getBuffer(UBOGlobal::BLOCK.binding), _globalUBO.data(),
-                                     static_cast<uint>(_globalUBO.size() * sizeof(float)));
-    _commandBuffers[0]->updateBuffer(_descriptorSet->getBuffer(UBOShadow::BLOCK.binding), _shadowUBO.data(),
-                                     static_cast<uint>(_shadowUBO.size() * sizeof(float)));
+    _commandBuffers[0]->updateBuffer(_descriptorSet->getBuffer(UBOGlobal::BLOCK.binding), _globalUBO.data(), UBOGlobal::SIZE);
+    _commandBuffers[0]->updateBuffer(_descriptorSet->getBuffer(UBOShadow::BLOCK.binding), _shadowUBO.data(), UBOShadow::SIZE);
 }
 
 void ForwardPipeline::updateUBO(RenderView *view) {
     _descriptorSet->update();
 
     const auto root = GET_ROOT();
-
     const auto camera = view->getCamera();
-    const auto scene = GET_SCENE(camera->getSceneID());
+    const auto scene = camera->getScene();
 
     const Light *mainLight = nullptr;
-    if (scene->mainLightID) mainLight = GET_LIGHT(scene->mainLightID);
+    if (scene->mainLightID) mainLight = scene->getMainLight();
 
     const auto ambient = _ambient;
     const auto fog = _fog;
@@ -189,8 +194,8 @@ void ForwardPipeline::updateUBO(RenderView *view) {
     uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET + 2] = 1.0f / uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET];
     uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET + 3] = 1.0f / uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET + 1];
 
-    uboGlobalView[UBOGlobal::SCREEN_SCALE_OFFSET] = camera->getWidth() / shadingWidth * _shadingScale;
-    uboGlobalView[UBOGlobal::SCREEN_SCALE_OFFSET + 1] = camera->getHeight() / shadingHeight * _shadingScale;
+    uboGlobalView[UBOGlobal::SCREEN_SCALE_OFFSET] = camera->width / shadingWidth * _shadingScale;
+    uboGlobalView[UBOGlobal::SCREEN_SCALE_OFFSET + 1] = camera->height / shadingHeight * _shadingScale;
     uboGlobalView[UBOGlobal::SCREEN_SCALE_OFFSET + 2] = 1.0 / uboGlobalView[UBOGlobal::SCREEN_SCALE_OFFSET];
     uboGlobalView[UBOGlobal::SCREEN_SCALE_OFFSET + 3] = 1.0 / uboGlobalView[UBOGlobal::SCREEN_SCALE_OFFSET + 1];
 
@@ -199,13 +204,13 @@ void ForwardPipeline::updateUBO(RenderView *view) {
     uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 2] = 1.0f / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET];
     uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 3] = 1.0f / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 1];
 
-    memcpy(uboGlobalView.data() + UBOGlobal::MAT_VIEW_OFFSET, camera->getMatView().m, sizeof(cc::Mat4));
-    memcpy(uboGlobalView.data() + UBOGlobal::MAT_VIEW_INV_OFFSET, GET_NODE(camera->getNodeID())->getWorldMatrix().m, sizeof(cc::Mat4));
-    memcpy(uboGlobalView.data() + UBOGlobal::MAT_PROJ_OFFSET, camera->getMatProj().m, sizeof(cc::Mat4));
-    memcpy(uboGlobalView.data() + UBOGlobal::MAT_PROJ_INV_OFFSET, camera->getMatProjInv().m, sizeof(cc::Mat4));
-    memcpy(uboGlobalView.data() + UBOGlobal::MAT_VIEW_PROJ_OFFSET, camera->getMatViewProj().m, sizeof(cc::Mat4));
-    memcpy(uboGlobalView.data() + UBOGlobal::MAT_VIEW_PROJ_INV_OFFSET, camera->getMatViewProjInv().m, sizeof(cc::Mat4));
-    TO_VEC3(uboGlobalView, camera->getPosition(), UBOGlobal::CAMERA_POS_OFFSET);
+    memcpy(uboGlobalView.data() + UBOGlobal::MAT_VIEW_OFFSET, camera->matView.m, sizeof(cc::Mat4));
+    memcpy(uboGlobalView.data() + UBOGlobal::MAT_VIEW_INV_OFFSET, camera->getNode()->worldMatrix.m, sizeof(cc::Mat4));
+    memcpy(uboGlobalView.data() + UBOGlobal::MAT_PROJ_OFFSET, camera->matProj.m, sizeof(cc::Mat4));
+    memcpy(uboGlobalView.data() + UBOGlobal::MAT_PROJ_INV_OFFSET, camera->matProjInv.m, sizeof(cc::Mat4));
+    memcpy(uboGlobalView.data() + UBOGlobal::MAT_VIEW_PROJ_OFFSET, camera->matViewProj.m, sizeof(cc::Mat4));
+    memcpy(uboGlobalView.data() + UBOGlobal::MAT_VIEW_PROJ_INV_OFFSET, camera->matViewProjInv.m, sizeof(cc::Mat4));
+    TO_VEC3(uboGlobalView, camera->position, UBOGlobal::CAMERA_POS_OFFSET);
 
     auto projectionSignY = _device->getScreenSpaceSignY();
     if (view->getWindow()->hasOffScreenAttachments) {
@@ -213,7 +218,7 @@ void ForwardPipeline::updateUBO(RenderView *view) {
     }
     uboGlobalView[UBOGlobal::CAMERA_POS_OFFSET + 3] = projectionSignY;
 
-    const auto exposure = camera->getExposure();
+    const auto exposure = camera->exposure;
     uboGlobalView[UBOGlobal::EXPOSURE_OFFSET] = exposure;
     uboGlobalView[UBOGlobal::EXPOSURE_OFFSET + 1] = 1.0f / exposure;
     uboGlobalView[UBOGlobal::EXPOSURE_OFFSET + 2] = _isHDR ? 1.0f : 0.0;
@@ -239,7 +244,7 @@ void ForwardPipeline::updateUBO(RenderView *view) {
         TO_VEC4(uboGlobalView, Vec4::ZERO, UBOGlobal::MAIN_LIT_COLOR_OFFSET);
     }
 
-    auto skyColor = ambient->skyColor;
+    Vec4 skyColor = ambient->skyColor;
     if (_isHDR) {
         skyColor.w = ambient->skyIllum * _fpScale;
     } else {
@@ -295,7 +300,6 @@ bool ForwardPipeline::activeRenderer() {
 }
 
 void ForwardPipeline::destroy() {
-
     if (_descriptorSet) {
         _descriptorSet->getBuffer(UBOGlobal::BLOCK.binding)->destroy();
         _descriptorSet->getBuffer(UBOShadow::BLOCK.binding)->destroy();

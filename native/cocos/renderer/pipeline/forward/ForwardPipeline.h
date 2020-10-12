@@ -14,8 +14,8 @@ struct Shadows;
 
 class CC_DLL ForwardPipeline : public RenderPipeline {
 public:
-    ForwardPipeline();
-    ~ForwardPipeline();
+    ForwardPipeline() = default;
+    ~ForwardPipeline() = default;
 
     virtual bool initialize(const RenderPipelineInfo &info) override;
     virtual void destroy() override;
@@ -45,7 +45,7 @@ public:
     CC_INLINE const Fog *getFog() const { return _fog; }
     CC_INLINE const Ambient *getAmbient() const { return _ambient; }
     CC_INLINE const Skybox *getSkybox() const { return _skybox; }
-    CC_INLINE const Shadows *getShadows() const { return _shadows; }
+    CC_INLINE Shadows *getShadows() const { return _shadows; }
 
     void setRenderObjcts(const RenderObjectList &ro) { _renderObjects = std::move(ro); }
     void setShadowObjects(const RenderObjectList &ro) { _shadowObjects = std::move(ro); }
@@ -58,7 +58,7 @@ private:
     const Fog *_fog = nullptr;
     const Ambient *_ambient = nullptr;
     const Skybox *_skybox = nullptr;
-    const Shadows *_shadows = nullptr;
+    Shadows *_shadows = nullptr;
     gfx::Buffer *_lightsUBO = nullptr;
     LightList _validLights;
     gfx::BufferList _lightBuffers;

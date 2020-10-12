@@ -22,5 +22,36 @@ const se::PoolType Node::type = se::PoolType::NODE;
 const se::PoolType Root::type = se::PoolType::ROOT;
 const se::PoolType RenderWindow::type = se::PoolType::RENDER_WINDOW;
 const se::PoolType Shadows::type = se::PoolType::SHADOW;
+const se::PoolType Sphere::type = se::PoolType::SPHERE;
+
+void AABB::getBoundary(cc::Vec3 &minPos, cc::Vec3 &maxPos) const {
+    minPos = center - halfExtents;
+    maxPos = center + halfExtents;
+}
+
+void Sphere::mergePoint(const cc::Vec3 &point) {
+    if (radius < 0.0f) {
+        center = point;
+        radius = 0.0;
+        return;
+    }
+
+    auto offset = point - center;
+    auto distance = offset.length();
+
+    if (distance > radius) {
+        auto half = (distance - radius) * 0.5f;
+        radius += half;
+        offset.scale(half / distance);
+        center += offset;
+    }
+}
+
+void Sphere::mergeAABB(const AABB *aabb) {
+    cc::Vec3 minPos, maxPos;
+    aabb->getBoundary(minPos, maxPos);
+    mergePoint(minPos);
+    mergePoint(maxPos);
+}
 } // namespace pipeline
 } // namespace cc

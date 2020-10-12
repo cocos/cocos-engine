@@ -1,6 +1,6 @@
 #include "BatchedBuffer.h"
-#include "gfx/GFXDescriptorSet.h"
 #include "gfx/GFXBuffer.h"
+#include "gfx/GFXDescriptorSet.h"
 #include "gfx/GFXInputAssembler.h"
 #include "helper/SharedMemory.h"
 

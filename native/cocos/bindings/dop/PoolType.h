@@ -28,14 +28,13 @@ enum class PoolType {
     SKYBOX,
     SHADOW,
     LIGHT,
-//    INSTANCED_ATTRIBUTE,
-//    MAIN_LIGHT,
-//    AMBIENT,
-//    FOG,
-//    RENDER_SUBMESH,
-//    BUFFER_VIEW,
-//    FLAT_BUFFER,
-    
+    SPHERE,
+    //    INSTANCED_ATTRIBUTE,
+    //    MAIN_LIGHT,
+    //    RENDER_SUBMESH,
+    //    BUFFER_VIEW,
+    //    FLAT_BUFFER,
+
     // array
     SUB_MODEL_ARRAY = 200,
     MODEL_ARRAY,

@@ -57,10 +57,10 @@ void UIStage::render(RenderView *view) {
     _renderQueues[0]->clear();
     const auto &renderObjects = pipeline->getRenderObjects();
     for (const auto &ro : renderObjects) {
-        uint32_t *subModels = GET_SUBMODEL_ARRAY(ro.model->subModelsID);
-        uint32_t subModelCount = subModels[0];
+        const auto subModelID = ro.model->getSubModelID();
+        uint32_t subModelCount = subModelID[0];
         for (uint32_t i = 1; i <= subModelCount; i++) {
-            const auto subModel = GET_SUBMODEL(subModels[i]);
+            const auto subModel = ro.model->getSubModelView(subModelID[i]);
             for (uint j = 0; j < subModel->passCount; j++) {
                 _renderQueues[0]->insertRenderPass(ro, i, j);
             }
@@ -69,19 +69,19 @@ void UIStage::render(RenderView *view) {
     _renderQueues[0]->sort();
 
     const auto camera = view->getCamera();
-    _renderArea.x = camera->getViewportX() * camera->getWidth();
-    _renderArea.y = camera->getViewportY() * camera->getHeight();
-    _renderArea.width = camera->getViewportWidth() * camera->getWidth();
-    _renderArea.height = camera->getViewportHeight() * camera->getHeight();
+    _renderArea.x = camera->viewportX * camera->width;
+    _renderArea.y = camera->viewportY * camera->height;
+    _renderArea.width = camera->viewportWidth * camera->width;
+    _renderArea.height = camera->viewportHeight * camera->height;
 
     auto cmdBuff = pipeline->getCommandBuffers()[0];
 
-    auto framebuffer = GET_FRAMEBUFFER(view->getWindow()->framebufferID);
+    auto framebuffer = view->getWindow()->getFramebuffer();
 
-    auto renderPass = framebuffer->getColorTextures().size() && framebuffer->getColorTextures()[0] ? framebuffer->getRenderPass() : pipeline->getOrCreateRenderPass(static_cast<gfx::ClearFlags>(camera->getClearFlag()));
+    auto renderPass = framebuffer->getColorTextures().size() && framebuffer->getColorTextures()[0] ? framebuffer->getRenderPass() : pipeline->getOrCreateRenderPass(static_cast<gfx::ClearFlags>(camera->clearFlag));
 
     cmdBuff->beginRenderPass(renderPass, framebuffer, _renderArea,
-                             {camera->getClearColor()}, camera->getClearDepth(), camera->getClearStencil());
+                             {camera->clearColor}, camera->clearDepth, camera->clearStencil);
     cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::GLOBAL), pipeline->getDescriptorSet());
     _renderQueues[0]->recordCommandBuffer(_device, renderPass, cmdBuff);
 

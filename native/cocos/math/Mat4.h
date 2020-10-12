@@ -398,6 +398,11 @@ public:
     static void add(const Mat4 &m1, const Mat4 &m2, Mat4 *dst);
 
     /**
+     * Calculate the matrix according to the ratation and translation
+     */
+    static void fromRT(const Vec4 &rotation, const Vec3 &translation, Mat4 *dst);
+    
+    /**
      * Decomposes the scale, rotation and translation components of this matrix.
      *
      * @param scale The scale.
