@@ -29,8 +29,8 @@
  */
 
 import {legacyCC} from '../core/global-exports';
-import {WebView} from './webview';
-import {EventType} from './webview-enums';
+import {WebView} from './web-view';
+import {EventType} from './web-view-enums';
 import {UITransform} from '../core/components/ui-base';
 
 const { game, view, mat4, misc, sys } = legacyCC;
