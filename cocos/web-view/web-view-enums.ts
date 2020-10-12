@@ -1,5 +1,6 @@
+
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,14 +24,29 @@
  THE SOFTWARE.
  */
 
-import {legacyCC} from "../core/global-exports";
-import {WebViewImplWeb} from "./webview-impl-web";
+/**
+ * @category component/web-view
+ */
 
-export class WebViewImplManager {
-    // default web
-    static getImpl (component) {
-        return new WebViewImplWeb(component);
-    }
+export enum EventType {
+    /**
+     * @en None
+     * @zh 无
+     */
+    NONE,
+    /**
+     * @en Web page Load completed.
+     * @zh 网页加载完成
+     */
+    LOADING,
+    /**
+     * @en Web page is loading.
+     * @zh 网页加载中
+     */
+    LOADED,
+    /**
+     * @en Web page error occurs when loading.
+     * @zh 网页加载出错
+     */
+    ERROR,
 }
-
-legacyCC.internal.WebViewImplManager = WebViewImplManager;

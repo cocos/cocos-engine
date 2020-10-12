@@ -2,4 +2,4 @@
  * @hidden
  */
 
-export { WebView } from '../cocos/webview/webview';
+export { WebView } from '../cocos/web-view/web-view';
