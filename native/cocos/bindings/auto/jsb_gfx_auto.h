@@ -301,7 +301,6 @@ extern se::Class* __jsb_cc_gfx_Buffer_class;
 bool js_register_cc_gfx_Buffer(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_Buffer_destroy);
-SE_DECLARE_FUNC(js_gfx_Buffer_getDevice);
 SE_DECLARE_FUNC(js_gfx_Buffer_resize);
 SE_DECLARE_FUNC(js_gfx_Buffer_Buffer);
 
@@ -322,7 +321,6 @@ bool js_register_cc_gfx_Sampler(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_Sampler_initialize);
 SE_DECLARE_FUNC(js_gfx_Sampler_destroy);
-SE_DECLARE_FUNC(js_gfx_Sampler_getDevice);
 SE_DECLARE_FUNC(js_gfx_Sampler_Sampler);
 
 extern se::Object* __jsb_cc_gfx_Shader_proto;
@@ -332,7 +330,6 @@ bool js_register_cc_gfx_Shader(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_Shader_initialize);
 SE_DECLARE_FUNC(js_gfx_Shader_destroy);
-SE_DECLARE_FUNC(js_gfx_Shader_getDevice);
 SE_DECLARE_FUNC(js_gfx_Shader_Shader);
 
 extern se::Object* __jsb_cc_gfx_InputAssembler_proto;
@@ -341,7 +338,6 @@ extern se::Class* __jsb_cc_gfx_InputAssembler_class;
 bool js_register_cc_gfx_InputAssembler(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_InputAssembler_destroy);
-SE_DECLARE_FUNC(js_gfx_InputAssembler_getDevice);
 SE_DECLARE_FUNC(js_gfx_InputAssembler_initialize);
 SE_DECLARE_FUNC(js_gfx_InputAssembler_InputAssembler);
 
@@ -352,7 +348,6 @@ bool js_register_cc_gfx_RenderPass(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_RenderPass_initialize);
 SE_DECLARE_FUNC(js_gfx_RenderPass_destroy);
-SE_DECLARE_FUNC(js_gfx_RenderPass_getDevice);
 SE_DECLARE_FUNC(js_gfx_RenderPass_RenderPass);
 
 extern se::Object* __jsb_cc_gfx_Framebuffer_proto;
@@ -362,7 +357,6 @@ bool js_register_cc_gfx_Framebuffer(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_Framebuffer_initialize);
 SE_DECLARE_FUNC(js_gfx_Framebuffer_destroy);
-SE_DECLARE_FUNC(js_gfx_Framebuffer_getDevice);
 SE_DECLARE_FUNC(js_gfx_Framebuffer_Framebuffer);
 
 extern se::Object* __jsb_cc_gfx_DescriptorSetLayout_proto;
@@ -372,7 +366,6 @@ bool js_register_cc_gfx_DescriptorSetLayout(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_initialize);
 SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_destroy);
-SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_getDevice);
 SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_DescriptorSetLayout);
 
 extern se::Object* __jsb_cc_gfx_PipelineLayout_proto;
@@ -382,7 +375,6 @@ bool js_register_cc_gfx_PipelineLayout(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_PipelineLayout_initialize);
 SE_DECLARE_FUNC(js_gfx_PipelineLayout_destroy);
-SE_DECLARE_FUNC(js_gfx_PipelineLayout_getDevice);
 SE_DECLARE_FUNC(js_gfx_PipelineLayout_PipelineLayout);
 
 extern se::Object* __jsb_cc_gfx_PipelineState_proto;
@@ -393,7 +385,6 @@ bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_PipelineState_getPipelineLayout);
 SE_DECLARE_FUNC(js_gfx_PipelineState_initialize);
 SE_DECLARE_FUNC(js_gfx_PipelineState_destroy);
-SE_DECLARE_FUNC(js_gfx_PipelineState_getDevice);
 SE_DECLARE_FUNC(js_gfx_PipelineState_getDynamicStates);
 SE_DECLARE_FUNC(js_gfx_PipelineState_PipelineState);
 
@@ -402,7 +393,6 @@ extern se::Class* __jsb_cc_gfx_DescriptorSet_class;
 
 bool js_register_cc_gfx_DescriptorSet(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_DescriptorSet_getDevice);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindBuffer);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_getTexture);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindSampler);
@@ -431,7 +421,6 @@ SE_DECLARE_FUNC(js_gfx_CommandBuffer_setStencilCompareMask);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_bindInputAssembler);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_bindPipelineState);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_destroy);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_getDevice);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_getNumTris);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_setViewport);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_setDepthBias);
@@ -465,6 +454,5 @@ SE_DECLARE_FUNC(js_gfx_Queue_submit);
 SE_DECLARE_FUNC(js_gfx_Queue_isAsync);
 SE_DECLARE_FUNC(js_gfx_Queue_initialize);
 SE_DECLARE_FUNC(js_gfx_Queue_destroy);
-SE_DECLARE_FUNC(js_gfx_Queue_getDevice);
 SE_DECLARE_FUNC(js_gfx_Queue_Queue);
 
