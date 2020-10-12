@@ -124,11 +124,6 @@ CCProgram terrain-fs %{
   void surf (out StandardSurface s) {
     vec4 baseColor = vec4(0, 0, 0, 0);
 
-    //vec3 N = normalize(s.normal);
-
-    //vec3 L = normalize(-cc_mainLitDir.xyz);
-    float NL = 1.0;//0.5 * dot(N, L) + 0.5;
-
     #if LAYERS == 1
       baseColor = texture(detailMap0, uv0);
     #elif LAYERS == 2
