@@ -146,10 +146,7 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
             let isPrimitiveType;
             const userType = attrs[propName + TYPE];
             if (defaultValue === undefined && userType) {
-                isPrimitiveType = userType === legacyCC.String ||
-                                  userType === legacyCC.Integer ||
-                                  userType === legacyCC.Float ||
-                                  userType === legacyCC.Boolean;
+                isPrimitiveType = userType instanceof Attr.PrimitiveType;
             }
             else {
                 const defaultType = typeof defaultValue;
@@ -228,10 +225,7 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
             if (fastMode) {
                 const userType = attrs[propName + TYPE];
                 if (defaultValue === undefined && userType) {
-                    isPrimitiveType = userType === legacyCC.String ||
-                                      userType === legacyCC.Integer ||
-                                      userType === legacyCC.Float ||
-                                      userType === legacyCC.Boolean;
+                    isPrimitiveType = userType instanceof Attr.PrimitiveType;
                 }
                 else {
                     const defaultType = typeof defaultValue;
