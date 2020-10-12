@@ -303,6 +303,10 @@ textureUtil.addImage(): path should be non-null
 
 Lazy init texture with image element failed due to image loading failure: %s
 
+### 3120
+
+Loading texture with unsupported type: '%s'. Add '%s' into 'cc.macro.SUPPORT_TEXTURE_FORMATS' please.
+
 ### 3300
 
 Rect width exceeds maximum margin: %s

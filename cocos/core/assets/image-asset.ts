@@ -281,6 +281,7 @@ export class ImageAsset extends Asset {
         const device = _getGlobalDevice();
         const extensionIDs = fmtStr.split('_');
 
+        let defaultExt = '';
         let preferedExtensionIndex = Number.MAX_VALUE;
         let format = this._format;
         let ext = '';
@@ -289,7 +290,7 @@ export class ImageAsset extends Asset {
             const extFormat = extensionID.split('@');
 
             const i = parseInt(extFormat[0], undefined);
-            const tmpExt = ImageAsset.extnames[i] || extFormat.join();
+            const tmpExt = ImageAsset.extnames[i] || extFormat[0];
 
             const index = SupportTextureFormats.indexOf(tmpExt);
             if (index !== -1 && index < preferedExtensionIndex) {
@@ -312,11 +313,18 @@ export class ImageAsset extends Asset {
                 ext = tmpExt;
                 format = fmt;
             }
+            else if (!defaultExt) {
+                defaultExt = tmpExt;
+            }
         }
 
         if (ext) {
             this._setRawAsset(ext);
             this._format = format;
+        }
+        else {
+            this._setRawAsset(defaultExt);
+            warnID(3120, defaultExt, defaultExt);
         }
     }
 
