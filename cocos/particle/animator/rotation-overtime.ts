@@ -97,11 +97,3 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
         }
     }
 }
-
-// CCClass.fastDefine('cc.RotationOvertimeModule', RotationOvertimeModule, {
-//     enable: false,
-//     _separateAxes: false,
-//     x: new CurveRange(),
-//     y: new CurveRange(),
-//     z: new CurveRange()
-// });
