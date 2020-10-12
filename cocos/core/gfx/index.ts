@@ -5,7 +5,6 @@
 
 import { GFXBuffer } from './buffer';
 import { GFXCommandBuffer } from './command-buffer';
-import * as GFXDefines from './define';
 import { GFXDevice } from './device';
 import { GFXFramebuffer } from './framebuffer';
 import { GFXInputAssembler } from './input-assembler';
@@ -46,4 +45,17 @@ legacyCC.GFXPipelineState = GFXPipelineState;
 legacyCC.GFXCommandBuffer = GFXCommandBuffer;
 legacyCC.GFXQueue = GFXQueue;
 
-Object.assign(legacyCC, GFXDefines);
+import { GFXFormatSize,GFXFormatSurfaceSize,GFXGetTypeSize,getTypedArrayConstructor,GFX_MAX_ATTACHMENTS,
+    GFXObjectType,GFXObject,GFXAttributeName,GFXType,GFXFormat,GFXBufferUsageBit,GFXMemoryUsageBit,GFXBufferFlagBit,
+    GFXBufferAccessBit,GFXPrimitiveMode,GFXPolygonMode,GFXShadeModel,GFXCullMode,GFXComparisonFunc,GFXStencilOp,GFXBlendOp,
+    GFXBlendFactor,GFXColorMask,GFXFilter,GFXAddress,GFXTextureType,GFXTextureUsageBit,GFXSampleCount,GFXTextureFlagBit,GFXShaderStageFlagBit,
+    GFXDescriptorType,GFXCommandBufferType,GFXLoadOp,GFXStoreOp,GFXTextureLayout,GFXPipelineBindPoint,GFXDynamicStateFlagBit,GFXStencilFace,
+    GFXQueueType,GFXRect,GFXViewport,GFXColor,GFXClearFlag,GFXOffset,GFXExtent,GFXTextureSubres,GFXTextureCopy,GFXBufferTextureCopy,GFXFormatType,
+    GFXFormatInfo,GFXMemoryStatus,GFXFormatInfos } from './define';
+Object.assign(legacyCC, {GFXFormatSize,GFXFormatSurfaceSize,GFXGetTypeSize,getTypedArrayConstructor,GFX_MAX_ATTACHMENTS,
+    GFXObjectType,GFXObject,GFXAttributeName,GFXType,GFXFormat,GFXBufferUsageBit,GFXMemoryUsageBit,GFXBufferFlagBit,
+    GFXBufferAccessBit,GFXPrimitiveMode,GFXPolygonMode,GFXShadeModel,GFXCullMode,GFXComparisonFunc,GFXStencilOp,GFXBlendOp,
+    GFXBlendFactor,GFXColorMask,GFXFilter,GFXAddress,GFXTextureType,GFXTextureUsageBit,GFXSampleCount,GFXTextureFlagBit,GFXShaderStageFlagBit,
+    GFXDescriptorType,GFXCommandBufferType,GFXLoadOp,GFXStoreOp,GFXTextureLayout,GFXPipelineBindPoint,GFXDynamicStateFlagBit,GFXStencilFace,
+    GFXQueueType,GFXRect,GFXViewport,GFXColor,GFXClearFlag,GFXOffset,GFXExtent,GFXTextureSubres,GFXTextureCopy,GFXBufferTextureCopy,GFXFormatType,
+    GFXFormatInfo,GFXMemoryStatus,GFXFormatInfos});
