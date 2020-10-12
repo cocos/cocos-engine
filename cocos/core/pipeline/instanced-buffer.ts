@@ -104,8 +104,8 @@ export class InstancedBuffer {
         const attributes = sourceIA.attributes.slice();
         const indexBuffer = sourceIA.indexBuffer;
 
-        for (let i = 0; i < attrs.list.length; i++) {
-            const attr = attrs.list[i];
+        for (let i = 0; i < attrs.attributes.length; i++) {
+            const attr = attrs.attributes[i];
             const newAttr = new GFXAttribute(attr.name, attr.format, attr.isNormalized, vertexBuffers.length, true);
             attributes.push(newAttr);
         }
