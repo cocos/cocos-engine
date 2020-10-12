@@ -25,13 +25,13 @@
  */
 
 /**
- * @category component/webview
+ * @category component/web-view
  */
 
 import { legacyCC } from '../core/global-exports';
-import { EventType } from './webview-enums';
+import { EventType } from './web-view-enums';
 import { error } from '../core/platform';
-import {WebViewImpl} from "./webview-impl";
+import {WebViewImpl} from "./web-view-impl";
 
 const { game, view, mat4, misc, sys, warn } = legacyCC;
 const _mat4_temp = mat4();

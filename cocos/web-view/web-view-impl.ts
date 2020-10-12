@@ -25,7 +25,7 @@
  */
 
 /**
- * @category component/webview
+ * @category component/web-view
  */
 
 import {legacyCC} from '../core/global-exports';
