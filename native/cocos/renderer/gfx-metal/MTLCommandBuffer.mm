@@ -211,6 +211,7 @@ void CCMTLCommandBuffer::draw(InputAssembler *ia) {
 
     if (_type == CommandBufferType::PRIMARY) {
         if (_gpuIndirectBuffer.count) {
+            _numDrawCalls += _gpuIndirectBuffer.count;
             for (size_t j = 0; j < _gpuIndirectBuffer.count; j++) {
                 if (_gpuIndexBuffer.mtlBuffer) {
                     [_mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
@@ -255,6 +256,20 @@ void CCMTLCommandBuffer::draw(InputAssembler *ia) {
                                     vertexStart:drawInfo.firstIndex
                                     vertexCount:drawInfo.vertexCount
                                   instanceCount:drawInfo.instanceCount];
+                }
+            }
+            _numInstances += drawInfo.instanceCount;
+            _numDrawCalls++;
+            if (_gpuPipelineState) {
+                uint indexCount = drawInfo.indexCount ? drawInfo.indexCount : drawInfo.vertexCount;
+                switch (_mtlPrimitiveType) {
+                    case MTLPrimitiveTypeTriangle:
+                        _numTriangles += indexCount / 3 * std::max(drawInfo.instanceCount, 1u);
+                        break;
+                    case MTLPrimitiveTypeTriangleStrip:
+                        _numTriangles += (indexCount - 2) * std::max(drawInfo.instanceCount, 1u);
+                        break;
+                    default: break;
                 }
             }
         }
