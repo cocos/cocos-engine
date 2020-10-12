@@ -94,7 +94,7 @@ function getDefaultFromInitializer (initializer) {
     }
     else {
         // The default attribute will not be used in ES6 constructor actually,
-        // so we dont need to simplify into `{}` or `[]` or vec2 completely.
+        // so we don't need to simplify into `{}` or `[]` or vec2 completely.
         return initializer;
     }
 }
