@@ -70,7 +70,7 @@ CCEffect %{
       phase: shadow-add
       propertyIndex: 1
       rasterizerState:
-        cullMode: back
+        cullMode: front
 }%
 
 CCProgram shared-ubos %{

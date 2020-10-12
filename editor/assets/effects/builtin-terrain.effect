@@ -88,6 +88,8 @@ CCProgram terrain-vs %{
     v_normal = a_normal;
     v_fog_factor = CC_TRANSFER_FOG(vec4(worldPos, 1));
 
+    CCPassShadowParams(pos);
+
     return pos;
   }
 }%
@@ -99,9 +101,6 @@ CCProgram terrain-fs %{
   #include <output-standard>
   #include <gamma>
   #include <cc-fog>
-  #if CC_RECEIVE_SHADOW
-    #include <cc-shadow-map-fs>
-  #endif
   #pragma define LAYERS range([0, 4])
 
   in vec3 v_position;
@@ -170,10 +169,10 @@ CCProgram terrain-fs %{
     #endif
   }
 
+  vec4 frag () {
     StandardSurface s; surf(s);
     vec4 color = CCStandardShading(s);
     color = CC_APPLY_FOG(color, v_fog_factor);
-  vec4 frag () {
     return CCFragOutput(color);
   }
 }%
