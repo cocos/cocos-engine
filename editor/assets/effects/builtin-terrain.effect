@@ -158,7 +158,7 @@ CCProgram terrain-fs %{
   vec4 frag () {
     StandardSurface s; surf(s);
     vec4 color = CCStandardShading(s);
-    //color = CC_APPLY_FOG(color, v_fog_factor);
+    color = CC_APPLY_FOG(color, v_fog_factor);
     return CCFragOutput(color);
   }
 }%
