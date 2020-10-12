@@ -2,6 +2,7 @@ import { Enum } from '../../value-types';
 import { Color } from '../../../core/math';
 import { legacyCC } from '../../global-exports';
 import { FogPool, NULL_HANDLE, FogView, FogHandle } from '../core/memory-pools';
+import { FogInfo } from '../../scene-graph/scene-globals';
 
 /**
  * @zh
@@ -192,10 +193,22 @@ export class Fog {
         this._handle = FogPool.alloc();
     }
 
-    public activate () {
+    public initialize (fogInfo : FogInfo) {
+        this._type = fogInfo.type;
+        FogPool.set(this._handle, FogView.ENABLE, fogInfo.enabled ? 1 : 0);
+        FogPool.set(this._handle, FogView.TYPE, fogInfo.enabled ? this._type + 1 : 0);
+        this._fogColor.set(fogInfo.fogColor);
         Color.toArray(this._colorArray, this._fogColor);
         FogPool.setVec4(this._handle, FogView.COLOR, this._fogColor);
-        FogPool.set(this._handle, FogView.TYPE, this.enabled ? this._type + 1 : 0);
+        FogPool.set(this._handle, FogView.DENSITY, fogInfo.fogDensity);
+        FogPool.set(this._handle, FogView.START, fogInfo.fogStart);
+        FogPool.set(this._handle, FogView.END, fogInfo.fogEnd);
+        FogPool.set(this._handle, FogView.ATTEN, fogInfo.fogAtten);
+        FogPool.set(this._handle, FogView.TOP, fogInfo.fogTop);
+        FogPool.set(this._handle, FogView.RANGE, fogInfo.fogRange);
+    }
+
+    public activate () {
         this._updatePipeline();
     }
 
