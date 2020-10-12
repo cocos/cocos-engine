@@ -30,7 +30,7 @@
 
 // @ts-check
 import {ccclass, override} from 'cc.decorator';
-import { GFXDevice, GFXFeature } from '../gfx/device';
+import { GFXDevice, GFXFeature } from '../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { EDITOR, MINIGAME, ALIPAY, XIAOMI, JSB } from 'internal:constants';

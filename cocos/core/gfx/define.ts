@@ -638,6 +638,49 @@ export enum GFXFormatType {
     FLOAT,
 }
 
+export enum GFXAPI {
+    UNKNOWN,
+    GL,
+    GLES2,
+    GLES3,
+    METAL,
+    VULKAN,
+    DX12,
+    WEBGL,
+    WEBGL2,
+}
+
+export enum GFXFeature {
+    COLOR_FLOAT,
+    COLOR_HALF_FLOAT,
+    TEXTURE_FLOAT,
+    TEXTURE_HALF_FLOAT,
+    TEXTURE_FLOAT_LINEAR,
+    TEXTURE_HALF_FLOAT_LINEAR,
+    FORMAT_R11G11B10F,
+    FORMAT_D16,
+    FORMAT_D16S8,
+    FORMAT_D24,
+    FORMAT_D24S8,
+    FORMAT_D32F,
+    FORMAT_D32FS8,
+    FORMAT_ETC1,
+    FORMAT_ETC2,
+    FORMAT_DXT,
+    FORMAT_PVRTC,
+    FORMAT_ASTC,
+    FORMAT_RGB8,
+    MSAA,
+    ELEMENT_INDEX_UINT,
+    INSTANCED_ARRAYS,
+    MULTIPLE_RENDER_TARGETS,
+    DEPTH_BOUNDS,
+    LINE_WIDTH,
+    STENCIL_WRITE_MASK,
+    STENCIL_COMPARE_MASK,
+    COUNT,
+}
+
 export class GFXFormatInfo {
     declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 

@@ -4,7 +4,6 @@
  */
 
 import { builtinResMgr } from './3d/builtin';
-import { GFXDevice } from './gfx/device';
 import { Pool } from './memop';
 import { RenderPipeline, ForwardPipeline, RenderView  } from './pipeline';
 import { IRenderViewInfo } from './pipeline/define';
@@ -17,7 +16,7 @@ import { SpotLight } from './renderer/scene/spot-light';
 import { UI } from './renderer/ui/ui';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
-import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPassInfo, GFXStoreOp } from './gfx';
+import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPassInfo, GFXStoreOp, GFXDevice } from './gfx';
 import { RootHandle, RootPool, RootView, NULL_HANDLE } from './renderer/core/memory-pools';
 
 /**

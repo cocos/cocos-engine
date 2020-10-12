@@ -4,9 +4,8 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { GFXBufferTextureCopy, GFXTextureFlagBit, GFXTextureUsageBit } from '../gfx/define';
-import { GFXAPI, GFXDevice } from '../gfx/device';
-import { GFXTexture, GFXTextureInfo } from '../gfx';
+import { GFXBufferTextureCopy, GFXTextureFlagBit, GFXTextureUsageBit, GFXAPI } from '../gfx/define';
+import { GFXTexture, GFXTextureInfo, GFXDevice } from '../gfx';
 import { error } from '../platform/debug';
 import { Filter } from './asset-enum';
 import { ImageAsset } from './image-asset';

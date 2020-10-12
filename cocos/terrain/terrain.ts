@@ -14,7 +14,7 @@ import { isValid } from '../core/data/object';
 import { director } from '../core/director';
 import { GFXBuffer, GFXBufferInfo } from '../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXPrimitiveMode } from '../core/gfx/define';
-import { GFXDevice } from '../core/gfx/device';
+import { GFXDevice } from '../core/gfx';
 import { GFXAttribute } from '../core/gfx/input-assembler';
 import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { MacroRecord } from '../core/renderer/core/pass-utils';

@@ -43,8 +43,9 @@ import {
     GFXFormatType,
     GFXMemoryUsageBit,
     GFXPrimitiveMode,
+    GFXFeature
 } from '../gfx/define';
-import { GFXDevice, GFXFeature } from '../gfx/device';
+import { GFXDevice } from '../gfx';
 import { GFXAttribute, GFXInputAssemblerInfo } from '../gfx/input-assembler';
 import { warnID } from '../platform/debug';
 import { sys } from '../platform/sys';

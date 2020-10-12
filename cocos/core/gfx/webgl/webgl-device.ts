@@ -4,7 +4,7 @@ import { sys } from '../../platform/sys';
 import { GFXDescriptorSet, GFXDescriptorSetInfo } from '../descriptor-set';
 import { GFXBuffer, GFXBufferInfo, GFXBufferViewInfo } from '../buffer';
 import { GFXCommandBuffer, GFXCommandBufferInfo } from '../command-buffer';
-import { GFXAPI, GFXDevice, GFXFeature, GFXDeviceInfo, GFXBindingMappingInfo } from '../device';
+import { GFXDevice, GFXDeviceInfo, GFXBindingMappingInfo } from '../device';
 import { GFXFence, GFXFenceInfo } from '../fence';
 import { GFXFramebuffer, GFXFramebufferInfo } from '../framebuffer';
 import { GFXInputAssembler, GFXInputAssemblerInfo } from '../input-assembler';
@@ -32,7 +32,7 @@ import { WebGLShader } from './webgl-shader';
 import { WebGLStateCache } from './webgl-state-cache';
 import { WebGLTexture } from './webgl-texture';
 import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXCommandBufferType, GFXFilter, GFXFormat, GFXFormatInfos,
-    GFXQueueType, GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, GFXRect } from '../define';
+    GFXQueueType, GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, GFXRect, GFXAPI, GFXFeature } from '../define';
 import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersToTexture,
     WebGLCmdFuncCopyTexImagesToTexture } from './webgl-commands';
 import { GFXDescriptorSetLayoutInfo, GFXDescriptorSetLayout, GFXPipelineLayoutInfo, GFXPipelineLayout } from '../..';
