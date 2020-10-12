@@ -337,6 +337,13 @@ export const sys: { [x: string]: any; } = {
     QQ_PLAY: 105,
 
     /**
+     * @en Platform - Xiaomi Game
+     * @zh Platform - 小米小游戏
+     * @default 111
+     */
+    XIAOMI_GAME: 111,
+
+    /**
      * @en Browser Type - WeChat inner browser
      * @zh 浏览器类型 - 微信内置浏览器
      * @default "wechat"
@@ -354,18 +361,24 @@ export const sys: { [x: string]: any; } = {
      * @default "huaweiquickgame"
      */
     BROWSER_TYPE_HUAWEI_GAME: 'huaweiquickgame',
-        /**
+    /**
      * @en Browser Type - OPPO mini Game
      * @zh 浏览器类型 - OPPO小游戏
      * @default "oppogame"
      */
     BROWSER_TYPE_OPPO_GAME: 'oppogame',
     /**
-    * @en Browser Type - vivo mini Game
-    * @zh 浏览器类型 - vivo小游戏
-    * @default "vivogame"
-    */
-   BROWSER_TYPE_VIVO_GAME: 'vivogame',
+     * @en Browser Type - vivo mini Game
+     * @zh 浏览器类型 - vivo小游戏
+     * @default "vivogame"
+     */
+    BROWSER_TYPE_VIVO_GAME: 'vivogame',
+    /**
+     * @en Browser Type - Xiaomi Game
+     * @zh 浏览器类型 - 小米小游戏
+     * @default "xiaomigame"
+     */
+    BROWSER_TYPE_XIAOMI_GAME: "xiaomigame",
     /**
      * @en Browser Type - Android Browser
      * @zh 浏览器类型 - 安卓浏览器

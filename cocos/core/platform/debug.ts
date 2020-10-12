@@ -37,11 +37,11 @@ const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/3d/EngineErr
 // The html element displays log in web page (DebugMode.INFO_FOR_WEB_PAGE)
 let logList: HTMLTextAreaElement | null = null;
 
-let ccLog = console.log;
+let ccLog = console.log.bind(console);
 
-let ccWarn = console.log;
+let ccWarn = ccLog;
 
-let ccError = console.log;
+let ccError = ccLog;
 
 let ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
     if (!condition) {
