@@ -179,25 +179,25 @@ CCProgram terrain-fs %{
 
 CCProgram shadow-caster-vs %{
   precision highp float;
-  #include <input-standard>
-  #include <cc-local-batch>
-  #include <shared-ubos>
+  #include <cc-global>
+  #include <cc-local>
   #include <cc-shadow>
 
-  out vec2 v_uv;
+  in vec3 a_position;
+  in vec3 a_normal;
+  in vec2 a_texCoord;
+
   out vec2 v_clip_depth;
 
   vec4 vert () {
-    StandardVertInput In;
-    CCVertInput(In);
+    vec4 worldPos;
+    worldPos.x = cc_matWorld[3][0] + a_position.x;
+    worldPos.y = cc_matWorld[3][1] + a_position.y;
+    worldPos.z = cc_matWorld[3][2] + a_position.z;
+    worldPos.w = 1.0;
 
-    mat4 matWorld, matWorldIT;
-    CCGetWorldMatrixFull(matWorld, matWorldIT);
-
-    vec4 worldPos = matWorld * In.position;
     vec4 clipPos = cc_matLightViewProj * worldPos;
 
-    v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
     v_clip_depth = clipPos.zw;
 
     return clipPos;
@@ -206,30 +206,11 @@ CCProgram shadow-caster-vs %{
 
 CCProgram shadow-caster-fs %{
   precision highp float;
-  #include <shared-ubos>
   #include <packing>
 
-  in vec2 v_uv;
   in vec2 v_clip_depth;
 
-  #if USE_BASE_COLOR_MAP
-    uniform sampler2D baseColorMap;
-  #endif
-
-  #if USE_ALPHA_TEST
-    #pragma define ALPHA_TEST_CHANNEL options([a, r, g, b])
-  #endif
-
   vec4 frag () {
-    vec4 baseColor = baseColor;
-    #if USE_BASE_COLOR_MAP
-      baseColor *= texture(baseColorMap, v_uv);
-    #endif
-
-    #if USE_ALPHA_TEST
-      if (baseColor.ALPHA_TEST_CHANNEL < colorScaleAndCutoff.w) discard;
-    #endif
-
     return packDepthToRGBA(v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5);
   }
 }%
