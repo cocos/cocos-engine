@@ -55,7 +55,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     const shadows = pipeline.shadows;
     const shadowSphere = shadows.sphere;
     shadowSphere.center.set(0.0, 0.0, 0.0);
-    shadowSphere.radius = 0.01;
+    shadowSphere.radius = -0.01;
     if (mainLight) {
         mainLight.update();
         if (shadows.type === ShadowType.Planar) {
