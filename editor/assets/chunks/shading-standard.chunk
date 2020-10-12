@@ -152,15 +152,7 @@ struct StandardSurface {
     finalColor += s.emissive;
 
     #if CC_RECEIVE_SHADOW
-      float pcf = cc_shadowPCF.x + 0.001;
-      float shadowAttenuation = 0.0;
-      if (pcf > 3.0) {shadowAttenuation = CCGetShadowFactorX25();}
-      else if (3.0 > pcf && pcf > 2.0) {shadowAttenuation = CCGetShadowFactorX9();}
-      else if (2.0 > pcf && pcf > 1.0) {shadowAttenuation = CCGetShadowFactorX5();}
-      else {shadowAttenuation = CCGetShadowFactorX1();}
-
-      vec3 shadowColor = cc_shadowColor.rgb * cc_shadowColor.a + finalColor * (1.0 - cc_shadowColor.a);
-      finalColor = shadowColor.rgb * shadowAttenuation + finalColor.rgb * (1.0 - shadowAttenuation);
+      CC_SHADOW_FACTOR(finalColor, NL);
     #endif
 
     return vec4(finalColor, s.albedo.a);
