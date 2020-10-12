@@ -29,7 +29,7 @@
  */
 
 import { GFXAddress, GFXComparisonFunc, GFXFilter, GFXColor } from '../../gfx/define';
-import { GFXDevice } from '../../gfx/device';
+import { GFXDevice } from '../../gfx';
 import { GFXSampler, GFXSamplerInfo } from '../../gfx/sampler';
 import { legacyCC } from '../../global-exports';
 

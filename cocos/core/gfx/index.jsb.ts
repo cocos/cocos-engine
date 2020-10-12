@@ -3,7 +3,6 @@ declare const gfx: any;
 import { GFXBuffer } from './buffer';
 import { GFXCommandBuffer } from './command-buffer';
 import * as GFXDefines from './define';
-import { GFXDevice } from './device';
 import { GFXFramebuffer } from './framebuffer';
 import { GFXInputAssembler } from './input-assembler';
 import { GFXQueue } from './queue';
@@ -16,7 +15,6 @@ export * from './descriptor-set';
 export * from './buffer';
 export * from './command-buffer';
 export * from './define';
-export * from './device';
 export * from './framebuffer';
 export * from './input-assembler';
 export * from './descriptor-set-layout';
@@ -37,6 +35,11 @@ export const GFXInputState = gfx.InputState;
 export const GFXTextureInfo = gfx.TextureInfo;
 export const GFXTextureViewInfo = gfx.TextureViewInfo;
 export const GFXTexture = gfx.Texture;
+
+export const GFXDevice = gfx.Device;
+// GFXDeviceInfo is different from native defination, GFXBindingMappingInfo can not
+// auto bind correctly, so use JS defination instead.
+export { GFXDeviceInfo, GFXBindingMappingInfo } from './device';
 
 legacyCC.GFXDevice = GFXDevice;
 legacyCC.GFXBuffer = GFXBuffer;

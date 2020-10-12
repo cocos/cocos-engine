@@ -38,7 +38,7 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, 
 import { CCString } from '../../data/utils/attribute';
 import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
 import { GFXFormat, GFXType } from '../../gfx/define';
-import { GFXDevice } from '../../gfx/device';
+import { GFXDevice } from '../../gfx';
 import { GFXAttribute } from '../../gfx/input-assembler';
 import { Mat4, Vec2, Vec3 } from '../../math';
 import { mapBuffer, readBuffer, writeBuffer } from '../misc/buffer';

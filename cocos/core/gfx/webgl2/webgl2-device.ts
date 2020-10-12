@@ -2,7 +2,7 @@ import { macro, warnID, warn } from '../../platform';
 import { GFXDescriptorSet, GFXDescriptorSetInfo } from '../descriptor-set';
 import { GFXBuffer, GFXBufferInfo, GFXBufferViewInfo } from '../buffer';
 import { GFXCommandBuffer, GFXCommandBufferInfo } from '../command-buffer';
-import { GFXAPI, GFXDevice, GFXFeature, GFXDeviceInfo, GFXBindingMappingInfo } from '../device';
+import { GFXDevice, GFXDeviceInfo, GFXBindingMappingInfo } from '../device';
 import { GFXFence, GFXFenceInfo } from '../fence';
 import { GFXFramebuffer, GFXFramebufferInfo } from '../framebuffer';
 import { GFXInputAssembler, GFXInputAssemblerInfo } from '../input-assembler';
@@ -30,7 +30,7 @@ import { WebGL2Shader } from './webgl2-shader';
 import { WebGL2StateCache } from './webgl2-state-cache';
 import { WebGL2Texture } from './webgl2-texture';
 import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXCommandBufferType, GFXFilter, GFXFormat, GFXFormatInfos,
-    GFXQueueType, GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, GFXRect } from '../define';
+    GFXQueueType, GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, GFXRect, GFXAPI, GFXFeature } from '../define';
 import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGL2CmdFuncBlitFramebuffer,
     WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
 import { GFXPipelineLayout, GFXDescriptorSetLayout, GFXDescriptorSetLayoutInfo, GFXPipelineLayoutInfo } from '../..';

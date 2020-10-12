@@ -4,7 +4,7 @@ import { RenderMode} from '../enum';
 import ParticleSystemRendererCPU from './particle-system-renderer-cpu';
 import ParticleSystemRendererGPU from './particle-system-renderer-gpu';
 import { director } from '../../core/director';
-import { GFXDevice, GFXFeature } from '../../core/gfx/device';
+import { GFXDevice, GFXFeature } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
 
 function isSupportGPUParticle () {

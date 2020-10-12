@@ -8,8 +8,7 @@ import { RecyclePool } from '../memop';
 import { CachedArray } from '../memop/cached-array';
 import { IRenderObject, IRenderPass, IRenderQueueDesc, SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { GFXDevice } from '../gfx/device';
-import { GFXRenderPass } from '../gfx';
+import { GFXRenderPass, GFXDevice } from '../gfx';
 import { BlendStatePool, PassPool, PassView, DSPool, SubModelView, SubModelPool, ShaderPool, PassHandle, ShaderHandle } from '../renderer/core/memory-pools';
 
 /**
