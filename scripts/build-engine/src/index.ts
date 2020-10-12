@@ -282,8 +282,7 @@ async function _doBuild ({
         extensions: ['.js', '.ts'],
         highlightCode: true,
         exclude: [
-            /@cocos[\/\\]ammo/g,
-            /@cocos[\/\\]cannon/g
+            /node_modules[\/\\]/g,
         ],
         plugins: babelPlugins,
         presets: [
