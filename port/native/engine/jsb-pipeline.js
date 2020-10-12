@@ -40,6 +40,13 @@ class ForwardPipeline extends nr.ForwardPipeline {
     this.materials = [];
   }
 
+  destroy () {
+    this.fog.destroy();
+    this.ambient.destroy();
+    this.skybox.destroy();
+    this.shadows.destroy();
+  }
+
   init() {
     this.fog = new cc.Fog();
     this.ambient = new cc.Ambient();
