@@ -585,12 +585,16 @@ Please do not specifiy "default" attribute in decorator of "%s" property in "%s"
 Default value must be initialized at their declaration:
 ```
 // Before:
-@property({ default: 0 }) // <--
-@integer
-value;
+@property({
+  type: cc.SpriteFrame
+  default: null  // <--
+})
+myProp;
 // After:
-@integer
-value = 0;    // <--
+@property({
+  type: cc.SpriteFrame
+})
+myProp = null;   // <--
 ```
 
 ### 3654
@@ -599,10 +603,10 @@ Please specifiy a default value for "%s.%s" property at its declaration:
 ```
 // Before:
 @property(...)
-value;
+myProp;
 // After:
 @property(...)
-value = 0
+myProp = 0;
 ```
 
 ### 3655
@@ -1081,12 +1085,11 @@ Invalid type of %s.%s
 
 ### 5509
 
-<!-- DEPRECATED -->
 The 'type' attribute of '%s.%s' must be child class of cc.Asset, otherwise you should use 'url: %s' instead
 
 ### 5510
 
-The 'type' attribute of '%s.%s' can not be 'Number', use 'Float' or 'Integer' instead please.
+The 'type' attribute of '%s.%s' can not be 'Number', use cc.Float or cc.Integer instead please.
 
 ### 5511
 

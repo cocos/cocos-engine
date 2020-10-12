@@ -268,7 +268,7 @@ export class ImageAsset extends Asset {
         return { fmt: extensionIndices.join('_'), w: this.width, h: this.height };
     }
 
-    public _deserialize (data: any, handle: any) {
+    public _deserialize (data: any) {
         let fmtStr = '';
         if (typeof data === 'string') {
             fmtStr = data;
@@ -317,14 +317,6 @@ export class ImageAsset extends Asset {
         if (ext) {
             this._setRawAsset(ext);
             this._format = format;
-        }
-
-        // preset uuid to get correct nativeUrl
-        const loadingItem = handle.customEnv;
-        const uuid = loadingItem && loadingItem.uuid;
-        if (uuid) {
-            this._uuid = uuid;
-            this._url = this.nativeUrl;
         }
     }
 
