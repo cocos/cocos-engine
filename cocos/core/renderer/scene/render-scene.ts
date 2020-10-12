@@ -159,7 +159,7 @@ export class RenderScene {
         this.removeSpotLights();
         this.removeModels();
         if (this._modelArrayHandle) {
-            freeHandleArray(this._modelArrayHandle, ModelArrayPool, ModelPool);
+            ModelArrayPool.free(this._modelArrayHandle);
             this._modelArrayHandle = NULL_HANDLE;
         }
         if (this._scenePoolHandle) {
