@@ -411,6 +411,10 @@ export class WebGLDevice extends GFXDevice {
             this._features[GFXFeature.INSTANCED_ARRAYS] = true;
         }
 
+        if (this._WEBGL_draw_buffers) {
+            this._features[GFXFeature.MULTIPLE_RENDER_TARGETS] = true;
+        }
+
         let compressedFormat: string = '';
 
         if (this._WEBGL_compressed_texture_etc1) {

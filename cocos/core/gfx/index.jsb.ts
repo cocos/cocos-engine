@@ -10,7 +10,6 @@ import { GFXQueue } from './queue';
 import { GFXRenderPass } from './render-pass';
 import { GFXSampler } from './sampler';
 import { GFXShader } from './shader';
-import { GFXTexture } from './texture';
 import { legacyCC } from '../global-exports';
 
 export * from './descriptor-set';
@@ -27,7 +26,6 @@ export * from './queue';
 export * from './render-pass';
 export * from './sampler';
 export * from './shader';
-export * from './texture';
 
 export const GFXRasterizerState = gfx.RasterizerState;
 export const GFXDepthStencilState = gfx.DepthStencilState;
@@ -36,6 +34,9 @@ export const GFXBlendState = gfx.BlendState;
 export const GFXPipelineState = gfx.PipelineState;
 export const GFXPipelineStateInfo = gfx.PipelineStateInfo;
 export const GFXInputState = gfx.InputState;
+export const GFXTextureInfo = gfx.TextureInfo;
+export const GFXTextureViewInfo = gfx.TextureViewInfo;
+export const GFXTexture = gfx.Texture;
 
 legacyCC.GFXDevice = GFXDevice;
 legacyCC.GFXBuffer = GFXBuffer;

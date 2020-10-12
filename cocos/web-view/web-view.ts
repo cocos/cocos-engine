@@ -24,15 +24,16 @@
  */
 
 /**
- * @category component/webview
+ * @category component/web-view
  */
 
 import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder, serializable, requireComponent } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { UITransform } from '../core/components/ui-base';
 import { Component, EventHandler as ComponentEventHandler } from '../core/components';
-import { WebViewImpl } from './webview-impl-web';
-import { EventType } from './webview-enums';
+import { WebViewImplManager } from './web-view-impl-manager';
+import { EventType } from './web-view-enums';
+import { legacyCC } from "../core/global-exports";
 
 /**
  * @en
@@ -53,7 +54,7 @@ export class WebView extends Component {
     @serializable
     protected _url = 'https://cocos.com';
 
-    protected _impl: WebViewImpl | null = null;
+    protected _impl: any;
 
     /**
      * @en WebView event type
@@ -84,6 +85,7 @@ export class WebView extends Component {
      * @zh
      * WebView 的回调事件，当网页加载过程中，加载完成后或者加载出错时都会回调此函数
      */
+    @serializable
     @type([ComponentEventHandler])
     @displayOrder(20)
     @tooltip('i18n:videoplayer.webviewEvents')
@@ -111,13 +113,13 @@ export class WebView extends Component {
     }
 
     /**
-     * !#en
-     * Set javascript interface scheme (see also setOnJSCallback). <br/>
-     * Note: Supports only on the Android and iOS. For HTML5, please refer to the official documentation.<br/>
+     * @en
+     * Set javascript interface scheme (see also setOnJSCallback). <br>
+     * Note: Supports only on the Android and iOS. For HTML5, please refer to the official documentation.<br>
      * Please refer to the official documentation for more details.
-     * !#zh
-     * 设置 JavaScript 接口方案（与 'setOnJSCallback' 配套使用）。<br/>
-     * 注意：只支持 Android 和 iOS ，Web 端用法请前往官方文档查看。<br/>
+     * @zh
+     * 设置 JavaScript 接口方案（与 'setOnJSCallback' 配套使用）。<br>
+     * 注意：只支持 Android 和 iOS ，Web 端用法请前往官方文档查看。<br>
      * 详情请参阅官方文档
      * @method setJavascriptInterfaceScheme
      * @param {String} scheme
@@ -129,13 +131,13 @@ export class WebView extends Component {
     }
 
     /**
-     * !#en
+     * @en
      * This callback called when load URL that start with javascript
-     * interface scheme (see also setJavascriptInterfaceScheme). <br/>
-     * Note: Supports only on the Android and iOS. For HTML5, please refer to the official documentation.<br/>
+     * interface scheme (see also setJavascriptInterfaceScheme). <br>
+     * Note: Supports only on the Android and iOS. For HTML5, please refer to the official documentation. <br>
      * Please refer to the official documentation for more details.
-     * !#zh
-     * 当加载 URL 以 JavaScript 接口方案开始时调用这个回调函数。<br/>
+     * @zh
+     * 当加载 URL 以 JavaScript 接口方案开始时调用这个回调函数。<br>
      * 注意：只支持 Android 和 iOS，Web 端用法请前往官方文档查看。
      * 详情请参阅官方文档
      * @method setOnJSCallback
@@ -148,12 +150,12 @@ export class WebView extends Component {
     }
 
     /**
-     * !#en
-     * Evaluates JavaScript in the context of the currently displayed page. <br/>
-     * Please refer to the official document for more details <br/>
-     * Note: Cross domain issues need to be resolved by yourself <br/>
-     * !#zh
-     * 执行 WebView 内部页面脚本（详情请参阅官方文档） <br/>
+     * @en
+     * Evaluates JavaScript in the context of the currently displayed page. <br>
+     * Please refer to the official document for more details <br>
+     * Note: Cross domain issues need to be resolved by yourself <br>
+     * @zh
+     * 执行 WebView 内部页面脚本（详情请参阅官方文档） <br>
      * 注意：需要自行解决跨域问题
      * @method evaluateJS
      * @param {String} str
@@ -164,15 +166,16 @@ export class WebView extends Component {
         }
     }
 
-    public onLoad () {
+    public __preload () {
         if (EDITOR) {
             return;
         }
-        this._impl = new WebViewImpl(this);
+        this._impl = WebViewImplManager.getImpl(this);
+        // must be register the event listener
+        this._impl.componentEventList.set(EventType.LOADING, this.onLoading.bind(this));
+        this._impl.componentEventList.set(EventType.LOADED, this.onLoaded.bind(this));
+        this._impl.componentEventList.set(EventType.ERROR, this.onError.bind(this));
         this._impl.loadURL(this._url);
-        this._impl.eventList.set(EventType.LOADING, this.onLoading.bind(this));
-        this._impl.eventList.set(EventType.LOADED, this.onLoaded.bind(this));
-        this._impl.eventList.set(EventType.ERROR, this.onError.bind(this));
     }
 
     onLoading () {
@@ -215,3 +218,6 @@ export class WebView extends Component {
         }
     }
 }
+
+// TODO Since jsb adapter does not support import cc, put it on internal first and adjust it later.
+legacyCC.internal.WebView = WebView;

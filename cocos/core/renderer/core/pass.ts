@@ -37,7 +37,6 @@ import { GFXBuffer, GFXBufferInfo, GFXBufferViewInfo } from '../../gfx/buffer';
 import { GFXFeature, GFXDevice } from '../../gfx/device';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
 import { GFXSampler } from '../../gfx/sampler';
-import { GFXTexture } from '../../gfx/texture';
 import { RenderPassStage, RenderPriority, SetIndex } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
@@ -50,7 +49,7 @@ import { customizeType, getBindingFromHandle, getPropertyTypeFromHandle, getDefa
     getOffsetFromHandle, getTypeFromHandle, MacroRecord, MaterialProperty, type2reader, type2writer, PropertyType } from './pass-utils';
 import { GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode,
     GFXType, GFXDynamicStateFlagBit, GFXDynamicStateFlags } from '../../gfx/define';
-import { GFXDescriptorSetLayoutInfo } from '../../gfx';
+import { GFXDescriptorSetLayoutInfo, GFXTexture } from '../../gfx';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part

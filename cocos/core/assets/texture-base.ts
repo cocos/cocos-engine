@@ -32,12 +32,11 @@
 // @ts-check
 import {ccclass, serializable} from 'cc.decorator';
 import { GFXDevice } from '../gfx/device';
-import { GFXTexture } from '../gfx/texture';
 import { genSamplerHash, SamplerInfoIndex, samplerLib } from '../renderer/core/sampler-lib';
 import IDGenerator from '../utils/id-generator';
 import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
-import { GFXSampler } from '../gfx';
+import { GFXSampler, GFXTexture } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
 

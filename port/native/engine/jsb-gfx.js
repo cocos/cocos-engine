@@ -116,14 +116,6 @@ let _converters = {
     BufferViewInfo: function (info) {
         return new gfx.BufferViewInfo(info);
     },
-    // DrawInfo,
-    // GFXIndirectBuffer,
-    TextureInfo: function (info) {
-        return new gfx.TextureInfo(info);
-    },
-    TextureViewInfo: function (info) {
-        return new gfx.TextureViewInfo(info);
-    },
     SamplerInfo: function (info) {
         info.borderColor = _converters.Color(info.borderColor);
         return new gfx.SamplerInfo(info);
@@ -358,9 +350,9 @@ deviceProtos.forEach(function(item, index) {
         let oldDeviceCreatTextureFun = item.createTexture;
         item.createTexture = function(info) {
             if (info.texture) {
-                return oldDeviceCreatTextureFun.call(this, _converters.TextureViewInfo(info), true);
+                return oldDeviceCreatTextureFun.call(this, info, true);
             } else {
-                return oldDeviceCreatTextureFun.call(this, _converters.TextureInfo(info), false);
+                return oldDeviceCreatTextureFun.call(this, info, false);
             }
         }
     }
@@ -476,8 +468,8 @@ let textureProto = gfx.Texture.prototype;
 let oldTextureInitializeFunc = textureProto.initialize;
 textureProto.initialize = function(info) {
     if (info.texture) {
-        oldTextureInitializeFunc.call(this, _converters.TextureViewInfo(info), true);
+        oldTextureInitializeFunc.call(this, info, true);
     } else {
-        oldTextureInitializeFunc.call(this, _converters.TextureInfo(info), false);
+        oldTextureInitializeFunc.call(this, info, false);
     }
 }
