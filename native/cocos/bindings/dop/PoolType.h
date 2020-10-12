@@ -6,6 +6,7 @@ enum class PoolType {
     RASTERIZER_STATE,
     DEPTH_STENCIL_STATE,
     BLEND_STATE,
+    ATTRIBUTE,
     DESCRIPTOR_SETS,
     SHADER,
     INPUT_ASSEMBLER,
@@ -38,6 +39,10 @@ enum class PoolType {
     // array
     SUB_MODEL_ARRAY = 200,
     MODEL_ARRAY,
+    ATTRIBUTE_ARRAY,
+
+    // raw buffer
+    RAW_BUFFER = 300,
     UNKNOWN
 };
 }

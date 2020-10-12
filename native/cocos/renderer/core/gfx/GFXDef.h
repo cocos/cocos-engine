@@ -87,6 +87,7 @@ enum class Feature : uint8_t {
     MSAA,
     ELEMENT_INDEX_UINT,
     INSTANCED_ARRAYS,
+    MULTIPLE_RENDER_TARGETS,
     DEPTH_BOUNDS,
     LINE_WIDTH,
     STENCIL_WRITE_MASK,
@@ -657,10 +658,10 @@ typedef vector<Color> ColorList;
  * to be mapped to backend-specific bindings based on maximum limit
  * of available descriptor slots in each set.
  *
- * Because the binding numbers are guaranteed to be consecutive for each
- * descriptor type inside each set, the mapping procedure can be reduced
+ * The GFX layer assumes the binding numbers for each descriptor type inside each set
+ * are guaranteed to be consecutive, so the mapping procedure is reduced
  * to a simple shifting operation. This data structure specifies the
- * exact offsets for each descriptor type in each set.
+ * offsets for each descriptor type in each set.
  */
 struct BindingMappingInfo {
     vector<int> bufferOffsets;

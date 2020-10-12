@@ -25,7 +25,6 @@ public:
     CC_INLINE uint getCount() const { return _count; }
     CC_INLINE uint getSize() const { return _size; }
     CC_INLINE BufferFlags getFlags() const { return _flags; }
-    CC_INLINE uint8_t *getBackupBuffer() const { return _buffer; }
 
 protected:
     Device *_device = nullptr;

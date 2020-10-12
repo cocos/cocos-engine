@@ -25,6 +25,7 @@ THE SOFTWARE.
 #pragma once
 
 #include "PoolType.h"
+#include "BufferAllocator.h"
 #include "cocos/base/Macros.h"
 #include "cocos/base/Object.h"
 #include "cocos/base/TypeDef.h"
@@ -32,6 +33,7 @@ THE SOFTWARE.
 #include "cocos/bindings/jswrapper/Object.h"
 
 namespace se {
+
 class CC_DLL BufferPool final : public cc::Object {
 public:
     using Chunk = uint8_t *;
@@ -54,9 +56,10 @@ public:
 
 private:
     static cc::map<PoolType, BufferPool *> _poolMap;
-
-    cc::vector<Chunk> _chunks;
     static constexpr uint _poolFlag = 1 << 30;
+
+    BufferAllocator _allocator;
+    cc::vector<Chunk> _chunks;
     uint _entryBits = 1 << 8;
     uint _chunkMask = 0;
     uint _entryMask = 0;

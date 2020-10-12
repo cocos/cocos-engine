@@ -279,10 +279,7 @@ public:
     bool useDescriptorUpdateTemplate = false;
     bool useMultiDrawIndirect = false;
 
-    CCVKGPUBuffer defaultBuffer;
     CCVKGPUSampler defaultSampler;
-    CCVKGPUTexture defaultTexture;
-    CCVKGPUTextureView defaultTextureView;
 };
 
 /**

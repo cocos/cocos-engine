@@ -14194,24 +14194,6 @@ static bool js_gfx_Buffer_getMemUsage(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_Buffer_getMemUsage)
 
-static bool js_gfx_Buffer_getBackupBuffer(se::State& s)
-{
-    cc::gfx::Buffer* cobj = (cc::gfx::Buffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_Buffer_getBackupBuffer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned char* result = cobj->getBackupBuffer();
-        #pragma warning NO CONVERSION FROM NATIVE FOR unsigned char*;
-        SE_PRECONDITION2(ok, false, "js_gfx_Buffer_getBackupBuffer : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Buffer_getBackupBuffer)
-
 static bool js_gfx_Buffer_getSize(se::State& s)
 {
     cc::gfx::Buffer* cobj = (cc::gfx::Buffer*)s.nativeThisObject();
@@ -14297,7 +14279,7 @@ static bool js_gfx_Buffer_getDevice(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Buffer_getDevice)
+SE_BIND_FUNC(js_gfx_Buffer_getDevice)
 
 static bool js_gfx_Buffer_getFlags(se::State& s)
 {
@@ -14370,12 +14352,11 @@ bool js_register_gfx_Buffer(se::Object* obj)
     cls->defineProperty("count", _SE(js_gfx_Buffer_getCount), nullptr);
     cls->defineProperty("memUsage", _SE(js_gfx_Buffer_getMemUsage), nullptr);
     cls->defineProperty("stride", _SE(js_gfx_Buffer_getStride), nullptr);
-    cls->defineProperty("usage", _SE(js_gfx_Buffer_getUsage), nullptr);
     cls->defineProperty("flags", _SE(js_gfx_Buffer_getFlags), nullptr);
-    cls->defineProperty("device", _SE(js_gfx_Buffer_getDevice), nullptr);
-    cls->defineProperty("backupBuffer", _SE(js_gfx_Buffer_getBackupBuffer), nullptr);
+    cls->defineProperty("usage", _SE(js_gfx_Buffer_getUsage), nullptr);
     cls->defineProperty("size", _SE(js_gfx_Buffer_getSize), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Buffer_destroy));
+    cls->defineFunction("getDevice", _SE(js_gfx_Buffer_getDevice));
     cls->defineFunction("resize", _SE(js_gfx_Buffer_resize));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_Buffer_finalize));
     cls->install();
@@ -14953,7 +14934,7 @@ static bool js_gfx_Sampler_getDevice(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Sampler_getDevice)
+SE_BIND_FUNC(js_gfx_Sampler_getDevice)
 
 static bool js_gfx_Sampler_getMinLOD(se::State& s)
 {
@@ -15052,10 +15033,10 @@ bool js_register_gfx_Sampler(se::Object* obj)
     cls->defineProperty("cmpFunc", _SE(js_gfx_Sampler_getCmpFunc), nullptr);
     cls->defineProperty("maxAnisotropy", _SE(js_gfx_Sampler_getMaxAnisotropy), nullptr);
     cls->defineProperty("mipLODBias", _SE(js_gfx_Sampler_getMipLODBias), nullptr);
-    cls->defineProperty("device", _SE(js_gfx_Sampler_getDevice), nullptr);
     cls->defineProperty("minLOD", _SE(js_gfx_Sampler_getMinLOD), nullptr);
     cls->defineFunction("initialize", _SE(js_gfx_Sampler_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_Sampler_destroy));
+    cls->defineFunction("getDevice", _SE(js_gfx_Sampler_getDevice));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_Sampler_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::Sampler>(cls);
@@ -15212,7 +15193,7 @@ static bool js_gfx_Shader_getDevice(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Shader_getDevice)
+SE_BIND_FUNC(js_gfx_Shader_getDevice)
 
 static bool js_gfx_Shader_getBlocks(se::State& s)
 {
@@ -15267,11 +15248,11 @@ bool js_register_gfx_Shader(se::Object* obj)
     cls->defineProperty("name", _SE(js_gfx_Shader_getName), nullptr);
     cls->defineProperty("samplers", _SE(js_gfx_Shader_getSamplers), nullptr);
     cls->defineProperty("shaderID", _SE(js_gfx_Shader_getID), nullptr);
-    cls->defineProperty("device", _SE(js_gfx_Shader_getDevice), nullptr);
     cls->defineProperty("attributes", _SE(js_gfx_Shader_getAttributes), nullptr);
     cls->defineProperty("stages", _SE(js_gfx_Shader_getStages), nullptr);
     cls->defineFunction("initialize", _SE(js_gfx_Shader_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_Shader_destroy));
+    cls->defineFunction("getDevice", _SE(js_gfx_Shader_getDevice));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_Shader_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::Shader>(cls);
@@ -15427,7 +15408,7 @@ static bool js_gfx_InputAssembler_getDevice(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_InputAssembler_getDevice)
+SE_BIND_FUNC(js_gfx_InputAssembler_getDevice)
 
 static bool js_gfx_InputAssembler_setVertexOffset(se::State& s)
 {
@@ -15724,16 +15705,16 @@ bool js_register_gfx_InputAssembler(se::Object* obj)
     cls->defineProperty("vertexBuffers", _SE(js_gfx_InputAssembler_getVertexBuffers), nullptr);
     cls->defineProperty("attributesHash", _SE(js_gfx_InputAssembler_getAttributesHash), nullptr);
     cls->defineProperty("firstInstance", _SE(js_gfx_InputAssembler_getFirstInstance), _SE(js_gfx_InputAssembler_setFirstInstance));
-    cls->defineProperty("vertexOffset", _SE(js_gfx_InputAssembler_getVertexOffset), _SE(js_gfx_InputAssembler_setVertexOffset));
     cls->defineProperty("vertexCount", _SE(js_gfx_InputAssembler_getVertexCount), _SE(js_gfx_InputAssembler_setVertexCount));
     cls->defineProperty("indexBuffer", _SE(js_gfx_InputAssembler_getIndexBuffer), nullptr);
-    cls->defineProperty("device", _SE(js_gfx_InputAssembler_getDevice), nullptr);
+    cls->defineProperty("vertexOffset", _SE(js_gfx_InputAssembler_getVertexOffset), _SE(js_gfx_InputAssembler_setVertexOffset));
     cls->defineProperty("attributes", _SE(js_gfx_InputAssembler_getAttributes), nullptr);
     cls->defineProperty("indexCount", _SE(js_gfx_InputAssembler_getIndexCount), _SE(js_gfx_InputAssembler_setIndexCount));
     cls->defineProperty("firstIndex", _SE(js_gfx_InputAssembler_getFirstIndex), _SE(js_gfx_InputAssembler_setFirstIndex));
     cls->defineProperty("indirectBuffer", _SE(js_gfx_InputAssembler_getIndirectBuffer), nullptr);
     cls->defineProperty("firstVertex", _SE(js_gfx_InputAssembler_getFirstVertex), _SE(js_gfx_InputAssembler_setFirstVertex));
     cls->defineFunction("destroy", _SE(js_gfx_InputAssembler_destroy));
+    cls->defineFunction("getDevice", _SE(js_gfx_InputAssembler_getDevice));
     cls->defineFunction("initialize", _SE(js_gfx_InputAssembler_initialize));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_InputAssembler_finalize));
     cls->install();
@@ -15855,7 +15836,7 @@ static bool js_gfx_RenderPass_getDevice(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_RenderPass_getDevice)
+SE_BIND_FUNC(js_gfx_RenderPass_getDevice)
 
 static bool js_gfx_RenderPass_getDepthStencilAttachment(se::State& s)
 {
@@ -15906,13 +15887,13 @@ bool js_register_gfx_RenderPass(se::Object* obj)
 {
     auto cls = se::Class::create("RenderPass", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_RenderPass_constructor));
 
-    cls->defineProperty("device", _SE(js_gfx_RenderPass_getDevice), nullptr);
+    cls->defineProperty("subPasses", _SE(js_gfx_RenderPass_getSubPasses), nullptr);
     cls->defineProperty("colorAttachments", _SE(js_gfx_RenderPass_getColorAttachments), nullptr);
     cls->defineProperty("depthStencilAttachment", _SE(js_gfx_RenderPass_getDepthStencilAttachment), nullptr);
     cls->defineProperty("hash", _SE(js_gfx_RenderPass_getHash), nullptr);
-    cls->defineProperty("subPasses", _SE(js_gfx_RenderPass_getSubPasses), nullptr);
     cls->defineFunction("initialize", _SE(js_gfx_RenderPass_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_RenderPass_destroy));
+    cls->defineFunction("getDevice", _SE(js_gfx_RenderPass_getDevice));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_RenderPass_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::RenderPass>(cls);
@@ -16033,7 +16014,7 @@ static bool js_gfx_Framebuffer_getDevice(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Framebuffer_getDevice)
+SE_BIND_FUNC(js_gfx_Framebuffer_getDevice)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Framebuffer_finalize)
 
@@ -16066,12 +16047,12 @@ bool js_register_gfx_Framebuffer(se::Object* obj)
 {
     auto cls = se::Class::create("Framebuffer", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Framebuffer_constructor));
 
-    cls->defineProperty("device", _SE(js_gfx_Framebuffer_getDevice), nullptr);
-    cls->defineProperty("renderPass", _SE(js_gfx_Framebuffer_getRenderPass), nullptr);
     cls->defineProperty("colorTextures", _SE(js_gfx_Framebuffer_getColorTextures), nullptr);
+    cls->defineProperty("renderPass", _SE(js_gfx_Framebuffer_getRenderPass), nullptr);
     cls->defineProperty("depthStencilTexture", _SE(js_gfx_Framebuffer_getDepthStencilTexture), nullptr);
     cls->defineFunction("initialize", _SE(js_gfx_Framebuffer_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_Framebuffer_destroy));
+    cls->defineFunction("getDevice", _SE(js_gfx_Framebuffer_getDevice));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_Framebuffer_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::Framebuffer>(cls);
@@ -16543,7 +16524,7 @@ static bool js_gfx_PipelineState_getDevice(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_PipelineState_getDevice)
+SE_BIND_FUNC(js_gfx_PipelineState_getDevice)
 
 static bool js_gfx_PipelineState_getDynamicStates(se::State& s)
 {
@@ -16599,12 +16580,12 @@ bool js_register_gfx_PipelineState(se::Object* obj)
     cls->defineProperty("shader", _SE(js_gfx_PipelineState_getShader), nullptr);
     cls->defineProperty("blendState", _SE(js_gfx_PipelineState_getBlendState), nullptr);
     cls->defineProperty("renderPass", _SE(js_gfx_PipelineState_getRenderPass), nullptr);
-    cls->defineProperty("device", _SE(js_gfx_PipelineState_getDevice), nullptr);
     cls->defineProperty("inputState", _SE(js_gfx_PipelineState_getInputState), nullptr);
     cls->defineProperty("depthStencilState", _SE(js_gfx_PipelineState_getDepthStencilState), nullptr);
     cls->defineFunction("getPipelineLayout", _SE(js_gfx_PipelineState_getPipelineLayout));
     cls->defineFunction("initialize", _SE(js_gfx_PipelineState_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_PipelineState_destroy));
+    cls->defineFunction("getDevice", _SE(js_gfx_PipelineState_getDevice));
     cls->defineFunction("getDynamicStates", _SE(js_gfx_PipelineState_getDynamicStates));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_PipelineState_finalize));
     cls->install();
@@ -17883,7 +17864,7 @@ static bool js_gfx_Queue_getDevice(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Queue_getDevice)
+SE_BIND_FUNC(js_gfx_Queue_getDevice)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Queue_finalize)
 
@@ -17916,12 +17897,12 @@ bool js_register_gfx_Queue(se::Object* obj)
 {
     auto cls = se::Class::create("Queue", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Queue_constructor));
 
-    cls->defineProperty("device", _SE(js_gfx_Queue_getDevice), nullptr);
     cls->defineProperty("type", _SE(js_gfx_Queue_getType), nullptr);
     cls->defineFunction("submit", _SE(js_gfx_Queue_submit));
     cls->defineFunction("isAsync", _SE(js_gfx_Queue_isAsync));
     cls->defineFunction("initialize", _SE(js_gfx_Queue_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_Queue_destroy));
+    cls->defineFunction("getDevice", _SE(js_gfx_Queue_getDevice));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_Queue_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::Queue>(cls);

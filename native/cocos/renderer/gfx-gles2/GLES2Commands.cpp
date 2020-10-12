@@ -2138,17 +2138,19 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
                 if (gpuInputAssembler && gpuPipelineState) {
                     if (!gpuInputAssembler->gpuIndirectBuffer) {
 
-                        if (gpuInputAssembler->gpuIndexBuffer && cmd->drawInfo.indexCount > 0) {
-                            uint8_t *offset = 0;
-                            offset += cmd->drawInfo.firstIndex * gpuInputAssembler->gpuIndexBuffer->stride;
-                            if (cmd->drawInfo.instanceCount == 0) {
-                                glDrawElements(glPrimitive, cmd->drawInfo.indexCount, gpuInputAssembler->glIndexType, offset);
-                            } else {
-                                if (device->useDrawInstanced()) {
-                                    glDrawElementsInstancedEXT(glPrimitive, cmd->drawInfo.indexCount, gpuInputAssembler->glIndexType, offset, cmd->drawInfo.instanceCount);
+                        if (gpuInputAssembler->gpuIndexBuffer) {
+                            if (cmd->drawInfo.indexCount > 0) {
+                                uint8_t *offset = 0;
+                                offset += cmd->drawInfo.firstIndex * gpuInputAssembler->gpuIndexBuffer->stride;
+                                if (cmd->drawInfo.instanceCount == 0) {
+                                    glDrawElements(glPrimitive, cmd->drawInfo.indexCount, gpuInputAssembler->glIndexType, offset);
+                                } else {
+                                    if (device->useDrawInstanced()) {
+                                        glDrawElementsInstancedEXT(glPrimitive, cmd->drawInfo.indexCount, gpuInputAssembler->glIndexType, offset, cmd->drawInfo.instanceCount);
+                                    }
                                 }
                             }
-                        } else {
+                        } else if (cmd->drawInfo.vertexCount > 0) {
                             if (cmd->drawInfo.instanceCount == 0) {
                                 glDrawArrays(glPrimitive, cmd->drawInfo.firstIndex, cmd->drawInfo.vertexCount);
                             } else {
@@ -2160,17 +2162,19 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
                     } else {
                         for (size_t j = 0; j < gpuInputAssembler->gpuIndirectBuffer->indirects.size(); ++j) {
                             const DrawInfo &draw = gpuInputAssembler->gpuIndirectBuffer->indirects[j];
-                            if (gpuInputAssembler->gpuIndexBuffer && draw.indexCount > 0) {
-                                uint8_t *offset = 0;
-                                offset += draw.firstIndex * gpuInputAssembler->gpuIndexBuffer->stride;
-                                if (cmd->drawInfo.instanceCount == 0) {
-                                    glDrawElements(glPrimitive, draw.indexCount, gpuInputAssembler->glIndexType, offset);
-                                } else {
-                                    if (device->useDrawInstanced()) {
-                                        glDrawElementsInstancedEXT(glPrimitive, draw.indexCount, gpuInputAssembler->glIndexType, offset, draw.instanceCount);
+                            if (gpuInputAssembler->gpuIndexBuffer) {
+                                if (draw.indexCount > 0) {
+                                    uint8_t *offset = 0;
+                                    offset += draw.firstIndex * gpuInputAssembler->gpuIndexBuffer->stride;
+                                    if (cmd->drawInfo.instanceCount == 0) {
+                                        glDrawElements(glPrimitive, draw.indexCount, gpuInputAssembler->glIndexType, offset);
+                                    } else {
+                                        if (device->useDrawInstanced()) {
+                                            glDrawElementsInstancedEXT(glPrimitive, draw.indexCount, gpuInputAssembler->glIndexType, offset, draw.instanceCount);
+                                        }
                                     }
                                 }
-                            } else {
+                            } else if (draw.vertexCount > 0) {
                                 if (draw.instanceCount == 0) {
                                     glDrawArrays(glPrimitive, draw.firstIndex, draw.vertexCount);
                                 } else {

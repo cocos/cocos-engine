@@ -78,6 +78,9 @@ bool GLES2Device::initialize(const DeviceInfo &info) {
     if (checkExtension("texture_half_float_linear"))
         _features[(int)Feature::TEXTURE_HALF_FLOAT_LINEAR] = true;
 
+    if (checkExtension("draw_buffers"))
+        _features[(int)Feature::MULTIPLE_RENDER_TARGETS] = true;
+
     _useVAO = checkExtension("vertex_array_object");
     _useDrawInstanced = checkExtension("draw_instanced");
     _useInstancedArrays = _features[(int)Feature::INSTANCED_ARRAYS] = checkExtension("instanced_arrays");

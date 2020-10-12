@@ -31,7 +31,7 @@ using namespace se;
 cc::map<PoolType, BufferPool *> BufferPool::_poolMap;
 
 BufferPool::BufferPool(PoolType type, uint entryBits, uint bytesPerEntry)
-: _entryBits(entryBits), _bytesPerEntry(bytesPerEntry), _type(type) {
+: _allocator(type), _entryBits(entryBits), _bytesPerEntry(bytesPerEntry), _type(type) {
     CCASSERT(BufferPool::_poolMap.count(type) == 0, "The type of pool is already exist");
 
     _entriesPerChunk = 1 << entryBits;
@@ -48,12 +48,12 @@ BufferPool::~BufferPool() {
 }
 
 Object *BufferPool::allocateNewChunk() {
-    Object *jsObj = Object::createArrayBufferObject(nullptr, _bytesPerChunk);
-    
+    Object *jsObj = _allocator.alloc(_chunks.size(), _bytesPerChunk);
+
     uint8_t *realPtr = nullptr;
     size_t len = 0;
     jsObj->getArrayBufferData(&realPtr, &len);
     _chunks.push_back(realPtr);
-    
+
     return jsObj;
 }

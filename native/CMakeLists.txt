@@ -781,8 +781,8 @@ cocos_source_files(
     cocos/bindings/dop/jsb_dop.cpp
     cocos/bindings/dop/jsb_dop.h
     cocos/bindings/dop/PoolType.h
-    cocos/bindings/dop/ArrayPool.h
-    cocos/bindings/dop/ArrayPool.cpp
+    cocos/bindings/dop/BufferAllocator.h
+    cocos/bindings/dop/BufferAllocator.cpp
 )
 
 ######## auto

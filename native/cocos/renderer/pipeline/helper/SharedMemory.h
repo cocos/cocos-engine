@@ -1,7 +1,7 @@
 #pragma once
 #include "renderer/core/CoreStd.h"
 
-#include "bindings/dop/ArrayPool.h"
+#include "bindings/dop/BufferAllocator.h"
 #include "bindings/dop/BufferPool.h"
 #include "bindings/dop/ObjectPool.h"
 #include "math/Vec2.h"
@@ -25,9 +25,9 @@ struct CC_DLL ModelView {
     uint32_t worldBoundsID = 0; // aabb
     uint32_t nodeID = 0;
     uint32_t transformID = 0;
-    uint32_t subModelsID = 0; // array pool id
-    //    InstancedAttributeBlock instancedAttributeBlock;
-
+    uint32_t subModelsID = 0;       // array pool id
+    uint32_t instancedBufferID = 0; // raw buffer id
+    uint32_t instancedAttrsID = 0;  // array pool id
     const static se::PoolType type;
 };
 
@@ -286,7 +286,7 @@ struct CC_DLL RenderWindow {
     const static se::PoolType type;
 };
 
-//Get buffer pool data
+// Get buffer pool data
 #define GET_SUBMODEL(index) SharedMemory::getBuffer<SubModelView>(index)
 #define GET_PASS(index)     SharedMemory::getBuffer<PassView>(index)
 #define GET_MODEL(index)    SharedMemory::getBuffer<ModelView>(index)
@@ -308,23 +308,27 @@ struct CC_DLL RenderWindow {
 #define GET_WINDOW(index)                     SharedMemory::getBuffer<RenderWindow>(index)
 #define GET_SHADOWS(index)                    SharedMemory::getBuffer<Shadows>(index)
 
-//TODO
+// TODO
 #define GET_NAME(index) (String(0))
 
-//Get object pool data
+// Get object pool data
 #define GET_DESCRIPTOR_SET(index)      SharedMemory::getObject<gfx::DescriptorSet, se::PoolType::DESCRIPTOR_SETS>(index)
 #define GET_IA(index)                  SharedMemory::getObject<gfx::InputAssembler, se::PoolType::INPUT_ASSEMBLER>(index)
 #define GET_SHADER(index)              SharedMemory::getObject<gfx::Shader, se::PoolType::SHADER>(index)
 #define GET_RASTERIZER_STATE(index)    SharedMemory::getObject<gfx::RasterizerState, se::PoolType::RASTERIZER_STATE>(index)
 #define GET_DEPTH_STENCIL_STATE(index) SharedMemory::getObject<gfx::DepthStencilState, se::PoolType::DEPTH_STENCIL_STATE>(index)
 #define GET_BLEND_STATE(index)         SharedMemory::getObject<gfx::BlendState, se::PoolType::BLEND_STATE>(index)
-#define GET_FRAMEBUFFER(index)         SharedMemory::getObject<gfx::Framebuffer, se::PoolType::FRAMEBUFFER>(index)
+#define GET_ATTRIBUTE(index)           SharedMemory::getObject<gfx::Attribute, se::PoolType::ATTRIBUTE>(index)
 #define GET_PIPELINE_LAYOUT(index)     SharedMemory::getObject<gfx::PipelineLayout, se::PoolType::PIPELINE_LAYOUT>(index)
+#define GET_FRAMEBUFFER(index)         SharedMemory::getObject<gfx::Framebuffer, se::PoolType::FRAMEBUFFER>(index)
 
-//Get array pool data
-#define GET_MODEL_ARRAY(index)    SharedMemory::getArray(se::PoolType::MODEL_ARRAY, index)
-#define GET_SUBMODEL_ARRAY(index) SharedMemory::getArray(se::PoolType::SUB_MODEL_ARRAY, index)
-#define GET_PLANE_ARRAY(index)    (static_cast<uint32_t *>(0))
+// Get array pool data
+#define GET_MODEL_ARRAY(index)     SharedMemory::getHandleArray(se::PoolType::MODEL_ARRAY, index)
+#define GET_SUBMODEL_ARRAY(index)  SharedMemory::getHandleArray(se::PoolType::SUB_MODEL_ARRAY, index)
+#define GET_ATTRIBUTE_ARRAY(index) SharedMemory::getHandleArray(se::PoolType::ATTRIBUTE_ARRAY, index)
+#define GET_PLANE_ARRAY(index)     (static_cast<uint32_t *>(0))
+
+#define GET_RAW_BUFFER(index) SharedMemory::getRawBuffer<uint8_t>(se::PoolType::RAW_BUFFER, index)
 
 class CC_DLL SharedMemory : public Object {
 public:
@@ -350,8 +354,13 @@ public:
         }
     }
 
-    static uint32_t *getArray(se::PoolType type, uint index) {
-        return se::ArrayPool::getArray(type, index);
+    static uint32_t *getHandleArray(se::PoolType type, uint index) {
+        return se::BufferAllocator::getBuffer<uint32_t>(type, index);
+    }
+
+    template <typename T>
+    static T *getRawBuffer(se::PoolType type, uint index) {
+        return se::BufferAllocator::getBuffer<T>(type, index);
     }
 };
 

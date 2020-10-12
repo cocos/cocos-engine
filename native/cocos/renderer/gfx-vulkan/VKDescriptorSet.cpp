@@ -34,23 +34,15 @@ bool CCVKDescriptorSet::initialize(const DescriptorSetInfo &info) {
 
     CCVKGPUDevice *gpuDevice = ((CCVKDevice *)_device)->gpuDevice();
     _gpuDescriptorSet = CC_NEW(CCVKGPUDescriptorSet);
-    _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount);
-    _gpuDescriptorSet->descriptorInfos.resize(descriptorCount);
+    _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount, {});
+    _gpuDescriptorSet->descriptorInfos.resize(descriptorCount, {});
     for (size_t i = 0u; i < bindingCount; i++) {
         const DescriptorSetLayoutBinding &binding = gpuDescriptorSetLayout->bindings[i];
         uint descriptorIndex = indices[i];
         for (uint j = descriptorIndex; j < descriptorIndex + binding.count; j++) {
             _gpuDescriptorSet->gpuDescriptors[j].type = binding.descriptorType;
-            // although by spec only VkSamplers must be non-null,
-            // many drivers crash on any null handles.
-            // So here we make a default value for every descriptor.
-            if ((uint)binding.descriptorType & DESCRIPTOR_BUFFER_TYPE) {
-                _gpuDescriptorSet->descriptorInfos[j].buffer.buffer = gpuDevice->defaultBuffer.vkBuffer;
-                _gpuDescriptorSet->descriptorInfos[j].buffer.offset = gpuDevice->defaultBuffer.startOffset;
-                _gpuDescriptorSet->descriptorInfos[j].buffer.range = gpuDevice->defaultBuffer.size;
-            } else if ((uint)binding.descriptorType & DESCRIPTOR_SAMPLER_TYPE) {
+            if ((uint)binding.descriptorType & DESCRIPTOR_SAMPLER_TYPE) {
                 _gpuDescriptorSet->descriptorInfos[j].image.sampler = gpuDevice->defaultSampler.vkSampler;
-                _gpuDescriptorSet->descriptorInfos[j].image.imageView = gpuDevice->defaultTextureView.vkImageView;
                 _gpuDescriptorSet->descriptorInfos[j].image.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             }
         }
