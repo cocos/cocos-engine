@@ -505,7 +505,11 @@ export class UI {
         }
 
         if (renderComp && StencilManager.sharedManager!.handleMaterial(mat)) {
-            this._currMaterial = mat = renderComp.getUIMaterialInstance();
+            if (renderComp.getUIRenderMaterial()) {
+                this._currMaterial = mat = renderComp.getUIMaterialInstance();
+            } else {
+                this._currMaterial = mat = renderComp.material!;
+            }
             const state = StencilManager.sharedManager!.pattern;
             mat.overridePipelineStates({
                 depthStencilState: {
