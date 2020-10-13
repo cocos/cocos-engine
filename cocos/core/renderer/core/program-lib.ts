@@ -30,8 +30,6 @@
 
 import { IBlockInfo, IBuiltinInfo, IDefineInfo, IShaderInfo } from '../../assets/effect-asset';
 import { GFXDescriptorType, GFXGetTypeSize, GFXShaderStageFlagBit, GFXAPI } from '../../gfx/define';
-import { GFXAttribute } from '../../gfx/input-assembler';
-import { GFXUniformBlock, GFXShaderInfo, GFXUniformSampler, GFXUniform, GFXShaderStage } from '../../gfx/shader';
 import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { genHandle, MacroRecord, PropertyType } from './pass-utils';
@@ -39,7 +37,7 @@ import { legacyCC } from '../../global-exports';
 import { ShaderPool, ShaderHandle, PipelineLayoutHandle, PipelineLayoutPool, NULL_HANDLE } from './memory-pools';
 import { DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE } from '../../gfx/descriptor-set';
 import { GFXDescriptorSetLayout, GFXDescriptorSetLayoutBinding, GFXDescriptorSetLayoutInfo } from '../../gfx/descriptor-set-layout';
-import { GFXPipelineLayoutInfo, GFXDevice } from '../../gfx';
+import { GFXPipelineLayoutInfo, GFXDevice, GFXAttribute, GFXUniformBlock, GFXShaderInfo, GFXUniformSampler, GFXUniform, GFXShaderStage } from '../../gfx';
 
 const _dsLayoutInfo = new GFXDescriptorSetLayoutInfo();
 

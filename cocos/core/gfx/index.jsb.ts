@@ -1,29 +1,23 @@
 declare const gfx: any;
 
-import { GFXBuffer } from './buffer';
 import { GFXCommandBuffer } from './command-buffer';
 import * as GFXDefines from './define';
 import { GFXFramebuffer } from './framebuffer';
-import { GFXInputAssembler } from './input-assembler';
 import { GFXQueue } from './queue';
 import { GFXRenderPass } from './render-pass';
 import { GFXSampler } from './sampler';
-import { GFXShader } from './shader';
 import { legacyCC } from '../global-exports';
 
 export * from './descriptor-set';
-export * from './buffer';
 export * from './command-buffer';
 export * from './define';
 export * from './framebuffer';
-export * from './input-assembler';
 export * from './descriptor-set-layout';
 export * from './pipeline-layout';
 export * from './fence';
 export * from './queue';
 export * from './render-pass';
 export * from './sampler';
-export * from './shader';
 
 export const GFXRasterizerState = gfx.RasterizerState;
 export const GFXDepthStencilState = gfx.DepthStencilState;
@@ -37,9 +31,27 @@ export const GFXTextureViewInfo = gfx.TextureViewInfo;
 export const GFXTexture = gfx.Texture;
 
 export const GFXDevice = gfx.Device;
-// GFXDeviceInfo is different from native defination, GFXBindingMappingInfo can not
-// auto bind correctly, so use JS defination instead.
-export { GFXDeviceInfo, GFXBindingMappingInfo } from './device';
+export const GFXBindingMappingInfo = gfx.BindingMappingInfo;
+// GFXDeviceInfo is different from native defination, so use JS defination instead.
+export { GFXDeviceInfo } from './device';
+
+export const GFXShader = gfx.Shader;
+export const GFXShaderStage = gfx.ShaderStage;
+export const GFXUniform = gfx.Uniform;
+export const GFXUniformBlock = gfx.UniformBlock;
+export const GFXUniformSampler = gfx.UniformSampler;
+export const GFXShaderInfo = gfx.ShaderInfo;
+
+export const GFXAttribute = gfx.Attribute;
+export const GFXInputAssemblerInfo = gfx.InputAssemblerInfo;
+export const GFXInputAssembler = gfx.InputAssembler;
+
+export const GFXDrawInfo = gfx.DrawInfo;
+export const GFXIndirectBuffer = gfx.IndirectBuffer;
+export const GFXBufferInfo = gfx.BufferInfo;
+export const GFXBufferViewInfo = gfx.BufferViewInfo;
+export const GFXBuffer = gfx.Buffer;
+export { GFX_DRAW_INFO_SIZE } from './buffer';
 
 legacyCC.GFXDevice = GFXDevice;
 legacyCC.GFXBuffer = GFXBuffer;

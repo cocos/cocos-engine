@@ -29,10 +29,9 @@
  */
 
 import { RenderingSubMesh, Mesh } from '../../core/assets/mesh';
-import { GFX_DRAW_INFO_SIZE, GFXBuffer, GFXIndirectBuffer, GFXBufferInfo, GFXDrawInfo } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormatInfos,
     GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
-import { GFXAttribute } from '../../core/gfx/input-assembler';
+import { GFXAttribute, GFX_DRAW_INFO_SIZE, GFXBuffer, GFXIndirectBuffer, GFXBufferInfo, GFXDrawInfo } from '../../core/gfx';
 import { Color } from '../../core/math/color';
 import { scene } from '../../core/renderer';
 import { Particle } from '../particle';

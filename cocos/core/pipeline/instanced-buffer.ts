@@ -3,9 +3,7 @@
  * @hidden
  */
 
-import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXDevice, GFXTexture } from '../gfx';
-import { GFXBuffer, GFXBufferInfo } from '../gfx/buffer';
-import { GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute } from '../gfx/input-assembler';
+import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXDevice, GFXTexture, GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute, GFXBuffer, GFXBufferInfo  } from '../gfx';
 import { Pass } from '../renderer';
 import { IInstancedAttributeBlock, SubModel } from '../renderer/scene';
 import { SubModelView, SubModelPool, ShaderHandle, DescriptorSetHandle, PassHandle, NULL_HANDLE } from '../renderer/core/memory-pools';

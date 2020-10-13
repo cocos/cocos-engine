@@ -4,7 +4,7 @@
  */
 
 import { GFXPrimitiveMode } from '../gfx/define';
-import { GFXAttribute } from '../gfx/input-assembler';
+import { GFXAttribute } from '../gfx';
 
 /**
  * @en

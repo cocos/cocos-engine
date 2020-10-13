@@ -32,7 +32,6 @@ import { AnimationClip } from '../../animation/animation-clip';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
-import { GFXBuffer, GFXBufferInfo } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { Vec3 } from '../../math';
 import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UNIFORM_JOINT_TEXTURE_BINDING } from '../../pipeline/define';
@@ -44,7 +43,7 @@ import { ModelType } from '../scene/model';
 import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from './skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { legacyCC } from '../../global-exports';
-import { GFXAttribute, GFXDescriptorSet } from '../../gfx';
+import { GFXAttribute, GFXDescriptorSet, GFXBuffer, GFXBufferInfo } from '../../gfx';
 
 interface IJointsInfo {
     buffer: GFXBuffer | null;

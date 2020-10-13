@@ -5,14 +5,12 @@
 
 import * as easing from './animation/easing';
 import { Material } from './assets/material';
-import { GFXBuffer, GFXBufferInfo } from './gfx/buffer';
 import { GFXCommandBuffer } from './gfx/command-buffer';
 import { GFXFramebuffer } from './gfx/framebuffer';
-import { GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute } from './gfx/input-assembler';
 import { clamp01 } from './math/utils';
 import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
 import { sys } from './platform/sys';
-import { GFXSampler, GFXSamplerInfo, GFXShader, GFXTexture, GFXTextureInfo, GFXDevice } from './gfx';
+import { GFXSampler, GFXSamplerInfo, GFXShader, GFXTexture, GFXTextureInfo, GFXDevice, GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute, GFXBuffer, GFXBufferInfo } from './gfx';
 import { PipelineStateManager } from './pipeline';
 import { legacyCC } from './global-exports';
 import { Root } from './root';

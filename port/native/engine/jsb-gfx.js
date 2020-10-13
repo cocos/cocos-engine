@@ -99,22 +99,11 @@ let _converters = {
         }
         return _colorArray;
     },
-    BindingMappingInfo: function (info) {
-        return new gfx.BindingMappingInfo(info);
-    },
     DeviceInfo: function (info) {
         let width = cc.game.canvas.width,
             height = cc.game.canvas.height,
             handler = window.windowHandler;
-        let bindingMappingInfo = info.bindingMappingInfo ? _converters.BindingMappingInfo(info.bindingMappingInfo) : undefined;
-        return new gfx.DeviceInfo(handler, width, height, info.nativeWidth, info.nativeHeight, null, bindingMappingInfo);
-    },
-    // ContextInfo,
-    BufferInfo: function (info) {
-        return new gfx.BufferInfo(info);
-    },
-    BufferViewInfo: function (info) {
-        return new gfx.BufferViewInfo(info);
+        return new gfx.DeviceInfo(handler, width, height, info.nativeWidth, info.nativeHeight, null, info.bindingMappingInfo);
     },
     SamplerInfo: function (info) {
         info.borderColor = _converters.Color(info.borderColor);
@@ -122,72 +111,6 @@ let _converters = {
     },
     ShaderMacro: function (macro) {
         return new gfx.ShaderMacro(macro.macro, macro.value);
-    },
-    Uniform: function (u) {
-        return new gfx.Uniform(u.name, u.type, u.count);
-    },
-    UniformBlock: function (block) {
-        let uniforms = block.members;
-        let jsbUniforms;
-        if (uniforms) {
-            jsbUniforms = [];
-            for (let i = 0; i < uniforms.length; ++i) {
-                jsbUniforms.push(_converters.Uniform(uniforms[i]));
-            }
-        }
-        return new gfx.UniformBlock(block.set, block.binding, block.name, jsbUniforms, block.count);
-    },
-    UniformSampler: function (sampler) {
-        return new gfx.UniformSampler(sampler);
-    },
-    ShaderStage: function (stage) {
-        return new gfx.ShaderStage(stage);
-    },
-    ShaderInfo: function (info) {
-        let stages = info.stages,
-            attributes = info.attributes,
-            blocks = info.blocks,
-            samplers = info.samplers;
-        let jsbStages, jsbAttributes, jsbBlocks, jsbSamplers;
-        if (stages) {
-            jsbStages = [];
-            for (let i = 0; i < stages.length; ++i) {
-                jsbStages.push(_converters.ShaderStage(stages[i]));
-            }
-        }
-        if (attributes) {
-            jsbAttributes = [];
-            for (let i = 0; i < attributes.length; ++i) {
-                jsbAttributes.push(_converters.Attribute(attributes[i]));
-            }
-        }
-        if (blocks) {
-            jsbBlocks = [];
-            for (let i = 0; i < blocks.length; ++i) {
-                jsbBlocks.push(_converters.UniformBlock(blocks[i]));
-            }
-        }
-        if (samplers) {
-            jsbSamplers = [];
-            for (let i = 0; i < samplers.length; ++i) {
-                jsbSamplers.push(_converters.UniformSampler(samplers[i]));
-            }
-        }
-        return new gfx.ShaderInfo(info.name, jsbStages, jsbAttributes, jsbBlocks, jsbSamplers);
-    },
-    Attribute: function (attr) {
-        return new gfx.Attribute(attr.name, attr.format, attr.isNormalized, attr.stream, attr.isInstanced, attr.location);
-    },
-    InputAssemblerInfo: function (info) {
-        let attrs = info.attributes;
-        let jsbAttrs;
-        if (attrs) {
-            jsbAttrs = [];
-            for (let i = 0; i < attrs.length; ++i) {
-                jsbAttrs.push(_converters.Attribute(attrs[i]));
-            }
-        }
-        return new gfx.InputAssemblerInfo(jsbAttrs, info.vertexBuffers, info.indexBuffer, info.indirectBuffer);
     },
     ColorAttachment: function (attachment) {
         return new gfx.ColorAttachment(attachment);
@@ -327,7 +250,6 @@ deviceProtos.forEach(function(item, index) {
             createQueue: replaceFunction('_createQueue', _converters.QueueInfo),
             createCommandBuffer: replaceFunction('_createCommandBuffer', _converters.CommandBufferInfo),
             createSampler: replaceFunction('_createSampler', _converters.SamplerInfo),
-            createShader: replaceFunction('_createShader', _converters.ShaderInfo),
             createInputAssembler: replaceFunction('_createInputAssembler', _converters.InputAssemblerInfo),
             createRenderPass: replaceFunction('_createRenderPass', _converters.RenderPassInfo),
             createFramebuffer: replaceFunction('_createFramebuffer', _converters.FramebufferInfo),
@@ -341,9 +263,9 @@ deviceProtos.forEach(function(item, index) {
         let oldDeviceCreatBufferFun = item.createBuffer;
         item.createBuffer = function(info) {
             if (info.buffer) {
-                return oldDeviceCreatBufferFun.call(this, _converters.BufferViewInfo(info), true);
+                return oldDeviceCreatBufferFun.call(this, info, true);
             } else {
-                return oldDeviceCreatBufferFun.call(this, _converters.BufferInfo(info), false);
+                return oldDeviceCreatBufferFun.call(this, info, false);
             }
         }
 
@@ -414,9 +336,6 @@ replace(samplerProto, {
 });
 
 let shaderProto = gfx.Shader.prototype;
-replace(shaderProto, {
-    initialize: replaceFunction('_initialize', _converters.ShaderInfo),
-});
 cc.js.get(shaderProto, 'id', function () {
     return this.shaderID;
 });
@@ -458,9 +377,9 @@ let oldBufferInitializeFunc = bufferProto.initialize;
 bufferProto.initialize = function(info) {
     this.cachedUsage = info.usage;
     if (info.buffer) {
-        oldBufferInitializeFunc.call(this, _converters.BufferViewInfo(info), true);
+        oldBufferInitializeFunc.call(this, info, true);
     } else {
-        oldBufferInitializeFunc.call(this, _converters.BufferInfo(info), false);
+        oldBufferInitializeFunc.call(this, info, false);
     }
 }
 
