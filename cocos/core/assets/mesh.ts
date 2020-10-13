@@ -33,7 +33,7 @@ import { Mat4, Quat, Vec3 } from '../../core/math';
 import { mapBuffer } from '../3d/misc/buffer';
 import { BufferBlob } from '../3d/misc/buffer-blob';
 import { aabb } from '../geometry';
-import { GFXBuffer, GFXBufferInfo } from '../gfx/buffer';
+import { GFXBuffer, GFXBufferInfo } from '../gfx';
 import {
     getTypedArrayConstructor,
     GFXAttributeName,
@@ -45,8 +45,7 @@ import {
     GFXPrimitiveMode,
     GFXFeature
 } from '../gfx/define';
-import { GFXDevice } from '../gfx';
-import { GFXAttribute, GFXInputAssemblerInfo } from '../gfx/input-assembler';
+import { GFXDevice, GFXAttribute, GFXInputAssemblerInfo } from '../gfx';
 import { warnID } from '../platform/debug';
 import { sys } from '../platform/sys';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';

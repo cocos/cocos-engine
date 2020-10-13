@@ -3,7 +3,6 @@ import { builtinResMgr } from '../../3d/builtin/init';
 import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/mesh';
 import { aabb } from '../../geometry';
-import { GFXBuffer, GFXBufferInfo } from '../../gfx/buffer';
 import { Pool } from '../../memop';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
@@ -18,7 +17,7 @@ import { Mat4, Vec3, Vec4 } from '../../math';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool, ModelPool,
     ModelView, AABBHandle, AABBPool, AABBView, NULL_HANDLE, AttributeArrayPool as AttrArrayPool, RawBufferPool, AttrPool, freeHandleArray } from '../core/memory-pools';
-import { GFXAttribute, GFXDescriptorSet, GFXDevice } from '../../gfx';
+import { GFXAttribute, GFXDescriptorSet, GFXDevice, GFXBuffer, GFXBufferInfo } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
 import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress, GFXFeature } from '../../gfx/define';
 
