@@ -696,6 +696,11 @@ export class Mesh extends Asset {
                 const idx = prim.vertexBundelIndices[0];
                 const vertexBundle = this._struct.vertexBundles[idx];
                 gfxAttributes = vertexBundle.attributes;
+                const attrs = vertexBundle.attributes;
+                for (let i = 0; i < attrs.length; ++i) {
+                    const attr = attrs[i];
+                    gfxAttributes[i] = new GFXAttribute(attr.name, attr.format, attr.isInstanced, attr.stream, attr.isInstanced, attr.location);;
+                }
             }
 
             const subMesh = new RenderingSubMesh(vbReference, gfxAttributes, prim.primitiveMode, indexBuffer);

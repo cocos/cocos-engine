@@ -8,6 +8,15 @@ import { GFXFormat, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 
+export interface IGFXAttribute {
+    name: string;
+    format: GFXFormat;
+    isNormalized: boolean;
+    tream: number;
+    isInstanced: boolean;
+    location: number;
+}
+
 export class GFXAttribute {
     declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 

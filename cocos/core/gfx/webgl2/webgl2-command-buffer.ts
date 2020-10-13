@@ -2,14 +2,11 @@ import { GFXDescriptorSet } from '../descriptor-set';
 import { GFXBuffer, GFXBufferSource } from '../buffer';
 import { GFXCommandBuffer, GFXCommandBufferInfo } from '../command-buffer';
 import {
-    GFXBufferTextureCopy,
     GFXBufferUsageBit,
     GFXCommandBufferType,
     GFXStencilFace,
-    GFXColor,
-    GFXRect,
-    GFXViewport,
 } from '../define';
+import { GFXBufferTextureCopy, GFXColor, GFXRect, GFXViewport } from '../define-class';
 import { GFXFramebuffer } from '../framebuffer';
 import { GFXInputAssembler } from '../input-assembler';
 import { GFXPipelineState } from '../pipeline-state';

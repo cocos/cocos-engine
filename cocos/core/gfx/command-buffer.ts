@@ -6,15 +6,12 @@
 import { GFXDescriptorSet } from './descriptor-set';
 import { GFXBuffer } from './buffer';
 import {
-    GFXBufferTextureCopy,
     GFXCommandBufferType,
     GFXObject,
     GFXObjectType,
     GFXStencilFace,
-    GFXColor,
-    GFXRect,
-    GFXViewport,
 } from './define';
+import { GFXBufferTextureCopy, GFXColor, GFXRect, GFXViewport } from './define-class';
 import { GFXDevice } from './device';
 import { GFXFramebuffer } from './framebuffer';
 import { GFXInputAssembler } from './input-assembler';

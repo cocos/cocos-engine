@@ -3,7 +3,8 @@
  * @module gfx
  */
 
-import { GFXAddress, GFXComparisonFunc, GFXFilter, GFXObject, GFXObjectType, GFXColor } from './define';
+import { GFXAddress, GFXComparisonFunc, GFXFilter, GFXObject, GFXObjectType } from './define';
+import { GFXColor } from './define-class';
 import { GFXDevice } from './device';
 
 export class GFXSamplerInfo {

@@ -7,7 +7,8 @@ import { ccclass, visible, displayOrder, type, serializable } from 'cc.decorator
 import { IRenderPass, SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
-import { GFXClearFlag, GFXColor, GFXRect } from '../../gfx/define';
+import { GFXClearFlag } from '../../gfx/define';
+import { GFXColor, GFXRect } from '../../gfx';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';

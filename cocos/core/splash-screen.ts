@@ -10,15 +10,17 @@ import { GFXFramebuffer } from './gfx/framebuffer';
 import { clamp01 } from './math/utils';
 import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
 import { sys } from './platform/sys';
-import { GFXSampler, GFXSamplerInfo, GFXShader, GFXTexture, GFXTextureInfo, GFXDevice, GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute, GFXBuffer, GFXBufferInfo } from './gfx';
+import { 
+    GFXSampler, GFXSamplerInfo, GFXShader, GFXTexture, GFXTextureInfo, GFXDevice, GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute, GFXBuffer, 
+    GFXBufferInfo, GFXRect, GFXColor, GFXBufferTextureCopy } from './gfx';
 import { PipelineStateManager } from './pipeline';
 import { legacyCC } from './global-exports';
 import { Root } from './root';
 import { DSPool, ShaderPool, PassPool, PassView } from './renderer/core/memory-pools';
 import { SetIndex } from './pipeline/define';
 import {
-    GFXBufferTextureCopy, GFXBufferUsageBit, GFXFormat,
-    GFXMemoryUsageBit, GFXTextureType, GFXTextureUsageBit, GFXRect, GFXColor, GFXAddress
+    GFXBufferUsageBit, GFXFormat,
+    GFXMemoryUsageBit, GFXTextureType, GFXTextureUsageBit, GFXAddress
 } from './gfx/define';
 
 export type SplashEffectType = 'NONE' | 'FADE-INOUT';
@@ -125,7 +127,12 @@ export class SplashScreen {
             this.callBack = null;
             this.cancelAnimate = false;
             this.startTime = -1;
-            this.clearColors = [this.setting.clearColor];
+
+            // this.setting.clearColor may not an instance of GFXColor, so should create
+            // GFXColor manually, or will have problem on native.
+            const clearColor = this.setting.clearColor;
+            this.clearColors = [ new GFXColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w) ]; 
+
             this.screenWidth = this.device.width;
             this.screenHeight = this.device.height;
 

@@ -32,7 +32,7 @@ import { ImageAsset, Texture2D } from '../../../core/assets';
 import { isUnicodeCJK, isUnicodeSpace, safeMeasureText} from '../../../core/utils';
 import { mixin } from '../../../core/utils/js';
 import { Color, Rect, Size, Vec2 } from '../../../core/math';
-import { GFXBufferTextureCopy, GFXExtent, GFXOffset, GFXTextureSubres } from '../../../core/gfx/define';
+import { GFXBufferTextureCopy } from '../../../core/gfx';
 import { Label, LabelOutline } from '../../components';
 import { ISharedLabelData } from './font-utils';
 import { PixelFormat } from '../../../core/assets/asset-enum';

@@ -16,8 +16,9 @@ import { WebGLPipelineState } from './webgl-pipeline-state';
 import { WebGLTexture } from './webgl-texture';
 import { GFXRenderPass } from '../render-pass';
 import { WebGLRenderPass } from './webgl-render-pass';
-import { GFXBufferTextureCopy, GFXBufferUsageBit, GFXCommandBufferType,
-    GFXStencilFace, GFXColor, GFXRect, GFXViewport } from '../define';
+import { GFXBufferUsageBit, GFXCommandBufferType,
+    GFXStencilFace } from '../define';
+import { GFXBufferTextureCopy, GFXColor, GFXRect, GFXViewport } from '../define-class';
 import { WebGLCmd, WebGLCmdBeginRenderPass, WebGLCmdBindStates, WebGLCmdCopyBufferToTexture,
     WebGLCmdDraw, WebGLCmdPackage, WebGLCmdUpdateBuffer } from './webgl-commands';
 
