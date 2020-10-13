@@ -89,26 +89,22 @@ static bool ${struct_constructor_name}(se::State& s)
                              "is_persistent": $is_persistent, \
                              "ntype": str($field_type)})
         #set conv_text_array += [$conv_text]
+        if (argc > ${arg_idx} && !args[${arg_idx}].isUndefined()) {
             #if "seval_to_reference" in $conv_text_array[$arg_idx]
-        ${field_type}* arg${arg_idx} = nullptr;
-            #elif $field.ntype.is_numeric
-        ${field_type} arg${arg_idx} = 0;
-            #elif $field.ntype.is_pointer
-        ${field_type} arg${arg_idx} = nullptr;
-            #else
-        ${field_type} arg${arg_idx};
-            #end if
-        if (argc > ${arg_idx}) {
-            if (!args[${arg_idx}].isUndefined()) {
-                $conv_text;
-                #if "seval_to_reference" in $conv_text_array[$arg_idx]
-                cobj->${field.name} = *arg${arg_idx};
+            ${field_type}* arg${arg_idx} = nullptr;
+                #elif $field.ntype.is_numeric
+            ${field_type} arg${arg_idx} = 0;
+                #elif $field.ntype.is_pointer
+            ${field_type} arg${arg_idx} = nullptr;
                 #else
-                cobj->${field.name} = arg${arg_idx};
+            ${field_type} arg${arg_idx};
                 #end if
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", ${arg_idx});
-            }
+            $conv_text;
+            #if "seval_to_reference" in $conv_text_array[$arg_idx]
+            cobj->${field.name} = *arg${arg_idx};
+            #else
+            cobj->${field.name} = arg${arg_idx};
+            #end if
         }
         #set $arg_idx = $arg_idx + 1
         #end for 

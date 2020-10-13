@@ -164,32 +164,20 @@ static bool js_pipeline_RenderQueueDesc_constructor(se::State& s)
     else
     {
         cc::pipeline::RenderQueueDesc* cobj = JSB_ALLOC(cc::pipeline::RenderQueueDesc);
-        bool arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_boolean(args[0], &arg0);
-                cobj->isTransparent = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            bool arg0;
+            ok &= seval_to_boolean(args[0], &arg0);
+            cobj->isTransparent = arg0;
         }
-        cc::pipeline::RenderQueueSortMode arg1;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::pipeline::RenderQueueSortMode)tmp; } while(false);
-                cobj->sortMode = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            cc::pipeline::RenderQueueSortMode arg1;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::pipeline::RenderQueueSortMode)tmp; } while(false);
+            cobj->sortMode = arg1;
         }
-        std::vector<std::string> arg2;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_std_vector(args[2], &arg2);
-                cobj->stages = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            std::vector<std::string> arg2;
+            ok &= seval_to_std_vector(args[2], &arg2);
+            cobj->stages = arg2;
         }
 
         if(!ok) {
@@ -348,23 +336,15 @@ static bool js_pipeline_RenderPipelineInfo_constructor(se::State& s)
     else
     {
         cc::pipeline::RenderPipelineInfo* cobj = JSB_ALLOC(cc::pipeline::RenderPipelineInfo);
-        unsigned int arg0 = 0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-                cobj->tag = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            unsigned int arg0 = 0;
+            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+            cobj->tag = arg0;
         }
-        std::vector<cc::pipeline::RenderFlow *> arg1;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_std_vector(args[1], &arg1);
-                cobj->flows = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            std::vector<cc::pipeline::RenderFlow *> arg1;
+            ok &= seval_to_std_vector(args[1], &arg1);
+            cobj->flows = arg1;
         }
 
         if(!ok) {
@@ -890,41 +870,25 @@ static bool js_pipeline_RenderFlowInfo_constructor(se::State& s)
     else
     {
         cc::pipeline::RenderFlowInfo* cobj = JSB_ALLOC(cc::pipeline::RenderFlowInfo);
-        cc::String arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                arg0 = args[0].toStringForce().c_str();
-                cobj->name = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            cc::String arg0;
+            arg0 = args[0].toStringForce().c_str();
+            cobj->name = arg0;
         }
-        unsigned int arg1 = 0;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
-                cobj->priority = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            unsigned int arg1 = 0;
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->priority = arg1;
         }
-        unsigned int arg2 = 0;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
-                cobj->tag = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            unsigned int arg2 = 0;
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->tag = arg2;
         }
-        std::vector<cc::pipeline::RenderStage *> arg3;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                ok &= seval_to_std_vector(args[3], &arg3);
-                cobj->stages = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            std::vector<cc::pipeline::RenderStage *> arg3;
+            ok &= seval_to_std_vector(args[3], &arg3);
+            cobj->stages = arg3;
         }
 
         if(!ok) {
@@ -1296,41 +1260,25 @@ static bool js_pipeline_RenderStageInfo_constructor(se::State& s)
     else
     {
         cc::pipeline::RenderStageInfo* cobj = JSB_ALLOC(cc::pipeline::RenderStageInfo);
-        cc::String arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                arg0 = args[0].toStringForce().c_str();
-                cobj->name = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            cc::String arg0;
+            arg0 = args[0].toStringForce().c_str();
+            cobj->name = arg0;
         }
-        unsigned int arg1 = 0;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
-                cobj->priority = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            unsigned int arg1 = 0;
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->priority = arg1;
         }
-        unsigned int arg2 = 0;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
-                cobj->tag = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            unsigned int arg2 = 0;
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->tag = arg2;
         }
-        std::vector<cc::pipeline::RenderQueueDesc> arg3;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                ok &= seval_to_std_vector(args[3], &arg3);
-                cobj->renderQueues = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            std::vector<cc::pipeline::RenderQueueDesc> arg3;
+            ok &= seval_to_std_vector(args[3], &arg3);
+            cobj->renderQueues = arg3;
         }
 
         if(!ok) {
@@ -2254,32 +2202,20 @@ static bool js_pipeline_RenderWindow_constructor(se::State& s)
     else
     {
         cc::pipeline::RenderWindow* cobj = JSB_ALLOC(cc::pipeline::RenderWindow);
-        unsigned int arg0 = 0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-                cobj->hasOnScreenAttachments = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            unsigned int arg0 = 0;
+            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+            cobj->hasOnScreenAttachments = arg0;
         }
-        unsigned int arg1 = 0;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
-                cobj->hasOffScreenAttachments = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            unsigned int arg1 = 0;
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->hasOffScreenAttachments = arg1;
         }
-        unsigned int arg2 = 0;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
-                cobj->framebufferID = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            unsigned int arg2 = 0;
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->framebufferID = arg2;
         }
 
         if(!ok) {
