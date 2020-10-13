@@ -664,8 +664,8 @@ typedef vector<Color> ColorList;
  * offsets for each descriptor type in each set.
  */
 struct BindingMappingInfo {
-    vector<int> bufferOffsets;
-    vector<int> samplerOffsets;
+    cc::vector<int> bufferOffsets;
+    cc::vector<int> samplerOffsets;
     uint flexibleSet = 0u;
 };
 
