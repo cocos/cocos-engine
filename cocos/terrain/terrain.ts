@@ -284,6 +284,8 @@ export class TerrainBlock {
         // vertex buffer
         const vertexData = new Float32Array(TERRAIN_BLOCK_VERTEX_SIZE * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY);
         let index = 0;
+        const bbMin = new Vec3(0, 0, 0);
+        const bbMax = new Vec3(0, 0, 0);
         for (let j = 0; j < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++j) {
             for (let i = 0; i < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++i) {
                 const x = this._index[0] * TERRAIN_BLOCK_TILE_COMPLEXITY + i;
@@ -299,6 +301,15 @@ export class TerrainBlock {
                 vertexData[index++] = normal.z;
                 vertexData[index++] = uv.x;
                 vertexData[index++] = uv.y;
+
+                if (i === 0 && j === 0) {
+                    Vec3.copy(bbMin, position);
+                    Vec3.copy(bbMax, position);
+                }
+                else {
+                    Vec3.min(bbMin, bbMin, position);
+                    Vec3.max(bbMax, bbMax, position);
+                }
             }
         }
 
@@ -322,6 +333,7 @@ export class TerrainBlock {
 
         this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
         this._renderable._model.initialize(this._node);
+        this._renderable._model.createBoundingShape(bbMin, bbMax);
         this._renderable._getRenderScene().addModel(this._renderable._model);
 
         // reset weightmap
@@ -549,36 +561,11 @@ export class TerrainBlock {
     }
 
     public _getMaterialDefines (nlayers: number): MacroRecord {
-        if (this.lightmap != null) {
-            if (nlayers === 0) {
-                return { LAYERS: 1, LIGHT_MAP: 1 };
-            }
-            else if (nlayers === 1) {
-                return { LAYERS: 2, LIGHT_MAP: 1 };
-            }
-            else if (nlayers === 2) {
-                return { LAYERS: 3, LIGHT_MAP: 1 };
-            }
-            else if (nlayers === 3) {
-                return { LAYERS: 4, LIGHT_MAP: 1 };
-            }
-        }
-        else {
-            if (nlayers === 0) {
-                return { LAYERS: 1 };
-            }
-            else if (nlayers === 1) {
-                return { LAYERS: 2 };
-            }
-            else if (nlayers === 2) {
-                return { LAYERS: 3 };
-            }
-            else if (nlayers === 3) {
-                return { LAYERS: 4 };
-            }
-        }
-
-        return { LAYERS: 0 };
+        return {
+            LAYERS: nlayers + 1,
+            USE_LIGHTMAP: this.lightmap !== null ? 1 : 0,
+            CC_RECEIVE_SHADOW: this._terrain.receiveShadow ? 1 : 0,
+        };
     }
 
     public _invalidMaterial () {
@@ -597,6 +584,8 @@ export class TerrainBlock {
         const vertexData = new Float32Array(TERRAIN_BLOCK_VERTEX_SIZE * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY);
 
         let index = 0;
+        const bbMin = new Vec3(0, 0, 0);
+        const bbMax = new Vec3(0, 0, 0);
         for (let j = 0; j < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++j) {
             for (let i = 0; i < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++i) {
                 const x = this._index[0] * TERRAIN_BLOCK_TILE_COMPLEXITY + i;
@@ -614,10 +603,20 @@ export class TerrainBlock {
                 vertexData[index++] = normal.z;
                 vertexData[index++] = uv.x;
                 vertexData[index++] = uv.y;
+
+                if (i === 0 && j === 0) {
+                    Vec3.copy(bbMin, position);
+                    Vec3.copy(bbMax, position);
+                }
+                else {
+                    Vec3.min(bbMin, bbMin, position);
+                    Vec3.max(bbMax, bbMax, position);
+                }
             }
         }
 
         this._renderable._meshData.vertexBuffers[0].update(vertexData);
+        this._renderable._model!.createBoundingShape(bbMin, bbMax);
     }
 
     public _updateWeightMap () {
@@ -698,6 +697,10 @@ export class Terrain extends Component {
     @disallowAnimation
     protected _lightmapInfos: TerrainBlockLightmapInfo[] = [];
 
+    @serializable
+    @disallowAnimation
+    protected _receiveShadow: boolean = false;
+
     protected _tileSize: number = 1;
     protected _blockCount: number[] = [1, 1];
     protected _weightMapSize: number = 128;
@@ -757,6 +760,22 @@ export class Terrain extends Component {
 
     public get effectAsset () {
         return this._effectAsset;
+    }
+
+    /**
+     * @en Receive shadow
+     * @zh 是否接受阴影
+     */
+    @editable
+    get receiveShadow () {
+        return this._receiveShadow;
+    }
+
+    set receiveShadow (val) {
+        this._receiveShadow = val;
+        for (const i of this._blocks) {
+            i._invalidMaterial();
+        }
     }
 
     /**
