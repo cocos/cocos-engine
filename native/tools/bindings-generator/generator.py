@@ -743,6 +743,7 @@ class NativeField(object):
     def can_parse(ntype, generator):
         native_type = NativeType.from_type(ntype, generator)
         if ntype.kind == cindex.TypeKind.UNEXPOSED and native_type.name != "std::string":
+            print('[ERROR] %s is ntype.kind %s' % (native_type.name, ntype.kind))
             return False
         return True
 
