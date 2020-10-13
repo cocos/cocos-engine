@@ -206,6 +206,20 @@ export class Node extends BaseNode {
         return this._euler;
     }
 
+    @editable
+    get angle () {
+        return this.eulerAngles.z;
+    }
+    set angle (val: number) {
+        Quat.fromAngleZ(this._lrot, val);
+        this._eulerDirty = false;
+
+        this.invalidateChildren(TransformBit.ROTATION);
+        if (this._eventMask & TRANSFORM_ON) {
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+        }
+    }
+
     /**
      * @en Rotation in world coordinate system, represented by a quaternion
      * @zh 世界坐标系下的旋转，用四元数表示
