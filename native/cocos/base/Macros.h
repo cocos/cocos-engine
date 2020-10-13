@@ -575,14 +575,14 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 #endif
 
 // Engine Memory Management
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-    #if (CC_MODE == CC_MODE_DEBUG)
-        #define CC_MEMORY_TRACKER
-    #endif
-#elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
-//#    define CC_MEMORY_TRACKER
-#else
-#endif
+// #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
+//     #if (CC_MODE == CC_MODE_DEBUG)
+//         #define CC_MEMORY_TRACKER
+//     #endif
+// #elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
+// //#    define CC_MEMORY_TRACKER
+// #else
+// #endif
 
 // use simd
 //#define CC_USE_SIMD
