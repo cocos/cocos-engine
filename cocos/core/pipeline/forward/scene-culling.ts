@@ -3,7 +3,7 @@
  * @hidden
  */
 
-import { intersect, sphere } from '../../geometry';
+import { aabb, intersect } from '../../geometry';
 import { Model } from '../../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Layers } from '../../scene-graph/layers';
@@ -46,19 +46,17 @@ function getCastShadowRenderObject (model: Model, camera: Camera) {
 export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     const camera = view.camera;
     const scene = camera.scene!;
+    const mainLight = scene.mainLight;
+    const shadows = pipeline.shadows;
+
     const renderObjects = pipeline.renderObjects;
     roPool.freeArray(renderObjects); renderObjects.length = 0;
     const shadowObjects = pipeline.shadowObjects;
     shadowPool.freeArray(shadowObjects); shadowObjects.length = 0;
 
-    const mainLight = scene.mainLight;
-    const shadows = pipeline.shadows;
-    const castSphere = shadows.sphere;
-    castSphere.center.set(0.0, 0.0, 0.0);
-    castSphere.radius = -0.01;
-    const receiveSphere = shadows.receiveSphere;
-    receiveSphere.center.set(0.0, 0.0, 0.0);
-    receiveSphere.radius = -0.01;
+    let castWorldBounds: aabb|null = null;
+    let receiveWorldBounds: aabb|null = null;
+
     if (mainLight) {
         mainLight.update();
         if (shadows.type === ShadowType.Planar) {
@@ -88,14 +86,24 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                     (view.visibility & model.visFlags)) {
 
                     // shadow render Object
-                    if (model.castShadow) {
-                        sphere.mergeAABB(castSphere, castSphere, model.worldBounds!);
+                    if (model.castShadow && model.worldBounds) {
+                        if (!castWorldBounds) {
+                            castWorldBounds = new aabb();
+                            castWorldBounds.copy(model.worldBounds);
+                        }
+                        aabb.merge(castWorldBounds, castWorldBounds, model.worldBounds);
                         shadowObjects.push(getCastShadowRenderObject(model, camera));
                     }
 
                     // Even if the obstruction is not in the field of view,
                     // the shadow is still visible.
-                    if (model.receiveShadow && model.worldBounds) { sphere.mergeAABB(receiveSphere, receiveSphere, model.worldBounds); }
+                    if (model.receiveShadow && model.worldBounds) {
+                        if(!receiveWorldBounds) {
+                            receiveWorldBounds = new aabb();
+                            receiveWorldBounds.copy(model.worldBounds);
+                        }
+                        aabb.merge(receiveWorldBounds, receiveWorldBounds, model.worldBounds);
+                    }
 
                     // frustum culling
                     if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, camera.frustum)) {
@@ -106,6 +114,16 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                 }
             }
         }
+    }
+
+    if (castWorldBounds) {
+        aabb.toSphere(shadows.sphere, castWorldBounds);
+        castWorldBounds = null;
+    }
+
+    if (receiveWorldBounds) {
+        aabb.toSphere(shadows.receiveSphere, receiveWorldBounds);
+        receiveWorldBounds = null;
     }
 
     if (shadows.type === ShadowType.Planar) {
