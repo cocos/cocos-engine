@@ -51,6 +51,12 @@ extern se::Class* __jsb_cc_gfx_Color_class;
 bool js_register_cc_gfx_Color(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
+extern se::Object* __jsb_cc_gfx_BindingMappingInfo_proto;
+extern se::Class* __jsb_cc_gfx_BindingMappingInfo_class;
+
+bool js_register_cc_gfx_BindingMappingInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
 extern se::Object* __jsb_cc_gfx_DeviceInfo_proto;
 extern se::Class* __jsb_cc_gfx_DeviceInfo_class;
 
