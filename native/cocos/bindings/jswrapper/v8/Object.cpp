@@ -40,6 +40,7 @@ namespace se {
 
     namespace {
         v8::Isolate* __isolate = nullptr;
+        uint32_t _nativeObjectId = 0;
     }
 
     Object::Object()
@@ -314,6 +315,12 @@ namespace se {
             assert(__objectMap->find(this) == __objectMap->end());
             __objectMap->emplace(this, nullptr);
         }
+
+#if CC_DEBUG
+        this->_objectId = ++_nativeObjectId;
+        this->setProperty("__object_id__", se::Value(this->_objectId));
+        this->setProperty("__native_class_name__", se::Value(cls ? cls->getName() : "[noname]"));
+#endif
 
         return true;
     }
