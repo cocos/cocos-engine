@@ -355,9 +355,10 @@ class Parser {
         this.objsToClear_iN$t.push(value);
 
         for (let i = 0; i < value.length; ++i) {
-            const statement = arrayVar + '[' + i + ']=';
-            const expression = this.enumerateField(value, i, value[i]);
-            writeAssignment(codeArray, statement, expression);
+            if (value[i] !== 0) {
+                const statement = arrayVar + '[' + i + ']=';
+                writeAssignment(codeArray, statement, value[i]);
+            }
         }
         return codeArray;
     }
