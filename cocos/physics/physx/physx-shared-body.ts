@@ -3,8 +3,9 @@ import { PhysXRigidBody } from "./physx-rigid-body";
 import { PhysXWorld } from "./physx-world";
 import { PhysXShape } from "./shapes/physx-shape";
 
-import { PX as PX, _trans } from "./export-physx";
+import { PX, _pxtrans, _trans } from "./export-physx";
 import { TransformBit } from "../../core/scene-graph/node-enum";
+import { BYTEDANCE } from "internal:constants";
 
 export class PhysXSharedBody {
 
@@ -74,48 +75,84 @@ export class PhysXSharedBody {
         this.id = PhysXSharedBody.idCounter++;
         this.node = node;
         this.wrappedWorld = wrappedWorld;
-        this._filterData = new PX.PxFilterData(1, ((0xffffffff & (~2)) >>> 0), 0, 0);
+        if (BYTEDANCE) {
+            this._filterData = {
+                word0: 1,
+                word1: ((0xffffffff & (~2)) >>> 0),
+                word2: 0,
+                word3: 0,
+            }
+        } else {
+            this._filterData = new PX.PxFilterData(1, ((0xffffffff & (~2)) >>> 0), 0, 0);
+        }
     }
 
     private _initActor () {
         if (this._impl) return;
         Vec3.copy(_trans.translation, this.node.worldPosition);
         Quat.copy(_trans.rotation, this.node.worldRotation);
+        let t = _trans;
+        if (BYTEDANCE) {
+            const pos = _trans.translation;
+            const rot = _trans.rotation;
+            t = new PX.Transform([pos.x, pos.y, pos.z], [rot.x, rot.y, rot.z, rot.w]);
+        }
         const wb = this.wrappedBody;
         if (wb) {
             const rb = wb.rigidBody;
             if (rb.mass == 0) {
                 this._isStatic = true;
-                this._impl = this.wrappedWorld.physics.createRigidStatic(_trans as any);
+                this._impl = this.wrappedWorld.physics.createRigidStatic(t as any);
             } else {
                 this._isStatic = false;
-                this._impl = this.wrappedWorld.physics.createRigidDynamic(_trans as any);
+                this._impl = this.wrappedWorld.physics.createRigidDynamic(t as any);
                 this._impl.setMass(rb.mass);
-                this._impl.setActorFlag(PX.PxActorFlag.eDISABLE_GRAVITY, !rb.useGravity);
+                if (BYTEDANCE) {
+                    this._impl.setActorFlag(PX.ActorFlag.eDISABLE_GRAVITY, !rb.useGravity);
+                } else {
+                    this._impl.setActorFlag(PX.PxActorFlag.eDISABLE_GRAVITY, !rb.useGravity);
+                }
                 this._impl.setLinearDamping(rb.linearDamping);
                 this._impl.setAngularDamping(rb.angularDamping);
                 const lf = rb.linearFactor;
-                this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_LINEAR_X, !lf.x);
-                this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_LINEAR_Y, !lf.y);
-                this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_LINEAR_Z, !lf.z);
+                if (BYTEDANCE) {
+                    this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_X, !lf.x);
+                    this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_Y, !lf.y);
+                    this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_Z, !lf.z);
+                } else {
+                    this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_LINEAR_X, !lf.x);
+                    this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_LINEAR_Y, !lf.y);
+                    this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_LINEAR_Z, !lf.z);
+                }
                 const af = rb.angularFactor;
-                this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_X, !af.x);
-                this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Y, !af.y);
-                this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Z, !af.z);
+                if (BYTEDANCE) {
+                    this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_X, !af.x);
+                    this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Y, !af.y);
+                    this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Z, !af.z);
+                } else {
+                    this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_X, !af.x);
+                    this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Y, !af.y);
+                    this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Z, !af.z);
+                }
             }
         } else {
             this._isStatic = true;
-            this._impl = this.wrappedWorld.physics.createRigidStatic(_trans as any);
+            this._impl = this.wrappedWorld.physics.createRigidStatic(t as any);
         }
-        if (this._impl) PX.IMPL_PTR[this._impl.$$.ptr] = this;
+        if (!BYTEDANCE && this._impl) PX.IMPL_PTR[this._impl.$$.ptr] = this;
     }
 
     addShape (ws: PhysXShape) {
         const index = this.wrappedShapes.indexOf(ws);
         if (index < 0) {
-            ws.impl.setSimulationFilterData(this._filterData);
+            if (BYTEDANCE) {
+                const fd = this._filterData;
+                ws.impl.setSimulationFilterData([fd.word0, fd.word1, fd.word2, fd.word3]);
+            } else {
+                ws.impl.setSimulationFilterData(this._filterData);
+            }
             this.impl.attachShape(ws.impl);
-            if (!this._isStatic) this.impl.setMassAndUpdateInertia(this._wrappedBody!.rigidBody.mass);
+            // if (!this._isStatic) this.impl.setMassAndUpdateInertia(this._wrappedBody!.rigidBody.mass);
             this.wrappedShapes.push(ws);
         }
     }
@@ -143,7 +180,15 @@ export class PhysXSharedBody {
             }
             Vec3.copy(_trans.translation, node.worldPosition);
             Quat.copy(_trans.rotation, node.worldRotation);
-            this.impl.setGlobalPose(_trans, true);
+            if (BYTEDANCE) {
+                const pos = _trans.translation;
+                const rot = _trans.rotation;
+                _pxtrans.setPosition([pos.x, pos.y, pos.z]);
+                _pxtrans.setQuaternion([rot.x, rot.y, rot.z, rot.w]);
+                this.impl.setGlobalPose(_pxtrans, true);
+            } else {
+                this.impl.setGlobalPose(_trans, true);
+            }
         }
     }
 
@@ -151,8 +196,15 @@ export class PhysXSharedBody {
         if (this._isStatic || this.impl.isSleeping()) return;
         const transform = this.impl.getGlobalPose();
         const node = this.node;
-        node.setWorldPosition(transform.translation);
-        node.setWorldRotation(transform.rotation);
+        if (BYTEDANCE) {
+            const pos = transform.getPosition();
+            const rot = transform.getQuaternion();
+            node.setWorldPosition(pos[0], pos[1], pos[2]);
+            node.setWorldRotation(rot[0], rot[1], rot[2], rot[3]);
+        } else {
+            node.setWorldPosition(transform.translation);
+            node.setWorldRotation(transform.rotation);
+        }
     }
 
     setGroup (v: number): void {
@@ -196,14 +248,23 @@ export class PhysXSharedBody {
 
     updateFiltering () {
         for (let i = 0; i < this.wrappedShapes.length; i++) {
-            this.wrappedShapes[i].impl.setSimulationFilterData(this._filterData);
+            if (BYTEDANCE) {
+                const fd = this._filterData;
+                this.wrappedShapes[i].impl.setSimulationFilterData(
+                    [fd.word0, fd.word1, fd.word2, fd.word3]
+                );
+            } else {
+                this.wrappedShapes[i].impl.setSimulationFilterData(this._filterData);
+            }
         }
     }
 
     destroy () {
-        PX.IMPL_PTR[this._impl.$$.ptr] = null;
-        delete PX.IMPL_PTR[this._impl.$$.ptr];
-        this._impl.release();
+        if (!BYTEDANCE) {
+            PX.IMPL_PTR[this._impl.$$.ptr] = null;
+            delete PX.IMPL_PTR[this._impl.$$.ptr];
+            this._impl.release();
+        }
         PhysXSharedBody.sharedBodesMap.delete(this.node.uuid);
     }
 }

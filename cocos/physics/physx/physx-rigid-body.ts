@@ -1,3 +1,4 @@
+import { BYTEDANCE } from "internal:constants";
 import { IVec3Like, Node, Vec3 } from "../../core";
 import { TransformBit } from "../../core/scene-graph/node-enum";
 import { PhysicsSystem, RigidBody } from "../framework";
@@ -74,30 +75,56 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     setIsKinematic (v: boolean): void {
-        this.impl.setRigidBodyFlag(PX.PxRigidBodyFlag.eKINEMATIC, v);
+        if (BYTEDANCE) {
+            this.impl.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, v);
+        } else {
+            this.impl.setRigidBodyFlag(PX.PxRigidBodyFlag.eKINEMATIC, v);
+        }
     }
 
     useGravity (v: boolean): void {
-        this.impl.setActorFlag(PX.PxActorFlag.eDISABLE_GRAVITY, !v);
+        if (BYTEDANCE) {
+            this.impl.setActorFlag(PX.ActorFlag.eDISABLE_GRAVITY, !v);
+        } else {
+            this.impl.setActorFlag(PX.PxActorFlag.eDISABLE_GRAVITY, !v);
+        }
     }
 
     fixRotation (v: boolean): void {
-        this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_X, v);
-        this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Y, v);
-        this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Z, v);
+        if (BYTEDANCE) {
+            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_X, v);
+            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Y, v);
+            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Z, v);
+        } else {
+            this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_X, v);
+            this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Y, v);
+            this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Z, v);
+        }
         if (!v) this.setAngularFactor(this._rigidBody.angularFactor);
     }
 
     setLinearFactor (v: IVec3Like): void {
-        this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_LINEAR_X, !v.x);
-        this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_LINEAR_Y, !v.y);
-        this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_LINEAR_Z, !v.z);
+        if (BYTEDANCE) {
+            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_X, !v.x);
+            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_Y, !v.y);
+            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_Z, !v.z);
+        } else {
+            this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_LINEAR_X, !v.x);
+            this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_LINEAR_Y, !v.y);
+            this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_LINEAR_Z, !v.z);
+        }
     }
 
     setAngularFactor (v: IVec3Like): void {
-        this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_X, !v.x);
-        this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Y, !v.y);
-        this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Z, !v.z);
+        if (BYTEDANCE) {
+            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_X, !v.x);
+            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Y, !v.y);
+            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Z, !v.z);
+        } else {
+            this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_X, !v.x);
+            this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Y, !v.y);
+            this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Z, !v.z);
+        }
     }
 
     setAllowSleep (v: boolean): void {
@@ -123,8 +150,14 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     clearVelocity (): void {
-        this.impl.setLinearVelocity(Vec3.ZERO, 1);
-        this.impl.setAngularVelocity(Vec3.ZERO, 1);
+        if (BYTEDANCE) {
+            const a = [0, 0, 0]
+            this.impl.setLinearVelocity(a);
+            this.impl.setAngularVelocity(a);
+        } else {
+            this.impl.setLinearVelocity(Vec3.ZERO, 1);
+            this.impl.setAngularVelocity(Vec3.ZERO, 1);
+        }
     }
 
     setSleepThreshold (v: number): void {
@@ -136,19 +169,35 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     getLinearVelocity (out: IVec3Like): void {
-        Vec3.copy(out, this.impl.getLinearVelocity());
+        if (BYTEDANCE) {
+            Vec3.fromArray(out, this.impl.getLinearVelocity())
+        } else {
+            Vec3.copy(out, this.impl.getLinearVelocity());
+        }
     }
 
     setLinearVelocity (value: IVec3Like): void {
-        this.impl.setLinearVelocity(value, 1);
+        if (BYTEDANCE) {
+            this.impl.setLinearVelocity([value.x, value.y, value.z])
+        } else {
+            this.impl.setLinearVelocity(value, 1);
+        }
     }
 
     getAngularVelocity (out: IVec3Like): void {
-        Vec3.copy(out, this.impl.getAngularVelocity());
+        if (BYTEDANCE) {
+            Vec3.fromArray(out, this.impl.getLinearVelocity())
+        } else {
+            Vec3.copy(out, this.impl.getAngularVelocity());
+        }
     }
 
     setAngularVelocity (value: IVec3Like): void {
-        this.impl.setAngularVelocity(value, 1);
+        if (BYTEDANCE) {
+            this.impl.setAngularVelocity([value.x, value.y, value.z])
+        } else {
+            this.impl.setAngularVelocity(value, 1);
+        }
     }
 
     applyForce (force: IVec3Like, relativePoint?: IVec3Like): void {

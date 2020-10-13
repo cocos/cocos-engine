@@ -11,6 +11,7 @@ import { PhysXRigidBody } from "./physx-rigid-body";
 import { PhysXShape } from "./shapes/physx-shape";
 import { CollisionEventObject, TriggerEventObject } from "../utils/util";
 import { PX } from "./export-physx";
+import { BYTEDANCE } from "internal:constants";
 
 function onTrigger (type: TriggerEventType, a: string, b: string) {
     const wpa = PX.IMPL_PTR[a] as PhysXShape;
@@ -54,7 +55,9 @@ export class PhysXWorld implements IPhysicsWorld {
 
     setAllowSleep (v: boolean) { };
     setDefaultMaterial (v: PhysicMaterial) { };
-    setGravity (gravity: IVec3Like) { this.scene['setGravity'](gravity) };
+    setGravity (gravity: IVec3Like) {
+        if (!BYTEDANCE) this.scene['setGravity'](gravity)
+    };
     get impl () { return null; }
 
     readonly physics: PhysX.Physics;
@@ -63,14 +66,6 @@ export class PhysXWorld implements IPhysicsWorld {
     readonly wrappedBodies: PhysXSharedBody[] = [];
 
     constructor (options?: any) {
-        const version = PX.PX_PHYSICS_VERSION
-        const defaultErrorCallback = new PX.PxDefaultErrorCallback()
-        const allocator = new PX.PxDefaultAllocator()
-        const foundation = PX.PxCreateFoundation(
-            version,
-            allocator,
-            defaultErrorCallback
-        )
         const triggerCallback = {
             onContactBegin: (a: any, b: any) => { onCollision('onCollisionEnter', a, b); },
             onContactEnd: (a: any, b: any) => { onCollision('onCollisionExit', a, b); },
@@ -93,25 +88,42 @@ export class PhysXWorld implements IPhysicsWorld {
             },
             // onTriggerPersist: (...a: any) => { console.log('onTriggerPersist', a); },
         }
-        const physxSimulationCallbackInstance = PX.PxSimulationEventCallback.implement(
-            triggerCallback
-        )
 
-        this.physics = PX.PxCreatePhysics(
-            version,
-            foundation,
-            new PX.PxTolerancesScale(),
-            false,
-            null
-        )
-        PX.PxInitExtensions(this.physics, null)
-        const sceneDesc = PX.getDefaultSceneDesc(
-            this.physics['getTolerancesScale'](),
-            0,
-            physxSimulationCallbackInstance
-        )
-        this.scene = this.physics.createScene(sceneDesc)
+        if (BYTEDANCE) {
+            const physics = PX.createPhysics();
+            const sceneDesc = physics.createSceneDesc();
+            const scene = physics.createScene(sceneDesc);
+            this.physics = physics;
+            this.scene = scene;
+        } else {
+            const version = PX.PX_PHYSICS_VERSION
+            const defaultErrorCallback = new PX.PxDefaultErrorCallback()
+            const allocator = new PX.PxDefaultAllocator()
+            const foundation = PX.PxCreateFoundation(
+                version,
+                allocator,
+                defaultErrorCallback
+            )
 
+            const physxSimulationCallbackInstance = PX.PxSimulationEventCallback.implement(
+                triggerCallback
+            )
+
+            this.physics = PX.PxCreatePhysics(
+                version,
+                foundation,
+                new PX.PxTolerancesScale(),
+                false,
+                null
+            )
+            PX.PxInitExtensions(this.physics, null)
+            const sceneDesc = PX.getDefaultSceneDesc(
+                this.physics['getTolerancesScale'](),
+                0,
+                physxSimulationCallbackInstance
+            )
+            this.scene = this.physics.createScene(sceneDesc)
+        }
         window.PP = this;
     }
 
@@ -147,7 +159,11 @@ export class PhysXWorld implements IPhysicsWorld {
     addActor (body: PhysXSharedBody) {
         const index = this.wrappedBodies.indexOf(body);
         if (index < 0) {
-            this.scene['addActor'](body.impl, null);
+            if (BYTEDANCE) {
+                this.scene['addActor'](body.impl);
+            } else {
+                this.scene['addActor'](body.impl, null);
+            }
             this.wrappedBodies.push(body);
         }
     }

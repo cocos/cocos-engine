@@ -1,10 +1,11 @@
 
+import { BYTEDANCE } from "internal:constants";
 import { IVec3Like, Quat, Vec3 } from "../../../core";
 import { aabb, sphere } from "../../../core/geometry";
 import { Collider, RigidBody, PhysicMaterial, PhysicsSystem } from "../../framework";
 import { IBaseShape } from "../../spec/i-physics-shape";
 import { setWrap } from "../../utils/util";
-import { PX, _trans } from "../export-physx";
+import { PX, _pxtrans, _trans } from "../export-physx";
 import { PhysXSharedBody } from "../physx-shared-body";
 import { PhysXWorld } from "../physx-world";
 
@@ -39,13 +40,19 @@ export class PhysXShape implements IBaseShape {
 
     initialize (v: Collider): void {
         this._collider = v;
-        const flag = (v.isTrigger ? PX.PxShapeFlag.eTRIGGER_SHAPE.value : PX.PxShapeFlag.eSIMULATION_SHAPE.value)
-            | PX.PxShapeFlag.eSCENE_QUERY_SHAPE.value;
-        this._flags = new PX.PxShapeFlags(flag);
+        if (BYTEDANCE) {
+            const flag = (v.isTrigger ? PX.ShapeFlag.eTRIGGER_SHAPE : PX.ShapeFlag.eSIMULATION_SHAPE)
+                | PX.ShapeFlag.eSCENE_QUERY_SHAPE;
+            this._flags = flag;
+        } else {
+            const flag = (v.isTrigger ? PX.PxShapeFlag.eTRIGGER_SHAPE.value : PX.PxShapeFlag.eSIMULATION_SHAPE.value)
+                | PX.PxShapeFlag.eSCENE_QUERY_SHAPE.value;
+            this._flags = new PX.PxShapeFlags(flag);
+        }
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as PhysXWorld).getSharedBody(v.node);
         this._sharedBody.reference = true;
         this.onComponentSet();
-        if (this._impl) PX.IMPL_PTR[this._impl.$$.ptr] = this;
+        if (!BYTEDANCE && this._impl) PX.IMPL_PTR[this._impl.$$.ptr] = this;
     }
 
     // virtual
@@ -70,9 +77,11 @@ export class PhysXShape implements IBaseShape {
 
     onDestroy (): void {
         this._sharedBody.reference = false;
-        PX.IMPL_PTR[this._impl.$$.ptr] = null;
-        delete PX.IMPL_PTR[this._impl.$$.ptr];
-        this._impl.release();
+        if (!BYTEDANCE) {
+            PX.IMPL_PTR[this._impl.$$.ptr] = null;
+            delete PX.IMPL_PTR[this._impl.$$.ptr];
+            this._impl.release();
+        }
     }
 
     setMaterial (v: PhysicMaterial | null): void {
@@ -103,19 +112,37 @@ export class PhysXShape implements IBaseShape {
     }
 
     setAsTrigger (v: boolean): void {
-        if (v) {
-            this._impl.setFlag(PX.PxShapeFlag.eSIMULATION_SHAPE, !v)
-            this._impl.setFlag(PX.PxShapeFlag.eTRIGGER_SHAPE, v);
+        if (BYTEDANCE) {
+            if (v) {
+                this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v)
+                this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
+            } else {
+                this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
+                this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v)
+            }
         } else {
-            this._impl.setFlag(PX.PxShapeFlag.eTRIGGER_SHAPE, v);
-            this._impl.setFlag(PX.PxShapeFlag.eSIMULATION_SHAPE, !v)
+            if (v) {
+                this._impl.setFlag(PX.PxShapeFlag.eSIMULATION_SHAPE, !v)
+                this._impl.setFlag(PX.PxShapeFlag.eTRIGGER_SHAPE, v);
+            } else {
+                this._impl.setFlag(PX.PxShapeFlag.eTRIGGER_SHAPE, v);
+                this._impl.setFlag(PX.PxShapeFlag.eSIMULATION_SHAPE, !v)
+            }
         }
     }
 
     setCenter (v: IVec3Like): void {
         Vec3.multiply(_trans.translation, v, this._collider.node.worldScale);
         Quat.copy(_trans.rotation, this._rotation);
-        this._impl.setLocalPose(_trans);
+        if (BYTEDANCE) {
+            const pos = _trans.translation;
+            const rot = _trans.rotation;
+            _pxtrans.setPosition([pos.x, pos.y, pos.z]);
+            _pxtrans.setQuaternion([rot.x, rot.y, rot.z, rot.w]);
+            this._impl.setLocalPose(_pxtrans);
+        } else {
+            this._impl.setLocalPose(_trans);
+        }
     }
 
     getAABB (v: aabb): void { }

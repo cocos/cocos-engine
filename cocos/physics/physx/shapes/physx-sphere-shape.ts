@@ -1,3 +1,4 @@
+import { BYTEDANCE } from "internal:constants";
 import { IVec3Like } from "../../../core";
 import { aabb, sphere } from "../../../core/geometry";
 import { Collider, RigidBody, PhysicMaterial, SphereCollider } from "../../framework";
@@ -11,7 +12,13 @@ export class PhysXSphereShape extends PhysXShape implements ISphereShape {
 
     constructor () {
         super(EPhysXShapeType.SPHERE);
-        if (!PhysXSphereShape.SPHERE_GEOMETRY) PhysXSphereShape.SPHERE_GEOMETRY = new PX.PxSphereGeometry(0.5);
+        if (!PhysXSphereShape.SPHERE_GEOMETRY) {
+            if (BYTEDANCE) {
+                PhysXSphereShape.SPHERE_GEOMETRY = new PX.SphereGeometry(0.5);
+            } else {
+                PhysXSphereShape.SPHERE_GEOMETRY = new PX.PxSphereGeometry(0.5);
+            }
+        }
     }
 
     setRadius (v: number): void {
@@ -24,9 +31,22 @@ export class PhysXSphereShape extends PhysXShape implements ISphereShape {
 
     onComponentSet () {
         this.updateGeometry();
-        const physics = this._sharedBody.wrappedWorld.physics;
+        const physics = this._sharedBody.wrappedWorld.physics as any;
         const pxmat = this.getSharedMaterial(this.collider.sharedMaterial!);
-        this._impl = physics.createShape(PhysXSphereShape.SPHERE_GEOMETRY, pxmat, true, this._flags);
+        if (BYTEDANCE) {
+            this._impl = physics.createShape(PhysXSphereShape.SPHERE_GEOMETRY, pxmat);
+            // this._impl.setFlags(this._flags);            
+            // const v = this._collider.isTrigger;
+            // if (v) {
+            //     this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v)
+            //     this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
+            // } else {
+            //     this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
+            //     this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v)
+            // }
+        } else {
+            this._impl = physics.createShape(PhysXSphereShape.SPHERE_GEOMETRY, pxmat, true, this._flags);
+        }
     }
 
     updateScale () {
@@ -41,6 +61,10 @@ export class PhysXSphereShape extends PhysXShape implements ISphereShape {
         const absY = Math.abs(ws.y);
         const absZ = Math.abs(ws.z);
         const max_sp = Math.max(Math.max(absX, absY), absZ);
-        PhysXSphereShape.SPHERE_GEOMETRY.radius = co.radius * max_sp;
+        if (BYTEDANCE) {
+            PhysXSphereShape.SPHERE_GEOMETRY.setRadius(co.radius * max_sp);
+        } else {
+            PhysXSphereShape.SPHERE_GEOMETRY.radius = co.radius * max_sp;
+        }
     }
 }
