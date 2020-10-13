@@ -508,7 +508,7 @@ enum class DynamicStateFlagBit : uint8_t {
 };
 typedef DynamicStateFlagBit DynamicStateFlags;
 
-typedef vector<DynamicStateFlagBit> DynamicStateList;
+typedef cc::vector<DynamicStateFlagBit> DynamicStateList;
 
 enum class StencilFace : uint8_t {
     FRONT,
@@ -614,8 +614,8 @@ struct BufferTextureCopy {
     Extent texExtent = {0, 0, 1};
     TextureSubres texSubres;
 };
-typedef vector<BufferTextureCopy> BufferTextureCopyList;
-typedef vector<const uint8_t *> BufferDataList;
+typedef cc::vector<BufferTextureCopy> BufferTextureCopyList;
+typedef cc::vector<const uint8_t *> BufferDataList;
 
 struct Viewport {
     int left = 0;
@@ -650,7 +650,7 @@ struct Color {
     float w = 0.0f;
 };
 #pragma pack(pop)
-typedef vector<Color> ColorList;
+typedef cc::vector<Color> ColorList;
 
 /**
  * For non-vulkan backends, to maintain compatibility and maximize
@@ -664,8 +664,8 @@ typedef vector<Color> ColorList;
  * offsets for each descriptor type in each set.
  */
 struct BindingMappingInfo {
-    vector<int> bufferOffsets;
-    vector<int> samplerOffsets;
+    cc::vector<int> bufferOffsets;
+    cc::vector<int> samplerOffsets;
     uint flexibleSet = 0u;
 };
 
@@ -703,8 +703,8 @@ struct ContextInfo {
 struct BufferInfo {
     BufferUsage usage = BufferUsage::NONE;
     MemoryUsage memUsage = MemoryUsage::NONE;
-    uint stride = 1;
     uint size = 0;
+    uint stride = 1;
     BufferFlags flags = BufferFlagBit::NONE;
 };
 
@@ -726,7 +726,7 @@ struct DrawInfo {
 };
 #pragma pack(pop)
 
-typedef vector<DrawInfo> DrawInfoList;
+typedef cc::vector<DrawInfo> DrawInfoList;
 
 struct IndirectBuffer {
     DrawInfoList drawInfos;
@@ -776,7 +776,7 @@ struct ShaderMacro {
     String value;
 };
 
-typedef vector<ShaderMacro> ShaderMacroList;
+typedef cc::vector<ShaderMacro> ShaderMacroList;
 
 struct Uniform {
     String name;
@@ -784,7 +784,7 @@ struct Uniform {
     uint count = 0;
 };
 
-typedef vector<Uniform> UniformList;
+typedef cc::vector<Uniform> UniformList;
 
 struct UniformBlock {
     uint set = 0;
@@ -794,7 +794,7 @@ struct UniformBlock {
     uint count = 0u;
 };
 
-typedef vector<UniformBlock> UniformBlockList;
+typedef cc::vector<UniformBlock> UniformBlockList;
 
 struct UniformSampler {
     uint set = 0;
@@ -804,14 +804,14 @@ struct UniformSampler {
     uint count = 0;
 };
 
-typedef vector<UniformSampler> UniformSamplerList;
+typedef cc::vector<UniformSampler> UniformSamplerList;
 
 struct ShaderStage {
     ShaderStageFlagBit stage;
     String source;
 };
 
-typedef vector<ShaderStage> ShaderStageList;
+typedef cc::vector<ShaderStage> ShaderStageList;
 
 struct Attribute {
     String name;
@@ -822,8 +822,8 @@ struct Attribute {
     uint location = 0;
 };
 
-typedef vector<Attribute> AttributeList;
-typedef vector<Buffer *> BufferList;
+typedef cc::vector<Attribute> AttributeList;
+typedef cc::vector<Buffer *> BufferList;
 
 struct ShaderInfo {
     String name;
@@ -849,7 +849,7 @@ struct ColorAttachment {
     TextureLayout endLayout = TextureLayout::PRESENT_SRC;
 };
 
-typedef vector<ColorAttachment> ColorAttachmentList;
+typedef cc::vector<ColorAttachment> ColorAttachmentList;
 
 struct DepthStencilAttachment {
     Format format = Format::UNKNOWN;
@@ -878,7 +878,7 @@ struct SubPass {
     }
 };
 
-typedef vector<SubPass> SubPassList;
+typedef cc::vector<SubPass> SubPassList;
 
 struct RenderPassInfo {
     ColorAttachmentList colorAttachments;
@@ -886,14 +886,14 @@ struct RenderPassInfo {
     SubPassList subPasses;
 };
 
-typedef vector<Buffer *> BufferList;
-typedef vector<Texture *> TextureList;
-typedef vector<Sampler *> SamplerList;
+typedef cc::vector<Buffer *> BufferList;
+typedef cc::vector<Texture *> TextureList;
+typedef cc::vector<Sampler *> SamplerList;
 
 struct FramebufferInfo {
     RenderPass *renderPass = nullptr;
     TextureList colorTextures;
-    vector<uint> colorMipmapLevels;
+    cc::vector<uint> colorMipmapLevels;
     Texture *depthStencilTexture = nullptr;
     uint depthStencilMipmapLevel = 0;
 };
@@ -904,7 +904,7 @@ struct DescriptorSetLayoutBinding {
     ShaderStageFlagBit stageFlags;
     SamplerList immutableSamplers;
 };
-typedef vector<DescriptorSetLayoutBinding> DescriptorSetLayoutBindingList;
+typedef cc::vector<DescriptorSetLayoutBinding> DescriptorSetLayoutBindingList;
 
 struct DescriptorSetLayoutInfo {
     // array index is used as the binding numbers,
@@ -916,7 +916,7 @@ struct DescriptorSetInfo {
     DescriptorSetLayout *layout = nullptr;
 };
 
-typedef vector<DescriptorSetLayout *> DescriptorSetLayoutList;
+typedef cc::vector<DescriptorSetLayout *> DescriptorSetLayoutList;
 
 struct PipelineLayoutInfo {
     DescriptorSetLayoutList setLayouts;
@@ -974,7 +974,7 @@ struct BlendTarget {
     ColorMask blendColorMask = ColorMask::ALL;
 };
 
-typedef vector<BlendTarget> BlendTargetList;
+typedef cc::vector<BlendTarget> BlendTargetList;
 
 struct BlendState {
     bool isA2C = false;
@@ -1004,7 +1004,7 @@ struct CommandBufferInfo {
     Queue *queue = nullptr;
     CommandBufferType type = CommandBufferType::PRIMARY;
 };
-typedef vector<CommandBuffer *> CommandBufferList;
+typedef cc::vector<CommandBuffer *> CommandBufferList;
 
 struct QueueInfo {
     QueueType type = QueueType::GRAPHICS;
