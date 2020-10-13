@@ -1,4 +1,5 @@
 /**
+ * @packageDocumentation
  * @hidden
  */
 import { ccclass } from 'cc.decorator';

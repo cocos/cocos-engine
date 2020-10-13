@@ -1,5 +1,6 @@
 /**
- * @category pipeline
+ * @packageDocumentation
+ * @module pipeline
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
@@ -8,11 +9,10 @@ import { UIFlow } from '../ui/ui-flow';
 import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
-import { genSamplerHash, samplerLib } from '../../renderer';
 import { IRenderObject, UBOGlobal, UBOShadow,
-    UNIFORM_SHADOWMAP, globalDescriptorSetLayout, localDescriptorSetLayout} from '../define';
+    globalDescriptorSetLayout, localDescriptorSetLayout} from '../define';
 import { GFXBufferUsageBit, GFXMemoryUsageBit,
-    GFXClearFlag, GFXFilter, GFXAddress, GFXCommandBufferType } from '../../gfx/define';
+    GFXClearFlag, GFXCommandBufferType } from '../../gfx/define';
 import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer/scene';
 import { legacyCC } from '../../global-exports';
@@ -187,22 +187,36 @@ export class ForwardPipeline extends RenderPipeline {
 
         if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
             // light view
-            const shadowCameraView = shadowInfo.getWorldMatrix(mainLight!.node!.worldRotation, mainLight!.direction);
-            Mat4.invert(matShadowView, shadowCameraView);
+            let shadowCameraView: Mat4;
 
             // light proj
             let x: number = 0;
             let y: number = 0;
-            if (shadowInfo.orthoSize > shadowInfo.sphere.radius) {
+            let far: number = 0;
+            if (shadowInfo.autoAdapt) {
+                shadowCameraView = shadowInfo.getWorldMatrix(mainLight.node?.getWorldRotation()!, mainLight.direction);
+                // if orthoSize is the smallest, auto calculate orthoSize.
+                const radius = shadowInfo.sphere.radius;
+                x = radius * shadowInfo.aspect;
+                y = radius;
+
+                far = radius * 4.0;
+                if(radius >= 500) { shadowInfo.size.set(2048, 2048); }
+                else if (radius < 500 && radius >= 100) { shadowInfo.size.set(1024, 1024); }
+            } else {
+                shadowCameraView = mainLight.node!.getWorldMatrix();
+                Mat4.invert(matShadowView, shadowCameraView);
+
                 x = shadowInfo.orthoSize * shadowInfo.aspect;
                 y = shadowInfo.orthoSize;
-            } else {
-                // if orthoSize is the smallest, auto calculate orthoSize.
-                x = shadowInfo.sphere.radius * shadowInfo.aspect;
-                y = shadowInfo.sphere.radius;
+
+                far = shadowInfo.far;
             }
+
+            Mat4.invert(matShadowView, shadowCameraView!);
+
             const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY; // always offscreen
-            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, shadowInfo.far,
+            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, far,
                 device.clipSpaceMinZ, projectionSignY);
 
             // light viewProj
@@ -210,11 +224,8 @@ export class ForwardPipeline extends RenderPipeline {
 
             Mat4.toArray(this._shadowUBO, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-            vec4.set(shadowInfo.pcf);
-            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_PCF_OFFSET);
-
-            vec4.set(shadowInfo.size.x, shadowInfo.size.y);
-            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_SIZE_OFFSET);
+            vec4.set(shadowInfo.size.x, shadowInfo.size.y, shadowInfo.pcf, shadowInfo.bias);
+            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_INFO_OFFSET);
         }
 
         // update ubos
@@ -243,17 +254,6 @@ export class ForwardPipeline extends RenderPipeline {
             size: UBOShadow.SIZE,
         });
         this._descriptorSet.bindBuffer(UBOShadow.BLOCK.binding, shadowUBO);
-
-        const shadowMapSamplerHash = genSamplerHash([
-            GFXFilter.LINEAR,
-            GFXFilter.LINEAR,
-            GFXFilter.NONE,
-            GFXAddress.CLAMP,
-            GFXAddress.CLAMP,
-            GFXAddress.CLAMP,
-        ]);
-        const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
-        this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP.binding, shadowMapSampler);
 
         // update global defines when all states initialized.
         this.macros.CC_USE_HDR = this._isHDR;

@@ -25,7 +25,8 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 import { ccclass, serializable, editable } from 'cc.decorator';
@@ -38,23 +39,30 @@ import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 
 /**
- * Prefab 创建实例所用的优化策略，配合 [[optimizationPolicy]] 使用。
- *
- * @enum Prefab.OptimizationPolicy
- * @since 1.10.0
+ * @en An enumeration used with the [[Prefab.optimizationPolicy]] to specify how to optimize the instantiate operation.
+ * @zh Prefab 创建实例所用的优化策略，配合 [[Prefab.optimizationPolicy]] 使用。
  */
 const OptimizationPolicy = Enum({
     /**
-     * 根据创建次数自动调整优化策略。初次创建实例时，行为等同 SINGLE_INSTANCE，多次创建后将自动采用 MULTI_INSTANCE。
+     * @en The optimization policy is automatically chosen based on the number of instantiations.
+     * When you first create an instance, the behavior is the same as SINGLE_INSTANCE. MULTI_INSTANCE will be automatically used after multiple creation.
+     * @zh 根据创建次数自动调整优化策略。初次创建实例时，行为等同 SINGLE_INSTANCE，多次创建后将自动采用 MULTI_INSTANCE。
      */
     AUTO: 0,
     /**
-     * 优化单次创建性能。<br>
+     * @en Optimize for single instance creation.<br>
+     * This option skips code generation for this prefab.
+     * When this prefab will usually create only one instances, please select this option.
+     * @zh 优化单次创建性能。<br>
      * 该选项会跳过针对这个 prefab 的代码生成优化操作。当该 prefab 加载后，一般只会创建一个实例时，请选择此项。
      */
     SINGLE_INSTANCE: 1,
     /**
-     * 优化多次创建性能。<br>
+     * @en Optimize for creating instances multiple times.<br>
+     * This option enables code generation for this prefab.
+     * When this prefab will usually create multiple instances, please select this option.
+     * It is also recommended to select this option if the prefab instance in the scene has Auto Sync enabled and there are multiple instances in the scene.
+     * @zh 优化多次创建性能。<br>
      * 该选项会启用针对这个 prefab 的代码生成优化操作。当该 prefab 加载后，一般会创建多个实例时，请选择此项。如果该 prefab 在场景中的节点启用了自动关联，并且在场景中有多份实例，也建议选择此项。
      */
     MULTI_INSTANCE: 2,
@@ -66,24 +74,30 @@ const OptimizationPolicy = Enum({
  */
 @ccclass('cc.Prefab')
 export default class Prefab extends Asset {
-
+    /**
+     * @en Enumeration for optimization policy
+     * @zh Prefab 创建实例所用的优化策略枚举类型
+     */
     public static OptimizationPolicy = OptimizationPolicy;
 
     public static OptimizationPolicyThreshold = 3;
     
+    /**
+     * @en The main [[Node]] in the prefab
+     * @zh Prefab 中的根节点，[[Node]] 类型
+     */
     @serializable
     @editable
     public data: any = null;
 
     /**
      * @zh
-     * 设置实例化这个 prefab 时所用的优化策略。根据使用情况设置为合适的值，能优化该 prefab 实例化所用的时间。
+     * 设置实例化这个 prefab 时所用的优化策略。根据使用情况设置为合适的值，能优化该 prefab 实例化所用的时间。推荐在编辑器的资源中设置。
      * @en
      * Indicates the optimization policy for instantiating this prefab.
      * Set to a suitable value based on usage, can optimize the time it takes to instantiate this prefab.
-     *
+     * Suggest to set this policy in the editor's asset inspector.
      * @default Prefab.OptimizationPolicy.AUTO
-     * @since 1.10.0
      * @example
      * ```ts
      * import { Prefab } from 'cc';
@@ -103,13 +117,11 @@ export default class Prefab extends Asset {
     @editable
     public asyncLoadAssets: Boolean = false;
 
+    // Cache function to optimize instance creation.
     private _createFunction: Function | null;
     private _instantiatedTimes: number;
     constructor () {
         super();
-        /**
-         * Cache function to optimize instance creaton.
-         */
         this._createFunction = null;
 
         this._instantiatedTimes = 0;

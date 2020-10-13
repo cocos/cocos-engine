@@ -25,12 +25,13 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { Component } from '../../core/components';
 import { UITransform } from '../../core/components/ui-base/ui-transform';
-import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, editorOnly, editable, serializable } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, editorOnly, editable, serializable, visible } from 'cc.decorator';
 import { Size, Vec3 } from '../../core/math';
 import { errorID, warnID } from '../../core/platform/debug';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
@@ -360,6 +361,7 @@ export class Widget extends Component {
      * @zh
      * 当前是否水平拉伸。当同时启用左右对齐时，节点将会被水平拉伸。此时节点的宽度（只读）。
      */
+    @visible(false)
     get isStretchWidth () {
         return (this._alignFlags & LEFT_RIGHT) === LEFT_RIGHT;
     }
@@ -372,6 +374,7 @@ export class Widget extends Component {
      * @zh
      * 当前是否垂直拉伸。当同时启用上下对齐时，节点将会被垂直拉伸，此时节点的高度（只读）。
      */
+    @visible(false)
     get isStretchHeight () {
         return (this._alignFlags & TOP_BOT) === TOP_BOT;
     }

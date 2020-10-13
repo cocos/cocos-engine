@@ -24,7 +24,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip, type, displayOrder, serializable } from 'cc.decorator';
@@ -192,7 +193,7 @@ export class UIRenderable extends RenderableComponent {
     protected _uiMaterial: Material | null = null;
     protected _uiMaterialIns: MaterialInstance | null = null;
 
-    protected getUIRenderMaterial () {
+    public getUIRenderMaterial () {
         return this._uiMaterialIns || this._uiMaterial;
     }
 

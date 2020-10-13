@@ -20,11 +20,12 @@
 */
 
 /**
- * @category scene-graph
+ * @packageDocumentation
+ * @module scene-graph
  */
 
 import { TextureCube } from '../assets/texture-cube';
-import { ccclass, visible, type, displayOrder, slide, range, rangeStep, editable, serializable} from 'cc.decorator';
+import { ccclass, visible, type, displayOrder, slide, range, rangeStep, editable, serializable, rangeMin } from 'cc.decorator';
 import { CCBoolean, CCFloat } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
@@ -150,7 +151,7 @@ export class SkyboxInfo {
      * @en The texture cube used for the skybox
      * @zh 使用的立方体贴图
      */
-    
+
     @editable
     @type(TextureCube)
     set envmap (val) {
@@ -258,14 +259,14 @@ export class FogInfo {
      * @zh 全局雾浓度
      * @en Global fog density
      */
+    @visible(function (this: FogInfo) {
+        return this._type !== FogType.LAYERED && this._type !== FogType.LINEAR;
+    })
     @type(CCFloat)
     @range([0, 1])
     @rangeStep(0.01)
     @slide
     @displayOrder(3)
-    @visible(function (this: FogInfo) {
-        return this._type !== FogType.LAYERED && this._type !== FogType.LINEAR;
-    })
     get fogDensity () {
         return this._fogDensity;
     }
@@ -279,10 +280,10 @@ export class FogInfo {
      * @zh 雾效起始位置，只适用于线性雾
      * @en Global fog start position, only for linear fog
      */
-    @type(CCFloat)
-    @rangeStep(0.1)
-    @displayOrder(4)
     @visible(function (this: FogInfo) { return this._type === FogType.LINEAR; })
+    @type(CCFloat)
+    @rangeStep(0.01)
+    @displayOrder(4)
     get fogStart () {
         return this._fogStart;
     }
@@ -296,10 +297,10 @@ export class FogInfo {
      * @zh 雾效结束位置，只适用于线性雾
      * @en Global fog end position, only for linear fog
      */
+    @visible(function (this: FogInfo) { return this._type === FogType.LINEAR; })
     @type(CCFloat)
-    @rangeStep(0.1)
+    @rangeStep(0.01)
     @displayOrder(5)
-    @visible(function (this: FogInfo) {  return this._type === FogType.LINEAR; })
     get fogEnd () {
         return this._fogEnd;
     }
@@ -313,10 +314,11 @@ export class FogInfo {
      * @zh 雾效衰减
      * @en Global fog attenuation
      */
-    @type(CCFloat)
-    @rangeStep(0.1)
-    @displayOrder(6)
     @visible(function (this: FogInfo) { return this._type !== FogType.LINEAR; })
+    @type(CCFloat)
+    @rangeMin(0.01)
+    @rangeStep(0.01)
+    @displayOrder(6)
     get fogAtten () {
         return this._fogAtten;
     }
@@ -330,10 +332,10 @@ export class FogInfo {
      * @zh 雾效顶部范围，只适用于层级雾
      * @en Global fog top range, only for layered fog
      */
-    @type(CCFloat)
-    @rangeStep(0.1)
-    @displayOrder(7)
     @visible(function (this: FogInfo) { return this._type === FogType.LAYERED; })
+    @type(CCFloat)
+    @rangeStep(0.01)
+    @displayOrder(7)
     get fogTop () {
         return this._fogTop;
     }
@@ -347,10 +349,10 @@ export class FogInfo {
      * @zh 雾效范围，只适用于层级雾
      * @en Global fog range, only for layered fog
      */
-    @type(CCFloat)
-    @rangeStep(0.1)
-    @displayOrder(8)
     @visible(function (this: FogInfo) { return this._type === FogType.LAYERED; })
+    @type(CCFloat)
+    @rangeStep(0.01)
+    @displayOrder(8)
     get fogRange () {
         return this._fogRange;
     }
@@ -391,6 +393,8 @@ export class ShadowsInfo {
     @serializable
     protected _shadowColor = new Color(0, 0, 0, 76);
     @serializable
+    protected _autoAdapt = true;
+    @serializable
     protected _pcf = PCFType.HARD;
     @serializable
     protected _near: number = 1;
@@ -402,6 +406,8 @@ export class ShadowsInfo {
     protected _orthoSize: number = 5;
     @serializable
     protected _size: Vec2 = new Vec2(512, 512);
+    @serializable
+    protected _bias: number = 0.0035;
 
     protected _resource: Shadows | null = null;
 
@@ -483,11 +489,25 @@ export class ShadowsInfo {
     }
 
     /**
+     * @en get or set shadow Map sampler auto adapt
+     * @zh 阴影纹理生成是否自适应
+     */
+    @type (CCBoolean)
+    @visible(function (this: ShadowsInfo) {return this._type === ShadowType.ShadowMap; })
+    set autoAdapt (val) {
+        this._autoAdapt = val;
+        if (this._resource) { this._resource.autoAdapt = val; }
+    }
+    get autoAdapt (){
+        return this._autoAdapt;
+    }
+
+    /**
      * @en get or set shadow camera near
      * @zh 获取或者设置阴影相机近裁剪面
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
     set near (val: number) {
         this._near = val;
         if (this._resource) { this._resource.near = val; }
@@ -501,7 +521,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影相机远裁剪面
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
     set far (val: number) {
         this._far = val;
         if (this._resource) { this._resource.far = val; }
@@ -515,7 +535,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影相机正交大小
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
     set orthoSize (val: number) {
         this._orthoSize = val;
         if (this._resource) { this._resource.orthoSize = val; }
@@ -528,7 +548,7 @@ export class ShadowsInfo {
      * @en get or set shadow camera orthoSize
      * @zh 获取或者设置阴影纹理大小
      */
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
     set shadowMapSize (val: Vec2) {
         this._size.set(val);
         if (this._resource) { this._resource.size = val; }
@@ -542,13 +562,27 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影纹理大小
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
     set aspect (val: number) {
         this._aspect = val;
         if (this._resource) { this._resource.aspect = val; }
     }
     get aspect () {
         return this._aspect;
+    }
+
+    /**
+     * @en get or set shadow map sampler offset
+     * @zh 获取或者设置阴影纹理偏移值
+     */
+    @type(CCFloat)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
+    set bias (val: number) {
+        this._bias = val;
+        if (this._resource) { this._resource.bias = val; }
+    }
+    get bias () {
+        return this._bias;
     }
 
     /**
@@ -566,6 +600,7 @@ export class ShadowsInfo {
     public activate (resource: Shadows) {
         this._resource = resource;
         this._resource.type = this._type;
+        this._resource.autoAdapt = this._autoAdapt;
         this._resource.near = this._near;
         this._resource.far = this._far;
         this._resource.orthoSize = this._orthoSize;
@@ -573,6 +608,8 @@ export class ShadowsInfo {
         this._resource.normal = this._normal;
         this._resource.distance = this._distance;
         this._resource.shadowColor = this._shadowColor;
+        this._resource.pcf = this._pcf;
+        this._resource.bias = this._bias;
         this._resource.enabled = this._enabled;
     }
 }

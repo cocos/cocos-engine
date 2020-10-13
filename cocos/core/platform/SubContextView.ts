@@ -24,7 +24,8 @@
 */
 
 /**
- * @category component
+ * @packageDocumentation
+ * @module component
  */
 
 import { Component } from '../components/component';

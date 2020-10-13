@@ -24,7 +24,8 @@
 */
 
 /**
- * @category component/light
+ * @packageDocumentation
+ * @module component/light
  */
 
 import { Component } from '../../components/component';

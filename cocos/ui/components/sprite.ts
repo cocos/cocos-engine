@@ -25,7 +25,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { SpriteAtlas, SpriteFrame } from '../../core/assets';

@@ -27,7 +27,6 @@ const _mat4_trans = new Mat4();
 /**
  * @zh 阴影类型。
  * @en The shadow type
- * @static
  * @enum Shadows.ShadowType
  */
 export const ShadowType = Enum({
@@ -193,10 +192,15 @@ export class Shadows {
     protected _globalDescriptorSet: GFXDescriptorSet | null = null;
     protected _dirty: boolean = true;
     /**
-     * @zh
-     * 场景包围球
+     * @en bounding sphere
+     * @zh 场景包围球
      */
     protected _sphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
+    /**
+     * @en get or set shadow auto control
+     * @zh 获取或者设置阴影是否自动控制
+     */
+    public autoAdapt: boolean = true;
     /**
      * @en get or set shadow camera near
      * @zh 获取或者设置阴影相机近裁剪面
@@ -222,12 +226,16 @@ export class Shadows {
      * @zh 获取或者设置阴影纹理大小
      */
     public size: Vec2 = new Vec2(512, 512);
-
     /**
      * @en get or set shadow pcf
      * @zh 获取或者设置阴影pcf等级
      */
     public pcf = PCFType.HARD;
+    /**
+     * @en get or set shadow bias
+     * @zh 获取或者设置阴影偏移量
+     */
+    public bias: number = 0.0035;
 
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;
@@ -242,6 +250,7 @@ export class Shadows {
         }
     }
 
+    // used to auto adapt
     public getWorldMatrix (rotation: Quat, dir: Vec3) {
         Vec3.negate(_dir_negate, dir);
         const distance: number = Math.sqrt(2) * this._sphere.radius;

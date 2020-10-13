@@ -1,5 +1,6 @@
 /**
- * @category decorator
+ * @packageDocumentation
+ * @module decorator
  */
 
 import { DEV } from 'internal:constants';

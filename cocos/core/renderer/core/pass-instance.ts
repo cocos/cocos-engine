@@ -24,7 +24,8 @@
 */
 
 /**
- * @category material
+ * @packageDocumentation
+ * @module material
  */
 
 import { IPassInfo } from '../../assets/effect-asset';
@@ -34,8 +35,16 @@ import { Pass, PassOverrides } from './pass';
 import { overrideMacros, MacroRecord } from './pass-utils';
 import { PassView, RasterizerStatePool, DepthStencilStatePool, BlendStatePool, PassPool } from './memory-pools';
 
+/**
+ * @en A pass instance defines an variant version of the [[Pass]]
+ * @zh 表示 [[Pass]] 的一种特殊实例
+ */
 export class PassInstance extends Pass {
 
+    /**
+     * @en The parent pass
+     * @zh 相关联的原始 Pass
+     */
     get parent () { return this._parent; }
 
     private _parent: Pass;
@@ -69,6 +78,13 @@ export class PassInstance extends Pass {
         super.tryCompile();
     }
 
+    /**
+     * @en Override pipeline states with the given pass override info.
+     * This won't affect the original pass
+     * @zh 重载当前 Pass 的管线状态。这不会影响原始 Pass
+     * @param original The original pass info
+     * @param value The override pipeline state info
+     */
     public overridePipelineStates (original: IPassInfo, overrides: PassOverrides): void {
         BlendStatePool.free(PassPool.get(this._handle, PassView.BLEND_STATE));
         RasterizerStatePool.free(PassPool.get(this._handle, PassView.RASTERIZER_STATE));
@@ -93,10 +109,18 @@ export class PassInstance extends Pass {
         return res;
     }
 
+    /**
+     * @en Prepare to change states of the pass and do not notify the material to rebuild the pipeline state object
+     * @zh 开始静默修改 Pass 相关状态，不会通知材质去重新构建管线状态对象。
+     */
     public beginChangeStatesSilently () {
         this._dontNotify = true;
     }
 
+    /**
+     * @en End the silent states changing process, all state changes will be notified.
+     * @zh 结束静默状态修改，所有修改将会开始通知材质。
+     */
     public endChangeStatesSilently () {
         this._dontNotify = false;
     }

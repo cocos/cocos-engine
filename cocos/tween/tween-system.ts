@@ -1,5 +1,6 @@
 /**
- * @category tween
+ * @packageDocumentation
+ * @module tween
  */
 
 import { System, Director, director } from "../core";

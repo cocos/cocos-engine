@@ -25,7 +25,8 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 import {ccclass} from 'cc.decorator';
@@ -33,8 +34,8 @@ import { Asset } from './asset';
 import { legacyCC } from '../global-exports';
 
 /**
- * @zh
- * 脚本资源基类。
+ * @en The script asset base class
+ * @zh 脚本资源基类。
  */
 @ccclass('cc.Script')
 export class Script extends Asset {
@@ -42,8 +43,8 @@ export class Script extends Asset {
 legacyCC._Script = Script;
 
 /**
- * @zh
- * JavaScript 脚本资源。
+ * @en JavaScript asset.
+ * @zh JavaScript 脚本资源。
  */
 @ccclass('cc.JavaScript')
 export class JavaScript extends Script {
@@ -51,8 +52,8 @@ export class JavaScript extends Script {
 legacyCC._JavaScript = JavaScript;
 
 /**
- * @zh
- * Typescript 脚本资源。
+ * @en TypeScript asset
+ * @zh TypeScript 脚本资源。
  */
 @ccclass('cc.TypeScript')
 export class TypeScript extends Script {

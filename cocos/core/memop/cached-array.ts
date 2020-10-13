@@ -1,6 +1,7 @@
 
 /**
- * @category memop
+ * @packageDocumentation
+ * @module memop
  */
 
 /**
@@ -88,6 +89,17 @@ export class CachedArray<T> {
      */
     public clear () {
         this.length = 0;
+    }
+
+    /**
+     * @en
+     * Clear the cache. The [[length]] will be set to 0, and clear the internal array.
+     * @zh
+     * 清空数组所有元素。[[length]] 会被设为 0，并且清空内部数组
+     */
+    public destroy () {
+        this.length = 0;
+        this.array.length = 0;
     }
 
     /**

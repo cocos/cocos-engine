@@ -1,6 +1,7 @@
 
 /**
- * @category memop
+ * @packageDocumentation
+ * @module memop
  */
 
 let _bufferPools: ArrayBuffer[][] = Array(8);

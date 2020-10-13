@@ -1,5 +1,6 @@
 /**
- * @category decorator
+ * @packageDocumentation
+ * @module decorator
  */
 
 import { CCClass } from '../class';

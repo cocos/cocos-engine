@@ -1,6 +1,7 @@
 
 /**
- * @category memop
+ * @packageDocumentation
+ * @module memop
  */
 
 import { Pool } from './pool';

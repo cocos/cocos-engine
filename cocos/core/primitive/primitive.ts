@@ -1,5 +1,6 @@
 /**
- * @category 3d/primitive
+ * @packageDocumentation
+ * @module 3d/primitive
  */
 
 import { createMesh } from '../3d/misc/utils';

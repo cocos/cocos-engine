@@ -1,5 +1,6 @@
 /**
- * @category geometry
+ * @packageDocumentation
+ * @module geometry
  */
 
 import { Vec3, Quat, Mat4, absMaxComponent } from "../math";
