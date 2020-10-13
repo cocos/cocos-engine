@@ -378,6 +378,10 @@ namespace se {
         bool _isNativeFunction() const;
         //
 
+    #if CC_DEBUG
+        uint32_t getObjectId() const { return _objectId; }
+    #endif
+
     private:
         static void nativeObjectFinalizeHook(void* nativeObj);
         static void setIsolate(v8::Isolate* isolate);
@@ -397,6 +401,9 @@ namespace se {
         V8FinalizeFunc _finalizeCb;
         internal::PrivateData* _internalData;
 
+    #if CC_DEBUG
+        uint32_t _objectId = 0;
+    #endif
         friend class ScriptEngine;
     };
 
