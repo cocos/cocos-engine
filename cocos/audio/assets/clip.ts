@@ -61,6 +61,7 @@ export class AudioClip extends Asset {
     public static PlayingState = PlayingState;
     public static AudioType = AudioType;
     public static preventDeferredLoadDependents = true;
+    public isOneShot = false;
 
     @serializable
     protected _duration = 0; // we serialize this because it's unavailable at runtime on some platforms
@@ -68,7 +69,7 @@ export class AudioClip extends Asset {
     @type(AudioType)
     protected _loadMode = AudioType.UNKNOWN_AUDIO;
 
-    protected _audio: any = null;
+    protected _nativeAudio: any = null;
     protected _player: AudioPlayer | null = null;
 
     constructor () {
@@ -81,11 +82,11 @@ export class AudioClip extends Asset {
         return super.destroy();
     }
 
-    set _nativeAsset (clip: any) {
-        this._audio = clip;
-        if (clip) {
-            const ctor = this._getPlayer(clip);
-            this._player = new ctor({ clip, duration: this._duration, eventTarget: this });
+    set _nativeAsset (nativeAudio: any) {
+        this._nativeAudio = nativeAudio;
+        if (nativeAudio) {
+            const ctor = this._getPlayer(nativeAudio);
+            this._player = new ctor({ nativeAudio, duration: this._duration, audioClip: this });
             this.loaded = true;
             this.emit('load');
         } else {
@@ -97,7 +98,7 @@ export class AudioClip extends Asset {
     }
 
     get _nativeAsset () {
-        return this._audio;
+        return this._nativeAudio;
     }
 
     get loadMode () {
@@ -130,6 +131,14 @@ export class AudioClip extends Asset {
     public getVolume () { if (this._player) { return this._player.getVolume(); } return 1; }
     public setLoop (val: boolean) { if (this._player) { this._player.setLoop(val); } }
     public getLoop () { if (this._player) { return this._player.getLoop(); } return false; }
+    public clone (): Promise<AudioClip> { 
+        return new Promise((resolve, reject) => {
+            if (!this._player) {
+                return reject('player not exists');
+            }
+            this._player.clone().then(clip => resolve(clip), reject);
+        });
+    }
 
     private _getPlayer (clip: any) {
         let ctor: any;

@@ -28,6 +28,7 @@
  */
 
 import { legacyCC } from '../../core/global-exports';
+import { AudioClip } from './clip';
 
 export const PlayingState = {
     INITIALIZING: 0,
@@ -36,24 +37,24 @@ export const PlayingState = {
 };
 
 export interface IAudioInfo {
-    clip: any;
+    nativeAudio: any;
     duration: number;
-    eventTarget: any;
+    audioClip: any;
 }
 
 export abstract class AudioPlayer {
     protected _state = PlayingState.STOPPED;
     protected _duration = 0;
-    protected _eventTarget: any;
 
     protected _onHide: Function;
     protected _onShow: Function;
     protected _interrupted = false;
     protected _blocking = false;
+    protected _clip: AudioClip;
 
     constructor (info: IAudioInfo) {
+        this._clip = info.audioClip;
         this._duration = info.duration;
-        this._eventTarget = info.eventTarget;
         this._onHide = () => {
             this._blocking = true;
             if (this._state !== PlayingState.PLAYING) { return; }
@@ -72,7 +73,16 @@ export abstract class AudioPlayer {
     public abstract play (): void;
     public abstract pause (): void;
     public abstract stop (): void;
-    public abstract playOneShot (volume: number): void;
+    public playOneShot (volume = 1) {
+        this._clip.clone().then(clonedClip => {
+            clonedClip.isOneShot = true;
+            clonedClip.setVolume(volume);
+            clonedClip.once('ended', () => {
+                clonedClip.destroy();
+            });
+            clonedClip.play();
+        });
+    }
     public abstract setCurrentTime (val: number): void;
     public abstract getCurrentTime (): number;
     public abstract setVolume (val: number, immediate: boolean): void;
@@ -81,6 +91,7 @@ export abstract class AudioPlayer {
     public abstract getLoop (): boolean;
     public getState () { return this._state; }
     public getDuration () { return this._duration; }
+    public abstract clone (): Promise<AudioClip>;
     public destroy () {
         legacyCC.game.off(legacyCC.Game.EVENT_HIDE, this._onHide);
         legacyCC.game.off(legacyCC.Game.EVENT_SHOW, this._onShow);
