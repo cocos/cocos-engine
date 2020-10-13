@@ -68,7 +68,7 @@ export class WebView extends Component {
      * @zh
      * 指定 WebView 加载的网址，它应该是一个 http 或者 https 开头的字符串
      */
-    @tooltip('i18n:videoplayer.url')
+    @tooltip('i18n:webview.url')
     get url () {
         return this._url;
     }
@@ -88,7 +88,7 @@ export class WebView extends Component {
     @serializable
     @type([ComponentEventHandler])
     @displayOrder(20)
-    @tooltip('i18n:videoplayer.webviewEvents')
+    @tooltip('i18n:webview.webviewEvents')
     public webviewEvents: ComponentEventHandler[] = [];
 
     /**
@@ -105,7 +105,7 @@ export class WebView extends Component {
      * @en
      * Get current audio state.
      * @zh
-     * 获取当前视频状态。
+     * 获取当前网页视图状态。
      */
     get state () {
         if (!this._impl) { return EventType.NONE; }
