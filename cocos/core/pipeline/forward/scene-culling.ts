@@ -93,12 +93,15 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                         shadowObjects.push(getCastShadowRenderObject(model, camera));
                     }
 
+                    // Even if the obstruction is not in the field of view,
+                    // the shadow is still visible.
+                    if (model.receiveShadow && model.worldBounds) { sphere.mergeAABB(receiveSphere, receiveSphere, model.worldBounds); }
+
                     // frustum culling
                     if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, camera.frustum)) {
                         continue;
                     }
 
-                    if (model.receiveShadow && model.worldBounds) { sphere.mergeAABB(receiveSphere, receiveSphere, model.worldBounds); }
                     renderObjects.push(getRenderObject(model, camera));
                 }
             }
