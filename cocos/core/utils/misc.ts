@@ -176,12 +176,6 @@ export function isPlainEmptyObj_DEV (obj) {
     return isEmptyObject(obj);
 }
 
-export function cloneable_DEV (obj) {
-    return obj &&
-        typeof obj.clone === 'function' &&
-        ((obj.constructor && obj.constructor.prototype.hasOwnProperty('clone')) || obj.hasOwnProperty('clone'));
-}
-
 /**
  * @en Clamp a value between from and to.
  * @zh 限定浮点数的最大最小值。<br/>
@@ -248,9 +242,7 @@ legacyCC.misc = {
     contains,
     isDomNode,
     callInNextTick,
-    tryCatchFunctor_EDITOR,
     isPlainEmptyObj_DEV,
-    cloneable_DEV,
     clampf,
     degreesToRadians,
     radiansToDegrees,

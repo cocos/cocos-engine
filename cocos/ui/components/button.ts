@@ -516,7 +516,7 @@ export class Button extends Component {
     @serializable
     protected _transition = Transition.NONE;
     @serializable
-    protected _normalColor: Color = new Color(214, 214, 214, 255);
+    protected _normalColor: Color = Color.WHITE.clone();
     @serializable
     protected _hoverColor: Color = new Color(211, 211, 211, 255);
     @serializable

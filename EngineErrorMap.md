@@ -1353,6 +1353,7 @@ Should not add %s to a node which size is already used by its other component.
 
 ### 3629
 
+<!-- DEPRECATED -->
 attribute must be type object
 
 ### 3630
