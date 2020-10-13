@@ -178,6 +178,12 @@ class Component extends CCObject {
     /**
      * @private
      */
+    @serializable
+    public __prefab: any = null;
+
+    /**
+     * @private
+     */
     public _sceneGetter: null | (() => RenderScene) = null;
 
     /**

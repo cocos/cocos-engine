@@ -44,6 +44,7 @@ import { DEV, DEBUG, EDITOR } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { Node } from './node';
 import { Scene } from './scene';
+import { ComponentPrefabInfo } from '../utils';
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 
@@ -962,7 +963,14 @@ export class BaseNode extends CCObject implements ISchedulable {
 
         const component = new constructor();
         component.node = this;
+        if (this._prefab) {
+            component.__prefab = new ComponentPrefabInfo();
+            component.__prefab.fileId = component.uuid;
+        }
+
         this._components.push(component);
+
+
         if (EDITOR && EditorExtends.Node && EditorExtends.Component) {
             const node = EditorExtends.Node.getNode(this._id);
             if (node) {
