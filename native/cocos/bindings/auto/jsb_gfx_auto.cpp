@@ -150,32 +150,20 @@ static bool js_gfx_Offset_constructor(se::State& s)
     else
     {
         cc::gfx::Offset* cobj = JSB_ALLOC(cc::gfx::Offset);
-        int arg0 = 0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
-                cobj->x = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            int arg0 = 0;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+            cobj->x = arg0;
         }
-        int arg1 = 0;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (int)tmp; } while(false);
-                cobj->y = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            int arg1 = 0;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (int)tmp; } while(false);
+            cobj->y = arg1;
         }
-        int arg2 = 0;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (int)tmp; } while(false);
-                cobj->z = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            int arg2 = 0;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (int)tmp; } while(false);
+            cobj->z = arg2;
         }
 
         if(!ok) {
@@ -402,41 +390,25 @@ static bool js_gfx_Rect_constructor(se::State& s)
     else
     {
         cc::gfx::Rect* cobj = JSB_ALLOC(cc::gfx::Rect);
-        int arg0 = 0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
-                cobj->x = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            int arg0 = 0;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+            cobj->x = arg0;
         }
-        int arg1 = 0;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (int)tmp; } while(false);
-                cobj->y = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            int arg1 = 0;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (int)tmp; } while(false);
+            cobj->y = arg1;
         }
-        unsigned int arg2 = 0;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
-                cobj->width = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            unsigned int arg2 = 0;
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->width = arg2;
         }
-        unsigned int arg3 = 0;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
-                cobj->height = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            unsigned int arg3 = 0;
+            ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+            cobj->height = arg3;
         }
 
         if(!ok) {
@@ -630,32 +602,20 @@ static bool js_gfx_Extent_constructor(se::State& s)
     else
     {
         cc::gfx::Extent* cobj = JSB_ALLOC(cc::gfx::Extent);
-        unsigned int arg0 = 0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-                cobj->width = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            unsigned int arg0 = 0;
+            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+            cobj->width = arg0;
         }
-        unsigned int arg1 = 0;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
-                cobj->height = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            unsigned int arg1 = 0;
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->height = arg1;
         }
-        unsigned int arg2 = 0;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
-                cobj->depth = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            unsigned int arg2 = 0;
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->depth = arg2;
         }
 
         if(!ok) {
@@ -848,32 +808,20 @@ static bool js_gfx_TextureSubres_constructor(se::State& s)
     else
     {
         cc::gfx::TextureSubres* cobj = JSB_ALLOC(cc::gfx::TextureSubres);
-        unsigned int arg0 = 0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-                cobj->mipLevel = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            unsigned int arg0 = 0;
+            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+            cobj->mipLevel = arg0;
         }
-        unsigned int arg1 = 0;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
-                cobj->baseArrayLayer = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            unsigned int arg1 = 0;
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->baseArrayLayer = arg1;
         }
-        unsigned int arg2 = 0;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
-                cobj->layerCount = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            unsigned int arg2 = 0;
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->layerCount = arg2;
         }
 
         if(!ok) {
@@ -1134,50 +1082,30 @@ static bool js_gfx_TextureCopy_constructor(se::State& s)
     else
     {
         cc::gfx::TextureCopy* cobj = JSB_ALLOC(cc::gfx::TextureCopy);
-        cc::gfx::TextureSubres* arg0 = nullptr;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_reference(args[0], &arg0);
-                cobj->srcSubres = *arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            cc::gfx::TextureSubres* arg0 = nullptr;
+            ok &= seval_to_reference(args[0], &arg0);
+            cobj->srcSubres = *arg0;
         }
-        cc::gfx::Offset* arg1 = nullptr;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_reference(args[1], &arg1);
-                cobj->srcOffset = *arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            cc::gfx::Offset* arg1 = nullptr;
+            ok &= seval_to_reference(args[1], &arg1);
+            cobj->srcOffset = *arg1;
         }
-        cc::gfx::TextureSubres* arg2 = nullptr;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_reference(args[2], &arg2);
-                cobj->dstSubres = *arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            cc::gfx::TextureSubres* arg2 = nullptr;
+            ok &= seval_to_reference(args[2], &arg2);
+            cobj->dstSubres = *arg2;
         }
-        cc::gfx::Offset* arg3 = nullptr;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                ok &= seval_to_reference(args[3], &arg3);
-                cobj->dstOffset = *arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            cc::gfx::Offset* arg3 = nullptr;
+            ok &= seval_to_reference(args[3], &arg3);
+            cobj->dstOffset = *arg3;
         }
-        cc::gfx::Extent* arg4 = nullptr;
-        if (argc > 4) {
-            if (!args[4].isUndefined()) {
-                ok &= seval_to_reference(args[4], &arg4);
-                cobj->extent = *arg4;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 4);
-            }
+        if (argc > 4 && !args[4].isUndefined()) {
+            cc::gfx::Extent* arg4 = nullptr;
+            ok &= seval_to_reference(args[4], &arg4);
+            cobj->extent = *arg4;
         }
 
         if(!ok) {
@@ -1440,50 +1368,30 @@ static bool js_gfx_BufferTextureCopy_constructor(se::State& s)
     else
     {
         cc::gfx::BufferTextureCopy* cobj = JSB_ALLOC(cc::gfx::BufferTextureCopy);
-        unsigned int arg0 = 0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-                cobj->buffStride = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            unsigned int arg0 = 0;
+            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+            cobj->buffStride = arg0;
         }
-        unsigned int arg1 = 0;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
-                cobj->buffTexHeight = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            unsigned int arg1 = 0;
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->buffTexHeight = arg1;
         }
-        cc::gfx::Offset* arg2 = nullptr;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_reference(args[2], &arg2);
-                cobj->texOffset = *arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            cc::gfx::Offset* arg2 = nullptr;
+            ok &= seval_to_reference(args[2], &arg2);
+            cobj->texOffset = *arg2;
         }
-        cc::gfx::Extent* arg3 = nullptr;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                ok &= seval_to_reference(args[3], &arg3);
-                cobj->texExtent = *arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            cc::gfx::Extent* arg3 = nullptr;
+            ok &= seval_to_reference(args[3], &arg3);
+            cobj->texExtent = *arg3;
         }
-        cc::gfx::TextureSubres* arg4 = nullptr;
-        if (argc > 4) {
-            if (!args[4].isUndefined()) {
-                ok &= seval_to_reference(args[4], &arg4);
-                cobj->texSubres = *arg4;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 4);
-            }
+        if (argc > 4 && !args[4].isUndefined()) {
+            cc::gfx::TextureSubres* arg4 = nullptr;
+            ok &= seval_to_reference(args[4], &arg4);
+            cobj->texSubres = *arg4;
         }
 
         if(!ok) {
@@ -1780,59 +1688,35 @@ static bool js_gfx_Viewport_constructor(se::State& s)
     else
     {
         cc::gfx::Viewport* cobj = JSB_ALLOC(cc::gfx::Viewport);
-        int arg0 = 0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
-                cobj->left = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            int arg0 = 0;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+            cobj->left = arg0;
         }
-        int arg1 = 0;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (int)tmp; } while(false);
-                cobj->top = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            int arg1 = 0;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (int)tmp; } while(false);
+            cobj->top = arg1;
         }
-        unsigned int arg2 = 0;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
-                cobj->width = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            unsigned int arg2 = 0;
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->width = arg2;
         }
-        unsigned int arg3 = 0;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
-                cobj->height = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            unsigned int arg3 = 0;
+            ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+            cobj->height = arg3;
         }
-        float arg4 = 0;
-        if (argc > 4) {
-            if (!args[4].isUndefined()) {
-                ok &= seval_to_float(args[4], &arg4);
-                cobj->minDepth = arg4;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 4);
-            }
+        if (argc > 4 && !args[4].isUndefined()) {
+            float arg4 = 0;
+            ok &= seval_to_float(args[4], &arg4);
+            cobj->minDepth = arg4;
         }
-        float arg5 = 0;
-        if (argc > 5) {
-            if (!args[5].isUndefined()) {
-                ok &= seval_to_float(args[5], &arg5);
-                cobj->maxDepth = arg5;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 5);
-            }
+        if (argc > 5 && !args[5].isUndefined()) {
+            float arg5 = 0;
+            ok &= seval_to_float(args[5], &arg5);
+            cobj->maxDepth = arg5;
         }
 
         if(!ok) {
@@ -2062,41 +1946,25 @@ static bool js_gfx_Color_constructor(se::State& s)
     else
     {
         cc::gfx::Color* cobj = JSB_ALLOC(cc::gfx::Color);
-        float arg0 = 0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_float(args[0], &arg0);
-                cobj->x = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            float arg0 = 0;
+            ok &= seval_to_float(args[0], &arg0);
+            cobj->x = arg0;
         }
-        float arg1 = 0;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_float(args[1], &arg1);
-                cobj->y = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            float arg1 = 0;
+            ok &= seval_to_float(args[1], &arg1);
+            cobj->y = arg1;
         }
-        float arg2 = 0;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_float(args[2], &arg2);
-                cobj->z = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            float arg2 = 0;
+            ok &= seval_to_float(args[2], &arg2);
+            cobj->z = arg2;
         }
-        float arg3 = 0;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                ok &= seval_to_float(args[3], &arg3);
-                cobj->w = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            float arg3 = 0;
+            ok &= seval_to_float(args[3], &arg3);
+            cobj->w = arg3;
         }
 
         if(!ok) {
@@ -2290,32 +2158,20 @@ static bool js_gfx_BindingMappingInfo_constructor(se::State& s)
     else
     {
         cc::gfx::BindingMappingInfo* cobj = JSB_ALLOC(cc::gfx::BindingMappingInfo);
-        std::vector<int> arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_std_vector(args[0], &arg0);
-                cobj->bufferOffsets = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            std::vector<int> arg0;
+            ok &= seval_to_std_vector(args[0], &arg0);
+            cobj->bufferOffsets = arg0;
         }
-        std::vector<int> arg1;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_std_vector(args[1], &arg1);
-                cobj->samplerOffsets = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            std::vector<int> arg1;
+            ok &= seval_to_std_vector(args[1], &arg1);
+            cobj->samplerOffsets = arg1;
         }
-        unsigned int arg2 = 0;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
-                cobj->flexibleSet = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            unsigned int arg2 = 0;
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->flexibleSet = arg2;
         }
 
         if(!ok) {
@@ -2644,68 +2500,40 @@ static bool js_gfx_DeviceInfo_constructor(se::State& s)
     else
     {
         cc::gfx::DeviceInfo* cobj = JSB_ALLOC(cc::gfx::DeviceInfo);
-        uintptr_t arg0 = 0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_uintptr_t(args[0], &arg0);
-                cobj->windowHandle = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            uintptr_t arg0 = 0;
+            ok &= seval_to_uintptr_t(args[0], &arg0);
+            cobj->windowHandle = arg0;
         }
-        unsigned int arg1 = 0;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
-                cobj->width = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            unsigned int arg1 = 0;
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->width = arg1;
         }
-        unsigned int arg2 = 0;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
-                cobj->height = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            unsigned int arg2 = 0;
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->height = arg2;
         }
-        unsigned int arg3 = 0;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
-                cobj->nativeWidth = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            unsigned int arg3 = 0;
+            ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+            cobj->nativeWidth = arg3;
         }
-        unsigned int arg4 = 0;
-        if (argc > 4) {
-            if (!args[4].isUndefined()) {
-                ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
-                cobj->nativeHeight = arg4;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 4);
-            }
+        if (argc > 4 && !args[4].isUndefined()) {
+            unsigned int arg4 = 0;
+            ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
+            cobj->nativeHeight = arg4;
         }
-        cc::gfx::Context* arg5 = nullptr;
-        if (argc > 5) {
-            if (!args[5].isUndefined()) {
-                ok &= seval_to_native_ptr(args[5], &arg5);
-                cobj->sharedCtx = arg5;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 5);
-            }
+        if (argc > 5 && !args[5].isUndefined()) {
+            cc::gfx::Context* arg5 = nullptr;
+            ok &= seval_to_native_ptr(args[5], &arg5);
+            cobj->sharedCtx = arg5;
         }
-        cc::gfx::BindingMappingInfo* arg6 = nullptr;
-        if (argc > 6) {
-            if (!args[6].isUndefined()) {
-                ok &= seval_to_reference(args[6], &arg6);
-                cobj->bindingMappingInfo = *arg6;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 6);
-            }
+        if (argc > 6 && !args[6].isUndefined()) {
+            cc::gfx::BindingMappingInfo* arg6 = nullptr;
+            ok &= seval_to_reference(args[6], &arg6);
+            cobj->bindingMappingInfo = *arg6;
         }
 
         if(!ok) {
@@ -2902,32 +2730,20 @@ static bool js_gfx_ContextInfo_constructor(se::State& s)
     else
     {
         cc::gfx::ContextInfo* cobj = JSB_ALLOC(cc::gfx::ContextInfo);
-        uintptr_t arg0 = 0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_uintptr_t(args[0], &arg0);
-                cobj->windowHandle = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            uintptr_t arg0 = 0;
+            ok &= seval_to_uintptr_t(args[0], &arg0);
+            cobj->windowHandle = arg0;
         }
-        cc::gfx::Context* arg1 = nullptr;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_native_ptr(args[1], &arg1);
-                cobj->sharedCtx = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            cc::gfx::Context* arg1 = nullptr;
+            ok &= seval_to_native_ptr(args[1], &arg1);
+            cobj->sharedCtx = arg1;
         }
-        cc::gfx::VsyncMode arg2;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::VsyncMode)tmp; } while(false);
-                cobj->vsyncMode = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            cc::gfx::VsyncMode arg2;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::VsyncMode)tmp; } while(false);
+            cobj->vsyncMode = arg2;
         }
 
         if(!ok) {
@@ -3188,50 +3004,30 @@ static bool js_gfx_BufferInfo_constructor(se::State& s)
     else
     {
         cc::gfx::BufferInfo* cobj = JSB_ALLOC(cc::gfx::BufferInfo);
-        cc::gfx::BufferUsageBit arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::BufferUsageBit)tmp; } while(false);
-                cobj->usage = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            cc::gfx::BufferUsageBit arg0;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::BufferUsageBit)tmp; } while(false);
+            cobj->usage = arg0;
         }
-        cc::gfx::MemoryUsageBit arg1;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::MemoryUsageBit)tmp; } while(false);
-                cobj->memUsage = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            cc::gfx::MemoryUsageBit arg1;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::MemoryUsageBit)tmp; } while(false);
+            cobj->memUsage = arg1;
         }
-        unsigned int arg2 = 0;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
-                cobj->size = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            unsigned int arg2 = 0;
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->size = arg2;
         }
-        unsigned int arg3 = 0;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
-                cobj->stride = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            unsigned int arg3 = 0;
+            ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+            cobj->stride = arg3;
         }
-        cc::gfx::BufferFlagBit arg4;
-        if (argc > 4) {
-            if (!args[4].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cc::gfx::BufferFlagBit)tmp; } while(false);
-                cobj->flags = arg4;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 4);
-            }
+        if (argc > 4 && !args[4].isUndefined()) {
+            cc::gfx::BufferFlagBit arg4;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cc::gfx::BufferFlagBit)tmp; } while(false);
+            cobj->flags = arg4;
         }
 
         if(!ok) {
@@ -3426,32 +3222,20 @@ static bool js_gfx_BufferViewInfo_constructor(se::State& s)
     else
     {
         cc::gfx::BufferViewInfo* cobj = JSB_ALLOC(cc::gfx::BufferViewInfo);
-        cc::gfx::Buffer* arg0 = nullptr;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_native_ptr(args[0], &arg0);
-                cobj->buffer = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            cc::gfx::Buffer* arg0 = nullptr;
+            ok &= seval_to_native_ptr(args[0], &arg0);
+            cobj->buffer = arg0;
         }
-        unsigned int arg1 = 0;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
-                cobj->offset = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            unsigned int arg1 = 0;
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->offset = arg1;
         }
-        unsigned int arg2 = 0;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
-                cobj->range = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            unsigned int arg2 = 0;
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->range = arg2;
         }
 
         if(!ok) {
@@ -3780,68 +3564,40 @@ static bool js_gfx_DrawInfo_constructor(se::State& s)
     else
     {
         cc::gfx::DrawInfo* cobj = JSB_ALLOC(cc::gfx::DrawInfo);
-        unsigned int arg0 = 0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-                cobj->vertexCount = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            unsigned int arg0 = 0;
+            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+            cobj->vertexCount = arg0;
         }
-        unsigned int arg1 = 0;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
-                cobj->firstVertex = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            unsigned int arg1 = 0;
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->firstVertex = arg1;
         }
-        unsigned int arg2 = 0;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
-                cobj->indexCount = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            unsigned int arg2 = 0;
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->indexCount = arg2;
         }
-        unsigned int arg3 = 0;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
-                cobj->firstIndex = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            unsigned int arg3 = 0;
+            ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+            cobj->firstIndex = arg3;
         }
-        unsigned int arg4 = 0;
-        if (argc > 4) {
-            if (!args[4].isUndefined()) {
-                ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
-                cobj->vertexOffset = arg4;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 4);
-            }
+        if (argc > 4 && !args[4].isUndefined()) {
+            unsigned int arg4 = 0;
+            ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
+            cobj->vertexOffset = arg4;
         }
-        unsigned int arg5 = 0;
-        if (argc > 5) {
-            if (!args[5].isUndefined()) {
-                ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
-                cobj->instanceCount = arg5;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 5);
-            }
+        if (argc > 5 && !args[5].isUndefined()) {
+            unsigned int arg5 = 0;
+            ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
+            cobj->instanceCount = arg5;
         }
-        unsigned int arg6 = 0;
-        if (argc > 6) {
-            if (!args[6].isUndefined()) {
-                ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
-                cobj->firstInstance = arg6;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 6);
-            }
+        if (argc > 6 && !args[6].isUndefined()) {
+            unsigned int arg6 = 0;
+            ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
+            cobj->firstInstance = arg6;
         }
 
         if(!ok) {
@@ -3947,14 +3703,10 @@ static bool js_gfx_IndirectBuffer_constructor(se::State& s)
     else
     {
         cc::gfx::IndirectBuffer* cobj = JSB_ALLOC(cc::gfx::IndirectBuffer);
-        std::vector<cc::gfx::DrawInfo> arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_std_vector(args[0], &arg0);
-                cobj->drawInfos = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            std::vector<cc::gfx::DrawInfo> arg0;
+            ok &= seval_to_std_vector(args[0], &arg0);
+            cobj->drawInfos = arg0;
         }
 
         if(!ok) {
@@ -4383,95 +4135,55 @@ static bool js_gfx_TextureInfo_constructor(se::State& s)
     else
     {
         cc::gfx::TextureInfo* cobj = JSB_ALLOC(cc::gfx::TextureInfo);
-        cc::gfx::TextureType arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::TextureType)tmp; } while(false);
-                cobj->type = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            cc::gfx::TextureType arg0;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::TextureType)tmp; } while(false);
+            cobj->type = arg0;
         }
-        cc::gfx::TextureUsageBit arg1;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::TextureUsageBit)tmp; } while(false);
-                cobj->usage = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            cc::gfx::TextureUsageBit arg1;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::TextureUsageBit)tmp; } while(false);
+            cobj->usage = arg1;
         }
-        cc::gfx::Format arg2;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::Format)tmp; } while(false);
-                cobj->format = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            cc::gfx::Format arg2;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::Format)tmp; } while(false);
+            cobj->format = arg2;
         }
-        unsigned int arg3 = 0;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
-                cobj->width = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            unsigned int arg3 = 0;
+            ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+            cobj->width = arg3;
         }
-        unsigned int arg4 = 0;
-        if (argc > 4) {
-            if (!args[4].isUndefined()) {
-                ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
-                cobj->height = arg4;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 4);
-            }
+        if (argc > 4 && !args[4].isUndefined()) {
+            unsigned int arg4 = 0;
+            ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
+            cobj->height = arg4;
         }
-        cc::gfx::TextureFlagBit arg5;
-        if (argc > 5) {
-            if (!args[5].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cc::gfx::TextureFlagBit)tmp; } while(false);
-                cobj->flags = arg5;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 5);
-            }
+        if (argc > 5 && !args[5].isUndefined()) {
+            cc::gfx::TextureFlagBit arg5;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cc::gfx::TextureFlagBit)tmp; } while(false);
+            cobj->flags = arg5;
         }
-        unsigned int arg6 = 0;
-        if (argc > 6) {
-            if (!args[6].isUndefined()) {
-                ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
-                cobj->layerCount = arg6;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 6);
-            }
+        if (argc > 6 && !args[6].isUndefined()) {
+            unsigned int arg6 = 0;
+            ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
+            cobj->layerCount = arg6;
         }
-        unsigned int arg7 = 0;
-        if (argc > 7) {
-            if (!args[7].isUndefined()) {
-                ok &= seval_to_uint32(args[7], (uint32_t*)&arg7);
-                cobj->levelCount = arg7;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 7);
-            }
+        if (argc > 7 && !args[7].isUndefined()) {
+            unsigned int arg7 = 0;
+            ok &= seval_to_uint32(args[7], (uint32_t*)&arg7);
+            cobj->levelCount = arg7;
         }
-        cc::gfx::SampleCount arg8;
-        if (argc > 8) {
-            if (!args[8].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cc::gfx::SampleCount)tmp; } while(false);
-                cobj->samples = arg8;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 8);
-            }
+        if (argc > 8 && !args[8].isUndefined()) {
+            cc::gfx::SampleCount arg8;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cc::gfx::SampleCount)tmp; } while(false);
+            cobj->samples = arg8;
         }
-        unsigned int arg9 = 0;
-        if (argc > 9) {
-            if (!args[9].isUndefined()) {
-                ok &= seval_to_uint32(args[9], (uint32_t*)&arg9);
-                cobj->depth = arg9;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 9);
-            }
+        if (argc > 9 && !args[9].isUndefined()) {
+            unsigned int arg9 = 0;
+            ok &= seval_to_uint32(args[9], (uint32_t*)&arg9);
+            cobj->depth = arg9;
         }
 
         if(!ok) {
@@ -4807,68 +4519,40 @@ static bool js_gfx_TextureViewInfo_constructor(se::State& s)
     else
     {
         cc::gfx::TextureViewInfo* cobj = JSB_ALLOC(cc::gfx::TextureViewInfo);
-        cc::gfx::Texture* arg0 = nullptr;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_native_ptr(args[0], &arg0);
-                cobj->texture = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            cc::gfx::Texture* arg0 = nullptr;
+            ok &= seval_to_native_ptr(args[0], &arg0);
+            cobj->texture = arg0;
         }
-        cc::gfx::TextureType arg1;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::TextureType)tmp; } while(false);
-                cobj->type = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            cc::gfx::TextureType arg1;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::TextureType)tmp; } while(false);
+            cobj->type = arg1;
         }
-        cc::gfx::Format arg2;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::Format)tmp; } while(false);
-                cobj->format = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            cc::gfx::Format arg2;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::Format)tmp; } while(false);
+            cobj->format = arg2;
         }
-        unsigned int arg3 = 0;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
-                cobj->baseLevel = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            unsigned int arg3 = 0;
+            ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+            cobj->baseLevel = arg3;
         }
-        unsigned int arg4 = 0;
-        if (argc > 4) {
-            if (!args[4].isUndefined()) {
-                ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
-                cobj->levelCount = arg4;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 4);
-            }
+        if (argc > 4 && !args[4].isUndefined()) {
+            unsigned int arg4 = 0;
+            ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
+            cobj->levelCount = arg4;
         }
-        unsigned int arg5 = 0;
-        if (argc > 5) {
-            if (!args[5].isUndefined()) {
-                ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
-                cobj->baseLayer = arg5;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 5);
-            }
+        if (argc > 5 && !args[5].isUndefined()) {
+            unsigned int arg5 = 0;
+            ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
+            cobj->baseLayer = arg5;
         }
-        unsigned int arg6 = 0;
-        if (argc > 6) {
-            if (!args[6].isUndefined()) {
-                ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
-                cobj->layerCount = arg6;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 6);
-            }
+        if (argc > 6 && !args[6].isUndefined()) {
+            unsigned int arg6 = 0;
+            ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
+            cobj->layerCount = arg6;
         }
 
         if(!ok) {
@@ -5405,122 +5089,70 @@ static bool js_gfx_SamplerInfo_constructor(se::State& s)
     else
     {
         cc::gfx::SamplerInfo* cobj = JSB_ALLOC(cc::gfx::SamplerInfo);
-        cc::String arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                arg0 = args[0].toStringForce().c_str();
-                cobj->name = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            cc::String arg0;
+            arg0 = args[0].toStringForce().c_str();
+            cobj->name = arg0;
         }
-        cc::gfx::Filter arg1;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::Filter)tmp; } while(false);
-                cobj->minFilter = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            cc::gfx::Filter arg1;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::Filter)tmp; } while(false);
+            cobj->minFilter = arg1;
         }
-        cc::gfx::Filter arg2;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::Filter)tmp; } while(false);
-                cobj->magFilter = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            cc::gfx::Filter arg2;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::Filter)tmp; } while(false);
+            cobj->magFilter = arg2;
         }
-        cc::gfx::Filter arg3;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::gfx::Filter)tmp; } while(false);
-                cobj->mipFilter = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            cc::gfx::Filter arg3;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::gfx::Filter)tmp; } while(false);
+            cobj->mipFilter = arg3;
         }
-        cc::gfx::Address arg4;
-        if (argc > 4) {
-            if (!args[4].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cc::gfx::Address)tmp; } while(false);
-                cobj->addressU = arg4;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 4);
-            }
+        if (argc > 4 && !args[4].isUndefined()) {
+            cc::gfx::Address arg4;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cc::gfx::Address)tmp; } while(false);
+            cobj->addressU = arg4;
         }
-        cc::gfx::Address arg5;
-        if (argc > 5) {
-            if (!args[5].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cc::gfx::Address)tmp; } while(false);
-                cobj->addressV = arg5;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 5);
-            }
+        if (argc > 5 && !args[5].isUndefined()) {
+            cc::gfx::Address arg5;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cc::gfx::Address)tmp; } while(false);
+            cobj->addressV = arg5;
         }
-        cc::gfx::Address arg6;
-        if (argc > 6) {
-            if (!args[6].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cc::gfx::Address)tmp; } while(false);
-                cobj->addressW = arg6;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 6);
-            }
+        if (argc > 6 && !args[6].isUndefined()) {
+            cc::gfx::Address arg6;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cc::gfx::Address)tmp; } while(false);
+            cobj->addressW = arg6;
         }
-        unsigned int arg7 = 0;
-        if (argc > 7) {
-            if (!args[7].isUndefined()) {
-                ok &= seval_to_uint32(args[7], (uint32_t*)&arg7);
-                cobj->maxAnisotropy = arg7;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 7);
-            }
+        if (argc > 7 && !args[7].isUndefined()) {
+            unsigned int arg7 = 0;
+            ok &= seval_to_uint32(args[7], (uint32_t*)&arg7);
+            cobj->maxAnisotropy = arg7;
         }
-        cc::gfx::ComparisonFunc arg8;
-        if (argc > 8) {
-            if (!args[8].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cc::gfx::ComparisonFunc)tmp; } while(false);
-                cobj->cmpFunc = arg8;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 8);
-            }
+        if (argc > 8 && !args[8].isUndefined()) {
+            cc::gfx::ComparisonFunc arg8;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cc::gfx::ComparisonFunc)tmp; } while(false);
+            cobj->cmpFunc = arg8;
         }
-        cc::gfx::Color* arg9 = nullptr;
-        if (argc > 9) {
-            if (!args[9].isUndefined()) {
-                ok &= seval_to_reference(args[9], &arg9);
-                cobj->borderColor = *arg9;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 9);
-            }
+        if (argc > 9 && !args[9].isUndefined()) {
+            cc::gfx::Color* arg9 = nullptr;
+            ok &= seval_to_reference(args[9], &arg9);
+            cobj->borderColor = *arg9;
         }
-        unsigned int arg10 = 0;
-        if (argc > 10) {
-            if (!args[10].isUndefined()) {
-                ok &= seval_to_uint32(args[10], (uint32_t*)&arg10);
-                cobj->minLOD = arg10;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 10);
-            }
+        if (argc > 10 && !args[10].isUndefined()) {
+            unsigned int arg10 = 0;
+            ok &= seval_to_uint32(args[10], (uint32_t*)&arg10);
+            cobj->minLOD = arg10;
         }
-        unsigned int arg11 = 0;
-        if (argc > 11) {
-            if (!args[11].isUndefined()) {
-                ok &= seval_to_uint32(args[11], (uint32_t*)&arg11);
-                cobj->maxLOD = arg11;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 11);
-            }
+        if (argc > 11 && !args[11].isUndefined()) {
+            unsigned int arg11 = 0;
+            ok &= seval_to_uint32(args[11], (uint32_t*)&arg11);
+            cobj->maxLOD = arg11;
         }
-        float arg12 = 0;
-        if (argc > 12) {
-            if (!args[12].isUndefined()) {
-                ok &= seval_to_float(args[12], &arg12);
-                cobj->mipLODBias = arg12;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 12);
-            }
+        if (argc > 12 && !args[12].isUndefined()) {
+            float arg12 = 0;
+            ok &= seval_to_float(args[12], &arg12);
+            cobj->mipLODBias = arg12;
         }
 
         if(!ok) {
@@ -5689,23 +5321,15 @@ static bool js_gfx_ShaderMacro_constructor(se::State& s)
     else
     {
         cc::gfx::ShaderMacro* cobj = JSB_ALLOC(cc::gfx::ShaderMacro);
-        cc::String arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                arg0 = args[0].toStringForce().c_str();
-                cobj->macro = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            cc::String arg0;
+            arg0 = args[0].toStringForce().c_str();
+            cobj->macro = arg0;
         }
-        cc::String arg1;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                arg1 = args[1].toStringForce().c_str();
-                cobj->value = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            cc::String arg1;
+            arg1 = args[1].toStringForce().c_str();
+            cobj->value = arg1;
         }
 
         if(!ok) {
@@ -5897,32 +5521,20 @@ static bool js_gfx_Uniform_constructor(se::State& s)
     else
     {
         cc::gfx::Uniform* cobj = JSB_ALLOC(cc::gfx::Uniform);
-        cc::String arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                arg0 = args[0].toStringForce().c_str();
-                cobj->name = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            cc::String arg0;
+            arg0 = args[0].toStringForce().c_str();
+            cobj->name = arg0;
         }
-        cc::gfx::Type arg1;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::Type)tmp; } while(false);
-                cobj->type = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            cc::gfx::Type arg1;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::Type)tmp; } while(false);
+            cobj->type = arg1;
         }
-        unsigned int arg2 = 0;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
-                cobj->count = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            unsigned int arg2 = 0;
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->count = arg2;
         }
 
         if(!ok) {
@@ -6183,50 +5795,30 @@ static bool js_gfx_UniformBlock_constructor(se::State& s)
     else
     {
         cc::gfx::UniformBlock* cobj = JSB_ALLOC(cc::gfx::UniformBlock);
-        unsigned int arg0 = 0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-                cobj->set = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            unsigned int arg0 = 0;
+            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+            cobj->set = arg0;
         }
-        unsigned int arg1 = 0;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
-                cobj->binding = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            unsigned int arg1 = 0;
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->binding = arg1;
         }
-        cc::String arg2;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                arg2 = args[2].toStringForce().c_str();
-                cobj->name = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            cc::String arg2;
+            arg2 = args[2].toStringForce().c_str();
+            cobj->name = arg2;
         }
-        std::vector<cc::gfx::Uniform> arg3;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                ok &= seval_to_std_vector(args[3], &arg3);
-                cobj->members = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            std::vector<cc::gfx::Uniform> arg3;
+            ok &= seval_to_std_vector(args[3], &arg3);
+            cobj->members = arg3;
         }
-        unsigned int arg4 = 0;
-        if (argc > 4) {
-            if (!args[4].isUndefined()) {
-                ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
-                cobj->count = arg4;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 4);
-            }
+        if (argc > 4 && !args[4].isUndefined()) {
+            unsigned int arg4 = 0;
+            ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
+            cobj->count = arg4;
         }
 
         if(!ok) {
@@ -6489,50 +6081,30 @@ static bool js_gfx_UniformSampler_constructor(se::State& s)
     else
     {
         cc::gfx::UniformSampler* cobj = JSB_ALLOC(cc::gfx::UniformSampler);
-        unsigned int arg0 = 0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-                cobj->set = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            unsigned int arg0 = 0;
+            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+            cobj->set = arg0;
         }
-        unsigned int arg1 = 0;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
-                cobj->binding = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            unsigned int arg1 = 0;
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->binding = arg1;
         }
-        cc::String arg2;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                arg2 = args[2].toStringForce().c_str();
-                cobj->name = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            cc::String arg2;
+            arg2 = args[2].toStringForce().c_str();
+            cobj->name = arg2;
         }
-        cc::gfx::Type arg3;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::gfx::Type)tmp; } while(false);
-                cobj->type = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            cc::gfx::Type arg3;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::gfx::Type)tmp; } while(false);
+            cobj->type = arg3;
         }
-        unsigned int arg4 = 0;
-        if (argc > 4) {
-            if (!args[4].isUndefined()) {
-                ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
-                cobj->count = arg4;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 4);
-            }
+        if (argc > 4 && !args[4].isUndefined()) {
+            unsigned int arg4 = 0;
+            ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
+            cobj->count = arg4;
         }
 
         if(!ok) {
@@ -6693,23 +6265,15 @@ static bool js_gfx_ShaderStage_constructor(se::State& s)
     else
     {
         cc::gfx::ShaderStage* cobj = JSB_ALLOC(cc::gfx::ShaderStage);
-        cc::gfx::ShaderStageFlagBit arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::ShaderStageFlagBit)tmp; } while(false);
-                cobj->stage = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            cc::gfx::ShaderStageFlagBit arg0;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::ShaderStageFlagBit)tmp; } while(false);
+            cobj->stage = arg0;
         }
-        cc::String arg1;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                arg1 = args[1].toStringForce().c_str();
-                cobj->source = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            cc::String arg1;
+            arg1 = args[1].toStringForce().c_str();
+            cobj->source = arg1;
         }
 
         if(!ok) {
@@ -7003,59 +6567,35 @@ static bool js_gfx_Attribute_constructor(se::State& s)
     else
     {
         cc::gfx::Attribute* cobj = JSB_ALLOC(cc::gfx::Attribute);
-        cc::String arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                arg0 = args[0].toStringForce().c_str();
-                cobj->name = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            cc::String arg0;
+            arg0 = args[0].toStringForce().c_str();
+            cobj->name = arg0;
         }
-        cc::gfx::Format arg1;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::Format)tmp; } while(false);
-                cobj->format = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            cc::gfx::Format arg1;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::Format)tmp; } while(false);
+            cobj->format = arg1;
         }
-        bool arg2;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_boolean(args[2], &arg2);
-                cobj->isNormalized = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            bool arg2;
+            ok &= seval_to_boolean(args[2], &arg2);
+            cobj->isNormalized = arg2;
         }
-        unsigned int arg3 = 0;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
-                cobj->stream = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            unsigned int arg3 = 0;
+            ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+            cobj->stream = arg3;
         }
-        bool arg4;
-        if (argc > 4) {
-            if (!args[4].isUndefined()) {
-                ok &= seval_to_boolean(args[4], &arg4);
-                cobj->isInstanced = arg4;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 4);
-            }
+        if (argc > 4 && !args[4].isUndefined()) {
+            bool arg4;
+            ok &= seval_to_boolean(args[4], &arg4);
+            cobj->isInstanced = arg4;
         }
-        unsigned int arg5 = 0;
-        if (argc > 5) {
-            if (!args[5].isUndefined()) {
-                ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
-                cobj->location = arg5;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 5);
-            }
+        if (argc > 5 && !args[5].isUndefined()) {
+            unsigned int arg5 = 0;
+            ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
+            cobj->location = arg5;
         }
 
         if(!ok) {
@@ -7319,50 +6859,30 @@ static bool js_gfx_ShaderInfo_constructor(se::State& s)
     else
     {
         cc::gfx::ShaderInfo* cobj = JSB_ALLOC(cc::gfx::ShaderInfo);
-        cc::String arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                arg0 = args[0].toStringForce().c_str();
-                cobj->name = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            cc::String arg0;
+            arg0 = args[0].toStringForce().c_str();
+            cobj->name = arg0;
         }
-        std::vector<cc::gfx::ShaderStage> arg1;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_std_vector(args[1], &arg1);
-                cobj->stages = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            std::vector<cc::gfx::ShaderStage> arg1;
+            ok &= seval_to_std_vector(args[1], &arg1);
+            cobj->stages = arg1;
         }
-        std::vector<cc::gfx::Attribute> arg2;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_std_vector(args[2], &arg2);
-                cobj->attributes = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            std::vector<cc::gfx::Attribute> arg2;
+            ok &= seval_to_std_vector(args[2], &arg2);
+            cobj->attributes = arg2;
         }
-        std::vector<cc::gfx::UniformBlock> arg3;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                ok &= seval_to_std_vector(args[3], &arg3);
-                cobj->blocks = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            std::vector<cc::gfx::UniformBlock> arg3;
+            ok &= seval_to_std_vector(args[3], &arg3);
+            cobj->blocks = arg3;
         }
-        std::vector<cc::gfx::UniformSampler> arg4;
-        if (argc > 4) {
-            if (!args[4].isUndefined()) {
-                ok &= seval_to_std_vector(args[4], &arg4);
-                cobj->samplers = arg4;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 4);
-            }
+        if (argc > 4 && !args[4].isUndefined()) {
+            std::vector<cc::gfx::UniformSampler> arg4;
+            ok &= seval_to_std_vector(args[4], &arg4);
+            cobj->samplers = arg4;
         }
 
         if(!ok) {
@@ -7591,41 +7111,25 @@ static bool js_gfx_InputAssemblerInfo_constructor(se::State& s)
     else
     {
         cc::gfx::InputAssemblerInfo* cobj = JSB_ALLOC(cc::gfx::InputAssemblerInfo);
-        std::vector<cc::gfx::Attribute> arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_std_vector(args[0], &arg0);
-                cobj->attributes = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            std::vector<cc::gfx::Attribute> arg0;
+            ok &= seval_to_std_vector(args[0], &arg0);
+            cobj->attributes = arg0;
         }
-        std::vector<cc::gfx::Buffer *> arg1;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_std_vector(args[1], &arg1);
-                cobj->vertexBuffers = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            std::vector<cc::gfx::Buffer *> arg1;
+            ok &= seval_to_std_vector(args[1], &arg1);
+            cobj->vertexBuffers = arg1;
         }
-        cc::gfx::Buffer* arg2 = nullptr;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_native_ptr(args[2], &arg2);
-                cobj->indexBuffer = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            cc::gfx::Buffer* arg2 = nullptr;
+            ok &= seval_to_native_ptr(args[2], &arg2);
+            cobj->indexBuffer = arg2;
         }
-        cc::gfx::Buffer* arg3 = nullptr;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                ok &= seval_to_native_ptr(args[3], &arg3);
-                cobj->indirectBuffer = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            cc::gfx::Buffer* arg3 = nullptr;
+            ok &= seval_to_native_ptr(args[3], &arg3);
+            cobj->indirectBuffer = arg3;
         }
 
         if(!ok) {
@@ -7921,59 +7425,35 @@ static bool js_gfx_ColorAttachment_constructor(se::State& s)
     else
     {
         cc::gfx::ColorAttachment* cobj = JSB_ALLOC(cc::gfx::ColorAttachment);
-        cc::gfx::Format arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::Format)tmp; } while(false);
-                cobj->format = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            cc::gfx::Format arg0;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::Format)tmp; } while(false);
+            cobj->format = arg0;
         }
-        unsigned int arg1 = 0;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
-                cobj->sampleCount = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            unsigned int arg1 = 0;
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->sampleCount = arg1;
         }
-        cc::gfx::LoadOp arg2;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::LoadOp)tmp; } while(false);
-                cobj->loadOp = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            cc::gfx::LoadOp arg2;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::LoadOp)tmp; } while(false);
+            cobj->loadOp = arg2;
         }
-        cc::gfx::StoreOp arg3;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::gfx::StoreOp)tmp; } while(false);
-                cobj->storeOp = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            cc::gfx::StoreOp arg3;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::gfx::StoreOp)tmp; } while(false);
+            cobj->storeOp = arg3;
         }
-        cc::gfx::TextureLayout arg4;
-        if (argc > 4) {
-            if (!args[4].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cc::gfx::TextureLayout)tmp; } while(false);
-                cobj->beginLayout = arg4;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 4);
-            }
+        if (argc > 4 && !args[4].isUndefined()) {
+            cc::gfx::TextureLayout arg4;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cc::gfx::TextureLayout)tmp; } while(false);
+            cobj->beginLayout = arg4;
         }
-        cc::gfx::TextureLayout arg5;
-        if (argc > 5) {
-            if (!args[5].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cc::gfx::TextureLayout)tmp; } while(false);
-                cobj->endLayout = arg5;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 5);
-            }
+        if (argc > 5 && !args[5].isUndefined()) {
+            cc::gfx::TextureLayout arg5;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cc::gfx::TextureLayout)tmp; } while(false);
+            cobj->endLayout = arg5;
         }
 
         if(!ok) {
@@ -8339,77 +7819,45 @@ static bool js_gfx_DepthStencilAttachment_constructor(se::State& s)
     else
     {
         cc::gfx::DepthStencilAttachment* cobj = JSB_ALLOC(cc::gfx::DepthStencilAttachment);
-        cc::gfx::Format arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::Format)tmp; } while(false);
-                cobj->format = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            cc::gfx::Format arg0;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::Format)tmp; } while(false);
+            cobj->format = arg0;
         }
-        cc::gfx::LoadOp arg1;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::LoadOp)tmp; } while(false);
-                cobj->depthLoadOp = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            cc::gfx::LoadOp arg1;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::LoadOp)tmp; } while(false);
+            cobj->depthLoadOp = arg1;
         }
-        cc::gfx::StoreOp arg2;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::StoreOp)tmp; } while(false);
-                cobj->depthStoreOp = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            cc::gfx::StoreOp arg2;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::StoreOp)tmp; } while(false);
+            cobj->depthStoreOp = arg2;
         }
-        cc::gfx::LoadOp arg3;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::gfx::LoadOp)tmp; } while(false);
-                cobj->stencilLoadOp = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            cc::gfx::LoadOp arg3;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::gfx::LoadOp)tmp; } while(false);
+            cobj->stencilLoadOp = arg3;
         }
-        cc::gfx::StoreOp arg4;
-        if (argc > 4) {
-            if (!args[4].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cc::gfx::StoreOp)tmp; } while(false);
-                cobj->stencilStoreOp = arg4;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 4);
-            }
+        if (argc > 4 && !args[4].isUndefined()) {
+            cc::gfx::StoreOp arg4;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cc::gfx::StoreOp)tmp; } while(false);
+            cobj->stencilStoreOp = arg4;
         }
-        unsigned int arg5 = 0;
-        if (argc > 5) {
-            if (!args[5].isUndefined()) {
-                ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
-                cobj->sampleCount = arg5;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 5);
-            }
+        if (argc > 5 && !args[5].isUndefined()) {
+            unsigned int arg5 = 0;
+            ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
+            cobj->sampleCount = arg5;
         }
-        cc::gfx::TextureLayout arg6;
-        if (argc > 6) {
-            if (!args[6].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cc::gfx::TextureLayout)tmp; } while(false);
-                cobj->beginLayout = arg6;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 6);
-            }
+        if (argc > 6 && !args[6].isUndefined()) {
+            cc::gfx::TextureLayout arg6;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cc::gfx::TextureLayout)tmp; } while(false);
+            cobj->beginLayout = arg6;
         }
-        cc::gfx::TextureLayout arg7;
-        if (argc > 7) {
-            if (!args[7].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[7], &tmp); arg7 = (cc::gfx::TextureLayout)tmp; } while(false);
-                cobj->endLayout = arg7;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 7);
-            }
+        if (argc > 7 && !args[7].isUndefined()) {
+            cc::gfx::TextureLayout arg7;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[7], &tmp); arg7 = (cc::gfx::TextureLayout)tmp; } while(false);
+            cobj->endLayout = arg7;
         }
 
         if(!ok) {
@@ -8607,32 +8055,20 @@ static bool js_gfx_RenderPassInfo_constructor(se::State& s)
     else
     {
         cc::gfx::RenderPassInfo* cobj = JSB_ALLOC(cc::gfx::RenderPassInfo);
-        std::vector<cc::gfx::ColorAttachment> arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_std_vector(args[0], &arg0);
-                cobj->colorAttachments = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            std::vector<cc::gfx::ColorAttachment> arg0;
+            ok &= seval_to_std_vector(args[0], &arg0);
+            cobj->colorAttachments = arg0;
         }
-        cc::gfx::DepthStencilAttachment* arg1 = nullptr;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_reference(args[1], &arg1);
-                cobj->depthStencilAttachment = *arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            cc::gfx::DepthStencilAttachment* arg1 = nullptr;
+            ok &= seval_to_reference(args[1], &arg1);
+            cobj->depthStencilAttachment = *arg1;
         }
-        std::vector<cc::gfx::SubPass> arg2;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_std_vector(args[2], &arg2);
-                cobj->subPasses = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            std::vector<cc::gfx::SubPass> arg2;
+            ok &= seval_to_std_vector(args[2], &arg2);
+            cobj->subPasses = arg2;
         }
 
         if(!ok) {
@@ -8893,50 +8329,30 @@ static bool js_gfx_FramebufferInfo_constructor(se::State& s)
     else
     {
         cc::gfx::FramebufferInfo* cobj = JSB_ALLOC(cc::gfx::FramebufferInfo);
-        cc::gfx::RenderPass* arg0 = nullptr;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_native_ptr(args[0], &arg0);
-                cobj->renderPass = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            cc::gfx::RenderPass* arg0 = nullptr;
+            ok &= seval_to_native_ptr(args[0], &arg0);
+            cobj->renderPass = arg0;
         }
-        std::vector<cc::gfx::Texture *> arg1;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_std_vector(args[1], &arg1);
-                cobj->colorTextures = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            std::vector<cc::gfx::Texture *> arg1;
+            ok &= seval_to_std_vector(args[1], &arg1);
+            cobj->colorTextures = arg1;
         }
-        std::vector<unsigned int> arg2;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_std_vector(args[2], &arg2);
-                cobj->colorMipmapLevels = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            std::vector<unsigned int> arg2;
+            ok &= seval_to_std_vector(args[2], &arg2);
+            cobj->colorMipmapLevels = arg2;
         }
-        cc::gfx::Texture* arg3 = nullptr;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                ok &= seval_to_native_ptr(args[3], &arg3);
-                cobj->depthStencilTexture = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            cc::gfx::Texture* arg3 = nullptr;
+            ok &= seval_to_native_ptr(args[3], &arg3);
+            cobj->depthStencilTexture = arg3;
         }
-        unsigned int arg4 = 0;
-        if (argc > 4) {
-            if (!args[4].isUndefined()) {
-                ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
-                cobj->depthStencilMipmapLevel = arg4;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 4);
-            }
+        if (argc > 4 && !args[4].isUndefined()) {
+            unsigned int arg4 = 0;
+            ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
+            cobj->depthStencilMipmapLevel = arg4;
         }
 
         if(!ok) {
@@ -9165,41 +8581,25 @@ static bool js_gfx_DescriptorSetLayoutBinding_constructor(se::State& s)
     else
     {
         cc::gfx::DescriptorSetLayoutBinding* cobj = JSB_ALLOC(cc::gfx::DescriptorSetLayoutBinding);
-        cc::gfx::DescriptorType arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::DescriptorType)tmp; } while(false);
-                cobj->descriptorType = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            cc::gfx::DescriptorType arg0;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::DescriptorType)tmp; } while(false);
+            cobj->descriptorType = arg0;
         }
-        unsigned int arg1 = 0;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
-                cobj->count = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            unsigned int arg1 = 0;
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->count = arg1;
         }
-        cc::gfx::ShaderStageFlagBit arg2;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::ShaderStageFlagBit)tmp; } while(false);
-                cobj->stageFlags = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            cc::gfx::ShaderStageFlagBit arg2;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::ShaderStageFlagBit)tmp; } while(false);
+            cobj->stageFlags = arg2;
         }
-        std::vector<cc::gfx::Sampler *> arg3;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                ok &= seval_to_std_vector(args[3], &arg3);
-                cobj->immutableSamplers = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            std::vector<cc::gfx::Sampler *> arg3;
+            ok &= seval_to_std_vector(args[3], &arg3);
+            cobj->immutableSamplers = arg3;
         }
 
         if(!ok) {
@@ -9302,14 +8702,10 @@ static bool js_gfx_DescriptorSetLayoutInfo_constructor(se::State& s)
     else
     {
         cc::gfx::DescriptorSetLayoutInfo* cobj = JSB_ALLOC(cc::gfx::DescriptorSetLayoutInfo);
-        std::vector<cc::gfx::DescriptorSetLayoutBinding> arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_std_vector(args[0], &arg0);
-                cobj->bindings = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            std::vector<cc::gfx::DescriptorSetLayoutBinding> arg0;
+            ok &= seval_to_std_vector(args[0], &arg0);
+            cobj->bindings = arg0;
         }
 
         if(!ok) {
@@ -9409,14 +8805,10 @@ static bool js_gfx_DescriptorSetInfo_constructor(se::State& s)
     else
     {
         cc::gfx::DescriptorSetInfo* cobj = JSB_ALLOC(cc::gfx::DescriptorSetInfo);
-        cc::gfx::DescriptorSetLayout* arg0 = nullptr;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_native_ptr(args[0], &arg0);
-                cobj->layout = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            cc::gfx::DescriptorSetLayout* arg0 = nullptr;
+            ok &= seval_to_native_ptr(args[0], &arg0);
+            cobj->layout = arg0;
         }
 
         if(!ok) {
@@ -9516,14 +8908,10 @@ static bool js_gfx_PipelineLayoutInfo_constructor(se::State& s)
     else
     {
         cc::gfx::PipelineLayoutInfo* cobj = JSB_ALLOC(cc::gfx::PipelineLayoutInfo);
-        std::vector<cc::gfx::DescriptorSetLayout *> arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_std_vector(args[0], &arg0);
-                cobj->setLayouts = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            std::vector<cc::gfx::DescriptorSetLayout *> arg0;
+            ok &= seval_to_std_vector(args[0], &arg0);
+            cobj->setLayouts = arg0;
         }
 
         if(!ok) {
@@ -9623,14 +9011,10 @@ static bool js_gfx_InputState_constructor(se::State& s)
     else
     {
         cc::gfx::InputState* cobj = JSB_ALLOC(cc::gfx::InputState);
-        std::vector<cc::gfx::Attribute> arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_std_vector(args[0], &arg0);
-                cobj->attributes = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            std::vector<cc::gfx::Attribute> arg0;
+            ok &= seval_to_std_vector(args[0], &arg0);
+            cobj->attributes = arg0;
         }
 
         if(!ok) {
@@ -10127,113 +9511,65 @@ static bool js_gfx_RasterizerState_constructor(se::State& s)
     else
     {
         cc::gfx::RasterizerState* cobj = JSB_ALLOC(cc::gfx::RasterizerState);
-        bool arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_boolean(args[0], &arg0);
-                cobj->isDiscard = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            bool arg0;
+            ok &= seval_to_boolean(args[0], &arg0);
+            cobj->isDiscard = arg0;
         }
-        cc::gfx::PolygonMode arg1;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::PolygonMode)tmp; } while(false);
-                cobj->polygonMode = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            cc::gfx::PolygonMode arg1;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::PolygonMode)tmp; } while(false);
+            cobj->polygonMode = arg1;
         }
-        cc::gfx::ShadeModel arg2;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::ShadeModel)tmp; } while(false);
-                cobj->shadeModel = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            cc::gfx::ShadeModel arg2;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::ShadeModel)tmp; } while(false);
+            cobj->shadeModel = arg2;
         }
-        cc::gfx::CullMode arg3;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::gfx::CullMode)tmp; } while(false);
-                cobj->cullMode = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            cc::gfx::CullMode arg3;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::gfx::CullMode)tmp; } while(false);
+            cobj->cullMode = arg3;
         }
-        bool arg4;
-        if (argc > 4) {
-            if (!args[4].isUndefined()) {
-                ok &= seval_to_boolean(args[4], &arg4);
-                cobj->isFrontFaceCCW = arg4;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 4);
-            }
+        if (argc > 4 && !args[4].isUndefined()) {
+            bool arg4;
+            ok &= seval_to_boolean(args[4], &arg4);
+            cobj->isFrontFaceCCW = arg4;
         }
-        bool arg5;
-        if (argc > 5) {
-            if (!args[5].isUndefined()) {
-                ok &= seval_to_boolean(args[5], &arg5);
-                cobj->depthBiasEnabled = arg5;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 5);
-            }
+        if (argc > 5 && !args[5].isUndefined()) {
+            bool arg5;
+            ok &= seval_to_boolean(args[5], &arg5);
+            cobj->depthBiasEnabled = arg5;
         }
-        float arg6 = 0;
-        if (argc > 6) {
-            if (!args[6].isUndefined()) {
-                ok &= seval_to_float(args[6], &arg6);
-                cobj->depthBias = arg6;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 6);
-            }
+        if (argc > 6 && !args[6].isUndefined()) {
+            float arg6 = 0;
+            ok &= seval_to_float(args[6], &arg6);
+            cobj->depthBias = arg6;
         }
-        float arg7 = 0;
-        if (argc > 7) {
-            if (!args[7].isUndefined()) {
-                ok &= seval_to_float(args[7], &arg7);
-                cobj->depthBiasClamp = arg7;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 7);
-            }
+        if (argc > 7 && !args[7].isUndefined()) {
+            float arg7 = 0;
+            ok &= seval_to_float(args[7], &arg7);
+            cobj->depthBiasClamp = arg7;
         }
-        float arg8 = 0;
-        if (argc > 8) {
-            if (!args[8].isUndefined()) {
-                ok &= seval_to_float(args[8], &arg8);
-                cobj->depthBiasSlop = arg8;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 8);
-            }
+        if (argc > 8 && !args[8].isUndefined()) {
+            float arg8 = 0;
+            ok &= seval_to_float(args[8], &arg8);
+            cobj->depthBiasSlop = arg8;
         }
-        bool arg9;
-        if (argc > 9) {
-            if (!args[9].isUndefined()) {
-                ok &= seval_to_boolean(args[9], &arg9);
-                cobj->isDepthClip = arg9;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 9);
-            }
+        if (argc > 9 && !args[9].isUndefined()) {
+            bool arg9;
+            ok &= seval_to_boolean(args[9], &arg9);
+            cobj->isDepthClip = arg9;
         }
-        bool arg10;
-        if (argc > 10) {
-            if (!args[10].isUndefined()) {
-                ok &= seval_to_boolean(args[10], &arg10);
-                cobj->isMultisample = arg10;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 10);
-            }
+        if (argc > 10 && !args[10].isUndefined()) {
+            bool arg10;
+            ok &= seval_to_boolean(args[10], &arg10);
+            cobj->isMultisample = arg10;
         }
-        float arg11 = 0;
-        if (argc > 11) {
-            if (!args[11].isUndefined()) {
-                ok &= seval_to_float(args[11], &arg11);
-                cobj->lineWidth = arg11;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 11);
-            }
+        if (argc > 11 && !args[11].isUndefined()) {
+            float arg11 = 0;
+            ok &= seval_to_float(args[11], &arg11);
+            cobj->lineWidth = arg11;
         }
 
         if(!ok) {
@@ -10979,176 +10315,100 @@ static bool js_gfx_DepthStencilState_constructor(se::State& s)
     else
     {
         cc::gfx::DepthStencilState* cobj = JSB_ALLOC(cc::gfx::DepthStencilState);
-        bool arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_boolean(args[0], &arg0);
-                cobj->depthTest = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            bool arg0;
+            ok &= seval_to_boolean(args[0], &arg0);
+            cobj->depthTest = arg0;
         }
-        bool arg1;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_boolean(args[1], &arg1);
-                cobj->depthWrite = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            bool arg1;
+            ok &= seval_to_boolean(args[1], &arg1);
+            cobj->depthWrite = arg1;
         }
-        cc::gfx::ComparisonFunc arg2;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::ComparisonFunc)tmp; } while(false);
-                cobj->depthFunc = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            cc::gfx::ComparisonFunc arg2;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::ComparisonFunc)tmp; } while(false);
+            cobj->depthFunc = arg2;
         }
-        bool arg3;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                ok &= seval_to_boolean(args[3], &arg3);
-                cobj->stencilTestFront = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            bool arg3;
+            ok &= seval_to_boolean(args[3], &arg3);
+            cobj->stencilTestFront = arg3;
         }
-        cc::gfx::ComparisonFunc arg4;
-        if (argc > 4) {
-            if (!args[4].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cc::gfx::ComparisonFunc)tmp; } while(false);
-                cobj->stencilFuncFront = arg4;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 4);
-            }
+        if (argc > 4 && !args[4].isUndefined()) {
+            cc::gfx::ComparisonFunc arg4;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cc::gfx::ComparisonFunc)tmp; } while(false);
+            cobj->stencilFuncFront = arg4;
         }
-        unsigned int arg5 = 0;
-        if (argc > 5) {
-            if (!args[5].isUndefined()) {
-                ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
-                cobj->stencilReadMaskFront = arg5;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 5);
-            }
+        if (argc > 5 && !args[5].isUndefined()) {
+            unsigned int arg5 = 0;
+            ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
+            cobj->stencilReadMaskFront = arg5;
         }
-        unsigned int arg6 = 0;
-        if (argc > 6) {
-            if (!args[6].isUndefined()) {
-                ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
-                cobj->stencilWriteMaskFront = arg6;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 6);
-            }
+        if (argc > 6 && !args[6].isUndefined()) {
+            unsigned int arg6 = 0;
+            ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
+            cobj->stencilWriteMaskFront = arg6;
         }
-        cc::gfx::StencilOp arg7;
-        if (argc > 7) {
-            if (!args[7].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[7], &tmp); arg7 = (cc::gfx::StencilOp)tmp; } while(false);
-                cobj->stencilFailOpFront = arg7;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 7);
-            }
+        if (argc > 7 && !args[7].isUndefined()) {
+            cc::gfx::StencilOp arg7;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[7], &tmp); arg7 = (cc::gfx::StencilOp)tmp; } while(false);
+            cobj->stencilFailOpFront = arg7;
         }
-        cc::gfx::StencilOp arg8;
-        if (argc > 8) {
-            if (!args[8].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cc::gfx::StencilOp)tmp; } while(false);
-                cobj->stencilZFailOpFront = arg8;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 8);
-            }
+        if (argc > 8 && !args[8].isUndefined()) {
+            cc::gfx::StencilOp arg8;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cc::gfx::StencilOp)tmp; } while(false);
+            cobj->stencilZFailOpFront = arg8;
         }
-        cc::gfx::StencilOp arg9;
-        if (argc > 9) {
-            if (!args[9].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[9], &tmp); arg9 = (cc::gfx::StencilOp)tmp; } while(false);
-                cobj->stencilPassOpFront = arg9;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 9);
-            }
+        if (argc > 9 && !args[9].isUndefined()) {
+            cc::gfx::StencilOp arg9;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[9], &tmp); arg9 = (cc::gfx::StencilOp)tmp; } while(false);
+            cobj->stencilPassOpFront = arg9;
         }
-        unsigned int arg10 = 0;
-        if (argc > 10) {
-            if (!args[10].isUndefined()) {
-                ok &= seval_to_uint32(args[10], (uint32_t*)&arg10);
-                cobj->stencilRefFront = arg10;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 10);
-            }
+        if (argc > 10 && !args[10].isUndefined()) {
+            unsigned int arg10 = 0;
+            ok &= seval_to_uint32(args[10], (uint32_t*)&arg10);
+            cobj->stencilRefFront = arg10;
         }
-        bool arg11;
-        if (argc > 11) {
-            if (!args[11].isUndefined()) {
-                ok &= seval_to_boolean(args[11], &arg11);
-                cobj->stencilTestBack = arg11;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 11);
-            }
+        if (argc > 11 && !args[11].isUndefined()) {
+            bool arg11;
+            ok &= seval_to_boolean(args[11], &arg11);
+            cobj->stencilTestBack = arg11;
         }
-        cc::gfx::ComparisonFunc arg12;
-        if (argc > 12) {
-            if (!args[12].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[12], &tmp); arg12 = (cc::gfx::ComparisonFunc)tmp; } while(false);
-                cobj->stencilFuncBack = arg12;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 12);
-            }
+        if (argc > 12 && !args[12].isUndefined()) {
+            cc::gfx::ComparisonFunc arg12;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[12], &tmp); arg12 = (cc::gfx::ComparisonFunc)tmp; } while(false);
+            cobj->stencilFuncBack = arg12;
         }
-        unsigned int arg13 = 0;
-        if (argc > 13) {
-            if (!args[13].isUndefined()) {
-                ok &= seval_to_uint32(args[13], (uint32_t*)&arg13);
-                cobj->stencilReadMaskBack = arg13;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 13);
-            }
+        if (argc > 13 && !args[13].isUndefined()) {
+            unsigned int arg13 = 0;
+            ok &= seval_to_uint32(args[13], (uint32_t*)&arg13);
+            cobj->stencilReadMaskBack = arg13;
         }
-        unsigned int arg14 = 0;
-        if (argc > 14) {
-            if (!args[14].isUndefined()) {
-                ok &= seval_to_uint32(args[14], (uint32_t*)&arg14);
-                cobj->stencilWriteMaskBack = arg14;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 14);
-            }
+        if (argc > 14 && !args[14].isUndefined()) {
+            unsigned int arg14 = 0;
+            ok &= seval_to_uint32(args[14], (uint32_t*)&arg14);
+            cobj->stencilWriteMaskBack = arg14;
         }
-        cc::gfx::StencilOp arg15;
-        if (argc > 15) {
-            if (!args[15].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[15], &tmp); arg15 = (cc::gfx::StencilOp)tmp; } while(false);
-                cobj->stencilFailOpBack = arg15;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 15);
-            }
+        if (argc > 15 && !args[15].isUndefined()) {
+            cc::gfx::StencilOp arg15;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[15], &tmp); arg15 = (cc::gfx::StencilOp)tmp; } while(false);
+            cobj->stencilFailOpBack = arg15;
         }
-        cc::gfx::StencilOp arg16;
-        if (argc > 16) {
-            if (!args[16].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[16], &tmp); arg16 = (cc::gfx::StencilOp)tmp; } while(false);
-                cobj->stencilZFailOpBack = arg16;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 16);
-            }
+        if (argc > 16 && !args[16].isUndefined()) {
+            cc::gfx::StencilOp arg16;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[16], &tmp); arg16 = (cc::gfx::StencilOp)tmp; } while(false);
+            cobj->stencilZFailOpBack = arg16;
         }
-        cc::gfx::StencilOp arg17;
-        if (argc > 17) {
-            if (!args[17].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[17], &tmp); arg17 = (cc::gfx::StencilOp)tmp; } while(false);
-                cobj->stencilPassOpBack = arg17;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 17);
-            }
+        if (argc > 17 && !args[17].isUndefined()) {
+            cc::gfx::StencilOp arg17;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[17], &tmp); arg17 = (cc::gfx::StencilOp)tmp; } while(false);
+            cobj->stencilPassOpBack = arg17;
         }
-        unsigned int arg18 = 0;
-        if (argc > 18) {
-            if (!args[18].isUndefined()) {
-                ok &= seval_to_uint32(args[18], (uint32_t*)&arg18);
-                cobj->stencilRefBack = arg18;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 18);
-            }
+        if (argc > 18 && !args[18].isUndefined()) {
+            unsigned int arg18 = 0;
+            ok &= seval_to_uint32(args[18], (uint32_t*)&arg18);
+            cobj->stencilRefBack = arg18;
         }
 
         if(!ok) {
@@ -11527,77 +10787,45 @@ static bool js_gfx_BlendTarget_constructor(se::State& s)
     else
     {
         cc::gfx::BlendTarget* cobj = JSB_ALLOC(cc::gfx::BlendTarget);
-        bool arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_boolean(args[0], &arg0);
-                cobj->blend = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            bool arg0;
+            ok &= seval_to_boolean(args[0], &arg0);
+            cobj->blend = arg0;
         }
-        cc::gfx::BlendFactor arg1;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::BlendFactor)tmp; } while(false);
-                cobj->blendSrc = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            cc::gfx::BlendFactor arg1;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::BlendFactor)tmp; } while(false);
+            cobj->blendSrc = arg1;
         }
-        cc::gfx::BlendFactor arg2;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::BlendFactor)tmp; } while(false);
-                cobj->blendDst = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            cc::gfx::BlendFactor arg2;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::BlendFactor)tmp; } while(false);
+            cobj->blendDst = arg2;
         }
-        cc::gfx::BlendOp arg3;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::gfx::BlendOp)tmp; } while(false);
-                cobj->blendEq = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            cc::gfx::BlendOp arg3;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::gfx::BlendOp)tmp; } while(false);
+            cobj->blendEq = arg3;
         }
-        cc::gfx::BlendFactor arg4;
-        if (argc > 4) {
-            if (!args[4].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cc::gfx::BlendFactor)tmp; } while(false);
-                cobj->blendSrcAlpha = arg4;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 4);
-            }
+        if (argc > 4 && !args[4].isUndefined()) {
+            cc::gfx::BlendFactor arg4;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cc::gfx::BlendFactor)tmp; } while(false);
+            cobj->blendSrcAlpha = arg4;
         }
-        cc::gfx::BlendFactor arg5;
-        if (argc > 5) {
-            if (!args[5].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cc::gfx::BlendFactor)tmp; } while(false);
-                cobj->blendDstAlpha = arg5;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 5);
-            }
+        if (argc > 5 && !args[5].isUndefined()) {
+            cc::gfx::BlendFactor arg5;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cc::gfx::BlendFactor)tmp; } while(false);
+            cobj->blendDstAlpha = arg5;
         }
-        cc::gfx::BlendOp arg6;
-        if (argc > 6) {
-            if (!args[6].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cc::gfx::BlendOp)tmp; } while(false);
-                cobj->blendAlphaEq = arg6;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 6);
-            }
+        if (argc > 6 && !args[6].isUndefined()) {
+            cc::gfx::BlendOp arg6;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cc::gfx::BlendOp)tmp; } while(false);
+            cobj->blendAlphaEq = arg6;
         }
-        cc::gfx::ColorMask arg7;
-        if (argc > 7) {
-            if (!args[7].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[7], &tmp); arg7 = (cc::gfx::ColorMask)tmp; } while(false);
-                cobj->blendColorMask = arg7;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 7);
-            }
+        if (argc > 7 && !args[7].isUndefined()) {
+            cc::gfx::ColorMask arg7;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[7], &tmp); arg7 = (cc::gfx::ColorMask)tmp; } while(false);
+            cobj->blendColorMask = arg7;
         }
 
         if(!ok) {
@@ -11801,41 +11029,25 @@ static bool js_gfx_BlendState_constructor(se::State& s)
     else
     {
         cc::gfx::BlendState* cobj = JSB_ALLOC(cc::gfx::BlendState);
-        bool arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_boolean(args[0], &arg0);
-                cobj->isA2C = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            bool arg0;
+            ok &= seval_to_boolean(args[0], &arg0);
+            cobj->isA2C = arg0;
         }
-        bool arg1;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_boolean(args[1], &arg1);
-                cobj->isIndepend = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            bool arg1;
+            ok &= seval_to_boolean(args[1], &arg1);
+            cobj->isIndepend = arg1;
         }
-        cc::gfx::Color* arg2 = nullptr;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_reference(args[2], &arg2);
-                cobj->blendColor = *arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            cc::gfx::Color* arg2 = nullptr;
+            ok &= seval_to_reference(args[2], &arg2);
+            cobj->blendColor = *arg2;
         }
-        std::vector<cc::gfx::BlendTarget> arg3;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                ok &= seval_to_std_vector(args[3], &arg3);
-                cobj->targets = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            std::vector<cc::gfx::BlendTarget> arg3;
+            ok &= seval_to_std_vector(args[3], &arg3);
+            cobj->targets = arg3;
         }
 
         if(!ok) {
@@ -12232,86 +11444,50 @@ static bool js_gfx_PipelineStateInfo_constructor(se::State& s)
     else
     {
         cc::gfx::PipelineStateInfo* cobj = JSB_ALLOC(cc::gfx::PipelineStateInfo);
-        cc::gfx::Shader* arg0 = nullptr;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_native_ptr(args[0], &arg0);
-                cobj->shader = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            cc::gfx::Shader* arg0 = nullptr;
+            ok &= seval_to_native_ptr(args[0], &arg0);
+            cobj->shader = arg0;
         }
-        cc::gfx::PipelineLayout* arg1 = nullptr;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_native_ptr(args[1], &arg1);
-                cobj->pipelineLayout = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            cc::gfx::PipelineLayout* arg1 = nullptr;
+            ok &= seval_to_native_ptr(args[1], &arg1);
+            cobj->pipelineLayout = arg1;
         }
-        cc::gfx::RenderPass* arg2 = nullptr;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_native_ptr(args[2], &arg2);
-                cobj->renderPass = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            cc::gfx::RenderPass* arg2 = nullptr;
+            ok &= seval_to_native_ptr(args[2], &arg2);
+            cobj->renderPass = arg2;
         }
-        cc::gfx::InputState* arg3 = nullptr;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                ok &= seval_to_reference(args[3], &arg3);
-                cobj->inputState = *arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            cc::gfx::InputState* arg3 = nullptr;
+            ok &= seval_to_reference(args[3], &arg3);
+            cobj->inputState = *arg3;
         }
-        cc::gfx::RasterizerState* arg4 = nullptr;
-        if (argc > 4) {
-            if (!args[4].isUndefined()) {
-                ok &= seval_to_reference(args[4], &arg4);
-                cobj->rasterizerState = *arg4;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 4);
-            }
+        if (argc > 4 && !args[4].isUndefined()) {
+            cc::gfx::RasterizerState* arg4 = nullptr;
+            ok &= seval_to_reference(args[4], &arg4);
+            cobj->rasterizerState = *arg4;
         }
-        cc::gfx::DepthStencilState* arg5 = nullptr;
-        if (argc > 5) {
-            if (!args[5].isUndefined()) {
-                ok &= seval_to_reference(args[5], &arg5);
-                cobj->depthStencilState = *arg5;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 5);
-            }
+        if (argc > 5 && !args[5].isUndefined()) {
+            cc::gfx::DepthStencilState* arg5 = nullptr;
+            ok &= seval_to_reference(args[5], &arg5);
+            cobj->depthStencilState = *arg5;
         }
-        cc::gfx::BlendState* arg6 = nullptr;
-        if (argc > 6) {
-            if (!args[6].isUndefined()) {
-                ok &= seval_to_reference(args[6], &arg6);
-                cobj->blendState = *arg6;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 6);
-            }
+        if (argc > 6 && !args[6].isUndefined()) {
+            cc::gfx::BlendState* arg6 = nullptr;
+            ok &= seval_to_reference(args[6], &arg6);
+            cobj->blendState = *arg6;
         }
-        cc::gfx::PrimitiveMode arg7;
-        if (argc > 7) {
-            if (!args[7].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[7], &tmp); arg7 = (cc::gfx::PrimitiveMode)tmp; } while(false);
-                cobj->primitive = arg7;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 7);
-            }
+        if (argc > 7 && !args[7].isUndefined()) {
+            cc::gfx::PrimitiveMode arg7;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[7], &tmp); arg7 = (cc::gfx::PrimitiveMode)tmp; } while(false);
+            cobj->primitive = arg7;
         }
-        cc::gfx::DynamicStateFlagBit arg8;
-        if (argc > 8) {
-            if (!args[8].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cc::gfx::DynamicStateFlagBit)tmp; } while(false);
-                cobj->dynamicStates = arg8;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 8);
-            }
+        if (argc > 8 && !args[8].isUndefined()) {
+            cc::gfx::DynamicStateFlagBit arg8;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cc::gfx::DynamicStateFlagBit)tmp; } while(false);
+            cobj->dynamicStates = arg8;
         }
 
         if(!ok) {
@@ -12476,23 +11652,15 @@ static bool js_gfx_CommandBufferInfo_constructor(se::State& s)
     else
     {
         cc::gfx::CommandBufferInfo* cobj = JSB_ALLOC(cc::gfx::CommandBufferInfo);
-        cc::gfx::Queue* arg0 = nullptr;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_native_ptr(args[0], &arg0);
-                cobj->queue = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            cc::gfx::Queue* arg0 = nullptr;
+            ok &= seval_to_native_ptr(args[0], &arg0);
+            cobj->queue = arg0;
         }
-        cc::gfx::CommandBufferType arg1;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::CommandBufferType)tmp; } while(false);
-                cobj->type = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            cc::gfx::CommandBufferType arg1;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::CommandBufferType)tmp; } while(false);
+            cobj->type = arg1;
         }
 
         if(!ok) {
@@ -12593,14 +11761,10 @@ static bool js_gfx_QueueInfo_constructor(se::State& s)
     else
     {
         cc::gfx::QueueInfo* cobj = JSB_ALLOC(cc::gfx::QueueInfo);
-        cc::gfx::QueueType arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::QueueType)tmp; } while(false);
-                cobj->type = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            cc::gfx::QueueType arg0;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::QueueType)tmp; } while(false);
+            cobj->type = arg0;
         }
 
         if(!ok) {
@@ -12961,77 +12125,45 @@ static bool js_gfx_FormatInfo_constructor(se::State& s)
     else
     {
         cc::gfx::FormatInfo* cobj = JSB_ALLOC(cc::gfx::FormatInfo);
-        cc::String arg0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                arg0 = args[0].toStringForce().c_str();
-                cobj->name = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            cc::String arg0;
+            arg0 = args[0].toStringForce().c_str();
+            cobj->name = arg0;
         }
-        unsigned int arg1 = 0;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
-                cobj->size = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            unsigned int arg1 = 0;
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->size = arg1;
         }
-        unsigned int arg2 = 0;
-        if (argc > 2) {
-            if (!args[2].isUndefined()) {
-                ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
-                cobj->count = arg2;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 2);
-            }
+        if (argc > 2 && !args[2].isUndefined()) {
+            unsigned int arg2 = 0;
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->count = arg2;
         }
-        cc::gfx::FormatType arg3;
-        if (argc > 3) {
-            if (!args[3].isUndefined()) {
-                do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::gfx::FormatType)tmp; } while(false);
-                cobj->type = arg3;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 3);
-            }
+        if (argc > 3 && !args[3].isUndefined()) {
+            cc::gfx::FormatType arg3;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::gfx::FormatType)tmp; } while(false);
+            cobj->type = arg3;
         }
-        bool arg4;
-        if (argc > 4) {
-            if (!args[4].isUndefined()) {
-                ok &= seval_to_boolean(args[4], &arg4);
-                cobj->hasAlpha = arg4;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 4);
-            }
+        if (argc > 4 && !args[4].isUndefined()) {
+            bool arg4;
+            ok &= seval_to_boolean(args[4], &arg4);
+            cobj->hasAlpha = arg4;
         }
-        bool arg5;
-        if (argc > 5) {
-            if (!args[5].isUndefined()) {
-                ok &= seval_to_boolean(args[5], &arg5);
-                cobj->hasDepth = arg5;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 5);
-            }
+        if (argc > 5 && !args[5].isUndefined()) {
+            bool arg5;
+            ok &= seval_to_boolean(args[5], &arg5);
+            cobj->hasDepth = arg5;
         }
-        bool arg6;
-        if (argc > 6) {
-            if (!args[6].isUndefined()) {
-                ok &= seval_to_boolean(args[6], &arg6);
-                cobj->hasStencil = arg6;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 6);
-            }
+        if (argc > 6 && !args[6].isUndefined()) {
+            bool arg6;
+            ok &= seval_to_boolean(args[6], &arg6);
+            cobj->hasStencil = arg6;
         }
-        bool arg7;
-        if (argc > 7) {
-            if (!args[7].isUndefined()) {
-                ok &= seval_to_boolean(args[7], &arg7);
-                cobj->isCompressed = arg7;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 7);
-            }
+        if (argc > 7 && !args[7].isUndefined()) {
+            bool arg7;
+            ok &= seval_to_boolean(args[7], &arg7);
+            cobj->isCompressed = arg7;
         }
 
         if(!ok) {
@@ -13195,23 +12327,15 @@ static bool js_gfx_MemoryStatus_constructor(se::State& s)
     else
     {
         cc::gfx::MemoryStatus* cobj = JSB_ALLOC(cc::gfx::MemoryStatus);
-        unsigned int arg0 = 0;
-        if (argc > 0) {
-            if (!args[0].isUndefined()) {
-                ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-                cobj->bufferSize = arg0;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 0);
-            }
+        if (argc > 0 && !args[0].isUndefined()) {
+            unsigned int arg0 = 0;
+            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+            cobj->bufferSize = arg0;
         }
-        unsigned int arg1 = 0;
-        if (argc > 1) {
-            if (!args[1].isUndefined()) {
-                ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
-                cobj->textureSize = arg1;
-            } else {
-                SE_REPORT_ERROR("Argument %d is undefined", 1);
-            }
+        if (argc > 1 && !args[1].isUndefined()) {
+            unsigned int arg1 = 0;
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->textureSize = arg1;
         }
 
         if(!ok) {
