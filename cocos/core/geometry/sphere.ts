@@ -109,7 +109,7 @@ export default class sphere {
      */
     public static mergePoint (out: sphere, s: sphere, point: Vec3) {
         if (s.radius < 0.0) {
-            out.center = point;
+            out.center = point.clone();
             out.radius = 0.0;
             return out;
         }

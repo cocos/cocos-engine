@@ -53,9 +53,12 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
 
     const mainLight = scene.mainLight;
     const shadows = pipeline.shadows;
-    const shadowSphere = shadows.sphere;
-    shadowSphere.center.set(0.0, 0.0, 0.0);
-    shadowSphere.radius = 0.01;
+    const castSphere = shadows.sphere;
+    castSphere.center.set(0.0, 0.0, 0.0);
+    castSphere.radius = -0.01;
+    const receiveSphere = shadows.receiveSphere;
+    receiveSphere.center.set(0.0, 0.0, 0.0);
+    receiveSphere.radius = -0.01;
     if (mainLight) {
         mainLight.update();
         if (shadows.type === ShadowType.Planar) {
@@ -86,7 +89,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
 
                     // shadow render Object
                     if (model.castShadow) {
-                        sphere.mergeAABB(shadowSphere, shadowSphere, model.worldBounds!);
+                        sphere.mergeAABB(castSphere, castSphere, model.worldBounds!);
                         shadowObjects.push(getCastShadowRenderObject(model, camera));
                     }
 
@@ -95,6 +98,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                         continue;
                     }
 
+                    if (model.receiveShadow && model.worldBounds) { sphere.mergeAABB(receiveSphere, receiveSphere, model.worldBounds); }
                     renderObjects.push(getRenderObject(model, camera));
                 }
             }
