@@ -51,9 +51,6 @@ let _converters = {
             height = cc.game.canvas.height,
             handler = window.windowHandler;
         return new gfx.DeviceInfo(handler, width, height, info.nativeWidth, info.nativeHeight, null, info.bindingMappingInfo);
-    },
-    ShaderMacro: function (macro) {
-        return new gfx.ShaderMacro(macro.macro, macro.value);
     }
 };
 
