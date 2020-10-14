@@ -55,9 +55,6 @@ let _converters = {
     ShaderMacro: function (macro) {
         return new gfx.ShaderMacro(macro.macro, macro.value);
     },
-    FramebufferInfo: function (info) {
-        return new gfx.FramebufferInfo(info);
-    },
     BindingUnit: function (info) {
         return new gfx.BindingUnit(info);
     },
@@ -143,7 +140,6 @@ deviceProtos.forEach(function(item, index) {
         replace(item, {
             initialize: replaceFunction('_initialize', _converters.DeviceInfo),
             createCommandBuffer: replaceFunction('_createCommandBuffer', _converters.CommandBufferInfo),
-            createFramebuffer: replaceFunction('_createFramebuffer', _converters.FramebufferInfo),
         });
 
         let oldCopyTexImagesToTextureFunc = item.copyTexImagesToTexture;
@@ -175,11 +171,6 @@ deviceProtos.forEach(function(item, index) {
 let commandBufferProto = gfx.CommandBuffer.prototype;
 replace(commandBufferProto, {
     initialize: replaceFunction('_initialize', _converters.CommandBufferInfo),
-});
-
-let framebufferProto = gfx.Framebuffer.prototype;
-replace(framebufferProto, {
-    initialize: replaceFunction('_initialize', _converters.FramebufferInfo),
 });
 
 let samplerProto = gfx.Sampler.prototype;

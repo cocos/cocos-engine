@@ -2,12 +2,10 @@ declare const gfx: any;
 
 import { GFXCommandBuffer } from './command-buffer';
 import * as GFXDefines from './define';
-import { GFXFramebuffer } from './framebuffer';
 import { legacyCC } from '../global-exports';
 
 export * from './command-buffer';
 export * from './define';
-export * from './framebuffer';
 
 export const GFXRasterizerState = gfx.RasterizerState;
 export const GFXDepthStencilState = gfx.DepthStencilState;
@@ -75,6 +73,9 @@ export const GFXDescriptorSetLayoutInfo = gfx.DescriptorSetLayoutInfo;
 export const GFXDescriptorSetLayout = gfx.DescriptorSetLayout;
 export const GFXDescriptorSetInfo = gfx.DescriptorSetInfo;
 export { DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE } from './descriptor-set';
+
+export const GFXFramebufferInfo = gfx.FramebufferInfo;
+export const GFXFramebuffer = gfx.Framebuffer;
 
 legacyCC.GFXDevice = GFXDevice;
 legacyCC.GFXBuffer = GFXBuffer;
