@@ -31,7 +31,7 @@ THE SOFTWARE.
 namespace cc {
 
 namespace gfx {
-enum class Format : unsigned int;
+enum class Format;
 } // namespace gfx
 
 class Image : public Ref {

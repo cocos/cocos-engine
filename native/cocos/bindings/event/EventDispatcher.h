@@ -47,7 +47,7 @@ struct TouchInfo
 
 struct TouchEvent
 {
-    enum class Type : uint8_t
+    enum class Type
     {
         BEGAN,
         MOVED,
@@ -62,7 +62,7 @@ struct TouchEvent
 
 struct MouseEvent
 {
-    enum class Type : uint8_t
+    enum class Type
     {
         DOWN,
         UP,
@@ -79,7 +79,7 @@ struct MouseEvent
     Type type = Type::UNKNOWN;
 };
 
-enum class KeyCode : uint32_t{
+enum class KeyCode{
     Backspace = 8,
     Tab = 9,
     NumLock = 12,
@@ -136,7 +136,7 @@ enum class KeyCode : uint32_t{
 
 struct KeyboardEvent
 {
-    enum class Action : uint8_t {
+    enum class Action {
         PRESS,
         RELEASE,
         REPEAT,

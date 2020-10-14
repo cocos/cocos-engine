@@ -706,7 +706,7 @@ public:
     void clear();
 
 private:
-    enum class RecycledType : uint8_t {
+    enum class RecycledType {
         UNKNOWN,
         BUFFER,
         TEXTURE,

@@ -162,7 +162,7 @@ CC_INLINE bool transparentCompareFn(const RenderPass &a, const RenderPass &b) {
 }
 
 #define MAX_BINDING_SUPPORTED (24)
-enum class CC_DLL UniformBinding : uint8_t {
+enum class CC_DLL UniformBinding {
     // UBOs
     UBO_GLOBAL = MAX_BINDING_SUPPORTED - 1,
     UBO_SHADOW = MAX_BINDING_SUPPORTED - 2,
@@ -264,18 +264,18 @@ struct CC_DLL UBOMorph {
     static const BlockInfo BLOCK;
 };
 
-enum class CC_DLL ForwardStagePriority : uint8_t {
+enum class CC_DLL ForwardStagePriority {
     FORWARD = 10,
     UI = 20
 };
 
-enum class CC_DLL ForwardFlowPriority : uint8_t {
+enum class CC_DLL ForwardFlowPriority {
     SHADOW = 0,
     FORWARD = 1,
     UI = 10,
 };
 
-enum class CC_DLL RenderFlowTag : uint8_t {
+enum class CC_DLL RenderFlowTag {
     SCENE,
     POSTPROCESS,
     UI,
@@ -350,7 +350,7 @@ enum class LayerList : uint {
 
 bool aabb_frustum(const AABB *, const Frustum *);
 
-enum class CC_DLL SetIndex : uint8_t {
+enum class CC_DLL SetIndex {
     GLOBAL,
     MATERIAL,
     LOCAL,

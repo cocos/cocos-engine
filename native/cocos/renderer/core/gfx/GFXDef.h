@@ -28,7 +28,7 @@ class Context;
 #define GFX_INVALID_HANDLE        ((uint)-1)
 #define MAX_INFLIGHT_BUFFER       3
 
-enum class ObjectType : uint8_t {
+enum class ObjectType {
     UNKNOWN,
     BUFFER,
     TEXTURE,
@@ -46,13 +46,13 @@ enum class ObjectType : uint8_t {
     QUEUE,
 };
 
-enum class Status : uint8_t {
+enum class Status {
     UNREADY,
     FAILED,
     SUCCESS,
 };
 
-enum class API : uint8_t {
+enum class API {
     UNKNOWN,
     GL,
     GLES2,
@@ -64,7 +64,7 @@ enum class API : uint8_t {
     WEBGL2,
 };
 
-enum class Feature : uint8_t {
+enum class Feature {
     COLOR_FLOAT,
     COLOR_HALF_FLOAT,
     TEXTURE_FLOAT,
@@ -95,7 +95,7 @@ enum class Feature : uint8_t {
     COUNT,
 };
 
-enum class Format : uint {
+enum class Format {
 
     UNKNOWN,
 
@@ -221,7 +221,7 @@ enum class Format : uint {
     COUNT,
 };
 
-enum class FormatType : uint8_t {
+enum class FormatType {
     NONE,
     UNORM,
     SNORM,
@@ -231,7 +231,7 @@ enum class FormatType : uint8_t {
     FLOAT,
 };
 
-enum class Type : uint8_t {
+enum class Type {
     UNKNOWN,
     BOOL,
     BOOL2,
@@ -335,7 +335,7 @@ enum class TextureFlagBit : FlagBits {
 typedef TextureFlagBit TextureFlags;
 CC_ENUM_OPERATORS(TextureFlagBit);
 
-enum class SampleCount : uint8_t {
+enum class SampleCount {
     X1,
     X2,
     X4,
@@ -345,21 +345,21 @@ enum class SampleCount : uint8_t {
     X64,
 };
 
-enum class Filter : uint8_t {
+enum class Filter {
     NONE,
     POINT,
     LINEAR,
     ANISOTROPIC,
 };
 
-enum class Address : uint8_t {
+enum class Address {
     WRAP,
     MIRROR,
     CLAMP,
     BORDER,
 };
 
-enum class ComparisonFunc : uint8_t {
+enum class ComparisonFunc {
     NEVER,
     LESS,
     EQUAL,
@@ -370,7 +370,7 @@ enum class ComparisonFunc : uint8_t {
     ALWAYS,
 };
 
-enum class StencilOp : uint8_t {
+enum class StencilOp {
     ZERO,
     KEEP,
     REPLACE,
@@ -381,7 +381,7 @@ enum class StencilOp : uint8_t {
     DECR_WRAP,
 };
 
-enum class BlendFactor : uint8_t {
+enum class BlendFactor {
     ZERO,
     ONE,
     SRC_ALPHA,
@@ -399,7 +399,7 @@ enum class BlendFactor : uint8_t {
     ONE_MINUS_CONSTANT_ALPHA,
 };
 
-enum class BlendOp : uint8_t {
+enum class BlendOp {
     ADD,
     SUB,
     REV_SUB,
@@ -407,7 +407,7 @@ enum class BlendOp : uint8_t {
     MAX,
 };
 
-enum class ColorMask : uint8_t {
+enum class ColorMask : FlagBits {
     NONE = 0x0,
     R = 0x1,
     G = 0x2,
@@ -417,7 +417,7 @@ enum class ColorMask : uint8_t {
 };
 CC_ENUM_OPERATORS(ColorMask);
 
-enum class ShaderStageFlagBit : uint8_t {
+enum class ShaderStageFlagBit : FlagBits {
     NONE = 0x0,
     VERTEX = 0x1,
     CONTROL = 0x2,
@@ -430,18 +430,18 @@ enum class ShaderStageFlagBit : uint8_t {
 typedef ShaderStageFlagBit ShaderStageFlags;
 CC_ENUM_OPERATORS(ShaderStageFlagBit);
 
-enum class LoadOp : uint8_t {
+enum class LoadOp {
     LOAD,    // Load the contents from the fbo from previous
     CLEAR,   // Clear the fbo
     DISCARD, // Ignore writing to the fbo and keep old data
 };
 
-enum class StoreOp : uint8_t {
+enum class StoreOp {
     STORE,   // Write the source to the destination
     DISCARD, // Don't write the source to the destination
 };
 
-enum class TextureLayout : uint8_t {
+enum class TextureLayout {
     UNDEFINED,
     GENERAL,
     COLOR_ATTACHMENT_OPTIMAL,
@@ -454,13 +454,13 @@ enum class TextureLayout : uint8_t {
     PRESENT_SRC,
 };
 
-enum class PipelineBindPoint : uint8_t {
+enum class PipelineBindPoint {
     GRAPHICS,
     COMPUTE,
     RAY_TRACING,
 };
 
-enum class PrimitiveMode : uint8_t {
+enum class PrimitiveMode {
     POINT_LIST,
     LINE_LIST,
     LINE_STRIP,
@@ -478,24 +478,24 @@ enum class PrimitiveMode : uint8_t {
     QUAD_PATCH_LIST,
 };
 
-enum class PolygonMode : uint8_t {
+enum class PolygonMode {
     FILL,
     POINT,
     LINE,
 };
 
-enum class ShadeModel : uint8_t {
+enum class ShadeModel {
     GOURAND,
     FLAT,
 };
 
-enum class CullMode : uint8_t {
+enum class CullMode {
     NONE,
     FRONT,
     BACK,
 };
 
-enum class DynamicStateFlagBit : uint8_t {
+enum class DynamicStateFlagBit : FlagBits {
     NONE = 0x0,
     VIEWPORT = 0x1,
     SCISSOR = 0x2,
@@ -510,13 +510,13 @@ typedef DynamicStateFlagBit DynamicStateFlags;
 
 typedef cc::vector<DynamicStateFlagBit> DynamicStateList;
 
-enum class StencilFace : uint8_t {
+enum class StencilFace {
     FRONT,
     BACK,
     ALL,
 };
 
-enum class DescriptorType : uint8_t {
+enum class DescriptorType : FlagBits {
     UNKNOWN = 0,
     UNIFORM_BUFFER = 0x1,
     DYNAMIC_UNIFORM_BUFFER = 0x2,
@@ -525,18 +525,18 @@ enum class DescriptorType : uint8_t {
     SAMPLER = 0x10,
 };
 
-enum class QueueType : uint8_t {
+enum class QueueType {
     GRAPHICS,
     COMPUTE,
     TRANSFER,
 };
 
-enum class CommandBufferType : uint8_t {
+enum class CommandBufferType {
     PRIMARY,
     SECONDARY,
 };
 
-enum class ClearFlagBit : uint8_t {
+enum class ClearFlagBit : FlagBits {
     NONE = 0,
     COLOR = 0x1,
     DEPTH = 0x2,
@@ -547,7 +547,7 @@ enum class ClearFlagBit : uint8_t {
 typedef ClearFlagBit ClearFlags;
 CC_ENUM_OPERATORS(ClearFlags);
 
-enum class VsyncMode : uint8_t {
+enum class VsyncMode {
     // The application does not synchronizes with the vertical sync. If application renders faster than the display refreshes, frames are wasted and tearing may be observed. FPS is uncapped. Maximum power consumption. If unsupported, "ON" value will be used instead. Minimum latency.
     OFF,
     // The application is always synchronized with the vertical sync. Tearing does not happen. FPS is capped to the display's refresh rate. For fast applications, battery life is improved. Always supported.

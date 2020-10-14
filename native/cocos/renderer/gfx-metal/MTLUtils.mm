@@ -101,7 +101,7 @@ const vector<unsigned int> GLSL2SPIRV(ShaderStageFlagBit type, const String &sou
 }
 
 //See more details at https://developer.apple.com/documentation/metal/mtlfeatureset
-enum class GPUFamily : uint {
+enum class GPUFamily {
     Apple1, // A7,
     Apple2, // A8
     Apple3, // A9, A10

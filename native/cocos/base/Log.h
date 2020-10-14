@@ -6,13 +6,13 @@
 
 namespace cc {
 
-enum class LogType : uint8_t {
+enum class LogType {
     KERNEL,
     SCRIPT,
     COUNT,
 };
 
-enum class LogLevel : uint8_t {
+enum class LogLevel {
     FATAL,
     ERR,
     WARN,

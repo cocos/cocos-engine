@@ -71,7 +71,7 @@ public:
     }
 };
 
-enum class GLES2State : uint8_t {
+enum class GLES2State {
     VIEWPORT,
     SCISSOR,
     LINE_WIDTH,
