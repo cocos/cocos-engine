@@ -4612,34 +4612,6 @@ bool js_register_gfx_TextureViewInfo(se::Object* obj)
 se::Object* __jsb_cc_gfx_SamplerInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_SamplerInfo_class = nullptr;
 
-static bool js_gfx_SamplerInfo_get_name(se::State& s)
-{
-    cc::gfx::SamplerInfo* cobj = (cc::gfx::SamplerInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_SamplerInfo_get_name : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    jsret.setString(cobj->name);
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_SamplerInfo_get_name)
-
-static bool js_gfx_SamplerInfo_set_name(se::State& s)
-{
-    const auto& args = s.args();
-    cc::gfx::SamplerInfo* cobj = (cc::gfx::SamplerInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_SamplerInfo_set_name : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    cc::String arg0;
-    arg0 = args[0].toStringForce().c_str();
-    SE_PRECONDITION2(ok, false, "js_gfx_SamplerInfo_set_name : Error processing new value");
-    cobj->name = arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_SamplerInfo_set_name)
-
 static bool js_gfx_SamplerInfo_get_minFilter(se::State& s)
 {
     cc::gfx::SamplerInfo* cobj = (cc::gfx::SamplerInfo*)s.nativeThisObject();
@@ -4997,83 +4969,77 @@ static bool js_gfx_SamplerInfo_constructor(se::State& s)
         se::Value field;
 
         cc::gfx::SamplerInfo* cobj = JSB_ALLOC(cc::gfx::SamplerInfo);
-        cc::String arg0;
-        json->getProperty("name", &field);
-        if(!field.isUndefined()) {
-            arg0 = field.toStringForce().c_str();
-            cobj->name = arg0;
-        }
-        cc::gfx::Filter arg1;
+        cc::gfx::Filter arg0;
         json->getProperty("minFilter", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cc::gfx::Filter)tmp; } while(false);
-            cobj->minFilter = arg1;
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cc::gfx::Filter)tmp; } while(false);
+            cobj->minFilter = arg0;
         }
-        cc::gfx::Filter arg2;
+        cc::gfx::Filter arg1;
         json->getProperty("magFilter", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cc::gfx::Filter)tmp; } while(false);
-            cobj->magFilter = arg2;
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cc::gfx::Filter)tmp; } while(false);
+            cobj->magFilter = arg1;
         }
-        cc::gfx::Filter arg3;
+        cc::gfx::Filter arg2;
         json->getProperty("mipFilter", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cc::gfx::Filter)tmp; } while(false);
-            cobj->mipFilter = arg3;
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cc::gfx::Filter)tmp; } while(false);
+            cobj->mipFilter = arg2;
         }
-        cc::gfx::Address arg4;
+        cc::gfx::Address arg3;
         json->getProperty("addressU", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cc::gfx::Address)tmp; } while(false);
-            cobj->addressU = arg4;
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cc::gfx::Address)tmp; } while(false);
+            cobj->addressU = arg3;
         }
-        cc::gfx::Address arg5;
+        cc::gfx::Address arg4;
         json->getProperty("addressV", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg5 = (cc::gfx::Address)tmp; } while(false);
-            cobj->addressV = arg5;
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cc::gfx::Address)tmp; } while(false);
+            cobj->addressV = arg4;
         }
-        cc::gfx::Address arg6;
+        cc::gfx::Address arg5;
         json->getProperty("addressW", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg6 = (cc::gfx::Address)tmp; } while(false);
-            cobj->addressW = arg6;
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg5 = (cc::gfx::Address)tmp; } while(false);
+            cobj->addressW = arg5;
         }
-        unsigned int arg7 = 0;
+        unsigned int arg6 = 0;
         json->getProperty("maxAnisotropy", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg7);
-            cobj->maxAnisotropy = arg7;
+            ok &= seval_to_uint32(field, (uint32_t*)&arg6);
+            cobj->maxAnisotropy = arg6;
         }
-        cc::gfx::ComparisonFunc arg8;
+        cc::gfx::ComparisonFunc arg7;
         json->getProperty("cmpFunc", &field);
         if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg8 = (cc::gfx::ComparisonFunc)tmp; } while(false);
-            cobj->cmpFunc = arg8;
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg7 = (cc::gfx::ComparisonFunc)tmp; } while(false);
+            cobj->cmpFunc = arg7;
         }
-        cc::gfx::Color* arg9 = nullptr;
+        cc::gfx::Color* arg8 = nullptr;
         json->getProperty("borderColor", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_reference(field, &arg9);
-            cobj->borderColor = *arg9;
+            ok &= seval_to_reference(field, &arg8);
+            cobj->borderColor = *arg8;
         }
-        unsigned int arg10 = 0;
+        unsigned int arg9 = 0;
         json->getProperty("minLOD", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg10);
-            cobj->minLOD = arg10;
+            ok &= seval_to_uint32(field, (uint32_t*)&arg9);
+            cobj->minLOD = arg9;
         }
-        unsigned int arg11 = 0;
+        unsigned int arg10 = 0;
         json->getProperty("maxLOD", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg11);
-            cobj->maxLOD = arg11;
+            ok &= seval_to_uint32(field, (uint32_t*)&arg10);
+            cobj->maxLOD = arg10;
         }
-        float arg12 = 0;
+        float arg11 = 0;
         json->getProperty("mipLODBias", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_float(field, &arg12);
-            cobj->mipLODBias = arg12;
+            ok &= seval_to_float(field, &arg11);
+            cobj->mipLODBias = arg11;
         }
 
         if(!ok) {
@@ -5090,69 +5056,64 @@ static bool js_gfx_SamplerInfo_constructor(se::State& s)
     {
         cc::gfx::SamplerInfo* cobj = JSB_ALLOC(cc::gfx::SamplerInfo);
         if (argc > 0 && !args[0].isUndefined()) {
-            cc::String arg0;
-            arg0 = args[0].toStringForce().c_str();
-            cobj->name = arg0;
+            cc::gfx::Filter arg0;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cc::gfx::Filter)tmp; } while(false);
+            cobj->minFilter = arg0;
         }
         if (argc > 1 && !args[1].isUndefined()) {
             cc::gfx::Filter arg1;
             do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::Filter)tmp; } while(false);
-            cobj->minFilter = arg1;
+            cobj->magFilter = arg1;
         }
         if (argc > 2 && !args[2].isUndefined()) {
             cc::gfx::Filter arg2;
             do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::Filter)tmp; } while(false);
-            cobj->magFilter = arg2;
+            cobj->mipFilter = arg2;
         }
         if (argc > 3 && !args[3].isUndefined()) {
-            cc::gfx::Filter arg3;
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::gfx::Filter)tmp; } while(false);
-            cobj->mipFilter = arg3;
+            cc::gfx::Address arg3;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::gfx::Address)tmp; } while(false);
+            cobj->addressU = arg3;
         }
         if (argc > 4 && !args[4].isUndefined()) {
             cc::gfx::Address arg4;
             do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cc::gfx::Address)tmp; } while(false);
-            cobj->addressU = arg4;
+            cobj->addressV = arg4;
         }
         if (argc > 5 && !args[5].isUndefined()) {
             cc::gfx::Address arg5;
             do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cc::gfx::Address)tmp; } while(false);
-            cobj->addressV = arg5;
+            cobj->addressW = arg5;
         }
         if (argc > 6 && !args[6].isUndefined()) {
-            cc::gfx::Address arg6;
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cc::gfx::Address)tmp; } while(false);
-            cobj->addressW = arg6;
+            unsigned int arg6 = 0;
+            ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
+            cobj->maxAnisotropy = arg6;
         }
         if (argc > 7 && !args[7].isUndefined()) {
-            unsigned int arg7 = 0;
-            ok &= seval_to_uint32(args[7], (uint32_t*)&arg7);
-            cobj->maxAnisotropy = arg7;
+            cc::gfx::ComparisonFunc arg7;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[7], &tmp); arg7 = (cc::gfx::ComparisonFunc)tmp; } while(false);
+            cobj->cmpFunc = arg7;
         }
         if (argc > 8 && !args[8].isUndefined()) {
-            cc::gfx::ComparisonFunc arg8;
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cc::gfx::ComparisonFunc)tmp; } while(false);
-            cobj->cmpFunc = arg8;
+            cc::gfx::Color* arg8 = nullptr;
+            ok &= seval_to_reference(args[8], &arg8);
+            cobj->borderColor = *arg8;
         }
         if (argc > 9 && !args[9].isUndefined()) {
-            cc::gfx::Color* arg9 = nullptr;
-            ok &= seval_to_reference(args[9], &arg9);
-            cobj->borderColor = *arg9;
+            unsigned int arg9 = 0;
+            ok &= seval_to_uint32(args[9], (uint32_t*)&arg9);
+            cobj->minLOD = arg9;
         }
         if (argc > 10 && !args[10].isUndefined()) {
             unsigned int arg10 = 0;
             ok &= seval_to_uint32(args[10], (uint32_t*)&arg10);
-            cobj->minLOD = arg10;
+            cobj->maxLOD = arg10;
         }
         if (argc > 11 && !args[11].isUndefined()) {
-            unsigned int arg11 = 0;
-            ok &= seval_to_uint32(args[11], (uint32_t*)&arg11);
-            cobj->maxLOD = arg11;
-        }
-        if (argc > 12 && !args[12].isUndefined()) {
-            float arg12 = 0;
-            ok &= seval_to_float(args[12], &arg12);
-            cobj->mipLODBias = arg12;
+            float arg11 = 0;
+            ok &= seval_to_float(args[11], &arg11);
+            cobj->mipLODBias = arg11;
         }
 
         if(!ok) {
@@ -5191,7 +5152,6 @@ bool js_register_gfx_SamplerInfo(se::Object* obj)
 {
     auto cls = se::Class::create("SamplerInfo", obj, nullptr, _SE(js_gfx_SamplerInfo_constructor));
 
-    cls->defineProperty("name", _SE(js_gfx_SamplerInfo_get_name), _SE(js_gfx_SamplerInfo_set_name));
     cls->defineProperty("minFilter", _SE(js_gfx_SamplerInfo_get_minFilter), _SE(js_gfx_SamplerInfo_set_minFilter));
     cls->defineProperty("magFilter", _SE(js_gfx_SamplerInfo_get_magFilter), _SE(js_gfx_SamplerInfo_set_magFilter));
     cls->defineProperty("mipFilter", _SE(js_gfx_SamplerInfo_get_mipFilter), _SE(js_gfx_SamplerInfo_set_mipFilter));
@@ -14159,23 +14119,23 @@ static bool js_gfx_Sampler_getBorderColor(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_Sampler_getBorderColor)
 
-static bool js_gfx_Sampler_getName(se::State& s)
+static bool js_gfx_Sampler_getMinFilter(se::State& s)
 {
     cc::gfx::Sampler* cobj = (cc::gfx::Sampler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_Sampler_getName : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_Sampler_getMinFilter : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::String& result = cobj->getName();
-        s.rval().setString(result);
-        SE_PRECONDITION2(ok, false, "js_gfx_Sampler_getName : Error processing arguments");
+        int result = (int)cobj->getMinFilter();
+        ok &= int32_to_seval((int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_Sampler_getMinFilter : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Sampler_getName)
+SE_BIND_PROP_GET(js_gfx_Sampler_getMinFilter)
 
 static bool js_gfx_Sampler_getMipFilter(se::State& s)
 {
@@ -14303,24 +14263,6 @@ static bool js_gfx_Sampler_getMinLOD(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_Sampler_getMinLOD)
 
-static bool js_gfx_Sampler_getMinFilter(se::State& s)
-{
-    cc::gfx::Sampler* cobj = (cc::gfx::Sampler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_Sampler_getMinFilter : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->getMinFilter();
-        ok &= int32_to_seval((int)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_Sampler_getMinFilter : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Sampler_getMinFilter)
-
 static bool js_gfx_Sampler_getMaxLOD(se::State& s)
 {
     cc::gfx::Sampler* cobj = (cc::gfx::Sampler*)s.nativeThisObject();
@@ -14373,7 +14315,6 @@ bool js_register_gfx_Sampler(se::Object* obj)
     cls->defineProperty("borderColor", _SE(js_gfx_Sampler_getBorderColor), nullptr);
     cls->defineProperty("mipFilter", _SE(js_gfx_Sampler_getMipFilter), nullptr);
     cls->defineProperty("minFilter", _SE(js_gfx_Sampler_getMinFilter), nullptr);
-    cls->defineProperty("name", _SE(js_gfx_Sampler_getName), nullptr);
     cls->defineProperty("maxLOD", _SE(js_gfx_Sampler_getMaxLOD), nullptr);
     cls->defineProperty("magFilter", _SE(js_gfx_Sampler_getMagFilter), nullptr);
     cls->defineProperty("addressU", _SE(js_gfx_Sampler_getAddressU), nullptr);
