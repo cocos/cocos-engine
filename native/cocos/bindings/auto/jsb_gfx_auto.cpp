@@ -7500,6 +7500,34 @@ static bool js_gfx_DepthStencilAttachment_set_format(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_DepthStencilAttachment_set_format)
 
+static bool js_gfx_DepthStencilAttachment_get_sampleCount(se::State& s)
+{
+    cc::gfx::DepthStencilAttachment* cobj = (cc::gfx::DepthStencilAttachment*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilAttachment_get_sampleCount : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= uint32_to_seval((unsigned int)cobj->sampleCount, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_DepthStencilAttachment_get_sampleCount)
+
+static bool js_gfx_DepthStencilAttachment_set_sampleCount(se::State& s)
+{
+    const auto& args = s.args();
+    cc::gfx::DepthStencilAttachment* cobj = (cc::gfx::DepthStencilAttachment*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilAttachment_set_sampleCount : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    unsigned int arg0 = 0;
+    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_DepthStencilAttachment_set_sampleCount : Error processing new value");
+    cobj->sampleCount = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_DepthStencilAttachment_set_sampleCount)
+
 static bool js_gfx_DepthStencilAttachment_get_depthLoadOp(se::State& s)
 {
     cc::gfx::DepthStencilAttachment* cobj = (cc::gfx::DepthStencilAttachment*)s.nativeThisObject();
@@ -7612,34 +7640,6 @@ static bool js_gfx_DepthStencilAttachment_set_stencilStoreOp(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_DepthStencilAttachment_set_stencilStoreOp)
 
-static bool js_gfx_DepthStencilAttachment_get_sampleCount(se::State& s)
-{
-    cc::gfx::DepthStencilAttachment* cobj = (cc::gfx::DepthStencilAttachment*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilAttachment_get_sampleCount : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= uint32_to_seval((unsigned int)cobj->sampleCount, &jsret);
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_DepthStencilAttachment_get_sampleCount)
-
-static bool js_gfx_DepthStencilAttachment_set_sampleCount(se::State& s)
-{
-    const auto& args = s.args();
-    cc::gfx::DepthStencilAttachment* cobj = (cc::gfx::DepthStencilAttachment*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilAttachment_set_sampleCount : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    unsigned int arg0 = 0;
-    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_DepthStencilAttachment_set_sampleCount : Error processing new value");
-    cobj->sampleCount = arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_DepthStencilAttachment_set_sampleCount)
-
 static bool js_gfx_DepthStencilAttachment_get_beginLayout(se::State& s)
 {
     cc::gfx::DepthStencilAttachment* cobj = (cc::gfx::DepthStencilAttachment*)s.nativeThisObject();
@@ -7723,35 +7723,35 @@ static bool js_gfx_DepthStencilAttachment_constructor(se::State& s)
             do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cc::gfx::Format)tmp; } while(false);
             cobj->format = arg0;
         }
-        cc::gfx::LoadOp arg1;
-        json->getProperty("depthLoadOp", &field);
-        if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cc::gfx::LoadOp)tmp; } while(false);
-            cobj->depthLoadOp = arg1;
-        }
-        cc::gfx::StoreOp arg2;
-        json->getProperty("depthStoreOp", &field);
-        if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cc::gfx::StoreOp)tmp; } while(false);
-            cobj->depthStoreOp = arg2;
-        }
-        cc::gfx::LoadOp arg3;
-        json->getProperty("stencilLoadOp", &field);
-        if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cc::gfx::LoadOp)tmp; } while(false);
-            cobj->stencilLoadOp = arg3;
-        }
-        cc::gfx::StoreOp arg4;
-        json->getProperty("stencilStoreOp", &field);
-        if(!field.isUndefined()) {
-            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cc::gfx::StoreOp)tmp; } while(false);
-            cobj->stencilStoreOp = arg4;
-        }
-        unsigned int arg5 = 0;
+        unsigned int arg1 = 0;
         json->getProperty("sampleCount", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_uint32(field, (uint32_t*)&arg5);
-            cobj->sampleCount = arg5;
+            ok &= seval_to_uint32(field, (uint32_t*)&arg1);
+            cobj->sampleCount = arg1;
+        }
+        cc::gfx::LoadOp arg2;
+        json->getProperty("depthLoadOp", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cc::gfx::LoadOp)tmp; } while(false);
+            cobj->depthLoadOp = arg2;
+        }
+        cc::gfx::StoreOp arg3;
+        json->getProperty("depthStoreOp", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cc::gfx::StoreOp)tmp; } while(false);
+            cobj->depthStoreOp = arg3;
+        }
+        cc::gfx::LoadOp arg4;
+        json->getProperty("stencilLoadOp", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cc::gfx::LoadOp)tmp; } while(false);
+            cobj->stencilLoadOp = arg4;
+        }
+        cc::gfx::StoreOp arg5;
+        json->getProperty("stencilStoreOp", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg5 = (cc::gfx::StoreOp)tmp; } while(false);
+            cobj->stencilStoreOp = arg5;
         }
         cc::gfx::TextureLayout arg6;
         json->getProperty("beginLayout", &field);
@@ -7785,29 +7785,29 @@ static bool js_gfx_DepthStencilAttachment_constructor(se::State& s)
             cobj->format = arg0;
         }
         if (argc > 1 && !args[1].isUndefined()) {
-            cc::gfx::LoadOp arg1;
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cc::gfx::LoadOp)tmp; } while(false);
-            cobj->depthLoadOp = arg1;
+            unsigned int arg1 = 0;
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->sampleCount = arg1;
         }
         if (argc > 2 && !args[2].isUndefined()) {
-            cc::gfx::StoreOp arg2;
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::StoreOp)tmp; } while(false);
-            cobj->depthStoreOp = arg2;
+            cc::gfx::LoadOp arg2;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cc::gfx::LoadOp)tmp; } while(false);
+            cobj->depthLoadOp = arg2;
         }
         if (argc > 3 && !args[3].isUndefined()) {
-            cc::gfx::LoadOp arg3;
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::gfx::LoadOp)tmp; } while(false);
-            cobj->stencilLoadOp = arg3;
+            cc::gfx::StoreOp arg3;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cc::gfx::StoreOp)tmp; } while(false);
+            cobj->depthStoreOp = arg3;
         }
         if (argc > 4 && !args[4].isUndefined()) {
-            cc::gfx::StoreOp arg4;
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cc::gfx::StoreOp)tmp; } while(false);
-            cobj->stencilStoreOp = arg4;
+            cc::gfx::LoadOp arg4;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cc::gfx::LoadOp)tmp; } while(false);
+            cobj->stencilLoadOp = arg4;
         }
         if (argc > 5 && !args[5].isUndefined()) {
-            unsigned int arg5 = 0;
-            ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
-            cobj->sampleCount = arg5;
+            cc::gfx::StoreOp arg5;
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cc::gfx::StoreOp)tmp; } while(false);
+            cobj->stencilStoreOp = arg5;
         }
         if (argc > 6 && !args[6].isUndefined()) {
             cc::gfx::TextureLayout arg6;
@@ -7857,11 +7857,11 @@ bool js_register_gfx_DepthStencilAttachment(se::Object* obj)
     auto cls = se::Class::create("DepthStencilAttachment", obj, nullptr, _SE(js_gfx_DepthStencilAttachment_constructor));
 
     cls->defineProperty("format", _SE(js_gfx_DepthStencilAttachment_get_format), _SE(js_gfx_DepthStencilAttachment_set_format));
+    cls->defineProperty("sampleCount", _SE(js_gfx_DepthStencilAttachment_get_sampleCount), _SE(js_gfx_DepthStencilAttachment_set_sampleCount));
     cls->defineProperty("depthLoadOp", _SE(js_gfx_DepthStencilAttachment_get_depthLoadOp), _SE(js_gfx_DepthStencilAttachment_set_depthLoadOp));
     cls->defineProperty("depthStoreOp", _SE(js_gfx_DepthStencilAttachment_get_depthStoreOp), _SE(js_gfx_DepthStencilAttachment_set_depthStoreOp));
     cls->defineProperty("stencilLoadOp", _SE(js_gfx_DepthStencilAttachment_get_stencilLoadOp), _SE(js_gfx_DepthStencilAttachment_set_stencilLoadOp));
     cls->defineProperty("stencilStoreOp", _SE(js_gfx_DepthStencilAttachment_get_stencilStoreOp), _SE(js_gfx_DepthStencilAttachment_set_stencilStoreOp));
-    cls->defineProperty("sampleCount", _SE(js_gfx_DepthStencilAttachment_get_sampleCount), _SE(js_gfx_DepthStencilAttachment_set_sampleCount));
     cls->defineProperty("beginLayout", _SE(js_gfx_DepthStencilAttachment_get_beginLayout), _SE(js_gfx_DepthStencilAttachment_set_beginLayout));
     cls->defineProperty("endLayout", _SE(js_gfx_DepthStencilAttachment_get_endLayout), _SE(js_gfx_DepthStencilAttachment_set_endLayout));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_DepthStencilAttachment_finalize));
@@ -8140,34 +8140,6 @@ static bool js_gfx_FramebufferInfo_set_colorTextures(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_FramebufferInfo_set_colorTextures)
 
-static bool js_gfx_FramebufferInfo_get_colorMipmapLevels(se::State& s)
-{
-    cc::gfx::FramebufferInfo* cobj = (cc::gfx::FramebufferInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_FramebufferInfo_get_colorMipmapLevels : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= native_ptr_to_seval(cobj->colorMipmapLevels, &jsret);
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_FramebufferInfo_get_colorMipmapLevels)
-
-static bool js_gfx_FramebufferInfo_set_colorMipmapLevels(se::State& s)
-{
-    const auto& args = s.args();
-    cc::gfx::FramebufferInfo* cobj = (cc::gfx::FramebufferInfo*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_FramebufferInfo_set_colorMipmapLevels : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    std::vector<unsigned int> arg0;
-    ok &= seval_to_std_vector(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_FramebufferInfo_set_colorMipmapLevels : Error processing new value");
-    cobj->colorMipmapLevels = arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_FramebufferInfo_set_colorMipmapLevels)
-
 static bool js_gfx_FramebufferInfo_get_depthStencilTexture(se::State& s)
 {
     cc::gfx::FramebufferInfo* cobj = (cc::gfx::FramebufferInfo*)s.nativeThisObject();
@@ -8195,6 +8167,34 @@ static bool js_gfx_FramebufferInfo_set_depthStencilTexture(se::State& s)
     return true;
 }
 SE_BIND_PROP_SET(js_gfx_FramebufferInfo_set_depthStencilTexture)
+
+static bool js_gfx_FramebufferInfo_get_colorMipmapLevels(se::State& s)
+{
+    cc::gfx::FramebufferInfo* cobj = (cc::gfx::FramebufferInfo*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_FramebufferInfo_get_colorMipmapLevels : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= native_ptr_to_seval(cobj->colorMipmapLevels, &jsret);
+    s.rval() = jsret;
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_FramebufferInfo_get_colorMipmapLevels)
+
+static bool js_gfx_FramebufferInfo_set_colorMipmapLevels(se::State& s)
+{
+    const auto& args = s.args();
+    cc::gfx::FramebufferInfo* cobj = (cc::gfx::FramebufferInfo*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_FramebufferInfo_set_colorMipmapLevels : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    std::vector<unsigned int> arg0;
+    ok &= seval_to_std_vector(args[0], &arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_FramebufferInfo_set_colorMipmapLevels : Error processing new value");
+    cobj->colorMipmapLevels = arg0;
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_FramebufferInfo_set_colorMipmapLevels)
 
 static bool js_gfx_FramebufferInfo_get_depthStencilMipmapLevel(se::State& s)
 {
@@ -8257,17 +8257,17 @@ static bool js_gfx_FramebufferInfo_constructor(se::State& s)
             ok &= seval_to_std_vector(field, &arg1);
             cobj->colorTextures = arg1;
         }
-        std::vector<unsigned int> arg2;
-        json->getProperty("colorMipmapLevels", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_std_vector(field, &arg2);
-            cobj->colorMipmapLevels = arg2;
-        }
-        cc::gfx::Texture* arg3 = nullptr;
+        cc::gfx::Texture* arg2 = nullptr;
         json->getProperty("depthStencilTexture", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_native_ptr(field, &arg3);
-            cobj->depthStencilTexture = arg3;
+            ok &= seval_to_native_ptr(field, &arg2);
+            cobj->depthStencilTexture = arg2;
+        }
+        std::vector<unsigned int> arg3;
+        json->getProperty("colorMipmapLevels", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_std_vector(field, &arg3);
+            cobj->colorMipmapLevels = arg3;
         }
         unsigned int arg4 = 0;
         json->getProperty("depthStencilMipmapLevel", &field);
@@ -8300,14 +8300,14 @@ static bool js_gfx_FramebufferInfo_constructor(se::State& s)
             cobj->colorTextures = arg1;
         }
         if (argc > 2 && !args[2].isUndefined()) {
-            std::vector<unsigned int> arg2;
-            ok &= seval_to_std_vector(args[2], &arg2);
-            cobj->colorMipmapLevels = arg2;
+            cc::gfx::Texture* arg2 = nullptr;
+            ok &= seval_to_native_ptr(args[2], &arg2);
+            cobj->depthStencilTexture = arg2;
         }
         if (argc > 3 && !args[3].isUndefined()) {
-            cc::gfx::Texture* arg3 = nullptr;
-            ok &= seval_to_native_ptr(args[3], &arg3);
-            cobj->depthStencilTexture = arg3;
+            std::vector<unsigned int> arg3;
+            ok &= seval_to_std_vector(args[3], &arg3);
+            cobj->colorMipmapLevels = arg3;
         }
         if (argc > 4 && !args[4].isUndefined()) {
             unsigned int arg4 = 0;
@@ -8353,8 +8353,8 @@ bool js_register_gfx_FramebufferInfo(se::Object* obj)
 
     cls->defineProperty("renderPass", _SE(js_gfx_FramebufferInfo_get_renderPass), _SE(js_gfx_FramebufferInfo_set_renderPass));
     cls->defineProperty("colorTextures", _SE(js_gfx_FramebufferInfo_get_colorTextures), _SE(js_gfx_FramebufferInfo_set_colorTextures));
-    cls->defineProperty("colorMipmapLevels", _SE(js_gfx_FramebufferInfo_get_colorMipmapLevels), _SE(js_gfx_FramebufferInfo_set_colorMipmapLevels));
     cls->defineProperty("depthStencilTexture", _SE(js_gfx_FramebufferInfo_get_depthStencilTexture), _SE(js_gfx_FramebufferInfo_set_depthStencilTexture));
+    cls->defineProperty("colorMipmapLevels", _SE(js_gfx_FramebufferInfo_get_colorMipmapLevels), _SE(js_gfx_FramebufferInfo_set_colorMipmapLevels));
     cls->defineProperty("depthStencilMipmapLevel", _SE(js_gfx_FramebufferInfo_get_depthStencilMipmapLevel), _SE(js_gfx_FramebufferInfo_set_depthStencilMipmapLevel));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_FramebufferInfo_finalize));
     cls->install();
