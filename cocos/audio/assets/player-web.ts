@@ -76,7 +76,8 @@ export class AudioPlayerWeb extends AudioPlayer {
         if (!this._audio || this._state === PlayingState.PLAYING) { return; }
         if (this._blocking || this._context.state !== 'running') {
             this._interrupted = true;
-            if (this._context.state as string === 'interrupted' && this._context.resume) {
+            if (('interrupted' === this._context.state as string || 'suspended' === this._context.state as string) 
+                && this._context.resume) {
                 this._onGesture();
             }
             return;

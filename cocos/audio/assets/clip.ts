@@ -108,7 +108,18 @@ export class AudioClip extends Asset {
         return this._player ? this._player.getState() : PlayingState.INITIALIZING;
     }
 
-    public play () { if (this._player) { this._player.play(); } }
+    public play () { 
+        if (this._player) {
+            if (this.state === PlayingState.PLAYING) {
+                /* sometimes there is no way to update the playing state
+                especially when player unplug earphones and the audio automatically stops
+                so we need to force updating the playing state by pausing audio */
+                this._player.pause();
+                this._player.setCurrentTime(0);
+            }
+            this._player.play();
+        }
+    }
     public pause () { if (this._player) { this._player.pause(); } }
     public stop () { if (this._player) { this._player.stop(); } }
     public playOneShot (volume: number) { if (this._player) { this._player.playOneShot(volume); } }

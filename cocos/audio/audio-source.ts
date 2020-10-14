@@ -155,8 +155,7 @@ export class AudioSource extends Component {
      */
     public play () {
         if (!this._clip) { return; }
-        if (this.playing) { this.currentTime = 0; }
-        else { this._clip.play(); }
+        this._clip.play();
     }
 
     /**
