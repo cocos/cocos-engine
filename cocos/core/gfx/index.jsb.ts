@@ -13,7 +13,6 @@ export * from './define';
 export * from './framebuffer';
 export * from './descriptor-set-layout';
 export * from './pipeline-layout';
-export * from './fence';
 export * from './queue';
 export * from './render-pass';
 
@@ -62,6 +61,9 @@ export const GFXExtent = gfx.Extent;
 export const GFXTextureSubres = gfx.TextureSubres;
 export const GFXTextureCopy = gfx.TextureCopy;
 export const GFXBufferTextureCopy = gfx.BufferTextureCopy;
+
+export const GFXFenceInfo = gfx.FenceInfo;
+export const GFXFence = gfx.Fence;
 
 legacyCC.GFXDevice = GFXDevice;
 legacyCC.GFXBuffer = GFXBuffer;
