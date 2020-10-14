@@ -284,8 +284,8 @@ export class TerrainBlock {
         // vertex buffer
         const vertexData = new Float32Array(TERRAIN_BLOCK_VERTEX_SIZE * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY);
         let index = 0;
-        const bbMin = new Vec3(0, 0, 0);
-        const bbMax = new Vec3(0, 0, 0);
+        const bbMin = new Vec3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+        const bbMax = new Vec3(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE);
         for (let j = 0; j < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++j) {
             for (let i = 0; i < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++i) {
                 const x = this._index[0] * TERRAIN_BLOCK_TILE_COMPLEXITY + i;
