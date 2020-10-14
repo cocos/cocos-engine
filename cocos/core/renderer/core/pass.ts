@@ -452,7 +452,7 @@ export class Pass {
      */
     public tryCompile () {
         const pipeline = this._root.pipeline;
-        if (!pipeline) { return null; }
+        if (!pipeline) { return false; }
         this._syncBatchingScheme();
         this._hShaderDefault = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
         if (!this._hShaderDefault) { console.warn(`create shader ${this._programName} failed`); return false; }

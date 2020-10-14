@@ -151,7 +151,7 @@ export class SkyboxInfo {
      * @en The texture cube used for the skybox
      * @zh 使用的立方体贴图
      */
-    
+
     @editable
     @type(TextureCube)
     set envmap (val) {

@@ -16,14 +16,14 @@ export class WebGL2DescriptorSet extends GFXDescriptorSet {
     public initialize (info: GFXDescriptorSetInfo): boolean {
 
         this._layout = info.layout;
-        const { bindings, descriptorCount, descriptorIndices } = (info.layout as WebGL2DescriptorSetLayout).gpuDescriptorSetLayout;
+        const { bindings, bindingIndices, descriptorIndices, descriptorCount } = (info.layout as WebGL2DescriptorSetLayout).gpuDescriptorSetLayout;
 
         this._buffers = Array(descriptorCount).fill(null);
         this._textures = Array(descriptorCount).fill(null);
         this._samplers = Array(descriptorCount).fill(null);
 
         const gpuDescriptors: IWebGL2GPUDescriptor[] = [];
-        this._gpuDescriptorSet = { gpuDescriptors, descriptorIndices };
+        this._gpuDescriptorSet = { gpuDescriptors, bindingIndices, descriptorIndices };
 
         for (let i = 0; i < bindings.length; ++i) {
             const binding = bindings[i];

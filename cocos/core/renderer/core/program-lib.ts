@@ -99,30 +99,35 @@ function getShaderInstanceName (name: string, macros: IMacroInfo[]) {
     return name + macros.reduce((acc, cur) => cur.isDefault ? acc : `${acc}|${cur.name}${cur.value}`, '');
 }
 
-function insertBuiltinBindings (tmpl: IProgramInfo, source: IDescriptorSetLayoutInfo, type: string) {
+function insertBuiltinBindings (tmpl: IProgramInfo, source: IDescriptorSetLayoutInfo, type: string, outBindings?: GFXDescriptorSetLayoutBinding[]) {
     const target = tmpl.builtins[type] as IBuiltinInfo;
     const tempBlocks: GFXUniformBlock[] = [];
     for (let i = 0; i < target.blocks.length; i++) {
         const b = target.blocks[i];
         const info = source.layouts[b.name] as GFXUniformBlock | undefined;
-        if (!info || !(source.bindings[info.binding].descriptorType & DESCRIPTOR_BUFFER_TYPE)) {
+        const binding = info && source.bindings.find((bd) => bd.binding === info.binding);
+        if (!info || !binding || !(binding.descriptorType & DESCRIPTOR_BUFFER_TYPE)) {
             console.warn(`builtin UBO '${b.name}' not available!`);
             continue;
         }
         tempBlocks.push(info);
+        if (outBindings && !outBindings.includes(binding)) outBindings.push(binding);
     }
     Array.prototype.unshift.apply(tmpl.gfxBlocks, tempBlocks);
     const tempSamplers: GFXUniformSampler[] = [];
     for (let i = 0; i < target.samplers.length; i++) {
         const s = target.samplers[i];
         const info = source.layouts[s.name] as GFXUniformSampler;
-        if (!info || !(source.bindings[info.binding].descriptorType & DESCRIPTOR_SAMPLER_TYPE)) {
+        const binding = info && source.bindings.find((bd) => bd.binding === info.binding);
+        if (!info || !binding || !(binding.descriptorType & DESCRIPTOR_SAMPLER_TYPE)) {
             console.warn(`builtin sampler '${s.name}' not available!`);
             continue;
         }
         tempSamplers.push(info);
+        if (outBindings && !outBindings.includes(binding)) outBindings.push(binding);
     }
     Array.prototype.unshift.apply(tmpl.gfxSamplers, tempSamplers);
+    if (outBindings) outBindings.sort((a, b) => a.binding - b.binding);
 }
 
 function getSize (block: IBlockInfo) {
@@ -167,8 +172,6 @@ function getActiveAttributes (tmpl: IProgramInfo, defines: MacroRecord) {
     }
     return out;
 }
-
-let _dsLayout: GFXDescriptorSetLayout | null = null;
 
 /**
  * @en The global maintainer of all shader resources.
@@ -215,13 +218,14 @@ class ProgramLib {
         for (let i = 0; i < tmpl.blocks.length; i++) {
             const block = tmpl.blocks[i];
             tmpl.blockSizes.push(getSize(block));
-            tmpl.bindings.push(new GFXDescriptorSetLayoutBinding(block.descriptorType || GFXDescriptorType.UNIFORM_BUFFER, 1, block.stageFlags));
+            tmpl.bindings.push(new GFXDescriptorSetLayoutBinding(block.binding, block.descriptorType || GFXDescriptorType.UNIFORM_BUFFER, 1, block.stageFlags));
             tmpl.gfxBlocks.push(new GFXUniformBlock(SetIndex.MATERIAL, block.binding, block.name,
                 block.members.map((m) => new GFXUniform(m.name, m.type, m.count)), 1)); // effect compiler guarantees block count = 1
         }
         for (let i = 0; i < tmpl.samplers.length; i++) {
             const sampler = tmpl.samplers[i];
-            tmpl.bindings.push(new GFXDescriptorSetLayoutBinding(sampler.descriptorType || GFXDescriptorType.SAMPLER, sampler.count, sampler.stageFlags));
+            tmpl.bindings.push(new GFXDescriptorSetLayoutBinding(sampler.binding, sampler.descriptorType || GFXDescriptorType.SAMPLER,
+                sampler.count, sampler.stageFlags));
             tmpl.gfxSamplers.push(new GFXUniformSampler(SetIndex.MATERIAL, sampler.binding, sampler.name, sampler.type, sampler.count));
         }
         tmpl.gfxAttributes = [];
@@ -348,7 +352,8 @@ class ProgramLib {
         const layout = this._pipelineLayouts[name];
 
         if (!layout.hPipelineLayout) {
-            insertBuiltinBindings(tmpl, localDescriptorSetLayout, 'locals');
+            const localBindings: GFXDescriptorSetLayoutBinding[] = [];
+            insertBuiltinBindings(tmpl, localDescriptorSetLayout, 'locals', localBindings);
             insertBuiltinBindings(tmpl, globalDescriptorSetLayout, 'globals');
             layout.setLayouts[SetIndex.GLOBAL] = pipeline.descriptorSetLayout;
             // material set layout should already been created in pass, but if not
@@ -357,8 +362,8 @@ class ProgramLib {
                 _dsLayoutInfo.bindings = tmpl.bindings;
                 layout.setLayouts[SetIndex.MATERIAL] = device.createDescriptorSetLayout(_dsLayoutInfo);
             }
-            _dsLayoutInfo.bindings = localDescriptorSetLayout.bindings;
-            layout.setLayouts[SetIndex.LOCAL] = _dsLayout = _dsLayout || device.createDescriptorSetLayout(_dsLayoutInfo);
+            _dsLayoutInfo.bindings = localBindings;
+            layout.setLayouts[SetIndex.LOCAL] = device.createDescriptorSetLayout(_dsLayoutInfo);
             layout.hPipelineLayout = PipelineLayoutPool.alloc(device, new GFXPipelineLayoutInfo(layout.setLayouts));
         }
 
@@ -372,7 +377,8 @@ class ProgramLib {
             case GFXAPI.GLES3:
             case GFXAPI.WEBGL2: src = tmpl.glsl3; break;
             case GFXAPI.VULKAN:
-            case GFXAPI.METAL: src = tmpl.glsl4; break;
+            case GFXAPI.METAL:
+            case GFXAPI.WEBGPU: src = tmpl.glsl4; break;
             default: console.error('Invalid GFX API!'); break;
         }
         tmpl.gfxStages[0].source = prefix + src.vert;

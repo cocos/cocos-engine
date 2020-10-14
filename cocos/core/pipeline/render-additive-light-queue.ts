@@ -33,7 +33,7 @@ interface IAdditiveLightPass {
 const _lightPassPool = new Pool<IAdditiveLightPass>(() => ({ subModel: null!, passIdx: -1, dynamicOffsets: [] }), 16);
 
 const _vec4Array = new Float32Array(4);
-const _sphere = sphere.create(0, 0, 0, 1);
+const _sphere = sphere.create(0, 0, 0, 1); _sphere.initialize();
 const _dynamicOffsets: number[] = [];
 const _lightIndices: number[] = [];
 

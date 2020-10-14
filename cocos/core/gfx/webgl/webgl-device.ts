@@ -750,11 +750,11 @@ export class WebGLDevice extends GFXDevice {
         gl.activeTexture(gl.TEXTURE0);
         gl.pixelStorei(gl.PACK_ALIGNMENT, 1);
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-        // rasteriazer state
+        // rasterizer state
         gl.disable(gl.SCISSOR_TEST);
         gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.BACK);

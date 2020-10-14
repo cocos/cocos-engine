@@ -105,6 +105,8 @@ export class Skybox {
 
         if (!this._model) {
             this._model = new legacyCC.renderer.scene.Model() as Model;
+            // @ts-ignore skybox don't need local buffers
+            this._model._initLocalDescriptors = () => {};
         }
 
         SkyboxPool.set(this._handle, SkyboxView.MODEL, this._model.handle);

@@ -61,15 +61,16 @@ export abstract class GFXDescriptorSet extends GFXObject {
      * @param buffer The buffer to be bound.
      */
     public bindBuffer (binding: number, buffer: GFXBuffer, index = 0) {
-        const info = this._layout!.bindings[binding];
-        const descriptorIndex = this._layout!.descriptorIndices[binding];
-        if (info && (info.descriptorType & DESCRIPTOR_BUFFER_TYPE)) {
+        const bi = this._layout!.bindingIndices[binding];
+        const descriptorIndex = this._layout!.descriptorIndices[bi];
+        const info = this._layout!.bindings[bi];
+        if (info.descriptorType & DESCRIPTOR_BUFFER_TYPE) {
             if (this._buffers[descriptorIndex + index] !== buffer) {
                 this._buffers[descriptorIndex + index] = buffer;
                 this._isDirty = true;
             }
         } else {
-            console.error('Setting binding is not GFXDescriptorType.UNIFORM_BUFFER.');
+            console.warn('Setting binding is not GFXDescriptorType.UNIFORM_BUFFER.');
         }
     }
 
@@ -80,15 +81,16 @@ export abstract class GFXDescriptorSet extends GFXObject {
      * @param sampler The sampler to be bound.
      */
     public bindSampler (binding: number, sampler: GFXSampler, index = 0) {
-        const info = this._layout!.bindings[binding];
-        const descriptorIndex = this._layout!.descriptorIndices[binding];
+        const bi = this._layout!.bindingIndices[binding];
+        const descriptorIndex = this._layout!.descriptorIndices[bi];
+        const info = this._layout!.bindings[bi];
         if (info && (info.descriptorType & DESCRIPTOR_SAMPLER_TYPE)) {
             if (this._samplers[descriptorIndex + index] !== sampler) {
                 this._samplers[descriptorIndex + index] = sampler;
                 this._isDirty = true;
             }
         } else {
-            console.error('Setting binding is not GFXDescriptorType.SAMPLER.');
+            console.warn('Setting binding is not GFXDescriptorType.SAMPLER.');
         }
     }
 
@@ -99,15 +101,16 @@ export abstract class GFXDescriptorSet extends GFXObject {
      * @param texture The texture to be bound.
      */
     public bindTexture (binding: number, texture: GFXTexture, index = 0) {
-        const info = this._layout!.bindings[binding];
-        const descriptorIndex = this._layout!.descriptorIndices[binding];
+        const bi = this._layout!.bindingIndices[binding];
+        const descriptorIndex = this._layout!.descriptorIndices[bi];
+        const info = this._layout!.bindings[bi];
         if (info && (info.descriptorType & DESCRIPTOR_SAMPLER_TYPE)) {
             if (this._textures[descriptorIndex + index] !== texture) {
                 this._textures[descriptorIndex + index] = texture;
                 this._isDirty = true;
             }
         } else {
-            console.error('Setting binding is not GFXDescriptorType.SAMPLER.');
+            console.warn('Setting binding is not GFXDescriptorType.SAMPLER.');
         }
     }
 
@@ -117,7 +120,8 @@ export abstract class GFXDescriptorSet extends GFXObject {
      * @param binding The target binding.
      */
     public getBuffer (binding: number, index = 0) {
-        const descriptorIndex = this._layout!.descriptorIndices[binding];
+        const bi = this._layout!.bindingIndices[binding];
+        const descriptorIndex = this._layout!.descriptorIndices[bi];
         return this._buffers[descriptorIndex + index];
     }
 
@@ -127,7 +131,8 @@ export abstract class GFXDescriptorSet extends GFXObject {
      * @param binding The target binding.
      */
     public getSampler (binding: number, index = 0) {
-        const descriptorIndex = this._layout!.descriptorIndices[binding];
+        const bi = this._layout!.bindingIndices[binding];
+        const descriptorIndex = this._layout!.descriptorIndices[bi];
         return this._samplers[descriptorIndex + index];
     }
 
@@ -137,7 +142,8 @@ export abstract class GFXDescriptorSet extends GFXObject {
      * @param binding The target binding.
      */
     public getTexture (binding: number, index = 0) {
-        const descriptorIndex = this._layout!.descriptorIndices[binding];
+        const bi = this._layout!.bindingIndices[binding];
+        const descriptorIndex = this._layout!.descriptorIndices[bi];
         return this._textures[descriptorIndex + index];
     }
 }

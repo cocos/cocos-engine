@@ -409,7 +409,8 @@ export class MeshRenderer extends RenderableComponent {
             this.lightmapSettings.uvParam.x,
             this.lightmapSettings.uvParam.y,
             this.lightmapSettings.uvParam.z,
-            this.lightmapSettings.uvParam.w]);
+            this.lightmapSettings.uvParam.w
+        ]);
     }
 
     protected _onMaterialModified (idx: number, material: Material | null) {

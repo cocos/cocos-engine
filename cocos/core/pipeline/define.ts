@@ -12,6 +12,8 @@ import { GFXBindingMappingInfo, GFXDescriptorType, GFXType, GFXShaderStageFlagBi
     GFXDescriptorSetLayoutBinding, GFXUniform, GFXUniformBlock, GFXUniformSampler } from '../gfx';
 import { Camera } from '../renderer/scene';
 
+// tslint:disable: max-line-length
+
 export const PIPELINE_FLOW_FORWARD: string = 'ForwardFlow';
 export const PIPELINE_FLOW_SHADOW: string = 'ShadowFlow';
 export const PIPELINE_FLOW_SMAA: string = 'SMAAFlow';
@@ -160,7 +162,7 @@ export class UBOGlobal {
 
     public static readonly NAME = 'CCGlobal';
     public static readonly BINDING = PipelineGlobalBindings.UBO_GLOBAL;
-    public static readonly DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.UNIFORM_BUFFER, 1, GFXShaderStageFlagBit.ALL);
+    public static readonly DESCRIPTOR = new GFXDescriptorSetLayoutBinding(UBOGlobal.BINDING, GFXDescriptorType.UNIFORM_BUFFER, 1, GFXShaderStageFlagBit.ALL);
     public static readonly LAYOUT = new GFXUniformBlock(SetIndex.GLOBAL, UBOGlobal.BINDING, UBOGlobal.NAME, [
         new GFXUniform('cc_time', GFXType.FLOAT4, 1),
         new GFXUniform('cc_screenSize', GFXType.FLOAT4, 1),
@@ -183,7 +185,7 @@ export class UBOGlobal {
         new GFXUniform('cc_fogAdd', GFXType.FLOAT4, 1),
     ], 1);
 }
-globalDescriptorSetLayout.layouts[UBOGlobal.NAME] = UBOGlobal.LAYOUT
+globalDescriptorSetLayout.layouts[UBOGlobal.NAME] = UBOGlobal.LAYOUT;
 globalDescriptorSetLayout.bindings[UBOGlobal.BINDING] = UBOGlobal.DESCRIPTOR;
 
 /**
@@ -199,7 +201,7 @@ export class UBOShadow {
     public static readonly SIZE = UBOShadow.COUNT * 4;
     public static readonly NAME = 'CCShadow';
     public static readonly BINDING = PipelineGlobalBindings.UBO_SHADOW;
-    public static readonly DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.UNIFORM_BUFFER, 1, GFXShaderStageFlagBit.ALL);
+    public static readonly DESCRIPTOR = new GFXDescriptorSetLayoutBinding(UBOShadow.BINDING, GFXDescriptorType.UNIFORM_BUFFER, 1, GFXShaderStageFlagBit.ALL);
     public static readonly LAYOUT = new GFXUniformBlock(SetIndex.GLOBAL, UBOShadow.BINDING, UBOShadow.NAME, [
         new GFXUniform('cc_matLightPlaneProj', GFXType.MAT4, 1),
         new GFXUniform('cc_matLightViewProj', GFXType.MAT4, 1),
@@ -212,15 +214,15 @@ globalDescriptorSetLayout.bindings[UBOShadow.BINDING] = UBOShadow.DESCRIPTOR;
 
 const UNIFORM_SHADOWMAP_NAME = 'cc_shadowMap';
 export const UNIFORM_SHADOWMAP_BINDING = PipelineGlobalBindings.SAMPLER_SHADOWMAP;
-const UNIFORM_SHADOWMAP_DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.SAMPLER, 1, GFXShaderStageFlagBit.FRAGMENT);
+const UNIFORM_SHADOWMAP_DESCRIPTOR = new GFXDescriptorSetLayoutBinding(UNIFORM_SHADOWMAP_BINDING, GFXDescriptorType.SAMPLER, 1, GFXShaderStageFlagBit.FRAGMENT);
 const UNIFORM_SHADOWMAP_LAYOUT = new GFXUniformSampler(SetIndex.GLOBAL, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SHADOWMAP_NAME, GFXType.SAMPLER2D, 1);
 globalDescriptorSetLayout.layouts[UNIFORM_SHADOWMAP_NAME] = UNIFORM_SHADOWMAP_LAYOUT;
 globalDescriptorSetLayout.bindings[UNIFORM_SHADOWMAP_BINDING] = UNIFORM_SHADOWMAP_DESCRIPTOR;
 
 const UNIFORM_ENVIRONMENT_NAME = 'cc_environment';
 export const UNIFORM_ENVIRONMENT_BINDING = PipelineGlobalBindings.SAMPLER_ENVIRONMENT;
+const UNIFORM_ENVIRONMENT_DESCRIPTOR = new GFXDescriptorSetLayoutBinding(UNIFORM_ENVIRONMENT_BINDING, GFXDescriptorType.SAMPLER, 1, GFXShaderStageFlagBit.FRAGMENT);
 const UNIFORM_ENVIRONMENT_LAYOUT = new GFXUniformSampler(SetIndex.GLOBAL, UNIFORM_ENVIRONMENT_BINDING, UNIFORM_ENVIRONMENT_NAME, GFXType.SAMPLER_CUBE, 1);
-const UNIFORM_ENVIRONMENT_DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.SAMPLER, 1, GFXShaderStageFlagBit.FRAGMENT);
 globalDescriptorSetLayout.layouts[UNIFORM_ENVIRONMENT_NAME] = UNIFORM_ENVIRONMENT_LAYOUT;
 globalDescriptorSetLayout.bindings[UNIFORM_ENVIRONMENT_BINDING] = UNIFORM_ENVIRONMENT_DESCRIPTOR;
 
@@ -237,7 +239,7 @@ export class UBOLocal {
 
     public static readonly NAME = 'CCLocal';
     public static readonly BINDING = ModelLocalBindings.UBO_LOCAL;
-    public static readonly DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.UNIFORM_BUFFER, 1, GFXShaderStageFlagBit.VERTEX);
+    public static readonly DESCRIPTOR = new GFXDescriptorSetLayoutBinding(UBOLocal.BINDING, GFXDescriptorType.UNIFORM_BUFFER, 1, GFXShaderStageFlagBit.VERTEX);
     public static readonly LAYOUT = new GFXUniformBlock(SetIndex.LOCAL, UBOLocal.BINDING, UBOLocal.NAME, [
         new GFXUniform('cc_matWorld', GFXType.MAT4, 1),
         new GFXUniform('cc_matWorldIT', GFXType.MAT4, 1),
@@ -257,7 +259,7 @@ export class UBOLocalBatched {
 
     public static readonly NAME = 'CCLocalBatched';
     public static readonly BINDING = ModelLocalBindings.UBO_LOCAL;
-    public static readonly DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.UNIFORM_BUFFER, 1, GFXShaderStageFlagBit.VERTEX);
+    public static readonly DESCRIPTOR = new GFXDescriptorSetLayoutBinding(UBOLocalBatched.BINDING, GFXDescriptorType.UNIFORM_BUFFER, 1, GFXShaderStageFlagBit.VERTEX);
     public static readonly LAYOUT = new GFXUniformBlock(SetIndex.LOCAL, UBOLocalBatched.BINDING, UBOLocalBatched.NAME, [
         new GFXUniform('cc_matWorlds', GFXType.MAT4, UBOLocalBatched.BATCHING_COUNT),
     ], 1);
@@ -281,7 +283,7 @@ export class UBOForwardLight {
 
     public static readonly NAME = 'CCForwardLight';
     public static readonly BINDING = ModelLocalBindings.UBO_FORWARD_LIGHTS;
-    public static readonly DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.DYNAMIC_UNIFORM_BUFFER, 1, GFXShaderStageFlagBit.FRAGMENT);
+    public static readonly DESCRIPTOR = new GFXDescriptorSetLayoutBinding(UBOForwardLight.BINDING, GFXDescriptorType.DYNAMIC_UNIFORM_BUFFER, 1, GFXShaderStageFlagBit.FRAGMENT);
     public static readonly LAYOUT = new GFXUniformBlock(SetIndex.LOCAL, UBOForwardLight.BINDING, UBOForwardLight.NAME, [
         new GFXUniform('cc_lightPos', GFXType.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
         new GFXUniform('cc_lightColor', GFXType.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
@@ -310,7 +312,7 @@ export class UBOSkinningTexture {
 
     public static readonly NAME = 'CCSkinningTexture';
     public static readonly BINDING = ModelLocalBindings.UBO_SKINNING_TEXTURE;
-    public static readonly DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.UNIFORM_BUFFER, 1, GFXShaderStageFlagBit.VERTEX);
+    public static readonly DESCRIPTOR = new GFXDescriptorSetLayoutBinding(UBOSkinningTexture.BINDING, GFXDescriptorType.UNIFORM_BUFFER, 1, GFXShaderStageFlagBit.VERTEX);
     public static readonly LAYOUT = new GFXUniformBlock(SetIndex.LOCAL, UBOSkinningTexture.BINDING, UBOSkinningTexture.NAME, [
         new GFXUniform('cc_jointTextureInfo', GFXType.FLOAT4, 1),
     ], 1);
@@ -325,7 +327,7 @@ export class UBOSkinningAnimation {
 
     public static readonly NAME = 'CCSkinningAnimation';
     public static readonly BINDING = ModelLocalBindings.UBO_SKINNING_ANIMATION;
-    public static readonly DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.UNIFORM_BUFFER, 1, GFXShaderStageFlagBit.VERTEX);
+    public static readonly DESCRIPTOR = new GFXDescriptorSetLayoutBinding(UBOSkinningAnimation.BINDING, GFXDescriptorType.UNIFORM_BUFFER, 1, GFXShaderStageFlagBit.VERTEX);
     public static readonly LAYOUT = new GFXUniformBlock(SetIndex.LOCAL, UBOSkinningAnimation.BINDING, UBOSkinningAnimation.NAME, [
         new GFXUniform('cc_jointAnimInfo', GFXType.FLOAT4, 1),
     ], 1);
@@ -341,7 +343,7 @@ export class UBOSkinning {
 
     public static readonly NAME = 'CCSkinning';
     public static readonly BINDING = ModelLocalBindings.UBO_SKINNING_TEXTURE;
-    public static readonly DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.UNIFORM_BUFFER, 1, GFXShaderStageFlagBit.VERTEX);
+    public static readonly DESCRIPTOR = new GFXDescriptorSetLayoutBinding(UBOSkinning.BINDING, GFXDescriptorType.UNIFORM_BUFFER, 1, GFXShaderStageFlagBit.VERTEX);
     public static readonly LAYOUT = new GFXUniformBlock(SetIndex.LOCAL, UBOSkinning.BINDING, UBOSkinning.NAME, [
         new GFXUniform('cc_joints', GFXType.FLOAT4, JOINT_UNIFORM_CAPACITY * 3),
     ], 1);
@@ -364,7 +366,7 @@ export class UBOMorph {
 
     public static readonly NAME = 'CCMorph';
     public static readonly BINDING = ModelLocalBindings.UBO_MORPH;
-    public static readonly DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.UNIFORM_BUFFER, 1, GFXShaderStageFlagBit.VERTEX);
+    public static readonly DESCRIPTOR = new GFXDescriptorSetLayoutBinding(UBOMorph.BINDING, GFXDescriptorType.UNIFORM_BUFFER, 1, GFXShaderStageFlagBit.VERTEX);
     public static readonly LAYOUT = new GFXUniformBlock(SetIndex.LOCAL, UBOMorph.BINDING, UBOMorph.NAME, [
         new GFXUniform('cc_displacementWeights', GFXType.FLOAT4, UBOMorph.MAX_MORPH_TARGET_COUNT / 4),
         new GFXUniform('cc_displacementTextureInfo', GFXType.FLOAT4, 1),
@@ -379,7 +381,7 @@ localDescriptorSetLayout.bindings[UBOMorph.BINDING] = UBOMorph.DESCRIPTOR;
  */
 const UNIFORM_JOINT_TEXTURE_NAME = 'cc_jointTexture';
 export const UNIFORM_JOINT_TEXTURE_BINDING = ModelLocalBindings.SAMPLER_JOINTS;
-const UNIFORM_JOINT_TEXTURE_DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.SAMPLER, 1, GFXShaderStageFlagBit.VERTEX);
+const UNIFORM_JOINT_TEXTURE_DESCRIPTOR = new GFXDescriptorSetLayoutBinding(UNIFORM_JOINT_TEXTURE_BINDING, GFXDescriptorType.SAMPLER, 1, GFXShaderStageFlagBit.VERTEX);
 const UNIFORM_JOINT_TEXTURE_LAYOUT = new GFXUniformSampler(SetIndex.LOCAL, UNIFORM_JOINT_TEXTURE_BINDING, UNIFORM_JOINT_TEXTURE_NAME, GFXType.SAMPLER2D, 1);
 localDescriptorSetLayout.layouts[UNIFORM_JOINT_TEXTURE_NAME] = UNIFORM_JOINT_TEXTURE_LAYOUT;
 localDescriptorSetLayout.bindings[UNIFORM_JOINT_TEXTURE_BINDING] = UNIFORM_JOINT_TEXTURE_DESCRIPTOR;
@@ -390,9 +392,8 @@ localDescriptorSetLayout.bindings[UNIFORM_JOINT_TEXTURE_BINDING] = UNIFORM_JOINT
  */
 const UNIFORM_POSITION_MORPH_TEXTURE_NAME = 'cc_PositionDisplacements';
 export const UNIFORM_POSITION_MORPH_TEXTURE_BINDING = ModelLocalBindings.SAMPLER_MORPH_POSITION;
-const UNIFORM_POSITION_MORPH_TEXTURE_DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.SAMPLER, 1, GFXShaderStageFlagBit.VERTEX);
-const UNIFORM_POSITION_MORPH_TEXTURE_LAYOUT = new GFXUniformSampler(SetIndex.LOCAL, UNIFORM_POSITION_MORPH_TEXTURE_BINDING,
-    UNIFORM_POSITION_MORPH_TEXTURE_NAME, GFXType.SAMPLER2D, 1);
+const UNIFORM_POSITION_MORPH_TEXTURE_DESCRIPTOR = new GFXDescriptorSetLayoutBinding(UNIFORM_POSITION_MORPH_TEXTURE_BINDING, GFXDescriptorType.SAMPLER, 1, GFXShaderStageFlagBit.VERTEX);
+const UNIFORM_POSITION_MORPH_TEXTURE_LAYOUT = new GFXUniformSampler(SetIndex.LOCAL, UNIFORM_POSITION_MORPH_TEXTURE_BINDING, UNIFORM_POSITION_MORPH_TEXTURE_NAME, GFXType.SAMPLER2D, 1);
 localDescriptorSetLayout.layouts[UNIFORM_POSITION_MORPH_TEXTURE_NAME] = UNIFORM_POSITION_MORPH_TEXTURE_LAYOUT;
 localDescriptorSetLayout.bindings[UNIFORM_POSITION_MORPH_TEXTURE_BINDING] = UNIFORM_POSITION_MORPH_TEXTURE_DESCRIPTOR;
 
@@ -402,7 +403,7 @@ localDescriptorSetLayout.bindings[UNIFORM_POSITION_MORPH_TEXTURE_BINDING] = UNIF
  */
 const UNIFORM_NORMAL_MORPH_TEXTURE_NAME = 'cc_NormalDisplacements';
 export const UNIFORM_NORMAL_MORPH_TEXTURE_BINDING = ModelLocalBindings.SAMPLER_MORPH_NORMAL;
-const UNIFORM_NORMAL_MORPH_TEXTURE_DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.SAMPLER, 1, GFXShaderStageFlagBit.VERTEX);
+const UNIFORM_NORMAL_MORPH_TEXTURE_DESCRIPTOR = new GFXDescriptorSetLayoutBinding(UNIFORM_NORMAL_MORPH_TEXTURE_BINDING, GFXDescriptorType.SAMPLER, 1, GFXShaderStageFlagBit.VERTEX);
 const UNIFORM_NORMAL_MORPH_TEXTURE_LAYOUT = new GFXUniformSampler(SetIndex.LOCAL, UNIFORM_NORMAL_MORPH_TEXTURE_BINDING,
     UNIFORM_NORMAL_MORPH_TEXTURE_NAME, GFXType.SAMPLER2D, 1);
 localDescriptorSetLayout.layouts[UNIFORM_NORMAL_MORPH_TEXTURE_NAME] = UNIFORM_NORMAL_MORPH_TEXTURE_LAYOUT;
@@ -414,7 +415,7 @@ localDescriptorSetLayout.bindings[UNIFORM_NORMAL_MORPH_TEXTURE_BINDING] = UNIFOR
  */
 const UNIFORM_TANGENT_MORPH_TEXTURE_NAME = 'cc_TangentDisplacements';
 export const UNIFORM_TANGENT_MORPH_TEXTURE_BINDING = ModelLocalBindings.SAMPLER_MORPH_TANGENT;
-const UNIFORM_TANGENT_MORPH_TEXTURE_DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.SAMPLER, 1, GFXShaderStageFlagBit.VERTEX);
+const UNIFORM_TANGENT_MORPH_TEXTURE_DESCRIPTOR = new GFXDescriptorSetLayoutBinding(UNIFORM_TANGENT_MORPH_TEXTURE_BINDING, GFXDescriptorType.SAMPLER, 1, GFXShaderStageFlagBit.VERTEX);
 const UNIFORM_TANGENT_MORPH_TEXTURE_LAYOUT = new GFXUniformSampler(SetIndex.LOCAL, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING,
     UNIFORM_TANGENT_MORPH_TEXTURE_NAME, GFXType.SAMPLER2D, 1);
 localDescriptorSetLayout.layouts[UNIFORM_TANGENT_MORPH_TEXTURE_NAME] = UNIFORM_TANGENT_MORPH_TEXTURE_LAYOUT;
@@ -426,7 +427,7 @@ localDescriptorSetLayout.bindings[UNIFORM_TANGENT_MORPH_TEXTURE_BINDING] = UNIFO
  */
 const UNIFORM_LIGHTMAP_TEXTURE_NAME = 'cc_lightingMap';
 export const UNIFORM_LIGHTMAP_TEXTURE_BINDING = ModelLocalBindings.SAMPLER_LIGHTMAP;
-const UNIFORM_LIGHTMAP_TEXTURE_DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.SAMPLER, 1, GFXShaderStageFlagBit.FRAGMENT);
+const UNIFORM_LIGHTMAP_TEXTURE_DESCRIPTOR = new GFXDescriptorSetLayoutBinding(UNIFORM_LIGHTMAP_TEXTURE_BINDING, GFXDescriptorType.SAMPLER, 1, GFXShaderStageFlagBit.FRAGMENT);
 const UNIFORM_LIGHTMAP_TEXTURE_LAYOUT = new GFXUniformSampler(SetIndex.LOCAL, UNIFORM_LIGHTMAP_TEXTURE_BINDING,
     UNIFORM_LIGHTMAP_TEXTURE_NAME, GFXType.SAMPLER2D, 1);
 localDescriptorSetLayout.layouts[UNIFORM_LIGHTMAP_TEXTURE_NAME] = UNIFORM_LIGHTMAP_TEXTURE_LAYOUT;
@@ -438,7 +439,7 @@ localDescriptorSetLayout.bindings[UNIFORM_LIGHTMAP_TEXTURE_BINDING] = UNIFORM_LI
  */
 const UNIFORM_SPRITE_TEXTURE_NAME = 'cc_spriteTexture';
 export const UNIFORM_SPRITE_TEXTURE_BINDING = ModelLocalBindings.SAMPLER_SPRITE;
-const UNIFORM_SPRITE_TEXTURE_DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.SAMPLER, 1, GFXShaderStageFlagBit.FRAGMENT);
+const UNIFORM_SPRITE_TEXTURE_DESCRIPTOR = new GFXDescriptorSetLayoutBinding(UNIFORM_SPRITE_TEXTURE_BINDING, GFXDescriptorType.SAMPLER, 1, GFXShaderStageFlagBit.FRAGMENT);
 const UNIFORM_SPRITE_TEXTURE_LAYOUT = new GFXUniformSampler(SetIndex.LOCAL, UNIFORM_SPRITE_TEXTURE_BINDING, UNIFORM_SPRITE_TEXTURE_NAME, GFXType.SAMPLER2D, 1);
 localDescriptorSetLayout.layouts[UNIFORM_SPRITE_TEXTURE_NAME] = UNIFORM_SPRITE_TEXTURE_LAYOUT;
 localDescriptorSetLayout.bindings[UNIFORM_SPRITE_TEXTURE_BINDING] = UNIFORM_SPRITE_TEXTURE_DESCRIPTOR;

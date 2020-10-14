@@ -2106,7 +2106,8 @@ export function WebGLCmdFuncBindStates (
         for (let j = 0; j < blockLen; j++) {
             const glBlock = gpuShader.glBlocks[j];
             const gpuDescriptorSet = gpuDescriptorSets[glBlock.set];
-            const gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[glBlock.binding];
+            const descriptorIdx = gpuDescriptorSet && gpuDescriptorSet.descriptorIndices[gpuDescriptorSet.bindingIndices[glBlock.binding]];
+            const gpuDescriptor = descriptorIdx >= 0 && gpuDescriptorSet.gpuDescriptors[descriptorIdx];
             let vf32: Float32Array | null = null; let offset = 0;
 
             if (gpuDescriptor && gpuDescriptor.gpuBuffer) {
@@ -2290,8 +2291,8 @@ export function WebGLCmdFuncBindStates (
         for (let i = 0; i < samplerLen; i++) {
             const glSampler = gpuShader.glSamplers[i];
             const gpuDescriptorSet = gpuDescriptorSets[glSampler.set];
-            let descriptorIndex = gpuDescriptorSet && gpuDescriptorSet.descriptorIndices[glSampler.binding];
-            let gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[descriptorIndex];
+            let descriptorIndex = gpuDescriptorSet && gpuDescriptorSet.descriptorIndices[gpuDescriptorSet.bindingIndices[glSampler.binding]];
+            let gpuDescriptor = descriptorIndex >= 0 && gpuDescriptorSet.gpuDescriptors[descriptorIndex];
 
             const texUnitLen = glSampler.units.length;
             for (let l = 0; l < texUnitLen; l++) {
