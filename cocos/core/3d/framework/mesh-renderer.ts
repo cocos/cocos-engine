@@ -333,6 +333,7 @@ export class MeshRenderer extends RenderableComponent {
         const model = this._model;
         if (model) {
             model.destroy();
+            model.initialize();
             model.node = model.transform = this.node;
         } else {
             this._createModel();
