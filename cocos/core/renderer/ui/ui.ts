@@ -126,7 +126,7 @@ export class UI {
 
     public initialize () {
 
-        this._attributes = UIVertexFormat.vfmt;
+        this._attributes = UIVertexFormat.vfmtPosUvColor;
 
         this._requireBufferBatch();
 
@@ -529,7 +529,7 @@ export class UI {
                     stencilZFailOpBack: state.zFailOp,
                     stencilPassOpBack: state.passOp,
                     stencilRefBack: state.ref,
-                }
+                },
             });
         }
 
