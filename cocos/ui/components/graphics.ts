@@ -50,10 +50,10 @@ const _matInsInfo: IMaterialInstanceInfo = {
 };
 
 const attributes = vfmt.concat([
-   {
+    {
         name: 'a_dist',
         format: GFXFormat.R32F,
-   },
+    },
 ]);
 
 const stride = getAttributeStride(attributes);
@@ -596,7 +596,6 @@ export class Graphics extends UIRenderable {
                 size: 65535 * stride,
                 stride,
             });
-
             const indexBuffer = gfxDevice.createBuffer({
                 usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.DEVICE,
@@ -633,15 +632,15 @@ export class Graphics extends UIRenderable {
     }
 
     protected _attachToScene () {
-        const renderScene = director.root!.ui.renderScene;
-        if (!this.model || this.model!.scene === renderScene) {
+        const scene = director.root!.ui.renderScene;
+        if (!this.model || this.model!.scene === scene) {
             return;
         }
 
         if (this.model!.scene !== null) {
             this._detachFromScene();
         }
-        renderScene.addModel(this.model!);
+        scene.addModel(this.model!);
     }
 
     protected _detachFromScene () {
