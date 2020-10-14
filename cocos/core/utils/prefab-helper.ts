@@ -149,15 +149,12 @@ export default function syncWithPrefab (node) {
     node._globalZOrder = _globalZOrder;
 }
 
-@ccclass('cc.ComponentPrefabInfo')
-export class ComponentPrefabInfo {
-    /**
-     * 组件在 prefabNode 中，prefabNode 从资源还原时
-     * component.__prefab.fileId 作为是否复用组件的判断依据
-     */
+@ccclass('cc.CompPrefabInfo ')
+export class CompPrefabInfo {
+    // To identify current component in a prefab asset, so only needs to be unique.
     @serializable
     @editable
     public fileId = '';
 }
 
-legacyCC._ComponentPrefabInfo = ComponentPrefabInfo;
+legacyCC._CompPrefabInfo = CompPrefabInfo;
