@@ -1,23 +1,9 @@
 declare const gfx: any;
 
-import { GFXCommandBuffer } from './command-buffer';
 import * as GFXDefines from './define';
-import { GFXFramebuffer } from './framebuffer';
-import { GFXQueue } from './queue';
-import { GFXRenderPass } from './render-pass';
-import { GFXSampler } from './sampler';
 import { legacyCC } from '../global-exports';
 
-export * from './descriptor-set';
-export * from './command-buffer';
 export * from './define';
-export * from './framebuffer';
-export * from './descriptor-set-layout';
-export * from './pipeline-layout';
-export * from './fence';
-export * from './queue';
-export * from './render-pass';
-export * from './sampler';
 
 export const GFXRasterizerState = gfx.RasterizerState;
 export const GFXDepthStencilState = gfx.DepthStencilState;
@@ -52,6 +38,45 @@ export const GFXBufferInfo = gfx.BufferInfo;
 export const GFXBufferViewInfo = gfx.BufferViewInfo;
 export const GFXBuffer = gfx.Buffer;
 export { GFX_DRAW_INFO_SIZE } from './buffer';
+
+export const GFXSamplerInfo = gfx.SamplerInfo;
+export const GFXSampler = gfx.Sampler;
+
+export const GFXRect = gfx.Rect;
+export const GFXViewport = gfx.Viewport
+export const GFXColor = gfx.Color;
+export const GFXOffset = gfx.Offset;
+export const GFXExtent = gfx.Extent;
+export const GFXTextureSubres = gfx.TextureSubres;
+export const GFXTextureCopy = gfx.TextureCopy;
+export const GFXBufferTextureCopy = gfx.BufferTextureCopy;
+
+export const GFXFenceInfo = gfx.FenceInfo;
+export const GFXFence = gfx.Fence;
+
+export const GFXColorAttachment = gfx.ColorAttachment;
+export const GFXDepthStencilAttachment = gfx.DepthStencilAttachment;
+export const GFXSubPassInfo = gfx.SubPassInfo;
+export const GFXRenderPassInfo = gfx.RenderPassInfo;
+export const GFXRenderPass = gfx.RenderPass;
+
+export const GFXQueueInfo = gfx.QueueInfo;
+export const GFXQueue = gfx.Queue;
+
+export const GFXPipelineLayoutInfo = gfx.PipelineLayoutInfo;
+export const GFXPipelineLayout = gfx.PipelineLayout;
+
+export const GFXDescriptorSetLayoutBinding = gfx.DescriptorSetLayoutBinding;
+export const GFXDescriptorSetLayoutInfo = gfx.DescriptorSetLayoutInfo;
+export const GFXDescriptorSetLayout = gfx.DescriptorSetLayout;
+export const GFXDescriptorSetInfo = gfx.DescriptorSetInfo;
+export { DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE } from './descriptor-set';
+
+export const GFXFramebufferInfo = gfx.FramebufferInfo;
+export const GFXFramebuffer = gfx.Framebuffer;
+
+export const GFXCommandBufferInfo = gfx.CommandBufferInfo;
+export const GFXCommandBuffer = gfx.CommandBuffer;
 
 legacyCC.GFXDevice = GFXDevice;
 legacyCC.GFXBuffer = GFXBuffer;

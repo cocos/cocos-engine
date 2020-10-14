@@ -3,10 +3,9 @@
  * @module pipeline
  */
 
-import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, SetIndex } from './define';
-import { GFXDevice, GFXRenderPass, GFXBuffer, GFXShader } from '../gfx';
+import { GFXDevice, GFXRenderPass, GFXBuffer, GFXShader, GFXCommandBuffer } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { DSPool, ShaderPool, PassHandle, PassPool, PassView, SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';

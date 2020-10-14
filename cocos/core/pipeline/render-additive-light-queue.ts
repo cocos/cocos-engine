@@ -3,7 +3,6 @@
  * @module pipeline
  */
 
-import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { IRenderObject, UBOForwardLight, SetIndex } from './define';
 import { Light, LightType } from '../renderer/scene/light';
 import { SphereLight } from '../renderer/scene/sphere-light';
@@ -16,7 +15,7 @@ import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView, Sha
 import { Vec3, nextPow2 } from '../../core/math';
 import { RenderView } from './render-view';
 import { sphere, intersect } from '../geometry';
-import { GFXDevice, GFXRenderPass, GFXBuffer, GFXBufferUsageBit, GFXMemoryUsageBit, GFXBufferInfo, GFXBufferViewInfo } from '../gfx';
+import { GFXDevice, GFXRenderPass, GFXBuffer, GFXBufferUsageBit, GFXMemoryUsageBit, GFXBufferInfo, GFXBufferViewInfo, GFXCommandBuffer } from '../gfx';
 import { Pool } from '../memop';
 import { InstancedBuffer } from './instanced-buffer';
 import { BatchedBuffer } from './batched-buffer';

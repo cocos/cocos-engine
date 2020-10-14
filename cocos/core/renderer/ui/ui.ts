@@ -30,8 +30,7 @@
 import { UIStaticBatch } from '../../../ui';
 import { Material } from '../../assets/material';
 import { Canvas, UIComponent, UIRenderable } from '../../components/ui-base';
-import { GFXSampler } from '../../gfx/sampler';
-import { GFXTexture, GFXDevice, GFXAttribute } from '../../gfx';
+import { GFXTexture, GFXDevice, GFXAttribute, GFXSampler } from '../../gfx';
 import { Pool, RecyclePool } from '../../memop';
 import { CachedArray } from '../../memop/cached-array';
 import { Camera } from '../scene/camera';

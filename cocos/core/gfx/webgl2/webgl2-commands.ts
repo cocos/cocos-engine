@@ -2,7 +2,6 @@ import { CachedArray } from '../../memop/cached-array';
 import { error, errorID } from '../../platform';
 import { GFXBufferSource, GFXDrawInfo, GFXIndirectBuffer } from '../buffer';
 import {
-    GFXBufferTextureCopy,
     GFXBufferUsageBit,
     GFXColorMask,
     GFXCullMode,
@@ -19,11 +18,9 @@ import {
     GFXTextureFlagBit,
     GFXTextureType,
     GFXType,
-    GFXColor,
     GFXFormatInfo,
-    GFXRect,
-    GFXViewport,
 } from '../define';
+import { GFXColor, GFXRect, GFXViewport, GFXBufferTextureCopy } from '../define-class';
 import { WebGLEXT } from '../webgl/webgl-define';
 import { WebGL2CommandAllocator } from './webgl2-command-allocator';
 import {

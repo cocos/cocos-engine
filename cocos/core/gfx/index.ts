@@ -20,6 +20,7 @@ export * from './descriptor-set';
 export * from './buffer';
 export * from './command-buffer';
 export * from './define';
+export * from './define-class';
 export * from './device';
 export * from './framebuffer';
 export * from './input-assembler';
@@ -50,8 +51,9 @@ import { GFXFormatSize,GFXFormatSurfaceSize,GFXGetTypeSize,getTypedArrayConstruc
     GFXBufferAccessBit,GFXPrimitiveMode,GFXPolygonMode,GFXShadeModel,GFXCullMode,GFXComparisonFunc,GFXStencilOp,GFXBlendOp,
     GFXBlendFactor,GFXColorMask,GFXFilter,GFXAddress,GFXTextureType,GFXTextureUsageBit,GFXSampleCount,GFXTextureFlagBit,GFXShaderStageFlagBit,
     GFXDescriptorType,GFXCommandBufferType,GFXLoadOp,GFXStoreOp,GFXTextureLayout,GFXPipelineBindPoint,GFXDynamicStateFlagBit,GFXStencilFace,
-    GFXQueueType,GFXRect,GFXViewport,GFXColor,GFXClearFlag,GFXOffset,GFXExtent,GFXTextureSubres,GFXTextureCopy,GFXBufferTextureCopy,GFXFormatType,
+    GFXQueueType,GFXClearFlag,GFXFormatType,
     GFXFormatInfo,GFXMemoryStatus,GFXFormatInfos } from './define';
+import { GFXRect, GFXViewport, GFXColor, GFXOffset, GFXExtent, GFXTextureSubres, GFXTextureCopy, GFXBufferTextureCopy } from './define-class';
 Object.assign(legacyCC, {GFXFormatSize,GFXFormatSurfaceSize,GFXGetTypeSize,getTypedArrayConstructor,GFX_MAX_ATTACHMENTS,
     GFXObjectType,GFXObject,GFXAttributeName,GFXType,GFXFormat,GFXBufferUsageBit,GFXMemoryUsageBit,GFXBufferFlagBit,
     GFXBufferAccessBit,GFXPrimitiveMode,GFXPolygonMode,GFXShadeModel,GFXCullMode,GFXComparisonFunc,GFXStencilOp,GFXBlendOp,

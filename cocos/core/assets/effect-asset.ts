@@ -32,7 +32,7 @@ import { ccclass, serializable, editable } from 'cc.decorator';
 import { Root } from '../../core/root';
 import { GFXDescriptorType, GFXDynamicStateFlags, GFXFormat, GFXPrimitiveMode, GFXShaderStageFlags, GFXType } from '../gfx/define';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../gfx/pipeline-state';
-import { IGFXUniform } from '../gfx';
+import { IGFXUniform, IGFXAttribute } from '../gfx';
 import { RenderPassStage } from '../pipeline/define';
 import { MacroRecord } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
@@ -85,12 +85,7 @@ export interface ISamplerInfo {
     stageFlags: GFXShaderStageFlags;
     descriptorType?: GFXDescriptorType;
 }
-export interface IAttributeInfo {
-    name: string;
-    format: GFXFormat;
-    isNormalized: boolean;
-    isInstanced: boolean;
-    location: number;
+export interface IAttributeInfo extends IGFXAttribute {
     defines: string[];
 }
 export interface IDefineInfo {
