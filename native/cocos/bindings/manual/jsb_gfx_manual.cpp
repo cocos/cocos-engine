@@ -580,7 +580,7 @@ static bool js_cocos2d_SubPass_finalize(se::State &s) {
 SE_BIND_FINALIZE_FUNC(js_cocos2d_SubPass_finalize)
 
 bool js_register_gfx_SubPass(se::Object *obj) {
-    auto cls = se::Class::create("SubPass", obj, nullptr, _SE(js_gfx_SubPass_constructor));
+    auto cls = se::Class::create("SubPassInfo", obj, nullptr, _SE(js_gfx_SubPass_constructor));
 
     cls->defineProperty("bindPoint", _SE(js_gfx_SubPass_get_bind_point), _SE(js_gfx_SubPass_set_bind_point));
     cls->defineProperty("inputs", _SE(js_gfx_SubPass_get_inputs), _SE(js_gfx_SubPass_set_inputs));

@@ -55,11 +55,11 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
             }},
             {
                 device->getDepthStencilFormat(),
-                gfx::LoadOp::CLEAR,
-                gfx::StoreOp::STORE,
-                gfx::LoadOp::CLEAR,
-                gfx::StoreOp::STORE,
                 1,
+                gfx::LoadOp::CLEAR,
+                gfx::StoreOp::STORE,
+                gfx::LoadOp::CLEAR,
+                gfx::StoreOp::STORE,
                 gfx::TextureLayout::UNDEFINED,
                 gfx::TextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
             },
@@ -90,8 +90,8 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
         _framebuffer = device->createFramebuffer({
             _renderPass,
             _renderTargets,
-            {}, //colorMipmapLevels
             _depthTexture,
+            {}, //colorMipmapLevels
         });
     }
 
@@ -136,8 +136,8 @@ void ShadowFlow::resizeShadowMap(uint width, uint height) {
         _framebuffer->initialize({
             _renderPass,
             _renderTargets,
-            {},
             _depthTexture,
+            {},
         });
     }
 }

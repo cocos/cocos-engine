@@ -852,11 +852,11 @@ typedef cc::vector<ColorAttachment> ColorAttachmentList;
 
 struct DepthStencilAttachment {
     Format format = Format::UNKNOWN;
+    uint sampleCount = 1;
     LoadOp depthLoadOp = LoadOp::CLEAR;
     StoreOp depthStoreOp = StoreOp::STORE;
     LoadOp stencilLoadOp = LoadOp::CLEAR;
     StoreOp stencilStoreOp = StoreOp::STORE;
-    uint sampleCount = 1;
     TextureLayout beginLayout = TextureLayout::UNDEFINED;
     TextureLayout endLayout = TextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 };
@@ -892,15 +892,15 @@ typedef cc::vector<Sampler *> SamplerList;
 struct FramebufferInfo {
     RenderPass *renderPass = nullptr;
     TextureList colorTextures;
-    cc::vector<uint> colorMipmapLevels;
     Texture *depthStencilTexture = nullptr;
+    cc::vector<uint> colorMipmapLevels;
     uint depthStencilMipmapLevel = 0;
 };
 
 struct DescriptorSetLayoutBinding {
-    DescriptorType descriptorType;
-    uint count;
-    ShaderStageFlagBit stageFlags;
+    DescriptorType descriptorType = DescriptorType::UNKNOWN;
+    uint count = 0;
+    ShaderStageFlagBit stageFlags = ShaderStageFlagBit::NONE;
     SamplerList immutableSamplers;
 };
 typedef cc::vector<DescriptorSetLayoutBinding> DescriptorSetLayoutBindingList;

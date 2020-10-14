@@ -1397,7 +1397,7 @@ class Generator(object):
             list_of_class_renames = re.split(",\n?", opts['rename_classes'])
             for rename in list_of_class_renames:
                 class_name, renamed_class_name = rename.split("::")
-                self.rename_classes[class_name] = renamed_class_name
+                self.rename_classes[class_name.strip()] = renamed_class_name.strip()
 
         if opts['replace_headers']:
             list_of_replace_headers = re.split(",\n?", opts['replace_headers'])
