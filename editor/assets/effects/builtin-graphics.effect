@@ -14,9 +14,6 @@ CCEffect %{
           blendDstAlpha: one_minus_src_alpha
       rasterizerState:
         cullMode: none
-      depthStencilState:
-        depthTest: false
-        depthWrite: false
 }%
 
 
@@ -27,7 +24,7 @@ CCProgram vs %{
   #include <cc-local>
 
   in vec3 a_position;
-
+  
   in vec4 a_color;
   out vec4 v_color;
 
@@ -50,7 +47,7 @@ CCProgram fs %{
   #pragma extension([GL_OES_standard_derivatives, __VERSION__ < 300])
 
   precision highp float;
-
+  
   in vec4 v_color;
   in float v_dist;
 
@@ -66,7 +63,7 @@ CCProgram fs %{
     #else
       float aa = fwidth(v_dist);
     #endif
-
+    
     float alpha = 1. - smoothstep(-aa, 0., abs(v_dist) - 1.0);
     o.rgb *= o.a;
     o *= alpha;
