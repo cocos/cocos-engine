@@ -16,9 +16,9 @@ import {
     GFXPrimitiveMode,
     GFXShadeModel,
     GFXStencilOp,
-    GFXColor,
     GFXDynamicStateFlagBit,
 } from './define';
+import { GFXColor } from './define-class';
 import { GFXDevice } from './device';
 import { GFXAttribute } from './input-assembler';
 import { GFXRenderPass } from './render-pass';

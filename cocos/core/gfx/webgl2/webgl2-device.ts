@@ -29,8 +29,9 @@ import { WebGL2Sampler } from './webgl2-sampler';
 import { WebGL2Shader } from './webgl2-shader';
 import { WebGL2StateCache } from './webgl2-state-cache';
 import { WebGL2Texture } from './webgl2-texture';
-import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXCommandBufferType, GFXFilter, GFXFormat, GFXFormatInfos,
-    GFXQueueType, GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, GFXRect, GFXAPI, GFXFeature } from '../define';
+import { getTypedArrayConstructor, GFXCommandBufferType, GFXFilter, GFXFormat, GFXFormatInfos,
+    GFXQueueType, GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit,  GFXAPI, GFXFeature } from '../define';
+import { GFXBufferTextureCopy, GFXRect } from '../define-class';
 import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGL2CmdFuncBlitFramebuffer,
     WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
 import { GFXPipelineLayout, GFXDescriptorSetLayout, GFXDescriptorSetLayoutInfo, GFXPipelineLayoutInfo } from '../..';

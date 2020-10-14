@@ -31,8 +31,9 @@ import { WebGLSampler } from './webgl-sampler';
 import { WebGLShader } from './webgl-shader';
 import { WebGLStateCache } from './webgl-state-cache';
 import { WebGLTexture } from './webgl-texture';
-import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXCommandBufferType, GFXFilter, GFXFormat, GFXFormatInfos,
-    GFXQueueType, GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, GFXRect, GFXAPI, GFXFeature } from '../define';
+import { getTypedArrayConstructor, GFXCommandBufferType, GFXFilter, GFXFormat, GFXFormatInfos,
+    GFXQueueType, GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, GFXAPI, GFXFeature } from '../define';
+import { GFXBufferTextureCopy, GFXRect } from '../define-class';
 import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersToTexture,
     WebGLCmdFuncCopyTexImagesToTexture } from './webgl-commands';
 import { GFXDescriptorSetLayoutInfo, GFXDescriptorSetLayout, GFXPipelineLayoutInfo, GFXPipelineLayout } from '../..';

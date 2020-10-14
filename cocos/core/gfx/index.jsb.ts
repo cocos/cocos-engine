@@ -5,7 +5,6 @@ import * as GFXDefines from './define';
 import { GFXFramebuffer } from './framebuffer';
 import { GFXQueue } from './queue';
 import { GFXRenderPass } from './render-pass';
-import { GFXSampler } from './sampler';
 import { legacyCC } from '../global-exports';
 
 export * from './descriptor-set';
@@ -17,7 +16,6 @@ export * from './pipeline-layout';
 export * from './fence';
 export * from './queue';
 export * from './render-pass';
-export * from './sampler';
 
 export const GFXRasterizerState = gfx.RasterizerState;
 export const GFXDepthStencilState = gfx.DepthStencilState;
@@ -52,6 +50,18 @@ export const GFXBufferInfo = gfx.BufferInfo;
 export const GFXBufferViewInfo = gfx.BufferViewInfo;
 export const GFXBuffer = gfx.Buffer;
 export { GFX_DRAW_INFO_SIZE } from './buffer';
+
+export const GFXSamplerInfo = gfx.SamplerInfo;
+export const GFXSampler = gfx.Sampler;
+
+export const GFXRect = gfx.Rect;
+export const GFXViewport = gfx.Viewport
+export const GFXColor = gfx.Color;
+export const GFXOffset = gfx.Offset;
+export const GFXExtent = gfx.Extent;
+export const GFXTextureSubres = gfx.TextureSubres;
+export const GFXTextureCopy = gfx.TextureCopy;
+export const GFXBufferTextureCopy = gfx.BufferTextureCopy;
 
 legacyCC.GFXDevice = GFXDevice;
 legacyCC.GFXBuffer = GFXBuffer;

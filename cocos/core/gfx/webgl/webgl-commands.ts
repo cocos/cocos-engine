@@ -8,9 +8,10 @@ import { WebGLEXT } from './webgl-define';
 import { WebGLDevice } from './webgl-device';
 import { IWebGLGPUInputAssembler, IWebGLGPUUniform, IWebGLAttrib, IWebGLGPUDescriptorSet, IWebGLGPUBuffer, IWebGLGPUFramebuffer, IWebGLGPUInput,
     IWebGLGPUPipelineState, IWebGLGPUShader, IWebGLGPUTexture, IWebGLGPUUniformBlock, IWebGLGPUUniformSampler, IWebGLGPURenderPass } from './webgl-gpu-objects';
-import { GFXBufferTextureCopy, GFXBufferUsageBit, GFXClearFlag, GFXColorMask, GFXCullMode, GFXFormat,
+import { GFXBufferUsageBit, GFXClearFlag, GFXColorMask, GFXCullMode, GFXFormat,
     GFXFormatInfos, GFXFormatSize, GFXLoadOp, GFXMemoryUsageBit, GFXSampleCount, GFXShaderStageFlagBit, GFXStencilFace,
-    GFXTextureFlagBit, GFXTextureType, GFXType, GFXColor, GFXFormatInfo, GFXRect, GFXViewport, GFXDynamicStateFlagBit } from '../define';
+    GFXTextureFlagBit, GFXTextureType, GFXType, GFXFormatInfo, GFXDynamicStateFlagBit } from '../define';
+import { GFXBufferTextureCopy, GFXColor, GFXRect, GFXViewport } from '../define-class';
 
 export function GFXFormatToWebGLType (format: GFXFormat, gl: WebGLRenderingContext): GLenum {
     switch (format) {

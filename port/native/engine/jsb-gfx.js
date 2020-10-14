@@ -22,15 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-const _rect = new gfx.Rect();
-const _color = new gfx.Color();
-const _colorArray = [];
 
 // Converters for converting js objects to jsb struct objects
 let _converters = {
-    origin: function (arg) {
-        return arg;
-    },
     texImagesToBuffers: function (texImages) {
         if (texImages) {
             let buffers = [];
@@ -52,62 +46,11 @@ let _converters = {
             return buffers;
         }
     },
-    Offset: function (offset) {
-        return offset && new gfx.Offset(offset.x, offset.y, offset.z);
-    },
-    Rect: function(rect) {
-        if (rect) {
-            Object.assign(_rect, rect);
-        }
-        return _rect;
-    },
-    Extent: function (extent) {
-        return extent && new gfx.Extent(extent.width, extent.height, extent.depth);
-    },
-    TextureSubres: function (res) {
-        return res && new gfx.TextureSubres(res.mipLevel, res.baseArrayLayer, res.layerCount);
-    },
-    // TextureCopy,
-    BufferTextureCopy: function (obj) {
-        let jsbOffset = _converters.Offset(obj.texOffset);
-        let jsbExtent = _converters.Extent(obj.texExtent);
-        let jsbSubres = _converters.TextureSubres(obj.texSubres);
-        return new gfx.BufferTextureCopy(obj.buffStride, obj.buffTexHeight, jsbOffset, jsbExtent, jsbSubres);
-    },
-    BufferTextureCopyList: function (list) {
-        if (list) {
-            let jsbList = [];
-            for (let i = 0; i < list.length; ++i) {
-                jsbList.push(_converters.BufferTextureCopy(list[i]));
-            }
-            return jsbList;
-        }
-    },
-    Viewport: function (vp) {
-        return vp && new gfx.Viewport(vp.left, vp.top, vp.width, vp.height, vp.minDepth, vp.maxDepth);
-    },
-    Color: function(color) {
-        if (color) {
-            Object.assign(_color, color);
-        }
-        return _color;
-    },
-    ColorArray: function(colors) {
-        if (colors) {
-            colors.forEach((t, i) => Object.assign(
-                _colorArray[i] || (_colorArray[i] = new gfx.Color()), t));
-        }
-        return _colorArray;
-    },
     DeviceInfo: function (info) {
         let width = cc.game.canvas.width,
             height = cc.game.canvas.height,
             handler = window.windowHandler;
         return new gfx.DeviceInfo(handler, width, height, info.nativeWidth, info.nativeHeight, null, info.bindingMappingInfo);
-    },
-    SamplerInfo: function (info) {
-        info.borderColor = _converters.Color(info.borderColor);
-        return new gfx.SamplerInfo(info);
     },
     ShaderMacro: function (macro) {
         return new gfx.ShaderMacro(macro.macro, macro.value);
@@ -249,16 +192,18 @@ deviceProtos.forEach(function(item, index) {
             initialize: replaceFunction('_initialize', _converters.DeviceInfo),
             createQueue: replaceFunction('_createQueue', _converters.QueueInfo),
             createCommandBuffer: replaceFunction('_createCommandBuffer', _converters.CommandBufferInfo),
-            createSampler: replaceFunction('_createSampler', _converters.SamplerInfo),
-            createInputAssembler: replaceFunction('_createInputAssembler', _converters.InputAssemblerInfo),
             createRenderPass: replaceFunction('_createRenderPass', _converters.RenderPassInfo),
             createFramebuffer: replaceFunction('_createFramebuffer', _converters.FramebufferInfo),
             createDescriptorSet: replaceFunction('_createDescriptorSet', _converters.DescriptorSetInfo),
             createDescriptorSetLayout: replaceFunction('_createDescriptorSetLayout', _converters.DescriptorSetLayoutInfo),
             createPipelineLayout: replaceFunction('_createPipelineLayout', _converters.PipelineLayoutInfo),
-            copyBuffersToTexture: replaceFunction('_copyBuffersToTexture', _converters.origin, _converters.origin, _converters.BufferTextureCopyList),
-            copyTexImagesToTexture: replaceFunction('_copyTexImagesToTexture', _converters.texImagesToBuffers, _converters.origin, _converters.BufferTextureCopyList),
         });
+
+        let oldCopyTexImagesToTextureFunc = item.copyTexImagesToTexture;
+        item.copyTexImagesToTexture = function(texImages, texture, regions) {
+            let images = _converters.texImagesToBuffers(texImages);
+            oldCopyTexImagesToTextureFunc.call(this, images, texture, regions);
+        }
 
         let oldDeviceCreatBufferFun = item.createBuffer;
         item.createBuffer = function(info) {
@@ -283,26 +228,11 @@ deviceProtos.forEach(function(item, index) {
 let commandBufferProto = gfx.CommandBuffer.prototype;
 replace(commandBufferProto, {
     initialize: replaceFunction('_initialize', _converters.CommandBufferInfo),
-    setViewport: replaceFunction('_setViewport', _converters.Viewport),
-    setScissor: replaceFunction('_setScissor', _converters.Rect),
-    setBlendConstants: replaceFunction('_setBlendConstants', _converters.Color),
-    beginRenderPass: replaceFunction('_beginRenderPass',
-        _converters.origin,
-        _converters.origin,
-        _converters.Rect,
-        _converters.ColorArray,
-        _converters.origin,
-        _converters.origin),
 });
 
 let framebufferProto = gfx.Framebuffer.prototype;
 replace(framebufferProto, {
     initialize: replaceFunction('_initialize', _converters.FramebufferInfo),
-});
-
-let iaProto = gfx.InputAssembler.prototype;
-replace(iaProto, {
-    initialize: replaceFunction('_initialize', _converters.InputAssemblerInfo),
 });
 
 let descriptorSetProto = gfx.DescriptorSet.prototype;

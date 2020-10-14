@@ -11,7 +11,7 @@ import { scene } from '../../core/renderer';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 import { Material } from '../../core/assets';
-import { GFXAttribute, GFXBufferInfo, GFXDrawInfo } from '../../core';
+import { GFXAttribute, GFXBufferInfo, GFXDrawInfo, IGFXAttribute } from '../../core';
 
 const _vertex_attrs = [
     new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F), // xyz:position

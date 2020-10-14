@@ -1,6 +1,7 @@
 import { GFXBuffer, GFXBufferSource } from '../buffer';
 import { GFXCommandBuffer } from '../command-buffer';
-import { GFXBufferTextureCopy, GFXBufferUsageBit, GFXColor, GFXRect } from '../define';
+import { GFXBufferUsageBit } from '../define';
+import { GFXBufferTextureCopy, GFXColor, GFXRect } from '../define-class';
 import { GFXFramebuffer } from '../framebuffer';
 import { GFXInputAssembler } from '../input-assembler';
 import { GFXTexture } from '../texture';
