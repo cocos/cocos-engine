@@ -15,8 +15,8 @@ import { IRenderObject } from '../define';
 import { ShadowType } from '../../renderer/scene/shadows';
 
 const _tempVec3 = new Vec3();
-let _castWorldBounds = new aabb();
-let _receiveWorldBounds = new aabb();
+const _castWorldBounds = new aabb();
+const _receiveWorldBounds = new aabb();
 let _castBoundsInited = false;
 let _receiveBoundsInited = false;
 
