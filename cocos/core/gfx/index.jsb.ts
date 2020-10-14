@@ -4,7 +4,6 @@ import { GFXCommandBuffer } from './command-buffer';
 import * as GFXDefines from './define';
 import { GFXFramebuffer } from './framebuffer';
 import { GFXQueue } from './queue';
-import { GFXRenderPass } from './render-pass';
 import { legacyCC } from '../global-exports';
 
 export * from './descriptor-set';
@@ -14,7 +13,6 @@ export * from './framebuffer';
 export * from './descriptor-set-layout';
 export * from './pipeline-layout';
 export * from './queue';
-export * from './render-pass';
 
 export const GFXRasterizerState = gfx.RasterizerState;
 export const GFXDepthStencilState = gfx.DepthStencilState;
@@ -64,6 +62,12 @@ export const GFXBufferTextureCopy = gfx.BufferTextureCopy;
 
 export const GFXFenceInfo = gfx.FenceInfo;
 export const GFXFence = gfx.Fence;
+
+export const GFXColorAttachment = gfx.ColorAttachment;
+export const GFXDepthStencilAttachment = gfx.DepthStencilAttachment;
+export const GFXSubPassInfo = gfx.SubPassInfo;
+export const GFXRenderPassInfo = gfx.RenderPassInfo;
+export const GFXRenderPass = gfx.RenderPass;
 
 legacyCC.GFXDevice = GFXDevice;
 legacyCC.GFXBuffer = GFXBuffer;

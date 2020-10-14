@@ -55,34 +55,6 @@ let _converters = {
     ShaderMacro: function (macro) {
         return new gfx.ShaderMacro(macro.macro, macro.value);
     },
-    ColorAttachment: function (attachment) {
-        return new gfx.ColorAttachment(attachment);
-    },
-    DepthStencilAttachment: function (attachment) {
-        return new gfx.DepthStencilAttachment(attachment);
-    },
-    SubPass: function (subPass) {
-        return new gfx.SubPass(subPass);
-    },
-    RenderPassInfo: function (info) {
-        let colors = info.colorAttachments,
-            subPasses = info.subPasses;
-        let jsbColors, jsbSubPasses;
-        if (colors) {
-            jsbColors = [];
-            for (let i = 0; i < colors.length; ++i) {
-                jsbColors.push(_converters.ColorAttachment(colors[i]));
-            }
-        }
-        if (subPasses) {
-            jsbSubPasses = [];
-            for (let i = 0; i < subPasses.length; ++i) {
-                jsbSubPasses.push(_converters.SubPass(subPasses[i]));
-            }
-        }
-        let jsbDSAttachment = _converters.DepthStencilAttachment(info.depthStencilAttachment);
-        return new gfx.RenderPassInfo(jsbColors, jsbDSAttachment, jsbSubPasses);
-    },
     FramebufferInfo: function (info) {
         return new gfx.FramebufferInfo(info);
     },
@@ -192,7 +164,6 @@ deviceProtos.forEach(function(item, index) {
             initialize: replaceFunction('_initialize', _converters.DeviceInfo),
             createQueue: replaceFunction('_createQueue', _converters.QueueInfo),
             createCommandBuffer: replaceFunction('_createCommandBuffer', _converters.CommandBufferInfo),
-            createRenderPass: replaceFunction('_createRenderPass', _converters.RenderPassInfo),
             createFramebuffer: replaceFunction('_createFramebuffer', _converters.FramebufferInfo),
             createDescriptorSet: replaceFunction('_createDescriptorSet', _converters.DescriptorSetInfo),
             createDescriptorSetLayout: replaceFunction('_createDescriptorSetLayout', _converters.DescriptorSetLayoutInfo),
@@ -253,11 +224,6 @@ replace(pipelineLayoutProto, {
 let queueProto = gfx.Queue.prototype;
 replace(queueProto, {
     initialize: replaceFunction('_initialize', _converters.QueueInfo),
-});
-
-let renderPassProto = gfx.RenderPass.prototype;
-replace(renderPassProto, {
-    initialize: replaceFunction('_initialize', _converters.RenderPassInfo),
 });
 
 let samplerProto = gfx.Sampler.prototype;
