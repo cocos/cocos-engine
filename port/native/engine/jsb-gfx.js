@@ -54,16 +54,7 @@ let _converters = {
     },
     ShaderMacro: function (macro) {
         return new gfx.ShaderMacro(macro.macro, macro.value);
-    },
-    BindingUnit: function (info) {
-        return new gfx.BindingUnit(info);
-    },
-    PushConstantRange: function (range) {
-        return new gfx.PushConstantRange(range.shaderType, range.offset, range.count);
-    },
-    FormatInfo: function (info) {
-        return new gfx.FormatInfo(info);
-    },
+    }
 };
 
 // Helper functions to convert the original jsb function to a wrapper function
@@ -162,11 +153,6 @@ deviceProtos.forEach(function(item, index) {
             }
         }
     }
-});
-
-let samplerProto = gfx.Sampler.prototype;
-replace(samplerProto, {
-    initialize: replaceFunction('_initialize', _converters.SamplerInfo),
 });
 
 let shaderProto = gfx.Shader.prototype;
