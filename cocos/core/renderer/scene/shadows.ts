@@ -253,7 +253,6 @@ export class Shadows {
 
     constructor () {
         this._handle = ShadowsPool.alloc();
-        this._sphere.initialize();
     }
 
     public activate () {
