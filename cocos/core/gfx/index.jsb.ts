@@ -5,12 +5,9 @@ import * as GFXDefines from './define';
 import { GFXFramebuffer } from './framebuffer';
 import { legacyCC } from '../global-exports';
 
-export * from './descriptor-set';
 export * from './command-buffer';
 export * from './define';
 export * from './framebuffer';
-export * from './descriptor-set-layout';
-export * from './pipeline-layout';
 
 export const GFXRasterizerState = gfx.RasterizerState;
 export const GFXDepthStencilState = gfx.DepthStencilState;
@@ -69,6 +66,15 @@ export const GFXRenderPass = gfx.RenderPass;
 
 export const GFXQueueInfo = gfx.QueueInfo;
 export const GFXQueue = gfx.Queue;
+
+export const GFXPipelineLayoutInfo = gfx.PipelineLayoutInfo;
+export const GFXPipelineLayout = gfx.PipelineLayout;
+
+export const GFXDescriptorSetLayoutBinding = gfx.DescriptorSetLayoutBinding;
+export const GFXDescriptorSetLayoutInfo = gfx.DescriptorSetLayoutInfo;
+export const GFXDescriptorSetLayout = gfx.DescriptorSetLayout;
+export const GFXDescriptorSetInfo = gfx.DescriptorSetInfo;
+export { DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE } from './descriptor-set';
 
 legacyCC.GFXDevice = GFXDevice;
 legacyCC.GFXBuffer = GFXBuffer;

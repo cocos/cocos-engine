@@ -58,23 +58,6 @@ let _converters = {
     FramebufferInfo: function (info) {
         return new gfx.FramebufferInfo(info);
     },
-    DescriptorSetInfo: function (info) {
-        return new gfx.DescriptorSetInfo(info.layout);
-    },
-    DescriptorSetLayoutBinding: function (info) {
-        return new gfx.DescriptorSetLayoutBinding(info);
-    },
-    DescriptorSetLayoutInfo: function (info) {
-        let bindings = info.bindings;
-        let jsbBindings = [];
-        for (const binding of bindings) {
-            jsbBindings.push(_converters.DescriptorSetLayoutBinding(binding));
-        }
-        return new gfx.DescriptorSetLayoutInfo(jsbBindings);
-    },
-    PipelineLayoutInfo: function (info) {
-        return new gfx.PipelineLayoutInfo(info.setLayouts);
-    },
     BindingUnit: function (info) {
         return new gfx.BindingUnit(info);
     },
@@ -161,9 +144,6 @@ deviceProtos.forEach(function(item, index) {
             initialize: replaceFunction('_initialize', _converters.DeviceInfo),
             createCommandBuffer: replaceFunction('_createCommandBuffer', _converters.CommandBufferInfo),
             createFramebuffer: replaceFunction('_createFramebuffer', _converters.FramebufferInfo),
-            createDescriptorSet: replaceFunction('_createDescriptorSet', _converters.DescriptorSetInfo),
-            createDescriptorSetLayout: replaceFunction('_createDescriptorSetLayout', _converters.DescriptorSetLayoutInfo),
-            createPipelineLayout: replaceFunction('_createPipelineLayout', _converters.PipelineLayoutInfo),
         });
 
         let oldCopyTexImagesToTextureFunc = item.copyTexImagesToTexture;
@@ -200,21 +180,6 @@ replace(commandBufferProto, {
 let framebufferProto = gfx.Framebuffer.prototype;
 replace(framebufferProto, {
     initialize: replaceFunction('_initialize', _converters.FramebufferInfo),
-});
-
-let descriptorSetProto = gfx.DescriptorSet.prototype;
-replace(descriptorSetProto, {
-    initialize: replaceFunction('_initialize', _converters.DescriptorSetInfo),
-});
-
-let descriptorSetLayoutProto = gfx.DescriptorSetLayout.prototype;
-replace(descriptorSetLayoutProto, {
-    initialize: replaceFunction('_initialize', _converters.DescriptorSetLayoutInfo),
-});
-
-let pipelineLayoutProto = gfx.PipelineLayout.prototype;
-replace(pipelineLayoutProto, {
-    initialize: replaceFunction('_initialize', _converters.PipelineLayoutInfo),
 });
 
 let samplerProto = gfx.Sampler.prototype;
