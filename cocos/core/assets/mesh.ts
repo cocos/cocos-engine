@@ -699,7 +699,7 @@ export class Mesh extends Asset {
                 const attrs = vertexBundle.attributes;
                 for (let i = 0; i < attrs.length; ++i) {
                     const attr = attrs[i];
-                    gfxAttributes[i] = new GFXAttribute(attr.name, attr.format, attr.isInstanced, attr.stream, attr.isInstanced, attr.location);;
+                    gfxAttributes[i] = new GFXAttribute(attr.name, attr.format, attr.isInstanced, attr.stream, attr.isInstanced, attr.location);
                 }
             }
 
