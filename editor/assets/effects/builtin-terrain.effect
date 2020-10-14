@@ -86,9 +86,9 @@ CCProgram terrain-vs %{
 
     v_position = worldPos;
     v_normal = a_normal;
-    v_fog_factor = CC_TRANSFER_FOG(vec4(worldPos, 1));
+    v_fog_factor = CC_TRANSFER_FOG(vec4(worldPos, 1.0));
 
-    CCPassShadowParams(vec4(worldPos.xyz, 1.0));
+    CCPassShadowParams(vec4(worldPos, 1.0));
 
     return pos;
   }
