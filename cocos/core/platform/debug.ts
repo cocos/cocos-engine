@@ -352,7 +352,7 @@ export enum DebugMode {
  * @en Gets error message with the error id and possible parameters.
  * @zh 通过 error id 和必要的参数来获取错误信息。
  */
-export function getError (errorId: any, ...param: any[]): string {
+export function getError (errorId: number, ...param: any[]): string {
     return errorFormatter(errorId, ...param);
 }
 
