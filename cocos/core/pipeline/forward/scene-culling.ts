@@ -15,6 +15,10 @@ import { IRenderObject } from '../define';
 import { ShadowType } from '../../renderer/scene/shadows';
 
 const _tempVec3 = new Vec3();
+let _castWorldBounds = new aabb();
+let _receiveWorldBounds = new aabb();
+let _castBoundsInited = false;
+let _receiveBoundsInited = false;
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 const shadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
@@ -54,8 +58,10 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     const shadowObjects = pipeline.shadowObjects;
     shadowPool.freeArray(shadowObjects); shadowObjects.length = 0;
 
-    let castWorldBounds: aabb|null = null;
-    let receiveWorldBounds: aabb|null = null;
+    // Each time the calculation,
+    // reset the flag.
+    _castBoundsInited = false;
+    _receiveBoundsInited = false;
 
     if (mainLight) {
         mainLight.update();
@@ -87,22 +93,22 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
 
                     // shadow render Object
                     if (model.castShadow && model.worldBounds) {
-                        if (!castWorldBounds) {
-                            castWorldBounds = new aabb();
-                            castWorldBounds.copy(model.worldBounds);
+                        if (!_castBoundsInited) {
+                            _castWorldBounds.copy(model.worldBounds);
+                            _castBoundsInited = true;
                         }
-                        aabb.merge(castWorldBounds, castWorldBounds, model.worldBounds);
+                        aabb.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
                         shadowObjects.push(getCastShadowRenderObject(model, camera));
                     }
 
                     // Even if the obstruction is not in the field of view,
                     // the shadow is still visible.
                     if (model.receiveShadow && model.worldBounds) {
-                        if(!receiveWorldBounds) {
-                            receiveWorldBounds = new aabb();
-                            receiveWorldBounds.copy(model.worldBounds);
+                        if(!_receiveBoundsInited) {
+                            _receiveWorldBounds.copy(model.worldBounds);
+                            _receiveBoundsInited = true;
                         }
-                        aabb.merge(receiveWorldBounds, receiveWorldBounds, model.worldBounds);
+                        aabb.merge(_receiveWorldBounds, _receiveWorldBounds, model.worldBounds);
                     }
 
                     // frustum culling
@@ -116,15 +122,9 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
         }
     }
 
-    if (castWorldBounds) {
-        aabb.toSphere(shadows.sphere, castWorldBounds);
-        castWorldBounds = null;
-    }
+    if (_castWorldBounds) { aabb.toBoundingSphere(shadows.sphere, _castWorldBounds); }
 
-    if (receiveWorldBounds) {
-        aabb.toSphere(shadows.receiveSphere, receiveWorldBounds);
-        receiveWorldBounds = null;
-    }
+    if (_receiveWorldBounds) { aabb.toBoundingSphere(shadows.receiveSphere, _receiveWorldBounds); }
 
     if (shadows.type === ShadowType.Planar) {
         shadows.updateShadowList(scene, camera.frustum, (camera.visibility & Layers.BitMask.DEFAULT) !== 0);

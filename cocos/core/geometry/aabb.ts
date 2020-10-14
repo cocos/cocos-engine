@@ -143,7 +143,7 @@ export default class aabb {
      * @param out 接受操作的 sphere。
      * @param a 输入的 aabb。
      */
-    public static toSphere (out: sphere, a: aabb) {
+    public static toBoundingSphere (out: sphere, a: aabb) {
         a.getBoundary(_v3_tmp, _v3_tmp2);
 
         // Initialize sphere
