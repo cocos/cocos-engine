@@ -72,7 +72,7 @@ CCProgram terrain-vs %{
     worldPos.y = cc_matWorld[3][1] + a_position.y;
     worldPos.z = cc_matWorld[3][2] + a_position.z;
 
-    vec4 pos = vec4(worldPos, 1);
+    vec4 pos = vec4(worldPos, 1.0);
     pos = cc_matViewProj * pos;
 
     uvw = a_texCoord;
