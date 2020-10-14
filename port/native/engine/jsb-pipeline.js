@@ -170,6 +170,12 @@ class UIStage extends nr.UIStage {
   }
 }
 
+let instancedBufferProto = nr.InstancedBuffer;
+let oldGetFunc = instancedBufferProto.get;
+instancedBufferProto.get = function(pass) {
+  return oldGetFunc.call(this, pass.handle);
+}
+
 class RenderQueueDesc {
   constructor() {
     this.isTransparent = false;

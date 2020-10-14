@@ -424,6 +424,7 @@ export class Model {
             attr.format = attribute.format;
             attr.name = attribute.name;
             attr.isNormalized = attribute.isNormalized;
+            attr.location = attribute.location;
             attrs.attributes.push(attr);
             AttrArrayPool.push(hAttrArray, hAttr);
 
