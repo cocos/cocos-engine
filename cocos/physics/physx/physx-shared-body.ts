@@ -151,7 +151,7 @@ export class PhysXSharedBody {
                 ws.impl.setSimulationFilterData(this._filterData);
             }
             this.impl.attachShape(ws.impl);
-            // if (!this._isStatic) this.impl.setMassAndUpdateInertia(this._wrappedBody!.rigidBody.mass);
+            if (!USE_BYTEDANCE && !this._isStatic) this.impl.setMassAndUpdateInertia(this._wrappedBody!.rigidBody.mass);
             this.wrappedShapes.push(ws);
         }
     }
