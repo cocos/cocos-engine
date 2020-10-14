@@ -13,7 +13,6 @@ GLES3Sampler::~GLES3Sampler() {
 }
 
 bool GLES3Sampler::initialize(const SamplerInfo &info) {
-    _name = info.name;
     _minFilter = info.minFilter;
     _magFilter = info.magFilter;
     _mipFilter = info.mipFilter;

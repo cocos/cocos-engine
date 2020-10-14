@@ -13,7 +13,6 @@ CCMTLSampler::CCMTLSampler(Device *device) : Sampler(device) {}
 CCMTLSampler::~CCMTLSampler() { destroy(); }
 
 bool CCMTLSampler::initialize(const SamplerInfo &info) {
-    _name = info.name;
     _minFilter = info.minFilter;
     _magFilter = info.magFilter;
     _mipFilter = info.mipFilter;

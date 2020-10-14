@@ -561,16 +561,16 @@ enum class VsyncMode : uint8_t {
 };
 
 struct Offset {
-    int x;
-    int y;
-    int z;
+    int x = 0;
+    int y = 0;
+    int z = 0;
 };
 
 struct Rect {
     int x = 0;
     int y = 0;
-    uint width = 0u;
-    uint height = 0u;
+    uint width = 1u;
+    uint height = 1u;
 
     bool operator==(const Rect &rs) {
         if (x == rs.x &&
@@ -588,9 +588,9 @@ struct Rect {
 };
 
 struct Extent {
-    uint width;
-    uint height;
-    uint depth;
+    uint width = 0;
+    uint height = 0;
+    uint depth = 1;
 };
 
 struct TextureSubres {
@@ -601,17 +601,17 @@ struct TextureSubres {
 
 struct TextureCopy {
     TextureSubres srcSubres;
-    Offset srcOffset = {0, 0, 0};
+    Offset srcOffset;
     TextureSubres dstSubres;
-    Offset dstOffset = {0, 0, 0};
-    Extent extent = {0, 0, 1};
+    Offset dstOffset;
+    Extent extent;
 };
 
 struct BufferTextureCopy {
     uint buffStride = 0;
     uint buffTexHeight = 0;
-    Offset texOffset = {0, 0, 0};
-    Extent texExtent = {0, 0, 1};
+    Offset texOffset;
+    Extent texExtent;
     TextureSubres texSubres;
 };
 typedef cc::vector<BufferTextureCopy> BufferTextureCopyList;
@@ -756,7 +756,6 @@ struct TextureViewInfo {
 };
 
 struct SamplerInfo {
-    String name;
     Filter minFilter = Filter::LINEAR;
     Filter magFilter = Filter::LINEAR;
     Filter mipFilter = Filter::NONE;

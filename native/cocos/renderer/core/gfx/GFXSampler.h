@@ -16,7 +16,6 @@ public:
     virtual void destroy() = 0;
 
     CC_INLINE Device *getDevice() const { return _device; }
-    CC_INLINE const String &getName() const { return _name; }
     CC_INLINE Filter getMinFilter() const { return _minFilter; }
     CC_INLINE Filter getMagFilter() const { return _magFilter; }
     CC_INLINE Filter getMipFilter() const { return _mipFilter; }
@@ -32,7 +31,6 @@ public:
 
 protected:
     Device *_device = nullptr;
-    String _name;
     Filter _minFilter = Filter::NONE;
     Filter _magFilter = Filter::NONE;
     Filter _mipFilter = Filter::NONE;
