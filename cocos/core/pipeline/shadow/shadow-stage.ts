@@ -4,12 +4,11 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { GFXColor, GFXRect } from '../../gfx';
+import { GFXColor, GFXRect, GFXFramebuffer } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from '../forward/enum';
 import { RenderShadowMapBatchedQueue } from '../render-shadowMap-batched-queue';
-import { GFXFramebuffer } from '../../gfx/framebuffer';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { SetIndex, UBOShadow } from '../define';
 

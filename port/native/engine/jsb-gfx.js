@@ -51,73 +51,7 @@ let _converters = {
             height = cc.game.canvas.height,
             handler = window.windowHandler;
         return new gfx.DeviceInfo(handler, width, height, info.nativeWidth, info.nativeHeight, null, info.bindingMappingInfo);
-    },
-    ShaderMacro: function (macro) {
-        return new gfx.ShaderMacro(macro.macro, macro.value);
-    },
-    ColorAttachment: function (attachment) {
-        return new gfx.ColorAttachment(attachment);
-    },
-    DepthStencilAttachment: function (attachment) {
-        return new gfx.DepthStencilAttachment(attachment);
-    },
-    SubPass: function (subPass) {
-        return new gfx.SubPass(subPass);
-    },
-    RenderPassInfo: function (info) {
-        let colors = info.colorAttachments,
-            subPasses = info.subPasses;
-        let jsbColors, jsbSubPasses;
-        if (colors) {
-            jsbColors = [];
-            for (let i = 0; i < colors.length; ++i) {
-                jsbColors.push(_converters.ColorAttachment(colors[i]));
-            }
-        }
-        if (subPasses) {
-            jsbSubPasses = [];
-            for (let i = 0; i < subPasses.length; ++i) {
-                jsbSubPasses.push(_converters.SubPass(subPasses[i]));
-            }
-        }
-        let jsbDSAttachment = _converters.DepthStencilAttachment(info.depthStencilAttachment);
-        return new gfx.RenderPassInfo(jsbColors, jsbDSAttachment, jsbSubPasses);
-    },
-    FramebufferInfo: function (info) {
-        return new gfx.FramebufferInfo(info);
-    },
-    DescriptorSetInfo: function (info) {
-        return new gfx.DescriptorSetInfo(info.layout);
-    },
-    DescriptorSetLayoutBinding: function (info) {
-        return new gfx.DescriptorSetLayoutBinding(info);
-    },
-    DescriptorSetLayoutInfo: function (info) {
-        let bindings = info.bindings;
-        let jsbBindings = [];
-        for (const binding of bindings) {
-            jsbBindings.push(_converters.DescriptorSetLayoutBinding(binding));
-        }
-        return new gfx.DescriptorSetLayoutInfo(jsbBindings);
-    },
-    PipelineLayoutInfo: function (info) {
-        return new gfx.PipelineLayoutInfo(info.setLayouts);
-    },
-    BindingUnit: function (info) {
-        return new gfx.BindingUnit(info);
-    },
-    PushConstantRange: function (range) {
-        return new gfx.PushConstantRange(range.shaderType, range.offset, range.count);
-    },
-    CommandBufferInfo: function (info) {
-        return new gfx.CommandBufferInfo(info);
-    },
-    QueueInfo: function (info) {
-        return new gfx.QueueInfo(info.type, !!info.forceSync);
-    },
-    FormatInfo: function (info) {
-        return new gfx.FormatInfo(info);
-    },
+    }
 };
 
 // Helper functions to convert the original jsb function to a wrapper function
@@ -190,13 +124,6 @@ deviceProtos.forEach(function(item, index) {
     if (item !== undefined) {
         replace(item, {
             initialize: replaceFunction('_initialize', _converters.DeviceInfo),
-            createQueue: replaceFunction('_createQueue', _converters.QueueInfo),
-            createCommandBuffer: replaceFunction('_createCommandBuffer', _converters.CommandBufferInfo),
-            createRenderPass: replaceFunction('_createRenderPass', _converters.RenderPassInfo),
-            createFramebuffer: replaceFunction('_createFramebuffer', _converters.FramebufferInfo),
-            createDescriptorSet: replaceFunction('_createDescriptorSet', _converters.DescriptorSetInfo),
-            createDescriptorSetLayout: replaceFunction('_createDescriptorSetLayout', _converters.DescriptorSetLayoutInfo),
-            createPipelineLayout: replaceFunction('_createPipelineLayout', _converters.PipelineLayoutInfo),
         });
 
         let oldCopyTexImagesToTextureFunc = item.copyTexImagesToTexture;
@@ -223,46 +150,6 @@ deviceProtos.forEach(function(item, index) {
             }
         }
     }
-});
-
-let commandBufferProto = gfx.CommandBuffer.prototype;
-replace(commandBufferProto, {
-    initialize: replaceFunction('_initialize', _converters.CommandBufferInfo),
-});
-
-let framebufferProto = gfx.Framebuffer.prototype;
-replace(framebufferProto, {
-    initialize: replaceFunction('_initialize', _converters.FramebufferInfo),
-});
-
-let descriptorSetProto = gfx.DescriptorSet.prototype;
-replace(descriptorSetProto, {
-    initialize: replaceFunction('_initialize', _converters.DescriptorSetInfo),
-});
-
-let descriptorSetLayoutProto = gfx.DescriptorSetLayout.prototype;
-replace(descriptorSetLayoutProto, {
-    initialize: replaceFunction('_initialize', _converters.DescriptorSetLayoutInfo),
-});
-
-let pipelineLayoutProto = gfx.PipelineLayout.prototype;
-replace(pipelineLayoutProto, {
-    initialize: replaceFunction('_initialize', _converters.PipelineLayoutInfo),
-});
-
-let queueProto = gfx.Queue.prototype;
-replace(queueProto, {
-    initialize: replaceFunction('_initialize', _converters.QueueInfo),
-});
-
-let renderPassProto = gfx.RenderPass.prototype;
-replace(renderPassProto, {
-    initialize: replaceFunction('_initialize', _converters.RenderPassInfo),
-});
-
-let samplerProto = gfx.Sampler.prototype;
-replace(samplerProto, {
-    initialize: replaceFunction('_initialize', _converters.SamplerInfo),
 });
 
 let shaderProto = gfx.Shader.prototype;
