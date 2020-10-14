@@ -3,12 +3,11 @@
  * @module pipeline
  */
 
-import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { RecyclePool } from '../memop';
 import { CachedArray } from '../memop/cached-array';
 import { IRenderObject, IRenderPass, IRenderQueueDesc, SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { GFXRenderPass, GFXDevice } from '../gfx';
+import { GFXRenderPass, GFXDevice, GFXCommandBuffer } from '../gfx';
 import { BlendStatePool, PassPool, PassView, DSPool, SubModelView, SubModelPool, ShaderPool, PassHandle, ShaderHandle } from '../renderer/core/memory-pools';
 
 /**

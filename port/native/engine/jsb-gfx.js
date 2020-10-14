@@ -61,9 +61,6 @@ let _converters = {
     PushConstantRange: function (range) {
         return new gfx.PushConstantRange(range.shaderType, range.offset, range.count);
     },
-    CommandBufferInfo: function (info) {
-        return new gfx.CommandBufferInfo(info);
-    },
     FormatInfo: function (info) {
         return new gfx.FormatInfo(info);
     },
@@ -139,7 +136,6 @@ deviceProtos.forEach(function(item, index) {
     if (item !== undefined) {
         replace(item, {
             initialize: replaceFunction('_initialize', _converters.DeviceInfo),
-            createCommandBuffer: replaceFunction('_createCommandBuffer', _converters.CommandBufferInfo),
         });
 
         let oldCopyTexImagesToTextureFunc = item.copyTexImagesToTexture;
@@ -166,11 +162,6 @@ deviceProtos.forEach(function(item, index) {
             }
         }
     }
-});
-
-let commandBufferProto = gfx.CommandBuffer.prototype;
-replace(commandBufferProto, {
-    initialize: replaceFunction('_initialize', _converters.CommandBufferInfo),
 });
 
 let samplerProto = gfx.Sampler.prototype;

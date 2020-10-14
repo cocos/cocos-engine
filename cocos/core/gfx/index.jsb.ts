@@ -1,10 +1,8 @@
 declare const gfx: any;
 
-import { GFXCommandBuffer } from './command-buffer';
 import * as GFXDefines from './define';
 import { legacyCC } from '../global-exports';
 
-export * from './command-buffer';
 export * from './define';
 
 export const GFXRasterizerState = gfx.RasterizerState;
@@ -76,6 +74,9 @@ export { DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE } from './descriptor-se
 
 export const GFXFramebufferInfo = gfx.FramebufferInfo;
 export const GFXFramebuffer = gfx.Framebuffer;
+
+export const GFXCommandBufferInfo = gfx.CommandBufferInfo;
+export const GFXCommandBuffer = gfx.CommandBuffer;
 
 legacyCC.GFXDevice = GFXDevice;
 legacyCC.GFXBuffer = GFXBuffer;
