@@ -3,7 +3,6 @@ declare const gfx: any;
 import { GFXCommandBuffer } from './command-buffer';
 import * as GFXDefines from './define';
 import { GFXFramebuffer } from './framebuffer';
-import { GFXQueue } from './queue';
 import { legacyCC } from '../global-exports';
 
 export * from './descriptor-set';
@@ -12,7 +11,6 @@ export * from './define';
 export * from './framebuffer';
 export * from './descriptor-set-layout';
 export * from './pipeline-layout';
-export * from './queue';
 
 export const GFXRasterizerState = gfx.RasterizerState;
 export const GFXDepthStencilState = gfx.DepthStencilState;
@@ -68,6 +66,9 @@ export const GFXDepthStencilAttachment = gfx.DepthStencilAttachment;
 export const GFXSubPassInfo = gfx.SubPassInfo;
 export const GFXRenderPassInfo = gfx.RenderPassInfo;
 export const GFXRenderPass = gfx.RenderPass;
+
+export const GFXQueueInfo = gfx.QueueInfo;
+export const GFXQueue = gfx.Queue;
 
 legacyCC.GFXDevice = GFXDevice;
 legacyCC.GFXBuffer = GFXBuffer;

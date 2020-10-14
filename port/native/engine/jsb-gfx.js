@@ -84,9 +84,6 @@ let _converters = {
     CommandBufferInfo: function (info) {
         return new gfx.CommandBufferInfo(info);
     },
-    QueueInfo: function (info) {
-        return new gfx.QueueInfo(info.type, !!info.forceSync);
-    },
     FormatInfo: function (info) {
         return new gfx.FormatInfo(info);
     },
@@ -162,7 +159,6 @@ deviceProtos.forEach(function(item, index) {
     if (item !== undefined) {
         replace(item, {
             initialize: replaceFunction('_initialize', _converters.DeviceInfo),
-            createQueue: replaceFunction('_createQueue', _converters.QueueInfo),
             createCommandBuffer: replaceFunction('_createCommandBuffer', _converters.CommandBufferInfo),
             createFramebuffer: replaceFunction('_createFramebuffer', _converters.FramebufferInfo),
             createDescriptorSet: replaceFunction('_createDescriptorSet', _converters.DescriptorSetInfo),
@@ -219,11 +215,6 @@ replace(descriptorSetLayoutProto, {
 let pipelineLayoutProto = gfx.PipelineLayout.prototype;
 replace(pipelineLayoutProto, {
     initialize: replaceFunction('_initialize', _converters.PipelineLayoutInfo),
-});
-
-let queueProto = gfx.Queue.prototype;
-replace(queueProto, {
-    initialize: replaceFunction('_initialize', _converters.QueueInfo),
 });
 
 let samplerProto = gfx.Sampler.prototype;
