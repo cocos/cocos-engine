@@ -10,8 +10,7 @@ import { PhysXSharedBody } from "./physx-shared-body";
 import { PhysXRigidBody } from "./physx-rigid-body";
 import { PhysXShape } from "./shapes/physx-shape";
 import { CollisionEventObject, TriggerEventObject } from "../utils/util";
-import { PX } from "./export-physx";
-import { BYTEDANCE } from "internal:constants";
+import { PX, USE_BYTEDANCE } from "./export-physx";
 
 function onTrigger (type: TriggerEventType, a: string, b: string) {
     const wpa = PX.IMPL_PTR[a] as PhysXShape;
@@ -56,7 +55,7 @@ export class PhysXWorld implements IPhysicsWorld {
     setAllowSleep (v: boolean) { };
     setDefaultMaterial (v: PhysicMaterial) { };
     setGravity (gravity: IVec3Like) {
-        if (!BYTEDANCE) this.scene['setGravity'](gravity)
+        if (!USE_BYTEDANCE) this.scene['setGravity'](gravity)
     };
     get impl () { return null; }
 
@@ -89,7 +88,7 @@ export class PhysXWorld implements IPhysicsWorld {
             // onTriggerPersist: (...a: any) => { console.log('onTriggerPersist', a); },
         }
 
-        if (BYTEDANCE) {
+        if (USE_BYTEDANCE) {
             const physics = PX.createPhysics();
             const sceneDesc = physics.createSceneDesc();
             const scene = physics.createScene(sceneDesc);
@@ -159,7 +158,7 @@ export class PhysXWorld implements IPhysicsWorld {
     addActor (body: PhysXSharedBody) {
         const index = this.wrappedBodies.indexOf(body);
         if (index < 0) {
-            if (BYTEDANCE) {
+            if (USE_BYTEDANCE) {
                 this.scene['addActor'](body.impl);
             } else {
                 this.scene['addActor'](body.impl, null);

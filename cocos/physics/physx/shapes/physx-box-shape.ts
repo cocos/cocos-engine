@@ -3,9 +3,8 @@ import { aabb, sphere } from "../../../core/geometry";
 import { Collider, RigidBody, PhysicMaterial, BoxCollider } from "../../framework";
 import { VEC3_0 } from "../../utils/util";
 import { IBoxShape } from "../../spec/i-physics-shape";
-import { PX } from "../export-physx";
+import { PX, USE_BYTEDANCE } from "../export-physx";
 import { EPhysXShapeType, PhysXShape } from "./physx-shape";
-import { BYTEDANCE } from "internal:constants";
 
 export class PhysXBoxShape extends PhysXShape implements IBoxShape {
 
@@ -14,7 +13,7 @@ export class PhysXBoxShape extends PhysXShape implements IBoxShape {
     constructor () {
         super(EPhysXShapeType.BOX);
         if (!PhysXBoxShape.BOX_GEOMETRY) {
-            if (BYTEDANCE) {
+            if (USE_BYTEDANCE) {
                 PhysXBoxShape.BOX_GEOMETRY = new PX.BoxGeometry(0.5, 0.5, 0.5);
             } else {
                 PhysXBoxShape.BOX_GEOMETRY = new PX.PxBoxGeometry(0.5, 0.5, 0.5);
@@ -34,7 +33,7 @@ export class PhysXBoxShape extends PhysXShape implements IBoxShape {
         this.updateGeometry();
         const physics = this._sharedBody.wrappedWorld.physics as any;
         const pxmat = this.getSharedMaterial(this._collider.sharedMaterial!);
-        if (BYTEDANCE) {
+        if (USE_BYTEDANCE) {
             this._impl = physics.createShape(PhysXBoxShape.BOX_GEOMETRY, pxmat);
             // this._impl.setFlags(this._flags);
             // const v = this._collider.isTrigger;
@@ -61,7 +60,7 @@ export class PhysXBoxShape extends PhysXShape implements IBoxShape {
         VEC3_0.set(co.size);
         VEC3_0.multiplyScalar(0.5);
         VEC3_0.multiply3f(Math.abs(ws.x), Math.abs(ws.y), Math.abs(ws.z));
-        if (BYTEDANCE) {
+        if (USE_BYTEDANCE) {
             PhysXBoxShape.BOX_GEOMETRY.setHalfExtents([VEC3_0.x, VEC3_0.y, VEC3_0.z]);
         } else {
             PhysXBoxShape.BOX_GEOMETRY.halfExtents = VEC3_0;

@@ -1,11 +1,10 @@
 
-import { BYTEDANCE } from "internal:constants";
 import { IVec3Like, Quat, Vec3 } from "../../../core";
 import { aabb, sphere } from "../../../core/geometry";
 import { Collider, RigidBody, PhysicMaterial, PhysicsSystem } from "../../framework";
 import { IBaseShape } from "../../spec/i-physics-shape";
 import { setWrap } from "../../utils/util";
-import { PX, _pxtrans, _trans } from "../export-physx";
+import { PX, USE_BYTEDANCE, _pxtrans, _trans } from "../export-physx";
 import { PhysXSharedBody } from "../physx-shared-body";
 import { PhysXWorld } from "../physx-world";
 
@@ -40,7 +39,7 @@ export class PhysXShape implements IBaseShape {
 
     initialize (v: Collider): void {
         this._collider = v;
-        if (BYTEDANCE) {
+        if (USE_BYTEDANCE) {
             const flag = (v.isTrigger ? PX.ShapeFlag.eTRIGGER_SHAPE : PX.ShapeFlag.eSIMULATION_SHAPE)
                 | PX.ShapeFlag.eSCENE_QUERY_SHAPE;
             this._flags = flag;
@@ -52,7 +51,7 @@ export class PhysXShape implements IBaseShape {
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as PhysXWorld).getSharedBody(v.node);
         this._sharedBody.reference = true;
         this.onComponentSet();
-        if (!BYTEDANCE && this._impl) PX.IMPL_PTR[this._impl.$$.ptr] = this;
+        if (!USE_BYTEDANCE && this._impl) PX.IMPL_PTR[this._impl.$$.ptr] = this;
     }
 
     // virtual
@@ -77,7 +76,7 @@ export class PhysXShape implements IBaseShape {
 
     onDestroy (): void {
         this._sharedBody.reference = false;
-        if (!BYTEDANCE) {
+        if (!USE_BYTEDANCE) {
             PX.IMPL_PTR[this._impl.$$.ptr] = null;
             delete PX.IMPL_PTR[this._impl.$$.ptr];
             this._impl.release();
@@ -112,7 +111,7 @@ export class PhysXShape implements IBaseShape {
     }
 
     setAsTrigger (v: boolean): void {
-        if (BYTEDANCE) {
+        if (USE_BYTEDANCE) {
             if (v) {
                 this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v)
                 this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
@@ -134,7 +133,7 @@ export class PhysXShape implements IBaseShape {
     setCenter (v: IVec3Like): void {
         Vec3.multiply(_trans.translation, v, this._collider.node.worldScale);
         Quat.copy(_trans.rotation, this._rotation);
-        if (BYTEDANCE) {
+        if (USE_BYTEDANCE) {
             const pos = _trans.translation;
             const rot = _trans.rotation;
             // _pxtrans.setPosition([pos.x, pos.y, pos.z]);

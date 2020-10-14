@@ -8,10 +8,10 @@ import { PhysXSphereShape } from './shapes/physx-sphere-shape';
 import { PhysXBoxShape } from './shapes/physx-box-shape';
 import { PhysXCapsuleShape } from './shapes/physx-capsule-shape';
 import { PhysXPlaneShape } from './shapes/physx-plane-shape';
-import { BYTEDANCE } from 'internal:constants';
+import { USE_BYTEDANCE } from './export-physx';
 
 let pcs: Constructor<PhysXCapsuleShape> | null = PhysXCapsuleShape;
-if (BYTEDANCE) pcs = null;
+if (USE_BYTEDANCE) pcs = null;
 
 select('physx', {
     PhysicsWorld: PhysXWorld,

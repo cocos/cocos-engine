@@ -3,9 +3,8 @@ import { PhysXRigidBody } from "./physx-rigid-body";
 import { PhysXWorld } from "./physx-world";
 import { PhysXShape } from "./shapes/physx-shape";
 
-import { PX, _pxtrans, _trans } from "./export-physx";
+import { PX, USE_BYTEDANCE, _pxtrans, _trans } from "./export-physx";
 import { TransformBit } from "../../core/scene-graph/node-enum";
-import { BYTEDANCE } from "internal:constants";
 
 export class PhysXSharedBody {
 
@@ -75,7 +74,7 @@ export class PhysXSharedBody {
         this.id = PhysXSharedBody.idCounter++;
         this.node = node;
         this.wrappedWorld = wrappedWorld;
-        if (BYTEDANCE) {
+        if (USE_BYTEDANCE) {
             this._filterData = {
                 word0: 1,
                 word1: ((0xffffffff & (~2)) >>> 0),
@@ -92,7 +91,7 @@ export class PhysXSharedBody {
         Vec3.copy(_trans.translation, this.node.worldPosition);
         Quat.copy(_trans.rotation, this.node.worldRotation);
         let t = _trans;
-        if (BYTEDANCE) {
+        if (USE_BYTEDANCE) {
             const pos = _trans.translation;
             const rot = _trans.rotation;
             t = new PX.Transform([pos.x, pos.y, pos.z], [rot.x, rot.y, rot.z, rot.w]);
@@ -107,7 +106,7 @@ export class PhysXSharedBody {
                 this._isStatic = false;
                 this._impl = this.wrappedWorld.physics.createRigidDynamic(t as any);
                 this._impl.setMass(rb.mass);
-                if (BYTEDANCE) {
+                if (USE_BYTEDANCE) {
                     this._impl.setActorFlag(PX.ActorFlag.eDISABLE_GRAVITY, !rb.useGravity);
                 } else {
                     this._impl.setActorFlag(PX.PxActorFlag.eDISABLE_GRAVITY, !rb.useGravity);
@@ -115,7 +114,7 @@ export class PhysXSharedBody {
                 this._impl.setLinearDamping(rb.linearDamping);
                 this._impl.setAngularDamping(rb.angularDamping);
                 const lf = rb.linearFactor;
-                if (BYTEDANCE) {
+                if (USE_BYTEDANCE) {
                     this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_X, !lf.x);
                     this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_Y, !lf.y);
                     this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_Z, !lf.z);
@@ -125,7 +124,7 @@ export class PhysXSharedBody {
                     this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_LINEAR_Z, !lf.z);
                 }
                 const af = rb.angularFactor;
-                if (BYTEDANCE) {
+                if (USE_BYTEDANCE) {
                     this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_X, !af.x);
                     this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Y, !af.y);
                     this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Z, !af.z);
@@ -139,13 +138,13 @@ export class PhysXSharedBody {
             this._isStatic = true;
             this._impl = this.wrappedWorld.physics.createRigidStatic(t as any);
         }
-        if (!BYTEDANCE && this._impl) PX.IMPL_PTR[this._impl.$$.ptr] = this;
+        if (!USE_BYTEDANCE && this._impl) PX.IMPL_PTR[this._impl.$$.ptr] = this;
     }
 
     addShape (ws: PhysXShape) {
         const index = this.wrappedShapes.indexOf(ws);
         if (index < 0) {
-            if (BYTEDANCE) {
+            if (USE_BYTEDANCE) {
                 const fd = this._filterData;
                 ws.impl.setSimulationFilterData([fd.word0, fd.word1, fd.word2, fd.word3]);
             } else {
@@ -180,7 +179,7 @@ export class PhysXSharedBody {
             }
             Vec3.copy(_trans.translation, node.worldPosition);
             Quat.copy(_trans.rotation, node.worldRotation);
-            if (BYTEDANCE) {
+            if (USE_BYTEDANCE) {
                 const pos = _trans.translation;
                 const rot = _trans.rotation;
                 // _pxtrans.setPosition([pos.x, pos.y, pos.z]);
@@ -198,7 +197,7 @@ export class PhysXSharedBody {
         if (this._isStatic || this.impl.isSleeping()) return;
         const transform = this.impl.getGlobalPose();
         const node = this.node;
-        if (BYTEDANCE) {
+        if (USE_BYTEDANCE) {
             const pos = transform.getPosition();
             const rot = transform.getQuaternion();
             node.setWorldPosition(pos[0], pos[1], pos[2]);
@@ -250,11 +249,9 @@ export class PhysXSharedBody {
 
     updateFiltering () {
         for (let i = 0; i < this.wrappedShapes.length; i++) {
-            if (BYTEDANCE) {
+            if (USE_BYTEDANCE) {
                 const fd = this._filterData;
-                this.wrappedShapes[i].impl.setSimulationFilterData(
-                    [fd.word0, fd.word1, fd.word2, fd.word3]
-                );
+                this.wrappedShapes[i].impl.setSimulationFilterData([fd.word0, fd.word1, fd.word2, fd.word3]);
             } else {
                 this.wrappedShapes[i].impl.setSimulationFilterData(this._filterData);
             }
@@ -262,7 +259,7 @@ export class PhysXSharedBody {
     }
 
     destroy () {
-        if (!BYTEDANCE) {
+        if (!USE_BYTEDANCE) {
             PX.IMPL_PTR[this._impl.$$.ptr] = null;
             delete PX.IMPL_PTR[this._impl.$$.ptr];
             this._impl.release();

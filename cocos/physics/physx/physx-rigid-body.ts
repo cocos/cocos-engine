@@ -1,9 +1,8 @@
-import { BYTEDANCE } from "internal:constants";
 import { IVec3Like, Node, Vec3 } from "../../core";
 import { TransformBit } from "../../core/scene-graph/node-enum";
 import { PhysicsSystem, RigidBody } from "../framework";
 import { IRigidBody } from "../spec/i-rigid-body";
-import { PX as PX, _trans } from "./export-physx";
+import { PX as PX, USE_BYTEDANCE, _trans } from "./export-physx";
 import { PhysXSharedBody } from "./physx-shared-body";
 import { PhysXWorld } from "./physx-world";
 
@@ -75,7 +74,7 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     setIsKinematic (v: boolean): void {
-        if (BYTEDANCE) {
+        if (USE_BYTEDANCE) {
             this.impl.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, v);
         } else {
             this.impl.setRigidBodyFlag(PX.PxRigidBodyFlag.eKINEMATIC, v);
@@ -83,7 +82,7 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     useGravity (v: boolean): void {
-        if (BYTEDANCE) {
+        if (USE_BYTEDANCE) {
             this.impl.setActorFlag(PX.ActorFlag.eDISABLE_GRAVITY, !v);
         } else {
             this.impl.setActorFlag(PX.PxActorFlag.eDISABLE_GRAVITY, !v);
@@ -91,7 +90,7 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     fixRotation (v: boolean): void {
-        if (BYTEDANCE) {
+        if (USE_BYTEDANCE) {
             this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_X, v);
             this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Y, v);
             this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Z, v);
@@ -104,7 +103,7 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     setLinearFactor (v: IVec3Like): void {
-        if (BYTEDANCE) {
+        if (USE_BYTEDANCE) {
             this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_X, !v.x);
             this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_Y, !v.y);
             this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_Z, !v.z);
@@ -116,7 +115,7 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     setAngularFactor (v: IVec3Like): void {
-        if (BYTEDANCE) {
+        if (USE_BYTEDANCE) {
             this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_X, !v.x);
             this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Y, !v.y);
             this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Z, !v.z);
@@ -150,7 +149,7 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     clearVelocity (): void {
-        if (BYTEDANCE) {
+        if (USE_BYTEDANCE) {
             const a = [0, 0, 0]
             this.impl.setLinearVelocity(a);
             this.impl.setAngularVelocity(a);
@@ -169,7 +168,7 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     getLinearVelocity (out: IVec3Like): void {
-        if (BYTEDANCE) {
+        if (USE_BYTEDANCE) {
             Vec3.fromArray(out, this.impl.getLinearVelocity())
         } else {
             Vec3.copy(out, this.impl.getLinearVelocity());
@@ -177,7 +176,7 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     setLinearVelocity (value: IVec3Like): void {
-        if (BYTEDANCE) {
+        if (USE_BYTEDANCE) {
             this.impl.setLinearVelocity([value.x, value.y, value.z])
         } else {
             this.impl.setLinearVelocity(value, 1);
@@ -185,7 +184,7 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     getAngularVelocity (out: IVec3Like): void {
-        if (BYTEDANCE) {
+        if (USE_BYTEDANCE) {
             Vec3.fromArray(out, this.impl.getLinearVelocity())
         } else {
             Vec3.copy(out, this.impl.getAngularVelocity());
@@ -193,7 +192,7 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     setAngularVelocity (value: IVec3Like): void {
-        if (BYTEDANCE) {
+        if (USE_BYTEDANCE) {
             this.impl.setAngularVelocity([value.x, value.y, value.z])
         } else {
             this.impl.setAngularVelocity(value, 1);

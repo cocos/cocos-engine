@@ -1,7 +1,10 @@
 import { BYTEDANCE } from "internal:constants";
 
+export let USE_BYTEDANCE = false;
+if (BYTEDANCE) USE_BYTEDANCE = true;
+
 let _px = globalThis['PhysX'] as any;
-if (BYTEDANCE) _px = globalThis['phy'] as any;
+if (USE_BYTEDANCE) _px = globalThis['phy'] as any;
 export const PX = _px;
 
 if (PX) {
@@ -15,4 +18,4 @@ export const _trans = {
     rotation: { x: 0, y: 0, z: 0, w: 1 },
 };
 
-export const _pxtrans = BYTEDANCE && PX ? new PX.Transform([0, 0, 0], [0, 0, 0, 1]) : _trans;
+export const _pxtrans = USE_BYTEDANCE && PX ? new PX.Transform([0, 0, 0], [0, 0, 0, 1]) : _trans;

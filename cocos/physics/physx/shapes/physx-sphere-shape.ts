@@ -1,9 +1,9 @@
-import { BYTEDANCE } from "internal:constants";
+
 import { IVec3Like } from "../../../core";
 import { aabb, sphere } from "../../../core/geometry";
 import { Collider, RigidBody, PhysicMaterial, SphereCollider } from "../../framework";
 import { ISphereShape } from "../../spec/i-physics-shape";
-import { PX } from "../export-physx";
+import { PX, USE_BYTEDANCE } from "../export-physx";
 import { EPhysXShapeType, PhysXShape } from "./physx-shape";
 
 export class PhysXSphereShape extends PhysXShape implements ISphereShape {
@@ -13,7 +13,7 @@ export class PhysXSphereShape extends PhysXShape implements ISphereShape {
     constructor () {
         super(EPhysXShapeType.SPHERE);
         if (!PhysXSphereShape.SPHERE_GEOMETRY) {
-            if (BYTEDANCE) {
+            if (USE_BYTEDANCE) {
                 PhysXSphereShape.SPHERE_GEOMETRY = new PX.SphereGeometry(0.5);
             } else {
                 PhysXSphereShape.SPHERE_GEOMETRY = new PX.PxSphereGeometry(0.5);
@@ -33,7 +33,7 @@ export class PhysXSphereShape extends PhysXShape implements ISphereShape {
         this.updateGeometry();
         const physics = this._sharedBody.wrappedWorld.physics as any;
         const pxmat = this.getSharedMaterial(this.collider.sharedMaterial!);
-        if (BYTEDANCE) {
+        if (USE_BYTEDANCE) {
             this._impl = physics.createShape(PhysXSphereShape.SPHERE_GEOMETRY, pxmat);
             // this._impl.setFlags(this._flags);            
             // const v = this._collider.isTrigger;
@@ -61,7 +61,7 @@ export class PhysXSphereShape extends PhysXShape implements ISphereShape {
         const absY = Math.abs(ws.y);
         const absZ = Math.abs(ws.z);
         const max_sp = Math.max(Math.max(absX, absY), absZ);
-        if (BYTEDANCE) {
+        if (USE_BYTEDANCE) {
             PhysXSphereShape.SPHERE_GEOMETRY.setRadius(co.radius * max_sp);
         } else {
             PhysXSphereShape.SPHERE_GEOMETRY.radius = co.radius * max_sp;
