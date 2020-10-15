@@ -34,6 +34,7 @@ import { legacyCC } from '../../core/global-exports';
 import { AudioClip } from './clip';
 import audioManager from '../audio-manager';
 import { createDomAudio } from '../audio-downloader';
+import { log } from '../../core/platform/debug';
 
 export class AudioPlayerDOM extends AudioPlayer {
     protected _volume = 1;
@@ -166,7 +167,7 @@ export class AudioPlayerDOM extends AudioPlayer {
                 clip._nativeAsset = dom;
                 resolve(clip);
             }, errMsg => {
-                reject(errMsg);
+                log(errMsg);
             });
         });
     }
