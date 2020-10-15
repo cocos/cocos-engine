@@ -46,8 +46,12 @@
 
 #define EXPOSE_GC "__jsb_gc__"
 
-uint32_t __jsbInvocationCount = 0;
-uint32_t __jsbStackFrameLimit = 20;
+unsigned int __jsbStackFrameLimit = 20;
+
+#ifdef CC_DEBUG
+unsigned int __jsbInvocationCount = 0;
+std::map<std::string, unsigned> __jsbFunctionInvokedRecords;
+#endif
 
 #define RETRUN_VAL_IF_FAIL(cond, val) \
     if (!(cond)) return val
