@@ -32,9 +32,6 @@ import { clamp } from '../../core/math/utils';
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';
 import { legacyCC } from '../../core/global-exports';
 import { AudioClip } from './clip';
-import audioManager from '../audio-manager';
-import { createDomAudio } from '../audio-downloader';
-import { log } from '../../core/platform/debug';
 
 export class AudioPlayerDOM extends AudioPlayer {
     protected _volume = 1;
@@ -62,7 +59,6 @@ export class AudioPlayerDOM extends AudioPlayer {
             this._state = PlayingState.PLAYING;
             this._clip.emit('started');
             this._remove_cb(); // should remove callbacks after any success play
-            audioManager.addPlaying(this._clip);
         };
 
         this._post_gesture = () => {
@@ -101,7 +97,6 @@ export class AudioPlayerDOM extends AudioPlayer {
     public play () {
         if (!this._nativeAudio || this._state === PlayingState.PLAYING) { return; }
         if (this._blocking) { this._interrupted = true; return; }
-        audioManager.discardOnePlayingIfNeeded();
         const promise = this._nativeAudio.play();
         if (!promise) {
             // delay eval here to yield uniform behavior with other platforms
@@ -118,7 +113,6 @@ export class AudioPlayerDOM extends AudioPlayer {
         if (this._state !== PlayingState.PLAYING) { return; }
         this._nativeAudio.pause();
         this._state = PlayingState.STOPPED;
-        audioManager.removePlaying(this._clip);
     }
 
     public stop () {
@@ -127,7 +121,6 @@ export class AudioPlayerDOM extends AudioPlayer {
         if (this._state !== PlayingState.PLAYING) { return; }
         this._nativeAudio.pause();
         this._state = PlayingState.STOPPED;
-        audioManager.removePlaying(this._clip);
     }
 
     public setCurrentTime (val: number) {

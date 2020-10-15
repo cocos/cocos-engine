@@ -33,7 +33,6 @@ import { sys } from '../../core/platform/sys';
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';
 import { legacyCC } from '../../core/global-exports';
 import { AudioClip } from './clip';
-import audioManager from '../audio-manager';
 
 const audioSupport = sys.__audioSupport;
 
@@ -156,7 +155,6 @@ export class AudioPlayerWeb extends AudioPlayer {
     public destroy () { super.destroy(); }
 
     private _doPlay () {
-        audioManager.discardOnePlayingIfNeeded();
         this._state = PlayingState.PLAYING;
         this._sourceNode = this._context.createBufferSource();
         this._sourceNode.buffer = this._nativeAudio;
@@ -183,14 +181,12 @@ export class AudioPlayerWeb extends AudioPlayer {
         // stop can only be called after play
         if (this._startInvoked) { this._sourceNode.stop(); }
         else { legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this._playAndEmit, this); }
-        audioManager.removePlaying(this._clip);
     }
 
     private _playAndEmit () {
         this._sourceNode.start(0, this._offset);
         this._clip.emit('started');
         this._startInvoked = true;
-        audioManager.addPlaying(this._clip);
     }
 
     private _onEnded () {
