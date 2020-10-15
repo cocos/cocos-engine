@@ -38,13 +38,13 @@ public:
     void clearUBO();
 
     CC_INLINE const BatchedItemList &getBaches() const { return _batchedItems; }
-    CC_INLINE PassView *getPass() const { return _pass; }
+    CC_INLINE const PassView *getPass() const { return _pass; }
 
 private:
     static map<const PassView *, std::shared_ptr<BatchedBuffer>> _buffers;
     //    const _localBatched = new UBOLocalBatched();
     BatchedItemList _batchedItems;
-    PassView *_pass = nullptr;
+    const PassView *_pass = nullptr;
 };
 
 } // namespace pipeline

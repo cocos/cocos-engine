@@ -15,12 +15,15 @@ void RenderInstancedQueue::clear() {
 
 void RenderInstancedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff) {
     for (auto instanceBuffer : _queues) {
-        const auto &instances = instanceBuffer->getInstances();
-        if (!instanceBuffer->hasPendingModels()) {
-            continue;
+        if (instanceBuffer->hasPendingModels()) {
+            instanceBuffer->uploadBuffers();
         }
+    }
 
-        instanceBuffer->uploadBuffers();
+    for (auto instanceBuffer : _queues) {
+        if (!instanceBuffer->hasPendingModels()) continue;
+
+        const auto &instances = instanceBuffer->getInstances();
         const auto pass = instanceBuffer->getPass();
         cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::MATERIAL), pass->getDescriptorSet());
         gfx::PipelineState *lastPSO = nullptr;

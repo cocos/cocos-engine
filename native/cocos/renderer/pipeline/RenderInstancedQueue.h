@@ -15,10 +15,10 @@ public:
     void clear();
     void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *);
 
-    CC_INLINE set<std::shared_ptr<InstancedBuffer>> &getQueue() { return _queues; }
+    CC_INLINE set<InstancedBuffer *> &getQueue() { return _queues; }
 
 private:
-    set<std::shared_ptr<InstancedBuffer>> _queues;
+    set<InstancedBuffer *> _queues;
 };
 
 } // namespace pipeline

@@ -49,6 +49,7 @@ void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer
     [_mtlCommandBuffer retain];
     _numTriangles = 0;
     _numDrawCalls = 0;
+    _numInstances = 0;
     _gpuIndexBuffer = {0, 0, 0};
     _gpuIndirectBuffer = {0, 0, 0};
 

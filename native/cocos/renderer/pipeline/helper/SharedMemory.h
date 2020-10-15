@@ -57,7 +57,7 @@ namespace pipeline {
 #define GET_SUBMODEL_ARRAY(index)  SharedMemory::getHandleArray(se::PoolType::SUB_MODEL_ARRAY, index)
 #define GET_ATTRIBUTE_ARRAY(index) SharedMemory::getHandleArray(se::PoolType::ATTRIBUTE_ARRAY, index)
 
-#define GET_RAW_BUFFER(index) SharedMemory::getRawBuffer<uint8_t>(se::PoolType::RAW_BUFFER, index)
+#define GET_RAW_BUFFER(index, size) SharedMemory::getRawBuffer<uint8_t>(se::PoolType::RAW_BUFFER, index, size)
 
 class CC_DLL SharedMemory : public Object {
 public:
@@ -88,8 +88,8 @@ public:
     }
 
     template <typename T>
-    static T *getRawBuffer(se::PoolType type, uint index) {
-        return se::BufferAllocator::getBuffer<T>(type, index);
+    static T *getRawBuffer(se::PoolType type, uint index, uint *size) {
+        return se::BufferAllocator::getBuffer<T>(type, index, size);
     }
 };
 
@@ -165,6 +165,7 @@ struct CC_DLL SubModelView {
     uint32_t descriptorSetID = 0;
     uint32_t inputAssemblerID = 0;
 
+    CC_INLINE uint getPassID(uint idx) const { return passID[idx]; }
     CC_INLINE const PassView *getPassView(uint idx) const { return GET_PASS(passID[idx]); }
     CC_INLINE gfx::Shader *getShader(uint idx) const { return GET_SHADER(shaderID[idx]); }
     CC_INLINE gfx::DescriptorSet *getDescriptorSet() const { return GET_DESCRIPTOR_SET(descriptorSetID); }
@@ -189,7 +190,9 @@ struct CC_DLL ModelView {
     CC_INLINE const Node *getTransform() const { return GET_NODE(transformID); }
     CC_INLINE const uint *getSubModelID() const { return GET_SUBMODEL_ARRAY(subModelsID); }
     CC_INLINE const SubModelView *getSubModelView(uint idx) const { return GET_SUBMODEL(idx); }
-
+    CC_INLINE const uint8_t *getInstancedBuffer(uint *size) const { return GET_RAW_BUFFER(instancedBufferID, size); }
+    CC_INLINE const uint *getInstancedAttributeID() const { return GET_ATTRIBUTE_ARRAY(instancedAttrsID); }
+    CC_INLINE gfx::Attribute *getInstancedAttribute(uint idx) const { return GET_ATTRIBUTE(idx); }
     const static se::PoolType type;
 };
 

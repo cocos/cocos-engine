@@ -23,10 +23,10 @@ class Queue;
 class Window;
 class Context;
 
-#define GFX_MAX_ATTACHMENTS       4
-#define GFX_INVALID_BINDING       ((uint8_t)-1)
-#define GFX_INVALID_HANDLE        ((uint)-1)
-#define MAX_INFLIGHT_BUFFER       3
+#define GFX_MAX_ATTACHMENTS 4
+#define GFX_INVALID_BINDING ((uint8_t)-1)
+#define GFX_INVALID_HANDLE  ((uint)-1)
+#define MAX_INFLIGHT_BUFFER 3
 
 enum class ObjectType {
     UNKNOWN,
@@ -704,7 +704,7 @@ struct BufferInfo {
     BufferUsage usage = BufferUsage::NONE;
     MemoryUsage memUsage = MemoryUsage::NONE;
     uint size = 0;
-    uint stride = 1;
+    uint stride = 0; //in bytes
     BufferFlags flags = BufferFlagBit::NONE;
 };
 

@@ -41,7 +41,6 @@ const RenderStageInfo &ForwardStage::getInitializeInfo() { return ForwardStage::
 ForwardStage::ForwardStage() : RenderStage() {
     _batchedQueue = CC_NEW(RenderBatchedQueue);
     _instancedQueue = CC_NEW(RenderInstancedQueue);
-    //    _planarShadowQueue = CC_NEW(PlanarShadowQueue);
 }
 
 ForwardStage::~ForwardStage() {
@@ -78,6 +77,7 @@ void ForwardStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     }
 
     _additiveLightQueue = CC_NEW(RenderAdditiveLightQueue(_pipeline));
+    _planarShadowQueue = CC_NEW(PlanarShadowQueue(_pipeline));
 }
 
 void ForwardStage::destroy() {
@@ -112,9 +112,8 @@ void ForwardStage::render(RenderView *view) {
 
                 if (pass->phase != _phaseID) continue;
                 if (pass->getBatchingScheme() == BatchingSchemes::INSTANCING) {
-                    auto instancedBuffer = InstancedBuffer::get(pass);
-                    //TODO coulsonwang
-                    //                    instancedBuffer->merge(subModel, model->instancedAttributeBlock, p);
+                    auto instancedBuffer = InstancedBuffer::get(subModel->getPassID(p));
+                    instancedBuffer->merge(model, subModel, p);
                     _instancedQueue->getQueue().emplace(instancedBuffer);
                 } else if (pass->getBatchingScheme() == BatchingSchemes::VB_MERGING) {
                     auto batchedBuffer = BatchedBuffer::get(pass);

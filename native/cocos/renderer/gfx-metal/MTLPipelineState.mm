@@ -145,31 +145,35 @@ void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descri
     vector<std::tuple<int /**vertexBufferBindingIndex*/, uint /**stream*/>> layouts;
     unordered_map<int /**vertexBufferBindingIndex*/, std::tuple<uint /**stride*/, bool /**isInstanced*/>> map;
     vector<uint> streamOffsets(_device->getMaxVertexAttributes(), 0u);
-    bool attributeFound = false;
-    for (const auto &activeAttribute : activeAttributes) {
-        attributeFound = false;
-        for (const auto &inputAttrib : _inputState.attributes) {
+    vector<bool> activeAttribIdx(activeAttributes.size(), false);
+    for (const auto &inputAttrib : _inputState.attributes) {
+        auto bufferIndex = static_cast<CCMTLShader *>(_shader)->getAvailableBufferBindingIndex(ShaderStageFlagBit::VERTEX, inputAttrib.stream);
+
+        for (auto i = 0; i < activeAttributes.size(); i++) {
+            const auto &activeAttribute = activeAttributes[i];
             if (inputAttrib.name == activeAttribute.name) {
                 descriptor.vertexDescriptor.attributes[activeAttribute.location].format = mu::toMTLVertexFormat(inputAttrib.format, inputAttrib.isNormalized);
                 descriptor.vertexDescriptor.attributes[activeAttribute.location].offset = streamOffsets[inputAttrib.stream];
-                auto bufferIndex = static_cast<CCMTLShader *>(_shader)->getAvailableBufferBindingIndex(ShaderStageFlagBit::VERTEX, inputAttrib.stream);
                 descriptor.vertexDescriptor.attributes[activeAttribute.location].bufferIndex = bufferIndex;
-
-                streamOffsets[inputAttrib.stream] += GFX_FORMAT_INFOS[(int)inputAttrib.format].size;
                 auto tuple = std::make_tuple(bufferIndex, inputAttrib.stream);
                 if (std::find(layouts.begin(), layouts.end(), tuple) == layouts.end())
                     layouts.emplace_back(tuple);
-                map[bufferIndex] = std::make_tuple(streamOffsets[inputAttrib.stream], inputAttrib.isInstanced);
-                attributeFound = true;
+                activeAttribIdx[i] = true;
                 break;
             }
         }
-        if (!attributeFound) { //handle absent attribute
-            descriptor.vertexDescriptor.attributes[activeAttribute.location].format = MTLVertexFormatFloat;
-            descriptor.vertexDescriptor.attributes[activeAttribute.location].offset = 0;
-            descriptor.vertexDescriptor.attributes[activeAttribute.location].bufferIndex = static_cast<CCMTLShader *>(_shader)->getAvailableBufferBindingIndex(ShaderStageFlagBit::VERTEX, activeAttribute.stream);
-            CC_LOG_WARNING("Attribute %s is missing, add a dummy data for it.", activeAttribute.name.c_str());
-        }
+        streamOffsets[inputAttrib.stream] += GFX_FORMAT_INFOS[(int)inputAttrib.format].size;
+        map[bufferIndex] = std::make_tuple(streamOffsets[inputAttrib.stream], inputAttrib.isInstanced);
+    }
+
+    for (auto i = 0; i < activeAttribIdx.size(); i++) {
+        if (activeAttribIdx[i]) continue;
+
+        const auto &dummy = activeAttributes[i];
+        descriptor.vertexDescriptor.attributes[dummy.location].format = MTLVertexFormatFloat;
+        descriptor.vertexDescriptor.attributes[dummy.location].offset = 0;
+        descriptor.vertexDescriptor.attributes[dummy.location].bufferIndex = static_cast<CCMTLShader *>(_shader)->getAvailableBufferBindingIndex(ShaderStageFlagBit::VERTEX, dummy.stream);
+        CC_LOG_WARNING("Attribute %s is missing, add a dummy data for it.", dummy.name.c_str());
     }
 
     // layouts

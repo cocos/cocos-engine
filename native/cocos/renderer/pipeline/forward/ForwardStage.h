@@ -11,6 +11,7 @@ class RenderBatchedQueue;
 class RenderInstancedQueue;
 class RenderAdditiveLightQueue;
 class PlanarShadowQueue;
+class ForwardPipeline;
 
 class CC_DLL ForwardStage : public RenderStage {
 public:
@@ -26,7 +27,7 @@ public:
 
 private:
     static RenderStageInfo _initInfo;
-
+    ForwardPipeline *_forwrdPipeline = nullptr;
     PlanarShadowQueue *_planarShadowQueue = nullptr;
     RenderBatchedQueue *_batchedQueue = nullptr;
     RenderInstancedQueue *_instancedQueue = nullptr;
