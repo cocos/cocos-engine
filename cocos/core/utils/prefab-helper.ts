@@ -156,5 +156,3 @@ export class CompPrefabInfo {
     @editable
     public fileId = '';
 }
-
-legacyCC._CompPrefabInfo = CompPrefabInfo;
