@@ -163,13 +163,11 @@ export default class sphere {
      * @zh
      * 半径。
      */
-    protected _radius: number = 1;
     get radius () : number {
-        return this._radius;
+        return SpherePool.get(this._poolHandle, SphereView.RADIUS);
     }
 
     set radius (val: number) {
-        this._radius = val;
         SpherePool.set(this._poolHandle, SphereView.RADIUS, val);
     }
 
@@ -203,21 +201,12 @@ export default class sphere {
     constructor (cx: number = 0, cy: number = 0, cz: number = 0, r: number = 1) {
         this._type = enums.SHAPE_SPHERE;
         this._center = new Vec3(cx, cy, cz);
-        this._radius = r;
-    }
-
-    protected _inited:boolean = false;
-    public initialize () {
-        if (!this._inited) {
-            this._poolHandle = SpherePool.alloc();
-            SpherePool.setVec3(this._poolHandle, SphereView.CENTER, this._center);
-            SpherePool.set(this._poolHandle, SphereView.RADIUS, this._radius);
-            this._inited = true;
-        }
+        this._poolHandle = SpherePool.alloc();
+        SpherePool.setVec3(this._poolHandle, SphereView.CENTER, this._center);
+        SpherePool.set(this._poolHandle, SphereView.RADIUS, r);
     }
 
     public destroy () {
-        this._inited = false;
         if (this._poolHandle) {
             SpherePool.free(this._poolHandle);
             this._poolHandle = NULL_HANDLE;
