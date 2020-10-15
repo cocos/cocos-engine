@@ -31,12 +31,12 @@
 import { clamp } from '../../core/math/utils';
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';
 import { legacyCC } from '../../core/global-exports';
-import { AudioClip } from './clip';
 
 export class AudioPlayerDOM extends AudioPlayer {
     protected _volume = 1;
     protected _loop = false;
-    protected _nativeAudio: HTMLAudioElement;
+    protected _oneShotOngoing = false;
+    protected _audio: HTMLAudioElement;
     protected _cbRegistered = false;
 
     private _remove_cb: () => void;
@@ -46,7 +46,7 @@ export class AudioPlayerDOM extends AudioPlayer {
 
     constructor (info: IAudioInfo) {
         super(info);
-        this._nativeAudio = info.nativeAudio;
+        this._audio = info.clip;
 
         this._remove_cb = () => {
             if (!this._cbRegistered) { return; }
@@ -57,18 +57,18 @@ export class AudioPlayerDOM extends AudioPlayer {
 
         this._post_play = () => {
             this._state = PlayingState.PLAYING;
-            this._clip.emit('started');
+            this._eventTarget.emit('started');
             this._remove_cb(); // should remove callbacks after any success play
         };
 
         this._post_gesture = () => {
             if (this._interrupted) { this._post_play(); this._interrupted = false; }
-            else { this._nativeAudio!.pause(); this._nativeAudio!.currentTime = 0; }
+            else { this._audio!.pause(); this._audio!.currentTime = 0; }
         };
 
         this._on_gesture = () => {
-            if (!this._nativeAudio) { return; }
-            const promise = this._nativeAudio.play();
+            if (!this._audio) { return; }
+            const promise = this._audio.play();
             if (!promise) { // Chrome50/Firefox53 below
                 // delay eval here to yield uniform behavior with other platforms
                 this._state = PlayingState.PLAYING;
@@ -79,13 +79,14 @@ export class AudioPlayerDOM extends AudioPlayer {
             this._remove_cb();
         };
 
-        this._nativeAudio.volume = this._volume;
-        this._nativeAudio.loop = this._loop;
+        this._audio.volume = this._volume;
+        this._audio.loop = this._loop;
         // callback on audio ended
-        this._nativeAudio.addEventListener('ended', () => {
+        this._audio.addEventListener('ended', () => {
+            if (this._oneShotOngoing) { return; }
             this._state = PlayingState.STOPPED;
-            this._nativeAudio!.currentTime = 0;
-            this._clip.emit('ended');
+            this._audio!.currentTime = 0;
+            this._eventTarget.emit('ended');
         });
         /* play & stop immediately after receiving a gesture so that
            we can freely invoke play() outside event listeners later */
@@ -95,9 +96,9 @@ export class AudioPlayerDOM extends AudioPlayer {
     }
 
     public play () {
-        if (!this._nativeAudio || this._state === PlayingState.PLAYING) { return; }
+        if (!this._audio || this._state === PlayingState.PLAYING) { return; }
         if (this._blocking) { this._interrupted = true; return; }
-        const promise = this._nativeAudio.play();
+        const promise = this._audio.play();
         if (!promise) {
             // delay eval here to yield uniform behavior with other platforms
             this._state = PlayingState.PLAYING;
@@ -108,65 +109,75 @@ export class AudioPlayerDOM extends AudioPlayer {
     }
 
     public pause () {
-        if (!this._nativeAudio) { return; }
+        if (!this._audio) { return; }
         this._interrupted = false;
         if (this._state !== PlayingState.PLAYING) { return; }
-        this._nativeAudio.pause();
+        this._audio.pause();
         this._state = PlayingState.STOPPED;
+        this._oneShotOngoing = false;
     }
 
     public stop () {
-        if (!this._nativeAudio) { return; }
-        this._nativeAudio.currentTime = 0; this._interrupted = false;
+        if (!this._audio) { return; }
+        this._audio.currentTime = 0; this._interrupted = false;
         if (this._state !== PlayingState.PLAYING) { return; }
-        this._nativeAudio.pause();
+        this._audio.pause();
         this._state = PlayingState.STOPPED;
+        this._oneShotOngoing = false;
+    }
+
+    public playOneShot (volume = 1) {
+        /* HTMLMediaElement doesn't support multiple playback at the
+           same time so here we fall back to re-start style approach */
+        const clip = this._audio;
+        if (!clip) { return; }
+        clip.currentTime = 0;
+        clip.volume = volume;
+        if (this._oneShotOngoing) { return; }
+        clip.loop = false;
+        this._oneShotOngoing = true;
+        clip.play().then(() => {
+            clip.addEventListener('ended', () => {
+                clip.currentTime = 0;
+                clip.volume = this._volume;
+                clip.loop = this._loop;
+                this._oneShotOngoing = false;
+            }, { once: true });
+        }).catch(() => { this._oneShotOngoing = false; });
     }
 
     public setCurrentTime (val: number) {
-        if (!this._nativeAudio) { return; }
-        this._nativeAudio.currentTime = clamp(val, 0, this._duration);
+        if (!this._audio) { return; }
+        this._audio.currentTime = clamp(val, 0, this._duration);
     }
 
     public getCurrentTime () {
-        return this._nativeAudio ? this._nativeAudio.currentTime : 0;
+        return this._audio ? this._audio.currentTime : 0;
     }
 
     public setVolume (val: number, immediate: boolean) {
         this._volume = val;
         /* note this won't work for ios devices, for there
            is just no way to set HTMLMediaElement's volume */
-        if (this._nativeAudio) { this._nativeAudio.volume = val; }
+        if (this._audio) { this._audio.volume = val; }
     }
 
     public getVolume () {
-        if (this._nativeAudio) { return this._nativeAudio.volume; }
+        if (this._audio) { return this._audio.volume; }
         return this._volume;
     }
 
     public setLoop (val: boolean) {
         this._loop = val;
-        if (this._nativeAudio) { this._nativeAudio.loop = val; }
+        if (this._audio) { this._audio.loop = val; }
     }
 
     public getLoop () {
         return this._loop;
     }
 
-    public clone (): Promise<AudioClip> {
-        return new Promise((resolve, reject) => {
-            createDomAudio(this._nativeAudio.src).then(dom => {
-                let clip = new AudioClip();
-                clip._nativeAsset = dom;
-                resolve(clip);
-            }, errMsg => {
-                log(errMsg);
-            });
-        });
-    }
-
     public destroy () {
-        if (this._nativeAudio) { this._nativeAudio.src = ''; }
+        if (this._audio) { this._audio.src = ''; }
         super.destroy();
     }
 }

@@ -32,7 +32,6 @@ import { clamp } from '../../core/math/utils';
 import { sys } from '../../core/platform/sys';
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';
 import { legacyCC } from '../../core/global-exports';
-import { AudioClip } from './clip';
 
 const audioSupport = sys.__audioSupport;
 
@@ -42,7 +41,7 @@ export class AudioPlayerWeb extends AudioPlayer {
     protected _volume = 1;
     protected _loop = false;
     protected _currentTimer = 0;
-    protected _nativeAudio: AudioBuffer;
+    protected _audio: AudioBuffer;
 
     private _context: AudioContext;
     private _sourceNode: AudioBufferSourceNode;
@@ -55,7 +54,7 @@ export class AudioPlayerWeb extends AudioPlayer {
 
     constructor (info: IAudioInfo) {
         super(info);
-        this._nativeAudio = info.nativeAudio;
+        this._audio = info.clip;
 
         this._context = audioSupport.context;
         this._sourceNode = this._context.createBufferSource();
@@ -74,7 +73,7 @@ export class AudioPlayerWeb extends AudioPlayer {
     }
 
     public play () {
-        if (!this._nativeAudio || this._state === PlayingState.PLAYING) { return; }
+        if (!this._audio || this._state === PlayingState.PLAYING) { return; }
         if (this._blocking || this._context.state !== 'running') {
             this._interrupted = true;
             if (('interrupted' === this._context.state as string || 'suspended' === this._context.state as string) 
@@ -103,10 +102,22 @@ export class AudioPlayerWeb extends AudioPlayer {
         clearInterval(this._currentTimer);
     }
 
+    public playOneShot (volume = 1) {
+        if (!this._audio) { return; }
+        const gainNode = this._context.createGain();
+        gainNode.connect(this._context.destination);
+        gainNode.gain.value = volume;
+        const sourceNode = this._context.createBufferSource();
+        sourceNode.buffer = this._audio;
+        sourceNode.loop = false;
+        sourceNode.connect(gainNode);
+        sourceNode.start();
+    }
+
     public setCurrentTime (val: number) {
         // throws InvalidState Error on some device if we don't do the clamp here
         // the serialized duration may not be accurate, use the actual duration first
-        this._offset = clamp(val, 0, this._nativeAudio && this._nativeAudio.duration || this._duration);
+        this._offset = clamp(val, 0, this._audio && this._audio.duration || this._duration);
         if (this._state !== PlayingState.PLAYING) { return; }
         this._doStop(); this._doPlay();
     }
@@ -144,20 +155,12 @@ export class AudioPlayerWeb extends AudioPlayer {
         return this._loop;
     }
 
-    public clone (): Promise<AudioClip> {
-        return new Promise(resolve => {
-            let clip = new AudioClip();
-            clip._nativeAsset = this._nativeAudio;
-            resolve(clip);
-        });
-    }
-
     public destroy () { super.destroy(); }
 
     private _doPlay () {
         this._state = PlayingState.PLAYING;
         this._sourceNode = this._context.createBufferSource();
-        this._sourceNode.buffer = this._nativeAudio;
+        this._sourceNode.buffer = this._audio;
         this._sourceNode.loop = this._loop;
         this._sourceNode.connect(this._gainNode);
         this._startTime = this._context.currentTime;
@@ -172,9 +175,9 @@ export class AudioPlayerWeb extends AudioPlayer {
             this._onEnded();
             clearInterval(this._currentTimer);
             if (this._sourceNode.loop) {
-                this._currentTimer = window.setInterval(this._onEndedCB, this._nativeAudio.duration * 1000);
+                this._currentTimer = window.setInterval(this._onEndedCB, this._audio.duration * 1000);
             }
-        }, (this._nativeAudio.duration - this._offset) * 1000);
+        }, (this._audio.duration - this._offset) * 1000);
     }
 
     private _doStop () {
@@ -185,7 +188,7 @@ export class AudioPlayerWeb extends AudioPlayer {
 
     private _playAndEmit () {
         this._sourceNode.start(0, this._offset);
-        this._clip.emit('started');
+        this._eventTarget.emit('started');
         this._startInvoked = true;
     }
 
@@ -193,7 +196,7 @@ export class AudioPlayerWeb extends AudioPlayer {
         this._offset = 0;
         this._startTime = this._context.currentTime;
         if (this._sourceNode.loop) { return; }
-        this._clip.emit('ended');
+        this._eventTarget.emit('ended');
         this._state = PlayingState.STOPPED;
     }
 

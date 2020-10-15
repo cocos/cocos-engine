@@ -36,49 +36,40 @@ import { legacyCC } from '../core/global-exports';
 const __audioSupport = sys.__audioSupport;
 const formatSupport = __audioSupport.format;
 
-export function createDomAudio (url): Promise<HTMLAudioElement> {
-    return new Promise((resolve, reject) => {
-        const dom = document.createElement('audio');
-        dom.src = url;
-    
-        const clearEvent = () => {
-            clearTimeout(timer);
-            dom.removeEventListener('canplaythrough', success, false);
-            dom.removeEventListener('error', failure, false);
-            if (__audioSupport.USE_LOADER_EVENT) {
-                dom.removeEventListener(__audioSupport.USE_LOADER_EVENT, success, false);
-            }
-        };
-        const timer = setTimeout(() => {
-            if (dom.readyState === 0) {
-                failure();
-            } else {
-                success();
-            }
-        }, 8000);
-        const success = () => {
-            clearEvent();
-            resolve(dom);
-        };
-        const failure = () => {
-            clearEvent();
-            const message = 'load audio failure - ' + url;
-            reject(message);
-        };
-        dom.addEventListener('canplaythrough', success, false);
-        dom.addEventListener('error', failure, false);
-        if (__audioSupport.USE_LOADER_EVENT) {
-            dom.addEventListener(__audioSupport.USE_LOADER_EVENT, success, false);
-        }
-    });
-}
-
 function loadDomAudio (item, callback) {
-    createDomAudio(item.url).then(dom => {
+    const dom = document.createElement('audio');
+    dom.src = item.url;
+
+    const clearEvent = () => {
+        clearTimeout(timer);
+        dom.removeEventListener('canplaythrough', success, false);
+        dom.removeEventListener('error', failure, false);
+        if (__audioSupport.USE_LOADER_EVENT) {
+            dom.removeEventListener(__audioSupport.USE_LOADER_EVENT, success, false);
+        }
+    };
+    const timer = setTimeout(() => {
+        if (dom.readyState === 0) {
+            failure();
+        } else {
+            success();
+        }
+    }, 8000);
+    const success = () => {
+        clearEvent();
         callback(null, dom);
-    }, errMsg => {
-        log(errMsg);
-    });
+    };
+    const failure = () => {
+        clearEvent();
+        const message = 'load audio failure - ' + item.url;
+        log(message);
+        callback(message);
+    };
+    dom.addEventListener('canplaythrough', success, false);
+    dom.addEventListener('error', failure, false);
+    if (__audioSupport.USE_LOADER_EVENT) {
+        dom.addEventListener(__audioSupport.USE_LOADER_EVENT, success, false);
+    }
 }
 
 function loadWebAudio (item, callback) {
