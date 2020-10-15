@@ -214,19 +214,11 @@ export class PhysicsSystem extends System {
 
     /**
      * @en
-     * Gets the collision matrix。
+     * Gets the collision matrix that used for initialization only.
      * @zh
-     * 获取碰撞矩阵。
+     * 获取碰撞矩阵，它仅用于初始化。
      */
-    readonly collisionMatrix: ICollisionMatrix = new CollisionMatrix() as unknown as ICollisionMatrix;
-
-    /**
-     * @en
-     * Gets or sets whether to use a collision matrix.
-     * @zh
-     * 获取或设置是否开启碰撞矩阵。
-     */
-    readonly useCollisionMatrix: boolean;
+    readonly collisionMatrix: ICollisionMatrix = new CollisionMatrix() as ICollisionMatrix;
 
     readonly useNodeChains: boolean;
 
@@ -263,7 +255,6 @@ export class PhysicsSystem extends System {
             this._sleepThreshold = config.sleepThreshold;
             this.autoSimulation = config.autoSimulation;
             this.useNodeChains = config.useNodeChains;
-            this.useCollisionMatrix = config.useCollsionMatrix;
 
             if (config.defaultMaterial) {
                 this._material.friction = config.defaultMaterial.friction;
@@ -275,11 +266,10 @@ export class PhysicsSystem extends System {
             if (config.collisionMatrix) {
                 for (const i in config.collisionMatrix) {
                     const key = 1 << parseInt(i);
-                    this.collisionMatrix[`_${key}`] = config.collisionMatrix[i];
+                    this.collisionMatrix[`${key}`] = config.collisionMatrix[i];
                 }
             }
         } else {
-            this.useCollisionMatrix = false;
             this.useNodeChains = false;
         }
         this._material.on('physics_material_update', this._updateMaterial, this);
@@ -313,7 +303,6 @@ export class PhysicsSystem extends System {
             director.emit(Director.EVENT_BEFORE_PHYSICS);
             while (this._subStepCount < this._maxSubSteps) {
                 if (this._accumulator > this._fixedTimeStep) {
-                    this.updateCollisionMatrix();
                     this.physicsWorld.syncSceneToPhysics();
                     this.physicsWorld.step(this._fixedTimeStep);
                     this._accumulator -= this._fixedTimeStep;
@@ -373,80 +362,6 @@ export class PhysicsSystem extends System {
 
     /**
      * @en
-     * Updates the mask corresponding to the collision matrix for the lowLevel rigid-body instance.
-     * Automatic execution during automatic simulation.
-     * @zh
-     * 更新底层实例对应于碰撞矩阵的掩码，开启自动模拟时会自动更新。
-     */
-    updateCollisionMatrix () {
-        if (this.useCollisionMatrix) {
-            const ua = (this.collisionMatrix as unknown as CollisionMatrix).updateArray;
-            while (ua.length > 0) {
-                const group = ua.pop()!;
-                const mask = this.collisionMatrix[group];
-                this.physicsWorld.updateCollisionMatrix(group, mask);
-            }
-        }
-    }
-
-    /**
-     * @en
-     * Reset the mask corresponding to all groups of the collision matrix to the given value, the default given value is' 0xffffffff '.
-     * @zh
-     * 重置碰撞矩阵所有分组对应掩码为给定值，默认给定值为`0xffffffff`。
-     */
-    resetCollisionMatrix (mask = 0xffffffff) {
-        for (let i = 0; i < 32; i++) {
-            const key = 1 << i;
-            this.collisionMatrix[`${key}`] = mask;
-        }
-    }
-
-    /**
-     * @en
-     * Are collisions between `group1` and `group2`?
-     * @zh
-     * 两分组是否会产生碰撞？
-     */
-    isCollisionGroup (group1: number, group2: number) {
-        const cm = this.collisionMatrix;
-        const mask1 = cm[group1];
-        const mask2 = cm[group2];
-        if (DEBUG) {
-            if (mask1 == undefined || mask2 == undefined) {
-                error("[PHYSICS]: 'isCollisionGroup', the group do not exist in the collision matrix.");
-                return false;
-            }
-        }
-        return (group1 & mask2) && (group2 & mask1);
-    }
-
-    /**
-     * @en
-     * Sets whether collisions occur between `group1` and `group2`.
-     * @zh
-     * 设置两分组间是否产生碰撞。
-     * @param collision is collision occurs?
-     */
-    setCollisionGroup (group1: number, group2: number, collision: boolean = true) {
-        const cm = this.collisionMatrix;
-        if (DEBUG) {
-            if (cm[group1] == undefined || cm[group2] == undefined) {
-                error("[PHYSICS]: 'setCollisionGroup', the group do not exist in the collision matrix.");
-                return;
-            }
-        }
-        if (collision) {
-            cm[group1] |= group2;
-            cm[group2] |= group1;
-        } else {
-            cm[group1] &= ~group2;
-            cm[group2] &= ~group1;
-        }
-    }
-
-    /**
-     * @en
      * Collision detect all collider, and record all the detected results, through PhysicsSystem.Instance.RaycastResults access to the results.
      * @zh
      * 检测所有的碰撞盒，并记录所有被检测到的结果，通过 PhysicsSystem.instance.raycastResults 访问结果。
@@ -457,7 +372,6 @@ export class PhysicsSystem extends System {
      * @return boolean 表示是否有检测到碰撞盒
      */
     raycast (worldRay: ray, mask: number = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
-        this.updateCollisionMatrix();
         this.raycastResultPool.reset();
         this.raycastResults.length = 0;
         this.raycastOptions.mask = mask;
@@ -478,7 +392,6 @@ export class PhysicsSystem extends System {
      * @return boolean 表示是否有检测到碰撞盒
      */
     raycastClosest (worldRay: ray, mask: number = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
-        this.updateCollisionMatrix();
         this.raycastOptions.mask = mask;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;

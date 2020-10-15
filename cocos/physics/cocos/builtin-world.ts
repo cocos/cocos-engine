@@ -15,6 +15,7 @@ import { IVec3Like } from '../../core/math/type-define';
 import { PhysicMaterial } from './../framework/assets/physic-material';
 import { TriggerEventType } from '../framework/physics-interface';
 import { Collider } from '../../../exports/physics-framework';
+import { BuiltinRigidBody } from './builtin-rigid-body';
 
 const hitPoint = new Vec3();
 const TriggerEventObject = {
@@ -121,8 +122,8 @@ export class BuiltInWorld implements IPhysicsWorld {
         return results.length > 0;
     }
 
-    getSharedBody (node: Node): BuiltinSharedBody {
-        return BuiltinSharedBody.getSharedBody(node, this);
+    getSharedBody (node: Node, wrappedBody?: BuiltinRigidBody): BuiltinSharedBody {
+        return BuiltinSharedBody.getSharedBody(node, this, wrappedBody);
     }
 
     addSharedBody (body: BuiltinSharedBody) {
