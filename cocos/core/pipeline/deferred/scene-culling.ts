@@ -3,7 +3,7 @@ import { Model } from '../../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Layers } from '../../scene-graph/layers';
 import { Vec3, Mat4, Quat, Color } from '../../math';
-import { ForwardPipeline } from './forward-pipeline';
+import { DeferredPipeline } from '../deferred/deferred-pipeline';
 import { RenderView } from '../';
 import { Pool } from '../../memop';
 import { IRenderObject, UBOShadow } from '../define';
@@ -49,7 +49,7 @@ function getCastShadowRenderObject (model: Model, camera: Camera) {
     return ro;
 }
 
-export function getShadowWorldMatrix (pipeline: ForwardPipeline, rotation: Quat, dir: Vec3) {
+export function getShadowWorldMatrix (pipeline: DeferredPipeline, rotation: Quat, dir: Vec3) {
     const shadows = pipeline.shadows;
     Vec3.negate(_dir_negate, dir);
     const distance: number = Math.sqrt(2) * shadows.sphere.radius;
@@ -61,7 +61,7 @@ export function getShadowWorldMatrix (pipeline: ForwardPipeline, rotation: Quat,
     return _mat4_trans;
 }
 
-function updateSphereLight (pipeline: ForwardPipeline, light: SphereLight) {
+function updateSphereLight (pipeline: DeferredPipeline, light: SphereLight) {
     const shadows = pipeline.shadows;
     if (!light.node!.hasChangedFlags && !shadows.dirty) {
         return;
@@ -92,10 +92,10 @@ function updateSphereLight (pipeline: ForwardPipeline, light: SphereLight) {
     m.m15 = NdL;
 
     Mat4.toArray(_data, shadows.matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
-    pipeline.descriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(_data);
+    pipeline.descriptorSet.getBuffer(UBOShadow.BINDING).update(_data);
 }
 
-function updateDirLight (pipeline: ForwardPipeline, light: DirectionalLight) {
+function updateDirLight (pipeline: DeferredPipeline, light: DirectionalLight) {
     const shadows = pipeline.shadows;
     if (!light.node!.hasChangedFlags && !shadows.dirty) {
         return;
@@ -128,10 +128,10 @@ function updateDirLight (pipeline: ForwardPipeline, light: DirectionalLight) {
     m.m15 = 1;
 
     Mat4.toArray(_data, shadows.matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
-    pipeline.descriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(_data);
+    pipeline.descriptorSet.getBuffer(UBOShadow.BINDING).update(_data);
 }
 
-export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
+export function sceneCulling (pipeline: DeferredPipeline, view: RenderView) {
     const camera = view.camera;
     const scene = camera.scene!;
     const renderObjects = pipeline.renderObjects;
@@ -147,7 +147,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
 
     if (shadows.enabled && shadows.dirty) {
         Color.toArray(_data, shadows.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
-        pipeline.descriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(_data);
+        pipeline.descriptorSet.getBuffer(UBOShadow.BINDING).update(_data);
     }
 
     if (mainLight) {

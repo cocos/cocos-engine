@@ -254,7 +254,6 @@ CCProgram lighting-fs %{
   #include <shading-standard>
   #include <output-standard>
   #include <gamma>
-  #include <shared-ubos>
   #include <cc-fog>
 
   in vec2 v_uv;

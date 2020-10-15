@@ -2,29 +2,25 @@
  * @category pipeline
  */
 
-import { ccclass, visible, displayOrder, type, serializable } from 'cc.decorator';
+import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { IRenderPass, SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
 import { GFXClearFlag, GFXColor, GFXRect } from '../../gfx/define';
 import { SRGBToLinear } from '../pipeline-funcs';
-import { RenderBatchedQueue } from '../render-batched-queue';
-import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { DeferredStagePriority } from './enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
-import { InstancedBuffer } from '../instanced-buffer';
-import { BatchedBuffer } from '../batched-buffer';
-import { BatchingSchemes } from '../../renderer/core/pass';
 import { LightingFlow } from './lighting-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 import { PlanarShadowQueue } from './planar-shadow-queue';
 import { Material } from '../../assets/material';
-import { BlendStatePool, PassPool, PassView, DSPool, SubModelView, 
-    SubModelPool, ShaderPool, PassHandle, ShaderHandle } from '../../renderer/core/memory-pools';
+import { ShaderPool } from '../../renderer/core/memory-pools';
 import { PipelineStateManager } from '../pipeline-state-manager';
+import { GFXPipelineState } from '../../gfx/pipeline-state';
+
 
 const colors: GFXColor[] = [ new GFXColor(0, 0, 0, 1) ];
 const LIGHTINGPASS_INDEX = 1;
@@ -62,9 +58,6 @@ export class LightingStage extends RenderStage {
     protected _renderQueues: RenderQueue[] = [];
 
     private _renderArea = new GFXRect();
-    private _batchedQueue: RenderBatchedQueue;
-    private _instancedQueue: RenderInstancedQueue;
-    private _phaseID = getPhaseID('deferred-lighting');
     private declare _additiveLightQueue: RenderAdditiveLightQueue;
     private declare _planarQueue: PlanarShadowQueue;
 
@@ -81,12 +74,8 @@ export class LightingStage extends RenderStage {
         this._deferredMaterial = val;
     }
 
-    private _pso : GFXPipelineState | null = null;
-
     constructor () {
         super();
-        this._batchedQueue = new RenderBatchedQueue();
-        this._instancedQueue = new RenderInstancedQueue();
     }
 
     public initialize (info: IRenderStageInfo): boolean {
@@ -121,7 +110,6 @@ export class LightingStage extends RenderStage {
             });
         }
 
-        this._additiveLightQueue = new RenderAdditiveLightQueue(this._pipeline as DeferredPipeline);
         this._planarQueue = new PlanarShadowQueue(this._pipeline as DeferredPipeline);
     }
 
@@ -166,13 +154,22 @@ export class LightingStage extends RenderStage {
 
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
-        const hPass = this._deferredMaterial.passes[LIGHTINGPASS_INDEX]._handle;
-        const shader = ShaderPool.get(this._deferredMaterial.passes[LIGHTINGPASS_INDEX]._hShaderDefault);
-        const inputAssembler = this._pipeline._quadIA;
-        const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, inputAssembler);
-        cmdBuff.bindPipelineState(pso);
-        cmdBuff.bindInputAssembler(inputAssembler);
-        cmdBuff.draw(inputAssembler);
+        const hPass = this._deferredMaterial!.passes[LIGHTINGPASS_INDEX].handle;
+        const shader = ShaderPool.get(this._deferredMaterial!.passes[LIGHTINGPASS_INDEX].getShaderVariant());
+
+        const inputAssembler = pipeline.quadIA;
+        var pso:GFXPipelineState|null = null;
+        if (hPass != null && shader != null && inputAssembler != null)
+        {
+            pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, inputAssembler);
+        }
+
+        if(pso != null)
+        {
+            cmdBuff.bindPipelineState(pso);
+            cmdBuff.bindInputAssembler(inputAssembler);
+            cmdBuff.draw(inputAssembler);
+        }
 
         cmdBuff.endRenderPass();
     }

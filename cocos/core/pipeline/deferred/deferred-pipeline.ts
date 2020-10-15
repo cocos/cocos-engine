@@ -5,11 +5,11 @@
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
 import { GbufferFlow } from './gbuffer-flow';
+import { LightingFlow } from './lighting-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import {
-    GFXBindingType,
     GFXBufferUsageBit,
     GFXFormat,
     GFXFormatInfos,
@@ -32,6 +32,10 @@ import { Skybox } from '../../renderer/scene/skybox';
 import { Shadows, ShadowType } from '../../renderer/scene/shadows';
 import { sceneCulling, getShadowWorldMatrix } from './scene-culling';
 import { UIFlow } from '../ui/ui-flow';
+import { GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute } from '../../gfx/input-assembler';
+import { GFXBuffer } from '../../gfx/buffer';
+
+
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
@@ -126,7 +130,7 @@ export class DeferredPipeline extends RenderPipeline {
             this._flows.push(gbufferFlow);
 
             const lightingFlow = new LightingFlow();
-            lightingrFlow.initialize(LightingFlow.initInfo);
+            lightingFlow.initialize(LightingFlow.initInfo);
             this._flows.push(lightingFlow);
 
             const uiFlow = new UIFlow();
@@ -392,8 +396,8 @@ export class DeferredPipeline extends RenderPipeline {
 
     private destroyUBOs () {
         if (this._descriptorSet) {
-            this._descriptorSet.getBuffer(UBOGlobal.BLOCK.binding).destroy();
-            this._descriptorSet.getBuffer(UBOShadow.BLOCK.binding).destroy();
+            this._descriptorSet.getBuffer(UBOGlobal.BINDING).destroy();
+            this._descriptorSet.getBuffer(UBOShadow.BINDING).destroy();
         }
     }
 
@@ -429,12 +433,12 @@ export class DeferredPipeline extends RenderPipeline {
         const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
         const vbSize = vbStride * 4;
 
-        this._quadVB = this._device.createBuffer({
-            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: vbSize,
-            stride: vbStride,
-        });
+        this._quadVB = this._device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            vbSize,
+            vbStride,
+        ));
 
         if (!this._quadVB) {
             return false;
@@ -453,12 +457,12 @@ export class DeferredPipeline extends RenderPipeline {
         const ibStride = Uint8Array.BYTES_PER_ELEMENT;
         const ibSize = ibStride * 6;
 
-        this._quadIB = this._device.createBuffer({
-            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: ibSize,
-            stride: ibStride,
-        });
+        this._quadIB = this._device.createBuffer(new GFXBufferInfo( 
+            GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            ibSize,
+            ibStride,
+        ));
 
         if (!this._quadIB) {
             return false;
@@ -472,16 +476,15 @@ export class DeferredPipeline extends RenderPipeline {
 
         // create input assembler
 
-        const attributes: IGFXAttribute[] = [
-            { name: 'a_position', format: GFXFormat.RG32F },
-            { name: 'a_texCoord', format: GFXFormat.RG32F },
-        ];
+        const attributes = new Array<GFXAttribute>(2);
+        attributes[0] = new GFXAttribute('a_position', GFXFormat.RG32F);
+        attributes[1] = new GFXAttribute('a_texCoord', GFXFormat.RG32F);
 
-        this._quadIA = this._device.createInputAssembler({
+        this._quadIA = this._device.createInputAssembler(new GFXInputAssemblerInfo(
             attributes,
-            vertexBuffers: [this._quadVB],
-            indexBuffer: this._quadIB,
-        });
+            [this._quadVB],
+            this._quadIB,
+        ));
 
         return true;
     }

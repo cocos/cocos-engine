@@ -2,12 +2,11 @@
  * @category pipeline
  */
 
-import { ccclass, visible, displayOrder, type, serializable } from 'cc.decorator';
+import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { IRenderPass, SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
-import { GFXClearFlag, GFXColor, GFXRect } from '../../gfx/define';
-import { SRGBToLinear } from '../pipeline-funcs';
+import { GFXColor, GFXRect } from '../../gfx/define';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
@@ -21,6 +20,8 @@ import { GbufferFlow } from './gbuffer-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 import { PlanarShadowQueue } from './planar-shadow-queue';
+import { GFXFramebuffer } from '../../gfx';
+
 
 const colors: GFXColor[] = [ new GFXColor(0, 0, 0, 0), new GFXColor(0, 0, 0, 0), new GFXColor(0, 0, 0, 0), new GFXColor(0, 0, 0, 0) ];
 
@@ -33,7 +34,7 @@ export class GbufferStage extends RenderStage {
 
     public static initInfo: IRenderStageInfo = {
         name: 'GbufferStage',
-        priority: DeferredStagePriority.Gbuffer,
+        priority: DeferredStagePriority.GBUFFER,
         tag: 0,
         renderQueues: [
             {
@@ -64,7 +65,6 @@ export class GbufferStage extends RenderStage {
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
     private _phaseID = getPhaseID('deferred-gbuffer');
-    private declare _additiveLightQueue: RenderAdditiveLightQueue;
     private declare _planarQueue: PlanarShadowQueue;
 
     constructor () {
@@ -105,7 +105,6 @@ export class GbufferStage extends RenderStage {
             });
         }
 
-        this._additiveLightQueue = new RenderAdditiveLightQueue(this._pipeline as DeferredPipeline);
         this._planarQueue = new PlanarShadowQueue(this._pipeline as DeferredPipeline);
     }
 
@@ -152,7 +151,6 @@ export class GbufferStage extends RenderStage {
         const cmdBuff = pipeline.commandBuffers[0];
 
         this._renderQueues.forEach(this.renderQueueSortFunc);
-        this._additiveLightQueue.gatherLightPasses(view, cmdBuff);
         this._planarQueue.updateShadowList(view);
 
         const camera = view.camera;
@@ -175,7 +173,6 @@ export class GbufferStage extends RenderStage {
         }
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-        this._additiveLightQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 
         cmdBuff.endRenderPass();
