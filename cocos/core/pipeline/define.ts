@@ -92,12 +92,12 @@ export enum PipelineGlobalBindings {
     UBO_GLOBAL,
     UBO_SHADOW,
 
-    SAMPLER_ENVIRONMENT,
     SAMPLER_SHADOWMAP,
+    SAMPLER_ENVIRONMENT, // Note: Due to the bindless optimizations, environment using unit 0 will affect the rendering in the editor.
 
     COUNT,
 }
-const GLOBAL_UBO_COUNT = PipelineGlobalBindings.SAMPLER_ENVIRONMENT;
+const GLOBAL_UBO_COUNT = PipelineGlobalBindings.SAMPLER_SHADOWMAP;
 const GLOBAL_SAMPLER_COUNT = PipelineGlobalBindings.COUNT - GLOBAL_UBO_COUNT;
 
 export enum ModelLocalBindings {
