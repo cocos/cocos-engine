@@ -765,8 +765,8 @@ export class Terrain extends Component {
 
     set receiveShadow (val) {
         this._receiveShadow = val;
-        for (const i of this._blocks) {
-            i._invalidMaterial();
+        for (let i = 0; i < this._blocks.length; i++) {
+            this._blocks[i]._invalidMaterial();
         }
     }
 
