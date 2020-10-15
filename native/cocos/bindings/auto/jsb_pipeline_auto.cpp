@@ -14,6 +14,7 @@
 #include "renderer/pipeline/Define.h"
 #include "renderer/pipeline/RenderView.h"
 #include "renderer/pipeline/helper/SharedMemory.h"
+#include "renderer/pipeline/InstancedBuffer.h"
 #include "cocos/renderer/core/Core.h"
 #include "cocos/renderer/core/gfx/GFXDescriptorSet.h"
 
@@ -2268,6 +2269,92 @@ bool js_register_pipeline_RenderWindow(se::Object* obj)
     return true;
 }
 
+se::Object* __jsb_cc_pipeline_InstancedBuffer_proto = nullptr;
+se::Class* __jsb_cc_pipeline_InstancedBuffer_class = nullptr;
+
+static bool js_pipeline_InstancedBuffer_destroy(se::State& s)
+{
+    cc::pipeline::InstancedBuffer* cobj = (cc::pipeline::InstancedBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_pipeline_InstancedBuffer_destroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->destroy();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_InstancedBuffer_destroy)
+
+static bool js_pipeline_InstancedBuffer_get(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        unsigned int arg0 = 0;
+        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+        SE_PRECONDITION2(ok, false, "js_pipeline_InstancedBuffer_get : Error processing arguments");
+        cc::pipeline::InstancedBuffer* result = cc::pipeline::InstancedBuffer::get(arg0);
+        ok &= native_ptr_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_pipeline_InstancedBuffer_get : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_InstancedBuffer_get)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_InstancedBuffer_finalize)
+
+static bool js_pipeline_InstancedBuffer_constructor(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    const cc::pipeline::PassView* arg0 = nullptr;
+    ok &= seval_to_native_ptr(args[0], &arg0);
+    SE_PRECONDITION2(ok, false, "js_pipeline_InstancedBuffer_constructor : Error processing arguments");
+    cc::pipeline::InstancedBuffer* cobj = JSB_ALLOC(cc::pipeline::InstancedBuffer, arg0);
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_pipeline_InstancedBuffer_constructor, __jsb_cc_pipeline_InstancedBuffer_class, js_cc_pipeline_InstancedBuffer_finalize)
+
+
+
+
+static bool js_cc_pipeline_InstancedBuffer_finalize(se::State& s)
+{
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cc::pipeline::InstancedBuffer* cobj = (cc::pipeline::InstancedBuffer*)s.nativeThisObject();
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_pipeline_InstancedBuffer_finalize)
+
+bool js_register_pipeline_InstancedBuffer(se::Object* obj)
+{
+    auto cls = se::Class::create("InstancedBuffer", obj, nullptr, _SE(js_pipeline_InstancedBuffer_constructor));
+
+    cls->defineFunction("destroy", _SE(js_pipeline_InstancedBuffer_destroy));
+    cls->defineStaticFunction("get", _SE(js_pipeline_InstancedBuffer_get));
+    cls->defineFinalizeFunction(_SE(js_cc_pipeline_InstancedBuffer_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::pipeline::InstancedBuffer>(cls);
+
+    __jsb_cc_pipeline_InstancedBuffer_proto = cls->getProto();
+    __jsb_cc_pipeline_InstancedBuffer_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
 bool register_all_pipeline(se::Object* obj)
 {
     // Get the ns
@@ -2293,6 +2380,7 @@ bool register_all_pipeline(se::Object* obj)
     js_register_pipeline_RenderFlowInfo(ns);
     js_register_pipeline_UIStage(ns);
     js_register_pipeline_ForwardFlow(ns);
+    js_register_pipeline_InstancedBuffer(ns);
     js_register_pipeline_RenderWindow(ns);
     js_register_pipeline_UIFlow(ns);
     js_register_pipeline_ShadowFlow(ns);
