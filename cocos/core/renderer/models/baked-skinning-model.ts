@@ -32,7 +32,6 @@ import { AnimationClip } from '../../animation/animation-clip';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
-import { GFXBuffer, GFXBufferInfo } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { Vec3 } from '../../math';
 import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UNIFORM_JOINT_TEXTURE_BINDING } from '../../pipeline/define';
@@ -44,7 +43,7 @@ import { ModelType } from '../scene/model';
 import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from './skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { legacyCC } from '../../global-exports';
-import { GFXAttribute, GFXDescriptorSet } from '../../gfx';
+import { GFXAttribute, GFXDescriptorSet, GFXBuffer, GFXBufferInfo } from '../../gfx';
 
 interface IJointsInfo {
     buffer: GFXBuffer | null;
@@ -131,7 +130,7 @@ export class BakedSkinningModel extends MorphModel {
         const info = this._jointsMedium.animInfo;
         const idx = this._instAnimInfoIdx;
         if (idx >= 0) {
-            const view = this.instancedAttributes.list[idx].view;
+            const view = this.instancedAttributes.views[idx];
             view[0] = info.data[0];
         } else if (info.dirty) {
             info.buffer.update(info.data);
@@ -209,7 +208,7 @@ export class BakedSkinningModel extends MorphModel {
         const { jointTextureInfo, animInfo } = this._jointsMedium;
         const idx = this._instAnimInfoIdx;
         if (idx >= 0) { // update instancing data too
-            const view = this.instancedAttributes.list[idx].view;
+            const view = this.instancedAttributes.views[idx];
             view[0] = animInfo.data[0];
             view[1] = jointTextureInfo[1];
             view[2] = jointTextureInfo[2];

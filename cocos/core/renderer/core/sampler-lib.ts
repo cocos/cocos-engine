@@ -28,9 +28,8 @@
  * @hidden
  */
 
-import { GFXAddress, GFXComparisonFunc, GFXFilter, GFXColor } from '../../gfx/define';
-import { GFXDevice } from '../../gfx/device';
-import { GFXSampler, GFXSamplerInfo } from '../../gfx/sampler';
+import { GFXAddress, GFXComparisonFunc, GFXFilter } from '../../gfx/define';
+import { GFXDevice, GFXSampler, GFXSamplerInfo, GFXColor } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 
 export enum SamplerInfoIndex {

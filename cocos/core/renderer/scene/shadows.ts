@@ -317,6 +317,8 @@ export class Shadows {
             ShadowsPool.free(this._handle);
             this._handle = NULL_HANDLE;
         }
+        
+        this._sphere.destroy();
     }
 }
 

@@ -2,7 +2,7 @@ import { macro, warnID, warn } from '../../platform';
 import { GFXDescriptorSet, GFXDescriptorSetInfo } from '../descriptor-set';
 import { GFXBuffer, GFXBufferInfo, GFXBufferViewInfo } from '../buffer';
 import { GFXCommandBuffer, GFXCommandBufferInfo } from '../command-buffer';
-import { GFXAPI, GFXDevice, GFXFeature, GFXDeviceInfo, GFXBindingMappingInfo } from '../device';
+import { GFXDevice, GFXDeviceInfo, GFXBindingMappingInfo } from '../device';
 import { GFXFence, GFXFenceInfo } from '../fence';
 import { GFXFramebuffer, GFXFramebufferInfo } from '../framebuffer';
 import { GFXInputAssembler, GFXInputAssemblerInfo } from '../input-assembler';
@@ -29,8 +29,9 @@ import { WebGL2Sampler } from './webgl2-sampler';
 import { WebGL2Shader } from './webgl2-shader';
 import { WebGL2StateCache } from './webgl2-state-cache';
 import { WebGL2Texture } from './webgl2-texture';
-import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXCommandBufferType, GFXFilter, GFXFormat, GFXFormatInfos,
-    GFXQueueType, GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, GFXRect } from '../define';
+import { getTypedArrayConstructor, GFXCommandBufferType, GFXFilter, GFXFormat, GFXFormatInfos,
+    GFXQueueType, GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit,  GFXAPI, GFXFeature } from '../define';
+import { GFXBufferTextureCopy, GFXRect } from '../define-class';
 import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGL2CmdFuncBlitFramebuffer,
     WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
 import { GFXPipelineLayout, GFXDescriptorSetLayout, GFXDescriptorSetLayoutInfo, GFXPipelineLayoutInfo } from '../..';
@@ -272,6 +273,7 @@ export class WebGL2Device extends GFXDevice {
         this._features[GFXFeature.MSAA] = true;
         this._features[GFXFeature.ELEMENT_INDEX_UINT] = true;
         this._features[GFXFeature.INSTANCED_ARRAYS] = true;
+        this._features[GFXFeature.MULTIPLE_RENDER_TARGETS] = true;
 
         if (this._EXT_color_buffer_float) {
             this._features[GFXFeature.COLOR_FLOAT] = true;

@@ -434,6 +434,11 @@ export class SpriteFrame extends Asset {
     }
 
     set _textureSource (value: TextureBase) {
+        // Optimization for build
+        if (window.Build) {
+            this._texture = value;
+            return;
+        }
         if (value) {
             this._refreshTexture(value);
             this._calculateUV();

@@ -30,7 +30,7 @@ require('./jsb-game.js');
 require('./jsb-gfx.js');
 require('./jsb-loader.js');
 require('./jsb-videoplayer.js');
-// require('./jsb-webview.js');
+require('./jsb-webview.js');
 require('./jsb-audio.js');
 require('./jsb-editbox.js');
 require('./jsb-pipeline.js');

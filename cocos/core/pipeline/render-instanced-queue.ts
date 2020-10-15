@@ -3,9 +3,8 @@
  * @module pipeline
  */
 
-import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { InstancedBuffer } from './instanced-buffer';
-import { GFXDevice, GFXRenderPass, GFXPipelineState } from '../gfx';
+import { GFXDevice, GFXRenderPass, GFXPipelineState, GFXCommandBuffer } from '../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { DSPool, ShaderPool, PassPool, PassView } from '../renderer/core/memory-pools';
 import { SetIndex } from './define';

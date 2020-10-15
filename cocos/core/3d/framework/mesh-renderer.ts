@@ -306,10 +306,10 @@ export class MeshRenderer extends RenderableComponent {
 
     public setInstancedAttribute (name: string, value: ArrayLike<number>) {
         if (!this.model) { return; }
-        const list = this.model.instancedAttributes.list;
-        for (let i = 0; i < list.length; i++) {
-            if (list[i].name === name) {
-                (list[i].view as TypedArray).set(value);
+        const { attributes, views } = this.model.instancedAttributes;
+        for (let i = 0; i < attributes.length; i++) {
+            if (attributes[i].name === name) {
+                views[i].set(value);
                 break;
             }
         }
@@ -333,6 +333,7 @@ export class MeshRenderer extends RenderableComponent {
         const model = this._model;
         if (model) {
             model.destroy();
+            model.initialize();
             model.node = model.transform = this.node;
         } else {
             this._createModel();

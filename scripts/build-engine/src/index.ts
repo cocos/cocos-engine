@@ -21,8 +21,13 @@ import { generateCCSource } from './make-cc';
 import nodeResolve from 'resolve';
 import { getModuleName } from './module-name';
 import tsConfigPaths from './ts-paths';
+import JSON5 from 'json5';
 
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
+
+function makePathEqualityKey (path: string) {
+    return process.platform === 'win32' ? path.toLocaleLowerCase() : path;
+}
 
 async function build (options: build.Options) {
     console.debug(`Build-engine options: ${JSON.stringify(options, undefined, 2)}`);
@@ -43,6 +48,7 @@ async function build (options: build.Options) {
         moduleEntries,
         buildTimeConstants,
         options,
+        platform: options.platform!,
     });
 }
 
@@ -190,17 +196,26 @@ async function getEngineEntries (
     return result;
 }
 
+interface CCConfig {
+    platforms?: Record<string, {
+        moduleOverrides?: Record<string, string>;
+    }>;
+}
+
 async function _doBuild ({
     moduleEntries,
     buildTimeConstants,
     options,
+    platform,
 }: {
     moduleEntries?: string[];
     buildTimeConstants: BuildTimeConstants;
     options: build.Options;
+    platform: Platform;
 }): Promise<build.Result> {
     const doUglify = !!options.compress;
     const split = options.split ?? false;
+    const engineRoot = ps.resolve(options.engine);
 
     const moduleOption = options.moduleFormat ?? ModuleOption.iife;
     const rollupFormat = moduleOptionsToRollupFormat(moduleOption);
@@ -212,8 +227,11 @@ async function _doBuild ({
         ammoJsWasm = false;
     }
 
+    const ccConfigFile = ps.join(engineRoot, 'cc.config.json');
+    const ccConfig: CCConfig = JSON5.parse(await fs.readFile(ccConfigFile, 'utf8'));
+
     const engineEntries = await getEngineEntries(
-        options.engine,
+        engineRoot,
         split ? undefined : moduleEntries,
     );
 
@@ -264,8 +282,7 @@ async function _doBuild ({
         extensions: ['.js', '.ts'],
         highlightCode: true,
         exclude: [
-            /@cocos[\/\\]ammo/g,
-            /@cocos[\/\\]cannon/g
+            /node_modules[\/\\]/g,
         ],
         plugins: babelPlugins,
         presets: [
@@ -276,7 +293,32 @@ async function _doBuild ({
         ],
     };
 
+    const moduleRedirects: Record<string, string> = {};
+    if (platform === Platform.NATIVE) {
+        const platformName = 'native';
+        const moduleOverrides = ccConfig.platforms?.[platformName]?.moduleOverrides;
+        if (moduleOverrides) {
+            for (const [source, override] of Object.entries(moduleOverrides)) {
+                const normalizedSource = makePathEqualityKey(ps.resolve(engineRoot, source));
+                const normalizedOverride = ps.resolve(engineRoot, override);
+                moduleRedirects[normalizedSource] = normalizedOverride;
+            }
+        }
+    }
+
     const rollupPlugins: rollup.Plugin[] = [
+        {
+            load: function (this, id: string) {
+                const key = makePathEqualityKey(id);
+                if (!(key in moduleRedirects)) {
+                    return null;
+                }
+                const replacement = moduleRedirects[key];
+                console.debug(`Redirect module ${id} to ${replacement}`);
+                return `export * from '${filePathToModuleRequest(replacement)}';`;
+            },
+        },
+
         rpVirtual(rpVirtualOptions),
 
         tsConfigPaths({
@@ -379,7 +421,9 @@ export { isWasm };
     const { incremental: incrementalFile } = options;
     if (incrementalFile) {
         const watchFiles: Record<string, number> = {};
-        for (const watchFile of rollupBuild.watchFiles) {
+        for (const watchFile of rollupBuild.watchFiles.concat([
+            ccConfigFile,
+        ])) {
             try {
                 const stat = await fs.stat(watchFile);
                 watchFiles[watchFile] = stat.mtimeMs;
@@ -466,7 +510,7 @@ export { isWasm };
     async function nodeResolveAsync (specifier: string) {
         return new Promise<string>((r, reject) => {
             nodeResolve(specifier, {
-                basedir: options.engine,
+                basedir: engineRoot,
             }, (err, resolved, pkg) => {
                 if (err) {
                     reject(err);

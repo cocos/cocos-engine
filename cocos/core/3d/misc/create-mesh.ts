@@ -1,6 +1,6 @@
 import { Mesh } from '../../assets/mesh';
 import { GFXAttributeName, GFXFormat, GFXFormatInfos, GFXPrimitiveMode } from '../../gfx/define';
-import { GFXAttribute } from '../../gfx/input-assembler';
+import { GFXAttribute } from '../../gfx';
 import { Vec3 } from '../../math';
 import { IGeometry } from '../../primitive/define';
 import { writeBuffer } from './buffer';

@@ -6,6 +6,7 @@
 import { Mat4, Quat, Vec3 } from '../math';
 import enums from './enums';
 import aabb from './aabb';
+import { NULL_HANDLE, SphereHandle, SpherePool, SphereView } from '../renderer/core/memory-pools';
 
 const _v3_tmp = new Vec3();
 const _offset = new Vec3();
@@ -146,15 +147,34 @@ export default class sphere {
      * @zh
      * 本地坐标的中心点。
      */
-    public center: Vec3;
+    protected _center: Vec3 = new Vec3(0, 0, 0);
+    get center () : Vec3 {
+        return this._center;
+    }
 
-    /**
+    set center (val:Vec3) { 
+        this._center = val;
+        SpherePool.setVec3(this._poolHandle, SphereView.CENTER, this._center);
+    }
+
+     /**
      * @en
      * The radius of this sphere.
      * @zh
      * 半径。
      */
-    public radius: number;
+    get radius () : number {
+        return SpherePool.get(this._poolHandle, SphereView.RADIUS);
+    }
+
+    set radius (val: number) {
+        SpherePool.set(this._poolHandle, SphereView.RADIUS, val);
+    }
+
+    protected _poolHandle: SphereHandle = NULL_HANDLE;
+    get handle () {
+        return this._poolHandle;
+    }
 
     /**
      * @en
@@ -180,8 +200,17 @@ export default class sphere {
      */
     constructor (cx: number = 0, cy: number = 0, cz: number = 0, r: number = 1) {
         this._type = enums.SHAPE_SPHERE;
-        this.center = new Vec3(cx, cy, cz);
-        this.radius = r;
+        this._center = new Vec3(cx, cy, cz);
+        this._poolHandle = SpherePool.alloc();
+        SpherePool.setVec3(this._poolHandle, SphereView.CENTER, this._center);
+        SpherePool.set(this._poolHandle, SphereView.RADIUS, r);
+    }
+
+    public destroy () {
+        if (this._poolHandle) {
+            SpherePool.free(this._poolHandle);
+            this._poolHandle = NULL_HANDLE;
+        }
     }
 
     /**

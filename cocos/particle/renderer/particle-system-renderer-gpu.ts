@@ -3,7 +3,7 @@ import { Material } from '../../core/assets';
 import { Texture2D } from '../../core';
 import { Component } from '../../core/components';
 import { GFXAttributeName, GFXFormat } from '../../core/gfx/define';
-import { GFXAttribute } from '../../core/gfx/input-assembler';
+import { GFXAttribute } from '../../core/gfx';
 import { Mat4, Vec2, Vec4, Quat} from '../../core/math';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';

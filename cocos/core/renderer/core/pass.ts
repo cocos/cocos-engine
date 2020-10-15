@@ -32,12 +32,7 @@ import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../3d/builtin/init';
 import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
 import { TextureBase } from '../../assets/texture-base';
-import { GFXDescriptorSet, GFXDescriptorSetInfo } from '../../gfx/descriptor-set';
-import { GFXBuffer, GFXBufferInfo, GFXBufferViewInfo } from '../../gfx/buffer';
-import { GFXFeature, GFXDevice } from '../../gfx/device';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
-import { GFXSampler } from '../../gfx/sampler';
-import { GFXTexture } from '../../gfx/texture';
 import { RenderPassStage, RenderPriority, SetIndex } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
@@ -49,8 +44,8 @@ import { PassView, BlendStatePool, RasterizerStatePool, DepthStencilStatePool,
 import { customizeType, getBindingFromHandle, getPropertyTypeFromHandle, getDefaultFromType,
     getOffsetFromHandle, getTypeFromHandle, MacroRecord, MaterialProperty, type2reader, type2writer, PropertyType } from './pass-utils';
 import { GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode,
-    GFXType, GFXDynamicStateFlagBit, GFXDynamicStateFlags } from '../../gfx/define';
-import { GFXDescriptorSetLayoutInfo } from '../../gfx';
+    GFXType, GFXDynamicStateFlagBit, GFXDynamicStateFlags, GFXFeature } from '../../gfx/define';
+import { GFXDescriptorSetLayoutInfo, GFXTexture,  GFXDevice, GFXBuffer, GFXBufferInfo, GFXBufferViewInfo, GFXSampler, GFXDescriptorSet, GFXDescriptorSetInfo } from '../../gfx';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part

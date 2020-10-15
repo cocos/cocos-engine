@@ -72,7 +72,7 @@ function updateSphereLight (pipeline: ForwardPipeline, light: SphereLight) {
         return;
     }
 
-    shadows.dirty = true;
+    shadows.dirty = false;
     light.node!.getWorldPosition(_v3);
     const n = shadows.normal; const d = shadows.distance + 0.001; // avoid z-fighting
     const NdL = Vec3.dot(n, _v3);

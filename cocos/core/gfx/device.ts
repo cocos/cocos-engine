@@ -7,7 +7,8 @@ import { ccenum } from '../value-types/enum';
 import { GFXDescriptorSet, GFXDescriptorSetInfo } from './descriptor-set';
 import { GFXBuffer, GFXBufferInfo, GFXBufferViewInfo } from './buffer';
 import { GFXCommandBuffer, GFXCommandBufferInfo } from './command-buffer';
-import { GFXBufferTextureCopy, GFXFilter, GFXFormat, GFXMemoryStatus, GFXRect } from './define';
+import {  GFXFilter, GFXFormat, GFXMemoryStatus, GFXAPI, GFXFeature } from './define';
+import { GFXBufferTextureCopy, GFXRect } from './define-class';
 import { GFXFence, GFXFenceInfo } from './fence';
 import { GFXFramebuffer, GFXFramebufferInfo } from './framebuffer';
 import { GFXInputAssembler, GFXInputAssemblerInfo } from './input-assembler';
@@ -20,44 +21,6 @@ import { GFXTexture, GFXTextureInfo, GFXTextureViewInfo } from './texture';
 import { GFXDescriptorSetLayoutInfo, GFXDescriptorSetLayout, GFXPipelineLayoutInfo, GFXPipelineLayout } from '../../../exports/base';
 
 ccenum(GFXFormat);
-
-export enum GFXAPI {
-    UNKNOWN,
-    GL,
-    GLES2,
-    GLES3,
-    METAL,
-    VULKAN,
-    DX12,
-    WEBGL,
-    WEBGL2,
-}
-
-export enum GFXFeature {
-    COLOR_FLOAT,
-    COLOR_HALF_FLOAT,
-    TEXTURE_FLOAT,
-    TEXTURE_HALF_FLOAT,
-    TEXTURE_FLOAT_LINEAR,
-    TEXTURE_HALF_FLOAT_LINEAR,
-    FORMAT_R11G11B10F,
-    FORMAT_D16,
-    FORMAT_D16S8,
-    FORMAT_D24,
-    FORMAT_D24S8,
-    FORMAT_D32F,
-    FORMAT_D32FS8,
-    FORMAT_ETC1,
-    FORMAT_ETC2,
-    FORMAT_DXT,
-    FORMAT_PVRTC,
-    FORMAT_ASTC,
-    FORMAT_RGB8,
-    MSAA,
-    ELEMENT_INDEX_UINT,
-    INSTANCED_ARRAYS,
-    COUNT,
-}
 
 export class GFXBindingMappingInfo {
     declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
@@ -85,10 +48,10 @@ export class GFXDeviceInfo {
          * to be mapped to backend-specific bindings based on maximum limit
          * of available descriptor slots in each set.
          *
-         * Because the binding numbers are guaranteed to be consecutive for each
-         * descriptor type inside each set, the mapping procedure can be reduced
+         * The GFX layer assumes the binding numbers for each descriptor type inside each set
+         * are guaranteed to be consecutive, so the mapping procedure is reduced
          * to a simple shifting operation. This data structure specifies the
-         * exact offsets for each descriptor type in each set.
+         * offsets for each descriptor type in each set.
          */
         public bindingMappingInfo = new GFXBindingMappingInfo(),
     ) {}

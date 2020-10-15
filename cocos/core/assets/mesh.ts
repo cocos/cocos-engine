@@ -33,7 +33,7 @@ import { Mat4, Quat, Vec3 } from '../../core/math';
 import { mapBuffer } from '../3d/misc/buffer';
 import { BufferBlob } from '../3d/misc/buffer-blob';
 import { aabb } from '../geometry';
-import { GFXBuffer, GFXBufferInfo } from '../gfx/buffer';
+import { GFXBuffer, GFXBufferInfo } from '../gfx';
 import {
     getTypedArrayConstructor,
     GFXAttributeName,
@@ -43,9 +43,9 @@ import {
     GFXFormatType,
     GFXMemoryUsageBit,
     GFXPrimitiveMode,
+    GFXFeature
 } from '../gfx/define';
-import { GFXDevice, GFXFeature } from '../gfx/device';
-import { GFXAttribute, GFXInputAssemblerInfo } from '../gfx/input-assembler';
+import { GFXDevice, GFXAttribute, GFXInputAssemblerInfo } from '../gfx';
 import { warnID } from '../platform/debug';
 import { sys } from '../platform/sys';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
@@ -696,6 +696,11 @@ export class Mesh extends Asset {
                 const idx = prim.vertexBundelIndices[0];
                 const vertexBundle = this._struct.vertexBundles[idx];
                 gfxAttributes = vertexBundle.attributes;
+                const attrs = vertexBundle.attributes;
+                for (let i = 0; i < attrs.length; ++i) {
+                    const attr = attrs[i];
+                    gfxAttributes[i] = new GFXAttribute(attr.name, attr.format, attr.isInstanced, attr.stream, attr.isInstanced, attr.location);
+                }
             }
 
             const subMesh = new RenderingSubMesh(vbReference, gfxAttributes, prim.primitiveMode, indexBuffer);

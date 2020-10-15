@@ -3,9 +3,7 @@
  * @hidden
  */
 
-import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXDevice, GFXTexture } from '../gfx';
-import { GFXBuffer, GFXBufferInfo } from '../gfx/buffer';
-import { GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute } from '../gfx/input-assembler';
+import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXDevice, GFXTexture, GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute, GFXBuffer, GFXBufferInfo  } from '../gfx';
 import { Pass } from '../renderer';
 import { IInstancedAttributeBlock, SubModel } from '../renderer/scene';
 import { SubModelView, SubModelPool, ShaderHandle, DescriptorSetHandle, PassHandle, NULL_HANDLE } from '../renderer/core/memory-pools';
@@ -104,8 +102,8 @@ export class InstancedBuffer {
         const attributes = sourceIA.attributes.slice();
         const indexBuffer = sourceIA.indexBuffer;
 
-        for (let i = 0; i < attrs.list.length; i++) {
-            const attr = attrs.list[i];
+        for (let i = 0; i < attrs.attributes.length; i++) {
+            const attr = attrs.attributes[i];
             const newAttr = new GFXAttribute(attr.name, attr.format, attr.isNormalized, vertexBuffers.length, true);
             attributes.push(newAttr);
         }

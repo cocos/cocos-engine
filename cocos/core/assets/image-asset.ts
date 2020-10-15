@@ -30,10 +30,10 @@
 
 // @ts-check
 import {ccclass, override} from 'cc.decorator';
-import { GFXDevice, GFXFeature } from '../gfx/device';
+import { GFXDevice, GFXFeature } from '../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
-import { EDITOR, MINIGAME, ALIPAY, XIAOMI, BYTEDANCE, JSB } from 'internal:constants';
+import { EDITOR, MINIGAME, ALIPAY, XIAOMI, JSB } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 
@@ -64,9 +64,6 @@ function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElem
     if (ALIPAY || XIAOMI) {
         // We're unable to grab the constructors of Alipay native image or canvas object.
         return !('_data' in imageSource);
-    }
-    else if (BYTEDANCE && typeof window.sharedCanvas === 'object' && imageSource instanceof window.sharedCanvas.constructor) {
-        return true;
     }
     else if (JSB && (imageSource as IMemoryImageSource)._compressed === true) {
         return false;

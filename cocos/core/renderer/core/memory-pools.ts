@@ -29,10 +29,11 @@
  */
 
 import { DEBUG, JSB } from 'internal:constants';
-import { NativeBufferPool, NativeObjectPool, NativeArrayPool } from './native-pools';
+import { NativeBufferPool, NativeObjectPool, NativeBufferAllocator } from './native-pools';
 import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, GFXDescriptorSetInfo,
     GFXDevice, GFXDescriptorSet, GFXShaderInfo, GFXShader, GFXInputAssemblerInfo, GFXInputAssembler,
-    GFXPipelineLayoutInfo, GFXPipelineLayout, GFXFramebuffer, GFXFramebufferInfo, GFXPrimitiveMode, GFXDynamicStateFlags, GFXClearFlag, GFXColor } from '../../gfx';
+    GFXPipelineLayoutInfo, GFXPipelineLayout, GFXFramebuffer, GFXFramebufferInfo, GFXPrimitiveMode,
+    GFXDynamicStateFlags, GFXClearFlag, GFXAttribute } from '../../gfx';
 import { RenderPassStage } from '../../pipeline/define';
 import { BatchingSchemes } from './pass';
 import { Layers } from '../../scene-graph/layers';
@@ -40,16 +41,20 @@ import { Vec2, Vec3, Vec4, Quat, Color, Rect, Mat4, IVec2Like, IVec3Like, IVec4L
 import { plane } from '../../geometry';
 
 interface ITypedArrayConstructor<T> {
-    new(buffer: ArrayBufferLike, byteOffset: number, length?: number): T;
+    new(buffer: ArrayBufferLike, byteOffset?: number, length?: number): T;
     readonly BYTES_PER_ELEMENT: number;
 }
 
+interface IMemoryPool<P extends PoolType> {
+    free (handle: IHandle<P>): void;
+}
+
 // a little hacky, but works (different specializations should not be assignable to each other)
-interface IHandle<T extends PoolType> extends Number {
+interface IHandle<P extends PoolType> extends Number {
     // we make this non-optional so that even plain numbers would not be directly assignable to handles.
     // this strictness will introduce some casting hassle in the pool implementation itself
     // but becomes generally more useful for client code type checking.
-    _: T;
+    _: P;
 }
 
 enum BufferDataType {
@@ -59,14 +64,14 @@ enum BufferDataType {
 }
 
 type BufferManifest = { [key: string]: number | string; COUNT: number; };
-type StandardBufferElement = number | IHandle<any>;
+type StandardBufferElement = number | IHandle<PoolType>;
 type GeneralBufferElement = StandardBufferElement | IVec2Like | IVec3Like | IVec4Like | IMat4Like;
 type BufferTypeManifest<E extends BufferManifest> = { [key in E[keyof E]]: GeneralBufferElement };
 type BufferDataTypeManifest<E extends BufferManifest> = { [key in E[keyof E]]: BufferDataType };
 
 type Conditional<V, T> = T extends V ? T : never;
 
-class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferTypeManifest<E>> {
+class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferTypeManifest<E>> implements IMemoryPool<P> {
 
     // naming convension:
     // this._bufferViews[chunk][entry][element]
@@ -113,7 +118,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
             }
 
             type = dataType[e];
-            if (!hasFloat32 &&  type === BufferDataType.FLOAT32) {
+            if (!hasFloat32 && type === BufferDataType.FLOAT32) {
                 this._hasFloat32 = true;
             } else if (!hasUint32 && type === BufferDataType.UINT32) {
                 this._hasUint32 = true;
@@ -138,13 +143,9 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
         const hasFloat32 = this._hasFloat32;
         const hasUint32 = this._hasUint32;
         for (let j = 0; j < this._entriesPerChunk; j++) {
-            if (hasFloat32) {
-                float32BufferViews.push(new Float32Array(buffer, this._stride * j, this._elementCount));
-            }
-            if (hasUint32) {
-                uint32BufferViews.push(new Uint32Array(buffer, this._stride * j, this._elementCount))
-            }
-            if (j) { freelist.push(j); }
+            if (hasFloat32) float32BufferViews.push(new Float32Array(buffer, this._stride * j, this._elementCount));
+            if (hasUint32) uint32BufferViews.push(new Uint32Array(buffer, this._stride * j, this._elementCount))
+            if (j) freelist.push(j);
         }
         this._arrayBuffers.push(buffer);
         if (hasUint32) this._uint32BufferViews.push(uint32BufferViews);
@@ -278,7 +279,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
     }
 }
 
-class ObjectPool<T, P extends PoolType, A extends any[]> {
+class ObjectPool<T, P extends PoolType, A extends any[]> implements IMemoryPool<P> {
 
     private _ctor: (args: A, obj?: T) => T;
     private _dtor?: (obj: T) => void;
@@ -335,60 +336,76 @@ class ObjectPool<T, P extends PoolType, A extends any[]> {
     }
 }
 
-/**
- * P: pool type
- * D: pool data type
- */
-export class ArrayPool<P extends PoolType, D extends PoolType> {
-    private _nativeArrayPool: NativeArrayPool;
-    private _arrayMap: Map<number, Uint32Array> = new Map<number, Uint32Array>();
-    private _curArrayHandle: number = 0;
-    private _arrayHandleFlag: number;
-    private _arrayHandleMask: number;
-    private _size: number = 0;
-    private _step: number = 0;
+class BufferAllocator<P extends PoolType> implements IMemoryPool<P> {
 
-    /**
-     * Constructor.
-     * @param size The size of the array
-     * @param step The step size to extend the array when exceeding the array size.
-     * It is the same as size if it is not set.
-     */
-    constructor (arrayType: P, size: number, step?: number) {
-        this._arrayHandleFlag = 1 << 30;
-        this._arrayHandleMask = ~this._arrayHandleFlag;
-        this._size = size + 1;
-        this._step = step || size;
-        this._nativeArrayPool = new NativeArrayPool(arrayType, this._size);
+    protected _nativeBufferAllocator: NativeBufferAllocator;
+    protected _buffers = new Map<number, ArrayBuffer>();
+    protected _nextBufferIdx: number = 0;
+    protected _poolFlag: number;
+    protected _bufferIdxMask: number;
+
+    constructor (poolType: P) {
+        this._poolFlag = 1 << 30;
+        this._bufferIdxMask = ~this._poolFlag;
+        this._nativeBufferAllocator = new NativeBufferAllocator(poolType);
     }
 
-    /**
-     * Allocate a new array.
-     * @param size The size of the array
-     * @param step The step size to extend the array when exceeding the array size.
-     * It is the same as size if it is not set.
-     */
-    public alloc (): IHandle<P> {
-        const handle = this._curArrayHandle++;
-        const array = this._nativeArrayPool.alloc(handle);
-        this._arrayMap.set(handle, array);
-
-        return (handle | this._arrayHandleFlag) as unknown as IHandle<P>;
+    public alloc (size: number): IHandle<P> {
+        const bufferIdx = this._nextBufferIdx++;
+        const buffer = this._nativeBufferAllocator.alloc(bufferIdx, size);
+        this._buffers.set(bufferIdx, buffer);
+        return (bufferIdx | this._poolFlag) as unknown as IHandle<P>;
     }
 
     public free (handle: IHandle<P>) {
-        const arrayHandle = this._arrayHandleMask & handle as unknown as number;
-        if (this._arrayMap.get(arrayHandle) === undefined) {
-            if (DEBUG) console.warn('invalid array pool handle');
+        const bufferIdx = this._bufferIdxMask & handle as unknown as number;
+        if (!this._buffers.get(bufferIdx)) {
+            if (DEBUG) console.warn('invalid buffer allocator handle');
             return;
         }
-        this._arrayMap.delete(arrayHandle);
+        this._nativeBufferAllocator.free(bufferIdx);
+        this._buffers.delete(bufferIdx);
     }
 
-    public assign (handle: IHandle<P>, index: number, value: IHandle<D>) {
-        const arrayHandle = this._arrayHandleMask & handle as unknown as number;
-        let array = this._arrayMap.get(arrayHandle);
-        if (array === undefined) {
+    public getBuffer (handle: IHandle<P>): ArrayBuffer {
+        const bufferIdx = this._bufferIdxMask & handle as unknown as number;
+        const buffer = this._buffers.get(bufferIdx);
+        if (!buffer) {
+            if (DEBUG) console.warn('invalid array pool index or invalid array handle');
+            return null!;
+        }
+        return buffer;
+    }
+}
+
+class TypedArrayPool<P extends PoolType, T extends TypedArray, D extends StandardBufferElement> extends BufferAllocator<P> implements IMemoryPool<P> {
+
+    declare protected _buffers: Map<number, T>;
+    protected _viewCtor: ITypedArrayConstructor<T>;
+    protected _size: number;
+    protected _step: number;
+
+    constructor (poolType: P, viewCtor: ITypedArrayConstructor<T>, size: number, step?: number) {
+        super(poolType);
+        this._viewCtor = viewCtor;
+        this._size = size * viewCtor.BYTES_PER_ELEMENT;
+        this._step = step || size;
+    }
+
+    public alloc (): IHandle<P> {
+        const bufferIdx = this._nextBufferIdx++;
+        const buffer = this._nativeBufferAllocator.alloc(bufferIdx, this._size);
+        this._buffers.set(bufferIdx, new this._viewCtor(buffer));
+        return (bufferIdx | this._poolFlag) as unknown as IHandle<P>;
+    }
+
+    // no direct buffer accesses for array pools
+    public getBuffer (handle: IHandle<P>): never { return null!; }
+
+    public assign (handle: IHandle<P>, index: number, value: D) {
+        const bufferIdx = this._bufferIdxMask & handle as unknown as number;
+        let array = this._buffers.get(bufferIdx);
+        if (!array) {
             if (DEBUG) console.warn('invalid array pool handle');
             return;
         }
@@ -396,13 +413,12 @@ export class ArrayPool<P extends PoolType, D extends PoolType> {
         // First element is the length of array.
         index = index + 1;
         if (index >= array.length) {
-            let length = array.length;
-            while (index >= length) {
-                length += this._step;
-            }
-
-            array = this._nativeArrayPool.resize(array, length, arrayHandle);
-            this._arrayMap.set(arrayHandle, array);
+            let newSize = array.length;
+            while (index >= newSize) newSize += this._step;
+            newSize *= this._viewCtor.BYTES_PER_ELEMENT;
+            const newArray = new this._viewCtor(this._nativeBufferAllocator.alloc(bufferIdx, newSize));
+            newArray.set(array); array = newArray;
+            this._buffers.set(bufferIdx, array);
         }
         array[index] = value as unknown as number;
 
@@ -412,8 +428,9 @@ export class ArrayPool<P extends PoolType, D extends PoolType> {
     }
 
     public erase (handle: IHandle<P>, index: number) {
-        const array = this._arrayMap.get(this._arrayHandleMask & handle as unknown as number);
-        if (array === undefined || index > array[0]) {
+        const bufferIdx = this._bufferIdxMask & handle as unknown as number;
+        const array = this._buffers.get(bufferIdx);
+        if (!array || index >= array[0]) {
             if (DEBUG) console.warn('invalid array pool index or invalid array handle');
             return;
         }
@@ -423,9 +440,10 @@ export class ArrayPool<P extends PoolType, D extends PoolType> {
         --array[0];
     }
 
-    public push (handle: IHandle<P>, value: IHandle<D>) {
-        const array = this._arrayMap.get(this._arrayHandleMask & handle as unknown as number);
-        if (array === undefined) {
+    public push (handle: IHandle<P>, value: D) {
+        const bufferIdx = this._bufferIdxMask & handle as unknown as number;
+        const array = this._buffers.get(bufferIdx);
+        if (!array) {
             if (DEBUG) console.warn('invalid array pool handle');
             return;
         }
@@ -434,8 +452,9 @@ export class ArrayPool<P extends PoolType, D extends PoolType> {
     }
 
     public pop (handle: IHandle<P>) {
-        const array = this._arrayMap.get(this._arrayHandleMask & handle as unknown as number);
-        if (array === undefined) {
+        const bufferIdx = this._bufferIdxMask & handle as unknown as number;
+        const array = this._buffers.get(bufferIdx);
+        if (!array) {
             if (DEBUG) console.warn('invalid array pool handle');
             return;
         }
@@ -447,25 +466,58 @@ export class ArrayPool<P extends PoolType, D extends PoolType> {
         }
     }
 
-    /**
-     * Clear the contents of array.
-     * @param handle Handle to be clear.
-     */
     public clear (handle: IHandle<P>) {
-        const array = this._arrayMap.get(this._arrayHandleMask & handle as unknown as number);
-        if (array === undefined) {
+        const bufferIdx = this._bufferIdxMask & handle as unknown as number;
+        const array = this._buffers.get(bufferIdx);
+        if (!array) {
             if (DEBUG) console.warn('invalid array pool handle');
             return;
         }
         array[0] = 0;
     }
-};
+
+    public get (handle: IHandle<P>, index: number): D {
+        const bufferIdx = this._bufferIdxMask & handle as unknown as number;
+        const array = this._buffers.get(bufferIdx);
+        if (!array || index >= array[0]) {
+            if (DEBUG) console.warn('invalid array pool handle');
+            return 0 as D;
+        }
+        return array[index + 1] as D;
+    }
+
+    public length (handle: IHandle<P>) {
+        const bufferIdx = this._bufferIdxMask & handle as unknown as number;
+        const array = this._buffers.get(bufferIdx);
+        if (!array) {
+            if (DEBUG) console.warn('invalid array pool handle');
+            return 0;
+        }
+        return array[0];
+    }
+}
+
+export function freeHandleArray<P extends PoolType, H extends IHandle<PoolType>> (
+    arrayHandle: IHandle<P>,
+    arrayPool: TypedArrayPool<P, Uint32Array, H>,
+    elementPool: IMemoryPool<H['_']>,
+    freeArrayItself = true,
+) {
+    const count = arrayPool.length(arrayHandle);
+    for (let i = 0; i < count; i++) {
+        const element = arrayPool.get(arrayHandle, i);
+        if (element) elementPool.free(element);
+    }
+    if (freeArrayItself) arrayPool.free(arrayHandle);
+    else arrayPool.clear(arrayHandle);
+}
 
 enum PoolType {
     // objects
     RASTERIZER_STATE,
     DEPTH_STENCIL_STATE,
     BLEND_STATE,
+    ATTRIBUTE,
     DESCRIPTOR_SETS,
     SHADER,
     INPUT_ASSEMBLER,
@@ -487,9 +539,13 @@ enum PoolType {
     SKYBOX,
     SHADOW,
     LIGHT,
-    // array
+    SPHERE,
+    // arrays
     SUB_MODEL_ARRAY = 200,
     MODEL_ARRAY,
+    ATTRIBUTE_ARRAY,
+    // raw buffer
+    RAW_BUFFER = 300,
 }
 
 export const NULL_HANDLE = 0 as unknown as IHandle<any>;
@@ -497,6 +553,7 @@ export const NULL_HANDLE = 0 as unknown as IHandle<any>;
 export type RasterizerStateHandle = IHandle<PoolType.RASTERIZER_STATE>;
 export type DepthStencilStateHandle = IHandle<PoolType.DEPTH_STENCIL_STATE>;
 export type BlendStateHandle = IHandle<PoolType.BLEND_STATE>;
+export type AttributeHandle = IHandle<PoolType.ATTRIBUTE>;
 export type DescriptorSetHandle = IHandle<PoolType.DESCRIPTOR_SETS>;
 export type ShaderHandle = IHandle<PoolType.SHADER>;
 export type InputAssemblerHandle = IHandle<PoolType.INPUT_ASSEMBLER>;
@@ -513,17 +570,22 @@ export type AABBHandle = IHandle<PoolType.AABB>;
 export type FrustumHandle = IHandle<PoolType.FRUSTUM>;
 export type RenderWindowHandle = IHandle<PoolType.RENDER_WINDOW>;
 export type SubModelArrayHandle = IHandle<PoolType.SUB_MODEL_ARRAY>;
+export type AttributeArrayHandle = IHandle<PoolType.ATTRIBUTE_ARRAY>;
 export type ModelArrayHandle = IHandle<PoolType.MODEL_ARRAY>;
+export type RawBufferHandle = IHandle<PoolType.RAW_BUFFER>;
 export type AmbientHandle = IHandle<PoolType.AMBIENT>;
 export type FogHandle = IHandle<PoolType.FOG>;
 export type SkyboxHandle = IHandle<PoolType.SKYBOX>;
 export type ShadowsHandle = IHandle<PoolType.SHADOW>;
 export type LightHandle = IHandle<PoolType.LIGHT>;
+export type SphereHandle = IHandle<PoolType.SPHERE>;
 
 // don't reuse any of these data-only structs, for GFX objects may directly reference them
-export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, () => new GFXRasterizerState());
-export const DepthStencilStatePool = new ObjectPool(PoolType.DEPTH_STENCIL_STATE, () => new GFXDepthStencilState());
-export const BlendStatePool = new ObjectPool(PoolType.BLEND_STATE, () => new GFXBlendState());
+export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, (_: never[]) => new GFXRasterizerState());
+export const DepthStencilStatePool = new ObjectPool(PoolType.DEPTH_STENCIL_STATE, (_: never[]) => new GFXDepthStencilState());
+export const BlendStatePool = new ObjectPool(PoolType.BLEND_STATE, (_: never[]) => new GFXBlendState());
+
+export const AttrPool = new ObjectPool(PoolType.ATTRIBUTE, (_: never[], obj?: GFXAttribute) => obj || new GFXAttribute());
 
 // TODO: could use Labeled Tuple Element feature here after next babel update (required TS4.0+ support)
 export const ShaderPool = new ObjectPool(PoolType.SHADER,
@@ -547,8 +609,11 @@ export const FramebufferPool = new ObjectPool(PoolType.FRAMEBUFFER,
     (obj: GFXFramebuffer) => obj && obj.destroy(),
 );
 
-export const SubModelArrayPool = new ArrayPool<PoolType.SUB_MODEL_ARRAY, PoolType.SUB_MODEL>(PoolType.SUB_MODEL_ARRAY, 10);
-export const ModelArrayPool = new ArrayPool<PoolType.MODEL_ARRAY, PoolType.MODEL>(PoolType.MODEL_ARRAY, 50, 10);
+export const SubModelArrayPool = new TypedArrayPool<PoolType.SUB_MODEL_ARRAY, Uint32Array, SubModelHandle>(PoolType.SUB_MODEL_ARRAY, Uint32Array, 8, 4);
+export const ModelArrayPool = new TypedArrayPool<PoolType.MODEL_ARRAY, Uint32Array, ModelHandle>(PoolType.MODEL_ARRAY, Uint32Array, 32, 16);
+export const AttributeArrayPool = new TypedArrayPool<PoolType.ATTRIBUTE_ARRAY, Uint32Array, AttributeHandle>(PoolType.ATTRIBUTE_ARRAY, Uint32Array, 8, 4);
+
+export const RawBufferPool = new BufferAllocator(PoolType.RAW_BUFFER);
 
 export enum PassView {
     PRIORITY,
@@ -580,7 +645,7 @@ interface IPassViewType extends BufferTypeManifest<typeof PassView> {
     [PassView.PIPELINE_LAYOUT]: PipelineLayoutHandle;
     [PassView.COUNT]: never;
 }
-const passViewDataType :BufferDataTypeManifest<typeof PassView> = {
+const passViewDataType: BufferDataTypeManifest<typeof PassView> = {
     [PassView.PRIORITY]: BufferDataType.UINT32,
     [PassView.STAGE]: BufferDataType.UINT32,
     [PassView.PHASE]: BufferDataType.UINT32,
@@ -655,11 +720,13 @@ export enum ModelView {
     ENABLED,
     VIS_FLAGS,
     CAST_SHADOW,
-    WORLD_BOUNDS,    // handle
-    NODE,            // handle
-    TRANSFORM,       // handle
-    SUB_MODEL_ARRAY, // array handle
-    COUNT
+    WORLD_BOUNDS,         // handle
+    NODE,                 // handle
+    TRANSFORM,            // handle
+    SUB_MODEL_ARRAY,      // array handle
+    INSTANCED_BUFFER,     // raw buffer handle
+    INSTANCED_ATTR_ARRAY, // array handle
+    COUNT,
 }
 interface IModelViewType extends BufferTypeManifest<typeof ModelView> {
     [ModelView.ENABLED]: number;
@@ -669,6 +736,8 @@ interface IModelViewType extends BufferTypeManifest<typeof ModelView> {
     [ModelView.NODE]: NodeHandle;
     [ModelView.TRANSFORM]: NodeHandle;
     [ModelView.SUB_MODEL_ARRAY]: SubModelArrayHandle;
+    [ModelView.INSTANCED_BUFFER]: RawBufferHandle;
+    [ModelView.INSTANCED_ATTR_ARRAY]: AttributeArrayHandle;
     [ModelView.COUNT]: never;
 }
 const modelViewDataType: BufferDataTypeManifest<typeof ModelView> = {
@@ -679,6 +748,8 @@ const modelViewDataType: BufferDataTypeManifest<typeof ModelView> = {
     [ModelView.NODE]: BufferDataType.UINT32,
     [ModelView.TRANSFORM]: BufferDataType.UINT32,
     [ModelView.SUB_MODEL_ARRAY]: BufferDataType.UINT32,
+    [ModelView.INSTANCED_BUFFER]: BufferDataType.UINT32,
+    [ModelView.INSTANCED_ATTR_ARRAY]: BufferDataType.UINT32,
     [ModelView.COUNT]: BufferDataType.NEVER
 }
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
@@ -689,7 +760,7 @@ export const ModelPool = new BufferPool<PoolType.MODEL, typeof ModelView, IModel
 export enum AABBView {
     CENTER,             // Vec3
     HALF_EXTENSION = 3, // Vec3
-    COUNT = 6
+    COUNT = 6,
 }
 interface IAABBViewType extends BufferTypeManifest<typeof AABBView> {
     [AABBView.CENTER]: Vec3;
@@ -795,14 +866,16 @@ const cameraViewDataType: BufferDataTypeManifest<typeof CameraView> = {
 export const CameraPool = new BufferPool<PoolType.CAMERA, typeof CameraView, ICameraViewType>(PoolType.CAMERA, cameraViewDataType, CameraView);
 
 export enum NodeView {
+    FLAGS_CHANGED,
     LAYER,
     WORLD_SCALE,        // Vec3
-    WORLD_POSITION = 4, // Vec3
-    WORLD_ROTATION = 7, // Quat
-    WORLD_MATRIX = 11,  // Mat4
-    COUNT = 27
+    WORLD_POSITION = 5, // Vec3
+    WORLD_ROTATION = 8, // Quat
+    WORLD_MATRIX = 12,  // Mat4
+    COUNT = 28
 }
 interface INodeViewType extends BufferTypeManifest<typeof NodeView> {
+    [NodeView.FLAGS_CHANGED]: number;
     [NodeView.LAYER]: Layers.Enum;
     [NodeView.WORLD_SCALE]: Vec3;
     [NodeView.WORLD_POSITION]: Vec3;
@@ -811,6 +884,7 @@ interface INodeViewType extends BufferTypeManifest<typeof NodeView> {
     [NodeView.COUNT]: never;
 }
 const nodeViewDataType: BufferDataTypeManifest<typeof NodeView> = {
+    [NodeView.FLAGS_CHANGED]: BufferDataType.UINT32,
     [NodeView.LAYER]: BufferDataType.UINT32,
     [NodeView.WORLD_SCALE]: BufferDataType.FLOAT32,
     [NodeView.WORLD_POSITION]: BufferDataType.FLOAT32,
@@ -892,8 +966,8 @@ export const FrustumPool = new BufferPool<PoolType.FRUSTUM, typeof FrustumView, 
 export enum AmbientView {
     ENABLE,
     ILLUM,
-    SKY_COLOR, // vec4
-    GROUND_ALBEDO = 6, // vec4
+    SKY_COLOR,         // Vec4
+    GROUND_ALBEDO = 6, // Vec4
     COUNT = 10
 }
 interface IAmbientViewType extends BufferTypeManifest<typeof AmbientView> {
@@ -912,6 +986,9 @@ const ambientViewDataType: BufferDataTypeManifest<typeof AmbientView> = {
 }
 // @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
 if (!JSB) {delete AmbientView[AmbientView.COUNT]; AmbientView[AmbientView.COUNT = AmbientView.ILLUM + 1] = 'COUNT'; }
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
 export const AmbientPool = new BufferPool<PoolType.AMBIENT, typeof AmbientView, IAmbientViewType>(PoolType.AMBIENT, ambientViewDataType, AmbientView, 1);
 
 export enum SkyboxView {
@@ -935,6 +1012,9 @@ const skyboxDataType: BufferDataTypeManifest<typeof SkyboxView> = {
     [SkyboxView.MODEL]: BufferDataType.UINT32,
     [SkyboxView.COUNT]: BufferDataType.NEVER
 }
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
 export const SkyboxPool = new BufferPool<PoolType.SKYBOX, typeof SkyboxView, ISkyboxViewType>(PoolType.SKYBOX, skyboxDataType, SkyboxView, 1);
 
 export enum FogView {
@@ -975,6 +1055,9 @@ const fogViewDataType: BufferDataTypeManifest<typeof FogView> = {
 }
 // @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
 if (!JSB) {delete FogView[FogView.COUNT]; FogView[FogView.COUNT = FogView.RANGE + 1] = 'COUNT'; }
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
 export const FogPool = new BufferPool<PoolType.FOG, typeof FogView, IFogViewType>(PoolType.FOG, fogViewDataType, FogView);
 
 export enum ShadowsView {
@@ -990,11 +1073,12 @@ export enum ShadowsView {
     PCF_TYPE,
     BIAS,
     ORTHO_SIZE,
+    SPHERE, // handle
     SIZE, // Vec2
-    NORMAL = 14, // Vec3
-    COLOR = 17, // Vec4
-    SPHERE = 21, // Vec4
-    COUNT = 25
+    NORMAL = 15, // Vec3
+    COLOR = 18, // Vec4
+    MAT_LIGHT = 22, //Mat4
+    COUNT = 38
 }
 interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.ENABLE]: number;
@@ -1009,10 +1093,11 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.BIAS]: number;
     [ShadowsView.DIRTY]: number;
     [ShadowsView.ORTHO_SIZE]: number;
+    [ShadowsView.SPHERE]: number;
     [ShadowsView.SIZE]: Vec2;
     [ShadowsView.NORMAL]: Vec3;
     [ShadowsView.COLOR]: Color;
-    [ShadowsView.SPHERE]: Vec4;
+    [ShadowsView.MAT_LIGHT]: Mat4;
     [ShadowsView.COUNT]: never;
 }
 const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
@@ -1031,11 +1116,15 @@ const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
     [ShadowsView.SIZE]: BufferDataType.FLOAT32,
     [ShadowsView.NORMAL]: BufferDataType.FLOAT32,
     [ShadowsView.COLOR]: BufferDataType.FLOAT32,
-    [ShadowsView.SPHERE]: BufferDataType.FLOAT32,
+    [ShadowsView.SPHERE]: BufferDataType.UINT32,
+    [ShadowsView.MAT_LIGHT]: BufferDataType.FLOAT32,
     [ShadowsView.COUNT]: BufferDataType.NEVER
 }
 // @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
-if (!JSB) {delete ShadowsView[FogView.COUNT]; ShadowsView[ShadowsView.COUNT = ShadowsView.ORTHO_SIZE + 1] = 'COUNT'; }
+if (!JSB) {delete ShadowsView[ShadowsView.COUNT]; ShadowsView[ShadowsView.COUNT = ShadowsView.SPHERE + 1] = 'COUNT'; }
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
 export const ShadowsPool = new BufferPool<PoolType.SHADOW, typeof ShadowsView, IShadowsViewType>(PoolType.SHADOW, shadowsViewDataType, ShadowsView, 1);
 
 export enum LightView {
@@ -1065,4 +1154,27 @@ const lightViewDataType: BufferDataTypeManifest<typeof LightView> = {
     [LightView.COLOR_TEMPERATURE_RGB]: BufferDataType.FLOAT32,
     [LightView.COUNT]: BufferDataType.NEVER
 }
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
 export const LightPool = new BufferPool<PoolType.LIGHT, typeof LightView, ILightViewType>(PoolType.LIGHT, lightViewDataType, LightView, 3);
+
+export enum SphereView {
+    RADIUS,
+    CENTER,     //Vec3
+    COUNT = 4
+}
+interface ISphereViewType extends BufferTypeManifest<typeof SphereView> {
+    [SphereView.RADIUS]: number;
+    [SphereView.CENTER]: Vec3;
+    [SphereView.COUNT]: never;
+}
+const sphereViewDataType: BufferDataTypeManifest<typeof SphereView> = {
+    [SphereView.RADIUS]: BufferDataType.FLOAT32,
+    [SphereView.CENTER]: BufferDataType.FLOAT32,
+    [SphereView.COUNT]: BufferDataType.NEVER
+}
+// @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
+if (!JSB) {delete SphereView[SphereView.COUNT]; SphereView[SphereView.COUNT = SphereView.RADIUS + 1] = 'COUNT'; }
+export const SpherePool = new BufferPool<PoolType.SPHERE, typeof SphereView, ISphereViewType>(PoolType.SPHERE, sphereViewDataType, SphereView, 3);
+

@@ -15,7 +15,7 @@ import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderView } from '../render-view';
 import { ShadowType } from '../../renderer/scene/shadows';
-import { genSamplerHash, samplerLib } from '../../renderer';
+import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 
 const _samplerInfo = [
     GFXFilter.LINEAR,

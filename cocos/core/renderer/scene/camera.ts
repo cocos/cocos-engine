@@ -1,11 +1,11 @@
 import { frustum, ray } from '../../geometry';
-import { GFXClearFlag, GFXColor } from '../../gfx/define';
+import { GFXClearFlag,  } from '../../gfx/define';
 import { lerp, Mat4, Rect, toRadian, Vec3, Color, IVec4Like } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { RenderView } from '../../pipeline';
 import { Node } from '../../scene-graph';
 import { RenderScene } from './render-scene';
-import { GFXDevice } from '../../gfx';
+import { GFXDevice, GFXColor } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../core/render-window';
 import { CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, FrustumView, NULL_HANDLE, SceneHandle } from '../core/memory-pools';

@@ -194,8 +194,8 @@ export class UBOShadow {
     public static readonly MAT_LIGHT_PLANE_PROJ_OFFSET = 0;
     public static readonly MAT_LIGHT_VIEW_PROJ_OFFSET = UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
     public static readonly SHADOW_COLOR_OFFSET = UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
-    public static SHADOW_INFO_OFFSET: number = UBOShadow.SHADOW_COLOR_OFFSET + 4;
-    public static COUNT: number = UBOShadow.SHADOW_INFO_OFFSET + 4;
+    public static readonly SHADOW_INFO_OFFSET: number = UBOShadow.SHADOW_COLOR_OFFSET + 4;
+    public static readonly COUNT: number = UBOShadow.SHADOW_INFO_OFFSET + 4;
     public static readonly SIZE = UBOShadow.COUNT * 4;
     public static readonly NAME = 'CCShadow';
     public static readonly BINDING = PipelineGlobalBindings.UBO_SHADOW;

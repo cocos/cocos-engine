@@ -40,6 +40,13 @@ class ForwardPipeline extends nr.ForwardPipeline {
     this.materials = [];
   }
 
+  destroy () {
+    this.fog.destroy();
+    this.ambient.destroy();
+    this.skybox.destroy();
+    this.shadows.destroy();
+  }
+
   init() {
     this.fog = new cc.Fog();
     this.ambient = new cc.Ambient();
@@ -161,6 +168,12 @@ class UIStage extends nr.UIStage {
         new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
     this.initialize(info);
   }
+}
+
+let instancedBufferProto = nr.InstancedBuffer;
+let oldGetFunc = instancedBufferProto.get;
+instancedBufferProto.get = function(pass) {
+  return oldGetFunc.call(this, pass.handle);
 }
 
 class RenderQueueDesc {

@@ -330,7 +330,8 @@ module.exports = {
         videoPlayerEvent: 'The video player\'s callback, it will be triggered when certain event occurs, like: playing, paused, stopped and completed.',
     },
     webview: {
-        url: 'A given URL to be loaded by the WebView, it should have a http or https prefix.',
+        url: 'A given URL to be loaded by the Webview, it should have a http or https prefix.',
+        webviewEvents: 'The Webview\'s event callback , it will be triggered when certain Webview event occurs.'
     },
     richtext: {
         string: 'Text of the RichText, you could use BBcode in the string',
