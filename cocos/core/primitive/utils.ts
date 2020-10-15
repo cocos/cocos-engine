@@ -1,5 +1,4 @@
 /**
- * 几何图形模块
  * @packageDocumentation
  * @module 3d/primitive
  */

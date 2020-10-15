@@ -102,8 +102,8 @@ export const js = {
 };
 
 /**
- * This module provides some JavaScript utilities.
- * All members can be accessed with "cc.js".
+ * @en This module provides some JavaScript utilities. All members can be accessed via `import { js } from 'cc'`.
+ * @zh 这个模块封装了 JavaScript 相关的一些实用函数，你可以通过 `import { js } from 'cc'` 来访问这个模块。
  */
 legacyCC.js = js;
 

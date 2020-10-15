@@ -483,7 +483,7 @@ export class EditBoxImpl extends EditBoxImplBase {
 
         const elem = this._edTxt;
         elem.style.fontSize = `${fontSize}px`;
-        elem.style.color = textLabel.color.toCSS('rgba');
+        elem.style.color = textLabel.color.toCSS();
         elem.style.fontFamily = font;
 
         switch (textLabel.horizontalAlign) {
@@ -530,7 +530,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._placeholderLineHeight = placeholderLabel.fontSize;
 
         const styleEl = this._placeholderStyleSheet;
-        const fontColor = placeholderLabel.color.toCSS('rgba');
+        const fontColor = placeholderLabel.color.toCSS();
         const lineHeight = placeholderLabel.fontSize;
 
         let horizontalAlign = '';

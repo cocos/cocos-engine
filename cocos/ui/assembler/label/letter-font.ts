@@ -571,10 +571,10 @@ export const letterFont = {
 
     _computeHash (labelInfo: ILabelInfo) {
         const hashData = '';
-        const color = labelInfo.color.toHEX('#rrggbb');
+        const color = labelInfo.color.toHEX();
         let out = '';
         if (labelInfo.isOutlined) {
-            out = labelInfo.out.toHEX('#rrggbb');
+            out = labelInfo.out.toHEX();
         }
 
         return hashData + labelInfo.fontSize + labelInfo.fontFamily + color + out;
