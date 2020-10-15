@@ -25,6 +25,10 @@ import { HeightField } from './height-field';
 import { legacyCC } from '../core/global-exports';
 import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY, TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY, TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, } from './terrain-asset';
 
+
+const bbMin = new Vec3();
+const bbMax = new Vec3();
+
 /**
  * @en Terrain info
  * @zh 地形信息
@@ -284,8 +288,8 @@ export class TerrainBlock {
         // vertex buffer
         const vertexData = new Float32Array(TERRAIN_BLOCK_VERTEX_SIZE * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY);
         let index = 0;
-        const bbMin = new Vec3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
-        const bbMax = new Vec3(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE);
+        bbMin.set(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+        bbMax.set(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE);
         for (let j = 0; j < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++j) {
             for (let i = 0; i < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++i) {
                 const x = this._index[0] * TERRAIN_BLOCK_TILE_COMPLEXITY + i;
@@ -302,14 +306,8 @@ export class TerrainBlock {
                 vertexData[index++] = uv.x;
                 vertexData[index++] = uv.y;
 
-                if (i === 0 && j === 0) {
-                    Vec3.copy(bbMin, position);
-                    Vec3.copy(bbMax, position);
-                }
-                else {
-                    Vec3.min(bbMin, bbMin, position);
-                    Vec3.max(bbMax, bbMax, position);
-                }
+                Vec3.min(bbMin, bbMin, position);
+                Vec3.max(bbMax, bbMax, position);
             }
         }
 
@@ -584,8 +582,8 @@ export class TerrainBlock {
         const vertexData = new Float32Array(TERRAIN_BLOCK_VERTEX_SIZE * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY);
 
         let index = 0;
-        const bbMin = new Vec3(0, 0, 0);
-        const bbMax = new Vec3(0, 0, 0);
+        bbMin.set(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+        bbMax.set(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE);
         for (let j = 0; j < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++j) {
             for (let i = 0; i < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++i) {
                 const x = this._index[0] * TERRAIN_BLOCK_TILE_COMPLEXITY + i;
@@ -604,14 +602,8 @@ export class TerrainBlock {
                 vertexData[index++] = uv.x;
                 vertexData[index++] = uv.y;
 
-                if (i === 0 && j === 0) {
-                    Vec3.copy(bbMin, position);
-                    Vec3.copy(bbMax, position);
-                }
-                else {
-                    Vec3.min(bbMin, bbMin, position);
-                    Vec3.max(bbMax, bbMax, position);
-                }
+                Vec3.min(bbMin, bbMin, position);
+                Vec3.max(bbMax, bbMax, position);
             }
         }
 
