@@ -12,6 +12,7 @@ export * from './core/sampler-lib';
 export * from './core/texture-buffer-pool';
 export * from './core/material-instance';
 export * from './core/pass-instance';
+export * from './core/memory-pools';
 
 import * as models from './models';
 import * as scene from './scene';
