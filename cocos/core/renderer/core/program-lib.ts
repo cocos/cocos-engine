@@ -28,14 +28,15 @@
  * @module material
  */
 
-import { IBlockInfo, IBuiltinInfo, IDefineInfo, IShaderInfo } from '../../assets/effect-asset';
+import { EffectAsset, IBlockInfo, IBuiltinInfo, IDefineInfo, IShaderInfo } from '../../assets/effect-asset';
 import { GFXDescriptorType, GFXGetTypeSize, GFXShaderStageFlagBit, GFXAPI } from '../../gfx/define';
 import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { genHandle, MacroRecord, PropertyType } from './pass-utils';
 import { legacyCC } from '../../global-exports';
 import { ShaderPool, ShaderHandle, PipelineLayoutHandle, PipelineLayoutPool, NULL_HANDLE } from './memory-pools';
-import { GFXPipelineLayoutInfo, GFXDevice, GFXAttribute, GFXUniformBlock, GFXShaderInfo, GFXUniformSampler, GFXUniform, GFXShaderStage, DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE,
+import { GFXPipelineLayoutInfo, GFXDevice, GFXAttribute, GFXUniformBlock, GFXShaderInfo, GFXUniformSampler,
+    GFXUniform, GFXShaderStage, DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE,
     GFXDescriptorSetLayout, GFXDescriptorSetLayoutBinding, GFXDescriptorSetLayoutInfo } from '../../gfx';
 
 const _dsLayoutInfo = new GFXDescriptorSetLayoutInfo();
@@ -51,6 +52,9 @@ export interface IProgramInfo extends IShaderInfo {
     gfxBlocks: GFXUniformBlock[];
     gfxSamplers: GFXUniformSampler[];
     gfxStages: GFXShaderStage[];
+    setLayouts: GFXDescriptorSetLayout[];
+    hPipelineLayout: PipelineLayoutHandle;
+    effectName: string;
     defines: IDefineRecord[];
     handleMap: Record<string, number>;
     bindings: GFXDescriptorSetLayoutBinding[];
@@ -61,11 +65,6 @@ interface IMacroInfo {
     name: string;
     value: string;
     isDefault: boolean;
-}
-
-export interface IPipelineLayoutInfo {
-    setLayouts: GFXDescriptorSetLayout[];
-    hPipelineLayout: PipelineLayoutHandle;
 }
 
 function getBitCount (cnt: number) {
@@ -178,19 +177,27 @@ function getActiveAttributes (tmpl: IProgramInfo, defines: MacroRecord) {
  * @zh 维护 shader 资源实例的全局管理器。
  */
 class ProgramLib {
-    protected _templates: Record<string, IProgramInfo> = {};
-    protected _pipelineLayouts: Record<string, IPipelineLayoutInfo> = {};
+    protected _localBindings: Record<string, GFXDescriptorSetLayoutBinding[]> = {}; // per effect
+    protected _templates: Record<string, IProgramInfo> = {}; // per shader
     protected _cache: Record<string, ShaderHandle> = {};
+
+    public register (effect: EffectAsset) {
+        const bindings = this._localBindings[effect.name] = [];
+        for (let i = 0; i < effect.shaders.length; i++) {
+            const tmpl = this.define(effect.shaders[i]);
+            tmpl.effectName = effect.name;
+            insertBuiltinBindings(tmpl, localDescriptorSetLayout, 'locals', bindings);
+        }
+    }
 
     /**
      * @en Register the shader template with the given info
-     * @zh 根据 effect 信息注册 shader 模板。
-     * @param name Target shader name
+     * @zh 注册 shader 模板。
      */
-    public define (prog: IShaderInfo) {
-        const curTmpl = this._templates[prog.name];
-        if (curTmpl && curTmpl.hash === prog.hash) { return; }
-        const tmpl = Object.assign({}, prog) as IProgramInfo;
+    public define (shader: IShaderInfo) {
+        const curTmpl = this._templates[shader.name];
+        if (curTmpl && curTmpl.hash === shader.hash) { return curTmpl; }
+        const tmpl = Object.assign({}, shader) as IProgramInfo;
         // calculate option mask offset
         let offset = 0;
         for (let i = 0; i < tmpl.defines.length; i++) {
@@ -237,12 +244,14 @@ class ProgramLib {
         tmpl.gfxStages = [];
         tmpl.gfxStages.push(new GFXShaderStage(GFXShaderStageFlagBit.VERTEX, ''));
         tmpl.gfxStages.push(new GFXShaderStage(GFXShaderStageFlagBit.FRAGMENT, ''));
+        tmpl.hPipelineLayout = NULL_HANDLE;
+        tmpl.setLayouts = [];
 
         tmpl.handleMap = genHandles(tmpl);
 
         // store it
-        this._templates[prog.name] = tmpl;
-        this._pipelineLayouts[prog.name] = { hPipelineLayout: NULL_HANDLE, setLayouts: [] };
+        this._templates[shader.name] = tmpl;
+        return tmpl;
     }
 
     /**
@@ -259,8 +268,16 @@ class ProgramLib {
      * @zh 通过名字获取 Shader 模板相关联的管线布局
      * @param name Target shader name
      */
-    public getPipelineLayout (name: string) {
-        return this._pipelineLayouts[name];
+    public getDescriptorSetLayout (device: GFXDevice, name: string, isLocal = false) {
+        const tmpl = this._templates[name];
+
+        if (!tmpl.setLayouts.length) {
+            _dsLayoutInfo.bindings = tmpl.bindings;
+            tmpl.setLayouts[SetIndex.MATERIAL] = device.createDescriptorSetLayout(_dsLayoutInfo);
+            _dsLayoutInfo.bindings = this._localBindings[tmpl.effectName];
+            tmpl.setLayouts[SetIndex.LOCAL] = device.createDescriptorSetLayout(_dsLayoutInfo);
+        }
+        return tmpl.setLayouts[isLocal ? SetIndex.LOCAL : SetIndex.MATERIAL];
     }
 
     /**
@@ -337,34 +354,24 @@ class ProgramLib {
     /**
      * @en Gets the shader resource instance with given information
      * @zh 获取指定 shader 的渲染资源实例
-     * @param device The device
      * @param name Shader name
      * @param defines Preprocess macros
      * @param pipeline The [[RenderPipeline]] which owns the render command
+     * @param key The shader cache key, if already known
      */
-    public getGFXShader (device: GFXDevice, name: string, defines: MacroRecord, pipeline: RenderPipeline, key?: string) {
+    public getGFXShader (name: string, defines: MacroRecord, pipeline: RenderPipeline, key?: string) {
         Object.assign(defines, pipeline.macros);
         if (!key) key = this.getKey(name, defines);
         const res = this._cache[key];
         if (res) { return res; }
 
+        const device = pipeline.device;
         const tmpl = this._templates[name];
-        const layout = this._pipelineLayouts[name];
-
-        if (!layout.hPipelineLayout) {
-            const localBindings: GFXDescriptorSetLayoutBinding[] = [];
-            insertBuiltinBindings(tmpl, localDescriptorSetLayout, 'locals', localBindings);
+        if (!tmpl.hPipelineLayout) {
+            this.getDescriptorSetLayout(device, name); // ensure set layouts have been created
             insertBuiltinBindings(tmpl, globalDescriptorSetLayout, 'globals');
-            layout.setLayouts[SetIndex.GLOBAL] = pipeline.descriptorSetLayout;
-            // material set layout should already been created in pass, but if not
-            // (like when the same shader is overriden) we create it again here
-            if (!layout.setLayouts[SetIndex.MATERIAL]) {
-                _dsLayoutInfo.bindings = tmpl.bindings;
-                layout.setLayouts[SetIndex.MATERIAL] = device.createDescriptorSetLayout(_dsLayoutInfo);
-            }
-            _dsLayoutInfo.bindings = localBindings;
-            layout.setLayouts[SetIndex.LOCAL] = device.createDescriptorSetLayout(_dsLayoutInfo);
-            layout.hPipelineLayout = PipelineLayoutPool.alloc(device, new GFXPipelineLayoutInfo(layout.setLayouts));
+            tmpl.setLayouts[SetIndex.GLOBAL] = pipeline.descriptorSetLayout;
+            tmpl.hPipelineLayout = PipelineLayoutPool.alloc(device, new GFXPipelineLayoutInfo(tmpl.setLayouts));
         }
 
         const macroArray = prepareDefines(defines, tmpl.defines);

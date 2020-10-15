@@ -440,7 +440,7 @@ export class Collider extends Eventify(Component) {
             }
             this._shape.onDestroy!();
         }
-        this._boundingSphere!.destroy();
+        if (this._boundingSphere) this._boundingSphere.destroy();
     }
 
     private _updateMaterial () {

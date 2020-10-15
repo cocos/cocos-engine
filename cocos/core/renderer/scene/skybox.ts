@@ -130,7 +130,7 @@ export class Skybox {
     }
 
     protected _updatePipeline () {
-        const value = this.enabled ? (this.useIBL ? this.isRGBE ? 2 : 1 : 0) : 0;
+        const value = this.useIBL ? this.isRGBE ? 2 : 1 : 0;
         const root = legacyCC.director.root;
         const pipeline = root.pipeline;
         const current = pipeline.macros.CC_USE_IBL;
