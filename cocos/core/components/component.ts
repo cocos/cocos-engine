@@ -43,6 +43,7 @@ import { Node } from '../scene-graph';
 import { EDITOR, TEST, DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { errorID, warnID, assertID } from '../platform/debug';
+import { CompPrefabInfo } from '../utils';
 
 const idGenerator = new IDGenerator('Comp');
 // @ts-ignore
@@ -174,6 +175,12 @@ class Component extends CCObject {
      */
     @serializable
     public _enabled = true;
+
+    /**
+     * @private
+     */
+    @serializable
+    public __prefab: CompPrefabInfo | null = null;
 
     /**
      * @private

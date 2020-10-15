@@ -148,3 +148,11 @@ export default function syncWithPrefab (node) {
     node._localZOrder = _localZOrder;
     node._globalZOrder = _globalZOrder;
 }
+
+@ccclass('cc.CompPrefabInfo ')
+export class CompPrefabInfo {
+    // To identify current component in a prefab asset, so only needs to be unique.
+    @serializable
+    @editable
+    public fileId = '';
+}
