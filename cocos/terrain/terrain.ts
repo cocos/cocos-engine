@@ -189,6 +189,7 @@ class TerrainRenderable extends RenderableComponent {
             this.setMaterial(this._currentMaterial, 0);
             this._currentMaterialLayers = nLayers;
             this._model.enabled = true;
+            this._model.receiveShadow = block.getTerrain().receiveShadow;
         }
     }
 
@@ -562,7 +563,7 @@ export class TerrainBlock {
         return {
             LAYERS: nlayers + 1,
             USE_LIGHTMAP: this.lightmap !== null ? 1 : 0,
-            CC_RECEIVE_SHADOW: this._terrain.receiveShadow ? 1 : 0,
+            // CC_RECEIVE_SHADOW: this._terrain.receiveShadow ? 1 : 0,
         };
     }
 
