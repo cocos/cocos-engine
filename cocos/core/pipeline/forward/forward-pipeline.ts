@@ -200,7 +200,7 @@ export class ForwardPipeline extends RenderPipeline {
                 x = radius * shadowInfo.aspect;
                 y = radius;
 
-                far = shadowInfo.receiveSphere.radius * 2.0;
+                far = shadowInfo.receiveSphere.radius * 4.0;
                 if(radius >= 500) { shadowInfo.size.set(2048, 2048); }
                 else if (radius < 500 && radius >= 100) { shadowInfo.size.set(1024, 1024); }
             } else {
