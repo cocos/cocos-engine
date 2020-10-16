@@ -359,13 +359,12 @@ class ProgramLib {
      * @param pipeline The [[RenderPipeline]] which owns the render command
      * @param key The shader cache key, if already known
      */
-    public getGFXShader (name: string, defines: MacroRecord, pipeline: RenderPipeline, key?: string) {
+    public getGFXShader (device: GFXDevice, name: string, defines: MacroRecord, pipeline: RenderPipeline, key?: string) {
         Object.assign(defines, pipeline.macros);
         if (!key) key = this.getKey(name, defines);
         const res = this._cache[key];
         if (res) { return res; }
 
-        const device = pipeline.device;
         const tmpl = this._templates[name];
         if (!tmpl.hPipelineLayout) {
             this.getDescriptorSetLayout(device, name); // ensure set layouts have been created

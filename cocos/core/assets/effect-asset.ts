@@ -215,7 +215,7 @@ export class EffectAsset extends Asset {
                 next.forEach((defines, idx) => defines[name] = choices[idx]);
                 return acc.concat(next);
             }, [] as MacroRecord[]), [{}] as MacroRecord[]).forEach(
-                (defines) => programLib.getGFXShader(shader.name, defines, root.pipeline));
+                (defines) => programLib.getGFXShader(root.device, shader.name, defines, root.pipeline));
         }
     }
 }

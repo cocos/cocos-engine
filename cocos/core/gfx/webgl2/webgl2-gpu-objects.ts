@@ -172,7 +172,6 @@ export interface IWebGL2GPUShader {
 export interface IWebGL2GPUDescriptorSetLayout {
     bindings: GFXDescriptorSetLayoutBinding[];
     dynamicBindings: number[];
-    bindingIndices: number[];
     descriptorIndices: number[];
     descriptorCount: number;
 }
@@ -180,7 +179,6 @@ export interface IWebGL2GPUDescriptorSetLayout {
 export interface IWebGL2GPUPipelineLayout {
     gpuSetLayouts: IWebGL2GPUDescriptorSetLayout[];
     dynamicOffsetCount: number;
-    dynamicOffsetOffsets: number[];
     dynamicOffsetIndices: number[][];
 }
 
@@ -204,7 +202,6 @@ export interface IWebGL2GPUDescriptor {
 
 export interface IWebGL2GPUDescriptorSet {
     gpuDescriptors: IWebGL2GPUDescriptor[];
-    bindingIndices: number[];
     descriptorIndices: number[];
 }
 

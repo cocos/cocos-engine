@@ -455,7 +455,7 @@ export class Pass {
         const pipeline = this._root.pipeline;
         if (!pipeline) { return false; }
         this._syncBatchingScheme();
-        this._hShaderDefault = programLib.getGFXShader(this._programName, this._defines, pipeline);
+        this._hShaderDefault = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
         if (!this._hShaderDefault) { console.warn(`create shader ${this._programName} failed`); return false; }
         PassPool.set(this._handle, PassView.PIPELINE_LAYOUT, programLib.getTemplate(this._programName).hPipelineLayout);
         PassPool.set(this._handle, PassView.HASH, Pass.getPassHash(this._handle, this._hShaderDefault));
@@ -492,7 +492,7 @@ export class Pass {
             this._defines[patch.name] = patch.value;
         }
 
-        const hShader = programLib.getGFXShader(this._programName, this._defines, pipeline);
+        const hShader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
 
         for (let i = 0; i < patches.length; i++) {
             const patch = patches[i];

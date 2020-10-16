@@ -14,33 +14,25 @@ export class WebGL2PipelineLayout extends GFXPipelineLayout {
         const dynamicOffsetIndices: number[][] = [];
 
         const gpuSetLayouts: IWebGL2GPUDescriptorSetLayout[] = [];
-        const dynamicOffsetOffsets: number[] = [];
-        let dynamicOffsetCount = 0; let idx = 0;
+        let dynamicOffsetCount = 0;
         for (let i = 0; i < this._setLayouts.length; i++) {
             const setLayout = this._setLayouts[i] as WebGL2DescriptorSetLayout;
             const dynamicBindings = setLayout.gpuDescriptorSetLayout.dynamicBindings;
-            const bindings = setLayout.bindings;
-            const indices: number[] = [];
-            gpuSetLayouts.push(setLayout.gpuDescriptorSetLayout);
-            for (let j = 0, k = 0; j < bindings.length; j++) {
-                if (dynamicBindings[k] === j) {
-                    indices.push(idx);
-                    while (dynamicBindings[k] === j) k++, idx++;
-                } else {
-                    indices.push(-1);
-                }
+            const indices = Array(setLayout.bindingIndices.length).fill(-1);
+            for (let j = 0; j < dynamicBindings.length; j++) {
+                const binding = dynamicBindings[j];
+                if (indices[binding] < 0) indices[binding] = dynamicOffsetCount + j;
             }
 
+            gpuSetLayouts.push(setLayout.gpuDescriptorSetLayout);
             dynamicOffsetIndices.push(indices);
-            dynamicOffsetOffsets.push(dynamicOffsetCount);
             dynamicOffsetCount += dynamicBindings.length;
         }
 
         this._gpuPipelineLayout = {
             gpuSetLayouts,
-            dynamicOffsetCount,
-            dynamicOffsetOffsets,
             dynamicOffsetIndices,
+            dynamicOffsetCount,
         };
 
         return true;
