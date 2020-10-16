@@ -210,6 +210,31 @@ export class UIRenderable extends RenderableComponent {
     protected _uiMaterialDirty = false;
     protected _uiMatInsDirty = false;
 
+    // materialInstance only for Stencil // Will remove at v3.0
+    protected _materialInstanceForStencil;
+    public getMaterialInstanceForStencil () {
+        if (!this._materialInstanceForStencil) {
+            let patentMaterial;
+            if (this.getRenderMaterial(0)) {
+                patentMaterial = this.getMaterial(0);
+            } else {
+                patentMaterial = this._uiMaterial;
+            }
+            _matInsInfo.owner = this;
+            _matInsInfo.parent = patentMaterial;
+            this._materialInstanceForStencil = new MaterialInstance(_matInsInfo);
+        }
+        return this._materialInstanceForStencil;
+    }
+
+    protected _onMaterialModified (idx: number, material: Material | null) {
+        if (this._materialInstanceForStencil) {
+            const inst = this._materialInstanceForStencil;
+            inst.destroy();
+            this._materialInstanceForStencil = null;
+        }
+    }
+
     /**
      * @en The user customized material, if not set, it will use builtin material resources, and will show nothing on inspector field.
      * @zh 用户自定义材质，如果没有设置过，那么将使用引擎内置的材质资源，在面板上也不会显示。
@@ -475,6 +500,12 @@ export class UIRenderable extends RenderableComponent {
             }
             this._uiMaterialDirty = false;
             if(!init) {this._uiMatInsDirty = true;}
+            // materialInstance only for Stencil // Will remove at v3.0
+            if(this._materialInstanceForStencil) {
+                const inst = this._materialInstanceForStencil;
+                inst.destroy();
+                this._materialInstanceForStencil = null;
+            }
             return this._uiMaterial;
         }
     }
