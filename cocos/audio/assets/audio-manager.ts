@@ -2,7 +2,7 @@ import { legacyCC } from "../../core/global-exports";
 
 export abstract class AudioManager<AudioType> {
     protected _playingAudios: Array<AudioType>;
-    public static readonly maxAudioChannel: number = 3;
+    public static readonly maxAudioChannel: number = 24;
 
     constructor () {
         this._playingAudios = [];
