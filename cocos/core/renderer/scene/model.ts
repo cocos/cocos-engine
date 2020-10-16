@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 import { builtinResMgr } from '../../3d/builtin/init';
 import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/mesh';
