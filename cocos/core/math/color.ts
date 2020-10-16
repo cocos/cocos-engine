@@ -395,20 +395,29 @@ export class Color extends ValueType {
      * @zh 将当前颜色转换为 CSS 格式。
      * @param opt "rgba", "rgb", "#rgb" or "#rrggbb".
      * @returns CSS format for the current color.
+     * @example
+     * ```ts
+     * let color = cc.Color.BLACK;
+     * color.toCSS();          // "rgba(0,0,0,1.00)";
+     * color.toCSS("rgba");    // "rgba(0,0,0,1.00)";
+     * color.toCSS("rgb");     // "rgba(0,0,0)";
+     * color.toCSS("#rgb");    // "#000";
+     * color.toCSS("#rrggbb"); // "#000000";
+     * ```
      */
-    public toCSS (opt: 'rgba' | 'rgb' | '#rrggbb' | '#rrggbbaa') {
+    public toCSS (opt: ('rgba' | 'rgb' | '#rrggbb' | '#rrggbbaa') = 'rgba') {
         if (opt === 'rgba') {
             return 'rgba(' +
-                (this.r | 0) + ',' +
-                (this.g | 0) + ',' +
-                (this.b | 0) + ',' +
+                this.r + ',' +
+                this.g + ',' +
+                this.b + ',' +
                 (this.a * toFloat).toFixed(2) + ')'
                 ;
         } else if (opt === 'rgb') {
             return 'rgb(' +
-                (this.r | 0) + ',' +
-                (this.g | 0) + ',' +
-                (this.b | 0) + ')'
+                this.r + ',' +
+                this.g + ',' +
+                this.b + ')'
                 ;
         } else {
             return '#' + this.toHEX(opt);
@@ -449,29 +458,22 @@ export class Color extends ValueType {
      * color.toHEX("#rrggbb");   // "ff0e00ff"
      * ```
      */
-    public toHEX (fmt: '#rgb' | '#rrggbb' | '#rrggbbaa') {
-        let prefix = '0';
+    public toHEX (fmt: '#rgb' | '#rrggbb' | '#rrggbbaa' = '#rrggbb') {
+        const prefix = '0';
+        // #rrggbb
         const hex = [
-            (this.r < 16 ? prefix : '') + (this.r | 0).toString(16),
-            (this.g < 16 ? prefix : '') + (this.g | 0).toString(16),
-            (this.b < 16 ? prefix : '') + (this.b | 0).toString(16),
+            (this.r < 16 ? prefix : '') + (this.r).toString(16),
+            (this.g < 16 ? prefix : '') + (this.g).toString(16),
+            (this.b < 16 ? prefix : '') + (this.b).toString(16),
         ];
         let i = -1;
         if ( fmt === '#rgb' ) {
-            for ( i = 0; i < hex.length; ++i ) {
-                if ( hex[i].length > 1 ) {
-                    hex[i] = hex[i][0];
-                }
-            }
+            hex[0] = hex[0][0];
+            hex[1] = hex[1][0];
+            hex[2] = hex[2][0];
         }
-        else if (fmt === '#rrggbb') {
-            for (i = 0; i < hex.length; ++i) {
-                if (hex[i].length === 1) {
-                    hex[i] = '0' + hex[i];
-                }
-            }
-        } else if (fmt === '#rrggbbaa') {
-            hex.push((this.a < 16 ? prefix : '') + (this.a | 0).toString(16));
+        else if (fmt === '#rrggbbaa') {
+            hex.push((this.a < 16 ? prefix : '') + (this.a).toString(16));
         }
         return hex.join('');
     }
@@ -515,8 +517,6 @@ export class Color extends ValueType {
             } else {
                 if (h === 1) { h = 0; }
                 h *= 6;
-                s = s;
-                v = v;
                 const i = Math.floor(h);
                 const f = h - i;
                 const p = v * (1 - s);
