@@ -43,9 +43,12 @@ public:
     template <class Type>
     Type *getTypedObject(uint id) const {
         id = _indexMask & id;
+        bool ok = true;
+#ifdef CC_DEBUG
         uint len = 0;
-        bool ok = _jsArr->getArrayLength(&len);
+        ok = _jsArr->getArrayLength(&len);
         CCASSERT(ok && id < len, "ObjectPool: Invalid buffer pool entry id");
+#endif
 
         se::Value jsEntry;
         ok = _jsArr->getArrayElement(id, &jsEntry);

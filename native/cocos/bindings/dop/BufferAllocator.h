@@ -31,7 +31,7 @@ public:
 
     template <class T>
     static T *getBuffer(PoolType type, uint index, uint *size) {
-        index &= ~(1 << 30);
+        index &= _bufferMask;
         if (BufferAllocator::_pools.count(type) != 0) {
             const auto pool = BufferAllocator::_pools[type];
             if (pool->_buffers.count(index) != 0) {
@@ -56,6 +56,7 @@ public:
 
 private:
     static cc::map<PoolType, BufferAllocator *> _pools;
+    static constexpr uint _bufferMask = ~(1 << 30);
 
     cc::map<uint, Object *> _buffers;
     PoolType _type = PoolType::UNKNOWN;
