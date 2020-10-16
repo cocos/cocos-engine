@@ -64,9 +64,6 @@ function align (node: Node, widget: Widget) {
     } else {
         target = node.parent!;
     }
-    if (!target.getComponent(UITransform)) {
-        return;
-    }
     const targetSize = getReadonlyNodeSize(target);
     const isScene = target instanceof Scene;
     const targetAnchor = isScene ? _defaultAnchor : target.getComponent(UITransform)!.anchorPoint;
@@ -421,14 +418,17 @@ export const widgetManager = legacyCC._widgetManager = {
                 return;
             }
 
-            const parentTrans = widgetParent._uiProps.uiTransformComp;
-            const trans = widgetNode._uiProps.uiTransformComp!;
-            if (!parentTrans) {
-                warnID(6501, widget.node.name);
-                return;
+            const isScene = widgetParent instanceof Scene;
+            let parentAP = _defaultAnchor;
+            if (!isScene) {
+                const parentTrans = widgetParent._uiProps.uiTransformComp;
+                if (!parentTrans) {
+                    warnID(6501, widget.node.name);
+                    return;
+                }
+                parentAP = parentTrans.anchorPoint;
             }
-
-            const parentAP = parentTrans.anchorPoint;
+            const trans = widgetNode._uiProps.uiTransformComp!;
             const matchSize = getReadonlyNodeSize(widgetParent!);
             const myAP = trans.anchorPoint;
             const pos = widgetNode.getPosition();

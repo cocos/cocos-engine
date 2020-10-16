@@ -35,7 +35,7 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponen
 import { Size, Vec3 } from '../../core/math';
 import { errorID, warnID } from '../../core/platform/debug';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
-import { View } from '../../core/platform/view';
+import { view, View } from '../../core/platform/view';
 import visibleRect from '../../core/platform/visible-rect';
 import { Scene } from '../../core/scene-graph';
 import { Node } from '../../core/scene-graph/node';
@@ -978,7 +978,11 @@ export class Widget extends Component {
             if (target.getComponent(UITransform)) {
                 target.on(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
                 target.on(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
-            } else {
+            } else if (target instanceof Scene) {
+                // use visibleRect when the widget target is scene
+                view.on('design-resolution-changed', this._targetChangedOperation, this);
+            }
+            else {
                 warnID(6501, this.node.name);
             }
         }
@@ -987,16 +991,24 @@ export class Widget extends Component {
     protected _unregisterTargetEvents () {
         const target = this._target || this.node.parent;
         if (target) {
-            target.off(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
-            target.off(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
+            if (target.getComponent(UITransform)) {
+                target.off(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
+                target.off(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
+            } else if (target instanceof Scene) {
+                view.off('design-resolution-changed', this._targetChangedOperation, this);
+            }
         }
     }
 
     protected _unregisterOldParentEvents (oldParent: Node) {
         const target = this._target || oldParent;
         if (target) {
-            target.off(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
-            target.off(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
+            if (target.getComponent(UITransform)) {
+                target.off(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
+                target.off(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
+            } else if (target instanceof Scene) {
+                view.off('design-resolution-changed', this._targetChangedOperation, this);
+            }
         }
     }
 
