@@ -1557,32 +1557,28 @@ export class Terrain extends Component {
             return true;
         }
 
-        if (!restore && this.__asset != null) {
-            this._tileSize = this.__asset.tileSize;
-            this._blockCount = this.__asset.blockCount;
-            this._weightMapSize = this.__asset.weightMapSize;
-            this._lightMapSize = this.__asset.lightMapSize;
-            this._heights = this.__asset.heights;
-            this._weights = this.__asset.weights;
+        const terrainAsset = this.__asset;
+        if (!restore && terrainAsset !== null) {
+            this._tileSize = terrainAsset.tileSize;
+            this._blockCount = terrainAsset.blockCount;
+            this._weightMapSize = terrainAsset.weightMapSize;
+            this._lightMapSize = terrainAsset.lightMapSize;
+            this._heights = terrainAsset.heights;
+            this._weights = terrainAsset.weights;
 
             // build layers
-            let initial = true;
             for (let i = 0; i < this._layers.length; ++i) {
-                if (this._layers[i] != null) {
-                    initial = false;
-                }
+                this._layers[i] = null;
             }
 
-            if (initial && this._asset != null) {
-                for (const i of this._asset.layerInfos) {
-                    const layer = new TerrainLayer();
-                    layer.tileSize = i.tileSize;
-                    legacyCC.loader.loadRes(i.detailMap, Texture2D, (err, asset) => {
-                        layer.detailMap = asset;
-                    });
+            for (const i of terrainAsset.layerInfos) {
+                const layer = new TerrainLayer();
+                layer.tileSize = i.tileSize;
+                legacyCC.AssetLibrary.loadAsset(i.detailMap, (err, asset) => {
+                    layer.detailMap = asset;
+                });
 
-                    this._layers[i.slot] = layer;
-                }
+                this._layers[i.slot] = layer;
             }
         }
 
