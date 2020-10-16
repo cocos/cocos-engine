@@ -585,6 +585,7 @@ export class ShadowsInfo {
         this._resource.type = this._type;
         this._resource.near = this._near;
         this._resource.far = this._far;
+        this._resource.aspect = this._aspect;
         this._resource.orthoSize = this._orthoSize;
         this._resource.size = this._size;
         this._resource.normal = this._normal;

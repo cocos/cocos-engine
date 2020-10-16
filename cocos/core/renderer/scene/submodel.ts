@@ -66,6 +66,10 @@ export class SubModel {
         return this._descriptorSet!;
     }
 
+    get patches () {
+        return this._patches;
+    }
+
     public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null) {
         this._device = legacyCC.director.root.device as GFXDevice;
 

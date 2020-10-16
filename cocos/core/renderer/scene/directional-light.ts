@@ -1,11 +1,10 @@
-import { Quat, Vec3, Vec4 } from '../../math';
+import { Vec3, Vec4 } from '../../math';
 import { Ambient } from './ambient';
 import { Light, LightType } from './light';
 import { LightPool, LightView } from '../core/memory-pools';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
-const _qt = new Quat();
 
 export class DirectionalLight extends Light {
 
@@ -79,8 +78,7 @@ export class DirectionalLight extends Light {
     private _biasAutoAdjust: number = 1.0;
 
     set direction (dir: Vec3) {
-        this._dir = dir;
-        Vec3.normalize(this._dir, this._dir);
+        Vec3.normalize(this._dir, dir);
         LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
     }
 
@@ -110,8 +108,7 @@ export class DirectionalLight extends Light {
 
     public update () {
         if (this._node && this._node.hasChangedFlags) {
-            this._dir = Vec3.transformQuat(_v3, _forward, this._node.getWorldRotation(_qt));
-            Vec3.normalize(this._dir, this._dir);
+            this.direction = Vec3.transformQuat(_v3, _forward, this._node.worldRotation);
         }
     }
 }

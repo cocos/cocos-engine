@@ -10,7 +10,7 @@ export class WebGLDescriptorSetLayout extends GFXDescriptorSetLayout {
     public initialize (info: GFXDescriptorSetLayoutInfo) {
         Array.prototype.push.apply(this._bindings, info.bindings);
 
-        let descriptorCount = 0; let maxBinding = 0;
+        let descriptorCount = 0; let maxBinding = -1;
         const flattenedIndices: number[] = [];
         for (let i = 0; i < this._bindings.length; i++) {
             const binding = this._bindings[i];
