@@ -63,6 +63,10 @@ export function parse (task: Task) {
                 switch (key) {
                     case RequestType.UUID:
                         const uuid = out.uuid = decodeUuid(item.uuid);
+                        if (!item.bundle) {
+                            const bundle = bundles.find((bundle) => !!bundle.getAssetInfo(uuid));
+                            item.bundle = bundle && bundle.name;
+                        }
                         if (bundles.has(item.bundle)) {
                             config = bundles.get(item.bundle)!.config;
                             info = config.getAssetInfo(uuid);
@@ -114,6 +118,10 @@ export function parse (task: Task) {
                         out.ext = item.ext || '.json';
                         break;
                     case RequestType.SCENE:
+                        if (!item.bundle) {
+                            const bundle = bundles.find((bundle) => !!bundle.getAssetInfo(uuid));
+                            item.bundle = bundle && bundle.name;
+                        }
                         if (bundles.has(item.bundle)) {
                             config = bundles.get(item.bundle)!.config;
                             info = config.getSceneInfo(item.scene);

@@ -912,8 +912,7 @@ export class Game extends EventTarget {
         // Load render pipeline if needed
         const renderPipeline = this.config.renderPipeline;
         if (renderPipeline) {
-            const bundle = assetManager.getBundle('start-scene') ? 'start-scene' : 'main';
-            legacyCC.assetManager.loadAny(renderPipeline, { bundle }, (err, asset) => {
+            legacyCC.assetManager.loadAny(renderPipeline, (err, asset) => {
                 // failed load renderPipeline
                 if (err || !(asset instanceof RenderPipeline)) {
                     console.warn(`Failed load renderpipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);

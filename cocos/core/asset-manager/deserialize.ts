@@ -31,7 +31,7 @@ import MissingScript from '../components/missing-script';
 import { deserialize, Details } from '../data/deserialize';
 import { decodeUuid } from './helper';
 
-let missingClass;
+const missingClass = EDITOR && EditorExtends.MissingReporter.classInstance;
 
 export interface IDependProp {
     uuid: string;
@@ -42,8 +42,6 @@ export interface IDependProp {
 export default function (json: Record<string, any>, options: Record<string, any>) {
     let classFinder;
     if (EDITOR) {
-        missingClass = missingClass || EditorExtends.MissingReporter.classInstance;
-        missingClass.hasMissingClass = false;
         classFinder = (type, data, owner, propName) => {
             const res = missingClass.classFinder(type, data, owner, propName);
             if (res) {
@@ -74,8 +72,9 @@ export default function (json: Record<string, any>, options: Record<string, any>
 
     asset._uuid = options.__uuid__ || '';
 
-    if (EDITOR && missingClass.hasMissingClass) {
+    if (EDITOR) {
         missingClass.reportMissingClass(asset);
+        missingClass.reset();
     }
 
     const uuidList = tdInfo.uuidList;

@@ -327,9 +327,12 @@ export class ImageAsset extends Asset {
             this._setRawAsset(ext);
             this._format = format;
         }
-        else {
+        else if (defaultExt) {
             this._setRawAsset(defaultExt);
             warnID(3120, defaultExt, defaultExt);
+        }
+        else {
+            throw new Error(getError(3121));
         }
     }
 
