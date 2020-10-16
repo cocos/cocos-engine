@@ -399,7 +399,9 @@ extern se::Class* __jsb_cc_gfx_DescriptorSet_class;
 
 bool js_register_cc_gfx_DescriptorSet(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindTextureJSB);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindBuffer);
+SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindSamplerJSB);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_getTexture);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindSampler);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_update);
@@ -408,6 +410,7 @@ SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindTexture);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_initialize);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_destroy);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_getBuffer);
+SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindBufferJSB);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_DescriptorSet);
 
 extern se::Object* __jsb_cc_gfx_CommandBuffer_proto;
