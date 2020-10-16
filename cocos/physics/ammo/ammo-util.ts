@@ -60,6 +60,7 @@ export function cocos2AmmoTriMesh (out: Ammo.btTriangleMesh, mesh: Mesh): Ammo.b
                     const i0 = ib[j - rev] * 3;
                     const i1 = ib[j + rev + 1] * 3;
                     const i2 = ib[j + 2] * 3;
+                    rev = ~rev;
                     const v0 = new Ammo.btVector3(vb[i0], vb[i0 + 1], vb[i0 + 2]);
                     const v1 = new Ammo.btVector3(vb[i1], vb[i1 + 1], vb[i1 + 2]);
                     const v2 = new Ammo.btVector3(vb[i2], vb[i2 + 1], vb[i2 + 2]);
