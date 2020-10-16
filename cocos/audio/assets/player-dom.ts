@@ -32,8 +32,32 @@ import { clamp } from '../../core/math/utils';
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';
 import { legacyCC } from '../../core/global-exports';
 import { createDomAudio } from '../audio-downloader';
+import { AudioManager } from './audio-manager';
 
+type ManagedAudio = AudioPlayerDOM | HTMLAudioElement;
+class AudioManagerDom extends AudioManager<ManagedAudio> {
+    public discardOnePlayingIfNeeded() {
+        if (this._playingAudios.length < AudioManager.maxAudioChannel) {
+            return;
+        }
+
+        // a played audio has a higher priority than a played shot
+        let audioToDiscard: ManagedAudio | undefined;
+        let oldestOneShotIndex = this._playingAudios.findIndex(audio => audio instanceof HTMLAudioElement);
+        if (oldestOneShotIndex > -1) {
+            audioToDiscard = this._playingAudios[oldestOneShotIndex] as HTMLAudioElement;
+            this._playingAudios.splice(oldestOneShotIndex, 1);
+            audioToDiscard.pause();
+            audioToDiscard.src = '';
+        }
+        else {
+            audioToDiscard = this._playingAudios.shift();
+            (<AudioPlayerDOM>audioToDiscard).stop();
+        }
+    }
+}
 export class AudioPlayerDOM extends AudioPlayer {
+    protected static _manager: AudioManagerDom = new AudioManagerDom();
     protected _volume = 1;
     protected _loop = false;
     protected _nativeAudio: HTMLAudioElement;
@@ -59,6 +83,7 @@ export class AudioPlayerDOM extends AudioPlayer {
             this._state = PlayingState.PLAYING;
             this._clip.emit('started');
             this._remove_cb(); // should remove callbacks after any success play
+            AudioPlayerDOM._manager.addPlaying(this);
         };
 
         this._post_gesture = () => {
@@ -86,6 +111,7 @@ export class AudioPlayerDOM extends AudioPlayer {
             this._state = PlayingState.STOPPED;
             this._nativeAudio!.currentTime = 0;
             this._clip.emit('ended');
+            AudioPlayerDOM._manager.removePlaying(this);
         });
         /* play & stop immediately after receiving a gesture so that
            we can freely invoke play() outside event listeners later */
@@ -97,6 +123,7 @@ export class AudioPlayerDOM extends AudioPlayer {
     public play () {
         if (!this._nativeAudio || this._state === PlayingState.PLAYING) { return; }
         if (this._blocking) { this._interrupted = true; return; }
+        AudioPlayerDOM._manager.discardOnePlayingIfNeeded();
         const promise = this._nativeAudio.play();
         if (!promise) {
             // delay eval here to yield uniform behavior with other platforms
@@ -113,6 +140,7 @@ export class AudioPlayerDOM extends AudioPlayer {
         if (this._state !== PlayingState.PLAYING) { return; }
         this._nativeAudio.pause();
         this._state = PlayingState.STOPPED;
+        AudioPlayerDOM._manager.removePlaying(this);
     }
 
     public stop () {
@@ -121,12 +149,18 @@ export class AudioPlayerDOM extends AudioPlayer {
         if (this._state !== PlayingState.PLAYING) { return; }
         this._nativeAudio.pause();
         this._state = PlayingState.STOPPED;
+        AudioPlayerDOM._manager.removePlaying(this);
     }
 
     public playOneShot (volume = 1) {
         createDomAudio(this._nativeAudio.src).then(dom => {
+            AudioPlayerDOM._manager.discardOnePlayingIfNeeded();
             dom.volume = volume;
             dom.play();
+            AudioPlayerDOM._manager.addPlaying(dom);
+            dom.addEventListener('ended', () => {
+                AudioPlayerDOM._manager.removePlaying(dom);
+            });
         }, errMsg => {
             console.error(errMsg);
         });

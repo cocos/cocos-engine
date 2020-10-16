@@ -32,10 +32,36 @@ import { clamp } from '../../core/math/utils';
 import { sys } from '../../core/platform/sys';
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';
 import { legacyCC } from '../../core/global-exports';
+import { AudioManager } from './audio-manager';
 
 const audioSupport = sys.__audioSupport;
 
+type ManagedAudio = AudioPlayerWeb | AudioBufferSourceNode;
+
+class AudioManagerWeb extends AudioManager<ManagedAudio> {
+    public discardOnePlayingIfNeeded() {
+        if (this._playingAudios.length < AudioManager.maxAudioChannel) {
+            return;
+        }
+
+        // a played audio has a higher priority than a played shot
+        let audioToDiscard: ManagedAudio | undefined;
+        let oldestOneShotIndex = this._playingAudios.findIndex(audio => audio instanceof AudioBufferSourceNode);
+        if (oldestOneShotIndex > -1) {
+            audioToDiscard = this._playingAudios[oldestOneShotIndex];
+            this._playingAudios.splice(oldestOneShotIndex, 1);
+        }
+        else {
+            audioToDiscard = this._playingAudios.shift();
+        }
+        if (audioToDiscard) {
+            audioToDiscard.stop();
+        }
+    }
+}
+
 export class AudioPlayerWeb extends AudioPlayer {
+    protected static _manager: AudioManagerWeb = new AudioManagerWeb;
     protected _startTime = 0;
     protected _offset = 0;
     protected _volume = 1;
@@ -104,6 +130,7 @@ export class AudioPlayerWeb extends AudioPlayer {
 
     public playOneShot (volume = 1) {
         if (!this._nativeAudio) { return; }
+        AudioPlayerWeb._manager.discardOnePlayingIfNeeded();
         const gainNode = this._context.createGain();
         gainNode.connect(this._context.destination);
         gainNode.gain.value = volume;
@@ -112,6 +139,10 @@ export class AudioPlayerWeb extends AudioPlayer {
         sourceNode.loop = false;
         sourceNode.connect(gainNode);
         sourceNode.start();
+        AudioPlayerWeb._manager.addPlaying(sourceNode);
+        sourceNode.onended = () => {
+            AudioPlayerWeb._manager.removePlaying(sourceNode);
+        }
     }
 
     public setCurrentTime (val: number) {
@@ -158,6 +189,7 @@ export class AudioPlayerWeb extends AudioPlayer {
     public destroy () { super.destroy(); }
 
     private _doPlay () {
+        AudioPlayerWeb._manager.discardOnePlayingIfNeeded();
         this._state = PlayingState.PLAYING;
         this._sourceNode = this._context.createBufferSource();
         this._sourceNode.buffer = this._nativeAudio;
@@ -184,12 +216,14 @@ export class AudioPlayerWeb extends AudioPlayer {
         // stop can only be called after play
         if (this._startInvoked) { this._sourceNode.stop(); }
         else { legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this._playAndEmit, this); }
+        AudioPlayerWeb._manager.removePlaying(this);
     }
 
     private _playAndEmit () {
         this._sourceNode.start(0, this._offset);
         this._clip.emit('started');
         this._startInvoked = true;
+        AudioPlayerWeb._manager.addPlaying(this);
     }
 
     private _onEnded () {
@@ -198,6 +232,7 @@ export class AudioPlayerWeb extends AudioPlayer {
         if (this._sourceNode.loop) { return; }
         this._clip.emit('ended');
         this._state = PlayingState.STOPPED;
+        AudioPlayerWeb._manager.removePlaying(this);
     }
 
     private _onGestureProceed () {
