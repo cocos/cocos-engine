@@ -60,6 +60,21 @@ void DescriptorSet::bindSampler(uint binding, Sampler *sampler, uint index) {
     }
 }
 
+bool DescriptorSet::bindBufferJSB(uint binding, Buffer *buffer, uint index) {
+    bindBuffer(binding, buffer, index);
+    return _isDirty;
+}
+
+bool DescriptorSet::bindTextureJSB(uint binding, Texture *texture, uint index) {
+    bindTexture(binding, texture, index);
+    return _isDirty;
+}
+
+bool DescriptorSet::bindSamplerJSB(uint binding, Sampler *sampler, uint index) {
+    bindSampler(binding, sampler, index);
+    return _isDirty;
+}
+
 Buffer* DescriptorSet::getBuffer(uint binding, uint index) const {
     const uint descriptorIndex = _layout->getDescriptorIndices()[binding];
     return _buffers[descriptorIndex + index];

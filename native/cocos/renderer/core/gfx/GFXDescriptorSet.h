@@ -19,6 +19,11 @@ public:
     void bindBuffer(uint binding, Buffer *buffer, uint index);
     void bindTexture(uint binding, Texture *texture, uint index);
     void bindSampler(uint binding, Sampler *sampler, uint index);
+    
+    // Functions invoked by JSB adapter
+    bool bindBufferJSB(uint binding, Buffer *buffer, uint index);
+    bool bindTextureJSB(uint binding, Texture *texture, uint index);
+    bool bindSamplerJSB(uint binding, Sampler *sampler, uint index);
 
     Buffer *getBuffer(uint binding, uint index) const;
     Texture *getTexture(uint binding, uint index) const;
