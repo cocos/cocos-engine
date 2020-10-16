@@ -435,11 +435,11 @@ function isTempClassId (id) {
 }
 
 // id registration
-export const _idToClass: Record<string, Function> = createMap(true);
-export const _nameToClass: Record<string, Function> = createMap(true);
+export const _idToClass: Record<string, Constructor> = createMap(true);
+export const _nameToClass: Record<string, Constructor> = createMap(true);
 
 function setup (tag: string, table: object) {
-    return function (id: string, constructor: Function) {
+    return function (id: string, constructor: Constructor) {
         // deregister old
         if (constructor.prototype.hasOwnProperty(tag)) {
             delete table[constructor.prototype[tag]];
@@ -484,7 +484,7 @@ const doSetClassName = setup('__classname__', _nameToClass);
  * @param className
  * @param constructor
  */
-export function setClassName (className: string, constructor: Function) {
+export function setClassName (className: string, constructor: Constructor) {
     doSetClassName(className, constructor);
     // auto set class id
     if (!constructor.prototype.hasOwnProperty(classIdTag)) {
@@ -508,7 +508,7 @@ export function setClassName (className: string, constructor: Function) {
  * @param target Constructor of target class.
  * @param alias Alias to set. The name shall not have been set as class name or alias of another class.
  */
-export function setClassAlias (target: Function, alias: string) {
+export function setClassAlias (target: Constructor, alias: string) {
     const nameRegistry = _nameToClass[alias];
     const idRegistry = _idToClass[alias];
     let ok = true;
