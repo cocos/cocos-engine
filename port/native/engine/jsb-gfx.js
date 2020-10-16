@@ -114,6 +114,24 @@ function replace (proto, replacements) {
     }
 }
 
+// Cache dirty to avoid invoking gfx.DescriptorSet.update().
+let descriptorSetProto = gfx.DescriptorSet.prototype;
+descriptorSetProto.bindBuffer = function(binding, buffer, index) {
+    this.dirtyJSB = descriptorSetProto.bindBufferJSB.call(this, binding, buffer, index || 0); 
+}
+descriptorSetProto.bindSampler = function(binding, sampler, index) {
+    this.dirtyJSB = descriptorSetProto.bindSamplerJSB.call(this, binding, sampler, index || 0);
+}
+descriptorSetProto.bindTexture = function(bindding, texture, index) {
+    this.dirtyJSB = descriptorSetProto.bindTextureJSB.call(this, bindding, texture, index || 0);
+}
+let oldDSUpdate = descriptorSetProto.update;
+descriptorSetProto.update = function() {
+    if (!this.dirtyJSB) return;
+    oldDSUpdate.call(this);
+    this.dirtyJSB = false;
+}
+
 let deviceProtos = [
     gfx.CCVKDevice && gfx.CCVKDevice.prototype,
     gfx.CCMTLDevice && gfx.CCMTLDevice.prototype,
