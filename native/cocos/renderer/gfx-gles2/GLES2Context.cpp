@@ -383,7 +383,7 @@ bool GLES2Context::MakeCurrent() {
             switch (_vsyncMode) {
                 case VsyncMode::OFF: interval = 0; break;
                 case VsyncMode::ON: interval = 1; break;
-                case VsyncMode::RELAXED: interval = -1; break;
+                case VsyncMode::RELAXED: interval = 1; break;
                 case VsyncMode::MAILBOX: interval = 0; break;
                 case VsyncMode::HALF: interval = 2; break;
                 default: break;
