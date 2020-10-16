@@ -29,7 +29,7 @@
  */
 
 import { ALIPAY, EDITOR, JSB, PREVIEW, RUNTIME_BASED, BUILD } from 'internal:constants';
-import { default as assetManager, IAssetOptions } from './asset-manager/asset-manager';
+import { default as assetManager, IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event/event-target';
 import { RenderPipeline } from './pipeline';
 import * as debug from './platform/debug';
@@ -161,9 +161,9 @@ export interface IGameConfig {
     renderPipeline?: string;
 
     /**
-     * Asset library initialization options
+     * Asset Manager initialization options
      */
-    assetOptions?: IAssetOptions;
+    assetOptions?: IAssetManagerOptions;
 
     /**
      * GPU instancing options

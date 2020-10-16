@@ -28,8 +28,7 @@
  * @hidden
  */
 import { BUILD, DEBUG } from 'internal:constants';
-import { AudioClip } from '../../audio/assets/clip';
-import { Asset, ImageAsset } from '../assets';
+import { Asset } from '../assets';
 import { director } from '../director';
 import { game } from '../game';
 import { legacyCC } from '../global-exports';
@@ -40,7 +39,7 @@ import assetManager from './asset-manager';
 import { resources } from './bundle';
 import dependUtil from './depend-util';
 import downloader from './downloader';
-import { normalize, transform } from './helper';
+import { getUuidFromURL, normalize, transform } from './helper';
 import parser from './parser';
 import { Pipeline } from './pipeline';
 import releaseManager from './releaseManager';
@@ -50,29 +49,42 @@ import { parseLoadResArgs, setDefaultProgressCallback } from './utilities';
 import { ISceneInfo } from './config';
 import factory from './factory';
 
-const ImageFmts = ['.png', '.jpg', '.bmp', '.jpeg', '.gif', '.ico', '.tiff', '.webp', '.image', '.pvr', '.pkm'];
+const ImageFmts = ['.png', '.jpg', '.bmp', '.jpeg', '.gif', '.ico', '.tiff', '.webp', '.image', '.pvr', '.pkm', '.astc'];
 const AudioFmts = ['.mp3', '.ogg', '.wav', '.m4a'];
 
 function GetTrue () { return true; }
 
 const md5Pipe = {
     transformURL (url) {
-        url = url.replace(/.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-]{8,})/, (match, uuid) => {
-            const bundle = bundles.find((b) => {
-                return !!b.getAssetInfo(uuid);
-            });
-            let hashValue = '';
-            if (bundle) {
-                const info = bundle.getAssetInfo(uuid);
-                if (url.startsWith(bundle.base + bundle.config.nativeBase)) {
-                    hashValue = info!.nativeVer || '';
-                }
-                else {
-                    hashValue = info!.ver || '';
-                }
-            }
-            return hashValue ? match + '.' + hashValue : match;
+        const uuid = getUuidFromURL(url);
+        if (!uuid) { return url; }
+        const bundle = bundles.find((b) => {
+            return !!b.getAssetInfo(uuid);
         });
+        if (!bundle) { return url; }
+        let hashValue = '';
+        const info = bundle.getAssetInfo(uuid);
+        if (url.startsWith(bundle.base + bundle.config.nativeBase)) {
+            hashValue = info!.nativeVer || '';
+        }
+        else {
+            hashValue = info!.ver || '';
+        }
+        if (!hashValue || url.indexOf(hashValue) !== -1) { return url; }
+        let hashPatchInFolder = false;
+        if (path.extname(url) === '.ttf') {
+            hashPatchInFolder = true;
+        }
+        if (hashPatchInFolder) {
+            let dirname = path.dirname(url);
+            let basename = path.basename(url);
+            url = `${dirname}.${hashValue}/${basename}`;
+        } else {
+            url = url.replace(/.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-@]{8,}).*/, (match, uuid) => {
+                return match + '.' + hashValue;
+            });
+        }
+        
         return url;
     },
 };
@@ -184,12 +196,12 @@ export class CCLoader {
                         let asset = item;
                         const url = (requests[i] as Record<string, any>).url;
                         if (images.includes(asset)) {
-                            factory.create(url, item, '.png', null, (err, image) => {
+                            factory.create(url, item, '.png', {}, (err, image) => {
                                 asset = native[i] = image;
                             });
                         }
                         else if (audios.includes(asset)) {
-                            factory.create(url, item, '.mp3', null, (err, audio) => {
+                            factory.create(url, item, '.mp3', {}, (err, audio) => {
                                 asset = native[i] = audio;
                             });
                         }
@@ -999,6 +1011,13 @@ Object.defineProperties(legacyCC, {
 });
 
 Object.defineProperties(macro, {
+    /**
+     * @en
+     * The max concurrent task number for the downloader
+     * @zh
+     * 下载任务的最大并发数限制，在安卓平台部分机型或版本上可能需要限制在较低的水平
+     * @deprecated macro.DOWNLOAD_MAX_CONCURRENT is deprecated now, please use assetManager.downloader.maxConcurrency instead
+     */
     DOWNLOAD_MAX_CONCURRENT: {
         get () {
             return downloader.maxConcurrency;

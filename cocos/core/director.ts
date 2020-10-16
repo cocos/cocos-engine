@@ -587,7 +587,6 @@ export class Director extends EventTarget {
         if (bundle) {
             this.emit(legacyCC.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
-            var self = this;
             console.time('LoadScene ' + sceneName);
             bundle.loadScene(sceneName, (err, scene) => {
                 console.timeEnd('LoadScene ' + sceneName);

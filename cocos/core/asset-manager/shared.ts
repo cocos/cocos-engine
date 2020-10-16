@@ -73,6 +73,10 @@ export interface IAssetOptions extends INativeAssetOptions {
     [ k : string ]: any;
 };
 
+export interface IJsonAssetOptions extends IAssetOptions {
+    assetId?: string;
+}
+
 export interface IDownloadParseOptions extends IXHROptions {
     priority?: number;
     audioLoadMode?: number; 
@@ -126,32 +130,26 @@ export const presets: Record<string, Record<string, any>> = {
     },
 
     preload: {
-        maxConcurrency: 2,
+        maxConcurrency: 6,
         maxRequestsPerFrame: 2,
         priority: -1,
     },
 
     scene: {
-        maxConcurrency: 8,
-        maxRequestsPerFrame: 8,
+        maxConcurrency: 20,
+        maxRequestsPerFrame: 20,
         priority: 1,
     },
 
     bundle: {
-        maxConcurrency: 8,
-        maxRequestsPerFrame: 8,
+        maxConcurrency: 20,
+        maxRequestsPerFrame: 20,
         priority: 2,
     },
 
     remote: {
         maxRetryCount: 4,
-    },
-
-    script: {
-        maxConcurrency: 1024,
-        maxRequestsPerFrame: 1024,
-        priority: 2,
-    },
+    }
 };
 
 /**

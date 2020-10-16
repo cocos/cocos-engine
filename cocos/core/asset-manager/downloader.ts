@@ -86,7 +86,7 @@ const downloadAudio = (url: string, options: IDownloadParseOptions, onComplete: 
 
 const downloadImage = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
     // if createImageBitmap is valid, we can transform blob to ImageBitmap. Otherwise, just use HTMLImageElement to load
-    const func = sys.capabilities.imageBitmap && macro.ALLOW_IMAGE_BITMAP ? downloadBlob : downloadDomImage;
+    const func = sys.capabilities.imageBitmap && legacyCC.assetManager.allowImageBitmap ? downloadBlob : downloadDomImage;
     func(url, options, onComplete);
 };
 
@@ -145,8 +145,7 @@ const downloadBundle = (nameOrUrl: string, options: IBundleOptions, onComplete: 
             }
         }
         else {
-            const System = typeof window === 'undefined' ? System : window.System;
-            System.import('virtual:///prerequisite-imports/' + bundleName).then(() => {
+            window.System.import('virtual:///prerequisite-imports/' + bundleName).then(() => {
                 count++;
                 if (count === 2) {
                     onComplete(error, out);
@@ -189,7 +188,7 @@ export class Downloader {
      * @zh
      * 下载时的最大并发数
      */
-    public maxConcurrency = 6;
+    public maxConcurrency = 16;
 
     /**
      * @en
@@ -199,7 +198,7 @@ export class Downloader {
      * 下载时每帧可以启动的最大请求数
      *
      */
-    public maxRequestsPerFrame = 6;
+    public maxRequestsPerFrame = 16;
 
     /**
      * @en

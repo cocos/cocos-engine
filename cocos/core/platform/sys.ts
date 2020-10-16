@@ -789,6 +789,7 @@ else if (JSB || RUNTIME_BASED) {
         canvas: false,
         opengl: true,
         webp: true,
+        imageBitmap: false,
     };
 
     if (sys.isMobile) {
@@ -1029,6 +1030,7 @@ else {
         canvas: _supportCanvas,
         opengl: _supportWebGL,
         webp: _supportWebp,
+        imageBitmap: typeof createImageBitmap !== 'undefined' && typeof Blob !== 'undefined',
     } as { [x: string]: any; };
     if (docEle.ontouchstart !== undefined || doc.ontouchstart !== undefined || nav.msPointerEnabled) {
         capabilities.touches = true;

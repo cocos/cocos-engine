@@ -134,7 +134,7 @@ export function getDepends (uuid: string, data: Asset | Record<string, any>, exc
     }
 }
 
-export function cache (id: string, asset: Asset, cacheAsset: boolean) {
+export function cache (id: string, asset: Asset, cacheAsset?: boolean) {
     if (!asset) { return; }
     cacheAsset = cacheAsset !== undefined ? cacheAsset : legacyCC.assetManager.cacheAsset;
     if (!isScene(asset) && cacheAsset) {

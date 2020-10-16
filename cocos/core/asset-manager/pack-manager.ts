@@ -99,12 +99,12 @@ export class PackManager {
         else {
             const textureType = js._getClassId(Texture2D);
             if (json.type === textureType && json.data) {
-                const datas = json.data.split('|');
+                const datas = json.data;
                 if (datas.length !== pack.length) {
                     errorID(4915);
                 }
                 for (let i = 0; i < pack.length; i++) {
-                    out[pack[i] + '@import'] = datas[i];
+                    out[pack[i] + '@import'] = { __type__: textureType, content: { base: datas[i][0], mipmaps: datas[i][1] } };
                     // out[pack[i] + '@import'] = packCustomObjData(textureType, datas[i]);
                 }
             }

@@ -26,24 +26,24 @@
  * @packageDocumentation
  * @module asset-manager
  */
-import { EDITOR } from 'internal:constants';
+import { BUILD, EDITOR } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { legacyCC } from '../global-exports';
 import { error } from '../platform/debug';
+import { sys } from '../platform/sys';
 import { basename, extname } from '../utils/path';
 import Bundle from './bundle';
-import { IAddressableInfo, IAssetInfo, ISceneInfo } from './config';
 import Cache from './cache';
 import CacheManager from './cache-manager';
 import dependUtil from './depend-util';
-import downloader, { DownloadHandler } from './downloader';
+import downloader from './downloader';
 import factory from './factory';
 import fetch from './fetch';
 import * as helper from './helper';
 import load from './load';
-import packManager, { Unpacker } from './pack-manager';
-import parser, { ParseHandler } from './parser';
-import { IPipe, Pipeline, IAsyncPipe, ISyncPipe } from './pipeline';
+import packManager from './pack-manager';
+import parser from './parser';
+import { IPipe, Pipeline } from './pipeline';
 import preprocess from './preprocess';
 import releaseManager from './releaseManager';
 import RequestItem from './request-item';
@@ -57,14 +57,11 @@ import {
     IRemoteOptions,
     presets,
     Request,
-    IXHROptions,
-    IRequest,
-    IAssetOptions,
-    IDownloadParseOptions,
     references,
+    IJsonAssetOptions,
 } from './shared';
 import { assets, BuiltinBundleName, bundles, fetchPipeline, files, parsed, pipeline, transformPipeline } from './shared';
-import Task, { ITaskOption, TaskCompleteCallback, TaskProgressCallback, TaskErrorCallback } from './task';
+import Task from './task';
 import { combine, parse } from './urlTransformer';
 import { asyncify, parseParameters } from './utilities';
 
@@ -117,7 +114,6 @@ export interface IAssetManagerOptions {
     remoteBundles?: string[];
 
 }
-
 
 /**
  * @en
@@ -200,6 +196,16 @@ export class AssetManager {
      *
      */
     public force = EDITOR ? true : false;
+
+    /**
+     * @en
+     * Whether to use image bitmap to load image first. If enabled, images loading will become faster but memory usage will increase.
+     *
+     * @zh
+     * 是否优先使用 image bitmap 来加载图片，启用之后，图片加载速度会更快, 但内存占用会变高，
+     *
+     */
+    public allowImageBitmap = !sys.isMobile;
 
     /**
      * @en
@@ -286,6 +292,7 @@ export class AssetManager {
     private _files = files;
 
     private _parsed = parsed;
+    private _parsePipeline = BUILD ? null : new Pipeline('parse existing json', [ this.loadPipe ]);
 
     /**
      * @en
@@ -330,8 +337,16 @@ export class AssetManager {
         this.downloader.init(options.bundleVers, options.server);
         this.parser.init();
         this.dependUtil.init();
-        this.generalImportBase = options.importBase || '';
-        this.generalNativeBase = options.nativeBase || '';
+        let importBase = options.importBase || '';
+        if (importBase && importBase.endsWith('/')) {
+            importBase = importBase.substr(0, importBase.length - 1);
+        }
+        let nativeBase = options.nativeBase || '';
+        if (nativeBase && nativeBase.endsWith('/')) {
+            nativeBase = nativeBase.substr(0, nativeBase.length - 1);
+        }
+        this.generalImportBase = importBase;
+        this.generalNativeBase = nativeBase;
     }
 
     /**
@@ -465,7 +480,10 @@ export class AssetManager {
      * cc.assetManager.preloadAny('0cbZa5Y71CTZAccaIFluuZ', (err) => cc.assetManager.loadAny('0cbZa5Y71CTZAccaIFluuZ'));
      *
      */
-    public preloadAny (requests: Request, options: IOptions | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback<RequestItem[]>|null): void;
+    public preloadAny (requests: Request,
+                       options: IOptions | null,
+                       onProgress: ProgressCallback | null,
+                       onComplete: CompleteCallback<RequestItem[]>|null): void;
     public preloadAny (requests: Request, onProgress: ProgressCallback | null, onComplete: CompleteCallback<RequestItem[]> | null): void;
     public preloadAny (requests: Request, options: IOptions | null, onComplete?: CompleteCallback<RequestItem[]> | null): void;
     public preloadAny (requests: Request, onComplete?: CompleteCallback<RequestItem[]> | null): void;
@@ -519,7 +537,7 @@ export class AssetManager {
         this.loadAny(depend, opts, (err, native) => {
             if (!err) {
                 // @ts-ignore
-                if (asset.__nativeDepend__) { 
+                if (asset.__nativeDepend__) {
                     asset._nativeAsset = native;
                     // @ts-ignore
                     asset.__nativeDepend__ = false;
@@ -608,6 +626,7 @@ export class AssetManager {
         }
 
         opts.preset = opts.preset || 'bundle';
+        opts.ext = 'bundle';
         opts.__isNative__ = true;
         this.loadAny({ url: nameOrUrl }, opts, null, (err, data) => {
             if (err) {
@@ -675,6 +694,49 @@ export class AssetManager {
             releaseManager.tryRelease(asset, true);
         });
     }
+
+    /**
+     * For internal usage.
+     * @param json
+     * @param options
+     * @param onComplete
+     * @private
+     */
+    public loadWithJson<T extends Asset> (json: Record<string, any>,
+                                          options: IJsonAssetOptions | null,
+                                          onProgress: ProgressCallback | null,
+                                          onComplete: CompleteCallback<T> | null): void;
+    public loadWithJson<T extends Asset> (json: Record<string, any>, onProgress: ProgressCallback | null, onComplete: CompleteCallback<T> | null): void;
+    public loadWithJson<T extends Asset> (json: Record<string, any>, options: IJsonAssetOptions | null, onComplete?: CompleteCallback<T> | null): void;
+    public loadWithJson<T extends Asset> (json: Record<string, any>, onComplete?: CompleteCallback<T> | null): void;
+    public loadWithJson<T extends Asset> (
+        json: Record<string, any>,
+        options?: IJsonAssetOptions | CompleteCallback<T> | null,
+        onProgress?: ProgressCallback | CompleteCallback<T> | null,
+        onComplete?: CompleteCallback<T> | null)
+    {
+        if (BUILD) { throw new Error('Only valid in Editor'); }
+
+        const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);
+
+        const item = RequestItem.create();
+        item.isNative = false;
+        item.uuid = opts.assetId || ('' + new Date().getTime() + Math.random());
+        item.file = json;
+        item.ext = '.json';
+
+        const task = new Task({ input: [item], onProgress: onProg, options: opts, onComplete: asyncify((err) => {
+            if (!err) {
+                if (!opts.assetId) {
+                    task.output._uuid = '';
+                }
+                if (onComp) { onComp(null, task.output); }
+            } else {
+                if (onComp) { onComp(err, null); }
+            }
+        })});
+        this._parsePipeline!.async(task);
+    }
 }
 
 AssetManager.Pipeline = Pipeline;
@@ -685,26 +747,12 @@ AssetManager.Bundle = Bundle;
 AssetManager.BuiltinBundleName = BuiltinBundleName;
 
 export declare namespace AssetManager {
-    export { CompleteCallback, CompleteCallbackNoData, IOptions, ProgressCallback, Request }
-    export { Pipeline, IPipe, IAsyncPipe, ISyncPipe };
+    export { Pipeline };
     export { Task };
     export { Cache };
     export { RequestItem };
     export { Bundle };
     export { BuiltinBundleName };
-    export {
-        IAssetOptions,
-        IAssetManagerOptions,
-        IBundleOptions,
-        INativeAssetOptions,
-        IRemoteOptions,
-        IXHROptions,
-        IRequest,
-        IDownloadParseOptions,
-    };
-    export { IAddressableInfo, IAssetInfo, ISceneInfo };
-    export { ParseHandler, DownloadHandler, Unpacker };
-    export { ITaskOption, TaskCompleteCallback, TaskProgressCallback, TaskErrorCallback };
 }
 
 export default legacyCC.assetManager = new AssetManager();

@@ -935,16 +935,6 @@ const macro = {
 
     /**
      * @en
-     * The max concurrent task number for the downloader
-     * @zh
-     * 下载任务的最大并发数限制，在安卓平台部分机型或版本上可能需要限制在较低的水平
-     * @default 64
-     * @deprecated macro.DOWNLOAD_MAX_CONCURRENT is deprecated now, please use assetManager.downloader.maxConcurrency instead
-     */
-    DOWNLOAD_MAX_CONCURRENT: 64,
-
-    /**
-     * @en
      * Boolean that indicates if the canvas contains an alpha channel, default sets to false for better performance.
      * Though if you want to make your canvas background transparent and show other dom elements at the background,
      * you can set it to true before {{game.init}}.
@@ -1005,8 +995,6 @@ const macro = {
       * @default true
       */
     ENABLE_MULTI_TOUCH: true,
-
-    ALLOW_IMAGE_BITMAP: false,
 };
 
 legacyCC.macro = macro;

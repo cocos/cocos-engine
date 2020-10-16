@@ -28,7 +28,7 @@ import RequestItem from './request-item';
 import { bundles, Request, IOptions, transformPipeline } from './shared';
 import Task from './task';
 
-const _uuidRegex = /.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-]{8,})/;
+const _uuidRegex = /.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-@]{8,}).*/;
 
 export { default as decodeUuid } from '../utils/decode-uuid';
 

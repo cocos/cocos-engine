@@ -163,10 +163,10 @@ export function combine (task: Task) {
         let base = '';
         const config = item.config;
         if (item.isNative) {
-            base = (config && config.nativeBase) ? (config.base + config.nativeBase + '/') : legacyCC.assetManager.generalNativeBase;
+            base = (config && config.nativeBase) ? (config.base + config.nativeBase) : legacyCC.assetManager.generalNativeBase;
         }
         else {
-            base = (config && config.importBase) ? (config.base + config.importBase + '/') : legacyCC.assetManager.generalImportBase;
+            base = (config && config.importBase) ? (config.base + config.importBase) : legacyCC.assetManager.generalImportBase;
         }
 
         const uuid = item.uuid;
@@ -183,10 +183,10 @@ export function combine (task: Task) {
 
         // ugly hack, WeChat does not support loading font likes 'myfont.dw213.ttf'. So append hash to directory
         if (item.ext === '.ttf') {
-            url = `${base}${uuid.slice(0, 2)}/${uuid}${ver}/${item.options.__nativeName__}`;
+            url = `${base}/${uuid.slice(0, 2)}/${uuid}${ver}/${item.options.__nativeName__}`;
         }
         else {
-            url = `${base}${uuid.slice(0, 2)}/${uuid}${ver}${item.ext}`;
+            url = `${base}/${uuid.slice(0, 2)}/${uuid}${ver}${item.ext}`;
         }
 
         item.url = url;

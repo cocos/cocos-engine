@@ -120,7 +120,7 @@ export class SimpleTexture extends TextureBase {
      * @param level Mipmap level to upload the image to
      * @param arrayIndex The array index
      */
-    public uploadData (source: HTMLCanvasElement | HTMLImageElement | ArrayBufferView, level: number = 0, arrayIndex: number = 0) {
+    public uploadData (source: HTMLCanvasElement | HTMLImageElement | ArrayBufferView | ImageBitmap, level: number = 0, arrayIndex: number = 0) {
         if (!this._gfxTexture || this._gfxTexture.levelCount <= level) {
             return;
         }

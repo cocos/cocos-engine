@@ -41,7 +41,7 @@ import { cache } from './utilities';
 
 export type CreateHandler = (id: string, data: any, options: IDownloadParseOptions, onComplete: CompleteCallback<Asset|Bundle>) => void;
 
-function createTexture (id: string, data: HTMLImageElement, options: IDownloadParseOptions, onComplete: CompleteCallback<ImageAsset>) {
+function createImageAsset (id: string, data: HTMLImageElement, options: IDownloadParseOptions, onComplete: CompleteCallback<ImageAsset>) {
     let out: ImageAsset | null = null;
     let err = null;
     try {
@@ -111,17 +111,17 @@ export class Factory {
 
     private _producers: Record<string, CreateHandler> = {
         // Images
-        '.png' : createTexture,
-        '.jpg' : createTexture,
-        '.bmp' : createTexture,
-        '.jpeg' : createTexture,
-        '.gif' : createTexture,
-        '.ico' : createTexture,
-        '.tiff' : createTexture,
-        '.webp' : createTexture,
-        '.image' : createTexture,
-        '.pvr': createTexture,
-        '.pkm': createTexture,
+        '.png' : createImageAsset,
+        '.jpg' : createImageAsset,
+        '.bmp' : createImageAsset,
+        '.jpeg' : createImageAsset,
+        '.gif' : createImageAsset,
+        '.ico' : createImageAsset,
+        '.tiff' : createImageAsset,
+        '.webp' : createImageAsset,
+        '.image' : createImageAsset,
+        '.pvr': createImageAsset,
+        '.pkm': createImageAsset,
 
         // Audio
         '.mp3' : createAudioClip,
@@ -188,13 +188,11 @@ export class Factory {
         handler(id, data, options, (err, result) => {
             if (!err && result instanceof Asset) {
                 result._uuid = id;
-                if (options.cacheAsset) {
-                    cache(id, result, options.cacheAsset);
-                }
+                cache(id, result, options.cacheAsset);
             }
             const callbacks = this._creating.remove(id);
             for (let i = 0, l = callbacks!.length; i < l; i++) {
-                callbacks![i](err, data);
+                callbacks![i](err, result);
             }
         });
     }
