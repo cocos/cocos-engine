@@ -55,6 +55,18 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _mtkView = (MTKView *)_windowHandle;
     _mtlDevice = ((MTKView *)_mtkView).device;
     _mtlCommandQueue = [id<MTLDevice>(_mtlDevice) newCommandQueue];
+    
+    if ([id<MTLDevice>(_mtlDevice) isDepth24Stencil8PixelFormatSupported]) {
+        static_cast<MTKView*>(_mtkView).depthStencilPixelFormat = MTLPixelFormatDepth24Unorm_Stencil8;
+        _depthBits = 24;
+        _features[(int)Feature::FORMAT_D24S8] = true;
+    } else {
+        static_cast<MTKView*>(_mtkView).depthStencilPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
+        _depthBits = 32;
+        _features[(int)Feature::FORMAT_D32FS8] = true;
+    }
+    _stencilBits = 8;
+    
     ContextInfo contextCreateInfo;
     contextCreateInfo.windowHandle = _windowHandle;
     contextCreateInfo.sharedCtx = info.sharedCtx;
@@ -75,9 +87,6 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
 
     _gpuStagingBufferPool = CC_NEW(CCMTLGPUStagingBufferPool(id<MTLDevice>(_mtlDevice)));
 
-    _depthBits = 24;
-    _stencilBits = 8;
-
     _mtlFeatureSet = mu::highestSupportedFeatureSet(id<MTLDevice>(_mtlDevice));
     auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
     _maxVertexAttributes = mu::getMaxVertexAttributes(gpuFamily);
@@ -90,11 +99,7 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _uboOffsetAlignment = mu::getMinBufferOffsetAlignment(gpuFamily);
     _icbSuppored = mu::isIndirectCommandBufferSupported(MTLFeatureSet(_mtlFeatureSet));
 
-    if ([id<MTLDevice>(_mtlDevice) isDepth24Stencil8PixelFormatSupported]) {
-        _depthBits = 24;
-        _stencilBits = 8;
-        _features[(int)Feature::FORMAT_D24S8] = true;
-    }
+    
 
     _features[static_cast<int>(Feature::COLOR_FLOAT)] = mu::isColorBufferFloatSupported(gpuFamily);
     _features[static_cast<int>(Feature::COLOR_HALF_FLOAT)] = mu::isColorBufferHalfFloatSupported(gpuFamily);

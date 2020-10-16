@@ -38,7 +38,6 @@
         [self.window makeFirstResponder:self];
 #ifdef CC_USE_METAL
         self.device = MTLCreateSystemDefaultDevice();
-        self.depthStencilPixelFormat = MTLPixelFormatDepth24Unorm_Stencil8;
         self.framebufferOnly = YES;
         self.delegate = self;
 #endif
