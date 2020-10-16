@@ -59,7 +59,7 @@ class AudioManagerWeb extends AudioManager<ManagedAudio> {
 }
 
 export class AudioPlayerWeb extends AudioPlayer {
-    protected static _manager: AudioManagerWeb = new AudioManagerWeb;
+    protected static _manager: AudioManagerWeb = new AudioManagerWeb();
     protected _startTime = 0;
     protected _offset = 0;
     protected _volume = 1;
