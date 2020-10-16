@@ -31,11 +31,11 @@
 import { clamp } from '../../core/math/utils';
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';
 import { legacyCC } from '../../core/global-exports';
+import { createDomAudio } from '../audio-downloader';
 
 export class AudioPlayerDOM extends AudioPlayer {
     protected _volume = 1;
     protected _loop = false;
-    protected _oneShotOngoing = false;
     protected _nativeAudio: HTMLAudioElement;
     protected _cbRegistered = false;
 
@@ -83,7 +83,6 @@ export class AudioPlayerDOM extends AudioPlayer {
         this._nativeAudio.loop = this._loop;
         // callback on audio ended
         this._nativeAudio.addEventListener('ended', () => {
-            if (this._oneShotOngoing) { return; }
             this._state = PlayingState.STOPPED;
             this._nativeAudio!.currentTime = 0;
             this._clip.emit('ended');
@@ -114,7 +113,6 @@ export class AudioPlayerDOM extends AudioPlayer {
         if (this._state !== PlayingState.PLAYING) { return; }
         this._nativeAudio.pause();
         this._state = PlayingState.STOPPED;
-        this._oneShotOngoing = false;
     }
 
     public stop () {
@@ -123,27 +121,15 @@ export class AudioPlayerDOM extends AudioPlayer {
         if (this._state !== PlayingState.PLAYING) { return; }
         this._nativeAudio.pause();
         this._state = PlayingState.STOPPED;
-        this._oneShotOngoing = false;
     }
 
     public playOneShot (volume = 1) {
-        /* HTMLMediaElement doesn't support multiple playback at the
-           same time so here we fall back to re-start style approach */
-        const clip = this._audio;
-        if (!clip) { return; }
-        clip.currentTime = 0;
-        clip.volume = volume;
-        if (this._oneShotOngoing) { return; }
-        clip.loop = false;
-        this._oneShotOngoing = true;
-        clip.play().then(() => {
-            clip.addEventListener('ended', () => {
-                clip.currentTime = 0;
-                clip.volume = this._volume;
-                clip.loop = this._loop;
-                this._oneShotOngoing = false;
-            }, { once: true });
-        }).catch(() => { this._oneShotOngoing = false; });
+        createDomAudio(this._nativeAudio.src).then(dom => {
+            dom.volume = volume;
+            dom.play();
+        }, errMsg => {
+            console.error(errMsg);
+        });
     }
 
     public setCurrentTime (val: number) {
