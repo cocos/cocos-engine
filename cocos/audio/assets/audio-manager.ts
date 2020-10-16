@@ -1,4 +1,4 @@
-import { legacyCC } from "cocos/core/global-exports";
+import { legacyCC } from "../../core/global-exports";
 
 export abstract class AudioManager<AudioType> {
     protected _playingAudios: Array<AudioType>;

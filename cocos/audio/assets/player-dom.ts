@@ -52,7 +52,7 @@ class AudioManagerDom extends AudioManager<ManagedAudio> {
         }
         else {
             audioToDiscard = this._playingAudios.shift();
-            (<AudioPlayerDOM>audioToDiscard).stop();
+            (<AudioPlayerDOM>audioToDiscard)?.stop();
         }
     }
 }

@@ -54,9 +54,7 @@ class AudioManagerWeb extends AudioManager<ManagedAudio> {
         else {
             audioToDiscard = this._playingAudios.shift();
         }
-        if (audioToDiscard) {
-            audioToDiscard.stop();
-        }
+        audioToDiscard?.stop();
     }
 }
 
