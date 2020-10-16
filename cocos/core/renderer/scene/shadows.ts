@@ -192,10 +192,15 @@ export class Shadows {
     protected _globalDescriptorSet: GFXDescriptorSet | null = null;
     protected _dirty: boolean = true;
     /**
-     * @zh
-     * 场景包围球
+     * @en bounding sphere
+     * @zh 场景包围球
      */
-    protected _sphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
+    protected _sphere: sphere = new sphere();
+    /**
+     * @en get or set shadow auto control
+     * @zh 获取或者设置阴影是否自动控制
+     */
+    public autoAdapt: boolean = true;
     /**
      * @en get or set shadow camera near
      * @zh 获取或者设置阴影相机近裁剪面
@@ -231,6 +236,11 @@ export class Shadows {
      * @zh 获取或者设置阴影偏移量
      */
     public bias: number = 0.0035;
+    /**
+     * @en get or set shadow generation range
+     * @zh 获取或设置阴影生成范围
+     */
+    public receiveSphere: sphere = new sphere();
 
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;

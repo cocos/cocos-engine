@@ -148,8 +148,10 @@ function checkUrl (val, className, propName, url) {
  * 解析类型
  */
 function parseType (val, type, className, propName) {
+    const STATIC_CHECK = (EDITOR && DEV) || TEST;
+
     if (Array.isArray(type)) {
-        if ((EDITOR || TEST) && 'default' in val) {
+        if (STATIC_CHECK && 'default' in val) {
             if (!legacyCC.Class.isArray(val.default)) {
                 warnID(5507, className, propName);
             }
@@ -166,41 +168,43 @@ function parseType (val, type, className, propName) {
             return errorID(5508, className, propName);
         }
     }
-    if (EDITOR || TEST) {
-        if (typeof type === 'function') {
-            if (legacyCC.RawAsset.isRawAssetType(type)) {
-                warnID(5509, className, propName, js.getClassName(type));
-            } else if (type === String) {
-                val.type = legacyCC.String;
+    if (typeof type === 'function') {
+        if (type === String) {
+            val.type = legacyCC.String;
+            if (STATIC_CHECK) {
                 warnID(3608, `"${className}.${propName}"`);
-            } else if (type === Boolean) {
-                val.type = legacyCC.Boolean;
+            }
+        } else if (type === Boolean) {
+            val.type = legacyCC.Boolean;
+            if (STATIC_CHECK) {
                 warnID(3609, `"${className}.${propName}"`);
-            } else if (type === Number) {
-                val.type = legacyCC.Float;
+            }
+        } else if (type === Number) {
+            val.type = legacyCC.Float;
+            if (STATIC_CHECK) {
                 warnID(3610, `"${className}.${propName}"`);
             }
-        } else {
-            switch (type) {
-                case 'Number':
-                    warnID(5510, className, propName);
-                    break;
-                case 'String':
-                    warn(`The type of "${className}.${propName}" must be CCString, not "String".`);
-                    break;
-                case 'Boolean':
-                    warn(`The type of "${className}.${propName}" must be CCBoolean, not "Boolean".`);
-                    break;
-                case 'Float':
-                    warn(`The type of "${className}.${propName}" must be CCFloat, not "Float".`);
-                    break;
-                case 'Integer':
-                    warn(`The type of "${className}.${propName}" must be CCInteger, not "Integer".`);
-                    break;
-                case null:
-                    warnID(5511, className, propName);
-                    break;
-            }
+        }
+    } else if (STATIC_CHECK) {
+        switch (type) {
+            case 'Number':
+                warnID(5510, className, propName);
+                break;
+            case 'String':
+                warn(`The type of "${className}.${propName}" must be CCString, not "String".`);
+                break;
+            case 'Boolean':
+                warn(`The type of "${className}.${propName}" must be CCBoolean, not "Boolean".`);
+                break;
+            case 'Float':
+                warn(`The type of "${className}.${propName}" must be CCFloat, not "Float".`);
+                break;
+            case 'Integer':
+                warn(`The type of "${className}.${propName}" must be CCInteger, not "Integer".`);
+                break;
+            case null:
+                warnID(5511, className, propName);
+                break;
         }
     }
 }
