@@ -97,7 +97,15 @@ export class AudioPlayerWeb extends AudioPlayer {
     }
 
     public play () {
-        if (!this._nativeAudio || this._state === PlayingState.PLAYING) { return; }
+        if (!this._nativeAudio) { return; }
+        if (this._state === PlayingState.PLAYING) {
+            /* sometimes there is no way to update the playing state
+            especially when player unplug earphones and the audio automatically stops
+            so we need to force updating the playing state by pausing audio */
+            this.pause();
+            // restart if already playing
+            this.setCurrentTime(0);
+        }
         if (this._blocking || this._context.state !== 'running') {
             this._interrupted = true;
             if (('interrupted' === this._context.state as string || 'suspended' === this._context.state as string) 

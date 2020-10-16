@@ -121,8 +121,16 @@ export class AudioPlayerDOM extends AudioPlayer {
     }
 
     public play () {
-        if (!this._nativeAudio || this._state === PlayingState.PLAYING) { return; }
+        if (!this._nativeAudio) { return; }
         if (this._blocking) { this._interrupted = true; return; }
+        if (this._state === PlayingState.PLAYING) {
+            /* sometimes there is no way to update the playing state
+            especially when player unplug earphones and the audio automatically stops
+            so we need to force updating the playing state by pausing audio */
+            this.pause();
+            // restart if already playing
+            this.setCurrentTime(0);
+        }
         AudioPlayerDOM._manager.discardOnePlayingIfNeeded();
         const promise = this._nativeAudio.play();
         if (!promise) {
