@@ -265,7 +265,7 @@ async function _doBuild ({
         console.debug(`Module source "cc":\n${rpVirtualOptions['cc']}`);
     }
 
-    const presetEnvOptions: any = {};
+    const presetEnvOptions: any = { loose: true };
     if (options.targets !== undefined) {
         presetEnvOptions.targets = options.targets;
     }

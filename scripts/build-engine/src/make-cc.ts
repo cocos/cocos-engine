@@ -12,7 +12,7 @@ export async function generateCCSourceTransformed (moduleRequests: string[], mod
     const babelFormat = moduleOptionsToBabelEnvModules(moduleOption);
     const source = generateCCSource(moduleRequests);
     const babelFileResult = await babel.transformAsync(source, {
-        presets: [[babelPresetEnv, {modules: babelFormat }]],
+        presets: [[babelPresetEnv, { modules: babelFormat, loose: true }]],
     });
     if (!babelFileResult || !babelFileResult.code) {
         throw new Error(`Failed to transform!`);
