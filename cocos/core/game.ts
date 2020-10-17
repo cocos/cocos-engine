@@ -853,6 +853,9 @@ export class Game extends EventTarget {
                 ) {
                     useWebGL2 = false;
                 }
+                if (navigator.gpu && legacyCC.WebGPUDevice) {
+                    ctors.push(legacyCC.WebGPUDevice);
+                }
                 if (useWebGL2 && legacyCC.WebGL2Device) {
                     ctors.push(legacyCC.WebGL2Device);
                 }

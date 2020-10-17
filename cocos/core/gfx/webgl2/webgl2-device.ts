@@ -137,7 +137,7 @@ export class WebGL2Device extends GFXDevice {
     private _WEBGL_debug_shaders: WEBGL_debug_shaders | null = null;
     private _WEBGL_lose_context: WEBGL_lose_context | null = null;
 
-    public initialize (info: GFXDeviceInfo): boolean {
+    public initialize (info: GFXDeviceInfo) {
 
         this._canvas = info.canvasElm as HTMLCanvasElement;
         this._isAntialias = info.isAntialias;

@@ -203,7 +203,7 @@ export class WebGLDevice extends GFXDevice {
     private _OES_element_index_uint: OES_element_index_uint | null = null;
     private _ANGLE_instanced_arrays: ANGLE_instanced_arrays | null = null;
 
-    public initialize (info: GFXDeviceInfo): boolean {
+    public initialize (info: GFXDeviceInfo) {
 
         this._canvas = info.canvasElm as HTMLCanvasElement;
         this._isAntialias = info.isAntialias;
