@@ -24,6 +24,9 @@
         <img src="https://img.shields.io/twitter/follow/cocos2dx.svg?logo=twitter&label=follow&style=flat-square&colorB=4183c4"
              alt="twitter">
     </a>
+    <a href="https://gitpod.io/from-referrer/">
+        <img src="https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod" alt="Gitpod Ready-to-Code" />
+    </a>
 </p>
 
 # Cocos Creator
@@ -32,7 +35,7 @@
 
 Cocos Creator is a complete package of game development tools and workflow, including a game engine, resource management, scene editing, game preview, debug and publish one project to multiple platforms. Cocos Creator focused on content creation, which has realized features like thorough scriptability, componentization and data driven, etc. on the basis of Cocos2d-x. With JavaScript, you can scripting your component in no time. The editor and engine extension is also made with JavaScript so you can make games and refine your tool in a single programming language. Cocos Creator is an provides an innovative, easy to use toolset such as the UI system and Animation editor. The toolset will be expanding continuously and quickly, thanks to the open editor extension system.
 
-This repo is the engine framework for Cocos Creator. Cocos Creator's in-editor scene view and web runtime share the same framework, which is the content of this repo. It's originally forked from [Cocos2d-html5](https://github.com/cocos2d/cocos2d-html5/), we build up an Entity Component architecture on it to meet the needs of Cocos Creator. 
+This repo is the engine framework for Cocos Creator. Cocos Creator's in-editor scene view and web runtime share the same framework, which is the content of this repo. It's originally forked from [Cocos2d-html5](https://github.com/cocos2d/cocos2d-html5/), we build up an Entity Component architecture on it to meet the needs of Cocos Creator.
 
 This framework is a cross-platform game engine written in JavaScript and licensed under MIT. It supports major desktop and mobile browsers, it's also compatible with [Cocos2d Javascript Binding engine](https://github.com/cocos-creator/cocos2d-x-lite) to support native platforms like iOS, Android, Win32, macOS.
 
@@ -100,34 +103,45 @@ gulp build --max-old-space-size=8192
 
   3. Open [http://localhost:8511/bin/qunit-runner.html](http://localhost:8511/bin/qunit-runner.html) in your browser.
 
+### Online one-click Setup
+
+You can use Gitpod(an online IDE which is free for Open Source) for developing the project online. With a single click it will launch a workspace and automatically:
+
+- clone the `Cocos Creator` repo.
+- install all the dependencies mentioned above.
+- run `gulp build`, `npm test` in separate terminals.
+- start the express server and open [http://localhost:8511/bin/qunit-runner.html](http://localhost:8511/bin/qunit-runner.html) in the right corner of the IDE.
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/from-referrer/)
+
 ### DebugInfos
 
-View [EngineErrorMap.md](https://github.com/cocos-creator/engine/blob/master/EngineErrorMap.md)  
-All the debug infos are defined in file EngineErrorMap.md.  
+View [EngineErrorMap.md](https://github.com/cocos-creator/engine/blob/master/EngineErrorMap.md)
+All the debug infos are defined in file EngineErrorMap.md.
 The file DebugInfos.json will be generated based on EngineErrorMap.md, when run `gulp build` command.
 
 For details below:
 
-1. Define log in EngineErrorMap.md 
+1. Define log in EngineErrorMap.md
 
     example:
 
     ```
-    ### 1001  
-      
-    cocos2d: removeAction: Target not found  
+    ### 1001
+
+    cocos2d: removeAction: Target not found
     ```
 
-2. Define deprecated log in EngineErrorMap.md  
+2. Define deprecated log in EngineErrorMap.md
    The log should be marked as DEPRECATED when then logId is no longer referenced in the project.
 
     example:
 
     ```
     ### 1000
-      
+
     <!-- DEPRECATED -->
-    cc.ActionManager.addAction(): action must be non-null  
+    cc.ActionManager.addAction(): action must be non-null
     ```
 
 ## Useful links
