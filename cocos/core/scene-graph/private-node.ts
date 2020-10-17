@@ -166,4 +166,16 @@ export class PrivateNode extends Node {
 // cc.js.getset(PrivateNode.prototype, 'parent', PrivateNode.prototype.getParent, PrivateNode.prototype.setParent);
 // cc.js.getset(PrivateNode.prototype, 'position', PrivateNode.prototype.getPosition, PrivateNode.prototype.setPosition);
 
+if (EDITOR) {
+    // check components to avoid missing node reference serialied in previous version
+    PrivateNode.prototype._onBatchCreated = function (dontSyncChildPrefab?: boolean) {
+        // @ts-ignore
+        for (let comp of this._components) {
+            comp.node = this;
+        }
+
+        Node.prototype._onBatchCreated.call(this, dontSyncChildPrefab);
+    };
+}
+
 legacyCC.PrivateNode = PrivateNode;
