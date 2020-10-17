@@ -377,8 +377,8 @@ var downloader = {
      * downloadScript('http://localhost:8080/index.js', null, (err) => console.log(err));
      * 
      * @typescript
-     * downloadScript(url: string, options?: Record<string, any>, onComplete?: (err: Error) => void): void;
-     * downloadScript(url: string, onComplete?: (err: Error) => void): void;
+     * downloadScript(url: string, options?: Record<string, any>, onComplete?: (err: Error) => void): void
+     * downloadScript(url: string, onComplete?: (err: Error) => void): void
      */
     downloadScript: downloadScript,
 

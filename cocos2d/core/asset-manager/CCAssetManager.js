@@ -653,10 +653,10 @@ AssetManager.prototype = {
      * loadScript('http://localhost:8080/index.js', null, (err) => console.log(err));
      * 
      * @typescript
-     * loadScript(url: string|string[], options: Record<string, any>, onComplete: (err: Error) => void): void;
-     * loadScript(url: string|string[], onComplete: (err: Error) => void): void;
-     * loadScript(url: string|string[], options: Record<string, any>): void;
-     * loadScript(url: string|string[]): void;
+     * loadScript(url: string|string[], options: Record<string, any>, onComplete: (err: Error) => void): void
+     * loadScript(url: string|string[], onComplete: (err: Error) => void): void
+     * loadScript(url: string|string[], options: Record<string, any>): void
+     * loadScript(url: string|string[]): void
      */
     loadScript (url, options, onComplete) {
         var { options, onComplete } = parseParameters(options, undefined, onComplete);
