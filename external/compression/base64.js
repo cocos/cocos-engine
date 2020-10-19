@@ -4,8 +4,7 @@
  You can choose between MIT and BSD-3-Clause license. License file will be added later.
  --*/
 
-var misc = require('../core/utils/misc');
-var strValue = misc.BASE64_VALUES;
+import strValue from './base64-values';
 
 /**
  * mixin cc.Codec.Base64
@@ -82,4 +81,4 @@ Base64.decodeAsArray = function Jacob__Codec__Base64___decodeAsArray(input, byte
     return ar;
 };
 
-module.exports = Base64;
+export default Base64;

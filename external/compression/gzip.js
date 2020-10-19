@@ -730,4 +730,4 @@ GZip.prototype.skipdir = function () {
     if (this.modeZIP) this.nextFile();
 };
 
-module.exports = GZip;
+export default GZip;

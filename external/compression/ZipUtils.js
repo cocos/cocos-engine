@@ -3,11 +3,12 @@
  All rights reserved.
  You can choose between MIT and BSD-3-Clause license. License file will be added later.
  --*/
-
+import Base64 from './base64';
+import GZip from './gzip';
 var codec = {name:'Jacob__Codec'};
 
-codec.Base64 = require('./base64');
-codec.GZip = require('./gzip');
+codec.Base64 = Base64;
+codec.GZip = GZip;
 
 /**
  * Unpack a gzipped byte array
@@ -74,4 +75,4 @@ codec.unzipAsArray = function (input, bytes) {
     return ar;
 };
 
-cc.codec = module.exports = codec;
+export default codec;
