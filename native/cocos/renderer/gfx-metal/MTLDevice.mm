@@ -326,22 +326,18 @@ void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *t
 }
 
 void CCMTLDevice::blitBuffer(void *srcData, uint offset, uint size, void *dstBuffer) {
-    id<MTLBuffer> sourceBuffer = id<MTLBuffer>(_blitedBuffer);
-    if (sourceBuffer == nil || sourceBuffer.allocatedSize < size) {
-        if (sourceBuffer)
-            [sourceBuffer release];
-        sourceBuffer = [id<MTLDevice>(_mtlDevice) newBufferWithBytes:srcData
-                                                              length:size
-                                                             options:MTLResourceStorageModeShared];
-    }
-
+    CCMTLGPUBuffer stagingBuffer;
+    stagingBuffer.size = size;
+    _gpuStagingBufferPool->alloc(&stagingBuffer);
+    memcpy(stagingBuffer.mappedData, srcData, size);
+    
     // Create a command buffer for GPU work.
     id<MTLCommandBuffer> commandBuffer = [id<MTLCommandQueue>(_mtlCommandQueue) commandBuffer];
 
     // Encode a blit pass to copy data from the source buffer to the private buffer.
     id<MTLBlitCommandEncoder> blitCommandEncoder = [commandBuffer blitCommandEncoder];
-    [blitCommandEncoder copyFromBuffer:sourceBuffer
-                          sourceOffset:0
+    [blitCommandEncoder copyFromBuffer:stagingBuffer.mtlBuffer
+                          sourceOffset:stagingBuffer.startOffset
                               toBuffer:id<MTLBuffer>(dstBuffer)
                      destinationOffset:offset
                                   size:size];

@@ -57,7 +57,6 @@ private:
     uint _maxColorRenderTargets = 0;
     uint _maxBufferBindingIndex = 0;
     bool _icbSuppored = false;
-    void *_blitedBuffer = nullptr;
     CCMTLGPUStagingBufferPool *_gpuStagingBufferPool = nullptr;
 };
 
