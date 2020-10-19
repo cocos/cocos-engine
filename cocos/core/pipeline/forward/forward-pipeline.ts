@@ -205,7 +205,6 @@ export class ForwardPipeline extends RenderPipeline {
                 else if (radius < 500 && radius >= 100) { shadowInfo.size.set(1024, 1024); }
             } else {
                 shadowCameraView = mainLight.node!.getWorldMatrix();
-                Mat4.invert(matShadowView, shadowCameraView);
 
                 x = shadowInfo.orthoSize * shadowInfo.aspect;
                 y = shadowInfo.orthoSize;
