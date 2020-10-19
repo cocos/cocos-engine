@@ -57,13 +57,13 @@ const BuiltinValueTypes: (typeof ValueType)[] = [
 ];
 
 // Used for Data.ValueTypeCreated.
-function BuiltinValueTypeParsers_xyzw (obj: Vec4, data: number[]) {
+function BuiltinValueTypeParsers_xyzw (obj: Vec4 | Quat, data: number[]) {
     obj.x = data[1];
     obj.y = data[2];
     obj.z = data[3];
     obj.w = data[4];
 }
-const BuiltinValueTypeSetters: ((obj: ValueType, data: number[]) => void)[] = [
+const BuiltinValueTypeSetters: ((obj: any, data: number[]) => void)[] = [
     (obj: Vec2, data: number[]) => {
         obj.x = data[1];
         obj.y = data[2];
@@ -255,7 +255,7 @@ export declare namespace deserialize.Internal {
     export type DataTypes_ = DataTypes;
 }
 
-type DataTypes = {
+interface DataTypes {
     [DataTypeID.SimpleType]: number | string | boolean | null | object;
     [DataTypeID.InstanceRef]: InstanceBnotReverseIndex;
     [DataTypeID.Array_InstanceRef]: DataTypes[DataTypeID.InstanceRef][];
@@ -270,7 +270,7 @@ type DataTypes = {
     [DataTypeID.CustomizedClass]: ICustomObjectData;
     [DataTypeID.Dict]: IDictData;
     [DataTypeID.Array]: IArrayData;
-};
+}
 
 type PrimitiveObjectTypeID = (
     DataTypeID.SimpleType | // SimpleType also includes any pure JSON object
@@ -281,7 +281,7 @@ type PrimitiveObjectTypeID = (
     DataTypeID.Dict
 );
 
-type AdvancedTypeID = Exclude<DataTypeID, DataTypeID.SimpleType>
+type AdvancedTypeID = Exclude<DataTypeID, DataTypeID.SimpleType>;
 
 
 // Collection of all data types
@@ -485,7 +485,7 @@ interface IFileData extends Array<any> {
 }
 
 // type Body = Pick<IFileData, File.Instances | File.InstanceTypes | File.Refs | File.DependObjs | File.DependKeys | File.DependUuidIndices>
-type Shared = Pick<IFileData, File.Version | File.SharedUuids | File.SharedStrings | File.SharedClasses | File.SharedMasks>
+type Shared = Pick<IFileData, File.Version | File.SharedUuids | File.SharedStrings | File.SharedClasses | File.SharedMasks>;
 const PACKED_SECTIONS = File.Instances;
 interface IPackedFileData extends Shared {
     [PACKED_SECTIONS]: IFileData[];
@@ -692,7 +692,7 @@ function deserializeCustomCCObject (data: IFileData, ctor: Ctor<ICustomClass>, v
 
 // Parse Functions
 
-type ParseFunction = (data: IFileData, owner: any, key: string, value: AnyData) => void;
+type ParseFunction<T> = (data: IFileData, owner: any, key: string, value: T) => void;
 
 function assignSimple (data: IFileData, owner: any, key: string, value: DataTypes[DataTypeID.SimpleType]) {
     owner[key] = value;
@@ -707,12 +707,11 @@ function assignInstanceRef (data: IFileData, owner: any, key: string, value: Ins
     }
 }
 
-function genArrayParser (parser: ParseFunction): ParseFunction {
-    return (data: IFileData, owner: any, key: string, value: any[]) => {
+function genArrayParser<T> (parser: ParseFunction<T>): ParseFunction<T[]> {
+    return (data: IFileData, owner: any, key: string, value: T[]) => {
         owner[key] = value;
         for (let i = 0; i < value.length; ++i) {
-            // @ts-ignore
-            parser(data, value, i, value[i]);
+            parser(data, value, i as unknown as string, value[i]);
         }
     };
 }
@@ -783,7 +782,9 @@ function parseArray (data: IFileData, owner: any, key: string, value: IArrayData
 //     owner[key] = val;
 // }
 
-const ASSIGNMENTS = new Array<ParseFunction>(DataTypeID.ARRAY_LENGTH);
+const ASSIGNMENTS: {
+    [K in keyof DataTypes]?: ParseFunction<DataTypes[K]>;
+} = new Array(DataTypeID.ARRAY_LENGTH) as {};
 ASSIGNMENTS[DataTypeID.SimpleType] = assignSimple;    // Only be used in the instances array
 ASSIGNMENTS[DataTypeID.InstanceRef] = assignInstanceRef;
 ASSIGNMENTS[DataTypeID.Array_InstanceRef] = genArrayParser(assignInstanceRef);

@@ -7,7 +7,6 @@
       "outDir": "./bin/.ts",
       "rootDir": "./",
       "strict": true,
-      "strictFunctionTypes": false,
       "noImplicitAny": false,
       "downlevelIteration": true,
       "esModuleInterop": true,
@@ -17,7 +16,7 @@
       "paths": {
           "cc.decorator": [
               "cocos/core/data/decorators/index.ts"
-          ],
+          ]
       },
       "types": [
         "./@types/globals",
