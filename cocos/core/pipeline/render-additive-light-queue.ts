@@ -279,11 +279,8 @@ export class RenderAdditiveLightQueue {
 
         Color.toArray(shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
 
-        vec4.set(shadowInfo.pcf);
-        Vec4.toArray(shadowUBO, vec4, UBOShadow.SHADOW_PCF_OFFSET);
-
-        vec4.set(shadowInfo.size.x, shadowInfo.size.y);
-        Vec4.toArray(shadowUBO, vec4, UBOShadow.SHADOW_SIZE_OFFSET);
+        vec4.set(shadowInfo.size.x, shadowInfo.size.y, shadowInfo.pcf, shadowInfo.bias);
+        Vec4.toArray(shadowUBO, vec4, UBOShadow.SHADOW_INFO_OFFSET);
 
         descriptorSet.bindTexture(UniformSpotLightingSampler.binding, this._pipeline.shadowFrameBufferMap.get(light)!.colorTextures[0]!);
         descriptorSet.bindSampler(UniformSpotLightingSampler.binding, this._sampler!);

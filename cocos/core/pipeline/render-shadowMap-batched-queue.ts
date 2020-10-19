@@ -165,22 +165,35 @@ export class RenderShadowMapBatchedQueue {
         if (this._shadowInfo.type === ShadowType.ShadowMap) {
             switch (light.type) {
                 case LightType.DIRECTIONAL:
-                    const mainLight = light as DirectionalLight;
                     // light view
-                    const shadowCameraView = this._shadowInfo.getWorldMatrix(mainLight.node!.worldRotation, mainLight.direction);
-                    Mat4.invert(matShadowView, shadowCameraView);
+                    let shadowCameraView: Mat4;
+                    const mainLight = light as DirectionalLight;
 
                     // light proj
                     let x: number = 0;
                     let y: number = 0;
-                    if (this._shadowInfo.orthoSize > this._shadowInfo.sphere.radius) {
+                    let far: number = 0;
+                    if (this._shadowInfo.autoAdapt) {
+                        shadowCameraView = this._shadowInfo.getWorldMatrix(mainLight.node?.getWorldRotation()!, mainLight.direction);
+                        // if orthoSize is the smallest, auto calculate orthoSize.
+                        const radius = this._shadowInfo.sphere.radius;
+                        x = radius * this._shadowInfo.aspect;
+                        y = radius;
+
+                        far = this._shadowInfo.receiveSphere.radius * 2.0;
+                        if (radius >= 500) { this._shadowInfo.size.set(2048, 2048); }
+                        else if (radius < 500 && radius >= 100) { this._shadowInfo.size.set(1024, 1024); }
+                    } else {
+                        shadowCameraView = mainLight.node!.getWorldMatrix();
+
                         x = this._shadowInfo.orthoSize * this._shadowInfo.aspect;
                         y = this._shadowInfo.orthoSize;
-                    } else {
-                        // if orthoSize is the smallest, auto calculate orthoSize.
-                        x = this._shadowInfo.sphere.radius * this._shadowInfo.aspect;
-                        y = this._shadowInfo.sphere.radius;
+
+                        far = this._shadowInfo.far;
                     }
+
+                    Mat4.invert(matShadowView, shadowCameraView!);
+
                     const projectionSignY = this._device.screenSpaceSignY * this._device.UVSpaceSignY;
                     Mat4.ortho(matShadowViewProj, -x, x, -y, y, this._shadowInfo.near, this._shadowInfo.far,
                         this._device.clipSpaceMinZ, projectionSignY);
@@ -202,11 +215,8 @@ export class RenderShadowMapBatchedQueue {
 
             Color.toArray(this._shadowUBO, this._shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
 
-            vec4.set(this._shadowInfo.pcf);
-            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_PCF_OFFSET);
-
-            vec4.set(this._shadowInfo.size.x, this._shadowInfo.size.y);
-            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_SIZE_OFFSET);
+            vec4.set(this._shadowInfo.size.x, this._shadowInfo.size.y, this._shadowInfo.pcf, this._shadowInfo.bias);
+            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_INFO_OFFSET);
 
             this._descriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(this._shadowUBO);
         }
