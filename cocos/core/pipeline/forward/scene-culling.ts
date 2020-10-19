@@ -3,7 +3,7 @@
  * @hidden
  */
 
-import { aabb, intersect } from '../../geometry';
+import { aabb, intersect, sphere } from '../../geometry';
 import { Model } from '../../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Layers } from '../../scene-graph/layers';
@@ -54,7 +54,6 @@ function getCastShadowRenderObject (model: Model, camera: Camera) {
 export function shadowCollecting (pipeline: ForwardPipeline, view: RenderView) {
     const camera = view.camera;
     const scene = camera.scene!;
-    const mainLight = scene.mainLight;
     const shadows = pipeline.shadows;
 
     const shadowObjects = pipeline.shadowObjects;
@@ -73,12 +72,30 @@ export function shadowCollecting (pipeline: ForwardPipeline, view: RenderView) {
             (view.visibility & model.visFlags)) {
 
             // shadow render Object
-            if (model.castShadow) {
-                sphere.mergeAABB(shadowSphere, shadowSphere, model.worldBounds!);
+            if (model.castShadow && model.worldBounds) {
+                if (!_castBoundsInited) {
+                    _castWorldBounds.copy(model.worldBounds);
+                    _castBoundsInited = true;
+                }
+                aabb.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
                 shadowObjects.push(getCastShadowRenderObject(model, camera));
+            }
+
+            // Even if the obstruction is not in the field of view,
+            // the shadow is still visible.
+            if (model.receiveShadow && model.worldBounds) {
+                if (!_receiveBoundsInited) {
+                    _receiveWorldBounds.copy(model.worldBounds);
+                    _receiveBoundsInited = true;
+                }
+                aabb.merge(_receiveWorldBounds, _receiveWorldBounds, model.worldBounds);
             }
         }
     }
+
+    if (_castWorldBounds) { aabb.toBoundingSphere(shadows.sphere, _castWorldBounds); }
+
+    if (_receiveWorldBounds) { aabb.toBoundingSphere(shadows.receiveSphere, _receiveWorldBounds); }
 }
 
 // include directLight && spotLight
@@ -138,26 +155,6 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                 if (model.node && ((view.visibility & model.node.layer) === model.node.layer) ||
                     (view.visibility & model.visFlags)) {
 
-                    // shadow render Object
-                    if (model.castShadow && model.worldBounds) {
-                        if (!_castBoundsInited) {
-                            _castWorldBounds.copy(model.worldBounds);
-                            _castBoundsInited = true;
-                        }
-                        aabb.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
-                        shadowObjects.push(getCastShadowRenderObject(model, camera));
-                    }
-
-                    // Even if the obstruction is not in the field of view,
-                    // the shadow is still visible.
-                    if (model.receiveShadow && model.worldBounds) {
-                        if(!_receiveBoundsInited) {
-                            _receiveWorldBounds.copy(model.worldBounds);
-                            _receiveBoundsInited = true;
-                        }
-                        aabb.merge(_receiveWorldBounds, _receiveWorldBounds, model.worldBounds);
-                    }
-
                     // frustum culling
                     if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, camera.frustum)) {
                         continue;
@@ -168,10 +165,6 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
             }
         }
     }
-
-    if (_castWorldBounds) { aabb.toBoundingSphere(shadows.sphere, _castWorldBounds); }
-
-    if (_receiveWorldBounds) { aabb.toBoundingSphere(shadows.receiveSphere, _receiveWorldBounds); }
 
     if (shadows.type === ShadowType.Planar) {
         shadows.updateShadowList(scene, camera.frustum, (camera.visibility & Layers.BitMask.DEFAULT) !== 0);

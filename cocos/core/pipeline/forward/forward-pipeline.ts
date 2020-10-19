@@ -190,6 +190,10 @@ export class ForwardPipeline extends RenderPipeline {
         const shadowInfo = this.shadows;
 
         if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
+            if (this.shadowFrameBufferMap.has(mainLight)) {
+                this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP.binding, this.shadowFrameBufferMap.get(mainLight)!.colorTextures[0]!);
+            }
+
             // light view
             let shadowCameraView: Mat4;
 
@@ -209,7 +213,6 @@ export class ForwardPipeline extends RenderPipeline {
                 else if (radius < 500 && radius >= 100) { shadowInfo.size.set(1024, 1024); }
             } else {
                 shadowCameraView = mainLight.node!.getWorldMatrix();
-                Mat4.invert(matShadowView, shadowCameraView);
 
                 x = shadowInfo.orthoSize * shadowInfo.aspect;
                 y = shadowInfo.orthoSize;

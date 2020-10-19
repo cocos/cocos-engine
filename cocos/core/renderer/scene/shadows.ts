@@ -223,6 +223,7 @@ export class Shadows {
      * @zh 阴影贴图大小是否被修改
      */
     public shadowMapDirty: boolean = false;
+    /**
      * @en get or set shadow bias
      * @zh 获取或者设置阴影偏移量
      */
