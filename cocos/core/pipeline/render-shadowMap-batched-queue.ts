@@ -24,7 +24,7 @@ export class RenderShadowMapBatchedQueue {
     private _passArray: PassHandle[] = [];
     private _shaderArray: GFXShader[] = [];
     private _shadowMapBuffer: GFXBuffer | null = null;
-    private _phaseID = getPhaseID('shadow-add');
+    private _phaseID = getPhaseID('shadow-caster');
     private _instancedQueue: RenderInstancedQueue = new RenderInstancedQueue();
     private _batchedQueue: RenderBatchedQueue = new RenderBatchedQueue();
 
