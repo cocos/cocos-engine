@@ -41,3 +41,6 @@ jsb.onResize = function (size) {
     cc.view.setCanvasSize(window.innerWidth, window.innerHeight);
 };
 
+jsb.onMemoryWarning = function () {
+    //TODO: how to dispatch to JS engine? Use cc.game.emit()?
+}
