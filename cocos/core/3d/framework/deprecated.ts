@@ -1,6 +1,7 @@
 
 /**
- * @category component
+ * @packageDocumentation
+ * @module component
  */
 
 import { removeProperty, replaceProperty } from '../../utils';

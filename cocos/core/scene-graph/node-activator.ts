@@ -24,10 +24,11 @@
 */
 
 /**
- * @category scene-graph
+ * @packageDocumentation
+ * @module scene-graph
  */
 
-import { CCObject } from '../data/object';
+import { CCObject, isValid } from '../data/object';
 import { array, Pool } from '../utils/js';
 import { tryCatchFunctor_EDITOR } from '../utils/misc';
 import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
@@ -226,6 +227,10 @@ export default class NodeActivator {
      * @param onEnableInvoker The invoker for `onEnable` method, normally from [[ComponentScheduler]]
      */
     public activateComp (comp, preloadInvoker?, onLoadInvoker?, onEnableInvoker?) {
+        if (!isValid(comp, true)) {
+            // destroyed before activating
+            return;
+        }
         if (!(comp._objFlags & IsPreloadStarted)) {
             comp._objFlags |= IsPreloadStarted;
             if (comp.__preload) {
@@ -359,6 +364,10 @@ export default class NodeActivator {
 
 if (EDITOR) {
     NodeActivator.prototype.activateComp = (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) => {
+        if (!isValid(comp, true)) {
+            // destroyed before activating
+            return;
+        }
         if (legacyCC.GAME_VIEW || comp.constructor._executeInEditMode) {
             if (!(comp._objFlags & IsPreloadStarted)) {
                 comp._objFlags |= IsPreloadStarted;

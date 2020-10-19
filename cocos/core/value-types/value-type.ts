@@ -25,7 +25,8 @@
 */
 
 /**
- * @category core/value-types
+ * @packageDocumentation
+ * @module core/value-types
  */
 
 import { errorID } from '../platform/debug';

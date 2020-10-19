@@ -25,7 +25,8 @@
 */
 
 /**
- * @category core
+ * @packageDocumentation
+ * @module core
  */
 
 import { legacyCC } from '../global-exports';

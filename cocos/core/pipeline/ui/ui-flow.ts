@@ -1,5 +1,6 @@
 /**
- * @category pipeline
+ * @packageDocumentation
+ * @module pipeline
  */
 import { ccclass } from 'cc.decorator';
 import { ForwardFlowPriority } from '../forward/enum';

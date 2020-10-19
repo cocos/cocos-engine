@@ -23,6 +23,7 @@
  THE SOFTWARE.
 */
 /**
+ * @packageDocumentation
  * @hidden
  */
 
@@ -125,7 +126,7 @@ export class UI {
 
     public initialize () {
 
-        this._attributes = UIVertexFormat.vfmt;
+        this._attributes = UIVertexFormat.vfmtPosUvColor;
 
         this._requireBufferBatch();
 
@@ -133,8 +134,10 @@ export class UI {
     }
 
     public destroy () {
-        for (let i = 0; i < this._batches.array.length; i++ ) {
-            this._batches.array[i].destroy(this);
+        for (let i = 0; i < this._batches.length; i++ ) {
+            if (this._batches.array[i]) {
+                this._batches.array[i].destroy(this);
+            }
         }
         this._batches.destroy();
 
@@ -384,6 +387,7 @@ export class UI {
             mat = renderComp._updateBlendFunc();
         }
 
+        // use material judgment merge is increasingly impossible, change to hash is more possible
         if (this._currMaterial !== mat ||
             this._currTexture !== texture || this._currSampler !== samp
         ) {
@@ -502,7 +506,7 @@ export class UI {
         }
 
         if (renderComp && StencilManager.sharedManager!.handleMaterial(mat)) {
-            this._currMaterial = mat = renderComp.getUIMaterialInstance();
+            this._currMaterial = mat = renderComp.getMaterialInstanceForStencil();
             const state = StencilManager.sharedManager!.pattern;
             mat.overridePipelineStates({
                 depthStencilState: {
@@ -522,7 +526,7 @@ export class UI {
                     stencilZFailOpBack: state.zFailOp,
                     stencilPassOpBack: state.passOp,
                     stencilRefBack: state.ref,
-                }
+                },
             });
         }
 

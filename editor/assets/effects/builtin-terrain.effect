@@ -5,7 +5,7 @@ CCEffect %{
     passes:
     - vert: terrain-vs:vert
       frag: terrain-fs:frag
-      properties:
+      properties: &props
         UVScale:      { value: [1, 1, 1, 1] }
         lightMapUVParam: { value: [0, 0, 0, 0] }
         weightMap:    { value: black }
@@ -14,6 +14,29 @@ CCEffect %{
         detailMap2:   { value: grey }
         detailMap3:   { value: grey }
         lightMap:     { value: grey }
+    - vert: terrain-vs:vert
+      frag: terrain-fs:frag
+      phase: forward-add
+      propertyIndex: 0
+      embeddedMacros: { CC_FORWARD_ADD: true }
+      depthStencilState:
+        depthFunc: equal
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: one
+          blendSrcAlpha: zero
+          blendDstAlpha: one
+      properties: *props
+    - vert: shadow-caster-vs:vert
+      frag: shadow-caster-fs:frag
+      phase: shadow-add
+      propertyIndex: 0
+      rasterizerState:
+        cullMode: back
 }%
 
 CCProgram terrain-vs %{
@@ -21,11 +44,14 @@ CCProgram terrain-vs %{
   #include <cc-global>
   #include <cc-local>
   #include <cc-fog>
+  #include <cc-shadow-map-vs>
 
   in vec3 a_position;
   in vec3 a_normal;
   in vec2 a_texCoord;
 
+  out vec3 v_position;
+  out vec3 v_normal;
   out vec2 uvw;
   out vec2 uv0;
   out vec2 uv1;
@@ -33,7 +59,8 @@ CCProgram terrain-vs %{
   out vec2 uv3;
   out vec2 luv;
   out vec3 diffuse;
-  out float factor_fog;
+  out float v_fog_factor;
+
   uniform TexCoords {
     vec4 UVScale;
     vec4 lightMapUVParam;
@@ -45,7 +72,7 @@ CCProgram terrain-vs %{
     worldPos.y = cc_matWorld[3][1] + a_position.y;
     worldPos.z = cc_matWorld[3][2] + a_position.z;
 
-    vec4 pos = vec4(worldPos, 1);
+    vec4 pos = vec4(worldPos, 1.0);
     pos = cc_matViewProj * pos;
 
     uvw = a_texCoord;
@@ -53,79 +80,132 @@ CCProgram terrain-vs %{
     uv1 = a_position.xz * UVScale.y;
     uv2 = a_position.xz * UVScale.z;
     uv3 = a_position.xz * UVScale.w;
-
-    float fAmb = dot(a_normal, vec3(0.0, -1.0, 0.0)) * 0.5 + 0.5;
-    vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb) * cc_ambientSky.w;
-
-#if LIGHT_MAP == 0
-    vec3 L = normalize(-cc_mainLitDir.xyz);
-    vec3 N = a_normal;
-
-    diffuse = ambDiff + vec3(dot(N, L)) * cc_mainLitColor.rgb;
-#else
-    diffuse = ambDiff;
+#if USE_LIGHTMAP
     luv = lightMapUVParam.xy + a_texCoord * lightMapUVParam.zw;
 #endif
-    factor_fog = CC_TRANSFER_FOG(vec4(worldPos, 1));
+
+    v_position = worldPos;
+    v_normal = a_normal;
+    v_fog_factor = CC_TRANSFER_FOG(vec4(worldPos, 1.0));
+
+    CCPassShadowParams(vec4(worldPos, 1.0));
+
     return pos;
   }
 }%
 
 CCProgram terrain-fs %{
-  precision mediump float;
-  #include <output>
+  precision highp float;
+  #include <cc-global>
+  #include <shading-standard>
+  #include <output-standard>
+  #include <gamma>
   #include <cc-fog>
   #pragma define LAYERS range([0, 4])
 
-    in vec2 uvw;
-    in vec2 uv0;
-    in vec2 uv1;
-    in vec2 uv2;
-    in vec2 uv3;
-    in vec3 diffuse;
-    in vec2 luv;
+  in vec3 v_position;
+  in vec3 v_normal;
+  in vec2 uvw;
+  in vec2 uv0;
+  in vec2 uv1;
+  in vec2 uv2;
+  in vec2 uv3;
+  in vec3 diffuse;
+  in vec2 luv;
+  in float v_fog_factor;
 
-    uniform sampler2D weightMap;
-    uniform sampler2D detailMap0;
-    uniform sampler2D detailMap1;
-    uniform sampler2D detailMap2;
-    uniform sampler2D detailMap3;
-    uniform sampler2D lightMap;
-    in float factor_fog;
-  vec4 frag () {
-    vec4 color = vec4(0, 0, 0, 0);
+  uniform sampler2D weightMap;
+  uniform sampler2D detailMap0;
+  uniform sampler2D detailMap1;
+  uniform sampler2D detailMap2;
+  uniform sampler2D detailMap3;
+  uniform sampler2D lightMap;
+
+  void surf (out StandardSurface s) {
+    vec4 baseColor = vec4(0, 0, 0, 0);
 
     #if LAYERS == 1
-      color = texture(detailMap0, uv0);
+      baseColor = texture(detailMap0, uv0);
     #elif LAYERS == 2
       vec4 w = texture(weightMap, uvw);
 
-      color += texture(detailMap0, uv0) * w.r;
-      color += texture(detailMap1, uv1) * w.g;
+      baseColor += texture(detailMap0, uv0) * w.r;
+      baseColor += texture(detailMap1, uv1) * w.g;
     #elif LAYERS == 3
       vec4 w = texture(weightMap, uvw);
 
-      color += texture(detailMap0, uv0) * w.r;
-      color += texture(detailMap1, uv1) * w.g;
-      color += texture(detailMap2, uv2) * w.b;
+      baseColor += texture(detailMap0, uv0) * w.r;
+      baseColor += texture(detailMap1, uv1) * w.g;
+      baseColor += texture(detailMap2, uv2) * w.b;
     #elif LAYERS == 4
       vec4 w = texture(weightMap, uvw);
 
-      color += texture(detailMap0, uv0) * w.r;
-      color += texture(detailMap1, uv1) * w.g;
-      color += texture(detailMap2, uv2) * w.b;
-      color += texture(detailMap3, uv3) * w.a;
+      baseColor += texture(detailMap0, uv0) * w.r;
+      baseColor += texture(detailMap1, uv1) * w.g;
+      baseColor += texture(detailMap2, uv2) * w.b;
+      baseColor += texture(detailMap3, uv3) * w.a;
     #else
-      color = texture(detailMap0, uv0);
+      baseColor = texture(detailMap0, uv0);
     #endif
 
-    vec3 lighting = diffuse;
-    #if LIGHT_MAP == 1
-      lighting += texture(lightMap, luv).rgb;
-    #endif
+    s.position = v_position;
+    s.normal = v_normal;
 
-    color.rgb *= lighting;
-    color = CC_APPLY_FOG(color, factor_fog);
+    s.albedo = vec4(SRGBToLinear(baseColor.rgb), 1.0);
+    s.occlusion = 1.0;
+    s.roughness = 1.0;
+    s.metallic = 0.0;
+    s.emissive = vec3(0.0, 0.0, 0.0);
+
+    #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+      s.lightmap = texture(lightMap, luv);
+    #else
+      s.lightmap = vec4(0.0, 0.0, 0.0, 0.0);
+    #endif
+  }
+
+  vec4 frag () {
+    StandardSurface s; surf(s);
+    vec4 color = CCStandardShading(s);
+    color = CC_APPLY_FOG(color, v_fog_factor);
     return CCFragOutput(color);
+  }
+}%
+
+CCProgram shadow-caster-vs %{
+  precision highp float;
+  #include <cc-global>
+  #include <cc-local>
+  #include <cc-shadow>
+
+  in vec3 a_position;
+  in vec3 a_normal;
+  in vec2 a_texCoord;
+
+  out vec2 v_clip_depth;
+
+  vec4 vert () {
+    vec4 worldPos;
+    worldPos.x = cc_matWorld[3][0] + a_position.x;
+    worldPos.y = cc_matWorld[3][1] + a_position.y;
+    worldPos.z = cc_matWorld[3][2] + a_position.z;
+    worldPos.w = 1.0;
+
+    vec4 clipPos = cc_matLightViewProj * worldPos;
+
+    v_clip_depth = clipPos.zw;
+
+    return clipPos;
+  }
+}%
+
+CCProgram shadow-caster-fs %{
+  precision highp float;
+  #include <packing>
+
+  in vec2 v_clip_depth;
+
+  vec4 frag () {
+    return packDepthToRGBA(v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5);
   }
 }%

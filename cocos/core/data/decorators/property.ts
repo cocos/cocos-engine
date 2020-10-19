@@ -1,5 +1,6 @@
 /**
- * @category decorator
+ * @packageDocumentation
+ * @module decorator
  */
 
 import { CCString, CCInteger, CCFloat, CCBoolean } from '../utils/attribute';
@@ -7,7 +8,7 @@ import { IExposedAttributes } from '../utils/attribute-defines';
 import { LegacyPropertyDecorator, getSubDict, getClassCache } from './utils';
 import { warnID, errorID } from '../../platform/debug';
 import { js } from '../../utils/js';
-import { DEV } from 'internal:constants';
+import { DEV, EDITOR, TEST } from 'internal:constants';
 import { getFullFormOfProperty } from '../utils/preprocess-class';
 
 export type SimplePropertyType = Function | string | typeof CCString | typeof CCInteger | typeof CCFloat | typeof CCBoolean;
@@ -124,10 +125,9 @@ function genProperty (
     if (options) {
         fullOptions = DEV ? getFullFormOfProperty(options, propertyKey, js.getClassName(ctor)) :
             getFullFormOfProperty(options);
-        fullOptions = fullOptions || options;
     }
     const existsPropertyRecord = properties[propertyKey];
-    const propertyRecord = js.mixin(existsPropertyRecord || {}, fullOptions || {});
+    const propertyRecord = js.mixin(existsPropertyRecord || {}, fullOptions || options || {});
 
     if (descriptor && (descriptor.get || descriptor.set)) { // If the target property is accessor
         // typescript or babel
@@ -171,8 +171,8 @@ function genProperty (
             }
         }
 
-        if (DEV) {
-            if (options && options.hasOwnProperty('default')) {
+        if ((EDITOR && !window.Build) || TEST) {
+            if (!fullOptions && options && options.hasOwnProperty('default')) {
                 warnID(3653, propertyKey, js.getClassName(ctor));
             } else if (!isDefaultValueSpecified) {
                 warnID(3654, js.getClassName(ctor), propertyKey);

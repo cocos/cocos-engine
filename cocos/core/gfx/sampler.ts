@@ -1,5 +1,6 @@
 /**
- * @category gfx
+ * @packageDocumentation
+ * @module gfx
  */
 
 import { GFXAddress, GFXComparisonFunc, GFXFilter, GFXObject, GFXObjectType, GFXColor } from './define';

@@ -24,7 +24,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { UIRenderable } from '../../core/components/ui-base/ui-renderable';
@@ -33,7 +34,7 @@ import { MeshBuffer } from '../../core/renderer/ui/mesh-buffer';
 import { ccclass, help, menu, executionOrder, visible, type, displayName, override } from 'cc.decorator';
 import { UIDrawBatch } from '../../core/renderer/ui/ui-draw-batch';
 import { director, Color, Material, warnID } from '../../core';
-import { vfmt } from '../../core/renderer/ui/ui-vertex-format';
+import { vfmtPosUvColor } from '../../core/renderer/ui/ui-vertex-format';
 import { GFXBlendFactor } from '../../core/gfx';
 
 
@@ -131,7 +132,7 @@ export class UIStaticBatch extends UIRenderable {
             return;
         }
 
-        const attr = vfmt;
+        const attr = vfmtPosUvColor;
         const buffer = new MeshBuffer(ui);
         buffer.initialize(attr, this._arrivalMaxBuffer);
         this._meshBuffer = buffer;

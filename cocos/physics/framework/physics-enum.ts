@@ -1,5 +1,6 @@
 /**
- * @category physics
+ * @packageDocumentation
+ * @module physics
  */
 
 import { Enum } from "../../core";

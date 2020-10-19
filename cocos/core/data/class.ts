@@ -25,6 +25,7 @@
 */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 
@@ -164,9 +165,6 @@ function defineProp (cls, className, propName, val, es6) {
         for (let i = 0; i < attrs.length; i++) {
             const attr: any = attrs[i];
             attributeUtils.attr(cls, propName, attr);
-            if (attr.serializable === false) {
-                pushUnique(cls.__values__, propName);
-            }
             // register callback
             if (attr._onAfterProp) {
                 onAfterProp.push(attr._onAfterProp);
@@ -1075,7 +1073,7 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
         if (primitiveType) {
             result.push({
                 type,
-                _onAfterProp: (EDITOR || TEST) && !attributes._short ?
+                _onAfterProp: ((EDITOR && !window.Build) || TEST) && !attributes._short ?
                     attributeUtils.getTypeChecker(primitiveType, 'cc.' + type) :
                     undefined,
             });
@@ -1108,7 +1106,7 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
             }
         } else if (typeof type === 'function') {
             let typeChecker: OnAfterProp | undefined;
-            if ((EDITOR || TEST) && !attributes._short) {
+            if (((EDITOR && !window.Build) || TEST) && !attributes._short) {
                 typeChecker = attributes.url ?
                     attributeUtils.getTypeChecker('String', 'cc.String') :
                     attributeUtils.getObjTypeChecker(type);

@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import Ammo from '../ammo-instantiated';
 import { AmmoConstraint } from "./ammo-constraint";
 import { IPointToPointConstraint } from "../../spec/i-physics-constraint";

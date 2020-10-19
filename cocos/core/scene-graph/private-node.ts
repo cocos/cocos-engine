@@ -24,9 +24,11 @@
 */
 
 /**
- * @category scene-graph
+ * @packageDocumentation
+ * @module scene-graph
  */
 
+import { EDITOR } from 'internal:constants';
 import { ccclass } from 'cc.decorator';
 import { CCObject } from '../data/object';
 import { Node } from './node';
@@ -100,7 +102,9 @@ export class PrivateNode extends Node {
     constructor (name: string) {
         super(name);
         // this._originPos = cc.v2();
-        this._objFlags |= HideInHierarchy;
+        if (EDITOR) {
+            this._objFlags |= HideInHierarchy;
+        }
     }
 
     // _posDirty (sendEvent) {

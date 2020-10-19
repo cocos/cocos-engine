@@ -28,7 +28,8 @@
 /* spell-checker:words COORD, Quesada, INITED, Renerer */
 
 /**
- * @category core
+ * @packageDocumentation
+ * @module core
  */
 
 import { SceneAsset } from './assets';

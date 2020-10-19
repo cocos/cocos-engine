@@ -1,5 +1,6 @@
 /**
- * @category pipeline
+ * @packageDocumentation
+ * @module pipeline
  */
 
 import { Pass } from '../renderer/core/pass';
@@ -199,9 +200,8 @@ export class UBOShadow {
     public static MAT_LIGHT_PLANE_PROJ_OFFSET: number = 0;
     public static MAT_LIGHT_VIEW_PROJ_OFFSET: number = UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
     public static SHADOW_COLOR_OFFSET: number = UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
-    public static SHADOW_PCF_OFFSET: number = UBOShadow.SHADOW_COLOR_OFFSET + 4;
-    public static SHADOW_SIZE_OFFSET: number = UBOShadow.SHADOW_PCF_OFFSET + 4;
-    public static COUNT: number = UBOShadow.SHADOW_SIZE_OFFSET + 4;
+    public static SHADOW_INFO_OFFSET: number = UBOShadow.SHADOW_COLOR_OFFSET + 4;
+    public static COUNT: number = UBOShadow.SHADOW_INFO_OFFSET + 4;
     public static SIZE: number = UBOShadow.COUNT * 4;
 
     public static BLOCK: IBlockInfo = {
@@ -210,8 +210,7 @@ export class UBOShadow {
             { name: 'cc_matLightPlaneProj', type: GFXType.MAT4, count: 1 },
             { name: 'cc_matLightViewProj', type: GFXType.MAT4, count: 1 },
             { name: 'cc_shadowColor', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_shadowPCF', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_shadowSize', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_shadowInfo', type: GFXType.FLOAT4, count: 1 },
         ],
     };
 }
@@ -369,6 +368,8 @@ export class UBOMorph {
     public static readonly OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH = 4 * UBOMorph.MAX_MORPH_TARGET_COUNT;
 
     public static readonly OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT = UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH + 4;
+
+    public static readonly OFFSET_OF_VERTICES_COUNT = UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT + 4;
 
     public static readonly COUNT_BASE_4_BYTES = 4 * Math.ceil(UBOMorph.MAX_MORPH_TARGET_COUNT / 4) + 4;
 

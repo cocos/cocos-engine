@@ -1,5 +1,6 @@
 /**
- * @category core
+ * @packageDocumentation
+ * @module core
  */
 
 import { builtinResMgr } from './3d/builtin';

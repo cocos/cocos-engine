@@ -20,6 +20,7 @@
  THE SOFTWARE.
 */
 /**
+ * @packageDocumentation
  * @hidden
  */
 

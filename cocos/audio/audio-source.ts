@@ -24,7 +24,8 @@
  */
 
 /**
- * @category component/audio
+ * @packageDocumentation
+ * @module component/audio
  */
 
 import { Component } from '../core/components/component';

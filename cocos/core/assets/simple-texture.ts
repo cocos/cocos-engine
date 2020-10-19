@@ -1,5 +1,6 @@
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 import { ccclass } from 'cc.decorator';

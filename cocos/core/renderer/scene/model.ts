@@ -21,7 +21,6 @@ import { ShaderPool, SubModelPool, SubModelView } from '../core/memory-pools';
 import { IGFXAttribute, GFXDescriptorSet } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UniformLightingMapSampler } from '../../pipeline/define';
 import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
-import { ShadowType } from './shadows';
 
 const m4_1 = new Mat4();
 
