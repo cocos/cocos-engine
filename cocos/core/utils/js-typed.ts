@@ -394,7 +394,7 @@ export function getSuper (constructor: Function) {
 /**
  * Checks whether subclass is child of superclass or equals to superclass.
  */
-export function isChildClassOf (subclass: Function, superclass: Function) {
+export function isChildClassOf (subclass: unknown, superclass: unknown) {
     if (subclass && superclass) {
         if (typeof subclass !== 'function') {
             return false;
@@ -409,7 +409,7 @@ export function isChildClassOf (subclass: Function, superclass: Function) {
             return true;
         }
         for (; ;) {
-            subclass = getSuper(subclass);
+            subclass = getSuper(subclass as Function);
             if (!subclass) {
                 return false;
             }

@@ -448,7 +448,7 @@ export function CCClass<TFunction> (options: {
 
     const editor = options.editor;
     if (editor) {
-        if (typeof base === 'function' && js.isChildClassOf(base, legacyCC.Component)) {
+        if (js.isChildClassOf(base, legacyCC.Component)) {
             legacyCC.Component._registerEditorProps(cls, editor);
         }
         else if (DEV) {
