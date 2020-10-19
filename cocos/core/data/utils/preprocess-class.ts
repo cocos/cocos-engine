@@ -42,13 +42,6 @@ const SerializableAttrs = {
     formerlySerializedAs: {},
 };
 
-const TYPO_TO_CORRECT_DEV = DEV && {
-    extend: 'extends',
-    property: 'properties',
-    static: 'statics',
-    constructor: 'ctor',
-};
-
 /**
  * 预处理 notify 等扩展属性
  */
@@ -268,7 +261,7 @@ export function getFullFormOfProperty (options, propname_dev?, classname_dev?) {
     return null;
 }
 
-export function preprocessAttrs (properties, className, cls, es6) {
+export function preprocessAttrs (properties, className, cls) {
     for (const propName in properties) {
         let val = properties[propName];
         const fullForm = getFullFormOfProperty(val, propName, className);
@@ -289,12 +282,6 @@ export function preprocessAttrs (properties, className, cls, es6) {
                         errorID(5515, className, propName);
                     }
                 }
-                else if (!val.get && !val.set) {
-                    const maybeTypeScript = es6;
-                    if (!maybeTypeScript) {
-                        errorID(5516, className, propName);
-                    }
-                }
             }
             if (DEV && !val.override && cls.__props__.indexOf(propName) !== -1) {
                 // check override
@@ -303,8 +290,8 @@ export function preprocessAttrs (properties, className, cls, es6) {
             }
             const notify = val.notify;
             if (notify) {
-                if (DEV && es6) {
-                    error('not yet support notify attribute for ES6 Classes');
+                if (DEV) {
+                    error('not yet support notify attributes.');
                 }
                 else {
                     parseNotify(val, propName, notify, properties);
@@ -341,38 +328,4 @@ export function doValidateMethodWithProps_DEV (func, funcName, className, cls, b
         // tslint:disable-next-line: max-line-length
         error(`Overwriting '${funcName}' function in '${className}' class without calling super is not allowed. Call the super function in '${funcName}' please.`);
     }
-}
-
-export function validateMethodWithProps (func, funcName, className, cls, base) {
-    if (DEV && funcName === 'constructor') {
-        errorID(3643, className);
-        return false;
-    }
-    if (typeof func === 'function' || func === null) {
-        if (DEV) {
-            doValidateMethodWithProps_DEV(func, funcName, className, cls, base);
-        }
-    }
-    else {
-        if (DEV) {
-            if (func === false && base && base.prototype) {
-                // check override
-                const overrided = base.prototype[funcName];
-                if (typeof overrided === 'function') {
-                    const baseFuc = js.getClassName(base) + '.' + funcName;
-                    const subFuc = className + '.' + funcName;
-                    warnID(3624, subFuc, baseFuc, subFuc, subFuc);
-                }
-            }
-            const correct = TYPO_TO_CORRECT_DEV[funcName];
-            if (correct) {
-                warnID(3621, className, funcName, correct);
-            }
-            else if (func) {
-                errorID(3622, className, funcName);
-            }
-        }
-        return false;
-    }
-    return true;
 }

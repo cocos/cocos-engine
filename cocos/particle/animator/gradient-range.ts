@@ -124,15 +124,6 @@ export default class GradientRange {
     }
 }
 
-// CCClass.fastDefine('cc.GradientRange', GradientRange, {
-//     mode: Mode.Color,
-//     color: cc.Color.WHITE.clone(),
-//     colorMin: cc.Color.WHITE.clone(),
-//     colorMax: cc.Color.WHITE.clone(),
-//     gradient: new Gradient(),
-//     gradientMin: null,
-//     gradientMax: null
-// });
 function evaluateGradient (gr: GradientRange, time: number, index: number) {
     switch (gr.mode) {
         case Mode.Color:

@@ -153,18 +153,3 @@ function dampenBeyondLimit (vel: number, limit: number, dampen: number) {
     }
     return abs * sgn;
 }
-
-// CCClass.fastDefine('cc.LimitVelocityOvertimeModule', LimitVelocityOvertimeModule, {
-//     enable: false,
-//     limitX: null,
-//     limitY: null,
-//     limitZ: null,
-//     limit: null,
-//     dampen: null,
-//     separateAxes: false,
-//     space: Space.Local,
-//     // TODO:functions related to drag are temporarily not supported
-//     drag: null,
-//     multiplyDragByParticleSize: false,
-//     multiplyDragByParticleVelocity: false
-// });

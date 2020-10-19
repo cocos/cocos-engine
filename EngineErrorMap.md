@@ -1219,6 +1219,7 @@ Event manager only support scene graph priority for ui nodes which contain UICom
 
 ### 3600
 
+<!-- DEPRECATED -->
 cc.Class will automatically call super constructor of %s, you should not call it manually.
 
 ### 3601
@@ -1287,6 +1288,7 @@ Should not specify class name %s for Component which defines in project.
 
 ### 3617
 
+<!-- DEPRECATED -->
 Can not instantiate CCClass '%s' with arguments.
 
 ### 3618
@@ -1295,18 +1297,22 @@ ctor of '%s' can not be another CCClass
 
 ### 3619
 
+<!-- DEPRECATED -->
 ctor of '%s' must be function type
 
 ### 3620
 
+<!-- DEPRECATED -->
 this._super declared in '%s.%s' but no super method defined
 
 ### 3621
 
+<!-- DEPRECATED -->
 Unknown type of %s.%s, maybe you want is '%s'.
 
 ### 3622
 
+<!-- DEPRECATED -->
 Unknown type of %s.%s, property should be defined in 'properties' or 'ctor'
 
 ### 3623
@@ -1315,6 +1321,7 @@ Can not use 'editor' attribute, '%s' not inherits from Components.
 
 ### 3624
 
+<!-- DEPRECATED -->
 '%s' overrided '%s' but '%s' is defined as 'false' so the super method will not be called. You can set '%s' to null to disable this warning.
 
 ### 3625
@@ -1362,10 +1369,12 @@ Disallow to use '.' in property name
 
 ### 3635
 
+<!-- DEPRECATED -->
 Default array must be empty, set default value of %s.%s to [], and initialize in 'onLoad' or 'ctor' please. (just like 'this.%s = [...];')
 
 ### 3636
 
+<!-- DEPRECATED -->
 Do not set default value to non-empty object, unless the object defines its own 'clone' function. Set default value of %s.%s to null or {}, and initialize in 'onLoad' or 'ctor' please. (just like 'this.%s = {foo: bar};')
 
 ### 3637
@@ -1374,6 +1383,7 @@ Can not declare %s.%s, it is already defined in the prototype of %s
 
 ### 3638
 
+<!-- DEPRECATED -->
 '%s': the getter of '%s' is already defined!
 
 ### 3639
@@ -1390,10 +1400,12 @@ Can not construct %s because it contains object property.
 
 ### 3642
 
+<!-- DEPRECATED -->
 Cannot define %s.%s because static member name can not be '%s'.
 
 ### 3643
 
+<!-- DEPRECATED -->
 Can not define a member called 'constructor' in the class '%s', please use 'ctor' instead.
 
 ### 3644
@@ -1418,6 +1430,7 @@ Can not declare %s.%s method, it is already defined in the properties of %s.
 
 ### 3649
 
+<!-- DEPRECATED -->
 CCClass %s have conflict between its ctor and __ctor__.
 
 ### 3650
@@ -1427,6 +1440,7 @@ No need to specifiy "%s" attribute for "%s" property in "%s" class.
 
 ### 3651
 
+<!-- DEPRECATED -->
 Can not call `_super` or `prototype.ctor` in ES6 Classes "%s", use `super` instead please.
 
 ### 3652
@@ -1524,6 +1538,7 @@ export class Foo {            //  ↓
 
 ### 3661
 
+<!-- DEPRECATED -->
 Register a cc-class through `cc.Class({ /* ... */ })` is deprecated (when registering cc-class "%s"). Use ES6 class syntax and decorators for that purpose instead.
 
 ### 3700
@@ -2077,6 +2092,7 @@ The 'default' value of '%s.%s' can not be an constructor. Set default to null pl
 
 ### 5516
 
+<!-- DEPRECATED -->
 Property '%s.%s' must define at least one of 'default', 'get' or 'set'.
 
 ### 5517
