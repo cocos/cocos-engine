@@ -68,7 +68,7 @@ export class AudioClip extends Asset {
     @type(AudioType)
     protected _loadMode = AudioType.UNKNOWN_AUDIO;
 
-    protected _audio: any = null;
+    protected _nativeAudio: any = null;
     protected _player: AudioPlayer | null = null;
 
     constructor () {
@@ -81,11 +81,11 @@ export class AudioClip extends Asset {
         return super.destroy();
     }
 
-    set _nativeAsset (clip: any) {
-        this._audio = clip;
-        if (clip) {
-            const ctor = this._getPlayer(clip);
-            this._player = new ctor({ clip, duration: this._duration, eventTarget: this });
+    set _nativeAsset (nativeAudio: any) {
+        this._nativeAudio = nativeAudio;
+        if (nativeAudio) {
+            const ctor = this._getPlayer(nativeAudio);
+            this._player = new ctor({ nativeAudio, duration: this._duration, audioClip: this });
             this.loaded = true;
             this.emit('load');
         } else {
@@ -97,7 +97,7 @@ export class AudioClip extends Asset {
     }
 
     get _nativeAsset () {
-        return this._audio;
+        return this._nativeAudio;
     }
 
     get loadMode () {
