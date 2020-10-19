@@ -31,7 +31,9 @@ export function isString (object: any) {
 }
 
 /**
- * Checks whether the obj is empty
+ * Checks if the object `obj` does not have one or more enumerable properties (including properties from proto chain).
+ * @param obj The object.
+ * @returns The result. Note that if the `obj` is not of type `'object'`, `true` is returned.
  */
 export function isEmptyObject (obj: any) {
     for (const key in obj) {

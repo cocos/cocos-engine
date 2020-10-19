@@ -25,7 +25,7 @@
   "devDependencies": {
     "@babel/core": "^7.9.0",
     "@babel/preset-env": "7.8.7",
-    "@cocos/babel-preset-cc": "^2.2.0",
+    "@cocos/babel-preset-cc": "2.2.0",
     "@cocos/build-engine": "3.0.8",
     "@cocos/typedoc-plugin-internal-external": "^1.0.0",
     "@cocos/typedoc-plugin-localization": "^1.0.0",
