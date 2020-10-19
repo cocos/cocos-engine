@@ -399,15 +399,15 @@ Local<Value> ErrnoException(Isolate* isolate,
     e = Exception::Error(cons);
 
     Local<Object> obj = e->ToObject(env->context()).ToLocalChecked();
-    obj->Set(env->context(), env->errno_string(), Integer::New(env->isolate(), errorno));
-    obj->Set(env->context(), env->code_string(), estring);
+    obj->Set(env->context(), env->errno_string(), Integer::New(env->isolate(), errorno)).Check();
+    obj->Set(env->context(), env->code_string(), estring).Check();
 
     if (path_string.IsEmpty() == false) {
-        obj->Set(env->context(), env->path_string(), path_string);
+        obj->Set(env->context(), env->path_string(), path_string).Check();
     }
 
     if (syscall != nullptr) {
-        obj->Set(env->context(), env->syscall_string(), OneByteString(env->isolate(), syscall));
+        obj->Set(env->context(), env->syscall_string(), OneByteString(env->isolate(), syscall)).Check();
     }
 
     return e;
@@ -477,13 +477,13 @@ Local<Value> UVException(Isolate* isolate,
     
     Local<Object> e = Exception::Error(js_msg)->ToObject(isolate->GetCurrentContext()).ToLocalChecked();
     
-    e->Set(isolate->GetCurrentContext(), env->errno_string(), Integer::New(isolate, errorno));
-    e->Set(isolate->GetCurrentContext(), env->code_string(), js_code);
-    e->Set(isolate->GetCurrentContext(), env->syscall_string(), js_syscall);
+    e->Set(isolate->GetCurrentContext(), env->errno_string(), Integer::New(isolate, errorno)).Check();
+    e->Set(isolate->GetCurrentContext(), env->code_string(), js_code).Check();
+    e->Set(isolate->GetCurrentContext(), env->syscall_string(), js_syscall).Check();
     if (!js_path.IsEmpty())
-        e->Set(isolate->GetCurrentContext(), env->path_string(), js_path);
+        e->Set(isolate->GetCurrentContext(), env->path_string(), js_path).Check();
     if (!js_dest.IsEmpty())
-        e->Set(isolate->GetCurrentContext(), env->dest_string(), js_dest);
+        e->Set(isolate->GetCurrentContext(), env->dest_string(), js_dest).Check();
     
     return e;
 }
@@ -802,7 +802,7 @@ void SetupProcessObject(Environment* env,
     // +1 to get rid of the leading 'v'
     READONLY_PROPERTY(versions,
                       "node",
-                      OneByteString(env->isolate(), NODE_VERSION + 1));
+                      OneByteString(env->isolate(), NODE_VERSION));
     READONLY_PROPERTY(versions,
                       "v8",
                       OneByteString(env->isolate(), V8::GetVersion()));
@@ -908,17 +908,17 @@ void SetupProcessObject(Environment* env,
     // process.argv
     Local<Array> arguments = Array::New(env->isolate(), argc);
     for (int i = 0; i < argc; ++i) {
-        arguments->Set(env->context(), i, String::NewFromUtf8(env->isolate(), argv[i], v8::NewStringType::kNormal).ToLocalChecked());
+        arguments->Set(env->context(), i, String::NewFromUtf8(env->isolate(), argv[i], v8::NewStringType::kNormal).ToLocalChecked()).Check();
     }
-    process->Set(env->context(), FIXED_ONE_BYTE_STRING(env->isolate(), "argv"), arguments);
+    process->Set(env->context(), FIXED_ONE_BYTE_STRING(env->isolate(), "argv"), arguments).Check();
 
     // process.execArgv
     Local<Array> exec_arguments = Array::New(env->isolate(), exec_argc);
     for (int i = 0; i < exec_argc; ++i) {
-        exec_arguments->Set(env->context(), i, String::NewFromUtf8(env->isolate(), exec_argv[i], v8::NewStringType::kNormal).ToLocalChecked());
+        exec_arguments->Set(env->context(), i, String::NewFromUtf8(env->isolate(), exec_argv[i], v8::NewStringType::kNormal).ToLocalChecked()).Check();
     }
     process->Set(env->context(), FIXED_ONE_BYTE_STRING(env->isolate(), "execArgv"),
-                 exec_arguments);
+                 exec_arguments).Check();
 
     // create process.env
 //    Local<ObjectTemplate> process_env_template =
@@ -1127,7 +1127,7 @@ void SetupProcessObject(Environment* env,
     Local<Object> events_obj = Object::New(env->isolate());
     CHECK(events_obj->SetPrototype(env->context(),
                                    Null(env->isolate())).FromJust());
-    process->Set(env->context(), env->events_string(), events_obj);
+    process->Set(env->context(), env->events_string(), events_obj).Check();
 }
 
 

@@ -202,7 +202,7 @@ bool utfConvert(
 CC_DLL void UTF8LooseFix(const std::string &in, std::string &out)
 {
     const UTF8 *p = (const UTF8*) in.c_str();
-    const UTF8 const *end = (const UTF8*) (in.c_str() + in.size());
+    const UTF8 *end = (const UTF8*) (in.c_str() + in.size());
     unsigned ucharLen = 0;
     while(p < end) {
         ucharLen = getNumBytesForUTF8(*p);
