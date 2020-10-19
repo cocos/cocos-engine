@@ -31,11 +31,12 @@ let _pos = cc.v2();
 let _tpa = cc.v2();
 let _tpb = cc.v2();
 let _tpc = cc.v2();
+let _cval = cc.color(0, 0, 0, 255);
 
 let Particle = function () {
     this.pos = cc.v2(0, 0);
     this.startPos = cc.v2(0, 0);
-    this.color = cc.color(0, 0, 0, 255);
+    this.color = {r: 0, g: 0, b: 0, a: 255};
     this.deltaColor = {r: 0, g: 0, b: 0, a: 255};
     this.size = 0;
     this.deltaSize = 0;
@@ -57,8 +58,9 @@ let Particle = function () {
 
 let pool = new js.Pool(function (par) {
     par.pos.set(ZERO_VEC2);
-    par.startPos.set(ZERO_VEC2);
-    par.color._val = 0xFF000000;
+    par.startPos.set(ZERO_VEC2);    
+    par.color.r = par.color.g = par.color.b = 0;
+    par.color.a = 255;
     par.deltaColor.r = par.deltaColor.g = par.deltaColor.b = 0;
     par.deltaColor.a = 255;
     par.size = 0;
@@ -281,10 +283,11 @@ Simulator.prototype.updateParticleBuffer = function (particle, pos, buffer, offs
         vbuf[offset+16] = y + halfHeight;
     }
     // color
-    uintbuf[offset+4] = particle.color._val;
-    uintbuf[offset+9] = particle.color._val;
-    uintbuf[offset+14] = particle.color._val;
-    uintbuf[offset+19] = particle.color._val;
+    cc.Color.set(_cval, particle.color.r, particle.color.g, particle.color.b, particle.color.a);
+    uintbuf[offset+4] = _cval._val;
+    uintbuf[offset+9] = _cval._val;
+    uintbuf[offset+14] = _cval._val;
+    uintbuf[offset+19] = _cval._val;
 };
 
 Simulator.prototype.step = function (dt) {
