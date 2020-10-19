@@ -11,6 +11,8 @@ if (PX) {
     PX.CACHE_MAT = {};
     PX.VECTIR_MAT = {};
     PX.IMPL_PTR = {};
+    PX.MESH_CONVEX = {};
+    PX.MESH_STATIC = {};
 }
 
 export const _trans = {

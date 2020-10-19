@@ -61,6 +61,7 @@ export class PhysXWorld implements IPhysicsWorld {
 
     readonly physics: PhysX.Physics;
     readonly scene: PhysX.Scene;
+    readonly cooking: any;
 
     readonly wrappedBodies: PhysXSharedBody[] = [];
 
@@ -103,6 +104,12 @@ export class PhysXWorld implements IPhysicsWorld {
                 allocator,
                 defaultErrorCallback
             )
+            const scale = new PX.PxTolerancesScale();
+            this.cooking = PX.PxCreateCooking(
+                version,
+                foundation,
+                new PX.PxCookingParams(scale)
+            );
 
             const physxSimulationCallbackInstance = PX.PxSimulationEventCallback.implement(
                 triggerCallback
@@ -111,7 +118,7 @@ export class PhysXWorld implements IPhysicsWorld {
             this.physics = PX.PxCreatePhysics(
                 version,
                 foundation,
-                new PX.PxTolerancesScale(),
+                scale,
                 false,
                 null
             )

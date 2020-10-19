@@ -12,7 +12,9 @@ export enum EPhysXShapeType {
     SPHERE,
     BOX,
     CAPSULE,
-    PLANE
+    PLANE,
+    TERRAIN,
+    MESH,
 }
 
 export class PhysXShape implements IBaseShape {

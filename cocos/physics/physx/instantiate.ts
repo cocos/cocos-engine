@@ -8,6 +8,8 @@ import { PhysXSphereShape } from './shapes/physx-sphere-shape';
 import { PhysXBoxShape } from './shapes/physx-box-shape';
 import { PhysXCapsuleShape } from './shapes/physx-capsule-shape';
 import { PhysXPlaneShape } from './shapes/physx-plane-shape';
+import { PhysXTrimeshShape } from './shapes/physx-trimesh-shape';
+
 import { USE_BYTEDANCE } from './export-physx';
 
 let pcs: Constructor<PhysXCapsuleShape> | null = PhysXCapsuleShape;
@@ -20,7 +22,7 @@ select('physx', {
     BoxShape: PhysXBoxShape,
     SphereShape: PhysXSphereShape,
     CapsuleShape: pcs,
-    // TrimeshShape: PhysXTrimeshShape,
+    TrimeshShape: PhysXTrimeshShape,
     // CylinderShape: PhysXCylinderShape,
     // ConeShape: PhysXConeShape,
     // TerrainShape: PhysXTerrainShape,
