@@ -85,14 +85,13 @@ class CocosZipInstaller(object):
         data = self.load_json_file(config_path)
 
         self._current_version = data["version"]
-        self._repo_name = data["repo_name"]
+        self._repo_name = data["from"]["name"]
         try:
             self._move_dirs = data["move_dirs"]
         except:
             self._move_dirs = None
         self._filename = self._current_version + '.zip'
-        self._url = data["repo_parent"] + self._repo_name + '/archive/' + self._filename
-        self._zip_file_size = int(data["zip_file_size"])
+        self._url = "https://github.com/" + data["from"]["owner"] + "/" + self._repo_name + '/archive/' + self._filename
         # 'v' letter was swallowed by github, so we need to substring it from the 2nd letter
         self._extracted_folder_name = os.path.join(self._workpath, self._repo_name + '-' + self._current_version[1:])
 
@@ -132,7 +131,7 @@ class CocosZipInstaller(object):
             # therefore, the size needs to be written hardcode here. While server doesn't return
             # `Content-Length`, use it instead
             print("==> WARNING: Couldn't grab the file size from remote, use 'zip_file_size' section in '%s'" % self._config_path)
-            file_size = self._zip_file_size
+            file_size = 0
 
         print("==> Start to download, please wait ...")
 
