@@ -16,7 +16,7 @@ android {
         externalNativeBuild {
             cmake {
                 targets "cocos2djs"
-                arguments "-DRES_DIR=${projectDir}/../..", "-DANDROID_STL=c++_static", "-DANDROID_TOOLCHAIN=clang", "-DANDROID_ARM_NEON=TRUE"
+                arguments "-DRES_DIR=${projectDir.absolutePath.replace("\\", "/")}/../..", "-DANDROID_STL=c++_static", "-DANDROID_TOOLCHAIN=clang", "-DANDROID_ARM_NEON=TRUE"
                 cppFlags "-frtti -fexceptions -fsigned-char"
                 abiFilters.addAll(PROP_APP_ABI.split(':').collect{it as String})
             }
