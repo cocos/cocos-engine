@@ -204,6 +204,8 @@ export class RenderAdditiveLightQueue {
                 }
             }
         }
+        this._instancedQueue.uploadBuffers(cmdBuff);
+        this._batchedQueue.uploadBuffers(cmdBuff);
     }
 
     public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {

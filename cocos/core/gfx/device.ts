@@ -45,7 +45,7 @@ export class GFXDeviceInfo {
         /**
          * For non-vulkan backends, to maintain compatibility and maximize
          * descriptor cache-locality, descriptor-set-based binding numbers need
-         * to be mapped to backend-specific bindings based on maximum limit
+         * to be mapped to backend-specific bindings based on the maximum limit
          * of available descriptor slots in each set.
          *
          * The GFX layer assumes the binding numbers for each descriptor type inside each set

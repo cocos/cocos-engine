@@ -1077,7 +1077,7 @@ export enum ShadowsView {
     SIZE, // Vec2
     NORMAL = 15, // Vec3
     COLOR = 18, // Vec4
-    MAT_LIGHT = 22, //Mat4
+    MAT_LIGHT = 22, // Mat4
     COUNT = 38
 }
 interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
@@ -1161,7 +1161,7 @@ export const LightPool = new BufferPool<PoolType.LIGHT, typeof LightView, ILight
 
 export enum SphereView {
     RADIUS,
-    CENTER,     //Vec3
+    CENTER,     // Vec3
     COUNT = 4
 }
 interface ISphereViewType extends BufferTypeManifest<typeof SphereView> {
@@ -1177,4 +1177,3 @@ const sphereViewDataType: BufferDataTypeManifest<typeof SphereView> = {
 // @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
 if (!JSB) {delete SphereView[SphereView.COUNT]; SphereView[SphereView.COUNT = SphereView.RADIUS + 1] = 'COUNT'; }
 export const SpherePool = new BufferPool<PoolType.SPHERE, typeof SphereView, ISphereViewType>(PoolType.SPHERE, sphereViewDataType, SphereView, 3);
-

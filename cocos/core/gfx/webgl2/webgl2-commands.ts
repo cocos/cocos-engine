@@ -615,8 +615,8 @@ const WebGLBlendOps: GLenum[] = [
     0x8006, // WebGLRenderingContext.FUNC_ADD,
     0x800A, // WebGLRenderingContext.FUNC_SUBTRACT,
     0x800B, // WebGLRenderingContext.FUNC_REVERSE_SUBTRACT,
-    0x8006, // WebGLRenderingContext.FUNC_ADD,
-    0x8006, // WebGLRenderingContext.FUNC_ADD,
+    0x8007, // WebGL2RenderingContext.MIN,
+    0x8008, // WebGL2RenderingContext.MAX,
 ];
 
 const WebGLBlendFactors: GLenum[] = [
@@ -2269,7 +2269,8 @@ export function WebGL2CmdFuncBindStates (
         for (let j = 0; j < blockLen; j++) {
             const glBlock = gpuShader.glBlocks[j];
             const gpuDescriptorSet = gpuDescriptorSets[glBlock.set];
-            const gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[glBlock.binding];
+            const descriptorIndex = gpuDescriptorSet && gpuDescriptorSet.descriptorIndices[glBlock.binding];
+            const gpuDescriptor = descriptorIndex >= 0 && gpuDescriptorSet.gpuDescriptors[descriptorIndex];
 
             if (!gpuDescriptor || !gpuDescriptor.gpuBuffer) {
                 error(`Buffer binding '${glBlock.name}' at set ${glBlock.set} binding ${glBlock.binding} is not bounded`);
@@ -2299,7 +2300,7 @@ export function WebGL2CmdFuncBindStates (
             const glSampler = gpuShader.glSamplers[i];
             const gpuDescriptorSet = gpuDescriptorSets[glSampler.set];
             let descriptorIndex = gpuDescriptorSet && gpuDescriptorSet.descriptorIndices[glSampler.binding];
-            let gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[descriptorIndex];
+            let gpuDescriptor = descriptorIndex >= 0 && gpuDescriptorSet.gpuDescriptors[descriptorIndex];
 
             for (let l = 0; l < glSampler.units.length; l++) {
                 const texUnit = glSampler.units[l];

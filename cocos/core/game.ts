@@ -429,9 +429,9 @@ export class Game extends EventTarget {
             window.cAF(this._intervalId);
             this._intervalId = 0;
         }
-        // Because JSB platforms never actually stops the swap chain,
+        // Because runtime platforms never actually stops the swap chain,
         // we draw some more frames here to (try to) make sure swap chain consistency
-        if (JSB || RUNTIME_BASED || ALIPAY) {
+        if (RUNTIME_BASED || ALIPAY) {
             let swapbuffers = 3;
             const cb = () => {
                 if (--swapbuffers > 1) {
@@ -590,7 +590,6 @@ export class Game extends EventTarget {
         }
 
         this._setAnimFrame();
-        this._runMainLoop();
 
         // register system events
         if (!EDITOR && game.config.registerSystemEvent) {

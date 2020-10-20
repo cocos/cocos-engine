@@ -5,7 +5,7 @@ in vec4 v_shadowPos;
 #include <packing>
 
 #pragma builtin(global)
-layout(set = 0, binding = 4) uniform sampler2D cc_shadowMap;
+layout(set = 0, binding = 2) uniform sampler2D cc_shadowMap;
 
 float CCGetShadowFactorX1 () {
   vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;

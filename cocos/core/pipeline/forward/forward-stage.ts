@@ -3,7 +3,7 @@
  * @module pipeline
  */
 
-import { ccclass, visible, displayOrder, type, serializable } from 'cc.decorator';
+import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { IRenderPass, SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
@@ -147,11 +147,14 @@ export class ForwardStage extends RenderStage {
                 }
             }
         }
+        this._renderQueues.forEach(this.renderQueueSortFunc);
+
         const cmdBuff = pipeline.commandBuffers[0];
 
-        this._renderQueues.forEach(this.renderQueueSortFunc);
+        this._instancedQueue.uploadBuffers(cmdBuff);
+        this._batchedQueue.uploadBuffers(cmdBuff);
         this._additiveLightQueue.gatherLightPasses(view, cmdBuff);
-        this._planarQueue.updateShadowList(view);
+        this._planarQueue.gatherShadowPasses(view, cmdBuff);
 
         const camera = view.camera;
         const vp = camera.viewport;

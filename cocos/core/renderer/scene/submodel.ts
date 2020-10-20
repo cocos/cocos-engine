@@ -20,6 +20,15 @@ export class SubModel {
     set passes (passes) {
         this._passes = passes;
         this._flushPassInfo();
+
+        // DS layout might change too
+        if (this._descriptorSet) {
+            DSPool.free(SubModelPool.get(this._handle, SubModelView.DESCRIPTOR_SET));
+            _dsInfo.layout = passes[0].localSetLayout;
+            const dsHandle = DSPool.alloc(this._device!, _dsInfo);
+            SubModelPool.set(this._handle, SubModelView.DESCRIPTOR_SET, dsHandle);
+            this._descriptorSet = DSPool.get(dsHandle);
+        }
     }
 
     get passes () {
@@ -57,6 +66,10 @@ export class SubModel {
         return this._descriptorSet!;
     }
 
+    get patches () {
+        return this._patches;
+    }
+
     public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null) {
         this._device = legacyCC.director.root.device as GFXDevice;
 
@@ -67,7 +80,7 @@ export class SubModel {
         this._handle = SubModelPool.alloc();
         this._flushPassInfo();
 
-        _dsInfo.layout = passes[0].setLayouts[SetIndex.LOCAL];
+        _dsInfo.layout = passes[0].localSetLayout;
         const dsHandle = DSPool.alloc(this._device, _dsInfo);
         const iaHandle = IAPool.alloc(this._device, subMesh.iaInfo);
         SubModelPool.set(this._handle, SubModelView.PRIORITY, RenderPriority.DEFAULT);

@@ -1,4 +1,3 @@
-import { WECHAT } from 'internal:constants';
 import { CachedArray } from '../../memop/cached-array';
 import { error, errorID } from '../../platform/debug';
 import { GFXBufferSource, GFXDrawInfo, GFXIndirectBuffer } from '../buffer';
@@ -462,8 +461,8 @@ const WebGLBlendOps: GLenum[] = [
     0x8006, // WebGLRenderingContext.FUNC_ADD,
     0x800A, // WebGLRenderingContext.FUNC_SUBTRACT,
     0x800B, // WebGLRenderingContext.FUNC_REVERSE_SUBTRACT,
-    0x8006, // WebGLRenderingContext.FUNC_ADD,
-    0x8006, // WebGLRenderingContext.FUNC_ADD,
+    0x8007, // WebGLRenderingContext.MIN,
+    0x8008, // WebGLRenderingContext.MAX,
 ];
 
 const WebGLBlendFactors: GLenum[] = [
@@ -2106,7 +2105,8 @@ export function WebGLCmdFuncBindStates (
         for (let j = 0; j < blockLen; j++) {
             const glBlock = gpuShader.glBlocks[j];
             const gpuDescriptorSet = gpuDescriptorSets[glBlock.set];
-            const gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[glBlock.binding];
+            const descriptorIdx = gpuDescriptorSet && gpuDescriptorSet.descriptorIndices[glBlock.binding];
+            const gpuDescriptor = descriptorIdx >= 0 && gpuDescriptorSet.gpuDescriptors[descriptorIdx];
             let vf32: Float32Array | null = null; let offset = 0;
 
             if (gpuDescriptor && gpuDescriptor.gpuBuffer) {
@@ -2291,7 +2291,7 @@ export function WebGLCmdFuncBindStates (
             const glSampler = gpuShader.glSamplers[i];
             const gpuDescriptorSet = gpuDescriptorSets[glSampler.set];
             let descriptorIndex = gpuDescriptorSet && gpuDescriptorSet.descriptorIndices[glSampler.binding];
-            let gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[descriptorIndex];
+            let gpuDescriptor = descriptorIndex >= 0 && gpuDescriptorSet.gpuDescriptors[descriptorIndex];
 
             const texUnitLen = glSampler.units.length;
             for (let l = 0; l < texUnitLen; l++) {

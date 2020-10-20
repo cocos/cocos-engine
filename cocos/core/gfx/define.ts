@@ -551,14 +551,13 @@ export enum GFXFormatType {
 
 export enum GFXAPI {
     UNKNOWN,
-    GL,
     GLES2,
     GLES3,
     METAL,
     VULKAN,
-    DX12,
     WEBGL,
     WEBGL2,
+    WEBGPU,
 }
 
 export enum GFXFeature {
@@ -585,6 +584,7 @@ export enum GFXFeature {
     ELEMENT_INDEX_UINT,
     INSTANCED_ARRAYS,
     MULTIPLE_RENDER_TARGETS,
+    BLEND_MINMAX,
     DEPTH_BOUNDS,
     LINE_WIDTH,
     STENCIL_WRITE_MASK,

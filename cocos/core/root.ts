@@ -382,6 +382,7 @@ export class Root {
             this._views.length = 0;
             const views = this._cameras;
             const stamp = legacyCC.director.getTotalFrames();
+            if (this._ui) this._ui.update();
             for (let i = 0; i < views.length; i++) {
                 const camera = this._cameras[i];
                 const view = camera.view;

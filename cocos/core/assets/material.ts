@@ -95,7 +95,7 @@ export class Material extends Asset {
     /**
      * @en Get hash for a material
      * @zh 获取一个材质的哈希值
-     * @param material 
+     * @param material
      */
     public static getHash (material: Material) {
         let hash = 0;

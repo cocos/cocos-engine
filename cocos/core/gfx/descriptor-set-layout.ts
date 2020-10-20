@@ -11,6 +11,7 @@ export class GFXDescriptorSetLayoutBinding {
     declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
+        public binding: number = -1,
         public descriptorType: GFXDescriptorType = GFXDescriptorType.UNKNOWN,
         public count: number = 0,
         public stageFlags: GFXShaderStageFlags = GFXShaderStageFlagBit.NONE,
@@ -22,8 +23,6 @@ export class GFXDescriptorSetLayoutInfo {
     declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        // array index is used as the binding numbers,
-        // i.e. they should be strictly consecutive and start from 0
         public bindings: GFXDescriptorSetLayoutBinding[] = []
     ) {}
 }
@@ -40,6 +39,10 @@ export abstract class GFXDescriptorSetLayout extends GFXObject {
         return this._bindings;
     }
 
+    get bindingIndices () {
+        return this._bindingIndices;
+    }
+
     get descriptorIndices () {
         return this._descriptorIndices;
     }
@@ -47,6 +50,8 @@ export abstract class GFXDescriptorSetLayout extends GFXObject {
     protected _device: GFXDevice;
 
     protected _bindings: GFXDescriptorSetLayoutBinding[] = [];
+
+    protected _bindingIndices: number[] = [];
 
     protected _descriptorIndices: number[] = [];
 

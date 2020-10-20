@@ -105,6 +105,8 @@ export class Skybox {
 
         if (!this._model) {
             this._model = new legacyCC.renderer.scene.Model() as Model;
+            // @ts-ignore skybox don't need local buffers
+            this._model._initLocalDescriptors = () => {};
         }
 
         SkyboxPool.set(this._handle, SkyboxView.MODEL, this._model.handle);
@@ -128,7 +130,7 @@ export class Skybox {
     }
 
     protected _updatePipeline () {
-        const value = this.enabled ? (this.useIBL ? this.isRGBE ? 2 : 1 : 0) : 0;
+        const value = this.useIBL ? this.isRGBE ? 2 : 1 : 0;
         const root = legacyCC.director.root;
         const pipeline = root.pipeline;
         const current = pipeline.macros.CC_USE_IBL;

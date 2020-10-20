@@ -117,8 +117,6 @@ export class UI {
         this._drawBatchPool = new Pool(() => {
             return new UIDrawBatch();
         }, 128);
-
-        legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_DRAW, this.update, this);
     }
 
     public initialize () {
@@ -156,7 +154,6 @@ export class UI {
 
         this._meshBuffers.splice(0);
         legacyCC.director.root.destroyScene(this._scene);
-        legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_DRAW, this.update, this);
     }
 
     public getRenderSceneGetter () {
@@ -289,7 +286,7 @@ export class UI {
         }
     }
 
-    public update (dt: number) {
+    public update () {
         this._renderScreens();
 
         // update buffers
