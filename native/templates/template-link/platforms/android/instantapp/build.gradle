@@ -1,5 +1,124 @@
-apply plugin: 'com.android.instantapp'
+import org.apache.tools.ant.taskdefs.condition.Os
+
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion PROP_COMPILE_SDK_VERSION.toInteger()
+    buildToolsVersion PROP_BUILD_TOOLS_VERSION
+    ndkPath PROP_NDK_PATH
+
+    defaultConfig {
+        applicationId "com.cocos.helloworld"
+        minSdkVersion PROP_MIN_SDK_VERSION
+        targetSdkVersion PROP_TARGET_SDK_VERSION
+        versionCode 1
+        versionName "1.0"
+
+        externalNativeBuild {
+            cmake {
+                targets "cocos2djs"
+                arguments "-DRES_DIR=${projectDir.absolutePath.replace("\\", "/")}/../..", "-DANDROID_STL=c++_static", "-DANDROID_TOOLCHAIN=clang", "-DANDROID_ARM_NEON=TRUE"
+                cppFlags "-frtti -fexceptions -fsigned-char -DANDROID_INSTANT=1"
+            }
+            ndk { abiFilters PROP_APP_ABI.split(':') }
+        }
+    }
+
+    sourceSets.main {
+        java.srcDirs "../src", "src"
+        res.srcDirs "../res", 'res'
+        jniLibs.srcDirs "../libs", 'libs'
+        manifest.srcFile "AndroidManifest.xml"
+        assets.srcDir "assets"
+    }
+
+    externalNativeBuild {
+        cmake {
+                path "${COCOS_PROJ_COMMON}/CMakeLists.txt"
+        }
+    }
+
+    signingConfigs {
+
+       release {
+            if (project.hasProperty("RELEASE_STORE_FILE") && !RELEASE_STORE_FILE.isEmpty()) {
+                storeFile file(RELEASE_STORE_FILE)
+                storePassword RELEASE_STORE_PASSWORD
+                keyAlias RELEASE_KEY_ALIAS
+                keyPassword RELEASE_KEY_PASSWORD
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            debuggable false
+            jniDebuggable false
+            renderscriptDebuggable false
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (project.hasProperty("RELEASE_STORE_FILE")) {
+                signingConfig signingConfigs.release
+            }
+        }
+
+        debug {
+            debuggable true
+            jniDebuggable true
+            renderscriptDebuggable true
+        }
+    }
+}
+
+android.applicationVariants.all { variant ->
+
+    def outputDir ="${projectDir}/assets"
+    def sourceDir = "${projectDir}/../.."
+
+    // assert file("${sourceDir}/res").exists()
+
+    delete "${outputDir}"
+    def targetName = variant.name.capitalize()
+    def copyTaskName = "copy${targetName}ResourcesToAssets"
+
+    tasks.register(copyTaskName) {
+
+        copy {
+            from "${sourceDir}/res"
+            into "${outputDir}/res"
+        }
+
+        copy {
+            from "${sourceDir}/subpackages"
+            into "${outputDir}/subpackages"
+        }
+
+        copy {
+            from "${sourceDir}/src"
+            into "${outputDir}/src"
+        }
+
+        copy {
+            from "${sourceDir}/jsb-adapter"
+            into "${outputDir}/jsb-adapter"
+        }
+
+        copy {
+            from "${sourceDir}/main.js"
+            from "${sourceDir}/application.js"
+            from "${sourceDir}/project.json"
+            into outputDir
+        }
+    }
+
+    tasks.getByName("pre${targetName}Build").dependsOn copyTaskName
+
+}
 
 dependencies {
-    implementation project(':game')
+    implementation fileTree(dir: '../libs', include: ['*.jar','*.aar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
+    implementation fileTree(dir: "/Users/wzm/cocos_creator/cocos2d-x-lite-3d/cocos/platform/android/java/libs", include: ['*.jar'])
+    implementation project(':libcocos2dx')
 }

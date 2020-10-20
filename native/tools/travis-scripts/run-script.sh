@@ -49,13 +49,13 @@ function build_android()
     echo "Compiling Android ... "
     cd $COCOS2DX_ROOT/templates/template-link/platforms/android
     sed -i "s@\${COCOS_ROOT}@$COCOS2DX_ROOT@g" app/build.gradle
-    sed -i "s@\${COCOS_ROOT}@$COCOS2DX_ROOT@g" game/build.gradle
+    sed -i "s@\${COCOS_ROOT}@$COCOS2DX_ROOT@g" instantapp/build.gradle
     sed -i "s@RES_DIR@UNUSE_RES_DIR@g" app/build.gradle
-    sed -i "s@RES_DIR@UNUSE_RES_DIR@g" game/build.gradle
+    sed -i "s@RES_DIR@UNUSE_RES_DIR@g" instantapp/build.gradle
     sed -i "s@\${COCOS_ROOT}@$COCOS2DX_ROOT@g" ../../common/CMakeLists.txt
     sed -i "s@\${COCOS_ROOT}@$COCOS2DX_ROOT@g" settings.gradle
     sed -i "s@\${COCOS_PROJ_COMMON}@$COCOS2DX_ROOT/templates/template-link/common@g" app/build.gradle
-    sed -i "s@\${COCOS_PROJ_COMMON}@$COCOS2DX_ROOT/templates/template-link/common@g" game/build.gradle
+    sed -i "s@\${COCOS_PROJ_COMMON}@$COCOS2DX_ROOT/templates/template-link/common@g" instantapp/build.gradle
     sed -i "s/^RELEASE_/#RELEASE_/g" gradle.properties
 
     #echo "Compile Android - ndk-build ..."
