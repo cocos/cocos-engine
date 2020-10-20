@@ -590,7 +590,6 @@ export class Game extends EventTarget {
         }
 
         this._setAnimFrame();
-        this._runMainLoop();
 
         // register system events
         if (!EDITOR && game.config.registerSystemEvent) {
