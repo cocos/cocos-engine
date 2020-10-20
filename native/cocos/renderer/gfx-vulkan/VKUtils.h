@@ -6,7 +6,7 @@
 #include "vk_mem_alloc.h"
 #include "volk.h"
 
-#define DEFAULT_FENCE_TIMEOUT 100000000000
+#define DEFAULT_TIMEOUT 1000000000 // 1 second
 
 namespace cc {
 namespace gfx {

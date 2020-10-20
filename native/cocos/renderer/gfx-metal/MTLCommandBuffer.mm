@@ -63,6 +63,8 @@ void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer
 }
 
 void CCMTLCommandBuffer::end() {
+    if (!_commandBufferBegan) return;
+
     [_mtlCommandBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
         // GPU work is complete
         // Signal the semaphore to start the CPU work

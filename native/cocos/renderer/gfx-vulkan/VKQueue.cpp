@@ -60,16 +60,10 @@ void CCVKQueue::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *
     submitInfo.signalSemaphoreCount = _gpuQueue->nextSignalSemaphore ? 1 : 0;
     submitInfo.pSignalSemaphores = &_gpuQueue->nextSignalSemaphore;
 
-    VkFence vkFence = VK_NULL_HANDLE;
-    if (fence) {
-        vkFence = ((CCVKFence *)fence)->gpuFence()->vkFence;
-    } else {
-        vkFence = device->gpuFencePool()->alloc();
-        _gpuQueue->lastAutoFence = vkFence;
-    }
-
+    VkFence vkFence = fence ? ((CCVKFence *)fence)->gpuFence()->vkFence : device->gpuFencePool()->alloc();
     VK_CHECK(vkQueueSubmit(_gpuQueue->vkQueue, 1, &submitInfo, vkFence));
 
+    _gpuQueue->fences.push_back(vkFence);
     _gpuQueue->nextWaitSemaphore = _gpuQueue->nextSignalSemaphore;
     _gpuQueue->nextSignalSemaphore = device->gpuSemaphorePool()->alloc();
 }

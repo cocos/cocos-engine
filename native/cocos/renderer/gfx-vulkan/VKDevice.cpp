@@ -437,15 +437,32 @@ void CCVKDevice::acquire() {
     if (!checkSwapchainStatus()) return;
 
     CCVKQueue *queue = (CCVKQueue *)_queue;
-    // Clear queue stats
+
+    if (queue->gpuQueue()->fences.size()) {
+        VK_CHECK(vkWaitForFences(_gpuDevice->vkDevice, queue->gpuQueue()->fences.size(), 
+                                 queue->gpuQueue()->fences.data(), VK_TRUE, DEFAULT_TIMEOUT));
+    }
+
     queue->_numDrawCalls = 0;
     queue->_numInstances = 0;
     queue->_numTriangles = 0;
+    queue->gpuQueue()->fences.clear();
+    queue->gpuQueue()->nextWaitSemaphore = VK_NULL_HANDLE;
+    queue->gpuQueue()->nextSignalSemaphore = VK_NULL_HANDLE;
+
+    // reset everything only when no pending commands
+    if (_gpuTransportHub->empty() && !((CCVKCommandBuffer *)_cmdBuff)->gpuCommandBuffer()->began) {
+        _gpuFencePool->reset();
+        _gpuRecycleBin->clear();
+        _gpuDescriptorSetPool->reset();
+        _gpuCommandBufferPool->reset();
+        _gpuStagingBufferPool->reset();
+    }
 
     _gpuSemaphorePool->reset();
     VkSemaphore acquireSemaphore = _gpuSemaphorePool->alloc();
-    VK_CHECK(vkAcquireNextImageKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain,
-                                   ~0ull, acquireSemaphore, VK_NULL_HANDLE, &_gpuSwapchain->curImageIndex));
+    VK_CHECK(vkAcquireNextImageKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, DEFAULT_TIMEOUT,
+                                   acquireSemaphore, VK_NULL_HANDLE, &_gpuSwapchain->curImageIndex));
 
     queue->gpuQueue()->nextWaitSemaphore = acquireSemaphore;
     queue->gpuQueue()->nextSignalSemaphore = _gpuSemaphorePool->alloc();
@@ -467,24 +484,6 @@ void CCVKDevice::present() {
 
         VkResult res = vkQueuePresentKHR(queue->gpuQueue()->vkQueue, &presentInfo);
         if (res) _swapchainReady = false;
-    }
-
-    // TODO: these can be moved to acquire-time after pipeline refactoring,
-    // which should guarantee that no transfer operation will be issued before acquiring
-
-    VK_CHECK(vkDeviceWaitIdle(_gpuDevice->vkDevice));
-
-    queue->gpuQueue()->lastAutoFence = VK_NULL_HANDLE;
-    queue->gpuQueue()->nextWaitSemaphore = VK_NULL_HANDLE;
-    queue->gpuQueue()->nextSignalSemaphore = VK_NULL_HANDLE;
-
-    // reset everything only when no pending commands
-    if (_gpuTransportHub->empty()) {
-        _gpuFencePool->reset();
-        _gpuRecycleBin->clear();
-        _gpuDescriptorSetPool->reset();
-        _gpuCommandBufferPool->reset();
-        _gpuStagingBufferPool->reset();
     }
 }
 
@@ -637,7 +636,7 @@ void CCVKDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *ds
     // which is true for now but may change in the future. This appoach gives us
     // the wiggle room to leverage immediate update vs. copy-upload strategies without
     // breaking compatabilities. When we reached some conclusion on this subject,
-    // getting rid of this interface all together may become a better option.
+    // getting rid of this interface all together might become a better option.
     _cmdBuff->begin();
     const CCVKGPUCommandBuffer *gpuCommandBuffer = ((CCVKCommandBuffer *)_cmdBuff)->gpuCommandBuffer();
     CCVKCmdFuncCopyBuffersToTexture(this, buffers, ((CCVKTexture *)dst)->gpuTexture(), regions, count, gpuCommandBuffer);

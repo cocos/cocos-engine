@@ -17,7 +17,10 @@ constexpr uint FORCE_MINOR_VERSION = 0;             // 0 for default version, ot
 constexpr uint ALLOW_VALIDATION_ERRORS = 0;         // 0 for default behavior, otherwise assertions will be disabled
 constexpr uint PREFERRED_SWAPCHAIN_IMAGE_COUNT = 0; // 0 for default count, otherwise prefer the specified number
 
-#if CC_DEBUG > 0
+#define FORCE_ENABLE_VALIDATION 0
+#define FORCE_DISABLE_VALIDATION 0
+
+#if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION
 VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                                            VkDebugUtilsMessageTypeFlagsEXT messageType,
                                                            const VkDebugUtilsMessengerCallbackDataEXT *callbackData,
@@ -89,7 +92,6 @@ bool CCVKContext::initialize(const ContextInfo &info) {
 
     if (!info.sharedCtx) {
         _isPrimaryContex = true;
-        _windowHandle = info.windowHandle;
 
         _gpuContext = CC_NEW(CCVKGPUContext);
 
@@ -134,7 +136,7 @@ bool CCVKContext::initialize(const ContextInfo &info) {
     #pragma error Platform not supported
 #endif
 
-#if CC_DEBUG > 0
+#if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION
         // Determine the optimal validation layers to enable that are necessary for useful debugging
         vector<vector<const char *>> validationLayerPriorityList{
             // The preferred validation layer is "VK_LAYER_KHRONOS_validation"
@@ -213,7 +215,7 @@ bool CCVKContext::initialize(const ContextInfo &info) {
         instanceInfo.enabledLayerCount = toUint(_layers.size());
         instanceInfo.ppEnabledLayerNames = _layers.data();
 
-#if CC_DEBUG > 0
+#if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION
         VkDebugUtilsMessengerCreateInfoEXT debugUtilsCreateInfo{VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT};
         VkDebugReportCallbackCreateInfoEXT debugReportCreateInfo{VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT};
         if (debugUtils) {
@@ -247,7 +249,7 @@ bool CCVKContext::initialize(const ContextInfo &info) {
 
         volkLoadInstance(_gpuContext->vkInstance);
 
-#if CC_DEBUG > 0
+#if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION
         if (debugUtils) {
             VK_CHECK(vkCreateDebugUtilsMessengerEXT(_gpuContext->vkInstance, &debugUtilsCreateInfo, nullptr, &_gpuContext->vkDebugUtilsMessenger));
         } else {
@@ -495,11 +497,11 @@ bool CCVKContext::initialize(const ContextInfo &info) {
 
     } else {
         CCVKContext *sharedCtx = (CCVKContext *)info.sharedCtx;
-
         _majorVersion = sharedCtx->majorVersion();
         _minorVersion = sharedCtx->minorVersion();
-
-        // TODO
+        _layers = sharedCtx->getLayers();
+        _extensions = sharedCtx->getExtensions();
+        _gpuContext = sharedCtx->gpuContext();
     }
 
     return true;
@@ -512,7 +514,7 @@ void CCVKContext::destroy() {
             _gpuContext->vkSurface = VK_NULL_HANDLE;
         }
 
-#if CC_DEBUG > 0
+#if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION
         if (_gpuContext->vkDebugUtilsMessenger != VK_NULL_HANDLE) {
             vkDestroyDebugUtilsMessengerEXT(_gpuContext->vkInstance, _gpuContext->vkDebugUtilsMessenger, nullptr);
             _gpuContext->vkDebugUtilsMessenger = VK_NULL_HANDLE;

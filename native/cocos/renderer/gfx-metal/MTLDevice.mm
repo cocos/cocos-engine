@@ -155,18 +155,22 @@ void CCMTLDevice::destroy() {
 
 void CCMTLDevice::resize(uint width, uint height) {}
 
-void CCMTLDevice::present() {
+void CCMTLDevice::acquire() {
     CCMTLQueue *queue = (CCMTLQueue *)_queue;
-    _numDrawCalls = queue->_numDrawCalls;
-    _numInstances = queue->_numInstances;
-    _numTriangles = queue->_numTriangles;
-
+    
     // Clear queue stats
     queue->_numDrawCalls = 0;
     queue->_numInstances = 0;
     queue->_numTriangles = 0;
 
     _gpuStagingBufferPool->reset();
+}
+
+void CCMTLDevice::present() {
+    CCMTLQueue *queue = (CCMTLQueue *)_queue;
+    _numDrawCalls = queue->_numDrawCalls;
+    _numInstances = queue->_numInstances;
+    _numTriangles = queue->_numTriangles;
 
     [((MTKView *)(_mtkView)).currentDrawable present];
 }

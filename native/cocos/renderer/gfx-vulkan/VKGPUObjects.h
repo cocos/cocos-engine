@@ -167,7 +167,7 @@ public:
     VkSemaphore nextSignalSemaphore = VK_NULL_HANDLE;
     VkPipelineStageFlags submitStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
     CachedArray<VkCommandBuffer> commandBuffers;
-    VkFence lastAutoFence = VK_NULL_HANDLE;
+    vector<VkFence> fences;
 };
 
 struct CCVKGPUShaderStage {
@@ -816,7 +816,7 @@ public:
             submitInfo.commandBufferCount = 1;
             submitInfo.pCommandBuffers = &_cmdBuff.vkCommandBuffer;
             VK_CHECK(vkQueueSubmit(_queue->vkQueue, 1, &submitInfo, fence));
-            VK_CHECK(vkWaitForFences(_device->vkDevice, 1, &fence, VK_TRUE, DEFAULT_FENCE_TIMEOUT));
+            VK_CHECK(vkWaitForFences(_device->vkDevice, 1, &fence, VK_TRUE, DEFAULT_TIMEOUT));
             _commandBufferPool->yield(&_cmdBuff);
         }
     }
@@ -829,10 +829,6 @@ public:
         }
 
         if (_count) {
-            if (_queue->lastAutoFence) {
-                VK_CHECK(vkWaitForFences(_device->vkDevice, 1, &_queue->lastAutoFence, VK_TRUE, DEFAULT_FENCE_TIMEOUT));
-                _queue->lastAutoFence = VK_NULL_HANDLE;
-            }
             for (uint i = 0u; i < _count; i++) {
                 const Transfer &transfer = _transfers[i];
                 memcpy(transfer.dst, transfer.src, transfer.size);

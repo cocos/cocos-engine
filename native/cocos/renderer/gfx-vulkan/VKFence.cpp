@@ -35,7 +35,7 @@ void CCVKFence::destroy() {
 
 // TODO: move these two to device
 void CCVKFence::wait() {
-    VK_CHECK(vkWaitForFences(((CCVKDevice *)_device)->gpuDevice()->vkDevice, 1, &_gpuFence->vkFence, VK_TRUE, DEFAULT_FENCE_TIMEOUT));
+    VK_CHECK(vkWaitForFences(((CCVKDevice *)_device)->gpuDevice()->vkDevice, 1, &_gpuFence->vkFence, VK_TRUE, DEFAULT_TIMEOUT));
 }
 
 void CCVKFence::reset() {

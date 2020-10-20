@@ -15,7 +15,7 @@ public:
     virtual bool initialize(const DeviceInfo &info) override;
     virtual void destroy() override;
     virtual void resize(uint width, uint height) override;
-    virtual void acquire() override{};
+    virtual void acquire() override;
     virtual void present() override;
     virtual CommandBuffer *createCommandBuffer(const CommandBufferInfo &info) override;
     virtual Fence *createFence(const FenceInfo &info) override;
