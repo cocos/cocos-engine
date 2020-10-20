@@ -342,7 +342,7 @@ export class Canvas extends Component {
 
     protected _checkTargetTextureEvent (old: RenderTexture | null) {
         const resizeFunc = (win: RenderWindow) => {
-            if (this._camera) {``
+            if (this._camera) {
                 this._camera.setFixedSize(win.width, win.height);
             }
         };
