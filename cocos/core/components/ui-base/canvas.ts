@@ -280,7 +280,7 @@ export class Canvas extends Component {
         }
 
         if (EDITOR) {
-            this._fitDesignResolution && director.on(Director.EVENT_AFTER_UPDATE, this._fitDesignResolution, this);
+            director.on(Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
 
             // In Editor can not edit these attrs.
             // (Position in Node, contentSize in uiTransform)
@@ -312,7 +312,7 @@ export class Canvas extends Component {
         }
 
         if (EDITOR) {
-            this._fitDesignResolution && director.off(Director.EVENT_AFTER_UPDATE, this._fitDesignResolution, this);
+            director.off(Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
         }
 
         if (this._targetTexture) {
