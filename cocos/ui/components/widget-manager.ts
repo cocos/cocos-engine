@@ -65,11 +65,11 @@ function align (node: Node, widget: Widget) {
         target = node.parent!;
     }
     const targetSize = getReadonlyNodeSize(target);
-    const isScene = target instanceof Scene;
-    const targetAnchor = isScene ? _defaultAnchor : target.getComponent(UITransform)!.anchorPoint;
+    const useGlobal = target instanceof Scene || !target.getComponent(UITransform);
+    const targetAnchor = useGlobal ? _defaultAnchor : target.getComponent(UITransform)!.anchorPoint;
 
     // @ts-ignore
-    const isRoot = !EDITOR && isScene;
+    const isRoot = !EDITOR && useGlobal;
     node.getPosition(_tempPos);
     const uiTrans = node._uiProps.uiTransformComp!;
     let x = _tempPos.x;
@@ -418,9 +418,9 @@ export const widgetManager = legacyCC._widgetManager = {
                 return;
             }
 
-            const isScene = widgetParent instanceof Scene;
+            const useGlobal = widgetParent instanceof Scene || !widgetParent._uiProps.uiTransformComp;
             let parentAP = _defaultAnchor;
-            if (!isScene) {
+            if (!useGlobal) {
                 const parentTrans = widgetParent._uiProps.uiTransformComp;
                 if (!parentTrans) {
                     warnID(6501, widget.node.name);
