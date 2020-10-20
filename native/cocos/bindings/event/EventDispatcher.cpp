@@ -335,7 +335,7 @@ void EventDispatcher::dispatchEnterBackgroundEvent()
     EventDispatcher::dispatchCustomEvent(event);
 
     // dispatch to JavaScript
-    dispatchEnterBackgroundOrForegroundEvent("onHide");
+    dispatchEnterBackgroundOrForegroundEvent("onPause");
 }
 
 void EventDispatcher::dispatchEnterForegroundEvent()
@@ -346,7 +346,7 @@ void EventDispatcher::dispatchEnterForegroundEvent()
     EventDispatcher::dispatchCustomEvent(event);
 
     // dispatch to JavaScript
-    dispatchEnterBackgroundOrForegroundEvent("onShow");
+    dispatchEnterBackgroundOrForegroundEvent("onResume");
 }
 
 void EventDispatcher::dispatchMemoryWarningEvent() {
