@@ -155,7 +155,7 @@ export class SplashScreen {
             if (this.callBack) {
                 this.callBack();
                 this.hide();
-                legacyCC.game._runMainLoop();
+                legacyCC.game.resume();
             }
         }
     }
@@ -221,6 +221,7 @@ export class SplashScreen {
 
             requestAnimationFrame(animate);
         };
+        legacyCC.game.pause();
         this.handle = requestAnimationFrame(animate);
     }
 

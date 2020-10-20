@@ -42,6 +42,7 @@ import { IPhysicsConfig } from '../physics/framework/physics-config';
 import { bindingMappingInfo } from './pipeline/define';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
+import { Node } from './scene-graph/node';
 
 /**
  * @zh
@@ -590,6 +591,7 @@ export class Game extends EventTarget {
         }
 
         this._setAnimFrame();
+        this._runMainLoop();
 
         // register system events
         if (!EDITOR && game.config.registerSystemEvent) {
@@ -605,11 +607,11 @@ export class Game extends EventTarget {
      * Add a persistent root node to the game, the persistent node won't be destroyed during scene transition.<br>
      * The target node must be placed in the root level of hierarchy, otherwise this API won't have any effect.
      * @zh
-     * 声明常驻根节点，该节点不会被在场景切换中被销毁。<br>
+     * 声明常驻根节点，该节点不会在场景切换中被销毁。<br>
      * 目标节点必须位于为层级的根节点，否则无效。
      * @param node - The node to be made persistent
      */
-    public addPersistRootNode (node: { uuid: any; parent: any; _persistNode: boolean; }) {
+    public addPersistRootNode (node: Node) {
         if (!legacyCC.Node.isNode(node) || !node.uuid) {
             debug.warnID(3800);
             return;

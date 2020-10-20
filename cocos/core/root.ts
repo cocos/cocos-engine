@@ -376,13 +376,14 @@ export class Root {
             this._frameCount = 0;
             this._fpsTime = 0.0;
         }
+        if (this._ui) this._ui.update();
 
         if (this._pipeline) {
             this._device.acquire();
             this._views.length = 0;
             const views = this._cameras;
             const stamp = legacyCC.director.getTotalFrames();
-            if (this._ui) this._ui.update();
+            if (this._ui) this._ui.uploadBuffers();
             for (let i = 0; i < views.length; i++) {
                 const camera = this._cameras[i];
                 const view = camera.view;

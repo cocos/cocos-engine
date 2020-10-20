@@ -188,7 +188,7 @@ export class MeshBuffer {
         return hIA;
     }
 
-    public uploadData () {
+    public uploadBuffers () {
         if (this.byteOffset === 0 || !this._dirty) {
             return;
         }
