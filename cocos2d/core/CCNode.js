@@ -657,7 +657,7 @@ function _doDispatchEvent (owner, event) {
         event.eventPhase = 3;
         for (i = 0; i < _cachedArray.length; ++i) {
             target = _cachedArray[i];
-            if (target._bubblingListeners) {
+            if (target && target._bubblingListeners) {
                 event.currentTarget = target;
                 // fire event
                 target._bubblingListeners.emit(event.type, event);
