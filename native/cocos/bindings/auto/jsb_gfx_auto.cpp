@@ -15320,6 +15320,24 @@ bool js_register_gfx_Framebuffer(se::Object* obj)
 se::Object* __jsb_cc_gfx_DescriptorSetLayout_proto = nullptr;
 se::Class* __jsb_cc_gfx_DescriptorSetLayout_class = nullptr;
 
+static bool js_gfx_DescriptorSetLayout_getBindingIndices(se::State& s)
+{
+    cc::gfx::DescriptorSetLayout* cobj = (cc::gfx::DescriptorSetLayout*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_DescriptorSetLayout_getBindingIndices : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::vector<unsigned int>& result = cobj->getBindingIndices();
+        ok &= native_ptr_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSetLayout_getBindingIndices : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_DescriptorSetLayout_getBindingIndices)
+
 static bool js_gfx_DescriptorSetLayout_getDescriptorIndices(se::State& s)
 {
     cc::gfx::DescriptorSetLayout* cobj = (cc::gfx::DescriptorSetLayout*)s.nativeThisObject();
@@ -15425,6 +15443,7 @@ bool js_register_gfx_DescriptorSetLayout(se::Object* obj)
 
     cls->defineProperty("bindings", _SE(js_gfx_DescriptorSetLayout_getBindings), nullptr);
     cls->defineProperty("descriptorIndices", _SE(js_gfx_DescriptorSetLayout_getDescriptorIndices), nullptr);
+    cls->defineProperty("bindingIndices", _SE(js_gfx_DescriptorSetLayout_getBindingIndices), nullptr);
     cls->defineFunction("initialize", _SE(js_gfx_DescriptorSetLayout_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_DescriptorSetLayout_destroy));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_DescriptorSetLayout_finalize));
