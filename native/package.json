@@ -1,7 +1,7 @@
 {
   "name": "cocos2d-x-lite",
-  "version": "2.1.0",
-  "description": "Cocos2d-x, compact version",
+  "version": "3.0.0",
+  "description": "Native implementation of creator 3d.",
   "main": "gulpfile.js",
   "devDependencies": {
     "@types/fs-extra": "^9.0.1",
@@ -9,9 +9,6 @@
     "chalk": "^2.4.1",
     "fs-extra": "^9.0.0",
     "ftp": "0.3.10",
-    "gulp": "^4.0.2",
-    "gulp-sequence": "0.4.5",
-    "gulp-zip": "3.2.0",
     "tmp": "^0.2.1",
     "tree-kill": "^1.2.0",
     "yargs": "^15.3.1"
