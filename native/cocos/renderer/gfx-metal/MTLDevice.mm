@@ -130,6 +130,7 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _features[(int)Feature::MSAA] = true;
     _features[(int)Feature::INSTANCED_ARRAYS] = true;
     _features[(int)Feature::MULTIPLE_RENDER_TARGETS] = true;
+    _features[(uint)Feature::BLEND_MINMAX] = true;
     _features[static_cast<uint>(Feature::DEPTH_BOUNDS)] = false;
     _features[static_cast<uint>(Feature::LINE_WIDTH)] = false;
     _features[static_cast<uint>(Feature::STENCIL_COMPARE_MASK)] = false;

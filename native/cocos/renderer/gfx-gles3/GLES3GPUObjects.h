@@ -185,6 +185,7 @@ public:
     DescriptorSetLayoutBindingList bindings;
     vector<uint> dynamicBindings;
 
+    vector<uint> bindingIndices;
     vector<uint> descriptorIndices;
     uint descriptorCount = 0u;
 };
@@ -194,7 +195,6 @@ class GLES3GPUPipelineLayout : public Object {
 public:
     GLES3GPUDescriptorSetLayoutList setLayouts;
     vector<vector<int>> dynamicOffsetIndices;
-    vector<uint> dynamicOffsetOffsets;
     uint dynamicOffsetCount;
 };
 

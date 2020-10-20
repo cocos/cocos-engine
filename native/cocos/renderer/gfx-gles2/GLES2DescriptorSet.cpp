@@ -32,11 +32,10 @@ bool GLES2DescriptorSet::initialize(const DescriptorSetInfo &info) {
 
     _gpuDescriptorSet = CC_NEW(GLES2GPUDescriptorSet);
     _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount);
-    for (size_t i = 0u; i < bindingCount; i++) {
+    for (size_t i = 0u, k = 0u; i < bindingCount; i++) {
         const DescriptorSetLayoutBinding &binding = gpuDescriptorSetLayout->bindings[i];
-        uint descriptorIndex = indices[i];
-        for (uint j = descriptorIndex; j < descriptorIndex + binding.count; j++) {
-            _gpuDescriptorSet->gpuDescriptors[j].type = binding.descriptorType;
+        for (uint j = 0; j < binding.count; j++, k++) {
+            _gpuDescriptorSet->gpuDescriptors[k].type = binding.descriptorType;
         }
     }
 

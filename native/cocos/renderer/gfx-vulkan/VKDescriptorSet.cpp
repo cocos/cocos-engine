@@ -26,7 +26,6 @@ bool CCVKDescriptorSet::initialize(const DescriptorSetInfo &info) {
     const CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout = ((CCVKDescriptorSetLayout *)_layout)->gpuDescriptorSetLayout();
     const uint bindingCount = gpuDescriptorSetLayout->bindings.size();
     const uint descriptorCount = gpuDescriptorSetLayout->descriptorCount;
-    const vector<uint> &indices = gpuDescriptorSetLayout->descriptorIndices;
 
     _buffers.resize(descriptorCount);
     _textures.resize(descriptorCount);
@@ -36,14 +35,18 @@ bool CCVKDescriptorSet::initialize(const DescriptorSetInfo &info) {
     _gpuDescriptorSet = CC_NEW(CCVKGPUDescriptorSet);
     _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount, {});
     _gpuDescriptorSet->descriptorInfos.resize(descriptorCount, {});
-    for (size_t i = 0u; i < bindingCount; i++) {
+    for (size_t i = 0u, k = 0u; i < bindingCount; i++) {
         const DescriptorSetLayoutBinding &binding = gpuDescriptorSetLayout->bindings[i];
-        uint descriptorIndex = indices[i];
-        for (uint j = descriptorIndex; j < descriptorIndex + binding.count; j++) {
-            _gpuDescriptorSet->gpuDescriptors[j].type = binding.descriptorType;
-            if ((uint)binding.descriptorType & DESCRIPTOR_SAMPLER_TYPE) {
-                _gpuDescriptorSet->descriptorInfos[j].image.sampler = gpuDevice->defaultSampler.vkSampler;
-                _gpuDescriptorSet->descriptorInfos[j].image.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        for (uint j = 0; j < binding.count; j++, k++) {
+            _gpuDescriptorSet->gpuDescriptors[k].type = binding.descriptorType;
+            if ((uint)binding.descriptorType & DESCRIPTOR_BUFFER_TYPE) {
+                _gpuDescriptorSet->descriptorInfos[k].buffer.buffer = gpuDevice->defaultBuffer.vkBuffer;
+                _gpuDescriptorSet->descriptorInfos[k].buffer.offset = gpuDevice->defaultBuffer.startOffset;
+                _gpuDescriptorSet->descriptorInfos[k].buffer.range = gpuDevice->defaultBuffer.size;
+            } else if ((uint)binding.descriptorType & DESCRIPTOR_SAMPLER_TYPE) {
+                _gpuDescriptorSet->descriptorInfos[k].image.sampler = gpuDevice->defaultSampler.vkSampler;
+                _gpuDescriptorSet->descriptorInfos[k].image.imageView = gpuDevice->defaultTextureView.vkImageView;
+                _gpuDescriptorSet->descriptorInfos[k].image.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             }
         }
     }

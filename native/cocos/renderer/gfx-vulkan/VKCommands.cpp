@@ -29,7 +29,7 @@ void insertVkDynamicStates(vector<VkDynamicState> &out, const vector<DynamicStat
                 out.push_back(VK_DYNAMIC_STATE_STENCIL_COMPARE_MASK);
                 break;
             default: {
-                CCASSERT(false, "Unsupported PrimitiveMode, convert to VkPrimitiveTopology failed.");
+                CCASSERT(false, "Unsupported DynamicStateFlagBit, convert to VkDynamicState failed.");
                 break;
             }
         }
@@ -336,7 +336,7 @@ void CCVKCmdFuncCreateDescriptorSetLayout(CCVKDevice *device, CCVKGPUDescriptorS
         VkDescriptorSetLayoutBinding &vkBinding = gpuDescriptorSetLayout->vkBindings[i];
         vkBinding.stageFlags = MapVkShaderStageFlags(binding.stageFlags);
         vkBinding.descriptorType = MapVkDescriptorType(binding.descriptorType);
-        vkBinding.binding = i;
+        vkBinding.binding = binding.binding;
         vkBinding.descriptorCount = binding.count;
     }
 
@@ -584,7 +584,7 @@ void CCVKCmdFuncCreatePipelineState(CCVKDevice *device, CCVKGPUPipelineState *gp
 
     ///////////////////// Creation /////////////////////
 
-    VK_CHECK(vkCreateGraphicsPipelines(device->gpuDevice()->vkDevice, gpuPipelineState->vkPipelineCache,
+    VK_CHECK(vkCreateGraphicsPipelines(device->gpuDevice()->vkDevice, device->gpuDevice()->vkPipelineCache,
                                        1, &createInfo, nullptr, &gpuPipelineState->vkPipeline));
 }
 
@@ -647,7 +647,7 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, void 
     if (cmdBuffer) {
         vkCmdPipelineBarrier(cmdBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 0, nullptr);
         vkCmdCopyBuffer(cmdBuffer->vkCommandBuffer, stagingBuffer.vkBuffer, gpuBuffer->vkBuffer, 1, &region);
-        
+
         VkBufferMemoryBarrier barrier{ VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER};
         barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;

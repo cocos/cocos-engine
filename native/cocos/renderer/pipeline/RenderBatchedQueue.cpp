@@ -15,19 +15,27 @@ void RenderBatchedQueue::clear() {
     _queues.clear();
 }
 
+void RenderBatchedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuff) {
+    for (auto batchedBuffer : _queues) {
+        const auto &batches = batchedBuffer->getBatches();
+        for (const auto &batch : batches) {
+            if (!batch.mergeCount) continue;
+            for (size_t i = 0; i < batch.vbs.size(); i++) {
+                auto buffer = batch.vbs[i];
+                cmdBuff->updateBuffer(buffer, batch.vbDatas[i].get(), buffer->getSize());
+            }
+            cmdBuff->updateBuffer(batch.vbIdx, batch.vbIndexData.get(), batch.vbIdx->getSize());
+            cmdBuff->updateBuffer(batch.ubo, batch.uboData, batch.ubo->getSize());
+        }
+    }
+}
+
 void RenderBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff) {
     for (auto batchedBuffer : _queues) {
         bool boundPSO = false;
-        const auto &batches = batchedBuffer->getBaches();
+        const auto &batches = batchedBuffer->getBatches();
         for (const auto &batch : batches) {
             if (!batch.mergeCount) continue;
-
-            for (size_t i = 0; i < batch.vbs.size(); i++) {
-                auto buffer = batch.vbs[i];
-                buffer->update(batch.vbDatas[i].get(), 0, buffer->getSize());
-            }
-            batch.vbIdx->update(batch.vbIndexData.get(), 0, batch.vbIdx->getSize());
-            batch.ubo->update(batch.uboData, 0, batch.ubo->getSize());
             auto pso = PipelineStateManager::getOrCreatePipelineState(batch.pass, batch.shader, batch.ia, renderPass);
             if (!boundPSO) {
                 cmdBuff->bindPipelineState(pso);

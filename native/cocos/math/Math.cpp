@@ -1,4 +1,5 @@
 #include "math/Math.h"
+#include <algorithm>
 #include <cmath>
 #include <cstring>
 #include <cctype>

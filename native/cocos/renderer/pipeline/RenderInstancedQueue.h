@@ -13,6 +13,7 @@ public:
     ~RenderInstancedQueue() = default;
 
     void clear();
+    void uploadBuffers(gfx::CommandBuffer *cmdBuff);
     void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *);
 
     CC_INLINE set<InstancedBuffer *> &getQueue() { return _queues; }

@@ -454,8 +454,8 @@ const GLenum GLES3_BLEND_OPS[] = {
     GL_FUNC_ADD,
     GL_FUNC_SUBTRACT,
     GL_FUNC_REVERSE_SUBTRACT,
-    GL_FUNC_ADD,
-    GL_FUNC_ADD,
+    GL_MIN,
+    GL_MAX,
 };
 
 const GLenum GLES3_BLEND_FACTORS[] = {
@@ -1799,7 +1799,8 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
 
                         CCASSERT(cmd->gpuDescriptorSets.size() > glBlock.set, "Invalid set index");
                         const GLES3GPUDescriptorSet *gpuDescriptorSet = cmd->gpuDescriptorSets[glBlock.set];
-                        const GLES3GPUDescriptor &gpuDescriptor = gpuDescriptorSet->gpuDescriptors[glBlock.binding];
+                        const uint descriptorIndex = gpuDescriptorSet->descriptorIndices->at(glBlock.binding);
+                        const GLES3GPUDescriptor &gpuDescriptor = gpuDescriptorSet->gpuDescriptors[descriptorIndex];
 
                         if (!gpuDescriptor.gpuBuffer) {
                             CC_LOG_ERROR("Buffer binding '%s' at set %d binding %d is not bounded",
@@ -1810,7 +1811,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
                         uint offset = gpuDescriptor.gpuBuffer->glOffset;
 
                         const vector<int> &dynamicOffsetIndexSet = dynamicOffsetIndices[glBlock.set];
-                        int dynamicOffsetIndex = (dynamicOffsetIndexSet.size()) ? dynamicOffsetIndexSet[glBlock.binding] : -1;
+                        int dynamicOffsetIndex = glBlock.binding < dynamicOffsetIndexSet.size() ? dynamicOffsetIndexSet[glBlock.binding] : -1;
                         if (dynamicOffsetIndex >= 0) offset += cmd->dynamicOffsets[dynamicOffsetIndex];
 
                         if (cache->glBindUBOs[glBlock.glBinding] != gpuDescriptor.gpuBuffer->glBuffer ||
@@ -1832,7 +1833,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
 
                         CCASSERT(cmd->gpuDescriptorSets.size() > glSampler.set, "Invalid set index");
                         const GLES3GPUDescriptorSet *gpuDescriptorSet = cmd->gpuDescriptorSets[glSampler.set];
-                        uint descriptorIndex = gpuDescriptorSet->descriptorIndices->at(glSampler.binding);
+                        const uint descriptorIndex = gpuDescriptorSet->descriptorIndices->at(glSampler.binding);
                         const GLES3GPUDescriptor *gpuDescriptor = &gpuDescriptorSet->gpuDescriptors[descriptorIndex];
 
                         for (size_t u = 0; u < glSampler.units.size(); u++, gpuDescriptor++) {

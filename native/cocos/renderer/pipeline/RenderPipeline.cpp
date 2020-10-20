@@ -26,26 +26,26 @@ RenderPipeline::~RenderPipeline() {
 
 void RenderPipeline::setDescriptorSetLayout() {
     globalDescriptorSetLayout.bindings.resize(static_cast<size_t>(PipelineGlobalBindings::COUNT));
-    globalDescriptorSetLayout.bindings[UBOGlobal::BLOCK.binding] = UBOGlobal::BLOCK;
-    globalDescriptorSetLayout.bindings[UBOShadow::BLOCK.binding] = UBOShadow::BLOCK;
-    globalDescriptorSetLayout.bindings[UNIFORM_SHADOWMAP.binding] = UNIFORM_SHADOWMAP;
-    globalDescriptorSetLayout.bindings[UNIFORM_ENVIRONMENT.binding] = UNIFORM_ENVIRONMENT;
+    globalDescriptorSetLayout.bindings[UBOGlobal::BLOCK.layout.binding] = UBOGlobal::BLOCK.bindings;
+    globalDescriptorSetLayout.bindings[UBOShadow::BLOCK.layout.binding] = UBOShadow::BLOCK.bindings;
+    globalDescriptorSetLayout.bindings[UNIFORM_SHADOWMAP.layout.binding] = UNIFORM_SHADOWMAP.bindings;
+    globalDescriptorSetLayout.bindings[UNIFORM_ENVIRONMENT.layout.binding] = UNIFORM_ENVIRONMENT.bindings;
     
     localDescriptorSetLayout.bindings.resize(static_cast<size_t>(ModelLocalBindings::COUNT));
-    localDescriptorSetLayout.bindings[UBOLocal::BLOCK.binding] = UBOLocal::BLOCK;
-    localDescriptorSetLayout.bindings[UBOLocalBatched::BLOCK.binding] = UBOLocalBatched::BLOCK;
-    localDescriptorSetLayout.bindings[UBOForwardLight::BLOCK.binding] = UBOForwardLight::BLOCK;
-    localDescriptorSetLayout.bindings[UBOSkinningTexture::BLOCK.binding] = UBOSkinningTexture::BLOCK;
-    localDescriptorSetLayout.bindings[UBOSkinningAnimation::BLOCK.binding] = UBOSkinningAnimation::BLOCK;
-    localDescriptorSetLayout.bindings[UBOSkinning::BLOCK.binding] = UBOSkinning::BLOCK;
-    localDescriptorSetLayout.bindings[UBOMorph::BLOCK.binding] = UBOMorph::BLOCK;
+    localDescriptorSetLayout.bindings[UBOLocal::BLOCK.layout.binding] = UBOLocal::BLOCK.bindings;
+    localDescriptorSetLayout.bindings[UBOLocalBatched::BLOCK.layout.binding] = UBOLocalBatched::BLOCK.bindings;
+    localDescriptorSetLayout.bindings[UBOForwardLight::BLOCK.layout.binding] = UBOForwardLight::BLOCK.bindings;
+    localDescriptorSetLayout.bindings[UBOSkinningTexture::BLOCK.layout.binding] = UBOSkinningTexture::BLOCK.bindings;
+    localDescriptorSetLayout.bindings[UBOSkinningAnimation::BLOCK.layout.binding] = UBOSkinningAnimation::BLOCK.bindings;
+    localDescriptorSetLayout.bindings[UBOSkinning::BLOCK.layout.binding] = UBOSkinning::BLOCK.bindings;
+    localDescriptorSetLayout.bindings[UBOMorph::BLOCK.layout.binding] = UBOMorph::BLOCK.bindings;
     
-    localDescriptorSetLayout.bindings[UniformJointTexture.binding] = UniformJointTexture;
-    localDescriptorSetLayout.bindings[UniformPositionMorphTexture.binding] = UniformPositionMorphTexture;
-    localDescriptorSetLayout.bindings[UniformNormalMorphTexture.binding] = UniformNormalMorphTexture;
-    localDescriptorSetLayout.bindings[UniformTangentMorphTexture.binding] = UniformTangentMorphTexture;
-    localDescriptorSetLayout.bindings[UniformLightingMapSampler.binding] = UniformLightingMapSampler;
-    localDescriptorSetLayout.bindings[UniformSpriteSampler.binding] = UniformSpriteSampler;
+    localDescriptorSetLayout.bindings[UniformJointTexture.layout.binding] = UniformJointTexture.bindings;
+    localDescriptorSetLayout.bindings[UniformPositionMorphTexture.layout.binding] = UniformPositionMorphTexture.bindings;
+    localDescriptorSetLayout.bindings[UniformNormalMorphTexture.layout.binding] = UniformNormalMorphTexture.bindings;
+    localDescriptorSetLayout.bindings[UniformTangentMorphTexture.layout.binding] = UniformTangentMorphTexture.bindings;
+    localDescriptorSetLayout.bindings[UniformLightingMapSampler.layout.binding] = UniformLightingMapSampler.bindings;
+    localDescriptorSetLayout.bindings[UniformSpriteSampler.layout.binding] = UniformSpriteSampler.bindings;
 }
 
 bool RenderPipeline::initialize(const RenderPipelineInfo &info) {

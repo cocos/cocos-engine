@@ -16,19 +16,31 @@ GLES2DescriptorSetLayout::~GLES2DescriptorSetLayout() {
 bool GLES2DescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
 
     _bindings = info.bindings;
-    uint bindingCount = _bindings.size();
-    _descriptorIndices.resize(bindingCount + 1);
-
+    size_t bindingCount = _bindings.size();
     uint descriptorCount = 0u;
-    for (uint i = 0u; i < bindingCount; i++) {
-        const DescriptorSetLayoutBinding &binding = _bindings[i];
-        _descriptorIndices[i] = descriptorCount;
-        descriptorCount += binding.count;
+
+    if (bindingCount) {
+        uint maxBinding = 0u;
+        vector<uint> flattenedIndices(bindingCount);
+        for (uint i = 0u; i < bindingCount; i++) {
+            const DescriptorSetLayoutBinding &binding = _bindings[i];
+            flattenedIndices[i] = descriptorCount;
+            descriptorCount += binding.count;
+            if (binding.binding > maxBinding) maxBinding = binding.binding;
+        }
+
+        _bindingIndices.resize(maxBinding + 1, GFX_INVALID_BINDING);
+        _descriptorIndices.resize(maxBinding + 1, GFX_INVALID_BINDING);
+        for (uint i = 0u; i <  bindingCount; i++) {
+            const DescriptorSetLayoutBinding &binding = _bindings[i];
+            _bindingIndices[binding.binding] = i;
+            _descriptorIndices[binding.binding] = flattenedIndices[i];
+        }
     }
-    _descriptorIndices[bindingCount] = descriptorCount;
 
     _gpuDescriptorSetLayout = CC_NEW(GLES2GPUDescriptorSetLayout);
     _gpuDescriptorSetLayout->descriptorCount = descriptorCount;
+    _gpuDescriptorSetLayout->bindingIndices = _bindingIndices;
     _gpuDescriptorSetLayout->descriptorIndices = _descriptorIndices;
     _gpuDescriptorSetLayout->bindings = _bindings;
 
@@ -36,7 +48,7 @@ bool GLES2DescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
         const DescriptorSetLayoutBinding &binding = _bindings[i];
         if ((uint)binding.descriptorType & DESCRIPTOR_DYNAMIC_TYPE) {
             for (uint j = 0u; j < binding.count; j++) {
-                _gpuDescriptorSetLayout->dynamicBindings.push_back(i);
+                _gpuDescriptorSetLayout->dynamicBindings.push_back(binding.binding);
             }
         }
     }

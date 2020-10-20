@@ -17,11 +17,13 @@ public:
 
     CC_INLINE Device *getDevice() const { return _device; }
     CC_INLINE const DescriptorSetLayoutBindingList &getBindings() const { return _bindings; }
+    CC_INLINE const vector<uint> &getBindingIndices() const { return _bindingIndices; }
     CC_INLINE const vector<uint> &getDescriptorIndices() const { return _descriptorIndices; }
 
 protected:
     Device *_device = nullptr;
     DescriptorSetLayoutBindingList _bindings;
+    vector<uint> _bindingIndices;
     vector<uint> _descriptorIndices;
 };
 

@@ -37,7 +37,7 @@ public:
     void clear();
     void clearUBO();
 
-    CC_INLINE const BatchedItemList &getBaches() const { return _batchedItems; }
+    CC_INLINE const BatchedItemList &getBatches() const { return _batchedItems; }
     CC_INLINE const PassView *getPass() const { return _pass; }
 
 private:

@@ -81,6 +81,9 @@ bool GLES2Device::initialize(const DeviceInfo &info) {
     if (checkExtension("draw_buffers"))
         _features[(int)Feature::MULTIPLE_RENDER_TARGETS] = true;
 
+    if (checkExtension("blend_minmax"))
+        _features[(int)Feature::BLEND_MINMAX] = true;
+
     _useVAO = checkExtension("vertex_array_object");
     _useDrawInstanced = checkExtension("draw_instanced");
     _useInstancedArrays = _features[(int)Feature::INSTANCED_ARRAYS] = checkExtension("instanced_arrays");

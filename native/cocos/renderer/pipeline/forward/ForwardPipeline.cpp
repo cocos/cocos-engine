@@ -11,6 +11,7 @@
 #include "gfx/GFXDevice.h"
 #include "gfx/GFXQueue.h"
 #include "gfx/GFXRenderPass.h"
+#include "gfx/GFXTexture.h"
 #include "platform/Application.h"
 
 namespace cc {
@@ -163,8 +164,8 @@ void ForwardPipeline::updateUBOs(RenderView *view) {
     }
 
     // update ubos
-    _commandBuffers[0]->updateBuffer(_descriptorSet->getBuffer(UBOGlobal::BLOCK.binding), _globalUBO.data(), UBOGlobal::SIZE);
-    _commandBuffers[0]->updateBuffer(_descriptorSet->getBuffer(UBOShadow::BLOCK.binding), _shadowUBO.data(), UBOShadow::SIZE);
+    _commandBuffers[0]->updateBuffer(_descriptorSet->getBuffer(UBOGlobal::BLOCK.layout.binding), _globalUBO.data(), UBOGlobal::SIZE);
+    _commandBuffers[0]->updateBuffer(_descriptorSet->getBuffer(UBOShadow::BLOCK.layout.binding), _shadowUBO.data(), UBOShadow::SIZE);
 }
 
 void ForwardPipeline::updateUBO(RenderView *view) {
@@ -251,7 +252,12 @@ void ForwardPipeline::updateUBO(RenderView *view) {
         skyColor.w = ambient->skyIllum * exposure;
     }
     TO_VEC4(uboGlobalView, skyColor, UBOGlobal::AMBIENT_SKY_OFFSET);
-    TO_VEC4(uboGlobalView, ambient->groundAlbedo, UBOGlobal::AMBIENT_GROUND_OFFSET);
+
+    uboGlobalView[UBOGlobal::AMBIENT_GROUND_OFFSET]     = ambient->groundAlbedo.x;
+    uboGlobalView[UBOGlobal::AMBIENT_GROUND_OFFSET + 1] = ambient->groundAlbedo.y;
+    uboGlobalView[UBOGlobal::AMBIENT_GROUND_OFFSET + 2] = ambient->groundAlbedo.z;
+    const auto envmap = _descriptorSet->getTexture((uint)PipelineGlobalBindings::SAMPLER_ENVIRONMENT);
+    if (envmap) uboGlobalView[UBOGlobal::AMBIENT_GROUND_OFFSET + 3] = envmap->getLevelCount();
 
     if (fog->enabled) {
         TO_VEC4(uboGlobalView, fog->fogColor, UBOGlobal::GLOBAL_FOG_COLOR_OFFSET);
@@ -272,25 +278,29 @@ bool ForwardPipeline::activeRenderer() {
     _globalUBO.fill(0.f);
     _shadowUBO.fill(0.f);
 
-    auto globalUBO = _device->createBuffer({gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
-                                            gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
-                                            UBOGlobal::SIZE,
-                                            UBOGlobal::SIZE,
-                                            gfx::BufferFlagBit::NONE});
-    _descriptorSet->bindBuffer(UBOGlobal::BLOCK.binding, globalUBO);
+    auto globalUBO = _device->createBuffer({
+        gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
+        gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
+        UBOGlobal::SIZE,
+        UBOGlobal::SIZE,
+        gfx::BufferFlagBit::NONE,
+    });
+    _descriptorSet->bindBuffer(UBOGlobal::BLOCK.layout.binding, globalUBO);
 
-    auto shadowUBO = _device->createBuffer({gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
-                                            gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
-                                            UBOShadow::SIZE,
-                                            UBOShadow::SIZE,
-                                            gfx::BufferFlagBit::NONE});
-    _descriptorSet->bindBuffer(UBOShadow::BLOCK.binding, shadowUBO);
+    auto shadowUBO = _device->createBuffer({
+        gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
+        gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
+        UBOShadow::SIZE,
+        UBOShadow::SIZE,
+        gfx::BufferFlagBit::NONE,
+    });
+    _descriptorSet->bindBuffer(UBOShadow::BLOCK.layout.binding, shadowUBO);
 
     gfx::SamplerInfo info;
     info.addressU = info.addressV = info.addressW = gfx::Address::CLAMP;
     auto shadowMapSamplerHash = genSamplerHash(std::move(info));
     auto shadowMapSampler = getSampler(shadowMapSamplerHash);
-    _descriptorSet->bindSampler(UNIFORM_SHADOWMAP.binding, shadowMapSampler);
+    _descriptorSet->bindSampler(UNIFORM_SHADOWMAP.layout.binding, shadowMapSampler);
 
     // update global defines when all states initialized.
     _macros.setValue("CC_USE_HDR", _isHDR);
@@ -301,8 +311,8 @@ bool ForwardPipeline::activeRenderer() {
 
 void ForwardPipeline::destroy() {
     if (_descriptorSet) {
-        _descriptorSet->getBuffer(UBOGlobal::BLOCK.binding)->destroy();
-        _descriptorSet->getBuffer(UBOShadow::BLOCK.binding)->destroy();
+        _descriptorSet->getBuffer(UBOGlobal::BLOCK.layout.binding)->destroy();
+        _descriptorSet->getBuffer(UBOShadow::BLOCK.layout.binding)->destroy();
     }
 
     for (auto &it : _renderPasses) {

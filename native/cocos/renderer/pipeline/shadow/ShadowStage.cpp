@@ -39,7 +39,7 @@ bool ShadowStage::initialize(const RenderStageInfo &info) {
 void ShadowStage::render(RenderView *view) {
     const auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
     const auto shadowInfo = pipeline->getShadows();
-    _additiveShadowQueue->clear(pipeline->getDescriptorSet()->getBuffer(UBOShadow::BLOCK.binding));
+    _additiveShadowQueue->clear(pipeline->getDescriptorSet()->getBuffer(UBOShadow::BLOCK.layout.binding));
 
     const auto shadowObjects = pipeline->getShadowObjects();
     for (const auto &shadowObject : shadowObjects) {

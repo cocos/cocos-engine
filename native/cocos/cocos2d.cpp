@@ -30,10 +30,8 @@ THE SOFTWARE.
 
 namespace cc {
 
-CC_DLL const char* cocos2dVersion()
-{
+CC_DLL const char *cocos2dVersion() {
     return "2.0.x";
 }
 
-}
-
+} // namespace cc

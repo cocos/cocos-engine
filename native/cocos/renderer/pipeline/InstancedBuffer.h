@@ -37,7 +37,7 @@ public:
 
     void destroy();
     void merge(const ModelView *, const SubModelView *, uint);
-    void uploadBuffers();
+    void uploadBuffers(gfx::CommandBuffer *cmdBuff);
     void clear();
 
     CC_INLINE const InstancedItemList &getInstances() const { return _instances; }

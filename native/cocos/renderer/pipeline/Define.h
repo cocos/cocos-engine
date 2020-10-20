@@ -100,11 +100,6 @@ struct CC_DLL InternalBindingInst : public InternalBindingDesc {
     gfx::Texture *texture = nullptr;
 };
 
-//TODO
-const uint CAMERA_DEFAULT_MASK = 1;
-//constexpr CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
-//                                                           Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
-
 struct CC_DLL RenderQueueCreateInfo {
     bool isTransparent = false;
     uint phases = 0;
@@ -161,41 +156,41 @@ CC_INLINE bool transparentCompareFn(const RenderPass &a, const RenderPass &b) {
         return a.shaderID < b.shaderID;
 }
 
-#define MAX_BINDING_SUPPORTED (24)
-enum class CC_DLL UniformBinding {
-    // UBOs
-    UBO_GLOBAL = MAX_BINDING_SUPPORTED - 1,
-    UBO_SHADOW = MAX_BINDING_SUPPORTED - 2,
 
-    UBO_LOCAL = MAX_BINDING_SUPPORTED - 3,
-    UBO_FORWARD_LIGHTS = MAX_BINDING_SUPPORTED - 4,
-    UBO_SKINNING_ANIMATION = MAX_BINDING_SUPPORTED - 5,
-    UBO_SKINNING_TEXTURE = MAX_BINDING_SUPPORTED - 6,
-    UBO_UI = MAX_BINDING_SUPPORTED - 7,
-    UBO_MORPH = MAX_BINDING_SUPPORTED - 8,
-    UBO_PCF_SHADOW = MAX_BINDING_SUPPORTED - 9,
-    UBO_BUILTIN_BINDING_END = MAX_BINDING_SUPPORTED - 10,
+enum class CC_DLL PipelineGlobalBindings {
+    UBO_GLOBAL,
+    UBO_SHADOW,
 
-    // samplers
-    SAMPLER_JOINTS = MAX_BINDING_SUPPORTED + 1,
-    SAMPLER_ENVIRONMENT = MAX_BINDING_SUPPORTED + 2,
-    SAMPLER_MORPH_POSITION = MAX_BINDING_SUPPORTED + 3,
-    SAMPLER_MORPH_NORMAL = MAX_BINDING_SUPPORTED + 4,
-    SAMPLER_MORPH_TANGENT = MAX_BINDING_SUPPORTED + 5,
-    SAMPLER_LIGHTING_MAP = MAX_BINDING_SUPPORTED + 6,
-    SAMPLER_SHADOWMAP = MAX_BINDING_SUPPORTED + 7,
+    SAMPLER_SHADOWMAP,
+    SAMPLER_ENVIRONMENT, // don't put this as the first sampler binding due to Mac GL driver issues: cubemap at texture unit 0 causes rendering issues
 
-    // rooms left for custom bindings
-    // effect importer prepares bindings according to this
-    CUSTUM_UBO_BINDING_END_POINT = UBO_BUILTIN_BINDING_END,
-    CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 8,
+    COUNT,
 };
 
-struct CC_DLL BlockInfo : public gfx::UniformBlock, public gfx::DescriptorSetLayoutBinding {
-    BlockInfo(const gfx::UniformBlock &block, const gfx::DescriptorSetLayoutBinding &binding) : gfx::UniformBlock{block}, gfx::DescriptorSetLayoutBinding{binding} {}
+enum class CC_DLL ModelLocalBindings {
+    UBO_LOCAL,
+    UBO_FORWARD_LIGHTS,
+    UBO_SKINNING_ANIMATION,
+    UBO_SKINNING_TEXTURE,
+    UBO_MORPH,
+
+    SAMPLER_JOINTS,
+    SAMPLER_MORPH_POSITION,
+    SAMPLER_MORPH_NORMAL,
+    SAMPLER_MORPH_TANGENT,
+    SAMPLER_LIGHTMAP,
+    SAMPLER_SPRITE,
+
+    COUNT,
 };
-struct CC_DLL SamplerInfo : public gfx::UniformSampler, public gfx::DescriptorSetLayoutBinding {
-    SamplerInfo(const gfx::UniformSampler &sampler, const gfx::DescriptorSetLayoutBinding &binding) : gfx::UniformSampler(sampler), gfx::DescriptorSetLayoutBinding{binding} {}
+
+struct CC_DLL BlockInfo {
+    gfx::UniformBlock layout;
+    gfx::DescriptorSetLayoutBinding bindings;
+};
+struct CC_DLL SamplerInfo {
+    gfx::UniformSampler layout;
+    gfx::DescriptorSetLayoutBinding bindings;
 };
 
 struct CC_DLL UBOLocalBatched {
@@ -348,39 +343,17 @@ enum class LayerList : uint {
     ALL = 0xffffffff,
 };
 
+//TODO
+const uint CAMERA_DEFAULT_MASK = ~static_cast<uint>(LayerList::UI_2D) & ~static_cast<uint>(LayerList::PROFILER);
+//constexpr CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
+//                                                           Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
+
 bool aabb_frustum(const AABB *, const Frustum *);
 
 enum class CC_DLL SetIndex {
     GLOBAL,
     MATERIAL,
     LOCAL,
-};
-
-enum class CC_DLL PipelineGlobalBindings {
-    UBO_GLOBAL,
-    UBO_SHADOW,
-
-    SAMPLER_ENVIRONMENT,
-    SAMPLER_SHADOWMAP,
-
-    COUNT,
-};
-
-enum class CC_DLL ModelLocalBindings {
-    UBO_LOCAL,
-    UBO_FORWARD_LIGHTS,
-    UBO_SKINNING_ANIMATION,
-    UBO_SKINNING_TEXTURE,
-    UBO_MORPH,
-
-    SAMPLER_JOINTS,
-    SAMPLER_MORPH_POSITION,
-    SAMPLER_MORPH_NORMAL,
-    SAMPLER_MORPH_TANGENT,
-    SAMPLER_LIGHTING_MAP,
-    SAMPLER_SPRITE,
-
-    COUNT,
 };
 
 extern CC_DLL uint SKYBOX_FLAG;

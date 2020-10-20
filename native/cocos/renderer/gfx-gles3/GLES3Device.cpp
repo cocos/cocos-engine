@@ -67,6 +67,7 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     _features[(int)Feature::MSAA] = true;
     _features[(int)Feature::INSTANCED_ARRAYS] = true;
     _features[(int)Feature::MULTIPLE_RENDER_TARGETS] = true;
+    _features[(uint)Feature::BLEND_MINMAX] = true;
 
     if (checkExtension("color_buffer_float"))
         _features[(int)Feature::COLOR_FLOAT] = true;

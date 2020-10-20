@@ -6,6 +6,7 @@
 
 namespace cc {
 namespace pipeline {
+
 void RenderInstancedQueue::clear() {
     for (auto it : _queues) {
         it->clear();
@@ -13,13 +14,15 @@ void RenderInstancedQueue::clear() {
     _queues.clear();
 }
 
-void RenderInstancedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff) {
+void RenderInstancedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuff) {
     for (auto instanceBuffer : _queues) {
         if (instanceBuffer->hasPendingModels()) {
-            instanceBuffer->uploadBuffers();
+            instanceBuffer->uploadBuffers(cmdBuff);
         }
     }
+}
 
+void RenderInstancedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff) {
     for (auto instanceBuffer : _queues) {
         if (!instanceBuffer->hasPendingModels()) continue;
 

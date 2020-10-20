@@ -54,14 +54,13 @@ enum class Status {
 
 enum class API {
     UNKNOWN,
-    GL,
     GLES2,
     GLES3,
     METAL,
     VULKAN,
-    DX12,
     WEBGL,
     WEBGL2,
+    WEBGPU,
 };
 
 enum class Feature {
@@ -88,6 +87,7 @@ enum class Feature {
     ELEMENT_INDEX_UINT,
     INSTANCED_ARRAYS,
     MULTIPLE_RENDER_TARGETS,
+    BLEND_MINMAX,
     DEPTH_BOUNDS,
     LINE_WIDTH,
     STENCIL_WRITE_MASK,
@@ -704,7 +704,7 @@ struct BufferInfo {
     BufferUsage usage = BufferUsage::NONE;
     MemoryUsage memUsage = MemoryUsage::NONE;
     uint size = 0;
-    uint stride = 0; //in bytes
+    uint stride = 0; // in bytes
     BufferFlags flags = BufferFlagBit::NONE;
 };
 
@@ -898,6 +898,7 @@ struct FramebufferInfo {
 };
 
 struct DescriptorSetLayoutBinding {
+    uint binding = GFX_INVALID_BINDING;
     DescriptorType descriptorType = DescriptorType::UNKNOWN;
     uint count = 0;
     ShaderStageFlagBit stageFlags = ShaderStageFlagBit::NONE;
@@ -906,8 +907,6 @@ struct DescriptorSetLayoutBinding {
 typedef cc::vector<DescriptorSetLayoutBinding> DescriptorSetLayoutBindingList;
 
 struct DescriptorSetLayoutInfo {
-    // array index is used as the binding numbers,
-    // i.e. they should be strictly consecutive and start from 0
     DescriptorSetLayoutBindingList bindings;
 };
 

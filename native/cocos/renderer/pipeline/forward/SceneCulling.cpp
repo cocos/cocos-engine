@@ -70,7 +70,7 @@ void updateSphereLight(Shadows *shadows, const Light *light, gfx::DescriptorSet 
     matLight.m[14] = lz * distance;
     matLight.m[15] = NdL;
 
-    descriptorSet->getBuffer(UBOShadow::BLOCK.binding)->update(matLight.m, UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, sizeof(matLight));
+    descriptorSet->getBuffer(UBOShadow::BLOCK.layout.binding)->update(matLight.m, UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, sizeof(matLight));
 }
 
 void updateDirLight(Shadows *shadows, const Light *light, gfx::DescriptorSet *descriptorSet) {
@@ -112,7 +112,7 @@ void updateDirLight(Shadows *shadows, const Light *light, gfx::DescriptorSet *de
     matLight.m[14] = lz * distance;
     matLight.m[15] = 1;
 
-    descriptorSet->getBuffer(UBOShadow::BLOCK.binding)->update(matLight.m, UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, sizeof(matLight));
+    descriptorSet->getBuffer(UBOShadow::BLOCK.layout.binding)->update(matLight.m, UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, sizeof(matLight));
 }
 
 void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
@@ -131,7 +131,7 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
 
     if (shadows->enabled && shadows->dirty) {
         float color[3] = {shadows->color.x, shadows->color.y, shadows->color.z};
-        pipeline->getDescriptorSet()->getBuffer(UBOShadow::BLOCK.binding)->update(color, UBOShadow::SHADOW_COLOR_OFFSET, sizeof(color));
+        pipeline->getDescriptorSet()->getBuffer(UBOShadow::BLOCK.layout.binding)->update(color, UBOShadow::SHADOW_COLOR_OFFSET, sizeof(color));
     }
 
     if (mainLight && shadows->getShadowType() == ShadowType::PLANAR) {

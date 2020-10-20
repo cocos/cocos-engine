@@ -26,21 +26,17 @@ bool GLES3PipelineLayout::initialize(const PipelineLayoutInfo &info) {
         DescriptorSetLayout *setLayout = _setLayouts[i];
         CCASSERT(setLayout != nullptr, "SetLayout should not be nullptr.");
         GLES3GPUDescriptorSetLayout *gpuSetLayout = ((GLES3DescriptorSetLayout *)setLayout)->gpuDescriptorSetLayout();
-        size_t bindingCount = gpuSetLayout->bindings.size();
         size_t dynamicCount = gpuSetLayout->dynamicBindings.size();
-
         vector<int> &indices = _gpuPipelineLayout->dynamicOffsetIndices[i];
-        indices.assign(bindingCount, -1);
+        indices.assign(setLayout->getBindingIndices().size(), -1);
 
         for (uint j = 0u; j < dynamicCount; j++) {
             uint binding = gpuSetLayout->dynamicBindings[j];
             if (indices[binding] < 0) indices[binding] = offset + j;
         }
-        _gpuPipelineLayout->dynamicOffsetOffsets.push_back(offset);
         _gpuPipelineLayout->setLayouts.push_back(gpuSetLayout);
         offset += dynamicCount;
     }
-    _gpuPipelineLayout->dynamicOffsetOffsets.push_back(offset);
     _gpuPipelineLayout->dynamicOffsetCount = offset;
 
     return true;

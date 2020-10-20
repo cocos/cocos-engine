@@ -115,7 +115,7 @@ void ShadowFlow::render(RenderView *view) {
 
     pipeline->updateUBOs(view);
     RenderFlow::render(view);
-    pipeline->getDescriptorSet()->bindTexture(UNIFORM_SHADOWMAP.binding, _framebuffer->getColorTextures()[0]);
+    pipeline->getDescriptorSet()->bindTexture(UNIFORM_SHADOWMAP.layout.binding, _framebuffer->getColorTextures()[0]);
 }
 
 void ShadowFlow::resizeShadowMap(uint width, uint height) {

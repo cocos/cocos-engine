@@ -131,10 +131,13 @@ void ForwardStage::render(RenderView *view) {
         queue->sort();
     }
 
+    auto cmdBuff = pipeline->getCommandBuffers()[0];
+
+    _instancedQueue->uploadBuffers(cmdBuff);
+    _batchedQueue->uploadBuffers(cmdBuff);
     _additiveLightQueue->gatherLightPasses(view);
 
     auto camera = view->getCamera();
-    auto cmdBuff = pipeline->getCommandBuffers()[0];
 
     _renderArea.x = camera->viewportX * camera->width;
     _renderArea.y = camera->viewportY * camera->height;
