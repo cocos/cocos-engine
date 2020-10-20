@@ -1,0 +1,21 @@
+image:
+  file: .gitpod.Dockerfile
+tasks:
+  - command: gp await-port 8511 && sleep 3 && gp preview $(gp url 8511)/bin/qunit-runner.html
+  - name: Build
+    init: |
+        npm install
+        npm install gulp-qunit express
+        gp sync-done init
+    command: gulp build
+
+  - name: Test
+    init: |
+        gp sync-await init
+        npm test
+    command: node test/qunit/server.js
+    openMode: split-right
+
+ports:
+  - port: 8511
+    onOpen: ignore
