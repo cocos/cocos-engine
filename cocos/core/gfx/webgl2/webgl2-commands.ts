@@ -615,8 +615,8 @@ const WebGLBlendOps: GLenum[] = [
     0x8006, // WebGLRenderingContext.FUNC_ADD,
     0x800A, // WebGLRenderingContext.FUNC_SUBTRACT,
     0x800B, // WebGLRenderingContext.FUNC_REVERSE_SUBTRACT,
-    0x8006, // WebGLRenderingContext.FUNC_ADD,
-    0x8006, // WebGLRenderingContext.FUNC_ADD,
+    0x8007, // WebGL2RenderingContext.MIN,
+    0x8008, // WebGL2RenderingContext.MAX,
 ];
 
 const WebGLBlendFactors: GLenum[] = [

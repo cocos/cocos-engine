@@ -274,6 +274,7 @@ export class WebGL2Device extends GFXDevice {
         this._features[GFXFeature.ELEMENT_INDEX_UINT] = true;
         this._features[GFXFeature.INSTANCED_ARRAYS] = true;
         this._features[GFXFeature.MULTIPLE_RENDER_TARGETS] = true;
+        this._features[GFXFeature.BLEND_MINMAX] = true;
 
         if (this._EXT_color_buffer_float) {
             this._features[GFXFeature.COLOR_FLOAT] = true;

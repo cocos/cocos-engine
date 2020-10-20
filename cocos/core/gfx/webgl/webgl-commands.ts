@@ -1,4 +1,3 @@
-import { WECHAT } from 'internal:constants';
 import { CachedArray } from '../../memop/cached-array';
 import { error, errorID } from '../../platform/debug';
 import { GFXBufferSource, GFXDrawInfo, GFXIndirectBuffer } from '../buffer';
@@ -462,8 +461,8 @@ const WebGLBlendOps: GLenum[] = [
     0x8006, // WebGLRenderingContext.FUNC_ADD,
     0x800A, // WebGLRenderingContext.FUNC_SUBTRACT,
     0x800B, // WebGLRenderingContext.FUNC_REVERSE_SUBTRACT,
-    0x8006, // WebGLRenderingContext.FUNC_ADD,
-    0x8006, // WebGLRenderingContext.FUNC_ADD,
+    0x8007, // WebGLRenderingContext.MIN,
+    0x8008, // WebGLRenderingContext.MAX,
 ];
 
 const WebGLBlendFactors: GLenum[] = [
