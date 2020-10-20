@@ -626,7 +626,7 @@ function _doDispatchEvent (owner, event) {
     event.eventPhase = 1;
     for (i = _cachedArray.length - 1; i >= 0; --i) {
         target = _cachedArray[i];
-        if (target._capturingListeners) {
+        if (target && target._capturingListeners) {
             event.currentTarget = target;
             // fire event
             target._capturingListeners.emit(event.type, event, _cachedArray);
