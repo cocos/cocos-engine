@@ -195,7 +195,7 @@ export class RenderShadowMapBatchedQueue {
                     Mat4.invert(matShadowView, shadowCameraView!);
 
                     const projectionSignY = this._device.screenSpaceSignY * this._device.UVSpaceSignY;
-                    Mat4.ortho(matShadowViewProj, -x, x, -y, y, this._shadowInfo.near, this._shadowInfo.far,
+                    Mat4.ortho(matShadowViewProj, -x, x, -y, y, this._shadowInfo.near, far,
                         this._device.clipSpaceMinZ, projectionSignY);
                     break;
                 case LightType.SPOT:
