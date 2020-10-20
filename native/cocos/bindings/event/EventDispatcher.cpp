@@ -349,6 +349,25 @@ void EventDispatcher::dispatchEnterForegroundEvent()
     dispatchEnterBackgroundOrForegroundEvent("onShow");
 }
 
+void EventDispatcher::dispatchMemoryWarningEvent() {
+    CustomEvent event;
+    event.name = EVENT_MEMORY_WARNING;
+    EventDispatcher::dispatchCustomEvent(event);
+    
+    // dispatch to Javascript
+    if (!se::ScriptEngine::getInstance()->isValid())
+        return;
+    
+    se::AutoHandleScope scope;
+    assert(_inited);
+    
+    se::Value func;
+    __jsbObj->getProperty("onMemoryWarning", &func);
+    if (func.isObject() && func.toObject()->isFunction()) {
+        func.toObject()->call(se::EmptyValueArray, nullptr);
+    }
+}
+
 uint32_t EventDispatcher::addCustomEventListener(const std::string& eventName, const CustomEventListener& listener)
 {
     static uint32_t __listenerIDCounter = 0;

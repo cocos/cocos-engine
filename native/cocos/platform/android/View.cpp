@@ -104,6 +104,11 @@ void View::engineHandleCmd(struct android_app* app, int32_t cmd)
             if (Application::getInstance())
                 Application::getInstance()->onPause();
 	        break;
+	    case APP_CMD_LOW_MEMORY:
+	        cc::EventDispatcher::dispatchMemoryWarningEvent();
+	        break;
+        default:
+            break;
 	}
 }
 

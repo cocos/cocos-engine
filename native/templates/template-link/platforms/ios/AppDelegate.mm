@@ -23,9 +23,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#import "AppDelegate.h"
+#include "AppDelegate.h"
 #import "ViewController.h"
-#import "platform/ios/View.h"
+#include "platform/ios/View.h"
+#include "cocos/bindings/event/EventDispatcher.h"
 
 #include "SDKWrapper.h"
 #include "Game.h"
@@ -102,9 +103,7 @@ Game* game = nullptr;
 #pragma mark Memory management
 
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application {
-    /*
-     Free up as much memory as possible by purging cached data objects that can be recreated (or reloaded from disk) later.
-     */
+    cc::EventDispatcher::dispatchMemoryWarningEvent();
 }
 
 @end

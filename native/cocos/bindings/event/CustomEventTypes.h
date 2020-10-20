@@ -28,3 +28,4 @@
 #define EVENT_COME_TO_BACKGROUND    "event_come_to_background"
 #define EVENT_DESTROY_WINDOW        "event_destroy_window"
 #define EVENT_RECREATE_WINDOW       "event_recreate_window"
+#define EVENT_MEMORY_WARNING        "memory_warning"

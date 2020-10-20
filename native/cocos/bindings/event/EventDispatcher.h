@@ -182,6 +182,7 @@ public:
     static void dispatchResizeEvent(int width, int height);
     static void dispatchEnterBackgroundEvent();
     static void dispatchEnterForegroundEvent();
+    static void dispatchMemoryWarningEvent();
 
     using CustomEventListener = std::function<void(const CustomEvent&)>;
     static uint32_t addCustomEventListener(const std::string& eventName, const CustomEventListener& listener);
