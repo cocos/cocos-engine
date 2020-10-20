@@ -325,7 +325,6 @@ export class Canvas extends Component {
     protected _onResizeCamera () {
         const camera = this._camera;
         if (camera) {
-            this.node.getWorldPosition(_worldPos);
             if (this._targetTexture) {
                 let win = this._targetTexture.window;
                 camera.setFixedSize(win!.width, win!.height);
@@ -335,7 +334,7 @@ export class Canvas extends Component {
                 camera.resize(size.width, size.height);
                 camera.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
             }
-
+            this.node.getWorldPosition(_worldPos);
             camera.node.setPosition(_worldPos.x, _worldPos.y, 1000);
             camera.update();
         }
@@ -343,7 +342,7 @@ export class Canvas extends Component {
 
     protected _checkTargetTextureEvent (old: RenderTexture | null) {
         const resizeFunc = (win: RenderWindow) => {
-            if (this._camera) {
+            if (this._camera) {``
                 this._camera.setFixedSize(win.width, win.height);
             }
         };
