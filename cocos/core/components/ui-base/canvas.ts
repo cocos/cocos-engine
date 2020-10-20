@@ -29,24 +29,24 @@
  * @module ui
  */
 
-import {Camera} from '../../3d/framework/camera-component';
-import {RenderTexture} from '../../assets/render-texture';
+import { Camera } from '../../3d/framework/camera-component';
+import { RenderTexture } from '../../assets/render-texture';
 import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, serializable } from 'cc.decorator';
-import {director, Director} from '../../director';
-import {game} from '../../game';
-import {GFXClearFlag} from '../../gfx/define';
+import { director, Director } from '../../director';
+import { game } from '../../game';
+import { GFXClearFlag } from '../../gfx/define';
 import { Color, Vec3, Rect } from '../../math';
-import {view} from '../../platform/view';
+import { view } from '../../platform/view';
 import visibleRect from '../../platform/visible-rect';
-import {scene} from '../../renderer';
-import {Node} from '../../scene-graph/node';
-import {Enum} from '../../value-types';
-import {Component} from '../component';
-import {UITransform} from './ui-transform';
-import {EDITOR} from 'internal:constants';
-import {legacyCC} from '../../global-exports';
-import {RenderWindow} from '../../renderer/core/render-window';
-import {SystemEventType} from "../../platform/event-manager";
+import { scene } from '../../renderer';
+import { Node } from '../../scene-graph/node';
+import { Enum } from '../../value-types';
+import { Component } from '../component';
+import { UITransform } from './ui-transform';
+import { EDITOR } from 'internal:constants';
+import { legacyCC } from '../../global-exports';
+import { RenderWindow } from '../../renderer/core/render-window';
+import { SystemEventType } from "../../platform/event-manager";
 
 const _worldPos = new Vec3();
 
