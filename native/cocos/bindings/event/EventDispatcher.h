@@ -21,7 +21,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
 #pragma once
 
 #include <vector>
@@ -29,41 +28,38 @@
 #include <functional>
 #include <string>
 
-namespace cc
-{
-    
+namespace se {
+class Value;
+}
+
+namespace cc {
+
 // Touch event related
-    
-struct TouchInfo
-{
+
+struct TouchInfo {
     float x = 0;
     float y = 0;
     int index = 0;
 
     TouchInfo(float _x, float _y, int _index)
-    :x(_x), y(_y), index(_index)
-    {}
+    : x(_x), y(_y), index(_index) {}
 };
 
-struct TouchEvent
-{
-    enum class Type
-    {
+struct TouchEvent {
+    enum class Type {
         BEGAN,
         MOVED,
         ENDED,
         CANCELLED,
         UNKNOWN
     };
-    
+
     std::vector<TouchInfo> touches;
     Type type = Type::UNKNOWN;
 };
 
-struct MouseEvent
-{
-    enum class Type
-    {
+struct MouseEvent {
+    enum class Type {
         DOWN,
         UP,
         MOVE,
@@ -79,7 +75,7 @@ struct MouseEvent
     Type type = Type::UNKNOWN;
 };
 
-enum class KeyCode{
+enum class KeyCode {
     Backspace = 8,
     Tab = 9,
     NumLock = 12,
@@ -134,8 +130,7 @@ enum class KeyCode{
     NUMPAD_9 = 10057
 };
 
-struct KeyboardEvent
-{
+struct KeyboardEvent {
     enum class Action {
         PRESS,
         RELEASE,
@@ -152,12 +147,11 @@ struct KeyboardEvent
     // TODO: support caps lock?
 };
 
-class CustomEvent
-{
+class CustomEvent {
 public:
     std::string name;
     union {
-        void* ptrVal;
+        void *ptrVal;
         long longVal;
         int intVal;
         short shortVal;
@@ -169,35 +163,35 @@ public:
     virtual ~CustomEvent(){};
 };
 
-class EventDispatcher
-{
+class EventDispatcher {
 public:
     static void init();
     static void destroy();
 
-    static void dispatchTouchEvent(const struct TouchEvent& touchEvent);
-    static void dispatchMouseEvent(const struct MouseEvent& mouseEvent);
-    static void dispatchKeyboardEvent(const struct KeyboardEvent& keyboardEvent);
+    static void dispatchTouchEvent(const struct TouchEvent &touchEvent);
+    static void dispatchMouseEvent(const struct MouseEvent &mouseEvent);
+    static void dispatchKeyboardEvent(const struct KeyboardEvent &keyboardEvent);
     static void dispatchTickEvent(float dt);
     static void dispatchResizeEvent(int width, int height);
     static void dispatchEnterBackgroundEvent();
     static void dispatchEnterForegroundEvent();
     static void dispatchMemoryWarningEvent();
 
-    using CustomEventListener = std::function<void(const CustomEvent&)>;
-    static uint32_t addCustomEventListener(const std::string& eventName, const CustomEventListener& listener);
-    static void removeCustomEventListener(const std::string& eventName, uint32_t listenerID);
-    static void removeAllCustomEventListeners(const std::string& eventName);
-    static void dispatchCustomEvent(const CustomEvent& event);
+    using CustomEventListener = std::function<void(const CustomEvent &)>;
+    static uint32_t addCustomEventListener(const std::string &eventName, const CustomEventListener &listener);
+    static void removeCustomEventListener(const std::string &eventName, uint32_t listenerID);
+    static void removeAllCustomEventListeners(const std::string &eventName);
+    static void dispatchCustomEvent(const CustomEvent &event);
 
 private:
-    struct Node
-    {
+    static void doDispatchEvent(const char *eventName, const char *jsFunctionName, const std::vector<se::Value> &args);
+
+    struct Node {
         CustomEventListener listener;
         uint32_t listenerID;
-        struct Node* next;
+        struct Node *next = nullptr;
     };
-    static std::unordered_map<std::string, Node*> _listeners;
+    static std::unordered_map<std::string, Node *> _listeners;
 };
-    
+
 } // end of namespace cc
