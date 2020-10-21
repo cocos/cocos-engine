@@ -593,7 +593,7 @@ void CCVKCmdFuncCreateFence(CCVKDevice *device, CCVKGPUFence *gpuFence) {
     VK_CHECK(vkCreateFence(device->gpuDevice()->vkDevice, &createInfo, nullptr, &gpuFence->vkFence));
 }
 
-void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, void *buffer, uint offset, uint size, const CCVKGPUCommandBuffer *cmdBuffer) {
+void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const void *buffer, uint offset, uint size, const CCVKGPUCommandBuffer *cmdBuffer) {
     if (!gpuBuffer) return;
 
     const void *dataToUpload = nullptr;
@@ -601,7 +601,7 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, void 
 
     if (gpuBuffer->usage & BufferUsageBit::INDIRECT) {
         size_t drawInfoCount = size / sizeof(DrawInfo);
-        DrawInfo *drawInfo = static_cast<DrawInfo *>(buffer);
+        const DrawInfo *drawInfo = static_cast<const DrawInfo *>(buffer);
         if (drawInfoCount > 0) {
             if (drawInfo->indexCount) {
                 for (size_t i = 0; i < drawInfoCount; i++) {
@@ -648,7 +648,7 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, void 
         vkCmdPipelineBarrier(cmdBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 0, nullptr);
         vkCmdCopyBuffer(cmdBuffer->vkCommandBuffer, stagingBuffer.vkBuffer, gpuBuffer->vkBuffer, 1, &region);
 
-        VkBufferMemoryBarrier barrier{ VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER};
+        VkBufferMemoryBarrier barrier{VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER};
         barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
         barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;

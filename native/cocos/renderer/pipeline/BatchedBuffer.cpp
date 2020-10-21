@@ -28,11 +28,11 @@ void BatchedBuffer::destroy() {
         for (auto vb : batch.vbs) {
             vb->destroy();
         }
-        
+
         for (auto data : batch.vbDatas) {
             CC_FREE(data);
         }
-        
+
         batch.indexBuffer->destroy();
         batch.ia->destroy();
         batch.ubo->destroy();
@@ -142,10 +142,10 @@ void BatchedBuffer::merge(const SubModelView *subModel, uint passIdx, const Rend
     for (auto i = 0; i < flatBuffersCount; ++i) {
         const auto flatBuffer = subMesh->getFlatBuffer(flatBuffersID[i + 1]);
         auto newVB = _device->createBuffer({
-            .usage = gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
-            .memUsage = gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
-            .size = flatBuffer->count * flatBuffer->stride,
-            .stride = flatBuffer->stride,
+            gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
+            gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
+            flatBuffer->count * flatBuffer->stride,
+            flatBuffer->stride,
         });
         auto size = 0u;
         auto data = flatBuffer->getBuffer(&size);
@@ -158,10 +158,10 @@ void BatchedBuffer::merge(const SubModelView *subModel, uint passIdx, const Rend
 
     const auto indexBufferSize = vbCount * sizeof(float);
     auto indexBuffer = _device->createBuffer({
-        .usage = gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
-        .memUsage = gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
-        .size = static_cast<uint>(indexBufferSize),
-        .stride = sizeof(float),
+        gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
+        gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
+        static_cast<uint>(indexBufferSize),
+        sizeof(float),
     });
     float *indexData = static_cast<float *>(CC_MALLOC(indexBufferSize));
     memset(indexData, 0, indexBufferSize);
@@ -170,21 +170,20 @@ void BatchedBuffer::merge(const SubModelView *subModel, uint passIdx, const Rend
 
     vector<gfx::Attribute> attributes = subModel->getInputAssembler()->getAttributes();
     gfx::Attribute attrib = {
-        .name = "a_dyn_batch_id",
-        .format = gfx::Format::R32F,
-        .isNormalized = false,
-        .stream = flatBuffersCount,
+        "a_dyn_batch_id",
+        gfx::Format::R32F,
+        false,
+        flatBuffersCount,
     };
     attributes.emplace_back(std::move(attrib));
 
-    auto ia = _device->createInputAssembler({.attributes = std::move(attributes),
-                                             .vertexBuffers = std::move(totalVBs)});
+    auto ia = _device->createInputAssembler({std::move(attributes), std::move(totalVBs)});
 
     auto ubo = _device->createBuffer({
-        .usage = gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
-        .memUsage = gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
-        .size = UBOLocalBatched::SIZE,
-        .stride = UBOLocalBatched::SIZE,
+        gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
+        gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
+        UBOLocalBatched::SIZE,
+        UBOLocalBatched::SIZE,
     });
 
     descriptorSet->bindBuffer(UBOLocalBatched::BLOCK.layout.binding, ubo);
@@ -194,18 +193,18 @@ void BatchedBuffer::merge(const SubModelView *subModel, uint passIdx, const Rend
     const auto &worldMatrix = renderObject->model->getTransform()->worldMatrix;
     memcpy(uboData.data() + UBOLocalBatched::MAT_WORLDS_OFFSET, worldMatrix.m, sizeof(worldMatrix));
     BatchedItem item = {
-        .vbs = std::move(vbs),
-        .vbDatas = std::move(vbDatas),
-        .indexBuffer = indexBuffer,
-        .indexData = static_cast<float *>(indexData),
-        .vbCount = vbCount,
-        .mergeCount = 1,
-        .ia = ia,
-        .ubo = ubo,
-        .uboData = std::move(uboData),
-        .descriptorSet = descriptorSet,
-        .pass = pass,
-        .shader = shader,
+        std::move(vbs),                  //vbs
+        std::move(vbDatas),              //vbDatas
+        indexBuffer,                     //indexBuffer
+        static_cast<float *>(indexData), //indexData
+        vbCount,                         //vbCount
+        1,                               //mergeCount
+        ia,                              //ia
+        ubo,                             //ubo
+        std::move(uboData),              //uboData
+        descriptorSet,                   //descriptorSet
+        pass,                            //pass
+        shader,                          //shader
     };
     _batches.emplace_back(std::move(item));
 }
