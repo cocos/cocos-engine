@@ -29,18 +29,18 @@
  * @hidden
  */
 
-import {Director, director} from '../../core/director';
-import {Vec2, Vec3} from '../../core/math';
-import {View} from '../../core/platform/view';
+import { Director, director } from '../../core/director';
+import { Vec2, Vec3 } from '../../core/math';
+import { View } from '../../core/platform/view';
 import visibleRect from '../../core/platform/visible-rect';
-import {Scene} from '../../core/scene-graph';
-import {Node} from '../../core/scene-graph/node';
-import {array} from '../../core/utils/js';
-import {AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, Widget} from './widget';
-import {UITransform} from '../../core/components/ui-base';
+import { Scene } from '../../core/scene-graph';
+import { Node } from '../../core/scene-graph/node';
+import { array } from '../../core/utils/js';
+import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, Widget } from './widget';
+import { UITransform } from '../../core/components/ui-base';
 import { EDITOR, DEV } from 'internal:constants';
-import {legacyCC} from '../../core/global-exports';
-import {warnID} from '../../core/platform/debug';
+import { legacyCC } from '../../core/global-exports';
+import { warnID } from '../../core/platform/debug';
 
 const _tempPos = new Vec3();
 const _defaultAnchor = new Vec2();
