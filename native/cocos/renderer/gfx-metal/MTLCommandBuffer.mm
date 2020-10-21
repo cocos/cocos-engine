@@ -388,14 +388,15 @@ void CCMTLCommandBuffer::bindDescriptorSets() {
         const auto &block = iter.second;
 
         const auto gpuDescriptorSet = _GPUDescriptorSets[block.set];
-        const auto &gpuDescriptor = gpuDescriptorSet->gpuDescriptors[block.binding];
+        const auto descriptorIndex = gpuDescriptorSet->descriptorIndices->at(block.binding);
+        const auto &gpuDescriptor = gpuDescriptorSet->gpuDescriptors[descriptorIndex];
         if (!gpuDescriptor.buffer) {
             CC_LOG_ERROR("Buffer binding %s at set %d binding %d is not bounded.", block.name.c_str(), block.set, block.binding);
             continue;
         }
 
         const auto &dynamicOffset = dynamicOffsetIndices[block.set];
-        auto dynamicOffsetIndex = (dynamicOffset.size() == 0) ? -1 : dynamicOffset[block.binding];
+        auto dynamicOffsetIndex = (block.binding < dynamicOffset.size()) ? -1 : dynamicOffset[block.binding];
         if (gpuDescriptor.buffer) {
             uint offset = (dynamicOffsetIndex >= 0) ? _dynamicOffsets[block.set][dynamicOffsetIndex] : 0;
             gpuDescriptor.buffer->encodeBuffer(_mtlEncoder,

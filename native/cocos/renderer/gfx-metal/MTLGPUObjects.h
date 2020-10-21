@@ -40,6 +40,7 @@ public:
     DescriptorSetLayoutBindingList bindings;
     vector<uint> dynamicBindings;
     vector<uint> descriptorIndices;
+    vector<uint> bindingIndices;
     uint descriptorCount = 0;
 };
 typedef vector<CCMTLGPUDescriptorSetLayout *> MTLGPUDescriptorSetLayoutList;

@@ -2,10 +2,10 @@
 
 #include "MTLBuffer.h"
 #include "MTLDescriptorSet.h"
+#include "MTLDescriptorSetLayout.h"
 #include "MTLGPUObjects.h"
 #include "MTLSampler.h"
 #include "MTLTexture.h"
-#include "MTLDescriptorSetLayout.h"
 
 namespace cc {
 namespace gfx {
@@ -18,10 +18,9 @@ CCMTLDescriptorSet::~CCMTLDescriptorSet() {
 bool CCMTLDescriptorSet::initialize(const DescriptorSetInfo &info) {
     _layout = info.layout;
 
-    const auto gpuDescriptorSetLayout = static_cast<CCMTLDescriptorSetLayout*>(_layout)->gpuDescriptorSetLayout();
+    const auto gpuDescriptorSetLayout = static_cast<CCMTLDescriptorSetLayout *>(_layout)->gpuDescriptorSetLayout();
     const auto descriptorCount = gpuDescriptorSetLayout->descriptorCount;
     const auto bindingCount = gpuDescriptorSetLayout->bindings.size();
-    const auto &descriptorIndices = gpuDescriptorSetLayout->descriptorIndices;
 
     _buffers.resize(descriptorCount);
     _textures.resize(descriptorCount);
@@ -30,11 +29,10 @@ bool CCMTLDescriptorSet::initialize(const DescriptorSetInfo &info) {
     _gpuDescriptorSet = CC_NEW(CCMTLGPUDescriptorSet);
     _gpuDescriptorSet->descriptorIndices = &gpuDescriptorSetLayout->descriptorIndices;
     _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount);
-    for (size_t i = 0; i < bindingCount; i++) {
+    for (auto i = 0, k = 0; i < bindingCount; i++) {
         const auto &binding = gpuDescriptorSetLayout->bindings[i];
-        const auto descriptorIndex = descriptorIndices[i];
-        for(size_t j = descriptorIndex; j < descriptorIndex + binding.count; j++) {
-            _gpuDescriptorSet->gpuDescriptors[j].type = binding.descriptorType;
+        for (auto j = 0; j < binding.count; j++, k++) {
+            _gpuDescriptorSet->gpuDescriptors[k].type = binding.descriptorType;
         }
     }
 
