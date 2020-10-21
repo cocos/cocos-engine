@@ -10,6 +10,10 @@
   #include <texture-lod>
 #endif
 
+#if CC_RECEIVE_SHADOW
+  #include <cc-shadow-map-fs>
+#endif
+
 #include <common>
 #include <gamma>
 
@@ -92,8 +96,7 @@ struct StandardSurface {
 
       vec3 lightColor = cc_lightColor[i].rgb;
     #if CC_RECEIVE_SHADOW
-      float spotLightAtten  = CCGetDirLightShadowFactor();
-      lightColor = lightColor.rgb * spotLightAtten * 0.0 + lightColor.rgb * (1.0 - spotLightAtten);
+      CC_DIR_SHADOW_FACTOR(lightColor);
     #endif
 
       finalColor += SNL * lightColor * cc_lightColor[i].w * illum * att * (diffuseContrib + lspec);

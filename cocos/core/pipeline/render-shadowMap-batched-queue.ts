@@ -16,7 +16,7 @@ import { DSPool, ShaderPool, PassHandle, PassPool, PassView,
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { InstancedBuffer } from './instanced-buffer';
 import { ForwardPipeline } from './forward/forward-pipeline';
-import { Mat4, Vec4, Color, toDegree } from '../math';
+import { Mat4, Vec4, Color } from '../math';
 import { intersect } from '../geometry';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { BatchedBuffer } from './batched-buffer';
@@ -73,22 +73,23 @@ export class RenderShadowMapBatchedQueue {
 
     public gatherLightPasses (light: Light) {
         this.clear();
+        if (light && this._shadowInfo.type === ShadowType.ShadowMap) {
+            this._updateUBOs(light);
 
-        this._updateUBOs(light);
+            for (let i = 0; i < this._shadowObjects.length; i++) {
+                const ro = this._shadowObjects[i];
+                const model = ro.model;
 
-        for (let i = 0; i < this._shadowObjects.length; i++) {
-            const ro = this._shadowObjects[i];
-            const model = ro.model;
-
-            switch (light.type) {
-                case LightType.DIRECTIONAL:
-                    this.add(model);
-                    break;
-                case LightType.SPOT:
-                    const spotLight = light as SpotLight;
-                    if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, spotLight.frustum)) continue;
-                    this.add(model);
-                    break;
+                switch (light.type) {
+                    case LightType.DIRECTIONAL:
+                        this.add(model);
+                        break;
+                    case LightType.SPOT:
+                        const spotLight = light as SpotLight;
+                        if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, spotLight.frustum)) continue;
+                        this.add(model);
+                        break;
+                }
             }
         }
     }
@@ -162,63 +163,62 @@ export class RenderShadowMapBatchedQueue {
     }
 
     private _updateUBOs (light: Light) {
-        if (this._shadowInfo.type === ShadowType.ShadowMap) {
-            switch (light.type) {
-                case LightType.DIRECTIONAL:
-                    // light view
-                    let shadowCameraView: Mat4;
-                    const mainLight = light as DirectionalLight;
+        switch (light.type) {
+            case LightType.DIRECTIONAL:
+                // light view
+                let shadowCameraView: Mat4;
+                const mainLight = light as DirectionalLight;
+                mainLight.update();
 
-                    // light proj
-                    let x: number = 0;
-                    let y: number = 0;
-                    let far: number = 0;
-                    if (this._shadowInfo.autoAdapt) {
-                        shadowCameraView = this._shadowInfo.getWorldMatrix(mainLight.node?.getWorldRotation()!, mainLight.direction);
-                        // if orthoSize is the smallest, auto calculate orthoSize.
-                        const radius = this._shadowInfo.sphere.radius;
-                        x = radius * this._shadowInfo.aspect;
-                        y = radius;
+                // light proj
+                let x: number = 0;
+                let y: number = 0;
+                let far: number = 0;
+                if (this._shadowInfo.autoAdapt) {
+                    shadowCameraView = this._shadowInfo.getWorldMatrix(mainLight.node?.getWorldRotation()!, mainLight.direction);
+                    // if orthoSize is the smallest, auto calculate orthoSize.
+                    const radius = this._shadowInfo.sphere.radius;
+                    x = radius * this._shadowInfo.aspect;
+                    y = radius;
 
-                        far = this._shadowInfo.receiveSphere.radius * 2.0;
-                        if (radius >= 500) { this._shadowInfo.size.set(2048, 2048); }
-                        else if (radius < 500 && radius >= 100) { this._shadowInfo.size.set(1024, 1024); }
-                    } else {
-                        shadowCameraView = mainLight.node!.getWorldMatrix();
+                    far = this._shadowInfo.receiveSphere.radius * 2.0;
+                    if (radius >= 500) { this._shadowInfo.size.set(2048, 2048); }
+                    else if (radius < 500 && radius >= 100) { this._shadowInfo.size.set(1024, 1024); }
+                } else {
+                    shadowCameraView = mainLight.node!.getWorldMatrix();
 
-                        x = this._shadowInfo.orthoSize * this._shadowInfo.aspect;
-                        y = this._shadowInfo.orthoSize;
+                    x = this._shadowInfo.orthoSize * this._shadowInfo.aspect;
+                    y = this._shadowInfo.orthoSize;
 
-                        far = this._shadowInfo.far;
-                    }
+                    far = this._shadowInfo.far;
+                }
 
-                    Mat4.invert(matShadowView, shadowCameraView!);
+                Mat4.invert(matShadowView, shadowCameraView!);
 
-                    const projectionSignY = this._device.screenSpaceSignY * this._device.UVSpaceSignY;
-                    Mat4.ortho(matShadowViewProj, -x, x, -y, y, this._shadowInfo.near, far,
-                        this._device.clipSpaceMinZ, projectionSignY);
-                    break;
-                case LightType.SPOT:
-                    const spotLight = light as SpotLight;
-                    // light view
-                    Mat4.invert(matShadowView, spotLight.node!.getWorldMatrix());
+                const projectionSignY = this._device.screenSpaceSignY * this._device.UVSpaceSignY;
+                Mat4.ortho(matShadowViewProj, -x, x, -y, y, this._shadowInfo.near, far,
+                    this._device.clipSpaceMinZ, projectionSignY);
+                break;
+            case LightType.SPOT:
+                const spotLight = light as SpotLight;
+                // light view
+                Mat4.invert(matShadowView, spotLight.node!.getWorldMatrix());
 
-                    // light proj
-                    Mat4.perspective(matShadowViewProj, spotLight.angle, spotLight.aspect, 0.001, spotLight.range);
-                    break;
-            }
-
-            // light viewProj
-            Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
-
-            Mat4.toArray(this._shadowUBO, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
-
-            Color.toArray(this._shadowUBO, this._shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
-
-            vec4.set(this._shadowInfo.size.x, this._shadowInfo.size.y, this._shadowInfo.pcf, this._shadowInfo.bias);
-            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_INFO_OFFSET);
-
-            this._descriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(this._shadowUBO);
+                // light proj
+                Mat4.perspective(matShadowViewProj, spotLight.angle, spotLight.aspect, 0.001, spotLight.range);
+                break;
         }
+
+        // light viewProj
+        Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
+
+        Mat4.toArray(this._shadowUBO, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
+
+        Color.toArray(this._shadowUBO, this._shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
+
+        vec4.set(this._shadowInfo.size.x, this._shadowInfo.size.y, this._shadowInfo.pcf, this._shadowInfo.bias);
+        Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_INFO_OFFSET);
+
+        this._descriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(this._shadowUBO);
     }
 }

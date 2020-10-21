@@ -136,6 +136,7 @@ export class RenderAdditiveLightQueue {
         for (let i = 0; i < this._lightPasses.length; i++) {
             const lp = this._lightPasses[i];
             lp.dynamicOffsets.length = 0;
+            lp.lights.length = 0;
         }
         _lightPassPool.freeArray(this._lightPasses);
         this._lightPasses.length = 0;
