@@ -172,7 +172,7 @@ export class UIStaticBatch extends UIRenderable {
             this._init = true;
             this.node._static = true;
 
-            this._meshBuffer!.uploadData();
+            this._meshBuffer!.uploadBuffers();
         }
     }
 
