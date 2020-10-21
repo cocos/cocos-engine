@@ -42,5 +42,5 @@ jsb.onResize = function (size) {
 };
 
 jsb.onMemoryWarning = function () {
-    //TODO: how to dispatch to JS engine? Use cc.game.emit()?
+    cc.game.emit(cc.Game.EVENT_LOW_MEMORY);
 }
