@@ -404,7 +404,7 @@ export const widgetManager = legacyCC._widgetManager = {
                 return;
             }
 
-            const parentTrans = widgetParent._uiProps.uiTransformComp;
+            const parentTrans = widgetParent._uiProps && widgetParent._uiProps.uiTransformComp;
             const parentAP = parentTrans ? parentTrans.anchorPoint : _defaultAnchor;
             const trans = widgetNode._uiProps.uiTransformComp!;
             const matchSize = getReadonlyNodeSize(widgetParent!);
