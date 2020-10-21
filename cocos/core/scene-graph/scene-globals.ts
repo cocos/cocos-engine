@@ -125,8 +125,11 @@ export class SkyboxInfo {
      */
     @editable
     set enabled (val) {
+        if (this._enabled === val) return;
         this._enabled = val;
-        if (this._resource) { this._resource.enabled = this._enabled; }
+        if (this._resource) {
+            this._resource.enabled = this._enabled;
+        }
     }
     get enabled () {
         return this._enabled;
@@ -213,8 +216,14 @@ export class FogInfo {
      */
     @editable
     set enabled (val: boolean) {
+        if (this._enabled === val) return;
         this._enabled = val;
-        if (this._resource) { this._resource.enabled = val; }
+        if (this._resource) {
+            this._resource.enabled = val;
+            if (val) {
+                this._resource.type = this._type;
+            }
+        }
     }
 
     get enabled () {
@@ -403,8 +412,14 @@ export class ShadowsInfo {
      */
     @editable
     set enabled (val: boolean) {
+        if (this._enabled === val) return;
         this._enabled = val;
-        if (this._resource) { this._resource.enabled = val; }
+        if (this._resource) {
+            this._resource.enabled = val;
+            if (val) {
+                this._resource.type = this._type;
+            }
+        }
     }
     get enabled () {
         return this._enabled;

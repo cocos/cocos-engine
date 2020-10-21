@@ -65,6 +65,8 @@ export const PCFType = Enum({
     FILTER_X25: 3,
 })
 
+const SHADOW_TYPE_NONE = -1;
+
 export class Shadows {
     /**
      * @en Whether activate planar shadow
@@ -76,6 +78,7 @@ export class Shadows {
 
     set enabled (val: boolean) {
         ShadowsPool.set(this._handle, ShadowsView.ENABLE, val ? 1 : 0);
+        if (!val) ShadowsPool.set(this._handle, ShadowsView.TYPE, SHADOW_TYPE_NONE);
         val ? this.activate() : this._updatePipeline();
     }
 
@@ -126,7 +129,7 @@ export class Shadows {
     }
 
     set type (val: number) {
-        ShadowsPool.set(this._handle, ShadowsView.TYPE, val);
+        ShadowsPool.set(this._handle, ShadowsView.TYPE, this.enabled ? val : SHADOW_TYPE_NONE);
         this._updatePipeline();
         this._updatePlanarInfo();
     }
@@ -247,7 +250,7 @@ export class Shadows {
     }
 
     public initialize (shadowsInfo: ShadowsInfo) {
-        ShadowsPool.set(this._handle, ShadowsView.TYPE, shadowsInfo.enabled ? shadowsInfo.type : -1);
+        ShadowsPool.set(this._handle, ShadowsView.TYPE, shadowsInfo.enabled ? shadowsInfo.type : SHADOW_TYPE_NONE);
         ShadowsPool.set(this._handle, ShadowsView.NEAR, shadowsInfo.near);
         ShadowsPool.set(this._handle, ShadowsView.FAR, shadowsInfo.far);
         ShadowsPool.set(this._handle, ShadowsView.ORTHO_SIZE, shadowsInfo.orthoSize);
