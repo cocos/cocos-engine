@@ -622,6 +622,7 @@ function initSys () {
      * Is webgl extension support?
      * @method glExtension
      * @param name
+     * @return {Boolean}
      */
     sys.glExtension = function (name) {
         return !!cc.renderer.device.ext(name);
