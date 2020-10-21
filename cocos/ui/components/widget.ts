@@ -978,11 +978,6 @@ export class Widget extends Component {
             if (target.getComponent(UITransform)) {
                 target.on(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
                 target.on(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
-            } else if (target instanceof Scene) {
-                // ignore
-            }
-            else {
-                warnID(6501, this.node.name);
             }
         }
     }
