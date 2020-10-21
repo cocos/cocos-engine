@@ -478,7 +478,7 @@ void CCVKDevice::acquire() {
     CCVKQueue *queue = (CCVKQueue *)_queue;
 
     if (queue->gpuQueue()->fences.size()) {
-        VK_CHECK(vkWaitForFences(_gpuDevice->vkDevice, queue->gpuQueue()->fences.size(), 
+        VK_CHECK(vkWaitForFences(_gpuDevice->vkDevice, queue->gpuQueue()->fences.size(),
                                  queue->gpuQueue()->fences.data(), VK_TRUE, DEFAULT_TIMEOUT));
     }
 
@@ -500,7 +500,7 @@ void CCVKDevice::acquire() {
 
     _gpuSemaphorePool->reset();
     VkSemaphore acquireSemaphore = _gpuSemaphorePool->alloc();
-    VK_CHECK(vkAcquireNextImageKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, DEFAULT_TIMEOUT,
+    VK_CHECK(vkAcquireNextImageKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, ~0ull,
                                    acquireSemaphore, VK_NULL_HANDLE, &_gpuSwapchain->curImageIndex));
 
     queue->gpuQueue()->nextWaitSemaphore = acquireSemaphore;
@@ -522,7 +522,7 @@ void CCVKDevice::present() {
         presentInfo.pImageIndices = &_gpuSwapchain->curImageIndex;
 
         VkResult res = vkQueuePresentKHR(queue->gpuQueue()->vkQueue, &presentInfo);
-        if (res) _swapchainReady = false;
+        // if (res) _swapchainReady = false;
     }
 }
 
