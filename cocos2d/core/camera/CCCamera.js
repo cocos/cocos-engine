@@ -593,7 +593,10 @@ let Camera = cc.Class({
         this._updateProjection();
         this._updateStages();
         this._updateRect();
-        this.beforeDraw();
+
+        if (!CC_EDITOR) {
+            this.beforeDraw();
+        }
     },
 
     __preload () {
