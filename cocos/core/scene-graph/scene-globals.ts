@@ -393,6 +393,8 @@ export class ShadowsInfo {
     @serializable
     protected _shadowColor = new Color(0, 0, 0, 76);
     @serializable
+    protected _autoAdapt = true;
+    @serializable
     protected _pcf = PCFType.HARD;
     @serializable
     protected _bias = 0.0035;
@@ -500,11 +502,25 @@ export class ShadowsInfo {
     }
 
     /**
+     * @en get or set shadow Map sampler auto adapt
+     * @zh 阴影纹理生成是否自适应
+     */
+    @type (CCBoolean)
+    @visible(function (this: ShadowsInfo) {return this._type === ShadowType.ShadowMap; })
+    set autoAdapt (val) {
+        this._autoAdapt = val;
+        if (this._resource) { this._resource.autoAdapt = val; }
+    }
+    get autoAdapt (){
+        return this._autoAdapt;
+    }
+
+    /**
      * @en get or set shadow camera near
      * @zh 获取或者设置阴影相机近裁剪面
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
     set near (val: number) {
         this._near = val;
         if (this._resource) { this._resource.near = val; }
@@ -518,7 +534,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影相机远裁剪面
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
     set far (val: number) {
         this._far = val;
         if (this._resource) { this._resource.far = val; }
@@ -532,7 +548,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影相机正交大小
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
     set orthoSize (val: number) {
         this._orthoSize = val;
         if (this._resource) { this._resource.orthoSize = val; }
@@ -545,7 +561,7 @@ export class ShadowsInfo {
      * @en get or set shadow camera orthoSize
      * @zh 获取或者设置阴影纹理大小
      */
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
     set shadowMapSize (val: Vec2) {
         this._size.set(val);
         if (this._resource) { this._resource.size = val; }
@@ -559,13 +575,27 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影纹理大小
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
     set aspect (val: number) {
         this._aspect = val;
         if (this._resource) { this._resource.aspect = val; }
     }
     get aspect () {
         return this._aspect;
+    }
+
+    /**
+     * @en get or set shadow map sampler offset
+     * @zh 获取或者设置阴影纹理偏移值
+     */
+    @type(CCFloat)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
+    set bias (val: number) {
+        this._bias = val;
+        if (this._resource) { this._resource.bias = val; }
+    }
+    get bias () {
+        return this._bias;
     }
 
     /**
@@ -583,6 +613,7 @@ export class ShadowsInfo {
     public activate (resource: Shadows) {
         this._resource = resource;
         this._resource.type = this._type;
+        this._resource.autoAdapt = this._autoAdapt;
         this._resource.near = this._near;
         this._resource.far = this._far;
         this._resource.aspect = this._aspect;

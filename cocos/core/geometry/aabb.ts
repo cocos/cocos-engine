@@ -6,6 +6,7 @@
 import { Mat3, Mat4, Quat, Vec3 } from '../../core/math';
 import enums from './enums';
 import { IVec3Like } from '../math/type-define';
+import sphere from './sphere';
 
 const _v3_tmp = new Vec3();
 const _v3_tmp2 = new Vec3();
@@ -132,6 +133,33 @@ export default class aabb {
         Vec3.max(_v3_tmp4, _v3_tmp3, _v3_tmp4);
         Vec3.min(_v3_tmp3, _v3_tmp, _v3_tmp2);
         return aabb.fromPoints(out, _v3_tmp3, _v3_tmp4);
+    }
+
+    /**
+     * @en
+     * aabb to sphere
+     * @zh
+     * 包围盒转包围球
+     * @param out 接受操作的 sphere。
+     * @param a 输入的 aabb。
+     */
+    public static toBoundingSphere (out: sphere, a: aabb) {
+        a.getBoundary(_v3_tmp, _v3_tmp2);
+
+        // Initialize sphere
+        out.center.set(_v3_tmp);
+        out.radius = 0.0;
+
+        // Calculate sphere
+        Vec3.subtract(_v3_tmp3, _v3_tmp2, out.center);
+        const dist = _v3_tmp3.length();
+
+        const half = dist * 0.5;
+        out.radius += half;
+        Vec3.multiplyScalar(_v3_tmp3, _v3_tmp3, half / dist);
+        Vec3.add(out.center, out.center, _v3_tmp3);
+
+        return out;
     }
 
     /**

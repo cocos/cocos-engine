@@ -108,10 +108,10 @@ export class Collider extends Eventify(Component) {
      * @en
      * Gets or sets the collider is trigger, this will be always trigger if using builtin.
      * @zh
-     * 获取或设置碰撞器是否为触发器，若使用 builtin ，属性值无论真假 ，此碰撞器都为触发器。
+     * 获取或设置碰撞器是否为触发器。(builtin中无论真假都为触发器)
      */
     @displayOrder(0)
-    @tooltip('是否与其它碰撞器产生碰撞，并产生物理行为')
+    @tooltip('是否为触发器，触发器不会产生物理反馈')
     public get isTrigger () {
         return this._isTrigger;
     }

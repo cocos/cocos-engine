@@ -3,7 +3,7 @@
  * @hidden
  */
 
-import { intersect, sphere } from '../../geometry';
+import { aabb, intersect } from '../../geometry';
 import { Model } from '../../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Layers } from '../../scene-graph/layers';
@@ -19,6 +19,10 @@ const _tempVec3 = new Vec3();
 const _dir_negate = new Vec3();
 const _vec3_p = new Vec3();
 const _mat4_trans = new Mat4();
+const _castWorldBounds = new aabb();
+const _receiveWorldBounds = new aabb();
+let _castBoundsInited = false;
+let _receiveBoundsInited = false;
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 const shadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
@@ -45,18 +49,6 @@ function getCastShadowRenderObject (model: Model, camera: Camera) {
     ro.model = model;
     ro.depth = depth;
     return ro;
-}
-
-export function getShadowWorldMatrix (pipeline: ForwardPipeline, rotation: Quat, dir: Vec3) {
-    const shadows = pipeline.shadows;
-    Vec3.negate(_dir_negate, dir);
-    const distance: number = Math.sqrt(2) * shadows.sphere.radius;
-    Vec3.multiplyScalar(_vec3_p, _dir_negate, distance);
-    Vec3.add(_vec3_p, _vec3_p, shadows.sphere.center);
-
-    Mat4.fromRT(_mat4_trans, rotation, _vec3_p);
-
-    return _mat4_trans;
 }
 
 function updateSphereLight (pipeline: ForwardPipeline, light: SphereLight) {
@@ -120,16 +112,18 @@ function updateDirLight (pipeline: ForwardPipeline, light: DirectionalLight) {
 export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     const camera = view.camera;
     const scene = camera.scene!;
+    const mainLight = scene.mainLight;
+    const shadows = pipeline.shadows;
+
     const renderObjects = pipeline.renderObjects;
     roPool.freeArray(renderObjects); renderObjects.length = 0;
     const shadowObjects = pipeline.shadowObjects;
     shadowPool.freeArray(shadowObjects); shadowObjects.length = 0;
 
-    const mainLight = scene.mainLight;
-    const shadows = pipeline.shadows;
-    const shadowSphere = shadows.sphere;
-    shadowSphere.center.set(0.0, 0.0, 0.0);
-    shadowSphere.radius = 0.01;
+    // Each time the calculation,
+    // reset the flag.
+    _castBoundsInited = false;
+    _receiveBoundsInited = false;
 
     if (shadows.enabled) {
         Color.toArray(pipeline.shadowUBO, shadows.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
@@ -163,9 +157,23 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                     (view.visibility & model.visFlags)) {
 
                     // shadow render Object
-                    if (model.castShadow) {
-                        sphere.mergeAABB(shadowSphere, shadowSphere, model.worldBounds!);
+                    if (model.castShadow && model.worldBounds) {
+                        if (!_castBoundsInited) {
+                            _castWorldBounds.copy(model.worldBounds);
+                            _castBoundsInited = true;
+                        }
+                        aabb.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
                         shadowObjects.push(getCastShadowRenderObject(model, camera));
+                    }
+
+                    // Even if the obstruction is not in the field of view,
+                    // the shadow is still visible.
+                    if (model.receiveShadow && model.worldBounds) {
+                        if(!_receiveBoundsInited) {
+                            _receiveWorldBounds.copy(model.worldBounds);
+                            _receiveBoundsInited = true;
+                        }
+                        aabb.merge(_receiveWorldBounds, _receiveWorldBounds, model.worldBounds);
                     }
 
                     // frustum culling
@@ -177,5 +185,13 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                 }
             }
         }
+    }
+
+    if (_castWorldBounds) { aabb.toBoundingSphere(shadows.sphere, _castWorldBounds); }
+
+    if (_receiveWorldBounds) { aabb.toBoundingSphere(shadows.receiveSphere, _receiveWorldBounds); }
+
+    if (shadows.type === ShadowType.Planar) {
+        shadows.updateShadowList(scene, camera.frustum, (camera.visibility & Layers.BitMask.DEFAULT) !== 0);
     }
 }
