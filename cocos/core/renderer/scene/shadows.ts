@@ -65,7 +65,7 @@ export const PCFType = Enum({
     FILTER_X25: 3,
 })
 
-const SHADOW_TYPE_NONE = -1;
+const SHADOW_TYPE_NONE = ShadowType.ShadowMap + 1;
 
 export class Shadows {
     /**

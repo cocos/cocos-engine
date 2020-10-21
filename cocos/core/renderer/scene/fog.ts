@@ -47,7 +47,7 @@ export const FogType = Enum({
     LAYERED: 3,
 });
 
-const FOG_TYPE_NONE = -1;
+const FOG_TYPE_NONE = FogType.LAYERED + 1;
 
 export class Fog {
     /**
@@ -93,8 +93,8 @@ export class Fog {
         return FogPool.get(this._handle, FogView.TYPE);
     }
     set type (val: number) {
-        if (this.enabled) this._updatePipeline();
         FogPool.set(this._handle, FogView.TYPE, this.enabled ? val : FOG_TYPE_NONE);
+        if (this.enabled) this._updatePipeline();
     }
 
     /**
@@ -204,7 +204,7 @@ export class Fog {
 
     protected _updatePipeline () {
         const root = legacyCC.director.root
-        const value = this.type + 1;
+        const value = this.enabled ? this.type + 1 : 0;
         const pipeline = root.pipeline;
         if (pipeline.macros.CC_USE_FOG === value) { return; }
         pipeline.macros.CC_USE_FOG = value;
