@@ -165,7 +165,7 @@ float CCGetDirLightShadowFactorX25 () {
     else if (3.0 > pcf && pcf > 2.0) shadowAttenuation = CCGetDirLightShadowFactorX9();                                   \
     else if (2.0 > pcf && pcf > 1.0) shadowAttenuation = CCGetDirLightShadowFactorX5();                                   \
     else shadowAttenuation = CCGetDirLightShadowFactorX1();                                                               \
-    finalColor = finalColor.rgb * shadowAttenuation * 0.0 + finalColor.rgb * (1.0 - shadowAttenuation);                   \
+    finalColor *= 1.0 - shadowAttenuation;                                                                                \
   }                                                                                                                       \
 #pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
 
