@@ -30,14 +30,14 @@ public:
     virtual void setStencilWriteMask(StencilFace face, uint mask) = 0;
     virtual void setStencilCompareMask(StencilFace face, int ref, uint mask) = 0;
     virtual void draw(InputAssembler *ia) = 0;
-    virtual void updateBuffer(Buffer *buff, void *data, uint size, uint offset) = 0;
+    virtual void updateBuffer(Buffer *buff, const void *data, uint size, uint offset) = 0;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) = 0;
     virtual void execute(const CommandBuffer *const *cmdBuffs, uint32_t count) = 0;
 
     CC_INLINE void begin() { begin(nullptr, 0, nullptr); }
     CC_INLINE void begin(RenderPass *renderPass) { begin(renderPass, 0, nullptr); }
     CC_INLINE void begin(RenderPass *renderPass, uint subpass) { begin(renderPass, subpass, nullptr); }
-    CC_INLINE void updateBuffer(Buffer *buff, void *data, uint size) { updateBuffer(buff, data, size, 0); }
+    CC_INLINE void updateBuffer(Buffer *buff, const void *data, uint size) { updateBuffer(buff, data, size, 0); }
     CC_INLINE void execute(const CommandBufferList &cmdBuffs, uint32_t count) { execute(cmdBuffs.data(), count); }
     CC_INLINE void bindDescriptorSet(uint set, DescriptorSet *descriptorSet) { bindDescriptorSet(set, descriptorSet, 0, nullptr); }
     CC_INLINE void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, const vector<uint> &dynamicOffsets) {

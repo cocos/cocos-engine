@@ -237,7 +237,7 @@ void GLES3CommandBuffer::draw(InputAssembler *ia) {
     }
 }
 
-void GLES3CommandBuffer::updateBuffer(Buffer *buff, void *data, uint size, uint offset) {
+void GLES3CommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size, uint offset) {
     if ((_type == CommandBufferType::PRIMARY && !_isInRenderPass) ||
         (_type == CommandBufferType::SECONDARY)) {
 

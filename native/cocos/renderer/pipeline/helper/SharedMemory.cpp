@@ -14,15 +14,15 @@ const se::PoolType Light::type = se::PoolType::LIGHT;
 const se::PoolType Ambient::type = se::PoolType::AMBIENT;
 const se::PoolType Fog::type = se::PoolType::FOG;
 const se::PoolType Skybox::type = se::PoolType::SKYBOX;
-const se::PoolType InstancedAttribute::type = se::PoolType::UNKNOWN;
-const se::PoolType BufferView::type = se::PoolType::UNKNOWN;
-const se::PoolType FlatBuffer::type = se::PoolType::UNKNOWN;
-const se::PoolType RenderingSubMesh::type = se::PoolType::UNKNOWN;
+const se::PoolType InstancedAttributeView::type = se::PoolType::INSTANCED_ATTRIBUTE;
+const se::PoolType FlatBufferView::type = se::PoolType::FLAT_BUFFER;
+const se::PoolType RenderingSubMesh::type = se::PoolType::SUB_MESH;
 const se::PoolType Node::type = se::PoolType::NODE;
 const se::PoolType Root::type = se::PoolType::ROOT;
 const se::PoolType RenderWindow::type = se::PoolType::RENDER_WINDOW;
 const se::PoolType Shadows::type = se::PoolType::SHADOW;
 const se::PoolType Sphere::type = se::PoolType::SPHERE;
+const se::PoolType Material::type = se::PoolType::MATERIAL;
 
 void AABB::getBoundary(cc::Vec3 &minPos, cc::Vec3 &maxPos) const {
     minPos = center - halfExtents;

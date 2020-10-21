@@ -12,6 +12,7 @@ enum class PoolType {
     INPUT_ASSEMBLER,
     PIPELINE_LAYOUT,
     FRAMEBUFFER,
+
     // buffers
     PASS = 100,
     SUB_MODEL,
@@ -29,16 +30,16 @@ enum class PoolType {
     SHADOW,
     LIGHT,
     SPHERE,
-    //    INSTANCED_ATTRIBUTE,
-    //    MAIN_LIGHT,
-    //    RENDER_SUBMESH,
-    //    BUFFER_VIEW,
-    //    FLAT_BUFFER,
+    INSTANCED_ATTRIBUTE,
+    FLAT_BUFFER,
+    SUB_MESH,
 
     // array
     SUB_MODEL_ARRAY = 200,
     MODEL_ARRAY,
     ATTRIBUTE_ARRAY,
+    FLAT_BUFFER_ARRAY,
+    INSTANCED_ATTRIBUTE_ARRAY,
 
     // raw buffer
     RAW_BUFFER = 300,

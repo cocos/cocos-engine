@@ -284,7 +284,7 @@ void CCMTLCommandBuffer::draw(InputAssembler *ia) {
     }
 }
 
-void CCMTLCommandBuffer::updateBuffer(Buffer *buff, void *data, uint size, uint offset) {
+void CCMTLCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size, uint offset) {
     if (!buff) {
         CC_LOG_ERROR("CCMTLCommandBuffer::updateBuffer: buffer is nullptr.");
         return;

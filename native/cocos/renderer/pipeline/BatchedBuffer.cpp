@@ -1,52 +1,222 @@
 #include "BatchedBuffer.h"
 #include "gfx/GFXBuffer.h"
 #include "gfx/GFXDescriptorSet.h"
+#include "gfx/GFXDevice.h"
 #include "gfx/GFXInputAssembler.h"
 #include "helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {
-map<const PassView *, std::shared_ptr<BatchedBuffer>> BatchedBuffer::_buffers;
-std::shared_ptr<BatchedBuffer> &BatchedBuffer::get(const PassView *pass) {
+map<const PassView *, BatchedBuffer *> BatchedBuffer::_buffers;
+BatchedBuffer *BatchedBuffer::get(const PassView *pass) {
     if (_buffers.find(pass) == _buffers.end()) {
-        _buffers[pass] = std::shared_ptr<BatchedBuffer>(CC_NEW(BatchedBuffer(pass)), [](BatchedBuffer *ptr) { CC_SAFE_DELETE(ptr); });
+        _buffers[pass] = CC_NEW(BatchedBuffer(pass));
     }
     return _buffers[pass];
 }
 
-BatchedBuffer::BatchedBuffer(const PassView *pass) {
+BatchedBuffer::BatchedBuffer(const PassView *pass)
+: _pass(pass),
+  _device(gfx::Device::getInstance()) {
 }
 
 BatchedBuffer::~BatchedBuffer() {
-    destroy();
 }
 
 void BatchedBuffer::destroy() {
-    for (auto &batch : _batchedItems) {
+    for (auto &batch : _batches) {
         for (auto vb : batch.vbs) {
             vb->destroy();
         }
-        batch.vbIdx->destroy();
+        
+        for (auto data : batch.vbDatas) {
+            CC_FREE(data);
+        }
+        
+        batch.indexBuffer->destroy();
         batch.ia->destroy();
         batch.ubo->destroy();
+
+        CC_FREE(batch.indexData);
     }
-    _batchedItems.clear();
+    _batches.clear();
 }
 
-void BatchedBuffer::merge(const SubModelView *, uint passIdx, const RenderObject *) {
+void BatchedBuffer::merge(const SubModelView *subModel, uint passIdx, const RenderObject *renderObject) {
+    const auto subMesh = subModel->getSubMesh();
+    const auto flatBuffersID = subMesh->getFlatBufferArrayID();
+    const auto flatBuffersCount = flatBuffersID[0];
+    if (flatBuffersCount == 0) {
+        return;
+    }
+
+    const auto flatBuffer = subMesh->getFlatBuffer(flatBuffersID[1]);
+    auto vbSize = 0;
+    auto indexSize = 0;
+    const auto vbCount = flatBuffer->count;
+    const auto pass = subModel->getPassView(passIdx);
+    const auto shader = subModel->getShader(passIdx);
+    const auto descriptorSet = subModel->getDescriptorSet();
+    bool isBatchExist = false;
+
+    for (auto i = 0; i < _batches.size(); ++i) {
+        auto batch = _batches[i];
+        if (batch.vbs.size() == flatBuffersCount && batch.mergeCount < UBOLocalBatched::BATCHING_COUNT) {
+            isBatchExist = true;
+            for (auto j = 0; j < flatBuffersCount; ++j) {
+                const auto vb = batch.vbs[j];
+                if (vb->getStride() != subMesh->getFlatBuffer(flatBuffersID[j + 1])->stride) {
+                    isBatchExist = false;
+                    break;
+                }
+            }
+
+            if (isBatchExist) {
+                for (auto j = 0; j < flatBuffersCount; ++j) {
+                    const auto flatBuffer = subMesh->getFlatBuffer(flatBuffersID[j + 1]);
+                    auto batchVB = batch.vbs[j];
+                    auto vbData = batch.vbDatas[j];
+                    const auto vbBufSizeOld = batchVB->getSize();
+                    vbSize = (vbCount + batch.vbCount) * flatBuffer->stride;
+                    if (vbSize > vbBufSizeOld) {
+                        uint8_t *vbDataNew = static_cast<uint8_t *>(CC_MALLOC(vbSize));
+                        memcpy(vbDataNew, vbData, vbBufSizeOld);
+                        batchVB->resize(vbSize);
+                        batch.vbDatas[j] = vbDataNew;
+                        CC_FREE(vbData);
+                    }
+
+                    auto size = 0u;
+                    auto offset = batch.vbCount * flatBuffer->stride;
+                    const auto data = flatBuffer->getBuffer(&size);
+                    memcpy(vbData + offset, data, size);
+                }
+
+                auto indexData = batch.indexData;
+                indexSize = (vbCount + batch.vbCount) * sizeof(float);
+                if (indexSize > batch.indexBuffer->getSize()) {
+
+                    batch.indexData = static_cast<float *>(CC_MALLOC(indexSize));
+                    memcpy(batch.indexData, indexData, batch.indexBuffer->getSize());
+                    CC_FREE(indexData);
+                    indexData = batch.indexData;
+                    batch.indexBuffer->resize(indexSize);
+                }
+
+                const auto start = batch.vbCount;
+                const auto end = start + vbCount;
+                const auto mergeCount = batch.mergeCount;
+                if (indexData[start] != mergeCount || indexData[end - 1] != mergeCount) {
+                    for (auto j = start; j < end; j++) {
+                        indexData[j] = mergeCount + 0.1f; // guard against underflow
+                    }
+                }
+
+                // update world matrix
+                const auto offset = UBOLocalBatched::MAT_WORLDS_OFFSET + batch.mergeCount * 16;
+                const auto &worldMatrix = renderObject->model->getTransform()->worldMatrix;
+                memcpy(batch.uboData.data() + offset, worldMatrix.m, sizeof(worldMatrix));
+
+                if (!batch.mergeCount) {
+                    descriptorSet->bindBuffer(UBOLocalBatched::BLOCK.layout.binding, batch.ubo);
+                    descriptorSet->update();
+                    batch.pass = pass;
+                    batch.shader = shader;
+                    batch.descriptorSet = descriptorSet;
+                }
+
+                ++batch.mergeCount;
+                batch.vbCount += vbCount;
+                auto prevCount = batch.ia->getVertexCount();
+                batch.ia->setVertexCount(prevCount + vbCount);
+                return;
+            }
+        }
+    }
+
+    // Create a new batch
+    vector<gfx::Buffer *> vbs(flatBuffersCount);
+    vector<uint8_t *> vbDatas(flatBuffersCount);
+    vector<gfx::Buffer *> totalVBs(flatBuffersCount + 1);
+
+    for (auto i = 0; i < flatBuffersCount; ++i) {
+        const auto flatBuffer = subMesh->getFlatBuffer(flatBuffersID[i + 1]);
+        auto newVB = _device->createBuffer({
+            .usage = gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
+            .memUsage = gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
+            .size = flatBuffer->count * flatBuffer->stride,
+            .stride = flatBuffer->stride,
+        });
+        auto size = 0u;
+        auto data = flatBuffer->getBuffer(&size);
+        newVB->update(data, 0, size);
+
+        vbs[i] = newVB;
+        vbDatas[i] = static_cast<uint8_t *>(CC_MALLOC(newVB->getSize()));
+        totalVBs[i] = newVB;
+    }
+
+    const auto indexBufferSize = vbCount * sizeof(float);
+    auto indexBuffer = _device->createBuffer({
+        .usage = gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
+        .memUsage = gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
+        .size = static_cast<uint>(indexBufferSize),
+        .stride = sizeof(float),
+    });
+    float *indexData = static_cast<float *>(CC_MALLOC(indexBufferSize));
+    memset(indexData, 0, indexBufferSize);
+    indexBuffer->update(indexData, 0, indexBufferSize);
+    totalVBs[flatBuffersCount] = indexBuffer;
+
+    vector<gfx::Attribute> attributes = subModel->getInputAssembler()->getAttributes();
+    gfx::Attribute attrib = {
+        .name = "a_dyn_batch_id",
+        .format = gfx::Format::R32F,
+        .isNormalized = false,
+        .stream = flatBuffersCount,
+    };
+    attributes.emplace_back(std::move(attrib));
+
+    auto ia = _device->createInputAssembler({.attributes = std::move(attributes),
+                                             .vertexBuffers = std::move(totalVBs)});
+
+    auto ubo = _device->createBuffer({
+        .usage = gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
+        .memUsage = gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
+        .size = UBOLocalBatched::SIZE,
+        .stride = UBOLocalBatched::SIZE,
+    });
+
+    descriptorSet->bindBuffer(UBOLocalBatched::BLOCK.layout.binding, ubo);
+    descriptorSet->update();
+
+    std::array<float, UBOLocalBatched::COUNT> uboData;
+    const auto &worldMatrix = renderObject->model->getTransform()->worldMatrix;
+    memcpy(uboData.data() + UBOLocalBatched::MAT_WORLDS_OFFSET, worldMatrix.m, sizeof(worldMatrix));
+    BatchedItem item = {
+        .vbs = std::move(vbs),
+        .vbDatas = std::move(vbDatas),
+        .indexBuffer = indexBuffer,
+        .indexData = static_cast<float *>(indexData),
+        .vbCount = vbCount,
+        .mergeCount = 1,
+        .ia = ia,
+        .ubo = ubo,
+        .uboData = std::move(uboData),
+        .descriptorSet = descriptorSet,
+        .pass = pass,
+        .shader = shader,
+    };
+    _batches.emplace_back(std::move(item));
 }
 
 void BatchedBuffer::clear() {
-    for (auto &batch : _batchedItems) {
+    for (auto &batch : _batches) {
         batch.vbCount = 0;
         batch.mergeCount = 0;
         batch.ia->setVertexCount(0);
     }
 }
 
-void BatchedBuffer::clearUBO() {
-    for (auto &batch : _batchedItems) {
-    }
-}
 } // namespace pipeline
 } // namespace cc

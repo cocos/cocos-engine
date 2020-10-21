@@ -114,11 +114,11 @@ void ForwardStage::render(RenderView *view) {
                 if (pass->getBatchingScheme() == BatchingSchemes::INSTANCING) {
                     auto instancedBuffer = InstancedBuffer::get(subModel->getPassID(p));
                     instancedBuffer->merge(model, subModel, p);
-                    _instancedQueue->getQueue().emplace(instancedBuffer);
+                    _instancedQueue->push(instancedBuffer);
                 } else if (pass->getBatchingScheme() == BatchingSchemes::VB_MERGING) {
                     auto batchedBuffer = BatchedBuffer::get(pass);
                     batchedBuffer->merge(subModel, p, &ro);
-                    _batchedQueue->getQueue().emplace(batchedBuffer);
+                    _batchedQueue->push(batchedBuffer);
                 } else {
                     for (k = 0; k < _renderQueues.size(); k++) {
                         _renderQueues[k]->insertRenderPass(ro, m, p);

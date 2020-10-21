@@ -15,8 +15,7 @@ public:
     void clear();
     void uploadBuffers(gfx::CommandBuffer *cmdBuff);
     void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *);
-
-    CC_INLINE set<InstancedBuffer *> &getQueue() { return _queues; }
+    void push(InstancedBuffer *instancedBuffer);
 
 private:
     set<InstancedBuffer *> _queues;

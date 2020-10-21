@@ -17,15 +17,16 @@ void RenderBatchedQueue::clear() {
 
 void RenderBatchedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuff) {
     for (auto batchedBuffer : _queues) {
-        const auto &batches = batchedBuffer->getBatches();
-        for (const auto &batch : batches) {
+        auto &batches = batchedBuffer->getBatches();
+        for (auto &batch : batches) {
             if (!batch.mergeCount) continue;
-            for (size_t i = 0; i < batch.vbs.size(); i++) {
-                auto buffer = batch.vbs[i];
-                cmdBuff->updateBuffer(buffer, batch.vbDatas[i].get(), buffer->getSize());
+
+            auto i = 0u;
+            for (auto vb : batch.vbs) {
+                cmdBuff->updateBuffer(vb, batch.vbDatas[i++], vb->getSize());
             }
-            cmdBuff->updateBuffer(batch.vbIdx, batch.vbIndexData.get(), batch.vbIdx->getSize());
-            cmdBuff->updateBuffer(batch.ubo, batch.uboData, batch.ubo->getSize());
+            cmdBuff->updateBuffer(batch.indexBuffer, batch.indexData, batch.indexBuffer->getSize());
+            cmdBuff->updateBuffer(batch.ubo, batch.uboData.data(), batch.ubo->getSize());
         }
     }
 }
@@ -36,17 +37,22 @@ void RenderBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPas
         const auto &batches = batchedBuffer->getBatches();
         for (const auto &batch : batches) {
             if (!batch.mergeCount) continue;
-            auto pso = PipelineStateManager::getOrCreatePipelineState(batch.pass, batch.shader, batch.ia, renderPass);
             if (!boundPSO) {
+                auto pso = PipelineStateManager::getOrCreatePipelineState(batch.pass, batch.shader, batch.ia, renderPass);
                 cmdBuff->bindPipelineState(pso);
+                cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::MATERIAL), batch.pass->getDescriptorSet());
                 boundPSO = true;
             }
-            cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::MATERIAL), batch.pass->getDescriptorSet());
+
             cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::LOCAL), batch.descriptorSet);
             cmdBuff->bindInputAssembler(batch.ia);
             cmdBuff->draw(batch.ia);
         }
     }
+}
+
+void RenderBatchedQueue::push(BatchedBuffer *batchedBuffer) {
+    _queues.emplace(batchedBuffer);
 }
 
 } // namespace pipeline

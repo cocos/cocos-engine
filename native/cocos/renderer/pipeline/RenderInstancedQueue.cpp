@@ -47,5 +47,9 @@ void RenderInstancedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderP
     }
 }
 
+void RenderInstancedQueue::push(InstancedBuffer *instancedBuffer) {
+    _queues.emplace(instancedBuffer);
+}
+
 } // namespace pipeline
 } // namespace cc
