@@ -2335,6 +2335,7 @@ Widget target must be one of the parent nodes of it
 
 ### 6501
 
+<!-- DEPRECATED -->
 %s's widget target must have UITransform, Please add it in target
 
 ### 6600
