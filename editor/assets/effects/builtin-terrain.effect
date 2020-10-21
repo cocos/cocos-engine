@@ -31,6 +31,12 @@ CCEffect %{
           blendSrcAlpha: zero
           blendDstAlpha: one
       properties: *props
+    - vert: shadow-caster-vs:vert
+      frag: shadow-caster-fs:frag
+      phase: shadow-add
+      propertyIndex: 0
+      rasterizerState:
+        cullMode: back
 }%
 
 CCProgram terrain-vs %{
@@ -38,6 +44,7 @@ CCProgram terrain-vs %{
   #include <cc-global>
   #include <cc-local>
   #include <cc-fog>
+  #include <cc-shadow-map-vs>
 
   in vec3 a_position;
   in vec3 a_normal;
@@ -65,7 +72,7 @@ CCProgram terrain-vs %{
     worldPos.y = cc_matWorld[3][1] + a_position.y;
     worldPos.z = cc_matWorld[3][2] + a_position.z;
 
-    vec4 pos = vec4(worldPos, 1);
+    vec4 pos = vec4(worldPos, 1.0);
     pos = cc_matViewProj * pos;
 
     uvw = a_texCoord;
@@ -79,7 +86,9 @@ CCProgram terrain-vs %{
 
     v_position = worldPos;
     v_normal = a_normal;
-    v_fog_factor = CC_TRANSFER_FOG(vec4(worldPos, 1));
+    v_fog_factor = CC_TRANSFER_FOG(vec4(worldPos, 1.0));
+
+    CCPassShadowParams(vec4(worldPos, 1.0));
 
     return pos;
   }
@@ -160,5 +169,43 @@ CCProgram terrain-fs %{
     vec4 color = CCStandardShading(s);
     color = CC_APPLY_FOG(color, v_fog_factor);
     return CCFragOutput(color);
+  }
+}%
+
+CCProgram shadow-caster-vs %{
+  precision highp float;
+  #include <cc-global>
+  #include <cc-local>
+  #include <cc-shadow>
+
+  in vec3 a_position;
+  in vec3 a_normal;
+  in vec2 a_texCoord;
+
+  out vec2 v_clip_depth;
+
+  vec4 vert () {
+    vec4 worldPos;
+    worldPos.x = cc_matWorld[3][0] + a_position.x;
+    worldPos.y = cc_matWorld[3][1] + a_position.y;
+    worldPos.z = cc_matWorld[3][2] + a_position.z;
+    worldPos.w = 1.0;
+
+    vec4 clipPos = cc_matLightViewProj * worldPos;
+
+    v_clip_depth = clipPos.zw;
+
+    return clipPos;
+  }
+}%
+
+CCProgram shadow-caster-fs %{
+  precision highp float;
+  #include <packing>
+
+  in vec2 v_clip_depth;
+
+  vec4 frag () {
+    return packDepthToRGBA(v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5);
   }
 }%

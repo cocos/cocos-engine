@@ -135,7 +135,7 @@ export const set = (() => {
  * This causes V8 to put the object in "dictionary mode" and disables creation of hidden classes
  * which are very expensive for objects that are constantly changing shape.
  */
-export function createMap (forceDictMode?: boolean) {
+export function createMap (forceDictMode?: boolean): any {
     const map = Object.create(null);
     if (forceDictMode) {
         const INVALID_IDENTIFIER_1 = '.';
@@ -434,9 +434,38 @@ function isTempClassId (id) {
     return typeof id !== 'string' || id.startsWith(tempCIDGenerator.prefix);
 }
 
-// id 注册
-export const _idToClass = {};
-export const _nameToClass = {};
+// id registration
+export const _idToClass: Record<string, Constructor> = createMap(true);
+export const _nameToClass: Record<string, Constructor> = createMap(true);
+
+function setup (tag: string, table: object) {
+    return function (id: string, constructor: Constructor) {
+        // deregister old
+        if (constructor.prototype.hasOwnProperty(tag)) {
+            delete table[constructor.prototype[tag]];
+        }
+        value(constructor.prototype, tag, id);
+        // register class
+        if (id) {
+            const registered = table[id];
+            if (registered && registered !== constructor) {
+                let err = 'A Class already exists with the same ' + tag + ' : "' + id + '".';
+                if (TEST) {
+                    err += ' (This may be caused by error of unit test.) \
+If you dont need serialization, you can set class id to "". You can also call \
+js.unregisterClass to remove the id of unused class';
+                }
+                error(err);
+            }
+            else {
+                table[id] = constructor;
+            }
+            // if (id === "") {
+            //    console.trace("", table === _nameToClass);
+            // }
+        }
+    };
+}
 
 /**
  * Register the class by specified id, if its classname is not defined, the class name will also be set.
@@ -445,61 +474,9 @@ export const _nameToClass = {};
  * @param constructor
  * @private
  */
-export function _setClassId (id, constructor) {
-    const table = _idToClass;
-    // deregister old
-    if (constructor.prototype.hasOwnProperty(classIdTag)) {
-        delete table[constructor.prototype[classIdTag]];
-    }
-    value(constructor.prototype, classIdTag, id);
-    // register class
-    if (id) {
-        const registered = table[id];
-        if (registered && registered !== constructor) {
-            let err = 'A Class already exists with the same ' + classIdTag + ' : "' + id + '".';
-            if (TEST) {
-                err += ' (This may be caused by error of unit test.) \
-If you dont need serialization, you can set class id to "". You can also call \
-js.unregisterClass to remove the id of unused class';
-            }
-            error(err);
-        }
-        else {
-            table[id] = constructor;
-        }
-        // if (id === "") {
-        //    console.trace("", table === _nameToClass);
-        // }
-    }
-}
+export const _setClassId = setup('__cid__', _idToClass);
 
-function doSetClassName (id, constructor) {
-    const table = _nameToClass;
-    // deregister old
-    if (constructor.prototype.hasOwnProperty(classNameTag)) {
-        delete table[constructor.prototype[classNameTag]];
-    }
-    value(constructor.prototype, classNameTag, id);
-    // register class
-    if (id) {
-        const registered = table[id];
-        if (registered && registered !== constructor) {
-            let err = 'A Class already exists with the same ' + classNameTag + ' : "' + id + '".';
-            if (TEST) {
-                err += ' (This may be caused by error of unit test.) \
-If you dont need serialization, you can set class id to "". You can also call \
-js.unregisterClass to remove the id of unused class';
-            }
-            error(err);
-        }
-        else {
-            table[id] = constructor;
-        }
-        // if (id === "") {
-        //    console.trace("", table === _nameToClass);
-        // }
-    }
-}
+const doSetClassName = setup('__classname__', _nameToClass);
 
 /**
  * Register the class by specified name manually
@@ -507,7 +484,7 @@ js.unregisterClass to remove the id of unused class';
  * @param className
  * @param constructor
  */
-export function setClassName (className, constructor) {
+export function setClassName (className: string, constructor: Constructor) {
     doSetClassName(className, constructor);
     // auto set class id
     if (!constructor.prototype.hasOwnProperty(classIdTag)) {
@@ -531,7 +508,7 @@ export function setClassName (className, constructor) {
  * @param target Constructor of target class.
  * @param alias Alias to set. The name shall not have been set as class name or alias of another class.
  */
-export function setClassAlias (target: Function, alias: string) {
+export function setClassAlias (target: Constructor, alias: string) {
     const nameRegistry = _nameToClass[alias];
     const idRegistry = _idToClass[alias];
     let ok = true;
