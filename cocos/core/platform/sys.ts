@@ -54,7 +54,7 @@ enum NetworkType {
      * @zh 通过蜂窝移动网络连接因特网
      */
     WWAN
-};
+}
 
 /**
  * @en A set of system related variables
@@ -335,7 +335,90 @@ export const sys: { [x: string]: any; } = {
      * @default 105
      */
     QQ_PLAY: 105,
-
+    /**
+     * @property {Number} FB_PLAYABLE_ADS
+     * @readOnly
+     * @default 106
+     */
+    FB_PLAYABLE_ADS: 106,
+    /**
+     * @property {Number} BAIDU_GAME
+     * @readOnly
+     * @default 107
+     */
+    BAIDU_GAME: 107,
+    /**
+     * @property {Number} VIVO_GAME
+     * @readOnly
+     * @default 108
+     */
+    VIVO_GAME: 108,
+    /**
+     * @property {Number} OPPO_GAME
+     * @readOnly
+     * @default 109
+     */
+    OPPO_GAME: 109,
+    /**
+     * @property {Number} HUAWEI_GAME
+     * @readOnly
+     * @default 110
+     */
+    HUAWEI_GAME: 110,
+    /**
+     * @property {Number} XIAOMI_GAME
+     * @readOnly
+     * @default 111
+     */
+    XIAOMI_GAME: 111,
+    /**
+     * @property {Number} JKW_GAME
+     * @readOnly
+     * @default 112
+     */
+    JKW_GAME: 112,
+    /**
+     * @property {Number} ALIPAY_GAME
+     * @readOnly
+     * @default 113
+     */
+    ALIPAY_GAME: 113,
+    /**
+     * @property {Number} WECHAT_GAME_SUB
+     * @readOnly
+     * @default 114
+     */
+    WECHAT_GAME_SUB: 114,
+    /**
+     * @property {Number} BAIDU_GAME_SUB
+     * @readOnly
+     * @default 115
+     */
+    BAIDU_GAME_SUB: 115,
+    /**
+     * @property {Number} QTT_GAME
+     * @readOnly
+     * @default 116
+     */
+    QTT_GAME: 116,
+    /**
+     * @property {Number} BYTEDANCE_GAME
+     * @readOnly
+     * @default 117
+     */
+    BYTEDANCE_GAME: 117,
+    /**
+     * @property {Number} BYTEDANCE_GAME_SUB
+     * @readOnly
+     * @default 118
+     */
+    BYTEDANCE_GAME_SUB: 118,
+    /**
+     * @property {Number} LINKSURE
+     * @readOnly
+     * @default 119
+     */
+    LINKSURE: 119,
     /**
      * @en Browser Type - WeChat inner browser
      * @zh 浏览器类型 - 微信内置浏览器
@@ -536,6 +619,20 @@ export const sys: { [x: string]: any; } = {
      * @default {{sys.LANGUAGE_UNKNOWN}}
      */
     language: 'unknown',
+
+    /**
+     * @en
+     * Get current language iso 639-1 code.
+     * Examples of valid language codes include "zh-tw", "en", "en-us", "fr", "fr-fr", "es-es", etc.
+     * The actual value totally depends on results provided by destination platform.
+     * @zh
+     * 指示当前运行环境的语言
+     * 获取当前的语言iso 639-1代码。
+     * 有效的语言代码包括 "zh-tw"、"en"、"en-us"、"fr"、"fr-fr"、"es-es "等。
+     * 实际值完全取决于目的地平台提供的结果。
+     * @default {{sys.LANGUAGE_UNKNOWN}}
+     */
+    languageCode: 'unknown',
 
     /**
      * @en Indicate the running os name
@@ -762,19 +859,41 @@ if (_global.__globalAdapter && _global.__globalAdapter.adaptSys) {
 //     sys.__audioSupport = {};
 // }
 else if (JSB || RUNTIME_BASED) {
-    // @ts-ignore
-    const platform = sys.platform = __getPlatform();
+    let platform;
+    if (VIVO) {
+        platform = sys.VIVO_GAME;
+    } else if (OPPO) {
+        platform = sys.OPPO_GAME;
+    } else if (HUAWEI) {
+        platform = sys.HUAWEI_GAME;
+    }
+    // TODO JKW Not supported yet, will need to be opened later
+    // } else if (JKW) {
+    //     platform = sys.JKW_GAME;
+    // }
+    else {
+        // @ts-ignore
+        platform = __getPlatform();
+    }
+    sys.platform = platform;
     sys.isMobile = (platform === sys.ANDROID ||
-        platform === sys.IPAD ||
-        platform === sys.IPHONE ||
-        platform === sys.WP8 ||
-        platform === sys.TIZEN ||
-        platform === sys.BLACKBERRY);
+                    platform === sys.IPAD ||
+                    platform === sys.IPHONE ||
+                    platform === sys.WP8 ||
+                    platform === sys.TIZEN ||
+                    platform === sys.BLACKBERRY ||
+                    platform === sys.XIAOMI_GAME ||
+                    platform === sys.VIVO_GAME ||
+                    platform === sys.OPPO_GAME ||
+                    platform === sys.HUAWEI_GAME);
 
     // @ts-ignore
     sys.os = __getOS();
     // @ts-ignore
     sys.language = __getCurrentLanguage();
+    // @ts-ignore
+    let languageCode = JSB && __getCurrentLanguageCode();
+    sys.languageCode = languageCode ? languageCode.toLowerCase() : 'unknown';
     // @ts-ignore
     sys.osVersion = __getOSVersion();
     sys.osMainVersion = parseInt(sys.osVersion);
@@ -835,6 +954,7 @@ else {
     }
 
     let currLanguage = nav.language;
+    sys.languageCode = currLanguage.toLowerCase();
     // @ts-ignore
     currLanguage = currLanguage ? currLanguage : nav.browserLanguage;
     currLanguage = currLanguage ? currLanguage.split('-')[0] : sys.LANGUAGE_ENGLISH;
