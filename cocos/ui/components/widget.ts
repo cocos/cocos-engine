@@ -35,7 +35,7 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponen
 import { Size, Vec3 } from '../../core/math';
 import { errorID, warnID } from '../../core/platform/debug';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
-import { view, View } from '../../core/platform/view';
+import { View } from '../../core/platform/view';
 import visibleRect from '../../core/platform/visible-rect';
 import { Scene } from '../../core/scene-graph';
 import { Node } from '../../core/scene-graph/node';
