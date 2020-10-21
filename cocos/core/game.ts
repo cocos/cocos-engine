@@ -263,6 +263,14 @@ export class Game extends EventTarget {
     public static readonly EVENT_SHOW: string = 'game_on_show';
 
     /**
+     * @en Event triggered when system in low memory status.<br>
+     * This event is only triggered on native iOS/Android platform.
+     * @zh 程序在内存不足时触发的事件。<br>
+     * 该事件只会在 iOS/Android 平台触发。
+     */
+    public static readonly EVENT_LOW_MEMORY: string = 'game_on_low_memory';
+
+    /**
      * @en Event triggered after game inited, at this point all engine objects and game scripts are loaded
      * @zh 游戏启动后的触发事件，此时加载所有的引擎对象和游戏脚本。
      */

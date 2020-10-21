@@ -41,3 +41,6 @@ jsb.onResize = function (size) {
     cc.view.setCanvasSize(window.innerWidth, window.innerHeight);
 };
 
+jsb.onMemoryWarning = function () {
+    cc.game.emit(cc.Game.EVENT_LOW_MEMORY);
+}
