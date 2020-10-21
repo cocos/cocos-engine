@@ -26,7 +26,7 @@
 
 import { TextureCube } from '../assets/texture-cube';
 import { ccclass, visible, type, displayOrder, slide, range, rangeStep, editable, serializable, rangeMin } from 'cc.decorator';
-import { CCFloat } from '../data/utils/attribute';
+import { CCFloat, CCBoolean } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
 import { Shadows, ShadowType, PCFType } from '../renderer/scene/shadows';
@@ -487,20 +487,6 @@ export class ShadowsInfo {
     get pcf () {
         return this._pcf;
     }
-
-    /**
-     * @en get or set shadow bias
-     * @zh 获取或者设置阴影偏移量
-     */
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
-    set bias (val: number) {
-        this._bias = val;
-        if (this._resource) {this._resource.bias = val; }
-    }
-    get bias () {
-        return this._bias;
-    }
-
     /**
      * @en get or set shadow Map sampler auto adapt
      * @zh 阴影纹理生成是否自适应

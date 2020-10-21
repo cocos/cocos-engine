@@ -3,7 +3,7 @@
  * @hidden
  */
 
-import { aabb, intersect } from '../../geometry';
+import { aabb, intersect, frustum } from '../../geometry';
 import { Model } from '../../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Layers } from '../../scene-graph/layers';
@@ -12,8 +12,8 @@ import { ForwardPipeline } from './forward-pipeline';
 import { RenderView } from '../';
 import { Pool } from '../../memop';
 import { IRenderObject, UBOShadow } from '../define';
-import { ShadowType } from '../../renderer/scene/shadows';
-import { SphereLight, DirectionalLight} from '../../renderer/scene';
+import { ShadowType, Shadows } from '../../renderer/scene/shadows';
+import { SphereLight, DirectionalLight, RenderScene} from '../../renderer/scene';
 
 const _tempVec3 = new Vec3();
 const _dir_negate = new Vec3();
@@ -49,6 +49,18 @@ function getCastShadowRenderObject (model: Model, camera: Camera) {
     ro.model = model;
     ro.depth = depth;
     return ro;
+}
+
+export function getShadowWorldMatrix (pipeline: ForwardPipeline, rotation: Quat, dir: Vec3) {
+    const shadows = pipeline.shadows;
+    Vec3.negate(_dir_negate, dir);
+    const distance: number = Math.sqrt(2) * shadows.sphere.radius;
+    Vec3.multiplyScalar(_vec3_p, _dir_negate, distance);
+    Vec3.add(_vec3_p, _vec3_p, shadows.sphere.center);
+
+    Mat4.fromRT(_mat4_trans, rotation, _vec3_p);
+
+    return _mat4_trans;
 }
 
 function updateSphereLight (pipeline: ForwardPipeline, light: SphereLight) {
@@ -190,8 +202,4 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     if (_castWorldBounds) { aabb.toBoundingSphere(shadows.sphere, _castWorldBounds); }
 
     if (_receiveWorldBounds) { aabb.toBoundingSphere(shadows.receiveSphere, _receiveWorldBounds); }
-
-    if (shadows.type === ShadowType.Planar) {
-        shadows.updateShadowList(scene, camera.frustum, (camera.visibility & Layers.BitMask.DEFAULT) !== 0);
-    }
 }
