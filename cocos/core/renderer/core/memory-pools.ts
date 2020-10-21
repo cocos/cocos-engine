@@ -540,10 +540,15 @@ enum PoolType {
     SHADOW,
     LIGHT,
     SPHERE,
+    INSTANCED_ATTRIBUTE,
+    FLAT_BUFFER,
+    SUB_MESH,
     // arrays
     SUB_MODEL_ARRAY = 200,
     MODEL_ARRAY,
     ATTRIBUTE_ARRAY,
+    FLAT_BUFFER_ARRAY,
+    INSTANCED_BUFFER_ARRAY,
     // raw buffer
     RAW_BUFFER = 300,
 }
@@ -579,6 +584,9 @@ export type SkyboxHandle = IHandle<PoolType.SKYBOX>;
 export type ShadowsHandle = IHandle<PoolType.SHADOW>;
 export type LightHandle = IHandle<PoolType.LIGHT>;
 export type SphereHandle = IHandle<PoolType.SPHERE>;
+export type SubMeshHandle = IHandle<PoolType.SUB_MESH>;
+export type FlatBufferHandle = IHandle<PoolType.FLAT_BUFFER>;
+export type FlatBufferArrayHandle = IHandle<PoolType.FLAT_BUFFER_ARRAY>;
 
 // don't reuse any of these data-only structs, for GFX objects may directly reference them
 export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, (_: never[]) => new GFXRasterizerState());
@@ -612,6 +620,7 @@ export const FramebufferPool = new ObjectPool(PoolType.FRAMEBUFFER,
 export const SubModelArrayPool = new TypedArrayPool<PoolType.SUB_MODEL_ARRAY, Uint32Array, SubModelHandle>(PoolType.SUB_MODEL_ARRAY, Uint32Array, 8, 4);
 export const ModelArrayPool = new TypedArrayPool<PoolType.MODEL_ARRAY, Uint32Array, ModelHandle>(PoolType.MODEL_ARRAY, Uint32Array, 32, 16);
 export const AttributeArrayPool = new TypedArrayPool<PoolType.ATTRIBUTE_ARRAY, Uint32Array, AttributeHandle>(PoolType.ATTRIBUTE_ARRAY, Uint32Array, 8, 4);
+export const FlatBufferArrayPool = new TypedArrayPool<PoolType.FLAT_BUFFER_ARRAY, Uint32Array, FlatBufferHandle>(PoolType.FLAT_BUFFER_ARRAY, Uint32Array, 8, 4);
 
 export const RawBufferPool = new BufferAllocator(PoolType.RAW_BUFFER);
 
@@ -678,6 +687,7 @@ export enum SubModelView {
     SHADER_3,        // handle
     DESCRIPTOR_SET,  // handle
     INPUT_ASSEMBLER, // handle
+    SUB_MESH,        // handle
     COUNT,
 }
 interface ISubModelViewType extends BufferTypeManifest<typeof SubModelView> {
@@ -693,6 +703,7 @@ interface ISubModelViewType extends BufferTypeManifest<typeof SubModelView> {
     [SubModelView.SHADER_3]: ShaderHandle;
     [SubModelView.DESCRIPTOR_SET]: DescriptorSetHandle;
     [SubModelView.INPUT_ASSEMBLER]: InputAssemblerHandle;
+    [SubModelView.SUB_MESH]: SubMeshHandle;
     [SubModelView.COUNT]: never;
 }
 const subModelViewDataType: BufferDataTypeManifest<typeof SubModelView> = {
@@ -708,6 +719,7 @@ const subModelViewDataType: BufferDataTypeManifest<typeof SubModelView> = {
     [SubModelView.SHADER_3]: BufferDataType.UINT32,
     [SubModelView.DESCRIPTOR_SET]: BufferDataType.UINT32,
     [SubModelView.INPUT_ASSEMBLER]: BufferDataType.UINT32,
+    [SubModelView.SUB_MESH]: BufferDataType.UINT32,
     [SubModelView.COUNT]: BufferDataType.NEVER,
 }
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
@@ -1177,3 +1189,45 @@ const sphereViewDataType: BufferDataTypeManifest<typeof SphereView> = {
 // @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
 if (!JSB) {delete SphereView[SphereView.COUNT]; SphereView[SphereView.COUNT = SphereView.RADIUS + 1] = 'COUNT'; }
 export const SpherePool = new BufferPool<PoolType.SPHERE, typeof SphereView, ISphereViewType>(PoolType.SPHERE, sphereViewDataType, SphereView, 3);
+
+export enum FlatBufferView {
+    STRIDE,
+    AMOUNT,
+    BUFFER, // raw buffer handle
+    COUNT,
+}
+interface IFlatBufferViewType extends BufferTypeManifest<typeof FlatBufferView> {
+    [FlatBufferView.STRIDE]: number;
+    [FlatBufferView.AMOUNT]: number;
+    [FlatBufferView.BUFFER]: RawBufferHandle;
+    [FlatBufferView.COUNT]: never;
+}
+const flatBufferViewDataType: BufferDataTypeManifest<typeof FlatBufferView> = {
+    [FlatBufferView.STRIDE]: BufferDataType.UINT32,
+    [FlatBufferView.AMOUNT]: BufferDataType.UINT32,
+    [FlatBufferView.BUFFER]: BufferDataType.UINT32,
+    [FlatBufferView.COUNT]: BufferDataType.NEVER
+}
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
+export const FlatBufferPool = new BufferPool<PoolType.FLAT_BUFFER, typeof FlatBufferView, IFlatBufferViewType>(PoolType.FLAT_BUFFER, flatBufferViewDataType, FlatBufferView, 3);
+
+export enum SubMeshView {
+    FLAT_BUFFER_ARRAY,    // array handle
+    COUNT,
+}
+interface ISubMeshViewType extends BufferTypeManifest<typeof SubMeshView> {
+    [SubMeshView.FLAT_BUFFER_ARRAY]: FlatBufferArrayHandle;
+    [SubMeshView.COUNT]: never;
+}
+const subMeshViewDataType: BufferDataTypeManifest<typeof SubMeshView> = {
+    [SubMeshView.FLAT_BUFFER_ARRAY]: BufferDataType.UINT32,
+    [SubMeshView.COUNT]: BufferDataType.NEVER,
+}
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
+export const SubMeshPool = new BufferPool<PoolType.SUB_MESH, typeof SubMeshView, ISubMeshViewType>
+    (PoolType.SUB_MESH, subMeshViewDataType, SubMeshView, 3);
+

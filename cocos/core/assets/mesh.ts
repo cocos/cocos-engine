@@ -54,6 +54,7 @@ import { Skeleton } from './skeleton';
 import { postLoadMesh } from './utils/mesh-utils';
 import { Morph, createMorphRendering, MorphRendering } from './morph';
 import { legacyCC } from '../global-exports';
+import { NULL_HANDLE, SubMeshHandle, SubMeshPool } from '../renderer/core/memory-pools';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
@@ -299,6 +300,11 @@ export class RenderingSubMesh {
     private _indirectBuffer: GFXBuffer | null = null;
     private _primitiveMode: GFXPrimitiveMode;
     private _iaInfo: GFXInputAssemblerInfo;
+    private _handle: SubMeshHandle = NULL_HANDLE;
+
+    get handle () {
+        return this._handle;
+    }
 
     constructor (
         vertexBuffers: GFXBuffer[], attributes: GFXAttribute[], primitiveMode: GFXPrimitiveMode,
@@ -310,6 +316,7 @@ export class RenderingSubMesh {
         this._indirectBuffer = indirectBuffer;
         this._primitiveMode = primitiveMode;
         this._iaInfo = new GFXInputAssemblerInfo(attributes, vertexBuffers, indexBuffer, indirectBuffer);
+        this._handle = SubMeshPool.alloc();
     }
 
     public destroy () {
@@ -332,6 +339,8 @@ export class RenderingSubMesh {
             this._indirectBuffer.destroy();
             this._indirectBuffer = null;
         }
+        SubMeshPool.free(this._handle);
+        this._handle = NULL_HANDLE;
     }
 
     /**
