@@ -978,9 +978,11 @@ export class Widget extends Component {
             if (target.getComponent(UITransform)) {
                 target.on(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
                 target.on(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
-            } else {
-                // use visibleRect when the widget target is scene
-                view.on('design-resolution-changed', this._targetChangedOperation, this);
+            } else if (target instanceof Scene) {
+                // ignore
+            }
+            else {
+                warnID(6501, this.node.name);
             }
         }
     }
@@ -988,24 +990,16 @@ export class Widget extends Component {
     protected _unregisterTargetEvents () {
         const target = this._target || this.node.parent;
         if (target) {
-            if (target.getComponent(UITransform)) {
-                target.off(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
-                target.off(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
-            } else {
-                view.off('design-resolution-changed', this._targetChangedOperation, this);
-            }
+            target.off(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
+            target.off(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
         }
     }
 
     protected _unregisterOldParentEvents (oldParent: Node) {
         const target = this._target || oldParent;
         if (target) {
-            if (target.getComponent(UITransform)) {
-                target.off(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
-                target.off(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
-            } else {
-                view.off('design-resolution-changed', this._targetChangedOperation, this);
-            }
+            target.off(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
+            target.off(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
         }
     }
 

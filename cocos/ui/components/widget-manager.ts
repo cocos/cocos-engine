@@ -29,20 +29,18 @@
  * @hidden
  */
 
-import { Canvas } from '../../core/components/ui-base/canvas';
-import { Director, director } from '../../core/director';
-import { Vec2, Vec3 } from '../../core/math';
-import { sys } from '../../core/platform/sys';
-import { View } from '../../core/platform/view';
+import {Director, director} from '../../core/director';
+import {Vec2, Vec3} from '../../core/math';
+import {View} from '../../core/platform/view';
 import visibleRect from '../../core/platform/visible-rect';
-import { Scene } from '../../core/scene-graph';
-import { Node } from '../../core/scene-graph/node';
-import { array } from '../../core/utils/js';
-import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, Widget } from './widget';
-import { UITransform } from '../../core/components/ui-base';
+import {Scene} from '../../core/scene-graph';
+import {Node} from '../../core/scene-graph/node';
+import {array} from '../../core/utils/js';
+import {AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, Widget} from './widget';
+import {UITransform} from '../../core/components/ui-base';
 import { EDITOR, DEV } from 'internal:constants';
-import { legacyCC } from '../../core/global-exports';
-import { warnID } from '../../core/platform/debug';
+import {legacyCC} from '../../core/global-exports';
+import {warnID} from '../../core/platform/debug';
 
 const _tempPos = new Vec3();
 const _defaultAnchor = new Vec2();
@@ -340,8 +338,6 @@ function updateAlignment (node: Node) {
     }
 }
 
-const canvasList: Canvas[] = [];
-
 export const widgetManager = legacyCC._widgetManager = {
     isAligning: false,
     _nodesOrderDirty: false,
@@ -356,27 +352,16 @@ export const widgetManager = legacyCC._widgetManager = {
     init () {
         director.on(Director.EVENT_AFTER_UPDATE, refreshScene);
 
-        if (EDITOR /*&& cc.engine*/) {
-
-            // cc.engien extends eventTarget
-            // cc.engine.on('design-resolution-changed', this.onResized.bind(this));
+        if (EDITOR) {
+            View.instance.on('design-resolution-changed', this.onResized, this);
         } else {
-            if (sys.isMobile) {
-                let thisOnResized = this.onResized.bind(this);
-                window.addEventListener('resize', thisOnResized);
-                window.addEventListener('orientationchange', thisOnResized);
-            } else {
-                View.instance.on('design-resolution-changed', this.onResized, this);
-            }
+            let thisOnResized = this.onResized.bind(this);
+            View.instance.on('canvas-resize', thisOnResized);
+            window.addEventListener('orientationchange', thisOnResized);
         }
     },
     add (widget: Widget) {
         this._nodesOrderDirty = true;
-        const canvasComp = director.root!.ui.getScreen(widget.node._uiProps.uiTransformComp!.visibility);
-        if (canvasComp && canvasList.indexOf(canvasComp) === -1) {
-            canvasList.push(canvasComp);
-            canvasComp.node.on('design-resolution-changed', this.onResized, this);
-        }
     },
     remove (widget: Widget) {
         this._activeWidgetsIterator.remove(widget);
@@ -388,11 +373,12 @@ export const widgetManager = legacyCC._widgetManager = {
         }
     },
     refreshWidgetOnResized (node: Node) {
-        if (Node.isNode(node)) {
-            const widget = node.getComponent(Widget);
-            if (widget && widget.enabled && widget.alignMode === AlignMode.ON_WINDOW_RESIZE) {
-                widget.setDirty();
-            }
+        const widget = Node.isNode(node) && node.getComponent(Widget);
+        if (widget && widget.enabled && (
+            widget.alignMode === AlignMode.ON_WINDOW_RESIZE ||
+            widget.alignMode === AlignMode.ALWAYS
+        )) {
+            widget.setDirty();
         }
 
         const children = node.children;
