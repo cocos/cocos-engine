@@ -16,16 +16,9 @@ import { ShadowType } from '../../renderer/scene/shadows';
 import { SphereLight, DirectionalLight} from '../../renderer/scene';
 
 const _tempVec3 = new Vec3();
-const _forward = new Vec3(0, 0, -1);
-const _v3 = new Vec3();
-const _qt = new Quat();
 const _dir_negate = new Vec3();
 const _vec3_p = new Vec3();
 const _mat4_trans = new Mat4();
-const _data = Float32Array.from([
-    1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, // matLightPlaneProj
-    0.0, 0.0, 0.0, 0.3, // shadowColor
-]);
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 const shadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
@@ -68,15 +61,11 @@ export function getShadowWorldMatrix (pipeline: ForwardPipeline, rotation: Quat,
 
 function updateSphereLight (pipeline: ForwardPipeline, light: SphereLight) {
     const shadows = pipeline.shadows;
-    if (!light.node!.hasChangedFlags && !shadows.dirty) {
-        return;
-    }
 
-    shadows.dirty = false;
-    light.node!.getWorldPosition(_v3);
+    const pos = light.node!.worldPosition;
     const n = shadows.normal; const d = shadows.distance + 0.001; // avoid z-fighting
-    const NdL = Vec3.dot(n, _v3);
-    const lx = _v3.x; const ly = _v3.y; const lz = _v3.z;
+    const NdL = Vec3.dot(n, pos);
+    const lx = pos.x; const ly = pos.y; const lz = pos.z;
     const nx = n.x; const ny = n.y; const nz = n.z;
     const m = shadows.matLight;
     m.m00 = NdL - d - lx * nx;
@@ -96,23 +85,16 @@ function updateSphereLight (pipeline: ForwardPipeline, light: SphereLight) {
     m.m14 = lz * d;
     m.m15 = NdL;
 
-    Mat4.toArray(_data, shadows.matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
-    pipeline.descriptorSet.getBuffer(UBOShadow.BINDING).update(_data);
+    Mat4.toArray(pipeline.shadowUBO, shadows.matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
 }
 
 function updateDirLight (pipeline: ForwardPipeline, light: DirectionalLight) {
     const shadows = pipeline.shadows;
-    if (!light.node!.hasChangedFlags && !shadows.dirty) {
-        return;
-    }
 
-    shadows.dirty = false;
-
-    light.node!.getWorldRotation(_qt);
-    Vec3.transformQuat(_v3, _forward, _qt);
+    const dir = light.direction;
     const n = shadows.normal; const d = shadows.distance + 0.001; // avoid z-fighting
-    const NdL = Vec3.dot(n, _v3); const scale = 1 / NdL;
-    const lx = _v3.x * scale; const ly = _v3.y * scale; const lz = _v3.z * scale;
+    const NdL = Vec3.dot(n, dir); const scale = 1 / NdL;
+    const lx = dir.x * scale; const ly = dir.y * scale; const lz = dir.z * scale;
     const nx = n.x; const ny = n.y; const nz = n.z;
     const m = shadows.matLight;
     m.m00 = 1 - nx * lx;
@@ -132,8 +114,7 @@ function updateDirLight (pipeline: ForwardPipeline, light: DirectionalLight) {
     m.m14 = lz * d;
     m.m15 = 1;
 
-    Mat4.toArray(_data, shadows.matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
-    pipeline.descriptorSet.getBuffer(UBOShadow.BINDING).update(_data);
+    Mat4.toArray(pipeline.shadowUBO, shadows.matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
 }
 
 export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
@@ -150,9 +131,8 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     shadowSphere.center.set(0.0, 0.0, 0.0);
     shadowSphere.radius = 0.01;
 
-    if (shadows.enabled && shadows.dirty) {
-        Color.toArray(_data, shadows.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
-        pipeline.descriptorSet.getBuffer(UBOShadow.BINDING).update(_data);
+    if (shadows.enabled) {
+        Color.toArray(pipeline.shadowUBO, shadows.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
     }
 
     if (mainLight) {

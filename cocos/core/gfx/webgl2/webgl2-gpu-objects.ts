@@ -179,7 +179,6 @@ export interface IWebGL2GPUDescriptorSetLayout {
 export interface IWebGL2GPUPipelineLayout {
     gpuSetLayouts: IWebGL2GPUDescriptorSetLayout[];
     dynamicOffsetCount: number;
-    dynamicOffsetOffsets: number[];
     dynamicOffsetIndices: number[][];
 }
 

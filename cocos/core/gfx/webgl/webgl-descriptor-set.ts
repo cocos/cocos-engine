@@ -16,7 +16,7 @@ export class WebGLDescriptorSet extends GFXDescriptorSet {
     public initialize (info: GFXDescriptorSetInfo): boolean {
 
         this._layout = info.layout;
-        const { bindings, descriptorCount, descriptorIndices } = (info.layout as WebGLDescriptorSetLayout).gpuDescriptorSetLayout;
+        const { bindings, descriptorIndices, descriptorCount } = (info.layout as WebGLDescriptorSetLayout).gpuDescriptorSetLayout;
 
         this._buffers = Array(descriptorCount).fill(null);
         this._textures = Array(descriptorCount).fill(null);

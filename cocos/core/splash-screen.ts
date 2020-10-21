@@ -8,8 +8,8 @@ import { Material } from './assets/material';
 import { clamp01 } from './math/utils';
 import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
 import { sys } from './platform/sys';
-import { 
-    GFXSampler, GFXSamplerInfo, GFXShader, GFXTexture, GFXTextureInfo, GFXDevice, GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute, GFXBuffer, 
+import {
+    GFXSampler, GFXSamplerInfo, GFXShader, GFXTexture, GFXTextureInfo, GFXDevice, GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute, GFXBuffer,
     GFXBufferInfo, GFXRect, GFXColor, GFXBufferTextureCopy, GFXFramebuffer, GFXCommandBuffer } from './gfx';
 import { PipelineStateManager } from './pipeline';
 import { legacyCC } from './global-exports';
@@ -129,7 +129,7 @@ export class SplashScreen {
             // this.setting.clearColor may not an instance of GFXColor, so should create
             // GFXColor manually, or will have problem on native.
             const clearColor = this.setting.clearColor;
-            this.clearColors = [ new GFXColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w) ]; 
+            this.clearColors = [ new GFXColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w) ];
 
             this.screenWidth = this.device.width;
             this.screenHeight = this.device.height;
@@ -155,6 +155,7 @@ export class SplashScreen {
             if (this.callBack) {
                 this.callBack();
                 this.hide();
+                legacyCC.game.resume();
             }
         }
     }
@@ -220,6 +221,7 @@ export class SplashScreen {
 
             requestAnimationFrame(animate);
         };
+        legacyCC.game.pause();
         this.handle = requestAnimationFrame(animate);
     }
 

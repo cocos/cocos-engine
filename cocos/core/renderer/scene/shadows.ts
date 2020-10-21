@@ -75,7 +75,6 @@ export class Shadows {
     }
 
     set enabled (val: boolean) {
-        this.dirty = true;
         ShadowsPool.set(this._handle, ShadowsView.ENABLE, val ? 1 : 0);
         val ? this.activate() : this._updatePipeline();
     }
@@ -90,7 +89,6 @@ export class Shadows {
 
     set normal (val: Vec3) {
         Vec3.copy(this._normal, val);
-        this.dirty = true;
         ShadowsPool.setVec3(this._handle, ShadowsView.NORMAL, this._normal);
     }
 
@@ -103,7 +101,6 @@ export class Shadows {
     }
 
     set distance (val: number) {
-        this.dirty = true;
         ShadowsPool.set(this._handle, ShadowsView.DISTANCE, val);
     }
 
@@ -117,7 +114,6 @@ export class Shadows {
 
     set shadowColor (color: Color) {
         this._shadowColor = color;
-        this.dirty = true;
         ShadowsPool.setVec4(this._handle, ShadowsView.COLOR, color);
     }
 
@@ -130,7 +126,7 @@ export class Shadows {
     }
 
     set type (val: number) {
-        ShadowsPool.set(this._handle, ShadowsView.TYPE, this.enabled ? val : -1);
+        ShadowsPool.set(this._handle, ShadowsView.TYPE, val);
         this._updatePipeline();
         this._updatePlanarInfo();
     }
@@ -224,19 +220,13 @@ export class Shadows {
     public get sphere (): sphere {
         return this._sphere;
     }
-    public get dirty (): boolean {
-        return ShadowsPool.get(this._handle, ShadowsView.DIRTY) as unknown as boolean;
-    }
-    public set dirty (val: boolean) {
-        ShadowsPool.set(this._handle, ShadowsView.DIRTY, val ? 1 : 0);
+
+    public get material (): Material {
+        return this._material!;
     }
 
-    public get material (): Material | null {
-        return this._material;
-    }
-
-    public get instancingMaterial (): Material | null {
-        return this._instancingMaterial;
+    public get instancingMaterial (): Material {
+        return this._instancingMaterial!;
     }
 
     protected _normal = new Vec3(0, 1, 0);
@@ -274,7 +264,6 @@ export class Shadows {
     }
 
     public activate () {
-        this.dirty = true;
         if (this.type === ShadowType.ShadowMap) {
             this._updatePipeline();
         } else {
@@ -296,7 +285,7 @@ export class Shadows {
     }
 
     protected _updatePipeline () {
-        const root = legacyCC.director.root
+        const root = legacyCC.director.root;
         const pipeline = root.pipeline;
         const enable = this.enabled && this.type === ShadowType.ShadowMap;
         if (pipeline.macros.CC_RECEIVE_SHADOW === enable) { return; }
@@ -317,7 +306,7 @@ export class Shadows {
             ShadowsPool.free(this._handle);
             this._handle = NULL_HANDLE;
         }
-        
+
         this._sphere.destroy();
     }
 }

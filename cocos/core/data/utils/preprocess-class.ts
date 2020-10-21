@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -40,13 +40,6 @@ const SerializableAttrs = {
     serializable: {},
     editorOnly: {},
     formerlySerializedAs: {},
-};
-
-const TYPO_TO_CORRECT_DEV = DEV && {
-    extend: 'extends',
-    property: 'properties',
-    static: 'statics',
-    constructor: 'ctor',
 };
 
 /**
@@ -228,50 +221,45 @@ function getBaseClassWherePropertyDefined_DEV (propName, cls) {
 
 // tslint:disable: no-shadowed-variable
 
-export function getFullFormOfProperty (options, propname_dev?, classname_dev?) {
+function _wrapOptions (isGetset: boolean, _default, type?: Function | Function[], isUrlType?: boolean) {
+    let res: {
+        default?: any,
+        _short?: boolean,
+        url?: any,
+        type?: any,
+    } = isGetset ? { _short: true } : { _short: true, default: _default };
+    if (type) {
+        if (isUrlType) {
+            res.url = type;
+        }
+        else {
+            res.type = type;
+        }
+    }
+    return res;
+}
+
+export function getFullFormOfProperty (options, isGetset, propname_dev?, classname_dev?) {
     const isLiteral = options && options.constructor === Object;
     if ( !isLiteral ) {
         if (Array.isArray(options) && options.length > 0) {
-
-            const type = options[0];
-            return {
-                default: [],
-                type: options,
-                _short: true,
-            };
+            return _wrapOptions(isGetset, [], options);
         } else if (typeof options === 'function') {
             const type = options;
-            if (!legacyCC.RawAsset.isRawAssetType(type)) {
-                return {
-                    default: js.isChildClassOf(type, legacyCC.ValueType) ? new type() : null,
-                    type,
-                    _short: true,
-                };
-            }
-            return {
-                default: '',
-                url: type,
-                _short: true,
-            };
+            return _wrapOptions(isGetset, js.isChildClassOf(type, legacyCC.ValueType) ? new type() : null, type);
         } else if (options instanceof PrimitiveType) {
-            return {
-                default: options.default,
-                _short: true,
-            };
+            return _wrapOptions(isGetset, options.default);
         } else {
-            return {
-                default: options,
-                _short: true,
-            };
+            return _wrapOptions(isGetset, options);
         }
     }
     return null;
 }
 
-export function preprocessAttrs (properties, className, cls, es6) {
+export function preprocessAttrs (properties, className, cls) {
     for (const propName in properties) {
         let val = properties[propName];
-        const fullForm = getFullFormOfProperty(val, propName, className);
+        const fullForm = getFullFormOfProperty(val, false, propName, className);
         if (fullForm) {
             val = properties[propName] = fullForm;
         }
@@ -289,12 +277,6 @@ export function preprocessAttrs (properties, className, cls, es6) {
                         errorID(5515, className, propName);
                     }
                 }
-                else if (!val.get && !val.set) {
-                    const maybeTypeScript = es6;
-                    if (!maybeTypeScript) {
-                        errorID(5516, className, propName);
-                    }
-                }
             }
             if (DEV && !val.override && cls.__props__.indexOf(propName) !== -1) {
                 // check override
@@ -303,8 +285,8 @@ export function preprocessAttrs (properties, className, cls, es6) {
             }
             const notify = val.notify;
             if (notify) {
-                if (DEV && es6) {
-                    error('not yet support notify attribute for ES6 Classes');
+                if (DEV) {
+                    error('not yet support notify attributes.');
                 }
                 else {
                     parseNotify(val, propName, notify, properties);
@@ -341,38 +323,4 @@ export function doValidateMethodWithProps_DEV (func, funcName, className, cls, b
         // tslint:disable-next-line: max-line-length
         error(`Overwriting '${funcName}' function in '${className}' class without calling super is not allowed. Call the super function in '${funcName}' please.`);
     }
-}
-
-export function validateMethodWithProps (func, funcName, className, cls, base) {
-    if (DEV && funcName === 'constructor') {
-        errorID(3643, className);
-        return false;
-    }
-    if (typeof func === 'function' || func === null) {
-        if (DEV) {
-            doValidateMethodWithProps_DEV(func, funcName, className, cls, base);
-        }
-    }
-    else {
-        if (DEV) {
-            if (func === false && base && base.prototype) {
-                // check override
-                const overrided = base.prototype[funcName];
-                if (typeof overrided === 'function') {
-                    const baseFuc = js.getClassName(base) + '.' + funcName;
-                    const subFuc = className + '.' + funcName;
-                    warnID(3624, subFuc, baseFuc, subFuc, subFuc);
-                }
-            }
-            const correct = TYPO_TO_CORRECT_DEV[funcName];
-            if (correct) {
-                warnID(3621, className, funcName, correct);
-            }
-            else if (func) {
-                errorID(3622, className, funcName);
-            }
-        }
-        return false;
-    }
-    return true;
 }

@@ -34,20 +34,21 @@ export class RenderInstancedQueue {
         this.queue.clear();
     }
 
+    public uploadBuffers (cmdBuff: GFXCommandBuffer) {
+        const it = this.queue.values(); let res = it.next();
+        while (!res.done) {
+            if (res.value.hasPendingModels) res.value.uploadBuffers(cmdBuff);
+            res = it.next();
+        }
+    }
+
     /**
      * @en Record command buffer for the current queue
      * @zh 记录命令缓冲。
      * @param cmdBuff The command buffer to store the result
      */
     public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
-        // upload buffers
-        let it = this.queue.values(); let res = it.next();
-        while (!res.done) {
-            if (res.value.hasPendingModels) res.value.uploadBuffers();
-            res = it.next();
-        }
-        // draw
-        it = this.queue.values(); res = it.next();
+        const it = this.queue.values(); let res = it.next();
         while (!res.done) {
             const { instances, hPass, hasPendingModels } = res.value;
             if (hasPendingModels) {

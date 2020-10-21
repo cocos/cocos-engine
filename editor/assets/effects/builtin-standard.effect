@@ -23,13 +23,8 @@ CCEffect %{
         metallicRoughnessMap: { value: grey   }
         occlusionMap:   { value: white        }
         emissiveMap:    { value: grey         }
-      migrations: &migs # existing material data migration
-        properties:
-          mainColor:      { formerlySerializedAs: albedo }
-          alphaThreshold: { formerlySerializedAs: albedoScale.w }
-          normalStrenth:  { formerlySerializedAs: pbrScale.w }
-          mainTexture:    { formerlySerializedAs: albedoMap }
-    - vert: standard-vs:vert
+    - &forward-add
+      vert: standard-vs:vert
       frag: standard-fs:frag
       phase: forward-add
       propertyIndex: 0
@@ -46,9 +41,10 @@ CCEffect %{
           blendSrcAlpha: zero
           blendDstAlpha: one
       properties: *props
-    - vert: shadow-caster-vs:vert
+    - &shadow-caster
+      vert: shadow-caster-vs:vert
       frag: shadow-caster-fs:frag
-      phase: shadow-add
+      phase: shadow-caster
       propertyIndex: 0
       rasterizerState:
         cullMode: back
@@ -66,26 +62,8 @@ CCEffect %{
           blendDst: one_minus_src_alpha
           blendDstAlpha: one_minus_src_alpha
       properties: *props
-      migrations: *migs
-    - vert: standard-vs:vert
-      frag: standard-fs:frag
-      phase: forward-add
-      propertyIndex: 0
-      depthStencilState:
-        depthTest: true
-        depthWrite: false
-      blendState:
-        targets:
-        - blend: true
-          blendSrc: one
-          blendDst: one
-      properties: *props
-    - vert: shadow-caster-vs:vert
-      frag: shadow-caster-fs:frag
-      phase: shadow-add
-      propertyIndex: 0
-      rasterizerState:
-        cullMode: back
+    - *forward-add
+    - *shadow-caster
 }%
 
 CCProgram shared-ubos %{

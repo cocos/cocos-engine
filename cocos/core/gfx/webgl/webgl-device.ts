@@ -78,6 +78,10 @@ export class WebGLDevice extends GFXDevice {
         return this._EXT_texture_filter_anisotropic;
     }
 
+    get EXT_blend_minmax () {
+        return this._EXT_blend_minmax;
+    }
+
     get EXT_frag_depth () {
         return this._EXT_frag_depth;
     }
@@ -178,6 +182,7 @@ export class WebGLDevice extends GFXDevice {
 
     private _extensions: string[] | null = null;
     private _EXT_texture_filter_anisotropic: EXT_texture_filter_anisotropic | null = null;
+    private _EXT_blend_minmax: EXT_blend_minmax | null = null;
     private _EXT_frag_depth: EXT_frag_depth | null = null;
     private _EXT_shader_texture_lod: EXT_shader_texture_lod | null = null;
     private _EXT_sRGB: EXT_sRGB | null = null;
@@ -310,6 +315,7 @@ export class WebGLDevice extends GFXDevice {
         }
 
         this._EXT_texture_filter_anisotropic = this.getExtension('EXT_texture_filter_anisotropic');
+        this._EXT_blend_minmax = this.getExtension('EXT_blend_minmax');
         this._EXT_frag_depth = this.getExtension('EXT_frag_depth');
         this._EXT_shader_texture_lod = this.getExtension('EXT_shader_texture_lod');
         this._EXT_sRGB = this.getExtension('EXT_sRGB');
@@ -319,10 +325,6 @@ export class WebGLDevice extends GFXDevice {
         this._WEBGL_compressed_texture_etc1 = this.getExtension('WEBGL_compressed_texture_etc1');
         this._WEBGL_compressed_texture_etc = this.getExtension('WEBGL_compressed_texture_etc');
         this._WEBGL_compressed_texture_pvrtc = this.getExtension('WEBGL_compressed_texture_pvrtc');
-        // protect for iOS 14 browser crash on function:getExtension('WEBGL_compressed_texture_astc')
-        if (sys.os !== sys.OS_IOS || sys.osMainVersion !== 14 || !sys.isBrowser) {
-            this._WEBGL_compressed_texture_astc = this.getExtension('WEBGL_compressed_texture_astc');
-        }
         this._WEBGL_compressed_texture_s3tc = this.getExtension('WEBGL_compressed_texture_s3tc');
         this._WEBGL_compressed_texture_s3tc_srgb = this.getExtension('WEBGL_compressed_texture_s3tc_srgb');
         this._WEBGL_debug_shaders = this.getExtension('WEBGL_debug_shaders');
@@ -339,6 +341,11 @@ export class WebGLDevice extends GFXDevice {
 
         // platform-specific hacks
         {
+            // iOS 14 browsers crash on getExtension('WEBGL_compressed_texture_astc')
+            if (sys.os !== sys.OS_IOS || sys.osMainVersion !== 14 || !sys.isBrowser) {
+                this._WEBGL_compressed_texture_astc = this.getExtension('WEBGL_compressed_texture_astc');
+            }
+
             // UC browser instancing implementation doesn't work
             if (sys.browserType === sys.BROWSER_TYPE_UC) {
                 this._ANGLE_instanced_arrays = null;
@@ -371,6 +378,10 @@ export class WebGLDevice extends GFXDevice {
         }
 
         this._features.fill(false);
+
+        if (this._EXT_blend_minmax) {
+            this._features[GFXFeature.BLEND_MINMAX] = true;
+        }
 
         if (this._WEBGL_color_buffer_float) {
             this._features[GFXFeature.COLOR_FLOAT] = true;
@@ -750,11 +761,11 @@ export class WebGLDevice extends GFXDevice {
         gl.activeTexture(gl.TEXTURE0);
         gl.pixelStorei(gl.PACK_ALIGNMENT, 1);
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-        // rasteriazer state
+        // rasterizer state
         gl.disable(gl.SCISSOR_TEST);
         gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.BACK);

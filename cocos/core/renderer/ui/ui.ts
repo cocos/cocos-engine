@@ -117,8 +117,6 @@ export class UI {
         this._drawBatchPool = new Pool(() => {
             return new UIDrawBatch();
         }, 128);
-
-        legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_DRAW, this.update, this);
     }
 
     public initialize () {
@@ -156,7 +154,6 @@ export class UI {
 
         this._meshBuffers.splice(0);
         legacyCC.director.root.destroyScene(this._scene);
-        legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_DRAW, this.update, this);
     }
 
     public getRenderSceneGetter () {
@@ -289,28 +286,21 @@ export class UI {
         }
     }
 
-    public update (dt: number) {
-        this._renderScreens();
-
-        // update buffers
-        if (this._batches.length > 0) {
-            const buffers = this._meshBuffers;
-            for (let i = 0; i < buffers.length; ++i) {
-                const bufferBatch = buffers[i];
-                bufferBatch.uploadData();
-                bufferBatch.reset();
-            }
-        }
-
-        this.render();
-        this._reset();
-    }
-
     public sortScreens () {
         this._screens.sort(this._screenSort);
     }
 
-    public render () {
+    public update () {
+        const screens = this._screens;
+        for (let i = 0; i < screens.length; ++i) {
+            const screen = screens[i];
+            if (!screen.enabledInHierarchy) {
+                continue;
+            }
+
+            this._currCanvas = screen;
+            this._recursiveScreenNode(screen.node);
+        }
 
         let batchPriority = 0;
 
@@ -358,6 +348,38 @@ export class UI {
                 }
             }
         }
+    }
+
+    public uploadBuffers () {
+        if (this._batches.length > 0) {
+            const buffers = this._meshBuffers;
+            for (let i = 0; i < buffers.length; ++i) {
+                const bufferBatch = buffers[i];
+                bufferBatch.uploadBuffers();
+                bufferBatch.reset();
+            }
+        }
+
+        for (let i = 0; i < this._batches.length; ++i) {
+            const batch = this._batches.array[i];
+            if (batch.isStatic) {
+                continue;
+            }
+
+            batch.clear();
+            this._drawBatchPool.free(batch);
+        }
+
+        this._parentOpacity = 1;
+        this._batches.clear();
+        this._currMaterial = this._emptyMaterial;
+        this._currCanvas = null;
+        this._currTexture = null;
+        this._currSampler = null;
+        this._currComponent = null;
+        this._meshBufferUseCount = 0;
+        this._requireBufferBatch();
+        StencilManager.sharedManager!.reset();
     }
 
     /**
@@ -603,19 +625,6 @@ export class UI {
         level += 1;
     }
 
-    private _renderScreens () {
-        const screens = this._screens;
-        for (let i = 0; i < screens.length; ++i) {
-            const screen = screens[i];
-            if (!screen.enabledInHierarchy) {
-                continue;
-            }
-
-            this._currCanvas = screen;
-            this._recursiveScreenNode(screen.node);
-        }
-    }
-
     private _preprocess (node: Node) {
         if (!node._uiProps.uiTransformComp) {
             return;
@@ -640,29 +649,6 @@ export class UI {
         this._walk(screen);
 
         this.autoMergeBatches(this._currComponent!);
-    }
-
-    private _reset () {
-        for (let i = 0; i < this._batches.length; ++i) {
-            const batch = this._batches.array[i];
-            if (batch.isStatic) {
-                continue;
-            }
-
-            batch.clear();
-            this._drawBatchPool.free(batch);
-        }
-
-        this._parentOpacity = 1;
-        this._batches.clear();
-        this._currMaterial = this._emptyMaterial;
-        this._currCanvas = null;
-        this._currTexture = null;
-        this._currSampler = null;
-        this._currComponent = null;
-        this._meshBufferUseCount = 0;
-        this._requireBufferBatch();
-        StencilManager.sharedManager!.reset();
     }
 
     private _createMeshBuffer (): MeshBuffer {

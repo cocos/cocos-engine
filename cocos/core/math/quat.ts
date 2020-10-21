@@ -531,6 +531,21 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Calculates the quaternion with given 2D angle (0, 0, z).
+     * @zh 根据 2D 角度（0, 0, z）计算四元数
+     *
+     * @param out Output quaternion
+     * @param z Angle to rotate around Z axis in degrees.
+     */
+    public static fromAngleZ<Out extends IQuatLike>(out: Out, z: number) {
+        z *= halfToRad;
+        out.x = out.y = 0;
+        out.z = Math.sin(z);
+        out.w = Math.cos(z);
+        return out;
+    }
+
+    /**
      * @en This returns the X-axis vector of the quaternion
      * @zh 返回定义此四元数的坐标系 X 轴向量
      */

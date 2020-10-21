@@ -152,17 +152,17 @@ export default class sphere {
         return this._center;
     }
 
-    set center (val:Vec3) { 
+    set center (val:Vec3) {
         this._center = val;
         SpherePool.setVec3(this._poolHandle, SphereView.CENTER, this._center);
     }
 
      /**
-     * @en
-     * The radius of this sphere.
-     * @zh
-     * 半径。
-     */
+      * @en
+      * The radius of this sphere.
+      * @zh
+      * 半径。
+      */
     get radius () : number {
         return SpherePool.get(this._poolHandle, SphereView.RADIUS);
     }

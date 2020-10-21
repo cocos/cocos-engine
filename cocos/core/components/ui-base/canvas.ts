@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2019 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -46,6 +46,7 @@ import { UITransform } from './ui-transform';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../../renderer/core/render-window';
+import { SystemEventType } from "../../platform/event-manager";
 
 const _worldPos = new Vec3();
 
@@ -224,18 +225,35 @@ export class Canvas extends Component {
     @type(RenderMode)
     protected _renderMode = RenderMode.OVERLAY;
 
-    protected _thisOnResized: () => void;
+    protected _thisOnCameraResized: () => void;
+    protected _fitDesignResolution: (() => void) | undefined;
 
     protected _camera: scene.Camera | null = null;
     private _pos = new Vec3();
 
     constructor () {
         super();
-        this._thisOnResized = this.alignWithScreen.bind(this);
-        // // TODO:maybe remove when multiple scene
-        // if (!Canvas.instance){
-        //     Canvas.instance = this;
-        // }
+        this._thisOnCameraResized = this._onResizeCamera.bind(this);
+
+        if (EDITOR) {
+            this._fitDesignResolution = () => {
+                let nodeSize, designSize;
+                this.node.getPosition(this._pos);
+                nodeSize = designSize = view.getDesignResolutionSize();
+                Vec3.set(_worldPos, designSize.width * 0.5, designSize.height * 0.5, 1);
+
+                if (!this._pos.equals(_worldPos)) {
+                    this.node.setPosition(_worldPos);
+                }
+                const trans = this.node._uiProps.uiTransformComp!;
+                if (trans.width !== nodeSize.width) {
+                    trans.width = nodeSize.width;
+                }
+                if (trans.height !== nodeSize.height) {
+                    trans.height = nodeSize.height;
+                }
+            };
+        }
     }
 
     public __preload () {
@@ -262,7 +280,7 @@ export class Canvas extends Component {
         }
 
         if (EDITOR) {
-            director.on(Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
+            director.on(Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
 
             // In Editor can not edit these attrs.
             // (Position in Node, contentSize in uiTransform)
@@ -270,10 +288,7 @@ export class Canvas extends Component {
             this._objFlags |= legacyCC.Object.Flags.IsPositionLocked | legacyCC.Object.Flags.IsSizeLocked | legacyCC.Object.Flags.IsAnchorLocked;
         }
 
-        view.on('design-resolution-changed', this._thisOnResized);
-
-        // this.applySettings();
-        this.alignWithScreen();
+        this.node.on(SystemEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
 
         director.root!.ui.addScreen(this);
     }
@@ -297,78 +312,29 @@ export class Canvas extends Component {
         }
 
         if (EDITOR) {
-            director.off(Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
+            director.off(Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
         }
 
         if (this._targetTexture) {
             this._targetTexture.off('resize');
         }
 
-        view.off('design-resolution-changed', this._thisOnResized);
-        // if (Canvas.instance === this) {
-        //     Canvas.instance = null;
-        // }
+        this.node.off(SystemEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
     }
 
-    /**
-     * @en
-     * Screen alignment.
-     *
-     * @zh
-     * 屏幕对齐。
-     */
-    public alignWithScreen () {
-        let nodeSize;
-        let designSize;
-        this.node.getPosition(this._pos);
-        const visibleSize = visibleRect;
-        if (EDITOR) {
-            // nodeSize = designSize = cc.engine.getDesignResolutionSize();
-            nodeSize = designSize = view.getDesignResolutionSize();
-            Vec3.set(_worldPos, designSize.width * 0.5, designSize.height * 0.5, 1);
-        } else {
-            nodeSize = visibleSize;
-            designSize = view.getDesignResolutionSize();
-            const policy = view.getResolutionPolicy();
-            // const clipTopRight = !this.fitHeight && !this.fitWidth;
-            const clipTopRight = policy === legacyCC.view._rpNoBorder;
-            let offsetX = 0;
-            let offsetY = 0;
-            if (clipTopRight) {
-                // offset the canvas to make it in the center of screen
-                offsetX = (designSize.width - visibleSize.width) * 0.5;
-                offsetY = (designSize.height - visibleSize.height) * 0.5;
-            }
-
-            Vec3.set(_worldPos, visibleSize.width * 0.5 + offsetX, visibleSize.height * 0.5 + offsetY, 0);
-        }
-
-        if (!this._pos.equals(_worldPos)) {
-            this.node.setPosition(_worldPos);
-        }
-
-        const trans = this.node._uiProps.uiTransformComp!;
-        if (trans.width !== nodeSize.width) {
-            trans.width = nodeSize.width;
-        }
-
-        if (trans.height !== nodeSize.height) {
-            trans.height = nodeSize.height;
-        }
-
-        this.node.getWorldPosition(_worldPos);
+    protected _onResizeCamera () {
         const camera = this._camera;
         if (camera) {
             if (this._targetTexture) {
                 let win = this._targetTexture.window;
                 camera.setFixedSize(win!.width, win!.height);
-                camera.orthoHeight = visibleSize.height / 2;
+                camera.orthoHeight = visibleRect.height / 2;
             } else {
                 const size = game.canvas!;
                 camera.resize(size.width, size.height);
                 camera.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
             }
-
+            this.node.getWorldPosition(_worldPos);
             camera.node.setPosition(_worldPos.x, _worldPos.y, 1000);
             camera.update();
         }

@@ -35,8 +35,7 @@ export class UIDrawBatch {
         const root = legacyCC.director.root;
 
         const programName = EffectAsset.get('builtin-sprite')!.shaders[0].name;
-        programLib.getGFXShader(root.device, programName, { USE_TEXTURE: true }, root.pipeline);
-        _dsInfo.layout = programLib.getPipelineLayout(programName).setLayouts[SetIndex.LOCAL];
+        _dsInfo.layout = programLib.getDescriptorSetLayout(root.device, programName, true);
         this.hDescriptorSet = DSPool.alloc(root.device, _dsInfo);
     }
 
