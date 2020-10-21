@@ -9,6 +9,7 @@ import { PhysXBoxShape } from './shapes/physx-box-shape';
 import { PhysXCapsuleShape } from './shapes/physx-capsule-shape';
 import { PhysXPlaneShape } from './shapes/physx-plane-shape';
 import { PhysXTrimeshShape } from './shapes/physx-trimesh-shape';
+import { PhysXTerrainShape } from './shapes/physx-terrain-shape';
 
 import { USE_BYTEDANCE } from './export-physx';
 
@@ -25,7 +26,7 @@ select('physx', {
     TrimeshShape: PhysXTrimeshShape,
     // CylinderShape: PhysXCylinderShape,
     // ConeShape: PhysXConeShape,
-    // TerrainShape: PhysXTerrainShape,
+    TerrainShape: PhysXTerrainShape,
     // SimplexShape: PhysXSimplexShape,
     PlaneShape: PhysXPlaneShape,
 

@@ -13,6 +13,7 @@ if (PX) {
     PX.IMPL_PTR = {};
     PX.MESH_CONVEX = {};
     PX.MESH_STATIC = {};
+    PX.TERRAIN_STATIC = {};
 }
 
 export const _trans = {
