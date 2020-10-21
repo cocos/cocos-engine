@@ -37,33 +37,17 @@ export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
                     const cooking = wrappedWorld.cooking;
                     const posBuf = v.readAttribute(0, GFXAttributeName.ATTR_POSITION)!;
                     const l = posBuf.length;
-                    const ptr = PX._malloc(4 * l);
-                    let offset = 0;
+                    const vArr = new PX.PxVec3Vector();
                     for (let i = 0; i < l; i += 3) {
-                        PX.HEAPF32[ptr + offset >> 2] = posBuf[i];
-                        offset += 4;
-                        PX.HEAPF32[ptr + offset >> 2] = posBuf[i + 1];
-                        offset += 4;
-                        PX.HEAPF32[ptr + offset >> 2] = posBuf[i + 2];
-                        offset += 4;
+                        vArr.push_back({ x: posBuf[i], y: posBuf[i + 1], z: posBuf[i + 2] });
                     }
-
-                    const indicesBuf = v.readIndices(0)!;
-                    const l2 = indicesBuf.length;
-                    const ptr2 = PhysX._malloc(2 * l2 * 3);
-                    let offset2 = 0;
+                    const indBuf = v.readIndices(0)!;
+                    const l2 = indBuf.length;
+                    const iArr = new PX.PxU16Vector();
                     for (let i = 0; i < l2; i += 3) {
-                        PX.HEAPU16[ptr2 + offset2 >> 2] = indicesBuf[i];
-                        offset2 += 2;
-                        PX.HEAPU16[ptr2 + offset2 >> 2] = indicesBuf[i + 1];
-                        offset2 += 2;
-                        PX.HEAPU16[ptr2 + offset2 >> 2] = indicesBuf[i + 2];
-                        offset2 += 2;
+                        iArr.push_back(indBuf[i]); iArr.push_back(indBuf[i + 1]); iArr.push_back(indBuf[i + 2]);
                     }
-
-                    PX.MESH_STATIC[v._uuid] = cooking.createTriMesh(ptr, l / 3, ptr2, l2 / 3, true, physics);
-                    PX._free(ptr)
-                    PX._free(ptr2)
+                    PX.MESH_STATIC[v._uuid] = cooking.createTriMeshExt(vArr, iArr, physics);
                 }
                 const trimesh = PX.MESH_STATIC[v._uuid];
                 const geometry = new PX.PxTriangleMeshGeometry(trimesh, meshScale, new PX.PxMeshGeometryFlags(0))
