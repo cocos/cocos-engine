@@ -348,17 +348,17 @@ export const sys: { [x: string]: any; } = {
      */
     BAIDU_MINI_GAME: 107,
     /**
-     * @property {Number} VIVO_MINI_GAME
+     * @property {Number} VIVO_QUICK_GAME
      * @readOnly
      * @default 108
      */
-    VIVO_MINI_GAME: 108,
+    VIVO_QUICK_GAME: 108,
     /**
-     * @property {Number} OPPO_MINI_GAME
+     * @property {Number} OPPO_QUICK_GAME
      * @readOnly
      * @default 109
      */
-    OPPO_MINI_GAME: 109,
+    OPPO_QUICK_GAME: 109,
     /**
      * @property {Number} HUAWEI_QUICK_GAME
      * @readOnly
@@ -384,18 +384,6 @@ export const sys: { [x: string]: any; } = {
      */
     ALIPAY_MINI_GAME: 113,
     /**
-     * @property {Number} WECHAT_GAME_SUB
-     * @readOnly
-     * @default 114
-     */
-    WECHAT_GAME_SUB: 114,
-    /**
-     * @property {Number} BAIDU_GAME_SUB
-     * @readOnly
-     * @default 115
-     */
-    BAIDU_GAME_SUB: 115,
-    /**
      * @property {Number} QTT_GAME
      * @readOnly
      * @default 116
@@ -407,12 +395,6 @@ export const sys: { [x: string]: any; } = {
      * @default 117
      */
     BYTEDANCE_MINI_GAME: 117,
-    /**
-     * @property {Number} BYTEDANCE_MINI_GAME_SUB
-     * @readOnly
-     * @default 118
-     */
-    BYTEDANCE_MINI_GAME_SUB: 118,
     /**
      * @property {Number} LINKSURE
      * @readOnly
@@ -861,9 +843,9 @@ if (_global.__globalAdapter && _global.__globalAdapter.adaptSys) {
 else if (JSB || RUNTIME_BASED) {
     let platform;
     if (VIVO) {
-        platform = sys.VIVO_MINI_GAME;
+        platform = sys.VIVO_QUICK_GAME;
     } else if (OPPO) {
-        platform = sys.OPPO_MINI_GAME;
+        platform = sys.OPPO_QUICK_GAME;
     } else if (HUAWEI) {
         platform = sys.HUAWEI_QUICK_GAME;
     } else if (COCOSPLAY) {
@@ -881,8 +863,8 @@ else if (JSB || RUNTIME_BASED) {
                     platform === sys.TIZEN ||
                     platform === sys.BLACKBERRY ||
                     platform === sys.XIAOMI_QUICK_GAME ||
-                    platform === sys.VIVO_MINI_GAME ||
-                    platform === sys.OPPO_MINI_GAME ||
+                    platform === sys.VIVO_QUICK_GAME ||
+                    platform === sys.OPPO_QUICK_GAME ||
                     platform === sys.HUAWEI_QUICK_GAME ||
                     platform === sys.COCOSPLAY);
 
