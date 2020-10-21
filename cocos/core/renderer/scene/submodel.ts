@@ -1,7 +1,7 @@
 import { RenderingSubMesh } from '../../assets/mesh';
 import { RenderPriority, SetIndex } from '../../pipeline/define';
 import { IMacroPatch, Pass } from '../core/pass';
-import { DSPool, IAPool, SubModelPool, SubModelView, SubModelHandle, NULL_HANDLE } from '../core/memory-pools';
+import { DSPool, IAPool, SubModelPool, SubModelView, SubModelHandle, NULL_HANDLE, SubMeshPool } from '../core/memory-pools';
 import { GFXDescriptorSet, GFXDescriptorSetInfo, GFXDevice, GFXInputAssembler } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 
@@ -39,6 +39,7 @@ export class SubModel {
         this._subMesh = subMesh;
         this._inputAssembler!.destroy();
         this._inputAssembler!.initialize(subMesh.iaInfo);
+        SubModelPool.set(this._handle, SubModelView.SUB_MESH, subMesh.handle);
     }
 
     get subMesh () {
@@ -83,6 +84,8 @@ export class SubModel {
         _dsInfo.layout = passes[0].localSetLayout;
         const dsHandle = DSPool.alloc(this._device, _dsInfo);
         const iaHandle = IAPool.alloc(this._device, subMesh.iaInfo);
+        const subMeshHandle = SubMeshPool.alloc();
+        SubModelPool.set(this._handle, SubModelView.SUB_MESH, subMeshHandle);
         SubModelPool.set(this._handle, SubModelView.PRIORITY, RenderPriority.DEFAULT);
         SubModelPool.set(this._handle, SubModelView.INPUT_ASSEMBLER, iaHandle);
         SubModelPool.set(this._handle, SubModelView.DESCRIPTOR_SET, dsHandle);
@@ -94,6 +97,7 @@ export class SubModel {
     public destroy () {
         DSPool.free(SubModelPool.get(this._handle, SubModelView.DESCRIPTOR_SET));
         IAPool.free(SubModelPool.get(this._handle, SubModelView.INPUT_ASSEMBLER));
+        SubMeshPool.free(SubModelPool.get(this._handle, SubModelView.SUB_MESH));
         SubModelPool.free(this._handle);
 
         this._descriptorSet = null;
