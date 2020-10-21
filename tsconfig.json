@@ -33,6 +33,7 @@
     },
     "include": [
         "exports/**/*.ts",
+        "editor/exports/**/*.ts",
         "index.ts"
     ],
     "exclude": [
