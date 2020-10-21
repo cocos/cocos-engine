@@ -404,16 +404,8 @@ export const widgetManager = legacyCC._widgetManager = {
                 return;
             }
 
-            const useGlobal = widgetParent instanceof Scene || !widgetParent._uiProps.uiTransformComp;
-            let parentAP = _defaultAnchor;
-            if (!useGlobal) {
-                const parentTrans = widgetParent._uiProps.uiTransformComp;
-                if (!parentTrans) {
-                    warnID(6501, widget.node.name);
-                    return;
-                }
-                parentAP = parentTrans.anchorPoint;
-            }
+            const parentTrans = widgetParent._uiProps.uiTransformComp;
+            const parentAP = parentTrans ? parentTrans.anchorPoint : _defaultAnchor;
             const trans = widgetNode._uiProps.uiTransformComp!;
             const matchSize = getReadonlyNodeSize(widgetParent!);
             const myAP = trans.anchorPoint;
