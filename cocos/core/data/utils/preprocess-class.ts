@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -221,41 +221,36 @@ function getBaseClassWherePropertyDefined_DEV (propName, cls) {
 
 // tslint:disable: no-shadowed-variable
 
-export function getFullFormOfProperty (options, propname_dev?, classname_dev?) {
+function _wrapOptions (isGetset: boolean, _default, type?: Function | Function[], isUrlType?: boolean) {
+    let res: {
+        default?: any,
+        _short?: boolean,
+        url?: any,
+        type?: any,
+    } = isGetset ? { _short: true } : { _short: true, default: _default };
+    if (type) {
+        if (isUrlType) {
+            res.url = type;
+        }
+        else {
+            res.type = type;
+        }
+    }
+    return res;
+}
+
+export function getFullFormOfProperty (options, isGetset, propname_dev?, classname_dev?) {
     const isLiteral = options && options.constructor === Object;
     if ( !isLiteral ) {
         if (Array.isArray(options) && options.length > 0) {
-
-            const type = options[0];
-            return {
-                default: [],
-                type: options,
-                _short: true,
-            };
+            return _wrapOptions(isGetset, [], options);
         } else if (typeof options === 'function') {
             const type = options;
-            if (!legacyCC.RawAsset.isRawAssetType(type)) {
-                return {
-                    default: js.isChildClassOf(type, legacyCC.ValueType) ? new type() : null,
-                    type,
-                    _short: true,
-                };
-            }
-            return {
-                default: '',
-                url: type,
-                _short: true,
-            };
+            return _wrapOptions(isGetset, js.isChildClassOf(type, legacyCC.ValueType) ? new type() : null, type);
         } else if (options instanceof PrimitiveType) {
-            return {
-                default: options.default,
-                _short: true,
-            };
+            return _wrapOptions(isGetset, options.default);
         } else {
-            return {
-                default: options,
-                _short: true,
-            };
+            return _wrapOptions(isGetset, options);
         }
     }
     return null;
@@ -264,7 +259,7 @@ export function getFullFormOfProperty (options, propname_dev?, classname_dev?) {
 export function preprocessAttrs (properties, className, cls) {
     for (const propName in properties) {
         let val = properties[propName];
-        const fullForm = getFullFormOfProperty(val, propName, className);
+        const fullForm = getFullFormOfProperty(val, false, propName, className);
         if (fullForm) {
             val = properties[propName] = fullForm;
         }

@@ -122,28 +122,29 @@ function genProperty (
     cache,
 ) {
     let fullOptions;
+    let isGetset = descriptor && (descriptor.get || descriptor.set);
     if (options) {
-        fullOptions = DEV ? getFullFormOfProperty(options, propertyKey, js.getClassName(ctor)) :
-            getFullFormOfProperty(options);
+        fullOptions = DEV ? getFullFormOfProperty(options, isGetset, propertyKey, js.getClassName(ctor)) :
+            getFullFormOfProperty(options, isGetset);
         fullOptions = fullOptions || options;
     }
     const existsPropertyRecord = properties[propertyKey];
     const propertyRecord = js.mixin(existsPropertyRecord || {}, fullOptions || {});
 
-    if (descriptor && (descriptor.get || descriptor.set)) { // If the target property is accessor
+    if (isGetset) {
         // typescript or babel
-        if (DEV && options && (options.get || options.set)) {
+        if (DEV && options && ((fullOptions || options).get || (fullOptions || options).set)) {
             const errorProps = getSubDict(cache, 'errorProps');
             if (!errorProps[propertyKey]) {
                 errorProps[propertyKey] = true;
                 warnID(3655, propertyKey, js.getClassName(ctor), propertyKey, propertyKey);
             }
         }
-        if (descriptor.get) {
-            propertyRecord.get = descriptor.get;
+        if (descriptor!.get) {
+            propertyRecord.get = descriptor!.get;
         }
-        if (descriptor.set) {
-            propertyRecord.set = descriptor.set;
+        if (descriptor!.set) {
+            propertyRecord.set = descriptor!.set;
         }
     } else { // Target property is non-accessor
         if (DEV && (propertyRecord.get || propertyRecord.set)) {
