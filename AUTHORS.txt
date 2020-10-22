@@ -1,40 +1,100 @@
-Cocos2d Creator 3D authors
+Cocos Creator authors
 
 (Ordered by join time)
 
 Contributors:
 
-    
+    @Marssssssss
+    @finscn
+    @feijing566
+    @devhacker520
+    @drelaptop
+    @benloong
+    @RazgrizHsu
+    @zty8023ys
+    @kissSimple
+    @id-ilych
+    @wzxjiang
+    @nshmura
+    @jrosich
+    @caogtaa
+    @Ronsku
+    @FengXuner
+    @yoki0805
+    @yeshao2069
+    @xduooo
+    @wangyhzzz
+    @unace
+    @simon129
+    @random634
+    @qinhanlei
+    @ohsayan
+    @sarhassan12
+    @lijjLyb
+    @lhx6538665
+    @krapnikkk
+    @k8w
+    @jcs090218
+    @hieubuiduc
+    @haxpor
+    @gaolizheng
+    @gamedevgarage
+    @endless3000
+    @chen-gaoyuan
+    @caochao
+    @Y-way
+    @MatrixLife
+    @HengHuH
 
 Core Engine Developers:
 
-    Yaqiong Liu (@JoneLau)
+    Guo Jiawei (@jareguo)
 
-    Yunxiao Wu (@YunHsiao)
+    Huang Yanbin (@knoxHuang)
 
-    Xuguang Zhu (@zxg0622)
+    Lai Jiaxin (@JayceLai)
 
-    Nan Li (@shrinktofit)
+    Li Nan (@shrinktofit)
 
-    Huabin LING (@pandamicro)
+    Ling Huabin (@pandamicro)
 
-    Jiawei Guo (@jareguo)
+    Liu Hang (@caryliu1999)
 
-    Hao Wang (@holycanvas)
+    Liu Yaqiong (@JoneLau)
 
-    Weiliang Wang (@jerrywwl) - Leader
+    Jiang Zhan (@PatriceJiang)
 
-    Sizhong Wang (@MSoft1115)
+    Wang Hao (@holycanvas)
 
-    Jiaxin Lai (@JayceLai)
+    Wang Jianing (@LinYunMo)
 
-    Jianing Wang (@LinYunMo)
+    Wang Sizhong (@MSoft1115)
+
+    Wang Yibin (@Mee-gu)
+
+    Wu Yunxiao (@YunHsiao)
+
+    Yang Cheng (@troublemaker52025)
+
+    Yin Kaile (@2youyou2)
+
+    Zhang Xiaoming (@minggo)
+
+    Zheng Jianpei (@PPpro)
 
 Retired Engine Developers
+
+    Weiliang Wang (@jerrywwl)
 
     Johnny Wu (@jwu)
 
     Huabing Xu (@dabingnn)
+
+    Guanghui Qu (@zilongshanren)
+
+    Lan Wanjun (@sunnylanwanjun)
+
+    Xuguang Zhu (@zxg0622)
 
     Yexin Dong
 
