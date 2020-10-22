@@ -10,10 +10,6 @@
   #include <texture-lod>
 #endif
 
-#if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-  #include <lightingmap-fs>
-#endif
-
 #include <common>
 #include <gamma>
 
@@ -48,6 +44,8 @@ struct StandardSurface {
   vec3 normal;
   // emissive
   vec3 emissive;
+  // light map
+  vec4 lightmap;
   // PBR params
   float roughness;
   float metallic;
@@ -122,8 +120,7 @@ struct StandardSurface {
     vec3 finalColor = NL * cc_mainLitColor.rgb * cc_mainLitColor.w;
 
     #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-      vec4 lightmap = texture(cc_lightingMap, v_luv);
-      finalColor = lightmap.a * lightmap.rgb + (1.0 - lightmap.a) * finalColor;
+      finalColor = s.lightmap.a * s.lightmap.rgb + (1.0 - s.lightmap.a) * finalColor;
     #endif
 
     vec3 diffuseContrib = diffuse / PI;

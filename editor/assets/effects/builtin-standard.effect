@@ -154,6 +154,9 @@ CCProgram standard-fs %{
   #include <gamma>
   #include <shared-ubos>
   #include <cc-fog>
+  #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+    #include <lightingmap-fs>
+  #endif
 
   in vec3 v_position;
   in vec2 v_uv;
@@ -213,6 +216,10 @@ CCProgram standard-fs %{
 
     #if USE_ALPHA_TEST
       if (s.albedo.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
+    #endif
+
+    #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+      s.lightmap = texture(cc_lightingMap, v_luv);
     #endif
 
     s.normal = v_normal;

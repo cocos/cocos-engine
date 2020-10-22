@@ -10,10 +10,7 @@ export type BezierControlPoints = [ number, number, number, number ];
 
 export function bezier (C1: number, C2: number, C3: number, C4: number, t: number) {
     const t1 = 1 - t;
-    return C1 * t1 * t1 * t1 +
-           C2 * 3 * t1 * t1 * t +
-           C3 * 3 * t1 * t * t +
-           C4 * t * t * t;
+    return t1 * (t1 * (C1 + (C2 * 3 - C1) * t) + C3 * 3 * t * t) + C4 * t * t * t;
 }
 legacyCC.bezier = bezier;
 
@@ -154,14 +151,9 @@ function cardano (curve: BezierControlPoints, x: number) {
 
 export function bezierByTime (controlPoints: BezierControlPoints, x: number) {
     const percent = cardano(controlPoints, x);    // t
-    const p0y = 0;                // a
     const p1y = controlPoints[1]; // b
     const p2y = controlPoints[3]; // c
-    const p3y = 1;                // d
-    const t1 = 1 - percent;
-    return p0y * t1 * t1 * t1 +
-           p1y * 3 * percent * t1 * t1 +
-           p2y * 3 * percent * percent * t1 +
-           p3y * percent * percent * percent;
+    // return bezier(0, p1y, p2y, 1, percent);
+    return ((1 - percent) * (p1y + (p2y - p1y) * percent) * 3 + percent * percent) * percent;
 }
 legacyCC.bezierByTime = bezierByTime;

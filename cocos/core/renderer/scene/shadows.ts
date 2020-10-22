@@ -123,7 +123,6 @@ export class Shadows {
     get type (): number {
         return ShadowsPool.get(this._handle, ShadowsView.TYPE);
     }
-
     set type (val: number) {
         ShadowsPool.set(this._handle, ShadowsView.TYPE, val);
         this._updatePipeline();
@@ -213,8 +212,8 @@ export class Shadows {
     }
 
     /**
-     * @zh
-     * 场景包围球
+     * @en The bounding sphere of the shadow map
+     * @zh 用于计算阴影 Shadow map 的场景包围球
      */
     public get sphere (): sphere {
         return this._sphere;
@@ -228,6 +227,22 @@ export class Shadows {
         return this._instancingMaterial!;
     }
 
+    public get handle () : ShadowsHandle {
+        return this._handle;
+    }
+
+    /**
+     * @en get or set shadow generation range
+     * @zh 获取或设置阴影生成范围
+     */
+    public receiveSphere: sphere = new sphere();
+
+    /**
+     * @en get or set shadow auto control
+     * @zh 获取或者设置阴影是否自动控制
+     */
+    public autoAdapt: boolean = true;
+
     protected _normal = new Vec3(0, 1, 0);
     protected _shadowColor = new Color(0, 0, 0, 76);
     protected _matLight = new Mat4();
@@ -236,10 +251,6 @@ export class Shadows {
     protected _size: Vec2 = new Vec2(512, 512);
     protected _handle: ShadowsHandle = NULL_HANDLE;
     protected _sphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
-
-    get handle () : ShadowsHandle {
-        return this._handle;
-    }
 
     constructor () {
         this._handle = ShadowsPool.alloc();
