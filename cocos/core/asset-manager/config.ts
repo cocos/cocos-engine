@@ -27,6 +27,7 @@
  * @hidden
  */
 import { EDITOR, TEST } from 'internal:constants';
+import { Asset } from '../assets';
 import { legacyCC } from '../global-exports';
 import { js } from '../utils/js';
 import Cache from './cache';
@@ -273,7 +274,7 @@ export default class Config {
 
             const assetInfo = this.assetInfos.get(uuid) as IAddressableInfo;
             assetInfo.path = path;
-            assetInfo.ctor = js._getClassById(type);
+            assetInfo.ctor = js._getClassById(type) as Constructor<Asset>;
             if (paths.has(path)) {
                 if (isSubAsset) {
                     paths.get(path)!.push(assetInfo);

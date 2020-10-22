@@ -109,7 +109,7 @@ export class ImageAsset extends Asset {
             return this._nativeData;
         }
         else {
-            return this._nativeData._data;
+            return this._nativeData && this._nativeData._data;
         }
     }
 

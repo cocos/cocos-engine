@@ -334,7 +334,7 @@ export class AssetManager {
         this.assets.clear();
         this.bundles.clear();
         this.packManager.init();
-        this.downloader.init(options.bundleVers, options.server);
+        this.downloader.init(options.server, options.bundleVers, options.remoteBundles);
         this.parser.init();
         this.dependUtil.init();
         let importBase = options.importBase || '';
@@ -537,7 +537,7 @@ export class AssetManager {
         this.loadAny(depend, opts, (err, native) => {
             if (!err) {
                 // @ts-ignore
-                if (asset.__nativeDepend__) {
+                if (asset.isValid && asset.__nativeDepend__) {
                     asset._nativeAsset = native;
                     // @ts-ignore
                     asset.__nativeDepend__ = false;

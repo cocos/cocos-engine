@@ -191,7 +191,7 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
 
     const depends = [];
     // add reference avoid being released during loading dependencies
-    asset.addRef();
+    asset.addRef && asset.addRef();
     getDepends(uuid, asset, Object.create(null), depends, false, __asyncLoadAssets__, config!);
     if (progress.canInvoke) {
         task.dispatch('progress', ++progress.finish, progress.total += depends.length, item);
@@ -206,7 +206,7 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
         onError: Task.prototype.recycle,
         progress,
         onComplete: (err) => {
-            asset.decRef(false);
+            asset.decRef && asset.decRef(false);
             // @ts-ignore
             asset.__asyncLoadAssets__ = __asyncLoadAssets__;
             repeatItem.finish = true;
@@ -255,7 +255,7 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
             for (let i = 0, l = callbacks.length; i < l; i++) {
 
                 const cb = callbacks[i];
-                asset.addRef();
+                asset.addRef && asset.addRef();
                 cb.item.content = asset;
                 cb.done(err);
 

@@ -117,7 +117,14 @@ const downloadVideo = (url: string, options: IDownloadParseOptions, onComplete: 
 const downloadBundle = (nameOrUrl: string, options: IBundleOptions, onComplete: CompleteCallback) => {
     const bundleName = basename(nameOrUrl);
     let url = nameOrUrl;
-    if (!REGEX.test(url)) { url = 'assets/' + bundleName; }
+    if (!REGEX.test(url)) {
+        if (downloader.remoteBundles.indexOf(bundleName) !== -1) {
+            url = `${downloader.remoteServerAddress}remote/${bundleName}`;
+        }
+        else {
+            url = `assets/${bundleName}`;
+        }
+    }
     const version = options.version || downloader.bundleVers![bundleName];
     let count = 0;
     const config = `${url}/config.${version ? version + '.' : ''}json`;
@@ -240,6 +247,8 @@ export class Downloader {
 
     public bundleVers: Record<string, string> | null = null;
 
+    public remoteBundles: string[] = [];
+
     public downloadDomImage = downloadDomImage;
 
     public downloadDomAudio = downloadDomAudio;
@@ -329,11 +338,12 @@ export class Downloader {
     private _checkNextPeriod = false;
     private _remoteServerAddress = '';
 
-    public init (bundleVers: Record<string, string> = {}, remoteServerAddress = '') {
+    public init (remoteServerAddress: string = '', bundleVers: Record<string, string> = {}, remoteBundles: string[] = []) {
         this._downloading.clear();
         this._queue.length = 0;
         this._remoteServerAddress = remoteServerAddress;
         this.bundleVers = bundleVers;
+        this.remoteBundles = remoteBundles;
     }
 
     /**
