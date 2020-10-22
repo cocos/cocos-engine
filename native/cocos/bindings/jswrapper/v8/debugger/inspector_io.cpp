@@ -368,8 +368,7 @@ void InspectorIo::PostIncomingMessage(InspectorAction action, int session_id,
                     Utf8ToStringView(message))) {
     Agent* agent = main_thread_req_->second;
     v8::Isolate* isolate = parent_env_->isolate();
-    platform_->CallOnForegroundThread(isolate,
-                                      new DispatchMessagesTask(agent));
+    platform_->GetForegroundTaskRunner(isolate)->PostTask(std::make_unique<DispatchMessagesTask>(agent));
     isolate->RequestInterrupt(InterruptCallback, agent);
     CHECK_EQ(0, uv_async_send(&main_thread_req_->first));
   }

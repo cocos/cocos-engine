@@ -217,11 +217,11 @@ namespace se {
         v8::Local<v8::ArrayBuffer> jsobj = v8::ArrayBuffer::New(__isolate, byteLength);
         if (data)
         {
-            memcpy(jsobj->GetContents().Data(), data, byteLength);
+            memcpy(jsobj->GetBackingStore()->Data(), data, byteLength);
         }
         else
         {
-            memset(jsobj->GetContents().Data(), 0, byteLength);
+            memset(jsobj->GetBackingStore()->Data(), 0, byteLength);
         }
         Object* obj = Object::_createJSObject(nullptr, jsobj);
         return obj;
@@ -244,9 +244,9 @@ namespace se {
         v8::Local<v8::ArrayBuffer> jsobj = v8::ArrayBuffer::New(__isolate, byteLength);
         //If data has content,then will copy data into buffer,or will only clear buffer.
         if (data) {
-            memcpy(jsobj->GetContents().Data(), data, byteLength);
+            memcpy(jsobj->GetBackingStore()->Data(), data, byteLength);
         }else{
-            memset(jsobj->GetContents().Data(), 0, byteLength);
+            memset(jsobj->GetBackingStore()->Data(), 0, byteLength);
         }
         
         v8::Local<v8::Object> arr;
@@ -470,8 +470,8 @@ namespace se {
         assert(isTypedArray());
         v8::Local<v8::Object> obj = const_cast<Object*>(this)->_obj.handle(__isolate);
         v8::Local<v8::TypedArray> arr = v8::Local<v8::TypedArray>::Cast(obj);
-        v8::ArrayBuffer::Contents content = arr->Buffer()->GetContents();
-        *ptr = (uint8_t*)content.Data() + arr->ByteOffset();
+        const auto &backingStore = arr->Buffer()->GetBackingStore();
+        *ptr = (uint8_t*)backingStore->Data() + arr->ByteOffset();
         *length = arr->ByteLength();
         return true;
     }
@@ -487,9 +487,9 @@ namespace se {
         assert(isArrayBuffer());
         v8::Local<v8::Object> obj = const_cast<Object*>(this)->_obj.handle(__isolate);
         v8::Local<v8::ArrayBuffer> arrBuf = v8::Local<v8::ArrayBuffer>::Cast(obj);
-        v8::ArrayBuffer::Contents content = arrBuf->GetContents();
-        *ptr = (uint8_t*)content.Data();
-        *length = content.ByteLength();
+        const auto &backingStore = arrBuf->GetBackingStore();
+        *ptr = (uint8_t*)backingStore->Data();
+        *length = backingStore->ByteLength();
         return true;
     }
 

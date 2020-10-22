@@ -48,7 +48,7 @@ BufferPool::~BufferPool() {
 }
 
 Object *BufferPool::allocateNewChunk() {
-    Object *jsObj = _allocator.alloc(_chunks.size(), _bytesPerChunk);
+    Object *jsObj = _allocator.alloc((uint)_chunks.size(), _bytesPerChunk);
 
     uint8_t *realPtr = nullptr;
     size_t len = 0;

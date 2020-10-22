@@ -81,7 +81,7 @@ struct WriteRequest {
   WriteRequest(InspectorSocket* inspector, const char* data, size_t size)
       : inspector(inspector)
       , storage(data, data + size)
-      , buf(uv_buf_init(&storage[0], storage.size())) {}
+      , buf(uv_buf_init(&storage[0], (unsigned int)storage.size())) {}
 
   static WriteRequest* from_write_req(uv_write_t* req) {
     return node::ContainerOf(&WriteRequest::req, req);
@@ -247,7 +247,7 @@ static ws_decode_result decode_frame_hybi17(const std::vector<char>& buffer,
                    payload[i] ^ masking_key[i % kMaskingKeyWidthInBytes]);
 
   size_t pos = it + kMaskingKeyWidthInBytes + payload_length - buffer.begin();
-  *bytes_consumed = pos;
+  *bytes_consumed = (int)pos;
   return closed ? FRAME_CLOSE : FRAME_OK;
 }
 
@@ -310,13 +310,13 @@ static int parse_ws_frames(InspectorSocket* inspector) {
         len, &buffer);
     CHECK_GE(buffer.len, len);
     memcpy(buffer.base, &output[0], len);
-    invoke_read_callback(inspector, len, &buffer);
+    invoke_read_callback(inspector, (int)len, &buffer);
   }
   return bytes_consumed;
 }
 
 static void prepare_buffer(uv_handle_t* stream, size_t len, uv_buf_t* buf) {
-  *buf = uv_buf_init(new char[len], len);
+  *buf = uv_buf_init(new char[len], (unsigned int)len);
 }
 
 static void reclaim_uv_buf(InspectorSocket* inspector, const uv_buf_t* buf,

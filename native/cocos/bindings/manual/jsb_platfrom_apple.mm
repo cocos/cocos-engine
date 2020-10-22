@@ -50,7 +50,7 @@ static std::vector<std::string> getAvailableFontFamilyNames()
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
     CFArrayRef allFamilyNames = CTFontManagerCopyAvailableFontFamilyNames();
 #else
-    CFArrayRef allFamilyNames = (CFArrayRef) [[UIFont familyNames] retain];
+    CFArrayRef allFamilyNames = (CFArrayRef) [[NSClassFromString(@"UIFont") familyNames] retain];
 #endif
 
     char buf[256] = {0};
