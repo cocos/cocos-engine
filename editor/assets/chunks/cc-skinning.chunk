@@ -3,11 +3,17 @@
 #pragma extension([GL_EXT_shader_explicit_arithmetic_types_int16, __VERSION__ > 310])
 
 #if __VERSION__ > 310
-layout(location = 4) in u16vec4 a_joints;
+  #ifdef VULKAN
+    layout(location = 4) in u16vec4 a_joints;
+  #else // FIXME: Metal backend somehow throws error on `u16vec4`... will investigate later
+    #pragma format(RGBA16UI)
+    layout(location = 4) in vec4 a_joints;
+  #endif
 #else
-#pragma format(RGBA16UI)
-layout(location = 4) in vec4 a_joints;
+  #pragma format(RGBA16UI)
+  layout(location = 4) in vec4 a_joints;
 #endif
+
 layout(location = 5) in vec4 a_weights;
 
 #include <common>
