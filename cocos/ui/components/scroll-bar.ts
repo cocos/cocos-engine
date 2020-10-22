@@ -108,7 +108,7 @@ export class ScrollBar extends Component {
             return;
         }
         this._handle = value;
-        this.onScroll(ZERO);
+        this.onScroll(new Vec2());
     }
 
     /**
@@ -131,7 +131,7 @@ export class ScrollBar extends Component {
         }
 
         this._direction = value;
-        this.onScroll(new Vec3());
+        this.onScroll(new Vec2());
     }
 
     /**
