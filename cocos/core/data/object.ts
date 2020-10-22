@@ -454,7 +454,7 @@ declare namespace CCObject {
 
         /**
          * @en Dont destroy automatically when loading a new scene.
-         * @zh 加载一个新场景时，不自动删除该对象。
+         * @zh 加载一个新场景时，不自动删除该对象
          * @private
          */
         DontDestroy,
@@ -474,7 +474,7 @@ declare namespace CCObject {
 
         /**
          * @en The lock node, when the node is locked, cannot be clicked in the scene.
-         * @zh 锁定节点，锁定后场景内不能点击。
+         * @zh 锁定节点，锁定后场景内不能点击
          * @private
          */
         LockedInEditor,
@@ -492,8 +492,8 @@ declare namespace CCObject {
         // FLAGS FOR EDITOR
 
         /// **
-        // * @en Hide the object in editor.
-        // * @zh 在编辑器中隐藏该对象。
+        // * @en This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
+        // * @zh 该标记只读，它只能被用作 scene.addEntity()的一个参数。
         // */
         HideInHierarchy,
 
@@ -506,6 +506,9 @@ declare namespace CCObject {
         // * 该标记只读，它只能被用作 scene.addEntity()的一个参数。
         // */
         // Hide: Hide,
+
+        //// UUID Registered in editor
+        // RegisteredInEditor: RegisteredInEditor,
 
         // FLAGS FOR COMPONENT
 

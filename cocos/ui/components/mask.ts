@@ -472,7 +472,6 @@ export class Mask extends UIRenderable {
     protected _removeGraphics () {
         if (this._graphics) {
             this._graphics.destroy();
-            this._graphics._destroyImmediate(); // FIX: cocos-creator/2d-tasks#2511. TODO: cocos-creator/2d-tasks#2516
         }
 
         if (this._clearGraphics) {

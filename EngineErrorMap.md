@@ -377,12 +377,10 @@ An Node can't be added as a child of itself.
 
 ### 1605
 
-<!-- DEPRECATED -->
 child already added. It can't be added again
 
 ### 1606
 
-<!-- DEPRECATED -->
 child must be non-null
 
 ### 1607
@@ -512,7 +510,6 @@ Internal error, should not remove unknown node from parent.
 
 ### 1634
 
-<!-- DEPRECATED -->
 addChild: The child to add must be instance of cc.Node, not %s.
 
 ### 1635
@@ -1155,10 +1152,6 @@ contentSize parameter is deprecated and ignored for cc.Texture2D initWithData fu
 
 Lazy init texture with image element failed due to image loading failure: %s
 
-### 3120
-
-Loading texture with unsupported type: '%s'. Add '%s' into 'cc.macro.SUPPORT_TEXTURE_FORMATS' please.
-
 ### 3200
 
 <!-- DEPRECATED -->
@@ -1462,16 +1455,12 @@ Please do not specifiy "default" attribute in decorator of "%s" property in "%s"
 Default value must be initialized at their declaration:
 ```
 // Before:
-@property({
-  type: cc.SpriteFrame
-  default: null  // <--
-})
-myProp;
+@property({ default: 0 }) // <--
+@integer
+value;
 // After:
-@property({
-  type: cc.SpriteFrame
-})
-myProp = null;   // <--
+@integer
+value = 0;    // <--
 ```
 
 ### 3654
@@ -1480,10 +1469,10 @@ Please specifiy a default value for "%s.%s" property at its declaration:
 ```
 // Before:
 @property(...)
-myProp;
+value;
 // After:
 @property(...)
-myProp = 0;
+value = 0
 ```
 
 ### 3655
@@ -2074,11 +2063,12 @@ Invalid type of %s.%s
 
 ### 5509
 
+<!-- DEPRECATED -->
 The 'type' attribute of '%s.%s' must be child class of cc.Asset, otherwise you should use 'url: %s' instead
 
 ### 5510
 
-The 'type' attribute of '%s.%s' can not be 'Number', use cc.Float or cc.Integer instead please.
+The 'type' attribute of '%s.%s' can not be 'Number', use 'Float' or 'Integer' instead please.
 
 ### 5511
 

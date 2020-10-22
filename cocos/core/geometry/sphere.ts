@@ -109,11 +109,8 @@ export default class sphere {
      * 球跟点合并
      */
     public static mergePoint (out: sphere, s: sphere, point: Vec3) {
-        // if sphere.radius Less than 0,
-        // Set this point as anchor,
-        // And set radius to 0.
         if (s.radius < 0.0) {
-            out.center.set(point);
+            out.center = point;
             out.radius = 0.0;
             return out;
         }

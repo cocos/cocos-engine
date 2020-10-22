@@ -3,7 +3,7 @@
  * @hidden
  */
 
-import { aabb, intersect, frustum } from '../../geometry';
+import { intersect, sphere } from '../../geometry';
 import { Model } from '../../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Layers } from '../../scene-graph/layers';
@@ -12,17 +12,13 @@ import { ForwardPipeline } from './forward-pipeline';
 import { RenderView } from '../';
 import { Pool } from '../../memop';
 import { IRenderObject, UBOShadow } from '../define';
-import { ShadowType, Shadows } from '../../renderer/scene/shadows';
-import { SphereLight, DirectionalLight, RenderScene} from '../../renderer/scene';
+import { ShadowType } from '../../renderer/scene/shadows';
+import { SphereLight, DirectionalLight} from '../../renderer/scene';
 
 const _tempVec3 = new Vec3();
 const _dir_negate = new Vec3();
 const _vec3_p = new Vec3();
 const _mat4_trans = new Mat4();
-const _castWorldBounds = new aabb();
-const _receiveWorldBounds = new aabb();
-let _castBoundsInited = false;
-let _receiveBoundsInited = false;
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 const shadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
@@ -124,18 +120,16 @@ function updateDirLight (pipeline: ForwardPipeline, light: DirectionalLight) {
 export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     const camera = view.camera;
     const scene = camera.scene!;
-    const mainLight = scene.mainLight;
-    const shadows = pipeline.shadows;
-
     const renderObjects = pipeline.renderObjects;
     roPool.freeArray(renderObjects); renderObjects.length = 0;
     const shadowObjects = pipeline.shadowObjects;
     shadowPool.freeArray(shadowObjects); shadowObjects.length = 0;
 
-    // Each time the calculation,
-    // reset the flag.
-    _castBoundsInited = false;
-    _receiveBoundsInited = false;
+    const mainLight = scene.mainLight;
+    const shadows = pipeline.shadows;
+    const shadowSphere = shadows.sphere;
+    shadowSphere.center.set(0.0, 0.0, 0.0);
+    shadowSphere.radius = 0.01;
 
     if (shadows.enabled) {
         Color.toArray(pipeline.shadowUBO, shadows.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
@@ -169,23 +163,9 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                     (view.visibility & model.visFlags)) {
 
                     // shadow render Object
-                    if (model.castShadow && model.worldBounds) {
-                        if (!_castBoundsInited) {
-                            _castWorldBounds.copy(model.worldBounds);
-                            _castBoundsInited = true;
-                        }
-                        aabb.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
+                    if (model.castShadow) {
+                        sphere.mergeAABB(shadowSphere, shadowSphere, model.worldBounds!);
                         shadowObjects.push(getCastShadowRenderObject(model, camera));
-                    }
-
-                    // Even if the obstruction is not in the field of view,
-                    // the shadow is still visible.
-                    if (model.receiveShadow && model.worldBounds) {
-                        if(!_receiveBoundsInited) {
-                            _receiveWorldBounds.copy(model.worldBounds);
-                            _receiveBoundsInited = true;
-                        }
-                        aabb.merge(_receiveWorldBounds, _receiveWorldBounds, model.worldBounds);
                     }
 
                     // frustum culling
@@ -198,8 +178,4 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
             }
         }
     }
-
-    if (_castWorldBounds) { aabb.toBoundingSphere(shadows.sphere, _castWorldBounds); }
-
-    if (_receiveWorldBounds) { aabb.toBoundingSphere(shadows.receiveSphere, _receiveWorldBounds); }
 }

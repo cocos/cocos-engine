@@ -265,7 +265,7 @@ export class ImageAsset extends Asset {
         return { fmt: extensionIndices.join('_'), w: this.width, h: this.height };
     }
 
-    public _deserialize (data: any) {
+    public _deserialize (data: any, handle: any) {
         let fmtStr = '';
         if (typeof data === 'string') {
             fmtStr = data;
@@ -278,7 +278,6 @@ export class ImageAsset extends Asset {
         const device = _getGlobalDevice();
         const extensionIDs = fmtStr.split('_');
 
-        let defaultExt = '';
         let preferedExtensionIndex = Number.MAX_VALUE;
         let format = this._format;
         let ext = '';
@@ -287,7 +286,7 @@ export class ImageAsset extends Asset {
             const extFormat = extensionID.split('@');
 
             const i = parseInt(extFormat[0], undefined);
-            const tmpExt = ImageAsset.extnames[i] || extFormat[0];
+            const tmpExt = ImageAsset.extnames[i] || extFormat.join();
 
             const index = SupportTextureFormats.indexOf(tmpExt);
             if (index !== -1 && index < preferedExtensionIndex) {
@@ -310,18 +309,19 @@ export class ImageAsset extends Asset {
                 ext = tmpExt;
                 format = fmt;
             }
-            else if (!defaultExt) {
-                defaultExt = tmpExt;
-            }
         }
 
         if (ext) {
             this._setRawAsset(ext);
             this._format = format;
         }
-        else {
-            this._setRawAsset(defaultExt);
-            warnID(3120, defaultExt, defaultExt);
+
+        // preset uuid to get correct nativeUrl
+        const loadingItem = handle.customEnv;
+        const uuid = loadingItem && loadingItem.uuid;
+        if (uuid) {
+            this._uuid = uuid;
+            this._url = this.nativeUrl;
         }
     }
 
