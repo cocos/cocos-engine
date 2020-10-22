@@ -25,8 +25,7 @@
 */
 
 /**
- * @packageDocumentation
- * @module ui
+ * @category ui
  */
 
 import { Component } from '../../core/components/component';
@@ -231,7 +230,7 @@ export class ScrollBar extends Component {
      *
      * @param outOfBoundary - 滚动位移。
      */
-    public onScroll (outOfBoundary: Vec3) {
+    public onScroll (outOfBoundary: Vec2) {
         if (!this._scrollView) {
             return;
         }
