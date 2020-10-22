@@ -8,7 +8,7 @@ import { IExposedAttributes } from '../utils/attribute-defines';
 import { LegacyPropertyDecorator, getSubDict, getClassCache } from './utils';
 import { warnID, errorID } from '../../platform/debug';
 import { js } from '../../utils/js';
-import { DEV } from 'internal:constants';
+import { DEV, EDITOR, TEST } from 'internal:constants';
 import { getFullFormOfProperty } from '../utils/preprocess-class';
 
 export type SimplePropertyType = Function | string | typeof CCString | typeof CCInteger | typeof CCFloat | typeof CCBoolean;
@@ -129,11 +129,11 @@ function genProperty (
         fullOptions = fullOptions || options;
     }
     const existsPropertyRecord = properties[propertyKey];
-    const propertyRecord = js.mixin(existsPropertyRecord || {}, fullOptions || {});
+    const propertyRecord = js.mixin(existsPropertyRecord || {}, fullOptions || options || {});
 
     if (isGetset) {
         // typescript or babel
-        if (DEV && options && ((fullOptions || options).get || (fullOptions || options).set)) {
+        if (DEV && options && (fullOptions.get || fullOptions.set)) {
             const errorProps = getSubDict(cache, 'errorProps');
             if (!errorProps[propertyKey]) {
                 errorProps[propertyKey] = true;
@@ -173,8 +173,8 @@ function genProperty (
             }
         }
 
-        if (DEV) {
-            if (options && options.hasOwnProperty('default')) {
+        if ((EDITOR && !window.Build) || TEST) {
+            if (!fullOptions && options && options.hasOwnProperty('default')) {
                 warnID(3653, propertyKey, js.getClassName(ctor));
             } else if (!isDefaultValueSpecified) {
                 warnID(3654, js.getClassName(ctor), propertyKey);

@@ -243,11 +243,23 @@ function instantiateObj (obj, parent) {
         return obj;
     }
     let clone;
+    if (ArrayBuffer.isView(obj)) {
+        let len = (obj as any).length;
+        clone = new ((obj as any).constructor)(len);
+        // @ts-ignore
+        obj._iN$t = clone;
+        objsToClearTmpVar.push(obj);
+        for (let i = 0; i < len; ++i) {
+            clone[i] = obj[i];
+        }
+        return clone;
+    }
     if (Array.isArray(obj)) {
         const len = obj.length;
         clone = new Array(len);
         // @ts-ignore
         obj._iN$t = clone;
+        objsToClearTmpVar.push(obj);
         for (let i = 0; i < len; ++i) {
             const value = obj[i];
             if (typeof value === 'object' && value) {
@@ -257,7 +269,6 @@ function instantiateObj (obj, parent) {
                 clone[i] = value;
             }
         }
-        objsToClearTmpVar.push(obj);
         return clone;
     }
     else if (obj._objFlags & Destroyed) {

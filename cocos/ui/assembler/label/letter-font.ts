@@ -82,7 +82,7 @@ class FontLetterDefinition {
     public xAdvance = 0;
 }
 
-const _backgroundStyle = 'rgba(255, 255, 255, 0.005)';
+const _backgroundStyle = `rgba(255, 255, 255, ${(1 / 255).toFixed(3)})`;
 
 class LetterTexture {
     public image: ImageAsset | null = null;
