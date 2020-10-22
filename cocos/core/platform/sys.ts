@@ -982,12 +982,10 @@ else {
     sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
     /* Determine the browser type */
     (function () {
-        const typeReg1 = /mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
-        const typeReg2 = /qqbrowser|ucbrowser|edge/i;
+        const typeReg1 = /mqqbrowser|micromessenger|qqbrowser|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
+        const typeReg2 = /qq|qqbrowser|ucbrowser|ubrowser|edge/i;
         const typeReg3 = /chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
-        let browserTypes = typeReg1.exec(ua);
-        if (!browserTypes) { browserTypes = typeReg2.exec(ua); }
-        if (!browserTypes) { browserTypes = typeReg3.exec(ua); }
+        let browserTypes = typeReg1.exec(ua) || typeReg2.exec(ua) || typeReg3.exec(ua);
 
         let browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
         if(COCOSPLAY) {
@@ -1002,39 +1000,30 @@ else {
         else if(VIVO) {
             browserType = sys.BROWSER_TYPE_VIVO_GAME;
         }
-        else if (browserType === 'micromessenger') {
-            browserType = sys.BROWSER_TYPE_WECHAT;
-        }
         else if (browserType === 'safari' && isAndroid) {
             browserType = sys.BROWSER_TYPE_ANDROID;
         }
         else if (browserType === 'qq' && ua.match(/android.*applewebkit/i)) {
             browserType = sys.BROWSER_TYPE_ANDROID;
         }
-        else if (browserType === 'trident') {
-            browserType = sys.BROWSER_TYPE_IE;
-        }
-        else if (browserType === 'edge') {
-            browserType === sys.BROWSER_TYPE_EDGE;
-        }
-        else if (browserType === '360 aphone') {
-            browserType = sys.BROWSER_TYPE_360;
-        }
-        else if (browserType === 'mxbrowser') {
-            browserType = sys.BROWSER_TYPE_MAXTHON;
-        }
-        else if (browserType === 'opr/') {
-            browserType = sys.BROWSER_TYPE_OPERA;
-        }
+        let typeMap = {
+            'micromessenger': sys.BROWSER_TYPE_WECHAT,
+            'trident': sys.BROWSER_TYPE_IE,
+            'edge': sys.BROWSER_TYPE_EDGE,
+            '360 aphone': sys.BROWSER_TYPE_360,
+            'mxbrowser': sys.BROWSER_TYPE_MAXTHON,
+            'opr/': sys.BROWSER_TYPE_OPERA,
+            'ubrowser': sys.BROWSER_TYPE_UC
+        };
 
-        sys.browserType = browserType;
+        sys.browserType = typeMap[browserType] || browserType;
     })();
 
     sys.browserVersion = '';
     /* Determine the browser version number */
     (function () {
-        const versionReg1 = /(mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|uc|ucbs|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui)(mobile)?(browser)?\/?([\d.]+)/i;
-        const versionReg2 = /(qqbrowser|chrome|safari|firefox|trident|opera|opr\/|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
+        const versionReg1 = /(mqqbrowser|micromessenger|qqbrowser|sogou|qzone|liebao|maxthon|uc|ucbs|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui)(mobile)?(browser)?\/?([\d.]+)/i;
+        const versionReg2 = /(qq|chrome|safari|firefox|trident|opera|opr\/|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
         let tmp = ua.match(versionReg1);
         if (!tmp) { tmp = ua.match(versionReg2); }
         sys.browserVersion = tmp ? tmp[4] : '';
