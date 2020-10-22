@@ -204,7 +204,7 @@ export class AnimationState extends Playable {
     set wrapMode (value: WrapMode) {
         this._wrapMode = value;
 
-        if (EDITOR) { return; }
+        if (EDITOR && !legacyCC.GAME_VIEW) { return; }
 
         // dynamic change wrapMode will need reset time to 0
         this.time = 0;
@@ -527,7 +527,7 @@ export class AnimationState extends Playable {
         this._currentFramePlayed = false;
         this.time = time || 0;
 
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this._lastWrapInfoEvent = null;
             this._ignoreIndex = InvalidIndex;
 
@@ -648,7 +648,7 @@ export class AnimationState extends Playable {
     public sample () {
         const info = this.getWrappedInfo(this.time, this._wrappedInfo);
         this._sampleCurves(info.ratio);
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this._sampleEvents(info);
         }
         return info;
@@ -686,7 +686,7 @@ export class AnimationState extends Playable {
         const ratio = time / duration;
         this._sampleCurves(ratio);
 
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             if (this._clip.hasEvents()) {
                 this._sampleEvents(this.getWrappedInfo(this.time, this._wrappedInfo));
             }
