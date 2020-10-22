@@ -24,6 +24,9 @@
  ****************************************************************************/
 
 cc.game.restart = function () {
+    // Need to clear scene, or native object destructor won't be invoke.
+    cc.director.getScene().destroy();
+    cc.Object._deferredDestroy();
     __restartVM();
 };
 
