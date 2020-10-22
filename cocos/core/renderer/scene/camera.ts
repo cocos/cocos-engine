@@ -10,6 +10,7 @@ import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../core/render-window';
 import { CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, FrustumView, NULL_HANDLE, SceneHandle } from '../core/memory-pools';
 import { JSB } from 'internal:constants';
+import { recordFrustumInSharedMemory } from '../../geometry/frustum';
 
 export enum CameraFOVAxis {
     VERTICAL,
@@ -270,7 +271,7 @@ export class Camera {
             this._frustum.update(this._matViewProj, this._matViewProjInv);
             CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ, this._matViewProj);
             CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ_INV, this._matViewProjInv);
-            this.recordFrustumInSharedMemory();
+            recordFrustumInSharedMemory(this._frustumHandle, this._frustum);
         }
 
         this._isProjDirty = false;
@@ -482,7 +483,7 @@ export class Camera {
 
     set frustum (val) {
         this._frustum = val;
-        this.recordFrustumInSharedMemory();
+        recordFrustumInSharedMemory(this._frustumHandle, val);
     }
 
     get frustum () {
@@ -740,26 +741,5 @@ export class Camera {
     private updateExposure () {
         const ev100 = Math.log2((this._apertureValue * this._apertureValue) / this._shutterValue * 100.0 / this._isoValue);
         CameraPool.set(this._poolHandle, CameraView.EXPOSURE, 0.833333 / Math.pow(2.0, ev100));
-    }
-
-    private recordFrustumInSharedMemory () {
-        const frustumHandle = this._frustumHandle;
-        const frstm = this._frustum;
-        if (!frstm || frustumHandle === NULL_HANDLE) {
-            return;
-        }
-
-        const vertices = frstm.vertices;
-        let vertexOffset = FrustumView.VERTICES as const;
-        for (let i = 0; i < 8; ++i) {
-            FrustumPool.setVec3(frustumHandle, vertexOffset, vertices[i]);
-            vertexOffset += 3;
-        }
-
-        const planes = frstm.planes;
-        let planeOffset = FrustumView.PLANES as const;
-        for (let i = 0; i < 6; i++, planeOffset += 4) {
-            FrustumPool.setVec4(frustumHandle, planeOffset, planes[i]);
-        }
     }
 }

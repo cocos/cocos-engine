@@ -4,6 +4,7 @@
  */
 
 import { Mat4, Vec3 } from '../math';
+import { FrustumHandle, FrustumPool, FrustumView, NULL_HANDLE } from '../renderer/core/memory-pools';
 import enums from './enums';
 import plane from './plane';
 
@@ -213,5 +214,24 @@ export class frustum {
         plane.fromPoints(this.planes[3], this.vertices[0], this.vertices[4], this.vertices[5]);
         plane.fromPoints(this.planes[4], this.vertices[2], this.vertices[3], this.vertices[0]);
         plane.fromPoints(this.planes[0], this.vertices[7], this.vertices[6], this.vertices[5]);
+    }
+}
+
+export function recordFrustumInSharedMemory (handle: FrustumHandle, frstm: frustum) {
+    if (!frstm || handle === NULL_HANDLE) {
+        return;
+    }
+
+    const vertices = frstm.vertices;
+    let vertexOffset = FrustumView.VERTICES as const;
+    for (let i = 0; i < 8; ++i) {
+        FrustumPool.setVec3(handle, vertexOffset, vertices[i]);
+        vertexOffset += 3;
+    }
+
+    const planes = frstm.planes;
+    let planeOffset = FrustumView.PLANES as const;
+    for (let i = 0; i < 6; i++, planeOffset += 4) {
+        FrustumPool.setVec4(handle, planeOffset, planes[i]);
     }
 }
