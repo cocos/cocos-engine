@@ -168,7 +168,7 @@ var dependUtil = {
             else {
                 try {
                     var asset = deserialize(json);
-                    out = this._parseDepsFromAsset(asset)
+                    out = this._parseDepsFromAsset(asset);
                     out.nativeDep && (out.nativeDep.uuid = uuid);
                     parsed.add(uuid + '@import', asset);
                 }
