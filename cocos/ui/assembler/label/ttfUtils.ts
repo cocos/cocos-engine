@@ -332,6 +332,7 @@ export const ttfUtils =  {
     },
 
     _calculateTextBaseline () {
+        // let node = this._node;
         let hAlign;
         let vAlign;
 

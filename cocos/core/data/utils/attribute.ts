@@ -269,7 +269,6 @@ Callbacks: {
 }
  */
 
-// Ensures the type matches its default value
 export function getTypeChecker (type: string, attributeName: string) {
     return function (constructor: Function, mainPropertyName: string) {
         const propInfo = '"' + getClassName(constructor) + '.' + mainPropertyName + '"';
@@ -279,7 +278,7 @@ export function getTypeChecker (type: string, attributeName: string) {
             if (mainPropAttrsType === CCInteger || mainPropAttrsType === CCFloat) {
                 mainPropAttrsType = 'Number';
             } else if (mainPropAttrsType === CCString || mainPropAttrsType === CCBoolean) {
-                mainPropAttrsType = '' + mainPropAttrsType;
+                mainPropAttrsType = mainPropAttrsType.toString();
             }
             if (mainPropAttrsType !== type) {
                 warnID(3604, propInfo);
@@ -327,7 +326,6 @@ export function getTypeChecker (type: string, attributeName: string) {
     };
 }
 
-// Ensures the type matches its default value
 export function getObjTypeChecker (typeCtor) {
     return function (classCtor, mainPropName) {
         getTypeChecker('Object', 'type')(classCtor, mainPropName);

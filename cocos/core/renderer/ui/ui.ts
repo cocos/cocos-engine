@@ -407,7 +407,6 @@ export class UI {
             mat = renderComp._updateBlendFunc();
         }
 
-        // use material judgment merge is increasingly impossible, change to hash is more possible
         if (this._currMaterial !== mat ||
             this._currTexture !== texture || this._currSampler !== samp
         ) {
@@ -526,7 +525,7 @@ export class UI {
         }
 
         if (renderComp && StencilManager.sharedManager!.handleMaterial(mat)) {
-            this._currMaterial = mat = renderComp.getMaterialInstanceForStencil();
+            this._currMaterial = mat = renderComp.getUIMaterialInstance();
             const state = StencilManager.sharedManager!.pattern;
             mat.overridePipelineStates({
                 depthStencilState: {

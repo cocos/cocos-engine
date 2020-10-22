@@ -362,32 +362,6 @@ class Parser {
         return codeArray;
     }
 
-    public instantiateTypedArray (value) {
-        let type = value.constructor.name;
-        if (value.length === 0) {
-            return 'new ' + type;
-        }
-
-        const arrayVar = LOCAL_ARRAY + (++this.localVariableId);
-        const declaration = new Declaration(arrayVar, 'new ' + type + '(' + value.length + ')');
-        const codeArray = [declaration];
-
-        // assign a _iN$t flag to indicate that this object has been parsed.
-        value._iN$t = {
-            globalVar: '',      // the name of declared global variable used to access this object
-            source: codeArray,  // the source code array for this object
-        };
-        this.objsToClear_iN$t.push(value);
-
-        for (let i = 0; i < value.length; ++i) {
-            if (value[i] !== 0) {
-                const statement = arrayVar + '[' + i + ']=';
-                writeAssignment(codeArray, statement, value[i]);
-            }
-        }
-        return codeArray;
-    }
-
     public enumerateField (obj, key, value) {
         if (typeof value === 'object' && value) {
             const _iN$t = value._iN$t;
@@ -408,9 +382,6 @@ class Parser {
                     // }
                 }
                 return globalVar;
-            }
-            else if (ArrayBuffer.isView(value)) {
-                return this.instantiateTypedArray(value);
             }
             else if (Array.isArray(value)) {
                 return this.instantiateArray(value);
