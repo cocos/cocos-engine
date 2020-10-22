@@ -15,7 +15,7 @@ public:
     void clear();
     void uploadBuffers(gfx::CommandBuffer *cmdBuff);
     void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *);
-    void push(BatchedBuffer *batchedBuffer);
+    void add(BatchedBuffer *batchedBuffer);
 
 private:
     set<BatchedBuffer *> _queues;

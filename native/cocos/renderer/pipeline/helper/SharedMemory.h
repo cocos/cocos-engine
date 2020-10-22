@@ -194,7 +194,6 @@ struct CC_DLL SubModelView {
     uint32_t inputAssemblerID = 0;
     uint32_t subMeshID = 0;
 
-    CC_INLINE uint getPassID(uint idx) const { return passID[idx]; }
     CC_INLINE const PassView *getPassView(uint idx) const { return GET_PASS(passID[idx]); }
     CC_INLINE gfx::Shader *getShader(uint idx) const { return GET_SHADER(shaderID[idx]); }
     CC_INLINE gfx::DescriptorSet *getDescriptorSet() const { return GET_DESCRIPTOR_SET(descriptorSetID); }

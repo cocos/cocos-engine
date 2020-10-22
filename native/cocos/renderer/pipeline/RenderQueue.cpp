@@ -47,8 +47,8 @@ void RenderQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *rend
 
         auto pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass);
         cmdBuff->bindPipelineState(pso);
-        cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::MATERIAL), pass->getDescriptorSet());
-        cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::LOCAL), subModel->getDescriptorSet());
+        cmdBuff->bindDescriptorSet(MATERIAL_SET, pass->getDescriptorSet());
+        cmdBuff->bindDescriptorSet(LOCAL_SET, subModel->getDescriptorSet());
         cmdBuff->bindInputAssembler(inputAssembler);
         cmdBuff->draw(inputAssembler);
     }

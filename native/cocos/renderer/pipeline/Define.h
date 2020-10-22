@@ -156,7 +156,6 @@ CC_INLINE bool transparentCompareFn(const RenderPass &a, const RenderPass &b) {
         return a.shaderID < b.shaderID;
 }
 
-
 enum class CC_DLL PipelineGlobalBindings {
     UBO_GLOBAL,
     UBO_SHADOW,
@@ -355,6 +354,9 @@ enum class CC_DLL SetIndex {
     MATERIAL,
     LOCAL,
 };
+extern CC_DLL uint GLOBAL_SET;
+extern CC_DLL uint MATERIAL_SET;
+extern CC_DLL uint LOCAL_SET;
 
 extern CC_DLL uint SKYBOX_FLAG;
 extern CC_DLL DescriptorSetLayoutInfos globalDescriptorSetLayout;

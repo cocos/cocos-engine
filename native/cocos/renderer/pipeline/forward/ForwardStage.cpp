@@ -112,13 +112,13 @@ void ForwardStage::render(RenderView *view) {
 
                 if (pass->phase != _phaseID) continue;
                 if (pass->getBatchingScheme() == BatchingSchemes::INSTANCING) {
-                    auto instancedBuffer = InstancedBuffer::get(subModel->getPassID(p));
+                    auto instancedBuffer = InstancedBuffer::get(subModel->passID[p]);
                     instancedBuffer->merge(model, subModel, p);
-                    _instancedQueue->push(instancedBuffer);
+                    _instancedQueue->add(instancedBuffer);
                 } else if (pass->getBatchingScheme() == BatchingSchemes::VB_MERGING) {
-                    auto batchedBuffer = BatchedBuffer::get(pass);
+                    auto batchedBuffer = BatchedBuffer::get(subModel->passID[p]);
                     batchedBuffer->merge(subModel, p, &ro);
-                    _batchedQueue->push(batchedBuffer);
+                    _batchedQueue->add(batchedBuffer);
                 } else {
                     for (k = 0; k < _renderQueues.size(); k++) {
                         _renderQueues[k]->insertRenderPass(ro, m, p);
@@ -166,7 +166,7 @@ void ForwardStage::render(RenderView *view) {
     auto renderPass = colorTextures.size() ? framebuffer->getRenderPass() : pipeline->getOrCreateRenderPass(static_cast<gfx::ClearFlagBit>(camera->clearFlag));
 
     cmdBuff->beginRenderPass(renderPass, framebuffer, _renderArea, _clearColors, camera->clearDepth, camera->clearStencil);
-    cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::GLOBAL), _pipeline->getDescriptorSet());
+    cmdBuff->bindDescriptorSet(LOCAL_SET, _pipeline->getDescriptorSet());
 
     _renderQueues[0]->recordCommandBuffer(_device, renderPass, cmdBuff);
     _instancedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);

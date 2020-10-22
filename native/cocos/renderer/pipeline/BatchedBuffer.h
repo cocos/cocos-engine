@@ -25,7 +25,7 @@ typedef vector<BatchedItem> BatchedItemList;
 
 class CC_DLL BatchedBuffer : public Object {
 public:
-    static BatchedBuffer *get(const PassView *pass);
+    static BatchedBuffer *get(uint pass);
 
     BatchedBuffer(const PassView *pass);
     virtual ~BatchedBuffer();
@@ -38,7 +38,7 @@ public:
     CC_INLINE const PassView *getPass() const { return _pass; }
 
 private:
-    static map<const PassView *, BatchedBuffer *> _buffers;
+    static map<uint, BatchedBuffer *> _buffers;
     BatchedItemList _batches;
     const PassView *_pass = nullptr;
     gfx::Device *_device = nullptr;

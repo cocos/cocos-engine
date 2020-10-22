@@ -7,10 +7,10 @@
 
 namespace cc {
 namespace pipeline {
-map<const PassView *, BatchedBuffer *> BatchedBuffer::_buffers;
-BatchedBuffer *BatchedBuffer::get(const PassView *pass) {
+map<uint, BatchedBuffer *> BatchedBuffer::_buffers;
+BatchedBuffer *BatchedBuffer::get(uint pass) {
     if (_buffers.find(pass) == _buffers.end()) {
-        _buffers[pass] = CC_NEW(BatchedBuffer(pass));
+        _buffers[pass] = CC_NEW(BatchedBuffer(GET_PASS(pass)));
     }
     return _buffers[pass];
 }

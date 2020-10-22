@@ -6,12 +6,14 @@ namespace pipeline {
 struct SubModelView;
 struct PassView;
 struct RenderObject;
+class RenderInstancedQueue;
+class RenderBatchedQueue;
 
 class CC_DLL ShadowMapBatchedQueue : public Object {
 public:
-    ShadowMapBatchedQueue() = default;
-    virtual ~ShadowMapBatchedQueue();
-    virtual void destroy();
+    ShadowMapBatchedQueue();
+    ~ShadowMapBatchedQueue() = default;
+    void destroy();
 
     void clear(gfx::Buffer *buffer);
     void add(const RenderObject &renderObject, uint subModelIdx, uint passIdx);
@@ -21,6 +23,8 @@ private:
     vector<const SubModelView *> _subModels;
     vector<const PassView *> _passes;
     vector<gfx::Shader *> _shaders;
+    RenderInstancedQueue *_instancedQueue = nullptr;
+    RenderBatchedQueue *_batchedQueue = nullptr;
     gfx::Buffer *_buffer = nullptr;
     uint _phaseID = 0;
 };

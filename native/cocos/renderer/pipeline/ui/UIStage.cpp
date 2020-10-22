@@ -82,7 +82,7 @@ void UIStage::render(RenderView *view) {
 
     cmdBuff->beginRenderPass(renderPass, framebuffer, _renderArea,
                              {camera->clearColor}, camera->clearDepth, camera->clearStencil);
-    cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::GLOBAL), pipeline->getDescriptorSet());
+    cmdBuff->bindDescriptorSet(LOCAL_SET, pipeline->getDescriptorSet());
     _renderQueues[0]->recordCommandBuffer(_device, renderPass, cmdBuff);
 
     cmdBuff->endRenderPass();

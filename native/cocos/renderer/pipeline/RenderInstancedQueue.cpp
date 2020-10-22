@@ -14,21 +14,21 @@ void RenderInstancedQueue::clear() {
     _queues.clear();
 }
 
-void RenderInstancedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuff) {
+void RenderInstancedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) {
     for (auto instanceBuffer : _queues) {
         if (instanceBuffer->hasPendingModels()) {
-            instanceBuffer->uploadBuffers(cmdBuff);
+            instanceBuffer->uploadBuffers(cmdBuffer);
         }
     }
 }
 
-void RenderInstancedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff) {
+void RenderInstancedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
     for (auto instanceBuffer : _queues) {
         if (!instanceBuffer->hasPendingModels()) continue;
 
         const auto &instances = instanceBuffer->getInstances();
         const auto pass = instanceBuffer->getPass();
-        cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::MATERIAL), pass->getDescriptorSet());
+        cmdBuffer->bindDescriptorSet(MATERIAL_SET, pass->getDescriptorSet());
         gfx::PipelineState *lastPSO = nullptr;
         for (size_t b = 0; b < instances.size(); ++b) {
             const auto &instance = instances[b];
@@ -37,17 +37,17 @@ void RenderInstancedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderP
             }
             auto pso = PipelineStateManager::getOrCreatePipelineState(pass, instance.shader, instance.ia, renderPass);
             if (lastPSO != pso) {
-                cmdBuff->bindPipelineState(pso);
+                cmdBuffer->bindPipelineState(pso);
                 lastPSO = pso;
             }
-            cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::LOCAL), instance.descriptorSet, instanceBuffer->dynamicOffsets());
-            cmdBuff->bindInputAssembler(instance.ia);
-            cmdBuff->draw(instance.ia);
+            cmdBuffer->bindDescriptorSet(LOCAL_SET, instance.descriptorSet, instanceBuffer->dynamicOffsets());
+            cmdBuffer->bindInputAssembler(instance.ia);
+            cmdBuffer->draw(instance.ia);
         }
     }
 }
 
-void RenderInstancedQueue::push(InstancedBuffer *instancedBuffer) {
+void RenderInstancedQueue::add(InstancedBuffer *instancedBuffer) {
     _queues.emplace(instancedBuffer);
 }
 
