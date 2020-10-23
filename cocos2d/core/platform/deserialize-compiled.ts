@@ -994,12 +994,12 @@ export function unpackJSONs (data: IPackedFileData, classFinder?: ClassFinder): 
     return sections;
 }
 
-export function packCustomObjData (type: string, data: IClassObjectData|OtherObjectData): IFileData {
+export function packCustomObjData (type: string, data: IClassObjectData|OtherObjectData, hasNativeDep?: boolean): IFileData {
     return [
         SUPPORT_MIN_FORMAT_VERSION, EMPTY_PLACEHOLDER, EMPTY_PLACEHOLDER,
         [type],
         EMPTY_PLACEHOLDER,
-        [data],
+        hasNativeDep ? [data, ~0] : [data],
         [0],
         EMPTY_PLACEHOLDER, [], [], []
     ];
