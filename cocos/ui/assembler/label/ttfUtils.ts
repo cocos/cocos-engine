@@ -272,6 +272,7 @@ export const ttfUtils =  {
                     mipmapLevel: 1
                 });
                 tex.uploadData(_canvas);
+                tex.releaseDescriptorSetCache();
             }
         }
     },

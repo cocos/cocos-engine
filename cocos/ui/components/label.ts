@@ -731,7 +731,8 @@ export class Label extends UIRenderable {
     }
 
     protected _render (render: UI) {
-        render.commitComp(this, this._texture!.getGFXTexture(), this._assembler!, this._texture!.getGFXSampler());
+        render.commitComp(this, this._texture!.getGFXTexture(), this._assembler!, this._texture!.getGFXSampler(),
+        this._texture!.getHash(), this._texture!.getSamplerHash());
     }
 
     protected _updateColor () {
