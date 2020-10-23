@@ -24,35 +24,18 @@
  THE SOFTWARE.
 */
 
+import { ccclass, serializable, editable } from '../data/decorators';
+import { Asset } from './asset';
+import { SpriteFrame } from './sprite-frame';
+
 /**
- * @packageDocumentation
- * @hidden
+ * Class for particle asset handling.
+ * @class ParticleAsset
+ * @extends Asset
  */
-import { legacyCC } from '../global-exports';
-export { RawAsset } from './raw-asset';
-export { Asset } from './asset';
-export {default as Prefab} from './prefab';
-export * from './scripts';
-export {default as SceneAsset} from './scene-asset';
-export * from './sprite-frame';
-export { SpriteAtlas } from './sprite-atlas';
-export {default as TextAsset} from './text-asset';
-export {default as JsonAsset} from './json-asset';
-export {default as AssetLibrary} from './asset-library';
-export { ImageAsset } from './image-asset';
-export { Texture2D } from './texture-2d';
-export { TextureCube } from './texture-cube';
-export { TTFFont } from './ttf-font';
-export { LabelAtlas } from './label-atlas';
-export { BitmapFont } from './bitmap-font';
-export { Font } from './font';
-import * as textureUtil from './texture-util';
-legacyCC.textureUtil = textureUtil;
-export { textureUtil };
-export { EffectAsset } from './effect-asset';
-export { Material } from './material';
-export { Mesh, RenderingSubMesh } from './mesh';
-export { Skeleton } from './skeleton';
-export { RenderTexture } from './render-texture';
-import './deprecation';
-export { ParticleAsset } from './particle-asset';
+@ccclass('cc.ParticleAsset')
+export class ParticleAsset extends Asset {
+    @serializable
+    @editable
+    public spriteFrame: SpriteFrame | null= null;
+}

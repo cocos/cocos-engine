@@ -686,7 +686,7 @@ export class Game extends EventTarget {
         this._lastTime = new Date();
         const frameRate = legacyCC.game.config.frameRate;
         this._frameTime = 1000 / frameRate;
-
+        legacyCC.director._maxParticleDeltaTime = this._frameTime / 1000 * 2;
         if (JSB || RUNTIME_BASED) {
             // @ts-ignore
             jsb.setPreferredFramesPerSecond(frameRate);
