@@ -477,7 +477,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
     protected createTexture (prop: string) {
         const tex = new Texture2D();
         tex.setFilters(Filter.LINEAR, Filter.LINEAR);
-        tex.setMipFilter(Filter.LINEAR);
+        tex.setMipFilter(Filter.NEAREST);
         tex.reset({
             width: this.atlasSize,
             height: this.atlasSize,
