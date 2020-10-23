@@ -347,8 +347,7 @@ const uint CAMERA_DEFAULT_MASK = ~static_cast<uint>(LayerList::UI_2D) & ~static_
 //constexpr CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
 //                                                           Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
 
-bool aabb_frustum(const AABB *, const Frustum *);
-
+uint nextPow2(uint val);
 enum class CC_DLL SetIndex {
     GLOBAL,
     MATERIAL,

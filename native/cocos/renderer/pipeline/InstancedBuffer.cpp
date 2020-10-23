@@ -1,19 +1,23 @@
 #include "InstancedBuffer.h"
 #include "gfx/GFXBuffer.h"
+#include "gfx/GFXCommandBuffer.h"
 #include "gfx/GFXDescriptorSet.h"
 #include "gfx/GFXDevice.h"
 #include "gfx/GFXInputAssembler.h"
-#include "gfx/GFXCommandBuffer.h"
 #include "helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {
-map<uint, InstancedBuffer *> InstancedBuffer::_buffers;
+map<uint, map<uint, InstancedBuffer *>> InstancedBuffer::_buffers;
 InstancedBuffer *InstancedBuffer::get(uint pass) {
-    if (_buffers.find(pass) == _buffers.end()) {
-        _buffers[pass] = CC_NEW(InstancedBuffer(GET_PASS(pass)));
-    }
-    return _buffers[pass];
+    return InstancedBuffer::get(pass, 0);
+}
+InstancedBuffer *InstancedBuffer::get(uint pass, uint extraKey) {
+    auto &record = _buffers[pass];
+    auto &buffer = record[extraKey];
+    if (buffer == nullptr) buffer = CC_NEW(InstancedBuffer(GET_PASS(pass)));
+
+    return buffer;
 }
 
 InstancedBuffer::InstancedBuffer(const PassView *pass)
@@ -123,5 +127,8 @@ void InstancedBuffer::clear() {
     _hasPendingModels = false;
 }
 
+void InstancedBuffer::setDynamicOffset(uint idx, uint value) {
+    _dynamicoffsets[idx] = value;
+}
 } // namespace pipeline
 } // namespace cc

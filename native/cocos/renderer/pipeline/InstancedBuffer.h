@@ -25,12 +25,14 @@ struct CC_DLL InstancedItem {
     gfx::Texture *lightingMap = nullptr;
 };
 typedef vector<InstancedItem> InstancedItemList;
+typedef vector<uint> DynamicOffsetList;
 
 class InstancedBuffer : public Object {
 public:
     static constexpr uint INITIAL_CAPACITY = 32;
     static constexpr uint MAX_CAPACITY = 1024;
     static InstancedBuffer *get(uint pass);
+    static InstancedBuffer *get(uint pass, uint extraKey);
 
     InstancedBuffer(const PassView *pass);
     virtual ~InstancedBuffer();
@@ -39,18 +41,19 @@ public:
     void merge(const ModelView *, const SubModelView *, uint);
     void uploadBuffers(gfx::CommandBuffer *cmdBuff);
     void clear();
+    void setDynamicOffset(uint idx, uint value);
 
     CC_INLINE const InstancedItemList &getInstances() const { return _instances; }
     CC_INLINE const PassView *getPass() const { return _pass; }
     CC_INLINE bool hasPendingModels() const { return _hasPendingModels; }
-    CC_INLINE const vector<uint> &dynamicOffsets() const { return _dynamicoffsets; }
+    CC_INLINE const DynamicOffsetList &dynamicOffsets() const { return _dynamicoffsets; }
 
 private:
-    static map<uint, InstancedBuffer *> _buffers;
+    static map<uint, map<uint, InstancedBuffer *>> _buffers;
     InstancedItemList _instances;
     const PassView *_pass = nullptr;
     bool _hasPendingModels = false;
-    vector<uint> _dynamicoffsets;
+    DynamicOffsetList _dynamicoffsets;
     gfx::Device *_device = nullptr;
 };
 

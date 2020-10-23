@@ -12,10 +12,10 @@ public:
     RenderInstancedQueue() = default;
     ~RenderInstancedQueue() = default;
 
-    void clear();
-    void uploadBuffers(gfx::CommandBuffer *cmdBuffer);
     void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer);
     void add(InstancedBuffer *instancedBuffer);
+    void uploadBuffers(gfx::CommandBuffer *cmdBuffer);
+    void clear();
 
 private:
     set<InstancedBuffer *> _queues;

@@ -40,6 +40,7 @@ enum class PoolType {
     ATTRIBUTE_ARRAY,
     FLAT_BUFFER_ARRAY,
     INSTANCED_ATTRIBUTE_ARRAY,
+    LIGHT_ARRAY,
 
     // raw buffer
     RAW_BUFFER = 300,

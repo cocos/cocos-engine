@@ -44,7 +44,7 @@ void RenderBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPas
                 boundPSO = true;
             }
 
-            cmdBuffer->bindDescriptorSet(LOCAL_SET, batch.descriptorSet);
+            cmdBuffer->bindDescriptorSet(LOCAL_SET, batch.descriptorSet, batchedBuffer->getDynamicOffset());
             cmdBuffer->bindInputAssembler(batch.ia);
             cmdBuffer->draw(batch.ia);
         }

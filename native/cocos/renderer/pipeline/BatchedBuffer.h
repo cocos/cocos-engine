@@ -22,10 +22,12 @@ struct CC_DLL BatchedItem {
     gfx::Shader *shader = nullptr;
 };
 typedef vector<BatchedItem> BatchedItemList;
+typedef vector<uint> DynamicOffsetList;
 
 class CC_DLL BatchedBuffer : public Object {
 public:
     static BatchedBuffer *get(uint pass);
+    static BatchedBuffer *get(uint pass, uint extraKey);
 
     BatchedBuffer(const PassView *pass);
     virtual ~BatchedBuffer();
@@ -33,12 +35,15 @@ public:
     void destroy();
     void merge(const SubModelView *, uint passIdx, const RenderObject *);
     void clear();
+    void setDynamicOffset(uint idx, uint value);
 
     CC_INLINE const BatchedItemList &getBatches() const { return _batches; }
     CC_INLINE const PassView *getPass() const { return _pass; }
+    CC_INLINE const DynamicOffsetList &getDynamicOffset() const { return _dynamicOffsets; }
 
 private:
-    static map<uint, BatchedBuffer *> _buffers;
+    static map<uint, map<uint, BatchedBuffer *>> _buffers;
+    DynamicOffsetList _dynamicOffsets;
     BatchedItemList _batches;
     const PassView *_pass = nullptr;
     gfx::Device *_device = nullptr;

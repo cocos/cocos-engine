@@ -31,7 +31,6 @@ void getShadowWorldMatrix(const Shadows *shadows, const cc::Vec4 &rotation, cons
     translation.scale(distance);
     translation.add(sphere->center);
 
-    
     Mat4::fromRT(rotation, translation, &shadowWorldMat);
 }
 
@@ -164,12 +163,12 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
 
                     // shadow render Object
                     if (model->castShadow) {
-                        sphere->mergeAABB(model->getWroldBounds());
+                        sphere->mergeAABB(model->getWorldBounds());
                         shadowObjects.emplace_back(genRenderObject(model, camera));
                     }
 
                     //                     frustum culling
-                    if ((model->worldBoundsID) && !aabb_frustum(model->getWroldBounds(), camera->getFrustum())) {
+                    if ((model->worldBoundsID) && !aabb_frustum(model->getWorldBounds(), camera->getFrustum())) {
                         continue;
                     }
 

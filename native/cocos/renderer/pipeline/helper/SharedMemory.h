@@ -54,6 +54,7 @@ namespace pipeline {
 #define GET_ATTRIBUTE_ARRAY(index)           SharedMemory::getHandleArray(se::PoolType::ATTRIBUTE_ARRAY, index)
 #define GET_FLAT_BUFFER_ARRAY(index)         SharedMemory::getHandleArray(se::PoolType::FLAT_BUFFER_ARRAY, index)
 #define GET_INSTANCED_ATTRIBUTE_ARRAY(index) SharedMemory::getHandleArray(se::PoolType::INSTANCED_ATTRIBUTE_ARRAY, index)
+#define GET_LIGHT_ARRAY(index)               SharedMemory::getHandleArray(se::PoolType::LIGHT_ARRAY, index)
 
 #define GET_RAW_BUFFER(index, size) SharedMemory::getRawBuffer<uint8_t>(se::PoolType::RAW_BUFFER, index, size)
 
@@ -110,16 +111,47 @@ struct CC_DLL AABB {
 
     const static se::PoolType type;
 };
+bool aabb_aabb(const AABB *, const AABB *);
 
+struct CC_DLL Plane {
+    cc::Vec3 normal;
+    float distance;
+};
+
+constexpr uint PLANE_LENGTH = 6;
+struct CC_DLL Frustum {
+    cc::Vec3 vertices[8];
+    Plane planes[PLANE_LENGTH];
+
+    const static se::PoolType type;
+};
+bool aabb_frustum(const AABB *, const Frustum *);
+
+enum class LightType {
+    DIRECTIONAL,
+    SPHERE,
+    SPOT,
+    UNKNOWN,
+};
 struct CC_DLL Light {
     uint32_t useColorTemperature = 0;
-    float illuminance = 0;
+    float luminance = 0;
     uint32_t nodeID = 0;
+    float range = 0;
+    uint32_t lightType = 0;
+    uint32_t aabbID = 0;
+    uint32_t frustumID = 0;
+    float size;
+    float spotAngle;
     cc::Vec3 direction;
     cc::Vec3 color;
     cc::Vec3 colorTemperatureRGB;
+    cc::Vec3 position;
 
     CC_INLINE const Node *getNode() const { return GET_NODE(nodeID); }
+    CC_INLINE LightType getType() const { return static_cast<LightType>(lightType); }
+    CC_INLINE const AABB *getAABB() const { return GET_AABB(aabbID); }
+    CC_INLINE const Frustum *getFrustum() const { return GET_FRUSTUM(frustumID); }
 
     const static se::PoolType type;
 };
@@ -214,7 +246,7 @@ struct CC_DLL ModelView {
     uint32_t instancedBufferID = 0; // raw buffer id
     uint32_t instancedAttrsID = 0;  // array pool id
 
-    CC_INLINE const AABB *getWroldBounds() const { return GET_AABB(worldBoundsID); }
+    CC_INLINE const AABB *getWorldBounds() const { return GET_AABB(worldBoundsID); }
     CC_INLINE const Node *getNode() const { return GET_NODE(nodeID); }
     CC_INLINE const Node *getTransform() const { return GET_NODE(transformID); }
     CC_INLINE const uint *getSubModelID() const { return GET_SUBMODEL_ARRAY(subModelsID); }
@@ -227,24 +259,17 @@ struct CC_DLL ModelView {
 
 struct CC_DLL Scene {
     uint32_t mainLightID = 0;
-    uint32_t modelsID = 0; //array pool
+    uint32_t modelsID = 0; // array pool
+    uint32_t sphereLights; // array pool
+    uint32_t spotLights;   // array pool
 
     CC_INLINE const Light *getMainLight() const { return GET_LIGHT(mainLightID); }
+    CC_INLINE const uint *getSphereLightArrayID() const { return GET_LIGHT_ARRAY(sphereLights); }
+    CC_INLINE const Light *getSphereLight(uint idx) const { return GET_LIGHT(idx); }
+    CC_INLINE const uint *getSpotLightArrayID() const { return GET_LIGHT_ARRAY(spotLights); }
+    CC_INLINE const Light *getSpotLight(uint idx) const { return GET_LIGHT(idx); }
     CC_INLINE const uint *getModels() const { return GET_MODEL_ARRAY(modelsID); }
     CC_INLINE const ModelView *getModelView(uint idx) const { return GET_MODEL(idx); }
-
-    const static se::PoolType type;
-};
-
-struct CC_DLL Plane {
-    cc::Vec3 normal;
-    float distance;
-};
-
-constexpr uint PLANE_LENGTH = 6;
-struct CC_DLL Frustum {
-    cc::Vec3 vertices[8];
-    Plane planes[PLANE_LENGTH];
 
     const static se::PoolType type;
 };
@@ -313,6 +338,7 @@ struct CC_DLL Sphere {
 
     const static se::PoolType type;
 };
+bool sphere_frustum(const Sphere *sphere, const Frustum *frustum);
 
 enum class CC_DLL ShadowType {
     PLANAR = 0,
