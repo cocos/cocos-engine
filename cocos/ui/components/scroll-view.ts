@@ -686,10 +686,10 @@ export class ScrollView extends ViewGroup {
      * ```ts
      * // Scroll to middle position in 0.1 second in x-axis
      * let maxScrollOffset = this.getMaxScrollOffset();
-     * scrollView.scrollToOffset(new Vec3(maxScrollOffset.x / 2, 0, 0), 0.1);
+     * scrollView.scrollToOffset(new Vec2(maxScrollOffset.x / 2, 0), 0.1);
      * ```
      */
-    public scrollToOffset (offset: Vec3, timeInSecond?: number, attenuated = true) {
+    public scrollToOffset (offset: Vec2, timeInSecond?: number, attenuated = true) {
         const maxScrollOffset = this.getMaxScrollOffset();
 
         const anchor = new Vec2(0, 0);
@@ -722,7 +722,7 @@ export class ScrollView extends ViewGroup {
         const topDelta = this._getContentTopBoundary() - this._topBoundary;
         const leftDelta = this._getContentLeftBoundary() - this._leftBoundary;
 
-        return new Vec3(leftDelta, topDelta, 0);
+        return new Vec2(leftDelta, topDelta);
     }
 
     /**
@@ -744,7 +744,7 @@ export class ScrollView extends ViewGroup {
         horizontalMaximizeOffset = horizontalMaximizeOffset >= 0 ? horizontalMaximizeOffset : 0;
         verticalMaximizeOffset = verticalMaximizeOffset >= 0 ? verticalMaximizeOffset : 0;
 
-        return new Vec3(horizontalMaximizeOffset, verticalMaximizeOffset, 0);
+        return new Vec2(horizontalMaximizeOffset, verticalMaximizeOffset);
     }
 
     /**
@@ -851,20 +851,12 @@ export class ScrollView extends ViewGroup {
         this._autoScrollAccumulatedTime = this._autoScrollTotalTime;
     }
 
-    /**
-     * @en
-     * Modify the content position.
-     *
-     * @zh
-     * 设置当前视图内容的坐标点。
-     *
-     * @param position - 当前视图坐标点.
-     */
-    public setContentPosition (position: Vec3) {
+
+    protected _setContentPosition (position: Vec3) {
         if (!this._content) {
             return;
         }
-        const contentPos = this.getContentPosition();
+        const contentPos = this._getContentPosition();
         if (Math.abs(position.x - contentPos.x) < EPSILON && Math.abs(position.y - contentPos.y) < EPSILON) {
             return;
         }
@@ -873,16 +865,8 @@ export class ScrollView extends ViewGroup {
         this._outOfBoundaryAmountDirty = true;
     }
 
-    /**
-     * @en
-     * Query the content's position in its parent space.
-     *
-     * @zh
-     * 获取当前视图内容的坐标点。
-     *
-     * @returns - 当前视图内容的坐标点.
-     */
-    public getContentPosition () {
+
+    protected _getContentPosition () {
         if (!this._content){
             return ZERO;
         }
@@ -1199,7 +1183,7 @@ export class ScrollView extends ViewGroup {
         this._autoScrolling = true;
         this._autoScrollTargetDelta = adjustedDeltaMove;
         this._autoScrollAttenuate = attenuated;
-        Vec3.copy(this._autoScrollStartPosition, this.getContentPosition());
+        Vec3.copy(this._autoScrollStartPosition, this._getContentPosition());
         this._autoScrollTotalTime = timeInSecond;
         this._autoScrollAccumulatedTime = 0;
         this._autoScrollBraking = false;
@@ -1241,10 +1225,10 @@ export class ScrollView extends ViewGroup {
 
     protected _moveContent (deltaMove: Vec3, canStartBounceBack?: boolean) {
         const adjustedMove = this._flattenVectorByDirection(deltaMove);
-        _tempVec3.set(this.getContentPosition());
+        _tempVec3.set(this._getContentPosition());
         _tempVec3.add(adjustedMove);
         _tempVec3.set(Math.floor(_tempVec3.x * TOLERANCE) * EPSILON, Math.floor(_tempVec3.y * TOLERANCE) * EPSILON, _tempVec3.z);
-        this.setContentPosition(_tempVec3);
+        this._setContentPosition(_tempVec3);
         const outOfBoundary = this._getHowMuchOutOfBoundary();
         this._updateScrollBar(outOfBoundary);
 
@@ -1257,7 +1241,7 @@ export class ScrollView extends ViewGroup {
         if (!this._content) {
             return -1;
         }
-        const contentPos = this.getContentPosition();
+        const contentPos = this._getContentPosition();
         const uiTrans = this._content!._uiProps.uiTransformComp!;
         return contentPos.x - uiTrans.anchorX * uiTrans.width;
     }
@@ -1282,7 +1266,7 @@ export class ScrollView extends ViewGroup {
         if (!this._content) {
             return -1;
         }
-        const contentPos = this.getContentPosition();
+        const contentPos = this._getContentPosition();
         const uiTrans = this._content!._uiProps.uiTransformComp!;
         return contentPos.y - uiTrans.anchorY * uiTrans.height;
     }
@@ -1317,11 +1301,11 @@ export class ScrollView extends ViewGroup {
 
     protected _updateScrollBar (outOfBoundary: Vec3) {
         if (this._horizontalScrollBar) {
-            this._horizontalScrollBar.onScroll(outOfBoundary);
+            this._horizontalScrollBar.onScroll(new Vec2(outOfBoundary.x, outOfBoundary.y));
         }
 
         if (this.verticalScrollBar) {
-            this.verticalScrollBar.onScroll(outOfBoundary);
+            this.verticalScrollBar.onScroll(new Vec2(outOfBoundary.x, outOfBoundary.y));
         }
     }
 
@@ -1374,7 +1358,7 @@ export class ScrollView extends ViewGroup {
         this._outOfBoundaryAmountDirty = true;
         if (this._isOutOfBoundary()) {
             const outOfBoundary = this._getHowMuchOutOfBoundary();
-            _tempVec3.set(this.getContentPosition());
+            _tempVec3.set(this._getContentPosition());
             _tempVec3.add(outOfBoundary);
             this._content.setPosition(_tempVec3);
             this._updateScrollBar(ZERO);
@@ -1622,7 +1606,7 @@ export class ScrollView extends ViewGroup {
             if (!this._autoScrollCurrentlyOutOfBoundary) {
                 this._autoScrollCurrentlyOutOfBoundary = true;
                 this._autoScrollBraking = true;
-                this._autoScrollBrakingStartPosition = this.getContentPosition();
+                this._autoScrollBrakingStartPosition = this._getContentPosition();
                 return true;
             }
 
@@ -1665,7 +1649,7 @@ export class ScrollView extends ViewGroup {
             newPosition.add(brakeOffsetPosition);
         } else {
             const moveDelta = new Vec3(newPosition);
-            moveDelta.subtract(this.getContentPosition());
+            moveDelta.subtract(this._getContentPosition());
             const outOfBoundary = this._getHowMuchOutOfBoundary(moveDelta);
             if (!outOfBoundary.equals(ZERO, EPSILON)) {
                 newPosition.add(outOfBoundary);
@@ -1678,7 +1662,7 @@ export class ScrollView extends ViewGroup {
         }
 
         const deltaMove = new Vec3(newPosition);
-        deltaMove.subtract(this.getContentPosition());
+        deltaMove.subtract(this._getContentPosition());
         this._moveContent(this._clampDelta(deltaMove), reachedEnd);
         this._dispatchEvent(EventType.SCROLLING);
 
