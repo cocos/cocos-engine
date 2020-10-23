@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,13 +25,30 @@
 
 /**
  * @packageDocumentation
- * @module ui
+ * @hidden
  */
 
-import './utils';
-export * from './graphics';
-export * from './label';
-export * from './mask';
-export * from './sprite';
-export * from "./tiledmap";
-export * from '../../core/renderer/ui/base';
+import { UIRenderable } from '../../../core/components/ui-base/ui-renderable';
+import { IAssemblerManager } from '../../../core/renderer/ui/base';
+import {TiledLayer, TiledMap} from "../../../tiledmap";
+import { simple } from './simple';
+
+
+// Inline all type switch to avoid jit deoptimization during inlined function change
+
+const tiledLayerAssembler: IAssemblerManager = {
+    getAssembler (spriteComp: UIRenderable) {
+        return simple;
+    },
+
+    // Skip invalid sprites (without own _assembler)
+    // updateRenderData (sprite) {
+    //     return sprite.__allocedDatas;
+    // },
+};
+
+TiledLayer.Assembler = tiledLayerAssembler;
+
+export {
+    tiledLayerAssembler
+};

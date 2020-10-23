@@ -19,6 +19,7 @@ import {
     spriteAssembler,
     ttf,
     earcut,
+    tiledLayerAssembler,
 } from './assembler';
 import { MeshBuffer } from '../core/renderer/ui/mesh-buffer';
 import * as UIVertexFormat from '../core/renderer/ui/ui-vertex-format';
@@ -48,6 +49,7 @@ export {
     labelAssembler,
     graphicsAssembler,
     earcut,
+    tiledLayerAssembler
 };
 
 legacyCC.UI = {
@@ -66,4 +68,5 @@ legacyCC.UI = {
     spriteAssembler,
     graphicsAssembler,
     labelAssembler,
+    tiledLayerAssembler,
 };

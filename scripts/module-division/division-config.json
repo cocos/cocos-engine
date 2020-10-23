@@ -122,6 +122,12 @@
             "description": "Terrain support",
             "entry": "terrain",
             "default": true
+        },
+        {
+            "text": "TiledMap",
+            "description": "TimedMap support",
+            "entry": "tiled-map",
+            "default": true
         }
     ]
 }

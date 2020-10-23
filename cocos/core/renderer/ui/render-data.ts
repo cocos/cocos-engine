@@ -152,6 +152,15 @@ export class MeshRenderData extends BaseRenderData {
 
     public request (vertexCount: number, indicesCount: number) {
         const byteOffset = this.byteCount + vertexCount * this._formatByte;
+        this.reserve(vertexCount, vertexCount);
+        this.vertexCount += vertexCount; // vertexOffset
+        this.indicesCount += indicesCount; // indicesOffset
+        this.byteCount = byteOffset; // byteOffset
+        return true;
+    }
+
+    public reserve(vertexCount: number, indicesCount: number) {
+        const byteOffset = this.byteCount + vertexCount * this._formatByte;
         const indicesOffset = this.indicesCount + indicesCount;
 
         if (vertexCount + this.vertexCount > 65535) {
@@ -173,11 +182,12 @@ export class MeshRenderData extends BaseRenderData {
 
             this._reallocBuffer(vCount, iCount);
         }
+    }
 
+    public advance(vertexCount: number, indicesCount: number) {
         this.vertexCount += vertexCount; // vertexOffset
         this.indicesCount += indicesCount; // indicesOffset
-        this.byteCount = byteOffset; // byteOffset
-        return true;
+        this.byteCount += vertexCount * this._formatByte;
     }
 
     public reset () {

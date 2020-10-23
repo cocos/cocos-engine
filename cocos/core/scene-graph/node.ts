@@ -562,7 +562,23 @@ export class Node extends BaseNode {
      */
     public setPosition (x: number, y: number, z: number): void;
 
-    public setPosition (val: Vec3 | number, y?: number, z?: number) {
+    
+    /**
+     * @en Set position in local coordinate system
+     * @zh 设置本地坐标
+     * @param x X axis position
+     * @param y Y axis position
+     */
+    public setPosition (x: number, y: number): void;
+
+    /**
+     * @en Set position in local coordinate system
+     * @zh 设置本地坐标
+     * @param x X axis position
+     */
+    public setPosition (x: number): void;
+
+    public setPosition (val: Vec3 | number, y?: number, z?: number): void {
         if (y === undefined || z === undefined) {
             Vec3.copy(this._lpos, val as Vec3);
         } else {
