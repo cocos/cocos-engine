@@ -163,8 +163,6 @@ export class PhysicsSystem2D extends Eventify(System) {
         return instance;
     }
 
-    readonly useCollisionMatrix: boolean;
-
     /**
      * @en
      * Gets the collision matrix。
@@ -172,49 +170,6 @@ export class PhysicsSystem2D extends Eventify(System) {
      * 获取碰撞矩阵。
      */
     readonly collisionMatrix: ICollisionMatrix = new CollisionMatrix() as unknown as ICollisionMatrix;
-
-    /**
-     * @en
-     * Are collisions between `group1` and `group2`?
-     * @zh
-     * 两分组是否会产生碰撞？
-     */
-    isCollisionGroup (group1: number, group2: number) {
-        const cm = this.collisionMatrix;
-        const mask1 = cm[group1];
-        const mask2 = cm[group2];
-        if (DEBUG) {
-            if (mask1 == undefined || mask2 == undefined) {
-                error("[PHYSICS]: 'isCollisionGroup', the group do not exist in the collision matrix.");
-                return false;
-            }
-        }
-        return (group1 & mask2) && (group2 & mask1);
-    }
-
-    /**
-     * @en
-     * Sets whether collisions occur between `group1` and `group2`.
-     * @zh
-     * 设置两分组间是否产生碰撞。
-     * @param collision is collision occurs?
-     */
-    setCollisionGroup (group1: number, group2: number, collision: boolean = true) {
-        const cm = this.collisionMatrix;
-        if (DEBUG) {
-            if (cm[group1] == undefined || cm[group2] == undefined) {
-                error("[PHYSICS]: 'setCollisionGroup', the group do not exist in the collision matrix.");
-                return;
-            }
-        }
-        if (collision) {
-            cm[group1] |= group2;
-            cm[group2] |= group1;
-        } else {
-            cm[group1] &= ~group2;
-            cm[group2] &= ~group1;
-        }
-    }
 
     private _enable = true;
     private _allowSleep = true;
@@ -241,19 +196,15 @@ export class PhysicsSystem2D extends Eventify(System) {
             this._allowSleep = config.allowSleep;
             this._fixedTimeStep = config.fixedTimeStep;
             this._maxSubSteps = config.maxSubSteps;
-            this.useCollisionMatrix = config.useCollsionMatrix;
             this._autoSimulation = config.autoSimulation;
 
             if (config.collisionMatrix) {
                 for (const i in config.collisionMatrix) {
                     const bit = parseInt(i);
                     const value = 1 << parseInt(i);
-                    this.collisionMatrix[`_${value}`] = config.collisionMatrix[bit];
+                    this.collisionMatrix[`${value}`] = config.collisionMatrix[bit];
                 }
             }
-        }
-        else {
-            this.useCollisionMatrix = false;
         }
 
         this.physicsWorld = createPhysicsWorld();
