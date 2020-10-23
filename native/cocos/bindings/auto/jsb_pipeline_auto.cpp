@@ -2287,21 +2287,58 @@ static bool js_pipeline_InstancedBuffer_destroy(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_InstancedBuffer_destroy)
 
-static bool js_pipeline_InstancedBuffer_get(se::State& s)
+static bool js_pipeline_InstancedBuffer_setDynamicOffset(se::State& s)
 {
+    cc::pipeline::InstancedBuffer* cobj = (cc::pipeline::InstancedBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_pipeline_InstancedBuffer_setDynamicOffset : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 1) {
+    if (argc == 2) {
         unsigned int arg0 = 0;
+        unsigned int arg1 = 0;
         ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-        SE_PRECONDITION2(ok, false, "js_pipeline_InstancedBuffer_get : Error processing arguments");
-        cc::pipeline::InstancedBuffer* result = cc::pipeline::InstancedBuffer::get(arg0);
-        ok &= native_ptr_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_pipeline_InstancedBuffer_get : Error processing arguments");
+        ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+        SE_PRECONDITION2(ok, false, "js_pipeline_InstancedBuffer_setDynamicOffset : Error processing arguments");
+        cobj->setDynamicOffset(arg0, arg1);
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_InstancedBuffer_setDynamicOffset)
+
+static bool js_pipeline_InstancedBuffer_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    do {
+        if (argc == 2) {
+            unsigned int arg0 = 0;
+            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+            if (!ok) { ok = true; break; }
+            unsigned int arg1 = 0;
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            if (!ok) { ok = true; break; }
+            cc::pipeline::InstancedBuffer* result = cc::pipeline::InstancedBuffer::get(arg0, arg1);
+            ok &= native_ptr_to_seval(result, &s.rval());
+            SE_PRECONDITION2(ok, false, "js_pipeline_InstancedBuffer_get : Error processing arguments");
+            return true;
+        }
+    } while (false);
+    do {
+        if (argc == 1) {
+            unsigned int arg0 = 0;
+            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+            if (!ok) { ok = true; break; }
+            cc::pipeline::InstancedBuffer* result = cc::pipeline::InstancedBuffer::get(arg0);
+            ok &= native_ptr_to_seval(result, &s.rval());
+            SE_PRECONDITION2(ok, false, "js_pipeline_InstancedBuffer_get : Error processing arguments");
+            return true;
+        }
+    } while (false);
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
 SE_BIND_FUNC(js_pipeline_InstancedBuffer_get)
@@ -2343,6 +2380,7 @@ bool js_register_pipeline_InstancedBuffer(se::Object* obj)
     auto cls = se::Class::create("InstancedBuffer", obj, nullptr, _SE(js_pipeline_InstancedBuffer_constructor));
 
     cls->defineFunction("destroy", _SE(js_pipeline_InstancedBuffer_destroy));
+    cls->defineFunction("setDynamicOffset", _SE(js_pipeline_InstancedBuffer_setDynamicOffset));
     cls->defineStaticFunction("get", _SE(js_pipeline_InstancedBuffer_get));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_InstancedBuffer_finalize));
     cls->install();
