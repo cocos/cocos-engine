@@ -45,7 +45,7 @@
 {
 //    auto glview = cocos2d::Director::getInstance()->getOpenGLView();
 //    return glview->getCocoaWindow();
-    CCLOG("- (id) getNSWindow");
+    CC_LOG_DEBUG("- (id) getNSWindow");
 }
 
 - (void)dealloc
@@ -192,7 +192,7 @@ PlayerEditBoxServiceMac::~PlayerEditBoxServiceMac()
     [_sysEdit release];
 }
 
-void PlayerEditBoxServiceMac::showSingleLineEditBox(const cocos2d::Rect &rect)
+void PlayerEditBoxServiceMac::showSingleLineEditBox(const cc::Rect &rect)
 {
     [[_sysEdit.textField cell] setLineBreakMode:NSLineBreakByTruncatingTail];
     [[_sysEdit.textField cell] setTruncatesLastVisibleLine:YES];
@@ -203,7 +203,7 @@ void PlayerEditBoxServiceMac::showSingleLineEditBox(const cocos2d::Rect &rect)
     show();
 }
 
-void PlayerEditBoxServiceMac::showMultiLineEditBox(const cocos2d::Rect &rect)
+void PlayerEditBoxServiceMac::showMultiLineEditBox(const cc::Rect &rect)
 {
     [[_sysEdit.textField cell] setLineBreakMode:NSLineBreakByCharWrapping];
     [[_sysEdit.textField cell] setTruncatesLastVisibleLine:NO];
@@ -250,7 +250,7 @@ void PlayerEditBoxServiceMac::show()
 
 void PlayerEditBoxServiceMac::setFormator(int formator)
 {
-    CCLOG("Not support yet.");
+    CC_LOG_DEBUG("Not support yet.");
 }
 
 PLAYER_NS_END;

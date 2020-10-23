@@ -61,9 +61,9 @@ void ConfigParser::readConfig(const string &filepath)
     // read config file
     if (fullPathFile.empty())
     {
-        fullPathFile = cocos2d::FileUtils::getInstance()->fullPathForFilename(CONFIG_FILE);
+        fullPathFile = cc::FileUtils::getInstance()->fullPathForFilename(CONFIG_FILE);
     }
-    string fileContent = cocos2d::FileUtils::getInstance()->getStringFromFile(fullPathFile);
+    string fileContent = cc::FileUtils::getInstance()->getStringFromFile(fullPathFile);
   
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
     // revert search path
@@ -75,7 +75,7 @@ void ConfigParser::readConfig(const string &filepath)
         return;
     
     if (_docRootjson.Parse<0>(fileContent.c_str()).HasParseError()) {
-        cocos2d::log("read json file %s failed because of %d", fullPathFile.c_str(), _docRootjson.GetParseError());
+        CC_LOG_DEBUG("read json file %s failed because of %d", fullPathFile.c_str(), _docRootjson.GetParseError());
         return;
     }
     
@@ -175,7 +175,7 @@ string ConfigParser::getEntryFile()
     return _entryfile;
 }
 
-cocos2d::Size ConfigParser::getInitViewSize()
+cc::Size ConfigParser::getInitViewSize()
 {
     return _initViewSize;
 }
@@ -243,7 +243,7 @@ void ConfigParser::setEntryFile(const std::string &file)
     _entryfile = file;
 }
 
-void ConfigParser::setInitViewSize(const cocos2d::Size &size)
+void ConfigParser::setInitViewSize(const cc::Size &size)
 {
     _initViewSize = size;
 }

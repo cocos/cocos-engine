@@ -44,8 +44,8 @@ public:
     static const int FORMAT_NONE   = 0;
     static const int FORMAT_NUMBER = 1;
     
-    virtual void showSingleLineEditBox(const cocos2d::Rect &rect) = 0;
-    virtual void showMultiLineEditBox(const cocos2d::Rect &rect) = 0;
+    virtual void showSingleLineEditBox(const cc::Rect &rect) = 0;
+    virtual void showMultiLineEditBox(const cc::Rect &rect) = 0;
     virtual void hide() = 0;
 
     virtual void setText(const std::string &text) = 0;

@@ -48,7 +48,7 @@ public:
 
     // predefined screen size
     int getScreenSizeCount(void);
-    cocos2d::Size getInitViewSize();
+    cc::Size getInitViewSize();
     string getInitViewName();
     string getEntryFile();
     rapidjson::Document& getConfigJsonRoot();
@@ -63,7 +63,7 @@ public:
     bool isWaitForConnect();
     
     void setEntryFile(const std::string &file);
-    void setInitViewSize(const cocos2d::Size &size);
+    void setInitViewSize(const cc::Size &size);
     void setBindAddress(const std::string &address);
     const std::string &getBindAddress();
     
@@ -72,7 +72,7 @@ private:
     void setDebugPort(int port);
     static ConfigParser *s_sharedConfigParserInstance;
     ScreenSizeArray _screenSizeArray;
-    cocos2d::Size _initViewSize;
+    cc::Size _initViewSize;
     string _viewName;
     string _entryfile;
     bool _isLandscape;

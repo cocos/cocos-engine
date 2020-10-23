@@ -48,27 +48,27 @@ std::string RuntimeProtocol::getProjectPath() const
 
 void RuntimeProtocol::startScript(const std::string& script)
 {
-    CCLOG("%s: NOT SUPPRT", __FUNCTION__);    
+    CC_LOG_DEBUG("%s: NOT SUPPRT", __FUNCTION__);
 }
 
 void RuntimeProtocol::onStartDebuger(const rapidjson::Document& dArgParse, rapidjson::Document& dReplyParse)
 {
-    CCLOG("%s: NOT SUPPRT", __FUNCTION__);
+    CC_LOG_DEBUG("%s: NOT SUPPRT", __FUNCTION__);
 }
 
 void RuntimeProtocol::onClearCompile(const rapidjson::Document& dArgParse, rapidjson::Document& dReplyParse)
 {
-    CCLOG("%s: NOT SUPPRT", __FUNCTION__);
+    CC_LOG_DEBUG("%s: NOT SUPPRT", __FUNCTION__);
 }
 
 void RuntimeProtocol::onPrecompile(const rapidjson::Document& dArgParse, rapidjson::Document& dReplyParse)
 {
-    CCLOG("%s: NOT SUPPRT", __FUNCTION__);
+    CC_LOG_DEBUG("%s: NOT SUPPRT", __FUNCTION__);
 }
 
 void RuntimeProtocol::onReload(const rapidjson::Document& dArgParse, rapidjson::Document& dReplyParse)
 {
-    CCLOG("%s: NOT SUPPRT", __FUNCTION__);
+    CC_LOG_DEBUG("%s: NOT SUPPRT", __FUNCTION__);
 }
 
 void RuntimeProtocol::onRemove(const std::string &filename)

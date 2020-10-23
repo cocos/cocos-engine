@@ -41,7 +41,7 @@ PLAYER_NS_BEGIN
 #define kPlayerCtrlModifyKey  "ctrl"
 #define kPlayerAltModifyKey   "alt"
 
-class CC_LIBSIM_DLL PlayerMenuItem : public cocos2d::Ref
+class CC_LIBSIM_DLL PlayerMenuItem : public cc::Ref
 {
 public:
     virtual ~PlayerMenuItem();

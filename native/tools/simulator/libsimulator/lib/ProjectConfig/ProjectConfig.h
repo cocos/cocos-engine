@@ -88,8 +88,8 @@ public:
     void addPackagePath(const string &packagePath);
     vector<string> getPackagePathArray() const;
 
-    cocos2d::Size getFrameSize() const;
-    void setFrameSize(const cocos2d::Size &frameSize);
+    cc::Size getFrameSize() const;
+    void setFrameSize(const cc::Size &frameSize);
     bool isLandscapeFrame() const;
     bool isPortraitFrame() const;
     void changeFrameOrientation();
@@ -110,8 +110,8 @@ public:
     void setDebugLogFilePath(const std::string &logFile);
     string getDebugLogFilePath() const;
 
-    cocos2d::Vec2 getWindowOffset() const;
-    void setWindowOffset(const cocos2d::Vec2 &windowOffset);
+    cc::Vec2 getWindowOffset() const;
+    void setWindowOffset(const cc::Vec2 &windowOffset);
 
     int getDebuggerType() const;
     void setDebuggerType(int debuggerType);
@@ -142,13 +142,13 @@ private:
     string _scriptFile;
     string _packagePath;
     string _writablePath;
-    cocos2d::Size _frameSize;
+    cc::Size _frameSize;
     float _frameScale;
     bool _showConsole;
     bool _loadPrecompiledFramework;
     bool _writeDebugLogToFile;
     bool _restartProcess;
-    cocos2d::Vec2 _windowOffset;
+    cc::Vec2 _windowOffset;
     int _debuggerType;
     bool _isAppMenu;
     bool _isResizeWindow;

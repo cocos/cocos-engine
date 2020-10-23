@@ -39,18 +39,18 @@
 #include "runtime/ConfigParser.h"
 
 // js
-#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
-#include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp"
-#include "cocos/scripting/js-bindings/manual/jsb_classtype.hpp"
-#include "cocos/scripting/js-bindings/manual/jsb_conversions.cpp"
-#include "cocos/scripting/js-bindings/manual/jsb_module_register.hpp"
-#include "cocos/scripting/js-bindings/manual/jsb_global.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
+#include "cocos/bindings/auto/jsb_cocos_auto.h"
+#include "cocos/bindings/manual/jsb_classtype.h"
+#include "cocos/bindings/manual/jsb_conversions.h"
+#include "cocos/bindings/manual/jsb_module_register.h"
+#include "cocos/bindings/manual/jsb_global.h"
 
 static bool reloadScript(const string& file)
 {
-    CCLOG("------------------------------------------------");
-    CCLOG("RELOAD Js FILE: %s", file.c_str());
-    CCLOG("------------------------------------------------");
+    CC_LOG_DEBUG("------------------------------------------------");
+    CC_LOG_DEBUG("RELOAD Js FILE: %s", file.c_str());
+    CC_LOG_DEBUG("------------------------------------------------");
     se::ScriptEngine::getInstance()->cleanup();
 
     string modulefile = file;
@@ -67,7 +67,7 @@ static bool runtime_FileUtils_addSearchPath(se::State& s)
     const auto& args = s.args();
     int argc = (int)args.size();
     bool ok = true;
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils *)s.nativeThisObject();
     if (argc == 1 || argc == 2) {
         std::string arg0;
         bool arg1 = false;
@@ -80,7 +80,7 @@ static bool runtime_FileUtils_addSearchPath(se::State& s)
             arg1 = args[1].isBoolean() ? args[1].toBoolean() : false;
         }
         
-        if (! cocos2d::FileUtils::getInstance()->isAbsolutePath(arg0))
+        if (! cc::FileUtils::getInstance()->isAbsolutePath(arg0))
         {
             // add write path to search path
             if (FileServer::getShareInstance()->getIsUsingWritePath())
@@ -109,7 +109,7 @@ static bool runtime_FileUtils_setSearchPaths(se::State& s)
     const auto& args = s.args();
     int argc = (int)args.size();
     bool ok = true;
-    cocos2d::FileUtils* cobj = (cocos2d::FileUtils *)s.nativeThisObject();
+    cc::FileUtils* cobj = (cc::FileUtils *)s.nativeThisObject();
     if (argc == 1) {
         std::vector<std::string> vecPaths, writePaths;
         ok &= seval_to_std_vector_string(args[0], &vecPaths);
@@ -119,7 +119,7 @@ static bool runtime_FileUtils_setSearchPaths(se::State& s)
         std::vector<std::string> projPath; // for Desktop platform.
         for (int i = 0; i < vecPaths.size(); i++)
         {
-            if (!cocos2d::FileUtils::getInstance()->isAbsolutePath(vecPaths[i]))
+            if (!cc::FileUtils::getInstance()->isAbsolutePath(vecPaths[i]))
             {
                 originPath.push_back(vecPaths[i]); // for IOS platform.
                 projPath.push_back(RuntimeEngine::getInstance()->getRuntime()->getProjectPath()+vecPaths[i]); //for Desktop platform.
@@ -149,8 +149,8 @@ SE_BIND_FUNC(runtime_FileUtils_setSearchPaths)
 
 static bool register_FileUtils(se::Object* obj)
 {
-    __jsb_cocos2d_FileUtils_proto->defineFunction("addSearchPath", _SE(runtime_FileUtils_addSearchPath));
-    __jsb_cocos2d_FileUtils_proto->defineFunction("setSearchPaths", _SE(runtime_FileUtils_setSearchPaths));
+    __jsb_cc_FileUtils_proto->defineFunction("addSearchPath", _SE(runtime_FileUtils_addSearchPath));
+    __jsb_cc_FileUtils_proto->defineFunction("setSearchPaths", _SE(runtime_FileUtils_setSearchPaths));
     return true;
 }
 
@@ -270,9 +270,9 @@ bool RuntimeJsImpl::loadScriptFile(const std::string& path)
     {
         filepath = ConfigParser::getInstance()->getEntryFile();
     }
-    CCLOG("------------------------------------------------");
-    CCLOG("LOAD Js FILE: %s", filepath.c_str());
-    CCLOG("------------------------------------------------");
+    CC_LOG_DEBUG("------------------------------------------------");
+    CC_LOG_DEBUG("LOAD Js FILE: %s", filepath.c_str());
+    CC_LOG_DEBUG("------------------------------------------------");
     
     initJsEnv();
 

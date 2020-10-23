@@ -29,7 +29,7 @@
 
 
 PLAYER_NS_BEGIN
-using namespace cocos2d;
+using namespace cc;
 
 PlayerMac* PlayerMac::create()
 {

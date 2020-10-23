@@ -85,7 +85,7 @@
 {
     if (!absScriptPath)
     {
-        CCLOG("Please check your script (%s)", absScriptPath.UTF8String);
+        CC_LOG_DEBUG("Please check your script (%s)", absScriptPath.UTF8String);
         return ;
     }
     
@@ -150,7 +150,7 @@ bool PlayerTaskMac::run()
 {
     if (!isIdle())
     {
-        CCLOG("PlayerTaskMac::run() - task is not idle");
+        CC_LOG_DEBUG("PlayerTaskMac::run() - task is not idle");
         return false;
     }
     
@@ -209,7 +209,7 @@ void PlayerTaskMac::cleanup()
     
     [_taskPrivate release];
     _taskPrivate = nil;
-    CCLOG("\nCMD: (exit code: %d) %s", _resultCode, _output.c_str());
+    CC_LOG_DEBUG("\nCMD: (exit code: %d) %s", _resultCode, _output.c_str());
     
 //    cocos2d::Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(_name);
 }
@@ -223,7 +223,7 @@ std::u16string PlayerTaskMac::makeCommandLine() const
     buf << _commandLineArguments;
     
     std::u16string u16command;
-    cocos2d::StringUtils::UTF8ToUTF16(buf.str(), u16command);
+    cc::StringUtils::UTF8ToUTF16(buf.str(), u16command);
     return u16command;
 }
 

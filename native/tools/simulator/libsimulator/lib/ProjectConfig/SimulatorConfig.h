@@ -67,7 +67,7 @@ public:
     // predefined screen size
     int getScreenSizeCount() const;
     SimulatorScreenSize getScreenSize(int index) const;
-    int checkScreenSize(const cocos2d::Size &size) const;
+    int checkScreenSize(const cc::Size &size) const;
 
     // helper
     static void makeNormalizePath(string *path, const char *directorySeparator = NULL);

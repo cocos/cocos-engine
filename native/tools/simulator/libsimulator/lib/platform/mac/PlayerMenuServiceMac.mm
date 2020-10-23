@@ -96,7 +96,7 @@ static bool __G_IS_MENUBAR_ENABLED__ = true;    // WTF
             }
             else
             {
-                CCLOG("[modifyItem] shortcut (%s) is invalid.", shortcut.c_str());
+                CC_LOG_DEBUG("[modifyItem] shortcut (%s) is invalid.", shortcut.c_str());
             }
         }
     }
@@ -116,7 +116,7 @@ static bool __G_IS_MENUBAR_ENABLED__ = true;    // WTF
     buf << ",\"name\":" << "\"menuClicked\"" << "}";
     event.setDataString(buf.str());
     event.args[0].ptrVal = (void*)self.macMenuItem;
-    cocos2d::EventDispatcher::dispatchCustomEvent(event);
+    cc::EventDispatcher::dispatchCustomEvent(event);
 }
 
 -(BOOL) validateMenuItem:(NSMenuItem *)menuItem
@@ -156,14 +156,14 @@ PlayerMenuItemMac::~PlayerMenuItemMac()
         [_parent->_menu removeItem:_menuItem];
     }
     
-    CCLOG("PlayerMenuItemWin::~PlayerMenuItemWin() - %s", _menuId.c_str());
+    CC_LOG_DEBUG("PlayerMenuItemWin::~PlayerMenuItemWin() - %s", _menuId.c_str());
 }
 
 void PlayerMenuItemMac::setTitle(const std::string &title)
 {
     if (title.length() == 0)
     {
-        CCLOG("MenuServiceWin::setTitle() - can not set menu title to empty, menu id (%s)", _menuId.c_str());
+        CC_LOG_DEBUG("MenuServiceWin::setTitle() - can not set menu title to empty, menu id (%s)", _menuId.c_str());
         return;
     }
     
@@ -216,7 +216,7 @@ PlayerMenuServiceMac::PlayerMenuServiceMac()
 
 PlayerMenuServiceMac::~PlayerMenuServiceMac()
 {
-    cocos2d::log("~PlayerMenuServiceMac");
+    CC_LOG_DEBUG("~PlayerMenuServiceMac");
     _items.clear();
 }
 
@@ -225,14 +225,14 @@ PlayerMenuItem* PlayerMenuServiceMac::addItem(const std::string &menuId, const s
 {
     if (menuId.length() == 0 || title.length() == 0)
     {
-        CCLOG("PlayerMenuServiceMac::addItem() - menuId and title must is non-empty");
+        CC_LOG_DEBUG("PlayerMenuServiceMac::addItem() - menuId and title must is non-empty");
         return nullptr;
     }
     
     // check menu id is exists
     if (_items.find(menuId) != _items.end())
     {
-        CCLOG("PlayerMenuServiceMac::addItem() - menu id (%s) is exists", menuId.c_str());
+        CC_LOG_DEBUG("PlayerMenuServiceMac::addItem() - menu id (%s) is exists", menuId.c_str());
         return nullptr;
     }
     
@@ -304,7 +304,7 @@ PlayerMenuItem* PlayerMenuServiceMac::getItem(const std::string &menuId)
     auto it = _items.find(menuId);
     if (it == _items.end())
     {
-        CCLOG("MenuServiceWin::getItem() - Invalid menu id (%s)", menuId.c_str());
+        CC_LOG_DEBUG("MenuServiceWin::getItem() - Invalid menu id (%s)", menuId.c_str());
         return nullptr;
     }
     
@@ -328,7 +328,7 @@ bool PlayerMenuServiceMac::removeItemInternal(const std::string &menuId, bool is
     auto it = _items.find(menuId);
     if (it == _items.end())
     {
-        CCLOG("MenuServiceWin::removeItem() - Invalid menu id (%s)", menuId.c_str());
+        CC_LOG_DEBUG("MenuServiceWin::removeItem() - Invalid menu id (%s)", menuId.c_str());
         return false;
     }
 
@@ -350,7 +350,7 @@ bool PlayerMenuServiceMac::removeItemInternal(const std::string &menuId, bool is
         
         if (!removed)
         {
-            CCLOG("MenuServiceWin::removeItem() - remove menu item (%s) failed, not found command id from parent->children", item->_menuId.c_str());
+            CC_LOG_DEBUG("MenuServiceWin::removeItem() - remove menu item (%s) failed, not found command id from parent->children", item->_menuId.c_str());
         }
 
         // remove menu id mapping

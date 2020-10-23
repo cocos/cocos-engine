@@ -25,7 +25,7 @@
 
 
 #include "PlayerProtocol.h"
-#include "base/ccMacros.h"
+#include "base/Macros.h"
 
 PLAYER_NS_BEGIN
 

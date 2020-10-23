@@ -92,7 +92,7 @@ const char* getRuntimeVersion()
 
 void resetDesignResolution()
 {
-    cocos2d::Size size = ConfigParser::getInstance()->getInitViewSize();
+    cc::Size size = ConfigParser::getInstance()->getInitViewSize();
     if (!ConfigParser::getInstance()->isLanscape())
     {
         if (size.width > size.height)
@@ -103,8 +103,8 @@ void resetDesignResolution()
         if (size.width < size.height)
             std::swap(size.width, size.height);
     }
-//    cocos2d::Director::getInstance()->getOpenGLView()->setDesignResolutionSize(size.width, size.height, ResolutionPolicy::EXACT_FIT);
-    CCLOG("resetDesignResolution request");
+//    cc::Director::getInstance()->getOpenGLView()->setDesignResolutionSize(size.width, size.height, ResolutionPolicy::EXACT_FIT);
+    CC_LOG_DEBUG("resetDesignResolution request");
 }
 
 //
@@ -156,7 +156,7 @@ const ProjectConfig &RuntimeEngine::getProjectConfig()
 void RuntimeEngine::setProjectPath(const std::string &workPath)
 {
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-    vector<std::string> searchPathArray = cocos2d::FileUtils::getInstance()->getSearchPaths();
+    vector<std::string> searchPathArray = cc::FileUtils::getInstance()->getSearchPaths();
 
     if (workPath.empty())
     {
@@ -198,7 +198,7 @@ void RuntimeEngine::setProjectPath(const std::string &workPath)
 
     // add writable path to search path
     searchPathArray.insert(searchPathArray.begin(), FileServer::getShareInstance()->getWritePath());
-    cocos2d::FileUtils::getInstance()->setSearchPaths(searchPathArray);
+    cc::FileUtils::getInstance()->setSearchPaths(searchPathArray);
 #endif
 }
 
@@ -222,7 +222,7 @@ void RuntimeEngine::start()
 #endif
 
     // set search path
-    string path = cocos2d::FileUtils::getInstance()->fullPathForFilename(_project.getScriptFileRealPath().c_str());
+    string path = cc::FileUtils::getInstance()->fullPathForFilename(_project.getScriptFileRealPath().c_str());
     size_t pos;
     while ((pos = path.find_first_of("\\")) != std::string::npos)
     {
@@ -233,15 +233,15 @@ void RuntimeEngine::start()
     if (p != path.npos)
     {
         workdir = path.substr(0, p);
-        cocos2d::FileUtils::getInstance()->addSearchPath(workdir);
+        cc::FileUtils::getInstance()->addSearchPath(workdir);
     }
 
     // update search pathes
-    cocos2d::FileUtils::getInstance()->addSearchPath(_project.getProjectDir());
+    cc::FileUtils::getInstance()->addSearchPath(_project.getProjectDir());
     auto &customizedPathes = _project.getSearchPath();
     for (auto &path : customizedPathes)
     {
-        cocos2d::FileUtils::getInstance()->addSearchPath(path);
+        cc::FileUtils::getInstance()->addSearchPath(path);
     }
 
     setupRuntime();
@@ -278,7 +278,7 @@ void RuntimeEngine::addRuntime(RuntimeProtocol *runtime, int type)
     }
     else
     {
-        CCLOG("RuntimeEngine already has Runtime type %d.", type);
+        CC_LOG_DEBUG("RuntimeEngine already has Runtime type %d.", type);
     }
 }
 

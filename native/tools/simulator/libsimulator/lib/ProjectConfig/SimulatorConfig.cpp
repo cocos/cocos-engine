@@ -71,7 +71,7 @@ SimulatorScreenSize SimulatorConfig::getScreenSize(int index) const
     return _screenSizeArray.at(index);
 }
 
-int SimulatorConfig::checkScreenSize(const cocos2d::Size &size) const
+int SimulatorConfig::checkScreenSize(const cc::Size &size) const
 {
     int width = size.width;
     int height = size.height;

@@ -78,7 +78,7 @@ protected:
     PlayerMenuItemMac *_parent;
     NNMenuItem *_menuItem;
     NSMenu     *_menu;
-    cocos2d::Vector<PlayerMenuItemMac*> _children;
+    cc::Vector<PlayerMenuItemMac*> _children;
 
     friend class PlayerMenuServiceMac;
 };

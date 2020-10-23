@@ -99,7 +99,7 @@ public:
     virtual void removeTask(const std::string &name);
     
 protected:
-    cocos2d::Map<std::string, PlayerTaskMac*> _tasks;
+    cc::Map<std::string, PlayerTaskMac*> _tasks;
 };
 
 PLAYER_NS_END

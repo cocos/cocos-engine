@@ -35,7 +35,7 @@
 
 PLAYER_NS_BEGIN
 
-class PlayerTask : public cocos2d::Ref
+class PlayerTask : public cc::Ref
 {
 public:
     static const int STATE_IDLE = 0;

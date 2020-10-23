@@ -72,7 +72,7 @@ NS_CC_EXTRA_BEGIN
 typedef vector<string> HTTPRequestHeaders;
 typedef HTTPRequestHeaders::iterator HTTPRequestHeadersIterator;
 
-class HTTPRequest : public Ref
+class HTTPRequest : public cc::Ref
 {
 public:
     static HTTPRequest *createWithUrl(HTTPRequestDelegate *delegate,

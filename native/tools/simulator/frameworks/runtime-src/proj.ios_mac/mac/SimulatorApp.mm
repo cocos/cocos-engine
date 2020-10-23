@@ -38,15 +38,13 @@
 
 #include "cocos2d.h"
 #include "ide-support/CodeIDESupport.h"
-#include "cocos/platform/mac/CCView.h"
+#include "cocos/platform/mac/View.h"
 
 #include "platform/mac/PlayerMac.h"
 #include "AppEvent.h"
 #include "AppLang.h"
 
-
-using namespace std;
-using namespace cocos2d;
+using namespace cc;
 
 static id SIMULATOR = nullptr;
 @implementation AppController
@@ -151,7 +149,7 @@ std::string getCurAppName(void)
 - (NSMutableArray*) makeCommandLineArgsFromProjectConfig:(unsigned int)mask
 {
     _project.setWindowOffset(Vec2(_window.frame.origin.x, _window.frame.origin.y));
-    vector<string> args = _project.makeCommandLineVector();
+    std::vector<string> args = _project.makeCommandLineVector();
     NSMutableArray *commandArray = [NSMutableArray arrayWithCapacity:args.size()];
     for (auto &path : args)
     {
@@ -168,7 +166,7 @@ std::string getCurAppName(void)
     long n = [nsargs count];
     if (n >= 2)
     {
-        vector<string> args;
+        std::vector<string> args;
         for (int i = 0; i < [nsargs count]; ++i)
         {
             string arg = [[nsargs objectAtIndex:i] cStringUsingEncoding:NSUTF8StringEncoding];
@@ -252,7 +250,7 @@ std::string getCurAppName(void)
     long n = [nsargs count];
     if (n >= 2)
     {
-        vector<string> args;
+        std::vector<string> args;
         for (int i = 0; i < [nsargs count]; ++i)
         {
             string arg = [[nsargs objectAtIndex:i] cStringUsingEncoding:NSUTF8StringEncoding];
@@ -327,14 +325,14 @@ std::string getCurAppName(void)
     float frameScale = _project.getFrameScale();
 
     // get frame size
-    cocos2d::Size frameSize = _project.getFrameSize();
+    cc::Size frameSize = _project.getFrameSize();
     ConfigParser::getInstance()->setInitViewSize(frameSize);
 
     // check screen workarea size
     NSRect workarea = [NSScreen mainScreen].visibleFrame;
     float workareaWidth = workarea.size.width;
     float workareaHeight = workarea.size.height - [self titleBarHeight];
-    CCLOG("WORKAREA WIDTH %0.2f, HEIGHT %0.2f", workareaWidth, workareaHeight);
+    CC_LOG_DEBUG("WORKAREA WIDTH %0.2f, HEIGHT %0.2f", workareaWidth, workareaHeight);
     while (true && frameScale > 0.25f)
     {
         if (frameSize.width * frameScale > workareaWidth || frameSize.height * frameScale > workareaHeight)
@@ -349,7 +347,7 @@ std::string getCurAppName(void)
 
     if (frameScale < 0.25f) frameScale = 0.25f;
     _project.setFrameScale(frameScale);
-    CCLOG("FRAME SCALE = %0.2f", frameScale);
+    CC_LOG_DEBUG("FRAME SCALE = %0.2f", frameScale);
 
     // check window offset
     Vec2 pos = _project.getWindowOffset();
@@ -413,8 +411,6 @@ std::string getCurAppName(void)
 }
 - (void) startup
 {
-    FileUtils::getInstance()->setPopupNotify(false);
-
     _project.dump();
 
     const string projectDir = _project.getProjectDir();
@@ -443,8 +439,6 @@ std::string getCurAppName(void)
     RuntimeEngine::getInstance()->setProjectConfig(_project);
 
     _app->init();
-    // After run, application needs to be terminated immediately.
-    [[NSApplication sharedApplication] terminate:self];
 }
 
 
@@ -581,7 +575,7 @@ std::string getCurAppName(void)
                             std::swap(size.width, size.height);
                         }
 
-                        project.setFrameSize(cocos2d::Size(size.width, size.height));
+                        project.setFrameSize(cc::Size(size.width, size.height));
                         [SIMULATOR relaunch];
                     }
                     else if (data == "DIRECTION_PORTRAIT_MENU")

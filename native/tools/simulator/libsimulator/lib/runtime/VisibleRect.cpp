@@ -25,72 +25,72 @@
 
 #include "VisibleRect.h"
 
-cocos2d::Rect VisibleRect::s_visibleRect;
+cc::Rect VisibleRect::s_visibleRect;
 
 void VisibleRect::lazyInit()
 {
     // no lazy init
     // Useful if we change the resolution in runtime
 //    s_visibleRect = cocos2d::Director::getInstance()->getOpenGLView()->getVisibleRect();
-    CCLOG("lazyInit");
+    CC_LOG_DEBUG("lazyInit");
 }
 
-cocos2d::Rect VisibleRect::getVisibleRect()
+cc::Rect VisibleRect::getVisibleRect()
 {
     lazyInit();
     return s_visibleRect;
 }
 
-cocos2d::Vec2 VisibleRect::left()
+cc::Vec2 VisibleRect::left()
 {
     lazyInit();
-    return cocos2d::Vec2(s_visibleRect.origin.x, s_visibleRect.origin.y+s_visibleRect.size.height/2);
+    return cc::Vec2(s_visibleRect.origin.x, s_visibleRect.origin.y+s_visibleRect.size.height/2);
 }
 
-cocos2d::Vec2 VisibleRect::right()
+cc::Vec2 VisibleRect::right()
 {
     lazyInit();
-    return cocos2d::Vec2(s_visibleRect.origin.x+s_visibleRect.size.width, s_visibleRect.origin.y+s_visibleRect.size.height/2);
+    return cc::Vec2(s_visibleRect.origin.x+s_visibleRect.size.width, s_visibleRect.origin.y+s_visibleRect.size.height/2);
 }
 
-cocos2d::Vec2 VisibleRect::top()
+cc::Vec2 VisibleRect::top()
 {
     lazyInit();
-    return cocos2d::Vec2(s_visibleRect.origin.x+s_visibleRect.size.width/2, s_visibleRect.origin.y+s_visibleRect.size.height);
+    return cc::Vec2(s_visibleRect.origin.x+s_visibleRect.size.width/2, s_visibleRect.origin.y+s_visibleRect.size.height);
 }
 
-cocos2d::Vec2 VisibleRect::bottom()
+cc::Vec2 VisibleRect::bottom()
 {
     lazyInit();
-    return cocos2d::Vec2(s_visibleRect.origin.x+s_visibleRect.size.width/2, s_visibleRect.origin.y);
+    return cc::Vec2(s_visibleRect.origin.x+s_visibleRect.size.width/2, s_visibleRect.origin.y);
 }
 
-cocos2d::Vec2 VisibleRect::center()
+cc::Vec2 VisibleRect::center()
 {
     lazyInit();
-    return cocos2d::Vec2(s_visibleRect.origin.x+s_visibleRect.size.width/2, s_visibleRect.origin.y+s_visibleRect.size.height/2);
+    return cc::Vec2(s_visibleRect.origin.x+s_visibleRect.size.width/2, s_visibleRect.origin.y+s_visibleRect.size.height/2);
 }
 
-cocos2d::Vec2 VisibleRect::leftTop()
+cc::Vec2 VisibleRect::leftTop()
 {
     lazyInit();
-    return cocos2d::Vec2(s_visibleRect.origin.x, s_visibleRect.origin.y+s_visibleRect.size.height);
+    return cc::Vec2(s_visibleRect.origin.x, s_visibleRect.origin.y+s_visibleRect.size.height);
 }
 
-cocos2d::Vec2 VisibleRect::rightTop()
+cc::Vec2 VisibleRect::rightTop()
 {
     lazyInit();
-    return cocos2d::Vec2(s_visibleRect.origin.x+s_visibleRect.size.width, s_visibleRect.origin.y+s_visibleRect.size.height);
+    return cc::Vec2(s_visibleRect.origin.x+s_visibleRect.size.width, s_visibleRect.origin.y+s_visibleRect.size.height);
 }
 
-cocos2d::Vec2 VisibleRect::leftBottom()
+cc::Vec2 VisibleRect::leftBottom()
 {
     lazyInit();
     return s_visibleRect.origin;
 }
 
-cocos2d::Vec2 VisibleRect::rightBottom()
+cc::Vec2 VisibleRect::rightBottom()
 {
     lazyInit();
-    return cocos2d::Vec2(s_visibleRect.origin.x+s_visibleRect.size.width, s_visibleRect.origin.y);
+    return cc::Vec2(s_visibleRect.origin.x+s_visibleRect.size.width, s_visibleRect.origin.y);
 }

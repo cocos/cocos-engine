@@ -42,21 +42,21 @@ void AppLang::readLocalizationFile()
     {
         _hasInit = true;
         
-        auto fileUtils = cocos2d::FileUtils::getInstance();
+        auto fileUtils = cc::FileUtils::getInstance();
         
         if (!fileUtils->isFileExist(_localizationFileName))
         {
-            cocos2d::log("[WARNING]:not find %s", _localizationFileName.c_str());
+            CC_LOG_DEBUG("[WARNING]:not find %s", _localizationFileName.c_str());
             return;
         }
         auto fullFilePath = fileUtils->fullPathForFilename(_localizationFileName);
-        std::string fileContent = cocos2d::FileUtils::getInstance()->getStringFromFile(fullFilePath);
+        std::string fileContent = cc::FileUtils::getInstance()->getStringFromFile(fullFilePath);
         if(fileContent.empty())
             return;
         
         if (_docRootjson.Parse<0>(fileContent.c_str()).HasParseError())
         {
-            cocos2d::log("[WARNING]:read json file %s failed because of %d", _localizationFileName.c_str(), _docRootjson.GetParseError());
+            CC_LOG_DEBUG("[WARNING]:read json file %s failed because of %d", _localizationFileName.c_str(), _docRootjson.GetParseError());
             return;
         }
     }

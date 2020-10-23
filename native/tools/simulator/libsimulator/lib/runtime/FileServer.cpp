@@ -78,7 +78,7 @@ void FileServer::readResFileFinfo()
     }
     
     //save file info to disk every five second
-    CCLOG("FileServer::readResFileFinfo()");
+    CC_LOG_DEBUG("FileServer::readResFileFinfo()");
 //    cocos2d::Director::getInstance()->getScheduler()->schedule([&](float){
 //        rapidjson::StringBuffer buffer;
 //        rapidjson::Writer< rapidjson::StringBuffer > writer(buffer);
@@ -204,7 +204,7 @@ bool FileServer::listenOnTCP(int port)
         char buf[INET_ADDRSTRLEN] = "";
         struct sockaddr_in *sin = (struct sockaddr_in*) res->ai_addr;
         if( inet_ntop(res->ai_family, &sin->sin_addr, buf, sizeof(buf)) != NULL )
-            cocos2d::log("Console: listening on  %s : %d", buf, ntohs(sin->sin_port));
+            CC_LOG_DEBUG("Console: listening on  %s : %d", buf, ntohs(sin->sin_port));
         else
             perror("inet_ntop");
     } else if (res->ai_family == AF_INET6)
@@ -212,7 +212,7 @@ bool FileServer::listenOnTCP(int port)
         char buf[INET6_ADDRSTRLEN] = "";
         struct sockaddr_in6 *sin = (struct sockaddr_in6*) res->ai_addr;
         if( inet_ntop(res->ai_family, &sin->sin6_addr, buf, sizeof(buf)) != NULL )
-            cocos2d::log("Console: listening on  %s : %d", buf, ntohs(sin->sin6_port));
+            CC_LOG_DEBUG("Console: listening on  %s : %d", buf, ntohs(sin->sin6_port));
         else
             perror("inet_ntop");
     }
@@ -262,7 +262,7 @@ _responseEndThread(false)
     _isUsingWritePath = true;
 #endif
     
-    _writePath = cocos2d::FileUtils::getInstance()->getWritablePath();
+    _writePath = cc::FileUtils::getInstance()->getWritablePath();
     
 #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
 #include "Widget_mac.h"
@@ -528,7 +528,7 @@ void FileServer::loopResponse()
         memcpy(dataBuf + sizeof(responseHeader), responseString.c_str(), responseString.size());
         
         sendBuf(responseBuf.fd, dataBuf, sizeof(responseHeader) + responseString.size());
-        cocos2d::log("responseFile:%s,result:%d", fileSendProtoComplete.file_name().c_str(), fileSendProtoComplete.result());
+        CC_LOG_DEBUG("responseFile:%s,result:%d", fileSendProtoComplete.file_name().c_str(), fileSendProtoComplete.result());
     }
 
 	_responseRunning = false;

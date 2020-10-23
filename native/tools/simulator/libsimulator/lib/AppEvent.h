@@ -41,8 +41,8 @@
 #include "json/writer.h"
 #include "SimulatorExport.h"
 
-#include "cocos/scripting/js-bindings/event/EventDispatcher.h"
-#include "cocos/scripting/js-bindings/event/CustomEventTypes.h"
+#include "cocos/bindings/event/EventDispatcher.h"
+#include "cocos/bindings/event/CustomEventTypes.h"
 
 enum
 {
@@ -52,7 +52,7 @@ enum
 
 #define kAppEventName     "APP.EVENT"
 
-class CC_LIBSIM_DLL AppEvent : public cocos2d::CustomEvent
+class CC_LIBSIM_DLL AppEvent : public cc::CustomEvent
 {
 public:
     /** Constructor */

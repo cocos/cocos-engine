@@ -181,12 +181,12 @@ vector<string> ProjectConfig::getPackagePathArray() const
     return arr;
 }
 
-cocos2d::Size ProjectConfig::getFrameSize() const
+cc::Size ProjectConfig::getFrameSize() const
 {
     return _frameSize;
 }
 
-void ProjectConfig::setFrameSize(const cocos2d::Size &frameSize)
+void ProjectConfig::setFrameSize(const cc::Size &frameSize)
 {
     if (frameSize.width > 0 && frameSize.height > 0)
     {
@@ -277,12 +277,12 @@ string ProjectConfig::getDebugLogFilePath() const
     return path;
 }
 
-cocos2d::Vec2 ProjectConfig::getWindowOffset() const
+cc::Vec2 ProjectConfig::getWindowOffset() const
 {
     return _windowOffset;
 }
 
-void ProjectConfig::setWindowOffset(const cocos2d::Vec2 &windowOffset)
+void ProjectConfig::setWindowOffset(const cc::Vec2 &windowOffset)
 {
     _windowOffset = windowOffset;
 }
@@ -325,11 +325,11 @@ void ProjectConfig::parseCommandLine(const vector<string> &args)
         }
         else if (arg.compare("-landscape") == 0)
         {
-            setFrameSize(cocos2d::Size(DEFAULT_HEIGHT, DEFAULT_WIDTH));
+            setFrameSize(cc::Size(DEFAULT_HEIGHT, DEFAULT_WIDTH));
         }
         else if (arg.compare("-portrait") == 0)
         {
-            setFrameSize(cocos2d::Size(DEFAULT_WIDTH, DEFAULT_HEIGHT));
+            setFrameSize(cc::Size(DEFAULT_WIDTH, DEFAULT_HEIGHT));
         }
         else if (arg.compare("-resolution") == 0)
         {
@@ -346,7 +346,7 @@ void ProjectConfig::parseCommandLine(const vector<string> &args)
                 heightStr.assign(sizeStr, pos + 1, sizeStr.length() - pos);
                 width = atoi(widthStr.c_str());
                 height = atoi(heightStr.c_str());
-                setFrameSize(cocos2d::Size(width, height));
+                setFrameSize(cc::Size(width, height));
             }
         }
         else if (arg.compare("-scale") == 0)
@@ -391,7 +391,7 @@ void ProjectConfig::parseCommandLine(const vector<string> &args)
                 yStr.assign(posStr, pos + 1, posStr.length() - pos);
                 x = atoi(xStr.c_str());
                 y = atoi(yStr.c_str());
-                setWindowOffset(cocos2d::Vec2(x, y));
+                setWindowOffset(cc::Vec2(x, y));
             }
         }
         else if (arg.compare("-debugger") == 0)
@@ -421,7 +421,7 @@ void ProjectConfig::parseCommandLine(const vector<string> &args)
         }
         else if (arg.compare("-port") == 0)
         {
-            CCLOG("REFINE:");
+            CC_LOG_DEBUG("REFINE:");
         }
         else if (arg.compare("-listen") == 0)
         {
@@ -657,7 +657,7 @@ bool ProjectConfig::isRetinaDisplay() const
 
 bool ProjectConfig::validate() const
 {
-    auto utils = cocos2d::FileUtils::getInstance();
+    auto utils = cc::FileUtils::getInstance();
     if (!utils->isDirectoryExist(_projectDir)) return false;
     if (!utils->isDirectoryExist(getWritableRealPath())) return false;
     if (!utils->isFileExist(getScriptFileRealPath())) return false;
@@ -666,41 +666,41 @@ bool ProjectConfig::validate() const
 
 void ProjectConfig::dump()
 {
-    CCLOG("Project Config:");
-    CCLOG("    project dir: %s", _projectDir.c_str());
-    CCLOG("    writable path: %s", _writablePath.length() ? _writablePath.c_str() : "-");
-    CCLOG("    script file: %s", _scriptFile.c_str());
-    CCLOG("    frame size: %0.0f x %0.0f", _frameSize.width, _frameSize.height);
-    CCLOG("    frame scale: %0.2f", _frameScale);
-    CCLOG("    show console: %s", _showConsole ? "YES" : "NO");
-    CCLOG("    write debug log: %s (%s)", _writeDebugLogToFile ? getDebugLogFilePath().c_str() : "NO",
+    CC_LOG_DEBUG("Project Config:");
+    CC_LOG_DEBUG("    project dir: %s", _projectDir.c_str());
+    CC_LOG_DEBUG("    writable path: %s", _writablePath.length() ? _writablePath.c_str() : "-");
+    CC_LOG_DEBUG("    script file: %s", _scriptFile.c_str());
+    CC_LOG_DEBUG("    frame size: %0.0f x %0.0f", _frameSize.width, _frameSize.height);
+    CC_LOG_DEBUG("    frame scale: %0.2f", _frameScale);
+    CC_LOG_DEBUG("    show console: %s", _showConsole ? "YES" : "NO");
+    CC_LOG_DEBUG("    write debug log: %s (%s)", _writeDebugLogToFile ? getDebugLogFilePath().c_str() : "NO",
                                           _writeDebugLogToFile ? getDebugLogFilePath().c_str() : "");
-    CCLOG("    listen: %s", _bindAddress.c_str());
+    CC_LOG_DEBUG("    listen: %s", _bindAddress.c_str());
     
     if (_debuggerType == kCCRuntimeDebuggerLDT)
     {
-        CCLOG("    debugger: Eclipse LDT");
+        CC_LOG_DEBUG("    debugger: Eclipse LDT");
     }
     else if (_debuggerType == kCCRuntimeDebuggerCodeIDE)
     {
-        CCLOG("    debugger: Cocos Code IDE");
+        CC_LOG_DEBUG("    debugger: Cocos Code IDE");
     }
     else if (_debuggerType == kCCRuntimeDebuggerStudio)
     {
-        CCLOG("    debugger: Cocos Studio");
+        CC_LOG_DEBUG("    debugger: Cocos Studio");
     }
     else
     {
-        CCLOG("    debugger: none");
+        CC_LOG_DEBUG("    debugger: none");
     }
     
-    CCLOG("    add searching path:");
+    CC_LOG_DEBUG("    add searching path:");
     for (auto &path : _searchPath)
     {
-        CCLOG("        %s", path.c_str());
+        CC_LOG_DEBUG("        %s", path.c_str());
     }
     
-    CCLOG("\n\n");
+    CC_LOG_DEBUG("\n\n");
 }
 
 void ProjectConfig::normalize()
