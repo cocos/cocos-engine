@@ -1141,7 +1141,8 @@ export class TMXMapInfo {
         else
             objectGroup._opacity = 255;
 
-        objectGroup.tintColor = strToColor(selGroup.getAttribute('tintcolor')!) || null;
+        let tintColor = selGroup.getAttribute('tintcolor');
+        objectGroup.tintColor = tintColor? strToColor(tintColor) : null;
 
         let visible = selGroup.getAttribute('visible');
         if (visible && parseInt(visible) === 0)

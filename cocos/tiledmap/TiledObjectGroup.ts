@@ -144,7 +144,7 @@ export class TiledObjectGroup extends Component {
     _properties?: PropertiesInfo;
     _offset?: cc.Vec2;
     _opacity?: number;
-    _tintColor?: cc.Color;
+    _tintColor: cc.Color|null = null;
 
     _animations?: TiledAnimationType;
     _hasAniObj?: boolean;
@@ -171,7 +171,7 @@ export class TiledObjectGroup extends Component {
         this._opacity = groupInfo._opacity;
 
         if (groupInfo.tintColor) {
-            this._tintColor = cc.color(groupInfo.tintColor);
+            this._tintColor = groupInfo.tintColor;
         }
 
         this._texGrids = texGrids;
