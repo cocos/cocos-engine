@@ -1,6 +1,6 @@
 {
   "name": "@cocos/build-engine",
-  "version": "4.0.0-jsb.alpha.7",
+  "version": "4.0.0-jsb.alpha.9",
   "description": "",
   "main": "dist/index.js",
   "dependencies": {
@@ -36,7 +36,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "prepublish": "npm run build"
+    "prepublishOnly": "npm run build"
   },
   "author": "",
   "license": "MIT"

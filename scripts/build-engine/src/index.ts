@@ -262,7 +262,6 @@ async function _doBuild ({
         extensions: ['.js', '.ts'],
         highlightCode: true,
         exclude: [
-            /node_modules[\/\\]/g,
         ],
         plugins: babelPlugins,
         presets: [
@@ -313,14 +312,9 @@ async function _doBuild ({
             preferConst: true,
         }),
 
-        rpBabel(babelOptions),
+        commonjs({}),
 
-        commonjs({
-            namedExports: {
-                '@cocos/ammo': ['Ammo'],
-                '@cocos/cannon': ['CANNON'],
-            },
-        }),
+        rpBabel(babelOptions),
     ];
 
     if (options.progress) {
