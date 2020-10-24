@@ -38,7 +38,7 @@ import visibleRect from '../core/platform/visible-rect';
 
 import * as cc from "../core"
 import {  PropertiesInfo, TiledAnimationType, TMXLayerInfo, TMXMapInfo } from './TMXXMLParser';
-import { IVec2Like } from '../core';
+import { IVec2Like, SystemEventType } from '../core';
 import { TiledTile } from './TiledTile';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../core/global-exports';
@@ -385,13 +385,13 @@ export class TiledLayer extends UIRenderable {
 
     onEnable() {
         super.onEnable()
-        this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
+        this.node.on(SystemEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
         this.markForUpdateRenderData();
     }
 
     onDisable() {
         super.onDisable();
-        this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
+        this.node.off(SystemEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
     }
 
     _syncAnchorPoint() {
@@ -401,6 +401,7 @@ export class TiledLayer extends UIRenderable {
         this._leftDownToCenterX = trans.width * trans.anchorX * scale.x;
         this._leftDownToCenterY = trans.height * trans.anchorY * scale.y;
         this._cullingDirty = true;
+        this.markForUpdateRenderData();
     }
 
     onDestroy() {

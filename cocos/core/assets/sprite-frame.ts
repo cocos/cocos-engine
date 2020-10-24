@@ -458,6 +458,8 @@ export class SpriteFrame extends Asset {
     public uv: number[] = [];
     public uvHash: number = 0;
 
+    public unbiasUV:number[] = [];
+
     /**
      * @en UV for sliced 9 vertices
      * @zh 九宫格的顶点 UV。
@@ -805,6 +807,7 @@ export class SpriteFrame extends Asset {
     public _calculateUV () {
         const rect = this._rect;
         const uv = this.uv;
+        const unbiasUV = this.unbiasUV;
         const tex = this.texture;
         const texw = tex.width;
         const texh = tex.height;
@@ -835,6 +838,30 @@ export class SpriteFrame extends Asset {
                 uv[6] = r;
                 uv[7] = b;
             }
+
+            const ul = texw === 0 ? 0 : (rect.x) / texw;
+            const ur = texw === 0 ? 0 : (rect.x + rect.height) / texw;
+            const ut = texh === 0 ? 0 : (rect.y) / texh;
+            const ub = texh === 0 ? 0 : (rect.y + rect.width) / texh;
+            if (this._flipUv) {
+                unbiasUV[0] = ul;
+                unbiasUV[1] = ut;
+                unbiasUV[2] = ul;
+                unbiasUV[3] = ub;
+                unbiasUV[4] = ur;
+                unbiasUV[5] = ut;
+                unbiasUV[6] = ur;
+                unbiasUV[7] = ub;
+            } else {
+                unbiasUV[0] = ul;
+                unbiasUV[1] = ut;
+                unbiasUV[2] = ul;
+                unbiasUV[3] = ub;
+                unbiasUV[4] = ur;
+                unbiasUV[5] = ut;
+                unbiasUV[6] = ur;
+                unbiasUV[7] = ub;
+            }
         } else {
             // Canceling out the floating-point rounding errors by slightly nudging the UV coordinates
             const l = texw === 0 ? 0 : (rect.x + 0.5) / texw;
@@ -859,6 +886,29 @@ export class SpriteFrame extends Asset {
                 uv[5] = t;
                 uv[6] = r;
                 uv[7] = t;
+            }
+            const ul = texw === 0 ? 0 : (rect.x ) / texw;
+            const ur = texw === 0 ? 0 : (rect.x + rect.width) / texw;
+            const ub = texh === 0 ? 0 : (rect.y + rect.height) / texh;
+            const ut = texh === 0 ? 0 : (rect.y) / texh;
+            if (this._flipUv) {
+                unbiasUV[0] = ul;
+                unbiasUV[1] = ut;
+                unbiasUV[2] = ur;
+                unbiasUV[3] = ut;
+                unbiasUV[4] = ul;
+                unbiasUV[5] = ub;
+                unbiasUV[6] = ur;
+                unbiasUV[7] = ub;
+            } else {
+                unbiasUV[0] = ul;
+                unbiasUV[1] = ub;
+                unbiasUV[2] = ur;
+                unbiasUV[3] = ub;
+                unbiasUV[4] = ul;
+                unbiasUV[5] = ut;
+                unbiasUV[6] = ur;
+                unbiasUV[7] = ut;
             }
         }
 

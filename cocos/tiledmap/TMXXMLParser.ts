@@ -856,7 +856,7 @@ export class TMXMapInfo {
         // PARSE <tileset>
         let tilesets: Element[] = map.getElementsByTagName('tileset') as unknown as Element[];
         if (map.nodeName !== "map") {
-            tilesets.length = 0;
+            tilesets = [];
             tilesets.push(map);
         }
 

@@ -66,8 +66,8 @@ export function fillTextureGrids(tileset: TMXTilesetInfo, texGrids: TiledTexture
         if (!spFrame || count > 1) {
             if (spFrame) {
                 grid._name = spFrame.name;
-                let lm = spFrame.uv[0];
-                let bm = spFrame.rotated ? spFrame.uv[1] : spFrame.uv[5];
+                let lm = spFrame.unbiasUV[0];
+                let bm = spFrame.rotated ? spFrame.unbiasUV[1] : spFrame.unbiasUV[5];
                 grid.l = lm + grid.x / texWidth;
                 grid.t = bm + grid.y / texHeight;
                 grid.r = lm + (grid.x + grid.width) / texWidth;
@@ -84,17 +84,17 @@ export function fillTextureGrids(tileset: TMXTilesetInfo, texGrids: TiledTexture
             grid._rotated = true;
             grid._name = spFrame.name;
             grid._rect = spFrame.getRect();
-            grid.l = spFrame.uv[0];
-            grid.t = spFrame.uv[1];
-            grid.r = spFrame.uv[4];
-            grid.b = spFrame.uv[3];
+            grid.l = spFrame.unbiasUV[0];
+            grid.t = spFrame.unbiasUV[1];
+            grid.r = spFrame.unbiasUV[4];
+            grid.b = spFrame.unbiasUV[3];
         } else {
             grid._name = spFrame.name;
             grid._rect = spFrame.getRect();
-            grid.l = spFrame.uv[0];
-            grid.t = spFrame.uv[5];
-            grid.r = spFrame.uv[2];
-            grid.b = spFrame.uv[1];
+            grid.l = spFrame.unbiasUV[0];
+            grid.t = spFrame.unbiasUV[5];
+            grid.r = spFrame.unbiasUV[2];
+            grid.b = spFrame.unbiasUV[1];
         }
         grid.cx = (grid.l + grid.r) / 2;
         grid.cy = (grid.t + grid.b) / 2;

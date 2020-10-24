@@ -100,7 +100,7 @@ export class TiledObjectGroup extends Component {
      * @param {String} propertyName
      * @return {Object}
      */
-    getProperty(propertyName:{toString():string}|string) {
+    getProperty(propertyName: { toString(): string } | string) {
         return this._properties![propertyName.toString()];
     }
 
@@ -242,10 +242,6 @@ export class TiledObjectGroup extends Component {
                     textNode = new cc.Node();
                 }
 
-                let textTransComp = textNode._uiProps.uiTransformComp!;
-                textNode.active = object.visible;
-                textTransComp.anchorX = 0;
-                textTransComp.anchorY = 1;
                 textNode.setRotationFromEuler(0, 0, -object.rotation);
                 textNode.setPosition(object.x - leftTopX, object.y - leftTopY);
                 textNode.name = textName;
@@ -258,13 +254,18 @@ export class TiledObjectGroup extends Component {
                     label = textNode.addComponent(Label);
                 }
 
+                let textTransComp = textNode._uiProps.uiTransformComp!;
+                textNode.active = object.visible;
+                textTransComp.anchorX = 0;
+                textTransComp.anchorY = 1;
+
                 if (this._tintColor) {
                     colorVal.set(this._tintColor);
-                    colorVal.a *= this._opacity;
+                    colorVal.a *= this._opacity / 255;
                     label.color.set(colorVal);
                 } else {
                     let c = label.color as cc.Color;
-                    c.a *= this._opacity;
+                    c.a *= this._opacity / 255;
                 }
 
 
@@ -312,15 +313,6 @@ export class TiledObjectGroup extends Component {
 
                 let tileOffsetX = tileset.tileOffset.x;
                 let tileOffsetY = tileset.tileOffset.y;
-                let imgTrans = imgNode._uiProps.uiTransformComp!;
-                if (iso) {
-                    imgTrans.anchorX = 0.5 + tileOffsetX / object.width;
-                    imgTrans.anchorY = tileOffsetY / object.height;
-                } else {
-                    imgTrans.anchorX = tileOffsetX / object.width;
-                    imgTrans.anchorY = tileOffsetY / object.height;
-                }
-
                 imgNode.active = object.visible;
                 imgNode.setRotationFromEuler(0, 0, -object.rotation);
                 imgNode.setPosition(object.x - leftTopX, object.y - leftTopY);
@@ -333,14 +325,23 @@ export class TiledObjectGroup extends Component {
                     sprite = imgNode.addComponent(Sprite);
                 }
 
+                let imgTrans = imgNode._uiProps.uiTransformComp!;
+                if (iso) {
+                    imgTrans.anchorX = 0.5 + tileOffsetX / object.width;
+                    imgTrans.anchorY = tileOffsetY / object.height;
+                } else {
+                    imgTrans.anchorX = tileOffsetX / object.width;
+                    imgTrans.anchorY = tileOffsetY / object.height;
+                }
+
 
                 if (this._tintColor) {
                     colorVal.set(this._tintColor);
-                    colorVal.a *= this._opacity;
+                    colorVal.a *= this._opacity / 255;
                     sprite.color.set(colorVal);
                 } else {
                     let c = sprite.color as cc.Color;
-                    c.a *= this._opacity;
+                    c.a *= this._opacity / 255;
                 }
 
 
@@ -351,7 +352,7 @@ export class TiledObjectGroup extends Component {
                 sprite._updateBlendFunc();
 
 
-                let spf = sprite.spriteFrame!;
+                let spf = grid.spriteFrame!;
                 if (!spf) {
                     spf = new cc.SpriteFrame();
                 }
@@ -368,7 +369,6 @@ export class TiledObjectGroup extends Component {
 
                 spf.rotated = grid._rotated!;
                 spf.rect = grid._rect!;
-
                 sprite.spriteFrame = spf;
 
                 imgTrans.setContentSize(object.width, object.height);
