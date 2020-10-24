@@ -80,7 +80,8 @@ export class RenderQueue {
         const subModel = renderObj.model.subModels[subModelIdx];
         const hPass = SubModelPool.get(subModel.handle, SubModelView.PASS_0 + passIdx) as PassHandle;
         const isTransparent = BlendStatePool.get(PassPool.get(hPass, PassView.BLEND_STATE)).targets[0].blend;
-        if (isTransparent !== this._passDesc.isTransparent || !(PassPool.get(hPass, PassView.PHASE) & this._passDesc.phases)) {
+        let temp_phase = PassPool.get(hPass, PassView.PHASE);
+        if (isTransparent !== this._passDesc.isTransparent || !(temp_phase & this._passDesc.phases)) {
             return false;
         }
         const hash = (0 << 30) | PassPool.get(hPass, PassView.PRIORITY) << 16 | subModel.priority << 8 | passIdx;
