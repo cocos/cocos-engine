@@ -69,7 +69,7 @@ export class TiledMap extends Component {
     //     menu: 'i18n:MAIN_MENU.component.renderers/TiledMap',
     // },
     // store all layer gid corresponding texture info, index is gid, format likes '[gid0]=tex-info,[gid1]=tex-info, ...'
-    _texGrids: TiledTextureGrids|null = null;
+    _texGrids: TiledTextureGrids = new Map;
     // store all tileset texture, index is tileset index, format likes '[0]=texture0, [1]=texture1, ...'
     _textures: cc.SpriteFrame[] = [];
     _tilesets: TMXTilesetInfo[] = [];
@@ -375,7 +375,7 @@ export class TiledMap extends Component {
                 }
             }
 
-            let mapInfo = new TMXMapInfo(file.tmxXmlStr, tsxContentMap, spfTexturesMap, spfTextureSizeMap, imageLayerTextures);
+            let mapInfo = new TMXMapInfo(file.tmxXmlStr!, tsxContentMap, spfTexturesMap, spfTextureSizeMap, imageLayerTextures);
             let tilesets = mapInfo.getTilesets();
             if (!tilesets || tilesets.length === 0) {
                 cc.logID(7241);

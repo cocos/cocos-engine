@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 import { Component } from '../core/components';
-import { ccclass, help, menu, type } from 'cc.decorator';
+import { ccclass, help, menu, type, requireComponent } from 'cc.decorator';
 import * as cc from "../core";
 import { legacyCC } from "../core/global-exports";
 import { Sprite } from "../ui/components/sprite";
@@ -34,6 +34,7 @@ import * as gfx from "../core/gfx";
 
 import { TMXMapInfo, TMXObjectGroupInfo, PropertiesInfo, TiledAnimationType, TMXObject } from './TMXXMLParser';
 import { TiledTextureGrids, GID, TileFlag, Orientation, StaggerAxis, TMXObjectType } from './TiledTypes';
+import { UITransform } from '../core/components/ui-base/ui-transform';
 
 /**
  * !#en Renders the TMX object group.
@@ -44,6 +45,7 @@ import { TiledTextureGrids, GID, TileFlag, Orientation, StaggerAxis, TMXObjectTy
 @ccclass('cc.TiledObjectGroup')
 @help('i18n:cc.TiledObjectGroup')
 @menu('Components/TiledObjectGroup')
+@requireComponent(UITransform)
 export class TiledObjectGroup extends Component {
 
     _premultiplyAlpha: boolean = false;

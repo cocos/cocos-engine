@@ -386,7 +386,7 @@ export class TiledLayer extends UIRenderable {
     onEnable() {
         super.onEnable()
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
-        this._flushAssembler();
+        this.markForUpdateRenderData();
     }
 
     onDisable() {

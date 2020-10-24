@@ -39,8 +39,7 @@ import * as cc from "../core";
 export class TiledMapAsset extends Asset {
 
     @serializable
-    @type(cc.CCString)
-    tmxXmlStr: string = '';
+    tmxXmlStr: string = "";
 
     @serializable
     @type([cc.TextAsset])

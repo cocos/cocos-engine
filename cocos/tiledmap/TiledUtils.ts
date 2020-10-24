@@ -56,19 +56,30 @@ export function fillTextureGrids(tileset: TMXTilesetInfo, texGrids: TiledTexture
             offsetX: 0,
             offsetY: 0,
             rotated: false,
-            gid: gid_,
+            gid: gid as unknown as GID,
             spriteFrame: spf,
             texture: tex,
         };
 
-        tileset.rectForGID(gid_, grid);
+        tileset.rectForGID(gid as unknown as GID, grid);
 
         if (!spFrame || count > 1) {
-            grid.l = grid.x / texWidth;
-            grid.t = grid.y / texHeight;
-            grid.r = (grid.x + grid.width) / texWidth;
-            grid.b = (grid.y + grid.height) / texHeight;
-            grid._rect = new Rect(grid.x, grid.y, grid.width, grid.height);
+            if (spFrame) {
+                grid._name = spFrame.name;
+                let lm = spFrame.uv[0];
+                let bm = spFrame.rotated ? spFrame.uv[1] : spFrame.uv[5];
+                grid.l = lm + grid.x / texWidth;
+                grid.t = bm + grid.y / texHeight;
+                grid.r = lm + (grid.x + grid.width) / texWidth;
+                grid.b = bm + (grid.y + grid.height) / texHeight;
+                grid._rect = new Rect(grid.x, grid.y, grid.width, grid.height);
+            } else {
+                grid.l = grid.x / texWidth;
+                grid.t = grid.y / texHeight;
+                grid.r = (grid.x + grid.width) / texWidth;
+                grid.b = (grid.y + grid.height) / texHeight;
+                grid._rect = new Rect(grid.x, grid.y, grid.width, grid.height);
+            }
         } else if (spFrame.rotated) {
             grid._rotated = true;
             grid._name = spFrame.name;
@@ -88,12 +99,12 @@ export function fillTextureGrids(tileset: TMXTilesetInfo, texGrids: TiledTexture
         grid.cx = (grid.l + grid.r) / 2;
         grid.cy = (grid.t + grid.b) / 2;
 
-        texGrids[gid] = grid;
+        texGrids.set(gid as unknown as GID, grid);
     }
 }
 
 
-export function loadAllTextures(textures:SpriteFrame[], loadedCallback:any) {
+export function loadAllTextures(textures: SpriteFrame[], loadedCallback: any) {
     let totalNum = textures.length;
     if (totalNum === 0) {
         loadedCallback();

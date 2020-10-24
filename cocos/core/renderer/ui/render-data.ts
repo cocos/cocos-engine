@@ -160,8 +160,8 @@ export class MeshRenderData extends BaseRenderData {
     }
 
     public reserve(vertexCount: number, indicesCount: number) {
-        const byteOffset = this.byteCount + vertexCount * this._formatByte;
-        const indicesOffset = this.indicesCount + indicesCount;
+        const newVBytes = this.byteCount + vertexCount * this._formatByte;
+        const newICount = this.indicesCount + indicesCount;
 
         if (vertexCount + this.vertexCount > 65535) {
             return false;
@@ -171,8 +171,8 @@ export class MeshRenderData extends BaseRenderData {
         let indicesLength = this.iData!.length;
         let vCount = this.vData.length;
         let iCount = this.iData.length;
-        if (byteOffset > byteLength || indicesOffset > indicesLength) {
-            while (byteLength < byteOffset || indicesLength < indicesOffset) {
+        if (newVBytes > byteLength || newICount > indicesLength) {
+            while (byteLength < newVBytes || indicesLength < newICount) {
                 vCount *= 2;
                 iCount *= 2;
 

@@ -27,7 +27,7 @@ import * as cc from "../core";
 import { Label, HorizontalTextAlignment, VerticalTextAlignment } from "../ui/components/label";
 
 import { codec } from '../../extensions/compression/ZipUtils';
-import Inflate from '../../extensions/compression/zlib.min.js';
+import zlib from '../../extensions/compression/zlib.min.js';
 import { js } from '../core/utils/js';
 import { SAXParser } from '../core/load-pipeline/plist-parser';
 import { GID, MixedGID, Orientation, RenderOrder, StaggerAxis, StaggerIndex, TiledGrid, TileFlag, TMXObjectType, TMXTilesetInfo } from "./TiledTypes";
@@ -1094,7 +1094,7 @@ export class TMXMapInfo {
                 tiles = codec.unzipBase64AsArray(nodeValue, 4);
                 break;
             case 'zlib':
-                let inflator = new Inflate(codec.Base64.decodeAsArray(nodeValue, 1));
+                let inflator = new (zlib as unknown as any).Inflate(codec.Base64.decodeAsArray(nodeValue, 1));
                 tiles = uint8ArrayToUint32Array(inflator.decompress());
                 break;
             case null:

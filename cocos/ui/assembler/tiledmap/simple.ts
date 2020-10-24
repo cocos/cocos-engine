@@ -78,9 +78,6 @@ export const simple: IAssembler = {
     },
 
     updateRenderData(comp: TiledLayer) {
-        let vertices = comp._vertices;
-        if (vertices.length === 0) return;
-
 
         comp._updateCulling();
         let renderData = comp._meshRenderDataArray![0];
@@ -190,12 +187,10 @@ export const simple: IAssembler = {
         const matrix = node.worldMatrix;
 
         const srcVBuf = renderData.vData;
-        const srcIBuf = renderData.iData;
         const srcVIdx = renderData.vertexStart;
-        const srcIIdx = renderData.indicesStart;
 
         // copy all vertexData
-        vBuf.set(srcVBuf.slice(srcVIdx, srcVIdx + renderData.vertexCount), vertexOffset);
+        vBuf.set(srcVBuf.slice(srcVIdx, srcVIdx + renderData.vertexCount * 9), vertexOffset);
         let vertex = new cc.Vec3();
         for (let i = 0; i < renderData.vertexCount; i++) {
             let pOffset = vertexOffset + i * 9;
@@ -206,15 +201,16 @@ export const simple: IAssembler = {
             vBuf[pOffset + 2] = vertex.z;
         }
 
-        let p = - srcVIdx + vertexId;
-        for (let i = 0; i < renderData.indicesCount; i += 6) {
-            iBuf[indicesOffset] = srcIBuf[srcIIdx + i] + p;
-            iBuf[indicesOffset + 1] = srcIBuf[srcIIdx + i + 1] + p;
-            iBuf[indicesOffset + 2] = srcIBuf[srcIIdx + i + 2] + p;
-            iBuf[indicesOffset + 3] = srcIBuf[srcIIdx + i + 3] + p;
-            iBuf[indicesOffset + 4] = srcIBuf[srcIIdx + i + 4] + p;
-            iBuf[indicesOffset + 5] = srcIBuf[srcIIdx + i + 5] + p;
+        const quadCount = renderData.vertexCount / 4;
+        for (let i = 0; i < quadCount; i += 1) {
+            iBuf[indicesOffset] =     vertexId;
+            iBuf[indicesOffset + 1] = vertexId + 1;
+            iBuf[indicesOffset + 2] = vertexId + 2;
+            iBuf[indicesOffset + 3] = vertexId + 2;
+            iBuf[indicesOffset + 4] = vertexId + 1;
+            iBuf[indicesOffset + 5] = vertexId + 3;
             indicesOffset += 6;
+            vertexId += 4;
         }
     }
 };
@@ -353,7 +349,7 @@ function traverseGrids(leftDown: { col: number, row: number }, rightTop: { col: 
     if (rightTop.row < 0 || rightTop.col < 0) return;
 
     let vertexBuf: Float32Array = _renderData!.renderData.vData;
-    let idxBuf: Uint16Array = _renderData!.renderData.iData;
+    // let idxBuf: Uint16Array = _renderData!.renderData.iData;
 
     _fillGrids = 0;
     _vfOffset = 0;
@@ -455,8 +451,9 @@ function traverseGrids(leftDown: { col: number, row: number }, rightTop: { col: 
             // begin to fill vertex buffer
             tiledNode = tiledTiles[colData.index];
 
-            _renderData!.renderData.reserve(4, 6);
+            _renderData!.renderData.reserve(4, 0);
             _vfOffset = _renderData!.renderData.vertexCount * 9;
+            vertexBuf = _renderData!.renderData.vData;
             if (!tiledNode) {
                 if (diamondTile) {
                     let centerX = (left + right) / 2;
