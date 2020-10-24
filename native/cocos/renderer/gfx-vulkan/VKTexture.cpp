@@ -155,8 +155,8 @@ void CCVKTexture::destroy() {
 void CCVKTexture::resize(uint width, uint height) {
     CCASSERT(!_isTextureView, "Cannot resize texture views");
     
-    uint size = FormatSize(_format, width, height, _depth);
-    if (_size != size) {
+    if (_width != width || _height != height) {
+        uint size = FormatSize(_format, width, height, _depth);
         const uint old_size = _size;
         _width = width;
         _height = height;

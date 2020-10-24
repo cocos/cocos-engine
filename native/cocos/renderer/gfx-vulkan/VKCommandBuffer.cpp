@@ -3,6 +3,7 @@
 #include "VKBuffer.h"
 #include "VKCommandBuffer.h"
 #include "VKCommands.h"
+#include "VKContext.h"
 #include "VKDescriptorSet.h"
 #include "VKDevice.h"
 #include "VKFramebuffer.h"
@@ -110,20 +111,14 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
     VkRenderPassBeginInfo passBeginInfo{VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};
     passBeginInfo.renderPass = gpuRenderPass->vkRenderPass;
     passBeginInfo.framebuffer = framebuffer;
-    passBeginInfo.renderArea.offset.x = renderArea.x;
-    passBeginInfo.renderArea.offset.y = renderArea.y;
-    passBeginInfo.renderArea.extent.width = renderArea.width;
-    passBeginInfo.renderArea.extent.height = renderArea.height;
     passBeginInfo.clearValueCount = clearValues.size();
     passBeginInfo.pClearValues = clearValues.data();
-
+    passBeginInfo.renderArea = {{(int)renderArea.x, (int)renderArea.y}, {renderArea.width, renderArea.height}};
     vkCmdBeginRenderPass(_gpuCommandBuffer->vkCommandBuffer, &passBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-    VkViewport viewport{(float)renderArea.x, (float)renderArea.y, (float)renderArea.width, (float)renderArea.height, 0, 1};
+    VkViewport viewport{(float)renderArea.x, (float)renderArea.y, (float)renderArea.width, (float)renderArea.height, 0.f, 1.f};
     vkCmdSetViewport(_gpuCommandBuffer->vkCommandBuffer, 0, 1, &viewport);
-
-    VkRect2D scissor{{renderArea.x, renderArea.y}, {renderArea.width, renderArea.height}};
-    vkCmdSetScissor(_gpuCommandBuffer->vkCommandBuffer, 0, 1, &scissor);
+    vkCmdSetScissor(_gpuCommandBuffer->vkCommandBuffer, 0, 1, &passBeginInfo.renderArea);
 }
 
 void CCVKCommandBuffer::endRenderPass() {
@@ -185,6 +180,7 @@ void CCVKCommandBuffer::bindInputAssembler(InputAssembler *ia) {
 void CCVKCommandBuffer::setViewport(const Viewport &vp) {
     if (_curViewport != vp) {
         _curViewport = vp;
+
         VkViewport viewport{(float)vp.left, (float)vp.top, (float)vp.width, (float)vp.height, vp.minDepth, vp.maxDepth};
         vkCmdSetViewport(_gpuCommandBuffer->vkCommandBuffer, 0, 1, &viewport);
     }
@@ -193,7 +189,8 @@ void CCVKCommandBuffer::setViewport(const Viewport &vp) {
 void CCVKCommandBuffer::setScissor(const Rect &rect) {
     if (_curScissor != rect) {
         _curScissor = rect;
-        VkRect2D scissor{{rect.x, rect.y}, {rect.width, rect.height}};
+
+        VkRect2D scissor = {{(int)rect.x, (int)rect.y}, {rect.width, rect.height}};
         vkCmdSetScissor(_gpuCommandBuffer->vkCommandBuffer, 0, 1, &scissor);
     }
 }

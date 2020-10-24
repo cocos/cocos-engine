@@ -26,6 +26,8 @@ CC_ENABLE_WARNINGS()
 namespace cc {
 namespace gfx {
 
+//#define DISABLE_PRE_TRANSFORM
+
 CCVKDevice::CCVKDevice() {
     _clipSpaceMinZ = 0.0f;
     _screenSpaceSignY = -1.0f;
@@ -334,6 +336,7 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     }
 
     _gpuSwapchain = CC_NEW(CCVKGPUSwapchain);
+    checkSwapchainStatus();
 
     ///////////////////// Print Debug Info /////////////////////
 
@@ -368,6 +371,7 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     CC_LOG_INFO("DEVICE_LAYERS: %s", deviceLayers.c_str());
     CC_LOG_INFO("DEVICE_EXTENSIONS: %s", deviceExtensions.c_str());
     CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressedFmts.c_str());
+    CC_LOG_INFO("SWAPCHAIN_IMAGE_COUNT: %d", gpuContext->swapchainCreateInfo.minImageCount);
 
     return true;
 }
@@ -522,7 +526,9 @@ void CCVKDevice::present() {
         presentInfo.pImageIndices = &_gpuSwapchain->curImageIndex;
 
         VkResult res = vkQueuePresentKHR(queue->gpuQueue()->vkQueue, &presentInfo);
-        // if (res) _swapchainReady = false;
+#ifndef DISABLE_PRE_TRANSFORM
+        if (res) _swapchainReady = false;
+#endif
     }
 }
 
@@ -691,7 +697,18 @@ bool CCVKDevice::checkSwapchainStatus() {
     uint newWidth = surfaceCapabilities.currentExtent.width;
     uint newHeight = surfaceCapabilities.currentExtent.height;
 
-    if (context->swapchainCreateInfo.imageExtent.width == newWidth &&
+    VkSurfaceTransformFlagBitsKHR preTransform = surfaceCapabilities.currentTransform;
+#ifdef DISABLE_PRE_TRANSFORM
+    preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+#endif
+
+    if (preTransform & TRANSFORMS_THAT_REQUIRE_FLIPPING) {
+        newHeight = surfaceCapabilities.currentExtent.width;
+        newWidth = surfaceCapabilities.currentExtent.height;
+    }
+
+    if (context->swapchainCreateInfo.preTransform == preTransform &&
+        context->swapchainCreateInfo.imageExtent.width == newWidth &&
         context->swapchainCreateInfo.imageExtent.height == newHeight && _swapchainReady) {
         return true;
     }
@@ -707,6 +724,9 @@ bool CCVKDevice::checkSwapchainStatus() {
     if (newWidth == 0 || newHeight == 0) {
         return _swapchainReady = false;
     }
+
+    _transform = MapSurfaceTransform(preTransform);
+    context->swapchainCreateInfo.preTransform = preTransform;
 
     VK_CHECK(vkCreateSwapchainKHR(_gpuDevice->vkDevice, &context->swapchainCreateInfo, nullptr, &_gpuSwapchain->vkSwapchain));
 

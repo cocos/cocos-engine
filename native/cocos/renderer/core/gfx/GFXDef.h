@@ -63,6 +63,13 @@ enum class API {
     WEBGPU,
 };
 
+enum class SurfaceTransform {
+    IDENTITY,
+    ROTATE_90,
+    ROTATE_180,
+    ROTATE_270,
+};
+
 enum class Feature {
     COLOR_FLOAT,
     COLOR_HALF_FLOAT,

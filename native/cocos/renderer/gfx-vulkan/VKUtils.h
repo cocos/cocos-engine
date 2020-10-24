@@ -425,6 +425,13 @@ VkShaderStageFlags MapVkShaderStageFlags(ShaderStageFlagBit stages) {
     return (VkShaderStageFlags)flags;
 }
 
+SurfaceTransform MapSurfaceTransform(VkSurfaceTransformFlagBitsKHR transform) {
+    if (transform & VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR) return SurfaceTransform::ROTATE_90;
+    if (transform & VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR) return SurfaceTransform::ROTATE_180;
+    if (transform & VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR) return SurfaceTransform::ROTATE_270;
+    return SurfaceTransform::IDENTITY;
+}
+
 const char *MapVendorName(uint32_t vendorID) {
     switch (vendorID) {
         case 0x1002: return "Advanced Micro Devices, Inc.";
@@ -466,6 +473,10 @@ void MapDepthStencilBits(Format format, uint &depthBits, uint &stencilBits) {
         default: break;
     }
 }
+
+const VkSurfaceTransformFlagsKHR TRANSFORMS_THAT_REQUIRE_FLIPPING =
+    VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR |
+    VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR;
 
 const VkPrimitiveTopology VK_PRIMITIVE_MODES[] = {
     VK_PRIMITIVE_TOPOLOGY_POINT_LIST,                    // POINT_LIST

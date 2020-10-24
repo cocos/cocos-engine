@@ -17,7 +17,7 @@ constexpr uint FORCE_MINOR_VERSION = 0;             // 0 for default version, ot
 constexpr uint ALLOW_VALIDATION_ERRORS = 0;         // 0 for default behavior, otherwise assertions will be disabled
 constexpr uint PREFERRED_SWAPCHAIN_IMAGE_COUNT = 0; // 0 for default count, otherwise prefer the specified number
 
-#define FORCE_ENABLE_VALIDATION 0
+#define FORCE_ENABLE_VALIDATION  0
 #define FORCE_DISABLE_VALIDATION 0
 
 #if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION
@@ -363,8 +363,6 @@ bool CCVKContext::initialize(const ContextInfo &info) {
         vector<VkPresentModeKHR> presentModes(presentModeCount);
         VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(_gpuContext->physicalDevice, _gpuContext->vkSurface, &presentModeCount, presentModes.data()));
 
-        VkExtent2D imageExtent{1u, 1u};
-
         VkFormat colorFormat = VK_FORMAT_B8G8R8A8_UNORM;
         VkColorSpaceKHR colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
         // If the surface format list only includes one entry with VK_FORMAT_UNDEFINED,
@@ -448,14 +446,8 @@ bool CCVKContext::initialize(const ContextInfo &info) {
             desiredNumberOfSwapchainImages = surfaceCapabilities.maxImageCount;
         }
 
-        // Find the transformation of the surface
-        VkSurfaceTransformFlagBitsKHR preTransform;
-        if (surfaceCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) {
-            // We prefer a non-rotated transform
-            preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-        } else {
-            preTransform = surfaceCapabilities.currentTransform;
-        }
+        VkExtent2D imageExtent = {1u, 1u};
+        VkSurfaceTransformFlagBitsKHR preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
 
         // Find a supported composite alpha format (not all devices support alpha opaque)
         VkCompositeAlphaFlagBitsKHR compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;

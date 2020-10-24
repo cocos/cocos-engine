@@ -13233,6 +13233,24 @@ static bool js_gfx_Device_resize(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_Device_resize)
 
+static bool js_gfx_Device_getSurfaceTransform(se::State& s)
+{
+    cc::gfx::Device* cobj = (cc::gfx::Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getSurfaceTransform : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = (int)cobj->getSurfaceTransform();
+        ok &= int32_to_seval((int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getSurfaceTransform : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getSurfaceTransform)
+
 static bool js_gfx_Device_genShaderId(se::State& s)
 {
     cc::gfx::Device* cobj = (cc::gfx::Device*)s.nativeThisObject();
@@ -13501,6 +13519,7 @@ bool js_register_gfx_Device(se::Object* obj)
     cls->defineProperty("memoryStatus", _SE(js_gfx_Device_getMemoryStatus), nullptr);
     cls->defineProperty("gfxAPI", _SE(js_gfx_Device_getGfxAPI), nullptr);
     cls->defineProperty("maxUniformBlockSize", _SE(js_gfx_Device_getMaxUniformBlockSize), nullptr);
+    cls->defineProperty("surfaceTransform", _SE(js_gfx_Device_getSurfaceTransform), nullptr);
     cls->defineProperty("maxTextureSize", _SE(js_gfx_Device_getMaxTextureSize), nullptr);
     cls->defineProperty("nativeHeight", _SE(js_gfx_Device_getNativeHeight), nullptr);
     cls->defineProperty("depthStencilFormat", _SE(js_gfx_Device_getDepthStencilFormat), nullptr);

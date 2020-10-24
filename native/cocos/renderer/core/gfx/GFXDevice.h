@@ -42,6 +42,7 @@ public:
     }
 
     CC_INLINE API getGfxAPI() const { return _API; }
+    CC_INLINE SurfaceTransform getSurfaceTransform() const { return _transform; }
     CC_INLINE const String &getDeviceName() const { return _deviceName; }
     CC_INLINE uint getWidth() { return _width; }
     CC_INLINE uint getHeight() { return _height; }
@@ -81,6 +82,7 @@ public:
 
 protected:
     API _API = API::UNKNOWN;
+    SurfaceTransform _transform = SurfaceTransform::IDENTITY;
     String _deviceName;
     String _renderer;
     String _vendor;

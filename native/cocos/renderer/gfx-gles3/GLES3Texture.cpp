@@ -118,8 +118,8 @@ void GLES3Texture::destroy() {
 }
 
 void GLES3Texture::resize(uint width, uint height) {
-    uint size = FormatSize(_format, width, height, _depth);
-    if (_size != size) {
+    if (_width != width || _height != height) {
+        uint size = FormatSize(_format, width, height, _depth);
         const uint oldSize = _size;
         _width = width;
         _height = height;
