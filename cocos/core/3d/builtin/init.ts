@@ -164,6 +164,11 @@ class BuiltinResMgr {
         missingMtl.setProperty('mainColor', legacyCC.color('#ff00ff'));
         resources[missingMtl._uuid] = missingMtl;
 
+        const clearStencilMtl = new legacyCC.Material();
+        clearStencilMtl._uuid = 'builtin-clear-stencil';
+        clearStencilMtl.initialize({ defines: { USE_TEXTURE: false }, effectName: 'builtin-clear-stencil' });
+        resources[clearStencilMtl._uuid] = clearStencilMtl;
+
         // sprite material
         const spriteMtl = new legacyCC.Material();
         spriteMtl._uuid = 'ui-base-material';
@@ -175,6 +180,12 @@ class BuiltinResMgr {
         spriteColorMtl._uuid = 'ui-sprite-material';
         spriteColorMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false }, effectName: 'builtin-sprite' });
         resources[spriteColorMtl._uuid] = spriteColorMtl;
+
+        // sprite normal alpha material
+        const maskNormalAlphaMtl = new legacyCC.Material();
+        maskNormalAlphaMtl._uuid = 'ui-alpha-material';
+        maskNormalAlphaMtl.initialize({ defines: { USE_TEXTURE: true, USE_ALPHA_TEST: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false }, effectName: 'builtin-sprite' });
+        resources[maskNormalAlphaMtl._uuid] = maskNormalAlphaMtl;
 
         // sprite gray material
         const spriteGrayMtl = new legacyCC.Material();

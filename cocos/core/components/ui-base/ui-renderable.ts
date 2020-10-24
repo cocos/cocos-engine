@@ -249,6 +249,20 @@ export class UIRenderable extends RenderableComponent {
         return this._uiMaterial;
     }
     set uiMaterial (val) {
+        if (this._uiMaterial === val) {
+            return;
+        }
+
+        if (this._uiMaterialIns) {
+            this._uiMaterialIns.destroy();
+            this._uiMaterialIns = null;
+        }
+
+        if (this._materialInstanceForStencil){
+            this._materialInstanceForStencil.destroy();
+            this._materialInstanceForStencil = null;
+        }
+
         this._uiMaterial = val;
     }
 
@@ -494,9 +508,6 @@ export class UIRenderable extends RenderableComponent {
             switch (this._instanceMaterialType) {
                 case InstanceMaterialType.ADD_COLOR:
                     this._uiMaterial = builtinResMgr.get('ui-base-material') as Material;
-                    break;
-                case InstanceMaterialType.ADD_COLOR_AND_TEXTURE:
-                    this._uiMaterial = builtinResMgr.get('ui-sprite-material') as Material;
                     break;
                 case InstanceMaterialType.GRAYSCALE:
                     this._uiMaterial = builtinResMgr.get('ui-sprite-gray-material') as Material;

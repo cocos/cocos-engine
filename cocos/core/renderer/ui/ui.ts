@@ -492,26 +492,8 @@ export class UI {
             }
             if (rebuild) {
                 const state = StencilManager.sharedManager!.pattern;
-                mat.overridePipelineStates({
-                    depthStencilState: {
-                        stencilTestFront: state.stencilTest,
-                        stencilFuncFront: state.func,
-                        stencilReadMaskFront: state.stencilMask,
-                        stencilWriteMaskFront: state.writeMask,
-                        stencilFailOpFront: state.failOp,
-                        stencilZFailOpFront: state.zFailOp,
-                        stencilPassOpFront: state.passOp,
-                        stencilRefFront: state.ref,
-                        stencilTestBack: state.stencilTest,
-                        stencilFuncBack: state.func,
-                        stencilReadMaskBack: state.stencilMask,
-                        stencilWriteMaskBack: state.writeMask,
-                        stencilFailOpBack: state.failOp,
-                        stencilZFailOpBack: state.zFailOp,
-                        stencilPassOpBack: state.passOp,
-                        stencilRefBack: state.ref,
-                    }
-                });
+                StencilManager.sharedManager!.applyStencil(mat, state.stencilTest, state.func, state.failOp, state.ref, state.stencilMask, state.writeMask);
+                rebuild = true;
             }
             if (rebuild && model) {
                 for (let i = 0; i < model.subModels.length; i++) {
@@ -579,26 +561,7 @@ export class UI {
         if (renderComp && StencilManager.sharedManager!.handleMaterial(mat, renderComp)) {
             this._currMaterial = mat = renderComp.getMaterialInstanceForStencil();
             const state = StencilManager.sharedManager!.pattern;
-            mat.overridePipelineStates({
-                depthStencilState: {
-                    stencilTestFront: state.stencilTest,
-                    stencilFuncFront: state.func,
-                    stencilReadMaskFront: state.stencilMask,
-                    stencilWriteMaskFront: state.writeMask,
-                    stencilFailOpFront: state.failOp,
-                    stencilZFailOpFront: state.zFailOp,
-                    stencilPassOpFront: state.passOp,
-                    stencilRefFront: state.ref,
-                    stencilTestBack: state.stencilTest,
-                    stencilFuncBack: state.func,
-                    stencilReadMaskBack: state.stencilMask,
-                    stencilWriteMaskBack: state.writeMask,
-                    stencilFailOpBack: state.failOp,
-                    stencilZFailOpBack: state.zFailOp,
-                    stencilPassOpBack: state.passOp,
-                    stencilRefBack: state.ref,
-                },
-            });
+            StencilManager.sharedManager!.applyStencil(mat, state.stencilTest, state.func, state.failOp, state.ref, state.stencilMask, state.writeMask);
         }
 
         const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
@@ -649,6 +612,17 @@ export class UI {
         this._currComponent = null;
         this._currTextureHash = 0;
         this._currSamplerHash = 0;
+    }
+
+    /**
+     * @en
+     * Forced to flush material.
+     *
+     * @zh
+     * 强刷材质。
+     */
+    public flushMaterial(mat: Material) {
+        this._currMaterial = mat;
     }
 
     private _destroyUIMaterials () {
