@@ -54,21 +54,13 @@ export const ParticleAssembler: IAssembler = {
     updateRenderData () {
     },
 
-    // getBuffer (comp: ParticleSystem2D) {
-    //     if (!this._buffer) {
-    //         // Create quad buffer for vertex and index
-    //         this._buffer = new QuadBuffer(renderer._handle, vfmtPosUvColor);
-    //         this._ia = comp.model.subModels[0].inputAssembler;
-    //         this._ia._vertexBuffer = this._buffer._vb;
-    //         this._ia._indexBuffer = this._buffer._ib;
-    //         this._ia._start = 0;
-    //         this._ia._count = 0;
-    //     }
-    //     return this._buffer;
-    // },
-
     fillBuffers (comp: ParticleSystem2D, renderer: UI) {
         if (comp === null) {
+            return;
+        }
+
+        const renderData = this.renderData;
+        if (renderData.vertexCount === 0 || renderData.indicesCount == 0) {
             return;
         }
 
@@ -79,6 +71,33 @@ export const ParticleAssembler: IAssembler = {
             node = comp.node;
         }
 
+        let buffer = renderer.currBufferBatch!;
+        let vertexOffset = buffer.byteOffset >> 2;
+        let indicesOffset = buffer.indicesOffset;
+        let vertexId = buffer.vertexOffset;
+        const isRecreate = buffer.request(renderData.vertexCount, renderData.indicesCount);
+        if (!isRecreate) {
+            buffer = renderer.currBufferBatch!;
+            indicesOffset = 0;
+            vertexId = 0;
+        }
+
+         // buffer data may be realloc, need get reference after request.
+        const vBuf = buffer.vData!;
+        const iBuf = buffer.iData!;
+
+        const vData = renderData.vData;
+        const iData = renderData.iData;
+
+        const vLen = renderData.vertexCount * 9;
+        for (let i = 0; i < vLen; i++) {
+            vBuf[vertexOffset++] = vData[i];
+        }
+
+        const iLen = renderData.indicesCount;
+        for (let i = 0; i < iLen; i++) {
+            iBuf[indicesOffset++] = iData[i];
+        }
     }
 }
 

@@ -246,15 +246,15 @@ export class Simulator {
             const start = force ? 0 : this.uvFilled;
             const particleCount = this.particles.length;
             for (let i = start; i < particleCount; i++) {
-                const offset = i * formatBytes;
-                vbuf[offset+2] = uv[0];
-                vbuf[offset+3] = uv[1];
-                vbuf[offset+7] = uv[2];
-                vbuf[offset+8] = uv[3];
-                vbuf[offset+12] = uv[4];
-                vbuf[offset+13] = uv[5];
-                vbuf[offset+17] = uv[6];
-                vbuf[offset+18] = uv[7];
+                const offset = i * formatBytes * 4;
+                vbuf[offset+3] = uv[0];
+                vbuf[offset+4] = uv[1];
+                vbuf[offset+12] = uv[2];
+                vbuf[offset+13] = uv[3];
+                vbuf[offset+21] = uv[4];
+                vbuf[offset+22] = uv[5];
+                vbuf[offset+30] = uv[6];
+                vbuf[offset+31] = uv[7];
             }
             this.uvFilled = particleCount;
         }
@@ -284,35 +284,43 @@ export class Simulator {
             // bl
             vbuf[offset] = x1 * cr - y1 * sr + x;
             vbuf[offset+1] = x1 * sr + y1 * cr + y;
+            vbuf[offset+2] = 0;
             // br
-            vbuf[offset+5] = x2 * cr - y1 * sr + x;
-            vbuf[offset+6] = x2 * sr + y1 * cr + y;
+            vbuf[offset+9] = x2 * cr - y1 * sr + x;
+            vbuf[offset+10] = x2 * sr + y1 * cr + y;
+            vbuf[offset+11] = 0;
             // tl
-            vbuf[offset+10] = x1 * cr - y2 * sr + x;
-            vbuf[offset+11] = x1 * sr + y2 * cr + y;
+            vbuf[offset+18] = x1 * cr - y2 * sr + x;
+            vbuf[offset+19] = x1 * sr + y2 * cr + y;
+            vbuf[offset+20] = 0;
             // tr
-            vbuf[offset+15] = x2 * cr - y2 * sr + x;
-            vbuf[offset+16] = x2 * sr + y2 * cr + y;
+            vbuf[offset+27] = x2 * cr - y2 * sr + x;
+            vbuf[offset+28] = x2 * sr + y2 * cr + y;
+            vbuf[offset+29] = 0;
         }
         else {
             // bl
             vbuf[offset] = x - halfWidth;
             vbuf[offset+1] = y - halfHeight;
+            vbuf[offset+2] = 0;
             // br
-            vbuf[offset+5] = x + halfWidth;
-            vbuf[offset+6] = y - halfHeight;
+            vbuf[offset+9] = x + halfWidth;
+            vbuf[offset+10] = y - halfHeight;
+            vbuf[offset+11] = 0;
             // tl
-            vbuf[offset+10] = x - halfWidth;
-            vbuf[offset+11] = y + halfHeight;
+            vbuf[offset+18] = x - halfWidth;
+            vbuf[offset+19] = y + halfHeight;
+            vbuf[offset+20] = 0;
             // tr
-            vbuf[offset+15] = x + halfWidth;
-            vbuf[offset+16] = y + halfHeight;
+            vbuf[offset+27] = x + halfWidth;
+            vbuf[offset+28] = y + halfHeight;
+            vbuf[offset+29] = 0;
         }
         // color
-        Color.toArray(vbuf, particle.color, offset+4);
-        Color.toArray(vbuf, particle.color, offset+9);
+        Color.toArray(vbuf, particle.color, offset+5);
         Color.toArray(vbuf, particle.color, offset+14);
-        Color.toArray(vbuf, particle.color, offset+19);
+        Color.toArray(vbuf, particle.color, offset+23);
+        Color.toArray(vbuf, particle.color, offset+32);
     };
 
     public step (dt) {
@@ -359,7 +367,7 @@ export class Simulator {
         const renderData = assembler.renderData;
         const particleCount = particles.length;
         assembler.reset();
-        assembler.requestData(particleCount * 4, particleCount * 6);
+        assembler.requestData(particleCount * formatBytes, particleCount * 6);
 
         // Fill up uvs
         if (particleCount > this.uvFilled) {
@@ -440,7 +448,7 @@ export class Simulator {
                     newPos.add(particle.startPos);
                 }
 
-                const offset = formatBytes * particleIdx;
+                const offset = formatBytes * particleIdx * 4;
                 this.updateParticleBuffer(particle, newPos, renderData, offset);
 
                 // update particle counter
@@ -459,18 +467,18 @@ export class Simulator {
         // assembler._ia._count = particles.length * 6;
         if (particles.length > 0) {
             // buffer.uploadData();
-            const subModelList = this.sys.model!.subModels;
-            const renderData = this.sys.assembler!.renderData;
-            const ia = subModelList[0].inputAssembler;
-            const vertexFormatBytes = Float32Array.BYTES_PER_ELEMENT * formatBytes;
-            const byteOffset = renderData.vertexStart * vertexFormatBytes;
-            const verticesData = new Float32Array(renderData.vData!.buffer, 0, renderData.vertexCount);
-            ia.vertexCount = renderData.vertexCount;
-            ia.vertexBuffers[0].update(verticesData);
+            // const subModelList = this.sys.model!.subModels;
+            // const renderData = this.sys.assembler!.renderData;
+            // const ia = subModelList[0].inputAssembler;
+            // const vertexFormatBytes = Float32Array.BYTES_PER_ELEMENT * formatBytes;
+            // const byteOffset = renderData.vertexStart * vertexFormatBytes;
+            // const verticesData = new Float32Array(renderData.vData!.buffer, 0, renderData.vertexCount);
+            // ia.vertexCount = renderData.vertexCount;
+            // ia.vertexBuffers[0].update(verticesData);
 
-            const indicesData = new Uint16Array(renderData.iData!.buffer, 0, renderData.indicesCount);
-            ia.indexCount = renderData.indicesCount;
-            ia.indexBuffer!.update(indicesData);
+            // const indicesData = new Uint16Array(renderData.iData!.buffer, 0, renderData.indicesCount);
+            // ia.indexCount = renderData.indicesCount;
+            // ia.indexBuffer!.update(indicesData);
         }
         else if (!this.active && !this.readyToPlay) {
             this.finished = true;

@@ -51,6 +51,7 @@ import { vfmtPosUvColor, getAttributeFormatBytes } from '../../core/renderer/ui/
 import { RenderingSubMesh } from '../../core/assets/mesh';
 import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
 import { GFXBufferInfo, GFXDevice } from '../../core/gfx';
+import { UNIFORM_SPRITE_TEXTURE_BINDING } from '../../core/pipeline/define';
 
 const formatBytes = getAttributeFormatBytes(vfmtPosUvColor);
 
@@ -467,7 +468,6 @@ export class ParticleSystem2D extends UIRenderable {
     public set totalParticles (value: number) {
         if (this._totalParticles === value) return;
         this._totalParticles = value;
-        this._rebuildSubMesh();
     }
     /**
      * !#en How many seconds the emitter wil run. -1 means 'forever'.
@@ -858,7 +858,6 @@ export class ParticleSystem2D extends UIRenderable {
         return this._assembler
     }
     public aspectRatio: number = 1;
-    public model: scene.Model | null = null;
     // The temporary SpriteFrame object used for the renderer. Because there is no corresponding asset, it can't be serialized.
     public declare _renderSpriteFrame: SpriteFrame | null;
     private declare _simulator: Simulator;
@@ -866,7 +865,6 @@ export class ParticleSystem2D extends UIRenderable {
     private declare _focused: boolean;
     private declare _plistFile;
     private declare _tiffReader;
-    private declare _subMeshData: RenderingSubMesh | null;
 
 
     constructor () {
@@ -874,23 +872,8 @@ export class ParticleSystem2D extends UIRenderable {
         this.initProperties();
     }
 
-    public onLoad () {
-        this._rebuildModel();
-    }
-
-    public onDisable (){
-        this._detachFromScene();
-    }
-
     public onDestroy () {
         super.onDestroy();
-        if (this.model) {
-            this.model.destroy();
-            director.root!.destroyModel(this.model);
-            this.model = null;
-        }
-
-        this._destroySubMesh();
 
         if (this.autoRemoveOnFinish) {
             this.autoRemoveOnFinish = false;    // already removed
@@ -898,67 +881,6 @@ export class ParticleSystem2D extends UIRenderable {
 
         // reset uv data so next time simulator will refill buffer uv info when exit edit mode from prefab.
         this._simulator.uvFilled = 0;
-    }
-
-    private _destroySubMesh () {
-        if (this._subMeshData) {
-            this._subMeshData.destroy();
-            this._subMeshData = null;
-        }
-    }
-
-    protected _rebuildModel () {
-        if (!this.model) {
-            this.model = director.root!.createModel(scene.Model);
-            this.model.node = this.model.transform = this.node;
-        } else if (!this.model.inited) {
-            this.model.initialize();
-        }
-
-        this._rebuildSubMesh();
-    }
-
-    protected _rebuildSubMesh () {
-        if (!this.model) {
-            console.warn(`There is no model in ${this.node.name}`);
-            return;
-        }
-
-        this._destroySubMesh();
-
-        const vertCount = 4;
-        const indexCount = 6;
-        const gfxDevice: GFXDevice = director.root!.device;
-        const vertexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.DEVICE,
-            this.totalParticles * formatBytes * vertCount,
-            formatBytes,
-        ));
-        const indexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.DEVICE,
-            this.totalParticles * indexCount * Uint16Array.BYTES_PER_ELEMENT,
-            Uint16Array.BYTES_PER_ELEMENT,
-        ));
-
-        this._subMeshData = new RenderingSubMesh([vertexBuffer], vfmtPosUvColor, GFXPrimitiveMode.TRIANGLE_LIST, indexBuffer);
-        this._subMeshData.subMeshIdx = 0;
-
-        let mat = this.getRenderMaterial(0);
-        if (!mat) {
-            this._updateBuiltinMaterial();
-            mat = this.getUIMaterialInstance();
-        }
-
-        this.model.initSubModel(0, this._subMeshData, mat);
-    }
-
-    protected _detachFromScene () {
-        if (this.model && this.model.scene) {
-            this.model.scene.removeModel(this.model);
-            this.model.scene = null;
-        }
     }
 
     private initProperties () {
@@ -983,7 +905,7 @@ export class ParticleSystem2D extends UIRenderable {
             components[i]._stopPreview();
         }
     }
-
+bv
     private _startPreview () {
         if (this.preview) {
             this.resetSystem();
@@ -1394,11 +1316,9 @@ export class ParticleSystem2D extends UIRenderable {
     }
 
     public _updateMaterial () {
-        const material = this.getMaterial(0);
+        const material = this._uiMaterialIns;
         if (!material) return;
         material.recompileShaders({ name: 'USE_LOCAL', value: this._positionType !== PositionType.FREE });
-        material.setProperty('texture', this._getTexture());
-        // BlendFunc.prototype._updateMaterial.call(this);
     }
 
     public _finishedSimulation () {
@@ -1421,8 +1341,7 @@ export class ParticleSystem2D extends UIRenderable {
     }
 
     protected _render (render: UI) {
-        render.commitModel(this, this.model, this._uiMaterialIns);
-        // render.commitComp(this, this._spriteFrame!.getGFXTexture(), this._assembler!, this._spriteFrame!.texture.getGFXSampler());
+        render.commitComp(this, this._spriteFrame!.getGFXTexture(), this._assembler!, this._spriteFrame!.texture.getGFXSampler());
     }
 }
 
