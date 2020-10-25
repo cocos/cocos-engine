@@ -1108,7 +1108,8 @@ export class Terrain extends Component {
      */
     public addLayer (layer: TerrainLayer) {
         for (let i = 0; i < this._layers.length; ++i) {
-            if (this._layers[i] == null) {
+            if (this._layers[i] === null ||
+                (this._layers[i] && this._layers[i]?.detailMap === null)) {
                 this._layers[i] = layer;
                 return i;
             }
