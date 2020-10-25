@@ -165,7 +165,6 @@ export class Model {
     protected _updateStamp = -1;
     protected _transformUpdated = true;
     protected _handle: ModelHandle = NULL_HANDLE;
-    protected _hWorldBounds: AABBHandle = NULL_HANDLE;
 
     private _localData = new Float32Array(UBOLocal.COUNT);
     private _localBuffer: GFXBuffer | null = null;
@@ -207,8 +206,14 @@ export class Model {
             this._localBuffer.destroy();
             this._localBuffer = null;
         }
-        this._worldBounds = null;
-        this._modelBounds = null;
+        if(this._worldBounds) {
+            this._worldBounds.destroy();
+            this._worldBounds = null;
+        }
+        if (this._modelBounds) {
+            this._modelBounds.destroy();
+            this._modelBounds = null;
+        }
         this._subModels.length = 0;
         this._inited = false;
         this._transformUpdated = true;
@@ -226,11 +231,6 @@ export class Model {
 
             ModelPool.free(this._handle);
             this._handle = NULL_HANDLE;
-        }
-
-        if (this._hWorldBounds) {
-            AABBPool.free(this._hWorldBounds);
-            this._hWorldBounds = NULL_HANDLE;
         }
     }
 
@@ -252,8 +252,6 @@ export class Model {
             if (this._modelBounds && worldBounds) {
                 // @ts-ignore TS2445
                 this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
-                AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, worldBounds.center);
-                AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, worldBounds.halfExtents);
             }
         }
     }
@@ -291,13 +289,7 @@ export class Model {
         if (!minPos || !maxPos) { return; }
         this._modelBounds = aabb.fromPoints(aabb.create(), minPos, maxPos);
         this._worldBounds = aabb.clone(this._modelBounds);
-        if (this._hWorldBounds === NULL_HANDLE) {
-            this._hWorldBounds = AABBPool.alloc();
-            ModelPool.set(this._handle, ModelView.WORLD_BOUNDS, this._hWorldBounds);
-        }
-        AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, this._worldBounds.center);
-        AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, this._worldBounds.halfExtents);
-
+        ModelPool.set(this._handle, ModelView.WORLD_BOUNDS, this._worldBounds.handle);
     }
 
     public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {

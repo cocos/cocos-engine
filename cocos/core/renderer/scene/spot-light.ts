@@ -2,7 +2,6 @@ import { aabb, frustum } from '../../geometry';
 import { Mat4, Quat, Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
 import { AABBHandle, AABBPool, AABBView, FrustumHandle, FrustumPool, LightPool, LightView, NULL_HANDLE } from '../core/memory-pools';
-import { recordFrustumInSharedMemory } from '../../geometry/frustum';
 
 const _forward = new Vec3(0, 0, -1);
 const _qt = new Quat();
@@ -21,8 +20,6 @@ export class SpotLight extends Light {
     protected _frustum: frustum;
     protected _angle: number = 0;
     protected _needUpdate = false;
-    protected _hAABB: AABBHandle = NULL_HANDLE;
-    protected _hFrustum: FrustumHandle = NULL_HANDLE;
 
     get position () {
         return this._pos;
@@ -85,11 +82,10 @@ export class SpotLight extends Light {
 
     public initialize () {
         super.initialize();
-        this._hAABB = AABBPool.alloc();
-        this._hFrustum = FrustumPool.alloc();
         const size = 0.15;
         LightPool.set(this._handle, LightView.SIZE, size);
-        LightPool.set(this._handle, LightView.AABB, this._hAABB);
+        LightPool.set(this._handle, LightView.AABB, this.aabb.handle);
+        LightPool.set(this._handle, LightView.FRUSTUM, this.frustum.handle);
         LightPool.set(this._handle, LightView.ILLUMINANCE, 1700 / nt2lm(size));
         LightPool.set(this._handle, LightView.RANGE, 5.0);
         LightPool.set(this._handle, LightView.RANGE, Math.cos(Math.PI / 6));
@@ -118,15 +114,11 @@ export class SpotLight extends Light {
             this._needUpdate = false;
 
             LightPool.setVec3(this._handle, LightView.DIRECTION, this._pos);
-            AABBPool.setVec3(this._hAABB, AABBView.CENTER, this._aabb.center);
-            AABBPool.setVec3(this._hAABB, AABBView.HALF_EXTENSION, this._aabb.halfExtents);
-            recordFrustumInSharedMemory(this._hFrustum, this._frustum);
         }
     }
 
     public destroy () {
-        if (this._hAABB) AABBPool.free(this._hAABB);
-        if (this._hFrustum) FrustumPool.free(this._hFrustum);
-        return super.destroy();
+        this.aabb.destroy();
+        this.frustum.destroy();
     }
 }

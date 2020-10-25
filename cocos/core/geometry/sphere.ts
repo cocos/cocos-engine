@@ -62,7 +62,7 @@ export default class sphere {
     public static copy (out: sphere, p: sphere): sphere {
         Vec3.copy(out.center, p.center);
         out.radius = p.radius;
-
+        out._recordToSharedMemory();
         return out;
     }
 
@@ -79,6 +79,7 @@ export default class sphere {
     public static fromPoints (out: sphere, minPos: Vec3, maxPos: Vec3): sphere {
         Vec3.multiplyScalar(out.center, Vec3.add(_v3_tmp, minPos, maxPos), 0.5);
         out.radius = Vec3.subtract(_v3_tmp, maxPos, minPos).length() * 0.5;
+        out._recordToSharedMemory();
         return out;
     }
 
@@ -100,7 +101,7 @@ export default class sphere {
         out.center.y = cy;
         out.center.z = cz;
         out.radius = r;
-
+        out._recordToSharedMemory();
         return out;
     }
 
@@ -115,6 +116,7 @@ export default class sphere {
         if (s.radius < 0.0) {
             out.center.set(point);
             out.radius = 0.0;
+            out._recordToSharedMemory();
             return out;
         }
 
@@ -126,6 +128,7 @@ export default class sphere {
             out.radius += half;
             Vec3.multiplyScalar(_offset, _offset, half / dist);
             Vec3.add(out.center, out.center, _offset);
+            out._recordToSharedMemory();
         }
 
         return out;
@@ -157,7 +160,7 @@ export default class sphere {
 
     set center (val:Vec3) {
         this._center = val;
-        SpherePool.setVec3(this._poolHandle, SphereView.CENTER, this._center);
+        SpherePool.setVec3(this._handle, SphereView.CENTER, this._center);
     }
 
      /**
@@ -167,16 +170,16 @@ export default class sphere {
       * 半径。
       */
     get radius () : number {
-        return SpherePool.get(this._poolHandle, SphereView.RADIUS);
+        return SpherePool.get(this._handle, SphereView.RADIUS);
     }
 
     set radius (val: number) {
-        SpherePool.set(this._poolHandle, SphereView.RADIUS, val);
+        SpherePool.set(this._handle, SphereView.RADIUS, val);
     }
 
-    protected _poolHandle: SphereHandle = NULL_HANDLE;
+    protected _handle: SphereHandle = NULL_HANDLE;
     get handle () {
-        return this._poolHandle;
+        return this._handle;
     }
 
     /**
@@ -204,15 +207,15 @@ export default class sphere {
     constructor (cx: number = 0, cy: number = 0, cz: number = 0, r: number = 1) {
         this._type = enums.SHAPE_SPHERE;
         this._center = new Vec3(cx, cy, cz);
-        this._poolHandle = SpherePool.alloc();
-        SpherePool.setVec3(this._poolHandle, SphereView.CENTER, this._center);
-        SpherePool.set(this._poolHandle, SphereView.RADIUS, r);
+        this._handle = SpherePool.alloc();
+        SpherePool.setVec3(this._handle, SphereView.CENTER, this._center);
+        SpherePool.set(this._handle, SphereView.RADIUS, r);
     }
 
     public destroy () {
-        if (this._poolHandle) {
-            SpherePool.free(this._poolHandle);
-            this._poolHandle = NULL_HANDLE;
+        if (this._handle) {
+            SpherePool.free(this._handle);
+            this._handle = NULL_HANDLE;
         }
     }
 
@@ -264,6 +267,7 @@ export default class sphere {
     public transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3, out: sphere) {
         Vec3.transformMat4(out.center, this.center, m);
         out.radius = this.radius * maxComponent(scale);
+        out._recordToSharedMemory();
     }
 
     /**
@@ -277,6 +281,7 @@ export default class sphere {
      */
     public translateAndRotate (m: Mat4, rot: Quat, out: sphere) {
         Vec3.transformMat4(out.center, this.center, m);
+        out._recordToSharedMemory();
     }
 
     /**
@@ -289,5 +294,9 @@ export default class sphere {
      */
     public setScale (scale: Vec3, out: sphere) {
         out.radius = this.radius * maxComponent(scale);
+    }
+
+    public _recordToSharedMemory () {
+        SpherePool.setVec3(this._handle, SphereView.CENTER, this.center);
     }
 }

@@ -78,6 +78,7 @@ export class frustum {
             plane.fromPoints(out.planes[3], out.vertices[0], out.vertices[5], out.vertices[4]);
             plane.fromPoints(out.planes[4], out.vertices[2], out.vertices[0], out.vertices[3]);
             plane.fromPoints(out.planes[0], out.vertices[7], out.vertices[5], out.vertices[6]);
+            out._recordToSharedMemory();
         };
     })();
 
@@ -116,6 +117,7 @@ export class frustum {
         for (let i = 0; i < 8; ++i) {
             Vec3.copy(out.vertices[i], f.vertices[i]);
         }
+        out._recordToSharedMemory();
         return out;
     }
 
@@ -129,12 +131,17 @@ export class frustum {
         return this._type;
     }
 
-    protected _type: number;
+    get handle () {
+        return this._handle;
+    }
 
+    protected _type: number;
+    protected _handle:FrustumHandle = NULL_HANDLE;
     public planes: plane[];
     public vertices: Vec3[];
 
     constructor () {
+        this._handle = FrustumPool.alloc();
         this._type = enums.SHAPE_FRUSTUM;
         this.planes = new Array(6);
         for (let i = 0; i < 6; ++i) {
@@ -177,6 +184,7 @@ export class frustum {
         // far plane
         Vec3.set(this.planes[5].n, m.m03 - m.m02, m.m07 - m.m06, m.m11 - m.m10);
         this.planes[5].d = -(m.m15 - m.m14);
+        this._recordPlanesToSharedMemory();
 
         if (this._type !== enums.SHAPE_FRUSTUM_ACCURATE) { return; }
 
@@ -192,6 +200,7 @@ export class frustum {
         for (let i = 0; i < 8; i++) {
             Vec3.transformMat4(this.vertices[i], _v[i], inv);
         }
+        this._recordToSharedMemory();
     }
 
     /**
@@ -214,24 +223,34 @@ export class frustum {
         plane.fromPoints(this.planes[3], this.vertices[0], this.vertices[4], this.vertices[5]);
         plane.fromPoints(this.planes[4], this.vertices[2], this.vertices[3], this.vertices[0]);
         plane.fromPoints(this.planes[0], this.vertices[7], this.vertices[6], this.vertices[5]);
-    }
-}
-
-export function recordFrustumInSharedMemory (handle: FrustumHandle, frstm: frustum) {
-    if (!frstm || handle === NULL_HANDLE) {
-        return;
+        this._recordToSharedMemory();
     }
 
-    const vertices = frstm.vertices;
-    let vertexOffset = FrustumView.VERTICES as const;
-    for (let i = 0; i < 8; ++i) {
-        FrustumPool.setVec3(handle, vertexOffset, vertices[i]);
-        vertexOffset += 3;
+    protected _recordToSharedMemory () {
+        this._recordVerticesToSharedMemory();
+        this._recordPlanesToSharedMemory();
+    }
+    
+    protected _recordVerticesToSharedMemory () {
+        const vertices = this.vertices
+        let vertexOffset = FrustumView.VERTICES as const;
+        for (let i = 0; i < 8; ++i) {
+            FrustumPool.setVec3(this._handle, vertexOffset, vertices[i]);
+            vertexOffset += 3;
+        }
+    }
+    protected _recordPlanesToSharedMemory () {
+        const planes = this.planes
+        let planeOffset = FrustumView.PLANES as const;
+        for (let i = 0; i < 6; i++, planeOffset += 4) {
+            FrustumPool.setVec4(this._handle, planeOffset, planes[i]);
+        }
     }
 
-    const planes = frstm.planes;
-    let planeOffset = FrustumView.PLANES as const;
-    for (let i = 0; i < 6; i++, planeOffset += 4) {
-        FrustumPool.setVec4(handle, planeOffset, planes[i]);
+    public destroy () {
+        if (this._handle) {
+            FrustumPool.free(this._handle);
+            this._handle = NULL_HANDLE;
+        }
     }
 }

@@ -7,6 +7,7 @@ import { Mat3, Mat4, Quat, Vec3 } from '../../core/math';
 import enums from './enums';
 import { IVec3Like } from '../math/type-define';
 import sphere from './sphere';
+import { AABBHandle, AABBPool, AABBView, NULL_HANDLE } from '../renderer/core/memory-pools';
 
 const _v3_tmp = new Vec3();
 const _v3_tmp2 = new Vec3();
@@ -73,7 +74,7 @@ export default class aabb {
     public static copy (out: aabb, a: aabb): aabb {
         Vec3.copy(out.center, a.center);
         Vec3.copy(out.halfExtents, a.halfExtents);
-
+        out._recordToSharedMemory();
         return out;
     }
 
@@ -92,6 +93,7 @@ export default class aabb {
         Vec3.subtract(_v3_tmp2, maxPos, minPos);
         Vec3.multiplyScalar(out.center, _v3_tmp, 0.5);
         Vec3.multiplyScalar(out.halfExtents, _v3_tmp2, 0.5);
+        out._recordToSharedMemory();
         return out;
     }
 
@@ -112,6 +114,7 @@ export default class aabb {
     public static set (out: aabb, px: number, py: number, pz: number, hw: number, hh: number, hl: number): aabb {
         Vec3.set(out.center, px, py, pz);
         Vec3.set(out.halfExtents, hw, hh, hl);
+        out._recordToSharedMemory();
         return out;
     }
 
@@ -158,7 +161,7 @@ export default class aabb {
         out.radius += half;
         Vec3.multiplyScalar(_v3_tmp3, _v3_tmp3, half / dist);
         Vec3.add(out.center, out.center, _v3_tmp3);
-
+        out._recordToSharedMemory();
         return out;
     }
 
@@ -175,6 +178,7 @@ export default class aabb {
     public static transform (out: aabb, a: aabb, matrix: Mat4): aabb {
         Vec3.transformMat4(out.center, a.center, matrix);
         transform_extent_m4(out.halfExtents, a.halfExtents, matrix);
+        out._recordToSharedMemory();
         return out;
     }
 
@@ -200,7 +204,12 @@ export default class aabb {
         return this._type;
     }
 
+    get handle () {
+        return this._handle;
+    }
+
     protected readonly _type: number;
+    protected _handle:AABBHandle = NULL_HANDLE;
 
     constructor (px = 0, py = 0, pz = 0, hw = 1, hh = 1, hl = 1) {
         this._type = enums.SHAPE_AABB;
@@ -235,6 +244,7 @@ export default class aabb {
     public transform (m: Mat4, pos: Vec3 | null, rot: Quat | null, scale: Vec3 | null, out: aabb) {
         Vec3.transformMat4(out.center, this.center, m);
         transform_extent_m4(out.halfExtents, this.halfExtents, m);
+        out._recordToSharedMemory();
     }
 
     /**
@@ -254,5 +264,17 @@ export default class aabb {
      */
     public copy (a: aabb): aabb {
         return aabb.copy(this, a);
+    }
+
+    protected _recordToSharedMemory () {
+        AABBPool.setVec3(this._handle, AABBView.CENTER, this.center);
+        AABBPool.setVec3(this._handle, AABBView.HALF_EXTENSION, this.halfExtents);
+    }
+
+    public destroy () {
+        if (this._handle) {
+            AABBPool.free(this._handle);
+            this._handle = NULL_HANDLE;
+        }
     }
 }
