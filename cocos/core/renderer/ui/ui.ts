@@ -46,11 +46,10 @@ import { UIMaterial } from './ui-material';
 import * as UIVertexFormat from './ui-vertex-format';
 import { legacyCC } from '../../global-exports';
 import { DescriptorSetHandle, DSPool } from '../core/memory-pools';
-import { ModelLocalBindings, SetIndex } from '../../pipeline/define';
+import { ModelLocalBindings } from '../../pipeline/define';
 import { EffectAsset, RenderTexture, SpriteFrame } from '../../assets';
 import { programLib } from '../core/program-lib';
 import { TextureBase } from '../../assets/texture-base';
-import { DSPool } from '../core/memory-pools';
 
 const _dsInfo = new GFXDescriptorSetInfo(null!);
 
@@ -477,7 +476,7 @@ export class UI {
      * @param model - 提交渲染的 model 数据。
      * @param mat - 提交渲染的材质。
      */
-    public commitModel (comp: UIComponent | UIRenderable, model: Model | null, mat: Material | null, isModel: boolean) {
+    public commitModel (comp: UIComponent | UIRenderable, model: Model | null, mat: Material | null) {
         // if the last comp is spriteComp, previous comps should be batched.
         if (this._currMaterial !== this._emptyMaterial) {
             this.autoMergeBatches(this._currComponent!);
@@ -485,12 +484,12 @@ export class UI {
 
         if (mat) {
             let rebuild = false;
-            let renderComp;
-            // check ui-model
-            if (!isModel) {
-                renderComp = comp;
+            if (comp instanceof UIRenderable) {
+                rebuild = StencilManager.sharedManager!.handleMaterial(mat, comp);
+            } else {
+                rebuild = StencilManager.sharedManager!.handleMaterial(mat);
             }
-            if (StencilManager.sharedManager!.handleMaterial(mat, renderComp)) {
+            if (rebuild) {
                 const state = StencilManager.sharedManager!.pattern;
                 mat.overridePipelineStates({
                     depthStencilState: {
@@ -512,7 +511,6 @@ export class UI {
                         stencilRefBack: state.ref,
                     }
                 });
-                rebuild = true;
             }
             if (rebuild && model) {
                 for (let i = 0; i < model.subModels.length; i++) {

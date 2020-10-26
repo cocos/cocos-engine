@@ -608,7 +608,7 @@ export class Graphics extends UIRenderable {
     }
 
     protected _render (render: UI) {
-        render.commitModel(this, this.model, this._uiMaterialIns, false);
+        render.commitModel(this, this.model, this._uiMaterialIns);
     }
 
     protected _flushAssembler (){

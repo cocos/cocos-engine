@@ -108,7 +108,7 @@ export class UIMeshRenderer extends UIComponent {
     public updateAssembler (render: UI) {
         if (this._models) {
             for(const m of this._models){
-                render.commitModel.call(render, this, m, this._modelComponent!.material, true);
+                render.commitModel.call(render, this, m, this._modelComponent!.material);
             }
             return true;
         }
