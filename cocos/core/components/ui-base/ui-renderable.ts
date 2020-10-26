@@ -262,6 +262,12 @@ export class UIRenderable extends RenderableComponent {
     }
 
     /**
+     * @en The component stencil stage (please do not any modification directly on this object)
+     * @zh 组件模板缓冲状态 (注意：请不要直接修改它的值)
+     */
+    public stencilStage : Stage = Stage.DISABLED;
+
+    /**
      * @en The blend factor enums
      * @zh 混合模式枚举类型
      * @see [[GFXBlendFactor]]
@@ -517,6 +523,4 @@ export class UIRenderable extends RenderableComponent {
     }
 
     protected _flushAssembler? (): void;
-
-    public stencilStage : Stage = Stage.DISABLED;
 }
