@@ -7,7 +7,7 @@ import { ccenum } from '../value-types/enum';
 import { GFXDescriptorSet, GFXDescriptorSetInfo } from './descriptor-set';
 import { GFXBuffer, GFXBufferInfo, GFXBufferViewInfo } from './buffer';
 import { GFXCommandBuffer, GFXCommandBufferInfo } from './command-buffer';
-import {  GFXFilter, GFXFormat, GFXMemoryStatus, GFXAPI, GFXFeature } from './define';
+import {  GFXFilter, GFXFormat, GFXMemoryStatus, GFXAPI, GFXFeature, GFXSurfaceTransform } from './define';
 import { GFXBufferTextureCopy, GFXRect } from './define-class';
 import { GFXFence, GFXFenceInfo } from './fence';
 import { GFXFramebuffer, GFXFramebufferInfo } from './framebuffer';
@@ -335,9 +335,18 @@ export abstract class GFXDevice {
         return this._UVSpaceSignY;
     }
 
+    /**
+     * @en The surface transform to be applied in projection matrices.
+     * @zh 需要在投影矩阵中应用的表面变换。
+     */
+    get surfaceTransform () {
+        return this._transform;
+    }
+
     protected _canvas: HTMLCanvasElement | null = null;
     protected _canvas2D: HTMLCanvasElement | null = null;
     protected _gfxAPI: GFXAPI = GFXAPI.UNKNOWN;
+    protected _transform: GFXSurfaceTransform = GFXSurfaceTransform.IDENTITY;
     protected _deviceName: string = '';
     protected _renderer: string = '';
     protected _vendor: string = '';

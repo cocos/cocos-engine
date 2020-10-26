@@ -560,6 +560,13 @@ export enum GFXAPI {
     WEBGPU,
 }
 
+export enum GFXSurfaceTransform {
+    IDENTITY,
+    ROTATE_90,
+    ROTATE_180,
+    ROTATE_270,
+}
+
 export enum GFXFeature {
     COLOR_FLOAT,
     COLOR_HALF_FLOAT,
