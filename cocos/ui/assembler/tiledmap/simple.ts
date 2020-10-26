@@ -32,22 +32,22 @@ import { Vec3 } from '../../../core/math';
 import { IAssembler } from '../../../core/renderer/ui/base';
 import { MeshRenderData } from '../../../core/renderer/ui/render-data';
 import { UI } from '../../../core/renderer/ui/ui';
-import { TiledLayer, TiledTile} from "../../../tiledmap";
-import * as cc from "../../../core";
+import { TiledLayer, TiledTile } from '../../../tiledmap';
+import * as cc from '../../../core';
 import { GID, MixedGID, RenderOrder, TiledGrid, TileFlag } from '../../../tiledmap/TiledTypes';
 import { Texture2D } from '../../../core';
 
-const MaxGridsLimit = Math.ceil(65535 / 6);
 
+const MaxGridsLimit = Math.ceil(65535 / 6);
 
 const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
 
-let _mat4_temp = cc.mat4();
-let _vec3_temp = cc.v3();
-let _leftDown = { row: 0, col: 0 };
+const _mat4_temp = cc.mat4();
+const _vec3_temp = cc.v3();
+const _leftDown = { row: 0, col: 0 };
 let _uva = { x: 0, y: 0 };
 let _uvb = { x: 0, y: 0 };
 let _uvc = { x: 0, y: 0 };
@@ -60,27 +60,27 @@ let _moveX = 0;
 let _moveY = 0;
 
 
-let flipTexture: { (grid: TiledGrid, gid: MixedGID): void };
+let flipTexture: (grid: TiledGrid, gid: MixedGID) => void;
 
 /**
  * simple 组装器
  * 可通过 `UI.simple` 获取该组装器。
  */
 export const simple: IAssembler = {
-    createData(layer: TiledLayer) {
+    createData (layer: TiledLayer) {
 
         const renderData = layer.requestMeshRenderData();
-        let maxGrids = layer.rightTop.col * layer.rightTop.row;
+        const maxGrids = layer.rightTop.col * layer.rightTop.row;
         if (maxGrids * 4 > 65535) {
             console.error(`Vertex count exceeds 65535`);
         }
         return renderData;
     },
 
-    updateRenderData(comp: TiledLayer) {
+    updateRenderData (comp: TiledLayer) {
 
         comp.updateCulling();
-        let renderData = comp.meshRenderDataArray![0];
+        const renderData = comp.meshRenderDataArray![0];
 
         _moveX = comp.leftDownToCenterX;
         _moveY = comp.leftDownToCenterY;
@@ -91,24 +91,16 @@ export const simple: IAssembler = {
 
             comp.resetRenderData();
 
-            let leftDown: { col: number, row: number }, rightTop: { col: number, row: number };
+            let leftDown: { col: number, row: number };
+            let rightTop: { col: number, row: number };
             if (comp.enableCulling) {
-                let cullingRect = comp.cullingRect;
+                const cullingRect = comp.cullingRect;
                 leftDown = cullingRect.leftDown;
                 rightTop = cullingRect.rightTop;
             } else {
                 leftDown = _leftDown;
                 rightTop = comp.rightTop;
             }
-
-            let maxRows = rightTop.row - leftDown.row + 1;
-            let maxCols = rightTop.col - leftDown.col + 1;
-            let maxGrids = maxRows * maxCols;
-            if (maxGrids > MaxGridsLimit) {
-                maxGrids = MaxGridsLimit;
-            }
-
-            // _renderData.renderData.request(maxGrids * 4, maxGrids * 6);
 
             switch (comp.renderOrder) {
                 // left top to right down, col add, row sub,
@@ -137,8 +129,7 @@ export const simple: IAssembler = {
 
     },
 
-
-    updateColor(tiled: TiledLayer) {
+    updateColor (tiled: TiledLayer) {
 
         const color = tiled.color;
         const colorV = new Float32Array(4);
@@ -146,11 +137,11 @@ export const simple: IAssembler = {
         colorV[1] = color.g / 255;
         colorV[2] = color.b / 255;
         colorV[0] = color.a / 255;
-        let rs = tiled.meshRenderDataArray;
+        const rs = tiled.meshRenderDataArray;
         if (rs) {
-            for (let r of rs) {
-                let renderData = r.renderData;
-                let vs = renderData.vData;
+            for (const r of rs) {
+                const renderData = r.renderData;
+                const vs = renderData.vData;
                 for (let i = renderData.vertexStart, l = renderData.vertexCount; i < l; i++) {
                     vs.set(colorV, i * 9 + 5);
                 }
@@ -158,7 +149,7 @@ export const simple: IAssembler = {
         }
     },
 
-    fillBuffers(layer: TiledLayer, renderer: UI) {
+    fillBuffers (layer: TiledLayer, renderer: UI) {
         if (!layer || !layer.meshRenderDataArray) return;
 
         const dataArray = layer.meshRenderDataArray!;
@@ -169,9 +160,9 @@ export const simple: IAssembler = {
         let indicesOffset = buffer.indicesOffset;
         let vertexId = buffer.vertexOffset;
 
-        let renderDataIndex = layer._renderDataIndex;
-        let data = dataArray[renderDataIndex];
-        let renderData = data.renderData;
+        const renderDataIndex = layer._renderDataIndex;
+        const data = dataArray[renderDataIndex];
+        const renderData = data.renderData;
 
         const isRecreate = buffer.request(renderData.vertexCount, renderData.indicesCount);
         if (!isRecreate) {
@@ -190,9 +181,9 @@ export const simple: IAssembler = {
 
         // copy all vertexData
         vBuf.set(srcVBuf.slice(srcVIdx, srcVIdx + renderData.vertexCount * 9), vertexOffset);
-        let vertex = new cc.Vec3();
+        const vertex = new cc.Vec3();
         for (let i = 0; i < renderData.vertexCount; i++) {
-            let pOffset = vertexOffset + i * 9;
+            const pOffset = vertexOffset + i * 9;
             vertex.set(vBuf[pOffset], vBuf[pOffset + 1], vBuf[pOffset + 2]);
             vertex.transformMat4(matrix);
             vBuf[pOffset] = vertex.x;
@@ -202,7 +193,7 @@ export const simple: IAssembler = {
 
         const quadCount = renderData.vertexCount / 4;
         for (let i = 0; i < quadCount; i += 1) {
-            iBuf[indicesOffset] =     vertexId;
+            iBuf[indicesOffset] = vertexId;
             iBuf[indicesOffset + 1] = vertexId + 1;
             iBuf[indicesOffset + 2] = vertexId + 2;
             iBuf[indicesOffset + 3] = vertexId + 2;
@@ -220,7 +211,7 @@ texture coordinate
 a c
 b d
 */
-function _flipTexture(inGrid: TiledGrid, gid: MixedGID) {
+function _flipTexture (inGrid: TiledGrid, gid: MixedGID) {
     if (inGrid._rotated) {
         // 2:b   1:a
         // 4:d   3:c
@@ -283,7 +274,7 @@ texture coordinate
 b     c
    d
 */
-function _flipDiamondTileTexture(inGrid: TiledGrid, gid: MixedGID) {
+function _flipDiamondTileTexture (inGrid: TiledGrid, gid: MixedGID) {
     if (inGrid._rotated) {
         //       2:b
         // 4:d         1:a
@@ -338,11 +329,10 @@ function _flipDiamondTileTexture(inGrid: TiledGrid, gid: MixedGID) {
     }
 }
 
-
-
 // rowMoveDir is -1 or 1, -1 means decrease, 1 means increase
 // colMoveDir is -1 or 1, -1 means decrease, 1 means increase
-function traverseGrids(leftDown: { col: number, row: number }, rightTop: { col: number, row: number }, rowMoveDir: number, colMoveDir: number, comp: TiledLayer) {
+function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col: number, row: number },
+    rowMoveDir: number, colMoveDir: number, comp: TiledLayer) {
 
     // show nothing
     if (rightTop.row < 0 || rightTop.col < 0) return;
@@ -353,17 +343,17 @@ function traverseGrids(leftDown: { col: number, row: number }, rightTop: { col: 
     _fillGrids = 0;
     _vfOffset = 0;
 
-    let tiledTiles = comp.tiledTiles;
+    const tiledTiles = comp.tiledTiles;
 
 
-    let texGrids = comp.texGrids!;
-    let tiles = comp.tiles;
+    const texGrids = comp.texGrids!;
+    const tiles = comp.tiles;
 
     const vertStep = 9;
     const vertStep2 = vertStep * 2;
     const vertStep3 = vertStep * 3;
 
-    let vertices = comp.vertices;
+    const vertices = comp.vertices;
     let rowData: { [key: number]: { left: number, bottom: number; index: number }, maxCol: number, minCol: number };
     let col: number;
     let cols: number;
@@ -373,16 +363,20 @@ function traverseGrids(leftDown: { col: number, row: number }, rightTop: { col: 
     let tileSize: cc.Size;
     let grid: TiledGrid | undefined;
     let gid: MixedGID = 0 as unknown as any;
-    let left = 0, bottom = 0, right = 0, top = 0; // x, y
+    let left = 0;
+    let bottom = 0;
+    let right = 0;
+    let top = 0; // x, y
     let tiledNode: TiledTile | null;
     let curTexIdx: Texture2D | null = null;
-    let colNodesCount = 0, checkColRange = true;
+    let colNodesCount = 0;
+    let checkColRange = true;
 
-    let diamondTile = false; // TODO:comp._diamondTile;
+    const diamondTile = false; // TODO:comp._diamondTile;
 
     flipTexture = diamondTile ? _flipDiamondTileTexture : _flipTexture;
 
-    let color: Float32Array = new Float32Array(4); comp.color._val;
+    const color: Float32Array = new Float32Array(4);
     color[0] = comp.color.r / 255;
     color[1] = comp.color.g / 255;
     color[2] = comp.color.b / 255;
@@ -455,8 +449,8 @@ function traverseGrids(leftDown: { col: number, row: number }, rightTop: { col: 
             vertexBuf = _renderData!.renderData.vData;
             if (!tiledNode) {
                 if (diamondTile) {
-                    let centerX = (left + right) / 2;
-                    let centerY = (top + bottom) / 2;
+                    const centerX = (left + right) / 2;
+                    const centerY = (top + bottom) / 2;
                     // ct
                     vertexBuf[_vfOffset] = centerX;
                     vertexBuf[_vfOffset + 1] = top;
@@ -541,8 +535,8 @@ function traverseGrids(leftDown: { col: number, row: number }, rightTop: { col: 
 }
 
 
-
-function fillByTiledNode(tiledNode: cc.Node, color: Float32Array, vbuf: Float32Array, left: number, right: number, top: number, bottom: number, diamondTile: boolean) {
+function fillByTiledNode (tiledNode: cc.Node, color: Float32Array, vbuf: Float32Array,
+    left: number, right: number, top: number, bottom: number, diamondTile: boolean) {
     const vertStep = 9;
     const vertStep2 = vertStep * 2;
     const vertStep3 = vertStep * 3;
@@ -552,20 +546,20 @@ function fillByTiledNode(tiledNode: cc.Node, color: Float32Array, vbuf: Float32A
     cc.Mat4.copy(_mat4_temp, tiledNode.matrix);
     Vec3.set(_vec3_temp, -(left + _moveX), -(bottom + _moveY), 0);
     cc.Mat4.transform(_mat4_temp, _mat4_temp, _vec3_temp);
-    let m = _mat4_temp;
-    let tx = m.m12;
-    let ty = m.m13;
+    const m = _mat4_temp;
+    const tx = m.m12;
+    const ty = m.m13;
 
-    let a = m.m00;
-    let b = m.m01;
-    let c = m.m04;
-    let d = m.m05;
+    const a = m.m00;
+    const b = m.m01;
+    const c = m.m04;
+    const d = m.m05;
 
-    let justTranslate = a === 1 && b === 0 && c === 0 && d === 1;
+    const justTranslate = a === 1 && b === 0 && c === 0 && d === 1;
 
     if (diamondTile) {
-        let centerX = (left + right) / 2;
-        let centerY = (top + bottom) / 2;
+        const centerX = (left + right) / 2;
+        const centerY = (top + bottom) / 2;
         if (justTranslate) {
             // ct
             vbuf[_vfOffset] = centerX + tx;
@@ -634,5 +628,3 @@ function fillByTiledNode(tiledNode: cc.Node, color: Float32Array, vbuf: Float32A
     vbuf.set(color, _vfOffset + vertStep2 + 5);
     vbuf.set(color, _vfOffset + vertStep3 + 5);
 }
-
-

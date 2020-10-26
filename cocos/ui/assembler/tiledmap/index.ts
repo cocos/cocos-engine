@@ -28,23 +28,17 @@
  * @hidden
  */
 
-import { UIRenderable } from '../../../core/components/ui-base/ui-renderable';
 import { IAssemblerManager } from '../../../core/renderer/ui/base';
-import {TiledLayer, TiledMap} from "../../../tiledmap";
+import {TiledLayer} from '../../../tiledmap';
 import { simple } from './simple';
 
 
 // Inline all type switch to avoid jit deoptimization during inlined function change
 
 const tiledLayerAssembler: IAssemblerManager = {
-    getAssembler (spriteComp: UIRenderable) {
+    getAssembler () {
         return simple;
     },
-
-    // Skip invalid sprites (without own _assembler)
-    // updateRenderData (sprite) {
-    //     return sprite.__allocedDatas;
-    // },
 };
 
 TiledLayer.Assembler = tiledLayerAssembler;

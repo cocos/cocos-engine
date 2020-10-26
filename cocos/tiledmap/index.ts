@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 export * from './TiledMap';
-export * from "./TiledMapAsset";
-export * from "./TiledLayer";
-export * from "./TiledObjectGroup";
-export * from "./TiledTile";
+export * from './TiledMapAsset';
+export * from './TiledLayer';
+export * from './TiledObjectGroup';
+export * from './TiledTile';

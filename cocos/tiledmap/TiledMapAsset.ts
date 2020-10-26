@@ -28,7 +28,7 @@
 import { Asset } from '../core/assets/asset';
 import { ccclass, type, serializable } from 'cc.decorator';
 import { legacyCC } from '../core/global-exports';
-import * as cc from "../core";
+import { CCString, Size, SpriteFrame, TextAsset } from '../..';
 /**
  * Class for tiled map asset handling.
  * @class TiledMapAsset
@@ -39,55 +39,52 @@ import * as cc from "../core";
 export class TiledMapAsset extends Asset {
 
     @serializable
-    tmxXmlStr: string = "";
+    tmxXmlStr: string = '';
 
     @serializable
-    @type([cc.TextAsset])
-    tsxFiles: cc.TextAsset[] = [];
-    
+    @type([TextAsset])
+    tsxFiles: TextAsset[] = [];
+
     @serializable
-    @type([cc.CCString])
+    @type([CCString])
     tsxFileNames: string[] = [];
 
     /**
      * @zh s
      */
     @serializable
-    @type([cc.SpriteFrame])
-    spriteFrames: cc.SpriteFrame[] = [];
+    @type([SpriteFrame])
+    spriteFrames: SpriteFrame[] = [];
 
     /**
      * @property {SpriteFrame[]} imageLayerSpriteFrame
      */
     @serializable
-    @type([cc.SpriteFrame])
-    imageLayerSpriteFrame: cc.SpriteFrame[] = []
+    @type([SpriteFrame])
+    imageLayerSpriteFrame: SpriteFrame[] = []
 
     /**
      * @property {String[]} imageLayerTextureNames
      */
     @serializable
-    @type([cc.CCString])
+    @type([CCString])
     imageLayerSpriteFrameNames: string[] = [];
-    
+
     /**
      * @property {String[]} spriteFrameNames
      */
     @serializable
-    @type([cc.CCString])
+    @type([CCString])
     spriteFrameNames: string[] = [];
 
     /**
      * @property {Size[]} spriteFrameSizes
      */
     @serializable
-    @type([cc.Size])
-    spriteFrameSizes: cc.Size[] = [];
-
-
+    @type([Size])
+    spriteFrameSizes: Size[] = [];
 
     static preventDeferredLoadDependents: boolean = true;
-
 }
 
 legacyCC.TiledMapAsset = TiledMapAsset;

@@ -24,25 +24,24 @@
  ****************************************************************************/
 
 /**
-* @packageDocumentation
-* @module ui
-*/
+ * @packageDocumentation
+ * @module ui
+ */
 
 import { Component } from '../core/components';
 import { UITransform } from '../core/components/ui-base';
 import { ccclass, displayOrder, executeInEditMode, help, menu, requireComponent, type, serializable } from 'cc.decorator';
-import { legacyCC } from "../core/global-exports";
+import { legacyCC } from '../core/global-exports';
 import { js } from '../core/utils/js';
-
-import {GID, Orientation, Property, RenderOrder, StaggerAxis, StaggerIndex, TiledGrid, TiledTextureGrids, TileFlag, TMXObjectType, TMXTilesetInfo} from "./TiledTypes"
-
-import { TMXMapInfo, TMXLayerInfo, TMXObjectGroupInfo, TMXImageLayerInfo, TiledAnimationType, PropertiesInfo } from './TMXXMLParser';
+import { GID, Orientation, PropertiesInfo, Property, RenderOrder, StaggerAxis, StaggerIndex, TiledAnimationType, TiledTextureGrids, TileFlag, 
+    TMXImageLayerInfo, TMXObjectType, TMXTilesetInfo } from './TiledTypes'
+import { TMXMapInfo } from './TMXXMLParser';
 import { TiledLayer } from './TiledLayer';
 import { TiledObjectGroup } from './TiledObjectGroup';
-import { TiledMapAsset} from "./TiledMapAsset";
-import { Sprite } from "../ui/components/sprite"
+import { TiledMapAsset } from './TiledMapAsset';
+import { Sprite } from '../ui/components/sprite';
 import { EDITOR } from 'internal:constants';
-import {fillTextureGrids, loadAllTextures} from "./TiledUtils";
+import { fillTextureGrids, loadAllTextures } from './TiledUtils';
 import { Size, SpriteFrame, SystemEventType, Vec2, Node, logID, Color, sys } from '../core';
 
 
@@ -64,23 +63,19 @@ interface ImageExtendedNode extends Node {
 @executeInEditMode
 export class TiledMap extends Component {
 
-    // editor: CC_EDITOR && {
-    //     executeInEditMode: true,
-    //     menu: 'i18n:MAIN_MENU.component.renderers/TiledMap',
-    // },
     // store all layer gid corresponding texture info, index is gid, format likes '[gid0]=tex-info,[gid1]=tex-info, ...'
-    _texGrids: TiledTextureGrids = new Map;
+    _texGrids: TiledTextureGrids = new Map();
     // store all tileset texture, index is tileset index, format likes '[0]=texture0, [1]=texture1, ...'
     _textures: SpriteFrame[] = [];
     _tilesets: TMXTilesetInfo[] = [];
 
-    _animations: TiledAnimationType = new Map;
+    _animations: TiledAnimationType = new Map();
     _imageLayers: TMXImageLayerInfo[] = [];
     _layers: TiledLayer[] = [];
     _groups: TiledObjectGroup[] = [];
     _images: ImageExtendedNode[] = [];
     _properties: PropertiesInfo = {} as any;
-    _tileProperties: Map<GID, PropertiesInfo> = new Map;
+    _tileProperties: Map<GID, PropertiesInfo> = new Map();
 
     _mapInfo: TMXMapInfo | null = null;
     _mapSize: Size = new Size(0, 0);
@@ -100,7 +95,7 @@ export class TiledMap extends Component {
     static RenderOrder = RenderOrder;
 
     @serializable
-    _tmxFile: TiledMapAsset|null = null;
+    _tmxFile: TiledMapAsset | null = null;
     /**
      * !#en The TiledMap Asset.
      * !#zh TiledMap 资源。
@@ -110,11 +105,11 @@ export class TiledMap extends Component {
 
     @type(TiledMapAsset)
     @displayOrder(7)
-    get tmxAsset(): TiledMapAsset {
+    get tmxAsset (): TiledMapAsset {
         return this._tmxFile!;
     }
 
-    set tmxAsset(value: TiledMapAsset) {
+    set tmxAsset (value: TiledMapAsset) {
         if (this._tmxFile !== value || EDITOR) {
             this._tmxFile = value;
             if (this._preloaded || EDITOR) {
@@ -126,18 +121,19 @@ export class TiledMap extends Component {
 
     /**
      * !#en
-     * Whether or not enabled tiled map auto culling. If you set the TiledMap skew or rotation, then need to manually disable this, otherwise, the rendering will be wrong.
+     * Whether or not enabled tiled map auto culling. If you set the TiledMap skew or rotation, then need to manually
+     *  disable this, otherwise, the rendering will be wrong.
      * !#zh
      * 是否开启瓦片地图的自动裁减功能。瓦片地图如果设置了 skew, rotation 或者采用了摄像机的话，需要手动关闭，否则渲染会出错。
      */
     @serializable
     protected _enableCulling: boolean = true;
-    get enableCulling() {
+    get enableCulling () {
         return this._enableCulling;
     }
-    set enableCulling(value) {
+    set enableCulling (value) {
         this._enableCulling = value;
-        let layers = this._layers;
+        const layers = this._layers;
         for (let i = 0; i < layers.length; ++i) {
             layers[i].enableCulling = value;
         }
@@ -156,7 +152,7 @@ export class TiledMap extends Component {
      * let mapSize = tiledMap.getMapSize();
      * cc.log("Map Size: " + mapSize);
      */
-    getMapSize() {
+    getMapSize () {
         return this._mapSize;
     }
 
@@ -169,7 +165,7 @@ export class TiledMap extends Component {
      * let tileSize = tiledMap.getTileSize();
      * cc.log("Tile Size: " + tileSize);
      */
-    getTileSize() {
+    getTileSize () {
         return this._tileSize;
     }
 
@@ -182,7 +178,7 @@ export class TiledMap extends Component {
      * let mapOrientation = tiledMap.getMapOrientation();
      * cc.log("Map Orientation: " + mapOrientation);
      */
-    getMapOrientation() {
+    getMapOrientation () {
         return this._mapOrientation;
     }
 
@@ -197,7 +193,7 @@ export class TiledMap extends Component {
      *     cc.log("obj: " + objGroups[i]);
      * }
      */
-    getObjectGroups() {
+    getObjectGroups () {
         return this._groups;
     }
 
@@ -211,10 +207,10 @@ export class TiledMap extends Component {
      * let group = titledMap.getObjectGroup("Players");
      * cc.log("ObjectGroup: " + group);
      */
-    getObjectGroup(groupName: string) {
-        let groups = this._groups;
+    getObjectGroup (groupName: string) {
+        const groups = this._groups;
         for (let i = 0, l = groups.length; i < l; i++) {
-            let group = groups[i];
+            const group = groups[i];
             if (group && group.getGroupName() === groupName) {
                 return group;
             }
@@ -234,7 +230,7 @@ export class TiledMap extends Component {
      *     cc.log("Properties: " + properties[i]);
      * }
      */
-    getProperties() {
+    getProperties () {
         return this._properties;
     }
 
@@ -249,7 +245,7 @@ export class TiledMap extends Component {
      *     cc.log("Layers: " + layers[i]);
      * }
      */
-    getLayers() {
+    getLayers () {
         return this._layers;
     }
 
@@ -263,10 +259,10 @@ export class TiledMap extends Component {
      * let layer = titledMap.getLayer("Player");
      * cc.log(layer);
      */
-    getLayer(layerName) {
-        let layers = this._layers;
+    getLayer (layerName) {
+        const layers = this._layers;
         for (let i = 0, l = layers.length; i < l; i++) {
-            let layer = layers[i];
+            const layer = layers[i];
             if (layer && layer.getLayerName() === layerName) {
                 return layer;
             }
@@ -274,10 +270,10 @@ export class TiledMap extends Component {
         return null;
     }
 
-    _changeLayer(layerName, replaceLayer) {
-        let layers = this._layers;
+    protected _changeLayer (layerName, replaceLayer) {
+        const layers = this._layers;
         for (let i = 0, l = layers.length; i < l; i++) {
-            let layer = layers[i];
+            const layer = layers[i];
             if (layer && layer.getLayerName() === layerName) {
                 layers[i] = replaceLayer;
                 return;
@@ -295,7 +291,7 @@ export class TiledMap extends Component {
      * let property = titledMap.getProperty("info");
      * cc.log("Property: " + property);
      */
-    getProperty(propertyName: string) {
+    getProperty (propertyName: string) {
         return this._properties[propertyName.toString()];
     }
 
@@ -309,11 +305,11 @@ export class TiledMap extends Component {
      * let properties = titledMap.getPropertiesForGID(GID);
      * cc.log("Properties: " + properties);
      */
-    getPropertiesForGID(gid: GID) {
+    getPropertiesForGID (gid: GID) {
         return this._tileProperties.get(gid);
     }
 
-    __preload() {
+    __preload () {
         this._preloaded = true;
 
         if (!this._tmxFile) {
@@ -323,60 +319,60 @@ export class TiledMap extends Component {
         this._applyFile();
     }
 
-    onEnable() {
+    onEnable () {
         this.node.on(SystemEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
     }
 
-    onDisable() {
+    onDisable () {
         this.node.off(SystemEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
     }
 
-    _applyFile() {
+    _applyFile () {
 
-        let spriteFrames:SpriteFrame[] = [];
-        let spriteFramesCache = {};
+        const spriteFrames: SpriteFrame[] = [];
+        const spriteFramesCache = {};
 
-        let file = this._tmxFile;
+        const file = this._tmxFile;
 
         if (file) {
             // let texValues = file.textures;
             let spfNames: string[] = file.spriteFrameNames;
-            let spfSizes: Size[] = file.spriteFrameSizes;
-            let fSpriteFrames: SpriteFrame[] = file.spriteFrames;
-            let spfTexturesMap: { [key: string]: SpriteFrame } = {};
-            let spfTextureSizeMap: { [key: string]: Size } = {};
+            const spfSizes: Size[] = file.spriteFrameSizes;
+            const fSpriteFrames: SpriteFrame[] = file.spriteFrames;
+            const spfTexturesMap: { [key: string]: SpriteFrame } = {};
+            const spfTextureSizeMap: { [key: string]: Size } = {};
 
             for (let i = 0; i < spfNames.length; ++i) {
-                let texName = spfNames[i];
+                const texName = spfNames[i];
                 // textures[texName] = texValues[i];
                 spfTextureSizeMap[texName] = spfSizes[i];
                 spriteFrames[i] = fSpriteFrames[i];
-                let frame = spriteFrames[i];
+                const frame = spriteFrames[i];
                 if (frame) {
                     spriteFramesCache[frame.name] = frame;
                     spfTexturesMap[texName] = frame;
                 }
             }
-            
 
-            let imageLayerTextures:{[key: string]:SpriteFrame} = {};
-            let texValues = file.imageLayerSpriteFrame;
+
+            const imageLayerTextures: { [key: string]: SpriteFrame } = {};
+            const texValues = file.imageLayerSpriteFrame;
             spfNames = file.imageLayerSpriteFrameNames;
             for (let i = 0; i < texValues.length; ++i) {
                 imageLayerTextures[spfNames[i]] = texValues[i];
             }
 
-            let tsxFileNames = file.tsxFileNames;
-            let tsxFiles = file.tsxFiles;
-            let tsxContentMap:{[key: string]:string} = {};
+            const tsxFileNames = file.tsxFileNames;
+            const tsxFiles = file.tsxFiles;
+            const tsxContentMap: { [key: string]: string } = {};
             for (let i = 0; i < tsxFileNames.length; ++i) {
                 if (tsxFileNames[i].length > 0) {
                     tsxContentMap[tsxFileNames[i]] = tsxFiles[i].text;
                 }
             }
 
-            let mapInfo = new TMXMapInfo(file.tmxXmlStr!, tsxContentMap, spfTexturesMap, spfTextureSizeMap, imageLayerTextures);
-            let tilesets = mapInfo.getTilesets();
+            const mapInfo = new TMXMapInfo(file.tmxXmlStr!, tsxContentMap, spfTexturesMap, spfTextureSizeMap, imageLayerTextures);
+            const tilesets = mapInfo.getTilesets();
             if (!tilesets || tilesets.length === 0) {
                 logID(7241);
             }
@@ -389,23 +385,23 @@ export class TiledMap extends Component {
         }
     }
 
-    _releaseMapInfo() {
+    _releaseMapInfo () {
         // remove the layers & object groups added before
-        let layers = this._layers;
+        const layers = this._layers;
         for (let i = 0, l = layers.length; i < l; i++) {
             layers[i].node.removeFromParent();
             layers[i].node.destroy();
         }
         layers.length = 0;
 
-        let groups = this._groups;
+        const groups = this._groups;
         for (let i = 0, l = groups.length; i < l; i++) {
             groups[i].node.removeFromParent();
             groups[i].node.destroy();
         }
         groups.length = 0;
 
-        let images = this._images;
+        const images = this._images;
         for (let i = 0, l = images.length; i < l; i++) {
             images[i].removeFromParent();
             images[i].destroy();
@@ -413,64 +409,65 @@ export class TiledMap extends Component {
         images.length = 0;
     }
 
-    _syncAnchorPoint() {
-        let anchor = this.node._uiProps.uiTransformComp!.anchorPoint;
-        let leftTopX = this.node._uiProps.uiTransformComp!.width * anchor.x;
-        let leftTopY = this.node._uiProps.uiTransformComp!.height * (1 - anchor.y);
-        let i: number, l: number;
+    _syncAnchorPoint () {
+        const anchor = this.node._uiProps.uiTransformComp!.anchorPoint;
+        const leftTopX = this.node._uiProps.uiTransformComp!.width * anchor.x;
+        const leftTopY = this.node._uiProps.uiTransformComp!.height * (1 - anchor.y);
+        let i: number;
+        let l: number;
         for (i = 0, l = this._layers.length; i < l; i++) {
-            let layerInfo = this._layers[i];
-            let layerNode = layerInfo.node;
+            const layerInfo = this._layers[i];
+            const layerNode = layerInfo.node;
             // Tiled layer sync anchor to map because it's old behavior,
             // do not change the behavior avoid influence user's existed logic.
             layerNode!._uiProps!.uiTransformComp!.setAnchorPoint(anchor);
         }
 
         for (i = 0, l = this._groups.length; i < l; i++) {
-            let groupInfo = this._groups[i];
-            let groupNode = groupInfo.node._uiProps.uiTransformComp!;
+            const groupInfo = this._groups[i];
+            const groupNode = groupInfo.node._uiProps.uiTransformComp!;
             // Group layer not sync anchor to map because it's old behavior,
             // do not change the behavior avoid influence user's existing logic.
             groupNode.anchorX = 0.5;
             groupNode.anchorY = 0.5;
-            let x = groupInfo.offset!.x - leftTopX + groupNode.width * groupNode.anchorX;
-            let y = groupInfo.offset!.y + leftTopY - groupNode.height * groupNode.anchorY;
+            const x = groupInfo.offset!.x - leftTopX + groupNode.width * groupNode.anchorX;
+            const y = groupInfo.offset!.y + leftTopY - groupNode.height * groupNode.anchorY;
             groupInfo.node.setPosition(x, y);
         }
 
         for (i = 0, l = this._images.length; i < l; i++) {
-            let image = this._images[i]._uiProps.uiTransformComp!;
+            const image = this._images[i]._uiProps.uiTransformComp!;
             image.anchorX = 0.5;
             image.anchorY = 0.5;
-            let x = this._images[i]._offset.x - leftTopX + image.width * image.anchorX;
-            let y = this._images[i]._offset.y + leftTopY - image.height * image.anchorY;
+            const x = this._images[i]._offset.x - leftTopX + image.width * image.anchorX;
+            const y = this._images[i]._offset.y + leftTopY - image.height * image.anchorY;
             this._images[i].setPosition(x, y);
         }
     }
 
-    _fillAniGrids(texGrids: TiledTextureGrids, animations: TiledAnimationType) {
-        for (let i of animations.keys()) {
-            let animation = animations.get(i);
+    _fillAniGrids (texGrids: TiledTextureGrids, animations: TiledAnimationType) {
+        for (const i of animations.keys()) {
+            const animation = animations.get(i);
             if (!animation) continue;
-            let frames = animation.frames;
+            const frames = animation.frames;
             for (let j = 0; j < frames.length; j++) {
-                let frame = frames[j];
+                const frame = frames[j];
                 frame.grid = texGrids.get(frame.tileid)!;
             }
         }
     }
 
-    _buildLayerAndGroup() {
-        let tilesets = this._tilesets;
-        let texGrids = this._texGrids!;
-        let animations = this._animations;
+    _buildLayerAndGroup () {
+        const tilesets = this._tilesets;
+        const texGrids = this._texGrids!;
+        const animations = this._animations;
         texGrids.clear();
 
         for (let i = 0, l = tilesets.length; i < l; ++i) {
-            let tilesetInfo = tilesets[i];
+            const tilesetInfo = tilesets[i];
             if (!tilesetInfo) continue;
             if (!tilesetInfo.sourceImage) {
-                console.warn("Can't find the spriteFrame of tilesets " + i);
+                console.warn('Can\'t find the spriteFrame of tilesets ' + i);
                 continue;
             }
             fillTextureGrids(tilesetInfo, texGrids, tilesetInfo.sourceImage);
@@ -480,7 +477,7 @@ export class TiledMap extends Component {
         let layers = this._layers;
         let groups = this._groups;
         let images = this._images;
-        let oldNodeNames = {};
+        const oldNodeNames: { [key: string]: boolean } = {};
         for (let i = 0, n = layers.length; i < n; i++) {
             oldNodeNames[layers[i].node.name] = true;
         }
@@ -495,23 +492,23 @@ export class TiledMap extends Component {
         groups = this._groups = [];
         images = this._images = [];
 
-        let mapInfo = this._mapInfo!;
-        let node = this.node;
-        let layerInfos = mapInfo.getAllChildren();
-        let textures = this._textures;
+        const mapInfo = this._mapInfo!;
+        const node = this.node;
+        const layerInfos = mapInfo.getAllChildren();
+        const textures = this._textures;
         let maxWidth = 0;
         let maxHeight = 0;
 
         if (layerInfos && layerInfos.length > 0) {
             for (let i = 0, len = layerInfos.length; i < len; i++) {
-                let layerInfo = layerInfos[i];
-                let name = layerInfo.name;
+                const layerInfo = layerInfos[i];
+                const name = layerInfo.name;
 
                 let child: ImageExtendedNode = this.node.getChildByName(name) as any;
                 oldNodeNames[name] = false;
 
                 if (!child) {
-                    child  = (new Node()) as unknown as any;
+                    child = (new Node()) as unknown as any;
                     child.name = name;
                     node.addChild(child);
                 }
@@ -541,7 +538,7 @@ export class TiledMap extends Component {
                     groups.push(group);
                 }
                 else if (layerInfo instanceof TMXImageLayerInfo) {
-                    let texture = layerInfo.sourceImage;
+                    const texture = layerInfo.sourceImage;
 
                     child.layerInfo = layerInfo;
                     child._offset = new Vec2(layerInfo.offset.x, -layerInfo.offset.y);
@@ -551,7 +548,7 @@ export class TiledMap extends Component {
                         image = child.addComponent(Sprite);
                     }
 
-                    let color = image.color as Color;
+                    const color = image.color as Color;
                     color.a *= layerInfo.opacity;
 
                     image.spriteFrame = texture!;
@@ -565,9 +562,9 @@ export class TiledMap extends Component {
             }
         }
 
-        let children = node.children;
+        const children = node.children;
         for (let i = 0, n = children.length; i < n; i++) {
-            let c = children[i];
+            const c = children[i];
             if (oldNodeNames[c.name]) {
                 c.destroy();
             }
@@ -577,7 +574,7 @@ export class TiledMap extends Component {
         this._syncAnchorPoint();
     }
 
-    _buildWithMapInfo(mapInfo: TMXMapInfo) {
+    protected _buildWithMapInfo (mapInfo: TMXMapInfo) {
         this._mapInfo = mapInfo;
         this._mapSize = mapInfo.getMapSize();
         this._tileSize = mapInfo.getTileSize();
@@ -588,53 +585,52 @@ export class TiledMap extends Component {
         this._animations = mapInfo.getTileAnimations();
         this._tilesets = mapInfo.getTilesets();
 
-        let tilesets = this._tilesets;
+        const tilesets = this._tilesets;
         this._textures.length = 0;
 
-        let totalTextures:SpriteFrame[] = [];
+        const totalTextures: SpriteFrame[] = [];
         for (let i = 0, l = tilesets.length; i < l; ++i) {
-            let tilesetInfo = tilesets[i];
+            const tilesetInfo = tilesets[i];
             if (!tilesetInfo || !tilesetInfo.sourceImage) continue;
             this._textures[i] = tilesetInfo.sourceImage;
             totalTextures.push(tilesetInfo.sourceImage!);
         }
 
         for (let i = 0; i < this._imageLayers.length; i++) {
-            let imageLayer = this._imageLayers[i];
+            const imageLayer = this._imageLayers[i];
             if (!imageLayer || !imageLayer.sourceImage) continue;
             totalTextures.push(imageLayer.sourceImage);
         }
 
-        let self = this;
-        loadAllTextures(totalTextures, function () {
+        const self = this;
+        loadAllTextures(totalTextures, () => {
             self._buildLayerAndGroup();
-
             if (self.cleanupImageCache) {
-                let tiledMap = self;
-                self._textures.forEach(function (tex) {
+                const tiledMap = self;
+                self._textures.forEach((tex) => {
                     tiledMap.doCleanupImageCache(tex)
                 });
             }
-
-        }.bind(this));
+        });
     }
 
-    doCleanupImageCache(texture) {
+    doCleanupImageCache (texture) {
         if (texture._image instanceof HTMLImageElement) {
             texture._image.src = '';
         }
         else if (sys.capabilities.imageBitmap && texture._image instanceof ImageBitmap) {
+            // tslint:disable-next-line: no-unused-expression
             texture._image.close && texture._image.close();
         }
         texture._image = null;
     }
 
-    update(dt: number) {
-        let animations = this._animations;
-        let texGrids = this._texGrids!;
-        for (let aniGID of animations.keys()) {
-            let animation = animations.get(aniGID)!;
-            let frames = animation.frames;
+    update (dt: number) {
+        const animations = this._animations;
+        const texGrids = this._texGrids!;
+        for (const aniGID of animations.keys()) {
+            const animation = animations.get(aniGID)!;
+            const frames = animation.frames;
             let frame = frames[animation.frameIdx];
             animation.dt += dt;
             if (frame.duration < animation.dt) {
@@ -652,7 +648,6 @@ export class TiledMap extends Component {
 
 
 }
-
 
 js.setClassAlias(TiledMap, 'cc.TiledMapComponent');
 legacyCC.TiledMap = TiledMap;

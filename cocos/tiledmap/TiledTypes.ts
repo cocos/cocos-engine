@@ -24,8 +24,21 @@
  ****************************************************************************/
 
 
-import { Rect, Size, SpriteFrame, Texture2D, Vec2 } from '../core';
+import { Color, Rect, Size, SpriteFrame, Texture2D, Vec2 } from '../core';
 import { ccenum } from '../core/value-types/enum';
+import { HorizontalTextAlignment, VerticalTextAlignment } from '../ui/components/label';
+
+
+export type PropertiesInfo = { [key: string]: number | string };
+export type TiledAnimationType = Map<GID, TiledAnimation>;
+
+
+export interface TiledAnimation {
+    frames: { grid: TiledGrid | null, tileid: GID, duration: number }[];
+    dt: number;
+    frameIdx: number;
+}
+
 /**
  * !#en The orientation of tiled map.
  * !#zh Tiled Map 地图方向。
@@ -307,16 +320,47 @@ export interface GIDFlags extends Number {
  * Size in pixels of the image
  * @property {cc.Size} imageSize
  */
+
+/**
+ * <p>cc.TMXTilesetInfo contains the information about the tilesets like: <br />
+ * - Tileset name<br />
+ * - Tileset spacing<br />
+ * - Tileset margin<br />
+ * - size of the tiles<br />
+ * - Image used for the tiles<br />
+ * - Image size<br />
+ *
+ * This information is obtained from the TMX file. </p>
+ * @class TMXTilesetInfo
+ */
 export class TMXTilesetInfo {
-    // Tileset name
-    name = "";
-    // First grid
+    /**
+     * Tileset name
+     * @property {string} name
+     */
+    name = '';
+    /**
+     * First grid
+     * @property {number} firstGid
+     */
     firstGid: GID = 0 as any;
-    // Spacing
+
+    /**
+     * Spacing
+     * @property {number} spacing
+     */
     spacing = 0;
-    // Margin
+
+    /**
+     * Margin
+     * @property {number} margin
+     */
+
     margin = 0;
-    // Texture containing the tiles (should be sprite sheet / texture atlas)
+    /**
+     * Texture containing the tiles (should be sprite sheet / texture atlas)
+     * @property {cc.SpriteFrame} sourceImage
+     */
     sourceImage?: SpriteFrame;
     // Size in pixels of the image
 
@@ -330,19 +374,188 @@ export class TMXTilesetInfo {
 
     collection = false;
 
-    rectForGID(gid_: MixedGID | GID, result?: TiledGrid) {
-        let rect = result || new Rect(0, 0, 0, 0);
+    rectForGID (gid_: MixedGID | GID, result?: TiledGrid) {
+        const rect = result || new Rect(0, 0, 0, 0);
         rect.width = this._tileSize.width;
         rect.height = this._tileSize.height;
         let gid = gid_ as unknown as number;
         gid &= TileFlag.FLIPPED_MASK;
         gid = gid - (this.firstGid as unknown as number);
-        let max_x = Math.round((this.imageSize.width - this.margin * 2 + this.spacing) / (this._tileSize.width + this.spacing));
+        const max_x = Math.round((this.imageSize.width - this.margin * 2 + this.spacing) / (this._tileSize.width + this.spacing));
         rect.x = Math.round((gid % max_x) * (this._tileSize.width + this.spacing) + this.margin);
         rect.y = Math.round(Math.floor(gid / max_x) * (this._tileSize.height + this.spacing) + this.margin);
         return rect;
     }
 };
+
+
+/**
+ * <p>cc.TMXObjectGroupInfo contains the information about the object group like:
+ * - group name
+ * - group size
+ * - group opacity at creation time (it can be modified at runtime)
+ * - Whether the group is visible
+ *
+ * This information is obtained from the TMX file.</p>
+ * @class TMXObjectGroupInfo
+ */
+
+export class TMXObjectGroupInfo {
+
+    /**
+     * Properties of the ObjectGroup info.
+     * @property {Array} properties
+     */
+    properties: PropertiesInfo = {} as any;
+    name: string = '';
+    objects: TMXObject[] = [];
+    visible = true;
+    opacity = 0;
+    color: Color = new Color(255, 255, 255, 255);
+    offset: Vec2 = new Vec2(0, 0);
+    draworder: DrawOrder = 'topdown';
+
+    tintColor: Color | null = null;
+    /**
+     * Gets the Properties.
+     * @return {Array}
+     */
+    getProperties () {
+        return this.properties;
+    }
+
+    /**
+     * Set the Properties.
+     * @param {object} value
+     */
+    setProperties (value: PropertiesInfo) {
+        this.properties = value;
+    }
+};
+
+
+export interface TMXObject {
+    id: number | string;
+    name: string;
+    width: number;
+    height: number;
+    x: number;
+    y: number;
+    rotation: number;
+    type: TMXObjectType;
+    visible: boolean;
+    wrap: boolean;
+    color: Color;
+    halign: HorizontalTextAlignment;
+    valign: VerticalTextAlignment;
+    pixelsize: number;
+    text: string;
+    gid: MixedGID;
+    points: { x: number, y: number }[];
+    polylinePoints: { x: number, y: number }[] | null;
+
+    offset?: Vec2;
+}
+
+
+/**
+ * cc.TMXLayerInfo contains the information about the layers like:
+ * - Layer name
+ * - Layer size
+ * - Layer opacity at creation time (it can be modified at runtime)
+ * - Whether the layer is visible (if it's not visible, then the CocosNode won't be created)
+ * This information is obtained from the TMX file.
+ * @class TMXLayerInfo
+ */
+export class TMXLayerInfo {
+
+    /**
+     * Properties of the layer info.
+     * @property {Object} properties
+     */
+    properties: PropertiesInfo = {} as any;
+    name = '';
+    layerSize: Size | null = null;
+    tiles: number[] | Uint32Array = [];
+    visible = true;
+    opacity = 0;
+    ownTiles = true;
+    minGID: GID = 100000 as unknown as GID;
+    maxGID: GID = 0 as unknown as GID;
+    offset: Vec2 = new Vec2(0, 0);
+    tintColor: Color | null = null;
+
+    /**
+     * Gets the Properties.
+     * @return {Object}
+     */
+    getProperties () {
+        return this.properties;
+    }
+
+    /**
+     * Set the Properties.
+     * @param {object} value
+     */
+    setProperties (value: PropertiesInfo) {
+        this.properties = value;
+    }
+
+
+    /**
+     * @property ATTRIB_NONE
+     * @constant
+     * @static
+     * @type {Number}
+     * @default 1
+     */
+    static ATTRIB_NONE = 1 << 0;
+    /**
+     * @property ATTRIB_BASE64
+     * @constant
+     * @static
+     * @type {Number}
+     * @default 2
+     */
+    static ATTRIB_BASE64 = 1 << 1;
+    /**
+     * @property ATTRIB_GZIP
+     * @constant
+     * @static
+     * @type {Number}
+     * @default 4
+     */
+    static ATTRIB_GZIP = 1 << 2;
+    /**
+     * @property ATTRIB_ZLIB
+     * @constant
+     * @static
+     * @type {Number}
+     * @default 8
+     */
+    static ATTRIB_ZLIB = 1 << 3;
+}
+
+
+/**
+ * cc.TMXImageLayerInfo contains the information about the image layers.
+ * This information is obtained from the TMX file.
+ * @class TMXImageLayerInfo
+ */
+export class TMXImageLayerInfo {
+    name = '';
+    visible = true;
+    width = 0;
+    height = 0;
+    offset: Vec2 = new Vec2(0, 0);
+    opacity = 0;
+    trans = new Color(255, 255, 255, 255);
+    sourceImage?: SpriteFrame;
+
+    tintColor: Color | null = null;
+}
+
+type DrawOrder = 'topdown' | 'bottomup';
 
 
 export interface TiledGrid {

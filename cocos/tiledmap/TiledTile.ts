@@ -34,27 +34,25 @@
  * @extends Component
  */
 
-import { Component} from '../core/components';
-import { ccclass, help, menu, type } from 'cc.decorator';
-import * as cc from "../core";
-import { legacyCC } from "../core/global-exports";
-
+import { Component } from '../core/components';
+import { ccclass, help, type } from 'cc.decorator';
+import { legacyCC } from '../core/global-exports';
 import { TiledLayer } from './TiledLayer';
+import { CCInteger, warn } from '../core';
 
 @ccclass('cc.TiledTile')
 @help('i18n:cc.TiledTile')
-@menu('Components/TiledTile')
 export class TiledTile extends Component {
 
-    _layer: TiledLayer|null = null;
+    _layer: TiledLayer | null = null;
 
-    constructor() {
+    constructor () {
         super();
     }
 
-    @type(cc.CCInteger)
+    @type(CCInteger)
     _x = 0;
-    @type(cc.CCInteger)
+    @type(CCInteger)
     _y = 0;
 
     /**
@@ -64,14 +62,14 @@ export class TiledTile extends Component {
      * @default 0
      */
 
-    @type(cc.CCInteger)
-    get x(): number {
+    @type(CCInteger)
+    get x (): number {
         return this._x;
     }
-    set x(value) {
+    set x (value) {
         if (value === this._x) return;
         if (this._layer && this._layer.isInvalidPosition(value, this._y)) {
-            cc.warn(`Invalid x, the valid value is between [%s] ~ [%s]`, 0, this._layer!.layerSize!.width);
+            warn(`Invalid x, the valid value is between [%s] ~ [%s]`, 0, this._layer!.layerSize!.width);
             return;
         }
         this._resetTile();
@@ -85,14 +83,14 @@ export class TiledTile extends Component {
      * @property {Number} y
      * @default 0
      */
-    @type(cc.CCInteger)
-    get y() {
+    @type(CCInteger)
+    get y () {
         return this._y;
     }
-    set y(value: number) {
+    set y (value: number) {
         if (value === this._y) return;
         if (this._layer && this._layer.isInvalidPosition(this._x, value)) {
-            cc.warn(`Invalid y, the valid value is between [%s] ~ [%s]`, 0, this._layer!.layerSize.height);
+            warn(`Invalid y, the valid value is between [%s] ~ [%s]`, 0, this._layer!.layerSize.height);
             return;
         }
         this._resetTile();
@@ -105,45 +103,46 @@ export class TiledTile extends Component {
      * @property {Number} gid
      * @default 0
      */
-    @type(cc.CCInteger)
-    get grid():number {
+    @type(CCInteger)
+    get grid (): number {
         if (this._layer) {
             return this._layer.getTileGIDAt(this._x, this._y) as unknown as number;
         }
         return 0;
     }
-    set grid(value:number) {
+    set grid (value: number) {
         if (this._layer) {
             this._layer.setTileGIDAt(value as unknown as any, this._x, this._y);
         }
     }
 
-    onEnable() {
-        let parent = this.node.parent!;
+    onEnable () {
+        const parent = this.node.parent!;
         this._layer = parent.getComponent('cc.TiledLayer') as TiledLayer;
         this._resetTile();
         this.updateInfo();
     }
 
-    onDisable() {
+    onDisable () {
         this._resetTile();
     }
 
-    private _resetTile() {
+    private _resetTile () {
         if (this._layer && this._layer.getTiledTileAt(this._x, this._y) === this) {
             this._layer.setTiledTileAt(this._x, this._y, null);
         }
     }
 
-    public updateInfo() {
+    public updateInfo () {
         if (!this._layer) return;
 
-        let x = this._x, y = this._y;
+        const x = this._x;
+        const y = this._y;
         if (this._layer.getTiledTileAt(x, y)) {
-            cc.warn('There is already a TiledTile at [%s, %s]', x, y);
+            warn('There is already a TiledTile at [%s, %s]', x, y);
             return;
         }
-        let p = this._layer.getPositionAt(x, y);
+        const p = this._layer.getPositionAt(x, y);
         this.node.setPosition(p!.x, p!.y);
         this._layer.setTiledTileAt(x, y, this);
     }
