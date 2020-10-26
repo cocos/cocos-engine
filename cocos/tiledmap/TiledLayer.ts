@@ -35,7 +35,7 @@ import { UIRenderable } from '../core/components/ui-base/ui-renderable';
 import { Component } from '../core/components';
 import visibleRect from '../core/platform/visible-rect';
 import { TMXMapInfo } from './TMXXMLParser';
-import { Color, IVec2Like, Mat4, Size, SpriteFrame, SystemEventType, Texture2D, Vec2, Vec3, Node, warn, logID } from '../core';
+import { Color, IVec2Like, Mat4, Size, SpriteFrame, SystemEventType, Texture2D, Vec2, Vec3, Node, warn, logID, CCBoolean } from '../core';
 import { TiledTile } from './TiledTile';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../core/global-exports';
@@ -44,6 +44,7 @@ import { UI } from '../core/renderer/ui/ui';
 import { MixedGID, GID, Orientation, TiledTextureGrids, TMXTilesetInfo, RenderOrder, StaggerAxis, StaggerIndex, TileFlag,
      GIDFlags, TiledGrid, TiledAnimationType, PropertiesInfo, TMXLayerInfo } from './TiledTypes';
 import { fillTextureGrids, loadAllTextures } from './TiledUtils';
+import { property } from '../core/data/decorators/property';
 
 const _mat4_temp = new Mat4();
 const _vec2_temp = new Vec2();
@@ -1433,7 +1434,7 @@ export class TiledLayer extends UIRenderable {
                 this._renderDataIndex = i;
                 const m = this._meshRenderDataArray[i];
                 if (m.texture) {
-                    ui.commitComp(this, m.texture.getGFXTexture(), this._assembler, m.texture.getGFXSampler());
+                    ui.commitComp(this, m.texture, this._assembler);
                 }
             }
         }

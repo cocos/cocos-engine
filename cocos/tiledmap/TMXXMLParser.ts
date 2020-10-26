@@ -681,6 +681,7 @@ export class TMXMapInfo {
                                 if (!tileset.sourceImage) {
                                     console.error(`[error]: ${shortName} not find in [${Object.keys(this._spriteFrameMap!).join(', ')}]`);
                                     errorID(7221, firstImageName);
+                                    console.warn(`Please try asset type of ${firstImageName} to 'sprite-frame'`);
                                 }
                             }
                         }
@@ -719,6 +720,7 @@ export class TMXMapInfo {
                             tileset.sourceImage = this._spriteFrameMap![shortName];
                             if (!tileset.sourceImage) {
                                 errorID(7221, imageName);
+                                console.warn(`Please try asset type of ${imageName} to 'sprite-frame'`);
                             }
                         }
 
@@ -805,6 +807,7 @@ export class TMXMapInfo {
 
         if (!imageLayer.sourceImage) {
             errorID(7221, source);
+            console.warn(`Please try asset type of ${source} to 'sprite-frame'`);
             return null;
         }
         return imageLayer;

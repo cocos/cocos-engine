@@ -28,7 +28,7 @@
 import { Asset } from '../core/assets/asset';
 import { ccclass, type, serializable } from 'cc.decorator';
 import { legacyCC } from '../core/global-exports';
-import { CCString, Size, SpriteFrame, TextAsset } from '../..';
+import { CCString, Size, SpriteFrame, TextAsset } from '../core';
 /**
  * Class for tiled map asset handling.
  * @class TiledMapAsset
