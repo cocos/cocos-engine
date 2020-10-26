@@ -39,6 +39,7 @@ import { loader } from '../../../core/load-pipeline';
 import { logID } from '../../../core/platform/debug';
 import { RUNTIME_BASED, MINIGAME } from 'internal:constants';
 import { UITransform } from '../../../core/components/ui-base/ui-transform';
+import { legacyCC } from '../../../core/global-exports';
 
 const Overflow = Label.Overflow;
 const WHITE = Color.WHITE.clone();
@@ -272,7 +273,9 @@ export const ttfUtils =  {
                     mipmapLevel: 1
                 });
                 tex.uploadData(_canvas);
-                tex.releaseDescriptorSetCache();
+                if (legacyCC.director.root && legacyCC.director.root.ui) {
+                    legacyCC.director.root.ui._releaseDescriptorSetCache(tex.getHash());
+                }
             }
         }
     },

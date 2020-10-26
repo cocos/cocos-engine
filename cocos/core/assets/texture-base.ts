@@ -240,16 +240,10 @@ export class TextureBase extends Asset {
      */
     public destroy () {
         const destroyed = super.destroy();
-        if(destroyed) {
-            this.releaseDescriptorSetCache();
-        }
-        return destroyed;
-    }
-
-    public releaseDescriptorSetCache () {
-        if (legacyCC.director.root && legacyCC.director.root.ui) {
+        if(destroyed && legacyCC.director.root && legacyCC.director.root.ui) {
             legacyCC.director.root.ui._releaseDescriptorSetCache(this._textureHash);
         }
+        return destroyed;
     }
 
     /**
