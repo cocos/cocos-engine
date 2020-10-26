@@ -30,7 +30,7 @@
 import { UIStaticBatch } from '../../../ui';
 import { Material } from '../../assets/material';
 import { Canvas, UIComponent, UIRenderable } from '../../components/ui-base';
-import { GFXTexture, GFXDevice, GFXAttribute, GFXSampler } from '../../gfx';
+import { GFXTexture, GFXDevice, GFXAttribute, GFXSampler, GFXDescriptorSetInfo } from '../../gfx';
 import { Pool, RecyclePool } from '../../memop';
 import { CachedArray } from '../../memop/cached-array';
 import { Camera } from '../scene/camera';
@@ -45,8 +45,13 @@ import { UIDrawBatch } from './ui-draw-batch';
 import { UIMaterial } from './ui-material';
 import * as UIVertexFormat from './ui-vertex-format';
 import { legacyCC } from '../../global-exports';
-import { DSPool } from '../core/memory-pools';
-import { ModelLocalBindings } from '../../pipeline/define';
+import { DescriptorSetHandle, DSPool } from '../core/memory-pools';
+import { ModelLocalBindings, SetIndex } from '../../pipeline/define';
+import { EffectAsset, RenderTexture, SpriteFrame } from '../../assets';
+import { programLib } from '../core/program-lib';
+import { TextureBase } from '../../assets/texture-base';
+
+const _dsInfo = new GFXDescriptorSetInfo(null!);
 
 /**
  * @zh
@@ -98,7 +103,12 @@ export class UI {
     private _currMeshBuffer: MeshBuffer | null = null;
     private _currStaticRoot: UIStaticBatch | null = null;
     private _currComponent: UIRenderable | null = null;
+    private _currTextureHash: number = 0;
+    private _currSamplerHash: number = 0;
     private _parentOpacity = 1;
+
+    // DescriptorSet Cache Map
+    private _descriptorSetCacheMap: Map<number, Map<number, DescriptorSetHandle>> = new Map<number, Map<number, DescriptorSetHandle>>();
 
     constructor (private _root: Root) {
         this.device = _root.device;
@@ -150,6 +160,10 @@ export class UI {
             this._uiModelPool.destroy((obj) => {
                 obj.destroy();
             });
+        }
+
+        if (this._descriptorSetCacheMap) {
+            this._destoryDescriptorSet();
         }
 
         this._meshBuffers.splice(0);
@@ -326,12 +340,24 @@ export class UI {
                         subModels[j].priority = batchPriority++;
                     }
                 } else {
-                    const descriptorSet = DSPool.get(batch.hDescriptorSet);
+                    const descriptorSetTextureMap = this._descriptorSetCacheMap.get(batch.textureHash);
+                    if(descriptorSetTextureMap && descriptorSetTextureMap.has(batch.samplerHash)) {
+                        batch.hDescriptorSet = descriptorSetTextureMap.get(batch.samplerHash)!;
+                    } else {
+                        this._initDescriptorSet(batch);
+                        const descriptorSet = DSPool.get(batch.hDescriptorSet);
 
-                    const binding = ModelLocalBindings.SAMPLER_SPRITE;
-                    descriptorSet.bindTexture(binding, batch.texture!);
-                    descriptorSet.bindSampler(binding, batch.sampler!);
-                    descriptorSet.update();
+                        const binding = ModelLocalBindings.SAMPLER_SPRITE;
+                        descriptorSet.bindTexture(binding, batch.texture!);
+                        descriptorSet.bindSampler(binding, batch.sampler!);
+                        descriptorSet.update();
+
+                        if (descriptorSetTextureMap) {
+                            this._descriptorSetCacheMap.get(batch.textureHash)!.set(batch.samplerHash, batch.hDescriptorSet);
+                        } else {
+                            this._descriptorSetCacheMap.set(batch.textureHash,new Map([[batch.samplerHash, batch.hDescriptorSet]]));
+                        }
+                    }
 
                     const uiModel = this._uiModelPool!.alloc();
                     uiModel.directInitialize(batch);
@@ -396,10 +422,21 @@ export class UI {
      * @param frame - 当前执行组件贴图。
      * @param assembler - 当前组件渲染数据组装器。
      */
-    public commitComp (comp: UIRenderable, frame: GFXTexture | null = null, assembler: any, sampler: GFXSampler | null = null) {
+    public commitComp (comp: UIRenderable, frame: TextureBase | SpriteFrame| RenderTexture | null, assembler: any) {
         const renderComp = comp;
-        const texture = frame;
-        const samp = sampler;
+        let texture;
+        let samp;
+        let textureHash = 0;
+        let samplerHash = 0;
+        if (frame) {
+            texture = frame.getGFXTexture();
+            samp = frame.getGFXSampler();
+            textureHash = frame.getHash();
+            samplerHash = frame.getSamplerHash();
+        } else {
+            texture = null;
+            samp = null;
+        }
 
         let mat = renderComp.getRenderMaterial(0);
         if (!mat) {
@@ -409,13 +446,15 @@ export class UI {
 
         // use material judgment merge is increasingly impossible, change to hash is more possible
         if (this._currMaterial !== mat ||
-            this._currTexture !== texture || this._currSampler !== samp
+            this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash
         ) {
             this.autoMergeBatches(this._currComponent!);
             this._currComponent = renderComp;
             this._currMaterial = mat!;
             this._currTexture = texture;
             this._currSampler = samp;
+            this._currTextureHash = textureHash;
+            this._currSamplerHash = samplerHash;
         }
 
         if (assembler) {
@@ -440,7 +479,7 @@ export class UI {
     public commitModel (comp: UIComponent | UIRenderable, model: Model | null, mat: Material | null) {
         // if the last comp is spriteComp, previous comps should be batched.
         if (this._currMaterial !== this._emptyMaterial) {
-            this.autoMergeBatches();
+            this.autoMergeBatches(this._currComponent!);
         }
 
         if (mat) {
@@ -490,6 +529,8 @@ export class UI {
         this._currComponent = null;
         this._currTexture = null;
         this._currSampler = null;
+        this._currTextureHash = 0;
+        this._currSamplerHash = 0;
 
         this._batches.push(curDrawBatch);
     }
@@ -558,6 +599,9 @@ export class UI {
         curDrawBatch.sampler = this._currSampler;
         curDrawBatch.hInputAssembler = hIA;
 
+        curDrawBatch.textureHash = this._currTextureHash;
+        curDrawBatch.samplerHash = this._currSamplerHash;
+
         this._batches.push(curDrawBatch);
 
         buffer.vertexStart = buffer.vertexOffset;
@@ -593,6 +637,8 @@ export class UI {
         this._currMaterial = this._emptyMaterial;
         this._currTexture = null;
         this._currComponent = null;
+        this._currTextureHash = 0;
+        this._currSamplerHash = 0;
     }
 
     private _destroyUIMaterials () {
@@ -688,5 +734,31 @@ export class UI {
         }
 
         this._currMeshBuffer!.lastByteOffset = this._currMeshBuffer!.byteOffset;
+    }
+
+    private _initDescriptorSet (batch: UIDrawBatch) {
+        const root = legacyCC.director.root;
+
+        const programName = EffectAsset.get('builtin-sprite')!.shaders[0].name;
+        _dsInfo.layout = programLib.getDescriptorSetLayout(root.device, programName, true);
+        batch.hDescriptorSet = DSPool.alloc(root.device, _dsInfo);
+    }
+
+    private _releaseDescriptorSetCache (textureHash: number) {
+        if(this._descriptorSetCacheMap.has(textureHash)) {
+            this._descriptorSetCacheMap.get(textureHash)!.forEach((value) => {
+                DSPool.free(value);
+            });
+            this._descriptorSetCacheMap.delete(textureHash);
+        }
+    }
+
+    private _destoryDescriptorSet () {
+        this._descriptorSetCacheMap.forEach((value, key, map) => {
+            value.forEach((hDescriptorSet) => {
+                DSPool.free(hDescriptorSet);
+            });
+        });
+        this._descriptorSetCacheMap.clear();
     }
 }

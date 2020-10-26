@@ -577,8 +577,7 @@ export class Sprite extends UIRenderable {
     }
 
     protected _render (render: UI) {
-        render.commitComp(this, this._spriteFrame!.getGFXTexture(), this._assembler!, this._spriteFrame!.texture.getGFXSampler());
-        // render.commitComp(this, this._spriteFrame!.getGFXTextureView(), this._assembler!);
+        render.commitComp(this, this._spriteFrame, this._assembler!);
     }
 
     protected _canRender () {

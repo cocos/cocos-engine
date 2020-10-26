@@ -11,12 +11,6 @@ import { Camera } from '../scene/camera';
 import { Model } from '../scene/model';
 import { UI } from './ui';
 import { InputAssemblerHandle, DescriptorSetHandle, NULL_HANDLE, DSPool } from '../core/memory-pools';
-import { programLib } from '../core/program-lib';
-import { SetIndex } from '../../pipeline/define';
-import { legacyCC } from '../../global-exports';
-import { EffectAsset } from '../../assets';
-
-const _dsInfo = new GFXDescriptorSetInfo(null!);
 
 export class UIDrawBatch {
 
@@ -31,17 +25,11 @@ export class UIDrawBatch {
     public useLocalData: Node | null = null;
     public isStatic = false;
 
-    constructor () {
-        const root = legacyCC.director.root;
-
-        const programName = EffectAsset.get('builtin-sprite')!.shaders[0].name;
-        _dsInfo.layout = programLib.getDescriptorSetLayout(root.device, programName, true);
-        this.hDescriptorSet = DSPool.alloc(root.device, _dsInfo);
-    }
+    public textureHash: number = 0;
+    public samplerHash: number = 0;
 
     public destroy (ui: UI) {
         if (this.hDescriptorSet) {
-            DSPool.free(this.hDescriptorSet);
             this.hDescriptorSet = NULL_HANDLE;
         }
     }
