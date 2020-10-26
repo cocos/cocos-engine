@@ -47,8 +47,9 @@ import * as UIVertexFormat from './ui-vertex-format';
 import { legacyCC } from '../../global-exports';
 import { DescriptorSetHandle, DSPool } from '../core/memory-pools';
 import { ModelLocalBindings, SetIndex } from '../../pipeline/define';
-import { EffectAsset } from '../../assets';
+import { EffectAsset, RenderTexture, SpriteFrame } from '../../assets';
 import { programLib } from '../core/program-lib';
+import { TextureBase } from '../../assets/texture-base';
 
 const _dsInfo = new GFXDescriptorSetInfo(null!);
 
@@ -421,11 +422,21 @@ export class UI {
      * @param frame - 当前执行组件贴图。
      * @param assembler - 当前组件渲染数据组装器。
      */
-    public commitComp (comp: UIRenderable, frame: GFXTexture | null = null, assembler: any, sampler: GFXSampler | null = null,
-        textureHash: number = 0, samplerHash: number = 0) {
+    public commitComp (comp: UIRenderable, frame: TextureBase | SpriteFrame| RenderTexture | null, assembler: any) {
         const renderComp = comp;
-        const texture = frame;
-        const samp = sampler;
+        let texture;
+        let samp;
+        let textureHash = 0;
+        let samplerHash = 0;
+        if (frame) {
+            texture = frame.getGFXTexture();
+            samp = frame.getGFXSampler();
+            textureHash = frame.getHash();
+            samplerHash = frame.getSamplerHash();
+        } else {
+            texture = null;
+            samp = null;
+        }
 
         let mat = renderComp.getRenderMaterial(0);
         if (!mat) {
