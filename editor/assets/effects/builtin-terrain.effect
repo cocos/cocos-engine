@@ -182,7 +182,7 @@ CCProgram shadow-caster-vs %{
   in vec3 a_normal;
   in vec2 a_texCoord;
 
-  out vec2 v_clip_depth;
+  out float v_clip_depth;
 
   vec4 vert () {
     vec4 worldPos;
@@ -193,7 +193,7 @@ CCProgram shadow-caster-vs %{
 
     vec4 clipPos = cc_matLightViewProj * worldPos;
 
-    v_clip_depth = clipPos.zw;
+    v_clip_depth = clipPos.z / clipPos.w * 0.5 + 0.5;
 
     return clipPos;
   }
@@ -203,9 +203,9 @@ CCProgram shadow-caster-fs %{
   precision highp float;
   #include <packing>
 
-  in vec2 v_clip_depth;
+  in float v_clip_depth;
 
   vec4 frag () {
-    return packDepthToRGBA(v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5);
+    return packDepthToRGBA(v_clip_depth);
   }
 }%

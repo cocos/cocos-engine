@@ -302,7 +302,7 @@ CCProgram shadow-caster-vs %{
   out vec2 v_uv;
   out vec2 v_uv1;
 
-  out vec2 v_clip_depth;
+  out float v_clip_depth;
 
   vec4 vert () {
     StandardVertInput In;
@@ -319,7 +319,7 @@ CCProgram shadow-caster-vs %{
       v_uv1 = a_texCoord1 * tilingOffset.xy + tilingOffset.zw;
     #endif
 
-    v_clip_depth = clipPos.zw;
+    v_clip_depth = clipPos.z / clipPos.w * 0.5 + 0.5;
 
     return clipPos;
   }
@@ -332,7 +332,7 @@ CCProgram shadow-caster-fs %{
 
   in vec2 v_uv;
   in vec2 v_uv1;
-  in vec2 v_clip_depth;
+  in float v_clip_depth;
 
   #if USE_ALBEDO_MAP
     uniform sampler2D albedoMap;
@@ -354,6 +354,6 @@ CCProgram shadow-caster-fs %{
       if (baseColor.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
     #endif
 
-    return packDepthToRGBA(v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5);
+    return packDepthToRGBA(v_clip_depth);
   }
 }%
