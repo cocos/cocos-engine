@@ -70,7 +70,7 @@ export const simple: IAssembler = {
     createData(layer: TiledLayer) {
 
         const renderData = layer.requestMeshRenderData();
-        let maxGrids = layer._rightTop.col * layer._rightTop.row;
+        let maxGrids = layer.rightTop.col * layer.rightTop.row;
         if (maxGrids * 4 > 65535) {
             console.error(`Vertex count exceeds 65535`);
         }
@@ -79,27 +79,26 @@ export const simple: IAssembler = {
 
     updateRenderData(comp: TiledLayer) {
 
-        comp._updateCulling();
-        let renderData = comp._meshRenderDataArray![0];
+        comp.updateCulling();
+        let renderData = comp.meshRenderDataArray![0];
 
-        let layerNode = comp.node;
-        _moveX = comp._leftDownToCenterX;
-        _moveY = comp._leftDownToCenterY;
+        _moveX = comp.leftDownToCenterX;
+        _moveY = comp.leftDownToCenterY;
         _renderData = renderData;
 
-        if (comp._colorChanged || comp._isCullingDirty() || comp._isUserNodeDirty() || comp._hasAnimation() || comp._hasTiledNode()) {
-            comp._colorChanged = false;
+        if (comp.colorChanged || comp.isCullingDirty() || comp.isUserNodeDirty() || comp.hasAnimation() || comp.hasTiledNode()) {
+            comp.colorChanged = false;
 
             comp.resetRenderData();
 
             let leftDown: { col: number, row: number }, rightTop: { col: number, row: number };
-            if (comp._enableCulling) {
-                let cullingRect = comp._cullingRect;
+            if (comp.enableCulling) {
+                let cullingRect = comp.cullingRect;
                 leftDown = cullingRect.leftDown;
                 rightTop = cullingRect.rightTop;
             } else {
                 leftDown = _leftDown;
-                rightTop = comp._rightTop;
+                rightTop = comp.rightTop;
             }
 
             let maxRows = rightTop.row - leftDown.row + 1;
@@ -129,8 +128,8 @@ export const simple: IAssembler = {
                     traverseGrids(leftDown, rightTop, 1, -1, comp);
                     break;
             }
-            comp._setCullingDirty(false);
-            comp._setUserNodeDirty(false);
+            comp.setCullingDirty(false);
+            comp.setUserNodeDirty(false);
 
         }
 
@@ -147,7 +146,7 @@ export const simple: IAssembler = {
         colorV[1] = color.g / 255;
         colorV[2] = color.b / 255;
         colorV[0] = color.a / 255;
-        let rs = tiled._meshRenderDataArray;
+        let rs = tiled.meshRenderDataArray;
         if (rs) {
             for (let r of rs) {
                 let renderData = r.renderData;
@@ -160,9 +159,9 @@ export const simple: IAssembler = {
     },
 
     fillBuffers(layer: TiledLayer, renderer: UI) {
-        if (!layer || !layer._meshRenderDataArray) return;
+        if (!layer || !layer.meshRenderDataArray) return;
 
-        const dataArray = layer._meshRenderDataArray!;
+        const dataArray = layer.meshRenderDataArray!;
         const node = layer.node;
 
         let buffer = renderer.currBufferBatch!;
@@ -354,17 +353,17 @@ function traverseGrids(leftDown: { col: number, row: number }, rightTop: { col: 
     _fillGrids = 0;
     _vfOffset = 0;
 
-    let tiledTiles = comp._tiledTiles;
+    let tiledTiles = comp.tiledTiles;
 
 
-    let texGrids = comp._texGrids!;
-    let tiles = comp._tiles;
+    let texGrids = comp.texGrids!;
+    let tiles = comp.tiles;
 
     const vertStep = 9;
     const vertStep2 = vertStep * 2;
     const vertStep3 = vertStep * 3;
 
-    let vertices = comp._vertices;
+    let vertices = comp.vertices;
     let rowData: { [key: number]: { left: number, bottom: number; index: number }, maxCol: number, minCol: number };
     let col: number;
     let cols: number;
@@ -379,7 +378,7 @@ function traverseGrids(leftDown: { col: number, row: number }, rightTop: { col: 
     let curTexIdx: Texture2D | null = null;
     let colNodesCount = 0, checkColRange = true;
 
-    let diamondTile = comp._diamondTile;
+    let diamondTile = false; // TODO:comp._diamondTile;
 
     flipTexture = diamondTile ? _flipDiamondTileTexture : _flipTexture;
 
@@ -400,7 +399,7 @@ function traverseGrids(leftDown: { col: number, row: number }, rightTop: { col: 
     // traverse row
     for (; (rows - row) * rowMoveDir >= 0; row += rowMoveDir) {
         rowData = vertices[row];
-        colNodesCount = comp._getNodesCountByRow(row);
+        colNodesCount = comp.getNodesCountByRow(row);
         checkColRange = rowData && colNodesCount === 0;
 
         // limit min col and max col

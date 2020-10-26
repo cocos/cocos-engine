@@ -70,8 +70,8 @@ export class TiledTile extends Component {
     }
     set x(value) {
         if (value === this._x) return;
-        if (this._layer && this._layer._isInvalidPosition(value, this._y)) {
-            cc.warn(`Invalid x, the valid value is between [%s] ~ [%s]`, 0, this._layer!._layerSize!.width);
+        if (this._layer && this._layer.isInvalidPosition(value, this._y)) {
+            cc.warn(`Invalid x, the valid value is between [%s] ~ [%s]`, 0, this._layer!.layerSize!.width);
             return;
         }
         this._resetTile();
@@ -91,8 +91,8 @@ export class TiledTile extends Component {
     }
     set y(value: number) {
         if (value === this._y) return;
-        if (this._layer && this._layer._isInvalidPosition(this._x, value)) {
-            cc.warn(`Invalid y, the valid value is between [%s] ~ [%s]`, 0, this._layer!._layerSize!.height);
+        if (this._layer && this._layer.isInvalidPosition(this._x, value)) {
+            cc.warn(`Invalid y, the valid value is between [%s] ~ [%s]`, 0, this._layer!.layerSize.height);
             return;
         }
         this._resetTile();

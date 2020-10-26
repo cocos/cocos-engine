@@ -31,7 +31,6 @@
 import { Component } from '../core/components';
 import { UITransform } from '../core/components/ui-base';
 import { ccclass, displayOrder, executeInEditMode, help, menu, requireComponent, type, serializable } from 'cc.decorator';
-import * as cc from "../core";
 import { legacyCC } from "../core/global-exports";
 import { js } from '../core/utils/js';
 
@@ -44,11 +43,12 @@ import { TiledMapAsset} from "./TiledMapAsset";
 import { Sprite } from "../ui/components/sprite"
 import { EDITOR } from 'internal:constants';
 import {fillTextureGrids, loadAllTextures} from "./TiledUtils";
+import { Size, SpriteFrame, SystemEventType, Vec2, Node, logID, Color, sys } from '../core';
 
 
-interface ImageExtendedNode extends cc.Node {
+interface ImageExtendedNode extends Node {
     layerInfo: TMXImageLayerInfo;
-    _offset: cc.Vec2;
+    _offset: Vec2;
 }
 
 /**
@@ -71,7 +71,7 @@ export class TiledMap extends Component {
     // store all layer gid corresponding texture info, index is gid, format likes '[gid0]=tex-info,[gid1]=tex-info, ...'
     _texGrids: TiledTextureGrids = new Map;
     // store all tileset texture, index is tileset index, format likes '[0]=texture0, [1]=texture1, ...'
-    _textures: cc.SpriteFrame[] = [];
+    _textures: SpriteFrame[] = [];
     _tilesets: TMXTilesetInfo[] = [];
 
     _animations: TiledAnimationType = new Map;
@@ -83,8 +83,8 @@ export class TiledMap extends Component {
     _tileProperties: Map<GID, PropertiesInfo> = new Map;
 
     _mapInfo: TMXMapInfo | null = null;
-    _mapSize: cc.Size = cc.size(0, 0);
-    _tileSize: cc.Size = cc.size(0, 0);
+    _mapSize: Size = new Size(0, 0);
+    _tileSize: Size = new Size(0, 0);
 
     _preloaded: boolean = false;
 
@@ -139,7 +139,7 @@ export class TiledMap extends Component {
         this._enableCulling = value;
         let layers = this._layers;
         for (let i = 0; i < layers.length; ++i) {
-            layers[i].enableCulling(value);
+            layers[i].enableCulling = value;
         }
     }
 
@@ -324,16 +324,16 @@ export class TiledMap extends Component {
     }
 
     onEnable() {
-        this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
+        this.node.on(SystemEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
     }
 
     onDisable() {
-        this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
+        this.node.off(SystemEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
     }
 
     _applyFile() {
 
-        let spriteFrames:cc.SpriteFrame[] = [];
+        let spriteFrames:SpriteFrame[] = [];
         let spriteFramesCache = {};
 
         let file = this._tmxFile;
@@ -341,10 +341,10 @@ export class TiledMap extends Component {
         if (file) {
             // let texValues = file.textures;
             let spfNames: string[] = file.spriteFrameNames;
-            let spfSizes: cc.Size[] = file.spriteFrameSizes;
-            let fSpriteFrames: cc.SpriteFrame[] = file.spriteFrames;
-            let spfTexturesMap: { [key: string]: cc.SpriteFrame } = {};
-            let spfTextureSizeMap: { [key: string]: cc.Size } = {};
+            let spfSizes: Size[] = file.spriteFrameSizes;
+            let fSpriteFrames: SpriteFrame[] = file.spriteFrames;
+            let spfTexturesMap: { [key: string]: SpriteFrame } = {};
+            let spfTextureSizeMap: { [key: string]: Size } = {};
 
             for (let i = 0; i < spfNames.length; ++i) {
                 let texName = spfNames[i];
@@ -359,7 +359,7 @@ export class TiledMap extends Component {
             }
             
 
-            let imageLayerTextures:{[key: string]:cc.SpriteFrame} = {};
+            let imageLayerTextures:{[key: string]:SpriteFrame} = {};
             let texValues = file.imageLayerSpriteFrame;
             spfNames = file.imageLayerSpriteFrameNames;
             for (let i = 0; i < texValues.length; ++i) {
@@ -378,7 +378,7 @@ export class TiledMap extends Component {
             let mapInfo = new TMXMapInfo(file.tmxXmlStr!, tsxContentMap, spfTexturesMap, spfTextureSizeMap, imageLayerTextures);
             let tilesets = mapInfo.getTilesets();
             if (!tilesets || tilesets.length === 0) {
-                cc.logID(7241);
+                logID(7241);
             }
 
             this._buildWithMapInfo(mapInfo);
@@ -433,8 +433,8 @@ export class TiledMap extends Component {
             // do not change the behavior avoid influence user's existing logic.
             groupNode.anchorX = 0.5;
             groupNode.anchorY = 0.5;
-            let x = groupInfo._offset!.x - leftTopX + groupNode.width * groupNode.anchorX;
-            let y = groupInfo._offset!.y + leftTopY - groupNode.height * groupNode.anchorY;
+            let x = groupInfo.offset!.x - leftTopX + groupNode.width * groupNode.anchorX;
+            let y = groupInfo.offset!.y + leftTopY - groupNode.height * groupNode.anchorY;
             groupInfo.node.setPosition(x, y);
         }
 
@@ -511,7 +511,7 @@ export class TiledMap extends Component {
                 oldNodeNames[name] = false;
 
                 if (!child) {
-                    child  = (new cc.Node()) as unknown as any;
+                    child  = (new Node()) as unknown as any;
                     child.name = name;
                     node.addChild(child);
                 }
@@ -525,9 +525,8 @@ export class TiledMap extends Component {
                         layer = child!.addComponent(TiledLayer);
                     }
 
-                    layer._init(layerInfo, mapInfo, tilesets, textures, texGrids);
-
-                    layer.enableCulling(this._enableCulling);
+                    layer.init(layerInfo, mapInfo, tilesets, textures, texGrids);
+                    layer.enableCulling = this._enableCulling;
 
                     // tell the layerinfo to release the ownership of the tiles map.
                     layerInfo.ownTiles = false;
@@ -545,14 +544,14 @@ export class TiledMap extends Component {
                     let texture = layerInfo.sourceImage;
 
                     child.layerInfo = layerInfo;
-                    child._offset = cc.v2(layerInfo.offset.x, -layerInfo.offset.y);
+                    child._offset = new Vec2(layerInfo.offset.x, -layerInfo.offset.y);
 
                     let image = child.getComponent(Sprite);
                     if (!image) {
                         image = child.addComponent(Sprite);
                     }
 
-                    let color = image.color as cc.Color;
+                    let color = image.color as Color;
                     color.a *= layerInfo.opacity;
 
                     image.spriteFrame = texture!;
@@ -592,7 +591,7 @@ export class TiledMap extends Component {
         let tilesets = this._tilesets;
         this._textures.length = 0;
 
-        let totalTextures:cc.SpriteFrame[] = [];
+        let totalTextures:SpriteFrame[] = [];
         for (let i = 0, l = tilesets.length; i < l; ++i) {
             let tilesetInfo = tilesets[i];
             if (!tilesetInfo || !tilesetInfo.sourceImage) continue;
@@ -624,7 +623,7 @@ export class TiledMap extends Component {
         if (texture._image instanceof HTMLImageElement) {
             texture._image.src = '';
         }
-        else if (cc.sys.capabilities.imageBitmap && texture._image instanceof ImageBitmap) {
+        else if (sys.capabilities.imageBitmap && texture._image instanceof ImageBitmap) {
             texture._image.close && texture._image.close();
         }
         texture._image = null;

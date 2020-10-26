@@ -49,7 +49,7 @@ type NN = number;
 
 // Bits on the far end of the 32-bit global tile ID (GID's) are used for tile flags
 
-export type PropertiesInfo = {(key: string): number | string};
+export type PropertiesInfo = { (key: string): number | string };
 //export type TiledAnimationType = {[key:GID]:TiledAnimation};
 export type TiledAnimationType = Map<GID, TiledAnimation>;
 /**
@@ -68,13 +68,13 @@ export type TiledAnimationType = Map<GID, TiledAnimation>;
 export class TMXLayerInfo {
     properties: PropertiesInfo = {} as any;
     name = "";
-    _layerSize: cc.Size | null = null;
-    _tiles: number[] | Uint32Array = [];
+    layerSize: cc.Size | null = null;
+    tiles: number[] | Uint32Array = [];
     visible = true;
-    _opacity = 0;
+    opacity = 0;
     ownTiles = true;
-    _minGID: GID = 100000 as unknown as GID;
-    _maxGID: GID = 0 as unknown as GID;
+    minGID: GID = 100000 as unknown as GID;
+    maxGID: GID = 0 as unknown as GID;
     offset: cc.Vec2 = cc.v2(0, 0);
     tintColor: cc.Color | null = null;
 
@@ -191,14 +191,14 @@ export interface TMXObject {
 export class TMXObjectGroupInfo {
     properties: PropertiesInfo = {} as any;
     name: string = "";
-    _objects: TMXObject[] = [];
+    objects: TMXObject[] = [];
     visible = true;
-    _opacity = 0;
-    _color: cc.Color = new cc.Color(255, 255, 255, 255);
+    opacity = 0;
+    color: cc.Color = new cc.Color(255, 255, 255, 255);
     offset: cc.Vec2 = cc.v2(0, 0);
-    _draworder: DrawOrder = 'topdown';
+    draworder: DrawOrder = 'topdown';
 
-    tintColor:cc.Color|null = null;
+    tintColor: cc.Color | null = null;
     /**
      * Gets the Properties.
      * @return {Array}
@@ -451,7 +451,7 @@ export class TMXMapInfo {
 
     // map of textures indexed by name
     _spriteFrameMap: { [key: string]: cc.SpriteFrame } | null = null;
-    _spfSizeMap: {[key:string]:cc.Size} = {};
+    _spfSizeMap: { [key: string]: cc.Size } = {};
 
     // hex map values
     _staggerAxis: StaggerAxis | null = null;
@@ -460,7 +460,7 @@ export class TMXMapInfo {
 
     _imageLayerSPF: { [key: string]: cc.SpriteFrame } | null = null;
 
-    constructor(tmxFile:string, tsxContentMap:{[key: string]: string}, spfTexturesMap:{[key: string]:cc.SpriteFrame}, textureSizes:{[key: string]:cc.Size}, imageLayerTextures:{[key:string]:cc.SpriteFrame}) {
+    constructor(tmxFile: string, tsxContentMap: { [key: string]: string }, spfTexturesMap: { [key: string]: cc.SpriteFrame }, textureSizes: { [key: string]: cc.Size }, imageLayerTextures: { [key: string]: cc.SpriteFrame }) {
         this.initWithXML(tmxFile, tsxContentMap, spfTexturesMap, textureSizes, imageLayerTextures);
     }
 
@@ -543,16 +543,17 @@ export class TMXMapInfo {
         this._mapSize.height = value.height;
     }
 
-    _getMapWidth() {
+    get mapWidth() {
         return this._mapSize.width;
     }
-    _setMapWidth(width: number) {
+    set mapWidth(width: number) {
         this._mapSize.width = width;
     }
-    _getMapHeight() {
+
+    get mapHeight() {
         return this._mapSize.height;
     }
-    _setMapHeight(height: number) {
+    set mapHeight(height: number) {
         this._mapSize.height = height;
     }
 
@@ -573,16 +574,19 @@ export class TMXMapInfo {
         this._tileSize.height = value.height;
     }
 
-    _getTileWidth() {
+    get tileWidth() {
         return this._tileSize.width;
     }
-    _setTileWidth(width) {
+
+    set tileWidth(width) {
         this._tileSize.width = width;
     }
-    _getTileHeight() {
+
+    get tileHeight() {
         return this._tileSize.height;
     }
-    _setTileHeight(height: number) {
+
+    set tileHeight(height: number) {
         this._tileSize.height = height;
     }
 
@@ -744,7 +748,7 @@ export class TMXMapInfo {
      * @param {Object} spfTextureMap
      * @return {Boolean}
      */
-    initWithXML(tmxString: string, tsxMap:{[key: string]:string}, spfTextureMap: { [key: string]: cc.SpriteFrame }, textureSizes: {[key:string]: cc.Size}, imageLayerTextures:{[key: string]:cc.SpriteFrame}) {
+    initWithXML(tmxString: string, tsxMap: { [key: string]: string }, spfTextureMap: { [key: string]: cc.SpriteFrame }, textureSizes: { [key: string]: cc.Size }, imageLayerTextures: { [key: string]: cc.SpriteFrame }) {
         this._tilesets.length = 0;
         this._layers.length = 0;
         this._imageLayers.length = 0;
@@ -778,7 +782,7 @@ export class TMXMapInfo {
     parseXMLString(xmlStr: string, tilesetFirstGid?: number) {
         let parser = new SAXParser();
         let mapXML: Document = parser._parseXML(xmlStr);
-        let i:number;
+        let i: number;
 
         // PARSE <map>
         let map = mapXML.documentElement;
@@ -1014,13 +1018,13 @@ export class TMXMapInfo {
         return map;
     }
 
-    _shouldIgnoreNode(node:ChildNode): boolean{
+    protected _shouldIgnoreNode(node: ChildNode): boolean {
         return node.nodeType === 3 // text
             || node.nodeType === 8   // comment
             || node.nodeType === 4;  // cdata
     }
 
-    _parseImageLayer(selLayer: Element) {
+    protected _parseImageLayer(selLayer: Element) {
         let datas = selLayer.getElementsByTagName('image');
         if (!datas || datas.length === 0) return null;
 
@@ -1051,7 +1055,7 @@ export class TMXMapInfo {
         return imageLayer;
     }
 
-    _parseLayer(selLayer: Element) {
+    protected _parseLayer(selLayer: Element) {
         let data = selLayer.getElementsByTagName('data')[0];
 
         let layer = new TMXLayerInfo();
@@ -1060,16 +1064,16 @@ export class TMXMapInfo {
         let layerSize = cc.size(0, 0);
         layerSize.width = parseFloat(selLayer.getAttribute('width')!);
         layerSize.height = parseFloat(selLayer.getAttribute('height')!);
-        layer._layerSize = layerSize;
+        layer.layerSize = layerSize;
 
         let visible = selLayer.getAttribute('visible');
         layer.visible = !(visible === "0");
 
         let opacity = selLayer.getAttribute('opacity');
         if (opacity)
-            layer._opacity = Math.round(255 * parseFloat(opacity));
+            layer.opacity = Math.round(255 * parseFloat(opacity));
         else
-            layer._opacity = 255;
+            layer.opacity = 255;
         layer.offset = cc.v2(parseFloat(selLayer.getAttribute('offsetx')!) || 0, parseFloat(selLayer.getAttribute('offsety')!) || 0);
 
         let tintColor = selLayer.getAttribute('tintcolor');
@@ -1121,7 +1125,7 @@ export class TMXMapInfo {
                 break;
         }
         if (tiles) {
-            layer._tiles = new Uint32Array(tiles);
+            layer.tiles = new Uint32Array(tiles);
         }
 
         // The parent element is the last layer
@@ -1130,19 +1134,19 @@ export class TMXMapInfo {
         return layer;
     }
 
-    _parseObjectGroup(selGroup: Element) {
+    protected _parseObjectGroup(selGroup: Element) {
         let objectGroup = new TMXObjectGroupInfo();
         objectGroup.name = selGroup.getAttribute('name') || '';
         objectGroup.offset = cc.v2(parseFloat(selGroup.getAttribute('offsetx')!), parseFloat(selGroup.getAttribute('offsety')!));
 
         let opacity = selGroup.getAttribute('opacity');
         if (opacity)
-            objectGroup._opacity = Math.round(255 * parseFloat(opacity));
+            objectGroup.opacity = Math.round(255 * parseFloat(opacity));
         else
-            objectGroup._opacity = 255;
+            objectGroup.opacity = 255;
 
         let tintColor = selGroup.getAttribute('tintcolor');
-        objectGroup.tintColor = tintColor? strToColor(tintColor) : null;
+        objectGroup.tintColor = tintColor ? strToColor(tintColor) : null;
 
         let visible = selGroup.getAttribute('visible');
         if (visible && parseInt(visible) === 0)
@@ -1150,11 +1154,11 @@ export class TMXMapInfo {
 
         let color = selGroup.getAttribute('color');
         if (color)
-            objectGroup._color.fromHEX(color);
+            objectGroup.color.fromHEX(color);
 
         let draworder = selGroup.getAttribute('draworder');
         if (draworder)
-            objectGroup._draworder = draworder as any;
+            objectGroup.draworder = draworder as any;
 
         // set the properties to the group
         objectGroup.setProperties(getPropertyList(selGroup));
@@ -1237,11 +1241,11 @@ export class TMXMapInfo {
                 }
 
                 // Add the object to the objectGroup
-                objectGroup._objects.push(objectProp);
+                objectGroup.objects.push(objectProp);
             }
 
             if (draworder !== 'index') {
-                objectGroup._objects.sort(function (a, b) {
+                objectGroup.objects.sort(function (a, b) {
                     return a.y - b.y;
                 });
             }
@@ -1249,7 +1253,7 @@ export class TMXMapInfo {
         return objectGroup;
     }
 
-    _parsePointsString(pointsString?: string) {
+    protected _parsePointsString(pointsString?: string) {
         if (!pointsString)
             return null;
 
@@ -1306,7 +1310,7 @@ export class TMXMapInfo {
      * Set the currentString
      * @param {String} currentString
      */
-    setCurrentString(currentString:string) {
+    setCurrentString(currentString: string) {
         this.currentString = currentString;
     }
 
@@ -1317,13 +1321,5 @@ export class TMXMapInfo {
         dotIndex = dotIndex < 0 ? name.length : dotIndex;
         return name.substring(splashIndex, dotIndex);
     }
+
 }
-
-let _p = TMXMapInfo.prototype;
-
-// Extended properties
-js.getset(_p, "mapWidth", _p._getMapWidth, _p._setMapWidth);
-js.getset(_p, "mapHeight", _p._getMapHeight, _p._setMapHeight);
-js.getset(_p, "tileWidth", _p._getTileWidth, _p._setTileWidth);
-js.getset(_p, "tileHeight", _p._getTileHeight, _p._setTileHeight);
-

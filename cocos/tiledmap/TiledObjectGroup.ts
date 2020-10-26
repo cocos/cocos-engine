@@ -48,7 +48,7 @@ import { UITransform } from '../core/components/ui-base/ui-transform';
 @requireComponent(UITransform)
 export class TiledObjectGroup extends Component {
 
-    _premultiplyAlpha: boolean = false;
+    protected _premultiplyAlpha: boolean = false;
 
     @type(cc.CCBoolean)
     get premultiplyAlpha() {
@@ -67,7 +67,7 @@ export class TiledObjectGroup extends Component {
      * @example
      * let offset = tMXObjectGroup.getPositionOffset();
      */
-    getPositionOffset() {
+    public getPositionOffset() {
         return this._positionOffset;
     }
 
@@ -79,7 +79,7 @@ export class TiledObjectGroup extends Component {
      * @example
      * let offset = tMXObjectGroup.getProperties();
      */
-    getProperties() {
+    public getProperties() {
         this._properties;
     }
 
@@ -91,7 +91,7 @@ export class TiledObjectGroup extends Component {
      * @example
      * let groupName = tMXObjectGroup.getGroupName;
      */
-    getGroupName() {
+    public getGroupName() {
         return this._groupName;
     }
 
@@ -100,7 +100,7 @@ export class TiledObjectGroup extends Component {
      * @param {String} propertyName
      * @return {Object}
      */
-    getProperty(propertyName: { toString(): string } | string) {
+    public getProperty(propertyName: { toString(): string } | string) {
         return this._properties![propertyName.toString()];
     }
 
@@ -115,7 +115,7 @@ export class TiledObjectGroup extends Component {
      * @example
      * let object = tMXObjectGroup.getObject("Group");
      */
-    getObject(objectName) {
+    public getObject(objectName) {
         for (let i = 0, len = this._objects!.length; i < len; i++) {
             let obj = this._objects[i];
             if (obj && obj.name === objectName) {
@@ -134,30 +134,31 @@ export class TiledObjectGroup extends Component {
      * @example
      * let objects = tMXObjectGroup.getObjects();
      */
-    getObjects() {
+    public getObjects() {
         return this._objects;
     }
 
-    _groupName?: string;
-    _positionOffset?: cc.Vec2;
-    _mapInfo?: TMXMapInfo;
-    _properties?: PropertiesInfo;
-    _offset?: cc.Vec2;
-    _opacity?: number;
-    _tintColor: cc.Color|null = null;
+    protected _groupName?: string;
+    protected _positionOffset?: cc.Vec2;
+    protected _mapInfo?: TMXMapInfo;
+    protected _properties?: PropertiesInfo;
+    protected _offset?: cc.Vec2;
+    get offset() {return this._offset!;}
+    protected _opacity?: number;
+    protected _tintColor: cc.Color|null = null;
 
-    _animations?: TiledAnimationType;
-    _hasAniObj?: boolean;
-    _texGrids?: TiledTextureGrids;
-    aniObjects?: {
+    protected _animations?: TiledAnimationType;
+    protected _hasAniObj?: boolean;
+    protected _texGrids?: TiledTextureGrids;
+    protected aniObjects?: {
         object: TMXObject,
         imgNode: cc.Node,
         gridGID: GID
     }[];
-    _objects: TMXObject[] = [];
+    protected _objects: TMXObject[] = [];
 
 
-    _init(groupInfo: TMXObjectGroupInfo, mapInfo: TMXMapInfo, texGrids: TiledTextureGrids) {
+    public _init(groupInfo: TMXObjectGroupInfo, mapInfo: TMXMapInfo, texGrids: TiledTextureGrids) {
 
         const FLIPPED_MASK = TileFlag.FLIPPED_MASK;
         const FLAG_HORIZONTAL = TileFlag.HORIZONTAL;
@@ -168,7 +169,7 @@ export class TiledObjectGroup extends Component {
         this._mapInfo = mapInfo;
         this._properties = groupInfo.getProperties();
         this._offset = cc.v2(groupInfo.offset.x, -groupInfo.offset.y);
-        this._opacity = groupInfo._opacity;
+        this._opacity = groupInfo.opacity;
 
         if (groupInfo.tintColor) {
             this._tintColor = groupInfo.tintColor;
@@ -210,7 +211,7 @@ export class TiledObjectGroup extends Component {
         let leftTopX = width * transComp.anchorX;
         let leftTopY = height * (1 - transComp.anchorY);
 
-        let objects = groupInfo._objects;
+        let objects = groupInfo.objects;
         let aliveNodes = {};
         for (let i = 0, l = objects.length; i < l; i++) {
             let object = objects[i];
@@ -389,7 +390,7 @@ export class TiledObjectGroup extends Component {
         }
     }
 
-    update(dt: number) {
+    public update(dt: number) {
         if (!this._hasAniObj) {
             return;
         }
