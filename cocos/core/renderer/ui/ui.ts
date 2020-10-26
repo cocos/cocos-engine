@@ -50,6 +50,7 @@ import { ModelLocalBindings, SetIndex } from '../../pipeline/define';
 import { EffectAsset, RenderTexture, SpriteFrame } from '../../assets';
 import { programLib } from '../core/program-lib';
 import { TextureBase } from '../../assets/texture-base';
+import { DSPool } from '../core/memory-pools';
 
 const _dsInfo = new GFXDescriptorSetInfo(null!);
 
@@ -476,7 +477,7 @@ export class UI {
      * @param model - 提交渲染的 model 数据。
      * @param mat - 提交渲染的材质。
      */
-    public commitModel (comp: UIComponent | UIRenderable, model: Model | null, mat: Material | null) {
+    public commitModel (comp: UIComponent | UIRenderable, model: Model | null, mat: Material | null, isModel: boolean) {
         // if the last comp is spriteComp, previous comps should be batched.
         if (this._currMaterial !== this._emptyMaterial) {
             this.autoMergeBatches(this._currComponent!);
@@ -484,7 +485,12 @@ export class UI {
 
         if (mat) {
             let rebuild = false;
-            if (StencilManager.sharedManager!.handleMaterial(mat)) {
+            let renderComp;
+            // check ui-model
+            if (!isModel) {
+                renderComp = comp;
+            }
+            if (StencilManager.sharedManager!.handleMaterial(mat, renderComp)) {
                 const state = StencilManager.sharedManager!.pattern;
                 mat.overridePipelineStates({
                     depthStencilState: {
@@ -566,7 +572,12 @@ export class UI {
             return;
         }
 
-        if (renderComp && StencilManager.sharedManager!.handleMaterial(mat)) {
+        // bug fix: check stencil from material actual use
+        // Need to remove when use hash to check MergeBatches
+        if (renderComp && renderComp._materialInstanceForStencil) {
+            this._currMaterial = mat = renderComp._materialInstanceForStencil;
+        }
+        if (renderComp && StencilManager.sharedManager!.handleMaterial(mat, renderComp)) {
             this._currMaterial = mat = renderComp.getMaterialInstanceForStencil();
             const state = StencilManager.sharedManager!.pattern;
             mat.overridePipelineStates({

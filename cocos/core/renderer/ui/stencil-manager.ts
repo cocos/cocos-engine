@@ -27,6 +27,7 @@
  * @hidden
  */
 
+import { UIRenderable } from '../../../../exports/ui';
 import { Material } from '../../assets/material';
 import { GFXComparisonFunc, GFXStencilOp } from '../../gfx/define';
 import { Pass } from '../core/pass';
@@ -48,6 +49,7 @@ export enum Stage {
 export class StencilManager {
     public static sharedManager: StencilManager | null = null;
     public stage = Stage.DISABLED;
+    public stageOld = Stage.DISABLED; // the stage before update
     private _maskStack: any[] = [];
     private _stencilPattern = {
         stencilTest: true,
@@ -94,35 +96,38 @@ export class StencilManager {
         }
     }
 
-    public handleMaterial (mat: Material) {
-        const pattern = this._stencilPattern;
-        if (this.stage === Stage.DISABLED) {
-            pattern.stencilTest = false;
-            pattern.func = GFXComparisonFunc.ALWAYS;
-            pattern.failOp = GFXStencilOp.KEEP;
-            pattern.stencilMask = pattern.writeMask = 0xffff;
-            pattern.ref = 1;
-        } else {
-            pattern.stencilTest = true;
-            if (this.stage === Stage.ENABLED) {
-                pattern.func = GFXComparisonFunc.EQUAL;
+    public handleMaterial (mat: Material, comp? : UIRenderable) {
+        if (this.stage !== this.stageOld) {
+            const pattern = this._stencilPattern;
+            if (this.stage === Stage.DISABLED) {
+                pattern.stencilTest = false;
+                pattern.func = GFXComparisonFunc.ALWAYS;
                 pattern.failOp = GFXStencilOp.KEEP;
-                pattern.stencilMask = pattern.ref = this.getStencilRef();
-                pattern.writeMask = this.getWriteMask();
-            } else if (this.stage === Stage.CLEAR) {
-                const mask = this._maskStack[this._maskStack.length - 1];
-                pattern.func = GFXComparisonFunc.NEVER;
-                pattern.failOp = mask.inverted ? GFXStencilOp.REPLACE : GFXStencilOp.ZERO;
-                pattern.writeMask = pattern.stencilMask = pattern.ref = this.getWriteMask();
-            } else if (this.stage === Stage.ENTER_LEVEL) {
-                const mask = this._maskStack[this._maskStack.length - 1];
-                pattern.func = GFXComparisonFunc.NEVER;
-                pattern.failOp = mask.inverted ? GFXStencilOp.ZERO : GFXStencilOp.REPLACE;
-                pattern.writeMask = pattern.stencilMask = pattern.ref = this.getWriteMask();
+                pattern.stencilMask = pattern.writeMask = 0xffff;
+                pattern.ref = 1;
+            } else {
+                pattern.stencilTest = true;
+                if (this.stage === Stage.ENABLED) {
+                    pattern.func = GFXComparisonFunc.EQUAL;
+                    pattern.failOp = GFXStencilOp.KEEP;
+                    pattern.stencilMask = pattern.ref = this.getStencilRef();
+                    pattern.writeMask = this.getWriteMask();
+                } else if (this.stage === Stage.CLEAR) {
+                    const mask = this._maskStack[this._maskStack.length - 1];
+                    pattern.func = GFXComparisonFunc.NEVER;
+                    pattern.failOp = mask.inverted ? GFXStencilOp.REPLACE : GFXStencilOp.ZERO;
+                    pattern.writeMask = pattern.stencilMask = pattern.ref = this.getWriteMask();
+                } else if (this.stage === Stage.ENTER_LEVEL) {
+                    const mask = this._maskStack[this._maskStack.length - 1];
+                    pattern.func = GFXComparisonFunc.NEVER;
+                    pattern.failOp = mask.inverted ? GFXStencilOp.ZERO : GFXStencilOp.REPLACE;
+                    pattern.writeMask = pattern.stencilMask = pattern.ref = this.getWriteMask();
+                }
             }
+            this.stageOld = this.stage;
         }
 
-        return this._changed(mat.passes[0]);
+        return this._changed(mat.passes[0], comp);
     }
 
     public getWriteMask () {
@@ -147,7 +152,17 @@ export class StencilManager {
         this.stage = Stage.DISABLED;
     }
 
-    private _changed (pass: Pass) {
+    private _changed (pass: Pass, comp?: UIRenderable) {
+        if(comp) {
+            if (comp.stencilStage === this.stage) {
+                return false;
+            } else {
+                comp.stencilStage = this.stage;
+                return true;
+            }
+        }
+
+        // only ui-model use this code
         const stencilState = pass.depthStencilState;
         const pattern = this._stencilPattern;
         if (pattern.stencilTest !== stencilState.stencilTestFront ||

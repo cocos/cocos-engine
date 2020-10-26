@@ -45,6 +45,7 @@ import { TransformBit } from '../../scene-graph/node-enum';
 import { UITransform } from './ui-transform';
 import { RenderableComponent } from '../../3d/framework/renderable-component';
 import { EDITOR } from 'internal:constants';
+import { Stage } from '../../renderer/ui/stencil-manager';
 
 // hack
 ccenum(GFXBlendFactor);
@@ -216,7 +217,7 @@ export class UIRenderable extends RenderableComponent {
     protected _uiMatInsDirty = false;
 
     // materialInstance only for Stencil // Will remove at v3.0
-    protected _materialInstanceForStencil;
+    public _materialInstanceForStencil;
     public getMaterialInstanceForStencil () {
         if (!this._materialInstanceForStencil) {
             let patentMaterial;
@@ -516,4 +517,6 @@ export class UIRenderable extends RenderableComponent {
     }
 
     protected _flushAssembler? (): void;
+
+    public stencilStage : Stage = Stage.DISABLED;
 }
