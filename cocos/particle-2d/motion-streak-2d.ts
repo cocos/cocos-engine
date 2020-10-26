@@ -25,13 +25,13 @@
  ****************************************************************************/
 
 import { ccclass, executeInEditMode, serializable, playOnFocus, menu, help, editable, type } from 'cc.decorator';
-import { UIRenderable } from '../../core/components/ui-base';
-import { Texture2D } from '../../core/assets/texture-2d';
-import { UI } from '../../core/renderer/ui/ui';
+import { UIRenderable } from '../core/components/ui-base';
+import { Texture2D } from '../core/assets/texture-2d';
+import { UI } from '../core/renderer/ui/ui';
 import { EDITOR } from 'internal:constants';
 
 /**
- * !#en
+ * @en
  * cc.MotionStreak manages a Ribbon based on it's motion in absolute space.                 <br/>
  * You construct it with a fadeTime, minimum segment size, texture path, texture            <br/>
  * length and color. The fadeTime controls how long it takes each vertex in                 <br/>
@@ -39,7 +39,7 @@ import { EDITOR } from 'internal:constants';
  * streak will move before adding a new ribbon segment, and the texture                     <br/>
  * length is the how many pixels the texture is stretched across. The texture               <br/>
  * is vertically aligned along the streak segment.
- * !#zh 运动轨迹，用于游戏对象的运动轨迹上实现拖尾渐隐效果。
+ * @zh 运动轨迹，用于游戏对象的运动轨迹上实现拖尾渐隐效果。
  * @class MotionStreak
  * @extends Component
  * @uses BlendFunc
@@ -54,8 +54,8 @@ export class MotionStreak extends UIRenderable {
     private _preview: boolean = false;
 
     /**
-     * !#en
-     * !#zh 在编辑器模式下预览拖尾效果。
+     * @en Preview the trailing effect in editor mode.
+     * @zh 在编辑器模式下预览拖尾效果。
      * @property {Boolean} preview
      * @default false
      */
@@ -72,8 +72,8 @@ export class MotionStreak extends UIRenderable {
     @serializable
     private _fadeTime = 1;
     /**
-     * !#en The fade time to fade.
-     * !#zh 拖尾的渐隐时间，以秒为单位。
+     * @en The fade time to fade.
+     * @zh 拖尾的渐隐时间，以秒为单位。
      * @property fadeTime
      * @type {Number}
      * @example
@@ -92,8 +92,8 @@ export class MotionStreak extends UIRenderable {
     @serializable
     private _minSeg = 1;
     /**
-     * !#en The minimum segment size.
-     * !#zh 拖尾之间最小距离。
+     * @en The minimum segment size.
+     * @zh 拖尾之间最小距离。
      * @property minSeg
      * @type {Number}
      * @example
@@ -108,8 +108,8 @@ export class MotionStreak extends UIRenderable {
     }
 
     /**
-     * !#en The stroke's width.
-     * !#zh 拖尾的宽度。
+     * @en The stroke's width.
+     * @zh 拖尾的宽度。
      * @property stroke
      * @type {Number}
      * @example
@@ -129,8 +129,8 @@ export class MotionStreak extends UIRenderable {
     private _texture: Texture2D | null  = null
 
     /**
-     * !#en The texture of the MotionStreak.
-     * !#zh 拖尾的贴图。
+     * @en The texture of the MotionStreak.
+     * @zh 拖尾的贴图。
      * @property texture
      * @type {Texture2D}
      * @example
@@ -150,8 +150,8 @@ export class MotionStreak extends UIRenderable {
     @serializable
     private _fastMode: boolean = false;
     /**
-     * !#en The fast Mode.
-     * !#zh 是否启用了快速模式。当启用快速模式，新的点会被更快地添加，但精度较低。
+     * @en The fast Mode.
+     * @zh 是否启用了快速模式。当启用快速模式，新的点会被更快地添加，但精度较低。
      * @property fastMode
      * @type {Boolean}
      * @default false
@@ -199,8 +199,8 @@ export class MotionStreak extends UIRenderable {
     }
 
     /**
-     * !#en Remove all living segments of the ribbon.
-     * !#zh 删除当前所有的拖尾片段。
+     * @en Remove all living segments of the ribbon.
+     * @zh 删除当前所有的拖尾片段。
      * @method reset
      * @example
      * // Remove all living segments of the ribbon.

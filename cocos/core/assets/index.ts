@@ -55,4 +55,3 @@ export { Mesh, RenderingSubMesh } from './mesh';
 export { Skeleton } from './skeleton';
 export { RenderTexture } from './render-texture';
 import './deprecation';
-export { ParticleAsset } from './particle-asset';

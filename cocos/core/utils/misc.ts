@@ -188,9 +188,8 @@ export function cloneable_DEV (obj) {
 }
 
 /**
- * !#en Clamp a value between from and to.
- * !#zh
- * 限定浮点数的最大最小值。<br/>
+ * @en Clamp a value between from and to.
+ * @zh 限定浮点数的最大最小值。<br/>
  * 数值大于 max_inclusive 则返回 max_inclusive。<br/>
  * 数值小于 min_inclusive 则返回 min_inclusive。<br/>
  * 否则返回自身。
@@ -214,7 +213,8 @@ export function clampf (value, min_inclusive, max_inclusive) {
 };
 
 /**
- * converts degrees to radians
+ * @en converts degrees to radians
+ * @zh 角度转弧度
  * @param {Number} angle
  * @return {Number}
  * @method degreesToRadians
@@ -224,7 +224,8 @@ export function degreesToRadians (angle) {
 };
 
 /**
- * converts radians to degrees
+ * @en converts radians to degrees
+ * @zh 弧度转角度
  * @param {Number} angle
  * @return {Number}
  * @method radiansToDegrees

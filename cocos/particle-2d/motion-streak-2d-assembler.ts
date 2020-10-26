@@ -23,11 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { IAssembler, IAssemblerManager } from '../../core/renderer/ui/base';
+import { IAssembler, IAssemblerManager } from '../core/renderer/ui/base';
 import { MotionStreak } from './motion-streak-2d';
-import { Vec2, Color } from '../../core/math';
-import { RenderData } from '../../core/renderer/ui/render-data';
-import { UI } from '../../core/renderer/ui/ui';
+import { Vec2, Color } from '../core/math';
+import { RenderData } from '../core/renderer/ui/render-data';
+import { UI } from '../core/renderer/ui/ui';
 
 class Point {
     public point = new Vec2();

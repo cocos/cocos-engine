@@ -23,10 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { IAssembler, IAssemblerManager } from '../../core/renderer/ui/base';
+import { IAssembler, IAssemblerManager } from '../core/renderer/ui/base';
 import { PositionType, ParticleSystem2D } from './particle-system-2d';
-import { MeshRenderData } from '../../core/renderer/ui/render-data';
-import { UI } from '../../core/renderer/ui/ui';
+import { MeshRenderData } from '../core/renderer/ui/render-data';
+import { UI } from '../core/renderer/ui/ui';
 
 export const ParticleAssembler: IAssembler = {
     renderData: MeshRenderData,

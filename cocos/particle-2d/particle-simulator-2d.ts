@@ -22,12 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-import { Vec2, Vec3, Color } from '../../core/math';
-import Pool from '../../core/utils/pool';
+import { Vec2, Vec3, Color } from '../core/math';
+import Pool from '../core/utils/pool';
 import { ParticleSystem2D, EmitterMode, PositionType } from './particle-system-2d';
-import { clampf, degreesToRadians, radiansToDegrees } from '../../core/utils/misc';
-import { director } from '../../core/director';
-import { vfmtPosUvColor, getAttributeFormatBytes } from '../../core/renderer/ui/ui-vertex-format';
+import { clampf, degreesToRadians, radiansToDegrees } from '../core/utils/misc';
+import { director } from '../core/director';
+import { vfmtPosUvColor, getAttributeFormatBytes } from '../core/renderer/ui/ui-vertex-format';
 
 const ZERO_VEC2 = new Vec2(0, 0);
 const _pos = new Vec2();
@@ -464,21 +464,7 @@ export class Simulator {
             }
         }
 
-        // assembler._ia._count = particles.length * 6;
         if (particles.length > 0) {
-            // buffer.uploadData();
-            // const subModelList = this.sys.model!.subModels;
-            // const renderData = this.sys.assembler!.renderData;
-            // const ia = subModelList[0].inputAssembler;
-            // const vertexFormatBytes = Float32Array.BYTES_PER_ELEMENT * formatBytes;
-            // const byteOffset = renderData.vertexStart * vertexFormatBytes;
-            // const verticesData = new Float32Array(renderData.vData!.buffer, 0, renderData.vertexCount);
-            // ia.vertexCount = renderData.vertexCount;
-            // ia.vertexBuffers[0].update(verticesData);
-
-            // const indicesData = new Uint16Array(renderData.iData!.buffer, 0, renderData.indicesCount);
-            // ia.indexCount = renderData.indicesCount;
-            // ia.indexBuffer!.update(indicesData);
         }
         else if (!this.active && !this.readyToPlay) {
             this.finished = true;

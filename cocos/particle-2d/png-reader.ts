@@ -27,8 +27,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { getError } from '../../core/platform/debug';
-import  zlib  from '../../../external/compression/zlib.min';
+import { getError } from '../core/platform/debug';
+import  zlib  from '../../external/compression/zlib.min';
 
 /**
  * A png file reader

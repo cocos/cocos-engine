@@ -425,8 +425,8 @@ export class UIRenderable extends RenderableComponent {
             return mat;
         }
 
-        if ((this._uiMaterialIns !== null && this._uiMatInsDirty) ||
-            (target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor)) {
+        if (this._uiMaterialIns !== null && (this._uiMatInsDirty ||
+            target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor)) {
             mat = this.getUIMaterialInstance();
             target.blendDst = this._dstBlendFactor;
             target.blendSrc = this._srcBlendFactor;
