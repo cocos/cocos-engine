@@ -543,6 +543,7 @@ enum PoolType {
     ATTRIBUTE_ARRAY,
     FLAT_BUFFER_ARRAY,
     INSTANCED_BUFFER_ARRAY,
+    LIGHT_ARRAY,
     // raw buffer
     RAW_BUFFER = 300,
 }
@@ -581,6 +582,7 @@ export type SphereHandle = IHandle<PoolType.SPHERE>;
 export type SubMeshHandle = IHandle<PoolType.SUB_MESH>;
 export type FlatBufferHandle = IHandle<PoolType.FLAT_BUFFER>;
 export type FlatBufferArrayHandle = IHandle<PoolType.FLAT_BUFFER_ARRAY>;
+export type LightArrayHandle = IHandle<PoolType.LIGHT_ARRAY>;
 
 // don't reuse any of these data-only structs, for GFX objects may directly reference them
 export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, (_: never[]) => new GFXRasterizerState());
@@ -611,14 +613,11 @@ export const FramebufferPool = new ObjectPool(PoolType.FRAMEBUFFER,
     (obj: GFXFramebuffer) => obj && obj.destroy(),
 );
 
-export const SubModelArrayPool = new TypedArrayPool<PoolType.SUB_MODEL_ARRAY, Uint32ArrayConstructor, SubModelHandle>
-    (PoolType.SUB_MODEL_ARRAY, Uint32Array, 8, 4);
-export const ModelArrayPool = new TypedArrayPool<PoolType.MODEL_ARRAY, Uint32ArrayConstructor, ModelHandle>
-    (PoolType.MODEL_ARRAY, Uint32Array, 32, 16);
-export const AttributeArrayPool = new TypedArrayPool<PoolType.ATTRIBUTE_ARRAY, Uint32ArrayConstructor, AttributeHandle>
-    (PoolType.ATTRIBUTE_ARRAY, Uint32Array, 8, 4);
-export const FlatBufferArrayPool = new TypedArrayPool<PoolType.FLAT_BUFFER_ARRAY, Uint32ArrayConstructor, FlatBufferHandle>
-    (PoolType.FLAT_BUFFER_ARRAY, Uint32Array, 8, 4);
+export const SubModelArrayPool = new TypedArrayPool<PoolType.SUB_MODEL_ARRAY, Uint32ArrayConstructor, SubModelHandle>(PoolType.SUB_MODEL_ARRAY, Uint32Array, 8, 4);
+export const ModelArrayPool = new TypedArrayPool<PoolType.MODEL_ARRAY, Uint32ArrayConstructor, ModelHandle>(PoolType.MODEL_ARRAY, Uint32Array, 32, 16);
+export const AttributeArrayPool = new TypedArrayPool<PoolType.ATTRIBUTE_ARRAY, Uint32ArrayConstructor, AttributeHandle>(PoolType.ATTRIBUTE_ARRAY, Uint32Array, 8, 4);
+export const FlatBufferArrayPool = new TypedArrayPool<PoolType.FLAT_BUFFER_ARRAY, Uint32ArrayConstructor, FlatBufferHandle>(PoolType.FLAT_BUFFER_ARRAY, Uint32Array, 8, 4);
+export const LightArrayPool = new TypedArrayPool<PoolType.LIGHT_ARRAY, Uint32ArrayConstructor, LightHandle>(PoolType.LIGHT_ARRAY, Uint32Array, 8, 4);
 
 export const RawBufferPool = new BufferAllocator(PoolType.RAW_BUFFER);
 
@@ -788,18 +787,24 @@ const aabbViewDataType: BufferDataTypeManifest<typeof AABBView> = {
 export const AABBPool = new BufferPool<PoolType.AABB, typeof AABBView, IAABBViewType>(PoolType.AABB, aabbViewDataType, AABBView);
 
 export enum SceneView {
-    MAIN_LIGHT,    // TODO
+    MAIN_LIGHT,    // handle
     MODEL_ARRAY,   // array handle
+    SPHERE_LIGHT_ARRAY, // array handle
+    SPOT_LIGHT_ARRAY, // array handle
     COUNT,
 }
 interface ISceneViewType extends BufferTypeManifest<typeof SceneView> {
     [SceneView.MAIN_LIGHT]: LightHandle;
     [SceneView.MODEL_ARRAY]: ModelArrayHandle;
+    [SceneView.SPHERE_LIGHT_ARRAY]: LightArrayHandle;
+    [SceneView.SPOT_LIGHT_ARRAY]: LightArrayHandle;
     [SceneView.COUNT]: never;
 }
 const sceneViewDataType: BufferDataTypeManifest<typeof SceneView> = {
     [SceneView.MAIN_LIGHT]: BufferDataType.UINT32,
     [SceneView.MODEL_ARRAY]: BufferDataType.UINT32,
+    [SceneView.SPHERE_LIGHT_ARRAY]: BufferDataType.UINT32,
+    [SceneView.SPOT_LIGHT_ARRAY]: BufferDataType.UINT32,
     [SceneView.COUNT]: BufferDataType.NEVER
 }
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
@@ -1141,27 +1146,48 @@ export enum LightView {
     USE_COLOR_TEMPERATURE,
     ILLUMINANCE,
     NODE,                       // handle
+    RANGE,                  
+    TYPE,        
+    AABB,       // handle
+    FRUSTUM,    // handle
+    SIZE,
+    SPOT_ANGLE,
     DIRECTION,                  // Vec3
-    COLOR = 6,                  // Vec3
-    COLOR_TEMPERATURE_RGB = 9,  // Vec3
-    COUNT = 12
+    COLOR = 12,                  // Vec3
+    COLOR_TEMPERATURE_RGB = 15,  // Vec3
+    POSITION = 18,               // Vec3
+    COUNT = 21
 }
 interface ILightViewType extends BufferTypeManifest<typeof LightView> {
     [LightView.USE_COLOR_TEMPERATURE]: number;
     [LightView.ILLUMINANCE]: number;
     [LightView.NODE]:NodeHandle;
+    [LightView.RANGE]:number;
+    [LightView.TYPE]:number;
+    [LightView.AABB]:AABBHandle;
+    [LightView.FRUSTUM]:FrustumHandle;
+    [LightView.SIZE]:number;
+    [LightView.SPOT_ANGLE]:number;
     [LightView.DIRECTION]: Vec3;
     [LightView.COLOR]: Vec3;
     [LightView.COLOR_TEMPERATURE_RGB]: Vec3;
+    [LightView.POSITION]: Vec3;
     [LightView.COUNT]: never;
 }
 const lightViewDataType: BufferDataTypeManifest<typeof LightView> = {
     [LightView.USE_COLOR_TEMPERATURE]: BufferDataType.UINT32,
     [LightView.ILLUMINANCE]: BufferDataType.FLOAT32,
     [LightView.NODE]: BufferDataType.UINT32,
+    [LightView.RANGE]: BufferDataType.FLOAT32,
+    [LightView.TYPE]: BufferDataType.UINT32,
+    [LightView.AABB]: BufferDataType.UINT32,
+    [LightView.FRUSTUM]: BufferDataType.UINT32,
+    [LightView.SIZE]: BufferDataType.FLOAT32,
+    [LightView.SPOT_ANGLE]: BufferDataType.FLOAT32,
     [LightView.DIRECTION]: BufferDataType.FLOAT32,
     [LightView.COLOR]: BufferDataType.FLOAT32,
     [LightView.COLOR_TEMPERATURE_RGB]: BufferDataType.FLOAT32,
+    [LightView.POSITION]: BufferDataType.FLOAT32,
     [LightView.COUNT]: BufferDataType.NEVER
 }
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.

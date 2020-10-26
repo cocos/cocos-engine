@@ -14,7 +14,7 @@ import { SpotLight } from './spot-light';
 import { PREVIEW } from 'internal:constants';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { legacyCC } from '../../global-exports';
-import { ScenePool, SceneView, ModelArrayPool, ModelArrayHandle, SceneHandle, NULL_HANDLE, freeHandleArray, ModelPool } from '../core/memory-pools';
+import { ScenePool, SceneView, ModelArrayPool, ModelArrayHandle, SceneHandle, NULL_HANDLE, freeHandleArray, ModelPool,LightArrayHandle, LightArrayPool } from '../core/memory-pools';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -112,6 +112,8 @@ export class RenderScene {
     private _modelId: number = 0;
     private _scenePoolHandle: SceneHandle = NULL_HANDLE;
     private _modelArrayHandle: ModelArrayHandle = NULL_HANDLE;
+    private _sphereLightsHandle: LightArrayHandle = NULL_HANDLE;
+    private _spotLightsHandle: LightArrayHandle = NULL_HANDLE;
 
     constructor (root: Root) {
         this._root = root;
@@ -165,6 +167,14 @@ export class RenderScene {
         if (this._scenePoolHandle) {
             ScenePool.free(this._scenePoolHandle);
             this._scenePoolHandle = NULL_HANDLE;
+        }
+        if (this._sphereLightsHandle) {
+            LightArrayPool.free(this._sphereLightsHandle);
+            this._sphereLightsHandle = NULL_HANDLE;
+        }
+        if (this._spotLightsHandle) {
+            LightArrayPool.free(this._spotLightsHandle);
+            this._spotLightsHandle = NULL_HANDLE;
         }
     }
 
@@ -227,6 +237,7 @@ export class RenderScene {
     public addSphereLight (pl: SphereLight) {
         pl.attachToScene(this);
         this._sphereLights.push(pl);
+        LightArrayPool.push(this._sphereLightsHandle, pl.handle);
     }
 
     public removeSphereLight (pl: SphereLight) {
@@ -234,6 +245,7 @@ export class RenderScene {
             if (this._sphereLights[i] === pl) {
                 pl.detachFromScene();
                 this._sphereLights.splice(i, 1);
+                LightArrayPool.erase(this._sphereLightsHandle, i)
                 return;
             }
         }
@@ -242,6 +254,7 @@ export class RenderScene {
     public addSpotLight (sl: SpotLight) {
         sl.attachToScene(this);
         this._spotLights.push(sl);
+        LightArrayPool.push(this._spotLightsHandle, sl.handle);
     }
 
     public removeSpotLight (sl: SpotLight) {
@@ -249,6 +262,7 @@ export class RenderScene {
             if (this._spotLights[i] === sl) {
                 sl.detachFromScene();
                 this._spotLights.splice(i, 1);
+                LightArrayPool.erase(this._spotLightsHandle, i);
                 return;
             }
         }
@@ -259,6 +273,7 @@ export class RenderScene {
             this._sphereLights[i].detachFromScene();
         }
         this._sphereLights.length = 0;
+        LightArrayPool.clear(this._sphereLightsHandle);
     }
 
     public removeSpotLights () {
@@ -266,6 +281,7 @@ export class RenderScene {
             this._spotLights[i].detachFromScene();
         }
         this._spotLights = [];
+        LightArrayPool.clear(this._spotLightsHandle);
     }
 
     public addModel (m: Model) {
@@ -501,6 +517,12 @@ export class RenderScene {
             this._modelArrayHandle = ModelArrayPool.alloc();
             this._scenePoolHandle = ScenePool.alloc();
             ScenePool.set(this._scenePoolHandle, SceneView.MODEL_ARRAY, this._modelArrayHandle);
+
+            this._spotLightsHandle = LightArrayPool.alloc();
+            ScenePool.set(this._scenePoolHandle, SceneView.SPOT_LIGHT_ARRAY, this._spotLightsHandle);
+
+            this._sphereLightsHandle = LightArrayPool.alloc();
+            ScenePool.set(this._scenePoolHandle, SceneView.SPHERE_LIGHT_ARRAY, this._sphereLightsHandle);
         }
     }
 }
