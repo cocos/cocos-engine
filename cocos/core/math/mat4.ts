@@ -37,6 +37,13 @@ import { EPSILON } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
 
+const preTransforms = [
+    [ 1,  0,  0,  1], // GFXSurfaceTransform.IDENTITY
+    [ 0,  1, -1,  0], // GFXSurfaceTransform.ROTATE_90
+    [-1,  0,  0, -1], // GFXSurfaceTransform.ROTATE_180
+    [ 0, -1,  1,  0], // GFXSurfaceTransform.ROTATE_270
+];
+
 /**
  * @en Mathematical 4x4 matrix.
  * @zh 表示四维（4x4）矩阵。
@@ -1030,17 +1037,21 @@ export class Mat4 extends ValueType {
      */
     public static perspective <Out extends IMat4Like> (
             out: Out, fov: number, aspect: number, near: number, far: number,
-            isFOVY = true, minClipZ = -1, projectionSignY = 1) {
+            isFOVY = true, minClipZ = -1, projectionSignY = 1, orientation = 0) {
 
         const f = 1.0 / Math.tan(fov / 2);
         const nf = 1 / (near - far);
 
-        out.m00 = isFOVY ? f / aspect : f;
-        out.m01 = 0;
+        const x = isFOVY ? f / aspect : f;
+        const y = (isFOVY ? f : f * aspect) * projectionSignY;
+        const preTransform = preTransforms[orientation];
+
+        out.m00 = x * preTransform[0];
+        out.m01 = x * preTransform[1];
         out.m02 = 0;
         out.m03 = 0;
-        out.m04 = 0;
-        out.m05 = (isFOVY ? f : f * aspect) * projectionSignY;
+        out.m04 = y * preTransform[2];
+        out.m05 = y * preTransform[3];
         out.m06 = 0;
         out.m07 = 0;
         out.m08 = 0;
@@ -1066,17 +1077,22 @@ export class Mat4 extends ValueType {
      */
     public static ortho <Out extends IMat4Like> (
             out: Out, left: number, right: number, bottom: number, top: number, near: number, far: number,
-            minClipZ = -1, projectionSignY = 1) {
+            minClipZ = -1, projectionSignY = 1, orientation = 0) {
 
         const lr = 1 / (left - right);
         const bt = 1 / (bottom - top);
         const nf = 1 / (near - far);
-        out.m00 = -2 * lr;
-        out.m01 = 0;
+
+        const x = -2 * lr;
+        const y = -2 * bt * projectionSignY;
+        const preTransform = preTransforms[orientation];
+
+        out.m00 = x * preTransform[0];
+        out.m01 = x * preTransform[1];
         out.m02 = 0;
         out.m03 = 0;
-        out.m04 = 0;
-        out.m05 = -2 * bt * projectionSignY;
+        out.m04 = y * preTransform[2];
+        out.m05 = y * preTransform[3];
         out.m06 = 0;
         out.m07 = 0;
         out.m08 = 0;
@@ -1091,8 +1107,11 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Calculates the matrix with the view point information, given by eye position, target center and the up vector. Note that center to eye vector can't be zero or parallel to the up vector
-     * @zh 根据视点计算矩阵，注意 `eye - center` 不能为零向量或与 `up` 向量平行
+     * @en
+     * Calculates the matrix with the view point information, given by eye position, target center and the up vector.
+     * Note that center to eye vector can't be zero or parallel to the up vector
+     * @zh
+     * 根据视点计算矩阵，注意 `eye - center` 不能为零向量或与 `up` 向量平行
      * @param eye The source point.
      * @param center The target point.
      * @param up The vector describing the up direction.
