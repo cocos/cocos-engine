@@ -99,7 +99,7 @@ export function shadowCollecting (pipeline: ForwardPipeline, view: RenderView) {
 }
 
 // include directLight && spotLight
-export function lightCollecting (view: RenderView) {
+export function lightCollecting (view: RenderView, lightNumber: number) {
     _validLights.length = 0;
 
     const camera = view.camera;
@@ -110,7 +110,8 @@ export function lightCollecting (view: RenderView) {
     for (let i = 0; i < spotLights.length; i++) {
         const light = spotLights[i];
         sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-        if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
+        if (intersect.sphere_frustum(_sphere, view.camera.frustum) &&
+         light.enableShadow && lightNumber > _validLights.length) {
             _validLights.push(light);
         }
     }

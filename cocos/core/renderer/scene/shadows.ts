@@ -229,6 +229,11 @@ export class Shadows {
      */
     public bias: number = 0.0035;
     /**
+     * @en get or set most received light
+     * @zh 获取或设置接收光照的最大数量
+     */
+    public mostReceived: number = 4;
+    /**
      * @en get or set shadow generation range
      * @zh 获取或设置阴影生成范围
      */
