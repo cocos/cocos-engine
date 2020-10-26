@@ -217,7 +217,15 @@ export class frustum {
     }
 }
 
-export function recordFrustumInSharedMemory (handle: FrustumHandle, frstm: frustum) {
+/**
+ * @en
+ * Record frustum to shared memory.
+ * @zh
+ * 记录 frustum 数据到共享内存。并不是每个 frustum 都是需要记录到共享内存的。
+ * @param handle The frustum handle
+ * @param frstm The frustum object
+ */
+export function recordFrustumToSharedMemory (handle: FrustumHandle, frstm: frustum) {
     if (!frstm || handle === NULL_HANDLE) {
         return;
     }

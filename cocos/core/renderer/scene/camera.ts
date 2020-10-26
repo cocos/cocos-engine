@@ -10,7 +10,7 @@ import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../core/render-window';
 import { CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, FrustumView, NULL_HANDLE, SceneHandle } from '../core/memory-pools';
 import { JSB } from 'internal:constants';
-import { recordFrustumInSharedMemory } from '../../geometry/frustum';
+import { recordFrustumToSharedMemory } from '../../geometry/frustum';
 
 export enum CameraFOVAxis {
     VERTICAL,
@@ -271,7 +271,7 @@ export class Camera {
             this._frustum.update(this._matViewProj, this._matViewProjInv);
             CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ, this._matViewProj);
             CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ_INV, this._matViewProjInv);
-            recordFrustumInSharedMemory(this._frustumHandle, this._frustum);
+            recordFrustumToSharedMemory(this._frustumHandle, this._frustum);
         }
 
         this._isProjDirty = false;
@@ -483,7 +483,7 @@ export class Camera {
 
     set frustum (val) {
         this._frustum = val;
-        recordFrustumInSharedMemory(this._frustumHandle, val);
+        recordFrustumToSharedMemory(this._frustumHandle, val);
     }
 
     get frustum () {

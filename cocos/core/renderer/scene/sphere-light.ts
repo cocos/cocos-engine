@@ -75,7 +75,10 @@ export class SphereLight extends Light {
     }
 
     public destroy () {
-        if (this._hAABB) AABBPool.free(this._hAABB);
+        if (this._hAABB) {
+            AABBPool.free(this._hAABB);
+            this._hAABB = NULL_HANDLE;
+        }
         return super.destroy();
     }
 }

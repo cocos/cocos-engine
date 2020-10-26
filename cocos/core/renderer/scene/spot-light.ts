@@ -2,7 +2,7 @@ import { aabb, frustum } from '../../geometry';
 import { Mat4, Quat, Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
 import { AABBHandle, AABBPool, AABBView, FrustumHandle, FrustumPool, LightPool, LightView, NULL_HANDLE } from '../core/memory-pools';
-import { recordFrustumInSharedMemory } from '../../geometry/frustum';
+import { recordFrustumToSharedMemory } from '../../geometry/frustum';
 
 const _forward = new Vec3(0, 0, -1);
 const _qt = new Quat();
@@ -120,13 +120,19 @@ export class SpotLight extends Light {
             LightPool.setVec3(this._handle, LightView.DIRECTION, this._pos);
             AABBPool.setVec3(this._hAABB, AABBView.CENTER, this._aabb.center);
             AABBPool.setVec3(this._hAABB, AABBView.HALF_EXTENSION, this._aabb.halfExtents);
-            recordFrustumInSharedMemory(this._hFrustum, this._frustum);
+            recordFrustumToSharedMemory(this._hFrustum, this._frustum);
         }
     }
 
     public destroy () {
-        if (this._hAABB) AABBPool.free(this._hAABB);
-        if (this._hFrustum) FrustumPool.free(this._hFrustum);
+        if (this._hAABB) {
+            AABBPool.free(this._hAABB);
+            this._hAABB = NULL_HANDLE;
+        }
+        if (this._hFrustum) {
+            FrustumPool.free(this._hFrustum);
+            this._hFrustum = NULL_HANDLE;
+        }
         return super.destroy();
     }
 }
