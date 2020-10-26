@@ -1375,7 +1375,6 @@ export class TiledLayer extends UIRenderable {
 
     protected _prepareToRender () {
         this._updateVertices();
-        // this._traverseAllGrid();
         this._updateAllUserNode();
     }
 

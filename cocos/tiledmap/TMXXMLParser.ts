@@ -22,7 +22,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import * as cc from '../core';
 import { Label, HorizontalTextAlignment, VerticalTextAlignment } from '../ui/components/label';
 import { codec } from '../../extensions/compression/ZipUtils';
 import zlib from '../../extensions/compression/zlib.min.js';
@@ -31,7 +30,7 @@ import {
     GID, MixedGID, Orientation, PropertiesInfo, RenderOrder, StaggerAxis, StaggerIndex, TiledAnimation, TiledAnimationType,
     TileFlag, TMXImageLayerInfo, TMXLayerInfo, TMXObject, TMXObjectGroupInfo, TMXObjectType, TMXTilesetInfo
 } from './TiledTypes';
-import { Size } from '../core';
+import { Color, errorID, logID, Size, SpriteFrame, Vec2 } from '../core';
 
 function uint8ArrayToUint32Array (uint8Arr: Uint8Array): null | Uint32Array | number[] {
     if (uint8Arr.length % 4 !== 0)
@@ -70,9 +69,9 @@ function strToVAlign (value): VerticalTextAlignment {
     }
 }
 
-function strToColor (value: string): cc.Color {
+function strToColor (value: string): Color {
     if (!value) {
-        return cc.color(0, 0, 0, 255);
+        return new Color(0, 0, 0, 255);
     }
     value = (value.indexOf('#') !== -1) ? value.substring(1) : value;
     if (value.length === 8) {
@@ -80,12 +79,12 @@ function strToColor (value: string): cc.Color {
         const r = parseInt(value.substr(2, 2), 16) || 0;
         const g = parseInt(value.substr(4, 2), 16) || 0;
         const b = parseInt(value.substr(6, 2), 16) || 0;
-        return cc.color(r, g, b, a);
+        return new Color(r, g, b, a);
     } else {
         const r = parseInt(value.substr(0, 2), 16) || 0;
         const g = parseInt(value.substr(2, 2), 16) || 0;
         const b = parseInt(value.substr(4, 2), 16) || 0;
-        return cc.color(r, g, b, 255);
+        return new Color(r, g, b, 255);
     }
 }
 
@@ -190,9 +189,9 @@ export class TMXMapInfo {
     protected _objectGroups: TMXObjectGroupInfo[] = [];
     protected _allChildren: (TMXLayerInfo | TMXImageLayerInfo | TMXObjectGroupInfo)[] = [];
     protected _mapSize = new Size(0, 0);
-    get mapSize () {return this._mapSize;}
+    get mapSize () { return this._mapSize; }
     protected _tileSize = new Size(0, 0);
-    get tileSize () {return this._tileSize;}
+    get tileSize () { return this._tileSize; }
     protected _layers: TMXLayerInfo[] = [];
     protected _tilesets: TMXTilesetInfo[] = [];
     protected _imageLayers: TMXImageLayerInfo[] = [];
@@ -201,18 +200,18 @@ export class TMXMapInfo {
     protected _tsxContentMap: { [key: string]: string } | null = null;
 
     // map of textures indexed by name
-    protected _spriteFrameMap: { [key: string]: cc.SpriteFrame } | null = null;
-    protected _spfSizeMap: { [key: string]: cc.Size } = {};
+    protected _spriteFrameMap: { [key: string]: SpriteFrame } | null = null;
+    protected _spfSizeMap: { [key: string]: Size } = {};
 
     // hex map values
     protected _staggerAxis: StaggerAxis | null = null;
     protected _staggerIndex: StaggerIndex | null = null;
     protected _hexSideLength = 0;
 
-    protected _imageLayerSPF: { [key: string]: cc.SpriteFrame } | null = null;
+    protected _imageLayerSPF: { [key: string]: SpriteFrame } | null = null;
 
-    constructor (tmxFile: string, tsxContentMap: { [key: string]: string }, spfTexturesMap: { [key: string]: cc.SpriteFrame },
-        textureSizes: { [key: string]: cc.Size }, imageLayerTextures: { [key: string]: cc.SpriteFrame }) {
+    constructor (tmxFile: string, tsxContentMap: { [key: string]: string }, spfTexturesMap: { [key: string]: SpriteFrame },
+        textureSizes: { [key: string]: Size }, imageLayerTextures: { [key: string]: SpriteFrame }) {
         this.initWithXML(tmxFile, tsxContentMap, spfTexturesMap, textureSizes, imageLayerTextures);
     }
 
@@ -283,14 +282,14 @@ export class TMXMapInfo {
      * @return {Size}
      */
     getMapSize () {
-        return cc.size(this._mapSize.width, this._mapSize.height);
+        return new Size(this._mapSize.width, this._mapSize.height);
     }
 
     /**
      * Map width & height
      * @param {Size} value
      */
-    setMapSize (value: cc.Size) {
+    setMapSize (value: Size) {
         this._mapSize.width = value.width;
         this._mapSize.height = value.height;
     }
@@ -314,14 +313,14 @@ export class TMXMapInfo {
      * @return {Size}
      */
     getTileSize () {
-        return cc.size(this._tileSize.width, this._tileSize.height);
+        return new Size(this._tileSize.width, this._tileSize.height);
     }
 
     /**
      * Tiles width & height
      * @param {Size} value
      */
-    setTileSize (value: cc.Size) {
+    setTileSize (value: Size) {
         this._tileSize.width = value.width;
         this._tileSize.height = value.height;
     }
@@ -503,8 +502,8 @@ export class TMXMapInfo {
      * @param {Object} spfTextureMap
      * @return {Boolean}
      */
-    initWithXML (tmxString: string, tsxMap: { [key: string]: string }, spfTextureMap: { [key: string]: cc.SpriteFrame },
-        textureSizes: { [key: string]: cc.Size }, imageLayerTextures: { [key: string]: cc.SpriteFrame }) {
+    initWithXML (tmxString: string, tsxMap: { [key: string]: string }, spfTextureMap: { [key: string]: SpriteFrame },
+        textureSizes: { [key: string]: Size }, imageLayerTextures: { [key: string]: SpriteFrame }) {
         this._tilesets.length = 0;
         this._layers.length = 0;
         this._imageLayers.length = 0;
@@ -557,7 +556,7 @@ export class TMXMapInfo {
                 const v = parseInt(versionArr[i]) || 0;
                 const sv = supportVersion[i];
                 if (sv < v) {
-                    cc.logID(7216, version);
+                    logID(7216, version);
                     break;
                 }
             }
@@ -569,7 +568,7 @@ export class TMXMapInfo {
             else if (orientationStr === 'hexagonal')
                 this.orientation = Orientation.HEX;
             else if (orientationStr !== null)
-                cc.logID(7217, orientationStr);
+                logID(7217, orientationStr);
 
             if (renderorderStr === 'right-up') {
                 this.renderOrder = RenderOrder.RightUp;
@@ -599,12 +598,12 @@ export class TMXMapInfo {
                 this.setHexSideLength(parseFloat(hexSideLengthStr));
             }
 
-            let mapSize = cc.size(0, 0);
+            let mapSize = new Size(0, 0);
             mapSize.width = parseFloat(map.getAttribute('width')!);
             mapSize.height = parseFloat(map.getAttribute('height')!);
             this.setMapSize(mapSize);
 
-            mapSize = cc.size(0, 0);
+            mapSize = new Size(0, 0);
             mapSize.width = parseFloat(map.getAttribute('tilewidth')!);
             mapSize.height = parseFloat(map.getAttribute('tileheight')!);
             this.setTileSize(mapSize);
@@ -646,7 +645,7 @@ export class TMXMapInfo {
                 const tilesetMargin = parseInt(selTileset.getAttribute('margin')!) || 0;
                 const fgid = tilesetFirstGid ? tilesetFirstGid : (parseInt(selTileset.getAttribute('firstgid')!) || 0);
 
-                const tilesetSize = cc.size(0, 0);
+                const tilesetSize = new Size(0, 0);
                 tilesetSize.width = parseFloat(selTileset.getAttribute('tilewidth')!);
                 tilesetSize.height = parseFloat(selTileset.getAttribute('tileheight')!);
 
@@ -681,7 +680,7 @@ export class TMXMapInfo {
                                 tileset.sourceImage = this._spriteFrameMap![shortName];
                                 if (!tileset.sourceImage) {
                                     console.error(`[error]: ${shortName} not find in [${Object.keys(this._spriteFrameMap!).join(', ')}]`);
-                                    cc.errorID(7221, firstImageName);
+                                    errorID(7221, firstImageName);
                                 }
                             }
                         }
@@ -719,7 +718,7 @@ export class TMXMapInfo {
                             tileset.imageName = shortName;
                             tileset.sourceImage = this._spriteFrameMap![shortName];
                             if (!tileset.sourceImage) {
-                                cc.errorID(7221, imageName);
+                                errorID(7221, imageName);
                             }
                         }
 
@@ -805,7 +804,7 @@ export class TMXMapInfo {
         imageLayer.trans = strToColor(data.getAttribute('trans')!);
 
         if (!imageLayer.sourceImage) {
-            cc.errorID(7221, source);
+            errorID(7221, source);
             return null;
         }
         return imageLayer;
@@ -817,7 +816,7 @@ export class TMXMapInfo {
         const layer = new TMXLayerInfo();
         layer.name = selLayer.getAttribute('name')!;
 
-        const layerSize = cc.size(0, 0);
+        const layerSize = new Size(0, 0);
         layerSize.width = parseFloat(selLayer.getAttribute('width')!);
         layerSize.height = parseFloat(selLayer.getAttribute('height')!);
         layer.layerSize = layerSize;
@@ -830,7 +829,7 @@ export class TMXMapInfo {
             layer.opacity = Math.round(255 * parseFloat(opacity));
         else
             layer.opacity = 255;
-        layer.offset = cc.v2(parseFloat(selLayer.getAttribute('offsetx')!) || 0, parseFloat(selLayer.getAttribute('offsety')!) || 0);
+        layer.offset = new Vec2(parseFloat(selLayer.getAttribute('offsetx')!) || 0, parseFloat(selLayer.getAttribute('offsety')!) || 0);
 
         const tintColor = selLayer.getAttribute('tintcolor');
         layer.tintColor = tintColor ? strToColor(tintColor) : null;
@@ -845,7 +844,7 @@ export class TMXMapInfo {
         const compression = data.getAttribute('compression');
         const encoding = data.getAttribute('encoding');
         if (compression && compression !== 'gzip' && compression !== 'zlib') {
-            cc.logID(7218);
+            logID(7218);
             return null;
         }
         let tiles;
@@ -877,7 +876,7 @@ export class TMXMapInfo {
                 break;
             default:
                 if (this.layerAttrs === TMXLayerInfo.ATTRIB_NONE)
-                    cc.logID(7219);
+                    logID(7219);
                 break;
         }
         if (tiles) {
@@ -893,7 +892,7 @@ export class TMXMapInfo {
     protected _parseObjectGroup (selGroup: Element) {
         const objectGroup = new TMXObjectGroupInfo();
         objectGroup.name = selGroup.getAttribute('name') || '';
-        objectGroup.offset = cc.v2(parseFloat(selGroup.getAttribute('offsetx')!), parseFloat(selGroup.getAttribute('offsety')!));
+        objectGroup.offset = new Vec2(parseFloat(selGroup.getAttribute('offsetx')!), parseFloat(selGroup.getAttribute('offsety')!));
 
         const opacity = selGroup.getAttribute('opacity');
         if (opacity)

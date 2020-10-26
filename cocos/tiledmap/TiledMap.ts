@@ -34,7 +34,7 @@ import { ccclass, displayOrder, executeInEditMode, help, menu, requireComponent,
 import { legacyCC } from '../core/global-exports';
 import { js } from '../core/utils/js';
 import { GID, Orientation, PropertiesInfo, Property, RenderOrder, StaggerAxis, StaggerIndex, TiledAnimationType, TiledTextureGrids, TileFlag, 
-    TMXImageLayerInfo, TMXObjectType, TMXTilesetInfo } from './TiledTypes'
+    TMXImageLayerInfo, TMXLayerInfo, TMXObjectGroupInfo, TMXObjectType, TMXTilesetInfo } from './TiledTypes'
 import { TMXMapInfo } from './TMXXMLParser';
 import { TiledLayer } from './TiledLayer';
 import { TiledObjectGroup } from './TiledObjectGroup';
