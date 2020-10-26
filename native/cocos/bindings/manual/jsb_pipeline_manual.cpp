@@ -1,12 +1,13 @@
-#include "cocos/bindings/auto/jsb_pipeline_auto.h"
 #include "cocos/bindings/auto/jsb_gfx_auto.h"
+#include "cocos/bindings/auto/jsb_pipeline_auto.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
+#include "renderer/core/gfx/GFXPipelineState.h"
+#include "renderer/pipeline/Define.h"
+#include "renderer/pipeline/PipelineStateManager.h"
 #include "renderer/pipeline/RenderPipeline.h"
 #include "renderer/pipeline/RenderView.h"
-#include "renderer/pipeline/PipelineStateManager.h"
-#include "renderer/core/gfx/GFXPipelineState.h"
 
 se::Object *__jsb_cc_pipeline_RenderViewInfo_proto = nullptr;
 se::Class *__jsb_cc_pipeline_RenderViewInfo_class = nullptr;
@@ -162,6 +163,31 @@ static bool JSB_getOrCreatePipelineState(se::State &s) {
 }
 SE_BIND_FUNC(JSB_getOrCreatePipelineState);
 
+static bool JSB_getPhaseID(se::State &s) {
+    const auto &args = s.args();
+    size_t argc = args.size();
+    if (argc == 1) {
+        bool ok = true;
+        if (args[0].isNumber()) {
+            uint phase = 0;
+            ok &= seval_to_uint(args[0], &phase);
+            SE_PRECONDITION2(ok, false, "JSB_getPhaseID : Error getting pass phase.");
+            uint32_to_seval(phase, &s.rval());
+        }
+        if (args[0].isString()) {
+            std::string phase;
+            ok &= seval_to_std_string(args[0], &phase);
+            SE_PRECONDITION2(ok, false, "JSB_getPhaseID : Error getting pass phase.");
+            auto phaseID = cc::pipeline::PassPhase::getPhaseID(phase);
+            uint32_to_seval(phaseID, &s.rval());
+        }
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(JSB_getPhaseID);
+
 bool register_all_pipeline_manual(se::Object *obj) {
     // Get the ns
     se::Value nrVal;
@@ -171,7 +197,9 @@ bool register_all_pipeline_manual(se::Object *obj) {
         obj->setProperty("nr", nrVal);
     }
     se::Object *nr = nrVal.toObject();
-    
+
+    nr->defineFunction("getPhaseID", _SE(JSB_getPhaseID));
+
     se::Value psmVal;
     se::HandleObject jsobj(se::Object::createPlainObject());
     psmVal.setObject(jsobj);

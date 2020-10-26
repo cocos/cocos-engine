@@ -50,7 +50,8 @@ RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline)
     _renderObjects = forwardPipline->getRenderObjects();
     _fpScale = forwardPipline->getFpScale();
     _isHDR = forwardPipline->isHDR();
-    _lightBufferStride = std::ceil(UBOForwardLight::SIZE / _device->getUboOffsetAlignment()) * _device->getUboOffsetAlignment();
+    const auto alignment = _device->getUboOffsetAlignment();
+    _lightBufferStride = ((UBOForwardLight::SIZE + alignment - 1) / alignment) * alignment;
     _lightBufferElementCount = _lightBufferStride / sizeof(float);
     _lightBuffer = _device->createBuffer({
         gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
