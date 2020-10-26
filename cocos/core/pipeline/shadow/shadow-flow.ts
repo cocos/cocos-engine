@@ -120,12 +120,11 @@ export class ShadowFlow extends RenderFlow {
         for (let l = 0; l < validLights.length; l++) {
             const light = validLights[l];
 
-            if (shadowInfo.shadowMapDirty) { this.resizeShadowMap(light, shadowInfo.size); }
-
             if (!pipeline.shadowFrameBufferMap.has(light)) {
                 this._initShadowFrameBuffer(pipeline, light);
             }
             const shadowFrameBuffer = pipeline.shadowFrameBufferMap.get(light);
+            if (shadowInfo.shadowMapDirty) { this.resizeShadowMap(light, shadowInfo.size); }
 
             for (let i = 0; i < this._stages.length; ++i) {
                 const shadowStage = this._stages[i] as ShadowStage;
