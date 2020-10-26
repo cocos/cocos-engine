@@ -9,7 +9,7 @@ import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
 import {  GFXLoadOp, GFXStoreOp, GFXTextureLayout, GFXFormat, GFXTexture,
-    GFXTextureType, GFXTextureUsageBit, GFXFilter, GFXAddress } from '../../gfx';
+    GFXTextureType, GFXTextureUsageBit, GFXFilter, GFXAddress, GFXRenderPass } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { RenderView, ForwardPipeline, Vec2 } from '../..';
 import { ShadowType } from '../../renderer/scene/shadows';
@@ -32,6 +32,9 @@ const _samplerInfo = [
  */
 @ccclass('ShadowFlow')
 export class ShadowFlow extends RenderFlow {
+
+    private _shadowRenderPass: GFXRenderPass | null = null;
+
     /**
      * @en A common initialization info for shadow map render flow
      * @zh 一个通用的 ShadowFlow 的初始化信息对象
@@ -51,62 +54,6 @@ export class ShadowFlow extends RenderFlow {
         this._stages.push(shadowMapStage);
 
         return true;
-    }
-
-    private _initShadowFrameBuffer (pipeline: ForwardPipeline, light: Light) {
-        const device = pipeline.device;
-        const shadowMapSize = pipeline.shadows.size;
-
-        const shadowRenderPass = device.createRenderPass({
-            colorAttachments: [{
-                format: GFXFormat.RGBA8,
-                loadOp: GFXLoadOp.CLEAR, // should clear color attachment
-                storeOp: GFXStoreOp.STORE,
-                sampleCount: 1,
-                beginLayout: GFXTextureLayout.UNDEFINED,
-                endLayout: GFXTextureLayout.PRESENT_SRC,
-            }],
-            depthStencilAttachment: {
-                format: device.depthStencilFormat,
-                depthLoadOp: GFXLoadOp.CLEAR,
-                depthStoreOp: GFXStoreOp.STORE,
-                stencilLoadOp: GFXLoadOp.CLEAR,
-                stencilStoreOp: GFXStoreOp.STORE,
-                sampleCount: 1,
-                beginLayout: GFXTextureLayout.UNDEFINED,
-                endLayout: GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-            },
-        });
-
-        const shadowRenderTargets: GFXTexture[] = [];
-        shadowRenderTargets.push(device.createTexture({
-            type: GFXTextureType.TEX2D,
-            usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-            format: GFXFormat.RGBA8,
-            width: shadowMapSize.x,
-            height: shadowMapSize.y,
-        }));
-
-        const depth = device.createTexture({
-            type: GFXTextureType.TEX2D,
-            usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
-            format: device.depthStencilFormat,
-            width: shadowMapSize.x,
-            height: shadowMapSize.y,
-        });
-
-        const shadowFrameBuffer = device.createFramebuffer({
-            renderPass: shadowRenderPass,
-            colorTextures: shadowRenderTargets,
-            depthStencilTexture: depth,
-        });
-
-        // Cache frameBuffer
-        pipeline.shadowFrameBufferMap.set(light, shadowFrameBuffer);
-
-        const shadowMapSamplerHash = genSamplerHash(_samplerInfo);
-        const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
-        pipeline.descriptorSet.bindSampler(UNIFORM_SHADOWMAP.binding, shadowMapSampler);
     }
 
     public render (view: RenderView) {
@@ -132,6 +79,64 @@ export class ShadowFlow extends RenderFlow {
                 shadowStage.render(view);
             }
         }
+    }
+
+    private _initShadowFrameBuffer (pipeline: ForwardPipeline, light: Light) {
+        const device = pipeline.device;
+        const shadowMapSize = pipeline.shadows.size;
+
+        if (!this._shadowRenderPass) {
+            this._shadowRenderPass = device.createRenderPass({
+                colorAttachments: [{
+                    format: GFXFormat.RGBA8,
+                    loadOp: GFXLoadOp.CLEAR, // should clear color attachment
+                    storeOp: GFXStoreOp.STORE,
+                    sampleCount: 1,
+                    beginLayout: GFXTextureLayout.UNDEFINED,
+                    endLayout: GFXTextureLayout.PRESENT_SRC,
+                }],
+                depthStencilAttachment: {
+                    format: device.depthStencilFormat,
+                    depthLoadOp: GFXLoadOp.CLEAR,
+                    depthStoreOp: GFXStoreOp.STORE,
+                    stencilLoadOp: GFXLoadOp.CLEAR,
+                    stencilStoreOp: GFXStoreOp.STORE,
+                    sampleCount: 1,
+                    beginLayout: GFXTextureLayout.UNDEFINED,
+                    endLayout: GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                },
+            });
+        }
+
+        const shadowRenderTargets: GFXTexture[] = [];
+        shadowRenderTargets.push(device.createTexture({
+            type: GFXTextureType.TEX2D,
+            usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+            format: GFXFormat.RGBA8,
+            width: shadowMapSize.x,
+            height: shadowMapSize.y,
+        }));
+
+        const depth = device.createTexture({
+            type: GFXTextureType.TEX2D,
+            usage: GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
+            format: device.depthStencilFormat,
+            width: shadowMapSize.x,
+            height: shadowMapSize.y,
+        });
+
+        const shadowFrameBuffer = device.createFramebuffer({
+            renderPass: this._shadowRenderPass,
+            colorTextures: shadowRenderTargets,
+            depthStencilTexture: depth,
+        });
+
+        // Cache frameBuffer
+        pipeline.shadowFrameBufferMap.set(light, shadowFrameBuffer);
+
+        const shadowMapSamplerHash = genSamplerHash(_samplerInfo);
+        const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
+        pipeline.descriptorSet.bindSampler(UNIFORM_SHADOWMAP.binding, shadowMapSampler);
     }
 
     private resizeShadowMap (light:Light, size: Vec2) {
