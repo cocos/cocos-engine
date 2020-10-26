@@ -45,6 +45,7 @@ import { TransformBit } from '../../scene-graph/node-enum';
 import { UITransform } from './ui-transform';
 import { RenderableComponent } from '../../3d/framework/renderable-component';
 import { EDITOR } from 'internal:constants';
+import { Stage } from '../../renderer/ui/stencil-manager';
 
 // hack
 ccenum(GFXBlendFactor);
@@ -216,7 +217,7 @@ export class UIRenderable extends RenderableComponent {
     protected _uiMatInsDirty = false;
 
     // materialInstance only for Stencil // Will remove at v3.0
-    protected _materialInstanceForStencil;
+    public _materialInstanceForStencil;
     public getMaterialInstanceForStencil () {
         if (!this._materialInstanceForStencil) {
             let patentMaterial;
@@ -259,6 +260,12 @@ export class UIRenderable extends RenderableComponent {
     set delegateSrc (value: Node) {
         this._delegateSrc = value;
     }
+
+    /**
+     * @en The component stencil stage (please do not any modification directly on this object)
+     * @zh 组件模板缓冲状态 (注意：请不要直接修改它的值)
+     */
+    public stencilStage : Stage = Stage.DISABLED;
 
     /**
      * @en The blend factor enums
