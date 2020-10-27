@@ -790,26 +790,10 @@ export const sys: { [x: string]: any; } = {
     },
 
     /**
-     * Dumps rooted objects, only available in native platforms
-     * @private
-     */
-    dumpRoot () {
-        // N/A in web
-    },
-
-    /**
      * Restart the JS VM, only available in native platforms
      * @private
      */
     restartVM () {
-        // N/A in web
-    },
-
-    /**
-     * Clean a script in the JS VM, only available in native platforms
-     * @private
-     */
-    cleanScript (jsfile) {
         // N/A in web
     },
 
