@@ -38,7 +38,7 @@ import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import { GFXSampler, GFXTexture, GFXDevice } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
-import { murmurhash2_32_gc } from '../utils';
+import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 
 const idGenerator = new IDGenerator('Tex');
 /**

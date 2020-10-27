@@ -37,7 +37,7 @@ import { Root } from '../root';
 import { Asset } from './asset';
 import { samplerLib, defaultSamplerHash } from '../renderer/core/sampler-lib';
 import { IDGenerator } from '../utils/js';
-import { murmurhash2_32_gc } from '../utils';
+import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 
 const idGenerator = new IDGenerator('RenderTex');
 
