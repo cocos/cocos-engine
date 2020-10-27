@@ -45,7 +45,7 @@ export {
 
     RigidBody,
 
-    PhysicsMaterial as PhysicMaterial,
+    PhysicsMaterial,
 
     ConstantForce,
 };
