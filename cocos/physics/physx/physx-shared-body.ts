@@ -110,6 +110,7 @@ export class PhysXSharedBody {
                     this._impl.setActorFlag(PX.ActorFlag.eDISABLE_GRAVITY, !rb.useGravity);
                 } else {
                     this._impl.setActorFlag(PX.PxActorFlag.eDISABLE_GRAVITY, !rb.useGravity);
+                    this._impl.setRigidBodyFlag(PX.PxRigidBodyFlag.eKINEMATIC, rb.isKinematic);
                 }
                 this._impl.setLinearDamping(rb.linearDamping);
                 this._impl.setAngularDamping(rb.angularDamping);
