@@ -48,7 +48,7 @@ void BatchedBuffer::destroy() {
 void BatchedBuffer::merge(const SubModelView *subModel, uint passIdx, const RenderObject *renderObject) {
     const auto subMesh = subModel->getSubMesh();
     const auto flatBuffersID = subMesh->getFlatBufferArrayID();
-    const auto flatBuffersCount = flatBuffersID[0];
+    const auto flatBuffersCount = flatBuffersID ? flatBuffersID[0] : 0;
     if (flatBuffersCount == 0) {
         return;
     }

@@ -94,23 +94,23 @@ bool CCMTLBuffer::initialize(const BufferViewInfo &info) {
 
 bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
     _mtlResourceOptions = mu::toMTLResourseOption(usage);
-    if (_mtlResourceOptions == MTLResourceStorageModePrivate) {
-        if (_mtlBuffer)
-            [_mtlBuffer release];
-        _mtlBuffer = [_mtlDevice newBufferWithLength:size options:_mtlResourceOptions];
-    } else {
+    if (_tripleEnabled) {
         for (id<MTLBuffer> buffer in _dynamicDataBuffers) {
-            if (buffer) [buffer release];
-        }
-        NSMutableArray *mutableDynamicDataBuffers = [NSMutableArray arrayWithCapacity:MAX_INFLIGHT_BUFFER];
-        for (int i = 0; i < MAX_INFLIGHT_BUFFER; ++i) {
-            // Create a new buffer with enough capacity to store one instance of the dynamic buffer data
-            id<MTLBuffer> dynamicDataBuffer = [_mtlDevice newBufferWithLength:size options:_mtlResourceOptions];
-            [mutableDynamicDataBuffers addObject:dynamicDataBuffer];
-        }
-        _dynamicDataBuffers = [mutableDynamicDataBuffers copy];
+                   if (buffer) [buffer release];
+               }
+               NSMutableArray *mutableDynamicDataBuffers = [NSMutableArray arrayWithCapacity:MAX_INFLIGHT_BUFFER];
+               for (int i = 0; i < MAX_INFLIGHT_BUFFER; ++i) {
+                   // Create a new buffer with enough capacity to store one instance of the dynamic buffer data
+                   id<MTLBuffer> dynamicDataBuffer = [_mtlDevice newBufferWithLength:size options:_mtlResourceOptions];
+                   [mutableDynamicDataBuffers addObject:dynamicDataBuffer];
+               }
+               _dynamicDataBuffers = [mutableDynamicDataBuffers copy];
 
-        _mtlBuffer = _dynamicDataBuffers[0];
+               _mtlBuffer = _dynamicDataBuffers[0];
+    } else {
+       if (_mtlBuffer)
+           [_mtlBuffer release];
+       _mtlBuffer = [_mtlDevice newBufferWithLength:size options:_mtlResourceOptions];
     }
     if (_mtlBuffer == nil) {
         CCASSERT(false, "Failed to create MTLBuffer.");
@@ -124,12 +124,7 @@ void CCMTLBuffer::destroy() {
         return;
     }
 
-    if (_mtlResourceOptions == MTLResourceStorageModePrivate) {
-        if (_mtlBuffer) {
-            [_mtlBuffer release];
-            _mtlBuffer = nil;
-        }
-    } else {
+    if (_tripleEnabled) {
         for (id<MTLBuffer> buffer in _dynamicDataBuffers) {
             [buffer release];
         }
@@ -137,6 +132,11 @@ void CCMTLBuffer::destroy() {
         _dynamicDataBuffers = nil;
         _mtlBuffer = nil;
         CCMTLBufferManager::removeBuffer(this);
+    } else {
+        if (_mtlBuffer) {
+            [_mtlBuffer release];
+            _mtlBuffer = nil;
+        }
     }
 
     if (_transferBuffer) {
@@ -284,7 +284,7 @@ void CCMTLBuffer::begin() {
 }
 
 void CCMTLBuffer::updateInflightBuffer(uint offset, uint size) {
-    if (_mtlResourceOptions != MTLResourceStorageModePrivate && _inflightDirty) {
+    if (_tripleEnabled && _mtlResourceOptions != MTLResourceStorageModePrivate && _inflightDirty) {
         _inflightIndex = ((_inflightIndex + 1) % MAX_INFLIGHT_BUFFER);
         id<MTLBuffer> prevFrameBuffer = _mtlBuffer;
         _mtlBuffer = _dynamicDataBuffers[_inflightIndex];

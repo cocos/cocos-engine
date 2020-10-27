@@ -50,6 +50,7 @@ private:
     MTLIndexType _indexType = MTLIndexTypeUInt16;
     MTLResourceOptions _mtlResourceOptions = MTLResourceStorageModePrivate;
     NSMutableArray *_dynamicDataBuffers = nil;
+    bool _tripleEnabled = false;
 
     bool _isDrawIndirectByIndex = false;
     uint _bufferViewOffset = 0;
