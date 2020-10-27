@@ -1,6 +1,6 @@
 {
   "name": "@cocos/build-engine",
-  "version": "4.0.0-jsb.alpha.9",
+  "version": "4.0.0-jsb.alpha.10",
   "description": "",
   "main": "dist/index.js",
   "dependencies": {
@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "@types/babel__core": "^7.1.3",
+    "@types/babel__preset-env": "^7.9.1",
     "@types/fs-extra": "^8.0.1",
     "@types/json5": "0.0.30",
     "@types/node": "^13.1.7",

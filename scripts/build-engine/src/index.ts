@@ -6,8 +6,8 @@ import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import { terser as rpTerser } from 'rollup-plugin-terser';
-// @ts-ignore
 import babelPresetEnv from '@babel/preset-env';
+import type { Options as babelPresetEnvOptions } from '@babel/preset-env';
 import babelPresetCc from '@cocos/babel-preset-cc';
 // @ts-ignore
 import babelPluginTransformForOf from '@babel/plugin-transform-for-of';
@@ -117,9 +117,14 @@ namespace build {
         progress?: boolean;
 
         /**
-         * `options.targets` of @babel/preset-env.
+         * BrowsersList targets.
          */
         targets?: string | string[] | Record<string, string>;
+
+        /**
+         * Enable loose compilation.
+         */
+        loose?: boolean;
 
         visualize?: boolean | {
             file?: string;
@@ -245,7 +250,9 @@ async function _doBuild ({
         console.debug(`Module source "cc":\n${rpVirtualOptions['cc']}`);
     }
 
-    const presetEnvOptions: any = {};
+    const presetEnvOptions: babelPresetEnvOptions = {
+        loose: options.loose ?? true,
+    };
     if (options.targets !== undefined) {
         presetEnvOptions.targets = options.targets;
     }
@@ -261,8 +268,6 @@ async function _doBuild ({
         babelHelpers: 'bundled',
         extensions: ['.js', '.ts'],
         highlightCode: true,
-        exclude: [
-        ],
         plugins: babelPlugins,
         presets: [
             [babelPresetEnv, presetEnvOptions],
