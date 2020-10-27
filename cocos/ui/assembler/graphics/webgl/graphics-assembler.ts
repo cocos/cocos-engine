@@ -276,6 +276,8 @@ export const graphicsAssembler: IAssembler = {
                 end = pointsLength - 1;
             }
 
+            p1 = p1 || p0;
+
             if (!loop) {
                 // Add cap
                 const dPos = new Point(p1.x, p1.y);
