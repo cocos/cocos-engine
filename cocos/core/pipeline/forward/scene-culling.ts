@@ -14,6 +14,7 @@ import { Pool } from '../../memop';
 import { IRenderObject, UBOShadow } from '../define';
 import { ShadowType, Shadows } from '../../renderer/scene/shadows';
 import { SphereLight, DirectionalLight, RenderScene} from '../../renderer/scene';
+import { ShadowsPool, ShadowsView } from '../../renderer';
 
 const _tempVec3 = new Vec3();
 const _dir_negate = new Vec3();
@@ -199,7 +200,13 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
         }
     }
 
-    if (_castWorldBounds) { aabb.toBoundingSphere(shadows.sphere, _castWorldBounds); }
+    if (_castWorldBounds) {
+        aabb.toBoundingSphere(shadows.sphere, _castWorldBounds);
+        ShadowsPool.set(shadows.handle, ShadowsView.SPHERE, shadows.sphere.handle);
+    }
 
-    if (_receiveWorldBounds) { aabb.toBoundingSphere(shadows.receiveSphere, _receiveWorldBounds); }
+    if (_receiveWorldBounds) {
+        aabb.toBoundingSphere(shadows.receiveSphere, _receiveWorldBounds);
+        ShadowsPool.set(shadows.handle, ShadowsView.SPHERE_2, shadows.receiveSphere.handle);
+    }
 }
