@@ -17,7 +17,7 @@ for (const <module> in <selected-modules>) {
 }
 ```
 
-The `<selected-modules>` are public modules decided to included in `'cc'`, by users.
+The `<selected-modules>` are public modules decided to be included in `'cc'`, by users.
 
 ## Add module export
 
