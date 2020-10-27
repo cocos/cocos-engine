@@ -23,6 +23,7 @@ import { getModuleName } from './module-name';
 import tsConfigPaths from './ts-paths';
 import JSON5 from 'json5';
 import { getPlatformConstantNames, IBuildTimeConstants } from './build-time-constants';
+import removeDeprecatedFeatures from './remove-deprecated-features';
 
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
 
@@ -108,6 +109,13 @@ namespace build {
          * @default false
          */
         ammoJsWasm?: boolean | 'fallback';
+
+        /**
+         * If true, all deprecated features/API are excluded.
+         * You can also specify a version range(in semver range) to exclude deprecations in specified version(s).
+         * @default false
+         */
+        noDeprecatedFeatures?: string | boolean;
 
         /**
          * Experimental.
@@ -290,8 +298,15 @@ async function _doBuild ({
         }
     }
 
-    const rollupPlugins: rollup.Plugin[] = [
+    const rollupPlugins: rollup.Plugin[] = [];
+    if (options.noDeprecatedFeatures) {
+        rollupPlugins.push(removeDeprecatedFeatures(
+            typeof options.noDeprecatedFeatures === 'string' ? options.noDeprecatedFeatures : undefined));
+    }
+
+    rollupPlugins.push(
         {
+            name: '@cocos/build-engine|module-overrides',
             load: function (this, id: string) {
                 const key = makePathEqualityKey(id);
                 if (!(key in moduleRedirects)) {
@@ -320,7 +335,7 @@ async function _doBuild ({
         commonjs({}),
 
         rpBabel(babelOptions),
-    ];
+    );
 
     if (options.progress) {
         rollupPlugins.unshift(rpProgress());

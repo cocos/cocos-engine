@@ -1,6 +1,7 @@
 /**
  * @packageDocumentation
  * @hidden
+ * Note, naming this file with prefix `x-` exclude it from regular deprecated modules.
  */
 
 import { error, warn } from '../platform/debug';

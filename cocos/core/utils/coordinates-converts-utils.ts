@@ -6,7 +6,7 @@
 import { Camera } from '../3d/framework/camera-component';
 import { Vec3 } from '../math';
 import { Node } from '../scene-graph';
-import { replaceProperty } from './deprecated';
+import { replaceProperty } from './x-deprecated';
 import { legacyCC } from '../global-exports';
 
 const _vec3 = new Vec3();
