@@ -10,7 +10,6 @@ const _matViewProj = new Mat4();
 const _matViewProjInv = new Mat4();
 
 export class SpotLight extends Light {
-    public enableShadow = true;
 
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
     protected _size: number = 0.15;

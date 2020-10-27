@@ -11,11 +11,12 @@ import { ShadowStage } from './shadow-stage';
 import {  GFXLoadOp, GFXStoreOp, GFXTextureLayout, GFXFormat, GFXTexture,
     GFXTextureType, GFXTextureUsageBit, GFXFilter, GFXAddress, GFXRenderPass } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
-import { RenderView, ForwardPipeline, Vec2 } from '../..';
+import { RenderView, ForwardPipeline } from '../..';
 import { ShadowType } from '../../renderer/scene/shadows';
 import { genSamplerHash, samplerLib } from '../../renderer';
 import { Light } from '../../renderer/scene/light';
 import { lightCollecting, shadowCollecting } from '../forward/scene-culling';
+import { Vec2 } from '../../math';
 
 const _samplerInfo = [
     GFXFilter.LINEAR,
@@ -168,6 +169,8 @@ export class ShadowFlow extends RenderFlow {
                 colorTextures: renderTargets,
                 depthStencilTexture: depth,
             });
+
+            pipeline.shadows.shadowMapDirty = false;
         }
     }
 }

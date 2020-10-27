@@ -23,9 +23,9 @@ import { BatchedBuffer } from './batched-buffer';
 import { Shadows, ShadowType } from '../renderer/scene/shadows';
 import { Light, LightType, SpotLight, Model, DirectionalLight } from '../renderer/scene';
 
-const matShadowView = new Mat4();
-const matShadowViewProj = new Mat4();
-const vec4 = new Vec4();
+const _matShadowView = new Mat4();
+const _matShadowViewProj = new Mat4();
+const _vec4ShadowInfo = new Vec4();
 
 const _phaseID = getPhaseID('shadow-add');
 function getShadowPassIndex (subModels: SubModel[]) {
@@ -193,31 +193,31 @@ export class RenderShadowMapBatchedQueue {
                     far = this._shadowInfo.far;
                 }
 
-                Mat4.invert(matShadowView, shadowCameraView!);
+                Mat4.invert(_matShadowView, shadowCameraView!);
 
                 const projectionSignY = this._device.screenSpaceSignY * this._device.UVSpaceSignY;
-                Mat4.ortho(matShadowViewProj, -x, x, -y, y, this._shadowInfo.near, far,
+                Mat4.ortho(_matShadowViewProj, -x, x, -y, y, this._shadowInfo.near, far,
                     this._device.clipSpaceMinZ, projectionSignY);
                 break;
             case LightType.SPOT:
                 const spotLight = light as SpotLight;
                 // light view
-                Mat4.invert(matShadowView, spotLight.node!.getWorldMatrix());
+                Mat4.invert(_matShadowView, spotLight.node!.getWorldMatrix());
 
                 // light proj
-                Mat4.perspective(matShadowViewProj, spotLight.angle, spotLight.aspect, 0.001, spotLight.range);
+                Mat4.perspective(_matShadowViewProj, spotLight.angle, spotLight.aspect, 0.001, spotLight.range);
                 break;
         }
 
         // light viewProj
-        Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
+        Mat4.multiply(_matShadowViewProj, _matShadowViewProj, _matShadowView);
 
-        Mat4.toArray(this._shadowUBO, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
+        Mat4.toArray(this._shadowUBO, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
         Color.toArray(this._shadowUBO, this._shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
 
-        vec4.set(this._shadowInfo.size.x, this._shadowInfo.size.y, this._shadowInfo.pcf, this._shadowInfo.bias);
-        Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_INFO_OFFSET);
+        _vec4ShadowInfo.set(this._shadowInfo.size.x, this._shadowInfo.size.y, this._shadowInfo.pcf, this._shadowInfo.bias);
+        Vec4.toArray(this._shadowUBO, _vec4ShadowInfo, UBOShadow.SHADOW_INFO_OFFSET);
 
         this._descriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(this._shadowUBO);
     }

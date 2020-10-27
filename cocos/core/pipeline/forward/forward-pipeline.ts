@@ -209,8 +209,13 @@ export class ForwardPipeline extends RenderPipeline {
                 y = radius;
 
                 far = Math.min(shadowInfo.receiveSphere.radius * 2.0 * Math.sqrt(2.0), 2000.0);
-                if(radius >= 500) { shadowInfo.size.set(2048, 2048); }
-                else if (radius < 500 && radius >= 100) { shadowInfo.size.set(1024, 1024); }
+                if(radius >= 500) {
+                    shadowInfo.size.set(2048, 2048);
+                    shadowInfo.shadowMapDirty = true;
+                } else if (radius < 500 && radius >= 100) {
+                    shadowInfo.size.set(1024, 1024);
+                    shadowInfo.shadowMapDirty = true;
+                }
             } else {
                 shadowCameraView = mainLight.node!.getWorldMatrix();
 

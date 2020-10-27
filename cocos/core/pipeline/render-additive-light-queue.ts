@@ -44,9 +44,9 @@ const _vec4Array = new Float32Array(4);
 const _sphere = sphere.create(0, 0, 0, 1);
 const _dynamicOffsets: number[] = [];
 const _lightIndices: number[] = [];
-const matShadowView = new Mat4();
-const matShadowViewProj = new Mat4();
-const vec4 = new Vec4();
+const _matShadowView = new Mat4();
+const _matShadowViewProj = new Mat4();
+const _vec4ShadowInfo = new Vec4();
 
 function cullSphereLight (light: SphereLight, model: Model) {
     return !!(model.worldBounds && !intersect.aabb_aabb(model.worldBounds, light.aabb));
@@ -268,20 +268,20 @@ export class RenderAdditiveLightQueue {
         const shadowUBO = this._pipeline.shadowUBO;
         const spotLight = light as SpotLight;
         // light view
-        Mat4.invert(matShadowView, spotLight.node!.getWorldMatrix());
+        Mat4.invert(_matShadowView, spotLight.node!.getWorldMatrix());
 
         // light proj
-        Mat4.perspective(matShadowViewProj, spotLight.angle, spotLight.aspect, 0.001, spotLight.range);
+        Mat4.perspective(_matShadowViewProj, spotLight.angle, spotLight.aspect, 0.001, spotLight.range);
 
         // light viewProj
-        Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
+        Mat4.multiply(_matShadowViewProj, _matShadowViewProj, _matShadowView);
 
-        Mat4.toArray(shadowUBO, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
+        Mat4.toArray(shadowUBO, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
         Color.toArray(shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
 
-        vec4.set(shadowInfo.size.x, shadowInfo.size.y, shadowInfo.pcf, shadowInfo.bias);
-        Vec4.toArray(shadowUBO, vec4, UBOShadow.SHADOW_INFO_OFFSET);
+        _vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, shadowInfo.pcf, shadowInfo.bias);
+        Vec4.toArray(shadowUBO, _vec4ShadowInfo, UBOShadow.SHADOW_INFO_OFFSET);
 
         descriptorSet.bindTexture(UniformSpotLightingSampler.binding, this._pipeline.shadowFrameBufferMap.get(light)!.colorTextures[0]!);
         descriptorSet.bindSampler(UniformSpotLightingSampler.binding, this._sampler!);

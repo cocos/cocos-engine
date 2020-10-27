@@ -111,7 +111,7 @@ export function lightCollecting (view: RenderView, lightNumber: number) {
         const light = spotLights[i];
         sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
         if (intersect.sphere_frustum(_sphere, view.camera.frustum) &&
-         light.enableShadow && lightNumber > _validLights.length) {
+         lightNumber > _validLights.length) {
             _validLights.push(light);
         }
     }
