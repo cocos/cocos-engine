@@ -31,7 +31,7 @@
 import { clamp } from '../../core/math/utils';
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';
 import { legacyCC } from '../../core/global-exports';
-import { createDomAudio } from '../audio-downloader';
+import { createDomAudio } from '../audio-utils';
 import { AudioManager } from './audio-manager';
 
 type ManagedAudio = AudioPlayerDOM | HTMLAudioElement;

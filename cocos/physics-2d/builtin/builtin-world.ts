@@ -1,8 +1,8 @@
 import { IPhysicsWorld } from '../spec/i-physics-world'
 import { EDITOR } from 'internal:constants';
-import { GraphicsComponent } from '../../ui';
+import { Graphics } from '../../ui';
 import { Node, CCObject, find, director, Vec3, Color, IVec2Like, Vec2, Rect } from '../../core';
-import { CanvasComponent } from '../../../exports/ui';
+import { Canvas } from '../../../exports/ui';
 import { BuiltinShape2D } from './shapes/shape-2d';
 import { BuiltinBoxShape } from './shapes/box-shape-2d';
 import { BuiltinCircleShape } from './shapes/circle-shape-2d';
@@ -17,7 +17,7 @@ let testIntersectResults: Collider2D[] = [];
 export class BuiltinPhysicsWorld implements IPhysicsWorld {
     private _contacts: BuiltinContact[] = [];
     private _shapes: BuiltinShape2D[] = [];
-    private _debugGraphics: GraphicsComponent | null = null;
+    private _debugGraphics: Graphics | null = null;
     private _debugDrawFlags = 0;
 
     get debugDrawFlags () {
@@ -170,14 +170,14 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
             let canvas = find('Canvas');
             if (!canvas) {
                 canvas = new Node('Canvas');
-                canvas.addComponent(CanvasComponent);
+                canvas.addComponent(Canvas);
                 canvas.parent = director.getScene() as any;
             }
 
             node.parent = canvas;
             node.worldPosition = Vec3.ZERO;
 
-            this._debugGraphics = node.addComponent(GraphicsComponent);
+            this._debugGraphics = node.addComponent(Graphics);
             this._debugGraphics.lineWidth = 2;
 
         }

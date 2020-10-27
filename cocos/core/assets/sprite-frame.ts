@@ -616,6 +616,22 @@ export class SpriteFrame extends Asset {
     }
 
     /**
+     * @en Gets the hash of its texture
+     * @zh 贴图资源的哈希值
+     */
+    public getHash () {
+        return this._texture.getHash();
+    }
+
+    /**
+     * @en Gets the sampler hash of its texture
+     * @zh 贴图资源的采样器哈希值
+     */
+    public getSamplerHash () {
+        return this._texture.getSamplerHash();
+    }
+
+    /**
      * @en Resets the sprite frame data
      * @zh 重置 SpriteFrame 数据。
      * @param info SpriteFrame initialization information

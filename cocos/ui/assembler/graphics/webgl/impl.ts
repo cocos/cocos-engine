@@ -1,6 +1,5 @@
 
 import { Color, Vec2 } from '../../../../core/math';
-import { RecyclePool } from '../../../../core/memop';
 import { MeshRenderData } from '../../../../core/renderer/ui/render-data';
 import { arc, ellipse, roundRect, tesselateBezier } from '../helper';
 import { LineCap, LineJoin, PointFlags} from '../types';
@@ -73,12 +72,7 @@ export class Impl {
     private _commandX = 0;
     private _commandY = 0;
     private _points: Point[] = [];
-
-    private _renderDataPool: RecyclePool<MeshRenderData> = new RecyclePool(() =>  {
-        return new MeshRenderData();
-    }, 16);
     private _renderDataList: MeshRenderData[] = [];
-
     private _curPath: Path | null = null;
 
     public moveTo (x: number, y: number) {
@@ -154,7 +148,7 @@ export class Impl {
         this._curPath!.complex = false;
     }
 
-    public clear (clean = false) {
+    public clear () {
         this.pathLength = 0;
         this.pathOffset = 0;
         this.pointsOffset = 0;
@@ -170,13 +164,10 @@ export class Impl {
                 continue;
             }
 
-            data.reset();
+            MeshRenderData.remove(data);
         }
 
         this._renderDataList.length = 0;
-        if (clean) {
-            this._renderDataPool.reset();
-        }
     }
 
     public close () {
@@ -184,7 +175,7 @@ export class Impl {
     }
 
     public requestRenderData () {
-        const renderData = this._renderDataPool.add();
+        const renderData = MeshRenderData.add();
         this._renderDataList.push(renderData);
 
         return renderData;

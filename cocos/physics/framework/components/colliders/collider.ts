@@ -8,7 +8,7 @@ import { Eventify } from '../../../../core/event';
 import { Vec3 } from '../../../../core/math';
 import { CollisionEventType, TriggerEventType } from '../../physics-interface';
 import { RigidBody } from '../rigid-body';
-import { PhysicMaterial } from '../../assets/physic-material';
+import { PhysicsMaterial } from '../../assets/physics-material';
 import { PhysicsSystem } from '../../physics-system';
 import { Component, error, Node } from '../../../../core';
 import { IBaseShape } from '../../../spec/i-physics-shape';
@@ -52,7 +52,7 @@ export class Collider extends Eventify(Component) {
      * @zh
      * 获取或设置此碰撞器的物理材质。
      */
-    @type(PhysicMaterial)
+    @type(PhysicsMaterial)
     @displayName('Material')
     @displayOrder(-1)
     @tooltip('源材质')
@@ -108,10 +108,10 @@ export class Collider extends Eventify(Component) {
      * @en
      * Gets or sets the collider is trigger, this will be always trigger if using builtin.
      * @zh
-     * 获取或设置碰撞器是否为触发器，若使用 builtin ，属性值无论真假 ，此碰撞器都为触发器。
+     * 获取或设置碰撞器是否为触发器。(builtin中无论真假都为触发器)
      */
     @displayOrder(0)
-    @tooltip('是否与其它碰撞器产生碰撞，并产生物理行为')
+    @tooltip('是否为触发器，触发器不会产生物理反馈')
     public get isTrigger () {
         return this._isTrigger;
     }
@@ -185,8 +185,8 @@ export class Collider extends Eventify(Component) {
     protected _needCollisionEvent: boolean = false;
     // protected _attachedRigidBody: RigidBody | null = null;
 
-    @type(PhysicMaterial)
-    protected _material: PhysicMaterial | null = null;
+    @type(PhysicsMaterial)
+    protected _material: PhysicsMaterial | null = null;
 
     @serializable
     protected _isTrigger: boolean = false;

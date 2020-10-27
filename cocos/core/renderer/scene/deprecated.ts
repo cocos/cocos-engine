@@ -1,4 +1,4 @@
-import { replaceProperty, removeProperty, markAsWarning } from '../../utils/deprecated';
+import { replaceProperty, removeProperty, markAsWarning } from '../../utils/x-deprecated';
 import { RenderScene } from './render-scene';
 import { Layers } from '../../scene-graph/layers';
 import { legacyCC } from '../../global-exports';

@@ -611,6 +611,8 @@ export class RichText extends UIComponent {
                 }
             }
         }
+        // Tolerate null parent child (upgrade issue may cause this special case)
+        children.length = 0;
 
         this._labelSegments.length = 0;
         this._labelSegmentsCache.length = 0;

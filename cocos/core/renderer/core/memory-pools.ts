@@ -37,13 +37,8 @@ import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, GFXDescriptorS
 import { RenderPassStage } from '../../pipeline/define';
 import { BatchingSchemes } from './pass';
 import { Layers } from '../../scene-graph/layers';
-import { Vec2, Vec3, Vec4, Quat, Color, Rect, Mat4, IVec2Like, IVec3Like, IVec4Like, IMat4Like } from '../../math';
+import { Vec2, Vec3, Quat, Color, Rect, Mat4, IVec2Like, IVec3Like, IVec4Like, IMat4Like } from '../../math';
 import { plane } from '../../geometry';
-
-interface ITypedArrayConstructor<T> {
-    new(buffer: ArrayBufferLike, byteOffset?: number, length?: number): T;
-    readonly BYTES_PER_ELEMENT: number;
-}
 
 interface IMemoryPool<P extends PoolType> {
     free (handle: IHandle<P>): void;
@@ -68,8 +63,6 @@ type StandardBufferElement = number | IHandle<PoolType>;
 type GeneralBufferElement = StandardBufferElement | IVec2Like | IVec3Like | IVec4Like | IMat4Like;
 type BufferTypeManifest<E extends BufferManifest> = { [key in E[keyof E]]: GeneralBufferElement };
 type BufferDataTypeManifest<E extends BufferManifest> = { [key in E[keyof E]]: BufferDataType };
-
-type Conditional<V, T> = T extends V ? T : never;
 
 class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferTypeManifest<E>> implements IMemoryPool<P> {
 
@@ -169,19 +162,19 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
      * const hShader = SubModelPool.get<SubModelView.SHADER_0>(handle, SubModelView.SHADER_0 + passIndex); // option #2
      * ```
      */
-    public get<K extends E[keyof E]> (handle: IHandle<P>, element: K): Conditional<StandardBufferElement, M[K]> {
+    public get<K extends E[keyof E]> (handle: IHandle<P>, element: K): Extract<M[K], StandardBufferElement> {
         const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
         const entry = this._entryMask & handle as unknown as number;
         const bufferViews = this._dataType[element] === BufferDataType.UINT32 ? this._uint32BufferViews : this._float32BufferViews;
         if (DEBUG && (!handle || chunk < 0 || chunk >= bufferViews.length ||
             entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
             console.warn('invalid buffer pool handle');
-            return 0 as Conditional<StandardBufferElement, M[K]>;
+            return 0 as Extract<M[K], StandardBufferElement>;
         }
-        return bufferViews[chunk][entry][element as number] as Conditional<StandardBufferElement, M[K]>;
+        return bufferViews[chunk][entry][element as number] as Extract<M[K], StandardBufferElement>;
     }
 
-    public set<K extends E[keyof E]> (handle: IHandle<P>, element: K, value: Conditional<StandardBufferElement, M[K]>) {
+    public set<K extends E[keyof E]> (handle: IHandle<P>, element: K, value: Extract<M[K], StandardBufferElement>) {
         const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
         const entry = this._entryMask & handle as unknown as number;
         const bufferViews = this._dataType[element] === BufferDataType.UINT32 ? this._uint32BufferViews : this._float32BufferViews;
@@ -193,7 +186,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
         bufferViews[chunk][entry][element as number] = value as number;
     }
 
-    public setVec2<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec2: Conditional<IVec2Like, M[K]>) {
+    public setVec2<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec2: Extract<M[K], IVec2Like>) {
         // Web engine has Vec2 property, don't record it in shared memory.
         if (!JSB) return;
 
@@ -210,7 +203,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
         view[index++] = vec2.x; view[index++] = vec2.y;
     }
 
-    public setVec3<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec3: Conditional<IVec3Like, M[K]>) {
+    public setVec3<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec3: Extract<M[K], IVec3Like>) {
         // Web engine has Vec3 property, don't record it in shared memory.
         if (!JSB) return;
 
@@ -227,7 +220,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
         view[index++] = vec3.x; view[index++] = vec3.y; view[index] = vec3.z;
     }
 
-    public setVec4<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec4: Conditional<IVec4Like, M[K]>) {
+    public setVec4<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec4: Extract<M[K], IVec4Like>) {
         // Web engine has Vec4 property, don't record it in shared memory.
         if (!JSB) return;
 
@@ -245,7 +238,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
         view[index++] = vec4.z; view[index]   = vec4.w;
     }
 
-    public setMat4<K extends E[keyof E]> (handle: IHandle<P>, element: K, mat4: Conditional<IMat4Like, M[K]>) {
+    public setMat4<K extends E[keyof E]> (handle: IHandle<P>, element: K, mat4: Extract<M[K], IMat4Like>) {
         // Web engine has mat4 property, don't record it in shared memory.
         if (!JSB) return;
 
@@ -378,14 +371,15 @@ class BufferAllocator<P extends PoolType> implements IMemoryPool<P> {
     }
 }
 
-class TypedArrayPool<P extends PoolType, T extends TypedArray, D extends StandardBufferElement> extends BufferAllocator<P> implements IMemoryPool<P> {
+class TypedArrayPool<P extends PoolType, T extends TypedArrayConstructor, D extends StandardBufferElement>
+    extends BufferAllocator<P> implements IMemoryPool<P> {
 
-    declare protected _buffers: Map<number, T>;
-    protected _viewCtor: ITypedArrayConstructor<T>;
+    declare protected _buffers: Map<number, InstanceType<T>>;
+    protected _viewCtor: T;
     protected _size: number;
     protected _step: number;
 
-    constructor (poolType: P, viewCtor: ITypedArrayConstructor<T>, size: number, step?: number) {
+    constructor (poolType: P, viewCtor: T, size: number, step?: number) {
         super(poolType);
         this._viewCtor = viewCtor;
         this._size = size * viewCtor.BYTES_PER_ELEMENT;
@@ -395,7 +389,7 @@ class TypedArrayPool<P extends PoolType, T extends TypedArray, D extends Standar
     public alloc (): IHandle<P> {
         const bufferIdx = this._nextBufferIdx++;
         const buffer = this._nativeBufferAllocator.alloc(bufferIdx, this._size);
-        this._buffers.set(bufferIdx, new this._viewCtor(buffer));
+        this._buffers.set(bufferIdx, new this._viewCtor(buffer) as InstanceType<T>);
         return (bufferIdx | this._poolFlag) as unknown as IHandle<P>;
     }
 
@@ -416,7 +410,7 @@ class TypedArrayPool<P extends PoolType, T extends TypedArray, D extends Standar
             let newSize = array.length;
             while (index >= newSize) newSize += this._step;
             newSize *= this._viewCtor.BYTES_PER_ELEMENT;
-            const newArray = new this._viewCtor(this._nativeBufferAllocator.alloc(bufferIdx, newSize));
+            const newArray = new this._viewCtor(this._nativeBufferAllocator.alloc(bufferIdx, newSize)) as InstanceType<T>;
             newArray.set(array); array = newArray;
             this._buffers.set(bufferIdx, array);
         }
@@ -499,7 +493,7 @@ class TypedArrayPool<P extends PoolType, T extends TypedArray, D extends Standar
 
 export function freeHandleArray<P extends PoolType, H extends IHandle<PoolType>> (
     arrayHandle: IHandle<P>,
-    arrayPool: TypedArrayPool<P, Uint32Array, H>,
+    arrayPool: TypedArrayPool<P, Uint32ArrayConstructor, H>,
     elementPool: IMemoryPool<H['_']>,
     freeArrayItself = true,
 ) {
@@ -549,6 +543,7 @@ enum PoolType {
     ATTRIBUTE_ARRAY,
     FLAT_BUFFER_ARRAY,
     INSTANCED_BUFFER_ARRAY,
+    LIGHT_ARRAY,
     // raw buffer
     RAW_BUFFER = 300,
 }
@@ -587,6 +582,7 @@ export type SphereHandle = IHandle<PoolType.SPHERE>;
 export type SubMeshHandle = IHandle<PoolType.SUB_MESH>;
 export type FlatBufferHandle = IHandle<PoolType.FLAT_BUFFER>;
 export type FlatBufferArrayHandle = IHandle<PoolType.FLAT_BUFFER_ARRAY>;
+export type LightArrayHandle = IHandle<PoolType.LIGHT_ARRAY>;
 
 // don't reuse any of these data-only structs, for GFX objects may directly reference them
 export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, (_: never[]) => new GFXRasterizerState());
@@ -617,10 +613,11 @@ export const FramebufferPool = new ObjectPool(PoolType.FRAMEBUFFER,
     (obj: GFXFramebuffer) => obj && obj.destroy(),
 );
 
-export const SubModelArrayPool = new TypedArrayPool<PoolType.SUB_MODEL_ARRAY, Uint32Array, SubModelHandle>(PoolType.SUB_MODEL_ARRAY, Uint32Array, 8, 4);
-export const ModelArrayPool = new TypedArrayPool<PoolType.MODEL_ARRAY, Uint32Array, ModelHandle>(PoolType.MODEL_ARRAY, Uint32Array, 32, 16);
-export const AttributeArrayPool = new TypedArrayPool<PoolType.ATTRIBUTE_ARRAY, Uint32Array, AttributeHandle>(PoolType.ATTRIBUTE_ARRAY, Uint32Array, 8, 4);
-export const FlatBufferArrayPool = new TypedArrayPool<PoolType.FLAT_BUFFER_ARRAY, Uint32Array, FlatBufferHandle>(PoolType.FLAT_BUFFER_ARRAY, Uint32Array, 8, 4);
+export const SubModelArrayPool = new TypedArrayPool<PoolType.SUB_MODEL_ARRAY, Uint32ArrayConstructor, SubModelHandle>(PoolType.SUB_MODEL_ARRAY, Uint32Array, 8, 4);
+export const ModelArrayPool = new TypedArrayPool<PoolType.MODEL_ARRAY, Uint32ArrayConstructor, ModelHandle>(PoolType.MODEL_ARRAY, Uint32Array, 32, 16);
+export const AttributeArrayPool = new TypedArrayPool<PoolType.ATTRIBUTE_ARRAY, Uint32ArrayConstructor, AttributeHandle>(PoolType.ATTRIBUTE_ARRAY, Uint32Array, 8, 4);
+export const FlatBufferArrayPool = new TypedArrayPool<PoolType.FLAT_BUFFER_ARRAY, Uint32ArrayConstructor, FlatBufferHandle>(PoolType.FLAT_BUFFER_ARRAY, Uint32Array, 8, 4);
+export const LightArrayPool = new TypedArrayPool<PoolType.LIGHT_ARRAY, Uint32ArrayConstructor, LightHandle>(PoolType.LIGHT_ARRAY, Uint32Array, 8, 4);
 
 export const RawBufferPool = new BufferAllocator(PoolType.RAW_BUFFER);
 
@@ -790,18 +787,24 @@ const aabbViewDataType: BufferDataTypeManifest<typeof AABBView> = {
 export const AABBPool = new BufferPool<PoolType.AABB, typeof AABBView, IAABBViewType>(PoolType.AABB, aabbViewDataType, AABBView);
 
 export enum SceneView {
-    MAIN_LIGHT,    // TODO
+    MAIN_LIGHT,    // handle
     MODEL_ARRAY,   // array handle
+    SPHERE_LIGHT_ARRAY, // array handle
+    SPOT_LIGHT_ARRAY, // array handle
     COUNT,
 }
 interface ISceneViewType extends BufferTypeManifest<typeof SceneView> {
     [SceneView.MAIN_LIGHT]: LightHandle;
     [SceneView.MODEL_ARRAY]: ModelArrayHandle;
+    [SceneView.SPHERE_LIGHT_ARRAY]: LightArrayHandle;
+    [SceneView.SPOT_LIGHT_ARRAY]: LightArrayHandle;
     [SceneView.COUNT]: never;
 }
 const sceneViewDataType: BufferDataTypeManifest<typeof SceneView> = {
     [SceneView.MAIN_LIGHT]: BufferDataType.UINT32,
     [SceneView.MODEL_ARRAY]: BufferDataType.UINT32,
+    [SceneView.SPHERE_LIGHT_ARRAY]: BufferDataType.UINT32,
+    [SceneView.SPOT_LIGHT_ARRAY]: BufferDataType.UINT32,
     [SceneView.COUNT]: BufferDataType.NEVER
 }
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
@@ -1143,27 +1146,48 @@ export enum LightView {
     USE_COLOR_TEMPERATURE,
     ILLUMINANCE,
     NODE,                       // handle
+    RANGE,                  
+    TYPE,        
+    AABB,       // handle
+    FRUSTUM,    // handle
+    SIZE,
+    SPOT_ANGLE,
     DIRECTION,                  // Vec3
-    COLOR = 6,                  // Vec3
-    COLOR_TEMPERATURE_RGB = 9,  // Vec3
-    COUNT = 12
+    COLOR = 12,                  // Vec3
+    COLOR_TEMPERATURE_RGB = 15,  // Vec3
+    POSITION = 18,               // Vec3
+    COUNT = 21
 }
 interface ILightViewType extends BufferTypeManifest<typeof LightView> {
     [LightView.USE_COLOR_TEMPERATURE]: number;
     [LightView.ILLUMINANCE]: number;
     [LightView.NODE]:NodeHandle;
+    [LightView.RANGE]:number;
+    [LightView.TYPE]:number;
+    [LightView.AABB]:AABBHandle;
+    [LightView.FRUSTUM]:FrustumHandle;
+    [LightView.SIZE]:number;
+    [LightView.SPOT_ANGLE]:number;
     [LightView.DIRECTION]: Vec3;
     [LightView.COLOR]: Vec3;
     [LightView.COLOR_TEMPERATURE_RGB]: Vec3;
+    [LightView.POSITION]: Vec3;
     [LightView.COUNT]: never;
 }
 const lightViewDataType: BufferDataTypeManifest<typeof LightView> = {
     [LightView.USE_COLOR_TEMPERATURE]: BufferDataType.UINT32,
     [LightView.ILLUMINANCE]: BufferDataType.FLOAT32,
     [LightView.NODE]: BufferDataType.UINT32,
+    [LightView.RANGE]: BufferDataType.FLOAT32,
+    [LightView.TYPE]: BufferDataType.UINT32,
+    [LightView.AABB]: BufferDataType.UINT32,
+    [LightView.FRUSTUM]: BufferDataType.UINT32,
+    [LightView.SIZE]: BufferDataType.FLOAT32,
+    [LightView.SPOT_ANGLE]: BufferDataType.FLOAT32,
     [LightView.DIRECTION]: BufferDataType.FLOAT32,
     [LightView.COLOR]: BufferDataType.FLOAT32,
     [LightView.COLOR_TEMPERATURE_RGB]: BufferDataType.FLOAT32,
+    [LightView.POSITION]: BufferDataType.FLOAT32,
     [LightView.COUNT]: BufferDataType.NEVER
 }
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
@@ -1211,7 +1235,8 @@ const flatBufferViewDataType: BufferDataTypeManifest<typeof FlatBufferView> = {
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
 // but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
 // we'll have to explicitly declare all these types.
-export const FlatBufferPool = new BufferPool<PoolType.FLAT_BUFFER, typeof FlatBufferView, IFlatBufferViewType>(PoolType.FLAT_BUFFER, flatBufferViewDataType, FlatBufferView, 3);
+export const FlatBufferPool = new BufferPool<PoolType.FLAT_BUFFER, typeof FlatBufferView, IFlatBufferViewType>
+    (PoolType.FLAT_BUFFER, flatBufferViewDataType, FlatBufferView, 3);
 
 export enum SubMeshView {
     FLAT_BUFFER_ARRAY,    // array handle
@@ -1230,4 +1255,3 @@ const subMeshViewDataType: BufferDataTypeManifest<typeof SubMeshView> = {
 // we'll have to explicitly declare all these types.
 export const SubMeshPool = new BufferPool<PoolType.SUB_MESH, typeof SubMeshView, ISubMeshViewType>
     (PoolType.SUB_MESH, subMeshViewDataType, SubMeshView, 3);
-

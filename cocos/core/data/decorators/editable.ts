@@ -65,7 +65,7 @@ export const menu: (path: string) => ClassDecorator =
  * ```
  */
 export const playOnFocus: ClassDecorator & ((yes?: boolean) => ClassDecorator) =
-    DEV ? makeSmartEditorClassDecorator<boolean>('playOnFocus') : emptySmartClassDecorator;
+    DEV ? makeSmartEditorClassDecorator<boolean>('playOnFocus', true) : emptySmartClassDecorator;
 
 /**
  * @en Use a customized inspector page in the **inspector**
@@ -107,7 +107,7 @@ export const icon: (url: string) => ClassDecorator =
     DEV ? makeEditorClassDecoratorFn('icon') : emptyDecoratorFn;
 
 /**
- * @en Define the help documentation url, if given, the component section in the **inspector** will have a help documentation icon reference to the web page given. 
+ * @en Define the help documentation url, if given, the component section in the **inspector** will have a help documentation icon reference to the web page given.
  * @zh 指定当前组件的帮助文档的 url，设置过后，在 **属性检查器** 中就会出现一个帮助图标，用户点击将打开指定的网页。
  * @param url The url of the help documentation
  * @example
