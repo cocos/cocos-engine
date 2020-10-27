@@ -37,7 +37,7 @@
 import { Component } from '../core/components';
 import { ccclass, help, type } from 'cc.decorator';
 import { legacyCC } from '../core/global-exports';
-import { TiledLayer } from './TiledLayer';
+import { TiledLayer } from './tiled-layer';
 import { CCInteger, warn } from '../core';
 
 @ccclass('cc.TiledTile')

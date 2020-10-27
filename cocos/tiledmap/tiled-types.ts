@@ -381,7 +381,7 @@ export class TMXTilesetInfo {
         let gid = gid_ as unknown as number;
         gid &= TileFlag.FLIPPED_MASK;
         gid = gid - (this.firstGid as unknown as number);
-        const max_x = Math.round((this.imageSize.width - this.margin * 2 + this.spacing) / (this._tileSize.width + this.spacing));
+        const max_x = Math.floor((this.imageSize.width - this.margin * 2 + this.spacing) / (this._tileSize.width + this.spacing));
         rect.x = Math.round((gid % max_x) * (this._tileSize.width + this.spacing) + this.margin);
         rect.y = Math.round(Math.floor(gid / max_x) * (this._tileSize.height + this.spacing) + this.margin);
         return rect;

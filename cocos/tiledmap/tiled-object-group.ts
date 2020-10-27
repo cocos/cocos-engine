@@ -31,10 +31,10 @@ import { Sprite } from '../ui/components/sprite';
 import { Label } from '../ui/components/label';
 import * as gfx from '../core/gfx';
 
-import { TMXMapInfo } from './TMXXMLParser';
-import { TiledTextureGrids, GID, TileFlag, Orientation, StaggerAxis, TMXObjectType, PropertiesInfo, TiledAnimationType, TMXObject, TMXObjectGroupInfo } from './TiledTypes';
+import { TMXMapInfo } from './tmx-xml-parser';
+import { TiledTextureGrids, GID, TileFlag, Orientation, StaggerAxis, TMXObjectType, PropertiesInfo, TiledAnimationType, TMXObject, TMXObjectGroupInfo } from './tiled-types';
 import { UITransform } from '../core/components/ui-base/ui-transform';
-import { CCBoolean, Node, Vec2, Vec3, Vec4, SpriteFrame, Texture2D, Color, PrivateNode } from '../core';
+import { CCBoolean, Node, Vec2, SpriteFrame, Color, PrivateNode } from '../core';
 
 /**
  * !#en Renders the TMX object group.

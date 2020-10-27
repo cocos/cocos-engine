@@ -32,9 +32,9 @@ import { Vec3 } from '../../../core/math';
 import { IAssembler } from '../../../core/renderer/ui/base';
 import { MeshRenderData } from '../../../core/renderer/ui/render-data';
 import { UI } from '../../../core/renderer/ui/ui';
-import { TiledLayer, TiledTile } from '../../../tiledmap';
+import { TiledLayer, TiledLayer, TiledTile } from '../../../tiledmap';
 import * as cc from '../../../core';
-import { GID, MixedGID, RenderOrder, TiledGrid, TileFlag } from '../../../tiledmap/TiledTypes';
+import { GID, MixedGID, RenderOrder, TiledGrid, TileFlag } from '../../../tiledmap/tiled-types';
 import { Texture2D } from '../../../core';
 
 
@@ -329,6 +329,14 @@ function _flipDiamondTileTexture (inGrid: TiledGrid, gid: MixedGID) {
     }
 }
 
+function _renderNodes (row: number, col: number, comp: TiledLayer) {
+    const nodesInfo = comp.getNodesByRowCol(row, col);
+    if (!nodesInfo || nodesInfo.count === 0) return;
+
+
+}
+
+
 // rowMoveDir is -1 or 1, -1 means decrease, 1 means increase
 // colMoveDir is -1 or 1, -1 means decrease, 1 means increase
 function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col: number, row: number },
@@ -411,7 +419,7 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
             colData = rowData && rowData[col];
             if (!colData) {
                 // only render users nodes because map data is empty
-                // if (colNodesCount > 0) _renderNodes(row, col);
+                if (colNodesCount > 0) _renderNodes(row, col, comp);
                 continue;
             }
 
@@ -422,14 +430,13 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
             // check init or new material
             if (curTexIdx !== grid.texture) {
                 // need flush
-                if (curTexIdx != null) {
-                    _renderData = comp.requestMeshRenderData();
-
-                }
-                if (!_renderData?.texture) {
-                    _renderData!.texture = grid.texture;
+                if (!curTexIdx) curTexIdx = grid.texture;
+                if (!_renderData!.texture) {
+                    _renderData!.texture = curTexIdx;
                 }
                 // update material
+                _renderData = comp.requestMeshRenderData();
+                _renderData.texture = grid.texture;
                 curTexIdx = grid.texture;
             }
 
@@ -488,9 +495,6 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
                 vertexBuf.set(color, _vfOffset + vertStep + 5);
                 vertexBuf.set(color, _vfOffset + vertStep2 + 5);
                 vertexBuf.set(color, _vfOffset + vertStep3 + 5);
-
-
-
             } else {
                 fillByTiledNode(tiledNode.node, color, vertexBuf, left, right, top, bottom, diamondTile);
             }
@@ -523,11 +527,12 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
 
             // vertices count exceed 66635, buffer must be switched
             if (_fillGrids >= MaxGridsLimit) {
-                _renderData = comp.requestMeshRenderData();
-                if (!_renderData?.texture) {
-                    _renderData!.texture = grid.texture;
+                if (!_renderData!.texture) {
+                    _renderData!.texture = curTexIdx;
                 }
                 // update material
+                _renderData = comp.requestMeshRenderData();
+                _renderData.texture = grid.texture;
                 curTexIdx = grid.texture;
             }
         }

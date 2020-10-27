@@ -34,17 +34,16 @@ import { ccclass } from 'cc.decorator';
 import { UIRenderable } from '../core/components/ui-base/ui-renderable';
 import { Component } from '../core/components';
 import visibleRect from '../core/platform/visible-rect';
-import { TMXMapInfo } from './TMXXMLParser';
+import { TMXMapInfo } from './tmx-xml-parser';
 import { Color, IVec2Like, Mat4, Size, SpriteFrame, SystemEventType, Texture2D, Vec2, Vec3, Node, warn, logID, CCBoolean } from '../core';
-import { TiledTile } from './TiledTile';
+import { TiledTile } from './tiled-tile';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../core/global-exports';
 import { MeshRenderData } from '../core/renderer/ui/render-data';
 import { UI } from '../core/renderer/ui/ui';
 import { MixedGID, GID, Orientation, TiledTextureGrids, TMXTilesetInfo, RenderOrder, StaggerAxis, StaggerIndex, TileFlag,
-     GIDFlags, TiledGrid, TiledAnimationType, PropertiesInfo, TMXLayerInfo } from './TiledTypes';
-import { fillTextureGrids, loadAllTextures } from './TiledUtils';
-import { property } from '../core/data/decorators/property';
+     GIDFlags, TiledGrid, TiledAnimationType, PropertiesInfo, TMXLayerInfo } from './tiled-types';
+import { fillTextureGrids, loadAllTextures } from './tiled-utils';
 
 const _mat4_temp = new Mat4();
 const _vec2_temp = new Vec2();
@@ -197,7 +196,7 @@ export class TiledLayer extends UIRenderable {
      * @param {cc.Node} node
      * @return {Boolean}
      */
-    protected addUserNode (node: Node) {
+    public addUserNode (node: Node) {
         let dataComp = node.getComponent(TiledUserNodeData);
         if (dataComp) {
             warn('CCTiledLayer:addUserNode node has been added');
@@ -229,7 +228,7 @@ export class TiledLayer extends UIRenderable {
      * @param {cc.Node} node
      * @return {Boolean}
      */
-    protected removeUserNode (node: Node) {
+    public removeUserNode (node: Node) {
         const dataComp = node.getComponent(TiledUserNodeData);
         if (!dataComp) {
             warn('CCTiledLayer:removeUserNode node is not exist');
@@ -252,7 +251,7 @@ export class TiledLayer extends UIRenderable {
      * @method destroyUserNode
      * @param {cc.Node} node
      */
-    protected destroyUserNode (node: Node) {
+    public destroyUserNode (node: Node) {
         this.removeUserNode(node);
         node.destroy();
     }
@@ -263,7 +262,7 @@ export class TiledLayer extends UIRenderable {
         out.y = nodePos.y + this._leftDownToCenterY;
     }
 
-    protected _getNodesByRowCol (row: number, col: number) {
+    public getNodesByRowCol (row: number, col: number) {
         const rowData = this._userNodeGrid[row];
         if (!rowData) return null;
         return rowData[col];
@@ -657,7 +656,7 @@ export class TiledLayer extends UIRenderable {
      * @example
      * let tileGid = tiledLayer.getTileGIDAt(0, 0);
      */
-    public getTileGIDAt (x: number, y: number): GID | null {
+    public getTileGIDAt (x: number, y: number): number | null {
         if (this.isInvalidPosition(x, y)) {
             throw new Error('cc.TiledLayer.getTileGIDAt(): invalid position');
         }
@@ -670,7 +669,7 @@ export class TiledLayer extends UIRenderable {
         // Bits on the far end of the 32-bit global tile ID are used for tile flags
         const tile = this.tiles[index] as unknown as number;
 
-        return ((tile & TileFlag.FLIPPED_MASK) >>> 0) as unknown as GID;
+        return ((tile & TileFlag.FLIPPED_MASK) >>> 0);
     }
 
     public getTileFlagsAt (pos: IVec2Like) {

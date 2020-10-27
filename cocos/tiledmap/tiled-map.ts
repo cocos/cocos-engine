@@ -34,14 +34,14 @@ import { ccclass, displayOrder, executeInEditMode, help, menu, requireComponent,
 import { legacyCC } from '../core/global-exports';
 import { js } from '../core/utils/js';
 import { GID, Orientation, PropertiesInfo, Property, RenderOrder, StaggerAxis, StaggerIndex, TiledAnimationType, TiledTextureGrids, TileFlag, 
-    TMXImageLayerInfo, TMXLayerInfo, TMXObjectGroupInfo, TMXObjectType, TMXTilesetInfo } from './TiledTypes'
-import { TMXMapInfo } from './TMXXMLParser';
-import { TiledLayer } from './TiledLayer';
-import { TiledObjectGroup } from './TiledObjectGroup';
-import { TiledMapAsset } from './TiledMapAsset';
+    TMXImageLayerInfo, TMXLayerInfo, TMXObjectGroupInfo, TMXObjectType, TMXTilesetInfo } from './tiled-types'
+import { TMXMapInfo } from './tmx-xml-parser';
+import { TiledLayer } from './tiled-layer';
+import { TiledObjectGroup } from './tiled-object-group';
+import { TiledMapAsset } from './tiled-map-asset';
 import { Sprite } from '../ui/components/sprite';
 import { EDITOR } from 'internal:constants';
-import { fillTextureGrids, loadAllTextures } from './TiledUtils';
+import { fillTextureGrids, loadAllTextures } from './tiled-utils';
 import { Size, SpriteFrame, SystemEventType, Vec2, Node, logID, Color, sys } from '../core';
 
 

@@ -23,8 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-export * from './TiledMap';
-export * from './TiledMapAsset';
-export * from './TiledLayer';
-export * from './TiledObjectGroup';
-export * from './TiledTile';
+export * from './tiled-map';
+export * from './tiled-map-asset';
+export * from './tiled-layer';
+export * from './tiled-object-group';
+export * from './tiled-tile';
