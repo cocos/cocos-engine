@@ -8,7 +8,7 @@ import { Eventify } from '../../../../core/event';
 import { Vec3 } from '../../../../core/math';
 import { CollisionEventType, TriggerEventType } from '../../physics-interface';
 import { RigidBody } from '../rigid-body';
-import { PhysicMaterial } from '../../assets/physic-material';
+import { PhysicsMaterial } from '../../assets/physics-material';
 import { PhysicsSystem } from '../../physics-system';
 import { Component, error, Node } from '../../../../core';
 import { IBaseShape } from '../../../spec/i-physics-shape';
@@ -52,7 +52,7 @@ export class Collider extends Eventify(Component) {
      * @zh
      * 获取或设置此碰撞器的物理材质。
      */
-    @type(PhysicMaterial)
+    @type(PhysicsMaterial)
     @displayName('Material')
     @displayOrder(-1)
     @tooltip('源材质')
@@ -185,8 +185,8 @@ export class Collider extends Eventify(Component) {
     protected _needCollisionEvent: boolean = false;
     // protected _attachedRigidBody: RigidBody | null = null;
 
-    @type(PhysicMaterial)
-    protected _material: PhysicMaterial | null = null;
+    @type(PhysicsMaterial)
+    protected _material: PhysicsMaterial | null = null;
 
     @serializable
     protected _isTrigger: boolean = false;

@@ -14,6 +14,7 @@ import { RigidBody } from "./components/rigid-body";
 import { Collider } from "./components/colliders/collider";
 import { js } from "../../core/utils/js";
 import { legacyCC } from '../../core/global-exports';
+import { PhysicsMaterial } from "./assets/physics-material";
 
 replaceProperty(PhysicsSystem, 'PhysicsSystem', [
     {
@@ -120,3 +121,10 @@ js.setClassAlias(MeshCollider, 'cc.MeshColliderComponent');
  */
 export { CylinderCollider as CylinderColliderComponent };
 js.setClassAlias(CylinderCollider, 'cc.CylinderColliderComponent');
+/**
+ * Alias of [[PhysicsMaterial]]
+ * @deprecated Since v1.2
+ */
+export { PhysicsMaterial as PhysicMaterial };
+legacyCC.PhysicMaterial = PhysicsMaterial;
+js.setClassAlias(PhysicsMaterial, 'cc.PhysicMaterial');

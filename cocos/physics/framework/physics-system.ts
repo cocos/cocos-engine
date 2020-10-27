@@ -8,7 +8,7 @@ import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { createPhysicsWorld, checkPhysicsModule } from './instance';
 import { director, Director } from '../../core/director';
 import { System } from '../../core/components';
-import { PhysicMaterial } from './assets/physic-material';
+import { PhysicsMaterial } from './assets/physics-material';
 import { RecyclePool, error, game, Enum } from '../../core';
 import { ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
@@ -184,7 +184,7 @@ export class PhysicsSystem extends System {
      * @zh
      * 获取全局的默认物理材质。
      */
-    get defaultMaterial (): PhysicMaterial {
+    get defaultMaterial (): PhysicsMaterial {
         return this._material;
     }
 
@@ -239,7 +239,7 @@ export class PhysicsSystem extends System {
     private _accumulator = 0;
     private _sleepThreshold = 0.1;
     private readonly _gravity = new Vec3(0, -10, 0);
-    private readonly _material = new PhysicMaterial();
+    private readonly _material = new PhysicsMaterial();
 
     private readonly raycastOptions: IRaycastOptions = {
         'group': -1,

@@ -16,8 +16,8 @@ import { math } from '../../../core';
  * @zh
  * 物理材质。
  */
-@ccclass('cc.PhysicMaterial')
-export class PhysicMaterial extends Asset {
+@ccclass('cc.PhysicsMaterial')
+export class PhysicsMaterial extends Asset {
 
     /**
      * @en
@@ -25,7 +25,7 @@ export class PhysicMaterial extends Asset {
      * @zh
      * 获取所有的物理材质实例。
      */
-    static allMaterials: PhysicMaterial[] = [];
+    static allMaterials: PhysicsMaterial[] = [];
 
     /**
      * @en
@@ -115,9 +115,9 @@ export class PhysicMaterial extends Asset {
 
     constructor () {
         super();
-        PhysicMaterial.allMaterials.push(this);
+        PhysicsMaterial.allMaterials.push(this);
         if (this._uuid == '') {
-            this._uuid = 'pm_' + PhysicMaterial._idCounter++;
+            this._uuid = 'pm_' + PhysicsMaterial._idCounter++;
         }
     }
 
@@ -128,7 +128,7 @@ export class PhysicMaterial extends Asset {
      * 克隆。
      */
     public clone () {
-        let c = new PhysicMaterial();
+        let c = new PhysicsMaterial();
         c._friction = this._friction;
         c._restitution = this._restitution;
         c._rollingFriction = this._rollingFriction;
@@ -145,9 +145,9 @@ export class PhysicMaterial extends Asset {
      */
     public destroy (): boolean {
         if (super.destroy()) {
-            let idx = PhysicMaterial.allMaterials.indexOf(this);
+            let idx = PhysicsMaterial.allMaterials.indexOf(this);
             if (idx >= 0) {
-                PhysicMaterial.allMaterials.splice(idx, 1);
+                PhysicsMaterial.allMaterials.splice(idx, 1);
             }
             return true;
         } else {
