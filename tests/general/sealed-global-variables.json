@@ -195,6 +195,7 @@
         "cc.SystemEvent",
         "cc.SystemEventType",
         "cc.TTFFont",
+        "cc.ParticleAsset",
         "cc.TextAsset",
         "cc.Texture2D",
         "cc.TextureBase",

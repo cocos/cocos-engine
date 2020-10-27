@@ -6,8 +6,8 @@ import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import { terser as rpTerser } from 'rollup-plugin-terser';
-// @ts-ignore
 import babelPresetEnv from '@babel/preset-env';
+import type { Options as babelPresetEnvOptions } from '@babel/preset-env';
 import babelPresetCc from '@cocos/babel-preset-cc';
 // @ts-ignore
 import babelPluginTransformForOf from '@babel/plugin-transform-for-of';
@@ -23,6 +23,7 @@ import { getModuleName } from './module-name';
 import tsConfigPaths from './ts-paths';
 import JSON5 from 'json5';
 import { getPlatformConstantNames, IBuildTimeConstants } from './build-time-constants';
+import removeDeprecatedFeatures from './remove-deprecated-features';
 
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
 
@@ -110,6 +111,13 @@ namespace build {
         ammoJsWasm?: boolean | 'fallback';
 
         /**
+         * If true, all deprecated features/API are excluded.
+         * You can also specify a version range(in semver range) to exclude deprecations in specified version(s).
+         * @default false
+         */
+        noDeprecatedFeatures?: string | boolean;
+
+        /**
          * Experimental.
          */
         incremental?: string;
@@ -117,9 +125,14 @@ namespace build {
         progress?: boolean;
 
         /**
-         * `options.targets` of @babel/preset-env.
+         * BrowsersList targets.
          */
         targets?: string | string[] | Record<string, string>;
+
+        /**
+         * Enable loose compilation.
+         */
+        loose?: boolean;
 
         visualize?: boolean | {
             file?: string;
@@ -245,7 +258,9 @@ async function _doBuild ({
         console.debug(`Module source "cc":\n${rpVirtualOptions['cc']}`);
     }
 
-    const presetEnvOptions: any = {};
+    const presetEnvOptions: babelPresetEnvOptions = {
+        loose: options.loose ?? true,
+    };
     if (options.targets !== undefined) {
         presetEnvOptions.targets = options.targets;
     }
@@ -261,8 +276,6 @@ async function _doBuild ({
         babelHelpers: 'bundled',
         extensions: ['.js', '.ts'],
         highlightCode: true,
-        exclude: [
-        ],
         plugins: babelPlugins,
         presets: [
             [babelPresetEnv, presetEnvOptions],
@@ -285,8 +298,15 @@ async function _doBuild ({
         }
     }
 
-    const rollupPlugins: rollup.Plugin[] = [
+    const rollupPlugins: rollup.Plugin[] = [];
+    if (options.noDeprecatedFeatures) {
+        rollupPlugins.push(removeDeprecatedFeatures(
+            typeof options.noDeprecatedFeatures === 'string' ? options.noDeprecatedFeatures : undefined));
+    }
+
+    rollupPlugins.push(
         {
+            name: '@cocos/build-engine|module-overrides',
             load: function (this, id: string) {
                 const key = makePathEqualityKey(id);
                 if (!(key in moduleRedirects)) {
@@ -315,7 +335,7 @@ async function _doBuild ({
         commonjs({}),
 
         rpBabel(babelOptions),
-    ];
+    );
 
     if (options.progress) {
         rollupPlugins.unshift(rpProgress());

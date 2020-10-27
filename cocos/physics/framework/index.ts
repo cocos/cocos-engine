@@ -4,7 +4,7 @@
  */
 
 import { PhysicsSystem } from './physics-system';
-import { PhysicMaterial } from './assets/physic-material';
+import { PhysicsMaterial } from './assets/physics-material';
 import { PhysicsRayResult } from './physics-ray-result';
 import { BoxCollider } from './components/colliders/box-collider';
 import { Collider } from './components/colliders/collider';
@@ -45,7 +45,7 @@ export {
 
     RigidBody,
 
-    PhysicMaterial,
+    PhysicsMaterial,
 
     ConstantForce,
 };
@@ -53,7 +53,7 @@ export {
 import { legacyCC } from '../../core/global-exports';
 legacyCC.PhysicsSystem = PhysicsSystem;
 
-legacyCC.PhysicMaterial = PhysicMaterial;
+legacyCC.PhysicsMaterial = PhysicsMaterial;
 legacyCC.PhysicsRayResult = PhysicsRayResult;
 legacyCC.ConstantForce = ConstantForce;
 

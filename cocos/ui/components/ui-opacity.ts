@@ -5,7 +5,7 @@
 
 import { Component } from '../../core/components/component';
 import { ccclass, help, executeInEditMode, executionOrder, menu, editable, serializable } from 'cc.decorator';
-import { misc } from '../../core/utils';
+import { clampf } from '../../core/utils/misc';
 
 /**
  * @en
@@ -38,7 +38,7 @@ export class UIOpacity extends Component {
         if (this._opacity === value) {
             return;
         }
-        value = misc.clampf(value, 0, 255);
+        value = clampf(value, 0, 255);
         this._opacity = value;
         this.node._uiProps.opacity = value / 255;
     }

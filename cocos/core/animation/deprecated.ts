@@ -3,7 +3,7 @@
  * @module animation
  */
 
-import { replaceProperty } from '../utils/deprecated';
+import { replaceProperty } from '../utils/x-deprecated';
 import { Animation } from './animation-component';
 import { SkeletalAnimation } from './skeletal-animation';
 import { AnimationClip } from './animation-clip';

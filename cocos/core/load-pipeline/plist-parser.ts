@@ -41,7 +41,7 @@ class SAXParser {
     private _isSupportDOMParser;
     private _parser;
     constructor () {
-        if (!EDITOR && window.DOMParser) {
+        if (window.DOMParser) {
             this._isSupportDOMParser = true;
             this._parser = new DOMParser();
         } else {

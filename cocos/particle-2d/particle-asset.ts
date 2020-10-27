@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,32 +24,27 @@
  THE SOFTWARE.
 */
 
-import * as js from './js';
 
 /**
- * 杂项工具函数
+ * @packageDocumentation
+ * @module ParticleAsset
  */
-import * as misc from './misc';
+
+import { ccclass, serializable, editable } from '../core/data/decorators';
+import { Asset } from '../core/assets/asset';
+import { SpriteFrame } from '../core/assets/sprite-frame';
+import { legacyCC } from '../core/global-exports';
 
 /**
- * 用于处理文件与目录的路径的模块
+ * Class for particle asset handling.
+ * @class ParticleAsset
+ * @extends Asset
  */
-import * as path from './path';
+@ccclass('cc.ParticleAsset')
+export class ParticleAsset extends Asset {
+    @serializable
+    @editable
+    public spriteFrame: SpriteFrame | null= null;
+}
 
-export * from './x-deprecated';
-export * from './text-utils';
-export * from './html-text-parser';
-export * from './prefab-helper';
-export * from './batch-utils';
-export * from './murmurhash2_gc';
-
-export {
-    js,
-    misc,
-    path,
-};
-
-export * from './coordinates-converts-utils';
-
-// export const js = cc.js;
-// export const path = cc.path;
+legacyCC.ParticleAsset = ParticleAsset;
