@@ -4,7 +4,7 @@
  */
 
 import { PhysicsSystem } from "./physics-system";
-import { replaceProperty, removeProperty } from "../../core/utils/deprecated";
+import { replaceProperty, removeProperty } from "../../core/utils/x-deprecated";
 import { BoxCollider } from "./components/colliders/box-collider";
 import { SphereCollider } from "./components/colliders/sphere-collider";
 import { CapsuleCollider } from "./components/colliders/capsule-collider";

@@ -9,6 +9,9 @@ import {
 } from './index';
 
 async function main() {
+    yargs.parserConfiguration({
+        'boolean-negation': false,
+    });
     yargs.help();
     yargs.options('engine', {
         type: 'string',
@@ -36,6 +39,17 @@ async function main() {
     });
     yargs.option('ammojs-wasm', {
         choices: [true, 'fallback'],
+    });
+    yargs.option('no-deprecated-features', {
+        description: `Whether to remove deprecated features. You can specify boolean or a version string(in semver)`,
+        type: 'string',
+        coerce: (arg: string | boolean) => {
+            return typeof arg !== 'string' ?
+                arg :
+                ((arg === 'true' || arg.length === 0) ? true : (
+                    arg === 'false' ? false : arg
+                ));
+        },
     });
     yargs.option('destination', {
         type: 'string',
@@ -105,6 +119,8 @@ async function main() {
         flags,
     });
 
+    const noDeprecatedFeatures = yargs.argv.noDeprecatedFeatures as (boolean | string | undefined);
+
     const options: build.Options = {
         engine: yargs.argv.engine as string,
         split: yargs.argv.split as boolean,
@@ -115,6 +131,7 @@ async function main() {
         progress: yargs.argv.progress as (boolean | undefined),
         incremental: yargs.argv['watch-files'] as (string | undefined),
         ammoJsWasm: yargs.argv['ammojs-wasm'] as (boolean | undefined | 'fallback'),
+        noDeprecatedFeatures: noDeprecatedFeatures,
         buildTimeConstants,
     };
     if (yargs.argv.module) {

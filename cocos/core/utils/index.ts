@@ -36,7 +36,7 @@ import * as misc from './misc';
  */
 import * as path from './path';
 
-export * from './deprecated';
+export * from './x-deprecated';
 export * from './text-utils';
 export * from './html-text-parser';
 export * from './prefab-helper';
