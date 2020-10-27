@@ -474,7 +474,8 @@ export class UIRenderable extends RenderableComponent {
             this.markForUpdateRenderData();
         }
 
-        for (const child of this.node.children) {
+        for (let i = 0; i < this.node.children.length; ++i) {
+            let child = this.node.children[i];
             const renderComp = child.getComponent(UIRenderable);
             if (renderComp) {
                 renderComp.markForUpdateRenderData();
