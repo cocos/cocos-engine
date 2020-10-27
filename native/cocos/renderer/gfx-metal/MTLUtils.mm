@@ -3,7 +3,7 @@
 #include "MTLDevice.h"
 #include "MTLGPUObjects.h"
 #include "MTLUtils.h"
-#include "SPIRV/GlslangToSpv.h"
+#include "glslang/SPIRV/GlslangToSpv.h"
 #include "StandAlone/ResourceLimits.h"
 #include "spirv_cross/spirv_msl.hpp"
 #include <vector>
