@@ -330,8 +330,9 @@ export class UI {
                 const batch = this._batches.array[i];
 
                 if (batch.model) {
-                    if (batch.camera) {
-                        const visFlags = batch.camera.view.visibility;
+                    const camera = batch.camera || this._scene.cameras[0];
+                    if (camera) {
+                        const visFlags = camera.view.visibility;
                         batch.model.visFlags = visFlags;
                         batch.model.node.layer = visFlags;
                     }

@@ -236,6 +236,7 @@ export class Director extends EventTarget {
 
     public _compScheduler: ComponentScheduler;
     public _nodeActivator: NodeActivator;
+    public _maxParticleDeltaTime: number;
     private _invalid: boolean;
     private _paused: boolean;
     private _purgeDirectorInNextLoop: boolean;
@@ -270,6 +271,9 @@ export class Director extends EventTarget {
         this._lastUpdate = 0;
         this._deltaTime = 0.0;
         this._startTime = 0.0;
+
+        // ParticleSystem max step delta time
+        this._maxParticleDeltaTime = 0.0;
 
         // Scheduler for user registration update
         this._scheduler = new Scheduler();

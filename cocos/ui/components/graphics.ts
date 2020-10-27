@@ -482,12 +482,12 @@ export class Graphics extends UIRenderable {
      * @zh
      * 擦除之前绘制的所有内容的方法。
      */
-    public clear (clean = false) {
+    public clear () {
         if (!this.impl) {
             return;
         }
 
-        this.impl.clear(clean);
+        this.impl.clear();
         this._isDrawing = false;
         if (this.model) {
             for (let i = 0; i < this.model.subModels.length; i++) {
