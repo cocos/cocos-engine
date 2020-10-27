@@ -181,11 +181,11 @@ class BuiltinResMgr {
         spriteColorMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false }, effectName: 'builtin-sprite' });
         resources[spriteColorMtl._uuid] = spriteColorMtl;
 
-        // sprite normal alpha material
-        const maskNormalAlphaMtl = new legacyCC.Material();
-        maskNormalAlphaMtl._uuid = 'ui-alpha-material';
-        maskNormalAlphaMtl.initialize({ defines: { USE_TEXTURE: true, USE_ALPHA_TEST: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false }, effectName: 'builtin-sprite' });
-        resources[maskNormalAlphaMtl._uuid] = maskNormalAlphaMtl;
+        // sprite alpha test material
+        const alphaTestMaskMtl = new legacyCC.Material();
+        alphaTestMaskMtl._uuid = 'ui-alpha-test-material';
+        alphaTestMaskMtl.initialize({ defines: { USE_TEXTURE: true, USE_ALPHA_TEST: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false }, effectName: 'builtin-sprite' });
+        resources[alphaTestMaskMtl._uuid] = alphaTestMaskMtl;
 
         // sprite gray material
         const spriteGrayMtl = new legacyCC.Material();

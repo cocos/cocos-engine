@@ -253,6 +253,7 @@ export class UIRenderable extends RenderableComponent {
             return;
         }
 
+        this.stencilStage = Stage.DISABLED;
         if (this._uiMaterialIns) {
             this._uiMaterialIns.destroy();
             this._uiMaterialIns = null;

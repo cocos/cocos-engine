@@ -43,6 +43,8 @@ import { MaterialInstance, scene } from '../../core/renderer';
 import { Model } from '../../core/renderer/scene';
 import { vfmt, getAttributeStride } from '../../core/renderer/ui/ui-vertex-format';
 import { EDITOR } from '../../../editor/exports/populate-internal-constants';
+import { mask } from '../assembler';
+import { Stage } from '../../core/renderer/ui/stencil-manager';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
@@ -134,7 +136,14 @@ export class Mask extends UIRenderable {
             return;
         }
 
+        if (this._type === MaskType.IMAGE_STENCIL && !this._spriteFrame) {
+            this._attachClearModel();
+        }
+
         this._type = value;
+        this.markForUpdateRenderData(false);
+        this._updateMaterial();
+
         if (this._type !== MaskType.IMAGE_STENCIL) {
             this._spriteFrame = null;
             this._alphaThreshold = 0;
@@ -146,15 +155,13 @@ export class Mask extends UIRenderable {
         } else {
             this._useRenderData();
             if (!this._spriteFrame) {
-                this._detachFromScene();
+                this._detachClearModel();
             }
 
             if (this._graphics) {
                 this._graphics.clear();
             }
         }
-
-        this._updateMaterial();
     }
 
     /**
@@ -223,14 +230,16 @@ export class Mask extends UIRenderable {
             return;
         }
 
-        if (!this._spriteFrame && value) {
-            this._attachToScene();
-            this.markForUpdateRenderData();
-        } else if (!value) {
-            this._detachFromScene();
-        }
-
+        const lastSp = this._spriteFrame;
         this._spriteFrame = value;
+        if (this._type === MaskType.IMAGE_STENCIL) {
+            if (!lastSp && value) {
+                this._attachClearModel();
+                this.markForUpdateRenderData();
+            } else if (!value) {
+                this._detachClearModel();
+            }
+        }
     }
 
     /**
@@ -291,7 +300,6 @@ export class Mask extends UIRenderable {
 
     set srcBlendFactor (value) {
         if (this._srcBlendFactor === value) {
-
             return;
         }
 
@@ -364,7 +372,7 @@ export class Mask extends UIRenderable {
     }
 
     public onLoad () {
-        this._activeMaterial();
+        this._createClearModel();
         this._createGraphics();
 
         if (this._graphics) {
@@ -374,14 +382,9 @@ export class Mask extends UIRenderable {
 
     public onEnable () {
         super.onEnable();
-        // if(this._graphics){
-        //     this._graphics.onEnable();
-        // }
-
         if (this._type !== MaskType.IMAGE_STENCIL) {
             this._updateGraphics();
         }
-
     }
 
     /**
@@ -464,7 +467,9 @@ export class Mask extends UIRenderable {
     protected _nodeStateChange (type: TransformBit) {
         super._nodeStateChange(type);
 
-        this._updateGraphics();
+        if (this._type === MaskType.RECT || this._type === MaskType.ELLIPSE) {
+            this._updateGraphics();
+        }
     }
 
     protected _canRender () {
@@ -472,7 +477,7 @@ export class Mask extends UIRenderable {
             return false;
         }
 
-        return this._graphics !== null;
+        return this._graphics !== null && (this._type !== MaskType.IMAGE_STENCIL || this._spriteFrame !== null);
     }
 
     protected _flushAssembler () {
@@ -501,6 +506,8 @@ export class Mask extends UIRenderable {
             color.a = 0;
             graphics.fillColor = color;
         }
+
+        this._updateMaterial();
     }
 
     protected _updateGraphics () {
@@ -539,7 +546,7 @@ export class Mask extends UIRenderable {
         graphics.fill();
     }
 
-    protected _activeMaterial () {
+    protected _createClearModel () {
         if (!this._clearModel) {
             const mtl = builtinResMgr.get<Material>('builtin-clear-stencil');
             this._clearStencilMtl = new MaterialInstance({
@@ -549,6 +556,8 @@ export class Mask extends UIRenderable {
             });
 
             this._clearModel = director.root!.createModel(scene.Model);
+            // @ts-ignore
+            this._clearModel.name = 'clear-model';
             this._clearModel.node = this._clearModel.transform = this.node;
             let renderMesh: RenderingSubMesh;
             const stride = getAttributeStride(vfmt);
@@ -576,20 +585,21 @@ export class Mask extends UIRenderable {
 
             this._clearModel.initSubModel(0, renderMesh, this._clearStencilMtl);
             if (this._type !== MaskType.IMAGE_STENCIL || this._spriteFrame) {
-                this._attachToScene();
+                this._attachClearModel();
             }
         }
-
-        this._updateMaterial();
     }
 
     protected _updateMaterial () {
-        if (this._type === MaskType.IMAGE_STENCIL) {
-            this.uiMaterial = builtinResMgr.get<Material>('ui-alpha-material');
-            const mat = this.getMaterialInstanceForStencil();
-            mat.setProperty('alphaThreshold', this._alphaThreshold);
-        } else {
-            this.uiMaterial = builtinResMgr.get<Material>('ui-graphics-material');
+        if (this._graphics) {
+            const target = this._graphics;
+            if (this._type === MaskType.IMAGE_STENCIL) {
+                target.uiMaterial = builtinResMgr.get<Material>('ui-alpha-test-material');
+                const mat = target.getMaterialInstanceForStencil();
+                mat.setProperty('alphaThreshold', this._alphaThreshold);
+            } else {
+                target.uiMaterial = builtinResMgr.get<Material>('ui-graphics-material');
+            }
         }
     }
 
@@ -616,14 +626,14 @@ export class Mask extends UIRenderable {
         }
     }
 
-    protected _attachToScene () {
+    protected _attachClearModel () {
        if (this._clearModel){
            const renderScene = director.root!.ui.renderScene;
            renderScene.addModel(this._clearModel);
        }
     }
 
-    protected _detachFromScene (){
+    protected _detachClearModel (){
         if (this._clearModel) {
             const renderScene = director.root!.ui.renderScene;
             renderScene.removeModel(this._clearModel!);

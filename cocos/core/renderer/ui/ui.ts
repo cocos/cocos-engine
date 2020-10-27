@@ -27,7 +27,7 @@
  * @hidden
  */
 
-import { UIStaticBatch } from '../../../ui';
+import { UIMeshRenderer, UIStaticBatch } from '../../../ui';
 import { Material } from '../../assets/material';
 import { Canvas, UIComponent, UIRenderable } from '../../components/ui-base';
 import { GFXTexture, GFXDevice, GFXAttribute, GFXSampler, GFXDescriptorSetInfo } from '../../gfx';
@@ -492,8 +492,7 @@ export class UI {
             }
             if (rebuild) {
                 const state = StencilManager.sharedManager!.pattern;
-                StencilManager.sharedManager!.applyStencil(mat, state.stencilTest, state.func, state.failOp, state.ref, state.stencilMask, state.writeMask);
-                rebuild = true;
+                StencilManager.sharedManager!.applyStencil(mat, state);
             }
             if (rebuild && model) {
                 for (let i = 0; i < model.subModels.length; i++) {
@@ -561,7 +560,7 @@ export class UI {
         if (renderComp && StencilManager.sharedManager!.handleMaterial(mat, renderComp)) {
             this._currMaterial = mat = renderComp.getMaterialInstanceForStencil();
             const state = StencilManager.sharedManager!.pattern;
-            StencilManager.sharedManager!.applyStencil(mat, state.stencilTest, state.func, state.failOp, state.ref, state.stencilMask, state.writeMask);
+            StencilManager.sharedManager!.applyStencil(mat, state);
         }
 
         const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
@@ -592,10 +591,20 @@ export class UI {
      * @param material - 当前批次的材质。
      * @param sprite - 当前批次的精灵帧。
      */
-    public forceMergeBatches (material: Material, sprite: GFXTexture | null) {
+    public forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | RenderTexture | null, renderComp?: UIRenderable) {
         this._currMaterial = material;
-        this._currTexture = sprite;
-        this.autoMergeBatches();
+
+        if (frame) {
+            this._currTexture = frame.getGFXTexture();
+            this._currSampler = frame.getGFXSampler();
+            this._currTextureHash = frame.getHash();
+            this._currSamplerHash = frame.getSamplerHash();
+        } else {
+            this._currTexture = this._currSampler = null;
+            this._currTextureHash = this._currSamplerHash = 0;
+        }
+
+        this.autoMergeBatches(renderComp);
     }
 
     /**
@@ -616,12 +625,12 @@ export class UI {
 
     /**
      * @en
-     * Forced to flush material.
+     * Force to change the current material.
      *
      * @zh
-     * 强刷材质。
+     * 强制刷新材质。
      */
-    public flushMaterial(mat: Material) {
+    public flushMaterial (mat: Material) {
         this._currMaterial = mat;
     }
 
