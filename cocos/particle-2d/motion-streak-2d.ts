@@ -200,6 +200,6 @@ export class MotionStreak extends UIRenderable {
     }
 
     public _render (render: UI) {
-        render.commitComp(this, this._texture!.getGFXTexture(), this._assembler, this._texture!.getGFXSampler());
+        render.commitComp(this, this._texture!, this._assembler);
     }
 }
