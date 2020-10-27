@@ -935,8 +935,8 @@ bv
      * Please use spriteFrame property instead, this function is deprecated since v1.9
      * @zh 设置一张新贴图和关联的矩形。
      * 请直接设置 spriteFrame 属性，这个函数从 v1.9 版本开始已经被废弃
-     * @param {Texture2D} texture
-     * @param {Rect} rect
+     * @param texture 纹理
+     * @param rect 矩形区域
      * @deprecated since v1.9
      */
     public setTextureWithRect (texture, rect) {

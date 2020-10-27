@@ -40,9 +40,6 @@ import { EDITOR } from 'internal:constants';
  * length is the how many pixels the texture is stretched across. The texture               <br/>
  * is vertically aligned along the streak segment.
  * @zh 运动轨迹，用于游戏对象的运动轨迹上实现拖尾渐隐效果。
- * @class MotionStreak
- * @extends Component
- * @uses BlendFunc
  */
 @ccclass('cc.MotionStreak')
 @executeInEditMode

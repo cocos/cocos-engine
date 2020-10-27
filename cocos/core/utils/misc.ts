@@ -193,10 +193,9 @@ export function cloneable_DEV (obj) {
  * 数值大于 max_inclusive 则返回 max_inclusive。<br/>
  * 数值小于 min_inclusive 则返回 min_inclusive。<br/>
  * 否则返回自身。
- * @method clampf
- * @param {Number} value
- * @param {Number} min_inclusive
- * @param {Number} max_inclusive
+ * @param value 目标值
+ * @param min_inclusive 最小值
+ * @param max_inclusive 最大值
  * @return {Number}
  * @example
  * var v1 = clampf(20, 0, 20); // 20;
@@ -215,9 +214,8 @@ export function clampf (value, min_inclusive, max_inclusive) {
 /**
  * @en converts degrees to radians
  * @zh 角度转弧度
- * @param {Number} angle
+ * @param angle 角度
  * @return {Number}
- * @method degreesToRadians
  */
 export function degreesToRadians (angle) {
     return angle * macro.RAD;
@@ -226,9 +224,8 @@ export function degreesToRadians (angle) {
 /**
  * @en converts radians to degrees
  * @zh 弧度转角度
- * @param {Number} angle
+ * @param angle 弧度
  * @return {Number}
- * @method radiansToDegrees
  */
 export function radiansToDegrees (angle) {
     return angle * macro.DEG;
