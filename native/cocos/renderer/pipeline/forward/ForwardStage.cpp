@@ -166,7 +166,7 @@ void ForwardStage::render(RenderView *view) {
     auto renderPass = colorTextures.size() ? framebuffer->getRenderPass() : pipeline->getOrCreateRenderPass(static_cast<gfx::ClearFlagBit>(camera->clearFlag));
 
     cmdBuff->beginRenderPass(renderPass, framebuffer, _renderArea, _clearColors, camera->clearDepth, camera->clearStencil);
-    cmdBuff->bindDescriptorSet(LOCAL_SET, _pipeline->getDescriptorSet());
+    cmdBuff->bindDescriptorSet(GLOBAL_SET, _pipeline->getDescriptorSet());
 
     _renderQueues[0]->recordCommandBuffer(_device, renderPass, cmdBuff);
     _instancedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);

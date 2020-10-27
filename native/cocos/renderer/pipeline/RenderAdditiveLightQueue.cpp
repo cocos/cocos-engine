@@ -105,7 +105,7 @@ void RenderAdditiveLightQueue::gatherLightPasses(const RenderView *view, gfx::Co
     const auto camera = view->getCamera();
     const auto scene = camera->getScene();
     const auto sphereLightArrayID = scene->getSphereLightArrayID();
-    auto count = sphereLightArrayID[0];
+    auto count = sphereLightArrayID ? sphereLightArrayID[0] : 0;
     Sphere sphere;
     for (auto i = 1; i <= count; i++) {
         const auto light = scene->getSphereLight(sphereLightArrayID[i]);
@@ -116,7 +116,7 @@ void RenderAdditiveLightQueue::gatherLightPasses(const RenderView *view, gfx::Co
         }
     }
     const auto spotLightArrayID = scene->getSphereLightArrayID();
-    count = spotLightArrayID[0];
+    count = spotLightArrayID ? spotLightArrayID[0] : 0;
     for (auto i = 1; i <= count; i++) {
         const auto light = scene->getSpotLight(spotLightArrayID[i]);
         sphere.setCenter(light->position);
