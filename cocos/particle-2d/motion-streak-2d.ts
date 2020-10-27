@@ -56,8 +56,6 @@ export class MotionStreak extends UIRenderable {
     /**
      * @en Preview the trailing effect in editor mode.
      * @zh 在编辑器模式下预览拖尾效果。
-     * @property {Boolean} preview
-     * @default false
      */
     @editable
     public get preview () {
@@ -74,8 +72,6 @@ export class MotionStreak extends UIRenderable {
     /**
      * @en The fade time to fade.
      * @zh 拖尾的渐隐时间，以秒为单位。
-     * @property fadeTime
-     * @type {Number}
      * @example
      * motionStreak.fadeTime = 3;
      */
@@ -94,8 +90,6 @@ export class MotionStreak extends UIRenderable {
     /**
      * @en The minimum segment size.
      * @zh 拖尾之间最小距离。
-     * @property minSeg
-     * @type {Number}
      * @example
      * motionStreak.minSeg = 3;
      */
@@ -110,8 +104,6 @@ export class MotionStreak extends UIRenderable {
     /**
      * @en The stroke's width.
      * @zh 拖尾的宽度。
-     * @property stroke
-     * @type {Number}
      * @example
      * motionStreak.stroke = 64;
      */
@@ -131,8 +123,6 @@ export class MotionStreak extends UIRenderable {
     /**
      * @en The texture of the MotionStreak.
      * @zh 拖尾的贴图。
-     * @property texture
-     * @type {Texture2D}
      * @example
      * motionStreak.texture = newTexture;
      */
@@ -152,9 +142,6 @@ export class MotionStreak extends UIRenderable {
     /**
      * @en The fast Mode.
      * @zh 是否启用了快速模式。当启用快速模式，新的点会被更快地添加，但精度较低。
-     * @property fastMode
-     * @type {Boolean}
-     * @default false
      * @example
      * motionStreak.fastMode = true;
      */
@@ -201,7 +188,6 @@ export class MotionStreak extends UIRenderable {
     /**
      * @en Remove all living segments of the ribbon.
      * @zh 删除当前所有的拖尾片段。
-     * @method reset
      * @example
      * // Remove all living segments of the ribbon.
      * myMotionStreak.reset();

@@ -55,69 +55,58 @@ const formatBytes = getAttributeFormatBytes(vfmtPosUvColor);
  */
 enum ImageFormat {
     /**
-     * Image Format:JPG
-     * @property JPG
-     * @type {Number}
+     * @en Image Format:JPG
+     * @zh 图片格式:JPG
      */
     JPG,
     /**
-     * Image Format:PNG
-     * @property PNG
-     * @type {Number}
+     * @en Image Format:PNG
+     * @zh 图片格式:PNG
      */
     PNG,
     /**
-     * Image Format:TIFF
-     * @property TIFF
-     * @type {Number}
+     * @en Image Format:TIFF
+     * @zh 图片格式:TIFF
      */
     TIFF,
     /**
-     * Image Format:WEBP
-     * @property WEBP
-     * @type {Number}
+     * @en Image Format:WEBP
+     * @zh 图片格式:WEBP
      */
     WEBP,
     /**
-     * Image Format:PVR
-     * @property PVR
-     * @type {Number}
+     * @en Image Format:PVR
+     * @zh 图片格式:PVR
      */
     PVR,
     /**
-     * Image Format:ETC
-     * @property ETC
-     * @type {Number}
+     * @en Image Format:ETC
+     * @zh 图片格式:ETC
      */
     ETC,
     /**
-     * Image Format:S3TC
-     * @property S3TC
-     * @type {Number}
+     * @en Image Format:S3TC
+     * @zh 图片格式:S3TC
      */
     S3TC,
     /**
-     * Image Format:ATITC
-     * @property ATITC
-     * @type {Number}
+     * @en Image Format:ATITC
+     * @zh 图片格式:ATITC
      */
     ATITC,
     /**
-     * Image Format:TGA
-     * @property TGA
-     * @type {Number}
+     * @en Image Format:TGA
+     * @zh 图片格式:TGA
      */
     TGA,
     /**
-     * Image Format:RAWDATA
-     * @property RAWDATA
-     * @type {Number}
+     * @en Image Format:RAWDATA
+     * @zh 图片格式:RAWDATA
      */
     RAWDATA,
     /**
-     * Image Format:UNKNOWN
-     * @property UNKNOWN
-     * @type {Number}
+     * @en Image Format:UNKNOWN
+     * @zh 图片格式:UNKNOWN
      */
     UNKNOWN
 };
@@ -163,13 +152,11 @@ export const EmitterMode = Enum({
     /**
      * @en Uses gravity, speed, radial and tangential acceleration.
      * @zh 重力模式，模拟重力，可让粒子围绕一个中心点移近或移远。
-     * @property {Number} GRAVITY
      */
     GRAVITY: 0,
     /**
      * @en Uses radius movement + rotation.
      * @zh 半径模式，可以使粒子以圆圈方式旋转，它也可以创造螺旋效果让粒子急速前进或后退。
-     * @property {Number} RADIUS - Uses radius movement + rotation.
      */
     RADIUS: 1
 });
@@ -185,7 +172,6 @@ export const PositionType = Enum({
      * Living particles are attached to the world and are unaffected by emitter repositioning.
      * @zh
      * 自由模式，相对于世界坐标，不会随粒子节点移动而移动。（可产生火焰、蒸汽等效果）
-     * @property {Number} FREE
      */
     FREE: 0,
 
@@ -196,7 +182,6 @@ export const PositionType = Enum({
      * @zh
      * 相对模式，粒子会跟随父节点移动，但不跟随粒子所在节点移动，例如在一列行进火车中，杯中的咖啡飘起雾气，
      * 杯子移动，雾气整体并不会随着杯子移动，但从火车整体的角度来看，雾气整体会随着火车移动。
-     * @property {Number} RELATIVE
      */
     RELATIVE: 1,
 
@@ -205,7 +190,6 @@ export const PositionType = Enum({
      * Living particles are attached to the emitter and are translated along with it.
      * @zh
      * 整组模式，粒子跟随发射器移动。（不会发生拖尾）
-     * @property {Number} GROUPED
      */
     GROUPED: 2
 });
@@ -249,10 +233,6 @@ export const PositionType = Enum({
  * @example
  * emitter.radialAccel = 15;
  * emitter.startSpin = 0;
- *
- * @class ParticleSystem
- * @extends RenderComponent
- * @uses BlendFunc
  */
 @ccclass('cc.ParticleSystem2D')
 @menu('Components/ParticleSystem2D')
@@ -261,8 +241,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en The Particle emitter lives forever.
      * @zh 表示发射器永久存在
-     * @property {Number} DURATION_INFINITY
-     * @default -1
      * @static
      * @readonly
      */
@@ -271,8 +249,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en The starting size of the particle is equal to the ending size.
      * @zh 表示粒子的起始大小等于结束大小。
-     * @property {Number} START_SIZE_EQUAL_TO_END_SIZE
-     * @default -1
      * @static
      * @readonly
      */
@@ -281,8 +257,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en The starting radius of the particle is equal to the ending radius.
      * @zh 表示粒子的起始半径等于结束半径。
-     * @property {Number} START_RADIUS_EQUAL_TO_END_RADIUS
-     * @default -1
      * @static
      * @readonly
      */
@@ -290,18 +264,13 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Play particle in edit mode.
      * @zh 在编辑器模式下预览粒子，启用后选中粒子时，粒子将自动播放。
-     * @property {Boolean} preview
-     * @default false
      */
     @serializable
     @editable
     private preview = true;
     /**
-     * @en
-     * If set custom to true, then use custom properties insteadof read particle file.
+     * @en If set custom to true, then use custom properties insteadof read particle file.
      * @zh 是否自定义粒子属性。
-     * @property {Boolean} custom
-     * @default false
      */
     @serializable
     private _custom = false;
@@ -323,8 +292,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en The plist file.
      * @zh plist 格式的粒子配置文件。
-     * @property {ParticleAsset} file
-     * @default null
      */
     @serializable
     private _file: ParticleAsset | null = null;
@@ -349,8 +316,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en SpriteFrame used for particles display
      * @zh 用于粒子呈现的 SpriteFrame
-     * @property spriteFrame
-     * @type {SpriteFrame}
      */
     @serializable
     private _spriteFrame: SpriteFrame | null = null;
@@ -385,8 +350,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Texture of Particle System, readonly, please use spriteFrame to setup new texture。
      * @zh 粒子贴图，只读属性，请使用 spriteFrame 属性来替换贴图。
-     * @property texture
-     * @type {String}
      * @readonly
      */
     public get texture () {
@@ -402,7 +365,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Current quantity of particles that are being simulated.
      * @zh 当前播放的粒子数量。
-     * @property {Number} particleCount
      * @readonly
      */
     public get particleCount () {
@@ -412,7 +374,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Indicate whether the system simulation have stopped.
      * @zh 指示粒子播放是否完毕。
-     * @property {Boolean} stopped
      */
     private _stopped = true;
     public get stopped () {
@@ -422,9 +383,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en If set to true, the particle system will automatically start playing on onLoad.
      * @zh 如果设置为 true 运行时会自动发射粒子。
-     * @property playOnLoad
-     * @type {boolean}
-     * @default true
      */
     @serializable
     @editable
@@ -433,7 +391,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Indicate whether the owner node will be auto-removed when it has no particles left.
      * @zh 粒子播放完毕后自动销毁所在的节点。
-     * @property {Boolean} autoRemoveOnFinish
      */
     @serializable
     @editable
@@ -442,7 +399,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Indicate whether the particle system is activated.
      * @zh 是否激活粒子。
-     * @property {Boolean} active
      * @readonly
      */
     public get active () {
@@ -453,8 +409,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Maximum particles of the system.
      * @zh 粒子最大数量。
-     * @property {Number} totalParticles
-     * @default 150
      */
     @editable
     public get totalParticles () {
@@ -467,8 +421,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en How many seconds the emitter wil run. -1 means 'forever'.
      * @zh 发射器生存时间，单位秒，-1表示持续发射。
-     * @property {Number} duration
-     * @default ParticleSystem.DURATION_INFINITY
      */
     @serializable
     @editable
@@ -476,8 +428,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Emission rate of the particles.
      * @zh 每秒发射的粒子数目。
-     * @property {Number} emissionRate
-     * @default 10
      */
     @serializable
     @editable
@@ -485,8 +435,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Life of each particle setter.
      * @zh 粒子的运行时间。
-     * @property {Number} life
-     * @default 1
      */
     @serializable
     @editable
@@ -494,8 +442,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Variation of life.
      * @zh 粒子的运行时间变化范围。
-     * @property {Number} lifeVar
-     * @default 0
      */
     @serializable
     @editable
@@ -504,8 +450,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Start color of each particle.
      * @zh 粒子初始颜色。
-     * @property {Color} startColor
-     * @default {r: 255, g: 255, b: 255, a: 255}
      */
     @serializable
     private _startColor: Color = new Color(255, 255, 255, 255);
@@ -523,8 +467,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Variation of the start color.
      * @zh 粒子初始颜色变化范围。
-     * @property {Color} startColorVar
-     * @default {r: 0, g: 0, b: 0, a: 0}
      */
     @serializable
     private _startColorVar: Color = new Color(0, 0, 0, 0);
@@ -542,8 +484,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Ending color of each particle.
      * @zh 粒子结束颜色。
-     * @property {Color} endColor
-     * @default {r: 255, g: 255, b: 255, a: 0}
      */
     @serializable
     private _endColor: Color = new Color(255, 255, 255, 0);
@@ -561,8 +501,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Variation of the end color.
      * @zh 粒子结束颜色变化范围。
-     * @property {Color} endColorVar
-     * @default {r: 0, g: 0, b: 0, a: 0}
      */
     @serializable
     private _endColorVar: Color = new Color(0, 0, 0, 0);
@@ -581,8 +519,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Angle of each particle setter.
      * @zh 粒子角度。
-     * @property {Number} angle
-     * @default 90
      */
     @serializable
     @editable
@@ -590,8 +526,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Variation of angle of each particle setter.
      * @zh 粒子角度变化范围。
-     * @property {Number} angleVar
-     * @default 20
      */
     @serializable
     @editable
@@ -599,8 +533,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Start size in pixels of each particle.
      * @zh 粒子的初始大小。
-     * @property {Number} startSize
-     * @default 50
      */
     @serializable
     @editable
@@ -608,8 +540,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Variation of start size in pixels.
      * @zh 粒子初始大小的变化范围。
-     * @property {Number} startSizeVar
-     * @default 0
      */
     @serializable
     @editable
@@ -617,8 +547,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en End size in pixels of each particle.
      * @zh 粒子结束时的大小。
-     * @property {Number} endSize
-     * @default 0
      */
     @serializable
     @editable
@@ -626,8 +554,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Variation of end size in pixels.
      * @zh 粒子结束大小的变化范围。
-     * @property {Number} endSizeVar
-     * @default 0
      */
     @serializable
     @editable
@@ -635,8 +561,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Start angle of each particle.
      * @zh 粒子开始自旋角度。
-     * @property {Number} startSpin
-     * @default 0
      */
     @serializable
     @editable
@@ -644,8 +568,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Variation of start angle.
      * @zh 粒子开始自旋角度变化范围。
-     * @property {Number} startSpinVar
-     * @default 0
      */
     @serializable
     @editable
@@ -653,8 +575,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en End angle of each particle.
      * @zh 粒子结束自旋角度。
-     * @property {Number} endSpin
-     * @default 0
      */
     @serializable
     @editable
@@ -662,8 +582,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Variation of end angle.
      * @zh 粒子结束自旋角度变化范围。
-     * @property {Number} endSpinVar
-     * @default 0
      */
     @serializable
     @editable
@@ -672,8 +590,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Source position of the emitter.
      * @zh 发射器位置。
-     * @property {Vec2} sourcePos
-     * @default Vec2.ZERO
      */
     @serializable
     public sourcePos = Vec2.ZERO.clone();
@@ -681,8 +597,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Variation of source position.
      * @zh 发射器位置的变化范围。（横向和纵向）
-     * @property {Vec2} posVar
-     * @default Vec2.ZERO
      */
     @serializable
     @editable
@@ -691,8 +605,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Particles movement type.
      * @zh 粒子位置类型。
-     * @property {ParticleSystem.PositionType} positionType
-     * @default ParticleSystem.PositionType.FREE
      */
     @serializable
     _positionType = PositionType.FREE;
@@ -709,8 +621,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Particles emitter modes.
      * @zh 发射器类型。
-     * @property {ParticleSystem.EmitterMode} emitterMode
-     * @default ParticleSystem.EmitterMode.GRAVITY
      */
     @serializable
     @editable
@@ -722,8 +632,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Gravity of the emitter.
      * @zh 重力。
-     * @property {Vec2} gravity
-     * @default Vec2.ZERO
      */
     @serializable
     @editable
@@ -731,8 +639,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Speed of the emitter.
      * @zh 速度。
-     * @property {Number} speed
-     * @default 180
      */
     @serializable
     @editable
@@ -740,8 +646,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Variation of the speed.
      * @zh 速度变化范围。
-     * @property {Number} speedVar
-     * @default 50
      */
     @serializable
     @editable
@@ -749,8 +653,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Tangential acceleration of each particle. Only available in 'Gravity' mode.
      * @zh 每个粒子的切向加速度，即垂直于重力方向的加速度，只有在重力模式下可用。
-     * @property {Number} tangentialAccel
-     * @default 80
      */
     @serializable
     @editable
@@ -758,8 +660,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Variation of the tangential acceleration.
      * @zh 每个粒子的切向加速度变化范围。
-     * @property {Number} tangentialAccelVar
-     * @default 0
      */
     @serializable
     @editable
@@ -767,8 +667,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Acceleration of each particle. Only available in 'Gravity' mode.
      * @zh 粒子径向加速度，即平行于重力方向的加速度，只有在重力模式下可用。
-     * @property {Number} radialAccel
-     * @default 0
      */
     @serializable
     @editable
@@ -776,8 +674,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Variation of the radial acceleration.
      * @zh 粒子径向加速度变化范围。
-     * @property {Number} radialAccelVar
-     * @default 0
      */
     @serializable
     @editable
@@ -786,8 +682,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Indicate whether the rotation of each particle equals to its direction. Only available in 'Gravity' mode.
      * @zh 每个粒子的旋转是否等于其方向，只有在重力模式下可用。
-     * @property {Boolean} rotationIsDir
-     * @default false
      */
     @serializable
     @editable
@@ -798,8 +692,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Starting radius of the particles. Only available in 'Radius' mode.
      * @zh 初始半径，表示粒子出生时相对发射器的距离，只有在半径模式下可用。
-     * @property {Number} startRadius
-     * @default 0
      */
     @serializable
     @editable
@@ -807,8 +699,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Variation of the starting radius.
      * @zh 初始半径变化范围。
-     * @property {Number} startRadiusVar
-     * @default 0
      */
     @serializable
     @editable
@@ -816,8 +706,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Ending radius of the particles. Only available in 'Radius' mode.
      * @zh 结束半径，只有在半径模式下可用。
-     * @property {Number} endRadius
-     * @default 0
      */
     @serializable
     @editable
@@ -825,8 +713,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Variation of the ending radius.
      * @zh 结束半径变化范围。
-     * @property {Number} endRadiusVar
-     * @default 0
      */
     @serializable
     @editable
@@ -834,8 +720,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Number of degress to rotate a particle around the source pos per second. Only available in 'Radius' mode.
      * @zh 粒子每秒围绕起始点的旋转角度，只有在半径模式下可用。
-     * @property {Number} rotatePerS
-     * @default 0
      */
     @serializable
     @editable
@@ -843,8 +727,6 @@ export class ParticleSystem2D extends UIRenderable {
     /**
      * @en Variation of the degress to rotate a particle around the source pos per second.
      * @zh 粒子每秒围绕起始点的旋转角度变化范围。
-     * @property {Number} rotatePerSVar
-     * @default 0
      */
     @serializable
     @editable
@@ -1005,10 +887,9 @@ bv
 
     // APIS
 
-    /*
+    /**
      * @en Add a particle to the emitter.
      * @zh 添加一个粒子到发射器中。
-     * @method addParticle
      * @return {Boolean}
      */
     public addParticle () {
@@ -1018,7 +899,6 @@ bv
     /**
      * @en Stop emitting particles. Running particles will continue to run until they die.
      * @zh 停止发射器发射粒子，发射出去的粒子将继续运行，直至粒子生命结束。
-     * @method stopSystem
      * @example
      * // stop particle system.
      * myParticleSystem.stopSystem();
@@ -1031,7 +911,6 @@ bv
     /**
      * @en Kill all living particles.
      * @zh 杀死所有存在的粒子，然后重新启动粒子发射器。
-     * @method resetSystem
      * @example
      * // play particle system.
      * myParticleSystem.resetSystem();
@@ -1045,7 +924,6 @@ bv
     /**
      * @en Whether or not the system is full.
      * @zh 发射器中粒子是否大于等于设置的总粒子数量。
-     * @method isFull
      * @return {Boolean}
      */
     public isFull () {
@@ -1057,7 +935,6 @@ bv
      * Please use spriteFrame property instead, this function is deprecated since v1.9
      * @zh 设置一张新贴图和关联的矩形。
      * 请直接设置 spriteFrame 属性，这个函数从 v1.9 版本开始已经被废弃
-     * @method setTextureWithRect
      * @param {Texture2D} texture
      * @param {Rect} rect
      * @deprecated since v1.9
