@@ -215,7 +215,7 @@ export class Shadows {
         return ShadowsPool.get(this._handle, ShadowsView.AUTO_ADAPT) as unknown as boolean;
     }
     public set autoAdapt (val: boolean) {
-        ShadowsPool.set(this._handle, ShadowsView.AUTO_ADAPT, val ? 1 : 0)
+        ShadowsPool.set(this._handle, ShadowsView.AUTO_ADAPT, val ? 1 : 0);
     }
 
     public get matLight () {
