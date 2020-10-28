@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2019 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -36,18 +36,16 @@ import { Skeleton } from '../../assets/skeleton';
 import { Texture2D } from '../../assets/texture-2d';
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, visible, override, serializable, editable } from 'cc.decorator';
 import { CCString } from '../../data/utils/attribute';
-import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
-import { GFXFormat, GFXType } from '../../gfx/define';
-import { GFXDevice } from '../../gfx/device';
-import { IGFXAttribute } from '../../gfx/input-assembler';
+import { GFXAttributeName, GFXFormatInfos, GFXFormat, GFXType } from '../../gfx/define';
+import { GFXDevice, GFXAttribute, GFXBufferTextureCopy } from '../../gfx';
 import { Mat4, Vec2, Vec3 } from '../../math';
 import { mapBuffer, readBuffer, writeBuffer } from '../misc/buffer';
 import { SkinnedMeshRenderer } from './skinned-mesh-renderer';
 import { legacyCC } from '../../global-exports';
 
 const repeat = (n: number) => n - Math.floor(n);
-const batch_id: IGFXAttribute = { name: GFXAttributeName.ATTR_BATCH_ID, format: GFXFormat.R32F, isNormalized: false };
-const batch_uv: IGFXAttribute = { name: GFXAttributeName.ATTR_BATCH_UV, format: GFXFormat.RG32F, isNormalized: false };
+const batch_id: GFXAttribute = new GFXAttribute(GFXAttributeName.ATTR_BATCH_ID, GFXFormat.R32F);
+const batch_uv: GFXAttribute = new GFXAttribute(GFXAttributeName.ATTR_BATCH_UV, GFXFormat.RG32F);
 const batch_extras_size = GFXFormatInfos[batch_id.format].size + GFXFormatInfos[batch_uv.format].size;
 
 @ccclass('cc.SkinnedMeshUnit')
@@ -479,7 +477,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
     protected createTexture (prop: string) {
         const tex = new Texture2D();
         tex.setFilters(Filter.LINEAR, Filter.LINEAR);
-        tex.setMipFilter(Filter.LINEAR);
+        tex.setMipFilter(Filter.NEAREST);
         tex.reset({
             width: this.atlasSize,
             height: this.atlasSize,

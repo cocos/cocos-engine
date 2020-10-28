@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -35,6 +35,7 @@ import { legacyCC } from '../core/global-exports';
 import { CompleteCallback, IDownloadParseOptions } from '../core/asset-manager/shared';
 import downloadFile from '../core/asset-manager/download-file';
 import { DownloadHandler } from '../core/asset-manager/downloader';
+import { createDomAudio } from './audio-utils';
 
 const __audioSupport = sys.__audioSupport;
 const formatSupport = __audioSupport.format;
@@ -45,45 +46,12 @@ export function downloadDomAudio (
     onComplete: CompleteCallback<HTMLAudioElement>
     ): HTMLAudioElement {
 
-    const dom = document.createElement('audio');
-    dom.src = url;
-
-    const clearEvent = () => {
-        clearTimeout(timer);
-        dom.removeEventListener('canplaythrough', success, false);
-        dom.removeEventListener('error', failure, false);
-        if (__audioSupport.USE_LOADER_EVENT) {
-            dom.removeEventListener(__audioSupport.USE_LOADER_EVENT, success, false);
-        }
-    };
-
-    const timer = setTimeout(() => {
-        if (dom.readyState === 0) {
-            failure();
-        }
-        else {
-            success();
-        }
-    }, 8000);
-
-    const success = () => {
-        clearEvent();
-        if (onComplete) { onComplete(null, dom); }
-    };
-
-    const failure = () => {
-        clearEvent();
-        const message = 'load audio failure - ' + url;
-        log(message);
-        if (onComplete) { onComplete(new Error(message)); }
-    };
-
-    dom.addEventListener('canplaythrough', success, false);
-    dom.addEventListener('error', failure, false);
-    if (__audioSupport.USE_LOADER_EVENT) {
-        dom.addEventListener(__audioSupport.USE_LOADER_EVENT, success, false);
-    }
-    return dom;
+    createDomAudio(url).then(dom => {
+        onComplete(null, dom);
+    }, errMsg => {
+    	log(errMsg);
+    	onComplete(new Error(errMsg), null);
+    });
 }
 
 function downloadArrayBuffer (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {

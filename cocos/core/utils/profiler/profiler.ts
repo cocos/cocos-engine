@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -28,10 +28,9 @@ import { MeshRenderer } from '../../3d/framework/mesh-renderer';
 import { Camera } from '../../3d/framework/camera-component';
 import { createMesh } from '../../3d/misc/utils';
 import { Material } from '../../assets/material';
-import { GFXBufferTextureCopy, GFXClearFlag, GFXFormat, GFXTextureType, GFXTextureUsageBit } from '../../gfx/define';
-import { GFXDevice } from '../../gfx/device';
-import { GFXTexture } from '../../gfx/texture';
-import { Vec4 } from '../../math';
+import { GFXClearFlag, GFXFormat, GFXTextureType, GFXTextureUsageBit } from '../../gfx/define';
+import { GFXTexture, GFXTextureInfo, GFXDevice, GFXBufferTextureCopy } from '../../gfx';
+import { toRadian, Vec4 } from '../../math';
 import { Layers } from '../../scene-graph';
 import { Node } from '../../scene-graph/node';
 import { ICounterOption } from './counter';
@@ -194,13 +193,13 @@ export class Profiler {
         this._ctx.textBaseline = 'top';
         this._ctx.fillStyle = '#fff';
 
-        this._texture = this._device!.createTexture({
-            type: GFXTextureType.TEX2D,
-            usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
-            format: GFXFormat.RGBA8,
-            width: textureWidth,
-            height: textureHeight,
-        });
+        this._texture = this._device!.createTexture(new GFXTextureInfo(
+            GFXTextureType.TEX2D,
+            GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
+            GFXFormat.RGBA8,
+            textureWidth,
+            textureHeight,
+        ));
 
         this._region.texExtent.width = textureWidth;
         this._region.texExtent.height = textureHeight;
@@ -254,7 +253,7 @@ export class Profiler {
         camera.projection = Camera.ProjectionType.ORTHO;
         camera.near = 1;
         camera.far = 2;
-        camera.orthoHeight = this._device!.height;
+        camera.orthoHeight = 1;
         camera.visibility = Layers.BitMask.PROFILER;
         camera.clearFlags = GFXClearFlag.NONE;
         camera.priority = 0xffffffff; // after everything else
@@ -269,10 +268,10 @@ export class Profiler {
         const scale = rowHeight / _constants.fontSize;
         const columnWidth = this._eachNumWidth * this._canvas!.width * scale;
         const vertexPos: number[] = [
-            0, height, 0, // top-left
+                 0, height, 0, // top-left
             lWidth, height, 0, // top-right
-            lWidth,   0, 0, // bottom-right
-            0,   0, 0, // bottom-left
+            lWidth,      0, 0, // bottom-right
+                 0,      0, 0, // bottom-left
         ];
         const vertexindices: number[] = [
             0, 2, 1,
@@ -287,7 +286,7 @@ export class Profiler {
         let offset = 0;
         for (let i = 0; i < this._totalLines; i++) {
             for (let j = 0; j < _constants.segmentsPerLine; j++) {
-                vertexPos.push(lWidth + j * columnWidth, height - i * rowHeight, 0 ); // tl
+                vertexPos.push(lWidth + j * columnWidth, height - i * rowHeight, 0); // tl
                 vertexPos.push(lWidth + (j + 1) * columnWidth, height - i * rowHeight, 0); // tr
                 vertexPos.push(lWidth + (j + 1) * columnWidth, height - (i + 1) * rowHeight, 0); // br
                 vertexPos.push(lWidth + j * columnWidth, height - (i + 1) * rowHeight, 0); // bl
@@ -303,12 +302,6 @@ export class Profiler {
             }
         }
 
-        // device NDC correction
-        const ySign = this._device!.screenSpaceSignY;
-        for (let i = 1; i < vertexPos.length; i += 3) {
-            vertexPos[i] *= ySign;
-        }
-
         const modelCom = managerNode.addComponent(MeshRenderer);
         modelCom.mesh = createMesh({
             positions: vertexPos,
@@ -318,7 +311,7 @@ export class Profiler {
 
         const _material = new Material();
         _material.initialize({ effectName: 'util/profiler' });
-        _material.setProperty('offset', new Vec4(-0.9, -0.9 * ySign, this._eachNumWidth, 0));
+        _material.setProperty('offset', new Vec4(-0.9, -0.9 * this._device!.screenSpaceSignY, this._eachNumWidth, 0));
         const pass = this.pass = _material.passes[0];
         const handle = pass.getBinding('mainTexture');
         const binding = pass.getBinding('digits');

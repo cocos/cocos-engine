@@ -3,18 +3,22 @@
  * @hidden
  */
 
-import { aabb, intersect } from '../../geometry';
+import { aabb, intersect, frustum } from '../../geometry';
 import { Model } from '../../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Layers } from '../../scene-graph/layers';
-import { Vec3} from '../../math';
+import { Vec3, Mat4, Quat, Color } from '../../math';
 import { ForwardPipeline } from './forward-pipeline';
-import { RenderView } from '../render-view';
+import { RenderView } from '../';
 import { Pool } from '../../memop';
-import { IRenderObject } from '../define';
-import { ShadowType } from '../../renderer/scene/shadows';
+import { IRenderObject, UBOShadow } from '../define';
+import { ShadowType, Shadows } from '../../renderer/scene/shadows';
+import { SphereLight, DirectionalLight, RenderScene} from '../../renderer/scene';
 
 const _tempVec3 = new Vec3();
+const _dir_negate = new Vec3();
+const _vec3_p = new Vec3();
+const _mat4_trans = new Mat4();
 const _castWorldBounds = new aabb();
 const _receiveWorldBounds = new aabb();
 let _castBoundsInited = false;
@@ -47,6 +51,76 @@ function getCastShadowRenderObject (model: Model, camera: Camera) {
     return ro;
 }
 
+export function getShadowWorldMatrix (pipeline: ForwardPipeline, rotation: Quat, dir: Vec3) {
+    const shadows = pipeline.shadows;
+    Vec3.negate(_dir_negate, dir);
+    const distance: number = Math.sqrt(2) * shadows.sphere.radius;
+    Vec3.multiplyScalar(_vec3_p, _dir_negate, distance);
+    Vec3.add(_vec3_p, _vec3_p, shadows.sphere.center);
+
+    Mat4.fromRT(_mat4_trans, rotation, _vec3_p);
+
+    return _mat4_trans;
+}
+
+function updateSphereLight (pipeline: ForwardPipeline, light: SphereLight) {
+    const shadows = pipeline.shadows;
+
+    const pos = light.node!.worldPosition;
+    const n = shadows.normal; const d = shadows.distance + 0.001; // avoid z-fighting
+    const NdL = Vec3.dot(n, pos);
+    const lx = pos.x; const ly = pos.y; const lz = pos.z;
+    const nx = n.x; const ny = n.y; const nz = n.z;
+    const m = shadows.matLight;
+    m.m00 = NdL - d - lx * nx;
+    m.m01 = -ly * nx;
+    m.m02 = -lz * nx;
+    m.m03 = -nx;
+    m.m04 = -lx * ny;
+    m.m05 = NdL - d - ly * ny;
+    m.m06 = -lz * ny;
+    m.m07 = -ny;
+    m.m08 = -lx * nz;
+    m.m09 = -ly * nz;
+    m.m10 = NdL - d - lz * nz;
+    m.m11 = -nz;
+    m.m12 = lx * d;
+    m.m13 = ly * d;
+    m.m14 = lz * d;
+    m.m15 = NdL;
+
+    Mat4.toArray(pipeline.shadowUBO, shadows.matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
+}
+
+function updateDirLight (pipeline: ForwardPipeline, light: DirectionalLight) {
+    const shadows = pipeline.shadows;
+
+    const dir = light.direction;
+    const n = shadows.normal; const d = shadows.distance + 0.001; // avoid z-fighting
+    const NdL = Vec3.dot(n, dir); const scale = 1 / NdL;
+    const lx = dir.x * scale; const ly = dir.y * scale; const lz = dir.z * scale;
+    const nx = n.x; const ny = n.y; const nz = n.z;
+    const m = shadows.matLight;
+    m.m00 = 1 - nx * lx;
+    m.m01 = -nx * ly;
+    m.m02 = -nx * lz;
+    m.m03 = 0;
+    m.m04 = -ny * lx;
+    m.m05 = 1 - ny * ly;
+    m.m06 = -ny * lz;
+    m.m07 = 0;
+    m.m08 = -nz * lx;
+    m.m09 = -nz * ly;
+    m.m10 = 1 - nz * lz;
+    m.m11 = 0;
+    m.m12 = lx * d;
+    m.m13 = ly * d;
+    m.m14 = lz * d;
+    m.m15 = 1;
+
+    Mat4.toArray(pipeline.shadowUBO, shadows.matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
+}
+
 export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     const camera = view.camera;
     const scene = camera.scene!;
@@ -63,10 +137,13 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     _castBoundsInited = false;
     _receiveBoundsInited = false;
 
+    if (shadows.enabled) {
+        Color.toArray(pipeline.shadowUBO, shadows.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
+    }
+
     if (mainLight) {
-        mainLight.update();
         if (shadows.type === ShadowType.Planar) {
-            shadows.updateDirLight(mainLight);
+            updateDirLight(pipeline, mainLight);
         }
     }
 
@@ -125,8 +202,4 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     if (_castWorldBounds) { aabb.toBoundingSphere(shadows.sphere, _castWorldBounds); }
 
     if (_receiveWorldBounds) { aabb.toBoundingSphere(shadows.receiveSphere, _receiveWorldBounds); }
-
-    if (shadows.type === ShadowType.Planar) {
-        shadows.updateShadowList(scene, camera.frustum, (camera.visibility & Layers.BitMask.DEFAULT) !== 0);
-    }
 }

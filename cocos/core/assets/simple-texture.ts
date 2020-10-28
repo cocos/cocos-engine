@@ -4,9 +4,8 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { GFXBufferTextureCopy, GFXTextureFlagBit, GFXTextureUsageBit } from '../gfx/define';
-import { GFXAPI, GFXDevice } from '../gfx/device';
-import { GFXTexture, IGFXTextureInfo } from '../gfx/texture';
+import { GFXTextureFlagBit, GFXTextureUsageBit, GFXAPI } from '../gfx/define';
+import { GFXTexture, GFXTextureInfo, GFXDevice, GFXBufferTextureCopy } from '../gfx';
 import { error } from '../platform/debug';
 import { Filter } from './asset-enum';
 import { ImageAsset } from './image-asset';
@@ -15,27 +14,9 @@ import { DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { macro } from '../platform/macro';
 
-const _regions: GFXBufferTextureCopy[] = [{
-    buffStride: 0,
-    buffTexHeight: 0,
-    texOffset: {
-        x: 0,
-        y: 0,
-        z: 0,
-    },
-    texExtent: {
-        width: 1,
-        height: 1,
-        depth: 1,
-    },
-    texSubres: {
-        mipLevel: 0,
-        baseArrayLayer: 0,
-        layerCount: 1,
-    },
-}];
+const _regions: GFXBufferTextureCopy[] = [new GFXBufferTextureCopy()];
 
-export type PresumedGFXTextureInfo = Pick<IGFXTextureInfo, 'usage' | 'flags' | 'format' | 'levelCount'>;
+export type PresumedGFXTextureInfo = Pick<GFXTextureInfo, 'usage' | 'flags' | 'format' | 'levelCount'>;
 
 function getMipLevel (width: number, height: number) {
     let size = Math.max(width, height);
@@ -202,7 +183,7 @@ export class SimpleTexture extends TextureBase {
      * @zh 这个方法被派生类重写以提供GFX纹理信息。
      * @param presumed The presumed GFX texture info.
      */
-    protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): IGFXTextureInfo | null {
+    protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): GFXTextureInfo | null {
         return null;
     }
 

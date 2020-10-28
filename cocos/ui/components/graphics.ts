@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -39,8 +39,8 @@ import { IAssembler } from '../../core/renderer/ui/base';
 import { UI } from '../../core/renderer/ui/ui';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
-import { GFXFormat, GFXPrimitiveMode, RenderingSubMesh, GFXDevice, GFXBufferUsageBit, GFXMemoryUsageBit } from '../../core';
-import { vfmt, getAttributeStride } from '../../core/renderer/ui/ui-vertex-format';
+import { GFXFormat, GFXPrimitiveMode, GFXAttribute, RenderingSubMesh, GFXDevice, GFXBufferUsageBit, GFXBufferInfo, GFXMemoryUsageBit } from '../../core';
+import { vfmtPosColor, getAttributeStride } from '../../core/renderer/ui/ui-vertex-format';
 import { legacyCC } from '../../core/global-exports';
 
 const _matInsInfo: IMaterialInstanceInfo = {
@@ -49,11 +49,8 @@ const _matInsInfo: IMaterialInstanceInfo = {
     subModelIdx: 0,
 };
 
-const attributes = vfmt.concat([
-    {
-        name: 'a_dist',
-        format: GFXFormat.R32F,
-    },
+const attributes = vfmtPosColor.concat([
+    new GFXAttribute('a_dist', GFXFormat.R32F),
 ]);
 
 const stride = getAttributeStride(attributes);
@@ -485,12 +482,12 @@ export class Graphics extends UIRenderable {
      * @zh
      * 擦除之前绘制的所有内容的方法。
      */
-    public clear (clean = false) {
+    public clear () {
         if (!this.impl) {
             return;
         }
 
-        this.impl.clear(clean);
+        this.impl.clear();
         this._isDrawing = false;
         if (this.model) {
             for (let i = 0; i < this.model.subModels.length; i++) {
@@ -590,21 +587,20 @@ export class Graphics extends UIRenderable {
         if (this.model.subModels.length <= idx) {
             let renderMesh: RenderingSubMesh;
             const gfxDevice: GFXDevice = legacyCC.director.root.device;
-            const vertexBuffer = gfxDevice.createBuffer({
-                usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.DEVICE,
-                size: 65535 * stride,
+            const vertexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
+                GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+                GFXMemoryUsageBit.DEVICE,
+                65535 * stride,
                 stride,
-            });
-            const indexBuffer = gfxDevice.createBuffer({
-                usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.DEVICE,
-                size: 65535 * 2,
-                stride: 2,
-            });
+            ));
+            const indexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
+                GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+                GFXMemoryUsageBit.DEVICE,
+                65535 * 2,
+                2,
+            ));
 
-            renderMesh = new RenderingSubMesh([vertexBuffer], attributes, GFXPrimitiveMode.TRIANGLE_LIST);
-            renderMesh.indexBuffer = indexBuffer;
+            renderMesh = new RenderingSubMesh([vertexBuffer], attributes, GFXPrimitiveMode.TRIANGLE_LIST, indexBuffer);
             renderMesh.subMeshIdx = 0;
 
             this.model.initSubModel(idx, renderMesh, this.getUIMaterialInstance());
@@ -632,15 +628,15 @@ export class Graphics extends UIRenderable {
     }
 
     protected _attachToScene () {
-        const scene = director.root!.ui.renderScene;
-        if (!this.model || this.model!.scene === scene) {
+        const renderScene = director.root!.ui.renderScene;
+        if (!this.model || this.model!.scene === renderScene) {
             return;
         }
 
         if (this.model!.scene !== null) {
             this._detachFromScene();
         }
-        scene.addModel(this.model!);
+        renderScene.addModel(this.model!);
     }
 
     protected _detachFromScene () {

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -34,7 +34,7 @@ import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
 import { legacyCC } from '../global-exports';
-import { IGFXTextureInfo } from '../gfx';
+import { GFXTextureInfo } from '../gfx';
 
 export type ITextureCubeCreateInfo = ITexture2DCreateInfo;
 
@@ -111,7 +111,7 @@ export class TextureCube extends SimpleTexture {
 
     /**
      * @en Level 0 mipmap image.
-     * Be noted, `this.image = img` equals `this.mipmaps = [img]`, 
+     * Be noted, `this.image = img` equals `this.mipmaps = [img]`,
      * sets image will clear all previous mipmaps.
      * @zh 0 级 Mipmap。
      * 注意，`this.image = img` 等价于 `this.mipmaps = [img]`，
@@ -128,7 +128,8 @@ export class TextureCube extends SimpleTexture {
     /**
      * @en Create a texture cube with an array of [[Texture2D]] which represents 6 faces of the texture cube.
      * @zh 通过二维贴图数组指定每个 Mipmap 的每个面创建立方体贴图。
-     * @param textures Texture array, the texture count must be multiple of 6. Every 6 textures are 6 faces of a mipmap level. The order should obey [[FaceIndex]] order.
+     * @param textures Texture array, the texture count must be multiple of 6. Every 6 textures are 6 faces of a mipmap level.
+     * The order should obey [[FaceIndex]] order.
      * @param out Output texture cube, if not given, will create a new texture cube.
      * @returns The created texture cube.
      * @example
@@ -266,15 +267,14 @@ export class TextureCube extends SimpleTexture {
         }
     }
 
-    protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): IGFXTextureInfo {
-        const result: IGFXTextureInfo = Object.assign({
-            type: GFXTextureType.CUBE,
-            width: this._width,
-            height: this._height,
-            layerCount: 6,
-        }, presumed);
-        result.flags = (result.flags || 0) | GFXTextureFlagBit.CUBEMAP;
-        return result;
+    protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): GFXTextureInfo {
+        const texInfo = new GFXTextureInfo(GFXTextureType.CUBE);
+        texInfo.width = this._width;
+        texInfo.height = this._height;
+        texInfo.layerCount = 6;
+        Object.assign(texInfo, presumed);
+        texInfo.flags = texInfo.flags | GFXTextureFlagBit.CUBEMAP;
+        return texInfo;
     }
 }
 

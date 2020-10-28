@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -611,6 +611,8 @@ export class RichText extends UIComponent {
                 }
             }
         }
+        // Tolerate null parent child (upgrade issue may cause this special case)
+        children.length = 0;
 
         this._labelSegments.length = 0;
         this._labelSegmentsCache.length = 0;

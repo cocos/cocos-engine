@@ -1,10 +1,10 @@
-import { Quat, Vec3, Vec4 } from '../../math';
+import { Vec3, Vec4 } from '../../math';
 import { Ambient } from './ambient';
 import { Light, LightType } from './light';
+import { LightPool, LightView } from '../core/memory-pools';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
-const _qt = new Quat();
 
 export class DirectionalLight extends Light {
 
@@ -65,7 +65,6 @@ export class DirectionalLight extends Light {
     }
 
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
-    protected _illum: number = Ambient.SUN_ILLUM;
 
     // shadow
     private _shadowRange: number = 1000.0;
@@ -79,8 +78,8 @@ export class DirectionalLight extends Light {
     private _biasAutoAdjust: number = 1.0;
 
     set direction (dir: Vec3) {
-        this._dir = dir;
-        Vec3.normalize(this._dir, this._dir);
+        Vec3.normalize(this._dir, dir);
+        LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
     }
 
     get direction (): Vec3 {
@@ -89,11 +88,11 @@ export class DirectionalLight extends Light {
 
     // in Lux(lx)
     set illuminance (illum: number) {
-        this._illum = illum;
+        LightPool.set(this._handle, LightView.ILLUMINANCE, illum);
     }
 
     get illuminance (): number {
-        return this._illum;
+        return LightPool.get(this._handle, LightView.ILLUMINANCE);
     }
 
     constructor () {
@@ -101,10 +100,15 @@ export class DirectionalLight extends Light {
         this._type = LightType.DIRECTIONAL;
     }
 
+    public initialize () {
+        super.initialize();
+        LightPool.set(this._handle, LightView.ILLUMINANCE, Ambient.SUN_ILLUM);
+        LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
+    }
+
     public update () {
         if (this._node && this._node.hasChangedFlags) {
-            this._dir = Vec3.transformQuat(_v3, _forward, this._node.getWorldRotation(_qt));
-            Vec3.normalize(this._dir, this._dir);
+            this.direction = Vec3.transformQuat(_v3, _forward, this._node.worldRotation);
         }
     }
 }

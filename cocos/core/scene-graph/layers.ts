@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -130,6 +130,11 @@ export class Layers {
     delete Layers.BitMask[Layers.BitMask[bitNum]];
     delete Layers.BitMask[bitNum];
   }
+}
+
+export declare namespace Layers {
+    export type Enum = EnumAlias<typeof Layers.Enum>;
+    export type BitMask = EnumAlias<typeof Layers.BitMask>;
 }
 
 legacyCC.Layers = Layers;

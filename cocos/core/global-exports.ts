@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -173,7 +173,7 @@ if (DEV) {
     legacyCC._Test = {};
 }
 
-const engineVersion = '1.2.0';
+const engineVersion = '3.0.0';
 /**
  * The current version of Cocos2d being used.<br/>
  * Please DO NOT remove this String, it is an important flag for bug tracking.<br/>

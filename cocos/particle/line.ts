@@ -188,8 +188,8 @@ export class Line extends Component {
     }
 
     public onLoad () {
-        this._model = legacyCC.director.root.createModel(LineModel);
-        this._model!.initialize(this.node);
+        const model = this._model = legacyCC.director.root.createModel(LineModel);
+        model.node = model.transform = this.node;
         if (this._material == null) {
             this._material = new Material();
             this._material.copy(builtinResMgr.get<Material>('default-trail-material'));
@@ -199,8 +199,8 @@ export class Line extends Component {
             this._materialInstance = new MaterialInstance(_matInsInfo);
             this._materialInstance.recompileShaders(define);
         }
-        this._model!.updateMaterial(this._materialInstance!);
-        this._model!.setCapacity(100);
+        model.updateMaterial(this._materialInstance!);
+        model.setCapacity(100);
     }
 
     public onEnable () {

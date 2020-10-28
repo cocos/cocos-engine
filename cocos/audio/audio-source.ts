@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -155,8 +155,7 @@ export class AudioSource extends Component {
      */
     public play () {
         if (!this._clip) { return; }
-        if (this.playing) { this.currentTime = 0; }
-        else { this._clip.play(); }
+        this._clip.play();
     }
 
     /**

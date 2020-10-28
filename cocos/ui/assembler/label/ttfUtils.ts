@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -38,6 +38,7 @@ import { LetterRenderTexture } from './letter-font';
 import { logID } from '../../../core/platform/debug';
 import { RUNTIME_BASED, MINIGAME } from 'internal:constants';
 import { UITransform } from '../../../core/components/ui-base/ui-transform';
+import { legacyCC } from '../../../core/global-exports';
 import { assetManager } from '../../../core';
 
 const Overflow = Label.Overflow;
@@ -175,8 +176,6 @@ export const ttfUtils =  {
             _isOutlined = true;
             _margin = _outlineWidth = outline.width;
             _outlineColor.set(outline.color);
-            // TODO: temporary solution, cascade opacity for outline color
-            _outlineColor.a = _outlineColor.a * comp.color.a / 255.0;
         }
         else {
             _isOutlined = false;
@@ -272,6 +271,9 @@ export const ttfUtils =  {
                     mipmapLevel: 1
                 });
                 tex.uploadData(_canvas);
+                if (legacyCC.director.root && legacyCC.director.root.ui) {
+                    legacyCC.director.root.ui._releaseDescriptorSetCache(tex.getHash());
+                }
             }
         }
     },

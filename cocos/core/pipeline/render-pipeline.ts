@@ -9,8 +9,8 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 import { MacroRecord } from '../renderer/core/pass-utils';
-import { GFXDevice, GFXDescriptorSet, GFXCommandBuffer, GFXDescriptorSetLayout } from '../gfx';
-import { globalDescriptorSetLayout, IDescriptorSetLayoutInfo } from './define';
+import { GFXDevice, GFXDescriptorSet, GFXCommandBuffer, GFXDescriptorSetLayout, GFXDescriptorSetLayoutInfo, GFXDescriptorSetInfo } from '../gfx';
+import { globalDescriptorSetLayout } from './define';
 
 /**
  * @en Render pipeline information descriptor
@@ -35,24 +35,6 @@ export abstract class RenderPipeline extends Asset {
     /**
      * @en Layout of the pipeline-global descriptor set.
      * @zh 管线层的全局描述符集布局。
-     * @readonly
-     */
-    get globalDescriptorSetLayout (): Readonly<IDescriptorSetLayoutInfo> {
-        return this._globalDescriptorSetLayout;
-    }
-
-    /**
-     * @en Layout of the model-local descriptor set.
-     * @zh 逐模型的描述符集布局。
-     * @readonly
-     */
-    get localDescriptorSetLayout (): Readonly<IDescriptorSetLayoutInfo> {
-        return this._localDescriptorSetLayout;
-    }
-
-    /**
-     * @en The macros for this pipeline.
-     * @zh 管线宏定义。
      * @readonly
      */
     get macros (): MacroRecord {
@@ -96,9 +78,6 @@ export abstract class RenderPipeline extends Asset {
     @serializable
     protected _flows: RenderFlow[] = [];
 
-    protected _globalDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: [], record: {} };
-    protected _localDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: [], record: {} };
-
     protected _macros: MacroRecord = {};
 
     get device () {
@@ -140,13 +119,10 @@ export abstract class RenderPipeline extends Asset {
     public activate (): boolean {
         this._device = legacyCC.director.root.device;
 
-        this._descriptorSetLayout = this._device.createDescriptorSetLayout({
-            bindings: globalDescriptorSetLayout.bindings,
-        });
+        const layoutInfo = new GFXDescriptorSetLayoutInfo(globalDescriptorSetLayout.bindings);
+        this._descriptorSetLayout = this._device.createDescriptorSetLayout(layoutInfo);
 
-        this._descriptorSet = this._device.createDescriptorSet({
-            layout: this._descriptorSetLayout,
-        });
+        this._descriptorSet = this._device.createDescriptorSet(new GFXDescriptorSetInfo(this._descriptorSetLayout));
 
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].activate(this);

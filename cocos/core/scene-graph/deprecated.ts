@@ -4,7 +4,7 @@
  */
 
 import { BaseNode } from './base-node';
-import { replaceProperty, removeProperty } from '../utils/deprecated';
+import { replaceProperty, removeProperty } from '../utils/x-deprecated';
 import { Layers } from './layers';
 import { Node } from './node';
 import { Vec2 } from '../math/vec2';

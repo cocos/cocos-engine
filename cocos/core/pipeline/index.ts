@@ -3,14 +3,13 @@
  * @module pipeline
  */
 
-import * as pipelineDefine from './define';
-export const pipeline = pipelineDefine;
+import * as pipeline from './define';
+export { pipeline };
 
 export { RenderPipeline } from './render-pipeline';
 export { RenderFlow } from './render-flow';
 export { RenderStage } from './render-stage';
 export { RenderView } from './render-view';
-export { RenderWindow } from './render-window';
 
 export { ForwardPipeline } from './forward/forward-pipeline';
 export { ForwardFlow } from './forward/forward-flow';
@@ -19,3 +18,6 @@ export { ShadowFlow } from './shadow/shadow-flow';
 export { ShadowStage } from './shadow/shadow-stage';
 export { UIFlow } from './ui/ui-flow';
 export { UIStage } from './ui/ui-stage';
+
+export { InstancedBuffer } from './instanced-buffer';
+export { PipelineStateManager } from './pipeline-state-manager';

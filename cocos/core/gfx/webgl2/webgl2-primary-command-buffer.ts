@@ -1,6 +1,7 @@
 import { GFXBuffer, GFXBufferSource } from '../buffer';
 import { GFXCommandBuffer } from '../command-buffer';
-import { GFXBufferTextureCopy, GFXBufferUsageBit, GFXColor, GFXRect } from '../define';
+import { GFXBufferUsageBit } from '../define';
+import { GFXBufferTextureCopy, GFXColor, GFXRect } from '../define-class';
 import { GFXFramebuffer } from '../framebuffer';
 import { GFXInputAssembler } from '../input-assembler';
 import { GFXTexture } from '../texture';
@@ -14,6 +15,7 @@ import { WebGL2Framebuffer } from './webgl2-framebuffer';
 import { WebGL2Texture } from './webgl2-texture';
 import { GFXRenderPass } from '../render-pass';
 import { WebGL2RenderPass } from './webgl2-render-pass';
+import { GFXDrawInfo } from '../..';
 
 const _dynamicOffsets: number[] = [];
 
@@ -41,7 +43,7 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
                 this.bindStates();
             }
 
-            WebGL2CmdFuncDraw(this._device as WebGL2Device, inputAssembler);
+            WebGL2CmdFuncDraw(this._device as WebGL2Device, inputAssembler as unknown as GFXDrawInfo);
 
             ++this._numDrawCalls;
             this._numInstances += inputAssembler.instanceCount;

@@ -2,7 +2,7 @@
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2012 James Chen
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -132,7 +132,7 @@ export class EditBoxImpl extends EditBoxImplBase {
 
     public setSize (width: number, height: number) {
         const elem = this._edTxt;
-        if (elem){
+        if (elem) {
             elem.style.width = width + 'px';
             elem.style.height = height + 'px';
         }
@@ -483,7 +483,7 @@ export class EditBoxImpl extends EditBoxImplBase {
 
         const elem = this._edTxt;
         elem.style.fontSize = `${fontSize}px`;
-        elem.style.color = textLabel.color.toCSS('rgba');
+        elem.style.color = textLabel.color.toCSS();
         elem.style.fontFamily = font;
 
         switch (textLabel.horizontalAlign) {
@@ -530,7 +530,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._placeholderLineHeight = placeholderLabel.fontSize;
 
         const styleEl = this._placeholderStyleSheet;
-        const fontColor = placeholderLabel.color.toCSS('rgba');
+        const fontColor = placeholderLabel.color.toCSS();
         const lineHeight = placeholderLabel.fontSize;
 
         let horizontalAlign = '';

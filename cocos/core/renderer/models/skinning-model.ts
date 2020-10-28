@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -32,7 +32,6 @@ import { Material } from '../../assets/material';
 import { Mesh, RenderingSubMesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
-import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { Mat4, Vec3 } from '../../math';
 import { UBOSkinning } from '../../pipeline/define';
@@ -40,7 +39,7 @@ import { Node } from '../../scene-graph/node';
 import { ModelType } from '../scene/model';
 import { uploadJointData } from './skeletal-animation-utils';
 import { MorphModel } from './morph-model';
-import { GFXDescriptorSet } from '../../gfx';
+import { GFXDescriptorSet, GFXBuffer, GFXBufferInfo } from '../../gfx';
 
 export interface IJointTransform {
     node: Node;
@@ -240,9 +239,10 @@ export class SkinningModel extends MorphModel {
 
     public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {
         const original = subMeshData.vertexBuffers;
-        subMeshData.vertexBuffers = subMeshData.jointMappedBuffers;
+        const iaInfo = subMeshData.iaInfo;
+        iaInfo.vertexBuffers = subMeshData.jointMappedBuffers;
         super.initSubModel(idx, subMeshData, mat);
-        subMeshData.vertexBuffers = original;
+        iaInfo.vertexBuffers = original;
     }
 
     public getMacroPatches (subModelIndex: number) : any {
@@ -257,18 +257,18 @@ export class SkinningModel extends MorphModel {
     public _updateLocalDescriptors (submodelIdx: number, descriptorSet: GFXDescriptorSet) {
         super._updateLocalDescriptors(submodelIdx, descriptorSet);
         const buffer = this._buffers[this._bufferIndices![submodelIdx]];
-        if (buffer) { descriptorSet.bindBuffer(UBOSkinning.BLOCK.binding, buffer); }
+        if (buffer) { descriptorSet.bindBuffer(UBOSkinning.BINDING, buffer); }
     }
 
     private _ensureEnoughBuffers (count: number) {
         for (let i = 0; i < count; i++) {
             if (!this._buffers[i]) {
-                this._buffers[i] = this._device.createBuffer({
-                    usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                    memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                    size: UBOSkinning.SIZE,
-                    stride: UBOSkinning.SIZE,
-                });
+                this._buffers[i] = this._device.createBuffer(new GFXBufferInfo(
+                    GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                    GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                    UBOSkinning.SIZE,
+                    UBOSkinning.SIZE,
+                ));
             }
             if (!this._dataArray[i]) {
                 this._dataArray[i] = new Float32Array(UBOSkinning.COUNT);

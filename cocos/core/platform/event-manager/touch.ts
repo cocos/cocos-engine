@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -152,7 +152,7 @@ export class Touch {
 
     /**
      * @en Returns the start touch location.
-     * @zh 获获取触点落下时的位置对象，对象包含 x 和 y 属性。
+     * @zh 获取触点落下时的位置对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
     public getStartLocation (out?: Vec2) {
@@ -166,7 +166,7 @@ export class Touch {
 
     /**
      * @en Returns the start touch location in UI coordinates.
-     * @zh 获获取触点落下时在 UI 坐标系中的位置对象，对象包含 x 和 y 属性。
+     * @zh 获取触点落下时在 UI 坐标系中的位置对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
     public getUIStartLocation (out?: Vec2) {

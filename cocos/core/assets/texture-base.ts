@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -31,15 +31,14 @@
 
 // @ts-check
 import {ccclass, serializable} from 'cc.decorator';
-import { GFXDevice } from '../gfx/device';
-import { GFXTexture } from '../gfx/texture';
 import { genSamplerHash, SamplerInfoIndex, samplerLib } from '../renderer/core/sampler-lib';
 import IDGenerator from '../utils/id-generator';
 import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
-import { GFXSampler } from '../gfx';
+import { GFXSampler, GFXTexture, GFXDevice } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
+import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 
 const idGenerator = new IDGenerator('Tex');
 /**
@@ -123,6 +122,8 @@ export class TextureBase extends Asset {
     private _gfxSampler: GFXSampler | null = null;
     private _gfxDevice: GFXDevice | null = null;
 
+    private _textureHash: number = 0;
+
     constructor () {
         super();
 
@@ -131,6 +132,7 @@ export class TextureBase extends Asset {
 
         this.loaded = false;
         this._gfxDevice = this._getGFXDevice();
+        this._textureHash = murmurhash2_32_gc(this._id, 666);
     }
 
     /**
@@ -237,7 +239,19 @@ export class TextureBase extends Asset {
      * @zh 销毁此贴图，并释放占用的 GPU 资源。
      */
     public destroy () {
-        return super.destroy();
+        const destroyed = super.destroy();
+        if(destroyed && legacyCC.director.root && legacyCC.director.root.ui) {
+            legacyCC.director.root.ui._releaseDescriptorSetCache(this._textureHash);
+        }
+        return destroyed;
+    }
+
+    /**
+     * @en Gets the texture hash.
+     * @zh 获取此贴图的哈希值。
+     */
+    public getHash () {
+        return this._textureHash;
     }
 
     /**

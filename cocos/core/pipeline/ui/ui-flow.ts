@@ -21,16 +21,16 @@ export class UIFlow extends RenderFlow {
         name: 'UIFlow',
         priority: ForwardFlowPriority.UI,
         tag: RenderFlowTag.UI,
+        stages: []
     };
 
     public initialize (info: IRenderFlowInfo): boolean {
-
         super.initialize(info);
-
-        const uiStage = new UIStage();
-        uiStage.initialize(UIStage.initInfo);
-        this._stages.push(uiStage);
-
+        if (this._stages.length === 0) {
+            const uiStage = new UIStage();
+            uiStage.initialize(UIStage.initInfo);
+            this._stages.push(uiStage);
+        }
         return true;
     }
 

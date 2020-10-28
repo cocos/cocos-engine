@@ -286,7 +286,7 @@ module.exports = {
     },
     layout: {
         layout_type: '自动布局模式，包括：\n 1. NONE，不会对子节点进行自动布局 \n 2. HORIZONTAL，横向自动排布子物体 \n 3. VERTICAL，垂直自动排布子物体\n 4. GRID, 采用网格方式对子物体自动进行布局',
-        resize_mode: '缩放模式，包括：\n 1. NONE，不会对子节点和容器进行大小缩放 \n 2. CHILD, 对子节点的大小进行缩放 \n 3. CONTAINER, 对容器的大小进行缩放',
+        resize_mode: '缩放模式，包括：\n 1. NONE，不会对子节点和容器进行大小缩放 \n 2. CONTAINER, 对容器的大小进行缩放 \n 3. CHILD, 对子节点的大小进行缩放',
         padding_left: 'Layout 节点左边界和子节点的内边距',
         padding_right: 'Layout 节点右边界和子节点的内边距',
         padding_top: 'Layout 节点上边界和子节点的内边距',
@@ -322,17 +322,22 @@ module.exports = {
         max_length: '输入框最大允许输入的字符个数',
     },
     videoplayer: {
-        resourceType: '视频来源，支持本地视频 URL 和远程视频 URL',
-        url: '远程视频的 URL',
-        video: '本地视频的 URL',
+        resourceType: '视频来源：REMOTE 表示远程视频 URL，LOCAL 表示本地视频地址。',
+        remoteURL: '远程视频的 URL',
+        clip: '本地视频剪辑',
+        playOnAwake: '视频加载后是否自动开始播放？',
         volume: '视频的音量（0.0 ~ 1.0）',
-        mute: '是否静音视频。静音时设置音量为 0，取消静音是恢复原来的音量',
-        currentTime: '从哪个时间点开始播放视频',
-        keepAspectRatio: '是否保持视频原有的宽高比',
-        isFullscreen: '是否全屏播放视频',
+        playbackRate: '视频播放时的速率（0.0 ~ 10.0）',
+        mute: '是否静音视频。静音时设置音量为 0，取消静音是恢复原来的音量。',
+        loop: '视频是否应在结束时再次播放',
+        keepAspectRatio: '是否保持视频原来的宽高比',
+        fullScreenOnAwake: '是否全屏播放视频？',
+        stayOnBottom: '永远在游戏视图最底层（这个属性只有在 Web 平台上有效果。注意：具体效果无法保证一致，跟各个浏览器是否支持与限制有关）',
+        videoPlayerEvent: '视频播放回调函数，该回调函数会在特定情况被触发，比如播放中，暂时，停止和完成播放。',
     },
     webview: {
         url: '指定一个 URL 地址，这个地址以 http 或者 https 开头，请填写一个有效的 URL 地址。',
+        webviewEvents: 'Webview 的回调事件，当网页加载过程中，加载完成后或者加载出错时都会回调此函数'
     },
     richtext: {
         string: '富文本的内容字符串, 你可以在里面使用 BBCode 来指定特定文本的样式',

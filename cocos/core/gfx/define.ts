@@ -3,10 +3,7 @@
  * @module gfx
  */
 
-export const GFX_MAX_VERTEX_ATTRIBUTES: number = 16;
-export const GFX_MAX_TEXTURE_UNITS: number = 16;
 export const GFX_MAX_ATTACHMENTS: number = 4;
-export const GFX_MAX_BUFFER_BINDINGS: number = 24;
 
 export enum GFXObjectType {
     UNKNOWN,
@@ -533,52 +530,6 @@ export enum GFXQueueType {
     TRANSFER,
 }
 
-export class GFXRect {
-    public x: number;
-    public y: number;
-    public width: number;
-    public height: number;
-
-    constructor (x = 0, y = 0, width = 1, height = 1) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-    }
-}
-
-export class GFXViewport {
-    public left: number;
-    public top: number;
-    public width: number;
-    public height: number;
-    public minDepth: number;
-    public maxDepth: number;
-
-    constructor (left = 0, top = 0, width = 0, height = 0, minDepth = 0, maxDepth = 1) {
-        this.left = left;
-        this.top = top;
-        this.width = width;
-        this.height = height;
-        this.minDepth = minDepth;
-        this.maxDepth = maxDepth;
-    }
-}
-
-export class GFXColor {
-    public r: number;
-    public g: number;
-    public b: number;
-    public a: number;
-
-    constructor (r = 0, g = 0, b = 0, a = 0) {
-        this.r = r;
-        this.g = g;
-        this.b = b;
-        this.a = a;
-    }
-}
-
 export enum GFXClearFlag {
     NONE = 0,
     COLOR = 1,
@@ -586,76 +537,6 @@ export enum GFXClearFlag {
     STENCIL = 4,
     DEPTH_STENCIL = DEPTH | STENCIL,
     ALL = COLOR | DEPTH | STENCIL,
-}
-
-export class GFXOffset {
-    public x: number;
-    public y: number;
-    public z: number;
-
-    constructor (x = 0, y = 0, z = 0) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-    }
-}
-
-export class GFXExtent {
-    public width: number;
-    public height: number;
-    public depth: number;
-
-    constructor (width = 0, height = 0, depth = 1) {
-        this.width = width;
-        this.height = height;
-        this.depth = depth;
-    }
-}
-
-export class GFXTextureSubres {
-    public mipLevel: number;
-    public baseArrayLayer: number;
-    public layerCount: number;
-
-    constructor (mipLevel = 0, baseArrayLayer = 0, layerCount = 1) {
-        this.mipLevel = mipLevel;
-        this.baseArrayLayer = baseArrayLayer;
-        this.layerCount = layerCount;
-    }
-}
-
-export class GFXTextureCopy {
-    public srcSubres: GFXTextureSubres;
-    public srcOffset: GFXOffset;
-    public dstSubres: GFXTextureSubres;
-    public dstOffset: GFXOffset;
-    public extent: GFXExtent;
-
-    constructor (srcSubres = new GFXTextureSubres(), srcOffset = new GFXOffset(),
-                 dstSubres = new GFXTextureSubres(), dstOffset = new GFXOffset(), extent = new GFXExtent()) {
-        this.srcSubres = srcSubres;
-        this.srcOffset = srcOffset;
-        this.dstSubres = dstSubres;
-        this.dstOffset = dstOffset;
-        this.extent = extent;
-    }
-}
-
-export class GFXBufferTextureCopy {
-    public buffStride: number;
-    public buffTexHeight: number;
-    public texOffset: GFXOffset;
-    public texExtent: GFXExtent;
-    public texSubres: GFXTextureSubres;
-
-    constructor (buffStride = 0, buffTexHeight = 0,
-                 texOffset = new GFXOffset(), texExtent = new GFXExtent(), texSubres = new GFXTextureSubres()) {
-        this.buffStride = buffStride;
-        this.buffTexHeight = buffTexHeight;
-        this.texOffset = texOffset;
-        this.texExtent = texExtent;
-        this.texSubres = texSubres;
-    }
 }
 
 export enum GFXFormatType {
@@ -668,32 +549,78 @@ export enum GFXFormatType {
     FLOAT,
 }
 
-export class GFXFormatInfo {
-    public readonly name: string;
-    public readonly size: number;
-    public readonly count: number;
-    public readonly type: GFXFormatType;
-    public readonly hasAlpha: boolean;
-    public readonly hasDepth: boolean;
-    public readonly hasStencil: boolean;
-    public readonly isCompressed: boolean;
+export enum GFXAPI {
+    UNKNOWN,
+    GLES2,
+    GLES3,
+    METAL,
+    VULKAN,
+    WEBGL,
+    WEBGL2,
+    WEBGPU,
+}
 
-    constructor (name: string, size: number, count: number, type: GFXFormatType,
-                 hasAlpha: boolean, hasDepth: boolean, hasStencil: boolean, isCompressed: boolean) {
-        this.name = name;
-        this.size = size;
-        this.count = count;
-        this.type = type;
-        this.hasAlpha = hasAlpha;
-        this.hasDepth = hasDepth;
-        this.hasStencil = hasStencil;
-        this.isCompressed = isCompressed;
-    }
+export enum GFXSurfaceTransform {
+    IDENTITY,
+    ROTATE_90,
+    ROTATE_180,
+    ROTATE_270,
+}
+
+export enum GFXFeature {
+    COLOR_FLOAT,
+    COLOR_HALF_FLOAT,
+    TEXTURE_FLOAT,
+    TEXTURE_HALF_FLOAT,
+    TEXTURE_FLOAT_LINEAR,
+    TEXTURE_HALF_FLOAT_LINEAR,
+    FORMAT_R11G11B10F,
+    FORMAT_D16,
+    FORMAT_D16S8,
+    FORMAT_D24,
+    FORMAT_D24S8,
+    FORMAT_D32F,
+    FORMAT_D32FS8,
+    FORMAT_ETC1,
+    FORMAT_ETC2,
+    FORMAT_DXT,
+    FORMAT_PVRTC,
+    FORMAT_ASTC,
+    FORMAT_RGB8,
+    MSAA,
+    ELEMENT_INDEX_UINT,
+    INSTANCED_ARRAYS,
+    MULTIPLE_RENDER_TARGETS,
+    BLEND_MINMAX,
+    DEPTH_BOUNDS,
+    LINE_WIDTH,
+    STENCIL_WRITE_MASK,
+    STENCIL_COMPARE_MASK,
+    COUNT,
+}
+
+export class GFXFormatInfo {
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public readonly name: string,
+        public readonly size: number,
+        public readonly count: number,
+        public readonly type: GFXFormatType,
+        public readonly hasAlpha: boolean,
+        public readonly hasDepth: boolean,
+        public readonly hasStencil: boolean,
+        public readonly isCompressed: boolean,
+    ) {}
 }
 
 export class GFXMemoryStatus {
-    public bufferSize: number = 0;
-    public textureSize: number = 0;
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public bufferSize: number = 0,
+        public textureSize: number = 0,
+    ) {}
 }
 
 export const GFXFormatInfos = Object.freeze([

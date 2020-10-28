@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -30,17 +30,15 @@
 
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { Root } from '../../core/root';
-import { GFXDynamicStateFlags, GFXPrimitiveMode } from '../gfx/define';
-import { IGFXAttribute } from '../gfx/input-assembler';
+import { GFXDescriptorType, GFXDynamicStateFlags, GFXFormat, GFXPrimitiveMode, GFXShaderStageFlags, GFXType } from '../gfx/define';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../gfx/pipeline-state';
-import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
+import { IGFXUniform, IGFXAttribute } from '../gfx';
 import { RenderPassStage } from '../pipeline/define';
 import { MacroRecord } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
 import { Asset } from './asset';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../global-exports';
-import { IGFXDescriptorSetLayoutBinding } from '../gfx';
 
 export interface IPropertyInfo {
     type: number; // auto-extracted from shader
@@ -71,9 +69,22 @@ export interface ITechniqueInfo {
     name?: string;
 }
 
-export interface IBlockInfo extends GFXUniformBlock, IGFXDescriptorSetLayoutBinding {}
-export interface ISamplerInfo extends GFXUniformSampler, IGFXDescriptorSetLayoutBinding {}
-
+export interface IBlockInfo {
+    binding: number;
+    name: string;
+    members: IGFXUniform[];
+    count: number;
+    stageFlags: GFXShaderStageFlags;
+    descriptorType?: GFXDescriptorType;
+}
+export interface ISamplerInfo {
+    binding: number;
+    name: string;
+    type: GFXType;
+    count: number;
+    stageFlags: GFXShaderStageFlags;
+    descriptorType?: GFXDescriptorType;
+}
 export interface IAttributeInfo extends IGFXAttribute {
     defines: string[];
 }
@@ -108,8 +119,6 @@ export interface IPreCompileInfo {
     [name: string]: boolean[] | number[] | string[];
 }
 
-const effects: Record<string, EffectAsset> = {};
-
 /**
  * @en Effect asset is the base template for instantiating material, all effects should be unique globally.
  * All effects are managed in a static map of EffectAsset.
@@ -123,17 +132,17 @@ export class EffectAsset extends Asset {
      * @en Register the effect asset to the static map
      * @zh 将指定 effect 注册到全局管理器。
      */
-    public static register (asset: EffectAsset) { effects[asset.name] = asset; }
+    public static register (asset: EffectAsset) { EffectAsset._effects[asset.name] = asset; }
 
     /**
      * @en Unregister the effect asset from the static map
      * @zh 将指定 effect 从全局管理器移除。
      */
     public static remove (name: string) {
-        if (effects[name]) { delete effects[name]; return; }
-        for (const n in effects) {
-            if (effects[n]._uuid === name) {
-                delete effects[n];
+        if (EffectAsset._effects[name]) { delete EffectAsset._effects[name]; return; }
+        for (const n in EffectAsset._effects) {
+            if (EffectAsset._effects[n]._uuid === name) {
+                delete EffectAsset._effects[n];
                 return;
             }
         }
@@ -144,10 +153,10 @@ export class EffectAsset extends Asset {
      * @zh 获取指定名字的 effect 资源。
      */
     public static get (name: string) {
-        if (effects[name]) { return effects[name]; }
-        for (const n in effects) {
-            if (effects[n]._uuid === name) {
-                return effects[n];
+        if (EffectAsset._effects[name]) { return EffectAsset._effects[name]; }
+        for (const n in EffectAsset._effects) {
+            if (EffectAsset._effects[n]._uuid === name) {
+                return EffectAsset._effects[n];
             }
         }
         return null;
@@ -157,7 +166,7 @@ export class EffectAsset extends Asset {
      * @en Get all registered effect assets.
      * @zh 获取所有已注册的 effect 资源。
      */
-    public static getAll () { return effects; }
+    public static getAll () { return EffectAsset._effects; }
     protected static _effects: Record<string, EffectAsset> = {};
 
     /**
@@ -189,9 +198,9 @@ export class EffectAsset extends Asset {
      * @zh 通过 [[Loader]] 加载完成时的回调，将自动注册 effect 资源。
      */
     public onLoaded () {
-        this.shaders.forEach((s) => programLib.define(s));
-        if (!EDITOR) { legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this._precompile, this); }
+        programLib.register(this);
         EffectAsset.register(this);
+        if (!EDITOR) { legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this._precompile, this); }
     }
 
     protected _precompile () {

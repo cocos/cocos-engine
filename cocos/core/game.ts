@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -31,10 +31,9 @@
 import { ALIPAY, EDITOR, JSB, PREVIEW, RUNTIME_BASED, BUILD } from 'internal:constants';
 import { default as assetManager, IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event/event-target';
-import { RenderPipeline } from './pipeline';
 import * as debug from './platform/debug';
 import inputManager from './platform/event-manager/input-manager';
-import { GFXDevice, IGFXDeviceInfo } from './gfx';
+import { GFXDevice, GFXDeviceInfo } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from './renderer/models';
@@ -42,6 +41,8 @@ import { legacyCC } from './global-exports';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
 import { bindingMappingInfo } from './pipeline/define';
 import { SplashScreen } from './splash-screen';
+import { RenderPipeline } from './pipeline';
+import { Node } from './scene-graph/node';
 
 
 interface ISceneInfo {
@@ -210,6 +211,14 @@ export class Game extends EventTarget {
     public static readonly EVENT_SHOW: string = 'game_on_show';
 
     /**
+     * @en Event triggered when system in low memory status.<br>
+     * This event is only triggered on native iOS/Android platform.
+     * @zh 程序在内存不足时触发的事件。<br>
+     * 该事件只会在 iOS/Android 平台触发。
+     */
+    public static readonly EVENT_LOW_MEMORY: string = 'game_on_low_memory';
+
+    /**
      * @en Event triggered after game inited, at this point all engine objects and game scripts are loaded
      * @zh 游戏启动后的触发事件，此时加载所有的引擎对象和游戏脚本。
      */
@@ -375,9 +384,9 @@ export class Game extends EventTarget {
             window.cAF(this._intervalId);
             this._intervalId = 0;
         }
-        // Because JSB platforms never actually stops the swap chain,
+        // Because runtime platforms never actually stops the swap chain,
         // we draw some more frames here to (try to) make sure swap chain consistency
-        if (JSB || RUNTIME_BASED || ALIPAY) {
+        if (RUNTIME_BASED || ALIPAY) {
             let swapbuffers = 3;
             const cb = () => {
                 if (--swapbuffers > 1) {
@@ -552,11 +561,11 @@ export class Game extends EventTarget {
      * Add a persistent root node to the game, the persistent node won't be destroyed during scene transition.<br>
      * The target node must be placed in the root level of hierarchy, otherwise this API won't have any effect.
      * @zh
-     * 声明常驻根节点，该节点不会被在场景切换中被销毁。<br>
+     * 声明常驻根节点，该节点不会在场景切换中被销毁。<br>
      * 目标节点必须位于为层级的根节点，否则无效。
      * @param node - The node to be made persistent
      */
-    public addPersistRootNode (node: { uuid: any; parent: any; _persistNode: boolean; }) {
+    public addPersistRootNode (node: Node) {
         if (!legacyCC.Node.isNode(node) || !node.uuid) {
             debug.warnID(3800);
             return;
@@ -625,8 +634,9 @@ export class Game extends EventTarget {
         this._lastTime = new Date();
         const frameRate = legacyCC.game.config.frameRate;
         this._frameTime = 1000 / frameRate;
-
+        legacyCC.director._maxParticleDeltaTime = this._frameTime / 1000 * 2;
         if (JSB || RUNTIME_BASED) {
+            // @ts-ignore
             jsb.setPreferredFramesPerSecond(frameRate);
             window.rAF = window.requestAnimationFrame;
             window.cAF = window.cancelAnimationFrame;
@@ -675,6 +685,9 @@ export class Game extends EventTarget {
     }
     // Run game.
     private _runMainLoop () {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
+            return;
+        }
         let callback: FrameRequestCallback;
         const config = this.config;
         const director = legacyCC.director;
@@ -802,15 +815,15 @@ export class Game extends EventTarget {
                 }
             }
 
-            const opts: IGFXDeviceInfo = {
-                canvasElm: this.canvas as HTMLCanvasElement,
-                debug: true,
-                isAntialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
-                devicePixelRatio: window.devicePixelRatio,
-                nativeWidth: Math.floor(screen.width * window.devicePixelRatio),
-                nativeHeight: Math.floor(screen.height * window.devicePixelRatio),
+            const opts = new GFXDeviceInfo(
+                this.canvas as HTMLCanvasElement,
+                EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
+                false,
+                window.devicePixelRatio,
+                Math.floor(screen.width * window.devicePixelRatio),
+                Math.floor(screen.height * window.devicePixelRatio),
                 bindingMappingInfo,
-            };
+            );
             for (let i = 0; i < ctors.length; i++) {
                 this._gfxDevice = new ctors[i]();
                 if (this._gfxDevice!.initialize(opts)) { break; }
@@ -851,10 +864,11 @@ export class Game extends EventTarget {
                 legacyCC.game.emit(Game.EVENT_HIDE);
             }
         }
-        function onShown () {
+        // In order to adapt the most of platforms the onshow API.
+        function onShown (arg0?, arg1?, arg2?, arg3?, arg4?) {
             if (hidden) {
                 hidden = false;
-                legacyCC.game.emit(Game.EVENT_SHOW);
+                legacyCC.game.emit(Game.EVENT_SHOW, arg0, arg1, arg2, arg3, arg4);
             }
         }
 
@@ -988,4 +1002,11 @@ export class Game extends EventTarget {
 }
 
 legacyCC.Game = Game;
+
+/**
+ * @en
+ * This is a Game instance.
+ * @zh
+ * 这是一个 Game 类的实例，包含游戏主体信息并负责驱动游戏的游戏对象。
+ */
 export const game = legacyCC.game = new Game();

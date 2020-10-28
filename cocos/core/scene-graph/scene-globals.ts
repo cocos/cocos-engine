@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
  http://www.cocos.com
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -26,7 +26,7 @@
 
 import { TextureCube } from '../assets/texture-cube';
 import { ccclass, visible, type, displayOrder, slide, range, rangeStep, editable, serializable, rangeMin } from 'cc.decorator';
-import { CCBoolean, CCFloat } from '../data/utils/attribute';
+import { CCFloat, CCBoolean } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
 import { Shadows, ShadowType, PCFType } from '../renderer/scene/shadows';
@@ -397,6 +397,8 @@ export class ShadowsInfo {
     @serializable
     protected _pcf = PCFType.HARD;
     @serializable
+    protected _bias = 0.0035;
+    @serializable
     protected _near: number = 1;
     @serializable
     protected _far: number = 30;
@@ -406,8 +408,6 @@ export class ShadowsInfo {
     protected _orthoSize: number = 5;
     @serializable
     protected _size: Vec2 = new Vec2(512, 512);
-    @serializable
-    protected _bias: number = 0.0035;
 
     protected _resource: Shadows | null = null;
 
@@ -487,7 +487,6 @@ export class ShadowsInfo {
     get pcf () {
         return this._pcf;
     }
-
     /**
      * @en get or set shadow Map sampler auto adapt
      * @zh 阴影纹理生成是否自适应
@@ -603,6 +602,7 @@ export class ShadowsInfo {
         this._resource.autoAdapt = this._autoAdapt;
         this._resource.near = this._near;
         this._resource.far = this._far;
+        this._resource.aspect = this._aspect;
         this._resource.orthoSize = this._orthoSize;
         this._resource.size = this._size;
         this._resource.normal = this._normal;

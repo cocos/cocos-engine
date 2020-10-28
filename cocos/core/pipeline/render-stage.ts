@@ -8,6 +8,7 @@ import { RenderView } from './render-view';
 import { legacyCC } from '../global-exports';
 import { RenderPipeline } from './render-pipeline';
 import { RenderFlow } from './render-flow';
+import { RenderQueueDesc } from './pipeline-serialization';
 
 /**
  * @en The render stage information descriptor
@@ -17,6 +18,7 @@ export interface IRenderStageInfo {
     name: string;
     priority: number;
     tag?: number;
+    renderQueues?: RenderQueueDesc[];
 }
 
 /**
@@ -86,11 +88,7 @@ export abstract class RenderStage {
     public initialize (info: IRenderStageInfo): boolean {
         this._name = info.name;
         this._priority = info.priority;
-
-        if (info.tag) {
-            this._tag = info.tag;
-        }
-
+        if (info.tag) { this._tag = info.tag; }
         return true;
     }
 

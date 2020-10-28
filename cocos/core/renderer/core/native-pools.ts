@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -39,4 +39,10 @@ export class NativeBufferPool {
 
 export class NativeObjectPool<T> {
     constructor (dataType: number, array: T[]) {}
+}
+
+export class NativeBufferAllocator {
+    constructor (poolType: number) {}
+    public alloc (index: number, bytes: number) { return new ArrayBuffer(bytes); }
+    public free (index: number) {}
 }

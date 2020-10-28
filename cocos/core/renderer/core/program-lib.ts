@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -28,32 +28,36 @@
  * @module material
  */
 
-import { IBlockInfo, IBuiltinInfo, IDefineInfo, ISamplerInfo, IShaderInfo } from '../../assets/effect-asset';
-import { GFXDescriptorType, GFXGetTypeSize, GFXShaderStageFlagBit } from '../../gfx/define';
-import { GFXAPI, GFXDevice } from '../../gfx/device';
-import { IGFXAttribute } from '../../gfx/input-assembler';
-import { GFXUniformBlock, GFXShaderInfo } from '../../gfx/shader';
-import { SetIndex, IDescriptorSetLayoutInfo } from '../../pipeline/define';
+import { EffectAsset, IBlockInfo, IBuiltinInfo, IDefineInfo, IShaderInfo } from '../../assets/effect-asset';
+import { GFXDescriptorType, GFXGetTypeSize, GFXShaderStageFlagBit, GFXAPI } from '../../gfx/define';
+import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { genHandle, MacroRecord, PropertyType } from './pass-utils';
 import { legacyCC } from '../../global-exports';
 import { ShaderPool, ShaderHandle, PipelineLayoutHandle, PipelineLayoutPool, NULL_HANDLE } from './memory-pools';
-import { DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE } from '../../gfx/descriptor-set';
-import { GFXDescriptorSetLayout, IGFXDescriptorSetLayoutBinding } from '../../gfx/descriptor-set-layout';
+import { GFXPipelineLayoutInfo, GFXDevice, GFXAttribute, GFXUniformBlock, GFXShaderInfo, GFXUniformSampler,
+    GFXUniform, GFXShaderStage, DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE,
+    GFXDescriptorSetLayout, GFXDescriptorSetLayoutBinding, GFXDescriptorSetLayoutInfo } from '../../gfx';
+
+const _dsLayoutInfo = new GFXDescriptorSetLayoutInfo();
 
 interface IDefineRecord extends IDefineInfo {
     _map: (value: any) => number;
     _offset: number;
 }
-interface IBlockInfoRT extends IBlockInfo {
-    size: number;
-}
+
 export interface IProgramInfo extends IShaderInfo {
-    blocks: IBlockInfoRT[];
-    samplers: ISamplerInfo[];
+    blockSizes: number[];
+    gfxAttributes: GFXAttribute[];
+    gfxBlocks: GFXUniformBlock[];
+    gfxSamplers: GFXUniformSampler[];
+    gfxStages: GFXShaderStage[];
+    setLayouts: GFXDescriptorSetLayout[];
+    hPipelineLayout: PipelineLayoutHandle;
+    effectName: string;
     defines: IDefineRecord[];
     handleMap: Record<string, number>;
-    bindings: IGFXDescriptorSetLayoutBinding[];
+    bindings: GFXDescriptorSetLayoutBinding[];
     samplerStartBinding: number;
     uber: boolean; // macro number exceeds default limits, will fallback to string hash
 }
@@ -61,11 +65,6 @@ interface IMacroInfo {
     name: string;
     value: string;
     isDefault: boolean;
-}
-
-export interface IPipelineLayoutInfo {
-    setLayouts: GFXDescriptorSetLayout[];
-    hPipelineLayout: PipelineLayoutHandle;
 }
 
 function getBitCount (cnt: number) {
@@ -99,32 +98,38 @@ function getShaderInstanceName (name: string, macros: IMacroInfo[]) {
     return name + macros.reduce((acc, cur) => cur.isDefault ? acc : `${acc}|${cur.name}${cur.value}`, '');
 }
 
-function insertBuiltinBindings (tmpl: IProgramInfo, source: IDescriptorSetLayoutInfo, type: string) {
+function insertBuiltinBindings (tmpl: IProgramInfo, source: IDescriptorSetLayoutInfo, type: string, outBindings?: GFXDescriptorSetLayoutBinding[]) {
     const target = tmpl.builtins[type] as IBuiltinInfo;
-    const blocks = tmpl.blocks;
+    const tempBlocks: GFXUniformBlock[] = [];
     for (let i = 0; i < target.blocks.length; i++) {
         const b = target.blocks[i];
-        const info = source.record[b.name] as IBlockInfo;
-        if (!info || !(source.bindings[info.binding].descriptorType & DESCRIPTOR_BUFFER_TYPE)) {
+        const info = source.layouts[b.name] as GFXUniformBlock | undefined;
+        const binding = info && source.bindings.find((bd) => bd.binding === info.binding);
+        if (!info || !binding || !(binding.descriptorType & DESCRIPTOR_BUFFER_TYPE)) {
             console.warn(`builtin UBO '${b.name}' not available!`);
             continue;
         }
-        const builtin: IBlockInfoRT = Object.assign({ size: getSize(info) }, info);
-        blocks.push(builtin);
+        tempBlocks.push(info);
+        if (outBindings && !outBindings.includes(binding)) outBindings.push(binding);
     }
-    const samplers = tmpl.samplers;
+    Array.prototype.unshift.apply(tmpl.gfxBlocks, tempBlocks);
+    const tempSamplers: GFXUniformSampler[] = [];
     for (let i = 0; i < target.samplers.length; i++) {
         const s = target.samplers[i];
-        const info = source.record[s.name] as ISamplerInfo;
-        if (!info || !(source.bindings[info.binding].descriptorType & DESCRIPTOR_SAMPLER_TYPE)) {
+        const info = source.layouts[s.name] as GFXUniformSampler;
+        const binding = info && source.bindings.find((bd) => bd.binding === info.binding);
+        if (!info || !binding || !(binding.descriptorType & DESCRIPTOR_SAMPLER_TYPE)) {
             console.warn(`builtin sampler '${s.name}' not available!`);
             continue;
         }
-        samplers.push(info);
+        tempSamplers.push(info);
+        if (outBindings && !outBindings.includes(binding)) outBindings.push(binding);
     }
+    Array.prototype.unshift.apply(tmpl.gfxSamplers, tempSamplers);
+    if (outBindings) outBindings.sort((a, b) => a.binding - b.binding);
 }
 
-function getSize (block: GFXUniformBlock) {
+function getSize (block: IBlockInfo) {
     return block.members.reduce((s, m) => s + GFXGetTypeSize(m.type) * m.count, 0);
 }
 
@@ -137,14 +142,14 @@ function genHandles (tmpl: IProgramInfo) {
         let offset = 0;
         for (let j = 0; j < members.length; j++) {
             const uniform = members[j];
-            handleMap[uniform.name] = genHandle(PropertyType.UBO, block.set, block.binding, uniform.type, offset);
+            handleMap[uniform.name] = genHandle(PropertyType.UBO, SetIndex.MATERIAL, block.binding, uniform.type, offset);
             offset += (GFXGetTypeSize(uniform.type) >> 2) * uniform.count;
         }
     }
     // sampler handles
     for (let i = 0; i < tmpl.samplers.length; i++) {
         const sampler = tmpl.samplers[i];
-        handleMap[sampler.name] = genHandle(PropertyType.SAMPLER, sampler.set, sampler.binding, sampler.type);
+        handleMap[sampler.name] = genHandle(PropertyType.SAMPLER, SetIndex.MATERIAL, sampler.binding, sampler.type);
     }
     return handleMap;
 }
@@ -157,35 +162,42 @@ function dependencyCheck (dependencies: string[], defines: MacroRecord) {
     }
     return true;
 }
-function getActiveAttributes (tmpl: IProgramInfo, defines: MacroRecord, outAttributes: IGFXAttribute[]) {
-    const attributes = tmpl.attributes;
+function getActiveAttributes (tmpl: IProgramInfo, defines: MacroRecord) {
+    const out: GFXAttribute[] = [];
+    const { attributes, gfxAttributes } = tmpl;
     for (let i = 0; i < attributes.length; i++) {
-        const attribute = attributes[i];
-        if (!dependencyCheck(attribute.defines, defines)) { continue; }
-        outAttributes.push(attribute);
+        if (!dependencyCheck(attributes[i].defines, defines)) { continue; }
+        out.push(gfxAttributes[i]);
     }
+    return out;
 }
-
-let _dsLayout: GFXDescriptorSetLayout | null = null;
 
 /**
  * @en The global maintainer of all shader resources.
  * @zh 维护 shader 资源实例的全局管理器。
  */
 class ProgramLib {
-    protected _templates: Record<string, IProgramInfo> = {};
-    protected _pipelineLayouts: Record<string, IPipelineLayoutInfo> = {};
+    protected _localBindings: Record<string, GFXDescriptorSetLayoutBinding[]> = {}; // per effect
+    protected _templates: Record<string, IProgramInfo> = {}; // per shader
     protected _cache: Record<string, ShaderHandle> = {};
+
+    public register (effect: EffectAsset) {
+        const bindings = this._localBindings[effect.name] = [];
+        for (let i = 0; i < effect.shaders.length; i++) {
+            const tmpl = this.define(effect.shaders[i]);
+            tmpl.effectName = effect.name;
+            insertBuiltinBindings(tmpl, localDescriptorSetLayout, 'locals', bindings);
+        }
+    }
 
     /**
      * @en Register the shader template with the given info
-     * @zh 根据 effect 信息注册 shader 模板。
-     * @param name Target shader name
+     * @zh 注册 shader 模板。
      */
-    public define (prog: IShaderInfo) {
-        const curTmpl = this._templates[prog.name];
-        if (curTmpl && curTmpl.hash === prog.hash) { return; }
-        const tmpl = prog as IProgramInfo;
+    public define (shader: IShaderInfo) {
+        const curTmpl = this._templates[shader.name];
+        if (curTmpl && curTmpl.hash === shader.hash) { return curTmpl; }
+        const tmpl = Object.assign({}, shader) as IProgramInfo;
         // calculate option mask offset
         let offset = 0;
         for (let i = 0; i < tmpl.defines.length; i++) {
@@ -208,42 +220,38 @@ class ProgramLib {
 
         // cache material-specific descriptor set layout
         tmpl.samplerStartBinding = tmpl.blocks.length;
-        tmpl.bindings = (tmpl.blocks as IGFXDescriptorSetLayoutBinding[]).concat(tmpl.samplers);
-
+        tmpl.gfxBlocks = []; tmpl.gfxSamplers = [];
+        tmpl.bindings = []; tmpl.blockSizes = [];
         for (let i = 0; i < tmpl.blocks.length; i++) {
             const block = tmpl.blocks[i];
-            block.count = 1; // effect compiler guarantees this
-            block.size = getSize(block);
-            block.set = SetIndex.MATERIAL;
-            if (!block.descriptorType) {
-                block.descriptorType = GFXDescriptorType.UNIFORM_BUFFER;
-            }
+            tmpl.blockSizes.push(getSize(block));
+            tmpl.bindings.push(new GFXDescriptorSetLayoutBinding(block.binding, block.descriptorType || GFXDescriptorType.UNIFORM_BUFFER, 1, block.stageFlags));
+            tmpl.gfxBlocks.push(new GFXUniformBlock(SetIndex.MATERIAL, block.binding, block.name,
+                block.members.map((m) => new GFXUniform(m.name, m.type, m.count)), 1)); // effect compiler guarantees block count = 1
         }
         for (let i = 0; i < tmpl.samplers.length; i++) {
             const sampler = tmpl.samplers[i];
-            sampler.set = SetIndex.MATERIAL;
-            if (!sampler.descriptorType) {
-                sampler.descriptorType = GFXDescriptorType.SAMPLER;
-            }
+            tmpl.bindings.push(new GFXDescriptorSetLayoutBinding(sampler.binding, sampler.descriptorType || GFXDescriptorType.SAMPLER,
+                sampler.count, sampler.stageFlags));
+            tmpl.gfxSamplers.push(new GFXUniformSampler(SetIndex.MATERIAL, sampler.binding, sampler.name, sampler.type, sampler.count));
         }
+        tmpl.gfxAttributes = [];
+        for (let i = 0; i < tmpl.attributes.length; i++) {
+            const attr = tmpl.attributes[i];
+            tmpl.gfxAttributes.push(new GFXAttribute(attr.name, attr.format, attr.isNormalized, 0, attr.isInstanced, attr.location));
+        }
+
+        tmpl.gfxStages = [];
+        tmpl.gfxStages.push(new GFXShaderStage(GFXShaderStageFlagBit.VERTEX, ''));
+        tmpl.gfxStages.push(new GFXShaderStage(GFXShaderStageFlagBit.FRAGMENT, ''));
+        tmpl.hPipelineLayout = NULL_HANDLE;
+        tmpl.setLayouts = [];
 
         tmpl.handleMap = genHandles(tmpl);
 
         // store it
-        this._templates[prog.name] = tmpl;
-
-        // const pl = this._pipelineLayouts[prog.name];
-        // if (pl) {
-        //     if (pl.hPipelineLayout) {
-        //         PipelineLayoutPool.free(pl.hPipelineLayout);
-        //     }
-        //     for (let i = 0; i < pl.setLayouts.length; i++) {
-        //         const setLayout = pl.setLayouts[i];
-        //         if (setLayout) setLayout.destroy();
-        //     }
-        // }
-
-        this._pipelineLayouts[prog.name] = { hPipelineLayout: NULL_HANDLE, setLayouts: [] };
+        this._templates[shader.name] = tmpl;
+        return tmpl;
     }
 
     /**
@@ -260,8 +268,16 @@ class ProgramLib {
      * @zh 通过名字获取 Shader 模板相关联的管线布局
      * @param name Target shader name
      */
-    public getPipelineLayout (name: string) {
-        return this._pipelineLayouts[name];
+    public getDescriptorSetLayout (device: GFXDevice, name: string, isLocal = false) {
+        const tmpl = this._templates[name];
+
+        if (!tmpl.setLayouts.length) {
+            _dsLayoutInfo.bindings = tmpl.bindings;
+            tmpl.setLayouts[SetIndex.MATERIAL] = device.createDescriptorSetLayout(_dsLayoutInfo);
+            _dsLayoutInfo.bindings = this._localBindings[tmpl.effectName];
+            tmpl.setLayouts[SetIndex.LOCAL] = device.createDescriptorSetLayout(_dsLayoutInfo);
+        }
+        return tmpl.setLayouts[isLocal ? SetIndex.LOCAL : SetIndex.MATERIAL];
     }
 
     /**
@@ -338,10 +354,10 @@ class ProgramLib {
     /**
      * @en Gets the shader resource instance with given information
      * @zh 获取指定 shader 的渲染资源实例
-     * @param device The device
      * @param name Shader name
      * @param defines Preprocess macros
      * @param pipeline The [[RenderPipeline]] which owns the render command
+     * @param key The shader cache key, if already known
      */
     public getGFXShader (device: GFXDevice, name: string, defines: MacroRecord, pipeline: RenderPipeline, key?: string) {
         Object.assign(defines, pipeline.macros);
@@ -350,25 +366,11 @@ class ProgramLib {
         if (res) { return res; }
 
         const tmpl = this._templates[name];
-        const layout = this._pipelineLayouts[name];
-
-        if (!layout.hPipelineLayout) {
-            insertBuiltinBindings(tmpl, pipeline.globalDescriptorSetLayout, 'globals');
-            insertBuiltinBindings(tmpl, pipeline.localDescriptorSetLayout, 'locals');
-            layout.setLayouts[SetIndex.GLOBAL] = pipeline.descriptorSetLayout;
-            // material set layout should already been created in pass, but if not
-            // (like when the same shader is overriden) we create it again here
-            if (!layout.setLayouts[SetIndex.MATERIAL]) {
-                layout.setLayouts[SetIndex.MATERIAL] = device.createDescriptorSetLayout({
-                    bindings: tmpl.bindings,
-                });
-            }
-            layout.setLayouts[SetIndex.LOCAL] = _dsLayout = _dsLayout || device.createDescriptorSetLayout({
-                bindings: pipeline.localDescriptorSetLayout.bindings,
-            });
-            layout.hPipelineLayout = PipelineLayoutPool.alloc(device, {
-                setLayouts: layout.setLayouts,
-            });
+        if (!tmpl.hPipelineLayout) {
+            this.getDescriptorSetLayout(device, name); // ensure set layouts have been created
+            insertBuiltinBindings(tmpl, globalDescriptorSetLayout, 'globals');
+            tmpl.setLayouts[SetIndex.GLOBAL] = pipeline.descriptorSetLayout;
+            tmpl.hPipelineLayout = PipelineLayoutPool.alloc(device, new GFXPipelineLayoutInfo(tmpl.setLayouts));
         }
 
         const macroArray = prepareDefines(defines, tmpl.defines);
@@ -381,22 +383,19 @@ class ProgramLib {
             case GFXAPI.GLES3:
             case GFXAPI.WEBGL2: src = tmpl.glsl3; break;
             case GFXAPI.VULKAN:
-            case GFXAPI.METAL: src = tmpl.glsl4; break;
+            case GFXAPI.METAL:
+            case GFXAPI.WEBGPU: src = tmpl.glsl4; break;
             default: console.error('Invalid GFX API!'); break;
         }
+        tmpl.gfxStages[0].source = prefix + src.vert;
+        tmpl.gfxStages[1].source = prefix + src.frag;
 
         // strip out the active attributes only, instancing depend on this
-        const attributes: IGFXAttribute[] = [];
-        getActiveAttributes(tmpl, defines, attributes);
+        const attributes = getActiveAttributes(tmpl, defines);
 
-        return this._cache[key] = ShaderPool.alloc(device, {
-            name: getShaderInstanceName(name, macroArray),
-            blocks: tmpl.blocks, samplers: tmpl.samplers, attributes,
-            stages: [
-                { stage: GFXShaderStageFlagBit.VERTEX, source: prefix + src.vert },
-                { stage: GFXShaderStageFlagBit.FRAGMENT, source: prefix + src.frag },
-            ],
-        } as GFXShaderInfo);
+        const instanceName = getShaderInstanceName(name, macroArray);
+        const shaderInfo = new GFXShaderInfo(instanceName, tmpl.gfxStages, attributes, tmpl.gfxBlocks, tmpl.gfxSamplers);
+        return this._cache[key] = ShaderPool.alloc(device, shaderInfo);
     }
 }
 

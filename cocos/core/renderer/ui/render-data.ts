@@ -136,6 +136,20 @@ export class MeshRenderData extends BaseRenderData {
     public byteCount = 0;
     private _formatByte = 9 * Float32Array.BYTES_PER_ELEMENT;
 
+    public static add () {
+        return _meshDataPool.add();
+    }
+
+    public static remove (data: MeshRenderData) {
+        const idx = _meshDataPool.data.indexOf(data);
+        if (idx === -1){
+            return;
+        }
+
+        _meshDataPool.data[idx].reset();
+        _meshDataPool.removeAt(idx);
+    }
+
     public request (vertexCount: number, indicesCount: number) {
         const byteOffset = this.byteCount + vertexCount * this._formatByte;
         const indicesOffset = this.indicesCount + indicesCount;
@@ -156,14 +170,8 @@ export class MeshRenderData extends BaseRenderData {
                 byteLength = vCount * 4;
                 indicesLength = iCount;
             }
-            // copy old data
-            const oldVData = new Float32Array(this.vData.buffer);
-            this.vData = new Float32Array(vCount);
-            this.vData.set(oldVData, 0);
-            const oldIData = new Uint16Array(this.iData.buffer);
-            this.iData = new Uint16Array(iCount);
-            this.iData.set(oldIData, 0);
 
+            this._reallocBuffer(vCount, iCount);
         }
 
         this.vertexCount += vertexCount; // vertexOffset
@@ -180,7 +188,39 @@ export class MeshRenderData extends BaseRenderData {
         this.indicesStart = 0;
         this.byteStart = 0;
     }
+
+    protected _reallocBuffer (vCount, iCount) {
+        // copy old data
+        const oldVData = this.vData;
+        this.vData = new Float32Array(vCount);
+        this.vData.set(oldVData, 0);
+        const oldIData = this.iData;
+        this.iData = new Uint16Array(iCount);
+        this.iData.set(oldIData, 0);
+    }
 }
+
+export class QuadRenderData extends MeshRenderData {
+    private _fillQuadBuffer () {
+        const count = this.iData.length / 6;
+        const buffer = this.iData;
+        for (let i = 0, idx = 0; i < count; i++) {
+            const vId = i * 4;
+            buffer[idx++] = vId;
+            buffer[idx++] = vId + 1;
+            buffer[idx++] = vId + 2;
+            buffer[idx++] = vId + 1;
+            buffer[idx++] = vId + 3;
+            buffer[idx++] = vId + 2;
+        }
+    }
+
+    protected _reallocBuffer (vCount, iCount) {
+        // copy old data
+        super._reallocBuffer(vCount, iCount);
+        this._fillQuadBuffer();
+    }
+};
 
 const _dataPool = new Pool(() => {
     return {
@@ -195,4 +235,8 @@ const _dataPool = new Pool(() => {
 
 const _pool = new RecyclePool(() => {
     return new RenderData();
+}, 32);
+
+const _meshDataPool: RecyclePool<MeshRenderData> = new RecyclePool(() =>  {
+    return new MeshRenderData();
 }, 32);

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -32,10 +32,9 @@ import { AnimationClip } from '../../animation/animation-clip';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
-import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { Vec3 } from '../../math';
-import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UniformJointTexture } from '../../pipeline/define';
+import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UNIFORM_JOINT_TEXTURE_BINDING } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { Pass } from '../core/pass';
 import { samplerLib } from '../core/sampler-lib';
@@ -44,7 +43,7 @@ import { ModelType } from '../scene/model';
 import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from './skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { legacyCC } from '../../global-exports';
-import { IGFXAttribute, GFXDescriptorSet } from '../../gfx';
+import { GFXAttribute, GFXDescriptorSet, GFXBuffer, GFXBufferInfo } from '../../gfx';
 
 interface IJointsInfo {
     buffer: GFXBuffer | null;
@@ -104,12 +103,12 @@ export class BakedSkinningModel extends MorphModel {
         const resMgr = this._dataPoolManager;
         this._jointsMedium.animInfo = resMgr.jointAnimationInfo.getData(skinningRoot.uuid);
         if (!this._jointsMedium.buffer) {
-            this._jointsMedium.buffer = this._device.createBuffer({
-                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: UBOSkinningTexture.SIZE,
-                stride: UBOSkinningTexture.SIZE,
-            });
+            this._jointsMedium.buffer = this._device.createBuffer(new GFXBufferInfo(
+                GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                UBOSkinningTexture.SIZE,
+                UBOSkinningTexture.SIZE,
+            ));
         }
     }
 
@@ -131,18 +130,13 @@ export class BakedSkinningModel extends MorphModel {
         const info = this._jointsMedium.animInfo;
         const idx = this._instAnimInfoIdx;
         if (idx >= 0) {
-            const view = this.instancedAttributes.list[idx].view;
+            const view = this.instancedAttributes.views[idx];
             view[0] = info.data[0];
         } else if (info.dirty) {
             info.buffer.update(info.data);
             info.dirty = false;
         }
         return true;
-    }
-
-    public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
-        if (!minPos || !maxPos) { return; }
-        this._worldBounds = new aabb();
     }
 
     public uploadAnimation (anim: AnimationClip | null) {
@@ -178,7 +172,7 @@ export class BakedSkinningModel extends MorphModel {
 
         for (let i = 0; i < this._subModels.length; ++i) {
             const descriptorSet = this._subModels[i].descriptorSet;
-            descriptorSet.bindTexture(UniformJointTexture.binding, tex);
+            descriptorSet.bindTexture(UNIFORM_JOINT_TEXTURE_BINDING, tex);
         }
     }
 
@@ -190,16 +184,16 @@ export class BakedSkinningModel extends MorphModel {
     protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: GFXDescriptorSet) {
         super._updateLocalDescriptors(submodelIdx, descriptorSet);
         const { buffer, texture, animInfo } = this._jointsMedium;
-        descriptorSet.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
-        descriptorSet.bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo.buffer);
+        descriptorSet.bindBuffer(UBOSkinningTexture.BINDING, buffer!);
+        descriptorSet.bindBuffer(UBOSkinningAnimation.BINDING, animInfo.buffer);
         if (texture) {
             const sampler = samplerLib.getSampler(this._device, jointTextureSamplerHash);
-            descriptorSet.bindTexture(UniformJointTexture.binding, texture.handle.texture);
-            descriptorSet.bindSampler(UniformJointTexture.binding, sampler);
+            descriptorSet.bindTexture(UNIFORM_JOINT_TEXTURE_BINDING, texture.handle.texture);
+            descriptorSet.bindSampler(UNIFORM_JOINT_TEXTURE_BINDING, sampler);
         }
     }
 
-    protected _updateInstancedAttributes (attributes: IGFXAttribute[], pass: Pass) {
+    protected _updateInstancedAttributes (attributes: GFXAttribute[], pass: Pass) {
         super._updateInstancedAttributes(attributes, pass);
         this._instAnimInfoIdx = this._getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
         this.updateInstancedJointTextureInfo();
@@ -209,7 +203,7 @@ export class BakedSkinningModel extends MorphModel {
         const { jointTextureInfo, animInfo } = this._jointsMedium;
         const idx = this._instAnimInfoIdx;
         if (idx >= 0) { // update instancing data too
-            const view = this.instancedAttributes.list[idx].view;
+            const view = this.instancedAttributes.views[idx];
             view[0] = animInfo.data[0];
             view[1] = jointTextureInfo[1];
             view[2] = jointTextureInfo[2];

@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -444,6 +444,24 @@ export class Rect extends ValueType {
         this.height = maxY - minY;
 
         return this;
+    }
+
+    /**
+     * 应用矩阵变换到当前矩形，并将结果输出到四个顶点上。
+     */
+    public transformMat4ToPoints (mat: Mat4, out_lb: Vec2, out_lt: Vec2, out_rt: Vec2, out_rb: Vec2) {
+        const ol = this.x;
+        const ob = this.y;
+        const or = ol + this.width;
+        const ot = ob + this.height;
+        out_lb.x = mat.m00 * ol + mat.m04 * ob + mat.m12;
+        out_lb.y = mat.m01 * ol + mat.m05 * ob + mat.m13;
+        out_rb.x = mat.m00 * or + mat.m04 * ob + mat.m12;
+        out_rb.y = mat.m01 * or + mat.m05 * ob + mat.m13;
+        out_lt.x = mat.m00 * ol + mat.m04 * ot + mat.m12;
+        out_lt.y = mat.m01 * ol + mat.m05 * ot + mat.m13;
+        out_rt.x = mat.m00 * or + mat.m04 * ot + mat.m12;
+        out_rt.y = mat.m01 * or + mat.m05 * ot + mat.m13;
     }
 }
 

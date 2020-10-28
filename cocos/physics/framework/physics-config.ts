@@ -25,7 +25,6 @@ export interface IPhysicsConfig {
     collisionMatrix: ICollisionMatrix;
     defaultMaterial: IPhysicsMaterial;
     autoSimulation: boolean;
-    useCollsionMatrix: boolean;
     useNodeChains: boolean;
     physicsEngine: 'builtin' | 'cannon.js' | 'ammo.js' | string;
 }

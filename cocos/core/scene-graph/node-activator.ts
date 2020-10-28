@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -59,7 +59,6 @@ const callOnLoadInTryCatch = EDITOR && function (c) {
     _onLoadInEditor(c);
 };
 const callOnDestroyInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onDestroy');
-const callResetInTryCatch = EDITOR && tryCatchFunctor_EDITOR('resetInEditor');
 const callOnFocusInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onFocusInEditor');
 const callOnLostFocusInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onLostFocusInEditor');
 
@@ -416,9 +415,14 @@ if (EDITOR) {
         }
     };
 
-    NodeActivator.prototype.resetComp = (comp) => {
-        if (comp.resetInEditor && callResetInTryCatch) {
-            callResetInTryCatch(comp);
+    NodeActivator.prototype.resetComp = (comp, didResetToDefault: boolean) => {
+        if (comp.resetInEditor) {
+            try {
+                comp.resetInEditor(didResetToDefault);
+            }
+            catch (e) {
+                legacyCC._throw(e);
+            }
         }
     };
 }

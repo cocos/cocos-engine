@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -28,12 +28,12 @@
  * @module ui-assembler
  */
 
-import { GFXFormat } from '../../../../core/gfx';
+import { GFXAttribute, GFXFormat } from '../../../../core/gfx';
 import { Color, Vec3 } from '../../../../core/math';
 import { IAssembler } from '../../../../core/renderer/ui/base';
 import { MeshRenderData } from '../../../../core/renderer/ui/render-data';
 import { UI } from '../../../../core/renderer/ui/ui';
-import { vfmt, getAttributeFormatBytes } from '../../../../core/renderer/ui/ui-vertex-format';
+import { vfmtPosColor, getAttributeFormatBytes } from '../../../../core/renderer/ui/ui-vertex-format';
 import { Graphics } from '../../../components';
 import { LineCap, LineJoin, PointFlags } from '../types';
 import { earcut as Earcut } from './earcut';
@@ -50,15 +50,11 @@ const acos = Math.acos;
 const cos = Math.cos;
 const sin = Math.sin;
 const atan2 = Math.atan2;
-const abs = Math.abs;
 
 const attrBytes = 8;
 
-const attributes = vfmt.concat([
-    {
-        name: 'a_dist',
-        format: GFXFormat.R32F,
-    },
+const attributes = vfmtPosColor.concat([
+    new GFXAttribute('a_dist', GFXFormat.R32F),
 ]);
 
 const formatBytes = getAttributeFormatBytes(attributes);
@@ -98,10 +94,7 @@ export const graphicsAssembler: IAssembler = {
     },
 
     updateRenderData (graphics: Graphics) {
-        const dataList = graphics.impl ? graphics.impl.getRenderData() : [];
-        for (let i = 0, l = dataList.length; i < l; i++) {
-            dataList[i].material = graphics.getUIMaterialInstance();
-        }
+
     },
 
     fillBuffers (graphics: Graphics, renderer: UI) {
@@ -279,6 +272,8 @@ export const graphicsAssembler: IAssembler = {
                 start = 1;
                 end = pointsLength - 1;
             }
+
+            p1 = p1 || p0;
 
             if (!loop) {
                 // Add cap
@@ -527,7 +522,7 @@ export const graphicsAssembler: IAssembler = {
             let p0 = pts[pts.length - 1];
             let p1 = pts[0];
 
-            if (p0.equals(p1)) {
+            if (pts.length > 2 && p0.equals(p1)) {
                 path.closed = true;
                 pts.pop();
                 p0 = pts[pts.length - 1];
@@ -747,6 +742,6 @@ export const graphicsAssembler: IAssembler = {
         Color.toArray(vData!, _curColor, dataOffset);
         dataOffset += 4;
         vData[dataOffset++] = distance;
-        meshBuffer.vertexStart ++;
+        meshBuffer.vertexStart++;
     },
 };

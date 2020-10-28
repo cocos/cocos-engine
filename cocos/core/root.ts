@@ -4,10 +4,9 @@
  */
 
 import { builtinResMgr } from './3d/builtin';
-import { GFXDevice } from './gfx/device';
 import { Pool } from './memop';
-import { RenderPipeline } from './pipeline/render-pipeline';
-import { IRenderViewInfo, RenderView } from './pipeline/render-view';
+import { RenderPipeline, ForwardPipeline, RenderView  } from './pipeline';
+import { IRenderViewInfo } from './pipeline/define';
 import { Camera, Light, Model } from './renderer/scene';
 import { DataPoolManager } from './renderer/data-pool-manager';
 import { LightType } from './renderer/scene/light';
@@ -16,9 +15,9 @@ import { SphereLight } from './renderer/scene/sphere-light';
 import { SpotLight } from './renderer/scene/spot-light';
 import { UI } from './renderer/ui/ui';
 import { legacyCC } from './global-exports';
-import { RenderWindow, IRenderWindowInfo } from './pipeline/render-window';
-import { ForwardPipeline } from './pipeline/forward/forward-pipeline';
-import { GFXColorAttachment, GFXDepthStencilAttachment, GFXStoreOp } from './gfx';
+import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
+import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPassInfo, GFXStoreOp, GFXDevice } from './gfx';
+import { RootHandle, RootPool, RootView, NULL_HANDLE } from './renderer/core/memory-pools';
 
 /**
  * @zh
@@ -119,7 +118,7 @@ export class Root {
      * 累计时间（秒）
      */
     public get cumulativeTime (): number {
-        return this._time;
+        return RootPool.get(this._poolHandle, RootView.CUMULATIVE_TIME);
     }
 
     /**
@@ -127,7 +126,7 @@ export class Root {
      * 帧时间（秒）
      */
     public get frameTime (): number {
-        return this._frameTime;
+        return RootPool.get(this._poolHandle, RootView.FRAME_TIME);
     }
 
     /**
@@ -167,6 +166,10 @@ export class Root {
         return this._dataPoolMgr;
     }
 
+    get handle () : RootHandle {
+        return this._poolHandle;
+    }
+
     public _createSceneFun: (root: Root) => RenderScene = null!;
     public _createWindowFun: (root: Root) => RenderWindow = null!;
 
@@ -184,13 +187,12 @@ export class Root {
     private _modelPools = new Map<Constructor<Model>, Pool<Model>>();
     private _cameraPool: Pool<Camera> | null = null;
     private _lightPools = new Map<Constructor<Light>, Pool<Light>>();
-    private _time: number = 0;
-    private _frameTime: number = 0;
     private _fpsTime: number = 0;
     private _frameCount: number = 0;
     private _fps: number = 0;
     private _fixedFPS: number = 0;
     private _fixedFPSFrameTime: number = 0;
+    private _poolHandle: RootHandle = NULL_HANDLE;
 
     /**
      * 构造函数
@@ -212,18 +214,17 @@ export class Root {
      * @param info Root描述信息
      */
     public initialize (info: IRootInfo): boolean {
+        this._poolHandle = RootPool.alloc();
         const colorAttachment = new GFXColorAttachment();
         const depthStencilAttachment = new GFXDepthStencilAttachment();
         depthStencilAttachment.depthStoreOp = GFXStoreOp.DISCARD;
         depthStencilAttachment.stencilStoreOp = GFXStoreOp.DISCARD;
+        const renderPassInfo = new GFXRenderPassInfo([colorAttachment], depthStencilAttachment);
         this._mainWindow = this.createWindow({
             title: 'rootMainWindow',
             width: this._device.width,
             height: this._device.height,
-            renderPassInfo: {
-                colorAttachments: [colorAttachment],
-                depthStencilAttachment,
-            },
+            renderPassInfo,
             swapchainBufferIndices: -1, // always on screen
         });
         this._curWindow = this._mainWindow;
@@ -256,6 +257,11 @@ export class Root {
         this._curWindow = null;
         this._mainWindow = null;
         this.dataPoolManager.clear();
+
+        if (this._poolHandle) {
+            RootPool.free(this._poolHandle);
+            this._poolHandle = NULL_HANDLE;
+        }
     }
 
     /**
@@ -287,8 +293,7 @@ export class Root {
 
     public setRenderPipeline (rppl: RenderPipeline): boolean {
         if (!rppl) {
-            rppl = new ForwardPipeline();
-            rppl.initialize({ flows: [] });
+            rppl = this.createDefaultPipeline();
         }
         this._pipeline = rppl;
         if (!this._pipeline.activate()) {
@@ -310,6 +315,12 @@ export class Root {
             return false;
         }
         return true;
+    }
+
+    public createDefaultPipeline () {
+        const rppl = new ForwardPipeline();
+        rppl.initialize({ flows: [] });
+        return rppl;
     }
 
     public onGlobalPipelineStateChanged () {
@@ -335,7 +346,7 @@ export class Root {
      * 重置累计时间
      */
     public resetCumulativeTime () {
-        this._time = 0;
+        RootPool.set(this._poolHandle, RootView.CUMULATIVE_TIME, 0);
     }
 
     /**
@@ -344,8 +355,7 @@ export class Root {
      * @param deltaTime 间隔时间
      */
     public frameMove (deltaTime: number) {
-
-        this._frameTime = deltaTime;
+        RootPool.set(this._poolHandle, RootView.FRAME_TIME, deltaTime);
 
         /*
         if (this._fixedFPSFrameTime > 0) {
@@ -359,21 +369,22 @@ export class Root {
         */
 
         ++this._frameCount;
-        this._time += this._frameTime;
-        this._fpsTime += this._frameTime;
+        RootPool.set(this._poolHandle, RootView.CUMULATIVE_TIME, RootPool.get(this._poolHandle, RootView.CUMULATIVE_TIME) + deltaTime);
+        this._fpsTime += deltaTime;
         if (this._fpsTime > 1.0) {
             this._fps = this._frameCount;
             this._frameCount = 0;
             this._fpsTime = 0.0;
         }
+        if (this._ui) this._ui.update();
 
         if (this._pipeline) {
             this._device.acquire();
-
             this._views.length = 0;
-            const cameras = this._cameras;
+            const views = this._cameras;
             const stamp = legacyCC.director.getTotalFrames();
-            for (let i = 0; i < cameras.length; i++) {
+            if (this._ui) this._ui.uploadBuffers();
+            for (let i = 0; i < views.length; i++) {
                 const camera = this._cameras[i];
                 const view = camera.view;
                 if (view.isEnable && view.window) {
@@ -518,7 +529,9 @@ export class Root {
             this._modelPools.set(mClass, new Pool(() => new mClass(), 10));
             p = this._modelPools.get(mClass)!;
         }
-        return p.alloc() as T;
+        const model = p.alloc() as T;
+        model.initialize();
+        return model;
     }
 
     public destroyModel (m: Model) {
@@ -553,7 +566,9 @@ export class Root {
             this._lightPools.set(lClass, new Pool(() => new lClass(), 4));
             l = this._lightPools.get(lClass)!;
         }
-        return l.alloc() as T;
+        const light = l.alloc() as T;
+        light.initialize();
+        return light;
     }
 
     public destroyLight (l: Light) {
@@ -580,3 +595,5 @@ export class Root {
         });
     }
 }
+
+legacyCC.Root = Root;

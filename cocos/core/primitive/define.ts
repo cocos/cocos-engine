@@ -4,7 +4,7 @@
  */
 
 import { GFXPrimitiveMode } from '../gfx/define';
-import { IGFXAttribute } from '../gfx/input-assembler';
+import { GFXAttribute } from '../gfx';
 
 /**
  * @en
@@ -101,10 +101,10 @@ export interface IGeometry {
      * @zh
      * 顶点属性。
      */
-    attributes?: IGFXAttribute[];
+    attributes?: GFXAttribute[];
 
     customAttributes?: {
-        attr: IGFXAttribute,
+        attr: GFXAttribute,
         values: number[],
     }[];
 

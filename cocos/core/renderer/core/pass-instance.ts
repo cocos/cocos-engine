@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -29,7 +29,6 @@
  */
 
 import { IPassInfo } from '../../assets/effect-asset';
-import { isBuiltinBinding } from '../../pipeline/define';
 import { MaterialInstance } from './material-instance';
 import { Pass, PassOverrides } from './pass';
 import { overrideMacros, MacroRecord } from './pass-utils';
@@ -58,7 +57,6 @@ export class PassInstance extends Pass {
         this._doInit(this._parent, true); // defines may change now
         for (let i = 0; i < this._shaderInfo.blocks.length; i++) {
             const u = this._shaderInfo.blocks[i];
-            if (isBuiltinBinding(u.set)) { continue; }
             const block = this._blocks[u.binding];
             const parentBlock = this._parent.blocks[u.binding];
             block.set(parentBlock);
@@ -67,7 +65,6 @@ export class PassInstance extends Pass {
         const paren = this._parent as PassInstance;
         for (let i = 0; i < this._shaderInfo.samplers.length; i++) {
             const u = this._shaderInfo.samplers[i];
-            if (isBuiltinBinding(u.set)) { continue; }
             for (let j = 0; j < u.count; j++) {
                 const sampler = paren._descriptorSet.getSampler(u.binding, j);
                 const texture = paren._descriptorSet.getTexture(u.binding, j);

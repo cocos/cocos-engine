@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -306,10 +306,10 @@ export class MeshRenderer extends RenderableComponent {
 
     public setInstancedAttribute (name: string, value: ArrayLike<number>) {
         if (!this.model) { return; }
-        const list = this.model.instancedAttributes.list;
-        for (let i = 0; i < list.length; i++) {
-            if (list[i].name === name) {
-                (list[i].view as TypedArray).set(value);
+        const { attributes, views } = this.model.instancedAttributes;
+        for (let i = 0; i < attributes.length; i++) {
+            if (attributes[i].name === name) {
+                views[i].set(value);
                 break;
             }
         }
@@ -330,9 +330,11 @@ export class MeshRenderer extends RenderableComponent {
             return;
         }
 
-        if (this._model) {
-            this._model.destroy();
-            this._model.initialize(this.node);
+        const model = this._model;
+        if (model) {
+            model.destroy();
+            model.initialize();
+            model.node = model.transform = this.node;
         } else {
             this._createModel();
         }
@@ -351,13 +353,13 @@ export class MeshRenderer extends RenderableComponent {
         // derived classes should use a morph-able model type(i.e. model type derived from `MorphModel`).
         // So we should take care of the edge case.
         const modelType = (preferMorphOverPlain && this._modelType === scene.Model) ? models.MorphModel : this._modelType;
-        this._model = (legacyCC.director.root as Root).createModel(modelType);
-        this._model.visFlags = this.visibility;
-        this._model.initialize(this.node);
+        const model = this._model! = (legacyCC.director.root as Root).createModel(modelType);
+        model.visFlags = this.visibility;
+        model.node = model.transform = this.node;
         this._models.length = 0;
         this._models.push(this._model);
-        if (this._morphInstance && this._model instanceof models.MorphModel) {
-            this._model.setMorphRendering(this._morphInstance);
+        if (this._morphInstance && model instanceof models.MorphModel) {
+            model.setMorphRendering(this._morphInstance);
         }
     }
 
@@ -365,11 +367,11 @@ export class MeshRenderer extends RenderableComponent {
         if (!this.node.scene || !this._model) {
             return;
         }
-        const scene = this._getRenderScene();
+        const renderScene = this._getRenderScene();
         if (this._model.scene != null) {
             this._detachFromScene();
         }
-        scene.addModel(this._model);
+        renderScene.addModel(this._model);
     }
 
     protected _detachFromScene () {
@@ -407,7 +409,8 @@ export class MeshRenderer extends RenderableComponent {
             this.lightmapSettings.uvParam.x,
             this.lightmapSettings.uvParam.y,
             this.lightmapSettings.uvParam.z,
-            this.lightmapSettings.uvParam.w]);
+            this.lightmapSettings.uvParam.w
+        ]);
     }
 
     protected _onMaterialModified (idx: number, material: Material | null) {

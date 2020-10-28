@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -28,6 +28,7 @@
  */
 
 import { legacyCC } from '../../core/global-exports';
+import { AudioClip } from './clip';
 
 export const PlayingState = {
     INITIALIZING: 0,
@@ -36,15 +37,15 @@ export const PlayingState = {
 };
 
 export interface IAudioInfo {
-    clip: any;
+    nativeAudio: any;
     duration: number;
-    eventTarget: any;
+    audioClip: AudioClip;
 }
 
 export abstract class AudioPlayer {
     protected _state = PlayingState.STOPPED;
     protected _duration = 0;
-    protected _eventTarget: any;
+    protected _clip: AudioClip;
 
     protected _onHide: Function;
     protected _onShow: Function;
@@ -53,7 +54,7 @@ export abstract class AudioPlayer {
 
     constructor (info: IAudioInfo) {
         this._duration = info.duration;
-        this._eventTarget = info.eventTarget;
+        this._clip = info.audioClip;
         this._onHide = () => {
             this._blocking = true;
             if (this._state !== PlayingState.PLAYING) { return; }

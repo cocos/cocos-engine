@@ -6,8 +6,8 @@ import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import { terser as rpTerser } from 'rollup-plugin-terser';
-// @ts-ignore
 import babelPresetEnv from '@babel/preset-env';
+import type { Options as babelPresetEnvOptions } from '@babel/preset-env';
 import babelPresetCc from '@cocos/babel-preset-cc';
 // @ts-ignore
 import babelPluginTransformForOf from '@babel/plugin-transform-for-of';
@@ -21,8 +21,15 @@ import { generateCCSource } from './make-cc';
 import nodeResolve from 'resolve';
 import { getModuleName } from './module-name';
 import tsConfigPaths from './ts-paths';
+import JSON5 from 'json5';
+import { getPlatformConstantNames, IBuildTimeConstants } from './build-time-constants';
+import removeDeprecatedFeatures from './remove-deprecated-features';
 
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
+
+function makePathEqualityKey (path: string) {
+    return process.platform === 'win32' ? path.toLocaleLowerCase() : path;
+}
 
 async function build (options: build.Options) {
     console.debug(`Build-engine options: ${JSON.stringify(options, undefined, 2)}`);
@@ -37,11 +44,8 @@ async function build (options: build.Options) {
 
     _ensureUniqueModules(options);
 
-    const buildTimeConstants = populateBuildTimeConstants(options);
-
     return await _doBuild({
         moduleEntries,
-        buildTimeConstants,
         options,
     });
 }
@@ -89,21 +93,6 @@ namespace build {
         sourceMapFile?: string;
 
         /**
-         * 构建模式。
-         */
-        mode?: Mode;
-
-        /**
-         * 目标平台。
-         */
-        platform?: Platform;
-
-        /**
-         * 引擎标志。
-         */
-        flags?: BuildFlags;
-
-        /**
          * 若为 `true`，分割出 **所有** 引擎子模块。
          * 否则，`.moduleEntries` 指定的所有子模块将被合并成一个单独的 `"cc"` 模块。
          * @default false
@@ -122,6 +111,13 @@ namespace build {
         ammoJsWasm?: boolean | 'fallback';
 
         /**
+         * If true, all deprecated features/API are excluded.
+         * You can also specify a version range(in semver range) to exclude deprecations in specified version(s).
+         * @default false
+         */
+        noDeprecatedFeatures?: string | boolean;
+
+        /**
          * Experimental.
          */
         incremental?: string;
@@ -129,13 +125,20 @@ namespace build {
         progress?: boolean;
 
         /**
-         * `options.targets` of @babel/preset-env.
+         * BrowsersList targets.
          */
         targets?: string | string[] | Record<string, string>;
+
+        /**
+         * Enable loose compilation.
+         */
+        loose?: boolean;
 
         visualize?: boolean | {
             file?: string;
         };
+
+        buildTimeConstants: IBuildTimeConstants;
     }
 
     export interface Result {
@@ -190,17 +193,22 @@ async function getEngineEntries (
     return result;
 }
 
+interface CCConfig {
+    platforms?: Record<string, {
+        moduleOverrides?: Record<string, string>;
+    }>;
+}
+
 async function _doBuild ({
     moduleEntries,
-    buildTimeConstants,
     options,
 }: {
     moduleEntries?: string[];
-    buildTimeConstants: BuildTimeConstants;
     options: build.Options;
 }): Promise<build.Result> {
     const doUglify = !!options.compress;
     const split = options.split ?? false;
+    const engineRoot = ps.resolve(options.engine);
 
     const moduleOption = options.moduleFormat ?? ModuleOption.iife;
     const rollupFormat = moduleOptionsToRollupFormat(moduleOption);
@@ -212,13 +220,16 @@ async function _doBuild ({
         ammoJsWasm = false;
     }
 
+    const ccConfigFile = ps.join(engineRoot, 'cc.config.json');
+    const ccConfig: CCConfig = JSON5.parse(await fs.readFile(ccConfigFile, 'utf8'));
+
     const engineEntries = await getEngineEntries(
-        options.engine,
+        engineRoot,
         split ? undefined : moduleEntries,
     );
 
     const rpVirtualOptions: Record<string, string> = {};
-    const vmInternalConstants = getModuleSourceInternalConstants(buildTimeConstants);
+    const vmInternalConstants = getModuleSourceInternalConstants(options.buildTimeConstants);
     console.debug(`Module source "internal-constants":\n${vmInternalConstants}`);
     rpVirtualOptions['internal:constants'] = vmInternalConstants;
 
@@ -247,7 +258,9 @@ async function _doBuild ({
         console.debug(`Module source "cc":\n${rpVirtualOptions['cc']}`);
     }
 
-    const presetEnvOptions: any = {};
+    const presetEnvOptions: babelPresetEnvOptions = {
+        loose: options.loose ?? true,
+    };
     if (options.targets !== undefined) {
         presetEnvOptions.targets = options.targets;
     }
@@ -263,10 +276,6 @@ async function _doBuild ({
         babelHelpers: 'bundled',
         extensions: ['.js', '.ts'],
         highlightCode: true,
-        exclude: [
-            /@cocos[\/\\]ammo/g,
-            /@cocos[\/\\]cannon/g
-        ],
         plugins: babelPlugins,
         presets: [
             [babelPresetEnv, presetEnvOptions],
@@ -276,7 +285,39 @@ async function _doBuild ({
         ],
     };
 
-    const rollupPlugins: rollup.Plugin[] = [
+    const moduleRedirects: Record<string, string> = {};
+    const platformConstant = getPlatformConstantNames().find((name) => options.buildTimeConstants[name] === true);
+    if (platformConstant) {
+        const moduleOverrides = ccConfig.platforms?.[platformConstant]?.moduleOverrides;
+        if (moduleOverrides) {
+            for (const [source, override] of Object.entries(moduleOverrides)) {
+                const normalizedSource = makePathEqualityKey(ps.resolve(engineRoot, source));
+                const normalizedOverride = ps.resolve(engineRoot, override);
+                moduleRedirects[normalizedSource] = normalizedOverride;
+            }
+        }
+    }
+
+    const rollupPlugins: rollup.Plugin[] = [];
+    if (options.noDeprecatedFeatures) {
+        rollupPlugins.push(removeDeprecatedFeatures(
+            typeof options.noDeprecatedFeatures === 'string' ? options.noDeprecatedFeatures : undefined));
+    }
+
+    rollupPlugins.push(
+        {
+            name: '@cocos/build-engine|module-overrides',
+            load: function (this, id: string) {
+                const key = makePathEqualityKey(id);
+                if (!(key in moduleRedirects)) {
+                    return null;
+                }
+                const replacement = moduleRedirects[key];
+                console.debug(`Redirect module ${id} to ${replacement}`);
+                return `export * from '${filePathToModuleRequest(replacement)}';`;
+            },
+        },
+
         rpVirtual(rpVirtualOptions),
 
         tsConfigPaths({
@@ -291,15 +332,10 @@ async function _doBuild ({
             preferConst: true,
         }),
 
-        rpBabel(babelOptions),
+        commonjs({}),
 
-        commonjs({
-            namedExports: {
-                '@cocos/ammo': ['Ammo'],
-                '@cocos/cannon': ['CANNON'],
-            },
-        }),
-    ];
+        rpBabel(babelOptions),
+    );
 
     if (options.progress) {
         rollupPlugins.unshift(rpProgress());
@@ -379,7 +415,9 @@ export { isWasm };
     const { incremental: incrementalFile } = options;
     if (incrementalFile) {
         const watchFiles: Record<string, number> = {};
-        for (const watchFile of rollupBuild.watchFiles) {
+        for (const watchFile of rollupBuild.watchFiles.concat([
+            ccConfigFile,
+        ])) {
             try {
                 const stat = await fs.stat(watchFile);
                 watchFiles[watchFile] = stat.mtimeMs;
@@ -466,7 +504,7 @@ export { isWasm };
     async function nodeResolveAsync (specifier: string) {
         return new Promise<string>((r, reject) => {
             nodeResolve(specifier, {
-                basedir: options.engine,
+                basedir: engineRoot,
             }, (err, resolved, pkg) => {
                 if (err) {
                     reject(err);
@@ -482,11 +520,8 @@ function filePathToModuleRequest(path: string) {
     return path.replace(/\\/g, '\\\\');
 }
 
-function getModuleSourceInternalConstants (buildTimeConstants: BuildTimeConstants) {
-    return Object.entries(buildTimeConstants).map(([k, v]) => {
-        const ck = k.startsWith('CC_') ? k.substr(3) : k;
-        return `export const ${ck} = ${v};`;
-    }).join('\n');
+function getModuleSourceInternalConstants (buildTimeConstants: IBuildTimeConstants) {
+    return Object.entries(buildTimeConstants).map(([k, v]) => `export const ${k} = ${v};`).join('\n');
 }
 
 function moduleOptionsToRollupFormat(moduleOptions: ModuleOption): rollup.ModuleFormat {
@@ -521,138 +556,6 @@ export async function isSourceChanged(incrementalFile: string) {
         }
     }
     return false;
-}
-
-export enum Platform {
-    HTML5,
-    WECHAT,
-    ALIPAY,
-    BAIDU,
-    XIAOMI,
-    BYTEDANCE,
-    OPPO,
-    VIVO,
-    HUAWEI,
-    NATIVE,
-    COCOSPLAY,
-}
-
-export function enumeratePlatformReps () {
-    return Object.values(Platform).filter((value) => typeof value === 'string') as Array<keyof typeof Platform>;
-}
-
-export function parsePlatform (rep: string) {
-    return Reflect.get(Platform, rep);
-}
-
-export enum Mode {
-    universal,
-    editor,
-    preview,
-    build,
-    test,
-}
-
-export function enumerateBuildModeReps () {
-    return Object.values(Mode).filter((value) => typeof value === 'string') as Array<keyof typeof Mode>;
-}
-
-export function parseBuildMode (rep: string) {
-    return Reflect.get(Mode, rep);
-}
-
-export interface BuildFlags {
-    jsb?: boolean;
-    runtime?: boolean;
-    wechatgame?: boolean;
-    qqplay?: boolean;
-    debug?: boolean;
-    nativeRenderer?: boolean;
-}
-
-interface BuildTimeConstants {
-    // BuildMode macros
-    CC_EDITOR?: boolean;
-    CC_PREVIEW?: boolean;
-    CC_BUILD?: boolean;
-    CC_TEST?: boolean;
-
-    // Platform macros
-    CC_HTML5?: boolean;
-    CC_WECHAT?: boolean;
-    CC_ALIPAY?: boolean;
-    CC_BAIDU?: boolean;
-    CC_XIAOMI?: boolean;
-    CC_BYTEDANCE?: boolean;
-    CC_OPPO?: boolean;
-    CC_VIVO?: boolean;
-    CC_HUAWEI?: boolean;
-    CC_NATIVE?: boolean;
-    CC_COCOSPLAY?: boolean;
-
-    // engine use platform macros
-    CC_RUNTIME_BASED?: boolean;
-    CC_MINIGAME?: boolean;
-    CC_JSB?: boolean;
-
-    // Flag macros
-    CC_DEBUG?: boolean;
-
-    // Debug macros
-    CC_DEV?: boolean;
-    CC_SUPPORT_JIT?: boolean;
-}
-
-function populateBuildTimeConstants (options: build.Options) {
-    const buildMode = options.mode ?? Mode.universal;
-    const platform = options.platform;
-    const flags = options.flags;
-
-    const BUILD_MODE_MACROS = ['CC_EDITOR', 'CC_PREVIEW', 'CC_BUILD', 'CC_TEST'];
-    const PLATFORM_MACROS = ['CC_HTML5', 'CC_WECHAT', 'CC_ALIPAY', 'CC_BAIDU', 'CC_XIAOMI', 'CC_BYTEDANCE', 'CC_OPPO', 'CC_VIVO', 'CC_HUAWEI', 'CC_NATIVE', 'CC_COCOSPLAY'];
-    const FLAGS = ['debug'];
-
-    const buildModeMacro = ('CC_' + Mode[buildMode]).toUpperCase();
-    if (BUILD_MODE_MACROS.indexOf(buildModeMacro) === -1 && buildMode !== Mode.universal) {
-        throw new Error(`Unknown build mode ${buildMode}.`);
-    }
-    const platformMacro = ('CC_' + Platform[platform!]).toUpperCase();
-    if ( PLATFORM_MACROS.indexOf(platformMacro) === -1) {
-        throw new Error(`Unknown platform ${platform}.`);
-    }
-    const result: BuildTimeConstants = {};
-    for (const macro of BUILD_MODE_MACROS) {
-        result[macro as keyof BuildTimeConstants] = (macro === buildModeMacro);
-    }
-
-    for (const macro of PLATFORM_MACROS) {
-        result[macro as keyof BuildTimeConstants] = (macro === platformMacro);
-    }
-
-    if (flags) {
-        for (const flag in flags) {
-            if (flags.hasOwnProperty(flag) && flags[flag as keyof BuildFlags]) {
-                if (FLAGS.indexOf(flag) === -1) {
-                    throw new Error('Unknown flag: ' + flag);
-                }
-            }
-        }
-    }
-    for (const flag of FLAGS) {
-        const macro = 'CC_' + flag.toUpperCase();
-        result[macro as keyof BuildTimeConstants] = !!(flags && flags[flag as keyof BuildFlags]);
-    }
-
-    result.CC_RUNTIME_BASED = false;
-    result.CC_MINIGAME = false;
-    result.CC_DEV = result.CC_EDITOR || result.CC_PREVIEW || result.CC_TEST;
-    result.CC_DEBUG = result.CC_DEBUG || result.CC_DEV;
-    result.CC_RUNTIME_BASED = result.CC_OPPO || result.CC_VIVO || result.CC_HUAWEI || result.CC_COCOSPLAY;
-    result.CC_MINIGAME = result.CC_WECHAT || result.CC_ALIPAY || result.CC_XIAOMI || result.CC_BYTEDANCE || result.CC_BAIDU;
-    result.CC_JSB = result.CC_NATIVE;
-    result.CC_SUPPORT_JIT = !(result.CC_MINIGAME || result.CC_RUNTIME_BASED);
-
-    return result;
 }
 
 async function getDefaultModuleEntries (engine: string) {

@@ -5,7 +5,7 @@
 
 import { AnimationClip } from '../animation/animation-clip';
 import { Skeleton } from '../assets';
-import { GFXDevice } from '../gfx/device';
+import { GFXDevice } from '../gfx';
 import { JointAnimationInfo, JointTexturePool } from './models/skeletal-animation-utils';
 
 export class DataPoolManager {

@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -511,6 +511,7 @@ class InputManager {
             if (JSB || RUNTIME_BASED) {
                 // @ts-ignore
                 if (jsb.device && jsb.device.setMotionInterval) {
+                    // @ts-ignore
                     jsb.device.setMotionInterval(interval);
                 }
             }

@@ -45,3 +45,8 @@ export enum EConstraintType {
     CONE_TWIST
 }
 Enum(EConstraintType);
+
+export enum PhysicsGroup {
+    DEFAULT = 1,
+}
+Enum(PhysicsGroup);

@@ -1,7 +1,7 @@
 {
-  "name": "cocos-creator-3d",
-  "version": "1.1.1",
-  "description": "Cocos Creator 3D is a cross-platform 3D game engine written in Javascript, licensed under MIT.",
+  "name": "cocos-creator",
+  "version": "3.0.0",
+  "description": "Cocos Creator is a cross-platform 2D & 3D game engine written in TypeScript, licensed under MIT.",
   "homepage": "http://www.cocos.com",
   "license": "MIT",
   "authors": [
@@ -26,7 +26,7 @@
     "@babel/core": "^7.9.0",
     "@babel/preset-env": "7.8.7",
     "@cocos/babel-preset-cc": "2.1.0",
-    "@cocos/build-engine": "3.0.8",
+    "@cocos/build-engine": "4.0.0-jsb.alpha.11",
     "@cocos/typedoc-plugin-internal-external": "^1.0.1",
     "@cocos/typedoc-plugin-localization": "^1.0.0",
     "@types/fs-extra": "^5.0.4",
@@ -53,6 +53,7 @@
   },
   "dependencies": {
     "@cocos/ammo": "1.0.7-beta.4",
+    "@cocos/box2d": "1.0.1",
     "@cocos/cannon": "1.1.1-exp.4"
   }
 }

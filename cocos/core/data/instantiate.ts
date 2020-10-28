@@ -1,6 +1,6 @@
 ﻿/*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -32,7 +32,7 @@
 import { isDomNode } from '../utils/misc';
 import { ValueType } from '../value-types';
 import { CCObject } from './object';
-import { js } from '../utils';
+import { js } from '../utils/js';
 import { getError, warn } from '../platform/debug';
 import { DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';

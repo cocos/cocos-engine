@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2019 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -172,7 +172,7 @@ export class UIStaticBatch extends UIRenderable {
             this._init = true;
             this.node._static = true;
 
-            this._meshBuffer!.uploadData();
+            this._meshBuffer!.uploadBuffers();
         }
     }
 

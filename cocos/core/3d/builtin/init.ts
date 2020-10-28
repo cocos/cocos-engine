@@ -3,7 +3,7 @@ import { ImageAsset } from '../../assets/image-asset';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { Texture2D } from '../../assets/texture-2d';
 import { TextureCube } from '../../assets/texture-cube';
-import { GFXDevice } from '../../gfx/device';
+import { GFXDevice } from '../../gfx';
 import effects from './effects';
 import { legacyCC } from '../../global-exports';
 
@@ -48,7 +48,7 @@ class BuiltinResMgr {
         // black texture
         const blackCubeTexture = new TextureCube();
         blackCubeTexture._uuid = 'black-cube-texture';
-        blackCubeTexture.setMipFilter(TextureCube.Filter.LINEAR);
+        blackCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
         blackCubeTexture.image = {
             front: new ImageAsset(canvas),
             back: new ImageAsset(canvas),
@@ -78,7 +78,7 @@ class BuiltinResMgr {
         // white cube texture
         const whiteCubeTexture = new TextureCube();
         whiteCubeTexture._uuid = 'white-cube-texture';
-        whiteCubeTexture.setMipFilter(TextureCube.Filter.LINEAR);
+        whiteCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
         whiteCubeTexture.image = {
             front: new ImageAsset(canvas),
             back: new ImageAsset(canvas),
@@ -112,7 +112,7 @@ class BuiltinResMgr {
 
         // default cube texture
         const defaultCubeTexture = new TextureCube();
-        defaultCubeTexture.setMipFilter(TextureCube.Filter.LINEAR);
+        defaultCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
         defaultCubeTexture._uuid = 'default-cube-texture';
         defaultCubeTexture.image = {
             front: new ImageAsset(canvas),
@@ -164,6 +164,11 @@ class BuiltinResMgr {
         missingMtl.setProperty('mainColor', legacyCC.color('#ff00ff'));
         resources[missingMtl._uuid] = missingMtl;
 
+        const clearStencilMtl = new legacyCC.Material();
+        clearStencilMtl._uuid = 'builtin-clear-stencil';
+        clearStencilMtl.initialize({ defines: { USE_TEXTURE: false }, effectName: 'builtin-clear-stencil' });
+        resources[clearStencilMtl._uuid] = clearStencilMtl;
+
         // sprite material
         const spriteMtl = new legacyCC.Material();
         spriteMtl._uuid = 'ui-base-material';
@@ -175,6 +180,12 @@ class BuiltinResMgr {
         spriteColorMtl._uuid = 'ui-sprite-material';
         spriteColorMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false }, effectName: 'builtin-sprite' });
         resources[spriteColorMtl._uuid] = spriteColorMtl;
+
+        // sprite alpha test material
+        const alphaTestMaskMtl = new legacyCC.Material();
+        alphaTestMaskMtl._uuid = 'ui-alpha-test-material';
+        alphaTestMaskMtl.initialize({ defines: { USE_TEXTURE: true, USE_ALPHA_TEST: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false }, effectName: 'builtin-sprite' });
+        resources[alphaTestMaskMtl._uuid] = alphaTestMaskMtl;
 
         // sprite gray material
         const spriteGrayMtl = new legacyCC.Material();
