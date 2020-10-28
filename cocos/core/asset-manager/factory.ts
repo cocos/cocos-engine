@@ -29,6 +29,7 @@
  */
 
 import { AudioClip } from '../../audio/assets/clip';
+import { VideoClip } from '../../video/assets/video-clip';
 import { ImageAsset, JsonAsset, TextAsset, TTFFont, Asset } from '../assets';
 import { BufferAsset } from '../assets/buffer-asset';
 import { js } from '../utils/js';
@@ -95,7 +96,7 @@ function createAsset (id: string, data: any, options: IDownloadParseOptions, onC
     onComplete(null, out);
 }
 
-function createBundle (id: string, data: IConfigOption, options, onComplete) {
+function createBundle (id: string, data: IConfigOption, options: IDownloadParseOptions, onComplete: CompleteCallback<Bundle>) {
     let bundle = bundles.get(data.name);
     if (!bundle) {
         bundle = data.name === BuiltinBundleName.RESOURCES ? resources : new Bundle();
@@ -103,6 +104,13 @@ function createBundle (id: string, data: IConfigOption, options, onComplete) {
         bundle.init(data);
     }
     onComplete(null, bundle);
+}
+
+function createVideoClip (id: string, data: HTMLVideoElement, options: IDownloadParseOptions, onComplete: CompleteCallback<VideoClip>) {
+    let out = new VideoClip();
+    out._nativeUrl = id;
+    out._nativeAsset = data;
+    onComplete(null, out);
 }
 
 export class Factory {
@@ -128,6 +136,15 @@ export class Factory {
         '.ogg' : createAudioClip,
         '.wav' : createAudioClip,
         '.m4a' : createAudioClip,
+
+        // Video
+        '.mp4': createVideoClip,
+        '.avi': createVideoClip,
+        '.mov': createVideoClip,
+        '.mpg': createVideoClip,
+        '.mpeg': createVideoClip,
+        '.rm': createVideoClip,
+        '.rmvb': createVideoClip,
 
         // Txt
         '.txt' : createTextAsset,

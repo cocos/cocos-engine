@@ -44,33 +44,28 @@ export interface IRequest extends IOptions {
     path?: string;
     dir?: string;
     scene?: string;
-    [ k : string ]: any;
 }
 
-export interface IOptions extends IAssetOptions, IBundleOptions, IRemoteOptions {
+export interface IOptions extends IBundleOptions, IRemoteOptions {
     type?: typeof Asset; 
     bundle?: string;
-    [ k : string ]: any;
 };
 
 export interface IRemoteOptions extends IAssetOptions {
     ext?: string;
-    [ k : string ]: any;
 }
 
-export interface IXHROptions {
+export interface IXHROptions extends Record<string, any> {
     xhrResponseType?: XMLHttpRequestResponseType;
     xhrWithCredentials?: boolean;
     xhrTimeout?: number;
     xhrHeader?: Record<string, string>;
     xhrMimeType?: string;
-    [ k : string ]: any;
 }
 
 export interface IAssetOptions extends INativeAssetOptions {
     reloadAsset?: boolean;
     cacheAsset?: boolean;
-    [ k : string ]: any;
 };
 
 export interface IJsonAssetOptions extends IAssetOptions {
@@ -85,18 +80,15 @@ export interface IDownloadParseOptions extends IXHROptions {
     maxRequestsPerFrame?: number; 
     maxRetryCount?: number;
     cacheEnabled?: boolean;
-    [ k : string ]: any;
 };
 
 export interface IBundleOptions extends INativeAssetOptions {
     version?: string; 
     scriptAsyncLoading?: boolean;
-    [ k : string ]: any;
 };
 
 export interface INativeAssetOptions extends IDownloadParseOptions {
     preset?: string;
-    [ k : string ]: any;
 }
 
 export type AssetType = Constructor<Asset>;

@@ -35,17 +35,17 @@ import { Color, Vec2 } from '../core/math';
 import { EDITOR } from 'internal:constants';
 import { warnID, errorID } from '../core/platform/debug';
 import { Simulator } from './particle-simulator-2d';
-import { SpriteFrame, Texture2D, textureUtil } from '../core/assets';
+import { SpriteFrame, Texture2D } from '../core/assets';
 import { ParticleAsset } from './particle-asset';
 import { GFXBlendFactor } from '../core/gfx';
 import { path } from '../core/utils';
-import { loader } from '../core/load-pipeline';
 import { ImageAsset } from '../core/assets/image-asset';
 import { PNGReader } from './png-reader';
 import { TiffReader } from './tiff-reader';
 import codec from '../../external/compression/ZipUtils';
 import { UI } from '../core/renderer/ui/ui';
 import { vfmtPosUvColor, getAttributeFormatBytes } from '../core/renderer/ui/ui-vertex-format';
+import { assetManager } from '../core/asset-manager';
 
 const formatBytes = getAttributeFormatBytes(vfmtPosUvColor);
 
@@ -952,7 +952,7 @@ bv
         const file = this._file;
         if (file) {
             const self = this;
-            loader.load(file.nativeUrl, function (err) {
+            assetManager.postLoadNative(file, function (err) {
                 if (err || !file) {
                     errorID(6029);
                     return;
@@ -985,22 +985,21 @@ bv
         // texture
         if (dict["textureFileName"]) {
             // Try to get the texture from the cache
-            textureUtil.loadImage(imgPath, (error, texture) => {
+            assetManager.loadRemote<ImageAsset>(imgPath, (error, texture) => {
                 if (error) {
                     dict["textureFileName"] = undefined;
                     this._initTextureWithDictionary(dict);
                 }
                 else {
-                    textureUtil.cacheImage(imgPath, texture!._texture);
                     this.spriteFrame = new SpriteFrame();
                     this.spriteFrame.texture = texture!._texture;
                 }
-            }, this);
+            });
         } else if (dict["textureImageData"]) {
             let textureData = dict["textureImageData"];
 
             if (textureData && textureData.length > 0) {
-                let tex = textureUtil.loadImage(imgPath);
+                let tex = assetManager.assets.get(imgPath) as ImageAsset;
 
                 if (!tex) {
                     let buffer = codec.unzipBase64AsArray(textureData, 1);
@@ -1025,7 +1024,8 @@ bv
                         }
                         this._tiffReader.parseTIFF(buffer,canvasObj);
                     }
-                    tex = textureUtil.cacheImage(imgPath, canvasObj) as ImageAsset;
+                    const tex = new ImageAsset(canvasObj);
+                    assetManager.assets.add(imgPath, tex);
                 }
 
                 if (!tex)

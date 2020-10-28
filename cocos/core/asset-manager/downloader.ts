@@ -32,6 +32,7 @@ import { callInNextTick } from '../utils/misc';
 import { basename } from '../utils/path';
 import Cache from './cache';
 import { downloadDomAudio, downloadAudio } from '../../audio/audio-downloader';
+import { downloadVideo } from '../../video/video-downloader';
 import downloadDomImage from './download-dom-image';
 import downloadFile from './download-file';
 import downloadScript from './download-script';
@@ -79,10 +80,6 @@ const downloadArrayBuffer = (url: string, options: IDownloadParseOptions, onComp
 const downloadText = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
     options.xhrResponseType = 'text';
     downloadFile(url, options, options.onFileProgress, onComplete);
-};
-
-const downloadVideo = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
-    onComplete(null, url);
 };
 
 const downloadBundle = (nameOrUrl: string, options: IBundleOptions, onComplete: CompleteCallback) => {
