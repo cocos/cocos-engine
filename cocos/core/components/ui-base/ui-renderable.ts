@@ -432,7 +432,7 @@ export class UIRenderable extends RenderableComponent {
 
     protected _canRender () {
         // this.getMaterial(0) !== null still can render is hack for builtin Material
-        return this.enabled && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy);
+        return this.enabled && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy) && this._color.a > 0;
     }
 
     protected _postCanRender () {}
