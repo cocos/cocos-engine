@@ -1070,12 +1070,10 @@ export class Director extends EventTarget {
         legacyCC.loader.init(this);
         this._root = new Root(legacyCC.game._gfxDevice);
         const rootInfo = {};
-        if (!this._root.initialize(rootInfo)) {
+        return this._root.initialize(rootInfo).catch((error) => {
             errorID(1217);
-            return false;
-        }
-
-        return true;
+            return Promise.reject(error);
+        });
     }
 }
 
