@@ -793,6 +793,8 @@ let TiledMap = cc.Class({
         let maxWidth = 0;
         let maxHeight = 0;
 
+        mapInfo.cullingInfo = {}
+
         if (layerInfos && layerInfos.length > 0) {
             for (let i = 0, len = layerInfos.length; i < len; i++) {
                 let layerInfo = layerInfos[i];
@@ -815,6 +817,8 @@ let TiledMap = cc.Class({
                     if (!layer) {
                         layer = child.addComponent(cc.TiledLayer);
                     }
+
+                    layer.index = i;
 
                     layer._init(layerInfo, mapInfo, tilesets, textures, texGrids);
 
