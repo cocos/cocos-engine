@@ -31,7 +31,7 @@
 
  // tslint:disable
 
-import { getClassName, getset } from './js';
+import { getClassName, getset, isEmptyObject } from './js';
 import { EDITOR, DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
@@ -172,12 +172,7 @@ export function isPlainEmptyObj_DEV (obj) {
     if (!obj || obj.constructor !== Object) {
         return false;
     }
-    // jshint ignore: start
-    for (const k in obj) {
-        return false;
-    }
-    // jshint ignore: end
-    return true;
+    return isEmptyObject(obj);
 }
 
 export function cloneable_DEV (obj) {

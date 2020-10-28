@@ -332,7 +332,7 @@ export class ImageAsset extends Asset {
             warnID(3120, defaultExt, defaultExt);
         }
         else {
-            throw new Error(getError(3121));
+            warnID(3121);
         }
     }
 

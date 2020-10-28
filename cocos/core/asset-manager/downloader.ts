@@ -26,16 +26,12 @@
  * @packageDocumentation
  * @module asset-manager
  */
-
-import { AudioType } from '../../audio/assets/clip';
-import { macro } from '../platform/macro';
-import { getError } from '../platform/debug';
 import { sys } from '../platform/sys';
 import { js } from '../utils';
 import { callInNextTick } from '../utils/misc';
 import { basename } from '../utils/path';
 import Cache from './cache';
-import downloadDomAudio from './download-dom-audio';
+import { downloadDomAudio, downloadAudio } from '../../audio/audio-downloader';
 import downloadDomImage from './download-dom-image';
 import downloadFile from './download-file';
 import downloadScript from './download-script';
@@ -58,31 +54,6 @@ interface IDownloadRequest {
 }
 
 const REGEX = /^\w+:\/\/.*/;
-const formatSupport = sys.__audioSupport.format;
-
-const unsupported = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
-    onComplete(new Error(getError(4927)));
-};
-
-const downloadAudio = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
-    let handler: DownloadHandler | null = null;
-    if (formatSupport.length === 0) {
-        handler = unsupported;
-    }
-    else if (!sys.__audioSupport.WEB_AUDIO) {
-        handler = downloadDomAudio;
-    }
-    else {
-        // web audio need to download file as arrayBuffer
-        if (options.audioLoadMode !== AudioType.DOM_AUDIO) {
-            handler = downloadArrayBuffer;
-        }
-        else {
-            handler = downloadDomAudio;
-        }
-    }
-    handler(url, options, onComplete);
-};
 
 const downloadImage = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
     // if createImageBitmap is valid, we can transform blob to ImageBitmap. Otherwise, just use HTMLImageElement to load
