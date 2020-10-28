@@ -106,7 +106,8 @@ export class UI {
     private _currTextureHash: number = 0;
     private _currSamplerHash: number = 0;
     private _parentOpacity = 1;
-
+    // Generation id for each invocation of function `walk`
+    private _walkGen: number = 0;
     // DescriptorSet Cache Map
     private _descriptorSetCacheMap: Map<number, Map<number, DescriptorSetHandle>> = new Map<number, Map<number, DescriptorSetHandle>>();
 
@@ -139,7 +140,7 @@ export class UI {
     }
 
     public destroy () {
-        for (let i = 0; i < this._batches.length; i++ ) {
+        for (let i = 0; i < this._batches.length; i++) {
             if (this._batches.array[i]) {
                 this._batches.array[i].destroy(this);
             }
@@ -342,7 +343,7 @@ export class UI {
                     }
                 } else {
                     const descriptorSetTextureMap = this._descriptorSetCacheMap.get(batch.textureHash);
-                    if(descriptorSetTextureMap && descriptorSetTextureMap.has(batch.samplerHash)) {
+                    if (descriptorSetTextureMap && descriptorSetTextureMap.has(batch.samplerHash)) {
                         batch.hDescriptorSet = descriptorSetTextureMap.get(batch.samplerHash)!;
                     } else {
                         this._initDescriptorSet(batch);
@@ -356,7 +357,7 @@ export class UI {
                         if (descriptorSetTextureMap) {
                             this._descriptorSetCacheMap.get(batch.textureHash)!.set(batch.samplerHash, batch.hDescriptorSet);
                         } else {
-                            this._descriptorSetCacheMap.set(batch.textureHash,new Map([[batch.samplerHash, batch.hDescriptorSet]]));
+                            this._descriptorSetCacheMap.set(batch.textureHash, new Map([[batch.samplerHash, batch.hDescriptorSet]]));
                         }
                     }
 
@@ -423,7 +424,7 @@ export class UI {
      * @param frame - 当前执行组件贴图。
      * @param assembler - 当前组件渲染数据组装器。
      */
-    public commitComp (comp: UIRenderable, frame: TextureBase | SpriteFrame| RenderTexture | null, assembler: any) {
+    public commitComp (comp: UIRenderable, frame: TextureBase | SpriteFrame | RenderTexture | null, assembler: any) {
         const renderComp = comp;
         let texture;
         let samp;
@@ -645,17 +646,25 @@ export class UI {
         this._uiMaterials.clear();
     }
 
-    private _walk (node: Node, level = 0) {
+    public walk (node: Node, level = 0) {
         const len = node.children.length;
 
         const parentOpacity = this._parentOpacity;
         this._parentOpacity *= node._uiProps.opacity;
+
+        // skip if processed
+        const comp = node._uiProps.uiComp as UIRenderable;
+        if (comp) {
+            if (comp._uiWalkGen === this._walkGen) { return /* already run */; }
+            comp._uiWalkGen = this._walkGen;
+        }
+
         this._preprocess(node);
         if (len > 0 && !node._static) {
             const children = node.children;
             for (let i = 0; i < children.length; ++i) {
                 const child = children[i];
-                this._walk(child, level);
+                this.walk(child, level);
             }
         }
 
@@ -686,7 +695,10 @@ export class UI {
     }
 
     private _recursiveScreenNode (screen: Node) {
-        this._walk(screen);
+        // allocate id for invokation of `walk`
+        this._walkGen += 1;
+        this.walk(screen);
+        if (this._walkGen > 1000000) this._walkGen = 0;
 
         this.autoMergeBatches(this._currComponent!);
     }
@@ -738,7 +750,7 @@ export class UI {
     }
 
     private _releaseDescriptorSetCache (textureHash: number) {
-        if(this._descriptorSetCacheMap.has(textureHash)) {
+        if (this._descriptorSetCacheMap.has(textureHash)) {
             this._descriptorSetCacheMap.get(textureHash)!.forEach((value) => {
                 DSPool.free(value);
             });

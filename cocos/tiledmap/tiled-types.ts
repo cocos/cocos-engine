@@ -305,16 +305,20 @@ export enum TMXObjectType {
 
 ccenum(TMXObjectType);
 
-export interface MixedGID extends Number {
-    _mixed: string
-}
-export interface GID extends Number {
-    _gid: string;
-}
-export interface GIDFlags extends Number {
-    _flags: number;
-}
+// --- DEBUG types
+// export interface MixedGID extends Number {
+//     _mixed: string
+// }
+// export interface GID extends Number {
+//     _gid: string;
+// }
+// export interface GIDFlags extends Number {
+//     _flags: number;
+// }
 
+export type MixedGID = number;
+export type GID = number;
+export type GIDFlags = number;
 
 /**
  * Size in pixels of the image

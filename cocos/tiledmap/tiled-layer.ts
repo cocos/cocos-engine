@@ -41,8 +41,10 @@ import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../core/global-exports';
 import { MeshRenderData } from '../core/renderer/ui/render-data';
 import { UI } from '../core/renderer/ui/ui';
-import { MixedGID, GID, Orientation, TiledTextureGrids, TMXTilesetInfo, RenderOrder, StaggerAxis, StaggerIndex, TileFlag,
-     GIDFlags, TiledGrid, TiledAnimationType, PropertiesInfo, TMXLayerInfo } from './tiled-types';
+import {
+    MixedGID, GID, Orientation, TiledTextureGrids, TMXTilesetInfo, RenderOrder, StaggerAxis, StaggerIndex, TileFlag,
+    GIDFlags, TiledGrid, TiledAnimationType, PropertiesInfo, TMXLayerInfo
+} from './tiled-types';
 import { fillTextureGrids, loadAllTextures } from './tiled-utils';
 
 const _mat4_temp = new Mat4();
@@ -61,6 +63,17 @@ export class TiledUserNodeData extends Component {
         super();
     }
 }
+
+export interface TiledMeshData {
+    renderData: MeshRenderData;
+    texture: Texture2D | null;
+}
+
+interface TiledSubNodeData {
+    subNodes: (null|TiledUserNodeData)[] ;
+}
+
+type TiledMeshDataArray = (TiledMeshData |TiledSubNodeData)[];
 
 /**
  * !#en Render the TMX layer.
@@ -157,7 +170,7 @@ export class TiledLayer extends UIRenderable {
     protected _vertexZvalue?: number;
     protected _offset?: Vec2;
 
-    protected _meshRenderDataArray: { renderData: MeshRenderData, texture: Texture2D | null }[] | null = null;
+    protected _meshRenderDataArray: TiledMeshDataArray | null = null;
 
     get meshRenderDataArray () { return this._meshRenderDataArray; };
     get leftDownToCenterX () { return this._leftDownToCenterX; }
@@ -671,12 +684,22 @@ export class TiledLayer extends UIRenderable {
 
         return ((tile & TileFlag.FLIPPED_MASK) >>> 0);
     }
+    /**
+     * !#en
+     * Returns the tile flags at a given tile coordinate. <br />
+     * !#zh
+     * 通过给定的 tile 坐标, 返回 tile 的 flags. <br />
+     * 如果它返回 null，则表示该 tile 为空。<br />
+     * @method getTileGIDAt
+     * @param {number}} x
+     * @param {number}} y
+     * @return {Number}
+     * @example
+     * let tileGid = tiledLayer.getTileGIDAt(0, 0);
+     */
+    public getTileFlagsAt (x:number, y:number) {
 
-    public getTileFlagsAt (pos: IVec2Like) {
-        if (!pos) {
-            throw new Error('TiledLayer.getTileFlagsAt: pos should be non-null');
-        }
-        if (this.isInvalidPosition(pos.x, pos.y)) {
+        if (this.isInvalidPosition(x, y)) {
             throw new Error('TiledLayer.getTileFlagsAt: invalid position');
         }
         if (!this.tiles) {
@@ -684,7 +707,7 @@ export class TiledLayer extends UIRenderable {
             return null;
         }
 
-        const idx = Math.floor(pos.x) + Math.floor(pos.y) * this._layerSize!.width;
+        const idx = Math.floor(x) + Math.floor(y) * this._layerSize!.width;
         // Bits on the far end of the 32-bit global tile ID are used for tile flags
         const tile = this.tiles[idx] as unknown as number;
 
@@ -1259,42 +1282,11 @@ export class TiledLayer extends UIRenderable {
             for (let i = 0, l = tilesets.length; i < l; ++i) {
                 const tilesetInfo = tilesets[i];
                 if (!tilesetInfo) continue;
-
-                // let idx = texIdCache.get(tilesetInfo.sourceImage!.texture as cc.Texture2D)
-                // if (idx === undefined) {
-                //     texIdCache.set(tilesetInfo.sourceImage!.texture as cc.Texture2D, i);
-                //     idx = i;
-                // }
                 fillTextureGrids(tilesetInfo, texGrids, tilesetInfo.sourceImage);
             }
             self._prepareToRender();
         });
     }
-
-    // _traverseAllGrid() {
-    //     let tiles = this._tiles;
-    //     let texGrids = this._texGrids!;
-    //     let tilesetIndexArr = this._tilesetIndexArr;
-    //     let tilesetIndexToArrIndex = this._tilesetIndexToArrIndex = {};
-
-    //     const TileFlag = TileFlag;
-    //     const FLIPPED_MASK = TileFlag.FLIPPED_MASK;
-
-    //     tilesetIndexArr.length = 0;
-    //     for (let i = 0; i < tiles.length; i++) {
-    //         let gid = (((tiles[i] as unknown as number) & FLIPPED_MASK) >>> 0);
-    //         if (gid === 0) continue;
-    //         let grid = texGrids.get(gid as unknown as GID);
-    //         if (!grid) {
-    //             cc.error("CCTiledLayer:_traverseAllGrid grid is null, gid is:", gid);
-    //             continue;
-    //         }
-    //         let textureID = grid.texId as unknown as number;
-    //         if (tilesetIndexToArrIndex[textureID] !== undefined) continue;
-    //         tilesetIndexToArrIndex[textureID] = tilesetIndexArr.length;
-    //         tilesetIndexArr.push(textureID);
-    //     }
-    // }
 
     public init (layerInfo: TMXLayerInfo, mapInfo: TMXMapInfo, tilesets: TMXTilesetInfo[], textures: SpriteFrame[], texGrids: TiledTextureGrids) {
 
@@ -1389,17 +1381,26 @@ export class TiledLayer extends UIRenderable {
         return comb;
     }
 
+    public requestSubNodesData () {
+        if (!this._meshRenderDataArray) {
+            this._meshRenderDataArray = new Array();
+        }
+        const renderData:(TiledUserNodeData|null)[] = [];
+        const comb = {subNodes: renderData};
+        this._meshRenderDataArray.push(comb);
+        return comb;
+    }
 
     public destroyRenderData () {
         if (this._meshRenderDataArray) {
-            this._meshRenderDataArray.forEach(rd => rd.renderData.reset());
+            this._meshRenderDataArray.forEach((rd) => { if ((rd as TiledMeshData).renderData) (rd as TiledMeshData).renderData.reset(); });
             this._meshRenderDataArray = null;
         }
     }
 
     public resetRenderData () {
         if (this._meshRenderDataArray) {
-            this._meshRenderDataArray.forEach(x => x.renderData.reset());
+            this._meshRenderDataArray.forEach((rd) => { if ((rd as TiledMeshData).renderData) (rd as TiledMeshData).renderData.reset(); });
         }
     }
 
@@ -1426,14 +1427,21 @@ export class TiledLayer extends UIRenderable {
         }
     }
 
-    public _renderDataIndex: number = 0;
+    // 当前的 _meshRenderDataArray 的索引, 以便 fillBuffers 选取 RenderData
+    public _meshRenderDataArrayIdx: number = 0;
     protected _render (ui: UI) {
         if (this._meshRenderDataArray) {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
-                this._renderDataIndex = i;
+                this._meshRenderDataArrayIdx = i;
                 const m = this._meshRenderDataArray[i];
-                if (m.texture) {
-                    ui.commitComp(this, m.texture, this._assembler);
+                if ((m as TiledSubNodeData).subNodes!) {
+                    // 提前处理 User Nodes
+                    (m as TiledSubNodeData).subNodes.forEach((c) => {
+                        if(c) ui.walk(c.node);
+                    });
+                } else if ((m as TiledMeshData).texture) {
+                    // NOTE: 由于 commitComp 只支持单张纹理, 故分多次提交
+                    ui.commitComp(this, (m as TiledMeshData).texture, this._assembler);
                 }
             }
         }
