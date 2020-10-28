@@ -74,7 +74,7 @@ android {
 android.applicationVariants.all { variant ->
 
     def outputDir ="${projectDir}/assets"
-    def sourceDir = "${projectDir}/../.."
+    def sourceDir = "${projectDir}/../../assets"
 
     // assert file("${sourceDir}/res").exists()
 
