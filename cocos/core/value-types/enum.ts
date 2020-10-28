@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -61,7 +61,7 @@ export function Enum<T> (obj: T): T {
  * Update the enum object properties.
  * @zh
  * 更新枚举对象的属性列表。
- * @param obj 
+ * @param obj
  */
 Enum.update = <T> (obj: T): T => {
     let lastIndex: number = -1;
