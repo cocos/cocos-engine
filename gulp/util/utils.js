@@ -169,18 +169,14 @@ exports.uglify = function (platform, isJSB, isDebugBuild) {
         const applySourceMap = require('vinyl-sourcemaps-apply');
         return ES.through(function (file) {
             if (file.path.endsWith('.js')) {
-                let content = file.contents.toString();
-
-                if (file.sourceMap) {
-                    options.sourceMap = {
-                        filename: file.sourceMap.file
-                    }
-                }
-
                 let build;
+                let content = file.contents.toString();
                 if ('sourceMap' in file && 'file' in file.sourceMap) {
                     build = {};
                     build[file.sourceMap.file] = content;
+                    options.sourceMap = {
+                        filename: file.sourceMap.file
+                    };
                 } else {
                     build = content;
                 }
@@ -192,7 +188,7 @@ exports.uglify = function (platform, isJSB, isDebugBuild) {
                 content = result.code;
 
                 file.contents = new Buffer(content);
-                if(file.sourceMap && result.map){
+                if (file.sourceMap && result.map) {
                     applySourceMap(file, result.map);
                 }
             }
