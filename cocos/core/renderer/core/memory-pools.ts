@@ -1096,7 +1096,8 @@ export enum ShadowsView {
     ORTHO_SIZE,
     SPHERE,             // handle
     AUTO_ADAPT,         // boolean
-    SPHERE_2,           // handle
+    RECEIVE_SPHERE,     // handle
+
     SIZE = 15,          // Vec2
     NORMAL = 17,        // Vec3
     COLOR = 20,         // Vec4
@@ -1118,7 +1119,8 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.ORTHO_SIZE]: number;
     [ShadowsView.SPHERE]: SphereHandle;
     [ShadowsView.AUTO_ADAPT]: number;
-    [ShadowsView.SPHERE_2]: SphereHandle;
+    [ShadowsView.RECEIVE_SPHERE]: SphereHandle;
+
     [ShadowsView.SIZE]: Vec2;
     [ShadowsView.NORMAL]: Vec3;
     [ShadowsView.COLOR]: Color;
@@ -1140,7 +1142,8 @@ const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
     [ShadowsView.ORTHO_SIZE]: BufferDataType.UINT32,
     [ShadowsView.SPHERE]: BufferDataType.UINT32,
     [ShadowsView.AUTO_ADAPT]: BufferDataType.UINT32,
-    [ShadowsView.SPHERE_2]: BufferDataType.UINT32,
+    [ShadowsView.RECEIVE_SPHERE]: BufferDataType.UINT32,
+
     [ShadowsView.SIZE]: BufferDataType.FLOAT32,
     [ShadowsView.NORMAL]: BufferDataType.FLOAT32,
     [ShadowsView.COLOR]: BufferDataType.FLOAT32,
@@ -1148,7 +1151,7 @@ const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
     [ShadowsView.COUNT]: BufferDataType.NEVER
 }
 // @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
-if (!JSB) {delete ShadowsView[ShadowsView.COUNT]; ShadowsView[ShadowsView.COUNT = ShadowsView.SPHERE + 1] = 'COUNT'; }
+if (!JSB) {delete ShadowsView[ShadowsView.COUNT]; ShadowsView[ShadowsView.COUNT = ShadowsView.RECEIVE_SPHERE + 1] = 'COUNT'; }
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
 // but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
 // we'll have to explicitly declare all these types.

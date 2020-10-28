@@ -55,7 +55,7 @@ function getCastShadowRenderObject (model: Model, camera: Camera) {
 export function getShadowWorldMatrix (pipeline: ForwardPipeline, rotation: Quat, dir: Vec3) {
     const shadows = pipeline.shadows;
     Vec3.negate(_dir_negate, dir);
-    const distance: number = Math.sqrt(2) * shadows.sphere.radius;
+    const distance: number = 2.0 * Math.sqrt(3.0) * shadows.sphere.radius;
     Vec3.multiplyScalar(_vec3_p, _dir_negate, distance);
     Vec3.add(_vec3_p, _vec3_p, shadows.sphere.center);
 

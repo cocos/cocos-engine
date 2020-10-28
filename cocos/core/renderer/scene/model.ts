@@ -102,7 +102,8 @@ export class Model {
     }
 
     get receiveShadow () {
-        return ModelPool.get(this._handle, ModelView.RECEIVE_SHADOW) as unknown as boolean;
+        if (ModelPool.get(this._handle, ModelView.RECEIVE_SHADOW)) { return true; }
+        return false;
     }
 
     set receiveShadow (val) {
@@ -111,7 +112,8 @@ export class Model {
     }
 
     get castShadow () {
-        return ModelPool.get(this._handle, ModelView.CAST_SHADOW) as unknown as boolean;
+        if (ModelPool.get(this._handle, ModelView.CAST_SHADOW)) { return true; }
+        return false;
     }
 
     set castShadow (val) {
@@ -149,7 +151,8 @@ export class Model {
     }
 
     get enabled () : boolean {
-        return ModelPool.get(this._handle, ModelView.ENABLED) === 1 ? true : false;
+        if (ModelPool.get(this._handle, ModelView.ENABLED)) { return true; }
+        return false;
     }
 
     set enabled (val: boolean) {

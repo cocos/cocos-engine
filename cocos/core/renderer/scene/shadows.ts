@@ -70,7 +70,8 @@ export class Shadows {
      * @zh 是否启用平面阴影？
      */
     get enabled (): boolean {
-        return ShadowsPool.get(this._handle, ShadowsView.ENABLE) as unknown as boolean;
+        if (ShadowsPool.get(this._handle, ShadowsView.ENABLE)) { return true; }
+        return false;
     }
 
     set enabled (val: boolean) {
@@ -212,7 +213,8 @@ export class Shadows {
      * @zh 获取或者设置阴影是否自动控制
      */
     public get autoAdapt (): boolean {
-        return ShadowsPool.get(this._handle, ShadowsView.AUTO_ADAPT) as unknown as boolean;
+        if (ShadowsPool.get(this._handle, ShadowsView.AUTO_ADAPT)) { return true; }
+        return false;
     }
     public set autoAdapt (val: boolean) {
         ShadowsPool.set(this._handle, ShadowsView.AUTO_ADAPT, val ? 1 : 0);
