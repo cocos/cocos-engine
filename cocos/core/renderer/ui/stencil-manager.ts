@@ -53,7 +53,7 @@ export class StencilManager {
     private _maskStack: any[] = [];
     private _stencilPattern = {
         stencilTest: true,
-        func: GFXComparisonFunc.ALWAYS,
+        func: GFXComparisonFunc.NEVER,
         stencilMask: 0xffff,
         writeMask: 0xffff,
         failOp: GFXStencilOp.KEEP,
@@ -96,7 +96,7 @@ export class StencilManager {
         }
     }
 
-    public handleMaterial (mat: Material, comp? : UIRenderable) {
+    public handleMaterial (mat: Material, comp?: UIRenderable) {
         if (this.stage !== this.stageOld) {
             const pattern = this._stencilPattern;
             if (this.stage === Stage.DISABLED) {
@@ -128,6 +128,29 @@ export class StencilManager {
         }
 
         return this._changed(mat.passes[0], comp);
+    }
+
+    public applyStencil (material: Material, state: any) {
+        material.overridePipelineStates({
+            depthStencilState: {
+                stencilTestFront: state.stencilTest,
+                stencilFuncFront: state.func,
+                stencilReadMaskFront: state.stencilMask,
+                stencilWriteMaskFront: state.writeMask,
+                stencilFailOpFront: state.failOp,
+                stencilZFailOpFront: state.zFailOp,
+                stencilPassOpFront: state.passOp,
+                stencilRefFront: state.ref,
+                stencilTestBack: state.stencilTest,
+                stencilFuncBack: state.func,
+                stencilReadMaskBack: state.stencilMask,
+                stencilWriteMaskBack: state.writeMask,
+                stencilFailOpBack: state.failOp,
+                stencilZFailOpBack: state.zFailOp,
+                stencilPassOpBack: state.passOp,
+                stencilRefBack: state.ref,
+            },
+        });
     }
 
     public getWriteMask () {
@@ -168,8 +191,6 @@ export class StencilManager {
         if (pattern.stencilTest !== stencilState.stencilTestFront ||
             pattern.func !== stencilState.stencilFuncFront ||
             pattern.failOp !== stencilState.stencilFailOpFront ||
-            pattern.zFailOp !== stencilState.stencilZFailOpFront ||
-            pattern.passOp !== stencilState.stencilPassOpFront ||
             pattern.stencilMask !== stencilState.stencilReadMaskFront ||
             pattern.writeMask !== stencilState.stencilWriteMaskFront ||
             pattern.ref !== stencilState.stencilRefFront) {
