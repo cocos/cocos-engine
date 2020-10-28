@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { EDITOR, TEST, PREVIEW, BUILD, DEBUG } from 'internal:constants';
+import { EDITOR, TEST, PREVIEW, BUILD, DEBUG, JSB } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { ValueType } from '../value-types';
 import { Vec2, Vec3, Vec4, Color, Size, Rect, Quat, Mat4 } from '../math';
@@ -1042,6 +1042,15 @@ export function deserialize (data: IFileData | string | any, details: Details | 
         }
 
         parseResult(data);
+
+        if (JSB) {
+            // invoke hooks
+            for (let i = 0; i < instances.length; ++i) {
+                // try invoking hook on every element regardless of whether the last one is rootIndex
+                instances[i]?.onAfterDeserialize_JSB?.();
+            }
+        }
+
         res = instances[rootIndex];
     }
 

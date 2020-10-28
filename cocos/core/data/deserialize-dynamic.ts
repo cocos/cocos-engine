@@ -424,32 +424,39 @@ class _Deserializer {
             }
             this.deserializedData = refCount > 0 ? this.deserializedList[0] : [];
 
-            //// callback
-            // for (var j = 0; j < refCount; j++) {
-            //    if (referencedList[j].onAfterDeserialize) {
-            //        referencedList[j].onAfterDeserialize();
-            //    }
-            // }
+            // dereference
+            _dereference(this);
+
+            if (JSB) {
+                // invoke hooks
+                for (let i = 0; i < refCount; i++) {
+                    this.deserializedList[i]?.onAfterDeserialize_JSB?.();
+                }
+            }
         }
         else {
+            let deserializedData;
             this.deserializedList.length = 1;
             if (EDITOR || TEST) {
-                this.deserializedData = jsonObj ? this._deserializeObject(jsonObj, false, this._target, this.deserializedList, '0') : null;
+                deserializedData = jsonObj ? this._deserializeObject(jsonObj, false, this._target, this.deserializedList, '0') : null;
             }
             else {
-                this.deserializedData = jsonObj ? this._deserializeObject(jsonObj, false) : null;
+                deserializedData = jsonObj ? this._deserializeObject(jsonObj, false) : null;
             }
-            this.deserializedList[0] = this.deserializedData;
 
-            //// callback
-            // if (deserializedData.onAfterDeserialize) {
-            //    deserializedData.onAfterDeserialize();
-            // }
+            // dereference
+            _dereference(this);
+
+            if (JSB) {
+                // invoke hooks
+                if (deserializedData.onAfterDeserialize_JSB) {
+                    deserializedData.onAfterDeserialize_JSB();
+                }
+            }
+
+            this.deserializedList[0] = deserializedData;
+            this.deserializedData = deserializedData;
         }
-
-        // dereference
-        _dereference(this);
-
         return this.deserializedData;
     }
 
