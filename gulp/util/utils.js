@@ -170,25 +170,29 @@ exports.uglify = function (platform, isJSB, isDebugBuild) {
         return ES.through(function (file) {
             if (file.path.endsWith('.js')) {
                 let build;
+                let eachOption;
                 let content = file.contents.toString();
-                if ('sourceMap' in file && 'file' in file.sourceMap) {
+                if (file.sourceMap && file.sourceMap.file) {
                     build = {};
                     build[file.sourceMap.file] = content;
-                    options.sourceMap = {
-                        filename: file.sourceMap.file
-                    };
+                    eachOption = Object.assign({}, options, {
+                        sourceMap: {
+                            filename: file.sourceMap.file,
+                        },
+                    });
                 } else {
                     build = content;
+                    eachOption = options;
                 }
 
-                var result = Terser.minify(build, options);
+                var result = Terser.minify(build, eachOption);
                 if (result.error) {
                     return this.emit('error', result.error);
                 }
                 content = result.code;
 
                 file.contents = new Buffer(content);
-                if (file.sourceMap && result.map) {
+                if (result.map) {
                     applySourceMap(file, result.map);
                 }
             }
