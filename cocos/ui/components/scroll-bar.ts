@@ -41,7 +41,7 @@ import { Node } from '../../core';
 import { legacyCC } from '../../core/global-exports';
 
 const GETTING_SHORTER_FACTOR = 20;
-const ZERO = new Vec3();
+const ZERO = new Vec2();
 const _tempPos_1 = new Vec3();
 const _tempPos_2 = new Vec3();
 const defaultAnchor = new Vec2();
@@ -354,7 +354,7 @@ export class ScrollBar extends Component {
         const scrollViewSpacePos = scrollTrans.convertToNodeSpaceAR(_tempPos_2);
         scrollViewSpacePos.x += scrollTrans.anchorX * scrollTrans.width;
         scrollViewSpacePos.y += scrollTrans.anchorY * scrollTrans.height;
-        return scrollViewSpacePos;
+        return new Vec2(scrollViewSpacePos.x, scrollViewSpacePos.y);
     }
 
     protected _setOpacity (opacity: number) {
@@ -375,11 +375,11 @@ export class ScrollBar extends Component {
         }
     }
 
-    protected _updateHandlerPosition (position: Vec3) {
+    protected _updateHandlerPosition (position: Vec2) {
         if (this._handle) {
             const oldPosition = this._fixupHandlerPosition();
 
-            this._handle.node.setPosition(position.x + oldPosition.x, position.y + oldPosition.y, oldPosition.z);
+            this._handle.node.setPosition(position.x + oldPosition.x, position.y + oldPosition.y, 0);
         }
     }
 
@@ -404,7 +404,7 @@ export class ScrollBar extends Component {
 
         this.handle!.node.setPosition(fixupPosition);
 
-        return fixupPosition;
+        return new Vec2(fixupPosition.x, fixupPosition.y);
     }
 
     protected _conditionalDisableScrollBar (contentSize: Size, scrollViewSize: Size) {
@@ -449,9 +449,9 @@ export class ScrollBar extends Component {
 
         const position = (handleNodeMeasure - actualLenth) * positionRatio;
         if (this._direction === Direction.VERTICAL) {
-            return new Vec3(0, position, 0);
+            return new Vec2(0, position);
         } else {
-            return new Vec3(position, 0, 0);
+            return new Vec2(position, 0);
         }
     }
 
