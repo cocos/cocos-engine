@@ -38,7 +38,7 @@ export function setupBuildTimeConstants ({
     result.RUNTIME_BASED = result.OPPO || result.VIVO || result.HUAWEI || result.COCOSPLAY;
     result.MINIGAME = result.WECHAT || result.ALIPAY || result.XIAOMI || result.BYTEDANCE || result.BAIDU;
     result.JSB = result.NATIVE;
-    result.SUPPORT_JIT = result.MINIGAME || result.RUNTIME_BASED;
+    result.SUPPORT_JIT = !(result.MINIGAME || result.RUNTIME_BASED);
     return result;
 }
 
