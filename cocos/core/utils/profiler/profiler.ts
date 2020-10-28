@@ -311,7 +311,7 @@ export class Profiler {
 
         const _material = new Material();
         _material.initialize({ effectName: 'util/profiler' });
-        _material.setProperty('offset', new Vec4(-0.9, -0.9, this._eachNumWidth, 0));
+        _material.setProperty('offset', new Vec4(-0.9, -0.9 * this._device!.screenSpaceSignY, this._eachNumWidth, 0));
         const pass = this.pass = _material.passes[0];
         const handle = pass.getBinding('mainTexture');
         const binding = pass.getBinding('digits');
