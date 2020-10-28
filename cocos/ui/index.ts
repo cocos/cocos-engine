@@ -1,4 +1,5 @@
 /**
+ * @packageDocumentation
  * @hidden
  */
 
@@ -17,6 +18,7 @@ import {
     sliced,
     spriteAssembler,
     ttf,
+    earcut,
 } from './assembler';
 import { MeshBuffer } from '../core/renderer/ui/mesh-buffer';
 import * as UIVertexFormat from '../core/renderer/ui/ui-vertex-format';
@@ -45,6 +47,7 @@ export {
     // graphics,
     labelAssembler,
     graphicsAssembler,
+    earcut,
 };
 
 legacyCC.UI = {

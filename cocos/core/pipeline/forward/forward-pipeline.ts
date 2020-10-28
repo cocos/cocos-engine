@@ -1,32 +1,29 @@
 /**
- * @category pipeline
+ * @packageDocumentation
+ * @module pipeline
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
-import { UIFlow } from '../ui/ui-flow';
 import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
-import { IRenderObject, UBOGlobal, UBOShadow,
-    globalDescriptorSetLayout, localDescriptorSetLayout} from '../define';
-import { GFXBufferUsageBit, GFXMemoryUsageBit,
-    GFXClearFlag, GFXCommandBufferType } from '../../gfx/define';
-import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout } from '../../gfx';
-import { SKYBOX_FLAG } from '../../renderer/scene';
+import { IRenderObject, UBOGlobal, UBOShadow } from '../define';
+import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXClearFlag } from '../../gfx/define';
+import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout, GFXRenderPassInfo, GFXBufferInfo, GFXFeature } from '../../gfx';
+import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
 import { Mat4, Vec3, Vec4} from '../../math';
-import { GFXFeature } from '../../gfx/device';
 import { Fog } from '../../renderer/scene/fog';
 import { Ambient } from '../../renderer/scene/ambient';
 import { Skybox } from '../../renderer/scene/skybox';
 import { Shadows, ShadowType } from '../../renderer/scene/shadows';
-import { sceneCulling } from './scene-culling';
+import { sceneCulling, getShadowWorldMatrix } from './scene-culling';
+import { UIFlow } from '../ui/ui-flow';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
-const vec4 = new Vec4();
 
 /**
  * @en The forward render pipeline
@@ -76,9 +73,7 @@ export class ForwardPipeline extends RenderPipeline {
     protected materials: MaterialConfig[] = [];
 
     public fog: Fog = new Fog();
-
     public ambient: Ambient = new Ambient();
-
     public skybox: Skybox = new Skybox();
     public shadows: Shadows = new Shadows();
     /**
@@ -98,24 +93,25 @@ export class ForwardPipeline extends RenderPipeline {
     public initialize (info: IRenderPipelineInfo): boolean {
         super.initialize(info);
 
-        const shadowFlow = new ShadowFlow();
-        shadowFlow.initialize(ShadowFlow.initInfo);
-        this._flows.push(shadowFlow);
+        if (this._flows.length === 0) {
+            const shadowFlow = new ShadowFlow();
+            shadowFlow.initialize(ShadowFlow.initInfo);
+            this._flows.push(shadowFlow);
 
-        const forwardFlow = new ForwardFlow();
-        forwardFlow.initialize(ForwardFlow.initInfo);
-        this._flows.push(forwardFlow);
+            const forwardFlow = new ForwardFlow();
+            forwardFlow.initialize(ForwardFlow.initInfo);
+            this._flows.push(forwardFlow);
 
-        const uiFlow = new UIFlow();
-        uiFlow.initialize(UIFlow.initInfo);
-        this._flows.push(uiFlow);
+            const uiFlow = new UIFlow();
+            uiFlow.initialize(UIFlow.initInfo);
+            this._flows.push(uiFlow);
+            uiFlow.activate(this);
+        }
 
         return true;
     }
 
     public activate (): boolean {
-        this._globalDescriptorSetLayout = globalDescriptorSetLayout;
-        this._localDescriptorSetLayout = localDescriptorSetLayout;
         this._macros = {};
 
         if (!super.activate()) {
@@ -131,6 +127,7 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     public render (views: RenderView[]) {
+        this._commandBuffers[0].begin();
         for (let i = 0; i < views.length; i++) {
             const view = views[i];
             sceneCulling(this, view);
@@ -138,6 +135,8 @@ export class ForwardPipeline extends RenderPipeline {
                 view.flows[j].render(view);
             }
         }
+        this._commandBuffers[0].end();
+        this._device.queue.submit(this._commandBuffers);
     }
 
     public getRenderPass (clearFlags: GFXClearFlag): GFXRenderPass {
@@ -165,10 +164,8 @@ export class ForwardPipeline extends RenderPipeline {
             depthStencilAttachment.beginLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
         }
 
-        renderPass = device.createRenderPass({
-            colorAttachments: [colorAttachment],
-            depthStencilAttachment,
-        });
+        const renderPassInfo = new GFXRenderPassInfo([colorAttachment], depthStencilAttachment);
+        renderPass = device.createRenderPass(renderPassInfo);
         this._renderPasses.set(clearFlags, renderPass!);
 
         return renderPass;
@@ -186,55 +183,70 @@ export class ForwardPipeline extends RenderPipeline {
 
         if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
             // light view
-            const shadowCameraView = mainLight.node!.getWorldMatrix();
-            Mat4.invert(matShadowView, shadowCameraView);
+            let shadowCameraView: Mat4;
 
             // light proj
-            const x: number = shadowInfo.orthoSize * shadowInfo.aspect;
-            const y: number = shadowInfo.orthoSize;
+            let x: number = 0;
+            let y: number = 0;
+            let far: number = 0;
+            if (shadowInfo.autoAdapt) {
+                shadowCameraView = getShadowWorldMatrix(this, mainLight.node?.getWorldRotation()!, mainLight.direction);
+                // if orthoSize is the smallest, auto calculate orthoSize.
+                const radius = shadowInfo.sphere.radius;
+                x = radius * shadowInfo.aspect;
+                y = radius;
+
+                far = Math.min(shadowInfo.receiveSphere.radius * 2.0 * Math.sqrt(2.0), 2000.0);
+                if(radius >= 500) { shadowInfo.size.set(2048, 2048); }
+                else if (radius < 500 && radius >= 100) { shadowInfo.size.set(1024, 1024); }
+            } else {
+                shadowCameraView = mainLight.node!.getWorldMatrix();
+
+                x = shadowInfo.orthoSize * shadowInfo.aspect;
+                y = shadowInfo.orthoSize;
+
+                far = shadowInfo.far;
+            }
+
+            Mat4.invert(matShadowView, shadowCameraView!);
 
             const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY; // always offscreen
-            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, shadowInfo.far,
+            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, far,
                 device.clipSpaceMinZ, projectionSignY);
-
-            // light viewProj
             Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
-
             Mat4.toArray(this._shadowUBO, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-            vec4.set(shadowInfo.pcf);
-            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_PCF_OFFSET);
-
-            vec4.set(shadowInfo.size.x, shadowInfo.size.y);
-            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_SIZE_OFFSET);
+            this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET]     = shadowInfo.size.x;
+            this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 1] = shadowInfo.size.y;
+            this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 2] = shadowInfo.pcf;
+            this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 3] = shadowInfo.bias;
         }
 
         // update ubos
-        this._descriptorSet.getBuffer(UBOGlobal.BLOCK.binding).update(this._globalUBO);
-        this._descriptorSet.getBuffer(UBOShadow.BLOCK.binding).update(this._shadowUBO);
+        this._commandBuffers[0].updateBuffer(this._descriptorSet.getBuffer(UBOGlobal.BINDING), this._globalUBO);
+        this._commandBuffers[0].updateBuffer(this._descriptorSet.getBuffer(UBOShadow.BINDING), this._shadowUBO);
     }
 
     private _activeRenderer () {
         const device = this.device;
 
-        this._commandBuffers.push(device.createCommandBuffer({
-            type: GFXCommandBufferType.PRIMARY,
-            queue: this._device.queue,
-        }));
+        this._commandBuffers.push(device.commandBuffer);
 
-        const globalUBO = device.createBuffer({
-            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: UBOGlobal.SIZE,
-        });
-        this._descriptorSet.bindBuffer(UBOGlobal.BLOCK.binding, globalUBO);
+        const globalUBO = device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            UBOGlobal.SIZE,
+            UBOGlobal.SIZE,
+        ));
+        this._descriptorSet.bindBuffer(UBOGlobal.BINDING, globalUBO);
 
-        const shadowUBO = device.createBuffer({
-            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: UBOShadow.SIZE,
-        });
-        this._descriptorSet.bindBuffer(UBOShadow.BLOCK.binding, shadowUBO);
+        const shadowUBO = device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            UBOShadow.SIZE,
+            UBOShadow.SIZE,
+        ));
+        this._descriptorSet.bindBuffer(UBOShadow.BINDING, shadowUBO);
 
         // update global defines when all states initialized.
         this.macros.CC_USE_HDR = this._isHDR;
@@ -343,8 +355,8 @@ export class ForwardPipeline extends RenderPipeline {
 
     private destroyUBOs () {
         if (this._descriptorSet) {
-            this._descriptorSet.getBuffer(UBOGlobal.BLOCK.binding).destroy();
-            this._descriptorSet.getBuffer(UBOShadow.BLOCK.binding).destroy();
+            this._descriptorSet.getBuffer(UBOGlobal.BINDING).destroy();
+            this._descriptorSet.getBuffer(UBOShadow.BINDING).destroy();
         }
     }
 
@@ -357,6 +369,13 @@ export class ForwardPipeline extends RenderPipeline {
             rpRes.value.destroy();
             rpRes = rpIter.next();
         }
+
+        this._commandBuffers.length = 0;
+
+        this.ambient.destroy();
+        this.skybox.destroy();
+        this.fog.destroy();
+        this.shadows.destroy();
 
         return super.destroy();
     }

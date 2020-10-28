@@ -1,8 +1,9 @@
 /**
- * @category pipeline
+ * @packageDocumentation
+ * @module pipeline
  */
 
-import { GFXColor } from '../gfx/define';
+import { IVec4Like } from '../math';
 
 /**
  * @en Convert color in SRGB space to linear space
@@ -10,13 +11,13 @@ import { GFXColor } from '../gfx/define';
  * @param out Output color object
  * @param gamma Gamma value in SRGB space
  */
-export function SRGBToLinear (out: GFXColor, gamma: GFXColor) {
-    // out.r = Math.pow(gamma.r, 2.2);
-    // out.g = Math.pow(gamma.g, 2.2);
-    // out.b = Math.pow(gamma.b, 2.2);
-    out.r = gamma.r * gamma.r;
-    out.g = gamma.g * gamma.g;
-    out.b = gamma.b * gamma.b;
+export function SRGBToLinear (out: IVec4Like, gamma: IVec4Like) {
+    // out.x = Math.pow(gamma.x, 2.2);
+    // out.y = Math.pow(gamma.y, 2.2);
+    // out.z = Math.pow(gamma.z, 2.2);
+    out.x = gamma.x * gamma.x;
+    out.y = gamma.y * gamma.y;
+    out.z = gamma.z * gamma.z;
 }
 
 /**
@@ -25,11 +26,11 @@ export function SRGBToLinear (out: GFXColor, gamma: GFXColor) {
  * @param out Output color object
  * @param linear Color value in linear space
  */
-export function LinearToSRGB (out: GFXColor, linear: GFXColor) {
-    // out.r = Math.pow(linear.r, 0.454545);
-    // out.g = Math.pow(linear.g, 0.454545);
-    // out.b = Math.pow(linear.b, 0.454545);
-    out.r = Math.sqrt(linear.r);
-    out.g = Math.sqrt(linear.g);
-    out.b = Math.sqrt(linear.b);
+export function LinearToSRGB (out: IVec4Like, linear: IVec4Like) {
+    // out.x = Math.pow(linear.x, 0.454545);
+    // out.y = Math.pow(linear.y, 0.454545);
+    // out.z = Math.pow(linear.z, 0.454545);
+    out.x = Math.sqrt(linear.x);
+    out.y = Math.sqrt(linear.y);
+    out.z = Math.sqrt(linear.z);
 }

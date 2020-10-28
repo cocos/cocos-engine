@@ -1,6 +1,7 @@
 
 /**
- * @category particle
+ * @packageDocumentation
+ * @module particle
  */
 
 import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
@@ -113,12 +114,3 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
         Vec3.multiplyScalar(p.ultimateVelocity, p.ultimateVelocity, this.speedModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed + VELOCITY_X_OVERTIME_RAND_OFFSET))!);
     }
 }
-
-// CCClass.fastDefine('cc.VelocityOvertimeModule', VelocityOvertimeModule, {
-//     enable: false,
-//     x: new CurveRange(),
-//     y: new CurveRange(),
-//     z: new CurveRange(),
-//     speedModifier: new CurveRange(),
-//     space: Space.Local
-// });

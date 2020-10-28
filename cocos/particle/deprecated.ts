@@ -1,8 +1,9 @@
 /**
- * @category particle
+ * @packageDocumentation
+ * @module particle
  */
 
-import { removeProperty } from '../core/utils/deprecated';
+import { removeProperty } from '../core/utils/x-deprecated';
 import Burst from './burst';
 import { ParticleSystem } from './particle-system';
 import { Billboard } from './billboard';

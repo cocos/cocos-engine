@@ -25,7 +25,8 @@
 */
 
 /**
- * @category event
+ * @packageDocumentation
+ * @module event
  */
 
 import Event from '../../event/event';
@@ -535,7 +536,7 @@ export class EventTouch extends Event {
 
     /**
      * @en Returns the start touch location.
-     * @zh 获获取触点落下时的位置对象，对象包含 x 和 y 属性。
+     * @zh 获取触点落下时的位置对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
     public getStartLocation (out?: Vec2) {
@@ -544,7 +545,7 @@ export class EventTouch extends Event {
 
     /**
      * @en Returns the start touch location in UI coordinates.
-     * @zh 获获取触点落下时的 UI 世界下位置对象，对象包含 x 和 y 属性。
+     * @zh 获取触点落下时的 UI 世界下位置对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
     public getUIStartLocation(out?: Vec2) {

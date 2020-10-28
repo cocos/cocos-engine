@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2019 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,7 +24,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip, type, displayOrder, serializable } from 'cc.decorator';
@@ -43,6 +44,8 @@ import { Node } from '../../scene-graph';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { UITransform } from './ui-transform';
 import { RenderableComponent } from '../../3d/framework/renderable-component';
+import { EDITOR } from 'internal:constants';
+import { Stage } from '../../renderer/ui/stencil-manager';
 
 // hack
 ccenum(GFXBlendFactor);
@@ -186,13 +189,17 @@ export class UIRenderable extends RenderableComponent {
         this._color.set(value);
         this._updateColor();
         this.markForUpdateRenderData();
+        if (EDITOR) {
+            let clone = value.clone();
+            this.node.emit(SystemEventType.COLOR_CHANGED, clone);
+        }
     }
 
     // hack for builtinMaterial
     protected _uiMaterial: Material | null = null;
     protected _uiMaterialIns: MaterialInstance | null = null;
 
-    protected getUIRenderMaterial () {
+    public getUIRenderMaterial () {
         return this._uiMaterialIns || this._uiMaterial;
     }
 
@@ -209,6 +216,31 @@ export class UIRenderable extends RenderableComponent {
     protected _uiMaterialDirty = false;
     protected _uiMatInsDirty = false;
 
+    // materialInstance only for Stencil // Will remove at v3.0
+    public _materialInstanceForStencil;
+    public getMaterialInstanceForStencil () {
+        if (!this._materialInstanceForStencil) {
+            let patentMaterial;
+            if (this.getRenderMaterial(0)) {
+                patentMaterial = this.getMaterial(0);
+            } else {
+                patentMaterial = this._uiMaterial;
+            }
+            _matInsInfo.owner = this;
+            _matInsInfo.parent = patentMaterial;
+            this._materialInstanceForStencil = new MaterialInstance(_matInsInfo);
+        }
+        return this._materialInstanceForStencil;
+    }
+
+    protected _onMaterialModified (idx: number, material: Material | null) {
+        if (this._materialInstanceForStencil) {
+            const inst = this._materialInstanceForStencil;
+            inst.destroy();
+            this._materialInstanceForStencil = null;
+        }
+    }
+
     /**
      * @en The user customized material, if not set, it will use builtin material resources, and will show nothing on inspector field.
      * @zh 用户自定义材质，如果没有设置过，那么将使用引擎内置的材质资源，在面板上也不会显示。
@@ -217,6 +249,21 @@ export class UIRenderable extends RenderableComponent {
         return this._uiMaterial;
     }
     set uiMaterial (val) {
+        if (this._uiMaterial === val) {
+            return;
+        }
+
+        this.stencilStage = Stage.DISABLED;
+        if (this._uiMaterialIns) {
+            this._uiMaterialIns.destroy();
+            this._uiMaterialIns = null;
+        }
+
+        if (this._materialInstanceForStencil){
+            this._materialInstanceForStencil.destroy();
+            this._materialInstanceForStencil = null;
+        }
+
         this._uiMaterial = val;
     }
 
@@ -228,6 +275,12 @@ export class UIRenderable extends RenderableComponent {
     set delegateSrc (value: Node) {
         this._delegateSrc = value;
     }
+
+    /**
+     * @en The component stencil stage (please do not any modification directly on this object)
+     * @zh 组件模板缓冲状态 (注意：请不要直接修改它的值)
+     */
+    public stencilStage : Stage = Stage.DISABLED;
 
     /**
      * @en The blend factor enums
@@ -394,7 +447,7 @@ export class UIRenderable extends RenderableComponent {
 
     protected _canRender () {
         // this.getMaterial(0) !== null still can render is hack for builtin Material
-        return this.enabled && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy);
+        return this.enabled && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy) && this._color.a > 0;
     }
 
     protected _postCanRender () {}
@@ -419,8 +472,8 @@ export class UIRenderable extends RenderableComponent {
             return mat;
         }
 
-        if ((this._uiMaterialIns !== null && this._uiMatInsDirty) ||
-            (target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor)) {
+        if (this._uiMaterialIns !== null && (this._uiMatInsDirty ||
+            target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor)) {
             mat = this.getUIMaterialInstance();
             target.blendDst = this._dstBlendFactor;
             target.blendSrc = this._srcBlendFactor;
@@ -436,7 +489,8 @@ export class UIRenderable extends RenderableComponent {
             this.markForUpdateRenderData();
         }
 
-        for (const child of this.node.children) {
+        for (let i = 0; i < this.node.children.length; ++i) {
+            let child = this.node.children[i];
             const renderComp = child.getComponent(UIRenderable);
             if (renderComp) {
                 renderComp.markForUpdateRenderData();
@@ -456,9 +510,6 @@ export class UIRenderable extends RenderableComponent {
                 case InstanceMaterialType.ADD_COLOR:
                     this._uiMaterial = builtinResMgr.get('ui-base-material') as Material;
                     break;
-                case InstanceMaterialType.ADD_COLOR_AND_TEXTURE:
-                    this._uiMaterial = builtinResMgr.get('ui-sprite-material') as Material;
-                    break;
                 case InstanceMaterialType.GRAYSCALE:
                     this._uiMaterial = builtinResMgr.get('ui-sprite-gray-material') as Material;
                     break;
@@ -474,6 +525,12 @@ export class UIRenderable extends RenderableComponent {
             }
             this._uiMaterialDirty = false;
             if(!init) {this._uiMatInsDirty = true;}
+            // materialInstance only for Stencil // Will remove at v3.0
+            if(this._materialInstanceForStencil) {
+                const inst = this._materialInstanceForStencil;
+                inst.destroy();
+                this._materialInstanceForStencil = null;
+            }
             return this._uiMaterial;
         }
     }

@@ -4,7 +4,8 @@ module.exports = (api) => {
     return {
         presets: [
             [require('@babel/preset-env'), {
-                targets: { node: 'current', }
+                targets: { node: 'current', },
+                loose: true,
             }],
             [require('@cocos/babel-preset-cc'), {
                 allowDeclareFields: true,

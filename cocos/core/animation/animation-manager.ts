@@ -1,5 +1,6 @@
 /**
- * @category animation
+ * @packageDocumentation
+ * @module animation
  */
 
 import System from '../components/system';

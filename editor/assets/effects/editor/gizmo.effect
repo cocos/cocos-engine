@@ -128,9 +128,17 @@ CCProgram line-vs %{
 
   in highp vec3 a_position;
 
+  #if USE_DASHED_LINE
+  in float a_lineDistance;
+  out float lineDistance;
+  #endif
+
   vec4 vert () {
     vec4 pos = cc_matProj * (cc_matView * cc_matWorld) * vec4(a_position, 1);
     pos.z -= 0.000001;
+    #if USE_DASHED_LINE
+    lineDistance = a_lineDistance;
+    #endif
     return pos;
   }
 }%
@@ -143,10 +151,17 @@ CCProgram line-fs %{
     vec4 color;
   };
 
+  in float lineDistance;
+
   vec4 front() {
     #if USE_FORWARD_PIPELINE
       return CCFragOutput(color);
     #else
+        #if USE_DASHED_LINE
+            if (mod(lineDistance, 10.0) > 5.0) {
+                discard;
+            }
+        #endif
       return color;
     #endif
   }

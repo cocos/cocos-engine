@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,7 +25,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { Component, EventHandler } from '../../core/components';
@@ -158,7 +159,7 @@ export class Slider extends Component {
      * The slider slide events' callback array.
      *
      * @zh
-     * 滑动器组件事件回调函数。
+     * 滑动器组件滑动事件回调函数数组。
      */
     @type([EventHandler])
     @serializable

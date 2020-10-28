@@ -1,6 +1,6 @@
 /**
- * 几何工具模块
- * @category geometry
+ * @packageDocumentation
+ * @module geometry
  */
 
 import { EPSILON, Mat3, Vec3, Mat4 } from '../math';

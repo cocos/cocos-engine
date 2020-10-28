@@ -1,5 +1,6 @@
 /**
- * @category pipeline
+ * @packageDocumentation
+ * @module pipeline
  */
 import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
 import { RenderStage } from './render-stage';
@@ -14,6 +15,7 @@ import { legacyCC } from '../global-exports';
 export interface IRenderFlowInfo {
     name: string;
     priority: number;
+    stages: RenderStage[];
     tag?: number;
 }
 
@@ -82,11 +84,8 @@ export abstract class RenderFlow {
     public initialize (info: IRenderFlowInfo): boolean{
         this._name = info.name;
         this._priority = info.priority;
-
-        if (info.tag) {
-            this._tag = info.tag;
-        }
-
+        this._stages = info.stages;
+        if (info.tag) { this._tag = info.tag; }
         return true;
     }
 

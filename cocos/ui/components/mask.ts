@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,21 +25,26 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
-import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, editable, serializable } from 'cc.decorator';
+import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, serializable, range, slide, displayName } from 'cc.decorator';
 import { InstanceMaterialType, UIRenderable } from '../../core/components/ui-base/ui-renderable';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
-import { view, warnID } from '../../core/platform';
-import visibleRect from '../../core/platform/visible-rect';
+import { warnID } from '../../core/platform';
 import { UI } from '../../core/renderer/ui/ui';
-import { Node } from '../../core/scene-graph';
 import { ccenum } from '../../core/value-types/enum';
 import { Graphics } from './graphics';
 import { TransformBit } from '../../core/scene-graph/node-enum';
-import { Game } from '../../core';
+import { Game, SpriteFrame, Material, builtinResMgr, director, RenderingSubMesh, GFXDevice, GFXBufferInfo, GFXBufferUsageBit, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core';
 import { legacyCC } from '../../core/global-exports';
+import { MaterialInstance, scene } from '../../core/renderer';
+import { Model } from '../../core/renderer/scene';
+import { vfmt, getAttributeStride } from '../../core/renderer/ui/ui-vertex-format';
+import { EDITOR } from '../../../editor/exports/populate-internal-constants';
+import { mask } from '../assembler';
+import { Stage } from '../../core/renderer/ui/stencil-manager';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
@@ -79,12 +84,20 @@ export enum MaskType {
     ELLIPSE = 1,
 
     /**
-     * @en Ellipse Mask.
+     * @en Graphics Mask.
      *
      * @zh
      * 使用图像模版作为遮罩。
      */
     GRAPHICS_STENCIL = 2,
+
+    /**
+     * @en SpriteFrame Mask.
+     *
+     * @zh
+     * 使用图片模版作为遮罩。
+     */
+    IMAGE_STENCIL = 3,
 }
 
 ccenum(MaskType);
@@ -112,7 +125,7 @@ export class Mask extends UIRenderable {
      * 遮罩类型。
      */
     @type(MaskType)
-    @displayOrder(4)
+    @displayOrder(10)
     @tooltip('遮罩类型')
     get type () {
         return this._type;
@@ -123,11 +136,31 @@ export class Mask extends UIRenderable {
             return;
         }
 
+        if (this._type === MaskType.IMAGE_STENCIL && !this._spriteFrame) {
+            this._attachClearModel();
+        }
+
         this._type = value;
-        this._updateGraphics();
-        if (this._renderData) {
-            this.destroyRenderData();
-            this._renderData = null;
+        this.markForUpdateRenderData(false);
+        this._updateMaterial();
+
+        if (this._type !== MaskType.IMAGE_STENCIL) {
+            this._spriteFrame = null;
+            this._alphaThreshold = 0;
+            this._updateGraphics();
+            if (this._renderData) {
+                this.destroyRenderData();
+                this._renderData = null;
+            }
+        } else {
+            this._useRenderData();
+            if (!this._spriteFrame) {
+                this._detachClearModel();
+            }
+
+            if (this._graphics) {
+                this._graphics.clear();
+            }
         }
     }
 
@@ -138,6 +171,7 @@ export class Mask extends UIRenderable {
      * @zh
      * 反向遮罩（不支持 Canvas 模式）。
      */
+    @displayOrder(14)
     @tooltip('反向遮罩')
     get inverted () {
         return this._inverted;
@@ -160,7 +194,9 @@ export class Mask extends UIRenderable {
      * @zh
      * 椭圆遮罩的曲线细分数。
      */
-    @editable
+    @visible(function (this: Mask) {
+        return this.type === MaskType.ELLIPSE;
+    })
     get segments () {
         return this._segments;
     }
@@ -174,12 +210,71 @@ export class Mask extends UIRenderable {
         this._updateGraphics();
     }
 
-    get graphics () {
-        return this._graphics;
+    /**
+     * @en
+     * The mask image.
+     *
+     * @zh
+     * 遮罩所需要的贴图。
+     */
+    @type(SpriteFrame)
+    @visible(function (this: Mask) {
+        return this.type === MaskType.IMAGE_STENCIL;
+    })
+    get spriteFrame () {
+        return this._spriteFrame;
     }
 
-    get clearGraphics () {
-        return this._clearGraphics;
+    set spriteFrame (value) {
+        if (this._spriteFrame === value) {
+            return;
+        }
+
+        const lastSp = this._spriteFrame;
+        this._spriteFrame = value;
+        if (this._type === MaskType.IMAGE_STENCIL) {
+            if (!lastSp && value) {
+                this._attachClearModel();
+                this.markForUpdateRenderData();
+            } else if (!value) {
+                this._detachClearModel();
+            }
+        }
+    }
+
+    /**
+     * @en
+     * The alpha threshold.(Not supported Canvas Mode) <br/>
+     * The content is drawn only where the stencil have pixel with alpha greater than the alphaThreshold. <br/>
+     * Should be a float between 0 and 1. <br/>
+     * This default to 0.1.
+     * When it's set to 1, the stencil will discard all pixels, nothing will be shown.
+     * @zh
+     * Alpha 阈值（不支持 Canvas 模式）<br/>
+     * 只有当模板的像素的 alpha 大于等于 alphaThreshold 时，才会绘制内容。<br/>
+     * 该数值 0 ~ 1 之间的浮点数，默认值为 0.1
+     * 当被设置为 1 时，会丢弃所有蒙版像素，所以不会显示任何内容
+     */
+    @visible(function (this: Mask) {
+        return this.type === MaskType.IMAGE_STENCIL;
+    })
+    @range([0, 1, 0.1])
+    @slide
+    get alphaThreshold () {
+        return this._alphaThreshold;
+    }
+
+    set alphaThreshold (value) {
+        if (this._alphaThreshold === value) {
+            return;
+        }
+
+        this._alphaThreshold = value;
+        this._updateMaterial();
+    }
+
+    get graphics () {
+        return this._graphics;
     }
 
     @override
@@ -228,7 +323,31 @@ export class Mask extends UIRenderable {
         this.markForUpdateRenderData();
     }
 
+    @override
+    @visible(false)
+    get sharedMaterials () {
+        // if we don't create an array copy, the editor will modify the original array directly.
+        return EDITOR && this._materials.slice() || this._materials;
+    }
+
+    set sharedMaterials (val) {
+        for (let i = 0; i < val.length; i++) {
+            if (val[i] !== this._materials[i]) {
+                this.setMaterial(val[i], i);
+            }
+        }
+        if (val.length < this._materials.length) {
+            for (let i = val.length; i < this._materials.length; i++) {
+                this.setMaterial(null, i);
+            }
+            this._materials.splice(val.length);
+        }
+    }
+
     public static Type = MaskType;
+
+    public _clearStencilMtl: Material | null = null;
+    public _clearModel: Model | null = null;
 
     @serializable
     protected _type = MaskType.RECT;
@@ -239,23 +358,32 @@ export class Mask extends UIRenderable {
     @serializable
     protected _segments = 64;
 
+    @serializable
+    protected _spriteFrame: SpriteFrame | null = null;
+
+    @serializable
+    protected _alphaThreshold = 0.1;
+
     protected _graphics: Graphics | null = null;
-    protected _clearGraphics: Graphics | null = null;
 
     constructor () {
         super();
         this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
-        this._uiMaterialDirty = true;
     }
 
     public onLoad () {
+        this._createClearModel();
         this._createGraphics();
-        if (this._clearGraphics) {
-            this._clearGraphics.onLoad();
-        }
 
         if (this._graphics) {
             this._graphics.onLoad();
+        }
+    }
+
+    public onEnable () {
+        super.onEnable();
+        if (this._type !== MaskType.IMAGE_STENCIL) {
+            this._updateGraphics();
         }
     }
 
@@ -268,21 +396,21 @@ export class Mask extends UIRenderable {
         this._updateGraphics();
     }
 
-    public onEnable () {
-        super.onEnable();
-        this._enableGraphics();
-
-        view.on('design-resolution-changed', this._updateClearGraphics, this);
-    }
-
     public onDisable () {
         super.onDisable();
         this._disableGraphics();
-        view.off('design-resolution-changed', this._updateClearGraphics);
     }
 
     public onDestroy () {
         super.onDestroy();
+        if (this._clearModel) {
+            director.root!.destroyModel(this._clearModel);
+        }
+
+        if (this._clearStencilMtl) {
+            this._clearStencilMtl!.destroy();
+        }
+
         this._removeGraphics();
     }
 
@@ -339,11 +467,9 @@ export class Mask extends UIRenderable {
     protected _nodeStateChange (type: TransformBit) {
         super._nodeStateChange(type);
 
-        this._updateGraphics();
-    }
-
-    protected _resolutionChanged () {
-        this._updateClearGraphics();
+        if (this._type === MaskType.RECT || this._type === MaskType.ELLIPSE) {
+            this._updateGraphics();
+        }
     }
 
     protected _canRender () {
@@ -351,7 +477,7 @@ export class Mask extends UIRenderable {
             return false;
         }
 
-        return this._clearGraphics !== null && this._graphics !== null;
+        return this._graphics !== null && (this._type !== MaskType.IMAGE_STENCIL || this._spriteFrame !== null);
     }
 
     protected _flushAssembler () {
@@ -367,26 +493,10 @@ export class Mask extends UIRenderable {
             this._postAssembler = posAssembler;
         }
 
-        if (!this._renderData) {
-            if (this._assembler && this._assembler.createData) {
-                this._renderData = this._assembler.createData(this);
-                this._renderData!.material = this.sharedMaterial;
-                this.markForUpdateRenderData();
-            }
-        }
+        this._useRenderData();
     }
 
     protected _createGraphics () {
-        if (!this._clearGraphics) {
-            const node = new Node('clear-graphics');
-            const clearGraphics = this._clearGraphics = node.addComponent(Graphics)!;
-            clearGraphics.delegateSrc = this.node;
-            clearGraphics.lineWidth = 0;
-            const color = Color.WHITE.clone();
-            color.a = 0;
-            clearGraphics.fillColor = color;
-        }
-
         if (!this._graphics) {
             const graphics = this._graphics = new Graphics();
             graphics.node = this.node;
@@ -396,18 +506,8 @@ export class Mask extends UIRenderable {
             color.a = 0;
             graphics.fillColor = color;
         }
-    }
 
-    protected _updateClearGraphics () {
-        if (!this._clearGraphics) {
-            return;
-        }
-
-        const size = visibleRect;
-        this._clearGraphics.node.setWorldPosition(size.width / 2, size.height / 2, 0);
-        this._clearGraphics.clear();
-        this._clearGraphics.rect(-size.width / 2, -size.height / 2, size.width, size.height);
-        this._clearGraphics.fill();
+        this._updateMaterial();
     }
 
     protected _updateGraphics () {
@@ -446,15 +546,60 @@ export class Mask extends UIRenderable {
         graphics.fill();
     }
 
-    protected _enableGraphics () {
-        if (this._clearGraphics) {
-            this._clearGraphics.onEnable();
-            this._updateClearGraphics();
-        }
+    protected _createClearModel () {
+        if (!this._clearModel) {
+            const mtl = builtinResMgr.get<Material>('builtin-clear-stencil');
+            this._clearStencilMtl = new MaterialInstance({
+                parent: mtl!,
+                owner: this,
+                subModelIdx: 0,
+            });
 
+            this._clearModel = director.root!.createModel(scene.Model);
+            // @ts-ignore
+            this._clearModel.name = 'clear-model';
+            this._clearModel.node = this._clearModel.transform = this.node;
+            let renderMesh: RenderingSubMesh;
+            const stride = getAttributeStride(vfmt);
+            const gfxDevice: GFXDevice = legacyCC.director.root.device;
+            const vertexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
+                GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+                GFXMemoryUsageBit.DEVICE,
+                4 * stride,
+                stride,
+            ));
+
+            const vb = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
+            vertexBuffer.update(vb);
+            const indexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
+                GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+                GFXMemoryUsageBit.DEVICE,
+                6 * 2,
+                2,
+            ));
+
+            const ib = new Uint16Array([0, 1, 2, 2, 1, 3]);
+            indexBuffer.update(ib);
+            renderMesh = new RenderingSubMesh([vertexBuffer], vfmt, GFXPrimitiveMode.TRIANGLE_LIST, indexBuffer);
+            renderMesh.subMeshIdx = 0;
+
+            this._clearModel.initSubModel(0, renderMesh, this._clearStencilMtl);
+            if (this._type !== MaskType.IMAGE_STENCIL || this._spriteFrame) {
+                this._attachClearModel();
+            }
+        }
+    }
+
+    protected _updateMaterial () {
         if (this._graphics) {
-            this._graphics.onEnable();
-            this._updateGraphics();
+            const target = this._graphics;
+            if (this._type === MaskType.IMAGE_STENCIL) {
+                target.uiMaterial = builtinResMgr.get<Material>('ui-alpha-test-material');
+                const mat = target.getMaterialInstanceForStencil();
+                mat.setProperty('alphaThreshold', this._alphaThreshold);
+            } else {
+                target.uiMaterial = builtinResMgr.get<Material>('ui-graphics-material');
+            }
         }
     }
 
@@ -462,19 +607,36 @@ export class Mask extends UIRenderable {
         if (this._graphics) {
             this._graphics.onDisable();
         }
-
-        if (this._clearGraphics) {
-            this._clearGraphics.onDisable();
-        }
     }
 
     protected _removeGraphics () {
         if (this._graphics) {
             this._graphics.destroy();
+            this._graphics._destroyImmediate(); // FIX: cocos-creator/2d-tasks#2511. TODO: cocos-creator/2d-tasks#2516
+            this._graphics = null;
         }
+    }
 
-        if (this._clearGraphics) {
-            this._clearGraphics.destroy();
+    protected _useRenderData (){
+        if (this._type === MaskType.IMAGE_STENCIL && !this._renderData) {
+            if (this._assembler && this._assembler.createData) {
+                this._renderData = this._assembler.createData(this);
+                this.markForUpdateRenderData();
+            }
+        }
+    }
+
+    protected _attachClearModel () {
+       if (this._clearModel){
+           const renderScene = director.root!.ui.renderScene;
+           renderScene.addModel(this._clearModel);
+       }
+    }
+
+    protected _detachClearModel (){
+        if (this._clearModel) {
+            const renderScene = director.root!.ui.renderScene;
+            renderScene.removeModel(this._clearModel!);
         }
     }
 }

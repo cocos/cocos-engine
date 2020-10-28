@@ -1,8 +1,8 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -25,6 +25,7 @@
 */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 
@@ -146,4 +147,12 @@ export default function syncWithPrefab (node) {
     Quat.copy(node._quat, _quat);
     node._localZOrder = _localZOrder;
     node._globalZOrder = _globalZOrder;
+}
+
+@ccclass('cc.CompPrefabInfo ')
+export class CompPrefabInfo {
+    // To identify current component in a prefab asset, so only needs to be unique.
+    @serializable
+    @editable
+    public fileId = '';
 }

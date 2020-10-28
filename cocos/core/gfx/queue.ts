@@ -1,5 +1,6 @@
 /**
- * @category gfx
+ * @packageDocumentation
+ * @module gfx
  */
 
 import { GFXCommandBuffer } from './command-buffer';
@@ -7,8 +8,12 @@ import { GFXObject, GFXObjectType, GFXQueueType } from './define';
 import { GFXDevice } from './device';
 import { GFXFence } from './fence';
 
-export interface IGFXQueueInfo {
-    type: GFXQueueType;
+export class GFXQueueInfo {
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public type: GFXQueueType = GFXQueueType.GRAPHICS,
+    ) {}
 }
 
 /**
@@ -36,7 +41,7 @@ export abstract class GFXQueue extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: IGFXQueueInfo): boolean;
+    public abstract initialize (info: GFXQueueInfo): boolean;
 
     public abstract destroy (): void;
 

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,7 +25,7 @@
 
 /**
  * ui-assembler 相关模块
- * @category ui-assembler
+ * @module ui-assembler
  */
 
 import * as js from '../../../core/utils/js';

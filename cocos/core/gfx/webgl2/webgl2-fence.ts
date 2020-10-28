@@ -1,11 +1,11 @@
-import { GFXFence, IGFXFenceInfo } from '../fence';
+import { GFXFence, GFXFenceInfo } from '../fence';
 import { WebGL2Device } from './webgl2-device';
 
 export class WebGL2Fence extends GFXFence {
 
     private _sync: WebGLSync | null = null;
 
-    public initialize (info: IGFXFenceInfo): boolean {
+    public initialize (info: GFXFenceInfo): boolean {
         return true;
     }
 

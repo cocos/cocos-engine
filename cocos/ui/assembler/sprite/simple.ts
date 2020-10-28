@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -24,8 +24,8 @@
 */
 
 /**
- * UI 组装器
- * @category ui-assembler
+ * @packageDocumentation
+ * @module ui-assembler
  */
 
 import { Vec3 } from '../../../core/math';

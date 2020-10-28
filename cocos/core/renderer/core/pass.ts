@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,20 +24,16 @@
 */
 
 /**
- * @category material
+ * @packageDocumentation
+ * @module material
  */
 
 import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../3d/builtin/init';
 import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
 import { TextureBase } from '../../assets/texture-base';
-import { GFXDescriptorSet, IGFXDescriptorSetInfo } from '../../gfx/descriptor-set';
-import { GFXBuffer, IGFXBufferInfo, IGFXBufferViewInfo } from '../../gfx/buffer';
-import { GFXFeature, GFXDevice } from '../../gfx/device';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
-import { GFXSampler } from '../../gfx/sampler';
-import { GFXTexture } from '../../gfx/texture';
-import { isBuiltinBinding, RenderPassStage, RenderPriority, SetIndex } from '../../pipeline/define';
+import { RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
@@ -48,7 +44,9 @@ import { PassView, BlendStatePool, RasterizerStatePool, DepthStencilStatePool,
 import { customizeType, getBindingFromHandle, getPropertyTypeFromHandle, getDefaultFromType,
     getOffsetFromHandle, getTypeFromHandle, MacroRecord, MaterialProperty, type2reader, type2writer, PropertyType } from './pass-utils';
 import { GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode,
-    GFXType, GFXDynamicStateFlagBit, GFXDynamicStateFlags } from '../../gfx/define';
+    GFXType, GFXDynamicStateFlagBit, GFXDynamicStateFlags, GFXFeature } from '../../gfx/define';
+import { GFXDescriptorSetLayoutInfo, GFXTexture,  GFXDevice, GFXBuffer, GFXBufferInfo, GFXBufferViewInfo,
+    GFXSampler, GFXDescriptorSet, GFXDescriptorSetInfo } from '../../gfx';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
@@ -70,21 +68,15 @@ interface IPassDynamics {
     };
 }
 
-const _bufferInfo: IGFXBufferInfo = {
-    memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-    usage: GFXBufferUsageBit.UNIFORM,
-    size: 0,
-};
+const _bufferInfo = new GFXBufferInfo(
+    GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+    GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+);
 
-const _bufferViewInfo: IGFXBufferViewInfo = {
-    buffer: null!,
-    offset: 0,
-    range: 0,
-};
+const _bufferViewInfo = new GFXBufferViewInfo(null!);
+const _dsLayoutInfo = new GFXDescriptorSetLayoutInfo();
 
-const _dsInfo: IGFXDescriptorSetInfo = {
-    layout: null!,
-};
+const _dsInfo = new GFXDescriptorSetInfo(null!);
 
 export enum BatchingSchemes {
     INSTANCING = 1,
@@ -148,8 +140,10 @@ export class Pass {
         if (info.blendState) {
             const bsInfo = info.blendState;
             if (bsInfo.targets) {
-                bsInfo.targets.forEach((t, i) => Object.assign(
-                bs.targets[i] || (bs.targets[i] = new GFXBlendTarget()), t));
+                bsInfo.targets.forEach((t, i) => {
+                    if (!bs.targets[i]) bs.setTarget(i, new GFXBlendTarget());
+                    Object.assign(bs.targets[i], t);
+                });
             }
             if (bsInfo.isA2C !== undefined) { bs.isA2C = bsInfo.isA2C; }
             if (bsInfo.isIndepend !== undefined) { bs.isIndepend = bsInfo.isIndepend; }
@@ -305,7 +299,7 @@ export class Pass {
      * @param value Target texture
      */
     public bindTexture (binding: number, value: GFXTexture, index?: number) {
-        this._descriptorSet.bindTexture(binding, value, index);
+        this._descriptorSet.bindTexture(binding, value, index || 0);
     }
 
     /**
@@ -315,7 +309,7 @@ export class Pass {
      * @param value Target sampler
      */
     public bindSampler (binding: number, value: GFXSampler, index?: number) {
-        this._descriptorSet.bindSampler(binding, value, index);
+        this._descriptorSet.bindSampler(binding, value, index || 0);
     }
 
     /**
@@ -359,7 +353,6 @@ export class Pass {
     public destroy () {
         for (let i = 0; i < this._shaderInfo.blocks.length; i++) {
             const u = this._shaderInfo.blocks[i];
-            if (isBuiltinBinding(u.set)) { continue; }
             this._buffers[u.binding].destroy();
         }
         this._buffers = [];
@@ -426,7 +419,6 @@ export class Pass {
     public resetUBOs () {
         for (let i = 0; i < this._shaderInfo.blocks.length; i++) {
             const u = this._shaderInfo.blocks[i];
-            if (isBuiltinBinding(u.set)) { continue; }
             const block = this._blocks[u.binding];
             let ofs = 0;
             for (let j = 0; j < u.members.length; j++) {
@@ -449,7 +441,6 @@ export class Pass {
     public resetTextures () {
         for (let i = 0; i < this._shaderInfo.samplers.length; i++) {
             const u = this._shaderInfo.samplers[i];
-            if (isBuiltinBinding(u.set)) { continue; }
             for (let j = 0; j < u.count; j++) {
                 this.resetTexture(u.name, j);
             }
@@ -462,11 +453,11 @@ export class Pass {
      */
     public tryCompile () {
         const pipeline = this._root.pipeline;
-        if (!pipeline) { return null; }
+        if (!pipeline) { return false; }
         this._syncBatchingScheme();
         this._hShaderDefault = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
         if (!this._hShaderDefault) { console.warn(`create shader ${this._programName} failed`); return false; }
-        PassPool.set(this._handle, PassView.PIPELINE_LAYOUT, programLib.getPipelineLayout(this._programName).hPipelineLayout);
+        PassPool.set(this._handle, PassView.PIPELINE_LAYOUT, programLib.getTemplate(this._programName).hPipelineLayout);
         PassPool.set(this._handle, PassView.HASH, Pass.getPassHash(this._handle, this._hShaderDefault));
         return true;
     }
@@ -542,25 +533,18 @@ export class Pass {
         if (info.stateOverrides) { Pass.fillPipelineInfo(handle, info.stateOverrides); }
 
         // init descriptor set
-        const setLayouts = programLib.getPipelineLayout(info.program).setLayouts;
-        if (!setLayouts[SetIndex.MATERIAL]) {
-            setLayouts[SetIndex.MATERIAL] = device.createDescriptorSetLayout({
-                bindings: this._shaderInfo.bindings,
-            });
-        }
-        _dsInfo.layout = setLayouts[SetIndex.MATERIAL];
+        _dsInfo.layout = programLib.getDescriptorSetLayout(this._device, info.program);
         const dsHandle = DSPool.alloc(this._device, _dsInfo);
         PassPool.set(this._handle, PassView.DESCRIPTOR_SET, dsHandle);
         this._descriptorSet = DSPool.get(dsHandle);
 
         // calculate total size required
-        const blocks = this._shaderInfo.blocks;
+        const { blocks, blockSizes } = this._shaderInfo;
         const alignment = device.uboOffsetAlignment;
         const startOffsets: number[] = [];
         let lastSize = 0; let lastOffset = 0;
         for (let i = 0; i < blocks.length; i++) {
-            const { size, set } = blocks[i];
-            if (isBuiltinBinding(set)) { continue; }
+            const size = blockSizes[i];
             startOffsets.push(lastOffset);
             lastOffset += Math.ceil(size / alignment) * alignment;
             lastSize = size;
@@ -575,8 +559,8 @@ export class Pass {
         }
         // create buffer views
         for (let i = 0, count = 0; i < blocks.length; i++) {
-            const { size, set, binding } = blocks[i];
-            if (isBuiltinBinding(set)) { continue; }
+            const binding = blocks[i].binding;
+            const size = blockSizes[i];
             _bufferViewInfo.buffer = this._rootBuffer!;
             _bufferViewInfo.offset = startOffsets[count++];
             _bufferViewInfo.range = Math.ceil(size / 16) * 16;
@@ -617,7 +601,7 @@ export class Pass {
     get root () { return this._root; }
     get device () { return this._device; }
     get shaderInfo () { return this._shaderInfo; }
-    get setLayouts () { return programLib.getPipelineLayout(this._programName).setLayouts; }
+    get localSetLayout () { return programLib.getDescriptorSetLayout(this._device, this._programName, true); }
     get program () { return this._programName; }
     get properties () { return this._properties; }
     get defines () { return this._defines; }

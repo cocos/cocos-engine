@@ -1,6 +1,7 @@
 
 /**
- * @category particle
+ * @packageDocumentation
+ * @module particle
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
@@ -47,8 +48,3 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
         particle.color.multiply(this.color.evaluate(1.0 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + COLOR_OVERTIME_RAND_OFFSET)));
     }
 }
-
-// CCClass.fastDefine('cc.ColorOvertimeModule', ColorOvertimeModule, {
-//     enable: false,
-//     color: null
-// });

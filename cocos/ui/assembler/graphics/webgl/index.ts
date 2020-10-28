@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -27,6 +27,7 @@ import { UIRenderable } from '../../../../core/components/ui-base/ui-renderable'
 import { IAssemblerManager } from '../../../../core/renderer/ui/base';
 import { Graphics } from '../../../components';
 import { graphicsAssembler as graphics } from './graphics-assembler';
+export { earcut } from './earcut';
 
 const graphicsAssemblerManager: IAssemblerManager = {
     getAssembler (sprite: UIRenderable) {

@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -24,24 +24,24 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
-
-import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
-import { IGFXAttribute } from '../../gfx/input-assembler';
+import { GFXInputAssemblerInfo, GFXAttribute, GFXBuffer, GFXBufferInfo } from '../../gfx';
 import { UI } from './ui';
 import { InputAssemblerHandle, NULL_HANDLE, IAPool } from '../core/memory-pools';
+import { getAttributeFormatBytes } from './ui-vertex-format';
 
 export class MeshBuffer {
     public static OPACITY_OFFSET = 8;
 
+    get attributes () { return this._attributes; }
+    get vertexBuffers () { return this._vertexBuffers; }
+    get indexBuffer () { return this._indexBuffer; }
+
     public vData: Float32Array | null = null;
     public iData: Uint16Array | null = null;
-
-    public attributes: IGFXAttribute[] = null!;
-    public vertexBuffers: GFXBuffer[] = [];
-    public indexBuffer: GFXBuffer = null!;
 
     public byteStart = 0;
     public byteOffset = 0;
@@ -51,13 +51,18 @@ export class MeshBuffer {
     public vertexOffset = 0;
     public lastByteOffset = 1;
 
+    private _attributes: GFXAttribute[] = null!;
+    private _vertexBuffers: GFXBuffer[] = [];
+    private _indexBuffer: GFXBuffer = null!;
+    private _iaInfo: GFXInputAssemblerInfo = null!;
+
     // NOTE:
     // actually 256 * 4 * (vertexFormat._bytes / 4)
     // include pos, uv, color in ui attributes
     private _batcher: UI;
     private _dirty = false;
-    private _vertexFormatBytes = 9 * Float32Array.BYTES_PER_ELEMENT;
-    private _initVDataCount = 256 * this._vertexFormatBytes;
+    private _vertexFormatBytes = 0;
+    private _initVDataCount = 0;
     private _initIDataCount = 256 * 6;
     private _outOfCallback: ((...args: number[]) => void) | null = null;
     private _hInputAssemblers: InputAssemblerHandle[] = [];
@@ -67,27 +72,35 @@ export class MeshBuffer {
         this._batcher = batcher;
     }
 
-    public initialize (attrs: IGFXAttribute[], outOfCallback: ((...args: number[]) => void) | null) {
+    public initialize (attrs: GFXAttribute[], outOfCallback: ((...args: number[]) => void) | null) {
         this._outOfCallback = outOfCallback;
-        const vbStride = Float32Array.BYTES_PER_ELEMENT * 9;
+        const formatBytes = getAttributeFormatBytes(attrs);
+        this._vertexFormatBytes = formatBytes * Float32Array.BYTES_PER_ELEMENT;
+        this._initVDataCount = 256 * this._vertexFormatBytes;
+        const vbStride = Float32Array.BYTES_PER_ELEMENT * formatBytes;
 
-        if (!this.vertexBuffers.length) this.vertexBuffers.push(this._batcher.device.createBuffer({
-            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: vbStride,
-            stride: vbStride,
-        }));
+        if (!this.vertexBuffers.length) {
+            this.vertexBuffers.push(this._batcher.device.createBuffer(new GFXBufferInfo(
+                GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+                GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                vbStride,
+                vbStride,
+            )));
+        }
 
         const ibStride = Uint16Array.BYTES_PER_ELEMENT;
 
-        if (!this.indexBuffer) this.indexBuffer = this._batcher.device.createBuffer({
-            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: ibStride,
-            stride: ibStride,
-        });
+        if (!this.indexBuffer) {
+            this._indexBuffer = this._batcher.device.createBuffer(new GFXBufferInfo(
+                GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+                GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                ibStride,
+                ibStride,
+            ));
+        }
 
-        this.attributes = attrs;
+        this._attributes = attrs;
+        this._iaInfo = new GFXInputAssemblerInfo(this.attributes, this.vertexBuffers, this.indexBuffer);
 
         this._reallocBuffer();
     }
@@ -142,13 +155,13 @@ export class MeshBuffer {
     }
 
     public destroy () {
-        this.attributes = null!;
+        this._attributes = null!;
 
         this.vertexBuffers[0].destroy();
         this.vertexBuffers.length = 0;
 
         this.indexBuffer.destroy();
-        this.indexBuffer = null!;
+        this._indexBuffer = null!;
 
         for (let i = 0; i < this._hInputAssemblers.length; i++) {
             IAPool.free(this._hInputAssemblers[i]);
@@ -158,10 +171,12 @@ export class MeshBuffer {
 
     public recordBatch (): InputAssemblerHandle {
         const vCount = this.indicesOffset - this.indicesStart;
-        if (!vCount) return NULL_HANDLE;
+        if (!vCount) {
+            return NULL_HANDLE;
+        }
 
         if (this._hInputAssemblers.length <= this._nextFreeIAHandle) {
-            this._hInputAssemblers.push(IAPool.alloc(this._batcher.device, this));
+            this._hInputAssemblers.push(IAPool.alloc(this._batcher.device, this._iaInfo));
         }
 
         const hIA = this._hInputAssemblers[this._nextFreeIAHandle++];
@@ -173,7 +188,7 @@ export class MeshBuffer {
         return hIA;
     }
 
-    public uploadData () {
+    public uploadBuffers () {
         if (this.byteOffset === 0 || !this._dirty) {
             return;
         }

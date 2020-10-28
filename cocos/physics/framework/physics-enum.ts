@@ -1,5 +1,6 @@
 /**
- * @category physics
+ * @packageDocumentation
+ * @module physics
  */
 
 import { Enum } from "../../core";
@@ -44,3 +45,8 @@ export enum EConstraintType {
     CONE_TWIST
 }
 Enum(EConstraintType);
+
+export enum PhysicsGroup {
+    DEFAULT = 1,
+}
+Enum(PhysicsGroup);

@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -24,6 +24,7 @@
 */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 
@@ -38,4 +39,10 @@ export class NativeBufferPool {
 
 export class NativeObjectPool<T> {
     constructor (dataType: number, array: T[]) {}
+}
+
+export class NativeBufferAllocator {
+    constructor (poolType: number) {}
+    public alloc (index: number, bytes: number) { return new ArrayBuffer(bytes); }
+    public free (index: number) {}
 }

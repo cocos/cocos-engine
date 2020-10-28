@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,7 +25,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { builtinResMgr } from '../../core/3d/builtin';
@@ -38,6 +39,8 @@ import { IAssembler } from '../../core/renderer/ui/base';
 import { UI } from '../../core/renderer/ui/ui';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
+import { GFXFormat, GFXPrimitiveMode, GFXAttribute, RenderingSubMesh, GFXDevice, GFXBufferUsageBit, GFXBufferInfo, GFXMemoryUsageBit } from '../../core';
+import { vfmtPosColor, getAttributeStride } from '../../core/renderer/ui/ui-vertex-format';
 import { legacyCC } from '../../core/global-exports';
 
 const _matInsInfo: IMaterialInstanceInfo = {
@@ -45,6 +48,12 @@ const _matInsInfo: IMaterialInstanceInfo = {
     owner: null!,
     subModelIdx: 0,
 };
+
+const attributes = vfmtPosColor.concat([
+    new GFXAttribute('a_dist', GFXFormat.R32F),
+]);
+
+const stride = getAttributeStride(attributes);
 
 /**
  * @en
@@ -217,6 +226,8 @@ export class Graphics extends UIRenderable {
     @serializable
     protected _miterLimit = 10;
 
+    protected _isDrawing = false;
+
     constructor (){
         super();
         this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
@@ -238,9 +249,9 @@ export class Graphics extends UIRenderable {
 
     public onLoad () {
         this._sceneGetter = director.root!.ui.getRenderSceneGetter();
-        if (!this.model) {
-            this.model = director.root!.createModel(scene.Model);
-        }
+        this.model = director.root!.createModel(scene.Model);
+        this.model.node = this.model.transform = this.node;
+
         this.helpInstanceMaterial();
     }
 
@@ -253,7 +264,6 @@ export class Graphics extends UIRenderable {
 
         this._sceneGetter = null;
         if (this.model) {
-            this.model.destroy();
             director.root!.destroyModel(this.model);
             this.model = null;
         }
@@ -262,6 +272,7 @@ export class Graphics extends UIRenderable {
             return;
         }
 
+        this._isDrawing = false;
         this.impl.clear();
         this.impl = null;
     }
@@ -471,16 +482,21 @@ export class Graphics extends UIRenderable {
      * @zh
      * 擦除之前绘制的所有内容的方法。
      */
-    public clear (clean = false) {
+    public clear () {
         if (!this.impl) {
             return;
         }
 
-        this.impl.clear(clean);
-        this._detachFromScene();
-        if(this.model){
-            this.model.destroy();
+        this.impl.clear();
+        this._isDrawing = false;
+        if (this.model) {
+            for (let i = 0; i < this.model.subModels.length; i++) {
+                const subModel = this.model.subModels[i];
+                subModel.inputAssembler.indexCount = 0;
+            }
         }
+
+        this._detachFromScene();
         this.markForUpdateRenderData();
     }
 
@@ -511,6 +527,8 @@ export class Graphics extends UIRenderable {
         if (!this._assembler) {
             this._flushAssembler();
         }
+
+        this._isDrawing = true;
         (this._assembler as IAssembler).stroke!(this);
         this._attachToScene();
     }
@@ -526,6 +544,8 @@ export class Graphics extends UIRenderable {
         if (!this._assembler) {
             this._flushAssembler();
         }
+
+        this._isDrawing = true;
         (this._assembler as IAssembler).fill!(this);
         this._attachToScene();
     }
@@ -558,6 +578,35 @@ export class Graphics extends UIRenderable {
         }
     }
 
+    public activeSubModel (idx: number) {
+        if (!this.model) {
+            console.warn(`There is no model in ${this.node.name}`);
+            return;
+        }
+
+        if (this.model.subModels.length <= idx) {
+            let renderMesh: RenderingSubMesh;
+            const gfxDevice: GFXDevice = legacyCC.director.root.device;
+            const vertexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
+                GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+                GFXMemoryUsageBit.DEVICE,
+                65535 * stride,
+                stride,
+            ));
+            const indexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
+                GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+                GFXMemoryUsageBit.DEVICE,
+                65535 * 2,
+                2,
+            ));
+
+            renderMesh = new RenderingSubMesh([vertexBuffer], attributes, GFXPrimitiveMode.TRIANGLE_LIST, indexBuffer);
+            renderMesh.subMeshIdx = 0;
+
+            this.model.initSubModel(idx, renderMesh, this.getUIMaterialInstance());
+        }
+    }
+
     protected _render (render: UI) {
         render.commitModel(this, this.model, this._uiMaterialIns);
     }
@@ -575,19 +624,19 @@ export class Graphics extends UIRenderable {
             return false;
         }
 
-        return !!this.model && this.model.inited;
+        return !!this.model && this._isDrawing;
     }
 
     protected _attachToScene () {
-        const scene = director.root!.ui.renderScene;
-        if (!this.model || this.model!.scene === scene) {
+        const renderScene = director.root!.ui.renderScene;
+        if (!this.model || this.model!.scene === renderScene) {
             return;
         }
 
         if (this.model!.scene !== null) {
             this._detachFromScene();
         }
-        scene.addModel(this.model!);
+        renderScene.addModel(this.model!);
     }
 
     protected _detachFromScene () {

@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -24,7 +24,8 @@
 */
 
 /**
- * @category component/light
+ * @packageDocumentation
+ * @module component/light
  */
 
 import { ccclass, help, executeInEditMode, menu, tooltip, type, slide, range, unit, serializable } from 'cc.decorator';

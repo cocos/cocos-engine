@@ -1,4 +1,5 @@
 /**
+ * @packageDocumentation
  * @hidden
  */
 
@@ -14,7 +15,7 @@ export {
     Line,
     ParticleSystem,
     ParticleUtils,
-    CurveRange
+    CurveRange,
 };
 
 export * from './deprecated';

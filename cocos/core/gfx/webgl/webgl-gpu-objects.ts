@@ -12,11 +12,11 @@ import {
     GFXType,
     GFXDynamicStateFlagBit,
 } from '../define';
-import { IGFXAttribute } from '../input-assembler';
+import { GFXAttribute } from '../input-assembler';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipeline-state';
 import { GFXColorAttachment, GFXDepthStencilAttachment } from '../render-pass';
 import { GFXUniformBlock, GFXUniformSampler } from '../shader';
-import { GFXDescriptorSetLayout, IGFXDescriptorSetLayoutBinding } from '../descriptor-set-layout';
+import { GFXDescriptorSetLayout, GFXDescriptorSetLayoutBinding } from '../descriptor-set-layout';
 
 export interface IWebGLGPUUniformInfo {
     name: string;
@@ -117,7 +117,7 @@ export interface IWebGLGPUUniform {
 
     glType: GLenum;
     glLoc: WebGLUniformLocation;
-    array: number[];
+    array: Int32Array | Float32Array;
     begin: number;
 }
 
@@ -135,6 +135,7 @@ export interface IWebGLGPUUniformSampler {
     binding: number;
     name: string;
     type: GFXType;
+    count: number;
     units: number[];
     glUnits: Int32Array;
 
@@ -162,7 +163,7 @@ export interface IWebGLGPUShader {
 }
 
 export interface IWebGLGPUDescriptorSetLayout {
-    bindings: IGFXDescriptorSetLayoutBinding[];
+    bindings: GFXDescriptorSetLayoutBinding[];
     dynamicBindings: number[];
     descriptorIndices: number[];
     descriptorCount: number;
@@ -171,7 +172,6 @@ export interface IWebGLGPUDescriptorSetLayout {
 export interface IWebGLGPUPipelineLayout {
     gpuSetLayouts: IWebGLGPUDescriptorSetLayout[];
     dynamicOffsetCount: number;
-    dynamicOffsetOffsets: number[];
     dynamicOffsetIndices: number[][];
 }
 
@@ -212,7 +212,7 @@ export interface IWebGLAttrib {
 }
 
 export interface IWebGLGPUInputAssembler {
-    attributes: IGFXAttribute[];
+    attributes: GFXAttribute[];
     gpuVertexBuffers: IWebGLGPUBuffer[];
     gpuIndexBuffer: IWebGLGPUBuffer | null;
     gpuIndirectBuffer: IWebGLGPUBuffer | null;

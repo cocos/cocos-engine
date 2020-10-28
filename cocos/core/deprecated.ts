@@ -1,8 +1,9 @@
 /**
+ * @packageDocumentation
  * @hidden
  */
 
-import { replaceProperty, removeProperty } from './utils/deprecated';
+import { replaceProperty, removeProperty } from './utils/x-deprecated';
 import * as math from './math';
 import { Scheduler } from './scheduler';
 import { EventTouch } from './platform/event-manager/events';

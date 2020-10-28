@@ -1,8 +1,8 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -25,7 +25,8 @@
 */
 
 /**
- * @category event
+ * @packageDocumentation
+ * @module event
  */
 
 import {ccclass, type, serializable, editable} from 'cc.decorator';
@@ -34,13 +35,24 @@ import { legacyCC } from '../global-exports';
 
 /**
  * @en
- * The EventHandle class sets the event callback in the scene.
- * This class allows the user to set the callback target node,target component name,component method name, and call the target method through the `emit` method.
+ * The EventHandler class sets the event callback in the scene.
+ * This class allows the user to set the callback target node, target component name, component method name, and call the target method through the `emit` method.
  * @zh
  * “EventHandler” 类用来设置场景中的事件回调，该类允许用户设置回调目标节点，目标组件名，组件方法名，并可通过 emit 方法调用目标函数。
  *
  * @example
  * ```ts
+ * // Let's say we have a MainMenu component on newTarget
+ * // file: MainMenu.ts
+ * @ccclass('MainMenu')
+ * export class MainMenu extends Component {
+ *     // sender: the node MainMenu.ts belongs to
+ *     // eventType: CustomEventData
+ *     onClick (sender, eventType) {
+ *         cc.log('click');
+ *     }
+ * }
+ *
  * import { Component } from 'cc';
  * const eventHandler = new Component.EventHandler();
  * eventHandler.target = newTarget;
@@ -81,14 +93,18 @@ export class EventHandler {
         }
     }
     /**
-     * @en Target node.
-     * @zh 目标节点。
+     * @en
+     * The node that contains target component
+     * @zh
+     * 事件响应组件和函数所在节点
      */
     @type(legacyCC.Node)
     public target: Node | null = null;
     /**
-     * @en Target component name.
-     * @zh 目标组件名。
+     * @en
+     * The name of the component(script) that contains target callback, such as the name 'MainMenu' of the script in the example
+     * @zh
+     * 事件响应函数所在组件名（脚本名）, 比如例子中的脚本名 'MainMenu'
      */
     // only for deserializing old project component field
     @serializable
@@ -99,16 +115,20 @@ export class EventHandler {
     public _componentId = '';
 
     /**
-     * @en Response event function name.
-     * @zh 响应事件函数名。
+     * @en
+     * Event handler, such as the callback function name 'onClick' in the example
+     * @zh
+     * 响应事件函数名，比如例子中的 'onClick' 方法名
      */
     @serializable
     @editable
     public handler = '';
 
     /**
-     * @en Custom event data.
-     * @zh 自定义事件数据。
+     * @en
+     * Custom Event Data
+     * @zh
+     * 自定义事件数据
      */
     @serializable
     @editable

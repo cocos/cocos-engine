@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -50,13 +50,13 @@ let mesh = {
             if (vertices) {
                 if (renderData.vertexCount !== vertices.x.length) {
                     renderData.vertexCount = vertices.x.length;
-                    renderData.indiceCount = vertices.triangles.length;
 
                     // 1 for world vertices, 2 for local vertices
                     renderData.dataLength = renderData.vertexCount * 2;
 
                     renderData.uvDirty = renderData.vertDirty = true;
                 }
+                renderData.indiceCount = vertices.triangles.length;
 
                 if (renderData.uvDirty) {
                     this.updateUVs(sprite);

@@ -31,15 +31,23 @@ export class CannonSharedBody {
 
     private static readonly sharedBodesMap = new Map<string, CannonSharedBody>();
 
-    static getSharedBody (node: Node, wrappedWorld: CannonWorld) {
+    static getSharedBody (node: Node, wrappedWorld: CannonWorld, wrappedBody?: CannonRigidBody) {
         const key = node.uuid;
+        let newSB: CannonSharedBody;
         if (CannonSharedBody.sharedBodesMap.has(key)) {
-            return CannonSharedBody.sharedBodesMap.get(key)!;
+            newSB = CannonSharedBody.sharedBodesMap.get(key)!;
         } else {
-            const newSB = new CannonSharedBody(node, wrappedWorld);
+            newSB = new CannonSharedBody(node, wrappedWorld);
             CannonSharedBody.sharedBodesMap.set(node.uuid, newSB);
-            return newSB;
         }
+        if (wrappedBody) {
+            newSB.wrappedBody = wrappedBody;
+            const g = wrappedBody.rigidBody.group;
+            const m = PhysicsSystem.instance.collisionMatrix[g];
+            newSB.body.collisionFilterGroup = g;
+            newSB.body.collisionFilterMask = m;
+        }
+        return newSB;
     }
 
     readonly node: Node;

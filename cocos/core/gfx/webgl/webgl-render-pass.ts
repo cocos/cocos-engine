@@ -1,4 +1,4 @@
-import { GFXRenderPass, IGFXRenderPassInfo } from '../render-pass';
+import { GFXRenderPass, GFXRenderPassInfo } from '../render-pass';
 import { IWebGLGPURenderPass } from './webgl-gpu-objects';
 
 export class WebGLRenderPass extends GFXRenderPass {
@@ -9,7 +9,7 @@ export class WebGLRenderPass extends GFXRenderPass {
 
     private _gpuRenderPass: IWebGLGPURenderPass | null = null;
 
-    public initialize (info: IGFXRenderPassInfo): boolean {
+    public initialize (info: GFXRenderPassInfo): boolean {
 
         this._colorInfos = info.colorAttachments;
         this._depthStencilInfo = info.depthStencilAttachment;

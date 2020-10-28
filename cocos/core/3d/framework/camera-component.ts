@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -24,7 +24,8 @@
 */
 
 /**
- * @category component/camera
+ * @packageDocumentation
+ * @module component/camera
  */
 
 import { EDITOR } from 'internal:constants';
@@ -46,7 +47,7 @@ import { Scene } from '../../scene-graph/scene';
 import { Enum } from '../../value-types';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { legacyCC } from '../../global-exports';
-import { RenderWindow } from '../../pipeline';
+import { RenderWindow } from '../../renderer/core/render-window';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -140,7 +141,7 @@ export class Camera extends Component {
     }
 
     /**
-     * @en Render priority of the camera, in ascending-order.
+     * @en Render priority of the camera. Cameras with higher depth are rendered after cameras with lower depth.
      * @zh 相机的渲染优先级，值越小越优先渲染。
      */
     @displayOrder(0)
@@ -204,10 +205,7 @@ export class Camera extends Component {
     set clearColor (val) {
         this._color.set(val);
         if (this._camera) {
-            this._camera.clearColor.r = this._color.x;
-            this._camera.clearColor.g = this._color.y;
-            this._camera.clearColor.b = this._color.z;
-            this._camera.clearColor.a = this._color.w;
+            this._camera.clearColor = this._color;
         }
     }
 
@@ -545,7 +543,7 @@ export class Camera extends Component {
 
     protected _createCamera () {
         this._camera = (legacyCC.director.root as Root).createCamera();
-        this._camera.initialize({
+        this._camera!.initialize({
             name: this.node.name,
             node: this.node,
             projection: this._projection,
@@ -562,11 +560,7 @@ export class Camera extends Component {
             this._camera.orthoHeight = this._orthoHeight;
             this._camera.nearClip = this._near;
             this._camera.farClip = this._far;
-            const r = this._color.x;
-            const g = this._color.y;
-            const b = this._color.z;
-            const a = this._color.w;
-            this._camera.clearColor = { r, g, b, a };
+            this._camera.clearColor = this._color;
             this._camera.clearDepth = this._depth;
             this._camera.clearStencil = this._stencil;
             this._camera.clearFlag = this._clearFlags;
@@ -586,8 +580,8 @@ export class Camera extends Component {
         if (this._camera && this._camera.scene) {
             this._camera.scene.removeCamera(this._camera);
         }
-        const scene = this._getRenderScene();
-        scene.addCamera(this._camera);
+        const rs = this._getRenderScene();
+        rs.addCamera(this._camera);
     }
 
     protected _detachFromScene () {

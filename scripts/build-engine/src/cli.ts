@@ -1,36 +1,32 @@
 import * as fs from 'fs-extra';
 import * as ps from 'path';
 import yargs from 'yargs';
+import { setupBuildTimeConstants } from './build-time-constants';
 import {
     build,
-    enumerateBuildModeReps,
-    enumeratePlatformReps,
-    BuildFlags,
-    parseBuildMode,
     enumerateModuleOptionReps,
     parseModuleOption,
-    parsePlatform,
 } from './index';
 
 async function main() {
+    yargs.parserConfiguration({
+        'boolean-negation': false,
+    });
     yargs.help();
     yargs.options('engine', {
         type: 'string',
         demandOption: true,
     });
-    yargs.option('buildmode', {
+    yargs.option('build-mode', {
         type: 'string',
         alias: 'b',
-        description: 'Target buildmode.',
-        choices: enumerateBuildModeReps(),
-        default: 'universal',
+        description: 'Target build-mode.',
     });
     yargs.option('platform', {
         type: 'string',
         alias: 'p',
         description: 'Target platform.',
         demandOption: true,
-        choices: enumeratePlatformReps(),
     });
     yargs.option('flags', {
         type: 'array',
@@ -43,6 +39,17 @@ async function main() {
     });
     yargs.option('ammojs-wasm', {
         choices: [true, 'fallback'],
+    });
+    yargs.option('no-deprecated-features', {
+        description: `Whether to remove deprecated features. You can specify boolean or a version string(in semver)`,
+        type: 'string',
+        coerce: (arg: string | boolean) => {
+            return typeof arg !== 'string' ?
+                arg :
+                ((arg === 'true' || arg.length === 0) ? true : (
+                    arg === 'false' ? false : arg
+                ));
+        },
     });
     yargs.option('destination', {
         type: 'string',
@@ -98,13 +105,21 @@ async function main() {
         description: 'Meta out file.',
     });
 
-    const flags: BuildFlags = {};
+    const flags: Record<string, boolean> = {};
     const argvFlags = yargs.argv.flags as (string[] | undefined);
     if (argvFlags) {
-        argvFlags.forEach((argvFlag) => flags[argvFlag as keyof BuildFlags] = true);
+        argvFlags.forEach((argvFlag) => flags[argvFlag] = true);
     }
 
     const sourceMap = yargs.argv.sourcemap === 'inline' ? 'inline' : !!yargs.argv.sourcemap;
+
+    const buildTimeConstants = setupBuildTimeConstants({
+        mode: yargs.argv.buildMode as (string | undefined),
+        platform: yargs.argv.platform as unknown as string,
+        flags,
+    });
+
+    const noDeprecatedFeatures = yargs.argv.noDeprecatedFeatures as (boolean | string | undefined);
 
     const options: build.Options = {
         engine: yargs.argv.engine as string,
@@ -113,19 +128,14 @@ async function main() {
         compress: yargs.argv.compress as (boolean | undefined),
         out: yargs.argv.out as string,
         sourceMap,
-        flags,
         progress: yargs.argv.progress as (boolean | undefined),
         incremental: yargs.argv['watch-files'] as (string | undefined),
         ammoJsWasm: yargs.argv['ammojs-wasm'] as (boolean | undefined | 'fallback'),
+        noDeprecatedFeatures: noDeprecatedFeatures,
+        buildTimeConstants,
     };
     if (yargs.argv.module) {
         options.moduleFormat = parseModuleOption(yargs.argv['module'] as unknown as string);
-    }
-    if (yargs.argv.buildmode) {
-        options.mode = parseBuildMode(yargs.argv.buildmode as unknown as string);
-    }
-    if (yargs.argv.platform) {
-        options.platform = parsePlatform(yargs.argv.platform as unknown as string);
     }
 
     if (yargs.argv.visualize) {

@@ -1,88 +1,60 @@
 /**
- * @category gfx
+ * @packageDocumentation
+ * @module gfx
  */
 
 import { ccenum } from '../value-types/enum';
-import { GFXDescriptorSet, IGFXDescriptorSetInfo } from './descriptor-set';
-import { GFXBuffer, IGFXBufferInfo, IGFXBufferViewInfo } from './buffer';
-import { GFXCommandBuffer, IGFXCommandBufferInfo } from './command-buffer';
-import { GFX_MAX_BUFFER_BINDINGS, GFXBufferTextureCopy, GFXFilter, GFXFormat, GFXMemoryStatus, GFXRect } from './define';
-import { GFXFence, IGFXFenceInfo } from './fence';
-import { GFXFramebuffer, IGFXFramebufferInfo } from './framebuffer';
-import { GFXInputAssembler, IGFXInputAssemblerInfo } from './input-assembler';
-import { GFXPipelineState, IGFXPipelineStateInfo } from './pipeline-state';
-import { GFXQueue, IGFXQueueInfo } from './queue';
-import { GFXRenderPass, IGFXRenderPassInfo } from './render-pass';
-import { GFXSampler, IGFXSamplerInfo } from './sampler';
+import { GFXDescriptorSet, GFXDescriptorSetInfo } from './descriptor-set';
+import { GFXBuffer, GFXBufferInfo, GFXBufferViewInfo } from './buffer';
+import { GFXCommandBuffer, GFXCommandBufferInfo } from './command-buffer';
+import {  GFXFilter, GFXFormat, GFXMemoryStatus, GFXAPI, GFXFeature, GFXSurfaceTransform } from './define';
+import { GFXBufferTextureCopy, GFXRect } from './define-class';
+import { GFXFence, GFXFenceInfo } from './fence';
+import { GFXFramebuffer, GFXFramebufferInfo } from './framebuffer';
+import { GFXInputAssembler, GFXInputAssemblerInfo } from './input-assembler';
+import { GFXPipelineState, GFXPipelineStateInfo } from './pipeline-state';
+import { GFXQueue, GFXQueueInfo } from './queue';
+import { GFXRenderPass, GFXRenderPassInfo } from './render-pass';
+import { GFXSampler, GFXSamplerInfo } from './sampler';
 import { GFXShader, GFXShaderInfo } from './shader';
-import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo } from './texture';
-import { IGFXDescriptorSetLayoutInfo, GFXDescriptorSetLayout, IGFXPipelineLayoutInfo, GFXPipelineLayout } from '../../../exports/base';
+import { GFXTexture, GFXTextureInfo, GFXTextureViewInfo } from './texture';
+import { GFXDescriptorSetLayoutInfo, GFXDescriptorSetLayout, GFXPipelineLayoutInfo, GFXPipelineLayout } from '../../../exports/base';
 
 ccenum(GFXFormat);
 
-export enum GFXAPI {
-    UNKNOWN,
-    GL,
-    GLES2,
-    GLES3,
-    METAL,
-    VULKAN,
-    DX12,
-    WEBGL,
-    WEBGL2,
-}
-
-export enum GFXFeature {
-    COLOR_FLOAT,
-    COLOR_HALF_FLOAT,
-    TEXTURE_FLOAT,
-    TEXTURE_HALF_FLOAT,
-    TEXTURE_FLOAT_LINEAR,
-    TEXTURE_HALF_FLOAT_LINEAR,
-    FORMAT_R11G11B10F,
-    FORMAT_D16,
-    FORMAT_D16S8,
-    FORMAT_D24,
-    FORMAT_D24S8,
-    FORMAT_D32F,
-    FORMAT_D32FS8,
-    FORMAT_ETC1,
-    FORMAT_ETC2,
-    FORMAT_DXT,
-    FORMAT_PVRTC,
-    FORMAT_ASTC,
-    FORMAT_RGB8,
-    MSAA,
-    ELEMENT_INDEX_UINT,
-    INSTANCED_ARRAYS,
-    COUNT,
-}
-
 export class GFXBindingMappingInfo {
-    public bufferOffsets: number[] = [];
-    public samplerOffsets: number[] = [];
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public bufferOffsets: number[] = [],
+        public samplerOffsets: number[] = [],
+        public flexibleSet: number = 0,
+    ) {}
 }
 
-export interface IGFXDeviceInfo {
-    canvasElm: HTMLElement;
-    isAntialias?: boolean;
-    isPremultipliedAlpha?: boolean;
-    debug?: boolean;
-    devicePixelRatio?: number;
-    nativeWidth?: number;
-    nativeHeight?: number;
-    /**
-     * For non-vulkan backends, to maintain compatibility and maximize
-     * descriptor cache-locality, descriptor-set-based binding numbers need
-     * to be mapped to backend-specific bindings based on maximum limit
-     * of available descriptor slots in each set.
-     *
-     * Because the binding numbers are guaranteed to be consecutive for each
-     * descriptor type inside each set, the mapping procedure can be reduced
-     * to a simple shifting operation. This data structure specifies the
-     * exact offsets for each descriptor type in each set.
-     */
-    bindingMappingInfo?: GFXBindingMappingInfo;
+export class GFXDeviceInfo {
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public canvasElm: HTMLElement,
+        public isAntialias: boolean = true,
+        public isPremultipliedAlpha: boolean = true,
+        public devicePixelRatio: number = 1,
+        public nativeWidth: number = 1,
+        public nativeHeight: number = 1,
+        /**
+         * For non-vulkan backends, to maintain compatibility and maximize
+         * descriptor cache-locality, descriptor-set-based binding numbers need
+         * to be mapped to backend-specific bindings based on the maximum limit
+         * of available descriptor slots in each set.
+         *
+         * The GFX layer assumes the binding numbers for each descriptor type inside each set
+         * are guaranteed to be consecutive, so the mapping procedure is reduced
+         * to a simple shifting operation. This data structure specifies the
+         * offsets for each descriptor type in each set.
+         */
+        public bindingMappingInfo = new GFXBindingMappingInfo(),
+    ) {}
 }
 
 /**
@@ -116,11 +88,19 @@ export abstract class GFXDevice {
     }
 
     /**
-     * @en GFX queue.
-     * @zh GFX 队列。
+     * @en GFX default queue.
+     * @zh GFX 默认队列。
      */
     get queue (): GFXQueue {
         return this._queue as GFXQueue;
+    }
+
+    /**
+     * @en GFX default command buffer.
+     * @zh GFX 默认命令缓冲。
+     */
+    get commandBuffer (): GFXCommandBuffer {
+        return this._cmdBuff as GFXCommandBuffer;
     }
 
     /**
@@ -355,15 +335,25 @@ export abstract class GFXDevice {
         return this._UVSpaceSignY;
     }
 
+    /**
+     * @en The surface transform to be applied in projection matrices.
+     * @zh 需要在投影矩阵中应用的表面变换。
+     */
+    get surfaceTransform () {
+        return this._transform;
+    }
+
     protected _canvas: HTMLCanvasElement | null = null;
     protected _canvas2D: HTMLCanvasElement | null = null;
     protected _gfxAPI: GFXAPI = GFXAPI.UNKNOWN;
+    protected _transform: GFXSurfaceTransform = GFXSurfaceTransform.IDENTITY;
     protected _deviceName: string = '';
     protected _renderer: string = '';
     protected _vendor: string = '';
     protected _version: string = '';
     protected _features: boolean[] = new Array<boolean>(GFXFeature.COUNT);
     protected _queue: GFXQueue | null = null;
+    protected _cmdBuff: GFXCommandBuffer | null = null;
     protected _devicePixelRatio: number = 1.0;
     protected _width: number = 0;
     protected _height: number = 0;
@@ -374,7 +364,7 @@ export abstract class GFXDevice {
     protected _maxFragmentUniformVectors: number = 0;
     protected _maxTextureUnits: number = 0;
     protected _maxVertexTextureUnits: number = 0;
-    protected _maxUniformBufferBindings: number = GFX_MAX_BUFFER_BINDINGS;
+    protected _maxUniformBufferBindings: number = 0;
     protected _maxUniformBlockSize: number = 0;
     protected _maxTextureSize: number = 0;
     protected _maxCubeMapTextureSize: number = 0;
@@ -383,20 +373,16 @@ export abstract class GFXDevice {
     protected _stencilBits: number = 0;
     protected _colorFmt: GFXFormat = GFXFormat.UNKNOWN;
     protected _depthStencilFmt: GFXFormat = GFXFormat.UNKNOWN;
-    protected _shaderIdGen: number = 0;
     protected _macros: Map<string, string> = new Map();
     protected _numDrawCalls: number = 0;
     protected _numInstances: number = 0;
     protected _numTris: number = 0;
-    protected _memoryStatus: GFXMemoryStatus = {
-        bufferSize: 0,
-        textureSize: 0,
-    };
+    protected _memoryStatus = new GFXMemoryStatus();
     protected _clipSpaceMinZ = -1;
     protected _screenSpaceSignY = 1;
     protected _UVSpaceSignY = -1;
 
-    public abstract initialize (info: IGFXDeviceInfo): boolean;
+    public abstract initialize (info: GFXDeviceInfo): boolean;
 
     public abstract destroy (): void;
 
@@ -425,35 +411,35 @@ export abstract class GFXDevice {
      * @zh 创建命令缓冲。
      * @param info GFX command buffer description info.
      */
-    public abstract createCommandBuffer (info: IGFXCommandBufferInfo): GFXCommandBuffer;
+    public abstract createCommandBuffer (info: GFXCommandBufferInfo): GFXCommandBuffer;
 
     /**
      * @en Create buffer.
      * @zh 创建缓冲。
      * @param info GFX buffer description info.
      */
-    public abstract createBuffer (info: IGFXBufferInfo | IGFXBufferViewInfo): GFXBuffer;
+    public abstract createBuffer (info: GFXBufferInfo | GFXBufferViewInfo): GFXBuffer;
 
     /**
      * @en Create texture.
      * @zh 创建纹理。
      * @param info GFX texture description info.
      */
-    public abstract createTexture (info: IGFXTextureInfo | IGFXTextureViewInfo): GFXTexture;
+    public abstract createTexture (info: GFXTextureInfo | GFXTextureViewInfo): GFXTexture;
 
     /**
      * @en Create sampler.
      * @zh 创建采样器。
      * @param info GFX sampler description info.
      */
-    public abstract createSampler (info: IGFXSamplerInfo): GFXSampler;
+    public abstract createSampler (info: GFXSamplerInfo): GFXSampler;
 
     /**
      * @en Create descriptor sets.
      * @zh 创建描述符集组。
      * @param info GFX descriptor sets description info.
      */
-    public abstract createDescriptorSet (info: IGFXDescriptorSetInfo): GFXDescriptorSet;
+    public abstract createDescriptorSet (info: GFXDescriptorSetInfo): GFXDescriptorSet;
 
     /**
      * @en Create shader.
@@ -467,56 +453,56 @@ export abstract class GFXDevice {
      * @zh 创建纹理。
      * @param info GFX input assembler description info.
      */
-    public abstract createInputAssembler (info: IGFXInputAssemblerInfo): GFXInputAssembler;
+    public abstract createInputAssembler (info: GFXInputAssemblerInfo): GFXInputAssembler;
 
     /**
      * @en Create render pass.
      * @zh 创建渲染过程。
      * @param info GFX render pass description info.
      */
-    public abstract createRenderPass (info: IGFXRenderPassInfo): GFXRenderPass;
+    public abstract createRenderPass (info: GFXRenderPassInfo): GFXRenderPass;
 
     /**
      * @en Create frame buffer.
      * @zh 创建帧缓冲。
      * @param info GFX frame buffer description info.
      */
-    public abstract createFramebuffer (info: IGFXFramebufferInfo): GFXFramebuffer;
+    public abstract createFramebuffer (info: GFXFramebufferInfo): GFXFramebuffer;
 
     /**
      * @en Create descriptor set layout.
      * @zh 创建描述符集布局。
      * @param info GFX descriptor set layout description info.
      */
-    public abstract createDescriptorSetLayout (info: IGFXDescriptorSetLayoutInfo): GFXDescriptorSetLayout;
+    public abstract createDescriptorSetLayout (info: GFXDescriptorSetLayoutInfo): GFXDescriptorSetLayout;
 
     /**
      * @en Create pipeline layout.
      * @zh 创建管线布局。
      * @param info GFX pipeline layout description info.
      */
-    public abstract createPipelineLayout (info: IGFXPipelineLayoutInfo): GFXPipelineLayout;
+    public abstract createPipelineLayout (info: GFXPipelineLayoutInfo): GFXPipelineLayout;
 
     /**
      * @en Create pipeline state.
      * @zh 创建管线状态。
      * @param info GFX pipeline state description info.
      */
-    public abstract createPipelineState (info: IGFXPipelineStateInfo): GFXPipelineState;
+    public abstract createPipelineState (info: GFXPipelineStateInfo): GFXPipelineState;
 
     /**
      * @en Create queue.
      * @zh 创建队列。
      * @param info GFX queue description info.
      */
-    public abstract createQueue (info: IGFXQueueInfo): GFXQueue;
+    public abstract createQueue (info: GFXQueueInfo): GFXQueue;
 
     /**
      * @en Create fence.
      * @zh 创建同步信号。
      * @param info GFX fence description info.
      */
-    public abstract createFence (info: IGFXFenceInfo): GFXFence;
+    public abstract createFence (info: GFXFenceInfo): GFXFence;
 
     /**
      * @en Copy buffers to texture.
@@ -563,24 +549,5 @@ export abstract class GFXDevice {
      */
     public hasFeature (feature: GFXFeature): boolean {
         return this._features[feature];
-    }
-
-    /**
-     * @en Generate shader ID.
-     * @zh 生成 Shader ID。
-     */
-    public genShaderId (): number {
-        return this._shaderIdGen++;
-    }
-
-    /**
-     * @en Define a macro.
-     * @zh 定义宏。
-     * @param macro The macro name.
-     * @param value The macro value.
-     */
-    public defineMacro (macro: string, value?: string) {
-        const val = (value !== undefined ? value : '');
-        this._macros.set(macro, val);
     }
 }

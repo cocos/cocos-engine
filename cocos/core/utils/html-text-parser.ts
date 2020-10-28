@@ -1,8 +1,8 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -25,6 +25,7 @@
 */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 
@@ -183,7 +184,7 @@ export class HtmlTextParser {
 
                     tagValue = (nextSpace > -1) ? remainingArgument.substr(0, nextSpace) : remainingArgument;
                     tagName = tagName.replace(/[^a-zA-Z]/g, '').trim();
-                    tagName = tagName.toLocaleLowerCase();
+                    tagName = tagName.toLowerCase();
 
                     attribute = remainingArgument.substring(nextSpace).trim();
                     if ( tagValue.endsWith( '\/' ) ) tagValue = tagValue.slice( 0, -1 );
@@ -211,7 +212,7 @@ export class HtmlTextParser {
                                 tagValue = tagValue.slice(1, -1);
                                 break;
                         }
-                        obj.imageAlign = tagValue.toLocaleLowerCase();
+                        obj.imageAlign = tagValue.toLowerCase();
                     }
                     else if (tagName === "offset") {
                         obj.imageOffset = tagValue;
@@ -256,7 +257,7 @@ export class HtmlTextParser {
                         tagValue = remainingArgument;
                     }
                     tagName = tagName.replace(/[^a-zA-Z]/g, '').trim();
-                    tagName = tagName.toLocaleLowerCase();
+                    tagName = tagName.toLowerCase();
 
                     attribute = remainingArgument.substring(nextSpace).trim();
                     if (tagName === 'click') {

@@ -1,5 +1,6 @@
 /**
- * @category gfx
+ * @packageDocumentation
+ * @module gfx
  */
 
 import {
@@ -15,31 +16,35 @@ import {
     GFXPrimitiveMode,
     GFXShadeModel,
     GFXStencilOp,
-    GFXColor,
     GFXDynamicStateFlagBit,
 } from './define';
+import { GFXColor } from './define-class';
 import { GFXDevice } from './device';
-import { IGFXAttribute } from './input-assembler';
+import { GFXAttribute } from './input-assembler';
 import { GFXRenderPass } from './render-pass';
 import { GFXShader } from './shader';
-import { GFXPipelineLayout } from '..';
+import { GFXPipelineLayout } from './pipeline-layout';
 
 /**
  * @en GFX rasterizer state.
  * @zh GFX 光栅化状态。
  */
 export class GFXRasterizerState {
-    public isDiscard: boolean = false;
-    public polygonMode: GFXPolygonMode = GFXPolygonMode.FILL;
-    public shadeModel: GFXShadeModel = GFXShadeModel.GOURAND;
-    public cullMode: GFXCullMode = GFXCullMode.BACK;
-    public isFrontFaceCCW: boolean = true;
-    public depthBias: number = 0;
-    public depthBiasClamp: number = 0.0;
-    public depthBiasSlop: number = 0.0;
-    public isDepthClip: boolean = true;
-    public isMultisample: boolean = false;
-    public lineWidth: number = 1.0;
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public isDiscard: boolean = false,
+        public polygonMode: GFXPolygonMode = GFXPolygonMode.FILL,
+        public shadeModel: GFXShadeModel = GFXShadeModel.GOURAND,
+        public cullMode: GFXCullMode = GFXCullMode.BACK,
+        public isFrontFaceCCW: boolean = true,
+        public depthBias: number = 0,
+        public depthBiasClamp: number = 0.0,
+        public depthBiasSlop: number = 0.0,
+        public isDepthClip: boolean = true,
+        public isMultisample: boolean = false,
+        public lineWidth: number = 1.0,
+    ) {}
 
     public compare (state: GFXRasterizerState): boolean {
         return (this.isDiscard === state.isDiscard) &&
@@ -61,25 +66,29 @@ export class GFXRasterizerState {
  * @zh GFX 深度模板状态。
  */
 export class GFXDepthStencilState {
-    public depthTest: boolean = true;
-    public depthWrite: boolean = true;
-    public depthFunc: GFXComparisonFunc = GFXComparisonFunc.LESS;
-    public stencilTestFront: boolean = false;
-    public stencilFuncFront: GFXComparisonFunc = GFXComparisonFunc.ALWAYS;
-    public stencilReadMaskFront: number = 0xffff;
-    public stencilWriteMaskFront: number = 0xffff;
-    public stencilFailOpFront: GFXStencilOp = GFXStencilOp.KEEP;
-    public stencilZFailOpFront: GFXStencilOp = GFXStencilOp.KEEP;
-    public stencilPassOpFront: GFXStencilOp = GFXStencilOp.KEEP;
-    public stencilRefFront: number = 1;
-    public stencilTestBack: boolean = false;
-    public stencilFuncBack: GFXComparisonFunc = GFXComparisonFunc.ALWAYS;
-    public stencilReadMaskBack: number = 0xffff;
-    public stencilWriteMaskBack: number = 0xffff;
-    public stencilFailOpBack: GFXStencilOp = GFXStencilOp.KEEP;
-    public stencilZFailOpBack: GFXStencilOp = GFXStencilOp.KEEP;
-    public stencilPassOpBack: GFXStencilOp = GFXStencilOp.KEEP;
-    public stencilRefBack: number = 1;
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public depthTest: boolean = true,
+        public depthWrite: boolean = true,
+        public depthFunc: GFXComparisonFunc = GFXComparisonFunc.LESS,
+        public stencilTestFront: boolean = false,
+        public stencilFuncFront: GFXComparisonFunc = GFXComparisonFunc.ALWAYS,
+        public stencilReadMaskFront: number = 0xffff,
+        public stencilWriteMaskFront: number = 0xffff,
+        public stencilFailOpFront: GFXStencilOp = GFXStencilOp.KEEP,
+        public stencilZFailOpFront: GFXStencilOp = GFXStencilOp.KEEP,
+        public stencilPassOpFront: GFXStencilOp = GFXStencilOp.KEEP,
+        public stencilRefFront: number = 1,
+        public stencilTestBack: boolean = false,
+        public stencilFuncBack: GFXComparisonFunc = GFXComparisonFunc.ALWAYS,
+        public stencilReadMaskBack: number = 0xffff,
+        public stencilWriteMaskBack: number = 0xffff,
+        public stencilFailOpBack: GFXStencilOp = GFXStencilOp.KEEP,
+        public stencilZFailOpBack: GFXStencilOp = GFXStencilOp.KEEP,
+        public stencilPassOpBack: GFXStencilOp = GFXStencilOp.KEEP,
+        public stencilRefBack: number = 1,
+    ) {}
 
     public compare (state: GFXDepthStencilState): boolean {
         return (this.depthTest === state.depthTest) &&
@@ -109,14 +118,18 @@ export class GFXDepthStencilState {
  * @zh GFX 混合目标。
  */
 export class GFXBlendTarget {
-    public blend: boolean = false;
-    public blendSrc: GFXBlendFactor = GFXBlendFactor.ONE;
-    public blendDst: GFXBlendFactor = GFXBlendFactor.ZERO;
-    public blendEq: GFXBlendOp = GFXBlendOp.ADD;
-    public blendSrcAlpha: GFXBlendFactor = GFXBlendFactor.ONE;
-    public blendDstAlpha: GFXBlendFactor = GFXBlendFactor.ZERO;
-    public blendAlphaEq: GFXBlendOp = GFXBlendOp.ADD;
-    public blendColorMask: GFXColorMask = GFXColorMask.ALL;
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public blend: boolean = false,
+        public blendSrc: GFXBlendFactor = GFXBlendFactor.ONE,
+        public blendDst: GFXBlendFactor = GFXBlendFactor.ZERO,
+        public blendEq: GFXBlendOp = GFXBlendOp.ADD,
+        public blendSrcAlpha: GFXBlendFactor = GFXBlendFactor.ONE,
+        public blendDstAlpha: GFXBlendFactor = GFXBlendFactor.ZERO,
+        public blendAlphaEq: GFXBlendOp = GFXBlendOp.ADD,
+        public blendColorMask: GFXColorMask = GFXColorMask.ALL,
+    ) {}
 
     public compare (target: GFXBlendTarget): boolean {
         return (this.blend === target.blend) &&
@@ -135,10 +148,26 @@ export class GFXBlendTarget {
  * @zh GFX混合状态。
  */
 export class GFXBlendState {
-    public isA2C: boolean = false;
-    public isIndepend: boolean = false;
-    public blendColor: GFXColor = { r: 0, g: 0, b: 0, a: 0 };
-    public targets: GFXBlendTarget[] = [new GFXBlendTarget()];
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public isA2C: boolean = false,
+        public isIndepend: boolean = false,
+        public blendColor: GFXColor = new GFXColor(),
+        public targets: GFXBlendTarget[] = [new GFXBlendTarget()],
+    ) {}
+
+    /**
+     * @en Should use this function to set target, or it will not work
+     * on native platforms, as native can not support this feature,
+     * such as `blendState[i] = target;`.
+     *
+     * @param index The index to set target.
+     * @param target The target to be set.
+     */
+    public setTarget (index: number, target: GFXBlendTarget) {
+        this.targets[index] = target;
+    }
 }
 
 /**
@@ -146,19 +175,27 @@ export class GFXBlendState {
  * @zh GFX 输入状态。
  */
 export class GFXInputState {
-    public attributes: IGFXAttribute[] = [];
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public attributes: GFXAttribute[] = [],
+    ) {}
 }
 
-export interface IGFXPipelineStateInfo {
-    primitive: GFXPrimitiveMode;
-    shader: GFXShader;
-    pipelineLayout: GFXPipelineLayout;
-    inputState: GFXInputState;
-    rasterizerState: GFXRasterizerState;
-    depthStencilState: GFXDepthStencilState;
-    blendState: GFXBlendState;
-    dynamicStates?: GFXDynamicStateFlags;
-    renderPass: GFXRenderPass;
+export class GFXPipelineStateInfo {
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public shader: GFXShader,
+        public pipelineLayout: GFXPipelineLayout,
+        public renderPass: GFXRenderPass,
+        public inputState: GFXInputState,
+        public rasterizerState: GFXRasterizerState,
+        public depthStencilState: GFXDepthStencilState,
+        public blendState: GFXBlendState,
+        public primitive: GFXPrimitiveMode = GFXPrimitiveMode.TRIANGLE_LIST,
+        public dynamicStates: GFXDynamicStateFlags = GFXDynamicStateFlagBit.NONE,
+    ) {}
 }
 
 /**
@@ -264,7 +301,7 @@ export abstract class GFXPipelineState extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: IGFXPipelineStateInfo): boolean;
+    public abstract initialize (info: GFXPipelineStateInfo): boolean;
 
     public abstract destroy (): void;
 }

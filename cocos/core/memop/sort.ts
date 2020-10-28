@@ -1,6 +1,7 @@
 // reference: https://github.com/v8/v8/blob/master/src/js/array.js
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 

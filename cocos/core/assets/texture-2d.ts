@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,7 +25,8 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 import { EDITOR, TEST } from "internal:constants";
@@ -35,6 +36,7 @@ import { PixelFormat } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, SimpleTexture } from './simple-texture';
 import { legacyCC } from '../global-exports';
+import { GFXTextureInfo } from '../gfx';
 
 /**
  * @en The create information for [[Texture2D]]
@@ -260,11 +262,10 @@ export class Texture2D extends SimpleTexture {
     }
 
     protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo) {
-        return Object.assign({
-            type: GFXTextureType.TEX2D,
-            width: this._width,
-            height: this._height,
-        }, presumed);
+        const texInfo = new GFXTextureInfo(GFXTextureType.TEX2D);
+        texInfo.width = this._width;
+        texInfo.height = this._height;
+        return Object.assign(texInfo, presumed);
     }
 
     protected _checkTextureLoaded () {

@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,6 +25,7 @@
 */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 
@@ -34,6 +35,7 @@ import { getClassName, getset } from './js';
 import { EDITOR, DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
+import { macro } from '../platform/macro';
 
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
 
@@ -185,6 +187,50 @@ export function cloneable_DEV (obj) {
         ((obj.constructor && obj.constructor.prototype.hasOwnProperty('clone')) || obj.hasOwnProperty('clone'));
 }
 
+/**
+ * @en Clamp a value between from and to.
+ * @zh 限定浮点数的最大最小值。<br/>
+ * 数值大于 max_inclusive 则返回 max_inclusive。<br/>
+ * 数值小于 min_inclusive 则返回 min_inclusive。<br/>
+ * 否则返回自身。
+ * @param value 目标值
+ * @param min_inclusive 最小值
+ * @param max_inclusive 最大值
+ * @return {Number}
+ * @example
+ * var v1 = clampf(20, 0, 20); // 20;
+ * var v2 = clampf(-1, 0, 20); //  0;
+ * var v3 = clampf(10, 0, 20); // 10;
+ */
+export function clampf (value, min_inclusive, max_inclusive) {
+    if (min_inclusive > max_inclusive) {
+        var temp = min_inclusive;
+        min_inclusive = max_inclusive;
+        max_inclusive = temp;
+    }
+    return value < min_inclusive ? min_inclusive : value < max_inclusive ? value : max_inclusive;
+};
+
+/**
+ * @en converts degrees to radians
+ * @zh 角度转弧度
+ * @param angle 角度
+ * @return {Number}
+ */
+export function degreesToRadians (angle) {
+    return angle * macro.RAD;
+};
+
+/**
+ * @en converts radians to degrees
+ * @zh 弧度转角度
+ * @param angle 弧度
+ * @return {Number}
+ */
+export function radiansToDegrees (angle) {
+    return angle * macro.DEG;
+};
+
 // if (TEST) {
 //     // editor mocks using in unit tests
 //     if (typeof Editor === 'undefined') {
@@ -210,4 +256,7 @@ legacyCC.misc = {
     tryCatchFunctor_EDITOR,
     isPlainEmptyObj_DEV,
     cloneable_DEV,
+    clampf,
+    degreesToRadians,
+    radiansToDegrees,
 };

@@ -1,8 +1,8 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -25,7 +25,8 @@
  */
 
 /**
- * @category loader
+ * @packageDocumentation
+ * @module loader
  */
 
 import {mixin} from '../utils/js';
@@ -90,6 +91,19 @@ function loadAudioAsAsset (item, callback) {
     audioClip._setRawAsset(item.rawUrl, false);
     audioClip._nativeAsset = item.content;
     return audioClip;
+}
+
+function loadVideoAsAsset (item, callback) {
+    let loadByDeserializedAsset = (item._owner instanceof legacyCC.Asset);
+    if (loadByDeserializedAsset) {
+        // already has cc.Asset
+        return null;
+    }
+
+    let videoClip = new legacyCC.VideoClip();
+    videoClip._setRawAsset(item.rawUrl, false);
+    videoClip._nativeAsset = item.content;
+    return videoClip;
 }
 
 function loadPlist (item) {
@@ -339,6 +353,9 @@ let defaultMap = {
     'ogg' : loadAudioAsAsset,
     'wav' : loadAudioAsAsset,
     'm4a' : loadAudioAsAsset,
+
+    // video
+    'mp4' : loadVideoAsAsset,
 
     // json
     'json' : loadJSON,

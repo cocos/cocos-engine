@@ -1,6 +1,6 @@
 /**
- * 物理模块
- * @category physics
+ * @packageDocumentation
+ * @module physics
  */
 
 import {
@@ -350,13 +350,6 @@ export class RigidBody extends Component {
         return !r;
     }
 
-    protected get _assertUseCollisionMatrix (): boolean {
-        if (PhysicsSystem.instance.useCollisionMatrix) {
-            error('[Physics]: useCollisionMatrix is turn on, using collision matrix instead please.');
-        }
-        return PhysicsSystem.instance.useCollisionMatrix;
-    }
-
     /// COMPONENT LIFECYCLE ///
 
     protected onLoad () {
@@ -615,7 +608,7 @@ export class RigidBody extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addGroup (v: number) {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+        if (this._assertOnLoadCalled) {
             this._body!.addGroup(v);
         }
     }
@@ -628,7 +621,7 @@ export class RigidBody extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeGroup (v: number) {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+        if (this._assertOnLoadCalled) {
             this._body!.removeGroup(v);
         }
     }
@@ -655,7 +648,7 @@ export class RigidBody extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public setMask (v: number) {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+        if (this._assertOnLoadCalled) {
             this._body!.setMask(v);
         }
     }
@@ -668,7 +661,7 @@ export class RigidBody extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addMask (v: number) {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+        if (this._assertOnLoadCalled) {
             this._body!.addMask(v);
         }
     }
@@ -681,7 +674,7 @@ export class RigidBody extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeMask (v: number) {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+        if (this._assertOnLoadCalled) {
             this._body!.removeMask(v);
         }
     }

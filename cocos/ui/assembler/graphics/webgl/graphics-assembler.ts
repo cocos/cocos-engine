@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,16 +24,16 @@
 */
 
 /**
- * @category ui-assembler
+ * @packageDocumentation
+ * @module ui-assembler
  */
 
-import { createMesh } from '../../../../core/3d/misc/utils';
-import { GFXPrimitiveMode, GFXAttributeName, GFXFormat } from '../../../../core/gfx';
+import { GFXAttribute, GFXFormat } from '../../../../core/gfx';
 import { Color, Vec3 } from '../../../../core/math';
 import { IAssembler } from '../../../../core/renderer/ui/base';
 import { MeshRenderData } from '../../../../core/renderer/ui/render-data';
 import { UI } from '../../../../core/renderer/ui/ui';
-import { vfmt } from '../../../../core/renderer/ui/ui-vertex-format';
+import { vfmtPosColor, getAttributeFormatBytes } from '../../../../core/renderer/ui/ui-vertex-format';
 import { Graphics } from '../../../components';
 import { LineCap, LineJoin, PointFlags } from '../types';
 import { earcut as Earcut } from './earcut';
@@ -50,33 +50,14 @@ const acos = Math.acos;
 const cos = Math.cos;
 const sin = Math.sin;
 const atan2 = Math.atan2;
-const abs = Math.abs;
 
 const attrBytes = 8;
 
-const attrs = [
-    {
-        name: GFXAttributeName.ATTR_POSITION,
-        format: GFXFormat.RGB32F,
-    },
-    {
-        name: GFXAttributeName.ATTR_COLOR,
-        format: GFXFormat.RGBA32F,
-    },
-];
+const attributes = vfmtPosColor.concat([
+    new GFXAttribute('a_dist', GFXFormat.R32F),
+]);
 
-let customAttributes = {
-    dist: {
-        name: 'a_dist',
-        format: GFXFormat.R32F
-    },
-}
-
-
-const positions: number[] = [];
-const colors: number[] = [];
-const indices: number[] = [];
-const dists: number[] = [];
+const formatBytes = getAttributeFormatBytes(attributes);
 
 let _renderData: MeshRenderData | null = null;
 let _impl: Impl | null = null;
@@ -113,10 +94,7 @@ export const graphicsAssembler: IAssembler = {
     },
 
     updateRenderData (graphics: Graphics) {
-        const dataList = graphics.impl ? graphics.impl.getRenderData() : [];
-        for (let i = 0, l = dataList.length; i < l; i++) {
-            dataList[i].material = graphics.getUIMaterialInstance();
-        }
+
     },
 
     fillBuffers (graphics: Graphics, renderer: UI) {
@@ -142,7 +120,6 @@ export const graphicsAssembler: IAssembler = {
         const maxVertexCount = meshBuffer ? meshBuffer.vertexCount + vertexCount : 0;
         if (maxVertexCount > MAX_VERTEX || maxVertexCount * 3 > MAX_INDICES) {
             ++_impl.dataOffset;
-            // maxVertexCount = vertexCount;
 
             if (_impl.dataOffset < renderDataList.length) {
                 renderData = renderDataList[_impl.dataOffset];
@@ -152,7 +129,6 @@ export const graphicsAssembler: IAssembler = {
                 renderDataList[_impl.dataOffset] = renderData;
             }
 
-            renderData.material = graphics.getUIMaterialInstance();
             meshBuffer = renderData;
         }
 
@@ -191,61 +167,36 @@ export const graphicsAssembler: IAssembler = {
     },
 
     end (graphics: Graphics) {
-        if (graphics.model && graphics.model.inited) {
-            graphics.model.destroy();
-        }
         const impl = graphics.impl;
-        const primitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
         const renderDataList = impl && impl.getRenderData();
-        if (!renderDataList) {
+        if (!renderDataList || !graphics.model) {
             return;
         }
 
-        let i = 0;
-        positions.length = 0;
-        dists.length = 0;
-        colors.length = 0;
-        indices.length = 0;
-        for (const renderData of renderDataList) {
-            let len = renderData.byteCount >> 2;
-            const vData = renderData.vData;
-            for (i = 0; i < len;) {
-                positions.push(vData[i++]);
-                positions.push(vData[i++]);
-                positions.push(vData[i++]);
-                colors.push(vData[i++]);
-                colors.push(vData[i++]);
-                colors.push(vData[i++]);
-                colors.push(vData[i++]);
-                dists.push(vData[i++]);
-            }
-
-            len = renderData.indicesCount;
-            const iData = renderData.iData;
-            for (i = 0; i < len;) {
-                indices.push(iData[i++]);
+        const subModelCount = graphics.model.subModels.length;
+        const listLength = renderDataList.length;
+        const delta = listLength - subModelCount;
+        if (delta > 0) {
+            for (let k = subModelCount; k < listLength; k++) {
+                graphics.activeSubModel(k);
             }
         }
 
-        if(positions.length === 0 && dists.length === 0 && colors.length === 0 || indices.length === 0)
-            return;
+        const subModelList = graphics.model.subModels;
+        for (let i = 0; i < renderDataList.length; i++){
+            const renderData = renderDataList[i];
+            const ia = subModelList[i].inputAssembler;
+            const vertexFormatBytes = Float32Array.BYTES_PER_ELEMENT * formatBytes;
+            const byteOffset = renderData.vertexStart * vertexFormatBytes;
+            const verticesData = new Float32Array(renderData.vData!.buffer, 0, byteOffset >> 2);
+            ia.vertexCount = renderData.vertexStart;
+            ia.vertexBuffers[0].update(verticesData);
 
-        const mesh = createMesh({
-            primitiveMode,
-            positions,
-            colors,
-            attributes: attrs,
-            customAttributes: [
-                {
-                    attr: customAttributes.dist,
-                    values: dists
-                }
-            ],
-            indices,
-        }, undefined, { calculateBounds: false });
-        
-        graphics.model!.initialize(graphics.node);
-        graphics.model!.initSubModel(0, mesh.renderingSubMeshes[0], graphics.getUIMaterialInstance()!);
+            const indicesData = new Uint16Array(renderData.iData!.buffer, 0, renderData.indicesStart);
+            ia.indexCount = renderData.indicesStart;
+            ia.indexBuffer!.update(indicesData);
+        }
+
         graphics.markForUpdateRenderData();
     },
 
@@ -322,6 +273,8 @@ export const graphicsAssembler: IAssembler = {
                 end = pointsLength - 1;
             }
 
+            p1 = p1 || p0;
+
             if (!loop) {
                 // Add cap
                 const dPos = new Point(p1.x, p1.y);
@@ -360,9 +313,9 @@ export const graphicsAssembler: IAssembler = {
 
             if (loop) {
                 // Loop it
-                let vDataOffset = offset * attrBytes;
-                this._vSet(vData[vDataOffset], vData[vDataOffset+1], 1);
-                this._vSet(vData[vDataOffset+attrBytes], vData[vDataOffset+attrBytes+1], -1);
+                const vDataOffset = offset * attrBytes;
+                this._vSet(vData[vDataOffset], vData[vDataOffset + 1], 1);
+                this._vSet(vData[vDataOffset + attrBytes], vData[vDataOffset + attrBytes + 1], -1);
             } else {
                 // Add cap
                 const dPos = new Point(p1.x, p1.y);
@@ -569,7 +522,7 @@ export const graphicsAssembler: IAssembler = {
             let p0 = pts[pts.length - 1];
             let p1 = pts[0];
 
-            if (p0.equals(p1)) {
+            if (pts.length > 2 && p0.equals(p1)) {
                 path.closed = true;
                 pts.pop();
                 p0 = pts[pts.length - 1];
@@ -789,6 +742,6 @@ export const graphicsAssembler: IAssembler = {
         Color.toArray(vData!, _curColor, dataOffset);
         dataOffset += 4;
         vData[dataOffset++] = distance;
-        meshBuffer.vertexStart ++;
+        meshBuffer.vertexStart++;
     },
 };

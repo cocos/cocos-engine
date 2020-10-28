@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,7 +24,8 @@
  */
 
 /**
- * @category loader
+ * @packageDocumentation
+ * @module loader
  */
 
 import {mixin} from '../utils/js';
@@ -35,6 +36,7 @@ import downloadBinary from './binary-downloader';
 import downloadText from './text-downloader';
 import {urlAppendTimestamp} from './utils';
 import { downloadAudio } from '../../audio/audio-downloader';
+import { downloadVideo } from "../../video/video-downloader";
 import { legacyCC } from '../global-exports';
 
 function skip () {
@@ -145,6 +147,9 @@ let defaultMap = {
     'wav' : downloadAudio,
     'm4a' : downloadAudio,
 
+    // Video
+    'mp4' : downloadVideo,
+
     // Txt
     'txt' : downloadText,
     'xml' : downloadText,
@@ -222,7 +227,7 @@ export default class Downloader implements IPipe {
     /**
      * @en Set sub package configurations, only available in certain platforms
      * @zh 设置子包配置，只在部分平台支持
-     * @param subPackages 
+     * @param subPackages
      */
     setSubPackages (subPackages) {
         this._subPackages = subPackages;

@@ -1,22 +1,30 @@
 /**
- * @category gfx
+ * @packageDocumentation
+ * @module gfx
  */
 
-import { GFXDescriptorType, GFXObject, GFXObjectType, GFXShaderStageFlags } from './define';
+import { GFXDescriptorType, GFXObject, GFXObjectType, GFXShaderStageFlagBit, GFXShaderStageFlags } from './define';
 import { GFXDevice } from './device';
 import { GFXSampler } from './sampler';
 
-export interface IGFXDescriptorSetLayoutBinding {
-    descriptorType: GFXDescriptorType;
-    count: number;
-    stageFlags: GFXShaderStageFlags;
-    immutableSamplers?: GFXSampler[];
+export class GFXDescriptorSetLayoutBinding {
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public binding: number = -1,
+        public descriptorType: GFXDescriptorType = GFXDescriptorType.UNKNOWN,
+        public count: number = 0,
+        public stageFlags: GFXShaderStageFlags = GFXShaderStageFlagBit.NONE,
+        public immutableSamplers: GFXSampler[] = [],
+    ) {}
 }
 
-export interface IGFXDescriptorSetLayoutInfo {
-    // array index is used as the binding numbers,
-    // i.e. they should be strictly consecutive and start from 0
-    bindings: IGFXDescriptorSetLayoutBinding[];
+export class GFXDescriptorSetLayoutInfo {
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public bindings: GFXDescriptorSetLayoutBinding[] = []
+    ) {}
 }
 
 export const DESCRIPTOR_DYNAMIC_TYPE = GFXDescriptorType.DYNAMIC_STORAGE_BUFFER | GFXDescriptorType.DYNAMIC_UNIFORM_BUFFER;
@@ -31,13 +39,19 @@ export abstract class GFXDescriptorSetLayout extends GFXObject {
         return this._bindings;
     }
 
+    get bindingIndices () {
+        return this._bindingIndices;
+    }
+
     get descriptorIndices () {
         return this._descriptorIndices;
     }
 
     protected _device: GFXDevice;
 
-    protected _bindings: IGFXDescriptorSetLayoutBinding[] = [];
+    protected _bindings: GFXDescriptorSetLayoutBinding[] = [];
+
+    protected _bindingIndices: number[] = [];
 
     protected _descriptorIndices: number[] = [];
 
@@ -46,7 +60,7 @@ export abstract class GFXDescriptorSetLayout extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: IGFXDescriptorSetLayoutInfo): boolean;
+    public abstract initialize (info: GFXDescriptorSetLayoutInfo): boolean;
 
     public abstract destroy (): void;
 }

@@ -1,5 +1,6 @@
 /**
- * @category decorator
+ * @packageDocumentation
+ * @module decorator
  */
 
 import { CCString, CCInteger, CCFloat, CCBoolean } from '../utils/attribute';
@@ -7,7 +8,7 @@ import { IExposedAttributes } from '../utils/attribute-defines';
 import { LegacyPropertyDecorator, getSubDict, getClassCache } from './utils';
 import { warnID, errorID } from '../../platform/debug';
 import { js } from '../../utils/js';
-import { DEV } from 'internal:constants';
+import { DEV, EDITOR, TEST } from 'internal:constants';
 import { getFullFormOfProperty } from '../utils/preprocess-class';
 
 export type SimplePropertyType = Function | string | typeof CCString | typeof CCInteger | typeof CCFloat | typeof CCBoolean;
@@ -93,7 +94,7 @@ function getDefaultFromInitializer (initializer) {
     }
     else {
         // The default attribute will not be used in ES6 constructor actually,
-        // so we dont need to simplify into `{}` or `[]` or vec2 completely.
+        // so we don't need to simplify into `{}` or `[]` or vec2 completely.
         return initializer;
     }
 }
@@ -121,28 +122,29 @@ function genProperty (
     cache,
 ) {
     let fullOptions;
+    let isGetset = descriptor && (descriptor.get || descriptor.set);
     if (options) {
-        fullOptions = DEV ? getFullFormOfProperty(options, propertyKey, js.getClassName(ctor)) :
-            getFullFormOfProperty(options);
+        fullOptions = DEV ? getFullFormOfProperty(options, isGetset, propertyKey, js.getClassName(ctor)) :
+            getFullFormOfProperty(options, isGetset);
         fullOptions = fullOptions || options;
     }
     const existsPropertyRecord = properties[propertyKey];
-    const propertyRecord = js.mixin(existsPropertyRecord || {}, fullOptions || {});
+    const propertyRecord = js.mixin(existsPropertyRecord || {}, fullOptions || options || {});
 
-    if (descriptor && (descriptor.get || descriptor.set)) { // If the target property is accessor
+    if (isGetset) {
         // typescript or babel
-        if (DEV && options && (options.get || options.set)) {
+        if (DEV && options && (fullOptions.get || fullOptions.set)) {
             const errorProps = getSubDict(cache, 'errorProps');
             if (!errorProps[propertyKey]) {
                 errorProps[propertyKey] = true;
                 warnID(3655, propertyKey, js.getClassName(ctor), propertyKey, propertyKey);
             }
         }
-        if (descriptor.get) {
-            propertyRecord.get = descriptor.get;
+        if (descriptor!.get) {
+            propertyRecord.get = descriptor!.get;
         }
-        if (descriptor.set) {
-            propertyRecord.set = descriptor.set;
+        if (descriptor!.set) {
+            propertyRecord.set = descriptor!.set;
         }
     } else { // Target property is non-accessor
         if (DEV && (propertyRecord.get || propertyRecord.set)) {
@@ -171,8 +173,8 @@ function genProperty (
             }
         }
 
-        if (DEV) {
-            if (options && options.hasOwnProperty('default')) {
+        if ((EDITOR && !window.Build) || TEST) {
+            if (!fullOptions && options && options.hasOwnProperty('default')) {
                 warnID(3653, propertyKey, js.getClassName(ctor));
             } else if (!isDefaultValueSpecified) {
                 warnID(3654, js.getClassName(ctor), propertyKey);

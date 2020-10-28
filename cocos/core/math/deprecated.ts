@@ -1,8 +1,9 @@
 /**
+ * @packageDocumentation
  * @hidden
  */
 
-import { removeProperty, replaceProperty } from '../utils/deprecated';
+import { removeProperty, replaceProperty } from '../utils/x-deprecated';
 import { Color } from './color';
 import { Mat3 } from './mat3';
 import { Mat4 } from './mat4';
@@ -384,6 +385,12 @@ replaceProperty(Mat3, 'Mat3', [
     {
         name: 'exactEquals',
         newName: 'strictEquals',
+        target: Mat3,
+        targetName: 'Mat3',
+    },
+    {
+        name: 'transfrom',
+        newName: 'transform',
         target: Mat3,
         targetName: 'Mat3',
     },

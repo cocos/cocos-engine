@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,10 +25,12 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
-import { SpriteAtlas, SpriteFrame } from '../../core/assets';
+import { SpriteAtlas } from '../../core/assets/sprite-atlas';
+import { SpriteFrame } from '../../core/assets/sprite-frame';
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable } from 'cc.decorator';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { Vec2 } from '../../core/math';
@@ -575,8 +577,7 @@ export class Sprite extends UIRenderable {
     }
 
     protected _render (render: UI) {
-        render.commitComp(this, this._spriteFrame!.getGFXTexture(), this._assembler!, this._spriteFrame!.texture.getGFXSampler());
-        // render.commitComp(this, this._spriteFrame!.getGFXTextureView(), this._assembler!);
+        render.commitComp(this, this._spriteFrame, this._assembler!);
     }
 
     protected _canRender () {

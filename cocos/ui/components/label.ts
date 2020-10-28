@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,7 +25,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { BitmapFont, Font, ImageAsset, SpriteFrame, Texture2D, Material } from '../../core/assets';
@@ -119,7 +120,7 @@ export enum Overflow {
      * @en In SHRINK mode, the font size will change dynamically to adapt the content size.
      * This mode may takes up more CPU resources when the label is refreshed.
      *
-     * @zh SHRINK 模式，字体大小会动态变化，以适应内容大小。
+     * @zh SHRINK 模式，字体大小会动态变化，以适应内容大小。这个模式在文本刷新的时候可能会占用较多 CPU 资源。
      */
     SHRINK = 2,
     /**
@@ -730,7 +731,7 @@ export class Label extends UIRenderable {
     }
 
     protected _render (render: UI) {
-        render.commitComp(this, this._texture!.getGFXTexture(), this._assembler!, this._texture!.getGFXSampler());
+        render.commitComp(this, this._texture, this._assembler!);
     }
 
     protected _updateColor () {

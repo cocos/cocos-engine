@@ -1,4 +1,5 @@
 /**
+ * @packageDocumentation
  * @hidden
  */
 
@@ -25,11 +26,6 @@ export class ColorKey {
     public time = 0;
 }
 
-// CCClass.fastDefine('cc.ColorKey', ColorKey, {
-//     color: cc.Color.WHITE.clone(),
-//     time: 0
-// });
-
 @ccclass('cc.AlphaKey')
 export class AlphaKey {
 
@@ -41,11 +37,6 @@ export class AlphaKey {
     @editable
     public time = 0;
 }
-
-// CCClass.fastDefine('cc.AlphaKey', AlphaKey, {
-//     alpha: 1,
-//     time: 0
-// });
 
 @ccclass('cc.Gradient')
 export default class Gradient {
@@ -156,9 +147,3 @@ export default class Gradient {
         }
     }
 }
-
-// CCClass.fastDefine('cc.Gradient', Gradient, {
-//     mode: Mode.Blend,
-//     colorKeys: [],
-//     alphaKeys: []
-// });

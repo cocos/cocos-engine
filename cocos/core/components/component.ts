@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -27,7 +27,8 @@
 // tslint:disable
 
 /**
- * @category component
+ * @packageDocumentation
+ * @module component
  */
 
 import { Script } from '../assets/scripts';
@@ -42,6 +43,7 @@ import { Node } from '../scene-graph';
 import { EDITOR, TEST, DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { errorID, warnID, assertID } from '../platform/debug';
+import { CompPrefabInfo } from '../utils';
 
 const idGenerator = new IDGenerator('Comp');
 // @ts-ignore
@@ -173,6 +175,12 @@ class Component extends CCObject {
      */
     @serializable
     public _enabled = true;
+
+    /**
+     * @private
+     */
+    @serializable
+    public __prefab: CompPrefabInfo | null = null;
 
     /**
      * @private
@@ -412,9 +420,10 @@ class Component extends CCObject {
      */
     public schedule (callback, interval: number = 0, repeat: number = legacyCC.macro.REPEAT_FOREVER, delay: number = 0) {
         assertID(callback, 1619);
-        assertID(interval >= 0, 1620);
 
         interval = interval || 0;
+        assertID(interval >= 0, 1620);
+
         repeat = isNaN(repeat) ? legacyCC.macro.REPEAT_FOREVER : repeat;
         delay = delay || 0;
 

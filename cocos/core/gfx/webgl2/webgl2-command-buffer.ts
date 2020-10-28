@@ -1,15 +1,12 @@
 import { GFXDescriptorSet } from '../descriptor-set';
 import { GFXBuffer, GFXBufferSource } from '../buffer';
-import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
+import { GFXCommandBuffer, GFXCommandBufferInfo } from '../command-buffer';
 import {
-    GFXBufferTextureCopy,
     GFXBufferUsageBit,
     GFXCommandBufferType,
     GFXStencilFace,
-    GFXColor,
-    GFXRect,
-    GFXViewport,
 } from '../define';
+import { GFXBufferTextureCopy, GFXColor, GFXRect, GFXViewport } from '../define-class';
 import { GFXFramebuffer } from '../framebuffer';
 import { GFXInputAssembler } from '../input-assembler';
 import { GFXPipelineState } from '../pipeline-state';
@@ -77,7 +74,7 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
     protected _isStateInvalied: boolean = false;
 
 
-    public initialize (info: IGFXCommandBufferInfo): boolean {
+    public initialize (info: GFXCommandBufferInfo): boolean {
 
         this._type = info.type;
         this._queue = info.queue;
@@ -186,14 +183,7 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
 
     public setViewport (viewport: GFXViewport) {
         if (!this._curViewport) {
-            this._curViewport = {
-                left: viewport.left,
-                top: viewport.top,
-                width: viewport.width,
-                height: viewport.height,
-                minDepth: viewport.minDepth,
-                maxDepth: viewport.maxDepth,
-            };
+            this._curViewport = new GFXViewport(viewport.left, viewport.top, viewport.width, viewport.height, viewport.minDepth, viewport.maxDepth);
         } else {
             if (this._curViewport.left !== viewport.left ||
                 this._curViewport.top !== viewport.top ||
@@ -215,12 +205,7 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
 
     public setScissor (scissor: GFXRect) {
         if (!this._curScissor) {
-            this._curScissor = {
-                x: scissor.x,
-                y: scissor.y,
-                width: scissor.width,
-                height: scissor.height,
-            };
+            this._curScissor = new GFXRect(scissor.x, scissor.y, scissor.width, scissor.height);
         } else {
             if (this._curScissor.x !== scissor.x ||
                 this._curScissor.y !== scissor.y ||
@@ -381,16 +366,21 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
             const gpuBuffer = (buffer as WebGL2Buffer).gpuBuffer;
             if (gpuBuffer) {
                 const cmd = this._webGLAllocator!.updateBufferCmdPool.alloc(WebGL2CmdUpdateBuffer);
-                let buffSize;
-                if (size !== undefined ) {
-                    buffSize = size;
-                } else if (buffer.usage & GFXBufferUsageBit.INDIRECT) {
-                    buffSize = 0;
-                } else {
-                    buffSize = (data as ArrayBuffer).byteLength;
-                }
+                let buffSize = 0;
+                let buff: GFXBufferSource | null = null;
 
-                const buff = data as ArrayBuffer;
+                // TODO: Have to copy to staging buffer first to make this work for the execution is deferred.
+                // But since we are using specialized primary command buffers in WebGL backends, we leave it as is for now
+                if (buffer.usage & GFXBufferUsageBit.INDIRECT) {
+                    buff = data;
+                } else {
+                    if (size !== undefined) {
+                        buffSize = size;
+                    } else {
+                        buffSize = (data as ArrayBuffer).byteLength;
+                    }
+                    buff = data;
+                }
 
                 cmd.gpuBuffer = gpuBuffer;
                 cmd.buffer = buff;
@@ -406,17 +396,18 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
     }
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
-
         if (this._type === GFXCommandBufferType.PRIMARY && !this._isInRenderPass ||
             this._type === GFXCommandBufferType.SECONDARY) {
             const gpuTexture = (texture as WebGL2Texture).gpuTexture;
             if (gpuTexture) {
                 const cmd = this._webGLAllocator!.copyBufferToTextureCmdPool.alloc(WebGL2CmdCopyBufferToTexture);
                 cmd.gpuTexture = gpuTexture;
-                cmd.buffers = buffers;
                 cmd.regions = regions;
-                this.cmdPackage.copyBufferToTextureCmds.push(cmd);
+                // TODO: Have to copy to staging buffer first to make this work for the execution is deferred.
+                // But since we are using specialized primary command buffers in WebGL backends, we leave it as is for now
+                cmd.buffers = buffers;
 
+                this.cmdPackage.copyBufferToTextureCmds.push(cmd);
                 this.cmdPackage.cmds.push(WebGL2Cmd.COPY_BUFFER_TO_TEXTURE);
             }
         } else {
@@ -425,7 +416,6 @@ export class WebGL2CommandBuffer extends GFXCommandBuffer {
     }
 
     public execute (cmdBuffs: GFXCommandBuffer[], count: number) {
-
         for (let i = 0; i < count; ++i) {
             const webGL2CmdBuff = cmdBuffs[i] as WebGL2CommandBuffer;
 

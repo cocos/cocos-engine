@@ -1,5 +1,6 @@
 /**
- * @category gfx
+ * @packageDocumentation
+ * @module gfx
  */
 
 import { GFXBuffer } from './buffer';
@@ -10,17 +11,34 @@ import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 export interface IGFXAttribute {
     name: string;
     format: GFXFormat;
-    isNormalized?: boolean;
-    stream?: number;
-    isInstanced?: boolean;
-    location?: number;
+    isNormalized: boolean;
+    tream: number;
+    isInstanced: boolean;
+    location: number;
 }
 
-export interface IGFXInputAssemblerInfo {
-    attributes: IGFXAttribute[];
-    vertexBuffers: GFXBuffer[];
-    indexBuffer?: GFXBuffer;
-    indirectBuffer?: GFXBuffer;
+export class GFXAttribute {
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public name: string = '',
+        public format: GFXFormat = GFXFormat.UNKNOWN,
+        public isNormalized: boolean = false,
+        public stream: number = 0,
+        public isInstanced: boolean = false,
+        public location: number = 0,
+    ) {}
+}
+
+export class GFXInputAssemblerInfo {
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public attributes: GFXAttribute[] = [],
+        public vertexBuffers: GFXBuffer[] = [],
+        public indexBuffer: GFXBuffer | null = null,
+        public indirectBuffer: GFXBuffer | null = null,
+    ) {}
 }
 
 /**
@@ -49,7 +67,7 @@ export abstract class GFXInputAssembler extends GFXObject {
      * @en Get current attributes.
      * @zh 顶点属性数组。
      */
-    get attributes (): IGFXAttribute[] {
+    get attributes (): GFXAttribute[] {
         return this._attributes;
     }
 
@@ -155,7 +173,7 @@ export abstract class GFXInputAssembler extends GFXObject {
 
     protected _device: GFXDevice;
 
-    protected _attributes: IGFXAttribute[] = [];
+    protected _attributes: GFXAttribute[] = [];
 
     protected _vertexBuffers: GFXBuffer[] = [];
 
@@ -184,7 +202,7 @@ export abstract class GFXInputAssembler extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: IGFXInputAssemblerInfo): boolean;
+    public abstract initialize (info: GFXInputAssemblerInfo): boolean;
     public abstract destroy (): void;
 
     /**

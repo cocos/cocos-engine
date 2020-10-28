@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -25,7 +25,7 @@
 
 /**
  * ui 相关模块
- * @category ui
+ * @module ui
  */
 
 

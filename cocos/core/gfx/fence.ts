@@ -1,12 +1,16 @@
 /**
- * @category gfx
+ * @packageDocumentation
+ * @module gfx
  */
 
 import { GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 
-// tslint:disable-next-line: no-empty-interface
-export interface IGFXFenceInfo {
+export class GFXFenceInfo {
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+    ){}
 }
 
 /**
@@ -22,19 +26,7 @@ export abstract class GFXFence extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: IGFXFenceInfo): boolean;
+    public abstract initialize (info: GFXFenceInfo): boolean;
 
     public abstract destroy (): void;
-
-    /**
-     * @en Wait for this fence.
-     * @zh 等待当前 fence 信号。
-     */
-    public abstract wait (): void;
-
-    /**
-     * @en Reset this fence to unsignaled state.
-     * @zh 重置当前 fence。
-     */
-    public abstract reset (): void;
 }

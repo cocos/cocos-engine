@@ -1,8 +1,9 @@
 /**
- * @category pipeline
+ * @packageDocumentation
+ * @module pipeline
  */
 
-import { CCString } from '../data';
+import { CCString } from '../data/utils/attribute';
 import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { GFXFormat, GFXLoadOp, GFXStoreOp, GFXTextureLayout, GFXTextureType, GFXTextureUsageBit} from '../gfx/define';
 import { ccenum } from '../value-types/enum';

@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -24,15 +24,16 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 // @ts-check
 import {ccclass, override} from 'cc.decorator';
-import { GFXDevice, GFXFeature } from '../gfx/device';
+import { GFXDevice, GFXFeature } from '../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
-import { EDITOR, MINIGAME, ALIPAY, XIAOMI, BYTEDANCE, JSB, TEST } from 'internal:constants';
+import { EDITOR, MINIGAME, ALIPAY, XIAOMI, JSB, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 
@@ -63,9 +64,6 @@ function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElem
     if (ALIPAY || XIAOMI) {
         // We're unable to grab the constructors of Alipay native image or canvas object.
         return !('_data' in imageSource);
-    }
-    else if (BYTEDANCE && typeof window.sharedCanvas === 'object' && imageSource instanceof window.sharedCanvas.constructor) {
-        return true;
     }
     else if (JSB && (imageSource as IMemoryImageSource)._compressed === true) {
         return false;
@@ -269,7 +267,7 @@ export class ImageAsset extends Asset {
         }
     }
 
-    public _deserialize (data: any, handle: any) {
+    public _deserialize (data: any) {
         let fmtStr = '';
         if (typeof data === 'string') {
             fmtStr = data;
@@ -282,6 +280,7 @@ export class ImageAsset extends Asset {
         const device = _getGlobalDevice();
         const extensionIDs = fmtStr.split('_');
 
+        let defaultExt = '';
         let preferedExtensionIndex = Number.MAX_VALUE;
         let format = this._format;
         let ext = '';
@@ -290,7 +289,7 @@ export class ImageAsset extends Asset {
             const extFormat = extensionID.split('@');
 
             const i = parseInt(extFormat[0], undefined);
-            const tmpExt = ImageAsset.extnames[i] || extFormat.join();
+            const tmpExt = ImageAsset.extnames[i] || extFormat[0];
 
             const index = SupportTextureFormats.indexOf(tmpExt);
             if (index !== -1 && index < preferedExtensionIndex) {
@@ -313,19 +312,18 @@ export class ImageAsset extends Asset {
                 ext = tmpExt;
                 format = fmt;
             }
+            else if (!defaultExt) {
+                defaultExt = tmpExt;
+            }
         }
 
         if (ext) {
             this._setRawAsset(ext);
             this._format = format;
         }
-
-        // preset uuid to get correct nativeUrl
-        const loadingItem = handle.customEnv;
-        const uuid = loadingItem && loadingItem.uuid;
-        if (uuid) {
-            this._uuid = uuid;
-            this._url = this.nativeUrl;
+        else {
+            this._setRawAsset(defaultExt);
+            warnID(3120, defaultExt, defaultExt);
         }
     }
 

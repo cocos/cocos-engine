@@ -1,5 +1,6 @@
 /**
- * @category gfx
+ * @packageDocumentation
+ * @module gfx
  */
 
 import {
@@ -15,27 +16,35 @@ import {
 } from './define';
 import { GFXDevice } from './device';
 
-export interface IGFXTextureInfo {
-    type: GFXTextureType;
-    usage: GFXTextureUsage;
-    format: GFXFormat;
-    width: number;
-    height: number;
-    depth?: number;
-    layerCount?: number;
-    levelCount?: number;
-    samples?: GFXSampleCount;
-    flags?: GFXTextureFlags;
+export class GFXTextureInfo {
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public type: GFXTextureType,
+        public usage: GFXTextureUsage = GFXTextureUsageBit.NONE,
+        public format: GFXFormat = GFXFormat.UNKNOWN,
+        public width: number = 0,
+        public height: number = 0,
+        public flags: GFXTextureFlags = GFXTextureFlagBit.NONE,
+        public layerCount: number = 1,
+        public levelCount: number = 1,
+        public samples: GFXSampleCount = GFXSampleCount.X1,
+        public depth: number = 1,
+    ) {}
 }
 
-export interface IGFXTextureViewInfo {
-    texture: GFXTexture;
-    type: GFXTextureType;
-    format: GFXFormat;
-    baseLevel?: number;
-    levelCount?: number;
-    baseLayer?: number;
-    layerCount?: number;
+export class GFXTextureViewInfo {
+    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public texture: GFXTexture,
+        public type: GFXTextureType = GFXTextureType.TEX2D,
+        public format: GFXFormat = GFXFormat.UNKNOWN,
+        public baseLevel: number = 0,
+        public levelCount: number = 1,
+        public baseLayer: number = 0,
+        public layerCount: number = 1,
+    ) {}
 }
 
 export function IsPowerOf2 (x: number): boolean{
@@ -147,29 +156,17 @@ export abstract class GFXTexture extends GFXObject {
     protected _device: GFXDevice;
 
     protected _type: GFXTextureType = GFXTextureType.TEX2D;
-
     protected _usage: GFXTextureUsage = GFXTextureUsageBit.NONE;
-
     protected _format: GFXFormat = GFXFormat.UNKNOWN;
-
     protected _width: number = 0;
-
     protected _height: number = 0;
-
     protected _depth: number = 1;
-
     protected _layerCount: number = 1;
-
     protected _levelCount: number = 1;
-
     protected _samples: GFXSampleCount = GFXSampleCount.X1;
-
     protected _flags: GFXTextureFlags = GFXTextureFlagBit.NONE;
-
     protected _isPowerOf2: boolean = false;
-
     protected _size: number = 0;
-
     protected _buffer: ArrayBuffer | null = null;
 
     constructor (device: GFXDevice) {
@@ -177,7 +174,7 @@ export abstract class GFXTexture extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: IGFXTextureInfo): boolean;
+    public abstract initialize (info: GFXTextureInfo): boolean;
 
     public abstract destroy (): void;
 

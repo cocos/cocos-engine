@@ -1,6 +1,7 @@
 
 /**
- * @category animation
+ * @packageDocumentation
+ * @module animation
  */
 
 import { ccenum } from '../value-types/enum';
