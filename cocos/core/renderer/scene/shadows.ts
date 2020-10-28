@@ -236,7 +236,16 @@ export class Shadows {
         return this._handle;
     }
 
+    /**
+     * @en The bounding sphere of the shadow map
+     * @zh 用于计算阴影 Shadow map 的场景包围球
+     */
     public sphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
+
+    /**
+     * @en get or set shadow auto control
+     * @zh 获取或者设置阴影是否自动控制
+     */
     public receiveSphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
 
     protected _normal = new Vec3(0, 1, 0);
