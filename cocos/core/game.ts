@@ -982,10 +982,11 @@ export class Game extends EventTarget {
     private _setupRenderPipelineAndShowSplashScreen () {
         return Promise.resolve(this._setupRenderPipeline()).then(() => {
             this._safeEmit(Game.EVENT_GAME_INITED);
-            if (this.onStart) {
-                this.onStart();
-            }
-            return this._showSplashScreen();
+            return Promise.resolve(this._showSplashScreen()).then(() => {
+                if (this.onStart) {
+                    this.onStart();
+                }
+            });
         });
     }
 
