@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -108,7 +108,7 @@ export class AudioPlayerWeb extends AudioPlayer {
         }
         if (this._blocking || this._context.state !== 'running') {
             this._interrupted = true;
-            if (('interrupted' === this._context.state as string || 'suspended' === this._context.state as string) 
+            if (('interrupted' === this._context.state as string || 'suspended' === this._context.state as string)
                 && this._context.resume) {
                 this._onGesture();
             }
