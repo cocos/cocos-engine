@@ -695,7 +695,7 @@ export class UI {
     }
 
     private _recursiveScreenNode (screen: Node) {
-        // allocate id for invokation of `walk`
+        // allocate id for invocation of `walk`
         this._walkGen += 1;
         this.walk(screen);
         if (this._walkGen > 1000000) this._walkGen = 0;
