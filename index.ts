@@ -19,3 +19,4 @@ export * from './exports/physics-cannon';
 export * from './exports/physics-ammo';
 export * from './exports/physics-2d-framework';
 export * from './exports/physics-2d-box2d';
+export * from './exports/particle-2d';

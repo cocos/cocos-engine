@@ -103,12 +103,3 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
         Vec3.copy(p.ultimateVelocity, p.velocity);
     }
 }
-
-// CCClass.fastDefine('cc.ForceOvertimeModule',ForceOvertimeModule,{
-//     enable : false,
-//     x : new CurveRange(),
-//     y : new CurveRange(),
-//     z : new CurveRange(),
-//     space : Space.Local,
-//     randomized : false
-// });

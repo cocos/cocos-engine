@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -141,7 +141,7 @@ export class Camera extends Component {
     }
 
     /**
-     * @en Render priority of the camera, in ascending-order.
+     * @en Render priority of the camera. Cameras with higher depth are rendered after cameras with lower depth.
      * @zh 相机的渲染优先级，值越小越优先渲染。
      */
     @displayOrder(0)

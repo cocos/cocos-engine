@@ -4,12 +4,11 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { GFXColor, GFXRect } from '../../gfx/define';
+import { GFXColor, GFXRect, GFXFramebuffer } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from '../forward/enum';
-import { RenderShadowMapBatchedQueue } from '../render-shadowMap-batched-queue';
-import { GFXFramebuffer } from '../../gfx/framebuffer';
+import { RenderShadowMapBatchedQueue } from '../render-shadow-map-batched-queue';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { SetIndex, UBOShadow } from '../define';
 
@@ -34,7 +33,7 @@ export class ShadowStage extends RenderStage {
     /**
      * @en Sets the frame buffer for shadow map
      * @zh 设置阴影渲染的 FrameBuffer
-     * @param shadowFrameBuffer 
+     * @param shadowFrameBuffer
      */
     public setShadowFrameBuffer (shadowFrameBuffer: GFXFramebuffer) {
         this._shadowFrameBuffer = shadowFrameBuffer;

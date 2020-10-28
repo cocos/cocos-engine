@@ -29,7 +29,6 @@
     }
 
     const EditBox = cc.EditBoxComponent;
-    const js = cc.js;
     const KeyboardReturnType = EditBox.KeyboardReturnType;
     const InputMode = EditBox.InputMode;
     const InputFlag = EditBox.InputFlag;
@@ -72,21 +71,14 @@
     }
 
     const BaseClass = EditBox._EditBoxImpl;
-    function JsbEditBoxImpl () {
-        BaseClass.call(this);
-    }
-
-    js.extend(JsbEditBoxImpl, BaseClass);
-    EditBox._EditBoxImpl = JsbEditBoxImpl;
-
-    Object.assign(JsbEditBoxImpl.prototype, {
+    class JsbEditBoxImpl extends BaseClass {
         init (delegate) {
             if (!delegate) {
                 cc.error('EditBox init failed');
                 return;
             }
             this._delegate = delegate;
-        },
+        }
 
         beginEditing () {
             let self = this;
@@ -143,7 +135,7 @@
             });
             this._editing = true;
             delegate._editBoxEditingDidBegan();
-        },
+        }
 
         endEditing () {
             this._editing = false;
@@ -152,7 +144,7 @@
             }
             jsb.inputBox.hide();
             this._delegate._editBoxEditingDidEnded();
-        },
+        }
 
         setMaxLength (maxLength) {
             if (!isNaN(maxLength)) {
@@ -163,7 +155,7 @@
                 }
                 this._maxLength = maxLength;
             }
-        },
+        }
 
         _getRect () {
             let node = this._delegate.node;
@@ -202,6 +194,7 @@
                 width: width * finalScaleX,
                 height: height * finaleScaleY
             };
-        },
-    });
+        }
+    }
+    EditBox._EditBoxImpl = JsbEditBoxImpl;
 }());

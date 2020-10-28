@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -28,9 +28,8 @@
  * @hidden
  */
 
-import { GFXAddress, GFXComparisonFunc, GFXFilter, GFXColor } from '../../gfx/define';
-import { GFXDevice } from '../../gfx';
-import { GFXSampler, GFXSamplerInfo } from '../../gfx/sampler';
+import { GFXAddress, GFXComparisonFunc, GFXFilter } from '../../gfx/define';
+import { GFXDevice, GFXSampler, GFXSamplerInfo, GFXColor } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 
 export enum SamplerInfoIndex {

@@ -1,9 +1,8 @@
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 import { builtinResMgr } from '../../3d/builtin/init';
 import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/mesh';
 import { aabb } from '../../geometry';
-import { GFXBuffer, GFXBufferInfo } from '../../gfx/buffer';
 import { Pool } from '../../memop';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
@@ -18,7 +17,7 @@ import { Mat4, Vec3, Vec4 } from '../../math';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool, ModelPool,
     ModelView, AABBHandle, AABBPool, AABBView, NULL_HANDLE, AttributeArrayPool as AttrArrayPool, RawBufferPool, AttrPool, freeHandleArray } from '../core/memory-pools';
-import { GFXAttribute, GFXDescriptorSet, GFXDevice } from '../../gfx';
+import { GFXAttribute, GFXDescriptorSet, GFXDevice, GFXBuffer, GFXBufferInfo } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
 import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress, GFXFeature } from '../../gfx/define';
 
@@ -275,11 +274,11 @@ export class Model {
         if (idx >= 0) {
             const attrs = this.instancedAttributes!.views;
             uploadMat4AsVec4x3(worldMatrix, attrs[idx], attrs[idx + 1], attrs[idx + 2]);
-        } else {
+        } else if (this._localBuffer) {
             Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
             Mat4.inverseTranspose(m4_1, worldMatrix);
             Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
-            this._localBuffer!.update(this._localData);
+            this._localBuffer.update(this._localData);
         }
     }
 
@@ -355,14 +354,18 @@ export class Model {
         }
 
         const gfxTexture = texture.getGFXTexture();
-        if (gfxTexture !== null) {
+        if (gfxTexture) {
             const sampler = samplerLib.getSampler(this._device, texture.mipmaps.length > 1 ? lightmapSamplerWithMipHash : lightmapSamplerHash);
             const subModels = this._subModels;
             for (let i = 0; i < subModels.length; i++) {
                 const descriptorSet = subModels[i].descriptorSet;
-                descriptorSet.bindTexture(UNIFORM_LIGHTMAP_TEXTURE_BINDING, gfxTexture);
-                descriptorSet.bindSampler(UNIFORM_LIGHTMAP_TEXTURE_BINDING, sampler);
-                descriptorSet.update();
+                // TODO: should manage lightmap macro switches automatically
+                // USE_LIGHTMAP -> CC_USE_LIGHTMAP
+                if (subModels[i].passes[0].defines.USE_LIGHTMAP) {
+                    descriptorSet.bindTexture(UNIFORM_LIGHTMAP_TEXTURE_BINDING, gfxTexture);
+                    descriptorSet.bindSampler(UNIFORM_LIGHTMAP_TEXTURE_BINDING, sampler);
+                    descriptorSet.update();
+                }
             }
         }
     }
@@ -423,6 +426,7 @@ export class Model {
             attr.format = attribute.format;
             attr.name = attribute.name;
             attr.isNormalized = attribute.isNormalized;
+            attr.location = attribute.location;
             attrs.attributes.push(attr);
             AttrArrayPool.push(hAttrArray, hAttr);
 
@@ -446,7 +450,7 @@ export class Model {
         }
     }
 
-    protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: GFXDescriptorSet) {
-        descriptorSet.bindBuffer(UBOLocal.BINDING, this._localBuffer!);
+    protected _updateLocalDescriptors (subModelIndex: number, descriptorSet: GFXDescriptorSet) {
+        if (this._localBuffer) descriptorSet.bindBuffer(UBOLocal.BINDING, this._localBuffer);
     }
 }

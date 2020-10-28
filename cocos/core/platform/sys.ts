@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -54,7 +54,7 @@ enum NetworkType {
      * @zh 通过蜂窝移动网络连接因特网
      */
     WWAN
-};
+}
 
 /**
  * @en A set of system related variables
@@ -335,6 +335,78 @@ export const sys: { [x: string]: any; } = {
      * @default 105
      */
     QQ_PLAY: 105,
+    /**
+     * @property {Number} FB_PLAYABLE_ADS
+     * @readOnly
+     * @default 106
+     */
+    FB_PLAYABLE_ADS: 106,
+    /**
+     * @property {Number} BAIDU_MINI_GAME
+     * @readOnly
+     * @default 107
+     */
+    BAIDU_MINI_GAME: 107,
+    /**
+     * @property {Number} VIVO_MINI_GAME
+     * @readOnly
+     * @default 108
+     */
+    VIVO_MINI_GAME: 108,
+    /**
+     * @property {Number} OPPO_MINI_GAME
+     * @readOnly
+     * @default 109
+     */
+    OPPO_MINI_GAME: 109,
+    /**
+     * @property {Number} HUAWEI_QUICK_GAME
+     * @readOnly
+     * @default 110
+     */
+    HUAWEI_QUICK_GAME: 110,
+    /**
+     * @property {Number} XIAOMI_QUICK_GAME
+     * @readOnly
+     * @default 111
+     */
+    XIAOMI_QUICK_GAME: 111,
+    /**
+     * @property {Number} COCOSPLAY
+     * @readOnly
+     * @default 112
+     */
+    COCOSPLAY: 112,
+    /**
+     * @property {Number} ALIPAY_MINI_GAME
+     * @readOnly
+     * @default 113
+     */
+    ALIPAY_MINI_GAME: 113,
+    /**
+     * @property {Number} QTT_GAME
+     * @readOnly
+     * @default 116
+     */
+    QTT_GAME: 116,
+    /**
+     * @property {Number} BYTEDANCE_MINI_GAME
+     * @readOnly
+     * @default 117
+     */
+    BYTEDANCE_MINI_GAME: 117,
+    /**
+     * @property {Number} LINKSURE
+     * @readOnly
+     * @default 119
+     */
+    LINKSURE: 119,
+    /**
+     * @en Platform - Xiaomi Game
+     * @zh Platform - 小米小游戏
+     * @default 111
+     */
+    XIAOMI_GAME: 111,
 
     /**
      * @en Browser Type - WeChat inner browser
@@ -354,18 +426,24 @@ export const sys: { [x: string]: any; } = {
      * @default "huaweiquickgame"
      */
     BROWSER_TYPE_HUAWEI_GAME: 'huaweiquickgame',
-        /**
+    /**
      * @en Browser Type - OPPO mini Game
      * @zh 浏览器类型 - OPPO小游戏
      * @default "oppogame"
      */
     BROWSER_TYPE_OPPO_GAME: 'oppogame',
     /**
-    * @en Browser Type - vivo mini Game
-    * @zh 浏览器类型 - vivo小游戏
-    * @default "vivogame"
-    */
-   BROWSER_TYPE_VIVO_GAME: 'vivogame',
+     * @en Browser Type - vivo mini Game
+     * @zh 浏览器类型 - vivo小游戏
+     * @default "vivogame"
+     */
+    BROWSER_TYPE_VIVO_GAME: 'vivogame',
+    /**
+     * @en Browser Type - Xiaomi Game
+     * @zh 浏览器类型 - 小米小游戏
+     * @default "xiaomigame"
+     */
+    BROWSER_TYPE_XIAOMI_GAME: "xiaomigame",
     /**
      * @en Browser Type - Android Browser
      * @zh 浏览器类型 - 安卓浏览器
@@ -538,6 +616,20 @@ export const sys: { [x: string]: any; } = {
     language: 'unknown',
 
     /**
+     * @en
+     * Get current language iso 639-1 code.
+     * Examples of valid language codes include "zh-tw", "en", "en-us", "fr", "fr-fr", "es-es", etc.
+     * The actual value totally depends on results provided by destination platform.
+     * @zh
+     * 指示当前运行环境的语言
+     * 获取当前的语言iso 639-1代码。
+     * 有效的语言代码包括 "zh-tw"、"en"、"en-us"、"fr"、"fr-fr"、"es-es "等。
+     * 实际值完全取决于目的地平台提供的结果。
+     * @default {{sys.LANGUAGE_UNKNOWN}}
+     */
+    languageCode: 'unknown',
+
+    /**
      * @en Indicate the running os name
      * @zh 指示当前运行系统
      */
@@ -698,26 +790,10 @@ export const sys: { [x: string]: any; } = {
     },
 
     /**
-     * Dumps rooted objects, only available in native platforms
-     * @private
-     */
-    dumpRoot () {
-        // N/A in web
-    },
-
-    /**
      * Restart the JS VM, only available in native platforms
      * @private
      */
     restartVM () {
-        // N/A in web
-    },
-
-    /**
-     * Clean a script in the JS VM, only available in native platforms
-     * @private
-     */
-    cleanScript (jsfile) {
         // N/A in web
     },
 
@@ -762,19 +838,40 @@ if (_global.__globalAdapter && _global.__globalAdapter.adaptSys) {
 //     sys.__audioSupport = {};
 // }
 else if (JSB || RUNTIME_BASED) {
-    // @ts-ignore
-    const platform = sys.platform = __getPlatform();
+    let platform;
+    if (VIVO) {
+        platform = sys.VIVO_MINI_GAME;
+    } else if (OPPO) {
+        platform = sys.OPPO_MINI_GAME;
+    } else if (HUAWEI) {
+        platform = sys.HUAWEI_QUICK_GAME;
+    } else if (COCOSPLAY) {
+        platform = sys.COCOSPLAY;
+    }
+    else {
+        // @ts-ignore
+        platform = __getPlatform();
+    }
+    sys.platform = platform;
     sys.isMobile = (platform === sys.ANDROID ||
-        platform === sys.IPAD ||
-        platform === sys.IPHONE ||
-        platform === sys.WP8 ||
-        platform === sys.TIZEN ||
-        platform === sys.BLACKBERRY);
+                    platform === sys.IPAD ||
+                    platform === sys.IPHONE ||
+                    platform === sys.WP8 ||
+                    platform === sys.TIZEN ||
+                    platform === sys.BLACKBERRY ||
+                    platform === sys.XIAOMI_QUICK_GAME ||
+                    platform === sys.VIVO_MINI_GAME ||
+                    platform === sys.OPPO_MINI_GAME ||
+                    platform === sys.HUAWEI_QUICK_GAME ||
+                    platform === sys.COCOSPLAY);
 
     // @ts-ignore
     sys.os = __getOS();
     // @ts-ignore
     sys.language = __getCurrentLanguage();
+    // @ts-ignore
+    let languageCode = JSB && __getCurrentLanguageCode();
+    sys.languageCode = languageCode ? languageCode.toLowerCase() : 'unknown';
     // @ts-ignore
     sys.osVersion = __getOSVersion();
     sys.osMainVersion = parseInt(sys.osVersion);
@@ -835,6 +932,7 @@ else {
     }
 
     let currLanguage = nav.language;
+    sys.languageCode = currLanguage.toLowerCase();
     // @ts-ignore
     currLanguage = currLanguage ? currLanguage : nav.browserLanguage;
     currLanguage = currLanguage ? currLanguage.split('-')[0] : sys.LANGUAGE_ENGLISH;
@@ -881,12 +979,10 @@ else {
     sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
     /* Determine the browser type */
     (function () {
-        const typeReg1 = /mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
-        const typeReg2 = /qqbrowser|ucbrowser|edge/i;
+        const typeReg1 = /mqqbrowser|micromessenger|qqbrowser|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
+        const typeReg2 = /qq|qqbrowser|ucbrowser|ubrowser|edge/i;
         const typeReg3 = /chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
-        let browserTypes = typeReg1.exec(ua);
-        if (!browserTypes) { browserTypes = typeReg2.exec(ua); }
-        if (!browserTypes) { browserTypes = typeReg3.exec(ua); }
+        let browserTypes = typeReg1.exec(ua) || typeReg2.exec(ua) || typeReg3.exec(ua);
 
         let browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
         if(COCOSPLAY) {
@@ -901,39 +997,30 @@ else {
         else if(VIVO) {
             browserType = sys.BROWSER_TYPE_VIVO_GAME;
         }
-        else if (browserType === 'micromessenger') {
-            browserType = sys.BROWSER_TYPE_WECHAT;
-        }
         else if (browserType === 'safari' && isAndroid) {
             browserType = sys.BROWSER_TYPE_ANDROID;
         }
         else if (browserType === 'qq' && ua.match(/android.*applewebkit/i)) {
             browserType = sys.BROWSER_TYPE_ANDROID;
         }
-        else if (browserType === 'trident') {
-            browserType = sys.BROWSER_TYPE_IE;
-        }
-        else if (browserType === 'edge') {
-            browserType === sys.BROWSER_TYPE_EDGE;
-        }
-        else if (browserType === '360 aphone') {
-            browserType = sys.BROWSER_TYPE_360;
-        }
-        else if (browserType === 'mxbrowser') {
-            browserType = sys.BROWSER_TYPE_MAXTHON;
-        }
-        else if (browserType === 'opr/') {
-            browserType = sys.BROWSER_TYPE_OPERA;
-        }
+        let typeMap = {
+            'micromessenger': sys.BROWSER_TYPE_WECHAT,
+            'trident': sys.BROWSER_TYPE_IE,
+            'edge': sys.BROWSER_TYPE_EDGE,
+            '360 aphone': sys.BROWSER_TYPE_360,
+            'mxbrowser': sys.BROWSER_TYPE_MAXTHON,
+            'opr/': sys.BROWSER_TYPE_OPERA,
+            'ubrowser': sys.BROWSER_TYPE_UC
+        };
 
-        sys.browserType = browserType;
+        sys.browserType = typeMap[browserType] || browserType;
     })();
 
     sys.browserVersion = '';
     /* Determine the browser version number */
     (function () {
-        const versionReg1 = /(mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|uc|ucbs|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui)(mobile)?(browser)?\/?([\d.]+)/i;
-        const versionReg2 = /(qqbrowser|chrome|safari|firefox|trident|opera|opr\/|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
+        const versionReg1 = /(mqqbrowser|micromessenger|qqbrowser|sogou|qzone|liebao|maxthon|uc|ucbs|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui(?:.hybrid)?)(mobile)?(browser)?\/?([\d.]+)/i;
+        const versionReg2 = /(qq|chrome|safari|firefox|trident|opera|opr\/|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
         let tmp = ua.match(versionReg1);
         if (!tmp) { tmp = ua.match(versionReg2); }
         sys.browserVersion = tmp ? tmp[4] : '';
@@ -991,50 +1078,7 @@ else {
         _supportWebGL = false;
     }
     else if (win.WebGLRenderingContext) {
-        // @ts-ignore
-        if (create3DContext(document.createElement('CANVAS'))) {
-            _supportWebGL = true;
-        }
-        if (_supportWebGL && sys.os === sys.OS_ANDROID) {
-            const browserVer = parseFloat(sys.browserVersion);
-            switch (sys.browserType) {
-                case sys.BROWSER_TYPE_MOBILE_QQ:
-                case sys.BROWSER_TYPE_BAIDU:
-                case sys.BROWSER_TYPE_BAIDU_APP:
-                    // QQ & Baidu Brwoser 6.2+ (using blink kernel)
-                    if (browserVer >= 6.2) {
-                        _supportWebGL = true;
-                    }
-                    else {
-                        _supportWebGL = false;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_ANDROID:
-                    // Android 5+ default browser
-                    if (sys.osMainVersion && sys.osMainVersion >= 5) {
-                        _supportWebGL = true;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_CHROME:
-                    // Chrome on android supports WebGL from v. 30
-                    if (browserVer >= 30.0) {
-                        _supportWebGL = true;
-                    } else {
-                        _supportWebGL = false;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_UC:
-                    if (browserVer > 11.0) {
-                        _supportWebGL = true;
-                    } else {
-                        _supportWebGL = false;
-                    }
-                    break;
-                case sys.BROWSER_TYPE_360:
-                    _supportWebGL = false;
-                    break;
-            }
-        }
+        _supportWebGL = true;
     }
 
     const capabilities = sys.capabilities = {

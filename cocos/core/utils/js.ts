@@ -2,7 +2,7 @@
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -28,6 +28,8 @@
 import * as jsarray from './array';
 import IDGenerator from './id-generator';
 import {
+    _idToClass,
+    _nameToClass,
     _getClassById,
     _getClassId,
     _setClassId,
@@ -57,11 +59,6 @@ import {
 } from './js-typed';
 import Pool from './pool';
 
-import {
-    _idToClass,
-    _nameToClass,
-} from './js-typed';
-import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 
 export * from './js-typed';
@@ -91,6 +88,54 @@ export const js = {
     setClassName,
     setClassAlias,
     getClassByName,
+    /**
+     * @en All classes registered in the engine, indexed by name.
+     * @zh 引擎中已注册的所有类型，通过名称进行索引。
+     * @private
+     * @example
+     * ```
+     * import { js } from 'cc';
+     * // save all registered classes before loading scripts
+     * let builtinClassIds = js._registeredClassIds;
+     * let builtinClassNames = js._registeredClassNames;
+     * // load some scripts that contain CCClass
+     * ...
+     * // clear all loaded classes
+     * js._registeredClassIds = builtinClassIds;
+     * js._registeredClassNames = builtinClassNames;
+     * ```
+     */
+    get _registeredClassNames (): typeof _nameToClass {
+        return Object.assign({}, _nameToClass);
+    },
+    set _registeredClassNames (value: typeof _nameToClass) {
+        clear(_nameToClass);
+        Object.assign(_nameToClass, value);
+    },
+    /**
+     * @en All classes registered in the engine, indexed by ID.
+     * @zh 引擎中已注册的所有类型，通过 ID 进行索引。
+     * @private
+     * @example
+     * ```
+     * import { js } from 'cc';
+     * // save all registered classes before loading scripts
+     * let builtinClassIds = js._registeredClassIds;
+     * let builtinClassNames = js._registeredClassNames;
+     * // load some scripts that contain CCClass
+     * ...
+     * // clear all loaded classes
+     * js._registeredClassIds = builtinClassIds;
+     * js._registeredClassNames = builtinClassNames;
+     * ```
+     */
+    get _registeredClassIds (): typeof _idToClass {
+        return Object.assign({}, _idToClass);
+    },
+    set _registeredClassIds (value: typeof _idToClass) {
+        clear(_idToClass);
+        Object.assign(_idToClass, value);
+    },
     _getClassId,
     _setClassId,
     _getClassById,
@@ -102,51 +147,7 @@ export const js = {
 };
 
 /**
- * This module provides some JavaScript utilities.
- * All members can be accessed with "cc.js".
+ * @en This module provides some JavaScript utilities. All members can be accessed via `import { js } from 'cc'`.
+ * @zh 这个模块封装了 JavaScript 相关的一些实用函数，你可以通过 `import { js } from 'cc'` 来访问这个模块。
  */
 legacyCC.js = js;
-
-if (EDITOR) {
-    legacyCC.js.getset(legacyCC.js, '_registeredClassIds', () => {
-            const dump = {};
-            for (const id in _idToClass) {
-                if (!(id in _idToClass)) {
-                    continue;
-                }
-                dump[id] = _idToClass[id];
-            }
-            return dump;
-        },
-        (item) => {
-            clear(_idToClass);
-            for (const id in item) {
-                if (!(id in item)) {
-                    continue;
-                }
-                _idToClass[id] = item[id];
-            }
-        },
-    );
-    legacyCC.js.getset(legacyCC.js, '_registeredClassNames',
-        () => {
-            const dump = {};
-            for (const id in _nameToClass) {
-                if (!(id in _nameToClass)) {
-                    continue;
-                }
-                dump[id] = _nameToClass[id];
-            }
-            return dump;
-        },
-        (item) => {
-            clear(_nameToClass);
-            for (const id in item) {
-                if (!(id in item)) {
-                    continue;
-                }
-                _nameToClass[id] = item[id];
-            }
-        },
-    );
-}

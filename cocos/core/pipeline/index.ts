@@ -3,8 +3,8 @@
  * @module pipeline
  */
 
-import * as pipelineDefine from './define';
-export const pipeline = pipelineDefine;
+import * as pipeline from './define';
+export { pipeline };
 
 export { RenderPipeline } from './render-pipeline';
 export { RenderFlow } from './render-flow';

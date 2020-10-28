@@ -109,8 +109,11 @@ export default class sphere {
      * 球跟点合并
      */
     public static mergePoint (out: sphere, s: sphere, point: Vec3) {
+        // if sphere.radius Less than 0,
+        // Set this point as anchor,
+        // And set radius to 0.
         if (s.radius < 0.0) {
-            out.center = point;
+            out.center.set(point);
             out.radius = 0.0;
             return out;
         }
@@ -152,24 +155,22 @@ export default class sphere {
         return this._center;
     }
 
-    set center (val:Vec3) { 
+    set center (val:Vec3) {
         this._center = val;
         SpherePool.setVec3(this._poolHandle, SphereView.CENTER, this._center);
     }
 
      /**
-     * @en
-     * The radius of this sphere.
-     * @zh
-     * 半径。
-     */
-    protected _radius: number = 1;
+      * @en
+      * The radius of this sphere.
+      * @zh
+      * 半径。
+      */
     get radius () : number {
-        return this._radius;
+        return SpherePool.get(this._poolHandle, SphereView.RADIUS);
     }
 
     set radius (val: number) {
-        this._radius = val;
         SpherePool.set(this._poolHandle, SphereView.RADIUS, val);
     }
 
@@ -203,21 +204,12 @@ export default class sphere {
     constructor (cx: number = 0, cy: number = 0, cz: number = 0, r: number = 1) {
         this._type = enums.SHAPE_SPHERE;
         this._center = new Vec3(cx, cy, cz);
-        this._radius = r;
-    }
-
-    protected _inited:boolean = false;
-    public initialize () {
-        if (!this._inited) {
-            this._poolHandle = SpherePool.alloc();
-            SpherePool.setVec3(this._poolHandle, SphereView.CENTER, this._center);
-            SpherePool.set(this._poolHandle, SphereView.RADIUS, this._radius);
-            this._inited = true;
-        }
+        this._poolHandle = SpherePool.alloc();
+        SpherePool.setVec3(this._poolHandle, SphereView.CENTER, this._center);
+        SpherePool.set(this._poolHandle, SphereView.RADIUS, r);
     }
 
     public destroy () {
-        this._inited = false;
         if (this._poolHandle) {
             SpherePool.free(this._poolHandle);
             this._poolHandle = NULL_HANDLE;

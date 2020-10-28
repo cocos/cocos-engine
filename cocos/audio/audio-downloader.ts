@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -32,44 +32,17 @@ import { getError, log } from '../core/platform/debug';
 import { sys } from '../core/platform/sys';
 import { AudioClip, AudioType } from './assets/clip';
 import { legacyCC } from '../core/global-exports';
+import { createDomAudio } from './audio-utils';
 
 const __audioSupport = sys.__audioSupport;
 const formatSupport = __audioSupport.format;
 
 function loadDomAudio (item, callback) {
-    const dom = document.createElement('audio');
-    dom.src = item.url;
-
-    const clearEvent = () => {
-        clearTimeout(timer);
-        dom.removeEventListener('canplaythrough', success, false);
-        dom.removeEventListener('error', failure, false);
-        if (__audioSupport.USE_LOADER_EVENT) {
-            dom.removeEventListener(__audioSupport.USE_LOADER_EVENT, success, false);
-        }
-    };
-    const timer = setTimeout(() => {
-        if (dom.readyState === 0) {
-            failure();
-        } else {
-            success();
-        }
-    }, 8000);
-    const success = () => {
-        clearEvent();
+    createDomAudio(item.url).then(dom => {
         callback(null, dom);
-    };
-    const failure = () => {
-        clearEvent();
-        const message = 'load audio failure - ' + item.url;
-        log(message);
-        callback(message);
-    };
-    dom.addEventListener('canplaythrough', success, false);
-    dom.addEventListener('error', failure, false);
-    if (__audioSupport.USE_LOADER_EVENT) {
-        dom.addEventListener(__audioSupport.USE_LOADER_EVENT, success, false);
-    }
+    }, errMsg => {
+        log(errMsg);
+    });
 }
 
 function loadWebAudio (item, callback) {

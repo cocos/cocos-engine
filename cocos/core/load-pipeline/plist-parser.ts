@@ -2,7 +2,7 @@
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -41,7 +41,7 @@ class SAXParser {
     private _isSupportDOMParser;
     private _parser;
     constructor () {
-        if (!EDITOR && window.DOMParser) {
+        if (window.DOMParser) {
             this._isSupportDOMParser = true;
             this._parser = new DOMParser();
         } else {

@@ -74,7 +74,6 @@ export class Shadows {
     }
 
     set enabled (val: boolean) {
-        this.dirty = true;
         ShadowsPool.set(this._handle, ShadowsView.ENABLE, val ? 1 : 0);
         val ? this.activate() : this._updatePipeline();
     }
@@ -89,7 +88,6 @@ export class Shadows {
 
     set normal (val: Vec3) {
         Vec3.copy(this._normal, val);
-        this.dirty = true;
         ShadowsPool.setVec3(this._handle, ShadowsView.NORMAL, this._normal);
     }
 
@@ -102,7 +100,6 @@ export class Shadows {
     }
 
     set distance (val: number) {
-        this.dirty = true;
         ShadowsPool.set(this._handle, ShadowsView.DISTANCE, val);
     }
 
@@ -116,7 +113,6 @@ export class Shadows {
 
     set shadowColor (color: Color) {
         this._shadowColor = color;
-        this.dirty = true;
         ShadowsPool.setVec4(this._handle, ShadowsView.COLOR, color);
     }
 
@@ -127,9 +123,8 @@ export class Shadows {
     get type (): number {
         return ShadowsPool.get(this._handle, ShadowsView.TYPE);
     }
-
     set type (val: number) {
-        ShadowsPool.set(this._handle, ShadowsView.TYPE, this.enabled ? val : -1);
+        ShadowsPool.set(this._handle, ShadowsView.TYPE, val);
         this._updatePipeline();
         this._updatePlanarInfo();
     }
@@ -217,26 +212,36 @@ export class Shadows {
     }
 
     /**
-     * @zh
-     * 场景包围球
+     * @en The bounding sphere of the shadow map
+     * @zh 用于计算阴影 Shadow map 的场景包围球
      */
     public get sphere (): sphere {
         return this._sphere;
     }
-    public get dirty (): boolean {
-        return ShadowsPool.get(this._handle, ShadowsView.DIRTY) as unknown as boolean;
-    }
-    public set dirty (val: boolean) {
-        ShadowsPool.set(this._handle, ShadowsView.DIRTY, val ? 1 : 0);
+
+    public get material (): Material {
+        return this._material!;
     }
 
-    public get material (): Material | null {
-        return this._material;
+    public get instancingMaterial (): Material {
+        return this._instancingMaterial!;
     }
 
-    public get instancingMaterial (): Material | null {
-        return this._instancingMaterial;
+    public get handle () : ShadowsHandle {
+        return this._handle;
     }
+
+    /**
+     * @en get or set shadow generation range
+     * @zh 获取或设置阴影生成范围
+     */
+    public receiveSphere: sphere = new sphere();
+
+    /**
+     * @en get or set shadow auto control
+     * @zh 获取或者设置阴影是否自动控制
+     */
+    public autoAdapt: boolean = true;
 
     protected _normal = new Vec3(0, 1, 0);
     protected _shadowColor = new Color(0, 0, 0, 76);
@@ -247,17 +252,11 @@ export class Shadows {
     protected _handle: ShadowsHandle = NULL_HANDLE;
     protected _sphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
 
-    get handle () : ShadowsHandle {
-        return this._handle;
-    }
-
     constructor () {
         this._handle = ShadowsPool.alloc();
-        this._sphere.initialize();
     }
 
     public activate () {
-        this.dirty = true;
         if (this.type === ShadowType.ShadowMap) {
             this._updatePipeline();
         } else {
@@ -279,7 +278,7 @@ export class Shadows {
     }
 
     protected _updatePipeline () {
-        const root = legacyCC.director.root
+        const root = legacyCC.director.root;
         const pipeline = root.pipeline;
         const enable = this.enabled && this.type === ShadowType.ShadowMap;
         if (pipeline.macros.CC_RECEIVE_SHADOW === enable) { return; }
@@ -300,7 +299,7 @@ export class Shadows {
             ShadowsPool.free(this._handle);
             this._handle = NULL_HANDLE;
         }
-        
+
         this._sphere.destroy();
     }
 }

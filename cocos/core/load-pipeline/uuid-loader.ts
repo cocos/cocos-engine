@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -38,6 +38,8 @@ import { decompressJson } from './utils';
 import { EDITOR, DEBUG, JSB } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { Details } from '../data/deserialize';
+
+const MissingClass = EDITOR && EditorExtends.MissingReporter.classInstance; // 合并有冲突就丢弃此改动
 
 export function isSceneObj (json) {
     let SCENE_ID = 'cc.Scene';
@@ -224,13 +226,7 @@ function canDeferredLoad (asset, item, isScene) {
     return res;
 }
 
-let MissingClass;
-
 export function loadUuid (item, callback) {
-    if (EDITOR) {
-        MissingClass = MissingClass || EditorExtends.MissingReporter.classInstance;
-    }
-
     let json;
     if (typeof item.content === 'string') {
         try {
@@ -256,19 +252,19 @@ export function loadUuid (item, callback) {
         return new Error(getError(4923, item.id));
     }
 
-    let classFinder;
+    let classFinder, missingClass; // 合并有冲突就丢弃此改动
     let isScene = isSceneObj(json);
     if (isScene) {
         if (EDITOR) {
-            MissingClass.hasMissingClass = false;
+            missingClass = MissingClass; // 合并有冲突就丢弃此改动
             classFinder = function (type, data, owner, propName) {
-                let res = MissingClass.classFinder(type, data, owner, propName);
+                let res = missingClass.classFinder(type, data, owner, propName); // 合并有冲突就丢弃此改动
                 if (res) {
                     return res;
                 }
                 return legacyCC._MissingScript.getMissingWrapper(type, data);
             };
-            classFinder.onDereferenced = MissingClass.classFinder.onDereferenced;
+            classFinder.onDereferenced = missingClass.classFinder.onDereferenced; // 合并有冲突就丢弃此改动
         }
         else {
             classFinder = legacyCC._MissingScript.safeFindClass;
@@ -304,8 +300,10 @@ export function loadUuid (item, callback) {
 
     asset._uuid = item.uuid;
 
-    if (EDITOR && isScene && MissingClass.hasMissingClass) {
-        MissingClass.reportMissingClass(asset);
+    // 合并有冲突就丢弃此改动
+    if (EDITOR && missingClass) {
+        missingClass.reportMissingClass(asset);
+        missingClass.reset();
     }
 
     let deferredLoad = canDeferredLoad(asset, item, isScene);

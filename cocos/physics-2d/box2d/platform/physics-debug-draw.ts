@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -26,7 +26,7 @@
 import b2 from '@cocos/box2d';
 import { Color } from '../../../core';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework';
-import { GraphicsComponent } from '../../../ui';
+import { Graphics } from '../../../ui';
 
 let _tmp_vec2 = new b2.Vec2();
 let _tmp_color = new Color();
@@ -35,12 +35,12 @@ let GREEN_COLOR = Color.GREEN;
 let RED_COLOR = Color.RED;
 
 export class PhysicsDebugDraw extends b2.Draw {
-    _drawer: GraphicsComponent | null = null;
+    _drawer: Graphics | null = null;
 
     _xf = new b2.Transform;
     _dxf = new b2.Transform;
 
-    constructor (drawer: GraphicsComponent) {
+    constructor (drawer: Graphics) {
         super();
         this._drawer = drawer;
     }

@@ -3,10 +3,9 @@
  * @module pipeline
  */
 
-import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, SetIndex } from './define';
-import { GFXDevice, GFXRenderPass, GFXBuffer, GFXShader } from '../gfx';
+import { GFXDevice, GFXRenderPass, GFXBuffer, GFXShader, GFXCommandBuffer } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { DSPool, ShaderPool, PassHandle, PassPool, PassView, SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
@@ -25,7 +24,7 @@ export class RenderShadowMapBatchedQueue {
     private _passArray: PassHandle[] = [];
     private _shaderArray: GFXShader[] = [];
     private _shadowMapBuffer: GFXBuffer | null = null;
-    private _phaseID = getPhaseID('shadow-add');
+    private _phaseID = getPhaseID('shadow-caster');
     private _instancedQueue: RenderInstancedQueue = new RenderInstancedQueue();
     private _batchedQueue: RenderBatchedQueue = new RenderBatchedQueue();
 

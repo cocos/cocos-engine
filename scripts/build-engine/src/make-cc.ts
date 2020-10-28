@@ -8,11 +8,11 @@ export function generateCCSource (moduleRequests: string[]) {
     return moduleRequests.map(moduleRequest => `export * from '${moduleRequest}';`).join('\n');
 }
 
-export async function generateCCSourceTransformed (moduleRequests: string[], moduleOption: ModuleOption) {
+export async function generateCCSourceTransformed (moduleRequests: string[], moduleOption: ModuleOption, loose?: boolean) {
     const babelFormat = moduleOptionsToBabelEnvModules(moduleOption);
     const source = generateCCSource(moduleRequests);
     const babelFileResult = await babel.transformAsync(source, {
-        presets: [[babelPresetEnv, {modules: babelFormat }]],
+        presets: [[babelPresetEnv, { modules: babelFormat, loose: loose ?? true }]],
     });
     if (!babelFileResult || !babelFileResult.code) {
         throw new Error(`Failed to transform!`);

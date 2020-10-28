@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -731,7 +731,7 @@ export class Label extends UIRenderable {
     }
 
     protected _render (render: UI) {
-        render.commitComp(this, this._texture!.getGFXTexture(), this._assembler!, this._texture!.getGFXSampler());
+        render.commitComp(this, this._texture, this._assembler!);
     }
 
     protected _updateColor () {

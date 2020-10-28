@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -75,6 +75,7 @@ function error (uuid, packUuid) {
 
 export function initPacks (packs) {
     packIndices = packs;
+    uuidToPack = {};
     for (var packUuid in packs) {
         var uuids = packs[packUuid];
         for (var i = 0; i < uuids.length; i++) {

@@ -1,6 +1,6 @@
 {
   "name": "@cocos/build-engine",
-  "version": "4.0.0-jsb.alpha.6",
+  "version": "4.0.0-jsb.alpha.11",
   "description": "",
   "main": "dist/index.js",
   "dependencies": {
@@ -20,14 +20,17 @@
     "rollup": "2.26.6",
     "rollup-plugin-progress": "^1.1.1",
     "rollup-plugin-terser": "^5.2.0",
+    "semver": "^7.3.2",
     "yargs": "^15.1.0"
   },
   "devDependencies": {
     "@types/babel__core": "^7.1.3",
+    "@types/babel__preset-env": "^7.9.1",
     "@types/fs-extra": "^8.0.1",
     "@types/json5": "0.0.30",
     "@types/node": "^13.1.7",
     "@types/resolve": "^1.17.1",
+    "@types/semver": "^7.3.4",
     "@types/yargs": "^15.0.4",
     "rollup-plugin-visualizer": "^4.0.4"
   },
@@ -36,7 +39,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "prepublish": "npm run build"
+    "prepublishOnly": "npm run build"
   },
   "author": "",
   "license": "MIT"

@@ -60,12 +60,12 @@ export function pt_point_aabb (out: Vec3, point: Vec3, aabb_: aabb): Vec3 {
     Vec3.add(max, aabb_.center, aabb_.halfExtents);
 
     out.x = (out.x < min.x) ? min.x : out.x;
-    out.y = (out.y < min.x) ? min.y : out.y;
-    out.z = (out.z < min.x) ? min.z : out.z;
+    out.y = (out.y < min.y) ? min.y : out.y;
+    out.z = (out.z < min.z) ? min.z : out.z;
 
     out.x = (out.x > max.x) ? max.x : out.x;
-    out.y = (out.y > max.x) ? max.y : out.y;
-    out.z = (out.z > max.x) ? max.z : out.z;
+    out.y = (out.y > max.y) ? max.y : out.y;
+    out.z = (out.z > max.z) ? max.z : out.z;
     return out;
 }
 

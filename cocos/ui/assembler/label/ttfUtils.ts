@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -39,6 +39,7 @@ import { loader } from '../../../core/load-pipeline';
 import { logID } from '../../../core/platform/debug';
 import { RUNTIME_BASED, MINIGAME } from 'internal:constants';
 import { UITransform } from '../../../core/components/ui-base/ui-transform';
+import { legacyCC } from '../../../core/global-exports';
 
 const Overflow = Label.Overflow;
 const WHITE = Color.WHITE.clone();
@@ -272,6 +273,9 @@ export const ttfUtils =  {
                     mipmapLevel: 1
                 });
                 tex.uploadData(_canvas);
+                if (legacyCC.director.root && legacyCC.director.root.ui) {
+                    legacyCC.director.root.ui._releaseDescriptorSetCache(tex.getHash());
+                }
             }
         }
     },
@@ -332,7 +336,6 @@ export const ttfUtils =  {
     },
 
     _calculateTextBaseline () {
-        // let node = this._node;
         let hAlign;
         let vAlign;
 

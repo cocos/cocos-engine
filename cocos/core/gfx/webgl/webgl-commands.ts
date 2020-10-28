@@ -1,4 +1,3 @@
-import { WECHAT } from 'internal:constants';
 import { CachedArray } from '../../memop/cached-array';
 import { error, errorID } from '../../platform/debug';
 import { GFXBufferSource, GFXDrawInfo, GFXIndirectBuffer } from '../buffer';
@@ -8,9 +7,10 @@ import { WebGLEXT } from './webgl-define';
 import { WebGLDevice } from './webgl-device';
 import { IWebGLGPUInputAssembler, IWebGLGPUUniform, IWebGLAttrib, IWebGLGPUDescriptorSet, IWebGLGPUBuffer, IWebGLGPUFramebuffer, IWebGLGPUInput,
     IWebGLGPUPipelineState, IWebGLGPUShader, IWebGLGPUTexture, IWebGLGPUUniformBlock, IWebGLGPUUniformSampler, IWebGLGPURenderPass } from './webgl-gpu-objects';
-import { GFXBufferTextureCopy, GFXBufferUsageBit, GFXClearFlag, GFXColorMask, GFXCullMode, GFXFormat,
+import { GFXBufferUsageBit, GFXClearFlag, GFXColorMask, GFXCullMode, GFXFormat,
     GFXFormatInfos, GFXFormatSize, GFXLoadOp, GFXMemoryUsageBit, GFXSampleCount, GFXShaderStageFlagBit, GFXStencilFace,
-    GFXTextureFlagBit, GFXTextureType, GFXType, GFXColor, GFXFormatInfo, GFXRect, GFXViewport, GFXDynamicStateFlagBit } from '../define';
+    GFXTextureFlagBit, GFXTextureType, GFXType, GFXFormatInfo, GFXDynamicStateFlagBit } from '../define';
+import { GFXBufferTextureCopy, GFXColor, GFXRect, GFXViewport } from '../define-class';
 
 export function GFXFormatToWebGLType (format: GFXFormat, gl: WebGLRenderingContext): GLenum {
     switch (format) {
@@ -461,8 +461,8 @@ const WebGLBlendOps: GLenum[] = [
     0x8006, // WebGLRenderingContext.FUNC_ADD,
     0x800A, // WebGLRenderingContext.FUNC_SUBTRACT,
     0x800B, // WebGLRenderingContext.FUNC_REVERSE_SUBTRACT,
-    0x8006, // WebGLRenderingContext.FUNC_ADD,
-    0x8006, // WebGLRenderingContext.FUNC_ADD,
+    0x8007, // WebGLRenderingContext.MIN,
+    0x8008, // WebGLRenderingContext.MAX,
 ];
 
 const WebGLBlendFactors: GLenum[] = [
@@ -2105,7 +2105,8 @@ export function WebGLCmdFuncBindStates (
         for (let j = 0; j < blockLen; j++) {
             const glBlock = gpuShader.glBlocks[j];
             const gpuDescriptorSet = gpuDescriptorSets[glBlock.set];
-            const gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[glBlock.binding];
+            const descriptorIdx = gpuDescriptorSet && gpuDescriptorSet.descriptorIndices[glBlock.binding];
+            const gpuDescriptor = descriptorIdx >= 0 && gpuDescriptorSet.gpuDescriptors[descriptorIdx];
             let vf32: Float32Array | null = null; let offset = 0;
 
             if (gpuDescriptor && gpuDescriptor.gpuBuffer) {
@@ -2290,7 +2291,7 @@ export function WebGLCmdFuncBindStates (
             const glSampler = gpuShader.glSamplers[i];
             const gpuDescriptorSet = gpuDescriptorSets[glSampler.set];
             let descriptorIndex = gpuDescriptorSet && gpuDescriptorSet.descriptorIndices[glSampler.binding];
-            let gpuDescriptor = gpuDescriptorSet && gpuDescriptorSet.gpuDescriptors[descriptorIndex];
+            let gpuDescriptor = descriptorIndex >= 0 && gpuDescriptorSet.gpuDescriptors[descriptorIndex];
 
             const texUnitLen = glSampler.units.length;
             for (let l = 0; l < texUnitLen; l++) {

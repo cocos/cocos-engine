@@ -24,6 +24,9 @@
  ****************************************************************************/
 
 cc.game.restart = function () {
+    // Need to clear scene, or native object destructor won't be invoke.
+    cc.director.getScene().destroy();
+    cc.Object._deferredDestroy();
     __restartVM();
 };
 
@@ -41,3 +44,6 @@ jsb.onResize = function (size) {
     cc.view.setCanvasSize(window.innerWidth, window.innerHeight);
 };
 
+jsb.onMemoryWarning = function () {
+    cc.game.emit(cc.Game.EVENT_LOW_MEMORY);
+}

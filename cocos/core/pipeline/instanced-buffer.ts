@@ -3,13 +3,12 @@
  * @hidden
  */
 
-import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXDevice, GFXTexture } from '../gfx';
-import { GFXBuffer, GFXBufferInfo } from '../gfx/buffer';
-import { GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute } from '../gfx/input-assembler';
 import { Pass } from '../renderer';
 import { IInstancedAttributeBlock, SubModel } from '../renderer/scene';
 import { SubModelView, SubModelPool, ShaderHandle, DescriptorSetHandle, PassHandle, NULL_HANDLE } from '../renderer/core/memory-pools';
 import { UNIFORM_LIGHTMAP_TEXTURE_BINDING } from './define';
+import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXDevice, GFXTexture, GFXInputAssembler, GFXInputAssemblerInfo,
+    GFXAttribute, GFXBuffer, GFXBufferInfo, GFXCommandBuffer  } from '../gfx';
 
 export interface IInstancedItem {
     count: number;
@@ -118,12 +117,12 @@ export class InstancedBuffer {
         this.hasPendingModels = true;
     }
 
-    public uploadBuffers () {
+    public uploadBuffers (cmdBuff: GFXCommandBuffer) {
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             if (!instance.count) { continue; }
             instance.ia.instanceCount = instance.count;
-            instance.vb.update(instance.data);
+            cmdBuff.updateBuffer(instance.vb, instance.data);
         }
     }
 

@@ -1,6 +1,6 @@
 ﻿/*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -269,6 +269,7 @@ Callbacks: {
 }
  */
 
+// Ensures the type matches its default value
 export function getTypeChecker (type: string, attributeName: string) {
     return function (constructor: Function, mainPropertyName: string) {
         const propInfo = '"' + getClassName(constructor) + '.' + mainPropertyName + '"';
@@ -278,7 +279,7 @@ export function getTypeChecker (type: string, attributeName: string) {
             if (mainPropAttrsType === CCInteger || mainPropAttrsType === CCFloat) {
                 mainPropAttrsType = 'Number';
             } else if (mainPropAttrsType === CCString || mainPropAttrsType === CCBoolean) {
-                mainPropAttrsType = mainPropAttrsType.toString();
+                mainPropAttrsType = '' + mainPropAttrsType;
             }
             if (mainPropAttrsType !== type) {
                 warnID(3604, propInfo);
@@ -326,6 +327,7 @@ export function getTypeChecker (type: string, attributeName: string) {
     };
 }
 
+// Ensures the type matches its default value
 export function getObjTypeChecker (typeCtor) {
     return function (classCtor, mainPropName) {
         getTypeChecker('Object', 'type')(classCtor, mainPropName);

@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -29,10 +29,8 @@
  * @hidden
  */
 
-import { Canvas } from '../../core/components/ui-base/canvas';
 import { Director, director } from '../../core/director';
 import { Vec2, Vec3 } from '../../core/math';
-import { sys } from '../../core/platform/sys';
 import { View } from '../../core/platform/view';
 import visibleRect from '../../core/platform/visible-rect';
 import { Scene } from '../../core/scene-graph';
@@ -64,15 +62,12 @@ function align (node: Node, widget: Widget) {
     } else {
         target = node.parent!;
     }
-    if (!target.getComponent(UITransform)) {
-        return;
-    }
     const targetSize = getReadonlyNodeSize(target);
-    const isScene = target instanceof Scene;
-    const targetAnchor = isScene ? _defaultAnchor : target.getComponent(UITransform)!.anchorPoint;
+    const useGlobal = target instanceof Scene || !target.getComponent(UITransform);
+    const targetAnchor = useGlobal ? _defaultAnchor : target.getComponent(UITransform)!.anchorPoint;
 
     // @ts-ignore
-    const isRoot = !EDITOR && isScene;
+    const isRoot = !EDITOR && useGlobal;
     node.getPosition(_tempPos);
     const uiTrans = node._uiProps.uiTransformComp!;
     let x = _tempPos.x;
@@ -343,8 +338,6 @@ function updateAlignment (node: Node) {
     }
 }
 
-const canvasList: Canvas[] = [];
-
 export const widgetManager = legacyCC._widgetManager = {
     isAligning: false,
     _nodesOrderDirty: false,
@@ -359,27 +352,16 @@ export const widgetManager = legacyCC._widgetManager = {
     init () {
         director.on(Director.EVENT_AFTER_UPDATE, refreshScene);
 
-        if (EDITOR /*&& cc.engine*/) {
-
-            // cc.engien extends eventTarget
-            // cc.engine.on('design-resolution-changed', this.onResized.bind(this));
+        if (EDITOR) {
+            View.instance.on('design-resolution-changed', this.onResized, this);
         } else {
-            if (sys.isMobile) {
-                let thisOnResized = this.onResized.bind(this);
-                window.addEventListener('resize', thisOnResized);
-                window.addEventListener('orientationchange', thisOnResized);
-            } else {
-                View.instance.on('design-resolution-changed', this.onResized, this);
-            }
+            let thisOnResized = this.onResized.bind(this);
+            View.instance.on('canvas-resize', thisOnResized);
+            window.addEventListener('orientationchange', thisOnResized);
         }
     },
     add (widget: Widget) {
         this._nodesOrderDirty = true;
-        const canvasComp = director.root!.ui.getScreen(widget.node._uiProps.uiTransformComp!.visibility);
-        if (canvasComp && canvasList.indexOf(canvasComp) === -1) {
-            canvasList.push(canvasComp);
-            canvasComp.node.on('design-resolution-changed', this.onResized, this);
-        }
     },
     remove (widget: Widget) {
         this._activeWidgetsIterator.remove(widget);
@@ -391,11 +373,12 @@ export const widgetManager = legacyCC._widgetManager = {
         }
     },
     refreshWidgetOnResized (node: Node) {
-        if (Node.isNode(node)) {
-            const widget = node.getComponent(Widget);
-            if (widget && widget.enabled && widget.alignMode === AlignMode.ON_WINDOW_RESIZE) {
-                widget.setDirty();
-            }
+        const widget = Node.isNode(node) && node.getComponent(Widget);
+        if (widget && widget.enabled && (
+            widget.alignMode === AlignMode.ON_WINDOW_RESIZE ||
+            widget.alignMode === AlignMode.ALWAYS
+        )) {
+            widget.setDirty();
         }
 
         const children = node.children;
@@ -421,14 +404,9 @@ export const widgetManager = legacyCC._widgetManager = {
                 return;
             }
 
-            const parentTrans = widgetParent._uiProps.uiTransformComp;
+            const parentTrans = widgetParent._uiProps && widgetParent._uiProps.uiTransformComp;
+            const parentAP = parentTrans ? parentTrans.anchorPoint : _defaultAnchor;
             const trans = widgetNode._uiProps.uiTransformComp!;
-            if (!parentTrans) {
-                warnID(6501, widget.node.name);
-                return;
-            }
-
-            const parentAP = parentTrans.anchorPoint;
             const matchSize = getReadonlyNodeSize(widgetParent!);
             const myAP = trans.anchorPoint;
             const pos = widgetNode.getPosition();

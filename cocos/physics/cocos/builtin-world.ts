@@ -12,7 +12,7 @@ import { ray, intersect } from '../../core/geometry';
 import { RecyclePool, Node } from '../../core';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { IVec3Like } from '../../core/math/type-define';
-import { PhysicMaterial } from './../framework/assets/physic-material';
+import { PhysicsMaterial } from '../framework/assets/physics-material';
 import { TriggerEventType } from '../framework/physics-interface';
 import { Collider } from '../../../exports/physics-framework';
 
@@ -32,7 +32,7 @@ const TriggerEventObject = {
 export class BuiltInWorld implements IPhysicsWorld {
     setGravity (v: IVec3Like) { }
     setAllowSleep (v: boolean) { }
-    setDefaultMaterial (v: PhysicMaterial) { }
+    setDefaultMaterial (v: PhysicsMaterial) { }
     get impl () { return this; }
     shapeArr: BuiltinShape[] = [];
     readonly bodies: BuiltinSharedBody[] = [];

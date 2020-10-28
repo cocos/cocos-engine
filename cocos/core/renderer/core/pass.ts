@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -32,10 +32,7 @@ import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../3d/builtin/init';
 import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
 import { TextureBase } from '../../assets/texture-base';
-import { GFXDescriptorSet, GFXDescriptorSetInfo } from '../../gfx/descriptor-set';
-import { GFXBuffer, GFXBufferInfo, GFXBufferViewInfo } from '../../gfx/buffer';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
-import { GFXSampler } from '../../gfx/sampler';
 import { RenderPassStage, RenderPriority, SetIndex } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
@@ -48,7 +45,8 @@ import { customizeType, getBindingFromHandle, getPropertyTypeFromHandle, getDefa
     getOffsetFromHandle, getTypeFromHandle, MacroRecord, MaterialProperty, type2reader, type2writer, PropertyType } from './pass-utils';
 import { GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode,
     GFXType, GFXDynamicStateFlagBit, GFXDynamicStateFlags, GFXFeature } from '../../gfx/define';
-import { GFXDescriptorSetLayoutInfo, GFXTexture,  GFXDevice } from '../../gfx';
+import { GFXDescriptorSetLayoutInfo, GFXTexture,  GFXDevice, GFXBuffer, GFXBufferInfo, GFXBufferViewInfo,
+    GFXSampler, GFXDescriptorSet, GFXDescriptorSetInfo } from '../../gfx';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
@@ -455,11 +453,11 @@ export class Pass {
      */
     public tryCompile () {
         const pipeline = this._root.pipeline;
-        if (!pipeline) { return null; }
+        if (!pipeline) { return false; }
         this._syncBatchingScheme();
         this._hShaderDefault = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
         if (!this._hShaderDefault) { console.warn(`create shader ${this._programName} failed`); return false; }
-        PassPool.set(this._handle, PassView.PIPELINE_LAYOUT, programLib.getPipelineLayout(this._programName).hPipelineLayout);
+        PassPool.set(this._handle, PassView.PIPELINE_LAYOUT, programLib.getTemplate(this._programName).hPipelineLayout);
         PassPool.set(this._handle, PassView.HASH, Pass.getPassHash(this._handle, this._hShaderDefault));
         return true;
     }
@@ -535,12 +533,7 @@ export class Pass {
         if (info.stateOverrides) { Pass.fillPipelineInfo(handle, info.stateOverrides); }
 
         // init descriptor set
-        const setLayouts = programLib.getPipelineLayout(info.program).setLayouts;
-        if (!setLayouts[SetIndex.MATERIAL]) {
-            _dsLayoutInfo.bindings = this._shaderInfo.bindings;
-            setLayouts[SetIndex.MATERIAL] = device.createDescriptorSetLayout(_dsLayoutInfo);
-        }
-        _dsInfo.layout = setLayouts[SetIndex.MATERIAL];
+        _dsInfo.layout = programLib.getDescriptorSetLayout(this._device, info.program);
         const dsHandle = DSPool.alloc(this._device, _dsInfo);
         PassPool.set(this._handle, PassView.DESCRIPTOR_SET, dsHandle);
         this._descriptorSet = DSPool.get(dsHandle);
@@ -608,7 +601,7 @@ export class Pass {
     get root () { return this._root; }
     get device () { return this._device; }
     get shaderInfo () { return this._shaderInfo; }
-    get setLayouts () { return programLib.getPipelineLayout(this._programName).setLayouts; }
+    get localSetLayout () { return programLib.getDescriptorSetLayout(this._device, this._programName, true); }
     get program () { return this._programName; }
     get properties () { return this._properties; }
     get defines () { return this._defines; }

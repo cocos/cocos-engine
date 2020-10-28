@@ -90,12 +90,3 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
         }
     }
 }
-
-// CCClass.fastDefine('cc.SizeOvertimeModule', SizeOvertimeModule, {
-//     enable: false,
-//     separateAxes: false,
-//     size: new CurveRange(),
-//     x: new CurveRange(),
-//     y: new CurveRange(),
-//     z: new CurveRange()
-// });

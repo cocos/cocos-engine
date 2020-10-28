@@ -1,4 +1,4 @@
-import { GFXRect, GFXViewport } from '../define';
+import { GFXRect, GFXViewport } from '../define-class';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipeline-state';
 
 export interface IWebGL2TexUnit {

@@ -32,7 +32,7 @@ import { ImageAsset, Texture2D } from '../../../core/assets';
 import { isUnicodeCJK, isUnicodeSpace, safeMeasureText} from '../../../core/utils';
 import { mixin } from '../../../core/utils/js';
 import { Color, Rect, Size, Vec2 } from '../../../core/math';
-import { GFXBufferTextureCopy, GFXExtent, GFXOffset, GFXTextureSubres } from '../../../core/gfx/define';
+import { GFXBufferTextureCopy } from '../../../core/gfx';
 import { Label, LabelOutline } from '../../components';
 import { ISharedLabelData } from './font-utils';
 import { PixelFormat } from '../../../core/assets/asset-enum';
@@ -82,7 +82,7 @@ class FontLetterDefinition {
     public xAdvance = 0;
 }
 
-const _backgroundStyle = 'rgba(255, 255, 255, 0.005)';
+const _backgroundStyle = `rgba(255, 255, 255, ${(1 / 255).toFixed(3)})`;
 
 class LetterTexture {
     public image: ImageAsset | null = null;
@@ -571,10 +571,10 @@ export const letterFont = {
 
     _computeHash (labelInfo: ILabelInfo) {
         const hashData = '';
-        const color = labelInfo.color.toHEX('#rrggbb');
+        const color = labelInfo.color.toHEX();
         let out = '';
         if (labelInfo.isOutlined) {
-            out = labelInfo.out.toHEX('#rrggbb');
+            out = labelInfo.out.toHEX();
         }
 
         return hashData + labelInfo.fontSize + labelInfo.fontFamily + color + out;

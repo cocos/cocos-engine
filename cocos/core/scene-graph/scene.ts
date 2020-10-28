@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -29,6 +29,7 @@
  */
 
 import { ccclass, serializable, editable } from 'cc.decorator';
+import { CCObject } from '../data/object';
 import { Mat4, Quat, Vec3 } from '../math';
 import { assert, getError } from '../platform/debug';
 import { RenderScene } from '../renderer/scene/render-scene';
@@ -103,8 +104,15 @@ export class Scene extends BaseNode {
      * @zh 销毁当前场景中的所有节点，这个操作不会销毁资源
      */
     public destroy () {
-        const success = super.destroy();
+        const success = CCObject.prototype.destroy.call(this);
+        if (success) {
+            let children = this._children;
+            for (let i = 0; i < children.length; ++i) {
+                children[i].active = false;
+            }
+        }
         legacyCC.director.root.destroyScene(this._renderScene);
+        this._active = false;
         this._activeInHierarchy = false;
         return success;
     }

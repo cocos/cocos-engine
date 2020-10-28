@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -33,7 +33,7 @@ import { property } from '../data/decorators/property';
 import { ccclass, editable, serializable } from 'cc.decorator';
 import { CCObject } from '../data/object';
 import { Event } from '../event';
-import { errorID, warnID, error, log, assertID, getError } from '../platform/debug';
+import { errorID, warnID, error, log, getError } from '../platform/debug';
 import { SystemEventType } from '../platform/event-manager/event-enum';
 import { ISchedulable } from '../scheduler';
 import IdGenerator from '../utils/id-generator';
@@ -525,19 +525,13 @@ export class BaseNode extends CCObject implements ISchedulable {
         }
         return lastNode;
     }
+
     /**
-     * @en Add a child to the current node, it will be pushed to the end of [[children]] array.
-     * @zh 添加一个子节点，它会被添加到 [[children]] 数组的末尾。
+     * @en Add a child to the current node.
+     * @zh 添加一个子节点。
      * @param child - the child node to be added
      */
     public addChild (child: this | Node): void {
-        if (DEV && !(child instanceof legacyCC._BaseNode)) {
-            return errorID(1634, legacyCC.js.getClassName(child));
-        }
-        assertID(child, 1606);
-        assertID((child as this)._parent === null, 1605);
-
-        // invokes the parent setter
         (child as this).setParent(this);
     }
 
@@ -1181,11 +1175,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     public destroy () {
         if (super.destroy()) {
-            // disable hierarchy
-            if (this._activeInHierarchy) {
-                this._disableChildComps();
-            }
-
+            this.active = false;
             return true;
         }
 
@@ -1378,25 +1368,6 @@ export class BaseNode extends CCObject implements ISchedulable {
         }
 
         return destroyByParent;
-    }
-
-    protected _disableChildComps () {
-        // leave this._activeInHierarchy unmodified
-        const comps = this._components;
-        for (let i = 0; i < comps.length; ++i) {
-            const component = comps[i];
-            if (component._enabled) {
-                legacyCC.director._compScheduler.disableComp(component);
-            }
-        }
-        // deactivate recursively
-        const children = this._children;
-        for (let i = 0; i < children.length; ++i) {
-            const node = children[i];
-            if (node._active) {
-                node._disableChildComps();
-            }
-        }
     }
 
     protected _onSiblingIndexChanged? (siblingIndex: number): void;

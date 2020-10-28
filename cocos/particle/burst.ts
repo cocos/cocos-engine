@@ -84,12 +84,3 @@ export default class Burst {
         return this.count.getMax() * Math.min(Math.ceil(psys.duration / this.repeatInterval), this.repeatCount);
     }
 }
-
-// CCClass.fastDefine('cc.Burst', Burst, {
-//     _time: 0,
-//     minCount: 30,
-//     maxCount: 30,
-//     _repeatCount: 1,
-//     repeatInterval: 1,
-//     count: new CurveRange
-// });

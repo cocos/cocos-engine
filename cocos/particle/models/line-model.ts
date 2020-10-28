@@ -4,14 +4,14 @@
  */
 
 import { RenderingSubMesh } from '../../core/assets/mesh';
-import { GFX_DRAW_INFO_SIZE, GFXBuffer, GFXIndirectBuffer } from '../../core/gfx/buffer';
+import { GFX_DRAW_INFO_SIZE, GFXBuffer, GFXIndirectBuffer } from '../../core/gfx';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
 import { Vec3 } from '../../core/math';
 import { scene } from '../../core/renderer';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 import { Material } from '../../core/assets';
-import { GFXAttribute, GFXBufferInfo, GFXDrawInfo } from '../../core';
+import { GFXAttribute, GFXBufferInfo, GFXDrawInfo, IGFXAttribute } from '../../core';
 
 const _vertex_attrs = [
     new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F), // xyz:position

@@ -13,10 +13,6 @@ CCEffect %{
         depthBias:     { value: 0,  target: outlineParams.y }
         baseColor:     { editor: { type: color } }
         baseColorMap:  { value: grey }
-      migrations:
-        properties:
-          lineWidth:   { formerlySerializedAs: outlineParams.x }
-          depthBias:   { formerlySerializedAs: outlineParams.y }
     - vert: toon-vs:vert
       frag: toon-fs:frag
       properties: &props
@@ -40,14 +36,6 @@ CCEffect %{
         shadeMap2:      { value: white  }
         specularMap:    { value: white  }
         emissiveMap:    { value: grey   }
-      migrations:
-        properties:
-          mainColor:    { formerlySerializedAs: baseColor }
-          baseStep:     { formerlySerializedAs: shadeParams.x }
-          baseFeather:  { formerlySerializedAs: shadeParams.y }
-          shadeStep:    { formerlySerializedAs: shadeParams.z }
-          shadeFeather: { formerlySerializedAs: shadeParams.w }
-          mainTexture:  { formerlySerializedAs: baseColorMap }
     - vert: toon-vs:vert
       frag: toon-fs:frag
       phase: forward-add
@@ -67,7 +55,7 @@ CCEffect %{
       properties: *props
     - vert: shadow-caster-vs:vert
       frag: shadow-caster-fs:frag
-      phase: shadow-add
+      phase: shadow-caster
       propertyIndex: 1
       rasterizerState:
         cullMode: front

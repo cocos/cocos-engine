@@ -3,10 +3,9 @@
  * @module pipeline
  */
 
-import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { BatchedBuffer } from './batched-buffer';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { GFXRenderPass, GFXDevice } from '../gfx';
+import { GFXRenderPass, GFXDevice, GFXCommandBuffer } from '../gfx';
 import { DSPool, ShaderPool, PassPool, PassView } from '../renderer/core/memory-pools';
 import { SetIndex } from './define';
 
@@ -35,14 +34,8 @@ export class RenderBatchedQueue {
         this.queue.clear();
     }
 
-    /**
-     * @en Record command buffer for the current queue
-     * @zh 记录命令缓冲。
-     * @param cmdBuff The command buffer to store the result
-     */
-    public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
-        // upload buffers
-        let it = this.queue.values(); let res = it.next();
+    public uploadBuffers (cmdBuff: GFXCommandBuffer) {
+        const it = this.queue.values(); let res = it.next();
         while (!res.done) {
             for (let b = 0; b < res.value.batches.length; ++b) {
                 const batch = res.value.batches[b];
@@ -50,13 +43,20 @@ export class RenderBatchedQueue {
                 for (let v = 0; v < batch.vbs.length; ++v) {
                     batch.vbs[v].update(batch.vbDatas[v]);
                 }
-                batch.vbIdx.update(batch.vbIdxData.buffer);
-                batch.ubo.update(batch.uboData);
+                cmdBuff.updateBuffer(batch.vbIdx, batch.vbIdxData.buffer);
+                cmdBuff.updateBuffer(batch.ubo, batch.uboData);
             }
             res = it.next();
         }
-        // draw
-        it = this.queue.values(); res = it.next();
+    }
+
+    /**
+     * @en Record command buffer for the current queue
+     * @zh 记录命令缓冲。
+     * @param cmdBuff The command buffer to store the result
+     */
+    public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
+        const it = this.queue.values(); let res = it.next();
         while (!res.done) {
             let boundPSO = false;
             for (let b = 0; b < res.value.batches.length; ++b) {

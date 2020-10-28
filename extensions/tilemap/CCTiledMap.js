@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -153,7 +153,7 @@ let TileFlag = cc.Enum({
      * @type {Number}
      * @static
      */
-    FLIPPED_MASK: (~((0x80000000 | 0x40000000 | 0x20000000) >>> 0)) >>> 0
+    FLIPPED_MASK: (~(0x80000000 | 0x40000000 | 0x20000000)) >>> 0
 });
 
 /*

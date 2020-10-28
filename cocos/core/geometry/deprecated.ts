@@ -3,7 +3,7 @@
  * @hidden
  */
 
-import { replaceProperty, removeProperty } from '../utils/deprecated';
+import { replaceProperty, removeProperty } from '../utils/x-deprecated';
 import line from './line';
 import intersect from './intersect';
 

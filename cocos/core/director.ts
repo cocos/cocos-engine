@@ -2,7 +2,7 @@
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -236,6 +236,7 @@ export class Director extends EventTarget {
 
     public _compScheduler: ComponentScheduler;
     public _nodeActivator: NodeActivator;
+    public _maxParticleDeltaTime: number;
     private _invalid: boolean;
     private _paused: boolean;
     private _purgeDirectorInNextLoop: boolean;
@@ -270,6 +271,9 @@ export class Director extends EventTarget {
         this._lastUpdate = 0;
         this._deltaTime = 0.0;
         this._startTime = 0.0;
+
+        // ParticleSystem max step delta time
+        this._maxParticleDeltaTime = 0.0;
 
         // Scheduler for user registration update
         this._scheduler = new Scheduler();
@@ -1000,9 +1004,13 @@ export class Director extends EventTarget {
         }
         else if (!this._invalid) {
             // calculate "global" dt
-            if (!EDITOR || legacyCC.GAME_VIEW) {
+            if (EDITOR && !legacyCC.GAME_VIEW) {
+                this._deltaTime = time;
+            }
+            else {
                 this.calculateDeltaTime(time);
             }
+
             const dt = this._deltaTime;
 
             // Update

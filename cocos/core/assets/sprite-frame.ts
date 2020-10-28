@@ -2,7 +2,7 @@
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -613,6 +613,22 @@ export class SpriteFrame extends Asset {
      */
     public getGFXSampler () {
         return this._texture.getGFXSampler();
+    }
+
+    /**
+     * @en Gets the hash of its texture
+     * @zh 贴图资源的哈希值
+     */
+    public getHash () {
+        return this._texture.getHash();
+    }
+
+    /**
+     * @en Gets the sampler hash of its texture
+     * @zh 贴图资源的采样器哈希值
+     */
+    public getSamplerHash () {
+        return this._texture.getSamplerHash();
     }
 
     /**

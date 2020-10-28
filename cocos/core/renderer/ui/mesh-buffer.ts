@@ -27,10 +27,8 @@
  * @packageDocumentation
  * @module ui
  */
-
-import { GFXBuffer, GFXBufferInfo } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
-import { GFXInputAssemblerInfo, GFXAttribute } from '../../gfx/input-assembler';
+import { GFXInputAssemblerInfo, GFXAttribute, GFXBuffer, GFXBufferInfo } from '../../gfx';
 import { UI } from './ui';
 import { InputAssemblerHandle, NULL_HANDLE, IAPool } from '../core/memory-pools';
 import { getAttributeFormatBytes } from './ui-vertex-format';
@@ -190,7 +188,7 @@ export class MeshBuffer {
         return hIA;
     }
 
-    public uploadData () {
+    public uploadBuffers () {
         if (this.byteOffset === 0 || !this._dirty) {
             return;
         }

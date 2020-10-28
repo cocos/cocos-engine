@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -36,6 +36,10 @@ import { IRenderWindowInfo } from '../renderer/core/render-window';
 import { Root } from '../root';
 import { Asset } from './asset';
 import { samplerLib, defaultSamplerHash } from '../renderer/core/sampler-lib';
+import { IDGenerator } from '../utils/js';
+import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
+
+const idGenerator = new IDGenerator('RenderTex');
 
 export interface IRenderTextureCreateInfo {
     name?: string;
@@ -72,7 +76,20 @@ export class RenderTexture extends Asset {
     @rangeMax(2048)
     private _height = 1;
 
+    private _textureHash: number = 0;
+    private _id: string;
+
     private _window: RenderWindow | null = null;
+
+    constructor () {
+        super();
+        this._id = idGenerator.getNewId();
+        this._textureHash = murmurhash2_32_gc(this._id, 666);
+    }
+
+    public getHash () {
+        return this._textureHash;
+    }
 
     /**
      * @en The pixel width of the render texture
@@ -148,6 +165,14 @@ export class RenderTexture extends Asset {
     public getGFXSampler (): GFXSampler {
         const root = legacyCC.director.root as Root;
         return samplerLib.getSampler(root.device, defaultSamplerHash);
+    }
+
+    /**
+     * @en Gets the sampler hash for the render texture
+     * @zh 获取渲染贴图的采样器哈希值
+     */
+    public getSamplerHash () {
+        return defaultSamplerHash;
     }
 
     public onLoaded () {

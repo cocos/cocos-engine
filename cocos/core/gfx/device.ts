@@ -7,7 +7,8 @@ import { ccenum } from '../value-types/enum';
 import { GFXDescriptorSet, GFXDescriptorSetInfo } from './descriptor-set';
 import { GFXBuffer, GFXBufferInfo, GFXBufferViewInfo } from './buffer';
 import { GFXCommandBuffer, GFXCommandBufferInfo } from './command-buffer';
-import { GFXBufferTextureCopy, GFXFilter, GFXFormat, GFXMemoryStatus, GFXRect, GFXAPI, GFXFeature } from './define';
+import {  GFXFilter, GFXFormat, GFXMemoryStatus, GFXAPI, GFXFeature, GFXSurfaceTransform } from './define';
+import { GFXBufferTextureCopy, GFXRect } from './define-class';
 import { GFXFence, GFXFenceInfo } from './fence';
 import { GFXFramebuffer, GFXFramebufferInfo } from './framebuffer';
 import { GFXInputAssembler, GFXInputAssemblerInfo } from './input-assembler';
@@ -44,7 +45,7 @@ export class GFXDeviceInfo {
         /**
          * For non-vulkan backends, to maintain compatibility and maximize
          * descriptor cache-locality, descriptor-set-based binding numbers need
-         * to be mapped to backend-specific bindings based on maximum limit
+         * to be mapped to backend-specific bindings based on the maximum limit
          * of available descriptor slots in each set.
          *
          * The GFX layer assumes the binding numbers for each descriptor type inside each set
@@ -334,9 +335,18 @@ export abstract class GFXDevice {
         return this._UVSpaceSignY;
     }
 
+    /**
+     * @en The surface transform to be applied in projection matrices.
+     * @zh 需要在投影矩阵中应用的表面变换。
+     */
+    get surfaceTransform () {
+        return this._transform;
+    }
+
     protected _canvas: HTMLCanvasElement | null = null;
     protected _canvas2D: HTMLCanvasElement | null = null;
     protected _gfxAPI: GFXAPI = GFXAPI.UNKNOWN;
+    protected _transform: GFXSurfaceTransform = GFXSurfaceTransform.IDENTITY;
     protected _deviceName: string = '';
     protected _renderer: string = '';
     protected _vendor: string = '';

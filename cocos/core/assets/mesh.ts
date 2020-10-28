@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -33,7 +33,7 @@ import { Mat4, Quat, Vec3 } from '../../core/math';
 import { mapBuffer } from '../3d/misc/buffer';
 import { BufferBlob } from '../3d/misc/buffer-blob';
 import { aabb } from '../geometry';
-import { GFXBuffer, GFXBufferInfo } from '../gfx/buffer';
+import { GFXBuffer, GFXBufferInfo } from '../gfx';
 import {
     getTypedArrayConstructor,
     GFXAttributeName,
@@ -45,8 +45,7 @@ import {
     GFXPrimitiveMode,
     GFXFeature
 } from '../gfx/define';
-import { GFXDevice } from '../gfx';
-import { GFXAttribute, GFXInputAssemblerInfo } from '../gfx/input-assembler';
+import { GFXDevice, GFXAttribute, GFXInputAssemblerInfo } from '../gfx';
 import { warnID } from '../platform/debug';
 import { sys } from '../platform/sys';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
@@ -55,6 +54,7 @@ import { Skeleton } from './skeleton';
 import { postLoadMesh } from './utils/mesh-utils';
 import { Morph, createMorphRendering, MorphRendering } from './morph';
 import { legacyCC } from '../global-exports';
+import { NULL_HANDLE, SubMeshHandle, SubMeshPool } from '../renderer/core/memory-pools';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
@@ -300,6 +300,11 @@ export class RenderingSubMesh {
     private _indirectBuffer: GFXBuffer | null = null;
     private _primitiveMode: GFXPrimitiveMode;
     private _iaInfo: GFXInputAssemblerInfo;
+    private _handle: SubMeshHandle = NULL_HANDLE;
+
+    get handle () {
+        return this._handle;
+    }
 
     constructor (
         vertexBuffers: GFXBuffer[], attributes: GFXAttribute[], primitiveMode: GFXPrimitiveMode,
@@ -311,6 +316,7 @@ export class RenderingSubMesh {
         this._indirectBuffer = indirectBuffer;
         this._primitiveMode = primitiveMode;
         this._iaInfo = new GFXInputAssemblerInfo(attributes, vertexBuffers, indexBuffer, indirectBuffer);
+        this._handle = SubMeshPool.alloc();
     }
 
     public destroy () {
@@ -333,6 +339,8 @@ export class RenderingSubMesh {
             this._indirectBuffer.destroy();
             this._indirectBuffer = null;
         }
+        SubMeshPool.free(this._handle);
+        this._handle = NULL_HANDLE;
     }
 
     /**
@@ -697,6 +705,11 @@ export class Mesh extends Asset {
                 const idx = prim.vertexBundelIndices[0];
                 const vertexBundle = this._struct.vertexBundles[idx];
                 gfxAttributes = vertexBundle.attributes;
+                const attrs = vertexBundle.attributes;
+                for (let i = 0; i < attrs.length; ++i) {
+                    const attr = attrs[i];
+                    gfxAttributes[i] = new GFXAttribute(attr.name, attr.format, attr.isInstanced, attr.stream, attr.isInstanced, attr.location);
+                }
             }
 
             const subMesh = new RenderingSubMesh(vbReference, gfxAttributes, prim.primitiveMode, indexBuffer);
