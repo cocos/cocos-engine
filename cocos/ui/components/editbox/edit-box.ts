@@ -391,6 +391,7 @@ export class EditBox extends Component {
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this._registerEvent();
         }
+
         if (this._impl) {
             this._impl.onEnable();
         }
@@ -406,6 +407,7 @@ export class EditBox extends Component {
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this._unregisterEvent();
         }
+        
         if (this._impl) {
             this._impl.onDisable();
         }
