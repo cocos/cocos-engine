@@ -38,7 +38,6 @@ import { TMXMapInfo } from './tmx-xml-parser';
 import { Color, IVec2Like, Mat4, Size, SpriteFrame, SystemEventType, Texture2D, Vec2, Vec3, Node, warn, logID, CCBoolean } from '../core';
 import { TiledTile } from './tiled-tile';
 import { EDITOR } from 'internal:constants';
-import { legacyCC } from '../core/global-exports';
 import { MeshRenderData } from '../core/renderer/ui/render-data';
 import { UI } from '../core/renderer/ui/ui';
 import {
@@ -1447,6 +1446,3 @@ export class TiledLayer extends UIRenderable {
         }
     }
 }
-
-
-legacyCC.TiledLayer = TiledLayer;

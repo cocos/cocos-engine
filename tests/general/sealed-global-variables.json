@@ -289,11 +289,6 @@
         "cc.vmath",
         "cc.warn",
         "cc.warnID",
-        "cc.winSize",
-        "cc.TiledTile",
-        "cc.TiledLayer",
-        "cc.TiledObjectGroup",
-        "cc.TiledMapAsset",
-        "cc.TiledMap"
+        "cc.winSize"
     ]
 }

@@ -36,7 +36,6 @@
 
 import { Component } from '../core/components';
 import { ccclass, help, type } from 'cc.decorator';
-import { legacyCC } from '../core/global-exports';
 import { TiledLayer } from './tiled-layer';
 import { CCInteger, warn } from '../core';
 
@@ -147,5 +146,3 @@ export class TiledTile extends Component {
         this._layer.setTiledTileAt(x, y, this);
     }
 }
-
-legacyCC.TiledTile = TiledTile;

@@ -26,7 +26,6 @@
 
 import { Component } from '../core/components';
 import { ccclass, help, type, requireComponent } from 'cc.decorator';
-import { legacyCC } from '../core/global-exports';
 import { Sprite } from '../ui/components/sprite';
 import { Label } from '../ui/components/label';
 import * as gfx from '../core/gfx';
@@ -434,5 +433,3 @@ export class TiledObjectGroup extends Component {
     }
 
 }
-
-legacyCC.TiledObjectGroup = TiledObjectGroup;

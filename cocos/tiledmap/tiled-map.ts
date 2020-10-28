@@ -31,9 +31,7 @@
 import { Component } from '../core/components';
 import { UITransform } from '../core/components/ui-base';
 import { ccclass, displayOrder, executeInEditMode, help, menu, requireComponent, type, serializable } from 'cc.decorator';
-import { legacyCC } from '../core/global-exports';
-import { js } from '../core/utils/js';
-import { GID, Orientation, PropertiesInfo, Property, RenderOrder, StaggerAxis, StaggerIndex, TiledAnimationType, TiledTextureGrids, TileFlag, 
+import { GID, Orientation, PropertiesInfo, Property, RenderOrder, StaggerAxis, StaggerIndex, TiledAnimationType, TiledTextureGrids, TileFlag,
     TMXImageLayerInfo, TMXLayerInfo, TMXObjectGroupInfo, TMXObjectType, TMXTilesetInfo } from './tiled-types'
 import { TMXMapInfo } from './tmx-xml-parser';
 import { TiledLayer } from './tiled-layer';
@@ -645,9 +643,4 @@ export class TiledMap extends Component {
         }
     }
 
-
-
 }
-
-js.setClassAlias(TiledMap, 'cc.TiledMapComponent');
-legacyCC.TiledMap = TiledMap;
