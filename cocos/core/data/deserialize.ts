@@ -1,8 +1,7 @@
 /*
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -29,800 +28,958 @@
  * @hidden
  */
 
-import { warnID } from '../platform/debug';
-import * as js from '../utils/js';
-import * as misc from '../utils/misc';
-import { CCClass } from './class';
-import * as Attr from './utils/attribute';
-import MissingScript from '../components/missing-script';
-import { EDITOR, TEST, DEV, JSB, PREVIEW, SUPPORT_JIT } from 'internal:constants';
+import { EDITOR, TEST, PREVIEW, BUILD, DEBUG, JSB } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { ValueType } from '../value-types';
+import { Vec2, Vec3, Vec4, Color, Size, Rect, Quat, Mat4 } from '../math';
+import { warnID, errorID, getError } from '../platform/debug';
+import * as js from '../utils/js';
 
-// HELPERS
+import { deserializeDynamic } from './deserialize-dynamic';
 
-// tslint:disable: no-shadowed-variable
+/****************************************************************************
+ * BUILT-IN TYPES / CONSTAINTS
+ ****************************************************************************/
+
+const SUPPORT_MIN_FORMAT_VERSION = 1;
+const EMPTY_PLACEHOLDER = 0;
+
+// Used for Data.ValueType.
+// If a value type is not registered in this list, it will be serialized to Data.Class.
+const BuiltinValueTypes: (typeof ValueType)[] = [
+    Vec2,   // 0
+    Vec3,   // 1
+    Vec4,   // 2
+    Quat,   // 3
+    Color,  // 4
+    Size,   // 5
+    Rect,   // 6
+    Mat4,   // 7
+];
+
+// Used for Data.ValueTypeCreated.
+function BuiltinValueTypeParsers_xyzw (obj: Vec4 | Quat, data: number[]) {
+    obj.x = data[1];
+    obj.y = data[2];
+    obj.z = data[3];
+    obj.w = data[4];
+}
+const BuiltinValueTypeSetters: ((obj: any, data: number[]) => void)[] = [
+    (obj: Vec2, data: number[]) => {
+        obj.x = data[1];
+        obj.y = data[2];
+    },
+    (obj: Vec3, data: number[]) => {
+        obj.x = data[1];
+        obj.y = data[2];
+        obj.z = data[3];
+    },
+    BuiltinValueTypeParsers_xyzw,   // Vec4
+    BuiltinValueTypeParsers_xyzw,   // Quat
+    (obj: Color, data: number[]) => {
+        obj._val = data[1];
+    },
+    (obj: Size, data: number[]) => {
+        obj.width = data[1];
+        obj.height = data[2];
+    },
+    (obj: Rect, data: number[]) => {
+        obj.x = data[1];
+        obj.y = data[2];
+        obj.width = data[3];
+        obj.height = data[4];
+    },
+    (obj: Mat4, data: number[]) => {
+        Mat4.fromArray(obj, data, 1);
+    }
+];
+
+function serializeBuiltinValueTypes (obj: ValueType): IValueTypeData | null {
+    const ctor = obj.constructor as typeof ValueType;
+    const typeId = BuiltinValueTypes.indexOf(ctor);
+    switch (ctor) {
+        case Vec2:
+            // @ts-ignore
+            return [typeId, obj.x, obj.y];
+        case Vec3:
+            // @ts-ignore
+            return [typeId, obj.x, obj.y, obj.z];
+        case Vec4:
+        case Quat:
+            // @ts-ignore
+            return [typeId, obj.x, obj.y, obj.z, obj.w];
+        case Color:
+            // @ts-ignore
+            return [typeId, obj._val];
+        case Size:
+            // @ts-ignore
+            return [typeId, obj.width, obj.height];
+        case Rect:
+            // @ts-ignore
+            return [typeId, obj.x, obj.y, obj.width, obj.height];
+        case Mat4:
+            // @ts-ignore
+            const res: IValueTypeData = new Array(1 + 16);
+            res[VALUETYPE_SETTER] = typeId;
+            Mat4.toArray(res, obj as Mat4, 1);
+            return res;
+        default:
+            return null;
+    }
+}
+
+// // TODO: Used for Data.TypedArray.
+// const TypedArrays = [
+//     Float32Array,
+//     Float64Array,
+//
+//     Int8Array,
+//     Int16Array,
+//     Int32Array,
+//
+//     Uint8Array,
+//     Uint16Array,
+//     Uint32Array,
+//
+//     Uint8ClampedArray,
+//     // BigInt64Array,
+//     // BigUint64Array,
+// ];
+
+
+/****************************************************************************
+ * TYPE DECLARATIONS
+ ****************************************************************************/
+
+// Includes Bitwise NOT value.
+// Both T and U have non-negative integer ranges.
+// When the value >= 0 represents T
+// When the value is < 0, it represents ~U. Use ~x to extract the value of U.
+type Bnot<T extends number, U extends number> = T|U;
+
+// Combines a boolean and a number into one value.
+// The number must >= 0.
+// When the value >= 0, the boolean is true, the number is value.
+// When the value < 0, the boolean is false, the number is ~value.
+type BoolAndNum<B extends boolean, N extends number> = Bnot<N, N>;
+
+type SharedString = string;
+type Empty = typeof EMPTY_PLACEHOLDER;
+type StringIndex = number;
+type InstanceIndex = number;
+type RootInstanceIndex = InstanceIndex;
+type NoNativeDep = boolean;  // Indicates whether the asset depends on a native asset
+type RootInfo = BoolAndNum<NoNativeDep, RootInstanceIndex>;
+
+// When the value >= 0 represents the string index
+// When the value is < 0, it just represents non-negative integer. Use ~x to extract the value.
+type StringIndexBnotNumber = Bnot<StringIndex, number>;
+
+// A reverse index used to assign current parsing object to target command buffer so it could be assembled later.
+// Should >= REF.OBJ_OFFSET
+type ReverseIndex = number;
+
+// Used to index the current object
+type InstanceBnotReverseIndex = Bnot<InstanceIndex, ReverseIndex>;
+
+// shared with the editor
+export declare namespace deserialize.Internal {
+    export type SharedString_ = SharedString;
+    export type Empty_ = Empty;
+    export type StringIndex_ = StringIndex;
+    export type InstanceIndex_ = InstanceIndex;
+    export type StringIndexBnotNumber_ = StringIndexBnotNumber;
+}
+
+const enum DataTypeID {
+
+    // Fields that can be assigned directly, can be values in any JSON, or even a complex JSON array, object (no type).
+    // Contains null, no undefined, JSON does not support serialization of undefined.
+    // This is the only type that supports null, and all other advanced fields are forbidden with null values.
+    // If the value of an object is likely to be null, it needs to exist as a new class,
+    // but the probability of this is very low and will be analyzed below.
+    SimpleType = 0,
+
+    // --------------------------------------------------------------------------
+    // Except Simple, the rest belong to Advanced Type.
+
+    // Rarely will it be NULL, as NULL will be dropped as the default value.
+    InstanceRef,
+
+    // Arrays of exactly equal types.
+    // Arrays will have default values that developers will rarely assign to null manually.
+    Array_InstanceRef,
+    Array_AssetRefByInnerObj,
+
+    // Embedded object
+    // Rarely will it be NULL, as NULL will be dropped as the default value.
+    Class,
+
+    // Existing ValueType (created by the Class constructor).
+    // Developers will rarely manually assign a null.
+    ValueTypeCreated,
+
+    // Resource reference for embedded objects (such as arrays), the value is the index of DEPEND_OBJS.
+    // (The objects in INSTANCES do not need to dynamically resolve resource reference relationships, so there is no need to have the AssetRef type.)
+    AssetRefByInnerObj,
+
+    // Common TypedArray for legacyCC.Node only. Never be null.
+    TRS,
+
+    // // From the point of view of simplified implementation,
+    // // it is not supported to deserialize TypedArray that is initialized to null in the constructor.
+    // // Also, the length of TypedArray cannot be changed.
+    // // Developers will rarely manually assign a null.
+    // TypedArray,
+
+    // ValueType without default value (in arrays, dictionaries).
+    // Developers will rarely manually assign a null.
+    ValueType,
+
+    Array_Class,
+
+    // CustomizedClass embedded in Class
+    CustomizedClass,
+
+    // Universal dictionary with unlimited types of values (except TypedArray)
+    Dict,
+
+    // Universal arrays, of any type (except TypedArray) and can be unequal.
+    // (The editor doesn't seem to have a good way of stopping arrays of unequal types either)
+    Array,
+
+    ARRAY_LENGTH,
+}
+
+export declare namespace deserialize.Internal {
+    export import DataTypeID_ = DataTypeID;
+    export type DataTypes_ = DataTypes;
+}
+
+interface DataTypes {
+    [DataTypeID.SimpleType]: number | string | boolean | null | object;
+    [DataTypeID.InstanceRef]: InstanceBnotReverseIndex;
+    [DataTypeID.Array_InstanceRef]: DataTypes[DataTypeID.InstanceRef][];
+    [DataTypeID.Array_AssetRefByInnerObj]: DataTypes[DataTypeID.AssetRefByInnerObj][];
+    [DataTypeID.Class]: IClassObjectData;
+    [DataTypeID.ValueTypeCreated]: IValueTypeData;
+    [DataTypeID.AssetRefByInnerObj]: number;
+    [DataTypeID.TRS]: ITRSData;
+    // [DataTypeID.TypedArray]: Array<InstanceOrReverseIndex>;
+    [DataTypeID.ValueType]: IValueTypeData;
+    [DataTypeID.Array_Class]: DataTypes[DataTypeID.Class][];
+    [DataTypeID.CustomizedClass]: ICustomObjectData;
+    [DataTypeID.Dict]: IDictData;
+    [DataTypeID.Array]: IArrayData;
+}
+
+type PrimitiveObjectTypeID = (
+    DataTypeID.SimpleType | // SimpleType also includes any pure JSON object
+    DataTypeID.Array |
+    DataTypeID.Array_Class |
+    DataTypeID.Array_AssetRefByInnerObj |
+    DataTypeID.Array_InstanceRef |
+    DataTypeID.Dict
+);
+
+type AdvancedTypeID = Exclude<DataTypeID, DataTypeID.SimpleType>;
+
+
+// Collection of all data types
+type AnyData = DataTypes[keyof DataTypes];
+
+type AdvancedData = DataTypes[Exclude<keyof DataTypes, DataTypeID.SimpleType>];
+
+type OtherObjectData = ICustomObjectDataContent | Exclude<DataTypes[PrimitiveObjectTypeID], (number|string|boolean|null)>;
+
+// class Index of DataTypeID.CustomizedClass or PrimitiveObjectTypeID
+type OtherObjectTypeID = Bnot<number, PrimitiveObjectTypeID>;
+
+type Ctor<T> = new() => T;
+// Includes normal CCClass and fast defined class
+interface CCClass<T> extends Ctor<T> {
+    __values__: string[]
+}
+type AnyCtor = Ctor<Object>;
+type AnyCCClass = CCClass<Object>;
+
+export declare namespace deserialize.Internal {
+    export type AnyData_ = AnyData;
+    export type OtherObjectData_ = OtherObjectData;
+    export type OtherObjectTypeID_ = OtherObjectTypeID;
+    export type AnyCCClass_ = AnyCCClass;
+}
+
+/**
+ * If the value type is different, different Classes will be generated
+ */
+const CLASS_TYPE = 0;
+const CLASS_KEYS = 1;
+const CLASS_PROP_TYPE_OFFSET = 2;
+type IClass = [
+    string|AnyCtor,
+    string[],
+    // offset - It is used to specify the correspondence between the elements in CLASS_KEYS and their AdvancedType,
+    //          which is only valid for AdvancedType.
+    // When parsing, the type of IClass[CLASS_KEYS][x] is IClass[x + IClass[CLASS_PROP_TYPE_OFFSET]]
+    // When serializing, IClass[CLASS_PROP_TYPE_OFFSET] = CLASS_PROP_TYPE_OFFSET + 1 - (The number of SimpleType)
+    number,
+    // The AdvancedType type corresponding to the property.
+    ...DataTypeID[]
+];
+
+/**
+ * Mask is used to define the properties and types that need to be deserialized.
+ * Instances of the same class may have different Masks due to different default properties removed.
+ */
+const MASK_CLASS = 0;
+type IMask = [
+    // The index of its Class
+    number,
+    // The indices of the property that needs to be deserialized in IClass, except that the last number represents OFFSET.
+    // All properties before OFFSET are SimpleType, and those starting at OFFSET are AdvancedType.
+    // default is 1
+    ...number[]
+];
+
+const OBJ_DATA_MASK = 0;
+type IClassObjectData = [
+    // The index of its Mask
+    number,
+    // Starting from 1, the values corresponding to the properties in the Mask
+    ...AnyData[]
+];
+
+type ICustomObjectDataContent = any;
+
+const CUSTOM_OBJ_DATA_CLASS = 0;
+const CUSTOM_OBJ_DATA_CONTENT = 1;
+interface ICustomObjectData extends Array<any> {
+    // The index of its Class
+    [CUSTOM_OBJ_DATA_CLASS]: number;
+    // Content
+    [CUSTOM_OBJ_DATA_CONTENT]: ICustomObjectDataContent;
+}
+
+const VALUETYPE_SETTER = 0;
+type IValueTypeData = [
+    // Predefined parsing function index
+    number,
+    // Starting with 1, the corresponding value in the attributes are followed in order
+    ...number[]
+];
+
+type ITRSData = [number, number, number, number, number,
+                        number, number, number, number, number];
+
+const DICT_JSON_LAYOUT = 0;
+interface IDictData extends Array<any> {
+    // The raw json object
+    [DICT_JSON_LAYOUT]: any,
+    // key
+    // Shared strings are not considered here, can be defined as CCClass if it is required.
+    [1]: string;
+    // value type
+    // Should not be SimpleType, SimpleType is built directly into DICT_JSON_LAYOUT.
+    [2]: AdvancedTypeID;
+    // value
+    [3]: AdvancedData;
+    // More repeated key values
+    [index: number]: any,
+}
+
+const ARRAY_ITEM_VALUES = 0;
+type IArrayData = [
+    AnyData[],
+    // types
+    ...DataTypeID[]
+];
+
+export declare namespace deserialize.Internal {
+    export type IClass_ = IClass;
+    export type IMask_ = IMask;
+    export type IClassObjectData_ = IClassObjectData;
+    export type ICustomObjectDataContent_ = ICustomObjectDataContent;
+    export type ICustomObjectData_ = ICustomObjectData;
+    export type ITRSData_ = ITRSData;
+    export type IDictData_ = IDictData;
+    export type IArrayData_ = IArrayData;
+}
+
+// const TYPEDARRAY_TYPE = 0;
+// const TYPEDARRAY_ELEMENTS = 1;
+// interface ITypedArrayData extends Array<number|number[]> {
+//     [TYPEDARRAY_TYPE]: number,
+//     [TYPEDARRAY_ELEMENTS]: number[],
+// }
+
+const enum Refs {
+    EACH_RECORD_LENGTH = 3,
+    OWNER_OFFSET = 0,
+    KEY_OFFSET = 1,
+    TARGET_OFFSET = 2,
+}
+
+interface IRefs extends Array<number> {
+    // owner
+    // The owner of all the objects in the front is of type object, starting from OFFSET * 3 are of type InstanceIndex
+    [0]: (object | InstanceIndex),
+    // property name
+    [1]?: StringIndexBnotNumber;
+    // target object
+    [2]?: InstanceIndex;
+    // All the following objects are arranged in the order of the first three values,
+    // except that the last number represents OFFSET.
+    [index: number]: any;
+}
+
+const enum File {
+    Version = 0,
+    Context = 0,
+
+    SharedUuids,
+    SharedStrings,
+    SharedClasses,
+    SharedMasks,
+
+    Instances,
+    InstanceTypes,
+
+    Refs,
+
+    DependObjs,
+    DependKeys,
+    DependUuidIndices,
+
+    ARRAY_LENGTH,
+}
+
+// Main file structure
+interface IFileData extends Array<any> {
+    // version
+    [File.Version]: number | FileInfo | any;
+
+    // Shared data area, the higher the number of references, the higher the position
+
+    [File.SharedUuids]: SharedString[] | Empty; // Shared uuid strings for dependent assets
+    [File.SharedStrings]: SharedString[] | Empty;
+    [File.SharedClasses]: (IClass|string|AnyCCClass)[];
+    [File.SharedMasks]: IMask[] | Empty;  // Shared Object layouts for IClassObjectData
+
+    // Data area
+
+    // A one-dimensional array to represent object datas, layout is [...IClassObjectData[], ...OtherObjectData[], RootInfo]
+    // If the last element is not RootInfo(number), the first element will be the root object to return and it doesn't have native asset
+    [File.Instances]: (IClassObjectData|OtherObjectData|RootInfo)[];
+    [File.InstanceTypes]: OtherObjectTypeID[] | Empty;
+    // Object references infomation
+    [File.Refs]: IRefs | Empty;
+
+    // Result area
+
+    // Asset-dependent objects that are deserialized and parsed into object arrays
+    [File.DependObjs]: (object|InstanceIndex)[];
+    // Asset-dependent key name or array index
+    [File.DependKeys]: (StringIndexBnotNumber|string)[];
+    // UUID of dependent assets
+    [File.DependUuidIndices]: (StringIndex|string)[];
+}
+
+// type Body = Pick<IFileData, File.Instances | File.InstanceTypes | File.Refs | File.DependObjs | File.DependKeys | File.DependUuidIndices>
+type Shared = Pick<IFileData, File.Version | File.SharedUuids | File.SharedStrings | File.SharedClasses | File.SharedMasks>;
+const PACKED_SECTIONS = File.Instances;
+interface IPackedFileData extends Shared {
+    [PACKED_SECTIONS]: IFileData[];
+}
+
+export declare namespace deserialize.Internal {
+    export import Refs_ = Refs;
+    export type IRefs_ = IRefs;
+    export import File_ = File;
+    export type IFileData_ = IFileData;
+    export type IPackedFileData_ = IPackedFileData;
+}
+
+interface ICustomHandler {
+    result: Details,
+    customEnv: any,
+}
+type ClassFinder = {
+    // tslint:disable-next-line:callable-types
+    (type: string): AnyCtor;
+    // // for editor
+    // onDereferenced: (curOwner: object, curPropName: string, newOwner: object, newPropName: string) => void;
+};
+interface IOptions extends Partial<ICustomHandler> {
+    classFinder?: ClassFinder;
+    _version?: number;
+}
+interface ICustomClass {
+    _deserialize: (content: any, context: ICustomHandler) => void;
+}
+
+/****************************************************************************
+ * IMPLEMENTS
+ ****************************************************************************/
 
 /**
  * @en Contains information collected during deserialization
  * @zh 包含反序列化时的一些信息。
  * @class Details
- *
  */
 export class Details {
+    /**
+     * the obj list whose field needs to load asset by uuid
+     */
+    uuidObjList: IFileData[File.DependObjs] | null = null;
+    /**
+     * the corresponding field name which referenced to the asset
+     */
+    uuidPropList: IFileData[File.DependKeys] | null = null;
+    /**
+     * list of the depends assets' uuid
+     */
+    uuidList: IFileData[File.DependUuidIndices] | null = null;
 
-    public static pool: js.Pool<{}>;
+    static pool = new js.Pool((obj: Details) => {
+        obj.reset();
+    }, 5);
 
-    public assignAssetsBy!: Function;
-    public uuidList: string[];
-    public uuidObjList: object[];
-    public uuidPropList: string[];
-    private _stillUseUrl: any;
+    public declare assignAssetsBy: Function;
 
-    constructor () {
-        /**
-         * list of the depends assets' uuid
-         */
-        this.uuidList = [];
-        /**
-         * the obj list whose field needs to load asset by uuid
-         */
-        this.uuidObjList = [];
-        /**
-         * the corresponding field name which referenced to the asset
-         */
-        this.uuidPropList = [];
-
-        // TODO - DELME since 2.0
-        this._stillUseUrl = js.createMap(true);
-
-        if (EDITOR || TEST) {
-            this.assignAssetsBy = (getter) => {
-                // ignore this._stillUseUrl
-                for (let i = 0, len = this.uuidList.length; i < len; i++) {
-                    const uuid = this.uuidList[i];
-                    const obj = this.uuidObjList[i];
-                    const prop = this.uuidPropList[i];
-                    obj[prop] = getter(uuid);
-                }
-            };
+    /**
+     * @method init
+     * @param {Object} data
+     */
+    init (data?: IFileData) {
+        if (BUILD || data) {
+            this.uuidObjList = data![File.DependObjs];
+            this.uuidPropList = data![File.DependKeys];
+            this.uuidList = data![File.DependUuidIndices];
+        }
+        else {
+            // could be used by deserialize-dynamic
+            const used = this.uuidList;
+            if (!used) {
+                this.uuidList = [];
+                this.uuidObjList = [];
+                this.uuidPropList = [];
+            }
         }
     }
 
     /**
-     * @zh
-     * 重置。
      * @method reset
      */
-    public reset () {
-        this.uuidList.length = 0;
-        this.uuidObjList.length = 0;
-        this.uuidPropList.length = 0;
-        js.clear(this._stillUseUrl);
+    reset  () {
+        if (BUILD) {
+            this.uuidList = null;
+            this.uuidObjList = null;
+            this.uuidPropList = null;
+        }
+        else {
+            // could be reused by deserialize-dynamic
+            const used = this.uuidList;
+            if (used) {
+                this.uuidList!.length = 0;
+                this.uuidObjList!.length = 0;
+                this.uuidPropList!.length = 0;
+            }
+        }
     }
 
-    // /**
-    //  * @method getUuidOf
-    //  * @param {Object} obj
-    //  * @param {String} propName
-    //  * @return {String}
-    //  */
-    // getUuidOf (obj, propName) {
-    //     for (var i = 0; i < this.uuidObjList.length; i++) {
-    //         if (this.uuidObjList[i] === obj && this.uuidPropList[i] === propName) {
-    //             return this.uuidList[i];
-    //         }
-    //     }
-    //     return "";
-    // }
     /**
      * @method push
      * @param {Object} obj
      * @param {String} propName
      * @param {String} uuid
      */
-    public push (obj: Object, propName: string, uuid: string, _stillUseUrl: any) {
-        if (_stillUseUrl) {
-            this._stillUseUrl[this.uuidList.length] = true;
-        }
-        this.uuidList.push(uuid);
-        this.uuidObjList.push(obj);
-        this.uuidPropList.push(propName);
+    push (obj: object, propName: string, uuid: string) {
+        this.uuidObjList!.push(obj);
+        this.uuidPropList!.push(propName);
+        this.uuidList!.push(uuid);
     }
 }
-
-Details.pool = new js.Pool((obj: any) => {
-    obj.reset();
-}, 10);
-
 Details.pool.get = function () {
     return this._get() || new Details();
 };
-
-// IMPLEMENT OF DESERIALIZATION
-
-function _dereference (self) {
-    // 这里不采用遍历反序列化结果的方式，因为反序列化的结果如果引用到复杂的外部库，很容易堆栈溢出。
-    const deserializedList = self.deserializedList;
-    const idPropList = self._idPropList;
-    const idList = self._idList;
-    const idObjList = self._idObjList;
-    const onDereferenced = self._classFinder && self._classFinder.onDereferenced;
-    let i;
-    let propName;
-    let id;
-    if (EDITOR && onDereferenced) {
-        for (i = 0; i < idList.length; i++) {
-            propName = idPropList[i];
-            id = idList[i];
-            idObjList[i][propName] = deserializedList[id];
-            onDereferenced(deserializedList, id, idObjList[i], propName);
-        }
-    }
-    else {
-        for (i = 0; i < idList.length; i++) {
-            propName = idPropList[i];
-            id = idList[i];
-            idObjList[i][propName] = deserializedList[id];
-        }
-    }
-}
-
-function compileObjectTypeJit (sources, defaultValue, accessorToSet, propNameLiteralToSet, assumeHavePropIfIsValue, stillUseUrl) {
-    if (defaultValue instanceof legacyCC.ValueType) {
-        // fast case
-        if (!assumeHavePropIfIsValue) {
-            sources.push('if(prop){');
-        }
-        const ctorCode = js.getClassName(defaultValue);
-        sources.push(`s._deserializeTypedObject(o${accessorToSet},prop,${ctorCode});`);
-        if (!assumeHavePropIfIsValue) {
-            sources.push('}else o' + accessorToSet + '=null;');
-        }
-    }
-    else {
-        sources.push('if(prop){');
-        sources.push('s._deserializeObjField(o,prop,' +
-                             propNameLiteralToSet +
-                             ((EDITOR || TEST) ? ',t&&o,' : ',null,') +
-                             !!stillUseUrl +
-                         ');');
-        sources.push('}else o' + accessorToSet + '=null;');
-    }
-}
-
-const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
-    const TYPE = Attr.DELIMETER + 'type';
-    const EDITOR_ONLY = Attr.DELIMETER + 'editorOnly';
-    const DEFAULT = Attr.DELIMETER + 'default';
-    const SAVE_URL_AS_ASSET = Attr.DELIMETER + 'saveUrlAsAsset';
-    const FORMERLY_SERIALIZED_AS = Attr.DELIMETER + 'formerlySerializedAs';
-    const attrs = Attr.getClassAttrs(klass);
-
-    const props = klass.__values__;
-    // self, obj, serializedData, klass, target
-    const sources = [
-        'var prop;',
-    ];
-    const fastMode = misc.BUILTIN_CLASSID_RE.test(js._getClassId(klass));
-    // sources.push('var vb,vn,vs,vo,vu,vf;');    // boolean, number, string, object, undefined, function
-    // tslint:disable-next-line: prefer-for-of
-    for (let p = 0; p < props.length; p++) {
-        const propName = props[p];
-        if ((PREVIEW || (EDITOR && self._ignoreEditorOnly)) && attrs[propName + EDITOR_ONLY]) {
-            continue;   // skip editor only if in preview
-        }
-
-        let accessorToSet;
-        let propNameLiteralToSet;
-        if (CCClass.IDENTIFIER_RE.test(propName)) {
-            propNameLiteralToSet = '"' + propName + '"';
-            accessorToSet = '.' + propName;
-        }
-        else {
-            propNameLiteralToSet = CCClass.escapeForJS(propName);
-            accessorToSet = '[' + propNameLiteralToSet + ']';
-        }
-
-        let accessorToGet = accessorToSet;
-        if (attrs[propName + FORMERLY_SERIALIZED_AS]) {
-            const propNameToRead = attrs[propName + FORMERLY_SERIALIZED_AS];
-            if (CCClass.IDENTIFIER_RE.test(propNameToRead)) {
-                accessorToGet = '.' + propNameToRead;
-            }
-            else {
-                accessorToGet = '[' + CCClass.escapeForJS(propNameToRead) + ']';
-            }
-        }
-
-        sources.push('prop=d' + accessorToGet + ';');
-        sources.push(`if(typeof ${JSB ? '(prop)' : 'prop'}!=="undefined"){`);
-
-        const stillUseUrl = attrs[propName + SAVE_URL_AS_ASSET];
-        // function undefined object(null) string boolean number
-        const defaultValue = CCClass.getDefault(attrs[propName + DEFAULT]);
-        if (fastMode) {
-            let isPrimitiveType;
-            const userType = attrs[propName + TYPE];
-            if (defaultValue === undefined && userType) {
-                isPrimitiveType = userType === legacyCC.String ||
-                                  userType === legacyCC.Integer ||
-                                  userType === legacyCC.Float ||
-                                  userType === legacyCC.Boolean;
-            }
-            else {
-                const defaultType = typeof defaultValue;
-                isPrimitiveType = (defaultType === 'string' && !stillUseUrl) ||
-                                  defaultType === 'number' ||
-                                  defaultType === 'boolean';
-            }
-
-            if (isPrimitiveType) {
-                sources.push(`o${accessorToSet}=prop;`);
-            }
-            else {
-                compileObjectTypeJit(sources, defaultValue, accessorToSet, propNameLiteralToSet, true, stillUseUrl);
-            }
-        }
-        else {
-            sources.push(`if(typeof ${JSB ? '(prop)' : 'prop'}!=="object"){` +
-                             'o' + accessorToSet + '=prop;' +
-                         '}else{');
-            compileObjectTypeJit(sources, defaultValue, accessorToSet, propNameLiteralToSet, false, stillUseUrl);
-            sources.push('}');
-        }
-        sources.push('}');
-    }
-    if (legacyCC.js.isChildClassOf(klass, legacyCC._BaseNode) || legacyCC.js.isChildClassOf(klass, legacyCC.Component)) {
-        if (PREVIEW || (EDITOR && self._ignoreEditorOnly)) {
-            const mayUsedInPersistRoot = js.isChildClassOf(klass, legacyCC.Node);
-            if (mayUsedInPersistRoot) {
-                sources.push('d._id&&(o._id=d._id);');
-            }
-        }
-        else {
-            sources.push('d._id&&(o._id=d._id);');
-        }
-    }
-    if (props[props.length - 1] === '_$erialized') {
-        // deep copy original serialized data
-        sources.push('o._$erialized=JSON.parse(JSON.stringify(d));');
-        // parse the serialized data as primitive javascript object, so its __id__ will be dereferenced
-        sources.push('s._deserializePrimitiveObject(o._$erialized,d);');
-    }
-    return Function('s', 'o', 'd', 'k', 't', sources.join(''));
-} : (self, klass) => {
-    const fastMode = misc.BUILTIN_CLASSID_RE.test(js._getClassId(klass));
-    const shouldCopyId = legacyCC.js.isChildClassOf(klass, legacyCC._BaseNode) || legacyCC.js.isChildClassOf(klass, legacyCC.Component);
-    let shouldCopyRawData;
-
-    const simpleProps: any = [];
-    let simplePropsToRead = simpleProps;
-    const advancedProps: any = [];
-    let advancedPropsToRead = advancedProps;
-    const advancedPropsUseUrl: any = [];
-    const advancedPropsValueType: any = [];
-
-    (() => {
-        const props = klass.__values__;
-        shouldCopyRawData = props[props.length - 1] === '_$erialized';
-
-        const attrs = Attr.getClassAttrs(klass);
-        const TYPE = Attr.DELIMETER + 'type';
-        const DEFAULT = Attr.DELIMETER + 'default';
-        const SAVE_URL_AS_ASSET = Attr.DELIMETER + 'saveUrlAsAsset';
-        const FORMERLY_SERIALIZED_AS = Attr.DELIMETER + 'formerlySerializedAs';
-
-        // tslint:disable-next-line: prefer-for-of
-        for (let p = 0; p < props.length; p++) {
-            const propName = props[p];
-            let propNameToRead = propName;
-            if (attrs[propName + FORMERLY_SERIALIZED_AS]) {
-                propNameToRead = attrs[propName + FORMERLY_SERIALIZED_AS];
-            }
-            const stillUseUrl = attrs[propName + SAVE_URL_AS_ASSET];
-            // function undefined object(null) string boolean number
-            const defaultValue = CCClass.getDefault(attrs[propName + DEFAULT]);
-            let isPrimitiveType = false;
-            if (fastMode) {
-                const userType = attrs[propName + TYPE];
-                if (defaultValue === undefined && userType) {
-                    isPrimitiveType = userType === legacyCC.String ||
-                                      userType === legacyCC.Integer ||
-                                      userType === legacyCC.Float ||
-                                      userType === legacyCC.Boolean;
-                }
-                else {
-                    const defaultType = typeof defaultValue;
-                    isPrimitiveType = (defaultType === 'string' && !stillUseUrl) ||
-                                      defaultType === 'number' ||
-                                      defaultType === 'boolean';
-                }
-            }
-            if (fastMode && isPrimitiveType) {
-                if (propNameToRead !== propName && simplePropsToRead === simpleProps) {
-                    simplePropsToRead = simpleProps.slice();
-                }
-                simpleProps.push(propName);
-                if (simplePropsToRead !== simpleProps) {
-                    simplePropsToRead.push(propNameToRead);
-                }
-            }
-            else {
-                if (propNameToRead !== propName && advancedPropsToRead === advancedProps) {
-                    advancedPropsToRead = advancedProps.slice();
-                }
-                advancedProps.push(propName);
-                if (advancedPropsToRead !== advancedProps) {
-                    advancedPropsToRead.push(propNameToRead);
-                }
-                advancedPropsUseUrl.push(stillUseUrl);
-                advancedPropsValueType.push((defaultValue instanceof legacyCC.ValueType) && defaultValue.constructor);
-            }
-        }
-    })();
-
-    return (s, o, d, k, t) => {
-        for (let i = 0; i < simpleProps.length; ++i) {
-            const prop = d[simplePropsToRead[i]];
-            if (prop !== undefined) {
-                o[simpleProps[i]] = prop;
-            }
-        }
-        for (let i = 0; i < advancedProps.length; ++i) {
-            const propName = advancedProps[i];
-            const prop = d[advancedPropsToRead[i]];
-            if (prop === undefined) {
-                continue;
-            }
-            if (!fastMode && typeof prop !== 'object') {
-                o[propName] = prop;
-            }
-            else {
-                // fastMode (so will not simpleProp) or object
-                const valueTypeCtor = advancedPropsValueType[i];
-                if (valueTypeCtor) {
-                    if (fastMode || prop) {
-                        s._deserializeTypedObject(o[propName], prop, valueTypeCtor);
-                    }
-                    else {
-                        o[propName] = null;
-                    }
-                }
-                else {
-                    if (prop) {
-                        s._deserializeObjField(
-                            o,
-                            prop,
-                            propName,
-                            (EDITOR || TEST) ? (t && o) : null,
-                            advancedPropsUseUrl[i],
-                        );
-                    }
-                    else {
-                        o[propName] = null;
-                    }
-                }
-            }
-        }
-        if (shouldCopyId && d._id) {
-            o._id = d._id;
-        }
-        if (shouldCopyRawData) {
-            // deep copy original serialized data
-            o._$erialized = JSON.parse(JSON.stringify(d));
-            // parse the serialized data as primitive javascript object, so its __id__ will be dereferenced
-            s._deserializePrimitiveObject(o._$erialized, d);
+if (EDITOR || TEST) {
+    Details.prototype.assignAssetsBy = function (getter: (uuid: string) => any) {
+        for (let i = 0, len = this.uuidList!.length; i < len; i++) {
+            const obj = this.uuidObjList![i];
+            const prop = this.uuidPropList![i];
+            const uuid = this.uuidList![i];
+            obj[prop] = getter(uuid as string);
         }
     };
-};
+}
 
-function unlinkUnusedPrefab (self, serialized, obj) {
-    const uuid = serialized.asset && serialized.asset.__uuid__;
-    if (uuid) {
-        const last = self.result.uuidList.length - 1;
-        if (self.result.uuidList[last] === uuid &&
-            self.result.uuidObjList[last] === obj &&
-            self.result.uuidPropList[last] === 'asset') {
-            self.result.uuidList.pop();
-            self.result.uuidObjList.pop();
-            self.result.uuidPropList.pop();
-        } else {
-            warnID(4935);
+export function dereference (refs: IRefs, instances: IFileData[File.Instances], strings: IFileData[File.SharedStrings]): void {
+    const dataLength = refs.length - 1;
+    let i = 0;
+    // owner is object
+    const instanceOffset: number = refs[dataLength] * Refs.EACH_RECORD_LENGTH;
+    for (; i < instanceOffset; i += Refs.EACH_RECORD_LENGTH) {
+        const owner = refs[i] as any;
+
+        const target = instances[refs[i + Refs.TARGET_OFFSET]];
+        const keyIndex = refs[i + Refs.KEY_OFFSET] as StringIndexBnotNumber;
+        if (keyIndex >= 0) {
+            owner[strings[keyIndex]] = target;
+        }
+        else {
+            owner[~keyIndex] = target;
+        }
+    }
+    // owner is instance index
+    for (; i < dataLength; i += Refs.EACH_RECORD_LENGTH) {
+        const owner = instances[refs[i]] as any;
+
+        const target = instances[refs[i + Refs.TARGET_OFFSET]];
+        const keyIndex = refs[i + Refs.KEY_OFFSET] as StringIndexBnotNumber;
+        if (keyIndex >= 0) {
+            owner[strings[keyIndex]] = target;
+        }
+        else {
+            owner[~keyIndex] = target;
         }
     }
 }
 
-function _deserializeFireClass (self, obj, serialized, klass, target) {
-    let deserialize;
-    if (klass.hasOwnProperty('__deserialize__')) {
-        deserialize = klass.__deserialize__;
+//
+
+function deserializeCCObject (data: IFileData, objectData: IClassObjectData) {
+    const mask = data[File.SharedMasks][objectData[OBJ_DATA_MASK]];
+    const clazz = mask[MASK_CLASS];
+    const ctor = clazz[CLASS_TYPE] as Exclude<AnyCtor, ICustomClass>;
+    // if (!ctor) {
+    //     return null;
+    // }
+
+    const obj = new ctor();
+
+    const keys = clazz[CLASS_KEYS];
+    const classTypeOffset = clazz[CLASS_PROP_TYPE_OFFSET];
+    const maskTypeOffset = mask[mask.length - 1];
+
+    // parse simple type
+    let i = MASK_CLASS + 1;
+    for (; i < maskTypeOffset; ++i) {
+        const key = keys[mask[i]];
+        obj[key] = objectData[i];
+    }
+
+    // parse advanced type
+    for (; i < objectData.length; ++i) {
+        const key = keys[mask[i]];
+        const type = clazz[mask[i] + classTypeOffset];
+        const op = ASSIGNMENTS[type];
+        op(data, obj, key, objectData[i]);
+    }
+
+    return obj;
+}
+
+function deserializeCustomCCObject (data: IFileData, ctor: Ctor<ICustomClass>, value: ICustomObjectDataContent) {
+    const obj = new ctor();
+    if (obj._deserialize) {
+        obj._deserialize(value, data[File.Context]);
     }
     else {
-        deserialize = compileDeserialize(self, klass);
-        // if (TEST && !isPhantomJS) {
-        //     log(deserialize);
-        // }
-        js.value(klass, '__deserialize__', deserialize, true);
+        errorID(5303, js.getClassName(ctor));
     }
-    deserialize(self, obj, serialized, klass, target);
-    // if preview or build worker
-    if (PREVIEW || (EDITOR && self._ignoreEditorOnly)) {
-        if (klass === legacyCC._PrefabInfo && !obj.sync) {
-            unlinkUnusedPrefab(self, serialized, obj);
+    return obj;
+}
+
+// Parse Functions
+
+type ParseFunction<T> = (data: IFileData, owner: any, key: string, value: T) => void;
+
+function assignSimple (data: IFileData, owner: any, key: string, value: DataTypes[DataTypeID.SimpleType]) {
+    owner[key] = value;
+}
+
+function assignInstanceRef (data: IFileData, owner: any, key: string, value: InstanceBnotReverseIndex) {
+    if (value >= 0) {
+        owner[key] = data[File.Instances][value];
+    }
+    else {
+        (data[File.Refs] as IRefs)[(~value) * Refs.EACH_RECORD_LENGTH] = owner;
+    }
+}
+
+function genArrayParser<T> (parser: ParseFunction<T>): ParseFunction<T[]> {
+    return (data: IFileData, owner: any, key: string, value: T[]) => {
+        owner[key] = value;
+        for (let i = 0; i < value.length; ++i) {
+            parser(data, value, i as unknown as string, value[i]);
+        }
+    };
+}
+
+function parseAssetRefByInnerObj (data: IFileData, owner: any, key: string, value: number) {
+    owner[key] = null;
+    data[File.DependObjs][value] = owner;
+}
+
+function parseClass (data: IFileData, owner: any, key: string, value: IClassObjectData) {
+    owner[key] = deserializeCCObject(data, value);
+}
+
+function parseCustomClass (data: IFileData, owner: any, key: string, value: ICustomObjectData) {
+    const ctor = data[File.SharedClasses][value[CUSTOM_OBJ_DATA_CLASS]] as CCClass<ICustomClass>;
+    owner[key] = deserializeCustomCCObject(data, ctor, value[CUSTOM_OBJ_DATA_CONTENT]);
+}
+
+function parseValueTypeCreated (data: IFileData, owner: any, key: string, value: IValueTypeData) {
+    BuiltinValueTypeSetters[value[VALUETYPE_SETTER]](owner[key], value);
+}
+
+function parseValueType (data: IFileData, owner: any, key: string, value: IValueTypeData) {
+    const val: ValueType = new BuiltinValueTypes[value[VALUETYPE_SETTER]]();
+    BuiltinValueTypeSetters[value[VALUETYPE_SETTER]](val, value);
+    owner[key] = val;
+}
+
+function parseTRS (data: IFileData, owner: any, key: string, value: ITRSData) {
+    const typedArray = owner[key] as (Float32Array | Float64Array);
+    typedArray.set(value);
+}
+
+function parseDict (data: IFileData, owner: any, key: string, value: IDictData) {
+    const dict = value[DICT_JSON_LAYOUT];
+    owner[key] = dict;
+    for (let i = DICT_JSON_LAYOUT + 1; i < value.length; i += 3) {
+        const subKey = value[i] as string;
+        const subType = value[i + 1] as DataTypeID;
+        const subValue = value[i + 2] as AnyData;
+        const op = ASSIGNMENTS[subType];
+        op(data, dict, subKey, subValue);
+    }
+}
+
+function parseArray (data: IFileData, owner: any, key: string, value: IArrayData) {
+    const array = value[ARRAY_ITEM_VALUES];
+    owner[key] = array;
+    for (let i = 0; i < array.length; ++i) {
+        const subValue = array[i] as AnyData;
+        const type = value[i + 1] as DataTypeID;
+        if (type !== DataTypeID.SimpleType) {
+            const op = ASSIGNMENTS[type];
+            // @ts-ignore
+            op(data, array, i, subValue);
         }
     }
 }
 
-// function _compileTypedObject (accessor, klass, ctorCode) {
-//     if (klass === cc.Vec2) {
-//         return `{` +
-//                     `o${accessor}.x=prop.x||0;` +
-//                     `o${accessor}.y=prop.y||0;` +
-//                `}`;
-//     }
-//     else if (klass === cc.Color) {
-//         return `{` +
-//                    `o${accessor}.r=prop.r||0;` +
-//                    `o${accessor}.g=prop.g||0;` +
-//                    `o${accessor}.b=prop.b||0;` +
-//                    `o${accessor}.a=(prop.a===undefined?255:prop.a);` +
-//                `}`;
-//     }
-//     else if (klass === cc.Size) {
-//         return `{` +
-//                    `o${accessor}.width=prop.width||0;` +
-//                    `o${accessor}.height=prop.height||0;` +
-//                `}`;
-//     }
-//     else {
-//         return `s._deserializeTypedObject(o${accessor},prop,${ctorCode});`;
+// function parseTypedArray (data: IFileData, owner: any, key: string, value: ITypedArrayData) {
+//     let val: ValueType = new TypedArrays[value[TYPEDARRAY_TYPE]]();
+//     BuiltinValueTypeSetters[value[VALUETYPE_SETTER]](val, value);
+//     // obj = new window[serialized.ctor](array.length);
+//     // for (let i = 0; i < array.length; ++i) {
+//     //     obj[i] = array[i];
+//     // }
+//     // return obj;
+//     owner[key] = val;
+// }
+
+const ASSIGNMENTS: {
+    [K in keyof DataTypes]?: ParseFunction<DataTypes[K]>;
+} = new Array(DataTypeID.ARRAY_LENGTH) as {};
+ASSIGNMENTS[DataTypeID.SimpleType] = assignSimple;    // Only be used in the instances array
+ASSIGNMENTS[DataTypeID.InstanceRef] = assignInstanceRef;
+ASSIGNMENTS[DataTypeID.Array_InstanceRef] = genArrayParser(assignInstanceRef);
+ASSIGNMENTS[DataTypeID.Array_AssetRefByInnerObj] = genArrayParser(parseAssetRefByInnerObj);
+ASSIGNMENTS[DataTypeID.Class] = parseClass;
+ASSIGNMENTS[DataTypeID.ValueTypeCreated] = parseValueTypeCreated;
+ASSIGNMENTS[DataTypeID.AssetRefByInnerObj] = parseAssetRefByInnerObj;
+ASSIGNMENTS[DataTypeID.TRS] = parseTRS;
+ASSIGNMENTS[DataTypeID.ValueType] = parseValueType;
+ASSIGNMENTS[DataTypeID.Array_Class] = genArrayParser(parseClass);
+ASSIGNMENTS[DataTypeID.CustomizedClass] = parseCustomClass;
+ASSIGNMENTS[DataTypeID.Dict] = parseDict;
+ASSIGNMENTS[DataTypeID.Array] = parseArray;
+// ASSIGNMENTS[DataTypeID.TypedArray] = parseTypedArray;
+
+
+
+function parseInstances (data: IFileData): RootInstanceIndex {
+    const instances = data[File.Instances];
+    const instanceTypes = data[File.InstanceTypes];
+    const instanceTypesLen = instanceTypes === EMPTY_PLACEHOLDER ? 0 : (instanceTypes as OtherObjectTypeID[]).length;
+    let rootIndex = instances[instances.length - 1];
+    let normalObjectCount = instances.length - instanceTypesLen;
+    if (typeof rootIndex !== 'number') {
+        rootIndex = 0;
+    }
+    else {
+        if (rootIndex < 0) {
+            rootIndex = ~rootIndex;
+        }
+        --normalObjectCount;
+    }
+
+    // DataTypeID.Class
+
+    let insIndex = 0;
+    for (; insIndex < normalObjectCount; ++insIndex) {
+        instances[insIndex] = deserializeCCObject(data, instances[insIndex] as IClassObjectData);
+    }
+
+    const classes = data[File.SharedClasses];
+    for (let typeIndex = 0; typeIndex < instanceTypesLen; ++typeIndex, ++insIndex) {
+        let type = instanceTypes[typeIndex] as OtherObjectTypeID;
+        const eachData = instances[insIndex];
+        if (type >= 0) {
+
+            // class index for DataTypeID.CustomizedClass
+
+            const ctor = classes[type] as CCClass<ICustomClass>;  // class
+            instances[insIndex] = deserializeCustomCCObject(data, ctor, eachData as ICustomObjectDataContent);
+        }
+        else {
+
+            // Other
+
+            type = (~type) as PrimitiveObjectTypeID;
+            const op = ASSIGNMENTS[type];
+            // @ts-ignore
+            op(data, instances, insIndex, eachData);
+        }
+    }
+
+    return rootIndex;
+}
+
+// const DESERIALIZE_AS = Attr.DELIMETER + 'deserializeAs';
+// function deserializeAs(klass: AnyCCClass, klassLayout: IClass) {
+//     var attrs = Attr.getClassAttrs(klass);
+//     let keys = klassLayout[CLASS_KEYS];
+//     for (let i = 0; i < keys.length; ++i) {
+//         let newKey = attrs[keys[i] + DESERIALIZE_AS];
+//         if (newKey) {
+//             // @ts-ignore
+//             if (keys.includes(newKey)) {
+//                 // %s cannot be deserialized by property %s because %s was also present in the serialized data.
+//                 warnID(, newKey, keys[i], newKey);
+//             }
+//             else {
+//                 keys[i] = newKey;
+//             }
+//         }
 //     }
 // }
 
-// tslint:disable-next-line: class-name
-export class _Deserializer {
-
-    public static pool: js.Pool<{}>;
-    public result: any;
-    public customEnv: any;
-    public deserializedList: any[];
-    public deserializedData: any;
-    private _classFinder: any;
-    private _target: any;
-    private _ignoreEditorOnly: any;
-    private _idList: any[];
-    private _idObjList: any[];
-    private _idPropList: any[];
-
-    constructor (result, target, classFinder, customEnv, ignoreEditorOnly) {
-        this.result = result;
-        this.customEnv = customEnv;
-        this.deserializedList = [];
-        this.deserializedData = null;
-        this._classFinder = classFinder;
-        if (DEV) {
-            this._target = target;
-            this._ignoreEditorOnly = ignoreEditorOnly;
-        }
-        this._idList = [];
-        this._idObjList = [];
-        this._idPropList = [];
+function getMissingClass (hasCustomFinder, type) {
+    if (!hasCustomFinder) {
+        deserialize.reportMissingClass(type);
     }
-
-    public deserialize (jsonObj) {
-        if (Array.isArray(jsonObj)) {
-            const jsonArray = jsonObj;
-            const refCount = jsonArray.length;
-            this.deserializedList.length = refCount;
-            // deserialize
-            for (let i = 0; i < refCount; i++) {
-                if (jsonArray[i]) {
-                    if (EDITOR || TEST) {
-                        const mainTarget = (i === 0 && this._target);
-                        this.deserializedList[i] = this._deserializeObject(jsonArray[i], false, mainTarget, this.deserializedList, '' + i);
-                    }
-                    else {
-                        this.deserializedList[i] = this._deserializeObject(jsonArray[i], false);
-                    }
-                }
-            }
-            this.deserializedData = refCount > 0 ? this.deserializedList[0] : [];
-
-            //// callback
-            // for (var j = 0; j < refCount; j++) {
-            //    if (referencedList[j].onAfterDeserialize) {
-            //        referencedList[j].onAfterDeserialize();
-            //    }
-            // }
+    return Object;
+}
+function doLookupClass (classFinder, type: string, container: any[], index: number, silent: boolean, hasCustomFinder) {
+    let klass = classFinder(type);
+    if (!klass) {
+        // if (klass.__FSA__) {
+        //     deserializeAs(klass, klassLayout as IClass);
+        // }
+        if (silent) {
+            // generate a lazy proxy for ctor
+            container[index] = ((c, i, t) => function proxy () {
+                const actualClass = classFinder(t) || getMissingClass(hasCustomFinder, t);
+                c[i] = actualClass;
+                return new actualClass();
+            })(container, index, type);
+            return;
         }
         else {
-            this.deserializedList.length = 1;
-            if (EDITOR || TEST) {
-                this.deserializedData = jsonObj ? this._deserializeObject(jsonObj, false, this._target, this.deserializedList, '0') : null;
-            }
-            else {
-                this.deserializedData = jsonObj ? this._deserializeObject(jsonObj, false) : null;
-            }
-            this.deserializedList[0] = this.deserializedData;
-
-            //// callback
-            // if (deserializedData.onAfterDeserialize) {
-            //    deserializedData.onAfterDeserialize();
-            // }
+            klass = getMissingClass(hasCustomFinder, type);
         }
-
-        // dereference
-        _dereference(this);
-
-        return this.deserializedData;
     }
+    container[index] = klass;
+}
 
-    /**
-     * @param {Object} serialized - The obj to deserialize, must be non-nil
-     * @param {Boolean} _stillUseUrl
-     * @param {Object} [target=null] - editor only
-     * @param {Object} [owner] - debug only
-     * @param {String} [propName] - debug only
-     */
-    private _deserializeObject (serialized, _stillUseUrl: Boolean, target?, owner?: Object, propName?: String) {
-        let prop;
-        let obj: any = null;     // the obj to return
-        let klass: any = null;
-        const type = serialized.__type__;
-        if (type === 'TypedArray') {
-            const array = serialized.array;
-            // @ts-ignore
-            obj = new window[serialized.ctor](array.length);
-            for (let i = 0; i < array.length; ++i) {
-                obj[i] = array[i];
-            }
-            return obj;
-        }
-        else if (type) {
-
-            // Type Object (including CCClass)
-
-            klass = this._classFinder(type, serialized, owner, propName);
-            if (!klass) {
-                const notReported = this._classFinder === js._getClassById;
-                if (notReported) {
-                    legacyCC.deserialize.reportMissingClass(type);
-                }
-                return null;
-            }
-            const self = this;
-            // @ts-ignore
-            function deserializeByType () {
-                if ((EDITOR || TEST) && target) {
-                    // use target
-                    if ( !(target instanceof klass) ) {
-                        warnID(5300, js.getClassName(target), klass);
-                    }
-                    obj = target;
-                }
-                else {
-                    // instantiate a new object
-                    obj = new klass();
-                }
-
-                if (obj._deserialize) {
-                    obj._deserialize(serialized.content, self);
-                    return;
-                }
-                if (legacyCC.Class._isCCClass(klass)) {
-                    _deserializeFireClass(self, obj, serialized, klass, target);
-                }
-                else {
-                    self._deserializeTypedObject(obj, serialized, klass);
+function lookupClasses (data: IPackedFileData, silent: boolean, customFinder?: ClassFinder) {
+    const classFinder = customFinder || js._getClassById;
+    const classes = data[File.SharedClasses];
+    for (let i = 0; i < classes.length; ++i) {
+        const klassLayout = classes[i];
+        if (typeof klassLayout !== 'string') {
+            if (DEBUG) {
+                if (typeof klassLayout[CLASS_TYPE] === 'function') {
+                    throw new Error('Can not deserialize the same JSON data again.');
                 }
             }
-
-            // @ts-ignore
-            function checkDeserializeByType () {
-                try {
-                    deserializeByType();
-                }
-                catch (e) {
-                    console.error('deserialize ' + klass.name + ' failed, ' + e.stack);
-                    klass = MissingScript.getMissingWrapper(type, serialized);
-                    legacyCC.deserialize.reportMissingClass(type);
-                    deserializeByType();
-                }
-            }
-
-            if (EDITOR && legacyCC.js.isChildClassOf(klass, legacyCC.Component)) {
-                checkDeserializeByType();
-            }
-            else {
-                deserializeByType();
-            }
-        }
-        else if ( !Array.isArray(serialized) ) {
-
-            // embedded primitive javascript object
-
-            obj = ((EDITOR || TEST) && target) || {};
-            this._deserializePrimitiveObject(obj, serialized);
+            const type: string = klassLayout[CLASS_TYPE];
+            doLookupClass(classFinder, type, klassLayout as IClass, CLASS_TYPE, silent, customFinder);
         }
         else {
-
-            // Array
-
-            if ((EDITOR || TEST) && target) {
-                target.length = serialized.length;
-                obj = target;
-            }
-            else {
-                obj = new Array(serialized.length);
-            }
-
-            for (let i = 0; i < serialized.length; i++) {
-                prop = serialized[i];
-                if (typeof prop === 'object' && prop) {
-                    if (EDITOR || TEST) {
-                        this._deserializeObjField(obj, prop, '' + i, target && obj, _stillUseUrl);
-                    }
-                    else {
-                        this._deserializeObjField(obj, prop, '' + i, null, _stillUseUrl);
-                    }
-                }
-                else {
-                    obj[i] = prop;
-                }
-            }
-        }
-        return obj;
-    }
-
-    // 和 _deserializeObject 不同的地方在于会判断 id 和 uuid
-    private _deserializeObjField (obj, jsonObj, propName, target?, _stillUseUrl?) {
-        const id = jsonObj.__id__;
-        if (id === undefined) {
-            const uuid = jsonObj.__uuid__;
-            if (uuid) {
-                // if (ENABLE_TARGET) {
-                    // 这里不做任何操作，因为有可能调用者需要知道依赖哪些 asset。
-                    // 调用者使用 uuidList 时，可以判断 obj[propName] 是否为空，为空则表示待进一步加载，
-                    // 不为空则只是表明依赖关系。
-                //    if (target && target[propName] && target[propName]._uuid === uuid) {
-                //        console.assert(obj[propName] === target[propName]);
-                //        return;
-                //    }
-                // }
-                this.result.push(obj, propName, uuid, _stillUseUrl);
-            }
-            else {
-                if (EDITOR || TEST) {
-                    obj[propName] = this._deserializeObject(jsonObj, _stillUseUrl, target && target[propName], obj, propName);
-                }
-                else {
-                    obj[propName] = this._deserializeObject(jsonObj, _stillUseUrl);
-                }
-            }
-        }
-        else {
-            const dObj = this.deserializedList[id];
-            if (dObj) {
-                obj[propName] = dObj;
-            }
-            else {
-                this._idList.push(id);
-                this._idObjList.push(obj);
-                this._idPropList.push(propName);
-            }
-        }
-    }
-
-    private _deserializePrimitiveObject (instance, serialized) {
-        const self = this;
-        for (const propName in serialized) {
-            if (serialized.hasOwnProperty(propName)) {
-                const prop = serialized[propName];
-                if (typeof prop !== 'object') {
-                    if (propName !== '__type__'/* && k != '__id__'*/) {
-                        instance[propName] = prop;
-                    }
-                }
-                else {
-                    if (prop) {
-                        if (EDITOR || TEST) {
-                            self._deserializeObjField(instance, prop, propName, self._target && instance);
-                        }
-                        else {
-                            self._deserializeObjField(instance, prop, propName);
-                        }
-                    }
-                    else {
-                        instance[propName] = null;
-                    }
-                }
-
-            }
-        }
-    }
-
-    private _deserializeTypedObject (instance, serialized, klass) {
-        if (klass === legacyCC.Vec2) {
-            instance.x = serialized.x || 0;
-            instance.y = serialized.y || 0;
-            return;
-        } else if (klass === legacyCC.Vec3) {
-            instance.x = serialized.x || 0;
-            instance.y = serialized.y || 0;
-            instance.z = serialized.z || 0;
-            return;
-        } else if (klass === legacyCC.Color) {
-            instance.r = serialized.r || 0;
-            instance.g = serialized.g || 0;
-            instance.b = serialized.b || 0;
-            const a = serialized.a;
-            instance.a = (a === undefined ? 255 : a);
-            return;
-        } else if (klass === legacyCC.Size) {
-            instance.width = serialized.width || 0;
-            instance.height = serialized.height || 0;
-            return;
-        }
-
-        const DEFAULT = Attr.DELIMETER + 'default';
-        const attrs = Attr.getClassAttrs(klass);
-        const fastDefinedProps = klass.__props__ || Object.keys(instance);    // 遍历 instance，如果具有类型，才不会把 __type__ 也读进来
-        // tslint:disable-next-line: prefer-for-of
-        for (let i = 0; i < fastDefinedProps.length; i++) {
-            const propName = fastDefinedProps[i];
-            let value = serialized[propName];
-            if (value === undefined || !serialized.hasOwnProperty(propName)) {
-                // not serialized,
-                // recover to default value in ValueType, because eliminated properties equals to
-                // its default value in ValueType, not default value in user class
-                value = CCClass.getDefault(attrs[propName + DEFAULT]);
-            }
-
-            if (typeof value !== 'object') {
-                instance[propName] = value;
-            } else if (value) {
-                if (EDITOR || TEST) {
-                    this._deserializeObjField(instance, value, propName, this._target && instance);
-                } else {
-                    this._deserializeObjField(instance, value, propName);
-                }
-            } else {
-                instance[propName] = null;
-            }
+            doLookupClass(classFinder, klassLayout, classes, i, silent, customFinder);
         }
     }
 }
 
-_Deserializer.pool = new js.Pool((obj: any) => {
-    obj.result = null;
-    obj.customEnv = null;
-    obj.deserializedList.length = 0;
-    obj.deserializedData = null;
-    obj._classFinder = null;
-    if (DEV) {
-        obj._target = null;
-    }
-    obj._idList.length = 0;
-    obj._idObjList.length = 0;
-    obj._idPropList.length = 0;
-}, 1);
-// @ts-ignore
-_Deserializer.pool.get = function (result, target, classFinder, customEnv, ignoreEditorOnly) {
-    const cache: any = this._get();
-    if (cache) {
-        cache.result = result;
-        cache.customEnv = customEnv;
-        cache._classFinder = classFinder;
-        if (DEV) {
-            cache._target = target;
-            cache._ignoreEditorOnly = ignoreEditorOnly;
+function cacheMasks (data: IPackedFileData) {
+    const masks = data[File.SharedMasks];
+    if (masks) {
+        const classes = data[File.SharedClasses];
+        for (let i = 0; i < masks.length; ++i) {
+            const mask = masks[i];
+            // @ts-ignore
+            mask[MASK_CLASS] = classes[mask[MASK_CLASS]];
         }
-        return cache;
+    }
+}
+
+function parseResult (data: IFileData) {
+    const instances = data[File.Instances];
+    const sharedStrings = data[File.SharedStrings];
+    const dependSharedUuids = data[File.SharedUuids];
+
+    const dependObjs = data[File.DependObjs];
+    const dependKeys = data[File.DependKeys];
+    const dependUuids = data[File.DependUuidIndices];
+
+    for (let i = 0; i < dependObjs.length; ++i) {
+        const obj: any = dependObjs[i];
+        if (typeof obj === 'number') {
+            dependObjs[i] = instances[obj];
+        }
+        else {
+            // assigned by DataTypeID.AssetRefByInnerObj or added by Details object directly in _deserialize
+        }
+        let key: any = dependKeys[i];
+        if (typeof key === 'number') {
+            if (key >= 0) {
+                key = sharedStrings[key];
+            }
+            else {
+                key = ~key;
+            }
+            dependKeys[i] = key;
+        }
+        else {
+            // added by Details object directly in _deserialize
+        }
+        const uuid = dependUuids[i];
+        if (typeof uuid === 'number') {
+            dependUuids[i] = (dependSharedUuids as SharedString[])[uuid as StringIndex];
+        }
+        else {
+            // added by Details object directly in _deserialize
+        }
+    }
+}
+
+function isCompiledJson (json: object): boolean {
+    if (Array.isArray(json)) {
+        const version = json[0];
+        // array[0] will not be a number in the editor version
+        return typeof version === 'number' || version instanceof FileInfo;
     }
     else {
-        return new _Deserializer(result, target, classFinder, customEnv, ignoreEditorOnly);
+        return false;
     }
-};
+}
 
 /**
  * @module cc
@@ -841,47 +998,71 @@ _Deserializer.pool.get = function (result, target, classFinder, customEnv, ignor
  * @param {Object} [options]
  * @return {object} the main data(asset)
  */
-export function deserialize (data, details, options) {
-    options = options || {};
-    const classFinder = options.classFinder || js._getClassById;
-    // 启用 createAssetRefs 后，如果有 url 属性则会被统一强制设置为 { uuid: 'xxx' }，必须后面再特殊处理
-    const createAssetRefs = options.createAssetRefs || legacyCC.sys.platform === legacyCC.sys.EDITOR_CORE;
-    const target = (EDITOR || TEST) && options.target;
-    const customEnv = options.customEnv;
-    const ignoreEditorOnly = options.ignoreEditorOnly;
-    
+export function deserialize (data: IFileData | string | any, details: Details | any, options?: IOptions | any): any {
     if (typeof data === 'string') {
         data = JSON.parse(data);
     }
 
-    // var oldJson = JSON.stringify(data, null, 2);
+    const borrowDetails = !details;
+    details = details || Details.pool.get();
+    let res;
 
-    const tempDetails = !details;
-    details = details || Details.pool.get!();
-    // @ts-ignore
-    const deserializer: _Deserializer = _Deserializer.pool.get(details, target, classFinder, customEnv, ignoreEditorOnly);
-
-    legacyCC.game._isCloning = true;
-    const res = deserializer.deserialize(data);
-    legacyCC.game._isCloning = false;
-
-    _Deserializer.pool.put(deserializer);
-    if (createAssetRefs) {
-        details.assignAssetsBy(EditorExtends.serialize.asAsset);
+    if (!BUILD && !(PREVIEW && isCompiledJson(data))) {
+        res = deserializeDynamic(data, details, options);
     }
-    if (tempDetails) {
+    else {
+        details.init(data);
+        options = options || {};
+
+        let version = data[File.Version];
+        let preprocessed = false;
+        if (typeof version === 'object') {
+            preprocessed = version.preprocessed;
+            version = version.version;
+        }
+        if (version < SUPPORT_MIN_FORMAT_VERSION) {
+            throw new Error(getError(5304, version));
+        }
+        options._version = version;
+        options.result = details;
+        data[File.Context] = options;
+
+        if (!preprocessed) {
+            lookupClasses(data, false, options.classFinder);
+            cacheMasks(data);
+        }
+
+        legacyCC.game._isCloning = true;
+        const instances = data[File.Instances];
+        const rootIndex = parseInstances(data);
+        legacyCC.game._isCloning = false;
+
+        if (data[File.Refs]) {
+            dereference(data[File.Refs] as IRefs, instances, data[File.SharedStrings]);
+        }
+
+        parseResult(data);
+
+        if (JSB) {
+            // invoke hooks
+            for (let i = 0; i < instances.length; ++i) {
+                // try invoking hook on every element regardless of whether the last one is rootIndex
+                instances[i]?.onAfterDeserialize_JSB?.();
+            }
+        }
+
+        res = instances[rootIndex];
+    }
+
+    if (borrowDetails) {
         Details.pool.put(details);
     }
 
-    // var afterJson = JSON.stringify(data, null, 2);
-    // if (oldJson !== afterJson) {
-    //     throw new Error('JSON SHOULD not changed');
-    // }
-
     return res;
 }
+
 deserialize.Details = Details;
-deserialize.reportMissingClass = (id) => {
+deserialize.reportMissingClass = (id: string) => {
     if (EDITOR && EditorExtends.UuidUtils.isUuid(id)) {
         id = EditorExtends.UuidUtils.decompressUuid(id);
         warnID(5301, id);
@@ -891,5 +1072,139 @@ deserialize.reportMissingClass = (id) => {
     }
 };
 
-deserialize._Deserializer = _Deserializer;
+class FileInfo {
+    declare version: number;
+    preprocessed = true;
+    constructor (version: number) {
+        this.version = version;
+    }
+}
+
+export function unpackJSONs (data: IPackedFileData, classFinder?: ClassFinder): IFileData[] {
+    if (data[File.Version] < SUPPORT_MIN_FORMAT_VERSION) {
+        throw new Error(getError(5304, data[File.Version]));
+    }
+    lookupClasses(data, true, classFinder);
+    cacheMasks(data);
+
+    const version = new FileInfo(data[File.Version]);
+    const sharedUuids = data[File.SharedUuids];
+    const sharedStrings = data[File.SharedStrings];
+    const sharedClasses = data[File.SharedClasses];
+    const sharedMasks = data[File.SharedMasks];
+
+    const sections = data[PACKED_SECTIONS];
+    for (let i = 0; i < sections.length; ++i) {
+        sections[i].unshift(version, sharedUuids, sharedStrings, sharedClasses, sharedMasks);
+    }
+    return sections;
+}
+
+export function packCustomObjData (type: string, data: IClassObjectData|OtherObjectData): IFileData {
+    return [
+        SUPPORT_MIN_FORMAT_VERSION, EMPTY_PLACEHOLDER, EMPTY_PLACEHOLDER,
+        [type],
+        EMPTY_PLACEHOLDER,
+        [data],
+        [0],
+        EMPTY_PLACEHOLDER, [], [], []
+    ];
+}
+
+export function hasNativeDep (data: IFileData): boolean {
+    const instances = data[File.Instances];
+    const rootInfo = instances[instances.length - 1];
+    if (typeof rootInfo !== 'number') {
+        return false;
+    }
+    else {
+        return rootInfo < 0;
+    }
+}
+
+export function getDependUuidList (json: IFileData): string[] {
+    const sharedUuids = json[File.SharedUuids];
+    return json[File.DependUuidIndices].map(index => sharedUuids[index]);
+}
+
+if (PREVIEW) {
+    deserialize.isCompiledJson = isCompiledJson;
+}
+
+if (EDITOR || TEST) {
+    deserialize._macros = {
+        EMPTY_PLACEHOLDER,
+        CUSTOM_OBJ_DATA_CLASS,
+        CUSTOM_OBJ_DATA_CONTENT,
+        CLASS_TYPE,
+        CLASS_KEYS,
+        CLASS_PROP_TYPE_OFFSET,
+        MASK_CLASS,
+        OBJ_DATA_MASK,
+        DICT_JSON_LAYOUT,
+        ARRAY_ITEM_VALUES,
+        PACKED_SECTIONS,
+    } as {
+        // freeze values (EMPTY_PLACEHOLDER: number -> EMPTY_PLACEHOLDER: 0)
+        EMPTY_PLACEHOLDER: typeof EMPTY_PLACEHOLDER,
+        CUSTOM_OBJ_DATA_CLASS: typeof CUSTOM_OBJ_DATA_CLASS,
+        CUSTOM_OBJ_DATA_CONTENT: typeof CUSTOM_OBJ_DATA_CONTENT,
+        CLASS_TYPE: typeof CLASS_TYPE,
+        CLASS_KEYS: typeof CLASS_KEYS,
+        CLASS_PROP_TYPE_OFFSET: typeof CLASS_PROP_TYPE_OFFSET,
+        MASK_CLASS: typeof MASK_CLASS,
+        OBJ_DATA_MASK: typeof OBJ_DATA_MASK,
+        DICT_JSON_LAYOUT: typeof DICT_JSON_LAYOUT,
+        ARRAY_ITEM_VALUES: typeof ARRAY_ITEM_VALUES,
+        PACKED_SECTIONS: typeof PACKED_SECTIONS,
+    };
+    deserialize._BuiltinValueTypes = BuiltinValueTypes;
+    deserialize._serializeBuiltinValueTypes = serializeBuiltinValueTypes;
+}
+
+if (TEST) {
+    legacyCC._Test.deserializeCompiled = {
+        deserialize,
+        dereference,
+        deserializeCCObject,
+        deserializeCustomCCObject,
+        parseInstances,
+        parseResult,
+        cacheMasks,
+        File: {
+            Version: File.Version,
+            Context: File.Context,
+            SharedUuids: File.SharedUuids,
+            SharedStrings: File.SharedStrings,
+            SharedClasses: File.SharedClasses,
+            SharedMasks: File.SharedMasks,
+            Instances: File.Instances,
+            InstanceTypes: File.InstanceTypes,
+            Refs: File.Refs,
+            DependObjs: File.DependObjs,
+            DependKeys: File.DependKeys,
+            DependUuidIndices: File.DependUuidIndices,
+            // ArrayLength: File.ArrayLength,
+        },
+        DataTypeID: {
+            SimpleType: DataTypeID.SimpleType,
+            InstanceRef: DataTypeID.InstanceRef,
+            Array_InstanceRef: DataTypeID.Array_InstanceRef,
+            Array_AssetRefByInnerObj: DataTypeID.Array_AssetRefByInnerObj,
+            Class: DataTypeID.Class,
+            ValueTypeCreated: DataTypeID.ValueTypeCreated,
+            AssetRefByInnerObj: DataTypeID.AssetRefByInnerObj,
+            TRS: DataTypeID.TRS,
+            ValueType: DataTypeID.ValueType,
+            Array_Class: DataTypeID.Array_Class,
+            CustomizedClass: DataTypeID.CustomizedClass,
+            Dict: DataTypeID.Dict,
+            Array: DataTypeID.Array,
+            // TypedArray: DataTypeID.TypedArray,
+        },
+        BuiltinValueTypes,
+        unpackJSONs,
+    };
+}
+
 legacyCC.deserialize = deserialize;
