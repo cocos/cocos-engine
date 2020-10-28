@@ -186,6 +186,7 @@ export class StencilManager {
         }
 
         // only ui-model use this code
+        // Notice: Not all state
         const stencilState = pass.depthStencilState;
         const pattern = this._stencilPattern;
         if (pattern.stencilTest !== stencilState.stencilTestFront ||

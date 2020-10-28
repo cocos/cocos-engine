@@ -59,6 +59,24 @@ export class GFXRasterizerState {
             (this.lineWidth === state.lineWidth) &&
             (this.isMultisample === state.isMultisample);
     }
+
+    public reset () {
+        this.isDiscard = false;
+        this.polygonMode = GFXPolygonMode.FILL;
+        this.shadeModel = GFXShadeModel.GOURAND;
+        this.cullMode = GFXCullMode.BACK;
+        this.isFrontFaceCCW = true;
+        this.depthBias = 0;
+        this.depthBiasClamp = 0.0;
+        this.depthBiasSlop = 0.0;
+        this.isDepthClip = true;
+        this.isMultisample = false;
+        this.lineWidth = 1.0;
+    }
+
+    public set (rasterizerState) {
+        Object.assign(this, rasterizerState);
+    }
 }
 
 /**
@@ -111,6 +129,32 @@ export class GFXDepthStencilState {
             (this.stencilPassOpBack === state.stencilPassOpBack) &&
             (this.stencilRefBack === state.stencilRefBack);
     }
+
+    public reset () {
+        this.depthTest = true;
+        this.depthWrite = true;
+        this.depthFunc = GFXComparisonFunc.LESS;
+        this.stencilTestFront = false;
+        this.stencilFuncFront = GFXComparisonFunc.ALWAYS;
+        this.stencilReadMaskFront = 0xffff;
+        this.stencilWriteMaskFront = 0xffff;
+        this.stencilFailOpFront = GFXStencilOp.KEEP;
+        this.stencilZFailOpFront = GFXStencilOp.KEEP;
+        this.stencilPassOpFront = GFXStencilOp.KEEP;
+        this.stencilRefFront = 1;
+        this.stencilTestBack = false;
+        this.stencilFuncBack = GFXComparisonFunc.ALWAYS;
+        this.stencilReadMaskBack = 0xffff;
+        this.stencilWriteMaskBack = 0xffff;
+        this.stencilFailOpBack = GFXStencilOp.KEEP;
+        this.stencilZFailOpBack = GFXStencilOp.KEEP;
+        this.stencilPassOpBack = GFXStencilOp.KEEP;
+        this.stencilRefBack = 1;
+    }
+
+    public set (depthStencilState) {
+        Object.assign(this, depthStencilState);
+    }
 }
 
 /**
@@ -141,6 +185,17 @@ export class GFXBlendTarget {
             (this.blendAlphaEq === target.blendAlphaEq) &&
             (this.blendColorMask === target.blendColorMask);
     }
+
+    public reset () {
+        this.blend = false;
+        this.blendSrc = GFXBlendFactor.ONE;
+        this.blendDst = GFXBlendFactor.ZERO;
+        this.blendEq = GFXBlendOp.ADD;
+        this.blendSrcAlpha = GFXBlendFactor.ONE;
+        this.blendDstAlpha = GFXBlendFactor.ZERO;
+        this.blendAlphaEq = GFXBlendOp.ADD;
+        this.blendColorMask = GFXColorMask.ALL;
+    }
 }
 
 /**
@@ -167,6 +222,17 @@ export class GFXBlendState {
      */
     public setTarget (index: number, target: GFXBlendTarget) {
         this.targets[index] = target;
+    }
+
+    public reset () {
+        this.isA2C = false;
+        this.isIndepend = false;
+        this.blendColor.x = 0;
+        this.blendColor.y = 0;
+        this.blendColor.z = 0;
+        this.blendColor.w = 0;
+        this.targets.length = 1;
+        this.targets[0].reset();
     }
 }
 
