@@ -8,6 +8,7 @@ import { ccclass } from '../core/data/class-decorator';
 import { BlockInputEvents, Button, EditBox, Layout, Mask, Label, LabelOutline, ProgressBar, RichText, ScrollView, ScrollBar, Slider, Sprite, Toggle, ToggleContainer, UIMeshRenderer, Widget, Graphics, PageView, PageViewIndicator, UIStaticBatch, UIOpacity, SafeArea, UICoordinateTracker } from './components';
 import { js } from '../core/utils/js';
 import { legacyCC } from '../core/global-exports';
+import { markAsWarning } from '../core/utils/deprecated';
 
 /**
  * @deprecated Since v1.2
@@ -185,3 +186,14 @@ js.setClassAlias(UICoordinateTracker, 'cc.UICoordinateTrackerComponent');
 export { BlockInputEvents as BlockInputEventsComponent };
 legacyCC.BlockInputEventsComponent = BlockInputEvents;
 js.setClassAlias(BlockInputEvents, 'cc.BlockInputEventsComponent');
+
+
+markAsWarning(ScrollView.prototype, 'ScrollView.prototype', [
+    { 'name': 'scrollToOffset', 'suggest': 'since 3.0 , param offset<Vec3> is deprecated, please use Vec2 instead.' },
+    { 'name': 'getScrollOffset', 'suggest': 'since 3.0 , this function will return a Vec2.' },
+    { 'name': 'getMaxScrollOffset', 'suggest': 'since 3.0 , this function will return a Vec2.'},
+]);
+
+markAsWarning(Widget.prototype, 'Widget.prototype', [
+    { 'name': 'computeInverseTransForTarget', 'suggest': 'since 3.0 , param out_inverseTranslate<Vec3> is deprecated, please use Vec2 instead.' },
+]);
