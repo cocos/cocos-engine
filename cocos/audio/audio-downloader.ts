@@ -44,7 +44,7 @@ export function downloadDomAudio (
     url: string,
     options: IDownloadParseOptions,
     onComplete: CompleteCallback<HTMLAudioElement>
-    ): HTMLAudioElement {
+    ): void {
 
     createDomAudio(url).then(dom => {
         onComplete(null, dom);
