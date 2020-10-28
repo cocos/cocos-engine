@@ -157,8 +157,7 @@ let TiledLayer = cc.Class({
                 return this._premultiplyAlpha;
             },
             set (value) {
-                if (this._withColor !== value) {
-                    this._colorChanged = true;
+                if (this._premultiplyAlpha !== value) {
                     this._premultiplyAlpha = value;
                     this._activateMaterial();
                 }
