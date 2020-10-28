@@ -6,6 +6,8 @@
 import * as pipeline from './define';
 export { pipeline };
 
+export * from './pass-phase';
+
 export { RenderPipeline } from './render-pipeline';
 export { RenderFlow } from './render-flow';
 export { RenderStage } from './render-stage';
