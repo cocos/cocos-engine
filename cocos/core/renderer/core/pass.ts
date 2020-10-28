@@ -149,8 +149,8 @@ export class Pass {
             if (bsInfo.isIndepend !== undefined) { bs.isIndepend = bsInfo.isIndepend; }
             if (bsInfo.blendColor !== undefined) { Object.assign(bs.blendColor, bsInfo.blendColor); }
         }
-        RasterizerStatePool.get(PassPool.get(hPass, PassView.RASTERIZER_STATE)).set(info.rasterizerState);
-        DepthStencilStatePool.get(PassPool.get(hPass, PassView.DEPTH_STENCIL_STATE)).set(info.depthStencilState);
+        RasterizerStatePool.get(PassPool.get(hPass, PassView.RASTERIZER_STATE)).set(info.rasterizerState!);
+        DepthStencilStatePool.get(PassPool.get(hPass, PassView.DEPTH_STENCIL_STATE)).set(info.depthStencilState!);
     }
 
     /**

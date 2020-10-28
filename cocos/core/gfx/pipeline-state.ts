@@ -74,7 +74,7 @@ export class GFXRasterizerState {
         this.lineWidth = 1.0;
     }
 
-    public set (rasterizerState) {
+    public set (rasterizerState: RecursivePartial<GFXRasterizerState>) {
         Object.assign(this, rasterizerState);
     }
 }
@@ -152,7 +152,7 @@ export class GFXDepthStencilState {
         this.stencilRefBack = 1;
     }
 
-    public set (depthStencilState) {
+    public set (depthStencilState: RecursivePartial<GFXDepthStencilState>) {
         Object.assign(this, depthStencilState);
     }
 }
