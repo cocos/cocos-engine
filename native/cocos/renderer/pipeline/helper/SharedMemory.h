@@ -286,10 +286,10 @@ struct CC_DLL Camera {
     uint32_t frustumID = 0;
     cc::Vec3 forward;
     cc::Vec3 position;
-    uint32_t viewportX = 0;
-    uint32_t viewportY = 0;
-    uint32_t viewportWidth = 0;
-    uint32_t viewportHeight = 0;
+    float viewportX = 0;
+    float viewportY = 0;
+    float viewportWidth = 0;
+    float viewportHeight = 0;
     gfx::Color clearColor;
     cc::Mat4 matView;
     cc::Mat4 matViewProj;

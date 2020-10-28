@@ -163,7 +163,7 @@ void ForwardStage::render(RenderView *view) {
     auto framebuffer = view->getWindow()->getFramebuffer();
     const auto &colorTextures = framebuffer->getColorTextures();
 
-    auto renderPass = colorTextures.size() ? framebuffer->getRenderPass() : pipeline->getOrCreateRenderPass(static_cast<gfx::ClearFlagBit>(camera->clearFlag));
+    auto renderPass = colorTextures.size() && colorTextures[0] ? framebuffer->getRenderPass() : pipeline->getOrCreateRenderPass(static_cast<gfx::ClearFlagBit>(camera->clearFlag));
 
     cmdBuff->beginRenderPass(renderPass, framebuffer, _renderArea, _clearColors, camera->clearDepth, camera->clearStencil);
     cmdBuff->bindDescriptorSet(GLOBAL_SET, _pipeline->getDescriptorSet());

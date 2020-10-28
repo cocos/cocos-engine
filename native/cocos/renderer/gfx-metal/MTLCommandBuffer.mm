@@ -93,6 +93,10 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     mtlRenderPassDescriptor.stencilAttachment.clearStencil = stencil;
 
     _mtlEncoder = [_mtlCommandBuffer renderCommandEncoderWithDescriptor:mtlRenderPassDescriptor];
+    _currentViewport = {renderArea.x, renderArea.y, renderArea.width, renderArea.height};
+    _currentScissor = renderArea;
+    [_mtlEncoder setViewport:mu::toMTLViewport(_currentViewport)];
+    [_mtlEncoder setScissorRect:mu::toMTLScissorRect(_currentScissor)];
 }
 
 void CCMTLCommandBuffer::endRenderPass() {
@@ -117,7 +121,6 @@ void CCMTLCommandBuffer::bindPipelineState(PipelineState *pso) {
 
 void CCMTLCommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) {
     CCASSERT(set < _GPUDescriptorSets.size(), "Invalid set index");
-
     if (dynamicOffsetCount) {
         _dynamicOffsets[set].assign(dynamicOffsets, dynamicOffsets + dynamicOffsetCount);
         if (set < _firstDirtyDescriptorSet) _firstDirtyDescriptorSet = set;
@@ -433,7 +436,6 @@ void CCMTLCommandBuffer::bindDescriptorSets() {
                                          atIndex:sampler.samplerBinding];
         }
     }
-    _firstDirtyDescriptorSet = UINT_MAX;
 }
 
 } // namespace gfx

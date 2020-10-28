@@ -37,14 +37,11 @@
 namespace cc {
 
 int Device::getDevicePixelRatio() {
-#if CC_USE_METAL
-    return 1;
-#else
-    #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    return [[UIScreen mainScreen] scale];
-    #else
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     return [[[[NSApplication sharedApplication] delegate] getWindow] backingScaleFactor];
-    #endif
+    ;
+#else
+    return [[UIScreen mainScreen] scale];
 #endif //CC_USE_METAL
 }
 
