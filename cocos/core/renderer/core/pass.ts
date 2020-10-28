@@ -33,7 +33,7 @@ import { builtinResMgr } from '../../3d/builtin/init';
 import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
 import { TextureBase } from '../../assets/texture-base';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
-import { RenderPassStage, RenderPriority, SetIndex } from '../../pipeline/define';
+import { RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';

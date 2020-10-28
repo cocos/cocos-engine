@@ -613,10 +613,13 @@ export const FramebufferPool = new ObjectPool(PoolType.FRAMEBUFFER,
     (obj: GFXFramebuffer) => obj && obj.destroy(),
 );
 
-export const SubModelArrayPool = new TypedArrayPool<PoolType.SUB_MODEL_ARRAY, Uint32ArrayConstructor, SubModelHandle>(PoolType.SUB_MODEL_ARRAY, Uint32Array, 8, 4);
+export const SubModelArrayPool = new TypedArrayPool<PoolType.SUB_MODEL_ARRAY, Uint32ArrayConstructor, SubModelHandle>
+(PoolType.SUB_MODEL_ARRAY, Uint32Array, 8, 4);
 export const ModelArrayPool = new TypedArrayPool<PoolType.MODEL_ARRAY, Uint32ArrayConstructor, ModelHandle>(PoolType.MODEL_ARRAY, Uint32Array, 32, 16);
-export const AttributeArrayPool = new TypedArrayPool<PoolType.ATTRIBUTE_ARRAY, Uint32ArrayConstructor, AttributeHandle>(PoolType.ATTRIBUTE_ARRAY, Uint32Array, 8, 4);
-export const FlatBufferArrayPool = new TypedArrayPool<PoolType.FLAT_BUFFER_ARRAY, Uint32ArrayConstructor, FlatBufferHandle>(PoolType.FLAT_BUFFER_ARRAY, Uint32Array, 8, 4);
+export const AttributeArrayPool = new TypedArrayPool<PoolType.ATTRIBUTE_ARRAY, Uint32ArrayConstructor, AttributeHandle>
+(PoolType.ATTRIBUTE_ARRAY, Uint32Array, 8, 4);
+export const FlatBufferArrayPool = new TypedArrayPool<PoolType.FLAT_BUFFER_ARRAY, Uint32ArrayConstructor, FlatBufferHandle>
+(PoolType.FLAT_BUFFER_ARRAY, Uint32Array, 8, 4);
 export const LightArrayPool = new TypedArrayPool<PoolType.LIGHT_ARRAY, Uint32ArrayConstructor, LightHandle>(PoolType.LIGHT_ARRAY, Uint32Array, 8, 4);
 
 export const RawBufferPool = new BufferAllocator(PoolType.RAW_BUFFER);

@@ -139,11 +139,6 @@ export class BakedSkinningModel extends MorphModel {
         return true;
     }
 
-    public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
-        if (!minPos || !maxPos) { return; }
-        this._worldBounds = new aabb();
-    }
-
     public uploadAnimation (anim: AnimationClip | null) {
         if (!this._skeleton || !this._mesh || this.uploadedAnim === anim) { return; }
         this.uploadedAnim = anim;
