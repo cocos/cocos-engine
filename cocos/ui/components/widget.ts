@@ -32,7 +32,7 @@
 import { Component } from '../../core/components';
 import { UITransform } from '../../core/components/ui-base/ui-transform';
 import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, editorOnly, editable, serializable, visible } from 'cc.decorator';
-import { Size, Vec3 } from '../../core/math';
+import { Size, Vec2, Vec3 } from '../../core/math';
 import { errorID, warnID } from '../../core/platform/debug';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { View } from '../../core/platform/view';
@@ -69,7 +69,7 @@ export function getReadonlyNodeSize (parent: Node | Scene) {
     }
 }
 
-export function computeInverseTransForTarget (widgetNode: Node, target: Node, out_inverseTranslate: Vec3, out_inverseScale: Vec3) {
+export function computeInverseTransForTarget (widgetNode: Node, target: Node, out_inverseTranslate: Vec2, out_inverseScale: Vec3) {
     let scale = widgetNode.parent ? widgetNode.parent.getScale() : _zeroVec3;
     let scaleX = scale.x;
     let scaleY = scale.y;
@@ -834,7 +834,7 @@ export class Widget extends Component {
 
         if (self.target) {
             target = self.target;
-            computeInverseTransForTarget(self.node, target, new Vec3(), inverseScale);
+            computeInverseTransForTarget(self.node, target, new Vec2(), inverseScale);
         }
         if (!target) {
             return;
@@ -882,22 +882,22 @@ export class Widget extends Component {
         const trans = self.node._uiProps.uiTransformComp!;
         const newSize = trans.contentSize;
         const oldSize = this._lastSize;
-        const delta = new Vec3(newSize.width - oldSize.width, newSize.height - oldSize.height, 0);
+        const delta = new Vec2(newSize.width - oldSize.width, newSize.height - oldSize.height);
 
         let target = self.node.parent;
         const inverseScale = new Vec3(1, 1, 1);
         if (self.target) {
             target = self.target;
-            computeInverseTransForTarget(self.node, target, new Vec3(), inverseScale);
+            computeInverseTransForTarget(self.node, target, new Vec2(), inverseScale);
         }
         if (!target) {
             return;
         }
 
         const targetSize = getReadonlyNodeSize(target);
-        const deltaInPercent = new Vec3();
+        const deltaInPercent = new Vec2();
         if (targetSize.width !== 0 && targetSize.height !== 0) {
-            Vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
+            Vec2.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height);
         }
 
         const anchor = trans.anchorPoint;

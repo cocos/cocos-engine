@@ -47,7 +47,7 @@ import { warnID } from '../../core/platform/debug';
 const _tempPos = new Vec3();
 const _defaultAnchor = new Vec2();
 
-const tInverseTranslate = new Vec3();
+const tInverseTranslate = new Vec2();
 const tInverseScale = new Vec3(1, 1, 1);
 
 // align to borders by adjusting node's position and size (ignore rotation)
@@ -410,7 +410,7 @@ export const widgetManager = legacyCC._widgetManager = {
         const widgetNode = widget.node;
         let widgetParent = widgetNode.parent;
         if (widgetParent) {
-            const zero = new Vec3();
+            const zero = new Vec2();
             const one = new Vec3(1, 1, 1);
             if (widget.target) {
                 widgetParent = widget.target;
