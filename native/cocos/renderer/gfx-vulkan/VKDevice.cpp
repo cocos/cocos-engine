@@ -477,14 +477,14 @@ void CCVKDevice::resize(uint width, uint height) {
 }
 
 void CCVKDevice::acquire() {
-    if (!checkSwapchainStatus()) return;
-
     CCVKQueue *queue = (CCVKQueue *)_queue;
 
     if (queue->gpuQueue()->fences.size()) {
         VK_CHECK(vkWaitForFences(_gpuDevice->vkDevice, queue->gpuQueue()->fences.size(),
                                  queue->gpuQueue()->fences.data(), VK_TRUE, DEFAULT_TIMEOUT));
     }
+
+    if (!checkSwapchainStatus()) return;
 
     queue->_numDrawCalls = 0;
     queue->_numInstances = 0;
