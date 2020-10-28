@@ -131,7 +131,7 @@ export interface IGameConfig {
      * 5 - `error`，`assert`，`warn` will print on canvas, available only on web.
      * 6 - `error`，`assert` will print on canvas, available only on web.
      */
-    debugMode?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+    debugMode?: debug.DebugMode;
 
     /**
      * @zh
@@ -778,7 +778,7 @@ export class Game extends EventTarget {
     private _initConfig (config: IGameConfig) {
         // Configs adjustment
         if (typeof config.debugMode !== 'number') {
-            config.debugMode = 0;
+            config.debugMode = debug.DebugMode.NONE;
         }
         config.exposeClassName = !!config.exposeClassName;
         if (typeof config.frameRate !== 'number') {
