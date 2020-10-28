@@ -37,6 +37,21 @@ replaceProperty(PhysicsSystem.prototype, 'PhysicsSystem.prototype', [
 removeProperty(PhysicsSystem.prototype, 'PhysicsSystem.prototype', [
     {
         "name": "useFixedTime"
+    },
+    {
+        "name": "useCollisionMatrix"
+    },
+    {
+        "name": "updateCollisionMatrix"
+    },
+    {
+        "name": "resetCollisionMatrix"
+    },
+    {
+        "name": "isCollisionGroup"
+    },
+    {
+        "name": "setCollisionGroup"
     }
 ]);
 

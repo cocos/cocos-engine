@@ -34,7 +34,13 @@ export class AmmoSharedBody {
             newSB = new AmmoSharedBody(node, wrappedWorld);
             AmmoSharedBody.sharedBodesMap.set(node.uuid, newSB);
         }
-        if (wrappedBody) { newSB._wrappedBody = wrappedBody; }
+        if (wrappedBody) {
+            newSB._wrappedBody = wrappedBody;
+            const g = wrappedBody.rigidBody.group;
+            const m = PhysicsSystem.instance.collisionMatrix[g];
+            newSB._collisionFilterGroup = g;
+            newSB._collisionFilterMask = m;
+        }
         return newSB;
     }
 
