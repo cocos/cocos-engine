@@ -226,7 +226,9 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
                     if (asset.__nativeDepend__) {
                         if (!setProperties(uuid, asset, map)) {
                             try {
-                                asset.onLoaded();
+                                if (asset.onLoaded) {
+                                    asset.onLoaded();
+                                }
                             }
                             catch (e) {
                                 error(e.message, e.stack);
@@ -237,7 +239,9 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
                 else {
                     if (!setProperties(uuid, asset, map)) {
                         try {
-                            asset.onLoaded();
+                            if (asset.onLoaded) {
+                                asset.onLoaded();
+                            }
                         }
                         catch (e) {
                             error(e.message, e.stack);
