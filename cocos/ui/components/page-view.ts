@@ -660,7 +660,7 @@ export class PageView extends ScrollView {
     }
 
     // 快速滑动
-    protected _isQuicklyScrollable(touchMoveVelocity: Vec3) {
+    protected _isQuicklyScrollable(touchMoveVelocity: Vec2) {
         if (this.direction === Direction.Horizontal) {
             if (Math.abs(touchMoveVelocity.x) > this.autoPageTurningThreshold) {
                 return true;
