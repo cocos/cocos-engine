@@ -493,7 +493,7 @@ export class Game extends EventTarget {
 
             legacyCC.director.reset();
             this.pause();
-            return this._setupRenderPipelineAndShowSplashScreen().then(() => {
+            return this._setRenderPipelineNShowSplash().then(() => {
                 this.resume();
                 this._safeEmit(Game.EVENT_RESTART);
             });
@@ -613,7 +613,7 @@ export class Game extends EventTarget {
                 inputManager.registerSystemEvent(game.canvas);
             }
 
-            return this._setupRenderPipelineAndShowSplashScreen();
+            return this._setRenderPipelineNShowSplash();
         });
     }
 
@@ -983,7 +983,7 @@ export class Game extends EventTarget {
         });
     }
 
-    private _setupRenderPipelineAndShowSplashScreen () {
+    private _setRenderPipelineNShowSplash () {
         return Promise.resolve(this._setupRenderPipeline()).then(() => {
             this._safeEmit(Game.EVENT_GAME_INITED);
             return Promise.resolve(this._showSplashScreen()).then(() => {
