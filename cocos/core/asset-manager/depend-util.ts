@@ -28,8 +28,7 @@
  */
 import { BUILD, DEV, EDITOR } from 'internal:constants';
 import { Asset } from '..';
-// import { getDependUuidList , hasNativeDep } from '../platform/deserialize-compiled';
-// import deserializeForCompiled from '../platform/deserialize-compiled';
+import { getDependUuidList, hasNativeDep, isCompiledJson } from '../data/deserialize';
 import Cache from './cache';
 import deserialize, { IDependProp } from './deserialize';
 import { decodeUuid } from './helper';
@@ -154,7 +153,8 @@ export class DependUtil {
                 return this._depends.get(uuid)!;
             }
 
-            if (Array.isArray(json) /* && (!(BUILD || deserializeForCompiled.isCompiledJson(json)) || !hasNativeDep(json))*/) {
+            // @ts-ignore
+            if (Array.isArray(json) && (!(BUILD || isCompiledJson(json)) || !hasNativeDep(json))) {
                 out = {
                     deps: this._parseDepsFromJson(json),
                 };
@@ -212,39 +212,41 @@ export class DependUtil {
 
     private _parseDepsFromJson (json: Record<string, any>): string[] {
         let depends: string[] | null = null;
-        // if (DEV) {
-            // if (deserializeForCompiled.isCompiledJson(json)) {
-            //     depends = getDependUuidList(json);
-            //     depends!.forEach((uuid, index) => depends![index] = decodeUuid(uuid));
-            //     return depends!;
-            // }
+        if (DEV) {
+            if (isCompiledJson(json)) {
+                // @ts-ignore
+                depends = getDependUuidList(json);
+                depends!.forEach((uuid, index) => depends![index] = decodeUuid(uuid));
+                return depends!;
+            }
 
-        depends = [];
-        function parseDependRecursively (data: Record<string, any>, out: string[]) {
-            if (!data || typeof data !== 'object' || data.__id__) { return; }
-            const uuid = data.__uuid__;
-            if (Array.isArray(data)) {
-                for (let i = 0, l = data.length; i < l; i++) {
-                    parseDependRecursively(data[i], out);
+            depends = [];
+            function parseDependRecursively (data: Record<string, any>, out: string[]) {
+                if (!data || typeof data !== 'object' || data.__id__) { return; }
+                const uuid = data.__uuid__;
+                if (Array.isArray(data)) {
+                    for (let i = 0, l = data.length; i < l; i++) {
+                        parseDependRecursively(data[i], out);
+                    }
+                }
+                else if (uuid) {
+                    out.push(decodeUuid(uuid));
+                }
+                else {
+                    for (const prop in data) {
+                        parseDependRecursively(data[prop], out);
+                    }
                 }
             }
-            else if (uuid) {
-                out.push(decodeUuid(uuid));
-            }
-            else {
-                for (const prop in data) {
-                    parseDependRecursively(data[prop], out);
-                }
-            }
+            parseDependRecursively(json, depends);
+            return depends;
         }
-        parseDependRecursively(json, depends);
-        return depends;
-        // }
-        // else {
-        //     depends = getDependUuidList(json);
-        //     depends!.forEach((uuid, index) => depends![index] = decodeUuid(uuid));
-        // }
-        // return depends!;
+        else {
+            // @ts-ignore
+            depends = getDependUuidList(json);
+            depends!.forEach((uuid, index) => depends![index] = decodeUuid(uuid));
+        }
+        return depends!;
     }
 
     private _descend (uuid: string, exclude: Record<string, any>, depends: string[]): void {

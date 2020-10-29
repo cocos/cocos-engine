@@ -45,7 +45,7 @@ import packManager from './pack-manager';
 import parser from './parser';
 import { IPipe, Pipeline } from './pipeline';
 import preprocess from './preprocess';
-import releaseManager from './releaseManager';
+import releaseManager from './release-manager';
 import RequestItem from './request-item';
 import { 
     CompleteCallback,
@@ -62,7 +62,7 @@ import {
 } from './shared';
 import { assets, BuiltinBundleName, bundles, fetchPipeline, files, parsed, pipeline, transformPipeline } from './shared';
 import Task from './task';
-import { combine, parse } from './urlTransformer';
+import { combine, parse } from './url-transformer';
 import { asyncify, parseParameters } from './utilities';
 
 /**

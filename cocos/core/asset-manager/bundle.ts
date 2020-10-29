@@ -30,7 +30,7 @@ import { Asset, SceneAsset } from '../assets';
 import { legacyCC } from '../global-exports';
 import { error, errorID } from '../platform/debug';
 import Config, { IAddressableInfo, IAssetInfo, IConfigOption, ISceneInfo } from './config';
-import releaseManager from './releaseManager';
+import releaseManager from './release-manager';
 import RequestItem from './request-item';
 import { assets, AssetType, bundles, CompleteCallback, CompleteCallbackNoData, IAssetOptions, ProgressCallback, RequestType } from './shared';
 import { parseLoadResArgs, parseParameters } from './utilities';

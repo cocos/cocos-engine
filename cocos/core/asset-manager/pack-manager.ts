@@ -28,6 +28,8 @@
  */
 
 import { Texture2D } from '../assets';
+import MissingScript from '../components/missing-script';
+import { packCustomObjData, unpackJSONs } from '../data/deserialize';
 // import MissingScript from '../components/missing-script';
 // import { packCustomObjData, unpackJSONs } from '../data/deserialize-compiled';
 import { error, errorID } from '../platform/debug';
@@ -87,7 +89,8 @@ export class PackManager {
 
         if (Array.isArray(json)) {
 
-            // json = unpackJSONs(json, MissingScript.safeFindClass);
+            // @ts-ignore
+            json = unpackJSONs(json, MissingScript.safeFindClass);
 
             if (json.length !== pack.length) {
                 errorID(4915);
@@ -104,8 +107,8 @@ export class PackManager {
                     errorID(4915);
                 }
                 for (let i = 0; i < pack.length; i++) {
-                    out[pack[i] + '@import'] = { __type__: textureType, content: { base: datas[i][0], mipmaps: datas[i][1] } };
-                    // out[pack[i] + '@import'] = packCustomObjData(textureType, datas[i]);
+                    // out[pack[i] + '@import'] = { __type__: textureType, content: { base: datas[i][0], mipmaps: datas[i][1] } };
+                    out[pack[i] + '@import'] = packCustomObjData(textureType, datas[i]);
                 }
             }
             else {

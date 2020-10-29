@@ -42,7 +42,7 @@ import downloader from './downloader';
 import { getUuidFromURL, normalize, transform } from './helper';
 import parser from './parser';
 import { Pipeline } from './pipeline';
-import releaseManager from './releaseManager';
+import releaseManager from './release-manager';
 import { assets, BuiltinBundleName, bundles, ProgressCallback, CompleteCallback } from './shared';
 import Task from './task';
 import { parseLoadResArgs, setDefaultProgressCallback } from './utilities';

@@ -77,9 +77,9 @@ export default function (json: Record<string, any>, options: Record<string, any>
         missingClass.reset();
     }
 
-    const uuidList = tdInfo.uuidList;
-    const objList = tdInfo.uuidObjList;
-    const propList = tdInfo.uuidPropList;
+    const uuidList = tdInfo.uuidList! as string[];
+    const objList = tdInfo.uuidObjList!;
+    const propList = tdInfo.uuidPropList! as string[];
     const depends: IDependProp[] = [];
 
     for (let i = 0; i < uuidList.length; i++) {
