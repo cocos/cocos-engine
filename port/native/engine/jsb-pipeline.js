@@ -27,10 +27,6 @@
 (function() {
 if (cc.ForwardPipeline) return;
 
-const typeToClass = {
-  ForwardPipeline: nr.ForwardPipeline,
-}
-
 class ForwardPipeline extends nr.ForwardPipeline {
   constructor() {
     super();
@@ -63,6 +59,8 @@ class ForwardPipeline extends nr.ForwardPipeline {
     this.initialize(info);
   }
 }
+// hook to invoke init after deserialization
+ForwardPipeline.prototype.onAfterDeserialize_JSB = ForwardPipeline.prototype.init;
 
 class ForwardFlow extends nr.ForwardFlow {
   constructor() {
@@ -174,7 +172,7 @@ let instancedBufferProto = nr.InstancedBuffer;
 let oldGetFunc = instancedBufferProto.get;
 instancedBufferProto.get = function(pass) {
   return oldGetFunc.call(this, pass.handle);
-}
+};
 
 class RenderQueueDesc {
   constructor() {
@@ -197,22 +195,6 @@ cc.js.setClassName('ForwardStage', ForwardStage);
 cc.js.setClassName('ShadowStage', ShadowStage);
 cc.js.setClassName('UIStage', UIStage);
 cc.js.setClassName('RenderQueueDesc', RenderQueueDesc);
-
-const deserializeProto = cc.deserialize._Deserializer.prototype;
-const _deserialize = deserializeProto.deserialize;
-
-Object.assign(deserializeProto, {
-  deserialize(jsonObj) {
-    const kkclass = typeToClass[jsonObj.__type__];
-    if (kkclass) {
-      const data = _deserialize.call(this, jsonObj);
-      data.init();
-      return data;
-    } else {
-      return _deserialize.call(this, jsonObj);
-    }
-  },
-})
 
 const RootProto = cc.Root.prototype;
 

@@ -5,6 +5,7 @@
 
 import * as easing from './animation/easing';
 import { Material } from './assets/material';
+import { preTransforms } from './math/mat4';
 import { clamp01 } from './math/utils';
 import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
 import { sys } from './platform/sys';
@@ -131,8 +132,9 @@ export class SplashScreen {
             const clearColor = this.setting.clearColor;
             this.clearColors = [ new GFXColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w) ];
 
-            this.screenWidth = this.device.width;
-            this.screenHeight = this.device.height;
+            const { width, height, surfaceTransform } = this.device;
+            this.screenWidth = surfaceTransform % 2 ? height : width;
+            this.screenHeight = surfaceTransform % 2 ? width : height;
 
             this.image = new Image();
             this.image.onload = this.init.bind(this);
@@ -358,11 +360,14 @@ export class SplashScreen {
             verts[i + 1] = verts[i + 1] + this.screenHeight * 0.1;
         }
 
-        // transform to clipspace
+        // doing the screen adaptation here will not support dynamic screen orientation changes
         const ySign = this.device.screenSpaceSignY;
+        const preTransform = preTransforms[this.device.surfaceTransform];
         for (let i = 0; i < verts.length; i += 4) {
-            verts[i] = verts[i] / this.screenWidth * 2 - 1;
-            verts[i + 1] = (verts[i + 1] / this.screenHeight * 2 - 1) * ySign;
+            const x = verts[i] / this.screenWidth * 2 - 1;
+            const y = (verts[i + 1] / this.screenHeight * 2 - 1) * ySign;
+            verts[i] = preTransform[0] * x + preTransform[2] * y;
+            verts[i + 1] = preTransform[1] * x + preTransform[3] * y;
         }
 
         this.textVB.update(verts);
@@ -435,11 +440,14 @@ export class SplashScreen {
             verts[i + 1] = verts[i + 1] + this.screenHeight / 2;
         }
 
-        // transform to clipspace
-        const ySign = device.screenSpaceSignY;
+        // doing the screen adaptation here will not support dynamic screen orientation changes
+        const ySign = this.device.screenSpaceSignY;
+        const preTransform = preTransforms[this.device.surfaceTransform];
         for (let i = 0; i < verts.length; i += 4) {
-            verts[i] = verts[i] / this.screenWidth * 2 - 1;
-            verts[i + 1] = (verts[i + 1] / this.screenHeight * 2 - 1) * ySign;
+            const x = verts[i] / this.screenWidth * 2 - 1;
+            const y = (verts[i + 1] / this.screenHeight * 2 - 1) * ySign;
+            verts[i] = preTransform[0] * x + preTransform[2] * y;
+            verts[i + 1] = preTransform[1] * x + preTransform[3] * y;
         }
 
         this.vertexBuffers.update(verts);

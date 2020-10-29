@@ -56,48 +56,48 @@ export enum EventType {
      * @en None
      * @zh 无
      */
-    NONE,
+    NONE = 'none',
     /**
      * @en The video is playing.
      * @zh 视频播放中
      */
-    PLAYING,
+    PLAYING = 'playing',
     /**
      * @en Video paused
      * @zh 视频暂停中
      */
-    PAUSED,
+    PAUSED = 'paused',
     /**
      * @en Video stopped
      * @zh 视频停止中
      */
-    STOPPED,
+    STOPPED = 'stopped',
     /**
      * @en End of video
      * @zh 视频播放完毕
      */
-    COMPLETED,
+    COMPLETED = 'completed',
     /**
      * @en Video metadata loading complete
      * @zh 视频元数据加载完毕
      */
-    META_LOADED,
+    META_LOADED = 'meta-loaded',
     /**
      * @en The video is ready to play when loaded
      * @zh 视频加载完毕可播放
      */
-    READY_TO_PLAY,
+    READY_TO_PLAY = 'ready-to-play',
     /**
      * @en Video Trigger Error
      * @zh 处理视频时触发的错误
      */
-    ERROR,
+    ERROR = 'error',
 
     /**
      * @en Video clicked
      * @zh 视频被点击
      */
-    CLICKED,
+    CLICKED = 'clicked',
 }
 
 export enum READY_STATE {
