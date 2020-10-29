@@ -523,7 +523,6 @@ export class Sprite extends UIRenderable {
     }
 
     public onDestroy () {
-        super.onDestroy();
         this.destroyRenderData();
         if (EDITOR) {
             this.node.off(SystemEventType.SIZE_CHANGED, this._resized, this);
@@ -532,6 +531,7 @@ export class Sprite extends UIRenderable {
         if (this._spriteFrame) {
             this._spriteFrame.off('load');
         }
+        super.onDestroy();
     }
 
     /**

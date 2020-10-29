@@ -522,6 +522,10 @@ declare namespace CCObject {
         IsAnchorLocked,
         IsSizeLocked,
     }
+
+    // for @ccclass
+    let __props__: string[];
+    let __values__: string[];
 }
 
 /*

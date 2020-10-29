@@ -102,10 +102,13 @@ export class UIStage extends RenderStage {
 
         const camera = view.camera!;
         const vp = camera.viewport;
-        this._renderArea!.x = vp.x * camera.width;
-        this._renderArea!.y = vp.y * camera.height;
-        this._renderArea!.width = vp.width * camera.width;
-        this._renderArea!.height = vp.height * camera.height;
+        // render area is not oriented
+        const w = device.surfaceTransform % 2 ? camera.height : camera.width;
+        const h = device.surfaceTransform % 2 ? camera.width : camera.height;
+        this._renderArea!.x = vp.x * w;
+        this._renderArea!.y = vp.y * h;
+        this._renderArea!.width = vp.width * w;
+        this._renderArea!.height = vp.height * h;
 
         colors[0] = camera.clearColor as GFXColor;
 

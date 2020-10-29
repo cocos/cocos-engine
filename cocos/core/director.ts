@@ -497,6 +497,14 @@ export class Director extends EventTarget {
             console.timeEnd('AttachPersist');
         }
         const oldScene = this._scene;
+
+        // unload scene
+        if (BUILD && DEBUG) {
+            console.time('Destroy');
+        }
+        if (legacyCC.isValid(oldScene)) {
+            oldScene!.destroy();
+        }
         if (!EDITOR) {
             // auto release assets
             if (BUILD && DEBUG) {
@@ -506,14 +514,6 @@ export class Director extends EventTarget {
             if (BUILD && DEBUG) {
                 console.timeEnd('AutoRelease');
             }
-        }
-
-        // unload scene
-        if (BUILD && DEBUG) {
-            console.time('Destroy');
-        }
-        if (legacyCC.isValid(oldScene)) {
-            oldScene!.destroy();
         }
 
         this._scene = null;

@@ -109,7 +109,7 @@ namespace Enum {
         /**
          * The value of the numerator.
          */
-        value: EnumT[typeof name];
+        value: EnumT[keyof EnumT];
     }
 }
 

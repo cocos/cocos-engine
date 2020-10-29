@@ -37,7 +37,7 @@ import { EPSILON } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
 
-const preTransforms = [
+export const preTransforms = [
     [ 1,  0,  0,  1], // GFXSurfaceTransform.IDENTITY
     [ 0,  1, -1,  0], // GFXSurfaceTransform.ROTATE_90
     [-1,  0,  0, -1], // GFXSurfaceTransform.ROTATE_180

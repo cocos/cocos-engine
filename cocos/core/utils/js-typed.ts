@@ -32,10 +32,12 @@ export function isString (object: any) {
 }
 
 /**
- * Checks whether the object is an empty object
+ * Checks if the object `obj` does not have one or more enumerable properties (including properties from proto chain).
+ * @param obj The object.
+ * @returns The result. Note that if the `obj` is not of type `'object'`, `true` is returned.
  */
-export function isEmptyObject (object: any) {
-    for (const key in object) {
+export function isEmptyObject (obj: any) {
+    for (const key in obj) {
         return false;
     }
     return true;
@@ -270,7 +272,8 @@ export function formatStr (msg: string | any, ...subst: any[]) {
         for (const arg of subst) {
             const regExpToTest = typeof arg === 'number' ? REGEXP_NUM_OR_STR : REGEXP_STR;
             if (regExpToTest.test(msg)) {
-                msg = msg.replace(regExpToTest, arg);
+                const notReplaceFunction = '' + arg;
+                msg = msg.replace(regExpToTest, notReplaceFunction);
             }
             else {
                 msg += ' ' + arg;

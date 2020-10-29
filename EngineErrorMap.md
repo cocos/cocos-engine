@@ -2009,6 +2009,14 @@ Can not find script '%s'
 
 Can not find class '%s'
 
+### 5303
+
+Failed to deserialize %s, missing _deserialize function.
+
+### 5304
+
+Unable to deserialize version %s data.
+
 ### 5400
 
 <!-- DEPRECATED -->
