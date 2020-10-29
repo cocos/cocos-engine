@@ -2066,6 +2066,24 @@ bool js_register_pipeline_RenderView(se::Object* obj)
 se::Object* __jsb_cc_pipeline_RenderWindow_proto = nullptr;
 se::Class* __jsb_cc_pipeline_RenderWindow_class = nullptr;
 
+static bool js_pipeline_RenderWindow_getFramebuffer(se::State& s)
+{
+    cc::pipeline::RenderWindow* cobj = (cc::pipeline::RenderWindow*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderWindow_getFramebuffer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::gfx::Framebuffer* result = cobj->getFramebuffer();
+        ok &= native_ptr_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_pipeline_RenderWindow_getFramebuffer : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_RenderWindow_getFramebuffer)
+
 static bool js_pipeline_RenderWindow_get_hasOnScreenAttachments(se::State& s)
 {
     cc::pipeline::RenderWindow* cobj = (cc::pipeline::RenderWindow*)s.nativeThisObject();
@@ -2258,6 +2276,7 @@ bool js_register_pipeline_RenderWindow(se::Object* obj)
     cls->defineProperty("hasOnScreenAttachments", _SE(js_pipeline_RenderWindow_get_hasOnScreenAttachments), _SE(js_pipeline_RenderWindow_set_hasOnScreenAttachments));
     cls->defineProperty("hasOffScreenAttachments", _SE(js_pipeline_RenderWindow_get_hasOffScreenAttachments), _SE(js_pipeline_RenderWindow_set_hasOffScreenAttachments));
     cls->defineProperty("framebufferID", _SE(js_pipeline_RenderWindow_get_framebufferID), _SE(js_pipeline_RenderWindow_set_framebufferID));
+    cls->defineFunction("getFramebuffer", _SE(js_pipeline_RenderWindow_getFramebuffer));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_RenderWindow_finalize));
     cls->install();
     JSBClassType::registerClass<cc::pipeline::RenderWindow>(cls);

@@ -218,24 +218,33 @@ extern se::Class* __jsb_cc_gfx_RasterizerState_class;
 
 bool js_register_cc_gfx_RasterizerState(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_RasterizerState_reset);
+SE_DECLARE_FUNC(js_gfx_RasterizerState_getHash);
 
 extern se::Object* __jsb_cc_gfx_DepthStencilState_proto;
 extern se::Class* __jsb_cc_gfx_DepthStencilState_class;
 
 bool js_register_cc_gfx_DepthStencilState(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_DepthStencilState_reset);
+SE_DECLARE_FUNC(js_gfx_DepthStencilState_getHash);
 
 extern se::Object* __jsb_cc_gfx_BlendTarget_proto;
 extern se::Class* __jsb_cc_gfx_BlendTarget_class;
 
 bool js_register_cc_gfx_BlendTarget(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_BlendTarget_reset);
 
 extern se::Object* __jsb_cc_gfx_BlendState_proto;
 extern se::Class* __jsb_cc_gfx_BlendState_class;
 
 bool js_register_cc_gfx_BlendState(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_BlendState_reset);
+SE_DECLARE_FUNC(js_gfx_BlendState_setTarget);
+SE_DECLARE_FUNC(js_gfx_BlendState_getHash);
+SE_DECLARE_FUNC(js_gfx_BlendState_BlendState);
 
 extern se::Object* __jsb_cc_gfx_PipelineStateInfo_proto;
 extern se::Class* __jsb_cc_gfx_PipelineStateInfo_class;

@@ -9068,6 +9068,39 @@ bool js_register_gfx_InputState(se::Object* obj)
 se::Object* __jsb_cc_gfx_RasterizerState_proto = nullptr;
 se::Class* __jsb_cc_gfx_RasterizerState_class = nullptr;
 
+static bool js_gfx_RasterizerState_reset(se::State& s)
+{
+    cc::gfx::RasterizerState* cobj = (cc::gfx::RasterizerState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_RasterizerState_reset : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->reset();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_RasterizerState_reset)
+
+static bool js_gfx_RasterizerState_getHash(se::State& s)
+{
+    cc::gfx::RasterizerState* cobj = (cc::gfx::RasterizerState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_RasterizerState_getHash : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getHash();
+        ok &= uint32_to_seval((unsigned int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_RasterizerState_getHash : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_RasterizerState_getHash)
+
 static bool js_gfx_RasterizerState_get_isDiscard(se::State& s)
 {
     cc::gfx::RasterizerState* cobj = (cc::gfx::RasterizerState*)s.nativeThisObject();
@@ -9620,6 +9653,8 @@ bool js_register_gfx_RasterizerState(se::Object* obj)
     cls->defineProperty("isDepthClip", _SE(js_gfx_RasterizerState_get_isDepthClip), _SE(js_gfx_RasterizerState_set_isDepthClip));
     cls->defineProperty("isMultisample", _SE(js_gfx_RasterizerState_get_isMultisample), _SE(js_gfx_RasterizerState_set_isMultisample));
     cls->defineProperty("lineWidth", _SE(js_gfx_RasterizerState_get_lineWidth), _SE(js_gfx_RasterizerState_set_lineWidth));
+    cls->defineFunction("reset", _SE(js_gfx_RasterizerState_reset));
+    cls->defineFunction("hash", _SE(js_gfx_RasterizerState_getHash));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_RasterizerState_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::RasterizerState>(cls);
@@ -9633,6 +9668,39 @@ bool js_register_gfx_RasterizerState(se::Object* obj)
 
 se::Object* __jsb_cc_gfx_DepthStencilState_proto = nullptr;
 se::Class* __jsb_cc_gfx_DepthStencilState_class = nullptr;
+
+static bool js_gfx_DepthStencilState_reset(se::State& s)
+{
+    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_reset : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->reset();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_DepthStencilState_reset)
+
+static bool js_gfx_DepthStencilState_getHash(se::State& s)
+{
+    cc::gfx::DepthStencilState* cobj = (cc::gfx::DepthStencilState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilState_getHash : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getHash();
+        ok &= uint32_to_seval((unsigned int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_DepthStencilState_getHash : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_DepthStencilState_getHash)
 
 static bool js_gfx_DepthStencilState_get_depthTest(se::State& s)
 {
@@ -10466,6 +10534,8 @@ bool js_register_gfx_DepthStencilState(se::Object* obj)
     cls->defineProperty("stencilZFailOpBack", _SE(js_gfx_DepthStencilState_get_stencilZFailOpBack), _SE(js_gfx_DepthStencilState_set_stencilZFailOpBack));
     cls->defineProperty("stencilPassOpBack", _SE(js_gfx_DepthStencilState_get_stencilPassOpBack), _SE(js_gfx_DepthStencilState_set_stencilPassOpBack));
     cls->defineProperty("stencilRefBack", _SE(js_gfx_DepthStencilState_get_stencilRefBack), _SE(js_gfx_DepthStencilState_set_stencilRefBack));
+    cls->defineFunction("reset", _SE(js_gfx_DepthStencilState_reset));
+    cls->defineFunction("hash", _SE(js_gfx_DepthStencilState_getHash));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_DepthStencilState_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::DepthStencilState>(cls);
@@ -10479,6 +10549,21 @@ bool js_register_gfx_DepthStencilState(se::Object* obj)
 
 se::Object* __jsb_cc_gfx_BlendTarget_proto = nullptr;
 se::Class* __jsb_cc_gfx_BlendTarget_class = nullptr;
+
+static bool js_gfx_BlendTarget_reset(se::State& s)
+{
+    cc::gfx::BlendTarget* cobj = (cc::gfx::BlendTarget*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_BlendTarget_reset : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->reset();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_BlendTarget_reset)
 
 static bool js_gfx_BlendTarget_get_blend(se::State& s)
 {
@@ -10872,6 +10957,7 @@ bool js_register_gfx_BlendTarget(se::Object* obj)
     cls->defineProperty("blendDstAlpha", _SE(js_gfx_BlendTarget_get_blendDstAlpha), _SE(js_gfx_BlendTarget_set_blendDstAlpha));
     cls->defineProperty("blendAlphaEq", _SE(js_gfx_BlendTarget_get_blendAlphaEq), _SE(js_gfx_BlendTarget_set_blendAlphaEq));
     cls->defineProperty("blendColorMask", _SE(js_gfx_BlendTarget_get_blendColorMask), _SE(js_gfx_BlendTarget_set_blendColorMask));
+    cls->defineFunction("reset", _SE(js_gfx_BlendTarget_reset));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_BlendTarget_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::BlendTarget>(cls);
@@ -10885,6 +10971,60 @@ bool js_register_gfx_BlendTarget(se::Object* obj)
 
 se::Object* __jsb_cc_gfx_BlendState_proto = nullptr;
 se::Class* __jsb_cc_gfx_BlendState_class = nullptr;
+
+static bool js_gfx_BlendState_reset(se::State& s)
+{
+    cc::gfx::BlendState* cobj = (cc::gfx::BlendState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_BlendState_reset : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->reset();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_BlendState_reset)
+
+static bool js_gfx_BlendState_setTarget(se::State& s)
+{
+    cc::gfx::BlendState* cobj = (cc::gfx::BlendState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_BlendState_setTarget : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        unsigned int arg0 = 0;
+        cc::gfx::BlendTarget* arg1 = nullptr;
+        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+        ok &= seval_to_reference(args[1], &arg1);
+        SE_PRECONDITION2(ok, false, "js_gfx_BlendState_setTarget : Error processing arguments");
+        cobj->setTarget(arg0, *arg1);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_BlendState_setTarget)
+
+static bool js_gfx_BlendState_getHash(se::State& s)
+{
+    cc::gfx::BlendState* cobj = (cc::gfx::BlendState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_BlendState_getHash : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getHash();
+        ok &= uint32_to_seval((unsigned int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_BlendState_getHash : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_BlendState_getHash)
 
 static bool js_gfx_BlendState_get_isA2C(se::State& s)
 {
@@ -10974,95 +11114,10 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_BlendState_finalize)
 
 static bool js_gfx_BlendState_constructor(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-
-    if(argc == 0) 
-    {
-        cc::gfx::BlendState* cobj = JSB_ALLOC(cc::gfx::BlendState);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-    else if(argc == 1 && args[0].isObject())
-    {
-        se::Object *json = args[0].toObject();
-        se::Value field;
-
-        cc::gfx::BlendState* cobj = JSB_ALLOC(cc::gfx::BlendState);
-        bool arg0;
-        json->getProperty("isA2C", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_boolean(field, &arg0);
-            cobj->isA2C = arg0;
-        }
-        bool arg1;
-        json->getProperty("isIndepend", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_boolean(field, &arg1);
-            cobj->isIndepend = arg1;
-        }
-        cc::gfx::Color* arg2 = nullptr;
-        json->getProperty("blendColor", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_reference(field, &arg2);
-            cobj->blendColor = *arg2;
-        }
-        std::vector<cc::gfx::BlendTarget> arg3;
-        json->getProperty("targets", &field);
-        if(!field.isUndefined()) {
-            ok &= seval_to_std_vector(field, &arg3);
-            cobj->targets = arg3;
-        }
-
-        if(!ok) {
-            JSB_FREE(cobj);
-            SE_REPORT_ERROR("argument convertion error");
-            return false;
-        }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-    else
-    {
-        cc::gfx::BlendState* cobj = JSB_ALLOC(cc::gfx::BlendState);
-        if (argc > 0 && !args[0].isUndefined()) {
-            bool arg0;
-            ok &= seval_to_boolean(args[0], &arg0);
-            cobj->isA2C = arg0;
-        }
-        if (argc > 1 && !args[1].isUndefined()) {
-            bool arg1;
-            ok &= seval_to_boolean(args[1], &arg1);
-            cobj->isIndepend = arg1;
-        }
-        if (argc > 2 && !args[2].isUndefined()) {
-            cc::gfx::Color* arg2 = nullptr;
-            ok &= seval_to_reference(args[2], &arg2);
-            cobj->blendColor = *arg2;
-        }
-        if (argc > 3 && !args[3].isUndefined()) {
-            std::vector<cc::gfx::BlendTarget> arg3;
-            ok &= seval_to_std_vector(args[3], &arg3);
-            cobj->targets = arg3;
-        }
-
-        if(!ok) {
-            JSB_FREE(cobj);
-            SE_REPORT_ERROR("Argument convertion error");
-            return false;
-        }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
+    cc::gfx::BlendState* cobj = JSB_ALLOC(cc::gfx::BlendState);
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
 }
 SE_BIND_CTOR(js_gfx_BlendState_constructor, __jsb_cc_gfx_BlendState_class, js_cc_gfx_BlendState_finalize)
 
@@ -11089,6 +11144,9 @@ bool js_register_gfx_BlendState(se::Object* obj)
     cls->defineProperty("isA2C", _SE(js_gfx_BlendState_get_isA2C), _SE(js_gfx_BlendState_set_isA2C));
     cls->defineProperty("isIndepend", _SE(js_gfx_BlendState_get_isIndepend), _SE(js_gfx_BlendState_set_isIndepend));
     cls->defineProperty("blendColor", _SE(js_gfx_BlendState_get_blendColor), _SE(js_gfx_BlendState_set_blendColor));
+    cls->defineFunction("reset", _SE(js_gfx_BlendState_reset));
+    cls->defineFunction("setTarget", _SE(js_gfx_BlendState_setTarget));
+    cls->defineFunction("hash", _SE(js_gfx_BlendState_getHash));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_BlendState_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::BlendState>(cls);
