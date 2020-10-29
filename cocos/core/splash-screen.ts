@@ -394,7 +394,7 @@ export class SplashScreen {
 
     private initCMD () {
         const device = this.device as GFXDevice;
-        this.renderArea = new GFXRect(0, 0, device.width, device.height);
+        this.renderArea = new GFXRect(0, 0, device.nativeWidth, device.nativeHeight);
         this.framebuffer = this.root.mainWindow!.framebuffer;
 
         this.cmdBuff = device.commandBuffer;

@@ -40,7 +40,7 @@ import { UI } from '../../core/renderer/ui/ui';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
 import { GFXFormat, GFXPrimitiveMode, GFXAttribute, RenderingSubMesh, GFXDevice, GFXBufferUsageBit, GFXBufferInfo, GFXMemoryUsageBit } from '../../core';
-import { vfmt, getAttributeStride } from '../../core/renderer/ui/ui-vertex-format';
+import { vfmtPosColor, getAttributeStride } from '../../core/renderer/ui/ui-vertex-format';
 import { legacyCC } from '../../core/global-exports';
 
 const _matInsInfo: IMaterialInstanceInfo = {
@@ -49,7 +49,7 @@ const _matInsInfo: IMaterialInstanceInfo = {
     subModelIdx: 0,
 };
 
-const attributes = vfmt.concat([
+const attributes = vfmtPosColor.concat([
     new GFXAttribute('a_dist', GFXFormat.R32F),
 ]);
 

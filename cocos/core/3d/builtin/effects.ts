@@ -55,6 +55,41 @@ export default [
     ]
   },
   {
+    "name": "builtin-clear-stencil",
+    "_uuid": "810e96e4-e456-4468-9b59-f4e8f39732c0",
+    "techniques": [
+      { "passes": [{ "blendState": { "targets": [{ "blend": true }] }, "rasterizerState": { "cullMode": 0 }, "program": "builtin-clear-stencil|sprite-vs:vert|sprite-fs:frag", "depthStencilState": { "depthTest": false, "depthWrite": false } }] }
+    ],
+    "shaders": [
+      {
+        "name": "builtin-clear-stencil|sprite-vs:vert|sprite-fs:frag",
+        "hash": 1062464958,
+        "glsl3": {
+          "vert": `\nprecision highp float;\nin vec3 a_position;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  return pos;\n}\nvoid main() { gl_Position = vert(); }`,
+          "frag": `\nprecision highp float;\nvec4 frag () {\n  vec4 o = vec4(1.0);\n  return o;\n}\nlayout(location = 0) out vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }`
+        },
+        "glsl1": {
+          "vert": `\nprecision highp float;\nattribute vec3 a_position;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  return pos;\n}\nvoid main() { gl_Position = vert(); }`,
+          "frag": `\nprecision highp float;\nvec4 frag () {\n  vec4 o = vec4(1.0);\n  return o;\n}\nvoid main() { gl_FragColor = frag(); }`
+        },
+        "glsl4": {
+          "vert": `\nprecision highp float;\nlayout(location = 0) in vec3 a_position;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  return pos;\n}\nvoid main() { gl_Position = vert(); }`,
+          "frag": `\nprecision highp float;\nvec4 frag () {\n  vec4 o = vec4(1.0);\n  return o;\n}\nlayout(location = 0) out vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }`
+        },
+        "builtins": {
+          "globals": { "blocks": [], "samplers": [] },
+          "locals": { "blocks": [], "samplers": [] }
+        },
+        "defines": [],
+        "blocks": [],
+        "samplers": [],
+        "attributes": [
+          { "name": "a_position", "type": 15, "count": 1, "defines": [], "stageFlags": 1, "format": 32, "location": 0 }
+        ]
+      }
+    ]
+  },
+  {
     "name": "builtin-graphics",
     "_uuid": "1c02ae6f-4492-4915-b8f8-7492a3b1e4cd",
     "techniques": [
@@ -305,23 +340,23 @@ export default [
     "name": "builtin-sprite",
     "_uuid": "60f7195c-ec2a-45eb-ba94-8955f60e81d0",
     "techniques": [
-      { "passes": [{ "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "rasterizerState": { "cullMode": 0 }, "program": "builtin-sprite|sprite-vs:vert|sprite-fs:frag", "depthStencilState": { "depthTest": false, "depthWrite": false } }] }
+      { "passes": [{ "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "rasterizerState": { "cullMode": 0 }, "program": "builtin-sprite|sprite-vs:vert|sprite-fs:frag", "depthStencilState": { "depthTest": false, "depthWrite": false }, "properties": { "alphaThreshold": { "value": [0.5], "type": 13 } } }] }
     ],
     "shaders": [
       {
         "name": "builtin-sprite|sprite-vs:vert|sprite-fs:frag",
-        "hash": 2679078392,
+        "hash": 3640649043,
         "glsl3": {
           "vert": `\nprecision highp float;\nlayout(std140) uniform CCGlobal {\n  highp   vec4 cc_time;\n  mediump vec4 cc_screenSize;\n  mediump vec4 cc_screenScale;\n  mediump vec4 cc_nativeSize;\n  highp   mat4 cc_matView;\n  highp   mat4 cc_matViewInv;\n  highp   mat4 cc_matProj;\n  highp   mat4 cc_matProjInv;\n  highp   mat4 cc_matViewProj;\n  highp   mat4 cc_matViewProjInv;\n  highp   vec4 cc_cameraPos;\n  mediump vec4 cc_exposure;\n  mediump vec4 cc_mainLitDir;\n  mediump vec4 cc_mainLitColor;\n  mediump vec4 cc_ambientSky;\n  mediump vec4 cc_ambientGround;\n  mediump vec4 cc_fogColor;\n  mediump vec4 cc_fogBase;\n  mediump vec4 cc_fogAdd;\n};\n#if USE_LOCAL\nlayout(std140) uniform CCLocal {\n  highp mat4 cc_matWorld;\n  highp mat4 cc_matWorldIT;\n  highp vec4 cc_lightingMapUVParam;\n};\n#endif\nin vec3 a_position;\nin vec2 a_texCoord;\nin vec4 a_color;\nout vec4 color;\nout vec2 uv0;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  #if USE_LOCAL\n    pos = cc_matWorld * pos;\n  #endif\n  #if USE_PIXEL_ALIGNMENT\n    pos = cc_matView * pos;\n    pos.xyz = floor(pos.xyz);\n    pos = cc_matProj * pos;\n  #else\n    pos = cc_matViewProj * pos;\n  #endif\n  uv0 = a_texCoord;\n  color = a_color;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }`,
-          "frag": `\nprecision highp float;\nvec4 CCSampleTexture(sampler2D tex, vec2 uv) {\n#if CC_USE_EMBEDDED_ALPHA\n    return vec4(texture(tex, uv).rgb, texture(tex, uv + vec2(0.0, 0.5)).r);\n#else\n    return texture(tex, uv);\n#endif\n}\nin vec4 color;\n#if USE_TEXTURE\n  in vec2 uv0;\n  uniform sampler2D cc_spriteTexture;\n#endif\nvec4 frag () {\n  vec4 o = vec4(1, 1, 1, 1);\n  #if USE_TEXTURE\n    o *= CCSampleTexture(cc_spriteTexture, uv0);\n    #if IS_GRAY\n      float gray  = 0.2126 * o.r + 0.7152 * o.g + 0.0722 * o.b;\n      o.r = o.g = o.b = gray;\n    #endif\n  #endif\n  o *= color;\n  return o;\n}\nlayout(location = 0) out vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }`
+          "frag": `\nprecision highp float;\nvec4 CCSampleTexture(sampler2D tex, vec2 uv) {\n#if CC_USE_EMBEDDED_ALPHA\n    return vec4(texture(tex, uv).rgb, texture(tex, uv + vec2(0.0, 0.5)).r);\n#else\n    return texture(tex, uv);\n#endif\n}\n#if USE_ALPHA_TEST\n  layout(std140) uniform ALPHA_TEST_DATA {\n    float alphaThreshold;\n  };\n#endif\nvoid ALPHA_TEST (in vec4 color) {\n  #if USE_ALPHA_TEST\n      if (color.a < alphaThreshold) discard;\n  #endif\n}\nvoid ALPHA_TEST (in float alpha) {\n  #if USE_ALPHA_TEST\n      if (alpha < alphaThreshold) discard;\n  #endif\n}\nin vec4 color;\n#if USE_TEXTURE\n  in vec2 uv0;\n  uniform sampler2D cc_spriteTexture;\n#endif\nvec4 frag () {\n  vec4 o = vec4(1, 1, 1, 1);\n  #if USE_TEXTURE\n    o *= CCSampleTexture(cc_spriteTexture, uv0);\n    #if IS_GRAY\n      float gray  = 0.2126 * o.r + 0.7152 * o.g + 0.0722 * o.b;\n      o.r = o.g = o.b = gray;\n    #endif\n  #endif\n  o *= color;\n  ALPHA_TEST(o);\n  return o;\n}\nlayout(location = 0) out vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }`
         },
         "glsl1": {
           "vert": `\nprecision highp float;\nuniform highp mat4 cc_matView;\nuniform highp mat4 cc_matProj;\nuniform highp mat4 cc_matViewProj;\n#if USE_LOCAL\nuniform highp mat4 cc_matWorld;\n#endif\nattribute vec3 a_position;\nattribute vec2 a_texCoord;\nattribute vec4 a_color;\nvarying vec4 color;\nvarying vec2 uv0;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  #if USE_LOCAL\n    pos = cc_matWorld * pos;\n  #endif\n  #if USE_PIXEL_ALIGNMENT\n    pos = cc_matView * pos;\n    pos.xyz = floor(pos.xyz);\n    pos = cc_matProj * pos;\n  #else\n    pos = cc_matViewProj * pos;\n  #endif\n  uv0 = a_texCoord;\n  color = a_color;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }`,
-          "frag": `\nprecision highp float;\nvec4 CCSampleTexture(sampler2D tex, vec2 uv) {\n#if CC_USE_EMBEDDED_ALPHA\n    return vec4(texture2D(tex, uv).rgb, texture2D(tex, uv + vec2(0.0, 0.5)).r);\n#else\n    return texture2D(tex, uv);\n#endif\n}\nvarying vec4 color;\n#if USE_TEXTURE\n  varying vec2 uv0;\n  uniform sampler2D cc_spriteTexture;\n#endif\nvec4 frag () {\n  vec4 o = vec4(1, 1, 1, 1);\n  #if USE_TEXTURE\n    o *= CCSampleTexture(cc_spriteTexture, uv0);\n    #if IS_GRAY\n      float gray  = 0.2126 * o.r + 0.7152 * o.g + 0.0722 * o.b;\n      o.r = o.g = o.b = gray;\n    #endif\n  #endif\n  o *= color;\n  return o;\n}\nvoid main() { gl_FragColor = frag(); }`
+          "frag": `\nprecision highp float;\nvec4 CCSampleTexture(sampler2D tex, vec2 uv) {\n#if CC_USE_EMBEDDED_ALPHA\n    return vec4(texture2D(tex, uv).rgb, texture2D(tex, uv + vec2(0.0, 0.5)).r);\n#else\n    return texture2D(tex, uv);\n#endif\n}\n#if USE_ALPHA_TEST\n  uniform float alphaThreshold;\n#endif\nvoid ALPHA_TEST (in vec4 color) {\n  #if USE_ALPHA_TEST\n      if (color.a < alphaThreshold) discard;\n  #endif\n}\nvoid ALPHA_TEST (in float alpha) {\n  #if USE_ALPHA_TEST\n      if (alpha < alphaThreshold) discard;\n  #endif\n}\nvarying vec4 color;\n#if USE_TEXTURE\n  varying vec2 uv0;\n  uniform sampler2D cc_spriteTexture;\n#endif\nvec4 frag () {\n  vec4 o = vec4(1, 1, 1, 1);\n  #if USE_TEXTURE\n    o *= CCSampleTexture(cc_spriteTexture, uv0);\n    #if IS_GRAY\n      float gray  = 0.2126 * o.r + 0.7152 * o.g + 0.0722 * o.b;\n      o.r = o.g = o.b = gray;\n    #endif\n  #endif\n  o *= color;\n  ALPHA_TEST(o);\n  return o;\n}\nvoid main() { gl_FragColor = frag(); }`
         },
         "glsl4": {
           "vert": `\nprecision highp float;\nlayout(set = 0, binding = 0) uniform CCGlobal {\n  highp   vec4 cc_time;\n  mediump vec4 cc_screenSize;\n  mediump vec4 cc_screenScale;\n  mediump vec4 cc_nativeSize;\n  highp   mat4 cc_matView;\n  highp   mat4 cc_matViewInv;\n  highp   mat4 cc_matProj;\n  highp   mat4 cc_matProjInv;\n  highp   mat4 cc_matViewProj;\n  highp   mat4 cc_matViewProjInv;\n  highp   vec4 cc_cameraPos;\n  mediump vec4 cc_exposure;\n  mediump vec4 cc_mainLitDir;\n  mediump vec4 cc_mainLitColor;\n  mediump vec4 cc_ambientSky;\n  mediump vec4 cc_ambientGround;\n  mediump vec4 cc_fogColor;\n  mediump vec4 cc_fogBase;\n  mediump vec4 cc_fogAdd;\n};\n#if USE_LOCAL\nlayout(set = 2, binding = 0) uniform CCLocal {\n  highp mat4 cc_matWorld;\n  highp mat4 cc_matWorldIT;\n  highp vec4 cc_lightingMapUVParam;\n};\n#endif\nlayout(location = 0) in vec3 a_position;\nlayout(location = 1) in vec2 a_texCoord;\nlayout(location = 2) in vec4 a_color;\nlayout(location = 0) out vec4 color;\nlayout(location = 1) out vec2 uv0;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  #if USE_LOCAL\n    pos = cc_matWorld * pos;\n  #endif\n  #if USE_PIXEL_ALIGNMENT\n    pos = cc_matView * pos;\n    pos.xyz = floor(pos.xyz);\n    pos = cc_matProj * pos;\n  #else\n    pos = cc_matViewProj * pos;\n  #endif\n  uv0 = a_texCoord;\n  color = a_color;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }`,
-          "frag": `\nprecision highp float;\nvec4 CCSampleTexture(sampler2D tex, vec2 uv) {\n#if CC_USE_EMBEDDED_ALPHA\n    return vec4(texture(tex, uv).rgb, texture(tex, uv + vec2(0.0, 0.5)).r);\n#else\n    return texture(tex, uv);\n#endif\n}\nlayout(location = 0) in vec4 color;\n#if USE_TEXTURE\n  layout(location = 1) in vec2 uv0;\n  layout(set = 2, binding = 10) uniform sampler2D cc_spriteTexture;\n#endif\nvec4 frag () {\n  vec4 o = vec4(1, 1, 1, 1);\n  #if USE_TEXTURE\n    o *= CCSampleTexture(cc_spriteTexture, uv0);\n    #if IS_GRAY\n      float gray  = 0.2126 * o.r + 0.7152 * o.g + 0.0722 * o.b;\n      o.r = o.g = o.b = gray;\n    #endif\n  #endif\n  o *= color;\n  return o;\n}\nlayout(location = 0) out vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }`
+          "frag": `\nprecision highp float;\nvec4 CCSampleTexture(sampler2D tex, vec2 uv) {\n#if CC_USE_EMBEDDED_ALPHA\n    return vec4(texture(tex, uv).rgb, texture(tex, uv + vec2(0.0, 0.5)).r);\n#else\n    return texture(tex, uv);\n#endif\n}\n#if USE_ALPHA_TEST\n  layout(set = 1, binding = 0) uniform ALPHA_TEST_DATA {\n    float alphaThreshold;\n  };\n#endif\nvoid ALPHA_TEST (in vec4 color) {\n  #if USE_ALPHA_TEST\n      if (color.a < alphaThreshold) discard;\n  #endif\n}\nvoid ALPHA_TEST (in float alpha) {\n  #if USE_ALPHA_TEST\n      if (alpha < alphaThreshold) discard;\n  #endif\n}\nlayout(location = 0) in vec4 color;\n#if USE_TEXTURE\n  layout(location = 1) in vec2 uv0;\n  layout(set = 2, binding = 10) uniform sampler2D cc_spriteTexture;\n#endif\nvec4 frag () {\n  vec4 o = vec4(1, 1, 1, 1);\n  #if USE_TEXTURE\n    o *= CCSampleTexture(cc_spriteTexture, uv0);\n    #if IS_GRAY\n      float gray  = 0.2126 * o.r + 0.7152 * o.g + 0.0722 * o.b;\n      o.r = o.g = o.b = gray;\n    #endif\n  #endif\n  o *= color;\n  ALPHA_TEST(o);\n  return o;\n}\nlayout(location = 0) out vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }`
         },
         "builtins": {
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }], "samplers": [] },
@@ -331,10 +366,15 @@ export default [
           { "name": "USE_LOCAL", "type": "boolean" },
           { "name": "USE_PIXEL_ALIGNMENT", "type": "boolean" },
           { "name": "CC_USE_EMBEDDED_ALPHA", "type": "boolean" },
+          { "name": "USE_ALPHA_TEST", "type": "boolean" },
           { "name": "USE_TEXTURE", "type": "boolean" },
           { "name": "IS_GRAY", "type": "boolean" }
         ],
-        "blocks": [],
+        "blocks": [
+          {"name": "ALPHA_TEST_DATA", "defines": ["USE_ALPHA_TEST"], "binding": 0, "stageFlags": 16, "members": [
+            { "name": "alphaThreshold", "type": 13, "count": 1 }
+          ]}
+        ],
         "samplers": [],
         "attributes": [
           { "name": "a_position", "type": 15, "count": 1, "defines": [], "stageFlags": 1, "format": 32, "location": 0 },

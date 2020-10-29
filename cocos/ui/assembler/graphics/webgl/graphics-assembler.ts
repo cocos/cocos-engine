@@ -33,7 +33,7 @@ import { Color, Vec3 } from '../../../../core/math';
 import { IAssembler } from '../../../../core/renderer/ui/base';
 import { MeshRenderData } from '../../../../core/renderer/ui/render-data';
 import { UI } from '../../../../core/renderer/ui/ui';
-import { vfmt, getAttributeFormatBytes } from '../../../../core/renderer/ui/ui-vertex-format';
+import { vfmtPosColor, getAttributeFormatBytes } from '../../../../core/renderer/ui/ui-vertex-format';
 import { Graphics } from '../../../components';
 import { LineCap, LineJoin, PointFlags } from '../types';
 import { earcut as Earcut } from './earcut';
@@ -53,7 +53,7 @@ const atan2 = Math.atan2;
 
 const attrBytes = 8;
 
-const attributes = vfmt.concat([
+const attributes = vfmtPosColor.concat([
     new GFXAttribute('a_dist', GFXFormat.R32F),
 ]);
 
@@ -94,10 +94,7 @@ export const graphicsAssembler: IAssembler = {
     },
 
     updateRenderData (graphics: Graphics) {
-        const dataList = graphics.impl ? graphics.impl.getRenderData() : [];
-        for (let i = 0, l = dataList.length; i < l; i++) {
-            dataList[i].material = graphics.getUIMaterialInstance();
-        }
+
     },
 
     fillBuffers (graphics: Graphics, renderer: UI) {
@@ -275,6 +272,8 @@ export const graphicsAssembler: IAssembler = {
                 start = 1;
                 end = pointsLength - 1;
             }
+
+            p1 = p1 || p0;
 
             if (!loop) {
                 // Add cap

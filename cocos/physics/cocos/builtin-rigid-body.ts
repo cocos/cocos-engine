@@ -18,16 +18,11 @@ export class BuiltinRigidBody implements IRigidBody {
 
     initialize (com: RigidBody): void {
         this._rigidBody = com;
-        this._sharedBody = (PhysicsSystem.instance.physicsWorld as BuiltInWorld).getSharedBody(this._rigidBody.node);
+        this._sharedBody = (PhysicsSystem.instance.physicsWorld as BuiltInWorld).getSharedBody(this._rigidBody.node, this);
         this._sharedBody.reference = true;
-        this._sharedBody.wrappedBody = this;
     }
 
     onEnable () {
-        this._sharedBody.setGroup(this._rigidBody.group);
-        if (PhysicsSystem.instance.useCollisionMatrix) {
-            this._sharedBody.setMask(PhysicsSystem.instance.collisionMatrix[this._rigidBody.group]);
-        }
         this._sharedBody.enabled = true;
     }
 

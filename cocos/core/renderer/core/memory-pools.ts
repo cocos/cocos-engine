@@ -872,7 +872,7 @@ const cameraViewDataType: BufferDataTypeManifest<typeof CameraView> = {
     [CameraView.FRUSTUM]: BufferDataType.UINT32,
     [CameraView.FORWARD]: BufferDataType.FLOAT32,
     [CameraView.POSITION]: BufferDataType.FLOAT32,
-    [CameraView.VIEW_PORT]: BufferDataType.UINT32,
+    [CameraView.VIEW_PORT]: BufferDataType.FLOAT32,
     [CameraView.CLEAR_COLOR]: BufferDataType.FLOAT32,
     [CameraView.MAT_VIEW]: BufferDataType.FLOAT32,
     [CameraView.MAT_VIEW_PROJ]: BufferDataType.FLOAT32,
