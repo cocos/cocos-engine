@@ -69,10 +69,13 @@ void UIStage::render(RenderView *view) {
     _renderQueues[0]->sort();
 
     const auto camera = view->getCamera();
-    _renderArea.x = camera->viewportX * camera->width;
-    _renderArea.y = camera->viewportY * camera->height;
-    _renderArea.width = camera->viewportWidth * camera->width;
-    _renderArea.height = camera->viewportHeight * camera->height;
+    // render area is not oriented
+    uint w = (uint)_device->getSurfaceTransform() % 2 ? camera->height : camera->width;
+    uint h = (uint)_device->getSurfaceTransform() % 2 ? camera->width : camera->height;
+    _renderArea.x = camera->viewportX * w;
+    _renderArea.y = camera->viewportY * h;
+    _renderArea.width = camera->viewportWidth * w;
+    _renderArea.height = camera->viewportHeight * h;
 
     auto cmdBuff = pipeline->getCommandBuffers()[0];
 

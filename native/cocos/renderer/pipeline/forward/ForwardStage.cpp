@@ -138,11 +138,13 @@ void ForwardStage::render(RenderView *view) {
     _additiveLightQueue->gatherLightPasses(view, cmdBuff);
 
     auto camera = view->getCamera();
-
-    _renderArea.x = camera->viewportX * camera->width;
-    _renderArea.y = camera->viewportY * camera->height;
-    _renderArea.width = camera->viewportWidth * camera->width * pipeline->getShadingScale();
-    _renderArea.height = camera->viewportHeight * camera->height * pipeline->getShadingScale();
+    // render area is not oriented
+    uint w = (uint)_device->getSurfaceTransform() % 2 ? camera->height : camera->width;
+    uint h = (uint)_device->getSurfaceTransform() % 2 ? camera->width : camera->height;
+    _renderArea.x = camera->viewportX * w;
+    _renderArea.y = camera->viewportY * h;
+    _renderArea.width = camera->viewportWidth * w * pipeline->getShadingScale();
+    _renderArea.height = camera->viewportHeight * h * pipeline->getShadingScale();
 
     if (static_cast<gfx::ClearFlags>(camera->clearFlag) & gfx::ClearFlagBit::COLOR) {
         if (pipeline->isHDR()) {
