@@ -207,6 +207,28 @@ VkAccessFlags MapVkAccessFlags(TextureUsage usage, Format format) {
     return VK_ACCESS_SHADER_READ_BIT;
 }
 
+VkAccessFlags MapVkAccessFlags(BufferUsage usage) {
+    if (usage & BufferUsage::VERTEX) return VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+    if (usage & BufferUsage::INDEX) return VK_ACCESS_INDEX_READ_BIT;
+    if (usage & BufferUsage::UNIFORM) return VK_ACCESS_UNIFORM_READ_BIT;
+    if (usage & BufferUsage::INDIRECT) return VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
+    if (usage & BufferUsage::STORAGE) return VK_ACCESS_SHADER_READ_BIT;
+    if (usage & BufferUsage::TRANSFER_SRC) return VK_ACCESS_TRANSFER_READ_BIT;
+    if (usage & BufferUsage::TRANSFER_DST) return VK_ACCESS_TRANSFER_WRITE_BIT;
+    return VK_ACCESS_UNIFORM_READ_BIT;
+}
+
+VkPipelineStageFlags MapVkPipelineStageFlags(BufferUsage usage) {
+    if (usage & BufferUsage::VERTEX) return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+    if (usage & BufferUsage::INDEX) return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+    if (usage & BufferUsage::UNIFORM) return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+    if (usage & BufferUsage::INDIRECT) return VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT;
+    if (usage & BufferUsage::STORAGE) return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+    if (usage & BufferUsage::TRANSFER_SRC) return VK_PIPELINE_STAGE_TRANSFER_BIT;
+    if (usage & BufferUsage::TRANSFER_DST) return VK_PIPELINE_STAGE_TRANSFER_BIT;
+    return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+}
+
 VkPipelineBindPoint MapVkPipelineBindPoint(PipelineBindPoint bindPoint) {
     switch (bindPoint) {
         case PipelineBindPoint::GRAPHICS: return VK_PIPELINE_BIND_POINT_GRAPHICS;

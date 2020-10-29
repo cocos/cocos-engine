@@ -109,6 +109,9 @@ public:
     uint8_t *mappedData = nullptr;
     VmaAllocation vmaAllocation = VK_NULL_HANDLE;
 
+    VkAccessFlags accessMask = VK_ACCESS_SHADER_READ_BIT;
+    VkPipelineStageFlags targetStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+
     // descriptor infos
     VkBuffer vkBuffer = VK_NULL_HANDLE;
     VkDeviceSize startOffset = 0u;

@@ -715,8 +715,8 @@ bool CCVKDevice::checkSwapchainStatus() {
         context->swapchainCreateInfo.imageExtent.width = _width;
         context->swapchainCreateInfo.imageExtent.height = _height;
     } else {
-        _width = context->swapchainCreateInfo.imageExtent.width = newWidth;
-        _height = context->swapchainCreateInfo.imageExtent.height = newHeight;
+        _nativeWidth = _width = context->swapchainCreateInfo.imageExtent.width = newWidth;
+        _nativeHeight = _height = context->swapchainCreateInfo.imageExtent.height = newHeight;
     }
 
     if (newWidth == 0 || newHeight == 0) {

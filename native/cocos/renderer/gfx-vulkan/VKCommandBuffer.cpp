@@ -123,6 +123,13 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
 
 void CCVKCommandBuffer::endRenderPass() {
     vkCmdEndRenderPass(_gpuCommandBuffer->vkCommandBuffer);
+
+    VkMemoryBarrier memoryBarrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
+    memoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    memoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+                         0, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
+
     _curGPUFBO = nullptr;
 }
 

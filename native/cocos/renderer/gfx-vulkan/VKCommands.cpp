@@ -176,6 +176,9 @@ void CCVKCmdFuncCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
 
     gpuBuffer->mappedData = (uint8_t *)res.pMappedData;
     gpuBuffer->startOffset = 0; // we are creating one VkBuffer each for now
+
+    gpuBuffer->accessMask = MapVkAccessFlags(gpuBuffer->usage);
+    gpuBuffer->targetStage = MapVkPipelineStageFlags(gpuBuffer->usage);
 }
 
 void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRenderPass) {
@@ -645,18 +648,18 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
 
     VkBufferCopy region{stagingBuffer.startOffset, gpuBuffer->startOffset + offset, sizeToUpload};
     if (cmdBuffer) {
-        vkCmdPipelineBarrier(cmdBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 0, nullptr);
         vkCmdCopyBuffer(cmdBuffer->vkCommandBuffer, stagingBuffer.vkBuffer, gpuBuffer->vkBuffer, 1, &region);
 
+        // guard against RAW hazard
         VkBufferMemoryBarrier barrier{VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER};
         barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        barrier.dstAccessMask = gpuBuffer->accessMask;
         barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         barrier.buffer = gpuBuffer->vkBuffer;
         barrier.offset = region.dstOffset;
         barrier.size = region.size;
-        vkCmdPipelineBarrier(cmdBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, 0, 0, nullptr, 1, &barrier, 0, nullptr);
+        vkCmdPipelineBarrier(cmdBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, gpuBuffer->targetStage, 0, 0, nullptr, 1, &barrier, 0, nullptr);
 
     } else {
         device->gpuTransportHub()->checkIn([&](const CCVKGPUCommandBuffer *cmdBuff) {
