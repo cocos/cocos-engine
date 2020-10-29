@@ -385,6 +385,10 @@ export class Game extends EventTarget {
     public collisionMatrix = [];
     public groupList: any[] = [];
 
+    // @Methods
+
+    //  @Game play control
+
     /**
      * @en Set frame rate of game.
      * @zh 设置游戏帧率。
