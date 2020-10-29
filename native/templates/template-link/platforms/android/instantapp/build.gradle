@@ -85,29 +85,7 @@ android.applicationVariants.all { variant ->
     tasks.register(copyTaskName) {
 
         copy {
-            from "${sourceDir}/res"
-            into "${outputDir}/res"
-        }
-
-        copy {
-            from "${sourceDir}/subpackages"
-            into "${outputDir}/subpackages"
-        }
-
-        copy {
-            from "${sourceDir}/src"
-            into "${outputDir}/src"
-        }
-
-        copy {
-            from "${sourceDir}/jsb-adapter"
-            into "${outputDir}/jsb-adapter"
-        }
-
-        copy {
-            from "${sourceDir}/main.js"
-            from "${sourceDir}/application.js"
-            from "${sourceDir}/project.json"
+            from sourceDir
             into outputDir
         }
     }
