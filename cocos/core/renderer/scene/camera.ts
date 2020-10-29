@@ -241,6 +241,7 @@ export class Camera {
     public update (forceUpdate = false) { // for lazy eval situations like the in-editor preview
         if (!this._node) return;
 
+        let viewProjDirty = false;
         // view matrix
         if (this._node.hasChangedFlags || forceUpdate) {
             Mat4.invert(this._matView, this._node.worldMatrix);
@@ -252,21 +253,21 @@ export class Camera {
             this._node.getWorldPosition(this._position);
             CameraPool.setVec3(this._poolHandle, CameraView.POSITION, this._position);
             CameraPool.setVec3(this._poolHandle, CameraView.FORWARD, this._forward);
+            viewProjDirty = true;
         }
 
         // projection matrix
         const orientation = this._device.surfaceTransform;
-        const aspect = orientation % 2 ? 1 / this._aspect : this._aspect;
         if (this._isProjDirty || this._curTransform !== orientation) {
             let projectionSignY = this._device.screenSpaceSignY;
             if (this._view && this._view.window.hasOffScreenAttachments) {
                 projectionSignY *= this._device.UVSpaceSignY; // need flipping if drawing on render targets
             }
             if (this._proj === CameraProjection.PERSPECTIVE) {
-                Mat4.perspective(this._matProj, this._fov, aspect, this._nearClip, this._farClip,
+                Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip,
                     this._fovAxis === CameraFOVAxis.VERTICAL, this._device.clipSpaceMinZ, projectionSignY, orientation);
             } else {
-                const x = this._orthoHeight * aspect;
+                const x = this._orthoHeight * this._aspect; // aspect is already oriented
                 const y = this._orthoHeight;
                 Mat4.ortho(this._matProj, -x, x, -y, y, this._nearClip, this._farClip,
                     this._device.clipSpaceMinZ, projectionSignY, orientation);
@@ -275,10 +276,12 @@ export class Camera {
             CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ, this._matProj);
             CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ_INV, this._matProjInv);
             this._curTransform = orientation;
+            viewProjDirty = true;
+            this._isProjDirty = false;
         }
 
         // view-projection
-        if (this._node.hasChangedFlags || this._isProjDirty || forceUpdate) {
+        if (viewProjDirty) {
             Mat4.multiply(this._matViewProj, this._matProj, this._matView);
             Mat4.invert(this._matViewProjInv, this._matViewProj);
             this._frustum.update(this._matViewProj, this._matViewProjInv);
@@ -286,8 +289,6 @@ export class Camera {
             CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ_INV, this._matViewProjInv);
             recordFrustumToSharedMemory(this._frustumHandle, this._frustum);
         }
-
-        this._isProjDirty = false;
     }
 
     set node (val: Node) {
