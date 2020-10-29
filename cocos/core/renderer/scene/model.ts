@@ -297,7 +297,6 @@ export class Model {
         }
         AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, this._worldBounds.center);
         AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, this._worldBounds.halfExtents);
-
     }
 
     public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {

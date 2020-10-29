@@ -123,7 +123,6 @@ export class Camera {
     private _matProjInv: Mat4 = new Mat4();
     private _matViewProj: Mat4 = new Mat4();
     private _matViewProjInv: Mat4 = new Mat4();
-    private _matCorrection: Mat4 = correctionMatrices[GFXSurfaceTransform.IDENTITY];
     private _frustum: frustum = new frustum();
     private _forward: Vec3 = new Vec3();
     private _position: Vec3 = new Vec3();
@@ -242,6 +241,7 @@ export class Camera {
     public update (forceUpdate = false) { // for lazy eval situations like the in-editor preview
         if (!this._node) return;
 
+        let viewProjDirty = false;
         // view matrix
         if (this._node.hasChangedFlags || forceUpdate) {
             Mat4.invert(this._matView, this._node.worldMatrix);
@@ -253,6 +253,7 @@ export class Camera {
             this._node.getWorldPosition(this._position);
             CameraPool.setVec3(this._poolHandle, CameraView.POSITION, this._position);
             CameraPool.setVec3(this._poolHandle, CameraView.FORWARD, this._forward);
+            viewProjDirty = true;
         }
 
         // projection matrix
@@ -266,7 +267,7 @@ export class Camera {
                 Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip,
                     this._fovAxis === CameraFOVAxis.VERTICAL, this._device.clipSpaceMinZ, projectionSignY, orientation);
             } else {
-                const x = this._orthoHeight * this._aspect;
+                const x = this._orthoHeight * this._aspect; // aspect is already oriented
                 const y = this._orthoHeight;
                 Mat4.ortho(this._matProj, -x, x, -y, y, this._nearClip, this._farClip,
                     this._device.clipSpaceMinZ, projectionSignY, orientation);
@@ -275,11 +276,12 @@ export class Camera {
             CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ, this._matProj);
             CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ_INV, this._matProjInv);
             this._curTransform = orientation;
-            this._matCorrection = correctionMatrices[orientation];
+            viewProjDirty = true;
+            this._isProjDirty = false;
         }
 
         // view-projection
-        if (this._node.hasChangedFlags || this._isProjDirty || forceUpdate) {
+        if (viewProjDirty) {
             Mat4.multiply(this._matViewProj, this._matProj, this._matView);
             Mat4.invert(this._matViewProjInv, this._matViewProj);
             this._frustum.update(this._matViewProj, this._matViewProjInv);
@@ -287,35 +289,6 @@ export class Camera {
             CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ_INV, this._matViewProjInv);
             recordFrustumToSharedMemory(this._frustumHandle, this._frustum);
         }
-
-        this._isProjDirty = false;
-    }
-
-    public getSplitFrustum (out: frustum, nearClip: number, farClip: number) {
-        if (!this._node) return;
-
-        nearClip = Math.max(nearClip, this._nearClip);
-        farClip = Math.min(farClip, this._farClip);
-
-        // view matrix
-        Mat4.invert(this._matView,  this._node.worldMatrix);
-        CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW, this._matView);
-
-        // projection matrix
-        if (this._proj === CameraProjection.PERSPECTIVE) {
-            Mat4.perspective(_tempMat1, this._fov, this._aspect, nearClip, farClip,
-                this._fovAxis === CameraFOVAxis.VERTICAL, this._device.clipSpaceMinZ, this._device.screenSpaceSignY);
-        } else {
-            const x = this._orthoHeight * this._aspect;
-            const y = this._orthoHeight;
-            Mat4.ortho(_tempMat1, -x, x, -y, y, nearClip, farClip,
-                this._device.clipSpaceMinZ, this._device.screenSpaceSignY);
-        }
-
-        // view-projection
-        Mat4.multiply(_tempMat2, _tempMat1, this._matView);
-        Mat4.invert(_tempMat1, _tempMat2);
-        out.update(_tempMat2, _tempMat1);
     }
 
     set node (val: Node) {
@@ -664,7 +637,7 @@ export class Camera {
     }
 
     /**
-     * transform a screen position to a world space ray
+     * transform a screen position (in oriented space) to a world space ray
      */
     public screenPointToRay (out: ray, x: number, y: number): ray {
         if (!this._node) return null!;
@@ -678,14 +651,9 @@ export class Camera {
         const ch = this._viewport.height * height;
         const isProj = this._proj === CameraProjection.PERSPECTIVE;
 
-        Vec3.set(
-            isProj ? v_a : out.o,
-            (x - cx) / cw * 2 - 1,
-            (y - cy) / ch * 2 - 1,
-            isProj ? 1 : -1
-        );
-        Vec3.transformMat4(v_a, v_a, this._matCorrection);
-        Vec3.transformMat4(v_a, v_a, this._matViewProjInv);
+        Vec3.set(v_a, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, isProj ? 1 : -1);
+        Vec3.transformMat4(v_a, v_a, correctionMatrices[this._curTransform]);
+        Vec3.transformMat4(isProj ? v_a : out.o, v_a, this._matViewProjInv);
 
         if (isProj) {
             // camera origin
@@ -699,7 +667,7 @@ export class Camera {
     }
 
     /**
-     * transform a screen position to world space
+     * transform a screen position (in oriented space) to world space
      */
     public screenToWorld (out: Vec3, screenPos: Vec3): Vec3 {
         const handle = this._poolHandle;
@@ -719,7 +687,7 @@ export class Camera {
             );
 
             // transform to world
-            Vec3.transformMat4(out, out, this._matCorrection);
+            Vec3.transformMat4(out, out, correctionMatrices[this._curTransform]);
             Vec3.transformMat4(out, out, this._matViewProjInv);
 
             // lerp to depth z
@@ -734,8 +702,8 @@ export class Camera {
             );
 
             // transform to world
-            Vec3.transformMat4(out, out, this._matCorrection);
-            Vec3.transformMat4(out, out, this.matViewProjInv);
+            Vec3.transformMat4(out, out, correctionMatrices[this._curTransform]);
+            Vec3.transformMat4(out, out, this._matViewProjInv);
         }
 
         return out;
@@ -753,7 +721,8 @@ export class Camera {
         const cw = this._viewport.width * width;
         const ch = this._viewport.height * height;
 
-        Vec3.transformMat4(out, worldPos, this.matViewProj);
+        Vec3.transformMat4(out, worldPos, this._matViewProj);
+        Vec3.transformMat4(out, out, correctionMatrices[(4 - this._curTransform) % 4]);
 
         out.x = cx + (out.x + 1) * 0.5 * cw;
         out.y = cy + (out.y + 1) * 0.5 * ch;
@@ -772,6 +741,7 @@ export class Camera {
      */
     public worldMatrixToScreen (out: Mat4, worldMatrix: Mat4, width: number, height: number){
         Mat4.multiply(out, this._matViewProj, worldMatrix);
+        Mat4.multiply(out, correctionMatrices[(4 - this._curTransform) % 4], out);
         const halfWidth = width / 2;
         const halfHeight = height / 2;
         Mat4.identity(_tempMat1);

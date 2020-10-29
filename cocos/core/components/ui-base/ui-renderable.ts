@@ -249,6 +249,21 @@ export class UIRenderable extends RenderableComponent {
         return this._uiMaterial;
     }
     set uiMaterial (val) {
+        if (this._uiMaterial === val) {
+            return;
+        }
+
+        this.stencilStage = Stage.DISABLED;
+        if (this._uiMaterialIns) {
+            this._uiMaterialIns.destroy();
+            this._uiMaterialIns = null;
+        }
+
+        if (this._materialInstanceForStencil){
+            this._materialInstanceForStencil.destroy();
+            this._materialInstanceForStencil = null;
+        }
+
         this._uiMaterial = val;
     }
 
@@ -432,7 +447,7 @@ export class UIRenderable extends RenderableComponent {
 
     protected _canRender () {
         // this.getMaterial(0) !== null still can render is hack for builtin Material
-        return this.enabled && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy);
+        return this.enabled && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy) && this._color.a > 0;
     }
 
     protected _postCanRender () {}
@@ -494,9 +509,6 @@ export class UIRenderable extends RenderableComponent {
             switch (this._instanceMaterialType) {
                 case InstanceMaterialType.ADD_COLOR:
                     this._uiMaterial = builtinResMgr.get('ui-base-material') as Material;
-                    break;
-                case InstanceMaterialType.ADD_COLOR_AND_TEXTURE:
-                    this._uiMaterial = builtinResMgr.get('ui-sprite-material') as Material;
                     break;
                 case InstanceMaterialType.GRAYSCALE:
                     this._uiMaterial = builtinResMgr.get('ui-sprite-gray-material') as Material;

@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -38,6 +38,7 @@ import { PerfCounter } from './perf-counter';
 import { TEST } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
 import { Pass } from '../../renderer';
+import { preTransforms } from '../../math/mat4';
 
 const _characters = '0123456789. ';
 
@@ -105,6 +106,7 @@ export class Profiler {
     private readonly _canvasArr: HTMLCanvasElement[] = [];
     private readonly _regionArr = [this._region];
     private digitsData: Float32Array = null!;
+    private offsetData: Float32Array = null!;
     private pass: Pass = null!;
 
     private _canvasDone = false;
@@ -251,9 +253,9 @@ export class Profiler {
         cameraNode.parent = this._rootNode;
         const camera = cameraNode.addComponent('cc.Camera') as Camera;
         camera.projection = Camera.ProjectionType.ORTHO;
+        camera.orthoHeight = 1;
         camera.near = 1;
         camera.far = 2;
-        camera.orthoHeight = 1;
         camera.visibility = Layers.BitMask.PROFILER;
         camera.clearFlags = GFXClearFlag.NONE;
         camera.priority = 0xffffffff; // after everything else
@@ -311,12 +313,17 @@ export class Profiler {
 
         const _material = new Material();
         _material.initialize({ effectName: 'util/profiler' });
-        _material.setProperty('offset', new Vec4(-0.9, -0.9, this._eachNumWidth, 0));
+
+
         const pass = this.pass = _material.passes[0];
-        const handle = pass.getBinding('mainTexture');
-        const binding = pass.getBinding('digits');
-        pass.bindTexture(handle, this._texture!);
-        this.digitsData = pass.blocks[binding];
+        const hTexture = pass.getBinding('mainTexture');
+        const bDigits = pass.getBinding('digits');
+        const bOffset = pass.getBinding('offset');
+        pass.bindTexture(hTexture, this._texture!);
+        this.digitsData = pass.blocks[bDigits];
+        this.offsetData = pass.blocks[bOffset];
+        this.offsetData[3] = -1; // ensure init on the first frame
+
         modelCom.material = _material;
         modelCom.node.layer = Layers.Enum.PROFILER;
         this._inited = true;
@@ -369,6 +376,19 @@ export class Profiler {
             return;
         }
 
+        const { screenSpaceSignY, surfaceTransform } = this._device!;
+        if (surfaceTransform !== this.offsetData[3]) {
+            const preTransform = preTransforms[surfaceTransform];
+            const x = -0.9; const y = -0.9 * screenSpaceSignY;
+            this.offsetData[0] = x * preTransform[0] + y * preTransform[2];
+            this.offsetData[1] = x * preTransform[1] + y * preTransform[3];
+            this.offsetData[2] = this._eachNumWidth;
+            this.offsetData[3] = surfaceTransform;
+        }
+
+        // @ts-ignore
+        this.pass._rootBufferDirty = true;
+
         const now = performance.now();
         (this._stats.render.counter as PerfCounter).start(now);
     }
@@ -409,9 +429,6 @@ export class Profiler {
             }
             i++;
         }
-
-        // @ts-ignore
-        this.pass._rootBufferDirty = true;
     }
 }
 

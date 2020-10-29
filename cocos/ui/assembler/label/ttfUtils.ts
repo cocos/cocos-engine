@@ -164,6 +164,7 @@ export const ttfUtils =  {
         _overflow = comp.overflow;
         _canvasSize.width = trans.width;
         _canvasSize.height = trans.height;
+        _underlineThickness = comp.underlineHeight;
         _lineHeight = comp.lineHeight;
         _hAlign = comp.horizontalAlign;
         _vAlign = comp.verticalAlign;
@@ -194,7 +195,6 @@ export const ttfUtils =  {
         _shadowComp = (_shadowComp && _shadowComp.enabled) ? _shadowComp : null;
         if (_shadowComp) {
             _shadowColor.set(_shadowComp.color);
-            _shadowColor.a = _shadowColor.a * comp.color.a / 255.0;
         }
 
         this._updatePaddingRect();

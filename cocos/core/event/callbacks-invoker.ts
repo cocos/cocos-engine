@@ -221,7 +221,7 @@ export class CallbacksInvoker {
      * @param target - Callback callee
      */
     public hasEventListener (key: string, callback?: Function, target?: Object) {
-        const list = this._callbackTable[key];
+        const list = this._callbackTable && this._callbackTable[key];
         if (!list) {
             return false;
         }
@@ -260,7 +260,7 @@ export class CallbacksInvoker {
     public removeAll (keyOrTarget: string | Object) {
         if (typeof keyOrTarget === 'string') {
             // remove by key
-            const list = this._callbackTable[keyOrTarget];
+            const list = this._callbackTable && this._callbackTable[keyOrTarget];
             if (list) {
                 if (list.isInvoking) {
                     list.cancelAll();
@@ -300,7 +300,7 @@ export class CallbacksInvoker {
      * @param target - The callback callee of the event listener
      */
     public off (key: string, callback?: Function, target?: Object) {
-        const list = this._callbackTable[key];
+        const list = this._callbackTable && this._callbackTable[key];
         if (list) {
             const infos = list.callbackInfos;
             if (callback) {
@@ -329,7 +329,7 @@ export class CallbacksInvoker {
      * @param arg4 - The fifth argument to be passed to the callback
      */
     public emit (key: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
-        const list: CallbackList = this._callbackTable[key]!;
+        const list: CallbackList = this._callbackTable && this._callbackTable[key]!;
         if (list) {
             const rootInvoker = !list.isInvoking;
             list.isInvoking = true;

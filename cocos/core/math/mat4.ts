@@ -37,7 +37,7 @@ import { EPSILON } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
 
-const preTransforms = [
+export const preTransforms = [
     [ 1,  0,  0,  1], // GFXSurfaceTransform.IDENTITY
     [ 0,  1, -1,  0], // GFXSurfaceTransform.ROTATE_90
     [-1,  0,  0, -1], // GFXSurfaceTransform.ROTATE_180
@@ -1080,11 +1080,13 @@ export class Mat4 extends ValueType {
             minClipZ = -1, projectionSignY = 1, orientation = 0) {
 
         const lr = 1 / (left - right);
-        const bt = 1 / (bottom - top);
+        const bt = 1 / (bottom - top) * projectionSignY;
         const nf = 1 / (near - far);
 
         const x = -2 * lr;
-        const y = -2 * bt * projectionSignY;
+        const y = -2 * bt;
+        const dx = (left + right) * lr;
+        const dy = (top + bottom) * bt;
         const preTransform = preTransforms[orientation];
 
         out.m00 = x * preTransform[0];
@@ -1099,8 +1101,8 @@ export class Mat4 extends ValueType {
         out.m09 = 0;
         out.m10 = nf * (1 - minClipZ);
         out.m11 = 0;
-        out.m12 = (left + right) * lr;
-        out.m13 = (top + bottom) * bt;
+        out.m12 = dx * preTransform[0] + dy * preTransform[2];
+        out.m13 = dx * preTransform[1] + dy * preTransform[3];
         out.m14 = (near - minClipZ * far) * nf;
         out.m15 = 1;
         return out;

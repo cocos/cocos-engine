@@ -613,10 +613,13 @@ export const FramebufferPool = new ObjectPool(PoolType.FRAMEBUFFER,
     (obj: GFXFramebuffer) => obj && obj.destroy(),
 );
 
-export const SubModelArrayPool = new TypedArrayPool<PoolType.SUB_MODEL_ARRAY, Uint32ArrayConstructor, SubModelHandle>(PoolType.SUB_MODEL_ARRAY, Uint32Array, 8, 4);
+export const SubModelArrayPool = new TypedArrayPool<PoolType.SUB_MODEL_ARRAY, Uint32ArrayConstructor, SubModelHandle>
+(PoolType.SUB_MODEL_ARRAY, Uint32Array, 8, 4);
 export const ModelArrayPool = new TypedArrayPool<PoolType.MODEL_ARRAY, Uint32ArrayConstructor, ModelHandle>(PoolType.MODEL_ARRAY, Uint32Array, 32, 16);
-export const AttributeArrayPool = new TypedArrayPool<PoolType.ATTRIBUTE_ARRAY, Uint32ArrayConstructor, AttributeHandle>(PoolType.ATTRIBUTE_ARRAY, Uint32Array, 8, 4);
-export const FlatBufferArrayPool = new TypedArrayPool<PoolType.FLAT_BUFFER_ARRAY, Uint32ArrayConstructor, FlatBufferHandle>(PoolType.FLAT_BUFFER_ARRAY, Uint32Array, 8, 4);
+export const AttributeArrayPool = new TypedArrayPool<PoolType.ATTRIBUTE_ARRAY, Uint32ArrayConstructor, AttributeHandle>
+(PoolType.ATTRIBUTE_ARRAY, Uint32Array, 8, 4);
+export const FlatBufferArrayPool = new TypedArrayPool<PoolType.FLAT_BUFFER_ARRAY, Uint32ArrayConstructor, FlatBufferHandle>
+(PoolType.FLAT_BUFFER_ARRAY, Uint32Array, 8, 4);
 export const LightArrayPool = new TypedArrayPool<PoolType.LIGHT_ARRAY, Uint32ArrayConstructor, LightHandle>(PoolType.LIGHT_ARRAY, Uint32Array, 8, 4);
 
 export const RawBufferPool = new BufferAllocator(PoolType.RAW_BUFFER);
@@ -866,7 +869,7 @@ const cameraViewDataType: BufferDataTypeManifest<typeof CameraView> = {
     [CameraView.FRUSTUM]: BufferDataType.UINT32,
     [CameraView.FORWARD]: BufferDataType.FLOAT32,
     [CameraView.POSITION]: BufferDataType.FLOAT32,
-    [CameraView.VIEW_PORT]: BufferDataType.UINT32,
+    [CameraView.VIEW_PORT]: BufferDataType.FLOAT32,
     [CameraView.CLEAR_COLOR]: BufferDataType.FLOAT32,
     [CameraView.MAT_VIEW]: BufferDataType.FLOAT32,
     [CameraView.MAT_VIEW_PROJ]: BufferDataType.FLOAT32,
@@ -1146,8 +1149,8 @@ export enum LightView {
     USE_COLOR_TEMPERATURE,
     ILLUMINANCE,
     NODE,                       // handle
-    RANGE,                  
-    TYPE,        
+    RANGE,
+    TYPE,
     AABB,       // handle
     FRUSTUM,    // handle
     SIZE,

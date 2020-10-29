@@ -1,0 +1,37 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: sprite-vs:vert
+      frag: sprite-fs:frag
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+      rasterizerState:
+        cullMode: none
+}%
+
+CCProgram sprite-vs %{
+  precision highp float;
+
+  in vec3 a_position;
+
+  vec4 vert () {
+    vec4 pos = vec4(a_position, 1);
+
+    return pos;
+  }
+}%
+
+CCProgram sprite-fs %{
+  precision highp float;
+
+
+  vec4 frag () {
+    vec4 o = vec4(1.0);
+    return o;
+  }
+}%

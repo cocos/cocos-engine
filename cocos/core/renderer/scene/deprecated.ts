@@ -3,6 +3,7 @@ import { RenderScene } from './render-scene';
 import { Layers } from '../../scene-graph/layers';
 import { legacyCC } from '../../global-exports';
 import { Pass } from '../core/pass';
+import { Camera } from './camera';
 
 replaceProperty(RenderScene.prototype, 'RenderScene.prototype', [
     {
@@ -148,4 +149,10 @@ replaceProperty(Pass.prototype, 'Pass.prototype', [
         name: 'getBindingTypeFromHandle',
         newName: 'getDescriptorTypeFromHandle',
     },
+]);
+
+removeProperty(Camera.prototype, 'Camera.prototype', [
+    {
+        name: 'getSplitFrustum'
+    }
 ]);
