@@ -52,7 +52,7 @@ export * from './director';
 
 export * from './gfx';
 export * from './pipeline';
-export * from './load-pipeline';
+export * from './asset-manager';
 export * from './scene-graph';
 export * from './components';
 export * from './3d';

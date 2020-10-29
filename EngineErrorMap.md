@@ -1159,11 +1159,14 @@ Lazy init texture with image element failed due to image loading failure: %s
 
 Loading texture with unsupported type: '%s'. Add '%s' into 'cc.macro.SUPPORT_TEXTURE_FORMATS' please.
 
+### 3121
+
+Can't find a texture format supported by the current platform! Please add a fallback format in the editor.
+
 ### 3200
 
 <!-- DEPRECATED -->
 Missing file: %s
-
 ### 3300
 
 Rect width exceeds maximum margin: %s

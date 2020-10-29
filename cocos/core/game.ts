@@ -28,8 +28,8 @@
  * @module core
  */
 
-import { ALIPAY, EDITOR, JSB, PREVIEW, RUNTIME_BASED } from 'internal:constants';
-import AssetLibrary from './assets/asset-library';
+import { ALIPAY, EDITOR, JSB, PREVIEW, RUNTIME_BASED, BUILD } from 'internal:constants';
+import { default as assetManager, IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event/event-target';
 import * as debug from './platform/debug';
 import inputManager from './platform/event-manager/input-manager';
@@ -44,58 +44,6 @@ import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
 import { Node } from './scene-graph/node';
 
-/**
- * @zh
- * AssetLibrary 配置。
- * @en
- * AssetLibrary configuration.
- */
-export interface IAssetOptions {
-    /**
-     * @zh
-     * 导入 Library 的资源根目录（相对于构建目录）
-     * @en
-     * The root path (relative to the build destination folder) of the imported library assets
-     */
-    libraryPath: string;
-    /**
-     * @zh
-     * RawAssets 类资源的根目录前缀（相对于构建目录），
-     * 这个路径尾部和 "assets" 拼接后就是完整路径
-     * @en
-     * The prefix of the root path (relative to the build destination folder) of the raw assets,
-     * This will be joint with "assets" to form the complete path
-     */
-    rawAssetsBase: string;
-    /**
-     * @zh
-     * RawAssets 列表，从 Settings 中获取
-     * @en
-     * The list of raw assets, normally retrieved from Settings
-     */
-    rawAssets: object;
-    /**
-     * @zh
-     * 合并后的资源合集列表
-     * @en
-     * The list of asset packs
-     */
-    packedAssets?: object;
-    /**
-     * @zh
-     * 资源及其 md5 前缀关系
-     * @en
-     * The map of assets and their md5 prefix
-     */
-    md5AssetsMap?: object;
-    /**
-     * @zh
-     * 子包列表
-     * @en
-     * The list of sub packages
-     */
-    subPackages?: [];
-}
 
 interface ISceneInfo {
     url: string;
@@ -214,9 +162,9 @@ export interface IGameConfig {
     renderPipeline?: string;
 
     /**
-     * Asset library initialization options
+     * Asset Manager initialization options
      */
-    assetOptions?: IAssetOptions;
+    assetOptions?: IAssetManagerOptions;
 
     /**
      * GPU instancing options
@@ -380,8 +328,6 @@ export class Game extends EventTarget {
     public _lastTime: Date | null = null;
     public _frameTime: number | null = null;
 
-    // Scenes list
-    public _sceneInfos: ISceneInfo[] = [];
     public collisionMatrix = [];
     public groupList: any[] = [];
 
@@ -564,9 +510,9 @@ export class Game extends EventTarget {
      */
     public init (config: IGameConfig) {
         this._initConfig(config);
-        // Init AssetLibrary
+        // Init assetManager
         if (this.config.assetOptions) {
-            AssetLibrary.init(this.config.assetOptions);
+            legacyCC.assetManager.init(this.config.assetOptions);
         }
 
         this._initEngine();
@@ -642,6 +588,7 @@ export class Game extends EventTarget {
             }
             this._persistRootNodes[id] = node;
             node._persistNode = true;
+            legacyCC.assetManager._releaseManager._addPersistNodeRef(node);
         }
     }
 
@@ -655,6 +602,7 @@ export class Game extends EventTarget {
         if (node === this._persistRootNodes[id]) {
             delete this._persistRootNodes[id];
             node._persistNode = false;
+            legacyCC.assetManager._releaseManager._removePersistNodeRef(node);
         }
     }
 
@@ -789,9 +737,6 @@ export class Game extends EventTarget {
             config.registerSystemEvent = true;
         }
         config.showFPS = !!config.showFPS;
-
-        // Scene parser
-        this._sceneInfos = config.scenes || [];
 
         // Collide Map and Group List
         this.collisionMatrix = config.collisionMatrix || [];
@@ -981,7 +926,7 @@ export class Game extends EventTarget {
         // Load render pipeline if needed
         const renderPipeline = this.config.renderPipeline;
         if (renderPipeline) {
-            legacyCC.loader.load({ uuid: renderPipeline }, (err, asset) => {
+            legacyCC.assetManager.loadAny(renderPipeline, (err, asset) => {
                 // failed load renderPipeline
                 if (err || !(asset instanceof RenderPipeline)) {
                     console.warn(`Failed load renderpipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);

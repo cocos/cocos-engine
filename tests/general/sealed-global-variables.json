@@ -289,6 +289,10 @@
         "cc.vmath",
         "cc.warn",
         "cc.warnID",
-        "cc.winSize"
+        "cc.winSize",
+        "cc.BufferAsset",
+        "cc.resources",
+        "cc.assetManager",
+        "cc.AssetManager"
     ]
 }

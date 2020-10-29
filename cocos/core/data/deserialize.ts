@@ -970,7 +970,7 @@ function parseResult (data: IFileData) {
     }
 }
 
-function isCompiledJson (json: object): boolean {
+export function isCompiledJson (json: object): boolean {
     if (Array.isArray(json)) {
         const version = json[0];
         // array[0] will not be a number in the editor version

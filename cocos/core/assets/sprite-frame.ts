@@ -179,10 +179,10 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  *
  * @example
  * ```ts
- * import { loader } from 'cc';
+ * import { resources } from 'cc';
  * // First way to use a SpriteFrame
  * const url = "assets/PurpleMonster/icon/spriteFrame";
- * loader.loadRes(url, (err, spriteFrame) => {
+ * resources.load(url, (err, spriteFrame) => {
  *   const node = new Node("New Sprite");
  *   const sprite = node.addComponent(Sprite);
  *   sprite.spriteFrame = spriteFrame;
@@ -192,7 +192,7 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  * // Second way to use a SpriteFrame
  * const self = this;
  * const url = "test_assets/PurpleMonster";
- * loader.loadRes(url, (err, imageAsset) => {
+ * resources.load(url, (err, imageAsset) => {
  *  if(err){
  *    return;
  *  }

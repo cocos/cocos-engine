@@ -27,7 +27,7 @@
  * @packageDocumentation
  * @hidden
  */
-
+import { assetManager } from '../../../core/asset-manager';
 import { ImageAsset, Texture2D } from '../../../core/assets';
 import { isUnicodeCJK, isUnicodeSpace, safeMeasureText} from '../../../core/utils';
 import { mixin } from '../../../core/utils/js';
@@ -37,7 +37,6 @@ import { Label, LabelOutline } from '../../components';
 import { ISharedLabelData } from './font-utils';
 import { PixelFormat } from '../../../core/assets/asset-enum';
 import { director, Director } from '../../../core/director';
-import { loader } from '../../../core/load-pipeline';
 import { UITransform } from '../../../core/components/ui-base/ui-transform';
 
 // const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutline, UIComponent);
@@ -547,17 +546,11 @@ export const letterFont = {
                     _fontFamily = comp.font._nativeAsset;
                 }
                 else {
-                    _fontFamily = loader.getRes(comp.font.nativeUrl) || '';
-                    if (!_fontFamily) {
-                        loader.load(comp.font.nativeUrl, (err, fontFamily) => {
-                            _fontFamily = fontFamily || 'Arial';
-                            if (comp.font){
-                                comp.font._nativeAsset = fontFamily;
-                            }
-
-                            comp.updateRenderData(true);
-                        });
-                    }
+                    assetManager.postLoadNative(comp.font, (err) => {
+                        _fontFamily = comp.font!._nativeAsset || 'Arial';
+                        comp.updateRenderData(true);
+                    });
+                    _fontFamily = 'Arial';
                 }
             }
             else {

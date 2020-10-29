@@ -35,7 +35,7 @@ import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { EDITOR, MINIGAME, ALIPAY, XIAOMI, JSB, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
-import { warnID } from '../platform/debug';
+import { warnID, getError } from '../platform/debug';
 
 /**
  * @en Image source in memory
@@ -53,14 +53,18 @@ export interface IMemoryImageSource {
  * @en The image source, can be HTML canvas, image type or image in memory data
  * @zh 图像资源的原始图像源。可以来源于 HTML 元素也可以来源于内存。
  */
-export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource;
+export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap;
+
+function isImageBitmap (imageSource: any): imageSource is ImageBitmap {
+    return legacyCC.sys.capabilities.imageBitmap && imageSource instanceof ImageBitmap;
+}
 
 function fetchImageSource (imageSource: ImageSource) {
     return '_data' in imageSource ? imageSource._data : imageSource;
 }
 
 // 返回该图像源是否是平台提供的图像对象。
-function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement) {
+function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement | ImageBitmap) {
     if (ALIPAY || XIAOMI) {
         // We're unable to grab the constructors of Alipay native image or canvas object.
         return !('_data' in imageSource);
@@ -69,7 +73,7 @@ function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElem
         return false;
     }
     else {
-        return imageSource instanceof HTMLImageElement || imageSource instanceof HTMLCanvasElement;
+        return imageSource instanceof HTMLImageElement || imageSource instanceof HTMLCanvasElement || isImageBitmap(imageSource);
     }
 }
 
@@ -87,7 +91,7 @@ export class ImageAsset extends Asset {
     }
 
     set _nativeAsset (value: ImageSource) {
-        if (!(value instanceof HTMLElement)) {
+        if (!(value instanceof HTMLElement) && !isImageBitmap(value)) {
             value.format = value.format || this._format;
         }
         this.reset(value);
@@ -102,7 +106,7 @@ export class ImageAsset extends Asset {
             return this._nativeData;
         }
         else {
-            return this._nativeData._data;
+            return this._nativeData && this._nativeData._data;
         }
     }
 
@@ -145,7 +149,7 @@ export class ImageAsset extends Asset {
      * @deprecated Please use [[nativeUrl]]
      */
     get url () {
-        return this._url;
+        return this.nativeUrl;
     }
 
     /**
@@ -158,7 +162,7 @@ export class ImageAsset extends Asset {
     get _texture () {
         if (!this._tex) {
             const tex = new legacyCC.Texture2D();
-            tex.name = this._url;
+            tex.name = this.nativeUrl;
             tex.image = this;
             this._tex = tex;
         }
@@ -171,8 +175,6 @@ export class ImageAsset extends Asset {
 
     private _tex;
 
-    private _url: string;
-
     private _exportedExts: string[] | null | undefined = undefined;
 
     private _format: PixelFormat = PixelFormat.RGBA8888;
@@ -184,7 +186,6 @@ export class ImageAsset extends Asset {
     constructor (nativeAsset?: ImageSource) {
         super();
 
-        this._url = '';
         this.loaded = false;
 
         this._nativeData = {
@@ -210,7 +211,10 @@ export class ImageAsset extends Asset {
      * @param data The new source
      */
     public reset (data: ImageSource) {
-        if (!(data instanceof HTMLElement)) {
+        if (isImageBitmap(data)) {
+            this._nativeData = data;
+            this._onDataComplete();
+        } else if (!(data instanceof HTMLElement)) {
             // this._nativeData = Object.create(data);
             this._nativeData = data;
             this._format = data.format;
@@ -235,7 +239,8 @@ export class ImageAsset extends Asset {
         if (this.data && this.data instanceof HTMLImageElement) {
             this.data.src = "";
             this._setRawAsset("");
-            legacyCC.loader.removeItem(this.data.id);
+        } else if (isImageBitmap(this.data)) {
+            this.data.close && this.data.close();
         }
         return super.destroy();
     }
@@ -321,9 +326,12 @@ export class ImageAsset extends Asset {
             this._setRawAsset(ext);
             this._format = format;
         }
-        else {
+        else if (defaultExt) {
             this._setRawAsset(defaultExt);
             warnID(3120, defaultExt, defaultExt);
+        }
+        else {
+            warnID(3121);
         }
     }
 
