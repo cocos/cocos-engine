@@ -28,8 +28,8 @@
  * @hidden
  */
 
-import { IAssemblerManager } from '../../../core/renderer/ui/base';
-import {TiledLayer} from '../../../tiledmap';
+import { IAssemblerManager } from '../../core/renderer/ui/base';
+import { TiledLayer } from '../tiled-layer';
 import { simple } from './simple';
 
 

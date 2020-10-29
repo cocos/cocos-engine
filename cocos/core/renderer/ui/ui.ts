@@ -106,8 +106,6 @@ export class UI {
     private _currTextureHash: number = 0;
     private _currSamplerHash: number = 0;
     private _parentOpacity = 1;
-    // Generation id for each invocation of function `walk`
-    private _walkGen: number = 0;
     // DescriptorSet Cache Map
     private _descriptorSetCacheMap: Map<number, Map<number, DescriptorSetHandle>> = new Map<number, Map<number, DescriptorSetHandle>>();
 
@@ -652,13 +650,6 @@ export class UI {
         const parentOpacity = this._parentOpacity;
         this._parentOpacity *= node._uiProps.opacity;
 
-        // skip if processed
-        const comp = node._uiProps.uiComp as UIRenderable;
-        if (comp) {
-            if (comp._uiWalkGen === this._walkGen) { return /* already run */; }
-            comp._uiWalkGen = this._walkGen;
-        }
-
         this._preprocess(node);
         if (len > 0 && !node._static) {
             const children = node.children;
@@ -695,11 +686,7 @@ export class UI {
     }
 
     private _recursiveScreenNode (screen: Node) {
-        // allocate id for invocation of `walk`
-        this._walkGen += 1;
         this.walk(screen);
-        if (this._walkGen > 1000000) this._walkGen = 0;
-
         this.autoMergeBatches(this._currComponent!);
     }
 

@@ -28,13 +28,13 @@
  * @module ui-assembler
  */
 
-import { Mat4, Size, Vec3 } from '../../../core/math';
-import { IAssembler } from '../../../core/renderer/ui/base';
-import { MeshRenderData } from '../../../core/renderer/ui/render-data';
-import { UI } from '../../../core/renderer/ui/ui';
-import { TiledLayer, TiledMeshData, TiledTile } from '../../../tiledmap';
-import { GID, MixedGID, RenderOrder, TiledGrid, TileFlag } from '../../../tiledmap/tiled-types';
-import { Texture2D, Node } from '../../../core';
+import { Mat4, Size, Vec3 } from '../../core/math';
+import { IAssembler } from '../../core/renderer/ui/base';
+import { MeshRenderData } from '../../core/renderer/ui/render-data';
+import { UI } from '../../core/renderer/ui/ui';
+import { TiledLayer, TiledMeshData, TiledTile } from '..';
+import { GID, MixedGID, RenderOrder, TiledGrid, TileFlag } from '../../tiledmap/tiled-types';
+import { Texture2D, Node } from '../../core';
 
 
 const MaxGridsLimit = Math.ceil(65535 / 6);

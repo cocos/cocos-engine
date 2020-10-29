@@ -1443,6 +1443,7 @@ export class TiledLayer extends UIRenderable {
                     ui.commitComp(this, (m as TiledMeshData).texture, this._assembler);
                 }
             }
+            this.node._static = true;
         }
     }
 }

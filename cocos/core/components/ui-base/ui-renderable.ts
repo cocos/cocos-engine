@@ -327,8 +327,6 @@ export class UIRenderable extends RenderableComponent {
 
     protected _lastParent: Node | null = null;
 
-    public _uiWalkGen: number = 0;
-
     public __preload (){
         this.node._uiProps.uiComp = this;
         if (this._flushAssembler){
