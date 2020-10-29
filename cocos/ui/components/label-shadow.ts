@@ -39,14 +39,12 @@ import { Vec2 } from '../../core/math';
 /**
  * @en Shadow effect for Label component, only for system fonts or TTF fonts
  * @zh 用于给 Label 组件添加阴影效果，只能用于系统字体或 ttf 字体
- * @class LabelShadow
- * @extends Component
  * @example
  * import { Node, Label, LabelShadow } from 'cc';
  * // Create a new node and add label components.
  * const node = new Node("New Label");
  * const label = node.addComponent(Label);
- * const outline = node.addComponent(LabelShadow);
+ * const shadow = node.addComponent(LabelShadow);
  * node.parent = this.node;
  */
 @ccclass('cc.LabelShadow')
