@@ -227,7 +227,7 @@ export class Texture2D extends SimpleTexture {
         this.destroy();
     }
 
-    public _serialize (exporting?: any): any {
+    public _serialize (exporting: any): any {
         if (EDITOR || TEST) {
             return {
                 base: super._serialize(exporting),
