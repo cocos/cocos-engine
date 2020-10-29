@@ -33,20 +33,20 @@ export enum EventType {
      * @en None
      * @zh 无
      */
-    NONE,
+    NONE = 'none',
     /**
      * @en Web page Load completed.
      * @zh 网页加载完成
      */
-    LOADING,
+    LOADING = 'loading',
     /**
      * @en Web page is loading.
      * @zh 网页加载中
      */
-    LOADED,
+    LOADED = 'loaded',
     /**
      * @en Web page error occurs when loading.
      * @zh 网页加载出错
      */
-    ERROR,
+    ERROR = 'error',
 }
