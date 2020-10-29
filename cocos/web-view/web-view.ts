@@ -180,17 +180,17 @@ export class WebView extends Component {
 
     onLoading () {
         ComponentEventHandler.emitEvents(this.webviewEvents, this, EventType.LOADING);
-        this.node.emit('loading', this);
+        this.node.emit(EventType.LOADING, this);
     }
 
     onLoaded () {
         ComponentEventHandler.emitEvents(this.webviewEvents, this, EventType.LOADED);
-        this.node.emit('loaded', this);
+        this.node.emit(EventType.LOADED, this);
     }
 
     onError () {
         ComponentEventHandler.emitEvents(this.webviewEvents, this, EventType.ERROR);
-        this.node.emit('error', this);
+        this.node.emit(EventType.ERROR, this);
     }
 
     public onEnable () {
