@@ -1830,6 +1830,7 @@ No need to release non-cached asset.
 
 ### 4903
 
+<!-- DEPRECATED -->
 Can not get class '%s'
 
 ### 4904
