@@ -944,6 +944,9 @@ struct RasterizerState {
     bool isDepthClip = true;
     bool isMultisample = false;
     float lineWidth = 1.0f;
+
+    void reset();
+    uint getHash() const;
 };
 
 struct DepthStencilState {
@@ -966,6 +969,9 @@ struct DepthStencilState {
     StencilOp stencilZFailOpBack = StencilOp::KEEP;
     StencilOp stencilPassOpBack = StencilOp::KEEP;
     uint32_t stencilRefBack = 1;
+
+    void reset();
+    uint getHash() const;
 };
 
 struct BlendTarget {
@@ -977,6 +983,8 @@ struct BlendTarget {
     BlendFactor blendDstAlpha = BlendFactor::ZERO;
     BlendOp blendAlphaEq = BlendOp::ADD;
     ColorMask blendColorMask = ColorMask::ALL;
+
+    void reset();
 };
 
 typedef cc::vector<BlendTarget> BlendTargetList;
@@ -991,6 +999,8 @@ struct BlendState {
         targets.emplace_back(BlendTarget());
     }
     void setTarget(uint, const BlendTarget &);
+    void reset();
+    uint getHash() const;
 };
 
 struct PipelineStateInfo {

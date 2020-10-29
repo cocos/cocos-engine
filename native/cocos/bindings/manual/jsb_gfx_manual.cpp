@@ -803,10 +803,133 @@ static bool js_gfx_InputAssembler_extractDrawInfo(se::State &s) {
 
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
 SE_BIND_FUNC(js_gfx_InputAssembler_extractDrawInfo)
+
+static bool jsb_gfx_RasterizerState_set(se::State &s) {
+    cc::gfx::RasterizerState *cobj = (cc::gfx::RasterizerState *)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "jsb_gfx_RasterizerState_set : Invalid Native Object");
+    const auto &args = s.args();
+    size_t argc = args.size();
+    if (argc == 1) {
+        se::Object *stateInfo = args[0].toObject();
+        se::Value val;
+        stateInfo->getProperty("isDiscard", &val);
+        if (!val.isNullOrUndefined()) cobj->isDiscard = val.toBoolean();
+        
+        stateInfo->getProperty("polygonMode", &val);
+        if (!val.isNullOrUndefined()) cobj->polygonMode = (cc::gfx::PolygonMode)val.toUint();
+        
+        stateInfo->getProperty("cullMode", &val);
+        if (!val.isNullOrUndefined()) cobj->cullMode = (cc::gfx::CullMode)val.toUint();
+        
+        stateInfo->getProperty("isFrontFaceCCW", &val);
+        if (!val.isNullOrUndefined()) cobj->isFrontFaceCCW = val.toBoolean();
+        
+        stateInfo->getProperty("depthBiasEnabled", &val);
+        if (!val.isNullOrUndefined()) cobj->depthBiasEnabled = val.toBoolean();
+        
+        stateInfo->getProperty("depthBias", &val);
+        if (!val.isNullOrUndefined()) cobj->depthBias = val.toFloat();
+        
+        stateInfo->getProperty("depthBiasClamp", &val);
+        if (!val.isNullOrUndefined()) cobj->depthBiasClamp = val.toFloat();
+        
+        stateInfo->getProperty("depthBiasSlop", &val);
+        if (!val.isNullOrUndefined()) cobj->depthBiasSlop = val.toFloat();
+        
+        stateInfo->getProperty("isDepthClip", &val);
+        if (!val.isNullOrUndefined()) cobj->isDepthClip = val.toBoolean();
+        
+        stateInfo->getProperty("isMultisample", &val);
+        if (!val.isNullOrUndefined()) cobj->isMultisample = val.toBoolean();
+        
+        stateInfo->getProperty("lineWidth", &val);
+        if (!val.isNullOrUndefined()) cobj->lineWidth = val.toFloat();
+        
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(jsb_gfx_RasterizerState_set)
+
+static bool jsb_gfx_DepthStencilState_set(se::State &s) {
+    cc::gfx::DepthStencilState *cobj = (cc::gfx::DepthStencilState *)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "DepthStencilState : Invalid Native Object");
+    const auto &args = s.args();
+    size_t argc = args.size();
+    if (argc == 1) {
+        se::Object *stateInfo = args[0].toObject();
+        se::Value val;
+        stateInfo->getProperty("depthTest", &val);
+        if (!val.isNullOrUndefined()) cobj->depthTest = val.toBoolean();
+        
+        stateInfo->getProperty("depthWrite", &val);
+        if (!val.isNullOrUndefined()) cobj->depthWrite = val.toBoolean();
+        
+        stateInfo->getProperty("depthFunc", &val);
+        if (!val.isNullOrUndefined()) cobj->depthFunc = (cc::gfx::ComparisonFunc)val.toUint();
+        
+        stateInfo->getProperty("stencilTestFront", &val);
+        if (!val.isNullOrUndefined()) cobj->stencilTestFront = val.toBoolean();
+        
+        stateInfo->getProperty("stencilFuncFront", &val);
+        if (!val.isNullOrUndefined()) cobj->stencilFuncFront = (cc::gfx::ComparisonFunc)val.toUint();
+        
+        stateInfo->getProperty("stencilReadMaskFront", &val);
+        if (!val.isNullOrUndefined()) cobj->stencilReadMaskFront = val.toUint32();
+        
+        stateInfo->getProperty("stencilWriteMaskFront", &val);
+        if (!val.isNullOrUndefined()) cobj->stencilWriteMaskFront = val.toUint32();
+        
+        stateInfo->getProperty("stencilFailOpFront", &val);
+        if (!val.isNullOrUndefined()) cobj->stencilFailOpFront = (cc::gfx::StencilOp)val.toUint();
+        
+        stateInfo->getProperty("stencilZFailOpFront", &val);
+        if (!val.isNullOrUndefined()) cobj->stencilZFailOpFront = (cc::gfx::StencilOp)val.toUint();
+        
+        stateInfo->getProperty("stencilPassOpFront", &val);
+        if (!val.isNullOrUndefined()) cobj->stencilPassOpFront = (cc::gfx::StencilOp)val.toUint();
+        
+        stateInfo->getProperty("stencilRefFront", &val);
+        if (!val.isNullOrUndefined()) cobj->stencilRefFront = val.toUint32();
+        
+        stateInfo->getProperty("stencilTestBack", &val);
+        if (!val.isNullOrUndefined()) cobj->stencilTestBack = val.toBoolean();
+        
+        stateInfo->getProperty("stencilTestBack", &val);
+        if (!val.isNullOrUndefined()) cobj->stencilTestBack = val.toBoolean();
+        
+        stateInfo->getProperty("stencilFuncBack", &val);
+        if (!val.isNullOrUndefined()) cobj->stencilFuncBack = (cc::gfx::ComparisonFunc)val.toUint();
+        
+        stateInfo->getProperty("stencilReadMaskBack", &val);
+        if (!val.isNullOrUndefined()) cobj->stencilReadMaskBack = val.toUint32();
+        
+        stateInfo->getProperty("stencilWriteMaskBack", &val);
+        if (!val.isNullOrUndefined()) cobj->stencilWriteMaskBack = val.toUint32();
+        
+        stateInfo->getProperty("stencilFailOpBack", &val);
+        if (!val.isNullOrUndefined()) cobj->stencilFailOpBack = (cc::gfx::StencilOp)val.toUint();
+        
+        stateInfo->getProperty("stencilZFailOpBack", &val);
+        if (!val.isNullOrUndefined()) cobj->stencilZFailOpBack = (cc::gfx::StencilOp)val.toUint();
+        
+        stateInfo->getProperty("stencilPassOpBack", &val);
+        if (!val.isNullOrUndefined()) cobj->stencilPassOpBack = (cc::gfx::StencilOp)val.toUint();
+        
+        stateInfo->getProperty("stencilRefBack", &val);
+        if (!val.isNullOrUndefined()) cobj->stencilRefBack = val.toUint32();
+        
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(jsb_gfx_DepthStencilState_set)
 
 bool register_all_gfx_manual(se::Object *obj) {
     __jsb_cc_gfx_Device_proto->defineFunction("copyBuffersToTexture", _SE(js_gfx_Device_copyBuffersToTexture));
@@ -827,6 +950,10 @@ bool register_all_gfx_manual(se::Object *obj) {
 
     __jsb_cc_gfx_Buffer_proto->defineFunction("initialize", _SE(js_gfx_Buffer_initialize));
     __jsb_cc_gfx_Texture_proto->defineFunction("initialize", _SE(js_gfx_Texture_initialize));
+    
+    __jsb_cc_gfx_RasterizerState_proto->defineFunction("set", _SE(jsb_gfx_RasterizerState_set));
+    
+    __jsb_cc_gfx_DepthStencilState_proto->defineFunction("set", _SE(jsb_gfx_DepthStencilState_set));
 
     // Get the ns
     se::Value nsVal;

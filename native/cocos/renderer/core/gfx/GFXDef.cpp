@@ -214,11 +214,131 @@ uint FormatSurfaceSize(Format format, uint width, uint height, uint depth, uint 
     return size;
 }
 
+void BlendTarget::reset() {
+    blend = false;
+    blendSrc = BlendFactor::ONE;
+    blendDst = BlendFactor::ZERO;
+    blendEq = BlendOp::ADD;
+    blendSrcAlpha = BlendFactor::ONE;
+    blendDstAlpha = BlendFactor::ZERO;
+    blendAlphaEq = BlendOp::ADD;
+    blendColorMask = ColorMask::ALL;
+}
+
+void RasterizerState::reset() {
+    isDiscard = false;
+    polygonMode = PolygonMode::FILL;
+    shadeModel = ShadeModel::GOURAND;
+    cullMode = CullMode::BACK;
+    isFrontFaceCCW = true;
+    depthBiasEnabled = false;
+    depthBias = 0.0f;
+    depthBiasClamp = 0.0f;
+    depthBiasSlop = 0.0f;
+    isDepthClip = true;
+    isMultisample = false;
+    lineWidth = 1.0f;
+}
+
+uint RasterizerState::getHash() const {
+    uint hashVal = isDiscard;
+    hashVal = hashVal * 31 + (uint)polygonMode;
+    hashVal = hashVal * 31 + (uint)shadeModel;
+    hashVal = hashVal * 31 + (uint)cullMode;
+    hashVal = hashVal * 31 + isFrontFaceCCW;
+    hashVal = hashVal * 31 + depthBiasEnabled;
+    hashVal = hashVal * 31 + depthBias * 100;
+    hashVal = hashVal * 31 + depthBiasClamp * 100;
+    hashVal = hashVal * 31 + depthBiasSlop * 100;
+    hashVal = hashVal * 31 + isDepthClip;
+    hashVal = hashVal * 31 + isMultisample;
+    hashVal = hashVal * 31 + lineWidth * 100;
+    
+    return hashVal;
+}
+
+void DepthStencilState::reset() {
+    depthTest = true;
+    depthWrite = true;
+    depthFunc = ComparisonFunc::LESS;
+    stencilTestFront = false;
+    stencilFuncFront = ComparisonFunc::ALWAYS;
+    stencilReadMaskFront = 0xffffffff;
+    stencilWriteMaskFront = 0xffffffff;
+    stencilFailOpFront = StencilOp::KEEP;
+    stencilZFailOpFront = StencilOp::KEEP;
+    stencilPassOpFront = StencilOp::KEEP;
+    stencilRefFront = 1;
+    stencilTestBack = false;
+    stencilFuncBack = ComparisonFunc::ALWAYS;
+    stencilReadMaskBack = 0xffffffff;
+    stencilWriteMaskBack = 0xffffffff;
+    stencilFailOpBack = StencilOp::KEEP;
+    stencilZFailOpBack = StencilOp::KEEP;
+    stencilPassOpBack = StencilOp::KEEP;
+    stencilRefBack = 1;
+}
+
+uint DepthStencilState::getHash() const {
+    uint hashVal = (uint)depthTest;
+    hashVal = hashVal * 31 + (uint)depthWrite;
+    hashVal = hashVal * 31 + (uint)depthFunc;
+    hashVal = hashVal * 31 + (uint)stencilTestFront;
+    hashVal = hashVal * 31 + (uint)stencilFuncFront;
+    hashVal = hashVal * 31 + stencilReadMaskFront;
+    hashVal = hashVal * 31 + stencilWriteMaskFront;
+    hashVal = hashVal * 31 + (uint)stencilFailOpFront;
+    hashVal = hashVal * 31 + (uint)stencilZFailOpFront;
+    hashVal = hashVal * 31 + (uint)stencilPassOpFront;
+    hashVal = hashVal * 31 + stencilRefFront;
+    hashVal = hashVal * 31 + stencilTestBack;
+    hashVal = hashVal * 31 + (uint)stencilFuncBack;
+    hashVal = hashVal * 31 + stencilReadMaskBack;
+    hashVal = hashVal * 31 + stencilWriteMaskBack;
+    hashVal = hashVal * 31 + (uint)stencilFailOpBack;
+    hashVal = hashVal * 31 + (uint)stencilZFailOpBack;
+    hashVal = hashVal * 31 + (uint)stencilPassOpBack;
+    hashVal = hashVal * 31 +stencilRefBack;
+    
+    return hashVal;
+}
+
 void BlendState::setTarget(uint index, const BlendTarget &target) {
     const auto size = targets.size();
     if (size <= index) targets.resize(size << 1);
 
     targets[index] = target;
+}
+
+void BlendState::reset() {
+    isA2C = false;
+    isIndepend = false;
+    memset(&blendColor, 0, sizeof(blendColor));
+    targets.clear();
+    targets.emplace_back(BlendTarget());
+}
+
+uint BlendState::getHash() const {
+    uint hashVal = (int)isA2C;
+    hashVal = hashVal * 31 + (int)isIndepend;
+
+    for (const auto &target : targets) {
+        hashVal = hashVal * 31 + target.blend;
+        hashVal = hashVal * 31 + (uint)target.blendSrc;
+        hashVal = hashVal * 31 + (uint)target.blendDst;
+        hashVal = hashVal * 31 + (uint)target.blendEq;
+        hashVal = hashVal * 31 + (uint)target.blendSrcAlpha;
+        hashVal = hashVal * 31 + (uint)target.blendDstAlpha;
+        hashVal = hashVal * 31 + (uint)target.blendAlphaEq;
+        hashVal = hashVal * 31 + (uint)target.blendColorMask;
+    }
+
+    hashVal = hashVal * 31 + blendColor.x * 100;
+    hashVal = hashVal * 31 + blendColor.y * 100;
+    hashVal = hashVal * 31 + blendColor.z * 100;
+    hashVal = hashVal * 31 + blendColor.w * 100;
+    
+    return hashVal;
 }
 
 } // namespace gfx

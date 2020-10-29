@@ -1006,6 +1006,8 @@ class NativeClass(object):
         self.is_class_owned_by_cpp = self.class_name in self.generator.classes_owned_by_cpp
         # print("class_name:" + self.class_name + ", is_class_owned_by_cpp:" + str(self.is_class_owned_by_cpp))
         self._current_visibility = cindex.AccessSpecifier.PRIVATE
+        if is_struct:
+            self._current_visibility = cindex.AccessSpecifier.PUBLIC
         #for generate lua api doc
         self.override_methods = {}
         self.has_constructor  = False
