@@ -377,7 +377,7 @@ export class Game extends EventTarget {
 
     public _intervalId: number | null = null; // interval target of main
 
-    public declare _lastTime: Date;
+    public declare _lastTime: number;
     public declare _frameTime: number;
 
     // Scenes list
@@ -578,20 +578,20 @@ export class Game extends EventTarget {
         });
     }
 
-    public run (config: IGameConfig, onStart?: Game.OnStart): Promise<void>;
-
-    public run (onStart?: Game.OnStart): Promise<void>;
-
     /**
      * @en Run game with configuration object and onStart function.
      * @zh 运行游戏，并且指定引擎配置和 onStart 的回调。
      * @param onStart - function to be executed after game initialized
      */
+    public run (onStart?: Game.OnStart): Promise<void>;
+
     public run (configOrCallback?: Game.OnStart | IGameConfig, onStart?: Game.OnStart) {
         if (!EDITOR) {
             this._initEvents();
         }
 
+        // To compatible with older version,
+        // we allow the `run(config, onstart?)` form. But it's deprecated.
         let initPromise: Promise<boolean> | undefined;
         if (typeof configOrCallback !== 'function' && configOrCallback) {
             initPromise = this.init(configOrCallback);
@@ -687,7 +687,7 @@ export class Game extends EventTarget {
 
     //  @Time ticker section
     private _setAnimFrame () {
-        this._lastTime = new Date();
+        this._lastTime = new Date().getTime();
         const frameRate = this.config.frameRate;
         this._frameTime = 1000 / frameRate;
         legacyCC.director._maxParticleDeltaTime = this._frameTime / 1000 * 2;
@@ -730,10 +730,10 @@ export class Game extends EventTarget {
     }
     private _stTime (callback) {
         const currTime = new Date().getTime();
-        const elapseTime = Math.max(0, (currTime - (this._lastTime as unknown as number)));
+        const elapseTime = Math.max(0, (currTime - this._lastTime));
         const timeToCall = Math.max(0, this._frameTime - elapseTime);
         const id = window.setTimeout(callback, timeToCall);
-        (this._lastTime as unknown as number) = currTime + timeToCall;
+        this._lastTime = currTime + timeToCall;
         return id;
     }
     private _ctTime (id: number | undefined) {
