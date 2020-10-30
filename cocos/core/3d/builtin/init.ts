@@ -6,6 +6,7 @@ import { TextureCube } from '../../assets/texture-cube';
 import { GFXDevice } from '../../gfx';
 import effects from './effects';
 import { legacyCC } from '../../global-exports';
+import { getDeviceShaderVersion } from '../../renderer/core/program-lib';
 
 class BuiltinResMgr {
     protected _device: GFXDevice | null = null;
@@ -131,11 +132,32 @@ class BuiltinResMgr {
         resources[spriteFrame._uuid] = spriteFrame;
 
         // builtin effects
-        effects.forEach((e) => {
-            const effect = Object.assign(new legacyCC.EffectAsset(), e);
-            effect.onLoaded();
+        const shaderVersionKey = getDeviceShaderVersion(device);
+        if (!shaderVersionKey) {
+            return Promise.reject(Error(`Failed to initialize builtin shaders: unknown device.`));
+        }
+        return import(`./shader-sources/${shaderVersionKey}.js`).then(({ default: shaderSources }) => {
+            effects.forEach((e, effectIndex) => {
+                const effect = Object.assign(new legacyCC.EffectAsset(), e);
+                effect.shaders.forEach((shaderInfo, shaderIndex) => {
+                    const shaderSource = shaderSources[effectIndex][shaderIndex];
+                    if (shaderSource) {
+                        shaderInfo[shaderVersionKey] = shaderSource;
+                    }
+                });
+                effect.onLoaded();
+            });
+            this._initMaterials();
         });
+    }
 
+    public get<T extends Asset> (uuid: string) {
+        return this._resources[uuid] as T;
+    }
+
+    private _initMaterials () {
+        const resources = this._resources;
+        
         // standard material
         const standardMtl = new legacyCC.Material();
         standardMtl._uuid = 'standard-material';
@@ -234,10 +256,6 @@ class BuiltinResMgr {
         defaultBillboardMtl._uuid = 'default-billboard-material';
         defaultBillboardMtl.initialize({ effectName: 'builtin-billboard' });
         resources[defaultBillboardMtl._uuid] = defaultBillboardMtl;
-    }
-
-    public get<T extends Asset> (uuid: string) {
-        return this._resources[uuid] as T;
     }
 }
 
