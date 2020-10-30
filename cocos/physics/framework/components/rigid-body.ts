@@ -38,6 +38,12 @@ import { PhysicsSystem } from '../physics-system';
 @executionOrder(-1)
 export class RigidBody extends Component {
 
+    /**
+     * @en
+     * Enumeration of rigid body types.
+     * @zh
+     * 刚体类型的枚举。
+     */
     static readonly Type = ERigidBodyType;
 
     /// PUBLIC PROPERTY GETTER\SETTER ///

@@ -26,7 +26,20 @@ import { createShape } from '../../instance';
 @ccclass('cc.Collider')
 export class Collider extends Eventify(Component) {
 
+    /**
+     * @en
+     * Enumeration of collider types.
+     * @zh
+     * 碰撞体类型的枚举。
+     */
     static readonly Type = EColliderType;
+    
+    /**
+     * @en
+     * Enumeration of axes.
+     * @zh
+     * 坐标轴方向的枚举。
+     */
     static readonly Axis = EAxisDirection;
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
