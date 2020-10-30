@@ -222,11 +222,11 @@ export class TextureCube extends SimpleTexture {
         this.mipmaps = [];
     }
 
-    public _serialize (exporting: any) {
+    public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
             return {
-                base: super._serialize(exporting),
-                mipmaps: this._mipmaps.map((mipmap) => exporting ? {
+                base: super._serialize(ctxForExporting),
+                mipmaps: this._mipmaps.map((mipmap) => (ctxForExporting && ctxForExporting._compressUuid) ? {
                     front: EditorExtends.UuidUtils.compressUuid(mipmap.front._uuid, true),
                     back: EditorExtends.UuidUtils.compressUuid(mipmap.back._uuid, true),
                     left: EditorExtends.UuidUtils.compressUuid(mipmap.left._uuid, true),

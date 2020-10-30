@@ -226,14 +226,9 @@
 
         var sprite = new Sprite();
         var resultInEditor = JSON.parse(EditorExtends.serialize(sprite));
-        var resultInPlayer = JSON.parse(EditorExtends.serialize(sprite, { exporting: true }));
 
         strictEqual(resultInEditor.trimThreshold, 2, 'serialize editor only in editor');
-
-        strictEqual(resultInPlayer.trimThreshold, undefined, 'should not serialize editor only in player');
-
         strictEqual(resultInEditor._isValid, undefined, 'should not serialize non-serialized in editor');
-        strictEqual(resultInPlayer._isValid, undefined, 'should not serialize non-serialized in player');
 
         cc.js.unregisterClass(Sprite);
     });
