@@ -102,11 +102,22 @@ export class Model {
     }
 
     get receiveShadow () {
-        return this._receiveShadow;
+        if (ModelPool.get(this._handle, ModelView.RECEIVE_SHADOW)) { return true; }
+        return false;
     }
+
     set receiveShadow (val) {
-        this._receiveShadow = val;
+        ModelPool.set(this._handle, ModelView.RECEIVE_SHADOW, val ? 1 : 0);
         this.onMacroPatchesStateChanged();
+    }
+
+    get castShadow () {
+        if (ModelPool.get(this._handle, ModelView.CAST_SHADOW)) { return true; }
+        return false;
+    }
+
+    set castShadow (val) {
+        ModelPool.set(this._handle, ModelView.CAST_SHADOW, val ? 1 : 0);
     }
 
     get handle () {
@@ -140,7 +151,8 @@ export class Model {
     }
 
     get enabled () : boolean {
-        return ModelPool.get(this._handle, ModelView.ENABLED) === 1 ? true : false;
+        if (ModelPool.get(this._handle, ModelView.ENABLED)) { return true; }
+        return false;
     }
 
     set enabled (val: boolean) {
@@ -149,7 +161,6 @@ export class Model {
 
     public type = ModelType.DEFAULT;
     public scene: RenderScene | null = null;
-    public castShadow = false;
     public isDynamicBatching = false;
     public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, views: [], attributes: [] };
 
@@ -172,7 +183,6 @@ export class Model {
     private _instMatWorldIdx = -1;
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
-    private _receiveShadow = true;
 
     /**
      * Setup a default empty model
@@ -183,8 +193,6 @@ export class Model {
 
     public initialize () {
         if (!this._inited) {
-            this.castShadow = false;
-            this._receiveShadow = true;
             this._handle = ModelPool.alloc();
             const hSubModelArray = SubModelArrayPool.alloc();
             const hInstancedAttrArray = AttrArrayPool.alloc();
@@ -192,6 +200,8 @@ export class Model {
             ModelPool.set(this._handle, ModelView.SUB_MODEL_ARRAY, hSubModelArray);
             ModelPool.set(this._handle, ModelView.VIS_FLAGS, Layers.Enum.NONE);
             ModelPool.set(this._handle, ModelView.ENABLED, 1);
+            ModelPool.set(this._handle, ModelView.RECEIVE_SHADOW, 1);
+            ModelPool.set(this._handle, ModelView.CAST_SHADOW, 0);
             this._inited = true;
         }
     }
@@ -370,7 +380,7 @@ export class Model {
     }
 
     public getMacroPatches (subModelIndex: number) {
-        return this._receiveShadow ? shadowMapPatches : null;
+        return this.receiveShadow ? shadowMapPatches : null;
     }
 
     protected _updateAttributesAndBinding (subModelIndex: number) {

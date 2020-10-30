@@ -32,6 +32,11 @@ interface BaseItem extends Displayable {
      * If true, this field indicates the item is marked as bundled by default.
      */
     default?: boolean;
+
+    /**
+     * native module macro
+     */
+    native?: string;
 }
 
 export interface Simple extends BaseItem {

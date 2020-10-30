@@ -343,8 +343,14 @@ async function _doBuild ({
 
     if (doUglify) { // TODO: tree-shaking not clear!
         rollupPlugins.push(rpTerser({
+            // see https://github.com/terser/terser#compress-options
             compress: {
-                reduce_funcs: false // reduce_funcs not suitable for ammo.js
+                reduce_funcs: false, // reduce_funcs not suitable for ammo.js
+                keep_fargs: false,
+                unsafe_Function: true,
+                unsafe_math: true,
+                unsafe_methods: true,
+                passes: 2,  // first: remove deadcodes and const objects, second: drop variables
             },
             mangle: doUglify,
             keep_fnames: !doUglify,

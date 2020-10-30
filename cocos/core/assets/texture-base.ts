@@ -30,6 +30,7 @@
  */
 
 // @ts-check
+import { EDITOR, TEST } from 'internal:constants';
 import {ccclass, serializable} from 'cc.decorator';
 import { genSamplerHash, SamplerInfoIndex, samplerLib } from '../renderer/core/sampler-lib';
 import IDGenerator from '../utils/id-generator';
@@ -292,9 +293,11 @@ export class TextureBase extends Asset {
      * @return
      */
     public _serialize (exporting?: any): any {
-        return this._minFilter + ',' + this._magFilter + ',' +
-            this._wrapS + ',' + this._wrapT + ',' +
-            this._mipFilter + ',' + this._anisotropy;
+        if (EDITOR || TEST) {
+            return this._minFilter + ',' + this._magFilter + ',' +
+                this._wrapS + ',' + this._wrapT + ',' +
+                this._mipFilter + ',' + this._anisotropy;
+        }
     }
 
     /**

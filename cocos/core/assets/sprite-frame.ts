@@ -36,7 +36,7 @@ import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
 import { RenderTexture } from './render-texture';
 import { TextureBase } from './texture-base';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { ImageAsset, ImageSource } from './image-asset';
 import { Texture2D } from './texture-2d';
@@ -458,6 +458,8 @@ export class SpriteFrame extends Asset {
     public uv: number[] = [];
     public uvHash: number = 0;
 
+    public unbiasUV:number[] = [];
+
     /**
      * @en UV for sliced 9 vertices
      * @zh 九宫格的顶点 UV。
@@ -805,6 +807,7 @@ export class SpriteFrame extends Asset {
     public _calculateUV () {
         const rect = this._rect;
         const uv = this.uv;
+        const unbiasUV = this.unbiasUV;
         const tex = this.texture;
         const texw = tex.width;
         const texh = tex.height;
@@ -835,6 +838,30 @@ export class SpriteFrame extends Asset {
                 uv[6] = r;
                 uv[7] = b;
             }
+
+            const ul = texw === 0 ? 0 : (rect.x) / texw;
+            const ur = texw === 0 ? 0 : (rect.x + rect.height) / texw;
+            const ut = texh === 0 ? 0 : (rect.y) / texh;
+            const ub = texh === 0 ? 0 : (rect.y + rect.width) / texh;
+            if (this._flipUv) {
+                unbiasUV[0] = ul;
+                unbiasUV[1] = ut;
+                unbiasUV[2] = ul;
+                unbiasUV[3] = ub;
+                unbiasUV[4] = ur;
+                unbiasUV[5] = ut;
+                unbiasUV[6] = ur;
+                unbiasUV[7] = ub;
+            } else {
+                unbiasUV[0] = ul;
+                unbiasUV[1] = ut;
+                unbiasUV[2] = ul;
+                unbiasUV[3] = ub;
+                unbiasUV[4] = ur;
+                unbiasUV[5] = ut;
+                unbiasUV[6] = ur;
+                unbiasUV[7] = ub;
+            }
         } else {
             // Canceling out the floating-point rounding errors by slightly nudging the UV coordinates
             const l = texw === 0 ? 0 : (rect.x + 0.5) / texw;
@@ -860,6 +887,29 @@ export class SpriteFrame extends Asset {
                 uv[6] = r;
                 uv[7] = t;
             }
+            const ul = texw === 0 ? 0 : (rect.x ) / texw;
+            const ur = texw === 0 ? 0 : (rect.x + rect.width) / texw;
+            const ub = texh === 0 ? 0 : (rect.y + rect.height) / texh;
+            const ut = texh === 0 ? 0 : (rect.y) / texh;
+            if (this._flipUv) {
+                unbiasUV[0] = ul;
+                unbiasUV[1] = ut;
+                unbiasUV[2] = ur;
+                unbiasUV[3] = ut;
+                unbiasUV[4] = ul;
+                unbiasUV[5] = ub;
+                unbiasUV[6] = ur;
+                unbiasUV[7] = ub;
+            } else {
+                unbiasUV[0] = ul;
+                unbiasUV[1] = ub;
+                unbiasUV[2] = ur;
+                unbiasUV[3] = ub;
+                unbiasUV[4] = ul;
+                unbiasUV[5] = ut;
+                unbiasUV[6] = ur;
+                unbiasUV[7] = ut;
+            }
         }
 
         let uvHashStr = '';
@@ -883,47 +933,49 @@ export class SpriteFrame extends Asset {
 
     // SERIALIZATION
     public _serialize (exporting?: any): any {
-        const rect = this._rect;
-        const offset = this._offset;
-        const originalSize = this._originalSize;
-        let uuid = this._uuid;
-        let texture;
-        if (this._texture) {
-            texture = this._texture._uuid;
-        }
+        if (EDITOR || TEST) {
+            const rect = this._rect;
+            const offset = this._offset;
+            const originalSize = this._originalSize;
+            let uuid = this._uuid;
+            let texture;
+            if (this._texture) {
+                texture = this._texture._uuid;
+            }
 
-        if (uuid && exporting) {
-            uuid = EditorExtends.UuidUtils.compressUuid(uuid, true);
-        }
-        if (texture && exporting) {
-            texture = EditorExtends.UuidUtils.compressUuid(texture, true);
-        }
+            if (uuid && exporting) {
+                uuid = EditorExtends.UuidUtils.compressUuid(uuid, true);
+            }
+            if (texture && exporting) {
+                texture = EditorExtends.UuidUtils.compressUuid(texture, true);
+            }
 
-        let vertices;
-        if (this.vertices) {
-            vertices = {
-                triangles: this.vertices.triangles,
-                x: this.vertices.x,
-                y: this.vertices.y,
-                u: this.vertices.u,
-                v: this.vertices.v,
+            let vertices;
+            if (this.vertices) {
+                vertices = {
+                    triangles: this.vertices.triangles,
+                    x: this.vertices.x,
+                    y: this.vertices.y,
+                    u: this.vertices.u,
+                    v: this.vertices.v,
+                };
+            }
+
+            const serialize = {
+                name: this._name,
+                atlas: exporting ? undefined : this._atlasUuid,  // strip from json if exporting
+                rect,
+                offset,
+                originalSize,
+                rotated: this._rotated,
+                capInsets: this._capInsets,
+                vertices,
+                texture,
             };
+
+            // 为 underfined 的数据则不在序列化文件里显示
+            return serialize;
         }
-
-        const serialize = {
-            name: this._name,
-            atlas: exporting ? undefined : this._atlasUuid,  // strip from json if exporting
-            rect,
-            offset,
-            originalSize,
-            rotated: this._rotated,
-            capInsets: this._capInsets,
-            vertices,
-            texture,
-        };
-
-        // 为 underfined 的数据则不在序列化文件里显示
-        return serialize;
     }
 
     public _deserialize (serializeData: any, handle: any) {

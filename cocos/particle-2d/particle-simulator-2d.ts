@@ -24,10 +24,10 @@
  ****************************************************************************/
 import { Vec2, Vec3, Color } from '../core/math';
 import Pool from '../core/utils/pool';
-import { ParticleSystem2D, EmitterMode, PositionType } from './particle-system-2d';
 import { clampf, degreesToRadians, radiansToDegrees } from '../core/utils/misc';
 import { director } from '../core/director';
 import { vfmtPosUvColor, getAttributeFormatBytes } from '../core/renderer/ui/ui-vertex-format';
+import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
 
 const ZERO_VEC2 = new Vec2(0, 0);
 const _pos = new Vec2();
@@ -106,12 +106,12 @@ export class Simulator {
     public active = false;
     public uvFilled = 0;
     public finished = false;
-
-    private declare sys: ParticleSystem2D;
     private readyToPlay = true;
     private elapsed = 0;
     private emitCounter = 0;
     private _worldRotation = 0;
+    private declare sys;
+
     constructor (system) {
         this.sys = system;
         this.particles = [];
@@ -181,7 +181,7 @@ export class Simulator {
         let startS = psys.startSize + psys.startSizeVar * (Math.random() - 0.5) * 2;
         startS = Math.max(0, startS); // No negative value
         particle.size = startS;
-        if (psys.endSize === ParticleSystem2D.START_SIZE_EQUAL_TO_END_SIZE) {
+        if (psys.endSize === START_SIZE_EQUAL_TO_END_SIZE) {
             particle.deltaSize = 0;
         } else {
             let endS = psys.endSize + psys.endSizeVar * (Math.random() - 0.5) * 2;
@@ -226,7 +226,7 @@ export class Simulator {
             const startRadius = psys.startRadius + psys.startRadiusVar * (Math.random() - 0.5) * 2;
             const endRadius = psys.endRadius + psys.endRadiusVar * (Math.random() - 0.5) * 2;
             particle.radius = startRadius;
-            particle.deltaRadius = (psys.endRadius === ParticleSystem2D.START_RADIUS_EQUAL_TO_END_RADIUS) ? 0 : (endRadius - startRadius) / timeToLive;
+            particle.deltaRadius = (psys.endRadius === START_RADIUS_EQUAL_TO_END_RADIUS) ? 0 : (endRadius - startRadius) / timeToLive;
             particle.angle = a;
             particle.degreesPerSecond = degreesToRadians(psys.rotatePerS + psys.rotatePerSVar * (Math.random() - 0.5) * 2);
         }

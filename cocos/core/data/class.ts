@@ -273,35 +273,27 @@ function define (className, baseClass, mixins, options) {
 
     const cls = doDefine(className, baseClass, mixins, options);
 
-    // for RenderPipeline, RenderFlow, RenderStage
-    const isRenderPipeline = js.isChildClassOf(baseClass, legacyCC.RenderPipeline);
-    const isRenderFlow = js.isChildClassOf(baseClass, legacyCC.RenderFlow);
-    const isRenderStage = js.isChildClassOf(baseClass, legacyCC.RenderStage);
-
-    const isRender = isRenderPipeline || isRenderFlow || isRenderStage || false;
-
-    if (isRender) {
-        let renderName = '';
-        if (isRenderPipeline) {
-            renderName = 'render_pipeline';
-        } else if (isRenderFlow) {
-            renderName = 'render_flow';
-        } else if (isRenderStage) {
-            renderName = 'render_stage';
-        }
-
-        if (renderName) {
-            js._setClassId(className, cls);
-            if (EDITOR) {
-                // 增加了 hidden: 开头标识，使它最终不会显示在 Editor inspector 的添加组件列表里
-                // @ts-ignore
-                // tslint:disable-next-line:no-unused-expression
-                window.EditorExtends && window.EditorExtends.Component.addMenu(cls, `hidden:${renderName}/${className}`, -1);
-            }
-        }
-    }
-
     if (EDITOR) {
+        // for RenderPipeline, RenderFlow, RenderStage
+        const isRenderPipeline = js.isChildClassOf(baseClass, legacyCC.RenderPipeline);
+        const isRenderFlow = js.isChildClassOf(baseClass, legacyCC.RenderFlow);
+        const isRenderStage = js.isChildClassOf(baseClass, legacyCC.RenderStage);
+        const isRender = isRenderPipeline || isRenderFlow || isRenderStage;
+        if (isRender) {
+            let renderName = '';
+            if (isRenderPipeline) {
+                renderName = 'render_pipeline';
+            } else if (isRenderFlow) {
+                renderName = 'render_flow';
+            } else if (isRenderStage) {
+                renderName = 'render_stage';
+            }
+            // 增加了 hidden: 开头标识，使它最终不会显示在 Editor inspector 的添加组件列表里
+            // @ts-ignore
+            // tslint:disable-next-line:no-unused-expression
+            window.EditorExtends && window.EditorExtends.Component.addMenu(cls, `hidden:${renderName}/${className}`, -1);
+        }
+
         // Note: `options.ctor` should be same as `cls` except if
         // cc-class is defined by `cc.Class({/* ... */})`.
         // In such case, `options.ctor` may be `undefined`.

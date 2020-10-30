@@ -47,7 +47,7 @@ CCEffect %{
       phase: shadow-caster
       propertyIndex: 0
       rasterizerState:
-        cullMode: back
+        cullMode: front
   - name: transparent
     passes:
     - vert: standard-vs:vert
