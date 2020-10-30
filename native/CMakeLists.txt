@@ -54,19 +54,55 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+################################# engine source code ##################################
+
+set(CWD ${CMAKE_CURRENT_LIST_DIR})
+set(COCOS2D_SOURCE_LIST)
+
+macro(cocos_source_files)
+    set(list_var "${ARGN}")
+    foreach(src IN LISTS list_var)
+        set(fp "${CWD}/${src}")
+        if(EXISTS ${fp})
+            list(APPEND COCOS2D_SOURCE_LIST "${CWD}/${src}")
+        else()
+            message(FATAL_ERROR "Cocos souce file not exists: ${src} in ${CWD}")
+        endif()
+    endforeach()
+endmacro()
+
+################################# set_if_undefined ###################################
+
+macro(set_if_undefined varname value)
+    if(NOT DEFINED ${varname})
+        set(${varname} ${value})
+    endif()
+endmacro()
+
+################################# inspect_values ###################################
+
+function(inspect_values)
+    set(list_var "${ARGN}")
+    foreach(src IN LISTS list_var)
+        set(opv ${${src}})
+        message(STATUS "OPTION ${src}:\t${opv}")
+    endforeach()
+endfunction()
+
+
 ################################# options ############################################
 
-set(CC_USE_METAL OFF)
-set(CC_USE_GLES3 ON)
-set(CC_USE_GLES2 OFF)
+set_if_undefined(CC_USE_METAL OFF)
+set_if_undefined(CC_USE_GLES3 ON)
+set_if_undefined(CC_USE_GLES2 OFF)
 
 if(ANDROID OR WINDOWS)
-    set(CC_USE_VULKAN ON)
-    set(CC_USE_GLES3 ON)
-    set(CC_USE_GLES2 ON)
+    set_if_undefined(CC_USE_VULKAN ON)
+    set_if_undefined(CC_USE_GLES3 ON)
+    set_if_undefined(CC_USE_GLES2 ON)
 elseif(MACOSX)
-    set(CC_USE_METAL ON)
-    set(CC_USE_GLES3 OFF)
+    set_if_undefined(CC_USE_METAL ON)
+    set_if_undefined(CC_USE_GLES3 OFF)
 endif()
 
 if(USE_SE_JSC)
@@ -84,6 +120,27 @@ if(NOT ANDROID AND NOT IOS)
     set(USE_WEBVIEW OFF)
 endif()
 
+################################# list all option values ##############################
+
+inspect_values(
+    CC_USE_METAL
+    CC_USE_GLES3
+    CC_USE_GLES2
+    USE_SE_V8
+    USE_V8_DEBUGGER
+    USE_SOCKET
+    USE_AUDIO
+    USE_EDIT_BOX
+    USE_SE_JSC
+    USE_VIDEO
+    USE_WEBVIEW
+    USE_DRAGONBONES
+    USE_SPINE
+    USE_WEBSOCKET_SERVER 
+    USE_SE_V8
+    USE_V8_DEBUGGER
+)
+
 ################################# external source code ################################
 
 
@@ -92,23 +149,6 @@ if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt)
 endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt)
-
-################################# engine source code ##################################
-
-set(CWD ${CMAKE_CURRENT_LIST_DIR})
-set(COCOS2D_SOURCE_LIST)
-
-macro(cocos_source_files)
-    set(list_var "${ARGN}")
-    foreach(src IN LISTS list_var)
-        set(fp "${CWD}/${src}")
-        if(EXISTS ${fp})
-            list(APPEND COCOS2D_SOURCE_LIST "${CWD}/${src}")
-        else()
-            message(FATAL_ERROR "Cocos souce file not exists: ${src} in ${CWD}")
-        endif()
-    endforeach()
-endmacro()
 
 
 cocos_source_files(
