@@ -273,7 +273,7 @@ export const ttfUtils =  {
         const lineHeight = this._getLineHeight();
         // use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
-        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a / 255})`;
+        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, 1)`;
         let drawTextPosX = _startPosition.x;
         let drawTextPosY = 0;
         // draw shadow and underline
