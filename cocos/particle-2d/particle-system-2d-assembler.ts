@@ -24,9 +24,10 @@
  ****************************************************************************/
 
 import { IAssembler, IAssemblerManager } from '../core/renderer/ui/base';
-import { PositionType, ParticleSystem2D } from './particle-system-2d';
+import { ParticleSystem2D } from './particle-system-2d';
 import { MeshRenderData } from '../core/renderer/ui/render-data';
 import { UI } from '../core/renderer/ui/ui';
+import { PositionType } from './define';
 
 export const ParticleAssembler: IAssembler = {
     renderData: MeshRenderData,
