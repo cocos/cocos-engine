@@ -1,6 +1,6 @@
 import { IRigidBody } from "../spec/i-rigid-body";
 import { IVec3Like } from "../../core";
-import { RigidBody, PhysicsSystem } from "../framework";
+import { RigidBody, PhysicsSystem, ERigidBodyType } from "../framework";
 import { BuiltinSharedBody } from "./builtin-shared-body";
 import { BuiltInWorld } from "./builtin-world";
 
@@ -37,11 +37,10 @@ export class BuiltinRigidBody implements IRigidBody {
     }
 
     setMass (v: number) { }
+    setType (v: ERigidBodyType) { }
     setLinearDamping (v: number) { }
     setAngularDamping (v: number) { }
-    setIsKinematic (v: boolean) { }
     useGravity (v: boolean) { }
-    fixRotation (v: boolean) { }
     setLinearFactor (v: IVec3Like) { }
     setAngularFactor (v: IVec3Like) { }
     setAllowSleep (v: boolean) { }

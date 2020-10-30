@@ -10,6 +10,7 @@ export enum ERigidBodyType {
     STATIC = 2,
     KINEMATIC = 4,
 }
+Enum(ERigidBodyType);
 
 export enum EAxisDirection {
     X_AXIS,
