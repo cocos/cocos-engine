@@ -973,9 +973,9 @@ const macro = {
      * 同时，在少部分使用软件级别抗锯齿算法的设备或浏览器上，这个选项会对性能产生比较大的影响。
      * 你可以在 {{game.init}} 之前设置这个值，否则它不会生效。
      * 仅支持 Web
-     * @default false
+     * @default true
      */
-    ENABLE_WEBGL_ANTIALIAS: false,
+    ENABLE_WEBGL_ANTIALIAS: true,
 
     /**
      * @en
