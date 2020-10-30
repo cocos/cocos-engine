@@ -103,8 +103,8 @@ export class UIStage extends RenderStage {
         const camera = view.camera!;
         const vp = camera.viewport;
         // render area is not oriented
-        const w = device.surfaceTransform % 2 ? camera.height : camera.width;
-        const h = device.surfaceTransform % 2 ? camera.width : camera.height;
+        const w = view.window.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.height : camera.width;
+        const h = view.window.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.width : camera.height;
         this._renderArea!.x = vp.x * w;
         this._renderArea!.y = vp.y * h;
         this._renderArea!.width = vp.width * w;
