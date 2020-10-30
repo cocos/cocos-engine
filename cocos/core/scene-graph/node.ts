@@ -562,11 +562,23 @@ export class Node extends BaseNode {
      */
     public setPosition (x: number, y: number, z: number): void;
 
-    public setPosition (val: Vec3 | number, y?: number, z?: number) {
-        if (y === undefined || z === undefined) {
+    
+    /**
+     * @en Set position in local coordinate system
+     * @zh 设置本地坐标
+     * @param x X axis position
+     * @param y Y axis position
+     */
+    public setPosition (x: number, y: number): void;
+
+
+    public setPosition (val: Vec3 | number, y?: number, z?: number): void {
+        if (y === undefined && z === undefined) {
             Vec3.copy(this._lpos, val as Vec3);
+        } else if( z === undefined) {
+            Vec3.set(this._lpos, val as number, y!, this._lpos.z);
         } else {
-            Vec3.set(this._lpos, val as number, y, z);
+            Vec3.set(this._lpos, val as number, y!, z);
         }
 
         this.invalidateChildren(TransformBit.POSITION);
@@ -627,7 +639,8 @@ export class Node extends BaseNode {
      * @param y Y axis rotation
      * @param z Z axis rotation
      */
-    public setRotationFromEuler (x: number, y: number, z: number): void {
+    public setRotationFromEuler (x: number, y: number, z?: number): void {
+        if(z === undefined) z = this._euler.z;
         Vec3.set(this._euler, x, y, z);
         Quat.fromEuler(this._lrot, x, y, z);
         this._eulerDirty = false;
@@ -666,11 +679,13 @@ export class Node extends BaseNode {
      * @param y Y axis scale
      * @param z Z axis scale
      */
-    public setScale (x: number, y: number, z: number): void;
+    public setScale (x: number, y: number, z?: number): void;
 
     public setScale (val: Vec3 | number, y?: number, z?: number) {
         if (y === undefined || z === undefined) {
             Vec3.copy(this._lscale, val as Vec3);
+        } else if( z === undefined) {
+            Vec3.set(this._lscale, val as number, y, this._lscale.z);
         } else {
             Vec3.set(this._lscale, val as number, y, z);
         }

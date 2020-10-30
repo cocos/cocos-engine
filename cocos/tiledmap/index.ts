@@ -1,5 +1,5 @@
-/*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+/****************************************************************************
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -21,16 +21,11 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-*/
+ ****************************************************************************/
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
-import './utils';
-export * from './graphics';
-export * from './label';
-export * from './mask';
-export * from './sprite';
-export * from '../../core/renderer/ui/base';
+export * from './tiled-map';
+export * from './tiled-map-asset';
+export * from './tiled-layer';
+export * from './tiled-object-group';
+export * from './tiled-tile';
+export * from './assembler';

@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -25,12 +25,24 @@
 
 /**
  * @packageDocumentation
- * @module ui
+ * @hidden
  */
 
-import './utils';
-export * from './graphics';
-export * from './label';
-export * from './mask';
-export * from './sprite';
-export * from '../../core/renderer/ui/base';
+import { IAssemblerManager } from '../../core/renderer/ui/base';
+import { TiledLayer } from '../tiled-layer';
+import { simple } from './simple';
+
+
+// Inline all type switch to avoid jit deoptimization during inlined function change
+
+const tiledLayerAssembler: IAssemblerManager = {
+    getAssembler () {
+        return simple;
+    },
+};
+
+TiledLayer.Assembler = tiledLayerAssembler;
+
+export {
+    tiledLayerAssembler
+};
