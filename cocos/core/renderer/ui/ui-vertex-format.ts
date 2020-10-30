@@ -31,6 +31,10 @@ import { GFXAttributeName, GFXFormat, GFXFormatInfos } from '../../gfx/define';
 
 export const vfmt = [
     new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),
+]
+
+export const vfmtPosColor = [
+    new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),
     new GFXAttribute(GFXAttributeName.ATTR_COLOR, GFXFormat.RGBA32F),
 ];
 

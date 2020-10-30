@@ -8,7 +8,7 @@ import { Eventify } from '../../../../core/event';
 import { Vec3 } from '../../../../core/math';
 import { CollisionEventType, TriggerEventType } from '../../physics-interface';
 import { RigidBody } from '../rigid-body';
-import { PhysicMaterial } from '../../assets/physic-material';
+import { PhysicsMaterial } from '../../assets/physics-material';
 import { PhysicsSystem } from '../../physics-system';
 import { Component, error, Node } from '../../../../core';
 import { IBaseShape } from '../../../spec/i-physics-shape';
@@ -52,7 +52,7 @@ export class Collider extends Eventify(Component) {
      * @zh
      * 获取或设置此碰撞器的物理材质。
      */
-    @type(PhysicMaterial)
+    @type(PhysicsMaterial)
     @displayName('Material')
     @displayOrder(-1)
     @tooltip('源材质')
@@ -185,8 +185,8 @@ export class Collider extends Eventify(Component) {
     protected _needCollisionEvent: boolean = false;
     // protected _attachedRigidBody: RigidBody | null = null;
 
-    @type(PhysicMaterial)
-    protected _material: PhysicMaterial | null = null;
+    @type(PhysicsMaterial)
+    protected _material: PhysicsMaterial | null = null;
 
     @serializable
     protected _isTrigger: boolean = false;
@@ -198,13 +198,6 @@ export class Collider extends Eventify(Component) {
         const r = this._isOnLoadCalled == 0;
         if (r) { error('[Physics]: Please make sure that the node has been added to the scene'); }
         return !r;
-    }
-
-    protected get _assertUseCollisionMatrix (): boolean {
-        if (PhysicsSystem.instance.useCollisionMatrix) {
-            error('[Physics]: useCollisionMatrix is turn on, using collision matrix instead please.');
-        }
-        return PhysicsSystem.instance.useCollisionMatrix;
     }
 
     constructor (type: EColliderType) {
@@ -296,17 +289,7 @@ export class Collider extends Eventify(Component) {
      */
     public setGroup (v: number): void {
         if (this._assertOnLoadCalled) {
-            if (PhysicsSystem.instance.useCollisionMatrix) {
-                const body = this._shape!.attachedRigidBody;
-                if (body) {
-                    body.group = v;
-                } else {
-                    this._shape!.setGroup(v);
-                    this._updateMask();
-                }
-            } else {
-                this._shape!.setGroup(v);
-            }
+            this._shape!.setGroup(v);
         }
     }
 
@@ -319,17 +302,7 @@ export class Collider extends Eventify(Component) {
      */
     public addGroup (v: number) {
         if (this._assertOnLoadCalled) {
-            if (!this._assertUseCollisionMatrix) {
-                this._shape!.addGroup(v);
-            } else {
-                const body = this._shape!.attachedRigidBody;
-                if (body) {
-                    body.group |= v;
-                } else {
-                    this._shape!.addGroup(v);
-                    this._updateMask();
-                }
-            }
+            this._shape!.addGroup(v);
         }
     }
 
@@ -342,17 +315,7 @@ export class Collider extends Eventify(Component) {
      */
     public removeGroup (v: number) {
         if (this._assertOnLoadCalled) {
-            if (!this._assertUseCollisionMatrix) {
-                this._shape!.removeGroup(v);
-            } else {
-                const body = this._shape!.attachedRigidBody;
-                if (body) {
-                    body.group &= ~v;
-                } else {
-                    this._shape!.removeGroup(v);
-                    this._updateMask();
-                }
-            }
+            this._shape!.removeGroup(v);
         }
     }
 
@@ -378,7 +341,7 @@ export class Collider extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public setMask (v: number) {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+        if (this._assertOnLoadCalled) {
             this._shape!.setMask(v);
         }
     }
@@ -391,7 +354,7 @@ export class Collider extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addMask (v: number) {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+        if (this._assertOnLoadCalled) {
             this._shape!.addMask(v);
         }
     }
@@ -404,7 +367,7 @@ export class Collider extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeMask (v: number) {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+        if (this._assertOnLoadCalled) {
             this._shape!.removeMask(v);
         }
     }
@@ -465,10 +428,6 @@ export class Collider extends Eventify(Component) {
                 }
             }
         }
-    }
-
-    private _updateMask () {
-        this._shape!.setMask(PhysicsSystem.instance.collisionMatrix[this._shape!.getGroup()]);
     }
 }
 

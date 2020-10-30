@@ -33,7 +33,7 @@ import { builtinResMgr } from '../../3d/builtin/init';
 import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
 import { TextureBase } from '../../assets/texture-base';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
-import { RenderPassStage, RenderPriority, SetIndex } from '../../pipeline/define';
+import { RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
@@ -149,8 +149,12 @@ export class Pass {
             if (bsInfo.isIndepend !== undefined) { bs.isIndepend = bsInfo.isIndepend; }
             if (bsInfo.blendColor !== undefined) { Object.assign(bs.blendColor, bsInfo.blendColor); }
         }
-        Object.assign(RasterizerStatePool.get(PassPool.get(hPass, PassView.RASTERIZER_STATE)), info.rasterizerState);
-        Object.assign(DepthStencilStatePool.get(PassPool.get(hPass, PassView.DEPTH_STENCIL_STATE)), info.depthStencilState);
+        if (info.rasterizerState) {
+            RasterizerStatePool.get(PassPool.get(hPass, PassView.RASTERIZER_STATE)).set(info.rasterizerState);
+        }
+        if (info.depthStencilState) {
+            DepthStencilStatePool.get(PassPool.get(hPass, PassView.DEPTH_STENCIL_STATE)).set(info.depthStencilState);
+        }
     }
 
     /**

@@ -6,7 +6,7 @@ import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, Node, game, CCOb
 import { PHYSICS_2D_PTM_RATIO, ERaycast2DType } from '../framework/physics-types';
 import { ERigidBody2DType } from '../framework/physics-types';
 import { array } from '../../core/utils/js';
-import { CanvasComponent, GraphicsComponent } from '../../../exports/ui';
+import { Canvas, Graphics } from '../../../exports/ui';
 
 import { b2RigidBody2D } from './rigid-body';
 import { PhysicsContactListener } from './platform/physics-contact-listener';
@@ -55,7 +55,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         this._raycastQueryCallback = new PhysicsRayCastCallback();
     }
 
-    _debugGraphics: GraphicsComponent | null = null;
+    _debugGraphics: Graphics | null = null;
     _b2DebugDrawer: b2.Draw | null = null;
 
     _debugDrawFlags = 0;
@@ -84,14 +84,14 @@ export class b2PhysicsWorld implements IPhysicsWorld {
             let canvas = find('Canvas');
             if (!canvas) {
                 canvas = new Node('Canvas');
-                canvas.addComponent(CanvasComponent);
+                canvas.addComponent(Canvas);
                 canvas.parent = director.getScene() as any;
             }
 
             node.parent = canvas;
             node.worldPosition = Vec3.ZERO;
 
-            this._debugGraphics = node.addComponent(GraphicsComponent);
+            this._debugGraphics = node.addComponent(Graphics);
             this._debugGraphics.lineWidth = 2;
 
             let debugDraw = new PhysicsDebugDraw(this._debugGraphics);

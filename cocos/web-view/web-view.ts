@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -180,17 +180,17 @@ export class WebView extends Component {
 
     onLoading () {
         ComponentEventHandler.emitEvents(this.webviewEvents, this, EventType.LOADING);
-        this.node.emit('loading', this);
+        this.node.emit(EventType.LOADING, this);
     }
 
     onLoaded () {
         ComponentEventHandler.emitEvents(this.webviewEvents, this, EventType.LOADED);
-        this.node.emit('loaded', this);
+        this.node.emit(EventType.LOADED, this);
     }
 
     onError () {
         ComponentEventHandler.emitEvents(this.webviewEvents, this, EventType.ERROR);
-        this.node.emit('error', this);
+        this.node.emit(EventType.ERROR, this);
     }
 
     public onEnable () {

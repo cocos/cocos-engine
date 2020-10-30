@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -83,12 +83,9 @@ export class PassInstance extends Pass {
      * @param value The override pipeline state info
      */
     public overridePipelineStates (original: IPassInfo, overrides: PassOverrides): void {
-        BlendStatePool.free(PassPool.get(this._handle, PassView.BLEND_STATE));
-        RasterizerStatePool.free(PassPool.get(this._handle, PassView.RASTERIZER_STATE));
-        DepthStencilStatePool.free(PassPool.get(this._handle, PassView.DEPTH_STENCIL_STATE));
-        PassPool.set(this._handle, PassView.BLEND_STATE, BlendStatePool.alloc());
-        PassPool.set(this._handle, PassView.RASTERIZER_STATE, RasterizerStatePool.alloc());
-        PassPool.set(this._handle, PassView.DEPTH_STENCIL_STATE, DepthStencilStatePool.alloc());
+        BlendStatePool.get(PassPool.get(this._handle, PassView.BLEND_STATE)).reset();
+        RasterizerStatePool.get(PassPool.get(this._handle, PassView.RASTERIZER_STATE)).reset();
+        DepthStencilStatePool.get(PassPool.get(this._handle, PassView.DEPTH_STENCIL_STATE)).reset();
 
         Pass.fillPipelineInfo(this._handle, original);
         Pass.fillPipelineInfo(this._handle, overrides);

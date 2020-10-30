@@ -158,10 +158,13 @@ export class ForwardStage extends RenderStage {
 
         const camera = view.camera;
         const vp = camera.viewport;
-        this._renderArea!.x = vp.x * camera.width;
-        this._renderArea!.y = vp.y * camera.height;
-        this._renderArea!.width = vp.width * camera.width * pipeline.shadingScale;
-        this._renderArea!.height = vp.height * camera.height * pipeline.shadingScale;
+        // render area is not oriented
+        const w = device.surfaceTransform % 2 ? camera.height : camera.width;
+        const h = device.surfaceTransform % 2 ? camera.width : camera.height;
+        this._renderArea!.x = vp.x * w;
+        this._renderArea!.y = vp.y * h;
+        this._renderArea!.width = vp.width * w * pipeline.shadingScale;
+        this._renderArea!.height = vp.height * h * pipeline.shadingScale;
 
         if (camera.clearFlag & GFXClearFlag.COLOR) {
             if (pipeline.isHDR) {

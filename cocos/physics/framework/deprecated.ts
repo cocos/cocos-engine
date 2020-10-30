@@ -4,7 +4,7 @@
  */
 
 import { PhysicsSystem } from "./physics-system";
-import { replaceProperty, removeProperty } from "../../core/utils/deprecated";
+import { replaceProperty, removeProperty } from "../../core/utils/x-deprecated";
 import { BoxCollider } from "./components/colliders/box-collider";
 import { SphereCollider } from "./components/colliders/sphere-collider";
 import { CapsuleCollider } from "./components/colliders/capsule-collider";
@@ -14,6 +14,7 @@ import { RigidBody } from "./components/rigid-body";
 import { Collider } from "./components/colliders/collider";
 import { js } from "../../core/utils/js";
 import { legacyCC } from '../../core/global-exports';
+import { PhysicsMaterial } from "./assets/physics-material";
 
 replaceProperty(PhysicsSystem, 'PhysicsSystem', [
     {
@@ -36,6 +37,21 @@ replaceProperty(PhysicsSystem.prototype, 'PhysicsSystem.prototype', [
 removeProperty(PhysicsSystem.prototype, 'PhysicsSystem.prototype', [
     {
         "name": "useFixedTime"
+    },
+    {
+        "name": "useCollisionMatrix"
+    },
+    {
+        "name": "updateCollisionMatrix"
+    },
+    {
+        "name": "resetCollisionMatrix"
+    },
+    {
+        "name": "isCollisionGroup"
+    },
+    {
+        "name": "setCollisionGroup"
     }
 ]);
 
@@ -120,3 +136,10 @@ js.setClassAlias(MeshCollider, 'cc.MeshColliderComponent');
  */
 export { CylinderCollider as CylinderColliderComponent };
 js.setClassAlias(CylinderCollider, 'cc.CylinderColliderComponent');
+/**
+ * Alias of [[PhysicsMaterial]]
+ * @deprecated Since v1.2
+ */
+export { PhysicsMaterial as PhysicMaterial };
+legacyCC.PhysicMaterial = PhysicsMaterial;
+js.setClassAlias(PhysicsMaterial, 'cc.PhysicMaterial');

@@ -1,6 +1,6 @@
 {
   "name": "@cocos/build-engine",
-  "version": "4.0.0-jsb.alpha.10",
+  "version": "4.0.0-jsb.alpha.13",
   "description": "",
   "main": "dist/index.js",
   "dependencies": {
@@ -8,7 +8,7 @@
     "@babel/plugin-transform-classes": "^7.8.6",
     "@babel/plugin-transform-for-of": "^7.9.0",
     "@babel/preset-env": "^7.8.7",
-    "@cocos/babel-preset-cc": "2.0.0",
+    "@cocos/babel-preset-cc": "2.2.0",
     "@rollup/plugin-babel": "^5.0.3",
     "@rollup/plugin-commonjs": "^11.0.2",
     "@rollup/plugin-json": "^4.0.2",
@@ -20,6 +20,7 @@
     "rollup": "2.26.6",
     "rollup-plugin-progress": "^1.1.1",
     "rollup-plugin-terser": "^5.2.0",
+    "semver": "^7.3.2",
     "yargs": "^15.1.0"
   },
   "devDependencies": {
@@ -29,6 +30,7 @@
     "@types/json5": "0.0.30",
     "@types/node": "^13.1.7",
     "@types/resolve": "^1.17.1",
+    "@types/semver": "^7.3.4",
     "@types/yargs": "^15.0.4",
     "rollup-plugin-visualizer": "^4.0.4"
   },

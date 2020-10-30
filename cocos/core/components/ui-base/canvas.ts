@@ -32,10 +32,9 @@
 import { Camera } from '../../3d/framework/camera-component';
 import { RenderTexture } from '../../assets/render-texture';
 import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, serializable } from 'cc.decorator';
-import { director, Director } from '../../director';
 import { game } from '../../game';
 import { GFXClearFlag } from '../../gfx/define';
-import { Color, Vec3, Rect } from '../../math';
+import { Color, Vec3, Rect, Size } from '../../math';
 import { view } from '../../platform/view';
 import visibleRect from '../../platform/visible-rect';
 import { scene } from '../../renderer';
@@ -46,7 +45,7 @@ import { UITransform } from './ui-transform';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../../renderer/core/render-window';
-import { SystemEventType } from "../../platform/event-manager";
+import { SystemEventType } from '../../platform/event-manager';
 
 const _worldPos = new Vec3();
 
@@ -167,8 +166,8 @@ export class Canvas extends Component {
             this._camera.priority = this._getViewPriority();
         }
 
-        if (director.root && director.root.ui){
-            director.root.ui.sortScreens();
+        if (legacyCC.director.root && legacyCC.director.root.ui){
+            legacyCC.director.root.ui.sortScreens();
         }
     }
 
@@ -237,7 +236,7 @@ export class Canvas extends Component {
 
         if (EDITOR) {
             this._fitDesignResolution = () => {
-                let nodeSize, designSize;
+                let nodeSize: Size; let designSize: Size;
                 this.node.getPosition(this._pos);
                 nodeSize = designSize = view.getDesignResolutionSize();
                 Vec3.set(_worldPos, designSize.width * 0.5, designSize.height * 0.5, 1);
@@ -260,7 +259,7 @@ export class Canvas extends Component {
         const cameraNode = new Node('UICamera_' + this.node.name);
         cameraNode.setPosition(0, 0, 1000);
         if (!EDITOR) {
-            this._camera = director.root!.createCamera();
+            this._camera = legacyCC.director.root!.createCamera() as scene.Camera;
             this._camera.initialize({
                 name: 'ui_' + this.node.name,
                 node: cameraNode,
@@ -280,7 +279,7 @@ export class Canvas extends Component {
         }
 
         if (EDITOR) {
-            director.on(Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
+            legacyCC.director.on(legacyCC.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
 
             // In Editor can not edit these attrs.
             // (Position in Node, contentSize in uiTransform)
@@ -290,29 +289,29 @@ export class Canvas extends Component {
 
         this.node.on(SystemEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
 
-        director.root!.ui.addScreen(this);
+        legacyCC.director.root!.ui.addScreen(this);
     }
 
     public onEnable () {
         if (this._camera) {
-            director.root!.ui.renderScene.addCamera(this._camera);
+            legacyCC.director.root!.ui.renderScene.addCamera(this._camera);
         }
     }
 
     public onDisable () {
         if (this._camera) {
-            director.root!.ui.renderScene.removeCamera(this._camera);
+            legacyCC.director.root!.ui.renderScene.removeCamera(this._camera);
         }
     }
 
     public onDestroy () {
-        director.root!.ui.removeScreen(this);
+        legacyCC.director.root!.ui.removeScreen(this);
         if (this._camera) {
-            director.root!.destroyCamera(this._camera);
+            legacyCC.director.root!.destroyCamera(this._camera);
         }
 
         if (EDITOR) {
-            director.off(Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
+            legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
         }
 
         if (this._targetTexture) {
@@ -326,7 +325,7 @@ export class Canvas extends Component {
         const camera = this._camera;
         if (camera) {
             if (this._targetTexture) {
-                let win = this._targetTexture.window;
+                const win = this._targetTexture.window;
                 camera.setFixedSize(win!.width, win!.height);
                 camera.orthoHeight = visibleRect.height / 2;
             } else {

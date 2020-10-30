@@ -16,7 +16,7 @@
       "paths": {
           "cc.decorator": [
               "cocos/core/data/decorators/index.ts"
-          ],
+          ]
       },
       "types": [
         "./@types/globals",

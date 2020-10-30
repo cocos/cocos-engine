@@ -2,7 +2,7 @@
 /*
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -33,20 +33,20 @@ export enum EventType {
      * @en None
      * @zh 无
      */
-    NONE,
+    NONE = 'none',
     /**
      * @en Web page Load completed.
      * @zh 网页加载完成
      */
-    LOADING,
+    LOADING = 'loading',
     /**
      * @en Web page is loading.
      * @zh 网页加载中
      */
-    LOADED,
+    LOADED = 'loaded',
     /**
      * @en Web page error occurs when loading.
      * @zh 网页加载出错
      */
-    ERROR,
+    ERROR = 'error',
 }

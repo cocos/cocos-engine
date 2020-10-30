@@ -32,6 +32,7 @@
 import { errorID } from "../platform/debug";
 import { js } from "../utils/js";
 import { Texture2D } from "../assets/texture-2d";
+import { packCustomObjData } from '../data/deserialize';
 
 export class JsonUnpacker {
     public jsons = {};
@@ -74,13 +75,10 @@ export class TextureUnpacker {
         }
     }
 
-    retrieve (key) {
+    retrieve (key): any {
         let content = this.contents[key];
         if (content) {
-            return {
-                __type__: js._getClassId(Texture2D),
-                content: content
-            };
+            return packCustomObjData(js._getClassId(Texture2D), content);
         }
         else {
             return null;

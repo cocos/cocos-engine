@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -32,7 +32,7 @@ import { SubModel } from '../scene/submodel';
 import { UIDrawBatch } from './ui-draw-batch';
 import { Pass } from '../core/pass';
 import { SubModelPool, InputAssemblerHandle, DescriptorSetHandle, SubModelView, IAPool, DSPool, NULL_HANDLE,
-    SubModelArrayPool, ModelView, ModelPool, SubModelArrayHandle } from '../core/memory-pools';
+    SubModelArrayPool, ModelView, ModelPool } from '../core/memory-pools';
 import { RenderPriority } from '../../pipeline/define';
 
 export class UIBatchModel extends Model {

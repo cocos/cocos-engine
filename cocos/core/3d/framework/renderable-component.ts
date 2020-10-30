@@ -6,7 +6,7 @@
 import { EDITOR } from 'internal:constants';
 import { Material } from '../../assets/material';
 import { Component } from '../../components/component';
-import { ccclass, type, visible, displayName, serializable } from 'cc.decorator';
+import { ccclass, type, displayOrder, displayName, serializable } from 'cc.decorator';
 import { IMaterialInstanceInfo, MaterialInstance } from '../../renderer/core/material-instance';
 import { scene } from '../../renderer';
 import { Layers } from '../../scene-graph/layers';
@@ -36,6 +36,7 @@ export class RenderableComponent extends Component {
     }
 
     @type(Material)
+    @displayOrder(0)
     @displayName('Materials')
     get sharedMaterials () {
         // if we don't create an array copy, the editor will modify the original array directly.

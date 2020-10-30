@@ -329,6 +329,7 @@ export default class ParticleBatchModel extends scene.Model {
         this._vdataF32 = null;
         this.destroySubMeshData();
         this._iaInfoBuffer.destroy();
+        this._iaInfoBufferReady = false;
     }
 
     private rebuild () {
@@ -341,7 +342,6 @@ export default class ParticleBatchModel extends scene.Model {
         if (this._subMeshData) {
             this._subMeshData.destroy();
             this._subMeshData = null;
-            this._iaInfoBufferReady = false;
         }
     }
 }

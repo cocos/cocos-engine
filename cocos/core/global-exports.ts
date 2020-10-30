@@ -182,3 +182,5 @@ const engineVersion = '3.0.0';
 _global.CocosEngine = legacyCC.ENGINE_VERSION = engineVersion;
 
 _global.cc = legacyCC;
+
+export { engineVersion as VERSION };
