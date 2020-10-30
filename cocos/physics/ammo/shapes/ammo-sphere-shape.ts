@@ -25,11 +25,10 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
 
     constructor () {
         super(AmmoBroadphaseNativeTypes.SPHERE_SHAPE_PROXYTYPE);
-        this._btShape = new Ammo.btSphereShape(0.5);
     }
 
     onComponentSet () {
-        this.setRadius(this.collider.radius);
+        this._btShape = new Ammo.btSphereShape(this.collider.radius);
         this.setScale();
     }
 
