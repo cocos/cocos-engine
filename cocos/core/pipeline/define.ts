@@ -117,6 +117,7 @@ export enum ModelLocalBindings {
     SAMPLER_MORPH_TANGENT,
     SAMPLER_LIGHTMAP,
     SAMPLER_SPRITE,
+    UBO_DEFERRED_LIGHTS,
 
     COUNT,
 }
@@ -326,6 +327,23 @@ export class UBOForwardLight {
 }
 localDescriptorSetLayout.layouts[UBOForwardLight.NAME] = UBOForwardLight.LAYOUT;
 localDescriptorSetLayout.bindings[UBOForwardLight.BINDING] = UBOForwardLight.DESCRIPTOR;
+
+export class UBODeferredLight {
+    public static readonly LIGHTS_PER_PASS = 20;
+
+    public static readonly NAME = 'CCDeferredLight';
+    public static readonly BINDING = ModelLocalBindings.UBO_DEFERRED_LIGHTS;
+    public static readonly DESCRIPTOR = new GFXDescriptorSetLayoutBinding(GFXDescriptorType.DYNAMIC_UNIFORM_BUFFER, 1, GFXShaderStageFlagBit.FRAGMENT);
+    public static readonly LAYOUT = new GFXUniformBlock(SetIndex.LOCAL, UBODeferredLight.BINDING, UBODeferredLight.NAME, [
+        new GFXUniform('cc_lightPos', GFXType.FLOAT4, UBODeferredLight.LIGHTS_PER_PASS),
+        new GFXUniform('cc_lightColor', GFXType.FLOAT4, UBODeferredLight.LIGHTS_PER_PASS),
+        new GFXUniform('cc_lightSizeRangeAngle', GFXType.FLOAT4, UBODeferredLight.LIGHTS_PER_PASS),
+        new GFXUniform('cc_lightDir', GFXType.FLOAT4, UBODeferredLight.LIGHTS_PER_PASS),
+        new GFXUniform('cc_lightCnt', GFXType.FLOAT4, 1),
+    ], 1);
+}
+localDescriptorSetLayout.layouts[UBODeferredLight.NAME] = UBODeferredLight.LAYOUT;
+localDescriptorSetLayout.bindings[UBODeferredLight.BINDING] = UBODeferredLight.DESCRIPTOR;
 
 // The actual uniform vectors used is JointUniformCapacity * 3.
 // We think this is a reasonable default capacity considering MAX_VERTEX_UNIFORM_VECTORS in WebGL spec is just 128.

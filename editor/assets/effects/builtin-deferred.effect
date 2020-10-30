@@ -43,6 +43,7 @@ CCEffect %{
     - vert: lighting-vs
       frag: lighting-fs
       phase: deferred-lighting
+      embeddedMacros: { CC_FORWARD_ADD: true, USE_HW_PIPELINE: true}
       propertyIndex: 0
       blendState:
         targets:
@@ -287,6 +288,7 @@ CCProgram lighting-fs %{
   #include <output-standard>
   #include <gamma>
   #include <cc-fog>
+  #include <shading-deferred>
 
   in vec2 v_uv;
 
@@ -319,7 +321,8 @@ CCProgram lighting-fs %{
     s.emissive = emissiveMap.xyz;
     s.occlusion = emissiveMap.w;
 
-    vec4 color = CCStandardShading(s);
+    //vec4 color = CCStandardShading(s);
+    vec4 color = CCDeferredShading(s);
     float fog_factor = CC_TRANSFER_FOG(vec4(s.position,1)); 
     color = CC_APPLY_FOG(color, fog_factor);
     fragColor0 = CCFragOutput(color);

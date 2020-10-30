@@ -3,7 +3,7 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { IRenderPass, SetIndex } from '../define';
+import { IRenderPass, localDescriptorSetLayout, UBODeferredLight, SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
 import { GFXClearFlag, GFXColor, GFXRect } from '../../gfx/define';
@@ -20,10 +20,27 @@ import { Material } from '../../assets/material';
 import { ShaderPool } from '../../renderer/core/memory-pools';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
-
+import { Light } from "../../renderer/scene/light";
+import { sphere, intersect } from '../../geometry';
+import { color, Vec2, Vec3, Vec4 } from '../../math';
+import { LightComponent } from '../../3d';
+import { GFXDevice, GFXRenderPass, GFXBuffer, GFXBufferUsageBit, GFXMemoryUsageBit, GFXBufferInfo, GFXBufferViewInfo, GFXDescriptorSet, GFXDescriptorSetLayoutInfo, GFXDescriptorSetLayout, GFXDescriptorSetInfo } from '../../gfx';
+import { RenderPipeline } from '../render-pipeline';
+import { IRenderObject, UBOForwardLight } from '../define';
 
 const colors: GFXColor[] = [ new GFXColor(0, 0, 0, 1) ];
 const LIGHTINGPASS_INDEX = 1;
+
+//interface LightInfo {
+//    _pos: Vec4[];
+//    _color: Vec4[];
+//    _lightSizeRangeAngle: Vec4[];
+//    _lightDir: Vec4[];
+//};
+
+//interface LightBufferInfo {
+//    _lightInfo: LightInfo[];
+//};
 
 /**
  * @en The lighting render stage
@@ -50,7 +67,6 @@ export class LightingStage extends RenderStage {
         ]
     };
 
-
     @type([RenderQueueDesc])
     @serializable
     @displayOrder(2)
@@ -73,7 +89,7 @@ export class LightingStage extends RenderStage {
 
         this._deferredMaterial = val;
     }
-
+    
     constructor () {
         super();
     }
@@ -86,8 +102,129 @@ export class LightingStage extends RenderStage {
         return true;
     }
 
+    //private _lightInfos: LightInfo = null!;
+    private _deferredLitsBufs: GFXBuffer = null!;
+    private _deferredLitsBufView: GFXBuffer = null!;
+    private _maxDeferredLights = 10;
+    private _lightBufferData: Float32Array;
+    private _lightBufferStride: number;
+    private _lightBufferElementCount: number;    
+    private _lightMeterScale: number = 10000.0;
+    private _descriptorSet: GFXDescriptorSet = null!;
+    private _descriptorSetLayout!: GFXDescriptorSetLayout;
+    private totalLits: number = 0;
+    
+    public gatherLights(view: RenderView) {
+        const sphereLights = view.camera.scene!.sphereLights;
+        const spotLights = view.camera.scene!.spotLights;
+        const _sphere = sphere.create(0, 0, 0, 1);
+        const _vec4Array = new Float32Array(4);
+        const exposure = view.camera.exposure;
+
+        //this.totalLits = sphereLights.length + spotLights.length;
+        this.totalLits = 20;
+        let idx = 0;
+        let fieldLenth = 4;
+        let totalFieldLenth = fieldLenth * this.totalLits;
+
+        for (let i = 0; i < sphereLights.length; i++, ++idx) {
+            const light = sphereLights[i];
+            sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
+                Vec3.toArray(_vec4Array, light.position);
+                _vec4Array[3] = 0;
+                this._lightBufferData.set(_vec4Array, idx * fieldLenth);
+
+                Vec3.toArray(_vec4Array, light.color);
+                if (light.useColorTemperature) {
+                    const tempRGB = light.colorTemperatureRGB;
+                    _vec4Array[0] *= tempRGB.x;
+                    _vec4Array[1] *= tempRGB.y;
+                    _vec4Array[2] *= tempRGB.z;
+                }
+
+                //if (this._isHDR) {
+                //    _vec4Array[3] = sphereLit.luminance * this._fpScale * this._lightMeterScale;
+                //} else {
+                    _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
+                //}
+
+                this._lightBufferData.set(_vec4Array, idx * fieldLenth + totalFieldLenth * 1);
+                
+                _vec4Array[0] = light.size;
+                _vec4Array[1] = light.range;
+                _vec4Array[2] = 0.0;
+                this._lightBufferData.set(_vec4Array, idx * fieldLenth + totalFieldLenth * 2);
+            }
+        }
+        for (let i = 0; i < spotLights.length; i++, ++idx) {
+            const light = spotLights[i];
+            sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
+                Vec3.toArray(_vec4Array, light.position);
+                _vec4Array[3] = 1;
+                this._lightBufferData.set(_vec4Array, idx * fieldLenth + totalFieldLenth * 0);
+
+                _vec4Array[0] = light.size;
+                _vec4Array[1] = light.range;
+                _vec4Array[2] = light.spotAngle;
+                this._lightBufferData.set(_vec4Array, idx * fieldLenth + totalFieldLenth * 2);
+
+                Vec3.toArray(_vec4Array, light.direction);
+                this._lightBufferData.set(_vec4Array, idx * fieldLenth + totalFieldLenth * 3);
+
+                Vec3.toArray(_vec4Array, light.color);
+                if (light.useColorTemperature) {
+                    const tempRGB = light.colorTemperatureRGB;
+                    _vec4Array[0] *= tempRGB.x;
+                    _vec4Array[1] *= tempRGB.y;
+                    _vec4Array[2] *= tempRGB.z;
+                }
+                //if (this._isHDR) {
+                //    _vec4Array[3] = spotLit.luminance * this._fpScale * this._lightMeterScale;
+                //} else {
+                    _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
+                //}
+                this._lightBufferData.set(_vec4Array, idx * fieldLenth + totalFieldLenth * 1);
+            }
+        }
+
+        _vec4Array[0] = this.totalLits;
+        _vec4Array[1] = 0;
+        _vec4Array[2] = 0;
+        _vec4Array[3] = 0;
+        this._lightBufferData.set(_vec4Array, totalFieldLenth * 4);
+
+        const pipeline = this._pipeline as DeferredPipeline;
+        const cmdBuff = pipeline.commandBuffers[0];
+        cmdBuff.updateBuffer(this._deferredLitsBufs, this._lightBufferData);
+    }
+
     public activate (pipeline: DeferredPipeline, flow: LightingFlow) {
         super.activate(pipeline, flow);
+
+        const device = pipeline.device;        
+
+        this._lightBufferStride = Math.ceil(UBOForwardLight.SIZE / device.uboOffsetAlignment) * device.uboOffsetAlignment;
+        this._lightBufferElementCount = this._lightBufferStride / Float32Array.BYTES_PER_ELEMENT;
+
+        this._deferredLitsBufs = this._flow.pipeline.device.createBuffer(new GFXBufferInfo(
+            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            this._lightBufferStride * this._maxDeferredLights,
+            0,
+            //this._lightBufferStride,
+        ));
+            
+        let len = this._lightBufferElementCount * this._maxDeferredLights + 0;
+        this._deferredLitsBufView = device.createBuffer(new GFXBufferViewInfo(this._deferredLitsBufs, 0, len * 4));
+        //this._deferredLitsBufView = device.createBuffer(new GFXBufferViewInfo(this._deferredLitsBufs, 0, UBOForwardLight.SIZE));
+        this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._maxDeferredLights + 0);  
+        
+        const layoutInfo = new GFXDescriptorSetLayoutInfo(localDescriptorSetLayout.bindings);
+        this._descriptorSetLayout = device.createDescriptorSetLayout(layoutInfo);
+        this._descriptorSet = device.createDescriptorSet(new GFXDescriptorSetInfo(this._descriptorSetLayout));
+
         for (let i = 0; i < this.renderQueues.length; i++) {
             let phase = 0;
             for (let j = 0; j < this.renderQueues[i].stages.length; j++) {
@@ -120,8 +257,14 @@ export class LightingStage extends RenderStage {
     public render (view: RenderView) {
         const pipeline = this._pipeline as DeferredPipeline;
         const device = pipeline.device;
-       
+
         const cmdBuff = pipeline.commandBuffers[0];
+
+        // light信息
+        this.gatherLights(view);
+        this._descriptorSet.bindBuffer(UBODeferredLight.BINDING, this._deferredLitsBufView);
+        this._descriptorSet.update()        
+        cmdBuff.bindDescriptorSet(SetIndex.LOCAL, this._descriptorSet);
 
         const camera = view.camera;
         const vp = camera.viewport;
