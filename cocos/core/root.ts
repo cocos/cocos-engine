@@ -213,7 +213,7 @@ export class Root {
      * 初始化函数
      * @param info Root描述信息
      */
-    public initialize (info: IRootInfo): boolean {
+    public initialize (info: IRootInfo): Promise<void> {
         this._poolHandle = RootPool.alloc();
         const colorAttachment = new GFXColorAttachment();
         const depthStencilAttachment = new GFXDepthStencilAttachment();
@@ -229,15 +229,13 @@ export class Root {
         });
         this._curWindow = this._mainWindow;
 
-        builtinResMgr.initBuiltinRes(this._device);
-
-        legacyCC.view.on('design-resolution-changed', () => {
-            const width = legacyCC.game.canvas.width;
-            const height = legacyCC.game.canvas.height;
-            this.resize(width, height);
-        }, this);
-
-        return true;
+        return Promise.resolve(builtinResMgr.initBuiltinRes(this._device)).then(() => {
+            legacyCC.view.on('design-resolution-changed', () => {
+                const width = legacyCC.game.canvas.width;
+                const height = legacyCC.game.canvas.height;
+                this.resize(width, height);
+            }, this);
+        });
     }
 
     public destroy () {

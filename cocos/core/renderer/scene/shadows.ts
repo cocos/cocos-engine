@@ -70,7 +70,8 @@ export class Shadows {
      * @zh 是否启用平面阴影？
      */
     get enabled (): boolean {
-        return ShadowsPool.get(this._handle, ShadowsView.ENABLE) as unknown as boolean;
+        if (ShadowsPool.get(this._handle, ShadowsView.ENABLE)) { return true; }
+        return false;
     }
 
     set enabled (val: boolean) {
@@ -207,16 +208,20 @@ export class Shadows {
         ShadowsPool.set(this._handle, ShadowsView.BIAS, val);
     }
 
-    public get matLight () {
-        return this._matLight;
+    /**
+     * @en get or set shadow auto control
+     * @zh 获取或者设置阴影是否自动控制
+     */
+    public get autoAdapt (): boolean {
+        if (ShadowsPool.get(this._handle, ShadowsView.AUTO_ADAPT)) { return true; }
+        return false;
+    }
+    public set autoAdapt (val: boolean) {
+        ShadowsPool.set(this._handle, ShadowsView.AUTO_ADAPT, val ? 1 : 0);
     }
 
-    /**
-     * @en The bounding sphere of the shadow map
-     * @zh 用于计算阴影 Shadow map 的场景包围球
-     */
-    public get sphere (): sphere {
-        return this._sphere;
+    public get matLight () {
+        return this._matLight;
     }
 
     public get material (): Material {
@@ -232,16 +237,16 @@ export class Shadows {
     }
 
     /**
-     * @en get or set shadow generation range
-     * @zh 获取或设置阴影生成范围
+     * @en The bounding sphere of the shadow map
+     * @zh 用于计算阴影 Shadow map 的场景包围球
      */
-    public receiveSphere: sphere = new sphere();
+    public sphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
 
     /**
      * @en get or set shadow auto control
      * @zh 获取或者设置阴影是否自动控制
      */
-    public autoAdapt: boolean = true;
+    public receiveSphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
 
     protected _normal = new Vec3(0, 1, 0);
     protected _shadowColor = new Color(0, 0, 0, 76);
@@ -250,7 +255,6 @@ export class Shadows {
     protected _instancingMaterial: Material | null = null;
     protected _size: Vec2 = new Vec2(512, 512);
     protected _handle: ShadowsHandle = NULL_HANDLE;
-    protected _sphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
 
     constructor () {
         this._handle = ShadowsPool.alloc();
@@ -284,6 +288,8 @@ export class Shadows {
         if (pipeline.macros.CC_RECEIVE_SHADOW === enable) { return; }
         pipeline.macros.CC_RECEIVE_SHADOW = enable;
         root.onGlobalPipelineStateChanged();
+        ShadowsPool.set(this.handle, ShadowsView.SPHERE, this.sphere.handle);
+        ShadowsPool.set(this.handle, ShadowsView.RECEIVE_SPHERE, this.receiveSphere.handle);
     }
 
     public destroy () {
@@ -300,7 +306,8 @@ export class Shadows {
             this._handle = NULL_HANDLE;
         }
 
-        this._sphere.destroy();
+        this.sphere.destroy();
+        this.receiveSphere.destroy();
     }
 }
 

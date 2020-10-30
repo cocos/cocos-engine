@@ -389,7 +389,10 @@ export class MeshRenderer extends RenderableComponent {
         const renderingMesh = this._mesh.renderingSubMeshes;
         if (renderingMesh) {
             for (let i = 0; i < meshCount; ++i) {
-                const material = this.getRenderMaterial(i);
+                let material = this.getRenderMaterial(i);
+                if (material && !material.isValid) {
+                    material = null;
+                }
                 const subMeshData = renderingMesh[i];
                 if (subMeshData) {
                     this._model.initSubModel(i, subMeshData, material || this._getBuiltinMaterial());

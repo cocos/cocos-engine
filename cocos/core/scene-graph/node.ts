@@ -207,6 +207,25 @@ export class Node extends BaseNode {
     }
 
     /**
+     * @en Rotation in local coordinate system, represented by euler angles, but limited on z axis
+     * @zh 本地坐标系下的旋转，用欧拉角表示，但是限定在 z 轴上。
+     */
+    @editable
+    get angle () {
+        return this._euler.z;
+    }
+    set angle (val: number) {
+        Vec3.set(this._euler, 0, 0, val);
+        Quat.fromAngleZ(this._lrot, val);
+        this._eulerDirty = false;
+
+        this.invalidateChildren(TransformBit.ROTATION);
+        if (this._eventMask & TRANSFORM_ON) {
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+        }
+    }
+
+    /**
      * @en Rotation in world coordinate system, represented by a quaternion
      * @zh 世界坐标系下的旋转，用四元数表示
      */
@@ -562,11 +581,23 @@ export class Node extends BaseNode {
      */
     public setPosition (x: number, y: number, z: number): void;
 
-    public setPosition (val: Vec3 | number, y?: number, z?: number) {
-        if (y === undefined || z === undefined) {
+    
+    /**
+     * @en Set position in local coordinate system
+     * @zh 设置本地坐标
+     * @param x X axis position
+     * @param y Y axis position
+     */
+    public setPosition (x: number, y: number): void;
+
+
+    public setPosition (val: Vec3 | number, y?: number, z?: number): void {
+        if (y === undefined && z === undefined) {
             Vec3.copy(this._lpos, val as Vec3);
+        } else if( z === undefined) {
+            Vec3.set(this._lpos, val as number, y!, this._lpos.z);
         } else {
-            Vec3.set(this._lpos, val as number, y, z);
+            Vec3.set(this._lpos, val as number, y!, z);
         }
 
         this.invalidateChildren(TransformBit.POSITION);
@@ -627,7 +658,8 @@ export class Node extends BaseNode {
      * @param y Y axis rotation
      * @param z Z axis rotation
      */
-    public setRotationFromEuler (x: number, y: number, z: number): void {
+    public setRotationFromEuler (x: number, y: number, z?: number): void {
+        if(z === undefined) z = this._euler.z;
         Vec3.set(this._euler, x, y, z);
         Quat.fromEuler(this._lrot, x, y, z);
         this._eulerDirty = false;
@@ -666,11 +698,13 @@ export class Node extends BaseNode {
      * @param y Y axis scale
      * @param z Z axis scale
      */
-    public setScale (x: number, y: number, z: number): void;
+    public setScale (x: number, y: number, z?: number): void;
 
     public setScale (val: Vec3 | number, y?: number, z?: number) {
         if (y === undefined || z === undefined) {
             Vec3.copy(this._lscale, val as Vec3);
+        } else if( z === undefined) {
+            Vec3.set(this._lscale, val as number, y, this._lscale.z);
         } else {
             Vec3.set(this._lscale, val as number, y, z);
         }
