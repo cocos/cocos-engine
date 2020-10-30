@@ -97,19 +97,22 @@
             "text": "Audio",
             "description": "Audio support.",
             "entry": "audio",
-            "default": true
+            "default": true,
+            "native": "USE_AUDIO"
         },
         {
             "text": "VideoPlayer",
             "description": "VideoPlayer support.",
             "entry": "video",
-            "default": true
+            "default": true,
+            "native": "USE_VIDEO"
         },
         {
             "text": "WebView",
             "description": "WebView support.",
             "entry": "webview",
-            "default": true
+            "default": true,
+            "native": "USE_WEBVIEW"
         },
         {
             "text": "Tween",
