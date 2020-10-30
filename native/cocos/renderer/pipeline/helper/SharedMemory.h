@@ -108,6 +108,7 @@ struct CC_DLL AABB {
     cc::Vec3 halfExtents;
 
     void getBoundary(cc::Vec3 &minPos, cc::Vec3 &maxPos) const;
+    void merge(const AABB &aabb);
 
     const static se::PoolType type;
 };
@@ -239,6 +240,7 @@ struct CC_DLL ModelView {
     uint32_t enabled = 0;
     uint32_t visFlags = 0;
     uint32_t castShadow = 0;
+    uint32_t receiveShadow = 0;
     uint32_t worldBoundsID = 0; // aabb
     uint32_t nodeID = 0;
     uint32_t transformID = 0;
@@ -333,8 +335,9 @@ struct CC_DLL Sphere {
 
     CC_INLINE void setCenter(const cc::Vec3 &val) { center = val; }
     CC_INLINE void setRadius(float val) { radius = val; }
+    void define(const AABB &aabb);
     void mergeAABB(const AABB *aabb);
-    void mergePoint(const Vec3 &point);
+    void mergePoint(const cc::Vec3 &point);
 
     const static se::PoolType type;
 };
@@ -359,14 +362,17 @@ struct CC_DLL Shadows {
     float bias = 0;
     float orthoSize = 0;
     uint32_t sphereID = 0;
+    uint32_t autoAdapt = 0;
+    uint32_t receiveSphereID = 0;
+    cc::Vec4 color;
 
     cc::Vec2 size;
     cc::Vec3 normal;
-    cc::Vec4 color;
     cc::Mat4 matLight;
 
     CC_INLINE ShadowType getShadowType() const { return static_cast<ShadowType>(shadowType); }
     CC_INLINE Sphere *getSphere() const { return GET_SPHERE(sphereID); }
+    CC_INLINE Sphere *getReceiveSphere() const { return GET_SPHERE(receiveSphereID); }
 
     const static se::PoolType type;
 };

@@ -159,6 +159,11 @@ inline const Vec3 Vec3::operator*(float s) const
     return result;
 }
 
+inline Vec3 Vec3::operator*(const Vec3 &rhs) const
+{
+    return Vec3(x * rhs.x, y * rhs.y, z * rhs.z);
+}
+
 inline Vec3& Vec3::operator*=(float s)
 {
     scale(s);
@@ -168,6 +173,11 @@ inline Vec3& Vec3::operator*=(float s)
 inline const Vec3 Vec3::operator/(const float s) const
 {
     return Vec3(this->x / s, this->y / s, this->z / s);
+}
+
+inline Vec3 Vec3::operator/(const Vec3 &rhs) const
+{
+    return Vec3(x / rhs.x, y / rhs.y, z / rhs.z);
 }
 
 inline bool Vec3::operator==(const Vec3& v) const

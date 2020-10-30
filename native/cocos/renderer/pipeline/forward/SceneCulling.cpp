@@ -27,7 +27,7 @@ void getShadowWorldMatrix(const Shadows *shadows, const cc::Vec4 &rotation, cons
     Vec3 translation(dir);
     translation.negate();
     const auto sphere = shadows->getSphere();
-    const auto distance = std::sqrt(2) * sphere->radius;
+    const auto distance = 2.0f * std::sqrt(3.0f) * sphere->radius;
     translation.scale(distance);
     translation.add(sphere->center);
 
@@ -116,12 +116,14 @@ void updateDirLight(Shadows *shadows, const Light *light, gfx::DescriptorSet *de
 
 void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
     const auto camera = view->getCamera();
-    auto shadows = pipeline->getShadows();
-    const auto skybox = pipeline->getSkybox();
+    const auto shadows = pipeline->getShadows();
+    const auto skyBox = pipeline->getSkybox();
     const auto scene = camera->getScene();
-    auto sphere = shadows->getSphere();
-    sphere->setCenter(cc::Vec3::ZERO);
-    sphere->setRadius(0.01f);
+
+    AABB castWorldBounds;
+    AABB receiveWorldBounds;
+    auto castBoundsInited = false;
+    auto receiveBoundsInited = false;
 
     const Light *mainLight = nullptr;
     if (scene->mainLightID) mainLight = scene->getMainLight();
@@ -137,8 +139,8 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
         updateDirLight(shadows, mainLight, pipeline->getDescriptorSet());
     }
 
-    if (skybox->enabled && skybox->modelID && (camera->clearFlag & SKYBOX_FLAG)) {
-        renderObjects.emplace_back(genRenderObject(skybox->getModel(), camera));
+    if (skyBox->enabled && skyBox->modelID && (camera->clearFlag & SKYBOX_FLAG)) {
+        renderObjects.emplace_back(genRenderObject(skyBox->getModel(), camera));
     }
 
     const auto models = scene->getModels();
@@ -163,20 +165,40 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
 
                     // shadow render Object
                     if (model->castShadow) {
-                        sphere->mergeAABB(model->getWorldBounds());
+                        if (!castBoundsInited) {
+                            castWorldBounds.center.set(model->getWorldBounds()->center);
+                            castWorldBounds.halfExtents.set(model->getWorldBounds()->halfExtents);
+                            castBoundsInited = true;
+                        }
+                        castWorldBounds.merge(*model->getWorldBounds());
                         shadowObjects.emplace_back(genRenderObject(model, camera));
                     }
 
-                    //                     frustum culling
+                    if (model->receiveShadow) {
+                        if(!receiveBoundsInited) {
+                            receiveWorldBounds.center.set(model->getWorldBounds()->center);
+                            receiveWorldBounds.halfExtents.set(model->getWorldBounds()->halfExtents);
+                            receiveBoundsInited = true;
+                        }
+                        receiveWorldBounds.merge(*model->getWorldBounds());
+                    }
+
+                    // frustum culling
                     if ((model->worldBoundsID) && !aabb_frustum(model->getWorldBounds(), camera->getFrustum())) {
                         continue;
                     }
 
-                    renderObjects.emplace_back(genRenderObject(model, camera));
+                   renderObjects.emplace_back(genRenderObject(model, camera));
                 }
             }
         }
     }
+
+    auto *sphere = shadows->getSphere();
+    sphere->define(castWorldBounds);
+
+    auto *receiveSphere = shadows->getReceiveSphere();
+    receiveSphere->define(receiveWorldBounds);
 
     pipeline->setRenderObjcts(renderObjects);
     pipeline->setShadowObjects(shadowObjects);

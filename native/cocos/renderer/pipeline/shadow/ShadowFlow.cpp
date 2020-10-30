@@ -1,8 +1,8 @@
 
 #include "ShadowFlow.h"
+
 #include "../Define.h"
 #include "../forward/ForwardPipeline.h"
-#include "../forward/SceneCulling.h"
 #include "../helper/SharedMemory.h"
 #include "ShadowStage.h"
 #include "gfx/GFXDescriptorSet.h"
@@ -26,20 +26,63 @@ ShadowFlow::~ShadowFlow() {
 
 bool ShadowFlow::initialize(const RenderFlowInfo &info) {
     RenderFlow::initialize(info);
-    if (_stages.size() == 0) {
+    if (_stages.empty()) {
         auto shadowStage = CC_NEW(ShadowStage);
         shadowStage->initialize(ShadowStage::getInitializeInfo());
         _stages.emplace_back(shadowStage);
     }
+
     return true;
 }
 
 void ShadowFlow::activate(RenderPipeline *pipeline) {
-    return; //TODO coulsonwang
     RenderFlow::activate(pipeline);
+}
+    
 
+void ShadowFlow::render(RenderView *view) {
+    auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
+    const auto shadowInfo = pipeline->getShadows();
+    if (!shadowInfo->enabled) return;
+
+    initShadowFrameBuffer();
+    
+    const auto shadowMapSize = shadowInfo->size;
+    if (_width != shadowMapSize.x || _height != shadowMapSize.y) {
+        resizeShadowMap(shadowMapSize.x, shadowMapSize.y);
+        _width = shadowMapSize.x;
+        _height = shadowMapSize.y;
+    }
+
+    pipeline->updateUBOs(view);
+    RenderFlow::render(view);
+}
+
+void ShadowFlow::resizeShadowMap(uint width, uint height) {
+    if (_depthTexture) {
+        _depthTexture->resize(width, height);
+    }
+
+    for (auto renderTarget : _renderTargets) {
+        if (renderTarget) {
+            renderTarget->resize(width, height);
+        }
+    }
+
+    if (_framebuffer) {
+        _framebuffer->destroy();
+        _framebuffer->initialize({
+            _renderPass,
+            _renderTargets,
+            _depthTexture,
+            {},
+        });
+    }
+}
+
+void ShadowFlow::initShadowFrameBuffer() {
     auto device = gfx::Device::getInstance();
-    const auto shadowMapSize = static_cast<ForwardPipeline *>(pipeline)->getShadows()->size;
+    const auto shadowMapSize = static_cast<ForwardPipeline *>(this->_pipeline)->getShadows()->size;
     _width = shadowMapSize.x;
     _height = shadowMapSize.y;
 
@@ -66,7 +109,7 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
         });
     }
 
-    if (_renderTargets.size() == 0) {
+    if (_renderTargets.empty()) {
         _renderTargets.emplace_back(device->createTexture({
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
@@ -93,52 +136,17 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
             _depthTexture,
             {}, //colorMipmapLevels
         });
-    }
 
     for (const auto stage : _stages) {
         static_cast<ShadowStage *>(stage)->setFramebuffer(_framebuffer);
     }
-}
 
-void ShadowFlow::render(RenderView *view) {
-    auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
-    return; //TODO coulsonwang
-    const auto shadowInfo = pipeline->getShadows();
-    if (!shadowInfo->enabled) return;
-
-    const auto shadowMapSize = shadowInfo->size;
-    if (_width != shadowMapSize.x || _height != shadowMapSize.y) {
-        resizeShadowMap(shadowMapSize.x, shadowMapSize.y);
-        _width = shadowMapSize.x;
-        _height = shadowMapSize.y;
-    }
-
-    pipeline->updateUBOs(view);
-    RenderFlow::render(view);
-    pipeline->getDescriptorSet()->bindTexture(UNIFORM_SHADOWMAP.layout.binding, _framebuffer->getColorTextures()[0]);
-}
-
-void ShadowFlow::resizeShadowMap(uint width, uint height) {
-    if (_depthTexture) {
-        _depthTexture->resize(width, height);
-    }
-
-    if (_renderTargets.size()) {
-        for (auto renderTarget : _renderTargets) {
-            if (renderTarget) {
-                renderTarget->resize(width, height);
-            }
-        }
-    }
-
-    if (_framebuffer) {
-        _framebuffer->destroy();
-        _framebuffer->initialize({
-            _renderPass,
-            _renderTargets,
-            _depthTexture,
-            {},
-        });
+        gfx::SamplerInfo info;
+        info.addressU = info.addressV = info.addressW = gfx::Address::CLAMP;
+        const auto shadowMapSamplerHash = genSamplerHash(std::move(info));
+        const auto shadowMapSampler = getSampler(shadowMapSamplerHash);
+        this->_pipeline->getDescriptorSet()->bindSampler(UNIFORM_SHADOWMAP.layout.binding, shadowMapSampler);
+        this->_pipeline->getDescriptorSet()->bindTexture(UNIFORM_SHADOWMAP.layout.binding, _framebuffer->getColorTextures()[0]);
     }
 }
 

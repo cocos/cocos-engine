@@ -20,6 +20,8 @@ public:
 private:
     void resizeShadowMap(uint width, uint height);
 
+    void initShadowFrameBuffer();
+
 private:
     static RenderFlowInfo _initInfo;
 

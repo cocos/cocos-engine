@@ -12,14 +12,16 @@ namespace cc {
 namespace pipeline {
 ShadowMapBatchedQueue::ShadowMapBatchedQueue()
 : _phaseID(PassPhase::getPhaseID("shadow-caster")) {
+    _instancedQueue = CC_NEW(RenderInstancedQueue);
+    _batchedQueue = CC_NEW(RenderBatchedQueue);
 }
 
 void ShadowMapBatchedQueue::clear(gfx::Buffer *buffer) {
     _subModels.clear();
     _shaders.clear();
     _passes.clear();
-    _instancedQueue->clear();
-    _batchedQueue->clear();
+    if (_instancedQueue) _instancedQueue->clear();
+    if (_batchedQueue) _batchedQueue->clear();
     _buffer = buffer;
 }
 
@@ -54,16 +56,16 @@ void ShadowMapBatchedQueue::add(const RenderObject &renderObject, uint subModelI
     }
 }
 
-void ShadowMapBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
+void ShadowMapBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) const {
     _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
     _batchedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
 
     for (size_t i = 0; i < _subModels.size(); i++) {
-        auto subModel = _subModels[i];
-        auto shader = _shaders[i];
-        auto pass = _passes[i];
-        auto ia = subModel->getInputAssembler();
-        auto pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass);
+        const auto subModel = _subModels[i];
+        const auto shader = _shaders[i];
+        const auto pass = _passes[i];
+        const auto ia = subModel->getInputAssembler();
+        const auto pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass);
 
         cmdBuffer->bindPipelineState(pso);
         cmdBuffer->bindDescriptorSet(MATERIAL_SET, pass->getDescriptorSet());
@@ -74,6 +76,11 @@ void ShadowMapBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::Render
 }
 
 void ShadowMapBatchedQueue::destroy() {
+    CC_SAFE_DELETE(_batchedQueue);
+    
+    CC_SAFE_DELETE(_instancedQueue);
+
+    _buffer = nullptr;
 }
 } // namespace pipeline
 } // namespace cc

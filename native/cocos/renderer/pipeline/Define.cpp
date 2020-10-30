@@ -70,6 +70,7 @@ const BlockInfo UBOShadow::BLOCK = {
             {"cc_matLightPlaneProj", gfx::Type::MAT4, 1},
             {"cc_matLightViewProj", gfx::Type::MAT4, 1},
             {"cc_shadowColor", gfx::Type::FLOAT4, 1},
+            {"cc_shadowInfo", gfx::Type::FLOAT4, 1},
         },
         1,
     },

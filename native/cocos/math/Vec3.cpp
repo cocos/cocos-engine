@@ -266,6 +266,24 @@ void Vec3::subtract(const Vec3& v1, const Vec3& v2, Vec3* dst)
     dst->z = v1.z - v2.z;
 }
 
+void Vec3::max(const Vec3 &v1, const Vec3 &v2, Vec3 *dst) {
+
+    GP_ASSERT(dst);
+    
+    dst->x = std::fmaxf(v1.x, v2.x);
+    dst->y = std::fmaxf(v1.y, v2.y);
+    dst->z = std::fmaxf(v1.z, v2.z);
+}
+
+void Vec3::min(const Vec3 &v1, const Vec3 &v2, Vec3 *dst) {
+
+    GP_ASSERT(dst);
+
+    dst->x = std::fminf(v1.x, v2.x);
+    dst->y = std::fminf(v1.y, v2.y);
+    dst->z = std::fminf(v1.z, v2.z);
+}
+
 void Vec3::smooth(const Vec3& target, float elapsedTime, float responseTime)
 {
     if (elapsedTime > 0)

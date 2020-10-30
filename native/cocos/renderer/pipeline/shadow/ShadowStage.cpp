@@ -1,15 +1,12 @@
 #include "ShadowStage.h"
 #include "../Define.h"
-#include "../RenderQueue.h"
 #include "../RenderView.h"
 #include "../ShadowMapBatchedQueue.h"
 #include "../forward/ForwardPipeline.h"
 #include "../helper/SharedMemory.h"
 #include "gfx/GFXCommandBuffer.h"
 #include "gfx/GFXDescriptorSet.h"
-#include "gfx/GFXDevice.h"
 #include "gfx/GFXFramebuffer.h"
-#include "gfx/GFXQueue.h"
 #include "math/Vec2.h"
 
 namespace cc {
@@ -41,14 +38,17 @@ void ShadowStage::render(RenderView *view) {
     const auto shadowInfo = pipeline->getShadows();
     _additiveShadowQueue->clear(pipeline->getDescriptorSet()->getBuffer(UBOShadow::BLOCK.layout.binding));
 
-    const auto shadowObjects = pipeline->getShadowObjects();
-    for (const auto &shadowObject : shadowObjects) {
-        const auto subModelID = shadowObject.model->getSubModelID();
-        uint32_t subModelCount = subModelID[0];
-        for (uint32_t m = 1; m <= subModelCount; m++) {
-            const auto subModel = shadowObject.model->getSubModelView(subModelID[m]);
-            for (uint32_t p = 0; p < subModel->passCount; p++) {
-                _additiveShadowQueue->add(shadowObject, m, p);
+    if (view->getCamera()->getScene()->getMainLight())
+    {
+        const auto& shadowObjects = pipeline->getShadowObjects();
+        for (const auto &shadowObject : shadowObjects) {
+            const auto subModelID = shadowObject.model->getSubModelID();
+            const uint32_t subModelCount = subModelID[0];
+            for (uint32_t m = 1; m <= subModelCount; m++) {
+                const auto subModel = shadowObject.model->getSubModelView(subModelID[m]);
+                for (uint32_t p = 0; p < subModel->passCount; p++) {
+                    _additiveShadowQueue->add(shadowObject, m, p);
+                }
             }
         }
     }
@@ -63,7 +63,7 @@ void ShadowStage::render(RenderView *view) {
     _renderArea.height = camera->viewportHeight * shadowMapSize.y * pipeline->getShadingScale();
 
     _clearColors[0] = {1.0f, 1.0f, 1.0f, 1.0f};
-    auto renderPass = _framebuffer->getRenderPass();
+    auto* renderPass = _framebuffer->getRenderPass();
 
     cmdBuffer->beginRenderPass(renderPass, _framebuffer, _renderArea,
                                _clearColors, camera->clearDepth, camera->clearStencil);

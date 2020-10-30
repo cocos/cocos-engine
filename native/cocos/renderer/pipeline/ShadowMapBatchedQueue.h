@@ -17,7 +17,7 @@ public:
 
     void clear(gfx::Buffer *buffer);
     void add(const RenderObject &renderObject, uint subModelIdx, uint passIdx);
-    void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer);
+    void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) const;
 
 private:
     vector<const SubModelView *> _subModels;

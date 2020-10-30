@@ -134,33 +134,43 @@ void ForwardPipeline::updateUBOs(RenderView *view) {
 
     if (mainLight && shadowInfo->getShadowType() == ShadowType::SHADOWMAP) {
         const auto node = mainLight->getNode();
-        const auto sphere = shadowInfo->getSphere();
         cc::Mat4 shadowCameraView;
-        getShadowWorldMatrix(shadowInfo, node->worldRotation, mainLight->direction, shadowCameraView);
-        const auto &matShadowView = shadowCameraView.getInversed();
 
-        // shadow view proj
+        // light proj
+        float x = 0.0f;
+        float y = 0.0f;
+        float farClamp = 0.0f;
+        if(shadowInfo->autoAdapt) {
+            getShadowWorldMatrix(shadowInfo, node->worldRotation, mainLight->direction, shadowCameraView);
 
-        float x = 0;
-        float y = 0;
-        if (shadowInfo->orthoSize > sphere->radius) {
+            const float radius = shadowInfo->getSphere()->radius;
+            x = radius * shadowInfo->aspect;
+            y = radius;
+
+            farClamp = std::min(shadowInfo->getReceiveSphere()->radius * 2.0f * std::sqrt(2.0f), 2000.0f);
+            if(radius >= 500.0f) { shadowInfo->size.set(2048, 2048); }
+            else if (radius < 500.0f && radius >= 100.0f) { shadowInfo->size.set(1024, 1024); }
+        } else {
+            shadowCameraView = mainLight->getNode()->worldMatrix;
+
             x = shadowInfo->orthoSize * shadowInfo->aspect;
             y = shadowInfo->orthoSize;
-        } else {
-            x = sphere->radius * shadowInfo->aspect;
-            y = sphere->radius;
+
+            farClamp = shadowInfo->farValue;
         }
+
+        const auto &matShadowView = shadowCameraView.getInversed();
 
         const auto projectionSinY = _device->getScreenSpaceSignY() * _device->getUVSpaceSignY();
         Mat4 matShadowViewProj;
-        Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, shadowInfo->farValue, _device->getClipSpaceMinZ(), projectionSinY, &matShadowViewProj);
+        Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, farClamp, _device->getClipSpaceMinZ(), projectionSinY, &matShadowViewProj);
 
         matShadowViewProj.multiply(matShadowView);
-        const auto pcf = shadowInfo->pcfType;
-        float shadowSize[2] = {shadowInfo->size.x, shadowInfo->size.y};
+        float shadowInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, (float)shadowInfo->pcfType, shadowInfo->bias};
+        float shadowColor[4] = {shadowInfo->color.x, shadowInfo->color.y, shadowInfo->color.z, shadowInfo->color.w};
         memcpy(_shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
-        memcpy(_shadowUBO.data() + UBOShadow::SHADOW_PCF_OFFSET, &pcf, sizeof(pcf));
-        memcpy(_shadowUBO.data() + UBOShadow::SHADOW_SIZE_OFFSET, shadowSize, sizeof(shadowSize));
+        memcpy(_shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &shadowColor, sizeof(shadowColor));
+        memcpy(_shadowUBO.data() + UBOShadow::SHADOW_INFO_OFFSET, &shadowInfos, sizeof(shadowInfos));
     }
 
     // update ubos
@@ -295,12 +305,6 @@ bool ForwardPipeline::activeRenderer() {
         gfx::BufferFlagBit::NONE,
     });
     _descriptorSet->bindBuffer(UBOShadow::BLOCK.layout.binding, shadowUBO);
-
-    gfx::SamplerInfo info;
-    info.addressU = info.addressV = info.addressW = gfx::Address::CLAMP;
-    auto shadowMapSamplerHash = genSamplerHash(std::move(info));
-    auto shadowMapSampler = getSampler(shadowMapSamplerHash);
-    _descriptorSet->bindSampler(UNIFORM_SHADOWMAP.layout.binding, shadowMapSampler);
 
     // update global defines when all states initialized.
     _macros.setValue("CC_USE_HDR", _isHDR);
