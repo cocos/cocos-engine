@@ -1114,10 +1114,6 @@ bv
 
     public _updateMaterial () {
         let mat = this.getRenderMaterial(0);
-        if (!mat) {
-            this._updateBuiltinMaterial();
-            mat = this.getUIMaterialInstance();
-        }
         if (!mat) return;
         // mat.recompileShaders({USE_LOCAL:this._positionType !== PositionType.FREE});
     }

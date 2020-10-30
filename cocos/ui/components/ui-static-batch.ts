@@ -104,18 +104,6 @@ export class UIStaticBatch extends UIRenderable {
         this.markForUpdateRenderData();
     }
 
-    @override
-    @type(Material)
-    @displayName('Materials')
-    @visible(false)
-    get sharedMaterials () {
-        return super.sharedMaterials;
-    }
-
-    set sharedMaterials (val) {
-        super.sharedMaterials = val;
-    }
-
     get drawBatchList () {
         return this._uiDrawBatchList;
     }

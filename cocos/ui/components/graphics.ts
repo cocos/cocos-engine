@@ -209,6 +209,24 @@ export class Graphics extends UIRenderable {
         this.markForUpdateRenderData();
     }
 
+    @override
+    @visible(false)
+    get srcBlendFactor () {
+        return this._srcBlendFactor;
+    }
+
+    set srcBlendFactor (value) {
+    }
+
+    @override
+    @visible(false)
+    get dstBlendFactor () {
+        return this._dstBlendFactor;
+    }
+
+    set dstBlendFactor (value) {
+    }
+
     public static LineJoin = LineJoin;
     public static LineCap = LineCap;
     public impl: Impl | null = null;
@@ -231,7 +249,6 @@ export class Graphics extends UIRenderable {
     constructor (){
         super();
         this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
-        this._uiMaterialDirty = true;
     }
 
     public onRestore () {
@@ -252,10 +269,19 @@ export class Graphics extends UIRenderable {
         this.model = director.root!.createModel(scene.Model);
         this.model.node = this.model.transform = this.node;
 
-        this.helpInstanceMaterial();
+        if (!this.impl){
+            this._flushAssembler();
+            this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
+        }
+    }
+
+    public onEnable () {
+        super.onEnable();
+        this.updateMtlForGraphics();
     }
 
     public onDisable (){
+        super.onDisable();
         this._detachFromScene();
     }
 
@@ -550,31 +576,16 @@ export class Graphics extends UIRenderable {
         this._attachToScene();
     }
 
-    /**
-     * @en
-     * Manual instance material.
-     *
-     * @zh
-     * 辅助材质实例化。可用于只取数据而无实体情况下渲染使用。特殊情况可参考：[[instanceMaterial]]
-     */
-    public helpInstanceMaterial () {
-        let mat: MaterialInstance | null = null;
+    private updateMtlForGraphics () {
+        let mat;
         _matInsInfo.owner = this;
-        if (this.sharedMaterial) {
-            _matInsInfo.parent = this.sharedMaterial[0];
-            mat = new MaterialInstance(_matInsInfo);
+        if (this._customMaterial) {
+            mat = this.getMaterialInstance(0);
         } else {
-            _matInsInfo.parent = builtinResMgr.get('ui-graphics-material');
-            mat = new MaterialInstance(_matInsInfo);
+            mat = builtinResMgr.get('ui-graphics-material');
+            this.setMaterial(mat, 0);
+            mat = this.getMaterialInstance(0);
             mat.recompileShaders({ USE_LOCAL: true });
-        }
-
-        this._uiMaterial = _matInsInfo.parent;
-        this._uiMaterialIns = mat;
-
-        if (!this.impl){
-            this._flushAssembler();
-            this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
         }
     }
 
@@ -603,12 +614,12 @@ export class Graphics extends UIRenderable {
             renderMesh = new RenderingSubMesh([vertexBuffer], attributes, GFXPrimitiveMode.TRIANGLE_LIST, indexBuffer);
             renderMesh.subMeshIdx = 0;
 
-            this.model.initSubModel(idx, renderMesh, this.getUIMaterialInstance());
+            this.model.initSubModel(idx, renderMesh, this.getMaterialInstance(0)!);
         }
     }
 
     protected _render (render: UI) {
-        render.commitModel(this, this.model, this._uiMaterialIns);
+        render.commitModel(this, this.model, this.getMaterialInstance(0));
     }
 
     protected _flushAssembler (){

@@ -416,7 +416,7 @@ export class Sprite extends UIRenderable {
         } else {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
-        this._uiMaterialDirty = true;
+        this.updateMaterialByBuiltIn();
     }
 
     /**
@@ -516,10 +516,6 @@ export class Sprite extends UIRenderable {
 
         // this._flushAssembler();
         this._activateMaterial();
-        // updateBlendFunc for custom material
-        if (this.getMaterial(0)) {
-            this._updateBlendFunc();
-        }
     }
 
     public onDestroy () {
@@ -573,7 +569,7 @@ export class Sprite extends UIRenderable {
         } else {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
-        this._uiMaterialDirty = true;
+        this.updateMaterialByBuiltIn();
     }
 
     protected _render (render: UI) {

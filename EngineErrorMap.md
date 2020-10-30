@@ -2952,3 +2952,7 @@ Sub-mesh may include at most %d morph targets, but you specified %d.
 ### 11000
 
 WebGL context lost.
+
+### 12001
+
+Not support set/get BlendFactor when use customMaterial, please change it by material.

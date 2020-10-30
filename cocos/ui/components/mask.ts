@@ -265,12 +265,12 @@ export class Mask extends UIRenderable {
     }
 
     set alphaThreshold (value) {
-        if (this._alphaThreshold === value) {
+        if (this.type !== MaskType.IMAGE_STENCIL || this._alphaThreshold === value) {
             return;
         }
 
         this._alphaThreshold = value;
-        this._updateMaterial();
+        this._graphics?.getMaterialInstance(0)?.setProperty('alphaThreshold', this._alphaThreshold);
     }
 
     get graphics () {
@@ -325,23 +325,12 @@ export class Mask extends UIRenderable {
 
     @override
     @visible(false)
-    get sharedMaterials () {
-        // if we don't create an array copy, the editor will modify the original array directly.
-        return EDITOR && this._materials.slice() || this._materials;
+    get customMaterial () {
+        return this._customMaterial;
     }
 
-    set sharedMaterials (val) {
-        for (let i = 0; i < val.length; i++) {
-            if (val[i] !== this._materials[i]) {
-                this.setMaterial(val[i], i);
-            }
-        }
-        if (val.length < this._materials.length) {
-            for (let i = val.length; i < this._materials.length; i++) {
-                this.setMaterial(null, i);
-            }
-            this._materials.splice(val.length);
-        }
+    set customMaterial (val) {
+        // mask don`t support customMaterial
     }
 
     public static Type = MaskType;
@@ -593,12 +582,17 @@ export class Mask extends UIRenderable {
     protected _updateMaterial () {
         if (this._graphics) {
             const target = this._graphics;
+            target.stencilStage = Stage.DISABLED;
+            let mat;
             if (this._type === MaskType.IMAGE_STENCIL) {
-                target.uiMaterial = builtinResMgr.get<Material>('ui-alpha-test-material');
-                const mat = target.getMaterialInstanceForStencil();
+                mat = builtinResMgr.get<Material>('ui-alpha-test-material');
+                target.setMaterial(mat, 0);
+                mat = target.getMaterialInstance(0);
                 mat.setProperty('alphaThreshold', this._alphaThreshold);
             } else {
-                target.uiMaterial = builtinResMgr.get<Material>('ui-graphics-material');
+                mat = builtinResMgr.get<Material>('ui-graphics-material');
+                target.setMaterial(mat, 0);
+                target.getMaterialInstance(0);
             }
         }
     }
