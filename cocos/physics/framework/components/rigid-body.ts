@@ -285,7 +285,10 @@ export class RigidBody extends Component {
     }
 
     /**
-     * 
+     * @en
+     * Gets or sets whether the rigid body is static.
+     * @zh
+     * 获取或设置刚体是否是静态类型的（静止不动的）。
      */
     public get isStatic (): boolean {
         return this._type == ERigidBodyType.STATIC;
@@ -297,7 +300,10 @@ export class RigidBody extends Component {
     }
 
     /**
-     * 
+     * @en
+     * Gets or sets whether the rigid body moves through physical dynamics.
+     * @zh
+     * 获取或设置刚体是否是动力学态类型的（将根据物理动力学控制运动）。
      */
     public get isDynamic (): boolean {
         return this._type == ERigidBodyType.DYNAMIC;
@@ -310,9 +316,9 @@ export class RigidBody extends Component {
 
     /**
      * @en
-     * Gets or sets whether a rigid body is controlled by a physical system.
+     * Gets or sets whether a rigid body is controlled by users.
      * @zh
-     * 获取或设置刚体是否通过`Transform`来控制运动。
+     * 获取或设置刚体是否是运动态类型的（将由用户来控制运动）。
      */
     public get isKinematic () {
         return this._type == ERigidBodyType.KINEMATIC;
