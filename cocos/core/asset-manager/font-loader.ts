@@ -96,8 +96,8 @@ function _checkFontLoaded () {
 
         const oldWidth = fontLoadHandle.refWidth;
         const fontDesc = '40px ' + fontFamily;
-        _canvasContext.font = fontDesc;
-        let newWidth = safeMeasureText(_canvasContext, _testString, fontDesc);
+        _canvasContext!.font = fontDesc;
+        let newWidth = safeMeasureText(_canvasContext!, _testString, fontDesc);
         // loaded successfully
         if (oldWidth !== newWidth) {
             _loadingFonts.splice(i, 1);
@@ -176,7 +176,7 @@ export function loadFont (url: string, options: IDownloadParseOptions, onComplet
 
     // Default width reference to test whether new font is loaded correctly
     const fontDesc = '40px ' + fontFamilyName;
-    let refWidth = safeMeasureText(_canvasContext, _testString, fontDesc);
+    let refWidth = safeMeasureText(_canvasContext!, _testString, fontDesc);
 
     // Setup font face style
     const fontStyle = document.createElement('style');

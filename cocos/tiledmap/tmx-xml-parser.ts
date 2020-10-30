@@ -26,7 +26,7 @@
 import { Label, HorizontalTextAlignment, VerticalTextAlignment } from '../ui/components/label';
 import codec from '../../external/compression/ZipUtils.js';
 import zlib from '../../external/compression/zlib.min.js';
-import { SAXParser } from '../core/load-pipeline/plist-parser';
+import { SAXParser } from '../core/asset-manager/plist-parser';
 import {
     GID, MixedGID, Orientation, PropertiesInfo, RenderOrder, StaggerAxis, StaggerIndex, TiledAnimation, TiledAnimationType,
     TileFlag, TMXImageLayerInfo, TMXLayerInfo, TMXObject, TMXObjectGroupInfo, TMXObjectType, TMXTilesetInfo
