@@ -227,15 +227,16 @@ export class Texture2D extends SimpleTexture {
         this.destroy();
     }
 
-    public _serialize (exporting: any): any {
+    public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
             return {
-                base: super._serialize(exporting),
+                base: super._serialize(ctxForExporting),
                 mipmaps: this._mipmaps.map((mipmap) => {
                     if (!mipmap || !mipmap._uuid) {
                         return null;
                     }
-                    if (exporting) {
+                    if (ctxForExporting && ctxForExporting._compressUuid) {
+                        // ctxForExporting.dependsOn('_textureSource', texture); TODO
                         return EditorExtends.UuidUtils.compressUuid(mipmap._uuid, true);
                     }
                     return mipmap._uuid;

@@ -292,7 +292,7 @@ export class TextureBase extends Asset {
     /**
      * @return
      */
-    public _serialize (exporting?: any): any {
+    public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
             return this._minFilter + ',' + this._magFilter + ',' +
                 this._wrapS + ',' + this._wrapT + ',' +

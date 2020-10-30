@@ -882,23 +882,17 @@ export class SpriteFrame extends Asset {
     }
 
     // SERIALIZATION
-    public _serialize (exporting: any, ctxForExporting: any): any {
+    public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
             const rect = this._rect;
             const offset = this._offset;
             const originalSize = this._originalSize;
-            let uuid = this._uuid;
             let texture;
             if (this._texture) {
                 texture = this._texture._uuid;
-            }
-
-            if (uuid && exporting) {
-                uuid = EditorExtends.UuidUtils.compressUuid(uuid, true);
-                ctxForExporting.dependsOn('_textureSource', uuid);
-            }
-            if (texture && exporting) {
-                texture = EditorExtends.UuidUtils.compressUuid(texture, true);
+                if (ctxForExporting) {
+                    ctxForExporting.dependsOn('_textureSource', texture);
+                }
             }
 
             let vertices;
@@ -914,7 +908,7 @@ export class SpriteFrame extends Asset {
 
             const serialize = {
                 name: this._name,
-                atlas: exporting ? undefined : this._atlasUuid,  // strip from json if exporting
+                atlas: ctxForExporting ? undefined : this._atlasUuid,  // strip from json if exporting
                 rect,
                 offset,
                 originalSize,
