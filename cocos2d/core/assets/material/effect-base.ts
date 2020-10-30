@@ -41,11 +41,12 @@ export default class EffectBase {
 
     _setPassProperty (name, value, pass, directly) {
         let properties = pass._properties;
-        let uniform = properties.hasOwnProperty(name);
-        if (!uniform) {
-            uniform = this._createPassProp(name, pass);
+
+        if (!properties.hasOwnProperty(name)) {
+            this._createPassProp(name, pass);
+        } else if (properties[name].value === value) {
+            return;
         }
-        else if (uniform.value === value) return;
 
         this._dirty = true;
         return Pass.prototype.setProperty.call(pass, name, value, directly);
