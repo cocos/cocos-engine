@@ -10,10 +10,6 @@
   #include <texture-lod>
 #endif
 
-#if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-  #include <lightingmap-fs>
-#endif
-
 #include <common>
 #include <gamma>
 
@@ -48,6 +44,8 @@ struct StandardSurface {
   vec3 normal;
   // emissive
   vec3 emissive;
+  // light map
+  vec4 lightmap;
   // PBR params
   float roughness;
   float metallic;
@@ -122,8 +120,7 @@ struct StandardSurface {
     vec3 finalColor = NL * cc_mainLitColor.rgb * cc_mainLitColor.w;
 
     #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-      vec4 lightmap = texture(cc_lightingMap, v_luv);
-      finalColor = lightmap.a * lightmap.rgb + (1.0 - lightmap.a) * finalColor;
+      finalColor = s.lightmap.a * s.lightmap.rgb + (1.0 - s.lightmap.a) * finalColor;
     #endif
 
     vec3 diffuseContrib = diffuse / PI;
@@ -155,15 +152,7 @@ struct StandardSurface {
     finalColor += s.emissive;
 
     #if CC_RECEIVE_SHADOW
-      float pcf = cc_shadowPCF.x + 0.001;
-      float shadowAttenuation = 0.0;
-      if (pcf > 3.0) {shadowAttenuation = CCGetShadowFactorX25();}
-      else if (3.0 > pcf && pcf > 2.0) {shadowAttenuation = CCGetShadowFactorX9();}
-      else if (2.0 > pcf && pcf > 1.0) {shadowAttenuation = CCGetShadowFactorX5();}
-      else {shadowAttenuation = CCGetShadowFactorX1();}
-
-      vec3 shadowColor = cc_shadowColor.rgb * cc_shadowColor.a + finalColor * (1.0 - cc_shadowColor.a);
-      finalColor = shadowColor.rgb * shadowAttenuation + finalColor.rgb * (1.0 - shadowAttenuation);
+      CC_SHADOW_FACTOR(finalColor, NL);
     #endif
 
     return vec4(finalColor, s.albedo.a);

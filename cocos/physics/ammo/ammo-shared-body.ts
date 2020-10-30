@@ -293,12 +293,19 @@ export class AmmoSharedBody {
             cocos2AmmoVec3(wt.getOrigin(), this.node.worldPosition)
             cocos2AmmoQuat(this.bodyStruct.worldQuat, this.node.worldRotation);
             wt.setRotation(this.bodyStruct.worldQuat);
-            if (this.isBodySleeping()) this.body.activate();
 
             if (this.node.hasChangedFlags & TransformBit.SCALE) {
                 for (let i = 0; i < this.bodyStruct.wrappedShapes.length; i++) {
                     this.bodyStruct.wrappedShapes[i].setScale();
                 }
+            }
+
+            if (this.body.isKinematicObject()) {
+                // Kinematic objects must be updated using motion state
+                var ms = this.body.getMotionState();
+                if (ms) ms.setWorldTransform(wt);
+            } else {
+                if (this.isBodySleeping()) this.body.activate();
             }
         }
     }
