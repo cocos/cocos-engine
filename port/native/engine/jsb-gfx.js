@@ -179,6 +179,7 @@ let bufferProto = gfx.Buffer.prototype;
 
 let oldUpdate = bufferProto.update;
 bufferProto.update = function(buffer, offset, size) {
+    if(buffer.byteLength === 0) return;
     let buffSize;
     if (this.cachedUsage === undefined) this.cachedUsage = this.usage;
 
