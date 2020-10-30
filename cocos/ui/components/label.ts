@@ -636,7 +636,7 @@ export class Label extends UIRenderable {
     public static VerticalAlign = VerticalTextAlignment;
     public static Overflow = Overflow;
     public static CacheMode = CacheMode;
-    public static _canvasPool = new CanvasPool();
+    public static _canvasPool = CanvasPool.getInstance();
 
     @serializable
     protected _useOriginalSize = true;
