@@ -150,9 +150,9 @@ export class Camera {
         if (!correctionMatrices.length) {
             const ySign = device.screenSpaceSignY;
             correctionMatrices[GFXSurfaceTransform.IDENTITY] = new Mat4(1, 0, 0, 0, 0, ySign);
-            correctionMatrices[GFXSurfaceTransform.ROTATE_90] = new Mat4(0, -1, 0, 0, ySign, 0);
+            correctionMatrices[GFXSurfaceTransform.ROTATE_90] = new Mat4(0, 1, 0, 0, -ySign, 0);
             correctionMatrices[GFXSurfaceTransform.ROTATE_180] = new Mat4(-1, 0, 0, 0, 0, -ySign);
-            correctionMatrices[GFXSurfaceTransform.ROTATE_270] = new Mat4(0, 1, 0, 0, -ySign, 0);
+            correctionMatrices[GFXSurfaceTransform.ROTATE_270] = new Mat4(0, -1, 0, 0, ySign, 0);
         }
     }
 
@@ -257,11 +257,13 @@ export class Camera {
         }
 
         // projection matrix
-        const orientation = this._device.surfaceTransform;
+        let orientation = this._device.surfaceTransform;
         if (this._isProjDirty || this._curTransform !== orientation) {
+            this._curTransform = orientation;
             let projectionSignY = this._device.screenSpaceSignY;
-            if (this._view && this._view.window.hasOffScreenAttachments) {
-                projectionSignY *= this._device.UVSpaceSignY; // need flipping if drawing on render targets
+            if (this._view && this._view.window.hasOffScreenAttachments) { // when drawing offscreen...
+                projectionSignY *= this._device.UVSpaceSignY; // apply sign-Y correction
+                orientation = GFXSurfaceTransform.IDENTITY; // no pre-rotation
             }
             if (this._proj === CameraProjection.PERSPECTIVE) {
                 Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip,
@@ -275,7 +277,6 @@ export class Camera {
             Mat4.invert(this._matProjInv, this._matProj);
             CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ, this._matProj);
             CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ_INV, this._matProjInv);
-            this._curTransform = orientation;
             viewProjDirty = true;
             this._isProjDirty = false;
         }
