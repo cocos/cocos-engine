@@ -443,7 +443,8 @@ function findAttachedBody (node: Node): RigidBody | null {
     if (rb && rb.isValid) {
         return rb;
     } else {
-        if (node.parent == null || node.parent == node.scene) return null;
-        return findAttachedBody(node.parent);
+        return null;
+        // if (node.parent == null || node.parent == node.scene) return null;
+        // return findAttachedBody(node.parent);
     }
 }
