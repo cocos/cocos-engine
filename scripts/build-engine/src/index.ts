@@ -24,6 +24,7 @@ import tsConfigPaths from './ts-paths';
 import JSON5 from 'json5';
 import { getPlatformConstantNames, IBuildTimeConstants } from './build-time-constants';
 import removeDeprecatedFeatures from './remove-deprecated-features';
+import babelPluginDynamicImportVars from '@cocos/babel-plugin-dynamic-import-vars';
 
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
 
@@ -272,9 +273,21 @@ async function _doBuild ({
         }]);
     }
 
+    babelPlugins.push(
+        [babelPluginDynamicImportVars, {
+            resolve: {
+                forwardExt: 'resolved',
+            },
+        }],
+    );
+
     const babelOptions: RollupBabelInputPluginOptions = {
         babelHelpers: 'bundled',
         extensions: ['.js', '.ts'],
+        exclude: [
+            /node_modules[\/\\]@cocos[\/\\]ammo/g,
+            /node_modules[\/\\]@cocos[\/\\]cannon/g,
+        ],
         highlightCode: true,
         plugins: babelPlugins,
         presets: [
