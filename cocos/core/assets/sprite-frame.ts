@@ -36,7 +36,7 @@ import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
 import { RenderTexture } from './render-texture';
 import { TextureBase } from './texture-base';
-import { EDITOR, TEST } from 'internal:constants';
+import { EDITOR, TEST, BUILD } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { ImageAsset, ImageSource } from './image-asset';
 import { Texture2D } from './texture-2d';
@@ -179,10 +179,10 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  *
  * @example
  * ```ts
- * import { loader } from 'cc';
+ * import { resources } from 'cc';
  * // First way to use a SpriteFrame
  * const url = "assets/PurpleMonster/icon/spriteFrame";
- * loader.loadRes(url, (err, spriteFrame) => {
+ * resources.load(url, (err, spriteFrame) => {
  *   const node = new Node("New Sprite");
  *   const sprite = node.addComponent(Sprite);
  *   sprite.spriteFrame = spriteFrame;
@@ -192,7 +192,7 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  * // Second way to use a SpriteFrame
  * const self = this;
  * const url = "test_assets/PurpleMonster";
- * loader.loadRes(url, (err, imageAsset) => {
+ * resources.load(url, (err, imageAsset) => {
  *  if(err){
  *    return;
  *  }
@@ -932,22 +932,17 @@ export class SpriteFrame extends Asset {
     }
 
     // SERIALIZATION
-    public _serialize (exporting?: any): any {
+    public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
             const rect = this._rect;
             const offset = this._offset;
             const originalSize = this._originalSize;
-            let uuid = this._uuid;
             let texture;
             if (this._texture) {
                 texture = this._texture._uuid;
-            }
-
-            if (uuid && exporting) {
-                uuid = EditorExtends.UuidUtils.compressUuid(uuid, true);
-            }
-            if (texture && exporting) {
-                texture = EditorExtends.UuidUtils.compressUuid(texture, true);
+                if (ctxForExporting) {
+                    ctxForExporting.dependsOn('_textureSource', texture);
+                }
             }
 
             let vertices;
@@ -963,7 +958,7 @@ export class SpriteFrame extends Asset {
 
             const serialize = {
                 name: this._name,
-                atlas: exporting ? undefined : this._atlasUuid,  // strip from json if exporting
+                atlas: ctxForExporting ? undefined : this._atlasUuid,  // strip from json if exporting
                 rect,
                 offset,
                 originalSize,
@@ -1005,8 +1000,11 @@ export class SpriteFrame extends Asset {
             this._capInsets[INSET_BOTTOM] = capInsets[INSET_BOTTOM];
         }
 
-        if (data.texture) {
-            handle.result.push(this, '_textureSource', data.texture);
+        if (!BUILD) {
+            // manually load texture via _textureSetter
+            if (data.texture) {
+                handle.result.push(this, '_textureSource', data.texture);
+            }
         }
 
         if (EDITOR) {

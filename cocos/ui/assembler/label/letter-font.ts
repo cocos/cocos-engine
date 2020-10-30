@@ -27,10 +27,9 @@
  * @packageDocumentation
  * @hidden
  */
-
+import { assetManager } from '../../../core/asset-manager';
 import { mixin } from '../../../core/utils/js';
 import { Label, LabelOutline } from '../../components';
-import { loader } from '../../../core/load-pipeline';
 import { bmfontUtils } from './bmfontUtils';
 import { shareLabelInfo, LetterAtlas, computeHash } from './font-utils';
 
@@ -75,9 +74,8 @@ export const letterFont = mixin(bmfontUtils, {
                     fontFamily = comp.font._nativeAsset;
                 }
                 else {
-                    loader.load(comp.font.nativeUrl, (err, font) => {
-                        fontFamily = font || 'Arial';
-                        comp.font!._nativeAsset = font;
+                    assetManager.postLoadNative(comp.font, (err) => {
+                        fontFamily = comp.font!._nativeAsset || 'Arial';
                         comp.updateRenderData(true);
                     });
                 }

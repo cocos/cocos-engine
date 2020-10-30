@@ -22,17 +22,41 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-*/
-
+ */
 /**
  * @packageDocumentation
  * @hidden
  */
 
-export {default as url} from './url';
-export {default as Downloader} from './downloader';
-export {default as Loader} from './loader';
-export * from './loading-items';
-export { Pipeline } from './pipeline';
-export { loader } from './CCLoader';
-export * from './callback-params';
+import { getError } from '../platform/debug';
+import { CompleteCallback, IDownloadParseOptions } from './shared';
+
+export default function downloadDomImage (
+    url: string,
+    options: IDownloadParseOptions,
+    onComplete: CompleteCallback<HTMLImageElement>
+    ): HTMLImageElement {
+
+    const img = new Image();
+
+    if (window.location.protocol !== 'file:') {
+        img.crossOrigin = 'anonymous';
+    }
+
+    function loadCallback () {
+        img.removeEventListener('load', loadCallback);
+        img.removeEventListener('error', errorCallback);
+        if (onComplete) { onComplete(null, img); }
+    }
+
+    function errorCallback () {
+        img.removeEventListener('load', loadCallback);
+        img.removeEventListener('error', errorCallback);
+        if (onComplete) { onComplete(new Error(getError(4930, url))); }
+    }
+
+    img.addEventListener('load', loadCallback);
+    img.addEventListener('error', errorCallback);
+    img.src = url;
+    return img;
+}

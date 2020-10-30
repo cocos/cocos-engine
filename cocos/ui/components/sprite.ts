@@ -707,7 +707,7 @@ export class Sprite extends UIRenderable {
             if (spriteFrame.atlasUuid.length > 0) {
                 if (!this._atlas || this._atlas._uuid !== spriteFrame.atlasUuid) {
                     const self = this;
-                    AssetLibrary.loadAsset(spriteFrame.atlasUuid, (err, asset) => {
+                    assetManager.loadAny(spriteFrame.atlasUuid, (err, asset) => {
                         self._atlas = asset;
                     });
                 }

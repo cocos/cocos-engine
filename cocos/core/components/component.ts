@@ -411,7 +411,7 @@ class Component extends CCObject {
      * @param callback  The callback function of the task
      * @param interval  The time interval between each invocation
      * @param repeat    The repeat count of this task, the task will be invoked (repeat + 1) times, use [[macro.REPEAT_FOREVER]] to repeat a task forever
-     * @param delay     The delay time for the first invocation
+     * @param delay     The delay time for the first invocation, Unit: s
      * @example
      * ```ts
      * import { log } from 'cc';
@@ -444,7 +444,7 @@ class Component extends CCObject {
      * @method scheduleOnce
      * @see [[schedule]]
      * @param callback  The callback function of the task
-     * @param delay  The delay time for the first invocation
+     * @param delay  The delay time for the first invocation, Unit: s
      * @example
      * ```ts
      * import { log } from 'cc';
