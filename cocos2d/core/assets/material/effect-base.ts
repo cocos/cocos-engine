@@ -47,7 +47,7 @@ export default class EffectBase {
         }
 
         if (properties[name].value === value) {
-            return;
+            return true;
         }
 
         this._dirty = true;
