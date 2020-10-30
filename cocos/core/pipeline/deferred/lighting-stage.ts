@@ -31,17 +31,6 @@ import { IRenderObject, UBOForwardLight } from '../define';
 const colors: GFXColor[] = [ new GFXColor(0, 0, 0, 1) ];
 const LIGHTINGPASS_INDEX = 1;
 
-//interface LightInfo {
-//    _pos: Vec4[];
-//    _color: Vec4[];
-//    _lightSizeRangeAngle: Vec4[];
-//    _lightDir: Vec4[];
-//};
-
-//interface LightBufferInfo {
-//    _lightInfo: LightInfo[];
-//};
-
 /**
  * @en The lighting render stage
  * @zh 前向渲染阶段。
@@ -102,27 +91,28 @@ export class LightingStage extends RenderStage {
         return true;
     }
 
-    //private _lightInfos: LightInfo = null!;
     private _deferredLitsBufs: GFXBuffer = null!;
     private _deferredLitsBufView: GFXBuffer = null!;
     private _maxDeferredLights = 10;
     private _lightBufferData: Float32Array;
-    private _lightBufferStride: number;
-    private _lightBufferElementCount: number;    
+    private _lightBufferStride: number = 0;
+    private _lightBufferElementCount: number = 0;
     private _lightMeterScale: number = 10000.0;
     private _descriptorSet: GFXDescriptorSet = null!;
     private _descriptorSetLayout!: GFXDescriptorSetLayout;
     private totalLits: number = 0;
     
     public gatherLights(view: RenderView) {
+        const pipeline = this._pipeline as DeferredPipeline;
+        const cmdBuff = pipeline.commandBuffers[0];
+
         const sphereLights = view.camera.scene!.sphereLights;
         const spotLights = view.camera.scene!.spotLights;
         const _sphere = sphere.create(0, 0, 0, 1);
         const _vec4Array = new Float32Array(4);
         const exposure = view.camera.exposure;
 
-        //this.totalLits = sphereLights.length + spotLights.length;
-        this.totalLits = 20;
+        this.totalLits = UBODeferredLight.LIGHTS_PER_PASS;
         let idx = 0;
         let fieldLenth = 4;
         let totalFieldLenth = fieldLenth * this.totalLits;
@@ -143,11 +133,11 @@ export class LightingStage extends RenderStage {
                     _vec4Array[2] *= tempRGB.z;
                 }
 
-                //if (this._isHDR) {
-                //    _vec4Array[3] = sphereLit.luminance * this._fpScale * this._lightMeterScale;
-                //} else {
+                if (pipeline.isHDR) {
+                    _vec4Array[3] = light.luminance * pipeline.fpScale * this._lightMeterScale;
+                } else {
                     _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
-                //}
+                }
 
                 this._lightBufferData.set(_vec4Array, idx * fieldLenth + totalFieldLenth * 1);
                 
@@ -180,11 +170,11 @@ export class LightingStage extends RenderStage {
                     _vec4Array[1] *= tempRGB.y;
                     _vec4Array[2] *= tempRGB.z;
                 }
-                //if (this._isHDR) {
-                //    _vec4Array[3] = spotLit.luminance * this._fpScale * this._lightMeterScale;
-                //} else {
+                if (pipeline.isHDR) {
+                    _vec4Array[3] = light.luminance * pipeline.fpScale * this._lightMeterScale;
+                } else {
                     _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
-                //}
+                }
                 this._lightBufferData.set(_vec4Array, idx * fieldLenth + totalFieldLenth * 1);
             }
         }
@@ -195,8 +185,6 @@ export class LightingStage extends RenderStage {
         _vec4Array[3] = 0;
         this._lightBufferData.set(_vec4Array, totalFieldLenth * 4);
 
-        const pipeline = this._pipeline as DeferredPipeline;
-        const cmdBuff = pipeline.commandBuffers[0];
         cmdBuff.updateBuffer(this._deferredLitsBufs, this._lightBufferData);
     }
 
@@ -212,8 +200,7 @@ export class LightingStage extends RenderStage {
             GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
             GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             this._lightBufferStride * this._maxDeferredLights,
-            0,
-            //this._lightBufferStride,
+            this._lightBufferStride,
         ));
             
         let len = this._lightBufferElementCount * this._maxDeferredLights + 0;
