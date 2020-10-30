@@ -85,8 +85,8 @@ export class Light {
         return this._node;
     }
 
-    get type () {
-        return this._type;
+    get type () : LightType {
+        return LightPool.get(this._handle, LightView.TYPE);
     }
 
     get name () {
@@ -110,18 +110,14 @@ export class Light {
     protected _colorTempRGB: Vec3 = new Vec3(1, 1, 1);
     protected _scene: RenderScene | null = null;
     protected _node: Node | null = null;
-    protected _type: LightType;
     protected _name: string | null = null;
     protected _handle: LightHandle = NULL_HANDLE;
-
-    constructor () {
-        this._type = LightType.UNKNOWN;
-    }
 
     public initialize () {
         this._handle = LightPool.alloc();
         LightPool.setVec3(this._handle, LightView.COLOR, this._color);
         LightPool.setVec3(this._handle, LightView.COLOR_TEMPERATURE_RGB, this._colorTempRGB);
+        LightPool.set(this._handle, LightView.TYPE, LightType.UNKNOWN);
     }
 
     public attachToScene (scene: RenderScene) {
@@ -134,7 +130,6 @@ export class Light {
 
     public destroy () {
         this._name = null;
-        this._type = LightType.UNKNOWN;
         this._node = null;
         if (this._handle) {
             LightPool.free(this._handle);

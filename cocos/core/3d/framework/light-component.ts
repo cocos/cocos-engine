@@ -30,7 +30,7 @@
 
 import { Component } from '../../components/component';
 import { ccclass, tooltip, range, slide, type, serializable, editable } from 'cc.decorator';
-import { Color } from '../../math';
+import { Color, Vec3 } from '../../math';
 import { Enum } from '../../value-types';
 
 import { scene } from '../../renderer';
@@ -41,7 +41,7 @@ export const PhotometricTerm = Enum({
     LUMINOUS_POWER: 0,
     LUMINANCE: 1,
 });
-
+const _color_tmp = new Vec3();
 /**
  * @en static light settings.
  * @zh 静态灯光设置
@@ -132,9 +132,10 @@ export class Light extends Component {
     set color (val) {
         this._color = val;
         if (this._light) {
-            this._light.color.x = val.r / 255.0;
-            this._light.color.y = val.g / 255.0;
-            this._light.color.z = val.b / 255.0;
+            _color_tmp.x = val.r / 255.0;
+            _color_tmp.y = val.g / 255.0;
+            _color_tmp.z = val.b / 255.0;
+            this._light.color = _color_tmp;
         }
     }
 
