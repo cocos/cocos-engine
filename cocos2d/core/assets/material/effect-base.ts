@@ -44,7 +44,9 @@ export default class EffectBase {
 
         if (!properties.hasOwnProperty(name)) {
             this._createPassProp(name, pass);
-        } else if (properties[name].value === value) {
+        }
+
+        if (properties[name].value === value) {
             return;
         }
 
