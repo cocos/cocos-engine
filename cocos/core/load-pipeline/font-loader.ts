@@ -133,10 +133,11 @@ function _checkFontLoaded () {
         }
 
         let oldWidth = fontLoadHandle.refWidth;
+        const fontDesc = '40px ' + fontFamily;
         // @ts-ignore
-        _canvasContext.font = '40px ' + fontFamily;
+        _canvasContext.font = fontDesc;
         // @ts-ignore
-        let newWidth = safeMeasureText(_canvasContext, _testString);
+        let newWidth = safeMeasureText(_canvasContext, _testString, fontDesc);
         // loaded successfully
         if (oldWidth !== newWidth) {
             _loadingFonts.splice(i, 1);
@@ -170,11 +171,11 @@ export function loadFont (item, callback) {
     }
 
     // Default width reference to test whether new font is loaded correctly
-    let fontDesc = '40px ' + fontFamilyName;
+    const fontDesc = '40px ' + fontFamilyName;
     // @ts-ignore
     _canvasContext.font = fontDesc;
     // @ts-ignore
-    let refWidth = safeMeasureText(_canvasContext, _testString);
+    let refWidth = safeMeasureText(_canvasContext, _testString, fontDesc);
 
     // Setup font face style
     let fontStyle = document.createElement("style");
