@@ -24,6 +24,7 @@ import { GFXAttribute } from './input-assembler';
 import { GFXRenderPass } from './render-pass';
 import { GFXShader } from './shader';
 import { GFXPipelineLayout } from './pipeline-layout';
+import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 
 /**
  * @en GFX rasterizer state.
@@ -58,6 +59,11 @@ export class GFXRasterizerState {
             (this.isDepthClip === state.isDepthClip) &&
             (this.lineWidth === state.lineWidth) &&
             (this.isMultisample === state.isMultisample);
+    }
+
+    public hash (): number {
+        const str = ',rs,' + this.cullMode + ',' + this.depthBias + ',' + this.isFrontFaceCCW;
+        return murmurhash2_32_gc(str, 666);
     }
 
     public reset () {
@@ -155,6 +161,15 @@ export class GFXDepthStencilState {
     public set (depthStencilState: RecursivePartial<GFXDepthStencilState>) {
         Object.assign(this, depthStencilState);
     }
+
+    public hash (): number {
+        let res = `,dss,${this.depthTest},${this.depthWrite},${this.depthFunc}`;
+        res += `,${this.stencilTestFront},${this.stencilFuncFront},${this.stencilRefFront},${this.stencilReadMaskFront}`;
+        res += `,${this.stencilFailOpFront},${this.stencilZFailOpFront},${this.stencilPassOpFront},${this.stencilWriteMaskFront}`;
+        res += `,${this.stencilTestBack},${this.stencilFuncBack},${this.stencilRefBack},${this.stencilReadMaskBack}`;
+        res += `,${this.stencilFailOpBack},${this.stencilZFailOpBack},${this.stencilPassOpBack},${this.stencilWriteMaskBack}`;
+        return murmurhash2_32_gc(res, 666);
+    }
 }
 
 /**
@@ -221,7 +236,11 @@ export class GFXBlendState {
      * @param target The target to be set.
      */
     public setTarget (index: number, target: GFXBlendTarget) {
-        this.targets[index] = target;
+        let tg = this.targets[index];
+        if (!tg) {
+            tg = this.targets[index] = new GFXBlendTarget();
+        }
+        Object.assign(tg, target);
     }
 
     public reset () {
@@ -233,6 +252,24 @@ export class GFXBlendState {
         this.blendColor.w = 0;
         this.targets.length = 1;
         this.targets[0].reset();
+    }
+
+    public hash (): number {
+        let res = `,bs,${this.isA2C},${this.blendColor}`;
+        for (const t of this.targets) {
+            res += `,bt,${t.blend},${t.blendEq},${t.blendAlphaEq},${t.blendColorMask}`;
+            res += `,${t.blendSrc},${t.blendDst},${t.blendSrcAlpha},${t.blendDstAlpha}`;
+        }
+        return murmurhash2_32_gc(res, 666);
+    }
+
+    /**
+     * This function is neeeded to reduce JSB invoking.
+     */
+    public updateByPass (bs : GFXBlendState) {
+        if (bs.isA2C !== undefined) this.isA2C = bs.isA2C;
+        if (bs.isIndepend !== undefined) this.isIndepend = bs.isIndepend;
+        if (bs.blendColor !== undefined) Object.assign(this.blendColor, bs.blendColor);
     }
 }
 

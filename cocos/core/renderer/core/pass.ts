@@ -139,15 +139,14 @@ export class Pass {
         const bs = BlendStatePool.get(PassPool.get(hPass, PassView.BLEND_STATE));
         if (info.blendState) {
             const bsInfo = info.blendState;
-            if (bsInfo.targets) {
-                bsInfo.targets.forEach((t, i) => {
-                    if (!bs.targets[i]) bs.setTarget(i, new GFXBlendTarget());
-                    Object.assign(bs.targets[i], t);
+            const targets = bsInfo.targets;
+            if (targets) {
+                targets.forEach((t, i) => {
+                    bs.setTarget(i, t as GFXBlendTarget);
                 });
             }
-            if (bsInfo.isA2C !== undefined) { bs.isA2C = bsInfo.isA2C; }
-            if (bsInfo.isIndepend !== undefined) { bs.isIndepend = bsInfo.isIndepend; }
-            if (bsInfo.blendColor !== undefined) { Object.assign(bs.blendColor, bsInfo.blendColor); }
+
+            bs.updateByPass(bsInfo as GFXBlendState);
         }
         if (info.rasterizerState) {
             RasterizerStatePool.get(PassPool.get(hPass, PassView.RASTERIZER_STATE)).set(info.rasterizerState);
@@ -165,9 +164,9 @@ export class Pass {
      */
     public static getPassHash (hPass: PassHandle, hShader: ShaderHandle) {
         let res = hShader + ',' + PassPool.get(hPass, PassView.PRIMITIVE) + ',' + PassPool.get(hPass, PassView.DYNAMIC_STATES);
-        res += serializeBlendState(BlendStatePool.get(PassPool.get(hPass, PassView.BLEND_STATE)));
-        res += serializeDepthStencilState(DepthStencilStatePool.get(PassPool.get(hPass, PassView.DEPTH_STENCIL_STATE)));
-        res += serializeRasterizerState(RasterizerStatePool.get(PassPool.get(hPass, PassView.RASTERIZER_STATE)));
+        res += BlendStatePool.get(PassPool.get(hPass, PassView.BLEND_STATE)).hash();
+        res += DepthStencilStatePool.get(PassPool.get(hPass, PassView.DEPTH_STENCIL_STATE)).hash();
+        res += RasterizerStatePool.get(PassPool.get(hPass, PassView.RASTERIZER_STATE)).hash();
         return murmurhash2_32_gc(res, 666);
     }
 
@@ -627,34 +626,4 @@ export class Pass {
     get batchingScheme () { return PassPool.get(this._handle, PassView.BATCHING_SCHEME); }
     get descriptorSet () { return this._descriptorSet; }
     get hash () { return PassPool.get(this._handle, PassView.HASH); }
-}
-
-function serializeBlendState (bs: GFXBlendState) {
-    let res = `,bs,${bs.isA2C},${bs.blendColor}`;
-    for (const t of bs.targets) {
-        res += `,bt,${t.blend},${t.blendEq},${t.blendAlphaEq},${t.blendColorMask}`;
-        res += `,${t.blendSrc},${t.blendDst},${t.blendSrcAlpha},${t.blendDstAlpha}`;
-    }
-    return res;
-}
-
-function serializeRasterizerState (rs: GFXRasterizerState) {
-    return ',rs,' + rs.cullMode + ',' + rs.depthBias + ',' + rs.isFrontFaceCCW;
-}
-
-function serializeDepthStencilState (dss: GFXDepthStencilState) {
-    let res = `,dss,${dss.depthTest},${dss.depthWrite},${dss.depthFunc}`;
-    res += `,${dss.stencilTestFront},${dss.stencilFuncFront},${dss.stencilRefFront},${dss.stencilReadMaskFront}`;
-    res += `,${dss.stencilFailOpFront},${dss.stencilZFailOpFront},${dss.stencilPassOpFront},${dss.stencilWriteMaskFront}`;
-    res += `,${dss.stencilTestBack},${dss.stencilFuncBack},${dss.stencilRefBack},${dss.stencilReadMaskBack}`;
-    res += `,${dss.stencilFailOpBack},${dss.stencilZFailOpBack},${dss.stencilPassOpBack},${dss.stencilWriteMaskBack}`;
-    return res;
-}
-
-function serializeDynamicState (dynamicStates: GFXDynamicStateFlags[]) {
-    let res = ',ds';
-    for (const ds in dynamicStates) {
-        res += ',' + ds;
-    }
-    return res;
 }
