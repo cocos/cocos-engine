@@ -1097,8 +1097,8 @@ export enum ShadowsView {
     SPHERE,             // handle
     AUTO_ADAPT,         // boolean
     RECEIVE_SPHERE,     // handle
+// ↓↓↓↓↓↓↓↓↓↓↓↓↓ Web don't alloc memory ↓↓↓↓↓↓↓↓↓↓↓↓↓
     COLOR = 15,         // Vec4
-// ↓↓↓↓↓↓↓↓↓↓↓↓↓ Don't alloc memory ↓↓↓↓↓↓↓↓↓↓↓↓↓
     SIZE = 19,          // Vec2
     NORMAL = 21,        // Vec3
     MAT_LIGHT = 24,     // Mat4
@@ -1120,8 +1120,8 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.SPHERE]: SphereHandle;
     [ShadowsView.AUTO_ADAPT]: number;
     [ShadowsView.RECEIVE_SPHERE]: SphereHandle;
+// ↓↓↓↓↓↓↓↓↓↓↓↓↓ Web don't alloc memory ↓↓↓↓↓↓↓↓↓↓↓↓↓
     [ShadowsView.COLOR]: Color;
-// ↓↓↓↓↓↓↓↓↓↓↓↓↓ Don't alloc memory ↓↓↓↓↓↓↓↓↓↓↓↓↓
     [ShadowsView.SIZE]: Vec2;
     [ShadowsView.NORMAL]: Vec3;
     [ShadowsView.MAT_LIGHT]: Mat4;
@@ -1143,8 +1143,8 @@ const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
     [ShadowsView.SPHERE]: BufferDataType.UINT32,
     [ShadowsView.AUTO_ADAPT]: BufferDataType.UINT32,
     [ShadowsView.RECEIVE_SPHERE]: BufferDataType.UINT32,
+// ↓↓↓↓↓↓↓↓↓↓↓↓↓ Web don't alloc memory ↓↓↓↓↓↓↓↓↓↓↓↓↓
     [ShadowsView.COLOR]: BufferDataType.FLOAT32,
-// ↓↓↓↓↓↓↓↓↓↓↓↓↓ Don't alloc memory ↓↓↓↓↓↓↓↓↓↓↓↓↓
     [ShadowsView.SIZE]: BufferDataType.FLOAT32,
     [ShadowsView.NORMAL]: BufferDataType.FLOAT32,
     [ShadowsView.MAT_LIGHT]: BufferDataType.FLOAT32,
