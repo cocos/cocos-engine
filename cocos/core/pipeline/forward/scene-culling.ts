@@ -202,11 +202,9 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
 
     if (_castWorldBounds) {
         aabb.toBoundingSphere(shadows.sphere, _castWorldBounds);
-        ShadowsPool.set(shadows.handle, ShadowsView.SPHERE, shadows.sphere.handle);
     }
 
     if (_receiveWorldBounds) {
         aabb.toBoundingSphere(shadows.receiveSphere, _receiveWorldBounds);
-        ShadowsPool.set(shadows.handle, ShadowsView.RECEIVE_SPHERE, shadows.receiveSphere.handle);
     }
 }
