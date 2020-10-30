@@ -26,8 +26,8 @@ import { createShape } from '../../instance';
 @ccclass('cc.Collider')
 export class Collider extends Eventify(Component) {
 
-    static readonly EColliderType = EColliderType;
-    static readonly EAxisDirection = EAxisDirection;
+    static readonly Type = EColliderType;
+    static readonly Axis = EAxisDirection;
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -434,8 +434,8 @@ export class Collider extends Eventify(Component) {
 }
 
 export namespace Collider {
-    export type EColliderType = EnumAlias<typeof EColliderType>;
-    export type EAxisDirection = EnumAlias<typeof EAxisDirection>;
+    export type Type = EnumAlias<typeof EColliderType>;
+    export type Axis = EnumAlias<typeof EAxisDirection>;
 }
 
 function findAttachedBody (node: Node): RigidBody | null {

@@ -38,7 +38,7 @@ import { PhysicsSystem } from '../physics-system';
 @executionOrder(-1)
 export class RigidBody extends Component {
 
-    static readonly ERigidBodyType = ERigidBodyType;
+    static readonly Type = ERigidBodyType;
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -708,5 +708,5 @@ export class RigidBody extends Component {
 }
 
 export namespace RigidBody {
-    export type ERigidBodyType = EnumAlias<typeof ERigidBodyType>;
+    export type Type = EnumAlias<typeof ERigidBodyType>;
 }
