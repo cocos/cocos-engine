@@ -35,7 +35,6 @@ import { ccenum } from '../../value-types/enum';
 import { builtinResMgr } from '../../3d/builtin/init';
 import { Material } from '../../assets';
 import { GFXBlendFactor } from '../../gfx/define';
-import { MaterialInstance } from '../../renderer';
 import { IMaterialInstanceInfo } from '../../renderer/core/material-instance';
 import { IAssembler, IAssemblerManager } from '../../renderer/ui/base';
 import { RenderData } from '../../renderer/ui/render-data';
@@ -47,7 +46,6 @@ import { RenderableComponent } from '../../3d/framework/renderable-component';
 import { EDITOR } from 'internal:constants';
 import { Stage } from '../../renderer/ui/stencil-manager';
 import { warnID } from '../../platform';
-import { dir } from 'console';
 import { murmurhash2_32_gc } from '../../utils';
 
 // hack
