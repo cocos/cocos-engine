@@ -93,7 +93,7 @@ public:
 };
 
 struct CC_DLL Node {
-    bool flagsChanged = 0;
+    uint32_t flagsChanged = 0;
     uint32_t layer = 0;
     cc::Vec3 worldScale;
     cc::Vec3 worldPosition;
