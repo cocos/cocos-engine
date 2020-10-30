@@ -207,6 +207,25 @@ export class Node extends BaseNode {
     }
 
     /**
+     * @en Rotation in local coordinate system, represented by euler angles, but limited on z axis
+     * @zh 本地坐标系下的旋转，用欧拉角表示，但是限定在 z 轴上。
+     */
+    @editable
+    get angle () {
+        return this._euler.z;
+    }
+    set angle (val: number) {
+        Vec3.set(this._euler, 0, 0, val);
+        Quat.fromAngleZ(this._lrot, val);
+        this._eulerDirty = false;
+
+        this.invalidateChildren(TransformBit.ROTATION);
+        if (this._eventMask & TRANSFORM_ON) {
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+        }
+    }
+
+    /**
      * @en Rotation in world coordinate system, represented by a quaternion
      * @zh 世界坐标系下的旋转，用四元数表示
      */
