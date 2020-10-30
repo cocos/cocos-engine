@@ -119,7 +119,7 @@ export class CannonTerrainShape extends CannonShape implements ITerrainShape {
             const lpos = this._offset as IVec3Like;
             Vec3.set(lpos, 0, 0, (terrain.getVertexCountJ() - 1) * terrain.tileSize);
             Vec3.add(lpos, lpos, v);
-            Vec3.multiply(lpos, lpos, this._collider.node.worldScale);
+            // Vec3.multiply(lpos, lpos, this._collider.node.worldScale);
         }
     }
 }
