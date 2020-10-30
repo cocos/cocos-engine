@@ -887,18 +887,13 @@ export class SpriteFrame extends Asset {
             const rect = this._rect;
             const offset = this._offset;
             const originalSize = this._originalSize;
-            let uuid = this._uuid;
             let texture;
             if (this._texture) {
                 texture = this._texture._uuid;
-            }
-
-            if (uuid && exporting) {
-                uuid = EditorExtends.UuidUtils.compressUuid(uuid, true);
-            }
-            if (texture && exporting) {
-                texture = EditorExtends.UuidUtils.compressUuid(texture, true);
-                ctxForExporting.dependsOn('_textureSource', texture);
+                if (exporting) {
+                    texture = EditorExtends.UuidUtils.compressUuid(texture, true);
+                    ctxForExporting.dependsOn('_textureSource', texture);
+                }
             }
 
             let vertices;
