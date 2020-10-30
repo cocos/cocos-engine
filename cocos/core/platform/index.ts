@@ -44,6 +44,8 @@ export {
     assertID,
     isDisplayStats,
     setDisplayStats,
+    getError,
+    DebugMode,
 } from './debug';
 
 export { screen } from './screen';

@@ -37,7 +37,7 @@ import { warnID } from '../platform/debug';
  * A SAX Parser
  * @class saxParser
  */
-class SAXParser {
+export class SAXParser {
     private _parser: DOMParser | null = null;
     constructor () {
         if (window.DOMParser) {
