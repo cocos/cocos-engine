@@ -417,13 +417,15 @@ export class Collider extends Eventify(Component) {
             if (type !== undefined) {
                 if (type == 'onCollisionEnter' || type == 'onCollisionStay' || type == 'onCollisionExit') {
                     this._needCollisionEvent = true;
-                } else if (type == 'onTriggerEnter' || type == 'onTriggerStay' || type == 'onTriggerExit') {
+                }
+                if (type == 'onTriggerEnter' || type == 'onTriggerStay' || type == 'onTriggerExit') {
                     this._needTriggerEvent = true;
                 }
             } else {
                 if (!(this.hasEventListener('onTriggerEnter') || this.hasEventListener('onTriggerStay') || this.hasEventListener('onTriggerExit'))) {
                     this._needTriggerEvent = false;
-                } else if (!(this.hasEventListener('onCollisionEnter') || this.hasEventListener('onCollisionStay') || this.hasEventListener('onCollisionExit'))) {
+                }
+                if (!(this.hasEventListener('onCollisionEnter') || this.hasEventListener('onCollisionStay') || this.hasEventListener('onCollisionExit'))) {
                     this._needCollisionEvent = false;
                 }
             }
