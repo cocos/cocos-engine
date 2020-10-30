@@ -36,9 +36,6 @@ import { SubModelPool, InputAssemblerHandle, DescriptorSetHandle, SubModelView, 
 import { RenderPriority } from '../../pipeline/define';
 
 export class UIBatchModel extends Model {
-
-    private _subModel!: UISubModel;
-
     constructor () {
         super();
         this.type = ModelType.UI_BATCH;
@@ -47,11 +44,11 @@ export class UIBatchModel extends Model {
     public initialize () {
         super.initialize();
 
-        this._subModel = new UISubModel();
-        this._subModel.initialize();
-        this._subModels[0] = this._subModel;
+        const subModel = new UISubModel();
+        subModel.initialize();
+        this._subModels[0] = subModel;
         const hSubModelArray = ModelPool.get(this._handle, ModelView.SUB_MODEL_ARRAY);
-        SubModelArrayPool.assign(hSubModelArray, 0, this._subModel.handle);
+        SubModelArrayPool.assign(hSubModelArray, 0, subModel.handle);
     }
 
     public updateTransform () {}
@@ -69,11 +66,15 @@ export class UIBatchModel extends Model {
     }
 
     public directInitialize (batch: UIDrawBatch) {
-        this._subModel.directInitialize(batch.material!.passes, batch.hInputAssembler, batch.hDescriptorSet!);
+        const subModel = this._subModels[0] as UISubModel;
+        subModel.directInitialize(batch.material!.passes, batch.hInputAssembler, batch.hDescriptorSet!);
     }
 
     public destroy () {
-        this._subModel.destroy();
+        if (this._handle) {
+            ModelPool.free(this._handle);
+            this._handle = NULL_HANDLE;
+        }
         super.destroy();
     }
 }
