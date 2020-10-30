@@ -1,93 +1,93 @@
 declare const gfx: any;
 
-import * as GFXDefines from './define';
+import * as Defines from './define';
 import { legacyCC } from '../global-exports';
 
 export * from './define';
 
-export const GFXRasterizerState = gfx.RasterizerState;
-export const GFXDepthStencilState = gfx.DepthStencilState;
-export const GFXBlendTarget = gfx.BlendTarget;
-export const GFXBlendState = gfx.BlendState;
-export const GFXPipelineState = gfx.PipelineState;
-export const GFXPipelineStateInfo = gfx.PipelineStateInfo;
-export const GFXInputState = gfx.InputState;
-export const GFXTextureInfo = gfx.TextureInfo;
-export const GFXTextureViewInfo = gfx.TextureViewInfo;
-export const GFXTexture = gfx.Texture;
+export const RasterizerState = gfx.RasterizerState;
+export const DepthStencilState = gfx.DepthStencilState;
+export const BlendTarget = gfx.BlendTarget;
+export const BlendState = gfx.BlendState;
+export const PipelineState = gfx.PipelineState;
+export const PipelineStateInfo = gfx.PipelineStateInfo;
+export const InputState = gfx.InputState;
+export const TextureInfo = gfx.TextureInfo;
+export const TextureViewInfo = gfx.TextureViewInfo;
+export const Texture = gfx.Texture;
 
-export const GFXDevice = gfx.Device;
-export const GFXBindingMappingInfo = gfx.BindingMappingInfo;
-// GFXDeviceInfo is different from native defination, so use JS defination instead.
-export { GFXDeviceInfo } from './device';
+export const Device = gfx.Device;
+export const BindingMappingInfo = gfx.BindingMappingInfo;
+// DeviceInfo is different from native defination, so use JS defination instead.
+export { DeviceInfo } from './device';
 
-export const GFXShader = gfx.Shader;
-export const GFXShaderStage = gfx.ShaderStage;
-export const GFXUniform = gfx.Uniform;
-export const GFXUniformBlock = gfx.UniformBlock;
-export const GFXUniformSampler = gfx.UniformSampler;
-export const GFXShaderInfo = gfx.ShaderInfo;
+export const Shader = gfx.Shader;
+export const ShaderStage = gfx.ShaderStage;
+export const Uniform = gfx.Uniform;
+export const UniformBlock = gfx.UniformBlock;
+export const UniformSampler = gfx.UniformSampler;
+export const ShaderInfo = gfx.ShaderInfo;
 
-export const GFXAttribute = gfx.Attribute;
-export const GFXInputAssemblerInfo = gfx.InputAssemblerInfo;
-export const GFXInputAssembler = gfx.InputAssembler;
+export const Attribute = gfx.Attribute;
+export const InputAssemblerInfo = gfx.InputAssemblerInfo;
+export const InputAssembler = gfx.InputAssembler;
 
-export const GFXDrawInfo = gfx.DrawInfo;
-export const GFXIndirectBuffer = gfx.IndirectBuffer;
-export const GFXBufferInfo = gfx.BufferInfo;
-export const GFXBufferViewInfo = gfx.BufferViewInfo;
-export const GFXBuffer = gfx.Buffer;
-export { GFX_DRAW_INFO_SIZE } from './buffer';
+export const DrawInfo = gfx.DrawInfo;
+export const IndirectBuffer = gfx.IndirectBuffer;
+export const BufferInfo = gfx.BufferInfo;
+export const BufferViewInfo = gfx.BufferViewInfo;
+export const Buffer = gfx.Buffer;
+export { _DRAW_INFO_SIZE } from './buffer';
 
-export const GFXSamplerInfo = gfx.SamplerInfo;
-export const GFXSampler = gfx.Sampler;
+export const SamplerInfo = gfx.SamplerInfo;
+export const Sampler = gfx.Sampler;
 
-export const GFXRect = gfx.Rect;
-export const GFXViewport = gfx.Viewport
-export const GFXColor = gfx.Color;
-export const GFXOffset = gfx.Offset;
-export const GFXExtent = gfx.Extent;
-export const GFXTextureSubres = gfx.TextureSubres;
-export const GFXTextureCopy = gfx.TextureCopy;
-export const GFXBufferTextureCopy = gfx.BufferTextureCopy;
+export const Rect = gfx.Rect;
+export const Viewport = gfx.Viewport
+export const Color = gfx.Color;
+export const Offset = gfx.Offset;
+export const Extent = gfx.Extent;
+export const TextureSubres = gfx.TextureSubres;
+export const TextureCopy = gfx.TextureCopy;
+export const BufferTextureCopy = gfx.BufferTextureCopy;
 
-export const GFXFenceInfo = gfx.FenceInfo;
-export const GFXFence = gfx.Fence;
+export const FenceInfo = gfx.FenceInfo;
+export const Fence = gfx.Fence;
 
-export const GFXColorAttachment = gfx.ColorAttachment;
-export const GFXDepthStencilAttachment = gfx.DepthStencilAttachment;
-export const GFXSubPassInfo = gfx.SubPassInfo;
-export const GFXRenderPassInfo = gfx.RenderPassInfo;
-export const GFXRenderPass = gfx.RenderPass;
+export const ColorAttachment = gfx.ColorAttachment;
+export const DepthStencilAttachment = gfx.DepthStencilAttachment;
+export const SubPassInfo = gfx.SubPassInfo;
+export const RenderPassInfo = gfx.RenderPassInfo;
+export const RenderPass = gfx.RenderPass;
 
-export const GFXQueueInfo = gfx.QueueInfo;
-export const GFXQueue = gfx.Queue;
+export const QueueInfo = gfx.QueueInfo;
+export const Queue = gfx.Queue;
 
-export const GFXPipelineLayoutInfo = gfx.PipelineLayoutInfo;
-export const GFXPipelineLayout = gfx.PipelineLayout;
+export const PipelineLayoutInfo = gfx.PipelineLayoutInfo;
+export const PipelineLayout = gfx.PipelineLayout;
 
-export const GFXDescriptorSetLayoutBinding = gfx.DescriptorSetLayoutBinding;
-export const GFXDescriptorSetLayoutInfo = gfx.DescriptorSetLayoutInfo;
-export const GFXDescriptorSetLayout = gfx.DescriptorSetLayout;
-export const GFXDescriptorSetInfo = gfx.DescriptorSetInfo;
+export const DescriptorSetLayoutBinding = gfx.DescriptorSetLayoutBinding;
+export const DescriptorSetLayoutInfo = gfx.DescriptorSetLayoutInfo;
+export const DescriptorSetLayout = gfx.DescriptorSetLayout;
+export const DescriptorSetInfo = gfx.DescriptorSetInfo;
 export { DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE } from './descriptor-set';
 
-export const GFXFramebufferInfo = gfx.FramebufferInfo;
-export const GFXFramebuffer = gfx.Framebuffer;
+export const FramebufferInfo = gfx.FramebufferInfo;
+export const Framebuffer = gfx.Framebuffer;
 
-export const GFXCommandBufferInfo = gfx.CommandBufferInfo;
-export const GFXCommandBuffer = gfx.CommandBuffer;
+export const CommandBufferInfo = gfx.CommandBufferInfo;
+export const CommandBuffer = gfx.CommandBuffer;
 
-legacyCC.GFXDevice = GFXDevice;
-legacyCC.GFXBuffer = GFXBuffer;
-legacyCC.GFXTexture = GFXTexture;
-legacyCC.GFXSampler = GFXSampler;
-legacyCC.GFXShader = GFXShader;
-legacyCC.GFXInputAssembler = GFXInputAssembler;
-legacyCC.GFXRenderPass = GFXRenderPass;
-legacyCC.GFXFramebuffer = GFXFramebuffer;
-legacyCC.GFXPipelineState = GFXPipelineState;
-legacyCC.GFXCommandBuffer = GFXCommandBuffer;
-legacyCC.GFXQueue = GFXQueue;
+legacyCC.Device = Device;
+legacyCC.Buffer = Buffer;
+legacyCC.Texture = Texture;
+legacyCC.Sampler = Sampler;
+legacyCC.Shader = Shader;
+legacyCC.InputAssembler = InputAssembler;
+legacyCC.RenderPass = RenderPass;
+legacyCC.Framebuffer = Framebuffer;
+legacyCC.PipelineState = PipelineState;
+legacyCC.CommandBuffer = CommandBuffer;
+legacyCC.Queue = Queue;
 
-Object.assign(legacyCC, GFXDefines);
+Object.assign(legacyCC, Defines);

@@ -1,14 +1,14 @@
-import { GFXPipelineLayout, GFXPipelineLayoutInfo } from '../pipeline-layout';
+import { PipelineLayout, PipelineLayoutInfo } from '../pipeline-layout';
 import { IWebGLGPUPipelineLayout, IWebGLGPUDescriptorSetLayout } from './webgl-gpu-objects';
 import { WebGLDescriptorSetLayout } from './webgl-descriptor-set-layout';
 
-export class WebGLPipelineLayout extends GFXPipelineLayout {
+export class WebGLPipelineLayout extends PipelineLayout {
 
     get gpuPipelineLayout () { return this._gpuPipelineLayout!; }
 
     private _gpuPipelineLayout: IWebGLGPUPipelineLayout | null = null;
 
-    public initialize (info: GFXPipelineLayoutInfo) {
+    public initialize (info: PipelineLayoutInfo) {
         Array.prototype.push.apply(this._setLayouts, info.setLayouts);
 
         const dynamicOffsetIndices: number[][] = [];

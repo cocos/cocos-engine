@@ -1,16 +1,16 @@
-import { GFXCommandBuffer } from '../command-buffer';
-import { GFXQueue, GFXQueueInfo } from '../queue';
+import { CommandBuffer } from '../command-buffer';
+import { Queue, QueueInfo } from '../queue';
 import { WebGL2CommandBuffer } from './webgl2-command-buffer';
-import { GFXFence } from '../fence';
+import { Fence } from '../fence';
 import { WebGL2Fence } from './webgl2-fence';
 
-export class WebGL2Queue extends GFXQueue {
+export class WebGL2Queue extends Queue {
 
     public numDrawCalls: number = 0;
     public numInstances: number = 0;
     public numTris: number = 0;
 
-    public initialize (info: GFXQueueInfo): boolean {
+    public initialize (info: QueueInfo): boolean {
 
         this._type = info.type;
 
@@ -20,7 +20,7 @@ export class WebGL2Queue extends GFXQueue {
     public destroy () {
     }
 
-    public submit (cmdBuffs: GFXCommandBuffer[], fence?: GFXFence) {
+    public submit (cmdBuffs: CommandBuffer[], fence?: Fence) {
         // TODO: Async
         if (!this._isAsync) {
             for (let i = 0; i < cmdBuffs.length; i++) {

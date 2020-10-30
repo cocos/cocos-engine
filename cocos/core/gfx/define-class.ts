@@ -2,7 +2,7 @@
  * Define gfx global classes here.
  */
 
-export class GFXRect {
+export class Rect {
     declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
@@ -13,7 +13,7 @@ export class GFXRect {
     ) {}
 }
 
-export class GFXViewport {
+export class Viewport {
     declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
@@ -26,7 +26,7 @@ export class GFXViewport {
     ) {}
 }
 
-export class GFXColor {
+export class Color {
     declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
@@ -37,7 +37,7 @@ export class GFXColor {
     ) {}
 }
 
-export class GFXOffset {
+export class Offset {
     declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
@@ -47,7 +47,7 @@ export class GFXOffset {
     ) {}
 }
 
-export class GFXExtent {
+export class Extent {
     declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
@@ -57,7 +57,7 @@ export class GFXExtent {
     ) {}
 }
 
-export class GFXTextureSubres {
+export class TextureSubres {
     declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
@@ -67,26 +67,26 @@ export class GFXTextureSubres {
     ) {}
 }
 
-export class GFXTextureCopy {
+export class TextureCopy {
     declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public srcSubres = new GFXTextureSubres(),
-        public srcOffset = new GFXOffset(),
-        public dstSubres = new GFXTextureSubres(),
-        public dstOffset = new GFXOffset(),
-        public extent = new GFXExtent(),
+        public srcSubres = new TextureSubres(),
+        public srcOffset = new Offset(),
+        public dstSubres = new TextureSubres(),
+        public dstOffset = new Offset(),
+        public extent = new Extent(),
     ) {}
 }
 
-export class GFXBufferTextureCopy {
+export class BufferTextureCopy {
     declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public buffStride: number = 0,
         public buffTexHeight: number = 0,
-        public texOffset = new GFXOffset(),
-        public texExtent = new GFXExtent(),
-        public texSubres = new GFXTextureSubres(),
+        public texOffset = new Offset(),
+        public texExtent = new Extent(),
+        public texSubres = new TextureSubres(),
     ) {}
 }
