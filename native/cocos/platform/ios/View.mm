@@ -23,6 +23,7 @@
  ****************************************************************************/
 #import "View.h"
 #include "bindings/event/EventDispatcher.h"
+#include "platform/Application.h"
 
 namespace {
 void dispatchEvents(cc::TouchEvent &touchEvent, NSSet *touches) {
@@ -42,13 +43,24 @@ void dispatchEvents(cc::TouchEvent &touchEvent, NSSet *touches) {
 
 @synthesize preventTouch;
 
+#ifndef CC_USE_METAL
 + (Class)layerClass {
     return [CAEAGLLayer class];
 }
+#endif
 
 - (id)initWithFrame:(CGRect)frame {
-    if (self = [super initWithFrame:frame])
-        self.preventTouch = false;
+#ifdef CC_USE_METAL
+    if (self = [super initWithFrame:frame device:MTLCreateSystemDefaultDevice()]) {
+        self.framebufferOnly = YES;
+        self.delegate = self;
+        self.preventTouch = FALSE;
+    }
+#else
+    if (self = [super initWithFrame:frame]) {
+        self.preventTouch = FALSE;
+    }
+#endif
 
     return self;
 }
@@ -88,5 +100,15 @@ void dispatchEvents(cc::TouchEvent &touchEvent, NSSet *touches) {
 - (void)setPreventTouchEvent:(BOOL)flag {
     self.preventTouch = flag;
 }
+
+#ifdef CC_USE_METAL
+- (void)drawInMTKView:(nonnull MTKView *)view {
+    cc::Application::getInstance()->tick();
+}
+
+- (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size {
+    //TODO
+}
+#endif
 
 @end

@@ -235,8 +235,7 @@ MTLPixelFormat toMTLPixelFormat(Format format) {
         case Format::RG8I: return MTLPixelFormatRG8Sint;
         case Format::RG16F: return MTLPixelFormatRG16Float;
         case Format::RG16UI: return MTLPixelFormatRG16Uint;
-        case Format::RG16I:
-            return MTLPixelFormatRG16Sint;
+        case Format::RG16I: return MTLPixelFormatRG16Sint;
 
             //            case Format::RGB8SN: return MTLPixelFormatRGBA8Snorm;
             //            case Format::RGB8UI: return MTLPixelFormatRGBA8Uint;
@@ -258,8 +257,7 @@ MTLPixelFormat toMTLPixelFormat(Format format) {
         case Format::RGBA32F: return MTLPixelFormatRGBA32Float;
         case Format::RGBA32UI: return MTLPixelFormatRGBA32Uint;
         case Format::RGBA32I: return MTLPixelFormatRGBA32Sint;
-        case Format::BGRA8:
-            return MTLPixelFormatBGRA8Unorm;
+        case Format::BGRA8: return MTLPixelFormatBGRA8Unorm;
 
             // Should convert.
             //            case Format::R5G6B5: return MTLPixelFormatB5G6R5Unorm;
@@ -269,20 +267,25 @@ MTLPixelFormat toMTLPixelFormat(Format format) {
         case Format::RGB9E5: return MTLPixelFormatRGB9E5Float;
         case Format::RGB10A2UI: return MTLPixelFormatRGB10A2Uint;
         case Format::R11G11B10F: return MTLPixelFormatRG11B10Float;
-
-        case Format::D16: return MTLPixelFormatDepth16Unorm;
-        case Format::D24S8: return MTLPixelFormatDepth24Unorm_Stencil8;
+        case Format::D16: {
+#if (CC_PLATFORM == CC_PLATFOMR_MAC_OSX)
+            return MTLPixelFormatDepth16Unorm;
+#else
+            if (@available(iOS 13.0, *)) return MTLPixelFormatDepth16Unorm;
+            else break;
+#endif
+        }
         case Format::D32F: return MTLPixelFormatDepth32Float;
         case Format::D32F_S8: return MTLPixelFormatDepth32Float_Stencil8;
-
+#if (CC_PLATFORM == CC_PLATFOMR_MAC_OSX)
+        case Format::D24S8: return MTLPixelFormatDepth24Unorm_Stencil8;
         case Format::BC1_ALPHA: return MTLPixelFormatBC1_RGBA;
         case Format::BC1_SRGB_ALPHA: return MTLPixelFormatBC1_RGBA_sRGB;
-
-        default: {
-            CC_LOG_ERROR("Invalid pixel format %u", format);
-            return MTLPixelFormatInvalid;
-        }
+#endif
+        default: break;
     }
+    CC_LOG_ERROR("Invalid pixel format %u", format);
+    return MTLPixelFormatInvalid;
 }
 
 MTLColorWriteMask toMTLColorWriteMask(ColorMask mask) {
@@ -478,11 +481,22 @@ MTLSamplerAddressMode toMTLSamplerAddressMode(Address mode) {
         case Address::WRAP: return MTLSamplerAddressModeRepeat;
         case Address::MIRROR: return MTLSamplerAddressModeMirrorRepeat;
         case Address::CLAMP: return MTLSamplerAddressModeClampToEdge;
-        case Address::BORDER: return MTLSamplerAddressModeClampToBorderColor;
+        case Address::BORDER: {
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+            if (@available(iOS 14.0, *)) return MTLSamplerAddressModeClampToBorderColor;
+            else break;;
+#else
+            return MTLSamplerAddressModeClampToBorderColor;
+#endif
+        }
+        default: break;
     }
+    CC_LOG_ERROR("Invalid sampler address mode %d, use Address::CLAMP.", mode);
+    return MTLSamplerAddressModeClampToEdge;
 }
 
-MTLSamplerBorderColor toMTLSamplerBorderColor(const Color &color) {
+int toMTLSamplerBorderColor(const Color &color) {
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     float diff = color.x - 0.5f;
     if (math::IsEqualF(color.w, 0.f))
         return MTLSamplerBorderColorTransparentBlack;
@@ -490,6 +504,20 @@ MTLSamplerBorderColor toMTLSamplerBorderColor(const Color &color) {
         return MTLSamplerBorderColorOpaqueBlack;
     else
         return MTLSamplerBorderColorOpaqueWhite;
+#else
+    if (@available(iOS 14.0, *)) {
+        float diff = color.x - 0.5f;
+        if (math::IsEqualF(color.w, 0.f))
+            return MTLSamplerBorderColorTransparentBlack;
+        else if (math::IsEqualF(diff, 0.f))
+            return MTLSamplerBorderColorOpaqueBlack;
+        else
+            return MTLSamplerBorderColorOpaqueWhite;
+    }
+    else {
+        return 0;
+    }
+#endif
 }
 
 MTLSamplerMinMagFilter toMTLSamplerMinMagFilter(Filter filter) {
@@ -613,7 +641,7 @@ String compileGLSLShader2Msl(const String &src,
 
 const uint8_t *convertRGB8ToRGBA8(const uint8_t *source, uint length) {
     uint finalLength = length * 4;
-    uint8 *out = (uint8 *)CC_MALLOC(finalLength);
+    uint8_t *out = (uint8_t *)CC_MALLOC(finalLength);
     if (!out) {
         CC_LOG_WARNING("Failed to alloc memory in convertRGB8ToRGBA8().");
         return source;
@@ -633,7 +661,7 @@ const uint8_t *convertRGB8ToRGBA8(const uint8_t *source, uint length) {
 
 const uint8_t *convertRGB32FToRGBA32F(const uint8_t *source, uint length) {
     uint finalLength = length * sizeof(float) * 4;
-    uint8 *out = (uint8 *)CC_MALLOC(finalLength);
+    uint8_t *out = (uint8_t *)CC_MALLOC(finalLength);
     if (!out) {
         CC_LOG_WARNING("Failed to alloc memory in convertRGB32FToRGBA32F().");
         return source;

@@ -21,10 +21,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#import <AppKit/NSView.h>
-
 #ifdef CC_USE_METAL
     #import <MetalKit/MetalKit.h>
+#else
+    #import <AppKit/NSView.h>
 #endif
 
 #ifdef CC_USE_METAL

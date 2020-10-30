@@ -108,7 +108,7 @@ void CCMTLCommandBuffer::bindPipelineState(PipelineState *pso) {
     _mtlPrimitiveType = _gpuPipelineState->primitiveType;
     [_mtlEncoder setCullMode:_gpuPipelineState->cullMode];
     [_mtlEncoder setFrontFacingWinding:_gpuPipelineState->winding];
-    [_mtlEncoder setDepthClipMode:_gpuPipelineState->depthClipMode];
+    if (@available(iOS 11.0, *)) [_mtlEncoder setDepthClipMode:_gpuPipelineState->depthClipMode];
     [_mtlEncoder setTriangleFillMode:_gpuPipelineState->fillMode];
     [_mtlEncoder setRenderPipelineState:_gpuPipelineState->mtlRenderPipelineState];
 

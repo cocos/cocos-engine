@@ -244,8 +244,10 @@ void CCMTLBuffer::update(void *buffer, uint offset, uint size) {
         } else {
             uint8_t *dst = (uint8_t *)(_mtlBuffer.contents) + offset;
             memcpy(dst, buffer, size);
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
             if (_mtlResourceOptions == MTLResourceStorageModeManaged)
                 [_mtlBuffer didModifyRange:NSMakeRange(0, _size)]; // Synchronize the managed buffer.
+#endif
         }
         return;
     }

@@ -25,7 +25,15 @@
 
 #import <UIKit/UIView.h>
 
+#ifdef CC_USE_METAL
+#import <MetalKit/MetalKit.h>
+#endif
+
+#ifdef CC_USE_METAL
+@interface View : MTKView<MTKViewDelegate>
+#else
 @interface View : UIView
+#endif
 
 @property(nonatomic, assign)BOOL preventTouch;
 

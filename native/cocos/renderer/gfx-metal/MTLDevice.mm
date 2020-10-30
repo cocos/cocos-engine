@@ -56,6 +56,12 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _mtlDevice = ((MTKView *)_mtkView).device;
     _mtlCommandQueue = [id<MTLDevice>(_mtlDevice) newCommandQueue];
     
+    
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+    static_cast<MTKView*>(_mtkView).depthStencilPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
+    _depthBits = 32;
+    _features[(int)Feature::FORMAT_D32FS8] = true;
+#else
     if ([id<MTLDevice>(_mtlDevice) isDepth24Stencil8PixelFormatSupported]) {
         static_cast<MTKView*>(_mtkView).depthStencilPixelFormat = MTLPixelFormatDepth24Unorm_Stencil8;
         _depthBits = 24;
@@ -65,6 +71,7 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
         _depthBits = 32;
         _features[(int)Feature::FORMAT_D32FS8] = true;
     }
+#endif
     _stencilBits = 8;
     
     ContextInfo contextCreateInfo;

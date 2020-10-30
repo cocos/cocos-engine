@@ -36,7 +36,7 @@ MTLTextureUsage toMTLTextureUsage(TextureUsage);
 MTLTextureType toMTLTextureType(TextureType type);
 NSUInteger toMTLSampleCount(SampleCount);
 MTLSamplerAddressMode toMTLSamplerAddressMode(Address);
-MTLSamplerBorderColor toMTLSamplerBorderColor(const Color &);
+int toMTLSamplerBorderColor(const Color &);
 MTLSamplerMinMagFilter toMTLSamplerMinMagFilter(Filter);
 MTLSamplerMipFilter toMTLSamplerMipFilter(Filter);
 String compileGLSLShader2Msl(const String &src, ShaderStageFlagBit shaderType, Device *device, CCMTLGPUShader *gpuShader);
