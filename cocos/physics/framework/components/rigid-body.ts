@@ -188,26 +188,6 @@ export class RigidBody extends Component {
 
     /**
      * @en
-     * Gets or sets whether the rigid body is fixed for rotation.
-     * @zh
-     * 获取或设置刚体是否固定旋转。
-     */
-    @visible(function (this: RigidBody) { return this.isDynamic })
-    @displayOrder(5)
-    @tooltip('刚体是否固定旋转')
-    public get fixedRotation () {
-        return this._fixedRotation;
-    }
-
-    public set fixedRotation (value) {
-        this._fixedRotation = value;
-        if (this._body) {
-            this._body.fixRotation(value);
-        }
-    }
-
-    /**
-     * @en
      * Gets or sets the linear velocity factor that can be used to control the scaling of the velocity in each axis direction.
      * @zh
      * 获取或设置线性速度的因子，可以用来控制每个轴方向上的速度的缩放。
@@ -374,9 +354,6 @@ export class RigidBody extends Component {
 
     @serializable
     private _angularDamping: number = 0.1;
-
-    @serializable
-    private _fixedRotation: boolean = false;
 
     @serializable
     private _useGravity: boolean = true;

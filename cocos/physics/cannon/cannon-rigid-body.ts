@@ -57,13 +57,6 @@ export class CannonRigidBody implements IRigidBody {
                 break;
         }
     }
-
-    fixRotation (value: boolean) {
-        this.impl.fixedRotation = value;
-        this.impl.updateMassProperties();
-        this._wakeUpIfSleep()
-    }
-
     setLinearDamping (value: number) {
         this.impl.linearDamping = value;
     }
@@ -84,6 +77,11 @@ export class CannonRigidBody implements IRigidBody {
 
     setAngularFactor (value: IVec3Like) {
         Vec3.copy(this.impl.angularFactor, value);
+        const fixR = Vec3.equals(this.impl.angularFactor, Vec3.ZERO);
+        if (fixR != this.impl.fixedRotation) {
+            this.impl.fixedRotation = fixR;
+            this.impl.updateMassProperties();
+        }
         this._wakeUpIfSleep()
     }
 
@@ -129,7 +127,6 @@ export class CannonRigidBody implements IRigidBody {
         this.setLinearDamping(this._rigidBody.linearDamping);
         this.setAngularDamping(this._rigidBody.angularDamping);
         this.useGravity(this._rigidBody.useGravity);
-        this.fixRotation(this._rigidBody.fixedRotation);
         this.setLinearFactor(this._rigidBody.linearFactor);
         this.setAngularFactor(this._rigidBody.angularFactor);
         this._sharedBody.enabled = true;

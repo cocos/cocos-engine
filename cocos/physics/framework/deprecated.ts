@@ -90,6 +90,12 @@ replaceProperty(RigidBody.prototype, 'RigidBody.prototype', [
     }
 ]);
 
+removeProperty(RigidBody.prototype, 'RigidBody.prototype', [
+    {
+        "name": "fixedRotation",
+    }
+]);
+
 /**
  * Alias of [[RigidBody]]
  * @deprecated Since v1.2
