@@ -1092,17 +1092,19 @@ export enum ShadowsView {
     FAR,
     ASPECT,
     PCF_TYPE,
+    SHADOW_MAP_DIRTY,   // boolean
+    MOST_RECEIVED,
     BIAS,
     ORTHO_SIZE,
     SPHERE,             // handle
     AUTO_ADAPT,         // boolean
     RECEIVE_SPHERE,     // handle
 // ↓↓↓↓↓↓↓↓↓↓↓↓↓ Web don't alloc memory ↓↓↓↓↓↓↓↓↓↓↓↓↓
-    COLOR = 15,         // Vec4
-    SIZE = 19,          // Vec2
-    NORMAL = 21,        // Vec3
-    MAT_LIGHT = 24,     // Mat4
-    COUNT = 40
+    COLOR = 17,         // Vec4
+    SIZE = 21,          // Vec2
+    NORMAL = 23,        // Vec3
+    MAT_LIGHT = 26,     // Mat4
+    COUNT = 42
 }
 interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.ENABLE]: number;
@@ -1114,6 +1116,8 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.FAR]: number;
     [ShadowsView.ASPECT]: number;
     [ShadowsView.PCF_TYPE]: number;
+    [ShadowsView.SHADOW_MAP_DIRTY]: number;
+    [ShadowsView.MOST_RECEIVED]: number;
     [ShadowsView.BIAS]: number;
     [ShadowsView.DIRTY]: number;
     [ShadowsView.ORTHO_SIZE]: number;
@@ -1137,6 +1141,8 @@ const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
     [ShadowsView.FAR]: BufferDataType.FLOAT32,
     [ShadowsView.ASPECT]: BufferDataType.FLOAT32,
     [ShadowsView.PCF_TYPE]: BufferDataType.UINT32,
+    [ShadowsView.SHADOW_MAP_DIRTY]: BufferDataType.UINT32,
+    [ShadowsView.MOST_RECEIVED]: BufferDataType.UINT32,
     [ShadowsView.BIAS]: BufferDataType.FLOAT32,
     [ShadowsView.DIRTY]: BufferDataType.UINT32,
     [ShadowsView.ORTHO_SIZE]: BufferDataType.UINT32,
@@ -1167,11 +1173,12 @@ export enum LightView {
     FRUSTUM,                        // handle
     SIZE,
     SPOT_ANGLE,
+    ASPECT,
     DIRECTION,                      // Vec3
-    COLOR = 12,                     // Vec3
-    COLOR_TEMPERATURE_RGB = 15,     // Vec3
-    POSITION = 18,                  // Vec3
-    COUNT = 21
+    COLOR = 13,                     // Vec3
+    COLOR_TEMPERATURE_RGB = 16,     // Vec3
+    POSITION = 19,                  // Vec3
+    COUNT = 22
 }
 interface ILightViewType extends BufferTypeManifest<typeof LightView> {
     [LightView.USE_COLOR_TEMPERATURE]: number;
@@ -1183,6 +1190,7 @@ interface ILightViewType extends BufferTypeManifest<typeof LightView> {
     [LightView.FRUSTUM]:FrustumHandle;
     [LightView.SIZE]:number;
     [LightView.SPOT_ANGLE]:number;
+    [LightView.ASPECT]: number;
     [LightView.DIRECTION]: Vec3;
     [LightView.COLOR]: Vec3;
     [LightView.COLOR_TEMPERATURE_RGB]: Vec3;
@@ -1199,6 +1207,7 @@ const lightViewDataType: BufferDataTypeManifest<typeof LightView> = {
     [LightView.FRUSTUM]: BufferDataType.UINT32,
     [LightView.SIZE]: BufferDataType.FLOAT32,
     [LightView.SPOT_ANGLE]: BufferDataType.FLOAT32,
+    [LightView.ASPECT]: BufferDataType.FLOAT32,
     [LightView.DIRECTION]: BufferDataType.FLOAT32,
     [LightView.COLOR]: BufferDataType.FLOAT32,
     [LightView.COLOR_TEMPERATURE_RGB]: BufferDataType.FLOAT32,

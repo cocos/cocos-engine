@@ -137,7 +137,7 @@ export class ForwardStage extends RenderStage {
                         this._instancedQueue.queue.add(instancedBuffer);
                     } else if (batchingScheme === BatchingSchemes.VB_MERGING) {
                         const batchedBuffer = BatchedBuffer.get(pass);
-                        batchedBuffer.merge(subModel, p, ro);
+                        batchedBuffer.merge(subModel, p, ro.model);
                         this._batchedQueue.queue.add(batchedBuffer);
                     } else {
                         for (k = 0; k < this._renderQueues.length; k++) {

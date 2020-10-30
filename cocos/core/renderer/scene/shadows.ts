@@ -198,6 +198,29 @@ export class Shadows {
     }
 
     /**
+     * @en shadow Map size has been modified
+     * @zh 阴影贴图大小是否被修改
+     */
+    public get shadowMapDirty (): boolean {
+        if (ShadowsPool.get(this._handle, ShadowsView.SHADOW_MAP_DIRTY)) { return true; }
+        return false;
+    }
+    public set shadowMapDirty (val: boolean) {
+        ShadowsPool.set(this._handle, ShadowsView.SHADOW_MAP_DIRTY, val ? 1 : 0);
+    }
+
+    /**
+     * @en get or set most received light
+     * @zh 获取或设置接收光照的最大数量
+     */
+    public get mostReceived (): number {
+        return ShadowsPool.get(this._handle, ShadowsView.MOST_RECEIVED);
+    }
+    public set mostReceived (val: number) {
+        ShadowsPool.set(this._handle, ShadowsView.MOST_RECEIVED, val);
+    }
+
+    /**
      * @en get or set shadow bias
      * @zh 获取或者设置阴影偏移量
      */
