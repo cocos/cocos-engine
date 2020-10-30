@@ -49,6 +49,10 @@ void GLES3DescriptorSet::destroy() {
         CC_DELETE(_gpuDescriptorSet);
         _gpuDescriptorSet = nullptr;
     }
+    // do remember to clear these or else it might not be properly updated when reused
+    _buffers.clear();
+    _textures.clear();
+    _samplers.clear();
 }
 
 void GLES3DescriptorSet::update() {

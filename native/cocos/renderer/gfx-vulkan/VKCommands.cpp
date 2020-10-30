@@ -222,6 +222,7 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
     const size_t subpassCount = gpuRenderPass->subPasses.size();
     vector<VkSubpassDescription> subpassDescriptions(1, {VK_PIPELINE_BIND_POINT_GRAPHICS});
     vector<VkAttachmentReference> attachmentReferences;
+
     if (subpassCount) { // pass on user-specified subpasses
         subpassDescriptions.resize(subpassCount);
         for (size_t i = 0u; i < subpassCount; i++) {
@@ -236,7 +237,7 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         attachmentReferences.push_back({(uint32_t)colorAttachmentCount, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL});
         subpassDescriptions[0].colorAttachmentCount = attachmentReferences.size() - 1;
         subpassDescriptions[0].pColorAttachments = attachmentReferences.data();
-        subpassDescriptions[0].pDepthStencilAttachment = &attachmentReferences.back();
+        if (hasDepth) subpassDescriptions[0].pDepthStencilAttachment = &attachmentReferences.back();
     }
 
     VkRenderPassCreateInfo renderPassCreateInfo{VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO};

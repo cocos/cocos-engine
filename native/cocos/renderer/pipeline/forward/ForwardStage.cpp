@@ -139,8 +139,8 @@ void ForwardStage::render(RenderView *view) {
 
     auto camera = view->getCamera();
     // render area is not oriented
-    uint w = (uint)_device->getSurfaceTransform() % 2 ? camera->height : camera->width;
-    uint h = (uint)_device->getSurfaceTransform() % 2 ? camera->width : camera->height;
+    uint w = view->getWindow()->hasOnScreenAttachments && (uint)_device->getSurfaceTransform() % 2 ? camera->height : camera->width;
+    uint h = view->getWindow()->hasOnScreenAttachments && (uint)_device->getSurfaceTransform() % 2 ? camera->width : camera->height;
     _renderArea.x = camera->viewportX * w;
     _renderArea.y = camera->viewportY * h;
     _renderArea.width = camera->viewportWidth * w * pipeline->getShadingScale();

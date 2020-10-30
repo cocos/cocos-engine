@@ -109,6 +109,10 @@ void CCVKDescriptorSet::destroy() {
         CC_DELETE(_gpuDescriptorSet);
         _gpuDescriptorSet = nullptr;
     }
+    // do remember to clear these or else it might not be properly updated when reused
+    _buffers.clear();
+    _textures.clear();
+    _samplers.clear();
 }
 
 void CCVKDescriptorSet::update() {

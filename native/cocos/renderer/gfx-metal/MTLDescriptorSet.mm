@@ -41,6 +41,10 @@ bool CCMTLDescriptorSet::initialize(const DescriptorSetInfo &info) {
 void CCMTLDescriptorSet::destroy() {
     _layout = nullptr;
     CC_SAFE_DELETE(_gpuDescriptorSet);
+    // do remember to clear these or else it might not be properly updated when reused
+    _buffers.clear();
+    _textures.clear();
+    _samplers.clear();
 }
 
 void CCMTLDescriptorSet::update() {
