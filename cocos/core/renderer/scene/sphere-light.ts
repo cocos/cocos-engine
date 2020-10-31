@@ -46,7 +46,6 @@ export class SphereLight extends Light {
 
     constructor () {
         super();
-        this._type = LightType.SPHERE;
         this._aabb = aabb.create();
         this._pos = new Vec3();
     }
@@ -55,6 +54,7 @@ export class SphereLight extends Light {
         super.initialize();
         this._hAABB = AABBPool.alloc();
         const size = 0.15;
+        LightPool.set(this._handle, LightView.TYPE, LightType.SPHERE);
         LightPool.set(this._handle, LightView.SIZE, size);
         LightPool.set(this._handle, LightView.RANGE, 1.0);
         LightPool.set(this._handle, LightView.AABB, this._hAABB);

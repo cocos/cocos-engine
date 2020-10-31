@@ -1094,15 +1094,12 @@ export enum ShadowsView {
     PCF_TYPE,
     BIAS,
     ORTHO_SIZE,
-    SPHERE,             // handle
     AUTO_ADAPT,         // boolean
-    RECEIVE_SPHERE,     // handle
-// ↓↓↓↓↓↓↓↓↓↓↓↓↓ Web don't alloc memory ↓↓↓↓↓↓↓↓↓↓↓↓↓
-    COLOR = 15,         // Vec4
-    SIZE = 19,          // Vec2
-    NORMAL = 21,        // Vec3
-    MAT_LIGHT = 24,     // Mat4
-    COUNT = 40
+    COLOR,              // Vec4
+    SIZE = 17,          // Vec2
+    NORMAL = 19,        // Vec3
+    MAT_LIGHT = 22,     // Mat4
+    COUNT = 38
 }
 interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.ENABLE]: number;
@@ -1117,10 +1114,7 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.BIAS]: number;
     [ShadowsView.DIRTY]: number;
     [ShadowsView.ORTHO_SIZE]: number;
-    [ShadowsView.SPHERE]: SphereHandle;
     [ShadowsView.AUTO_ADAPT]: number;
-    [ShadowsView.RECEIVE_SPHERE]: SphereHandle;
-// ↓↓↓↓↓↓↓↓↓↓↓↓↓ Web don't alloc memory ↓↓↓↓↓↓↓↓↓↓↓↓↓
     [ShadowsView.COLOR]: Color;
     [ShadowsView.SIZE]: Vec2;
     [ShadowsView.NORMAL]: Vec3;
@@ -1140,10 +1134,7 @@ const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
     [ShadowsView.BIAS]: BufferDataType.FLOAT32,
     [ShadowsView.DIRTY]: BufferDataType.UINT32,
     [ShadowsView.ORTHO_SIZE]: BufferDataType.UINT32,
-    [ShadowsView.SPHERE]: BufferDataType.UINT32,
     [ShadowsView.AUTO_ADAPT]: BufferDataType.UINT32,
-    [ShadowsView.RECEIVE_SPHERE]: BufferDataType.UINT32,
-// ↓↓↓↓↓↓↓↓↓↓↓↓↓ Web don't alloc memory ↓↓↓↓↓↓↓↓↓↓↓↓↓
     [ShadowsView.COLOR]: BufferDataType.FLOAT32,
     [ShadowsView.SIZE]: BufferDataType.FLOAT32,
     [ShadowsView.NORMAL]: BufferDataType.FLOAT32,
@@ -1151,7 +1142,7 @@ const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
     [ShadowsView.COUNT]: BufferDataType.NEVER
 }
 // @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
-if (!JSB) {delete ShadowsView[ShadowsView.COUNT]; ShadowsView[ShadowsView.COUNT = ShadowsView.RECEIVE_SPHERE + 1] = 'COUNT'; }
+if (!JSB) {delete ShadowsView[ShadowsView.COUNT]; ShadowsView[ShadowsView.COUNT = ShadowsView.AUTO_ADAPT + 1] = 'COUNT'; }
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
 // but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
 // we'll have to explicitly declare all these types.
