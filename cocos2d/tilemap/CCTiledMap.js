@@ -1053,7 +1053,11 @@ cc.TiledMap.fillTextureGrids = function (tileset, texGrids, texId, spFrame, name
 
         tileset.rectForGID(gid, grid);
 
-        if (spFrame) {
+        // TODO: Shall we check `count` or `collection` ???
+        //  a)  if (spFrame) ...
+        //  b)  if (spFrame && count <=1 ) ...
+        //  c)  if (spFrame && collection) ...
+        if (spFrame && collection) {
             // grid._spriteFrame = spFrame;
             grid._name = spFrame.name;
             grid._rotated = spFrame._rotated;
