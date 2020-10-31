@@ -152,7 +152,7 @@ export class MeshRenderData extends BaseRenderData {
 
     public request (vertexCount: number, indicesCount: number) {
         const byteOffset = this.byteCount + vertexCount * this._formatByte;
-        this.reserve(vertexCount, vertexCount);
+        this.reserve(vertexCount, indicesCount);
         this.vertexCount += vertexCount; // vertexOffset
         this.indicesCount += indicesCount; // indicesOffset
         this.byteCount = byteOffset; // byteOffset

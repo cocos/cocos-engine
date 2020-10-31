@@ -345,10 +345,6 @@ export const graphicsAssembler: IAssembler = {
             }
 
             meshBuffer.indicesStart = indicesOffset;
-            if (indicesOffset !== meshBuffer.indicesCount) {
-                const arr = new Array(meshBuffer.indicesCount - indicesOffset);
-                meshBuffer.iData.set(arr, indicesOffset);
-            }
         }
         _renderData = null;
         _impl = null;
@@ -427,10 +423,6 @@ export const graphicsAssembler: IAssembler = {
             }
 
             meshBuffer.indicesStart = indicesOffset;
-            if (indicesOffset !== meshBuffer.indicesCount) {
-                const arr = new Array(meshBuffer.indicesCount - indicesOffset);
-                meshBuffer.iData.set(arr, indicesOffset);
-            }
         }
 
         _renderData = null;
