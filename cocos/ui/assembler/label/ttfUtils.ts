@@ -133,6 +133,7 @@ export const ttfUtils =  {
                 }
                 else {
                     assetManager.postLoadNative(comp.font, (err) => {
+                        if (!comp.isValid) { return; } 
                         _fontFamily = comp.font!._nativeAsset || 'Arial';
                         comp.updateRenderData(true);
                     });
