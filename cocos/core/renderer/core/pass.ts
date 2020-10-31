@@ -627,6 +627,8 @@ export class Pass {
     get batchingScheme () { return PassPool.get(this._handle, PassView.BATCHING_SCHEME); }
     get descriptorSet () { return this._descriptorSet; }
     get hash () { return PassPool.get(this._handle, PassView.HASH); }
+
+    get rootBufferDirty () { return this._rootBufferDirty; }
 }
 
 function serializeBlendState (bs: GFXBlendState) {

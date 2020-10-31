@@ -586,18 +586,6 @@ export class Label extends UIRenderable {
         this.updateRenderData();
     }
 
-    @type(Material)
-    @override
-    @displayName('Materials')
-    @visible(false)
-    get sharedMaterials () {
-        return super.sharedMaterials;
-    }
-
-    set sharedMaterials (val) {
-        super.sharedMaterials = val;
-    }
-
     get assemblerData (){
         return this._assemblerData;
     }
