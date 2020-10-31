@@ -332,25 +332,17 @@ var utils = {
 
     asyncify (cb) {
         return function (p1, p2) {
-            if (p2) {
-                if (Array.isArray(p2)) {
-                    p2.forEach(x => x && x.addRef && x.addRef());
-                } else {
-                    p2.addRef && p2.addRef();
-                }
+            if (!cb) return;
+            let refs = [];
+            if (Array.isArray(p2)) {
+                p2.forEach(x => x instanceof cc.Asset && refs.push(x.addRef()));
+            } else {
+                p2 instanceof cc.Asset && refs.push(p2.addRef());
             }
-            if (cb) {
-                callInNextTick(() => {
-                    if (p2) {
-                        if (Array.isArray(p2)) {
-                            p2.forEach(x => x && x.decRef && x.decRef(false));
-                        } else {
-                            p2.decRef && p2.decRef(false);
-                        }
-                    }
-                    cb(p1, p2);
-                });
-            } 
+            callInNextTick(() => {
+                refs.forEach(x => x.decRef(false));
+                cb(p1, p2);
+            }); 
         }
     }
 };
