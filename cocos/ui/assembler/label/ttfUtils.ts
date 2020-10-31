@@ -164,6 +164,7 @@ export const ttfUtils =  {
         _overflow = comp.overflow;
         _canvasSize.width = trans.width;
         _canvasSize.height = trans.height;
+        _nodeContentSize = trans.contentSize;
         _underlineThickness = comp.underlineHeight;
         _lineHeight = comp.lineHeight;
         _hAlign = comp.horizontalAlign;
