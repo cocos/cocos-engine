@@ -201,9 +201,6 @@ bool CCVKContext::initialize(const ContextInfo &info) {
             }
         }
 
-        _majorVersion = VK_VERSION_MAJOR(apiVersion);
-        _minorVersion = VK_VERSION_MINOR(apiVersion);
-
         VkApplicationInfo app{VK_STRUCTURE_TYPE_APPLICATION_INFO};
         app.pEngineName = "Cocos Creator";
         app.apiVersion = apiVersion;
@@ -245,7 +242,11 @@ bool CCVKContext::initialize(const ContextInfo &info) {
 #endif
 
         // Create the Vulkan instance
-        VK_CHECK(vkCreateInstance(&instanceInfo, nullptr, &_gpuContext->vkInstance));
+        VkResult res = vkCreateInstance(&instanceInfo, nullptr, &_gpuContext->vkInstance);
+        if (res == VK_ERROR_LAYER_NOT_PRESENT) {
+            CC_LOG_ERROR("Create Vulkan instance failed due to missing layers, aborting...");
+            return false;
+        }
 
         volkLoadInstance(_gpuContext->vkInstance);
 
@@ -344,6 +345,9 @@ bool CCVKContext::initialize(const ContextInfo &info) {
             vkGetPhysicalDeviceSurfaceSupportKHR(_gpuContext->physicalDevice, propertyIndex,
                                                  _gpuContext->vkSurface, &_gpuContext->queueFamilyPresentables[propertyIndex]);
         }
+
+        _majorVersion = VK_VERSION_MAJOR(_gpuContext->physicalDeviceProperties.apiVersion);
+        _minorVersion = VK_VERSION_MINOR(_gpuContext->physicalDeviceProperties.apiVersion);
 
         ///////////////////// Swapchain Preperation /////////////////////
 

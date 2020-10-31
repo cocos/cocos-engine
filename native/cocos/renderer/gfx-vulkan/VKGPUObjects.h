@@ -441,8 +441,10 @@ public:
     void reset() {
         size_t size = _pools.size();
         for (uint i = 0u; i < size; i++) {
-            VK_CHECK(vkResetDescriptorPool(_device->vkDevice, _pools[i], 0));
-            _counts[i] = 0;
+            if (_counts[i]) {
+                VK_CHECK(vkResetDescriptorPool(_device->vkDevice, _pools[i], 0));
+                _counts[i] = 0;
+            }
         }
     }
 
