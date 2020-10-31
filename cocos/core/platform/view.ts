@@ -195,7 +195,6 @@ export class View extends EventTarget {
         __BrowserGetter.init();
 
         this._initFrameSize();
-        this.enableAntiAlias(true);
 
         const w = legacyCC.game.canvas.width;
         const h = legacyCC.game.canvas.height;
@@ -324,6 +323,7 @@ export class View extends EventTarget {
      * @en Whether to Enable on anti-alias
      * @zh 控制抗锯齿是否开启
      * @param enabled - Enable or not anti-alias
+     * @deprecated Since 3.0
      */
     public enableAntiAlias (enabled: boolean) {
         if (this._antiAliasEnabled === enabled) {
@@ -355,6 +355,7 @@ export class View extends EventTarget {
     /**
      * @en Returns whether the current enable on anti-alias
      * @zh 返回当前是否抗锯齿
+     * @deprecated Since 3.0
      */
     public isAntiAliasEnabled (): boolean {
         return this._antiAliasEnabled;
