@@ -1053,28 +1053,30 @@ cc.TiledMap.fillTextureGrids = function (tileset, texGrids, texId, spFrame, name
 
         tileset.rectForGID(gid, grid);
 
-        if (!spFrame || count > 1) {
+        if (spFrame) {
+            // grid._spriteFrame = spFrame;
+            grid._name = spFrame.name;
+            grid._rotated = spFrame._rotated;
+            grid._rect = spFrame.getRect();
+            if (grid._rotated) {
+                grid.l = spFrame.uv[0];
+                grid.t = spFrame.uv[1];
+                grid.r = spFrame.uv[4];
+                grid.b = spFrame.uv[3];
+            } else {
+                grid.l = spFrame.uv[0];
+                grid.t = spFrame.uv[5];
+                grid.r = spFrame.uv[2];
+                grid.b = spFrame.uv[1];
+            }
+        } else {
             grid.l = grid.x / texWidth;
             grid.t = grid.y / texHeight;
             grid.r = (grid.x + grid.width) / texWidth;
             grid.b = (grid.y + grid.height) / texHeight;
             grid._rect = cc.rect(grid);
-        } else if (spFrame._rotated) {
-            grid._rotated = true;
-            grid._name = spFrame.name;
-            grid._rect = spFrame.getRect();
-            grid.l = spFrame.uv[0];
-            grid.t = spFrame.uv[1];
-            grid.r = spFrame.uv[4];
-            grid.b = spFrame.uv[3];
-        } else {
-            grid._name = spFrame.name;
-            grid._rect = spFrame.getRect();
-            grid.l = spFrame.uv[0];
-            grid.t = spFrame.uv[5];
-            grid.r = spFrame.uv[2];
-            grid.b = spFrame.uv[1];
         }
+
         grid.cx = (grid.l + grid.r) / 2;
         grid.cy = (grid.t + grid.b) / 2;
 
