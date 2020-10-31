@@ -95,6 +95,8 @@ bool ForwardPipeline::initialize(const RenderPipelineInfo &info) {
         uiFlow->initialize(UIFlow::getInitializeInfo());
         _flows.emplace_back(uiFlow);
     }
+    _sphere = CC_NEW(Sphere);
+    _receivedSphere = CC_NEW(Sphere);
 
     return true;
 }
@@ -140,16 +142,19 @@ void ForwardPipeline::updateUBOs(RenderView *view) {
         float x = 0.0f;
         float y = 0.0f;
         float farClamp = 0.0f;
-        if(shadowInfo->autoAdapt) {
-            getShadowWorldMatrix(shadowInfo, node->worldRotation, mainLight->direction, shadowCameraView);
+        if (shadowInfo->autoAdapt) {
+            getShadowWorldMatrix(_sphere, node->worldRotation, mainLight->direction, shadowCameraView);
 
-            const float radius = shadowInfo->getSphere()->radius;
+            const float radius = _sphere->radius;
             x = radius * shadowInfo->aspect;
             y = radius;
 
-            farClamp = std::min(shadowInfo->getReceiveSphere()->radius * 2.0f * std::sqrt(2.0f), 2000.0f);
-            if(radius >= 500.0f) { shadowInfo->size.set(2048, 2048); }
-            else if (radius < 500.0f && radius >= 100.0f) { shadowInfo->size.set(1024, 1024); }
+            farClamp = std::min(_receivedSphere->radius * 2.0f * std::sqrt(2.0f), 2000.0f);
+            if (radius >= 500.0f) {
+                shadowInfo->size.set(2048, 2048);
+            } else if (radius < 500.0f && radius >= 100.0f) {
+                shadowInfo->size.set(1024, 1024);
+            }
         } else {
             shadowCameraView = mainLight->getNode()->worldMatrix;
 
@@ -325,6 +330,9 @@ void ForwardPipeline::destroy() {
     _renderPasses.clear();
 
     _commandBuffers.clear();
+
+    CC_SAFE_DELETE(_sphere);
+    CC_SAFE_DELETE(_receivedSphere);
 
     RenderPipeline::destroy();
 }

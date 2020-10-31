@@ -11,6 +11,7 @@ struct Fog;
 struct Ambient;
 struct Skybox;
 struct Shadows;
+struct Sphere;
 
 class CC_DLL ForwardPipeline : public RenderPipeline {
 public:
@@ -46,6 +47,8 @@ public:
     CC_INLINE const Ambient *getAmbient() const { return _ambient; }
     CC_INLINE const Skybox *getSkybox() const { return _skybox; }
     CC_INLINE Shadows *getShadows() const { return _shadows; }
+    CC_INLINE Sphere *getSphere() const { return _sphere; }
+    CC_INLINE Sphere *getReceivedSphere() const { return _receivedSphere; }
 
     void setRenderObjcts(const RenderObjectList &ro) { _renderObjects = std::move(ro); }
     void setShadowObjects(const RenderObjectList &ro) { _shadowObjects = std::move(ro); }
@@ -69,6 +72,8 @@ private:
     map<gfx::ClearFlags, gfx::RenderPass *> _renderPasses;
     std::array<float, UBOGlobal::COUNT> _globalUBO;
     std::array<float, UBOShadow::COUNT> _shadowUBO;
+    Sphere *_sphere = nullptr;
+    Sphere *_receivedSphere = nullptr;
 
     float _shadingScale = 1.0f;
     bool _isHDR = false;

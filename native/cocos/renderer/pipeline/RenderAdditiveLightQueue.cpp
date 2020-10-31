@@ -46,10 +46,10 @@ RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline)
 : _device(gfx::Device::getInstance()),
   _instancedQueue(CC_NEW(RenderInstancedQueue)),
   _batchedQueue(CC_NEW(RenderBatchedQueue)) {
-    auto forwardPipline = static_cast<ForwardPipeline *>(pipeline);
-    _renderObjects = forwardPipline->getRenderObjects();
-    _fpScale = forwardPipline->getFpScale();
-    _isHDR = forwardPipline->isHDR();
+    _forwardPipline = static_cast<ForwardPipeline *>(pipeline);
+    _renderObjects = _forwardPipline->getRenderObjects();
+    _fpScale = _forwardPipline->getFpScale();
+    _isHDR = _forwardPipline->isHDR();
     const auto alignment = _device->getUboOffsetAlignment();
     _lightBufferStride = ((UBOForwardLight::SIZE + alignment - 1) / alignment) * alignment;
     _lightBufferElementCount = _lightBufferStride / sizeof(float);
@@ -61,6 +61,7 @@ RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline)
     });
     _firstlightBufferView = _device->createBuffer({_lightBuffer, 0, UBOForwardLight::SIZE});
     _lightBufferData.resize(_lightBufferElementCount * _lightBufferCount);
+    _dynamicOffsets.resize(1, 0);
 }
 
 RenderAdditiveLightQueue ::~RenderAdditiveLightQueue() {
@@ -85,8 +86,8 @@ void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, gfx::Ren
         cmdBuffer->bindDescriptorSet(MATERIAL_SET, pass->getDescriptorSet());
         cmdBuffer->bindInputAssembler(ia);
 
-        for (auto dynamicOffset : dynamicOffsets) {
-            _dynamicOffsets[0] = dynamicOffset;
+        for (auto offset : dynamicOffsets) {
+            _dynamicOffsets[0] = offset;
             cmdBuffer->bindDescriptorSet(LOCAL_SET, descriptorSet, _dynamicOffsets);
             cmdBuffer->draw(ia);
         }
@@ -101,6 +102,7 @@ void RenderAdditiveLightQueue::gatherLightPasses(const RenderView *view, gfx::Co
     for (auto lightPass : _lightPasses) {
         lightPass.dynamicOffsets.clear();
     }
+    _lightPasses.clear();
 
     const auto camera = view->getCamera();
     const auto scene = camera->getScene();
@@ -115,7 +117,7 @@ void RenderAdditiveLightQueue::gatherLightPasses(const RenderView *view, gfx::Co
             _validLights.emplace_back(light);
         }
     }
-    const auto spotLightArrayID = scene->getSphereLightArrayID();
+    const auto spotLightArrayID = scene->getSpotLightArrayID();
     count = spotLightArrayID ? spotLightArrayID[0] : 0;
     for (auto i = 1; i <= count; i++) {
         const auto light = scene->getSpotLight(spotLightArrayID[i]);
@@ -130,7 +132,8 @@ void RenderAdditiveLightQueue::gatherLightPasses(const RenderView *view, gfx::Co
 
     updateUBOs(view, cmdBufferer);
 
-    for (const auto &renderObject : _renderObjects) {
+    const auto &renderObjects = _forwardPipline->getRenderObjects();
+    for (const auto &renderObject : renderObjects) {
         const auto model = renderObject.model;
 
         // this assumes light pass index is the same for all submodels
@@ -179,7 +182,7 @@ void RenderAdditiveLightQueue::gatherLightPasses(const RenderView *view, gfx::Co
                 lightPass.shader = subModel->getShader(lightPassIdx);
                 lightPass.dynamicOffsets.resize(count);
                 for (auto idx = 0; idx < count; idx++) {
-                    lightPass.dynamicOffsets.emplace_back(_lightBufferStride * idx);
+                    lightPass.dynamicOffsets[idx] = _lightBufferStride * _lightIndices[idx];
                 }
 
                 _lightPasses.emplace_back(std::move(lightPass));

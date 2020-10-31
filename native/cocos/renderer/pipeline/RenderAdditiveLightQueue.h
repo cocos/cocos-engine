@@ -16,6 +16,7 @@ class RenderBatchedQueue;
 class Device;
 struct Sphere;
 class Shader;
+class ForwardPipeline;
 
 struct AdditiveLightPass {
     const SubModelView *subModel = nullptr;
@@ -49,6 +50,8 @@ private:
     RenderBatchedQueue *_batchedQueue = nullptr;
     gfx::Buffer *_lightBuffer = nullptr;
     gfx::Buffer *_firstlightBufferView = nullptr;
+    ForwardPipeline *_forwardPipline = nullptr;
+
     float _fpScale = 0;
     bool _isHDR = false;
     uint _lightBufferStride = 0;

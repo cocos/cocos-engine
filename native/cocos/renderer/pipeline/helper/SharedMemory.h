@@ -361,18 +361,14 @@ struct CC_DLL Shadows {
     uint32_t pcfType = 0;
     float bias = 0;
     float orthoSize = 0;
-    uint32_t sphereID = 0;
     uint32_t autoAdapt = 0;
-    uint32_t receiveSphereID = 0;
-    cc::Vec4 color;
 
+    cc::Vec4 color;
     cc::Vec2 size;
     cc::Vec3 normal;
     cc::Mat4 matLight;
 
     CC_INLINE ShadowType getShadowType() const { return static_cast<ShadowType>(shadowType); }
-    CC_INLINE Sphere *getSphere() const { return GET_SPHERE(sphereID); }
-    CC_INLINE Sphere *getReceiveSphere() const { return GET_SPHERE(receiveSphereID); }
 
     const static se::PoolType type;
 };

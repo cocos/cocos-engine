@@ -3,8 +3,8 @@
 #include "MTLDevice.h"
 #include "MTLGPUObjects.h"
 #include "MTLUtils.h"
-#include "glslang/SPIRV/GlslangToSpv.h"
 #include "StandAlone/ResourceLimits.h"
+#include "glslang/SPIRV/GlslangToSpv.h"
 #include "spirv_cross/spirv_msl.hpp"
 #include <vector>
 
@@ -235,7 +235,8 @@ MTLPixelFormat toMTLPixelFormat(Format format) {
         case Format::RG8I: return MTLPixelFormatRG8Sint;
         case Format::RG16F: return MTLPixelFormatRG16Float;
         case Format::RG16UI: return MTLPixelFormatRG16Uint;
-        case Format::RG16I: return MTLPixelFormatRG16Sint;
+        case Format::RG16I:
+            return MTLPixelFormatRG16Sint;
 
             //            case Format::RGB8SN: return MTLPixelFormatRGBA8Snorm;
             //            case Format::RGB8UI: return MTLPixelFormatRGBA8Uint;
@@ -257,7 +258,8 @@ MTLPixelFormat toMTLPixelFormat(Format format) {
         case Format::RGBA32F: return MTLPixelFormatRGBA32Float;
         case Format::RGBA32UI: return MTLPixelFormatRGBA32Uint;
         case Format::RGBA32I: return MTLPixelFormatRGBA32Sint;
-        case Format::BGRA8: return MTLPixelFormatBGRA8Unorm;
+        case Format::BGRA8:
+            return MTLPixelFormatBGRA8Unorm;
 
             // Should convert.
             //            case Format::R5G6B5: return MTLPixelFormatB5G6R5Unorm;
@@ -268,16 +270,18 @@ MTLPixelFormat toMTLPixelFormat(Format format) {
         case Format::RGB10A2UI: return MTLPixelFormatRGB10A2Uint;
         case Format::R11G11B10F: return MTLPixelFormatRG11B10Float;
         case Format::D16: {
-#if (CC_PLATFORM == CC_PLATFOMR_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
             return MTLPixelFormatDepth16Unorm;
 #else
-            if (@available(iOS 13.0, *)) return MTLPixelFormatDepth16Unorm;
-            else break;
+            if (@available(iOS 13.0, *))
+                return MTLPixelFormatDepth16Unorm;
+            else
+                break;
 #endif
         }
         case Format::D32F: return MTLPixelFormatDepth32Float;
         case Format::D32F_S8: return MTLPixelFormatDepth32Float_Stencil8;
-#if (CC_PLATFORM == CC_PLATFOMR_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
         case Format::D24S8: return MTLPixelFormatDepth24Unorm_Stencil8;
         case Format::BC1_ALPHA: return MTLPixelFormatBC1_RGBA;
         case Format::BC1_SRGB_ALPHA: return MTLPixelFormatBC1_RGBA_sRGB;
@@ -483,8 +487,11 @@ MTLSamplerAddressMode toMTLSamplerAddressMode(Address mode) {
         case Address::CLAMP: return MTLSamplerAddressModeClampToEdge;
         case Address::BORDER: {
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-            if (@available(iOS 14.0, *)) return MTLSamplerAddressModeClampToBorderColor;
-            else break;;
+            if (@available(iOS 14.0, *))
+                return MTLSamplerAddressModeClampToBorderColor;
+            else
+                break;
+            ;
 #else
             return MTLSamplerAddressModeClampToBorderColor;
 #endif
@@ -513,8 +520,7 @@ int toMTLSamplerBorderColor(const Color &color) {
             return MTLSamplerBorderColorOpaqueBlack;
         else
             return MTLSamplerBorderColorOpaqueWhite;
-    }
-    else {
+    } else {
         return 0;
     }
 #endif

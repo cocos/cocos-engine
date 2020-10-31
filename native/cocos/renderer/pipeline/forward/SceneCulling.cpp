@@ -10,6 +10,10 @@
 
 namespace cc {
 namespace pipeline {
+bool castBoundsInitialized = false;
+bool receiveBoundsInitialized = false;
+AABB castWorldBounds;
+AABB receiveWorldBounds;
 
 RenderObject genRenderObject(const ModelView *model, const Camera *camera) {
     float depth = 0;
@@ -23,10 +27,9 @@ RenderObject genRenderObject(const ModelView *model, const Camera *camera) {
     return {depth, model};
 }
 
-void getShadowWorldMatrix(const Shadows *shadows, const cc::Vec4 &rotation, const cc::Vec3 &dir, cc::Mat4 &shadowWorldMat) {
+void getShadowWorldMatrix(const Sphere *sphere, const cc::Vec4 &rotation, const cc::Vec3 &dir, cc::Mat4 &shadowWorldMat) {
     Vec3 translation(dir);
     translation.negate();
-    const auto sphere = shadows->getSphere();
     const auto distance = 2.0f * std::sqrt(3.0f) * sphere->radius;
     translation.scale(distance);
     translation.add(sphere->center);
@@ -120,10 +123,8 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
     const auto skyBox = pipeline->getSkybox();
     const auto scene = camera->getScene();
 
-    AABB castWorldBounds;
-    AABB receiveWorldBounds;
-    auto castBoundsInited = false;
-    auto receiveBoundsInited = false;
+    auto castBoundsInitialized = false;
+    auto receiveBoundsInitialized = false;
 
     const Light *mainLight = nullptr;
     if (scene->mainLightID) mainLight = scene->getMainLight();
@@ -159,26 +160,23 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
                     renderObjects.emplace_back(genRenderObject(model, camera));
                 }
             } else {
-
                 if ((model->nodeID && ((visibility & node->layer) == node->layer)) ||
                     (visibility & model->visFlags)) {
 
                     // shadow render Object
-                    if (model->castShadow) {
-                        if (!castBoundsInited) {
-                            castWorldBounds.center.set(model->getWorldBounds()->center);
-                            castWorldBounds.halfExtents.set(model->getWorldBounds()->halfExtents);
-                            castBoundsInited = true;
+                    if (model->castShadow && model->worldBoundsID) {
+                        if (!castBoundsInitialized) {
+                            castWorldBounds = *(model->getWorldBounds());
+                            castBoundsInitialized = true;
                         }
                         castWorldBounds.merge(*model->getWorldBounds());
                         shadowObjects.emplace_back(genRenderObject(model, camera));
                     }
 
-                    if (model->receiveShadow) {
-                        if(!receiveBoundsInited) {
-                            receiveWorldBounds.center.set(model->getWorldBounds()->center);
-                            receiveWorldBounds.halfExtents.set(model->getWorldBounds()->halfExtents);
-                            receiveBoundsInited = true;
+                    if (model->receiveShadow && model->worldBoundsID) {
+                        if (!receiveBoundsInitialized) {
+                            receiveWorldBounds = *(model->getWorldBounds());
+                            receiveBoundsInitialized = true;
                         }
                         receiveWorldBounds.merge(*model->getWorldBounds());
                     }
@@ -188,17 +186,14 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
                         continue;
                     }
 
-                   renderObjects.emplace_back(genRenderObject(model, camera));
+                    renderObjects.emplace_back(genRenderObject(model, camera));
                 }
             }
         }
     }
 
-    auto *sphere = shadows->getSphere();
-    sphere->define(castWorldBounds);
-
-    auto *receiveSphere = shadows->getReceiveSphere();
-    receiveSphere->define(receiveWorldBounds);
+    pipeline->getSphere()->define(castWorldBounds);
+    pipeline->getReceivedSphere()->define(receiveWorldBounds);
 
     pipeline->setRenderObjcts(renderObjects);
     pipeline->setShadowObjects(shadowObjects);

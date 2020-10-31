@@ -11,11 +11,11 @@ struct Model;
 struct Camera;
 class ForwardPipeline;
 class RenderView;
-struct Shadows;
+struct Sphere;
 
 RenderObject genRenderObject(Model *, const Camera *);
 
 void sceneCulling(ForwardPipeline *, RenderView *);
-void getShadowWorldMatrix(const Shadows *shadows, const cc::Vec4 &rotation, const cc::Vec3 &dir, cc::Mat4 &shadowWorldMat);
+void getShadowWorldMatrix(const Sphere *sphere, const cc::Vec4 &rotation, const cc::Vec3 &dir, cc::Mat4 &shadowWorldMat);
 } // namespace pipeline
 } // namespace cc
