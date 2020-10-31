@@ -271,8 +271,8 @@ export default class TmxAssembler extends Assembler {
         _renderDataList = comp._renderDataList;
         _buffer = comp._buffer;
 
-        if (comp._colorChanged || comp._isCullingDirty() || comp._isUserNodeDirty() || comp._hasAnimation() || comp._hasTiledNode()) {
-            comp._colorChanged = false;
+        if (comp._tileChanged || comp._isCullingDirty() || comp._isUserNodeDirty() || comp._hasAnimation() || comp._hasTiledNode()) {
+            comp._tileChanged = false;
 
             _buffer.reset();
 

@@ -143,7 +143,7 @@ let TiledLayer = cc.Class({
         // switch of culling
         this._enableCulling = null;
 
-        this._colorChanged = false;
+        this._tileChanged = false;
 
         this.index = null;
     },
@@ -200,7 +200,7 @@ let TiledLayer = cc.Class({
             },
             set (value) {
                 if (this._withColor !== value) {
-                    this._colorChanged = true;
+                    this._tileChanged = true;
                     this._withColor = value;
                     this._texIdToMatIndex = {};
                     this._materials = [];
@@ -711,7 +711,8 @@ let TiledLayer = cc.Class({
         } else {
             this._tiles[idx] = 0;
         }
-        this._cullingDirty = true;
+
+        this._tileChanged = true;
     },
 
     /**
