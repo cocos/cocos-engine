@@ -73,7 +73,7 @@ let TiledMapAsset = cc.Class({
 
         spriteFrames: {
             default: [],
-            type: [cc.SpriteFrames]
+            type: [cc.SpriteFrame]
         },
 
         tsxFiles: [cc.TextAsset],
