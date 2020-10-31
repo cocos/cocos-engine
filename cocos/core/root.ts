@@ -304,14 +304,14 @@ export class Root {
         }
 
         this.onGlobalPipelineStateChanged();
-        if (this._ui) {
-            this._ui.destroy();
+        if (!this._ui) {
+            this._ui = new UI(this);
+            if (!this._ui.initialize()) {
+                this.destroy();
+                return false;
+            }
         }
-        this._ui = new UI(this);
-        if (!this._ui.initialize()) {
-            this.destroy();
-            return false;
-        }
+
         return true;
     }
 
