@@ -37,7 +37,7 @@ export const IndirectBuffer = gfx.IndirectBuffer;
 export const BufferInfo = gfx.BufferInfo;
 export const BufferViewInfo = gfx.BufferViewInfo;
 export const Buffer = gfx.Buffer;
-export { _DRAW_INFO_SIZE } from './buffer';
+export { DRAW_INFO_SIZE } from './buffer';
 
 export const SamplerInfo = gfx.SamplerInfo;
 export const Sampler = gfx.Sampler;
@@ -91,3 +91,5 @@ legacyCC.CommandBuffer = CommandBuffer;
 legacyCC.Queue = Queue;
 
 Object.assign(legacyCC, Defines);
+
+export * from './deprecated-3.0.0';

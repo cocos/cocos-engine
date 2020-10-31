@@ -29,7 +29,7 @@ export class DrawInfo {
     ) {}
 }
 
-export const _DRAW_INFO_SIZE: number = 28;
+export const DRAW_INFO_SIZE: number = 28;
 
 export class IndirectBuffer {
     declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
