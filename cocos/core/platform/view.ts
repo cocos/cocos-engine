@@ -132,7 +132,6 @@ export class View extends EventTarget {
     private _isRotated: boolean;
     private _orientation: any;
     private _isAdjustViewport: boolean;
-    private _antiAliasEnabled: boolean;
     private _resolutionPolicy: ResolutionPolicy;
     private _rpExactFit: ResolutionPolicy;
     private _rpShowAll: ResolutionPolicy;
@@ -178,7 +177,6 @@ export class View extends EventTarget {
         this._isRotated = false;
         this._orientation = legacyCC.macro.ORIENTATION_AUTO;
         this._isAdjustViewport = true;
-        this._antiAliasEnabled = false;
 
         // Setup system default resolution policies
         this._rpExactFit = new ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.EXACT_FIT);
@@ -319,47 +317,6 @@ export class View extends EventTarget {
         return this._retinaEnabled;
     }
 
-    /**
-     * @en Whether to Enable on anti-alias
-     * @zh 控制抗锯齿是否开启
-     * @param enabled - Enable or not anti-alias
-     * @deprecated Since 3.0
-     */
-    public enableAntiAlias (enabled: boolean) {
-        if (this._antiAliasEnabled === enabled) {
-            return;
-        }
-        this._antiAliasEnabled = enabled;
-        if (legacyCC.game.renderType === legacyCC.Game.RENDER_TYPE_WEBGL) {
-            const cache = legacyCC.assetManager.assets;
-            // tslint:disable-next-line: forin
-            cache.forEach(asset => {
-                if (asset instanceof legacyCC.Texture2D) {
-                    const Filter = legacyCC.Texture2D.Filter;
-                    if (enabled) {
-                        asset.setFilters(Filter.LINEAR, Filter.LINEAR);
-                    }
-                    else {
-                        asset.setFilters(Filter.NEAREST, Filter.NEAREST);
-                    }
-                }
-            });
-        }
-        else if (legacyCC.game.renderType === legacyCC.Game.RENDER_TYPE_CANVAS) {
-            const ctx = legacyCC.game.canvas.getContext('2d');
-            ctx.imageSmoothingEnabled = enabled;
-            ctx.mozImageSmoothingEnabled = enabled;
-        }
-    }
-
-    /**
-     * @en Returns whether the current enable on anti-alias
-     * @zh 返回当前是否抗锯齿
-     * @deprecated Since 3.0
-     */
-    public isAntiAliasEnabled (): boolean {
-        return this._antiAliasEnabled;
-    }
     /**
      * @en
      * If enabled, the application will try automatically to enter full screen mode on mobile devices<br/>
