@@ -332,7 +332,25 @@ var utils = {
 
     asyncify (cb) {
         return function (p1, p2) {
-            cb && callInNextTick(cb, p1, p2);
+            if (p2) {
+                if (Array.isArray(p2)) {
+                    p2.forEach(x => x && x.addRef && x.addRef());
+                } else {
+                    p2.addRef && p2.addRef();
+                }
+            }
+            if (cb) {
+                callInNextTick(() => {
+                    if (p2) {
+                        if (Array.isArray(p2)) {
+                            p2.forEach(x => x && x.decRef && x.decRef(false));
+                        } else {
+                            p2.decRef && p2.decRef(false);
+                        }
+                    }
+                    cb(p1, p2);
+                });
+            } 
         }
     }
 };
