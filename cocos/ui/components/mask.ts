@@ -146,7 +146,6 @@ export class Mask extends UIRenderable {
 
         if (this._type !== MaskType.IMAGE_STENCIL) {
             this._spriteFrame = null;
-            this._alphaThreshold = 0;
             this._updateGraphics();
             if (this._renderData) {
                 this.destroyRenderData();
@@ -265,12 +264,14 @@ export class Mask extends UIRenderable {
     }
 
     set alphaThreshold (value) {
-        if (this.type !== MaskType.IMAGE_STENCIL || this._alphaThreshold === value) {
+        if (this._alphaThreshold === value) {
             return;
         }
 
         this._alphaThreshold = value;
-        this._graphics?.getMaterialInstance(0)?.setProperty('alphaThreshold', this._alphaThreshold);
+        if(this.type === MaskType.IMAGE_STENCIL) {
+            this._graphics?.getMaterialInstance(0)?.setProperty('alphaThreshold', this._alphaThreshold);
+        }
     }
 
     get graphics () {

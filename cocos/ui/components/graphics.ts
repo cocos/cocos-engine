@@ -277,7 +277,7 @@ export class Graphics extends UIRenderable {
 
     public onEnable () {
         super.onEnable();
-        this.updateMtlForGraphics();
+        this._updateMtlForGraphics();
     }
 
     public onDisable (){
@@ -576,7 +576,7 @@ export class Graphics extends UIRenderable {
         this._attachToScene();
     }
 
-    private updateMtlForGraphics () {
+    private _updateMtlForGraphics () {
         let mat;
         _matInsInfo.owner = this;
         if (this._customMaterial) {

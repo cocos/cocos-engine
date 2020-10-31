@@ -157,17 +157,17 @@ export class UIRenderable extends RenderableComponent {
      */
     @type(Material)
     @displayOrder(0)
-    @displayName('CustomMaterials')
+    @displayName('CustomMaterial')
     get customMaterial () {
         return this._customMaterial;
     }
 
     set customMaterial (val) {
         this._customMaterial = val;
-        this.updateMaterialByBuiltIn();
+        this.updateMaterial();
     }
 
-    protected updateMaterialByBuiltIn () {
+    protected updateMaterial () {
         if (this._customMaterial) {
             this.setMaterial(this._customMaterial, 0);
             return;
@@ -326,21 +326,21 @@ export class UIRenderable extends RenderableComponent {
     protected _lastParent: Node | null = null;
 
     // The material hash include uniform
-    protected _uiMaterialHash = 0;
+    protected _materialUniformHash = 0;
 
     /**
      * @en The material hash include uniform
      * @zh 材质包含 uniform 的哈希值
      */
-    get uiMaterialHash () {
-        return this._uiMaterialHash;
+    get materialUniformHash () {
+        return this._materialUniformHash;
     }
 
     /**
      * @en update the material hash include uniform,and return it
      * @zh 更新并返回材质的包含 uniform 的哈希值
      */
-    public updateUIMaterialHash (mat: Material) {
+    public updateMaterialUniformHash (mat: Material) {
         const passes = mat.passes;
         let pass;
         let block;
@@ -353,17 +353,16 @@ export class UIRenderable extends RenderableComponent {
                 const blocks = pass.blocks;
                 for (let j = 0; j < pass.blocks.length; j++) {
                     block = blocks[j];
-                    for (let k = 0; k < block.length; k++){
+                    for (let k = 0; k < block.length; k++) {
                         hashData += block[k] + ',';
                     }
                 }
             }
         }
         if (dirty) {
-            hashData += ';' + mat.hash;
-            this._uiMaterialHash = murmurhash2_32_gc(hashData,666);
+            this._materialUniformHash = murmurhash2_32_gc(hashData,666);
         }
-        return this._uiMaterialHash;
+        return this._materialUniformHash;
     }
 
     public __preload (){
@@ -376,9 +375,9 @@ export class UIRenderable extends RenderableComponent {
     public onEnable () {
         this.node.on(SystemEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.on(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
-        this.updateMaterialByBuiltIn();
+        this.updateMaterial();
         this._renderFlag = this._canRender();
-        this._uiMaterialHash = this.getMaterial(0)!.hash!;
+        this._materialUniformHash = this.getMaterial(0)!.hash!;
     }
 
     public onDisable () {

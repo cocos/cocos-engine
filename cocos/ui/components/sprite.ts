@@ -416,7 +416,7 @@ export class Sprite extends UIRenderable {
         } else {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
-        this.updateMaterialByBuiltIn();
+        this.updateMaterial();
     }
 
     /**
@@ -569,7 +569,7 @@ export class Sprite extends UIRenderable {
         } else {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
-        this.updateMaterialByBuiltIn();
+        this.updateMaterial();
     }
 
     protected _render (render: UI) {

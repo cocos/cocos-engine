@@ -2955,4 +2955,4 @@ WebGL context lost.
 
 ### 12001
 
-Not support set/get BlendFactor when use customMaterial, please change it by material.
+BlendFactors are disabled when using custom material, please modify the blend state in the material instead.

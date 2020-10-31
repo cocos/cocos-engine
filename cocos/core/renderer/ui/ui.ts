@@ -106,6 +106,7 @@ export class UI {
     private _currTextureHash: number = 0;
     private _currSamplerHash: number = 0;
     private _currMaterialHash: number = 0;
+    private _currMaterialUniformHash: number = 0;
     private _parentOpacity = 1;
     // DescriptorSet Cache Map
     private _descriptorSetCacheMap: Map<number, Map<number, DescriptorSetHandle>> = new Map<number, Map<number, DescriptorSetHandle>>();
@@ -406,6 +407,7 @@ export class UI {
         this._currComponent = null;
         this._meshBufferUseCount = 0;
         this._currMaterialHash = 0;
+        this._currMaterialUniformHash = 0;
         this._requireBufferBatch();
         StencilManager.sharedManager!.reset();
     }
@@ -441,10 +443,11 @@ export class UI {
         }
 
         const mat = renderComp.getRenderMaterial(0);
-        const matHash = renderComp.updateUIMaterialHash(mat!);
+        const matHash = mat!.hash;
+        const matUniformHash = renderComp.updateMaterialUniformHash(mat!);
 
         // use material judgment merge is increasingly impossible, change to hash is more possible
-        if (this._currMaterialHash !== matHash ||
+        if (this._currMaterialHash !== matHash || this._currMaterialUniformHash !== matUniformHash ||
             this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash
         ) {
             this.autoMergeBatches(this._currComponent!);
@@ -454,7 +457,8 @@ export class UI {
             this._currSampler = samp;
             this._currTextureHash = textureHash;
             this._currSamplerHash = samplerHash;
-            this._currMaterialHash = renderComp.uiMaterialHash;
+            this._currMaterialHash = renderComp.getRenderMaterial(0)!.hash;
+            this._currMaterialUniformHash = renderComp.materialUniformHash;
         }
 
         if (assembler) {
@@ -517,6 +521,7 @@ export class UI {
         this._currTextureHash = 0;
         this._currSamplerHash = 0;
         this._currMaterialHash = 0;
+        this._currMaterialUniformHash = 0;
 
         this._batches.push(curDrawBatch);
     }
@@ -557,7 +562,7 @@ export class UI {
                 const state = StencilManager.sharedManager!.pattern;
                 StencilManager.sharedManager!.applyStencil(mat, state);
             }
-            renderComp.updateUIMaterialHash(mat);
+            renderComp.updateMaterialUniformHash(mat);
         }
 
         const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
@@ -619,6 +624,7 @@ export class UI {
         this._currTextureHash = 0;
         this._currSamplerHash = 0;
         this._currMaterialHash = 0;
+        this._currMaterialUniformHash = 0;
     }
 
     /**
