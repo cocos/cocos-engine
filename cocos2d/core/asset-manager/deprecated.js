@@ -30,6 +30,7 @@ const dependUtil = require('./depend-util');
 const releaseManager = require('./releaseManager');
 const downloader = require('./downloader');
 const factory = require('./factory');
+const helper = require('./helper');
 
 const ImageFmts = ['.png', '.jpg', '.bmp', '.jpeg', '.gif', '.ico', '.tiff', '.webp', '.image', '.pvr', '.pkm'];
 const AudioFmts = ['.mp3', '.ogg', '.wav', '.m4a'];
@@ -38,23 +39,36 @@ function GetTrue () { return true; }
 
 const md5Pipe = {
     transformURL (url) {
-        url = url.replace(/.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-]{8,})/, function (match, uuid) {
-            var bundle = cc.assetManager.bundles.find(function (bundle) {
-                return bundle.getAssetInfo(uuid);
-            });
-            let hashValue = '';
-            if (bundle) {
-                var info = bundle.getAssetInfo(uuid);
-                if (url.startsWith(bundle.base + bundle._config.nativeBase)) {
-                    hashValue = info.nativeVer;
-                }
-                else {
-                    hashValue = info.ver;
-                }
-            }
-            return hashValue ? match + '.' + hashValue : match;
+        let uuid = helper.getUuidFromURL(url);
+        if (!uuid) { return url; }
+        let bundle = cc.assetManager.bundles.find((b) => {
+            return !!b.getAssetInfo(uuid);
         });
-        return url
+        if (!bundle) { return url; }
+        let hashValue = '';
+        let info = bundle.getAssetInfo(uuid);
+        if (url.startsWith(bundle.base + bundle._config.nativeBase)) {
+            hashValue = info.nativeVer || '';
+        }
+        else {
+            hashValue = info.ver || '';
+        }
+        if (!hashValue || url.indexOf(hashValue) !== -1) { return url; }
+        let hashPatchInFolder = false;
+        if (cc.path.extname(url) === '.ttf') {
+            hashPatchInFolder = true;
+        }
+        if (hashPatchInFolder) {
+            let dirname = cc.path.dirname(url);
+            let basename = cc.path.basename(url);
+            url = `${dirname}.${hashValue}/${basename}`;
+        } else {
+            url = url.replace(/.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-]{8,})/, (match, uuid) => {
+                return match + '.' + hashValue;
+            });
+        }
+        
+        return url;
     },
 };
 
@@ -611,7 +625,7 @@ var AssetLibrary = {
 
     getLibUrlNoExt () {
         if (CC_DEBUG) {
-            cc.error('cc.AssetLibrary.getLibUrlNoExt was removed, if you want to transform url, please use cc.assetManager.helper.getUrlWithUuid instead');
+            cc.error('cc.AssetLibrary.getLibUrlNoExt was removed, if you want to transform url, please use cc.assetManager.utils.getUrlWithUuid instead');
         }
     },
 
