@@ -34,6 +34,7 @@ import Cache from './cache';
 import dependUtil from './depend-util';
 import { assets, references } from './shared';
 import { legacyCC } from '../global-exports';
+import { EffectAsset } from '../assets/effect-asset';
 
 function visitAsset (asset: Asset, deps: string[]) {
     // Skip assets generated programmatically or by user (e.g. label texture)
@@ -230,6 +231,8 @@ class ReleaseManager {
         this._toDelete.remove(uuid);
 
         if (!isValid(asset, true)) { return; }
+        // HACK, don't release effect in runtime
+        if (!EDITOR && asset instanceof EffectAsset) { return; }
 
         if (!force) {
             if (asset.refCount > 0) {
