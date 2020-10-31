@@ -69,14 +69,6 @@ export class UIBatchModel extends Model {
         const subModel = this._subModels[0] as UISubModel;
         subModel.directInitialize(batch.material!.passes, batch.hInputAssembler, batch.hDescriptorSet!);
     }
-
-    public destroy () {
-        if (this._handle) {
-            ModelPool.free(this._handle);
-            this._handle = NULL_HANDLE;
-        }
-        super.destroy();
-    }
 }
 
 class UISubModel extends SubModel {
