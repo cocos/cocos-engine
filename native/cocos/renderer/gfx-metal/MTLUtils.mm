@@ -486,13 +486,7 @@ MTLSamplerAddressMode toMTLSamplerAddressMode(Address mode) {
         case Address::MIRROR: return MTLSamplerAddressModeMirrorRepeat;
         case Address::CLAMP: return MTLSamplerAddressModeClampToEdge;
         case Address::BORDER: {
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-            if (@available(iOS 14.0, *))
-                return MTLSamplerAddressModeClampToBorderColor;
-            else
-                break;
-            ;
-#else
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
             return MTLSamplerAddressModeClampToBorderColor;
 #endif
         }
@@ -511,18 +505,6 @@ int toMTLSamplerBorderColor(const Color &color) {
         return MTLSamplerBorderColorOpaqueBlack;
     else
         return MTLSamplerBorderColorOpaqueWhite;
-#else
-    if (@available(iOS 14.0, *)) {
-        float diff = color.x - 0.5f;
-        if (math::IsEqualF(color.w, 0.f))
-            return MTLSamplerBorderColorTransparentBlack;
-        else if (math::IsEqualF(diff, 0.f))
-            return MTLSamplerBorderColorOpaqueBlack;
-        else
-            return MTLSamplerBorderColorOpaqueWhite;
-    } else {
-        return 0;
-    }
 #endif
 }
 

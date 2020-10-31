@@ -27,9 +27,7 @@ bool CCMTLSampler::initialize(const SamplerInfo &info) {
     _mipLODBias = info.mipLODBias;
 
     MTLSamplerDescriptor *descriptor = [[MTLSamplerDescriptor alloc] init];
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    if (@available(iOS 14.0, *)) descriptor.borderColor = (MTLSamplerBorderColor)mu::toMTLSamplerBorderColor(_borderColor);
-#else
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     descriptor.borderColor = (MTLSamplerBorderColor)mu::toMTLSamplerBorderColor(_borderColor);
 #endif
     descriptor.sAddressMode = mu::toMTLSamplerAddressMode(_addressU);

@@ -55,9 +55,9 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _mtkView = (MTKView *)_windowHandle;
     _mtlDevice = ((MTKView *)_mtkView).device;
     _mtlCommandQueue = [id<MTLDevice>(_mtlDevice) newCommandQueue];
-        
+
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    static_cast<MTKView*>(_mtkView).depthStencilPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
+    static_cast<MTKView *>(_mtkView).depthStencilPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
     _depthBits = 32;
     _features[(int)Feature::FORMAT_D32FS8] = true;
 #else
@@ -175,7 +175,6 @@ void CCMTLDevice::present() {
     _numInstances = queue->_numInstances;
     _numTriangles = queue->_numTriangles;
     _gpuStagingBufferPool->reset();
-    [((MTKView *)(_mtkView)).currentDrawable present];
 }
 
 Fence *CCMTLDevice::createFence(const FenceInfo &info) {

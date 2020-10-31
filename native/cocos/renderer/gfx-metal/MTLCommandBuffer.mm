@@ -23,7 +23,7 @@ CCMTLCommandBuffer::CCMTLCommandBuffer(Device *device)
   _mtlCommandQueue(id<MTLCommandQueue>(((CCMTLDevice *)device)->getMTLCommandQueue())),
   _mtkView((MTKView *)(((CCMTLDevice *)device)->getMTKView())),
   _frameBoundarySemaphore(dispatch_semaphore_create(MAX_INFLIGHT_BUFFER)) {
-    uint setCount = device->bindingMappingInfo().bufferOffsets.size();
+    const auto setCount = device->bindingMappingInfo().bufferOffsets.size();
     _GPUDescriptorSets.resize(setCount);
     _dynamicOffsets.resize(setCount);
 }
@@ -65,13 +65,14 @@ void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer
 void CCMTLCommandBuffer::end() {
     if (!_commandBufferBegan) return;
 
+    [_mtlCommandBuffer presentDrawable:_mtkView.currentDrawable];
     [_mtlCommandBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
         // GPU work is complete
         // Signal the semaphore to start the CPU work
         dispatch_semaphore_signal(_frameBoundarySemaphore);
+        [commandBuffer release];
     }];
     [_mtlCommandBuffer commit];
-    [_mtlCommandBuffer release];
     _commandBufferBegan = false;
 }
 
