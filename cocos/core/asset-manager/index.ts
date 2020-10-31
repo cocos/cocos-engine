@@ -22,35 +22,13 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+*/
+
 /**
  * @packageDocumentation
  * @hidden
  */
 
-import { legacyCC } from '../global-exports';
-
-export default function downloadBinary (item, callback) {
-    var url = item.url;
-    var xhr = legacyCC.loader.getXMLHttpRequest(),
-        errInfo = 'Load binary data failed: ' + url + '';
-    xhr.open('GET', url, true);
-    xhr.responseType = "arraybuffer";
-    xhr.onload = function () {
-        var arrayBuffer = xhr.response;
-        if (arrayBuffer) {
-            // var result = new Uint8Array(arrayBuffer);
-            callback(null, arrayBuffer);
-        }
-        else {
-            callback({status: xhr.status, errorMessage: errInfo + '(no response)'});
-        }
-    };
-    xhr.onerror = function(){
-        callback({status: xhr.status, errorMessage: errInfo + '(error)'});
-    };
-    xhr.ontimeout = function(){
-        callback({status: xhr.status, errorMessage: errInfo + '(time out)'});
-    };
-    xhr.send(null);
-}
+export { default as assetManager, AssetManager } from './asset-manager';
+export { resources } from './bundle';
+export * from './deprecated';

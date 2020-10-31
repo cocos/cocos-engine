@@ -331,21 +331,19 @@ export class View extends EventTarget {
         }
         this._antiAliasEnabled = enabled;
         if (legacyCC.game.renderType === legacyCC.Game.RENDER_TYPE_WEBGL) {
-            const cache = legacyCC.loader._cache;
+            const cache = legacyCC.assetManager.assets;
             // tslint:disable-next-line: forin
-            for (const key in cache) {
-                const item = cache[key];
-                const tex = item && item.content instanceof legacyCC.Texture2D ? item.content : null;
-                if (tex) {
+            cache.forEach(asset => {
+                if (asset instanceof legacyCC.Texture2D) {
                     const Filter = legacyCC.Texture2D.Filter;
                     if (enabled) {
-                        tex.setFilters(Filter.LINEAR, Filter.LINEAR);
+                        asset.setFilters(Filter.LINEAR, Filter.LINEAR);
                     }
                     else {
-                        tex.setFilters(Filter.NEAREST, Filter.NEAREST);
+                        asset.setFilters(Filter.NEAREST, Filter.NEAREST);
                     }
                 }
-            }
+            });
         }
         else if (legacyCC.game.renderType === legacyCC.Game.RENDER_TYPE_CANVAS) {
             const ctx = legacyCC.game.canvas.getContext('2d');

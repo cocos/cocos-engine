@@ -5,7 +5,7 @@ import { CannonSharedBody } from './cannon-shared-body';
 import { Node } from '../../core';
 import { CannonWorld } from './cannon-world';
 import { PhysicsSystem } from '../framework/physics-system';
-import { RigidBody } from '../framework';
+import { ERigidBodyType, RigidBody } from '../framework';
 import { IVec3Like } from '../../core/math/type-define';
 
 const v3_cannon0 = new CANNON.Vec3();
@@ -37,34 +37,26 @@ export class CannonRigidBody implements IRigidBody {
 
     setMass (value: number) {
         this.impl.mass = value;
-        if (this.impl.mass == 0) {
-            this.impl.type = CANNON.Body.STATIC;
-        } else {
-            this.impl.type = this._rigidBody.isKinematic ? CANNON.Body.KINEMATIC : CANNON.Body.DYNAMIC;
-        }
-
         this.impl.updateMassProperties();
         this._wakeUpIfSleep()
     }
 
-    setIsKinematic (value: boolean) {
-        if (this.impl.mass == 0) {
-            this.impl.type = CANNON.Body.STATIC;
-        } else {
-            if (value) {
-                this.impl.type = CANNON.Body.KINEMATIC;
-            } else {
+    setType (v: ERigidBodyType) {
+        switch (v) {
+            case ERigidBodyType.DYNAMIC:
                 this.impl.type = CANNON.Body.DYNAMIC;
-            }
+                this.impl.updateMassProperties();
+                this._wakeUpIfSleep()
+                break;
+            case ERigidBodyType.KINEMATIC:
+                this.impl.type = CANNON.Body.KINEMATIC;
+                break;
+            case ERigidBodyType.STATIC:
+            default:
+                this.impl.type = CANNON.Body.STATIC;
+                break;
         }
     }
-
-    fixRotation (value: boolean) {
-        this.impl.fixedRotation = value;
-        this.impl.updateMassProperties();
-        this._wakeUpIfSleep()
-    }
-
     setLinearDamping (value: number) {
         this.impl.linearDamping = value;
     }
@@ -85,6 +77,11 @@ export class CannonRigidBody implements IRigidBody {
 
     setAngularFactor (value: IVec3Like) {
         Vec3.copy(this.impl.angularFactor, value);
+        const fixR = Vec3.equals(this.impl.angularFactor, Vec3.ZERO);
+        if (fixR != this.impl.fixedRotation) {
+            this.impl.fixedRotation = fixR;
+            this.impl.updateMassProperties();
+        }
         this._wakeUpIfSleep()
     }
 
@@ -125,12 +122,11 @@ export class CannonRigidBody implements IRigidBody {
     onEnable () {
         this._isEnabled = true;
         this.setMass(this._rigidBody.mass);
+        this.setType(this._rigidBody.type);
         this.setAllowSleep(this._rigidBody.allowSleep);
         this.setLinearDamping(this._rigidBody.linearDamping);
         this.setAngularDamping(this._rigidBody.angularDamping);
         this.useGravity(this._rigidBody.useGravity);
-        this.setIsKinematic(this._rigidBody.isKinematic);
-        this.fixRotation(this._rigidBody.fixedRotation);
         this.setLinearFactor(this._rigidBody.linearFactor);
         this.setAngularFactor(this._rigidBody.angularFactor);
         this._sharedBody.enabled = true;

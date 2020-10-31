@@ -377,15 +377,11 @@ class ProgramLib {
         const prefix = macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '') + '\n';
 
         let src = tmpl.glsl3;
-        switch (device.gfxAPI) {
-            case GFXAPI.GLES2:
-            case GFXAPI.WEBGL: src = tmpl.glsl1; break;
-            case GFXAPI.GLES3:
-            case GFXAPI.WEBGL2: src = tmpl.glsl3; break;
-            case GFXAPI.VULKAN:
-            case GFXAPI.METAL:
-            case GFXAPI.WEBGPU: src = tmpl.glsl4; break;
-            default: console.error('Invalid GFX API!'); break;
+        const deviceShaderVersion = getDeviceShaderVersion(device);
+        if (deviceShaderVersion) {
+            src = tmpl[deviceShaderVersion];
+        } else {
+            console.error('Invalid GFX API!');
         }
         tmpl.gfxStages[0].source = prefix + src.vert;
         tmpl.gfxStages[1].source = prefix + src.frag;
@@ -396,6 +392,19 @@ class ProgramLib {
         const instanceName = getShaderInstanceName(name, macroArray);
         const shaderInfo = new GFXShaderInfo(instanceName, tmpl.gfxStages, attributes, tmpl.gfxBlocks, tmpl.gfxSamplers);
         return this._cache[key] = ShaderPool.alloc(device, shaderInfo);
+    }
+}
+
+export function getDeviceShaderVersion (device: GFXDevice): 'glsl1' | 'glsl3' | 'glsl4' | undefined {
+    switch (device.gfxAPI) {
+        case GFXAPI.GLES2:
+        case GFXAPI.WEBGL: return 'glsl1';
+        case GFXAPI.GLES3:
+        case GFXAPI.WEBGL2: return 'glsl3';
+        case GFXAPI.VULKAN:
+        case GFXAPI.METAL:
+        case GFXAPI.WEBGPU: return 'glsl4';
+        default: return;
     }
 }
 

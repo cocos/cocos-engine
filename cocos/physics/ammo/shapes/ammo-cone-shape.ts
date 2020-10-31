@@ -48,8 +48,7 @@ export class AmmoConeShape extends AmmoShape implements ICylinderShape {
         this._btShape = new Ammo.btConeShape(0.5, 1);
     }
 
-    onLoad () {
-        super.onLoad();
+    onComponentSet () {
         this.setRadius(this.collider.radius);
     }
 

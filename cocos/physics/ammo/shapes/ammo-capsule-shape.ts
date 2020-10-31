@@ -48,8 +48,7 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
         this._btShape = new Ammo.btCapsuleShape(0.5, 1);
     }
 
-    onLoad () {
-        super.onLoad();
+    onComponentSet () {
         this.setRadius(this.collider.radius);
     }
 

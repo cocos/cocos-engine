@@ -101,7 +101,7 @@ export class SimpleTexture extends TextureBase {
      * @param level Mipmap level to upload the image to
      * @param arrayIndex The array index
      */
-    public uploadData (source: HTMLCanvasElement | HTMLImageElement | ArrayBufferView, level: number = 0, arrayIndex: number = 0) {
+    public uploadData (source: HTMLCanvasElement | HTMLImageElement | ArrayBufferView | ImageBitmap, level: number = 0, arrayIndex: number = 0) {
         if (!this._gfxTexture || this._gfxTexture.levelCount <= level) {
             return;
         }
@@ -143,7 +143,7 @@ export class SimpleTexture extends TextureBase {
             this._checkTextureLoaded();
 
             if (macro.CLEANUP_IMAGE_CACHE) {
-                legacyCC.loader.release(image);
+                legacyCC.assetManager.releaseAsset(image);
             }
         };
         if (image.loaded) {
@@ -156,7 +156,7 @@ export class SimpleTexture extends TextureBase {
                 const defaultImg = legacyCC.builtinResMgr.get('black-texture').image as ImageAsset;
                 this.uploadData(defaultImg.data as HTMLCanvasElement, level, arrayIndex);
             }
-            legacyCC.textureUtil.postLoadImage(image);
+            legacyCC.assetManager.postLoadNative(image);
         }
     }
 

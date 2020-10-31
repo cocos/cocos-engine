@@ -92,7 +92,6 @@ export class SpotLight extends Light {
 
     constructor () {
         super();
-        this._type = LightType.SPOT;
         this._aabb = aabb.create();
         this._frustum = frustum.create();
         this._pos = new Vec3();
@@ -103,6 +102,7 @@ export class SpotLight extends Light {
         this._hAABB = AABBPool.alloc();
         this._hFrustum = FrustumPool.alloc();
         const size = 0.15;
+        LightPool.set(this._handle, LightView.TYPE, LightType.SPOT);
         LightPool.set(this._handle, LightView.SIZE, size);
         LightPool.set(this._handle, LightView.AABB, this._hAABB);
         LightPool.set(this._handle, LightView.ILLUMINANCE, 1700 / nt2lm(size));
@@ -132,7 +132,7 @@ export class SpotLight extends Light {
             this._frustum.update(_matViewProj, _matViewProjInv);
             this._needUpdate = false;
 
-            LightPool.setVec3(this._handle, LightView.DIRECTION, this._pos);
+            LightPool.setVec3(this._handle, LightView.POSITION, this._pos);
             AABBPool.setVec3(this._hAABB, AABBView.CENTER, this._aabb.center);
             AABBPool.setVec3(this._hAABB, AABBView.HALF_EXTENSION, this._aabb.halfExtents);
             recordFrustumToSharedMemory(this._hFrustum, this._frustum);

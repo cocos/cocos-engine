@@ -97,13 +97,13 @@ export class DirectionalLight extends Light {
 
     constructor () {
         super();
-        this._type = LightType.DIRECTIONAL;
     }
 
     public initialize () {
         super.initialize();
         LightPool.set(this._handle, LightView.ILLUMINANCE, Ambient.SUN_ILLUM);
         LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
+        LightPool.set(this._handle, LightView.TYPE, LightType.DIRECTIONAL);
     }
 
     public update () {

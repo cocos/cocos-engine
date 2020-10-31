@@ -7,6 +7,7 @@ import { ILifecycle } from './i-lifecycle'
 import { IGroupMask } from './i-group-mask'
 import { IVec3Like } from "../../core/math/type-define";
 import { RigidBody } from '../framework/components/rigid-body';
+import { ERigidBodyType } from '../framework';
 
 export interface IRigidBody extends ILifecycle, IGroupMask {
     readonly impl: any;
@@ -17,12 +18,11 @@ export interface IRigidBody extends ILifecycle, IGroupMask {
 
     initialize (v: RigidBody): void;
 
+    setType: (v: ERigidBodyType) => void;
     setMass: (v: number) => void;
     setLinearDamping: (v: number) => void;
     setAngularDamping: (v: number) => void;
-    setIsKinematic: (v: boolean) => void;
     useGravity: (v: boolean) => void;
-    fixRotation: (v: boolean) => void;
     setLinearFactor: (v: IVec3Like) => void;
     setAngularFactor: (v: IVec3Like) => void;
     setAllowSleep: (v: boolean) => void;

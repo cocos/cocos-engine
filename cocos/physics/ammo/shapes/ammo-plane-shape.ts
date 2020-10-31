@@ -38,12 +38,11 @@ export class AmmoPlaneShape extends AmmoShape implements IPlaneShape {
     constructor () {
         super(AmmoBroadphaseNativeTypes.STATIC_PLANE_PROXYTYPE);
         this.NORMAL = new Ammo.btVector3(0, 1, 0);
-        this._btShape = new Ammo.btStaticPlaneShape(this.NORMAL, 0);
     }
 
     onComponentSet () {
-        cocos2AmmoVec3(this.impl.getPlaneNormal(), this.collider.normal);
-        this.impl.setPlaneConstant(this.collider.constant);
+        cocos2AmmoVec3(this.NORMAL, this.collider.normal);
+        this._btShape = new Ammo.btStaticPlaneShape(this.NORMAL, this.collider.constant);
         this.setScale();
     }
 

@@ -107,13 +107,13 @@ export class SpriteAtlas extends Asset {
         return frames;
     }
 
-    public _serialize (exporting?: any) {
+    public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
             const frames: string[] = [];
             for (const key of Object.keys(this.spriteFrames)) {
                 const spriteFrame = this.spriteFrames[key];
                 let id = spriteFrame ? spriteFrame._uuid : '';
-                if (id && exporting) {
+                if (id && ctxForExporting && ctxForExporting._compressUuid) {
                     id = EditorExtends.UuidUtils.compressUuid(id, true);
                 }
                 frames.push(key);

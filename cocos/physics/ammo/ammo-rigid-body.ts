@@ -32,6 +32,7 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     setMass (value: number) {
+        if (!this._rigidBody.isDynamic) return;
         // See https://studiofreya.com/game-maker/bullet-physics/bullet-physics-how-to-change-body-mass/
         const localInertia = AmmoConstant.instance.VECTOR3_0;
         // const localInertia = this._sharedBody.bodyStruct.localInertia;
@@ -49,6 +50,38 @@ export class AmmoRigidBody implements IRigidBody {
         this._sharedBody.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
     }
 
+    setType (v: ERigidBodyType) {
+        let m_collisionFlags = this.impl.getCollisionFlags();
+        const localInertia = AmmoConstant.instance.VECTOR3_0;
+        switch (v) {
+            case ERigidBodyType.DYNAMIC:
+                m_collisionFlags &= (~AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
+                m_collisionFlags &= (~AmmoCollisionFlags.CF_STATIC_OBJECT);
+                this.impl.setCollisionFlags(m_collisionFlags);
+                this.setMass(this._rigidBody.mass);
+                this.useGravity(this._rigidBody.useGravity);
+                this.setAllowSleep(this._rigidBody.allowSleep);
+                break;
+            case ERigidBodyType.KINEMATIC:
+                m_collisionFlags |= AmmoCollisionFlags.CF_KINEMATIC_OBJECT;
+                m_collisionFlags &= (~AmmoCollisionFlags.CF_STATIC_OBJECT);
+                this.impl.setCollisionFlags(m_collisionFlags);
+                localInertia.setValue(0, 0, 0);
+                this.impl.setMassProps(0, localInertia);
+                this.impl.forceActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
+                break;
+            case ERigidBodyType.STATIC:
+            default:
+                m_collisionFlags |= AmmoCollisionFlags.CF_STATIC_OBJECT;
+                m_collisionFlags &= (~AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
+                this.impl.setCollisionFlags(m_collisionFlags);
+                localInertia.setValue(0, 0, 0);
+                this.impl.setMassProps(0, localInertia);
+                this.impl.forceActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
+                break;
+        }
+    }
+
     setLinearDamping (value: number) {
         this.impl.setDamping(this._rigidBody.linearDamping, this._rigidBody.angularDamping);
     }
@@ -57,17 +90,8 @@ export class AmmoRigidBody implements IRigidBody {
         this.impl.setDamping(this._rigidBody.linearDamping, this._rigidBody.angularDamping);
     }
 
-    setIsKinematic (value: boolean) {
-        let m_collisionFlags = this.impl.getCollisionFlags();
-        if (value) {
-            m_collisionFlags |= AmmoCollisionFlags.CF_KINEMATIC_OBJECT;
-        } else {
-            m_collisionFlags &= (~AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
-        }
-        this.impl.setCollisionFlags(m_collisionFlags);
-    }
-
     useGravity (value: boolean) {
+        if (!this._rigidBody.isDynamic) return;
         let m_rigidBodyFlag = this.impl.getFlags()
         if (value) {
             m_rigidBodyFlag &= (~AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY);
@@ -80,29 +104,18 @@ export class AmmoRigidBody implements IRigidBody {
         this._sharedBody.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
     }
 
-    fixRotation (value: boolean) {
-        if (value) {
-            /** TODO : should i reset angular velocity & torque ? */
-            this.impl.setAngularFactor(cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, Vec3.ZERO));
-        } else {
-            this.impl.setAngularFactor(cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, this._rigidBody.angularFactor));
-        }
-        this._wakeUpIfSleep();
-    }
-
     setLinearFactor (value: IVec3Like) {
         this.impl.setLinearFactor(cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, value));
         this._wakeUpIfSleep();
     }
 
     setAngularFactor (value: IVec3Like) {
-        if (!this._rigidBody.fixedRotation) {
-            this.impl.setAngularFactor(cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, value));
-        }
+        this.impl.setAngularFactor(cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, value));
         this._wakeUpIfSleep();
     }
 
     setAllowSleep (v: boolean) {
+        if (!this._rigidBody.isDynamic) return;
         if (v) {
             this.impl.forceActivationState(AmmoCollisionObjectStates.ACTIVE_TAG);
         } else {
@@ -151,11 +164,10 @@ export class AmmoRigidBody implements IRigidBody {
     onEnable () {
         this._isEnabled = true;
         this.setMass(this._rigidBody.mass);
+        this.setType(this._rigidBody.type);
         this.setAllowSleep(this._rigidBody.allowSleep);
         this.setLinearDamping(this._rigidBody.linearDamping);
         this.setAngularDamping(this._rigidBody.angularDamping);
-        this.setIsKinematic(this._rigidBody.isKinematic);
-        this.fixRotation(this._rigidBody.fixedRotation);
         this.setLinearFactor(this._rigidBody.linearFactor);
         this.setAngularFactor(this._rigidBody.angularFactor);
         this.useGravity(this._rigidBody.useGravity);

@@ -46,10 +46,10 @@ function applyAreaMask (mask: Mask, renderer: UI) {
     _stencilManager.enterLevel();
     if (mask.type === MaskType.IMAGE_STENCIL) {
         simple.fillBuffers(mask, renderer);
-        const mat = mask.graphics!.getMaterialInstanceForStencil();
+        const mat = mask.graphics!.getMaterialInstance(0)!;
         renderer.forceMergeBatches(mat, mask.spriteFrame, mask.graphics!);
     } else {
-        const mat = mask.graphics!.getMaterialInstanceForStencil();
+        const mat = mask.graphics!.getMaterialInstance(0);
         renderer.commitModel(mask.graphics!, mask.graphics!.model, mat);
     }
 }

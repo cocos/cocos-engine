@@ -416,7 +416,7 @@ export class Sprite extends UIRenderable {
         } else {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
-        this._uiMaterialDirty = true;
+        this.updateMaterial();
     }
 
     /**
@@ -516,10 +516,6 @@ export class Sprite extends UIRenderable {
 
         // this._flushAssembler();
         this._activateMaterial();
-        // updateBlendFunc for custom material
-        if (this.getMaterial(0)) {
-            this._updateBlendFunc();
-        }
     }
 
     public onDestroy () {
@@ -573,7 +569,7 @@ export class Sprite extends UIRenderable {
         } else {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
-        this._uiMaterialDirty = true;
+        this.updateMaterial();
     }
 
     protected _render (render: UI) {
@@ -707,7 +703,7 @@ export class Sprite extends UIRenderable {
             if (spriteFrame.atlasUuid.length > 0) {
                 if (!this._atlas || this._atlas._uuid !== spriteFrame.atlasUuid) {
                     const self = this;
-                    AssetLibrary.loadAsset(spriteFrame.atlasUuid, (err, asset) => {
+                    assetManager.loadAny(spriteFrame.atlasUuid, (err, asset) => {
                         self._atlas = asset;
                     });
                 }

@@ -106,13 +106,6 @@
         strictEqual(prefabInfo.fileId, nodeToCreatePrefab.uuid, 'fileId should be saved');
     });
 
-    test('prefab info in exported scene if syncable', function () {
-        var exportedParent = cc.deserialize(EditorExtends.serialize(nodeToCreatePrefab, { stringify: false, exporting: true }));
-        ok(exportedParent._prefab, 'prefab info should be saved');
-        strictEqual(exportedParent._prefab.sync, true, 'sync should be saved');
-        strictEqual(exportedParent._prefab.fileId, nodeToCreatePrefab.uuid, 'fileId should be saved');
-    });
-
     function testInstantiatedNode (newNode) {
         var prefabInfo = newNode._prefab;
         ok(prefabInfo, "new node should preserve the prefab info");

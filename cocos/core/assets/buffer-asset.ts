@@ -22,32 +22,37 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { Mesh } from '../mesh';
-import { legacyCC } from '../../global-exports';
-export function postLoadMesh (mesh: Mesh, callback?: Function) {
-    if (mesh.loaded) {
-        if (callback) {
-            callback();
-        }
-        return;
+
+/**
+ * @category asset
+ */
+
+import {ccclass, override } from 'cc.decorator';
+import { legacyCC } from '../global-exports';
+import { Asset } from './asset';
+
+@ccclass('cc.BufferAsset')
+export class BufferAsset extends Asset {
+
+    private _buffer: ArrayBuffer | null = null;
+
+    @override
+    get _nativeAsset () {
+        return this._buffer as ArrayBuffer;
     }
-    if (!mesh.nativeUrl) {
-        if (callback) {
-            callback();
+
+    set _nativeAsset (bin: ArrayBufferView | ArrayBuffer) {
+        if (bin instanceof ArrayBuffer) {
+            this._buffer = bin;
         }
-        return;
+        else {
+            this._buffer = bin.buffer;
+        }
     }
-    // load image
-    legacyCC.loader.load({
-        url: mesh.nativeUrl,
-    }, (err: Error | null, arrayBuffer: ArrayBuffer | null) => {
-        if (arrayBuffer) {
-            if (!mesh.loaded) {
-                mesh._nativeAsset = arrayBuffer;
-            }
-        }
-        if (callback) {
-            callback(err);
-        }
-    });
+
+    public buffer () {
+        return this._buffer;
+    }
 }
+
+legacyCC.BufferAsset = BufferAsset;

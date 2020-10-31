@@ -37,7 +37,6 @@ import System from './components/system';
 import { CCObject } from './data/object';
 import { EventTarget } from './event/event-target';
 import { Game } from './game';
-import { autoRelease } from './load-pipeline/auto-release-utils';
 import { Color, size, v2, Vec2 } from './math';
 import eventManager from './platform/event-manager/event-manager';
 import { Root } from './root';
@@ -402,7 +401,7 @@ export class Director extends EventTarget {
      * @deprecated since v2.0
      */
     public purgeCachedData () {
-        legacyCC.loader.releaseAll();
+        legacyCC.assetManager.releaseAll();
     }
 
     /**
@@ -433,7 +432,7 @@ export class Director extends EventTarget {
         this.stopAnimation();
 
         // Clear all caches
-        legacyCC.loader.releaseAll();
+        legacyCC.assetManager.releaseAll();
     }
 
     /**
@@ -461,12 +460,9 @@ export class Director extends EventTarget {
      * @param onBeforeLoadScene - The function invoked at the scene before loading.
      * @param onLaunched - The function invoked at the scene after launch.
      */
-    public runSceneImmediate (scene: Scene, onBeforeLoadScene?: Director.OnBeforeLoadScene, onLaunched?: Director.OnSceneLaunched) {
-        assertID(scene instanceof legacyCC.Scene, 1216);
-
-        const uuid = legacyCC.loader._getReferenceKey(scene.uuid);
-        // Scene cannot be cached in loader, because it will be destroyed after switching.
-        legacyCC.loader.removeItem(uuid);
+    public runSceneImmediate (scene: Scene|SceneAsset, onBeforeLoadScene?: Director.OnBeforeLoadScene, onLaunched?: Director.OnSceneLaunched) {
+        if (scene instanceof SceneAsset) scene = scene.scene!;
+        assertID(scene instanceof Scene, 1216);
 
         if (BUILD && DEBUG) {
             console.time('InitScene');
@@ -514,8 +510,7 @@ export class Director extends EventTarget {
             if (BUILD && DEBUG) {
                 console.time('AutoRelease');
             }
-            const autoReleaseAssets = oldScene && oldScene.autoReleaseAssets && oldScene.dependAssets;
-            autoRelease(autoReleaseAssets, scene.dependAssets, persistNodeList);
+            legacyCC.assetManager._releaseManager._autoRelease(oldScene, scene, persistNodeList);
             if (BUILD && DEBUG) {
                 console.timeEnd('AutoRelease');
             }
@@ -564,9 +559,10 @@ export class Director extends EventTarget {
      * @param onLaunched - The function invoked at the scene after launch.
      * @private
      */
-    public runScene (scene: Scene, onBeforeLoadScene?: Director.OnBeforeLoadScene, onLaunched?: Director.OnSceneLaunched) {
+    public runScene (scene: Scene | SceneAsset, onBeforeLoadScene?: Director.OnBeforeLoadScene, onLaunched?: Director.OnSceneLaunched) {
+        if (scene instanceof SceneAsset) scene = scene.scene!;
         assertID(scene, 1205);
-        assertID(scene instanceof legacyCC.Scene, 1216);
+        assertID(scene instanceof Scene, 1216);
 
         // ensure scene initialized
         // @ts-ignore
@@ -576,40 +572,6 @@ export class Director extends EventTarget {
         this.once(legacyCC.Director.EVENT_AFTER_DRAW, () => {
             this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
         });
-    }
-
-    //  @Scene loading section
-
-    public _getSceneUuid (key: string | number) {
-        const scenes = legacyCC.game._sceneInfos;
-        if (typeof key === 'string') {
-            if (!key.endsWith('.scene')) {
-                key += '.scene';
-            }
-            if (key[0] !== '/' && !key.startsWith('db://')) {
-                key = '/' + key;    // 使用全名匹配
-            }
-            // search scene
-            // tslint:disable-next-line: prefer-for-of
-            for (let i = 0; i < scenes.length; i++) {
-                const info = scenes[i];
-                if (info.url.endsWith(key)) {
-                    return info;
-                }
-            }
-        }
-        else if (typeof key === 'number') {
-            if (0 <= key && key < scenes.length) {
-                return scenes[key];
-            }
-            else {
-                errorID(1206, key);
-            }
-        }
-        else {
-            errorID(1207, key);
-        }
-        return null;
     }
 
     /**
@@ -625,12 +587,26 @@ export class Director extends EventTarget {
             warnID(1208, sceneName, this._loadingScene);
             return false;
         }
-        const info = this._getSceneUuid(sceneName);
-        if (info) {
-            const uuid = info.uuid;
+        var bundle = legacyCC.assetManager.bundles.find((bundle) => {
+            return bundle.getSceneInfo(sceneName);
+        });
+        if (bundle) {
             this.emit(legacyCC.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
-            this._loadSceneByUuid(uuid, onLaunched, onUnloaded);
+            console.time('LoadScene ' + sceneName);
+            bundle.loadScene(sceneName, (err, scene) => {
+                console.timeEnd('LoadScene ' + sceneName);
+                this._loadingScene = '';
+                if (err) {
+                    error(err);
+                    if (onLaunched) {
+                        onLaunched(err);
+                    }
+                }
+                else {
+                    this.runSceneImmediate(scene, onUnloaded, onLaunched);
+                }
+            });
             return true;
         }
         else {
@@ -671,32 +647,14 @@ export class Director extends EventTarget {
 
     public preloadScene (
         sceneName: string,
-        arg1?: Director.OnLoadSceneProgress | Director.OnSceneLoaded,
-        arg2?: Director.OnSceneLoaded) {
-        let onProgress: Director.OnLoadSceneProgress | undefined;
-        let onLoaded: Director.OnSceneLoaded | undefined;
+        onProgress?: Director.OnLoadSceneProgress | Director.OnSceneLoaded,
+        onLoaded?: Director.OnSceneLoaded) {
 
-        if (arg2 === undefined) {
-            onLoaded = arg1 as Director.OnSceneLoaded;
-            onProgress = void 0;
-        } else {
-            onLoaded = arg2;
-            onProgress = arg1 as Director.OnLoadSceneProgress;
-        }
-
-        const info = this._getSceneUuid(sceneName);
-        if (info) {
-            this.emit(legacyCC.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
-            legacyCC.loader.load({ uuid: info.uuid, type: 'uuid' },
-                onProgress,
-                (err: null | Error, asset: SceneAsset) => {
-                    if (err) {
-                        errorID(1210, sceneName, err.message);
-                    }
-                    if (onLoaded) {
-                        onLoaded(err, asset);
-                    }
-                });
+        var bundle = legacyCC.assetManager.bundles.find(function (bundle) {
+            return bundle.getSceneInfo(sceneName);
+        });
+        if (bundle) {
+            bundle.preloadScene(sceneName, null, onProgress, onLoaded);
         }
         else {
             const err = 'Can not preload the scene "' + sceneName + '" because it is not in the build settings.';
@@ -705,82 +663,6 @@ export class Director extends EventTarget {
             }
             error('preloadScene: ' + err);
         }
-    }
-
-    /**
-     * @en Loads the scene by its uuid.
-     * @zh 通过 uuid 加载场景。
-     * @param uuid 场景资源的 uuid。
-     * @param doNotRun 仅加载和初始化场景，但并不运行。此参数仅在编辑器环境中生效。
-     * @private
-     */
-    public _loadSceneByUuid (uuid: string, doNotRun?: boolean): void;
-
-    public _loadSceneByUuid (uuid: string, onLaunched?: Director.OnSceneLaunched, doNotRun?: boolean): void;
-
-    public _loadSceneByUuid (uuid: string, onLaunched?: Director.OnSceneLaunched, onUnloaded?: Director.OnUnload, doNotRun?: boolean): void;
-
-    public _loadSceneByUuid (
-        uuid: string,
-        arg1?: Director.OnSceneLaunched | boolean,
-        arg2?: Director.OnUnload | boolean,
-        arg3?: boolean) {
-        let onLaunched: Director.OnSceneLaunched | undefined;
-        let onUnloaded: Director.OnUnload | undefined;
-        let doNotRun: boolean | undefined;
-
-        if (EDITOR && typeof arg1 === 'boolean') {
-            doNotRun = arg1;
-            onUnloaded = arg2 as (Director.OnUnload | undefined);
-        } else if (EDITOR && typeof arg2 === 'boolean') {
-            doNotRun = arg2;
-            onLaunched = arg1 as (Director.OnSceneLaunched | undefined);
-        } else {
-            onLaunched = arg1 as (Director.OnSceneLaunched | undefined);
-            onUnloaded = arg2 as (Director.OnUnload | undefined);
-            doNotRun = arg3;
-        }
-
-        // legacyCC.AssetLibrary.unloadAsset(uuid);     // force reload
-        console.time('LoadScene ' + uuid);
-        legacyCC.AssetLibrary.loadAsset(uuid, (err, sceneAsset) => {
-            console.timeEnd('LoadScene ' + uuid);
-            const self = director;
-            self._loadingScene = '';
-            if (err) {
-                err = 'Failed to load scene: ' + err;
-                error(err);
-            }
-            else {
-                if (sceneAsset instanceof legacyCC.SceneAsset) {
-                    const scene = sceneAsset.scene;
-                    scene._id = sceneAsset._uuid;
-                    scene._name = sceneAsset._name;
-                    if (EDITOR) {
-                        if (!doNotRun) {
-                            self.runSceneImmediate(scene, onUnloaded, onLaunched);
-                        }
-                        else {
-                            scene._load();
-                            if (onLaunched) {
-                                onLaunched(null, scene);
-                            }
-                        }
-                    }
-                    else {
-                        self.runSceneImmediate(scene, onUnloaded, onLaunched);
-                    }
-                    return;
-                }
-                else {
-                    err = 'The asset ' + uuid + ' is not a scene';
-                    error(err);
-                }
-            }
-            if (onLaunched) {
-                onLaunched(err);
-            }
-        });
     }
 
     /**
@@ -1067,7 +949,6 @@ export class Director extends EventTarget {
     }
 
     private _init () {
-        legacyCC.loader.init(this);
         this._root = new Root(legacyCC.game._gfxDevice);
         const rootInfo = {};
         return this._root.initialize(rootInfo).catch((error) => {
