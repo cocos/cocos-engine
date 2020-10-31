@@ -329,16 +329,16 @@ export class UIRenderable extends RenderableComponent {
     protected _materialUniformHash = 0;
 
     /**
-     * @en The material hash include uniform
-     * @zh 材质包含 uniform 的哈希值
+     * @en The hash for material uniforms
+     * @zh 材质 uniform 的哈希值
      */
     get materialUniformHash () {
         return this._materialUniformHash;
     }
 
     /**
-     * @en update the material hash include uniform,and return it
-     * @zh 更新并返回材质的包含 uniform 的哈希值
+     * @en update the hash for material uniforms, and return it
+     * @zh 更新并返回材质 uniform 的哈希值
      */
     public updateMaterialUniformHash (mat: Material) {
         const passes = mat.passes;
