@@ -501,7 +501,7 @@ export default class TmxAssembler extends Assembler {
                         _uintbuf[_vfOffset + 4] = color;
                         _uintbuf[_vfOffset + vertStep + 4] = color;
                         _uintbuf[_vfOffset + vertStep2 + 4] = color;
-                        _uintbuf[_vfOffset + vertStep2 + 4] = color;
+                        _uintbuf[_vfOffset + vertStep3 + 4] = color;
                     }
 
                 } else {

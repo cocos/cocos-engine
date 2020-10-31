@@ -1022,7 +1022,7 @@ cc.TMXMapInfo.prototype = {
         let opacity = selLayer.getAttribute('opacity') || 1;
         imageLayer.opacity = parseInt(255 * parseFloat(opacity)) || 255;
 
-        imageLayer.tintColor = selGroup.getAttribute('tintcolor') || null;
+        imageLayer.tintColor = selLayer.getAttribute('tintcolor') || null;
 
         let data = datas[0];
         let source = data.getAttribute('source');
