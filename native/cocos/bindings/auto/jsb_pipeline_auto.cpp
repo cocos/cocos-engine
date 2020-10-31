@@ -593,6 +593,42 @@ static bool js_pipeline_ForwardPipeline_setFog(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_ForwardPipeline_setFog)
 
+static bool js_pipeline_ForwardPipeline_getSphere(se::State& s)
+{
+    cc::pipeline::ForwardPipeline* cobj = (cc::pipeline::ForwardPipeline*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_pipeline_ForwardPipeline_getSphere : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::pipeline::Sphere* result = cobj->getSphere();
+        ok &= native_ptr_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_pipeline_ForwardPipeline_getSphere : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_ForwardPipeline_getSphere)
+
+static bool js_pipeline_ForwardPipeline_getReceivedSphere(se::State& s)
+{
+    cc::pipeline::ForwardPipeline* cobj = (cc::pipeline::ForwardPipeline*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_pipeline_ForwardPipeline_getReceivedSphere : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::pipeline::Sphere* result = cobj->getReceivedSphere();
+        ok &= native_ptr_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_pipeline_ForwardPipeline_getReceivedSphere : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_ForwardPipeline_getReceivedSphere)
+
 static bool js_pipeline_ForwardPipeline_setShadows(se::State& s)
 {
     cc::pipeline::ForwardPipeline* cobj = (cc::pipeline::ForwardPipeline*)s.nativeThisObject();
@@ -683,6 +719,8 @@ bool js_register_pipeline_ForwardPipeline(se::Object* obj)
     auto cls = se::Class::create("ForwardPipeline", obj, __jsb_cc_pipeline_RenderPipeline_proto, _SE(js_pipeline_ForwardPipeline_constructor));
 
     cls->defineFunction("setFog", _SE(js_pipeline_ForwardPipeline_setFog));
+    cls->defineFunction("getSphere", _SE(js_pipeline_ForwardPipeline_getSphere));
+    cls->defineFunction("getReceivedSphere", _SE(js_pipeline_ForwardPipeline_getReceivedSphere));
     cls->defineFunction("setShadows", _SE(js_pipeline_ForwardPipeline_setShadows));
     cls->defineFunction("setSkybox", _SE(js_pipeline_ForwardPipeline_setSkybox));
     cls->defineFunction("setAmbient", _SE(js_pipeline_ForwardPipeline_setAmbient));
