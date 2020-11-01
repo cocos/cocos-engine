@@ -68,6 +68,7 @@
         "cc.GFXCullMode",
         "cc.GFXDescriptorType",
         "cc.GFXDevice",
+        "cc.GFXDynamicState",
         "cc.GFXDynamicStateFlagBit",
         "cc.GFXExtent",
         "cc.GFXFilter",
