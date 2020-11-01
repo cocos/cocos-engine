@@ -51,6 +51,7 @@ export * from './game';
 export * from './scheduler';
 export * from './director';
 
+export * from './gfx/deprecated-3.0.0';
 export * from './pipeline';
 export * from './asset-manager';
 export * from './scene-graph';

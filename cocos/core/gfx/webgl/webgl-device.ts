@@ -1,7 +1,9 @@
-import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, DEBUG, VIVO } from 'internal:constants';
+import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, VIVO } from 'internal:constants';
 import { macro, warnID, warn } from '../../platform';
 import { sys } from '../../platform/sys';
 import { DescriptorSet, DescriptorSetInfo } from '../descriptor-set';
+import { DescriptorSetLayoutInfo, DescriptorSetLayout } from '../descriptor-set-layout';
+import { PipelineLayoutInfo, PipelineLayout } from '../pipeline-layout';
 import { Buffer, BufferInfo, BufferViewInfo } from '../buffer';
 import { CommandBuffer, CommandBufferInfo } from '../command-buffer';
 import { Device, DeviceInfo, BindingMappingInfo } from '../device';
@@ -36,7 +38,6 @@ import { getTypedArrayConstructor, CommandBufferType, Filter, Format, FormatInfo
 import { BufferTextureCopy, Rect } from '../define-class';
 import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersToTexture,
     WebGLCmdFuncCopyTexImagesToTexture } from './webgl-commands';
-import { DescriptorSetLayoutInfo, DescriptorSetLayout, PipelineLayoutInfo, PipelineLayout } from '../..';
 
 const eventWebGLContextLost = 'webglcontextlost';
 

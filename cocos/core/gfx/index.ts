@@ -23,6 +23,7 @@ import { FormatSize,FormatSurfaceSize,GetTypeSize,getTypedArrayConstructor,MAX_A
     FormatInfo,MemoryStatus,FormatInfos } from './define';
 import { Rect, Viewport, Color, Offset, Extent, TextureSubres, TextureCopy, BufferTextureCopy } from './define-class';
 import { legacyCC } from '../global-exports';
+import './deprecated-3.0.0';
 
 export * from './descriptor-set';
 export * from './buffer';
@@ -51,5 +52,3 @@ export const polyfillCC = {Device,Buffer,Texture,Sampler,Shader,InputAssembler,R
     QueueType,Rect,Viewport,Color,ClearFlag,Offset,Extent,TextureSubres,TextureCopy,BufferTextureCopy,FormatType,
     FormatInfo,MemoryStatus,FormatInfos};
 legacyCC.gfx = polyfillCC;
-
-export * from './deprecated-3.0.0';

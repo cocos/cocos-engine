@@ -1,5 +1,4 @@
-import { IndirectBuffer } from '../..';
-import { Buffer, BufferSource, BufferInfo, BufferViewInfo } from '../buffer';
+import { Buffer, BufferSource, BufferInfo, BufferViewInfo, IndirectBuffer } from '../buffer';
 import { BufferFlagBit, BufferUsageBit } from '../define';
 import {
     WebGL2CmdFuncCreateBuffer,

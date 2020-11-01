@@ -1,4 +1,4 @@
-import { Buffer, BufferSource } from '../buffer';
+import { Buffer, BufferSource, DrawInfo } from '../buffer';
 import { CommandBuffer } from '../command-buffer';
 import { BufferUsageBit } from '../define';
 import { BufferTextureCopy, Color, Rect } from '../define-class';
@@ -15,7 +15,6 @@ import { WebGL2Framebuffer } from './webgl2-framebuffer';
 import { WebGL2Texture } from './webgl2-texture';
 import { RenderPass } from '../render-pass';
 import { WebGL2RenderPass } from './webgl2-render-pass';
-import { DrawInfo } from '../..';
 
 const _dynamicOffsets: number[] = [];
 

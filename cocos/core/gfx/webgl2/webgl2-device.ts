@@ -1,5 +1,7 @@
 import { macro, warnID, warn } from '../../platform';
 import { DescriptorSet, DescriptorSetInfo } from '../descriptor-set';
+import { DescriptorSetLayout, DescriptorSetLayoutInfo } from '../descriptor-set-layout';
+import { PipelineLayout, PipelineLayoutInfo } from '../pipeline-layout';
 import { Buffer, BufferInfo, BufferViewInfo } from '../buffer';
 import { CommandBuffer, CommandBufferInfo } from '../command-buffer';
 import { Device, DeviceInfo, BindingMappingInfo } from '../device';
@@ -34,7 +36,6 @@ import { getTypedArrayConstructor, CommandBufferType, Filter, Format, FormatInfo
 import { BufferTextureCopy, Rect } from '../define-class';
 import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGL2CmdFuncBlitFramebuffer,
     WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
-import { PipelineLayout, DescriptorSetLayout, DescriptorSetLayoutInfo, PipelineLayoutInfo } from '../..';
 
 const eventWebGLContextLost = 'webglcontextlost';
 

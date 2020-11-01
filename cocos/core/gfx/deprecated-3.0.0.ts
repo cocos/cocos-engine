@@ -3,7 +3,7 @@
  */
 
 import { polyfillCC } from './index';
-import { replaceProperty } from '../utils/x-deprecated';
+import { removeProperty, replaceProperty } from '../utils/x-deprecated';
 import { legacyCC } from '../global-exports';
 
 import { DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE, DescriptorSetInfo, DescriptorSet } from './descriptor-set';
@@ -29,6 +29,30 @@ import { ColorAttachment, DepthStencilAttachment, SubPassInfo, RenderPassInfo, R
 import { SamplerInfo, Sampler } from './sampler';
 import { IShaderStage, ShaderStage, IUniform, Uniform, UniformBlock, UniformSampler, ShaderInfo, Shader } from './shader';
 import { TextureInfo, TextureViewInfo, Texture } from './texture';
+
+replaceProperty(legacyCC, 'cc', [
+    {
+        name: 'GFXDynamicState',
+        newName: 'DynamicStateFlagBit',
+    },
+    {
+        name: 'GFXBindingType',
+        newName: 'DescriptorType',
+    },
+    {
+        name: 'GFXBindingLayout',
+        newName: 'DescriptorSet',
+    },
+]);
+
+removeProperty(CommandBuffer.prototype,  'CommandBuffer.prototype', [
+    {
+        name: 'bindBindingLayout',
+        suggest: 'Use `bindDescriptorSet` instead',
+    },
+]);
+
+// Deprecate GFX prefix APIs
 
 export type GFXBufferSource = BufferSource;
 export type GFXBufferUsage = BufferUsage;

@@ -18,7 +18,7 @@ import { RenderPass, RenderPassInfo } from './render-pass';
 import { Sampler, SamplerInfo } from './sampler';
 import { Shader, ShaderInfo } from './shader';
 import { Texture, TextureInfo, TextureViewInfo } from './texture';
-import { DescriptorSetLayoutInfo, DescriptorSetLayout, PipelineLayoutInfo, PipelineLayout } from '../../../exports/base';
+import { gfx } from '../../../exports/base';
 
 ccenum(Format);
 
@@ -474,14 +474,14 @@ export abstract class Device {
      * @zh 创建描述符集布局。
      * @param info GFX descriptor set layout description info.
      */
-    public abstract createDescriptorSetLayout (info: DescriptorSetLayoutInfo): DescriptorSetLayout;
+    public abstract createDescriptorSetLayout (info: gfx.DescriptorSetLayoutInfo): gfx.DescriptorSetLayout;
 
     /**
      * @en Create pipeline layout.
      * @zh 创建管线布局。
      * @param info GFX pipeline layout description info.
      */
-    public abstract createPipelineLayout (info: PipelineLayoutInfo): PipelineLayout;
+    public abstract createPipelineLayout (info: gfx.PipelineLayoutInfo): gfx.PipelineLayout;
 
     /**
      * @en Create pipeline state.
