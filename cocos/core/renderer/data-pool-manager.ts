@@ -5,14 +5,14 @@
 
 import { AnimationClip } from '../animation/animation-clip';
 import { Skeleton } from '../assets';
-import { GFXDevice } from '../gfx';
+import { Device } from '../gfx';
 import { JointAnimationInfo, JointTexturePool } from './models/skeletal-animation-utils';
 
 export class DataPoolManager {
     public jointTexturePool: JointTexturePool;
     public jointAnimationInfo: JointAnimationInfo;
 
-    constructor (device: GFXDevice) {
+    constructor (device: Device) {
         this.jointTexturePool = new JointTexturePool(device);
         this.jointAnimationInfo = new JointAnimationInfo(device);
     }

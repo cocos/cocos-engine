@@ -30,7 +30,7 @@
 
 // @ts-check
 import {ccclass, override} from 'cc.decorator';
-import { GFXDevice, GFXFeature } from '../gfx';
+import { Device, Feature } from '../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { EDITOR, MINIGAME, ALIPAY, XIAOMI, JSB, TEST } from 'internal:constants';
@@ -300,15 +300,15 @@ export class ImageAsset extends Asset {
             if (index !== -1 && index < preferedExtensionIndex) {
                 const fmt = extFormat[1] ? parseInt(extFormat[1]) : this._format;
                 // check whether or not support compressed texture
-                if ( tmpExt === '.astc' && (!device || !device.hasFeature(GFXFeature.FORMAT_ASTC))) {
+                if ( tmpExt === '.astc' && (!device || !device.hasFeature(Feature.FORMAT_ASTC))) {
                     continue;
-                } else if ( tmpExt === '.pvr' && (!device || !device.hasFeature(GFXFeature.FORMAT_PVRTC))) {
+                } else if ( tmpExt === '.pvr' && (!device || !device.hasFeature(Feature.FORMAT_PVRTC))) {
                     continue;
                 } else if ((fmt === PixelFormat.RGB_ETC1 || fmt === PixelFormat.RGBA_ETC1) &&
-                    (!device || !device.hasFeature(GFXFeature.FORMAT_ETC1))) {
+                    (!device || !device.hasFeature(Feature.FORMAT_ETC1))) {
                     continue;
                 } else if ((fmt === PixelFormat.RGB_ETC2 || fmt === PixelFormat.RGBA_ETC2) &&
-                    (!device || !device.hasFeature(GFXFeature.FORMAT_ETC2))) {
+                    (!device || !device.hasFeature(Feature.FORMAT_ETC2))) {
                     continue;
                 } else if (tmpExt === '.webp' && !legacyCC.sys.capabilities.webp) {
                     continue;
@@ -341,7 +341,7 @@ export class ImageAsset extends Asset {
     }
 }
 
-function _getGlobalDevice (): GFXDevice | null {
+function _getGlobalDevice (): Device | null {
     if (legacyCC.director.root) {
         return legacyCC.director.root.device;
     } else {

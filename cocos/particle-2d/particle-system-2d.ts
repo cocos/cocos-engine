@@ -36,7 +36,7 @@ import { warnID, errorID } from '../core/platform/debug';
 import { Simulator } from './particle-simulator-2d';
 import { SpriteFrame, Texture2D } from '../core/assets';
 import { ParticleAsset } from './particle-asset';
-import { GFXBlendFactor } from '../core/gfx';
+import { BlendFactor } from '../core/gfx';
 import { path } from '../core/utils';
 import { ImageAsset } from '../core/assets/image-asset';
 import { PNGReader } from './png-reader';
@@ -987,8 +987,8 @@ bv
         this.duration = parseFloat(dict["duration"] || 0);
 
         // blend function
-        this.srcBlendFactor = parseInt(dict["blendFuncSource"] || GFXBlendFactor.SRC_ALPHA);
-        this.dstBlendFactor = parseInt(dict["blendFuncDestination"] || GFXBlendFactor.ONE_MINUS_SRC_ALPHA);
+        this.srcBlendFactor = parseInt(dict["blendFuncSource"] || BlendFactor.SRC_ALPHA);
+        this.dstBlendFactor = parseInt(dict["blendFuncDestination"] || BlendFactor.ONE_MINUS_SRC_ALPHA);
 
         // color
         const locStartColor = this._startColor;

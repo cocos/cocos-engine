@@ -38,10 +38,10 @@ import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
 
 export const preTransforms = [
-    [ 1,  0,  0,  1], // GFXSurfaceTransform.IDENTITY
-    [ 0,  1, -1,  0], // GFXSurfaceTransform.ROTATE_90
-    [-1,  0,  0, -1], // GFXSurfaceTransform.ROTATE_180
-    [ 0, -1,  1,  0], // GFXSurfaceTransform.ROTATE_270
+    [ 1,  0,  0,  1], // SurfaceTransform.IDENTITY
+    [ 0,  1, -1,  0], // SurfaceTransform.ROTATE_90
+    [-1,  0,  0, -1], // SurfaceTransform.ROTATE_180
+    [ 0, -1,  1,  0], // SurfaceTransform.ROTATE_270
 ];
 
 /**

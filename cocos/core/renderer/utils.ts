@@ -3,11 +3,11 @@
  * @hidden
  */
 
-import { GFXAttribute, GFXBuffer, GFXBufferInfo, GFXDevice, GFXInputAssemblerInfo } from '../gfx';
-import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit } from '../gfx/define';
+import { Attribute, Buffer, BufferInfo, Device, InputAssemblerInfo } from '../gfx';
+import { AttributeName, BufferUsageBit, Format, MemoryUsageBit } from '../gfx/define';
 import { IGeometry } from '../primitive/define';
 
-export function createIA (device: GFXDevice, data: IGeometry) {
+export function createIA (device: Device, data: IGeometry) {
     if (!data.positions) {
         console.error('The data must have positions field');
         return null;
@@ -30,32 +30,32 @@ export function createIA (device: GFXDevice, data: IGeometry) {
         }
     }
 
-    const vfmt: GFXAttribute[] = [];
-    vfmt.push(new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F));
+    const vfmt: Attribute[] = [];
+    vfmt.push(new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F));
     if (data.normals) {
-        vfmt.push(new GFXAttribute(GFXAttributeName.ATTR_NORMAL, GFXFormat.RGB32F));
+        vfmt.push(new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F));
     }
     if (data.uvs) {
-        vfmt.push(new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RG32F));
+        vfmt.push(new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F));
     }
     if (data.colors) {
-        vfmt.push(new GFXAttribute(GFXAttributeName.ATTR_COLOR, GFXFormat.RGB32F));
+        vfmt.push(new Attribute(AttributeName.ATTR_COLOR, Format.RGB32F));
     }
 
-    const vb = device.createBuffer(new GFXBufferInfo(
-        GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-        GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+    const vb = device.createBuffer(new BufferInfo(
+        BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+        MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
         verts.length * 4,
         verts.length * 4 / vcount,
     ));
 
     vb.update(new Float32Array(verts));
 
-    let ib: GFXBuffer | null = null;
+    let ib: Buffer | null = null;
     if (data.indices) {
-        ib = device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        ib = device.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             data.indices.length * 2,
             2,
         ));
@@ -63,5 +63,5 @@ export function createIA (device: GFXDevice, data: IGeometry) {
         ib.update(new Uint16Array(data.indices));
     }
 
-    return device.createInputAssembler(new GFXInputAssemblerInfo(vfmt, [vb], ib));
+    return device.createInputAssembler(new InputAssemblerInfo(vfmt, [vb], ib));
 }

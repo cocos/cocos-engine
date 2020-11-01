@@ -30,7 +30,7 @@ import {contains} from '../core/utils/misc';
 import {EventType, READY_STATE} from './video-player-enums';
 import {VideoPlayerImpl} from "./video-player-impl";
 
-const { game, Game, view, screen, visibleRect, GFXClearFlag } = legacyCC;
+const { game, Game, view, screen, visibleRect, ClearFlag } = legacyCC;
 
 const MIN_ZINDEX = -Math.pow(2, 15);
 
@@ -321,7 +321,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
                 this._clearColorA = canvas.color.a;
                 this._clearFlag = canvas.clearFlag;
                 canvas.color.a = 0;
-                canvas.clearFlag = GFXClearFlag.ALL;
+                canvas.clearFlag = ClearFlag.ALL;
             }
             else {
                 if (this._clearFlag) {

@@ -30,7 +30,7 @@
 import { UIMeshRenderer, UIStaticBatch } from '../../../ui';
 import { Material } from '../../assets/material';
 import { Canvas, UIComponent, UIRenderable } from '../../components/ui-base';
-import { GFXTexture, GFXDevice, GFXAttribute, GFXSampler, GFXDescriptorSetInfo } from '../../gfx';
+import { Texture, Device, Attribute, Sampler, DescriptorSetInfo } from '../../gfx';
 import { Pool, RecyclePool } from '../../memop';
 import { CachedArray } from '../../memop/cached-array';
 import { Camera } from '../scene/camera';
@@ -51,7 +51,7 @@ import { EffectAsset, RenderTexture, SpriteFrame } from '../../assets';
 import { programLib } from '../core/program-lib';
 import { TextureBase } from '../../assets/texture-base';
 
-const _dsInfo = new GFXDescriptorSetInfo(null!);
+const _dsInfo = new DescriptorSetInfo(null!);
 
 /**
  * @zh
@@ -79,14 +79,14 @@ export class UI {
         this._currStaticRoot = value;
     }
 
-    public device: GFXDevice;
+    public device: Device;
     private _screens: Canvas[] = [];
     private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => {
         return new MeshBuffer(this);
     }, 128);
     private _drawBatchPool: Pool<UIDrawBatch>;
     private _scene: RenderScene;
-    private _attributes: GFXAttribute[] = [];
+    private _attributes: Attribute[] = [];
     private _meshBuffers: MeshBuffer[] = [];
     private _meshBufferUseCount = 0;
     private _uiMaterials: Map<number, UIMaterial> = new Map<number, UIMaterial>();
@@ -97,8 +97,8 @@ export class UI {
     // batcher
     private _emptyMaterial = new Material();
     private _currMaterial: Material = this._emptyMaterial;
-    private _currTexture: GFXTexture | null = null;
-    private _currSampler: GFXSampler | null = null;
+    private _currTexture: Texture | null = null;
+    private _currSampler: Sampler | null = null;
     private _currCanvas: Canvas | null = null;
     private _currMeshBuffer: MeshBuffer | null = null;
     private _currStaticRoot: UIStaticBatch | null = null;

@@ -9,7 +9,7 @@ import { createMesh } from '../core/3d/misc/utils';
 import { Material, Mesh, Texture2D } from '../core/assets';
 import { Component } from '../core/components/component';
 import { ccclass, help, executeInEditMode, menu, tooltip, type, serializable } from 'cc.decorator';
-import { GFXAttribute, GFXAttributeName, GFXFormat, GFXPrimitiveMode } from '../core/gfx';
+import { Attribute, AttributeName, Format, PrimitiveMode } from '../core/gfx';
 import { Color, toDegree, toRadian, Vec4 } from '../core/math';
 import { scene } from '../core/renderer';
 import { legacyCC } from '../core/global-exports';
@@ -142,7 +142,7 @@ export class Billboard extends Component {
 
     private createModel () {
         this._mesh = createMesh({
-            primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
+            primitiveMode: PrimitiveMode.TRIANGLE_LIST,
             positions: [0, 0, 0,
                 0, 0, 0,
                 0, 0, 0,
@@ -157,9 +157,9 @@ export class Billboard extends Component {
                 Color.WHITE.r, Color.WHITE.g, Color.WHITE.b, Color.WHITE.a,
                 Color.WHITE.r, Color.WHITE.g, Color.WHITE.b, Color.WHITE.a],
             attributes: [
-                new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),
-                new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RG32F),
-                new GFXAttribute(GFXAttributeName.ATTR_COLOR, GFXFormat.RGBA8UI, true),
+                new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
+                new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F),
+                new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8UI, true),
             ],
             indices: [0, 1, 2, 1, 2, 3],
         }, undefined, { calculateBounds: false });

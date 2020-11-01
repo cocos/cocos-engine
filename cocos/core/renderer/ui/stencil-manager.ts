@@ -29,7 +29,7 @@
 
 import { UIRenderable } from '../../../../exports/ui';
 import { Material } from '../../assets/material';
-import { GFXComparisonFunc, GFXStencilOp } from '../../gfx/define';
+import { ComparisonFunc, StencilOp } from '../../gfx/define';
 import { Pass } from '../core/pass';
 
 // Stage types
@@ -53,12 +53,12 @@ export class StencilManager {
     private _maskStack: any[] = [];
     private _stencilPattern = {
         stencilTest: true,
-        func: GFXComparisonFunc.NEVER,
+        func: ComparisonFunc.NEVER,
         stencilMask: 0xffff,
         writeMask: 0xffff,
-        failOp: GFXStencilOp.KEEP,
-        zFailOp: GFXStencilOp.KEEP,
-        passOp: GFXStencilOp.KEEP,
+        failOp: StencilOp.KEEP,
+        zFailOp: StencilOp.KEEP,
+        passOp: StencilOp.KEEP,
         ref: 1,
     };
 
@@ -101,26 +101,26 @@ export class StencilManager {
             const pattern = this._stencilPattern;
             if (this.stage === Stage.DISABLED) {
                 pattern.stencilTest = false;
-                pattern.func = GFXComparisonFunc.ALWAYS;
-                pattern.failOp = GFXStencilOp.KEEP;
+                pattern.func = ComparisonFunc.ALWAYS;
+                pattern.failOp = StencilOp.KEEP;
                 pattern.stencilMask = pattern.writeMask = 0xffff;
                 pattern.ref = 1;
             } else {
                 pattern.stencilTest = true;
                 if (this.stage === Stage.ENABLED) {
-                    pattern.func = GFXComparisonFunc.EQUAL;
-                    pattern.failOp = GFXStencilOp.KEEP;
+                    pattern.func = ComparisonFunc.EQUAL;
+                    pattern.failOp = StencilOp.KEEP;
                     pattern.stencilMask = pattern.ref = this.getStencilRef();
                     pattern.writeMask = this.getWriteMask();
                 } else if (this.stage === Stage.CLEAR) {
                     const mask = this._maskStack[this._maskStack.length - 1];
-                    pattern.func = GFXComparisonFunc.NEVER;
-                    pattern.failOp = mask.inverted ? GFXStencilOp.REPLACE : GFXStencilOp.ZERO;
+                    pattern.func = ComparisonFunc.NEVER;
+                    pattern.failOp = mask.inverted ? StencilOp.REPLACE : StencilOp.ZERO;
                     pattern.writeMask = pattern.stencilMask = pattern.ref = this.getWriteMask();
                 } else if (this.stage === Stage.ENTER_LEVEL) {
                     const mask = this._maskStack[this._maskStack.length - 1];
-                    pattern.func = GFXComparisonFunc.NEVER;
-                    pattern.failOp = mask.inverted ? GFXStencilOp.ZERO : GFXStencilOp.REPLACE;
+                    pattern.func = ComparisonFunc.NEVER;
+                    pattern.failOp = mask.inverted ? StencilOp.ZERO : StencilOp.REPLACE;
                     pattern.writeMask = pattern.stencilMask = pattern.ref = this.getWriteMask();
                 }
             }

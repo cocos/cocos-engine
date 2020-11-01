@@ -2,8 +2,8 @@ import { builtinResMgr } from '../../core/3d/builtin';
 import { Material } from '../../core/assets';
 import { Texture2D } from '../../core';
 import { Component } from '../../core/components';
-import { GFXAttributeName, GFXFormat } from '../../core/gfx/define';
-import { GFXAttribute } from '../../core/gfx';
+import { AttributeName, Format } from '../../core/gfx/define';
+import { Attribute } from '../../core/gfx';
 import { Mat4, Vec2, Vec4, Quat} from '../../core/math';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';
@@ -48,25 +48,25 @@ const _vert_attr_name = {
   };
 
 const _gpu_vert_attr = [
-    new GFXAttribute(_vert_attr_name.POSITION_STARTTIME, GFXFormat.RGBA32F),
-    new GFXAttribute(_vert_attr_name.VERT_SIZE_UV, GFXFormat.RGBA32F),
-    new GFXAttribute(_vert_attr_name.VERT_ROTATION_UV, GFXFormat.RGBA32F),
-    new GFXAttribute(_vert_attr_name.COLOR, GFXFormat.RGBA32F),
-    new GFXAttribute(_vert_attr_name.DIR_LIFE, GFXFormat.RGBA32F),
-    new GFXAttribute(_vert_attr_name.RANDOM_SEED, GFXFormat.R32F)
+    new Attribute(_vert_attr_name.POSITION_STARTTIME, Format.RGBA32F),
+    new Attribute(_vert_attr_name.VERT_SIZE_UV, Format.RGBA32F),
+    new Attribute(_vert_attr_name.VERT_ROTATION_UV, Format.RGBA32F),
+    new Attribute(_vert_attr_name.COLOR, Format.RGBA32F),
+    new Attribute(_vert_attr_name.DIR_LIFE, Format.RGBA32F),
+    new Attribute(_vert_attr_name.RANDOM_SEED, Format.R32F)
 ];
 
 const _gpu_vert_attr_mesh = [
-    new GFXAttribute(_vert_attr_name.POSITION_STARTTIME, GFXFormat.RGBA32F),
-    new GFXAttribute(_vert_attr_name.VERT_SIZE_UV, GFXFormat.RGBA32F),
-    new GFXAttribute(_vert_attr_name.VERT_ROTATION_UV, GFXFormat.RGBA32F),
-    new GFXAttribute(_vert_attr_name.COLOR, GFXFormat.RGBA32F),
-    new GFXAttribute(_vert_attr_name.DIR_LIFE, GFXFormat.RGBA32F),
-    new GFXAttribute(_vert_attr_name.RANDOM_SEED, GFXFormat.R32F),
-    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RGB32F),      // uv,frame idx
-    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD3, GFXFormat.RGB32F),     // mesh position
-    new GFXAttribute(GFXAttributeName.ATTR_NORMAL, GFXFormat.RGB32F),         // mesh normal
-    new GFXAttribute(GFXAttributeName.ATTR_COLOR1, GFXFormat.RGBA8, true),    // mesh color
+    new Attribute(_vert_attr_name.POSITION_STARTTIME, Format.RGBA32F),
+    new Attribute(_vert_attr_name.VERT_SIZE_UV, Format.RGBA32F),
+    new Attribute(_vert_attr_name.VERT_ROTATION_UV, Format.RGBA32F),
+    new Attribute(_vert_attr_name.COLOR, Format.RGBA32F),
+    new Attribute(_vert_attr_name.DIR_LIFE, Format.RGBA32F),
+    new Attribute(_vert_attr_name.RANDOM_SEED, Format.R32F),
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F),      // uv,frame idx
+    new Attribute(AttributeName.ATTR_TEX_COORD3, Format.RGB32F),     // mesh position
+    new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F),         // mesh normal
+    new Attribute(AttributeName.ATTR_COLOR1, Format.RGBA8, true),    // mesh color
 ];
 
 const _matInsInfo: IMaterialInstanceInfo = {
@@ -79,7 +79,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     private _defines: MacroRecord;
     private _frameTile_velLenScale: Vec4;
     private _node_scale: Vec4;
-    protected _vertAttrs: GFXAttribute[] = [];
+    protected _vertAttrs: Attribute[] = [];
     protected _defaultMat: Material | null = null;
     private _particleNum: number = 0;
     private _tempParticle: any = null;

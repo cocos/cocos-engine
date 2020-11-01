@@ -4,8 +4,8 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { GFXTextureFlagBit, GFXTextureUsageBit, GFXAPI } from '../gfx/define';
-import { GFXTexture, GFXTextureInfo, GFXDevice, GFXBufferTextureCopy } from '../gfx';
+import { TextureFlagBit, TextureUsageBit, API } from '../gfx/define';
+import { Texture, TextureInfo, Device, BufferTextureCopy } from '../gfx';
 import { error } from '../platform/debug';
 import { Filter } from './asset-enum';
 import { ImageAsset } from './image-asset';
@@ -14,9 +14,9 @@ import { DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { macro } from '../platform/macro';
 
-const _regions: GFXBufferTextureCopy[] = [new GFXBufferTextureCopy()];
+const _regions: BufferTextureCopy[] = [new BufferTextureCopy()];
 
-export type PresumedGFXTextureInfo = Pick<GFXTextureInfo, 'usage' | 'flags' | 'format' | 'levelCount'>;
+export type PresumedGFXTextureInfo = Pick<TextureInfo, 'usage' | 'flags' | 'format' | 'levelCount'>;
 
 function getMipLevel (width: number, height: number) {
     let size = Math.max(width, height);
@@ -26,22 +26,22 @@ function getMipLevel (width: number, height: number) {
 }
 
 function isPOT (n: number) { return n && (n & (n - 1)) === 0; }
-function canGenerateMipmap (device: GFXDevice, w: number, h: number) {
-    const needCheckPOT = device.gfxAPI === GFXAPI.WEBGL;
+function canGenerateMipmap (device: Device, w: number, h: number) {
+    const needCheckPOT = device.gfxAPI === API.WEBGL;
     if (needCheckPOT) { return isPOT(w) && isPOT(h); }
     return true;
 }
 
 /**
  * @en The simple texture base class.
- * It create the GFXTexture and can set mipmap levels.
+ * It create the GFX Texture and can set mipmap levels.
  * @zh 简单贴图基类。
  * 简单贴图内部创建了 GFX 贴图和该贴图上的 GFX 贴图视图。
  * 简单贴图允许指定不同的 Mipmap 层级。
  */
 @ccclass('cc.SimpleTexture')
 export class SimpleTexture extends TextureBase {
-    protected _gfxTexture: GFXTexture | null = null;
+    protected _gfxTexture: Texture | null = null;
     private _mipmapLevel = 1;
 
     /**
@@ -53,7 +53,7 @@ export class SimpleTexture extends TextureBase {
     }
 
     /**
-     * @en The GFXTexture resource
+     * @en The GFX Texture resource
      * @zh 获取此贴图底层的 GFX 贴图对象。
      */
     public getGFXTexture () {
@@ -180,10 +180,10 @@ export class SimpleTexture extends TextureBase {
 
     /**
      * @en This method is overrided by derived classes to provide GFX texture info.
-     * @zh 这个方法被派生类重写以提供GFX纹理信息。
+     * @zh 这个方法被派生类重写以提供 GFX 纹理信息。
      * @param presumed The presumed GFX texture info.
      */
-    protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): GFXTextureInfo | null {
+    protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): TextureInfo | null {
         return null;
     }
 
@@ -199,15 +199,15 @@ export class SimpleTexture extends TextureBase {
         this._createTexture(device);
     }
 
-    protected _createTexture (device: GFXDevice) {
-        let flags = GFXTextureFlagBit.NONE;
+    protected _createTexture (device: Device) {
+        let flags = TextureFlagBit.NONE;
         if (this._mipFilter !== Filter.NONE && canGenerateMipmap(device, this._width, this._height)) {
             this._mipmapLevel = getMipLevel(this._width, this._height);
-            flags = GFXTextureFlagBit.GEN_MIPMAP;
+            flags = TextureFlagBit.GEN_MIPMAP;
         }
 
         const textureCreateInfo = this._getGfxTextureCreateInfo({
-            usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
+            usage: TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
             format: this._getGFXFormat(),
             levelCount: this._mipmapLevel,
             flags,

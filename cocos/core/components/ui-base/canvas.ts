@@ -33,7 +33,7 @@ import { Camera } from '../../3d/framework/camera-component';
 import { RenderTexture } from '../../assets/render-texture';
 import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, serializable } from 'cc.decorator';
 import { game } from '../../game';
-import { GFXClearFlag } from '../../gfx/define';
+import { ClearFlag } from '../../gfx/define';
 import { Color, Vec3, Rect, Size } from '../../math';
 import { view } from '../../platform/view';
 import visibleRect from '../../platform/visible-rect';
@@ -50,9 +50,9 @@ import { SystemEventType } from '../../platform/event-manager';
 const _worldPos = new Vec3();
 
 const CanvasClearFlag = Enum({
-    SOLID_COLOR: GFXClearFlag.ALL,
-    DEPTH_ONLY: GFXClearFlag.DEPTH_STENCIL,
-    DONT_CLEAR: GFXClearFlag.NONE,
+    SOLID_COLOR: ClearFlag.ALL,
+    DEPTH_ONLY: ClearFlag.DEPTH_STENCIL,
+    DONT_CLEAR: ClearFlag.NONE,
 });
 
 const RenderMode = Enum({

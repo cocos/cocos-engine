@@ -9,7 +9,6 @@ import { Scheduler } from './scheduler';
 import { EventTouch } from './platform/event-manager/events';
 import { legacyCC } from './global-exports';
 import { SubModel } from './renderer/scene/submodel';
-import { GFXCommandBuffer } from './gfx';
 
 // VMATH
 
@@ -192,27 +191,7 @@ replaceProperty(EventTouch.prototype, 'EventTouch.prototype', [
     }
 ]);
 
-replaceProperty(legacyCC, 'cc', [
-    {
-        name: 'GFXDynamicState',
-        newName: 'GFXDynamicStateFlagBit',
-    },
-    {
-        name: 'GFXBindingType',
-        newName: 'GFXDescriptorType',
-    },
-    {
-        name: 'GFXBindingLayout',
-        newName: 'GFXDescriptorSet',
-    },
-]);
-
-removeProperty(GFXCommandBuffer.prototype,  'GFXCommandBuffer.prototype', [
-    {
-        name: 'bindBindingLayout',
-        suggest: 'Use `bindDescriptorSet` instead',
-    },
-]);
+// Render scene
 
 replaceProperty(SubModel.prototype, 'SubModel.prototype', [
     {
