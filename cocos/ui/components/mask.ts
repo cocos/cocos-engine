@@ -43,7 +43,7 @@ import { legacyCC } from '../../core/global-exports';
 import { MaterialInstance, scene } from '../../core/renderer';
 import { Model } from '../../core/renderer/scene';
 import { vfmt, getAttributeStride } from '../../core/renderer/ui/ui-vertex-format';
-import { EDITOR } from '../../../editor/exports/populate-internal-constants';
+import { Stage } from '../../core/renderer/ui/stencil-manager';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
