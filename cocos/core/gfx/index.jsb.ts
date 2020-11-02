@@ -4,6 +4,7 @@ import * as GFXDefines from './define';
 import { legacyCC } from '../global-exports';
 
 export * from './define';
+export * from './define-class';
 
 export const GFXRasterizerState = gfx.RasterizerState;
 export const GFXDepthStencilState = gfx.DepthStencilState;
@@ -41,15 +42,6 @@ export { GFX_DRAW_INFO_SIZE } from './buffer';
 
 export const GFXSamplerInfo = gfx.SamplerInfo;
 export const GFXSampler = gfx.Sampler;
-
-export const GFXRect = gfx.Rect;
-export const GFXViewport = gfx.Viewport
-export const GFXColor = gfx.Color;
-export const GFXOffset = gfx.Offset;
-export const GFXExtent = gfx.Extent;
-export const GFXTextureSubres = gfx.TextureSubres;
-export const GFXTextureCopy = gfx.TextureCopy;
-export const GFXBufferTextureCopy = gfx.BufferTextureCopy;
 
 export const GFXFenceInfo = gfx.FenceInfo;
 export const GFXFence = gfx.Fence;
