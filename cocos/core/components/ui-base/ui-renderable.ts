@@ -380,6 +380,13 @@ export class UIRenderable extends RenderableComponent {
         this.updateMaterialUniformHash(this.getMaterial(0)!, true);
     }
 
+    // For Redo, Undo
+    public onRestore () {
+        this.updateMaterial();
+        this._renderFlag = this._canRender();
+        this.updateMaterialUniformHash(this.getMaterial(0)!, true);
+    }
+
     public onDisable () {
         this.node.off(SystemEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.off(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
