@@ -372,8 +372,8 @@ export class VideoPlayer extends Component {
         this._impl = VideoPlayerImplManager.getImpl(this);
         this.syncSource();
         this._impl.syncLoop(this._loop);
-        this._impl.syncVolume(this._loop);
-        this._impl.syncMute(this._loop);
+        this._impl.syncVolume(this._volume);
+        this._impl.syncMute(this._mute);
         this._impl.seekTo(this._cachedCurrentTime);
         this._impl.syncPlaybackRate(this._playbackRate);
         this._impl.syncStayOnBottom(this._stayOnBottom);
