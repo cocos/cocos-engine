@@ -5,7 +5,7 @@
 
 import { BatchedBuffer } from './batched-buffer';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { GFXRenderPass, GFXDevice, GFXCommandBuffer } from '../gfx';
+import { RenderPass, Device, CommandBuffer } from '../gfx';
 import { DSPool, ShaderPool, PassPool, PassView } from '../renderer/core/memory-pools';
 import { SetIndex } from './define';
 
@@ -34,7 +34,7 @@ export class RenderBatchedQueue {
         this.queue.clear();
     }
 
-    public uploadBuffers (cmdBuff: GFXCommandBuffer) {
+    public uploadBuffers (cmdBuff: CommandBuffer) {
         const it = this.queue.values(); let res = it.next();
         while (!res.done) {
             for (let b = 0; b < res.value.batches.length; ++b) {
@@ -55,7 +55,7 @@ export class RenderBatchedQueue {
      * @zh 记录命令缓冲。
      * @param cmdBuff The command buffer to store the result
      */
-    public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
+    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         const it = this.queue.values(); let res = it.next();
         while (!res.done) {
             let boundPSO = false;

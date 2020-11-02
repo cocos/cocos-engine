@@ -3,17 +3,17 @@ import { ImageAsset } from '../../assets/image-asset';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { Texture2D } from '../../assets/texture-2d';
 import { TextureCube } from '../../assets/texture-cube';
-import { GFXDevice } from '../../gfx';
+import { Device } from '../../gfx';
 import effects from './effects';
 import { legacyCC } from '../../global-exports';
 import { getDeviceShaderVersion } from '../../renderer/core/program-lib';
 
 class BuiltinResMgr {
-    protected _device: GFXDevice | null = null;
+    protected _device: Device | null = null;
     protected _resources: Record<string, Asset> = {};
 
     // this should be called after renderer initialized
-    public initBuiltinRes (device: GFXDevice) {
+    public initBuiltinRes (device: Device) {
         this._device = device;
         const resources = this._resources;
         const canvas = document.createElement('canvas');

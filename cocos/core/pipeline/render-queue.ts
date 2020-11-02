@@ -7,7 +7,7 @@ import { RecyclePool } from '../memop';
 import { CachedArray } from '../memop/cached-array';
 import { IRenderObject, IRenderPass, IRenderQueueDesc, SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { GFXRenderPass, GFXDevice, GFXCommandBuffer } from '../gfx';
+import { RenderPass, Device, CommandBuffer } from '../gfx';
 import { BlendStatePool, PassPool, PassView, DSPool, SubModelView, SubModelPool, ShaderPool, PassHandle, ShaderHandle } from '../renderer/core/memory-pools';
 
 /**
@@ -27,8 +27,8 @@ export function transparentCompareFn (a: IRenderPass, b: IRenderPass) {
 }
 
 /**
- * @en The render queue. It manages a [[GFXRenderPass]] queue which will be executed by the [[RenderStage]].
- * @zh 渲染队列。它管理一个 [[GFXRenderPass]] 队列，队列中的渲染过程会被 [[RenderStage]] 所执行。
+ * @en The render queue. It manages a GFX [[RenderPass]] queue which will be executed by the [[RenderStage]].
+ * @zh 渲染队列。它管理一个 GFX [[RenderPass]] 队列，队列中的渲染过程会被 [[RenderStage]] 所执行。
  */
 export class RenderQueue {
 
@@ -101,7 +101,7 @@ export class RenderQueue {
         this.queue.sort();
     }
 
-    public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
+    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         for (let i = 0; i < this.queue.length; ++i) {
             const { subModel, passIdx } = this.queue.array[i];
             const { inputAssembler, handle: hSubModel } = subModel;

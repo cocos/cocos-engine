@@ -3,7 +3,7 @@
  * @module 3d/primitive
  */
 
-import { GFXPrimitiveMode } from '../gfx/define';
+import { PrimitiveMode } from '../gfx/define';
 import { IGeometry } from './define';
 
 /**
@@ -89,7 +89,7 @@ export function wireframed (geometry: IGeometry) {
     }
 
     // We only support triangles' wireframe.
-    if (geometry.primitiveMode && geometry.primitiveMode !== GFXPrimitiveMode.TRIANGLE_LIST) {
+    if (geometry.primitiveMode && geometry.primitiveMode !== PrimitiveMode.TRIANGLE_LIST) {
         return geometry;
     }
 
@@ -112,6 +112,6 @@ export function wireframed (geometry: IGeometry) {
     }
 
     geometry.indices = lines;
-    geometry.primitiveMode = GFXPrimitiveMode.LINE_LIST;
+    geometry.primitiveMode = PrimitiveMode.LINE_LIST;
     return geometry;
   }

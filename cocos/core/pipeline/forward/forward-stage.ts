@@ -7,8 +7,8 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { IRenderPass, SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
-import { GFXClearFlag } from '../../gfx/define';
-import { GFXColor, GFXRect } from '../../gfx';
+import { ClearFlag } from '../../gfx/define';
+import { Color, Rect } from '../../gfx';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';
@@ -24,7 +24,7 @@ import { ForwardPipeline } from './forward-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 import { PlanarShadowQueue } from './planar-shadow-queue';
 
-const colors: GFXColor[] = [ new GFXColor(0, 0, 0, 1) ];
+const colors: Color[] = [ new Color(0, 0, 0, 1) ];
 
 /**
  * @en The forward render stage
@@ -58,7 +58,7 @@ export class ForwardStage extends RenderStage {
     protected renderQueues: RenderQueueDesc[] = [];
     protected _renderQueues: RenderQueue[] = [];
 
-    private _renderArea = new GFXRect();
+    private _renderArea = new Rect();
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
     private _phaseID = getPhaseID('default');
@@ -166,7 +166,7 @@ export class ForwardStage extends RenderStage {
         this._renderArea!.width = vp.width * w * pipeline.shadingScale;
         this._renderArea!.height = vp.height * h * pipeline.shadingScale;
 
-        if (camera.clearFlag & GFXClearFlag.COLOR) {
+        if (camera.clearFlag & ClearFlag.COLOR) {
             if (pipeline.isHDR) {
                 SRGBToLinear(colors[0], camera.clearColor);
                 const scale = pipeline.fpScale / camera.exposure;

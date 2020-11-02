@@ -4,7 +4,7 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { GFXColor, GFXRect } from '../../gfx';
+import { Color, Rect } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from '../forward/enum';
@@ -15,7 +15,7 @@ import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
 import { IRenderPass, SetIndex } from '../define';
 
-const colors: GFXColor[] = [];
+const colors: Color[] = [];
 
 /**
  * @en The UI render stage
@@ -42,7 +42,7 @@ export class UIStage extends RenderStage {
     protected renderQueues: RenderQueueDesc[] = [];
     protected _renderQueues: RenderQueue[] = [];
 
-    private _renderArea = new GFXRect();
+    private _renderArea = new Rect();
 
     public initialize (info: IRenderStageInfo): boolean {
         super.initialize(info);
@@ -110,7 +110,7 @@ export class UIStage extends RenderStage {
         this._renderArea!.width = vp.width * w;
         this._renderArea!.height = vp.height * h;
 
-        colors[0] = camera.clearColor as GFXColor;
+        colors[0] = camera.clearColor as Color;
 
         const cmdBuff = pipeline.commandBuffers[0];
 

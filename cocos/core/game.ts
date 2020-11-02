@@ -33,7 +33,7 @@ import { default as assetManager, IAssetManagerOptions } from './asset-manager/a
 import { EventTarget } from './event/event-target';
 import * as debug from './platform/debug';
 import inputManager from './platform/event-manager/input-manager';
-import { GFXDevice, GFXDeviceInfo } from './gfx';
+import { Device, DeviceInfo } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from './renderer/models';
@@ -321,7 +321,7 @@ export class Game extends EventTarget {
     public _inited: boolean = false; // whether the engine has inited
     public _rendererInitialized: boolean = false;
 
-    public _gfxDevice: GFXDevice | null = null;
+    public _gfxDevice: Device | null = null;
 
     public _intervalId: number | null = null; // interval target of main
 
@@ -799,7 +799,7 @@ export class Game extends EventTarget {
 
         // WebGL context created successfully
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
-            const ctors: Constructor<GFXDevice>[] = [];
+            const ctors: Constructor<Device>[] = [];
 
             if (JSB && window.gfx) {
                 if (gfx.CCVKDevice) { ctors.push(gfx.CCVKDevice); }
@@ -822,7 +822,7 @@ export class Game extends EventTarget {
                 }
             }
 
-            const opts = new GFXDeviceInfo(
+            const opts = new DeviceInfo(
                 this.canvas as HTMLCanvasElement,
                 EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
                 false,

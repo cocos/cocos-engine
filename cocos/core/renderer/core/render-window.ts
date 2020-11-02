@@ -1,9 +1,9 @@
 import {
-    GFXTextureType,
-    GFXTextureUsageBit,
-    GFXFormat,
+    TextureType,
+    TextureUsageBit,
+    Format,
 } from '../../gfx/define';
-import { GFXRenderPass, GFXTexture, GFXFramebuffer, GFXRenderPassInfo, GFXDevice, GFXTextureInfo, GFXFramebufferInfo } from '../../gfx';
+import { RenderPass, Texture, Framebuffer, RenderPassInfo, Device, TextureInfo, FramebufferInfo } from '../../gfx';
 import { Root } from '../../root';
 import { RenderWindowHandle, RenderWindowPool, RenderWindowView, FramebufferPool, NULL_HANDLE } from './memory-pools';
 
@@ -11,7 +11,7 @@ export interface IRenderWindowInfo {
     title?: string;
     width: number;
     height: number;
-    renderPassInfo: GFXRenderPassInfo;
+    renderPassInfo: RenderPassInfo;
     swapchainBufferIndices?: number;
     shouldSyncSizeWithSwapchain?: boolean;
 }
@@ -42,7 +42,7 @@ export class RenderWindow {
      * @en Get window frame buffer.
      * @zh 帧缓冲对象。
      */
-    get framebuffer (): GFXFramebuffer {
+    get framebuffer (): Framebuffer {
         return FramebufferPool.get(RenderWindowPool.get(this._poolHandle, RenderWindowView.FRAMEBUFFER));
     }
 
@@ -82,9 +82,9 @@ export class RenderWindow {
     protected _height: number = 1;
     protected _nativeWidth: number = 1;
     protected _nativeHeight: number = 1;
-    protected _renderPass: GFXRenderPass | null = null;
-    protected _colorTextures: (GFXTexture | null)[] = [];
-    protected _depthStencilTexture: GFXTexture | null = null;
+    protected _renderPass: RenderPass | null = null;
+    protected _colorTextures: (Texture | null)[] = [];
+    protected _depthStencilTexture: Texture | null = null;
     protected _swapchainBufferIndices = 0;
     protected _shouldSyncSizeWithSwapchain = false;
     protected _poolHandle: RenderWindowHandle = NULL_HANDLE;
@@ -92,7 +92,7 @@ export class RenderWindow {
     private constructor (root: Root) {
     }
 
-    public initialize (device: GFXDevice, info: IRenderWindowInfo): boolean {
+    public initialize (device: Device, info: IRenderWindowInfo): boolean {
         this._poolHandle = RenderWindowPool.alloc();
 
         if (info.title !== undefined) {
@@ -114,22 +114,22 @@ export class RenderWindow {
 
         const { colorAttachments, depthStencilAttachment } = info.renderPassInfo;
         for (let i = 0; i < colorAttachments.length; i++) {
-            if (colorAttachments[i].format === GFXFormat.UNKNOWN) {
+            if (colorAttachments[i].format === Format.UNKNOWN) {
                 colorAttachments[i].format = device.colorFormat;
             }
         }
-        if (depthStencilAttachment && depthStencilAttachment.format === GFXFormat.UNKNOWN) {
+        if (depthStencilAttachment && depthStencilAttachment.format === Format.UNKNOWN) {
             depthStencilAttachment.format = device.depthStencilFormat;
         }
 
         this._renderPass = device.createRenderPass(info.renderPassInfo);
 
         for (let i = 0; i < colorAttachments.length; i++) {
-            let colorTex: GFXTexture | null = null;
+            let colorTex: Texture | null = null;
             if (!(this._swapchainBufferIndices & (1 << i))) {
-                colorTex = device.createTexture(new GFXTextureInfo(
-                    GFXTextureType.TEX2D,
-                    GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                colorTex = device.createTexture(new TextureInfo(
+                    TextureType.TEX2D,
+                    TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
                     colorAttachments[i].format,
                     this._width,
                     this._height,
@@ -144,9 +144,9 @@ export class RenderWindow {
         // Use the sign bit to indicate depth attachment
         if (depthStencilAttachment) {
             if (this._swapchainBufferIndices >= 0) {
-                this._depthStencilTexture = device.createTexture(new GFXTextureInfo(
-                    GFXTextureType.TEX2D,
-                    GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                this._depthStencilTexture = device.createTexture(new TextureInfo(
+                    TextureType.TEX2D,
+                    TextureUsageBit.DEPTH_STENCIL_ATTACHMENT | TextureUsageBit.SAMPLED,
                     depthStencilAttachment.format,
                     this._width,
                     this._height,
@@ -157,7 +157,7 @@ export class RenderWindow {
             }
         }
 
-        const hFBO = FramebufferPool.alloc(device, new GFXFramebufferInfo(
+        const hFBO = FramebufferPool.alloc(device, new FramebufferInfo(
             this._renderPass,
             this._colorTextures,
             this._depthStencilTexture,
@@ -221,7 +221,7 @@ export class RenderWindow {
             const framebuffer = FramebufferPool.get(RenderWindowPool.get(this._poolHandle, RenderWindowView.FRAMEBUFFER));
             if (needRebuild && framebuffer) {
                 framebuffer.destroy();
-                framebuffer.initialize(new GFXFramebufferInfo(
+                framebuffer.initialize(new FramebufferInfo(
                     this._renderPass!,
                     this._colorTextures,
                     this._depthStencilTexture,

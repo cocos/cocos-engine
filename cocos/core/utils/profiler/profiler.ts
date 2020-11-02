@@ -28,8 +28,8 @@ import { MeshRenderer } from '../../3d/framework/mesh-renderer';
 import { Camera } from '../../3d/framework/camera-component';
 import { createMesh } from '../../3d/misc/utils';
 import { Material } from '../../assets/material';
-import { GFXClearFlag, GFXFormat, GFXTextureType, GFXTextureUsageBit } from '../../gfx/define';
-import { GFXTexture, GFXTextureInfo, GFXDevice, GFXBufferTextureCopy } from '../../gfx';
+import { ClearFlag, Format, TextureType, TextureUsageBit } from '../../gfx/define';
+import { Texture, TextureInfo, Device, BufferTextureCopy } from '../../gfx';
 import { toRadian, Vec4 } from '../../math';
 import { Layers } from '../../scene-graph';
 import { Node } from '../../scene-graph/node';
@@ -98,11 +98,11 @@ export class Profiler {
     private _showFPS = false;
 
     private _rootNode: Node | null = null;
-    private _device: GFXDevice | null = null;
+    private _device: Device | null = null;
     private readonly _canvas: HTMLCanvasElement | null = null;
     private readonly _ctx: CanvasRenderingContext2D | null = null;
-    private _texture: GFXTexture | null = null;
-    private readonly _region: GFXBufferTextureCopy = new GFXBufferTextureCopy();
+    private _texture: Texture | null = null;
+    private readonly _region: BufferTextureCopy = new BufferTextureCopy();
     private readonly _canvasArr: HTMLCanvasElement[] = [];
     private readonly _regionArr = [this._region];
     private digitsData: Float32Array = null!;
@@ -195,10 +195,10 @@ export class Profiler {
         this._ctx.textBaseline = 'top';
         this._ctx.fillStyle = '#fff';
 
-        this._texture = this._device!.createTexture(new GFXTextureInfo(
-            GFXTextureType.TEX2D,
-            GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
-            GFXFormat.RGBA8,
+        this._texture = this._device!.createTexture(new TextureInfo(
+            TextureType.TEX2D,
+            TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
+            Format.RGBA8,
             textureWidth,
             textureHeight,
         ));
@@ -257,7 +257,7 @@ export class Profiler {
         camera.near = 1;
         camera.far = 2;
         camera.visibility = Layers.BitMask.PROFILER;
-        camera.clearFlags = GFXClearFlag.NONE;
+        camera.clearFlags = ClearFlag.NONE;
         camera.priority = 0xffffffff; // after everything else
         camera.flows = ['UIFlow'];
 

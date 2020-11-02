@@ -34,7 +34,7 @@ import { SystemEventType } from '../../platform/event-manager/event-enum';
 import { ccenum } from '../../value-types/enum';
 import { builtinResMgr } from '../../3d/builtin/init';
 import { Material } from '../../assets';
-import { GFXBlendFactor } from '../../gfx/define';
+import { BlendFactor } from '../../gfx/define';
 import { IMaterialInstanceInfo } from '../../renderer/core/material-instance';
 import { IAssembler, IAssemblerManager } from '../../renderer/ui/base';
 import { RenderData } from '../../renderer/ui/render-data';
@@ -49,7 +49,7 @@ import { warnID } from '../../platform';
 import { murmurhash2_32_gc } from '../../utils';
 
 // hack
-ccenum(GFXBlendFactor);
+ccenum(BlendFactor);
 
 /**
  * @en
@@ -182,11 +182,11 @@ export class UIRenderable extends RenderableComponent {
      * @zh 指定源的混合模式，这会克隆一个新的材质对象，注意这带来的性能和内存损耗。
      * @example
      * ```ts
-     * sprite.srcBlendFactor = GFXBlendFactor.ONE;
+     * sprite.srcBlendFactor = BlendFactor.ONE;
      * ```
      */
     @visible(function (this: UIRenderable) { if (this._customMaterial) {return false;} return true; })
-    @type(GFXBlendFactor)
+    @type(BlendFactor)
     @displayOrder(0)
     @tooltip('Source blend factor')
     get srcBlendFactor () {
@@ -196,7 +196,7 @@ export class UIRenderable extends RenderableComponent {
         return this._srcBlendFactor;
     }
 
-    set srcBlendFactor (value: GFXBlendFactor) {
+    set srcBlendFactor (value: BlendFactor) {
         if (this._customMaterial) {
             warnID(12001);
             return;
@@ -214,11 +214,11 @@ export class UIRenderable extends RenderableComponent {
      * @zh 指定目标的混合模式，这会克隆一个新的材质对象，注意这带来的性能和内存损耗。
      * @example
      * ```ts
-     * sprite.dstBlendFactor = GFXBlendFactor.ONE_MINUS_SRC_ALPHA;
+     * sprite.dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
      * ```
      */
     @visible(function (this: UIRenderable) { if (this._customMaterial) {return false;} return true; })
-    @type(GFXBlendFactor)
+    @type(BlendFactor)
     @displayOrder(1)
     @tooltip('destination blend factor')
     get dstBlendFactor () {
@@ -228,7 +228,7 @@ export class UIRenderable extends RenderableComponent {
         return this._dstBlendFactor;
     }
 
-    set dstBlendFactor (value: GFXBlendFactor) {
+    set dstBlendFactor (value: BlendFactor) {
         if (this._customMaterial) {
             warnID(12001);
             return;
@@ -283,9 +283,9 @@ export class UIRenderable extends RenderableComponent {
     /**
      * @en The blend factor enums
      * @zh 混合模式枚举类型
-     * @see [[GFXBlendFactor]]
+     * @see [[BlendFactor]]
      */
-    public static BlendState = GFXBlendFactor;
+    public static BlendState = BlendFactor;
     /**
      * @en The render data assembler
      * @zh 渲染数据组装器
@@ -298,9 +298,9 @@ export class UIRenderable extends RenderableComponent {
     public static PostAssembler: IAssemblerManager | null = null;
 
     @serializable
-    protected _srcBlendFactor = GFXBlendFactor.SRC_ALPHA;
+    protected _srcBlendFactor = BlendFactor.SRC_ALPHA;
     @serializable
-    protected _dstBlendFactor = GFXBlendFactor.ONE_MINUS_SRC_ALPHA;
+    protected _dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
     @serializable
     protected _color: Color = Color.WHITE.clone();
 
@@ -316,8 +316,8 @@ export class UIRenderable extends RenderableComponent {
         blendState: {
             targets: [
                 {
-                    blendSrc: GFXBlendFactor.SRC_ALPHA,
-                    blendDst: GFXBlendFactor.ONE_MINUS_SRC_ALPHA,
+                    blendSrc: BlendFactor.SRC_ALPHA,
+                    blendDst: BlendFactor.ONE_MINUS_SRC_ALPHA,
                 },
             ],
         },

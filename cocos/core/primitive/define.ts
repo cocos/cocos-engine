@@ -3,8 +3,8 @@
  * @module 3d/primitive
  */
 
-import { GFXPrimitiveMode } from '../gfx/define';
-import { GFXAttribute } from '../gfx';
+import { PrimitiveMode } from '../gfx/define';
+import { Attribute } from '../gfx';
 
 /**
  * @en
@@ -101,10 +101,10 @@ export interface IGeometry {
      * @zh
      * 顶点属性。
      */
-    attributes?: GFXAttribute[];
+    attributes?: Attribute[];
 
     customAttributes?: {
-        attr: GFXAttribute,
+        attr: Attribute,
         values: number[],
     }[];
 
@@ -154,7 +154,7 @@ export interface IGeometry {
      * @zh
      * 几何顶点的拓扑图元。默认值是TRIANGLE_LIST。
      */
-    primitiveMode?: GFXPrimitiveMode;
+    primitiveMode?: PrimitiveMode;
 
     /**
      * @en

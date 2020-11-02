@@ -31,7 +31,7 @@
 import { ccclass, type, serializable } from 'cc.decorator';
 import { builtinResMgr } from '../3d/builtin/init';
 import { RenderableComponent } from '../3d/framework/renderable-component';
-import { GFXTexture } from '../gfx';
+import { Texture } from '../gfx';
 import { MacroRecord, MaterialProperty, PropertyType } from '../renderer/core/pass-utils';
 import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';
 import { legacyCC } from '../global-exports';
@@ -83,7 +83,7 @@ interface IMaterialInfo {
     states?: PassOverrides | PassOverrides[];
 }
 
-type MaterialPropertyFull = MaterialProperty | TextureBase | SpriteFrame | RenderTexture | GFXTexture | null;
+type MaterialPropertyFull = MaterialProperty | TextureBase | SpriteFrame | RenderTexture | Texture | null;
 
 /**
  * @en The material asset, specifies in details how a model is drawn on screen.
@@ -440,10 +440,10 @@ export class Material extends Asset {
 
     protected _bindTexture (pass: Pass, handle: number, val: MaterialPropertyFull, index?: number) {
         const binding = Pass.getBindingFromHandle(handle);
-        if (val instanceof GFXTexture) {
+        if (val instanceof Texture) {
             pass.bindTexture(binding, val, index);
         } else if (val instanceof TextureBase || val instanceof SpriteFrame || val instanceof RenderTexture) {
-            const texture: GFXTexture | null = val.getGFXTexture();
+            const texture: Texture | null = val.getGFXTexture();
             if (!texture || !texture.width || !texture.height) {
                 // console.warn(`material '${this._uuid}' received incomplete texture asset '${val._uuid}'`);
                 return false;

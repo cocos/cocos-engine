@@ -30,12 +30,12 @@
 
 import { EDITOR, TEST } from "internal:constants";
 import { ccclass, serializable } from 'cc.decorator';
-import { GFXTextureFlagBit, GFXTextureType } from '../gfx/define';
+import { TextureFlagBit, TextureType } from '../gfx/define';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
 import { legacyCC } from '../global-exports';
-import { GFXTextureInfo } from '../gfx';
+import { TextureInfo } from '../gfx';
 
 export type ITextureCubeCreateInfo = ITexture2DCreateInfo;
 
@@ -270,13 +270,13 @@ export class TextureCube extends SimpleTexture {
         }
     }
 
-    protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): GFXTextureInfo {
-        const texInfo = new GFXTextureInfo(GFXTextureType.CUBE);
+    protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): TextureInfo {
+        const texInfo = new TextureInfo(TextureType.CUBE);
         texInfo.width = this._width;
         texInfo.height = this._height;
         texInfo.layerCount = 6;
         Object.assign(texInfo, presumed);
-        texInfo.flags = texInfo.flags | GFXTextureFlagBit.CUBEMAP;
+        texInfo.flags = texInfo.flags | TextureFlagBit.CUBEMAP;
         return texInfo;
     }
 }

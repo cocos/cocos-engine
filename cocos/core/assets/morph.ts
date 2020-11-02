@@ -3,7 +3,7 @@
  * @hidden
  */
 
-import { GFXAttributeName, GFXDevice, GFXDescriptorSet } from '../gfx';
+import { AttributeName, Device, DescriptorSet } from '../gfx';
 import { Mesh } from './mesh';
 import { StdMorphRendering } from './morph-rendering';
 import { IMacroPatch } from '../renderer';
@@ -37,7 +37,7 @@ export interface SubMeshMorph {
     /**
      * Attributes to morph.
      */
-    attributes: GFXAttributeName[];
+    attributes: AttributeName[];
 
     /**
      * Targets.
@@ -50,7 +50,7 @@ export interface SubMeshMorph {
     weights?: number[];
 }
 
-export function createMorphRendering (mesh: Mesh, gfxDevice: GFXDevice): MorphRendering | null {
+export function createMorphRendering (mesh: Mesh, gfxDevice: Device): MorphRendering | null {
     return new StdMorphRendering(mesh, gfxDevice);
 }
 
@@ -77,7 +77,7 @@ export interface MorphRenderingInstance {
      * @param subMeshIndex
      * @param pipelineState
      */
-    adaptPipelineState (subMeshIndex: number, descriptorSet: GFXDescriptorSet): void;
+    adaptPipelineState (subMeshIndex: number, descriptorSet: DescriptorSet): void;
 
     requiredPatches (subMeshIndex: number): IMacroPatch[] | undefined;
 

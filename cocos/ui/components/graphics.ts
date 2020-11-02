@@ -39,7 +39,8 @@ import { IAssembler } from '../../core/renderer/ui/base';
 import { UI } from '../../core/renderer/ui/ui';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
-import { GFXFormat, GFXPrimitiveMode, GFXAttribute, RenderingSubMesh, GFXDevice, GFXBufferUsageBit, GFXBufferInfo, GFXMemoryUsageBit } from '../../core';
+import { RenderingSubMesh } from '../../core';
+import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, MemoryUsageBit } from '../../core/gfx';
 import { vfmtPosColor, getAttributeStride } from '../../core/renderer/ui/ui-vertex-format';
 import { legacyCC } from '../../core/global-exports';
 
@@ -50,7 +51,7 @@ const _matInsInfo: IMaterialInstanceInfo = {
 };
 
 const attributes = vfmtPosColor.concat([
-    new GFXAttribute('a_dist', GFXFormat.R32F),
+    new Attribute('a_dist', Format.R32F),
 ]);
 
 const stride = getAttributeStride(attributes);
@@ -597,21 +598,21 @@ export class Graphics extends UIRenderable {
 
         if (this.model.subModels.length <= idx) {
             let renderMesh: RenderingSubMesh;
-            const gfxDevice: GFXDevice = legacyCC.director.root.device;
-            const vertexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
-                GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-                GFXMemoryUsageBit.DEVICE,
+            const gfxDevice: Device = legacyCC.director.root.device;
+            const vertexBuffer = gfxDevice.createBuffer(new BufferInfo(
+                BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
                 65535 * stride,
                 stride,
             ));
-            const indexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
-                GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-                GFXMemoryUsageBit.DEVICE,
+            const indexBuffer = gfxDevice.createBuffer(new BufferInfo(
+                BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
                 65535 * 2,
                 2,
             ));
 
-            renderMesh = new RenderingSubMesh([vertexBuffer], attributes, GFXPrimitiveMode.TRIANGLE_LIST, indexBuffer);
+            renderMesh = new RenderingSubMesh([vertexBuffer], attributes, PrimitiveMode.TRIANGLE_LIST, indexBuffer);
             renderMesh.subMeshIdx = 0;
 
             this.model.initSubModel(idx, renderMesh, this.getMaterialInstance(0)!);

@@ -5,7 +5,7 @@
 
 import { MeshBuffer } from '../../../ui';
 import { Material } from '../../assets/material';
-import { GFXTexture, GFXSampler, GFXDescriptorSetInfo } from '../../gfx';
+import { Texture, Sampler, DescriptorSetInfo } from '../../gfx';
 import { Node } from '../../scene-graph';
 import { Camera } from '../scene/camera';
 import { Model } from '../scene/model';
@@ -18,8 +18,8 @@ export class UIDrawBatch {
     public camera: Camera | null = null;
     public model: Model | null = null;
     public material: Material | null = null;
-    public texture: GFXTexture | null = null;
-    public sampler: GFXSampler | null = null;
+    public texture: Texture | null = null;
+    public sampler: Sampler | null = null;
     public hInputAssembler: InputAssemblerHandle = NULL_HANDLE;
     public hDescriptorSet: DescriptorSetHandle = NULL_HANDLE;
     public useLocalData: Node | null = null;

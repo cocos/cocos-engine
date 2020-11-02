@@ -8,7 +8,7 @@ import { Material } from '../../assets/material';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { TextureBase } from '../../assets/texture-base';
 import { ccclass, float, serializable } from 'cc.decorator';
-import { GFXType } from '../../gfx/define';
+import { Type } from '../../gfx/define';
 import { Pass } from '../../renderer/core/pass';
 import { getDefaultFromType, PropertyType } from '../../renderer/core/pass-utils';
 import { samplerLib } from '../../renderer/core/sampler-lib';
@@ -64,7 +64,7 @@ export class UniformProxyFactory implements IValueProxyFactory {
         }
         const propertyType = Pass.getPropertyTypeFromHandle(handle);
         if (propertyType === PropertyType.UBO) {
-            const realHandle = this.channelIndex === undefined ? handle : pass.getHandle(this.uniformName, this.channelIndex, GFXType.FLOAT);
+            const realHandle = this.channelIndex === undefined ? handle : pass.getHandle(this.uniformName, this.channelIndex, Type.FLOAT);
             if (!realHandle) {
                 throw new Error(`Uniform "${this.uniformName} (in material ${target.name}) has no channel ${this.channelIndex}"`);
             }

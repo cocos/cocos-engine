@@ -17,9 +17,9 @@ import { Mat4, Vec3, Vec4 } from '../../math';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool, ModelPool,
     ModelView, AABBHandle, AABBPool, AABBView, NULL_HANDLE, AttributeArrayPool as AttrArrayPool, RawBufferPool, AttrPool, freeHandleArray } from '../core/memory-pools';
-import { GFXAttribute, GFXDescriptorSet, GFXDevice, GFXBuffer, GFXBufferInfo } from '../../gfx';
+import { Attribute, DescriptorSet, Device, Buffer, BufferInfo } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
-import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress, GFXFeature } from '../../gfx/define';
+import { getTypedArrayConstructor, BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature } from '../../gfx/define';
 
 const m4_1 = new Mat4();
 
@@ -32,7 +32,7 @@ const shadowMapPatches: IMacroPatch[] = [
 export interface IInstancedAttributeBlock {
     buffer: Uint8Array;
     views: TypedArray[];
-    attributes: GFXAttribute[];
+    attributes: Attribute[];
 }
 
 export enum ModelType {
@@ -51,21 +51,21 @@ function uploadMat4AsVec4x3 (mat: Mat4, v1: ArrayBufferView, v2: ArrayBufferView
 }
 
 const lightmapSamplerHash = genSamplerHash([
-    GFXFilter.LINEAR,
-    GFXFilter.LINEAR,
-    GFXFilter.NONE,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
+    Filter.LINEAR,
+    Filter.LINEAR,
+    Filter.NONE,
+    Address.CLAMP,
+    Address.CLAMP,
+    Address.CLAMP,
 ]);
 
 const lightmapSamplerWithMipHash = genSamplerHash([
-    GFXFilter.LINEAR,
-    GFXFilter.LINEAR,
-    GFXFilter.LINEAR,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
+    Filter.LINEAR,
+    Filter.LINEAR,
+    Filter.LINEAR,
+    Address.CLAMP,
+    Address.CLAMP,
+    Address.CLAMP,
 ]);
 
 /**
@@ -170,7 +170,7 @@ export class Model {
     protected _node: Node = null!;
     protected _transform: Node = null!;
 
-    protected _device: GFXDevice;
+    protected _device: Device;
     protected _inited = false;
     protected _descriptorSetCount = 1;
     protected _updateStamp = -1;
@@ -179,7 +179,7 @@ export class Model {
     protected _hWorldBounds: AABBHandle = NULL_HANDLE;
 
     private _localData = new Float32Array(UBOLocal.COUNT);
-    private _localBuffer: GFXBuffer | null = null;
+    private _localBuffer: Buffer | null = null;
     private _instMatWorldIdx = -1;
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
@@ -405,8 +405,8 @@ export class Model {
     // sub-classes can override the following functions if needed
 
     // for now no submodel level instancing attributes
-    protected _updateInstancedAttributes (attributes: GFXAttribute[], pass: Pass) {
-        if (!pass.device.hasFeature(GFXFeature.INSTANCED_ARRAYS)) { return; }
+    protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {
+        if (!pass.device.hasFeature(Feature.INSTANCED_ARRAYS)) { return; }
         // free old data
         const hOldBuffer = ModelPool.get(this._handle, ModelView.INSTANCED_BUFFER);
         if (hOldBuffer) RawBufferPool.free(hOldBuffer);
@@ -417,7 +417,7 @@ export class Model {
         for (let j = 0; j < attributes.length; j++) {
             const attribute = attributes[j];
             if (!attribute.isInstanced) { continue; }
-            size += GFXFormatInfos[attribute.format].size;
+            size += FormatInfos[attribute.format].size;
         }
         const hBuffer = RawBufferPool.alloc(size);
         const buffer = RawBufferPool.getBuffer(hBuffer);
@@ -439,7 +439,7 @@ export class Model {
             attrs.attributes.push(attr);
             AttrArrayPool.push(hAttrArray, hAttr);
 
-            const info = GFXFormatInfos[attribute.format];
+            const info = FormatInfos[attribute.format];
             attrs.views.push(new (getTypedArrayConstructor(info))(buffer, offset, info.count));
             offset += info.size;
         }
@@ -450,16 +450,16 @@ export class Model {
 
     protected _initLocalDescriptors (subModelIndex: number) {
         if (!this._localBuffer) {
-            this._localBuffer = this._device.createBuffer(new GFXBufferInfo(
-                GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            this._localBuffer = this._device.createBuffer(new BufferInfo(
+                BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
                 UBOLocal.SIZE,
                 UBOLocal.SIZE,
             ));
         }
     }
 
-    protected _updateLocalDescriptors (subModelIndex: number, descriptorSet: GFXDescriptorSet) {
+    protected _updateLocalDescriptors (subModelIndex: number, descriptorSet: DescriptorSet) {
         if (this._localBuffer) descriptorSet.bindBuffer(UBOLocal.BINDING, this._localBuffer);
     }
 }

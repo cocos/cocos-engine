@@ -3,7 +3,7 @@
  * @hidden
  */
 
-import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXDevice, GFXDescriptorSet, GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute, GFXBuffer, GFXBufferInfo } from '../gfx';
+import { BufferUsageBit, Format, MemoryUsageBit, Device, DescriptorSet, InputAssembler, InputAssemblerInfo, Attribute, Buffer, BufferInfo } from '../gfx';
 import { Mat4 } from '../math';
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, UBOLocalBatched } from './define';
@@ -11,16 +11,16 @@ import { Pass } from '../renderer';
 import { SubModelPool, SubModelView, PassHandle, ShaderHandle } from '../renderer/core/memory-pools';
 
 export interface IBatchedItem {
-    vbs: GFXBuffer[];
+    vbs: Buffer[];
     vbDatas: Uint8Array[];
-    vbIdx: GFXBuffer;
+    vbIdx: Buffer;
     vbIdxData: Float32Array;
     vbCount: number;
     mergeCount: number;
-    ia: GFXInputAssembler;
-    ubo: GFXBuffer;
+    ia: InputAssembler;
+    ubo: Buffer;
     uboData: Float32Array;
-    descriptorSet: GFXDescriptorSet;
+    descriptorSet: DescriptorSet;
     hPass: PassHandle;
     hShader: ShaderHandle;
 }
@@ -38,7 +38,7 @@ export class BatchedBuffer {
 
     public batches: IBatchedItem[] = [];
     public dynamicOffsets: number[] = [];
-    private _device: GFXDevice;
+    private _device: Device;
 
     constructor (pass: Pass) {
         this._device = pass.device;
@@ -131,14 +131,14 @@ export class BatchedBuffer {
         }
 
         // Create a new batch
-        const vbs: GFXBuffer[] = [];
+        const vbs: Buffer[] = [];
         const vbDatas: Uint8Array[] = [];
-        const totalVBs: GFXBuffer[] = [];
+        const totalVBs: Buffer[] = [];
         for (let i = 0; i < flatBuffers.length; ++i) {
             const flatBuff = flatBuffers[i];
-            const newVB = this._device.createBuffer(new GFXBufferInfo(
-                GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-                GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            const newVB = this._device.createBuffer(new BufferInfo(
+                BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
                 flatBuff.count * flatBuff.stride,
                 flatBuff.stride,
             ));
@@ -148,9 +148,9 @@ export class BatchedBuffer {
             totalVBs.push(newVB);
         }
 
-        const vbIdx = this._device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        const vbIdx = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             vbCount * 4,
             4,
         ));
@@ -160,18 +160,18 @@ export class BatchedBuffer {
         totalVBs.push(vbIdx);
 
         const attributes = subModel.inputAssembler!.attributes;
-        const attrs = new Array<GFXAttribute>(attributes.length + 1);
+        const attrs = new Array<Attribute>(attributes.length + 1);
         for (let a = 0; a < attributes.length; ++a) {
             attrs[a] = attributes[a];
         }
-        attrs[attributes.length] = new GFXAttribute('a_dyn_batch_id', GFXFormat.R32F, false, flatBuffers.length);
+        attrs[attributes.length] = new Attribute('a_dyn_batch_id', Format.R32F, false, flatBuffers.length);
 
-        const iaInfo = new GFXInputAssemblerInfo(attrs, totalVBs);
+        const iaInfo = new InputAssemblerInfo(attrs, totalVBs);
         const ia = this._device.createInputAssembler(iaInfo);
 
-        const ubo = this._device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        const ubo = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             UBOLocalBatched.SIZE,
             UBOLocalBatched.SIZE,
         ));

@@ -3,18 +3,27 @@
  * @module gfx
  */
 
-import { GFXBuffer } from './buffer';
-import { GFXCommandBuffer } from './command-buffer';
-import { GFXDevice } from './device';
-import { GFXFramebuffer } from './framebuffer';
-import { GFXInputAssembler } from './input-assembler';
-import { GFXPipelineState } from './pipeline-state';
-import { GFXQueue } from './queue';
-import { GFXRenderPass } from './render-pass';
-import { GFXSampler } from './sampler';
-import { GFXShader } from './shader';
-import { GFXTexture } from './texture';
+import { Buffer } from './buffer';
+import { CommandBuffer } from './command-buffer';
+import { Device } from './device';
+import { Framebuffer } from './framebuffer';
+import { InputAssembler } from './input-assembler';
+import { PipelineState } from './pipeline-state';
+import { Queue } from './queue';
+import { RenderPass } from './render-pass';
+import { Sampler } from './sampler';
+import { Shader } from './shader';
+import { Texture } from './texture';
+import { FormatSize,FormatSurfaceSize,GetTypeSize,getTypedArrayConstructor,MAX_ATTACHMENTS,
+    ObjectType,Obj,AttributeName,Type,Format,BufferUsageBit,MemoryUsageBit,BufferFlagBit,
+    BufferAccessBit,PrimitiveMode,PolygonMode,ShadeModel,CullMode,ComparisonFunc,StencilOp,BlendOp,
+    BlendFactor,ColorMask,Filter,Address,TextureType,TextureUsageBit,SampleCount,TextureFlagBit,ShaderStageFlagBit,
+    DescriptorType,CommandBufferType,LoadOp,StoreOp,TextureLayout,PipelineBindPoint,DynamicStateFlagBit,StencilFace,
+    QueueType,ClearFlag,FormatType,
+    FormatInfo,MemoryStatus,FormatInfos } from './define';
+import { Rect, Viewport, Color, Offset, Extent, TextureSubres, TextureCopy, BufferTextureCopy } from './define-class';
 import { legacyCC } from '../global-exports';
+import './deprecated-3.0.0';
 
 export * from './descriptor-set';
 export * from './buffer';
@@ -34,30 +43,12 @@ export * from './sampler';
 export * from './shader';
 export * from './texture';
 
-legacyCC.GFXDevice = GFXDevice;
-legacyCC.GFXBuffer = GFXBuffer;
-legacyCC.GFXTexture = GFXTexture;
-legacyCC.GFXSampler = GFXSampler;
-legacyCC.GFXShader = GFXShader;
-legacyCC.GFXInputAssembler = GFXInputAssembler;
-legacyCC.GFXRenderPass = GFXRenderPass;
-legacyCC.GFXFramebuffer = GFXFramebuffer;
-legacyCC.GFXPipelineState = GFXPipelineState;
-legacyCC.GFXCommandBuffer = GFXCommandBuffer;
-legacyCC.GFXQueue = GFXQueue;
-
-import { GFXFormatSize,GFXFormatSurfaceSize,GFXGetTypeSize,getTypedArrayConstructor,GFX_MAX_ATTACHMENTS,
-    GFXObjectType,GFXObject,GFXAttributeName,GFXType,GFXFormat,GFXBufferUsageBit,GFXMemoryUsageBit,GFXBufferFlagBit,
-    GFXBufferAccessBit,GFXPrimitiveMode,GFXPolygonMode,GFXShadeModel,GFXCullMode,GFXComparisonFunc,GFXStencilOp,GFXBlendOp,
-    GFXBlendFactor,GFXColorMask,GFXFilter,GFXAddress,GFXTextureType,GFXTextureUsageBit,GFXSampleCount,GFXTextureFlagBit,GFXShaderStageFlagBit,
-    GFXDescriptorType,GFXCommandBufferType,GFXLoadOp,GFXStoreOp,GFXTextureLayout,GFXPipelineBindPoint,GFXDynamicStateFlagBit,GFXStencilFace,
-    GFXQueueType,GFXClearFlag,GFXFormatType,
-    GFXFormatInfo,GFXMemoryStatus,GFXFormatInfos } from './define';
-import { GFXRect, GFXViewport, GFXColor, GFXOffset, GFXExtent, GFXTextureSubres, GFXTextureCopy, GFXBufferTextureCopy } from './define-class';
-Object.assign(legacyCC, {GFXFormatSize,GFXFormatSurfaceSize,GFXGetTypeSize,getTypedArrayConstructor,GFX_MAX_ATTACHMENTS,
-    GFXObjectType,GFXObject,GFXAttributeName,GFXType,GFXFormat,GFXBufferUsageBit,GFXMemoryUsageBit,GFXBufferFlagBit,
-    GFXBufferAccessBit,GFXPrimitiveMode,GFXPolygonMode,GFXShadeModel,GFXCullMode,GFXComparisonFunc,GFXStencilOp,GFXBlendOp,
-    GFXBlendFactor,GFXColorMask,GFXFilter,GFXAddress,GFXTextureType,GFXTextureUsageBit,GFXSampleCount,GFXTextureFlagBit,GFXShaderStageFlagBit,
-    GFXDescriptorType,GFXCommandBufferType,GFXLoadOp,GFXStoreOp,GFXTextureLayout,GFXPipelineBindPoint,GFXDynamicStateFlagBit,GFXStencilFace,
-    GFXQueueType,GFXRect,GFXViewport,GFXColor,GFXClearFlag,GFXOffset,GFXExtent,GFXTextureSubres,GFXTextureCopy,GFXBufferTextureCopy,GFXFormatType,
-    GFXFormatInfo,GFXMemoryStatus,GFXFormatInfos});
+export const polyfillCC = {Device,Buffer,Texture,Sampler,Shader,InputAssembler,RenderPass,Framebuffer,PipelineState,CommandBuffer,Queue,
+    FormatSize,FormatSurfaceSize,GetTypeSize,getTypedArrayConstructor,MAX_ATTACHMENTS,
+    ObjectType,Obj,AttributeName,Type,Format,BufferUsageBit,MemoryUsageBit,BufferFlagBit,
+    BufferAccessBit,PrimitiveMode,PolygonMode,ShadeModel,CullMode,ComparisonFunc,StencilOp,BlendOp,
+    BlendFactor,ColorMask,Filter,Address,TextureType,TextureUsageBit,SampleCount,TextureFlagBit,ShaderStageFlagBit,
+    DescriptorType,CommandBufferType,LoadOp,StoreOp,TextureLayout,PipelineBindPoint,DynamicStateFlagBit,StencilFace,
+    QueueType,Rect,Viewport,Color,ClearFlag,Offset,Extent,TextureSubres,TextureCopy,BufferTextureCopy,FormatType,
+    FormatInfo,MemoryStatus,FormatInfos};
+legacyCC.gfx = polyfillCC;

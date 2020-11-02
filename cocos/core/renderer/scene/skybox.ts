@@ -9,7 +9,7 @@ import { MaterialInstance } from '../core/material-instance';
 import { samplerLib } from '../core/sampler-lib';
 import { Model } from './model';
 import { legacyCC } from '../../global-exports';
-import { GFXDescriptorSet } from '../../gfx';
+import { DescriptorSet } from '../../gfx';
 import { SkyboxPool, NULL_HANDLE, SkyboxView, SkyboxHandle } from '../core/memory-pools';
 
 let skybox_mesh: Mesh | null = null;
@@ -85,7 +85,7 @@ export class Skybox {
     }
 
     protected _envmap: TextureCube | null = null;
-    protected _globalDescriptorSet: GFXDescriptorSet | null = null;
+    protected _globalDescriptorSet: DescriptorSet | null = null;
     protected _model: Model | null = null;
     protected _default: TextureCube | null = null;
     protected _handle: SkyboxHandle = NULL_HANDLE;

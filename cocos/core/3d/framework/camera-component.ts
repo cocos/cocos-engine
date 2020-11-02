@@ -34,7 +34,7 @@ import { UITransform } from '../../components/ui-base';
 import { Component } from '../../components/component';
 import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { ray } from '../../geometry';
-import { GFXClearFlag } from '../../gfx/define';
+import { ClearFlag as GFXClearFlag } from '../../gfx/define';
 import { Color, Rect, toRadian, Vec3 } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { view } from '../../platform/view';
@@ -43,7 +43,6 @@ import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO
 import { Root } from '../../root';
 import { Node } from '../../scene-graph/node';
 import { Layers } from '../../scene-graph/layers';
-import { Scene } from '../../scene-graph/scene';
 import { Enum } from '../../value-types';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { legacyCC } from '../../global-exports';

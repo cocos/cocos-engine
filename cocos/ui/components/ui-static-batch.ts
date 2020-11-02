@@ -35,7 +35,7 @@ import { ccclass, help, menu, executionOrder, visible, type, displayName, overri
 import { UIDrawBatch } from '../../core/renderer/ui/ui-draw-batch';
 import { director, Color, Material, warnID } from '../../core';
 import { vfmtPosUvColor } from '../../core/renderer/ui/ui-vertex-format';
-import { GFXBlendFactor } from '../../core/gfx';
+import { BlendFactor } from '../../core/gfx';
 
 
 /**
@@ -64,7 +64,7 @@ export class UIStaticBatch extends UIRenderable {
         return this._dstBlendFactor;
     }
 
-    set dstBlendFactor (value: GFXBlendFactor) {
+    set dstBlendFactor (value: BlendFactor) {
         if (this._dstBlendFactor === value) {
             return;
         }
@@ -79,7 +79,7 @@ export class UIStaticBatch extends UIRenderable {
         return this._srcBlendFactor;
     }
 
-    set srcBlendFactor (value: GFXBlendFactor) {
+    set srcBlendFactor (value: BlendFactor) {
         if (this._srcBlendFactor === value) {
             return;
         }
