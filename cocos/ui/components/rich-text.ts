@@ -521,6 +521,7 @@ export class RichText extends UIComponent {
             else {
                 const self = this;
                 assetManager.postLoadNative(this._font, (err) => {
+                    if (!self.isValid) { return; } 
                     self._layoutDirty = true;
                     self._updateRichText();
                 });

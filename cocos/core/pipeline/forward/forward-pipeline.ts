@@ -8,6 +8,9 @@ import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
 import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
+import { IRenderObject, UBOGlobal, UBOShadow } from '../define';
+import { BufferUsageBit, MemoryUsageBit, ClearFlag } from '../../gfx/define';
+import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp, TextureLayout, RenderPassInfo, BufferInfo, Feature } from '../../gfx';
 import { IRenderObject, UBOGlobal, UBOShadow, UNIFORM_SHADOWMAP_BINDING } from '../define';
 import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXClearFlag } from '../../gfx/define';
 import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp,
@@ -89,7 +92,7 @@ export class ForwardPipeline extends RenderPipeline {
     protected _isHDR: boolean = false;
     protected _shadingScale: number = 1.0;
     protected _fpScale: number = 1.0 / 1024.0;
-    protected _renderPasses = new Map<GFXClearFlag, GFXRenderPass>();
+    protected _renderPasses = new Map<ClearFlag, RenderPass>();
     protected _globalUBO = new Float32Array(UBOGlobal.COUNT);
     protected _shadowUBO = new Float32Array(UBOShadow.COUNT);
 
@@ -142,32 +145,32 @@ export class ForwardPipeline extends RenderPipeline {
         this._device.queue.submit(this._commandBuffers);
     }
 
-    public getRenderPass (clearFlags: GFXClearFlag): GFXRenderPass {
+    public getRenderPass (clearFlags: ClearFlag): RenderPass {
         let renderPass = this._renderPasses.get(clearFlags);
         if (renderPass) { return renderPass; }
 
         const device = this.device!;
-        const colorAttachment = new GFXColorAttachment();
-        const depthStencilAttachment = new GFXDepthStencilAttachment();
+        const colorAttachment = new ColorAttachment();
+        const depthStencilAttachment = new DepthStencilAttachment();
         colorAttachment.format = device.colorFormat;
         depthStencilAttachment.format = device.depthStencilFormat;
 
-        if (!(clearFlags & GFXClearFlag.COLOR)) {
+        if (!(clearFlags & ClearFlag.COLOR)) {
             if (clearFlags & SKYBOX_FLAG) {
-                colorAttachment.loadOp = GFXLoadOp.DISCARD;
+                colorAttachment.loadOp = LoadOp.DISCARD;
             } else {
-                colorAttachment.loadOp = GFXLoadOp.LOAD;
-                colorAttachment.beginLayout = GFXTextureLayout.PRESENT_SRC;
+                colorAttachment.loadOp = LoadOp.LOAD;
+                colorAttachment.beginLayout = TextureLayout.PRESENT_SRC;
             }
         }
 
-        if ((clearFlags & GFXClearFlag.DEPTH_STENCIL) !== GFXClearFlag.DEPTH_STENCIL) {
-            if (!(clearFlags & GFXClearFlag.DEPTH)) depthStencilAttachment.depthLoadOp = GFXLoadOp.LOAD;
-            if (!(clearFlags & GFXClearFlag.STENCIL)) depthStencilAttachment.stencilLoadOp = GFXLoadOp.LOAD;
-            depthStencilAttachment.beginLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        if ((clearFlags & ClearFlag.DEPTH_STENCIL) !== ClearFlag.DEPTH_STENCIL) {
+            if (!(clearFlags & ClearFlag.DEPTH)) depthStencilAttachment.depthLoadOp = LoadOp.LOAD;
+            if (!(clearFlags & ClearFlag.STENCIL)) depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
+            depthStencilAttachment.beginLayout = TextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
         }
 
-        const renderPassInfo = new GFXRenderPassInfo([colorAttachment], depthStencilAttachment);
+        const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
         renderPass = device.createRenderPass(renderPassInfo);
         this._renderPasses.set(clearFlags, renderPass!);
 
@@ -245,17 +248,17 @@ export class ForwardPipeline extends RenderPipeline {
 
         this._commandBuffers.push(device.commandBuffer);
 
-        const globalUBO = device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        const globalUBO = device.createBuffer(new BufferInfo(
+            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             UBOGlobal.SIZE,
             UBOGlobal.SIZE,
         ));
         this._descriptorSet.bindBuffer(UBOGlobal.BINDING, globalUBO);
 
-        const shadowUBO = device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        const shadowUBO = device.createBuffer(new BufferInfo(
+            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             UBOShadow.SIZE,
             UBOShadow.SIZE,
         ));
@@ -263,7 +266,7 @@ export class ForwardPipeline extends RenderPipeline {
 
         // update global defines when all states initialized.
         this.macros.CC_USE_HDR = this._isHDR;
-        this.macros.CC_SUPPORT_FLOAT_TEXTURE = this.device.hasFeature(GFXFeature.TEXTURE_FLOAT);
+        this.macros.CC_SUPPORT_FLOAT_TEXTURE = this.device.hasFeature(Feature.TEXTURE_FLOAT);
 
         return true;
     }

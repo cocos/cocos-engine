@@ -3,7 +3,7 @@
  * @module 3d/primitive
  */
 
-import { GFXPrimitiveMode } from '../gfx/define';
+import { PrimitiveMode } from '../gfx/define';
 import { applyDefaultGeometryOptions, IGeometry, IGeometryOptions } from './define';
 
 /**
@@ -69,7 +69,7 @@ export default function circle (options?: RecursivePartial<ICircleOptions> | ICi
         minPos: { x: 1, y: 1, z: 0 },
         maxPos: { x: -1, y: -1, z: 0 },
         boundingRadius: 1,
-        primitiveMode: GFXPrimitiveMode.TRIANGLE_FAN,
+        primitiveMode: PrimitiveMode.TRIANGLE_FAN,
     };
 
     return result;

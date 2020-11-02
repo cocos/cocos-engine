@@ -3,9 +3,9 @@
  * @module gfx
  */
 
-export const GFX_MAX_ATTACHMENTS: number = 4;
+export const MAX_ATTACHMENTS: number = 4;
 
-export enum GFXObjectType {
+export enum ObjectType {
     UNKNOWN,
     BUFFER,
     TEXTURE,
@@ -28,20 +28,20 @@ export enum GFXObjectType {
  * @en GFX base object.
  * @zh GFX 基类对象。
  */
-export class GFXObject {
+export class Obj {
 
-    public get gfxType (): GFXObjectType {
+    public get gfxType (): ObjectType {
         return this._gfxType;
     }
 
-    protected _gfxType = GFXObjectType.UNKNOWN;
+    protected _gfxType = ObjectType.UNKNOWN;
 
-    constructor (gfxType: GFXObjectType) {
+    constructor (gfxType: ObjectType) {
         this._gfxType = gfxType;
     }
 }
 
-export enum GFXAttributeName {
+export enum AttributeName {
     ATTR_POSITION = 'a_position',
     ATTR_NORMAL = 'a_normal',
     ATTR_TANGENT = 'a_tangent',
@@ -64,7 +64,7 @@ export enum GFXAttributeName {
     ATTR_BATCH_UV = 'a_batch_uv',
 }
 
-export enum GFXType {
+export enum Type {
     // assumptions about the order of this enum: (exploited by other parts of the engine)
     // * vectors always come before samplers
     // * vectors with the same data type are always consecutive, in an component-wise ascending order
@@ -110,7 +110,7 @@ export enum GFXType {
     COUNT,
 }
 
-export enum GFXFormat {
+export enum Format {
 
     UNKNOWN,
 
@@ -265,7 +265,7 @@ export enum GFXFormat {
     ASTC_SRGBA_12x12,
 }
 
-export enum GFXBufferUsageBit {
+export enum BufferUsageBit {
     NONE = 0,
     TRANSFER_SRC = 0x1,
     TRANSFER_DST = 0x2,
@@ -276,32 +276,32 @@ export enum GFXBufferUsageBit {
     INDIRECT = 0x40,
 }
 
-export type GFXBufferUsage = GFXBufferUsageBit;
+export type BufferUsage = BufferUsageBit;
 
-export enum GFXMemoryUsageBit {
+export enum MemoryUsageBit {
     NONE = 0,
     DEVICE = 0x1,
     HOST = 0x2,
 }
 
-export type GFXMemoryUsage = GFXMemoryUsageBit;
+export type MemoryUsage = MemoryUsageBit;
 
-export enum GFXBufferFlagBit {
+export enum BufferFlagBit {
     NONE = 0,
     BAKUP_BUFFER = 0x4,
 }
 
-export type GFXBufferFlags = GFXBufferFlagBit;
+export type BufferFlags = BufferFlagBit;
 
-export enum GFXBufferAccessBit {
+export enum BufferAccessBit {
     NONE = 0,
     READ = 0x1,
     WRITE = 0x2,
 }
 
-export type GFXBufferAccess = GFXBufferAccessBit;
+export type BufferAccess = BufferAccessBit;
 
-export enum GFXPrimitiveMode {
+export enum PrimitiveMode {
     POINT_LIST,
     LINE_LIST,
     LINE_STRIP,
@@ -319,24 +319,24 @@ export enum GFXPrimitiveMode {
     QUAD_PATCH_LIST,
 }
 
-export enum GFXPolygonMode {
+export enum PolygonMode {
     FILL,
     POINT,
     LINE,
 }
 
-export enum GFXShadeModel {
+export enum ShadeModel {
     GOURAND,
     FLAT,
 }
 
-export enum GFXCullMode {
+export enum CullMode {
     NONE,
     FRONT,
     BACK,
 }
 
-export enum GFXComparisonFunc {
+export enum ComparisonFunc {
     NEVER,
     LESS,
     EQUAL,
@@ -347,7 +347,7 @@ export enum GFXComparisonFunc {
     ALWAYS,
 }
 
-export enum GFXStencilOp {
+export enum StencilOp {
     ZERO,
     KEEP,
     REPLACE,
@@ -358,7 +358,7 @@ export enum GFXStencilOp {
     DECR_WRAP,
 }
 
-export enum GFXBlendOp {
+export enum BlendOp {
     ADD,
     SUB,
     REV_SUB,
@@ -366,7 +366,7 @@ export enum GFXBlendOp {
     MAX,
 }
 
-export enum GFXBlendFactor {
+export enum BlendFactor {
     ZERO,
     ONE,
     SRC_ALPHA,
@@ -384,7 +384,7 @@ export enum GFXBlendFactor {
     ONE_MINUS_CONSTANT_ALPHA,
 }
 
-export enum GFXColorMask {
+export enum ColorMask {
     NONE = 0x0,
     R = 0x1,
     G = 0x2,
@@ -393,21 +393,21 @@ export enum GFXColorMask {
     ALL = R | G | B | A,
 }
 
-export enum GFXFilter {
+export enum Filter {
     NONE,
     POINT,
     LINEAR,
     ANISOTROPIC,
 }
 
-export enum GFXAddress {
+export enum Address {
     WRAP,
     MIRROR,
     CLAMP,
     BORDER,
 }
 
-export enum GFXTextureType {
+export enum TextureType {
     TEX1D,
     TEX2D,
     TEX3D,
@@ -416,7 +416,7 @@ export enum GFXTextureType {
     TEX2D_ARRAY,
 }
 
-export enum GFXTextureUsageBit {
+export enum TextureUsageBit {
     NONE = 0,
     TRANSFER_SRC = 0x1,
     TRANSFER_DST = 0x2,
@@ -428,9 +428,9 @@ export enum GFXTextureUsageBit {
     INPUT_ATTACHMENT = 0x80,
 }
 
-export type GFXTextureUsage = GFXTextureUsageBit;
+export type TextureUsage = TextureUsageBit;
 
-export enum GFXSampleCount {
+export enum SampleCount {
     X1,
     X2,
     X4,
@@ -440,15 +440,15 @@ export enum GFXSampleCount {
     X64,
 }
 
-export enum GFXTextureFlagBit {
+export enum TextureFlagBit {
     NONE = 0,
     GEN_MIPMAP = 0x1,
     CUBEMAP = 0x2,
     BAKUP_BUFFER = 0x4,
 }
-export type GFXTextureFlags = GFXTextureFlagBit;
+export type TextureFlags = TextureFlagBit;
 
-export enum GFXShaderStageFlagBit {
+export enum ShaderStageFlagBit {
     NONE = 0,
     VERTEX = 0x1,
     CONTROL = 0x2,
@@ -458,9 +458,9 @@ export enum GFXShaderStageFlagBit {
     COMPUTE = 0x20,
     ALL = 0x3f,
 }
-export type GFXShaderStageFlags = GFXShaderStageFlagBit;
+export type ShaderStageFlags = ShaderStageFlagBit;
 
-export enum GFXDescriptorType {
+export enum DescriptorType {
     UNKNOWN = 0,
     UNIFORM_BUFFER = 0x1,
     DYNAMIC_UNIFORM_BUFFER = 0x2,
@@ -469,23 +469,23 @@ export enum GFXDescriptorType {
     SAMPLER = 0x10,
 }
 
-export enum GFXCommandBufferType {
+export enum CommandBufferType {
     PRIMARY,
     SECONDARY,
 }
 
-export enum GFXLoadOp {
+export enum LoadOp {
     LOAD,    // Load the previous data
     CLEAR,   // Clear the fbo
     DISCARD, // Ignore the previous data
 }
 
-export enum GFXStoreOp {
+export enum StoreOp {
     STORE,   // Write the source to the destination
     DISCARD, // Don't write the source to the destination
 }
 
-export enum GFXTextureLayout {
+export enum TextureLayout {
     UNDEFINED,
     GENERAL,
     COLOR_ATTACHMENT_OPTIMAL,
@@ -498,13 +498,13 @@ export enum GFXTextureLayout {
     PRESENT_SRC,
 }
 
-export enum GFXPipelineBindPoint {
+export enum PipelineBindPoint {
     GRAPHICS,
     COMPUTE,
     RAY_TRACING,
 }
 
-export enum GFXDynamicStateFlagBit {
+export enum DynamicStateFlagBit {
     NONE = 0x0,
     VIEWPORT = 0x1,
     SCISSOR = 0x2,
@@ -516,21 +516,21 @@ export enum GFXDynamicStateFlagBit {
     STENCIL_COMPARE_MASK = 0x80,
 }
 
-export type GFXDynamicStateFlags = GFXDynamicStateFlagBit;
+export type DynamicStateFlags = DynamicStateFlagBit;
 
-export enum GFXStencilFace {
+export enum StencilFace {
     FRONT,
     BACK,
     ALL,
 }
 
-export enum GFXQueueType {
+export enum QueueType {
     GRAPHICS,
     COMPUTE,
     TRANSFER,
 }
 
-export enum GFXClearFlag {
+export enum ClearFlag {
     NONE = 0,
     COLOR = 1,
     DEPTH = 2,
@@ -539,7 +539,7 @@ export enum GFXClearFlag {
     ALL = COLOR | DEPTH | STENCIL,
 }
 
-export enum GFXFormatType {
+export enum FormatType {
     NONE,
     UNORM,
     SNORM,
@@ -549,7 +549,7 @@ export enum GFXFormatType {
     FLOAT,
 }
 
-export enum GFXAPI {
+export enum API {
     UNKNOWN,
     GLES2,
     GLES3,
@@ -560,14 +560,14 @@ export enum GFXAPI {
     WEBGPU,
 }
 
-export enum GFXSurfaceTransform {
+export enum SurfaceTransform {
     IDENTITY,
     ROTATE_90,
     ROTATE_180,
     ROTATE_270,
 }
 
-export enum GFXFeature {
+export enum Feature {
     COLOR_FLOAT,
     COLOR_HALF_FLOAT,
     TEXTURE_FLOAT,
@@ -599,14 +599,14 @@ export enum GFXFeature {
     COUNT,
 }
 
-export class GFXFormatInfo {
+export class FormatInfo {
     declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public readonly name: string,
         public readonly size: number,
         public readonly count: number,
-        public readonly type: GFXFormatType,
+        public readonly type: FormatType,
         public readonly hasAlpha: boolean,
         public readonly hasDepth: boolean,
         public readonly hasStencil: boolean,
@@ -614,7 +614,7 @@ export class GFXFormatInfo {
     ) {}
 }
 
-export class GFXMemoryStatus {
+export class MemoryStatus {
     declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
@@ -623,141 +623,141 @@ export class GFXMemoryStatus {
     ) {}
 }
 
-export const GFXFormatInfos = Object.freeze([
+export const FormatInfos = Object.freeze([
 
-    new GFXFormatInfo('UNKNOWN', 0, 0, GFXFormatType.NONE, false, false, false, false),
+    new FormatInfo('UNKNOWN', 0, 0, FormatType.NONE, false, false, false, false),
 
-    new GFXFormatInfo('A8', 1, 1, GFXFormatType.UNORM, true, false, false, false),
-    new GFXFormatInfo('L8', 1, 1, GFXFormatType.UNORM, false, false, false, false),
-    new GFXFormatInfo('LA8', 1, 2, GFXFormatType.UNORM, true, false, false, false),
+    new FormatInfo('A8', 1, 1, FormatType.UNORM, true, false, false, false),
+    new FormatInfo('L8', 1, 1, FormatType.UNORM, false, false, false, false),
+    new FormatInfo('LA8', 1, 2, FormatType.UNORM, true, false, false, false),
 
-    new GFXFormatInfo('R8', 1, 1, GFXFormatType.UNORM, false, false, false, false),
-    new GFXFormatInfo('R8SN', 1, 1, GFXFormatType.SNORM, false, false, false, false),
-    new GFXFormatInfo('R8UI', 1, 1, GFXFormatType.UINT, false, false, false, false),
-    new GFXFormatInfo('R8I', 1, 1, GFXFormatType.INT, false, false, false, false),
-    new GFXFormatInfo('R16F', 2, 1, GFXFormatType.FLOAT, false, false, false, false),
-    new GFXFormatInfo('R16UI', 2, 1, GFXFormatType.UINT, false, false, false, false),
-    new GFXFormatInfo('R16I', 2, 1, GFXFormatType.INT, false, false, false, false),
-    new GFXFormatInfo('R32F', 4, 1, GFXFormatType.FLOAT, false, false, false, false),
-    new GFXFormatInfo('R32UI', 4, 1, GFXFormatType.UINT, false, false, false, false),
-    new GFXFormatInfo('R32I', 4, 1, GFXFormatType.INT, false, false, false, false),
+    new FormatInfo('R8', 1, 1, FormatType.UNORM, false, false, false, false),
+    new FormatInfo('R8SN', 1, 1, FormatType.SNORM, false, false, false, false),
+    new FormatInfo('R8UI', 1, 1, FormatType.UINT, false, false, false, false),
+    new FormatInfo('R8I', 1, 1, FormatType.INT, false, false, false, false),
+    new FormatInfo('R16F', 2, 1, FormatType.FLOAT, false, false, false, false),
+    new FormatInfo('R16UI', 2, 1, FormatType.UINT, false, false, false, false),
+    new FormatInfo('R16I', 2, 1, FormatType.INT, false, false, false, false),
+    new FormatInfo('R32F', 4, 1, FormatType.FLOAT, false, false, false, false),
+    new FormatInfo('R32UI', 4, 1, FormatType.UINT, false, false, false, false),
+    new FormatInfo('R32I', 4, 1, FormatType.INT, false, false, false, false),
 
-    new GFXFormatInfo('RG8', 2, 2, GFXFormatType.UNORM, false, false, false, false),
-    new GFXFormatInfo('RG8SN', 2, 2, GFXFormatType.SNORM, false, false, false, false),
-    new GFXFormatInfo('RG8UI', 2, 2, GFXFormatType.UINT, false, false, false, false),
-    new GFXFormatInfo('RG8I', 2, 2, GFXFormatType.INT, false, false, false, false),
-    new GFXFormatInfo('RG16F', 4, 2, GFXFormatType.FLOAT, false, false, false, false),
-    new GFXFormatInfo('RG16UI', 4, 2, GFXFormatType.UINT, false, false, false, false),
-    new GFXFormatInfo('RG16I', 4, 2, GFXFormatType.INT, false, false, false, false),
-    new GFXFormatInfo('RG32F', 8, 2, GFXFormatType.FLOAT, false, false, false, false),
-    new GFXFormatInfo('RG32UI', 8, 2, GFXFormatType.UINT, false, false, false, false),
-    new GFXFormatInfo('RG32I', 8, 2, GFXFormatType.INT, false, false, false, false),
+    new FormatInfo('RG8', 2, 2, FormatType.UNORM, false, false, false, false),
+    new FormatInfo('RG8SN', 2, 2, FormatType.SNORM, false, false, false, false),
+    new FormatInfo('RG8UI', 2, 2, FormatType.UINT, false, false, false, false),
+    new FormatInfo('RG8I', 2, 2, FormatType.INT, false, false, false, false),
+    new FormatInfo('RG16F', 4, 2, FormatType.FLOAT, false, false, false, false),
+    new FormatInfo('RG16UI', 4, 2, FormatType.UINT, false, false, false, false),
+    new FormatInfo('RG16I', 4, 2, FormatType.INT, false, false, false, false),
+    new FormatInfo('RG32F', 8, 2, FormatType.FLOAT, false, false, false, false),
+    new FormatInfo('RG32UI', 8, 2, FormatType.UINT, false, false, false, false),
+    new FormatInfo('RG32I', 8, 2, FormatType.INT, false, false, false, false),
 
-    new GFXFormatInfo('RGB8', 3, 3, GFXFormatType.UNORM, false, false, false, false),
-    new GFXFormatInfo('SRGB8', 3, 3, GFXFormatType.UNORM, false, false, false, false),
-    new GFXFormatInfo('RGB8SN', 3, 3, GFXFormatType.SNORM, false, false, false, false),
-    new GFXFormatInfo('RGB8UI', 3, 3, GFXFormatType.UINT, false, false, false, false),
-    new GFXFormatInfo('RGB8I', 3, 3, GFXFormatType.INT, false, false, false, false),
-    new GFXFormatInfo('RGB16F', 6, 3, GFXFormatType.FLOAT, false, false, false, false),
-    new GFXFormatInfo('RGB16UI', 6, 3, GFXFormatType.UINT, false, false, false, false),
-    new GFXFormatInfo('RGB16I', 6, 3, GFXFormatType.INT, false, false, false, false),
-    new GFXFormatInfo('RGB32F', 12, 3, GFXFormatType.FLOAT, false, false, false, false),
-    new GFXFormatInfo('RGB32UI', 12, 3, GFXFormatType.UINT, false, false, false, false),
-    new GFXFormatInfo('RGB32I', 12, 3, GFXFormatType.INT, false, false, false, false),
+    new FormatInfo('RGB8', 3, 3, FormatType.UNORM, false, false, false, false),
+    new FormatInfo('SRGB8', 3, 3, FormatType.UNORM, false, false, false, false),
+    new FormatInfo('RGB8SN', 3, 3, FormatType.SNORM, false, false, false, false),
+    new FormatInfo('RGB8UI', 3, 3, FormatType.UINT, false, false, false, false),
+    new FormatInfo('RGB8I', 3, 3, FormatType.INT, false, false, false, false),
+    new FormatInfo('RGB16F', 6, 3, FormatType.FLOAT, false, false, false, false),
+    new FormatInfo('RGB16UI', 6, 3, FormatType.UINT, false, false, false, false),
+    new FormatInfo('RGB16I', 6, 3, FormatType.INT, false, false, false, false),
+    new FormatInfo('RGB32F', 12, 3, FormatType.FLOAT, false, false, false, false),
+    new FormatInfo('RGB32UI', 12, 3, FormatType.UINT, false, false, false, false),
+    new FormatInfo('RGB32I', 12, 3, FormatType.INT, false, false, false, false),
 
-    new GFXFormatInfo('RGBA8', 4, 4, GFXFormatType.UNORM, true, false, false, false),
-    new GFXFormatInfo('BGRA8', 4, 4, GFXFormatType.UNORM, true, false, false, false),
-    new GFXFormatInfo('SRGB8_A8', 4, 4, GFXFormatType.UNORM, true, false, false, false),
-    new GFXFormatInfo('RGBA8SN', 4, 4, GFXFormatType.SNORM, true, false, false, false),
-    new GFXFormatInfo('RGBA8UI', 4, 4, GFXFormatType.UINT, true, false, false, false),
-    new GFXFormatInfo('RGBA8I', 4, 4, GFXFormatType.INT, true, false, false, false),
-    new GFXFormatInfo('RGBA16F', 8, 4, GFXFormatType.FLOAT, true, false, false, false),
-    new GFXFormatInfo('RGBA16UI', 8, 4, GFXFormatType.UINT, true, false, false, false),
-    new GFXFormatInfo('RGBA16I', 8, 4, GFXFormatType.INT, true, false, false, false),
-    new GFXFormatInfo('RGBA32F', 16, 4, GFXFormatType.FLOAT, true, false, false, false),
-    new GFXFormatInfo('RGBA32UI', 16, 4, GFXFormatType.UINT, true, false, false, false),
-    new GFXFormatInfo('RGBA32I', 16, 4, GFXFormatType.INT, true, false, false, false),
+    new FormatInfo('RGBA8', 4, 4, FormatType.UNORM, true, false, false, false),
+    new FormatInfo('BGRA8', 4, 4, FormatType.UNORM, true, false, false, false),
+    new FormatInfo('SRGB8_A8', 4, 4, FormatType.UNORM, true, false, false, false),
+    new FormatInfo('RGBA8SN', 4, 4, FormatType.SNORM, true, false, false, false),
+    new FormatInfo('RGBA8UI', 4, 4, FormatType.UINT, true, false, false, false),
+    new FormatInfo('RGBA8I', 4, 4, FormatType.INT, true, false, false, false),
+    new FormatInfo('RGBA16F', 8, 4, FormatType.FLOAT, true, false, false, false),
+    new FormatInfo('RGBA16UI', 8, 4, FormatType.UINT, true, false, false, false),
+    new FormatInfo('RGBA16I', 8, 4, FormatType.INT, true, false, false, false),
+    new FormatInfo('RGBA32F', 16, 4, FormatType.FLOAT, true, false, false, false),
+    new FormatInfo('RGBA32UI', 16, 4, FormatType.UINT, true, false, false, false),
+    new FormatInfo('RGBA32I', 16, 4, FormatType.INT, true, false, false, false),
 
-    new GFXFormatInfo('R5G6B5', 2, 3, GFXFormatType.UNORM, false, false, false, false),
-    new GFXFormatInfo('R11G11B10F', 4, 3, GFXFormatType.FLOAT, false, false, false, false),
-    new GFXFormatInfo('RGB5A1', 2, 4, GFXFormatType.UNORM, true, false, false, false),
-    new GFXFormatInfo('RGBA4', 2, 4, GFXFormatType.UNORM, true, false, false, false),
-    new GFXFormatInfo('RGB10A2', 2, 4, GFXFormatType.UNORM, true, false, false, false),
-    new GFXFormatInfo('RGB10A2UI', 2, 4, GFXFormatType.UINT, true, false, false, false),
-    new GFXFormatInfo('RGB9E5', 2, 4, GFXFormatType.FLOAT, true, false, false, false),
+    new FormatInfo('R5G6B5', 2, 3, FormatType.UNORM, false, false, false, false),
+    new FormatInfo('R11G11B10F', 4, 3, FormatType.FLOAT, false, false, false, false),
+    new FormatInfo('RGB5A1', 2, 4, FormatType.UNORM, true, false, false, false),
+    new FormatInfo('RGBA4', 2, 4, FormatType.UNORM, true, false, false, false),
+    new FormatInfo('RGB10A2', 2, 4, FormatType.UNORM, true, false, false, false),
+    new FormatInfo('RGB10A2UI', 2, 4, FormatType.UINT, true, false, false, false),
+    new FormatInfo('RGB9E5', 2, 4, FormatType.FLOAT, true, false, false, false),
 
-    new GFXFormatInfo('D16', 2, 1, GFXFormatType.UINT, false, true, false, false),
-    new GFXFormatInfo('D16S8', 3, 2, GFXFormatType.UINT, false, true, true, false),
-    new GFXFormatInfo('D24', 3, 1, GFXFormatType.UINT, false, true, false, false),
-    new GFXFormatInfo('D24S8', 4, 2, GFXFormatType.UINT, false, true, true, false),
-    new GFXFormatInfo('D32F', 4, 1, GFXFormatType.FLOAT, false, true, false, false),
-    new GFXFormatInfo('D32FS8', 5, 2, GFXFormatType.FLOAT, false, true, true, false),
+    new FormatInfo('D16', 2, 1, FormatType.UINT, false, true, false, false),
+    new FormatInfo('D16S8', 3, 2, FormatType.UINT, false, true, true, false),
+    new FormatInfo('D24', 3, 1, FormatType.UINT, false, true, false, false),
+    new FormatInfo('D24S8', 4, 2, FormatType.UINT, false, true, true, false),
+    new FormatInfo('D32F', 4, 1, FormatType.FLOAT, false, true, false, false),
+    new FormatInfo('D32FS8', 5, 2, FormatType.FLOAT, false, true, true, false),
 
-    new GFXFormatInfo('BC1', 1, 3, GFXFormatType.UNORM, false, false, false, true),
-    new GFXFormatInfo('BC1_ALPHA', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('BC1_SRGB', 1, 3, GFXFormatType.UNORM, false, false, false, true),
-    new GFXFormatInfo('BC1_SRGB_ALPHA', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('BC2', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('BC2_SRGB', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('BC3', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('BC3_SRGB', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('BC4', 1, 1, GFXFormatType.UNORM, false, false, false, true),
-    new GFXFormatInfo('BC4_SNORM', 1, 1, GFXFormatType.SNORM, false, false, false, true),
-    new GFXFormatInfo('BC5', 1, 2, GFXFormatType.UNORM, false, false, false, true),
-    new GFXFormatInfo('BC5_SNORM', 1, 2, GFXFormatType.SNORM, false, false, false, true),
-    new GFXFormatInfo('BC6H_UF16', 1, 3, GFXFormatType.UFLOAT, false, false, false, true),
-    new GFXFormatInfo('BC6H_SF16', 1, 3, GFXFormatType.FLOAT, false, false, false, true),
-    new GFXFormatInfo('BC7', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('BC7_SRGB', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new FormatInfo('BC1', 1, 3, FormatType.UNORM, false, false, false, true),
+    new FormatInfo('BC1_ALPHA', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('BC1_SRGB', 1, 3, FormatType.UNORM, false, false, false, true),
+    new FormatInfo('BC1_SRGB_ALPHA', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('BC2', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('BC2_SRGB', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('BC3', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('BC3_SRGB', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('BC4', 1, 1, FormatType.UNORM, false, false, false, true),
+    new FormatInfo('BC4_SNORM', 1, 1, FormatType.SNORM, false, false, false, true),
+    new FormatInfo('BC5', 1, 2, FormatType.UNORM, false, false, false, true),
+    new FormatInfo('BC5_SNORM', 1, 2, FormatType.SNORM, false, false, false, true),
+    new FormatInfo('BC6H_UF16', 1, 3, FormatType.UFLOAT, false, false, false, true),
+    new FormatInfo('BC6H_SF16', 1, 3, FormatType.FLOAT, false, false, false, true),
+    new FormatInfo('BC7', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('BC7_SRGB', 1, 4, FormatType.UNORM, true, false, false, true),
 
-    new GFXFormatInfo('ETC_RGB8', 1, 3, GFXFormatType.UNORM, false, false, false, true),
-    new GFXFormatInfo('ETC2_RGB8', 1, 3, GFXFormatType.UNORM, false, false, false, true),
-    new GFXFormatInfo('ETC2_SRGB8', 1, 3, GFXFormatType.UNORM, false, false, false, true),
-    new GFXFormatInfo('ETC2_RGB8_A1', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ETC2_SRGB8_A1', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ETC2_RGBA8', 2, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ETC2_SRGB8_A8', 2, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('EAC_R11', 1, 1, GFXFormatType.UNORM, false, false, false, true),
-    new GFXFormatInfo('EAC_R11SN', 1, 1, GFXFormatType.SNORM, false, false, false, true),
-    new GFXFormatInfo('EAC_RG11', 2, 2, GFXFormatType.UNORM, false, false, false, true),
-    new GFXFormatInfo('EAC_RG11SN', 2, 2, GFXFormatType.SNORM, false, false, false, true),
+    new FormatInfo('ETC_RGB8', 1, 3, FormatType.UNORM, false, false, false, true),
+    new FormatInfo('ETC2_RGB8', 1, 3, FormatType.UNORM, false, false, false, true),
+    new FormatInfo('ETC2_SRGB8', 1, 3, FormatType.UNORM, false, false, false, true),
+    new FormatInfo('ETC2_RGB8_A1', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ETC2_SRGB8_A1', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ETC2_RGBA8', 2, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ETC2_SRGB8_A8', 2, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('EAC_R11', 1, 1, FormatType.UNORM, false, false, false, true),
+    new FormatInfo('EAC_R11SN', 1, 1, FormatType.SNORM, false, false, false, true),
+    new FormatInfo('EAC_RG11', 2, 2, FormatType.UNORM, false, false, false, true),
+    new FormatInfo('EAC_RG11SN', 2, 2, FormatType.SNORM, false, false, false, true),
 
-    new GFXFormatInfo('PVRTC_RGB2', 2, 3, GFXFormatType.UNORM, false, false, false, true),
-    new GFXFormatInfo('PVRTC_RGBA2', 2, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('PVRTC_RGB4', 2, 3, GFXFormatType.UNORM, false, false, false, true),
-    new GFXFormatInfo('PVRTC_RGBA4', 2, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('PVRTC2_2BPP', 2, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('PVRTC2_4BPP', 2, 4, GFXFormatType.UNORM, true, false, false, true),
+    new FormatInfo('PVRTC_RGB2', 2, 3, FormatType.UNORM, false, false, false, true),
+    new FormatInfo('PVRTC_RGBA2', 2, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('PVRTC_RGB4', 2, 3, FormatType.UNORM, false, false, false, true),
+    new FormatInfo('PVRTC_RGBA4', 2, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('PVRTC2_2BPP', 2, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('PVRTC2_4BPP', 2, 4, FormatType.UNORM, true, false, false, true),
 
-    new GFXFormatInfo('ASTC_RGBA_4x4', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_RGBA_5x4', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_RGBA_5x5', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_RGBA_6x5', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_RGBA_6x6', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_RGBA_8x5', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_RGBA_8x6', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_RGBA_8x8', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_RGBA_10x5', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_RGBA_10x6', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_RGBA_10x8', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_RGBA_10x10', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_RGBA_12x10', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_RGBA_12x12', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_RGBA_4x4', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_RGBA_5x4', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_RGBA_5x5', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_RGBA_6x5', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_RGBA_6x6', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_RGBA_8x5', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_RGBA_8x6', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_RGBA_8x8', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_RGBA_10x5', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_RGBA_10x6', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_RGBA_10x8', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_RGBA_10x10', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_RGBA_12x10', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_RGBA_12x12', 1, 4, FormatType.UNORM, true, false, false, true),
 
-    new GFXFormatInfo('ASTC_SRGBA_4x4', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_SRGBA_5x4', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_SRGBA_5x5', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_SRGBA_6x5', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_SRGBA_6x6', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_SRGBA_8x5', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_SRGBA_8x6', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_SRGBA_8x8', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_SRGBA_10x5', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_SRGBA_10x6', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_SRGBA_10x8', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_SRGBA_10x10', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_SRGBA_12x10', 1, 4, GFXFormatType.UNORM, true, false, false, true),
-    new GFXFormatInfo('ASTC_SRGBA_12x12', 1, 4, GFXFormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_SRGBA_4x4', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_SRGBA_5x4', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_SRGBA_5x5', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_SRGBA_6x5', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_SRGBA_6x6', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_SRGBA_8x5', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_SRGBA_8x6', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_SRGBA_8x8', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_SRGBA_10x5', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_SRGBA_10x6', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_SRGBA_10x8', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_SRGBA_10x10', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_SRGBA_12x10', 1, 4, FormatType.UNORM, true, false, false, true),
+    new FormatInfo('ASTC_SRGBA_12x12', 1, 4, FormatType.UNORM, true, false, false, true),
 ]);
 
 /**
@@ -768,95 +768,95 @@ export const GFXFormatInfos = Object.freeze([
  * @param height The target height.
  * @param depth The target depth.
  */
-export function GFXFormatSize (format: GFXFormat, width: number, height: number, depth: number): number {
+export function FormatSize (format: Format, width: number, height: number, depth: number): number {
 
-    if (!GFXFormatInfos[format].isCompressed) {
-        return (width * height * depth * GFXFormatInfos[format].size);
+    if (!FormatInfos[format].isCompressed) {
+        return (width * height * depth * FormatInfos[format].size);
     } else {
         switch (format) {
-            case GFXFormat.BC1:
-            case GFXFormat.BC1_ALPHA:
-            case GFXFormat.BC1_SRGB:
-            case GFXFormat.BC1_SRGB_ALPHA:
+            case Format.BC1:
+            case Format.BC1_ALPHA:
+            case Format.BC1_SRGB:
+            case Format.BC1_SRGB_ALPHA:
                 return Math.ceil(width / 4) * Math.ceil(height / 4) * 8 * depth;
-            case GFXFormat.BC2:
-            case GFXFormat.BC2_SRGB:
-            case GFXFormat.BC3:
-            case GFXFormat.BC3_SRGB:
-            case GFXFormat.BC4:
-            case GFXFormat.BC4_SNORM:
-            case GFXFormat.BC6H_SF16:
-            case GFXFormat.BC6H_UF16:
-            case GFXFormat.BC7:
-            case GFXFormat.BC7_SRGB:
+            case Format.BC2:
+            case Format.BC2_SRGB:
+            case Format.BC3:
+            case Format.BC3_SRGB:
+            case Format.BC4:
+            case Format.BC4_SNORM:
+            case Format.BC6H_SF16:
+            case Format.BC6H_UF16:
+            case Format.BC7:
+            case Format.BC7_SRGB:
                 return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
-            case GFXFormat.BC5:
-            case GFXFormat.BC5_SNORM:
+            case Format.BC5:
+            case Format.BC5_SNORM:
                 return Math.ceil(width / 4) * Math.ceil(height / 4) * 32 * depth;
 
-            case GFXFormat.ETC_RGB8:
-            case GFXFormat.ETC2_RGB8:
-            case GFXFormat.ETC2_SRGB8:
-            case GFXFormat.ETC2_RGB8_A1:
-            case GFXFormat.EAC_R11:
-            case GFXFormat.EAC_R11SN:
+            case Format.ETC_RGB8:
+            case Format.ETC2_RGB8:
+            case Format.ETC2_SRGB8:
+            case Format.ETC2_RGB8_A1:
+            case Format.EAC_R11:
+            case Format.EAC_R11SN:
                 return Math.ceil(width / 4) * Math.ceil(height / 4) * 8 * depth;
-            case GFXFormat.ETC2_RGBA8:
-            case GFXFormat.ETC2_SRGB8_A1:
-            case GFXFormat.EAC_RG11:
-            case GFXFormat.EAC_RG11SN:
+            case Format.ETC2_RGBA8:
+            case Format.ETC2_SRGB8_A1:
+            case Format.EAC_RG11:
+            case Format.EAC_RG11SN:
                 return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
 
-            case GFXFormat.PVRTC_RGB2:
-            case GFXFormat.PVRTC_RGBA2:
-            case GFXFormat.PVRTC2_2BPP:
+            case Format.PVRTC_RGB2:
+            case Format.PVRTC_RGBA2:
+            case Format.PVRTC2_2BPP:
                 return Math.ceil(Math.max(width, 16) * Math.max(height, 8) / 4) * depth;
-            case GFXFormat.PVRTC_RGB4:
-            case GFXFormat.PVRTC_RGBA4:
-            case GFXFormat.PVRTC2_4BPP:
+            case Format.PVRTC_RGB4:
+            case Format.PVRTC_RGBA4:
+            case Format.PVRTC2_4BPP:
                 return Math.ceil(Math.max(width, 8) * Math.max(height, 8) / 2) * depth;
 
-            case GFXFormat.ASTC_RGBA_4x4:
-            case GFXFormat.ASTC_SRGBA_4x4:
+            case Format.ASTC_RGBA_4x4:
+            case Format.ASTC_SRGBA_4x4:
                 return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
-            case GFXFormat.ASTC_RGBA_5x4:
-            case GFXFormat.ASTC_SRGBA_5x4:
+            case Format.ASTC_RGBA_5x4:
+            case Format.ASTC_SRGBA_5x4:
                 return Math.ceil(width / 5) * Math.ceil(height / 4) * 16 * depth;
-            case GFXFormat.ASTC_RGBA_5x5:
-            case GFXFormat.ASTC_SRGBA_5x5:
+            case Format.ASTC_RGBA_5x5:
+            case Format.ASTC_SRGBA_5x5:
                 return Math.ceil(width / 5) * Math.ceil(height / 5) * 16 * depth;
-            case GFXFormat.ASTC_RGBA_6x5:
-            case GFXFormat.ASTC_SRGBA_6x5:
+            case Format.ASTC_RGBA_6x5:
+            case Format.ASTC_SRGBA_6x5:
                 return Math.ceil(width / 6) * Math.ceil(height / 5) * 16 * depth;
-            case GFXFormat.ASTC_RGBA_6x6:
-            case GFXFormat.ASTC_SRGBA_6x6:
+            case Format.ASTC_RGBA_6x6:
+            case Format.ASTC_SRGBA_6x6:
                 return Math.ceil(width / 6) * Math.ceil(height / 6) * 16 * depth;
-            case GFXFormat.ASTC_RGBA_8x5:
-            case GFXFormat.ASTC_SRGBA_8x5:
+            case Format.ASTC_RGBA_8x5:
+            case Format.ASTC_SRGBA_8x5:
                 return Math.ceil(width / 8) * Math.ceil(height / 5) * 16 * depth;
-            case GFXFormat.ASTC_RGBA_8x6:
-            case GFXFormat.ASTC_SRGBA_8x6:
+            case Format.ASTC_RGBA_8x6:
+            case Format.ASTC_SRGBA_8x6:
                 return Math.ceil(width / 8) * Math.ceil(height / 6) * 16 * depth;
-            case GFXFormat.ASTC_RGBA_8x8:
-            case GFXFormat.ASTC_SRGBA_8x8:
+            case Format.ASTC_RGBA_8x8:
+            case Format.ASTC_SRGBA_8x8:
                 return Math.ceil(width / 8) * Math.ceil(height / 8) * 16 * depth;
-            case GFXFormat.ASTC_RGBA_10x5:
-            case GFXFormat.ASTC_SRGBA_10x5:
+            case Format.ASTC_RGBA_10x5:
+            case Format.ASTC_SRGBA_10x5:
                 return Math.ceil(width / 10) * Math.ceil(height / 5) * 16 * depth;
-            case GFXFormat.ASTC_RGBA_10x6:
-            case GFXFormat.ASTC_SRGBA_10x6:
+            case Format.ASTC_RGBA_10x6:
+            case Format.ASTC_SRGBA_10x6:
                 return Math.ceil(width / 10) * Math.ceil(height / 6) * 16 * depth;
-            case GFXFormat.ASTC_RGBA_10x8:
-            case GFXFormat.ASTC_SRGBA_10x8:
+            case Format.ASTC_RGBA_10x8:
+            case Format.ASTC_SRGBA_10x8:
                 return Math.ceil(width / 10) * Math.ceil(height / 8) * 16 * depth;
-            case GFXFormat.ASTC_RGBA_10x10:
-            case GFXFormat.ASTC_SRGBA_10x10:
+            case Format.ASTC_RGBA_10x10:
+            case Format.ASTC_SRGBA_10x10:
                 return Math.ceil(width / 10) * Math.ceil(height / 10) * 16 * depth;
-            case GFXFormat.ASTC_RGBA_12x10:
-            case GFXFormat.ASTC_SRGBA_12x10:
+            case Format.ASTC_RGBA_12x10:
+            case Format.ASTC_SRGBA_12x10:
                 return Math.ceil(width / 12) * Math.ceil(height / 10) * 16 * depth;
-            case GFXFormat.ASTC_RGBA_12x12:
-            case GFXFormat.ASTC_SRGBA_12x12:
+            case Format.ASTC_RGBA_12x12:
+            case Format.ASTC_SRGBA_12x12:
                 return Math.ceil(width / 12) * Math.ceil(height / 12) * 16 * depth;
 
             default: {
@@ -875,14 +875,14 @@ export function GFXFormatSize (format: GFXFormat, width: number, height: number,
  * @param depth The target depth.
  * @param mips The target mip levels.
  */
-export function GFXFormatSurfaceSize (
-    format: GFXFormat, width: number, height: number,
+export function FormatSurfaceSize (
+    format: Format, width: number, height: number,
     depth: number, mips: number): number {
 
     let size = 0;
 
     for (let i = 0; i < mips; ++i) {
-        size += GFXFormatSize(format, width, height, depth);
+        size += FormatSize(format, width, height, depth);
         width = Math.max(width >> 1, 1);
         height = Math.max(height >> 1, 1);
     }
@@ -930,15 +930,15 @@ const _type2size = [
  * @zh 得到 GFX 数据类型的大小。
  * @param type The target type.
  */
-export function GFXGetTypeSize (type: GFXType): number {
+export function GetTypeSize (type: Type): number {
     return _type2size[type] || 0;
 }
 
-export function getTypedArrayConstructor (info: GFXFormatInfo): TypedArrayConstructor {
+export function getTypedArrayConstructor (info: FormatInfo): TypedArrayConstructor {
     const stride = info.size / info.count;
     switch (info.type) {
-        case GFXFormatType.UNORM:
-        case GFXFormatType.UINT: {
+        case FormatType.UNORM:
+        case FormatType.UINT: {
             switch (stride) {
                 case 1: return Uint8Array;
                 case 2: return Uint16Array;
@@ -946,8 +946,8 @@ export function getTypedArrayConstructor (info: GFXFormatInfo): TypedArrayConstr
             }
             break;
         }
-        case GFXFormatType.SNORM:
-        case GFXFormatType.INT: {
+        case FormatType.SNORM:
+        case FormatType.INT: {
             switch (stride) {
                 case 1: return Int8Array;
                 case 2: return Int16Array;
@@ -955,7 +955,7 @@ export function getTypedArrayConstructor (info: GFXFormatInfo): TypedArrayConstr
             }
             break;
         }
-        case GFXFormatType.FLOAT: {
+        case FormatType.FLOAT: {
             return Float32Array;
         }
     }

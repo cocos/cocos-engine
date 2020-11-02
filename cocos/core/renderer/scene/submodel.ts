@@ -1,21 +1,21 @@
 import { RenderingSubMesh } from '../../assets/mesh';
-import { RenderPriority, SetIndex } from '../../pipeline/define';
+import { RenderPriority } from '../../pipeline/define';
 import { IMacroPatch, Pass } from '../core/pass';
 import { DSPool, IAPool, SubModelPool, SubModelView, SubModelHandle, NULL_HANDLE, SubMeshPool } from '../core/memory-pools';
-import { GFXDescriptorSet, GFXDescriptorSetInfo, GFXDevice, GFXInputAssembler } from '../../gfx';
+import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 
-const _dsInfo = new GFXDescriptorSetInfo(null!);
+const _dsInfo = new DescriptorSetInfo(null!);
 
 export class SubModel {
-    protected _device: GFXDevice | null = null;
+    protected _device: Device | null = null;
     protected _passes: Pass[] | null = null;
     protected _subMesh: RenderingSubMesh | null = null;
     protected _patches: IMacroPatch[] | null = null;
     protected _handle: SubModelHandle = NULL_HANDLE;
     protected _priority: RenderPriority = RenderPriority.DEFAULT;
-    protected _inputAssembler: GFXInputAssembler | null = null;
-    protected _descriptorSet: GFXDescriptorSet | null = null;
+    protected _inputAssembler: InputAssembler | null = null;
+    protected _descriptorSet: DescriptorSet | null = null;
 
     set passes (passes) {
         this._passes = passes;
@@ -72,7 +72,7 @@ export class SubModel {
     }
 
     public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null) {
-        this._device = legacyCC.director.root.device as GFXDevice;
+        this._device = legacyCC.director.root.device as Device;
 
         this._subMesh = subMesh;
         this._patches = patches;

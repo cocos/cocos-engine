@@ -1,6 +1,6 @@
 import { IBArray } from '../../assets/mesh';
 import { aabb, intersect, ray, triangle } from '../../geometry';
-import { GFXPrimitiveMode } from '../../gfx/define';
+import { PrimitiveMode } from '../../gfx/define';
 import { Mat4, Vec3 } from '../../math';
 import { RecyclePool } from '../../memop';
 import { Root } from '../../root';
@@ -547,9 +547,9 @@ const resultAll: IRaycastResult[] = [];
 /** raycast single model */
 const resultSingleModel: IRaycastResult[] = [];
 
-const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, sides: boolean, distance = Infinity) => {
+const narrowphase = (vb: Float32Array, ib: IBArray, pm: PrimitiveMode, sides: boolean, distance = Infinity) => {
     narrowDis = distance;
-    if (pm === GFXPrimitiveMode.TRIANGLE_LIST) {
+    if (pm === PrimitiveMode.TRIANGLE_LIST) {
         const cnt = ib.length;
         for (let j = 0; j < cnt; j += 3) {
             const i0 = ib[j] * 3;
@@ -562,7 +562,7 @@ const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, sides:
             if (dist <= 0 || dist >= narrowDis) { continue; }
             narrowDis = dist;
         }
-    } else if (pm === GFXPrimitiveMode.TRIANGLE_STRIP) {
+    } else if (pm === PrimitiveMode.TRIANGLE_STRIP) {
         const cnt = ib.length - 2;
         let rev = 0;
         for (let j = 0; j < cnt; j += 1) {
@@ -577,7 +577,7 @@ const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, sides:
             if (dist <= 0 || dist >= narrowDis) { continue; }
             narrowDis = dist;
         }
-    } else if (pm === GFXPrimitiveMode.TRIANGLE_FAN) {
+    } else if (pm === PrimitiveMode.TRIANGLE_FAN) {
         const cnt = ib.length - 1;
         const i0 = ib[0] * 3;
         Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);

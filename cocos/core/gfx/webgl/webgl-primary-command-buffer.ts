@@ -1,10 +1,10 @@
-import { GFXBuffer, GFXBufferSource } from '../buffer';
-import { GFXCommandBuffer } from '../command-buffer';
-import {  GFXBufferUsageBit } from '../define';
-import { GFXBufferTextureCopy, GFXColor, GFXRect } from '../define-class';
-import { GFXFramebuffer } from '../framebuffer';
-import { GFXInputAssembler } from '../input-assembler';
-import { GFXTexture } from '../texture';
+import { Buffer, BufferSource, DrawInfo } from '../buffer';
+import { CommandBuffer } from '../command-buffer';
+import {  BufferUsageBit } from '../define';
+import { BufferTextureCopy, Color, Rect } from '../define-class';
+import { Framebuffer } from '../framebuffer';
+import { InputAssembler } from '../input-assembler';
+import { Texture } from '../texture';
 import { WebGLBuffer } from './webgl-buffer';
 import { WebGLCommandBuffer } from './webgl-command-buffer';
 import {
@@ -13,19 +13,18 @@ import {
 import { WebGLDevice } from './webgl-device';
 import { WebGLFramebuffer } from './webgl-framebuffer';
 import { WebGLTexture } from './webgl-texture';
-import { GFXRenderPass } from '../render-pass';
+import { RenderPass } from '../render-pass';
 import { WebGLRenderPass } from './webgl-render-pass';
-import { GFXDrawInfo } from '../..';
 
 const _dynamicOffsets: number[] = [];
 
 export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
 
     public beginRenderPass (
-        renderPass: GFXRenderPass,
-        framebuffer: GFXFramebuffer,
-        renderArea: GFXRect,
-        clearColors: GFXColor[],
+        renderPass: RenderPass,
+        framebuffer: Framebuffer,
+        renderArea: Rect,
+        clearColors: Color[],
         clearDepth: number,
         clearStencil: number) {
 
@@ -37,13 +36,13 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         this._isInRenderPass = true;
     }
 
-    public draw (inputAssembler: GFXInputAssembler) {
+    public draw (inputAssembler: InputAssembler) {
         if (this._isInRenderPass) {
             if (this._isStateInvalied) {
                 this.bindStates();
             }
 
-            WebGLCmdFuncDraw(this._device as WebGLDevice, inputAssembler as unknown as GFXDrawInfo);
+            WebGLCmdFuncDraw(this._device as WebGLDevice, inputAssembler as unknown as DrawInfo);
 
             ++this._numDrawCalls;
             this._numInstances += inputAssembler.instanceCount;
@@ -67,7 +66,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         }
     }
 
-    public updateBuffer (buffer: GFXBuffer, data: GFXBufferSource, offset?: number, size?: number) {
+    public updateBuffer (buffer: Buffer, data: BufferSource, offset?: number, size?: number) {
         if (!this._isInRenderPass) {
             const gpuBuffer = (buffer as WebGLBuffer).gpuBuffer;
             if (gpuBuffer) {
@@ -76,7 +75,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
                 let buffSize: number;
                 if (size !== undefined) {
                     buffSize = size;
-                } else if (buffer.usage & GFXBufferUsageBit.INDIRECT) {
+                } else if (buffer.usage & BufferUsageBit.INDIRECT) {
                     buffSize = 0;
                 } else {
                     buffSize = (data as ArrayBuffer).byteLength;
@@ -89,7 +88,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         }
     }
 
-    public copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
+    public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]) {
         if (!this._isInRenderPass) {
             const gpuTexture = (texture as WebGLTexture).gpuTexture;
             if (gpuTexture) {
@@ -100,7 +99,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         }
     }
 
-    public execute (cmdBuffs: GFXCommandBuffer[], count: number) {
+    public execute (cmdBuffs: CommandBuffer[], count: number) {
         for (let i = 0; i < count; ++i) {
             // actually they are secondary buffers, the cast here is only for type checking
             const webGLCmdBuff = cmdBuffs[i] as WebGLPrimaryCommandBuffer;

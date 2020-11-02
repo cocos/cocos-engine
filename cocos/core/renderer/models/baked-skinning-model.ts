@@ -32,7 +32,7 @@ import { AnimationClip } from '../../animation/animation-clip';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
-import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
+import { BufferUsageBit, MemoryUsageBit } from '../../gfx/define';
 import { Vec3 } from '../../math';
 import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UNIFORM_JOINT_TEXTURE_BINDING } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
@@ -43,11 +43,11 @@ import { ModelType } from '../scene/model';
 import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from './skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { legacyCC } from '../../global-exports';
-import { GFXAttribute, GFXDescriptorSet, GFXBuffer, GFXBufferInfo } from '../../gfx';
+import { Attribute, DescriptorSet, Buffer, BufferInfo } from '../../gfx';
 import { AABBPool, AABBView } from '../core/memory-pools';
 
 interface IJointsInfo {
-    buffer: GFXBuffer | null;
+    buffer: Buffer | null;
     jointTextureInfo: Float32Array;
     texture: IJointTextureHandle | null;
     animInfo: IAnimInfo;
@@ -104,9 +104,9 @@ export class BakedSkinningModel extends MorphModel {
         const resMgr = this._dataPoolManager;
         this._jointsMedium.animInfo = resMgr.jointAnimationInfo.getData(skinningRoot.uuid);
         if (!this._jointsMedium.buffer) {
-            this._jointsMedium.buffer = this._device.createBuffer(new GFXBufferInfo(
-                GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            this._jointsMedium.buffer = this._device.createBuffer(new BufferInfo(
+                BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
                 UBOSkinningTexture.SIZE,
                 UBOSkinningTexture.SIZE,
             ));
@@ -185,7 +185,7 @@ export class BakedSkinningModel extends MorphModel {
         return patches ? patches.concat(myPatches) : myPatches;
     }
 
-    protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: GFXDescriptorSet) {
+    protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet) {
         super._updateLocalDescriptors(submodelIdx, descriptorSet);
         const { buffer, texture, animInfo } = this._jointsMedium;
         descriptorSet.bindBuffer(UBOSkinningTexture.BINDING, buffer!);
@@ -197,7 +197,7 @@ export class BakedSkinningModel extends MorphModel {
         }
     }
 
-    protected _updateInstancedAttributes (attributes: GFXAttribute[], pass: Pass) {
+    protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {
         super._updateInstancedAttributes(attributes, pass);
         this._instAnimInfoIdx = this._getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
         this.updateInstancedJointTextureInfo();

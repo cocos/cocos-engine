@@ -43,7 +43,9 @@ async function build (options: build.Options) {
         moduleEntries = options.moduleEntries;
     }
 
-    _ensureUniqueModules(options);
+    if (moduleEntries) {
+        moduleEntries = Array.from(new Set(moduleEntries));
+    }
 
     return await _doBuild({
         moduleEntries,
@@ -160,16 +162,6 @@ namespace build {
 }
 
 export { build };
-
-function _ensureUniqueModules (options: build.Options) {
-    const uniqueModuleEntries: string[] = [];
-    for (const moduleEntry of options.moduleEntries!) {
-        if (uniqueModuleEntries.indexOf(moduleEntry) < 0) {
-            uniqueModuleEntries.push(moduleEntry);
-        }
-    }
-    options.moduleEntries = uniqueModuleEntries;
-}
 
 async function getEngineEntries (
     engine: string,

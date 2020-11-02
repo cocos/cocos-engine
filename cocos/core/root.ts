@@ -16,7 +16,7 @@ import { SpotLight } from './renderer/scene/spot-light';
 import { UI } from './renderer/ui/ui';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
-import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPassInfo, GFXStoreOp, GFXDevice } from './gfx';
+import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device } from './gfx';
 import { RootHandle, RootPool, RootView, NULL_HANDLE } from './renderer/core/memory-pools';
 
 /**
@@ -43,9 +43,9 @@ export class Root {
 
     /**
      * @zh
-     * GFX设备
+     * GFX 设备
      */
-    public get device (): GFXDevice {
+    public get device (): Device {
         return this._device;
     }
 
@@ -173,7 +173,7 @@ export class Root {
     public _createSceneFun: (root: Root) => RenderScene = null!;
     public _createWindowFun: (root: Root) => RenderWindow = null!;
 
-    private _device: GFXDevice;
+    private _device: Device;
     private _windows: RenderWindow[] = [];
     private _mainWindow: RenderWindow | null = null;
     private _curWindow: RenderWindow | null = null;
@@ -196,9 +196,9 @@ export class Root {
 
     /**
      * 构造函数
-     * @param device GFX设备
+     * @param device GFX 设备
      */
-    constructor (device: GFXDevice) {
+    constructor (device: Device) {
         this._device = device;
         this._dataPoolMgr = new DataPoolManager(device);
 
@@ -215,11 +215,11 @@ export class Root {
      */
     public initialize (info: IRootInfo): Promise<void> {
         this._poolHandle = RootPool.alloc();
-        const colorAttachment = new GFXColorAttachment();
-        const depthStencilAttachment = new GFXDepthStencilAttachment();
-        depthStencilAttachment.depthStoreOp = GFXStoreOp.DISCARD;
-        depthStencilAttachment.stencilStoreOp = GFXStoreOp.DISCARD;
-        const renderPassInfo = new GFXRenderPassInfo([colorAttachment], depthStencilAttachment);
+        const colorAttachment = new ColorAttachment();
+        const depthStencilAttachment = new DepthStencilAttachment();
+        depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
+        depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
+        const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
         this._mainWindow = this.createWindow({
             title: 'rootMainWindow',
             width: this._device.width,
@@ -333,7 +333,7 @@ export class Root {
     /**
      * @zh
      * 激活指定窗口为当前窗口
-     * @param window GFX窗口
+     * @param window GFX 窗口
      */
     public activeWindow (window: RenderWindow) {
         this._curWindow = window;
@@ -400,7 +400,7 @@ export class Root {
     /**
      * @zh
      * 创建窗口
-     * @param info GFX窗口描述信息
+     * @param info GFX 窗口描述信息
      */
     public createWindow (info: IRenderWindowInfo): RenderWindow | null {
         const window = this._createWindowFun(this);
@@ -412,7 +412,7 @@ export class Root {
     /**
      * @zh
      * 销毁指定的窗口
-     * @param window GFX窗口
+     * @param window GFX 窗口
      */
     public destroyWindow (window: RenderWindow) {
         for (let i = 0; i < this._windows.length; ++i) {

@@ -8,9 +8,9 @@ import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP_BINDING } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
-import { GFXFramebuffer, GFXRenderPass, GFXLoadOp, GFXStoreOp,
-    GFXTextureLayout, GFXFormat, GFXTexture, GFXTextureType, GFXTextureUsageBit, GFXFilter, GFXAddress,
-    GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPassInfo, GFXTextureInfo, GFXFramebufferInfo } from '../../gfx';
+import { Framebuffer, RenderPass, LoadOp, StoreOp,
+    TextureLayout, Format, Texture, TextureType, TextureUsageBit, Filter, Address,
+    ColorAttachment, DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderView } from '../render-view';
@@ -21,12 +21,12 @@ import { lightCollecting, shadowCollecting } from '../forward/scene-culling';
 import { Vec2 } from '../../math';
 
 const _samplerInfo = [
-    GFXFilter.LINEAR,
-    GFXFilter.LINEAR,
-    GFXFilter.NONE,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
+    Filter.LINEAR,
+    Filter.LINEAR,
+    Filter.NONE,
+    Address.CLAMP,
+    Address.CLAMP,
+    Address.CLAMP,
 ];
 
 /**
@@ -96,20 +96,20 @@ export class ShadowFlow extends RenderFlow {
             colorAttachment.loadOp = GFXLoadOp.CLEAR; // should clear color attachment
             colorAttachment.storeOp = GFXStoreOp.STORE;
             colorAttachment.sampleCount = 1;
-            colorAttachment.beginLayout = GFXTextureLayout.UNDEFINED;
-            colorAttachment.endLayout = GFXTextureLayout.PRESENT_SRC;
+            colorAttachment.beginLayout = TextureLayout.UNDEFINED;
+            colorAttachment.endLayout = TextureLayout.PRESENT_SRC;
 
-            const depthStencilAttachment = new GFXDepthStencilAttachment();
+            const depthStencilAttachment = new DepthStencilAttachment();
             depthStencilAttachment.format = device.depthStencilFormat;
-            depthStencilAttachment.depthLoadOp = GFXLoadOp.CLEAR;
-            depthStencilAttachment.depthStoreOp = GFXStoreOp.STORE;
-            depthStencilAttachment.stencilLoadOp = GFXLoadOp.CLEAR;
-            depthStencilAttachment.stencilStoreOp = GFXStoreOp.STORE;
+            depthStencilAttachment.depthLoadOp = LoadOp.CLEAR;
+            depthStencilAttachment.depthStoreOp = StoreOp.STORE;
+            depthStencilAttachment.stencilLoadOp = LoadOp.CLEAR;
+            depthStencilAttachment.stencilStoreOp = StoreOp.STORE;
             depthStencilAttachment.sampleCount = 1;
-            depthStencilAttachment.beginLayout = GFXTextureLayout.UNDEFINED;
-            depthStencilAttachment.endLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            depthStencilAttachment.beginLayout = TextureLayout.UNDEFINED;
+            depthStencilAttachment.endLayout = TextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-            const renderPassInfo = new GFXRenderPassInfo([colorAttachment], depthStencilAttachment);
+            const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
             this._shadowRenderPass = device.createRenderPass(renderPassInfo);
         }
 

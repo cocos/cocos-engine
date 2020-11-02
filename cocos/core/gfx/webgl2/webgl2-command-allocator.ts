@@ -1,5 +1,4 @@
 import { CachedArray } from '../../memop/cached-array';
-import { GFXDevice } from '../device';
 import {
     WebGL2CmdBeginRenderPass,
     WebGL2CmdBindStates,

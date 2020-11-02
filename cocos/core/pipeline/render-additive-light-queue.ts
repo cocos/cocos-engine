@@ -89,8 +89,8 @@ export class RenderAdditiveLightQueue {
     private _lightBufferCount = 16;
     private _lightBufferStride: number;
     private _lightBufferElementCount: number;
-    private _lightBuffer: GFXBuffer;
-    private _firstlightBufferView: GFXBuffer;
+    private _lightBuffer: Buffer;
+    private _firstlightBufferView: Buffer;
     private _lightBufferData: Float32Array;
 
     private _isHDR: boolean;
@@ -113,14 +113,14 @@ export class RenderAdditiveLightQueue {
         this._lightBufferStride = Math.ceil(UBOForwardLight.SIZE / this._device.uboOffsetAlignment) * this._device.uboOffsetAlignment;
         this._lightBufferElementCount = this._lightBufferStride / Float32Array.BYTES_PER_ELEMENT;
 
-        this._lightBuffer = this._device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        this._lightBuffer = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             this._lightBufferStride * this._lightBufferCount,
             this._lightBufferStride,
         ));
 
-        this._firstlightBufferView = this._device.createBuffer(new GFXBufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
+        this._firstlightBufferView = this._device.createBuffer(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
 
         this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
 
@@ -128,7 +128,7 @@ export class RenderAdditiveLightQueue {
         this._sampler = samplerLib.getSampler(this._device, shadowMapSamplerHash);
     }
 
-    public gatherLightPasses (view: RenderView, cmdBuff: GFXCommandBuffer) {
+    public gatherLightPasses (view: RenderView, cmdBuff: CommandBuffer) {
 
         const validLights = this._validLights;
         const sphereLights = view.camera.scene!.sphereLights;
@@ -234,7 +234,7 @@ export class RenderAdditiveLightQueue {
         this._batchedQueue.uploadBuffers(cmdBuff);
     }
 
-    public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
+    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 
@@ -301,7 +301,7 @@ export class RenderAdditiveLightQueue {
             this._lightBuffer.resize(this._lightBufferStride * this._lightBufferCount);
             this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
 
-            this._firstlightBufferView.initialize(new GFXBufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
+            this._firstlightBufferView.initialize(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
         }
 
         for(let l = 0, offset = 0; l < this._validLights.length; l++, offset += this._lightBufferElementCount) {

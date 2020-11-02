@@ -1,6 +1,7 @@
 import Ammo from './ammo-instantiated';
 import { IVec3Like, IQuatLike } from '../../core/math/type-define';
-import { Mesh, GFXPrimitiveMode } from '../../core';
+import { Mesh } from '../../core/assets';
+import { PrimitiveMode } from '../../core/gfx';
 
 export function cocos2AmmoVec3 (out: Ammo.btVector3, v: IVec3Like): Ammo.btVector3 {
     out.setValue(v.x, v.y, v.z);
@@ -41,7 +42,7 @@ export function cocos2AmmoTriMesh (out: Ammo.btTriangleMesh, mesh: Mesh): Ammo.b
             const primitiveMode = subMesh.primitiveMode;
             const vb = geoInfo.positions;
             const ib = geoInfo.indices as any;
-            if (primitiveMode == GFXPrimitiveMode.TRIANGLE_LIST) {
+            if (primitiveMode == PrimitiveMode.TRIANGLE_LIST) {
                 const cnt = ib.length;
                 for (let j = 0; j < cnt; j += 3) {
                     var i0 = ib[j] * 3;
@@ -53,7 +54,7 @@ export function cocos2AmmoTriMesh (out: Ammo.btTriangleMesh, mesh: Mesh): Ammo.b
                     out.addTriangle(v0, v1, v2);
                     Ammo.destroy(v0); Ammo.destroy(v1); Ammo.destroy(v2);
                 }
-            } else if (primitiveMode == GFXPrimitiveMode.TRIANGLE_STRIP) {
+            } else if (primitiveMode == PrimitiveMode.TRIANGLE_STRIP) {
                 const cnt = ib.length - 2;
                 let rev = 0;
                 for (let j = 0; j < cnt; j += 1) {
@@ -68,7 +69,7 @@ export function cocos2AmmoTriMesh (out: Ammo.btTriangleMesh, mesh: Mesh): Ammo.b
                     Ammo.destroy(v0); Ammo.destroy(v1); Ammo.destroy(v2);
                 }
 
-            } else if (primitiveMode == GFXPrimitiveMode.TRIANGLE_FAN) {
+            } else if (primitiveMode == PrimitiveMode.TRIANGLE_FAN) {
                 const cnt = ib.length - 1;
                 const i0 = ib[0] * 3;
                 const v0 = new Ammo.btVector3(vb[i0], vb[i0 + 1], vb[i0 + 2]);

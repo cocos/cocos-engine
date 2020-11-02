@@ -10,17 +10,14 @@ import { clamp01 } from './math/utils';
 import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
 import { sys } from './platform/sys';
 import {
-    GFXSampler, GFXSamplerInfo, GFXShader, GFXTexture, GFXTextureInfo, GFXDevice, GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute, GFXBuffer,
-    GFXBufferInfo, GFXRect, GFXColor, GFXBufferTextureCopy, GFXFramebuffer, GFXCommandBuffer } from './gfx';
+    Sampler, SamplerInfo, Shader, Texture, TextureInfo, Device, InputAssembler, InputAssemblerInfo, Attribute, Buffer,
+    BufferInfo, Rect, Color, BufferTextureCopy, Framebuffer, CommandBuffer, BufferUsageBit, Format,
+    MemoryUsageBit, TextureType, TextureUsageBit, Address } from './gfx';
 import { PipelineStateManager } from './pipeline';
 import { legacyCC } from './global-exports';
 import { Root } from './root';
 import { DSPool, ShaderPool, PassPool, PassView } from './renderer/core/memory-pools';
 import { SetIndex } from './pipeline/define';
-import {
-    GFXBufferUsageBit, GFXFormat,
-    GFXMemoryUsageBit, GFXTextureType, GFXTextureUsageBit, GFXAddress
-} from './gfx/define';
 
 export type SplashEffectType = 'NONE' | 'FADE-INOUT';
 
@@ -28,7 +25,7 @@ export interface ISplashSetting {
     readonly totalTime: number;
     readonly base64src: string;
     readonly effect: SplashEffectType;
-    readonly clearColor: GFXColor;
+    readonly clearColor: Color;
     readonly displayRatio: number;
     readonly displayWatermark: boolean;
 }
@@ -50,19 +47,19 @@ export class SplashScreen {
     private setting!: ISplashSetting;
     private image!: TexImageSource;
     private root!: Root;
-    private device!: GFXDevice;
-    private sampler!: GFXSampler;
-    private cmdBuff!: GFXCommandBuffer;
-    private assmebler!: GFXInputAssembler;
-    private vertexBuffers!: GFXBuffer;
-    private indicesBuffers!: GFXBuffer;
-    private shader!: GFXShader;
-    private framebuffer!: GFXFramebuffer;
-    private renderArea!: GFXRect;
-    private region!: GFXBufferTextureCopy;
+    private device!: Device;
+    private sampler!: Sampler;
+    private cmdBuff!: CommandBuffer;
+    private assmebler!: InputAssembler;
+    private vertexBuffers!: Buffer;
+    private indicesBuffers!: Buffer;
+    private shader!: Shader;
+    private framebuffer!: Framebuffer;
+    private renderArea!: Rect;
+    private region!: BufferTextureCopy;
     private material!: Material;
-    private texture!: GFXTexture;
-    private clearColors!: GFXColor[];
+    private texture!: Texture;
+    private clearColors!: Color[];
 
     private _splashFinish: boolean = false;
     private _loadFinish: boolean = false;
@@ -70,13 +67,13 @@ export class SplashScreen {
 
     /** text */
     private textImg!: TexImageSource;
-    private textRegion!: GFXBufferTextureCopy;
-    private textTexture!: GFXTexture;
-    private textVB!: GFXBuffer;
-    private textIB!: GFXBuffer;
-    private textAssmebler!: GFXInputAssembler;
+    private textRegion!: BufferTextureCopy;
+    private textTexture!: Texture;
+    private textVB!: Buffer;
+    private textIB!: Buffer;
+    private textAssmebler!: InputAssembler;
     private textMaterial!: Material;
-    private textShader!: GFXShader;
+    private textShader!: Shader;
 
     private screenWidth!: number;
     private screenHeight!: number;
@@ -89,7 +86,7 @@ export class SplashScreen {
             (this.setting.totalTime as number) = this.setting.totalTime != null ? this.setting.totalTime : 3000;
             (this.setting.base64src as string) = this.setting.base64src || '';
             (this.setting.effect as SplashEffectType) = this.setting.effect || 'FADE-INOUT';
-            (this.setting.clearColor as GFXColor) = this.setting.clearColor || new GFXColor(0.88, 0.88, 0.88, 1);
+            (this.setting.clearColor as Color) = this.setting.clearColor || new Color(0.88, 0.88, 0.88, 1);
             (this.setting.displayRatio as number) = this.setting.displayRatio != null ? this.setting.displayRatio : 0.4;
             (this.setting.displayWatermark as boolean) = this.setting.displayWatermark != null ? this.setting.displayWatermark : true;
         } else {
@@ -97,7 +94,7 @@ export class SplashScreen {
                 totalTime: 3000,
                 base64src: '',
                 effect: 'FADE-INOUT',
-                clearColor: new GFXColor(0.88, 0.88, 0.88, 1),
+                clearColor: new Color(0.88, 0.88, 0.88, 1),
                 displayRatio: 0.4,
                 displayWatermark: true
             };
@@ -127,10 +124,10 @@ export class SplashScreen {
             this.cancelAnimate = false;
             this.startTime = -1;
 
-            // this.setting.clearColor may not an instance of GFXColor, so should create
-            // GFXColor manually, or will have problem on native.
+            // this.setting.clearColor may not an instance of Color, so should create
+            // Color manually, or will have problem on native.
             const clearColor = this.setting.clearColor;
-            this.clearColors = [ new GFXColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w) ];
+            this.clearColors = [ new Color(clearColor.x, clearColor.y, clearColor.z, clearColor.w) ];
 
             const { width, height, surfaceTransform } = this.device;
             this.screenWidth = surfaceTransform % 2 ? height : width;
@@ -300,15 +297,15 @@ export class SplashScreen {
         const textMetrics = ctx.measureText(text);
         ctx.fillText(text, (330 - textMetrics.width) / 2, 6);
 
-        this.textRegion = new GFXBufferTextureCopy();
+        this.textRegion = new BufferTextureCopy();
         this.textRegion.texExtent.width = this.textImg.width;
         this.textRegion.texExtent.height = this.textImg.height;
         this.textRegion.texExtent.depth = 1;
 
-        this.textTexture = this.device.createTexture(new GFXTextureInfo(
-            GFXTextureType.TEX2D,
-            GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
-            GFXFormat.RGBA8,
+        this.textTexture = this.device.createTexture(new TextureInfo(
+            TextureType.TEX2D,
+            TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
+            Format.RGBA8,
             this.textImg.width,
             this.textImg.height,
         ));
@@ -331,9 +328,9 @@ export class SplashScreen {
         // create vertex buffer
         const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
         const vbSize = vbStride * 4;
-        this.textVB = this.device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        this.textVB = this.device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             vbSize,
             vbStride,
         ));
@@ -376,9 +373,9 @@ export class SplashScreen {
         const ibStride = Uint16Array.BYTES_PER_ELEMENT;
         const ibSize = ibStride * 6;
 
-        this.textIB = this.device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        this.textIB = this.device.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             ibSize,
             ibStride,
         ));
@@ -388,32 +385,32 @@ export class SplashScreen {
         indices[3] = 1; indices[4] = 3; indices[5] = 2;
         this.textIB.update(indices);
 
-        const attributes: GFXAttribute[] = [
-            new GFXAttribute('a_position', GFXFormat.RG32F),
-            new GFXAttribute('a_texCoord', GFXFormat.RG32F),
+        const attributes: Attribute[] = [
+            new Attribute('a_position', Format.RG32F),
+            new Attribute('a_texCoord', Format.RG32F),
         ];
 
-        const textIAInfo = new GFXInputAssemblerInfo(attributes, [this.textVB], this.textIB);
+        const textIAInfo = new InputAssemblerInfo(attributes, [this.textVB], this.textIB);
         this.textAssmebler = this.device.createInputAssembler(textIAInfo);
     }
 
     private initCMD () {
-        const device = this.device as GFXDevice;
-        this.renderArea = new GFXRect(0, 0, device.nativeWidth, device.nativeHeight);
+        const device = this.device as Device;
+        this.renderArea = new Rect(0, 0, device.nativeWidth, device.nativeHeight);
         this.framebuffer = this.root.mainWindow!.framebuffer;
 
         this.cmdBuff = device.commandBuffer;
     }
 
     private initIA () {
-        const device = this.device as GFXDevice;
+        const device = this.device as Device;
 
         // create vertex buffer
         const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
         const vbSize = vbStride * 4;
-        this.vertexBuffers = device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        this.vertexBuffers = device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             vbSize,
             vbStride,
         ));
@@ -456,9 +453,9 @@ export class SplashScreen {
         const ibStride = Uint16Array.BYTES_PER_ELEMENT;
         const ibSize = ibStride * 6;
 
-        this.indicesBuffers = device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        this.indicesBuffers = device.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             ibSize,
             ibStride,
         ));
@@ -468,31 +465,31 @@ export class SplashScreen {
         indices[3] = 1; indices[4] = 3; indices[5] = 2;
         this.indicesBuffers.update(indices);
 
-        const attributes: GFXAttribute[] = [
-            new GFXAttribute('a_position', GFXFormat.RG32F),
-            new GFXAttribute('a_texCoord', GFXFormat.RG32F),
+        const attributes: Attribute[] = [
+            new Attribute('a_position', Format.RG32F),
+            new Attribute('a_texCoord', Format.RG32F),
         ];
 
-        const IAInfo = new GFXInputAssemblerInfo(attributes, [this.vertexBuffers], this.indicesBuffers);
+        const IAInfo = new InputAssemblerInfo(attributes, [this.vertexBuffers], this.indicesBuffers);
         this.assmebler = device.createInputAssembler(IAInfo);
     }
 
     private initPSO () {
 
-        const device = this.device as GFXDevice;
+        const device = this.device as Device;
 
         this.material = new Material();
         this.material.initialize({ effectName: 'util/splash-screen' });
 
-        const samplerInfo = new GFXSamplerInfo();
-        samplerInfo.addressU = GFXAddress.CLAMP;
-        samplerInfo.addressV = GFXAddress.CLAMP;
+        const samplerInfo = new SamplerInfo();
+        samplerInfo.addressU = Address.CLAMP;
+        samplerInfo.addressV = Address.CLAMP;
         this.sampler = device.createSampler(samplerInfo);
 
-        this.texture = device.createTexture(new GFXTextureInfo(
-            GFXTextureType.TEX2D,
-            GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
-            GFXFormat.RGBA8,
+        this.texture = device.createTexture(new TextureInfo(
+            TextureType.TEX2D,
+            TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
+            Format.RGBA8,
             this.image.width,
             this.image.height,
         ));
@@ -506,7 +503,7 @@ export class SplashScreen {
         descriptorSet.bindSampler(binding!, this.sampler);
         descriptorSet.update();
 
-        this.region = new GFXBufferTextureCopy();
+        this.region = new BufferTextureCopy();
         this.region.texExtent.width = this.image.width;
         this.region.texExtent.height = this.image.height;
         this.region.texExtent.depth = 1;

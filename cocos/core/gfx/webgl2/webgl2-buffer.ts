@@ -1,6 +1,5 @@
-import { GFXIndirectBuffer } from '../..';
-import { GFXBuffer, GFXBufferSource, GFXBufferInfo, GFXBufferViewInfo } from '../buffer';
-import { GFXBufferFlagBit, GFXBufferUsageBit } from '../define';
+import { Buffer, BufferSource, BufferInfo, BufferViewInfo, IndirectBuffer } from '../buffer';
+import { BufferFlagBit, BufferUsageBit } from '../define';
 import {
     WebGL2CmdFuncCreateBuffer,
     WebGL2CmdFuncDestroyBuffer,
@@ -10,7 +9,7 @@ import {
 import { WebGL2Device } from './webgl2-device';
 import { IWebGL2GPUBuffer } from './webgl2-gpu-objects';
 
-export class WebGL2Buffer extends GFXBuffer {
+export class WebGL2Buffer extends Buffer {
 
     get gpuBuffer (): IWebGL2GPUBuffer {
         return  this._gpuBuffer!;
@@ -18,7 +17,7 @@ export class WebGL2Buffer extends GFXBuffer {
 
     private _gpuBuffer: IWebGL2GPUBuffer | null = null;
 
-    public initialize (info: GFXBufferInfo | GFXBufferViewInfo): boolean {
+    public initialize (info: BufferInfo | BufferViewInfo): boolean {
 
         if ('buffer' in info) { // buffer view
 
@@ -53,11 +52,11 @@ export class WebGL2Buffer extends GFXBuffer {
             this._count = this._size / this._stride;
             this._flags = info.flags;
 
-            if (this._usage & GFXBufferUsageBit.INDIRECT) {
-                this._indirectBuffer = new GFXIndirectBuffer();
+            if (this._usage & BufferUsageBit.INDIRECT) {
+                this._indirectBuffer = new IndirectBuffer();
             }
 
-            if (this._flags & GFXBufferFlagBit.BAKUP_BUFFER) {
+            if (this._flags & BufferFlagBit.BAKUP_BUFFER) {
                 this._bakcupBuffer = new Uint8Array(this._size);
                 this._device.memoryStatus.bufferSize += this._size;
             }
@@ -74,7 +73,7 @@ export class WebGL2Buffer extends GFXBuffer {
                 glOffset: 0,
             };
 
-            if (info.usage & GFXBufferUsageBit.INDIRECT) {
+            if (info.usage & BufferUsageBit.INDIRECT) {
                 this._gpuBuffer.indirects = this._indirectBuffer!.drawInfos;
             }
 
@@ -132,7 +131,7 @@ export class WebGL2Buffer extends GFXBuffer {
         }
     }
 
-    public update (buffer: GFXBufferSource, offset?: number, size?: number) {
+    public update (buffer: BufferSource, offset?: number, size?: number) {
         if (this._isBufferView) {
             console.warn('cannot update through buffer views!');
             return;
@@ -141,7 +140,7 @@ export class WebGL2Buffer extends GFXBuffer {
         let buffSize: number;
         if (size !== undefined ) {
             buffSize = size;
-        } else if (this._usage & GFXBufferUsageBit.INDIRECT) {
+        } else if (this._usage & BufferUsageBit.INDIRECT) {
             buffSize = 0;
         } else {
             buffSize = (buffer as ArrayBuffer).byteLength;

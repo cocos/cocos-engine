@@ -1,9 +1,9 @@
-import { GFXShader, GFXShaderInfo } from '../shader';
+import { Shader, ShaderInfo } from '../shader';
 import { WebGLCmdFuncCreateShader, WebGLCmdFuncDestroyShader } from './webgl-commands';
 import { WebGLDevice } from './webgl-device';
 import { IWebGLGPUShader, IWebGLGPUShaderStage } from './webgl-gpu-objects';
 
-export class WebGLShader extends GFXShader {
+export class WebGLShader extends Shader {
 
     get gpuShader (): IWebGLGPUShader {
         return  this._gpuShader!;
@@ -11,7 +11,7 @@ export class WebGLShader extends GFXShader {
 
     private _gpuShader: IWebGLGPUShader | null = null;
 
-    public initialize (info: GFXShaderInfo): boolean {
+    public initialize (info: ShaderInfo): boolean {
 
         this._name = info.name;
         this._stages = info.stages;

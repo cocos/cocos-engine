@@ -1,14 +1,14 @@
 import { frustum, ray } from '../../geometry';
-import { GFXClearFlag, GFXSurfaceTransform,  } from '../../gfx/define';
+import { ClearFlag, SurfaceTransform } from '../../gfx/define';
 import { lerp, Mat4, Rect, toRadian, Vec3, IVec4Like } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { RenderView } from '../../pipeline';
 import { Node } from '../../scene-graph';
 import { RenderScene } from './render-scene';
-import { GFXDevice, GFXColor } from '../../gfx';
+import { Device, Color } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../core/render-window';
-import { CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, FrustumView, NULL_HANDLE, SceneHandle } from '../core/memory-pools';
+import { CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, NULL_HANDLE, SceneHandle } from '../core/memory-pools';
 import { JSB } from 'internal:constants';
 import { recordFrustumToSharedMemory } from '../../geometry/frustum';
 
@@ -92,7 +92,7 @@ const v_b = new Vec3();
 const _tempMat1 = new Mat4();
 const _tempMat2 = new Mat4();
 
-export const SKYBOX_FLAG = GFXClearFlag.STENCIL << 1;
+export const SKYBOX_FLAG = ClearFlag.STENCIL << 1;
 
 const correctionMatrices: Mat4[] = [];
 
@@ -101,7 +101,7 @@ export class Camera {
     public isWindowSize: boolean = true;
     public screenScale: number;
 
-    private _device: GFXDevice;
+    private _device: Device;
     private _scene: RenderScene | null = null;
     private _node: Node | null = null;
     private _name: string | null = null;
@@ -113,9 +113,9 @@ export class Camera {
     private _fov: number = toRadian(45);
     private _nearClip: number = 1.0;
     private _farClip: number = 1000.0;
-    private _clearColor = new GFXColor(0.2, 0.2, 0.2, 1);
+    private _clearColor = new Color(0.2, 0.2, 0.2, 1);
     private _viewport: Rect = new Rect(0, 0, 1, 1);
-    private _curTransform = GFXSurfaceTransform.IDENTITY;
+    private _curTransform = SurfaceTransform.IDENTITY;
     private _isProjDirty = true;
     private _matView: Mat4 = new Mat4();
     private _matViewInv: Mat4 | null = null;
@@ -139,7 +139,7 @@ export class Camera {
     private _poolHandle: CameraHandle = NULL_HANDLE;
     private _frustumHandle: FrustumHandle = NULL_HANDLE;
 
-    constructor (device: GFXDevice) {
+    constructor (device: Device) {
         this._device = device;
         this._apertureValue = FSTOPS[this._aperture];
         this._shutterValue = SHUTTERS[this._shutter];
@@ -149,10 +149,10 @@ export class Camera {
 
         if (!correctionMatrices.length) {
             const ySign = device.screenSpaceSignY;
-            correctionMatrices[GFXSurfaceTransform.IDENTITY] = new Mat4(1, 0, 0, 0, 0, ySign);
-            correctionMatrices[GFXSurfaceTransform.ROTATE_90] = new Mat4(0, 1, 0, 0, -ySign, 0);
-            correctionMatrices[GFXSurfaceTransform.ROTATE_180] = new Mat4(-1, 0, 0, 0, 0, -ySign);
-            correctionMatrices[GFXSurfaceTransform.ROTATE_270] = new Mat4(0, -1, 0, 0, ySign, 0);
+            correctionMatrices[SurfaceTransform.IDENTITY] = new Mat4(1, 0, 0, 0, 0, ySign);
+            correctionMatrices[SurfaceTransform.ROTATE_90] = new Mat4(0, 1, 0, 0, -ySign, 0);
+            correctionMatrices[SurfaceTransform.ROTATE_180] = new Mat4(-1, 0, 0, 0, 0, -ySign);
+            correctionMatrices[SurfaceTransform.ROTATE_270] = new Mat4(0, -1, 0, 0, ySign, 0);
         }
     }
 
@@ -166,7 +166,7 @@ export class Camera {
         const handle = this._poolHandle = CameraPool.alloc();
         CameraPool.set(handle, CameraView.WIDTH, 1);
         CameraPool.set(handle, CameraView.HEIGHT, 1);
-        CameraPool.set(handle, CameraView.CLEAR_FLAG, GFXClearFlag.NONE);
+        CameraPool.set(handle, CameraView.CLEAR_FLAG, ClearFlag.NONE);
         CameraPool.set(handle, CameraView.CLEAR_DEPTH, 1.0);
         CameraPool.set(handle, CameraView.NODE, this._node.handle);
         if (this._scene) CameraPool.set(handle, CameraView.SCENE, this._scene.handle);
@@ -263,7 +263,7 @@ export class Camera {
             let projectionSignY = this._device.screenSpaceSignY;
             if (this._view && this._view.window.hasOffScreenAttachments) { // when drawing offscreen...
                 projectionSignY *= this._device.UVSpaceSignY; // apply sign-Y correction
-                orientation = GFXSurfaceTransform.IDENTITY; // no pre-rotation
+                orientation = SurfaceTransform.IDENTITY; // no pre-rotation
             }
             if (this._proj === CameraProjection.PERSPECTIVE) {
                 Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip,
@@ -390,25 +390,25 @@ export class Camera {
         const y = this._device.screenSpaceSignY < 0 ? 1 - val.y - height : val.y;
 
         switch (this._device.surfaceTransform) {
-            case GFXSurfaceTransform.ROTATE_90:
+            case SurfaceTransform.ROTATE_90:
                 this._viewport.x = 1 - y - height;
                 this._viewport.y = x;
                 this._viewport.width = height;
                 this._viewport.height = width;
                 break;
-            case GFXSurfaceTransform.ROTATE_180:
+            case SurfaceTransform.ROTATE_180:
                 this._viewport.x = 1 - x - width;
                 this._viewport.y = 1 - y - height;
                 this._viewport.width = width;
                 this._viewport.height = height;
                 break;
-            case GFXSurfaceTransform.ROTATE_270:
+            case SurfaceTransform.ROTATE_270:
                 this._viewport.x = y;
                 this._viewport.y = 1 - x - width;
                 this._viewport.width = height;
                 this._viewport.height = width;
                 break;
-            case GFXSurfaceTransform.IDENTITY:
+            case SurfaceTransform.IDENTITY:
                 this._viewport.x = x;
                 this._viewport.y = y;
                 this._viewport.width = width;
@@ -601,11 +601,11 @@ export class Camera {
         }
     }
 
-    get clearFlag () : GFXClearFlag {
+    get clearFlag () : ClearFlag {
         return CameraPool.get(this._poolHandle, CameraView.CLEAR_FLAG);
     }
 
-    set clearFlag (flag: GFXClearFlag) {
+    set clearFlag (flag: ClearFlag) {
         CameraPool.set(this._poolHandle, CameraView.CLEAR_FLAG, flag);
     }
 

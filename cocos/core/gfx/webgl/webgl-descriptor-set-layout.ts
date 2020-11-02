@@ -1,13 +1,13 @@
-import { GFXDescriptorSetLayout, GFXDescriptorSetLayoutInfo, DESCRIPTOR_DYNAMIC_TYPE } from '../descriptor-set-layout';
+import { DescriptorSetLayout, DescriptorSetLayoutInfo, DESCRIPTOR_DYNAMIC_TYPE } from '../descriptor-set-layout';
 import { IWebGLGPUDescriptorSetLayout } from './webgl-gpu-objects';
 
-export class WebGLDescriptorSetLayout extends GFXDescriptorSetLayout {
+export class WebGLDescriptorSetLayout extends DescriptorSetLayout {
 
     get gpuDescriptorSetLayout () { return this._gpuDescriptorSetLayout!; }
 
     private _gpuDescriptorSetLayout: IWebGLGPUDescriptorSetLayout | null = null;
 
-    public initialize (info: GFXDescriptorSetLayoutInfo) {
+    public initialize (info: DescriptorSetLayoutInfo) {
         Array.prototype.push.apply(this._bindings, info.bindings);
 
         let descriptorCount = 0; let maxBinding = -1;

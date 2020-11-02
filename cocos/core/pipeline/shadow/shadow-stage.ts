@@ -4,7 +4,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { GFXColor, GFXRect, GFXFramebuffer } from '../../gfx';
+import { Color, Rect, Framebuffer } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from '../forward/enum';
@@ -14,7 +14,7 @@ import { SetIndex } from '../define';
 import { Light } from '../../renderer/scene/light';
 import { ShadowFlow } from './shadow-flow';
 
-const colors: GFXColor[] = [ new GFXColor(1, 1, 1, 1) ];
+const colors: Color[] = [ new Color(1, 1, 1, 1) ];
 
 /**
  * @en Shadow map render stage

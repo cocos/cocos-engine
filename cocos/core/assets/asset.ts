@@ -250,6 +250,7 @@ export class Asset extends Eventify(RawAsset) {
      */
     public addRef (): Asset {
         this._ref++;
+        legacyCC.assetManager._releaseManager.removeFromDeleteQueue(this);
         return this;
     }
 
@@ -264,7 +265,9 @@ export class Asset extends Eventify(RawAsset) {
      *
      */
     public decRef (autoRelease: boolean = true): Asset {
-        this._ref--;
+        if (this._ref > 0) {
+            this._ref--;
+        }
         if (autoRelease) {
             legacyCC.assetManager._releaseManager.tryRelease(this);
         }

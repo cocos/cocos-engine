@@ -30,10 +30,10 @@
 
 import { DEBUG, JSB } from 'internal:constants';
 import { NativeBufferPool, NativeObjectPool, NativeBufferAllocator } from './native-pools';
-import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, GFXDescriptorSetInfo,
-    GFXDevice, GFXDescriptorSet, GFXShaderInfo, GFXShader, GFXInputAssemblerInfo, GFXInputAssembler,
-    GFXPipelineLayoutInfo, GFXPipelineLayout, GFXFramebuffer, GFXFramebufferInfo, GFXPrimitiveMode,
-    GFXDynamicStateFlags, GFXClearFlag, GFXAttribute } from '../../gfx';
+import { RasterizerState, DepthStencilState, BlendState, DescriptorSetInfo,
+    Device, DescriptorSet, ShaderInfo, Shader, InputAssemblerInfo, InputAssembler,
+    PipelineLayoutInfo, PipelineLayout, Framebuffer, FramebufferInfo, PrimitiveMode,
+    DynamicStateFlags, ClearFlag, Attribute } from '../../gfx';
 import { RenderPassStage } from '../../pipeline/define';
 import { BatchingSchemes } from './pass';
 import { Layers } from '../../scene-graph/layers';
@@ -585,32 +585,32 @@ export type FlatBufferArrayHandle = IHandle<PoolType.FLAT_BUFFER_ARRAY>;
 export type LightArrayHandle = IHandle<PoolType.LIGHT_ARRAY>;
 
 // don't reuse any of these data-only structs, for GFX objects may directly reference them
-export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, (_: never[]) => new GFXRasterizerState());
-export const DepthStencilStatePool = new ObjectPool(PoolType.DEPTH_STENCIL_STATE, (_: never[]) => new GFXDepthStencilState());
-export const BlendStatePool = new ObjectPool(PoolType.BLEND_STATE, (_: never[]) => new GFXBlendState());
+export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, (_: never[]) => new RasterizerState());
+export const DepthStencilStatePool = new ObjectPool(PoolType.DEPTH_STENCIL_STATE, (_: never[]) => new DepthStencilState());
+export const BlendStatePool = new ObjectPool(PoolType.BLEND_STATE, (_: never[]) => new BlendState());
 
-export const AttrPool = new ObjectPool(PoolType.ATTRIBUTE, (_: never[], obj?: GFXAttribute) => obj || new GFXAttribute());
+export const AttrPool = new ObjectPool(PoolType.ATTRIBUTE, (_: never[], obj?: Attribute) => obj || new Attribute());
 
 // TODO: could use Labeled Tuple Element feature here after next babel update (required TS4.0+ support)
 export const ShaderPool = new ObjectPool(PoolType.SHADER,
-    (args: [GFXDevice, GFXShaderInfo], obj?: GFXShader) => obj ? (obj.initialize(args[1]), obj) : args[0].createShader(args[1]),
-    (obj: GFXShader) => obj && obj.destroy(),
+    (args: [Device, ShaderInfo], obj?: Shader) => obj ? (obj.initialize(args[1]), obj) : args[0].createShader(args[1]),
+    (obj: Shader) => obj && obj.destroy(),
 );
 export const DSPool = new ObjectPool(PoolType.DESCRIPTOR_SETS,
-    (args: [GFXDevice, GFXDescriptorSetInfo], obj?: GFXDescriptorSet) => obj ? (obj.initialize(args[1]), obj) : args[0].createDescriptorSet(args[1]),
-    (obj: GFXDescriptorSet) => obj && obj.destroy(),
+    (args: [Device, DescriptorSetInfo], obj?: DescriptorSet) => obj ? (obj.initialize(args[1]), obj) : args[0].createDescriptorSet(args[1]),
+    (obj: DescriptorSet) => obj && obj.destroy(),
 );
 export const IAPool = new ObjectPool(PoolType.INPUT_ASSEMBLER,
-    (args: [GFXDevice, GFXInputAssemblerInfo], obj?: GFXInputAssembler) => obj ? (obj.initialize(args[1]), obj) : args[0].createInputAssembler(args[1]),
-    (obj: GFXInputAssembler) => obj && obj.destroy(),
+    (args: [Device, InputAssemblerInfo], obj?: InputAssembler) => obj ? (obj.initialize(args[1]), obj) : args[0].createInputAssembler(args[1]),
+    (obj: InputAssembler) => obj && obj.destroy(),
 );
 export const PipelineLayoutPool = new ObjectPool(PoolType.PIPELINE_LAYOUT,
-    (args: [GFXDevice, GFXPipelineLayoutInfo], obj?: GFXPipelineLayout) => obj ? (obj.initialize(args[1]), obj) : args[0].createPipelineLayout(args[1]),
-    (obj: GFXPipelineLayout) => obj && obj.destroy(),
+    (args: [Device, PipelineLayoutInfo], obj?: PipelineLayout) => obj ? (obj.initialize(args[1]), obj) : args[0].createPipelineLayout(args[1]),
+    (obj: PipelineLayout) => obj && obj.destroy(),
 );
 export const FramebufferPool = new ObjectPool(PoolType.FRAMEBUFFER,
-    (args: [GFXDevice, GFXFramebufferInfo], obj?: GFXFramebuffer) => obj ? (obj.initialize(args[1]), obj) : args[0].createFramebuffer(args[1]),
-    (obj: GFXFramebuffer) => obj && obj.destroy(),
+    (args: [Device, FramebufferInfo], obj?: Framebuffer) => obj ? (obj.initialize(args[1]), obj) : args[0].createFramebuffer(args[1]),
+    (obj: Framebuffer) => obj && obj.destroy(),
 );
 
 export const SubModelArrayPool = new TypedArrayPool<PoolType.SUB_MODEL_ARRAY, Uint32ArrayConstructor, SubModelHandle>
@@ -644,8 +644,8 @@ interface IPassViewType extends BufferTypeManifest<typeof PassView> {
     [PassView.STAGE]: RenderPassStage;
     [PassView.PHASE]: number;
     [PassView.BATCHING_SCHEME]: BatchingSchemes;
-    [PassView.PRIMITIVE]: GFXPrimitiveMode;
-    [PassView.DYNAMIC_STATES]: GFXDynamicStateFlags;
+    [PassView.PRIMITIVE]: PrimitiveMode;
+    [PassView.DYNAMIC_STATES]: DynamicStateFlags;
     [PassView.HASH]: number;
     [PassView.RASTERIZER_STATE]: RasterizerStateHandle;
     [PassView.DEPTH_STENCIL_STATE]: DepthStencilStateHandle;
@@ -843,7 +843,7 @@ interface ICameraViewType extends BufferTypeManifest<typeof CameraView> {
     [CameraView.WIDTH]: number;
     [CameraView.HEIGHT]: number;
     [CameraView.EXPOSURE]: number;
-    [CameraView.CLEAR_FLAG]: GFXClearFlag;
+    [CameraView.CLEAR_FLAG]: ClearFlag;
     [CameraView.CLEAR_DEPTH]: number;
     [CameraView.CLEAR_STENCIL]: number;
     [CameraView.NODE]: NodeHandle;

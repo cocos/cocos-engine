@@ -3,37 +3,37 @@
  * @module gfx
  */
 
-import { GFXDescriptorType, GFXObject, GFXObjectType, GFXShaderStageFlagBit, GFXShaderStageFlags } from './define';
-import { GFXDevice } from './device';
-import { GFXSampler } from './sampler';
+import { DescriptorType, Obj, ObjectType, ShaderStageFlagBit, ShaderStageFlags } from './define';
+import { Device } from './device';
+import { Sampler } from './sampler';
 
-export class GFXDescriptorSetLayoutBinding {
+export class DescriptorSetLayoutBinding {
     declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public binding: number = -1,
-        public descriptorType: GFXDescriptorType = GFXDescriptorType.UNKNOWN,
+        public descriptorType: DescriptorType = DescriptorType.UNKNOWN,
         public count: number = 0,
-        public stageFlags: GFXShaderStageFlags = GFXShaderStageFlagBit.NONE,
-        public immutableSamplers: GFXSampler[] = [],
+        public stageFlags: ShaderStageFlags = ShaderStageFlagBit.NONE,
+        public immutableSamplers: Sampler[] = [],
     ) {}
 }
 
-export class GFXDescriptorSetLayoutInfo {
+export class DescriptorSetLayoutInfo {
     declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public bindings: GFXDescriptorSetLayoutBinding[] = []
+        public bindings: DescriptorSetLayoutBinding[] = []
     ) {}
 }
 
-export const DESCRIPTOR_DYNAMIC_TYPE = GFXDescriptorType.DYNAMIC_STORAGE_BUFFER | GFXDescriptorType.DYNAMIC_UNIFORM_BUFFER;
+export const DESCRIPTOR_DYNAMIC_TYPE = DescriptorType.DYNAMIC_STORAGE_BUFFER | DescriptorType.DYNAMIC_UNIFORM_BUFFER;
 
 /**
  * @en GFX descriptor sets layout.
  * @zh GFX 描述符集布局。
  */
-export abstract class GFXDescriptorSetLayout extends GFXObject {
+export abstract class DescriptorSetLayout extends Obj {
 
     get bindings () {
         return this._bindings;
@@ -47,20 +47,20 @@ export abstract class GFXDescriptorSetLayout extends GFXObject {
         return this._descriptorIndices;
     }
 
-    protected _device: GFXDevice;
+    protected _device: Device;
 
-    protected _bindings: GFXDescriptorSetLayoutBinding[] = [];
+    protected _bindings: DescriptorSetLayoutBinding[] = [];
 
     protected _bindingIndices: number[] = [];
 
     protected _descriptorIndices: number[] = [];
 
-    constructor (device: GFXDevice) {
-        super(GFXObjectType.DESCRIPTOR_SET_LAYOUT);
+    constructor (device: Device) {
+        super(ObjectType.DESCRIPTOR_SET_LAYOUT);
         this._device = device;
     }
 
-    public abstract initialize (info: GFXDescriptorSetLayoutInfo): boolean;
+    public abstract initialize (info: DescriptorSetLayoutInfo): boolean;
 
     public abstract destroy (): void;
 }

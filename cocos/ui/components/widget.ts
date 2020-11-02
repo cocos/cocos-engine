@@ -949,12 +949,13 @@ export class Widget extends Component {
 
     protected _autoChangedValue (flag: AlignFlags, isAbs: boolean) {
         const current = (this._alignFlags & flag) > 0;
-        const parentTrans = this.node.parent && this.node.parent._uiProps.uiTransformComp;
-        if (!current || !parentTrans) {
+        if (!current) {
             return;
         }
+        const parentUiProps = this.node.parent && this.node.parent._uiProps;
+        const parentTrans = parentUiProps && parentUiProps.uiTransformComp;
 
-        const size = parentTrans.contentSize;
+        const size = parentTrans ? parentTrans.contentSize : visibleRect;
         if (this.isAlignLeft && flag === AlignFlags.LEFT) {
             this._left = isAbs ? this._left * size.width : this._left / size.width;
         } else if (this.isAlignRight && flag === AlignFlags.RIGHT) {

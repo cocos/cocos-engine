@@ -3,23 +3,23 @@
  * @module gfx
  */
 
-import { GFXAddress, GFXComparisonFunc, GFXFilter, GFXObject, GFXObjectType } from './define';
-import { GFXColor } from './define-class';
-import { GFXDevice } from './device';
+import { Address, ComparisonFunc, Filter, Obj, ObjectType } from './define';
+import { Color } from './define-class';
+import { Device } from './device';
 
-export class GFXSamplerInfo {
+export class SamplerInfo {
     declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public minFilter: GFXFilter = GFXFilter.LINEAR,
-        public magFilter: GFXFilter = GFXFilter.LINEAR,
-        public mipFilter: GFXFilter = GFXFilter.NONE,
-        public addressU: GFXAddress = GFXAddress.WRAP,
-        public addressV: GFXAddress = GFXAddress.WRAP,
-        public addressW: GFXAddress = GFXAddress.WRAP,
+        public minFilter: Filter = Filter.LINEAR,
+        public magFilter: Filter = Filter.LINEAR,
+        public mipFilter: Filter = Filter.NONE,
+        public addressU: Address = Address.WRAP,
+        public addressV: Address = Address.WRAP,
+        public addressW: Address = Address.WRAP,
         public maxAnisotropy: number = 16,
-        public cmpFunc: GFXComparisonFunc = GFXComparisonFunc.NEVER,
-        public borderColor: GFXColor = new GFXColor(),
+        public cmpFunc: ComparisonFunc = ComparisonFunc.NEVER,
+        public borderColor: Color = new Color(),
         public minLOD: number = 0,
         public maxLOD: number = 0,
         public mipLODBias: number = 0.0,
@@ -30,7 +30,7 @@ export class GFXSamplerInfo {
  * @en GFX sampler.
  * @zh GFX 采样器。
  */
-export abstract class GFXSampler extends GFXObject {
+export abstract class Sampler extends Obj {
 
     get minFilter () { return this._minFilter; }
     get magFilter () { return this._magFilter; }
@@ -45,27 +45,27 @@ export abstract class GFXSampler extends GFXObject {
     get maxLOD () { return this._maxLOD; }
     get mipLODBias () { return this._mipLODBias; }
 
-    protected _device: GFXDevice;
+    protected _device: Device;
 
-    protected _minFilter: GFXFilter = GFXFilter.LINEAR;
-    protected _magFilter: GFXFilter = GFXFilter.LINEAR;
-    protected _mipFilter: GFXFilter = GFXFilter.NONE;
-    protected _addressU: GFXAddress = GFXAddress.WRAP;
-    protected _addressV: GFXAddress = GFXAddress.WRAP;
-    protected _addressW: GFXAddress = GFXAddress.WRAP;
+    protected _minFilter: Filter = Filter.LINEAR;
+    protected _magFilter: Filter = Filter.LINEAR;
+    protected _mipFilter: Filter = Filter.NONE;
+    protected _addressU: Address = Address.WRAP;
+    protected _addressV: Address = Address.WRAP;
+    protected _addressW: Address = Address.WRAP;
     protected _maxAnisotropy: number = 16;
-    protected _cmpFunc: GFXComparisonFunc = GFXComparisonFunc.NEVER;
-    protected _borderColor: GFXColor = new GFXColor();
+    protected _cmpFunc: ComparisonFunc = ComparisonFunc.NEVER;
+    protected _borderColor: Color = new Color();
     protected _minLOD: number = 0;
     protected _maxLOD: number = 0;
     protected _mipLODBias: number = 0.0;
 
-    constructor (device: GFXDevice) {
-        super(GFXObjectType.SAMPLER);
+    constructor (device: Device) {
+        super(ObjectType.SAMPLER);
         this._device = device;
     }
 
-    public abstract initialize (info: GFXSamplerInfo): boolean;
+    public abstract initialize (info: SamplerInfo): boolean;
 
     public abstract destroy (): void;
 }

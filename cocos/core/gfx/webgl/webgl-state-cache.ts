@@ -1,5 +1,5 @@
-import { GFXRect, GFXViewport } from '../define-class';
-import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipeline-state';
+import { Rect, Viewport } from '../define-class';
+import { BlendState, DepthStencilState, RasterizerState } from '../pipeline-state';
 
 export interface IWebGLTexUnit {
     glTexture: WebGLTexture | null;
@@ -13,11 +13,11 @@ export class WebGLStateCache {
     public glTexUnits: IWebGLTexUnit[] = [];
     public glRenderbuffer: WebGLRenderbuffer | null = null;
     public glFramebuffer: WebGLFramebuffer | null = null;
-    public viewport = new GFXViewport();
-    public scissorRect = new GFXRect(0, 0, 0, 0);
-    public rs = new GFXRasterizerState();
-    public dss = new GFXDepthStencilState();
-    public bs = new GFXBlendState();
+    public viewport = new Viewport();
+    public scissorRect = new Rect(0, 0, 0, 0);
+    public rs = new RasterizerState();
+    public dss = new DepthStencilState();
+    public bs = new BlendState();
     public glProgram: WebGLProgram | null = null;
     public glEnabledAttribLocs: boolean[] = [];
     public glCurrentAttribLocs: boolean[] = [];
