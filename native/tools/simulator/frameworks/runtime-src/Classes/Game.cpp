@@ -56,6 +56,11 @@ bool Game::init()
     jsb_init_file_operation_delegate();
     jsb_register_all_modules();
     
+ #if defined(CC_DEBUG) && (CC_DEBUG > 0)
+     // Enable debugger here
+    jsb_enable_debugger("0.0.0.0", 5086, false);
+ #endif
+    
     se->start();
 
     auto runtimeEngine = RuntimeEngine::getInstance();
