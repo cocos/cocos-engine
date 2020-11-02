@@ -112,21 +112,24 @@ replaceProperty = (owner: object, ownerName: string, properties: IReplacement[])
                     set (this, v: any) {
                         replacePropertyLog(ownerName, item.name, targetName, newName, warn, id);
                         item.customSetter!.call(this, v);
-                    }
+                    },
+                    enumerable: false,
                 });
             } else if (hasSetter) {
                 Object.defineProperty(owner, item.name, {
                     set (this, v: any) {
                         replacePropertyLog(ownerName, item.name, targetName, newName, warn, id);
                         item.customSetter!.call(this, v);
-                    }
+                    },
+                    enumerable: false,
                 });
             } else if (hasGetter) {
                 Object.defineProperty(owner, item.name, {
                     get (this) {
                         replacePropertyLog(ownerName, item.name, targetName, newName, warn, id);
                         return item.customGetter!.call(this);
-                    }
+                    },
+                    enumerable: false,
                 });
             }
         } else {
@@ -142,7 +145,8 @@ replaceProperty = (owner: object, ownerName: string, properties: IReplacement[])
                     } else {
                         target[newName] = v;
                     }
-                }
+                },
+                enumerable: false,
             });
         }
     });
@@ -171,7 +175,8 @@ removeProperty = (owner: object, ownerName: string, properties: IRemoveItem[]) =
             },
             set (this) {
                 removePropertyLog(ownerName, item.name, error, id, item.suggest);
-            }
+            },
+            enumerable: false,
         });
     });
 };
@@ -209,10 +214,8 @@ markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
         const deprecatedProp = item.name;
         const descriptor = Object.getOwnPropertyDescriptor(owner, deprecatedProp);
         if (!descriptor) { return; }
-
         const id = messageID++;
         messageMap.set(id, { id, count: 0, logTimes: item.logTimes !== undefined ? item.logTimes : defaultLogTimes, });
-
         if (descriptor.value != null) {
             if (typeof descriptor.value === 'function') {
                 const oldValue = descriptor.value as Function;
@@ -226,6 +229,7 @@ markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
         } else {
             _defaultGetSet(descriptor, ownerName, deprecatedProp, warn, id, item.suggest);
         }
+        Object.defineProperty(owner, deprecatedProp, { enumerable: false });
     });
 };
 
