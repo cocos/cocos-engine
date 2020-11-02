@@ -285,21 +285,29 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
 
     public enable () {
         if (this._video) {
+            this._visible = true;
+            if (this._video.style.visibility === 'visible') {
+                return;
+            }
             this._video.style.visibility = 'visible';
         }
     }
 
     public disable (noPause?: boolean) {
         if (this._video) {
-            if (!noPause) {
+            if (!noPause && this._playing) {
                 this._video.pause();
+            }
+            this._visible = false;
+            if (this._video.style.visibility === 'hidden') {
+                return;
             }
             this._video.style.visibility = 'hidden';
         }
     }
 
     public syncMatrix () {
-        if (!this._video || this._video.style.visibility === 'hidden' || !this._component) return;
+        if (!this._video || !this._visible || !this._component) return;
 
         const canvas = this.UICanvas;
         if (!canvas) {
