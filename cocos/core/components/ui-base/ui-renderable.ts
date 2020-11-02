@@ -327,6 +327,7 @@ export class UIRenderable extends RenderableComponent {
 
     // The material hash include uniform
     protected _materialUniformHash = 0;
+    private _refreshHash: boolean = false;
 
     /**
      * @en The hash for material uniforms
@@ -348,8 +349,9 @@ export class UIRenderable extends RenderableComponent {
         let dirty = false;
         for (let i = 0; i < passes.length; i++) {
             pass = passes[i];
-            if (pass.rootBufferDirty) {
+            if (pass.rootBufferDirty || this._refreshHash) {
                 dirty = true;
+                this._refreshHash = false;
                 const blocks = pass.blocks;
                 for (let j = 0; j < pass.blocks.length; j++) {
                     block = blocks[j];
@@ -378,6 +380,7 @@ export class UIRenderable extends RenderableComponent {
         this.updateMaterial();
         this._renderFlag = this._canRender();
         this._materialUniformHash = this.getMaterial(0)!.hash!;
+        this._refreshHash = true;
     }
 
     public onDisable () {
