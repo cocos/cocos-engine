@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { polyfillCC } from './index';
+import { polyfillCC } from './polyfill-legacy-cc';
 import { removeProperty, replaceProperty } from '../utils/x-deprecated';
 import { legacyCC } from '../global-exports';
 
