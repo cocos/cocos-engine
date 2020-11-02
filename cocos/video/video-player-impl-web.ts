@@ -285,10 +285,10 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
 
     public enable () {
         if (this._video) {
+            this._visible = true;
             if (this._video.style.visibility === 'visible') {
                 return;
             }
-            this._visible = true;
             this._video.style.visibility = 'visible';
         }
     }
@@ -298,10 +298,10 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
             if (!noPause && this._playing) {
                 this._video.pause();
             }
+            this._visible = false;
             if (this._video.style.visibility === 'hidden') {
                 return;
             }
-            this._visible = false;
             this._video.style.visibility = 'hidden';
         }
     }
