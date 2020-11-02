@@ -91,7 +91,7 @@ float CCGetDirLightShadowFactorX1 () {
 		  clipPos.z <-1.0 || clipPos.z > 1.0) { return 0.0; }
 
   float closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, clipPos.xy));
-  float shadow = step(closestDepth, clipPos.z);
+  float shadow = step(closestDepth, clipPos.z - cc_shadowInfo.w);
 
   return shadow;
 }
@@ -107,13 +107,13 @@ float CCGetDirLightShadowFactorX5 () {
   float shadow = 0.0;
   float closestDepth = 0.0;
   closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x - offsetx, clipPos.y - offsety)));
-  shadow += step(closestDepth, clipPos.z);
+  shadow += step(closestDepth, clipPos.z - cc_shadowInfo.w);
   closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x - offsetx, clipPos.y + offsety)));
-  shadow += step(closestDepth, clipPos.z);
+  shadow += step(closestDepth, clipPos.z - cc_shadowInfo.w);
   closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos.y)));
-  shadow += step(closestDepth, clipPos.z);
+  shadow += step(closestDepth, clipPos.z - cc_shadowInfo.w);
   closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x + offsetx, clipPos.y - offsety)));
-  shadow += step(closestDepth, clipPos.z);
+  shadow += step(closestDepth, clipPos.z - cc_shadowInfo.w);
   closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x + offsetx, clipPos.y + offsety)));
 
   return shadow / 5.0;
@@ -131,7 +131,7 @@ float CCGetDirLightShadowFactorX9 () {
   for (int i = -1; i <= 1; i++) {
     for (int j = -1; j <= 1; j++) {
       float closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, clipPos.xy + vec2(i, j) * vec2(offsetx, offsety)));
-      shadow += step(closestDepth, clipPos.z);
+      shadow += step(closestDepth, clipPos.z - cc_shadowInfo.w);
     }
   }
 
@@ -150,7 +150,7 @@ float CCGetDirLightShadowFactorX25 () {
   for (int i = -2; i <= 2; i++) {
     for (int j = -2; j <= 2; j++) {
       float closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, clipPos.xy + vec2(i, j) * vec2(offsetx, offsety)));
-      shadow += step(closestDepth, clipPos.z);
+      shadow += step(closestDepth, clipPos.z - cc_shadowInfo.w);
     }
   }
 

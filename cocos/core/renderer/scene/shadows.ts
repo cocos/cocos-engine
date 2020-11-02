@@ -210,17 +210,6 @@ export class Shadows {
     }
 
     /**
-     * @en get or set most received light
-     * @zh 获取或设置接收光照的最大数量
-     */
-    public get mostReceived (): number {
-        return ShadowsPool.get(this._handle, ShadowsView.MOST_RECEIVED);
-    }
-    public set mostReceived (val: number) {
-        ShadowsPool.set(this._handle, ShadowsView.MOST_RECEIVED, val);
-    }
-
-    /**
      * @en get or set shadow bias
      * @zh 获取或者设置阴影偏移量
      */
@@ -270,6 +259,12 @@ export class Shadows {
      * @zh 获取或者设置阴影是否自动控制
      */
     public receiveSphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
+
+    /**
+     * @en get or set shadow most received
+     * @zh 阴影接收的最大灯光数量
+     */
+    public mostReceived: number = 4;
 
     protected _normal = new Vec3(0, 1, 0);
     protected _shadowColor = new Color(0, 0, 0, 76);

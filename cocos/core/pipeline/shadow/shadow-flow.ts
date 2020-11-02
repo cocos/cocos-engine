@@ -77,7 +77,7 @@ export class ShadowFlow extends RenderFlow {
             const shadowFrameBuffer = pipeline.shadowFrameBufferMap.get(light);
             if (shadowInfo.shadowMapDirty) { this.resizeShadowMap(light, shadowInfo.size); }
 
-            for (let i = 0; i < this._stages.length; ++i) {
+            for (let i = 0; i < this._stages.length; i++) {
                 const shadowStage = this._stages[i] as ShadowStage;
                 shadowStage.setUsage(light, shadowFrameBuffer!);
                 shadowStage.render(view);
@@ -129,7 +129,6 @@ export class ShadowFlow extends RenderFlow {
             shadowMapSize.x,
             shadowMapSize.y,
         ));
-
 
         const shadowFrameBuffer = device.createFramebuffer(new FramebufferInfo(
             this._shadowRenderPass,

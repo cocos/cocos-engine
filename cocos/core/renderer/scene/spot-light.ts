@@ -69,7 +69,7 @@ export class SpotLight extends Light {
     }
 
     get angle (): number {
-        return this.angle;
+        return this._angle;
     }
 
     set aspect (val: number) {
@@ -108,6 +108,7 @@ export class SpotLight extends Light {
         LightPool.set(this._handle, LightView.ILLUMINANCE, 1700 / nt2lm(size));
         LightPool.set(this._handle, LightView.RANGE, 5.0);
         LightPool.set(this._handle, LightView.RANGE, Math.cos(Math.PI / 6));
+        LightPool.set(this._handle, LightView.ASPECT, this._aspect);
         LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
     }
 

@@ -136,7 +136,6 @@ export class RenderAdditiveLightQueue {
         this._instancedQueue.clear();
         this._batchedQueue.clear();
         validLights.length = 0;
-        this._sampler = null;
 
         for (let i = 0; i < this._lightPasses.length; i++) {
             const lp = this._lightPasses[i];
@@ -282,7 +281,7 @@ export class RenderAdditiveLightQueue {
 
         Color.toArray(shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
 
-        _vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, shadowInfo.pcf, shadowInfo.bias);
+        _vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, shadowInfo.pcf, shadowInfo.bias / 100.0);
         Vec4.toArray(shadowUBO, _vec4ShadowInfo, UBOShadow.SHADOW_INFO_OFFSET);
 
         descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, this._pipeline.shadowFrameBufferMap.get(light)!.colorTextures[0]!);

@@ -91,7 +91,9 @@ export class RenderShadowMapBatchedQueue {
                         break;
                     case LightType.SPOT:
                         const spotLight = light as SpotLight;
-                        if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, spotLight.frustum)) continue;
+                        if ((model.worldBounds &&
+                            (!intersect.aabb_aabb(model.worldBounds, spotLight.aabb) ||
+                            !intersect.aabb_frustum(model.worldBounds, spotLight.frustum)))) continue;
                         this.add(model);
                         break;
                 }

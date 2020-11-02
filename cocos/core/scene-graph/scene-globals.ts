@@ -26,7 +26,7 @@
 
 import { TextureCube } from '../assets/texture-cube';
 import { ccclass, visible, type, displayOrder, slide, range, rangeStep, editable, serializable, rangeMin } from 'cc.decorator';
-import { CCFloat, CCBoolean } from '../data/utils/attribute';
+import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
 import { Shadows, ShadowType, PCFType } from '../renderer/scene/shadows';
@@ -407,6 +407,8 @@ export class ShadowsInfo {
     @serializable
     protected _orthoSize: number = 5;
     @serializable
+    protected _mostReceived: number = 4;
+    @serializable
     protected _size: Vec2 = new Vec2(512, 512);
 
     protected _resource: Shadows | null = null;
@@ -544,6 +546,20 @@ export class ShadowsInfo {
     }
 
     /**
+     * @en get or set shadow most received
+     * @zh 获取或者设置阴影接收的最大光源数量
+     */
+    @type(CCInteger)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
+    set mostReceived (val: number) {
+        this._mostReceived = val;
+        if (this._resource) {this._resource.mostReceived = val;}
+    }
+    get mostReceived () {
+        return this._mostReceived;
+    }
+
+    /**
      * @en get or set shadow camera orthoSize
      * @zh 获取或者设置阴影纹理大小
      */
@@ -614,6 +630,7 @@ export class ShadowsInfo {
         this._resource.pcf = this._pcf;
         this._resource.bias = this._bias;
         this._resource.enabled = this._enabled;
+        this._resource.mostReceived = this._mostReceived;
     }
 }
 legacyCC.ShadowsInfo = ShadowsInfo;
