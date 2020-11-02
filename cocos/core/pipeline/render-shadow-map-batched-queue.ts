@@ -29,7 +29,7 @@ const _matShadowView = new Mat4();
 const _matShadowViewProj = new Mat4();
 const _vec4ShadowInfo = new Vec4();
 
-const _phaseID = getPhaseID('shadow-add');
+const _phaseID = getPhaseID('shadow-caster');
 function getShadowPassIndex (subModels: SubModel[]) {
     for (let j = 0; j < subModels.length; j++) {
         const passes = subModels[j].passes;
@@ -185,7 +185,7 @@ export class RenderShadowMapBatchedQueue {
                     x = radius * this._shadowInfo.aspect;
                     y = radius;
 
-                    far = this._shadowInfo.receiveSphere.radius * 2.0;
+                    far = Math.min(this._shadowInfo.receiveSphere.radius * 2.0 * Math.sqrt(2.0), 2000.0);
                     if (radius >= 500) { this._shadowInfo.size.set(2048, 2048); }
                     else if (radius < 500 && radius >= 100) { this._shadowInfo.size.set(1024, 1024); }
                 } else {

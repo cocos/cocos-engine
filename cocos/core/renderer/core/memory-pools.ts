@@ -1097,11 +1097,11 @@ export enum ShadowsView {
     BIAS,
     ORTHO_SIZE,
     AUTO_ADAPT,         // boolean
-    COLOR,              // Vec4
-    SIZE = 17,          // Vec2
-    NORMAL = 19,        // Vec3
-    MAT_LIGHT = 22,     // Mat4
-    COUNT = 38
+    COLOR = 15,         // Vec4
+    SIZE = 19,          // Vec2
+    NORMAL = 21,        // Vec3
+    MAT_LIGHT = 24,     // Mat4
+    COUNT = 40
 }
 interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.ENABLE]: number;
