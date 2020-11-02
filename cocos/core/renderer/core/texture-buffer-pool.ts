@@ -3,8 +3,8 @@
  * @hidden
  */
 
-import { getTypedArrayConstructor, GFXFormat, GFXFormatInfos, GFXTextureType, GFXTextureUsageBit } from '../../gfx/define';
-import { GFXTexture, GFXTextureInfo, GFXDevice, GFXBufferTextureCopy } from '../../gfx';
+import { getTypedArrayConstructor, Format, FormatInfos, TextureType, TextureUsageBit } from '../../gfx/define';
+import { Texture, TextureInfo, Device, BufferTextureCopy } from '../../gfx';
 
 export function nearestPOT (num: number): number {
     --num;
@@ -18,7 +18,7 @@ export function nearestPOT (num: number): number {
 }
 
 export interface ITextureBuffer {
-    texture: GFXTexture;
+    texture: Texture;
     size: number;
     start: number;
     end: number;
@@ -28,11 +28,11 @@ export interface ITextureBufferHandle {
     chunkIdx: number;
     start: number;
     end: number;
-    texture: GFXTexture;
+    texture: Texture;
 }
 
 export interface ITextureBufferPoolInfo {
-    format: GFXFormat; // target texture format
+    format: Format; // target texture format
     inOrderFree?: boolean; // will the handles be freed exactly in the order of their allocation?
     alignment?: number; // the data alignment for each handle allocated, in bytes
     roundUpFn?: (size: number, formatSize: number) => number; // given a target size, how will the actual texture size round up?
@@ -44,26 +44,26 @@ function roundUp (n: number, alignment: number) {
 
 export class TextureBufferPool {
 
-    private _device: GFXDevice;
-    private _format = GFXFormat.UNKNOWN;
+    private _device: Device;
+    private _format = Format.UNKNOWN;
     private _formatSize = 0;
     private _chunks: ITextureBuffer[] = [];
     private _chunkCount = 0;
     private _handles: ITextureBufferHandle[] = [];
-    private _region0 = new GFXBufferTextureCopy();
-    private _region1 = new GFXBufferTextureCopy();
-    private _region2 = new GFXBufferTextureCopy();
+    private _region0 = new BufferTextureCopy();
+    private _region1 = new BufferTextureCopy();
+    private _region2 = new BufferTextureCopy();
     private _roundUpFn: ((targetSize: number, formatSize: number) => number) | null = null;
     private _bufferViewCtor: TypedArrayConstructor = Uint8Array;
     private _channels = 4;
     private _alignment = 1;
 
-    public constructor (device: GFXDevice) {
+    public constructor (device: Device) {
         this._device = device;
     }
 
     public initialize (info: ITextureBufferPoolInfo) {
-        const formatInfo = GFXFormatInfos[info.format];
+        const formatInfo = FormatInfos[info.format];
         this._format = info.format;
         this._formatSize = formatInfo.size;
         this._channels = formatInfo.count;
@@ -144,9 +144,9 @@ export class TextureBufferPool {
 
         console.info('TextureBufferPool: Allocate chunk ' + this._chunkCount + ', size: ' + texSize + ', format: ' + this._format);
 
-        const texture: GFXTexture = this._device.createTexture(new GFXTextureInfo(
-            GFXTextureType.TEX2D,
-            GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
+        const texture: Texture = this._device.createTexture(new TextureInfo(
+            TextureType.TEX2D,
+            TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
             this._format,
             length,
             length,
@@ -165,7 +165,7 @@ export class TextureBufferPool {
     public update (handle: ITextureBufferHandle, buffer: ArrayBuffer) {
 
         const buffers: ArrayBufferView[] = [];
-        const regions: GFXBufferTextureCopy[] = [];
+        const regions: BufferTextureCopy[] = [];
         const start = handle.start / this._formatSize;
 
         let remainSize = buffer.byteLength / this._formatSize;

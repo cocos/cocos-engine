@@ -178,7 +178,10 @@ export class AmmoSharedBody {
         const motionState = new Ammo.btDefaultMotionState(st);
         const localInertia = new Ammo.btVector3(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
         const bodyShape = new Ammo.btCompoundShape();
-        const rbInfo = new Ammo.btRigidBodyConstructionInfo(0, motionState, AmmoConstant.instance.EMPTY_SHAPE, localInertia);
+        let mass = 0;
+        if (this._wrappedBody && this._wrappedBody.rigidBody.isDynamic) mass = this._wrappedBody.rigidBody.mass;
+        if (mass == 0) localInertia.setValue(0, 0, 0);
+        const rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, AmmoConstant.instance.EMPTY_SHAPE, localInertia);
         const body = new Ammo.btRigidBody(rbInfo);
         const sleepTd = PhysicsSystem.instance.sleepThreshold;
         body.setSleepingThresholds(sleepTd, sleepTd);
@@ -196,7 +199,7 @@ export class AmmoSharedBody {
         }
         AmmoInstance.bodyStructs['KEY' + this._bodyStruct.id] = this._bodyStruct;
         this.body.setUserIndex(this._bodyStruct.id);
-        this.body.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
+        if (mass == 0) this.body.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);        
         if (Ammo['CC_CONFIG']['ignoreSelfBody'] && this._ghostStruct) this.ghost.setIgnoreCollisionCheck(this.body, true);
     }
 
@@ -320,13 +323,12 @@ export class AmmoSharedBody {
      * TODO: use motion state
      */
     syncPhysicsToScene () {
-        if (this.body.isStaticObject() || this.isBodySleeping()) {
+        if (this.body.isStaticOrKinematicObject() || this.isBodySleeping()) {
             return;
         }
-
-        // let transform = new Ammo.btTransform();
-        // this.body.getMotionState().getWorldTransform(transform);
-        const wt0 = this.body.getWorldTransform();
+        
+        const wt0 = this.bodyStruct.startTransform;
+        this.body.getMotionState().getWorldTransform(wt0);
         this.node.worldPosition = ammo2CocosVec3(v3_0, wt0.getOrigin());
         wt0.getBasis().getRotation(this.bodyStruct.worldQuat);
         this.node.worldRotation = ammo2CocosQuat(quat_0, this.bodyStruct.worldQuat);

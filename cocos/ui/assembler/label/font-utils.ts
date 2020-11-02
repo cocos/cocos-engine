@@ -6,9 +6,8 @@
 import { FontAtlas } from '../../../core/assets/bitmap-font';
 import { Color } from '../../../core/math';
 import { ImageAsset, Texture2D } from '../../../core/assets';
-import { Label } from '../../components';
 import { PixelFormat } from '../../../core/assets/asset-enum';
-import { GFXBufferTextureCopy } from '../../../core/gfx';
+import { BufferTextureCopy } from '../../../core/gfx';
 import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset } from '../../../core/utils';
 import { director, Director } from '../../../core/director';
 
@@ -17,7 +16,15 @@ export interface ISharedLabelData {
     context: CanvasRenderingContext2D | null;
 }
 
+let _canvasPool: CanvasPool;
+
 export class CanvasPool {
+    static getInstance(): CanvasPool {
+        if (!_canvasPool) {
+            _canvasPool = new CanvasPool();
+        }
+        return _canvasPool;
+    }
     public pool: ISharedLabelData[] = [];
     public get () {
         let data = this.pool.pop();
@@ -119,7 +126,7 @@ class LetterTexture {
     }
 
     private _updateProperties () {
-        this.data = Label._canvasPool.get();
+        this.data = CanvasPool.getInstance().get();
         this.canvas = this.data.canvas;
         this.context = this.data.context;
         if (this.context){
@@ -224,7 +231,7 @@ export class LetterRenderTexture extends Texture2D {
             return;
         }
 
-        const region = new GFXBufferTextureCopy();
+        const region = new BufferTextureCopy();
         region.texOffset.x = x;
         region.texOffset.y = y;
         region.texExtent.width = image.width;
@@ -302,7 +309,7 @@ export class LetterAtlas {
         this._x += width + space;
         this.fontDefDictionary.addLetterDefinitions(letterTexture.hash, letterDefinition);
         /*
-        const region = new GFXBufferTextureCopy();
+        const region = new BufferTextureCopy();
         region.texOffset.x = letterDefinition.offsetX;
         region.texOffset.y = letterDefinition.offsetY;
         region.texExtent.width = letterDefinition.w;

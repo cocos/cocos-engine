@@ -29,7 +29,7 @@
  */
 
 import { Asset } from '../../core/assets/asset';
-import { ccclass, type, serializable } from 'cc.decorator';
+import { ccclass, type, serializable, override } from 'cc.decorator';
 import { Enum } from '../../core/value-types';
 import { AudioPlayer, PlayingState } from './player';
 import { AudioPlayerDOM } from './player-dom';
@@ -98,6 +98,11 @@ export class AudioClip extends Asset {
 
     get _nativeAsset () {
         return this._nativeAudio;
+    }
+
+    @override
+    get _nativeDep () {
+        return { uuid: this._uuid, audioLoadMode: this.loadMode, ext: this._native, __isNative__: true };
     }
 
     get loadMode () {

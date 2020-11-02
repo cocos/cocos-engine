@@ -36,7 +36,7 @@ import { genSamplerHash, SamplerInfoIndex, samplerLib } from '../renderer/core/s
 import IDGenerator from '../utils/id-generator';
 import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
-import { GFXSampler, GFXTexture, GFXDevice } from '../gfx';
+import { Sampler, Texture, Device } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
@@ -120,8 +120,8 @@ export class TextureBase extends Asset {
     private _id: string;
     private _samplerInfo: (number | undefined)[] = [];
     private _samplerHash: number = 0;
-    private _gfxSampler: GFXSampler | null = null;
-    private _gfxDevice: GFXDevice | null = null;
+    private _gfxSampler: Sampler | null = null;
+    private _gfxDevice: Device | null = null;
 
     private _textureHash: number = 0;
 
@@ -256,10 +256,10 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * @en Gets the GFXTexture resource
+     * @en Gets the GFX Texture resource
      * @zh 获取此贴图底层的 GFX 贴图对象。
      */
-    public getGFXTexture (): GFXTexture | null {
+    public getGFXTexture (): Texture | null {
         return null;
     }
 
@@ -292,7 +292,7 @@ export class TextureBase extends Asset {
     /**
      * @return
      */
-    public _serialize (exporting?: any): any {
+    public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
             return this._minFilter + ',' + this._magFilter + ',' +
                 this._wrapS + ',' + this._wrapT + ',' +
@@ -320,7 +320,7 @@ export class TextureBase extends Asset {
         }
     }
 
-    protected _getGFXDevice (): GFXDevice | null {
+    protected _getGFXDevice (): Device | null {
         return legacyCC.director.root && legacyCC.director.root.device;
     }
 

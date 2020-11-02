@@ -28,7 +28,7 @@
  * @module ui-assembler
  */
 
-import { GFXAttribute, GFXFormat } from '../../../../core/gfx';
+import { Attribute, Format } from '../../../../core/gfx';
 import { Color, Vec3 } from '../../../../core/math';
 import { IAssembler } from '../../../../core/renderer/ui/base';
 import { MeshRenderData } from '../../../../core/renderer/ui/render-data';
@@ -54,7 +54,7 @@ const atan2 = Math.atan2;
 const attrBytes = 8;
 
 const attributes = vfmtPosColor.concat([
-    new GFXAttribute('a_dist', GFXFormat.R32F),
+    new Attribute('a_dist', Format.R32F),
 ]);
 
 const formatBytes = getAttributeFormatBytes(attributes);
@@ -345,10 +345,6 @@ export const graphicsAssembler: IAssembler = {
             }
 
             meshBuffer.indicesStart = indicesOffset;
-            if (indicesOffset !== meshBuffer.indicesCount) {
-                const arr = new Array(meshBuffer.indicesCount - indicesOffset);
-                meshBuffer.iData.set(arr, indicesOffset);
-            }
         }
         _renderData = null;
         _impl = null;
@@ -427,10 +423,6 @@ export const graphicsAssembler: IAssembler = {
             }
 
             meshBuffer.indicesStart = indicesOffset;
-            if (indicesOffset !== meshBuffer.indicesCount) {
-                const arr = new Array(meshBuffer.indicesCount - indicesOffset);
-                meshBuffer.iData.set(arr, indicesOffset);
-            }
         }
 
         _renderData = null;

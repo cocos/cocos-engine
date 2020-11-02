@@ -288,8 +288,6 @@ export class Shadows {
         if (pipeline.macros.CC_RECEIVE_SHADOW === enable) { return; }
         pipeline.macros.CC_RECEIVE_SHADOW = enable;
         root.onGlobalPipelineStateChanged();
-        ShadowsPool.set(this.handle, ShadowsView.SPHERE, this.sphere.handle);
-        ShadowsPool.set(this.handle, ShadowsView.RECEIVE_SPHERE, this.receiveSphere.handle);
     }
 
     public destroy () {

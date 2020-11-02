@@ -33,25 +33,24 @@ import { Mat4, Quat, Vec3 } from '../../core/math';
 import { mapBuffer } from '../3d/misc/buffer';
 import { BufferBlob } from '../3d/misc/buffer-blob';
 import { aabb } from '../geometry';
-import { GFXBuffer, GFXBufferInfo } from '../gfx';
+import { Buffer, BufferInfo } from '../gfx';
 import {
     getTypedArrayConstructor,
-    GFXAttributeName,
-    GFXBufferUsageBit,
-    GFXFormat,
-    GFXFormatInfos,
-    GFXFormatType,
-    GFXMemoryUsageBit,
-    GFXPrimitiveMode,
-    GFXFeature
+    AttributeName,
+    BufferUsageBit,
+    Format,
+    FormatInfos,
+    FormatType,
+    MemoryUsageBit,
+    PrimitiveMode,
+    Feature
 } from '../gfx/define';
-import { GFXDevice, GFXAttribute, GFXInputAssemblerInfo } from '../gfx';
+import { Device, Attribute, InputAssemblerInfo } from '../gfx';
 import { warnID } from '../platform/debug';
 import { sys } from '../platform/sys';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
 import { Skeleton } from './skeleton';
-import { postLoadMesh } from './utils/mesh-utils';
 import { Morph, createMorphRendering, MorphRendering } from './morph';
 import { legacyCC } from '../global-exports';
 import { NULL_HANDLE, SubMeshHandle, SubMeshPool } from '../renderer/core/memory-pools';
@@ -112,8 +111,8 @@ export interface IFlatBuffer {
 }
 
 /**
- * @en Sub mesh for rendering which contains all geometry data, it can be used to create [[GFXInputAssembler]].
- * @zh 包含所有顶点数据的渲染子网格，可以用来创建 [[GFXInputAssembler]]。
+ * @en Sub mesh for rendering which contains all geometry data, it can be used to create [[InputAssembler]].
+ * @zh 包含所有顶点数据的渲染子网格，可以用来创建 [[InputAssembler]]。
  */
 export class RenderingSubMesh {
 
@@ -159,13 +158,13 @@ export class RenderingSubMesh {
             return { positions: new Float32Array(), indices: new Uint8Array(), boundingBox: { min: Vec3.ZERO, max: Vec3.ZERO } };
         }
         const mesh = this.mesh!; const index = this.subMeshIdx!;
-        const positions = mesh.readAttribute(index, GFXAttributeName.ATTR_POSITION) as unknown as Float32Array;
+        const positions = mesh.readAttribute(index, AttributeName.ATTR_POSITION) as unknown as Float32Array;
         const indices = mesh.readIndices(index) as Uint16Array;
         const max = new Vec3();
         const min = new Vec3();
-        const pAttri = this.attributes.find(element => element.name === legacyCC.GFXAttributeName.ATTR_POSITION);
+        const pAttri = this.attributes.find(element => element.name === AttributeName.ATTR_POSITION);
         if (pAttri) {
-            const conut = GFXFormatInfos[pAttri.format].count;
+            const conut = FormatInfos[pAttri.format].count;
             if (conut === 2) {
                 max.set(positions[0], positions[1], 0);
                 min.set(positions[0], positions[1], 0);
@@ -237,7 +236,7 @@ export class RenderingSubMesh {
      */
     get jointMappedBuffers () {
         if (this._jointMappedBuffers) { return this._jointMappedBuffers; }
-        const buffers: GFXBuffer[] = this._jointMappedBuffers = [];
+        const buffers: Buffer[] = this._jointMappedBuffers = [];
         const indices: number[] = this._jointMappedBufferIndices = [];
         if (!this.mesh || this.subMeshIdx === undefined) { return this._jointMappedBuffers = this.vertexBuffers; }
         const struct = this.mesh.struct;
@@ -245,20 +244,20 @@ export class RenderingSubMesh {
         if (!struct.jointMaps || prim.jointMapIndex === undefined || !struct.jointMaps[prim.jointMapIndex]) {
             return this._jointMappedBuffers = this.vertexBuffers;
         }
-        let jointFormat: GFXFormat;
+        let jointFormat: Format;
         let jointOffset: number;
-        const device: GFXDevice = legacyCC.director.root.device;
+        const device: Device = legacyCC.director.root.device;
         for (let i = 0; i < prim.vertexBundelIndices.length; i++) {
             const bundle = struct.vertexBundles[prim.vertexBundelIndices[i]];
             jointOffset = 0;
-            jointFormat = GFXFormat.UNKNOWN;
+            jointFormat = Format.UNKNOWN;
             for (let j = 0; j < bundle.attributes.length; j++) {
                 const attr = bundle.attributes[j];
-                if (attr.name === GFXAttributeName.ATTR_JOINTS) {
+                if (attr.name === AttributeName.ATTR_JOINTS) {
                     jointFormat = attr.format;
                     break;
                 }
-                jointOffset += GFXFormatInfos[attr.format].size;
+                jointOffset += FormatInfos[attr.format].size;
             }
             if (jointFormat) {
                 const data = new Uint8Array(this.mesh.data.buffer, bundle.view.offset, bundle.view.length);
@@ -266,9 +265,9 @@ export class RenderingSubMesh {
                 const idxMap = struct.jointMaps[prim.jointMapIndex];
                 mapBuffer(dataView, (cur) => idxMap.indexOf(cur), jointFormat, jointOffset,
                     bundle.view.length, bundle.view.stride, dataView);
-                const buffer = device.createBuffer(new GFXBufferInfo(
-                    GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-                    GFXMemoryUsageBit.DEVICE,
+                const buffer = device.createBuffer(new BufferInfo(
+                    BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                    MemoryUsageBit.DEVICE,
                     bundle.view.length,
                     bundle.view.stride,
                 ));
@@ -289,17 +288,17 @@ export class RenderingSubMesh {
     public subMeshIdx?: number;
 
     private _flatBuffers?: IFlatBuffer[];
-    private _jointMappedBuffers?: GFXBuffer[];
+    private _jointMappedBuffers?: Buffer[];
     private _jointMappedBufferIndices?: number[];
     private _vertexIdChannel?: { stream: number; index: number; };
     private _geometricInfo?: IGeometricInfo;
 
-    private _vertexBuffers: GFXBuffer[];
-    private _attributes: GFXAttribute[];
-    private _indexBuffer: GFXBuffer | null = null;
-    private _indirectBuffer: GFXBuffer | null = null;
-    private _primitiveMode: GFXPrimitiveMode;
-    private _iaInfo: GFXInputAssemblerInfo;
+    private _vertexBuffers: Buffer[];
+    private _attributes: Attribute[];
+    private _indexBuffer: Buffer | null = null;
+    private _indirectBuffer: Buffer | null = null;
+    private _primitiveMode: PrimitiveMode;
+    private _iaInfo: InputAssemblerInfo;
     private _handle: SubMeshHandle = NULL_HANDLE;
 
     get handle () {
@@ -307,15 +306,15 @@ export class RenderingSubMesh {
     }
 
     constructor (
-        vertexBuffers: GFXBuffer[], attributes: GFXAttribute[], primitiveMode: GFXPrimitiveMode,
-        indexBuffer: GFXBuffer | null = null, indirectBuffer: GFXBuffer | null = null,
+        vertexBuffers: Buffer[], attributes: Attribute[], primitiveMode: PrimitiveMode,
+        indexBuffer: Buffer | null = null, indirectBuffer: Buffer | null = null,
     ) {
         this._attributes = attributes;
         this._vertexBuffers = vertexBuffers;
         this._indexBuffer = indexBuffer;
         this._indirectBuffer = indirectBuffer;
         this._primitiveMode = primitiveMode;
-        this._iaInfo = new GFXInputAssemblerInfo(attributes, vertexBuffers, indexBuffer, indirectBuffer);
+        this._iaInfo = new InputAssemblerInfo(attributes, vertexBuffers, indexBuffer, indirectBuffer);
         this._handle = SubMeshPool.alloc();
     }
 
@@ -350,7 +349,7 @@ export class RenderingSubMesh {
      * Subsequent calls to this function take no effect.
      * @param device Device used to create related rendering resources.
      */
-    public enableVertexIdChannel (device: GFXDevice) {
+    public enableVertexIdChannel (device: Device) {
         if (this._vertexIdChannel) {
             return;
         }
@@ -360,7 +359,7 @@ export class RenderingSubMesh {
 
         const vertexIdBuffer = this._allocVertexIdBuffer(device);
         this.vertexBuffers.push(vertexIdBuffer);
-        this.attributes.push(new GFXAttribute('a_vertexId', GFXFormat.R32F, false, streamIndex));
+        this.attributes.push(new Attribute('a_vertexId', Format.R32F, false, streamIndex));
 
         this._vertexIdChannel = {
             stream: streamIndex,
@@ -368,7 +367,7 @@ export class RenderingSubMesh {
         };
     }
 
-    private _allocVertexIdBuffer (device: GFXDevice) {
+    private _allocVertexIdBuffer (device: Device) {
         const vertexCount = (this.vertexBuffers.length === 0 || this.vertexBuffers[0].stride === 0) ?
             0 :
             // TODO: This depends on how stride of a vertex buffer is defined; Consider padding problem.
@@ -380,9 +379,9 @@ export class RenderingSubMesh {
             vertexIds[iVertex] = iVertex + 0.5;
         }
 
-        const vertexIdBuffer = device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.DEVICE,
+        const vertexIdBuffer = device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE,
             vertexIds.byteLength,
             vertexIds.BYTES_PER_ELEMENT,
         ));
@@ -419,7 +418,7 @@ export declare namespace Mesh {
          * @en All attributes included in the bundle
          * @zh 包含的所有顶点属性。
          */
-        attributes: GFXAttribute[];
+        attributes: Attribute[];
     }
 
     /**
@@ -437,7 +436,7 @@ export declare namespace Mesh {
          * @en The primitive mode of the sub mesh
          * @zh 此子网格的图元类型。
          */
-        primitiveMode: GFXPrimitiveMode;
+        primitiveMode: PrimitiveMode;
 
         /**
          * @en The index data of the sub mesh
@@ -529,9 +528,6 @@ export class Mesh extends Asset {
     set _nativeAsset (value: ArrayBuffer) {
         if (this._data.byteLength === value.byteLength) {
             this._data.set(new Uint8Array(value));
-            if (legacyCC.loader._cache[this.nativeUrl]) {
-                legacyCC.loader._cache[this.nativeUrl].content = this._data.buffer;
-            }
         } else {
             this._data = new Uint8Array(value);
         }
@@ -644,12 +640,12 @@ export class Mesh extends Asset {
             // In the case of deferred loading, `this._data` is created before
             // the actual binary buffer is loaded.
             this._data = new Uint8Array(this._dataLength);
-            postLoadMesh(this);
+            legacyCC.assetManager.postLoadNative(this);
         }
         const buffer = this._data.buffer;
-        const gfxDevice: GFXDevice = legacyCC.director.root.device;
+        const gfxDevice: Device = legacyCC.director.root.device;
         const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
-        const indexBuffers: GFXBuffer[] = [];
+        const indexBuffers: Buffer[] = [];
         const subMeshes: RenderingSubMesh[] = [];
 
         for (let i = 0; i < this._struct.primitives.length; i++) {
@@ -658,14 +654,14 @@ export class Mesh extends Asset {
                 continue;
             }
 
-            let indexBuffer: GFXBuffer | null = null;
+            let indexBuffer: Buffer | null = null;
             let ib: any = null;
             if (prim.indexView) {
                 const idxView = prim.indexView;
 
                 let dstStride = idxView.stride;
                 let dstSize = idxView.length;
-                if (dstStride === 4 && !gfxDevice.hasFeature(GFXFeature.ELEMENT_INDEX_UINT)) {
+                if (dstStride === 4 && !gfxDevice.hasFeature(Feature.ELEMENT_INDEX_UINT)) {
                     const vertexCount = this._struct.vertexBundles[prim.vertexBundelIndices[0]].view.count;
                     if (vertexCount >= 65536) {
                         warnID(10001, vertexCount, 65536);
@@ -676,9 +672,9 @@ export class Mesh extends Asset {
                     }
                 }
 
-                indexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
-                    GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-                    GFXMemoryUsageBit.DEVICE,
+                indexBuffer = gfxDevice.createBuffer(new BufferInfo(
+                    BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                    MemoryUsageBit.DEVICE,
                     dstSize,
                     dstStride,
                 ));
@@ -700,7 +696,7 @@ export class Mesh extends Asset {
 
             const vbReference = prim.vertexBundelIndices.map((idx) => vertexBuffers[idx]);
 
-            let gfxAttributes: GFXAttribute[] = [];
+            let gfxAttributes: Attribute[] = [];
             if (prim.vertexBundelIndices.length > 0) {
                 const idx = prim.vertexBundelIndices[0];
                 const vertexBundle = this._struct.vertexBundles[idx];
@@ -708,7 +704,7 @@ export class Mesh extends Asset {
                 const attrs = vertexBundle.attributes;
                 for (let i = 0; i < attrs.length; ++i) {
                     const attr = attrs[i];
-                    gfxAttributes[i] = new GFXAttribute(attr.name, attr.format, attr.isInstanced, attr.stream, attr.isInstanced, attr.location);
+                    gfxAttributes[i] = new Attribute(attr.name, attr.format, attr.isInstanced, attr.stream, attr.isInstanced, attr.location);
                 }
             }
 
@@ -796,9 +792,9 @@ export class Mesh extends Asset {
         }
         const primitives = this._struct.primitives;
         for (let p = 0; p < primitives.length; p++) {
-            const joints = this.readAttribute(p, GFXAttributeName.ATTR_JOINTS);
-            const weights = this.readAttribute(p, GFXAttributeName.ATTR_WEIGHTS);
-            const positions = this.readAttribute(p, GFXAttributeName.ATTR_POSITION);
+            const joints = this.readAttribute(p, AttributeName.ATTR_JOINTS);
+            const weights = this.readAttribute(p, AttributeName.ATTR_WEIGHTS);
+            const positions = this.readAttribute(p, AttributeName.ATTR_POSITION);
             if (!joints || !weights || !positions) { continue; }
             const vertCount = Math.min(joints.length / 4, weights.length / 4, positions.length / 3);
             for (let i = 0; i < vertCount; i++) {
@@ -860,7 +856,7 @@ export class Mesh extends Asset {
                 for (let i = 0; i < struct.vertexBundles.length; i++) {
                     const vtxBdl = struct.vertexBundles[i];
                     for (let j = 0; j < vtxBdl.attributes.length; j++) {
-                        if (vtxBdl.attributes[j].name === GFXAttributeName.ATTR_POSITION || vtxBdl.attributes[j].name === GFXAttributeName.ATTR_NORMAL) {
+                        if (vtxBdl.attributes[j].name === AttributeName.ATTR_POSITION || vtxBdl.attributes[j].name === AttributeName.ATTR_NORMAL) {
                             const format = vtxBdl.attributes[j].format;
 
                             const inputView = new DataView(
@@ -882,10 +878,10 @@ export class Mesh extends Asset {
                                 const zOffset = yOffset + attrComponentByteLength;
                                 vec3_temp.set(reader(xOffset), reader(yOffset), reader(zOffset));
                                 switch (vtxBdl.attributes[j].name) {
-                                    case GFXAttributeName.ATTR_POSITION:
+                                    case AttributeName.ATTR_POSITION:
                                         vec3_temp.transformMat4(worldMatrix);
                                         break;
-                                    case GFXAttributeName.ATTR_NORMAL:
+                                    case AttributeName.ATTR_NORMAL:
                                         Vec3.transformQuat(vec3_temp, vec3_temp, rotate!);
                                         break;
                                 }
@@ -950,22 +946,22 @@ export class Mesh extends Asset {
                         hasAttr = true;
                         break;
                     }
-                    dstVBOffset += GFXFormatInfos[dstAttr.format].size;
+                    dstVBOffset += FormatInfos[dstAttr.format].size;
                 }
                 if (hasAttr) {
-                    attrSize = GFXFormatInfos[attr.format].size;
+                    attrSize = FormatInfos[attr.format].size;
                     srcVBOffset = bundle.view.length + srcAttrOffset;
                     for (let v = 0; v < dstBundle.view.count; ++v) {
                         dstAttrView = dstVBView.subarray(dstVBOffset, dstVBOffset + attrSize);
                         vbView.set(dstAttrView, srcVBOffset);
-                        if ((attr.name === GFXAttributeName.ATTR_POSITION || attr.name === GFXAttributeName.ATTR_NORMAL) && worldMatrix) {
+                        if ((attr.name === AttributeName.ATTR_POSITION || attr.name === AttributeName.ATTR_NORMAL) && worldMatrix) {
                             const f32_temp = new Float32Array(vbView.buffer, srcVBOffset, 3);
                             vec3_temp.set(f32_temp[0], f32_temp[1], f32_temp[2]);
                             switch (attr.name) {
-                                case GFXAttributeName.ATTR_POSITION:
+                                case AttributeName.ATTR_POSITION:
                                     vec3_temp.transformMat4(worldMatrix);
                                     break;
-                                case GFXAttributeName.ATTR_NORMAL:
+                                case AttributeName.ATTR_NORMAL:
                                     Vec3.transformQuat(vec3_temp, vec3_temp, rotate!);
                                     break;
                             }
@@ -977,7 +973,7 @@ export class Mesh extends Asset {
                         dstVBOffset += dstBundle.view.stride;
                     }
                 }
-                srcAttrOffset += GFXFormatInfos[attr.format].size;
+                srcAttrOffset += FormatInfos[attr.format].size;
             }
 
             vertexBundles[i] = {
@@ -1202,12 +1198,12 @@ export class Mesh extends Asset {
      * @returns Return null if not found or can't read, otherwise, will create a large enough typed array to contain all data of the attribute, 
      * the array type will match the data type of the attribute.
      */
-    public readAttribute (primitiveIndex: number, attributeName: GFXAttributeName): Storage | null {
+    public readAttribute (primitiveIndex: number, attributeName: AttributeName): Storage | null {
         let result: TypedArray | null = null;
         this._accessAttribute(primitiveIndex, attributeName, (vertexBundle, iAttribute) => {
             const vertexCount = vertexBundle.view.count;
             const format = vertexBundle.attributes[iAttribute].format;
-            const storageConstructor = getTypedArrayConstructor(GFXFormatInfos[format]);
+            const storageConstructor = getTypedArrayConstructor(FormatInfos[format]);
             if (vertexCount === 0) {
                 return new storageConstructor();
             }
@@ -1216,7 +1212,7 @@ export class Mesh extends Asset {
                 this._data.buffer,
                 vertexBundle.view.offset + getOffset(vertexBundle.attributes, iAttribute));
 
-            const formatInfo = GFXFormatInfos[format];
+            const formatInfo = FormatInfos[format];
             const reader = getReader(inputView, format);
             if (!storageConstructor || !reader) {
                 return;
@@ -1245,7 +1241,7 @@ export class Mesh extends Asset {
      * @param offset The offset of the first attribute in the target buffer
      * @returns Return false if failed to access attribute, return true otherwise.
      */
-    public copyAttribute (primitiveIndex: number, attributeName: GFXAttributeName, buffer: ArrayBuffer, stride: number, offset: number) {
+    public copyAttribute (primitiveIndex: number, attributeName: AttributeName, buffer: ArrayBuffer, stride: number, offset: number) {
         let written = false;
         this._accessAttribute(primitiveIndex, attributeName, (vertexBundle, iAttribute) => {
             const vertexCount = vertexBundle.view.count;
@@ -1261,7 +1257,7 @@ export class Mesh extends Asset {
 
             const outputView = new DataView(buffer, offset);
 
-            const formatInfo = GFXFormatInfos[format];
+            const formatInfo = FormatInfos[format];
 
             const reader = getReader(inputView, format);
             const writer = getWriter(outputView, format);
@@ -1324,17 +1320,17 @@ export class Mesh extends Asset {
             return false;
         }
         const indexCount = primitive.indexView.count;
-        const indexFormat = primitive.indexView.stride === 1 ? GFXFormat.R8UI : (primitive.indexView.stride === 2 ? GFXFormat.R16UI : GFXFormat.R32UI);
+        const indexFormat = primitive.indexView.stride === 1 ? Format.R8UI : (primitive.indexView.stride === 2 ? Format.R16UI : Format.R32UI);
         const reader = getReader(new DataView(this._data.buffer), indexFormat)!;
         for (let i = 0; i < indexCount; ++i) {
-            outputArray[i] = reader(primitive.indexView.offset + GFXFormatInfos[indexFormat].size * i);
+            outputArray[i] = reader(primitive.indexView.offset + FormatInfos[indexFormat].size * i);
         }
         return true;
     }
 
     private _accessAttribute (
         primitiveIndex: number,
-        attributeName: GFXAttributeName,
+        attributeName: AttributeName,
         accessor: (vertexBundle: Mesh.IVertexBundle, iAttribute: number) => void) {
         if (primitiveIndex >= this._struct.primitives.length) {
             return;
@@ -1352,12 +1348,12 @@ export class Mesh extends Asset {
         return;
     }
 
-    private _createVertexBuffers (gfxDevice: GFXDevice, data: ArrayBuffer): GFXBuffer[] {
+    private _createVertexBuffers (gfxDevice: Device, data: ArrayBuffer): Buffer[] {
         return this._struct.vertexBundles.map((vertexBundle) => {
 
-            const vertexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
-                GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-                GFXMemoryUsageBit.DEVICE,
+            const vertexBuffer = gfxDevice.createBuffer(new BufferInfo(
+                BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
                 vertexBundle.view.length,
                 vertexBundle.view.stride,
             ));
@@ -1379,28 +1375,28 @@ export class Mesh extends Asset {
 }
 legacyCC.Mesh = Mesh;
 
-function getOffset (attributes: GFXAttribute[], attributeIndex: number) {
+function getOffset (attributes: Attribute[], attributeIndex: number) {
     let result = 0;
     for (let i = 0; i < attributeIndex; ++i) {
         const attribute = attributes[i];
-        result += GFXFormatInfos[attribute.format].size;
+        result += FormatInfos[attribute.format].size;
     }
     return result;
 }
 
 const isLittleEndian = sys.isLittleEndian;
 
-function getComponentByteLength (format: GFXFormat) {
-    const info = GFXFormatInfos[format];
+function getComponentByteLength (format: Format) {
+    const info = FormatInfos[format];
     return info.size / info.count;
 }
 
-function getReader (dataView: DataView, format: GFXFormat) {
-    const info = GFXFormatInfos[format];
+function getReader (dataView: DataView, format: Format) {
+    const info = FormatInfos[format];
     const stride = info.size / info.count;
 
     switch (info.type) {
-        case GFXFormatType.UNORM: {
+        case FormatType.UNORM: {
             switch (stride) {
                 case 1: return (offset: number) => dataView.getUint8(offset);
                 case 2: return (offset: number) => dataView.getUint16(offset, isLittleEndian);
@@ -1408,7 +1404,7 @@ function getReader (dataView: DataView, format: GFXFormat) {
             }
             break;
         }
-        case GFXFormatType.SNORM: {
+        case FormatType.SNORM: {
             switch (stride) {
                 case 1: return (offset: number) => dataView.getInt8(offset);
                 case 2: return (offset: number) => dataView.getInt16(offset, isLittleEndian);
@@ -1416,7 +1412,7 @@ function getReader (dataView: DataView, format: GFXFormat) {
             }
             break;
         }
-        case GFXFormatType.INT: {
+        case FormatType.INT: {
             switch (stride) {
                 case 1: return (offset: number) => dataView.getInt8(offset);
                 case 2: return (offset: number) => dataView.getInt16(offset, isLittleEndian);
@@ -1424,7 +1420,7 @@ function getReader (dataView: DataView, format: GFXFormat) {
             }
             break;
         }
-        case GFXFormatType.UINT: {
+        case FormatType.UINT: {
             switch (stride) {
                 case 1: return (offset: number) => dataView.getUint8(offset);
                 case 2: return (offset: number) => dataView.getUint16(offset, isLittleEndian);
@@ -1432,7 +1428,7 @@ function getReader (dataView: DataView, format: GFXFormat) {
             }
             break;
         }
-        case GFXFormatType.FLOAT: {
+        case FormatType.FLOAT: {
             return (offset: number) => dataView.getFloat32(offset, isLittleEndian);
         }
     }
@@ -1440,12 +1436,12 @@ function getReader (dataView: DataView, format: GFXFormat) {
     return null;
 }
 
-function getWriter (dataView: DataView, format: GFXFormat) {
-    const info = GFXFormatInfos[format];
+function getWriter (dataView: DataView, format: Format) {
+    const info = FormatInfos[format];
     const stride = info.size / info.count;
 
     switch (info.type) {
-        case GFXFormatType.UNORM: {
+        case FormatType.UNORM: {
             switch (stride) {
                 case 1: return (offset: number, value: number) => dataView.setUint8(offset, value);
                 case 2: return (offset: number, value: number) => dataView.setUint16(offset, value, isLittleEndian);
@@ -1453,7 +1449,7 @@ function getWriter (dataView: DataView, format: GFXFormat) {
             }
             break;
         }
-        case GFXFormatType.SNORM: {
+        case FormatType.SNORM: {
             switch (stride) {
                 case 1: return (offset: number, value: number) => dataView.setInt8(offset, value);
                 case 2: return (offset: number, value: number) => dataView.setInt16(offset, value, isLittleEndian);
@@ -1461,7 +1457,7 @@ function getWriter (dataView: DataView, format: GFXFormat) {
             }
             break;
         }
-        case GFXFormatType.INT: {
+        case FormatType.INT: {
             switch (stride) {
                 case 1: return (offset: number, value: number) => dataView.setInt8(offset, value);
                 case 2: return (offset: number, value: number) => dataView.setInt16(offset, value, isLittleEndian);
@@ -1469,7 +1465,7 @@ function getWriter (dataView: DataView, format: GFXFormat) {
             }
             break;
         }
-        case GFXFormatType.UINT: {
+        case FormatType.UINT: {
             switch (stride) {
                 case 1: return (offset: number, value: number) => dataView.setUint8(offset, value);
                 case 2: return (offset: number, value: number) => dataView.setUint16(offset, value, isLittleEndian);
@@ -1477,7 +1473,7 @@ function getWriter (dataView: DataView, format: GFXFormat) {
             }
             break;
         }
-        case GFXFormatType.FLOAT: {
+        case FormatType.FLOAT: {
             return (offset: number, value: number) => dataView.setFloat32(offset, value, isLittleEndian);
         }
     }

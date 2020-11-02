@@ -3,7 +3,7 @@
  * @module 3d/primitive
  */
 
-import { GFXPrimitiveMode } from '../gfx/define';
+import { PrimitiveMode } from '../gfx/define';
 import { IGeometry } from './define';
 
 /**
@@ -49,7 +49,7 @@ export function toWavefrontOBJ (primitive: IGeometry, scale = 1) {
     if (!primitive.indices ||
         !primitive.uvs ||
         !primitive.normals ||
-        (primitive.primitiveMode !== undefined && primitive.primitiveMode !== GFXPrimitiveMode.TRIANGLE_LIST)) {
+        (primitive.primitiveMode !== undefined && primitive.primitiveMode !== PrimitiveMode.TRIANGLE_LIST)) {
         return '';
     }
     const v = primitive.positions;

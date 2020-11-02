@@ -29,7 +29,7 @@
  * @module ui
  */
 
-import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, serializable, range, slide, displayName } from 'cc.decorator';
+import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, serializable, range, slide } from 'cc.decorator';
 import { InstanceMaterialType, UIRenderable } from '../../core/components/ui-base/ui-renderable';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
 import { warnID } from '../../core/platform';
@@ -37,13 +37,12 @@ import { UI } from '../../core/renderer/ui/ui';
 import { ccenum } from '../../core/value-types/enum';
 import { Graphics } from './graphics';
 import { TransformBit } from '../../core/scene-graph/node-enum';
-import { Game, SpriteFrame, Material, builtinResMgr, director, RenderingSubMesh, GFXDevice, GFXBufferInfo, GFXBufferUsageBit, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core';
+import { Game, SpriteFrame, Material, builtinResMgr, director, RenderingSubMesh } from '../../core';
+import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, PrimitiveMode } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
 import { MaterialInstance, scene } from '../../core/renderer';
 import { Model } from '../../core/renderer/scene';
 import { vfmt, getAttributeStride } from '../../core/renderer/ui/ui-vertex-format';
-import { EDITOR } from '../../../editor/exports/populate-internal-constants';
-import { mask } from '../assembler';
 import { Stage } from '../../core/renderer/ui/stencil-manager';
 
 const _worldMatrix = new Mat4();
@@ -146,7 +145,6 @@ export class Mask extends UIRenderable {
 
         if (this._type !== MaskType.IMAGE_STENCIL) {
             this._spriteFrame = null;
-            this._alphaThreshold = 0;
             this._updateGraphics();
             if (this._renderData) {
                 this.destroyRenderData();
@@ -270,7 +268,9 @@ export class Mask extends UIRenderable {
         }
 
         this._alphaThreshold = value;
-        this._updateMaterial();
+        if(this.type === MaskType.IMAGE_STENCIL) {
+            this._graphics?.getMaterialInstance(0)?.setProperty('alphaThreshold', this._alphaThreshold);
+        }
     }
 
     get graphics () {
@@ -325,23 +325,12 @@ export class Mask extends UIRenderable {
 
     @override
     @visible(false)
-    get sharedMaterials () {
-        // if we don't create an array copy, the editor will modify the original array directly.
-        return EDITOR && this._materials.slice() || this._materials;
+    get customMaterial () {
+        return this._customMaterial;
     }
 
-    set sharedMaterials (val) {
-        for (let i = 0; i < val.length; i++) {
-            if (val[i] !== this._materials[i]) {
-                this.setMaterial(val[i], i);
-            }
-        }
-        if (val.length < this._materials.length) {
-            for (let i = val.length; i < this._materials.length; i++) {
-                this.setMaterial(null, i);
-            }
-            this._materials.splice(val.length);
-        }
+    set customMaterial (val) {
+        // mask don`t support customMaterial
     }
 
     public static Type = MaskType;
@@ -561,26 +550,26 @@ export class Mask extends UIRenderable {
             this._clearModel.node = this._clearModel.transform = this.node;
             let renderMesh: RenderingSubMesh;
             const stride = getAttributeStride(vfmt);
-            const gfxDevice: GFXDevice = legacyCC.director.root.device;
-            const vertexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
-                GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-                GFXMemoryUsageBit.DEVICE,
+            const gfxDevice: Device = legacyCC.director.root.device;
+            const vertexBuffer = gfxDevice.createBuffer(new BufferInfo(
+                BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
                 4 * stride,
                 stride,
             ));
 
             const vb = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
             vertexBuffer.update(vb);
-            const indexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
-                GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-                GFXMemoryUsageBit.DEVICE,
+            const indexBuffer = gfxDevice.createBuffer(new BufferInfo(
+                BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
                 6 * 2,
                 2,
             ));
 
             const ib = new Uint16Array([0, 1, 2, 2, 1, 3]);
             indexBuffer.update(ib);
-            renderMesh = new RenderingSubMesh([vertexBuffer], vfmt, GFXPrimitiveMode.TRIANGLE_LIST, indexBuffer);
+            renderMesh = new RenderingSubMesh([vertexBuffer], vfmt, PrimitiveMode.TRIANGLE_LIST, indexBuffer);
             renderMesh.subMeshIdx = 0;
 
             this._clearModel.initSubModel(0, renderMesh, this._clearStencilMtl);
@@ -593,12 +582,17 @@ export class Mask extends UIRenderable {
     protected _updateMaterial () {
         if (this._graphics) {
             const target = this._graphics;
+            target.stencilStage = Stage.DISABLED;
+            let mat;
             if (this._type === MaskType.IMAGE_STENCIL) {
-                target.uiMaterial = builtinResMgr.get<Material>('ui-alpha-test-material');
-                const mat = target.getMaterialInstanceForStencil();
+                mat = builtinResMgr.get<Material>('ui-alpha-test-material');
+                target.setMaterial(mat, 0);
+                mat = target.getMaterialInstance(0);
                 mat.setProperty('alphaThreshold', this._alphaThreshold);
             } else {
-                target.uiMaterial = builtinResMgr.get<Material>('ui-graphics-material');
+                mat = builtinResMgr.get<Material>('ui-graphics-material');
+                target.setMaterial(mat, 0);
+                target.getMaterialInstance(0);
             }
         }
     }

@@ -30,10 +30,10 @@
 
 import { DEBUG, JSB } from 'internal:constants';
 import { NativeBufferPool, NativeObjectPool, NativeBufferAllocator } from './native-pools';
-import { GFXRasterizerState, GFXDepthStencilState, GFXBlendState, GFXDescriptorSetInfo,
-    GFXDevice, GFXDescriptorSet, GFXShaderInfo, GFXShader, GFXInputAssemblerInfo, GFXInputAssembler,
-    GFXPipelineLayoutInfo, GFXPipelineLayout, GFXFramebuffer, GFXFramebufferInfo, GFXPrimitiveMode,
-    GFXDynamicStateFlags, GFXClearFlag, GFXAttribute } from '../../gfx';
+import { RasterizerState, DepthStencilState, BlendState, DescriptorSetInfo,
+    Device, DescriptorSet, ShaderInfo, Shader, InputAssemblerInfo, InputAssembler,
+    PipelineLayoutInfo, PipelineLayout, Framebuffer, FramebufferInfo, PrimitiveMode,
+    DynamicStateFlags, ClearFlag, Attribute } from '../../gfx';
 import { RenderPassStage } from '../../pipeline/define';
 import { BatchingSchemes } from './pass';
 import { Layers } from '../../scene-graph/layers';
@@ -585,32 +585,32 @@ export type FlatBufferArrayHandle = IHandle<PoolType.FLAT_BUFFER_ARRAY>;
 export type LightArrayHandle = IHandle<PoolType.LIGHT_ARRAY>;
 
 // don't reuse any of these data-only structs, for GFX objects may directly reference them
-export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, (_: never[]) => new GFXRasterizerState());
-export const DepthStencilStatePool = new ObjectPool(PoolType.DEPTH_STENCIL_STATE, (_: never[]) => new GFXDepthStencilState());
-export const BlendStatePool = new ObjectPool(PoolType.BLEND_STATE, (_: never[]) => new GFXBlendState());
+export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, (_: never[]) => new RasterizerState());
+export const DepthStencilStatePool = new ObjectPool(PoolType.DEPTH_STENCIL_STATE, (_: never[]) => new DepthStencilState());
+export const BlendStatePool = new ObjectPool(PoolType.BLEND_STATE, (_: never[]) => new BlendState());
 
-export const AttrPool = new ObjectPool(PoolType.ATTRIBUTE, (_: never[], obj?: GFXAttribute) => obj || new GFXAttribute());
+export const AttrPool = new ObjectPool(PoolType.ATTRIBUTE, (_: never[], obj?: Attribute) => obj || new Attribute());
 
 // TODO: could use Labeled Tuple Element feature here after next babel update (required TS4.0+ support)
 export const ShaderPool = new ObjectPool(PoolType.SHADER,
-    (args: [GFXDevice, GFXShaderInfo], obj?: GFXShader) => obj ? (obj.initialize(args[1]), obj) : args[0].createShader(args[1]),
-    (obj: GFXShader) => obj && obj.destroy(),
+    (args: [Device, ShaderInfo], obj?: Shader) => obj ? (obj.initialize(args[1]), obj) : args[0].createShader(args[1]),
+    (obj: Shader) => obj && obj.destroy(),
 );
 export const DSPool = new ObjectPool(PoolType.DESCRIPTOR_SETS,
-    (args: [GFXDevice, GFXDescriptorSetInfo], obj?: GFXDescriptorSet) => obj ? (obj.initialize(args[1]), obj) : args[0].createDescriptorSet(args[1]),
-    (obj: GFXDescriptorSet) => obj && obj.destroy(),
+    (args: [Device, DescriptorSetInfo], obj?: DescriptorSet) => obj ? (obj.initialize(args[1]), obj) : args[0].createDescriptorSet(args[1]),
+    (obj: DescriptorSet) => obj && obj.destroy(),
 );
 export const IAPool = new ObjectPool(PoolType.INPUT_ASSEMBLER,
-    (args: [GFXDevice, GFXInputAssemblerInfo], obj?: GFXInputAssembler) => obj ? (obj.initialize(args[1]), obj) : args[0].createInputAssembler(args[1]),
-    (obj: GFXInputAssembler) => obj && obj.destroy(),
+    (args: [Device, InputAssemblerInfo], obj?: InputAssembler) => obj ? (obj.initialize(args[1]), obj) : args[0].createInputAssembler(args[1]),
+    (obj: InputAssembler) => obj && obj.destroy(),
 );
 export const PipelineLayoutPool = new ObjectPool(PoolType.PIPELINE_LAYOUT,
-    (args: [GFXDevice, GFXPipelineLayoutInfo], obj?: GFXPipelineLayout) => obj ? (obj.initialize(args[1]), obj) : args[0].createPipelineLayout(args[1]),
-    (obj: GFXPipelineLayout) => obj && obj.destroy(),
+    (args: [Device, PipelineLayoutInfo], obj?: PipelineLayout) => obj ? (obj.initialize(args[1]), obj) : args[0].createPipelineLayout(args[1]),
+    (obj: PipelineLayout) => obj && obj.destroy(),
 );
 export const FramebufferPool = new ObjectPool(PoolType.FRAMEBUFFER,
-    (args: [GFXDevice, GFXFramebufferInfo], obj?: GFXFramebuffer) => obj ? (obj.initialize(args[1]), obj) : args[0].createFramebuffer(args[1]),
-    (obj: GFXFramebuffer) => obj && obj.destroy(),
+    (args: [Device, FramebufferInfo], obj?: Framebuffer) => obj ? (obj.initialize(args[1]), obj) : args[0].createFramebuffer(args[1]),
+    (obj: Framebuffer) => obj && obj.destroy(),
 );
 
 export const SubModelArrayPool = new TypedArrayPool<PoolType.SUB_MODEL_ARRAY, Uint32ArrayConstructor, SubModelHandle>
@@ -644,8 +644,8 @@ interface IPassViewType extends BufferTypeManifest<typeof PassView> {
     [PassView.STAGE]: RenderPassStage;
     [PassView.PHASE]: number;
     [PassView.BATCHING_SCHEME]: BatchingSchemes;
-    [PassView.PRIMITIVE]: GFXPrimitiveMode;
-    [PassView.DYNAMIC_STATES]: GFXDynamicStateFlags;
+    [PassView.PRIMITIVE]: PrimitiveMode;
+    [PassView.DYNAMIC_STATES]: DynamicStateFlags;
     [PassView.HASH]: number;
     [PassView.RASTERIZER_STATE]: RasterizerStateHandle;
     [PassView.DEPTH_STENCIL_STATE]: DepthStencilStateHandle;
@@ -843,7 +843,7 @@ interface ICameraViewType extends BufferTypeManifest<typeof CameraView> {
     [CameraView.WIDTH]: number;
     [CameraView.HEIGHT]: number;
     [CameraView.EXPOSURE]: number;
-    [CameraView.CLEAR_FLAG]: GFXClearFlag;
+    [CameraView.CLEAR_FLAG]: ClearFlag;
     [CameraView.CLEAR_DEPTH]: number;
     [CameraView.CLEAR_STENCIL]: number;
     [CameraView.NODE]: NodeHandle;
@@ -1094,15 +1094,12 @@ export enum ShadowsView {
     PCF_TYPE,
     BIAS,
     ORTHO_SIZE,
-    SPHERE,             // handle
     AUTO_ADAPT,         // boolean
-    RECEIVE_SPHERE,     // handle
-// ↓↓↓↓↓↓↓↓↓↓↓↓↓ Web don't alloc memory ↓↓↓↓↓↓↓↓↓↓↓↓↓
-    COLOR = 15,         // Vec4
-    SIZE = 19,          // Vec2
-    NORMAL = 21,        // Vec3
-    MAT_LIGHT = 24,     // Mat4
-    COUNT = 40
+    COLOR,              // Vec4
+    SIZE = 17,          // Vec2
+    NORMAL = 19,        // Vec3
+    MAT_LIGHT = 22,     // Mat4
+    COUNT = 38
 }
 interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.ENABLE]: number;
@@ -1117,10 +1114,7 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.BIAS]: number;
     [ShadowsView.DIRTY]: number;
     [ShadowsView.ORTHO_SIZE]: number;
-    [ShadowsView.SPHERE]: SphereHandle;
     [ShadowsView.AUTO_ADAPT]: number;
-    [ShadowsView.RECEIVE_SPHERE]: SphereHandle;
-// ↓↓↓↓↓↓↓↓↓↓↓↓↓ Web don't alloc memory ↓↓↓↓↓↓↓↓↓↓↓↓↓
     [ShadowsView.COLOR]: Color;
     [ShadowsView.SIZE]: Vec2;
     [ShadowsView.NORMAL]: Vec3;
@@ -1140,10 +1134,7 @@ const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
     [ShadowsView.BIAS]: BufferDataType.FLOAT32,
     [ShadowsView.DIRTY]: BufferDataType.UINT32,
     [ShadowsView.ORTHO_SIZE]: BufferDataType.UINT32,
-    [ShadowsView.SPHERE]: BufferDataType.UINT32,
     [ShadowsView.AUTO_ADAPT]: BufferDataType.UINT32,
-    [ShadowsView.RECEIVE_SPHERE]: BufferDataType.UINT32,
-// ↓↓↓↓↓↓↓↓↓↓↓↓↓ Web don't alloc memory ↓↓↓↓↓↓↓↓↓↓↓↓↓
     [ShadowsView.COLOR]: BufferDataType.FLOAT32,
     [ShadowsView.SIZE]: BufferDataType.FLOAT32,
     [ShadowsView.NORMAL]: BufferDataType.FLOAT32,
@@ -1151,7 +1142,7 @@ const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
     [ShadowsView.COUNT]: BufferDataType.NEVER
 }
 // @ts-ignore Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
-if (!JSB) {delete ShadowsView[ShadowsView.COUNT]; ShadowsView[ShadowsView.COUNT = ShadowsView.RECEIVE_SPHERE + 1] = 'COUNT'; }
+if (!JSB) {delete ShadowsView[ShadowsView.COUNT]; ShadowsView[ShadowsView.COUNT = ShadowsView.AUTO_ADAPT + 1] = 'COUNT'; }
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
 // but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
 // we'll have to explicitly declare all these types.

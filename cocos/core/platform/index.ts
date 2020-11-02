@@ -28,6 +28,8 @@
  * @hidden
  */
 
+import './deprecated';
+
 export * from './sys';
 export * from './macro';
 export * from './visible-rect';

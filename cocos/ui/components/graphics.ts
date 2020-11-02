@@ -39,7 +39,8 @@ import { IAssembler } from '../../core/renderer/ui/base';
 import { UI } from '../../core/renderer/ui/ui';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
-import { GFXFormat, GFXPrimitiveMode, GFXAttribute, RenderingSubMesh, GFXDevice, GFXBufferUsageBit, GFXBufferInfo, GFXMemoryUsageBit } from '../../core';
+import { RenderingSubMesh } from '../../core';
+import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, MemoryUsageBit } from '../../core/gfx';
 import { vfmtPosColor, getAttributeStride } from '../../core/renderer/ui/ui-vertex-format';
 import { legacyCC } from '../../core/global-exports';
 
@@ -50,7 +51,7 @@ const _matInsInfo: IMaterialInstanceInfo = {
 };
 
 const attributes = vfmtPosColor.concat([
-    new GFXAttribute('a_dist', GFXFormat.R32F),
+    new Attribute('a_dist', Format.R32F),
 ]);
 
 const stride = getAttributeStride(attributes);
@@ -209,6 +210,24 @@ export class Graphics extends UIRenderable {
         this.markForUpdateRenderData();
     }
 
+    @override
+    @visible(false)
+    get srcBlendFactor () {
+        return this._srcBlendFactor;
+    }
+
+    set srcBlendFactor (value) {
+    }
+
+    @override
+    @visible(false)
+    get dstBlendFactor () {
+        return this._dstBlendFactor;
+    }
+
+    set dstBlendFactor (value) {
+    }
+
     public static LineJoin = LineJoin;
     public static LineCap = LineCap;
     public impl: Impl | null = null;
@@ -231,7 +250,6 @@ export class Graphics extends UIRenderable {
     constructor (){
         super();
         this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
-        this._uiMaterialDirty = true;
     }
 
     public onRestore () {
@@ -252,10 +270,19 @@ export class Graphics extends UIRenderable {
         this.model = director.root!.createModel(scene.Model);
         this.model.node = this.model.transform = this.node;
 
-        this.helpInstanceMaterial();
+        if (!this.impl){
+            this._flushAssembler();
+            this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
+        }
+    }
+
+    public onEnable () {
+        super.onEnable();
+        this._updateMtlForGraphics();
     }
 
     public onDisable (){
+        super.onDisable();
         this._detachFromScene();
     }
 
@@ -550,31 +577,16 @@ export class Graphics extends UIRenderable {
         this._attachToScene();
     }
 
-    /**
-     * @en
-     * Manual instance material.
-     *
-     * @zh
-     * 辅助材质实例化。可用于只取数据而无实体情况下渲染使用。特殊情况可参考：[[instanceMaterial]]
-     */
-    public helpInstanceMaterial () {
-        let mat: MaterialInstance | null = null;
+    private _updateMtlForGraphics () {
+        let mat;
         _matInsInfo.owner = this;
-        if (this.sharedMaterial) {
-            _matInsInfo.parent = this.sharedMaterial[0];
-            mat = new MaterialInstance(_matInsInfo);
+        if (this._customMaterial) {
+            mat = this.getMaterialInstance(0);
         } else {
-            _matInsInfo.parent = builtinResMgr.get('ui-graphics-material');
-            mat = new MaterialInstance(_matInsInfo);
+            mat = builtinResMgr.get('ui-graphics-material');
+            this.setMaterial(mat, 0);
+            mat = this.getMaterialInstance(0);
             mat.recompileShaders({ USE_LOCAL: true });
-        }
-
-        this._uiMaterial = _matInsInfo.parent;
-        this._uiMaterialIns = mat;
-
-        if (!this.impl){
-            this._flushAssembler();
-            this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
         }
     }
 
@@ -586,29 +598,29 @@ export class Graphics extends UIRenderable {
 
         if (this.model.subModels.length <= idx) {
             let renderMesh: RenderingSubMesh;
-            const gfxDevice: GFXDevice = legacyCC.director.root.device;
-            const vertexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
-                GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-                GFXMemoryUsageBit.DEVICE,
+            const gfxDevice: Device = legacyCC.director.root.device;
+            const vertexBuffer = gfxDevice.createBuffer(new BufferInfo(
+                BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
                 65535 * stride,
                 stride,
             ));
-            const indexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
-                GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-                GFXMemoryUsageBit.DEVICE,
+            const indexBuffer = gfxDevice.createBuffer(new BufferInfo(
+                BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
                 65535 * 2,
                 2,
             ));
 
-            renderMesh = new RenderingSubMesh([vertexBuffer], attributes, GFXPrimitiveMode.TRIANGLE_LIST, indexBuffer);
+            renderMesh = new RenderingSubMesh([vertexBuffer], attributes, PrimitiveMode.TRIANGLE_LIST, indexBuffer);
             renderMesh.subMeshIdx = 0;
 
-            this.model.initSubModel(idx, renderMesh, this.getUIMaterialInstance());
+            this.model.initSubModel(idx, renderMesh, this.getMaterialInstance(0)!);
         }
     }
 
     protected _render (render: UI) {
-        render.commitModel(this, this.model, this._uiMaterialIns);
+        render.commitModel(this, this.model, this.getMaterialInstance(0));
     }
 
     protected _flushAssembler (){

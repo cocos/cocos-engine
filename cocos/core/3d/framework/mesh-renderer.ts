@@ -339,8 +339,11 @@ export class MeshRenderer extends RenderableComponent {
             this._createModel();
         }
 
-        this._updateModelParams();
-        this._onUpdateLightingmap();
+        if (this._model) {
+            this._model.createBoundingShape(this._mesh.struct.minPosition, this._mesh.struct.maxPosition);
+            this._updateModelParams();
+            this._onUpdateLightingmap();
+        }
     }
 
     protected _createModel () {
@@ -385,7 +388,7 @@ export class MeshRenderer extends RenderableComponent {
         this.node.hasChangedFlags |= TransformBit.POSITION;
         this._model.transform.hasChangedFlags |= TransformBit.POSITION;
         this._model.isDynamicBatching = this._isBatchingEnabled();
-        const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
+        const meshCount = this._mesh ? this._mesh.renderingSubMeshes.length : 0;
         const renderingMesh = this._mesh.renderingSubMeshes;
         if (renderingMesh) {
             for (let i = 0; i < meshCount; ++i) {
@@ -399,7 +402,6 @@ export class MeshRenderer extends RenderableComponent {
                 }
             }
         }
-        this._model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
         this._model.enabled = true;
     }
 

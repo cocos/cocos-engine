@@ -33,10 +33,10 @@ import { fragmentText, safeMeasureText, getBaselineOffset, BASELINE_RATIO } from
 import { Color, Size, Vec2, Rect } from '../../../core/math';
 import { HorizontalTextAlignment, Label, LabelOutline, VerticalTextAlignment, LabelShadow } from '../../components';
 import { ISharedLabelData, LetterRenderTexture } from './font-utils';
-import { loader } from '../../../core/load-pipeline';
 import { logID } from '../../../core/platform/debug';
 import { UITransform } from '../../../core/components/ui-base/ui-transform';
 import { legacyCC } from '../../../core/global-exports';
+import { assetManager } from '../../../core';
 
 const Overflow = Label.Overflow;
 const MAX_SIZE = 2048;
@@ -132,11 +132,12 @@ export const ttfUtils =  {
                     _fontFamily = comp.font._nativeAsset;
                 }
                 else {
-                    loader.load(comp.font.nativeUrl, (err, fontFamily) => {
-                        _fontFamily = fontFamily || 'Arial';
-                        comp.font!._nativeAsset = fontFamily;
+                    assetManager.postLoadNative(comp.font, (err) => {
+                        if (!comp.isValid) { return; } 
+                        _fontFamily = comp.font!._nativeAsset || 'Arial';
                         comp.updateRenderData(true);
                     });
+                    _fontFamily = 'Arial';
                 }
             }
             else {
@@ -164,6 +165,7 @@ export const ttfUtils =  {
         _overflow = comp.overflow;
         _canvasSize.width = trans.width;
         _canvasSize.height = trans.height;
+        _nodeContentSize = trans.contentSize;
         _underlineThickness = comp.underlineHeight;
         _lineHeight = comp.lineHeight;
         _hAlign = comp.horizontalAlign;

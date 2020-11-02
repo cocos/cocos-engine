@@ -31,11 +31,12 @@
 
 import { ccclass, serializable } from 'cc.decorator';
 import { property } from '../data/decorators/property';
+import { getUrlWithUuid } from '../asset-manager/helper';
 import { Eventify } from '../event';
 import { RawAsset } from './raw-asset';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
-import { errorID } from '../platform/debug';
+import { extname } from '../utils/path';
 
 /**
  * @en
@@ -102,8 +103,10 @@ export class Asset extends Eventify(RawAsset) {
      */
     @serializable
     public _native: string = '';
+    public _nativeUrl: string = '';
 
     private _file: any = null;
+    private _ref: number = 0;
 
     /**
      * @en
@@ -113,29 +116,24 @@ export class Asset extends Eventify(RawAsset) {
      * @readOnly
      */
     get nativeUrl () {
-        if (this._native) {
+        if (!this._nativeUrl) {
+            if (!this._native) return '';
             const name = this._native;
             if (name.charCodeAt(0) === 47) {    // '/'
                 // remove library tag
                 // not imported in library, just created on-the-fly
                 return name.slice(1);
             }
-            if (legacyCC.AssetLibrary) {
-                const base = legacyCC.AssetLibrary.getLibUrlNoExt(this._uuid, true);
-                if (name.charCodeAt(0) === 46) {  // '.'
-                    // imported in dir where json exist
-                    return base + name;
-                }
-                else {
-                    // imported in an independent dir
-                    return base + '/' + name;
-                }
+            if (name.charCodeAt(0) === 46) {  // '.'
+                // imported in dir where json exist
+                this._nativeUrl = getUrlWithUuid(this._uuid, { nativeExt: name, isNative: true });
             }
             else {
-                errorID(6400);
+                // imported in an independent dir
+                this._nativeUrl = getUrlWithUuid(this._uuid, { __nativeName__: name, nativeExt: extname(name), isNative: true });
             }
         }
-        return '';
+        return this._nativeUrl;
     }
 
     /**
@@ -222,6 +220,61 @@ export class Asset extends Eventify(RawAsset) {
      * 如果这类资源没有相应的节点类型，该方法应该是空的。
      */
     public createNode? (callback: CreateNodeCallback): void;
+
+    public get _nativeDep () {
+        if (this._native) {
+            return { __isNative__: true, uuid: this._uuid, ext: this._native };
+        }
+    }
+
+    /**
+     * @en
+     * The number of reference
+     *
+     * @zh
+     * 引用的数量
+     */
+    public get refCount (): number {
+        return this._ref;
+    }
+
+    /**
+     * @en
+     * Add references of asset
+     *
+     * @zh
+     * 增加资源的引用
+     *
+     * @return itself
+     *
+     */
+    public addRef (): Asset {
+        this._ref++;
+        legacyCC.assetManager._releaseManager.removeFromDeleteQueue(this);
+        return this;
+    }
+
+    /**
+     * @en
+     * Reduce references of asset and it will be auto released when refCount equals 0.
+     *
+     * @zh
+     * 减少资源的引用并尝试进行自动释放。
+     *
+     * @return itself
+     *
+     */
+    public decRef (autoRelease: boolean = true): Asset {
+        if (this._ref > 0) {
+            this._ref--;
+        }
+        if (autoRelease) {
+            legacyCC.assetManager._releaseManager.tryRelease(this);
+        }
+        return this;
+    }
+
+    public onLoaded () {}
 }
 
 /**

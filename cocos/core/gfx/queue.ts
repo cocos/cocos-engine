@@ -3,16 +3,16 @@
  * @module gfx
  */
 
-import { GFXCommandBuffer } from './command-buffer';
-import { GFXObject, GFXObjectType, GFXQueueType } from './define';
-import { GFXDevice } from './device';
-import { GFXFence } from './fence';
+import { CommandBuffer } from './command-buffer';
+import { Obj, ObjectType, QueueType } from './define';
+import { Device } from './device';
+import { Fence } from './fence';
 
-export class GFXQueueInfo {
+export class QueueInfo {
     declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public type: GFXQueueType = GFXQueueType.GRAPHICS,
+        public type: QueueType = QueueType.GRAPHICS,
     ) {}
 }
 
@@ -20,7 +20,7 @@ export class GFXQueueInfo {
  * @en GFX Queue.
  * @zh GFX 队列。
  */
-export abstract class GFXQueue extends GFXObject {
+export abstract class Queue extends Obj {
 
     /**
      * @en Get current type.
@@ -30,18 +30,18 @@ export abstract class GFXQueue extends GFXObject {
         return this._type;
     }
 
-    protected _device: GFXDevice;
+    protected _device: Device;
 
-    protected _type: GFXQueueType = GFXQueueType.GRAPHICS;
+    protected _type: QueueType = QueueType.GRAPHICS;
 
     protected _isAsync = false;
 
-    constructor (device: GFXDevice) {
-        super(GFXObjectType.QUEUE);
+    constructor (device: Device) {
+        super(ObjectType.QUEUE);
         this._device = device;
     }
 
-    public abstract initialize (info: GFXQueueInfo): boolean;
+    public abstract initialize (info: QueueInfo): boolean;
 
     public abstract destroy (): void;
 
@@ -53,5 +53,5 @@ export abstract class GFXQueue extends GFXObject {
      * @param cmdBuffs The command buffers to be submitted.
      * @param fence The syncing fence.
      */
-    public abstract submit (cmdBuffs: GFXCommandBuffer[], fence?: GFXFence): void;
+    public abstract submit (cmdBuffs: CommandBuffer[], fence?: Fence): void;
 }

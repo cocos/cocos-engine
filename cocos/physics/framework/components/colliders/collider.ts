@@ -26,8 +26,21 @@ import { createShape } from '../../instance';
 @ccclass('cc.Collider')
 export class Collider extends Eventify(Component) {
 
-    static readonly EColliderType = EColliderType;
-    static readonly EAxisDirection = EAxisDirection;
+    /**
+     * @en
+     * Enumeration of collider types.
+     * @zh
+     * 碰撞体类型的枚举。
+     */
+    static readonly Type = EColliderType;
+    
+    /**
+     * @en
+     * Enumeration of axes.
+     * @zh
+     * 坐标轴方向的枚举。
+     */
+    static readonly Axis = EAxisDirection;
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -417,13 +430,15 @@ export class Collider extends Eventify(Component) {
             if (type !== undefined) {
                 if (type == 'onCollisionEnter' || type == 'onCollisionStay' || type == 'onCollisionExit') {
                     this._needCollisionEvent = true;
-                } else if (type == 'onTriggerEnter' || type == 'onTriggerStay' || type == 'onTriggerExit') {
+                }
+                if (type == 'onTriggerEnter' || type == 'onTriggerStay' || type == 'onTriggerExit') {
                     this._needTriggerEvent = true;
                 }
             } else {
                 if (!(this.hasEventListener('onTriggerEnter') || this.hasEventListener('onTriggerStay') || this.hasEventListener('onTriggerExit'))) {
                     this._needTriggerEvent = false;
-                } else if (!(this.hasEventListener('onCollisionEnter') || this.hasEventListener('onCollisionStay') || this.hasEventListener('onCollisionExit'))) {
+                }
+                if (!(this.hasEventListener('onCollisionEnter') || this.hasEventListener('onCollisionStay') || this.hasEventListener('onCollisionExit'))) {
                     this._needCollisionEvent = false;
                 }
             }
@@ -432,8 +447,8 @@ export class Collider extends Eventify(Component) {
 }
 
 export namespace Collider {
-    export type EColliderType = EnumAlias<typeof EColliderType>;
-    export type EAxisDirection = EnumAlias<typeof EAxisDirection>;
+    export type Type = EnumAlias<typeof EColliderType>;
+    export type Axis = EnumAlias<typeof EAxisDirection>;
 }
 
 function findAttachedBody (node: Node): RigidBody | null {
@@ -441,7 +456,8 @@ function findAttachedBody (node: Node): RigidBody | null {
     if (rb && rb.isValid) {
         return rb;
     } else {
-        if (node.parent == null || node.parent == node.scene) return null;
-        return findAttachedBody(node.parent);
+        return null;
+        // if (node.parent == null || node.parent == node.scene) return null;
+        // return findAttachedBody(node.parent);
     }
 }

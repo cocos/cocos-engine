@@ -38,7 +38,13 @@ import { PhysicsSystem } from '../physics-system';
 @executionOrder(-1)
 export class RigidBody extends Component {
 
-    static readonly ERigidBodyType = ERigidBodyType;
+    /**
+     * @en
+     * Enumeration of rigid body types.
+     * @zh
+     * 刚体类型的枚举。
+     */
+    static readonly Type = ERigidBodyType;
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -56,9 +62,31 @@ export class RigidBody extends Component {
     }
 
     public set group (v: number) {
+        if (this._group == v) return;
         this._group = v;
         if (this._body) {
             this._body.setGroup(v);
+        }
+    }
+
+    /**
+     * @en
+     * Gets or sets the type of rigid body.
+     * @zh
+     * 获取或设置刚体类型。
+     */
+    @type(ERigidBodyType)
+    @displayOrder(-1)
+    @tooltip('刚体的类型')
+    public get type (): ERigidBodyType {
+        return this._type;
+    }
+
+    public set type (v: ERigidBodyType) {
+        if (this._type == v) return;
+        this._type = v;
+        if (this._body) {
+            this._body.setType(v);
         }
     }
 
@@ -68,6 +96,7 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置刚体的质量。
      */
+    @visible(function (this: RigidBody) { return this.isDynamic })
     @displayOrder(0)
     @tooltip('刚体的质量')
     public get mass () {
@@ -75,6 +104,7 @@ export class RigidBody extends Component {
     }
 
     public set mass (value) {
+        if (this._mass == value) return;
         value = value < 0 ? 0 : value;
         this._mass = value;
         if (this._body) {
@@ -88,8 +118,8 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置是否允许休眠。
      */
+    @visible(function (this: RigidBody) { return this.isDynamic })
     @displayOrder(0.5)
-    @visible(function (this: RigidBody) { return this._mass != 0; })
     @tooltip('是否允许休眠')
     public get allowSleep (): boolean {
         return this._allowSleep;
@@ -108,8 +138,8 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置线性阻尼。
      */
+    @visible(function (this: RigidBody) { return this.isDynamic })
     @displayOrder(1)
-    @visible(function (this: RigidBody) { return this._mass != 0; })
     @tooltip('线性阻尼')
     public get linearDamping () {
         return this._linearDamping;
@@ -128,8 +158,8 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置旋转阻尼。
      */
+    @visible(function (this: RigidBody) { return this.isDynamic })
     @displayOrder(2)
-    @visible(function (this: RigidBody) { return this._mass != 0; })
     @tooltip('旋转阻尼')
     public get angularDamping () {
         return this._angularDamping;
@@ -144,32 +174,12 @@ export class RigidBody extends Component {
 
     /**
      * @en
-     * Gets or sets whether a rigid body is controlled by a physical system.
-     * @zh
-     * 获取或设置刚体是否由物理系统控制运动。
-     */
-    @displayOrder(3)
-    @visible(function (this: RigidBody) { return this._mass != 0; })
-    @tooltip('刚体是否由物理系统控制运动')
-    public get isKinematic () {
-        return this._isKinematic;
-    }
-
-    public set isKinematic (value) {
-        this._isKinematic = value;
-        if (this._body) {
-            this._body.setIsKinematic(value);
-        }
-    }
-
-    /**
-     * @en
      * Gets or sets whether a rigid body uses gravity.
      * @zh
      * 获取或设置刚体是否使用重力。
      */
+    @visible(function (this: RigidBody) { return this.isDynamic })
     @displayOrder(4)
-    @visible(function (this: RigidBody) { return this._mass != 0; })
     @tooltip('刚体是否使用重力')
     public get useGravity () {
         return this._useGravity;
@@ -184,32 +194,12 @@ export class RigidBody extends Component {
 
     /**
      * @en
-     * Gets or sets whether the rigid body is fixed for rotation.
-     * @zh
-     * 获取或设置刚体是否固定旋转。
-     */
-    @displayOrder(5)
-    @visible(function (this: RigidBody) { return this._mass != 0; })
-    @tooltip('刚体是否固定旋转')
-    public get fixedRotation () {
-        return this._fixedRotation;
-    }
-
-    public set fixedRotation (value) {
-        this._fixedRotation = value;
-        if (this._body) {
-            this._body.fixRotation(value);
-        }
-    }
-
-    /**
-     * @en
      * Gets or sets the linear velocity factor that can be used to control the scaling of the velocity in each axis direction.
      * @zh
      * 获取或设置线性速度的因子，可以用来控制每个轴方向上的速度的缩放。
      */
+    @visible(function (this: RigidBody) { return this.isDynamic })
     @displayOrder(6)
-    @visible(function (this: RigidBody) { return this._mass != 0; })
     @tooltip('线性速度的因子，可以用来控制每个轴方向上的速度的缩放')
     public get linearFactor () {
         return this._linearFactor;
@@ -228,8 +218,8 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放。
      */
+    @visible(function (this: RigidBody) { return this.isDynamic })
     @displayOrder(7)
-    @visible(function (this: RigidBody) { return this._mass != 0; })
     @tooltip('旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放')
     public get angularFactor () {
         return this._angularFactor;
@@ -302,6 +292,51 @@ export class RigidBody extends Component {
 
     /**
      * @en
+     * Gets or sets whether the rigid body is static.
+     * @zh
+     * 获取或设置刚体是否是静态类型的（静止不动的）。
+     */
+    public get isStatic (): boolean {
+        return this._type == ERigidBodyType.STATIC;
+    }
+
+    public set isStatic (v: boolean) {
+        if ((v && this.isStatic) || (!v && !this.isStatic)) return;
+        this.type = v ? ERigidBodyType.STATIC : ERigidBodyType.DYNAMIC;
+    }
+
+    /**
+     * @en
+     * Gets or sets whether the rigid body moves through physical dynamics.
+     * @zh
+     * 获取或设置刚体是否是动力学态类型的（将根据物理动力学控制运动）。
+     */
+    public get isDynamic (): boolean {
+        return this._type == ERigidBodyType.DYNAMIC;
+    }
+
+    public set isDynamic (v: boolean) {
+        if ((v && this.isDynamic) || (!v && !this.isDynamic)) return;
+        this.type = v ? ERigidBodyType.DYNAMIC : ERigidBodyType.KINEMATIC;
+    }
+
+    /**
+     * @en
+     * Gets or sets whether a rigid body is controlled by users.
+     * @zh
+     * 获取或设置刚体是否是运动态类型的（将由用户来控制运动）。
+     */
+    public get isKinematic () {
+        return this._type == ERigidBodyType.KINEMATIC;
+    }
+
+    public set isKinematic (v: boolean) {
+        if ((v && this.isKinematic) || (!v && !this.isKinematic)) return;
+        this.type = v ? ERigidBodyType.KINEMATIC : ERigidBodyType.DYNAMIC;
+    }
+
+    /**
+     * @en
      * Gets the wrapper object, through which the lowLevel instance can be accessed.
      * @zh
      * 获取封装对象，通过此对象可以访问到底层实例。
@@ -318,6 +353,9 @@ export class RigidBody extends Component {
     private _group: number = PhysicsSystem.PhysicsGroup.DEFAULT;
 
     @serializable
+    private _type: ERigidBodyType = ERigidBodyType.DYNAMIC;
+
+    @serializable
     private _mass: number = 1;
 
     @serializable
@@ -328,12 +366,6 @@ export class RigidBody extends Component {
 
     @serializable
     private _angularDamping: number = 0.1;
-
-    @serializable
-    private _fixedRotation: boolean = false;
-
-    @serializable
-    private _isKinematic: boolean = false;
 
     @serializable
     private _useGravity: boolean = true;
@@ -682,5 +714,5 @@ export class RigidBody extends Component {
 }
 
 export namespace RigidBody {
-    export type ERigidBodyType = EnumAlias<typeof ERigidBodyType>;
+    export type Type = EnumAlias<typeof ERigidBodyType>;
 }

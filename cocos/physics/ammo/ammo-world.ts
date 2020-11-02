@@ -55,7 +55,7 @@ export class AmmoWorld implements IPhysicsWorld {
     constructor (options?: any) {
         const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
         this._btDispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
-        this._btDispatcher.setDispatcherFlags(AmmoDispatcherFlags.CD_STATIC_STATIC_REPORTED);
+        // this._btDispatcher.setDispatcherFlags(AmmoDispatcherFlags.CD_STATIC_STATIC_REPORTED);
         this._btBroadphase = new Ammo.btDbvtBroadphase();
         this._btSolver = new Ammo.btSequentialImpulseConstraintSolver();
         this._btWorld = new Ammo.btDiscreteDynamicsWorld(this._btDispatcher, this._btBroadphase, this._btSolver, collisionConfiguration);

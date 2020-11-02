@@ -1,10 +1,10 @@
-import { GFXInputAssembler, GFXInputAssemblerInfo } from '../input-assembler';
+import { InputAssembler, InputAssemblerInfo } from '../input-assembler';
 import { WebGLBuffer } from './webgl-buffer';
 import { WebGLCmdFuncCreateInputAssember, WebGLCmdFuncDestroyInputAssembler } from './webgl-commands';
 import { WebGLDevice } from './webgl-device';
 import { IWebGLGPUInputAssembler, IWebGLGPUBuffer } from './webgl-gpu-objects';
 
-export class WebGLInputAssembler extends GFXInputAssembler {
+export class WebGLInputAssembler extends InputAssembler {
 
     get gpuInputAssembler (): IWebGLGPUInputAssembler {
         return  this._gpuInputAssembler!;
@@ -12,10 +12,10 @@ export class WebGLInputAssembler extends GFXInputAssembler {
 
     private _gpuInputAssembler: IWebGLGPUInputAssembler | null = null;
 
-    public initialize (info: GFXInputAssemblerInfo): boolean {
+    public initialize (info: InputAssemblerInfo): boolean {
 
         if (info.vertexBuffers.length === 0) {
-            console.error('GFXInputAssemblerInfo.vertexBuffers is null.');
+            console.error('InputAssemblerInfo.vertexBuffers is null.');
             return false;
         }
 

@@ -29,7 +29,7 @@
  */
 
 import { ccclass, rangeMin, rangeMax, serializable } from 'cc.decorator';
-import { GFXTexture, GFXSampler, GFXColorAttachment, GFXDepthStencilAttachment, GFXTextureLayout, GFXRenderPassInfo } from '../gfx';
+import { Texture, Sampler, ColorAttachment, DepthStencilAttachment, TextureLayout, RenderPassInfo } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { RenderWindow } from '../renderer/core/render-window';
 import { IRenderWindowInfo } from '../renderer/core/render-window';
@@ -45,13 +45,13 @@ export interface IRenderTextureCreateInfo {
     name?: string;
     width: number;
     height: number;
-    passInfo?: GFXRenderPassInfo;
+    passInfo?: RenderPassInfo;
 }
 
-const _colorAttachment = new GFXColorAttachment();
-_colorAttachment.endLayout = GFXTextureLayout.SHADER_READONLY_OPTIMAL;
-const _depthStencilAttachment = new GFXDepthStencilAttachment();
-const passInfo = new GFXRenderPassInfo([_colorAttachment], _depthStencilAttachment);
+const _colorAttachment = new ColorAttachment();
+_colorAttachment.endLayout = TextureLayout.SHADER_READONLY_OPTIMAL;
+const _depthStencilAttachment = new DepthStencilAttachment();
+const passInfo = new RenderPassInfo([_colorAttachment], _depthStencilAttachment);
 
 const _windowInfo: IRenderWindowInfo = {
     width: 1,
@@ -60,7 +60,8 @@ const _windowInfo: IRenderWindowInfo = {
 };
 
 /**
- * @en Render texture is a render target for [[Camera]] or [[Canvas]] component, the render pipeline will use its [[RenderWindow]] as the target of the rendering process.
+ * @en Render texture is a render target for [[Camera]] or [[Canvas]] component, 
+ * the render pipeline will use its [[RenderWindow]] as the target of the rendering process.
  * @zh 渲染贴图是 [[Camera]] 或 [[Canvas]] 组件的渲染目标对象，渲染管线会使用它的 [[RenderWindow]] 作为渲染的目标窗口。
  */
 @ccclass('cc.RenderTexture')
@@ -152,17 +153,17 @@ export class RenderTexture extends Asset {
 
     // To be compatible with material property interface
     /**
-     * @en Gets the related [[GFXTexture]] resource, it's also the color attachment for the render window
+     * @en Gets the related [[Texture]] resource, it's also the color attachment for the render window
      * @zh 获取渲染贴图的 GFX 资源，同时也是渲染窗口所指向的颜色缓冲贴图资源
      */
-    public getGFXTexture (): GFXTexture | null {
+    public getGFXTexture (): Texture | null {
         return this._window && this._window.framebuffer.colorTextures[0];
     }
     /**
      * @en Gets the sampler resource for the render texture
      * @zh 获取渲染贴图的采样器
      */
-    public getGFXSampler (): GFXSampler {
+    public getGFXSampler (): Sampler {
         const root = legacyCC.director.root as Root;
         return samplerLib.getSampler(root.device, defaultSamplerHash);
     }

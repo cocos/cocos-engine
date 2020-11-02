@@ -350,7 +350,7 @@ export class AnimationClip extends Asset {
     }
 
     protected _createRuntimeEvents () {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             return;
         }
 

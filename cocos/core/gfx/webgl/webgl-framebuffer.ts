@@ -1,4 +1,4 @@
-import { GFXFramebuffer, GFXFramebufferInfo } from '../framebuffer';
+import { Framebuffer, FramebufferInfo } from '../framebuffer';
 import { WebGLCmdFuncCreateFramebuffer, WebGLCmdFuncDestroyFramebuffer } from './webgl-commands';
 import { WebGLDevice } from './webgl-device';
 import { IWebGLGPUFramebuffer } from './webgl-gpu-objects';
@@ -6,7 +6,7 @@ import { WebGLRenderPass } from './webgl-render-pass';
 import { IWebGLGPUTexture } from './webgl-gpu-objects';
 import { WebGLTexture } from './webgl-texture';
 
-export class WebGLFramebuffer extends GFXFramebuffer {
+export class WebGLFramebuffer extends Framebuffer {
 
     get gpuFramebuffer (): IWebGLGPUFramebuffer {
         return  this._gpuFramebuffer!;
@@ -14,7 +14,7 @@ export class WebGLFramebuffer extends GFXFramebuffer {
 
     private _gpuFramebuffer: IWebGLGPUFramebuffer | null = null;
 
-    public initialize (info: GFXFramebufferInfo): boolean {
+    public initialize (info: FramebufferInfo): boolean {
 
         this._renderPass = info.renderPass;
         this._colorTextures = info.colorTextures || [];

@@ -9,7 +9,7 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 import { MacroRecord } from '../renderer/core/pass-utils';
-import { GFXDevice, GFXDescriptorSet, GFXCommandBuffer, GFXDescriptorSetLayout, GFXDescriptorSetLayoutInfo, GFXDescriptorSetInfo } from '../gfx';
+import { Device, DescriptorSet, CommandBuffer, DescriptorSetLayout, DescriptorSetLayoutInfo, DescriptorSetInfo } from '../gfx';
 import { globalDescriptorSetLayout } from './define';
 
 /**
@@ -96,10 +96,10 @@ export abstract class RenderPipeline extends Asset {
         return this._commandBuffers;
     }
 
-    protected _device!: GFXDevice;
-    protected _descriptorSetLayout!: GFXDescriptorSetLayout;
-    protected _descriptorSet!: GFXDescriptorSet;
-    protected _commandBuffers: GFXCommandBuffer[] = [];
+    protected _device!: Device;
+    protected _descriptorSetLayout!: DescriptorSetLayout;
+    protected _descriptorSet!: DescriptorSet;
+    protected _commandBuffers: CommandBuffer[] = [];
 
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
@@ -119,10 +119,10 @@ export abstract class RenderPipeline extends Asset {
     public activate (): boolean {
         this._device = legacyCC.director.root.device;
 
-        const layoutInfo = new GFXDescriptorSetLayoutInfo(globalDescriptorSetLayout.bindings);
+        const layoutInfo = new DescriptorSetLayoutInfo(globalDescriptorSetLayout.bindings);
         this._descriptorSetLayout = this._device.createDescriptorSetLayout(layoutInfo);
 
-        this._descriptorSet = this._device.createDescriptorSet(new GFXDescriptorSetInfo(this._descriptorSetLayout));
+        this._descriptorSet = this._device.createDescriptorSet(new DescriptorSetInfo(this._descriptorSetLayout));
 
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].activate(this);

@@ -19,9 +19,9 @@ material2.initialize({
   defines: { USE_COLOR: true },
   states: {
     depthStencilState: { depthTest: false, depthWrite: false },
-    rasterizerState: { cullMode: cc.GFXCullMode.NONE },
+    rasterizerState: { cullMode: cc.gfx.CullMode.NONE },
     blendState: { targets: [
-      { blend: true, blendDst: cc.GFXBlendFactor.ONE_MINUS_SRC_ALPHA, blendDstAlpha: cc.GFXBlendFactor.ONE_MINUS_SRC_ALPHA }
+      { blend: true, blendDst: cc.gfx.BlendFactor.ONE_MINUS_SRC_ALPHA, blendDstAlpha: cc.gfx.BlendFactor.ONE_MINUS_SRC_ALPHA }
     ] }
   }
 });
@@ -42,11 +42,11 @@ const createArrow = (color, rotation) => {
   bodyModel.mesh = cc.utils.createMesh({
     positions: [0, 0, 0, 0, 10, 0],
     indices: [0, 1],
-    primitiveMode: cc.GFXPrimitiveMode.LINE_LIST,
+    primitiveMode: cc.gfx.PrimitiveMode.LINE_LIST,
   });
 
   bodyModel.material = material;
-  bodyModel.material.overridePipelineStates({ primitive: cc.GFXPrimitiveMode.LINE_LIST });
+  bodyModel.material.overridePipelineStates({ primitive: cc.gfx.PrimitiveMode.LINE_LIST });
   bodyModel.material.setProperty('color', color);
   return arrow;
 };
@@ -73,10 +73,10 @@ const createBorderPlane = (color, position, rotation) => {
   borderModel.mesh = cc.utils.createMesh({
     positions: [0.5, 0.5, 0, 0, 0.5, 0, 0.5, 0, 0],
     indices: [0, 1, 0, 2],
-    primitiveMode: cc.GFXPrimitiveMode.LINE_LIST,
+    primitiveMode: cc.gfx.PrimitiveMode.LINE_LIST,
   });
   borderModel.material = material;
-  borderModel.material.overridePipelineStates({ primitive: cc.GFXPrimitiveMode.LINE_LIST });
+  borderModel.material.overridePipelineStates({ primitive: cc.gfx.PrimitiveMode.LINE_LIST });
   borderModel.material.setProperty('color', color);
   return borderPlane;
 };

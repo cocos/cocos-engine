@@ -15,7 +15,7 @@ import plane from './plane';
 import ray from './ray';
 import sphere from './sphere';
 import triangle from './triangle';
-import { GFXPrimitiveMode } from '../gfx';
+import { PrimitiveMode } from '../gfx';
 import { IBArray, RenderingSubMesh, Mesh } from '../assets/mesh';
 import { IRaySubMeshOptions, ERaycastMode, IRaySubMeshResult, IRayMeshOptions, IRayModelOptions } from './spec';
 import { IVec3Like } from '../math/type-define';
@@ -352,8 +352,8 @@ const ray_subMesh = (function () {
         }
     }
 
-    const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, ray: ray, opt: IRaySubMeshOptions) => {
-        if (pm === GFXPrimitiveMode.TRIANGLE_LIST) {
+    const narrowphase = (vb: Float32Array, ib: IBArray, pm: PrimitiveMode, ray: ray, opt: IRaySubMeshOptions) => {
+        if (pm === PrimitiveMode.TRIANGLE_LIST) {
             const cnt = ib.length;
             for (let j = 0; j < cnt; j += 3) {
                 const i0 = ib[j] * 3;
@@ -367,7 +367,7 @@ const ray_subMesh = (function () {
                 fillResult(opt.mode, dist, i0, i1, i2, opt.result);
                 if (opt.mode === ERaycastMode.ANY) return dist;
             }
-        } else if (pm === GFXPrimitiveMode.TRIANGLE_STRIP) {
+        } else if (pm === PrimitiveMode.TRIANGLE_STRIP) {
             const cnt = ib.length - 2;
             let rev = 0;
             for (let j = 0; j < cnt; j += 1) {
@@ -383,7 +383,7 @@ const ray_subMesh = (function () {
                 fillResult(opt.mode, dist, i0, i1, i2, opt.result);
                 if (opt.mode === ERaycastMode.ANY) return dist;
             }
-        } else if (pm === GFXPrimitiveMode.TRIANGLE_FAN) {
+        } else if (pm === PrimitiveMode.TRIANGLE_FAN) {
             const cnt = ib.length - 1;
             const i0 = ib[0] * 3;
             Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);

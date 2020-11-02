@@ -1,11 +1,11 @@
-import { GFXDescriptorSet, GFXDescriptorSetInfo, DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE } from '../descriptor-set';
+import { DescriptorSet, DescriptorSetInfo, DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE } from '../descriptor-set';
 import { WebGL2Buffer } from './webgl2-buffer';
 import { IWebGL2GPUDescriptorSet, IWebGL2GPUDescriptor } from './webgl2-gpu-objects';
 import { WebGL2Sampler } from './webgl2-sampler';
 import { WebGL2Texture } from './webgl2-texture';
 import { WebGL2DescriptorSetLayout } from './webgl2-descriptor-set-layout';
 
-export class WebGL2DescriptorSet extends GFXDescriptorSet {
+export class WebGL2DescriptorSet extends DescriptorSet {
 
     get gpuDescriptorSet (): IWebGL2GPUDescriptorSet {
         return this._gpuDescriptorSet as IWebGL2GPUDescriptorSet;
@@ -13,7 +13,7 @@ export class WebGL2DescriptorSet extends GFXDescriptorSet {
 
     private _gpuDescriptorSet: IWebGL2GPUDescriptorSet | null = null;
 
-    public initialize (info: GFXDescriptorSetInfo): boolean {
+    public initialize (info: DescriptorSetInfo): boolean {
 
         this._layout = info.layout;
         const { bindings, descriptorIndices, descriptorCount } = (info.layout as WebGL2DescriptorSetLayout).gpuDescriptorSetLayout;

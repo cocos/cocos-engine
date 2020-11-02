@@ -179,11 +179,12 @@ let bufferProto = gfx.Buffer.prototype;
 
 let oldUpdate = bufferProto.update;
 bufferProto.update = function(buffer, offset, size) {
+    if(buffer.byteLength === 0) return;
     let buffSize;
     if (this.cachedUsage === undefined) this.cachedUsage = this.usage;
 
     if (this.cachedUsage & 0x40) { // BufferUsageBit.INDIRECT
-        // It is a IGFXIndirectBuffer object.
+        // It is a IIndirectBuffer object.
         let drawInfos = buffer.drawInfos;
         buffer = new Uint32Array(drawInfos.length * 7);
         let baseIndex = 0;

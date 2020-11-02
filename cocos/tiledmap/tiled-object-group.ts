@@ -28,7 +28,7 @@ import { Component } from '../core/components';
 import { ccclass, help, type, requireComponent } from 'cc.decorator';
 import { Sprite } from '../ui/components/sprite';
 import { Label } from '../ui/components/label';
-import * as gfx from '../core/gfx';
+import { BlendFactor } from '../core/gfx';
 
 import { TMXMapInfo } from './tmx-xml-parser';
 import { TiledTextureGrids, GID, TileFlag, Orientation, StaggerAxis, TMXObjectType, PropertiesInfo, TiledAnimationType, TMXObject, TMXObjectGroupInfo } from './tiled-types';
@@ -346,8 +346,8 @@ export class TiledObjectGroup extends Component {
 
                 sprite.sizeMode = Sprite.SizeMode.CUSTOM;
 
-                sprite.srcBlendFactor = this._premultiplyAlpha ? gfx.GFXBlendFactor.ONE : gfx.GFXBlendFactor.SRC_ALPHA;
-                sprite.dstBlendFactor = gfx.GFXBlendFactor.ONE_MINUS_SRC_ALPHA;
+                sprite.srcBlendFactor = this._premultiplyAlpha ? BlendFactor.ONE : BlendFactor.SRC_ALPHA;
+                sprite.dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
                 sprite._updateBlendFunc();
 
 

@@ -1,11 +1,11 @@
-import { GFXFramebuffer, GFXFramebufferInfo } from '../framebuffer';
+import { Framebuffer, FramebufferInfo } from '../framebuffer';
 import { WebGL2CmdFuncCreateFramebuffer, WebGL2CmdFuncDestroyFramebuffer } from './webgl2-commands';
 import { WebGL2Device } from './webgl2-device';
 import { IWebGL2GPUFramebuffer, IWebGL2GPUTexture } from './webgl2-gpu-objects';
 import { WebGL2RenderPass } from './webgl2-render-pass';
 import { WebGL2Texture } from './webgl2-texture';
 
-export class WebGL2Framebuffer extends GFXFramebuffer {
+export class WebGL2Framebuffer extends Framebuffer {
 
     get gpuFramebuffer (): IWebGL2GPUFramebuffer {
         return  this._gpuFramebuffer!;
@@ -13,7 +13,7 @@ export class WebGL2Framebuffer extends GFXFramebuffer {
 
     private _gpuFramebuffer: IWebGL2GPUFramebuffer | null = null;
 
-    public initialize (info: GFXFramebufferInfo): boolean {
+    public initialize (info: FramebufferInfo): boolean {
 
         this._renderPass = info.renderPass;
         this._colorTextures = info.colorTextures || [];

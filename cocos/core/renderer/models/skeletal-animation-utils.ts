@@ -35,8 +35,8 @@ import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
-import { GFXAddress, GFXBufferUsageBit, GFXFilter, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXFeature } from '../../gfx/define';
-import { GFXDevice, GFXBuffer, GFXBufferInfo } from '../../gfx';
+import { Address, BufferUsageBit, Filter, Format, FormatInfos, MemoryUsageBit, Feature } from '../../gfx/define';
+import { Device, Buffer, BufferInfo } from '../../gfx';
 import { Mat4, Quat, Vec3 } from '../../math';
 import { UBOSkinningAnimation } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
@@ -47,11 +47,11 @@ import { ITextureBufferHandle, TextureBufferPool } from '../core/texture-buffer-
 export const uploadJointData = uploadJointDataLBS;
 export const MINIMUM_JOINT_TEXTURE_SIZE = EDITOR ? 2040 : 480; // have to be multiples of 12
 
-export function selectJointsMediumFormat (device: GFXDevice): GFXFormat {
-    if (device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
-        return GFXFormat.RGBA32F;
+export function selectJointsMediumFormat (device: Device): Format {
+    if (device.hasFeature(Feature.TEXTURE_FLOAT)) {
+        return Format.RGBA32F;
     } else {
-        return GFXFormat.RGBA8;
+        return Format.RGBA8;
     }
 }
 
@@ -106,12 +106,12 @@ function roundUpTextureSize (targetLength: number, formatSize: number) {
 }
 
 export const jointTextureSamplerHash = genSamplerHash([
-    GFXFilter.POINT,
-    GFXFilter.POINT,
-    GFXFilter.NONE,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
+    Filter.POINT,
+    Filter.POINT,
+    Filter.NONE,
+    Address.CLAMP,
+    Address.CLAMP,
+    Address.CLAMP,
 ]);
 
 interface IInternalJointAnimInfo {
@@ -155,7 +155,7 @@ const Inf = Number.MAX_SAFE_INTEGER;
 
 export class JointTexturePool {
 
-    private _device: GFXDevice;
+    private _device: Device;
     private _pool: TextureBufferPool;
     private _textureBuffers = new Map<number, IJointTextureHandle>(); // per skeleton per clip
     private _formatSize: number;
@@ -168,10 +168,10 @@ export class JointTexturePool {
         return this._pixelsPerJoint;
     }
 
-    constructor (device: GFXDevice) {
+    constructor (device: Device) {
         this._device = device;
         const format = selectJointsMediumFormat(this._device);
-        this._formatSize = GFXFormatInfos[format].size;
+        this._formatSize = FormatInfos[format].size;
         this._pixelsPerJoint = 48 / this._formatSize;
         this._pool = new TextureBufferPool(device);
         this._pool.initialize({ format, roundUpFn: roundUpTextureSize });
@@ -434,25 +434,25 @@ export class JointTexturePool {
 }
 
 export interface IAnimInfo {
-    buffer: GFXBuffer;
+    buffer: Buffer;
     data: Float32Array;
     dirty: boolean;
 }
 
 export class JointAnimationInfo {
     private _pool = new Map<string, IAnimInfo>(); // per node
-    private _device: GFXDevice;
+    private _device: Device;
 
-    constructor (device: GFXDevice) {
+    constructor (device: Device) {
         this._device = device;
     }
 
     public getData (nodeID = '-1') {
         const res = this._pool.get(nodeID);
         if (res) { return res; }
-        const buffer = this._device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        const buffer = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             UBOSkinningAnimation.SIZE,
             UBOSkinningAnimation.SIZE,
         ));

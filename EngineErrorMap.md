@@ -1159,6 +1159,10 @@ Lazy init texture with image element failed due to image loading failure: %s
 
 Loading texture with unsupported type: '%s'. Add '%s' into 'cc.macro.SUPPORT_TEXTURE_FORMATS' please.
 
+### 3121
+
+Can't find a texture format supported by the current platform! Please add a fallback format in the editor.
+
 ### 3200
 
 <!-- DEPRECATED -->
@@ -1827,6 +1831,7 @@ No need to release non-cached asset.
 
 ### 4903
 
+<!-- DEPRECATED -->
 Can not get class '%s'
 
 ### 4904
@@ -2947,3 +2952,7 @@ Sub-mesh may include at most %d morph targets, but you specified %d.
 ### 11000
 
 WebGL context lost.
+
+### 12001
+
+BlendFactors are disabled when using custom material, please modify the blend state in the material instead.

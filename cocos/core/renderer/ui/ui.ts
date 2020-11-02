@@ -30,7 +30,7 @@
 import { UIMeshRenderer, UIStaticBatch } from '../../../ui';
 import { Material } from '../../assets/material';
 import { Canvas, UIComponent, UIRenderable } from '../../components/ui-base';
-import { GFXTexture, GFXDevice, GFXAttribute, GFXSampler, GFXDescriptorSetInfo } from '../../gfx';
+import { Texture, Device, Attribute, Sampler, DescriptorSetInfo } from '../../gfx';
 import { Pool, RecyclePool } from '../../memop';
 import { CachedArray } from '../../memop/cached-array';
 import { Camera } from '../scene/camera';
@@ -51,7 +51,7 @@ import { EffectAsset, RenderTexture, SpriteFrame } from '../../assets';
 import { programLib } from '../core/program-lib';
 import { TextureBase } from '../../assets/texture-base';
 
-const _dsInfo = new GFXDescriptorSetInfo(null!);
+const _dsInfo = new DescriptorSetInfo(null!);
 
 /**
  * @zh
@@ -79,14 +79,14 @@ export class UI {
         this._currStaticRoot = value;
     }
 
-    public device: GFXDevice;
+    public device: Device;
     private _screens: Canvas[] = [];
     private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => {
         return new MeshBuffer(this);
     }, 128);
     private _drawBatchPool: Pool<UIDrawBatch>;
     private _scene: RenderScene;
-    private _attributes: GFXAttribute[] = [];
+    private _attributes: Attribute[] = [];
     private _meshBuffers: MeshBuffer[] = [];
     private _meshBufferUseCount = 0;
     private _uiMaterials: Map<number, UIMaterial> = new Map<number, UIMaterial>();
@@ -97,14 +97,16 @@ export class UI {
     // batcher
     private _emptyMaterial = new Material();
     private _currMaterial: Material = this._emptyMaterial;
-    private _currTexture: GFXTexture | null = null;
-    private _currSampler: GFXSampler | null = null;
+    private _currTexture: Texture | null = null;
+    private _currSampler: Sampler | null = null;
     private _currCanvas: Canvas | null = null;
     private _currMeshBuffer: MeshBuffer | null = null;
     private _currStaticRoot: UIStaticBatch | null = null;
     private _currComponent: UIRenderable | null = null;
     private _currTextureHash: number = 0;
     private _currSamplerHash: number = 0;
+    private _currMaterialHash: number = 0;
+    private _currMaterialUniformHash: number = 0;
     private _parentOpacity = 1;
     // DescriptorSet Cache Map
     private _descriptorSetCacheMap: Map<number, Map<number, DescriptorSetHandle>> = new Map<number, Map<number, DescriptorSetHandle>>();
@@ -404,6 +406,8 @@ export class UI {
         this._currSampler = null;
         this._currComponent = null;
         this._meshBufferUseCount = 0;
+        this._currMaterialHash = 0;
+        this._currMaterialUniformHash = 0;
         this._requireBufferBatch();
         StencilManager.sharedManager!.reset();
     }
@@ -438,14 +442,12 @@ export class UI {
             samp = null;
         }
 
-        let mat = renderComp.getRenderMaterial(0);
-        if (!mat) {
-            mat = renderComp._updateBuiltinMaterial();
-            mat = renderComp._updateBlendFunc();
-        }
+        const mat = renderComp.getRenderMaterial(0);
+        const matHash = mat!.hash;
+        const matUniformHash = renderComp.updateMaterialUniformHash(mat!);
 
         // use material judgment merge is increasingly impossible, change to hash is more possible
-        if (this._currMaterial !== mat ||
+        if (this._currMaterialHash !== matHash || this._currMaterialUniformHash !== matUniformHash ||
             this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash
         ) {
             this.autoMergeBatches(this._currComponent!);
@@ -455,6 +457,8 @@ export class UI {
             this._currSampler = samp;
             this._currTextureHash = textureHash;
             this._currSamplerHash = samplerHash;
+            this._currMaterialHash = renderComp.getRenderMaterial(0)!.hash;
+            this._currMaterialUniformHash = renderComp.materialUniformHash;
         }
 
         if (assembler) {
@@ -516,6 +520,8 @@ export class UI {
         this._currSampler = null;
         this._currTextureHash = 0;
         this._currSamplerHash = 0;
+        this._currMaterialHash = 0;
+        this._currMaterialUniformHash = 0;
 
         this._batches.push(curDrawBatch);
     }
@@ -550,16 +556,13 @@ export class UI {
         if (!hIA || !mat) {
             return;
         }
-
-        // bug fix: check stencil from material actual use
-        // Need to remove when use hash to check MergeBatches
-        if (renderComp && renderComp._materialInstanceForStencil) {
-            this._currMaterial = mat = renderComp._materialInstanceForStencil;
-        }
-        if (renderComp && StencilManager.sharedManager!.handleMaterial(mat, renderComp)) {
-            this._currMaterial = mat = renderComp.getMaterialInstanceForStencil();
-            const state = StencilManager.sharedManager!.pattern;
-            StencilManager.sharedManager!.applyStencil(mat, state);
+        if (renderComp) {
+            if(StencilManager.sharedManager!.handleMaterial(mat, renderComp)) {
+                this._currMaterial = mat = renderComp.material!;
+                const state = StencilManager.sharedManager!.pattern;
+                StencilManager.sharedManager!.applyStencil(mat, state);
+            }
+            renderComp.updateMaterialUniformHash(mat);
         }
 
         const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
@@ -620,6 +623,8 @@ export class UI {
         this._currComponent = null;
         this._currTextureHash = 0;
         this._currSamplerHash = 0;
+        this._currMaterialHash = 0;
+        this._currMaterialUniformHash = 0;
     }
 
     /**

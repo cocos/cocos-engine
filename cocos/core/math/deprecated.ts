@@ -97,13 +97,6 @@ replaceProperty(Vec2.prototype, 'Vec2', [
     },
 ]);
 
-// 与新添加API 接口重名，需尽快更改后删除此弃用
-removeProperty(Vec2.prototype, 'vmath', [
-    {
-        name: 'divide',
-    },
-]);
-
 replaceProperty(Vec3, 'Vec3', [
     {
         name: 'sub',
@@ -188,13 +181,6 @@ replaceProperty(Vec3.prototype, 'Vec3', [
     },
 ]);
 
-// 与新添加API 接口重名，需尽快更改后删除此弃用
-removeProperty(Vec3.prototype, 'vmath', [
-    {
-        name: 'divide',
-    },
-]);
-
 replaceProperty(Vec4, 'Vec4', [
     {
         name: 'sub',
@@ -276,13 +262,6 @@ replaceProperty(Vec4.prototype, 'Vec4', [
         newName: 'strictEquals',
         target: Vec4.prototype,
         targetName: 'Vec4',
-    },
-]);
-
-// 与新添加API 接口重名，需尽快更改后删除此弃用
-removeProperty(Vec4.prototype, 'vmath', [
-    {
-        name: 'divide',
     },
 ]);
 

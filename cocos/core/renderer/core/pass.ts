@@ -32,7 +32,7 @@ import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../3d/builtin/init';
 import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
 import { TextureBase } from '../../assets/texture-base';
-import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
+import { BlendState, BlendTarget } from '../../gfx/pipeline-state';
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
@@ -43,10 +43,10 @@ import { PassView, BlendStatePool, RasterizerStatePool, DepthStencilStatePool,
     PassPool, DSPool, PassHandle, ShaderHandle, NULL_HANDLE } from './memory-pools';
 import { customizeType, getBindingFromHandle, getPropertyTypeFromHandle, getDefaultFromType,
     getOffsetFromHandle, getTypeFromHandle, MacroRecord, MaterialProperty, type2reader, type2writer, PropertyType } from './pass-utils';
-import { GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode,
-    GFXType, GFXDynamicStateFlagBit, GFXDynamicStateFlags, GFXFeature } from '../../gfx/define';
-import { GFXDescriptorSetLayoutInfo, GFXTexture,  GFXDevice, GFXBuffer, GFXBufferInfo, GFXBufferViewInfo,
-    GFXSampler, GFXDescriptorSet, GFXDescriptorSetInfo } from '../../gfx';
+import { BufferUsageBit, GetTypeSize, MemoryUsageBit, PrimitiveMode,
+    Type, DynamicStateFlagBit, Feature } from '../../gfx/define';
+import { DescriptorSetLayoutInfo, Texture,  Device, Buffer, BufferInfo, BufferViewInfo,
+    Sampler, DescriptorSet, DescriptorSetInfo } from '../../gfx';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
@@ -68,15 +68,15 @@ interface IPassDynamics {
     };
 }
 
-const _bufferInfo = new GFXBufferInfo(
-    GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-    GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+const _bufferInfo = new BufferInfo(
+    BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+    MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
 );
 
-const _bufferViewInfo = new GFXBufferViewInfo(null!);
-const _dsLayoutInfo = new GFXDescriptorSetLayoutInfo();
+const _bufferViewInfo = new BufferViewInfo(null!);
+const _dsLayoutInfo = new DescriptorSetLayoutInfo();
 
-const _dsInfo = new GFXDescriptorSetInfo(null!);
+const _dsInfo = new DescriptorSetInfo(null!);
 
 export enum BatchingSchemes {
     INSTANCING = 1,
@@ -142,11 +142,11 @@ export class Pass {
             const targets = bsInfo.targets;
             if (targets) {
                 targets.forEach((t, i) => {
-                    bs.setTarget(i, t as GFXBlendTarget);
+                    bs.setTarget(i, t as BlendTarget);
                 });
             }
 
-            bs.updateByPass(bsInfo as GFXBlendState);
+            bs.updateByPass(bsInfo as BlendState);
         }
         if (info.rasterizerState) {
             RasterizerStatePool.get(PassPool.get(hPass, PassView.RASTERIZER_STATE)).set(info.rasterizerState);
@@ -173,10 +173,10 @@ export class Pass {
     protected static getOffsetFromHandle = getOffsetFromHandle;
 
     // internal resources
-    protected _rootBuffer: GFXBuffer | null = null;
+    protected _rootBuffer: Buffer | null = null;
     protected _rootBufferDirty = false;
-    protected _buffers: GFXBuffer[] = [];
-    protected _descriptorSet: GFXDescriptorSet = null!;
+    protected _buffers: Buffer[] = [];
+    protected _descriptorSet: DescriptorSet = null!;
     // internal data
     protected _passIndex = 0;
     protected _propertyIndex = 0;
@@ -190,7 +190,7 @@ export class Pass {
     protected _properties: Record<string, IPropertyInfo> = {};
     // external references
     protected _root: Root;
-    protected _device: GFXDevice;
+    protected _device: Device;
     // native data
     protected _hShaderDefault: ShaderHandle = NULL_HANDLE;
     protected _handle: PassHandle = NULL_HANDLE;
@@ -219,17 +219,17 @@ export class Pass {
      * @param targetType Target type of the handle, i.e. the type of data when read/write to it.
      * @example
      * ```
-     * import { Vec3, GFXType } from 'cc';
+     * import { Vec3, gfx } from 'cc';
      * // say 'pbrParams' is a uniform vec4
      * const hParams = pass.getHandle('pbrParams'); // get the default handle
      * pass.setUniform(hAlbedo, new Vec3(1, 0, 0)); // wrong! pbrParams.w is NaN now
      *
      * // say 'albedoScale' is a uniform vec4, and we only want to modify the w component in the form of a single float
-     * const hThreshold = pass.getHandle('albedoScale', 3, GFXType.FLOAT);
+     * const hThreshold = pass.getHandle('albedoScale', 3, gfx.Type.FLOAT);
      * pass.setUniform(hThreshold, 0.5); // now, albedoScale.w = 0.5
      * ```
      */
-    public getHandle (name: string, offset = 0, targetType = GFXType.UNKNOWN) {
+    public getHandle (name: string, offset = 0, targetType = Type.UNKNOWN) {
         let handle = this._propertyHandleMap[name]; if (!handle) { return 0; }
         if (targetType) { handle = customizeType(handle, targetType); }
         else if (offset) { handle = customizeType(handle, getTypeFromHandle(handle) - offset); }
@@ -285,7 +285,7 @@ export class Pass {
     public setUniformArray (handle: number, value: MaterialProperty[]) {
         const binding = Pass.getBindingFromHandle(handle);
         const type = Pass.getTypeFromHandle(handle);
-        const stride = GFXGetTypeSize(type) >> 2;
+        const stride = GetTypeSize(type) >> 2;
         const block = this._blocks[binding];
         let ofs = Pass.getOffsetFromHandle(handle);
         for (let i = 0; i < value.length; i++, ofs += stride) {
@@ -296,22 +296,22 @@ export class Pass {
     }
 
     /**
-     * @en Bind a [[GFXTexture]] the the given uniform binding
-     * @zh 绑定实际 [[GFXTexture]] 到指定 binding。
+     * @en Bind a GFX [[Texture]] the the given uniform binding
+     * @zh 绑定实际 GFX [[Texture]] 到指定 binding。
      * @param binding The binding for target uniform of texture type
      * @param value Target texture
      */
-    public bindTexture (binding: number, value: GFXTexture, index?: number) {
+    public bindTexture (binding: number, value: Texture, index?: number) {
         this._descriptorSet.bindTexture(binding, value, index || 0);
     }
 
     /**
-     * @en Bind a [[GFXSampler]] the the given uniform binding
-     * @zh 绑定实际 [[GFXSampler]] 到指定 binding。
+     * @en Bind a GFX [[Sampler]] the the given uniform binding
+     * @zh 绑定实际 GFX [[Sampler]] 到指定 binding。
      * @param binding The binding for target uniform of sampler type
      * @param value Target sampler
      */
-    public bindSampler (binding: number, value: GFXSampler, index?: number) {
+    public bindSampler (binding: number, value: Sampler, index?: number) {
         this._descriptorSet.bindSampler(binding, value, index || 0);
     }
 
@@ -321,7 +321,7 @@ export class Pass {
      * @param state Target dynamic state
      * @param value Target value
      */
-    public setDynamicState (state: GFXDynamicStateFlagBit, value: any) {
+    public setDynamicState (state: DynamicStateFlagBit, value: any) {
         const ds = this._dynamics[state];
         if (ds && ds.value === value) { return; }
         ds.value = value; ds.dirty = true;
@@ -429,7 +429,7 @@ export class Pass {
                 const info = this._properties[cur.name];
                 const givenDefault = info && info.value;
                 const value = (givenDefault ? givenDefault : getDefaultFromType(cur.type)) as number[];
-                const size = (GFXGetTypeSize(cur.type) >> 2) * cur.count;
+                const size = (GetTypeSize(cur.type) >> 2) * cur.count;
                 for (let k = 0; k + value.length <= size; k += value.length) { block.set(value, ofs + k); }
                 ofs += size;
             }
@@ -519,7 +519,7 @@ export class Pass {
         PassPool.set(handle, PassView.PRIORITY, RenderPriority.DEFAULT);
         PassPool.set(handle, PassView.STAGE, RenderPassStage.DEFAULT);
         PassPool.set(handle, PassView.PHASE, getPhaseID('default'));
-        PassPool.set(handle, PassView.PRIMITIVE, GFXPrimitiveMode.TRIANGLE_LIST);
+        PassPool.set(handle, PassView.PRIMITIVE, PrimitiveMode.TRIANGLE_LIST);
         PassPool.set(handle, PassView.RASTERIZER_STATE, RasterizerStatePool.alloc());
         PassPool.set(handle, PassView.DEPTH_STENCIL_STATE, DepthStencilStatePool.alloc());
         PassPool.set(handle, PassView.BLEND_STATE, BlendStatePool.alloc());
@@ -587,7 +587,7 @@ export class Pass {
 
     protected _syncBatchingScheme () {
         if (this._defines.USE_INSTANCING) {
-            if (this._device.hasFeature(GFXFeature.INSTANCED_ARRAYS)) {
+            if (this._device.hasFeature(Feature.INSTANCED_ARRAYS)) {
                 PassPool.set(this._handle, PassView.BATCHING_SCHEME, BatchingSchemes.INSTANCING);
             } else {
                 this._defines.USE_INSTANCING = false;
@@ -626,4 +626,6 @@ export class Pass {
     get batchingScheme () { return PassPool.get(this._handle, PassView.BATCHING_SCHEME); }
     get descriptorSet () { return this._descriptorSet; }
     get hash () { return PassPool.get(this._handle, PassView.HASH); }
+
+    get rootBufferDirty () { return this._rootBufferDirty; }
 }
