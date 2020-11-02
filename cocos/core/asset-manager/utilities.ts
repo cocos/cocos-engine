@@ -331,12 +331,14 @@ export function asyncify (cb: ((p1?: any, p2?: any) => void) | null): (p1?: any,
         if (!cb) { return; }
         const refs: Asset[] = [];
         if (Array.isArray(p2)) {
-            p2.forEach(x => x instanceof Asset && refs.push(x.addRef()));
+            p2.forEach((x) => x instanceof Asset && refs.push(x.addRef()));
         } else {
-            p2 instanceof Asset && refs.push(p2.addRef());
+            if (p2 instanceof Asset) {
+                refs.push(p2.addRef());
+            }
         }
         callInNextTick(() => {
-            refs.forEach(x => x.decRef(false));
+            refs.forEach((x) => x.decRef(false));
             cb(p1, p2);
         });
     };
