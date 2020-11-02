@@ -8,13 +8,10 @@ import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
 import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
-import { IRenderObject, UBOGlobal, UBOShadow } from '../define';
-import { BufferUsageBit, MemoryUsageBit, ClearFlag } from '../../gfx/define';
-import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp, TextureLayout, RenderPassInfo, BufferInfo, Feature } from '../../gfx';
 import { IRenderObject, UBOGlobal, UBOShadow, UNIFORM_SHADOWMAP_BINDING } from '../define';
-import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXClearFlag } from '../../gfx/define';
-import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp,
-    GFXTextureLayout, GFXRenderPassInfo, GFXBufferInfo, GFXFeature, GFXFramebuffer } from '../../gfx';
+import { BufferUsageBit, MemoryUsageBit, ClearFlag } from '../../gfx/define';
+import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp, TextureLayout,
+    RenderPassInfo, BufferInfo, Feature, Framebuffer } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
@@ -88,7 +85,7 @@ export class ForwardPipeline extends RenderPipeline {
      */
     public renderObjects: IRenderObject[] = [];
     public shadowObjects: IRenderObject[] = [];
-    public shadowFrameBufferMap: Map<Light, GFXFramebuffer> = new Map();
+    public shadowFrameBufferMap: Map<Light, Framebuffer> = new Map();
     protected _isHDR: boolean = false;
     protected _shadingScale: number = 1.0;
     protected _fpScale: number = 1.0 / 1024.0;

@@ -16,8 +16,8 @@ import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView,
 import { Vec3, nextPow2, Mat4, Vec4, Color } from '../../core/math';
 import { RenderView } from './render-view';
 import { sphere, intersect } from '../geometry';
-import { GFXDevice, GFXRenderPass, GFXBuffer, GFXBufferUsageBit, GFXMemoryUsageBit,
-    GFXBufferInfo, GFXBufferViewInfo, GFXCommandBuffer, GFXFilter, GFXAddress, GFXSampler, GFXDescriptorSet } from '../gfx';
+import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
+    BufferInfo, BufferViewInfo, CommandBuffer, Filter, Address, Sampler, DescriptorSet } from '../gfx';
 import { Pool } from '../memop';
 import { InstancedBuffer } from './instanced-buffer';
 import { BatchedBuffer } from './batched-buffer';
@@ -29,12 +29,12 @@ import { genSamplerHash, samplerLib } from '../renderer';
 import { ShadowType } from '../renderer/scene/shadows';
 
 const _samplerInfo = [
-    GFXFilter.LINEAR,
-    GFXFilter.LINEAR,
-    GFXFilter.NONE,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
+    Filter.LINEAR,
+    Filter.LINEAR,
+    Filter.NONE,
+    Address.CLAMP,
+    Address.CLAMP,
+    Address.CLAMP,
 ];
 
 interface IAdditiveLightPass {
@@ -82,7 +82,7 @@ function getLightPassIndex (subModels: SubModel[]) {
 export class RenderAdditiveLightQueue {
 
     private _pipeline: ForwardPipeline;
-    private _device: GFXDevice;
+    private _device: Device;
     private _validLights: Light[] = [];
     private _lightPasses: IAdditiveLightPass[] = [];
 
@@ -99,7 +99,7 @@ export class RenderAdditiveLightQueue {
     private _instancedQueue: RenderInstancedQueue;
     private _batchedQueue: RenderBatchedQueue;
     private _lightMeterScale: number = 10000.0;
-    private _sampler: GFXSampler | null = null;
+    private _sampler: Sampler | null = null;
 
     constructor (pipeline: ForwardPipeline) {
         this._pipeline = pipeline;
@@ -265,7 +265,7 @@ export class RenderAdditiveLightQueue {
     }
 
     // update spot light UBO
-    protected _updateShadowUBO (descriptorSet: GFXDescriptorSet, light: Light) {
+    protected _updateShadowUBO (descriptorSet: DescriptorSet, light: Light) {
         const shadowInfo = this._pipeline.shadows;
         const shadowUBO = this._pipeline.shadowUBO;
         const spotLight = light as SpotLight;
@@ -291,7 +291,7 @@ export class RenderAdditiveLightQueue {
         this._pipeline.descriptorSet.getBuffer(UBOShadow.BINDING).update(shadowUBO);
     }
 
-    protected _updateUBOs (view: RenderView, cmdBuff: GFXCommandBuffer) {
+    protected _updateUBOs (view: RenderView, cmdBuff: CommandBuffer) {
         const exposure = view.camera.exposure;
 
         if (this._validLights.length > this._lightBufferCount) {

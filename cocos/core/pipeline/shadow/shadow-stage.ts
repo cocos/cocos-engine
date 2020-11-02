@@ -38,14 +38,14 @@ export class ShadowStage extends RenderStage {
      * @param light
      * @param shadowFrameBuffer
      */
-    public setUsage (light: Light, shadowFrameBuffer: GFXFramebuffer) {
+    public setUsage (light: Light, shadowFrameBuffer: Framebuffer) {
         this._light = light;
         this._shadowFrameBuffer = shadowFrameBuffer;
     }
 
     private _additiveShadowQueue!: RenderShadowMapBatchedQueue;
-    private _shadowFrameBuffer: GFXFramebuffer | null = null;
-    private _renderArea = new GFXRect();
+    private _shadowFrameBuffer: Framebuffer | null = null;
+    private _renderArea = new Rect();
     private _light: Light | null = null;
 
     public destroy () {

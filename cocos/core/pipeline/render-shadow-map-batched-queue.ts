@@ -5,7 +5,7 @@
 
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, SetIndex, UBOShadow } from './define';
-import { GFXDevice, GFXRenderPass, GFXBuffer, GFXShader, GFXCommandBuffer, GFXDescriptorSet } from '../gfx';
+import { Device, RenderPass, Buffer, Shader, CommandBuffer, DescriptorSet } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { DSPool, ShaderPool, PassHandle, PassPool, PassView, SubModelPool,
@@ -50,13 +50,13 @@ export class RenderShadowMapBatchedQueue {
     private _pipeline: ForwardPipeline;
     private _subModelsArray: SubModel[] = [];
     private _passArray: PassHandle[] = [];
-    private _shaderArray: GFXShader[] = [];
-    private _shadowMapBuffer: GFXBuffer;
+    private _shaderArray: Shader[] = [];
+    private _shadowMapBuffer: Buffer;
 
     // changes
-    private _device: GFXDevice;
+    private _device: Device;
     private _shadowInfo: Shadows;
-    private _descriptorSet: GFXDescriptorSet;
+    private _descriptorSet: DescriptorSet;
     private _shadowObjects: IRenderObject[];
     private _shadowUBO: Float32Array;
     private _instancedQueue: RenderInstancedQueue;

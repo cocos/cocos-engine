@@ -8,7 +8,7 @@ import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP_BINDING } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
-import { Framebuffer, RenderPass, LoadOp, StoreOp,
+import { RenderPass, LoadOp, StoreOp,
     TextureLayout, Format, Texture, TextureType, TextureUsageBit, Filter, Address,
     ColorAttachment, DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
@@ -47,7 +47,7 @@ export class ShadowFlow extends RenderFlow {
         stages: []
     };
 
-    private _shadowRenderPass: GFXRenderPass|null = null;
+    private _shadowRenderPass: RenderPass|null = null;
 
     public initialize (info: IRenderFlowInfo): boolean {
         super.initialize(info);
@@ -91,10 +91,10 @@ export class ShadowFlow extends RenderFlow {
         const shadowMapSize = pipeline.shadows.size;
 
         if (!this._shadowRenderPass) {
-            const colorAttachment = new GFXColorAttachment();
-            colorAttachment.format = GFXFormat.RGBA8;
-            colorAttachment.loadOp = GFXLoadOp.CLEAR; // should clear color attachment
-            colorAttachment.storeOp = GFXStoreOp.STORE;
+            const colorAttachment = new ColorAttachment();
+            colorAttachment.format = Format.RGBA8;
+            colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
+            colorAttachment.storeOp = StoreOp.STORE;
             colorAttachment.sampleCount = 1;
             colorAttachment.beginLayout = TextureLayout.UNDEFINED;
             colorAttachment.endLayout = TextureLayout.PRESENT_SRC;
@@ -113,25 +113,25 @@ export class ShadowFlow extends RenderFlow {
             this._shadowRenderPass = device.createRenderPass(renderPassInfo);
         }
 
-        const shadowRenderTargets: GFXTexture[] = [];
-        shadowRenderTargets.push(device.createTexture(new GFXTextureInfo(
-            GFXTextureType.TEX2D,
-            GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-            GFXFormat.RGBA8,
+        const shadowRenderTargets: Texture[] = [];
+        shadowRenderTargets.push(device.createTexture(new TextureInfo(
+            TextureType.TEX2D,
+            TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+            Format.RGBA8,
             shadowMapSize.x,
             shadowMapSize.y,
         )));
 
-        const depth = device.createTexture(new GFXTextureInfo(
-            GFXTextureType.TEX2D,
-            GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
+        const depth = device.createTexture(new TextureInfo(
+            TextureType.TEX2D,
+            TextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
             device.depthStencilFormat,
             shadowMapSize.x,
             shadowMapSize.y,
         ));
 
 
-        const shadowFrameBuffer = device.createFramebuffer(new GFXFramebufferInfo(
+        const shadowFrameBuffer = device.createFramebuffer(new FramebufferInfo(
             this._shadowRenderPass,
             shadowRenderTargets,
             depth,
@@ -168,7 +168,7 @@ export class ShadowFlow extends RenderFlow {
 
             const shadowRenderPass = frameBuffer.renderPass;
             frameBuffer.destroy();
-            frameBuffer.initialize(new GFXFramebufferInfo(
+            frameBuffer.initialize(new FramebufferInfo(
                 shadowRenderPass,
                 renderTargets,
                 depth,
