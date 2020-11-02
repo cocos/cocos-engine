@@ -13,6 +13,7 @@
 #include "MTLShader.h"
 #include "MTLTexture.h"
 #include "MTLUtils.h"
+#include "TargetConditionals.h"
 
 namespace cc {
 namespace gfx {
@@ -109,7 +110,12 @@ void CCMTLCommandBuffer::bindPipelineState(PipelineState *pso) {
     _mtlPrimitiveType = _gpuPipelineState->primitiveType;
     [_mtlEncoder setCullMode:_gpuPipelineState->cullMode];
     [_mtlEncoder setFrontFacingWinding:_gpuPipelineState->winding];
-    if (@available(iOS 11.0, *)) [_mtlEncoder setDepthClipMode:_gpuPipelineState->depthClipMode];
+
+#ifndef TARGET_OS_SIMULATOR
+    if (@available(iOS 11.0, macOS 10.11)) {
+        [_mtlEncoder setDepthClipMode:_gpuPipelineState->depthClipMode];
+    }
+#endif
     [_mtlEncoder setTriangleFillMode:_gpuPipelineState->fillMode];
     [_mtlEncoder setRenderPipelineState:_gpuPipelineState->mtlRenderPipelineState];
 
@@ -216,20 +222,22 @@ void CCMTLCommandBuffer::draw(InputAssembler *ia) {
         bindDescriptorSets();
     }
 
+    const auto indirectBuffer = ia->getIndirectBuffer();
     if (_type == CommandBufferType::PRIMARY) {
-        if (_gpuIndirectBuffer.count) {
-            _numDrawCalls += _gpuIndirectBuffer.count;
-            for (size_t j = 0; j < _gpuIndirectBuffer.count; j++) {
+        if (indirectBuffer) {
+            const auto count = indirectBuffer->getCount();
+            _numDrawCalls += count;
+            for (size_t j = 0; j < count; j++) {
                 if (_gpuIndexBuffer.mtlBuffer) {
                     [_mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
                                              indexType:_indexType
                                            indexBuffer:_gpuIndexBuffer.mtlBuffer
                                      indexBufferOffset:j * _gpuIndexBuffer.stride
-                                        indirectBuffer:_gpuIndirectBuffer.mtlBuffer
+                                        indirectBuffer:static_cast<CCMTLBuffer *>(indirectBuffer)->getMTLBuffer()
                                   indirectBufferOffset:j * sizeof(MTLDrawIndexedPrimitivesIndirectArguments)];
                 } else {
                     [_mtlEncoder drawPrimitives:_mtlPrimitiveType
-                                 indirectBuffer:_gpuIndirectBuffer.mtlBuffer
+                                 indirectBuffer:static_cast<CCMTLBuffer *>(indirectBuffer)->getMTLBuffer()
                            indirectBufferOffset:j * sizeof(MTLDrawIndexedPrimitivesIndirectArguments)];
                 }
             }

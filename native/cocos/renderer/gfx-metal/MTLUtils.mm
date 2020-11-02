@@ -4,6 +4,7 @@
 #include "MTLGPUObjects.h"
 #include "MTLUtils.h"
 #include "StandAlone/ResourceLimits.h"
+#include "TargetConditionals.h"
 #include "glslang/SPIRV/GlslangToSpv.h"
 #include "spirv_cross/spirv_msl.hpp"
 #include <vector>
@@ -1017,7 +1018,11 @@ uint getMinBufferOffsetAlignment(uint family) {
         case GPUFamily::Apple4:
         case GPUFamily::Apple5:
         case GPUFamily::Apple6:
+#ifdef TARGET_OS_SIMULATOR
+            return 256;
+#else
             return 4; //4 Bytes
+#endif
         case GPUFamily::Mac1:
         case GPUFamily::Mac2:
             return 256; //256 Bytes
