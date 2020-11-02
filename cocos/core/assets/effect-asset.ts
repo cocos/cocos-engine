@@ -30,8 +30,8 @@
 
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { Root } from '../../core/root';
-import { DescriptorType, DynamicStateFlags, Format, PrimitiveMode, ShaderStageFlags, Type } from '../gfx/define';
-import { BlendState, DepthStencilState, RasterizerState } from '../gfx/pipeline-state';
+import { BlendState, DepthStencilState, RasterizerState, DescriptorType,
+    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type } from '../gfx';
 import { IUniform, IAttribute } from '../gfx';
 import { RenderPassStage } from '../pipeline/define';
 import { MacroRecord } from '../renderer/core/pass-utils';

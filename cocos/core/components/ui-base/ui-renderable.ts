@@ -45,7 +45,7 @@ import { UITransform } from './ui-transform';
 import { RenderableComponent } from '../../3d/framework/renderable-component';
 import { EDITOR } from 'internal:constants';
 import { Stage } from '../../renderer/ui/stencil-manager';
-import { warnID } from '../../platform';
+import { warnID } from '../../platform/debug';
 import { murmurhash2_32_gc } from '../../utils';
 
 // hack
@@ -148,7 +148,7 @@ export class UIRenderable extends RenderableComponent {
         }
     }
 
-    @type({Material})
+    @type(Material)
     protected _customMaterial: Material| null = null;
 
     /**
@@ -260,7 +260,7 @@ export class UIRenderable extends RenderableComponent {
         this._updateColor();
         this.markForUpdateRenderData();
         if (EDITOR) {
-            let clone = value.clone();
+            const clone = value.clone();
             this.node.emit(SystemEventType.COLOR_CHANGED, clone);
         }
     }
@@ -518,13 +518,13 @@ export class UIRenderable extends RenderableComponent {
     }
 
     // pos, rot, scale changed
-    protected _nodeStateChange (type: TransformBit) {
+    protected _nodeStateChange (transformType: TransformBit) {
         if (this._renderData) {
             this.markForUpdateRenderData();
         }
 
         for (let i = 0; i < this.node.children.length; ++i) {
-            let child = this.node.children[i];
+            const child = this.node.children[i];
             const renderComp = child.getComponent(UIRenderable);
             if (renderComp) {
                 renderComp.markForUpdateRenderData();
