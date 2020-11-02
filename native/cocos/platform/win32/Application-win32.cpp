@@ -53,6 +53,9 @@ Application::Application(int width, int height)
     Application::_instance = this;
     _scheduler = std::make_shared<Scheduler>();
 
+    FileUtils::getInstance()->addSearchPath("Resources", true);
+
+
     EventDispatcher::init();
     se::ScriptEngine::getInstance();
 }
