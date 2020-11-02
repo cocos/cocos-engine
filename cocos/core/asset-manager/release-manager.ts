@@ -218,6 +218,10 @@ class ReleaseManager {
         }
     }
 
+    public removeFromDeleteQueue (asset: Asset): void {
+        this._toDelete.remove(asset._uuid);
+    }
+
     private _freeAssets () {
         this._eventListener = false;
         this._toDelete.forEach((asset) => {
