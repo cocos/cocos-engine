@@ -235,17 +235,12 @@ export class BlendState {
      * @param index The index to set target.
      * @param target The target to be set.
      */
-<<<<<<< HEAD
-    public setTarget (index: number, target: GFXBlendTarget) {
+    public setTarget (index: number, target: BlendTarget) {
         let tg = this.targets[index];
         if (!tg) {
-            tg = this.targets[index] = new GFXBlendTarget();
+            tg = this.targets[index] = new BlendTarget();
         }
         Object.assign(tg, target);
-=======
-    public setTarget (index: number, target: BlendTarget) {
-        this.targets[index] = target;
->>>>>>> d71e9501c1f0936ef35607b0a7f4a73c4c08080d
     }
 
     public reset () {
@@ -271,7 +266,7 @@ export class BlendState {
     /**
      * This function is neeeded to reduce JSB invoking.
      */
-    public updateByPass (bs : GFXBlendState) {
+    public updateByPass (bs : BlendState) {
         if (bs.isA2C !== undefined) this.isA2C = bs.isA2C;
         if (bs.isIndepend !== undefined) this.isIndepend = bs.isIndepend;
         if (bs.blendColor !== undefined) Object.assign(this.blendColor, bs.blendColor);
