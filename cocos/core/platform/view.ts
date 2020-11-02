@@ -670,6 +670,10 @@ export class View extends EventTarget {
             result.x = x;
             result.y = y;
         }
+        if(legacyCC.GAME_VIEW) {
+            result.x /= legacyCC.gameView.window.innerWidth / legacyCC.game.canvas.width;
+            result.y /= legacyCC.gameView.window.innerHeight / legacyCC.game.canvas.height;
+        }
         return result;
     }
 
@@ -830,6 +834,10 @@ export class View extends EventTarget {
     private _convertMouseToLocation (in_out_point, relatedPos){
         in_out_point.x = this._devicePixelRatio * (in_out_point.x - relatedPos.left);
         in_out_point.y = this._devicePixelRatio * (relatedPos.top + relatedPos.height - in_out_point.y);
+        if(legacyCC.GAME_VIEW) {
+            in_out_point.x /= legacyCC.gameView.window.innerWidth / legacyCC.game.canvas.width;
+            in_out_point.y /= legacyCC.gameView.window.innerHeight / legacyCC.game.canvas.height;
+        }
     }
 
     private _convertTouchWidthScale (selTouch){
