@@ -196,9 +196,9 @@ cc.js.setClassName('ShadowStage', ShadowStage);
 cc.js.setClassName('UIStage', UIStage);
 cc.js.setClassName('RenderQueueDesc', RenderQueueDesc);
 
-let getOrCreatePipelineState = nr.getOrCreatePipelineState;
-nr.getOrCreatePipelineState = function(device, pass, shader, renderPass, ia) {
-  getOrCreatePipelineState(pass.handle, shader, renderPass, ia);
+let getOrCreatePipelineState = nr.PipelineStateManager.getOrCreatePipelineState;
+nr.PipelineStateManager.getOrCreatePipelineState = function(device, pass, shader, renderPass, ia) {
+  getOrCreatePipelineState.call(this, pass.handle, shader, renderPass, ia);
 }
 
 const RootProto = cc.Root.prototype;
