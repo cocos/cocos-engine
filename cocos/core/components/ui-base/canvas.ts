@@ -30,6 +30,7 @@
  */
 
 import { Camera } from '../../3d/framework/camera-component';
+import { Widget } from '../../../ui/components/widget';
 import { RenderTexture } from '../../assets/render-texture';
 import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, serializable } from 'cc.decorator';
 import { game } from '../../game';
@@ -225,6 +226,7 @@ export class Canvas extends Component {
     protected _renderMode = RenderMode.OVERLAY;
 
     protected _thisOnCameraResized: () => void;
+    // fit canvas node to design resolution
     protected _fitDesignResolution: (() => void) | undefined;
 
     protected _camera: scene.Camera | null = null;
@@ -236,6 +238,7 @@ export class Canvas extends Component {
 
         if (EDITOR) {
             this._fitDesignResolution = () => {
+                // TODO: support paddings of locked widget
                 let nodeSize: Size; let designSize: Size;
                 this.node.getPosition(this._pos);
                 nodeSize = designSize = view.getDesignResolutionSize();
@@ -256,6 +259,15 @@ export class Canvas extends Component {
     }
 
     public __preload () {
+        // Stretch to matched size during the scene initialization
+        let widget = this.getComponent(Widget);
+        if (widget) {
+            widget.updateAlignment();
+        }
+        else if (EDITOR) {
+            this._fitDesignResolution!();
+        }
+
         const cameraNode = new Node('UICamera_' + this.node.name);
         cameraNode.setPosition(0, 0, 1000);
         if (!EDITOR) {
@@ -279,6 +291,7 @@ export class Canvas extends Component {
         }
 
         if (EDITOR) {
+            // Constantly align canvas node in edit mode
             legacyCC.director.on(legacyCC.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
 
             // In Editor can not edit these attrs.
