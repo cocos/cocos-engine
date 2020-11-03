@@ -15,13 +15,13 @@ layout(set = 2, binding = 1) uniform CCForwardLight {
 #else
 
 #define LIGHTS_PER_PASS 20
-#define LIGHTS_CNT cc_lightCnt.x
+#define LIGHTS_CNT int(cc_lightCnt.x)
 #pragma builtin(local)
 layout(set = 2, binding = 11) uniform CCDeferredLight {
   highp vec4 cc_lightPos[LIGHTS_PER_PASS]; // xyz: pos, w: isSpotLight
   vec4 cc_lightColor[LIGHTS_PER_PASS]; // xyz: color, w: intensity
   vec4 cc_lightSizeRangeAngle[LIGHTS_PER_PASS]; // x: size, y: range, z: spotAngle
   vec4 cc_lightDir[LIGHTS_PER_PASS]; // xyz: dir
-  mediump ivec4 cc_lightCnt;
+  vec4 cc_lightCnt;
 };
 #endif

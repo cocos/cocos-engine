@@ -321,11 +321,11 @@ CCProgram lighting-fs %{
     s.emissive = emissiveMap.xyz;
     s.occlusion = emissiveMap.w;
 
-    //vec4 color = CCStandardShading(s);
-    vec4 color = CCDeferredShading(s);
     float fog_factor = CC_TRANSFER_FOG(vec4(s.position,1)); 
-    color = CC_APPLY_FOG(color, fog_factor);
-    fragColor0 = CCFragOutput(color);
+    vec4 color = CCDeferredShading(s, fog_factor);
+    //float fog_factor = CC_TRANSFER_FOG(vec4(s.position,1)); 
+    //color = CC_APPLY_FOG(color, fog_factor);
+    fragColor0 = color;
   }
 }%
 

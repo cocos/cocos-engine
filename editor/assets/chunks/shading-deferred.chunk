@@ -23,7 +23,7 @@
   #include <cc-shadow-map-fs>
 //#endif
 
-vec4 DealLightShading (StandardSurface s) {
+vec4 DealLightShading (StandardSurface s, float fogFractor) {
   // Calculate diffuse & specular
   vec3 diffuse = s.albedo.rgb * (1.0 - s.metallic);
   vec3 specular = mix(vec3(0.04), s.albedo.rgb, s.metallic);
@@ -33,8 +33,10 @@ vec4 DealLightShading (StandardSurface s) {
   float NV = max(abs(dot(N, V)), 0.001);
   specular = BRDFApprox(specular, s.roughness, NV);
   vec3 finalColor = vec3(0.0);
+  vec4 result = vec4(0.0);
+
   for (int i = 0; i < LIGHTS_PER_PASS; i++) {
-    if (i > LIGHTS_CNT) break;
+    if (i >= LIGHTS_CNT) break;
     vec3 SLU = cc_lightPos[i].xyz - s.position;
     vec3 SL = normalize(SLU);
     vec3 SH = normalize(SL + V);
@@ -55,13 +57,16 @@ vec4 DealLightShading (StandardSurface s) {
       float litAngleOffset = -cosOuter * litAngleScale;
       att *= GetAngleAtt(SL, -cc_lightDir[i].xyz, litAngleScale, litAngleOffset);
     }
-    finalColor += SNL * cc_lightColor[i].rgb * cc_lightColor[i].w * illum * att * (diffuseContrib + lspec);
+
+    finalColor = SNL * cc_lightColor[i].rgb * cc_lightColor[i].w * illum * att * (diffuseContrib + lspec);
+    finalColor = finalColor * s.occlusion;
+    result += CCFragOutput(vec4(mix(vec3(0.0), finalColor, fogFractor), 0.0));
   }
-  finalColor = finalColor * s.occlusion;
-  return vec4(finalColor, 0.0);
+
+  return result;
 }
 
-vec4 DealMainLightShading (StandardSurface s) {
+vec4 DealMainLightShading (StandardSurface s, float fogFractor) {
   // Calculate diffuse & specular
   vec3 diffuse = s.albedo.rgb * (1.0 - s.metallic);
   vec3 specular = mix(vec3(0.04), s.albedo.rgb, s.metallic);
@@ -109,14 +114,18 @@ vec4 DealMainLightShading (StandardSurface s) {
   //  else {shadow = CCGetShadowFactorX1();}
   //  finalColor = shadow.rgb * shadow.a + finalColor * (1.0 - shadow.a);
   //#endif
-  return vec4(finalColor, s.albedo.a);
+
+  vec4 ret = vec4(finalColor, s.albedo.a);
+  ret = vec4(mix(cc_fogColor.rgb, ret.rgb, fogFractor), ret.a);
+  return CCFragOutput(ret);
 }
 
-vec4 CCDeferredShading(StandardSurface s) {
+vec4 CCDeferredShading(StandardSurface s, float fogFractor) {
   // part 1 : the main light - direct light
-  vec4 retColor = DealMainLightShading(s);
+  vec4 retColor = vec4(0,0,0,0);
+  retColor += DealMainLightShading(s, fogFractor);
 
   // part 2 : other lights, dot or sphere light
-  retColor += DealLightShading(s);
+  retColor += DealLightShading(s, fogFractor);
   return retColor;
 }

@@ -179,7 +179,7 @@ export class LightingStage extends RenderStage {
             }
         }
 
-        _vec4Array[0] = this.totalLits;
+        _vec4Array[0] = sphereLights.length + spotLights.length;
         _vec4Array[1] = 0;
         _vec4Array[2] = 0;
         _vec4Array[3] = 0;
