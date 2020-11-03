@@ -32,21 +32,21 @@ import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../3d/builtin/init';
 import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
 import { TextureBase } from '../../assets/texture-base';
-import { BlendState, BlendTarget } from '../../gfx/pipeline-state';
+import { BlendState, BlendTarget, DepthStencilState, RasterizerState } from '../../gfx/pipeline-state';
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import { IProgramInfo, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
-import { PassView, BlendStatePool, RasterizerStatePool, DepthStencilStatePool,
-    PassPool, DSPool, PassHandle, ShaderHandle, NULL_HANDLE } from './memory-pools';
+import { PassView, PassPool, DSPool, PassHandle, ShaderHandle, NULL_HANDLE } from './memory-pools';
 import { customizeType, getBindingFromHandle, getPropertyTypeFromHandle, getDefaultFromType,
     getOffsetFromHandle, getTypeFromHandle, MacroRecord, MaterialProperty, type2reader, type2writer, PropertyType } from './pass-utils';
 import { BufferUsageBit, GetTypeSize, MemoryUsageBit, PrimitiveMode,
     Type, DynamicStateFlagBit, Feature } from '../../gfx/define';
 import { DescriptorSetLayoutInfo, Texture,  Device, Buffer, BufferInfo, BufferViewInfo,
     Sampler, DescriptorSet, DescriptorSetInfo } from '../../gfx';
+import { Color } from '../../gfx/define-class';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
@@ -129,31 +129,31 @@ export class Pass {
      * @param hPass The pass handle point to the pass
      * @param info The pass override info
      */
-    public static fillPipelineInfo (hPass: PassHandle, info: PassOverrides) {
+    public static fillPipelineInfo (pass: Pass, info: PassOverrides) {
+        const hPass = pass.handle;
         if (info.priority !== undefined) { PassPool.set(hPass, PassView.PRIORITY, info.priority); }
         if (info.primitive !== undefined) { PassPool.set(hPass, PassView.PRIMITIVE, info.primitive); }
         if (info.stage !== undefined) { PassPool.set(hPass, PassView.STAGE, info.stage); }
         if (info.dynamicStates !== undefined) { PassPool.set(hPass, PassView.DYNAMIC_STATES, info.dynamicStates); }
         if (info.phase !== undefined) { PassPool.set(hPass, PassView.PHASE, getPhaseID(info.phase)); }
 
-        const bs = BlendStatePool.get(PassPool.get(hPass, PassView.BLEND_STATE));
+        const bs = pass._bs;
         if (info.blendState) {
             const bsInfo = info.blendState;
             const targets = bsInfo.targets;
             if (targets) {
                 targets.forEach((t, i) => {
-                    bs.setTarget(i, t as BlendTarget);
+                    if (!bs.targets[i]) bs.setTarget(i, new BlendTarget());
+                    Object.assign(bs.targets[i], t);
                 });
             }
 
-            bs.updateByPass(bsInfo as BlendState);
+            if (bsInfo.isA2C !== undefined) { bs.isA2C = bsInfo.isA2C; }
+            if (bsInfo.isIndepend !== undefined) { bs.isIndepend = bsInfo.isIndepend; }
+            if (bsInfo.blendColor !== undefined) { bs.blendColor = bsInfo.blendColor as Color; }
         }
-        if (info.rasterizerState) {
-            RasterizerStatePool.get(PassPool.get(hPass, PassView.RASTERIZER_STATE)).set(info.rasterizerState);
-        }
-        if (info.depthStencilState) {
-            DepthStencilStatePool.get(PassPool.get(hPass, PassView.DEPTH_STENCIL_STATE)).set(info.depthStencilState);
-        }
+        Object.assign(pass._rs, info.rasterizerState);
+        Object.assign(pass._dss, info.depthStencilState);
     }
 
     /**
@@ -162,11 +162,13 @@ export class Pass {
      *
      * @param hPass Handle of the pass info used to compute hash value.
      */
-    public static getPassHash (hPass: PassHandle, hShader: ShaderHandle) {
+    public static getPassHash (pass: Pass, hShader: ShaderHandle) {
+        const hPass = pass.handle;
         let res = hShader + ',' + PassPool.get(hPass, PassView.PRIMITIVE) + ',' + PassPool.get(hPass, PassView.DYNAMIC_STATES);
-        res += BlendStatePool.get(PassPool.get(hPass, PassView.BLEND_STATE)).hash();
-        res += DepthStencilStatePool.get(PassPool.get(hPass, PassView.DEPTH_STENCIL_STATE)).hash();
-        res += RasterizerStatePool.get(PassPool.get(hPass, PassView.RASTERIZER_STATE)).hash();
+        res += serializeBlendState(pass._bs);
+        res += serializeDepthStencilState(pass._dss);
+        res += serializeRasterizerState(pass._rs);
+
         return murmurhash2_32_gc(res, 666);
     }
 
@@ -194,6 +196,10 @@ export class Pass {
     // native data
     protected _hShaderDefault: ShaderHandle = NULL_HANDLE;
     protected _handle: PassHandle = NULL_HANDLE;
+    protected _bs: BlendState = new BlendState();
+    protected _dss: DepthStencilState = new DepthStencilState();
+    protected _rs: RasterizerState = new RasterizerState();
+
 
     constructor (root: Root) {
         this._root = root;
@@ -368,10 +374,11 @@ export class Pass {
         // textures are reused
         this._descriptorSet = null!;
 
+        this._rs.destroy();
+        this._dss.destroy();
+        this._bs.destroy();
+
         if (this._handle) {
-            RasterizerStatePool.free(PassPool.get(this._handle, PassView.RASTERIZER_STATE));
-            DepthStencilStatePool.free(PassPool.get(this._handle, PassView.DEPTH_STENCIL_STATE));
-            BlendStatePool.free(PassPool.get(this._handle, PassView.BLEND_STATE));
             DSPool.free(PassPool.get(this._handle, PassView.DESCRIPTOR_SET));
             PassPool.free(this._handle); this._handle = NULL_HANDLE;
         }
@@ -461,7 +468,7 @@ export class Pass {
         this._hShaderDefault = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
         if (!this._hShaderDefault) { console.warn(`create shader ${this._programName} failed`); return false; }
         PassPool.set(this._handle, PassView.PIPELINE_LAYOUT, programLib.getTemplate(this._programName).hPipelineLayout);
-        PassPool.set(this._handle, PassView.HASH, Pass.getPassHash(this._handle, this._hShaderDefault));
+        PassPool.set(this._handle, PassView.HASH, Pass.getPassHash(this, this._hShaderDefault));
         return true;
     }
 
@@ -520,9 +527,9 @@ export class Pass {
         PassPool.set(handle, PassView.STAGE, RenderPassStage.DEFAULT);
         PassPool.set(handle, PassView.PHASE, getPhaseID('default'));
         PassPool.set(handle, PassView.PRIMITIVE, PrimitiveMode.TRIANGLE_LIST);
-        PassPool.set(handle, PassView.RASTERIZER_STATE, RasterizerStatePool.alloc());
-        PassPool.set(handle, PassView.DEPTH_STENCIL_STATE, DepthStencilStatePool.alloc());
-        PassPool.set(handle, PassView.BLEND_STATE, BlendStatePool.alloc());
+        PassPool.set(handle, PassView.RASTERIZER_STATE, this._rs.handle);
+        PassPool.set(handle, PassView.DEPTH_STENCIL_STATE, this._dss.handle);
+        PassPool.set(handle, PassView.BLEND_STATE, this._bs.handle);
 
         this._passIndex = info.passIndex;
         this._propertyIndex = info.propertyIndex !== undefined ? info.propertyIndex : info.passIndex;
@@ -532,8 +539,8 @@ export class Pass {
         this._properties = info.properties || this._properties;
         // pipeline state
         const device = this._device;
-        Pass.fillPipelineInfo(handle, info);
-        if (info.stateOverrides) { Pass.fillPipelineInfo(handle, info.stateOverrides); }
+        Pass.fillPipelineInfo(this, info);
+        if (info.stateOverrides) { Pass.fillPipelineInfo(this, info.stateOverrides); }
 
         // init descriptor set
         _dsInfo.layout = programLib.getDescriptorSetLayout(this._device, info.program);
@@ -619,9 +626,9 @@ export class Pass {
     get primitive () { return PassPool.get(this._handle, PassView.PRIMITIVE); }
     get stage () { return PassPool.get(this._handle, PassView.STAGE); }
     get phase () { return PassPool.get(this._handle, PassView.PHASE); }
-    get rasterizerState () { return RasterizerStatePool.get(PassPool.get(this._handle, PassView.RASTERIZER_STATE)); }
-    get depthStencilState () { return DepthStencilStatePool.get(PassPool.get(this._handle, PassView.DEPTH_STENCIL_STATE)); }
-    get blendState () { return BlendStatePool.get(PassPool.get(this._handle, PassView.BLEND_STATE)); }
+    get rasterizerState () { return this._rs; }
+    get depthStencilState () { return this._dss; }
+    get blendState () { return this._bs; }
     get dynamicStates () { return PassPool.get(this._handle, PassView.DYNAMIC_STATES); }
     get batchingScheme () { return PassPool.get(this._handle, PassView.BATCHING_SCHEME); }
     get descriptorSet () { return this._descriptorSet; }
@@ -629,3 +636,26 @@ export class Pass {
 
     get rootBufferDirty () { return this._rootBufferDirty; }
 }
+
+function serializeBlendState (bs: BlendState) {
+    let res = `,bs,${bs.isA2C},${bs.blendColor}`;
+    for (const t of bs.targets) {
+        res += `,bt,${t.blend},${t.blendEq},${t.blendAlphaEq},${t.blendColorMask}`;
+        res += `,${t.blendSrc},${t.blendDst},${t.blendSrcAlpha},${t.blendDstAlpha}`;
+    }
+    return res;
+}
+
+function serializeRasterizerState (rs: RasterizerState) {
+    return ',rs,' + rs.cullMode + ',' + rs.depthBias + ',' + rs.isFrontFaceCCW;
+}
+
+function serializeDepthStencilState (dss: DepthStencilState) {
+    let res = `,dss,${dss.depthTest},${dss.depthWrite},${dss.depthFunc}`;
+    res += `,${dss.stencilTestFront},${dss.stencilFuncFront},${dss.stencilRefFront},${dss.stencilReadMaskFront}`;
+    res += `,${dss.stencilFailOpFront},${dss.stencilZFailOpFront},${dss.stencilPassOpFront},${dss.stencilWriteMaskFront}`;
+    res += `,${dss.stencilTestBack},${dss.stencilFuncBack},${dss.stencilRefBack},${dss.stencilReadMaskBack}`;
+    res += `,${dss.stencilFailOpBack},${dss.stencilZFailOpBack},${dss.stencilPassOpBack},${dss.stencilWriteMaskBack}`;
+    return res;
+}
+

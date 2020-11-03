@@ -2,17 +2,12 @@ declare const gfx: any;
 
 import * as Defines from './define';
 import { legacyCC } from '../global-exports';
+import { PipelineState } from './pipeline-state.jsb';
 
 export * from './define';
 export * from './define-class';
+export * from './pipeline-state.jsb';
 
-export const RasterizerState = gfx.RasterizerState;
-export const DepthStencilState = gfx.DepthStencilState;
-export const BlendTarget = gfx.BlendTarget;
-export const BlendState = gfx.BlendState;
-export const PipelineState = gfx.PipelineState;
-export const PipelineStateInfo = gfx.PipelineStateInfo;
-export const InputState = gfx.InputState;
 export const TextureInfo = gfx.TextureInfo;
 export const TextureViewInfo = gfx.TextureViewInfo;
 export const Texture = gfx.Texture;

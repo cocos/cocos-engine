@@ -64,9 +64,9 @@ export class RenderBatchedQueue {
                 if (!batch.mergeCount) { continue; }
                 if (!boundPSO) {
                     const shader = ShaderPool.get(batch.hShader);
-                    const pso = PipelineStateManager.getOrCreatePipelineState(device, batch.hPass, shader, renderPass, batch.ia);
+                    const pso = PipelineStateManager.getOrCreatePipelineState(device, batch.pass, shader, renderPass, batch.ia);
                     cmdBuff.bindPipelineState(pso);
-                    cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(batch.hPass, PassView.DESCRIPTOR_SET)));
+                    cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, batch.pass.descriptorSet);
                     boundPSO = true;
                 }
                 cmdBuff.bindDescriptorSet(SetIndex.LOCAL, batch.descriptorSet, res.value.dynamicOffsets);

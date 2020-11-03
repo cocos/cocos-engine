@@ -50,15 +50,15 @@ export class RenderInstancedQueue {
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         const it = this.queue.values(); let res = it.next();
         while (!res.done) {
-            const { instances, hPass, hasPendingModels } = res.value;
+            const { instances, pass, hasPendingModels } = res.value;
             if (hasPendingModels) {
-                cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET)));
+                cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
                 let lastPSO: PipelineState | null = null;
                 for (let b = 0; b < instances.length; ++b) {
                     const instance = instances[b];
                     if (!instance.count) { continue; }
                     const shader = ShaderPool.get(instance.hShader);
-                    const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, instance.ia);
+                    const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, instance.ia);
                     if (lastPSO !== pso) {
                         cmdBuff.bindPipelineState(pso);
                         lastPSO = pso;

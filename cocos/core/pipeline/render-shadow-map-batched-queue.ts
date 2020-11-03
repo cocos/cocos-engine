@@ -8,7 +8,8 @@ import { IRenderObject, SetIndex } from './define';
 import { Device, RenderPass, Buffer, Shader, CommandBuffer } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { DSPool, ShaderPool, PassHandle, PassPool, PassView, SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
+import { DSPool, ShaderPool, PassPool, PassView, SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
+import { Pass } from '../renderer/core/pass';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { BatchingSchemes } from '../renderer/core/pass';
 import { InstancedBuffer } from './instanced-buffer';
@@ -21,7 +22,7 @@ import { BatchedBuffer } from './batched-buffer';
  */
 export class RenderShadowMapBatchedQueue {
     private _subModelsArray: SubModel[] = [];
-    private _passArray: PassHandle[] = [];
+    private _passArray: Pass[] = [];
     private _shaderArray: Shader[] = [];
     private _shadowMapBuffer: Buffer | null = null;
     private _phaseID = getPhaseID('shadow-caster');
@@ -59,7 +60,7 @@ export class RenderShadowMapBatchedQueue {
                     const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle);
                     this._subModelsArray.push(subModel);
                     this._shaderArray.push(shader);
-                    this._passArray.push(pass.handle);
+                    this._passArray.push(pass);
                 }
             } else {
                 this._subModelsArray.length = 0;
@@ -82,10 +83,10 @@ export class RenderShadowMapBatchedQueue {
         for (let i = 0; i < this._subModelsArray.length; ++i) {
             const subModel = this._subModelsArray[i];
             const shader = this._shaderArray[i];
-            const hPass = this._passArray[i];
+            const pass = this._passArray[i];
             const ia = subModel.inputAssembler!;
-            const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, ia);
-            const descriptorSet = DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET));
+            const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, ia);
+            const descriptorSet = pass.descriptorSet;
 
             cmdBuff.bindPipelineState(pso);
             cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, descriptorSet);

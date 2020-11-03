@@ -217,7 +217,7 @@ export class RenderAdditiveLightQueue {
             const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle);
             const pass = subModel.passes[passIdx];
             const ia = subModel.inputAssembler;
-            const pso = PipelineStateManager.getOrCreatePipelineState(device, pass.handle, shader, renderPass, ia);
+            const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, ia);
             const matDS = DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET));
             const localDS = subModel.descriptorSet;
 

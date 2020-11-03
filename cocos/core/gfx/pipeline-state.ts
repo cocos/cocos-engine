@@ -24,7 +24,7 @@ import { Attribute } from './input-assembler';
 import { RenderPass } from './render-pass';
 import { Shader } from './shader';
 import { PipelineLayout } from './pipeline-layout';
-import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
+import { NULL_HANDLE, RawBufferHandle } from '../renderer/core/memory-pools';
 
 /**
  * @en GFX rasterizer state.
@@ -47,25 +47,6 @@ export class RasterizerState {
         public lineWidth: number = 1.0,
     ) {}
 
-    public compare (state: RasterizerState): boolean {
-        return (this.isDiscard === state.isDiscard) &&
-            (this.polygonMode === state.polygonMode) &&
-            (this.shadeModel === state.shadeModel) &&
-            (this.cullMode === state.cullMode) &&
-            (this.isFrontFaceCCW === state.isFrontFaceCCW) &&
-            (this.depthBias === state.depthBias) &&
-            (this.depthBiasClamp === state.depthBiasClamp) &&
-            (this.depthBiasSlop === state.depthBiasSlop) &&
-            (this.isDepthClip === state.isDepthClip) &&
-            (this.lineWidth === state.lineWidth) &&
-            (this.isMultisample === state.isMultisample);
-    }
-
-    public hash (): number {
-        const str = ',rs,' + this.cullMode + ',' + this.depthBias + ',' + this.isFrontFaceCCW;
-        return murmurhash2_32_gc(str, 666);
-    }
-
     public reset () {
         this.isDiscard = false;
         this.polygonMode = PolygonMode.FILL;
@@ -80,9 +61,8 @@ export class RasterizerState {
         this.lineWidth = 1.0;
     }
 
-    public set (rasterizerState: RecursivePartial<RasterizerState>) {
-        Object.assign(this, rasterizerState);
-    }
+    get handle (): RawBufferHandle { return NULL_HANDLE; }
+    public destroy () {}
 }
 
 /**
@@ -114,28 +94,6 @@ export class DepthStencilState {
         public stencilRefBack: number = 1,
     ) {}
 
-    public compare (state: DepthStencilState): boolean {
-        return (this.depthTest === state.depthTest) &&
-            (this.depthWrite === state.depthWrite) &&
-            (this.depthFunc === state.depthFunc) &&
-            (this.stencilTestFront === state.stencilTestFront) &&
-            (this.stencilFuncFront === state.stencilFuncFront) &&
-            (this.stencilReadMaskFront === state.stencilReadMaskFront) &&
-            (this.stencilWriteMaskFront === state.stencilWriteMaskFront) &&
-            (this.stencilFailOpFront === state.stencilFailOpFront) &&
-            (this.stencilZFailOpFront === state.stencilZFailOpFront) &&
-            (this.stencilPassOpFront === state.stencilPassOpFront) &&
-            (this.stencilRefFront === state.stencilRefFront) &&
-            (this.stencilTestBack === state.stencilTestBack) &&
-            (this.stencilFuncBack === state.stencilFuncBack) &&
-            (this.stencilReadMaskBack === state.stencilReadMaskBack) &&
-            (this.stencilWriteMaskBack === state.stencilWriteMaskBack) &&
-            (this.stencilFailOpBack === state.stencilFailOpBack) &&
-            (this.stencilZFailOpBack === state.stencilZFailOpBack) &&
-            (this.stencilPassOpBack === state.stencilPassOpBack) &&
-            (this.stencilRefBack === state.stencilRefBack);
-    }
-
     public reset () {
         this.depthTest = true;
         this.depthWrite = true;
@@ -158,18 +116,8 @@ export class DepthStencilState {
         this.stencilRefBack = 1;
     }
 
-    public set (depthStencilState: RecursivePartial<DepthStencilState>) {
-        Object.assign(this, depthStencilState);
-    }
-
-    public hash (): number {
-        let res = `,dss,${this.depthTest},${this.depthWrite},${this.depthFunc}`;
-        res += `,${this.stencilTestFront},${this.stencilFuncFront},${this.stencilRefFront},${this.stencilReadMaskFront}`;
-        res += `,${this.stencilFailOpFront},${this.stencilZFailOpFront},${this.stencilPassOpFront},${this.stencilWriteMaskFront}`;
-        res += `,${this.stencilTestBack},${this.stencilFuncBack},${this.stencilRefBack},${this.stencilReadMaskBack}`;
-        res += `,${this.stencilFailOpBack},${this.stencilZFailOpBack},${this.stencilPassOpBack},${this.stencilWriteMaskBack}`;
-        return murmurhash2_32_gc(res, 666);
-    }
+    get handle (): RawBufferHandle { return NULL_HANDLE; }
+    public destroy () {}
 }
 
 /**
@@ -190,17 +138,6 @@ export class BlendTarget {
         public blendColorMask: ColorMask = ColorMask.ALL,
     ) {}
 
-    public compare (target: BlendTarget): boolean {
-        return (this.blend === target.blend) &&
-            (this.blendSrc === target.blendSrc) &&
-            (this.blendDst === target.blendDst) &&
-            (this.blendEq === target.blendEq) &&
-            (this.blendSrcAlpha === target.blendSrcAlpha) &&
-            (this.blendDstAlpha === target.blendDstAlpha) &&
-            (this.blendAlphaEq === target.blendAlphaEq) &&
-            (this.blendColorMask === target.blendColorMask);
-    }
-
     public reset () {
         this.blend = false;
         this.blendSrc = BlendFactor.ONE;
@@ -211,6 +148,9 @@ export class BlendTarget {
         this.blendAlphaEq = BlendOp.ADD;
         this.blendColorMask = ColorMask.ALL;
     }
+
+    get handle (): RawBufferHandle { return NULL_HANDLE; }
+    public destroy () {}
 }
 
 /**
@@ -254,23 +194,8 @@ export class BlendState {
         this.targets[0].reset();
     }
 
-    public hash (): number {
-        let res = `,bs,${this.isA2C},${this.blendColor}`;
-        for (const t of this.targets) {
-            res += `,bt,${t.blend},${t.blendEq},${t.blendAlphaEq},${t.blendColorMask}`;
-            res += `,${t.blendSrc},${t.blendDst},${t.blendSrcAlpha},${t.blendDstAlpha}`;
-        }
-        return murmurhash2_32_gc(res, 666);
-    }
-
-    /**
-     * This function is neeeded to reduce JSB invoking.
-     */
-    public updateByPass (bs : BlendState) {
-        if (bs.isA2C !== undefined) this.isA2C = bs.isA2C;
-        if (bs.isIndepend !== undefined) this.isIndepend = bs.isIndepend;
-        if (bs.blendColor !== undefined) Object.assign(this.blendColor, bs.blendColor);
-    }
+    get handle (): RawBufferHandle { return NULL_HANDLE; }
+    public destroy () {}
 }
 
 /**
