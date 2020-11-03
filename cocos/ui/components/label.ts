@@ -415,10 +415,6 @@ export class Label extends UIRenderable {
         // if (value && this._isSystemFontUsed)
         //     this._isSystemFontUsed = false;
 
-        if (typeof value === 'string') {
-            warnID(4000);
-        }
-
         if (this._renderData) {
             this.destroyRenderData();
             this._renderData = null;

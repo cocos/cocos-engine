@@ -209,7 +209,7 @@ export class UITransform extends Component {
         }
 
         if (this._canvas && this._canvas.node === this.node) {
-            warnID(9200);
+            warnID(6706);
             return;
         }
 

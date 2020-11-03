@@ -33,7 +33,7 @@ import { ccclass, serializable } from 'cc.decorator';
 import { property } from '../data/decorators/property';
 import { getUrlWithUuid } from '../asset-manager/helper';
 import { Eventify } from '../event';
-import { RawAsset } from './raw-asset';
+import { CCObject } from '../data/object';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 import { extname } from '../utils/path';
@@ -57,14 +57,14 @@ import { extname } from '../utils/path';
  * - `Object._deserialize`<br/>
  *
  * @class Asset
- * @extends RawAsset
+ * @extends CCObject
  */
 @ccclass('cc.Asset')
-export class Asset extends Eventify(RawAsset) {
+export class Asset extends Eventify(CCObject) {
 
     /**
-     * @en Indicates whether its dependent raw assets can support deferred load if the owner scene (or prefab) is marked as `asyncLoadAssets`.
-     * @zh 当场景或 Prefab 被标记为 `asyncLoadAssets`，禁止延迟加载该资源所依赖的其它 RawAsset。
+     * @en Indicates whether its dependent native assets can support deferred load if the owner scene (or prefab) is marked as `asyncLoadAssets`.
+     * @zh 当场景或 Prefab 被标记为 `asyncLoadAssets`，禁止延迟加载该资源所依赖的其它原始资源。
      * @default false
      */
     public static preventDeferredLoadDependents = false;
@@ -93,6 +93,8 @@ export class Asset extends Eventify(RawAsset) {
      * 该资源是否已经成功加载。
      */
     public loaded = true;
+
+    public declare _uuid: string;
 
     /**
      * @en
@@ -153,6 +155,16 @@ export class Asset extends Eventify(RawAsset) {
     }
     set _nativeAsset (obj) {
         this._file = obj;
+    }
+
+    constructor (...args: ConstructorParameters<typeof CCObject>) {
+        super(...args);
+
+        Object.defineProperty(this, '_uuid', {
+            value: '',
+            writable: true,
+            // enumerable is false by default, to avoid uuid being assigned to empty string during destroy
+        });
     }
 
     /**

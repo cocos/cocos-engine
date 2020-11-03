@@ -29,7 +29,6 @@
  * @hidden
  */
 import { legacyCC } from '../global-exports';
-export { RawAsset } from './raw-asset';
 export { Asset } from './asset';
 export { BufferAsset } from './buffer-asset';
 export { default as Prefab } from './prefab';
