@@ -3,8 +3,8 @@
  * @hidden
  */
 
-import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXDevice, GFXDescriptorSet, GFXInputAssembler,
-    GFXInputAssemblerInfo, GFXAttribute, GFXBuffer, GFXBufferInfo } from '../gfx';
+import { BufferUsageBit, Format, MemoryUsageBit, Device, DescriptorSet, InputAssembler,
+    InputAssemblerInfo, Attribute, Buffer, BufferInfo } from '../gfx';
 import { Mat4 } from '../math';
 import { SubModel } from '../renderer/scene/submodel';
 import { UBOLocalBatched } from './define';
