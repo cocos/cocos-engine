@@ -1245,7 +1245,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         return;
     }
 
-    protected _onBatchCreated () {
+    protected _onBatchCreated (dontSyncChildPrefab?: boolean) {
         if (this._parent) {
             this._siblingIndex = this._parent.children.indexOf(this);
         }

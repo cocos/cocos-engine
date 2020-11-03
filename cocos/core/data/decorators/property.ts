@@ -126,14 +126,13 @@ function genProperty (
     if (options) {
         fullOptions = DEV ? getFullFormOfProperty(options, isGetset, propertyKey, js.getClassName(ctor)) :
             getFullFormOfProperty(options, isGetset);
-        fullOptions = fullOptions || options;
     }
     const existsPropertyRecord = properties[propertyKey];
     const propertyRecord = js.mixin(existsPropertyRecord || {}, fullOptions || options || {});
 
     if (isGetset) {
         // typescript or babel
-        if (DEV && options && (fullOptions.get || fullOptions.set)) {
+        if (DEV && options && ((fullOptions || options).get || (fullOptions || options).set)) {
             const errorProps = getSubDict(cache, 'errorProps');
             if (!errorProps[propertyKey]) {
                 errorProps[propertyKey] = true;

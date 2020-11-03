@@ -360,7 +360,7 @@ export class Node extends BaseNode {
         this.invalidateChildren(TransformBit.TRS);
     }
 
-    public _onBatchCreated () {
+    public _onBatchCreated (dontSyncChildPrefab?: boolean) {
         super._onBatchCreated();
         bookOfChange.set(this._id, TransformBit.TRS);
         this._dirtyFlags = TransformBit.TRS;
