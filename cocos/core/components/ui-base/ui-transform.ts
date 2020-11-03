@@ -271,37 +271,20 @@ export class UITransform extends Component {
      * @zh
      * 设置节点原始大小，不受该节点是否被缩放或者旋转的影响。
      *
-     * @param size - 节点内容变换的尺寸
+     * @param size - 节点内容变换的尺寸或者宽度。
+     * @param height - 节点内容未变换的高度。
      * @example
      * ```ts
      * import { Size } from 'cc';
      * node.setContentSize(new Size(100, 100));
-     * ```
-     */
-    public setContentSize (size: Size): void;
-
-    /**
-     * @en
-     * Sets the untransformed size of the node.<br/>
-     * The contentSize remains the same no matter if the node is scaled or rotated.<br/>
-     * All nodes have a size. Layer and Scene have the same size of the screen.
-     *
-     * @zh
-     * 设置节点原始大小，不受该节点是否被缩放或者旋转的影响。
-     *
-     * @param width - 节点内容变换的宽度。
-     * @param height - 节点内容变换的高度。
-     * @example
-     * ```ts
-     * import { Size } from 'cc';
      * node.setContentSize(100, 100);
      * ```
      */
-    public setContentSize (width: number, height: number): void;
 
     public setContentSize (val: Size | number, height?: number) {
         const locContentSize = this._contentSize;
         let clone: Size;
+
         if (height === undefined) {
             if(typeof val === 'number' || val instanceof Number){
                 val = new Size(val as number, locContentSize.height);
