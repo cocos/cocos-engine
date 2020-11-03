@@ -144,7 +144,7 @@ export class ShadowFlow extends RenderFlow {
         pipeline.descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
     }
 
-    private resizeShadowMap(light: Light, size: Vec2) {
+    private resizeShadowMap (light: Light, size: Vec2) {
         const width = size.x;
         const height = size.y;
         const pipeline = this._pipeline as ForwardPipeline;
