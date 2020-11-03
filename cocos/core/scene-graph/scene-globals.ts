@@ -407,7 +407,7 @@ export class ShadowsInfo {
     @serializable
     protected _orthoSize: number = 5;
     @serializable
-    protected _mostReceived: number = 4;
+    protected _maxReceived: number = 4;
     @serializable
     protected _size: Vec2 = new Vec2(512, 512);
 
@@ -546,17 +546,17 @@ export class ShadowsInfo {
     }
 
     /**
-     * @en get or set shadow most received
+     * @en get or set shadow max received
      * @zh 获取或者设置阴影接收的最大光源数量
      */
     @type(CCInteger)
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
-    set mostReceived (val: number) {
-        this._mostReceived = val;
-        if (this._resource) {this._resource.mostReceived = val;}
+    set maxReceived (val: number) {
+        this._maxReceived = val;
+        if (this._resource) {this._resource.maxReceived = val;}
     }
-    get mostReceived () {
-        return this._mostReceived;
+    get maxReceived () {
+        return this._maxReceived;
     }
 
     /**
@@ -630,7 +630,7 @@ export class ShadowsInfo {
         this._resource.pcf = this._pcf;
         this._resource.bias = this._bias;
         this._resource.enabled = this._enabled;
-        this._resource.mostReceived = this._mostReceived;
+        this._resource.maxReceived = this._maxReceived;
     }
 }
 legacyCC.ShadowsInfo = ShadowsInfo;

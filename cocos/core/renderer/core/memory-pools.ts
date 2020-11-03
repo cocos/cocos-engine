@@ -1113,7 +1113,6 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.ASPECT]: number;
     [ShadowsView.PCF_TYPE]: number;
     [ShadowsView.SHADOW_MAP_DIRTY]: number;
-    [ShadowsView.MOST_RECEIVED]: number;
     [ShadowsView.BIAS]: number;
     [ShadowsView.DIRTY]: number;
     [ShadowsView.ORTHO_SIZE]: number;
@@ -1135,7 +1134,6 @@ const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
     [ShadowsView.ASPECT]: BufferDataType.FLOAT32,
     [ShadowsView.PCF_TYPE]: BufferDataType.UINT32,
     [ShadowsView.SHADOW_MAP_DIRTY]: BufferDataType.UINT32,
-    [ShadowsView.MOST_RECEIVED]: BufferDataType.UINT32,
     [ShadowsView.BIAS]: BufferDataType.FLOAT32,
     [ShadowsView.DIRTY]: BufferDataType.UINT32,
     [ShadowsView.ORTHO_SIZE]: BufferDataType.UINT32,

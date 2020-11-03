@@ -65,7 +65,7 @@ export class ShadowFlow extends RenderFlow {
         const shadowInfo = pipeline.shadows;
         if (shadowInfo.type !== ShadowType.ShadowMap) { return; }
 
-        const validLights = lightCollecting(view, shadowInfo.mostReceived);
+        const validLights = lightCollecting(view, shadowInfo.maxReceived);
         shadowCollecting(pipeline, view);
 
         for (let l = 0; l < validLights.length; l++) {

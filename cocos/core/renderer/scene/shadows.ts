@@ -261,10 +261,10 @@ export class Shadows {
     public receiveSphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
 
     /**
-     * @en get or set shadow most received
+     * @en get or set shadow max received
      * @zh 阴影接收的最大灯光数量
      */
-    public mostReceived: number = 4;
+    public maxReceived: number = 4;
 
     protected _normal = new Vec3(0, 1, 0);
     protected _shadowColor = new Color(0, 0, 0, 76);

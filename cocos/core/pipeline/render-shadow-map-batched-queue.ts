@@ -188,8 +188,6 @@ export class RenderShadowMapBatchedQueue {
                     y = radius;
 
                     far = Math.min(this._shadowInfo.receiveSphere.radius * 2.0 * Math.sqrt(2.0), 2000.0);
-                    if (radius >= 500) { this._shadowInfo.size.set(2048, 2048); }
-                    else if (radius < 500 && radius >= 100) { this._shadowInfo.size.set(1024, 1024); }
                 } else {
                     shadowCameraView = mainLight.node!.getWorldMatrix();
 
