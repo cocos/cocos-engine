@@ -203,7 +203,7 @@ export class ForwardPipeline extends RenderPipeline {
                 x = radius * shadowInfo.aspect;
                 y = radius;
 
-                far = Math.min(shadowInfo.receiveSphere.radius * 2.0 * Math.sqrt(2.0), 2000.0);
+                far = Math.min(shadowInfo.receiveSphere.radius * Shadows.COEFFICIENT_OF_EXPANSION, Shadows.MAX_FAR);
             } else {
                 shadowCameraView = mainLight.node!.getWorldMatrix();
 

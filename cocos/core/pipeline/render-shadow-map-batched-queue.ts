@@ -187,7 +187,7 @@ export class RenderShadowMapBatchedQueue {
                     x = radius * this._shadowInfo.aspect;
                     y = radius;
 
-                    far = Math.min(this._shadowInfo.receiveSphere.radius * 2.0 * Math.sqrt(2.0), 2000.0);
+                    far = Math.min(this._shadowInfo.receiveSphere.radius * Shadows.COEFFICIENT_OF_EXPANSION, Shadows.MAX_FAR);
                 } else {
                     shadowCameraView = mainLight.node!.getWorldMatrix();
 

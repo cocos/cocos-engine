@@ -65,8 +65,21 @@ export const PCFType = Enum({
 })
 
 export class Shadows {
+
     /**
-     * @en Whether activate planar shadow
+     * @en MAX_FAR. This is shadow camera max far.
+     * @zh 阴影相机的最远视距。
+     */
+    public static readonly MAX_FAR: number = 2000.0;
+
+    /**
+     * @en EXPANSION_RATIO. This is shadow boundingBox Coefficient of expansion.
+     * @zh 阴影包围盒扩大系数。
+     */
+    public static readonly COEFFICIENT_OF_EXPANSION: number = 2.0 * Math.sqrt(3.0);
+
+    /**
+     * @en Whether activate planar shadow.
      * @zh 是否启用平面阴影？
      */
     get enabled (): boolean {
@@ -80,8 +93,8 @@ export class Shadows {
     }
 
     /**
-     * @en The normal of the plane which receives shadow
-     * @zh 阴影接收平面的法线
+     * @en The normal of the plane which receives shadow.
+     * @zh 阴影接收平面的法线。
      */
     get normal (): Vec3 {
         return this._normal;
@@ -94,7 +107,7 @@ export class Shadows {
 
     /**
      * @en The distance from coordinate origin to the receiving plane.
-     * @zh 阴影接收平面与原点的距离
+     * @zh 阴影接收平面与原点的距离。
      */
     get distance (): number {
         return ShadowsPool.get(this._handle, ShadowsView.DISTANCE);
@@ -105,8 +118,8 @@ export class Shadows {
     }
 
     /**
-     * @en Shadow color
-     * @zh 阴影颜色
+     * @en Shadow color.
+     * @zh 阴影颜色。
      */
     get shadowColor (): Color {
         return this._shadowColor;
@@ -118,8 +131,8 @@ export class Shadows {
     }
 
     /**
-     * @en Shadow type
-     * @zh 阴影类型
+     * @en Shadow type.
+     * @zh 阴影类型。
      */
     get type (): number {
         return ShadowsPool.get(this._handle, ShadowsView.TYPE);
@@ -131,8 +144,8 @@ export class Shadows {
     }
 
     /**
-     * @en get or set shadow camera near
-     * @zh 获取或者设置阴影相机近裁剪面
+     * @en get or set shadow camera near.
+     * @zh 获取或者设置阴影相机近裁剪面。
      */
     public get near (): number {
         return ShadowsPool.get(this._handle, ShadowsView.NEAR);
@@ -142,8 +155,8 @@ export class Shadows {
     }
 
     /**
-     * @en get or set shadow camera far
-     * @zh 获取或者设置阴影相机远裁剪面
+     * @en get or set shadow camera far.
+     * @zh 获取或者设置阴影相机远裁剪面。
      */
     public get far (): number {
         return ShadowsPool.get(this._handle, ShadowsView.FAR);
@@ -153,8 +166,8 @@ export class Shadows {
     }
 
     /**
-     * @en get or set shadow camera aspect
-     * @zh 获取或者设置阴影相机的宽高比
+     * @en get or set shadow camera aspect.
+     * @zh 获取或者设置阴影相机的宽高比。
      */
     public get aspect (): number {
         return ShadowsPool.get(this._handle, ShadowsView.ASPECT);
@@ -164,8 +177,8 @@ export class Shadows {
     }
 
     /**
-     * @en get or set shadow camera orthoSize
-     * @zh 获取或者设置阴影相机正交大小
+     * @en get or set shadow camera orthoSize.
+     * @zh 获取或者设置阴影相机正交大小。
      */
     public get orthoSize (): number {
         return ShadowsPool.get(this._handle, ShadowsView.ORTHO_SIZE);
@@ -175,8 +188,8 @@ export class Shadows {
     }
 
     /**
-     * @en get or set shadow camera orthoSize
-     * @zh 获取或者设置阴影纹理大小
+     * @en get or set shadow camera orthoSize.
+     * @zh 获取或者设置阴影纹理大小。
      */
     public get size (): Vec2 {
         return this._size;
@@ -187,8 +200,8 @@ export class Shadows {
     }
 
     /**
-     * @en get or set shadow pcf
-     * @zh 获取或者设置阴影pcf等级
+     * @en get or set shadow pcf.
+     * @zh 获取或者设置阴影pcf等级。
      */
     public get pcf (): number {
         return ShadowsPool.get(this._handle, ShadowsView.PCF_TYPE);
@@ -198,8 +211,8 @@ export class Shadows {
     }
 
     /**
-     * @en shadow Map size has been modified
-     * @zh 阴影贴图大小是否被修改
+     * @en shadow Map size has been modified.
+     * @zh 阴影贴图大小是否被修改。
      */
     public get shadowMapDirty (): boolean {
         if (ShadowsPool.get(this._handle, ShadowsView.SHADOW_MAP_DIRTY)) { return true; }
@@ -210,8 +223,8 @@ export class Shadows {
     }
 
     /**
-     * @en get or set shadow bias
-     * @zh 获取或者设置阴影偏移量
+     * @en get or set shadow bias.
+     * @zh 获取或者设置阴影偏移量。
      */
     public get bias (): number {
         return ShadowsPool.get(this._handle, ShadowsView.BIAS);
@@ -221,8 +234,8 @@ export class Shadows {
     }
 
     /**
-     * @en get or set shadow auto control
-     * @zh 获取或者设置阴影是否自动控制
+     * @en get or set shadow auto control.
+     * @zh 获取或者设置阴影是否自动控制。
      */
     public get autoAdapt (): boolean {
         if (ShadowsPool.get(this._handle, ShadowsView.AUTO_ADAPT)) { return true; }
@@ -249,20 +262,20 @@ export class Shadows {
     }
 
     /**
-     * @en The bounding sphere of the shadow map
-     * @zh 用于计算阴影 Shadow map 的场景包围球
+     * @en The bounding sphere of the shadow map.
+     * @zh 用于计算阴影 Shadow map 的场景包围球.
      */
     public sphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
 
     /**
-     * @en get or set shadow auto control
-     * @zh 获取或者设置阴影是否自动控制
+     * @en get or set shadow auto control.
+     * @zh 获取或者设置阴影是否自动控制。
      */
     public receiveSphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
 
     /**
-     * @en get or set shadow max received
-     * @zh 阴影接收的最大灯光数量
+     * @en get or set shadow max received.
+     * @zh 阴影接收的最大灯光数量。
      */
     public maxReceived: number = 4;
 

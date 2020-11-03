@@ -12,7 +12,7 @@ import { ForwardPipeline } from './forward-pipeline';
 import { RenderView } from '../';
 import { Pool } from '../../memop';
 import { IRenderObject, UBOShadow } from '../define';
-import { ShadowType } from '../../renderer/scene/shadows';
+import { Shadows, ShadowType } from '../../renderer/scene/shadows';
 import { SphereLight, DirectionalLight, Light} from '../../renderer/scene';
 
 const _tempVec3 = new Vec3();
@@ -56,7 +56,7 @@ function getCastShadowRenderObject (model: Model, camera: Camera) {
 export function getShadowWorldMatrix (pipeline: ForwardPipeline, rotation: Quat, dir: Vec3) {
     const shadows = pipeline.shadows;
     Vec3.negate(_dir_negate, dir);
-    const distance: number = 2.0 * Math.sqrt(3.0) * shadows.sphere.radius;
+    const distance: number = shadows.sphere.radius * Shadows.COEFFICIENT_OF_EXPANSION;
     Vec3.multiplyScalar(_vec3_p, _dir_negate, distance);
     Vec3.add(_vec3_p, _vec3_p, shadows.sphere.center);
 
