@@ -103,6 +103,11 @@ export class TweenAction extends ActionInterval {
 
         this._props = Object.create(null);
         for (let name in props) {
+            // filtering if
+            // - it was not own property
+            // - it was a function
+            // - it was undefined / null
+            if (!props.hasOwnProperty(name)) continue;
             let value = props[name];
             if (!value || typeof value === 'function') continue;
             // property may have custom easing or progress function
@@ -157,6 +162,8 @@ export class TweenAction extends ActionInterval {
                 }
 
                 for (var k in value) {
+                    // filtering if it not a number
+                    if (isNaN(_t[k])) continue;
                     prop.start[k] = _t[k];
                     prop.current[k] = _t[k];
                     prop.end[k] = relative ? _t[k] + value[k] : value[k];
