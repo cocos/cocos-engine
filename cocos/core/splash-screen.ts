@@ -12,7 +12,8 @@ import { sys } from './platform/sys';
 import {
     Sampler, SamplerInfo, Shader, Texture, TextureInfo, Device, InputAssembler, InputAssemblerInfo, Attribute, Buffer,
     BufferInfo, Rect, Color, BufferTextureCopy, Framebuffer, CommandBuffer, BufferUsageBit, Format,
-    MemoryUsageBit, TextureType, TextureUsageBit, Address } from './gfx';
+    MemoryUsageBit, TextureType, TextureUsageBit, Address
+} from './gfx';
 import { PipelineStateManager } from './pipeline';
 import { legacyCC } from './global-exports';
 import { Root } from './root';
@@ -127,7 +128,7 @@ export class SplashScreen {
             // this.setting.clearColor may not an instance of Color, so should create
             // Color manually, or will have problem on native.
             const clearColor = this.setting.clearColor;
-            this.clearColors = [ new Color(clearColor.x, clearColor.y, clearColor.z, clearColor.w) ];
+            this.clearColors = [new Color(clearColor.x, clearColor.y, clearColor.z, clearColor.w)];
 
             const { width, height, surfaceTransform } = this.device;
             this.screenWidth = surfaceTransform % 2 ? height : width;
@@ -396,7 +397,11 @@ export class SplashScreen {
 
     private initCMD () {
         const device = this.device as Device;
-        this.renderArea = new Rect(0, 0, device.nativeWidth, device.nativeHeight);
+        if (JSB && (sys.os === legacyCC.sys.OS_OSX || sys.os === legacyCC.sys.OS_IOS)) {
+            this.renderArea = new Rect(0, 0, device.nativeWidth, device.nativeHeight);
+        } else {
+            this.renderArea = new Rect(0, 0, device.width, device.height);
+        }
         this.framebuffer = this.root.mainWindow!.framebuffer;
 
         this.cmdBuff = device.commandBuffer;
@@ -577,7 +582,7 @@ export class SplashScreen {
         return SplashScreen._ins;
     }
 
-    private constructor () {}
+    private constructor () { }
 }
 
 legacyCC.internal.SplashScreen = SplashScreen;

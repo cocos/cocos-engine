@@ -85,7 +85,6 @@ function compileObjectTypeJit (sources, defaultValue, accessorToSet, propNameLit
         sources.push('if(prop){');
         sources.push('s._deserializeObjField(o,prop,' +
                              propNameLiteralToSet +
-                             ((EDITOR || TEST) ? ',t&&o,' : ',null,') +
                              !!stillUseUrl +
                          ');');
         sources.push('}else o' + accessorToSet + '=null;');
@@ -101,7 +100,7 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
     const attrs = Attr.getClassAttrs(klass);
 
     const props = klass.__values__;
-    // self, obj, serializedData, klass, target
+    // self, obj, serializedData, klass
     const sources = [
         'var prop;',
     ];
@@ -188,7 +187,7 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
         // parse the serialized data as primitive javascript object, so its __id__ will be dereferenced
         sources.push('s._deserializePrimitiveObject(o._$erialized,d);');
     }
-    return Function('s', 'o', 'd', 'k', 't', sources.join(''));
+    return Function('s', 'o', 'd', 'k', sources.join(''));
 } : (self, klass) => {
     const fastMode = misc.BUILTIN_CLASSID_RE.test(js._getClassId(klass));
     const shouldCopyId = legacyCC.js.isChildClassOf(klass, legacyCC._BaseNode) || legacyCC.js.isChildClassOf(klass, legacyCC.Component);
@@ -257,7 +256,7 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
         }
     })();
 
-    return (s, o, d, k, t) => {
+    return (s, o, d, k) => {
         for (let i = 0; i < simpleProps.length; ++i) {
             const prop = d[simplePropsToRead[i]];
             if (prop !== undefined) {
@@ -286,13 +285,7 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
                 }
                 else {
                     if (prop) {
-                        s._deserializeObjField(
-                            o,
-                            prop,
-                            propName,
-                            (EDITOR || TEST) ? (t && o) : null,
-                            advancedPropsUseUrl[i],
-                        );
+                        s._deserializeObjField(o, prop, propName, advancedPropsUseUrl[i]);
                     }
                     else {
                         o[propName] = null;
@@ -328,7 +321,7 @@ function unlinkUnusedPrefab (self, serialized, obj) {
     }
 }
 
-function _deserializeFireClass (self, obj, serialized, klass, target) {
+function _deserializeFireClass (self, obj, serialized, klass) {
     let deserialize;
     if (klass.hasOwnProperty('__deserialize__')) {
         deserialize = klass.__deserialize__;
@@ -340,7 +333,7 @@ function _deserializeFireClass (self, obj, serialized, klass, target) {
         // }
         js.value(klass, '__deserialize__', deserialize, true);
     }
-    deserialize(self, obj, serialized, klass, target);
+    deserialize(self, obj, serialized, klass);
     // if preview or build worker
     if (PREVIEW || (EDITOR && self._ignoreEditorOnly)) {
         if (klass === legacyCC._PrefabInfo && !obj.sync) {
@@ -384,20 +377,18 @@ class _Deserializer {
     public deserializedList: any[];
     public deserializedData: any;
     private _classFinder: any;
-    private _target: any;
     private _ignoreEditorOnly: any;
     private _idList: any[];
     private _idObjList: any[];
     private _idPropList: any[];
 
-    constructor (result, target, classFinder, customEnv, ignoreEditorOnly) {
+    constructor (result, classFinder, customEnv, ignoreEditorOnly) {
         this.result = result;
         this.customEnv = customEnv;
         this.deserializedList = [];
         this.deserializedData = null;
         this._classFinder = classFinder;
-        if (!BUILD) {
-            this._target = target;
+        if (DEV) {
             this._ignoreEditorOnly = ignoreEditorOnly;
         }
         this._idList = [];
@@ -414,8 +405,7 @@ class _Deserializer {
             for (let i = 0; i < refCount; i++) {
                 if (jsonArray[i]) {
                     if (EDITOR || TEST) {
-                        const mainTarget = (i === 0 && this._target);
-                        this.deserializedList[i] = this._deserializeObject(jsonArray[i], false, mainTarget, this.deserializedList, '' + i);
+                        this.deserializedList[i] = this._deserializeObject(jsonArray[i], false, this.deserializedList, '' + i);
                     }
                     else {
                         this.deserializedList[i] = this._deserializeObject(jsonArray[i], false);
@@ -438,7 +428,7 @@ class _Deserializer {
             let deserializedData;
             this.deserializedList.length = 1;
             if (EDITOR || TEST) {
-                deserializedData = jsonObj ? this._deserializeObject(jsonObj, false, this._target, this.deserializedList, '0') : null;
+                deserializedData = jsonObj ? this._deserializeObject(jsonObj, false, this.deserializedList, '0') : null;
             }
             else {
                 deserializedData = jsonObj ? this._deserializeObject(jsonObj, false) : null;
@@ -460,13 +450,13 @@ class _Deserializer {
         return this.deserializedData;
     }
 
-    /*
+    /**
      * @param {Object} serialized - The obj to deserialize, must be non-nil
-     * @param {Object} [target=null] - editor only
+     * @param {Boolean} _stillUseUrl
      * @param {Object} [owner] - debug only
      * @param {String} [propName] - debug only
      */
-    private _deserializeObject (serialized, _stillUseUrl: Boolean, target?, owner?: Object, propName?: String) {
+    private _deserializeObject (serialized, _stillUseUrl: Boolean, owner?: Object, propName?: String) {
         let prop;
         let obj: any = null;     // the obj to return
         let klass: any = null;
@@ -495,24 +485,15 @@ class _Deserializer {
             const self = this;
             // @ts-ignore
             function deserializeByType () {
-                if ((EDITOR || TEST) && target) {
-                    // use target
-                    if ( !(target instanceof klass) ) {
-                        warnID(5300, js.getClassName(target), klass);
-                    }
-                    obj = target;
-                }
-                else {
-                    // instantiate a new object
-                    obj = new klass();
-                }
+                // instantiate a new object
+                obj = new klass();
 
                 if (obj._deserialize) {
                     obj._deserialize(serialized.content, self);
                     return;
                 }
                 if (legacyCC.Class._isCCClass(klass)) {
-                    _deserializeFireClass(self, obj, serialized, klass, target);
+                    _deserializeFireClass(self, obj, serialized, klass);
                 }
                 else {
                     self._deserializeTypedObject(obj, serialized, klass);
@@ -543,30 +524,19 @@ class _Deserializer {
 
             // embedded primitive javascript object
 
-            obj = ((EDITOR || TEST) && target) || {};
+            obj = {};
             this._deserializePrimitiveObject(obj, serialized);
         }
         else {
 
             // Array
 
-            if ((EDITOR || TEST) && target) {
-                target.length = serialized.length;
-                obj = target;
-            }
-            else {
-                obj = new Array(serialized.length);
-            }
+            obj = new Array(serialized.length);
 
             for (let i = 0; i < serialized.length; i++) {
                 prop = serialized[i];
                 if (typeof prop === 'object' && prop) {
-                    if (EDITOR || TEST) {
-                        this._deserializeObjField(obj, prop, '' + i, target && obj, _stillUseUrl);
-                    }
-                    else {
-                        this._deserializeObjField(obj, prop, '' + i, null, _stillUseUrl);
-                    }
+                    this._deserializeObjField(obj, prop, '' + i, _stillUseUrl);
                 }
                 else {
                     obj[i] = prop;
@@ -577,25 +547,16 @@ class _Deserializer {
     }
 
     // 和 _deserializeObject 不同的地方在于会判断 id 和 uuid
-    private _deserializeObjField (obj, jsonObj, propName, target?, _stillUseUrl?) {
+    private _deserializeObjField (obj, jsonObj, propName, _stillUseUrl?) {
         const id = jsonObj.__id__;
         if (id === undefined) {
             const uuid = jsonObj.__uuid__;
             if (uuid) {
-                // if (ENABLE_TARGET) {
-                    // 这里不做任何操作，因为有可能调用者需要知道依赖哪些 asset。
-                    // 调用者使用 uuidList 时，可以判断 obj[propName] 是否为空，为空则表示待进一步加载，
-                    // 不为空则只是表明依赖关系。
-                //    if (target && target[propName] && target[propName]._uuid === uuid) {
-                //        console.assert(obj[propName] === target[propName]);
-                //        return;
-                //    }
-                // }
                 this.result.push(obj, propName, uuid, _stillUseUrl);
             }
             else {
                 if (EDITOR || TEST) {
-                    obj[propName] = this._deserializeObject(jsonObj, _stillUseUrl, target && target[propName], obj, propName);
+                    obj[propName] = this._deserializeObject(jsonObj, _stillUseUrl, obj, propName);
                 }
                 else {
                     obj[propName] = this._deserializeObject(jsonObj, _stillUseUrl);
@@ -616,7 +577,6 @@ class _Deserializer {
     }
 
     private _deserializePrimitiveObject (instance, serialized) {
-        const self = this;
         for (const propName in serialized) {
             if (serialized.hasOwnProperty(propName)) {
                 const prop = serialized[propName];
@@ -627,12 +587,7 @@ class _Deserializer {
                 }
                 else {
                     if (prop) {
-                        if (EDITOR || TEST) {
-                            self._deserializeObjField(instance, prop, propName, self._target && instance);
-                        }
-                        else {
-                            self._deserializeObjField(instance, prop, propName);
-                        }
+                        this._deserializeObjField(instance, prop, propName);
                     }
                     else {
                         instance[propName] = null;
@@ -683,11 +638,7 @@ class _Deserializer {
             if (typeof value !== 'object') {
                 instance[propName] = value;
             } else if (value) {
-                if (EDITOR || TEST) {
-                    this._deserializeObjField(instance, value, propName, this._target && instance);
-                } else {
-                    this._deserializeObjField(instance, value, propName);
-                }
+                this._deserializeObjField(instance, value, propName);
             } else {
                 instance[propName] = null;
             }
@@ -701,28 +652,24 @@ _Deserializer.pool = new js.Pool((obj: any) => {
     obj.deserializedList.length = 0;
     obj.deserializedData = null;
     obj._classFinder = null;
-    if (DEV) {
-        obj._target = null;
-    }
     obj._idList.length = 0;
     obj._idObjList.length = 0;
     obj._idPropList.length = 0;
 }, 1);
 // @ts-ignore
-_Deserializer.pool.get = function (result, target, classFinder, customEnv, ignoreEditorOnly) {
+_Deserializer.pool.get = function (result, classFinder, customEnv, ignoreEditorOnly) {
     const cache: any = this._get();
     if (cache) {
         cache.result = result;
         cache.customEnv = customEnv;
         cache._classFinder = classFinder;
-        if (!BUILD) {
-            cache._target = target;
+        if (DEV) {
             cache._ignoreEditorOnly = ignoreEditorOnly;
         }
         return cache;
     }
     else {
-        return new _Deserializer(result, target, classFinder, customEnv, ignoreEditorOnly);
+        return new _Deserializer(result, classFinder, customEnv, ignoreEditorOnly);
     }
 };
 
@@ -731,7 +678,6 @@ export function deserializeDynamic (data, details: Details, options) {
     const classFinder = options.classFinder || js._getClassById;
     // 启用 createAssetRefs 后，如果有 url 属性则会被统一强制设置为 { uuid: 'xxx' }，必须后面再特殊处理
     const createAssetRefs = options.createAssetRefs || legacyCC.sys.platform === legacyCC.sys.EDITOR_CORE;
-    const target = (EDITOR || TEST) && options.target;
     const customEnv = options.customEnv;
     const ignoreEditorOnly = options.ignoreEditorOnly;
 
@@ -740,7 +686,7 @@ export function deserializeDynamic (data, details: Details, options) {
     details.init();
 
     // @ts-ignore
-    const deserializer: _Deserializer = _Deserializer.pool.get(details, target, classFinder, customEnv, ignoreEditorOnly);
+    const deserializer: _Deserializer = _Deserializer.pool.get(details, classFinder, customEnv, ignoreEditorOnly);
 
     legacyCC.game._isCloning = true;
     const res = deserializer.deserialize(data);

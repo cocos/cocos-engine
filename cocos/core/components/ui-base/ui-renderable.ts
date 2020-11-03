@@ -340,7 +340,7 @@ export class UIRenderable extends RenderableComponent {
      * @en update the hash for material uniforms, and return it
      * @zh 更新并返回材质 uniform 的哈希值
      */
-    public updateMaterialUniformHash (mat: Material) {
+    public updateMaterialUniformHash (mat: Material, force?: boolean) {
         const passes = mat.passes;
         let pass;
         let block;
@@ -348,7 +348,7 @@ export class UIRenderable extends RenderableComponent {
         let dirty = false;
         for (let i = 0; i < passes.length; i++) {
             pass = passes[i];
-            if (pass.rootBufferDirty) {
+            if (force || pass.rootBufferDirty) {
                 dirty = true;
                 const blocks = pass.blocks;
                 for (let j = 0; j < pass.blocks.length; j++) {
@@ -377,7 +377,14 @@ export class UIRenderable extends RenderableComponent {
         this.node.on(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this.updateMaterial();
         this._renderFlag = this._canRender();
-        this._materialUniformHash = this.getMaterial(0)!.hash!;
+        this.updateMaterialUniformHash(this.getMaterial(0)!, true);
+    }
+
+    // For Redo, Undo
+    public onRestore () {
+        this.updateMaterial();
+        this._renderFlag = this._canRender();
+        this.updateMaterialUniformHash(this.getMaterial(0)!, true);
     }
 
     public onDisable () {

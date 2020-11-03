@@ -33,8 +33,6 @@ import {WebView} from './web-view';
 import {EventType} from './web-view-enums';
 import {UITransform} from '../core/components/ui-base';
 
-const { game, view, mat4, misc, sys } = legacyCC;
-
 export abstract class WebViewImpl {
     protected _componentEventList: Map<number, Function> = new Map<number, Function>();
     protected _state = EventType.NONE;

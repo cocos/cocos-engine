@@ -28,12 +28,13 @@
  * @category component/web-view
  */
 
-import { legacyCC } from '../core/global-exports';
-import { EventType } from './web-view-enums';
-import { error } from '../core/platform';
-import {WebViewImpl} from "./web-view-impl";
+import {EventType} from './web-view-enums';
+import {error, warn, view} from '../core/platform';
+import {WebViewImpl} from './web-view-impl';
+import {game} from '../core';
+import {mat4} from '../core/math';
+import {contains} from '../core/utils/misc';
 
-const { game, view, mat4, misc, sys, warn } = legacyCC;
 const _mat4_temp = mat4();
 
 export class WebViewImplWeb extends WebViewImpl {
@@ -84,7 +85,7 @@ export class WebViewImplWeb extends WebViewImpl {
         warpper.style.left = '0px';
         warpper.style.transformOrigin = '0px 100% 0px';
         warpper.style['-webkit-transform-origin'] = '0px 100% 0px';
-        game.container.appendChild(warpper);
+        game.container!.appendChild(warpper);
 
         let webview = document.createElement('iframe');
         this._webview = webview;
@@ -98,8 +99,8 @@ export class WebViewImplWeb extends WebViewImpl {
 
     public removeWebView() {
         const warpper = this._warpper;
-        if (misc.contains(game.container, warpper)) {
-            game.container.removeChild(warpper);
+        if (contains(game.container, warpper)) {
+            game.container!.removeChild(warpper);
         }
         this.reset();
     }
@@ -148,7 +149,7 @@ export class WebViewImplWeb extends WebViewImpl {
 
         this._component.node.getWorldMatrix(_mat4_temp);
         camera.update(true);
-        camera.worldMatrixToScreen(_mat4_temp, _mat4_temp, game.canvas.width, game.canvas.height);
+        camera.worldMatrixToScreen(_mat4_temp, _mat4_temp, game.canvas!.width, game.canvas!.height);
 
         const { width, height } = this._uiTrans.contentSize;
         if (!this._forceUpdate &&
@@ -169,11 +170,11 @@ export class WebViewImplWeb extends WebViewImpl {
         this._w = width;
         this._h = height;
 
-        const dpr = view._devicePixelRatio;
+        const dpr = view.getDevicePixelRatio();
         const scaleX = 1 / dpr;
         const scaleY = 1 / dpr;
 
-        const container = game.container;
+        const container = game.container!;
         const sx = _mat4_temp.m00 * scaleX;
         const b = _mat4_temp.m01;
         const c = _mat4_temp.m04;

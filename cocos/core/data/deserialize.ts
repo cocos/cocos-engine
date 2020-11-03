@@ -989,9 +989,6 @@ export function isCompiledJson (json: object): boolean {
  * @en Deserialize json to `Asset`.
  * @zh 将 JSON 反序列化为对象实例。
  *
- * 当指定了 target 选项时，如果 target 引用的其它 asset 的 uuid 不变，则不会改变 target 对 asset 的引用，
- * 也不会将 uuid 保存到 result 对象中。
- *
  * @method deserialize
  * @param {String|Object} data - the serialized `Asset` json string or json object.
  * @param {Details} [details] - additional loading result

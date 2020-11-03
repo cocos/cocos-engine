@@ -23,14 +23,14 @@
  THE SOFTWARE.
  */
 
-import {legacyCC} from '../core/global-exports';
 import {mat4} from "../core/math";
-import {error, sys} from "../core/platform";
+import {error, sys, view, screen} from "../core/platform";
+import {game} from "../core";
 import {contains} from '../core/utils/misc';
 import {EventType, READY_STATE} from './video-player-enums';
 import {VideoPlayerImpl} from "./video-player-impl";
-
-const { game, Game, view, screen, visibleRect, ClearFlag } = legacyCC;
+import {ClearFlag} from "../core/gfx";
+import visibleRect from '../core/platform/visible-rect';
 
 const MIN_ZINDEX = -Math.pow(2, 15);
 
@@ -224,7 +224,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
     public removeVideoPlayer () {
         let video = this._video;
         if (contains(game.container, video)) {
-            game.container.removeChild(video);
+            game.container!.removeChild(video);
             this.removeAllListeners();
         }
         this._cachedCurrentTime = 0;
@@ -251,7 +251,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         video.setAttribute("x5-playsinline", '');
         video.setAttribute('playsinline', '');
         this._bindDomEvent();
-        game.container.appendChild(video);
+        game.container!.appendChild(video);
         let source = document.createElement("source");
         video.appendChild(source);
         source.src = url;
@@ -285,21 +285,29 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
 
     public enable () {
         if (this._video) {
+            this._visible = true;
+            if (this._video.style.visibility === 'visible') {
+                return;
+            }
             this._video.style.visibility = 'visible';
         }
     }
 
     public disable (noPause?: boolean) {
         if (this._video) {
-            if (!noPause) {
+            if (!noPause && this._playing) {
                 this._video.pause();
+            }
+            this._visible = false;
+            if (this._video.style.visibility === 'hidden') {
+                return;
             }
             this._video.style.visibility = 'hidden';
         }
     }
 
     public syncMatrix () {
-        if (!this._video || this._video.style.visibility === 'hidden' || !this._component) return;
+        if (!this._video || !this._visible || !this._component) return;
 
         const canvas = this.UICanvas;
         if (!canvas) {
@@ -335,7 +343,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
 
         this._component.node.getWorldMatrix(_mat4_temp);
         camera.update(true);
-        camera.worldMatrixToScreen(_mat4_temp, _mat4_temp, game.canvas.width, game.canvas.height);
+        camera.worldMatrixToScreen(_mat4_temp, _mat4_temp, game.canvas!.width, game.canvas!.height);
 
         let width = 0, height = 0;
         if (this._fullScreenOnAwake) {
@@ -365,7 +373,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         this._w = width;
         this._h = height;
 
-        let dpr = view._devicePixelRatio;
+        let dpr = view.getDevicePixelRatio();
         let scaleX = 1 / dpr;
         let scaleY = 1 / dpr;
 
