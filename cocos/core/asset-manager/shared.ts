@@ -91,7 +91,7 @@ export interface INativeAssetOptions extends IDownloadParseOptions {
     preset?: string;
 }
 
-export type AssetType = Constructor<Asset>;
+export type AssetType<T = Asset> = Constructor<T>;
 
 export const assets = new Cache<Asset>();
 export const files = new Cache();

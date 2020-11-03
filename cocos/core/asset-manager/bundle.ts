@@ -210,20 +210,20 @@ export default class Bundle {
      * bundle2.load('imgs/cocos', cc.SpriteFrame, null, (err, spriteFrame) => console.log(err));
      *
      */
-    public load<T extends Asset> (paths: string, type: AssetType | null,
+    public load<T extends Asset> (paths: string, type: AssetType<T> | null,
         onProgress: ProgressCallback | null,
         onComplete: CompleteCallback<T> | null): void;
-    public load<T extends Asset> (paths: string[], type: AssetType | null,
+    public load<T extends Asset> (paths: string[], type: AssetType<T> | null,
             onProgress: ProgressCallback | null,
             onComplete: CompleteCallback<T[]> | null): void;
     public load<T extends Asset> (paths: string, onProgress: ProgressCallback | null, onComplete: CompleteCallback<T> | null): void;
     public load<T extends Asset> (paths: string[], onProgress: ProgressCallback | null, onComplete: CompleteCallback<T[]> | null): void;
-    public load<T extends Asset> (paths: string, type: AssetType | null, onComplete?: CompleteCallback<T> | null): void;
-    public load<T extends Asset> (paths: string[], type: AssetType | null, onComplete?: CompleteCallback<T[]> | null): void;
+    public load<T extends Asset> (paths: string, type: AssetType<T> | null, onComplete?: CompleteCallback<T> | null): void;
+    public load<T extends Asset> (paths: string[], type: AssetType<T> | null, onComplete?: CompleteCallback<T[]> | null): void;
     public load<T extends Asset> (paths: string, onComplete?: CompleteCallback<T> | null): void;
     public load<T extends Asset> (paths: string[], onComplete?: CompleteCallback<T[]> | null): void;
     public load<T extends Asset> (paths: string|string[],
-                                  type?: AssetType | ProgressCallback | CompleteCallback<T|T[]> | null,
+                                  type?: AssetType<T> | ProgressCallback | CompleteCallback<T|T[]> | null,
                                   onProgress?: ProgressCallback | CompleteCallback<T|T[]> | null,
                                   onComplete?: CompleteCallback<T|T[]> | null) {
         const { type: _type, onProgress: onProg, onComplete: onComp } = parseLoadResArgs(type, onProgress, onComplete);
@@ -319,12 +319,12 @@ export default class Bundle {
      * bundle2.loadDir('skills', cc.SpriteFrame, null, (err, spriteFrames) => console.log(err));
      *
      */
-    public loadDir<T extends Asset> (dir: string, type: AssetType | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback<T[]> | null): void;
+    public loadDir<T extends Asset> (dir: string, type: AssetType<T> | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback<T[]> | null): void;
     public loadDir<T extends Asset> (dir: string, onProgress: ProgressCallback | null, onComplete: CompleteCallback<T[]> | null): void;
-    public loadDir<T extends Asset> (dir: string, type: AssetType | null, onComplete?: CompleteCallback<T[]> | null): void;
+    public loadDir<T extends Asset> (dir: string, type: AssetType<T> | null, onComplete?: CompleteCallback<T[]> | null): void;
     public loadDir<T extends Asset> (dir: string, onComplete?: CompleteCallback<T[]> | null): void;
     public loadDir<T extends Asset> (dir: string,
-                                     type?: AssetType | ProgressCallback | CompleteCallback<T[]> | null,
+                                     type?: AssetType<T> | ProgressCallback | CompleteCallback<T[]> | null,
                                      onProgress?: ProgressCallback | CompleteCallback<T[]> | null,
                                      onComplete?: CompleteCallback<T[]> | null) {
         const { type: _type, onProgress: onProg, onComplete: onComp } = parseLoadResArgs(type, onProgress, onComplete);
@@ -492,7 +492,7 @@ export default class Bundle {
      * @example
      * bundle1.get('music/hit', cc.AudioClip);
      */
-    public get<T extends Asset> (path: string, type?: AssetType | null): T | null {
+    public get<T extends Asset> (path: string, type?: AssetType<T> | null): T | null {
         const info = this.getInfoWithPath(path, type);
         if (info) {
             return assets.get(info.uuid) as T || null;
