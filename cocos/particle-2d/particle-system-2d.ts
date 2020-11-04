@@ -1023,7 +1023,7 @@ bv
 
         // position
         // Make empty positionType value and old version compatible
-        this.positionType = parseFloat(dict['positionType'] !== undefined ? dict['positionType'] : PositionType.RELATIVE);
+        this.positionType = parseFloat(dict['positionType'] !== undefined ? dict['positionType'] : PositionType.FREE);
         // for
         this.sourcePos.set(0, 0)
         this.posVar.set(parseFloat(dict["sourcePositionVariancex"] || 0), parseFloat(dict["sourcePositionVariancey"] || 0));
