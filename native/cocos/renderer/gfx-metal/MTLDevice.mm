@@ -18,7 +18,7 @@
 #include "MTLStateCache.h"
 #include "MTLTexture.h"
 #include "MTLUtils.h"
-#include <platform/mac/View.h>
+#include "TargetConditionals.h"
 
 #import <MetalKit/MTKView.h>
 
@@ -53,27 +53,12 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _stateCache = CC_NEW(CCMTLStateCache);
 
     _mtkView = (MTKView *)_windowHandle;
-    _mtlDevice = ((MTKView *)_mtkView).device;
-    _mtlCommandQueue = [id<MTLDevice>(_mtlDevice) newCommandQueue];
+    id<MTLDevice> mtlDevice = ((MTKView *)_mtkView).device;
+    _mtlDevice = mtlDevice;
+    _mtlCommandQueue = [mtlDevice newCommandQueue];
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    static_cast<MTKView *>(_mtkView).depthStencilPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
-    _depthBits = 32;
-    _features[(int)Feature::FORMAT_D32FS8] = true;
-#else
-    if ([id<MTLDevice>(_mtlDevice) isDepth24Stencil8PixelFormatSupported]) {
-        static_cast<MTKView *>(_mtkView).depthStencilPixelFormat = MTLPixelFormatDepth24Unorm_Stencil8;
-        _depthBits = 24;
-        _features[(int)Feature::FORMAT_D24S8] = true;
-    } else {
-        static_cast<MTKView *>(_mtkView).depthStencilPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
-        _depthBits = 32;
-        _features[(int)Feature::FORMAT_D32FS8] = true;
-    }
-#endif
-    _stencilBits = 8;
-    _mtlFeatureSet = mu::highestSupportedFeatureSet(id<MTLDevice>(_mtlDevice));
-    auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
+    _mtlFeatureSet = mu::highestSupportedFeatureSet(mtlDevice);
+    const auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
     _indirectDrawSupported = mu::isIndirectDrawSupported(gpuFamily);
     _maxVertexAttributes = mu::getMaxVertexAttributes(gpuFamily);
     _maxTextureUnits = mu::getMaxEntriesInTextureArgumentTable(gpuFamily);
@@ -84,6 +69,8 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _maxBufferBindingIndex = mu::getMaxEntriesInBufferArgumentTable(gpuFamily);
     _uboOffsetAlignment = mu::getMinBufferOffsetAlignment(gpuFamily);
     _icbSuppored = mu::isIndirectCommandBufferSupported(MTLFeatureSet(_mtlFeatureSet));
+    static_cast<MTKView *>(_mtkView).depthStencilPixelFormat = mu::getSupportedDepthStencilFormat(mtlDevice, gpuFamily, _depthBits);
+    _stencilBits = 8;
 
     ContextInfo contextCreateInfo;
     contextCreateInfo.windowHandle = _windowHandle;
@@ -103,7 +90,7 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     cmdBuffInfo.queue = _queue;
     _cmdBuff = createCommandBuffer(cmdBuffInfo);
 
-    _gpuStagingBufferPool = CC_NEW(CCMTLGPUStagingBufferPool(id<MTLDevice>(_mtlDevice)));
+    _gpuStagingBufferPool = CC_NEW(CCMTLGPUStagingBufferPool(mtlDevice));
 
     _features[static_cast<int>(Feature::COLOR_FLOAT)] = mu::isColorBufferFloatSupported(gpuFamily);
     _features[static_cast<int>(Feature::COLOR_HALF_FLOAT)] = mu::isColorBufferHalfFloatSupported(gpuFamily);
@@ -140,10 +127,11 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _features[static_cast<uint>(Feature::STENCIL_COMPARE_MASK)] = false;
     _features[static_cast<uint>(Feature::STENCIL_WRITE_MASK)] = false;
     _features[static_cast<uint>(Feature::FORMAT_RGB8)] = false;
-    _features[static_cast<uint>(Feature::FORMAT_D16)] = mu::isDepthStencilFormatSupported(Format::D16, gpuFamily);
-    _features[static_cast<uint>(Feature::FORMAT_D16S8)] = mu::isDepthStencilFormatSupported(Format::D16S8, gpuFamily);
-    _features[static_cast<uint>(Feature::FORMAT_D32F)] = mu::isDepthStencilFormatSupported(Format::D32F, gpuFamily);
-    _features[static_cast<uint>(Feature::FORMAT_D32FS8)] = mu::isDepthStencilFormatSupported(Format::D32F_S8, gpuFamily);
+    _features[static_cast<uint>(Feature::FORMAT_D16)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D16, gpuFamily);
+    _features[static_cast<uint>(Feature::FORMAT_D16S8)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D16S8, gpuFamily);
+    _features[static_cast<uint>(Feature::FORMAT_D24S8)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D24S8, gpuFamily);
+    _features[static_cast<uint>(Feature::FORMAT_D32F)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D32F, gpuFamily);
+    _features[static_cast<uint>(Feature::FORMAT_D32FS8)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D32F_S8, gpuFamily);
 
     CC_LOG_INFO("Metal Feature Set: %s", mu::featureSetToString(MTLFeatureSet(_mtlFeatureSet)).c_str());
 
