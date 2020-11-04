@@ -719,11 +719,10 @@ export class Mesh extends Asset {
 
             const vbReference = prim.vertexBundelIndices.map((idx) => vertexBuffers[idx]);
 
-            let gfxAttributes: Attribute[] = [];
+            const gfxAttributes: Attribute[] = [];
             if (prim.vertexBundelIndices.length > 0) {
                 const idx = prim.vertexBundelIndices[0];
                 const vertexBundle = this._struct.vertexBundles[idx];
-                gfxAttributes = vertexBundle.attributes;
                 const attrs = vertexBundle.attributes;
                 for (let j = 0; j < attrs.length; ++j) {
                     const attr = attrs[j];
