@@ -576,7 +576,9 @@ AssetManager.prototype = {
             
             this.loadAny(depend, options, function (err, native) {
                 if (!err) {
-                    !asset._nativeAsset && (asset._nativeAsset = native);
+                    if (asset.isValid && !asset._nativeAsset) {
+                        asset._nativeAsset = native
+                    }
                 }
                 else {
                     cc.error(err.message, err.stack);
@@ -653,10 +655,10 @@ AssetManager.prototype = {
      * loadScript('http://localhost:8080/index.js', null, (err) => console.log(err));
      * 
      * @typescript
-     * loadScript(url: string|string[], options: Record<string, any>, onComplete: (err: Error) => void): void;
-     * loadScript(url: string|string[], onComplete: (err: Error) => void): void;
-     * loadScript(url: string|string[], options: Record<string, any>): void;
-     * loadScript(url: string|string[]): void;
+     * loadScript(url: string|string[], options: Record<string, any>, onComplete: (err: Error) => void): void
+     * loadScript(url: string|string[], onComplete: (err: Error) => void): void
+     * loadScript(url: string|string[], options: Record<string, any>): void
+     * loadScript(url: string|string[]): void
      */
     loadScript (url, options, onComplete) {
         var { options, onComplete } = parseParameters(options, undefined, onComplete);

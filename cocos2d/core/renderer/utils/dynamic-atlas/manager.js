@@ -32,7 +32,7 @@ let _enabled = false;
  */
 let dynamicAtlasManager = {
     Atlas: Atlas,
-    
+
     /**
      * !#en Enable or disable the dynamic atlas, see [Dynamic Atlas](https://docs.cocos.com/creator/manual/en/advanced-topics/dynamic-atlas.html) for details.
      * !#zh 开启或者关闭动态图集，详见 [动态合图](https://docs.cocos.com/creator/manual/zh/advanced-topics/dynamic-atlas.html)。
@@ -67,6 +67,16 @@ let dynamicAtlasManager = {
     },
     set maxAtlasCount (value) {
         _maxAtlasCount = value;
+    },
+
+    /**
+     * !#en Get the current created atlas count.
+     * !#zh 获取当前已经创建的图集数量。
+     * @property atlasCount
+     * @type {Number}
+     */
+    get atlasCount () {
+        return _atlases.length;
     },
 
     /**
@@ -116,18 +126,18 @@ let dynamicAtlasManager = {
      * @type {Number}
      * @deprecated
      */
-    
+
     /**
      * !#en Append a sprite frame into the dynamic atlas.
      * !#zh 添加碎图进入动态图集。
      * @method insertSpriteFrame
-     * @param {SpriteFrame} spriteFrame 
+     * @param {SpriteFrame} spriteFrame
      */
     insertSpriteFrame (spriteFrame) {
         if (CC_EDITOR) return null;
         if (!_enabled || _atlasIndex === _maxAtlasCount ||
             !spriteFrame || spriteFrame._original) return null;
-        
+
         if (!spriteFrame._texture.packable) return null;
 
         let atlas = _atlases[_atlasIndex];
@@ -143,7 +153,7 @@ let dynamicAtlasManager = {
         return frame;
     },
 
-    /** 
+    /**
      * !#en Resets all dynamic atlas, and the existing ones will be destroyed.
      * !#zh 重置所有动态图集，已有的动态图集会被销毁。
      * @method reset
@@ -167,7 +177,7 @@ let dynamicAtlasManager = {
         if (texture) {
             for (let i = _atlases.length - 1; i >= 0; i--) {
                 _atlases[i].deleteInnerTexture(texture);
-                
+
                 if (_atlases[i].isEmpty()) {
                     _atlases[i].destroy();
                     _atlases.splice(i, 1);
@@ -216,7 +226,7 @@ let dynamicAtlasManager = {
 
                 for (let i = 0; i <= _atlasIndex; i++) {
                     let node = new cc.Node('ATLAS');
-                    
+
                     let texture = _atlases[i]._texture;
                     let spriteFrame = new cc.SpriteFrame();
                     spriteFrame.setTexture(_atlases[i]._texture);
