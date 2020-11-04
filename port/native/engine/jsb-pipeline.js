@@ -198,7 +198,7 @@ cc.js.setClassName('RenderQueueDesc', RenderQueueDesc);
 
 let getOrCreatePipelineState = nr.PipelineStateManager.getOrCreatePipelineState;
 nr.PipelineStateManager.getOrCreatePipelineState = function(device, pass, shader, renderPass, ia) {
-  getOrCreatePipelineState.call(this, pass.handle, shader, renderPass, ia);
+  return getOrCreatePipelineState.call(this, pass.handle, shader, renderPass, ia);
 }
 
 const RootProto = cc.Root.prototype;

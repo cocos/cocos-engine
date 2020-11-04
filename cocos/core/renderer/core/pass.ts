@@ -47,6 +47,7 @@ import { BufferUsageBit, GetTypeSize, MemoryUsageBit, PrimitiveMode,
 import { DescriptorSetLayoutInfo, Texture,  Device, Buffer, BufferInfo, BufferViewInfo,
     Sampler, DescriptorSet, DescriptorSetInfo } from '../../gfx';
 import { Color } from '../../gfx/define-class';
+import { BlendStateBuffer } from '../../animation/skeletal-animation-blending';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
@@ -143,8 +144,7 @@ export class Pass {
             const targets = bsInfo.targets;
             if (targets) {
                 targets.forEach((t, i) => {
-                    if (!bs.targets[i]) bs.setTarget(i, new BlendTarget());
-                    Object.assign(bs.targets[i], t);
+                    bs.setTarget(i, t as BlendTarget);
                 });
             }
 
@@ -152,8 +152,8 @@ export class Pass {
             if (bsInfo.isIndepend !== undefined) { bs.isIndepend = bsInfo.isIndepend; }
             if (bsInfo.blendColor !== undefined) { bs.blendColor = bsInfo.blendColor as Color; }
         }
-        Object.assign(pass._rs, info.rasterizerState);
-        Object.assign(pass._dss, info.depthStencilState);
+        pass._rs.assign(info.rasterizerState as RasterizerState);
+        pass._dss.assign(info.depthStencilState as DepthStencilState);
     }
 
     /**

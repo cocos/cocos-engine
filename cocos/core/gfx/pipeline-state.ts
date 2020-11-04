@@ -61,6 +61,10 @@ export class RasterizerState {
         this.lineWidth = 1.0;
     }
 
+    public assign (rs: RasterizerState) {
+        Object.assign(this, rs);
+    }
+
     get handle (): RawBufferHandle { return NULL_HANDLE; }
     public destroy () {}
 }
@@ -116,6 +120,10 @@ export class DepthStencilState {
         this.stencilRefBack = 1;
     }
 
+    public assign (dss: DepthStencilState) {
+        Object.assign(this, dss);
+    }
+
     get handle (): RawBufferHandle { return NULL_HANDLE; }
     public destroy () {}
 }
@@ -147,6 +155,10 @@ export class BlendTarget {
         this.blendDstAlpha = BlendFactor.ZERO;
         this.blendAlphaEq = BlendOp.ADD;
         this.blendColorMask = ColorMask.ALL;
+    }
+
+    public assign (target: BlendTarget) {
+        Object.assign(this, target);
     }
 
     get handle (): RawBufferHandle { return NULL_HANDLE; }

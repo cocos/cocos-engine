@@ -35,17 +35,8 @@ export class RasterizerState {
         const buffer = RawBufferPool.getBuffer(this.h);
         this.v = new Uint32Array(buffer);
         this.fv = new Float32Array(buffer);
-        this.v[0] = isDiscard ? 1 : 0;
-        this.v[1] = polygonMode;
-        this.v[2] = shadeModel;
-        this.v[3] = cullMode;
-        this.v[4] = isFrontFaceCCW ? 1 : 0;
-        this.fv[5] = depthBias;
-        this.fv[6] = depthBiasClamp;
-        this.fv[7] = depthBiasSlop;
-        this.v[8] = isDepthClip ? 1 : 0;
-        this.v[9] = isMultisample ? 1 : 0;
-        this.fv[10] = lineWidth;
+        this.assignProperties(isDiscard, polygonMode, shadeModel, cullMode, isFrontFaceCCW,
+            depthBias, depthBiasClamp, depthBiasSlop, isDepthClip, isMultisample, lineWidth);
     }
 
     get isDiscard (): boolean {
@@ -85,7 +76,14 @@ export class RasterizerState {
     get handle (): RawBufferHandle { return this.h; }
 
     public reset () {
-        this.v.fill(0);
+        this.assignProperties(false, PolygonMode.FILL, ShadeModel.GOURAND, CullMode.BACK, true, 0,
+            0.0, 0.0, true, false, 1.0);
+    }
+
+    public assign (rs: RasterizerState) {
+        if (!rs) return;
+        this.assignProperties(rs.isDiscard, rs.polygonMode, rs.shadeModel, rs.cullMode, rs.isFrontFaceCCW,
+            rs.depthBias, rs.depthBiasClamp, rs.depthBiasSlop, rs.isDepthClip, rs.isMultisample, rs.lineWidth);
     }
 
     public destroy () {
@@ -95,6 +93,32 @@ export class RasterizerState {
             RawBufferPool.free(this.h);
             this.h = NULL_HANDLE;
         }
+    }
+
+    private assignProperties (
+        isDiscard: boolean,
+        polygonMode: PolygonMode,
+        shadeModel: ShadeModel,
+        cullMode: CullMode,
+        isFrontFaceCCW: boolean,
+        depthBias: number,
+        depthBiasClamp: number,
+        depthBiasSlop: number,
+        isDepthClip: boolean,
+        isMultisample: boolean,
+        lineWidth: number,
+    ) {
+        if (isDiscard !== undefined) this.v[0] = isDiscard ? 1 : 0;
+        if (polygonMode !== undefined) this.v[1] = polygonMode;
+        if (shadeModel !== undefined) this.v[2] = shadeModel;
+        if (cullMode !== undefined) this.v[3] = cullMode;
+        if (isFrontFaceCCW !== undefined) this.v[4] = isFrontFaceCCW ? 1 : 0;
+        if (depthBias !== undefined) this.fv[5] = depthBias;
+        if (depthBiasClamp !== undefined) this.fv[6] = depthBiasClamp;
+        if (depthBiasSlop !== undefined) this.fv[7] = depthBiasSlop;
+        if (isDepthClip !== undefined) this.v[8] = isDepthClip ? 1 : 0;
+        if (isMultisample !== undefined) this.v[9] = isMultisample ? 1 : 0;
+        if (lineWidth !== undefined) this.fv[10] = lineWidth;
     }
 }
 
@@ -129,25 +153,10 @@ export class DepthStencilState {
     ) {
         this.h = RawBufferPool.alloc(19 * 4);
         this.v = new Uint32Array(RawBufferPool.getBuffer(this.h));
-        this.v[0] = depthTest ? 1 : 0;
-        this.v[1] = depthWrite ? 1 : 0;
-        this.v[2] = depthFunc;
-        this.v[3] = stencilTestFront ? 1 : 0;
-        this.v[4] = stencilFuncFront;
-        this.v[5] = stencilReadMaskFront;
-        this.v[6] = stencilWriteMaskFront;
-        this.v[7] = stencilFailOpFront;
-        this.v[8] = stencilZFailOpFront;
-        this.v[9] = stencilPassOpFront;
-        this.v[10] = stencilRefFront;
-        this.v[11] = stencilTestBack ? 1 : 0;
-        this.v[12] = stencilFuncBack;
-        this.v[13] = stencilReadMaskBack;
-        this.v[14] = stencilWriteMaskBack;
-        this.v[15] = stencilFailOpBack;
-        this.v[16] = stencilZFailOpBack;
-        this.v[17] = stencilPassOpBack;
-        this.v[18] = stencilRefBack;
+        this.assignProperties(depthTest, depthWrite, depthFunc, stencilTestFront, stencilFuncFront, stencilReadMaskFront,
+            stencilWriteMaskFront, stencilFailOpFront, stencilZFailOpFront, stencilPassOpFront, stencilRefFront,
+            stencilTestBack, stencilFuncBack, stencilReadMaskBack, stencilWriteMaskBack, stencilFailOpBack,
+            stencilZFailOpBack, stencilPassOpBack, stencilRefBack);
     }
 
     get depthTest (): boolean {
@@ -203,7 +212,16 @@ export class DepthStencilState {
     get handle (): RawBufferHandle { return this.h; }
 
     public reset () {
-        this.v.fill(0);
+        this.assignProperties(true, true, ComparisonFunc.LESS, false, ComparisonFunc.ALWAYS, 0xffff, 0xffff,StencilOp.KEEP,
+            StencilOp.KEEP, StencilOp.KEEP, 1, false, ComparisonFunc.ALWAYS, 0xffff, 0xffff, StencilOp.KEEP, StencilOp.KEEP, StencilOp.KEEP, 1);
+    }
+
+    public assign (dss: DepthStencilState) {
+        if (!dss) return;
+        this.assignProperties(dss.depthTest, dss.depthWrite, dss.depthFunc, dss.stencilTestFront, dss.stencilFuncFront, dss.stencilReadMaskFront,
+            dss.stencilWriteMaskFront, dss.stencilFailOpFront, dss.stencilZFailOpFront, dss.stencilPassOpFront, dss.stencilRefFront,
+            dss.stencilTestBack, dss.stencilFuncBack, dss.stencilReadMaskBack, dss.stencilWriteMaskBack, dss.stencilFailOpBack,
+            dss.stencilZFailOpBack, dss.stencilPassOpBack, dss.stencilRefBack);
     }
 
     public destroy () {
@@ -211,6 +229,48 @@ export class DepthStencilState {
 
         RawBufferPool.free(this.h);
         this.h = NULL_HANDLE;
+    }
+
+    private assignProperties (
+        depthTest: boolean,
+        depthWrite: boolean,
+        depthFunc: ComparisonFunc,
+        stencilTestFront: boolean,
+        stencilFuncFront: ComparisonFunc,
+        stencilReadMaskFront: number,
+        stencilWriteMaskFront: number,
+        stencilFailOpFront: StencilOp,
+        stencilZFailOpFront: StencilOp,
+        stencilPassOpFront: StencilOp,
+        stencilRefFront: number,
+        stencilTestBack: boolean,
+        stencilFuncBack: ComparisonFunc,
+        stencilReadMaskBack: number,
+        stencilWriteMaskBack: number,
+        stencilFailOpBack: StencilOp,
+        stencilZFailOpBack: StencilOp,
+        stencilPassOpBack: StencilOp,
+        stencilRefBack: number = 1
+    ) {
+        if (depthTest !== undefined) this.v[0] = depthTest ? 1 : 0;
+        if (depthWrite !== undefined) this.v[1] = depthWrite ? 1 : 0;
+        if (depthFunc !== undefined) this.v[2] = depthFunc;
+        if (stencilTestFront !== undefined) this.v[3] = stencilTestFront ? 1 : 0;
+        if (stencilFuncFront !== undefined) this.v[4] = stencilFuncFront;
+        if (stencilReadMaskFront !== undefined) this.v[5] = stencilReadMaskFront;
+        if (stencilWriteMaskFront !== undefined) this.v[6] = stencilWriteMaskFront;
+        if (stencilFailOpFront !== undefined) this.v[7] = stencilFailOpFront;
+        if (stencilZFailOpFront !== undefined) this.v[8] = stencilZFailOpFront;
+        if (stencilPassOpFront !== undefined) this.v[9] = stencilPassOpFront;
+        if (stencilRefFront !== undefined) this.v[10] = stencilRefFront;
+        if (stencilTestBack !== undefined) this.v[11] = stencilTestBack ? 1 : 0;
+        if (stencilFuncBack !== undefined) this.v[12] = stencilFuncBack;
+        if (stencilReadMaskBack !== undefined) this.v[13] = stencilReadMaskBack;
+        if (stencilWriteMaskBack !== undefined) this.v[14] = stencilWriteMaskBack;
+        if (stencilFailOpBack !== undefined) this.v[15] = stencilFailOpBack;
+        if (stencilZFailOpBack !== undefined) this.v[16] = stencilZFailOpBack;
+        if (stencilPassOpBack !== undefined) this.v[17] = stencilPassOpBack;
+        if (stencilRefBack !== undefined) this.v[18] = stencilRefBack;
     }
 }
 
@@ -234,14 +294,8 @@ export class BlendTarget {
     ) {
         this.h = RawBufferPool.alloc(8 * 4);
         this.v = new Uint32Array(RawBufferPool.getBuffer(this.h));
-        this.v[0] = blend ? 1 : 0;
-        this.v[1] = blendSrc;
-        this.v[2] = blendDst;
-        this.v[3] = blendEq;
-        this.v[4] = blendSrcAlpha;
-        this.v[5] = blendDstAlpha;
-        this.v[6] = blendAlphaEq;
-        this.v[7] = blendColorMask;
+        this.assignProperties(blend, blendSrc, blendDst, blendEq,
+            blendSrcAlpha, blendDstAlpha, blendAlphaEq, blendColorMask);
     }
 
     get blend (): boolean {
@@ -266,7 +320,8 @@ export class BlendTarget {
     get handle (): RawBufferHandle { return this.h; }
 
     public reset () {
-        this.v.fill(0);
+        this.assignProperties(false, BlendFactor.ONE, BlendFactor.ZERO, BlendOp.ADD,
+            BlendFactor.ONE, BlendFactor.ZERO, BlendOp.ADD, ColorMask.ALL);
     }
 
     public destroy () {
@@ -274,6 +329,32 @@ export class BlendTarget {
 
         RawBufferPool.free(this.h);
         this.h = NULL_HANDLE;
+    }
+
+    public assign (target: BlendTarget) {
+        if (!target) return;
+        this.assignProperties(target.blend, target.blendSrc, target.blendDst, target.blendEq,
+            target.blendSrcAlpha, target.blendDstAlpha, target.blendAlphaEq, target.blendColorMask);
+    }
+
+    private assignProperties (
+        blend: boolean,
+        blendSrc: BlendFactor,
+        blendDst: BlendFactor,
+        blendEq: BlendOp,
+        blendSrcAlpha: BlendFactor,
+        blendDstAlpha: BlendFactor,
+        blendAlphaEq: BlendOp,
+        blendColorMask: ColorMask
+    ) {
+        if (blend !== undefined) this.v[0] = blend ? 1 : 0;
+        if (blendSrc !== undefined) this.v[1] = blendSrc;
+        if (blendDst !== undefined) this.v[2] = blendDst;
+        if (blendEq !== undefined) this.v[3] = blendEq;
+        if (blendSrcAlpha !== undefined) this.v[4] = blendSrcAlpha;
+        if (blendDstAlpha !== undefined) this.v[5] = blendDstAlpha;
+        if (blendAlphaEq !== undefined) this.v[6] = blendAlphaEq;
+        if (blendColorMask !== undefined) this.v[7] = blendColorMask;
     }
 }
 
@@ -328,6 +409,7 @@ export class BlendState {
         this.fv[4] = color.z;
         this.fv[5] = color.w;
     }
+    get handle (): RawBufferHandle { return this.h; }
 
     /**
      * @en Should use this function to set target, or it will not work
@@ -341,8 +423,9 @@ export class BlendState {
         let tg = this.targets[index];
         if (!tg) {
             tg = this.targets[index] = new BlendTarget();
+            BlendTargetArrayPool.assign(this.hBt, index, tg.handle)
         }
-        Object.assign(tg, target);
+        tg.assign(target);
     }
 
     public reset () {
@@ -353,7 +436,7 @@ export class BlendState {
             targets[i].destroy();
         }
         targets.length = 1;
-        targets[0].reset;
+        targets[0].reset();
         this.v[6] = this.hBt as unknown as number;
         BlendTargetArrayPool.clear(this.hBt);
         BlendTargetArrayPool.push(this.hBt, targets[0].handle);
