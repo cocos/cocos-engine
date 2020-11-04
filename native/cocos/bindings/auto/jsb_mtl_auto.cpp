@@ -146,6 +146,24 @@ static bool js_mtl_CCMTLDevice_blitBuffer(se::State& s)
 }
 SE_BIND_FUNC(js_mtl_CCMTLDevice_blitBuffer)
 
+static bool js_mtl_CCMTLDevice_isIndirectDrawSupported(se::State& s)
+{
+    cc::gfx::CCMTLDevice* cobj = (cc::gfx::CCMTLDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_mtl_CCMTLDevice_isIndirectDrawSupported : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isIndirectDrawSupported();
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_mtl_CCMTLDevice_isIndirectDrawSupported : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_mtl_CCMTLDevice_isIndirectDrawSupported)
+
 static bool js_mtl_CCMTLDevice_getMTLCommandQueue(se::State& s)
 {
     cc::gfx::CCMTLDevice* cobj = (cc::gfx::CCMTLDevice*)s.nativeThisObject();
@@ -203,6 +221,7 @@ bool js_register_mtl_CCMTLDevice(se::Object* obj)
     cls->defineFunction("getMaximumColorRenderTargets", _SE(js_mtl_CCMTLDevice_getMaximumColorRenderTargets));
     cls->defineFunction("isIndirectCommandBufferSupported", _SE(js_mtl_CCMTLDevice_isIndirectCommandBufferSupported));
     cls->defineFunction("blitBuffer", _SE(js_mtl_CCMTLDevice_blitBuffer));
+    cls->defineFunction("isIndirectDrawSupported", _SE(js_mtl_CCMTLDevice_isIndirectDrawSupported));
     cls->defineFunction("getMTLCommandQueue", _SE(js_mtl_CCMTLDevice_getMTLCommandQueue));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_CCMTLDevice_finalize));
     cls->install();

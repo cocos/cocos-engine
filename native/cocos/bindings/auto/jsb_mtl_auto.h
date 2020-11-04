@@ -15,6 +15,7 @@ SE_DECLARE_FUNC(js_mtl_CCMTLDevice_getMaximumSamplerUnits);
 SE_DECLARE_FUNC(js_mtl_CCMTLDevice_getMaximumColorRenderTargets);
 SE_DECLARE_FUNC(js_mtl_CCMTLDevice_isIndirectCommandBufferSupported);
 SE_DECLARE_FUNC(js_mtl_CCMTLDevice_blitBuffer);
+SE_DECLARE_FUNC(js_mtl_CCMTLDevice_isIndirectDrawSupported);
 SE_DECLARE_FUNC(js_mtl_CCMTLDevice_getMTLCommandQueue);
 SE_DECLARE_FUNC(js_mtl_CCMTLDevice_CCMTLDevice);
 
