@@ -224,6 +224,38 @@ enum class Format {
     PVRTC2_2BPP,
     PVRTC2_4BPP,
 
+    // ASTC (Adaptive Scalable Texture Compression)
+    ASTC_RGBA_4x4,
+    ASTC_RGBA_5x4,
+    ASTC_RGBA_5x5,
+    ASTC_RGBA_6x5,
+    ASTC_RGBA_6x6,
+    ASTC_RGBA_8x5,
+    ASTC_RGBA_8x6,
+    ASTC_RGBA_8x8,
+    ASTC_RGBA_10x5,
+    ASTC_RGBA_10x6,
+    ASTC_RGBA_10x8,
+    ASTC_RGBA_10x10,
+    ASTC_RGBA_12x10,
+    ASTC_RGBA_12x12,
+
+    // ASTC (Adaptive Scalable Texture Compression) SRGB
+    ASTC_SRGBA_4x4,
+    ASTC_SRGBA_5x4,
+    ASTC_SRGBA_5x5,
+    ASTC_SRGBA_6x5,
+    ASTC_SRGBA_6x6,
+    ASTC_SRGBA_8x5,
+    ASTC_SRGBA_8x6,
+    ASTC_SRGBA_8x8,
+    ASTC_SRGBA_10x5,
+    ASTC_SRGBA_10x6,
+    ASTC_SRGBA_10x8,
+    ASTC_SRGBA_10x10,
+    ASTC_SRGBA_12x10,
+    ASTC_SRGBA_12x12,
+
     // Total count
     COUNT,
 };

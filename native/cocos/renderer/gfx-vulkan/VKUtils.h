@@ -105,6 +105,37 @@ VkFormat MapVkFormat(Format format) {
         case Format::PVRTC_RGBA4: return VK_FORMAT_PVRTC1_4BPP_UNORM_BLOCK_IMG;
         case Format::PVRTC2_2BPP: return VK_FORMAT_PVRTC2_2BPP_UNORM_BLOCK_IMG;
         case Format::PVRTC2_4BPP: return VK_FORMAT_PVRTC2_4BPP_UNORM_BLOCK_IMG;
+
+        case Format::ASTC_RGBA_4x4: return VK_FORMAT_ASTC_4x4_UNORM_BLOCK;
+        case Format::ASTC_RGBA_5x4: return VK_FORMAT_ASTC_5x4_UNORM_BLOCK;
+        case Format::ASTC_RGBA_5x5: return VK_FORMAT_ASTC_5x5_UNORM_BLOCK;
+        case Format::ASTC_RGBA_6x5: return VK_FORMAT_ASTC_6x5_UNORM_BLOCK;
+        case Format::ASTC_RGBA_6x6: return VK_FORMAT_ASTC_6x6_UNORM_BLOCK;
+        case Format::ASTC_RGBA_8x5: return VK_FORMAT_ASTC_8x5_UNORM_BLOCK;
+        case Format::ASTC_RGBA_8x6: return VK_FORMAT_ASTC_8x6_UNORM_BLOCK;
+        case Format::ASTC_RGBA_8x8: return VK_FORMAT_ASTC_8x8_UNORM_BLOCK;
+        case Format::ASTC_RGBA_10x5: return VK_FORMAT_ASTC_10x5_UNORM_BLOCK;
+        case Format::ASTC_RGBA_10x6: return VK_FORMAT_ASTC_10x6_UNORM_BLOCK;
+        case Format::ASTC_RGBA_10x8: return VK_FORMAT_ASTC_10x8_UNORM_BLOCK;
+        case Format::ASTC_RGBA_10x10: return VK_FORMAT_ASTC_10x10_UNORM_BLOCK;
+        case Format::ASTC_RGBA_12x10: return VK_FORMAT_ASTC_12x10_UNORM_BLOCK;
+        case Format::ASTC_RGBA_12x12: return VK_FORMAT_ASTC_12x12_UNORM_BLOCK;
+
+        case Format::ASTC_SRGBA_4x4: return VK_FORMAT_ASTC_4x4_SRGB_BLOCK;
+        case Format::ASTC_SRGBA_5x4: return VK_FORMAT_ASTC_5x4_SRGB_BLOCK;
+        case Format::ASTC_SRGBA_5x5: return VK_FORMAT_ASTC_5x5_SRGB_BLOCK;
+        case Format::ASTC_SRGBA_6x5: return VK_FORMAT_ASTC_6x5_SRGB_BLOCK;
+        case Format::ASTC_SRGBA_6x6: return VK_FORMAT_ASTC_6x6_SRGB_BLOCK;
+        case Format::ASTC_SRGBA_8x5: return VK_FORMAT_ASTC_8x5_SRGB_BLOCK;
+        case Format::ASTC_SRGBA_8x6: return VK_FORMAT_ASTC_8x6_SRGB_BLOCK;
+        case Format::ASTC_SRGBA_8x8: return VK_FORMAT_ASTC_8x8_SRGB_BLOCK;
+        case Format::ASTC_SRGBA_10x5: return VK_FORMAT_ASTC_10x5_SRGB_BLOCK;
+        case Format::ASTC_SRGBA_10x6: return VK_FORMAT_ASTC_10x6_SRGB_BLOCK;
+        case Format::ASTC_SRGBA_10x8: return VK_FORMAT_ASTC_10x8_SRGB_BLOCK;
+        case Format::ASTC_SRGBA_10x10: return VK_FORMAT_ASTC_10x10_SRGB_BLOCK;
+        case Format::ASTC_SRGBA_12x10: return VK_FORMAT_ASTC_12x10_SRGB_BLOCK;
+        case Format::ASTC_SRGBA_12x12: return VK_FORMAT_ASTC_12x12_SRGB_BLOCK;
+
         default: {
             CCASSERT(false, "Unsupported Format, convert to VkFormat failed.");
             return VK_FORMAT_B8G8R8A8_UNORM;

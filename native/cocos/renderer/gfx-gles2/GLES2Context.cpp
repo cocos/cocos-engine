@@ -409,6 +409,7 @@ bool GLES2Context::MakeCurrent() {
 
             //////////////////////////////////////////////////////////////////////////
 
+            glEnable(GL_SCISSOR_TEST);
             glEnable(GL_CULL_FACE);
             glCullFace(GL_BACK);
 
