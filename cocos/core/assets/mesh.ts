@@ -53,7 +53,7 @@ import { Asset } from './asset';
 import { Skeleton } from './skeleton';
 import { Morph, createMorphRendering, MorphRendering } from './morph';
 import { legacyCC } from '../global-exports';
-import { NULL_HANDLE, SubMeshHandle, SubMeshPool } from '../renderer/core/memory-pools';
+import { FlatBufferArrayPool, FlatBufferPool, FlatBufferView, freeHandleArray, NULL_HANDLE, RawBufferPool, SubMeshHandle, SubMeshPool, SubMeshView } from '../renderer/core/memory-pools';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
@@ -196,25 +196,37 @@ export class RenderingSubMesh {
      * @en Flatted vertex buffers
      * @zh 扁平化的顶点缓冲区。
      */
-    get flatBuffers () {
-        if (this._flatBuffers) { return this._flatBuffers; }
-        const buffers: IFlatBuffer[] = this._flatBuffers = [];
-        if (!this.mesh || this.subMeshIdx === undefined) { return buffers; }
+    get flatBuffers () { return this._flatBuffers; }
+    public genFlatBuffers() {
+        if (this._flatBuffers.length || !this.mesh || this.subMeshIdx === undefined) { return; }
+
         const mesh = this.mesh;
         let idxCount = 0;
         const prim = mesh.struct.primitives[this.subMeshIdx];
+        const fbArrayHandle = SubMeshPool.get(this._handle, SubMeshView.FLAT_BUFFER_ARRAY);
         if (prim.indexView) { idxCount = prim.indexView.count; }
         for (const bundleIdx of prim.vertexBundelIndices) {
             const vertexBundle = mesh.struct.vertexBundles[bundleIdx];
             const vbCount = prim.indexView ? prim.indexView.count : vertexBundle.view.count;
             const vbStride = vertexBundle.view.stride;
             const vbSize = vbStride * vbCount;
-            const view = new Uint8Array(mesh.data.buffer, vertexBundle.view.offset, vertexBundle.view.length);
+            
+            const rawBufferSize = prim.indexView ? vertexBundle.view.length : vbSize;
+            const hBuffer = RawBufferPool.alloc(rawBufferSize);
+            const buffer = RawBufferPool.getBuffer(hBuffer);
+            const view = prim.indexView ? new Uint8Array(buffer) : new Uint8Array(rawBufferSize);
+            const hFlatBuffer = FlatBufferPool.alloc();
+            view.set(mesh.data.subarray(vertexBundle.view.offset, vertexBundle.view.offset + vertexBundle.view.length));
+            
             if (!prim.indexView) {
+                FlatBufferPool.set(hFlatBuffer, FlatBufferView.STRIDE, vbStride);
+                FlatBufferPool.set(hFlatBuffer, FlatBufferView.AMOUNT, vbCount);
+                FlatBufferPool.set(hFlatBuffer, FlatBufferView.BUFFER, hBuffer);
                 this._flatBuffers.push({ stride: vbStride, count: vbCount, buffer: view });
+                FlatBufferArrayPool.push(fbArrayHandle, hFlatBuffer);
                 continue;
             }
-            const vbView = new Uint8Array(vbSize);
+            const vbView = new Uint8Array(buffer);
             const ibView = mesh.readIndices(this.subMeshIdx)!;
             // transform to flat buffer
             for (let n = 0; n < idxCount; ++n) {
@@ -225,6 +237,10 @@ export class RenderingSubMesh {
                     vbView[offset + m] = view[srcOffset + m];
                 }
             }
+            FlatBufferPool.set(hFlatBuffer, FlatBufferView.STRIDE, vbStride);
+            FlatBufferPool.set(hFlatBuffer, FlatBufferView.AMOUNT, vbCount);
+            FlatBufferPool.set(hFlatBuffer, FlatBufferView.BUFFER, hBuffer);
+            FlatBufferArrayPool.push(fbArrayHandle, hFlatBuffer);
             this._flatBuffers.push({ stride: vbStride, count: vbCount, buffer: vbView });
         }
         return this._flatBuffers;
@@ -287,7 +303,7 @@ export class RenderingSubMesh {
     public mesh?: Mesh;
     public subMeshIdx?: number;
 
-    private _flatBuffers?: IFlatBuffer[];
+    private _flatBuffers: IFlatBuffer[] = [];
     private _jointMappedBuffers?: Buffer[];
     private _jointMappedBufferIndices?: number[];
     private _vertexIdChannel?: { stream: number; index: number; };
@@ -316,6 +332,8 @@ export class RenderingSubMesh {
         this._primitiveMode = primitiveMode;
         this._iaInfo = new InputAssemblerInfo(attributes, vertexBuffers, indexBuffer, indirectBuffer);
         this._handle = SubMeshPool.alloc();
+        const fbArrayHandle = FlatBufferArrayPool.alloc();
+        SubMeshPool.set(this._handle, SubMeshView.FLAT_BUFFER_ARRAY, fbArrayHandle);
     }
 
     public destroy () {
@@ -338,8 +356,13 @@ export class RenderingSubMesh {
             this._indirectBuffer.destroy();
             this._indirectBuffer = null;
         }
-        SubMeshPool.free(this._handle);
-        this._handle = NULL_HANDLE;
+        if(this._handle) {
+            const fbArrayHandle = SubMeshPool.get(this._handle, SubMeshView.FLAT_BUFFER_ARRAY);
+            freeHandleArray(fbArrayHandle, FlatBufferArrayPool, FlatBufferPool);
+
+            SubMeshPool.free(this._handle);
+            this._handle = NULL_HANDLE;
+        }
     }
 
     /**

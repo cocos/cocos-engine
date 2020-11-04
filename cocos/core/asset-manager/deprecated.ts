@@ -438,7 +438,7 @@ export class CCLoader {
      * @param type - Only asset of type will be returned if this argument is supplied.
      * @deprecated since v3.0 loader.getRes is deprecated, please use resources.get instead
      */
-    public getRes<T extends Asset> (url: string, type?: Constructor<Asset>): T | null {
+    public getRes<T extends Asset> (url: string, type?: Constructor<T>): T | null {
         return assets.has(url) ? assets.get(url) as T : resources.get<T>(url, type);
     }
 
