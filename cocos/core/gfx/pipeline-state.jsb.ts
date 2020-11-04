@@ -71,8 +71,8 @@ export class RasterizerState {
         else return false;
     }
     set isMultisample (val: boolean) { this.v[9] = val ? 1 : 0 }
-    get lineWidth (): number { return this.v[10]; }
-    set lineWidth (val: number) { this.v[10] = val; }
+    get lineWidth (): number { return this.fv[10]; }
+    set lineWidth (val: number) { this.fv[10] = val; }
     get handle (): RawBufferHandle { return this.h; }
 
     public reset () {
