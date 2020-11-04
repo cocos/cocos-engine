@@ -723,7 +723,7 @@ export class Camera {
         const ch = this._viewport.height * height;
 
         Vec3.transformMat4(out, worldPos, this._matViewProj);
-        Vec3.transformMat4(out, out, correctionMatrices[(4 - this._curTransform) % 4]);
+        Vec3.transformMat4(out, out, correctionMatrices[this._curTransform]);
 
         out.x = cx + (out.x + 1) * 0.5 * cw;
         out.y = cy + (out.y + 1) * 0.5 * ch;
@@ -742,7 +742,7 @@ export class Camera {
      */
     public worldMatrixToScreen (out: Mat4, worldMatrix: Mat4, width: number, height: number){
         Mat4.multiply(out, this._matViewProj, worldMatrix);
-        Mat4.multiply(out, correctionMatrices[(4 - this._curTransform) % 4], out);
+        Mat4.multiply(out, correctionMatrices[this._curTransform], out);
         const halfWidth = width / 2;
         const halfHeight = height / 2;
         Mat4.identity(_tempMat1);
