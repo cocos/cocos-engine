@@ -72,6 +72,18 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     }
 #endif
     _stencilBits = 8;
+    _mtlFeatureSet = mu::highestSupportedFeatureSet(id<MTLDevice>(_mtlDevice));
+    auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
+    _indirectDrawSupported = mu::isIndirectDrawSupported(gpuFamily);
+    _maxVertexAttributes = mu::getMaxVertexAttributes(gpuFamily);
+    _maxTextureUnits = mu::getMaxEntriesInTextureArgumentTable(gpuFamily);
+    _maxSamplerUnits = mu::getMaxEntriesInSamplerStateArgumentTable(gpuFamily);
+    _maxTextureSize = mu::getMaxTexture2DWidthHeight(gpuFamily);
+    _maxCubeMapTextureSize = mu::getMaxCubeMapTextureWidthHeight(gpuFamily);
+    _maxColorRenderTargets = mu::getMaxColorRenderTarget(gpuFamily);
+    _maxBufferBindingIndex = mu::getMaxEntriesInBufferArgumentTable(gpuFamily);
+    _uboOffsetAlignment = mu::getMinBufferOffsetAlignment(gpuFamily);
+    _icbSuppored = mu::isIndirectCommandBufferSupported(MTLFeatureSet(_mtlFeatureSet));
 
     ContextInfo contextCreateInfo;
     contextCreateInfo.windowHandle = _windowHandle;
@@ -92,18 +104,6 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _cmdBuff = createCommandBuffer(cmdBuffInfo);
 
     _gpuStagingBufferPool = CC_NEW(CCMTLGPUStagingBufferPool(id<MTLDevice>(_mtlDevice)));
-
-    _mtlFeatureSet = mu::highestSupportedFeatureSet(id<MTLDevice>(_mtlDevice));
-    auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
-    _maxVertexAttributes = mu::getMaxVertexAttributes(gpuFamily);
-    _maxTextureUnits = mu::getMaxEntriesInTextureArgumentTable(gpuFamily);
-    _maxSamplerUnits = mu::getMaxEntriesInSamplerStateArgumentTable(gpuFamily);
-    _maxTextureSize = mu::getMaxTexture2DWidthHeight(gpuFamily);
-    _maxCubeMapTextureSize = mu::getMaxCubeMapTextureWidthHeight(gpuFamily);
-    _maxColorRenderTargets = mu::getMaxColorRenderTarget(gpuFamily);
-    _maxBufferBindingIndex = mu::getMaxEntriesInBufferArgumentTable(gpuFamily);
-    _uboOffsetAlignment = mu::getMinBufferOffsetAlignment(gpuFamily);
-    _icbSuppored = mu::isIndirectCommandBufferSupported(MTLFeatureSet(_mtlFeatureSet));
 
     _features[static_cast<int>(Feature::COLOR_FLOAT)] = mu::isColorBufferFloatSupported(gpuFamily);
     _features[static_cast<int>(Feature::COLOR_HALF_FLOAT)] = mu::isColorBufferHalfFloatSupported(gpuFamily);

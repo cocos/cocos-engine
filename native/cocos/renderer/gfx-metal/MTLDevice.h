@@ -44,6 +44,7 @@ public:
     CC_INLINE uint getMaximumColorRenderTargets() const { return _maxColorRenderTargets; }
     CC_INLINE uint getMaximumBufferBindingIndex() const { return _maxBufferBindingIndex; }
     CC_INLINE bool isIndirectCommandBufferSupported() const { return _icbSuppored; }
+    CC_INLINE bool isIndirectDrawSupported() const { return _indirectDrawSupported; }
     CC_INLINE CCMTLGPUStagingBufferPool *gpuStagingBufferPool() { return _gpuStagingBufferPool; }
 
 private:
@@ -57,6 +58,7 @@ private:
     uint _maxColorRenderTargets = 0;
     uint _maxBufferBindingIndex = 0;
     bool _icbSuppored = false;
+    bool _indirectDrawSupported = false;
     CCMTLGPUStagingBufferPool *_gpuStagingBufferPool = nullptr;
 };
 

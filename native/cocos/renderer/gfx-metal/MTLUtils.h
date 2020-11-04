@@ -61,6 +61,7 @@ bool isColorBufferHalfFloatSupported(uint family);
 bool isLinearTextureSupported(uint family);
 bool isIndirectCommandBufferSupported(MTLFeatureSet featureSet);
 bool isDepthStencilFormatSupported(Format format, uint family);
+bool isIndirectDrawSupported(uint family);
 String featureSetToString(MTLFeatureSet featureSet);
 const uint8_t *const convertData(const uint8_t *source, uint length, Format type);
 

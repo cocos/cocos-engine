@@ -41,7 +41,7 @@ bool CCMTLBuffer::initialize(const BufferInfo &info) {
     _stride = std::max(info.stride, 1U);
     _count = _size / _stride;
     _flags = info.flags;
-
+    _indirectDrawSupported = static_cast<CCMTLDevice *>(_device)->isIndirectDrawSupported();
     if (_usage & BufferUsage::INDEX) {
         switch (_stride) {
             case 4: _indexType = MTLIndexTypeUInt32; break;
@@ -64,9 +64,14 @@ bool CCMTLBuffer::initialize(const BufferInfo &info) {
 
     if (_usage & BufferUsageBit::VERTEX ||
         _usage & BufferUsageBit::UNIFORM ||
-        _usage & BufferUsageBit::INDEX ||
-        _usage & BufferUsageBit::INDIRECT) {
+        _usage & BufferUsageBit::INDEX) {
         createMTLBuffer(_size, _memUsage);
+    } else if (_usage & BufferUsageBit::INDIRECT) {
+        if (_indirectDrawSupported) {
+            createMTLBuffer(_size, _memUsage);
+        } else {
+            _indirects.resize(_count);
+        }
     } else if (_usage & BufferUsageBit::TRANSFER_SRC ||
                _usage & BufferUsageBit::TRANSFER_DST) {
         _transferBuffer = (uint8_t *)CC_MALLOC(_size);
@@ -96,21 +101,21 @@ bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
     _mtlResourceOptions = mu::toMTLResourseOption(usage);
     if (_tripleEnabled) {
         for (id<MTLBuffer> buffer in _dynamicDataBuffers) {
-                   if (buffer) [buffer release];
-               }
-               NSMutableArray *mutableDynamicDataBuffers = [NSMutableArray arrayWithCapacity:MAX_INFLIGHT_BUFFER];
-               for (int i = 0; i < MAX_INFLIGHT_BUFFER; ++i) {
-                   // Create a new buffer with enough capacity to store one instance of the dynamic buffer data
-                   id<MTLBuffer> dynamicDataBuffer = [_mtlDevice newBufferWithLength:size options:_mtlResourceOptions];
-                   [mutableDynamicDataBuffers addObject:dynamicDataBuffer];
-               }
-               _dynamicDataBuffers = [mutableDynamicDataBuffers copy];
+            if (buffer) [buffer release];
+        }
+        NSMutableArray *mutableDynamicDataBuffers = [NSMutableArray arrayWithCapacity:MAX_INFLIGHT_BUFFER];
+        for (int i = 0; i < MAX_INFLIGHT_BUFFER; ++i) {
+            // Create a new buffer with enough capacity to store one instance of the dynamic buffer data
+            id<MTLBuffer> dynamicDataBuffer = [_mtlDevice newBufferWithLength:size options:_mtlResourceOptions];
+            [mutableDynamicDataBuffers addObject:dynamicDataBuffer];
+        }
+        _dynamicDataBuffers = [mutableDynamicDataBuffers copy];
 
-               _mtlBuffer = _dynamicDataBuffers[0];
+        _mtlBuffer = _dynamicDataBuffers[0];
     } else {
-       if (_mtlBuffer)
-           [_mtlBuffer release];
-       _mtlBuffer = [_mtlDevice newBufferWithLength:size options:_mtlResourceOptions];
+        if (_mtlBuffer)
+            [_mtlBuffer release];
+        _mtlBuffer = [_mtlDevice newBufferWithLength:size options:_mtlResourceOptions];
     }
     if (_mtlBuffer == nil) {
         CCASSERT(false, "Failed to create MTLBuffer.");
@@ -150,6 +155,7 @@ void CCMTLBuffer::destroy() {
         _device->getMemoryStatus().bufferSize -= _size;
         _buffer = nullptr;
     }
+    _indirects.clear();
 }
 
 void CCMTLBuffer::resize(uint size) {
@@ -163,8 +169,7 @@ void CCMTLBuffer::resize(uint size) {
 
     if (_usage & BufferUsageBit::VERTEX ||
         _usage & BufferUsageBit::INDEX ||
-        _usage & BufferUsageBit::UNIFORM ||
-        _usage & BufferUsageBit::INDIRECT) {
+        _usage & BufferUsageBit::UNIFORM) {
         createMTLBuffer(size, _memUsage);
     }
 
@@ -173,6 +178,13 @@ void CCMTLBuffer::resize(uint size) {
     _count = _size / _stride;
     resizeBuffer(&_transferBuffer, _size, oldSize);
     resizeBuffer(&_buffer, _size, oldSize);
+    if (_usage & BufferUsageBit::INDIRECT) {
+        if (_indirectDrawSupported) {
+            createMTLBuffer(size, _memUsage);
+        } else {
+            _indirects.resize(_count);
+        }
+    }
 }
 
 void CCMTLBuffer::resizeBuffer(uint8_t **buffer, uint size, uint oldSize) {
@@ -207,6 +219,10 @@ void CCMTLBuffer::update(void *buffer, uint offset, uint size) {
         memcpy(_buffer + offset, buffer, size);
 
     if (_usage & BufferUsageBit::INDIRECT) {
+        if (!_indirectDrawSupported) {
+            memcpy(_indirects.data() + offset, buffer, size);
+            return;
+        }
         auto drawInfoCount = size / _stride;
         auto *drawInfo = static_cast<DrawInfo *>(buffer);
         if (drawInfoCount > 0) {

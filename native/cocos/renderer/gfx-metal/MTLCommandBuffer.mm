@@ -27,6 +27,7 @@ CCMTLCommandBuffer::CCMTLCommandBuffer(Device *device)
     const auto setCount = device->bindingMappingInfo().bufferOffsets.size();
     _GPUDescriptorSets.resize(setCount);
     _dynamicOffsets.resize(setCount);
+    _indirectDrawSuppotred = _mtlDevice->isIndirectDrawSupported();
 }
 
 CCMTLCommandBuffer::~CCMTLCommandBuffer() { destroy(); }
@@ -226,19 +227,53 @@ void CCMTLCommandBuffer::draw(InputAssembler *ia) {
     if (_type == CommandBufferType::PRIMARY) {
         if (indirectBuffer) {
             const auto count = indirectBuffer->getCount();
+            const auto &indirectInfos = static_cast<CCMTLBuffer *>(indirectBuffer)->getDrawInfos();
             _numDrawCalls += count;
             for (size_t j = 0; j < count; j++) {
-                if (_gpuIndexBuffer.mtlBuffer) {
-                    [_mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                             indexType:_indexType
-                                           indexBuffer:_gpuIndexBuffer.mtlBuffer
-                                     indexBufferOffset:j * _gpuIndexBuffer.stride
-                                        indirectBuffer:static_cast<CCMTLBuffer *>(indirectBuffer)->getMTLBuffer()
-                                  indirectBufferOffset:j * sizeof(MTLDrawIndexedPrimitivesIndirectArguments)];
+                if (_indirectDrawSuppotred) {
+                    if (_gpuIndexBuffer.mtlBuffer) {
+                        [_mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
+                                                 indexType:_indexType
+                                               indexBuffer:_gpuIndexBuffer.mtlBuffer
+                                         indexBufferOffset:j * _gpuIndexBuffer.stride
+                                            indirectBuffer:static_cast<CCMTLBuffer *>(indirectBuffer)->getMTLBuffer()
+                                      indirectBufferOffset:j * sizeof(MTLDrawIndexedPrimitivesIndirectArguments)];
+                    } else {
+                        [_mtlEncoder drawPrimitives:_mtlPrimitiveType
+                                     indirectBuffer:static_cast<CCMTLBuffer *>(indirectBuffer)->getMTLBuffer()
+                               indirectBufferOffset:j * sizeof(MTLDrawIndexedPrimitivesIndirectArguments)];
+                    }
                 } else {
-                    [_mtlEncoder drawPrimitives:_mtlPrimitiveType
-                                 indirectBuffer:static_cast<CCMTLBuffer *>(indirectBuffer)->getMTLBuffer()
-                           indirectBufferOffset:j * sizeof(MTLDrawIndexedPrimitivesIndirectArguments)];
+                    const auto &drawInfo = indirectInfos[j];
+                    NSUInteger offset = 0;
+                    offset += drawInfo.firstIndex * _gpuIndexBuffer.stride;
+                    if (drawInfo.indexCount) {
+                        if (drawInfo.instanceCount == 0) {
+                            [_mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
+                                                    indexCount:drawInfo.indexCount
+                                                     indexType:_indexType
+                                                   indexBuffer:_gpuIndexBuffer.mtlBuffer
+                                             indexBufferOffset:offset];
+                        } else {
+                            [_mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
+                                                    indexCount:drawInfo.indexCount
+                                                     indexType:_indexType
+                                                   indexBuffer:_gpuIndexBuffer.mtlBuffer
+                                             indexBufferOffset:offset
+                                                 instanceCount:drawInfo.instanceCount];
+                        }
+                    } else {
+                        if (drawInfo.instanceCount == 0) {
+                            [_mtlEncoder drawPrimitives:_mtlPrimitiveType
+                                            vertexStart:drawInfo.firstIndex
+                                            vertexCount:drawInfo.vertexCount];
+                        } else {
+                            [_mtlEncoder drawPrimitives:_mtlPrimitiveType
+                                            vertexStart:drawInfo.firstIndex
+                                            vertexCount:drawInfo.vertexCount
+                                          instanceCount:drawInfo.instanceCount];
+                        }
+                    }
                 }
             }
         } else {
