@@ -386,9 +386,9 @@ export class Downloader {
         }
 
         // if download fail, should retry
-        const maxRetryCount = options.maxRetryCount || this.maxRetryCount;
-        const maxConcurrency = options.maxConcurrency || this.maxConcurrency;
-        const maxRequestsPerFrame = options.maxRequestsPerFrame || this.maxRequestsPerFrame;
+        const maxRetryCount = typeof options.maxRetryCount !== 'undefined' ? options.maxRetryCount : this.maxRetryCount;
+        const maxConcurrency = typeof options.maxConcurrency !== 'undefined' ? options.maxConcurrency : this.maxConcurrency;
+        const maxRequestsPerFrame = typeof options.maxRequestsPerFrame !== 'undefined' ? options.maxRequestsPerFrame : this.maxRequestsPerFrame;
         const handler = this._downloaders[type] || this._downloaders.default;
 
         const process: RetryFunction = (index, callback) => {
