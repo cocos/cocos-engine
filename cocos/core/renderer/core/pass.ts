@@ -141,8 +141,7 @@ export class Pass {
             const bsInfo = info.blendState;
             if (bsInfo.targets) {
                 bsInfo.targets.forEach((t, i) => {
-                    if (!bs.targets[i]) bs.setTarget(i, new BlendTarget());
-                    Object.assign(bs.targets[i], t);
+                    bs.setTarget(i, new BlendTarget(t.blend, t.blendSrc, t.blendDst, t.blendEq, t.blendSrcAlpha, t.blendDstAlpha, t.blendAlphaEq, t.blendColorMask));
                 });
             }
             if (bsInfo.isA2C !== undefined) { bs.isA2C = bsInfo.isA2C; }
