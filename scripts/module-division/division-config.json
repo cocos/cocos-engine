@@ -94,6 +94,12 @@
             "default": true
         },
         {
+            "text": "Particle 2D",
+            "description": "Particle 2D.",
+            "entry": "particle-2d",
+            "default": true
+        },
+        {
             "text": "Audio",
             "description": "Audio support.",
             "entry": "audio",
