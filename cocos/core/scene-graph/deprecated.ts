@@ -120,9 +120,16 @@ replaceProperty(Node.prototype, 'Node', [
     {
         name: 'setContentSize',
         targetName: 'node.getComponent(UITransform)',
-        customFunction (this: Node, size: Size | number, height?: number) {
-            this._uiProps.uiTransformComp!.setContentSize(size, height);
-        },
+        customFunction: function (this: Node, size: Size | number, height?: number) {
+            if (typeof size === 'number') {
+                size = size as number;
+                height = height as number;
+                this._uiProps.uiTransformComp!.setContentSize(size, height);
+            } else {
+                size = size as Size;
+                this._uiProps.uiTransformComp!.setContentSize(size);
+            }
+        }
     },
 ]);
 
