@@ -863,7 +863,7 @@ export class Mesh extends Asset {
             worldMatrix!.getRotation(rotate);
         }
         if (!this._initialized) {
-            const struct = JSON.parse(JSON.stringify(mesh._struct)) as Mesh.IStruct;
+            const struct = mesh._struct;
             const data = mesh._data.slice();
             if (worldMatrix) {
                 if (struct.maxPosition && struct.minPosition) {
