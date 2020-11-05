@@ -70,9 +70,9 @@ interface IProfilerState {
 }
 
 const _profileInfo = {
-    frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: 500 },
     fps: { desc: 'Framerate (FPS)', below: 30, average: 500, isInteger: true },
     draws: { desc: 'Draw call', isInteger: true },
+    frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: 500 },
     instances: { desc: 'Instance Count', isInteger: true },
     tricount: { desc: 'Triangle', isInteger: true },
     logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: 500, color: '#080' },

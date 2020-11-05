@@ -512,7 +512,7 @@ export class View extends EventTarget {
      */
     public setDesignResolutionSize (width: number, height: number, resolutionPolicy: ResolutionPolicy|number) {
         // Defensive code
-        if ( !(width > 0 || height > 0) ){
+        if ( !(width > 0 && height > 0) ){
             errorID(2200);
             return;
         }
@@ -808,7 +808,7 @@ export class View extends EventTarget {
             }
             else if (overwrite) {
                 pattern = new RegExp(key + '\s*=\s*[^,]+');
-                content.replace(pattern, key + '=' + metas[key]);
+                content = content.replace(pattern, key + '=' + metas[key]);
             }
         }
         if (/^,/.test(content)) {
