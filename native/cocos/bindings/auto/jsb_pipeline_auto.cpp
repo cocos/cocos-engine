@@ -105,7 +105,7 @@ static bool js_pipeline_RenderQueueDesc_set_stages(se::State& s)
 
     CC_UNUSED bool ok = true;
     std::vector<std::string> arg0;
-    ok &= seval_to_std_vector(args[0], &arg0);
+    ok &= seval_to_std_vector_string(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_pipeline_RenderQueueDesc_set_stages : Error processing new value");
     cobj->stages = arg0;
     return true;
@@ -148,7 +148,7 @@ static bool js_pipeline_RenderQueueDesc_constructor(se::State& s)
         std::vector<std::string> arg2;
         json->getProperty("stages", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_std_vector(field, &arg2);
+            ok &= seval_to_std_vector_string(field, &arg2);
             cobj->stages = arg2;
         }
 
@@ -177,7 +177,7 @@ static bool js_pipeline_RenderQueueDesc_constructor(se::State& s)
         }
         if (argc > 2 && !args[2].isUndefined()) {
             std::vector<std::string> arg2;
-            ok &= seval_to_std_vector(args[2], &arg2);
+            ok &= seval_to_std_vector_string(args[2], &arg2);
             cobj->stages = arg2;
         }
 
@@ -1820,7 +1820,7 @@ static bool js_pipeline_RenderView_setExecuteFlows(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         std::vector<std::string> arg0;
-        ok &= seval_to_std_vector(args[0], &arg0);
+        ok &= seval_to_std_vector_string(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_pipeline_RenderView_setExecuteFlows : Error processing arguments");
         cobj->setExecuteFlows(arg0);
         return true;
