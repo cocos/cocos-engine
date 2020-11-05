@@ -62,7 +62,7 @@ public:
 private:
     static cc::map<PoolType, ObjectPool *> _poolMap;
     
-    PoolType _type = PoolType::RASTERIZER_STATE;
+    PoolType _type = PoolType::SHADER;
     Object *_jsArr = nullptr;
     uint _poolFlag = 1 << 29;
     uint _indexMask = 0;

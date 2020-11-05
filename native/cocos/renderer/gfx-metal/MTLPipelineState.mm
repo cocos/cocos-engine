@@ -219,19 +219,19 @@ void CCMTLPipelineState::setBlendStates(MTLRenderPipelineDescriptor *descriptor)
     descriptor.alphaToCoverageEnabled = _blendState.isA2C;
 
     int i = 0;
-    for (const auto &blendTarget : _blendState.targets) {
+    for (const auto blendTarget : _blendState.targets) {
         MTLRenderPipelineColorAttachmentDescriptor *colorDescriptor = descriptor.colorAttachments[i];
-        colorDescriptor.blendingEnabled = blendTarget.blend;
-        if (!blendTarget.blend)
+        colorDescriptor.blendingEnabled = blendTarget->blend;
+        if (!blendTarget->blend)
             continue;
 
-        colorDescriptor.writeMask = mu::toMTLColorWriteMask(blendTarget.blendColorMask);
-        colorDescriptor.sourceRGBBlendFactor = mu::toMTLBlendFactor(blendTarget.blendSrc);
-        colorDescriptor.destinationRGBBlendFactor = mu::toMTLBlendFactor(blendTarget.blendDst);
-        colorDescriptor.rgbBlendOperation = mu::toMTLBlendOperation(blendTarget.blendEq);
-        colorDescriptor.sourceAlphaBlendFactor = mu::toMTLBlendFactor(blendTarget.blendSrcAlpha);
-        colorDescriptor.destinationAlphaBlendFactor = mu::toMTLBlendFactor(blendTarget.blendDstAlpha);
-        colorDescriptor.alphaBlendOperation = mu::toMTLBlendOperation(blendTarget.blendAlphaEq);
+        colorDescriptor.writeMask = mu::toMTLColorWriteMask(blendTarget->blendColorMask);
+        colorDescriptor.sourceRGBBlendFactor = mu::toMTLBlendFactor(blendTarget->blendSrc);
+        colorDescriptor.destinationRGBBlendFactor = mu::toMTLBlendFactor(blendTarget->blendDst);
+        colorDescriptor.rgbBlendOperation = mu::toMTLBlendOperation(blendTarget->blendEq);
+        colorDescriptor.sourceAlphaBlendFactor = mu::toMTLBlendFactor(blendTarget->blendSrcAlpha);
+        colorDescriptor.destinationAlphaBlendFactor = mu::toMTLBlendFactor(blendTarget->blendDstAlpha);
+        colorDescriptor.alphaBlendOperation = mu::toMTLBlendOperation(blendTarget->blendAlphaEq);
 
         ++i;
     }

@@ -3,9 +3,6 @@
 namespace se {
 enum class PoolType {
     // objects
-    RASTERIZER_STATE,
-    DEPTH_STENCIL_STATE,
-    BLEND_STATE,
     ATTRIBUTE,
     DESCRIPTOR_SETS,
     SHADER,
@@ -33,6 +30,10 @@ enum class PoolType {
     INSTANCED_ATTRIBUTE,
     FLAT_BUFFER,
     SUB_MESH,
+    RASTERIZER_STATE,
+    DEPTH_STENCIL_STATE,
+    BLEND_TARGET,
+    BLEND_STATE,
 
     // array
     SUB_MODEL_ARRAY = 200,
@@ -41,6 +42,7 @@ enum class PoolType {
     FLAT_BUFFER_ARRAY,
     INSTANCED_ATTRIBUTE_ARRAY,
     LIGHT_ARRAY,
+    BLEND_TARGET_ARRAY,
 
     // raw buffer
     RAW_BUFFER = 300,

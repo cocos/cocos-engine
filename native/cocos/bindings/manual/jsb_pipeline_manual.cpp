@@ -146,19 +146,19 @@ SE_BIND_PROP_GET(js_pipeline_RenderPipeline_getMacros)
 static bool JSB_getOrCreatePipelineState(se::State &s) {
     const auto &args = s.args();
     size_t argc = args.size();
-    if (argc == 5) {
+    if (argc == 4) {
         bool ok = true;
         uint32_t passHandle = 0;
-        ok &= seval_to_uint32(args[1], &passHandle);
+        ok &= seval_to_uint32(args[0], &passHandle);
         SE_PRECONDITION2(ok, false, "JSB_getOrCreatePipelineState : Error getting pass handle.");
-        auto shader = static_cast<cc::gfx::Shader *>(args[2].toObject()->getPrivateData());
-        auto renderPass = static_cast<cc::gfx::RenderPass *>(args[3].toObject()->getPrivateData());
-        auto inputAssembler = static_cast<cc::gfx::InputAssembler *>(args[4].toObject()->getPrivateData());
+        auto shader = static_cast<cc::gfx::Shader *>(args[1].toObject()->getPrivateData());
+        auto renderPass = static_cast<cc::gfx::RenderPass *>(args[2].toObject()->getPrivateData());
+        auto inputAssembler = static_cast<cc::gfx::InputAssembler *>(args[3].toObject()->getPrivateData());
         auto pipelineState = cc::pipeline::PipelineStateManager::getOrCreatePipelineStateByJS(passHandle, shader, inputAssembler, renderPass);
         native_ptr_to_seval<cc::gfx::PipelineState>(pipelineState, &s.rval());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
     return false;
 }
 SE_BIND_FUNC(JSB_getOrCreatePipelineState);

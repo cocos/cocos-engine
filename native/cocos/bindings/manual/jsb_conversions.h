@@ -32,6 +32,19 @@
 #include "extensions/cocos-ext.h"
 #include "network/Downloader.h"
 
+namespace cc {
+namespace gfx {
+struct Rect;
+struct Viewport;
+struct Color;
+struct Offset;
+struct Extent;
+struct TextureSubres;
+struct TextureCopy;
+struct BufferTextureCopy;
+}
+} // namespace cc
+
 //#include "Box2D/Box2D.h"
 
 #define SE_PRECONDITION2_VOID(condition, ...)                                                           \
@@ -90,7 +103,6 @@ bool seval_to_double(const se::Value &v, double *ret);
 bool seval_to_long(const se::Value &v, long *ret);
 bool seval_to_ulong(const se::Value &v, unsigned long *ret);
 bool seval_to_longlong(const se::Value &v, long long *ret);
-bool seval_to_ssize(const se::Value &v, ssize_t *ret);
 bool seval_to_size(const se::Value &v, size_t *ret);
 bool seval_to_std_string(const se::Value &v, std::string *ret);
 bool seval_to_Vec2(const se::Value &v, cc::Vec2 *pt);
@@ -114,6 +126,17 @@ bool seval_to_uintptr_t(const se::Value &v, uintptr_t *ret);
 bool seval_to_std_map_string_string(const se::Value &v, std::map<std::string, std::string> *ret);
 bool seval_to_Data(const se::Value &v, cc::Data *ret);
 bool seval_to_DownloaderHints(const se::Value &v, cc::network::DownloaderHints *ret);
+
+bool seval_to_gfx_rect(const se::Value &v, cc::gfx::Rect *rect);
+bool seval_to_gfx_viewport(const se::Value &v, cc::gfx::Viewport *viewport);
+bool seval_to_gfx_color(const se::Value &v, cc::gfx::Color *color);
+bool seval_to_gfx_color_list(const se::Value &v, cc::vector<cc::gfx::Color> *colorList);
+bool seval_to_gfx_offset(const se::Value &v, cc::gfx::Offset *offset);
+bool seval_to_gfx_extent(const se::Value &v, cc::gfx::Extent *extent);
+bool seval_to_gfx_texture_subres(const se::Value &v, cc::gfx::TextureSubres *textureSubres);
+bool seval_to_gfx_texture_copy(const se::Value &v, cc::gfx::TextureCopy *textureCopy);
+bool seval_to_gfx_buffer_texture_copy(const se::Value &v, cc::gfx::BufferTextureCopy *bufferTextureCopy);
+bool seval_to_gfx_buffer_texture_copy_list(const se::Value &v, cc::vector<cc::gfx::BufferTextureCopy> *bufferTextureCopyList);
 
 #if USE_GFX_RENDERER
 #endif
@@ -327,7 +350,6 @@ bool seval_to_Map_string_key(const se::Value &v, cc::Map<std::string, T> *ret) {
         }
 
         T nativeObj = (T)tmp.toObject()->getPrivateData();
-
         ret->insert(key, nativeObj);
     }
 
@@ -348,7 +370,6 @@ bool long_to_seval(long v, se::Value *ret);
 bool ulong_to_seval(unsigned long v, se::Value *ret);
 bool longlong_to_seval(long long v, se::Value *ret);
 bool uintptr_t_to_seval(uintptr_t v, se::Value *ret);
-bool ssize_to_seval(ssize_t v, se::Value *ret);
 bool size_to_seval(size_t v, se::Value *ret);
 bool std_string_to_seval(const std::string &v, se::Value *ret);
 
@@ -371,7 +392,6 @@ bool std_map_string_string_to_seval(const std::map<std::string, std::string> &v,
 bool ManifestAsset_to_seval(const cc::extension::ManifestAsset &v, se::Value *ret);
 bool Data_to_seval(const cc::Data &v, se::Value *ret);
 bool DownloadTask_to_seval(const cc::network::DownloadTask &v, se::Value *ret);
-bool std_vector_EffectDefine_to_seval(const std::vector<cc::ValueMap> &v, se::Value *ret);
 
 #if USE_GFX_RENDERER
 #endif

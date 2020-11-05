@@ -29,34 +29,46 @@
 #include <map>
 #include <string>
 
+//#define RECORD_JSB_INVOKING
+
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
-#ifdef CC_DEBUG
+#if defined(CC_DEBUG) & defined(RECORD_JSB_INVOKING)
 extern unsigned int __jsbInvocationCount;
 extern std::map<std::string, unsigned int> __jsbFunctionInvokedRecords;
 #endif
 
 namespace {
+bool cmp(std::pair<std::string, int> &a, std::pair<std::string, int> &b) {
+    return a.second < b.second;
+}
+
+std::vector<std::pair<std::string, int>> pairs;
 
 void recordJSBInvoke(const std::string &funcName) {
-    #ifdef CC_DEBUG
+    #if defined(CC_DEBUG) & defined(RECORD_JSB_INVOKING)
     ++__jsbInvocationCount;
     ++__jsbFunctionInvokedRecords[funcName];
     #endif
 }
 void clearRecordJSBInvoke() {
-    #ifdef CC_DEBUG
+    #if defined(CC_DEBUG) & defined(RECORD_JSB_INVOKING)
     __jsbInvocationCount = 0;
     __jsbFunctionInvokedRecords.clear();
     #endif
 }
 
 void printJSBInvoke() {
-    #ifdef CC_DEBUG
-    CC_LOG_DEBUG("Start print JSB function record info.......");
-    for (const auto &pair : __jsbFunctionInvokedRecords) {
+    #if defined(CC_DEBUG) & defined(RECORD_JSB_INVOKING)
+    for (const auto &it : __jsbFunctionInvokedRecords)
+        pairs.push_back(it);
+
+    std::sort(pairs.begin(), pairs.end(), cmp);
+    CC_LOG_DEBUG("Start print JSB function record info....... %d times", __jsbInvocationCount);
+    for (const auto &pair : pairs) {
         CC_LOG_DEBUG("%s is invoked %u times.", pair.first.c_str(), pair.second);
     }
+    pairs.clear();
     CC_LOG_DEBUG("End print JSB function record info.......\n");
     #endif
 }
