@@ -111,6 +111,7 @@ export class Simulator {
     private emitCounter = 0;
     private _worldRotation = 0;
     private declare sys;
+    public declare renderData;
 
     constructor (system) {
         this.sys = system;
@@ -233,12 +234,7 @@ export class Simulator {
     };
 
     public updateUVs (force?: boolean) {
-        const assembler = this.sys.assembler;
-        if (!assembler) {
-            return;
-        }
-
-        const renderData = assembler.renderData;
+        const renderData = this.renderData;
         if (renderData && this.sys._renderSpriteFrame) {
             const vbuf = renderData.vData;
             const uv = this.sys._renderSpriteFrame.uv;
@@ -328,7 +324,6 @@ export class Simulator {
         const psys = this.sys;
         const node = psys.node;
         const particles = this.particles;
-        const assembler = this.sys.assembler!;
 
         // Calculate pos
         node.updateWorldTransform();
@@ -364,10 +359,10 @@ export class Simulator {
         }
 
         // Request buffer for particles
-        const renderData = assembler.renderData;
+        const renderData = this.renderData;
         const particleCount = particles.length;
-        assembler.reset();
-        assembler.requestData(particleCount * formatBytes, particleCount * 6);
+        renderData.reset();
+        this.requestData(particleCount * 4, particleCount * 6);
 
         // Fill up uvs
         if (particleCount > this.uvFilled) {
@@ -469,6 +464,22 @@ export class Simulator {
         else if (!this.active && !this.readyToPlay) {
             this.finished = true;
             psys._finishedSimulation();
+        }
+    }
+
+    requestData (vertexCount: number, indicesCount: number) {
+        let offset = this.renderData.indicesCount;
+        this.renderData.request(vertexCount, indicesCount);
+        const count = this.renderData.indicesCount / 6;
+        const buffer = this.renderData.iData;
+        for (let i = offset; i < count; i++) {
+            const vId = i * 4;
+            buffer[offset++] = vId;
+            buffer[offset++] = vId + 1;
+            buffer[offset++] = vId + 2;
+            buffer[offset++] = vId + 1;
+            buffer[offset++] = vId + 3;
+            buffer[offset++] = vId + 2;
         }
     }
 }
