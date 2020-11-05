@@ -118,6 +118,10 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
     }
 
     public syncPlaybackRate(val: number) {
+        if (sys.browserType === sys.BROWSER_TYPE_UC) {
+            console.warn('playbackRate is not supported by the uc mobile browser.');
+            return;
+        }
         if (this.video) {
             this.video.playbackRate = val;
         }
@@ -383,7 +387,13 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         let w, h;
         this._video.style.width = this._w + 'px';
         this._video.style.height = this._h + 'px';
-        this._video.style.objectFit = this._keepAspectRatio ? 'none' : 'fill';
+
+        if (sys.browserType !== sys.BROWSER_TYPE_MOBILE_QQ) {
+            this._video.style.objectFit = this._keepAspectRatio ? 'none' : 'fill';
+        }
+        else {
+            console.warn('keepAspectRatio is not supported by the qq mobile browser.');
+        }
 
         w = this._w * scaleX;
         h = this._h * scaleY;

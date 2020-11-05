@@ -512,7 +512,7 @@ export class View extends EventTarget {
      */
     public setDesignResolutionSize (width: number, height: number, resolutionPolicy: ResolutionPolicy|number) {
         // Defensive code
-        if ( !(width > 0 || height > 0) ){
+        if ( !(width > 0 && height > 0) ){
             errorID(2200);
             return;
         }
@@ -671,8 +671,8 @@ export class View extends EventTarget {
             result.y = y;
         }
         if(legacyCC.GAME_VIEW) {
-            result.x /= legacyCC.gameView.window.innerWidth / legacyCC.game.canvas.width;
-            result.y /= legacyCC.gameView.window.innerHeight / legacyCC.game.canvas.height;
+            result.x /= legacyCC.gameView.canvas.width / legacyCC.game.canvas.width;
+            result.y /= legacyCC.gameView.canvas.height / legacyCC.game.canvas.height;
         }
         return result;
     }
@@ -808,7 +808,7 @@ export class View extends EventTarget {
             }
             else if (overwrite) {
                 pattern = new RegExp(key + '\s*=\s*[^,]+');
-                content.replace(pattern, key + '=' + metas[key]);
+                content = content.replace(pattern, key + '=' + metas[key]);
             }
         }
         if (/^,/.test(content)) {
@@ -835,8 +835,8 @@ export class View extends EventTarget {
         in_out_point.x = this._devicePixelRatio * (in_out_point.x - relatedPos.left);
         in_out_point.y = this._devicePixelRatio * (relatedPos.top + relatedPos.height - in_out_point.y);
         if(legacyCC.GAME_VIEW) {
-            in_out_point.x /= legacyCC.gameView.window.innerWidth / legacyCC.game.canvas.width;
-            in_out_point.y /= legacyCC.gameView.window.innerHeight / legacyCC.game.canvas.height;
+            in_out_point.x /= legacyCC.gameView.canvas.width / legacyCC.game.canvas.width;
+            in_out_point.y /= legacyCC.gameView.canvas.height / legacyCC.game.canvas.height;
         }
     }
 

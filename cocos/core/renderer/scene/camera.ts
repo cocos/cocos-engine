@@ -11,6 +11,7 @@ import { RenderWindow } from '../core/render-window';
 import { CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, NULL_HANDLE, SceneHandle } from '../core/memory-pools';
 import { JSB } from 'internal:constants';
 import { recordFrustumToSharedMemory } from '../../geometry/frustum';
+import { preTransforms } from '../../math/mat4';
 
 export enum CameraFOVAxis {
     VERTICAL,
@@ -651,9 +652,15 @@ export class Camera {
         const cw = this._viewport.width * width;
         const ch = this._viewport.height * height;
         const isProj = this._proj === CameraProjection.PERSPECTIVE;
+        const ySign = this._device.screenSpaceSignY;
+        const preTransform = preTransforms[this._curTransform];
 
         Vec3.set(v_a, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, isProj ? 1 : -1);
-        Vec3.transformMat4(v_a, v_a, correctionMatrices[this._curTransform]);
+
+        const { x: ox, y: oy } = v_a;
+        v_a.x = ox * preTransform[0] + oy * preTransform[2] * ySign;
+        v_a.y = ox * preTransform[1] + oy * preTransform[3] * ySign;
+
         Vec3.transformMat4(isProj ? v_a : out.o, v_a, this._matViewProjInv);
 
         if (isProj) {
@@ -678,6 +685,8 @@ export class Camera {
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;
         const ch = this._viewport.height * height;
+        const ySign = this._device.screenSpaceSignY;
+        const preTransform = preTransforms[this._curTransform];
 
         if (this._proj === CameraProjection.PERSPECTIVE) {
             // calculate screen pos in far clip plane
@@ -688,7 +697,9 @@ export class Camera {
             );
 
             // transform to world
-            Vec3.transformMat4(out, out, correctionMatrices[this._curTransform]);
+            const { x, y } = out;
+            out.x = x * preTransform[0] + y * preTransform[2] * ySign;
+            out.y = x * preTransform[1] + y * preTransform[3] * ySign;
             Vec3.transformMat4(out, out, this._matViewProjInv);
 
             // lerp to depth z
@@ -703,7 +714,9 @@ export class Camera {
             );
 
             // transform to world
-            Vec3.transformMat4(out, out, correctionMatrices[this._curTransform]);
+            const { x, y } = out;
+            out.x = x * preTransform[0] + y * preTransform[2] * ySign;
+            out.y = x * preTransform[1] + y * preTransform[3] * ySign;
             Vec3.transformMat4(out, out, this._matViewProjInv);
         }
 
@@ -721,9 +734,14 @@ export class Camera {
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;
         const ch = this._viewport.height * height;
+        const ySign = this._device.screenSpaceSignY;
+        const preTransform = preTransforms[this._curTransform];
 
         Vec3.transformMat4(out, worldPos, this._matViewProj);
-        Vec3.transformMat4(out, out, correctionMatrices[(4 - this._curTransform) % 4]);
+
+        const { x, y } = out;
+        out.x = x * preTransform[0] + y * preTransform[2] * ySign;
+        out.y = x * preTransform[1] + y * preTransform[3] * ySign;
 
         out.x = cx + (out.x + 1) * 0.5 * cw;
         out.y = cy + (out.y + 1) * 0.5 * ch;
@@ -740,9 +758,10 @@ export class Camera {
      * @param {number} height framebuffer height
      * @returns {Mat4} the resulting vector
      */
-    public worldMatrixToScreen (out: Mat4, worldMatrix: Mat4, width: number, height: number){
+    public worldMatrixToScreen (out: Mat4, worldMatrix: Mat4, width: number, height: number) {
         Mat4.multiply(out, this._matViewProj, worldMatrix);
-        Mat4.multiply(out, correctionMatrices[(4 - this._curTransform) % 4], out);
+        Mat4.multiply(out, correctionMatrices[this._curTransform], out);
+
         const halfWidth = width / 2;
         const halfHeight = height / 2;
         Mat4.identity(_tempMat1);

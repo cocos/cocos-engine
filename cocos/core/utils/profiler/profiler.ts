@@ -35,7 +35,7 @@ import { Layers } from '../../scene-graph';
 import { Node } from '../../scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
-import { TEST } from 'internal:constants';
+import { TEST, EDITOR } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
 import { Pass } from '../../renderer';
 import { preTransforms } from '../../math/mat4';
@@ -70,9 +70,9 @@ interface IProfilerState {
 }
 
 const _profileInfo = {
-    frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: 500 },
     fps: { desc: 'Framerate (FPS)', below: 30, average: 500, isInteger: true },
     draws: { desc: 'Draw call', isInteger: true },
+    frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: 500 },
     instances: { desc: 'Instance Count', isInteger: true },
     tricount: { desc: 'Triangle', isInteger: true },
     logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: 500, color: '#080' },
@@ -152,11 +152,16 @@ export class Profiler {
     public showStats () {
         if (!this._showFPS) {
             if (!this._device) { this._device = legacyCC.director.root.device; }
-            this.generateCanvas();
+            if(!EDITOR) {
+                this.generateCanvas();
+            }
             this.generateStats();
-            legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this.generateNode, this);
-            legacyCC.game.on(legacyCC.Game.EVENT_RESTART, this.generateNode, this);
-
+            if(!EDITOR) {
+                legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this.generateNode, this);
+                legacyCC.game.on(legacyCC.Game.EVENT_RESTART, this.generateNode, this);
+            } else {
+                this._inited = true;
+            }
             if (this._rootNode) {
                 this._rootNode.active = true;
             }
@@ -219,25 +224,26 @@ export class Profiler {
         let i = 0;
         for (const id in _profileInfo) {
             const element = _profileInfo[id];
-            this._ctx.fillText(element.desc, 0, i * this._lineHeight);
+            !EDITOR && this._ctx.fillText(element.desc, 0, i * this._lineHeight);
             element.counter = new PerfCounter(id, element, now);
             i++;
         }
         this._totalLines = i;
         this._wordHeight = this._totalLines * this._lineHeight / this._canvas.height;
-
-        for (let j = 0; j < _characters.length; ++j) {
-            const offset = this._ctx.measureText(_characters[j]).width;
-            this._eachNumWidth = Math.max(this._eachNumWidth, offset);
-        }
-        for (let j = 0; j < _characters.length; ++j) {
-            this._ctx.fillText(_characters[j], j * this._eachNumWidth, this._totalLines * this._lineHeight);
+        if (!EDITOR) {
+            for (let j = 0; j < _characters.length; ++j) {
+                const offset = this._ctx.measureText(_characters[j]).width;
+                this._eachNumWidth = Math.max(this._eachNumWidth, offset);
+            }
+            for (let j = 0; j < _characters.length; ++j) {
+                this._ctx.fillText(_characters[j], j * this._eachNumWidth, this._totalLines * this._lineHeight);
+            }
         }
         this._eachNumWidth /= this._canvas.width;
 
         this._stats = _profileInfo as IProfilerState;
         this._canvasArr[0] = this._canvas;
-        this._device!.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
+        !EDITOR && this._device!.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
     }
 
     public generateNode () {
@@ -415,19 +421,21 @@ export class Profiler {
         (this._stats.tricount.counter as PerfCounter).value = device.numTris;
 
         let i = 0;
-        const view = this.digitsData;
-        for (const id in this._stats) {
-            const stat = this._stats[id] as ICounterOption;
-            stat.counter.sample(now);
-            const result = stat.counter.human().toString();
-            for (let j = _constants.segmentsPerLine - 1; j >= 0; j--) {
-                const index = i * _constants.segmentsPerLine + j;
-                const character = result[result.length - (_constants.segmentsPerLine - j)];
-                let offset = _string2offset[character];
-                if (offset === undefined) { offset = 11; }
-                view[index] = offset;
+        if(!EDITOR) {
+            const view = this.digitsData;
+            for (const id in this._stats) {
+                const stat = this._stats[id] as ICounterOption;
+                stat.counter.sample(now);
+                const result = stat.counter.human().toString();
+                for (let j = _constants.segmentsPerLine - 1; j >= 0; j--) {
+                    const index = i * _constants.segmentsPerLine + j;
+                    const character = result[result.length - (_constants.segmentsPerLine - j)];
+                    let offset = _string2offset[character];
+                    if (offset === undefined) { offset = 11; }
+                    view[index] = offset;
+                }
+                i++;
             }
-            i++;
         }
     }
 }

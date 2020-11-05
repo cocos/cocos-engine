@@ -401,12 +401,6 @@ export const sys: { [x: string]: any; } = {
      * @default 119
      */
     LINKSURE: 119,
-    /**
-     * @en Platform - Xiaomi Game
-     * @zh Platform - 小米小游戏
-     * @default 111
-     */
-    XIAOMI_GAME: 111,
 
     /**
      * @en Browser Type - WeChat inner browser

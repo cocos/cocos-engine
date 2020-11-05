@@ -201,6 +201,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
                 this._curScissor.y !== scissor.y ||
                 this._curScissor.width !== scissor.width ||
                 this._curScissor.height !== scissor.height) {
+
                 this._curScissor.x = scissor.x;
                 this._curScissor.y = scissor.y;
                 this._curScissor.width = scissor.width;

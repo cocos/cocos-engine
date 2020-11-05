@@ -275,16 +275,16 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
 class ObjectPool<T, P extends PoolType, A extends any[]> implements IMemoryPool<P> {
 
     private _ctor: (args: A, obj?: T) => T;
-    private _dtor?: (obj: T) => void;
+    private _dtor?: (obj: T) => T | undefined;
     private _indexMask: number;
     private _poolFlag: number;
 
-    private _array: T[] = [];
+    private _array: (T | undefined)[] = [];
     private _freelist: number[] = [];
 
     private _nativePool: NativeObjectPool<T>;
 
-    constructor (poolType: P, ctor: (args: A, obj?: T) => T, dtor?: (obj: T) => void) {
+    constructor (poolType: P, ctor: (args: A, obj?: T) => T, dtor?: (obj: T) => T | undefined) {
         this._ctor = ctor;
         if (dtor) { this._dtor = dtor; }
         this._poolFlag = 1 << 29;
@@ -299,8 +299,7 @@ class ObjectPool<T, P extends PoolType, A extends any[]> implements IMemoryPool<
             i = freelist[freelist.length - 1];
             freelist.length--;
             this._array[i] = this._ctor(arguments as unknown as A, this._array[i]);
-        }
-        if (i < 0) {
+        } else {
             i = this._array.length;
             const obj = this._ctor(arguments as unknown as A);
             if (!obj) { return 0 as unknown as IHandle<P>; }
@@ -309,13 +308,13 @@ class ObjectPool<T, P extends PoolType, A extends any[]> implements IMemoryPool<
         return i + this._poolFlag as unknown as IHandle<P>; // guarantees the handle is always not zero
     }
 
-    public get (handle: IHandle<P>) {
+    public get<R extends T> (handle: IHandle<P>): R {
         const index = this._indexMask & handle as unknown as number;
         if (DEBUG && (!handle || index < 0 || index >= this._array.length || this._freelist.find((n) => n === index))) {
             console.warn('invalid object pool handle');
             return null!;
         }
-        return this._array[index];
+        return this._array[index] as R;
     }
 
     public free (handle: IHandle<P>) {
@@ -324,7 +323,7 @@ class ObjectPool<T, P extends PoolType, A extends any[]> implements IMemoryPool<
             console.warn('invalid object pool handle');
             return;
         }
-        if (this._dtor) { this._dtor(this._array[index]); }
+        if (this._dtor) { this._array[index] = this._dtor(this._array[index]!); }
         this._freelist.push(index);
     }
 }
@@ -544,8 +543,9 @@ enum PoolType {
     FLAT_BUFFER_ARRAY,
     INSTANCED_BUFFER_ARRAY,
     LIGHT_ARRAY,
-    // raw buffer
+    // raw resources
     RAW_BUFFER = 300,
+    RAW_OBJECT = 400,
 }
 
 export const NULL_HANDLE = 0 as unknown as IHandle<any>;
@@ -573,6 +573,7 @@ export type SubModelArrayHandle = IHandle<PoolType.SUB_MODEL_ARRAY>;
 export type AttributeArrayHandle = IHandle<PoolType.ATTRIBUTE_ARRAY>;
 export type ModelArrayHandle = IHandle<PoolType.MODEL_ARRAY>;
 export type RawBufferHandle = IHandle<PoolType.RAW_BUFFER>;
+export type RawObjectHandle = IHandle<PoolType.RAW_OBJECT>;
 export type AmbientHandle = IHandle<PoolType.AMBIENT>;
 export type FogHandle = IHandle<PoolType.FOG>;
 export type SkyboxHandle = IHandle<PoolType.SKYBOX>;
@@ -585,32 +586,32 @@ export type FlatBufferArrayHandle = IHandle<PoolType.FLAT_BUFFER_ARRAY>;
 export type LightArrayHandle = IHandle<PoolType.LIGHT_ARRAY>;
 
 // don't reuse any of these data-only structs, for GFX objects may directly reference them
-export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, (_: never[]) => new RasterizerState());
-export const DepthStencilStatePool = new ObjectPool(PoolType.DEPTH_STENCIL_STATE, (_: never[]) => new DepthStencilState());
-export const BlendStatePool = new ObjectPool(PoolType.BLEND_STATE, (_: never[]) => new BlendState());
+export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, (_: never[]) => new RasterizerState(), (_: RasterizerState) => undefined);
+export const DepthStencilStatePool = new ObjectPool(PoolType.DEPTH_STENCIL_STATE, (_: never[]) => new DepthStencilState(), (_: DepthStencilState) => undefined);
+export const BlendStatePool = new ObjectPool(PoolType.BLEND_STATE, (_: never[]) => new BlendState(), (_: BlendState) => undefined);
 
 export const AttrPool = new ObjectPool(PoolType.ATTRIBUTE, (_: never[], obj?: Attribute) => obj || new Attribute());
 
 // TODO: could use Labeled Tuple Element feature here after next babel update (required TS4.0+ support)
 export const ShaderPool = new ObjectPool(PoolType.SHADER,
     (args: [Device, ShaderInfo], obj?: Shader) => obj ? (obj.initialize(args[1]), obj) : args[0].createShader(args[1]),
-    (obj: Shader) => obj && obj.destroy(),
+    (obj: Shader) => (obj && obj.destroy(), obj),
 );
 export const DSPool = new ObjectPool(PoolType.DESCRIPTOR_SETS,
     (args: [Device, DescriptorSetInfo], obj?: DescriptorSet) => obj ? (obj.initialize(args[1]), obj) : args[0].createDescriptorSet(args[1]),
-    (obj: DescriptorSet) => obj && obj.destroy(),
+    (obj: DescriptorSet) => (obj && obj.destroy(), obj),
 );
 export const IAPool = new ObjectPool(PoolType.INPUT_ASSEMBLER,
     (args: [Device, InputAssemblerInfo], obj?: InputAssembler) => obj ? (obj.initialize(args[1]), obj) : args[0].createInputAssembler(args[1]),
-    (obj: InputAssembler) => obj && obj.destroy(),
+    (obj: InputAssembler) => (obj && obj.destroy(), obj),
 );
 export const PipelineLayoutPool = new ObjectPool(PoolType.PIPELINE_LAYOUT,
     (args: [Device, PipelineLayoutInfo], obj?: PipelineLayout) => obj ? (obj.initialize(args[1]), obj) : args[0].createPipelineLayout(args[1]),
-    (obj: PipelineLayout) => obj && obj.destroy(),
+    (obj: PipelineLayout) => (obj && obj.destroy(), obj),
 );
 export const FramebufferPool = new ObjectPool(PoolType.FRAMEBUFFER,
     (args: [Device, FramebufferInfo], obj?: Framebuffer) => obj ? (obj.initialize(args[1]), obj) : args[0].createFramebuffer(args[1]),
-    (obj: Framebuffer) => obj && obj.destroy(),
+    (obj: Framebuffer) => (obj && obj.destroy(), obj),
 );
 
 export const SubModelArrayPool = new TypedArrayPool<PoolType.SUB_MODEL_ARRAY, Uint32ArrayConstructor, SubModelHandle>
@@ -623,6 +624,7 @@ export const FlatBufferArrayPool = new TypedArrayPool<PoolType.FLAT_BUFFER_ARRAY
 export const LightArrayPool = new TypedArrayPool<PoolType.LIGHT_ARRAY, Uint32ArrayConstructor, LightHandle>(PoolType.LIGHT_ARRAY, Uint32Array, 8, 4);
 
 export const RawBufferPool = new BufferAllocator(PoolType.RAW_BUFFER);
+export const RawObjectPool = new ObjectPool(PoolType.RAW_OBJECT, (args: [Object?]) => args[0] || {}, (_: Object) => undefined);
 
 export enum PassView {
     PRIORITY,

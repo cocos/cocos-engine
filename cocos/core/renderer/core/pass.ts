@@ -32,7 +32,6 @@ import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../3d/builtin/init';
 import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
 import { TextureBase } from '../../assets/texture-base';
-import { BlendState, BlendTarget, DepthStencilState, RasterizerState } from '../../gfx/pipeline-state';
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
@@ -43,10 +42,10 @@ import { PassView, BlendStatePool, RasterizerStatePool, DepthStencilStatePool,
     PassPool, DSPool, PassHandle, ShaderHandle, NULL_HANDLE } from './memory-pools';
 import { customizeType, getBindingFromHandle, getPropertyTypeFromHandle, getDefaultFromType,
     getOffsetFromHandle, getTypeFromHandle, MacroRecord, MaterialProperty, type2reader, type2writer, PropertyType } from './pass-utils';
-import { BufferUsageBit, GetTypeSize, MemoryUsageBit, PrimitiveMode,
-    Type, DynamicStateFlagBit, DynamicStateFlags, Feature } from '../../gfx/define';
 import { DescriptorSetLayoutInfo, Texture,  Device, Buffer, BufferInfo, BufferViewInfo,
-    Sampler, DescriptorSet, DescriptorSetInfo } from '../../gfx';
+    Sampler, DescriptorSet, DescriptorSetInfo, BlendState, BlendTarget, DepthStencilState,
+    RasterizerState, BufferUsageBit, GetTypeSize, MemoryUsageBit, PrimitiveMode,
+    Type, DynamicStateFlagBit, DynamicStateFlags, Feature } from '../../gfx';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part

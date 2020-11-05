@@ -639,7 +639,7 @@ export class Game extends EventTarget {
 
     //  @Time ticker section
     private _setAnimFrame () {
-        this._lastTime = new Date().getTime();
+        this._lastTime = performance.now();
         const frameRate = this.config.frameRate;
         this._frameTime = 1000 / frameRate;
         legacyCC.director._maxParticleDeltaTime = this._frameTime / 1000 * 2;
@@ -655,17 +655,18 @@ export class Game extends EventTarget {
                 this._intervalId = 0;
             }
 
+            const rAF = window.requestAnimationFrame = window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimationFrame;
             if (frameRate !== 60 && frameRate !== 30) {
-                window.rAF = this._stTime;
+                // @ts-ignore
+                window.rAF = rAF ? this._stTimeWithRAF : this._stTime;
                 window.cAF = this._ctTime;
             }
             else {
-                window.rAF = window.requestAnimationFrame ||
-                    window.webkitRequestAnimationFrame ||
-                    window.mozRequestAnimationFrame ||
-                    window.oRequestAnimationFrame ||
-                    window.msRequestAnimationFrame ||
-                    this._stTime;
+                window.rAF = rAF || this._stTime;
                 window.cAF = window.cancelAnimationFrame ||
                     window.cancelRequestAnimationFrame ||
                     window.msCancelRequestAnimationFrame ||
@@ -680,12 +681,24 @@ export class Game extends EventTarget {
             }
         }
     }
+
+    private _stTimeWithRAF (callback) {
+        const currTime = performance.now();
+        const elapseTime = Math.max(0, (currTime - game._lastTime));
+        const timeToCall = Math.max(0, game._frameTime - elapseTime);
+        const id = window.setTimeout(() => {
+            window.requestAnimationFrame(callback);
+        }, timeToCall);
+        game._lastTime = currTime + timeToCall;
+        return id;
+    }
+
     private _stTime (callback) {
-        const currTime = new Date().getTime();
-        const elapseTime = Math.max(0, (currTime - this._lastTime));
-        const timeToCall = Math.max(0, this._frameTime - elapseTime);
+        const currTime = performance.now();
+        const elapseTime = Math.max(0, (currTime - game._lastTime));
+        const timeToCall = Math.max(0, game._frameTime - elapseTime);
         const id = window.setTimeout(callback, timeToCall);
-        this._lastTime = currTime + timeToCall;
+        game._lastTime = currTime + timeToCall;
         return id;
     }
     private _ctTime (id: number | undefined) {
