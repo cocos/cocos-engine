@@ -8,7 +8,7 @@ import { Mat4 } from '../math';
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, UBOLocalBatched } from './define';
 import { Pass } from '../renderer';
-import { SubModelPool, SubModelView, PassHandle, ShaderHandle } from '../renderer/core/memory-pools';
+import { SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
 
 export interface IBatchedItem {
     vbs: Buffer[];
@@ -21,7 +21,7 @@ export interface IBatchedItem {
     ubo: Buffer;
     uboData: Float32Array;
     descriptorSet: DescriptorSet;
-    hPass: PassHandle;
+    pass: Pass;
     hShader: ShaderHandle;
 }
 
@@ -63,7 +63,7 @@ export class BatchedBuffer {
         let vbSize = 0;
         let vbIdxSize = 0;
         const vbCount = flatBuffers[0].count;
-        const hPass = SubModelPool.get(subModel.handle, SubModelView.PASS_0 + passIdx) as PassHandle;
+        const pass = subModel.passes[passIdx];
         const hShader = SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle;
         const descriptorSet = subModel.descriptorSet;
         let isBatchExist = false;
@@ -116,7 +116,7 @@ export class BatchedBuffer {
                     if (!batch.mergeCount) {
                         descriptorSet.bindBuffer(UBOLocalBatched.BINDING, batch.ubo);
                         descriptorSet.update();
-                        batch.hPass = hPass;
+                        batch.pass = pass;
                         batch.hShader = hShader;
                         batch.descriptorSet = descriptorSet;
                     }
@@ -184,7 +184,7 @@ export class BatchedBuffer {
 
         this.batches.push({
             mergeCount: 1,
-            vbs, vbDatas, vbIdx, vbIdxData, vbCount, ia, ubo, uboData, hPass, hShader, descriptorSet,
+            vbs, vbDatas, vbIdx, vbIdxData, vbCount, ia, ubo, uboData, pass, hShader, descriptorSet,
         });
     }
 

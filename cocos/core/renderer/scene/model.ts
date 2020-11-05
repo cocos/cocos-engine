@@ -16,10 +16,12 @@ import { BatchingSchemes } from '../core/pass';
 import { Mat4, Vec3, Vec4 } from '../../math';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool, ModelPool,
-    ModelView, AABBHandle, AABBPool, AABBView, NULL_HANDLE, AttributeArrayPool as AttrArrayPool, RawBufferPool, AttrPool, freeHandleArray } from '../core/memory-pools';
+    ModelView, AABBHandle, AABBPool, AABBView, NULL_HANDLE, AttributeArrayPool as AttrArrayPool, RawBufferPool, freeHandleArray, ObjectPool, PoolType } from '../core/memory-pools';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
 import { getTypedArrayConstructor, BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature } from '../../gfx/define';
+
+const AttrPool = new ObjectPool(PoolType.ATTRIBUTE, (_: never[], obj?: Attribute) => obj || new Attribute());
 
 const m4_1 = new Mat4();
 

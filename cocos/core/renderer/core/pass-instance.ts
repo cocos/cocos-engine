@@ -32,7 +32,7 @@ import { IPassInfo } from '../../assets/effect-asset';
 import { MaterialInstance } from './material-instance';
 import { Pass, PassOverrides } from './pass';
 import { overrideMacros, MacroRecord } from './pass-utils';
-import { PassView, RasterizerStatePool, DepthStencilStatePool, BlendStatePool, PassPool } from './memory-pools';
+import { PassView, PassPool } from './memory-pools';
 
 /**
  * @en A pass instance defines an variant version of the [[Pass]]
@@ -83,12 +83,12 @@ export class PassInstance extends Pass {
      * @param value The override pipeline state info
      */
     public overridePipelineStates (original: IPassInfo, overrides: PassOverrides): void {
-        BlendStatePool.get(PassPool.get(this._handle, PassView.BLEND_STATE)).reset();
-        RasterizerStatePool.get(PassPool.get(this._handle, PassView.RASTERIZER_STATE)).reset();
-        DepthStencilStatePool.get(PassPool.get(this._handle, PassView.DEPTH_STENCIL_STATE)).reset();
+        this._bs.reset();
+        this._rs.reset();
+        this._dss.reset();
 
-        Pass.fillPipelineInfo(this._handle, original);
-        Pass.fillPipelineInfo(this._handle, overrides);
+        Pass.fillPipelineInfo(this, original);
+        Pass.fillPipelineInfo(this, overrides);
         this._onStateChange();
     }
 
@@ -125,7 +125,7 @@ export class PassInstance extends Pass {
     }
 
     protected _onStateChange () {
-        PassPool.set(this._handle, PassView.HASH, Pass.getPassHash(this._handle, this._hShaderDefault));
+        PassPool.set(this._handle, PassView.HASH, Pass.getPassHash(this, this._hShaderDefault));
         this._owner.onPassStateChange(this._dontNotify);
     }
 }

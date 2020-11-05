@@ -30,10 +30,10 @@
 
 import { DEBUG, JSB } from 'internal:constants';
 import { NativeBufferPool, NativeObjectPool, NativeBufferAllocator } from './native-pools';
-import { RasterizerState, DepthStencilState, BlendState, DescriptorSetInfo,
+import { DescriptorSetInfo,
     Device, DescriptorSet, ShaderInfo, Shader, InputAssemblerInfo, InputAssembler,
     PipelineLayoutInfo, PipelineLayout, Framebuffer, FramebufferInfo, PrimitiveMode,
-    DynamicStateFlags, ClearFlag, Attribute } from '../../gfx';
+    DynamicStateFlags, ClearFlag } from '../../gfx';
 import { RenderPassStage } from '../../pipeline/define';
 import { BatchingSchemes } from './pass';
 import { Layers } from '../../scene-graph/layers';
@@ -272,7 +272,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
     }
 }
 
-class ObjectPool<T, P extends PoolType, A extends any[]> implements IMemoryPool<P> {
+export class ObjectPool<T, P extends PoolType, A extends any[]> implements IMemoryPool<P> {
 
     private _ctor: (args: A, obj?: T) => T;
     private _dtor?: (obj: T) => T | undefined;
@@ -505,11 +505,8 @@ export function freeHandleArray<P extends PoolType, H extends IHandle<PoolType>>
     else arrayPool.clear(arrayHandle);
 }
 
-enum PoolType {
+export enum PoolType {
     // objects
-    RASTERIZER_STATE,
-    DEPTH_STENCIL_STATE,
-    BLEND_STATE,
     ATTRIBUTE,
     DESCRIPTOR_SETS,
     SHADER,
@@ -543,6 +540,7 @@ enum PoolType {
     FLAT_BUFFER_ARRAY,
     INSTANCED_BUFFER_ARRAY,
     LIGHT_ARRAY,
+    BLEND_TARGET_ARRAY,
     // raw resources
     RAW_BUFFER = 300,
     RAW_OBJECT = 400,
@@ -550,9 +548,6 @@ enum PoolType {
 
 export const NULL_HANDLE = 0 as unknown as IHandle<any>;
 
-export type RasterizerStateHandle = IHandle<PoolType.RASTERIZER_STATE>;
-export type DepthStencilStateHandle = IHandle<PoolType.DEPTH_STENCIL_STATE>;
-export type BlendStateHandle = IHandle<PoolType.BLEND_STATE>;
 export type AttributeHandle = IHandle<PoolType.ATTRIBUTE>;
 export type DescriptorSetHandle = IHandle<PoolType.DESCRIPTOR_SETS>;
 export type ShaderHandle = IHandle<PoolType.SHADER>;
@@ -584,13 +579,9 @@ export type SubMeshHandle = IHandle<PoolType.SUB_MESH>;
 export type FlatBufferHandle = IHandle<PoolType.FLAT_BUFFER>;
 export type FlatBufferArrayHandle = IHandle<PoolType.FLAT_BUFFER_ARRAY>;
 export type LightArrayHandle = IHandle<PoolType.LIGHT_ARRAY>;
+export type BlendTargetArrayHandle = IHandle<PoolType.BLEND_TARGET_ARRAY>;
 
 // don't reuse any of these data-only structs, for GFX objects may directly reference them
-export const RasterizerStatePool = new ObjectPool(PoolType.RASTERIZER_STATE, (_: never[]) => new RasterizerState(), (_: RasterizerState) => undefined);
-export const DepthStencilStatePool = new ObjectPool(PoolType.DEPTH_STENCIL_STATE, (_: never[]) => new DepthStencilState(), (_: DepthStencilState) => undefined);
-export const BlendStatePool = new ObjectPool(PoolType.BLEND_STATE, (_: never[]) => new BlendState(), (_: BlendState) => undefined);
-
-export const AttrPool = new ObjectPool(PoolType.ATTRIBUTE, (_: never[], obj?: Attribute) => obj || new Attribute());
 
 // TODO: could use Labeled Tuple Element feature here after next babel update (required TS4.0+ support)
 export const ShaderPool = new ObjectPool(PoolType.SHADER,
@@ -622,6 +613,7 @@ export const AttributeArrayPool = new TypedArrayPool<PoolType.ATTRIBUTE_ARRAY, U
 export const FlatBufferArrayPool = new TypedArrayPool<PoolType.FLAT_BUFFER_ARRAY, Uint32ArrayConstructor, FlatBufferHandle>
 (PoolType.FLAT_BUFFER_ARRAY, Uint32Array, 8, 4);
 export const LightArrayPool = new TypedArrayPool<PoolType.LIGHT_ARRAY, Uint32ArrayConstructor, LightHandle>(PoolType.LIGHT_ARRAY, Uint32Array, 8, 4);
+export const BlendTargetArrayPool = new TypedArrayPool<PoolType.BLEND_TARGET_ARRAY, Uint32ArrayConstructor, RawBufferHandle>(PoolType.BLEND_TARGET_ARRAY, Uint32Array, 8, 4);
 
 export const RawBufferPool = new BufferAllocator(PoolType.RAW_BUFFER);
 export const RawObjectPool = new ObjectPool(PoolType.RAW_OBJECT, (args: [Object?]) => args[0] || {}, (_: Object) => undefined);
@@ -649,9 +641,9 @@ interface IPassViewType extends BufferTypeManifest<typeof PassView> {
     [PassView.PRIMITIVE]: PrimitiveMode;
     [PassView.DYNAMIC_STATES]: DynamicStateFlags;
     [PassView.HASH]: number;
-    [PassView.RASTERIZER_STATE]: RasterizerStateHandle;
-    [PassView.DEPTH_STENCIL_STATE]: DepthStencilStateHandle;
-    [PassView.BLEND_STATE]: BlendStateHandle;
+    [PassView.RASTERIZER_STATE]: RawBufferHandle;
+    [PassView.DEPTH_STENCIL_STATE]: RawBufferHandle;
+    [PassView.BLEND_STATE]: RawBufferHandle;
     [PassView.DESCRIPTOR_SET]: DescriptorSetHandle;
     [PassView.PIPELINE_LAYOUT]: PipelineLayoutHandle;
     [PassView.COUNT]: never;

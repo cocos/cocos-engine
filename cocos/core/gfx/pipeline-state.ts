@@ -24,6 +24,7 @@ import { Attribute } from './input-assembler';
 import { RenderPass } from './render-pass';
 import { Shader } from './shader';
 import { PipelineLayout } from './pipeline-layout';
+import { NULL_HANDLE, RawBufferHandle } from '../renderer/core/memory-pools';
 
 /**
  * @en GFX rasterizer state.
@@ -46,20 +47,6 @@ export class RasterizerState {
         public lineWidth: number = 1.0,
     ) {}
 
-    public compare (state: RasterizerState): boolean {
-        return (this.isDiscard === state.isDiscard) &&
-            (this.polygonMode === state.polygonMode) &&
-            (this.shadeModel === state.shadeModel) &&
-            (this.cullMode === state.cullMode) &&
-            (this.isFrontFaceCCW === state.isFrontFaceCCW) &&
-            (this.depthBias === state.depthBias) &&
-            (this.depthBiasClamp === state.depthBiasClamp) &&
-            (this.depthBiasSlop === state.depthBiasSlop) &&
-            (this.isDepthClip === state.isDepthClip) &&
-            (this.lineWidth === state.lineWidth) &&
-            (this.isMultisample === state.isMultisample);
-    }
-
     public reset () {
         this.isDiscard = false;
         this.polygonMode = PolygonMode.FILL;
@@ -74,9 +61,12 @@ export class RasterizerState {
         this.lineWidth = 1.0;
     }
 
-    public set (rasterizerState: RecursivePartial<RasterizerState>) {
-        Object.assign(this, rasterizerState);
+    public assign (rs: RasterizerState) {
+        Object.assign(this, rs);
     }
+
+    get handle (): RawBufferHandle { return NULL_HANDLE; }
+    public destroy () {}
 }
 
 /**
@@ -108,28 +98,6 @@ export class DepthStencilState {
         public stencilRefBack: number = 1,
     ) {}
 
-    public compare (state: DepthStencilState): boolean {
-        return (this.depthTest === state.depthTest) &&
-            (this.depthWrite === state.depthWrite) &&
-            (this.depthFunc === state.depthFunc) &&
-            (this.stencilTestFront === state.stencilTestFront) &&
-            (this.stencilFuncFront === state.stencilFuncFront) &&
-            (this.stencilReadMaskFront === state.stencilReadMaskFront) &&
-            (this.stencilWriteMaskFront === state.stencilWriteMaskFront) &&
-            (this.stencilFailOpFront === state.stencilFailOpFront) &&
-            (this.stencilZFailOpFront === state.stencilZFailOpFront) &&
-            (this.stencilPassOpFront === state.stencilPassOpFront) &&
-            (this.stencilRefFront === state.stencilRefFront) &&
-            (this.stencilTestBack === state.stencilTestBack) &&
-            (this.stencilFuncBack === state.stencilFuncBack) &&
-            (this.stencilReadMaskBack === state.stencilReadMaskBack) &&
-            (this.stencilWriteMaskBack === state.stencilWriteMaskBack) &&
-            (this.stencilFailOpBack === state.stencilFailOpBack) &&
-            (this.stencilZFailOpBack === state.stencilZFailOpBack) &&
-            (this.stencilPassOpBack === state.stencilPassOpBack) &&
-            (this.stencilRefBack === state.stencilRefBack);
-    }
-
     public reset () {
         this.depthTest = true;
         this.depthWrite = true;
@@ -152,9 +120,12 @@ export class DepthStencilState {
         this.stencilRefBack = 1;
     }
 
-    public set (depthStencilState: RecursivePartial<DepthStencilState>) {
-        Object.assign(this, depthStencilState);
+    public assign (dss: DepthStencilState) {
+        Object.assign(this, dss);
     }
+
+    get handle (): RawBufferHandle { return NULL_HANDLE; }
+    public destroy () {}
 }
 
 /**
@@ -175,17 +146,6 @@ export class BlendTarget {
         public blendColorMask: ColorMask = ColorMask.ALL,
     ) {}
 
-    public compare (target: BlendTarget): boolean {
-        return (this.blend === target.blend) &&
-            (this.blendSrc === target.blendSrc) &&
-            (this.blendDst === target.blendDst) &&
-            (this.blendEq === target.blendEq) &&
-            (this.blendSrcAlpha === target.blendSrcAlpha) &&
-            (this.blendDstAlpha === target.blendDstAlpha) &&
-            (this.blendAlphaEq === target.blendAlphaEq) &&
-            (this.blendColorMask === target.blendColorMask);
-    }
-
     public reset () {
         this.blend = false;
         this.blendSrc = BlendFactor.ONE;
@@ -196,6 +156,13 @@ export class BlendTarget {
         this.blendAlphaEq = BlendOp.ADD;
         this.blendColorMask = ColorMask.ALL;
     }
+
+    public assign (target: BlendTarget) {
+        Object.assign(this, target);
+    }
+
+    get handle (): RawBufferHandle { return NULL_HANDLE; }
+    public destroy () {}
 }
 
 /**
@@ -221,7 +188,11 @@ export class BlendState {
      * @param target The target to be set.
      */
     public setTarget (index: number, target: BlendTarget) {
-        this.targets[index] = target;
+        let tg = this.targets[index];
+        if (!tg) {
+            tg = this.targets[index] = new BlendTarget();
+        }
+        Object.assign(tg, target);
     }
 
     public reset () {
@@ -234,6 +205,9 @@ export class BlendState {
         this.targets.length = 1;
         this.targets[0].reset();
     }
+
+    get handle (): RawBufferHandle { return NULL_HANDLE; }
+    public destroy () {}
 }
 
 /**
