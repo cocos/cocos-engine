@@ -3620,6 +3620,22 @@ let NodeDefines = {
 
     /**
      * !#en
+     * Set Group index of node without children.<br/>
+     * Which Group this node belongs to will resolve that this node's collision components can collide with which other collision componentns.<br/>
+     * !#zh
+     * 设置节点本身的分组索引。不影响子节点<br/>
+     * 节点的分组将关系到节点的碰撞组件可以与哪些碰撞组件相碰撞。<br/>
+     * @property groupIndex
+     * @type {Integer}
+     * @default 0
+     */
+    setSelfGroupIndex (groupIndex) {
+        this._groupIndex = groupIndex || 0;
+        this._cullingMask = 1 << groupIndex;
+    },
+
+    /**
+     * !#en
      * Adds a child to the node with z order and name.
      * !#zh
      * 添加子节点，并且可以修改该节点的 局部 Z 顺序和名字。
