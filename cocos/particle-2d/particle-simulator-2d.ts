@@ -106,12 +106,12 @@ export class Simulator {
     public active = false;
     public uvFilled = 0;
     public finished = false;
+    public declare renderData;
     private readyToPlay = true;
     private elapsed = 0;
     private emitCounter = 0;
     private _worldRotation = 0;
     private declare sys;
-    public declare renderData;
 
     constructor (system) {
         this.sys = system;
