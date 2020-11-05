@@ -266,22 +266,35 @@ export class UITransform extends Component {
      * @en
      * Sets the untransformed size of the node.<br/>
      * The contentSize remains the same no matter if the node is scaled or rotated.<br/>
-     * All nodes have a size. Layer and Scene have the same size of the screen.
-     *
+     * 
      * @zh
      * 设置节点原始大小，不受该节点是否被缩放或者旋转的影响。
      *
-     * @param size - The size or width of the node content transformation.
-     * @param height - The height of node content transformation.
+     * @param size - The size of the UI transformation.
      * @example
      * ```ts
      * import { Size } from 'cc';
      * node.setContentSize(new Size(100, 100));
-     * node.setContentSize(100, 100);
      * ```
      */
     public setContentSize(size: Size) : void;
 
+    /**
+     * @en
+     * Sets the untransformed size of the node.<br/>
+     * The contentSize remains the same no matter if the node is scaled or rotated.<br/>
+     *
+     * @zh
+     * 设置节点原始大小，不受该节点是否被缩放或者旋转的影响。
+     *
+     * @param width - The width of the UI transformation.
+     * @param height - The height of the UI transformation.
+     * @example
+     * ```ts
+     * import { Size } from 'cc';
+     * node.setContentSize(100, 100);
+     * ```
+     */
     public setContentSize(width: number, height: number) : void;
 
     public setContentSize (size: Size | number, height?: number) {
