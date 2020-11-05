@@ -30,10 +30,9 @@ export const InputAssembler = gfx.InputAssembler;
 
 export const DrawInfo = gfx.DrawInfo;
 export const IndirectBuffer = gfx.IndirectBuffer;
-export const BufferInfo = gfx.BufferInfo;
 export const BufferViewInfo = gfx.BufferViewInfo;
 export const Buffer = gfx.Buffer;
-export { DRAW_INFO_SIZE } from './buffer';
+export { DRAW_INFO_SIZE, BufferInfo } from './buffer';
 
 export const SamplerInfo = gfx.SamplerInfo;
 export const Sampler = gfx.Sampler;
