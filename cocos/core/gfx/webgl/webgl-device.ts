@@ -767,7 +767,7 @@ export class WebGLDevice extends Device {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
         // rasterizer state
-        gl.disable(gl.SCISSOR_TEST);
+        gl.enable(gl.SCISSOR_TEST);
         gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.BACK);
         gl.frontFace(gl.CCW);

@@ -719,15 +719,14 @@ export class Mesh extends Asset {
 
             const vbReference = prim.vertexBundelIndices.map((idx) => vertexBuffers[idx]);
 
-            let gfxAttributes: Attribute[] = [];
+            const gfxAttributes: Attribute[] = [];
             if (prim.vertexBundelIndices.length > 0) {
                 const idx = prim.vertexBundelIndices[0];
                 const vertexBundle = this._struct.vertexBundles[idx];
-                gfxAttributes = vertexBundle.attributes;
                 const attrs = vertexBundle.attributes;
-                for (let i = 0; i < attrs.length; ++i) {
-                    const attr = attrs[i];
-                    gfxAttributes[i] = new Attribute(attr.name, attr.format, attr.isInstanced, attr.stream, attr.isInstanced, attr.location);
+                for (let j = 0; j < attrs.length; ++j) {
+                    const attr = attrs[j];
+                    gfxAttributes[j] = new Attribute(attr.name, attr.format, attr.isInstanced, attr.stream, attr.isInstanced, attr.location);
                 }
             }
 
@@ -1142,7 +1141,7 @@ export class Mesh extends Asset {
      * To pass the validation, it must satisfy either of these two requirements:
      * - When the current mesh have no data
      * - When the two mesh have the same vertex bundle count, the same sub meshes count, and the same sub mesh layout.
-     * 
+     *
      * Same mesh layout means:
      * - They have the same primitive type and reference to the same amount vertex bundle with the same indices.
      * - And they all have or don't have index view
@@ -1218,7 +1217,7 @@ export class Mesh extends Asset {
      * @zh 读取子网格的指定属性。
      * @param primitiveIndex Sub mesh index
      * @param attributeName Attribute name
-     * @returns Return null if not found or can't read, otherwise, will create a large enough typed array to contain all data of the attribute, 
+     * @returns Return null if not found or can't read, otherwise, will create a large enough typed array to contain all data of the attribute,
      * the array type will match the data type of the attribute.
      */
     public readAttribute (primitiveIndex: number, attributeName: AttributeName): Storage | null {
@@ -1311,7 +1310,7 @@ export class Mesh extends Asset {
      * @en Read the indices data of the given sub mesh
      * @zh 读取子网格的索引数据。
      * @param primitiveIndex Sub mesh index
-     * @returns Return null if not found or can't read, otherwise, will create a large enough typed array to contain all indices data, 
+     * @returns Return null if not found or can't read, otherwise, will create a large enough typed array to contain all indices data,
      * the array type will use the corresponding stride size.
      */
     public readIndices (primitiveIndex: number) {
