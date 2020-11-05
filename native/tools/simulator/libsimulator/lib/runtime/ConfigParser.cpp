@@ -51,7 +51,7 @@ void ConfigParser::readConfig(const string &filepath)
 {
     string fullPathFile = filepath;
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS)
     // add writable path to search path temporarily for reading config file
     vector<std::string> searchPathArray = cc::FileUtils::getInstance()->getSearchPaths();
     searchPathArray.insert(searchPathArray.begin(), FileServer::getShareInstance()->getWritePath());
@@ -65,7 +65,7 @@ void ConfigParser::readConfig(const string &filepath)
     }
     string fileContent = cc::FileUtils::getInstance()->getStringFromFile(fullPathFile);
   
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS)
     // revert search path
     searchPathArray.erase(searchPathArray.begin());
     cc::FileUtils::getInstance()->setSearchPaths(searchPathArray);
