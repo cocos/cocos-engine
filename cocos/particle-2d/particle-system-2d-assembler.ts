@@ -30,38 +30,18 @@ import { UI } from '../core/renderer/ui/ui';
 import { PositionType } from './define';
 
 export const ParticleAssembler: IAssembler = {
-    renderData: MeshRenderData,
     createData (comp: ParticleSystem2D) {
-        this.renderData = MeshRenderData.add();
-    },
-    requestData (vertexCount: number, indicesCount: number) {
-        let offset = this.renderData.indicesCount;
-        this.renderData.request(vertexCount, indicesCount);
-        const count = this.renderData.indicesCount / 6;
-        const buffer = this.renderData.iData;
-        for (let i = offset; i < count; i++) {
-            const vId = i * 4;
-            buffer[offset++] = vId;
-            buffer[offset++] = vId + 1;
-            buffer[offset++] = vId + 2;
-            buffer[offset++] = vId + 1;
-            buffer[offset++] = vId + 3;
-            buffer[offset++] = vId + 2;
-        }
-    },
-    reset () {
-        this.renderData.reset();
+        return MeshRenderData.add();
     },
     updateRenderData () {
     },
-
     fillBuffers (comp: ParticleSystem2D, renderer: UI) {
         if (comp === null) {
             return;
         }
 
-        const renderData = this.renderData;
-        if (renderData.vertexCount === 0 || renderData.indicesCount == 0) {
+        const renderData = comp._simulator.renderData;
+        if (renderData.vertexCount === 0 || renderData.indicesCount === 0) {
             return;
         }
 
@@ -97,7 +77,7 @@ export const ParticleAssembler: IAssembler = {
 
         const iLen = renderData.indicesCount;
         for (let i = 0; i < iLen; i++) {
-            iBuf[indicesOffset++] = iData[i];
+            iBuf[indicesOffset++] = iData[i] + vertexId;
         }
     }
 }
