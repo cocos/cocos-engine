@@ -82,7 +82,7 @@ public:
 
 protected:
     HWND _hwnd;
-    cocos2d::Map<std::string, PlayerTaskWin*> _tasks;
+    cc::Map<std::string, PlayerTaskWin*> _tasks;
 };
 
 PLAYER_NS_END

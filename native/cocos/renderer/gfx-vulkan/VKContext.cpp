@@ -63,6 +63,11 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(VkDebugReportFlagsEXT flags,
         return VK_FALSE;
     }
 
+    // We already handled this
+    if (strstr(message, "setupLoaderTermPhysDevs") || strstr(message, "setupLoaderTrampPhysDevs")) {
+        return VK_FALSE;
+    }
+
     if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
         CC_LOG_ERROR("VError: %s: %s", layerPrefix, message);
         CCASSERT(ALLOW_VALIDATION_ERRORS, "Validation Error");
@@ -295,9 +300,9 @@ bool CCVKContext::initialize(const ContextInfo &info) {
 
         // Querying valid physical devices on the machine
         uint physicalDeviceCount{0};
-        VK_CHECK(vkEnumeratePhysicalDevices(_gpuContext->vkInstance, &physicalDeviceCount, nullptr));
+        res = vkEnumeratePhysicalDevices(_gpuContext->vkInstance, &physicalDeviceCount, nullptr);
 
-        if (physicalDeviceCount < 1) {
+        if (res || physicalDeviceCount < 1) {
             return false;
         }
 

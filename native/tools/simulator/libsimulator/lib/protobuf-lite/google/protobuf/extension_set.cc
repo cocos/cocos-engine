@@ -43,6 +43,11 @@
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/stubs/map-util.h>
 
+
+#ifdef OPTIONAL
+#undef OPTIONAL
+#endif // OPTIONAL
+
 namespace google {
 namespace protobuf {
 namespace internal {

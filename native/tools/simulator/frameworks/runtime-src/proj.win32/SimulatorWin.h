@@ -61,7 +61,7 @@ protected:
     FILE *_writeDebugLogFile;
 
     std::shared_ptr<Game> _app;
-    std::shared_ptr<cocos2d::View> _view;
+    std::shared_ptr<cc::View> _view;
 
     bool _quit = false;
 

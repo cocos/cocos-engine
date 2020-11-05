@@ -31,7 +31,7 @@ void VisibleRect::lazyInit()
 {
     // no lazy init
     // Useful if we change the resolution in runtime
-//    s_visibleRect = cocos2d::Director::getInstance()->getOpenGLView()->getVisibleRect();
+//    s_visibleRect = cc::Director::getInstance()->getOpenGLView()->getVisibleRect();
     CC_LOG_DEBUG("lazyInit");
 }
 

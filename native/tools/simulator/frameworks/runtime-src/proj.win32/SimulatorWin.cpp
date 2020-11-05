@@ -53,18 +53,17 @@
 #include "runtime/ConfigParser.h"
 #include "runtime/Runtime.h"
 
-#include "platform/CCApplication.h"
+#include "platform/Application.h"
 #include "platform/win32/PlayerWin.h"
 #include "platform/win32/PlayerMenuServiceWin.h"
 
-#include "platform/CCStdC.h"
-#include "scripting/js-bindings/jswrapper/SeApi.h"
-
+#include "platform/StdC.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
 #include "resource.h"
 
 namespace
 {
-    std::weak_ptr<cocos2d::View> gView;
+    std::weak_ptr<cc::View> gView;
     /**
     @brief  This function changes the PVRFrame show/hide setting in register.
     @param  bEnable If true show the PVRFrame window, otherwise hide.
@@ -123,12 +122,12 @@ namespace
 }
 
 //exported function
-std::shared_ptr<cocos2d::View> cc_get_application_view() {
+std::shared_ptr<cc::View> cc_get_application_view() {
     return gView.lock();
 }
 
 
-USING_NS_CC;
+using namespace cc;
 
 static WNDPROC g_oldWindowProc = NULL;
 INT_PTR CALLBACK AboutDialogCallback(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -244,7 +243,7 @@ void SimulatorWin::quit()
 
 void SimulatorWin::relaunch()
 {
-    _project.setWindowOffset(Vec2(getPositionX(), getPositionY()));
+    _project.setWindowOffset(cc::Vec2(getPositionX(), getPositionY()));
 	openProjectWithProjectConfig(_project);
 }
 
@@ -264,7 +263,7 @@ void SimulatorWin::openNewPlayerWithProjectConfig(const ProjectConfig &config)
     commandLine.append(" ");
     commandLine.append(config.makeCommandLine());
 
-    CCLOG("SimulatorWin::openNewPlayerWithProjectConfig(): %s", commandLine.c_str());
+    CC_LOG_DEBUG("SimulatorWin::openNewPlayerWithProjectConfig(): %s", commandLine.c_str());
 
     // http://msdn.microsoft.com/en-us/library/windows/desktop/ms682499(v=vs.85).aspx
     SECURITY_ATTRIBUTES sa = {0};
@@ -293,7 +292,7 @@ void SimulatorWin::openNewPlayerWithProjectConfig(const ProjectConfig &config)
 
     if (!success)
     {
-        CCLOG("PlayerTaskWin::run() - create process failed, for execute %s", commandLine.c_str());
+        CC_LOG_DEBUG("PlayerTaskWin::run() - create process failed, for execute %s", commandLine.c_str());
     }
 }
 
@@ -327,7 +326,7 @@ int SimulatorWin::run()
     parseCocosProjectConfig(_project);
 
     // load project config from command line args
-    vector<string> args;
+    std::vector<string> args;
     for (int i = 0; i < __argc; ++i)
     {
         wstring ws(__wargv[i]);
@@ -377,7 +376,7 @@ int SimulatorWin::run()
         _writeDebugLogFile = fopen(debugLogFilePath.c_str(), "w");
         if (!_writeDebugLogFile)
         {
-            CCLOG("Cannot create debug log file %s", debugLogFilePath.c_str());
+            CC_LOG_DEBUG("Cannot create debug log file %s", debugLogFilePath.c_str());
         }
     }
 
@@ -413,10 +412,10 @@ int SimulatorWin::run()
     {
         screenScale = 2.0f;
     }
-    CCLOG("SCREEN DPI = %d, SCREEN SCALE = %0.2f", dpi, screenScale);
+    CC_LOG_DEBUG("SCREEN DPI = %d, SCREEN SCALE = %0.2f", dpi, screenScale);
 
     // check scale
-    Size frameSize = _project.getFrameSize();
+    cc::Size frameSize = _project.getFrameSize();
     float frameScale = _project.getFrameScale();
     if (_project.isRetinaDisplay())
     {
@@ -438,7 +437,7 @@ int SimulatorWin::run()
         float frameBorderCY = GetSystemMetrics(SM_CYSIZEFRAME);
         workareaWidth -= frameBorderCX * 2;
         workareaHeight -= (frameBorderCY * 2 + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYMENU));
-        CCLOG("WORKAREA WIDTH %0.2f, HEIGHT %0.2f", workareaWidth, workareaHeight);
+        CC_LOG_DEBUG("WORKAREA WIDTH %0.2f, HEIGHT %0.2f", workareaWidth, workareaHeight);
         while (true && frameScale > 0.25f)
         {
             if (frameSize.width * frameScale > workareaWidth || frameSize.height * frameScale > workareaHeight)
@@ -454,7 +453,7 @@ int SimulatorWin::run()
         if (frameScale < 0.25f) frameScale = 0.25f;
     }
     _project.setFrameScale(frameScale);
-    CCLOG("FRAME SCALE = %0.2f", frameScale);
+    CC_LOG_DEBUG("FRAME SCALE = %0.2f", frameScale);
 
     // create opengl view
     const Rect frameRect = Rect(0, 0, frameSize.width, frameSize.height);
@@ -466,7 +465,7 @@ int SimulatorWin::run()
     auto frameWidth = (int) (_project.getFrameScale() * frameSize.width);
     auto frameHeight = (int) (_project.getFrameScale() * frameSize.height);
 
-    _view = std::make_shared<cocos2d::View>(title.str(), frameWidth, frameWidth);
+    _view = std::make_shared<cc::View>(title.str(), frameWidth, frameWidth);
 
     // create opengl view, and init app
     _app.reset(new Game(frameWidth, frameHeight));
@@ -510,7 +509,6 @@ int SimulatorWin::run()
     DrawMenuBar(_hwnd);
 
     // prepare
-    FileUtils::getInstance()->setPopupNotify(false);
     _project.dump();
 
     g_oldWindowProc = (WNDPROC)SetWindowLong(_hwnd, GWL_WNDPROC, (LONG)SimulatorWin::windowProc);
@@ -722,8 +720,8 @@ void SimulatorWin::setupUI()
                                 std::swap(size.width, size.height);
                             }
 
-                            project.setFrameSize(cocos2d::Size(size.width, size.height));
-                            project.setWindowOffset(cocos2d::Vec2(_instance->getPositionX(), _instance->getPositionY()));
+                            project.setFrameSize(cc::Size(size.width, size.height));
+                            project.setWindowOffset(cc::Vec2(_instance->getPositionX(), _instance->getPositionY()));
                             _instance->openProjectWithProjectConfig(project);
                         }
                         else if (data == "DIRECTION_PORTRAIT_MENU")
@@ -763,7 +761,7 @@ void SimulatorWin::updateWindowTitle()
     std::stringstream title;
     title << "Cocos " << tr("Simulator") << " (" << _project.getFrameScale() * 100 << "%)";
     std::u16string u16title;
-    cocos2d::StringUtils::UTF8ToUTF16(title.str(), u16title);
+    cc::StringUtils::UTF8ToUTF16(title.str(), u16title);
     SetWindowText(_hwnd, (LPCTSTR)u16title.c_str());
 }
 
@@ -782,7 +780,7 @@ void SimulatorWin::parseCocosProjectConfig(ProjectConfig &config)
     // get project directory
     ProjectConfig tmpConfig;
     // load project config from command line args
-    vector<string> args;
+    std::vector<string> args;
     for (int i = 0; i < __argc; ++i)
     {
         wstring ws(__wargv[i]);
@@ -969,7 +967,7 @@ LRESULT CALLBACK SimulatorWin::windowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                 buf << ",\"name\":" << "\"menuClicked\"" << "}";
                 event.setDataString(buf.str());
                 event.args[0].ptrVal = (void*)menuItem;
-                cocos2d::EventDispatcher::dispatchCustomEvent(event);
+                cc::EventDispatcher::dispatchCustomEvent(event);
             }
 
             if (menuId == ID_HELP_ABOUT)

@@ -38,11 +38,11 @@ int PlayerMessageBoxServiceWin::showMessageBox(const std::string &title,
                                                int buttonsType /* = BUTTONS_OK */)
 {
     std::u16string u16title;
-    cocos2d::StringUtils::UTF8ToUTF16(title, u16title);
+    cc::StringUtils::UTF8ToUTF16(title, u16title);
     std::u16string u16message;
-    cocos2d::StringUtils::UTF8ToUTF16(message, u16message);
+    cc::StringUtils::UTF8ToUTF16(message, u16message);
 
-    CCLOG("PlayerMessageBoxServiceWin::showMessageBox() - title = %s, message = %s", title.c_str(), message.c_str());
+    CC_LOG_DEBUG("PlayerMessageBoxServiceWin::showMessageBox() - title = %s, message = %s", title.c_str(), message.c_str());
 
     UINT mbtype = MB_APPLMODAL;
     switch (buttonsType)
@@ -84,7 +84,7 @@ int PlayerMessageBoxServiceWin::showMessageBox(const std::string &title,
         result = BUTTON_OK;
     }
 
-    CCLOG("PlayerMessageBoxServiceWin::showMessageBox() - result = %d", result);
+    CC_LOG_DEBUG("PlayerMessageBoxServiceWin::showMessageBox() - result = %d", result);
 
     return result;
 }

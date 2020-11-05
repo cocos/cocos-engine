@@ -26,7 +26,7 @@
 
 #include "PlayerWin.h"
 
-USING_NS_CC;
+using namespace std;
 PLAYER_NS_BEGIN
 
 PlayerWin::PlayerWin()

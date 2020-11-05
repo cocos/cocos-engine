@@ -41,8 +41,8 @@ public:
     PlayerEditBoxServiceWin(HWND hwnd);
     virtual ~PlayerEditBoxServiceWin();
 
-    virtual void showSingleLineEditBox(const cocos2d::Rect &rect);
-    virtual void showMultiLineEditBox(const cocos2d::Rect &rect);
+    virtual void showSingleLineEditBox(const cc::Rect &rect);
+    virtual void showMultiLineEditBox(const cc::Rect &rect);
     virtual void hide();
 
     virtual void setText(const std::string &text);

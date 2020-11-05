@@ -50,12 +50,12 @@ PlayerMenuItemWin::~PlayerMenuItemWin()
     CC_SAFE_RELEASE(_parent);
     if (_hmenu)
     {
-        CCLOG("PlayerMenuItemWin::~PlayerMenuItemWin() - %s (HMENU)", _menuId.c_str());
+        CC_LOG_DEBUG("PlayerMenuItemWin::~PlayerMenuItemWin() - %s (HMENU)", _menuId.c_str());
         DestroyMenu(_hmenu);
     }
     else
     {
-        CCLOG("PlayerMenuItemWin::~PlayerMenuItemWin() - %s", _menuId.c_str());
+        CC_LOG_DEBUG("PlayerMenuItemWin::~PlayerMenuItemWin() - %s", _menuId.c_str());
     }
 }
 
@@ -63,7 +63,7 @@ void PlayerMenuItemWin::setTitle(const std::string &title)
 {
     if (title.length() == 0)
     {
-        CCLOG("MenuServiceWin::setTitle() - can not set menu title to empty, menu id (%s)", _menuId.c_str());
+        CC_LOG_DEBUG("MenuServiceWin::setTitle() - can not set menu title to empty, menu id (%s)", _menuId.c_str());
         return;
     }
 
@@ -72,7 +72,7 @@ void PlayerMenuItemWin::setTitle(const std::string &title)
     menuitem.fMask = MIIM_FTYPE | MIIM_STRING;
     menuitem.fType = (title.compare("-") == 0) ? MFT_SEPARATOR : MFT_STRING;
     std::u16string u16title;
-    cocos2d::StringUtils::UTF8ToUTF16(title, u16title);
+    cc::StringUtils::UTF8ToUTF16(title, u16title);
     menuitem.dwTypeData = (LPTSTR)u16title.c_str();
     if (SetMenuItemInfo(_parent->_hmenu, _commandId, MF_BYCOMMAND, &menuitem))
     {
@@ -81,7 +81,7 @@ void PlayerMenuItemWin::setTitle(const std::string &title)
     else
     {
         DWORD err = GetLastError();
-        CCLOG("MenuServiceWin::setTitle() - set menu title failed, menu id (%s). error code = %u", _menuId.c_str(), err);
+        CC_LOG_DEBUG("MenuServiceWin::setTitle() - set menu title failed, menu id (%s). error code = %u", _menuId.c_str(), err);
     }
 }
 
@@ -98,7 +98,7 @@ void PlayerMenuItemWin::setEnabled(bool enabled)
     else
     {
         DWORD err = GetLastError();
-        CCLOG("MenuServiceWin::setEnabled() - set menu enabled failed, menu id (%s). error code = %u", _menuId.c_str(), err);
+        CC_LOG_DEBUG("MenuServiceWin::setEnabled() - set menu enabled failed, menu id (%s). error code = %u", _menuId.c_str(), err);
     }
 }
 
@@ -115,7 +115,7 @@ void PlayerMenuItemWin::setChecked(bool checked)
     else
     {
         DWORD err = GetLastError();
-        CCLOG("MenuServiceWin::setChecked() - set menu checked failed, menu id (%s). error code = %u", _menuId.c_str(), err);
+        CC_LOG_DEBUG("MenuServiceWin::setChecked() - set menu checked failed, menu id (%s). error code = %u", _menuId.c_str(), err);
     }
 }
 
@@ -161,14 +161,14 @@ PlayerMenuItem *PlayerMenuServiceWin::addItem(const std::string &menuId,
 {
     if (menuId.length() == 0 || title.length() == 0)
     {
-        CCLOG("MenuServiceWin::addItem() - menuId and title must is non-empty");
+        CC_LOG_DEBUG("MenuServiceWin::addItem() - menuId and title must is non-empty");
         return nullptr;
     }
 
     // check menu id is exists
     if (_items.find(menuId) != _items.end())
     {
-        CCLOG("MenuServiceWin::addItem() - menu id (%s) is exists", menuId.c_str());
+        CC_LOG_DEBUG("MenuServiceWin::addItem() - menu id (%s) is exists", menuId.c_str());
         return false;
     }
 
@@ -196,7 +196,7 @@ PlayerMenuItem *PlayerMenuServiceWin::addItem(const std::string &menuId,
         if (!SetMenuItemInfo(parent->_parent->_hmenu, parent->_commandId, MF_BYCOMMAND, &menuitem))
         {
             DWORD err = GetLastError();
-            CCLOG("MenuServiceWin::addItem() - set menu handle failed, menu id (%s). error code = %u", parent->_menuId.c_str(), err);
+            CC_LOG_DEBUG("MenuServiceWin::addItem() - set menu handle failed, menu id (%s). error code = %u", parent->_menuId.c_str(), err);
             return nullptr;
         }
     }
@@ -216,7 +216,7 @@ PlayerMenuItem *PlayerMenuServiceWin::addItem(const std::string &menuId,
     menuitem.fState = (item->_isEnabled) ? MFS_ENABLED : MFS_DISABLED;
     menuitem.fState |= (item->_isChecked) ? MFS_CHECKED : MFS_UNCHECKED;
     std::u16string u16title;
-    cocos2d::StringUtils::UTF8ToUTF16(item->_title, u16title);
+    cc::StringUtils::UTF8ToUTF16(item->_title, u16title);
     menuitem.dwTypeData = (LPTSTR)u16title.c_str();
     menuitem.wID = _newCommandId;
 
@@ -234,7 +234,7 @@ PlayerMenuItem *PlayerMenuServiceWin::addItem(const std::string &menuId,
     if (!InsertMenuItem(parent->_hmenu, order, TRUE, &menuitem))
     {
         DWORD err = GetLastError();
-        CCLOG("MenuServiceWin::addItem() - insert new menu item failed, menu id (%s). error code = %u", item->_menuId.c_str(), err);
+        CC_LOG_DEBUG("MenuServiceWin::addItem() - insert new menu item failed, menu id (%s). error code = %u", item->_menuId.c_str(), err);
         item->release();
         return nullptr;
     }
@@ -259,7 +259,7 @@ PlayerMenuItem *PlayerMenuServiceWin::getItem(const std::string &menuId)
     auto it = _items.find(menuId);
     if (it == _items.end())
     {
-        CCLOG("MenuServiceWin::getItem() - Invalid menu id (%s)", menuId.c_str());
+        CC_LOG_DEBUG("MenuServiceWin::getItem() - Invalid menu id (%s)", menuId.c_str());
         return nullptr;
     }
 
@@ -300,7 +300,7 @@ bool PlayerMenuServiceWin::removeItemInternal(const std::string &menuId, bool is
     auto it = _items.find(menuId);
     if (it == _items.end())
     {
-        CCLOG("MenuServiceWin::removeItem() - Invalid menu id (%s)", menuId.c_str());
+        CC_LOG_DEBUG("MenuServiceWin::removeItem() - Invalid menu id (%s)", menuId.c_str());
         return false;
     }
 
@@ -310,7 +310,7 @@ bool PlayerMenuServiceWin::removeItemInternal(const std::string &menuId, bool is
         if (!DeleteMenu(item->_parent->_hmenu, item->_commandId, MF_BYCOMMAND))
         {
             DWORD err = GetLastError();
-            CCLOG("MenuServiceWin::removeItem() - remove menu item failed, menu id (%s). error code = %u", item->_menuId.c_str(), err);
+            CC_LOG_DEBUG("MenuServiceWin::removeItem() - remove menu item failed, menu id (%s). error code = %u", item->_menuId.c_str(), err);
             return false;
         }
 
@@ -321,7 +321,7 @@ bool PlayerMenuServiceWin::removeItemInternal(const std::string &menuId, bool is
         {
             if ((*it)->_commandId == item->_commandId)
             {
-                CCLOG("MenuServiceWin::removeItem() - remove menu item (%s)", item->_menuId.c_str());
+                CC_LOG_DEBUG("MenuServiceWin::removeItem() - remove menu item (%s)", item->_menuId.c_str());
                 children->erase(it);
                 removed = true;
                 break;
@@ -330,7 +330,7 @@ bool PlayerMenuServiceWin::removeItemInternal(const std::string &menuId, bool is
 
         if (!removed)
         {
-            CCLOG("MenuServiceWin::removeItem() - remove menu item (%s) failed, not found command id from parent->children", item->_menuId.c_str());
+            CC_LOG_DEBUG("MenuServiceWin::removeItem() - remove menu item (%s) failed, not found command id from parent->children", item->_menuId.c_str());
         }
 
         // remove menu id mapping

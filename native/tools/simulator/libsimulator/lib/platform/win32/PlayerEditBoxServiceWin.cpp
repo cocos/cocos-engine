@@ -50,14 +50,14 @@ PlayerEditBoxServiceWin::~PlayerEditBoxServiceWin()
     DestroyWindow(_hwndMulti);
 }
 
-void PlayerEditBoxServiceWin::showSingleLineEditBox(const cocos2d::Rect &rect)
+void PlayerEditBoxServiceWin::showSingleLineEditBox(const cc::Rect &rect)
 {
     MoveWindow(_hwndSingle, rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, TRUE);
     ShowWindow(_hwndSingle, SW_SHOW);
     SetFocus(_hwndSingle);
 }
 
-void PlayerEditBoxServiceWin::showMultiLineEditBox(const cocos2d::Rect &rect)
+void PlayerEditBoxServiceWin::showMultiLineEditBox(const cc::Rect &rect)
 {
     MoveWindow(_hwndMulti, rect.origin.x, rect.origin.y, rect.size.width, rect.size.height, TRUE);
     ShowWindow(_hwndMulti, SW_SHOW);
@@ -77,7 +77,7 @@ void PlayerEditBoxServiceWin::setFont(const std::string &name, int size)
     removeFont();
 
     std::u16string u16name;
-    cocos2d::StringUtils::UTF8ToUTF16(name, u16name);
+    cc::StringUtils::UTF8ToUTF16(name, u16name);
 
     HDC hdc = GetDC(_hwnd);
     size = -MulDiv(size, GetDeviceCaps(hdc, LOGPIXELSY), 72);
@@ -89,7 +89,7 @@ void PlayerEditBoxServiceWin::setFont(const std::string &name, int size)
     if (!_hfont)
     {
         DWORD err = GetLastError();
-        CCLOG("PlayerEditBoxServiceWin::setFont() - create HFONT for font \"%s\" failed, error code = 0x%08x",
+        CC_LOG_DEBUG("PlayerEditBoxServiceWin::setFont() - create HFONT for font \"%s\" failed, error code = 0x%08x",
               name.c_str(), err);
     }
     else

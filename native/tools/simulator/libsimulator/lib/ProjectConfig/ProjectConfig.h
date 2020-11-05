@@ -86,7 +86,7 @@ public:
     string getNormalizedPackagePath() const;
     void setPackagePath(const string &packagePath);
     void addPackagePath(const string &packagePath);
-    vector<string> getPackagePathArray() const;
+    std::vector<string> getPackagePathArray() const;
 
     cc::Size getFrameSize() const;
     void setFrameSize(const cc::Size &frameSize);

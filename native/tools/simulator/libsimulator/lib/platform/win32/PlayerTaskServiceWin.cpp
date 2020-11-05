@@ -64,7 +64,7 @@ bool PlayerTaskWin::run()
 {
     if (!isIdle())
     {
-        CCLOG("PlayerTaskWin::run() - task is not idle");
+        CC_LOG_DEBUG("PlayerTaskWin::run() - task is not idle");
         return false;
     }
 
@@ -89,7 +89,7 @@ bool PlayerTaskWin::run()
     // Create a pipe for the child process's STDOUT. 
     if (!CreatePipe(&_childStdOutRead, &_childStdOutWrite, &sa, 0) || !SetHandleInformation(_childStdOutRead, HANDLE_FLAG_INHERIT, 0))
     {
-        CCLOG("PlayerTaskWin::run() - create stdout handle failed, for execute %s", _executePath.c_str());
+        CC_LOG_DEBUG("PlayerTaskWin::run() - create stdout handle failed, for execute %s", _executePath.c_str());
         cleanup();
         return false;
     }
@@ -97,7 +97,7 @@ bool PlayerTaskWin::run()
     // Create a pipe for the child process's STDIN. 
     if (!CreatePipe(&_childStdInRead, &_childStdInWrite, &sa, 0) || !SetHandleInformation(_childStdInWrite, HANDLE_FLAG_INHERIT, 0))
     {
-        CCLOG("PlayerTaskWin::run() - create stdout handle failed, for execute %s", _executePath.c_str());
+        CC_LOG_DEBUG("PlayerTaskWin::run() - create stdout handle failed, for execute %s", _executePath.c_str());
         cleanup();
         return false;
     }
@@ -130,7 +130,7 @@ bool PlayerTaskWin::run()
 
     if (!success)
     {
-        CCLOG("PlayerTaskWin::run() - create process failed, for execute %s", _executePath.c_str());
+        CC_LOG_DEBUG("PlayerTaskWin::run() - create process failed, for execute %s", _executePath.c_str());
         cleanup();
         return false;
     }
@@ -139,7 +139,7 @@ bool PlayerTaskWin::run()
     _outputBuffWide = new WCHAR[BUFF_SIZE];
     _state = STATE_RUNNING;
 
-    // cocos2d::Director::getInstance()->getScheduler()->scheduleUpdate(this, 0, false);
+    // cc::Director::getInstance()->getScheduler()->scheduleUpdate(this, 0, false);
     return true;
 }
 
@@ -152,7 +152,7 @@ void PlayerTaskWin::runInTerminal()
 	buf << _commandLineArguments;
 
 	std::u16string u16command;
-	cocos2d::StringUtils::UTF8ToUTF16(buf.str(), u16command);
+	cc::StringUtils::UTF8ToUTF16(buf.str(), u16command);
 
 	ShellExecute(NULL, NULL, (LPCSTR)L"CMD.EXE", (LPCSTR)u16command.c_str(), NULL, SW_SHOWNORMAL);
 }
@@ -207,7 +207,7 @@ void PlayerTaskWin::update(float dt)
         _resultCode = (int)GetLastError();
     }
 
-    // cocos2d::Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
+    // cc::Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
     cleanup();
 }
 
@@ -234,9 +234,9 @@ void PlayerTaskWin::cleanup()
 
     _state = STATE_COMPLETED;
 
-    CCLOG("CMD: %s", _output.c_str());
+    CC_LOG_DEBUG("CMD: %s", _output.c_str());
 
-    // cocos2d::Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(_name);
+    // cc::Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(_name);
 }
 
 std::u16string PlayerTaskWin::makeCommandLine() const
@@ -248,7 +248,7 @@ std::u16string PlayerTaskWin::makeCommandLine() const
     buf << _commandLineArguments;
 
     std::u16string u16command;
-    cocos2d::StringUtils::UTF8ToUTF16(buf.str(), u16command);
+    cc::StringUtils::UTF8ToUTF16(buf.str(), u16command);
     return u16command;
 }
 

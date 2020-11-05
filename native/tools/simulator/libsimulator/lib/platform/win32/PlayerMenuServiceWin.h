@@ -55,7 +55,7 @@ protected:
     UINT _commandId;
     HMENU _hmenu;
     bool _menubarEnabled;
-    cocos2d::Vector<PlayerMenuItemWin*> _children;
+    cc::Vector<PlayerMenuItemWin*> _children;
 
     friend class PlayerMenuServiceWin;
 };

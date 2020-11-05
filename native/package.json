@@ -4,6 +4,7 @@
   "description": "Native implementation of creator 3d.",
   "main": "gulpfile.js",
   "devDependencies": {
+    "gulp": "^4.0.2",
     "@types/fs-extra": "^9.0.1",
     "async": "^2.6.1",
     "chalk": "^2.4.1",
@@ -11,7 +12,11 @@
     "ftp": "0.3.10",
     "tmp": "^0.2.1",
     "tree-kill": "^1.2.0",
-    "yargs": "^15.3.1"
+    "yargs": "^15.3.1",
+    "commander": "^6.2.0",
+    "gulp-sequence": "^1.0.0",
+    "gulp-zip": "^5.0.2",
+    "which": "^2.0.2"
   },
   "repository": {
     "type": "git",

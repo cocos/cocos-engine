@@ -325,7 +325,7 @@ void RuntimeEngine::trackEvent(const std::string &eventName)
     char cidBuf[64] = {0};
     auto guid = player::DeviceEx::getInstance()->getUserGUID();
     snprintf(cidBuf, sizeof(cidBuf), "%x", XXH32(guid.c_str(), (int)guid.length(), 0));
-    auto request = cocos2d::extra::HTTPRequest::createWithUrl(NULL,
+    auto request = cc::extra::HTTPRequest::createWithUrl(NULL,
                                                      "http://www.google-analytics.com/collect",
                                                      kCCHTTPRequestMethodPOST);
     request->addPOSTValue("v", "1");
@@ -334,7 +334,7 @@ void RuntimeEngine::trackEvent(const std::string &eventName)
     request->addPOSTValue("t", "event");
 
     request->addPOSTValue("an", "simulator");
-    request->addPOSTValue("av", cocos2d::cocos2dVersion());
+    request->addPOSTValue("av", cc::cocos2dVersion());
 
     request->addPOSTValue("ec", platform);
     request->addPOSTValue("ea", eventName.c_str());

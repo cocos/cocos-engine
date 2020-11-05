@@ -79,7 +79,7 @@ void FileServer::readResFileFinfo()
     
     //save file info to disk every five second
     CC_LOG_DEBUG("FileServer::readResFileFinfo()");
-//    cocos2d::Director::getInstance()->getScheduler()->schedule([&](float){
+//    cc::Director::getInstance()->getScheduler()->schedule([&](float){
 //        rapidjson::StringBuffer buffer;
 //        rapidjson::Writer< rapidjson::StringBuffer > writer(buffer);
 //        _filecfgjson.Accept(writer);
@@ -417,7 +417,7 @@ void FileServer::loopWriteFile()
         _fileNameMutex.lock();
         _strFileName = filename;
         _fileNameMutex.unlock();
-        //cocos2d::log("WriteFile:: fullfilename = %s",filename.c_str());
+        //cc::log("WriteFile:: fullfilename = %s",filename.c_str());
         createDir(fullfilename.substr(0, fullfilename.find_last_of("/")).c_str());
         
         FILE *fp= nullptr;
