@@ -30,6 +30,7 @@ let testResults: Collider2D[] = [];
 export class b2PhysicsWorld implements IPhysicsWorld {
     protected _world: b2.World;
     protected _bodies: b2RigidBody2D[] = [];
+    protected _animatedBodies: b2RigidBody2D[] = [];
 
     protected _contactListener: PhysicsContactListener;
     protected _aabbQueryCallback: PhysicsAABBQueryCallback;
@@ -120,6 +121,10 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     }
 
     step (deltaTime: number, velocityIterations = 10, positionIterations = 10) {
+        let animatedBodies = this._animatedBodies;
+        for (let i = 0, l = animatedBodies.length; i < l; i++) {
+            animatedBodies[i].animate(deltaTime);
+        }
         this._world.Step(deltaTime, velocityIterations, positionIterations);
     }
 
@@ -229,12 +234,6 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         let bodyDef = temoBodyDef;
 
         let comp = body.rigidBody;
-        if (comp.type === ERigidBody2DType.Animated) {
-            bodyDef.type = ERigidBody2DType.Kinematic as number;
-        }
-        else {
-            bodyDef.type = comp.type as number;
-        }
 
         bodyDef.allowSleep = comp.allowSleep;
         bodyDef.gravityScale = comp.gravityScale;
@@ -252,6 +251,17 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         bodyDef.angle = toRadian(tempVec3.z);
 
         bodyDef.awake = comp.awakeOnLoad;
+        
+        if (comp.type === ERigidBody2DType.Animated) {
+            bodyDef.type = ERigidBody2DType.Kinematic as number;
+
+            this._animatedBodies.push(body);
+            body._animatedPos.set(bodyDef.position.x, bodyDef.position.y);
+            body._animatedAngle = bodyDef.angle;
+        }
+        else {
+            bodyDef.type = comp.type as number;
+        }
 
         // read private property
         let compPrivate = comp as any;
@@ -277,6 +287,11 @@ export class b2PhysicsWorld implements IPhysicsWorld {
             body._imp = null;
         }
         array.remove(this._bodies, body);
+
+        let comp = body.rigidBody;
+        if (comp.type === ERigidBody2DType.Animated) {
+            array.remove(this._animatedBodies, body);
+        }
     }
 
     registerContactFixture (fixture: b2.Fixture) {
@@ -334,7 +349,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
 
     drawDebug () {
         this._checkDebugDrawValid();
-        
+
         if (!this._debugGraphics) {
             return;
         }
