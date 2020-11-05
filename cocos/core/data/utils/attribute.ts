@@ -27,33 +27,16 @@
 // tslint:disable:only-arrow-functions
 // tslint:disable:one-variable-per-declaration
 
-import { errorID, log, warnID } from '../../platform/debug';
-import { extend, formatStr, get, getClassName, isChildClassOf, value } from '../../utils/js';
+import { log, warnID } from '../../platform/debug';
+import { formatStr, get, getClassName, isChildClassOf, value } from '../../utils/js';
 import { isPlainEmptyObj_DEV } from '../../utils/misc';
-import { EDITOR, DEV, SUPPORT_JIT } from 'internal:constants';
+import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
 
 export const DELIMETER = '$_$';
 
-export function createAttrsSingle (owner: Object, ownerConstructor: Function, superAttrs?: any) {
-    let AttrsCtor;
-    if (DEV && SUPPORT_JIT) {
-        let ctorName = ownerConstructor.name;
-        if (owner === ownerConstructor) {
-            ctorName += '_ATTRS';
-        }
-        else {
-            ctorName += '_ATTRS_INSTANCE';
-        }
-        AttrsCtor = Function('return (function ' + ctorName + '(){});')();
-    }
-    else {
-        AttrsCtor = function () { };
-    }
-    if (superAttrs) {
-        extend(AttrsCtor, superAttrs.constructor);
-    }
-    const attrs = new AttrsCtor();
+export function createAttrsSingle (owner: Object, superAttrs?: any) {
+    const attrs = superAttrs ? Object.create(superAttrs) : {};
     value(owner, '__attrs__', attrs);
     return attrs;
 }
@@ -62,6 +45,11 @@ export function createAttrsSingle (owner: Object, ownerConstructor: Function, su
  * @param subclass Should not have '__attrs__'.
  */
 export function createAttrs (subclass: any) {
+    if (typeof subclass !== 'function') {
+        // attributes only in instance
+        let instance = subclass;
+        return createAttrsSingle(instance, getClassAttrs(instance.constructor));
+    }
     let superClass: any;
     const chains: any[] = legacyCC.Class.getInheritanceChain(subclass);
     for (let i = chains.length - 1; i >= 0; i--) {
@@ -69,11 +57,11 @@ export function createAttrs (subclass: any) {
         const attrs = cls.hasOwnProperty('__attrs__') && cls.__attrs__;
         if (!attrs) {
             superClass = chains[i + 1];
-            createAttrsSingle(cls, cls, superClass && superClass.__attrs__);
+            createAttrsSingle(cls, superClass && superClass.__attrs__);
         }
     }
     superClass = chains[0];
-    createAttrsSingle(subclass, subclass, superClass && superClass.__attrs__);
+    createAttrsSingle(subclass, superClass && superClass.__attrs__);
     return subclass.__attrs__;
 }
 
@@ -85,55 +73,18 @@ export function createAttrs (subclass: any) {
  * This function holds only the attributes, not their implementations.
  * @param constructor The class or instance. If instance, the attribute will be dynamic and only available for the specified instance.
  * @param propertyName The name of property or function, used to retrieve the attributes.
- * @param [newAttributes] The attribute table to mark, new attributes will merged with existed attributes.
- * Attribute whose key starts with '_' will be ignored.
  * @private
  */
-export function attr (constructor: any, propertyName: string): { [propertyName: string]: any; };
-
-export function attr (constructor: any, propertyName: string, newAttributes: Object): void;
-
-export function attr (constructor: any, propertyName: string, newAttributes?: Object) {
-    let attrs: any, setter: any;
-    if (typeof constructor === 'function') {
-        // Attributes shared between instances.
-        attrs = getClassAttrs(constructor);
-        setter = attrs.constructor.prototype;
-    } else {
-        // Attributes in instance.
-        const instance = constructor;
-        attrs = instance.__attrs__;
-        if (!attrs) {
-            constructor = instance.constructor;
-            const clsAttrs = getClassAttrs(constructor);
-            attrs = createAttrsSingle(instance, constructor, clsAttrs);
-        }
-        setter = attrs;
-    }
-
-    if (typeof newAttributes === 'undefined') {
-        // Get.
-        const prefix = propertyName + DELIMETER;
-        const ret = {};
-        for (const key in attrs) {
-            if (key.startsWith(prefix)) {
-                ret[key.slice(prefix.length)] = attrs[key];
-            }
-        }
-        return ret;
-    } else {
-        // Set.
-        if (typeof newAttributes === 'object') {
-            for (const key in newAttributes) {
-                if (key.charCodeAt(0) !== 95 /* _ */) {
-                    setter[propertyName + DELIMETER + key] = newAttributes[key];
-                }
-            }
-        }
-        else if (DEV) {
-            errorID(3629);
+export function attr (constructor: any, propertyName: string): { [attributeName: string]: any; } {
+    var attrs = getClassAttrs(constructor);
+    const prefix = propertyName + DELIMETER;
+    const ret = {};
+    for (const key in attrs) {
+        if (key.startsWith(prefix)) {
+            ret[key.slice(prefix.length)] = attrs[key];
         }
     }
+    return ret;
 }
 
 /**
@@ -143,16 +94,8 @@ export function getClassAttrs (constructor: any) {
     return (constructor.hasOwnProperty('__attrs__') && constructor.__attrs__) || createAttrs(constructor);
 }
 
-/**
- * Returns a writable meta object, used to set multi attributes.
- */
-export function getClassAttrsProto (constructor: Function) {
-    return getClassAttrs(constructor).constructor.prototype;
-}
-
 export function setClassAttr (ctor, propName, key, value) {
-    const proto = getClassAttrsProto(ctor);
-    proto[propName + DELIMETER + key] = value;
+    getClassAttrs(ctor)[propName + DELIMETER + key] = value;
 }
 
 export class PrimitiveType<T> {
@@ -253,24 +196,8 @@ export const CCString = new PrimitiveType('String', '');
 legacyCC.String = CCString;
 legacyCC.CCString = CCString;
 
-/*
-BuiltinAttributes: {
-    default: defaultValue,
-    _canUsedInSetter: false, (default false) (NYI)
-}
-Getter or Setter: {
-    hasGetter: true,
-    hasSetter: true,
-}
-Callbacks: {
-    _onAfterProp: function (constructor, propName) {},
-    _onAfterGetter: function (constructor, propName) {}, (NYI)
-    _onAfterSetter: function (constructor, propName) {}, (NYI)
-}
- */
-
 // Ensures the type matches its default value
-export function getTypeChecker (type: string, attributeName: string) {
+export function getTypeChecker_ET (type: string, attributeName: string) {
     return function (constructor: Function, mainPropertyName: string) {
         const propInfo = '"' + getClassName(constructor) + '.' + mainPropertyName + '"';
         const mainPropAttrs = attr(constructor, mainPropertyName);
@@ -328,9 +255,9 @@ export function getTypeChecker (type: string, attributeName: string) {
 }
 
 // Ensures the type matches its default value
-export function getObjTypeChecker (typeCtor) {
+export function getObjTypeChecker_ET (typeCtor) {
     return function (classCtor, mainPropName) {
-        getTypeChecker('Object', 'type')(classCtor, mainPropName);
+        getTypeChecker_ET('Object', 'type')(classCtor, mainPropName);
         // check ValueType
         const defaultDef = getClassAttrs(classCtor)[mainPropName + DELIMETER + 'default'];
         const defaultVal = legacyCC.Class.getDefault(defaultDef);
