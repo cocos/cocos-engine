@@ -639,7 +639,7 @@ export class Game extends EventTarget {
 
     //  @Time ticker section
     private _setAnimFrame () {
-        this._lastTime = new Date().getTime();
+        this._lastTime = performance.now();
         const frameRate = this.config.frameRate;
         this._frameTime = 1000 / frameRate;
         legacyCC.director._maxParticleDeltaTime = this._frameTime / 1000 * 2;
@@ -661,7 +661,8 @@ export class Game extends EventTarget {
             window.oRequestAnimationFrame ||
             window.msRequestAnimationFrame;
             if (frameRate !== 60 && frameRate !== 30) {
-                window.rAF = Boolean(rAF) ? this._stTimeWithRAF : this._stTime;
+                // @ts-ignore
+                window.rAF = rAF ? this._stTimeWithRAF : this._stTime;
                 window.cAF = this._ctTime;
             }
             else {
@@ -682,7 +683,7 @@ export class Game extends EventTarget {
     }
 
     private _stTimeWithRAF (callback) {
-        const currTime = new Date().getTime();
+        const currTime = performance.now();
         const elapseTime = Math.max(0, (currTime - game._lastTime));
         const timeToCall = Math.max(0, game._frameTime - elapseTime);
         const id = window.setTimeout(() => {
@@ -693,7 +694,7 @@ export class Game extends EventTarget {
     }
 
     private _stTime (callback) {
-        const currTime = new Date().getTime();
+        const currTime = performance.now();
         const elapseTime = Math.max(0, (currTime - game._lastTime));
         const timeToCall = Math.max(0, game._frameTime - elapseTime);
         const id = window.setTimeout(callback, timeToCall);
