@@ -324,12 +324,9 @@ export class PageView extends ScrollView {
     protected _touchBeganPosition = new Vec3();
     protected _touchEndPosition = new Vec3();
 
-    public __preload() {
-        this.node.on(SystemEventType.SIZE_CHANGED, this._updateAllPagesSize, this);
-    }
-
     public onEnable() {
         super.onEnable();
+        this.node.on(SystemEventType.SIZE_CHANGED, this._updateAllPagesSize, this);
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this.node.on(PageView.EventType.SCROLL_ENG_WITH_THRESHOLD, this._dispatchPageTurningEvent, this);
         }
@@ -337,6 +334,7 @@ export class PageView extends ScrollView {
 
     public onDisable() {
         super.onDisable();
+        this.node.off(SystemEventType.SIZE_CHANGED, this._updateAllPagesSize, this);
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this.node.off(PageView.EventType.SCROLL_ENG_WITH_THRESHOLD, this._dispatchPageTurningEvent, this);
         }
@@ -347,10 +345,6 @@ export class PageView extends ScrollView {
         if (this.indicator) {
             this.indicator.setPageView(this);
         }
-    }
-
-    public onDestroy() {
-        this.node.off(SystemEventType.SIZE_CHANGED, this._updateAllPagesSize, this);
     }
 
     /**

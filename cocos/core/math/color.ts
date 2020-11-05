@@ -439,7 +439,7 @@ export class Color extends ValueType {
         const g = parseInt(hexString.substr(2, 2), 16) || 0;
         const b = parseInt(hexString.substr(4, 2), 16) || 0;
         const a = parseInt(hexString.substr(6, 2), 16) || 255;
-        this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+        this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + (r|0);
         return this;
     }
 
@@ -564,7 +564,7 @@ export class Color extends ValueType {
         r *= 255;
         g *= 255;
         b *= 255;
-        this._val = ((this.a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+        this._val = ((this.a << 24) >>> 0) + (b << 16) + (g << 8) + (r|0);
         return this;
     }
 
@@ -626,14 +626,14 @@ export class Color extends ValueType {
                 b = r.b || 0;
                 a = typeof r.a === 'number' ? r.a : 255;
                 r = r.r || 0;
-                this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+                this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + (r|0);
             }
         } else {
             r = r || 0;
             g = g || 0;
             b = b || 0;
             a = typeof a === 'number' ? a : 255;
-            this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+            this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + (r|0);
         }
         return this;
     }
