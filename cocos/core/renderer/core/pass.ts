@@ -32,7 +32,6 @@ import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../3d/builtin/init';
 import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
 import { TextureBase } from '../../assets/texture-base';
-import { BlendState, BlendTarget, DepthStencilState, RasterizerState } from '../../gfx/pipeline-state';
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
@@ -47,7 +46,7 @@ import { BufferUsageBit, GetTypeSize, MemoryUsageBit, PrimitiveMode,
 import { DescriptorSetLayoutInfo, Texture,  Device, Buffer, BufferInfo, BufferViewInfo,
     Sampler, DescriptorSet, DescriptorSetInfo } from '../../gfx';
 import { Color } from '../../gfx/define-class';
-import { BlendStateBuffer } from '../../animation/skeletal-animation-blending';
+import { BlendState, BlendTarget, DepthStencilState, RasterizerState } from '../../gfx';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part

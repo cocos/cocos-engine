@@ -33,7 +33,6 @@ import { ccclass } from 'cc.decorator';
 
 import { UIRenderable } from '../core/components/ui-base/ui-renderable';
 import { Component } from '../core/components';
-import visibleRect from '../core/platform/visible-rect';
 import { TMXMapInfo } from './tmx-xml-parser';
 import { Color, IVec2Like, Mat4, Size, SpriteFrame, SystemEventType, Texture2D, Vec2, Vec3, Node, warn, logID, CCBoolean } from '../core';
 import { TiledTile } from './tiled-tile';
@@ -842,14 +841,13 @@ export class TiledLayer extends UIRenderable {
         } else if (this._enableCulling) {
             this.node.updateWorldTransform();
             Mat4.invert(_mat4_temp, this.node.getWorldMatrix());
-            const rect = visibleRect;
             const camera = this.node._uiProps.uiTransformComp!._canvas!.camera;
             if (camera) {
                 _vec3_temp.x = 0;
                 _vec3_temp.y = 0;
                 _vec3_temp.z = 0;
-                _vec3_temp2.x = _vec3_temp2.x + rect.width;
-                _vec3_temp2.y = _vec3_temp2.y + rect.height;
+                _vec3_temp2.x = camera.width;
+                _vec3_temp2.y = camera.height;
                 _vec3_temp2.z = 0;
                 camera.screenToWorld(_vec3_temp, _vec3_temp);
                 camera.screenToWorld(_vec3_temp2, _vec3_temp2);

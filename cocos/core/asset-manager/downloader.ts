@@ -120,7 +120,7 @@ const downloadBundle = (nameOrUrl: string, options: IBundleOptions, onComplete: 
             }
         }
         else {
-            window.System.import('virtual:///prerequisite-imports/' + bundleName).then(() => {
+            import('virtual:///prerequisite-imports/' + bundleName).then(() => {
                 count++;
                 if (count === 2) {
                     onComplete(error, out);

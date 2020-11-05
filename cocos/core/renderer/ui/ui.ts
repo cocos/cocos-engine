@@ -27,7 +27,7 @@
  * @hidden
  */
 
-import { UIMeshRenderer, UIStaticBatch } from '../../../ui';
+import { UIStaticBatch } from '../../../ui';
 import { Material } from '../../assets/material';
 import { Canvas, UIComponent, UIRenderable } from '../../components/ui-base';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo } from '../../gfx';
