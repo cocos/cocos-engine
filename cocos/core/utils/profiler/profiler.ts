@@ -382,18 +382,21 @@ export class Profiler {
             return;
         }
 
-        const { screenSpaceSignY, surfaceTransform } = this._device!;
-        if (surfaceTransform !== this.offsetData[3]) {
-            const preTransform = preTransforms[surfaceTransform];
-            const x = -0.9; const y = -0.9 * screenSpaceSignY;
-            this.offsetData[0] = x * preTransform[0] + y * preTransform[2];
-            this.offsetData[1] = x * preTransform[1] + y * preTransform[3];
-            this.offsetData[2] = this._eachNumWidth;
-            this.offsetData[3] = surfaceTransform;
-        }
+        if(!EDITOR) {
+            const { screenSpaceSignY, surfaceTransform } = this._device!;
+            if (surfaceTransform !== this.offsetData[3]) {
+                const preTransform = preTransforms[surfaceTransform];
+                const x = -0.9; const y = -0.9 * screenSpaceSignY;
+                this.offsetData[0] = x * preTransform[0] + y * preTransform[2];
+                this.offsetData[1] = x * preTransform[1] + y * preTransform[3];
+                this.offsetData[2] = this._eachNumWidth;
+                this.offsetData[3] = surfaceTransform;
+            }
+        
 
-        // @ts-ignore
-        this.pass._rootBufferDirty = true;
+            // @ts-ignore
+            this.pass._rootBufferDirty = true;
+        }
 
         const now = performance.now();
         (this._stats.render.counter as PerfCounter).start(now);
