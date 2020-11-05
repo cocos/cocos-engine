@@ -33,7 +33,7 @@ import { NativeBufferPool, NativeObjectPool, NativeBufferAllocator } from './nat
 import { DescriptorSetInfo,
     Device, DescriptorSet, ShaderInfo, Shader, InputAssemblerInfo, InputAssembler,
     PipelineLayoutInfo, PipelineLayout, Framebuffer, FramebufferInfo, PrimitiveMode,
-    DynamicStateFlags, ClearFlag, Attribute } from '../../gfx';
+    DynamicStateFlags, ClearFlag } from '../../gfx';
 import { RenderPassStage } from '../../pipeline/define';
 import { BatchingSchemes } from './pass';
 import { Layers } from '../../scene-graph/layers';
@@ -272,7 +272,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
     }
 }
 
-class ObjectPool<T, P extends PoolType, A extends any[]> implements IMemoryPool<P> {
+export class ObjectPool<T, P extends PoolType, A extends any[]> implements IMemoryPool<P> {
 
     private _ctor: (args: A, obj?: T) => T;
     private _dtor?: (obj: T) => T | undefined;
@@ -505,7 +505,7 @@ export function freeHandleArray<P extends PoolType, H extends IHandle<PoolType>>
     else arrayPool.clear(arrayHandle);
 }
 
-enum PoolType {
+export enum PoolType {
     // objects
     ATTRIBUTE,
     DESCRIPTOR_SETS,
@@ -582,8 +582,6 @@ export type LightArrayHandle = IHandle<PoolType.LIGHT_ARRAY>;
 export type BlendTargetArrayHandle = IHandle<PoolType.BLEND_TARGET_ARRAY>;
 
 // don't reuse any of these data-only structs, for GFX objects may directly reference them
-
-export const AttrPool = new ObjectPool(PoolType.ATTRIBUTE, (_: never[], obj?: Attribute) => obj || new Attribute());
 
 // TODO: could use Labeled Tuple Element feature here after next babel update (required TS4.0+ support)
 export const ShaderPool = new ObjectPool(PoolType.SHADER,
