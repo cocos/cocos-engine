@@ -661,7 +661,7 @@ export class Game extends EventTarget {
             window.oRequestAnimationFrame ||
             window.msRequestAnimationFrame;
             if (frameRate !== 60 && frameRate !== 30) {
-                window.rAF = rAF ? this._stTimeWithRAF : this._stTime;
+                window.rAF = Boolean(rAF) ? this._stTimeWithRAF : this._stTime;
                 window.cAF = this._ctTime;
             }
             else {
