@@ -2,7 +2,7 @@ import { IVec3Like, Quat, Vec3 } from "../../../core";
 import { aabb, sphere } from "../../../core/geometry";
 import { Collider, RigidBody, PhysicMaterial, PlaneCollider } from "../../framework";
 import { IPlaneShape } from "../../spec/i-physics-shape";
-import { PX, _trans } from "../export-physx";
+import { PX, USE_BYTEDANCE, _trans } from "../export-physx";
 import { EPhysXShapeType, PhysXShape } from "./physx-shape";
 
 export class PhysXPlaneShape extends PhysXShape implements IPlaneShape {
@@ -11,7 +11,13 @@ export class PhysXPlaneShape extends PhysXShape implements IPlaneShape {
 
     constructor () {
         super(EPhysXShapeType.PLANE);
-        if (!PhysXPlaneShape.PLANE_GEOMETRY) PhysXPlaneShape.PLANE_GEOMETRY = new PX.PxPlaneGeometry();
+        if (!PhysXPlaneShape.PLANE_GEOMETRY) {
+            if (USE_BYTEDANCE) {
+                PhysXPlaneShape.PLANE_GEOMETRY = new PX.PlaneGeometry();
+            } else {
+                PhysXPlaneShape.PLANE_GEOMETRY = new PX.PxPlaneGeometry();
+            }
+        }
     }
 
     setNormal (v: IVec3Like) {
@@ -26,7 +32,14 @@ export class PhysXPlaneShape extends PhysXShape implements IPlaneShape {
         const co = this.collider;
         Vec3.scaleAndAdd(_trans.translation, co.center, co.normal, co.constant);
         Quat.rotationTo(_trans.rotation, Vec3.UNIT_X, co.normal);
-        this._impl.setLocalPose(_trans);
+        if (USE_BYTEDANCE) {
+            const pos = _trans.translation;
+            const rot = _trans.rotation;
+            const pt = new PX.Transform([pos.x, pos.y, pos.z], [rot.x, rot.y, rot.z, rot.w]);
+            this._impl.setLocalPose(pt, true);
+        } else {
+            this._impl.setLocalPose(_trans);
+        }
     }
 
     get collider () {
@@ -35,11 +48,14 @@ export class PhysXPlaneShape extends PhysXShape implements IPlaneShape {
 
     onComponentSet () {
         const co = this.collider;
-        Vec3.scaleAndAdd(_trans.translation, co.center, co.normal, co.constant);
-        Quat.rotationTo(_trans.rotation, Vec3.UNIT_X, co.normal);
-        const physics = this._sharedBody.wrappedWorld.physics;
+        const physics = this._sharedBody.wrappedWorld.physics as any;
         const pxmat = this.getSharedMaterial(co.sharedMaterial!);
-        this._impl = physics.createShape(PhysXPlaneShape.PLANE_GEOMETRY, pxmat, true, this._flags);
+        if (USE_BYTEDANCE) {
+            this._impl = physics.createShape(PhysXPlaneShape.PLANE_GEOMETRY, pxmat);
+        } else {
+            this._impl = physics.createShape(PhysXPlaneShape.PLANE_GEOMETRY, pxmat, true, this._flags);
+        }
+        this.setCenter();
     }
 
     updateScale () {
