@@ -77,17 +77,21 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     _checkDebugDrawValid () {
         if (EDITOR) return;
         if (!this._debugGraphics || !this._debugGraphics.isValid) {
+            let canvas = find('Canvas');
+            if (!canvas) {
+                let scene = director.getScene() as any;
+                if (!scene) {
+                    return;
+                }
+
+                canvas = new Node('Canvas');
+                canvas.addComponent(Canvas);
+                canvas.parent = scene;
+            }
+
             let node = new Node('PHYSICS_2D_DEBUG_DRAW');
             // node.zIndex = cc.macro.MAX_ZINDEX;
             node._objFlags |= CCObject.Flags.DontSave;
-
-            let canvas = find('Canvas');
-            if (!canvas) {
-                canvas = new Node('Canvas');
-                canvas.addComponent(Canvas);
-                canvas.parent = director.getScene() as any;
-            }
-
             node.parent = canvas;
             node.worldPosition = Vec3.ZERO;
 
@@ -330,7 +334,11 @@ export class b2PhysicsWorld implements IPhysicsWorld {
 
     drawDebug () {
         this._checkDebugDrawValid();
-        this._debugGraphics!.clear();
+        
+        if (!this._debugGraphics) {
+            return;
+        }
+        this._debugGraphics.clear();
         this._world.DrawDebugData();
     }
 
