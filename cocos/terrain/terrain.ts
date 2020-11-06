@@ -225,6 +225,7 @@ class TerrainRenderable extends RenderableComponent {
  */
 @ccclass('cc.TerrainBlockInfo')
 export class TerrainBlockInfo {
+    @type([Number])
     @serializable
     @editable
     public layers: number[] = [-1, -1, -1, -1];
@@ -682,14 +683,17 @@ export class Terrain extends Component {
     @disallowAnimation
     protected _layers: (TerrainLayer|null)[] = [];
 
+    @type(TerrainBlockInfo)
     @serializable
     @disallowAnimation
     protected _blockInfos: TerrainBlockInfo[] = [];
 
+    @type(TerrainBlockLightmapInfo)
     @serializable
     @disallowAnimation
     protected _lightmapInfos: TerrainBlockLightmapInfo[] = [];
 
+    @type(Boolean)
     @serializable
     @disallowAnimation
     protected _receiveShadow: boolean = false;
