@@ -111,6 +111,36 @@ const FormatInfo GFX_FORMAT_INFOS[] = {
     {"PVRTC_RGBA4", 2, 4, FormatType::UNORM, true, false, false, true},
     {"PVRTC2_2BPP", 2, 4, FormatType::UNORM, true, false, false, true},
     {"PVRTC2_4BPP", 2, 4, FormatType::UNORM, true, false, false, true},
+
+    {"ASTC_RGBA_4x4", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_5x4", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_5x5", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_6x5", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_6x6", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_8x5", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_8x6", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_8x8", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_10x5", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_10x6", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_10x8", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_10x10", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_12x10", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_12x12", 1, 4, FormatType::UNORM, true, false, false, true},
+
+    {"ASTC_SRGBA_4x4", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_5x4", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_5x5", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_6x5", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_6x6", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_8x5", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_8x6", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_8x8", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_10x5", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_10x6", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_10x8", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_10x10", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_12x10", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_12x12", 1, 4, FormatType::UNORM, true, false, false, true},
 };
 
 uint FormatSize(Format format, uint width, uint height, uint depth) {
@@ -143,13 +173,14 @@ uint FormatSize(Format format, uint width, uint height, uint depth) {
             case Format::ETC2_RGB8:
             case Format::ETC2_SRGB8:
             case Format::ETC2_RGB8_A1:
-            case Format::ETC2_SRGB8_A1:
             case Format::EAC_R11:
             case Format::EAC_R11SN:
-                return (uint)std::ceil(width / 4) * (uint)std::ceil(height / 4) * 8 * depth;
+                return (uint)std::ceil((float)width / 4) * (uint)std::ceil((float)height / 4) * 8 * depth;
+            case Format::ETC2_RGBA8:
+            case Format::ETC2_SRGB8_A1:
             case Format::EAC_RG11:
             case Format::EAC_RG11SN:
-                return (uint)std::ceil(width / 4) * (uint)std::ceil(height / 4) * 16 * depth;
+                return (uint)std::ceil((float)width / 4) * (uint)std::ceil((float)height / 4) * 16 * depth;
 
             case Format::PVRTC_RGB2:
             case Format::PVRTC_RGBA2:
@@ -159,6 +190,50 @@ uint FormatSize(Format format, uint width, uint height, uint depth) {
             case Format::PVRTC_RGBA4:
             case Format::PVRTC2_4BPP:
                 return (uint)std::ceil(std::max(width, 16U) * std::max(height, 8U) / 2) * depth;
+
+            case Format::ASTC_RGBA_4x4:
+            case Format::ASTC_SRGBA_4x4:
+                return (uint)std::ceil((float)width / 4) * (uint)std::ceil((float)height / 4) * 16 * depth;
+            case Format::ASTC_RGBA_5x4:
+            case Format::ASTC_SRGBA_5x4:
+                return (uint)std::ceil((float)width / 5) * (uint)std::ceil((float)height / 4) * 16 * depth;
+            case Format::ASTC_RGBA_5x5:
+            case Format::ASTC_SRGBA_5x5:
+                return (uint)std::ceil((float)width / 5) * (uint)std::ceil((float)height / 5) * 16 * depth;
+            case Format::ASTC_RGBA_6x5:
+            case Format::ASTC_SRGBA_6x5:
+                return (uint)std::ceil((float)width / 6) * (uint)std::ceil((float)height / 5) * 16 * depth;
+            case Format::ASTC_RGBA_6x6:
+            case Format::ASTC_SRGBA_6x6:
+                return (uint)std::ceil((float)width / 6) * (uint)std::ceil((float)height / 6) * 16 * depth;
+            case Format::ASTC_RGBA_8x5:
+            case Format::ASTC_SRGBA_8x5:
+                return (uint)std::ceil((float)width / 8) * (uint)std::ceil((float)height / 5) * 16 * depth;
+            case Format::ASTC_RGBA_8x6:
+            case Format::ASTC_SRGBA_8x6:
+                return (uint)std::ceil((float)width / 8) * (uint)std::ceil((float)height / 6) * 16 * depth;
+            case Format::ASTC_RGBA_8x8:
+            case Format::ASTC_SRGBA_8x8:
+                return (uint)std::ceil((float)width / 8) * (uint)std::ceil((float)height / 8) * 16 * depth;
+            case Format::ASTC_RGBA_10x5:
+            case Format::ASTC_SRGBA_10x5:
+                return (uint)std::ceil((float)width / 10) * (uint)std::ceil((float)height / 5) * 16 * depth;
+            case Format::ASTC_RGBA_10x6:
+            case Format::ASTC_SRGBA_10x6:
+                return (uint)std::ceil((float)width / 10) * (uint)std::ceil((float)height / 6) * 16 * depth;
+            case Format::ASTC_RGBA_10x8:
+            case Format::ASTC_SRGBA_10x8:
+                return (uint)std::ceil((float)width / 10) * (uint)std::ceil((float)height / 8) * 16 * depth;
+            case Format::ASTC_RGBA_10x10:
+            case Format::ASTC_SRGBA_10x10:
+                return (uint)std::ceil((float)width / 10) * (uint)std::ceil((float)height / 10) * 16 * depth;
+            case Format::ASTC_RGBA_12x10:
+            case Format::ASTC_SRGBA_12x10:
+                return (uint)std::ceil((float)width / 12) * (uint)std::ceil((float)height / 10) * 16 * depth;
+            case Format::ASTC_RGBA_12x12:
+            case Format::ASTC_SRGBA_12x12:
+                return (uint)std::ceil((float)width / 12) * (uint)std::ceil((float)height / 12) * 16 * depth;
+
             default: {
                 return 0;
             }

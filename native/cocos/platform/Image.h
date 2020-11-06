@@ -52,6 +52,8 @@ public:
         ETC,
         //! ETC2
         ETC2,
+        //! ASTC
+        ASTC,
         //! Raw Data
         RAW_DATA,
         //! Unknown format
@@ -74,6 +76,8 @@ public:
     inline int getHeight() const { return _height; }
     inline std::string getFilePath() const { return _filePath; }
 
+    inline bool isCompressed() const { return _isCompressed; }
+
 protected:
     bool initWithJpgData(const unsigned char *data, ssize_t dataLen);
     bool initWithPngData(const unsigned char *data, ssize_t dataLen);
@@ -83,6 +87,7 @@ protected:
     bool initWithPVRv3Data(const unsigned char *data, ssize_t dataLen);
     bool initWithETCData(const unsigned char *data, ssize_t dataLen);
     bool initWithETC2Data(const unsigned char *data, ssize_t dataLen);
+    bool initWithASTCData(const unsigned char * data, ssize_t dataLen);
 
 protected:
     unsigned char *_data = nullptr;
@@ -92,6 +97,7 @@ protected:
     Format _fileType = Format::UNKNOWN;
     gfx::Format _renderFormat;
     std::string _filePath;
+    bool _isCompressed = false;
 
 protected:
     // noncopyable
@@ -111,6 +117,9 @@ protected:
     bool isPvr(const unsigned char *data, ssize_t dataLen);
     bool isEtc(const unsigned char *data, ssize_t dataLen);
     bool isEtc2(const unsigned char *data, ssize_t dataLen);
+    bool isASTC(const unsigned char * data, ssize_t detaLen);
+
+    gfx::Format getASTCFormat(const unsigned char * pHeader) const;
 };
 
 } //namespace cc

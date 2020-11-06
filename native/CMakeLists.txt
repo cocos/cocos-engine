@@ -265,6 +265,8 @@ endif()
 
 ##### base
 cocos_source_files(
+    cocos/base/astc.cpp
+    cocos/base/astc.h
     cocos/base/base64.cpp
     cocos/base/base64.h
     cocos/base/CachedArray.h

@@ -47,6 +47,8 @@ extern "C"
 #include "base/etc2.h"
 }
 
+#include "base/astc.h"
+
 #if CC_USE_WEBP
 #include "webp/decode.h"
 #endif // CC_USE_WEBP
@@ -345,6 +347,9 @@ bool Image::initWithImageData(const unsigned char * data, ssize_t dataLen)
         case Format::ETC2:
             ret = initWithETC2Data(unpackedData, unpackedLen);
             break;
+        case Format::ASTC:
+            ret = initWithASTCData(unpackedData, unpackedLen);
+            break;
         default:
             break;
         }
@@ -378,6 +383,11 @@ bool Image::isEtc(const unsigned char * data, ssize_t dataLen)
 bool Image::isEtc2(const unsigned char * data, ssize_t dataLen)
 {
     return etc2_pkm_is_valid((etc2_byte*)data) ? true : false;
+}
+
+bool Image::isASTC(const unsigned char * data, ssize_t dataLen)
+{
+    return astcIsValid((astc_byte*)data) ? true : false;
 }
 
 bool Image::isJpg(const unsigned char * data, ssize_t dataLen)
@@ -445,9 +455,59 @@ Image::Format Image::detectFormat(const unsigned char * data, ssize_t dataLen)
     {
         return Format::ETC2;
     }
+    else if (isASTC(data, dataLen))
+    {
+        return Format::ASTC;
+    }
     else
     {
         return Format::UNKNOWN;
+    }
+}
+
+gfx::Format Image::getASTCFormat(const unsigned char * pHeader) const
+{
+    int xdim = pHeader[ASTC_HEADER_MAGIC];
+    int ydim = pHeader[ASTC_HEADER_MAGIC + 1];
+
+    if (xdim == 4) {
+        return gfx::Format::ASTC_RGBA_4x4;
+    } else if (xdim == 5) {
+        if (ydim == 4) {
+            return gfx::Format::ASTC_RGBA_5x4;
+        } else {
+            return gfx::Format::ASTC_RGBA_5x5;
+        }
+    } else if (xdim == 6) {
+        if (ydim == 5) {
+            return gfx::Format::ASTC_RGBA_6x5;
+        } else {
+            return gfx::Format::ASTC_RGBA_6x6;
+        }
+    } else if (xdim == 8) {
+        if (ydim == 5) {
+            return gfx::Format::ASTC_RGBA_8x5;
+        } else if (ydim == 6) {
+            return gfx::Format::ASTC_RGBA_8x6;
+        } else {
+            return gfx::Format::ASTC_RGBA_8x8;
+        }
+    } else if (xdim == 10) {
+        if (ydim == 5) {
+            return gfx::Format::ASTC_RGBA_10x5;
+        } else if (ydim == 6) {
+            return gfx::Format::ASTC_RGBA_10x6;
+        } else if (ydim == 8) {
+            return gfx::Format::ASTC_RGBA_10x8;
+        } else {
+            return gfx::Format::ASTC_RGBA_10x10;
+        }
+    } else {
+        if (ydim == 10) {
+            return gfx::Format::ASTC_RGBA_12x10;
+        } else {
+            return gfx::Format::ASTC_RGBA_12x12;
+        }
     }
 }
 
@@ -565,6 +625,7 @@ bool Image::initWithJpgData(const unsigned char * data, ssize_t dataLen)
         jpeg_start_decompress( &cinfo );
 
         /* init image info */
+        _isCompressed = false;
         _width  = cinfo.output_width;
         _height = cinfo.output_height;
         _dataLen = cinfo.output_width*cinfo.output_height*cinfo.output_components;
@@ -636,6 +697,7 @@ bool Image::initWithPngData(const unsigned char * data, ssize_t dataLen)
         // read png file info
         png_read_info(png_ptr, info_ptr);
 
+        _isCompressed = false;
         _width = png_get_image_width(png_ptr, info_ptr);
         _height = png_get_image_height(png_ptr, info_ptr);
         png_byte bit_depth = png_get_bit_depth(png_ptr, info_ptr);
@@ -773,6 +835,7 @@ bool Image::initWithPVRv2Data(const unsigned char * data, ssize_t dataLen)
     //Get size of mipmap
     _width = width = CC_SWAP_INT32_LITTLE_TO_HOST(header->width);
     _height = height = CC_SWAP_INT32_LITTLE_TO_HOST(header->height);
+    _isCompressed = true;
 
     //Move by size of header
     _dataLen = dataLen - sizeof(PVRv2TexHeader);
@@ -821,6 +884,7 @@ bool Image::initWithPVRv3Data(const unsigned char * data, ssize_t dataLen)
     // sizing
     _width = CC_SWAP_INT32_LITTLE_TO_HOST(header->width);
     _height = CC_SWAP_INT32_LITTLE_TO_HOST(header->height);
+    _isCompressed = true;
 
     _dataLen = dataLen - (sizeof(PVRv3TexHeader) + header->metadataLength);
     _data = static_cast<unsigned char*>(malloc(_dataLen * sizeof(unsigned char)));
@@ -841,6 +905,7 @@ bool Image::initWithETCData(const unsigned char * data, ssize_t dataLen)
 
     _width = etc1_pkm_get_width(header);
     _height = etc1_pkm_get_height(header);
+    _isCompressed = true;
 
     if (0 == _width || 0 == _height)
     {
@@ -866,6 +931,7 @@ bool Image::initWithETC2Data(const unsigned char * data, ssize_t dataLen)
     
     _width = etc2_pkm_get_width(header);
     _height = etc2_pkm_get_height(header);
+    _isCompressed = true;
     
     if (0 == _width || 0 == _height)
     {
@@ -881,7 +947,38 @@ bool Image::initWithETC2Data(const unsigned char * data, ssize_t dataLen)
     _dataLen = dataLen - ETC2_PKM_HEADER_SIZE;
     _data = static_cast<unsigned char*>(malloc(_dataLen * sizeof(unsigned char)));
     memcpy(_data, static_cast<const unsigned char*>(data) + ETC2_PKM_HEADER_SIZE, _dataLen);
-    
+    return true;
+}
+
+bool Image::initWithASTCData(const unsigned char * data, ssize_t dataLen)
+{
+    const astc_byte* header = static_cast<const astc_byte*>(data);
+
+    //check the data
+    if (!astcIsValid(header))
+    {
+        return false;
+    }
+
+    _width = astcGetWidth(header);
+    _height = astcGetHeight(header);
+    _isCompressed = true;
+
+    if (0 == _width || 0 == _height)
+    {
+        return false;
+    }
+
+    _renderFormat = getASTCFormat(header);
+
+    _dataLen = dataLen - ASTC_HEADER_SIZE;
+    _data = static_cast<unsigned char*>(malloc(_dataLen * sizeof(unsigned char)));
+    memcpy(_data, static_cast<const unsigned char*>(data) + ASTC_HEADER_SIZE, _dataLen);
+    // if (_data == nullptr) {
+    //     CCLOG("initWithASTCData: ERROR: Image _data is null!");
+    //     return false;
+    // }
+
     return true;
 }
 
@@ -906,7 +1003,7 @@ bool Image::initWithWebpData(const unsigned char * data, ssize_t dataLen)
         _renderFormat = config.input.has_alpha ? gfx::Format::RGBA8 : gfx::Format::RGB8;
         _width    = config.input.width;
         _height   = config.input.height;
-        
+        _isCompressed = false;
         
         _dataLen = _width * _height * (config.input.has_alpha?4:3);
         _data = static_cast<unsigned char*>(malloc(_dataLen * sizeof(unsigned char)));
@@ -939,6 +1036,7 @@ bool Image::initWithRawData(const unsigned char * data, ssize_t dataLen, int wid
         _height   = height;
         _width    = width;
         _renderFormat = gfx::Format::RGBA8;
+        _isCompressed = false;
 
         // only RGBA8888 supported
         int bytesPerComponent = 4;

@@ -723,10 +723,7 @@ namespace
         uint32_t height = 0;
         uint8_t* data = nullptr;
         cc::gfx::Format format = cc::gfx::Format::UNKNOWN;
-        uint8_t bpp = 0;
-        uint8_t numberOfMipmaps = 0;
         bool hasAlpha = false;
-        bool hasPremultipliedAlpha = false;
         bool compressed = false;
 
         bool freeData = false;
@@ -773,6 +770,7 @@ namespace
         imgInfo->height = img->getHeight();
         imgInfo->data = img->getData();
         imgInfo->format = img->getRenderFormat();
+        imgInfo->compressed = img->isCompressed();
 
         // Convert to RGBA888 because standard web api will return only RGBA888.
         // If not, then it may have issue in glTexSubImage. For example, engine
