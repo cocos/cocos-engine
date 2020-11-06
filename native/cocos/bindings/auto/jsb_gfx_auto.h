@@ -39,18 +39,6 @@ extern se::Class* __jsb_cc_gfx_ContextInfo_class;
 bool js_register_cc_gfx_ContextInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_BufferInfo_proto;
-extern se::Class* __jsb_cc_gfx_BufferInfo_class;
-
-bool js_register_cc_gfx_BufferInfo(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_BufferViewInfo_proto;
-extern se::Class* __jsb_cc_gfx_BufferViewInfo_class;
-
-bool js_register_cc_gfx_BufferViewInfo(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
 extern se::Object* __jsb_cc_gfx_DrawInfo_proto;
 extern se::Class* __jsb_cc_gfx_DrawInfo_class;
 
@@ -61,12 +49,6 @@ extern se::Object* __jsb_cc_gfx_IndirectBuffer_proto;
 extern se::Class* __jsb_cc_gfx_IndirectBuffer_class;
 
 bool js_register_cc_gfx_IndirectBuffer(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_TextureInfo_proto;
-extern se::Class* __jsb_cc_gfx_TextureInfo_class;
-
-bool js_register_cc_gfx_TextureInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 extern se::Object* __jsb_cc_gfx_TextureViewInfo_proto;
@@ -163,12 +145,6 @@ extern se::Object* __jsb_cc_gfx_DescriptorSetLayoutInfo_proto;
 extern se::Class* __jsb_cc_gfx_DescriptorSetLayoutInfo_class;
 
 bool js_register_cc_gfx_DescriptorSetLayoutInfo(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_DescriptorSetInfo_proto;
-extern se::Class* __jsb_cc_gfx_DescriptorSetInfo_class;
-
-bool js_register_cc_gfx_DescriptorSetInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 extern se::Object* __jsb_cc_gfx_PipelineLayoutInfo_proto;
