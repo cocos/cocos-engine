@@ -98,7 +98,6 @@ export class SubModel {
     public destroy () {
         DSPool.free(SubModelPool.get(this._handle, SubModelView.DESCRIPTOR_SET));
         IAPool.free(SubModelPool.get(this._handle, SubModelView.INPUT_ASSEMBLER));
-        SubMeshPool.free(SubModelPool.get(this._handle, SubModelView.SUB_MESH));
         SubModelPool.free(this._handle);
 
         this._descriptorSet = null;
