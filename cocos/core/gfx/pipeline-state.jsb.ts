@@ -1,5 +1,11 @@
 declare const gfx: any;
 
+declare type RecursivePartial<T> = {
+    [P in keyof T]?:
+        T[P] extends Array<infer U> ? Array<RecursivePartial<U>> :
+        T[P] extends ReadonlyArray<infer V> ? ReadonlyArray<RecursivePartial<V>> : RecursivePartial<T[P]>;
+};
+
 import {
     BlendFactor,
     BlendOp,
@@ -11,12 +17,11 @@ import {
     StencilOp,
 } from './define';
 import { Color } from './define-class';
-import { RawBufferHandle, RawBufferPool, BlendTargetArrayPool, NULL_HANDLE, BlendTargetArrayHandle } from '../renderer/core/memory-pools';
+import { BlendTargetArrayPool, NULL_HANDLE, BlendTargetArrayHandle, RasterizerStateHandle, RasterizerStatePool, RasterizerStateView, 
+    DepthStencilStateHandle, DepthStencilStatePool, DepthStencilStateView, BlendTargetHandle, BlendTargetPool, BlendTargetView, BlendStateHandle, BlendStatePool, BlendStateView } from '../renderer/core/memory-pools';
 
 export class RasterizerState {
-    private h: RawBufferHandle;
-    private v: Uint32Array;
-    private fv: Float32Array;
+    private h: RasterizerStateHandle;
 
     constructor (
         isDiscard: boolean = false,
@@ -31,94 +36,89 @@ export class RasterizerState {
         isMultisample: boolean = false,
         lineWidth: number = 1.0,
     ) {
-        this.h = RawBufferPool.alloc(11 * 4);
-        const buffer = RawBufferPool.getBuffer(this.h);
-        this.v = new Uint32Array(buffer);
-        this.fv = new Float32Array(buffer);
+        this.h = RasterizerStatePool.alloc();
         this.assignProperties(isDiscard, polygonMode, shadeModel, cullMode, isFrontFaceCCW,
             depthBias, depthBiasClamp, depthBiasSlop, isDepthClip, isMultisample, lineWidth);
     }
 
     get isDiscard (): boolean {
-        if (this.v[0]) return true; 
+        if (RasterizerStatePool.get(this.h, RasterizerStateView.IS_DISCARD)) return true;
         else return false;
     }
-    set isDiscard (val: boolean) { this.v[0] = val ? 1 : 0 }
-    get polygonMode (): PolygonMode { return this.v[1]; }
-    set polygonMode (val: PolygonMode) { this.v[1] = val; }
-    get shadeModel (): ShadeModel { return this.v[2]; }
-    set shadeModel (val: ShadeModel) { this.v[2] = val; }
-    get cullMode (): CullMode { return this.v[3]; }
-    set cullMode (val: CullMode) { this.v[3] = val; }
+    set isDiscard (val: boolean) { RasterizerStatePool.set(this.h, RasterizerStateView.IS_DISCARD, val ? 1 : 0) }
+    get polygonMode (): PolygonMode { return RasterizerStatePool.get(this.h, RasterizerStateView.POLYGO_MODEL); }
+    set polygonMode (val: PolygonMode) { RasterizerStatePool.set(this.h, RasterizerStateView.POLYGO_MODEL, val); }
+    get shadeModel (): ShadeModel { return RasterizerStatePool.get(this.h, RasterizerStateView.SHADE_MODEL); }
+    set shadeModel (val: ShadeModel) { RasterizerStatePool.set(this.h, RasterizerStateView.SHADE_MODEL, val); }
+    get cullMode (): CullMode { return RasterizerStatePool.get(this.h, RasterizerStateView.CULL_MODE); }
+    set cullMode (val: CullMode) { RasterizerStatePool.set(this.h, RasterizerStateView.CULL_MODE, val); }
     get isFrontFaceCCW (): boolean {
-        if (this.v[4]) return true;
+        if (RasterizerStatePool.get(this.h, RasterizerStateView.IS_FRONT_FACE_CCW)) return true;
         else return false;
     }
-    set isFrontFaceCCW (val: boolean) { this.v[4] = val ? 1 : 0; }
-    get depthBias (): number { return this.fv[5]; }
-    set depthBias (val: number) { this.fv[5] = val; }
-    get depthBiasClamp (): number { return this.fv[6]; }
-    set depthBiasClamp (val: number) { this.fv[6] = val; }
-    get depthBiasSlop (): number { return this.fv[7]; }
-    set depthBiasSlop (val: number) { this.fv[7] = val; }
+    set isFrontFaceCCW (val: boolean) { RasterizerStatePool.set(this.h, RasterizerStateView.IS_FRONT_FACE_CCW, val ? 1 : 0); }
+    get depthBias (): number { return RasterizerStatePool.get(this.h, RasterizerStateView.DEPTH_BIAS); }
+    set depthBias (val: number) { RasterizerStatePool.set(this.h, RasterizerStateView.DEPTH_BIAS, val); }
+    get depthBiasClamp (): number { return RasterizerStatePool.get(this.h, RasterizerStateView.DEPTH_BIAS_CLAMP); }
+    set depthBiasClamp (val: number) { RasterizerStatePool.set(this.h, RasterizerStateView.DEPTH_BIAS_CLAMP, val); }
+    get depthBiasSlop (): number { return RasterizerStatePool.get(this.h, RasterizerStateView.DEPTH_BIAS_SLOP); }
+    set depthBiasSlop (val: number) { RasterizerStatePool.set(this.h, RasterizerStateView.DEPTH_BIAS_SLOP, val); }
     get isDepthClip (): boolean {
-        if (this.v[8]) return true;
+        if (RasterizerStatePool.get(this.h, RasterizerStateView.IS_DEPTH_CLIP)) return true;
         else return false;
     }
-    set isDepthClip (val: boolean) { this.v[8] = val ? 1 : 0 }
+    set isDepthClip (val: boolean) { RasterizerStatePool.set(this.h, RasterizerStateView.IS_DEPTH_CLIP, val ? 1 : 0); }
     get isMultisample (): boolean {
-        if (this.v[9]) return true;
+        if (RasterizerStatePool.get(this.h, RasterizerStateView.IS_MULTI_SAMPLE)) return true;
         else return false;
     }
-    set isMultisample (val: boolean) { this.v[9] = val ? 1 : 0 }
-    get lineWidth (): number { return this.fv[10]; }
-    set lineWidth (val: number) { this.fv[10] = val; }
-    get handle (): RawBufferHandle { return this.h; }
+    set isMultisample (val: boolean) { RasterizerStatePool.set(this.h, RasterizerStateView.IS_MULTI_SAMPLE, val ? 1 : 0); }
+    get lineWidth (): number { return RasterizerStatePool.get(this.h, RasterizerStateView.LINE_WIDTH); }
+    set lineWidth (val: number) { RasterizerStatePool.set(this.h, RasterizerStateView.LINE_WIDTH, val); }
+    get handle (): RasterizerStateHandle { return this.h; }
 
     public reset () {
         this.assignProperties(false, PolygonMode.FILL, ShadeModel.GOURAND, CullMode.BACK, true, 0,
             0.0, 0.0, true, false, 1.0);
     }
 
-    public assign (rs: RasterizerState) {
+    public assign (rs: RecursivePartial<RasterizerState>) {
         if (!rs) return;
         this.assignProperties(rs.isDiscard, rs.polygonMode, rs.shadeModel, rs.cullMode, rs.isFrontFaceCCW,
             rs.depthBias, rs.depthBiasClamp, rs.depthBiasSlop, rs.isDepthClip, rs.isMultisample, rs.lineWidth);
     }
 
     public destroy () {
-        this.v = null;
-        this.fv = null;
         if (this.h) {
-            RawBufferPool.free(this.h);
+            RasterizerStatePool.free(this.h);
             this.h = NULL_HANDLE;
         }
     }
 
     private assignProperties (
-        isDiscard: boolean,
-        polygonMode: PolygonMode,
-        shadeModel: ShadeModel,
-        cullMode: CullMode,
-        isFrontFaceCCW: boolean,
-        depthBias: number,
-        depthBiasClamp: number,
-        depthBiasSlop: number,
-        isDepthClip: boolean,
-        isMultisample: boolean,
-        lineWidth: number,
+        isDiscard?: boolean,
+        polygonMode?: PolygonMode,
+        shadeModel?: ShadeModel,
+        cullMode?: CullMode,
+        isFrontFaceCCW?: boolean,
+        depthBias?: number,
+        depthBiasClamp?: number,
+        depthBiasSlop?: number,
+        isDepthClip?: boolean,
+        isMultisample?: boolean,
+        lineWidth?: number,
     ) {
-        if (isDiscard !== undefined) this.v[0] = isDiscard ? 1 : 0;
-        if (polygonMode !== undefined) this.v[1] = polygonMode;
-        if (shadeModel !== undefined) this.v[2] = shadeModel;
-        if (cullMode !== undefined) this.v[3] = cullMode;
-        if (isFrontFaceCCW !== undefined) this.v[4] = isFrontFaceCCW ? 1 : 0;
-        if (depthBias !== undefined) this.fv[5] = depthBias;
-        if (depthBiasClamp !== undefined) this.fv[6] = depthBiasClamp;
-        if (depthBiasSlop !== undefined) this.fv[7] = depthBiasSlop;
-        if (isDepthClip !== undefined) this.v[8] = isDepthClip ? 1 : 0;
-        if (isMultisample !== undefined) this.v[9] = isMultisample ? 1 : 0;
-        if (lineWidth !== undefined) this.fv[10] = lineWidth;
+        if (isDiscard !== undefined) this.isDiscard = isDiscard;
+        if (polygonMode !== undefined) this.polygonMode = polygonMode;
+        if (shadeModel !== undefined) this.shadeModel = shadeModel;
+        if (cullMode !== undefined) this.cullMode = cullMode;
+        if (isFrontFaceCCW !== undefined) this.isFrontFaceCCW = isFrontFaceCCW;
+        if (depthBias !== undefined) this.depthBias = depthBias;
+        if (depthBiasClamp !== undefined) this.depthBiasClamp = depthBiasClamp;
+        if (depthBiasSlop !== undefined) this.depthBiasSlop = depthBiasSlop;
+        if (isDepthClip !== undefined) this.isDepthClip = isDepthClip;
+        if (isMultisample !== undefined) this.isMultisample = isMultisample;
+        if (lineWidth !== undefined) this.lineWidth = lineWidth;
     }
 }
 
@@ -127,8 +127,7 @@ export class RasterizerState {
  * @zh GFX 深度模板状态。
  */
 export class DepthStencilState {
-    private h: RawBufferHandle;
-    private v: Uint32Array;
+    private h: DepthStencilStateHandle;
 
     constructor (
         depthTest: boolean = true,
@@ -151,8 +150,7 @@ export class DepthStencilState {
         stencilPassOpBack: StencilOp = StencilOp.KEEP,
         stencilRefBack: number = 1,
     ) {
-        this.h = RawBufferPool.alloc(19 * 4);
-        this.v = new Uint32Array(RawBufferPool.getBuffer(this.h));
+        this.h = DepthStencilStatePool.alloc();
         this.assignProperties(depthTest, depthWrite, depthFunc, stencilTestFront, stencilFuncFront, stencilReadMaskFront,
             stencilWriteMaskFront, stencilFailOpFront, stencilZFailOpFront, stencilPassOpFront, stencilRefFront,
             stencilTestBack, stencilFuncBack, stencilReadMaskBack, stencilWriteMaskBack, stencilFailOpBack,
@@ -160,63 +158,63 @@ export class DepthStencilState {
     }
 
     get depthTest (): boolean {
-        if (this.v[0]) return true;
+        if (DepthStencilStatePool.get(this.h, DepthStencilStateView.DEPTH_TEST)) return true;
         else return false;
     }
-    set depthTest(val: boolean) { this.v[0] = val ? 1 : 0 }
+    set depthTest(val: boolean) { DepthStencilStatePool.set(this.h, DepthStencilStateView.DEPTH_TEST, val ? 1 : 0); }
     get depthWrite (): boolean {
-        if (this.v[1]) return true;
+        if (DepthStencilStatePool.get(this.h, DepthStencilStateView.DEPTH_WRITE)) return true;
         else return false;
     }
-    set depthWrite (val: boolean) { this.v[1] = val ? 1 : 0; }
-    get depthFunc (): ComparisonFunc { return this.v[2]; }
-    set depthFunc (val: ComparisonFunc) { this.v[2] = val; }
+    set depthWrite (val: boolean) { DepthStencilStatePool.set(this.h, DepthStencilStateView.DEPTH_WRITE, val ? 1 : 0); }
+    get depthFunc (): ComparisonFunc { return DepthStencilStatePool.get(this.h, DepthStencilStateView.DEPTH_FUNC); }
+    set depthFunc (val: ComparisonFunc) { DepthStencilStatePool.set(this.h, DepthStencilStateView.DEPTH_FUNC, val); }
     get stencilTestFront (): boolean {
-        if (this.v[3]) return true;
+        if (DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_TEST_FRONT)) return true;
         else return false;
     }
-    set stencilTestFront (val: boolean) { this.v[3] = val ? 1 : 0 }
-    get stencilFuncFront (): ComparisonFunc { return this.v[4]; }
-    set stencilFuncFront (val: ComparisonFunc) { this.v[4] = val; }
-    get stencilReadMaskFront (): number { return this.v[5]; }
-    set stencilReadMaskFront (val: number) { this.v[5] = val;}
-    get stencilWriteMaskFront (): number { return this.v[6]; }
-    set stencilWriteMaskFront (val: number) { this.v[6] = val; }
-    get stencilFailOpFront (): StencilOp { return this.v[7]; }
-    set stencilFailOpFront (val: StencilOp) { this.v[7] = val; } 
-    get stencilZFailOpFront (): StencilOp { return this.v[8]; }
-    set stencilZFailOpFront (val: StencilOp) { this.v[8] = val; }
-    get stencilPassOpFront (): StencilOp { return this.v[9]; }
-    set stencilPassOpFront (val: StencilOp) { this.v[9] = val; }
-    get stencilRefFront (): number { return this.v[10]; }
-    set stencilRefFront (val: number) { this.v[10] = val; }
+    set stencilTestFront (val: boolean) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_TEST_FRONT, val ? 1 : 0); }
+    get stencilFuncFront (): ComparisonFunc { return DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_FUNC_FRONT); }
+    set stencilFuncFront (val: ComparisonFunc) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_FUNC_FRONT, val); }
+    get stencilReadMaskFront (): number { return DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_READ_MASK_FRONT); }
+    set stencilReadMaskFront (val: number) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_READ_MASK_FRONT, val);}
+    get stencilWriteMaskFront (): number { return DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_WRITE_MASK_FRONT); }
+    set stencilWriteMaskFront (val: number) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_WRITE_MASK_FRONT, val); }
+    get stencilFailOpFront (): StencilOp { return DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_FAIL_OP_FRONT); }
+    set stencilFailOpFront (val: StencilOp) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_FAIL_OP_FRONT, val); } 
+    get stencilZFailOpFront (): StencilOp { return DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_Z_FAIL_OP_FRONT); }
+    set stencilZFailOpFront (val: StencilOp) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_Z_FAIL_OP_FRONT, val); }
+    get stencilPassOpFront (): StencilOp { return DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_PASS_OP_FRONT); }
+    set stencilPassOpFront (val: StencilOp) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_PASS_OP_FRONT, val); }
+    get stencilRefFront (): number { return DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_REF_FRONT); }
+    set stencilRefFront (val: number) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_REF_FRONT, val); }
     get stencilTestBack (): boolean {
-        if (this.v[11]) return true;
+        if (DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_TEST_BACK)) return true;
         else return false;
     }
-    set stencilTestBack (val: boolean) { this.v[11] = val ? 1 : 0; }
-    get stencilFuncBack (): ComparisonFunc { return this.v[12]; }
-    set stencilFuncBack (val: ComparisonFunc) { this.v[12] = val; }
-    get stencilReadMaskBack (): number { return this.v[13]; }
-    set stencilReadMaskBack (val: number) { this.v[13] = val; }
-    get stencilWriteMaskBack (): number { return this.v[14]; }
-    set stencilWriteMaskBack (val: number) { this.v[14] = val; }
-    get stencilFailOpBack (): StencilOp { return this.v[15]; }
-    set stencilFailOpBack (val: StencilOp) { this.v[15] = val; }
-    get stencilZFailOpBack (): StencilOp { return this.v[16]; }
-    set stencilZFailOpBack (val: StencilOp) { this.v[16] = val; }
-    get stencilPassOpBack (): StencilOp { return this.v[17]; }
-    set stencilPassOpBack (val: StencilOp) { this.v[17] = val; }
-    get stencilRefBack (): number { return this.v[18]; }
-    set stencilRefBack (val: number) { this.v[18] = val; }
-    get handle (): RawBufferHandle { return this.h; }
+    set stencilTestBack (val: boolean) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_TEST_BACK, val ? 1 : 0); }
+    get stencilFuncBack (): ComparisonFunc { return DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_FUNC_BACK); }
+    set stencilFuncBack (val: ComparisonFunc) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_FUNC_BACK, val); }
+    get stencilReadMaskBack (): number { return DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_READ_MADK_BACK); }
+    set stencilReadMaskBack (val: number) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_READ_MADK_BACK, val); }
+    get stencilWriteMaskBack (): number { return DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_WRITE_MASK_BACK); }
+    set stencilWriteMaskBack (val: number) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_WRITE_MASK_BACK, val); }
+    get stencilFailOpBack (): StencilOp { return DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_FAIL_OP_BACK); }
+    set stencilFailOpBack (val: StencilOp) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_FAIL_OP_BACK, val); }
+    get stencilZFailOpBack (): StencilOp { return DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_Z_FAIL_OP_BACK); }
+    set stencilZFailOpBack (val: StencilOp) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_Z_FAIL_OP_BACK, val); }
+    get stencilPassOpBack (): StencilOp { return DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_PASS_OP_BACK); }
+    set stencilPassOpBack (val: StencilOp) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_PASS_OP_BACK, val); }
+    get stencilRefBack (): number { return DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_REF_BACK); }
+    set stencilRefBack (val: number) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_REF_BACK, val); }
+    get handle (): DepthStencilStateHandle { return this.h; }
 
     public reset () {
         this.assignProperties(true, true, ComparisonFunc.LESS, false, ComparisonFunc.ALWAYS, 0xffff, 0xffff,StencilOp.KEEP,
             StencilOp.KEEP, StencilOp.KEEP, 1, false, ComparisonFunc.ALWAYS, 0xffff, 0xffff, StencilOp.KEEP, StencilOp.KEEP, StencilOp.KEEP, 1);
     }
 
-    public assign (dss: DepthStencilState) {
+    public assign (dss: RecursivePartial<DepthStencilState>) {
         if (!dss) return;
         this.assignProperties(dss.depthTest, dss.depthWrite, dss.depthFunc, dss.stencilTestFront, dss.stencilFuncFront, dss.stencilReadMaskFront,
             dss.stencilWriteMaskFront, dss.stencilFailOpFront, dss.stencilZFailOpFront, dss.stencilPassOpFront, dss.stencilRefFront,
@@ -225,52 +223,50 @@ export class DepthStencilState {
     }
 
     public destroy () {
-        this.v = null;
-
-        RawBufferPool.free(this.h);
+        DepthStencilStatePool.free(this.h);
         this.h = NULL_HANDLE;
     }
 
     private assignProperties (
-        depthTest: boolean,
-        depthWrite: boolean,
-        depthFunc: ComparisonFunc,
-        stencilTestFront: boolean,
-        stencilFuncFront: ComparisonFunc,
-        stencilReadMaskFront: number,
-        stencilWriteMaskFront: number,
-        stencilFailOpFront: StencilOp,
-        stencilZFailOpFront: StencilOp,
-        stencilPassOpFront: StencilOp,
-        stencilRefFront: number,
-        stencilTestBack: boolean,
-        stencilFuncBack: ComparisonFunc,
-        stencilReadMaskBack: number,
-        stencilWriteMaskBack: number,
-        stencilFailOpBack: StencilOp,
-        stencilZFailOpBack: StencilOp,
-        stencilPassOpBack: StencilOp,
-        stencilRefBack: number = 1
+        depthTest?: boolean,
+        depthWrite?: boolean,
+        depthFunc?: ComparisonFunc,
+        stencilTestFront?: boolean,
+        stencilFuncFront?: ComparisonFunc,
+        stencilReadMaskFront?: number,
+        stencilWriteMaskFront?: number,
+        stencilFailOpFront?: StencilOp,
+        stencilZFailOpFront?: StencilOp,
+        stencilPassOpFront?: StencilOp,
+        stencilRefFront?: number,
+        stencilTestBack?: boolean,
+        stencilFuncBack?: ComparisonFunc,
+        stencilReadMaskBack?: number,
+        stencilWriteMaskBack?: number,
+        stencilFailOpBack?: StencilOp,
+        stencilZFailOpBack?: StencilOp,
+        stencilPassOpBack?: StencilOp,
+        stencilRefBack?: number
     ) {
-        if (depthTest !== undefined) this.v[0] = depthTest ? 1 : 0;
-        if (depthWrite !== undefined) this.v[1] = depthWrite ? 1 : 0;
-        if (depthFunc !== undefined) this.v[2] = depthFunc;
-        if (stencilTestFront !== undefined) this.v[3] = stencilTestFront ? 1 : 0;
-        if (stencilFuncFront !== undefined) this.v[4] = stencilFuncFront;
-        if (stencilReadMaskFront !== undefined) this.v[5] = stencilReadMaskFront;
-        if (stencilWriteMaskFront !== undefined) this.v[6] = stencilWriteMaskFront;
-        if (stencilFailOpFront !== undefined) this.v[7] = stencilFailOpFront;
-        if (stencilZFailOpFront !== undefined) this.v[8] = stencilZFailOpFront;
-        if (stencilPassOpFront !== undefined) this.v[9] = stencilPassOpFront;
-        if (stencilRefFront !== undefined) this.v[10] = stencilRefFront;
-        if (stencilTestBack !== undefined) this.v[11] = stencilTestBack ? 1 : 0;
-        if (stencilFuncBack !== undefined) this.v[12] = stencilFuncBack;
-        if (stencilReadMaskBack !== undefined) this.v[13] = stencilReadMaskBack;
-        if (stencilWriteMaskBack !== undefined) this.v[14] = stencilWriteMaskBack;
-        if (stencilFailOpBack !== undefined) this.v[15] = stencilFailOpBack;
-        if (stencilZFailOpBack !== undefined) this.v[16] = stencilZFailOpBack;
-        if (stencilPassOpBack !== undefined) this.v[17] = stencilPassOpBack;
-        if (stencilRefBack !== undefined) this.v[18] = stencilRefBack;
+        if (depthTest !== undefined) this.depthTest = depthTest;
+        if (depthWrite !== undefined) this.depthWrite = depthWrite;
+        if (depthFunc !== undefined) this.depthFunc = depthFunc;
+        if (stencilTestFront !== undefined) this.stencilTestFront = stencilTestFront;
+        if (stencilFuncFront !== undefined) this.stencilFuncFront = stencilFuncFront;
+        if (stencilReadMaskFront !== undefined) this.stencilReadMaskFront = stencilReadMaskFront;
+        if (stencilWriteMaskFront !== undefined) this.stencilWriteMaskFront = stencilWriteMaskFront;
+        if (stencilFailOpFront !== undefined) this.stencilFailOpFront = stencilFailOpFront;
+        if (stencilZFailOpFront !== undefined) this.stencilZFailOpFront = stencilZFailOpFront;
+        if (stencilPassOpFront !== undefined) this.stencilPassOpFront = stencilPassOpFront;
+        if (stencilRefFront !== undefined) this.stencilRefFront = stencilRefFront;
+        if (stencilTestBack !== undefined) this.stencilTestBack = stencilTestBack;
+        if (stencilFuncBack !== undefined) this.stencilFuncBack = stencilFuncBack;
+        if (stencilReadMaskBack !== undefined) this.stencilReadMaskBack = stencilReadMaskBack;
+        if (stencilWriteMaskBack !== undefined) this.stencilWriteMaskBack = stencilWriteMaskBack;
+        if (stencilFailOpBack !== undefined) this.stencilFailOpFront = stencilFailOpBack;
+        if (stencilZFailOpBack !== undefined) this.stencilZFailOpBack = stencilZFailOpBack;
+        if (stencilPassOpBack !== undefined) this.stencilPassOpBack = stencilPassOpBack;
+        if (stencilRefBack !== undefined) this.stencilRefBack = stencilRefBack;
     }
 }
 
@@ -279,8 +275,7 @@ export class DepthStencilState {
  * @zh GFX 混合目标。
  */
 export class BlendTarget {
-    private h: RawBufferHandle;
-    private v: Uint32Array;
+    private h: BlendTargetHandle;
 
     constructor (
         blend: boolean = false,
@@ -292,32 +287,31 @@ export class BlendTarget {
         blendAlphaEq: BlendOp = BlendOp.ADD,
         blendColorMask: ColorMask = ColorMask.ALL,
     ) {
-        this.h = RawBufferPool.alloc(8 * 4);
-        this.v = new Uint32Array(RawBufferPool.getBuffer(this.h));
+        this.h = BlendTargetPool.alloc();
         this.assignProperties(blend, blendSrc, blendDst, blendEq,
             blendSrcAlpha, blendDstAlpha, blendAlphaEq, blendColorMask);
     }
 
     get blend (): boolean {
-        if (this.v[0]) return true;
+        if (BlendTargetPool.get(this.h, BlendTargetView.BLEND)) return true;
         else return false;
     }
-    set blend (val: boolean) { this.v[0] = val ? 1 : 0; }
-    get blendSrc (): BlendFactor { return this.v[1]; }
-    set blendSrc (val: BlendFactor) { this.v[1] = val; }
-    get blendDst () { return this.v[2]; }
-    set blendDst (val: BlendFactor) { this.v[2] = val; }
-    get blendEq (): BlendOp { return this.v[3]; }
-    set blendEq (val: BlendOp) { this.v[3] = val; }
-    get blendSrcAlpha (): BlendFactor { return this.v[4]; }
-    set blendSrcAlpha (val: BlendFactor) { this.v[4] = val; }
-    get blendDstAlpha (): BlendFactor { return this.v[5]; }
-    set blendDstAlpha (val: BlendFactor) { this.v[5] = val; }
-    get blendAlphaEq (): BlendOp { return this.v[6]; }
-    set blendAlphaEq (val: BlendOp) { this.v[6] = val; }
-    get blendColorMask (): ColorMask { return this.v[7]; }
-    set blendColorMask (val: ColorMask) { this.v[7] = val; }
-    get handle (): RawBufferHandle { return this.h; }
+    set blend (val: boolean) { BlendTargetPool.set(this.h, BlendTargetView.BLEND, val ? 1 : 0); }
+    get blendSrc (): BlendFactor { return BlendTargetPool.get(this.h, BlendTargetView.BLEND_SRC); }
+    set blendSrc (val: BlendFactor) { BlendTargetPool.set(this.h, BlendTargetView.BLEND_SRC, val); }
+    get blendDst () { return BlendTargetPool.get(this.h, BlendTargetView.BLEND_DST); }
+    set blendDst (val: BlendFactor) { BlendTargetPool.set(this.h, BlendTargetView.BLEND_DST, val); }
+    get blendEq (): BlendOp { return BlendTargetPool.get(this.h, BlendTargetView.BLEND_EQ); }
+    set blendEq (val: BlendOp) { BlendTargetPool.set(this.h, BlendTargetView.BLEND_EQ, val); }
+    get blendSrcAlpha (): BlendFactor { return BlendTargetPool.get(this.h, BlendTargetView.BLEND_SRC_ALPHA); }
+    set blendSrcAlpha (val: BlendFactor) { BlendTargetPool.set(this.h, BlendTargetView.BLEND_SRC_ALPHA, val); }
+    get blendDstAlpha (): BlendFactor { return BlendTargetPool.get(this.h, BlendTargetView.BLEND_DST_ALPHA); }
+    set blendDstAlpha (val: BlendFactor) { BlendTargetPool.set(this.h, BlendTargetView.BLEND_DST_ALPHA, val); }
+    get blendAlphaEq (): BlendOp { return BlendTargetPool.get(this.h, BlendTargetView.BLEND_ALPHA_EQ); }
+    set blendAlphaEq (val: BlendOp) { BlendTargetPool.set(this.h, BlendTargetView.BLEND_ALPHA_EQ, val); }
+    get blendColorMask (): ColorMask { return BlendTargetPool.get(this.h, BlendTargetView.BLEND_COLOR_MASK); }
+    set blendColorMask (val: ColorMask) { BlendTargetPool.set(this.h, BlendTargetView.BLEND_COLOR_MASK, val); }
+    get handle (): BlendTargetHandle { return this.h; }
 
     public reset () {
         this.assignProperties(false, BlendFactor.ONE, BlendFactor.ZERO, BlendOp.ADD,
@@ -325,46 +319,42 @@ export class BlendTarget {
     }
 
     public destroy () {
-        this.v = null;
-
-        RawBufferPool.free(this.h);
+        BlendTargetPool.free(this.h);
         this.h = NULL_HANDLE;
     }
 
-    public assign (target: BlendTarget) {
+    public assign (target: RecursivePartial<BlendTarget>) {
         if (!target) return;
         this.assignProperties(target.blend, target.blendSrc, target.blendDst, target.blendEq,
             target.blendSrcAlpha, target.blendDstAlpha, target.blendAlphaEq, target.blendColorMask);
     }
 
     private assignProperties (
-        blend: boolean,
-        blendSrc: BlendFactor,
-        blendDst: BlendFactor,
-        blendEq: BlendOp,
-        blendSrcAlpha: BlendFactor,
-        blendDstAlpha: BlendFactor,
-        blendAlphaEq: BlendOp,
-        blendColorMask: ColorMask
+        blend?: boolean,
+        blendSrc?: BlendFactor,
+        blendDst?: BlendFactor,
+        blendEq?: BlendOp,
+        blendSrcAlpha?: BlendFactor,
+        blendDstAlpha?: BlendFactor,
+        blendAlphaEq?: BlendOp,
+        blendColorMask?: ColorMask
     ) {
-        if (blend !== undefined) this.v[0] = blend ? 1 : 0;
-        if (blendSrc !== undefined) this.v[1] = blendSrc;
-        if (blendDst !== undefined) this.v[2] = blendDst;
-        if (blendEq !== undefined) this.v[3] = blendEq;
-        if (blendSrcAlpha !== undefined) this.v[4] = blendSrcAlpha;
-        if (blendDstAlpha !== undefined) this.v[5] = blendDstAlpha;
-        if (blendAlphaEq !== undefined) this.v[6] = blendAlphaEq;
-        if (blendColorMask !== undefined) this.v[7] = blendColorMask;
+        if (blend !== undefined) this.blend = blend;
+        if (blendSrc !== undefined) this.blendSrc = blendSrc;
+        if (blendDst !== undefined) this.blendDst = blendDst;
+        if (blendEq !== undefined) this.blendEq = blendEq;
+        if (blendSrcAlpha !== undefined) this.blendSrcAlpha = blendSrcAlpha;
+        if (blendDstAlpha !== undefined) this.blendDstAlpha = blendDstAlpha;
+        if (blendAlphaEq !== undefined) this.blendAlphaEq = blendAlphaEq;
+        if (blendColorMask !== undefined) this.blendColorMask = blendColorMask;
     }
 }
 
 export class BlendState {
-    private h: RawBufferHandle;
-    private v: Uint32Array;
-    private fv: Float32Array;
+    private h: BlendStateHandle;
     private hBt: BlendTargetArrayHandle;
     private targets: BlendTarget[];
-    private color: Color;
+    private _blendColor: Color;
 
     constructor (
         isA2C: boolean = false,
@@ -372,44 +362,36 @@ export class BlendState {
         blendColor: Color = new Color(),
         targets: BlendTarget[] = [new BlendTarget()],
     ) {
+        this.h = BlendStatePool.alloc();
         this.targets = targets;
-        this.color = blendColor;
-        this.h = RawBufferPool.alloc(7 * 4);
-        const buffer = RawBufferPool.getBuffer(this.h);
-        this.v = new Uint32Array(buffer);
-        this.fv = new Float32Array(buffer);
-        this.v[0] = isA2C ? 1 : 0;
-        this.v[1] = isIndepend ? 1 : 0;
-        this.fv[2] = blendColor.x;
-        this.fv[3] = blendColor.y;
-        this.fv[4] = blendColor.z;
-        this.fv[5] = blendColor.w;
+        this.blendColor = blendColor;
+        this.isA2c = isA2C;
+        this.isIndepend = isIndepend;
+        this.blendColor = blendColor
+
         this.hBt = BlendTargetArrayPool.alloc();
-        this.v[6] = this.hBt as unknown as number;
+        BlendStatePool.set(this.h, BlendStateView.BLEND_TARGET, this.hBt);
         for (let i = 0, len = targets.length; i < len; ++i) {
             BlendTargetArrayPool.push(this.hBt, targets[i].handle);
         }
     }
 
     get isA2c (): boolean {
-        if (this.v[0]) return true;
+        if (BlendStatePool.get(this.h, BlendStateView.IS_A2C)) return true;
         else return false;
     }
-    set isA2c (val: boolean) { this.v[0] = val ? 1 : 0; }
+    set isA2c (val: boolean) { BlendStatePool.set(this.h, BlendStateView.IS_A2C, val ? 1 : 0); }
     get isIndepend (): boolean {
-        if (this.v[1]) return true;
+        if (BlendStatePool.get(this.h, BlendStateView.IS_INDEPEND)) return true;
         else return false;
     }
-    set isIndepend (val: boolean) { this.v[1] = val ? 1 : 0; }
-    get blendColor (): Color { return this.color; }
+    set isIndepend (val: boolean) { BlendStatePool.set(this.h, BlendStateView.IS_INDEPEND, val ? 1 : 0); }
+    get blendColor (): Color { return this._blendColor; }
     set blendColor (color: Color) {
-        this.color = color;
-        this.fv[2] = color.x;
-        this.fv[3] = color.y;
-        this.fv[4] = color.z;
-        this.fv[5] = color.w;
+        this._blendColor = color;
+        BlendStatePool.setVec4(this.h, BlendStateView.BLEND_COLOR, color);
     }
-    get handle (): RawBufferHandle { return this.h; }
+    get handle (): BlendStateHandle { return this.h; }
 
     /**
      * @en Should use this function to set target, or it will not work
@@ -419,7 +401,7 @@ export class BlendState {
      * @param index The index to set target.
      * @param target The target to be set.
      */
-    public setTarget (index: number, target: BlendTarget) {
+    public setTarget (index: number, target: RecursivePartial<BlendTarget>) {
         let tg = this.targets[index];
         if (!tg) {
             tg = this.targets[index] = new BlendTarget();
@@ -429,7 +411,9 @@ export class BlendState {
     }
 
     public reset () {
-        this.v.fill(0);
+        this.isA2c = false;
+        this.isIndepend = false;
+        BlendStatePool.setVec4(this.h, BlendStateView.BLEND_COLOR, new Color(0, 0, 0, 0));
 
         let targets = this.targets;
         for (let i = 1, len = targets.length; i < len; ++i) {
@@ -437,16 +421,12 @@ export class BlendState {
         }
         targets.length = 1;
         targets[0].reset();
-        this.v[6] = this.hBt as unknown as number;
         BlendTargetArrayPool.clear(this.hBt);
         BlendTargetArrayPool.push(this.hBt, targets[0].handle);
     }
 
     public destroy () {
-        this.v = null;
-        this.fv = null;
-
-        RawBufferPool.free(this.h);
+        BlendStatePool.free(this.h);
         this.h = NULL_HANDLE;
         
         BlendTargetArrayPool.free(this.hBt);
