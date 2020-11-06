@@ -328,6 +328,9 @@ export class Game extends EventTarget {
     public declare _lastTime: number;
     public declare _frameTime: number;
 
+    protected declare requestAnimationFrame: RequestAnimationFrame;
+    protected declare cancelAnimationFrame: typeof globalThis.cancelAnimationFrame;
+
     public collisionMatrix = [];
     public groupList: any[] = [];
 
@@ -382,25 +385,27 @@ export class Game extends EventTarget {
      * @zh 暂停游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。这点和只暂停游戏逻辑的 `director.pause` 不同。
      */
     public pause () {
-        if (this._paused) { return; }
-        this._paused = true;
-        // Pause main loop
-        if (this._intervalId) {
-            window.cAF(this._intervalId);
-            this._intervalId = 0;
+        if (this._paused) {
+            return;
         }
+        this._paused = true;
+
+        // Pause main loop
+        this._dropFrame();
+
         // Because runtime platforms never actually stops the swap chain,
         // we draw some more frames here to (try to) make sure swap chain consistency
         if (RUNTIME_BASED || ALIPAY) {
-            let swapbuffers = 3;
+            let swapBuffers = 3;
             const cb = () => {
-                if (--swapbuffers > 1) {
-                    window.rAF(cb);
+                if (--swapBuffers > 1) {
+                    this.requestAnimationFrame(cb);
                 }
                 const root = legacyCC.director.root;
-                root.frameMove(0); root.device.present();
+                root.frameMove(0);
+                root.device.present();
             };
-            window.rAF(cb);
+            this.requestAnimationFrame(cb);
         }
     }
 
@@ -649,28 +654,23 @@ export class Game extends EventTarget {
         if (JSB || RUNTIME_BASED) {
             // @ts-ignore
             jsb.setPreferredFramesPerSecond(frameRate);
-            window.rAF = window.requestAnimationFrame;
-            window.cAF = window.cancelAnimationFrame;
-        }
-        else {
-            if (this._intervalId) {
-                window.cAF(this._intervalId);
-                this._intervalId = 0;
-            }
+            this.requestAnimationFrame = window.requestAnimationFrame;
+            this.cancelAnimationFrame = window.cancelAnimationFrame;
+        } else {
+            this._dropFrame();
 
-            const rAF = window.requestAnimationFrame = window.requestAnimationFrame ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame ||
-            window.oRequestAnimationFrame ||
-            window.msRequestAnimationFrame;
+            const rAF =
+                (window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.oRequestAnimationFrame ||
+                window.msRequestAnimationFrame) as (undefined | typeof requestAnimationFrame);
             if (frameRate !== 60 && frameRate !== 30) {
-                // @ts-ignore
-                window.rAF = rAF ? this._stTimeWithRAF : this._stTime;
-                window.cAF = this._ctTime;
-            }
-            else {
-                window.rAF = rAF || this._stTime;
-                window.cAF = window.cancelAnimationFrame ||
+                this.requestAnimationFrame = rAF ? (callback) => this._stTime(callback, rAF) : this._stTime;
+                this.cancelAnimationFrame = this._ctTime;
+            } else {
+                this.requestAnimationFrame = rAF || this._stTime;
+                this.cancelAnimationFrame = window.cancelAnimationFrame ||
                     window.cancelRequestAnimationFrame ||
                     window.msCancelRequestAnimationFrame ||
                     window.mozCancelRequestAnimationFrame ||
@@ -685,28 +685,20 @@ export class Game extends EventTarget {
         }
     }
 
-    private _stTimeWithRAF (callback) {
+    private _stTime (callback: FrameRequestCallback, through?: RequestAnimationFrame) {
+        const timeOutCallback = through ? () => through(callback) : callback;
         const currTime = performance.now();
         const elapseTime = Math.max(0, (currTime - game._lastTime));
         const timeToCall = Math.max(0, game._frameTime - elapseTime);
-        const id = window.setTimeout(() => {
-            window.requestAnimationFrame(callback);
-        }, timeToCall);
+        const id = setTimeout(timeOutCallback, timeToCall);
         game._lastTime = currTime + timeToCall;
         return id;
     }
 
-    private _stTime (callback) {
-        const currTime = performance.now();
-        const elapseTime = Math.max(0, (currTime - game._lastTime));
-        const timeToCall = Math.max(0, game._frameTime - elapseTime);
-        const id = window.setTimeout(callback, timeToCall);
-        game._lastTime = currTime + timeToCall;
-        return id;
-    }
     private _ctTime (id: number | undefined) {
         window.clearTimeout(id);
     }
+    
     // Run game.
     private _runMainLoop () {
         if (EDITOR && !legacyCC.GAME_VIEW) {
@@ -723,7 +715,7 @@ export class Game extends EventTarget {
 
         const callback = (time: number) => {
             if (this._paused) { return; }
-            this._intervalId = window.rAF(callback);
+            this._intervalId = this.requestAnimationFrame(callback);
             if (!JSB && !RUNTIME_BASED && frameRate === 30) {
                 skip = !skip;
                 if (skip) {
@@ -733,12 +725,9 @@ export class Game extends EventTarget {
             director.mainLoop(time);
         };
 
-        if (this._intervalId) {
-            window.cAF(this._intervalId);
-            this._intervalId = 0;
-        }
+        this._dropFrame();
 
-        this._intervalId = window.rAF(callback);
+        this._intervalId = this.requestAnimationFrame(callback);
         this._paused = false;
     }
 
@@ -769,6 +758,13 @@ export class Game extends EventTarget {
 
         this.config = config as NormalizedGameConfig;
         this._configLoaded = true;
+    }
+
+    private _dropFrame () {
+        if (this._intervalId) {
+            this.cancelAnimationFrame(this._intervalId);
+            this._intervalId = 0;
+        }
     }
 
     private _determineRenderType () {
@@ -1024,3 +1020,5 @@ export const game = legacyCC.game = new Game();
 type NormalizedGameConfig = IGameConfig & {
     frameRate: NonNullable<IGameConfig['frameRate']>;
 };
+
+type RequestAnimationFrame = typeof requestAnimationFrame;
