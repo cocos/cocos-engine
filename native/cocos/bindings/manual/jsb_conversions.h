@@ -42,6 +42,10 @@ struct Extent;
 struct TextureSubres;
 struct TextureCopy;
 struct BufferTextureCopy;
+struct BufferInfo;
+struct BufferViewInfo;
+struct TextureInfo;
+struct DescriptorSetInfo;
 }
 } // namespace cc
 
@@ -137,6 +141,10 @@ bool seval_to_gfx_texture_subres(const se::Value &v, cc::gfx::TextureSubres *tex
 bool seval_to_gfx_texture_copy(const se::Value &v, cc::gfx::TextureCopy *textureCopy);
 bool seval_to_gfx_buffer_texture_copy(const se::Value &v, cc::gfx::BufferTextureCopy *bufferTextureCopy);
 bool seval_to_gfx_buffer_texture_copy_list(const se::Value &v, cc::vector<cc::gfx::BufferTextureCopy> *bufferTextureCopyList);
+bool seval_to_gfx_buffer_info(const se::Value &v, cc::gfx::BufferInfo *bufferInfo);
+bool seval_to_gfx_buffer_view_info(const se::Value &v, cc::gfx::BufferViewInfo *bufferViewInfo);
+bool seval_to_gfx_texture_info(const se::Value &v, cc::gfx::TextureInfo *textureInfo);
+bool seval_to_gfx_descriptor_set_info(const se::Value &v, cc::gfx::DescriptorSetInfo *descriptorSetInfo);
 
 #if USE_GFX_RENDERER
 #endif

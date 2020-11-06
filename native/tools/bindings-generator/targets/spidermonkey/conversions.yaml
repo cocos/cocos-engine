@@ -81,6 +81,10 @@ conversions:
     "TextureCopy": "ok &= seval_to_gfx_texture_copy(${in_value}, &${out_value})"
     "BufferTextureCopy": "ok &= seval_to_gfx_buffer)texture_copy(${in_value}, &${out_value})"
     "BufferTextureCopyList": "ok &= seval_to_gfx_buffer_texture_copy_list(${in_value}, &${out_value})"
+    "BufferInfo": "ok &= seval_to_gfx_buffer_info(${in_value}, &${out_value})"
+    "BufferViewInfo": "ok &= seval_to_gfx_buffer_view_info(${in_value}, &${out_value})"
+    "TextureInfo": "ok &= seval_to_gfx_texture_info(${in_value}, &${out_value})"
+    "DescriptorSetInfo": "ok &= seval_to_gfx_descriptor_set_info(${in_value}, &${out_value})"
 
   from_native:
     # int to jsval

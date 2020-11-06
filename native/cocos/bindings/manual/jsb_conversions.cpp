@@ -762,23 +762,23 @@ bool seval_to_gfx_rect(const se::Value &v, cc::gfx::Rect *rect) {
     SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::Rect failed!");
     se::Object *obj = v.toObject();
     se::Value val;
-    
+
     bool ok = obj->getProperty("x", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get x from Rect!");
     rect->x = val.toUint32();
-    
+
     ok = obj->getProperty("y", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get y from Rect!");
     rect->y = val.toUint32();
-    
+
     ok = obj->getProperty("width", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get width from Rect!");
     rect->width = val.toUint();
-    
+
     ok = obj->getProperty("height", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get height from Rect!");
     rect->height = val.toUint();
-    
+
     return true;
 }
 
@@ -790,27 +790,27 @@ bool seval_to_gfx_viewport(const se::Value &v, cc::gfx::Viewport *viewport) {
     bool ok = obj->getProperty("left", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get left from Viewport!");
     viewport->left = val.toUint32();
-    
+
     ok = obj->getProperty("top", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get top from Viewport!");
     viewport->top = val.toUint32();
-    
+
     ok = obj->getProperty("width", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get width from Viewport!");
     viewport->top = val.toUint();
-    
+
     ok = obj->getProperty("height", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get height from Viewport!");
     viewport->height = val.toUint();
-    
+
     ok = obj->getProperty("minDepth", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get minDepth from Viewport!");
     viewport->minDepth = val.toFloat();
-    
+
     ok = obj->getProperty("maxDepth", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get maxDepth from Viewport!");
     viewport->maxDepth = val.toFloat();
-    
+
     return true;
 }
 
@@ -822,19 +822,19 @@ bool seval_to_gfx_color(const se::Value &v, cc::gfx::Color *color) {
     bool ok = obj->getProperty("x", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get x from Color!");
     color->x = val.toFloat();
-    
+
     ok = obj->getProperty("y", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get y from Color!");
     color->y = val.toFloat();
-    
+
     ok = obj->getProperty("z", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get z from Color!");
     color->z = val.toFloat();
-    
+
     ok = obj->getProperty("w", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get w from Color!");
     color->w = val.toFloat();
-    
+
     return true;
 }
 
@@ -842,7 +842,7 @@ bool seval_to_gfx_color_list(const se::Value &v, cc::vector<cc::gfx::Color> *col
     assert(colorList != nullptr);
     SE_PRECONDITION2(v.isObject() && v.toObject()->isArray(), false, "Convert parameter to cc::gfx::ColorList failed!");
     se::Object *obj = v.toObject();
-    
+
     uint32_t len = 0;
     if (obj->getArrayLength(&len)) {
         colorList->resize(len);
@@ -852,7 +852,7 @@ bool seval_to_gfx_color_list(const se::Value &v, cc::vector<cc::gfx::Color> *col
             seval_to_gfx_color(value, &(*colorList)[i]);
         }
     }
-    
+
     return true;
 }
 
@@ -864,15 +864,15 @@ bool seval_to_gfx_offset(const se::Value &v, cc::gfx::Offset *offset) {
     bool ok = obj->getProperty("x", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get x from Offset!");
     offset->x = val.toUint32();
-    
+
     ok = obj->getProperty("y", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get y from Offset!");
     offset->y = val.toUint32();
-    
+
     ok = obj->getProperty("z", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get z from Offset!");
     offset->z = val.toUint32();
-    
+
     return true;
 }
 
@@ -884,15 +884,15 @@ bool seval_to_gfx_extent(const se::Value &v, cc::gfx::Extent *extent) {
     bool ok = obj->getProperty("width", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get x from Extent!");
     extent->width = val.toUint();
-    
+
     ok = obj->getProperty("height", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get height from Extent!");
     extent->height = val.toUint();
-    
+
     ok = obj->getProperty("depth", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get depth from Extent!");
     extent->depth = val.toUint();
-    
+
     return true;
 }
 
@@ -904,15 +904,15 @@ bool seval_to_gfx_texture_subres(const se::Value &v, cc::gfx::TextureSubres *tex
     bool ok = obj->getProperty("mipLevel", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get mipLevel from TextureSubres!");
     textureSubres->mipLevel = val.toUint();
-    
+
     ok = obj->getProperty("baseArrayLayer", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get baseArrayLayer from TextureSubres!");
     textureSubres->baseArrayLayer = val.toUint();
-    
+
     ok = obj->getProperty("layerCount", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get layerCount from TextureSubres!");
     textureSubres->layerCount = val.toUint();
-    
+
     return true;
 }
 
@@ -924,23 +924,23 @@ bool seval_to_gfx_texture_copy(const se::Value &v, cc::gfx::TextureCopy *texture
     bool ok = obj->getProperty("srcSubres", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get srcSubres from TextureCopy!");
     seval_to_gfx_texture_subres(val, &textureCopy->srcSubres);
-    
+
     ok = obj->getProperty("dstSubres", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get dstSubres from TextureCopy!");
     seval_to_gfx_texture_subres(val, &textureCopy->dstSubres);
-    
+
     ok = obj->getProperty("srcOffset", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get srcOffset from TextureCopy!");
     seval_to_gfx_offset(val, &textureCopy->srcOffset);
-    
+
     ok = obj->getProperty("dstOffset", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get dstOffset from TextureCopy!");
     seval_to_gfx_offset(val, &textureCopy->dstOffset);
-    
+
     ok = obj->getProperty("extent", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get extent from TextureCopy!");
     seval_to_gfx_extent(val, &textureCopy->extent);
-    
+
     return true;
 }
 
@@ -952,23 +952,23 @@ bool seval_to_gfx_buffer_texture_copy(const se::Value &v, cc::gfx::BufferTexture
     bool ok = obj->getProperty("buffStride", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get buffStride from BufferTextureCopy!");
     bufferTextureCopy->buffStride = val.toUint();
-    
+
     ok = obj->getProperty("buffTexHeight", &val);
     SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get buffTexHeight from BufferTextureCopy!");
     bufferTextureCopy->buffTexHeight = val.toUint();
-    
+
     ok = obj->getProperty("texOffset", &val);
     SE_PRECONDITION2(ok, false, "Can not get texOffset from BufferTextureCopy!");
     seval_to_gfx_offset(val, &bufferTextureCopy->texOffset);
-    
+
     ok = obj->getProperty("texExtent", &val);
     SE_PRECONDITION2(ok, false, "Can not get texExtent from BufferTextureCopy!");
     seval_to_gfx_extent(val, &bufferTextureCopy->texExtent);
-    
+
     ok = obj->getProperty("texSubres", &val);
     SE_PRECONDITION2(ok, false, "Can not get texSubres from BufferTextureCopy!");
     seval_to_gfx_texture_subres(val, &bufferTextureCopy->texSubres);
-    
+
     return true;
 }
 
@@ -976,7 +976,7 @@ bool seval_to_gfx_buffer_texture_copy_list(const se::Value &v, cc::vector<cc::gf
     assert(bufferTextureCopyList != nullptr);
     SE_PRECONDITION2(v.isObject() && v.toObject()->isArray(), false, "Convert parameter to cc::gfx::BufferTextureCopyList failed!");
     se::Object *obj = v.toObject();
-    
+
     uint32_t len = 0;
     if (obj->getArrayLength(&len)) {
         bufferTextureCopyList->resize(len);
@@ -986,6 +986,114 @@ bool seval_to_gfx_buffer_texture_copy_list(const se::Value &v, cc::vector<cc::gf
             seval_to_gfx_buffer_texture_copy(value, &(*bufferTextureCopyList)[i]);
         }
     }
+
+    return true;
+}
+
+bool seval_to_gfx_buffer_info(const se::Value &v, cc::gfx::BufferInfo *bufferInfo) {
+    assert(bufferInfo != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::BufferInfo failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    bool ok = obj->getProperty("usage", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get usage from BufferInfo!");
+    bufferInfo->usage = (cc::gfx::BufferUsage)val.toUint();
+
+    ok = obj->getProperty("memUsage", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get memUsage from BufferInfo!");
+    bufferInfo->memUsage = (cc::gfx::MemoryUsage)val.toUint();
+
+    ok = obj->getProperty("size", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get size from BufferInfo!");
+    bufferInfo->size = val.toUint();
+
+    ok = obj->getProperty("stride", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get stride from BufferInfo!");
+    bufferInfo->stride = val.toUint();
+
+    ok = obj->getProperty("flags", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get flags from BufferInfo!");
+    bufferInfo->flags = (cc::gfx::BufferFlags)val.toUint();
+
+    return true;
+}
+
+bool seval_to_gfx_buffer_view_info(const se::Value &v, cc::gfx::BufferViewInfo *bufferViewInfo) {
+    assert(bufferViewInfo != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::BufferViewInfo failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    bool ok = obj->getProperty("buffer", &val);
+    SE_PRECONDITION2(ok && val.isObject(), false, "Can not get buffer from BufferViewInfo!");
+    bufferViewInfo->buffer = static_cast<cc::gfx::Buffer *>(val.toObject()->getPrivateData());
+
+    ok = obj->getProperty("offset", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get offset from BufferViewInfo!");
+    bufferViewInfo->offset = val.toUint();
+
+    ok = obj->getProperty("range", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get range from BufferViewInfo!");
+    bufferViewInfo->range = val.toUint();
+
+    return true;
+}
+
+bool seval_to_gfx_texture_info(const se::Value &v, cc::gfx::TextureInfo *textureInfo) {
+    assert(textureInfo != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::TextureInfo failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    bool ok = obj->getProperty("type", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get type from TextureInfo!");
+    textureInfo->type = (cc::gfx::TextureType)val.toUint();
+
+    ok = obj->getProperty("usage", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get usage from TextureInfo!");
+    textureInfo->usage = (cc::gfx::TextureUsage)val.toUint();
+
+    ok = obj->getProperty("format", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get format from TextureInfo!");
+    textureInfo->format = (cc::gfx::Format)val.toUint();
+
+    ok = obj->getProperty("width", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get width from TextureInfo!");
+    textureInfo->width = val.toUint();
+
+    ok = obj->getProperty("height", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get height from TextureInfo!");
+    textureInfo->height = val.toUint();
+
+    ok = obj->getProperty("flags", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get flags from TextureInfo!");
+    textureInfo->flags = (cc::gfx::TextureFlags)val.toUint();
+
+    ok = obj->getProperty("layerCount", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get layerCount from TextureInfo!");
+    textureInfo->layerCount = val.toUint();
+
+    ok = obj->getProperty("levelCount", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get levelCount from TextureInfo!");
+    textureInfo->levelCount = val.toUint();
+
+    ok = obj->getProperty("samples", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get samples from TextureInfo!");
+    textureInfo->samples = (cc::gfx::SampleCount)val.toUint();
+
+    ok = obj->getProperty("depth", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get depth from TextureInfo!");
+    textureInfo->depth = val.toUint();
+
+    return true;
+}
+
+bool seval_to_gfx_descriptor_set_info(const se::Value &v, cc::gfx::DescriptorSetInfo *descriptorSetInfo) {
+    assert(descriptorSetInfo != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::DescriptorSetInfo failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    bool ok = obj->getProperty("layout", &val);
+    SE_PRECONDITION2(ok && val.isObject(), false, "Can not get layout from TextureInfo!");
+    descriptorSetInfo->layout = static_cast<cc::gfx::DescriptorSetLayout *>(val.toObject()->getPrivateData());
     
     return true;
 }

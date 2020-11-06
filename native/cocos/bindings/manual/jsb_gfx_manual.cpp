@@ -141,11 +141,13 @@ static bool js_gfx_Device_createBuffer(se::State &s) {
         seval_to_boolean(args[1], &createBufferView);
 
         if (createBufferView) {
-            auto bufferViewInfo = (cc::gfx::BufferViewInfo *)(args[0].toObject()->getPrivateData());
-            buffer = cobj->createBuffer(*bufferViewInfo);
+            cc::gfx::BufferViewInfo bufferViewInfo;
+            seval_to_gfx_buffer_view_info(args[0], &bufferViewInfo);
+            buffer = cobj->createBuffer(bufferViewInfo);
         } else {
-            auto bufferInfo = (cc::gfx::BufferInfo *)(args[0].toObject()->getPrivateData());
-            buffer = cobj->createBuffer(*bufferInfo);
+            cc::gfx::BufferInfo bufferInfo;
+            seval_to_gfx_buffer_info(args[0], &bufferInfo);
+            buffer = cobj->createBuffer(bufferInfo);
         }
 
         CC_UNUSED bool ok = native_ptr_to_seval(buffer, &s.rval());
@@ -166,16 +168,15 @@ static bool js_gfx_Device_createTexture(se::State &s) {
 
     if (argc == 2) {
         cc::gfx::Texture *texture = nullptr;
-
         bool createTextureView = false;
         seval_to_boolean(args[1], &createTextureView);
-
         if (createTextureView) {
             auto textureViewInfo = (cc::gfx::TextureViewInfo *)(args[0].toObject()->getPrivateData());
             texture = cobj->createTexture(*textureViewInfo);
         } else {
-            auto textureInfo = (cc::gfx::TextureInfo *)(args[0].toObject()->getPrivateData());
-            texture = cobj->createTexture(*textureInfo);
+            cc::gfx::TextureInfo textureInfo;
+            seval_to_gfx_texture_info(args[0], &textureInfo);
+            texture = cobj->createTexture(textureInfo);
         }
 
         CC_UNUSED bool ok = native_ptr_to_seval(texture, &s.rval());
