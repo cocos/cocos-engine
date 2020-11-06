@@ -80,7 +80,7 @@ export default class MissingScript extends Component {
     constructor () {
         super();
         if (EDITOR) {
-            // @ts-ignore
+            // @ts-expect-error
             this.compiled = _Scene.Sandbox.compiled;
         }
     }

@@ -57,7 +57,7 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
         if (!item.isNative && assets.has(item.uuid)) {
             const asset = assets.get(item.uuid);
             asset!.addRef();
-            // @ts-ignore
+            // @ts-expect-error
             handle(item, task, asset, null, asset.__asyncLoadAssets__, depends, total, done);
             return cb();
         }

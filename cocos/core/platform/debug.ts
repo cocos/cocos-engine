@@ -201,7 +201,7 @@ export function _resetDebugSetting (mode: DebugMode) {
             if (!condition) {
                 const errorText = formatString(message, ...optionalParams);
                 if (DEV) {
-                    // tslint:disable:no-debugger
+
                     debugger;
                 }
                 else {
@@ -231,7 +231,7 @@ export function _resetDebugSetting (mode: DebugMode) {
     }
     else if (mode === DebugMode.INFO) {
         if (JSB) {
-            // @ts-ignore
+            // @ts-expect-error
             if (scriptEngineType === 'JavaScriptCore') {
                 // console.log has to use `console` as its context for iOS 8~9. Therefore, apply it.
                 ccLog = (message?: any, ...optionalParams: any[]) => {

@@ -96,8 +96,6 @@ export function GFXFormatToWebGLType (format: Format, gl: WebGLRenderingContext)
         case Format.ETC2_SRGB8: return gl.UNSIGNED_BYTE;
         case Format.ETC2_RGB8_A1: return gl.UNSIGNED_BYTE;
         case Format.ETC2_SRGB8_A1: return gl.UNSIGNED_BYTE;
-        case Format.ETC2_RGB8: return gl.UNSIGNED_BYTE;
-        case Format.ETC2_SRGB8: return gl.UNSIGNED_BYTE;
         case Format.EAC_R11: return gl.UNSIGNED_BYTE;
         case Format.EAC_R11SN: return gl.BYTE;
         case Format.EAC_RG11: return gl.UNSIGNED_BYTE;
@@ -495,7 +493,7 @@ export enum WebGLCmd {
 
 export abstract class WebGLCmdObject {
     public cmdType: WebGLCmd;
-    public refCount: number = 0;
+    public refCount = 0;
 
     constructor (type: WebGLCmd) {
         this.cmdType = type;
@@ -511,8 +509,8 @@ export class WebGLCmdBeginRenderPass extends WebGLCmdObject {
     public renderArea = new Rect();
     public clearFlag: ClearFlag = ClearFlag.NONE;
     public clearColors: Color[] = [];
-    public clearDepth: number = 1.0;
-    public clearStencil: number = 0;
+    public clearDepth = 1.0;
+    public clearStencil = 0;
 
     constructor () {
         super(WebGLCmd.BEGIN_RENDER_PASS);
@@ -575,8 +573,8 @@ export class WebGLCmdUpdateBuffer extends WebGLCmdObject {
 
     public gpuBuffer: IWebGLGPUBuffer | null = null;
     public buffer: BufferSource | null = null;
-    public offset: number = 0;
-    public size: number = 0;
+    public offset = 0;
+    public size = 0;
 
     constructor () {
         super(WebGLCmd.UPDATE_BUFFER);
@@ -1505,7 +1503,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
         }
         if (texUnitCacheMap[sampler.name] === undefined) {
             let binding = sampler.binding + bindingMappingInfo.samplerOffsets[sampler.set] + arrayOffset;
-            if (sampler.set === bindingMappingInfo.flexibleSet) binding -= flexibleSetBaseOffset;
+            if (sampler.set === bindingMappingInfo.flexibleSet) { binding -= flexibleSetBaseOffset; }
             texUnitCacheMap[sampler.name] = binding % device.maxTextureUnits;
             arrayOffset += sampler.count - 1;
         }
@@ -2113,7 +2111,7 @@ export function WebGLCmdFuncBindStates (
                 const gpuBuffer = gpuDescriptor.gpuBuffer;
                 const dynamicOffsetIndexSet = dynamicOffsetIndices[glBlock.set];
                 const dynamicOffsetIndex = dynamicOffsetIndexSet && dynamicOffsetIndexSet[glBlock.binding];
-                if (dynamicOffsetIndex >= 0) offset = dynamicOffsets[dynamicOffsetIndex];
+                if (dynamicOffsetIndex >= 0) { offset = dynamicOffsets[dynamicOffsetIndex]; }
 
                 if ('vf32' in gpuBuffer) {
                     vf32 = gpuBuffer.vf32;

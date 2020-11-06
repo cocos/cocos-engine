@@ -24,8 +24,8 @@
  THE SOFTWARE.
 */
 
-// tslint:disable:only-arrow-functions
-// tslint:disable:one-variable-per-declaration
+
+
 
 import { log, warnID } from '../../platform/debug';
 import { formatStr, get, getClassName, isChildClassOf, value } from '../../utils/js';

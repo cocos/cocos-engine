@@ -60,7 +60,7 @@ function createAudioClip (id: string, data: HTMLAudioElement | AudioBuffer, opti
     const out = new AudioClip();
     out._nativeUrl = id;
     out._nativeAsset = data;
-    // @ts-ignore
+    // @ts-expect-error
     out._duration = data.duration;
     onComplete(null, out);
 }

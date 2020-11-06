@@ -99,26 +99,26 @@ function serializeBuiltinValueTypes (obj: ValueType): IValueTypeData | null {
     const typeId = BuiltinValueTypes.indexOf(ctor);
     switch (ctor) {
         case Vec2:
-            // @ts-ignore
+            // @ts-expect-error
             return [typeId, obj.x, obj.y];
         case Vec3:
-            // @ts-ignore
+            // @ts-expect-error
             return [typeId, obj.x, obj.y, obj.z];
         case Vec4:
         case Quat:
-            // @ts-ignore
+            // @ts-expect-error
             return [typeId, obj.x, obj.y, obj.z, obj.w];
         case Color:
-            // @ts-ignore
+            // @ts-expect-error
             return [typeId, obj._val];
         case Size:
-            // @ts-ignore
+            // @ts-expect-error
             return [typeId, obj.width, obj.height];
         case Rect:
-            // @ts-ignore
+            // @ts-expect-error
             return [typeId, obj.x, obj.y, obj.width, obj.height];
         case Mat4:
-            // @ts-ignore
+            // @ts-expect-error
             const res: IValueTypeData = new Array(1 + 16);
             res[VALUETYPE_SETTER] = typeId;
             Mat4.toArray(res, obj as Mat4, 1);
@@ -505,7 +505,7 @@ interface ICustomHandler {
     customEnv: any,
 }
 type ClassFinder = {
-    // tslint:disable-next-line:callable-types
+
     (type: string): AnyCtor;
     // // for editor
     // onDereferenced: (curOwner: object, curPropName: string, newOwner: object, newPropName: string) => void;
@@ -620,7 +620,7 @@ export function dereference (refs: IRefs, instances: IFileData[File.Instances], 
     // owner is object
     const instanceOffset: number = refs[dataLength] * Refs.EACH_RECORD_LENGTH;
     for (; i < instanceOffset; i += Refs.EACH_RECORD_LENGTH) {
-        const owner = refs[i] as any;
+        const owner = refs[i] ;
 
         const target = instances[refs[i + Refs.TARGET_OFFSET]];
         const keyIndex = refs[i + Refs.KEY_OFFSET] as StringIndexBnotNumber;
@@ -633,7 +633,7 @@ export function dereference (refs: IRefs, instances: IFileData[File.Instances], 
     }
     // owner is instance index
     for (; i < dataLength; i += Refs.EACH_RECORD_LENGTH) {
-        const owner = instances[refs[i]] as any;
+        const owner = instances[refs[i]] ;
 
         const target = instances[refs[i + Refs.TARGET_OFFSET]];
         const keyIndex = refs[i + Refs.KEY_OFFSET] as StringIndexBnotNumber;
@@ -762,11 +762,10 @@ function parseArray (data: IFileData, owner: any, key: string, value: IArrayData
     const array = value[ARRAY_ITEM_VALUES];
     owner[key] = array;
     for (let i = 0; i < array.length; ++i) {
-        const subValue = array[i] as AnyData;
+        const subValue = array[i] ;
         const type = value[i + 1] as DataTypeID;
         if (type !== DataTypeID.SimpleType) {
             const op = ASSIGNMENTS[type];
-            // @ts-ignore
             op(data, array, i, subValue);
         }
     }
@@ -806,7 +805,7 @@ ASSIGNMENTS[DataTypeID.Array] = parseArray;
 function parseInstances (data: IFileData): RootInstanceIndex {
     const instances = data[File.Instances];
     const instanceTypes = data[File.InstanceTypes];
-    const instanceTypesLen = instanceTypes === EMPTY_PLACEHOLDER ? 0 : (instanceTypes as OtherObjectTypeID[]).length;
+    const instanceTypesLen = instanceTypes === EMPTY_PLACEHOLDER ? 0 : (instanceTypes).length;
     let rootIndex = instances[instances.length - 1];
     let normalObjectCount = instances.length - instanceTypesLen;
     if (typeof rootIndex !== 'number') {
@@ -835,7 +834,7 @@ function parseInstances (data: IFileData): RootInstanceIndex {
             // class index for DataTypeID.CustomizedClass
 
             const ctor = classes[type] as CCClass<ICustomClass>;  // class
-            instances[insIndex] = deserializeCustomCCObject(data, ctor, eachData as ICustomObjectDataContent);
+            instances[insIndex] = deserializeCustomCCObject(data, ctor, eachData);
         }
         else {
 
@@ -843,7 +842,6 @@ function parseInstances (data: IFileData): RootInstanceIndex {
 
             type = (~type) as PrimitiveObjectTypeID;
             const op = ASSIGNMENTS[type];
-            // @ts-ignore
             op(data, instances, insIndex, eachData);
         }
     }
@@ -858,7 +856,7 @@ function parseInstances (data: IFileData): RootInstanceIndex {
 //     for (let i = 0; i < keys.length; ++i) {
 //         let newKey = attrs[keys[i] + DESERIALIZE_AS];
 //         if (newKey) {
-//             // @ts-ignore
+//             // @ts-expect-error
 //             if (keys.includes(newKey)) {
 //                 // %s cannot be deserialized by property %s because %s was also present in the serialized data.
 //                 warnID(, newKey, keys[i], newKey);
@@ -924,7 +922,7 @@ function cacheMasks (data: IPackedFileData) {
         const classes = data[File.SharedClasses];
         for (let i = 0; i < masks.length; ++i) {
             const mask = masks[i];
-            // @ts-ignore
+            // @ts-expect-error
             mask[MASK_CLASS] = classes[mask[MASK_CLASS]];
         }
     }
@@ -962,7 +960,7 @@ function parseResult (data: IFileData) {
         }
         const uuid = dependUuids[i];
         if (typeof uuid === 'number') {
-            dependUuids[i] = (dependSharedUuids as SharedString[])[uuid as StringIndex];
+            dependUuids[i] = (dependSharedUuids as SharedString[])[uuid ];
         }
         else {
             // added by Details object directly in _deserialize

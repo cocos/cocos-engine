@@ -28,18 +28,18 @@
  * @module material
  */
 
-import { ccclass, type, serializable } from 'cc.decorator';
-import { builtinResMgr } from '../3d/builtin/init';
-import { RenderableComponent } from '../3d/framework/renderable-component';
-import { Texture } from '../gfx';
-import { MacroRecord, MaterialProperty, PropertyType } from '../renderer/core/pass-utils';
-import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';
-import { legacyCC } from '../global-exports';
 import { Asset } from './asset';
 import { EffectAsset } from './effect-asset';
-import { SpriteFrame } from './sprite-frame';
-import { TextureBase } from './texture-base';
 import { RenderTexture } from './render-texture';
+import { RenderableComponent } from '../3d/framework/renderable-component';
+import { SpriteFrame } from './sprite-frame';
+import { Texture } from '../gfx';
+import { TextureBase } from './texture-base';
+import { builtinResMgr } from '../3d/builtin/init';
+import { legacyCC } from '../global-exports';
+import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';
+import { MacroRecord, MaterialProperty, PropertyType } from '../renderer/core/pass-utils';
+import { ccclass, serializable, type } from 'cc.decorator';
 
 /**
  * @en The basic infos for material initialization.
@@ -92,19 +92,6 @@ type MaterialPropertyFull = MaterialProperty | TextureBase | SpriteFrame | Rende
 @ccclass('cc.Material')
 export class Material extends Asset {
 
-    /**
-     * @en Get hash for a material
-     * @zh 获取一个材质的哈希值
-     * @param material
-     */
-    public static getHash (material: Material) {
-        let hash = 0;
-        for (const pass of material.passes) {
-            hash ^= pass.hash;
-        }
-        return hash;
-    }
-
     @type(EffectAsset)
     protected _effectAsset: EffectAsset | null = null;
     @serializable
@@ -118,6 +105,24 @@ export class Material extends Asset {
 
     protected _passes: Pass[] = [];
     protected _hash = 0;
+
+    constructor () {
+        super();
+        this.loaded = false;
+    }
+
+    /**
+     * @en Get hash for a material
+     * @zh 获取一个材质的哈希值
+     * @param material
+     */
+    public static getHash (material: Material) {
+        let hash = 0;
+        for (const pass of material.passes) {
+            hash ^= pass.hash;
+        }
+        return hash;
+    }
 
     /**
      * @en The current [[EffectAsset]].
@@ -173,11 +178,6 @@ export class Material extends Asset {
      */
     get owner (): RenderableComponent | null {
         return null;
-    }
-
-    constructor () {
-        super();
-        this.loaded = false;
     }
 
     /**
@@ -382,7 +382,7 @@ export class Material extends Asset {
         return passes;
     }
 
-    protected _update (keepProps: boolean = true) {
+    protected _update (keepProps = true) {
         if (this._effectAsset) {
             if (this._passes && this._passes.length) {
                 for (const pass of this._passes) {
@@ -446,7 +446,7 @@ export class Material extends Asset {
             const texture: Texture | null = val.getGFXTexture();
             if (!texture || !texture.width || !texture.height) {
                 // console.warn(`material '${this._uuid}' received incomplete texture asset '${val._uuid}'`);
-                return false;
+                return;
             }
             pass.bindTexture(binding, texture, index);
             pass.bindSampler(binding, val.getGFXSampler(), index);

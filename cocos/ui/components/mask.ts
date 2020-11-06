@@ -268,7 +268,7 @@ export class Mask extends UIRenderable {
         }
 
         this._alphaThreshold = value;
-        if(this.type === MaskType.IMAGE_STENCIL) {
+        if (this.type === MaskType.IMAGE_STENCIL) {
             this._graphics?.getMaterialInstance(0)?.setProperty('alphaThreshold', this._alphaThreshold);
         }
     }
@@ -397,7 +397,7 @@ export class Mask extends UIRenderable {
         }
 
         if (this._clearStencilMtl) {
-            this._clearStencilMtl!.destroy();
+            this._clearStencilMtl.destroy();
         }
 
         this._removeGraphics();
@@ -450,7 +450,7 @@ export class Mask extends UIRenderable {
             return;
         }
 
-        render.commitComp(this, null, this._postAssembler!);
+        render.commitComp(this, null, this._postAssembler);
     }
 
     protected _nodeStateChange (type: TransformBit) {
@@ -539,13 +539,13 @@ export class Mask extends UIRenderable {
         if (!this._clearModel) {
             const mtl = builtinResMgr.get<Material>('builtin-clear-stencil');
             this._clearStencilMtl = new MaterialInstance({
-                parent: mtl!,
+                parent: mtl,
                 owner: this,
                 subModelIdx: 0,
             });
 
             this._clearModel = director.root!.createModel(scene.Model);
-            // @ts-ignore
+            // @ts-expect-error
             this._clearModel.name = 'clear-model';
             this._clearModel.node = this._clearModel.transform = this.node;
             let renderMesh: RenderingSubMesh;
@@ -611,7 +611,7 @@ export class Mask extends UIRenderable {
         }
     }
 
-    protected _useRenderData (){
+    protected _useRenderData () {
         if (this._type === MaskType.IMAGE_STENCIL && !this._renderData) {
             if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
@@ -621,19 +621,19 @@ export class Mask extends UIRenderable {
     }
 
     protected _attachClearModel () {
-       if (this._clearModel){
+       if (this._clearModel) {
            const renderScene = director.root!.ui.renderScene;
            renderScene.addModel(this._clearModel);
        }
     }
 
-    protected _detachClearModel (){
+    protected _detachClearModel () {
         if (this._clearModel) {
             const renderScene = director.root!.ui.renderScene;
-            renderScene.removeModel(this._clearModel!);
+            renderScene.removeModel(this._clearModel);
         }
     }
 }
 
-// tslint:disable-next-line
+
 legacyCC.Mask = Mask;

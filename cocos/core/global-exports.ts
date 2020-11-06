@@ -50,7 +50,6 @@ import {
     VIVO,
 } from 'internal:constants';
 
-// @ts-ignore
 const _global = typeof window === 'undefined' ? global : window;
 
 /**

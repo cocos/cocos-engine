@@ -4,9 +4,9 @@
  */
 
 import { Buffer } from './buffer';
-import { Format, Obj, ObjectType } from './define';
 import { Device } from './device';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
+import { Format, Obj, ObjectType } from './define';
 
 export interface IAttribute {
     name: string;
@@ -18,7 +18,7 @@ export interface IAttribute {
 }
 
 export class Attribute {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public name: string = '',
@@ -31,7 +31,7 @@ export class Attribute {
 }
 
 export class InputAssemblerInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public attributes: Attribute[] = [],
@@ -179,21 +179,21 @@ export abstract class InputAssembler extends Obj {
 
     protected _indexBuffer: Buffer | null = null;
 
-    protected _vertexCount: number = 0;
+    protected _vertexCount = 0;
 
-    protected _firstVertex: number = 0;
+    protected _firstVertex = 0;
 
-    protected _indexCount: number = 0;
+    protected _indexCount = 0;
 
-    protected _firstIndex: number = 0;
+    protected _firstIndex = 0;
 
-    protected _vertexOffset: number = 0;
+    protected _vertexOffset = 0;
 
-    protected _instanceCount: number = 0;
+    protected _instanceCount = 0;
 
-    protected _firstInstance: number = 0;
+    protected _firstInstance = 0;
 
-    protected _attributesHash: number = 0;
+    protected _attributesHash = 0;
 
     protected _indirectBuffer: Buffer | null = null;
 
@@ -202,15 +202,12 @@ export abstract class InputAssembler extends Obj {
         this._device = device;
     }
 
-    public abstract initialize (info: InputAssemblerInfo): boolean;
-    public abstract destroy (): void;
-
     /**
      * @en Get the specified vertex buffer.
      * @zh 获取顶点缓冲。
      * @param stream The stream index of the vertex buffer.
      */
-    public getVertexBuffer (stream: number = 0): Buffer | null {
+    public getVertexBuffer (stream = 0): Buffer | null {
         if (stream < this._vertexBuffers.length) {
             return this._vertexBuffers[stream];
         } else {
@@ -226,4 +223,7 @@ export abstract class InputAssembler extends Obj {
         }
         return murmurhash2_32_gc(res, 666);
     }
+
+    public abstract initialize (info: InputAssemblerInfo): boolean;
+    public abstract destroy (): void;
 }

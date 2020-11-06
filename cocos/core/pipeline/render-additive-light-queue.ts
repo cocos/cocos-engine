@@ -3,26 +3,26 @@
  * @module pipeline
  */
 
-import { IRenderObject, UBOForwardLight, SetIndex } from './define';
-import { Light, LightType } from '../renderer/scene/light';
+import { BatchedBuffer } from './batched-buffer';
+import { BatchingSchemes } from '../renderer/core/pass';
+import { ForwardPipeline } from './forward/forward-pipeline';
+import { InstancedBuffer } from './instanced-buffer';
+import { Model } from '../renderer/scene/model';
+import { PipelineStateManager } from './pipeline-state-manager';
+import { Pool } from '../memop';
+import { RenderBatchedQueue } from './render-batched-queue';
+import { RenderInstancedQueue } from './render-instanced-queue';
+import { RenderView } from './render-view';
 import { SphereLight } from '../renderer/scene/sphere-light';
 import { SpotLight } from '../renderer/scene/spot-light';
-import { BatchingSchemes } from '../renderer/core/pass'
-import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';
-import { PipelineStateManager } from './pipeline-state-manager';
-import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
-import { Vec3, nextPow2 } from '../../core/math';
-import { RenderView } from './render-view';
-import { sphere, intersect } from '../geometry';
-import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, CommandBuffer } from '../gfx';
-import { Pool } from '../memop';
-import { InstancedBuffer } from './instanced-buffer';
-import { BatchedBuffer } from './batched-buffer';
-import { ForwardPipeline } from './forward/forward-pipeline';
-import { RenderInstancedQueue } from './render-instanced-queue';
-import { RenderBatchedQueue } from './render-batched-queue';
 import { getPhaseID } from './pass-phase';
+import { Buffer, BufferInfo, BufferUsageBit, BufferViewInfo, CommandBuffer, Device, MemoryUsageBit, RenderPass } from '../gfx';
+import { DSPool, PassPool, PassView, ShaderHandle, ShaderPool, SubModelPool, SubModelView } from '../renderer/core/memory-pools';
+import { IRenderObject, SetIndex, UBOForwardLight } from './define';
+import { Light, LightType } from '../renderer/scene/light';
+import { Vec3, nextPow2 } from '../../core/math';
+import { intersect, sphere } from '../geometry';
 
 interface IAdditiveLightPass {
     subModel: SubModel;
@@ -144,7 +144,7 @@ export class RenderAdditiveLightQueue {
             }
         }
 
-        if (!validLights.length) return;
+        if (!validLights.length) { return; }
 
         this._updateUBOs(view, cmdBuff);
 
@@ -152,7 +152,7 @@ export class RenderAdditiveLightQueue {
             const ro = this._renderObjects[i];
             const model = ro.model;
             const subModels = model.subModels;
-            if (!getLightPassIndices(subModels, _lightPassIndices)) continue;
+            if (!getLightPassIndices(subModels, _lightPassIndices)) { continue; }
 
             _lightIndices.length = 0;
             for (let l = 0; l < validLights.length; l++) {
@@ -171,11 +171,11 @@ export class RenderAdditiveLightQueue {
                 }
             }
 
-            if (!_lightIndices.length) continue;
+            if (!_lightIndices.length) { continue; }
 
             for (let j = 0; j < subModels.length; j++) {
                 const lightPassIdx = _lightPassIndices[j];
-                if (lightPassIdx < 0) continue;
+                if (lightPassIdx < 0) { continue; }
                 const subModel = subModels[j];
                 const pass = subModel.passes[lightPassIdx];
                 const batchingScheme = pass.batchingScheme;
@@ -252,18 +252,17 @@ export class RenderAdditiveLightQueue {
             this._firstlightBufferView.initialize(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
         }
 
-        for(let l = 0, offset = 0; l < this._validLights.length; l++, offset += this._lightBufferElementCount) {
+        for (let l = 0, offset = 0; l < this._validLights.length; l++, offset += this._lightBufferElementCount) {
             const light = this._validLights[l];
 
             switch (light.type) {
                 case LightType.SPHERE:
-                    const sphereLit = light as SphereLight;
-                    Vec3.toArray(_vec4Array, sphereLit.position);
+                    Vec3.toArray(_vec4Array, (light as SphereLight).position);
                     _vec4Array[3] = 0;
                     this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_POS_OFFSET);
 
-                    _vec4Array[0] = sphereLit.size;
-                    _vec4Array[1] = sphereLit.range;
+                    _vec4Array[0] = (light as SphereLight).size;
+                    _vec4Array[1] = (light as SphereLight).range;
                     _vec4Array[2] = 0.0;
                     this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
@@ -275,25 +274,23 @@ export class RenderAdditiveLightQueue {
                         _vec4Array[2] *= tempRGB.z;
                     }
                     if (this._isHDR) {
-                        _vec4Array[3] = sphereLit.luminance * this._fpScale * this._lightMeterScale;
+                        _vec4Array[3] = (light as SphereLight).luminance * this._fpScale * this._lightMeterScale;
                     } else {
-                        _vec4Array[3] = sphereLit.luminance * exposure * this._lightMeterScale;
+                        _vec4Array[3] = (light as SphereLight).luminance * exposure * this._lightMeterScale;
                     }
                     this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
-                break;
+                    break;
                 case LightType.SPOT:
-                    const spotLit = light as SpotLight;
-
-                    Vec3.toArray(_vec4Array, spotLit.position);
+                    Vec3.toArray(_vec4Array, (light as SpotLight).position);
                     _vec4Array[3] = 1;
                     this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_POS_OFFSET);
 
-                    _vec4Array[0] = spotLit.size;
-                    _vec4Array[1] = spotLit.range;
-                    _vec4Array[2] = spotLit.spotAngle;
+                    _vec4Array[0] = (light as SpotLight).size;
+                    _vec4Array[1] = (light as SpotLight).range;
+                    _vec4Array[2] = (light as SpotLight).spotAngle;
                     this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
-                    Vec3.toArray(_vec4Array, spotLit.direction);
+                    Vec3.toArray(_vec4Array, (light as SpotLight).direction);
                     this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_DIR_OFFSET);
 
                     Vec3.toArray(_vec4Array, light.color);
@@ -304,12 +301,12 @@ export class RenderAdditiveLightQueue {
                         _vec4Array[2] *= tempRGB.z;
                     }
                     if (this._isHDR) {
-                        _vec4Array[3] = spotLit.luminance * this._fpScale * this._lightMeterScale;
+                        _vec4Array[3] = (light as SpotLight).luminance * this._fpScale * this._lightMeterScale;
                     } else {
-                        _vec4Array[3] = spotLit.luminance * exposure * this._lightMeterScale;
+                        _vec4Array[3] = (light as SpotLight).luminance * exposure * this._lightMeterScale;
                     }
                     this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
-                break;
+                    break;
             }
         }
 

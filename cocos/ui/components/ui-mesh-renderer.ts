@@ -134,7 +134,7 @@ export class UIMeshRenderer extends UIComponent {
             const passNum = passes.length;
             for (let j = 0; j < passNum; j++) {
                 const pass = passes[j];
-                // @ts-ignore
+                // @ts-expect-error
                 pass._priority = RenderPriority.MAX - 11;
                 if (!pass.blendState.targets[0].blend) {
                     material.overridePipelineStates({ blendState: { targets: [ { blend: true } ] } }, j);

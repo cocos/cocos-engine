@@ -36,7 +36,6 @@ import { legacyCC } from '../global-exports';
 
 // const LocalDirtyFlag = Node._LocalDirtyFlag;
 // const POSITION_ON = 1 << 0;
-// @ts-ignore
 const HideInHierarchy = CCObject.Flags.HideInHierarchy;
 
 /**
@@ -169,8 +168,8 @@ export class PrivateNode extends Node {
 if (EDITOR) {
     // check components to avoid missing node reference serialied in previous version
     PrivateNode.prototype._onBatchCreated = function (dontSyncChildPrefab?: boolean) {
-        // @ts-ignore
-        for (let comp of this._components) {
+        // @ts-expect-error
+        for (const comp of this._components) {
             comp.node = this;
         }
 

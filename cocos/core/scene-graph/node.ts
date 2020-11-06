@@ -28,16 +28,16 @@
  * @module scene-graph
  */
 
-import { ccclass, type, serializable, editable } from 'cc.decorator';
-import { Mat3, Mat4, Quat, Vec3 } from '../math';
+import { Layers } from './layers';
+import { NodeUIProperties } from './node-ui-properties';
 import { SystemEventType } from '../platform/event-manager/event-enum';
 import { eventManager } from '../platform/event-manager/event-manager';
-import { BaseNode, TRANSFORM_ON } from './base-node';
-import { Layers } from './layers';
-import { NodeSpace, TransformBit } from './node-enum';
-import { NodeUIProperties } from './node-ui-properties';
 import { legacyCC } from '../global-exports';
-import { NodeHandle, NodePool, NodeView, NULL_HANDLE } from '../renderer/core/memory-pools';
+import { BaseNode, TRANSFORM_ON } from './base-node';
+import { Mat3, Mat4, Quat, Vec3 } from '../math';
+import { NULL_HANDLE, NodeHandle, NodePool, NodeView } from '../renderer/core/memory-pools';
+import { NodeSpace, TransformBit } from './node-enum';
+import { ccclass, editable, serializable, type } from 'cc.decorator';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -47,7 +47,7 @@ const qt_1 = new Quat();
 const m3_1 = new Mat3();
 const m3_scaling = new Mat3();
 const m4_1 = new Mat4();
-const bookOfChange = new Map<string, number>();
+const bookOfChange = new Map<Node, number>();
 
 /**
  * @zh
@@ -97,14 +97,6 @@ export class Node extends BaseNode {
      */
     public static TransformBit = TransformBit;
 
-    /**
-     * @en Determine whether the given object is a normal Node. Will return false if [[Scene]] given.
-     * @zh 指定对象是否是普通的节点？如果传入 [[Scene]] 会返回 false。
-     */
-    public static isNode (obj: object | null): obj is Node {
-        return obj instanceof Node && (obj.constructor === Node || !(obj instanceof legacyCC.Scene));
-    }
-
     // UI 部分的脏数据
     public _uiProps = new NodeUIProperties(this);
     public _static = false;
@@ -140,6 +132,14 @@ export class Node extends BaseNode {
         NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this._scale);
     }
 
+    /**
+     * @en Determine whether the given object is a normal Node. Will return false if [[Scene]] given.
+     * @zh 指定对象是否是普通的节点？如果传入 [[Scene]] 会返回 false。
+     */
+    public static isNode (obj: unknown): obj is Node {
+        return obj instanceof Node && (obj.constructor === Node || !(obj instanceof legacyCC.Scene));
+    }
+
     public destroy () {
         if (this._poolHandle) {
             NodePool.free(this._poolHandle);
@@ -148,7 +148,7 @@ export class Node extends BaseNode {
         return super.destroy();
     }
 
-    get handle () : NodeHandle {
+    get handle (): NodeHandle {
         return this._poolHandle;
     }
 
@@ -320,10 +320,10 @@ export class Node extends BaseNode {
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
     get hasChangedFlags () {
-        return bookOfChange.get(this._id) || 0;
+        return bookOfChange.get(this) || 0;
     }
     set hasChangedFlags (val: number) {
-        bookOfChange.set(this._id, val);
+        bookOfChange.set(this, val);
         NodePool.set(this._poolHandle, NodeView.FLAGS_CHANGED, val);
     }
 
@@ -337,7 +337,7 @@ export class Node extends BaseNode {
      * @param value Parent node
      * @param keepWorldTransform Whether keep node's current world transform unchanged after this operation
      */
-    public setParent (value: this | null, keepWorldTransform: boolean = false) {
+    public setParent (value: this | null, keepWorldTransform = false) {
         if (keepWorldTransform) { this.updateWorldTransform(); }
         super.setParent(value, keepWorldTransform);
     }
@@ -363,7 +363,7 @@ export class Node extends BaseNode {
 
     public _onBatchCreated (dontSyncChildPrefab?: boolean) {
         super._onBatchCreated();
-        bookOfChange.set(this._id, TransformBit.TRS);
+        bookOfChange.set(this, TransformBit.TRS);
         this._dirtyFlags = TransformBit.TRS;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
@@ -376,7 +376,7 @@ export class Node extends BaseNode {
     }
 
     public _onBeforeSerialize () {
-        // tslint:disable-next-line: no-unused-expression
+
         this.eulerAngles; // make sure we save the correct eulerAngles
     }
 
@@ -481,9 +481,10 @@ export class Node extends BaseNode {
      * @param dirtyBit The dirty bits to setup to children, can be composed with multiple dirty bits
      */
     public invalidateChildren (dirtyBit: TransformBit) {
-        if ((this._dirtyFlags & this.hasChangedFlags & dirtyBit) === dirtyBit) { return; }
+        const hasChanegdFlags = this.hasChangedFlags;
+        if ((this._dirtyFlags & hasChanegdFlags & dirtyBit) === dirtyBit) { return; }
         this._dirtyFlags |= dirtyBit;
-        bookOfChange.set(this._id, this.hasChangedFlags | dirtyBit);
+        bookOfChange.set(this, hasChanegdFlags | dirtyBit);
         dirtyBit |= TransformBit.POSITION;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
@@ -498,6 +499,8 @@ export class Node extends BaseNode {
      */
     public updateWorldTransform () {
         if (!this._dirtyFlags) { return; }
+        // we need to recursively iterate this
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         let cur: this | null = this;
         let i = 0;
         while (cur && cur._dirtyFlags) {
@@ -580,22 +583,12 @@ export class Node extends BaseNode {
      * @param y Y axis position
      * @param z Z axis position
      */
-    public setPosition (x: number, y: number, z: number): void;
-
-    
-    /**
-     * @en Set position in local coordinate system
-     * @zh 设置本地坐标
-     * @param x X axis position
-     * @param y Y axis position
-     */
-    public setPosition (x: number, y: number): void;
-
+    public setPosition (x: number, y: number, z?: number): void;
 
     public setPosition (val: Vec3 | number, y?: number, z?: number): void {
         if (y === undefined && z === undefined) {
             Vec3.copy(this._lpos, val as Vec3);
-        } else if( z === undefined) {
+        } else if (z === undefined) {
             Vec3.set(this._lpos, val as number, y!, this._lpos.z);
         } else {
             Vec3.set(this._lpos, val as number, y!, z);
@@ -660,7 +653,7 @@ export class Node extends BaseNode {
      * @param z Z axis rotation
      */
     public setRotationFromEuler (x: number, y: number, z?: number): void {
-        if(z === undefined) z = this._euler.z;
+        if (z === undefined) { z = this._euler.z; }
         Vec3.set(this._euler, x, y, z);
         Quat.fromEuler(this._lrot, x, y, z);
         this._eulerDirty = false;
@@ -702,12 +695,12 @@ export class Node extends BaseNode {
     public setScale (x: number, y: number, z?: number): void;
 
     public setScale (val: Vec3 | number, y?: number, z?: number) {
-        if (y === undefined || z === undefined) {
+        if (y === undefined && z === undefined) {
             Vec3.copy(this._lscale, val as Vec3);
-        } else if( z === undefined) {
-            Vec3.set(this._lscale, val as number, y, this._lscale.z);
+        } else if (z === undefined) {
+            Vec3.set(this._lscale, val as number, y!, this._lscale.z);
         } else {
-            Vec3.set(this._lscale, val as number, y, z);
+            Vec3.set(this._lscale, val as number, y!, z);
         }
 
         this.invalidateChildren(TransformBit.SCALE);
@@ -738,7 +731,10 @@ export class Node extends BaseNode {
      */
     public inverseTransformPoint (out: Vec3, p: Vec3) {
         Vec3.copy(out, p);
-        let cur = this; let i = 0;
+        // we need to recursively iterate this
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        let cur = this;
+        let i = 0;
         while (cur._parent) {
             array_a[i++] = cur;
             cur = cur._parent;
@@ -1029,7 +1025,6 @@ export class Node extends BaseNode {
      * @param recursive Whether pause system events recursively for the child node tree
      */
     public pauseSystemEvents (recursive: boolean): void {
-        // @ts-ignore
         eventManager.pauseTarget(this, recursive);
     }
 
@@ -1045,7 +1040,6 @@ export class Node extends BaseNode {
      * @param recursive Whether resume system events recursively for the child node tree
      */
     public resumeSystemEvents (recursive: boolean): void {
-        // @ts-ignore
         eventManager.resumeTarget(this, recursive);
     }
 }

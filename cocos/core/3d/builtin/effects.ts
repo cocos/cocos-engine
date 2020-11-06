@@ -1,4 +1,4 @@
-// tslint:disable
+
 // absolute essential effects
 export default [
   {

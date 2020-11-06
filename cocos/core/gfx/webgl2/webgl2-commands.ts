@@ -67,7 +67,7 @@ const SAMPLES: number[] = [
 
 const _f32v4 = new Float32Array(4);
 
-// tslint:disable: max-line-length
+
 
 function CmpF32NotEuqal (a: number, b: number): boolean {
     const c = a - b;
@@ -158,8 +158,6 @@ export function GFXFormatToWebGLType (format: Format, gl: WebGL2RenderingContext
         case Format.ETC2_SRGB8: return gl.UNSIGNED_BYTE;
         case Format.ETC2_RGB8_A1: return gl.UNSIGNED_BYTE;
         case Format.ETC2_SRGB8_A1: return gl.UNSIGNED_BYTE;
-        case Format.ETC2_RGB8: return gl.UNSIGNED_BYTE;
-        case Format.ETC2_SRGB8: return gl.UNSIGNED_BYTE;
         case Format.EAC_R11: return gl.UNSIGNED_BYTE;
         case Format.EAC_R11SN: return gl.BYTE;
         case Format.EAC_RG11: return gl.UNSIGNED_BYTE;
@@ -500,7 +498,6 @@ function WebGLTypeToGFXType (glType: GLenum, gl: WebGL2RenderingContext): Type {
         case gl.UNSIGNED_INT_VEC2: return Type.UINT2;
         case gl.UNSIGNED_INT_VEC3: return Type.UINT3;
         case gl.UNSIGNED_INT_VEC4: return Type.UINT4;
-        case gl.UNSIGNED_INT: return Type.UINT;
         case gl.FLOAT: return Type.FLOAT;
         case gl.FLOAT_VEC2: return Type.FLOAT2;
         case gl.FLOAT_VEC3: return Type.FLOAT3;
@@ -1127,7 +1124,8 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
                         device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
                     }
 
-                    gl.renderbufferStorageMultisample(gl.RENDERBUFFER, SAMPLES[gpuTexture.samples], gpuTexture.glInternalFmt, gpuTexture.width, gpuTexture.height);
+                    gl.renderbufferStorageMultisample(gl.RENDERBUFFER, SAMPLES[gpuTexture.samples],
+                        gpuTexture.glInternalFmt, gpuTexture.width, gpuTexture.height);
                 }
             }
             break;
@@ -1155,7 +1153,8 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
                         w = gpuTexture.width;
                         h = gpuTexture.height;
                         for (let i = 0; i < gpuTexture.mipLevel; ++i) {
-                            gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternalFmt, w, h, 0, gpuTexture.glFormat, gpuTexture.glType, null);
+                            gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, i,
+                                gpuTexture.glInternalFmt, w, h, 0, gpuTexture.glFormat, gpuTexture.glType, null);
                             w = Math.max(1, w >> 1);
                             h = Math.max(1, h >> 1);
                         }
@@ -1276,7 +1275,8 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
                         device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
                     }
 
-                    gl.renderbufferStorageMultisample(gl.RENDERBUFFER, SAMPLES[gpuTexture.samples], gpuTexture.glInternalFmt, gpuTexture.width, gpuTexture.height);
+                    gl.renderbufferStorageMultisample(gl.RENDERBUFFER, SAMPLES[gpuTexture.samples],
+                        gpuTexture.glInternalFmt, gpuTexture.width, gpuTexture.height);
                 }
             }
             break;
@@ -1686,7 +1686,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
         }
         if (texUnitCacheMap[sampler.name] === undefined) {
             let binding = sampler.binding + bindingMappingInfo.samplerOffsets[sampler.set] + arrayOffset;
-            if (sampler.set === bindingMappingInfo.flexibleSet) binding -= flexibleSetBaseOffset;
+            if (sampler.set === bindingMappingInfo.flexibleSet) { binding -= flexibleSetBaseOffset; }
             texUnitCacheMap[sampler.name] = binding % device.maxTextureUnits;
             arrayOffset += sampler.count - 1;
         }
@@ -1717,7 +1717,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
 
             if (!glSampler.glLoc) {
                 glSampler.glLoc = glActiveSamplerLocations[i];
-                while (usedTexUnits[unitIdx]) unitIdx++;
+                while (usedTexUnits[unitIdx]) { unitIdx++; }
                 for (let t = 0; t < glSampler.count; ++t) {
                     while (usedTexUnits[unitIdx]) {
                         unitIdx = (unitIdx + 1) % device.maxTextureUnits;
@@ -2280,7 +2280,7 @@ export function WebGL2CmdFuncBindStates (
             const dynamicOffsetIndexSet = dynamicOffsetIndices[glBlock.set];
             const dynamicOffsetIndex = dynamicOffsetIndexSet && dynamicOffsetIndexSet[glBlock.binding];
             let offset = gpuDescriptor.gpuBuffer.glOffset;
-            if (dynamicOffsetIndex >= 0) offset += dynamicOffsets[dynamicOffsetIndex];
+            if (dynamicOffsetIndex >= 0) { offset += dynamicOffsets[dynamicOffsetIndex]; }
 
             if (cache.glBindUBOs[glBlock.glBinding] !== gpuDescriptor.gpuBuffer.glBuffer ||
                 cache.glBindUBOOffsets[glBlock.glBinding] !== offset) {

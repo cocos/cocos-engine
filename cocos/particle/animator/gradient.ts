@@ -7,7 +7,7 @@ import { ccclass, serializable, editable } from 'cc.decorator';
 import { Color, lerp, repeat } from '../../core/math';
 import { Enum } from '../../core/value-types';
 
-// tslint:disable: max-line-length
+
 
 const Mode = Enum({
     Blend: 0,

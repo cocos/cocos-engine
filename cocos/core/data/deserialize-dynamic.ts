@@ -38,7 +38,7 @@ import * as Attr from './utils/attribute';
 import MissingScript from '../components/missing-script';
 import { Details } from './deserialize';
 
-// tslint:disable: no-shadowed-variable
+
 
 // IMPLEMENT OF DESERIALIZATION
 
@@ -102,7 +102,7 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
     ];
     const fastMode = misc.BUILTIN_CLASSID_RE.test(js._getClassId(klass));
     // sources.push('var vb,vn,vs,vo,vu,vf;');    // boolean, number, string, object, undefined, function
-    // tslint:disable-next-line: prefer-for-of
+
     for (let p = 0; p < props.length; p++) {
         const propName = props[p];
         if ((PREVIEW || (EDITOR && self._ignoreEditorOnly)) && attrs[propName + EDITOR_ONLY]) {
@@ -203,7 +203,7 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
         const DEFAULT = Attr.DELIMETER + 'default';
         const FORMERLY_SERIALIZED_AS = Attr.DELIMETER + 'formerlySerializedAs';
 
-        // tslint:disable-next-line: prefer-for-of
+
         for (let p = 0; p < props.length; p++) {
             const propName = props[p];
             let propNameToRead = propName;
@@ -359,7 +359,7 @@ function _deserializeFireClass (self, obj, serialized, klass) {
 //     }
 // }
 
-// tslint:disable-next-line: class-name
+
 class _Deserializer {
 
     public static pool: js.Pool<{}>;
@@ -446,14 +446,14 @@ class _Deserializer {
      * @param {Object} [owner] - debug only
      * @param {String} [propName] - debug only
      */
-    private _deserializeObject (serialized, owner?: Object, propName?: String) {
+    private _deserializeObject (serialized, owner?: Object, propName?: string) {
         let prop;
         let obj: any = null;     // the obj to return
         let klass: any = null;
         const type = serialized.__type__;
         if (type === 'TypedArray') {
             const array = serialized.array;
-            // @ts-ignore
+            // @ts-expect-error
             obj = new window[serialized.ctor](array.length);
             for (let i = 0; i < array.length; ++i) {
                 obj[i] = array[i];
@@ -473,7 +473,6 @@ class _Deserializer {
                 return null;
             }
             const self = this;
-            // @ts-ignore
             function deserializeByType () {
                 // instantiate a new object
                 obj = new klass();
@@ -490,7 +489,6 @@ class _Deserializer {
                 }
             }
 
-            // @ts-ignore
             function checkDeserializeByType () {
                 try {
                     deserializeByType();
@@ -510,7 +508,7 @@ class _Deserializer {
                 deserializeByType();
             }
         }
-        else if ( !Array.isArray(serialized) ) {
+        else if (!Array.isArray(serialized)) {
 
             // embedded primitive javascript object
 
@@ -614,7 +612,7 @@ class _Deserializer {
         const DEFAULT = Attr.DELIMETER + 'default';
         const attrs = Attr.getClassAttrs(klass);
         const fastDefinedProps = klass.__props__ || Object.keys(instance);    // 遍历 instance，如果具有类型，才不会把 __type__ 也读进来
-        // tslint:disable-next-line: prefer-for-of
+
         for (let i = 0; i < fastDefinedProps.length; i++) {
             const propName = fastDefinedProps[i];
             let value = serialized[propName];
@@ -646,7 +644,7 @@ _Deserializer.pool = new js.Pool((obj: any) => {
     obj._idObjList.length = 0;
     obj._idPropList.length = 0;
 }, 1);
-// @ts-ignore
+// @ts-expect-error
 _Deserializer.pool.get = function (result, classFinder, customEnv, ignoreEditorOnly) {
     const cache: any = this._get();
     if (cache) {
@@ -674,7 +672,7 @@ export function deserializeDynamic (data, details: Details, options) {
 
     details.init();
 
-    // @ts-ignore
+    // @ts-expect-error
     const deserializer: _Deserializer = _Deserializer.pool.get(details, classFinder, customEnv, ignoreEditorOnly);
 
     legacyCC.game._isCloning = true;

@@ -64,10 +64,10 @@ export function Enum<T> (obj: T): T {
  * @param obj
  */
 Enum.update = <T> (obj: T): T => {
-    let lastIndex: number = -1;
+    let lastIndex = -1;
     const keys: string[] = Object.keys(obj);
 
-    // tslint:disable-next-line: prefer-for-of
+
     for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
         let val = obj[key];
@@ -93,7 +93,7 @@ Enum.update = <T> (obj: T): T => {
         }
     }
     // auto update list if __enums__ is array
-    if(Array.isArray(obj['__enums__'])) {
+    if (Array.isArray(obj['__enums__'])) {
         updateList(obj);
     }
     return obj;
@@ -125,7 +125,7 @@ Enum.isEnum = <EnumT extends {}>(enumType: EnumT) => {
     return enumType && enumType.hasOwnProperty('__enums__');
 };
 
-function assertIsEnum <EnumT extends {}>(enumType: EnumT): asserts enumType is EnumT & EnumExtras<EnumT> {
+function assertIsEnum <EnumT extends {}> (enumType: EnumT): asserts enumType is EnumT & EnumExtras<EnumT> {
     assertIsTrue(enumType.hasOwnProperty('__enums__'));
 }
 
@@ -148,11 +148,11 @@ Enum.getList = <EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator<Enu
  * @param enumType - the enum type defined from cc.Enum
  * @return {Object[]}
  */
-function updateList<EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator<EnumT>[] {
+function updateList<EnumT extends {}> (enumType: EnumT): readonly Enum.Enumerator<EnumT>[] {
     assertIsEnum(enumType);
     const enums: any[] = enumType.__enums__ || [];
     enums.length = 0;
-    // tslint:disable-next-line: forin
+
     for (const name in enumType) {
         const v = enumType[name];
         if (Number.isInteger(v)) {
@@ -162,7 +162,7 @@ function updateList<EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator
     enums.sort((a, b) => a.value - b.value);
     enumType.__enums__ = enums;
     return enums;
-};
+}
 
 if (DEV) {
     // check key order in object literal

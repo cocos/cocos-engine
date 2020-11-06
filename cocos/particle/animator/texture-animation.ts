@@ -11,7 +11,7 @@ import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle'
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
 
-// tslint:disable: max-line-length
+
 const TEXTURE_ANIMATION_RAND_OFFSET = ModuleRandSeed.TEXTURE;
 
 /**
@@ -214,7 +214,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     @displayOrder(6)
     @tooltip('从动画贴图中选择特定行以生成动画。\n此选项仅在动画播放方式为 SingleRow 时且禁用 randomRow 时可用')
     public rowIndex = 0;
-    
+
     public name = PARTICLE_MODULE_NAME.TEXTURE;
 
     public init (p: Particle) {

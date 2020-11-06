@@ -66,7 +66,6 @@ function align (node: Node, widget: Widget) {
     const useGlobal = target instanceof Scene || !target.getComponent(UITransform);
     const targetAnchor = useGlobal ? _defaultAnchor : target.getComponent(UITransform)!.anchorPoint;
 
-    // @ts-ignore
     const isRoot = !EDITOR && useGlobal;
     node.getPosition(_tempPos);
     const uiTrans = node._uiProps.uiTransformComp!;
@@ -201,12 +200,10 @@ function align (node: Node, widget: Widget) {
 function visitNode (node: any) {
     const widget = node.getComponent(Widget);
     if (widget) {
-        // @ts-ignore
         if (DEV) {
             widget._validateTargetInDEV();
         }
         align(node, widget);
-        // @ts-ignore
         if ((!EDITOR || widgetManager.animationState!.animatedSinceLastFrame) && widget.alignMode === AlignMode.ONCE) {
             widget.enabled = false;
         } else {
@@ -355,7 +352,7 @@ export const widgetManager = legacyCC._widgetManager = {
         if (EDITOR) {
             View.instance.on('design-resolution-changed', this.onResized, this);
         } else {
-            let thisOnResized = this.onResized.bind(this);
+            const thisOnResized = this.onResized.bind(this);
             View.instance.on('canvas-resize', thisOnResized);
             window.addEventListener('orientationchange', thisOnResized);
         }
@@ -407,7 +404,7 @@ export const widgetManager = legacyCC._widgetManager = {
             const parentTrans = widgetParent._uiProps && widgetParent._uiProps.uiTransformComp;
             const parentAP = parentTrans ? parentTrans.anchorPoint : _defaultAnchor;
             const trans = widgetNode._uiProps.uiTransformComp!;
-            const matchSize = getReadonlyNodeSize(widgetParent!);
+            const matchSize = getReadonlyNodeSize(widgetParent);
             const myAP = trans.anchorPoint;
             const pos = widgetNode.getPosition();
             const alignFlags = AlignFlags;
@@ -419,7 +416,7 @@ export const widgetManager = legacyCC._widgetManager = {
                 let l = -parentAP.x * matchSize.width;
                 l += zero.x;
                 l *= one.x;
-                temp = pos.x - myAP.x * trans.width! * widgetNodeScale.x - l;
+                temp = pos.x - myAP.x * trans.width * widgetNodeScale.x - l;
                 if (!widget.isAbsoluteLeft) {
                     temp /= matchSize.width;
                 }
@@ -431,7 +428,7 @@ export const widgetManager = legacyCC._widgetManager = {
             if (e & alignFlags.RIGHT) {
                 let r = (1 - parentAP.x) * matchSize.width;
                 r += zero.x;
-                temp = (r *= one.x) - (pos.x + (1 - myAP.x) * trans.width! * widgetNodeScale.x);
+                temp = (r *= one.x) - (pos.x + (1 - myAP.x) * trans.width * widgetNodeScale.x);
                 if (!widget.isAbsoluteRight) {
                     temp /= matchSize.width;
                 }
@@ -443,7 +440,7 @@ export const widgetManager = legacyCC._widgetManager = {
             if (e & alignFlags.TOP) {
                 let t = (1 - parentAP.y) * matchSize.height;
                 t += zero.y;
-                temp = (t *= one.y) - (pos.y + (1 - myAP.y) * trans.height! * widgetNodeScale.y);
+                temp = (t *= one.y) - (pos.y + (1 - myAP.y) * trans.height * widgetNodeScale.y);
                 if (!widget.isAbsoluteTop) {
                     temp /= matchSize.height;
                 }
@@ -456,7 +453,7 @@ export const widgetManager = legacyCC._widgetManager = {
                 let b = -parentAP.y * matchSize.height;
                 b += zero.y;
                 b *= one.y;
-                temp = pos.y - myAP.y * trans.height! * widgetNodeScale.y - b;
+                temp = pos.y - myAP.y * trans.height * widgetNodeScale.y - b;
                 if (!widget.isAbsoluteBottom) {
                     temp /= matchSize.height;
                 }

@@ -2,6 +2,7 @@ declare const gfx: any;
 
 declare type RecursivePartial<T> = {
     [P in keyof T]?:
+
         T[P] extends Array<infer U> ? Array<RecursivePartial<U>> :
         T[P] extends ReadonlyArray<infer V> ? ReadonlyArray<RecursivePartial<V>> : RecursivePartial<T[P]>;
 };
@@ -17,8 +18,9 @@ import {
     StencilOp,
 } from './define';
 import { Color } from './define-class';
-import { BlendTargetArrayPool, NULL_HANDLE, BlendTargetArrayHandle, RasterizerStateHandle, RasterizerStatePool, RasterizerStateView, 
-    DepthStencilStateHandle, DepthStencilStatePool, DepthStencilStateView, BlendTargetHandle, BlendTargetPool, BlendTargetView, BlendStateHandle, BlendStatePool, BlendStateView } from '../renderer/core/memory-pools';
+import { BlendTargetArrayPool, NULL_HANDLE, BlendTargetArrayHandle, RasterizerStateHandle, RasterizerStatePool, RasterizerStateView,
+    DepthStencilStateHandle, DepthStencilStatePool, DepthStencilStateView, BlendTargetHandle, BlendTargetPool, BlendTargetView,
+    BlendStateHandle, BlendStatePool, BlendStateView } from '../renderer/core/memory-pools';
 
 export class RasterizerState {
     private h: RasterizerStateHandle;
@@ -58,9 +60,9 @@ export class RasterizerState {
         else return false;
     }
     set isFrontFaceCCW (val: boolean) { RasterizerStatePool.set(this.h, RasterizerStateView.IS_FRONT_FACE_CCW, val ? 1 : 0); }
-    get depthBiasEnabled (): boolean { 
+    get depthBiasEnabled (): boolean {
         if (RasterizerStatePool.get(this.h, RasterizerStateView.DEPTH_BIAS_ENABLED)) return true;
-        else return false; 
+        else return false;
     }
     set depthBiasEnabled (val: boolean) { RasterizerStatePool.set(this.h, RasterizerStateView.DEPTH_BIAS_ENABLED, val ? 1 : 0); }
     get depthBias (): number { return RasterizerStatePool.get(this.h, RasterizerStateView.DEPTH_BIAS); }
@@ -84,7 +86,7 @@ export class RasterizerState {
     get handle (): RasterizerStateHandle { return this.h; }
 
     public reset () {
-        this.assignProperties(false, PolygonMode.FILL, ShadeModel.GOURAND, CullMode.BACK, true, 0,
+        this.assignProperties(false, PolygonMode.FILL, ShadeModel.GOURAND, CullMode.BACK, true, false, 0,
             0.0, 0.0, true, false, 1.0);
     }
 
@@ -169,7 +171,7 @@ export class DepthStencilState {
         if (DepthStencilStatePool.get(this.h, DepthStencilStateView.DEPTH_TEST)) return true;
         else return false;
     }
-    set depthTest(val: boolean) { DepthStencilStatePool.set(this.h, DepthStencilStateView.DEPTH_TEST, val ? 1 : 0); }
+    set depthTest (val: boolean) { DepthStencilStatePool.set(this.h, DepthStencilStateView.DEPTH_TEST, val ? 1 : 0); }
     get depthWrite (): boolean {
         if (DepthStencilStatePool.get(this.h, DepthStencilStateView.DEPTH_WRITE)) return true;
         else return false;
@@ -189,7 +191,7 @@ export class DepthStencilState {
     get stencilWriteMaskFront (): number { return DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_WRITE_MASK_FRONT); }
     set stencilWriteMaskFront (val: number) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_WRITE_MASK_FRONT, val); }
     get stencilFailOpFront (): StencilOp { return DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_FAIL_OP_FRONT); }
-    set stencilFailOpFront (val: StencilOp) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_FAIL_OP_FRONT, val); } 
+    set stencilFailOpFront (val: StencilOp) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_FAIL_OP_FRONT, val); }
     get stencilZFailOpFront (): StencilOp { return DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_Z_FAIL_OP_FRONT); }
     set stencilZFailOpFront (val: StencilOp) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_Z_FAIL_OP_FRONT, val); }
     get stencilPassOpFront (): StencilOp { return DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_PASS_OP_FRONT); }
@@ -423,7 +425,7 @@ export class BlendState {
         this.isIndepend = false;
         BlendStatePool.setVec4(this.h, BlendStateView.BLEND_COLOR, new Color(0, 0, 0, 0));
 
-        let targets = this.targets;
+        const targets = this.targets;
         for (let i = 1, len = targets.length; i < len; ++i) {
             targets[i].destroy();
         }
@@ -436,7 +438,7 @@ export class BlendState {
     public destroy () {
         BlendStatePool.free(this.h);
         this.h = NULL_HANDLE;
-        
+
         BlendTargetArrayPool.free(this.hBt);
         this.hBt = NULL_HANDLE;
 

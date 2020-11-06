@@ -48,7 +48,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
 
     public cmdPackage: WebGLCmdPackage = new WebGLCmdPackage();
     protected _webGLAllocator: WebGLCommandAllocator | null = null;
-    protected _isInRenderPass: boolean = false;
+    protected _isInRenderPass = false;
     protected _curGPUPipelineState: IWebGLGPUPipelineState | null = null;
     protected _curGPUInputAssembler: IWebGLGPUInputAssembler | null = null;
     protected _curGPUDescriptorSets: IWebGLGPUDescriptorSet[] = [];
@@ -61,7 +61,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
     protected _curDepthBounds: IWebGLDepthBounds | null = null;
     protected _curStencilWriteMask: IWebGLStencilWriteMask | null = null;
     protected _curStencilCompareMask: IWebGLStencilCompareMask | null = null;
-    protected _isStateInvalied: boolean = false;
+    protected _isStateInvalied = false;
 
     public initialize (info: CommandBufferInfo): boolean {
 
@@ -409,7 +409,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
         }
     }
 
-    // tslint:disable: max-line-length
+
     public execute (cmdBuffs: CommandBuffer[], count: number) {
 
         for (let i = 0; i < count; ++i) {

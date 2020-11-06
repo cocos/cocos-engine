@@ -199,7 +199,7 @@ export class SkinningModel extends MorphModel {
 
     public updateTransform (stamp: number) {
         const root = this.transform!;
-        // @ts-ignore TS2445
+        // @ts-expect-error TS2445
         if (root.hasChangedFlags || root._dirtyFlags) {
             root.updateWorldTransform();
             this._transformUpdated = true;
@@ -217,7 +217,7 @@ export class SkinningModel extends MorphModel {
         }
         if (this._modelBounds && this._worldBounds) {
             aabb.fromPoints(this._modelBounds, v3_min, v3_max);
-            // @ts-ignore TS2445
+            // @ts-expect-error TS2445
             this._modelBounds.transform(root._mat, root._pos, root._rot, root._scale, this._worldBounds);
         }
     }

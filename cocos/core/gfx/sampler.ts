@@ -3,12 +3,12 @@
  * @module gfx
  */
 
-import { Address, ComparisonFunc, Filter, Obj, ObjectType } from './define';
 import { Color } from './define-class';
 import { Device } from './device';
+import { Address, ComparisonFunc, Filter, Obj, ObjectType } from './define';
 
 export class SamplerInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public minFilter: Filter = Filter.LINEAR,
@@ -53,12 +53,12 @@ export abstract class Sampler extends Obj {
     protected _addressU: Address = Address.WRAP;
     protected _addressV: Address = Address.WRAP;
     protected _addressW: Address = Address.WRAP;
-    protected _maxAnisotropy: number = 16;
+    protected _maxAnisotropy = 16;
     protected _cmpFunc: ComparisonFunc = ComparisonFunc.NEVER;
     protected _borderColor: Color = new Color();
-    protected _minLOD: number = 0;
-    protected _maxLOD: number = 0;
-    protected _mipLODBias: number = 0.0;
+    protected _minLOD = 0;
+    protected _maxLOD = 0;
+    protected _mipLODBias = 0.0;
 
     constructor (device: Device) {
         super(ObjectType.SAMPLER);

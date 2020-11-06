@@ -38,13 +38,9 @@ import { assert, errorID } from '../platform/debug';
 
 const MAX_POOL_SIZE = 4;
 
-// @ts-ignore
 const IsPreloadStarted = CCObject.Flags.IsPreloadStarted;
-// @ts-ignore
 const IsOnLoadStarted = CCObject.Flags.IsOnLoadStarted;
-// @ts-ignore
 const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
-// @ts-ignore
 const Deactivating = CCObject.Flags.Deactivating;
 
 const callPreloadInTryCatch = EDITOR && tryCatchFunctor_EDITOR('__preload');
@@ -81,9 +77,9 @@ class UnsortedInvoker extends LifeCycleInvoker {
 
 const invokePreload = SUPPORT_JIT ? createInvokeImplJit('c.__preload();') :
     createInvokeImpl(
-        function (c) { c.__preload(); }, 
+        function (c) { c.__preload(); },
         function (iterator) {
-            var array = iterator.array;
+            const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 array[iterator.i].__preload();
             }
@@ -96,9 +92,9 @@ const invokeOnLoad = SUPPORT_JIT ? createInvokeImplJit('c.onLoad();c._objFlags|=
             c._objFlags |= IsOnLoadCalled;
         },
         function (iterator) {
-            var array = iterator.array;
+            const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                let comp = array[iterator.i];
+                const comp = array[iterator.i];
                 comp.onLoad();
                 comp._objFlags |= IsOnLoadCalled;
             }
@@ -143,7 +139,7 @@ function _componentCorrupted (node, comp, index) {
 
 function _onLoadInEditor (comp) {
     if (comp.onLoad && !legacyCC.GAME_VIEW) {
-        // @ts-ignore
+        // @ts-expect-error
         const focused = Editor.Selection.getLastSelected('node') === comp.node.uuid;
         if (focused) {
             if (comp.onFocusInEditor && callOnFocusInTryCatch) {
@@ -156,8 +152,8 @@ function _onLoadInEditor (comp) {
             }
         }
     }
-    if ( !TEST ) {
-        // @ts-ignore
+    if (!TEST) {
+        // @ts-expect-error
         _Scene.AssetsWatcher.start(comp);
     }
 }

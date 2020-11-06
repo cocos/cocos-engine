@@ -79,7 +79,7 @@ export class TiledMap extends Component {
     _mapSize: Size = new Size(0, 0);
     _tileSize: Size = new Size(0, 0);
 
-    _preloaded: boolean = false;
+    _preloaded = false;
 
     _mapOrientation = Orientation.ORTHO;
 
@@ -125,7 +125,7 @@ export class TiledMap extends Component {
      * 是否开启瓦片地图的自动裁减功能。瓦片地图如果设置了 skew, rotation 或者采用了摄像机的话，需要手动关闭，否则渲染会出错。
      */
     @serializable
-    protected _enableCulling: boolean = true;
+    protected _enableCulling = true;
     get enableCulling () {
         return this._enableCulling;
     }
@@ -138,7 +138,7 @@ export class TiledMap extends Component {
     }
 
     @serializable
-    protected cleanupImageCache: boolean = true;
+    protected cleanupImageCache = true;
 
 
     /**
@@ -369,7 +369,7 @@ export class TiledMap extends Component {
                 }
             }
 
-            const mapInfo = new TMXMapInfo(file.tmxXmlStr!, tsxContentMap, spfTexturesMap, spfTextureSizeMap, imageLayerTextures);
+            const mapInfo = new TMXMapInfo(file.tmxXmlStr, tsxContentMap, spfTexturesMap, spfTextureSizeMap, imageLayerTextures);
             const tilesets = mapInfo.getTilesets();
             if (!tilesets || tilesets.length === 0) {
                 logID(7241);
@@ -418,7 +418,7 @@ export class TiledMap extends Component {
             const layerNode = layerInfo.node;
             // Tiled layer sync anchor to map because it's old behavior,
             // do not change the behavior avoid influence user's existed logic.
-            layerNode!._uiProps!.uiTransformComp!.setAnchorPoint(anchor);
+            layerNode._uiProps.uiTransformComp!.setAnchorPoint(anchor);
         }
 
         for (i = 0, l = this._groups.length; i < l; i++) {
@@ -428,8 +428,8 @@ export class TiledMap extends Component {
             // do not change the behavior avoid influence user's existing logic.
             groupNode.anchorX = 0.5;
             groupNode.anchorY = 0.5;
-            const x = groupInfo.offset!.x - leftTopX + groupNode.width * groupNode.anchorX;
-            const y = groupInfo.offset!.y + leftTopY - groupNode.height * groupNode.anchorY;
+            const x = groupInfo.offset.x - leftTopX + groupNode.width * groupNode.anchorX;
+            const y = groupInfo.offset.y + leftTopY - groupNode.height * groupNode.anchorY;
             groupInfo.node.setPosition(x, y);
         }
 
@@ -457,7 +457,7 @@ export class TiledMap extends Component {
 
     _buildLayerAndGroup () {
         const tilesets = this._tilesets;
-        const texGrids = this._texGrids!;
+        const texGrids = this._texGrids;
         const animations = this._animations;
         texGrids.clear();
 
@@ -515,9 +515,9 @@ export class TiledMap extends Component {
                 child.active = layerInfo.visible;
 
                 if (layerInfo instanceof TMXLayerInfo) {
-                    let layer = child!.getComponent(TiledLayer);
+                    let layer = child.getComponent(TiledLayer);
                     if (!layer) {
-                        layer = child!.addComponent(TiledLayer);
+                        layer = child.addComponent(TiledLayer);
                     }
 
                     layer.init(layerInfo, mapInfo, tilesets, textures, texGrids);
@@ -577,7 +577,7 @@ export class TiledMap extends Component {
         this._mapSize = mapInfo.getMapSize();
         this._tileSize = mapInfo.getTileSize();
         this._mapOrientation = mapInfo.orientation!;
-        this._properties = mapInfo.properties!;
+        this._properties = mapInfo.properties;
         this._tileProperties = mapInfo.getTileProperties();
         this._imageLayers = mapInfo.getImageLayers();
         this._animations = mapInfo.getTileAnimations();
@@ -591,7 +591,7 @@ export class TiledMap extends Component {
             const tilesetInfo = tilesets[i];
             if (!tilesetInfo || !tilesetInfo.sourceImage) continue;
             this._textures[i] = tilesetInfo.sourceImage;
-            totalTextures.push(tilesetInfo.sourceImage!);
+            totalTextures.push(tilesetInfo.sourceImage);
         }
 
         for (let i = 0; i < this._imageLayers.length; i++) {
@@ -617,7 +617,7 @@ export class TiledMap extends Component {
             texture._image.src = '';
         }
         else if (sys.capabilities.imageBitmap && texture._image instanceof ImageBitmap) {
-            // tslint:disable-next-line: no-unused-expression
+
             texture._image.close && texture._image.close();
         }
         texture._image = null;
@@ -625,7 +625,7 @@ export class TiledMap extends Component {
 
     update (dt: number) {
         const animations = this._animations;
-        const texGrids = this._texGrids!;
+        const texGrids = this._texGrids;
         for (const aniGID of animations.keys()) {
             const animation = animations.get(aniGID)!;
             const frames = animation.frames;

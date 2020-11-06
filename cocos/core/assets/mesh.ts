@@ -28,32 +28,33 @@
  * @module asset
  */
 
-import { ccclass, serializable } from 'cc.decorator';
-import { Mat4, Quat, Vec3 } from '../../core/math';
-import { mapBuffer } from '../3d/misc/buffer';
+import { Asset } from './asset';
 import { BufferBlob } from '../3d/misc/buffer-blob';
+import { Skeleton } from './skeleton';
 import { aabb } from '../geometry';
-import { Buffer, BufferInfo } from '../gfx';
+import { legacyCC } from '../global-exports';
+import { mapBuffer } from '../3d/misc/buffer';
+import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
+import { sys } from '../platform/sys';
+import { warnID } from '../platform/debug';
+import { Attribute, Device, InputAssemblerInfo } from '../gfx';
 import {
-    getTypedArrayConstructor,
     AttributeName,
     BufferUsageBit,
+    Feature,
     Format,
     FormatInfos,
     FormatType,
     MemoryUsageBit,
     PrimitiveMode,
-    Feature
+    getTypedArrayConstructor,
 } from '../gfx/define';
-import { Device, Attribute, InputAssemblerInfo } from '../gfx';
-import { warnID } from '../platform/debug';
-import { sys } from '../platform/sys';
-import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
-import { Asset } from './asset';
-import { Skeleton } from './skeleton';
-import { Morph, createMorphRendering, MorphRendering } from './morph';
-import { legacyCC } from '../global-exports';
-import { FlatBufferArrayPool, FlatBufferPool, FlatBufferView, freeHandleArray, NULL_HANDLE, RawBufferPool, SubMeshHandle, SubMeshPool, SubMeshView } from '../renderer/core/memory-pools';
+import { Buffer, BufferInfo } from '../gfx';
+import { FlatBufferArrayPool, FlatBufferPool, FlatBufferView, NULL_HANDLE, RawBufferPool,
+    SubMeshHandle, SubMeshPool, SubMeshView, freeHandleArray } from '../renderer/core/memory-pools';
+import { Mat4, Quat, Vec3 } from '../../core/math';
+import { Morph, MorphRendering, createMorphRendering } from './morph';
+import { ccclass, serializable } from 'cc.decorator';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
@@ -97,7 +98,7 @@ export interface IGeometricInfo {
      * @en The bounding box
      * @zh 此几何体的轴对齐包围盒。
      */
-    boundingBox: { max: Vec3; min: Vec3; }
+    boundingBox: { max: Vec3; min: Vec3 };
 }
 
 /**
@@ -115,6 +116,38 @@ export interface IFlatBuffer {
  * @zh 包含所有顶点数据的渲染子网格，可以用来创建 [[InputAssembler]]。
  */
 export class RenderingSubMesh {
+
+    public mesh?: Mesh;
+    public subMeshIdx?: number;
+
+    private _flatBuffers: IFlatBuffer[] = [];
+    private _jointMappedBuffers?: Buffer[];
+    private _jointMappedBufferIndices?: number[];
+    private _vertexIdChannel?: { stream: number; index: number };
+    private _geometricInfo?: IGeometricInfo;
+
+    private _vertexBuffers: Buffer[];
+    private _attributes: Attribute[];
+    private _indexBuffer: Buffer | null = null;
+    private _indirectBuffer: Buffer | null = null;
+    private _primitiveMode: PrimitiveMode;
+    private _iaInfo: InputAssemblerInfo;
+    private _handle: SubMeshHandle = NULL_HANDLE;
+
+    constructor (
+        vertexBuffers: Buffer[], attributes: Attribute[], primitiveMode: PrimitiveMode,
+        indexBuffer: Buffer | null = null, indirectBuffer: Buffer | null = null,
+    ) {
+        this._attributes = attributes;
+        this._vertexBuffers = vertexBuffers;
+        this._indexBuffer = indexBuffer;
+        this._indirectBuffer = indirectBuffer;
+        this._primitiveMode = primitiveMode;
+        this._iaInfo = new InputAssemblerInfo(attributes, vertexBuffers, indexBuffer, indirectBuffer);
+        this._handle = SubMeshPool.alloc();
+        const fbArrayHandle = FlatBufferArrayPool.alloc();
+        SubMeshPool.set(this._handle, SubMeshView.FLAT_BUFFER_ARRAY, fbArrayHandle);
+    }
 
     /**
      * @en All vertex attributes used by the sub mesh
@@ -157,7 +190,7 @@ export class RenderingSubMesh {
         if (this.subMeshIdx === undefined) {
             return { positions: new Float32Array(), indices: new Uint8Array(), boundingBox: { min: Vec3.ZERO, max: Vec3.ZERO } };
         }
-        const mesh = this.mesh!; const index = this.subMeshIdx!;
+        const mesh = this.mesh; const index = this.subMeshIdx;
         const positions = mesh.readAttribute(index, AttributeName.ATTR_POSITION) as unknown as Float32Array;
         const indices = mesh.readIndices(index) as Uint16Array;
         const max = new Vec3();
@@ -197,7 +230,8 @@ export class RenderingSubMesh {
      * @zh 扁平化的顶点缓冲区。
      */
     get flatBuffers () { return this._flatBuffers; }
-    public genFlatBuffers() {
+
+    public genFlatBuffers () {
         if (this._flatBuffers.length || !this.mesh || this.subMeshIdx === undefined) { return; }
 
         const mesh = this.mesh;
@@ -210,14 +244,14 @@ export class RenderingSubMesh {
             const vbCount = prim.indexView ? prim.indexView.count : vertexBundle.view.count;
             const vbStride = vertexBundle.view.stride;
             const vbSize = vbStride * vbCount;
-            
+
             const rawBufferSize = prim.indexView ? vertexBundle.view.length : vbSize;
             const hBuffer = RawBufferPool.alloc(rawBufferSize);
             const buffer = RawBufferPool.getBuffer(hBuffer);
             const view = prim.indexView ? new Uint8Array(buffer) : new Uint8Array(rawBufferSize);
             const hFlatBuffer = FlatBufferPool.alloc();
             view.set(mesh.data.subarray(vertexBundle.view.offset, vertexBundle.view.offset + vertexBundle.view.length));
-            
+
             if (!prim.indexView) {
                 FlatBufferPool.set(hFlatBuffer, FlatBufferView.STRIDE, vbStride);
                 FlatBufferPool.set(hFlatBuffer, FlatBufferView.AMOUNT, vbCount);
@@ -243,7 +277,6 @@ export class RenderingSubMesh {
             FlatBufferArrayPool.push(fbArrayHandle, hFlatBuffer);
             this._flatBuffers.push({ stride: vbStride, count: vbCount, buffer: vbView });
         }
-        return this._flatBuffers;
     }
 
     /**
@@ -300,40 +333,8 @@ export class RenderingSubMesh {
 
     get iaInfo () { return this._iaInfo; }
 
-    public mesh?: Mesh;
-    public subMeshIdx?: number;
-
-    private _flatBuffers: IFlatBuffer[] = [];
-    private _jointMappedBuffers?: Buffer[];
-    private _jointMappedBufferIndices?: number[];
-    private _vertexIdChannel?: { stream: number; index: number; };
-    private _geometricInfo?: IGeometricInfo;
-
-    private _vertexBuffers: Buffer[];
-    private _attributes: Attribute[];
-    private _indexBuffer: Buffer | null = null;
-    private _indirectBuffer: Buffer | null = null;
-    private _primitiveMode: PrimitiveMode;
-    private _iaInfo: InputAssemblerInfo;
-    private _handle: SubMeshHandle = NULL_HANDLE;
-
     get handle () {
         return this._handle;
-    }
-
-    constructor (
-        vertexBuffers: Buffer[], attributes: Attribute[], primitiveMode: PrimitiveMode,
-        indexBuffer: Buffer | null = null, indirectBuffer: Buffer | null = null,
-    ) {
-        this._attributes = attributes;
-        this._vertexBuffers = vertexBuffers;
-        this._indexBuffer = indexBuffer;
-        this._indirectBuffer = indirectBuffer;
-        this._primitiveMode = primitiveMode;
-        this._iaInfo = new InputAssemblerInfo(attributes, vertexBuffers, indexBuffer, indirectBuffer);
-        this._handle = SubMeshPool.alloc();
-        const fbArrayHandle = FlatBufferArrayPool.alloc();
-        SubMeshPool.set(this._handle, SubMeshView.FLAT_BUFFER_ARRAY, fbArrayHandle);
     }
 
     public destroy () {
@@ -356,7 +357,7 @@ export class RenderingSubMesh {
             this._indirectBuffer.destroy();
             this._indirectBuffer = null;
         }
-        if(this._handle) {
+        if (this._handle) {
             const fbArrayHandle = SubMeshPool.get(this._handle, SubMeshView.FLAT_BUFFER_ARRAY);
             freeHandleArray(fbArrayHandle, FlatBufferArrayPool, FlatBufferPool);
 
@@ -628,6 +629,8 @@ export class Mesh extends Asset {
         this.initialize();
         return this._renderingSubMeshes!;
     }
+
+    public morphRendering: MorphRendering | null = null;
 
     @serializable
     private _struct: Mesh.IStruct = {
@@ -1220,14 +1223,14 @@ export class Mesh extends Asset {
      * @returns Return null if not found or can't read, otherwise, will create a large enough typed array to contain all data of the attribute,
      * the array type will match the data type of the attribute.
      */
-    public readAttribute (primitiveIndex: number, attributeName: AttributeName): Storage | null {
+    public readAttribute (primitiveIndex: number, attributeName: AttributeName): TypedArray | null {
         let result: TypedArray | null = null;
         this._accessAttribute(primitiveIndex, attributeName, (vertexBundle, iAttribute) => {
             const vertexCount = vertexBundle.view.count;
             const format = vertexBundle.attributes[iAttribute].format;
             const storageConstructor = getTypedArrayConstructor(FormatInfos[format]);
             if (vertexCount === 0) {
-                return new storageConstructor();
+                return;
             }
 
             const inputView = new DataView(
@@ -1333,7 +1336,7 @@ export class Mesh extends Asset {
      * @param outputArray The target output array
      * @returns Return false if failed to access the indices data, return true otherwise.
      */
-    public copyIndices (primitiveIndex: number, outputArray: number[] | ArrayBufferView) {
+    public copyIndices (primitiveIndex: number, outputArray: number[] | ArrayBufferView): boolean {
         if (primitiveIndex >= this._struct.primitives.length) {
             return false;
         }
@@ -1392,8 +1395,6 @@ export class Mesh extends Asset {
             return vertexBuffer;
         });
     }
-
-    public morphRendering: MorphRendering | null = null;
 }
 legacyCC.Mesh = Mesh;
 

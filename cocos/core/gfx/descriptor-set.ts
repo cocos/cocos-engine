@@ -4,11 +4,11 @@
  */
 
 import { Buffer } from './buffer';
-import { DescriptorType, Obj, ObjectType } from './define';
+import { DescriptorSetLayout } from './descriptor-set-layout';
 import { Device } from './device';
 import { Sampler } from './sampler';
 import { Texture } from './texture';
-import { DescriptorSetLayout } from './descriptor-set-layout';
+import { DescriptorType, Obj, ObjectType } from './define';
 
 export const DESCRIPTOR_BUFFER_TYPE =
     DescriptorType.UNIFORM_BUFFER | DescriptorType.DYNAMIC_UNIFORM_BUFFER |
@@ -17,7 +17,7 @@ export const DESCRIPTOR_BUFFER_TYPE =
 export const DESCRIPTOR_SAMPLER_TYPE = DescriptorType.SAMPLER;
 
 export class DescriptorSetInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public layout: DescriptorSetLayout,
@@ -62,7 +62,7 @@ export abstract class DescriptorSet extends Obj {
      */
     public bindBuffer (binding: number, buffer: Buffer, index = 0) {
         const bindingIndex = this._layout!.bindingIndices[binding];
-        const info = this._layout!.bindings[bindingIndex]; if (!info) return;
+        const info = this._layout!.bindings[bindingIndex]; if (!info) { return; }
         if (info.descriptorType & DESCRIPTOR_BUFFER_TYPE) {
             const descriptorIndex = this._layout!.descriptorIndices[binding];
             if (this._buffers[descriptorIndex + index] !== buffer) {
@@ -82,7 +82,7 @@ export abstract class DescriptorSet extends Obj {
      */
     public bindSampler (binding: number, sampler: Sampler, index = 0) {
         const bindingIndex = this._layout!.bindingIndices[binding];
-        const info = this._layout!.bindings[bindingIndex]; if (!info) return;
+        const info = this._layout!.bindings[bindingIndex]; if (!info) { return; }
         if (info.descriptorType & DESCRIPTOR_SAMPLER_TYPE) {
             const descriptorIndex = this._layout!.descriptorIndices[binding];
             if (this._samplers[descriptorIndex + index] !== sampler) {
@@ -102,7 +102,7 @@ export abstract class DescriptorSet extends Obj {
      */
     public bindTexture (binding: number, texture: Texture, index = 0) {
         const bindingIndex = this._layout!.bindingIndices[binding];
-        const info = this._layout!.bindings[bindingIndex]; if (!info) return;
+        const info = this._layout!.bindings[bindingIndex]; if (!info) { return; }
         if (info.descriptorType & DESCRIPTOR_SAMPLER_TYPE) {
             const descriptorIndex = this._layout!.descriptorIndices[binding];
             if (this._textures[descriptorIndex + index] !== texture) {

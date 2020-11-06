@@ -424,7 +424,7 @@ export default class Bundle {
             }
             else if (sceneAsset instanceof SceneAsset && sceneAsset.scene) {
                 const scene = sceneAsset.scene;
-                // @ts-ignore
+                // @ts-expect-error
                 scene._id = sceneAsset._uuid;
                 scene.name = sceneAsset.name;
                 if (onComp) { onComp(null, sceneAsset); }

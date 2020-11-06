@@ -47,7 +47,7 @@ export function BitMask<T> (obj: T): T {
     }
     value(obj, '__bitmask__', null, true);
 
-    let lastIndex: number = -1;
+    let lastIndex = -1;
     const keys: string[] = Object.keys(obj);
 
     for (let i = 0; i < keys.length; i++) {
@@ -87,7 +87,7 @@ BitMask.getList = (BitMaskDef) => {
     }
 
     const bitlist: any[] = BitMaskDef.__bitmask__ = [];
-    // tslint:disable-next-line: forin
+
     for (const name in BitMaskDef) {
         const v = BitMaskDef[name];
         if (Number.isInteger(v)) {

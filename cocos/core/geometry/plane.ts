@@ -18,7 +18,7 @@ const temp_vec4 = legacyCC.v4();
  * @zh
  * 基础几何 plane。
  */
-// tslint:disable-next-line:class-name
+
 export default class plane {
 
     /**

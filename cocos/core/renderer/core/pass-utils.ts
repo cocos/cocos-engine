@@ -29,7 +29,7 @@
  */
 
 import { Type } from '../../gfx/define';
-import { Color, Mat3, Mat4, Vec2, Vec3, Vec4, Quat } from '../../math';
+import { Color, Mat3, Mat4, Vec2, Vec3, Vec4, Quat, IVec2Like, IVec3Like, IVec4Like, IMat3Like, IMat4Like } from '../../math';
 
 const dtMask      = 0xf0000000; //  4 bits => 16 property types
 const typeMask    = 0x0fc00000; //  6 bits => 64 types
@@ -52,14 +52,14 @@ export enum PropertyType {
     SAMPLER,
 }
 
-export const genHandle = (pt: PropertyType, set: number, binding: number, type: Type, offset: number = 0) =>
+export const genHandle = (pt: PropertyType, set: number, binding: number, type: Type, offset = 0): number =>
     ((pt << 28) & dtMask) | ((type << 22) & typeMask) | ((set << 20) & setMask) | ((binding << 14) & bindingMask) | (offset & offsetMask);
-export const getPropertyTypeFromHandle = (handle: number) => (handle & dtMask) >>> 28;
-export const getTypeFromHandle = (handle: number) => (handle & typeMask) >>> 22;
-export const getSetIndexFromHandle = (handle: number) => (handle & setMask) >>> 20;
-export const getBindingFromHandle = (handle: number) => (handle & bindingMask) >>> 14;
-export const getOffsetFromHandle = (handle: number) => (handle & offsetMask);
-export const customizeType = (handle: number, type: Type) => (handle & ~typeMask) | ((type << 22) & typeMask);
+export const getPropertyTypeFromHandle = (handle: number): number => (handle & dtMask) >>> 28;
+export const getTypeFromHandle = (handle: number): number => (handle & typeMask) >>> 22;
+export const getSetIndexFromHandle = (handle: number): number => (handle & setMask) >>> 20;
+export const getBindingFromHandle = (handle: number): number => (handle & bindingMask) >>> 14;
+export const getOffsetFromHandle = (handle: number): number => (handle & offsetMask);
+export const customizeType = (handle: number, type: Type): number => (handle & ~typeMask) | ((type << 22) & typeMask);
 
 /**
  * @en Vector type uniforms
@@ -68,31 +68,31 @@ export const customizeType = (handle: number, type: Type) => (handle & ~typeMask
 export type MaterialProperty = number | Vec2 | Vec3 | Vec4 | Color | Mat3 | Mat4 | Quat;
 
 export const type2reader = {
-    [Type.UNKNOWN]: (a: Float32Array, v: any, idx: number = 0) => console.warn('illegal uniform handle'),
-    [Type.INT]: (a: Float32Array, v: any, idx: number = 0) => a[idx],
-    [Type.INT2]: (a: Float32Array, v: any, idx: number = 0) => Vec2.fromArray(v, a, idx),
-    [Type.INT3]: (a: Float32Array, v: any, idx: number = 0) => Vec3.fromArray(v, a, idx),
-    [Type.INT4]: (a: Float32Array, v: any, idx: number = 0) => Vec4.fromArray(v, a, idx),
-    [Type.FLOAT]: (a: Float32Array, v: any, idx: number = 0) => a[idx],
-    [Type.FLOAT2]: (a: Float32Array, v: any, idx: number = 0) => Vec2.fromArray(v, a, idx),
-    [Type.FLOAT3]: (a: Float32Array, v: any, idx: number = 0) => Vec3.fromArray(v, a, idx),
-    [Type.FLOAT4]: (a: Float32Array, v: any, idx: number = 0) => Vec4.fromArray(v, a, idx),
-    [Type.MAT3]: (a: Float32Array, v: any, idx: number = 0) => Mat3.fromArray(v, a, idx),
-    [Type.MAT4]: (a: Float32Array, v: any, idx: number = 0) => Mat4.fromArray(v, a, idx),
+    [Type.UNKNOWN]: (a: Float32Array, v: number, idx = 0): void => console.warn('illegal uniform handle'),
+    [Type.INT]: (a: Float32Array, v: number, idx = 0): number => a[idx],
+    [Type.INT2]: (a: Float32Array, v: IVec2Like, idx = 0): IVec2Like => Vec2.fromArray(v, a, idx),
+    [Type.INT3]: (a: Float32Array, v: IVec3Like, idx = 0): IVec3Like => Vec3.fromArray(v, a, idx),
+    [Type.INT4]: (a: Float32Array, v: IVec4Like, idx = 0): IVec4Like => Vec4.fromArray(v, a, idx),
+    [Type.FLOAT]: (a: Float32Array, v: number, idx = 0): number => a[idx],
+    [Type.FLOAT2]: (a: Float32Array, v: IVec2Like, idx = 0): IVec2Like => Vec2.fromArray(v, a, idx),
+    [Type.FLOAT3]: (a: Float32Array, v: IVec3Like, idx = 0): IVec3Like => Vec3.fromArray(v, a, idx),
+    [Type.FLOAT4]: (a: Float32Array, v: IVec4Like, idx = 0): IVec4Like => Vec4.fromArray(v, a, idx),
+    [Type.MAT3]: (a: Float32Array, v: IMat3Like, idx = 0): IMat3Like => Mat3.fromArray(v, a, idx),
+    [Type.MAT4]: (a: Float32Array, v: IMat4Like, idx = 0): IMat4Like => Mat4.fromArray(v, a, idx),
 };
 
 export const type2writer = {
-    [Type.UNKNOWN]: (a: Float32Array, v: any, idx: number = 0) => console.warn('illegal uniform handle'),
-    [Type.INT]: (a: Float32Array, v: any, idx: number = 0) => a[idx] = v,
-    [Type.INT2]: (a: Float32Array, v: any, idx: number = 0) => Vec2.toArray(a, v, idx),
-    [Type.INT3]: (a: Float32Array, v: any, idx: number = 0) => Vec3.toArray(a, v, idx),
-    [Type.INT4]: (a: Float32Array, v: any, idx: number = 0) => Vec4.toArray(a, v, idx),
-    [Type.FLOAT]: (a: Float32Array, v: any, idx: number = 0) => a[idx] = v,
-    [Type.FLOAT2]: (a: Float32Array, v: any, idx: number = 0) => Vec2.toArray(a, v, idx),
-    [Type.FLOAT3]: (a: Float32Array, v: any, idx: number = 0) => Vec3.toArray(a, v, idx),
-    [Type.FLOAT4]: (a: Float32Array, v: any, idx: number = 0) => Vec4.toArray(a, v, idx),
-    [Type.MAT3]: (a: Float32Array, v: any, idx: number = 0) => Mat3.toArray(a, v, idx),
-    [Type.MAT4]: (a: Float32Array, v: any, idx: number = 0) => Mat4.toArray(a, v, idx),
+    [Type.UNKNOWN]: (a: Float32Array, v: number, idx = 0): void => console.warn('illegal uniform handle'),
+    [Type.INT]: (a: Float32Array, v: number, idx = 0): number => a[idx] = v,
+    [Type.INT2]: (a: Float32Array, v: IVec2Like, idx = 0): Float32Array => Vec2.toArray(a, v, idx),
+    [Type.INT3]: (a: Float32Array, v: IVec3Like, idx = 0): Float32Array => Vec3.toArray(a, v, idx),
+    [Type.INT4]: (a: Float32Array, v: IVec4Like, idx = 0): Float32Array => Vec4.toArray(a, v, idx),
+    [Type.FLOAT]: (a: Float32Array, v: number, idx = 0): number => a[idx] = v,
+    [Type.FLOAT2]: (a: Float32Array, v: IVec2Like, idx = 0): Float32Array => Vec2.toArray(a, v, idx),
+    [Type.FLOAT3]: (a: Float32Array, v: IVec3Like, idx = 0): Float32Array => Vec3.toArray(a, v, idx),
+    [Type.FLOAT4]: (a: Float32Array, v: IVec4Like, idx = 0): Float32Array => Vec4.toArray(a, v, idx),
+    [Type.MAT3]: (a: Float32Array, v: IMat3Like, idx = 0): Float32Array => Mat3.toArray(a, v, idx),
+    [Type.MAT4]: (a: Float32Array, v: IMat4Like, idx = 0): Float32Array => Mat4.toArray(a, v, idx),
 };
 
 const defaultValues = [
@@ -107,7 +107,7 @@ const defaultValues = [
  * @zh 根据指定的 Uniform 类型来获取默认值
  * @param type The type of the uniform
  */
-export function getDefaultFromType (type: Type) {
+export function getDefaultFromType (type: Type): readonly number[] | string {
     switch (type) {
         case Type.BOOL:
         case Type.INT:
@@ -148,7 +148,7 @@ export type MacroRecord = Record<string, number | boolean | string>;
  */
 export function overrideMacros (target: MacroRecord, source: MacroRecord): boolean {
     const entries = Object.entries(source);
-    let isDifferent: boolean = false;
+    let isDifferent = false;
     for (let i = 0; i < entries.length; i++) {
         if (target[entries[i][0]] !== entries[i][1]) {
             target[entries[i][0]] = entries[i][1];

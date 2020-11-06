@@ -12,12 +12,12 @@ import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit,
     DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSampler } from '../gfx';
 import { Camera } from '../renderer/scene';
 
-// tslint:disable: max-line-length
 
-export const PIPELINE_FLOW_FORWARD: string = 'ForwardFlow';
-export const PIPELINE_FLOW_SHADOW: string = 'ShadowFlow';
-export const PIPELINE_FLOW_SMAA: string = 'SMAAFlow';
-export const PIPELINE_FLOW_TONEMAP: string = 'ToneMapFlow';
+
+export const PIPELINE_FLOW_FORWARD = 'ForwardFlow';
+export const PIPELINE_FLOW_SHADOW = 'ShadowFlow';
+export const PIPELINE_FLOW_SMAA = 'SMAAFlow';
+export const PIPELINE_FLOW_TONEMAP = 'ToneMapFlow';
 
 /**
  * @en The predefined render pass stage ids
