@@ -429,4 +429,20 @@ void AudioEngineImpl::uncacheAll()
     }
 }
 
+void AudioEngineImpl::onPause()
+{
+    if (_audioPlayerProvider != nullptr)
+    {
+        _audioPlayerProvider->pause();
+    }
+}
+
+void AudioEngineImpl::onResume() 
+{
+    if (_audioPlayerProvider != nullptr)
+    {
+        _audioPlayerProvider->resume();
+    }
+}
+
 #endif

@@ -73,6 +73,9 @@ public:
     void uncacheAll();
     void preload(const std::string& filePath, const std::function<void(bool)>& callback);
 
+    void onResume();
+    void onPause();
+
     void setAudioFocusForAllPlayers(bool isFocus);
 private:
     // engine interfaces

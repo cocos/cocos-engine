@@ -362,6 +362,12 @@ void AudioEngine::onEnterBackground(const CustomEvent &event) {
             _breakAudioID.push_back(it->first);
         }
     }
+    
+#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+    if (_audioEngineImpl) {
+        _audioEngineImpl->onPause();
+    }
+#endif    
 }
 
 void AudioEngine::onEnterForeground(const CustomEvent &event) {
@@ -370,6 +376,12 @@ void AudioEngine::onEnterForeground(const CustomEvent &event) {
         _audioEngineImpl->resume(*it);
     }
     _breakAudioID.clear();
+    
+#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID    
+    if (_audioEngineImpl) {
+        _audioEngineImpl->onResume();
+    }
+#endif 
 }
 
 void AudioEngine::stop(int audioID)

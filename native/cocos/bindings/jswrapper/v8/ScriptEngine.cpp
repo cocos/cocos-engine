@@ -294,7 +294,7 @@ namespace se {
             thiz->_isErrorHandleWorking = true;
 
             Value errorHandler;
-            if (thiz->_globalObj->getProperty("__errorHandler", &errorHandler) && errorHandler.isObject() && errorHandler.toObject()->isFunction())
+            if (thiz->_globalObj && thiz->_globalObj->getProperty("__errorHandler", &errorHandler) && errorHandler.isObject() && errorHandler.toObject()->isFunction())
             {
                 ValueArray args;
                 args.push_back(resouceNameVal);
