@@ -312,6 +312,10 @@ export class Game extends EventTarget {
         return this._inited;
     }
 
+    public get frameTime () {
+        return this._frameTime;
+    }
+
     public _persistRootNodes = {};
 
     // states
@@ -642,7 +646,6 @@ export class Game extends EventTarget {
         this._lastTime = performance.now();
         const frameRate = this.config.frameRate;
         this._frameTime = 1000 / frameRate;
-        legacyCC.director._maxParticleDeltaTime = this._frameTime / 1000 * 2;
         if (JSB || RUNTIME_BASED) {
             // @ts-ignore
             jsb.setPreferredFramesPerSecond(frameRate);

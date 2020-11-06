@@ -28,8 +28,10 @@ import { ParticleSystem2D } from './particle-system-2d';
 import { MeshRenderData } from '../core/renderer/ui/render-data';
 import { UI } from '../core/renderer/ui/ui';
 import { PositionType } from './define';
+import { legacyCC } from '../core/global-exports';
 
 export const ParticleAssembler: IAssembler = {
+    maxParticleDeltaTime: 0,
     createData (comp: ParticleSystem2D) {
         return MeshRenderData.add();
     },
@@ -84,6 +86,9 @@ export const ParticleAssembler: IAssembler = {
 
 export const ParticleSystem2DAssembler: IAssemblerManager = {
     getAssembler (comp: ParticleSystem2D) {
+        if (!ParticleAssembler.maxParticleDeltaTime) {
+            ParticleAssembler.maxParticleDeltaTime = legacyCC.game.frameTime / 1000 * 2
+        }
         return ParticleAssembler;
     },
 };

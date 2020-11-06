@@ -320,11 +320,11 @@ export class Simulator {
     };
 
     public step (dt) {
-        dt = dt > director._maxParticleDeltaTime ? director._maxParticleDeltaTime : dt;
+        const assembler = this.sys.assembler;
         const psys = this.sys;
         const node = psys.node;
         const particles = this.particles;
-
+        dt = dt > assembler.maxParticleDeltaTime ? assembler.maxParticleDeltaTime : dt;
         // Calculate pos
         node.updateWorldTransform();
         if (psys.positionType === PositionType.FREE) {
