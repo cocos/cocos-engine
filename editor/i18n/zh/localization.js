@@ -5,6 +5,7 @@ module.exports = {
 
     help: {
         cc: {
+            Node: 'https://docs.cocos.com/creator3d/manual/zh/concepts/scene/node-component.html',
             MeshRenderer: 'https://docs.cocos.com/creator3d/manual/zh/engine/renderable/model-component.html',
             UITransform: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/ui-transform.html',
             Sprite: 'https://docs.cocos.com/creator3d/manual/zh/ui-system/components/editor/sprite.html',
