@@ -188,6 +188,7 @@ sp.Skeleton = cc.Class({
             },
             type: DefaultSkinsEnum,
             visible: true,
+            animatable: false,
             displayName: "Default Skin",
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.default_skin'
         },
@@ -230,6 +231,7 @@ sp.Skeleton = cc.Class({
             },
             type: DefaultAnimsEnum,
             visible: true,
+            animatable: false,
             displayName: 'Animation',
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.animation'
         },
