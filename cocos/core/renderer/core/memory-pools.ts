@@ -33,7 +33,7 @@ import { NativeBufferPool, NativeObjectPool, NativeBufferAllocator } from './nat
 import { DescriptorSetInfo,
     Device, DescriptorSet, ShaderInfo, Shader, InputAssemblerInfo, InputAssembler,
     PipelineLayoutInfo, PipelineLayout, Framebuffer, FramebufferInfo, PrimitiveMode,
-    DynamicStateFlags, ClearFlag } from '../../gfx';
+    DynamicStateFlags, ClearFlag, Color as GFXColor } from '../../gfx';
 import { RenderPassStage } from '../../pipeline/define';
 import { BatchingSchemes } from './pass';
 import { Layers } from '../../scene-graph/layers';
@@ -533,6 +533,10 @@ export enum PoolType {
     INSTANCED_ATTRIBUTE,
     FLAT_BUFFER,
     SUB_MESH,
+    RASTERIZER_STATE,
+    DEPTH_STENCIL_STATE,
+    BLEND_TARGET,
+    BLEND_STATE,
     // arrays
     SUB_MODEL_ARRAY = 200,
     MODEL_ARRAY,
@@ -580,6 +584,10 @@ export type FlatBufferHandle = IHandle<PoolType.FLAT_BUFFER>;
 export type FlatBufferArrayHandle = IHandle<PoolType.FLAT_BUFFER_ARRAY>;
 export type LightArrayHandle = IHandle<PoolType.LIGHT_ARRAY>;
 export type BlendTargetArrayHandle = IHandle<PoolType.BLEND_TARGET_ARRAY>;
+export type RasterizerStateHandle = IHandle<PoolType.RASTERIZER_STATE>;
+export type DepthStencilStateHandle = IHandle<PoolType.DEPTH_STENCIL_STATE>;
+export type BlendTargetHandle = IHandle<PoolType.BLEND_TARGET>;
+export type BlendStateHandle = IHandle<PoolType.BLEND_STATE>;
 
 // don't reuse any of these data-only structs, for GFX objects may directly reference them
 
@@ -613,7 +621,7 @@ export const AttributeArrayPool = new TypedArrayPool<PoolType.ATTRIBUTE_ARRAY, U
 export const FlatBufferArrayPool = new TypedArrayPool<PoolType.FLAT_BUFFER_ARRAY, Uint32ArrayConstructor, FlatBufferHandle>
 (PoolType.FLAT_BUFFER_ARRAY, Uint32Array, 8, 4);
 export const LightArrayPool = new TypedArrayPool<PoolType.LIGHT_ARRAY, Uint32ArrayConstructor, LightHandle>(PoolType.LIGHT_ARRAY, Uint32Array, 8, 4);
-export const BlendTargetArrayPool = new TypedArrayPool<PoolType.BLEND_TARGET_ARRAY, Uint32ArrayConstructor, RawBufferHandle>(PoolType.BLEND_TARGET_ARRAY, Uint32Array, 8, 4);
+export const BlendTargetArrayPool = new TypedArrayPool<PoolType.BLEND_TARGET_ARRAY, Uint32ArrayConstructor, BlendTargetHandle>(PoolType.BLEND_TARGET_ARRAY, Uint32Array, 8, 4);
 
 export const RawBufferPool = new BufferAllocator(PoolType.RAW_BUFFER);
 export const RawObjectPool = new ObjectPool(PoolType.RAW_OBJECT, (args: [Object?]) => args[0] || {}, (_: Object) => undefined);
@@ -1255,3 +1263,189 @@ const subMeshViewDataType: BufferDataTypeManifest<typeof SubMeshView> = {
 // we'll have to explicitly declare all these types.
 export const SubMeshPool = new BufferPool<PoolType.SUB_MESH, typeof SubMeshView, ISubMeshViewType>
     (PoolType.SUB_MESH, subMeshViewDataType, SubMeshView, 3);
+
+export enum RasterizerStateView {
+    IS_DISCARD,
+    POLYGO_MODEL,
+    SHADE_MODEL,
+    CULL_MODE,
+    IS_FRONT_FACE_CCW,
+    DEPTH_BIAS,
+    DEPTH_BIAS_CLAMP,
+    DEPTH_BIAS_SLOP,
+    IS_DEPTH_CLIP,
+    IS_MULTI_SAMPLE,
+    LINE_WIDTH,
+    COUNT
+}
+interface IRasterizerStateViewType extends BufferTypeManifest<typeof RasterizerStateView> {
+    [RasterizerStateView.IS_DISCARD]: number,
+    [RasterizerStateView.POLYGO_MODEL]: number,
+    [RasterizerStateView.SHADE_MODEL]: number,
+    [RasterizerStateView.CULL_MODE]: number,
+    [RasterizerStateView.IS_FRONT_FACE_CCW]: number,
+    [RasterizerStateView.DEPTH_BIAS]: number,
+    [RasterizerStateView.DEPTH_BIAS_CLAMP]: number,
+    [RasterizerStateView.DEPTH_BIAS_SLOP]: number,
+    [RasterizerStateView.IS_DEPTH_CLIP]: number,
+    [RasterizerStateView.IS_MULTI_SAMPLE]: number,
+    [RasterizerStateView.LINE_WIDTH]: number,
+    [RasterizerStateView.COUNT]: never
+}
+const rasterizerStateViewDataType: BufferDataTypeManifest<typeof RasterizerStateView> = {
+    [RasterizerStateView.IS_DISCARD]: BufferDataType.UINT32,
+    [RasterizerStateView.POLYGO_MODEL]: BufferDataType.UINT32,
+    [RasterizerStateView.SHADE_MODEL]: BufferDataType.UINT32,
+    [RasterizerStateView.CULL_MODE]: BufferDataType.UINT32,
+    [RasterizerStateView.IS_FRONT_FACE_CCW]: BufferDataType.UINT32,
+    [RasterizerStateView.DEPTH_BIAS]: BufferDataType.FLOAT32,
+    [RasterizerStateView.DEPTH_BIAS_CLAMP]: BufferDataType.FLOAT32,
+    [RasterizerStateView.DEPTH_BIAS_SLOP]: BufferDataType.FLOAT32,
+    [RasterizerStateView.IS_DEPTH_CLIP]: BufferDataType.UINT32,
+    [RasterizerStateView.IS_MULTI_SAMPLE]: BufferDataType.UINT32,
+    [RasterizerStateView.LINE_WIDTH]: BufferDataType.FLOAT32,
+    [RasterizerStateView.COUNT]: BufferDataType.NEVER
+}
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
+export const RasterizerStatePool = new BufferPool<PoolType.RASTERIZER_STATE, typeof RasterizerStateView, IRasterizerStateViewType>
+(PoolType.RASTERIZER_STATE, rasterizerStateViewDataType, RasterizerStateView, 9);
+
+export enum DepthStencilStateView {
+    DEPTH_TEST,
+    DEPTH_WRITE,
+    DEPTH_FUNC,
+    STENCIL_TEST_FRONT,
+    STENCIL_FUNC_FRONT,
+    STENCIL_READ_MASK_FRONT,
+    STENCIL_WRITE_MASK_FRONT,
+    STENCIL_FAIL_OP_FRONT,
+    STENCIL_Z_FAIL_OP_FRONT,
+    STENCIL_PASS_OP_FRONT,
+    STENCIL_REF_FRONT,
+    STENCIL_TEST_BACK,
+    STENCIL_FUNC_BACK,
+    STENCIL_READ_MADK_BACK,
+    STENCIL_WRITE_MASK_BACK,
+    STENCIL_FAIL_OP_BACK,
+    STENCIL_Z_FAIL_OP_BACK,
+    STENCIL_PASS_OP_BACK,
+    STENCIL_REF_BACK,
+    COUNT,
+}
+interface IDepthStencilStateViewType extends BufferTypeManifest<typeof DepthStencilStateView> {
+    [DepthStencilStateView.DEPTH_TEST]: number,
+    [DepthStencilStateView.DEPTH_WRITE]: number,
+    [DepthStencilStateView.DEPTH_FUNC]: number,
+    [DepthStencilStateView.STENCIL_TEST_FRONT]: number,
+    [DepthStencilStateView.STENCIL_FUNC_FRONT]: number,
+    [DepthStencilStateView.STENCIL_READ_MASK_FRONT]: number,
+    [DepthStencilStateView.STENCIL_WRITE_MASK_FRONT]: number,
+    [DepthStencilStateView.STENCIL_FAIL_OP_FRONT]: number,
+    [DepthStencilStateView.STENCIL_Z_FAIL_OP_FRONT]: number,
+    [DepthStencilStateView.STENCIL_PASS_OP_FRONT]: number,
+    [DepthStencilStateView.STENCIL_REF_FRONT]: number,
+    [DepthStencilStateView.STENCIL_TEST_BACK]: number,
+    [DepthStencilStateView.STENCIL_FUNC_BACK]: number,
+    [DepthStencilStateView.STENCIL_READ_MADK_BACK]: number,
+    [DepthStencilStateView.STENCIL_WRITE_MASK_BACK]: number,
+    [DepthStencilStateView.STENCIL_FAIL_OP_BACK]: number,
+    [DepthStencilStateView.STENCIL_Z_FAIL_OP_BACK]: number,
+    [DepthStencilStateView.STENCIL_PASS_OP_BACK]: number,
+    [DepthStencilStateView.STENCIL_REF_BACK]: number,
+    [DepthStencilStateView.COUNT]: never,
+}
+const depthStencilStateViewDataType: BufferDataTypeManifest<typeof DepthStencilStateView> = {
+    [DepthStencilStateView.DEPTH_TEST]: BufferDataType.UINT32,
+    [DepthStencilStateView.DEPTH_WRITE]: BufferDataType.UINT32,
+    [DepthStencilStateView.DEPTH_FUNC]: BufferDataType.UINT32,
+    [DepthStencilStateView.STENCIL_TEST_FRONT]: BufferDataType.UINT32,
+    [DepthStencilStateView.STENCIL_FUNC_FRONT]: BufferDataType.UINT32,
+    [DepthStencilStateView.STENCIL_READ_MASK_FRONT]: BufferDataType.UINT32,
+    [DepthStencilStateView.STENCIL_WRITE_MASK_FRONT]: BufferDataType.UINT32,
+    [DepthStencilStateView.STENCIL_FAIL_OP_FRONT]: BufferDataType.UINT32,
+    [DepthStencilStateView.STENCIL_Z_FAIL_OP_FRONT]: BufferDataType.UINT32,
+    [DepthStencilStateView.STENCIL_PASS_OP_FRONT]: BufferDataType.UINT32,
+    [DepthStencilStateView.STENCIL_REF_FRONT]: BufferDataType.UINT32,
+    [DepthStencilStateView.STENCIL_TEST_BACK]: BufferDataType.UINT32,
+    [DepthStencilStateView.STENCIL_FUNC_BACK]: BufferDataType.UINT32,
+    [DepthStencilStateView.STENCIL_READ_MADK_BACK]: BufferDataType.UINT32,
+    [DepthStencilStateView.STENCIL_WRITE_MASK_BACK]: BufferDataType.UINT32,
+    [DepthStencilStateView.STENCIL_FAIL_OP_BACK]: BufferDataType.UINT32,
+    [DepthStencilStateView.STENCIL_Z_FAIL_OP_BACK]: BufferDataType.UINT32,
+    [DepthStencilStateView.STENCIL_PASS_OP_BACK]: BufferDataType.UINT32,
+    [DepthStencilStateView.STENCIL_REF_BACK]: BufferDataType.UINT32,
+    [DepthStencilStateView.COUNT]: BufferDataType.NEVER,
+}
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
+export const DepthStencilStatePool = new BufferPool<PoolType.DEPTH_STENCIL_STATE, typeof DepthStencilStateView, IDepthStencilStateViewType>
+(PoolType.DEPTH_STENCIL_STATE, depthStencilStateViewDataType, DepthStencilStateView, 9); 
+
+export enum BlendTargetView {
+    BLEND,
+    BLEND_SRC,
+    BLEND_DST,
+    BLEND_EQ,
+    BLEND_SRC_ALPHA,
+    BLEND_DST_ALPHA,
+    BLEND_ALPHA_EQ,
+    BLEND_COLOR_MASK,
+    COUNT,
+}
+interface IBlendTargetViewType extends BufferTypeManifest<typeof BlendTargetView> {
+    [BlendTargetView.BLEND]: number,
+    [BlendTargetView.BLEND_SRC]: number,
+    [BlendTargetView.BLEND_DST]: number,
+    [BlendTargetView.BLEND_EQ]: number,
+    [BlendTargetView.BLEND_SRC_ALPHA]: number,
+    [BlendTargetView.BLEND_DST_ALPHA]: number,
+    [BlendTargetView.BLEND_ALPHA_EQ]: number,
+    [BlendTargetView.BLEND_COLOR_MASK]: number,
+    [BlendTargetView.COUNT]: never,
+}
+const blendTargetViewDataType: BufferDataTypeManifest<typeof BlendTargetView> = {
+    [BlendTargetView.BLEND]: BufferDataType.UINT32,
+    [BlendTargetView.BLEND_SRC]: BufferDataType.UINT32,
+    [BlendTargetView.BLEND_DST]: BufferDataType.UINT32,
+    [BlendTargetView.BLEND_EQ]: BufferDataType.UINT32,
+    [BlendTargetView.BLEND_SRC_ALPHA]: BufferDataType.UINT32,
+    [BlendTargetView.BLEND_DST_ALPHA]: BufferDataType.UINT32,
+    [BlendTargetView.BLEND_ALPHA_EQ]: BufferDataType.UINT32,
+    [BlendTargetView.BLEND_COLOR_MASK]: BufferDataType.UINT32,
+    [BlendTargetView.COUNT]: BufferDataType.NEVER,
+}
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
+export const BlendTargetPool = new BufferPool<PoolType.BLEND_TARGET, typeof BlendTargetView, IBlendTargetViewType>
+(PoolType.BLEND_TARGET, depthStencilStateViewDataType, BlendTargetView, 9); 
+
+export enum BlendStateView {
+    IS_A2C,
+    IS_INDEPEND,
+    BLEND_COLOR,       // vec4
+    BLEND_TARGET = 6,  // array handle
+    COUNT = 7,
+}
+interface IBlendStateViewType extends BufferTypeManifest<typeof BlendStateView> {
+    [BlendStateView.IS_A2C]: number,
+    [BlendStateView.IS_INDEPEND]: number,
+    [BlendStateView.BLEND_COLOR]: GFXColor,
+    [BlendStateView.BLEND_TARGET]: BlendTargetArrayHandle,
+    [BlendStateView.COUNT]: never,
+}
+const blendStateViewDataType: BufferDataTypeManifest<typeof BlendStateView> = {
+    [BlendStateView.IS_A2C]: BufferDataType.UINT32,
+    [BlendStateView.IS_INDEPEND]: BufferDataType.UINT32,
+    [BlendStateView.BLEND_COLOR]: BufferDataType.FLOAT32,
+    [BlendStateView.BLEND_TARGET]: BufferDataType.UINT32,
+    [BlendStateView.COUNT]: BufferDataType.NEVER,
+}
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
+export const BlendStatePool = new BufferPool<PoolType.BLEND_STATE, typeof BlendStateView, IBlendStateViewType>
+(PoolType.BLEND_STATE, blendStateViewDataType, BlendStateView, 9); 
