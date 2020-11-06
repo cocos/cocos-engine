@@ -25,7 +25,6 @@
 import { Vec2, Vec3, Color } from '../core/math';
 import Pool from '../core/utils/pool';
 import { clampf, degreesToRadians, radiansToDegrees } from '../core/utils/misc';
-import { director } from '../core/director';
 import { vfmtPosUvColor, getAttributeFormatBytes } from '../core/renderer/ui/ui-vertex-format';
 import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
 import { legacyCC } from '../../cocos/core/global-exports';
