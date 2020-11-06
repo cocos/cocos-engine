@@ -47,16 +47,23 @@ function cullSpotLight (light: SpotLight, model: Model) {
 }
 
 const _phaseID = getPhaseID('forward-add');
-function getLightPassIndex (subModels: SubModel[]) {
+const _lightPassIndices: number[] = [];
+function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[]) {
+    lightPassIndices.length = 0;
+    let hasValidLightPass = false;
     for (let j = 0; j < subModels.length; j++) {
         const passes = subModels[j].passes;
+        let lightPassIndex = -1;
         for (let k = 0; k < passes.length; k++) {
             if (passes[k].phase === _phaseID) {
-                return k;
+                lightPassIndex = k;
+                hasValidLightPass = true;
+                break;
             }
         }
+        lightPassIndices.push(lightPassIndex);
     }
-    return -1;
+    return hasValidLightPass;
 }
 
 /**
@@ -145,10 +152,7 @@ export class RenderAdditiveLightQueue {
             const ro = this._renderObjects[i];
             const model = ro.model;
             const subModels = model.subModels;
-
-            // this assumes light pass index is the same for all submodels
-            const lightPassIdx = getLightPassIndex(subModels);
-            if (lightPassIdx < 0) continue;
+            if (!getLightPassIndices(subModels, _lightPassIndices)) continue;
 
             _lightIndices.length = 0;
             for (let l = 0; l < validLights.length; l++) {
@@ -170,6 +174,8 @@ export class RenderAdditiveLightQueue {
             if (!_lightIndices.length) continue;
 
             for (let j = 0; j < subModels.length; j++) {
+                const lightPassIdx = _lightPassIndices[j];
+                if (lightPassIdx < 0) continue;
                 const subModel = subModels[j];
                 const pass = subModel.passes[lightPassIdx];
                 const batchingScheme = pass.batchingScheme;
