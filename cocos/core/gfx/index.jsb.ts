@@ -54,8 +54,7 @@ export const PipelineLayout = gfx.PipelineLayout;
 export const DescriptorSetLayoutBinding = gfx.DescriptorSetLayoutBinding;
 export const DescriptorSetLayoutInfo = gfx.DescriptorSetLayoutInfo;
 export const DescriptorSetLayout = gfx.DescriptorSetLayout;
-export const DescriptorSetInfo = gfx.DescriptorSetInfo;
-export { DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE } from './descriptor-set';
+export { DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE, DescriptorSetInfo } from './descriptor-set';
 
 export const FramebufferInfo = gfx.FramebufferInfo;
 export const Framebuffer = gfx.Framebuffer;
