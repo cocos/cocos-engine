@@ -16,7 +16,7 @@
             "files": [
                 "proj/main.cpp",
                 "proj/settings.gradle",
-                "proj/app/res/values/strings.xml",
+                "proj/res/values/strings.xml",
                 "proj/main.m",
                 "${COMMON_DIR}/CMakeLists.txt"
             ]
