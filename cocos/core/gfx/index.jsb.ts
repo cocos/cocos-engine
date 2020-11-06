@@ -8,7 +8,7 @@ export * from './define';
 export * from './define-class';
 export * from './pipeline-state.jsb';
 
-export const TextureInfo = gfx.TextureInfo;
+export {TextureInfo } from './texture';
 export const TextureViewInfo = gfx.TextureViewInfo;
 export const Texture = gfx.Texture;
 
