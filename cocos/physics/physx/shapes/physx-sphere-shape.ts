@@ -35,15 +35,14 @@ export class PhysXSphereShape extends PhysXShape implements ISphereShape {
         const pxmat = this.getSharedMaterial(this.collider.sharedMaterial!);
         if (USE_BYTEDANCE) {
             this._impl = physics.createShape(PhysXSphereShape.SPHERE_GEOMETRY, pxmat);
-            // this._impl.setFlags(this._flags);            
-            // const v = this._collider.isTrigger;
-            // if (v) {
-            //     this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v)
-            //     this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
-            // } else {
-            //     this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
-            //     this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v)
-            // }
+            const v = this._collider.isTrigger;
+            if (v) {
+                this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v)
+                this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
+            } else {
+                this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
+                this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v)
+            }
         } else {
             this._impl = physics.createShape(PhysXSphereShape.SPHERE_GEOMETRY, pxmat, true, this._flags);
         }

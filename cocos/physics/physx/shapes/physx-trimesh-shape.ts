@@ -69,6 +69,14 @@ export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
                 if (USE_BYTEDANCE) {
                     const geometry = new PX.TriangleMeshGeometry(trimesh, meshScale, PX.MeshGeometryFlags.eDOUBLE_SIDED)
                     this._impl = physics.createShape(geometry, pxmat);
+                    const isT = this._collider.isTrigger;
+                    if (isT) {
+                        this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !isT)
+                        this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, isT);
+                    } else {
+                        this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, isT);
+                        this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !isT)
+                    }
                 } else {
                     const geometry = new PX.PxTriangleMeshGeometry(trimesh, meshScale, new PX.PxMeshGeometryFlags(0))
                     this._impl = physics.createShape(geometry, pxmat, true, this._flags);

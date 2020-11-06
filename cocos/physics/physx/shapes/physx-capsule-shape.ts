@@ -42,6 +42,14 @@ export class PhysXCapsuleShape extends PhysXShape implements ICapsuleShape {
         const pxmat = this.getSharedMaterial(this._collider.sharedMaterial!);
         if (USE_BYTEDANCE) {
             this._impl = physics.createShape(PhysXCapsuleShape.CAPSULE_GEOMETRY, pxmat);
+            const v = this._collider.isTrigger;
+            if (v) {
+                this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v)
+                this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
+            } else {
+                this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
+                this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v)
+            }
         } else {
             this._impl = physics.createShape(PhysXCapsuleShape.CAPSULE_GEOMETRY, pxmat, true, this._flags);
         }

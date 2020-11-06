@@ -75,7 +75,7 @@ export class PhysXRigidBody implements IRigidBody {
 
     setIsKinematic (v: boolean): void {
         if (USE_BYTEDANCE) {
-            this.impl.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, v);
+            this.impl.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, !!v);
         } else {
             this.impl.setRigidBodyFlag(PX.PxRigidBodyFlag.eKINEMATIC, v);
         }
@@ -91,9 +91,9 @@ export class PhysXRigidBody implements IRigidBody {
 
     fixRotation (v: boolean): void {
         if (USE_BYTEDANCE) {
-            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_X, v);
-            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Y, v);
-            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Z, v);
+            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_X, !!v);
+            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Y, !!v);
+            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Z, !!v);
         } else {
             this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_X, v);
             this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Y, v);
@@ -149,16 +149,8 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     clearVelocity (): void {
-        // if (USE_BYTEDANCE) {
-        //     const a = [0, 0, 0]
-        //     this.impl.setLinearVelocity(a);
-        //     this.impl.setAngularVelocity(a);
-        // } else {
-        //     this.impl.setLinearVelocity(Vec3.ZERO, 1);
-        //     this.impl.setAngularVelocity(Vec3.ZERO, 1);
-        // }
-        this.impl.setLinearVelocity(Vec3.ZERO, 1);
-        this.impl.setAngularVelocity(Vec3.ZERO, 1);
+        this.impl.setLinearVelocity(Vec3.ZERO, true);
+        this.impl.setAngularVelocity(Vec3.ZERO, true);
     }
 
     setSleepThreshold (v: number): void {
@@ -170,84 +162,64 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     getLinearVelocity (out: IVec3Like): void {
-        // if (USE_BYTEDANCE) {
-        //     Vec3.fromArray(out, this.impl.getLinearVelocity())
-        // } else {
-        //     Vec3.copy(out, this.impl.getLinearVelocity());
-        // }
         Vec3.copy(out, this.impl.getLinearVelocity());
     }
 
     setLinearVelocity (value: IVec3Like): void {
-        // if (USE_BYTEDANCE) {
-        //     this.impl.setLinearVelocity([value.x, value.y, value.z])
-        // } else {
-        //     this.impl.setLinearVelocity(value, 1);
-        // }
-        this.impl.setLinearVelocity(value, 1);
+        this.impl.setLinearVelocity(value, true);
     }
 
     getAngularVelocity (out: IVec3Like): void {
-        // if (USE_BYTEDANCE) {
-        //     Vec3.fromArray(out, this.impl.getLinearVelocity())
-        // } else {
-        //     Vec3.copy(out, this.impl.getAngularVelocity());
-        // }
         Vec3.copy(out, this.impl.getAngularVelocity());
     }
 
     setAngularVelocity (value: IVec3Like): void {
-        // if (USE_BYTEDANCE) {
-        //     this.impl.setAngularVelocity([value.x, value.y, value.z])
-        // } else {
-        //     this.impl.setAngularVelocity(value, 1);
-        // }
-        this.impl.setAngularVelocity(value, 1);
+        this.impl.setAngularVelocity(value, true);
     }
 
     applyForce (force: IVec3Like, relativePoint?: IVec3Like): void {
         this._sharedBody.syncSceneToPhysics();
+        const rp = relativePoint ? relativePoint : Vec3.ZERO;
         if (USE_BYTEDANCE) {
-            this.impl.addForce(force, PX.ForceMode.eFORCE, 1);
+            this.impl.addForce(force, PX.ForceMode.eFORCE, true);
         } else {
-            const rp = relativePoint ? relativePoint : Vec3.ZERO;
             this.impl.addForceAtLocalPos(force, rp);
         }
     }
 
     applyLocalForce (force: IVec3Like, relativePoint?: IVec3Like): void {
         this._sharedBody.syncSceneToPhysics();
+        const rp = relativePoint ? relativePoint : Vec3.ZERO;
         if (USE_BYTEDANCE) {
-            // this.impl.addForce(force, PX.ForceMode.eFORCE, 1);
+            this.impl.addForce(force, PX.ForceMode.eFORCE, true);
         } else {
-            const rp = relativePoint ? relativePoint : Vec3.ZERO;
             this.impl.addForceAtLocalPos(force, rp);
         }
     }
 
     applyImpulse (force: IVec3Like, relativePoint?: IVec3Like): void {
         this._sharedBody.syncSceneToPhysics();
+        const rp = relativePoint ? relativePoint : Vec3.ZERO;
         if (USE_BYTEDANCE) {
-            this.impl.addForce(force, PX.ForceMode.eIMPULSE, 1);
+            this.impl.addForce(force, PX.ForceMode.eIMPULSE, true);
         } else {
-            const rp = relativePoint ? relativePoint : Vec3.ZERO;
             this.impl.addImpulseAtPos(force, rp);
         }
     }
 
     applyLocalImpulse (force: IVec3Like, relativePoint?: IVec3Like): void {
         this._sharedBody.syncSceneToPhysics();
+        const rp = relativePoint ? relativePoint : Vec3.ZERO;
         if (USE_BYTEDANCE) {
-            // this.impl.addForce(force, PX.ForceMode.eIMPULSE, 1);
+            this.impl.addForce(force, PX.ForceMode.eIMPULSE, true);
         } else {
-            const rp = relativePoint ? relativePoint : Vec3.ZERO;
             this.impl.addImpulseAtLocalPos(force, rp);
         }
     }
 
     applyTorque (torque: IVec3Like): void {
         if (USE_BYTEDANCE) {
-            this.impl.addTorque(torque, PX.ForceMode.eFORCE, 1);
+            this.impl.addTorque(torque, PX.ForceMode.eFORCE, true);
         } else {
             this.impl.addTorque(torque);
         }
@@ -257,7 +229,7 @@ export class PhysXRigidBody implements IRigidBody {
         this._sharedBody.syncSceneToPhysics();
         Vec3.transformQuat(v3_0, torque, this._sharedBody.node.worldRotation);
         if (USE_BYTEDANCE) {
-            this.impl.addTorque(torque, PX.ForceMode.eFORCE, 1);
+            this.impl.addTorque(v3_0, PX.ForceMode.eFORCE, true);
         } else {
             this.impl.addTorque(v3_0);
         }

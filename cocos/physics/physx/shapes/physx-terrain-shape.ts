@@ -26,11 +26,13 @@ export class PhysXTerrainShape extends PhysXShape implements ITerrainShape {
                 const sizeJ = terrain.getVertexCountJ();
                 if (USE_BYTEDANCE) {
                     const samples = new PX.HeightFieldSamples(sizeI * sizeJ);
+                    console.log("size", sizeI, sizeJ);
                     for (let i = 0; i < sizeI; i++) {
                         for (let j = 0; j < sizeJ; j++) {
                             // const s = new PX.HeightFieldSample();
                             // s.height = terrain.getHeight(i, j) / PhysXTerrainShape.heightScale;
                             const s = terrain.getHeight(i, j) / PhysXTerrainShape.heightScale;
+                            if (isNaN(s)) console.error("nan ", s);
                             const index = j + i * sizeJ;
                             samples.setHeightAtIndex(index, s);
                             // samples.setMaterialIndex0AtIndex(index, 0);
@@ -59,6 +61,14 @@ export class PhysXTerrainShape extends PhysXShape implements ITerrainShape {
             if (USE_BYTEDANCE) {
                 const geometry = new PX.HeightFieldGeometry(hf, PhysXTerrainShape.heightScale, v.tileSize, v.tileSize);
                 this._impl = physics.createShape(geometry, pxmat);
+                const isT = this._collider.isTrigger;
+                if (isT) {
+                    this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !isT)
+                    this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, !!isT);
+                } else {
+                    this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, !!isT);
+                    this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !isT)
+                }
             } else {
                 const geometry = new PX.PxHeightFieldGeometry(
                     hf, new PX.PxMeshGeometryFlags(1),
