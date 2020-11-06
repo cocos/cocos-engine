@@ -28,6 +28,7 @@ import { clampf, degreesToRadians, radiansToDegrees } from '../core/utils/misc';
 import { director } from '../core/director';
 import { vfmtPosUvColor, getAttributeFormatBytes } from '../core/renderer/ui/ui-vertex-format';
 import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
+import { legacyCC } from '../../cocos/core/global-exports';
 
 const ZERO_VEC2 = new Vec2(0, 0);
 const _pos = new Vec2();
@@ -320,7 +321,8 @@ export class Simulator {
     };
 
     public step (dt) {
-        dt = dt > director._maxParticleDeltaTime ? director._maxParticleDeltaTime : dt;
+        const maxParticleDeltaTime = legacyCC.game.frameTime / 1000 * 2;
+        dt = dt > maxParticleDeltaTime ? maxParticleDeltaTime : dt;
         const psys = this.sys;
         const node = psys.node;
         const particles = this.particles;
