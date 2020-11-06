@@ -39,6 +39,7 @@ export class RasterizerState {
         public shadeModel: ShadeModel = ShadeModel.GOURAND,
         public cullMode: CullMode = CullMode.BACK,
         public isFrontFaceCCW: boolean = true,
+        public depthBiasEnabled: boolean = false,
         public depthBias: number = 0,
         public depthBiasClamp: number = 0.0,
         public depthBiasSlop: number = 0.0,
@@ -53,6 +54,7 @@ export class RasterizerState {
         this.shadeModel = ShadeModel.GOURAND;
         this.cullMode = CullMode.BACK;
         this.isFrontFaceCCW = true;
+        this.depthBiasEnabled = false;
         this.depthBias = 0;
         this.depthBiasClamp = 0.0;
         this.depthBiasSlop = 0.0;

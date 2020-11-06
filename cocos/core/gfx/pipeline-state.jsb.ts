@@ -29,6 +29,7 @@ export class RasterizerState {
         shadeModel: ShadeModel = ShadeModel.GOURAND,
         cullMode: CullMode = CullMode.BACK,
         isFrontFaceCCW: boolean = true,
+        depthBiasEnabled: boolean = false,
         depthBias: number = 0,
         depthBiasClamp: number = 0.0,
         depthBiasSlop: number = 0.0,
@@ -38,7 +39,7 @@ export class RasterizerState {
     ) {
         this.h = RasterizerStatePool.alloc();
         this.assignProperties(isDiscard, polygonMode, shadeModel, cullMode, isFrontFaceCCW,
-            depthBias, depthBiasClamp, depthBiasSlop, isDepthClip, isMultisample, lineWidth);
+            depthBiasEnabled, depthBias, depthBiasClamp, depthBiasSlop, isDepthClip, isMultisample, lineWidth);
     }
 
     get isDiscard (): boolean {
@@ -57,6 +58,11 @@ export class RasterizerState {
         else return false;
     }
     set isFrontFaceCCW (val: boolean) { RasterizerStatePool.set(this.h, RasterizerStateView.IS_FRONT_FACE_CCW, val ? 1 : 0); }
+    get depthBiasEnabled (): boolean { 
+        if (RasterizerStatePool.get(this.h, RasterizerStateView.DEPTH_BIAS_ENABLED)) return true;
+        else return false; 
+    }
+    set depthBiasEnabled (val: boolean) { RasterizerStatePool.set(this.h, RasterizerStateView.DEPTH_BIAS_ENABLED, val ? 1 : 0); }
     get depthBias (): number { return RasterizerStatePool.get(this.h, RasterizerStateView.DEPTH_BIAS); }
     set depthBias (val: number) { RasterizerStatePool.set(this.h, RasterizerStateView.DEPTH_BIAS, val); }
     get depthBiasClamp (): number { return RasterizerStatePool.get(this.h, RasterizerStateView.DEPTH_BIAS_CLAMP); }
@@ -85,7 +91,7 @@ export class RasterizerState {
     public assign (rs: RecursivePartial<RasterizerState>) {
         if (!rs) return;
         this.assignProperties(rs.isDiscard, rs.polygonMode, rs.shadeModel, rs.cullMode, rs.isFrontFaceCCW,
-            rs.depthBias, rs.depthBiasClamp, rs.depthBiasSlop, rs.isDepthClip, rs.isMultisample, rs.lineWidth);
+            rs.depthBiasEnabled, rs.depthBias, rs.depthBiasClamp, rs.depthBiasSlop, rs.isDepthClip, rs.isMultisample, rs.lineWidth);
     }
 
     public destroy () {
@@ -101,6 +107,7 @@ export class RasterizerState {
         shadeModel?: ShadeModel,
         cullMode?: CullMode,
         isFrontFaceCCW?: boolean,
+        depthBiasEnabled?: boolean,
         depthBias?: number,
         depthBiasClamp?: number,
         depthBiasSlop?: number,
@@ -113,6 +120,7 @@ export class RasterizerState {
         if (shadeModel !== undefined) this.shadeModel = shadeModel;
         if (cullMode !== undefined) this.cullMode = cullMode;
         if (isFrontFaceCCW !== undefined) this.isFrontFaceCCW = isFrontFaceCCW;
+        if (depthBiasEnabled !== undefined) this.depthBiasEnabled = depthBiasEnabled;
         if (depthBias !== undefined) this.depthBias = depthBias;
         if (depthBiasClamp !== undefined) this.depthBiasClamp = depthBiasClamp;
         if (depthBiasSlop !== undefined) this.depthBiasSlop = depthBiasSlop;

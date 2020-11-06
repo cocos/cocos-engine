@@ -43,6 +43,9 @@ function canGenerateMipmap (device: Device, w: number, h: number) {
 export class SimpleTexture extends TextureBase {
     protected _gfxTexture: Texture | null = null;
     private _mipmapLevel = 1;
+    // Cache these data to reduce JSB invoking.
+    private _textureWidth: number = 0;
+    private _textureHeight: number = 0;
 
     /**
      * @en The mipmap level of the texture
@@ -102,7 +105,7 @@ export class SimpleTexture extends TextureBase {
      * @param arrayIndex The array index
      */
     public uploadData (source: HTMLCanvasElement | HTMLImageElement | ArrayBufferView | ImageBitmap, level: number = 0, arrayIndex: number = 0) {
-        if (!this._gfxTexture || this._gfxTexture.levelCount <= level) {
+        if (!this._gfxTexture || this._mipmapLevel <= level) {
             return;
         }
 
@@ -112,8 +115,8 @@ export class SimpleTexture extends TextureBase {
         }
 
         const region = _regions[0];
-        region.texExtent.width = this._gfxTexture.width >> level;
-        region.texExtent.height = this._gfxTexture.height >> level;
+        region.texExtent.width = this._textureWidth >> level;
+        region.texExtent.height = this._textureHeight >> level;
         region.texSubres.mipLevel = level;
         region.texSubres.baseArrayLayer = arrayIndex;
 
@@ -217,6 +220,8 @@ export class SimpleTexture extends TextureBase {
         }
 
         const texture = device.createTexture(textureCreateInfo);
+        this._textureWidth = textureCreateInfo.width;
+        this._textureHeight = textureCreateInfo.height;
 
         this._gfxTexture = texture;
     }

@@ -8,7 +8,7 @@ export * from './define';
 export * from './define-class';
 export * from './pipeline-state.jsb';
 
-export const TextureInfo = gfx.TextureInfo;
+export {TextureInfo } from './texture';
 export const TextureViewInfo = gfx.TextureViewInfo;
 export const Texture = gfx.Texture;
 
@@ -30,10 +30,8 @@ export const InputAssembler = gfx.InputAssembler;
 
 export const DrawInfo = gfx.DrawInfo;
 export const IndirectBuffer = gfx.IndirectBuffer;
-export const BufferInfo = gfx.BufferInfo;
-export const BufferViewInfo = gfx.BufferViewInfo;
 export const Buffer = gfx.Buffer;
-export { DRAW_INFO_SIZE } from './buffer';
+export { DRAW_INFO_SIZE, BufferInfo, BufferViewInfo } from './buffer';
 
 export const SamplerInfo = gfx.SamplerInfo;
 export const Sampler = gfx.Sampler;
@@ -56,8 +54,7 @@ export const PipelineLayout = gfx.PipelineLayout;
 export const DescriptorSetLayoutBinding = gfx.DescriptorSetLayoutBinding;
 export const DescriptorSetLayoutInfo = gfx.DescriptorSetLayoutInfo;
 export const DescriptorSetLayout = gfx.DescriptorSetLayout;
-export const DescriptorSetInfo = gfx.DescriptorSetInfo;
-export { DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE } from './descriptor-set';
+export { DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE, DescriptorSetInfo } from './descriptor-set';
 
 export const FramebufferInfo = gfx.FramebufferInfo;
 export const Framebuffer = gfx.Framebuffer;
