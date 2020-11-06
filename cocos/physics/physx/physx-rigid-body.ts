@@ -149,14 +149,16 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     clearVelocity (): void {
-        if (USE_BYTEDANCE) {
-            const a = [0, 0, 0]
-            this.impl.setLinearVelocity(a);
-            this.impl.setAngularVelocity(a);
-        } else {
-            this.impl.setLinearVelocity(Vec3.ZERO, 1);
-            this.impl.setAngularVelocity(Vec3.ZERO, 1);
-        }
+        // if (USE_BYTEDANCE) {
+        //     const a = [0, 0, 0]
+        //     this.impl.setLinearVelocity(a);
+        //     this.impl.setAngularVelocity(a);
+        // } else {
+        //     this.impl.setLinearVelocity(Vec3.ZERO, 1);
+        //     this.impl.setAngularVelocity(Vec3.ZERO, 1);
+        // }
+        this.impl.setLinearVelocity(Vec3.ZERO, 1);
+        this.impl.setAngularVelocity(Vec3.ZERO, 1);
     }
 
     setSleepThreshold (v: number): void {
@@ -168,69 +170,97 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     getLinearVelocity (out: IVec3Like): void {
-        if (USE_BYTEDANCE) {
-            Vec3.fromArray(out, this.impl.getLinearVelocity())
-        } else {
-            Vec3.copy(out, this.impl.getLinearVelocity());
-        }
+        // if (USE_BYTEDANCE) {
+        //     Vec3.fromArray(out, this.impl.getLinearVelocity())
+        // } else {
+        //     Vec3.copy(out, this.impl.getLinearVelocity());
+        // }
+        Vec3.copy(out, this.impl.getLinearVelocity());
     }
 
     setLinearVelocity (value: IVec3Like): void {
-        if (USE_BYTEDANCE) {
-            this.impl.setLinearVelocity([value.x, value.y, value.z])
-        } else {
-            this.impl.setLinearVelocity(value, 1);
-        }
+        // if (USE_BYTEDANCE) {
+        //     this.impl.setLinearVelocity([value.x, value.y, value.z])
+        // } else {
+        //     this.impl.setLinearVelocity(value, 1);
+        // }
+        this.impl.setLinearVelocity(value, 1);
     }
 
     getAngularVelocity (out: IVec3Like): void {
-        if (USE_BYTEDANCE) {
-            Vec3.fromArray(out, this.impl.getLinearVelocity())
-        } else {
-            Vec3.copy(out, this.impl.getAngularVelocity());
-        }
+        // if (USE_BYTEDANCE) {
+        //     Vec3.fromArray(out, this.impl.getLinearVelocity())
+        // } else {
+        //     Vec3.copy(out, this.impl.getAngularVelocity());
+        // }
+        Vec3.copy(out, this.impl.getAngularVelocity());
     }
 
     setAngularVelocity (value: IVec3Like): void {
-        if (USE_BYTEDANCE) {
-            this.impl.setAngularVelocity([value.x, value.y, value.z])
-        } else {
-            this.impl.setAngularVelocity(value, 1);
-        }
+        // if (USE_BYTEDANCE) {
+        //     this.impl.setAngularVelocity([value.x, value.y, value.z])
+        // } else {
+        //     this.impl.setAngularVelocity(value, 1);
+        // }
+        this.impl.setAngularVelocity(value, 1);
     }
 
     applyForce (force: IVec3Like, relativePoint?: IVec3Like): void {
         this._sharedBody.syncSceneToPhysics();
-        const rp = relativePoint ? relativePoint : Vec3.ZERO;
-        this.impl.addForceAtLocalPos(force, rp);
+        if (USE_BYTEDANCE) {
+            this.impl.addForce(force, PX.ForceMode.eFORCE, 1);
+        } else {
+            const rp = relativePoint ? relativePoint : Vec3.ZERO;
+            this.impl.addForceAtLocalPos(force, rp);
+        }
     }
 
     applyLocalForce (force: IVec3Like, relativePoint?: IVec3Like): void {
         this._sharedBody.syncSceneToPhysics();
-        const rp = relativePoint ? relativePoint : Vec3.ZERO;
-        this.impl.addLocalForceAtLocalPos(force, rp);
+        if (USE_BYTEDANCE) {
+            // this.impl.addForce(force, PX.ForceMode.eFORCE, 1);
+        } else {
+            const rp = relativePoint ? relativePoint : Vec3.ZERO;
+            this.impl.addForceAtLocalPos(force, rp);
+        }
     }
 
     applyImpulse (force: IVec3Like, relativePoint?: IVec3Like): void {
         this._sharedBody.syncSceneToPhysics();
-        const rp = relativePoint ? relativePoint : Vec3.ZERO;
-        this.impl.addImpulseAtLocalPos(force, rp);
+        if (USE_BYTEDANCE) {
+            this.impl.addForce(force, PX.ForceMode.eIMPULSE, 1);
+        } else {
+            const rp = relativePoint ? relativePoint : Vec3.ZERO;
+            this.impl.addImpulseAtPos(force, rp);
+        }
     }
 
     applyLocalImpulse (force: IVec3Like, relativePoint?: IVec3Like): void {
         this._sharedBody.syncSceneToPhysics();
-        const rp = relativePoint ? relativePoint : Vec3.ZERO;
-        this.impl.addLocalImpulseAtLocalPos(force, rp);
+        if (USE_BYTEDANCE) {
+            // this.impl.addForce(force, PX.ForceMode.eIMPULSE, 1);
+        } else {
+            const rp = relativePoint ? relativePoint : Vec3.ZERO;
+            this.impl.addImpulseAtLocalPos(force, rp);
+        }
     }
 
     applyTorque (torque: IVec3Like): void {
-        this.impl.addTorque(torque);
+        if (USE_BYTEDANCE) {
+            this.impl.addTorque(torque, PX.ForceMode.eFORCE, 1);
+        } else {
+            this.impl.addTorque(torque);
+        }
     }
 
     applyLocalTorque (torque: IVec3Like): void {
         this._sharedBody.syncSceneToPhysics();
         Vec3.transformQuat(v3_0, torque, this._sharedBody.node.worldRotation);
-        this.impl.addTorque(v3_0);
+        if (USE_BYTEDANCE) {
+            this.impl.addTorque(torque, PX.ForceMode.eFORCE, 1);
+        } else {
+            this.impl.addTorque(v3_0);
+        }
     }
 
     setGroup (v: number): void {

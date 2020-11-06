@@ -52,6 +52,7 @@ export class PhysXSphereShape extends PhysXShape implements ISphereShape {
     updateScale () {
         this.updateGeometry();
         this._impl.setGeometry(PhysXSphereShape.SPHERE_GEOMETRY);
+        this.setCenter(this._collider.center);
     }
 
     updateGeometry () {

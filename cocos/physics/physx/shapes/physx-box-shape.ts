@@ -14,7 +14,8 @@ export class PhysXBoxShape extends PhysXShape implements IBoxShape {
         super(EPhysXShapeType.BOX);
         if (!PhysXBoxShape.BOX_GEOMETRY) {
             if (USE_BYTEDANCE) {
-                PhysXBoxShape.BOX_GEOMETRY = new PX.BoxGeometry(0.5, 0.5, 0.5);
+                VEC3_0.set(0.5, 0.5, 0.5);
+                PhysXBoxShape.BOX_GEOMETRY = new PX.BoxGeometry(VEC3_0);
             } else {
                 PhysXBoxShape.BOX_GEOMETRY = new PX.PxBoxGeometry(0.5, 0.5, 0.5);
             }
@@ -52,6 +53,7 @@ export class PhysXBoxShape extends PhysXShape implements IBoxShape {
     updateScale () {
         this.updateGeometry();
         this._impl.setGeometry(PhysXBoxShape.BOX_GEOMETRY);
+        this.setCenter(this._collider.center);
     }
 
     updateGeometry () {
@@ -61,7 +63,7 @@ export class PhysXBoxShape extends PhysXShape implements IBoxShape {
         VEC3_0.multiplyScalar(0.5);
         VEC3_0.multiply3f(Math.abs(ws.x), Math.abs(ws.y), Math.abs(ws.z));
         if (USE_BYTEDANCE) {
-            PhysXBoxShape.BOX_GEOMETRY.setHalfExtents([VEC3_0.x, VEC3_0.y, VEC3_0.z]);
+            PhysXBoxShape.BOX_GEOMETRY.setHalfExtents(VEC3_0);
         } else {
             PhysXBoxShape.BOX_GEOMETRY.halfExtents = VEC3_0;
         }

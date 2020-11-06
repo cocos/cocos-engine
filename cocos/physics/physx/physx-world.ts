@@ -90,10 +90,19 @@ export class PhysXWorld implements IPhysicsWorld {
         }
 
         if (USE_BYTEDANCE) {
-            const physics = PX.createPhysics();
+            // const physics = PX.createPhysics();
+            const physics = PX.physics;
+            const cp = new PX.CookingParams();
+            const cooking = PX.createCooking(cp);
             const sceneDesc = physics.createSceneDesc();
+            const simulation = new PX.SimulationEventCallback()
+            simulation.setOnContact(function (header, pairs) {
+                // TODO:
+            });
+            sceneDesc.setSimulationEventCallback(simulation);
             const scene = physics.createScene(sceneDesc);
             this.physics = physics;
+            this.cooking = cooking;
             this.scene = scene;
         } else {
             const version = PX.PX_PHYSICS_VERSION
@@ -134,8 +143,13 @@ export class PhysXWorld implements IPhysicsWorld {
     }
 
     step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep: number = 0) {
+        if (this.wrappedBodies.length == 0) return;
         const scene = this.scene;
-        (scene as any).simulate(deltaTime, true);
+        if (USE_BYTEDANCE) {
+            (scene as any).simulate(deltaTime);
+        } else {
+            (scene as any).simulate(deltaTime, true);
+        }
         scene.fetchResults(true)
         for (let i = 0; i < this.wrappedBodies.length; i++) {
             const body = this.wrappedBodies[i]

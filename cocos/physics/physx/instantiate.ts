@@ -11,18 +11,13 @@ import { PhysXPlaneShape } from './shapes/physx-plane-shape';
 import { PhysXTrimeshShape } from './shapes/physx-trimesh-shape';
 import { PhysXTerrainShape } from './shapes/physx-terrain-shape';
 
-import { USE_BYTEDANCE } from './export-physx';
-
-let pcs: Constructor<PhysXCapsuleShape> | null = PhysXCapsuleShape;
-if (USE_BYTEDANCE) pcs = null;
-
 select('physx', {
     PhysicsWorld: PhysXWorld,
     RigidBody: PhysXRigidBody,
 
     BoxShape: PhysXBoxShape,
     SphereShape: PhysXSphereShape,
-    CapsuleShape: pcs,
+    CapsuleShape: PhysXCapsuleShape,
     TrimeshShape: PhysXTrimeshShape,
     // CylinderShape: PhysXCylinderShape,
     // ConeShape: PhysXConeShape,

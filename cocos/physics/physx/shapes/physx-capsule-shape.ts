@@ -2,7 +2,7 @@ import { absMax, Quat, IVec3Like } from "../../../core";
 import { aabb, sphere } from "../../../core/geometry";
 import { Collider, RigidBody, PhysicMaterial, CapsuleCollider, EAxisDirection } from "../../framework";
 import { ICapsuleShape } from "../../spec/i-physics-shape";
-import { PX } from "../export-physx";
+import { PX, USE_BYTEDANCE } from "../export-physx";
 import { EPhysXShapeType, PhysXShape } from "./physx-shape";
 
 export class PhysXCapsuleShape extends PhysXShape implements ICapsuleShape {
@@ -11,7 +11,13 @@ export class PhysXCapsuleShape extends PhysXShape implements ICapsuleShape {
 
     constructor () {
         super(EPhysXShapeType.CAPSULE);
-        if (!PhysXCapsuleShape.CAPSULE_GEOMETRY) PhysXCapsuleShape.CAPSULE_GEOMETRY = new PX.PxCapsuleGeometry(0.5, 0.5);
+        if (!PhysXCapsuleShape.CAPSULE_GEOMETRY) {
+            if (USE_BYTEDANCE) {
+                PhysXCapsuleShape.CAPSULE_GEOMETRY = new PX.CapsuleGeometry(0.5, 0.5);
+            } else {
+                PhysXCapsuleShape.CAPSULE_GEOMETRY = new PX.PxCapsuleGeometry(0.5, 0.5);
+            }
+        }
     }
 
     setCylinderHeight (v: number): void {
@@ -32,9 +38,13 @@ export class PhysXCapsuleShape extends PhysXShape implements ICapsuleShape {
 
     onComponentSet () {
         this.updateGeometry();
-        const physics = this._sharedBody.wrappedWorld.physics;
+        const physics = this._sharedBody.wrappedWorld.physics as any;
         const pxmat = this.getSharedMaterial(this._collider.sharedMaterial!);
-        this._impl = physics.createShape(PhysXCapsuleShape.CAPSULE_GEOMETRY, pxmat, true, this._flags);
+        if (USE_BYTEDANCE) {
+            this._impl = physics.createShape(PhysXCapsuleShape.CAPSULE_GEOMETRY, pxmat);
+        } else {
+            this._impl = physics.createShape(PhysXCapsuleShape.CAPSULE_GEOMETRY, pxmat, true, this._flags);
+        }
     }
 
     updateScale () {
@@ -61,7 +71,12 @@ export class PhysXCapsuleShape extends PhysXShape implements ICapsuleShape {
             hf = co.cylinderHeight / 2 * Math.abs(ws.z);
             Quat.fromEuler(this._rotation, 0, 90, 0);
         }
-        PhysXCapsuleShape.CAPSULE_GEOMETRY.radius = r;
-        PhysXCapsuleShape.CAPSULE_GEOMETRY.halfHeight = hf;
+        if (USE_BYTEDANCE) {
+            PhysXCapsuleShape.CAPSULE_GEOMETRY.setRadius(r);
+            PhysXCapsuleShape.CAPSULE_GEOMETRY.setHalfHeight(hf);
+        } else {
+            PhysXCapsuleShape.CAPSULE_GEOMETRY.radius = r;
+            PhysXCapsuleShape.CAPSULE_GEOMETRY.halfHeight = hf;
+        }
     }
 }

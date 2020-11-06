@@ -2,7 +2,7 @@ import { IVec3Like, Quat, Vec3 } from "../../../core";
 import { aabb, sphere } from "../../../core/geometry";
 import { Collider, RigidBody, PhysicMaterial, PlaneCollider } from "../../framework";
 import { IPlaneShape } from "../../spec/i-physics-shape";
-import { PX, USE_BYTEDANCE, _trans } from "../export-physx";
+import { PX, USE_BYTEDANCE, _pxtrans, _trans } from "../export-physx";
 import { EPhysXShapeType, PhysXShape } from "./physx-shape";
 
 export class PhysXPlaneShape extends PhysXShape implements IPlaneShape {
@@ -35,8 +35,11 @@ export class PhysXPlaneShape extends PhysXShape implements IPlaneShape {
         if (USE_BYTEDANCE) {
             const pos = _trans.translation;
             const rot = _trans.rotation;
-            const pt = new PX.Transform([pos.x, pos.y, pos.z], [rot.x, rot.y, rot.z, rot.w]);
-            this._impl.setLocalPose(pt, true);
+            // const pt = new PX.Transform([pos.x, pos.y, pos.z], [rot.x, rot.y, rot.z, rot.w]);
+            // this._impl.setLocalPose(pt, true);
+            _pxtrans.setPosition(pos);
+            _pxtrans.setQuaternion(rot);
+            this._impl.setLocalPose(_pxtrans);
         } else {
             this._impl.setLocalPose(_trans);
         }

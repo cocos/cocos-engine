@@ -88,13 +88,15 @@ export class PhysXSharedBody {
 
     private _initActor () {
         if (this._impl) return;
-        Vec3.copy(_trans.translation, this.node.worldPosition);
-        Quat.copy(_trans.rotation, this.node.worldRotation);
+        const pos = _trans.translation;
+        const rot = _trans.rotation;
+        Vec3.copy(pos, this.node.worldPosition);
+        Quat.copy(rot, this.node.worldRotation);
         let t = _trans;
         if (USE_BYTEDANCE) {
-            const pos = _trans.translation;
-            const rot = _trans.rotation;
-            t = new PX.Transform([pos.x, pos.y, pos.z], [rot.x, rot.y, rot.z, rot.w]);
+            _pxtrans.setPosition(pos);
+            _pxtrans.setQuaternion(rot);
+            t = _pxtrans;
         }
         const wb = this.wrappedBody;
         if (wb) {
@@ -147,12 +149,20 @@ export class PhysXSharedBody {
         if (index < 0) {
             if (USE_BYTEDANCE) {
                 const fd = this._filterData;
-                ws.impl.setSimulationFilterData([fd.word0, fd.word1, fd.word2, fd.word3]);
+                // ws.impl.setSimulationFilterData([fd.word0, fd.word1, fd.word2, fd.word3]);
+                ws.impl.setSimulationFilterData(fd);
             } else {
                 ws.impl.setSimulationFilterData(this._filterData);
             }
             this.impl.attachShape(ws.impl);
-            if (!USE_BYTEDANCE && !this._isStatic) this.impl.setMassAndUpdateInertia(this._wrappedBody!.rigidBody.mass);
+
+            if (!this._isStatic) {
+                if (USE_BYTEDANCE) {
+                    PX.RigidBodyExt.setMassAndUpdateInertia(this._impl, this._wrappedBody!.rigidBody.mass);
+                } else {
+                    this.impl.setMassAndUpdateInertia(this._wrappedBody!.rigidBody.mass);
+                }
+            }
             this.wrappedShapes.push(ws);
         }
     }
@@ -178,16 +188,19 @@ export class PhysXSharedBody {
                     this.wrappedShapes[i].updateScale();
                 }
             }
-            Vec3.copy(_trans.translation, node.worldPosition);
-            Quat.copy(_trans.rotation, node.worldRotation);
+            const pos = _trans.translation;
+            const rot = _trans.rotation;
+            Vec3.copy(pos, node.worldPosition);
+            Quat.copy(rot, node.worldRotation);
             if (USE_BYTEDANCE) {
-                const pos = _trans.translation;
-                const rot = _trans.rotation;
-                // _pxtrans.setPosition([pos.x, pos.y, pos.z]);
-                // _pxtrans.setQuaternion([rot.x, rot.y, rot.z, rot.w]);
-                // this.impl.setGlobalPose(_pxtrans, true);
-                const pt = new PX.Transform([pos.x, pos.y, pos.z], [rot.x, rot.y, rot.z, rot.w]);
-                this.impl.setGlobalPose(pt, true);
+                // // _pxtrans.setPosition([pos.x, pos.y, pos.z]);
+                // // _pxtrans.setQuaternion([rot.x, rot.y, rot.z, rot.w]);
+                // // this.impl.setGlobalPose(_pxtrans, true);
+                // const pt = new PX.Transform([pos.x, pos.y, pos.z], [rot.x, rot.y, rot.z, rot.w]);
+                // this.impl.setGlobalPose(pt, true);
+                _pxtrans.setPosition(pos);
+                _pxtrans.setQuaternion(rot);
+                this.impl.setGlobalPose(_pxtrans, true);
             } else {
                 this.impl.setGlobalPose(_trans, true);
             }
@@ -201,8 +214,10 @@ export class PhysXSharedBody {
         if (USE_BYTEDANCE) {
             const pos = transform.getPosition();
             const rot = transform.getQuaternion();
-            node.setWorldPosition(pos[0], pos[1], pos[2]);
+            // node.setWorldPosition(pos[0], pos[1], pos[2]);
             node.setWorldRotation(rot[0], rot[1], rot[2], rot[3]);
+            node.setWorldPosition(pos);
+            // node.setWorldRotation(rot);
         } else {
             node.setWorldPosition(transform.translation);
             node.setWorldRotation(transform.rotation);
@@ -252,7 +267,8 @@ export class PhysXSharedBody {
         for (let i = 0; i < this.wrappedShapes.length; i++) {
             if (USE_BYTEDANCE) {
                 const fd = this._filterData;
-                this.wrappedShapes[i].impl.setSimulationFilterData([fd.word0, fd.word1, fd.word2, fd.word3]);
+                // this.wrappedShapes[i].impl.setSimulationFilterData([fd.word0, fd.word1, fd.word2, fd.word3]);
+                this.wrappedShapes[i].impl.setSimulationFilterData(fd);
             } else {
                 this.wrappedShapes[i].impl.setSimulationFilterData(this._filterData);
             }

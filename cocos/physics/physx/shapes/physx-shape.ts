@@ -88,12 +88,12 @@ export class PhysXShape implements IBaseShape {
     setMaterial (v: PhysicMaterial | null): void {
         if (v && this._impl) {
             const mat = this.getSharedMaterial(v);
-            if (PX.VECTIR_MAT.size() > 0) {
-                PX.VECTIR_MAT.set(0, mat);
-            } else {
-                PX.VECTIR_MAT.push_back(mat);
-            }
-            this._impl.setMaterials(PX.VECTIR_MAT);
+            // if (PX.VECTOR_MAT.size() > 0) {
+            //     PX.VECTOR_MAT.set(0, mat);
+            // } else {
+            //     PX.VECTOR_MAT.push_back(mat);
+            // }
+            // this._impl.setMaterials(PX.VECTOR_MAT);
         }
     }
 
@@ -138,11 +138,14 @@ export class PhysXShape implements IBaseShape {
         if (USE_BYTEDANCE) {
             const pos = _trans.translation;
             const rot = _trans.rotation;
-            // _pxtrans.setPosition([pos.x, pos.y, pos.z]);
-            // _pxtrans.setQuaternion([rot.x, rot.y, rot.z, rot.w]);
-            // this._impl.setLocalPose(_pxtrans);
-            const pt = new PX.Transform([pos.x, pos.y, pos.z],[rot.x, rot.y, rot.z, rot.w]);
-            this._impl.setLocalPose(pt, true);
+            // // _pxtrans.setPosition([pos.x, pos.y, pos.z]);
+            // // _pxtrans.setQuaternion([rot.x, rot.y, rot.z, rot.w]);
+            // // this._impl.setLocalPose(_pxtrans);
+            // const pt = new PX.Transform([pos.x, pos.y, pos.z],[rot.x, rot.y, rot.z, rot.w]);            
+            // this._impl.setLocalPose(pt, true);
+            _pxtrans.setPosition(pos);
+            _pxtrans.setQuaternion(rot);
+            this._impl.setLocalPose(_pxtrans);
         } else {
             this._impl.setLocalPose(_trans);
         }
