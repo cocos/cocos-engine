@@ -16,11 +16,20 @@ const Mode = Enum({
 
 @ccclass('cc.ColorKey')
 export class ColorKey {
-
+    /**
+     * @en Color value.
+     * @zh 颜色值。
+     * @property {Color} color
+     */
     @serializable
     @editable
     public color = Color.WHITE.clone();
 
+    /**
+     * @en Time value.
+     * @zh 时间值。
+     * @property {Number} time
+     */
     @serializable
     @editable
     public time = 0;
@@ -28,11 +37,19 @@ export class ColorKey {
 
 @ccclass('cc.AlphaKey')
 export class AlphaKey {
-
+    /**
+     * @en Alpha value.
+     * @zh 透明度。
+     * @property {Number} alpha
+     */
     @serializable
     @editable
     public alpha = 1;
-
+    /**
+     * @en Time.
+     * @zh 时间帧。
+     * @property {Number} time
+     */
     @serializable
     @editable
     public time = 0;
@@ -42,15 +59,27 @@ export class AlphaKey {
 export default class Gradient {
 
     public static Mode = Mode;
-
+    /**
+     * @en Array of color key.
+     * @zh 颜色关键帧列表。
+     * @property {[ColorKey]} colorKeys
+     */
     @serializable
     @editable
     public colorKeys = new Array<ColorKey>();
-
+    /**
+     * @en Array of alpha key.
+     * @zh 透明度关键帧列表。
+     * @property {[AlphaKey]} alphaKeys
+     */
     @serializable
     @editable
     public alphaKeys = new Array<AlphaKey>();
-
+    /**
+     * @en Blend mode.
+     * @zh 混合模式。
+     * @property {Mode} mode
+     */
     @serializable
     @editable
     public mode = Mode.Blend;

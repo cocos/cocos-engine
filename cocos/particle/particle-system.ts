@@ -35,6 +35,8 @@ import { EDITOR } from 'internal:constants';
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
 
+const superMaterials = Object.getOwnPropertyDescriptor(RenderableComponent.prototype, 'sharedMaterials')!;
+
 @ccclass('cc.ParticleSystem')
 @help('i18n:cc.ParticleSystem')
 @menu('Components/ParticleSystem')
@@ -288,12 +290,12 @@ export class ParticleSystem extends RenderableComponent {
     get sharedMaterials () {
         // if we don't create an array copy, the editor will modify the original array directly.
         // @ts-ignore
-        return super.sharedMaterials;
+        return superMaterials.get.call(this);
     }
 
     set sharedMaterials (val) {
         // @ts-ignore
-        super.sharedMaterials = val;
+        superMaterials.set.call(this, val);
     }
 
     // color over lifetime module
