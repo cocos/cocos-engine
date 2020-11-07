@@ -40,7 +40,7 @@ class AudioPlayerJSB extends AudioPlayer {
         this._offset = 0;
         this._volume = 1;
         this._loop = false;
-        this._url = info.clip;
+        this._url = info.nativeAudio;
         this._audio = -1;
         this._onEnded = this._onEnded.bind(this);
     }
@@ -128,7 +128,7 @@ class AudioPlayerJSB extends AudioPlayer {
         if (this._state === PlayingState.PLAYING) { return; }
         this._state = PlayingState.PLAYING;
         this._startTime = performance.now();
-        this._eventTarget.emit('started');
+        this._clip.emit('started');
     }
 
     _onPause () {
@@ -148,6 +148,6 @@ class AudioPlayerJSB extends AudioPlayer {
         this._audio = -1;
         if (this._state === PlayingState.STOPPED) { return; }
         this._state = PlayingState.STOPPED;
-        this._eventTarget.emit('ended');
+        this._clip.emit('ended');
     }
 }
