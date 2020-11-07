@@ -308,7 +308,8 @@ export class Node extends BaseNode {
     @editable
     set layer (l) {
         this._layer = l;
-        NodePool.set(this._poolHandle, NodeView.LAYER, this._layer)
+        NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
+        this.emit(SystemEventType.LAYER_CHANGED, this._layer);
     }
     get layer () {
         return this._layer;
