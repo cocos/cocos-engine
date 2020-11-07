@@ -135,7 +135,7 @@ function parse (task) {
         }
         if (!out) continue;
         task.output.push(out);
-        if (!out.uuid && !out.url) throw new Error('unknown input:' + item.toString());
+        if (!out.uuid && !out.url) throw new Error('Can not parse this input:' + JSON.stringify(item));
     }
     return null;
 }
