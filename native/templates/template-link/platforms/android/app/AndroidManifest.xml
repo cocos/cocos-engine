@@ -34,6 +34,11 @@
             <meta-data android:name="android.app.lib_name"
                 android:value="cocos2djs" />
         </activity>
+        <activity
+            android:name="org.cocos2dx.lib.Cocos2dxEditBoxActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|screenLayout"
+            android:screenOrientation="behind"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
     </application>
 
 </manifest>

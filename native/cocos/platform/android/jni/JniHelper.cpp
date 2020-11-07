@@ -67,34 +67,28 @@ void _detachCurrentThread(void* a) {
 }
 
 namespace cc {
-
-    android_app* JniHelper::_app = nullptr;
     jmethodID JniHelper::loadclassMethod_methodID = nullptr;
     jobject JniHelper::classloader = nullptr;
     std::function<void()> JniHelper::classloaderCallback = nullptr;
-    
     jobject JniHelper::_activity = nullptr;
+    JavaVM *JniHelper::_javaVM = nullptr;
 
     JavaVM* JniHelper::getJavaVM() {
         pthread_t thisthread = pthread_self();
         LOGD("JniHelper::getJavaVM(), pthread_self() = %ld", thisthread);
-        return _app->activity->vm;
+        return JniHelper::_javaVM;
     }
 
-    void JniHelper::setAndroidApp(android_app *app) {
+    void JniHelper::init(JNIEnv *env, jobject activity) {
+        env->GetJavaVM(&JniHelper::_javaVM);
+        JniHelper::_activity = activity;
+
         pthread_key_create(&g_key, _detachCurrentThread);
-        JniHelper::_app = app;
-        JniHelper::setClassLoaderFrom(_app->activity->clazz);
-        static_cast<FileUtilsAndroid*>(FileUtils::getInstance())->setassetmanager(_app->activity->assetManager);
-    }
-
-    android_app* JniHelper::getAndroidApp()
-    {
-        return JniHelper::_app;
+        JniHelper::setClassLoaderFrom(activity);
     }
 
     JNIEnv* JniHelper::cacheEnv() {
-        JavaVM* jvm = _app->activity->vm;
+        JavaVM* jvm = JniHelper::_javaVM;
         JNIEnv* _env = nullptr;
         // get jni environment
         jint ret = jvm->GetEnv((void**)&_env, JNI_VERSION_1_4);

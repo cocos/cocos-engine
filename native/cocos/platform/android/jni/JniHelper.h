@@ -57,8 +57,7 @@ public:
     static JavaVM* getJavaVM();
     static JNIEnv* getEnv();
     static jobject getActivity();
-    static void setAndroidApp(android_app* app);
-    static android_app* getAndroidApp();
+    static void init(JNIEnv *env, jobject activity);
 
     static bool getStaticMethodInfo(JniMethodInfo &methodinfo,
                                     const char *className,
@@ -309,12 +308,12 @@ public:
         }
         return ret;
     }
+    static bool setClassLoaderFrom(jobject activityInstance);
 private:
     static jobject _activity;
-    static android_app* _app;
+    static JavaVM* _javaVM;
 
     static JNIEnv* cacheEnv();
-    static bool setClassLoaderFrom(jobject activityInstance);
     static bool getMethodInfo_DefaultClassLoader(JniMethodInfo &methodinfo,
                                                  const char *className,
                                                  const char *methodName,

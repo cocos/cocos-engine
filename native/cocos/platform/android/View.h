@@ -36,7 +36,7 @@ class TouchEvent;
 class View
 {
 public:
-	static void engineHandleCmd(struct android_app* app, int32_t cmd);
+	static void engineHandleCmd(int cmd);
 	static int32_t engineHandleInput(struct android_app* app, AInputEvent* event);
 };
 

@@ -1022,7 +1022,11 @@ struct BlendState {
     uint32_t isA2C = 0;
     uint32_t isIndepend = 0;
     Color blendColor;
+    BlendTarget defaultTarget;
     BlendTargetPtrList targets;
+    BlendState () {
+        targets.push_back(&defaultTarget);
+    }
 };
 
 struct PipelineStateInfo {

@@ -28,6 +28,7 @@ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 #include "cocos/bindings/event/EventDispatcher.h"
 #include "cocos/bindings/event/CustomEventTypes.h"
 #include "platform/Application.h"
+#include "platform/android/jni/JniCocosActivity.h"
 
 namespace
 {
@@ -74,19 +75,19 @@ namespace
 
 namespace cc {
 
-void View::engineHandleCmd(struct android_app* app, int32_t cmd)
+void View::engineHandleCmd(int cmd)
 {
-    static bool isWindowInitiliased = false;
+    static bool isWindowInitialized = false;
 	// Handle CMD here if needed.
 	switch (cmd) {
 	    case APP_CMD_INIT_WINDOW:
-	        if (!isWindowInitiliased) {
-	            isWindowInitiliased = true;
+	        if (!isWindowInitialized) {
+                isWindowInitialized = true;
 	            return;
 	        } else {
                 cc::CustomEvent event;
                 event.name = EVENT_RECREATE_WINDOW;
-                event.args->ptrVal = app->window;
+                event.args->ptrVal = cocosApp.window;
                 cc::EventDispatcher::dispatchCustomEvent(event);
 	        }
 	        break;

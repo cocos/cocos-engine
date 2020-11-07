@@ -32,6 +32,7 @@ THE SOFTWARE.
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/event/EventDispatcher.h"
 #include "platform/android/jni/JniHelper.h"
+#include "platform/android/jni/JniCocosActivity.h"
 
 #define  LOG_APP_TAG    "Application_android Debug"
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_APP_TAG,__VA_ARGS__)
@@ -56,7 +57,7 @@ namespace
         sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
                 (int)(viewLogicalSize.x),
                 (int)(viewLogicalSize.y),
-                (uintptr_t)cc::JniHelper::getAndroidApp()->window);
+                (uintptr_t)cc::cocosApp.window);
         se->evalString(commandBuf);
 
         return true;

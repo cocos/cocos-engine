@@ -28,9 +28,9 @@ import android.os.Bundle;
 import android.content.Intent;
 import android.content.res.Configuration;
 
-import org.cocos2dx.lib.Cocos2dxActivity;
+import org.cocos2dx.lib.CocosActivity;
 
-public class AppActivity extends Cocos2dxActivity {
+public class AppActivity extends CocosActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

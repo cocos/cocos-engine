@@ -136,7 +136,7 @@ inspect_values(
     USE_WEBVIEW
     USE_DRAGONBONES
     USE_SPINE
-    USE_WEBSOCKET_SERVER 
+    USE_WEBSOCKET_SERVER
     USE_SE_V8
     USE_V8_DEBUGGER
 )
@@ -478,6 +478,11 @@ elseif(ANDROID)
         cocos/platform/android/jni/JniHelper.h
         cocos/platform/android/jni/JniImp.cpp
         cocos/platform/android/jni/JniImp.h
+        cocos/platform/android/jni/JniCocosActivity.cpp
+        cocos/platform/android/jni/JniCocosActivity.h
+        cocos/platform/android/jni/JniCocosTouchHandler.cpp
+        cocos/platform/android/jni/JniCocosKeyCodeHandler.cpp
+
     )
 elseif(APPLE)
     cocos_source_files(

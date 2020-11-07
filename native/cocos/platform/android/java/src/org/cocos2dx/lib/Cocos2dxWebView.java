@@ -26,19 +26,12 @@
 package org.cocos2dx.lib;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.SurfaceView;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -111,7 +104,7 @@ import java.util.concurrent.CountDownLatch;
      class Cocos2dxWebViewClient extends WebViewClient {
          @Override
          public boolean shouldOverrideUrlLoading(WebView view, final String urlString) {
-             Cocos2dxActivity activity = (Cocos2dxActivity)GlobalObject.getActivity();
+             CocosActivity activity = (CocosActivity)GlobalObject.getActivity();
 
              try {
                  URI uri = URI.create(urlString);
