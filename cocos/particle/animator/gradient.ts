@@ -19,7 +19,6 @@ export class ColorKey {
     /**
      * @en Color value.
      * @zh 颜色值。
-     * @property {Color} color
      */
     @serializable
     @editable
@@ -28,7 +27,6 @@ export class ColorKey {
     /**
      * @en Time value.
      * @zh 时间值。
-     * @property {Number} time
      */
     @serializable
     @editable
@@ -40,7 +38,6 @@ export class AlphaKey {
     /**
      * @en Alpha value.
      * @zh 透明度。
-     * @property {Number} alpha
      */
     @serializable
     @editable
@@ -48,7 +45,6 @@ export class AlphaKey {
     /**
      * @en Time.
      * @zh 时间帧。
-     * @property {Number} time
      */
     @serializable
     @editable
@@ -62,7 +58,6 @@ export default class Gradient {
     /**
      * @en Array of color key.
      * @zh 颜色关键帧列表。
-     * @property {[ColorKey]} colorKeys
      */
     @serializable
     @editable
@@ -70,7 +65,6 @@ export default class Gradient {
     /**
      * @en Array of alpha key.
      * @zh 透明度关键帧列表。
-     * @property {[AlphaKey]} alphaKeys
      */
     @serializable
     @editable
@@ -78,7 +72,6 @@ export default class Gradient {
     /**
      * @en Blend mode.
      * @zh 混合模式。
-     * @property {Mode} mode
      */
     @serializable
     @editable
