@@ -382,29 +382,7 @@ void CCVKDevice::destroy() {
     }
 
     if (_gpuSwapchain) {
-        if (_gpuSwapchain->vkSwapchain != VK_NULL_HANDLE) {
-            _gpuSwapchain->depthStencilImageViews.clear();
-            _gpuSwapchain->depthStencilImages.clear();
-
-            for (FramebufferListMapIter it = _gpuSwapchain->vkSwapchainFramebufferListMap.begin();
-                 it != _gpuSwapchain->vkSwapchainFramebufferListMap.end(); it++) {
-                FramebufferList &list = it->second;
-                for (VkFramebuffer framebuffer : list) {
-                    vkDestroyFramebuffer(_gpuDevice->vkDevice, framebuffer, nullptr);
-                }
-                list.clear();
-            }
-            _gpuSwapchain->vkSwapchainFramebufferListMap.clear();
-
-            for (VkImageView imageView : _gpuSwapchain->vkSwapchainImageViews) {
-                vkDestroyImageView(_gpuDevice->vkDevice, imageView, nullptr);
-            }
-            _gpuSwapchain->vkSwapchainImageViews.clear();
-            _gpuSwapchain->swapchainImages.clear();
-
-            vkDestroySwapchainKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, nullptr);
-            _gpuSwapchain->vkSwapchain = VK_NULL_HANDLE;
-        }
+        destroySwapchain();
     }
 
     for (CCVKTexture *texture : _depthStencilTextures) {
@@ -477,9 +455,10 @@ void CCVKDevice::resize(uint width, uint height) {}
 void CCVKDevice::acquire() {
     CCVKQueue *queue = (CCVKQueue *)_queue;
 
-    if (queue->gpuQueue()->fences.size()) {
+    if (!queue->gpuQueue()->fences.empty()) {
         VK_CHECK(vkWaitForFences(_gpuDevice->vkDevice, queue->gpuQueue()->fences.size(),
                                  queue->gpuQueue()->fences.data(), VK_TRUE, DEFAULT_TIMEOUT));
+        queue->gpuQueue()->fences.clear();
     }
 
     if (!checkSwapchainStatus()) return;
@@ -487,7 +466,6 @@ void CCVKDevice::acquire() {
     queue->_numDrawCalls = 0;
     queue->_numInstances = 0;
     queue->_numTriangles = 0;
-    queue->gpuQueue()->fences.clear();
     queue->gpuQueue()->nextWaitSemaphore = VK_NULL_HANDLE;
     queue->gpuQueue()->nextSignalSemaphore = VK_NULL_HANDLE;
 
@@ -687,11 +665,10 @@ void CCVKDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *ds
 
 bool CCVKDevice::checkSwapchainStatus() {
     CCVKGPUContext *context = ((CCVKContext *)_context)->gpuContext();
-    context->swapchainCreateInfo.oldSwapchain = _gpuSwapchain->vkSwapchain;
-    _gpuSwapchain->curImageIndex = 0;
 
     VkSurfaceCapabilitiesKHR surfaceCapabilities;
     VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(context->physicalDevice, context->vkSurface, &surfaceCapabilities));
+
     uint newWidth = surfaceCapabilities.currentExtent.width;
     uint newHeight = surfaceCapabilities.currentExtent.height;
 
@@ -725,32 +702,18 @@ bool CCVKDevice::checkSwapchainStatus() {
 
     _transform = MapSurfaceTransform(preTransform);
     context->swapchainCreateInfo.preTransform = preTransform;
+    context->swapchainCreateInfo.surface = context->vkSurface;
+    context->swapchainCreateInfo.oldSwapchain = _gpuSwapchain->vkSwapchain;
 
     CC_LOG_INFO("Resizing surface: %dx%d, surface rotation: %d degrees", newWidth, newHeight, (uint)_transform * 90);
 
-    VK_CHECK(vkCreateSwapchainKHR(_gpuDevice->vkDevice, &context->swapchainCreateInfo, nullptr, &_gpuSwapchain->vkSwapchain));
+    VkSwapchainKHR vkSwapchain = VK_NULL_HANDLE;
+    VK_CHECK(vkCreateSwapchainKHR(_gpuDevice->vkDevice, &context->swapchainCreateInfo, nullptr, &vkSwapchain));
 
-    if (context->swapchainCreateInfo.oldSwapchain != VK_NULL_HANDLE) {
-        _gpuSwapchain->depthStencilImageViews.clear();
-        _gpuSwapchain->depthStencilImages.clear();
+    destroySwapchain();
 
-        for (FramebufferListMapIter it = _gpuSwapchain->vkSwapchainFramebufferListMap.begin();
-             it != _gpuSwapchain->vkSwapchainFramebufferListMap.end(); it++) {
-            FramebufferList &list = it->second;
-            for (VkFramebuffer framebuffer : list) {
-                vkDestroyFramebuffer(_gpuDevice->vkDevice, framebuffer, nullptr);
-            }
-            list.clear();
-        }
-
-        for (VkImageView imageView : _gpuSwapchain->vkSwapchainImageViews) {
-            vkDestroyImageView(_gpuDevice->vkDevice, imageView, nullptr);
-        }
-        _gpuSwapchain->vkSwapchainImageViews.clear();
-        _gpuSwapchain->swapchainImages.clear();
-
-        vkDestroySwapchainKHR(_gpuDevice->vkDevice, context->swapchainCreateInfo.oldSwapchain, nullptr);
-    }
+    _gpuSwapchain->curImageIndex = 0;
+    _gpuSwapchain->vkSwapchain = vkSwapchain;
 
     uint imageCount;
     VK_CHECK(vkGetSwapchainImagesKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, nullptr));
@@ -815,6 +778,31 @@ bool CCVKDevice::checkSwapchainStatus() {
     }
 
     return _swapchainReady = true;
+}
+
+void CCVKDevice::destroySwapchain() {
+    if (_gpuSwapchain->vkSwapchain != VK_NULL_HANDLE) {
+        _gpuSwapchain->depthStencilImageViews.clear();
+        _gpuSwapchain->depthStencilImages.clear();
+
+        for (FramebufferListMapIter it = _gpuSwapchain->vkSwapchainFramebufferListMap.begin();
+             it != _gpuSwapchain->vkSwapchainFramebufferListMap.end(); it++) {
+            FramebufferList &list = it->second;
+            for (VkFramebuffer framebuffer : list) {
+                vkDestroyFramebuffer(_gpuDevice->vkDevice, framebuffer, nullptr);
+            }
+            list.clear();
+        }
+
+        for (VkImageView imageView : _gpuSwapchain->vkSwapchainImageViews) {
+            vkDestroyImageView(_gpuDevice->vkDevice, imageView, nullptr);
+        }
+        _gpuSwapchain->vkSwapchainImageViews.clear();
+        _gpuSwapchain->swapchainImages.clear();
+
+        vkDestroySwapchainKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, nullptr);
+        _gpuSwapchain->vkSwapchain = VK_NULL_HANDLE;
+    }
 }
 
 } // namespace gfx

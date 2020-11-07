@@ -1619,8 +1619,8 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
                         }
                         cache->rs.cullMode = gpuPipelineState->rs.cullMode;
                     }
-                    bool isFrontFaceCCW = gpuPipelineState->rs.isFrontFaceCCW != gfxStateCache.reverseCW;
-                    if (cache->rs.isFrontFaceCCW != isFrontFaceCCW) {
+                    bool isFrontFaceCCW = (bool)gpuPipelineState->rs.isFrontFaceCCW != gfxStateCache.reverseCW;
+                    if ((bool)cache->rs.isFrontFaceCCW != isFrontFaceCCW) {
                         glFrontFace(isFrontFaceCCW ? GL_CCW : GL_CW);
                         cache->rs.isFrontFaceCCW = isFrontFaceCCW;
                     }
@@ -2121,7 +2121,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
                                 }
                                 break;
                             case DynamicStateFlagBit::DEPTH_BIAS:
-                                if (cache->rs.depthBiasEnabled != cmd->depthBiasEnabled) {
+                                if ((bool)cache->rs.depthBiasEnabled != cmd->depthBiasEnabled) {
                                     if (cmd->depthBiasEnabled)
                                         glEnable(GL_POLYGON_OFFSET_FILL);
                                     else

@@ -26,6 +26,7 @@ public:
     CCVKDevice();
     ~CCVKDevice();
 
+    friend class CCVKContext;
 public:
     virtual bool initialize(const DeviceInfo &info) override;
     virtual void destroy() override;
@@ -71,6 +72,7 @@ public:
     CC_INLINE CCVKGPUStagingBufferPool *gpuStagingBufferPool() { return _gpuStagingBufferPool; }
 
 private:
+    void destroySwapchain();
     bool checkSwapchainStatus();
 
     CCVKGPUDevice *_gpuDevice = nullptr;
