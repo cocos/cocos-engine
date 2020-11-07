@@ -28,7 +28,9 @@
  * @module animation
  */
 
-import { clamp01, Mat4, Quat, Vec3 } from '../math';
+import {
+    clamp01, Mat4, Quat, Vec3,
+} from '../math';
 import { DataPoolManager } from '../renderer/data-pool-manager';
 import { AnimationClip, IObjectCurveData } from './animation-clip';
 import { HierarchyPath, isCustomPath, isPropertyPath } from './target-path';
@@ -54,7 +56,6 @@ interface IConvertedData {
  * 骨骼动画数据转换中心。
  */
 export class SkelAnimDataHub {
-
     public static getOrExtract (clip: AnimationClip) {
         let data = SkelAnimDataHub.pool.get(clip);
         if (!data || data.info.sample !== clip.sample) {
@@ -76,10 +77,10 @@ export class SkelAnimDataHub {
 function convertToSkeletalCurves (clip: AnimationClip): IConvertedData {
     const data: Record<string, ConvertedProps> = {};
     clip.curves.forEach((curve) => {
-        if (!curve.valueAdapter &&
-            isCustomPath(curve.modifiers[0], HierarchyPath) &&
-            isPropertyPath(curve.modifiers[1])) {
-            const path = (curve.modifiers[0] as HierarchyPath).path;
+        if (!curve.valueAdapter
+            && isCustomPath(curve.modifiers[0], HierarchyPath)
+            && isPropertyPath(curve.modifiers[1])) {
+            const { path } = curve.modifiers[0];
             let cs = data[path];
             if (!cs) { cs = data[path] = {}; }
             const property = curve.modifiers[1] as string;
@@ -126,8 +127,7 @@ function convertToUniformSample (clip: AnimationClip, curve: IPropertyCurve, fra
         for (let i = 0, idx = 0; i < frames; i++) {
             let time = i / clip.sample;
             while (keys[idx] <= time) { idx++; }
-            if (idx > keys.length - 1) { idx = keys.length - 1; time = keys[idx]; }
-            else if (idx === 0) { idx = 1; }
+            if (idx > keys.length - 1) { idx = keys.length - 1; time = keys[idx]; } else if (idx === 0) { idx = 1; }
             const from = curve.values[idx - 1].clone();
             const denom = keys[idx] - keys[idx - 1];
             const ratio = denom ? clamp01((time - keys[idx - 1]) / denom) : 1;
@@ -137,7 +137,7 @@ function convertToUniformSample (clip: AnimationClip, curve: IPropertyCurve, fra
                 (from as Vec3).lerp(curve.values[idx] as Vec3, ratio);
             }
             values[i] = from;
-       }
+        }
     }
     curve.values = values;
 }

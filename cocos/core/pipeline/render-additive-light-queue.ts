@@ -17,11 +17,15 @@ import { SphereLight } from '../renderer/scene/sphere-light';
 import { SpotLight } from '../renderer/scene/spot-light';
 import { SubModel } from '../renderer/scene/submodel';
 import { getPhaseID } from './pass-phase';
-import { Buffer, BufferInfo, BufferUsageBit, BufferViewInfo, CommandBuffer, Device, MemoryUsageBit, RenderPass } from '../gfx';
-import { DSPool, PassPool, PassView, ShaderHandle, ShaderPool, SubModelPool, SubModelView } from '../renderer/core/memory-pools';
+import {
+    Buffer, BufferInfo, BufferUsageBit, BufferViewInfo, CommandBuffer, Device, MemoryUsageBit, RenderPass,
+} from '../gfx';
+import {
+    DSPool, PassPool, PassView, ShaderHandle, ShaderPool, SubModelPool, SubModelView,
+} from '../renderer/core/memory-pools';
 import { IRenderObject, SetIndex, UBOForwardLight } from './define';
 import { Light, LightType } from '../renderer/scene/light';
-import { Vec3, nextPow2 } from '../../core/math';
+import { Vec3, nextPow2 } from '../math';
 import { intersect, sphere } from '../geometry';
 
 interface IAdditiveLightPass {
@@ -42,8 +46,8 @@ function cullSphereLight (light: SphereLight, model: Model) {
 }
 
 function cullSpotLight (light: SpotLight, model: Model) {
-    return !!(model.worldBounds &&
-        (!intersect.aabb_aabb(model.worldBounds, light.aabb) || !intersect.aabb_frustum(model.worldBounds, light.frustum)));
+    return !!(model.worldBounds
+        && (!intersect.aabb_aabb(model.worldBounds, light.aabb) || !intersect.aabb_frustum(model.worldBounds, light.frustum)));
 }
 
 const _phaseID = getPhaseID('forward-add');
@@ -52,7 +56,7 @@ function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[])
     lightPassIndices.length = 0;
     let hasValidLightPass = false;
     for (let j = 0; j < subModels.length; j++) {
-        const passes = subModels[j].passes;
+        const { passes } = subModels[j];
         let lightPassIndex = -1;
         for (let k = 0; k < passes.length; k++) {
             if (passes[k].phase === _phaseID) {
@@ -70,24 +74,35 @@ function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[])
  * @zh 叠加光照队列。
  */
 export class RenderAdditiveLightQueue {
-
     private _device: Device;
+
     private _validLights: Light[] = [];
+
     private _lightPasses: IAdditiveLightPass[] = [];
 
     private _lightBufferCount = 16;
+
     private _lightBufferStride: number;
+
     private _lightBufferElementCount: number;
+
     private _lightBuffer: Buffer;
+
     private _firstlightBufferView: Buffer;
+
     private _lightBufferData: Float32Array;
 
     private _isHDR: boolean;
+
     private _fpScale: number;
+
     private _renderObjects: IRenderObject[];
+
     private _instancedQueue: RenderInstancedQueue;
+
     private _batchedQueue: RenderBatchedQueue;
-    private _lightMeterScale: number = 10000.0;
+
+    private _lightMeterScale = 10000.0;
 
     constructor (pipeline: ForwardPipeline) {
         this._device = pipeline.device;
@@ -113,9 +128,8 @@ export class RenderAdditiveLightQueue {
     }
 
     public gatherLightPasses (view: RenderView, cmdBuff: CommandBuffer) {
-
         const validLights = this._validLights;
-        const sphereLights = view.camera.scene!.sphereLights;
+        const { sphereLights } = view.camera.scene!;
 
         this._instancedQueue.clear();
         this._batchedQueue.clear();
@@ -135,7 +149,7 @@ export class RenderAdditiveLightQueue {
                 validLights.push(light);
             }
         }
-        const spotLights = view.camera.scene!.spotLights;
+        const { spotLights } = view.camera.scene!;
         for (let i = 0; i < spotLights.length; i++) {
             const light = spotLights[i];
             sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
@@ -150,8 +164,8 @@ export class RenderAdditiveLightQueue {
 
         for (let i = 0; i < this._renderObjects.length; i++) {
             const ro = this._renderObjects[i];
-            const model = ro.model;
-            const subModels = model.subModels;
+            const { model } = ro;
+            const { subModels } = model;
             if (!getLightPassIndices(subModels, _lightPassIndices)) { continue; }
 
             _lightIndices.length = 0;
@@ -159,12 +173,13 @@ export class RenderAdditiveLightQueue {
                 const light = validLights[l];
                 let isCulled = false;
                 switch (light.type) {
-                    case LightType.SPHERE:
-                        isCulled = cullSphereLight(light as SphereLight, model);
-                        break;
-                    case LightType.SPOT:
-                        isCulled = cullSpotLight(light as SpotLight, model);
-                        break;
+                case LightType.SPHERE:
+                    isCulled = cullSphereLight(light as SphereLight, model);
+                    break;
+                case LightType.SPOT:
+                    isCulled = cullSpotLight(light as SpotLight, model);
+                    break;
+                default:
                 }
                 if (!isCulled) {
                     _lightIndices.push(l);
@@ -178,7 +193,7 @@ export class RenderAdditiveLightQueue {
                 if (lightPassIdx < 0) { continue; }
                 const subModel = subModels[j];
                 const pass = subModel.passes[lightPassIdx];
-                const batchingScheme = pass.batchingScheme;
+                const { batchingScheme } = pass;
                 subModel.descriptorSet.bindBuffer(UBOForwardLight.BINDING, this._firstlightBufferView);
                 subModel.descriptorSet.update();
 
@@ -240,7 +255,7 @@ export class RenderAdditiveLightQueue {
     }
 
     protected _updateUBOs (view: RenderView, cmdBuff: CommandBuffer) {
-        const exposure = view.camera.exposure;
+        const { exposure } = view.camera;
 
         if (this._validLights.length > this._lightBufferCount) {
             this._firstlightBufferView.destroy();
@@ -256,57 +271,58 @@ export class RenderAdditiveLightQueue {
             const light = this._validLights[l];
 
             switch (light.type) {
-                case LightType.SPHERE:
-                    Vec3.toArray(_vec4Array, (light as SphereLight).position);
-                    _vec4Array[3] = 0;
-                    this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_POS_OFFSET);
+            case LightType.SPHERE:
+                Vec3.toArray(_vec4Array, (light as SphereLight).position);
+                _vec4Array[3] = 0;
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_POS_OFFSET);
 
-                    _vec4Array[0] = (light as SphereLight).size;
-                    _vec4Array[1] = (light as SphereLight).range;
-                    _vec4Array[2] = 0.0;
-                    this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
+                _vec4Array[0] = (light as SphereLight).size;
+                _vec4Array[1] = (light as SphereLight).range;
+                _vec4Array[2] = 0.0;
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
-                    Vec3.toArray(_vec4Array, light.color);
-                    if (light.useColorTemperature) {
-                        const tempRGB = light.colorTemperatureRGB;
-                        _vec4Array[0] *= tempRGB.x;
-                        _vec4Array[1] *= tempRGB.y;
-                        _vec4Array[2] *= tempRGB.z;
-                    }
-                    if (this._isHDR) {
-                        _vec4Array[3] = (light as SphereLight).luminance * this._fpScale * this._lightMeterScale;
-                    } else {
-                        _vec4Array[3] = (light as SphereLight).luminance * exposure * this._lightMeterScale;
-                    }
-                    this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
-                    break;
-                case LightType.SPOT:
-                    Vec3.toArray(_vec4Array, (light as SpotLight).position);
-                    _vec4Array[3] = 1;
-                    this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_POS_OFFSET);
+                Vec3.toArray(_vec4Array, light.color);
+                if (light.useColorTemperature) {
+                    const tempRGB = light.colorTemperatureRGB;
+                    _vec4Array[0] *= tempRGB.x;
+                    _vec4Array[1] *= tempRGB.y;
+                    _vec4Array[2] *= tempRGB.z;
+                }
+                if (this._isHDR) {
+                    _vec4Array[3] = (light as SphereLight).luminance * this._fpScale * this._lightMeterScale;
+                } else {
+                    _vec4Array[3] = (light as SphereLight).luminance * exposure * this._lightMeterScale;
+                }
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
+                break;
+            case LightType.SPOT:
+                Vec3.toArray(_vec4Array, (light as SpotLight).position);
+                _vec4Array[3] = 1;
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_POS_OFFSET);
 
-                    _vec4Array[0] = (light as SpotLight).size;
-                    _vec4Array[1] = (light as SpotLight).range;
-                    _vec4Array[2] = (light as SpotLight).spotAngle;
-                    this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
+                _vec4Array[0] = (light as SpotLight).size;
+                _vec4Array[1] = (light as SpotLight).range;
+                _vec4Array[2] = (light as SpotLight).spotAngle;
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
-                    Vec3.toArray(_vec4Array, (light as SpotLight).direction);
-                    this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_DIR_OFFSET);
+                Vec3.toArray(_vec4Array, (light as SpotLight).direction);
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_DIR_OFFSET);
 
-                    Vec3.toArray(_vec4Array, light.color);
-                    if (light.useColorTemperature) {
-                        const tempRGB = light.colorTemperatureRGB;
-                        _vec4Array[0] *= tempRGB.x;
-                        _vec4Array[1] *= tempRGB.y;
-                        _vec4Array[2] *= tempRGB.z;
-                    }
-                    if (this._isHDR) {
-                        _vec4Array[3] = (light as SpotLight).luminance * this._fpScale * this._lightMeterScale;
-                    } else {
-                        _vec4Array[3] = (light as SpotLight).luminance * exposure * this._lightMeterScale;
-                    }
-                    this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
-                    break;
+                Vec3.toArray(_vec4Array, light.color);
+                if (light.useColorTemperature) {
+                    const tempRGB = light.colorTemperatureRGB;
+                    _vec4Array[0] *= tempRGB.x;
+                    _vec4Array[1] *= tempRGB.y;
+                    _vec4Array[2] *= tempRGB.z;
+                }
+                if (this._isHDR) {
+                    _vec4Array[3] = (light as SpotLight).luminance * this._fpScale * this._lightMeterScale;
+                } else {
+                    _vec4Array[3] = (light as SpotLight).luminance * exposure * this._lightMeterScale;
+                }
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
+                break;
+            default:
             }
         }
 

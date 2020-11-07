@@ -28,10 +28,12 @@
  * @module model
  */
 
+import {
+    ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type,
+} from 'cc.decorator';
 import { AnimationClip } from '../../animation/animation-clip';
 import { Material } from '../../assets';
 import { Skeleton } from '../../assets/skeleton';
-import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type } from 'cc.decorator';
 import { models } from '../../renderer';
 import { Node } from '../../scene-graph/node';
 import { MeshRenderer } from './mesh-renderer';
@@ -48,7 +50,6 @@ import { legacyCC } from '../../global-exports';
 @executeInEditMode
 @menu('Components/SkinnedMeshRenderer')
 export class SkinnedMeshRenderer extends MeshRenderer {
-
     @type(Skeleton)
     protected _skeleton: Skeleton | null = null;
 

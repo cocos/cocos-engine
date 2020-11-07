@@ -68,6 +68,7 @@ export class RasterizerState {
     }
 
     get handle (): RawBufferHandle { return NULL_HANDLE; }
+
     public destroy () {}
 }
 
@@ -127,6 +128,7 @@ export class DepthStencilState {
     }
 
     get handle (): RawBufferHandle { return NULL_HANDLE; }
+
     public destroy () {}
 }
 
@@ -164,6 +166,7 @@ export class BlendTarget {
     }
 
     get handle (): RawBufferHandle { return NULL_HANDLE; }
+
     public destroy () {}
 }
 
@@ -209,6 +212,7 @@ export class BlendState {
     }
 
     get handle (): RawBufferHandle { return NULL_HANDLE; }
+
     public destroy () {}
 }
 
@@ -245,7 +249,6 @@ export class PipelineStateInfo {
  * @zh GFX 管线状态。
  */
 export abstract class PipelineState extends Obj {
-
     /**
      * @en Get current shader.
      * @zh GFX 着色器。

@@ -30,14 +30,19 @@
 
 import { AudioClip } from '../../audio/assets/clip';
 import { VideoClip } from '../../video/assets/video-clip';
-import { ImageAsset, JsonAsset, TextAsset, TTFFont, Asset } from '../assets';
+import {
+    ImageAsset, JsonAsset, TextAsset, TTFFont, Asset,
+} from '../assets';
 import { BufferAsset } from '../assets/buffer-asset';
 import { js } from '../utils/js';
 import Bundle, { resources } from './bundle';
 import Cache from './cache';
 import { IConfigOption } from './config';
-import { assets, BuiltinBundleName, bundles, CompleteCallback, IRemoteOptions } from './shared';
-import { IDownloadParseOptions } from './shared';
+import {
+    assets, BuiltinBundleName, bundles, CompleteCallback, IRemoteOptions,
+    IDownloadParseOptions,
+} from './shared';
+
 import { cache } from './utilities';
 
 export type CreateHandler = (id: string, data: any, options: IDownloadParseOptions, onComplete: CompleteCallback<Asset|Bundle>) => void;
@@ -49,8 +54,7 @@ function createImageAsset (id: string, data: HTMLImageElement, options: IDownloa
         out = new ImageAsset();
         out._nativeUrl = id;
         out._nativeAsset = data;
-    }
-    catch (e) {
+    } catch (e) {
         err = e;
     }
     onComplete(err, out);
@@ -60,7 +64,7 @@ function createAudioClip (id: string, data: HTMLAudioElement | AudioBuffer, opti
     const out = new AudioClip();
     out._nativeUrl = id;
     out._nativeAsset = data;
-    // @ts-expect-error
+    // @ts-expect-error assignment to private field
     out._duration = data.duration;
     onComplete(null, out);
 }
@@ -102,42 +106,41 @@ function createBundle (id: string, data: IConfigOption, options: IDownloadParseO
     let bundle = bundles.get(data.name);
     if (!bundle) {
         bundle = data.name === BuiltinBundleName.RESOURCES ? resources : new Bundle();
-        data.base = data.base || id + '/';
+        data.base = data.base || `${id}/`;
         bundle.init(data);
     }
     onComplete(null, bundle);
 }
 
 function createVideoClip (id: string, data: HTMLVideoElement, options: IDownloadParseOptions, onComplete: CompleteCallback<VideoClip>) {
-    let out = new VideoClip();
+    const out = new VideoClip();
     out._nativeUrl = id;
     out._nativeAsset = data;
     onComplete(null, out);
 }
 
 export class Factory {
-
     private _creating = new Cache<CompleteCallback[]>();
 
     private _producers: Record<string, CreateHandler> = {
         // Images
-        '.png' : createImageAsset,
-        '.jpg' : createImageAsset,
-        '.bmp' : createImageAsset,
-        '.jpeg' : createImageAsset,
-        '.gif' : createImageAsset,
-        '.ico' : createImageAsset,
-        '.tiff' : createImageAsset,
-        '.webp' : createImageAsset,
-        '.image' : createImageAsset,
+        '.png': createImageAsset,
+        '.jpg': createImageAsset,
+        '.bmp': createImageAsset,
+        '.jpeg': createImageAsset,
+        '.gif': createImageAsset,
+        '.ico': createImageAsset,
+        '.tiff': createImageAsset,
+        '.webp': createImageAsset,
+        '.image': createImageAsset,
         '.pvr': createImageAsset,
         '.pkm': createImageAsset,
 
         // Audio
-        '.mp3' : createAudioClip,
-        '.ogg' : createAudioClip,
-        '.wav' : createAudioClip,
-        '.m4a' : createAudioClip,
+        '.mp3': createAudioClip,
+        '.ogg': createAudioClip,
+        '.wav': createAudioClip,
+        '.m4a': createAudioClip,
 
         // Video
         '.mp4': createVideoClip,
@@ -149,26 +152,26 @@ export class Factory {
         '.rmvb': createVideoClip,
 
         // Txt
-        '.txt' : createTextAsset,
-        '.xml' : createTextAsset,
-        '.vsh' : createTextAsset,
-        '.fsh' : createTextAsset,
-        '.atlas' : createTextAsset,
+        '.txt': createTextAsset,
+        '.xml': createTextAsset,
+        '.vsh': createTextAsset,
+        '.fsh': createTextAsset,
+        '.atlas': createTextAsset,
 
-        '.tmx' : createTextAsset,
-        '.tsx' : createTextAsset,
-        '.fnt' : createTextAsset,
+        '.tmx': createTextAsset,
+        '.tsx': createTextAsset,
+        '.fnt': createTextAsset,
 
-        '.json' : createJsonAsset,
-        '.ExportJson' : createJsonAsset,
+        '.json': createJsonAsset,
+        '.ExportJson': createJsonAsset,
 
         // font
-        '.font' : createFont,
-        '.eot' : createFont,
-        '.ttf' : createFont,
-        '.woff' : createFont,
-        '.svg' : createFont,
-        '.ttc' : createFont,
+        '.font': createFont,
+        '.eot': createFont,
+        '.ttf': createFont,
+        '.woff': createFont,
+        '.svg': createFont,
+        '.ttc': createFont,
 
         // Binary
         '.binary': createBufferAsset,
@@ -176,17 +179,16 @@ export class Factory {
         '.dbbin': createBufferAsset,
         '.skel': createBufferAsset,
 
-        'bundle': createBundle,
+        bundle: createBundle,
 
-        'default': createAsset,
+        default: createAsset,
 
     };
 
     public register (type: string | Record<string, CreateHandler>, handler?: CreateHandler): void {
         if (typeof type === 'object') {
             js.mixin(this._producers, type);
-        }
-        else {
+        } else {
             this._producers[type] = handler!;
         }
     }
@@ -195,7 +197,8 @@ export class Factory {
         const handler = this._producers[type] || this._producers.default;
         const asset = assets.get(id);
         if (!options.reloadAsset && asset) {
-            return onComplete(null, asset);
+            onComplete(null, asset);
+            return;
         }
         const creating = this._creating.get(id);
         if (creating) {

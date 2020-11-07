@@ -28,16 +28,22 @@
  * @module scene-graph
  */
 
+import {
+    ccclass, editable, serializable, type,
+} from 'cc.decorator';
 import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
 import { SystemEventType } from '../platform/event-manager/event-enum';
 import { eventManager } from '../platform/event-manager/event-manager';
 import { legacyCC } from '../global-exports';
 import { BaseNode, TRANSFORM_ON } from './base-node';
-import { Mat3, Mat4, Quat, Vec3 } from '../math';
-import { NULL_HANDLE, NodeHandle, NodePool, NodeView } from '../renderer/core/memory-pools';
+import {
+    Mat3, Mat4, Quat, Vec3,
+} from '../math';
+import {
+    NULL_HANDLE, NodeHandle, NodePool, NodeView,
+} from '../renderer/core/memory-pools';
 import { NodeSpace, TransformBit } from './node-enum';
-import { ccclass, editable, serializable, type } from 'cc.decorator';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -80,17 +86,20 @@ export class Node extends BaseNode {
      * @zh 节点可能发出的事件类型
      */
     public static EventType = SystemEventType;
+
     /**
      * @en Coordinates space
      * @zh 空间变换操作的坐标系
      */
     public static NodeSpace = NodeSpace;
+
     /**
      * @en Bit masks for Node transformation parts
      * @zh 节点变换更新的具体部分
      * @deprecated please use [[Node.TransformBit]]
      */
     public static TransformDirtyBit = TransformBit;
+
     /**
      * @en Bit masks for Node transformation parts, can be used to determine which part changed in [[SystemEventType.TRANSFORM_CHANGED]] event
      * @zh 节点变换更新的具体部分，可用于判断 [[SystemEventType.TRANSFORM_CHANGED]] 事件的具体类型
@@ -99,21 +108,28 @@ export class Node extends BaseNode {
 
     // UI 部分的脏数据
     public _uiProps = new NodeUIProperties(this);
+
     public _static = false;
 
     // world transform, don't access this directly
     protected _pos = new Vec3();
+
     protected _rot = new Quat();
+
     protected _scale = new Vec3(1, 1, 1);
+
     protected _mat = new Mat4();
 
     // local transform
     @serializable
     protected _lpos = new Vec3();
+
     @serializable
     protected _lrot = new Quat();
+
     @serializable
     protected _lscale = new Vec3(1, 1, 1);
+
     @serializable
     protected _layer = Layers.Enum.DEFAULT; // the layer this node belongs to
 
@@ -122,7 +138,9 @@ export class Node extends BaseNode {
     protected _euler = new Vec3();
 
     protected _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
+
     protected _eulerDirty = false;
+
     protected _poolHandle: NodeHandle = NULL_HANDLE;
 
     constructor (name?: string) {
@@ -160,6 +178,7 @@ export class Node extends BaseNode {
     public get position (): Readonly<Vec3> {
         return this._lpos;
     }
+
     public set position (val: Readonly<Vec3>) {
         this.setPosition(val);
     }
@@ -173,6 +192,7 @@ export class Node extends BaseNode {
         this.updateWorldTransform();
         return this._pos;
     }
+
     public set worldPosition (val: Readonly<Vec3>) {
         this.setWorldPosition(val);
         NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, val);
@@ -186,6 +206,7 @@ export class Node extends BaseNode {
     public get rotation (): Readonly<Quat> {
         return this._lrot;
     }
+
     public set rotation (val: Readonly<Quat>) {
         this.setRotation(val);
     }
@@ -198,6 +219,7 @@ export class Node extends BaseNode {
     set eulerAngles (val: Readonly<Vec3>) {
         this.setRotationFromEuler(val.x, val.y, val.z);
     }
+
     get eulerAngles () {
         if (this._eulerDirty) {
             Quat.toEuler(this._euler, this._lrot);
@@ -214,6 +236,7 @@ export class Node extends BaseNode {
     get angle () {
         return this._euler.z;
     }
+
     set angle (val: number) {
         Vec3.set(this._euler, 0, 0, val);
         Quat.fromAngleZ(this._lrot, val);
@@ -234,6 +257,7 @@ export class Node extends BaseNode {
         this.updateWorldTransform();
         return this._rot;
     }
+
     public set worldRotation (val: Readonly<Quat>) {
         this.setWorldRotation(val);
     }
@@ -246,6 +270,7 @@ export class Node extends BaseNode {
     public get scale (): Readonly<Vec3> {
         return this._lscale;
     }
+
     public set scale (val: Readonly<Vec3>) {
         this.setScale(val);
     }
@@ -259,6 +284,7 @@ export class Node extends BaseNode {
         this.updateWorldTransform();
         return this._scale;
     }
+
     public set worldScale (val: Readonly<Vec3>) {
         this.setWorldScale(val);
         NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, val);
@@ -294,6 +320,7 @@ export class Node extends BaseNode {
     get forward (): Vec3 {
         return Vec3.transformQuat(new Vec3(), Vec3.FORWARD, this.worldRotation);
     }
+
     set forward (dir: Vec3) {
         const len = dir.length();
         Vec3.multiplyScalar(v3_a, dir, -1 / len);
@@ -311,6 +338,7 @@ export class Node extends BaseNode {
         NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
         this.emit(SystemEventType.LAYER_CHANGED, this._layer);
     }
+
     get layer () {
         return this._layer;
     }
@@ -322,6 +350,7 @@ export class Node extends BaseNode {
     get hasChangedFlags () {
         return bookOfChange.get(this) || 0;
     }
+
     set hasChangedFlags (val: number) {
         bookOfChange.set(this, val);
         NodePool.set(this._poolHandle, NodeView.FLAGS_CHANGED, val);
@@ -376,7 +405,7 @@ export class Node extends BaseNode {
     }
 
     public _onBeforeSerialize () {
-
+        // eslint-disable-next-line no-unused-expressions
         this.eulerAngles; // make sure we save the correct eulerAngles
     }
 
@@ -485,11 +514,11 @@ export class Node extends BaseNode {
         if ((this._dirtyFlags & hasChanegdFlags & dirtyBit) === dirtyBit) { return; }
         this._dirtyFlags |= dirtyBit;
         bookOfChange.set(this, hasChanegdFlags | dirtyBit);
-        dirtyBit |= TransformBit.POSITION;
+        const newDirtyBit = dirtyBit | TransformBit.POSITION;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             const child = this._children[i];
-            if (child.isValid) { child.invalidateChildren(dirtyBit); }
+            if (child.isValid) { child.invalidateChildren(newDirtyBit); }
         }
     }
 
@@ -609,9 +638,8 @@ export class Node extends BaseNode {
     public getPosition (out?: Vec3): Vec3 {
         if (out) {
             return Vec3.set(out, this._lpos.x, this._lpos.y, this._lpos.z);
-        } else {
-            return Vec3.copy(new Vec3(), this._lpos);
         }
+        return Vec3.copy(new Vec3(), this._lpos);
     }
 
     /**
@@ -652,8 +680,8 @@ export class Node extends BaseNode {
      * @param y Y axis rotation
      * @param z Z axis rotation
      */
-    public setRotationFromEuler (x: number, y: number, z?: number): void {
-        if (z === undefined) { z = this._euler.z; }
+    public setRotationFromEuler (x: number, y: number, zOpt?: number): void {
+        const z = zOpt === undefined ? this._euler.z : zOpt;
         Vec3.set(this._euler, x, y, z);
         Quat.fromEuler(this._lrot, x, y, z);
         this._eulerDirty = false;
@@ -673,9 +701,8 @@ export class Node extends BaseNode {
     public getRotation (out?: Quat): Quat {
         if (out) {
             return Quat.set(out, this._lrot.x, this._lrot.y, this._lrot.z, this._lrot.w);
-        } else {
-            return Quat.copy(new Quat(), this._lrot);
         }
+        return Quat.copy(new Quat(), this._lrot);
     }
 
     /**
@@ -718,9 +745,8 @@ export class Node extends BaseNode {
     public getScale (out?: Vec3): Vec3 {
         if (out) {
             return Vec3.set(out, this._lscale.x, this._lscale.y, this._lscale.z);
-        } else {
-            return Vec3.copy(new Vec3(), this._lscale);
         }
+        return Vec3.copy(new Vec3(), this._lscale);
     }
 
     /**
@@ -799,9 +825,8 @@ export class Node extends BaseNode {
         this.updateWorldTransform();
         if (out) {
             return Vec3.copy(out, this._pos);
-        } else {
-            return Vec3.copy(new Vec3(), this._pos);
         }
+        return Vec3.copy(new Vec3(), this._pos);
     }
 
     /**
@@ -875,9 +900,8 @@ export class Node extends BaseNode {
         this.updateWorldTransform();
         if (out) {
             return Quat.copy(out, this._rot);
-        } else {
-            return Quat.copy(new Quat(), this._rot);
         }
+        return Quat.copy(new Quat(), this._rot);
     }
 
     /**
@@ -935,9 +959,8 @@ export class Node extends BaseNode {
         this.updateWorldTransform();
         if (out) {
             return Vec3.copy(out, this._scale);
-        } else {
-            return Vec3.copy(new Vec3(), this._scale);
         }
+        return Vec3.copy(new Vec3(), this._scale);
     }
 
     /**
@@ -948,8 +971,8 @@ export class Node extends BaseNode {
      */
     public getWorldMatrix (out?: Mat4): Mat4 {
         this.updateWorldTransform();
-        if (!out) { out = new Mat4(); }
-        return Mat4.copy(out, this._mat);
+        const target = out || new Mat4();
+        return Mat4.copy(target, this._mat);
     }
 
     /**
@@ -960,10 +983,10 @@ export class Node extends BaseNode {
      */
     public getWorldRS (out?: Mat4): Mat4 {
         this.updateWorldTransform();
-        if (!out) { out = new Mat4(); }
-        Mat4.copy(out, this._mat);
-        out.m12 = 0; out.m13 = 0; out.m14 = 0;
-        return out;
+        const target = out || new Mat4();
+        Mat4.copy(target, this._mat);
+        target.m12 = 0; target.m13 = 0; target.m14 = 0;
+        return target;
     }
 
     /**
@@ -974,8 +997,8 @@ export class Node extends BaseNode {
      */
     public getWorldRT (out?: Mat4): Mat4 {
         this.updateWorldTransform();
-        if (!out) { out = new Mat4(); }
-        return Mat4.fromRT(out, this._rot, this._pos);
+        const target = out || new Mat4();
+        return Mat4.fromRT(target, this._rot, this._pos);
     }
 
     /**
