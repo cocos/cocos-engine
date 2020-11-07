@@ -929,6 +929,7 @@ replaceProperty(legacyCC, 'cc', [
         name: 'url',
         targetName: 'assetManager',
         newName: 'utils',
+        logTimes: 1,
         customGetter: () => { return url; },
     },
 ]);
