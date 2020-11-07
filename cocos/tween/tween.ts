@@ -216,9 +216,7 @@ export class Tween<T> {
      * 添加一个回调 action。
      * @method call
      * @param {Function} callback
-     * @param {object} [selectTarget]
      * @return {Tween}
-     * @typescript call(callback: Function, selectTarget?: object): Tween<T>
      */
     call (callback: Function): Tween<T> {
         const action = callFunc(callback);
