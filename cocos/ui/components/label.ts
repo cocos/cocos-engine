@@ -658,7 +658,7 @@ export class Label extends UIRenderable {
     @serializable
     protected _isUnderline = false;
     @serializable
-    protected _underlineHeight = 0;
+    protected _underlineHeight = 2;
     @serializable
     protected _cacheMode = CacheMode.NONE;
 
