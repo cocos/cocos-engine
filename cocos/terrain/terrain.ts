@@ -24,6 +24,7 @@ import { legacyCC } from '../core/global-exports';
 import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY,
     TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
     TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, } from './terrain-asset';
+import { CCBoolean, CCInteger } from '../core';
 
 
 const bbMin = new Vec3();
@@ -225,6 +226,7 @@ class TerrainRenderable extends RenderableComponent {
  */
 @ccclass('cc.TerrainBlockInfo')
 export class TerrainBlockInfo {
+    @type([CCInteger])
     @serializable
     @editable
     public layers: number[] = [-1, -1, -1, -1];
@@ -682,14 +684,17 @@ export class Terrain extends Component {
     @disallowAnimation
     protected _layers: (TerrainLayer|null)[] = [];
 
+    @type(TerrainBlockInfo)
     @serializable
     @disallowAnimation
     protected _blockInfos: TerrainBlockInfo[] = [];
 
+    @type(TerrainBlockLightmapInfo)
     @serializable
     @disallowAnimation
     protected _lightmapInfos: TerrainBlockLightmapInfo[] = [];
 
+    @type(CCBoolean)
     @serializable
     @disallowAnimation
     protected _receiveShadow: boolean = false;
