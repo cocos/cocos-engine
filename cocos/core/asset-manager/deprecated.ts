@@ -22,29 +22,26 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-
 /**
  * @packageDocumentation
- * @hidden
+ * @module loader
  */
 import { BUILD, DEBUG } from 'internal:constants';
 import { Asset } from '../assets';
 import { director } from '../director';
 import { game } from '../game';
 import { legacyCC } from '../global-exports';
-import { error, log, warn, warnID } from '../platform/debug';
+import { getError, warn, warnID } from '../platform/debug';
 import { macro } from '../platform/macro';
-import { path } from '../utils';
-import assetManager from './asset-manager';
+import { path, removeProperty, replaceProperty } from '../utils';
+import assetManager, { AssetManager } from './asset-manager';
 import { resources } from './bundle';
 import dependUtil from './depend-util';
 import downloader from './downloader';
 import { getUuidFromURL, normalize, transform } from './helper';
 import parser from './parser';
-import { Pipeline } from './pipeline';
 import releaseManager from './release-manager';
 import { assets, BuiltinBundleName, bundles, ProgressCallback, CompleteCallback } from './shared';
-import Task from './task';
 import { parseLoadResArgs, setDefaultProgressCallback } from './utilities';
 import { ISceneInfo } from './config';
 import factory from './factory';
@@ -492,22 +489,6 @@ export class CCLoader {
     }
 
     /**
-     *
-     * @en The asset loader in loader's pipeline, it's by default the first pipe.<br>
-     * It's used to identify an asset's type, and determine how to download it.
-     * @zh loader 中的资源加载器，默认情况下是最先加载的。<br>
-     * 用于标识资源的类型，并确定如何加载此资源。
-     *
-     * @deprecated since v3.0 loader.assetLoader was removed, assetLoader and md5Pipe were merged into assetManager.transformPipeline
-     */
-    public get assetLoader () {
-        if (DEBUG) {
-            error('cc.loader.assetLoader was removed, assetLoader and md5Pipe were merged into cc.assetManager.transformPipeline');
-        }
-        return null;
-    }
-
-    /**
      * @en The md5 pipe in loader's pipeline, it could be absent if the project isn't build with md5 option.<br>
      * It's used to modify the url to the real downloadable url with md5 suffix.
      * @zh loader 中的 md5 加载管道，如果项目没有使用 md5 构建，则此项可能不存在。<br>
@@ -565,9 +546,6 @@ export class CCLoader {
      * @deprecated since v3.0 loader.addDownloadHandlers is deprecated, please use assetManager.downloader.register instead
      */
     public addDownloadHandlers (extMap: Map<string, Function>) {
-        if (DEBUG) {
-            warn('`since v3.0 loader.addDownloadHandlers` is deprecated, please use `assetManager.downloader.register` instead');
-        }
         const handler = Object.create(null);
         for (const type in extMap) {
             const func = extMap[type];
@@ -592,9 +570,6 @@ export class CCLoader {
      * @deprecated since v3.0 loader.addLoadHandlers is deprecated, please use assetManager.parser.register instead
      */
     public addLoadHandlers (extMap: Map<string, Function>) {
-        if (DEBUG) {
-            warn('`loader.addLoadHandlers` is deprecated, please use `assetManager.parser.register` instead');
-        }
         const handler = Object.create(null);
         for (const type in extMap) {
             const func = extMap[type];
@@ -603,16 +578,6 @@ export class CCLoader {
             };
         }
         parser.register(handler);
-    }
-
-    /**
-     * @en See: {{Pipeline.flowInDeps}}
-     * @zh 参考：{{Pipeline.flowInDeps}}
-     */
-    public flowInDeps () {
-        if (DEBUG) {
-            error('loader.flowInDeps was removed');
-        }
     }
 
     /**
@@ -686,20 +651,6 @@ export class CCLoader {
      */
     public releaseRes (res: string, type?: Constructor<Asset>) {
         resources.release(res, type);
-    }
-
-    /**
-     * @en Release the all assets loaded by {{loadResDir}}. Refer to {{release}} for detailed informations.
-     * @zh 释放通过 {{loadResDir}} 加载的资源。详细信息请参考 {{release}}
-     * @param url The url of the directory to release, it should be related path to the `resources` folder.
-     * @param type If type is provided, the asset for correspond type will be returned
-     *
-     * @deprecated since v3.0 loader.releaseResDir was removed, please use assetManager.releaseRes instead
-     */
-    public releaseResDir () {
-        if (DEBUG) {
-            error('loader.releaseResDir was removed, please use assetManager.releaseAsset instead');
-        }
     }
 
     /**
@@ -829,6 +780,9 @@ export class CCLoader {
     }
 }
 
+/**
+ * @deprecated since 3.0, loader is deprecated, please use assetManager instead
+ */
 export const loader = new CCLoader();
 
 /**
@@ -892,24 +846,6 @@ export const AssetLibrary = {
     loadAsset (uuid: string, callback: CompleteCallback, options?) {
         assetManager.loadAny(uuid, callback);
     },
-
-    /**
-     * @zh
-     * 获取资源的 url。
-     */
-    getLibUrlNoExt () {
-        if (DEBUG) {
-            error('AssetLibrary.getLibUrlNoExt was removed, if you want to transform url, please use cc.assetManager.utils.getUrlWithUuid instead');
-        }
-        return '';
-    },
-
-    queryAssetInfo () {
-        if (DEBUG) {
-            error('AssetLibrary.queryAssetInfo was removed');
-        }
-        return null;
-    },
 };
 
 /**
@@ -919,133 +855,128 @@ export const AssetLibrary = {
  *
  * @deprecated since v3.0 cc.url is deprecated
  */
-const _url = {
-    normalize (str: string): string {
-        warnID(1400, 'cc.url.normalize', 'cc.assetManager.utils.normalize');
-        return normalize(str);
-    },
+export const url = {};
 
-    /**
-     * Returns the url of raw assets, you will only need this if the raw asset is inside the "resources" folder.
-     *
-     * @method raw
-     * @param {String} url
-     * @return {String}
-     * @example {@link cocos/core/platform/url/raw.js}
-     *
-     * @deprecated since 3.0, cc.url.raw is deprecated, please use cc.resources.load directly, or use Asset.nativeUrl instead.
-     */
-    raw (url: string): string {
-        warnID(1400, 'cc.url.raw', 'cc.resources.load');
-        if (url.startsWith('resources/')) {
-            return transform({
-                path: path.changeExtname(url.substr(10)),
-                bundle: BuiltinBundleName.RESOURCES,
-                __isNative__: true,
-                ext: path.extname(url),
-            }) as string;
+replaceProperty(url, 'url', [
+    {
+        name: 'normalize',
+        target: assetManager.utils,
+        targetName: 'assetManager.utils',
+        newName: 'normalize',
+    },
+    {
+        name: 'raw',
+        targetName: 'Asset.prototype',
+        newName: 'nativeUrl',
+        customFunction: (url: string) => {
+            if (url.startsWith('resources/')) {
+                return transform({
+                    path: path.changeExtname(url.substr(10)),
+                    bundle: BuiltinBundleName.RESOURCES,
+                    __isNative__: true,
+                    ext: path.extname(url),
+                }) as string;
+            }
+            return '';
         }
-        return '';
     },
-};
+]);
 
-export { _url as url };
+removeProperty(AssetLibrary, 'AssetLibrary', [
+    {
+        name: 'getLibUrlNoExt',
+        suggest: 'AssetLibrary.getLibUrlNoExt was removed, if you want to transform url, please use cc.assetManager.utils.getUrlWithUuid instead',
+    },
+    {
+        name: 'queryAssetInfo',
+        suggest: 'AssetLibrary.queryAssetInfo was removed',
+    },
+]);
 
-const onceWarns = {
-    loader: true,
-    assetLibrary: true,
-};
+removeProperty(loader, 'loader', [
+    {
+        name: 'releaseResDir',
+        suggest: 'loader.releaseResDir was removed, please use assetManager.releaseAsset instead',
+    },
+    {
+        name: 'flowInDeps',
+        suggest: 'loader.flowInDeps was removed',
+    },
+    {
+        name: 'assetLoader',
+        suggest: 'cc.loader.assetLoader was removed, assetLoader and md5Pipe were merged into cc.assetManager.transformPipeline',
+    },
+]);
 
-Object.defineProperties(legacyCC, {
-    loader: {
-        get () {
-            if (DEBUG) {
-                if (onceWarns.loader) {
-                    onceWarns.loader = false;
-                    log(`cc.loader is deprecated, use cc.assetManager instead please.` +
-                    `See https://docs.cocos.com/creator/manual/zh/release-notes/asset-manager-upgrade-guide.html`);
-                }
+replaceProperty(legacyCC, 'cc', [
+    {
+        name: 'loader',
+        newName: 'assetManager',
+        logTimes: 1,
+        customGetter: () => { return loader; },
+    }, {
+        name: 'AssetLibrary',
+        newName: 'assetManager',
+        logTimes: 1,
+        customGetter: () => { return AssetLibrary; },
+    }, {
+        name: 'Pipeline',
+        target: AssetManager,
+        targetName: 'AssetManager',
+        newName: 'Pipeline',
+        logTimes: 1,
+    }, {
+        name: 'url',
+        targetName: 'assetManager',
+        newName: 'utils',
+        customGetter: () => { return url; },
+    },
+]);
+
+removeProperty(legacyCC, 'cc', [{
+    name: 'LoadingItems',
+    suggest: getError(1400, 'cc.LoadingItems', 'cc.AssetManager.Task'),
+}]);
+
+replaceProperty(macro, 'macro', [
+    {
+        name: 'DOWNLOAD_MAX_CONCURRENT',
+        target: downloader,
+        targetName: 'assetManager.downloader',
+        newName: 'maxConcurrency',
+    },
+]);
+
+replaceProperty(director, 'director', [
+    {
+        name: '_getSceneUuid',
+        targetName: 'assetManager.main',
+        newName: 'getSceneInfo',
+        customFunction: (sceneName) => {
+            if (assetManager.main) {
+                return assetManager.main.getSceneInfo(sceneName)?.uuid; 
             }
-            return loader;
+            return '';
         },
     },
+]);
 
-    AssetLibrary: {
-        get () {
-            if (DEBUG) {
-                if (onceWarns.assetLibrary) {
-                    onceWarns.assetLibrary = false;
-                    log('AssetLibrary is deprecated, use assetManager instead please.' +
-                    'See https://docs.cocos.com/creator/manual/zh/release-notes/asset-manager-upgrade-guide.html');
-                }
-            }
-            return AssetLibrary;
-        },
-    },
-
-    /**
-     * `cc.LoadingItems` was removed, please use {{#crossLink "Task"}}{{/crossLink}} instead
-     *
-     * @deprecated cc.LoadingItems was removed, please use cc.AssetManager.Task instead
-     * @class LoadingItems
-     */
-    LoadingItems: {
-        get () {
-            warnID(1400, 'cc.LoadingItems', 'cc.AssetManager.Task');
-            return Task;
-        },
-    },
-
-    Pipeline: {
-        get () {
-            warnID(1400, 'cc.Pipeline', 'cc.AssetManager.Pipeline');
-            return Pipeline;
-        },
-    },
-
-    url: {
-        get () {
-            return _url;
-        },
-    },
-});
-
-Object.defineProperties(macro, {
-    /**
-     * @en
-     * The max concurrent task number for the downloader
-     * @zh
-     * 下载任务的最大并发数限制，在安卓平台部分机型或版本上可能需要限制在较低的水平
-     * @deprecated macro.DOWNLOAD_MAX_CONCURRENT is deprecated now, please use assetManager.downloader.maxConcurrency instead
-     */
-    DOWNLOAD_MAX_CONCURRENT: {
-        get () {
-            return downloader.maxConcurrency;
-        },
-
-        set (val) {
-            downloader.maxConcurrency = val;
-        },
-    },
-});
-
-Object.assign(director, {
-    _getSceneUuid (sceneName) {
-        assetManager.main!.getSceneInfo(sceneName);
-    },
-});
-
-Object.defineProperties(game, {
-    _sceneInfos: {
-        get () {
+replaceProperty(game, 'game', [
+    {
+        name: '_sceneInfos',
+        targetName: 'assetManager.main',
+        newName: 'getSceneInfo',
+        customGetter: () => {
             const scenes: ISceneInfo[] = [];
-            assetManager.main!.config.scenes.forEach((val) => {
-                scenes.push(val);
-            });
+            if (assetManager.main) {
+                assetManager.main.config.scenes.forEach((val) => {
+                    scenes.push(val);
+                });
+            }
             return scenes;
         },
-    },
-});
+    }
+]);
 
 const _autoRelease = releaseManager._autoRelease;
 releaseManager._autoRelease = function (oldScene, newScene, persistNodes) {
