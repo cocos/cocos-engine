@@ -1106,6 +1106,7 @@ export enum ShadowsView {
 }
 interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.ENABLE]: number;
+    [ShadowsView.DIRTY]: number;
     [ShadowsView.TYPE]: number;
     [ShadowsView.DISTANCE]: number;
     [ShadowsView.INSTANCE_PASS]: PassHandle;
@@ -1116,7 +1117,6 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.PCF_TYPE]: number;
     [ShadowsView.SHADOW_MAP_DIRTY]: number;
     [ShadowsView.BIAS]: number;
-    [ShadowsView.DIRTY]: number;
     [ShadowsView.ORTHO_SIZE]: number;
     [ShadowsView.AUTO_ADAPT]: number;
     [ShadowsView.COLOR]: Color;
@@ -1127,6 +1127,7 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
 }
 const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
     [ShadowsView.ENABLE]: BufferDataType.UINT32,
+    [ShadowsView.DIRTY]: BufferDataType.UINT32,
     [ShadowsView.TYPE]: BufferDataType.UINT32,
     [ShadowsView.DISTANCE]: BufferDataType.FLOAT32,
     [ShadowsView.INSTANCE_PASS]: BufferDataType.UINT32,
@@ -1137,8 +1138,7 @@ const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
     [ShadowsView.PCF_TYPE]: BufferDataType.UINT32,
     [ShadowsView.SHADOW_MAP_DIRTY]: BufferDataType.UINT32,
     [ShadowsView.BIAS]: BufferDataType.FLOAT32,
-    [ShadowsView.DIRTY]: BufferDataType.UINT32,
-    [ShadowsView.ORTHO_SIZE]: BufferDataType.UINT32,
+    [ShadowsView.ORTHO_SIZE]: BufferDataType.FLOAT32,
     [ShadowsView.AUTO_ADAPT]: BufferDataType.UINT32,
     [ShadowsView.COLOR]: BufferDataType.FLOAT32,
     [ShadowsView.SIZE]: BufferDataType.FLOAT32,
