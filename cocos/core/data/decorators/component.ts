@@ -60,4 +60,4 @@ export const executionOrder: (priority: number) => ClassDecorator = makeEditorCl
  * ```
  */
 export const disallowMultiple: ClassDecorator & ((yes?: boolean) => ClassDecorator) =
-    DEV ? emptySmartClassDecorator : makeSmartEditorClassDecorator('disallowMultiple');
+    DEV ? makeSmartEditorClassDecorator('disallowMultiple', true): emptySmartClassDecorator;
