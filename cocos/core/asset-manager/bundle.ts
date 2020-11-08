@@ -47,6 +47,10 @@ export default class Bundle {
 
     private _config: Config = new Config();
 
+    /**
+     * for internal use
+     * @private
+     */
     public get config (): Config {
         return this._config;
     }
