@@ -33,9 +33,6 @@ import { legacyCC } from '../../global-exports';
 // 增加预处理属性这个步骤的目的是降低 CCClass 的实现难度，将比较稳定的通用逻辑和一些需求比较灵活的属性需求分隔开。
 
 const SerializableAttrs = {
-    url: {
-        canUsedInGet: true,
-    },
     default: {},
     serializable: {},
     editorOnly: {},
@@ -85,61 +82,6 @@ function parseNotify (val, propName, notify, properties) {
     }
 }
 
-/**
- * 检查 url
- */
-function checkUrl (val, className, propName, url) {
-    if (Array.isArray(url)) {
-        if (url.length > 0) {
-            url = url[0];
-        }
-        else if (EDITOR) {
-            return errorID(5502, className, propName);
-        }
-    }
-    if (EDITOR) {
-        if (url == null) {
-            return warnID(5503, className, propName);
-        }
-        if (typeof url !== 'function' || !js.isChildClassOf(url, legacyCC.RawAsset)) {
-            return errorID(5504, className, propName);
-        }
-        if (url === legacyCC.RawAsset) {
-            warn('Please change the definition of property \'%s\' in class \'%s\'. Starting from v1.10,\n' +
-                    'the use of declaring a property in CCClass as a URL has been deprecated.\n' +
-                    'For example, if property is cc.RawAsset, the previous definition is:\n' +
-                    '    %s: cc.RawAsset,\n' +
-                    '    // or:\n' +
-                    '    %s: {\n' +
-                    '      url: cc.RawAsset,\n' +
-                    '      default: ""\n' +
-                    '    },\n' +
-                    '    // and the original method to get url is:\n' +
-                    '    `this.%s`\n' +
-                    'Now it should be changed to:\n' +
-                    '    %s: {\n' +
-                    '      type: cc.Asset,     // use \'type:\' to define Asset object directly\n' +
-                    '      default: null,      // object\'s default value is null\n' +
-                    '    },\n' +
-                    '    // and you must get the url by using:\n' +
-                    '    `this.%s.nativeUrl`\n' +
-                    '(This helps us to successfully refactor all RawAssets at v2.0, ' +
-                    'sorry for the inconvenience. \uD83D\uDE30 )',
-                    propName, className, propName, propName, propName, propName, propName);
-        }
-        else if (js.isChildClassOf(url, legacyCC.Asset)) {
-            return errorID(5505, className, propName, legacyCC.js.getClassName(url));
-        }
-        if (val.type) {
-            return warnID(5506, className, propName);
-        }
-    }
-    val.type = url;
-}
-
-/**
- * 解析类型
- */
 function parseType (val, type, className, propName) {
     const STATIC_CHECK = (EDITOR && DEV) || TEST;
 
@@ -150,13 +92,7 @@ function parseType (val, type, className, propName) {
             }
         }
         if (type.length > 0) {
-            if (legacyCC.RawAsset.isRawAssetType(type[0])) {
-                val.url = type[0];
-                delete val.type;
-                return;
-            } else {
-                val.type = type = type[0];
-            }
+            val.type = type = type[0];
         } else {
             return errorID(5508, className, propName);
         }
@@ -200,9 +136,7 @@ function parseType (val, type, className, propName) {
                 break;
         }
     }
-}
 
-function postCheckType (val, type, className, propName) {
     if (EDITOR && typeof type === 'function') {
         if (legacyCC.Class._isCCClass(type) && val.serializable !== false && !js._getClassId(type, false)) {
             warnID(5512, className, propName, className, propName);
@@ -225,25 +159,19 @@ function getBaseClassWherePropertyDefined_DEV (propName, cls) {
 
 // tslint:disable: no-shadowed-variable
 
-function _wrapOptions (isGetset: boolean, _default, type?: Function | Function[], isUrlType?: boolean) {
+function _wrapOptions (isGetset: boolean, _default, type?: Function | Function[]) {
     let res: {
         default?: any,
         _short?: boolean,
-        url?: any,
         type?: any,
     } = isGetset ? { _short: true } : { _short: true, default: _default };
     if (type) {
-        if (isUrlType) {
-            res.url = type;
-        }
-        else {
-            res.type = type;
-        }
+        res.type = type;
     }
     return res;
 }
 
-export function getFullFormOfProperty (options, isGetset, propname_dev?, classname_dev?) {
+export function getFullFormOfProperty (options, isGetset) {
     const isLiteral = options && options.constructor === Object;
     if ( !isLiteral ) {
         if (Array.isArray(options) && options.length > 0) {
@@ -263,7 +191,7 @@ export function getFullFormOfProperty (options, isGetset, propname_dev?, classna
 export function preprocessAttrs (properties, className, cls) {
     for (const propName in properties) {
         let val = properties[propName];
-        const fullForm = getFullFormOfProperty(val, false, propName, className);
+        const fullForm = getFullFormOfProperty(val, false);
         if (fullForm) {
             val = properties[propName] = fullForm;
         }
@@ -299,14 +227,6 @@ export function preprocessAttrs (properties, className, cls) {
 
             if ('type' in val) {
                 parseType(val, val.type, className, propName);
-            }
-
-            if ('url' in val) {
-                checkUrl(val, className, propName, val.url);
-            }
-
-            if ('type' in val) {
-                postCheckType(val, val.type, className, propName);
             }
         }
     }

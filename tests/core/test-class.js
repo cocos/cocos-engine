@@ -728,7 +728,6 @@ test('simplified properties define', function () {
             int: [cc.Integer],
             valueType: [cc.Vec2],
             node: [cc.Node],
-            rawAsset: [cc.RawAsset],
             asset: {
                 default: [],
                 type: cc.Asset
@@ -743,15 +742,12 @@ test('simplified properties define', function () {
     strictEqual(cc.Class.attr(ArrayType, 'valueType').ctor, cc.Vec2, 'checking array of vec2 ctor');
     strictEqual(cc.Class.attr(ArrayType, 'node').type, 'Object', 'checking array of node type');
     strictEqual(cc.Class.attr(ArrayType, 'node').ctor, cc.Node, 'checking array of node ctor');
-    strictEqual(cc.Class.attr(ArrayType, 'rawAsset').type, 'Object', 'checking array of raw asset type');
-    strictEqual(cc.Class.attr(ArrayType, 'rawAsset').ctor, cc.RawAsset, 'checking array of raw asset ctor');
 
     deepEqual(arrayObj.empty, [], 'checking array of empty');
     deepEqual(arrayObj.bool, [], 'checking array of bool');
     deepEqual(arrayObj.string, [], 'checking array of string');
     deepEqual(arrayObj.valueType, [], 'checking array of valueType');
     deepEqual(arrayObj.node, [], 'checking array of node');
-    deepEqual(arrayObj.rawAsset, [], 'checking array of rawAsset');
     deepEqual(arrayObj.asset, [], 'checking array of asset');
 });
 

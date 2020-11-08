@@ -109,7 +109,7 @@ export default class Prefab extends Asset {
     public optimizationPolicy = OptimizationPolicy.AUTO;
 
     /**
-     * @en Indicates the raw assets of this prefab can be load after prefab loaded.
+     * @en Indicates the native assets of this prefab can be load after prefab loaded.
      * @zh 指示该 Prefab 依赖的资源可否在 Prefab 加载后再延迟加载。
      * @default false
      */

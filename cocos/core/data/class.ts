@@ -596,10 +596,6 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
         parseSimpleAttribute('unit', 'string');
     }
 
-    if (attributes.url) {
-        (attrs || initAttrs())[propertyNamePrefix + 'saveUrlAsAsset'] = true;
-    }
-
     if (attributes.__noImplicit) {
         (attrs || initAttrs())[propertyNamePrefix + 'serializable'] = attributes.serializable ?? false;
     } else {

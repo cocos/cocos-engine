@@ -201,18 +201,17 @@ export function getTypeChecker_ET (type: string, attributeName: string) {
     return function (constructor: Function, mainPropertyName: string) {
         const propInfo = '"' + getClassName(constructor) + '.' + mainPropertyName + '"';
         const mainPropAttrs = attr(constructor, mainPropertyName);
-        if (!mainPropAttrs.saveUrlAsAsset) {
-            let mainPropAttrsType = mainPropAttrs.type;
-            if (mainPropAttrsType === CCInteger || mainPropAttrsType === CCFloat) {
-                mainPropAttrsType = 'Number';
-            } else if (mainPropAttrsType === CCString || mainPropAttrsType === CCBoolean) {
-                mainPropAttrsType = '' + mainPropAttrsType;
-            }
-            if (mainPropAttrsType !== type) {
-                warnID(3604, propInfo);
-                return;
-            }
+        let mainPropAttrsType = mainPropAttrs.type;
+        if (mainPropAttrsType === CCInteger || mainPropAttrsType === CCFloat) {
+            mainPropAttrsType = 'Number';
+        } else if (mainPropAttrsType === CCString || mainPropAttrsType === CCBoolean) {
+            mainPropAttrsType = '' + mainPropAttrsType;
         }
+        if (mainPropAttrsType !== type) {
+            warnID(3604, propInfo);
+            return;
+        }
+
         if (!mainPropAttrs.hasOwnProperty('default')) {
             return;
         }
@@ -227,22 +226,18 @@ export function getTypeChecker_ET (type: string, attributeName: string) {
         const defaultType = typeof defaultVal;
         const type_lowerCase = type.toLowerCase();
         if (defaultType === type_lowerCase) {
-            if (!mainPropAttrs.saveUrlAsAsset) {
-                if (type_lowerCase === 'object') {
-                    if (defaultVal && !(defaultVal instanceof mainPropAttrs.ctor)) {
-                        warnID(3605, propInfo, getClassName(mainPropAttrs.ctor));
-                    } else {
-                        return;
-                    }
-                } else if (type !== 'Number') {
-                    warnID(3606, attributeName, propInfo, type);
+            if (type_lowerCase === 'object') {
+                if (defaultVal && !(defaultVal instanceof mainPropAttrs.ctor)) {
+                    warnID(3605, propInfo, getClassName(mainPropAttrs.ctor));
+                } else {
+                    return;
                 }
+            } else if (type !== 'Number') {
+                warnID(3606, attributeName, propInfo, type);
             }
         } else if (defaultType !== 'function') {
             if (type === CCString.default && defaultVal == null) {
-                if (!isChildClassOf(mainPropAttrs.ctor, legacyCC.RawAsset)) {
-                    warnID(3607, propInfo);
-                }
+                warnID(3607, propInfo);
             } else {
                 warnID(3611, attributeName, propInfo, defaultType);
             }

@@ -124,8 +124,7 @@ function genProperty (
     let fullOptions;
     let isGetset = descriptor && (descriptor.get || descriptor.set);
     if (options) {
-        fullOptions = DEV ? getFullFormOfProperty(options, isGetset, propertyKey, js.getClassName(ctor)) :
-            getFullFormOfProperty(options, isGetset);
+        fullOptions = getFullFormOfProperty(options, isGetset);
     }
     const existsPropertyRecord = properties[propertyKey];
     const propertyRecord = js.mixin(existsPropertyRecord || {}, fullOptions || options || {});
