@@ -850,7 +850,7 @@ export class Spawn extends ActionInterval {
  * @example
  * import { spawn, jumpBy, rotateBy, Vec2 } from 'cc';
  * const action = spawn(jumpBy(2, new Vec2(300, 0), 50, 4), rotateBy(2, 720));
- * todo:It should be the direct use new
+ * todo: It should be the direct use new
  */
 export function spawn (/*Multiple Arguments*/tempArray: any): FiniteTimeAction {
     var paramArray = (tempArray instanceof Array) ? tempArray : arguments;
