@@ -1,6 +1,9 @@
 
 declare const nr: any;
 
+import { getPhaseID } from './pass-phase'
+nr.getPhaseID = getPhaseID;
+
 export const RenderPipeline = nr.RenderPipeline;
 export const RenderFlow = nr.RenderFlow;
 export const RenderStage = nr.RenderStage;
