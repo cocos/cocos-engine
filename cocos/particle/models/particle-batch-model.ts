@@ -61,7 +61,6 @@ export default class ParticleBatchModel extends scene.Model {
     private _indexCount: number = 0;
     private _startTimeOffset: number = 0;
     private _lifeTimeOffset: number = 0;
-    private _iaInfoBufferReady: boolean = true;
     private _material: Material | null = null;
 
     constructor () {
@@ -179,14 +178,13 @@ export default class ParticleBatchModel extends scene.Model {
 
         this._iaInfo.drawInfos[0].vertexCount = this._capacity * this._vertCount;
         this._iaInfo.drawInfos[0].indexCount = this._capacity * this._indexCount;
-        if (!this._iaInfoBufferReady) {
-            this._iaInfoBuffer.initialize(new BufferInfo(
+        if (!this._iaInfoBuffer) {
+            this._iaInfoBuffer = this._device.createBuffer(new BufferInfo(
                 BufferUsageBit.INDIRECT,
                 MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
                 DRAW_INFO_SIZE,
                 DRAW_INFO_SIZE,
             ));
-            this._iaInfoBufferReady = true;
         }
         this._iaInfoBuffer.update(this._iaInfo);
 
@@ -329,7 +327,7 @@ export default class ParticleBatchModel extends scene.Model {
         this._vdataF32 = null;
         this.destroySubMeshData();
         this._iaInfoBuffer.destroy();
-        this._iaInfoBufferReady = false;
+        this._iaInfoBuffer = null;
     }
 
     private rebuild () {
