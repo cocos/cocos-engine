@@ -29,12 +29,12 @@
  * @hidden
  */
 
-// tslint:disable:only-arrow-functions
-// tslint:disable:prefer-for-of
-// tslint:disable:no-shadowed-variable
-// tslint:disable:max-line-length
-// tslint:disable:jsdoc-format
-// tslint:disable:forin
+
+
+
+
+
+
 
 import { errorID, warnID } from '../platform/debug';
 import * as js from '../utils/js';
@@ -270,8 +270,7 @@ function define (className, baseClass, mixins, options) {
                 renderName = 'render_stage';
             }
             // 增加了 hidden: 开头标识，使它最终不会显示在 Editor inspector 的添加组件列表里
-            // @ts-ignore
-            // tslint:disable-next-line:no-unused-expression
+
             window.EditorExtends && window.EditorExtends.Component.addMenu(cls, `hidden:${renderName}/${className}`, -1);
         }
 

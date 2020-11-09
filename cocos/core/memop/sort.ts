@@ -5,7 +5,7 @@
  * @hidden
  */
 
-// tslint:disable:no-shadowed-variable
+
 
 function _compare (a, b) {
     return a - b;

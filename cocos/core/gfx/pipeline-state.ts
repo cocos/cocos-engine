@@ -3,12 +3,19 @@
  * @module gfx
  */
 
+import { Attribute } from './input-assembler';
+import { Color } from './define-class';
+import { Device } from './device';
+import { PipelineLayout } from './pipeline-layout';
+import { RenderPass } from './render-pass';
+import { Shader } from './shader';
 import {
     BlendFactor,
     BlendOp,
     ColorMask,
     ComparisonFunc,
     CullMode,
+    DynamicStateFlagBit,
     DynamicStateFlags,
     Obj,
     ObjectType,
@@ -16,14 +23,7 @@ import {
     PrimitiveMode,
     ShadeModel,
     StencilOp,
-    DynamicStateFlagBit,
 } from './define';
-import { Color } from './define-class';
-import { Device } from './device';
-import { Attribute } from './input-assembler';
-import { RenderPass } from './render-pass';
-import { Shader } from './shader';
-import { PipelineLayout } from './pipeline-layout';
 import { NULL_HANDLE, RawBufferHandle } from '../renderer/core/memory-pools';
 
 /**
@@ -31,7 +31,7 @@ import { NULL_HANDLE, RawBufferHandle } from '../renderer/core/memory-pools';
  * @zh GFX 光栅化状态。
  */
 export class RasterizerState {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public isDiscard: boolean = false,
@@ -68,6 +68,7 @@ export class RasterizerState {
     }
 
     get handle (): RawBufferHandle { return NULL_HANDLE; }
+
     public destroy () {}
 }
 
@@ -76,7 +77,7 @@ export class RasterizerState {
  * @zh GFX 深度模板状态。
  */
 export class DepthStencilState {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public depthTest: boolean = true,
@@ -127,6 +128,7 @@ export class DepthStencilState {
     }
 
     get handle (): RawBufferHandle { return NULL_HANDLE; }
+
     public destroy () {}
 }
 
@@ -135,7 +137,7 @@ export class DepthStencilState {
  * @zh GFX 混合目标。
  */
 export class BlendTarget {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public blend: boolean = false,
@@ -164,6 +166,7 @@ export class BlendTarget {
     }
 
     get handle (): RawBufferHandle { return NULL_HANDLE; }
+
     public destroy () {}
 }
 
@@ -172,7 +175,7 @@ export class BlendTarget {
  * @zh GFX 混合状态。
  */
 export class BlendState {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public isA2C: boolean = false,
@@ -209,6 +212,7 @@ export class BlendState {
     }
 
     get handle (): RawBufferHandle { return NULL_HANDLE; }
+
     public destroy () {}
 }
 
@@ -217,7 +221,7 @@ export class BlendState {
  * @zh GFX 输入状态。
  */
 export class InputState {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public attributes: Attribute[] = [],
@@ -225,7 +229,7 @@ export class InputState {
 }
 
 export class PipelineStateInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public shader: Shader,
@@ -245,7 +249,6 @@ export class PipelineStateInfo {
  * @zh GFX 管线状态。
  */
 export abstract class PipelineState extends Obj {
-
     /**
      * @en Get current shader.
      * @zh GFX 着色器。
@@ -275,7 +278,7 @@ export abstract class PipelineState extends Obj {
      * @zh GFX 光栅化状态。
      */
     get rasterizerState (): RasterizerState {
-        return  this._rs as RasterizerState;
+        return this._rs as RasterizerState;
     }
 
     /**
@@ -283,7 +286,7 @@ export abstract class PipelineState extends Obj {
      * @zh GFX 深度模板状态。
      */
     get depthStencilState (): DepthStencilState {
-        return  this._dss as DepthStencilState;
+        return this._dss as DepthStencilState;
     }
 
     /**
@@ -291,7 +294,7 @@ export abstract class PipelineState extends Obj {
      * @zh GFX 混合状态。
      */
     get blendState (): BlendState {
-        return  this._bs as BlendState;
+        return this._bs as BlendState;
     }
 
     /**

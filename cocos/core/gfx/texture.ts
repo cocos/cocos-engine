@@ -3,6 +3,7 @@
  * @module gfx
  */
 
+import { Device } from './device';
 import {
     Format,
     Obj,
@@ -14,10 +15,9 @@ import {
     TextureUsage,
     TextureUsageBit,
 } from './define';
-import { Device } from './device';
 
 export class TextureInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public type: TextureType,
@@ -34,7 +34,7 @@ export class TextureInfo {
 }
 
 export class TextureViewInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public texture: Texture,
@@ -47,7 +47,7 @@ export class TextureViewInfo {
     ) {}
 }
 
-export function IsPowerOf2 (x: number): boolean{
+export function IsPowerOf2 (x: number): boolean {
     return x > 0 && (x & (x - 1)) === 0;
 }
 
@@ -158,15 +158,15 @@ export abstract class Texture extends Obj {
     protected _type: TextureType = TextureType.TEX2D;
     protected _usage: TextureUsage = TextureUsageBit.NONE;
     protected _format: Format = Format.UNKNOWN;
-    protected _width: number = 0;
-    protected _height: number = 0;
-    protected _depth: number = 1;
-    protected _layerCount: number = 1;
-    protected _levelCount: number = 1;
+    protected _width = 0;
+    protected _height = 0;
+    protected _depth = 1;
+    protected _layerCount = 1;
+    protected _levelCount = 1;
     protected _samples: SampleCount = SampleCount.X1;
     protected _flags: TextureFlags = TextureFlagBit.NONE;
-    protected _isPowerOf2: boolean = false;
-    protected _size: number = 0;
+    protected _isPowerOf2 = false;
+    protected _size = 0;
     protected _buffer: ArrayBuffer | null = null;
 
     constructor (device: Device) {

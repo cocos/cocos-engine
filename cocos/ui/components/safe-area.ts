@@ -34,8 +34,6 @@ import { UITransform } from '../../core/components/ui-base';
 import { view } from '../../core/platform';
 import { Widget } from './widget';
 import { legacyCC } from "../../core/global-exports";
-
-// @ts-ignore
 import { EDITOR } from 'internal:constants';
 
 /**
@@ -62,7 +60,6 @@ import { EDITOR } from 'internal:constants';
 @executeInEditMode
 @menu('UI/SafeArea')
 @requireComponent(Widget)
-// @ts-ignore
 export class SafeArea extends Component {
 
     public onEnable () {
@@ -70,7 +67,7 @@ export class SafeArea extends Component {
         view.on('canvas-resize', this.updateArea, this);
     }
 
-    public onDisable() {
+    public onDisable () {
         view.off('canvas-resize', this.updateArea, this);
     }
 
@@ -84,13 +81,13 @@ export class SafeArea extends Component {
      */
     public updateArea () {
         // TODO Remove Widget dependencies in the future
-        let widget = this.node.getComponent(Widget);
-        let uiTransComp = this.node.getComponent(UITransform);
+        const widget = this.node.getComponent(Widget);
+        const uiTransComp = this.node.getComponent(UITransform);
         if (!widget || !uiTransComp) {
             return;
         }
 
-        let { winSize, sys } = legacyCC;
+        const { winSize, sys } = legacyCC;
 
         if (EDITOR) {
             widget.top = widget.bottom = widget.left = widget.right = 0;
@@ -99,12 +96,12 @@ export class SafeArea extends Component {
         }
         // IMPORTANT: need to update alignment to get the latest position
         widget.updateAlignment();
-        let lastPos = this.node.position;
-        let lastAnchorPoint = uiTransComp.anchorPoint;
+        const lastPos = this.node.position;
+        const lastAnchorPoint = uiTransComp.anchorPoint;
         //
         widget.isAlignTop = widget.isAlignBottom = widget.isAlignLeft = widget.isAlignRight = true;
-        let screenWidth = winSize.width, screenHeight = winSize.height;
-        let safeArea = sys.getSafeAreaRect();
+        const screenWidth = winSize.width, screenHeight = winSize.height;
+        const safeArea = sys.getSafeAreaRect();
 
         console.log(safeArea);
 
@@ -114,9 +111,9 @@ export class SafeArea extends Component {
         widget.right = screenWidth - safeArea.x - safeArea.width;
         widget.updateAlignment();
         // set anchor, keep the original position unchanged
-        let curPos = this.node.position;
-        let anchorX = lastAnchorPoint.x - (curPos.x - lastPos.x) / uiTransComp.width;
-        let anchorY = lastAnchorPoint.y - (curPos.y - lastPos.y) / uiTransComp.height;
+        const curPos = this.node.position;
+        const anchorX = lastAnchorPoint.x - (curPos.x - lastPos.x) / uiTransComp.width;
+        const anchorY = lastAnchorPoint.y - (curPos.y - lastPos.y) / uiTransComp.height;
         uiTransComp.setAnchorPoint(anchorX, anchorY);
         // IMPORTANT: restore to lastPos even if widget is not ALWAYS
         widget.enabled = true;

@@ -314,7 +314,7 @@ export class Color extends ValueType {
      * @zh 用十六进制颜色字符串中构造颜色。
      * @param hexString Hexadecimal color string.
      */
-    // tslint:disable-next-line: unified-signatures
+
     constructor (hexString: string);
 
     /**
@@ -466,8 +466,8 @@ export class Color extends ValueType {
             (this.g < 16 ? prefix : '') + (this.g).toString(16),
             (this.b < 16 ? prefix : '') + (this.b).toString(16),
         ];
-        let i = -1;
-        if ( fmt === '#rgb' ) {
+        const i = -1;
+        if (fmt === '#rgb') {
             hex[0] = hex[0][0];
             hex[1] = hex[1][0];
             hex[2] = hex[2][0];
@@ -617,7 +617,7 @@ export class Color extends ValueType {
      */
     public set(other: Color): Color;
     public set(r?: number, g?: number, b?: number, a?: number): Color;
-    public set(r?: number | Color, g?: number, b?: number, a?: number): Color {
+    public set (r?: number | Color, g?: number, b?: number, a?: number): Color {
         if (typeof r === 'object') {
             if (r._val != null) {
                 this._val = r._val;

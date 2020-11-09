@@ -99,7 +99,7 @@ function compileDestruct (obj, ctor) {
     if (CCClass._isCCClass(ctor)) {
         const attrs = legacyCC.Class.Attr.getClassAttrs(ctor);
         const propList = ctor.__props__;
-        // tslint:disable-next-line: prefer-for-of
+
         for (let i = 0; i < propList.length; i++) {
             key = propList[i];
             const attrKey = key + legacyCC.Class.Attr.DELIMETER + 'default';
@@ -126,7 +126,7 @@ function compileDestruct (obj, ctor) {
     if (SUPPORT_JIT) {
         // compile code
         let func = '';
-        // tslint:disable: forin
+
         for (key in propsToReset) {
             let statement;
             if (CCClass.IDENTIFIER_RE.test(key)) {
@@ -277,7 +277,7 @@ class CCObject {
 
         if (EDITOR && deferredDestroyTimer === null && legacyCC.engine && ! legacyCC.engine._isUpdating) {
             // auto destroy immediate in edit mode
-            // @ts-ignore
+            // @ts-expect-error
             deferredDestroyTimer = setImmediate(CCObject._deferredDestroy);
         }
         return true;
@@ -320,9 +320,9 @@ class CCObject {
             return;
         }
         // engine internal callback
-        // @ts-ignore
+        // @ts-expect-error
         if (this._onPreDestroy) {
-            // @ts-ignore
+            // @ts-expect-error
             this._onPreDestroy();
         }
 
@@ -350,7 +350,7 @@ if (EDITOR || TEST) {
     * @method realDestroyInEditor
     * @private
     */
-    // @ts-ignore
+    // @ts-expect-error
     prototype.realDestroyInEditor = function () {
         if ( !(this._objFlags & Destroyed) ) {
             warnID(5001);
@@ -368,7 +368,7 @@ if (EDITOR || TEST) {
 if (EDITOR) {
     js.value(CCObject, '_clearDeferredDestroyTimer', () => {
         if (deferredDestroyTimer !== null) {
-            // @ts-ignore
+            // @ts-expect-error
             clearImmediate(deferredDestroyTimer);
             deferredDestroyTimer = null;
         }
@@ -381,7 +381,7 @@ if (EDITOR) {
      * @return {object} the serialized json data object
      * @private
      */
-    // @ts-ignore
+    // @ts-expect-error
     prototype._serialize = null;
 }
 
@@ -392,14 +392,14 @@ if (EDITOR) {
  * @param {_Deserializer} ctx
  * @private
  */
-// @ts-ignore
+// @ts-expect-error
 prototype._deserialize = null;
 /*
  * Called before the object being destroyed.
  * @method _onPreDestroy
  * @private
  */
-// @ts-ignore
+// @ts-expect-error
 prototype._onPreDestroy = null;
 
 CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0 });

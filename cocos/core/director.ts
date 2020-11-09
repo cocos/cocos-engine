@@ -463,7 +463,7 @@ export class Director extends EventTarget {
         if (BUILD && DEBUG) {
             console.time('InitScene');
         }
-        // @ts-ignore
+        // @ts-expect-error
         scene._load();  // ensure scene initialized
         if (BUILD && DEBUG) {
             console.timeEnd('InitScene');
@@ -529,7 +529,7 @@ export class Director extends EventTarget {
         if (BUILD && DEBUG) {
             console.time('Activate');
         }
-        // @ts-ignore
+        // @ts-expect-error
         scene._activate();
         if (BUILD && DEBUG) {
             console.timeEnd('Activate');
@@ -561,7 +561,7 @@ export class Director extends EventTarget {
         assertID(scene instanceof Scene, 1216);
 
         // ensure scene initialized
-        // @ts-ignore
+        // @ts-expect-error
         scene._load();
 
         // Delay run / replace scene to the end of the frame
@@ -583,7 +583,7 @@ export class Director extends EventTarget {
             warnID(1208, sceneName, this._loadingScene);
             return false;
         }
-        var bundle = legacyCC.assetManager.bundles.find((bundle) => {
+        const bundle = legacyCC.assetManager.bundles.find((bundle) => {
             return bundle.getSceneInfo(sceneName);
         });
         if (bundle) {
@@ -638,7 +638,6 @@ export class Director extends EventTarget {
      * @param onProgress 加载进度回调。
      * @param onLoaded 加载回调。
      */
-    // eslint-disable-next-line @typescript-eslint/unified-signatures
     public preloadScene (sceneName: string, onProgress: Director.OnLoadSceneProgress, onLoaded: Director.OnSceneLoaded): void;
 
     public preloadScene (
@@ -646,7 +645,7 @@ export class Director extends EventTarget {
         onProgress?: Director.OnLoadSceneProgress | Director.OnSceneLoaded,
         onLoaded?: Director.OnSceneLoaded) {
 
-        var bundle = legacyCC.assetManager.bundles.find(function (bundle) {
+        const bundle = legacyCC.assetManager.bundles.find(function (bundle) {
             return bundle.getSceneInfo(sceneName);
         });
         if (bundle) {

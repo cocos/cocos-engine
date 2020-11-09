@@ -1,4 +1,4 @@
-// tslint:disable
+
 export default [
   [
     {

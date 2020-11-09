@@ -40,7 +40,7 @@ replaceProperty(RenderTexture.prototype, 'RenderTexture.prototype', [
     {
         name: 'getGFXWindow',
         customFunction () {
-            // @ts-ignore
+            // @ts-expect-error
             return this._window;
         },
     },

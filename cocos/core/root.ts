@@ -187,11 +187,11 @@ export class Root {
     private _modelPools = new Map<Constructor<Model>, Pool<Model>>();
     private _cameraPool: Pool<Camera> | null = null;
     private _lightPools = new Map<Constructor<Light>, Pool<Light>>();
-    private _fpsTime: number = 0;
-    private _frameCount: number = 0;
-    private _fps: number = 0;
-    private _fixedFPS: number = 0;
-    private _fixedFPSFrameTime: number = 0;
+    private _fpsTime = 0;
+    private _frameCount = 0;
+    private _fps = 0;
+    private _fixedFPS = 0;
+    private _fixedFPSFrameTime = 0;
     private _poolHandle: RootHandle = NULL_HANDLE;
 
     /**
@@ -360,7 +360,7 @@ export class Root {
 
             const elapsed = this._frameTime * 1000.0;
             if (this._fixedFPSFrameTime > elapsed) {
-                // tslint:disable-next-line: only-arrow-functions
+
                 setTimeout(function () {}, this._fixedFPSFrameTime - elapsed);
             }
         }

@@ -142,7 +142,7 @@ export class TextureBufferPool {
     public createChunk (length: number) {
         const texSize = length * length * this._formatSize;
 
-        console.info('TextureBufferPool: Allocate chunk ' + this._chunkCount + ', size: ' + texSize + ', format: ' + this._format);
+        console.info(`TextureBufferPool: Allocate chunk ${this._chunkCount}, size: ${texSize}, format: ${this._format}`);
 
         const texture: Texture = this._device.createTexture(new TextureInfo(
             TextureType.TEX2D,

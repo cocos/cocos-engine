@@ -28,18 +28,18 @@
  * @module material
  */
 
-import { ccclass, type, serializable } from 'cc.decorator';
-import { builtinResMgr } from '../3d/builtin/init';
-import { RenderableComponent } from '../3d/framework/renderable-component';
-import { Texture } from '../gfx';
-import { MacroRecord, MaterialProperty, PropertyType } from '../renderer/core/pass-utils';
-import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';
-import { legacyCC } from '../global-exports';
+import { ccclass, serializable, type } from 'cc.decorator';
 import { Asset } from './asset';
 import { EffectAsset } from './effect-asset';
-import { SpriteFrame } from './sprite-frame';
-import { TextureBase } from './texture-base';
 import { RenderTexture } from './render-texture';
+import { RenderableComponent } from '../3d/framework/renderable-component';
+import { SpriteFrame } from './sprite-frame';
+import { Texture } from '../gfx';
+import { TextureBase } from './texture-base';
+import { builtinResMgr } from '../3d/builtin/init';
+import { legacyCC } from '../global-exports';
+import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';
+import { MacroRecord, MaterialProperty, PropertyType } from '../renderer/core/pass-utils';
 
 /**
  * @en The basic infos for material initialization.
@@ -91,7 +91,6 @@ type MaterialPropertyFull = MaterialProperty | TextureBase | SpriteFrame | Rende
  */
 @ccclass('cc.Material')
 export class Material extends Asset {
-
     /**
      * @en Get hash for a material
      * @zh 获取一个材质的哈希值
@@ -107,17 +106,27 @@ export class Material extends Asset {
 
     @type(EffectAsset)
     protected _effectAsset: EffectAsset | null = null;
+
     @serializable
     protected _techIdx = 0;
+
     @serializable
     protected _defines: MacroRecord[] = [];
+
     @serializable
     protected _states: PassOverrides[] = [];
+
     @serializable
     protected _props: Record<string, MaterialPropertyFull | MaterialPropertyFull[]>[] = [];
 
     protected _passes: Pass[] = [];
+
     protected _hash = 0;
+
+    constructor () {
+        super();
+        this.loaded = false;
+    }
 
     /**
      * @en The current [[EffectAsset]].
@@ -175,11 +184,6 @@ export class Material extends Asset {
         return null;
     }
 
-    constructor () {
-        super();
-        this.loaded = false;
-    }
-
     /**
      * @en Initialize this material with the given information.
      * @zh 根据所给信息初始化这个材质，初始化正常结束后材质即可立即用于渲染。
@@ -190,12 +194,16 @@ export class Material extends Asset {
         if (!this._states) { this._states = []; }
         if (!this._props) { this._props = []; }
         if (info.technique !== undefined) { this._techIdx = info.technique; }
-        if (info.effectAsset) { this._effectAsset = info.effectAsset; }
-        else if (info.effectName) { this._effectAsset = EffectAsset.get(info.effectName); }
+        if (info.effectAsset) {
+            this._effectAsset = info.effectAsset;
+        } else if (info.effectName) {
+            this._effectAsset = EffectAsset.get(info.effectName);
+        }
         if (info.defines) { this._prepareInfo(info.defines, this._defines); }
         if (info.states) { this._prepareInfo(info.states, this._states); }
         this._update();
     }
+
     public reset (info: IMaterialInfo) { // to be consistent with other assets
         this.initialize(info);
     }
@@ -221,7 +229,7 @@ export class Material extends Asset {
      * @param passIdx The pass to apply to. Will apply to all passes if not specified.
      */
     public recompileShaders (overrides: MacroRecord, passIdx?: number) {
-        console.warn('Shaders in material asset \'' + this.name + '\' cannot be modified at runtime, please instantiate the material first.');
+        console.warn(`Shaders in material asset '${this.name}' cannot be modified at runtime, please instantiate the material first.`);
     }
 
     /**
@@ -231,7 +239,7 @@ export class Material extends Asset {
      * @param passIdx The pass to apply to. Will apply to all passes if not specified.
      */
     public overridePipelineStates (overrides: PassOverrides, passIdx?: number) {
-        console.warn('Pipeline states in material asset \'' + this.name + '\' cannot be modified at runtime, please instantiate the material first.');
+        console.warn(`Pipeline states in material asset '${this.name}' cannot be modified at runtime, please instantiate the material first.`);
     }
 
     /**
@@ -292,7 +300,6 @@ export class Material extends Asset {
         }
         if (!success) {
             console.warn(`illegal property name: ${name}.`);
-            return;
         }
     }
 
@@ -333,27 +340,28 @@ export class Material extends Asset {
         this._techIdx = mat._techIdx;
         this._props.length = mat._props.length;
         for (let i = 0; i < mat._props.length; i++) {
-            this._props[i] = Object.assign({}, mat._props[i]);
+            this._props[i] = { ...mat._props[i] };
         }
         this._defines.length = mat._defines.length;
         for (let i = 0; i < mat._defines.length; i++) {
-            this._defines[i] = Object.assign({}, mat._defines[i]);
+            this._defines[i] = { ...mat._defines[i] };
         }
         this._states.length = mat._states.length;
         for (let i = 0; i < mat._states.length; i++) {
-            this._states[i] = Object.assign({}, mat._states[i]);
+            this._states[i] = { ...mat._states[i] };
         }
         this._effectAsset = mat._effectAsset;
         this._update();
     }
 
-    protected _prepareInfo (patch: object | object[], cur: object[]) {
-        if (!Array.isArray(patch)) { // fill all the passes if not specified
+    protected _prepareInfo (patch: Record<string, unknown> | Record<string, unknown>[], cur: Record<string, unknown>[]) {
+        let patchArray = patch;
+        if (!Array.isArray(patchArray)) { // fill all the passes if not specified
             const len = this._effectAsset ? this._effectAsset.techniques[this._techIdx].passes.length : 1;
-            patch = Array(len).fill(patch);
+            patchArray = Array(len).fill(patchArray);
         }
-        for (let i = 0; i < (patch as object[]).length; ++i) {
-            Object.assign(cur[i] || (cur[i] = {}), patch[i]);
+        for (let i = 0; i < patchArray.length; ++i) {
+            Object.assign(cur[i] || (cur[i] = {}), patchArray[i]);
         }
     }
 
@@ -382,7 +390,7 @@ export class Material extends Asset {
         return passes;
     }
 
-    protected _update (keepProps: boolean = true) {
+    protected _update (keepProps = true) {
         if (this._effectAsset) {
             if (this._passes && this._passes.length) {
                 for (const pass of this._passes) {
@@ -446,7 +454,7 @@ export class Material extends Asset {
             const texture: Texture | null = val.getGFXTexture();
             if (!texture || !texture.width || !texture.height) {
                 // console.warn(`material '${this._uuid}' received incomplete texture asset '${val._uuid}'`);
-                return false;
+                return;
             }
             pass.bindTexture(binding, texture, index);
             pass.bindSampler(binding, val.getGFXSampler(), index);

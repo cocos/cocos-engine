@@ -4,11 +4,12 @@
  */
 
 import { ccenum } from '../value-types/enum';
-import { DescriptorSet, DescriptorSetInfo } from './descriptor-set';
+import { gfx } from '../../../exports/base';
+import { API, Feature, Filter, Format, MemoryStatus, SurfaceTransform } from './define';
 import { Buffer, BufferInfo, BufferViewInfo } from './buffer';
-import { CommandBuffer, CommandBufferInfo } from './command-buffer';
-import {  Filter, Format, MemoryStatus, API, Feature, SurfaceTransform } from './define';
 import { BufferTextureCopy, Rect } from './define-class';
+import { CommandBuffer, CommandBufferInfo } from './command-buffer';
+import { DescriptorSet, DescriptorSetInfo } from './descriptor-set';
 import { Fence, FenceInfo } from './fence';
 import { Framebuffer, FramebufferInfo } from './framebuffer';
 import { InputAssembler, InputAssemblerInfo } from './input-assembler';
@@ -18,12 +19,11 @@ import { RenderPass, RenderPassInfo } from './render-pass';
 import { Sampler, SamplerInfo } from './sampler';
 import { Shader, ShaderInfo } from './shader';
 import { Texture, TextureInfo, TextureViewInfo } from './texture';
-import { gfx } from '../../../exports/base';
 
 ccenum(Format);
 
 export class BindingMappingInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public bufferOffsets: number[] = [],
@@ -33,7 +33,7 @@ export class BindingMappingInfo {
 }
 
 export class DeviceInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public canvasElm: HTMLElement,
@@ -345,38 +345,38 @@ export abstract class Device {
 
     protected _canvas: HTMLCanvasElement | null = null;
     protected _canvas2D: HTMLCanvasElement | null = null;
-    protected _gfxAPI: API = API.UNKNOWN;
-    protected _transform: SurfaceTransform = SurfaceTransform.IDENTITY;
-    protected _deviceName: string = '';
-    protected _renderer: string = '';
-    protected _vendor: string = '';
-    protected _version: string = '';
-    protected _features: boolean[] = new Array<boolean>(Feature.COUNT);
+    protected _gfxAPI = API.UNKNOWN;
+    protected _transform = SurfaceTransform.IDENTITY;
+    protected _deviceName = '';
+    protected _renderer = '';
+    protected _vendor = '';
+    protected _version = '';
+    protected _features = new Array<boolean>(Feature.COUNT);
     protected _queue: Queue | null = null;
     protected _cmdBuff: CommandBuffer | null = null;
-    protected _devicePixelRatio: number = 1.0;
-    protected _width: number = 0;
-    protected _height: number = 0;
-    protected _nativeWidth: number = 0;
-    protected _nativeHeight: number = 0;
-    protected _maxVertexAttributes: number = 0;
-    protected _maxVertexUniformVectors: number = 0;
-    protected _maxFragmentUniformVectors: number = 0;
-    protected _maxTextureUnits: number = 0;
-    protected _maxVertexTextureUnits: number = 0;
-    protected _maxUniformBufferBindings: number = 0;
-    protected _maxUniformBlockSize: number = 0;
-    protected _maxTextureSize: number = 0;
-    protected _maxCubeMapTextureSize: number = 0;
-    protected _uboOffsetAlignment: number = 1;
-    protected _depthBits: number = 0;
-    protected _stencilBits: number = 0;
-    protected _colorFmt: Format = Format.UNKNOWN;
-    protected _depthStencilFmt: Format = Format.UNKNOWN;
-    protected _macros: Map<string, string> = new Map();
-    protected _numDrawCalls: number = 0;
-    protected _numInstances: number = 0;
-    protected _numTris: number = 0;
+    protected _devicePixelRatio = 1.0;
+    protected _width = 0;
+    protected _height = 0;
+    protected _nativeWidth = 0;
+    protected _nativeHeight = 0;
+    protected _maxVertexAttributes = 0;
+    protected _maxVertexUniformVectors = 0;
+    protected _maxFragmentUniformVectors = 0;
+    protected _maxTextureUnits = 0;
+    protected _maxVertexTextureUnits = 0;
+    protected _maxUniformBufferBindings = 0;
+    protected _maxUniformBlockSize = 0;
+    protected _maxTextureSize = 0;
+    protected _maxCubeMapTextureSize = 0;
+    protected _uboOffsetAlignment = 1;
+    protected _depthBits = 0;
+    protected _stencilBits = 0;
+    protected _colorFmt = Format.UNKNOWN;
+    protected _depthStencilFmt = Format.UNKNOWN;
+    protected _macros = new Map<string, string>();
+    protected _numDrawCalls = 0;
+    protected _numInstances = 0;
+    protected _numTris = 0;
     protected _memoryStatus = new MemoryStatus();
     protected _clipSpaceMinZ = -1;
     protected _screenSpaceSignY = 1;

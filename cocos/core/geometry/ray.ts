@@ -13,7 +13,7 @@ import { IVec3Like } from '../math/type-define';
  * @zh
  * 基础几何 射线。
  */
-// tslint:disable-next-line:class-name
+
 export default class ray {
 
     /**
@@ -29,7 +29,7 @@ export default class ray {
      * @param {number} dz 方向的 z 部分。
      * @return {ray} 射线。
      */
-    public static create (ox: number = 0, oy: number = 0, oz: number = 0, dx: number = 0, dy: number = 0, dz: number = 1): ray {
+    public static create (ox = 0, oy = 0, oz = 0, dx = 0, dy = 0, dz = 1): ray {
         return new ray(ox, oy, oz, dx, dy, dz);
     }
 
@@ -145,8 +145,8 @@ export default class ray {
      * @param {number} dy 方向的 y 部分。
      * @param {number} dz 方向的 z 部分。
      */
-    constructor (ox: number = 0, oy: number = 0, oz: number = 0,
-        dx: number = 0, dy: number = 0, dz: number = -1) {
+    constructor (ox = 0, oy = 0, oz = 0,
+        dx = 0, dy = 0, dz = -1) {
         this._type = enums.SHAPE_RAY;
         this.o = new Vec3(ox, oy, oz);
         this.d = new Vec3(dx, dy, dz);

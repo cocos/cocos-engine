@@ -468,7 +468,7 @@ export class Animation extends Eventify(Component) {
     }
 
     private _removeStateOfAutomaticClip (clip: AnimationClip) {
-        // tslint:disable-next-line:forin
+
         for (const name in this._nameToState) {
             const state = this._nameToState[name];
             if (equalClips(clip, state.clip)) {

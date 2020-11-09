@@ -12,7 +12,7 @@ import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
 import { ParticleModuleBase, PARTICLE_MODULE_NAME} from '../particle';
 
-// tslint:disable: max-line-length
+
 const FORCE_OVERTIME_RAND_OFFSET = ModuleRandSeed.FORCE;
 
 const _temp_v3 = new Vec3();

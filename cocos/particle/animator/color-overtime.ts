@@ -11,7 +11,7 @@ import GradientRange from './gradient-range';
 import { ModuleRandSeed } from '../enum';
 import { ParticleModuleBase } from '../particle';
 
-// tslint:disable: max-line-length
+
 
 const COLOR_OVERTIME_RAND_OFFSET = ModuleRandSeed.COLOR;
 

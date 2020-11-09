@@ -295,7 +295,7 @@ export class Asset extends Eventify(CCObject) {
  */
 type CreateNodeCallback = (error: Error | null, node: Node) => void;
 
-// @ts-ignore
+// @ts-expect-error
 Asset.prototype.createNode = null;
 
 legacyCC.Asset = Asset;

@@ -40,7 +40,7 @@ import { legacyCC } from '../global-exports';
  * @en Mathematical 3x3 matrix.
  * @zh 表示三维（3x3）矩阵。
  */
-// tslint:disable:one-variable-per-declaration
+
 export class Mat3 extends ValueType {
 
     public static IDENTITY = Object.freeze(new Mat3());
@@ -692,9 +692,9 @@ export class Mat3 extends ValueType {
         m06?: number, m07?: number, m08?: number);
 
     constructor (
-        m00: number | Mat3 = 1, m01: number = 0, m02: number = 0,
-        m03: number = 0, m04: number = 1, m05: number = 0,
-        m06: number = 0, m07: number = 0, m08: number = 1 ) {
+        m00: number | Mat3 = 1, m01 = 0, m02 = 0,
+        m03 = 0, m04 = 1, m05 = 0,
+        m06 = 0, m07 = 0, m08 = 1) {
         super();
         if (typeof m00 === 'object') {
             this.m00 = m00.m00; this.m01 = m00.m01; this.m02 = m00.m02;
@@ -736,9 +736,9 @@ export class Mat3 extends ValueType {
                 m03?: number, m04?: number, m05?: number,
                 m06?: number, m07?: number, m08?: number);
 
-    public set (m00: number | Mat3 = 1, m01: number = 0, m02: number = 0,
-                m03: number = 0, m04: number = 1, m05: number = 0,
-                m06: number = 0, m07: number = 0, m08: number = 1 ) {
+    public set (m00: number | Mat3 = 1, m01 = 0, m02 = 0,
+                m03 = 0, m04 = 1, m05 = 0,
+                m06 = 0, m07 = 0, m08 = 1) {
         if (typeof m00 === 'object') {
             this.m00 = m00.m00; this.m01 = m00.m01; this.m02 = m00.m02;
             this.m03 = m00.m03; this.m04 = m00.m04; this.m05 = m00.m05;

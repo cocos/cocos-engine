@@ -256,13 +256,13 @@ export class Model {
 
     public updateTransform (stamp: number) {
         const node = this.transform;
-        // @ts-ignore TS2445
+        // @ts-expect-error TS2445
         if (node.hasChangedFlags || node._dirtyFlags) {
             node.updateWorldTransform();
             this._transformUpdated = true;
             const worldBounds = this._worldBounds;
             if (this._modelBounds && worldBounds) {
-                // @ts-ignore TS2445
+                // @ts-expect-error TS2445
                 this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
                 AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, worldBounds.center);
                 AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, worldBounds.halfExtents);
@@ -280,7 +280,7 @@ export class Model {
         if (!this._transformUpdated) { return; }
         this._transformUpdated = false;
 
-        // @ts-ignore
+        // @ts-expect-error
         const worldMatrix = this.transform._mat;
         const idx = this._instMatWorldIdx;
         if (idx >= 0) {

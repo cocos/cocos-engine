@@ -56,7 +56,7 @@ export interface ISchedulable {
  */
 class ListEntry {
 
-    public static get = (target: ISchedulable, priority: Number, paused: Boolean, markedForDeletion: Boolean) => {
+    public static get = (target: ISchedulable, priority: number, paused: boolean, markedForDeletion: boolean) => {
         let result = ListEntry._listEntries.pop();
         if (result) {
             result.target = target;
@@ -80,11 +80,11 @@ class ListEntry {
     private static _listEntries: any = [];
 
     public target: ISchedulable;
-    public priority: Number;
-    public paused: Boolean;
-    public markedForDeletion: Boolean;
+    public priority: number;
+    public paused: boolean;
+    public markedForDeletion: boolean;
 
-    constructor (target: ISchedulable, priority: Number, paused: Boolean, markedForDeletion: Boolean) {
+    constructor (target: ISchedulable, priority: number, paused: boolean, markedForDeletion: boolean) {
         this.target = target;
         this.priority = priority;
         this.paused = paused;
@@ -152,7 +152,7 @@ class HashUpdateEntry {
  */
 class HashTimerEntry {
 
-    public static get = (timers: any, target: ISchedulable, timerIndex: Number, currentTimer: any, currentTimerSalvaged: any, paused: any) => {
+    public static get = (timers: any, target: ISchedulable, timerIndex: number, currentTimer: any, currentTimerSalvaged: any, paused: any) => {
         let result = HashTimerEntry._hashTimerEntries.pop();
         if (result) {
             result.timers = timers;
@@ -179,12 +179,12 @@ class HashTimerEntry {
 
     public timers: any;
     public target: ISchedulable;
-    public timerIndex: Number;
+    public timerIndex: number;
     public currentTimer: any;
     public currentTimerSalvaged: any;
     public paused: any;
 
-    constructor (timers: any, target: ISchedulable, timerIndex: Number, currentTimer: any, currentTimerSalvaged: any, paused: any){
+    constructor (timers: any, target: ISchedulable, timerIndex: number, currentTimer: any, currentTimerSalvaged: any, paused: any) {
         this.timers = timers;
         this.target = target;
         this.timerIndex = timerIndex;
@@ -306,7 +306,7 @@ class CallbackTimer {
         }
     }
 
-    public getCallback (){
+    public getCallback () {
         return this._callback;
     }
 
@@ -387,7 +387,7 @@ export class Scheduler extends System {
             found = true;
         }
         if (!found) {
-            // @ts-ignore
+            // @ts-expect-error
             if (target.__instanceId) {
                 warnID(1513);
             }
@@ -458,21 +458,21 @@ export class Scheduler extends System {
         let len: number;
         let entry;
 
-        for (i = 0, list = this._updatesNegList, len = list.length; i < len; i++){
+        for (i = 0, list = this._updatesNegList, len = list.length; i < len; i++) {
             entry = list[i];
             if (!entry.paused && !entry.markedForDeletion) {
                 entry.target.update(dt);
             }
         }
 
-        for ( i = 0, list = this._updates0List, len = list.length; i < len; i++){
+        for (i = 0, list = this._updates0List, len = list.length; i < len; i++) {
             entry = list[i];
             if (!entry.paused && !entry.markedForDeletion) {
                 entry.target.update(dt);
             }
         }
 
-        for ( i = 0, list = this._updatesPosList, len = list.length; i < len; i++){
+        for (i = 0, list = this._updatesPosList, len = list.length; i < len; i++) {
             entry = list[i];
             if (!entry.paused && !entry.markedForDeletion) {
                 entry.target.update(dt);
@@ -482,14 +482,14 @@ export class Scheduler extends System {
         // Iterate over all the custom selectors
         let elt;
         const arr = this._arrayForTimers;
-        for ( i = 0; i < arr.length; i++){
+        for (i = 0; i < arr.length; i++) {
             elt = arr[i];
             this._currentTarget = elt;
             this._currentTargetSalvaged = false;
 
-            if (!elt.paused){
+            if (!elt.paused) {
                 // The 'timers' array may change while inside this loop
-                for (elt.timerIndex = 0; elt.timerIndex < elt.timers.length; ++(elt.timerIndex)){
+                for (elt.timerIndex = 0; elt.timerIndex < elt.timers.length; ++(elt.timerIndex)) {
                     elt.currentTimer = elt.timers[elt.timerIndex];
                     elt.currentTimerSalvaged = false;
 
@@ -507,7 +507,7 @@ export class Scheduler extends System {
 
         // delete all updates that are marked for deletion
         // updates with priority < 0
-        for ( i = 0, list = this._updatesNegList; i < list.length; ){
+        for (i = 0, list = this._updatesNegList; i < list.length;) {
             entry = list[i];
             if (entry.markedForDeletion) {
                 this._removeUpdateFromHash(entry);
@@ -517,7 +517,7 @@ export class Scheduler extends System {
             }
         }
 
-        for ( i = 0, list = this._updates0List; i < list.length; ){
+        for (i = 0, list = this._updates0List; i < list.length;) {
             entry = list[i];
             if (entry.markedForDeletion) {
                 this._removeUpdateFromHash(entry);
@@ -527,7 +527,7 @@ export class Scheduler extends System {
             }
         }
 
-        for ( i = 0, list = this._updatesPosList; i < list.length; ){
+        for (i = 0, list = this._updatesPosList; i < list.length;) {
             entry = list[i];
             if (entry.markedForDeletion) {
                 this._removeUpdateFromHash(entry);
@@ -572,7 +572,7 @@ export class Scheduler extends System {
         'use strict';
         if (typeof callback !== 'function') {
             const tmp = callback;
-            // @ts-ignore
+            // @ts-expect-error
             callback = target;
             target = tmp;
         }
@@ -586,7 +586,7 @@ export class Scheduler extends System {
 
         assertID(target, 1502);
 
-        let targetId = target.uuid || target.id;
+        const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);
             return;
@@ -638,26 +638,26 @@ export class Scheduler extends System {
      * @param priority
      * @param paused
      */
-    public scheduleUpdate (target: ISchedulable, priority: Number, paused: Boolean) {
-        let targetId = target.uuid || target.id;
+    public scheduleUpdate (target: ISchedulable, priority: number, paused: boolean) {
+        const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);
             return;
         }
         const hashElement = this._hashForUpdates[targetId];
-        if (hashElement && hashElement.entry){
+        if (hashElement && hashElement.entry) {
             // check if priority has changed
-            if (hashElement.entry.priority !== priority){
-                if (this._updateHashLocked){
+            if (hashElement.entry.priority !== priority) {
+                if (this._updateHashLocked) {
                     logID(1506);
                     hashElement.entry.markedForDeletion = false;
                     hashElement.entry.paused = paused;
                     return;
-                }else{
+                } else {
                     // will be added again outside if (hashElement).
                     this.unscheduleUpdate(target);
                 }
-            }else{
+            } else {
                 hashElement.entry.markedForDeletion = false;
                 hashElement.entry.paused = paused;
                 return;
@@ -699,7 +699,7 @@ export class Scheduler extends System {
         if (!target || !callback) {
             return;
         }
-        let targetId = target.uuid || target.id;
+        const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);
             return;
@@ -744,7 +744,7 @@ export class Scheduler extends System {
         if (!target) {
             return;
         }
-        let targetId = target.uuid || target.id;
+        const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);
             return;
@@ -769,10 +769,10 @@ export class Scheduler extends System {
      */
     public unscheduleAllForTarget (target) {
         // explicit nullptr handling
-        if (!target){
+        if (!target) {
             return;
         }
-        let targetId = target.uuid || target.id;
+        const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);
             return;
@@ -791,9 +791,9 @@ export class Scheduler extends System {
             }
             timers.length = 0;
 
-            if (this._currentTarget === element){
+            if (this._currentTarget === element) {
                 this._currentTargetSalvaged = true;
-            }else{
+            } else {
                 this._removeHashElement(element);
             }
         }
@@ -810,7 +810,7 @@ export class Scheduler extends System {
      * 取消所有对象的所有定时器，包括系统定时器。<br/>
      * 不要调用此函数，除非你确定你在做什么。
      */
-    public unscheduleAll (){
+    public unscheduleAll () {
         this.unscheduleAllWithMinPriority(legacyCC.Scheduler.PRIORITY_SYSTEM);
     }
 
@@ -824,12 +824,12 @@ export class Scheduler extends System {
      * @param minPriority The minimum priority of selector to be unscheduled. Which means, all selectors which
      *        priority is higher than minPriority will be unscheduled.
      */
-    public unscheduleAllWithMinPriority (minPriority: number){
+    public unscheduleAllWithMinPriority (minPriority: number) {
         // Custom Selectors
         let i;
         let element;
         const arr = this._arrayForTimers;
-        for ( i = arr.length - 1; i >= 0; i--) {
+        for (i = arr.length - 1; i >= 0; i--) {
             element = arr[i];
             this.unscheduleAllForTarget(element.target);
         }
@@ -837,8 +837,8 @@ export class Scheduler extends System {
         // Updates selectors
         let entry;
         let temp_length = 0;
-        if (minPriority < 0){
-            for ( i = 0; i < this._updatesNegList.length; ) {
+        if (minPriority < 0) {
+            for (i = 0; i < this._updatesNegList.length;) {
                 temp_length = this._updatesNegList.length;
                 entry = this._updatesNegList[i];
                 if (entry && entry.priority >= minPriority) {
@@ -850,8 +850,8 @@ export class Scheduler extends System {
             }
         }
 
-        if (minPriority <= 0 ) {
-            for ( i = 0; i < this._updates0List.length; ) {
+        if (minPriority <= 0) {
+            for (i = 0; i < this._updates0List.length;) {
                 temp_length = this._updates0List.length;
                 entry = this._updates0List[i];
                 if (entry) {
@@ -863,10 +863,10 @@ export class Scheduler extends System {
             }
         }
 
-        for ( i = 0; i < this._updatesPosList.length; ) {
+        for (i = 0; i < this._updatesPosList.length;) {
             temp_length = this._updatesPosList.length;
             entry = this._updatesPosList[i];
-            if ( entry && entry.priority >= minPriority ) {
+            if (entry && entry.priority >= minPriority) {
                 this.unscheduleUpdate(entry.target);
             }
             if (temp_length === this._updatesPosList.length) {
@@ -882,12 +882,12 @@ export class Scheduler extends System {
      * @param target The target of the callback.
      * @return True if the specified callback is invoked, false if not.
      */
-    public isScheduled (callback, target:ISchedulable){
+    public isScheduled (callback, target:ISchedulable) {
         // key, target
         // selector, target
         assertID(callback, 1508);
         assertID(target, 1509);
-        let targetId = target.uuid || target.id;
+        const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);
             return;
@@ -899,15 +899,15 @@ export class Scheduler extends System {
             return false;
         }
 
-        if (element.timers == null){
+        if (element.timers == null) {
             return false;
         }
         else {
             const timers = element.timers;
-            // tslint:disable-next-line: prefer-for-of
+
             for (let i = 0; i < timers.length; ++i) {
                 const timer =  timers[i];
-                if (callback === timer._callback){
+                if (callback === timer._callback) {
                     return true;
                 }
             }
@@ -1002,7 +1002,7 @@ export class Scheduler extends System {
         if (!targetsToResume) {
             return;
         }
-        // tslint:disable-next-line: prefer-for-of
+
         for (let i = 0; i < targetsToResume.length; i++) {
             this.resumeTarget(targetsToResume[i]);
         }
@@ -1021,7 +1021,7 @@ export class Scheduler extends System {
      */
     public pauseTarget (target:ISchedulable) {
         assertID(target, 1503);
-        let targetId = target.uuid || target.id;
+        const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);
             return;
@@ -1054,7 +1054,7 @@ export class Scheduler extends System {
      */
     public resumeTarget (target:ISchedulable) {
         assertID(target, 1504);
-        let targetId = target.uuid || target.id;
+        const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);
             return;
@@ -1081,7 +1081,7 @@ export class Scheduler extends System {
      */
     public isTargetPaused (target:ISchedulable) {
         assertID(target, 1505);
-        let targetId = target.uuid || target.id;
+        const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);
             return false;
@@ -1101,7 +1101,7 @@ export class Scheduler extends System {
 
     // -----------------------private method----------------------
     private _removeHashElement (element) {
-        let targetId = element.target.uuid || element.target.id;
+        const targetId = element.target.uuid || element.target.id;
         delete this._hashForTimers[targetId];
         const arr = this._arrayForTimers;
         for (let i = 0, l = arr.length; i < l; i++) {
@@ -1135,7 +1135,7 @@ export class Scheduler extends System {
     }
 
     private _priorityIn (ppList, listElement, priority) {
-        for (let i = 0; i < ppList.length; i++){
+        for (let i = 0; i < ppList.length; i++) {
             if (priority < ppList[i].priority) {
                 ppList.splice(i, 0, listElement);
                 return;

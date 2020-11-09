@@ -73,9 +73,9 @@ function getBitCount (cnt: number) {
 
 function mapDefine (info: IDefineInfo, def: number | string | boolean) {
     switch (info.type) {
-        case 'boolean': return (typeof def === 'number' ? def : (def ? 1 : 0)) + '';
+        case 'boolean': return typeof def === 'number' ? def.toString() : (def ? '1' : '0');
         case 'string': return def !== undefined ? def as string : info.options![0];
-        case 'number': return (def !== undefined ? def as number : info.range![0]) + '';
+        case 'number': return def !== undefined ? def.toString() : info.range![0].toString();
     }
     console.warn(`unknown define type '${info.type}'`);
     return '-1'; // should neven happen
@@ -310,9 +310,9 @@ class ProgramLib {
                 }
                 const mapped = tmplDef._map(value);
                 const offset = tmplDef._offset;
-                key += offset + (mapped + '|');
+                key += `${offset}${mapped}|`;
             }
-            return key + tmpl.hash;
+            return `${key}${tmpl.hash}`;
         } else {
             let key = 0;
             for (let i = 0; i < tmplDefs.length; i++) {
@@ -339,7 +339,7 @@ class ProgramLib {
         const regexes = names.map((cur) => {
             let val = defines[cur];
             if (typeof val === 'boolean') { val = val ? '1' : '0'; }
-            return new RegExp(cur + val);
+            return new RegExp(`${cur}${val}`);
         });
         const keys = Object.keys(this._cache).filter((k) => regexes.every((re) => re.test(ShaderPool.get(this._cache[k]).name)));
         for (let i = 0; i < keys.length; i++) {

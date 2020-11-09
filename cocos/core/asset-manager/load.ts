@@ -159,7 +159,7 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
             else {
                 if (!options.reloadAsset && assets.has(uuid)) {
                     const asset = assets.get(uuid)!;
-                    // @ts-ignore
+                    // @ts-expect-error
                     if (options.__asyncLoadAssets__ || !asset.__asyncLoadAssets__) {
                         item.content = asset.addRef();
                         if (progress.canInvoke) {
@@ -207,7 +207,7 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
         progress,
         onComplete: (err) => {
             asset.decRef && asset.decRef(false);
-            // @ts-ignore
+            // @ts-expect-error
             asset.__asyncLoadAssets__ = __asyncLoadAssets__;
             repeatItem.finish = true;
             repeatItem.err = err;
@@ -222,7 +222,7 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
                 }
 
                 if (!init) {
-                    // @ts-ignore
+                    // @ts-expect-error
                     if (asset.__nativeDepend__) {
                         if (!setProperties(uuid, asset, map)) {
                             try {

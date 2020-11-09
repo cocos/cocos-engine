@@ -21,10 +21,10 @@ import { IRaySubMeshOptions, ERaycastMode, IRaySubMeshResult, IRayMeshOptions, I
 import { IVec3Like } from '../math/type-define';
 import { scene } from '../renderer';
 
-// tslint:disable:only-arrow-functions
-// tslint:disable:one-variable-per-declaration
-// tslint:disable:prefer-for-of
-// tslint:disable:no-shadowed-variable
+
+
+
+
 
 /**
  * @en
@@ -408,7 +408,7 @@ const ray_subMesh = (function () {
         const max = submesh.geometricInfo.boundingBox.max;
         if (ray_aabb2(ray, min, max)) {
             const pm = submesh.primitiveMode;
-            const { positions: vb, indices: ib } = submesh.geometricInfo!;
+            const { positions: vb, indices: ib } = submesh.geometricInfo;
             narrowphase(vb, ib!, pm, ray, opt);
         }
         return minDis;
@@ -1079,7 +1079,7 @@ const obb_obb = (function () {
     };
 })();
 
-// tslint:disable-next-line: max-line-length
+
 // https://github.com/diku-dk/bvh-tvcg18/blob/1fd3348c17bc8cf3da0b4ae60fdb8f2aa90a6ff0/FOUNDATION/GEOMETRY/GEOMETRY/include/overlap/geometry_overlap_obb_capsule.h
 /**
  * @en

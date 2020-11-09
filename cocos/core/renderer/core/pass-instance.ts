@@ -39,7 +39,6 @@ import { PassView, PassPool } from './memory-pools';
  * @zh 表示 [[Pass]] 的一种特殊实例
  */
 export class PassInstance extends Pass {
-
     /**
      * @en The parent pass
      * @zh 相关联的原始 Pass
@@ -47,7 +46,9 @@ export class PassInstance extends Pass {
     get parent () { return this._parent; }
 
     private _parent: Pass;
+
     private _owner: MaterialInstance;
+
     private _dontNotify = false;
 
     constructor (parent: Pass, owner: MaterialInstance) {

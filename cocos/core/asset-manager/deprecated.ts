@@ -81,7 +81,7 @@ const md5Pipe = {
                 return match + '.' + hashValue;
             });
         }
-        
+
         return url;
     },
 };
@@ -113,7 +113,7 @@ export class CCLoader {
     private _parseLoadResArgs = parseLoadResArgs;
 
     public get _cache () {
-        // @ts-ignore
+        // @ts-expect-error
         return assets._map;
     }
 
@@ -414,7 +414,7 @@ export class CCLoader {
                     return info.path;
                 });
             }
-            // @ts-ignore
+            // @ts-expect-error
             if (onComplete) { onComplete(err, out, urls); }
         });
     }

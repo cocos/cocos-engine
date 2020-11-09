@@ -392,9 +392,9 @@ export class Profiler {
                 this.offsetData[2] = this._eachNumWidth;
                 this.offsetData[3] = surfaceTransform;
             }
-        
 
-            // @ts-ignore
+
+            // @ts-expect-error
             this.pass._rootBufferDirty = true;
         }
 

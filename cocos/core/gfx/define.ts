@@ -600,7 +600,7 @@ export enum Feature {
 }
 
 export class FormatInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public readonly name: string,
@@ -615,7 +615,7 @@ export class FormatInfo {
 }
 
 export class MemoryStatus {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public bufferSize: number = 0,

@@ -77,11 +77,11 @@ export class RenderWindow {
         root._createWindowFun = (_root: Root): RenderWindow => new RenderWindow(_root);
     }
 
-    protected _title: string = '';
-    protected _width: number = 1;
-    protected _height: number = 1;
-    protected _nativeWidth: number = 1;
-    protected _nativeHeight: number = 1;
+    protected _title = '';
+    protected _width = 1;
+    protected _height = 1;
+    protected _nativeWidth = 1;
+    protected _nativeHeight = 1;
     protected _renderPass: RenderPass | null = null;
     protected _colorTextures: (Texture | null)[] = [];
     protected _depthStencilTexture: Texture | null = null;

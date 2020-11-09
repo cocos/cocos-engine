@@ -10,7 +10,7 @@ import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle'
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
 
-// tslint:disable: max-line-length
+
 const ROTATION_OVERTIME_RAND_OFFSET = ModuleRandSeed.ROTATION;
 
 @ccclass('cc.RotationOvertimeModule')

@@ -48,7 +48,7 @@ export const preTransforms = Object.freeze([
  * @en Mathematical 4x4 matrix.
  * @zh 表示四维（4x4）矩阵。
  */
-// tslint:disable:one-variable-per-declaration
+
 export class Mat4 extends ValueType {
 
     public static IDENTITY = Object.freeze(new Mat4());

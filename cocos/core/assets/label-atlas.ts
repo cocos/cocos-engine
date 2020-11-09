@@ -38,7 +38,7 @@ import { legacyCC } from '../global-exports';
  *
  */
 @ccclass('cc.LabelAtlas')
-export class LabelAtlas extends BitmapFont{
+export class LabelAtlas extends BitmapFont {
 }
 
 legacyCC.LabelAtlas = LabelAtlas;

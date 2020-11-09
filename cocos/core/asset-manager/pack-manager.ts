@@ -89,7 +89,7 @@ export class PackManager {
 
         if (Array.isArray(json)) {
 
-            // @ts-ignore
+            // @ts-expect-error
             json = unpackJSONs(json, MissingScript.safeFindClass);
 
             if (json.length !== pack.length) {

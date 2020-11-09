@@ -28,15 +28,19 @@
  */
 
 import { EDITOR } from 'internal:constants';
+import {
+    ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, visible, override, serializable, editable,
+} from 'cc.decorator';
 import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
 import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { Material } from '../../assets/material';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { Texture2D } from '../../assets/texture-2d';
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, visible, override, serializable, editable } from 'cc.decorator';
 import { CCString } from '../../data/utils/attribute';
-import { AttributeName, FormatInfos, Format, Type } from '../../gfx/define';
+import {
+    AttributeName, FormatInfos, Format, Type,
+} from '../../gfx/define';
 import { Device, Attribute, BufferTextureCopy } from '../../gfx';
 import { Mat4, Vec2, Vec3 } from '../../math';
 import { mapBuffer, readBuffer, writeBuffer } from '../misc/buffer';
@@ -50,7 +54,6 @@ const batch_extras_size = FormatInfos[batch_id.format].size + FormatInfos[batch_
 
 @ccclass('cc.SkinnedMeshUnit')
 export class SkinnedMeshUnit {
-
     /**
      * @en Skinned mesh of this unit.
      * @zh 子蒙皮模型的网格模型。
@@ -74,8 +77,10 @@ export class SkinnedMeshUnit {
 
     @serializable
     public _localTransform = new Mat4();
+
     @serializable
     private _offset = new Vec2(0, 0);
+
     @serializable
     private _size = new Vec2(1, 1);
 
@@ -87,6 +92,7 @@ export class SkinnedMeshUnit {
     set offset (offset) {
         Vec2.copy(this._offset, offset);
     }
+
     get offset () {
         return this._offset;
     }
@@ -99,6 +105,7 @@ export class SkinnedMeshUnit {
     set size (size) {
         Vec2.copy(this._size, size);
     }
+
     get size () {
         return this._size;
     }
@@ -115,6 +122,7 @@ export class SkinnedMeshUnit {
         this.material = comp.getMaterial(0);
         if (comp.skinningRoot) { getWorldTransformUntilRoot(comp.node, comp.skinningRoot, this._localTransform); }
     }
+
     get copyFrom () {
         return null;
     }
@@ -134,14 +142,13 @@ const v3_1 = new Vec3();
 @executeInEditMode
 @menu('Components/SkinnedMeshBatchRenderer')
 export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
-
     /**
      * @en Size of the generated texture atlas.
      * @zh 合图生成的最终图集的边长。
      */
     @serializable
     @tooltip('i18n:batched_skinning_model.atlas_size')
-    public atlasSize: number = 1024;
+    public atlasSize = 1024;
 
     /**
      * @en
@@ -165,6 +172,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
     public units: SkinnedMeshUnit[] = [];
 
     private _textures: Record<string, Texture2D> = {};
+
     private _batchMaterial: Material | null = null;
 
     @override
@@ -172,6 +180,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
     get mesh () {
         return super.mesh;
     }
+
     set mesh (val) {
         super.mesh = val;
     }
@@ -181,6 +190,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
     get skeleton () {
         return super.skeleton;
     }
+
     set skeleton (val) {
         super.skeleton = val;
     }
@@ -328,9 +338,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
         for (let i = 0; i < unitLen; i++) {
             const unit = this.units[i];
             if (!unit || !unit.skeleton) { continue; }
-            jointIndexMap[i] = unit.skeleton.joints.map((j) => {
-                return this._skeleton!.joints.findIndex((ref) => j === ref);
-            });
+            jointIndexMap[i] = unit.skeleton.joints.map((j) => this._skeleton!.joints.findIndex((ref) => j === ref));
         }
 
         for (let i = 0; i < unitLen; i++) {
@@ -339,8 +347,8 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
             const newMesh = this._createUnitMesh(i, unit.mesh);
             const dataView = new DataView(newMesh.data.buffer);
             Mat4.inverseTranspose(m4_local, unit._localTransform);
-            const offset = unit.offset;
-            const size = unit.size;
+            const { offset } = unit;
+            const { size } = unit;
             for (let b = 0; b < newMesh.struct.vertexBundles.length; b++) {
                 const bundle = newMesh.struct.vertexBundles[b];
                 // apply local transform to mesh
@@ -436,7 +444,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
                     mapBuffer(dataView, (cur) => idxMap[cur], jointFormat, jointOffset, bundle.view.length, bundle.view.stride, dataView);
                 }
             }
-            this._mesh!.merge(newMesh);
+            this._mesh.merge(newMesh);
         }
 
         this._onMeshChanged(this._mesh);
@@ -458,7 +466,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
                 region.texOffset.y = unit.offset.y * this.atlasSize;
                 region.texExtent.width = unit.size.x * this.atlasSize;
                 region.texExtent.height = unit.size.y * this.atlasSize;
-                const data = partial.image.data;
+                const { data } = partial.image;
                 if (!ArrayBuffer.isView(data)) {
                     texImages.push(data);
                     texImageRegions.push(region);
@@ -469,7 +477,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
             }
         }
         const gfxTex = target.getGFXTexture()!;
-        const device: Device = legacyCC.director.root!.device;
+        const { device } = legacyCC.director.root!;
         if (texBuffers.length > 0) { device.copyBuffersToTexture(texBuffers, gfxTex, texBufferRegions); }
         if (texImages.length > 0) { device.copyTexImagesToTexture(texImages, gfxTex, texImageRegions); }
     }
@@ -524,7 +532,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
                 if (uvFormat) { break; }
             }
             if (modifiedBundles[bundleIdx] !== undefined) { continue; }
-            modifiedBundles[bundleIdx] = [ uvFormat, uvOffset ];
+            modifiedBundles[bundleIdx] = [uvFormat, uvOffset];
             const newBundle = newMeshStruct.vertexBundles[bundleIdx]; // put the new UVs in the same bundle with original UVs
             newBundle.attributes.push(batch_id);
             newBundle.attributes.push(batch_uv);
@@ -548,11 +556,11 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
         const oldMeshData = mesh.data;
         const newDataView = new DataView(newMeshData.buffer);
         const oldDataView = new DataView(oldMeshData.buffer);
-        const isLittleEndian = legacyCC.sys.isLittleEndian;
+        const { isLittleEndian } = legacyCC.sys;
         for (const b in modifiedBundles) {
             const newBundle = newMeshStruct.vertexBundles[b];
             const oldBundle = mesh.struct.vertexBundles[b];
-            const [ uvFormat, uvOffset ] = modifiedBundles[b];
+            const [uvFormat, uvOffset] = modifiedBundles[b];
             const uvs = readBuffer(oldDataView, uvFormat, uvOffset, oldBundle.view.length, oldBundle.view.stride);
             const oldView = oldBundle.view;
             const newView = newBundle.view;
@@ -564,7 +572,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
                 const srcVertex = oldMeshData.subarray(oldOffset, oldOffset + oldStride);
                 newMeshData.set(srcVertex, newOffset);
                 // insert batch ID
-                newDataView.setFloat32(newOffset + oldStride, unitIdx, );
+                newDataView.setFloat32(newOffset + oldStride, unitIdx);
                 // insert batch UV
                 newDataView.setFloat32(newOffset + oldStride + 4, uvs[j * 2], isLittleEndian);
                 newDataView.setFloat32(newOffset + oldStride + 8, uvs[j * 2 + 1], isLittleEndian);

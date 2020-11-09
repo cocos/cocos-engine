@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-// tslint:disable
+
 
 /**
  * @packageDocumentation
@@ -46,9 +46,6 @@ import { errorID, warnID, assertID } from '../platform/debug';
 import { CompPrefabInfo } from '../utils';
 
 const idGenerator = new IDGenerator('Comp');
-// @ts-ignore
-const IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
-// @ts-ignore
 const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
 
 const NullNode = null as unknown as Node;
@@ -202,7 +199,7 @@ class Component extends CCObject {
         if (this._sceneGetter) {
             return this._sceneGetter();
         } else {
-            return this.node.scene!._renderScene!;
+            return this.node.scene._renderScene!;
         }
     }
 
@@ -357,7 +354,7 @@ class Component extends CCObject {
 
     public destroy () {
         if (EDITOR) {
-            // @ts-ignore
+            // @ts-expect-error
             const depend = this.node._getDependComponent(this);
             if (depend) {
                 errorID(3626,
@@ -380,7 +377,7 @@ class Component extends CCObject {
 
         //
         if (EDITOR && !TEST) {
-            // @ts-ignore
+            // @ts-expect-error
             _Scene.AssetsWatcher.stop(this);
         }
 
@@ -418,7 +415,7 @@ class Component extends CCObject {
      * this.schedule((dt) => void log(`time: ${dt}`), 1);
      * ```
      */
-    public schedule (callback, interval: number = 0, repeat: number = legacyCC.macro.REPEAT_FOREVER, delay: number = 0) {
+    public schedule (callback, interval = 0, repeat: number = legacyCC.macro.REPEAT_FOREVER, delay = 0) {
         assertID(callback, 1619);
 
         interval = interval || 0;
@@ -451,7 +448,7 @@ class Component extends CCObject {
      * this.scheduleOnce((dt) => void log(`time: ${dt}`), 2);
      * ```
      */
-    public scheduleOnce (callback, delay: number = 0) {
+    public scheduleOnce (callback, delay = 0) {
         this.schedule(callback, 0, 0, delay);
     }
 
@@ -642,47 +639,47 @@ class Component extends CCObject {
 }
 
 const proto = Component.prototype;
-// @ts-ignore
+// @ts-expect-error
 proto.update = null;
-// @ts-ignore
+// @ts-expect-error
 proto.lateUpdate = null;
-// @ts-ignore
+// @ts-expect-error
 proto.__preload = null;
-// @ts-ignore
+// @ts-expect-error
 proto.onLoad = null;
-// @ts-ignore
+// @ts-expect-error
 proto.start = null;
-// @ts-ignore
+// @ts-expect-error
 proto.onEnable = null;
-// @ts-ignore
+// @ts-expect-error
 proto.onDisable = null;
-// @ts-ignore
+// @ts-expect-error
 proto.onDestroy = null;
-// @ts-ignore
+// @ts-expect-error
 proto.onFocusInEditor = null;
-// @ts-ignore
+// @ts-expect-error
 proto.onLostFocusInEditor = null;
-// @ts-ignore
+// @ts-expect-error
 proto.resetInEditor = null;
-// @ts-ignore
+// @ts-expect-error
 proto._getLocalBounds = null;
-// @ts-ignore
+// @ts-expect-error
 proto.onRestore = null;
-// @ts-ignore
+// @ts-expect-error
 Component._requireComponent = null;
-// @ts-ignore
+// @ts-expect-error
 Component._executionOrder = 0;
 
 if (EDITOR || TEST) {
 
     // INHERITABLE STATIC MEMBERS
-    // @ts-ignore
+    // @ts-expect-error
     Component._executeInEditMode = false;
-    // @ts-ignore
+    // @ts-expect-error
     Component._playOnFocus = false;
-    // @ts-ignore
+    // @ts-expect-error
     Component._disallowMultiple = null;
-    // @ts-ignore
+    // @ts-expect-error
     Component._help = '';
 
     // NON-INHERITED STATIC MEMBERS

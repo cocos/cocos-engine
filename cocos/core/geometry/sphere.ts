@@ -20,7 +20,7 @@ function maxComponent (v: Vec3) { return Math.max(Math.max(v.x, v.y), v.z); }
  * @zh
  * 基础几何 轴对齐球。
  */
-// tslint:disable-next-line: class-name
+
 export default class sphere {
 
     /**
@@ -201,7 +201,7 @@ export default class sphere {
      * @param cz 该球的世界坐标的 Z 坐标。
      * @param {number} r 半径。
      */
-    constructor (cx: number = 0, cy: number = 0, cz: number = 0, r: number = 1) {
+    constructor (cx = 0, cy = 0, cz = 0, r = 1) {
         this._type = enums.SHAPE_SPHERE;
         this._center = new Vec3(cx, cy, cz);
         this._poolHandle = SpherePool.alloc();

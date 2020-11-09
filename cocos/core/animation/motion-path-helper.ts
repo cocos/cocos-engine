@@ -9,7 +9,7 @@ import { Vec2, Vec3 } from '../math';
 import { AnimCurve, computeRatioByType, CurveValue, EasingMethod } from './animation-curve';
 import { bezier } from './bezier';
 
-// tslint:disable:no-shadowed-variable
+
 
 export class Curve {
     public beziers: Bezier[] = [];
@@ -248,7 +248,7 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
         };
     };
 
-    // @ts-ignore
+    // @ts-expect-error
     const values = data.values = data.values.map((value) => {
         if (Array.isArray(value)) {
             value = value.length === 2 ? new Vec2(value[0], value[1]) : new Vec3(value[0], value[1], value[2]);
@@ -282,13 +282,13 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
     }
 
     const types = data.types;
-    // @ts-ignore
+    // @ts-expect-error
     const ratios = (data.ratioSampler ? data.ratioSampler.ratios : []);
 
-    // @ts-ignore
+    // @ts-expect-error
     const newValues: CurveValue[] = data.values = [];
     const newTypes: any[] = data.types = [];
-    // @ts-ignore
+    // @ts-expect-error
     const newRatios: number[] = data.ratios = [];
 
     function addNewDatas (value: CurveValue, type: any, ratio: number) {

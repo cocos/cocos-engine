@@ -480,7 +480,7 @@ export class SpriteFrame extends Asset {
     protected _capInsets = [0, 0, 0, 0];
 
     protected _atlasUuid: string = '';
-    // @ts-ignore
+    // @ts-expect-error
     protected _texture: TextureBase | RenderTexture;
 
     protected _flipUv = false;
