@@ -366,7 +366,7 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
         auto w = region.buffStride > 0 ? region.buffStride : region.texExtent.width;
         auto h = region.buffTexHeight > 0 ? region.buffTexHeight : region.texExtent.height;
         bufferSize[i] = w * h;
-        stagingRegion.sourceBytesPerRow = GFX_FORMAT_INFOS[static_cast<uint>(convertedFormat)].size * w;
+        stagingRegion.sourceBytesPerRow = mu::getBytesPerRow(convertedFormat, w);
         stagingRegion.sourceBytesPerImage = FormatSize(convertedFormat, w, h, region.texExtent.depth);
         stagingRegion.sourceSize = {w, h, region.texExtent.depth};
         stagingRegion.destinationSlice = region.texSubres.baseArrayLayer;
@@ -380,7 +380,7 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
 
     CCMTLGPUBuffer stagingBuffer;
     stagingBuffer.size = totalSize;
-    auto texelSize = GFX_FORMAT_INFOS[static_cast<uint>(convertedFormat)].size;
+    auto texelSize = mu::getBlockSzie(convertedFormat);
     _mtlDevice->gpuStagingBufferPool()->alloc(&stagingBuffer, texelSize);
 
     size_t offset = 0;
@@ -406,7 +406,7 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
             CC_FREE(convertedData);
         }
     }
-    if (texture->getFlags() & TextureFlags::GEN_MIPMAP) {
+    if (texture->getFlags() & TextureFlags::GEN_MIPMAP && mu::pixelFormatIsColorRenderable(convertedFormat)) {
         [encoder generateMipmapsForTexture:dstTexture];
     }
     [encoder endEncoding];

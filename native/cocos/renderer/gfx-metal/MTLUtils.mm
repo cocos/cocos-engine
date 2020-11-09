@@ -5,6 +5,7 @@
 #include "MTLUtils.h"
 #include "StandAlone/ResourceLimits.h"
 #include "TargetConditionals.h"
+#include "gfx/GFXDef.h"
 #include "glslang/SPIRV/GlslangToSpv.h"
 #include "spirv_cross/spirv_msl.hpp"
 #include <vector>
@@ -286,6 +287,55 @@ MTLPixelFormat toMTLPixelFormat(Format format) {
         case Format::D24S8: return MTLPixelFormatDepth24Unorm_Stencil8;
         case Format::BC1_ALPHA: return MTLPixelFormatBC1_RGBA;
         case Format::BC1_SRGB_ALPHA: return MTLPixelFormatBC1_RGBA_sRGB;
+        case Format::BC2: return MTLPixelFormatBC2_RGBA;
+        case Format::BC2_SRGB: return MTLPixelFormatBC2_RGBA_sRGB;
+        case Format::BC3: return MTLPixelFormatBC3_RGBA;
+        case Format::BC3_SRGB: return MTLPixelFormatBC3_RGBA_sRGB;
+#else
+        case Format::ASTC_RGBA_4x4: return MTLPixelFormatASTC_4x4_LDR;
+        case Format::ASTC_RGBA_5x4: return MTLPixelFormatASTC_5x4_LDR;
+        case Format::ASTC_RGBA_5x5: return MTLPixelFormatASTC_5x5_LDR;
+        case Format::ASTC_RGBA_6x5: return MTLPixelFormatASTC_6x5_LDR;
+        case Format::ASTC_RGBA_6x6: return MTLPixelFormatASTC_6x6_LDR;
+        case Format::ASTC_RGBA_8x5: return MTLPixelFormatASTC_8x5_LDR;
+        case Format::ASTC_RGBA_8x6: return MTLPixelFormatASTC_8x6_LDR;
+        case Format::ASTC_RGBA_8x8: return MTLPixelFormatASTC_8x8_LDR;
+        case Format::ASTC_RGBA_10x5: return MTLPixelFormatASTC_10x5_LDR;
+        case Format::ASTC_RGBA_10x6: return MTLPixelFormatASTC_10x6_LDR;
+        case Format::ASTC_RGBA_10x8: return MTLPixelFormatASTC_10x8_LDR;
+        case Format::ASTC_RGBA_10x10: return MTLPixelFormatASTC_10x10_LDR;
+        case Format::ASTC_RGBA_12x10: return MTLPixelFormatASTC_12x10_LDR;
+        case Format::ASTC_RGBA_12x12: return MTLPixelFormatASTC_12x12_LDR;
+
+        case Format::ASTC_SRGBA_4x4: return MTLPixelFormatASTC_4x4_sRGB;
+        case Format::ASTC_SRGBA_5x4: return MTLPixelFormatASTC_5x4_sRGB;
+        case Format::ASTC_SRGBA_5x5: return MTLPixelFormatASTC_5x5_sRGB;
+        case Format::ASTC_SRGBA_6x5: return MTLPixelFormatASTC_6x5_sRGB;
+        case Format::ASTC_SRGBA_6x6: return MTLPixelFormatASTC_6x6_sRGB;
+        case Format::ASTC_SRGBA_8x5: return MTLPixelFormatASTC_8x5_sRGB;
+        case Format::ASTC_SRGBA_8x6: return MTLPixelFormatASTC_8x6_sRGB;
+        case Format::ASTC_SRGBA_8x8: return MTLPixelFormatASTC_8x8_sRGB;
+        case Format::ASTC_SRGBA_10x5: return MTLPixelFormatASTC_10x5_sRGB;
+        case Format::ASTC_SRGBA_10x6: return MTLPixelFormatASTC_10x6_sRGB;
+        case Format::ASTC_SRGBA_10x8: return MTLPixelFormatASTC_10x8_sRGB;
+        case Format::ASTC_SRGBA_10x10: return MTLPixelFormatASTC_10x10_sRGB;
+        case Format::ASTC_SRGBA_12x10: return MTLPixelFormatASTC_12x10_sRGB;
+        case Format::ASTC_SRGBA_12x12: return MTLPixelFormatASTC_12x12_sRGB;
+
+        case Format::ETC2_RGB8: return MTLPixelFormatETC2_RGB8;
+        case Format::ETC2_SRGB8: return MTLPixelFormatETC2_RGB8_sRGB;
+        case Format::ETC2_RGB8_A1: return MTLPixelFormatETC2_RGB8A1;
+        case Format::ETC2_SRGB8_A1: return MTLPixelFormatETC2_RGB8A1_sRGB;
+
+        case Format::EAC_R11: return MTLPixelFormatEAC_R11Unorm;
+        case Format::EAC_R11SN: return MTLPixelFormatEAC_R11Snorm;
+        case Format::EAC_RG11: return MTLPixelFormatEAC_RG11Unorm;
+        case Format::EAC_RG11SN: return MTLPixelFormatEAC_RG11Snorm;
+
+        case Format::PVRTC_RGB2: return MTLPixelFormatPVRTC_RGB_2BPP;
+        case Format::PVRTC_RGBA2: return MTLPixelFormatPVRTC_RGBA_2BPP;
+        case Format::PVRTC_RGB4: return MTLPixelFormatPVRTC_RGB_4BPP;
+        case Format::PVRTC_RGBA4: return MTLPixelFormatPVRTC_RGBA_4BPP;
 #endif
         default: break;
     }
@@ -1243,6 +1293,175 @@ const uint8_t *const convertData(const uint8_t *source, uint length, Format type
         case Format::RGB32F: return mu::convertRGB32FToRGBA32F(source, length);
         default: return source;
     }
+}
+
+bool isASTCFormat(Format format) {
+    switch (format) {
+        case Format::ASTC_RGBA_4x4:
+        case Format::ASTC_SRGBA_4x4:
+        case Format::ASTC_RGBA_5x4:
+        case Format::ASTC_SRGBA_5x4:
+        case Format::ASTC_RGBA_5x5:
+        case Format::ASTC_SRGBA_5x5:
+        case Format::ASTC_RGBA_6x5:
+        case Format::ASTC_SRGBA_6x5:
+        case Format::ASTC_RGBA_6x6:
+        case Format::ASTC_SRGBA_6x6:
+        case Format::ASTC_RGBA_8x5:
+        case Format::ASTC_SRGBA_8x5:
+        case Format::ASTC_RGBA_8x6:
+        case Format::ASTC_SRGBA_8x6:
+        case Format::ASTC_RGBA_8x8:
+        case Format::ASTC_SRGBA_8x8:
+        case Format::ASTC_RGBA_10x5:
+        case Format::ASTC_SRGBA_10x5:
+        case Format::ASTC_RGBA_10x6:
+        case Format::ASTC_SRGBA_10x6:
+        case Format::ASTC_RGBA_10x8:
+        case Format::ASTC_SRGBA_10x8:
+        case Format::ASTC_RGBA_10x10:
+        case Format::ASTC_SRGBA_10x10:
+        case Format::ASTC_RGBA_12x10:
+        case Format::ASTC_SRGBA_12x10:
+        case Format::ASTC_RGBA_12x12:
+        case Format::ASTC_SRGBA_12x12:
+            return true;
+        default:
+            return false;
+    }
+}
+
+uint getBlockSzie(Format format) {
+    switch (format) {
+        case Format::ASTC_RGBA_4x4:
+        case Format::ASTC_SRGBA_4x4:
+        case Format::ASTC_RGBA_5x4:
+        case Format::ASTC_SRGBA_5x4:
+        case Format::ASTC_RGBA_5x5:
+        case Format::ASTC_SRGBA_5x5:
+        case Format::ASTC_RGBA_6x5:
+        case Format::ASTC_SRGBA_6x5:
+        case Format::ASTC_RGBA_6x6:
+        case Format::ASTC_SRGBA_6x6:
+        case Format::ASTC_RGBA_8x5:
+        case Format::ASTC_SRGBA_8x5:
+        case Format::ASTC_RGBA_8x6:
+        case Format::ASTC_SRGBA_8x6:
+        case Format::ASTC_RGBA_8x8:
+        case Format::ASTC_SRGBA_8x8:
+        case Format::ASTC_RGBA_10x5:
+        case Format::ASTC_SRGBA_10x5:
+        case Format::ASTC_RGBA_10x6:
+        case Format::ASTC_SRGBA_10x6:
+        case Format::ASTC_RGBA_10x8:
+        case Format::ASTC_SRGBA_10x8:
+        case Format::ASTC_RGBA_10x10:
+        case Format::ASTC_SRGBA_10x10:
+        case Format::ASTC_RGBA_12x10:
+        case Format::ASTC_SRGBA_12x10:
+        case Format::ASTC_RGBA_12x12:
+        case Format::ASTC_SRGBA_12x12:
+            return 16u;
+        case Format::PVRTC_RGB2:
+        case Format::PVRTC_RGBA2:
+            return 32u; // blockWidth = 8, blockHeight = 4, bitsPerPixel = 2;
+        case Format::PVRTC_RGB4:
+        case Format::PVRTC_RGBA4:
+            return 16u; // blockWidth = 4, blockHeight = 4, bitsPerPixel = 4;
+        case Format::ETC2_RGB8:
+        case Format::ETC2_SRGB8:
+        case Format::ETC2_RGB8_A1:
+        case Format::ETC2_SRGB8_A1:
+        case Format::EAC_R11:
+        case Format::EAC_R11SN:
+            return 8u;
+        case Format::EAC_RG11:
+        case Format::EAC_RG11SN: // blockWidth = 4, blockHeight = 4;
+            return 16u;
+        default:
+            return GFX_FORMAT_INFOS[static_cast<uint>(format)].size;
+    }
+}
+
+uint getBytesPerRow(Format format, uint width) {
+    uint blockSize = getBlockSzie(format);
+    uint widthInBlock = 1u;
+    switch (format) {
+        case Format::ASTC_RGBA_4x4:
+        case Format::ASTC_SRGBA_4x4:
+            widthInBlock = (width + 3) / 4;
+            break;
+        case Format::ASTC_RGBA_5x4:
+        case Format::ASTC_SRGBA_5x4:
+        case Format::ASTC_RGBA_5x5:
+        case Format::ASTC_SRGBA_5x5:
+            widthInBlock = (width + 4) / 5;
+            break;
+        case Format::ASTC_RGBA_6x5:
+        case Format::ASTC_SRGBA_6x5:
+        case Format::ASTC_RGBA_6x6:
+        case Format::ASTC_SRGBA_6x6:
+            widthInBlock = (width + 5) / 6;
+            break;
+        case Format::ASTC_RGBA_8x5:
+        case Format::ASTC_SRGBA_8x5:
+        case Format::ASTC_RGBA_8x6:
+        case Format::ASTC_SRGBA_8x6:
+        case Format::ASTC_RGBA_8x8:
+        case Format::ASTC_SRGBA_8x8:
+            widthInBlock = (width + 7) / 8;
+            break;
+        case Format::ASTC_RGBA_10x5:
+        case Format::ASTC_SRGBA_10x5:
+        case Format::ASTC_RGBA_10x6:
+        case Format::ASTC_SRGBA_10x6:
+        case Format::ASTC_RGBA_10x8:
+        case Format::ASTC_SRGBA_10x8:
+        case Format::ASTC_RGBA_10x10:
+        case Format::ASTC_SRGBA_10x10:
+            widthInBlock = (width + 9) / 10;
+            break;
+        case Format::ASTC_RGBA_12x10:
+        case Format::ASTC_SRGBA_12x10:
+        case Format::ASTC_RGBA_12x12:
+        case Format::ASTC_SRGBA_12x12:
+            widthInBlock = (width + 11) / 12;
+            break;
+        case Format::PVRTC_RGB2:
+        case Format::PVRTC_RGBA2:
+        case Format::PVRTC_RGB4:
+        case Format::PVRTC_RGBA4:
+            return 0;
+        case Format::ETC2_RGB8:
+        case Format::ETC2_SRGB8:
+        case Format::ETC2_RGB8_A1:
+        case Format::ETC2_SRGB8_A1:
+        case Format::EAC_R11:
+        case Format::EAC_R11SN:
+        case Format::EAC_RG11:
+        case Format::EAC_RG11SN:
+            widthInBlock = width / 4;
+            break;
+        default:
+            widthInBlock = width;
+            break;
+    }
+    return widthInBlock * blockSize;
+}
+
+bool pixelFormatIsColorRenderable(Format format) {
+    MTLPixelFormat pixelFormat = toMTLPixelFormat(format);
+    BOOL isCompressedFormat = false;
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+    isCompressedFormat = (pixelFormat >= MTLPixelFormatASTC_4x4_sRGB && pixelFormat <= MTLPixelFormatASTC_12x12_LDR) ||
+                         (pixelFormat >= MTLPixelFormatPVRTC_RGB_2BPP && pixelFormat <= MTLPixelFormatPVRTC_RGBA_4BPP_sRGB) ||
+                         (pixelFormat >= MTLPixelFormatEAC_R11Unorm && pixelFormat <= MTLPixelFormatETC2_RGB8A1_sRGB);
+#else
+    isCompressedFormat = (pixelFormat >= MTLPixelFormatBC1_RGBA && pixelFormat <= MTLPixelFormatBC3_RGBA_sRGB);
+#endif
+    BOOL is422Format = (pixelFormat == MTLPixelFormatGBGR422 || pixelFormat == MTLPixelFormatBGRG422);
+
+    return !isCompressedFormat && !is422Format && !(pixelFormat == MTLPixelFormatInvalid);
 }
 
 } //namespace mu

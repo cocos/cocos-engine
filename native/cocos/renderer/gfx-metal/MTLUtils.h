@@ -65,6 +65,9 @@ MTLPixelFormat getSupportedDepthStencilFormat(id<MTLDevice> device, uint family,
 bool isIndirectDrawSupported(uint family);
 String featureSetToString(MTLFeatureSet featureSet);
 const uint8_t *const convertData(const uint8_t *source, uint length, Format type);
+uint getBlockSzie(Format format);
+uint getBytesPerRow(Format format, uint width);
+bool pixelFormatIsColorRenderable(Format format);
 
 CC_INLINE uint alignUp(uint inSize, uint align) { return ((inSize + align - 1) / align) * align; }
 } // namespace mu
