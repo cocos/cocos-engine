@@ -13,17 +13,14 @@ import { RenderView } from '../';
 import { Pool } from '../../memop';
 import { IRenderObject, UBOShadow } from '../define';
 import { ShadowType, Shadows } from '../../renderer/scene/shadows';
-import { SphereLight, DirectionalLight, RenderScene} from '../../renderer/scene';
-import { ShadowsPool, ShadowsView } from '../../renderer';
+import { SphereLight, DirectionalLight } from '../../renderer/scene';
 
 const _tempVec3 = new Vec3();
 const _dir_negate = new Vec3();
 const _vec3_p = new Vec3();
 const _mat4_trans = new Mat4();
 const _castWorldBounds = new aabb();
-const _receiveWorldBounds = new aabb();
 let _castBoundsInited = false;
-let _receiveBoundsInited = false;
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 const shadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
@@ -52,12 +49,13 @@ function getCastShadowRenderObject (model: Model, camera: Camera) {
     return ro;
 }
 
-export function getShadowWorldMatrix (pipeline: ForwardPipeline, rotation: Quat, dir: Vec3) {
+export function getShadowWorldMatrix (pipeline: ForwardPipeline, rotation: Quat, dir: Vec3, out: Vec3) {
     const shadows = pipeline.shadows;
     Vec3.negate(_dir_negate, dir);
-    const distance: number = 2.0 * Math.sqrt(3.0) * shadows.sphere.radius;
+    const distance: number = shadows.sphere.radius * Shadows.COEFFICIENT_OF_EXPANSION;
     Vec3.multiplyScalar(_vec3_p, _dir_negate, distance);
     Vec3.add(_vec3_p, _vec3_p, shadows.sphere.center);
+    out.set(_vec3_p);
 
     Mat4.fromRT(_mat4_trans, rotation, _vec3_p);
 
@@ -136,7 +134,6 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     // Each time the calculation,
     // reset the flag.
     _castBoundsInited = false;
-    _receiveBoundsInited = false;
 
     if (shadows.enabled) {
         Color.toArray(pipeline.shadowUBO, shadows.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
@@ -179,16 +176,6 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                         shadowObjects.push(getCastShadowRenderObject(model, camera));
                     }
 
-                    // Even if the obstruction is not in the field of view,
-                    // the shadow is still visible.
-                    if (model.receiveShadow && model.worldBounds) {
-                        if(!_receiveBoundsInited) {
-                            _receiveWorldBounds.copy(model.worldBounds);
-                            _receiveBoundsInited = true;
-                        }
-                        aabb.merge(_receiveWorldBounds, _receiveWorldBounds, model.worldBounds);
-                    }
-
                     // frustum culling
                     if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, camera.frustum)) {
                         continue;
@@ -202,9 +189,5 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
 
     if (_castWorldBounds) {
         aabb.toBoundingSphere(shadows.sphere, _castWorldBounds);
-    }
-
-    if (_receiveWorldBounds) {
-        aabb.toBoundingSphere(shadows.receiveSphere, _receiveWorldBounds);
     }
 }
