@@ -54,7 +54,7 @@ export default class ParticleBatchModel extends scene.Model {
     private _vdataF32: Float32Array | null;
     private _vdataUint32: Uint32Array | null;
     private _iaInfo: IndirectBuffer;
-    private _iaInfoBuffer: Buffer;
+    private _iaInfoBuffer: Buffer | null;
     private _subMeshData: RenderingSubMesh | null;
     private _mesh: Mesh | null;
     private _vertCount: number = 0;
@@ -314,7 +314,7 @@ export default class ParticleBatchModel extends scene.Model {
         ia.vertexBuffers[0].update(this._vdataF32!);
         this._iaInfo.drawInfos[0].firstIndex = 0;
         this._iaInfo.drawInfos[0].indexCount = this._indexCount * count;
-        this._iaInfoBuffer.update(this._iaInfo);
+        this._iaInfoBuffer!.update(this._iaInfo);
     }
 
     public clear () {
@@ -326,8 +326,10 @@ export default class ParticleBatchModel extends scene.Model {
         this._vBuffer = null;
         this._vdataF32 = null;
         this.destroySubMeshData();
-        this._iaInfoBuffer.destroy();
-        this._iaInfoBuffer = null;
+        if (this._iaInfoBuffer) {
+            this._iaInfoBuffer.destroy();
+            this._iaInfoBuffer = null;
+        }
     }
 
     private rebuild () {
