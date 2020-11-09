@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -33,5 +33,4 @@ export * from './graphics';
 export * from './label';
 export * from './mask';
 export * from './sprite';
-
 export * from '../../core/renderer/ui/base';

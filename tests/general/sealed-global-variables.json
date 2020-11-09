@@ -68,6 +68,7 @@
         "cc.GFXCullMode",
         "cc.GFXDescriptorType",
         "cc.GFXDevice",
+        "cc.GFXDynamicState",
         "cc.GFXDynamicStateFlagBit",
         "cc.GFXExtent",
         "cc.GFXFilter",
@@ -112,8 +113,8 @@
         "cc.GFXType",
         "cc.GFXViewport",
         "cc.GFX_MAX_ATTACHMENTS",
-        "cc.GFX_MAX_BUFFER_BINDINGS",
-        "cc.GFX_MAX_VERTEX_ATTRIBUTES",
+
+        "cc.gfx",
         "cc.Game",
         "cc.Root",
         "cc.GraphicsComponent",
@@ -153,7 +154,6 @@
         "cc.ProgressBarComponent",
         "cc.Quat",
         "cc.RatioSampler",
-        "cc.RawAsset",
         "cc.Rect",
         "cc.RenderFlow",
         "cc.RenderPassStage",
@@ -289,6 +289,10 @@
         "cc.vmath",
         "cc.warn",
         "cc.warnID",
-        "cc.winSize"
+        "cc.winSize",
+        "cc.BufferAsset",
+        "cc.resources",
+        "cc.assetManager",
+        "cc.AssetManager"
     ]
 }

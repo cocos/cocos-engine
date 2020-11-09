@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -89,12 +89,9 @@ export default function syncWithPrefab (node) {
     //
     if (!_prefab.asset) {
         if (EDITOR) {
-            // @ts-ignore
             // const NodeUtils = Editor.require('scene://utils/node');
-            // // @ts-ignore
             // const PrefabUtils = Editor.require('scene://utils/prefab');
 
-            // // @ts-ignore
             // cc.warn(Editor.T('MESSAGE.prefab.missing_prefab', { node: NodeUtils.getNodePath(node) }));
             // node.name += PrefabUtils.MISSING_PREFAB_SUFFIX;
         }

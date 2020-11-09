@@ -3,5 +3,5 @@
  * @hidden
  */
 
-import { GFXType } from '../../gfx/define';
-import { GFXUniformBlock, GFXUniformSampler } from '../../gfx/shader';
+import { Type } from '../../gfx/define';
+import { UniformBlock, UniformSampler } from '../../gfx/shader';

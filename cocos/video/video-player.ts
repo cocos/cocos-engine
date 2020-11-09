@@ -372,8 +372,8 @@ export class VideoPlayer extends Component {
         this._impl = VideoPlayerImplManager.getImpl(this);
         this.syncSource();
         this._impl.syncLoop(this._loop);
-        this._impl.syncVolume(this._loop);
-        this._impl.syncMute(this._loop);
+        this._impl.syncVolume(this._volume);
+        this._impl.syncMute(this._mute);
         this._impl.seekTo(this._cachedCurrentTime);
         this._impl.syncPlaybackRate(this._playbackRate);
         this._impl.syncStayOnBottom(this._stayOnBottom);
@@ -425,32 +425,32 @@ export class VideoPlayer extends Component {
     public onReadyToPlay () {
         if (this._playOnAwake && !this.isPlaying) { this.play(); }
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.READY_TO_PLAY);
-        this.node.emit('ready-to-play', this);
+        this.node.emit(EventType.READY_TO_PLAY, this);
     }
 
     public onPlaying () {
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PLAYING);
-        this.node.emit('playing', this);
+        this.node.emit(EventType.PLAYING, this);
     }
 
     public onPasued () {
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PAUSED);
-        this.node.emit('paused', this);
+        this.node.emit(EventType.PAUSED, this);
     }
 
     public onStopped () {
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.STOPPED);
-        this.node.emit('stopped', this);
+        this.node.emit(EventType.STOPPED, this);
     }
 
     public onCompleted () {
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.COMPLETED);
-        this.node.emit('completed', this);
+        this.node.emit(EventType.COMPLETED, this);
     }
 
     public onError () {
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.ERROR);
-        this.node.emit('error', this);
+        this.node.emit(EventType.ERROR, this);
     }
 
     /**

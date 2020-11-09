@@ -4,12 +4,12 @@ import { RenderMode} from '../enum';
 import ParticleSystemRendererCPU from './particle-system-renderer-cpu';
 import ParticleSystemRendererGPU from './particle-system-renderer-gpu';
 import { director } from '../../core/director';
-import { GFXDevice, GFXFeature } from '../../core/gfx';
+import { Device, Feature } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
 
 function isSupportGPUParticle () {
-    const device: GFXDevice = director.root!.device;
-    if (device.maxVertexTextureUnits >= 8 && device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
+    const device: Device = director.root!.device;
+    if (device.maxVertexTextureUnits >= 8 && device.hasFeature(Feature.TEXTURE_FLOAT)) {
         return true;
     }
 

@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -31,11 +31,12 @@
 
 import { ccclass, serializable } from 'cc.decorator';
 import { property } from '../data/decorators/property';
+import { getUrlWithUuid } from '../asset-manager/helper';
 import { Eventify } from '../event';
-import { RawAsset } from './raw-asset';
+import { CCObject } from '../data/object';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
-import { errorID } from '../platform/debug';
+import { extname } from '../utils/path';
 
 /**
  * @en
@@ -56,14 +57,14 @@ import { errorID } from '../platform/debug';
  * - `Object._deserialize`<br/>
  *
  * @class Asset
- * @extends RawAsset
+ * @extends CCObject
  */
 @ccclass('cc.Asset')
-export class Asset extends Eventify(RawAsset) {
+export class Asset extends Eventify(CCObject) {
 
     /**
-     * @en Indicates whether its dependent raw assets can support deferred load if the owner scene (or prefab) is marked as `asyncLoadAssets`.
-     * @zh 当场景或 Prefab 被标记为 `asyncLoadAssets`，禁止延迟加载该资源所依赖的其它 RawAsset。
+     * @en Indicates whether its dependent native assets can support deferred load if the owner scene (or prefab) is marked as `asyncLoadAssets`.
+     * @zh 当场景或 Prefab 被标记为 `asyncLoadAssets`，禁止延迟加载该资源所依赖的其它原始资源。
      * @default false
      */
     public static preventDeferredLoadDependents = false;
@@ -93,6 +94,8 @@ export class Asset extends Eventify(RawAsset) {
      */
     public loaded = true;
 
+    public declare _uuid: string;
+
     /**
      * @en
      * Serializable url for native asset. For internal usage.
@@ -102,8 +105,10 @@ export class Asset extends Eventify(RawAsset) {
      */
     @serializable
     public _native: string = '';
+    public _nativeUrl: string = '';
 
     private _file: any = null;
+    private _ref: number = 0;
 
     /**
      * @en
@@ -113,29 +118,24 @@ export class Asset extends Eventify(RawAsset) {
      * @readOnly
      */
     get nativeUrl () {
-        if (this._native) {
+        if (!this._nativeUrl) {
+            if (!this._native) return '';
             const name = this._native;
             if (name.charCodeAt(0) === 47) {    // '/'
                 // remove library tag
                 // not imported in library, just created on-the-fly
                 return name.slice(1);
             }
-            if (legacyCC.AssetLibrary) {
-                const base = legacyCC.AssetLibrary.getLibUrlNoExt(this._uuid, true);
-                if (name.charCodeAt(0) === 46) {  // '.'
-                    // imported in dir where json exist
-                    return base + name;
-                }
-                else {
-                    // imported in an independent dir
-                    return base + '/' + name;
-                }
+            if (name.charCodeAt(0) === 46) {  // '.'
+                // imported in dir where json exist
+                this._nativeUrl = getUrlWithUuid(this._uuid, { nativeExt: name, isNative: true });
             }
             else {
-                errorID(6400);
+                // imported in an independent dir
+                this._nativeUrl = getUrlWithUuid(this._uuid, { __nativeName__: name, nativeExt: extname(name), isNative: true });
             }
         }
-        return '';
+        return this._nativeUrl;
     }
 
     /**
@@ -155,6 +155,16 @@ export class Asset extends Eventify(RawAsset) {
     }
     set _nativeAsset (obj) {
         this._file = obj;
+    }
+
+    constructor (...args: ConstructorParameters<typeof CCObject>) {
+        super(...args);
+
+        Object.defineProperty(this, '_uuid', {
+            value: '',
+            writable: true,
+            // enumerable is false by default, to avoid uuid being assigned to empty string during destroy
+        });
     }
 
     /**
@@ -222,6 +232,61 @@ export class Asset extends Eventify(RawAsset) {
      * 如果这类资源没有相应的节点类型，该方法应该是空的。
      */
     public createNode? (callback: CreateNodeCallback): void;
+
+    public get _nativeDep () {
+        if (this._native) {
+            return { __isNative__: true, uuid: this._uuid, ext: this._native };
+        }
+    }
+
+    /**
+     * @en
+     * The number of reference
+     *
+     * @zh
+     * 引用的数量
+     */
+    public get refCount (): number {
+        return this._ref;
+    }
+
+    /**
+     * @en
+     * Add references of asset
+     *
+     * @zh
+     * 增加资源的引用
+     *
+     * @return itself
+     *
+     */
+    public addRef (): Asset {
+        this._ref++;
+        legacyCC.assetManager._releaseManager.removeFromDeleteQueue(this);
+        return this;
+    }
+
+    /**
+     * @en
+     * Reduce references of asset and it will be auto released when refCount equals 0.
+     *
+     * @zh
+     * 减少资源的引用并尝试进行自动释放。
+     *
+     * @return itself
+     *
+     */
+    public decRef (autoRelease: boolean = true): Asset {
+        if (this._ref > 0) {
+            this._ref--;
+        }
+        if (autoRelease) {
+            legacyCC.assetManager._releaseManager.tryRelease(this);
+        }
+        return this;
+    }
+
+    public onLoaded () {}
 }
 
 /**
@@ -230,7 +295,7 @@ export class Asset extends Eventify(RawAsset) {
  */
 type CreateNodeCallback = (error: Error | null, node: Node) => void;
 
-// @ts-ignore
+// @ts-expect-error
 Asset.prototype.createNode = null;
 
 legacyCC.Asset = Asset;

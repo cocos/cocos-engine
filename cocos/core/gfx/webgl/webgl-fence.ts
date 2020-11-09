@@ -1,8 +1,8 @@
-import { GFXFence, GFXFenceInfo } from '../fence';
+import { Fence, FenceInfo } from '../fence';
 
-export class WebGLFence extends GFXFence {
+export class WebGLFence extends Fence {
 
-    public initialize (info: GFXFenceInfo): boolean {
+    public initialize (info: FenceInfo): boolean {
         return true;
     }
 

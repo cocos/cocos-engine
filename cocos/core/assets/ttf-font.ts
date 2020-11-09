@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -30,6 +30,7 @@
  */
 
 import {ccclass, string, override, serializable} from 'cc.decorator';
+import { extname } from '../utils/path';
 import { Font } from './font';
 import { legacyCC } from '../global-exports';
 
@@ -49,6 +50,11 @@ export class TTFFont extends Font {
     }
     set _nativeAsset (value) {
         this._fontFamily = value || 'Arial';
+    }
+
+    @override
+    get _nativeDep () {
+        return { uuid: this._uuid, __nativeName__: this._native, ext: extname(this._native), __isNative__: true };
     }
 }
 

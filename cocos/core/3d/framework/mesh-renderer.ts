@@ -339,8 +339,11 @@ export class MeshRenderer extends RenderableComponent {
             this._createModel();
         }
 
-        this._updateModelParams();
-        this._onUpdateLightingmap();
+        if (this._model) {
+            this._model.createBoundingShape(this._mesh.struct.minPosition, this._mesh.struct.maxPosition);
+            this._updateModelParams();
+            this._onUpdateLightingmap();
+        }
     }
 
     protected _createModel () {
@@ -368,7 +371,7 @@ export class MeshRenderer extends RenderableComponent {
             return;
         }
         const renderScene = this._getRenderScene();
-        if (this._model.scene != null) {
+        if (this._model.scene !== null) {
             this._detachFromScene();
         }
         renderScene.addModel(this._model);
@@ -385,18 +388,20 @@ export class MeshRenderer extends RenderableComponent {
         this.node.hasChangedFlags |= TransformBit.POSITION;
         this._model.transform.hasChangedFlags |= TransformBit.POSITION;
         this._model.isDynamicBatching = this._isBatchingEnabled();
-        const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
+        const meshCount = this._mesh ? this._mesh.renderingSubMeshes.length : 0;
         const renderingMesh = this._mesh.renderingSubMeshes;
         if (renderingMesh) {
             for (let i = 0; i < meshCount; ++i) {
-                const material = this.getRenderMaterial(i);
+                let material = this.getRenderMaterial(i);
+                if (material && !material.isValid) {
+                    material = null;
+                }
                 const subMeshData = renderingMesh[i];
                 if (subMeshData) {
                     this._model.initSubModel(i, subMeshData, material || this._getBuiltinMaterial());
                 }
             }
         }
-        this._model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
         this._model.enabled = true;
     }
 
@@ -409,7 +414,7 @@ export class MeshRenderer extends RenderableComponent {
             this.lightmapSettings.uvParam.x,
             this.lightmapSettings.uvParam.y,
             this.lightmapSettings.uvParam.z,
-            this.lightmapSettings.uvParam.w
+            this.lightmapSettings.uvParam.w,
         ]);
     }
 

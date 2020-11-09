@@ -935,15 +935,6 @@ const macro = {
 
     /**
      * @en
-     * The max concurrent task number for the downloader
-     * @zh
-     * 下载任务的最大并发数限制，在安卓平台部分机型或版本上可能需要限制在较低的水平
-     * @default 64
-     */
-    DOWNLOAD_MAX_CONCURRENT: 64,
-
-    /**
-     * @en
      * Boolean that indicates if the canvas contains an alpha channel, default sets to false for better performance.
      * Though if you want to make your canvas background transparent and show other dom elements at the background,
      * you can set it to true before {{game.init}}.
@@ -973,9 +964,9 @@ const macro = {
      * 同时，在少部分使用软件级别抗锯齿算法的设备或浏览器上，这个选项会对性能产生比较大的影响。
      * 你可以在 {{game.init}} 之前设置这个值，否则它不会生效。
      * 仅支持 Web
-     * @default false
+     * @default true
      */
-    ENABLE_WEBGL_ANTIALIAS: false,
+    ENABLE_WEBGL_ANTIALIAS: true,
 
     /**
      * @en

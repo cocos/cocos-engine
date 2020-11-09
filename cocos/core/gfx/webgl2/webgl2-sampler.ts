@@ -1,9 +1,9 @@
-import { GFXSampler, GFXSamplerInfo } from '../sampler';
+import { Sampler, SamplerInfo } from '../sampler';
 import { WebGL2CmdFuncCreateSampler, WebGL2CmdFuncDestroySampler } from './webgl2-commands';
 import { WebGL2Device } from './webgl2-device';
 import { IWebGL2GPUSampler } from './webgl2-gpu-objects';
 
-export class WebGL2Sampler extends GFXSampler {
+export class WebGL2Sampler extends Sampler {
 
     public get gpuSampler (): IWebGL2GPUSampler {
         return  this._gpuSampler!;
@@ -11,7 +11,7 @@ export class WebGL2Sampler extends GFXSampler {
 
     private _gpuSampler: IWebGL2GPUSampler | null = null;
 
-    public initialize (info: GFXSamplerInfo): boolean {
+    public initialize (info: SamplerInfo): boolean {
 
         this._minFilter = info.minFilter;
         this._magFilter = info.magFilter;

@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -29,16 +29,15 @@
  * @hidden
  */
 import { legacyCC } from '../global-exports';
-export { RawAsset } from './raw-asset';
 export { Asset } from './asset';
-export {default as Prefab} from './prefab';
+export { BufferAsset } from './buffer-asset';
+export { default as Prefab } from './prefab';
 export * from './scripts';
-export {default as SceneAsset} from './scene-asset';
+export { default as SceneAsset } from './scene-asset';
 export * from './sprite-frame';
 export { SpriteAtlas } from './sprite-atlas';
-export {default as TextAsset} from './text-asset';
-export {default as JsonAsset} from './json-asset';
-export {default as AssetLibrary} from './asset-library';
+export { default as TextAsset } from './text-asset';
+export { default as JsonAsset } from './json-asset';
 export { ImageAsset } from './image-asset';
 export { Texture2D } from './texture-2d';
 export { TextureCube } from './texture-cube';
@@ -46,9 +45,6 @@ export { TTFFont } from './ttf-font';
 export { LabelAtlas } from './label-atlas';
 export { BitmapFont } from './bitmap-font';
 export { Font } from './font';
-import * as textureUtil from './texture-util';
-legacyCC.textureUtil = textureUtil;
-export { textureUtil };
 export { EffectAsset } from './effect-asset';
 export { Material } from './material';
 export { Mesh, RenderingSubMesh } from './mesh';

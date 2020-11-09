@@ -32,11 +32,12 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
     constructor () {
         super(AmmoBroadphaseNativeTypes.BOX_SHAPE_PROXYTYPE);
         this.halfExt = new Ammo.btVector3(0.5, 0.5, 0.5);
-        this._btShape = new Ammo.btBoxShape(this.halfExt);
     }
 
     onComponentSet () {
-        this.setSize(this.collider.size);
+        const s = this.collider.size;
+        this.halfExt.setValue(s.x / 2, s.y / 2, s.z / 2);
+        this._btShape = new Ammo.btBoxShape(this.halfExt);
         this.setScale();
     }
 

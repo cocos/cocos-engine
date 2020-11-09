@@ -3,15 +3,15 @@
  * @module gfx
  */
 
-import { GFXObject, GFXObjectType } from './define';
-import { GFXDevice } from './device';
-import { GFXDescriptorSetLayout } from './descriptor-set-layout';
+import { DescriptorSetLayout } from './descriptor-set-layout';
+import { Device } from './device';
+import { Obj, ObjectType } from './define';
 
-export class GFXPipelineLayoutInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class PipelineLayoutInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public setLayouts: GFXDescriptorSetLayout[] = [],
+        public setLayouts: DescriptorSetLayout[] = [],
     ) {}
 }
 
@@ -19,22 +19,22 @@ export class GFXPipelineLayoutInfo {
  * @en GFX pipeline layout.
  * @zh GFX 管线布局。
  */
-export abstract class GFXPipelineLayout extends GFXObject {
+export abstract class PipelineLayout extends Obj {
 
     get setLayouts () {
         return this._setLayouts;
     }
 
-    protected _device: GFXDevice;
+    protected _device: Device;
 
-    protected _setLayouts: GFXDescriptorSetLayout[] = [];
+    protected _setLayouts: DescriptorSetLayout[] = [];
 
-    constructor (device: GFXDevice) {
-        super(GFXObjectType.PIPELINE_LAYOUT);
+    constructor (device: Device) {
+        super(ObjectType.PIPELINE_LAYOUT);
         this._device = device;
     }
 
-    public abstract initialize (info: GFXPipelineLayoutInfo): boolean;
+    public abstract initialize (info: PipelineLayoutInfo): boolean;
 
     public abstract destroy (): void;
 }

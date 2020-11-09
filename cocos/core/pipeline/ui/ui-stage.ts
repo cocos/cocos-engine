@@ -4,7 +4,7 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { GFXColor, GFXRect } from '../../gfx';
+import { Color, Rect } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from '../forward/enum';
@@ -15,7 +15,7 @@ import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
 import { IRenderPass, SetIndex } from '../define';
 
-const colors: GFXColor[] = [];
+const colors: Color[] = [];
 
 /**
  * @en The UI render stage
@@ -42,7 +42,7 @@ export class UIStage extends RenderStage {
     protected renderQueues: RenderQueueDesc[] = [];
     protected _renderQueues: RenderQueue[] = [];
 
-    private _renderArea = new GFXRect();
+    private _renderArea = new Rect();
 
     public initialize (info: IRenderStageInfo): boolean {
         super.initialize(info);
@@ -102,12 +102,15 @@ export class UIStage extends RenderStage {
 
         const camera = view.camera!;
         const vp = camera.viewport;
-        this._renderArea!.x = vp.x * camera.width;
-        this._renderArea!.y = vp.y * camera.height;
-        this._renderArea!.width = vp.width * camera.width;
-        this._renderArea!.height = vp.height * camera.height;
+        // render area is not oriented
+        const w = view.window.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.height : camera.width;
+        const h = view.window.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.width : camera.height;
+        this._renderArea!.x = vp.x * w;
+        this._renderArea!.y = vp.y * h;
+        this._renderArea!.width = vp.width * w;
+        this._renderArea!.height = vp.height * h;
 
-        colors[0] = camera.clearColor as GFXColor;
+        colors[0] = camera.clearColor as Color;
 
         const cmdBuff = pipeline.commandBuffers[0];
 

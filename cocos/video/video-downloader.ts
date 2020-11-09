@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -24,36 +24,39 @@
  THE SOFTWARE.
  */
 /**
- * @category loader
+ * @category asset-manager
  */
 
-import {getError, log} from '../core/platform/debug';
+import { CompleteCallback, IDownloadParseOptions } from '../core/asset-manager/shared';
+import { getError, log } from '../core/platform/debug';
 import { sys } from '../core/platform/sys';
 
 const __videoSupport = sys.__videoSupport;
 const formatSupport = __videoSupport && __videoSupport.format;
 
-export function downloadVideo (item, callback) {
+export function downloadVideo (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
     if (!formatSupport || formatSupport.length === 0) {
-        return new Error(getError(7703));
+        return onComplete(new Error(getError(7703)));
     }
     const video = document.createElement('video');
     const source = document.createElement('source');
     video.appendChild(source);
 
     const req = new XMLHttpRequest();
-    req.open('GET', item.url, true);
+    req.open('GET', url, true);
     req.responseType = 'blob';
     req.onload = function () {
-        if (this.status === 200) {
+        if (this.status === 200 || this.status === 0) {
             source.src = URL.createObjectURL(this.response);
-            callback(null, video);
+            onComplete(null, video);
+        } else {
+            onComplete(new Error(req.status + '(no response)'));
         }
     };
     req.onerror = function () {
-        const message = 'load video failure - ' + item.url;
+        const message = 'load video failure - ' + url;
         log(message);
-        callback(message);
+        onComplete(new Error(message));
     };
     req.send();
 }

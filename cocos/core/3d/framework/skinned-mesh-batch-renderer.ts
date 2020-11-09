@@ -28,29 +28,32 @@
  */
 
 import { EDITOR } from 'internal:constants';
+import {
+    ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, visible, override, serializable, editable,
+} from 'cc.decorator';
 import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
 import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { Material } from '../../assets/material';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { Texture2D } from '../../assets/texture-2d';
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, visible, override, serializable, editable } from 'cc.decorator';
 import { CCString } from '../../data/utils/attribute';
-import { GFXAttributeName, GFXFormatInfos, GFXFormat, GFXType } from '../../gfx/define';
-import { GFXDevice, GFXAttribute, GFXBufferTextureCopy } from '../../gfx';
+import {
+    AttributeName, FormatInfos, Format, Type,
+} from '../../gfx/define';
+import { Device, Attribute, BufferTextureCopy } from '../../gfx';
 import { Mat4, Vec2, Vec3 } from '../../math';
 import { mapBuffer, readBuffer, writeBuffer } from '../misc/buffer';
 import { SkinnedMeshRenderer } from './skinned-mesh-renderer';
 import { legacyCC } from '../../global-exports';
 
 const repeat = (n: number) => n - Math.floor(n);
-const batch_id: GFXAttribute = new GFXAttribute(GFXAttributeName.ATTR_BATCH_ID, GFXFormat.R32F);
-const batch_uv: GFXAttribute = new GFXAttribute(GFXAttributeName.ATTR_BATCH_UV, GFXFormat.RG32F);
-const batch_extras_size = GFXFormatInfos[batch_id.format].size + GFXFormatInfos[batch_uv.format].size;
+const batch_id: Attribute = new Attribute(AttributeName.ATTR_BATCH_ID, Format.R32F);
+const batch_uv: Attribute = new Attribute(AttributeName.ATTR_BATCH_UV, Format.RG32F);
+const batch_extras_size = FormatInfos[batch_id.format].size + FormatInfos[batch_uv.format].size;
 
 @ccclass('cc.SkinnedMeshUnit')
 export class SkinnedMeshUnit {
-
     /**
      * @en Skinned mesh of this unit.
      * @zh 子蒙皮模型的网格模型。
@@ -74,8 +77,10 @@ export class SkinnedMeshUnit {
 
     @serializable
     public _localTransform = new Mat4();
+
     @serializable
     private _offset = new Vec2(0, 0);
+
     @serializable
     private _size = new Vec2(1, 1);
 
@@ -87,6 +92,7 @@ export class SkinnedMeshUnit {
     set offset (offset) {
         Vec2.copy(this._offset, offset);
     }
+
     get offset () {
         return this._offset;
     }
@@ -99,6 +105,7 @@ export class SkinnedMeshUnit {
     set size (size) {
         Vec2.copy(this._size, size);
     }
+
     get size () {
         return this._size;
     }
@@ -115,6 +122,7 @@ export class SkinnedMeshUnit {
         this.material = comp.getMaterial(0);
         if (comp.skinningRoot) { getWorldTransformUntilRoot(comp.node, comp.skinningRoot, this._localTransform); }
     }
+
     get copyFrom () {
         return null;
     }
@@ -134,14 +142,13 @@ const v3_1 = new Vec3();
 @executeInEditMode
 @menu('Components/SkinnedMeshBatchRenderer')
 export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
-
     /**
      * @en Size of the generated texture atlas.
      * @zh 合图生成的最终图集的边长。
      */
     @serializable
     @tooltip('i18n:batched_skinning_model.atlas_size')
-    public atlasSize: number = 1024;
+    public atlasSize = 1024;
 
     /**
      * @en
@@ -165,6 +172,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
     public units: SkinnedMeshUnit[] = [];
 
     private _textures: Record<string, Texture2D> = {};
+
     private _batchMaterial: Material | null = null;
 
     @override
@@ -172,6 +180,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
     get mesh () {
         return super.mesh;
     }
+
     set mesh (val) {
         super.mesh = val;
     }
@@ -181,6 +190,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
     get skeleton () {
         return super.skeleton;
     }
+
     set skeleton (val) {
         super.skeleton = val;
     }
@@ -227,7 +237,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
             const pass = tech.passes[i];
             if (!pass.properties) { continue; }
             for (const prop in pass.properties) {
-                if (pass.properties[prop].type >= GFXType.SAMPLER1D) { // samplers
+                if (pass.properties[prop].type >= Type.SAMPLER1D) { // samplers
                     let tex: Texture2D | null = null;
                     if (this.batchableTextureNames.find((n) => n === prop)) {
                         tex = this._textures[prop];
@@ -312,15 +322,15 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
         }
 
         let posOffset = 0;
-        let posFormat = GFXFormat.UNKNOWN;
+        let posFormat = Format.UNKNOWN;
         let normalOffset = 0;
-        let normalFormat = GFXFormat.UNKNOWN;
+        let normalFormat = Format.UNKNOWN;
         let tangentOffset = 0;
-        let tangentFormat = GFXFormat.UNKNOWN;
+        let tangentFormat = Format.UNKNOWN;
         let uvOffset = 0;
-        let uvFormat = GFXFormat.UNKNOWN;
+        let uvFormat = Format.UNKNOWN;
         let jointOffset = 0;
-        let jointFormat = GFXFormat.UNKNOWN;
+        let jointFormat = Format.UNKNOWN;
 
         // prepare joint index map
         const jointIndexMap: number[][] = new Array(this.units.length);
@@ -328,9 +338,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
         for (let i = 0; i < unitLen; i++) {
             const unit = this.units[i];
             if (!unit || !unit.skeleton) { continue; }
-            jointIndexMap[i] = unit.skeleton.joints.map((j) => {
-                return this._skeleton!.joints.findIndex((ref) => j === ref);
-            });
+            jointIndexMap[i] = unit.skeleton.joints.map((j) => this._skeleton!.joints.findIndex((ref) => j === ref));
         }
 
         for (let i = 0; i < unitLen; i++) {
@@ -339,20 +347,20 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
             const newMesh = this._createUnitMesh(i, unit.mesh);
             const dataView = new DataView(newMesh.data.buffer);
             Mat4.inverseTranspose(m4_local, unit._localTransform);
-            const offset = unit.offset;
-            const size = unit.size;
+            const { offset } = unit;
+            const { size } = unit;
             for (let b = 0; b < newMesh.struct.vertexBundles.length; b++) {
                 const bundle = newMesh.struct.vertexBundles[b];
                 // apply local transform to mesh
                 posOffset = bundle.view.offset;
-                posFormat = GFXFormat.UNKNOWN;
+                posFormat = Format.UNKNOWN;
                 for (let a = 0; a < bundle.attributes.length; a++) {
                     const attr = bundle.attributes[a];
-                    if (attr.name === GFXAttributeName.ATTR_POSITION) {
+                    if (attr.name === AttributeName.ATTR_POSITION) {
                         posFormat = attr.format;
                         break;
                     }
-                    posOffset += GFXFormatInfos[attr.format].size;
+                    posOffset += FormatInfos[attr.format].size;
                 }
                 if (posFormat) {
                     const pos = readBuffer(dataView, posFormat, posOffset, bundle.view.length, bundle.view.stride);
@@ -364,14 +372,14 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
                     writeBuffer(dataView, pos, posFormat, posOffset, bundle.view.stride);
                 }
                 normalOffset = bundle.view.offset;
-                normalFormat = GFXFormat.UNKNOWN;
+                normalFormat = Format.UNKNOWN;
                 for (let a = 0; a < bundle.attributes.length; a++) {
                     const attr = bundle.attributes[a];
-                    if (attr.name === GFXAttributeName.ATTR_NORMAL) {
+                    if (attr.name === AttributeName.ATTR_NORMAL) {
                         normalFormat = attr.format;
                         break;
                     }
-                    normalOffset += GFXFormatInfos[attr.format].size;
+                    normalOffset += FormatInfos[attr.format].size;
                 }
                 if (normalFormat) {
                     const normal = readBuffer(dataView, normalFormat, normalOffset, bundle.view.length, bundle.view.stride);
@@ -383,14 +391,14 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
                     writeBuffer(dataView, normal, normalFormat, normalOffset, bundle.view.stride);
                 }
                 tangentOffset = bundle.view.offset;
-                tangentFormat = GFXFormat.UNKNOWN;
+                tangentFormat = Format.UNKNOWN;
                 for (let a = 0; a < bundle.attributes.length; a++) {
                     const attr = bundle.attributes[a];
-                    if (attr.name === GFXAttributeName.ATTR_TANGENT) {
+                    if (attr.name === AttributeName.ATTR_TANGENT) {
                         tangentFormat = attr.format;
                         break;
                     }
-                    tangentOffset += GFXFormatInfos[attr.format].size;
+                    tangentOffset += FormatInfos[attr.format].size;
                 }
                 if (tangentFormat) {
                     const tangent = readBuffer(dataView, tangentFormat, tangentOffset, bundle.view.length, bundle.view.stride);
@@ -403,14 +411,14 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
                 }
                 // merge UV
                 uvOffset = bundle.view.offset;
-                uvFormat = GFXFormat.UNKNOWN;
+                uvFormat = Format.UNKNOWN;
                 for (let a = 0; a < bundle.attributes.length; a++) {
                     const attr = bundle.attributes[a];
-                    if (attr.name === GFXAttributeName.ATTR_BATCH_UV) {
+                    if (attr.name === AttributeName.ATTR_BATCH_UV) {
                         uvFormat = attr.format;
                         break;
                     }
-                    uvOffset += GFXFormatInfos[attr.format].size;
+                    uvOffset += FormatInfos[attr.format].size;
                 }
                 if (uvFormat) {
                     mapBuffer(dataView, (cur, idx) => {
@@ -423,20 +431,20 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
                 const idxMap = jointIndexMap[i];
                 if (!idxMap) { continue; }
                 jointOffset = bundle.view.offset;
-                jointFormat = GFXFormat.UNKNOWN;
+                jointFormat = Format.UNKNOWN;
                 for (let a = 0; a < bundle.attributes.length; a++) {
                     const attr = bundle.attributes[a];
-                    if (attr.name === GFXAttributeName.ATTR_JOINTS) {
+                    if (attr.name === AttributeName.ATTR_JOINTS) {
                         jointFormat = attr.format;
                         break;
                     }
-                    jointOffset += GFXFormatInfos[attr.format].size;
+                    jointOffset += FormatInfos[attr.format].size;
                 }
                 if (jointFormat) {
                     mapBuffer(dataView, (cur) => idxMap[cur], jointFormat, jointOffset, bundle.view.length, bundle.view.stride, dataView);
                 }
             }
-            this._mesh!.merge(newMesh);
+            this._mesh.merge(newMesh);
         }
 
         this._onMeshChanged(this._mesh);
@@ -445,21 +453,21 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
 
     protected cookTextures (target: Texture2D, prop: string, passIdx: number) {
         const texImages: TexImageSource[] = [];
-        const texImageRegions: GFXBufferTextureCopy[] = [];
+        const texImageRegions: BufferTextureCopy[] = [];
         const texBuffers: ArrayBufferView[] = [];
-        const texBufferRegions: GFXBufferTextureCopy[] = [];
+        const texBufferRegions: BufferTextureCopy[] = [];
         for (let u = 0; u < this.units.length; u++) {
             const unit = this.units[u];
             if (!unit.material) { continue; }
             const partial = unit.material.getProperty(prop, passIdx) as Texture2D | null;
             if (partial && partial.image && partial.image.data) {
-                const region = new GFXBufferTextureCopy();
+                const region = new BufferTextureCopy();
                 region.texOffset.x = unit.offset.x * this.atlasSize;
                 region.texOffset.y = unit.offset.y * this.atlasSize;
                 region.texExtent.width = unit.size.x * this.atlasSize;
                 region.texExtent.height = unit.size.y * this.atlasSize;
-                const data = partial.image.data;
-                if (data instanceof HTMLCanvasElement || data instanceof HTMLImageElement) {
+                const { data } = partial.image;
+                if (!ArrayBuffer.isView(data)) {
                     texImages.push(data);
                     texImageRegions.push(region);
                 } else {
@@ -469,7 +477,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
             }
         }
         const gfxTex = target.getGFXTexture()!;
-        const device: GFXDevice = legacyCC.director.root!.device;
+        const { device } = legacyCC.director.root!;
         if (texBuffers.length > 0) { device.copyBuffersToTexture(texBuffers, gfxTex, texBufferRegions); }
         if (texImages.length > 0) { device.copyTexImagesToTexture(texImages, gfxTex, texImageRegions); }
     }
@@ -503,28 +511,28 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
         // add batch ID to this temp mesh
         // first, update bookkeeping
         const newMeshStruct: Mesh.IStruct = JSON.parse(JSON.stringify(mesh.struct));
-        const modifiedBundles: Record<number, [GFXFormat, number]> = {};
+        const modifiedBundles: Record<number, [Format, number]> = {};
         for (let p = 0; p < mesh.struct.primitives.length; p++) {
             const primitive = mesh.struct.primitives[p];
             let uvOffset = 0;
-            let uvFormat = GFXFormat.UNKNOWN;
+            let uvFormat = Format.UNKNOWN;
             let bundleIdx = 0;
             for (; bundleIdx < primitive.vertexBundelIndices.length; bundleIdx++) {
                 const bundle = mesh.struct.vertexBundles[primitive.vertexBundelIndices[bundleIdx]];
                 uvOffset = bundle.view.offset;
-                uvFormat = GFXFormat.UNKNOWN;
+                uvFormat = Format.UNKNOWN;
                 for (let a = 0; a < bundle.attributes.length; a++) {
                     const attr = bundle.attributes[a];
-                    if (attr.name === GFXAttributeName.ATTR_TEX_COORD) {
+                    if (attr.name === AttributeName.ATTR_TEX_COORD) {
                         uvFormat = attr.format;
                         break;
                     }
-                    uvOffset += GFXFormatInfos[attr.format].size;
+                    uvOffset += FormatInfos[attr.format].size;
                 }
                 if (uvFormat) { break; }
             }
             if (modifiedBundles[bundleIdx] !== undefined) { continue; }
-            modifiedBundles[bundleIdx] = [ uvFormat, uvOffset ];
+            modifiedBundles[bundleIdx] = [uvFormat, uvOffset];
             const newBundle = newMeshStruct.vertexBundles[bundleIdx]; // put the new UVs in the same bundle with original UVs
             newBundle.attributes.push(batch_id);
             newBundle.attributes.push(batch_uv);
@@ -548,11 +556,11 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
         const oldMeshData = mesh.data;
         const newDataView = new DataView(newMeshData.buffer);
         const oldDataView = new DataView(oldMeshData.buffer);
-        const isLittleEndian = legacyCC.sys.isLittleEndian;
+        const { isLittleEndian } = legacyCC.sys;
         for (const b in modifiedBundles) {
             const newBundle = newMeshStruct.vertexBundles[b];
             const oldBundle = mesh.struct.vertexBundles[b];
-            const [ uvFormat, uvOffset ] = modifiedBundles[b];
+            const [uvFormat, uvOffset] = modifiedBundles[b];
             const uvs = readBuffer(oldDataView, uvFormat, uvOffset, oldBundle.view.length, oldBundle.view.stride);
             const oldView = oldBundle.view;
             const newView = newBundle.view;
@@ -564,7 +572,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
                 const srcVertex = oldMeshData.subarray(oldOffset, oldOffset + oldStride);
                 newMeshData.set(srcVertex, newOffset);
                 // insert batch ID
-                newDataView.setFloat32(newOffset + oldStride, unitIdx, );
+                newDataView.setFloat32(newOffset + oldStride, unitIdx);
                 // insert batch UV
                 newDataView.setFloat32(newOffset + oldStride + 4, uvs[j * 2], isLittleEndian);
                 newDataView.setFloat32(newOffset + oldStride + 8, uvs[j * 2 + 1], isLittleEndian);

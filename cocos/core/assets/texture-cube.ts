@@ -28,13 +28,14 @@
  * @module asset
  */
 
+import { EDITOR, TEST } from "internal:constants";
 import { ccclass, serializable } from 'cc.decorator';
-import { GFXTextureFlagBit, GFXTextureType } from '../gfx/define';
+import { TextureFlagBit, TextureType } from '../gfx/define';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
 import { legacyCC } from '../global-exports';
-import { GFXTextureInfo } from '../gfx';
+import { TextureInfo } from '../gfx';
 
 export type ITextureCubeCreateInfo = ITexture2DCreateInfo;
 
@@ -221,25 +222,27 @@ export class TextureCube extends SimpleTexture {
         this.mipmaps = [];
     }
 
-    public _serialize (exporting?: any) {
-        return {
-            base: super._serialize(),
-            mipmaps: this._mipmaps.map((mipmap) => exporting ? {
-                front: EditorExtends.UuidUtils.compressUuid(mipmap.front._uuid, true),
-                back: EditorExtends.UuidUtils.compressUuid(mipmap.back._uuid, true),
-                left: EditorExtends.UuidUtils.compressUuid(mipmap.left._uuid, true),
-                right: EditorExtends.UuidUtils.compressUuid(mipmap.right._uuid, true),
-                top: EditorExtends.UuidUtils.compressUuid(mipmap.top._uuid, true),
-                bottom: EditorExtends.UuidUtils.compressUuid(mipmap.bottom._uuid, true),
-            } : {
-                front: mipmap.front._uuid,
-                back: mipmap.back._uuid,
-                left: mipmap.left._uuid,
-                right: mipmap.right._uuid,
-                top: mipmap.top._uuid,
-                bottom: mipmap.bottom._uuid,
-            }),
-        };
+    public _serialize (ctxForExporting: any): any {
+        if (EDITOR || TEST) {
+            return {
+                base: super._serialize(ctxForExporting),
+                mipmaps: this._mipmaps.map((mipmap) => (ctxForExporting && ctxForExporting._compressUuid) ? {
+                    front: EditorExtends.UuidUtils.compressUuid(mipmap.front._uuid, true),
+                    back: EditorExtends.UuidUtils.compressUuid(mipmap.back._uuid, true),
+                    left: EditorExtends.UuidUtils.compressUuid(mipmap.left._uuid, true),
+                    right: EditorExtends.UuidUtils.compressUuid(mipmap.right._uuid, true),
+                    top: EditorExtends.UuidUtils.compressUuid(mipmap.top._uuid, true),
+                    bottom: EditorExtends.UuidUtils.compressUuid(mipmap.bottom._uuid, true),
+                } : {
+                    front: mipmap.front._uuid,
+                    back: mipmap.back._uuid,
+                    left: mipmap.left._uuid,
+                    right: mipmap.right._uuid,
+                    top: mipmap.top._uuid,
+                    bottom: mipmap.bottom._uuid,
+                }),
+            };
+        }
     }
 
     public _deserialize (serializedData: ITextureCubeSerializeData, handle: any) {
@@ -267,13 +270,13 @@ export class TextureCube extends SimpleTexture {
         }
     }
 
-    protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): GFXTextureInfo {
-        const texInfo = new GFXTextureInfo(GFXTextureType.CUBE);
+    protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): TextureInfo {
+        const texInfo = new TextureInfo(TextureType.CUBE);
         texInfo.width = this._width;
         texInfo.height = this._height;
         texInfo.layerCount = 6;
         Object.assign(texInfo, presumed);
-        texInfo.flags = texInfo.flags | GFXTextureFlagBit.CUBEMAP;
+        texInfo.flags = texInfo.flags | TextureFlagBit.CUBEMAP;
         return texInfo;
     }
 }

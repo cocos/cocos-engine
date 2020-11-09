@@ -531,6 +531,11 @@ Node's zIndex value can't be smaller than cc.macro.MIN_ZINDEX, setting to the mi
 
 Private node's zIndex can't be set, it will keep cc.macro.MIN_ZINDEX as its value
 
+### 1639
+
+<!-- DEPRECATED -->
+cc.Action is deprecated, please use cc.Tween instead
+
 ### 1700
 
 <!-- DEPRECATED -->
@@ -1159,6 +1164,10 @@ Lazy init texture with image element failed due to image loading failure: %s
 
 Loading texture with unsupported type: '%s'. Add '%s' into 'cc.macro.SUPPORT_TEXTURE_FORMATS' please.
 
+### 3121
+
+Can't find a texture format supported by the current platform! Please add a fallback format in the editor.
+
 ### 3200
 
 <!-- DEPRECATED -->
@@ -1349,6 +1358,7 @@ Should not add %s to a node which size is already used by its other component.
 
 ### 3629
 
+<!-- DEPRECATED -->
 attribute must be type object
 
 ### 3630
@@ -1503,6 +1513,7 @@ set %s (value) {
 
 ### 3656
 
+<!-- DEPRECATED -->
 The default value of %s.%s must be an empty string.
 
 ### 3657
@@ -1710,6 +1721,7 @@ already-playing
 
 ### 4000
 
+<!-- DEPRECATED -->
 Sorry, the cc.Font has been modified from Raw Asset to Asset. Please load the font asset before using.
 
 ### 4001
@@ -1827,6 +1839,7 @@ No need to release non-cached asset.
 
 ### 4903
 
+<!-- DEPRECATED -->
 Can not get class '%s'
 
 ### 4904
@@ -1908,6 +1921,7 @@ cc.LabelBMFont._parseImageFileName() : file could not be found
 
 ### 4920
 
+<!-- DEPRECATED -->
 Sorry, you shouldn't use id as item identity any more, please use url or uuid instead, the current id is being set as url: (%s)
 
 ### 4921
@@ -1952,6 +1966,7 @@ Load image ( %s ) failed
 
 ### 4931
 
+<!-- DEPRECATED -->
 Download Uuid: can not find type of raw asset[ %s ]: %s
 
 ### 4932
@@ -2006,6 +2021,14 @@ Can not find script '%s'
 
 Can not find class '%s'
 
+### 5303
+
+Failed to deserialize %s, missing _deserialize function.
+
+### 5304
+
+Unable to deserialize version %s data.
+
 ### 5400
 
 <!-- DEPRECATED -->
@@ -2046,22 +2069,27 @@ Class should be extended before assigning any prototype members.
 
 ### 5502
 
+<!-- DEPRECATED -->
 Invalid url of %s.%s
 
 ### 5503
 
+<!-- DEPRECATED -->
 The 'url' attribute of '%s.%s' is undefined when loading script.
 
 ### 5504
 
+<!-- DEPRECATED -->
 The 'url' type of '%s.%s' must be child class of cc.RawAsset.
 
 ### 5505
 
+<!-- DEPRECATED -->
 The 'url' type of '%s.%s' must not be child class of cc.Asset, otherwise you should use 'type: %s' instead.
 
 ### 5506
 
+<!-- DEPRECATED -->
 Can not specify 'type' attribute for '%s.%s', because its 'url' is already defined.
 
 ### 5507
@@ -2074,6 +2102,7 @@ Invalid type of %s.%s
 
 ### 5509
 
+<!-- DEPRECATED -->
 The 'type' attribute of '%s.%s' must be child class of cc.Asset, otherwise you should use 'url: %s' instead
 
 ### 5510
@@ -2384,6 +2413,10 @@ Polygon's point must greater than 2
 
 Argument must be non-nil
 
+### 6706
+
+Priority can't be set in Canvas node
+
 ### 6800
 
 Callback of event must be non-nil
@@ -2418,18 +2451,22 @@ Can not instantiate DOM element
 
 ### 7000
 
+<!-- DEPRECATED -->
 Failed to init asset's raw path.
 
 ### 7001
 
+<!-- DEPRECATED -->
 Should not load '%s' from script dynamically, unless it is placed in the 'resources' folder.
 
 ### 7002
 
+<!-- DEPRECATED -->
 Sorry can not load '%s' because it is not placed in the 'resources' folder.
 
 ### 7003
 
+<!-- DEPRECATED -->
 Failed to init builtin asset's raw path.
 
 ### 7100
@@ -2677,6 +2714,7 @@ Can not render dynamic created SkeletonData
 
 ### 7505
 
+<!-- DEPRECATED -->
 Invalid type of atlasFile, atlas should be registered as raw asset.
 
 ### 7506
@@ -2878,6 +2916,7 @@ Wrong type arguments, 'filePath' must be a String.
 
 ### 8401
 
+<!-- DEPRECATED -->
 Since 1.10, `%s` accept %s instance directly, not a URL string. Please directly reference the %s object in your script, or load %s by loader first. Don't use %s's URL anymore.
 
 ### 9000
@@ -2894,7 +2933,8 @@ texture size exceeds current device limits %d/%d
 
 ### 9200
 
-Priority can't be set in Canvas node
+<!-- DEPRECATED -->
+cc.view.enableAntiAlias is deprecated, please use cc.Texture2D.setFilters instead
 
 ### 9300
 
@@ -2939,3 +2979,7 @@ Sub-mesh may include at most %d morph targets, but you specified %d.
 ### 11000
 
 WebGL context lost.
+
+### 12001
+
+BlendFactors are disabled when using custom material, please modify the blend state in the material instead.

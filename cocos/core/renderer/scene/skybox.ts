@@ -9,7 +9,7 @@ import { MaterialInstance } from '../core/material-instance';
 import { samplerLib } from '../core/sampler-lib';
 import { Model } from './model';
 import { legacyCC } from '../../global-exports';
-import { GFXDescriptorSet } from '../../gfx';
+import { DescriptorSet } from '../../gfx';
 import { SkyboxPool, NULL_HANDLE, SkyboxView, SkyboxHandle } from '../core/memory-pools';
 import { SkyboxInfo } from '../../scene-graph/scene-globals';
 
@@ -86,7 +86,7 @@ export class Skybox {
     }
 
     protected _envmap: TextureCube | null = null;
-    protected _globalDescriptorSet: GFXDescriptorSet | null = null;
+    protected _globalDescriptorSet: DescriptorSet | null = null;
     protected _model: Model | null = null;
     protected _default: TextureCube | null = null;
     protected _handle: SkyboxHandle = NULL_HANDLE;
@@ -112,8 +112,13 @@ export class Skybox {
         this._default = builtinResMgr.get<TextureCube>('default-cube-texture');
 
         if (!this._model) {
+<<<<<<< HEAD
             this._model = legacyCC.director.root.createModel(legacyCC.renderer.scene.Model) as Model;
             // @ts-ignore skybox don't need local buffers
+=======
+            this._model = new legacyCC.renderer.scene.Model() as Model;
+            // @ts-expect-error skybox don't need local buffers
+>>>>>>> upstream/3d
             this._model._initLocalDescriptors = () => {};
         }
 

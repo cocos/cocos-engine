@@ -31,6 +31,9 @@ export class b2RigidBody2D implements IRigidBody2D {
         return !(this._body!.IsAwake());
     }
 
+    _animatedPos = new Vec2();
+    _animatedAngle = 0;
+
 
     private _body: b2.Body | null = null;
     private _rigidBody!: RigidBody2D;
@@ -107,6 +110,22 @@ export class b2RigidBody2D implements IRigidBody2D {
         this._inited = false;
     }
 
+    animate (dt: number) {
+        let b2body = this._body;
+        if (!b2body) return;
+        let b2Pos = b2body.GetPosition();
+
+        b2body.SetAwake(true);
+
+        let timeStep = 1 / dt;
+        tempVec2_1.x = (this._animatedPos.x - b2Pos.x) * timeStep;
+        tempVec2_1.y = (this._animatedPos.y - b2Pos.y) * timeStep;
+        b2body.SetLinearVelocity(tempVec2_1);
+
+        let b2Rotation = b2body.GetAngle();
+        b2body.SetAngularVelocity((this._animatedAngle - b2Rotation) * timeStep);
+    }
+
     syncPositionToPhysics (enableAnimated = false) {
         var b2body = this._body;
         if (!b2body) return;
@@ -126,14 +145,7 @@ export class b2RigidBody2D implements IRigidBody2D {
         temp.y = pos.y / PHYSICS_2D_PTM_RATIO;
 
         if (bodyType === ERigidBody2DType.Animated && enableAnimated) {
-            var b2Pos = b2body.GetPosition();
-
-            var timeStep = game.getFrameRate();
-            temp.x = (temp.x - b2Pos.x) * timeStep;
-            temp.y = (temp.y - b2Pos.y) * timeStep;
-
-            b2body.SetAwake(true);
-            b2body.SetLinearVelocity(temp);
+            this._animatedPos.set(temp.x, temp.y);
         }
         else {
             b2body.SetTransformVec(temp, b2body.GetAngle());
@@ -144,14 +156,10 @@ export class b2RigidBody2D implements IRigidBody2D {
         var b2body = this._body;
         if (!b2body) return;
 
-        Quat.toEuler(tempVec3, this._rigidBody.node.worldRotation);
-        let rotation = toRadian(tempVec3.z);
+        let rotation = toRadian(this._rigidBody.node.eulerAngles.z);
         let bodyType = this._rigidBody.type;
         if (bodyType === ERigidBody2DType.Animated && enableAnimated) {
-            var b2Rotation = b2body.GetAngle();
-            var timeStep = game.getFrameRate();
-            b2body.SetAwake(true);
-            b2body.SetAngularVelocity((rotation - b2Rotation) * timeStep);
+            this._animatedAngle = rotation;
         }
         else {
             b2body.SetTransformVec(b2body.GetPosition(), rotation);

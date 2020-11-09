@@ -15,16 +15,16 @@ import plane from './plane';
 import ray from './ray';
 import sphere from './sphere';
 import triangle from './triangle';
-import { GFXPrimitiveMode } from '../gfx';
+import { PrimitiveMode } from '../gfx';
 import { IBArray, RenderingSubMesh, Mesh } from '../assets/mesh';
 import { IRaySubMeshOptions, ERaycastMode, IRaySubMeshResult, IRayMeshOptions, IRayModelOptions } from './spec';
 import { IVec3Like } from '../math/type-define';
 import { scene } from '../renderer';
 
-// tslint:disable:only-arrow-functions
-// tslint:disable:one-variable-per-declaration
-// tslint:disable:prefer-for-of
-// tslint:disable:no-shadowed-variable
+
+
+
+
 
 /**
  * @en
@@ -352,8 +352,8 @@ const ray_subMesh = (function () {
         }
     }
 
-    const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, ray: ray, opt: IRaySubMeshOptions) => {
-        if (pm === GFXPrimitiveMode.TRIANGLE_LIST) {
+    const narrowphase = (vb: Float32Array, ib: IBArray, pm: PrimitiveMode, ray: ray, opt: IRaySubMeshOptions) => {
+        if (pm === PrimitiveMode.TRIANGLE_LIST) {
             const cnt = ib.length;
             for (let j = 0; j < cnt; j += 3) {
                 const i0 = ib[j] * 3;
@@ -367,7 +367,7 @@ const ray_subMesh = (function () {
                 fillResult(opt.mode, dist, i0, i1, i2, opt.result);
                 if (opt.mode === ERaycastMode.ANY) return dist;
             }
-        } else if (pm === GFXPrimitiveMode.TRIANGLE_STRIP) {
+        } else if (pm === PrimitiveMode.TRIANGLE_STRIP) {
             const cnt = ib.length - 2;
             let rev = 0;
             for (let j = 0; j < cnt; j += 1) {
@@ -383,7 +383,7 @@ const ray_subMesh = (function () {
                 fillResult(opt.mode, dist, i0, i1, i2, opt.result);
                 if (opt.mode === ERaycastMode.ANY) return dist;
             }
-        } else if (pm === GFXPrimitiveMode.TRIANGLE_FAN) {
+        } else if (pm === PrimitiveMode.TRIANGLE_FAN) {
             const cnt = ib.length - 1;
             const i0 = ib[0] * 3;
             Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
@@ -408,7 +408,7 @@ const ray_subMesh = (function () {
         const max = submesh.geometricInfo.boundingBox.max;
         if (ray_aabb2(ray, min, max)) {
             const pm = submesh.primitiveMode;
-            const { positions: vb, indices: ib } = submesh.geometricInfo!;
+            const { positions: vb, indices: ib } = submesh.geometricInfo;
             narrowphase(vb, ib!, pm, ray, opt);
         }
         return minDis;
@@ -1079,7 +1079,7 @@ const obb_obb = (function () {
     };
 })();
 
-// tslint:disable-next-line: max-line-length
+
 // https://github.com/diku-dk/bvh-tvcg18/blob/1fd3348c17bc8cf3da0b4ae60fdb8f2aa90a6ff0/FOUNDATION/GEOMETRY/GEOMETRY/include/overlap/geometry_overlap_obb_capsule.h
 /**
  * @en

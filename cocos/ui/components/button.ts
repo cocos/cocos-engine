@@ -103,24 +103,33 @@ export enum EventType {
 
 /**
  * @en
- * Button has 4 Transition types<br/>
- * When Button state changed:<br/>
- *  If Transition type is Button.Transition.NONE, Button will do nothing<br/>
- *  If Transition type is Button.Transition.COLOR, Button will change target's color<br/>
- *  If Transition type is Button.Transition.SPRITE, Button will change target Sprite's sprite<br/>
- *  If Transition type is Button.Transition.SCALE, Button will change target node's scale<br/>
+ * Button component. Can be pressed or clicked. Button has 4 Transition types:
+ * 
+ *   - Button.Transition.NONE   // Button will do nothing
+ *   - Button.Transition.COLOR  // Button will change target's color
+ *   - Button.Transition.SPRITE // Button will change target Sprite's sprite
+ *   - Button.Transition.SCALE  // Button will change target node's scale
  *
- * Button will trigger 5 events:<br/>
- *  Button.EVENT_TOUCH_DOWN<br/>
- *  Button.EVENT_TOUCH_UP<br/>
- *  Button.EVENT_HOVER_IN<br/>
- *  Button.EVENT_HOVER_MOVE<br/>
- *  Button.EVENT_HOVER_OUT<br/>
- *  User can get the current clicked node with 'event.target' from event object which is passed as parameter in the callback function of click event.
+ * The button can bind events (but you must be on the button's node to bind events).<br/>
+ * The following events can be triggered on all platforms.
+ * 
+ *  - cc.Node.EventType.TOUCH_START  // Press
+ *  - cc.Node.EventType.TOUCH_MOVE   // After pressing and moving
+ *  - cc.Node.EventType.TOUCH_END    // After pressing and releasing
+ *  - cc.Node.EventType.TOUCH_CANCEL // Press to cancel
+ * 
+ * The following events are only triggered on the PC platform:
+ *
+ *   - cc.Node.EventType.MOUSE_DOWN
+ *   - cc.Node.EventType.MOUSE_MOVE
+ *   - cc.Node.EventType.MOUSE_ENTER
+ *   - cc.Node.EventType.MOUSE_LEAVE
+ *   - cc.Node.EventType.MOUSE_UP
+ * 
+ * The developer can get the current clicked node with `event.target` from event object which is passed as parameter in the callback function of click event.
  *
  * @zh
- * 按钮组件。可以被按下，或者点击。
- *
+ * 按钮组件。可以被按下，或者点击。<br>
  * 按钮可以通过修改 Transition 来设置按钮状态过渡的方式：
  *
  *   - Button.Transition.NONE   // 不做任何过渡
@@ -128,7 +137,7 @@ export enum EventType {
  *   - Button.Transition.SPRITE // 进行精灵之间过渡
  *   - Button.Transition.SCALE // 进行缩放过渡
  *
- * 按钮可以绑定事件（但是必须要在按钮的 Node 上才能绑定事件）：<br/>
+ * 按钮可以绑定事件（但是必须要在按钮的 Node 上才能绑定事件）。<br/>
  * 以下事件可以在全平台上都触发：
  *
  *   - cc.Node.EventType.TOUCH_START  // 按下时事件
@@ -143,9 +152,8 @@ export enum EventType {
  *   - cc.Node.EventType.MOUSE_ENTER // 鼠标进入目标事件
  *   - cc.Node.EventType.MOUSE_LEAVE // 鼠标离开目标事件
  *   - cc.Node.EventType.MOUSE_UP    // 鼠标松开事件
- *   - cc.Node.EventType.MOUSE_WHEEL // 鼠标滚轮事件
  *
- * 用户可以通过获取 __点击事件__ 回调函数的参数 event 的 target 属性获取当前点击对象。
+ * 开发者可以通过获取 **点击事件** 回调函数的参数 event 的 target 属性获取当前点击对象。
  *
  * @example
  * ```ts
@@ -155,8 +163,8 @@ export enum EventType {
  *     log("This is a callback after the trigger event");
  * });
  * // You could also add a click event
- * //Note: In this way, you can't get the touch event info, so use it wisely.
- * button.node.on('click', (button) => {
+ * // Note: In this way, you can't get the touch event info, so use it wisely.
+ * button.node.on(Node.EventType.CLICK, (button) => {
  *    //The event is a custom event, you could get the Button component via first argument
  * })
  * ```
@@ -171,18 +179,20 @@ export class Button extends Component {
 
     /**
      * @en
-     * Transition target.
+     * Transition target.<br/>
      * When Button state changed:
-     * - If Transition type is Button.Transition.NONE, Button will do nothing.
-     * - If Transition type is Button.Transition.COLOR, Button will change target's color.
-     * - If Transition type is Button.Transition.SPRITE, Button will change target Sprite's sprite.
+     * - Button.Transition.NONE   // Button will do nothing
+     * - Button.Transition.COLOR  // Button will change target's color
+     * - Button.Transition.SPRITE // Button will change target Sprite's sprite
+     * - Button.Transition.SCALE  // Button will change target node's scale
      *
      * @zh
      * 需要过渡的目标。<br/>
-     * 当前按钮状态改变规则：<br/>
-     * - 如果 Transition type 选择 Button.Transition.NONE，按钮不做任何过渡。
-     * - 如果 Transition type 选择 Button.Transition.COLOR，按钮会对目标颜色进行颜色之间的过渡。
-     * - 如果 Transition type 选择 Button.Transition.Sprite，按钮会对目标 Sprite 进行 Sprite 之间的过渡。
+     * 按钮可以通过修改 Transition 来设置按钮状态过渡的方式：
+     * - Button.Transition.NONE   // 不做任何过渡
+     * - Button.Transition.COLOR  // 进行颜色之间过渡
+     * - Button.Transition.SPRITE // 进行 Sprite 之间的过渡
+     * - Button.Transition.SCALE // 进行缩放过渡
      */
     @type(Node)
     @displayOrder(0)
@@ -516,7 +526,7 @@ export class Button extends Component {
     @serializable
     protected _transition = Transition.NONE;
     @serializable
-    protected _normalColor: Color = new Color(214, 214, 214, 255);
+    protected _normalColor: Color = Color.WHITE.clone();
     @serializable
     protected _hoverColor: Color = new Color(211, 211, 211, 255);
     @serializable

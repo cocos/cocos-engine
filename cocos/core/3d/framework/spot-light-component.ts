@@ -28,7 +28,9 @@
  * @module component/light
  */
 
-import { ccclass, help, executeInEditMode, menu, tooltip, type, slide, range, unit, serializable } from 'cc.decorator';
+import {
+    ccclass, help, executeInEditMode, menu, tooltip, type, slide, range, unit, serializable,
+} from 'cc.decorator';
 import { toRadian } from '../../math';
 import { scene } from '../../renderer';
 import { Light, PhotometricTerm } from './light-component';
@@ -38,19 +40,23 @@ import { Light, PhotometricTerm } from './light-component';
 @menu('Light/SpotLight')
 @executeInEditMode
 export class SpotLight extends Light {
-
     @serializable
     protected _size = 0.15;
+
     @serializable
     protected _luminance = 1700 / scene.nt2lm(0.15);
+
     @serializable
     protected _term = PhotometricTerm.LUMINOUS_POWER;
+
     @serializable
     protected _range = 1;
+
     @serializable
     protected _spotAngle = 60;
 
     protected _type = scene.LightType.SPOT;
+
     protected _light: scene.SpotLight | null = null;
 
     /**
@@ -62,6 +68,7 @@ export class SpotLight extends Light {
     get luminousPower () {
         return this._luminance * scene.nt2lm(this._size);
     }
+
     set luminousPower (val) {
         this._luminance = val / scene.nt2lm(this._size);
         if (this._light) { this._light.luminance = this._luminance; }
@@ -76,6 +83,7 @@ export class SpotLight extends Light {
     get luminance () {
         return this._luminance;
     }
+
     set luminance (val) {
         this._luminance = val;
         if (this._light) { this._light.luminance = val; }
@@ -90,6 +98,7 @@ export class SpotLight extends Light {
     get term () {
         return this._term;
     }
+
     set term (val) {
         this._term = val;
     }
@@ -104,6 +113,7 @@ export class SpotLight extends Light {
     get size () {
         return this._size;
     }
+
     set size (val) {
         this._size = val;
         if (this._light) { this._light.size = val; }
@@ -119,6 +129,7 @@ export class SpotLight extends Light {
     get range () {
         return this._range;
     }
+
     set range (val) {
         this._range = val;
         if (this._light) { this._light.range = val; }

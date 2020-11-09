@@ -29,7 +29,7 @@
  */
 
 import { Component } from '../component';
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple } from 'cc.decorator';
 import { SystemEventType } from '../../platform/event-manager/event-enum';
 import { EventListener, IListenerMask } from '../../platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../math';
@@ -58,6 +58,7 @@ const _rect = new Rect();
 @help('i18n:cc.UITransform')
 @executionOrder(110)
 @menu('UI/UITransform')
+@disallowMultiple
 @executeInEditMode
 export class UITransform extends Component {
 
@@ -87,7 +88,7 @@ export class UITransform extends Component {
 
         this._contentSize.set(value);
         if (EDITOR) {
-            // @ts-ignore
+            // @ts-expect-error
             this.node.emit(SystemEventType.SIZE_CHANGED, clone);
         } else {
             this.node.emit(SystemEventType.SIZE_CHANGED);
@@ -111,7 +112,7 @@ export class UITransform extends Component {
 
         this._contentSize.width = value;
         if (EDITOR) {
-            // @ts-ignore
+            // @ts-expect-error
             this.node.emit(SystemEventType.SIZE_CHANGED, clone);
         } else {
             this.node.emit(SystemEventType.SIZE_CHANGED);
@@ -134,7 +135,7 @@ export class UITransform extends Component {
 
         this._contentSize.height = value;
         if (EDITOR) {
-            // @ts-ignore
+            // @ts-expect-error
             this.node.emit(SystemEventType.SIZE_CHANGED, clone);
         } else {
             this.node.emit(SystemEventType.SIZE_CHANGED);
@@ -209,7 +210,7 @@ export class UITransform extends Component {
         }
 
         if (this._canvas && this._canvas.node === this.node) {
-            warnID(9200);
+            warnID(6706);
             return;
         }
 
@@ -309,7 +310,7 @@ export class UITransform extends Component {
         }
 
         if (EDITOR) {
-            // @ts-ignore
+            // @ts-expect-error
             this.node.emit(SystemEventType.SIZE_CHANGED, clone);
         } else {
             this.node.emit(SystemEventType.SIZE_CHANGED);
@@ -611,7 +612,7 @@ export class UITransform extends Component {
                 }
             }
 
-            // @ts-ignore
+            // @ts-expect-error
             parent = parent.parent;
         }
     }

@@ -8,9 +8,9 @@ import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP_BINDING } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
-import { GFXFramebuffer, GFXRenderPass, GFXLoadOp, GFXStoreOp,
-    GFXTextureLayout, GFXFormat, GFXTexture, GFXTextureType, GFXTextureUsageBit, GFXFilter, GFXAddress,
-    GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPassInfo, GFXTextureInfo, GFXFramebufferInfo } from '../../gfx';
+import { Framebuffer, RenderPass, LoadOp, StoreOp,
+    TextureLayout, Format, Texture, TextureType, TextureUsageBit, Filter, Address,
+    ColorAttachment, DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderView } from '../render-view';
@@ -18,12 +18,12 @@ import { ShadowType } from '../../renderer/scene/shadows';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 
 const _samplerInfo = [
-    GFXFilter.LINEAR,
-    GFXFilter.LINEAR,
-    GFXFilter.NONE,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
+    Filter.LINEAR,
+    Filter.LINEAR,
+    Filter.NONE,
+    Address.CLAMP,
+    Address.CLAMP,
+    Address.CLAMP,
 ];
 
 /**
@@ -52,10 +52,10 @@ export class ShadowFlow extends RenderFlow {
         stages: []
     };
 
-    private _shadowRenderPass: GFXRenderPass|null = null;
-    private _shadowRenderTargets: GFXTexture[] = [];
-    private _shadowFrameBuffer: GFXFramebuffer|null = null;
-    private _depth: GFXTexture|null = null;
+    private _shadowRenderPass: RenderPass|null = null;
+    private _shadowRenderTargets: Texture[] = [];
+    private _shadowFrameBuffer: Framebuffer|null = null;
+    private _depth: Texture|null = null;
     private _width: number = 0;
     private _height: number = 0;
 
@@ -80,42 +80,42 @@ export class ShadowFlow extends RenderFlow {
 
         if(!this._shadowRenderPass) {
 
-            const colorAttachment = new GFXColorAttachment();
-            colorAttachment.format = GFXFormat.RGBA8;
-            colorAttachment.loadOp = GFXLoadOp.CLEAR; // should clear color attachment
-            colorAttachment.storeOp = GFXStoreOp.STORE;
+            const colorAttachment = new ColorAttachment();
+            colorAttachment.format = Format.RGBA8;
+            colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
+            colorAttachment.storeOp = StoreOp.STORE;
             colorAttachment.sampleCount = 1;
-            colorAttachment.beginLayout = GFXTextureLayout.UNDEFINED;
-            colorAttachment.endLayout = GFXTextureLayout.PRESENT_SRC;
+            colorAttachment.beginLayout = TextureLayout.UNDEFINED;
+            colorAttachment.endLayout = TextureLayout.PRESENT_SRC;
 
-            const depthStencilAttachment = new GFXDepthStencilAttachment();
+            const depthStencilAttachment = new DepthStencilAttachment();
             depthStencilAttachment.format = device.depthStencilFormat;
-            depthStencilAttachment.depthLoadOp = GFXLoadOp.CLEAR;
-            depthStencilAttachment.depthStoreOp = GFXStoreOp.STORE;
-            depthStencilAttachment.stencilLoadOp = GFXLoadOp.CLEAR;
-            depthStencilAttachment.stencilStoreOp = GFXStoreOp.STORE;
+            depthStencilAttachment.depthLoadOp = LoadOp.CLEAR;
+            depthStencilAttachment.depthStoreOp = StoreOp.STORE;
+            depthStencilAttachment.stencilLoadOp = LoadOp.CLEAR;
+            depthStencilAttachment.stencilStoreOp = StoreOp.STORE;
             depthStencilAttachment.sampleCount = 1;
-            depthStencilAttachment.beginLayout = GFXTextureLayout.UNDEFINED;
-            depthStencilAttachment.endLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            depthStencilAttachment.beginLayout = TextureLayout.UNDEFINED;
+            depthStencilAttachment.endLayout = TextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-            const renderPassInfo = new GFXRenderPassInfo([colorAttachment], depthStencilAttachment);
+            const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
             this._shadowRenderPass = device.createRenderPass(renderPassInfo);
         }
 
         if(this._shadowRenderTargets.length < 1) {
-            this._shadowRenderTargets.push(device.createTexture(new GFXTextureInfo(
-                GFXTextureType.TEX2D,
-                GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                GFXFormat.RGBA8,
+            this._shadowRenderTargets.push(device.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+                Format.RGBA8,
                 this._width,
                 this._height,
             )));
         }
 
         if(!this._depth) {
-            this._depth = device.createTexture(new GFXTextureInfo(
-                GFXTextureType.TEX2D,
-                GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
+            this._depth = device.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
                 device.depthStencilFormat,
                 this._width,
                 this._height,
@@ -123,7 +123,7 @@ export class ShadowFlow extends RenderFlow {
         }
 
         if(!this._shadowFrameBuffer) {
-            this._shadowFrameBuffer = device.createFramebuffer(new GFXFramebufferInfo(
+            this._shadowFrameBuffer = device.createFramebuffer(new FramebufferInfo(
                 this._shadowRenderPass,
                 this._shadowRenderTargets,
                 this._depth,
@@ -170,7 +170,7 @@ export class ShadowFlow extends RenderFlow {
 
         if(this._shadowFrameBuffer) {
             this._shadowFrameBuffer.destroy();
-            this._shadowFrameBuffer.initialize(new GFXFramebufferInfo(
+            this._shadowFrameBuffer.initialize(new FramebufferInfo(
                 this._shadowRenderPass!,
                 this._shadowRenderTargets,
                 this._depth,

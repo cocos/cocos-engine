@@ -50,7 +50,6 @@ import {
     VIVO,
 } from 'internal:constants';
 
-// @ts-ignore
 const _global = typeof window === 'undefined' ? global : window;
 
 /**
@@ -182,3 +181,5 @@ const engineVersion = '3.0.0';
 _global.CocosEngine = legacyCC.ENGINE_VERSION = engineVersion;
 
 _global.cc = legacyCC;
+
+export { engineVersion as VERSION };

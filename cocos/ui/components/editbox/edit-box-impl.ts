@@ -166,20 +166,27 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _addDomToGameContainer () {
-        if (game.container && this._edTxt) {
+        if(legacyCC.GAME_VIEW && this._edTxt) {
+            legacyCC.gameView.container.appendChild(this._edTxt);
+            legacyCC.gameView.head.appendChild(this._placeholderStyleSheet!);
+        } else if (game.container && this._edTxt) {
             game.container.appendChild(this._edTxt);
             document.head.appendChild(this._placeholderStyleSheet!);
         }
     }
 
     private _removeDomFromGameContainer () {
-        const hasElem = contains(game.container, this._edTxt);
+        const hasElem = legacyCC.GAME_VIEW ? contains(legacyCC.gameView.container, this._edTxt)
+        : contains(game.container, this._edTxt);
         if (hasElem && this._edTxt) {
-            game.container!.removeChild(this._edTxt);
+            legacyCC.GAME_VIEW ? legacyCC.gameView.container.removeChild(this._edTxt) 
+            : game.container!.removeChild(this._edTxt);
         }
-        const hasStyleSheet = contains(document.head, this._placeholderStyleSheet);
+        const hasStyleSheet = legacyCC.GAME_VIEW ? contains(legacyCC.gameView.head, this._placeholderStyleSheet)
+        : contains(document.head, this._placeholderStyleSheet);
         if (hasStyleSheet) {
-            document.head.removeChild(this._placeholderStyleSheet!);
+            legacyCC.GAME_VIEW ? legacyCC.gameView.head.removeChild(this._placeholderStyleSheet)
+            : document.head.removeChild(this._placeholderStyleSheet!);
         }
 
         this._edTxt = null;
@@ -275,6 +282,14 @@ export class EditBoxImpl extends EditBoxImplBase {
         const node = this._delegate!.node;
         let scaleX = view.getScaleX();
         let scaleY = view.getScaleY();
+        let widthRatio = 1;
+        let heightRatio = 1;
+        if(legacyCC.GAME_VIEW) {
+            widthRatio = legacyCC.gameView.canvas.width / legacyCC.game.canvas.width;
+            heightRatio = legacyCC.gameView.canvas.height / legacyCC.game.canvas.height;
+        }
+        scaleX *= widthRatio;
+        scaleY *= heightRatio;
         const viewport = view.getViewportRect();
         const dpr = view.getDevicePixelRatio();
 
@@ -289,8 +304,10 @@ export class EditBoxImpl extends EditBoxImplBase {
         if (!node._uiProps.uiTransformComp) {
             return false;
         }
-
-        const canvas = director.root!.ui.getScreen(node._uiProps.uiTransformComp.visibility);
+        let canvas = director.root!.ui.getScreen(node._uiProps.uiTransformComp.visibility);
+        if(legacyCC.GAME_VIEW) {
+            canvas = legacyCC.gameView.preview.canvasComp;
+        }
         if (!canvas) {
             return;
         }
@@ -307,14 +324,14 @@ export class EditBoxImpl extends EditBoxImplBase {
         scaleX /= dpr;
         scaleY /= dpr;
 
-        const container = game.container;
+        const container = legacyCC.GAME_VIEW ? legacyCC.gameView.container : game.container;
         const a = _matrix_temp.m00 * scaleX;
         const b = _matrix.m01;
         const c = _matrix.m04;
         const d = _matrix_temp.m05 * scaleY;
 
         let offsetX = parseInt((container && container.style.paddingLeft) || '0');
-        offsetX += viewport.x / dpr;
+        offsetX += viewport.x * widthRatio / dpr;
         let offsetY = parseInt((container && container.style.paddingBottom) || '0');
         offsetY += viewport.y / dpr;
         const tx = _matrix_temp.m12 * scaleX + offsetX;

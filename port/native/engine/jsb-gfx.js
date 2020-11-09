@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -117,7 +117,7 @@ function replace (proto, replacements) {
 // Cache dirty to avoid invoking gfx.DescriptorSet.update().
 let descriptorSetProto = gfx.DescriptorSet.prototype;
 descriptorSetProto.bindBuffer = function(binding, buffer, index) {
-    this.dirtyJSB = descriptorSetProto.bindBufferJSB.call(this, binding, buffer, index || 0); 
+    this.dirtyJSB = descriptorSetProto.bindBufferJSB.call(this, binding, buffer, index || 0);
 }
 descriptorSetProto.bindSampler = function(binding, sampler, index) {
     this.dirtyJSB = descriptorSetProto.bindSamplerJSB.call(this, binding, sampler, index || 0);
@@ -152,11 +152,14 @@ deviceProtos.forEach(function(item, index) {
 
         let oldDeviceCreatBufferFun = item.createBuffer;
         item.createBuffer = function(info) {
+            let buffer;
             if (info.buffer) {
-                return oldDeviceCreatBufferFun.call(this, info, true);
+                buffer = oldDeviceCreatBufferFun.call(this, info, true);
             } else {
-                return oldDeviceCreatBufferFun.call(this, info, false);
+                buffer = oldDeviceCreatBufferFun.call(this, info, false);
             }
+            buffer.cachedUsage = info.usage;
+            return buffer;
         }
 
         let oldDeviceCreatTextureFun = item.createTexture;
@@ -179,11 +182,11 @@ let bufferProto = gfx.Buffer.prototype;
 
 let oldUpdate = bufferProto.update;
 bufferProto.update = function(buffer, offset, size) {
+    if(buffer.byteLength === 0) return;
     let buffSize;
-    if (size !== undefined ) {
-        buffSize = size;
-    } else if (this.cachedUsage & 0x40) { // BufferUsageBit.INDIRECT
-        // It is a IGFXIndirectBuffer object.
+
+    if (this.cachedUsage & 0x40) { // BufferUsageBit.INDIRECT
+        // It is a IIndirectBuffer object.
         let drawInfos = buffer.drawInfos;
         buffer = new Uint32Array(drawInfos.length * 7);
         let baseIndex = 0;
@@ -201,6 +204,8 @@ bufferProto.update = function(buffer, offset, size) {
         }
 
         buffSize = buffer.byteLength;
+    } else if (size !== undefined ) {
+        buffSize = size;
     } else {
         buffSize = buffer.byteLength;
     }
@@ -210,7 +215,6 @@ bufferProto.update = function(buffer, offset, size) {
 
 let oldBufferInitializeFunc = bufferProto.initialize;
 bufferProto.initialize = function(info) {
-    this.cachedUsage = info.usage;
     if (info.buffer) {
         oldBufferInitializeFunc.call(this, info, true);
     } else {

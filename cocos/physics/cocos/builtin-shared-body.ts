@@ -10,7 +10,8 @@ import { BuiltinObject } from './object/builtin-object';
 import { BuiltinShape } from './shapes/builtin-shape';
 import { Node } from '../../core';
 import { BuiltinRigidBody } from './builtin-rigid-body';
-// tslint:disable: prefer-for-of
+import { PhysicsSystem } from '../framework';
+
 
 const m4_0 = new Mat4();
 const v3_0 = new Vec3();
@@ -24,15 +25,23 @@ export class BuiltinSharedBody extends BuiltinObject {
 
     private static readonly sharedBodesMap = new Map<string, BuiltinSharedBody>();
 
-    static getSharedBody (node: Node, wrappedWorld: BuiltInWorld) {
+    static getSharedBody (node: Node, wrappedWorld: BuiltInWorld, wrappedBody?: BuiltinRigidBody) {
         const key = node.uuid;
+        let newSB: BuiltinSharedBody;
         if (BuiltinSharedBody.sharedBodesMap.has(key)) {
-            return BuiltinSharedBody.sharedBodesMap.get(key)!;
+            newSB = BuiltinSharedBody.sharedBodesMap.get(key)!;
         } else {
-            const newSB = new BuiltinSharedBody(node, wrappedWorld);
+            newSB = new BuiltinSharedBody(node, wrappedWorld);
             BuiltinSharedBody.sharedBodesMap.set(node.uuid, newSB);
-            return newSB;
         }
+        if (wrappedBody) {
+            newSB.wrappedBody = wrappedBody;
+            const g = wrappedBody.rigidBody.group;
+            const m = PhysicsSystem.instance.collisionMatrix[g];
+            newSB.collisionFilterGroup = g;
+            newSB.collisionFilterMask = m;
+        }
+        return newSB;
     }
 
     get id () {
@@ -69,10 +78,10 @@ export class BuiltinSharedBody extends BuiltinObject {
     }
 
     /** id generator */
-    private static idCounter: number = 0;
+    private static idCounter = 0;
     private readonly _id: number;
-    private index: number = -1;
-    private ref: number = 0;
+    private index = -1;
+    private ref = 0;
 
     readonly node: Node;
     readonly world: BuiltInWorld;

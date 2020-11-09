@@ -4,7 +4,7 @@
  */
 
 import { InstancedBuffer } from './instanced-buffer';
-import { GFXDevice, GFXRenderPass, GFXPipelineState, GFXCommandBuffer } from '../gfx';
+import { Device, RenderPass, PipelineState, CommandBuffer } from '../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { DSPool, ShaderPool, PassPool, PassView } from '../renderer/core/memory-pools';
 import { SetIndex } from './define';
@@ -34,7 +34,7 @@ export class RenderInstancedQueue {
         this.queue.clear();
     }
 
-    public uploadBuffers (cmdBuff: GFXCommandBuffer) {
+    public uploadBuffers (cmdBuff: CommandBuffer) {
         const it = this.queue.values(); let res = it.next();
         while (!res.done) {
             if (res.value.hasPendingModels) res.value.uploadBuffers(cmdBuff);
@@ -47,18 +47,18 @@ export class RenderInstancedQueue {
      * @zh 记录命令缓冲。
      * @param cmdBuff The command buffer to store the result
      */
-    public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
+    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         const it = this.queue.values(); let res = it.next();
         while (!res.done) {
-            const { instances, hPass, hasPendingModels } = res.value;
+            const { instances, pass, hasPendingModels } = res.value;
             if (hasPendingModels) {
-                cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET)));
-                let lastPSO: GFXPipelineState | null = null;
+                cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
+                let lastPSO: PipelineState | null = null;
                 for (let b = 0; b < instances.length; ++b) {
                     const instance = instances[b];
                     if (!instance.count) { continue; }
                     const shader = ShaderPool.get(instance.hShader);
-                    const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, instance.ia);
+                    const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, instance.ia);
                     if (lastPSO !== pso) {
                         cmdBuff.bindPipelineState(pso);
                         lastPSO = pso;

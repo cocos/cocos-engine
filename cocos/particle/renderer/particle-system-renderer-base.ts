@@ -1,4 +1,5 @@
-import { Component, GFXAttribute } from '../../core';
+import { Component } from '../../core';
+import { Attribute } from '../../core/gfx';
 import ParticleBatchModel from '../models/particle-batch-model';
 import ParticleSystemRenderer from './particle-system-renderer-data';
 import { Material } from '../../core/assets';
@@ -33,7 +34,7 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
     protected _particleSystem: any = null;
     protected _model: ParticleBatchModel | null = null;
     protected _renderInfo: ParticleSystemRenderer | null = null;
-    protected _vertAttrs: GFXAttribute[] = [];
+    protected _vertAttrs: Attribute[] = [];
 
     constructor (info: ParticleSystemRenderer) {
         this._renderInfo = info;

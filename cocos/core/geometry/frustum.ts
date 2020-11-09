@@ -24,7 +24,7 @@ _v[7] = new Vec3(1, -1, -1);
  * @zh
  * 基础几何 截头锥体。
  */
-// tslint:disable-next-line: class-name
+
 export class frustum {
 
     /**

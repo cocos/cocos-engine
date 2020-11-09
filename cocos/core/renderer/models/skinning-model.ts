@@ -32,14 +32,14 @@ import { Material } from '../../assets/material';
 import { Mesh, RenderingSubMesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
-import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
+import { BufferUsageBit, MemoryUsageBit } from '../../gfx/define';
 import { Mat4, Vec3 } from '../../math';
 import { UBOSkinning } from '../../pipeline/define';
 import { Node } from '../../scene-graph/node';
 import { ModelType } from '../scene/model';
 import { uploadJointData } from './skeletal-animation-utils';
 import { MorphModel } from './morph-model';
-import { GFXDescriptorSet, GFXBuffer, GFXBufferInfo } from '../../gfx';
+import { DescriptorSet, Buffer, BufferInfo } from '../../gfx';
 
 export interface IJointTransform {
     node: Node;
@@ -151,7 +151,7 @@ export class SkinningModel extends MorphModel {
 
     public uploadAnimation = null;
 
-    private _buffers: GFXBuffer[] = [];
+    private _buffers: Buffer[] = [];
     private _dataArray: Float32Array[] = [];
     private _joints: IJointInfo[] = [];
     private _bufferIndices: number[] | null = null;
@@ -199,7 +199,7 @@ export class SkinningModel extends MorphModel {
 
     public updateTransform (stamp: number) {
         const root = this.transform!;
-        // @ts-ignore TS2445
+        // @ts-expect-error TS2445
         if (root.hasChangedFlags || root._dirtyFlags) {
             root.updateWorldTransform();
             this._transformUpdated = true;
@@ -217,7 +217,7 @@ export class SkinningModel extends MorphModel {
         }
         if (this._modelBounds && this._worldBounds) {
             aabb.fromPoints(this._modelBounds, v3_min, v3_max);
-            // @ts-ignore TS2445
+            // @ts-expect-error TS2445
             this._modelBounds.transform(root._mat, root._pos, root._rot, root._scale, this._worldBounds);
         }
     }
@@ -254,7 +254,7 @@ export class SkinningModel extends MorphModel {
         }
     }
 
-    public _updateLocalDescriptors (submodelIdx: number, descriptorSet: GFXDescriptorSet) {
+    public _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet) {
         super._updateLocalDescriptors(submodelIdx, descriptorSet);
         const buffer = this._buffers[this._bufferIndices![submodelIdx]];
         if (buffer) { descriptorSet.bindBuffer(UBOSkinning.BINDING, buffer); }
@@ -263,9 +263,9 @@ export class SkinningModel extends MorphModel {
     private _ensureEnoughBuffers (count: number) {
         for (let i = 0; i < count; i++) {
             if (!this._buffers[i]) {
-                this._buffers[i] = this._device.createBuffer(new GFXBufferInfo(
-                    GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                    GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                this._buffers[i] = this._device.createBuffer(new BufferInfo(
+                    BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+                    MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
                     UBOSkinning.SIZE,
                     UBOSkinning.SIZE,
                 ));

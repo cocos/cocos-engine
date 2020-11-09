@@ -24,6 +24,7 @@ import tsConfigPaths from './ts-paths';
 import JSON5 from 'json5';
 import { getPlatformConstantNames, IBuildTimeConstants } from './build-time-constants';
 import removeDeprecatedFeatures from './remove-deprecated-features';
+import babelPluginDynamicImportVars from '@cocos/babel-plugin-dynamic-import-vars';
 
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
 
@@ -42,7 +43,9 @@ async function build (options: build.Options) {
         moduleEntries = options.moduleEntries;
     }
 
-    _ensureUniqueModules(options);
+    if (moduleEntries) {
+        moduleEntries = Array.from(new Set(moduleEntries));
+    }
 
     return await _doBuild({
         moduleEntries,
@@ -160,16 +163,6 @@ namespace build {
 
 export { build };
 
-function _ensureUniqueModules (options: build.Options) {
-    const uniqueModuleEntries: string[] = [];
-    for (const moduleEntry of options.moduleEntries!) {
-        if (uniqueModuleEntries.indexOf(moduleEntry) < 0) {
-            uniqueModuleEntries.push(moduleEntry);
-        }
-    }
-    options.moduleEntries = uniqueModuleEntries;
-}
-
 async function getEngineEntries (
     engine: string,
     moduleEntries?: string[],
@@ -272,9 +265,21 @@ async function _doBuild ({
         }]);
     }
 
+    babelPlugins.push(
+        [babelPluginDynamicImportVars, {
+            resolve: {
+                forwardExt: 'resolved',
+            },
+        }],
+    );
+
     const babelOptions: RollupBabelInputPluginOptions = {
         babelHelpers: 'bundled',
         extensions: ['.js', '.ts'],
+        exclude: [
+            /node_modules[\/\\]@cocos[\/\\]ammo/g,
+            /node_modules[\/\\]@cocos[\/\\]cannon/g,
+        ],
         highlightCode: true,
         plugins: babelPlugins,
         presets: [
@@ -343,8 +348,14 @@ async function _doBuild ({
 
     if (doUglify) { // TODO: tree-shaking not clear!
         rollupPlugins.push(rpTerser({
+            // see https://github.com/terser/terser#compress-options
             compress: {
-                reduce_funcs: false // reduce_funcs not suitable for ammo.js
+                reduce_funcs: false, // reduce_funcs not suitable for ammo.js
+                keep_fargs: false,
+                unsafe_Function: true,
+                unsafe_math: true,
+                unsafe_methods: true,
+                passes: 2,  // first: remove deadcodes and const objects, second: drop variables
             },
             mangle: doUglify,
             keep_fnames: !doUglify,

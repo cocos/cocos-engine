@@ -1,7 +1,8 @@
 
 const { cc, dgui } = window;
-const { Camera, Component, DirectionalLight, GFXBlendFactor, Scene,
+const { Camera, Component, DirectionalLight, Scene,
   SphereCollider, Material, MeshRenderer, Node } = cc;
+const { BlendFactor } = cc.gfx;
 const { Color, randomRange, toRadian, Vec3, Vec4 } = cc.math;
 const { sphere, capsule } = cc.primitives;
 const { createMesh } = cc.utils;
@@ -90,9 +91,9 @@ class Emitter {
           states: {
             blendState: { targets: [{
               blend: true,
-              blendSrc: GFXBlendFactor.SRC_ALPHA,
-              blendDst: GFXBlendFactor.ONE_MINUS_SRC_ALPHA,
-              blendDstAlpha: GFXBlendFactor.ONE_MINUS_SRC_ALPHA,
+              blendSrc: BlendFactor.SRC_ALPHA,
+              blendDst: BlendFactor.ONE_MINUS_SRC_ALPHA,
+              blendDstAlpha: BlendFactor.ONE_MINUS_SRC_ALPHA,
             }] },
             depthStencilState: { depthTest: false },
           }

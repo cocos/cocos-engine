@@ -28,5 +28,7 @@ export { UIOpacity } from './ui-opacity';
 export { SafeArea } from './safe-area';
 export { UICoordinateTracker } from './ui-coodinate-tracker';
 export { BlockInputEvents } from './block-input-events';
+export { LabelShadow } from './label-shadow';
+export { SubContextView } from './SubContextView';
 
 export { widgetManager } from './widget-manager';

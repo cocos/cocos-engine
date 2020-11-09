@@ -24,10 +24,10 @@
  ****************************************************************************/
 import { Vec2, Vec3, Color } from '../core/math';
 import Pool from '../core/utils/pool';
-import { ParticleSystem2D, EmitterMode, PositionType } from './particle-system-2d';
 import { clampf, degreesToRadians, radiansToDegrees } from '../core/utils/misc';
 import { director } from '../core/director';
 import { vfmtPosUvColor, getAttributeFormatBytes } from '../core/renderer/ui/ui-vertex-format';
+import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
 
 const ZERO_VEC2 = new Vec2(0, 0);
 const _pos = new Vec2();
@@ -106,12 +106,13 @@ export class Simulator {
     public active = false;
     public uvFilled = 0;
     public finished = false;
-
-    private declare sys: ParticleSystem2D;
+    public declare renderData;
     private readyToPlay = true;
     private elapsed = 0;
     private emitCounter = 0;
     private _worldRotation = 0;
+    private declare sys;
+
     constructor (system) {
         this.sys = system;
         this.particles = [];
@@ -181,7 +182,7 @@ export class Simulator {
         let startS = psys.startSize + psys.startSizeVar * (Math.random() - 0.5) * 2;
         startS = Math.max(0, startS); // No negative value
         particle.size = startS;
-        if (psys.endSize === ParticleSystem2D.START_SIZE_EQUAL_TO_END_SIZE) {
+        if (psys.endSize === START_SIZE_EQUAL_TO_END_SIZE) {
             particle.deltaSize = 0;
         } else {
             let endS = psys.endSize + psys.endSizeVar * (Math.random() - 0.5) * 2;
@@ -226,19 +227,14 @@ export class Simulator {
             const startRadius = psys.startRadius + psys.startRadiusVar * (Math.random() - 0.5) * 2;
             const endRadius = psys.endRadius + psys.endRadiusVar * (Math.random() - 0.5) * 2;
             particle.radius = startRadius;
-            particle.deltaRadius = (psys.endRadius === ParticleSystem2D.START_RADIUS_EQUAL_TO_END_RADIUS) ? 0 : (endRadius - startRadius) / timeToLive;
+            particle.deltaRadius = (psys.endRadius === START_RADIUS_EQUAL_TO_END_RADIUS) ? 0 : (endRadius - startRadius) / timeToLive;
             particle.angle = a;
             particle.degreesPerSecond = degreesToRadians(psys.rotatePerS + psys.rotatePerSVar * (Math.random() - 0.5) * 2);
         }
     };
 
     public updateUVs (force?: boolean) {
-        const assembler = this.sys.assembler;
-        if (!assembler) {
-            return;
-        }
-
-        const renderData = assembler.renderData;
+        const renderData = this.renderData;
         if (renderData && this.sys._renderSpriteFrame) {
             const vbuf = renderData.vData;
             const uv = this.sys._renderSpriteFrame.uv;
@@ -324,12 +320,11 @@ export class Simulator {
     };
 
     public step (dt) {
-        dt = dt > director._maxParticleDeltaTime ? director._maxParticleDeltaTime : dt;
+        const assembler = this.sys.assembler;
         const psys = this.sys;
         const node = psys.node;
         const particles = this.particles;
-        const assembler = this.sys.assembler!;
-
+        dt = dt > assembler.maxParticleDeltaTime ? assembler.maxParticleDeltaTime : dt;
         // Calculate pos
         node.updateWorldTransform();
         if (psys.positionType === PositionType.FREE) {
@@ -364,10 +359,10 @@ export class Simulator {
         }
 
         // Request buffer for particles
-        const renderData = assembler.renderData;
+        const renderData = this.renderData;
         const particleCount = particles.length;
-        assembler.reset();
-        assembler.requestData(particleCount * formatBytes, particleCount * 6);
+        renderData.reset();
+        this.requestData(particleCount * 4, particleCount * 6);
 
         // Fill up uvs
         if (particleCount > this.uvFilled) {
@@ -469,6 +464,22 @@ export class Simulator {
         else if (!this.active && !this.readyToPlay) {
             this.finished = true;
             psys._finishedSimulation();
+        }
+    }
+
+    requestData (vertexCount: number, indicesCount: number) {
+        let offset = this.renderData.indicesCount;
+        this.renderData.request(vertexCount, indicesCount);
+        const count = this.renderData.indicesCount / 6;
+        const buffer = this.renderData.iData;
+        for (let i = offset; i < count; i++) {
+            const vId = i * 4;
+            buffer[offset++] = vId;
+            buffer[offset++] = vId + 1;
+            buffer[offset++] = vId + 2;
+            buffer[offset++] = vId + 1;
+            buffer[offset++] = vId + 3;
+            buffer[offset++] = vId + 2;
         }
     }
 }

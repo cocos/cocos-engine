@@ -1,14 +1,14 @@
 
 import { Mesh } from '../../assets/mesh';
-import { GFXAttributeName, GFXFormat, GFXFormatInfos } from '../../gfx/define';
+import { AttributeName, Format, FormatInfos } from '../../gfx/define';
 import { IGeometry } from '../../primitive/define';
 import { readBuffer } from './buffer';
 
 enum _keyMap {
-    positions = GFXAttributeName.ATTR_POSITION,
-    normals = GFXAttributeName.ATTR_NORMAL,
-    uvs = GFXAttributeName.ATTR_TEX_COORD,
-    colors = GFXAttributeName.ATTR_COLOR,
+    positions = AttributeName.ATTR_POSITION,
+    normals = AttributeName.ATTR_NORMAL,
+    uvs = AttributeName.ATTR_TEX_COORD,
+    colors = AttributeName.ATTR_COLOR,
 }
 
 export function readMesh (mesh: Mesh, iPrimitive: number = 0) {
@@ -21,12 +21,12 @@ export function readMesh (mesh: Mesh, iPrimitive: number = 0) {
         let offset = bundle.view.offset;
         const { length, stride } = bundle.view;
         for (const attr of bundle.attributes) {
-            const name: GFXAttributeName = _keyMap[attr.name];
+            const name: AttributeName = _keyMap[attr.name];
             if (name) { out[name] = (out[name] || []).concat(readBuffer(dataView, attr.format, offset, length, stride)); }
-            offset += GFXFormatInfos[attr.format].size;
+            offset += FormatInfos[attr.format].size;
         }
     }
     const view = primitive.indexView!;
-    out.indices = readBuffer(dataView, GFXFormat[`R${view.stride * 8}UI`], view.offset, view.length);
+    out.indices = readBuffer(dataView, Format[`R${view.stride * 8}UI`], view.offset, view.length);
     return out;
 }

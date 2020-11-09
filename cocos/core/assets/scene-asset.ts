@@ -50,7 +50,7 @@ export default class SceneAsset extends Asset {
     public scene: Scene | null = null;
 
     /**
-     * @en Indicates the raw assets of this scene can be load after scene launched.
+     * @en Indicates the native assets of this scene can be load after scene launched.
      * @zh 指示该场景依赖的资源可否在场景切换后再延迟加载。
      * @default false
      */

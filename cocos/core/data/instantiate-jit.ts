@@ -39,9 +39,7 @@ import {flattenCodeArray} from './utils/compiler';
 import { TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 
-// @ts-ignore
 const Destroyed = CCObject.Flags.Destroyed;
-// @ts-ignore
 const PersistentMask = CCObject.Flags.PersistentMask;
 const DEFAULT = Attr.DELIMETER + 'default';
 const IDENTIFIER_RE = CCClass.IDENTIFIER_RE;
@@ -139,7 +137,7 @@ class Assignments {
         else {
             return;
         }
-        // tslint:disable: prefer-for-of
+
         for (let i = 0; i < this._exps.length; i++) {
             const pair = this._exps[i];
             writeAssignment(codeArray, targetVar + getPropAccessor(pair[0]) + '=', pair[1]);
@@ -151,7 +149,7 @@ Assignments.pool = new js.Pool((obj: any) => {
                                 obj._exps.length = 0;
                                 obj._targetExp = null;
                             }, 1);
-// @ts-ignore
+// @ts-expect-error
 Assignments.pool.get = function (targetExpression) {
     const cache: any = this._get() || new Assignments();
     cache._targetExp = targetExpression;
@@ -296,8 +294,8 @@ class Parser {
     }
 
     public setValueType (codeArray, defaultValue, srcValue, targetExpression) {
-        // @ts-ignore
-        const assignments: any = Assignments.pool.get!(targetExpression);
+        // @ts-expect-error
+        const assignments: any = Assignments.pool.get(targetExpression);
         let fastDefinedProps = defaultValue.constructor.__props__;
         if (!fastDefinedProps) {
             fastDefinedProps = Object.keys(defaultValue);
@@ -363,7 +361,7 @@ class Parser {
     }
 
     public instantiateTypedArray (value) {
-        let type = value.constructor.name;
+        const type = value.constructor.name;
         if (value.length === 0) {
             return 'new ' + type;
         }
@@ -531,7 +529,7 @@ class Parser {
     }
 }
 
-export function equalsToDefault (def, value) {
+export function equalsToDefault (def: any, value: any) {
     if (typeof def === 'function') {
         try {
             def = def();
@@ -543,18 +541,20 @@ export function equalsToDefault (def, value) {
     if (def === value) {
         return true;
     }
-    if (def && value) {
-        if (def instanceof legacyCC.ValueType && def.equals(value)) {
-            return true;
+    if (def && value &&
+        typeof def === 'object' && typeof value === 'object' &&
+        def.constructor === value.constructor
+    ) {
+        if (def instanceof legacyCC.ValueType) {
+            if (def.equals(value)) {
+                return true;
+            }
         }
-        if ((Array.isArray(def) && Array.isArray(value)) ||
-            (def.constructor === Object && value.constructor === Object)
-        ) {
-            try {
-                return Array.isArray(def) && Array.isArray(value) && def.length === 0 && value.length === 0;
-            }
-            catch (e) {
-            }
+        else if (Array.isArray(def)) {
+            return def.length === 0 && value.length === 0;
+        }
+        else if (def.constructor === Object) {
+            return js.isEmptyObject(def) && js.isEmptyObject(value);
         }
     }
     return false;

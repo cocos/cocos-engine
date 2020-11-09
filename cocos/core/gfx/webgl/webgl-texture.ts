@@ -1,10 +1,10 @@
-import { GFXTextureFlagBit, GFXFormatSurfaceSize } from '../define';
-import { GFXTexture, GFXTextureInfo, GFXTextureViewInfo, IsPowerOf2 } from '../texture';
+import { TextureFlagBit, FormatSurfaceSize } from '../define';
+import { Texture, TextureInfo, TextureViewInfo, IsPowerOf2 } from '../texture';
 import { WebGLCmdFuncCreateTexture, WebGLCmdFuncDestroyTexture, WebGLCmdFuncResizeTexture } from './webgl-commands';
 import { WebGLDevice } from './webgl-device';
 import { IWebGLGPUTexture } from './webgl-gpu-objects';
 
-export class WebGLTexture extends GFXTexture {
+export class WebGLTexture extends Texture {
 
     get gpuTexture (): IWebGLGPUTexture {
         return  this._gpuTexture!;
@@ -12,7 +12,7 @@ export class WebGLTexture extends GFXTexture {
 
     private _gpuTexture: IWebGLGPUTexture | null = null;
 
-    public initialize (info: GFXTextureInfo | GFXTextureViewInfo): boolean {
+    public initialize (info: TextureInfo | TextureViewInfo): boolean {
         if ('texture' in info) {
             console.log('WebGL does not support texture view.');
             return false;
@@ -29,10 +29,10 @@ export class WebGLTexture extends GFXTexture {
         this._samples = info.samples;
         this._flags = info.flags;
         this._isPowerOf2 = IsPowerOf2(this._width) && IsPowerOf2(this._height);
-        this._size = GFXFormatSurfaceSize(this._format, this.width, this.height,
+        this._size = FormatSurfaceSize(this._format, this.width, this.height,
             this.depth, this._levelCount) * this._layerCount;
 
-        if (this._flags & GFXTextureFlagBit.BAKUP_BUFFER) {
+        if (this._flags & TextureFlagBit.BAKUP_BUFFER) {
             this._buffer = new ArrayBuffer(this._size);
         }
 
@@ -84,7 +84,7 @@ export class WebGLTexture extends GFXTexture {
         const oldSize = this._size;
         this._width = width;
         this._height = height;
-        this._size = GFXFormatSurfaceSize(this._format, this.width, this.height,
+        this._size = FormatSurfaceSize(this._format, this.width, this.height,
             this.depth, this._levelCount) * this._layerCount;
 
         if (this._gpuTexture) {

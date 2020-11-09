@@ -5,16 +5,16 @@
 
 import { CCString } from '../data/utils/attribute';
 import { ccclass, type, serializable, editable } from 'cc.decorator';
-import { GFXFormat, GFXLoadOp, GFXStoreOp, GFXTextureLayout, GFXTextureType, GFXTextureUsageBit} from '../gfx/define';
+import { Format, LoadOp, StoreOp, TextureLayout, TextureType, TextureUsageBit} from '../gfx/define';
 import { ccenum } from '../value-types/enum';
 import { RenderTexture } from './../assets/render-texture';
 import { Material } from '../assets/material';
 
-ccenum(GFXTextureType);
-ccenum(GFXTextureUsageBit);
-ccenum(GFXStoreOp);
-ccenum(GFXLoadOp);
-ccenum(GFXTextureLayout);
+ccenum(TextureType);
+ccenum(TextureUsageBit);
+ccenum(StoreOp);
+ccenum(LoadOp);
+ccenum(TextureLayout);
 
 /**
  * @en The tag of the render flow, including SCENE, POSTPROCESS and UI.
@@ -33,12 +33,12 @@ export class RenderTextureDesc {
     @serializable
     @editable
     public name: string = '';
-    @type(GFXTextureType)
-    public type: GFXTextureType = GFXTextureType.TEX2D;
-    @type(GFXTextureUsageBit)
-    public usage: GFXTextureUsageBit = GFXTextureUsageBit.COLOR_ATTACHMENT;
-    @type(GFXFormat)
-    public format: GFXFormat = GFXFormat.UNKNOWN;
+    @type(TextureType)
+    public type: TextureType = TextureType.TEX2D;
+    @type(TextureUsageBit)
+    public usage: TextureUsageBit = TextureUsageBit.COLOR_ATTACHMENT;
+    @type(Format)
+    public format: Format = Format.UNKNOWN;
     @serializable
     @editable
     public width: number = -1;
@@ -84,40 +84,40 @@ export class FrameBufferDesc {
 
 @ccclass('ColorDesc')
 export class ColorDesc {
-    @type(GFXFormat)
-    public format: GFXFormat = GFXFormat.UNKNOWN;
-    @type(GFXLoadOp)
-    public loadOp: GFXLoadOp = GFXLoadOp.CLEAR;
-    @type(GFXStoreOp)
-    public storeOp: GFXStoreOp = GFXStoreOp.STORE;
+    @type(Format)
+    public format: Format = Format.UNKNOWN;
+    @type(LoadOp)
+    public loadOp: LoadOp = LoadOp.CLEAR;
+    @type(StoreOp)
+    public storeOp: StoreOp = StoreOp.STORE;
     @serializable
     @editable
     public sampleCount: number = 1;
-    @type(GFXTextureLayout)
-    public beginLayout: GFXTextureLayout = GFXTextureLayout.UNDEFINED;
-    @type(GFXTextureLayout)
-    public endLayout: GFXTextureLayout = GFXTextureLayout.PRESENT_SRC;
+    @type(TextureLayout)
+    public beginLayout: TextureLayout = TextureLayout.UNDEFINED;
+    @type(TextureLayout)
+    public endLayout: TextureLayout = TextureLayout.PRESENT_SRC;
 }
 
 @ccclass('DepthStencilDesc')
 export class DepthStencilDesc {
-    @type(GFXFormat)
-    public format: GFXFormat = GFXFormat.UNKNOWN;
-    @type(GFXLoadOp)
-    public depthLoadOp: GFXLoadOp = GFXLoadOp.CLEAR;
-    @type(GFXStoreOp)
-    public depthStoreOp: GFXStoreOp = GFXStoreOp.STORE;
-    @type(GFXLoadOp)
-    public stencilLoadOp: GFXLoadOp = GFXLoadOp.CLEAR;
-    @type(GFXStoreOp)
-    public stencilStoreOp: GFXStoreOp = GFXStoreOp.STORE;
+    @type(Format)
+    public format: Format = Format.UNKNOWN;
+    @type(LoadOp)
+    public depthLoadOp: LoadOp = LoadOp.CLEAR;
+    @type(StoreOp)
+    public depthStoreOp: StoreOp = StoreOp.STORE;
+    @type(LoadOp)
+    public stencilLoadOp: LoadOp = LoadOp.CLEAR;
+    @type(StoreOp)
+    public stencilStoreOp: StoreOp = StoreOp.STORE;
     @serializable
     @editable
     public sampleCount: number = 1;
-    @type(GFXTextureLayout)
-    public beginLayout: GFXTextureLayout = GFXTextureLayout.UNDEFINED;
-    @type(GFXTextureLayout)
-    public endLayout: GFXTextureLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    @type(TextureLayout)
+    public beginLayout: TextureLayout = TextureLayout.UNDEFINED;
+    @type(TextureLayout)
+    public endLayout: TextureLayout = TextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 }
 
 @ccclass('RenderPassDesc')

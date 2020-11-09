@@ -26,8 +26,21 @@ import { createShape } from '../../instance';
 @ccclass('cc.Collider')
 export class Collider extends Eventify(Component) {
 
-    static readonly EColliderType = EColliderType;
-    static readonly EAxisDirection = EAxisDirection;
+    /**
+     * @en
+     * Enumeration of collider types.
+     * @zh
+     * 碰撞体类型的枚举。
+     */
+    static readonly Type = EColliderType;
+    
+    /**
+     * @en
+     * Enumeration of axes.
+     * @zh
+     * 坐标轴方向的枚举。
+     */
+    static readonly Axis = EAxisDirection;
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -200,13 +213,6 @@ export class Collider extends Eventify(Component) {
         return !r;
     }
 
-    protected get _assertUseCollisionMatrix (): boolean {
-        if (PhysicsSystem.instance.useCollisionMatrix) {
-            error('[Physics]: useCollisionMatrix is turn on, using collision matrix instead please.');
-        }
-        return PhysicsSystem.instance.useCollisionMatrix;
-    }
-
     constructor (type: EColliderType) {
         super();
         this.TYPE = type;
@@ -296,17 +302,7 @@ export class Collider extends Eventify(Component) {
      */
     public setGroup (v: number): void {
         if (this._assertOnLoadCalled) {
-            if (PhysicsSystem.instance.useCollisionMatrix) {
-                const body = this._shape!.attachedRigidBody;
-                if (body) {
-                    body.group = v;
-                } else {
-                    this._shape!.setGroup(v);
-                    this._updateMask();
-                }
-            } else {
-                this._shape!.setGroup(v);
-            }
+            this._shape!.setGroup(v);
         }
     }
 
@@ -319,17 +315,7 @@ export class Collider extends Eventify(Component) {
      */
     public addGroup (v: number) {
         if (this._assertOnLoadCalled) {
-            if (!this._assertUseCollisionMatrix) {
-                this._shape!.addGroup(v);
-            } else {
-                const body = this._shape!.attachedRigidBody;
-                if (body) {
-                    body.group |= v;
-                } else {
-                    this._shape!.addGroup(v);
-                    this._updateMask();
-                }
-            }
+            this._shape!.addGroup(v);
         }
     }
 
@@ -342,17 +328,7 @@ export class Collider extends Eventify(Component) {
      */
     public removeGroup (v: number) {
         if (this._assertOnLoadCalled) {
-            if (!this._assertUseCollisionMatrix) {
-                this._shape!.removeGroup(v);
-            } else {
-                const body = this._shape!.attachedRigidBody;
-                if (body) {
-                    body.group &= ~v;
-                } else {
-                    this._shape!.removeGroup(v);
-                    this._updateMask();
-                }
-            }
+            this._shape!.removeGroup(v);
         }
     }
 
@@ -378,7 +354,7 @@ export class Collider extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public setMask (v: number) {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+        if (this._assertOnLoadCalled) {
             this._shape!.setMask(v);
         }
     }
@@ -391,7 +367,7 @@ export class Collider extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addMask (v: number) {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+        if (this._assertOnLoadCalled) {
             this._shape!.addMask(v);
         }
     }
@@ -404,7 +380,7 @@ export class Collider extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeMask (v: number) {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+        if (this._assertOnLoadCalled) {
             this._shape!.removeMask(v);
         }
     }
@@ -454,27 +430,25 @@ export class Collider extends Eventify(Component) {
             if (type !== undefined) {
                 if (type == 'onCollisionEnter' || type == 'onCollisionStay' || type == 'onCollisionExit') {
                     this._needCollisionEvent = true;
-                } else if (type == 'onTriggerEnter' || type == 'onTriggerStay' || type == 'onTriggerExit') {
+                }
+                if (type == 'onTriggerEnter' || type == 'onTriggerStay' || type == 'onTriggerExit') {
                     this._needTriggerEvent = true;
                 }
             } else {
                 if (!(this.hasEventListener('onTriggerEnter') || this.hasEventListener('onTriggerStay') || this.hasEventListener('onTriggerExit'))) {
                     this._needTriggerEvent = false;
-                } else if (!(this.hasEventListener('onCollisionEnter') || this.hasEventListener('onCollisionStay') || this.hasEventListener('onCollisionExit'))) {
+                }
+                if (!(this.hasEventListener('onCollisionEnter') || this.hasEventListener('onCollisionStay') || this.hasEventListener('onCollisionExit'))) {
                     this._needCollisionEvent = false;
                 }
             }
         }
     }
-
-    private _updateMask () {
-        this._shape!.setMask(PhysicsSystem.instance.collisionMatrix[this._shape!.getGroup()]);
-    }
 }
 
 export namespace Collider {
-    export type EColliderType = EnumAlias<typeof EColliderType>;
-    export type EAxisDirection = EnumAlias<typeof EAxisDirection>;
+    export type Type = EnumAlias<typeof EColliderType>;
+    export type Axis = EnumAlias<typeof EAxisDirection>;
 }
 
 function findAttachedBody (node: Node): RigidBody | null {
@@ -482,7 +456,8 @@ function findAttachedBody (node: Node): RigidBody | null {
     if (rb && rb.isValid) {
         return rb;
     } else {
-        if (node.parent == null || node.parent == node.scene) return null;
-        return findAttachedBody(node.parent);
+        return null;
+        // if (node.parent == null || node.parent == node.scene) return null;
+        // return findAttachedBody(node.parent);
     }
 }

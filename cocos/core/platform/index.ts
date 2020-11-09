@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -28,6 +28,8 @@
  * @hidden
  */
 
+import './deprecated';
+
 export * from './sys';
 export * from './macro';
 export * from './visible-rect';
@@ -44,7 +46,8 @@ export {
     assertID,
     isDisplayStats,
     setDisplayStats,
+    getError,
+    DebugMode,
 } from './debug';
 
 export { screen } from './screen';
-export { SubContextView } from './SubContextView';

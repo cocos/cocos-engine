@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -28,85 +28,22 @@
  * @hidden
  */
 
-import { BitmapFont, IConfig } from '../../../core/assets/bitmap-font';
+import { BitmapFont, IConfig, FontLetterDefinition } from '../../../core/assets/bitmap-font';
 import { SpriteFrame } from '../../../core/assets/sprite-frame';
 import { isUnicodeCJK, isUnicodeSpace } from '../../../core/utils/text-utils';
 import { Rect, Size, Vec2 } from '../../../core/math';
 import { HorizontalTextAlignment, VerticalTextAlignment } from '../../components/label';
 import { Label, Overflow } from '../../components/label';
-import { js } from '../../../core/utils';
 import { UITransform } from '../../../core/components/ui-base/ui-transform';
-import { legacyCC } from '../../../core/global-exports';
-
-class FontLetterDefinition {
-    public u = 0;
-    public v = 0;
-    public width = 0;
-    public height = 0;
-    public offsetX = 0;
-    public offsetY = 0;
-    public textureID = 0;
-    public validDefinition = false;
-    public xAdvance = 0;
-}
-
-interface ILetterDefinition {
-    [key: string]: FontLetterDefinition;
-}
-
-export class FontAtlas {
-    get letterDefinitions (){
-        return this._letterDefinitions;
-    }
-
-    private _letterDefinitions: ILetterDefinition = {};
-
-    public addLetterDefinitions (letter: string, letterDefinition: FontLetterDefinition) {
-        this._letterDefinitions[letter] = letterDefinition;
-    }
-
-    public cloneLetterDefinition () {
-        const copyLetterDefinitions: ILetterDefinition = {};
-        for (const key of Object.keys(this._letterDefinitions)) {
-            const value = new FontLetterDefinition();
-            js.mixin(value, this._letterDefinitions[key]);
-            copyLetterDefinitions[key] = value;
-        }
-        return copyLetterDefinitions;
-    }
-
-    public assignLetterDefinitions (letterDefinition: ILetterDefinition) {
-        for (const key of Object.keys(this._letterDefinitions)) {
-            const newValue = letterDefinition[key];
-            const oldValue = this._letterDefinitions[key];
-            js.mixin(oldValue, newValue);
-        }
-    }
-
-    public scaleFontLetterDefinition (scaleFactor: number) {
-        for (const fontDefinition of Object.keys(this._letterDefinitions)) {
-            const letterDefinitions = this._letterDefinitions[fontDefinition];
-            letterDefinitions.width *= scaleFactor;
-            letterDefinitions.height *= scaleFactor;
-            letterDefinitions.offsetX *= scaleFactor;
-            letterDefinitions.offsetY *= scaleFactor;
-            letterDefinitions.xAdvance *= scaleFactor;
-        }
-    }
-
-    public getLetterDefinitionForChar (char: string) {
-        return this._letterDefinitions[char.charCodeAt(0)];
-    }
-}
-
-legacyCC.FontAtlas = FontAtlas;
+import { shareLabelInfo } from './font-utils';
 
 class LetterInfo {
     public char = '';
     public valid = true;
-    public positionX = 0;
-    public positionY = 0;
-    public lineIndex = 0;
+    public x = 0;
+    public y = 0;
+    public line = 0;
+    public hash = '';
 }
 
 const _tmpRect = new Rect();
@@ -119,8 +56,11 @@ const _lettersInfo: LetterInfo[] = [];
 const _linesWidth: number[] = [];
 const _linesOffsetX: number[] = [];
 const _labelDimensions = new Size();
+const _lineBreakWithoutSpaces = false;
+const _contentSize = new Size();
+const letterPosition = new Vec2();
+const _lineSpacing = 0;
 
-let _fontAtlas: FontAtlas | null = null;
 let _fntConfig: IConfig | null = null;
 let _numberOfLines = 0;
 let _textDesiredHeight = 0;
@@ -128,13 +68,10 @@ let _letterOffsetY = 0;
 let _tailoredTopY = 0;
 let _tailoredBottomY = 0;
 let _bmfontScale = 1.0;
-const _lineBreakWithoutSpaces = false;
 let _spriteFrame: SpriteFrame|null = null;
-const _lineSpacing = 0;
 let _string = '';
 let _fontSize = 0;
 let _originFontSize = 0;
-const _contentSize = new Size();
 let _hAlign = 0;
 let _vAlign = 0;
 let _spacingX = 0;
@@ -155,8 +92,9 @@ export const bmfontUtils = {
 
         _comp = comp;
         _uiTrans = _comp.node._uiProps.uiTransformComp!;
-
-        this._updateProperties();
+        this._updateFontFamily(comp);
+        this._updateProperties(comp);
+        this._updateLabelInfo(comp);
         this._updateContent();
 
         _comp.actualFontSize = _fontSize;
@@ -173,77 +111,58 @@ export const bmfontUtils = {
         _bmfontScale = _fontSize / _originFontSize;
     },
 
-    _updateProperties () {
-        if (!_comp){
-            return;
-        }
-
-        const fontAsset = _comp.font as BitmapFont;
-        if (!fontAsset) {
-            return;
-        }
-
+    _updateFontFamily (comp) {
+        const fontAsset = comp.font;
         _spriteFrame = fontAsset.spriteFrame;
-        _fntConfig = fontAsset.fntConfig!;
+        _fntConfig = fontAsset.fntConfig;
+        shareLabelInfo.fontAtlas = fontAsset.fontDefDictionary;
+    },
 
-        _fontAtlas = _comp.fontAtlas;
-        if (!_fontAtlas) {
-            _fontAtlas = new FontAtlas();
+    _updateLabelInfo (comp) {
+        // clear
+        shareLabelInfo.hash = "";
+        shareLabelInfo.margin = 0;
+    },
 
-            const fontDict = _fntConfig.fontDefDictionary;
+    _updateProperties (comp) {
+        _string = comp.string.toString();
+        _fontSize = comp.fontSize;
+        _originFontSize = _fntConfig ? _fntConfig.fontSize : comp.fontSize;
+        _hAlign = comp.horizontalAlign;
+        _vAlign = comp.verticalAlign;
+        _spacingX = comp.spacingX;
+        _overflow = comp.overflow;
+        _lineHeight = comp._lineHeight;
 
-            for (const fontDef of Object.keys(fontDict) ) {
-                const letterDefinition = new FontLetterDefinition();
-
-                const rect = fontDict[fontDef].rect;
-
-                letterDefinition.offsetX = fontDict[fontDef].xOffset;
-                letterDefinition.offsetY = fontDict[fontDef].yOffset;
-                letterDefinition.width = rect.width;
-                letterDefinition.height = rect.height;
-                letterDefinition.u = rect.x;
-                letterDefinition.v = rect.y;
-                // FIXME: only one texture supported for now
-                letterDefinition.textureID = 0;
-                letterDefinition.validDefinition = true;
-                letterDefinition.xAdvance = fontDict[fontDef].xAdvance;
-
-                _fontAtlas.addLetterDefinitions(fontDef, letterDefinition);
-            }
-
-            _comp.fontAtlas = _fontAtlas;
-        }
-
-        _string = _comp.string.toString();
-        _fontSize = _comp.fontSize;
-        _originFontSize = _fntConfig.fontSize;
         const contentSize = _uiTrans!.contentSize;
         _contentSize.width = contentSize.width;
         _contentSize.height = contentSize.height;
-        _hAlign = _comp.horizontalAlign;
-        _vAlign = _comp.verticalAlign;
-        _spacingX = _comp.spacingX;
-        _overflow = _comp.overflow;
-        _lineHeight = _comp.lineHeight;
 
         // should wrap text
         if (_overflow === Overflow.NONE) {
             _isWrapText = false;
+            _contentSize.width += shareLabelInfo.margin * 2;
+            _contentSize.height += shareLabelInfo.margin * 2;
         }
         else if (_overflow === Overflow.RESIZE_HEIGHT) {
             _isWrapText = true;
+            _contentSize.height += shareLabelInfo.margin * 2;
         }
         else {
-            _isWrapText = _comp.enableWrapText;
+            _isWrapText = comp.enableWrapText;
         }
+
+        shareLabelInfo.lineHeight = _lineHeight;
+        shareLabelInfo.fontSize = _fontSize;
 
         this._setupBMFontOverflowMetrics();
     },
 
     _resetProperties () {
-        _fontAtlas = null;
         _fntConfig = null;
         _spriteFrame = null;
+        shareLabelInfo.hash = "";
+        shareLabelInfo.margin = 0;
     },
 
     _updateContent () {
@@ -284,11 +203,6 @@ export const bmfontUtils = {
         let highestY = 0;
         let lowestY = 0;
         let letterDef: FontLetterDefinition | null = null;
-        const letterPosition = new Vec2();
-
-        this._updateFontScale();
-
-        const letterDefinitions = _fontAtlas!.letterDefinitions;
 
         for (let index = 0; index < textLen;) {
             let character = _string.charAt(index);
@@ -297,7 +211,7 @@ export const bmfontUtils = {
                 letterRight = 0;
                 lineIndex++;
                 nextTokenX = 0;
-                nextTokenY -= _lineHeight * _bmfontScale + _lineSpacing;
+                nextTokenY -= _lineHeight * this._getFontScale() + _lineSpacing;
                 this._recordPlaceholderInfo(index, character);
                 index++;
                 continue;
@@ -317,7 +231,7 @@ export const bmfontUtils = {
                     this._recordPlaceholderInfo(letterIndex, character);
                     continue;
                 }
-                letterDef = _fontAtlas && _fontAtlas.getLetterDefinitionForChar(character);
+                letterDef = shareLabelInfo.fontAtlas!.getLetterDefinitionForChar(character, shareLabelInfo);
                 if (!letterDef) {
                     this._recordPlaceholderInfo(letterIndex, character);
                     console.log('Can\'t find letter definition in texture atlas ' +
@@ -325,18 +239,18 @@ export const bmfontUtils = {
                     continue;
                 }
 
-                const letterX = nextLetterX + letterDef.offsetX * _bmfontScale;
+                const letterX = nextLetterX + letterDef.offsetX * _bmfontScale - shareLabelInfo.margin;
 
                 if (_isWrapText
                     && _maxLineWidth > 0
                     && nextTokenX > 0
-                    && letterX + letterDef.width * _bmfontScale > _maxLineWidth
+                    && letterX + letterDef.w * _bmfontScale > _maxLineWidth
                     && !isUnicodeSpace(character)) {
                     _linesWidth.push(letterRight);
                     letterRight = 0;
                     lineIndex++;
                     nextTokenX = 0;
-                    nextTokenY -= (_lineHeight * _bmfontScale + _lineSpacing);
+                    nextTokenY -= (_lineHeight * this._getFontScale() + _lineSpacing);
                     newLine = true;
                     break;
                 } else {
@@ -344,7 +258,7 @@ export const bmfontUtils = {
                 }
 
                 letterPosition.y = nextTokenY - letterDef.offsetY * _bmfontScale;
-                this._recordLetterInfo(letterDefinitions, letterPosition, character, letterIndex, lineIndex);
+                this._recordLetterInfo(letterPosition, character, letterIndex, lineIndex);
 
                 if (letterIndex + 1 < _horizontalKerning.length && letterIndex < textLen - 1) {
                     nextLetterX += _horizontalKerning[letterIndex + 1];
@@ -352,14 +266,14 @@ export const bmfontUtils = {
 
                 nextLetterX += letterDef.xAdvance * _bmfontScale + _spacingX;
 
-                tokenRight = letterPosition.x + letterDef.width * _bmfontScale;
+                tokenRight = letterPosition.x + letterDef.w * _bmfontScale;
 
                 if (tokenHighestY < letterPosition.y) {
                     tokenHighestY = letterPosition.y;
                 }
 
-                if (tokenLowestY > letterPosition.y - letterDef.height * _bmfontScale) {
-                    tokenLowestY = letterPosition.y - letterDef.height * _bmfontScale;
+                if (tokenLowestY > letterPosition.y - letterDef.h * _bmfontScale) {
+                    tokenLowestY = letterPosition.y - letterDef.h * _bmfontScale;
                 }
 
             } // end of for loop
@@ -385,7 +299,7 @@ export const bmfontUtils = {
         _linesWidth.push(letterRight);
 
         _numberOfLines = lineIndex + 1;
-        _textDesiredHeight = _numberOfLines * _lineHeight * _bmfontScale;
+        _textDesiredHeight = _numberOfLines * _lineHeight * this._getFontScale();
         if (_numberOfLines > 1) {
             _textDesiredHeight += (_numberOfLines - 1) * _lineSpacing;
         }
@@ -393,10 +307,10 @@ export const bmfontUtils = {
         _contentSize.width = _labelWidth;
         _contentSize.height = _labelHeight;
         if (_labelWidth <= 0) {
-            _contentSize.width = parseFloat(longestLine.toFixed(2));
+            _contentSize.width = parseFloat(longestLine.toFixed(2)) + shareLabelInfo.margin * 2;
         }
         if (_labelHeight <= 0) {
-            _contentSize.height = parseFloat(_textDesiredHeight.toFixed(2));
+            _contentSize.height = parseFloat(_textDesiredHeight.toFixed(2)) + shareLabelInfo.margin * 2;
         }
 
         _tailoredTopY = _contentSize.height;
@@ -415,6 +329,10 @@ export const bmfontUtils = {
         return 1;
     },
 
+    _getFontScale () {
+        return _overflow === Overflow.SHRINK ? _bmfontScale : 1;
+    },
+
     _getFirstWordLen (text: string, startIndex: number, textLen: number) {
         let character = text.charAt(startIndex);
         if (isUnicodeCJK(character)
@@ -424,7 +342,7 @@ export const bmfontUtils = {
         }
 
         let len = 1;
-        let letterDef = _fontAtlas && _fontAtlas.getLetterDefinitionForChar(character);
+        let letterDef = shareLabelInfo.fontAtlas!.getLetterDefinitionForChar(character, shareLabelInfo);
         if (!letterDef) {
             return len;
         }
@@ -433,13 +351,13 @@ export const bmfontUtils = {
         for (let index = startIndex + 1; index < textLen; ++index) {
             character = text.charAt(index);
 
-            letterDef = _fontAtlas && _fontAtlas.getLetterDefinitionForChar(character);
+            letterDef = shareLabelInfo.fontAtlas!.getLetterDefinitionForChar(character, shareLabelInfo);
             if (!letterDef) {
                 break;
             }
             letterX = nextLetterX + letterDef.offsetX * _bmfontScale;
 
-            if (letterX + letterDef.width * _bmfontScale > _maxLineWidth
+            if (letterX + letterDef.w * _bmfontScale > _maxLineWidth
                 && !isUnicodeSpace(character)
                 && _maxLineWidth > 0) {
                 return len;
@@ -471,21 +389,25 @@ export const bmfontUtils = {
         }
 
         _lettersInfo[letterIndex].char = char;
+        _lettersInfo[letterIndex].hash = char.charCodeAt(0) + shareLabelInfo.hash;
         _lettersInfo[letterIndex].valid = false;
     },
 
-    _recordLetterInfo (letterDefinitions: ILetterDefinition, letterPosition: Vec2, character: string, letterIndex: number, lineIndex: number) {
+    _recordLetterInfo (letterPosition: Vec2, character: string, letterIndex: number, lineIndex: number) {
         if (letterIndex >= _lettersInfo.length) {
             const tmpInfo = new LetterInfo();
             _lettersInfo.push(tmpInfo);
         }
 
-        const cIndex = character.charCodeAt(0);
-        _lettersInfo[letterIndex].lineIndex = lineIndex;
+        const char = character.charCodeAt(0);
+        const key = char + shareLabelInfo.hash;
+
+        _lettersInfo[letterIndex].line = lineIndex;
         _lettersInfo[letterIndex].char = character;
-        _lettersInfo[letterIndex].valid = letterDefinitions[cIndex].validDefinition;
-        _lettersInfo[letterIndex].positionX = letterPosition.x;
-        _lettersInfo[letterIndex].positionY = letterPosition.y;
+        _lettersInfo[letterIndex].hash = key;
+        _lettersInfo[letterIndex].valid = shareLabelInfo.fontAtlas!.getLetter(key).valid;
+        _lettersInfo[letterIndex].x = letterPosition.x;
+        _lettersInfo[letterIndex].y = letterPosition.y;
     },
 
     _alignText () {
@@ -529,45 +451,36 @@ export const bmfontUtils = {
 
     _shrinkLabelToContentSize (lambda: Function) {
         const fontSize = _fontSize;
-        const originalLineHeight = _lineHeight;
-        const fontAtlas = _fontAtlas;
 
-        let i = 0;
-        const tempLetterDefinition = fontAtlas ? fontAtlas.cloneLetterDefinition() : {} as ILetterDefinition;
-        let flag = true;
+        let left = 0;
+        let right = fontSize | 0;
+        let mid = 0;
+        while (left < right) {
+            mid = (left + right + 1) >> 1;
 
-        while (lambda()) {
-            ++i;
-
-            const newFontSize = fontSize - i;
-            flag = false;
+            const newFontSize = mid;
             if (newFontSize <= 0) {
                 break;
             }
 
-            const scale = newFontSize / fontSize;
-            if (fontAtlas) {
-                fontAtlas.assignLetterDefinitions(tempLetterDefinition);
-                fontAtlas.scaleFontLetterDefinition(scale);
-            }
-            _lineHeight = originalLineHeight * scale;
+            _bmfontScale = newFontSize / _originFontSize;
+
             if (!_lineBreakWithoutSpaces) {
                 this._multilineTextWrapByWord();
             } else {
                 this._multilineTextWrapByChar();
             }
             this._computeAlignmentOffset();
-        }
 
-        _lineHeight = originalLineHeight;
-        if (fontAtlas) {
-            fontAtlas.assignLetterDefinitions(tempLetterDefinition);
-        }
-
-        if (!flag) {
-            if (fontSize - i >= 0) {
-                this._scaleFontSizeDown(fontSize - i);
+            if (lambda()) {
+                right = mid - 1;
+            } else {
+                left = mid;
             }
+        }
+
+        if (left >= 0) {
+            this._scaleFontSizeDown(left);
         }
     },
 
@@ -580,21 +493,17 @@ export const bmfontUtils = {
     },
 
     _isHorizontalClamp () {
-        if (!_fontAtlas){
-            return;
-        }
-
         let letterClamp = false;
         for (let ctr = 0, l = _string.length; ctr < l; ++ctr) {
             const letterInfo = _lettersInfo[ctr];
             if (letterInfo.valid) {
-                const letterDef = _fontAtlas.getLetterDefinitionForChar(letterInfo.char);
+                const letterDef = shareLabelInfo.fontAtlas!.getLetterDefinitionForChar(letterInfo.char, shareLabelInfo);
                 if (!letterDef) {
                     continue;
                 }
 
-                const px = letterInfo.positionX + letterDef.width / 2 * _bmfontScale;
-                const lineIndex = letterInfo.lineIndex;
+                const px = letterInfo.x + letterDef.w / 2 * _bmfontScale;
+                const lineIndex = letterInfo.line;
                 if (_labelWidth > 0) {
                     if (!_isWrapText) {
                         if (px > _contentSize.width) {
@@ -631,13 +540,9 @@ export const bmfontUtils = {
             return false;
         }
 
-        const letterDefinitions = _fontAtlas ? _fontAtlas.letterDefinitions : {};
-
-        const texture = _spriteFrame;
-
+        const texture =  _spriteFrame ? _spriteFrame.texture : shareLabelInfo.fontAtlas!.getTexture();
         const renderData = _comp.renderData!;
         renderData.dataLength = renderData.vertexCount = renderData.indicesCount = 0;
-
         const anchorPoint = _uiTrans!.anchorPoint;
         const contentSize = _contentSize;
         const appX = anchorPoint.x * contentSize.width;
@@ -647,18 +552,18 @@ export const bmfontUtils = {
         for (let ctr = 0, l = _string.length; ctr < l; ++ctr) {
             const letterInfo = _lettersInfo[ctr];
             if (!letterInfo.valid) { continue; }
-            const letterDef = letterDefinitions[letterInfo.char.charCodeAt(0)];
+            const letterDef = shareLabelInfo.fontAtlas!.getLetter(letterInfo.hash);
             if (!letterDef){
                 console.warn('Can\'t find letter in this bitmap-font');
                 continue;
             }
 
-            _tmpRect.height = letterDef.height;
-            _tmpRect.width = letterDef.width;
+            _tmpRect.height = letterDef.h;
+            _tmpRect.width = letterDef.w;
             _tmpRect.x = letterDef.u;
             _tmpRect.y = letterDef.v;
 
-            let py = letterInfo.positionY + _letterOffsetY;
+            let py = letterInfo.y + _letterOffsetY;
 
             if (_labelHeight > 0) {
                 if (py > _tailoredTopY) {
@@ -668,20 +573,20 @@ export const bmfontUtils = {
                     py = py - clipTop;
                 }
 
-                if (py - letterDef.height * _bmfontScale < _tailoredBottomY) {
-                    _tmpRect.height = (py < _tailoredBottomY) ? 0 : (py - _tailoredBottomY);
+                if ((py - letterDef.h * _bmfontScale < _tailoredBottomY) && _overflow === Overflow.CLAMP) {
+                    _tmpRect.height = (py < _tailoredBottomY) ? 0 : (py - _tailoredBottomY) / _bmfontScale;
                 }
             }
 
-            const lineIndex = letterInfo.lineIndex;
-            const px = letterInfo.positionX + letterDef.width / 2 * _bmfontScale + _linesOffsetX[lineIndex];
+            const lineIndex = letterInfo.line;
+            const px = letterInfo.x + letterDef.w / 2 * _bmfontScale + _linesOffsetX[lineIndex];
 
             if (_labelWidth > 0) {
                 if (this._isHorizontalClamped(px, lineIndex)) {
                     if (_overflow === Overflow.CLAMP) {
                         _tmpRect.width = 0;
                     } else if (_overflow === Overflow.SHRINK) {
-                        if (_contentSize.width > letterDef.width) {
+                        if (_contentSize.width > letterDef.w) {
                             ret = false;
                             break;
                         } else {
@@ -691,28 +596,9 @@ export const bmfontUtils = {
                 }
             }
 
-            if (_spriteFrame &&  _tmpRect.height > 0 && _tmpRect.width > 0) {
-                const isRotated = _spriteFrame.isRotated();
-
-                const originalSize = _spriteFrame.getOriginalSize();
-                const rect = _spriteFrame.getRect();
-                const offset = _spriteFrame.getOffset();
-                const trimmedLeft = offset.x + (originalSize.width - rect.width) / 2;
-                const trimmedTop = offset.y - (originalSize.height - rect.height) / 2;
-
-                if (!isRotated) {
-                    _tmpRect.x += (rect.x - trimmedLeft);
-                    _tmpRect.y += (rect.y + trimmedTop);
-                } else {
-                    const originalX = _tmpRect.x;
-                    _tmpRect.x = rect.x + rect.height - _tmpRect.y - _tmpRect.height - trimmedTop;
-                    _tmpRect.y = originalX + rect.y - trimmedLeft;
-                    if (_tmpRect.y < 0) {
-                        _tmpRect.height = _tmpRect.height + trimmedTop;
-                    }
-                }
-
-                const letterPositionX = letterInfo.positionX + _linesOffsetX[letterInfo.lineIndex];
+            if (_tmpRect.height > 0 && _tmpRect.width > 0) {
+                const isRotated = this._determineRect();
+                const letterPositionX = letterInfo.x + _linesOffsetX[letterInfo.line];
                 this.appendQuad(_comp, texture, _tmpRect, isRotated, letterPositionX - appX, py - appY, _bmfontScale);
             }
         }
@@ -721,6 +607,30 @@ export const bmfontUtils = {
     },
 
     appendQuad (comp, texture, rect, rotated, x, y, scale) {
+    },
+
+    _determineRect () {
+        const isRotated = _spriteFrame!.isRotated();
+
+        const originalSize = _spriteFrame!.getOriginalSize();
+        const rect = _spriteFrame!.getRect();
+        const offset = _spriteFrame!.getOffset();
+        const trimmedLeft = offset.x + (originalSize.width - rect.width) / 2;
+        const trimmedTop = offset.y - (originalSize.height - rect.height) / 2;
+
+        if (!isRotated) {
+            _tmpRect.x += (rect.x - trimmedLeft);
+            _tmpRect.y += (rect.y + trimmedTop);
+        } else {
+            const originalX = _tmpRect.x;
+            _tmpRect.x = rect.x + rect.height - _tmpRect.y - _tmpRect.height - trimmedTop;
+            _tmpRect.y = originalX + rect.y - trimmedLeft;
+            if (_tmpRect.y < 0) {
+                _tmpRect.height = _tmpRect.height + trimmedTop;
+            }
+        }
+
+        return isRotated;
     },
 
     _computeAlignmentOffset () {
@@ -746,18 +656,17 @@ export const bmfontUtils = {
                 break;
         }
 
-        switch (_vAlign) {
-            case VerticalTextAlignment.TOP:
-                _letterOffsetY = _contentSize.height;
-                break;
-            case VerticalTextAlignment.CENTER:
-                _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2;
-                break;
-            case VerticalTextAlignment.BOTTOM:
-                _letterOffsetY = _textDesiredHeight;
-                break;
-            default:
-                break;
+        // TOP
+        _letterOffsetY = _contentSize.height;
+        if (_vAlign !== VerticalTextAlignment.TOP) {
+            let blank = _contentSize.height - _textDesiredHeight + _lineHeight * this._getFontScale() - _originFontSize * _bmfontScale;
+            if (_vAlign === VerticalTextAlignment.BOTTOM) {
+                // BOTTOM
+                _letterOffsetY -= blank;
+            } else {
+                // CENTER:
+                _letterOffsetY -= blank / 2;
+            }
         }
     },
 

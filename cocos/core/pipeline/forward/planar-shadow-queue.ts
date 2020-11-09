@@ -1,7 +1,6 @@
 import { aabb, intersect} from '../../geometry';
-import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { SetIndex} from '../../pipeline/define';
-import { GFXCommandBuffer, GFXDevice, GFXRenderPass, GFXShader } from '../../gfx';
+import { CommandBuffer, Device, RenderPass, Shader } from '../../gfx';
 import { InstancedBuffer } from '../instanced-buffer';
 import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
 import { Model } from '../../renderer/scene';
@@ -17,14 +16,14 @@ const _ab = new aabb();
 export class PlanarShadowQueue {
     private _pendingModels: Model[] = [];
     private _instancedQueue = new RenderInstancedQueue();
-    private _shaderCache = new Map<Model, GFXShader>();
+    private _shaderCache = new Map<Model, Shader>();
     private _pipeline: ForwardPipeline;
 
     constructor (pipeline: ForwardPipeline) {
         this._pipeline = pipeline;
     }
 
-    public gatherShadowPasses (view: RenderView, cmdBuff: GFXCommandBuffer) {
+    public gatherShadowPasses (view: RenderView, cmdBuff: CommandBuffer) {
         const shadows = this._pipeline.shadows;
         if (!shadows.enabled || shadows.type !== ShadowType.Planar) { return; }
 
@@ -57,7 +56,7 @@ export class PlanarShadowQueue {
         this._instancedQueue.uploadBuffers(cmdBuff);
     }
 
-    public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
+    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         const shadows = this._pipeline.shadows;
         if (!shadows.enabled || shadows.type !== ShadowType.Planar || !this._pendingModels.length) { return; }
 
@@ -74,7 +73,7 @@ export class PlanarShadowQueue {
                 const subModel = model.subModels[j];
                 const shader = ShaderPool.get(pass.getShaderVariant(subModel.patches));
                 const ia = subModel.inputAssembler!;
-                const pso = PipelineStateManager.getOrCreatePipelineState(device, pass.handle, shader, renderPass, ia);
+                const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, ia);
                 cmdBuff.bindPipelineState(pso);
                 cmdBuff.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);
                 cmdBuff.bindInputAssembler(ia);

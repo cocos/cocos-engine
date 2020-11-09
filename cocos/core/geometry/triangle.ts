@@ -12,7 +12,7 @@ import enums from './enums';
  * @zh
  * 基础几何 三角形。
  */
-// tslint:disable-next-line:class-name
+
 export default class triangle {
 
     /**
@@ -31,9 +31,9 @@ export default class triangle {
      * @param {number} cz c 点的 z 部分。
      * @return {triangle} 一个新的 triangle。
      */
-    public static create (ax: number = 1, ay: number = 0, az: number = 0,
-                          bx: number = 0, by: number = 0, bz: number = 0,
-                          cx: number = 0, cy: number = 0, cz: number = 1): triangle {
+    public static create (ax = 1, ay = 0, az = 0,
+                          bx = 0, by = 0, bz = 0,
+                          cx = 0, cy = 0, cz = 1): triangle {
         return new triangle(ax, ay, az, bx, by, bz, cx, cy, cz);
     }
 
@@ -176,9 +176,9 @@ export default class triangle {
      * @param {number} cy c 点的 y 部分。
      * @param {number} cz c 点的 z 部分。
      */
-    constructor (ax: number = 0, ay: number = 0, az: number = 0,
-                 bx: number = 1, by: number = 0, bz: number = 0,
-                 cx: number = 0, cy: number = 1, cz: number = 0) {
+    constructor (ax = 0, ay = 0, az = 0,
+                 bx = 1, by = 0, bz = 0,
+                 cx = 0, cy = 1, cz = 0) {
         this._type = enums.SHAPE_TRIANGLE;
         this.a = new Vec3(ax, ay, az);
         this.b = new Vec3(bx, by, bz);

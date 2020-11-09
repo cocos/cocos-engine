@@ -28,74 +28,22 @@
  * @module core
  */
 
-import { ALIPAY, EDITOR, JSB, PREVIEW, RUNTIME_BASED } from 'internal:constants';
-import AssetLibrary from './assets/asset-library';
+import { ALIPAY, EDITOR, JSB, PREVIEW, RUNTIME_BASED, BUILD } from 'internal:constants';
+import { default as assetManager, IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event/event-target';
 import * as debug from './platform/debug';
 import inputManager from './platform/event-manager/input-manager';
-import { GFXDevice, GFXDeviceInfo } from './gfx';
+import { Device, DeviceInfo } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from './renderer/models';
-import { legacyCC } from './global-exports';
+import { legacyCC, VERSION } from './global-exports';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
 import { bindingMappingInfo } from './pipeline/define';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
 import { Node } from './scene-graph/node';
 
-/**
- * @zh
- * AssetLibrary 配置。
- * @en
- * AssetLibrary configuration.
- */
-export interface IAssetOptions {
-    /**
-     * @zh
-     * 导入 Library 的资源根目录（相对于构建目录）
-     * @en
-     * The root path (relative to the build destination folder) of the imported library assets
-     */
-    libraryPath: string;
-    /**
-     * @zh
-     * RawAssets 类资源的根目录前缀（相对于构建目录），
-     * 这个路径尾部和 "assets" 拼接后就是完整路径
-     * @en
-     * The prefix of the root path (relative to the build destination folder) of the raw assets,
-     * This will be joint with "assets" to form the complete path
-     */
-    rawAssetsBase: string;
-    /**
-     * @zh
-     * RawAssets 列表，从 Settings 中获取
-     * @en
-     * The list of raw assets, normally retrieved from Settings
-     */
-    rawAssets: object;
-    /**
-     * @zh
-     * 合并后的资源合集列表
-     * @en
-     * The list of asset packs
-     */
-    packedAssets?: object;
-    /**
-     * @zh
-     * 资源及其 md5 前缀关系
-     * @en
-     * The map of assets and their md5 prefix
-     */
-    md5AssetsMap?: object;
-    /**
-     * @zh
-     * 子包列表
-     * @en
-     * The list of sub packages
-     */
-    subPackages?: [];
-}
 
 interface ISceneInfo {
     url: string;
@@ -131,7 +79,7 @@ export interface IGameConfig {
      * 5 - `error`，`assert`，`warn` will print on canvas, available only on web.
      * 6 - `error`，`assert` will print on canvas, available only on web.
      */
-    debugMode?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+    debugMode?: debug.DebugMode;
 
     /**
      * @zh
@@ -214,9 +162,9 @@ export interface IGameConfig {
     renderPipeline?: string;
 
     /**
-     * Asset library initialization options
+     * Asset Manager initialization options
      */
-    assetOptions?: IAssetOptions;
+    assetOptions?: IAssetManagerOptions;
 
     /**
      * GPU instancing options
@@ -250,7 +198,7 @@ export class Game extends EventTarget {
      * });
      * ```
      */
-    public static EVENT_HIDE: string = 'game_on_hide';
+    public static EVENT_HIDE = 'game_on_hide';
 
     /**
      * @en Event triggered when game back to foreground<br>
@@ -274,7 +222,7 @@ export class Game extends EventTarget {
      * @en Event triggered after game inited, at this point all engine objects and game scripts are loaded
      * @zh 游戏启动后的触发事件，此时加载所有的引擎对象和游戏脚本。
      */
-    public static EVENT_GAME_INITED: string = 'game_inited';
+    public static EVENT_GAME_INITED = 'game_inited';
 
     /**
      * @en Event triggered after engine inited, at this point you will be able to use all engine classes.<br>
@@ -284,7 +232,7 @@ export class Game extends EventTarget {
      * 它在 cocos creator v1.x 版本中名字为 EVENT_RENDERER_INITED ,在 v2.0 版本中更名为 EVENT_ENGINE_INITED
      * 并在 cocos creator 3d 版本中将 EVENT_RENDERER_INITED 用作为渲染器初始化的事件。
      */
-    public static EVENT_ENGINE_INITED: string = 'engine_inited';
+    public static EVENT_ENGINE_INITED = 'engine_inited';
 
     /**
      * @en Event triggered after renderer inited, at this point you will be able to use all gfx renderer feature.<br>
@@ -296,29 +244,29 @@ export class Game extends EventTarget {
      * @en Event triggered when game restart
      * @zh 调用restart后，触发事件
      */
-    public static EVENT_RESTART: string = 'game_on_restart';
+    public static EVENT_RESTART = 'game_on_restart';
 
     /**
      * @en Web Canvas 2d API as renderer backend.
      * @zh 使用 Web Canvas 2d API 作为渲染器后端。
      */
-    public static RENDER_TYPE_CANVAS: number = 0;
+    public static RENDER_TYPE_CANVAS = 0;
     /**
      * @en WebGL API as renderer backend.
      * @zh 使用 WebGL API 作为渲染器后端。
      */
-    public static RENDER_TYPE_WEBGL: number = 1;
+    public static RENDER_TYPE_WEBGL = 1;
     /**
      * @en OpenGL API as renderer backend.
      * @zh 使用 OpenGL API 作为渲染器后端。
      */
-    public static RENDER_TYPE_OPENGL: number = 2;
+    public static RENDER_TYPE_OPENGL = 2;
 
     /**
      * @en The outer frame of the game canvas; parent of game container.
      * @zh 游戏画布的外框，container 的父容器。
      */
-    public frame: Object | null = null;
+    public frame: Record<string, unknown> | null = null;
     /**
      * @en The container of game canvas.
      * @zh 游戏画布的容器。
@@ -334,7 +282,7 @@ export class Game extends EventTarget {
      * @en The renderer backend of the game.
      * @zh 游戏的渲染器类型。
      */
-    public renderType: number = -1;
+    public renderType = -1;
 
     public eventTargetOn = super.on;
     public eventTargetOnce = super.once;
@@ -347,14 +295,14 @@ export class Game extends EventTarget {
      * 当前的游戏配置
      * 注意：请不要直接修改这个对象，它不会有任何效果。
      */
-    public config: IGameConfig = {};
+    public config: NormalizedGameConfig = {} as NormalizedGameConfig;
 
     /**
      * @en Callback when the scripts of engine have been load.
      * @zh 当引擎完成启动后的回调函数。
      * @method onStart
      */
-    public onStart: Function | null = null;
+    public onStart: Game.OnStart | null = null;
 
     /**
      * @en Indicates whether the engine has inited
@@ -364,30 +312,33 @@ export class Game extends EventTarget {
         return this._inited;
     }
 
+    public get frameTime () {
+        return this._frameTime;
+    }
+
     public _persistRootNodes = {};
 
     // states
-    public _paused: boolean = true; // whether the game is paused
-    public _configLoaded: boolean = false; // whether config loaded
-    public _isCloning: boolean = false;    // deserializing or instantiating
-    public _inited: boolean = false; // whether the engine has inited
-    public _rendererInitialized: boolean = false;
+    public _paused = true; // whether the game is paused
+    public _configLoaded = false; // whether config loaded
+    public _isCloning = false;    // deserializing or instantiating
+    public _inited = false; // whether the engine has inited
+    public _rendererInitialized = false;
 
-    public _gfxDevice: GFXDevice | null = null;
+    public _gfxDevice: Device | null = null;
 
     public _intervalId: number | null = null; // interval target of main
 
-    public _lastTime: Date | null = null;
-    public _frameTime: number | null = null;
+    public declare _lastTime: number;
+    public declare _frameTime: number;
 
-    // Scenes list
-    public _sceneInfos: ISceneInfo[] = [];
     public collisionMatrix = [];
     public groupList: any[] = [];
 
     // @Methods
 
     //  @Game play control
+
     /**
      * @en Set frame rate of game.
      * @zh 设置游戏帧率。
@@ -477,11 +428,13 @@ export class Game extends EventTarget {
      * @en Restart game.
      * @zh 重新开始游戏
      */
-    public restart () {
-        legacyCC.director.once(legacyCC.Director.EVENT_AFTER_DRAW, () => {
-            // tslint:disable-next-line: forin
-            for (const id in legacyCC.game._persistRootNodes) {
-                legacyCC.game.removePersistRootNode(legacyCC.game._persistRootNodes[id]);
+    public restart (): Promise<void> {
+        const afterDrawPromise = new Promise<void>((resolve) =>
+            legacyCC.director.once(legacyCC.Director.EVENT_AFTER_DRAW, () => resolve()) as void);
+        return afterDrawPromise.then(() => {
+
+            for (const id in this._persistRootNodes) {
+                this.removePersistRootNode(this._persistRootNodes[id]);
             }
 
             // Clear scene
@@ -489,10 +442,10 @@ export class Game extends EventTarget {
             legacyCC.Object._deferredDestroy();
 
             legacyCC.director.reset();
-            legacyCC.game.pause();
-            legacyCC.game._loadRenderPipeline(() => {
-                legacyCC.game.resume();
-                legacyCC.game._safeEmit(legacyCC.Game.EVENT_RESTART);
+            this.pause();
+            return this._setRenderPipelineNShowSplash().then(() => {
+                this.resume();
+                this._safeEmit(Game.EVENT_RESTART);
             });
         });
     }
@@ -546,7 +499,7 @@ export class Game extends EventTarget {
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param target - The target (this object) to invoke the callback, can be null
      */
-    // @ts-ignore
+    // @ts-expect-error
     public once (type: string, callback: Function, target?: object) {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
         if (this._inited && type === Game.EVENT_ENGINE_INITED) {
@@ -564,20 +517,19 @@ export class Game extends EventTarget {
      */
     public init (config: IGameConfig) {
         this._initConfig(config);
-        // Init AssetLibrary
+        // Init assetManager
         if (this.config.assetOptions) {
-            AssetLibrary.init(this.config.assetOptions);
+            legacyCC.assetManager.init(this.config.assetOptions);
         }
 
-        this._initEngine();
+        return this._initEngine().then(() => {
+            if (!EDITOR) {
+                this._initEvents();
+            }
 
-        if (!EDITOR) {
-            this._initEvents();
-        }
-
-        legacyCC.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
-
-        return this._inited;
+            legacyCC.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
+            return this._inited;
+        });
     }
 
     /**
@@ -585,28 +537,34 @@ export class Game extends EventTarget {
      * @zh 运行游戏，并且指定引擎配置和 onStart 的回调。
      * @param onStart - function to be executed after game initialized
      */
-    public run (onStart: Function | null, legacyOnStart?: Function | null) {
+    public run (onStart?: Game.OnStart): Promise<void>;
+
+    public run (configOrCallback?: Game.OnStart | IGameConfig, onStart?: Game.OnStart) {
         if (!EDITOR) {
             this._initEvents();
         }
-        if (typeof onStart !== 'function' && legacyOnStart) {
-            const config: IGameConfig = this.onStart as IGameConfig;
-            this.init(config);
-            this.onStart = legacyOnStart;
-        }
-        else {
-            this.onStart = onStart;
-        }
 
-        this._setAnimFrame();
-        this._runMainLoop();
-
-        // register system events
-        if (!EDITOR && game.config.registerSystemEvent) {
-            inputManager.registerSystemEvent(game.canvas);
+        // To compatible with older version,
+        // we allow the `run(config, onstart?)` form. But it's deprecated.
+        let initPromise: Promise<boolean> | undefined;
+        if (typeof configOrCallback !== 'function' && configOrCallback) {
+            initPromise = this.init(configOrCallback);
+            this.onStart = onStart ?? null;
+        } else {
+            this.onStart = configOrCallback ?? null;
         }
 
-        this._loadRenderPipeline(null);
+        return Promise.resolve(initPromise).then(() => {
+            this._setAnimFrame();
+            this._runMainLoop();
+
+            // register system events
+            if (!EDITOR && game.config.registerSystemEvent) {
+                inputManager.registerSystemEvent(game.canvas);
+            }
+
+            return this._setRenderPipelineNShowSplash();
+        });
     }
 
     //  @ Persist root node section
@@ -642,6 +600,7 @@ export class Game extends EventTarget {
             }
             this._persistRootNodes[id] = node;
             node._persistNode = true;
+            legacyCC.assetManager._releaseManager._addPersistNodeRef(node);
         }
     }
 
@@ -655,6 +614,7 @@ export class Game extends EventTarget {
         if (node === this._persistRootNodes[id]) {
             delete this._persistRootNodes[id];
             node._persistNode = false;
+            legacyCC.assetManager._releaseManager._removePersistNodeRef(node);
         }
     }
 
@@ -671,24 +631,23 @@ export class Game extends EventTarget {
 
     private _initEngine () {
         this._initDevice();
-        legacyCC.director._init();
-
-        // Log engine version
-        console.log('Cocos Creator 3D v' + legacyCC.ENGINE_VERSION);
-        this.emit(Game.EVENT_ENGINE_INITED);
-        this._inited = true;
+        return Promise.resolve(legacyCC.director._init()).then(() => {
+            // Log engine version
+            debug.log(`Cocos Creator 3D v${VERSION}`);
+            this.emit(Game.EVENT_ENGINE_INITED);
+            this._inited = true;
+        });
     }
 
     // @Methods
 
     //  @Time ticker section
     private _setAnimFrame () {
-        this._lastTime = new Date();
-        const frameRate = legacyCC.game.config.frameRate;
+        this._lastTime = performance.now();
+        const frameRate = this.config.frameRate;
         this._frameTime = 1000 / frameRate;
-        legacyCC.director._maxParticleDeltaTime = this._frameTime / 1000 * 2;
         if (JSB || RUNTIME_BASED) {
-            // @ts-ignore
+            // @ts-expect-error
             jsb.setPreferredFramesPerSecond(frameRate);
             window.rAF = window.requestAnimationFrame;
             window.cAF = window.cancelAnimationFrame;
@@ -699,17 +658,18 @@ export class Game extends EventTarget {
                 this._intervalId = 0;
             }
 
+            const rAF = window.requestAnimationFrame = window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimationFrame;
             if (frameRate !== 60 && frameRate !== 30) {
-                window.rAF = this._stTime;
+                // @ts-expect-error
+                window.rAF = rAF ? this._stTimeWithRAF : this._stTime;
                 window.cAF = this._ctTime;
             }
             else {
-                window.rAF = window.requestAnimationFrame ||
-                    window.webkitRequestAnimationFrame ||
-                    window.mozRequestAnimationFrame ||
-                    window.oRequestAnimationFrame ||
-                    window.msRequestAnimationFrame ||
-                    this._stTime;
+                window.rAF = rAF || this._stTime;
                 window.cAF = window.cancelAnimationFrame ||
                     window.cancelRequestAnimationFrame ||
                     window.msCancelRequestAnimationFrame ||
@@ -724,12 +684,24 @@ export class Game extends EventTarget {
             }
         }
     }
+
+    private _stTimeWithRAF (callback) {
+        const currTime = performance.now();
+        const elapseTime = Math.max(0, (currTime - game._lastTime));
+        const timeToCall = Math.max(0, game._frameTime - elapseTime);
+        const id = window.setTimeout(() => {
+            window.requestAnimationFrame(callback);
+        }, timeToCall);
+        game._lastTime = currTime + timeToCall;
+        return id;
+    }
+
     private _stTime (callback) {
-        const currTime = new Date().getTime();
-        const elapseTime = Math.max(0, (currTime - legacyCC.game._lastTime));
-        const timeToCall = Math.max(0, legacyCC.game._frameTime - elapseTime);
+        const currTime = performance.now();
+        const elapseTime = Math.max(0, (currTime - game._lastTime));
+        const timeToCall = Math.max(0, game._frameTime - elapseTime);
         const id = window.setTimeout(callback, timeToCall);
-        legacyCC.game._lastTime = currTime + timeToCall;
+        game._lastTime = currTime + timeToCall;
         return id;
     }
     private _ctTime (id: number | undefined) {
@@ -740,17 +712,16 @@ export class Game extends EventTarget {
         if (EDITOR && !legacyCC.GAME_VIEW) {
             return;
         }
-        let callback: FrameRequestCallback;
         const config = this.config;
         const director = legacyCC.director;
-        let skip: boolean = true;
+        let skip = true;
         const frameRate = config.frameRate;
 
         debug.setDisplayStats(!!config.showFPS);
 
         director.startAnimation();
 
-        callback = (time: number) => {
+        const callback = (time: number) => {
             if (this._paused) { return; }
             this._intervalId = window.rAF(callback);
             if (!JSB && !RUNTIME_BASED && frameRate === 30) {
@@ -775,7 +746,7 @@ export class Game extends EventTarget {
     private _initConfig (config: IGameConfig) {
         // Configs adjustment
         if (typeof config.debugMode !== 'number') {
-            config.debugMode = 0;
+            config.debugMode = debug.DebugMode.NONE;
         }
         config.exposeClassName = !!config.exposeClassName;
         if (typeof config.frameRate !== 'number') {
@@ -790,16 +761,13 @@ export class Game extends EventTarget {
         }
         config.showFPS = !!config.showFPS;
 
-        // Scene parser
-        this._sceneInfos = config.scenes || [];
-
         // Collide Map and Group List
         this.collisionMatrix = config.collisionMatrix || [];
         this.groupList = config.groupList || [];
 
         debug._resetDebugSetting(config.debugMode);
 
-        this.config = config;
+        this.config = config as NormalizedGameConfig;
         this._configLoaded = true;
     }
 
@@ -847,7 +815,7 @@ export class Game extends EventTarget {
 
         // WebGL context created successfully
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
-            const ctors: Constructor<GFXDevice>[] = [];
+            const ctors: Constructor<Device>[] = [];
 
             if (JSB && window.gfx) {
                 if (gfx.CCVKDevice) { ctors.push(gfx.CCVKDevice); }
@@ -870,7 +838,7 @@ export class Game extends EventTarget {
                 }
             }
 
-            const opts = new GFXDeviceInfo(
+            const opts = new DeviceInfo(
                 this.canvas as HTMLCanvasElement,
                 EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
                 false,
@@ -881,13 +849,13 @@ export class Game extends EventTarget {
             );
             for (let i = 0; i < ctors.length; i++) {
                 this._gfxDevice = new ctors[i]();
-                if (this._gfxDevice!.initialize(opts)) { break; }
+                if (this._gfxDevice.initialize(opts)) { break; }
             }
         }
 
         if (!this._gfxDevice) {
             // todo fix here for wechat game
-            console.error('can not support canvas rendering in 3D');
+            debug.error('can not support canvas rendering in 3D');
             this.renderType = Game.RENDER_TYPE_CANVAS;
             return;
         }
@@ -912,18 +880,19 @@ export class Game extends EventTarget {
         }
 
         let hidden = false;
+        const me = this;
 
         function onHidden () {
             if (!hidden) {
                 hidden = true;
-                legacyCC.game.emit(Game.EVENT_HIDE);
+                me.emit(Game.EVENT_HIDE);
             }
         }
         // In order to adapt the most of platforms the onshow API.
         function onShown (arg0?, arg1?, arg2?, arg3?, arg4?) {
             if (hidden) {
                 hidden = false;
-                legacyCC.game.emit(Game.EVENT_SHOW, arg0, arg1, arg2, arg3, arg4);
+                me.emit(Game.EVENT_SHOW, arg0, arg1, arg2, arg3, arg4);
             }
         }
 
@@ -935,12 +904,12 @@ export class Game extends EventTarget {
                 'webkitvisibilitychange',
                 'qbrowserVisibilityChange',
             ];
-            // tslint:disable-next-line: prefer-for-of
+
             for (let i = 0; i < changeList.length; i++) {
                 document.addEventListener(changeList[i], (event) => {
                     let visible = document[hiddenPropName];
                     // QQ App
-                    // @ts-ignore
+                    // @ts-expect-error
                     visible = visible || event.hidden;
                     if (visible) {
                         onHidden();
@@ -968,67 +937,51 @@ export class Game extends EventTarget {
         }
 
         this.on(Game.EVENT_HIDE, () => {
-            legacyCC.game.pause();
+            this.pause();
         });
         this.on(Game.EVENT_SHOW, () => {
-            legacyCC.game.resume();
+            this.resume();
         });
     }
 
-    private _loadRenderPipeline (restart: Function | null) {
-        const useSplash = (!EDITOR && !PREVIEW && legacyCC.internal.SplashScreen);
-
-        // Load render pipeline if needed
-        const renderPipeline = this.config.renderPipeline;
-        if (renderPipeline) {
-            legacyCC.loader.load({ uuid: renderPipeline }, (err, asset) => {
-                // failed load renderPipeline
-                if (err || !(asset instanceof RenderPipeline)) {
-                    console.warn(`Failed load renderpipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);
-                    console.warn(err);
-                    this._setRenderPipeline();
-                }
-                else {
-                    try {
-                        this._setRenderPipeline(asset);
-                    } catch (e) {
-                        console.warn(e);
-                        console.warn(`Failed load renderpipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);
-                        this._setRenderPipeline();
-                    }
-                }
-                this._safeEmit(Game.EVENT_GAME_INITED);
-                if (useSplash) {
-                    const splashScreen = legacyCC.internal.SplashScreen.instance as SplashScreen;
-                    splashScreen.main(legacyCC.director.root);
-                    splashScreen.setOnFinish(() => {
-                        if (this.onStart) { this.onStart(); }
-                        if (restart) { restart(); }
-                    });
-                    splashScreen.loadFinish = true;
-                }
-                else {
-                    if (this.onStart) { this.onStart(); }
-                    if (restart) { restart(); }
+    private _setRenderPipelineNShowSplash () {
+        return Promise.resolve(this._setupRenderPipeline()).then(() => {
+            this._safeEmit(Game.EVENT_GAME_INITED);
+            return Promise.resolve(this._showSplashScreen()).then(() => {
+                if (this.onStart) {
+                    this.onStart();
                 }
             });
-        }
-        else {
+        });
+    }
+
+    private _setupRenderPipeline () {
+        const { renderPipeline } = this.config;
+        if (!renderPipeline) {
             this._setRenderPipeline();
-            this._safeEmit(Game.EVENT_GAME_INITED);
-            if (useSplash) {
-                const splashScreen = legacyCC.internal.SplashScreen.instance as SplashScreen;
-                splashScreen.main(legacyCC.director.root);
-                splashScreen.setOnFinish(() => {
-                    if (this.onStart) { this.onStart(); }
-                    if (restart) { restart(); }
+        } else {
+            return new Promise<RenderPipeline>((resolve, reject) => {
+            	legacyCC.assetManager.loadAny(renderPipeline, (err, asset) => {
+                    return (err || !(asset instanceof RenderPipeline)) ? reject(err) : resolve(asset);
                 });
+            }).then((asset) => {
+                this._setRenderPipeline(asset);
+            }).catch((reason) => {
+                debug.warn(reason);
+                debug.warn(`Failed load render pipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);
+                this._setRenderPipeline();
+            });
+        }
+    }
+
+    private _showSplashScreen () {
+        if (!EDITOR && !PREVIEW && legacyCC.internal.SplashScreen) {
+            const splashScreen = legacyCC.internal.SplashScreen.instance as SplashScreen;
+            splashScreen.main(legacyCC.director.root);
+            return new Promise<void>((resolve) => {
+                splashScreen.setOnFinish(() => resolve());
                 splashScreen.loadFinish = true;
-            }
-            else {
-                if (this.onStart) { this.onStart(); }
-                if (restart) { restart(); }
-            }
+            });
         }
     }
 
@@ -1045,15 +998,17 @@ export class Game extends EventTarget {
         if (EDITOR) {
             try {
                 this.emit(event);
+            } catch (e) {
+                debug.warn(e);
             }
-            catch (e) {
-                console.warn(e);
-            }
-        }
-        else {
+        } else {
             this.emit(event);
         }
     }
+}
+
+export declare namespace Game {
+    export type OnStart = () => void;
 }
 
 legacyCC.Game = Game;
@@ -1065,3 +1020,7 @@ legacyCC.Game = Game;
  * 这是一个 Game 类的实例，包含游戏主体信息并负责驱动游戏的游戏对象。
  */
 export const game = legacyCC.game = new Game();
+
+type NormalizedGameConfig = IGameConfig & {
+    frameRate: NonNullable<IGameConfig['frameRate']>;
+};

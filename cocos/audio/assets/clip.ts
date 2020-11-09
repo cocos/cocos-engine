@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -28,8 +28,10 @@
  * @module component/audio
  */
 
+import {
+    ccclass, type, serializable, override,
+} from 'cc.decorator';
 import { Asset } from '../../core/assets/asset';
-import { ccclass, type, serializable } from 'cc.decorator';
 import { Enum } from '../../core/value-types';
 import { AudioPlayer, PlayingState } from './player';
 import { AudioPlayerDOM } from './player-dom';
@@ -57,7 +59,6 @@ export const AudioType = Enum({
  */
 @ccclass('cc.AudioClip')
 export class AudioClip extends Asset {
-
     public static PlayingState = PlayingState;
     public static AudioType = AudioType;
     public static preventDeferredLoadDependents = true;
@@ -100,6 +101,16 @@ export class AudioClip extends Asset {
         return this._nativeAudio;
     }
 
+    @override
+    get _nativeDep () {
+        return {
+            uuid: this._uuid,
+            audioLoadMode: this.loadMode,
+            ext: this._native,
+            __isNative__: true,
+        };
+    }
+
     get loadMode () {
         return this._loadMode;
     }
@@ -121,7 +132,7 @@ export class AudioClip extends Asset {
     public getLoop () { if (this._player) { return this._player.getLoop(); } return false; }
 
     private _getPlayer (clip: any) {
-        let ctor: any;
+        let ctor: Constructor<AudioPlayer>;
         if (typeof AudioBuffer !== 'undefined' && clip instanceof AudioBuffer) {
             ctor = AudioPlayerWeb;
             this._loadMode = AudioType.WEB_AUDIO;

@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -105,7 +105,7 @@ export function baseNodePolyfill (BaseNode) {
          * @return {Component}
          */
         BaseNode.prototype._getDependComponent = function (depended) {
-            // tslint:disable-next-line: prefer-for-of
+
             for (let i = 0; i < this._components.length; i++) {
                 const comp = this._components[i];
                 if (comp !== depended && comp.isValid && !legacyCC.Object._willDestroy(comp)) {
@@ -173,7 +173,7 @@ export function baseNodePolyfill (BaseNode) {
         // promote debug info
         js.get(BaseNode.prototype, ' INFO ', function () {
             let path = '';
-            // @ts-ignore
+            // @ts-expect-error
             let node = this;
             while (node && !(node instanceof legacyCC.Scene)) {
                 if (path) {
@@ -183,7 +183,7 @@ export function baseNodePolyfill (BaseNode) {
                 }
                 node = node._parent;
             }
-            // @ts-ignore
+            // @ts-expect-error
             return this.name + ', path: ' + path;
         });
     }

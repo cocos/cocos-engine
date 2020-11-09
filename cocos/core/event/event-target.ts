@@ -34,8 +34,7 @@ import { CallbacksInvoker } from './callbacks-invoker';
 import { legacyCC } from '../global-exports';
 import { Eventify } from './eventify';
 
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
-class Empty {};
+class Empty {}
 
 /**
  * @en

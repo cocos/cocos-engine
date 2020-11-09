@@ -1,36 +1,36 @@
 import { Mesh } from '../../assets/mesh';
-import { GFXAttributeName, GFXFormat, GFXFormatInfos, GFXPrimitiveMode } from '../../gfx/define';
-import { GFXAttribute } from '../../gfx';
+import { AttributeName, Format, FormatInfos, PrimitiveMode } from '../../gfx/define';
+import { Attribute } from '../../gfx';
 import { Vec3 } from '../../math';
 import { IGeometry } from '../../primitive/define';
 import { writeBuffer } from './buffer';
 import { BufferBlob } from './buffer-blob';
 
-const _defAttrs: GFXAttribute[] = [
-    new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),
-    new GFXAttribute(GFXAttributeName.ATTR_NORMAL, GFXFormat.RGB32F),
-    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RG32F),
-    new GFXAttribute(GFXAttributeName.ATTR_TANGENT, GFXFormat.RGBA32F),
-    new GFXAttribute(GFXAttributeName.ATTR_COLOR, GFXFormat.RGBA32F),
+const _defAttrs: Attribute[] = [
+    new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
+    new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F),
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F),
+    new Attribute(AttributeName.ATTR_TANGENT, Format.RGBA32F),
+    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA32F),
 ];
 
 const v3_1 = new Vec3();
 export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMesh.IOptions) {
     options = options || {};
     // Collect attributes and calculate length of result vertex buffer.
-    const attributes: GFXAttribute[] = [];
+    const attributes: Attribute[] = [];
     let stride = 0;
-    const channels: { offset: number; data: number[]; attribute: GFXAttribute; }[] = [];
+    const channels: { offset: number; data: number[]; attribute: Attribute; }[] = [];
     let vertCount = 0;
 
-    let attr: GFXAttribute | null;
+    let attr: Attribute | null;
 
     const positions = geometry.positions.slice();
     if (positions.length > 0) {
         attr = null;
         if (geometry.attributes) {
             for (const att of geometry.attributes) {
-                if (att.name === GFXAttributeName.ATTR_POSITION) {
+                if (att.name === AttributeName.ATTR_POSITION) {
                     attr = att;
                     break;
                 }
@@ -42,7 +42,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
         }
 
         attributes.push(attr);
-        const info = GFXFormatInfos[attr.format];
+        const info = FormatInfos[attr.format];
         vertCount = Math.max(vertCount, Math.floor(positions.length / info.count));
         channels.push({ offset: stride, data: positions, attribute: attr });
         stride += info.size;
@@ -53,7 +53,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
         attr = null;
         if (geometry.attributes) {
             for (const att of geometry.attributes) {
-                if (att.name === GFXAttributeName.ATTR_NORMAL) {
+                if (att.name === AttributeName.ATTR_NORMAL) {
                     attr = att;
                     break;
                 }
@@ -64,7 +64,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
             attr = _defAttrs[1];
         }
 
-        const info = GFXFormatInfos[attr.format];
+        const info = FormatInfos[attr.format];
         attributes.push(attr);
         vertCount = Math.max(vertCount, Math.floor(geometry.normals.length / info.count));
         channels.push({ offset: stride, data: geometry.normals, attribute: attr });
@@ -75,7 +75,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
         attr = null;
         if (geometry.attributes) {
             for (const att of geometry.attributes) {
-                if (att.name === GFXAttributeName.ATTR_TEX_COORD) {
+                if (att.name === AttributeName.ATTR_TEX_COORD) {
                     attr = att;
                     break;
                 }
@@ -86,7 +86,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
             attr = _defAttrs[2];
         }
 
-        const info = GFXFormatInfos[attr.format];
+        const info = FormatInfos[attr.format];
         attributes.push(attr);
         vertCount = Math.max(vertCount, Math.floor(geometry.uvs.length / info.count));
         channels.push({ offset: stride, data: geometry.uvs, attribute: attr });
@@ -97,7 +97,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
         attr = null;
         if (geometry.attributes) {
             for (const att of geometry.attributes) {
-                if (att.name === GFXAttributeName.ATTR_TANGENT) {
+                if (att.name === AttributeName.ATTR_TANGENT) {
                     attr = att;
                     break;
                 }
@@ -108,7 +108,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
             attr = _defAttrs[3];
         }
 
-        const info = GFXFormatInfos[attr.format];
+        const info = FormatInfos[attr.format];
         attributes.push(attr);
         vertCount = Math.max(vertCount, Math.floor(geometry.tangents.length / info.count));
         channels.push({ offset: stride, data: geometry.tangents, attribute: attr });
@@ -119,7 +119,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
         attr = null;
         if (geometry.attributes) {
             for (const att of geometry.attributes) {
-                if (att.name === GFXAttributeName.ATTR_COLOR) {
+                if (att.name === AttributeName.ATTR_COLOR) {
                     attr = att;
                     break;
                 }
@@ -130,7 +130,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
             attr = _defAttrs[4];
         }
 
-        const info = GFXFormatInfos[attr.format];
+        const info = FormatInfos[attr.format];
         attributes.push(attr);
         vertCount = Math.max(vertCount, Math.floor(geometry.colors.length / info.count));
         channels.push({ offset: stride, data: geometry.colors, attribute: attr });
@@ -139,7 +139,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
 
     if (geometry.customAttributes) {
         for (const ca of geometry.customAttributes) {
-            const info = GFXFormatInfos[ca.attr.format];
+            const info = FormatInfos[ca.attr.format];
             attributes.push(ca.attr);
             vertCount = Math.max(vertCount, Math.floor(ca.values.length / info.count));
             channels.push({ offset: stride, data: ca.values, attribute: ca.attr });
@@ -177,12 +177,12 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
         idxCount = indices.length;
         indexBuffer = new ArrayBuffer(idxStride * idxCount);
         const indexBufferView = new DataView(indexBuffer);
-        writeBuffer(indexBufferView, indices, GFXFormat.R16UI);
+        writeBuffer(indexBufferView, indices, Format.R16UI);
     }
 
     // Create primitive.
     const primitive: Mesh.ISubMesh = {
-        primitiveMode: geometry.primitiveMode || GFXPrimitiveMode.TRIANGLE_LIST,
+        primitiveMode: geometry.primitiveMode || PrimitiveMode.TRIANGLE_LIST,
         vertexBundelIndices: [0],
     };
 

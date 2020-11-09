@@ -2,8 +2,8 @@
  * Define gfx global classes here.
  */
 
-export class GFXRect {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class Rect {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public x: number = 0,
@@ -13,8 +13,8 @@ export class GFXRect {
     ) {}
 }
 
-export class GFXViewport {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class Viewport {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public left: number = 0,
@@ -26,8 +26,8 @@ export class GFXViewport {
     ) {}
 }
 
-export class GFXColor {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class Color {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public x: number = 0,
@@ -37,8 +37,8 @@ export class GFXColor {
     ) {}
 }
 
-export class GFXOffset {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class Offset {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public x: number = 0,
@@ -47,8 +47,8 @@ export class GFXOffset {
     ) {}
 }
 
-export class GFXExtent {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class Extent {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public width: number = 0,
@@ -57,8 +57,8 @@ export class GFXExtent {
     ) {}
 }
 
-export class GFXTextureSubres {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class TextureSubres {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public mipLevel: number = 0,
@@ -67,26 +67,26 @@ export class GFXTextureSubres {
     ) {}
 }
 
-export class GFXTextureCopy {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class TextureCopy {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public srcSubres = new GFXTextureSubres(),
-        public srcOffset = new GFXOffset(),
-        public dstSubres = new GFXTextureSubres(),
-        public dstOffset = new GFXOffset(),
-        public extent = new GFXExtent(),
+        public srcSubres = new TextureSubres(),
+        public srcOffset = new Offset(),
+        public dstSubres = new TextureSubres(),
+        public dstOffset = new Offset(),
+        public extent = new Extent(),
     ) {}
 }
 
-export class GFXBufferTextureCopy {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class BufferTextureCopy {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public buffStride: number = 0,
         public buffTexHeight: number = 0,
-        public texOffset = new GFXOffset(),
-        public texExtent = new GFXExtent(),
-        public texSubres = new GFXTextureSubres(),
+        public texOffset = new Offset(),
+        public texExtent = new Extent(),
+        public texSubres = new TextureSubres(),
     ) {}
 }

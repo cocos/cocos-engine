@@ -32,6 +32,18 @@ export function isString (object: any) {
 }
 
 /**
+ * Checks if the object `obj` does not have one or more enumerable properties (including properties from proto chain).
+ * @param obj The object.
+ * @returns The result. Note that if the `obj` is not of type `'object'`, `true` is returned.
+ */
+export function isEmptyObject (obj: any) {
+    for (const key in obj) {
+        return false;
+    }
+    return true;
+}
+
+/**
  * Define value, just help to call Object.defineProperty.<br>
  * The configurable will be true.
  * @param [writable=false]
@@ -123,13 +135,12 @@ export const set = (() => {
 /**
  * @en
  * A simple wrapper of `Object.create(null)` which ensures the return object have no prototype (and thus no inherited members).
- * So we can skip `hasOwnProperty` calls on property lookups.
- * It is a worthwhile optimization than the `{}` literal when `hasOwnProperty` calls are necessary.
+ * This eliminates the need to make `hasOwnProperty` judgments when we look for values by key on the object,
+ * which is helpful for performance in this case.
  * @zh
  * 该方法是对 `Object.create(null)` 的简单封装。
  * `Object.create(null)` 用于创建无 prototype （也就无继承）的空对象。
- * 这样我们在该对象上查找属性时，就不用进行 `hasOwnProperty` 判断。
- * 在需要频繁判断 `hasOwnProperty` 时，使用这个方法性能会比 `{}` 更高。
+ * 这样我们在该对象上查找属性时，就不用进行 `hasOwnProperty` 判断，此时对性能提升有帮助。
  *
  * @param [forceDictMode=false] Apply the delete operator to newly created map object.
  * This causes V8 to put the object in "dictionary mode" and disables creation of hidden classes
@@ -140,8 +151,9 @@ export function createMap (forceDictMode?: boolean): any {
     if (forceDictMode) {
         const INVALID_IDENTIFIER_1 = '.';
         const INVALID_IDENTIFIER_2 = '/';
-        map[INVALID_IDENTIFIER_1] = true;
-        map[INVALID_IDENTIFIER_2] = true;
+        // assign dummy values on the object
+        map[INVALID_IDENTIFIER_1] = 1;
+        map[INVALID_IDENTIFIER_2] = 1;
         delete map[INVALID_IDENTIFIER_1];
         delete map[INVALID_IDENTIFIER_2];
     }
@@ -260,7 +272,8 @@ export function formatStr (msg: string | any, ...subst: any[]) {
         for (const arg of subst) {
             const regExpToTest = typeof arg === 'number' ? REGEXP_NUM_OR_STR : REGEXP_STR;
             if (regExpToTest.test(msg)) {
-                msg = msg.replace(regExpToTest, arg);
+                const notReplaceFunction = '' + arg;
+                msg = msg.replace(regExpToTest, notReplaceFunction);
             }
             else {
                 msg += ' ' + arg;

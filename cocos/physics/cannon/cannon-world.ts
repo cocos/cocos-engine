@@ -9,6 +9,7 @@ import { CannonSharedBody } from './cannon-shared-body';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { PhysicMaterial, PhysicsRayResult } from '../framework';
 import { IVec3Like } from '../../core/math/type-define';
+import { CannonRigidBody } from './cannon-rigid-body';
 export class CannonWorld implements IPhysicsWorld {
 
     get impl () {
@@ -95,8 +96,8 @@ export class CannonWorld implements IPhysicsWorld {
         return hit
     }
 
-    getSharedBody (node: Node): CannonSharedBody {
-        return CannonSharedBody.getSharedBody(node, this);
+    getSharedBody (node: Node, wrappedBody?: CannonRigidBody): CannonSharedBody {
+        return CannonSharedBody.getSharedBody(node, this, wrappedBody);
     }
 
     addSharedBody (sharedBody: CannonSharedBody) {

@@ -202,8 +202,8 @@
       "__id__": 3
     },
     "_enabled": true,
-    "__prefab": null,
     "_materials": [],
+    "__prefab": null,
     "_visFlags": 0,
     "_srcBlendFactor": 2,
     "_dstBlendFactor": 4,
@@ -277,8 +277,8 @@
       "__id__": 2
     },
     "_enabled": true,
-    "__prefab": null,
     "_materials": [],
+    "__prefab": null,
     "_visFlags": 0,
     "_srcBlendFactor": 2,
     "_dstBlendFactor": 4,
@@ -513,8 +513,8 @@
       "__id__": 13
     },
     "_enabled": true,
-    "__prefab": null,
     "_materials": [],
+    "__prefab": null,
     "_visFlags": 0,
     "_srcBlendFactor": 2,
     "_dstBlendFactor": 4,
@@ -623,8 +623,8 @@
       "__id__": 17
     },
     "_enabled": true,
-    "__prefab": null,
     "_materials": [],
+    "__prefab": null,
     "_visFlags": 0,
     "_srcBlendFactor": 2,
     "_dstBlendFactor": 4,
@@ -750,8 +750,8 @@
       "__id__": 1
     },
     "_enabled": true,
-    "__prefab": null,
     "_materials": [],
+    "__prefab": null,
     "_visFlags": 0,
     "_srcBlendFactor": 2,
     "_dstBlendFactor": 4,

@@ -7,8 +7,8 @@ import { RecyclePool } from '../memop';
 import { CachedArray } from '../memop/cached-array';
 import { IRenderObject, IRenderPass, IRenderQueueDesc, SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { GFXRenderPass, GFXDevice, GFXCommandBuffer } from '../gfx';
-import { BlendStatePool, PassPool, PassView, DSPool, SubModelView, SubModelPool, ShaderPool, PassHandle, ShaderHandle } from '../renderer/core/memory-pools';
+import { RenderPass, Device, CommandBuffer } from '../gfx';
+import { PassPool, PassView, DSPool, SubModelView, SubModelPool, ShaderPool, PassHandle, ShaderHandle } from '../renderer/core/memory-pools';
 
 /**
  * @en Comparison sorting function. Opaque objects are sorted by priority -> depth front to back -> shader ID.
@@ -27,8 +27,8 @@ export function transparentCompareFn (a: IRenderPass, b: IRenderPass) {
 }
 
 /**
- * @en The render queue. It manages a [[GFXRenderPass]] queue which will be executed by the [[RenderStage]].
- * @zh 渲染队列。它管理一个 [[GFXRenderPass]] 队列，队列中的渲染过程会被 [[RenderStage]] 所执行。
+ * @en The render queue. It manages a GFX [[RenderPass]] queue which will be executed by the [[RenderStage]].
+ * @zh 渲染队列。它管理一个 GFX [[RenderPass]] 队列，队列中的渲染过程会被 [[RenderStage]] 所执行。
  */
 export class RenderQueue {
 
@@ -78,7 +78,7 @@ export class RenderQueue {
     public insertRenderPass (renderObj: IRenderObject, subModelIdx: number, passIdx: number): boolean {
         const subModel = renderObj.model.subModels[subModelIdx];
         const hPass = SubModelPool.get(subModel.handle, SubModelView.PASS_0 + passIdx) as PassHandle;
-        const isTransparent = BlendStatePool.get(PassPool.get(hPass, PassView.BLEND_STATE)).targets[0].blend;
+        const isTransparent = subModel.passes[subModelIdx].blendState.targets[0].blend;
         if (isTransparent !== this._passDesc.isTransparent || !(PassPool.get(hPass, PassView.PHASE) & this._passDesc.phases)) {
             return false;
         }
@@ -101,16 +101,16 @@ export class RenderQueue {
         this.queue.sort();
     }
 
-    public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
+    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         for (let i = 0; i < this.queue.length; ++i) {
             const { subModel, passIdx } = this.queue.array[i];
             const { inputAssembler, handle: hSubModel } = subModel;
-            const hPass = SubModelPool.get(hSubModel, SubModelView.PASS_0 + passIdx) as PassHandle;
+            const pass = subModel.passes[passIdx];
             const shader = ShaderPool.get(SubModelPool.get(hSubModel, SubModelView.SHADER_0 + passIdx) as ShaderHandle);
-            const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, inputAssembler);
+            const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
             cmdBuff.bindPipelineState(pso);
-            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET)));
-            cmdBuff.bindDescriptorSet(SetIndex.LOCAL, DSPool.get(SubModelPool.get(hSubModel, SubModelView.DESCRIPTOR_SET)));
+            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
+            cmdBuff.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);
             cmdBuff.bindInputAssembler(inputAssembler);
             cmdBuff.draw(inputAssembler);
         }

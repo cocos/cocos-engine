@@ -29,23 +29,23 @@
  */
 
 import { ccclass, editable, type, menu, executeInEditMode, serializable } from 'cc.decorator';
-import { Enum } from '../core/value-types';
 import { UIRenderable } from '../core/components/ui-base';
 import { Color, Vec2 } from '../core/math';
 import { EDITOR } from 'internal:constants';
 import { warnID, errorID } from '../core/platform/debug';
 import { Simulator } from './particle-simulator-2d';
-import { SpriteFrame, Texture2D, textureUtil } from '../core/assets';
+import { SpriteFrame, Texture2D } from '../core/assets';
 import { ParticleAsset } from './particle-asset';
-import { GFXBlendFactor } from '../core/gfx';
+import { BlendFactor } from '../core/gfx';
 import { path } from '../core/utils';
-import { loader } from '../core/load-pipeline';
 import { ImageAsset } from '../core/assets/image-asset';
 import { PNGReader } from './png-reader';
 import { TiffReader } from './tiff-reader';
 import codec from '../../external/compression/ZipUtils';
 import { UI } from '../core/renderer/ui/ui';
 import { vfmtPosUvColor, getAttributeFormatBytes } from '../core/renderer/ui/ui-vertex-format';
+import { assetManager } from '../core/asset-manager';
+import { PositionType, EmitterMode } from './define';
 
 const formatBytes = getAttributeFormatBytes(vfmtPosUvColor);
 
@@ -142,58 +142,6 @@ function getParticleComponents (node) {
     return getParticleComponents(parent);
 }
 
-
-/**
- * @en Enum for emitter modes
- * @zh 发射模式
- * @enum ParticleSystem.EmitterMode
- */
-export const EmitterMode = Enum({
-    /**
-     * @en Uses gravity, speed, radial and tangential acceleration.
-     * @zh 重力模式，模拟重力，可让粒子围绕一个中心点移近或移远。
-     */
-    GRAVITY: 0,
-    /**
-     * @en Uses radius movement + rotation.
-     * @zh 半径模式，可以使粒子以圆圈方式旋转，它也可以创造螺旋效果让粒子急速前进或后退。
-     */
-    RADIUS: 1
-});
-
-/**
- * @en Enum for particles movement type.
- * @zh 粒子位置类型
- * @enum ParticleSystem.PositionType
- */
-export const PositionType = Enum({
-    /**
-     * @en
-     * Living particles are attached to the world and are unaffected by emitter repositioning.
-     * @zh
-     * 自由模式，相对于世界坐标，不会随粒子节点移动而移动。（可产生火焰、蒸汽等效果）
-     */
-    FREE: 0,
-
-    /**
-     * @en
-     * In the relative mode, the particle will move with the parent node, but not with the node where the particle is. 
-     * For example, the coffee in the cup is steaming. Then the steam moves (forward) with the train, rather than moves with the cup.
-     * @zh
-     * 相对模式，粒子会跟随父节点移动，但不跟随粒子所在节点移动，例如在一列行进火车中，杯中的咖啡飘起雾气，
-     * 杯子移动，雾气整体并不会随着杯子移动，但从火车整体的角度来看，雾气整体会随着火车移动。
-     */
-    RELATIVE: 1,
-
-    /**
-     * @en
-     * Living particles are attached to the emitter and are translated along with it.
-     * @zh
-     * 整组模式，粒子跟随发射器移动。（不会发生拖尾）
-     */
-    GROUPED: 2
-});
-
 /**
  * Particle System base class. <br/>
  * Attributes of a Particle System:<br/>
@@ -238,29 +186,6 @@ export const PositionType = Enum({
 @menu('Components/ParticleSystem2D')
 @executeInEditMode
 export class ParticleSystem2D extends UIRenderable {
-    /**
-     * @en The Particle emitter lives forever.
-     * @zh 表示发射器永久存在
-     * @static
-     * @readonly
-     */
-    public static DURATION_INFINITY = -1;
-
-    /**
-     * @en The starting size of the particle is equal to the ending size.
-     * @zh 表示粒子的起始大小等于结束大小。
-     * @static
-     * @readonly
-     */
-    public static START_SIZE_EQUAL_TO_END_SIZE = -1;
-
-    /**
-     * @en The starting radius of the particle is equal to the ending radius.
-     * @zh 表示粒子的起始半径等于结束半径。
-     * @static
-     * @readonly
-     */
-    public static START_RADIUS_EQUAL_TO_END_RADIUS = -1;
     /**
      * @en Play particle in edit mode.
      * @zh 在编辑器模式下预览粒子，启用后选中粒子时，粒子将自动播放。
@@ -737,7 +662,7 @@ export class ParticleSystem2D extends UIRenderable {
     public aspectRatio: number = 1;
     // The temporary SpriteFrame object used for the renderer. Because there is no corresponding asset, it can't be serialized.
     public declare _renderSpriteFrame: SpriteFrame | null;
-    private declare _simulator: Simulator;
+    public declare _simulator: Simulator;
     private declare _previewTimer;
     private declare _focused: boolean;
     private declare _plistFile;
@@ -875,7 +800,7 @@ bv
         }
 
         if (this._assembler && this._assembler.createData){
-            this._assembler.createData(this);
+            this._simulator.renderData = this._assembler.createData(this);
         }
     }
 
@@ -952,7 +877,7 @@ bv
         const file = this._file;
         if (file) {
             const self = this;
-            loader.load(file.nativeUrl, function (err) {
+            assetManager.postLoadNative(file, function (err) {
                 if (err || !file) {
                     errorID(6029);
                     return;
@@ -985,22 +910,21 @@ bv
         // texture
         if (dict["textureFileName"]) {
             // Try to get the texture from the cache
-            textureUtil.loadImage(imgPath, (error, texture) => {
+            assetManager.loadRemote<ImageAsset>(imgPath, (error, texture) => {
                 if (error) {
                     dict["textureFileName"] = undefined;
                     this._initTextureWithDictionary(dict);
                 }
                 else {
-                    textureUtil.cacheImage(imgPath, texture!._texture);
                     this.spriteFrame = new SpriteFrame();
                     this.spriteFrame.texture = texture!._texture;
                 }
-            }, this);
+            });
         } else if (dict["textureImageData"]) {
             let textureData = dict["textureImageData"];
 
             if (textureData && textureData.length > 0) {
-                let tex = textureUtil.loadImage(imgPath);
+                let tex = assetManager.assets.get(imgPath) as ImageAsset;
 
                 if (!tex) {
                     let buffer = codec.unzipBase64AsArray(textureData, 1);
@@ -1025,7 +949,8 @@ bv
                         }
                         this._tiffReader.parseTIFF(buffer,canvasObj);
                     }
-                    tex = textureUtil.cacheImage(imgPath, canvasObj) as ImageAsset;
+                    const tex = new ImageAsset(canvasObj);
+                    assetManager.assets.add(imgPath, tex);
                 }
 
                 if (!tex)
@@ -1062,8 +987,8 @@ bv
         this.duration = parseFloat(dict["duration"] || 0);
 
         // blend function
-        this.srcBlendFactor = parseInt(dict["blendFuncSource"] || GFXBlendFactor.SRC_ALPHA);
-        this.dstBlendFactor = parseInt(dict["blendFuncDestination"] || GFXBlendFactor.ONE_MINUS_SRC_ALPHA);
+        this.srcBlendFactor = parseInt(dict["blendFuncSource"] || BlendFactor.SRC_ALPHA);
+        this.dstBlendFactor = parseInt(dict["blendFuncDestination"] || BlendFactor.ONE_MINUS_SRC_ALPHA);
 
         // color
         const locStartColor = this._startColor;
@@ -1098,7 +1023,7 @@ bv
 
         // position
         // Make empty positionType value and old version compatible
-        this.positionType = parseFloat(dict['positionType'] !== undefined ? dict['positionType'] : PositionType.RELATIVE);
+        this.positionType = parseFloat(dict['positionType'] !== undefined ? dict['positionType'] : PositionType.FREE);
         // for
         this.sourcePos.set(0, 0)
         this.posVar.set(parseFloat(dict["sourcePositionVariancex"] || 0), parseFloat(dict["sourcePositionVariancey"] || 0));
@@ -1189,10 +1114,6 @@ bv
 
     public _updateMaterial () {
         let mat = this.getRenderMaterial(0);
-        if (!mat) {
-            this._updateBuiltinMaterial();
-            mat = this.getUIMaterialInstance();
-        }
         if (!mat) return;
         // mat.recompileShaders({USE_LOCAL:this._positionType !== PositionType.FREE});
     }

@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -32,13 +32,10 @@ import { SubModel } from '../scene/submodel';
 import { UIDrawBatch } from './ui-draw-batch';
 import { Pass } from '../core/pass';
 import { SubModelPool, InputAssemblerHandle, DescriptorSetHandle, SubModelView, IAPool, DSPool, NULL_HANDLE,
-    SubModelArrayPool, ModelView, ModelPool, SubModelArrayHandle } from '../core/memory-pools';
+    SubModelArrayPool, ModelView, ModelPool } from '../core/memory-pools';
 import { RenderPriority } from '../../pipeline/define';
 
 export class UIBatchModel extends Model {
-
-    private _subModel!: UISubModel;
-
     constructor () {
         super();
         this.type = ModelType.UI_BATCH;
@@ -47,11 +44,11 @@ export class UIBatchModel extends Model {
     public initialize () {
         super.initialize();
 
-        this._subModel = new UISubModel();
-        this._subModel.initialize();
-        this._subModels[0] = this._subModel;
+        const subModel = new UISubModel();
+        subModel.initialize();
+        this._subModels[0] = subModel;
         const hSubModelArray = ModelPool.get(this._handle, ModelView.SUB_MODEL_ARRAY);
-        SubModelArrayPool.assign(hSubModelArray, 0, this._subModel.handle);
+        SubModelArrayPool.assign(hSubModelArray, 0, subModel.handle);
     }
 
     public updateTransform () {}
@@ -69,12 +66,8 @@ export class UIBatchModel extends Model {
     }
 
     public directInitialize (batch: UIDrawBatch) {
-        this._subModel.directInitialize(batch.material!.passes, batch.hInputAssembler, batch.hDescriptorSet!);
-    }
-
-    public destroy () {
-        this._subModel.destroy();
-        super.destroy();
+        const subModel = this._subModels[0] as UISubModel;
+        subModel.directInitialize(batch.material!.passes, batch.hInputAssembler, batch.hDescriptorSet!);
     }
 }
 

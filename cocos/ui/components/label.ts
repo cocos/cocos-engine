@@ -30,17 +30,14 @@
  */
 
 import { BitmapFont, Font, ImageAsset, SpriteFrame, Texture2D, Material } from '../../core/assets';
-import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, displayName, multiline, type, readOnly, override, serializable } from 'cc.decorator';
+import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, displayName, multiline, type, readOnly, override, serializable, editable } from 'cc.decorator';
 import { ccenum } from '../../core/value-types/enum';
 import { UI } from '../../core/renderer/ui/ui';
-import { FontAtlas } from '../assembler/label/bmfontUtils';
-import { CanvasPool, ISharedLabelData } from '../assembler/label/font-utils';
-import { LetterRenderTexture } from '../assembler/label/letter-font';
+import { FontAtlas } from '../../core/assets/bitmap-font';
+import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/label/font-utils';
 import { UIRenderable } from '../../core/components/ui-base/ui-renderable';
 import { warnID } from '../../core/platform/debug';
-import { sys } from '../../core/platform/sys';
 import { EDITOR } from 'internal:constants';
-import { legacyCC } from '../../core/global-exports';
 
 /**
  * @en Enum for horizontal text alignment.
@@ -418,10 +415,6 @@ export class Label extends UIRenderable {
         // if (value && this._isSystemFontUsed)
         //     this._isSystemFontUsed = false;
 
-        if (typeof value === 'string') {
-            warnID(4000);
-        }
-
         if (this._renderData) {
             this.destroyRenderData();
             this._renderData = null;
@@ -573,16 +566,20 @@ export class Label extends UIRenderable {
         this.updateRenderData();
     }
 
-    @type(Material)
-    @override
-    @displayName('Materials')
-    @visible(false)
-    get sharedMaterials () {
-        return super.sharedMaterials;
+    /**
+     * @en The height of underline.
+     * @zh 下划线高度。
+     */
+    @visible(function (this: Label) { return this._isUnderline; })
+    @editable
+    public get underlineHeight () {
+        return this._underlineHeight;
     }
 
-    set sharedMaterials (val) {
-        super.sharedMaterials = val;
+    public set underlineHeight (value) {
+        if (this._underlineHeight === value) return;
+        this._underlineHeight = value;
+        this.updateRenderData();
     }
 
     get assemblerData (){
@@ -623,7 +620,7 @@ export class Label extends UIRenderable {
     public static VerticalAlign = VerticalTextAlignment;
     public static Overflow = Overflow;
     public static CacheMode = CacheMode;
-    public static _canvasPool = new CanvasPool();
+    public static _canvasPool = CanvasPool.getInstance();
 
     @serializable
     protected _useOriginalSize = true;
@@ -656,6 +653,8 @@ export class Label extends UIRenderable {
     protected _isBold = false;
     @serializable
     protected _isUnderline = false;
+    @serializable
+    protected _underlineHeight = 2;
     @serializable
     protected _cacheMode = CacheMode.NONE;
 

@@ -11,7 +11,7 @@ import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle'
 import CurveRange from './curve-range';
 import { calculateTransform } from '../particle-general-function';
 
-// tslint:disable: max-line-length
+
 const LIMIT_VELOCITY_RAND_OFFSET = ModuleRandSeed.LIMIT;
 
 const _temp_v3 = new Vec3();

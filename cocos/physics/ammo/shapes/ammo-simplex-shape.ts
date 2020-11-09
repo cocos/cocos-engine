@@ -39,10 +39,10 @@ export class AmmoSimplexShape extends AmmoShape implements ISimplexShape {
 
     constructor () {
         super(AmmoBroadphaseNativeTypes.TETRAHEDRAL_SHAPE_PROXYTYPE);
-        this._btShape = new Ammo.btBU_Simplex1to4();
     }
 
     protected onComponentSet () {
+        this._btShape = new Ammo.btBU_Simplex1to4();
         const length = this.collider.shapeType;
         const vertices = this.collider.vertices;
         for (let i = 0; i < length; i++) {

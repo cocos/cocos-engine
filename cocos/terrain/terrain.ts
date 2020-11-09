@@ -12,8 +12,8 @@ import { Component } from '../core/components';
 import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
 import { isValid } from '../core/data/object';
 import { director } from '../core/director';
-import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXPrimitiveMode } from '../core/gfx/define';
-import { GFXDevice, GFXAttribute, GFXBuffer, GFXBufferInfo } from '../core/gfx';
+import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode } from '../core/gfx/define';
+import { Device, Attribute, Buffer, BufferInfo } from '../core/gfx';
 import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { MacroRecord } from '../core/renderer/core/pass-utils';
 import { scene } from '../core/renderer';
@@ -24,6 +24,7 @@ import { legacyCC } from '../core/global-exports';
 import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY,
     TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
     TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, } from './terrain-asset';
+import { CCBoolean, CCInteger } from '../core';
 
 
 const bbMin = new Vec3();
@@ -41,7 +42,7 @@ export class TerrainInfo {
      */
     @serializable
     @editable
-    public tileSize: number = 1;
+    public tileSize = 1;
 
     /**
      * @en block count
@@ -57,7 +58,7 @@ export class TerrainInfo {
      */
     @serializable
     @editable
-    public weightMapSize: number = 128;
+    public weightMapSize = 128;
 
     /**
      * @en light map size
@@ -65,7 +66,7 @@ export class TerrainInfo {
      */
     @serializable
     @editable
-    public lightMapSize: number = 128;
+    public lightMapSize = 128;
 
     /**
      * @en terrain size
@@ -124,7 +125,7 @@ export class TerrainLayer {
      */
     @serializable
     @editable
-    public tileSize: number = 1;
+    public tileSize = 1;
 }
 
 /**
@@ -137,7 +138,7 @@ class TerrainRenderable extends RenderableComponent {
 
     public _brushMaterial: Material | null = null;
     public _currentMaterial: Material | null = null;
-    public _currentMaterialLayers: number = 0;
+    public _currentMaterialLayers = 0;
 
     public destroy () {
         // this._invalidMaterial();
@@ -225,6 +226,7 @@ class TerrainRenderable extends RenderableComponent {
  */
 @ccclass('cc.TerrainBlockInfo')
 export class TerrainBlockInfo {
+    @type([CCInteger])
     @serializable
     @editable
     public layers: number[] = [-1, -1, -1, -1];
@@ -241,16 +243,16 @@ export class TerrainBlockLightmapInfo {
     public texture: Texture2D|null = null;
     @serializable
     @editable
-    public UOff: number = 0;
+    public UOff = 0;
     @serializable
     @editable
-    public VOff: number = 0;
+    public VOff = 0;
     @serializable
     @editable
-    public UScale: number = 0;
+    public UScale = 0;
     @serializable
     @editable
-    public VScale: number = 0;
+    public VScale = 0;
 }
 
 /**
@@ -275,16 +277,14 @@ export class TerrainBlock {
         this._lightmapInfo = t._getLightmapInfo(i, j);
 
         this._node = new PrivateNode('');
-        // @ts-ignore
         this._node.setParent(this._terrain.node);
-        // @ts-ignore
         this._node._objFlags |= legacyCC.Object.Flags.DontSave;
 
-        this._renderable = this._node.addComponent(TerrainRenderable) as TerrainRenderable;
+        this._renderable = this._node.addComponent(TerrainRenderable) ;
     }
 
     public build () {
-        const gfxDevice = director.root!.device as GFXDevice;
+        const gfxDevice = director.root!.device ;
 
         // vertex buffer
         const vertexData = new Float32Array(TERRAIN_BLOCK_VERTEX_SIZE * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY);
@@ -312,23 +312,23 @@ export class TerrainBlock {
             }
         }
 
-        const vertexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        const vertexBuffer = gfxDevice.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             TERRAIN_BLOCK_VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY,
             TERRAIN_BLOCK_VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT,
         ));
         vertexBuffer.update(vertexData);
 
         // initialize renderable
-        const gfxAttributes: GFXAttribute[] = [
-            new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),
-            new GFXAttribute(GFXAttributeName.ATTR_NORMAL, GFXFormat.RGB32F),
-            new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RG32F),
+        const gfxAttributes: Attribute[] = [
+            new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
+            new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F),
+            new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F),
         ];
 
         this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes,
-            GFXPrimitiveMode.TRIANGLE_LIST, this._terrain._getSharedIndexBuffer());
+            PrimitiveMode.TRIANGLE_LIST, this._terrain._getSharedIndexBuffer());
 
         const model = this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
         model.node = model.transform = this._node;
@@ -682,27 +682,30 @@ export class Terrain extends Component {
     @disallowAnimation
     protected _layers: (TerrainLayer|null)[] = [];
 
+    @type(TerrainBlockInfo)
     @serializable
     @disallowAnimation
     protected _blockInfos: TerrainBlockInfo[] = [];
 
+    @type(TerrainBlockLightmapInfo)
     @serializable
     @disallowAnimation
     protected _lightmapInfos: TerrainBlockLightmapInfo[] = [];
 
+    @type(CCBoolean)
     @serializable
     @disallowAnimation
-    protected _receiveShadow: boolean = false;
+    protected _receiveShadow = false;
 
-    protected _tileSize: number = 1;
+    protected _tileSize = 1;
     protected _blockCount: number[] = [1, 1];
-    protected _weightMapSize: number = 128;
-    protected _lightMapSize: number = 128;
+    protected _weightMapSize = 128;
+    protected _lightMapSize = 128;
     protected _heights: Uint16Array = new Uint16Array();
     protected _weights: Uint8Array = new Uint8Array();
     protected _normals: number[] = [];
     protected _blocks: TerrainBlock[] = [];
-    protected _sharedIndexBuffer: GFXBuffer|null = null;
+    protected _sharedIndexBuffer: Buffer|null = null;
 
     constructor () {
         super();
@@ -1033,7 +1036,7 @@ export class Terrain extends Component {
     }
 
     public onLoad () {
-        const gfxDevice = legacyCC.director.root.device as GFXDevice;
+        const gfxDevice = legacyCC.director.root.device as Device;
 
         // initialize shared index buffer
         const indexData = new Uint16Array(TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6);
@@ -1058,9 +1061,9 @@ export class Terrain extends Component {
             }
         }
 
-        this._sharedIndexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        this._sharedIndexBuffer = gfxDevice.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             Uint16Array.BYTES_PER_ELEMENT * TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6,
             Uint16Array.BYTES_PER_ELEMENT,
         ));
@@ -1108,7 +1111,8 @@ export class Terrain extends Component {
      */
     public addLayer (layer: TerrainLayer) {
         for (let i = 0; i < this._layers.length; ++i) {
-            if (this._layers[i] == null) {
+            if (this._layers[i] === null ||
+                (this._layers[i] && this._layers[i]?.detailMap === null)) {
                 this._layers[i] = layer;
                 return i;
             }
@@ -1423,7 +1427,7 @@ export class Terrain extends Component {
      * @param step ray step
      * @param worldSpace is world space
      */
-    public rayCheck (start: Vec3, dir: Vec3, step: number, worldSpace: boolean = true) {
+    public rayCheck (start: Vec3, dir: Vec3, step: number, worldSpace = true) {
         const MAX_COUNT = 2000;
 
         const trace = start;
@@ -1552,7 +1556,7 @@ export class Terrain extends Component {
         }
     }
 
-    private _buildImp (restore: boolean = false) {
+    private _buildImp (restore = false) {
         if (this.valid) {
             return true;
         }
@@ -1574,7 +1578,7 @@ export class Terrain extends Component {
             for (const i of terrainAsset.layerInfos) {
                 const layer = new TerrainLayer();
                 layer.tileSize = i.tileSize;
-                legacyCC.AssetLibrary.loadAsset(i.detailMap, (err, asset) => {
+                legacyCC.assetManager.loadAny(i.detailMap, (err, asset) => {
                     layer.detailMap = asset;
                 });
 
@@ -1769,7 +1773,7 @@ export class Terrain extends Component {
 
                 for (let v = 0; v < info.weightMapSize; ++v) {
                     for (let u = 0; u < info.weightMapSize; ++u) {
-                        // tslint:disable-next-line: no-shadowed-variable
+
                         let w: Vec4;
                         if (info.weightMapSize === oldWeightMapSize) {
                             w = getOldWeight(u + uOff, v + vOff, this._weights);

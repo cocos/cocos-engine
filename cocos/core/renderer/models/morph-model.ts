@@ -7,7 +7,7 @@ import { Model } from '../scene/model';
 import { MorphRenderingInstance } from '../../assets/morph';
 import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/mesh';
-import { GFXDescriptorSet } from '../../gfx';
+import { DescriptorSet } from '../../gfx';
 
 export class MorphModel extends Model {
     private _morphRenderingInstance: MorphRenderingInstance | null = null;
@@ -33,7 +33,7 @@ export class MorphModel extends Model {
         return super.setSubModelMaterial(subModelIndex, this._launderMaterial(material));
     }
 
-    protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: GFXDescriptorSet) {
+    protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet) {
         super._updateLocalDescriptors(submodelIdx, descriptorSet);
 
         if (this._morphRenderingInstance) {

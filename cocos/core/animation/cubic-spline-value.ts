@@ -72,7 +72,7 @@ function makeCubicSplineValueConstructor<T> (
         }
     }
 
-    // @ts-ignore TS2367
+    // @ts-expect-error TS2367
     if (constructorX === Quat) {
         const lerp = CubicSplineValueClass.prototype.lerp;
         CubicSplineValueClass.prototype.lerp = function (this: CubicSplineValueClass, to: CubicSplineValueClass, t: number, dt: number) {

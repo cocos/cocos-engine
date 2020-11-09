@@ -1,7 +1,9 @@
 import { aabb, frustum } from '../../geometry';
 import { Mat4, Quat, Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
-import { AABBHandle, AABBPool, AABBView, FrustumHandle, FrustumPool, LightPool, LightView, NULL_HANDLE } from '../core/memory-pools';
+import {
+    AABBHandle, AABBPool, AABBView, FrustumHandle, FrustumPool, LightPool, LightView, NULL_HANDLE,
+} from '../core/memory-pools';
 import { recordFrustumToSharedMemory } from '../../geometry/frustum';
 
 const _forward = new Vec3(0, 0, -1);
@@ -13,15 +15,23 @@ const _matViewProjInv = new Mat4();
 
 export class SpotLight extends Light {
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
-    protected _size: number = 0.15;
-    protected _range: number = 5.0;
+
+    protected _range = 5.0;
+
     protected _spotAngle: number = Math.cos(Math.PI / 6);
+
     protected _pos: Vec3;
+
     protected _aabb: aabb;
+
     protected _frustum: frustum;
-    protected _angle: number = 0;
+
+    protected _angle = 0;
+
     protected _needUpdate = false;
+
     protected _hAABB: AABBHandle = NULL_HANDLE;
+
     protected _hFrustum: FrustumHandle = NULL_HANDLE;
 
     get position () {
@@ -37,6 +47,7 @@ export class SpotLight extends Light {
     }
 
     set range (range: number) {
+        this._range = range;
         LightPool.set(this._handle, LightView.RANGE, range);
         this._needUpdate = true;
     }
@@ -63,7 +74,7 @@ export class SpotLight extends Light {
 
     set spotAngle (val: number) {
         this._angle = val;
-        LightPool.set(this._handle, LightView.SPOT_ANGLE, Math.cos(val * 0.5))
+        LightPool.set(this._handle, LightView.SPOT_ANGLE, Math.cos(val * 0.5));
         this._needUpdate = true;
     }
 
@@ -77,7 +88,6 @@ export class SpotLight extends Light {
 
     constructor () {
         super();
-        this._type = LightType.SPOT;
         this._aabb = aabb.create();
         this._frustum = frustum.create();
         this._pos = new Vec3();
@@ -88,6 +98,7 @@ export class SpotLight extends Light {
         this._hAABB = AABBPool.alloc();
         this._hFrustum = FrustumPool.alloc();
         const size = 0.15;
+        LightPool.set(this._handle, LightView.TYPE, LightType.SPOT);
         LightPool.set(this._handle, LightView.SIZE, size);
         LightPool.set(this._handle, LightView.AABB, this._hAABB);
         LightPool.set(this._handle, LightView.ILLUMINANCE, 1700 / nt2lm(size));
@@ -117,7 +128,7 @@ export class SpotLight extends Light {
             this._frustum.update(_matViewProj, _matViewProjInv);
             this._needUpdate = false;
 
-            LightPool.setVec3(this._handle, LightView.DIRECTION, this._pos);
+            LightPool.setVec3(this._handle, LightView.POSITION, this._pos);
             AABBPool.setVec3(this._hAABB, AABBView.CENTER, this._aabb.center);
             AABBPool.setVec3(this._hAABB, AABBView.HALF_EXTENSION, this._aabb.halfExtents);
             recordFrustumToSharedMemory(this._hFrustum, this._frustum);

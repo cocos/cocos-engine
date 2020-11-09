@@ -16,10 +16,12 @@ import { BatchingSchemes } from '../core/pass';
 import { Mat4, Vec3, Vec4 } from '../../math';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool, ModelPool,
-    ModelView, AABBHandle, AABBPool, AABBView, NULL_HANDLE, AttributeArrayPool as AttrArrayPool, RawBufferPool, AttrPool, freeHandleArray } from '../core/memory-pools';
-import { GFXAttribute, GFXDescriptorSet, GFXDevice, GFXBuffer, GFXBufferInfo } from '../../gfx';
+    ModelView, AABBHandle, AABBPool, AABBView, NULL_HANDLE, AttributeArrayPool as AttrArrayPool, RawBufferPool, freeHandleArray, ObjectPool, PoolType } from '../core/memory-pools';
+import { Attribute, DescriptorSet, Device, Buffer, BufferInfo } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
-import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress, GFXFeature } from '../../gfx/define';
+import { getTypedArrayConstructor, BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature } from '../../gfx/define';
+
+const AttrPool = new ObjectPool(PoolType.ATTRIBUTE, (_: never[], obj?: Attribute) => obj || new Attribute());
 
 const m4_1 = new Mat4();
 
@@ -32,7 +34,7 @@ const shadowMapPatches: IMacroPatch[] = [
 export interface IInstancedAttributeBlock {
     buffer: Uint8Array;
     views: TypedArray[];
-    attributes: GFXAttribute[];
+    attributes: Attribute[];
 }
 
 export enum ModelType {
@@ -51,21 +53,21 @@ function uploadMat4AsVec4x3 (mat: Mat4, v1: ArrayBufferView, v2: ArrayBufferView
 }
 
 const lightmapSamplerHash = genSamplerHash([
-    GFXFilter.LINEAR,
-    GFXFilter.LINEAR,
-    GFXFilter.NONE,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
+    Filter.LINEAR,
+    Filter.LINEAR,
+    Filter.NONE,
+    Address.CLAMP,
+    Address.CLAMP,
+    Address.CLAMP,
 ]);
 
 const lightmapSamplerWithMipHash = genSamplerHash([
-    GFXFilter.LINEAR,
-    GFXFilter.LINEAR,
-    GFXFilter.LINEAR,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
+    Filter.LINEAR,
+    Filter.LINEAR,
+    Filter.LINEAR,
+    Address.CLAMP,
+    Address.CLAMP,
+    Address.CLAMP,
 ]);
 
 /**
@@ -102,11 +104,22 @@ export class Model {
     }
 
     get receiveShadow () {
-        return this._receiveShadow;
+        if (ModelPool.get(this._handle, ModelView.RECEIVE_SHADOW)) { return true; }
+        return false;
     }
+
     set receiveShadow (val) {
-        this._receiveShadow = val;
+        ModelPool.set(this._handle, ModelView.RECEIVE_SHADOW, val ? 1 : 0);
         this.onMacroPatchesStateChanged();
+    }
+
+    get castShadow () {
+        if (ModelPool.get(this._handle, ModelView.CAST_SHADOW)) { return true; }
+        return false;
+    }
+
+    set castShadow (val) {
+        ModelPool.set(this._handle, ModelView.CAST_SHADOW, val ? 1 : 0);
     }
 
     get handle () {
@@ -140,7 +153,8 @@ export class Model {
     }
 
     get enabled () : boolean {
-        return ModelPool.get(this._handle, ModelView.ENABLED) === 1 ? true : false;
+        if (ModelPool.get(this._handle, ModelView.ENABLED)) { return true; }
+        return false;
     }
 
     set enabled (val: boolean) {
@@ -149,7 +163,6 @@ export class Model {
 
     public type = ModelType.DEFAULT;
     public scene: RenderScene | null = null;
-    public castShadow = false;
     public isDynamicBatching = false;
     public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, views: [], attributes: [] };
 
@@ -159,7 +172,7 @@ export class Model {
     protected _node: Node = null!;
     protected _transform: Node = null!;
 
-    protected _device: GFXDevice;
+    protected _device: Device;
     protected _inited = false;
     protected _descriptorSetCount = 1;
     protected _updateStamp = -1;
@@ -168,11 +181,10 @@ export class Model {
     protected _hWorldBounds: AABBHandle = NULL_HANDLE;
 
     private _localData = new Float32Array(UBOLocal.COUNT);
-    private _localBuffer: GFXBuffer | null = null;
+    private _localBuffer: Buffer | null = null;
     private _instMatWorldIdx = -1;
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
-    private _receiveShadow = true;
 
     /**
      * Setup a default empty model
@@ -183,8 +195,6 @@ export class Model {
 
     public initialize () {
         if (!this._inited) {
-            this.castShadow = false;
-            this._receiveShadow = true;
             this._handle = ModelPool.alloc();
             const hSubModelArray = SubModelArrayPool.alloc();
             const hInstancedAttrArray = AttrArrayPool.alloc();
@@ -192,6 +202,8 @@ export class Model {
             ModelPool.set(this._handle, ModelView.SUB_MODEL_ARRAY, hSubModelArray);
             ModelPool.set(this._handle, ModelView.VIS_FLAGS, Layers.Enum.NONE);
             ModelPool.set(this._handle, ModelView.ENABLED, 1);
+            ModelPool.set(this._handle, ModelView.RECEIVE_SHADOW, 1);
+            ModelPool.set(this._handle, ModelView.CAST_SHADOW, 0);
             this._inited = true;
         }
     }
@@ -244,13 +256,13 @@ export class Model {
 
     public updateTransform (stamp: number) {
         const node = this.transform;
-        // @ts-ignore TS2445
+        // @ts-expect-error TS2445
         if (node.hasChangedFlags || node._dirtyFlags) {
             node.updateWorldTransform();
             this._transformUpdated = true;
             const worldBounds = this._worldBounds;
             if (this._modelBounds && worldBounds) {
-                // @ts-ignore TS2445
+                // @ts-expect-error TS2445
                 this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
                 AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, worldBounds.center);
                 AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, worldBounds.halfExtents);
@@ -268,7 +280,7 @@ export class Model {
         if (!this._transformUpdated) { return; }
         this._transformUpdated = false;
 
-        // @ts-ignore
+        // @ts-expect-error
         const worldMatrix = this.transform._mat;
         const idx = this._instMatWorldIdx;
         if (idx >= 0) {
@@ -297,7 +309,6 @@ export class Model {
         }
         AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, this._worldBounds.center);
         AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, this._worldBounds.halfExtents);
-
     }
 
     public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {
@@ -371,7 +382,7 @@ export class Model {
     }
 
     public getMacroPatches (subModelIndex: number) {
-        return this._receiveShadow ? shadowMapPatches : null;
+        return this.receiveShadow ? shadowMapPatches : null;
     }
 
     protected _updateAttributesAndBinding (subModelIndex: number) {
@@ -396,8 +407,8 @@ export class Model {
     // sub-classes can override the following functions if needed
 
     // for now no submodel level instancing attributes
-    protected _updateInstancedAttributes (attributes: GFXAttribute[], pass: Pass) {
-        if (!pass.device.hasFeature(GFXFeature.INSTANCED_ARRAYS)) { return; }
+    protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {
+        if (!pass.device.hasFeature(Feature.INSTANCED_ARRAYS)) { return; }
         // free old data
         const hOldBuffer = ModelPool.get(this._handle, ModelView.INSTANCED_BUFFER);
         if (hOldBuffer) RawBufferPool.free(hOldBuffer);
@@ -408,7 +419,7 @@ export class Model {
         for (let j = 0; j < attributes.length; j++) {
             const attribute = attributes[j];
             if (!attribute.isInstanced) { continue; }
-            size += GFXFormatInfos[attribute.format].size;
+            size += FormatInfos[attribute.format].size;
         }
         const hBuffer = RawBufferPool.alloc(size);
         const buffer = RawBufferPool.getBuffer(hBuffer);
@@ -430,7 +441,7 @@ export class Model {
             attrs.attributes.push(attr);
             AttrArrayPool.push(hAttrArray, hAttr);
 
-            const info = GFXFormatInfos[attribute.format];
+            const info = FormatInfos[attribute.format];
             attrs.views.push(new (getTypedArrayConstructor(info))(buffer, offset, info.count));
             offset += info.size;
         }
@@ -441,16 +452,16 @@ export class Model {
 
     protected _initLocalDescriptors (subModelIndex: number) {
         if (!this._localBuffer) {
-            this._localBuffer = this._device.createBuffer(new GFXBufferInfo(
-                GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            this._localBuffer = this._device.createBuffer(new BufferInfo(
+                BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
                 UBOLocal.SIZE,
                 UBOLocal.SIZE,
             ));
         }
     }
 
-    protected _updateLocalDescriptors (subModelIndex: number, descriptorSet: GFXDescriptorSet) {
+    protected _updateLocalDescriptors (subModelIndex: number, descriptorSet: DescriptorSet) {
         if (this._localBuffer) descriptorSet.bindBuffer(UBOLocal.BINDING, this._localBuffer);
     }
 }

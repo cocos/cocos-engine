@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -30,11 +30,29 @@
 
 import { IRenderData, RenderData } from '../../../core/renderer/ui/render-data';
 import { UI } from '../../../core/renderer/ui/ui';
-import { Mask } from '../../components/mask';
+import { Mask, MaskType } from '../../components/mask';
 import { IAssembler, IAssemblerManager } from '../../../core/renderer/ui/base';
 import { StencilManager } from '../../../core/renderer/ui/stencil-manager';
+import { simple } from '../sprite';
 
 const _stencilManager = StencilManager.sharedManager!;
+
+function applyClearMask (mask: Mask, renderer: UI) {
+    _stencilManager.clear();
+    renderer.commitModel(mask, mask._clearModel, mask._clearStencilMtl);
+}
+
+function applyAreaMask (mask: Mask, renderer: UI) {
+    _stencilManager.enterLevel();
+    if (mask.type === MaskType.IMAGE_STENCIL) {
+        simple.fillBuffers(mask, renderer);
+        const mat = mask.graphics!.getMaterialInstance(0)!;
+        renderer.forceMergeBatches(mat, mask.spriteFrame, mask.graphics!);
+    } else {
+        const mat = mask.graphics!.getMaterialInstance(0);
+        renderer.commitModel(mask.graphics!, mask.graphics!.model, mat);
+    }
+}
 
 export const maskAssembler: IAssembler = {
     createData (mask: Mask) {
@@ -42,59 +60,27 @@ export const maskAssembler: IAssembler = {
         renderData!.dataLength = 4;
         renderData!.vertexCount = 4;
         renderData!.indicesCount = 6;
+
+        renderData.vData = new Float32Array(4 * 9);
         return renderData as RenderData;
     },
 
     updateRenderData (mask: Mask){
-        const renderData = mask.renderData;
-        if (renderData) {
-            if (renderData.vertDirty) {
-                if (this.updateVertexData) {
-                    this.updateVertexData(mask);
-                }
-            }
+        if (mask.type === MaskType.IMAGE_STENCIL){
+            simple.updateRenderData(mask);
         }
-    },
-
-    updateVertexData (mask: Mask) {
-        const renderData: RenderData | null = mask.renderData;
-        if (!renderData) {
-            return;
-        }
-
-        const uiTrans = mask.node._uiProps.uiTransformComp!;
-        const dataList: IRenderData[] = renderData.data;
-        const cw = uiTrans.width;
-        const ch = uiTrans.height;
-        const appX = uiTrans.anchorX * cw;
-        const appY = uiTrans.anchorY * ch;
-        let l = 0;
-        let b = 0;
-        let r = 0;
-        let t = 0;
-        // if (sprite.trim) {
-        l = -appX;
-        b = -appY;
-        r = cw - appX;
-        t = ch - appY;
-        dataList[0].x = l;
-        dataList[0].y = b;
-        dataList[3].x = r;
-        dataList[3].y = t;
-
-        renderData.vertDirty = false;
     },
 
     fillBuffers (mask: Mask, renderer: UI) {
-        _stencilManager.pushMask(mask);
+        if (mask.type !== MaskType.IMAGE_STENCIL || mask.spriteFrame) {
+            _stencilManager.pushMask(mask);
 
-        _stencilManager.clear();
-        mask.clearGraphics!.updateAssembler(renderer);
+            renderer.finishMergeBatches();
+            applyClearMask(mask, renderer);
+            applyAreaMask(mask, renderer);
 
-        _stencilManager.enterLevel();
-        mask.graphics!.updateAssembler(renderer);
-
-        _stencilManager.enableMask();
+            _stencilManager.enableMask();
+        }
     },
 };
 

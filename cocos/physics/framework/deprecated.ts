@@ -37,6 +37,21 @@ replaceProperty(PhysicsSystem.prototype, 'PhysicsSystem.prototype', [
 removeProperty(PhysicsSystem.prototype, 'PhysicsSystem.prototype', [
     {
         "name": "useFixedTime"
+    },
+    {
+        "name": "useCollisionMatrix"
+    },
+    {
+        "name": "updateCollisionMatrix"
+    },
+    {
+        "name": "resetCollisionMatrix"
+    },
+    {
+        "name": "isCollisionGroup"
+    },
+    {
+        "name": "setCollisionGroup"
     }
 ]);
 
@@ -45,6 +60,17 @@ replaceProperty(Collider.prototype, 'Collider.prototype', [
         "name": "attachedRigidbody",
         "newName": "attachedRigidBody"
     }
+]);
+
+replaceProperty(Collider, 'Collider', [
+    {
+        "name": "EColliderType",
+        "newName": "Type"
+    },
+    {
+        "name": "EAxisDirection",
+        "newName": "Axis"
+    },
 ]);
 
 replaceProperty(BoxCollider.prototype, 'BoxCollider.prototype', [
@@ -72,6 +98,19 @@ replaceProperty(RigidBody.prototype, 'RigidBody.prototype', [
     {
         "name": "rigidBody",
         "newName": "body"
+    }
+]);
+
+replaceProperty(RigidBody, 'RigidBody', [
+    {
+        "name": "ERigidBodyType",
+        "newName": "Type"
+    }
+]);
+
+removeProperty(RigidBody.prototype, 'RigidBody.prototype', [
+    {
+        "name": "fixedRotation",
     }
 ]);
 

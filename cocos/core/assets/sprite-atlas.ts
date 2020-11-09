@@ -29,6 +29,7 @@
  * @module asset
  */
 
+import { EDITOR, TEST } from "internal:constants";
 import { ccclass, serializable, editable } from 'cc.decorator';
 import * as js from '../utils/js';
 import { Asset } from './asset';
@@ -106,22 +107,24 @@ export class SpriteAtlas extends Asset {
         return frames;
     }
 
-    public _serialize (exporting?: any) {
-        const frames: string[] = [];
-        for (const key of Object.keys(this.spriteFrames)) {
-            const spriteFrame = this.spriteFrames[key];
-            let id = spriteFrame ? spriteFrame._uuid : '';
-            if (id && exporting) {
-                id = EditorExtends.UuidUtils.compressUuid(id, true);
+    public _serialize (ctxForExporting: any): any {
+        if (EDITOR || TEST) {
+            const frames: string[] = [];
+            for (const key of Object.keys(this.spriteFrames)) {
+                const spriteFrame = this.spriteFrames[key];
+                let id = spriteFrame ? spriteFrame._uuid : '';
+                if (id && ctxForExporting && ctxForExporting._compressUuid) {
+                    id = EditorExtends.UuidUtils.compressUuid(id, true);
+                }
+                frames.push(key);
+                frames.push(id);
             }
-            frames.push(key);
-            frames.push(id);
-        }
 
-        return {
-            name: this._name,
-            spriteFrames: frames,
-        };
+            return {
+                name: this._name,
+                spriteFrames: frames,
+            };
+        }
     }
 
     public _deserialize (serializeData: any, handle: any){

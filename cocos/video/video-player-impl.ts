@@ -233,7 +233,7 @@ export abstract class VideoPlayerImpl {
 
     protected syncCurrentTime () {
         if (this._cachedCurrentTime !== -1 && this.video.currentTime !== this._cachedCurrentTime) {
-            this.video.seekTo(this._cachedCurrentTime);
+            this.seekTo(this._cachedCurrentTime);
             this._cachedCurrentTime = -1;
         }
     }

@@ -6,7 +6,7 @@
 import { warnID, warn, easing } from '../core';
 import { ActionInterval } from './actions/action-interval';
 import { ITweenOption } from './export-api';
-import { legacyCC } from '../core/global-exports';
+import { legacyCC, VERSION } from '../core/global-exports';
 
 /** adapter */
 function TweenEasinAdapter (easingName: string) {
@@ -52,7 +52,7 @@ function TweenEasinAdapter (easingName: string) {
 /** checker */
 function TweenOptionChecker (opts: ITweenOption) {
     const header = ' [Tween:] ';
-    const message = ' option is not support in v' + legacyCC.ENGINE_VERSION;
+    const message = ` option is not support in v + ${VERSION}`;
     if (opts['delay']) {
         warn(header + 'delay' + message);
     }
@@ -103,8 +103,13 @@ export class TweenAction extends ActionInterval {
 
         this._props = Object.create(null);
         for (let name in props) {
+            // filtering if
+            // - it was not own property
+            // - it was a function
+            // - it was undefined / null
+            if (!props.hasOwnProperty(name)) continue;
             let value = props[name];
-
+            if (!value || typeof value === 'function') continue;
             // property may have custom easing or progress function
             let easing, progress;
             if (value.value !== undefined && (value.easing || value.progress)) {
@@ -157,6 +162,8 @@ export class TweenAction extends ActionInterval {
                 }
 
                 for (var k in value) {
+                    // filtering if it not a number
+                    if (isNaN(_t[k])) continue;
                     prop.start[k] = _t[k];
                     prop.current[k] = _t[k];
                     prop.end[k] = relative ? _t[k] + value[k] : value[k];

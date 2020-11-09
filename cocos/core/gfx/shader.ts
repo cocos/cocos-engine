@@ -3,27 +3,27 @@
  * @module gfx
  */
 
-import { GFXObject, GFXObjectType, GFXShaderStageFlagBit, GFXType } from './define';
-import { GFXDevice } from './device';
-import { GFXAttribute } from './input-assembler';
+import { Attribute } from './input-assembler';
+import { Device } from './device';
+import { Obj, ObjectType, ShaderStageFlagBit, Type } from './define';
 
-export interface IGFXShaderStage {
-    stage: GFXShaderStageFlagBit;
+export interface IShaderStage {
+    stage: ShaderStageFlagBit;
     source: string;
 }
 
-export class GFXShaderStage implements IGFXShaderStage {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class ShaderStage implements IShaderStage {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public stage: GFXShaderStageFlagBit = GFXShaderStageFlagBit.NONE,
+        public stage: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
         public source: string = '',
     ) {}
 }
 
-export interface IGFXUniform {
+export interface IUniform {
     name: string;
-    type: GFXType;
+    type: Type;
     count: number;
 }
 
@@ -31,12 +31,12 @@ export interface IGFXUniform {
  * @en GFX uniform.
  * @zh GFX uniform。
  */
-export class GFXUniform implements IGFXUniform {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class Uniform implements IUniform {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public name: string = '',
-        public type: GFXType = GFXType.UNKNOWN,
+        public type: Type = Type.UNKNOWN,
         public count: number = 1,
     ) {}
 }
@@ -45,14 +45,14 @@ export class GFXUniform implements IGFXUniform {
  * @en GFX uniform block.
  * @zh GFX uniform 块。
  */
-export class GFXUniformBlock {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class UniformBlock {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public set: number = -1,
         public binding: number = -1,
         public name: string = '',
-        public members: GFXUniform[] = [],
+        public members: Uniform[] = [],
         public count: number = 1,
     ) {}
 }
@@ -61,27 +61,27 @@ export class GFXUniformBlock {
  * @en GFX uniform sampler.
  * @zh GFX Uniform 采样器。
  */
-export class GFXUniformSampler {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class UniformSampler {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public set: number = -1,
         public binding: number = -1,
         public name: string = '',
-        public type: GFXType = GFXType.UNKNOWN,
+        public type: Type = Type.UNKNOWN,
         public count: number = 1,
     ) {}
 }
 
-export class GFXShaderInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class ShaderInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public name: string = '',
-        public stages: GFXShaderStage[] = [],
-        public attributes: GFXAttribute[] = [],
-        public blocks: GFXUniformBlock[] = [],
-        public samplers: GFXUniformSampler[] = [],
+        public stages: ShaderStage[] = [],
+        public attributes: Attribute[] = [],
+        public blocks: UniformBlock[] = [],
+        public samplers: UniformSampler[] = [],
     ) {}
 }
 
@@ -89,8 +89,8 @@ export class GFXShaderInfo {
  * @en GFX shader.
  * @zh GFX 着色器。
  */
-export abstract class GFXShader extends GFXObject {
-    private static _shaderIdGen: number = 0;
+export abstract class Shader extends Obj {
+    private static _shaderIdGen = 0;
 
     /**
      * @en Get current shader id.
@@ -120,27 +120,27 @@ export abstract class GFXShader extends GFXObject {
         return this._samplers;
     }
 
-    protected _device: GFXDevice;
+    protected _device: Device;
 
     protected _id: number;
 
-    protected _name: string = '';
+    protected _name = '';
 
-    protected _stages: GFXShaderStage[] = [];
+    protected _stages: ShaderStage[] = [];
 
-    protected _attributes: GFXAttribute[] = [];
+    protected _attributes: Attribute[] = [];
 
-    protected _blocks: GFXUniformBlock[] = [];
+    protected _blocks: UniformBlock[] = [];
 
-    protected _samplers: GFXUniformSampler[] = [];
+    protected _samplers: UniformSampler[] = [];
 
-    constructor (device: GFXDevice) {
-        super(GFXObjectType.SHADER);
+    constructor (device: Device) {
+        super(ObjectType.SHADER);
         this._device = device;
-        this._id = GFXShader._shaderIdGen++;
+        this._id = Shader._shaderIdGen++;
     }
 
-    public abstract initialize (info: GFXShaderInfo): boolean;
+    public abstract initialize (info: ShaderInfo): boolean;
 
     public abstract destroy (): void;
 }

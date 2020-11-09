@@ -2,7 +2,7 @@
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -32,11 +32,12 @@ import { legacyCC } from './global-exports';
 import * as geometry from './geometry';
 import * as math from './math';
 import * as memop from './memop';
+import * as gfx from './gfx';
 
 legacyCC.math = math;
 legacyCC.geometry = geometry;
 
-export { math, memop, geometry };
+export { math, memop, geometry, gfx };
 
 export * from './math';
 export * from './memop';
@@ -50,9 +51,9 @@ export * from './game';
 export * from './scheduler';
 export * from './director';
 
-export * from './gfx';
+export * from './gfx/deprecated-3.0.0';
 export * from './pipeline';
-export * from './load-pipeline';
+export * from './asset-manager';
 export * from './scene-graph';
 export * from './components';
 export * from './3d';

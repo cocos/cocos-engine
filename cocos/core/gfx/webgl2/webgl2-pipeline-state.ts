@@ -1,8 +1,8 @@
-import { GFXPipelineState, GFXPipelineStateInfo } from '../pipeline-state';
+import { PipelineState, PipelineStateInfo } from '../pipeline-state';
 import { IWebGL2GPUPipelineState } from './webgl2-gpu-objects';
 import { WebGL2RenderPass } from './webgl2-render-pass';
 import { WebGL2Shader } from './webgl2-shader';
-import { GFXDynamicStateFlagBit } from '../define';
+import { DynamicStateFlagBit } from '../define';
 import { WebGL2PipelineLayout } from './webgl2-pipeline-layout';
 
 const WebGLPrimitives: GLenum[] = [
@@ -22,7 +22,7 @@ const WebGLPrimitives: GLenum[] = [
     0x0000, // WebGLRenderingContext.NONE,
 ];
 
-export class WebGL2PipelineState extends GFXPipelineState {
+export class WebGL2PipelineState extends PipelineState {
 
     get gpuPipelineState (): IWebGL2GPUPipelineState {
         return  this._gpuPipelineState!;
@@ -30,7 +30,7 @@ export class WebGL2PipelineState extends GFXPipelineState {
 
     private _gpuPipelineState: IWebGL2GPUPipelineState | null = null;
 
-    public initialize (info: GFXPipelineStateInfo): boolean {
+    public initialize (info: PipelineStateInfo): boolean {
 
         this._primitive = info.primitive;
         this._shader = info.shader;
@@ -42,7 +42,7 @@ export class WebGL2PipelineState extends GFXPipelineState {
         this._renderPass = info.renderPass;
         this._dynamicStates = info.dynamicStates;
 
-        const dynamicStates: GFXDynamicStateFlagBit[] = [];
+        const dynamicStates: DynamicStateFlagBit[] = [];
         for (let i = 0; i < 31; i++) {
             if (this._dynamicStates & (1 << i)) {
                 dynamicStates.push(1 << i);

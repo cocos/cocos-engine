@@ -1,6 +1,6 @@
 import { IRigidBody } from "../spec/i-rigid-body";
 import { IVec3Like } from "../../core";
-import { RigidBody, PhysicsSystem } from "../framework";
+import { RigidBody, PhysicsSystem, ERigidBodyType } from "../framework";
 import { BuiltinSharedBody } from "./builtin-shared-body";
 import { BuiltInWorld } from "./builtin-world";
 
@@ -18,16 +18,11 @@ export class BuiltinRigidBody implements IRigidBody {
 
     initialize (com: RigidBody): void {
         this._rigidBody = com;
-        this._sharedBody = (PhysicsSystem.instance.physicsWorld as BuiltInWorld).getSharedBody(this._rigidBody.node);
+        this._sharedBody = (PhysicsSystem.instance.physicsWorld as BuiltInWorld).getSharedBody(this._rigidBody.node, this);
         this._sharedBody.reference = true;
-        this._sharedBody.wrappedBody = this;
     }
 
     onEnable () {
-        this._sharedBody.setGroup(this._rigidBody.group);
-        if (PhysicsSystem.instance.useCollisionMatrix) {
-            this._sharedBody.setMask(PhysicsSystem.instance.collisionMatrix[this._rigidBody.group]);
-        }
         this._sharedBody.enabled = true;
     }
 
@@ -42,11 +37,10 @@ export class BuiltinRigidBody implements IRigidBody {
     }
 
     setMass (v: number) { }
+    setType (v: ERigidBodyType) { }
     setLinearDamping (v: number) { }
     setAngularDamping (v: number) { }
-    setIsKinematic (v: boolean) { }
     useGravity (v: boolean) { }
-    fixRotation (v: boolean) { }
     setLinearFactor (v: IVec3Like) { }
     setAngularFactor (v: IVec3Like) { }
     setAllowSleep (v: boolean) { }

@@ -3,14 +3,17 @@
  * @hidden
  */
 
-import { GFXShader, GFXRenderPass, GFXInputAssembler, GFXDevice, GFXPipelineState, GFXInputState, GFXPipelineStateInfo } from '../gfx';
-import { PassPool, PassView, RasterizerStatePool, BlendStatePool, DepthStencilStatePool, PassHandle, PipelineLayoutPool } from '../renderer/core/memory-pools';
+import { Shader, RenderPass, InputAssembler, Device, PipelineState, InputState, PipelineStateInfo } from '../gfx';
+import { PassPool, PassView, PassHandle, PipelineLayoutPool } from '../renderer/core/memory-pools';
+import { Pass } from '../renderer/core/pass';
 
 export class PipelineStateManager {
-    private static _PSOHashMap: Map<number, GFXPipelineState> = new Map<number, GFXPipelineState>();
+    private static _PSOHashMap: Map<number, PipelineState> = new Map<number, PipelineState>();
 
-    static getOrCreatePipelineState (device: GFXDevice, hPass: PassHandle, shader: GFXShader, renderPass: GFXRenderPass, ia: GFXInputAssembler) {
+    // pass is only needed on TS.
+    static getOrCreatePipelineState (device: Device, pass: Pass, shader: Shader, renderPass: RenderPass, ia: InputAssembler) {
 
+        const hPass = pass.handle;
         const hash1 = PassPool.get(hPass, PassView.HASH);
         const hash2 = renderPass.hash;
         const hash3 = ia.attributesHash;
@@ -20,12 +23,12 @@ export class PipelineStateManager {
         let pso = this._PSOHashMap.get(newHash);
         if (!pso) {
             const pipelineLayout = PipelineLayoutPool.get(PassPool.get(hPass, PassView.PIPELINE_LAYOUT));
-            const inputState = new GFXInputState(ia.attributes);
-            const psoInfo = new GFXPipelineStateInfo(
+            const inputState = new InputState(ia.attributes);
+            const psoInfo = new PipelineStateInfo(
                 shader, pipelineLayout, renderPass, inputState,
-                RasterizerStatePool.get(PassPool.get(hPass, PassView.RASTERIZER_STATE)),
-                DepthStencilStatePool.get(PassPool.get(hPass, PassView.DEPTH_STENCIL_STATE)),
-                BlendStatePool.get(PassPool.get(hPass, PassView.BLEND_STATE)),
+                pass.rasterizerState,
+                pass.depthStencilState,
+                pass.blendState,
                 PassPool.get(hPass, PassView.PRIMITIVE),
                 PassPool.get(hPass, PassView.DYNAMIC_STATES),
             );

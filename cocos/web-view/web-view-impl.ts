@@ -2,7 +2,7 @@
 /*
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -32,8 +32,6 @@ import {legacyCC} from '../core/global-exports';
 import {WebView} from './web-view';
 import {EventType} from './web-view-enums';
 import {UITransform} from '../core/components/ui-base';
-
-const { game, view, mat4, misc, sys } = legacyCC;
 
 export abstract class WebViewImpl {
     protected _componentEventList: Map<number, Function> = new Map<number, Function>();

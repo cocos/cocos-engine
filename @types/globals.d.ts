@@ -25,6 +25,7 @@
 */
 
 declare const gfx: any;
+declare const global: any;
 
 interface Window {
 
@@ -62,7 +63,7 @@ interface HTMLElement{
 }
 
 type ActiveXObject = new (s: string) => any;
-declare var ActiveXObject: ActiveXObject;
+declare const ActiveXObject: ActiveXObject;
 
 declare type CompareFunction<T> = (a: T, b: T) => number;
 
@@ -81,7 +82,7 @@ declare interface IWritableArrayLike<T> {
     [index: number]: T;
 }
 
-declare type Constructor<T = {}> = new(...args: any[]) => T;
+declare type Constructor<T = unknown> = new(...args: any[]) => T;
 
 declare type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 

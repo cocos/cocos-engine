@@ -5,21 +5,21 @@
 
 import { Pass } from '../renderer';
 import { IInstancedAttributeBlock, SubModel } from '../renderer/scene';
-import { SubModelView, SubModelPool, ShaderHandle, DescriptorSetHandle, PassHandle, NULL_HANDLE } from '../renderer/core/memory-pools';
+import { SubModelView, SubModelPool, ShaderHandle, DescriptorSetHandle } from '../renderer/core/memory-pools';
 import { UNIFORM_LIGHTMAP_TEXTURE_BINDING } from './define';
-import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXDevice, GFXTexture, GFXInputAssembler, GFXInputAssemblerInfo,
-    GFXAttribute, GFXBuffer, GFXBufferInfo, GFXCommandBuffer  } from '../gfx';
+import { BufferUsageBit, MemoryUsageBit, Device, Texture, InputAssembler, InputAssemblerInfo,
+    Attribute, Buffer, BufferInfo, CommandBuffer  } from '../gfx';
 
 export interface IInstancedItem {
     count: number;
     capacity: number;
-    vb: GFXBuffer;
+    vb: Buffer;
     data: Uint8Array;
-    ia: GFXInputAssembler;
+    ia: InputAssembler;
     stride: number;
     hShader: ShaderHandle;
     hDescriptorSet: DescriptorSetHandle;
-    lightingMap: GFXTexture;
+    lightingMap: Texture;
 }
 
 const INITIAL_CAPACITY = 32;
@@ -37,14 +37,14 @@ export class InstancedBuffer {
     }
 
     public instances: IInstancedItem[] = [];
-    public hPass: PassHandle = NULL_HANDLE;
+    public pass: Pass;
     public hasPendingModels = false;
     public dynamicOffsets: number[] = [];
-    private _device: GFXDevice;
+    private _device: Device;
 
     constructor (pass: Pass) {
         this._device = pass.device;
-        this.hPass = pass.handle;
+        this.pass = pass;
     }
 
     public destroy () {
@@ -92,9 +92,9 @@ export class InstancedBuffer {
         }
 
         // Create a new instance
-        const vb = this._device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        const vb = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             stride * INITIAL_CAPACITY,
             stride,
         ));
@@ -105,19 +105,19 @@ export class InstancedBuffer {
 
         for (let i = 0; i < attrs.attributes.length; i++) {
             const attr = attrs.attributes[i];
-            const newAttr = new GFXAttribute(attr.name, attr.format, attr.isNormalized, vertexBuffers.length, true);
+            const newAttr = new Attribute(attr.name, attr.format, attr.isNormalized, vertexBuffers.length, true);
             attributes.push(newAttr);
         }
         data.set(attrs.buffer);
 
         vertexBuffers.push(vb);
-        const iaInfo = new GFXInputAssemblerInfo(attributes, vertexBuffers, indexBuffer);
+        const iaInfo = new InputAssemblerInfo(attributes, vertexBuffers, indexBuffer);
         const ia = this._device.createInputAssembler(iaInfo);
         this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vb, data, ia, stride, hShader, hDescriptorSet, lightingMap});
         this.hasPendingModels = true;
     }
 
-    public uploadBuffers (cmdBuff: GFXCommandBuffer) {
+    public uploadBuffers (cmdBuff: CommandBuffer) {
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             if (!instance.count) { continue; }

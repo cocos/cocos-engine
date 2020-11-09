@@ -49,7 +49,6 @@ const _zeroVec3 = new Vec3();
 // returns a readonly size of the node
 export function getReadonlyNodeSize (parent: Node | Scene) {
     if (parent instanceof Scene) {
-        // @ts-ignore
         if (EDITOR) {
             // const canvasComp = parent.getComponentInChildren(Canvas);
             if (!View.instance) {
@@ -773,7 +772,7 @@ export class Widget extends Component {
      * ```
      */
     public updateAlignment () {
-        legacyCC._widgetManager.updateAlignment(this.node as Node);
+        legacyCC._widgetManager.updateAlignment(this.node);
     }
 
     public _validateTargetInDEV () {
@@ -823,18 +822,17 @@ export class Widget extends Component {
             return;
         }
 
-        const self = this;
-        const newPos = self.node.getPosition();
+        const newPos = this.node.getPosition();
         const oldPos = this._lastPos;
         const delta = new Vec3(newPos);
         delta.subtract(oldPos);
 
-        let target = self.node.parent;
+        let target = this.node.parent;
         const inverseScale = new Vec3(1, 1, 1);
 
-        if (self.target) {
-            target = self.target;
-            computeInverseTransForTarget(self.node, target, new Vec3(), inverseScale);
+        if (this.target) {
+            target = this.target;
+            computeInverseTransForTarget(this.node, target, new Vec3(), inverseScale);
         }
         if (!target) {
             return;
@@ -846,23 +844,23 @@ export class Widget extends Component {
             Vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
         }
 
-        if (self.isAlignTop) {
-            self._top -= (self._isAbsTop ? delta.y : deltaInPercent.y) * inverseScale.y;
+        if (this.isAlignTop) {
+            this._top -= (this._isAbsTop ? delta.y : deltaInPercent.y) * inverseScale.y;
         }
-        if (self.isAlignBottom) {
-            self._bottom += (self._isAbsBottom ? delta.y : deltaInPercent.y) * inverseScale.y;
+        if (this.isAlignBottom) {
+            this._bottom += (this._isAbsBottom ? delta.y : deltaInPercent.y) * inverseScale.y;
         }
-        if (self.isAlignLeft) {
-            self._left += (self._isAbsLeft ? delta.x : deltaInPercent.x) * inverseScale.x;
+        if (this.isAlignLeft) {
+            this._left += (this._isAbsLeft ? delta.x : deltaInPercent.x) * inverseScale.x;
         }
-        if (self.isAlignRight) {
-            self._right -= (self._isAbsRight ? delta.x : deltaInPercent.x) * inverseScale.x;
+        if (this.isAlignRight) {
+            this._right -= (this._isAbsRight ? delta.x : deltaInPercent.x) * inverseScale.x;
         }
-        if (self.isAlignHorizontalCenter) {
-            self._horizontalCenter += (self._isAbsHorizontalCenter ? delta.x : deltaInPercent.x) * inverseScale.x;
+        if (this.isAlignHorizontalCenter) {
+            this._horizontalCenter += (this._isAbsHorizontalCenter ? delta.x : deltaInPercent.x) * inverseScale.x;
         }
-        if (self.isAlignVerticalCenter) {
-            self._verticalCenter += (self._isAbsVerticalCenter ? delta.y : deltaInPercent.y) * inverseScale.y;
+        if (this.isAlignVerticalCenter) {
+            this._verticalCenter += (this._isAbsVerticalCenter ? delta.y : deltaInPercent.y) * inverseScale.y;
         }
         this._recursiveDirty();
     }
@@ -878,17 +876,16 @@ export class Widget extends Component {
 
         this.setDirty();
 
-        const self = this;
-        const trans = self.node._uiProps.uiTransformComp!;
+        const trans = this.node._uiProps.uiTransformComp!;
         const newSize = trans.contentSize;
         const oldSize = this._lastSize;
         const delta = new Vec3(newSize.width - oldSize.width, newSize.height - oldSize.height, 0);
 
-        let target = self.node.parent;
+        let target = this.node.parent;
         const inverseScale = new Vec3(1, 1, 1);
-        if (self.target) {
-            target = self.target;
-            computeInverseTransForTarget(self.node, target, new Vec3(), inverseScale);
+        if (this.target) {
+            target = this.target;
+            computeInverseTransForTarget(this.node, target, new Vec3(), inverseScale);
         }
         if (!target) {
             return;
@@ -902,17 +899,17 @@ export class Widget extends Component {
 
         const anchor = trans.anchorPoint;
 
-        if (self.isAlignTop) {
-            self._top -= (self._isAbsTop ? delta.y : deltaInPercent.y) * (1 - anchor.y) * inverseScale.y;
+        if (this.isAlignTop) {
+            this._top -= (this._isAbsTop ? delta.y : deltaInPercent.y) * (1 - anchor.y) * inverseScale.y;
         }
-        if (self.isAlignBottom) {
-            self._bottom -= (self._isAbsBottom ? delta.y : deltaInPercent.y) * anchor.y * inverseScale.y;
+        if (this.isAlignBottom) {
+            this._bottom -= (this._isAbsBottom ? delta.y : deltaInPercent.y) * anchor.y * inverseScale.y;
         }
-        if (self.isAlignLeft) {
-            self._left -= (self._isAbsLeft ? delta.x : deltaInPercent.x) * anchor.x * inverseScale.x;
+        if (this.isAlignLeft) {
+            this._left -= (this._isAbsLeft ? delta.x : deltaInPercent.x) * anchor.x * inverseScale.x;
         }
-        if (self.isAlignRight) {
-            self._right -= (self._isAbsRight ? delta.x : deltaInPercent.x) * (1 - anchor.x) * inverseScale.x;
+        if (this.isAlignRight) {
+            this._right -= (this._isAbsRight ? delta.x : deltaInPercent.x) * (1 - anchor.x) * inverseScale.x;
         }
         this._recursiveDirty();
     }
@@ -949,12 +946,13 @@ export class Widget extends Component {
 
     protected _autoChangedValue (flag: AlignFlags, isAbs: boolean) {
         const current = (this._alignFlags & flag) > 0;
-        const parentTrans = this.node.parent && this.node.parent._uiProps.uiTransformComp;
-        if (!current || !parentTrans) {
+        if (!current) {
             return;
         }
+        const parentUiProps = this.node.parent && this.node.parent._uiProps;
+        const parentTrans = parentUiProps && parentUiProps.uiTransformComp;
 
-        const size = parentTrans.contentSize;
+        const size = parentTrans ? parentTrans.contentSize : visibleRect;
         if (this.isAlignLeft && flag === AlignFlags.LEFT) {
             this._left = isAbs ? this._left * size.width : this._left / size.width;
         } else if (this.isAlignRight && flag === AlignFlags.RIGHT) {
@@ -1018,7 +1016,7 @@ export class Widget extends Component {
                 this.isAlignHorizontalCenter = false;
                 if (this.isStretchWidth) {
                     // become stretch
-                    this._originalWidth = trans.width!;
+                    this._originalWidth = trans.width;
                     // test check conflict
                     if (EDITOR /*&& !cc.engine.isPlaying*/) {
                         // TODO:
@@ -1029,7 +1027,7 @@ export class Widget extends Component {
                 this.isAlignVerticalCenter = false;
                 if (this.isStretchHeight) {
                     // become stretch
-                    this._originalHeight = trans.height!;
+                    this._originalHeight = trans.height;
                     // test check conflict
                     if (EDITOR /*&& !cc.engine.isPlaying*/) {
                         // TODO:

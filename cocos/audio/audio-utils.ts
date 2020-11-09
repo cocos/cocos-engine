@@ -1,11 +1,12 @@
 import { sys } from '../core/platform/sys';
-const __audioSupport = sys.__audioSupport;
 
-export function createDomAudio (url): Promise<HTMLAudioElement> {
+const { __audioSupport } = sys;
+
+export function createDomAudio (url: string): Promise<HTMLAudioElement> {
     return new Promise((resolve, reject) => {
         const dom = document.createElement('audio');
         dom.src = url;
-    
+
         const clearEvent = () => {
             clearTimeout(timer);
             dom.removeEventListener('canplaythrough', success, false);
@@ -27,7 +28,7 @@ export function createDomAudio (url): Promise<HTMLAudioElement> {
         };
         const failure = () => {
             clearEvent();
-            const message = 'load audio failure - ' + url;
+            const message = `load audio failure - ${url}`;
             reject(message);
         };
         dom.addEventListener('canplaythrough', success, false);

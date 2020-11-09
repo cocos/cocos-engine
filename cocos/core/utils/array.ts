@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -179,7 +179,6 @@ export function appendObjectsAt<T> (array: T[], objects: T[], index: number) {
  * @returns 返回数组是否包含指定的元素。
  */
 export function contains<T> (array: T[], value: T) {
-    // eslint-disable-next-line @typescript-eslint/prefer-includes
     return array.indexOf(value) >= 0;
 }
 

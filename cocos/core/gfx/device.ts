@@ -4,26 +4,26 @@
  */
 
 import { ccenum } from '../value-types/enum';
-import { GFXDescriptorSet, GFXDescriptorSetInfo } from './descriptor-set';
-import { GFXBuffer, GFXBufferInfo, GFXBufferViewInfo } from './buffer';
-import { GFXCommandBuffer, GFXCommandBufferInfo } from './command-buffer';
-import {  GFXFilter, GFXFormat, GFXMemoryStatus, GFXAPI, GFXFeature, GFXSurfaceTransform } from './define';
-import { GFXBufferTextureCopy, GFXRect } from './define-class';
-import { GFXFence, GFXFenceInfo } from './fence';
-import { GFXFramebuffer, GFXFramebufferInfo } from './framebuffer';
-import { GFXInputAssembler, GFXInputAssemblerInfo } from './input-assembler';
-import { GFXPipelineState, GFXPipelineStateInfo } from './pipeline-state';
-import { GFXQueue, GFXQueueInfo } from './queue';
-import { GFXRenderPass, GFXRenderPassInfo } from './render-pass';
-import { GFXSampler, GFXSamplerInfo } from './sampler';
-import { GFXShader, GFXShaderInfo } from './shader';
-import { GFXTexture, GFXTextureInfo, GFXTextureViewInfo } from './texture';
-import { GFXDescriptorSetLayoutInfo, GFXDescriptorSetLayout, GFXPipelineLayoutInfo, GFXPipelineLayout } from '../../../exports/base';
+import { gfx } from '../../../exports/base';
+import { API, Feature, Filter, Format, MemoryStatus, SurfaceTransform } from './define';
+import { Buffer, BufferInfo, BufferViewInfo } from './buffer';
+import { BufferTextureCopy, Rect } from './define-class';
+import { CommandBuffer, CommandBufferInfo } from './command-buffer';
+import { DescriptorSet, DescriptorSetInfo } from './descriptor-set';
+import { Fence, FenceInfo } from './fence';
+import { Framebuffer, FramebufferInfo } from './framebuffer';
+import { InputAssembler, InputAssemblerInfo } from './input-assembler';
+import { PipelineState, PipelineStateInfo } from './pipeline-state';
+import { Queue, QueueInfo } from './queue';
+import { RenderPass, RenderPassInfo } from './render-pass';
+import { Sampler, SamplerInfo } from './sampler';
+import { Shader, ShaderInfo } from './shader';
+import { Texture, TextureInfo, TextureViewInfo } from './texture';
 
-ccenum(GFXFormat);
+ccenum(Format);
 
-export class GFXBindingMappingInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class BindingMappingInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public bufferOffsets: number[] = [],
@@ -32,8 +32,8 @@ export class GFXBindingMappingInfo {
     ) {}
 }
 
-export class GFXDeviceInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class DeviceInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public canvasElm: HTMLElement,
@@ -53,7 +53,7 @@ export class GFXDeviceInfo {
          * to a simple shifting operation. This data structure specifies the
          * offsets for each descriptor type in each set.
          */
-        public bindingMappingInfo = new GFXBindingMappingInfo(),
+        public bindingMappingInfo = new BindingMappingInfo(),
     ) {}
 }
 
@@ -61,7 +61,7 @@ export class GFXDeviceInfo {
  * @en GFX Device.
  * @zh GFX 设备。
  */
-export abstract class GFXDevice {
+export abstract class Device {
 
     /**
      * @en The HTML canvas element.
@@ -83,7 +83,7 @@ export abstract class GFXDevice {
      * @en Current rendering API.
      * @zh 当前 GFX 使用的渲染 API。
      */
-    get gfxAPI (): GFXAPI {
+    get gfxAPI (): API {
         return this._gfxAPI;
     }
 
@@ -91,16 +91,16 @@ export abstract class GFXDevice {
      * @en GFX default queue.
      * @zh GFX 默认队列。
      */
-    get queue (): GFXQueue {
-        return this._queue as GFXQueue;
+    get queue (): Queue {
+        return this._queue as Queue;
     }
 
     /**
      * @en GFX default command buffer.
      * @zh GFX 默认命令缓冲。
      */
-    get commandBuffer (): GFXCommandBuffer {
-        return this._cmdBuff as GFXCommandBuffer;
+    get commandBuffer (): CommandBuffer {
+        return this._cmdBuff as CommandBuffer;
     }
 
     /**
@@ -259,7 +259,7 @@ export abstract class GFXDevice {
      * @en Device color format.
      * @zh 颜色格式。
      */
-    get colorFormat (): GFXFormat {
+    get colorFormat (): Format {
         return this._colorFmt;
     }
 
@@ -267,7 +267,7 @@ export abstract class GFXDevice {
      * @en Device depth stencil format.
      * @zh 深度模板格式。
      */
-    get depthStencilFormat (): GFXFormat {
+    get depthStencilFormat (): Format {
         return this._depthStencilFmt;
     }
 
@@ -307,7 +307,7 @@ export abstract class GFXDevice {
      * @en Total memory size currently allocated.
      * @zh 内存状态。
      */
-    get memoryStatus (): GFXMemoryStatus {
+    get memoryStatus (): MemoryStatus {
         return this._memoryStatus;
     }
 
@@ -345,44 +345,44 @@ export abstract class GFXDevice {
 
     protected _canvas: HTMLCanvasElement | null = null;
     protected _canvas2D: HTMLCanvasElement | null = null;
-    protected _gfxAPI: GFXAPI = GFXAPI.UNKNOWN;
-    protected _transform: GFXSurfaceTransform = GFXSurfaceTransform.IDENTITY;
-    protected _deviceName: string = '';
-    protected _renderer: string = '';
-    protected _vendor: string = '';
-    protected _version: string = '';
-    protected _features: boolean[] = new Array<boolean>(GFXFeature.COUNT);
-    protected _queue: GFXQueue | null = null;
-    protected _cmdBuff: GFXCommandBuffer | null = null;
-    protected _devicePixelRatio: number = 1.0;
-    protected _width: number = 0;
-    protected _height: number = 0;
-    protected _nativeWidth: number = 0;
-    protected _nativeHeight: number = 0;
-    protected _maxVertexAttributes: number = 0;
-    protected _maxVertexUniformVectors: number = 0;
-    protected _maxFragmentUniformVectors: number = 0;
-    protected _maxTextureUnits: number = 0;
-    protected _maxVertexTextureUnits: number = 0;
-    protected _maxUniformBufferBindings: number = 0;
-    protected _maxUniformBlockSize: number = 0;
-    protected _maxTextureSize: number = 0;
-    protected _maxCubeMapTextureSize: number = 0;
-    protected _uboOffsetAlignment: number = 1;
-    protected _depthBits: number = 0;
-    protected _stencilBits: number = 0;
-    protected _colorFmt: GFXFormat = GFXFormat.UNKNOWN;
-    protected _depthStencilFmt: GFXFormat = GFXFormat.UNKNOWN;
-    protected _macros: Map<string, string> = new Map();
-    protected _numDrawCalls: number = 0;
-    protected _numInstances: number = 0;
-    protected _numTris: number = 0;
-    protected _memoryStatus = new GFXMemoryStatus();
+    protected _gfxAPI = API.UNKNOWN;
+    protected _transform = SurfaceTransform.IDENTITY;
+    protected _deviceName = '';
+    protected _renderer = '';
+    protected _vendor = '';
+    protected _version = '';
+    protected _features = new Array<boolean>(Feature.COUNT);
+    protected _queue: Queue | null = null;
+    protected _cmdBuff: CommandBuffer | null = null;
+    protected _devicePixelRatio = 1.0;
+    protected _width = 0;
+    protected _height = 0;
+    protected _nativeWidth = 0;
+    protected _nativeHeight = 0;
+    protected _maxVertexAttributes = 0;
+    protected _maxVertexUniformVectors = 0;
+    protected _maxFragmentUniformVectors = 0;
+    protected _maxTextureUnits = 0;
+    protected _maxVertexTextureUnits = 0;
+    protected _maxUniformBufferBindings = 0;
+    protected _maxUniformBlockSize = 0;
+    protected _maxTextureSize = 0;
+    protected _maxCubeMapTextureSize = 0;
+    protected _uboOffsetAlignment = 1;
+    protected _depthBits = 0;
+    protected _stencilBits = 0;
+    protected _colorFmt = Format.UNKNOWN;
+    protected _depthStencilFmt = Format.UNKNOWN;
+    protected _macros = new Map<string, string>();
+    protected _numDrawCalls = 0;
+    protected _numInstances = 0;
+    protected _numTris = 0;
+    protected _memoryStatus = new MemoryStatus();
     protected _clipSpaceMinZ = -1;
     protected _screenSpaceSignY = 1;
     protected _UVSpaceSignY = -1;
 
-    public abstract initialize (info: GFXDeviceInfo): boolean;
+    public abstract initialize (info: DeviceInfo): boolean;
 
     public abstract destroy (): void;
 
@@ -411,98 +411,98 @@ export abstract class GFXDevice {
      * @zh 创建命令缓冲。
      * @param info GFX command buffer description info.
      */
-    public abstract createCommandBuffer (info: GFXCommandBufferInfo): GFXCommandBuffer;
+    public abstract createCommandBuffer (info: CommandBufferInfo): CommandBuffer;
 
     /**
      * @en Create buffer.
      * @zh 创建缓冲。
      * @param info GFX buffer description info.
      */
-    public abstract createBuffer (info: GFXBufferInfo | GFXBufferViewInfo): GFXBuffer;
+    public abstract createBuffer (info: BufferInfo | BufferViewInfo): Buffer;
 
     /**
      * @en Create texture.
      * @zh 创建纹理。
      * @param info GFX texture description info.
      */
-    public abstract createTexture (info: GFXTextureInfo | GFXTextureViewInfo): GFXTexture;
+    public abstract createTexture (info: TextureInfo | TextureViewInfo): Texture;
 
     /**
      * @en Create sampler.
      * @zh 创建采样器。
      * @param info GFX sampler description info.
      */
-    public abstract createSampler (info: GFXSamplerInfo): GFXSampler;
+    public abstract createSampler (info: SamplerInfo): Sampler;
 
     /**
      * @en Create descriptor sets.
      * @zh 创建描述符集组。
      * @param info GFX descriptor sets description info.
      */
-    public abstract createDescriptorSet (info: GFXDescriptorSetInfo): GFXDescriptorSet;
+    public abstract createDescriptorSet (info: DescriptorSetInfo): DescriptorSet;
 
     /**
      * @en Create shader.
      * @zh 创建着色器。
      * @param info GFX shader description info.
      */
-    public abstract createShader (info: GFXShaderInfo): GFXShader;
+    public abstract createShader (info: ShaderInfo): Shader;
 
     /**
      * @en Create input assembler.
      * @zh 创建纹理。
      * @param info GFX input assembler description info.
      */
-    public abstract createInputAssembler (info: GFXInputAssemblerInfo): GFXInputAssembler;
+    public abstract createInputAssembler (info: InputAssemblerInfo): InputAssembler;
 
     /**
      * @en Create render pass.
      * @zh 创建渲染过程。
      * @param info GFX render pass description info.
      */
-    public abstract createRenderPass (info: GFXRenderPassInfo): GFXRenderPass;
+    public abstract createRenderPass (info: RenderPassInfo): RenderPass;
 
     /**
      * @en Create frame buffer.
      * @zh 创建帧缓冲。
      * @param info GFX frame buffer description info.
      */
-    public abstract createFramebuffer (info: GFXFramebufferInfo): GFXFramebuffer;
+    public abstract createFramebuffer (info: FramebufferInfo): Framebuffer;
 
     /**
      * @en Create descriptor set layout.
      * @zh 创建描述符集布局。
      * @param info GFX descriptor set layout description info.
      */
-    public abstract createDescriptorSetLayout (info: GFXDescriptorSetLayoutInfo): GFXDescriptorSetLayout;
+    public abstract createDescriptorSetLayout (info: gfx.DescriptorSetLayoutInfo): gfx.DescriptorSetLayout;
 
     /**
      * @en Create pipeline layout.
      * @zh 创建管线布局。
      * @param info GFX pipeline layout description info.
      */
-    public abstract createPipelineLayout (info: GFXPipelineLayoutInfo): GFXPipelineLayout;
+    public abstract createPipelineLayout (info: gfx.PipelineLayoutInfo): gfx.PipelineLayout;
 
     /**
      * @en Create pipeline state.
      * @zh 创建管线状态。
      * @param info GFX pipeline state description info.
      */
-    public abstract createPipelineState (info: GFXPipelineStateInfo): GFXPipelineState;
+    public abstract createPipelineState (info: PipelineStateInfo): PipelineState;
 
     /**
      * @en Create queue.
      * @zh 创建队列。
      * @param info GFX queue description info.
      */
-    public abstract createQueue (info: GFXQueueInfo): GFXQueue;
+    public abstract createQueue (info: QueueInfo): Queue;
 
     /**
      * @en Create fence.
      * @zh 创建同步信号。
      * @param info GFX fence description info.
      */
-    public abstract createFence (info: GFXFenceInfo): GFXFence;
+    public abstract createFence (info: FenceInfo): Fence;
 
     /**
      * @en Copy buffers to texture.
@@ -511,7 +511,7 @@ export abstract class GFXDevice {
      * @param texture The texture to copy to.
      * @param regions The region descriptions.
      */
-    public abstract copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]): void;
+    public abstract copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]): void;
 
     /**
      * @en Copy texture images to texture.
@@ -520,7 +520,7 @@ export abstract class GFXDevice {
      * @param texture The texture to copy to.
      * @param regions The region descriptions.
      */
-    public abstract copyTexImagesToTexture (texImages: TexImageSource[], texture: GFXTexture, regions: GFXBufferTextureCopy[]): void;
+    public abstract copyTexImagesToTexture (texImages: TexImageSource[], texture: Texture, regions: BufferTextureCopy[]): void;
 
     /**
      * @en Copy frame buffer to buffer.
@@ -529,7 +529,7 @@ export abstract class GFXDevice {
      * @param dstBuffer The buffer to copy to.
      * @param regions The region descriptions.
      */
-    public abstract copyFramebufferToBuffer (srcFramebuffer: GFXFramebuffer, dstBuffer: ArrayBuffer, regions: GFXBufferTextureCopy[]): void;
+    public abstract copyFramebufferToBuffer (srcFramebuffer: Framebuffer, dstBuffer: ArrayBuffer, regions: BufferTextureCopy[]): void;
 
     /**
      * @en Blit frame buffers.
@@ -540,14 +540,14 @@ export abstract class GFXDevice {
      * @param dstRect The target region.
      * @param filter Filtering mode for the process.
      */
-    public abstract blitFramebuffer (src: GFXFramebuffer, dst: GFXFramebuffer, srcRect: GFXRect, dstRect: GFXRect, filter: GFXFilter): void;
+    public abstract blitFramebuffer (src: Framebuffer, dst: Framebuffer, srcRect: Rect, dstRect: Rect, filter: Filter): void;
 
     /**
      * @en Whether the device has specific feature.
      * @zh 是否具备特性。
      * @param feature The GFX feature to be queried.
      */
-    public hasFeature (feature: GFXFeature): boolean {
+    public hasFeature (feature: Feature): boolean {
         return this._features[feature];
     }
 }
