@@ -18,7 +18,7 @@ AABB receiveWorldBounds;
 RenderObject genRenderObject(const ModelView *model, const Camera *camera) {
     float depth = 0;
     if (model->nodeID) {
-        const auto node = model->getNode();
+        const auto node = model->getTransform();
         cc::Vec3 position;
         cc::Vec3::subtract(node->worldPosition, camera->position, &position);
         depth = position.dot(camera->forward);
