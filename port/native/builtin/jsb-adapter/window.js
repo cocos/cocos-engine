@@ -14,6 +14,7 @@ function inject () {
 
     window.location = require('./location');
     window.document = require('./document');
+    window.CanvasRenderingContext2D = require('./CanvasRenderingContext2D');
     window.Element = require('./Element');
     window.HTMLElement = require('./HTMLElement');
     window.HTMLCanvasElement = require('./HTMLCanvasElement');
