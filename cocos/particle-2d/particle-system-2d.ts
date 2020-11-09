@@ -29,12 +29,13 @@
  */
 
 import {ccclass, editable, type, menu, executeInEditMode, serializable, playOnFocus, tooltip} from 'cc.decorator';
-import { UIRenderable } from '../core/components/ui-base';
+import { UIRenderable } from '../core/components/ui-base/ui-renderable';
 import { Color, Vec2 } from '../core/math';
 import { EDITOR } from 'internal:constants';
-import { warnID, errorID } from '../core/platform';
+import { warnID, errorID, error } from '../core/platform/debug';
 import { Simulator } from './particle-simulator-2d';
-import { SpriteFrame, ImageAsset } from '../core/assets';
+import { SpriteFrame } from '../core/assets/sprite-frame';
+import { ImageAsset } from '../core/assets/image-asset';
 import { ParticleAsset } from './particle-asset';
 import { BlendFactor } from '../core/gfx';
 import { path } from '../core/utils';
@@ -200,20 +201,9 @@ export class ParticleSystem2D extends UIRenderable {
     static PNGReader = PNGReader;
 
     /**
-     * @en Play particle in edit mode.
-     * @zh 在编辑器模式下预览粒子，启用后选中粒子时，粒子将自动播放。
-     */
-    @serializable
-    @editable
-    @tooltip('i18n:particle_system.preview')
-    private preview = true;
-
-    /**
      * @en If set custom to true, then use custom properties insteadof read particle file.
      * @zh 是否自定义粒子属性。
      */
-    @serializable
-    private _custom = false;
     @editable
     @tooltip('i18n:particle_system.custom')
     public get custom () {
@@ -234,9 +224,6 @@ export class ParticleSystem2D extends UIRenderable {
      * @en The plist file.
      * @zh plist 格式的粒子配置文件。
      */
-    @serializable
-    private _file: ParticleAsset | null = null;
-
     @type(ParticleAsset)
     @tooltip('i18n:particle_system.file')
     public get file (): ParticleAsset | null {
@@ -259,8 +246,6 @@ export class ParticleSystem2D extends UIRenderable {
      * @en SpriteFrame used for particles display
      * @zh 用于粒子呈现的 SpriteFrame
      */
-    @serializable
-    private _spriteFrame: SpriteFrame | null = null;
     @type(SpriteFrame)
     @tooltip('i18n:particle_system.spriteFrame')
     public get spriteFrame (): SpriteFrame | null {
@@ -294,26 +279,6 @@ export class ParticleSystem2D extends UIRenderable {
         return this._simulator.particles.length;
     }
 
-    /**
-     * @en If set to true, the particle system will automatically start playing on onLoad.
-     * @zh 如果设置为 true 运行时会自动发射粒子。
-     */
-    @serializable
-    @editable
-    @tooltip('i18n:particle_system.playOnLoad')
-    private playOnLoad = true;
-
-    /**
-     * @en Indicate whether the owner node will be auto-removed when it has no particles left.
-     * @zh 粒子播放完毕后自动销毁所在的节点。
-     */
-    @serializable
-    @editable
-    @tooltip('i18n:particle_system.autoRemoveOnFinish')
-    private autoRemoveOnFinish = false;
-
-    @serializable
-    private _totalParticles = 150;
     /**
      * @en Maximum particles of the system.
      * @zh 粒子最大数量。
@@ -368,8 +333,6 @@ export class ParticleSystem2D extends UIRenderable {
      * @en Start color of each particle.
      * @zh 粒子初始颜色。
      */
-    @serializable
-    private _startColor: Color = new Color(255, 255, 255, 255);
     @editable
     @tooltip('i18n:particle_system.startColor')
     public get startColor () {
@@ -387,8 +350,6 @@ export class ParticleSystem2D extends UIRenderable {
      * @en Variation of the start color.
      * @zh 粒子初始颜色变化范围。
      */
-    @serializable
-    private _startColorVar: Color = new Color(0, 0, 0, 0);
     @editable
     @tooltip('i18n:particle_system.startColorVar')
     public get startColorVar (): Color {
@@ -406,8 +367,6 @@ export class ParticleSystem2D extends UIRenderable {
      * @en Ending color of each particle.
      * @zh 粒子结束颜色。
      */
-    @serializable
-    private _endColor: Color = new Color(255, 255, 255, 0);
     @editable
     @tooltip('i18n:particle_system.endColor')
     public get endColor (): Color {
@@ -425,8 +384,6 @@ export class ParticleSystem2D extends UIRenderable {
      * @en Variation of the end color.
      * @zh 粒子结束颜色变化范围。
      */
-    @serializable
-    private _endColorVar: Color = new Color(0, 0, 0, 0);
     @editable
     @tooltip('i18n:particle_system.endColorVar')
     public get endColorVar (): Color {
@@ -550,8 +507,6 @@ export class ParticleSystem2D extends UIRenderable {
      * @en Particles movement type.
      * @zh 粒子位置类型。
      */
-    @serializable
-    _positionType = PositionType.FREE;
     @type(PositionType)
     @tooltip('i18n:particle_system.positionType')
     public get positionType () {
@@ -707,7 +662,6 @@ export class ParticleSystem2D extends UIRenderable {
      * @en Indicate whether the system simulation have stopped.
      * @zh 指示粒子播放是否完毕。
      */
-    private _stopped = true;
     public get stopped () {
         return this._stopped;
     }
@@ -728,6 +682,54 @@ export class ParticleSystem2D extends UIRenderable {
     // The temporary SpriteFrame object used for the renderer. Because there is no corresponding asset, it can't be serialized.
     public declare _renderSpriteFrame: SpriteFrame | null;
     public declare _simulator: Simulator;
+
+    /**
+     * @en Play particle in edit mode.
+     * @zh 在编辑器模式下预览粒子，启用后选中粒子时，粒子将自动播放。
+     */
+    @serializable
+    @editable
+    @tooltip('i18n:particle_system.preview')
+    private preview = true;
+
+    /**
+     * @en If set to true, the particle system will automatically start playing on onLoad.
+     * @zh 如果设置为 true 运行时会自动发射粒子。
+     */
+    @serializable
+    @editable
+    @tooltip('i18n:particle_system.playOnLoad')
+    private playOnLoad = true;
+
+    /**
+     * @en Indicate whether the owner node will be auto-removed when it has no particles left.
+     * @zh 粒子播放完毕后自动销毁所在的节点。
+     */
+    @serializable
+    @editable
+    @tooltip('i18n:particle_system.autoRemoveOnFinish')
+    private autoRemoveOnFinish = false;
+
+    @serializable
+    private _custom = false;
+    @serializable
+    private _file: ParticleAsset | null = null;
+    @serializable
+    private _spriteFrame: SpriteFrame | null = null;
+    @serializable
+    private _totalParticles = 150;
+    @serializable
+    private _startColor: Color = new Color(255, 255, 255, 255);
+    @serializable
+    private _startColorVar: Color = new Color(0, 0, 0, 0);
+    @serializable
+    private _endColor: Color = new Color(255, 255, 255, 0);
+    @serializable
+    private _endColorVar: Color = new Color(0, 0, 0, 0);
+    @serializable
+    private _positionType = PositionType.FREE;
+
+    private _stopped = true;
     private declare _previewTimer;
     private declare _focused: boolean;
     private declare _plistFile;
@@ -1044,8 +1046,8 @@ export class ParticleSystem2D extends UIRenderable {
         // Make empty positionType value and old version compatible
         this.positionType = parseFloat(dict['positionType'] !== undefined ? dict['positionType'] : PositionType.FREE);
         // for
-        this.sourcePos = new Vec2(0, 0);
-        this.posVar = new Vec2(parseFloat(dict["sourcePositionVariancex"] || 0), parseFloat(dict["sourcePositionVariancey"] || 0));
+        this.sourcePos.set(0, 0);
+        this.posVar.set(parseFloat(dict["sourcePositionVariancex"] || 0), parseFloat(dict["sourcePositionVariancey"] || 0));
         // angle
         this.angle = parseFloat(dict["angle"] || 0);
         this.angleVar = parseFloat(dict["angleVariance"] || 0);
@@ -1061,7 +1063,7 @@ export class ParticleSystem2D extends UIRenderable {
         // Mode A: Gravity + tangential accel + radial accel
         if (this.emitterMode === EmitterMode.GRAVITY) {
             // gravity
-            this.gravity = new Vec2(parseFloat(dict["gravityx"] || 0), parseFloat(dict["gravityy"] || 0));
+            this.gravity.set(parseFloat(dict["gravityx"] || 0), parseFloat(dict["gravityy"] || 0));
             // speed
             this.speed = parseFloat(dict["speed"] || 0);
             this.speedVar = parseFloat(dict["speedVariance"] || 0);
