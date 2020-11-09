@@ -9,9 +9,8 @@ import { Mat4 } from '../math';
 import { SubModel } from '../renderer/scene/submodel';
 import { UBOLocalBatched } from './define';
 import { Pass } from '../renderer';
-import { SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
 import { Model } from '../renderer/scene';
-import { SubModelPool, SubModelView, PassHandle, ShaderHandle } from '../renderer/core/memory-pools';
+import { SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
 
 export interface IBatchedItem {
     vbs: Buffer[];

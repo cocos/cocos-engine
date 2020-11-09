@@ -2,12 +2,6 @@
  * @packageDocumentation
  * @module pipeline
  */
-
-import { IRenderObject, UBOForwardLight, SetIndex, UBOShadow, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from './define';
-import { Light, LightType } from '../renderer/scene/light';
-import { SphereLight } from '../renderer/scene/sphere-light';
-import { SpotLight } from '../renderer/scene/spot-light';
-import { BatchingSchemes } from '../renderer/core/pass'
 import { BatchedBuffer } from './batched-buffer';
 import { BatchingSchemes } from '../renderer/core/pass';
 import { ForwardPipeline } from './forward/forward-pipeline';
@@ -17,7 +11,6 @@ import { PipelineStateManager } from './pipeline-state-manager';
 import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView,
     ShaderHandle } from '../renderer/core/memory-pools';
 import { Vec3, nextPow2, Mat4, Vec4, Color } from '../../core/math';
-import { RenderView } from './render-view';
 import { sphere, intersect } from '../geometry';
 import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
     BufferInfo, BufferViewInfo, CommandBuffer, Filter, Address, Sampler, DescriptorSet } from '../gfx';
@@ -31,6 +24,8 @@ import { SubModel } from '../renderer/scene/submodel';
 import { getPhaseID } from './pass-phase';
 import { genSamplerHash, samplerLib } from '../renderer';
 import { ShadowType } from '../renderer/scene/shadows';
+import { Light, LightType } from '../renderer/scene/light';
+import { IRenderObject, SetIndex, UBOForwardLight, UBOShadow, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from './define';
 
 const _samplerInfo = [
     Filter.LINEAR,
@@ -40,16 +35,6 @@ const _samplerInfo = [
     Address.CLAMP,
     Address.CLAMP,
 ];
-import {
-    Buffer, BufferInfo, BufferUsageBit, BufferViewInfo, CommandBuffer, Device, MemoryUsageBit, RenderPass,
-} from '../gfx';
-import {
-    DSPool, PassPool, PassView, ShaderHandle, ShaderPool, SubModelPool, SubModelView,
-} from '../renderer/core/memory-pools';
-import { IRenderObject, SetIndex, UBOForwardLight } from './define';
-import { Light, LightType } from '../renderer/scene/light';
-import { Vec3, nextPow2 } from '../math';
-import { intersect, sphere } from '../geometry';
 
 interface IAdditiveLightPass {
     subModel: SubModel;

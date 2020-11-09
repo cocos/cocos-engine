@@ -8,9 +8,7 @@ import { IRenderObject, SetIndex, UBOShadow } from './define';
 import { Device, RenderPass, Buffer, Shader, CommandBuffer, DescriptorSet } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { DSPool, ShaderPool, PassHandle, PassPool, PassView, SubModelPool,
-    SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
-import { DSPool, ShaderPool, PassPool, PassView, SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
+import { ShaderPool, SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
 import { Pass } from '../renderer/core/pass';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { BatchingSchemes } from '../renderer/core/pass';
@@ -141,7 +139,7 @@ export class RenderShadowMapBatchedQueue {
                 const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + shadowPassIdx) as ShaderHandle);
                 this._subModelsArray.push(subModel);
                 this._shaderArray.push(shader);
-                this._passArray.push(subModel.passes[shadowPassIdx].handle);
+                this._passArray.push(pass);
             }
         }
     }
