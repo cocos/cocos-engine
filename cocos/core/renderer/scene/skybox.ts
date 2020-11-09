@@ -112,13 +112,8 @@ export class Skybox {
         this._default = builtinResMgr.get<TextureCube>('default-cube-texture');
 
         if (!this._model) {
-<<<<<<< HEAD
             this._model = legacyCC.director.root.createModel(legacyCC.renderer.scene.Model) as Model;
             // @ts-ignore skybox don't need local buffers
-=======
-            this._model = new legacyCC.renderer.scene.Model() as Model;
-            // @ts-expect-error skybox don't need local buffers
->>>>>>> upstream/3d
             this._model._initLocalDescriptors = () => {};
         }
 
