@@ -372,11 +372,9 @@ export class Model {
                 const { descriptorSet } = subModels[i];
                 // TODO: should manage lightmap macro switches automatically
                 // USE_LIGHTMAP -> CC_USE_LIGHTMAP
-                if (subModels[i].passes[0].defines.USE_LIGHTMAP) {
-                    descriptorSet.bindTexture(UNIFORM_LIGHTMAP_TEXTURE_BINDING, gfxTexture);
-                    descriptorSet.bindSampler(UNIFORM_LIGHTMAP_TEXTURE_BINDING, sampler);
-                    descriptorSet.update();
-                }
+                descriptorSet.bindTexture(UNIFORM_LIGHTMAP_TEXTURE_BINDING, gfxTexture);
+                descriptorSet.bindSampler(UNIFORM_LIGHTMAP_TEXTURE_BINDING, sampler);
+                descriptorSet.update();
             }
         }
     }
