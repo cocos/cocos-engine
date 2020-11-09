@@ -204,7 +204,7 @@ export class Fog {
 
     protected _updatePipeline () {
         const root = legacyCC.director.root
-        const value = this.enabled ? this.type + 1 : 0;
+        const value = this.enabled ? this.type : FOG_TYPE_NONE;
         const pipeline = root.pipeline;
         if (pipeline.macros.CC_USE_FOG === value) { return; }
         pipeline.macros.CC_USE_FOG = value;
