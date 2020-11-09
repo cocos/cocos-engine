@@ -397,7 +397,7 @@ export class ShadowsInfo {
     @serializable
     protected _pcf = PCFType.HARD;
     @serializable
-    protected _bias = 0.0035;
+    protected _bias = 0.00001;
     @serializable
     protected _near: number = 1;
     @serializable
