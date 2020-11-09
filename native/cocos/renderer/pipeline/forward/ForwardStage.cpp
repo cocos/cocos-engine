@@ -49,7 +49,7 @@ ForwardStage::~ForwardStage() {
 bool ForwardStage::initialize(const RenderStageInfo &info) {
     RenderStage::initialize(info);
     _renderQueueDescriptors = info.renderQueues;
-    _phaseID = PassPhase::getPhaseID("default");
+    _phaseID = getPhaseID("default");
     return true;
 }
 
@@ -58,7 +58,7 @@ void ForwardStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     for (const auto &descriptor : _renderQueueDescriptors) {
         uint phase = 0;
         for (const auto &stage : descriptor.stages) {
-            phase |= PassPhase::getPhaseID(stage);
+            phase |= getPhaseID(stage);
         }
 
         std::function<int(const RenderPass &, const RenderPass &)> sortFunc = opaqueCompareFn;

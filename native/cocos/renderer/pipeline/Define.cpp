@@ -1,4 +1,5 @@
 #include "Define.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
 #include "gfx/GFXDevice.h"
 #include "helper/SharedMemory.h"
 
@@ -381,9 +382,6 @@ gfx::Sampler *getSampler(uint hash) {
 
 uint SKYBOX_FLAG = static_cast<uint>(gfx::ClearFlagBit::STENCIL) << 1;
 
-map<String, uint> PassPhase::phases;
-uint PassPhase::phaseNum = 0;
-
 uint nextPow2(uint val) {
     --val;
     val |= (val >> 1);
@@ -393,6 +391,27 @@ uint nextPow2(uint val) {
     val |= (val >> 16);
     ++val;
     return val;
+}
+
+uint getPhaseID(const String &phase) {
+    se::Object *globalObj = se::ScriptEngine::getInstance()->getGlobalObject();
+
+    se::Value nrValue;
+    if (!globalObj->getProperty("nr", &nrValue)) {
+        CC_LOG_ERROR("getPhaseID: failed to get nr property.");
+        return 0;
+    }
+    se::Object *nrObjct = nrValue.toObject();
+    se::Value nrPhase;
+    if (!nrObjct->getProperty("getPhaseID", &nrPhase)) {
+        CC_LOG_ERROR("getPhaseID: failed to get getPhaseID property.");
+        return 0;
+    }
+    se::ValueArray args;
+    args.push_back(se::Value(phase));
+    se::Value nrResult;
+    nrPhase.toObject()->call(args, nullptr, &nrResult);
+    return nrResult.toUint();
 }
 } // namespace pipeline
 } // namespace cc

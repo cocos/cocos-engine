@@ -15,8 +15,7 @@
 namespace cc {
 namespace pipeline {
 namespace {
-const uint phaseID(PassPhase::getPhaseID("forward-add"));
-int getLightPassIndex(const ModelView *model) {
+int getLightPassIndex(const ModelView *model, uint phaseID) {
     const auto subModelArrayID = model->getSubModelID();
     const auto count = subModelArrayID[0];
     for (auto i = 1; i <= count; i++) {
@@ -45,7 +44,8 @@ bool cullingLight(const Light *light, const ModelView *model) {
 RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline)
 : _device(gfx::Device::getInstance()),
   _instancedQueue(CC_NEW(RenderInstancedQueue)),
-  _batchedQueue(CC_NEW(RenderBatchedQueue)) {
+  _batchedQueue(CC_NEW(RenderBatchedQueue)),
+  _phaseID(getPhaseID("forward-add")) {
     _forwardPipline = static_cast<ForwardPipeline *>(pipeline);
     _renderObjects = _forwardPipline->getRenderObjects();
     _fpScale = _forwardPipline->getFpScale();
@@ -137,7 +137,7 @@ void RenderAdditiveLightQueue::gatherLightPasses(const RenderView *view, gfx::Co
         const auto model = renderObject.model;
 
         // this assumes light pass index is the same for all submodels
-        const auto lightPassIdx = getLightPassIndex(model);
+        const auto lightPassIdx = getLightPassIndex(model, _phaseID);
         if (lightPassIdx < 0) continue;
 
         _lightIndices.clear();

@@ -32,7 +32,7 @@ void UIStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     for (const auto &descritpr : _renderQueueDescriptors) {
         uint phase = 0;
         for (const auto &stage : descritpr.stages) {
-            phase |= PassPhase::getPhaseID(stage);
+            phase |= getPhaseID(stage);
         }
         auto sortFunc = opaqueCompareFn;
         switch (descritpr.sortMode) {

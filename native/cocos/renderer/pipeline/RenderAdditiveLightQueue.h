@@ -58,6 +58,7 @@ private:
     uint _lightBufferElementCount = 0;
     uint _lightBufferCount = 16;
     float _lightMeterScale = 10000.0f;
+    uint _phaseID = 0;
 };
 
 } // namespace pipeline
