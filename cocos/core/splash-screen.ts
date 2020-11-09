@@ -258,18 +258,18 @@ export class SplashScreen {
         cmdBuff.beginRenderPass(framebuffer.renderPass, framebuffer, renderArea,
             this.clearColors, 1.0, 0);
 
-        const hPass = this.material.passes[0].handle;
-        const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, this.shader, framebuffer.renderPass, this.assmebler);
+        const pass = this.material.passes[0];
+        const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, this.shader, framebuffer.renderPass, this.assmebler);
         cmdBuff.bindPipelineState(pso);
-        cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET)));
+        cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
         cmdBuff.bindInputAssembler(this.assmebler);
         cmdBuff.draw(this.assmebler);
 
         if (this.setting.displayWatermark && this.textShader && this.textAssmebler) {
-            const hPassText = this.textMaterial.passes[0].handle;
-            const psoWatermark = PipelineStateManager.getOrCreatePipelineState(device, hPassText, this.textShader, framebuffer.renderPass, this.textAssmebler);
+            const passText = this.textMaterial.passes[0];
+            const psoWatermark = PipelineStateManager.getOrCreatePipelineState(device, passText, this.textShader, framebuffer.renderPass, this.textAssmebler);
             cmdBuff.bindPipelineState(psoWatermark);
-            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(hPassText, PassView.DESCRIPTOR_SET)));
+            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, passText.descriptorSet);
             cmdBuff.bindInputAssembler(this.textAssmebler);
             cmdBuff.draw(this.textAssmebler);
         }

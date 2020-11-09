@@ -19,7 +19,7 @@ export const PREVIEW = tryDefineGlobal('CC_PREVIEW', !EDITOR);
 export const DEV = tryDefineGlobal('CC_DEV', true); // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
 export const DEBUG = tryDefineGlobal('CC_DEBUG', true); // CC_DEV || Debug Build
 export const JSB = tryDefineGlobal('CC_JSB', defined('jsb'));
-// @ts-ignore
+// @ts-expect-error
 export const WECHAT = tryDefineGlobal('CC_WECHAT', !!(defined('wx') && (wx.getSystemInfoSync || wx.getSharedCanvas)));
 export const MINIGAME = tryDefineGlobal('CC_MINIGAME', false);
 export const RUNTIME_BASED = tryDefineGlobal('CC_RUNTIME_BASED', false);
@@ -31,5 +31,5 @@ export const COCOSPLAY = tryDefineGlobal('CC_COCOSPLAY', false);
 export const HUAWEI = tryDefineGlobal('CC_HUAWEI', false);
 export const OPPO = tryDefineGlobal('CC_OPPO', false);
 export const VIVO = tryDefineGlobal('CC_VIVO', false);
-// @ts-ignore
+// @ts-expect-error
 export const SUPPORT_JIT = tryDefineGlobal('CC_SUPPORT_JIT', ('function' === typeof loadRuntime));

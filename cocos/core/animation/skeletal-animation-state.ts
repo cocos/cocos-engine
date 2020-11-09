@@ -55,14 +55,20 @@ interface ISocketData {
 const noCurves: IRuntimeCurve[] = [];
 
 export class SkeletalAnimationState extends AnimationState {
-
     protected _frames = 1;
+
     protected _bakedDuration = 0;
+
     protected _animInfo: IAnimInfo | null = null;
+
     protected _sockets: ISocketData[] = [];
+
     protected _animInfoMgr: JointAnimationInfo;
+
     protected _comps: SkinnedMeshRenderer[] = [];
+
     protected _parent: SkeletalAnimation | null = null;
+
     protected _curvesInited = false;
 
     constructor (clip: AnimationClip, name = '') {
@@ -84,7 +90,7 @@ export class SkeletalAnimationState extends AnimationState {
         const baked = this._parent.useBakedAnimation;
         super.initialize(root, baked ? noCurves : undefined);
         this._curvesInited = !baked;
-        const info = SkelAnimDataHub.getOrExtract(this.clip).info;
+        const { info } = SkelAnimDataHub.getOrExtract(this.clip);
         this._frames = info.frames - 1;
         this._animInfo = this._animInfoMgr.getData(root.uuid);
         this._bakedDuration = this._frames / info.sample; // last key
@@ -113,7 +119,7 @@ export class SkeletalAnimationState extends AnimationState {
 
     public rebuildSocketCurves (sockets: Socket[]) {
         this._sockets.length = 0;
-        if (!this._targetNode) { return null; }
+        if (!this._targetNode) { return; }
         const root = this._targetNode;
         for (let i = 0; i < sockets.length; ++i) {
             const socket = sockets[i];
@@ -137,7 +143,7 @@ export class SkeletalAnimationState extends AnimationState {
                 if (idx < 0) { break; }
             }
             const curveData: Mat4[] | undefined = source && source.worldMatrix.values as Mat4[];
-            const frames = clipData.info.frames;
+            const { frames } = clipData.info;
             const transforms: ITransform[] = [];
             for (let f = 0; f < frames; f++) {
                 let mat: Mat4;

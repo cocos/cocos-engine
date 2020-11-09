@@ -94,7 +94,7 @@ export function getDepends (uuid: string, data: Asset | Record<string, any>, exc
     try {
         const info = dependUtil.parse(uuid, data);
         let includeNative = true;
-        // @ts-ignore
+        // @ts-expect-error
         if (data instanceof Asset && (!data.__nativeDepend__)) { includeNative = false; }
         if (!preload) {
             asyncLoadAssets = !EDITOR && (!!(data as SceneAsset|Prefab).asyncLoadAssets || (asyncLoadAssets && !info.preventDeferredLoadDependents));
@@ -145,7 +145,7 @@ export function cache (id: string, asset: Asset, cacheAsset?: boolean) {
 export function setProperties (uuid: string, asset: Asset, assetsMap: Record<string, any>) {
 
     let missingAsset = false;
-    // @ts-ignore
+    // @ts-expect-error
     const depends = asset.__depends__ as IDependProp[];
     if (depends) {
         let missingAssetReporter: any = null;
@@ -180,11 +180,11 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
         if (missingAssetReporter) {
             missingAssetReporter.reportByOwner();
         }
-        // @ts-ignore
+        // @ts-expect-error
         asset.__depends__ = null;
     }
 
-    // @ts-ignore
+    // @ts-expect-error
     if (asset.__nativeDepend__) {
         if (assetsMap[uuid + '@native']) {
             asset._nativeAsset = assetsMap[uuid + '@native'];
@@ -195,7 +195,7 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
                 console.error(`the native asset of ${uuid} is missing!`);
             }
         }
-        // @ts-ignore
+        // @ts-expect-error
         asset.__nativeDepend__ = false;
     }
     return missingAsset;

@@ -28,16 +28,22 @@
  * @module scene-graph
  */
 
-import { ccclass, type, serializable, editable } from 'cc.decorator';
-import { Mat3, Mat4, Quat, Vec3 } from '../math';
+import {
+    ccclass, editable, serializable, type,
+} from 'cc.decorator';
+import { Layers } from './layers';
+import { NodeUIProperties } from './node-ui-properties';
 import { SystemEventType } from '../platform/event-manager/event-enum';
 import { eventManager } from '../platform/event-manager/event-manager';
-import { BaseNode, TRANSFORM_ON } from './base-node';
-import { Layers } from './layers';
-import { NodeSpace, TransformBit } from './node-enum';
-import { NodeUIProperties } from './node-ui-properties';
 import { legacyCC } from '../global-exports';
-import { NodeHandle, NodePool, NodeView, NULL_HANDLE } from '../renderer/core/memory-pools';
+import { BaseNode, TRANSFORM_ON } from './base-node';
+import {
+    Mat3, Mat4, Quat, Vec3,
+} from '../math';
+import {
+    NULL_HANDLE, NodeHandle, NodePool, NodeView,
+} from '../renderer/core/memory-pools';
+import { NodeSpace, TransformBit } from './node-enum';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -47,7 +53,7 @@ const qt_1 = new Quat();
 const m3_1 = new Mat3();
 const m3_scaling = new Mat3();
 const m4_1 = new Mat4();
-const bookOfChange = new Map<string, number>();
+const bookOfChange = new Map<Node, number>();
 
 /**
  * @zh
@@ -80,48 +86,50 @@ export class Node extends BaseNode {
      * @zh 节点可能发出的事件类型
      */
     public static EventType = SystemEventType;
+
     /**
      * @en Coordinates space
      * @zh 空间变换操作的坐标系
      */
     public static NodeSpace = NodeSpace;
+
     /**
      * @en Bit masks for Node transformation parts
      * @zh 节点变换更新的具体部分
      * @deprecated please use [[Node.TransformBit]]
      */
     public static TransformDirtyBit = TransformBit;
+
     /**
      * @en Bit masks for Node transformation parts, can be used to determine which part changed in [[SystemEventType.TRANSFORM_CHANGED]] event
      * @zh 节点变换更新的具体部分，可用于判断 [[SystemEventType.TRANSFORM_CHANGED]] 事件的具体类型
      */
     public static TransformBit = TransformBit;
 
-    /**
-     * @en Determine whether the given object is a normal Node. Will return false if [[Scene]] given.
-     * @zh 指定对象是否是普通的节点？如果传入 [[Scene]] 会返回 false。
-     */
-    public static isNode (obj: object | null): obj is Node {
-        return obj instanceof Node && (obj.constructor === Node || !(obj instanceof legacyCC.Scene));
-    }
-
     // UI 部分的脏数据
     public _uiProps = new NodeUIProperties(this);
+
     public _static = false;
 
     // world transform, don't access this directly
     protected _pos = new Vec3();
+
     protected _rot = new Quat();
+
     protected _scale = new Vec3(1, 1, 1);
+
     protected _mat = new Mat4();
 
     // local transform
     @serializable
     protected _lpos = new Vec3();
+
     @serializable
     protected _lrot = new Quat();
+
     @serializable
     protected _lscale = new Vec3(1, 1, 1);
+
     @serializable
     protected _layer = Layers.Enum.DEFAULT; // the layer this node belongs to
 
@@ -130,7 +138,9 @@ export class Node extends BaseNode {
     protected _euler = new Vec3();
 
     protected _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
+
     protected _eulerDirty = false;
+
     protected _poolHandle: NodeHandle = NULL_HANDLE;
 
     constructor (name?: string) {
@@ -138,6 +148,14 @@ export class Node extends BaseNode {
         this._poolHandle = NodePool.alloc();
         NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
         NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this._scale);
+    }
+
+    /**
+     * @en Determine whether the given object is a normal Node. Will return false if [[Scene]] given.
+     * @zh 指定对象是否是普通的节点？如果传入 [[Scene]] 会返回 false。
+     */
+    public static isNode (obj: unknown): obj is Node {
+        return obj instanceof Node && (obj.constructor === Node || !(obj instanceof legacyCC.Scene));
     }
 
     public destroy () {
@@ -148,7 +166,7 @@ export class Node extends BaseNode {
         return super.destroy();
     }
 
-    get handle () : NodeHandle {
+    get handle (): NodeHandle {
         return this._poolHandle;
     }
 
@@ -160,6 +178,7 @@ export class Node extends BaseNode {
     public get position (): Readonly<Vec3> {
         return this._lpos;
     }
+
     public set position (val: Readonly<Vec3>) {
         this.setPosition(val);
     }
@@ -173,9 +192,9 @@ export class Node extends BaseNode {
         this.updateWorldTransform();
         return this._pos;
     }
+
     public set worldPosition (val: Readonly<Vec3>) {
         this.setWorldPosition(val);
-        NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, val);
     }
 
     /**
@@ -186,6 +205,7 @@ export class Node extends BaseNode {
     public get rotation (): Readonly<Quat> {
         return this._lrot;
     }
+
     public set rotation (val: Readonly<Quat>) {
         this.setRotation(val);
     }
@@ -198,6 +218,7 @@ export class Node extends BaseNode {
     set eulerAngles (val: Readonly<Vec3>) {
         this.setRotationFromEuler(val.x, val.y, val.z);
     }
+
     get eulerAngles () {
         if (this._eulerDirty) {
             Quat.toEuler(this._euler, this._lrot);
@@ -214,6 +235,7 @@ export class Node extends BaseNode {
     get angle () {
         return this._euler.z;
     }
+
     set angle (val: number) {
         Vec3.set(this._euler, 0, 0, val);
         Quat.fromAngleZ(this._lrot, val);
@@ -234,6 +256,7 @@ export class Node extends BaseNode {
         this.updateWorldTransform();
         return this._rot;
     }
+
     public set worldRotation (val: Readonly<Quat>) {
         this.setWorldRotation(val);
     }
@@ -246,6 +269,7 @@ export class Node extends BaseNode {
     public get scale (): Readonly<Vec3> {
         return this._lscale;
     }
+
     public set scale (val: Readonly<Vec3>) {
         this.setScale(val);
     }
@@ -259,9 +283,9 @@ export class Node extends BaseNode {
         this.updateWorldTransform();
         return this._scale;
     }
+
     public set worldScale (val: Readonly<Vec3>) {
         this.setWorldScale(val);
-        NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, val);
     }
 
     /**
@@ -294,6 +318,7 @@ export class Node extends BaseNode {
     get forward (): Vec3 {
         return Vec3.transformQuat(new Vec3(), Vec3.FORWARD, this.worldRotation);
     }
+
     set forward (dir: Vec3) {
         const len = dir.length();
         Vec3.multiplyScalar(v3_a, dir, -1 / len);
@@ -308,8 +333,10 @@ export class Node extends BaseNode {
     @editable
     set layer (l) {
         this._layer = l;
-        NodePool.set(this._poolHandle, NodeView.LAYER, this._layer)
+        NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
+        this.emit(SystemEventType.LAYER_CHANGED, this._layer);
     }
+
     get layer () {
         return this._layer;
     }
@@ -319,10 +346,11 @@ export class Node extends BaseNode {
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
     get hasChangedFlags () {
-        return bookOfChange.get(this._id) || 0;
+        return bookOfChange.get(this) || 0;
     }
+
     set hasChangedFlags (val: number) {
-        bookOfChange.set(this._id, val);
+        bookOfChange.set(this, val);
         NodePool.set(this._poolHandle, NodeView.FLAGS_CHANGED, val);
     }
 
@@ -336,7 +364,7 @@ export class Node extends BaseNode {
      * @param value Parent node
      * @param keepWorldTransform Whether keep node's current world transform unchanged after this operation
      */
-    public setParent (value: this | null, keepWorldTransform: boolean = false) {
+    public setParent (value: this | null, keepWorldTransform = false) {
         if (keepWorldTransform) { this.updateWorldTransform(); }
         super.setParent(value, keepWorldTransform);
     }
@@ -362,7 +390,7 @@ export class Node extends BaseNode {
 
     public _onBatchCreated (dontSyncChildPrefab?: boolean) {
         super._onBatchCreated();
-        bookOfChange.set(this._id, TransformBit.TRS);
+        this.hasChangedFlags = TransformBit.TRS;
         this._dirtyFlags = TransformBit.TRS;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
@@ -375,7 +403,7 @@ export class Node extends BaseNode {
     }
 
     public _onBeforeSerialize () {
-        // tslint:disable-next-line: no-unused-expression
+        // eslint-disable-next-line no-unused-expressions
         this.eulerAngles; // make sure we save the correct eulerAngles
     }
 
@@ -480,14 +508,15 @@ export class Node extends BaseNode {
      * @param dirtyBit The dirty bits to setup to children, can be composed with multiple dirty bits
      */
     public invalidateChildren (dirtyBit: TransformBit) {
-        if ((this._dirtyFlags & this.hasChangedFlags & dirtyBit) === dirtyBit) { return; }
+        const hasChanegdFlags = this.hasChangedFlags;
+        if ((this._dirtyFlags & hasChanegdFlags & dirtyBit) === dirtyBit) { return; }
         this._dirtyFlags |= dirtyBit;
-        bookOfChange.set(this._id, this.hasChangedFlags | dirtyBit);
-        dirtyBit |= TransformBit.POSITION;
+        this.hasChangedFlags = hasChanegdFlags | dirtyBit;
+        const newDirtyBit = dirtyBit | TransformBit.POSITION;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             const child = this._children[i];
-            if (child.isValid) { child.invalidateChildren(dirtyBit); }
+            if (child.isValid) { child.invalidateChildren(newDirtyBit); }
         }
     }
 
@@ -497,6 +526,8 @@ export class Node extends BaseNode {
      */
     public updateWorldTransform () {
         if (!this._dirtyFlags) { return; }
+        // we need to recursively iterate this
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         let cur: this | null = this;
         let i = 0;
         while (cur && cur._dirtyFlags) {
@@ -579,22 +610,12 @@ export class Node extends BaseNode {
      * @param y Y axis position
      * @param z Z axis position
      */
-    public setPosition (x: number, y: number, z: number): void;
-
-    
-    /**
-     * @en Set position in local coordinate system
-     * @zh 设置本地坐标
-     * @param x X axis position
-     * @param y Y axis position
-     */
-    public setPosition (x: number, y: number): void;
-
+    public setPosition (x: number, y: number, z?: number): void;
 
     public setPosition (val: Vec3 | number, y?: number, z?: number): void {
         if (y === undefined && z === undefined) {
             Vec3.copy(this._lpos, val as Vec3);
-        } else if( z === undefined) {
+        } else if (z === undefined) {
             Vec3.set(this._lpos, val as number, y!, this._lpos.z);
         } else {
             Vec3.set(this._lpos, val as number, y!, z);
@@ -615,9 +636,8 @@ export class Node extends BaseNode {
     public getPosition (out?: Vec3): Vec3 {
         if (out) {
             return Vec3.set(out, this._lpos.x, this._lpos.y, this._lpos.z);
-        } else {
-            return Vec3.copy(new Vec3(), this._lpos);
         }
+        return Vec3.copy(new Vec3(), this._lpos);
     }
 
     /**
@@ -658,8 +678,8 @@ export class Node extends BaseNode {
      * @param y Y axis rotation
      * @param z Z axis rotation
      */
-    public setRotationFromEuler (x: number, y: number, z?: number): void {
-        if(z === undefined) z = this._euler.z;
+    public setRotationFromEuler (x: number, y: number, zOpt?: number): void {
+        const z = zOpt === undefined ? this._euler.z : zOpt;
         Vec3.set(this._euler, x, y, z);
         Quat.fromEuler(this._lrot, x, y, z);
         this._eulerDirty = false;
@@ -679,9 +699,8 @@ export class Node extends BaseNode {
     public getRotation (out?: Quat): Quat {
         if (out) {
             return Quat.set(out, this._lrot.x, this._lrot.y, this._lrot.z, this._lrot.w);
-        } else {
-            return Quat.copy(new Quat(), this._lrot);
         }
+        return Quat.copy(new Quat(), this._lrot);
     }
 
     /**
@@ -701,12 +720,12 @@ export class Node extends BaseNode {
     public setScale (x: number, y: number, z?: number): void;
 
     public setScale (val: Vec3 | number, y?: number, z?: number) {
-        if (y === undefined || z === undefined) {
+        if (y === undefined && z === undefined) {
             Vec3.copy(this._lscale, val as Vec3);
-        } else if( z === undefined) {
-            Vec3.set(this._lscale, val as number, y, this._lscale.z);
+        } else if (z === undefined) {
+            Vec3.set(this._lscale, val as number, y!, this._lscale.z);
         } else {
-            Vec3.set(this._lscale, val as number, y, z);
+            Vec3.set(this._lscale, val as number, y!, z);
         }
 
         this.invalidateChildren(TransformBit.SCALE);
@@ -724,9 +743,8 @@ export class Node extends BaseNode {
     public getScale (out?: Vec3): Vec3 {
         if (out) {
             return Vec3.set(out, this._lscale.x, this._lscale.y, this._lscale.z);
-        } else {
-            return Vec3.copy(new Vec3(), this._lscale);
         }
+        return Vec3.copy(new Vec3(), this._lscale);
     }
 
     /**
@@ -737,7 +755,10 @@ export class Node extends BaseNode {
      */
     public inverseTransformPoint (out: Vec3, p: Vec3) {
         Vec3.copy(out, p);
-        let cur = this; let i = 0;
+        // we need to recursively iterate this
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        let cur = this;
+        let i = 0;
         while (cur._parent) {
             array_a[i++] = cur;
             cur = cur._parent;
@@ -802,9 +823,8 @@ export class Node extends BaseNode {
         this.updateWorldTransform();
         if (out) {
             return Vec3.copy(out, this._pos);
-        } else {
-            return Vec3.copy(new Vec3(), this._pos);
         }
+        return Vec3.copy(new Vec3(), this._pos);
     }
 
     /**
@@ -878,9 +898,8 @@ export class Node extends BaseNode {
         this.updateWorldTransform();
         if (out) {
             return Quat.copy(out, this._rot);
-        } else {
-            return Quat.copy(new Quat(), this._rot);
         }
+        return Quat.copy(new Quat(), this._rot);
     }
 
     /**
@@ -938,9 +957,8 @@ export class Node extends BaseNode {
         this.updateWorldTransform();
         if (out) {
             return Vec3.copy(out, this._scale);
-        } else {
-            return Vec3.copy(new Vec3(), this._scale);
         }
+        return Vec3.copy(new Vec3(), this._scale);
     }
 
     /**
@@ -951,8 +969,8 @@ export class Node extends BaseNode {
      */
     public getWorldMatrix (out?: Mat4): Mat4 {
         this.updateWorldTransform();
-        if (!out) { out = new Mat4(); }
-        return Mat4.copy(out, this._mat);
+        const target = out || new Mat4();
+        return Mat4.copy(target, this._mat);
     }
 
     /**
@@ -963,10 +981,10 @@ export class Node extends BaseNode {
      */
     public getWorldRS (out?: Mat4): Mat4 {
         this.updateWorldTransform();
-        if (!out) { out = new Mat4(); }
-        Mat4.copy(out, this._mat);
-        out.m12 = 0; out.m13 = 0; out.m14 = 0;
-        return out;
+        const target = out || new Mat4();
+        Mat4.copy(target, this._mat);
+        target.m12 = 0; target.m13 = 0; target.m14 = 0;
+        return target;
     }
 
     /**
@@ -977,8 +995,8 @@ export class Node extends BaseNode {
      */
     public getWorldRT (out?: Mat4): Mat4 {
         this.updateWorldTransform();
-        if (!out) { out = new Mat4(); }
-        return Mat4.fromRT(out, this._rot, this._pos);
+        const target = out || new Mat4();
+        return Mat4.fromRT(target, this._rot, this._pos);
     }
 
     /**
@@ -1028,7 +1046,6 @@ export class Node extends BaseNode {
      * @param recursive Whether pause system events recursively for the child node tree
      */
     public pauseSystemEvents (recursive: boolean): void {
-        // @ts-ignore
         eventManager.pauseTarget(this, recursive);
     }
 
@@ -1044,7 +1061,6 @@ export class Node extends BaseNode {
      * @param recursive Whether resume system events recursively for the child node tree
      */
     public resumeSystemEvents (recursive: boolean): void {
-        // @ts-ignore
         eventManager.resumeTarget(this, recursive);
     }
 }

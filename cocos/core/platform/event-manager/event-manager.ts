@@ -29,7 +29,7 @@
  * @hidden
  */
 
-// tslint:disable:max-line-length
+
 
 import { Event } from '../../event';
 import { EventTouch } from './events';
@@ -41,13 +41,13 @@ import { errorID, warnID, logID, assertID } from '../../platform/debug';
 const ListenerID = EventListener.ListenerID;
 
 function checkUINode (node) {
-    if(node && node.getComponent('cc.UITransform')) {
+    if (node && node.getComponent('cc.UITransform')) {
         return true;
     }
     return false;
 }
 
-// tslint:disable-next-line: class-name
+
 class _EventListenerVector {
     public gt0Index = 0;
     private _fixedListeners: EventListener[] = [];
@@ -615,7 +615,7 @@ class EventManager {
 
     private _setDirtyForNode (node: Node) {
         // Mark the node dirty only when there is an event listener associated with it.
-        // @ts-ignore
+        // @ts-expect-error
         const selListeners = this._nodeListenersMap[node._id];
         if (selListeners !== undefined) {
             for (let j = 0, len = selListeners.length; j < len; j++) {
@@ -674,7 +674,7 @@ class EventManager {
 
     private _updateDirtyFlagForSceneGraph () {
         const locDirtyListeners = this._dirtyListeners;
-        // tslint:disable-next-line: forin
+
         for (const selKey in locDirtyListeners) {
             this._setDirty(selKey, DIRTY_SCENE_GRAPH_PRIORITY);
         }
@@ -779,8 +779,8 @@ class EventManager {
         }
 
         let p1 = node1, p2 = node2, ex = false;
-        let trans1 = node1._uiProps.uiTransformComp;
-        let trans2 = node2._uiProps.uiTransformComp;
+        const trans1 = node1._uiProps.uiTransformComp;
+        const trans2 = node2._uiProps.uiTransformComp;
         if (trans1.visibility !== trans2.visibility) {
             return trans2.visibility - trans1.visibility;
         }
@@ -953,7 +953,7 @@ class EventManager {
         // const EventTouch = cc.Event.EventTouch;
         if (getCode === EventTouch.BEGAN) {
             if (!macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch) {
-                const node = eventManager._currentTouchListener!._node;
+                const node = eventManager._currentTouchListener._node;
                 if (!node || node.activeInHierarchy) {
                     return false;
                 }
@@ -1171,7 +1171,7 @@ class EventManager {
 
         for (let i = listeners.length - 1; i >= 0; i--) {
             const selListener = listeners[i];
-            // @ts-ignore
+            // @ts-expect-error
             if (selListener._onCustomEvent === callback || selListener.onEvent === callback) {
                 selListener._setRegistered(false);
                 if (selListener._getSceneGraphPriority() != null) {
@@ -1221,14 +1221,14 @@ class EventManager {
 /**
  * @en
  * This class has been deprecated, please use `systemEvent` or `EventTarget` instead.
- * See [Listen to and launch events](../../../manual/en/scripting/events.md) for details.<br>
+ * See [Listen to and launch events](../../../manual/en/scripting/events.html) for details.<br>
  * <br>
  * `eventManager` is a singleton object which manages event listener subscriptions and event dispatching.
  * The EventListener list is managed in such way so that event listeners can be added and removed
  * while events are being dispatched.
  *
  * @zh
- * 该类已废弃，请使用 `systemEvent` 或 `EventTarget` 代替，详见 [监听和发射事件](../../../manual/zh/scripting/events.md)。<br>
+ * 该类已废弃，请使用 `systemEvent` 或 `EventTarget` 代替，详见 [监听和发射事件](../../../manual/zh/scripting/events.html)。<br>
  * <br>
  * 事件管理器，它主要管理事件监听器注册和派发系统事件。
  *

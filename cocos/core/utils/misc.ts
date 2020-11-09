@@ -29,7 +29,7 @@
  * @hidden
  */
 
- // tslint:disable
+
 
 import { getClassName, getset, isEmptyObject } from './js';
 import { EDITOR, DEV } from 'internal:constants';
@@ -143,7 +143,7 @@ export function isDomNode (obj) {
 export function callInNextTick (callback, p1?: any, p2?: any) {
     if (EDITOR) {
         if (callback) {
-            // @ts-ignore
+            // @ts-expect-error
             process.nextTick(function () {
                 callback(p1, p2);
             });
@@ -176,12 +176,6 @@ export function isPlainEmptyObj_DEV (obj) {
     return isEmptyObject(obj);
 }
 
-export function cloneable_DEV (obj) {
-    return obj &&
-        typeof obj.clone === 'function' &&
-        ((obj.constructor && obj.constructor.prototype.hasOwnProperty('clone')) || obj.hasOwnProperty('clone'));
-}
-
 /**
  * @en Clamp a value between from and to.
  * @zh 限定浮点数的最大最小值。<br/>
@@ -199,12 +193,12 @@ export function cloneable_DEV (obj) {
  */
 export function clampf (value, min_inclusive, max_inclusive) {
     if (min_inclusive > max_inclusive) {
-        var temp = min_inclusive;
+        const temp = min_inclusive;
         min_inclusive = max_inclusive;
         max_inclusive = temp;
     }
     return value < min_inclusive ? min_inclusive : value < max_inclusive ? value : max_inclusive;
-};
+}
 
 /**
  * @en converts degrees to radians
@@ -214,7 +208,7 @@ export function clampf (value, min_inclusive, max_inclusive) {
  */
 export function degreesToRadians (angle) {
     return angle * macro.RAD;
-};
+}
 
 /**
  * @en converts radians to degrees
@@ -224,7 +218,7 @@ export function degreesToRadians (angle) {
  */
 export function radiansToDegrees (angle) {
     return angle * macro.DEG;
-};
+}
 
 // if (TEST) {
 //     // editor mocks using in unit tests
@@ -248,9 +242,7 @@ legacyCC.misc = {
     contains,
     isDomNode,
     callInNextTick,
-    tryCatchFunctor_EDITOR,
     isPlainEmptyObj_DEV,
-    cloneable_DEV,
     clampf,
     degreesToRadians,
     radiansToDegrees,

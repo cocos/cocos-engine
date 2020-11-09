@@ -359,7 +359,7 @@ export class WebGLDevice extends Device {
 
             // earlier runtime VAO implementations doesn't work
             if (RUNTIME_BASED && !VIVO) {
-                // @ts-ignore
+                // @ts-expect-error
                 if (typeof loadRuntime !== 'function' || !loadRuntime() || typeof loadRuntime().getFeature !== 'function' || loadRuntime()
                     .getFeature('webgl.extensions.oes_vertex_array_object.revision') <= 0) {
                     this._OES_vertex_array_object = null;

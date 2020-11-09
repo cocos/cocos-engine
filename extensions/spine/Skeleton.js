@@ -37,10 +37,8 @@ let DefaultSkinsEnum = cc.Enum({ 'default': -1 });
 let DefaultAnimsEnum = cc.Enum({ '<None>': 0 });
 
 function setEnumAttr (obj, propName, enumDef) {
-    cc.Class.attr(obj, propName, {
-        type: 'Enum',
-        enumList: cc.Enum.getList(enumDef)
-    });
+    cc.Class.Attr.setClassAttr(obj, propName, 'type', 'Enum');
+    cc.Class.Attr.setClassAttr(obj, propName, 'enumList', cc.Enum.getList(enumDef));
 }
 
 /**
@@ -190,6 +188,7 @@ sp.Skeleton = cc.Class({
             },
             type: DefaultSkinsEnum,
             visible: true,
+            animatable: false,
             displayName: "Default Skin",
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.default_skin'
         },
@@ -232,6 +231,7 @@ sp.Skeleton = cc.Class({
             },
             type: DefaultAnimsEnum,
             visible: true,
+            animatable: false,
             displayName: 'Animation',
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.animation'
         },

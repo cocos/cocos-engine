@@ -47,6 +47,10 @@ export default class Bundle {
 
     private _config: Config = new Config();
 
+    /**
+     * for internal use
+     * @private
+     */
     public get config (): Config {
         return this._config;
     }
@@ -420,7 +424,7 @@ export default class Bundle {
             }
             else if (sceneAsset instanceof SceneAsset && sceneAsset.scene) {
                 const scene = sceneAsset.scene;
-                // @ts-ignore
+                // @ts-expect-error
                 scene._id = sceneAsset._uuid;
                 scene.name = sceneAsset.name;
                 if (onComp) { onComp(null, sceneAsset); }

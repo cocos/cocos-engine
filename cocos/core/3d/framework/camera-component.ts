@@ -67,7 +67,7 @@ const ClearFlag = Enum({
     DONT_CLEAR: GFXClearFlag.NONE,
 });
 
-// tslint:disable: no-shadowed-variable
+
 export declare namespace Camera {
     export type ProjectionType = EnumAlias<typeof ProjectionType>;
     export type FOVAxis = EnumAlias<typeof FOVAxis>;
@@ -76,7 +76,7 @@ export declare namespace Camera {
     export type Shutter = EnumAlias<typeof Shutter>;
     export type ISO = EnumAlias<typeof ISO>;
 }
-// tslint:enable: no-shadowed-variable
+
 
 /**
  * @en The Camera Component.

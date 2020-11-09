@@ -3,8 +3,8 @@
  * @module gfx
  */
 
-import { polyfillCC } from './polyfill-legacy-cc';
 import { legacyCC } from '../global-exports';
+import { polyfillCC } from './polyfill-legacy-cc';
 import './deprecated-3.0.0';
 
 export * from './descriptor-set';

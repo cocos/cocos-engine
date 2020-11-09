@@ -12,7 +12,7 @@ import { calculateTransform } from '../particle-general-function';
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
 
-// tslint:disable: max-line-length
+
 const VELOCITY_X_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_X;
 const VELOCITY_Y_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_Y;
 const VELOCITY_Z_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_Z;

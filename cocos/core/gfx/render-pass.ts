@@ -3,6 +3,8 @@
  * @module gfx
  */
 
+import { Device } from './device';
+import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import {
     Format,
     LoadOp,
@@ -12,15 +14,13 @@ import {
     StoreOp,
     TextureLayout,
 } from './define';
-import { Device } from './device';
-import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 
 /**
  * @en Color attachment.
  * @zh GFX 颜色附件。
  */
 export class ColorAttachment {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public format: Format = Format.UNKNOWN,
@@ -37,7 +37,7 @@ export class ColorAttachment {
  * @zh GFX 深度模板附件。
  */
 export class DepthStencilAttachment {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public format: Format = Format.UNKNOWN,
@@ -52,7 +52,7 @@ export class DepthStencilAttachment {
 }
 
 export class SubPassInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public bindPoint: PipelineBindPoint = PipelineBindPoint.GRAPHICS,
@@ -65,7 +65,7 @@ export class SubPassInfo {
 }
 
 export class RenderPassInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public colorAttachments: ColorAttachment[] = [],
@@ -86,9 +86,9 @@ export abstract class RenderPass extends Obj {
 
     protected _depthStencilInfo: DepthStencilAttachment | null = null;
 
-    protected _subPasses : SubPassInfo[] = [];
+    protected _subPasses: SubPassInfo[] = [];
 
-    protected _hash: number = 0;
+    protected _hash = 0;
 
     get colorAttachments () { return this._colorInfos; }
     get depthStencilAttachment () { return this._depthStencilInfo; }
@@ -99,10 +99,6 @@ export abstract class RenderPass extends Obj {
         super(ObjectType.RENDER_PASS);
         this._device = device;
     }
-
-    public abstract initialize (info: RenderPassInfo): boolean;
-
-    public abstract destroy (): void;
 
     // Based on render pass compatibility
     protected computeHash (): number {
@@ -143,4 +139,8 @@ export abstract class RenderPass extends Obj {
 
         return murmurhash2_32_gc(res, 666);
     }
+
+    public abstract initialize (info: RenderPassInfo): boolean;
+
+    public abstract destroy (): void;
 }

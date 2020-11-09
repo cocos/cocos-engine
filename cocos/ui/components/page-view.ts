@@ -106,7 +106,6 @@ enum EventType {
 @help('i18n:cc.PageView')
 @executionOrder(110)
 @menu('UI/PageView')
-// @ts-ignore
 export class PageView extends ScrollView {
     /**
      * @en
@@ -117,11 +116,11 @@ export class PageView extends ScrollView {
      */
     @type(SizeMode)
     @tooltip('页面视图中每个页面大小类型')
-    get sizeMode() {
+    get sizeMode () {
         return this._sizeMode;
     }
 
-    set sizeMode(value) {
+    set sizeMode (value) {
         if (this._sizeMode === value) {
             return;
         }
@@ -139,11 +138,11 @@ export class PageView extends ScrollView {
      */
     @type(Direction)
     @tooltip('页面视图滚动类型')
-    get direction() {
+    get direction () {
         return this._direction;
     }
 
-    set direction(value) {
+    set direction (value) {
         if (this._direction === value) {
             return;
         }
@@ -163,11 +162,11 @@ export class PageView extends ScrollView {
     @slide
     @range([0, 1, 0.01])
     @tooltip('滚动临界值，默认单位百分比，当拖拽超出该数值时，松开会自动滚动下一页，小于时则还原')
-    get scrollThreshold() {
+    get scrollThreshold () {
         return this._scrollThreshold;
     }
 
-    set scrollThreshold(value) {
+    set scrollThreshold (value) {
         if (this._scrollThreshold === value) {
             return;
         }
@@ -206,11 +205,11 @@ export class PageView extends ScrollView {
      */
     @type(PageViewIndicator)
     @tooltip('页面视图指示器组件')
-    get indicator() {
+    get indicator () {
         return this._indicator;
     }
 
-    set indicator(value) {
+    set indicator (value) {
         if (this._indicator === value) {
             return;
         }
@@ -221,7 +220,7 @@ export class PageView extends ScrollView {
         }
     }
 
-    get curPageIdx() {
+    get curPageIdx () {
         return this._curPageIdx;
     }
 
@@ -324,33 +323,27 @@ export class PageView extends ScrollView {
     protected _touchBeganPosition = new Vec3();
     protected _touchEndPosition = new Vec3();
 
-    public __preload() {
-        this.node.on(SystemEventType.SIZE_CHANGED, this._updateAllPagesSize, this);
-    }
-
-    public onEnable() {
+    public onEnable () {
         super.onEnable();
+        this.node.on(SystemEventType.SIZE_CHANGED, this._updateAllPagesSize, this);
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this.node.on(PageView.EventType.SCROLL_ENG_WITH_THRESHOLD, this._dispatchPageTurningEvent, this);
         }
     }
 
-    public onDisable() {
+    public onDisable () {
         super.onDisable();
+        this.node.off(SystemEventType.SIZE_CHANGED, this._updateAllPagesSize, this);
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this.node.off(PageView.EventType.SCROLL_ENG_WITH_THRESHOLD, this._dispatchPageTurningEvent, this);
         }
     }
 
-    public onLoad() {
+    public onLoad () {
         this._initPages();
         if (this.indicator) {
             this.indicator.setPageView(this);
         }
-    }
-
-    public onDestroy() {
-        this.node.off(SystemEventType.SIZE_CHANGED, this._updateAllPagesSize, this);
     }
 
     /**
@@ -362,7 +355,7 @@ export class PageView extends ScrollView {
      *
      * @returns 当前页面索引。
      */
-    public getCurrentPageIndex() {
+    public getCurrentPageIndex () {
         return this._curPageIdx;
     }
 
@@ -374,7 +367,7 @@ export class PageView extends ScrollView {
      * 设置当前页面索引。
      * @param index 索引。
      */
-    public setCurrentPageIndex(index: number) {
+    public setCurrentPageIndex (index: number) {
         this.scrollToPage(index, 1);
     }
 
@@ -387,7 +380,7 @@ export class PageView extends ScrollView {
      *
      * @returns 输=视图所有页面。
      */
-    public getPages() {
+    public getPages () {
         return this._pages;
     }
 
@@ -400,7 +393,7 @@ export class PageView extends ScrollView {
      *
      * @param page 新视图。
      */
-    public addPage(page: Node) {
+    public addPage (page: Node) {
         if (!page || this._pages.indexOf(page) !== -1 || !this.content) {
             return;
         }
@@ -423,7 +416,7 @@ export class PageView extends ScrollView {
      * @param page 新视图。
      * @param index 指定位置。
      */
-    public insertPage(page: Node, index: number) {
+    public insertPage (page: Node, index: number) {
         if (index < 0 || !page || this._pages.indexOf(page) !== -1 || !this.content) {
             return;
         }
@@ -451,7 +444,7 @@ export class PageView extends ScrollView {
      *
      * @param page 指定页面。
      */
-    public removePage(page: Node) {
+    public removePage (page: Node) {
         if (!page || !this.content) { return; }
         const index = this._pages.indexOf(page);
         if (index === -1) {
@@ -470,7 +463,7 @@ export class PageView extends ScrollView {
      *
      * @param index 页面下标。
      */
-    public removePageAtIndex(index: number) {
+    public removePageAtIndex (index: number) {
         const pageList = this._pages;
         if (index < 0 || index >= pageList.length) { return; }
         const page = pageList[index];
@@ -487,7 +480,7 @@ export class PageView extends ScrollView {
      * @zh
      * 移除所有页面。
      */
-    public removeAllPages() {
+    public removeAllPages () {
         if (!this.content) { return; }
         const locPages = this._pages;
         for (let i = 0, len = locPages.length; i < len; i++) {
@@ -507,7 +500,7 @@ export class PageView extends ScrollView {
      * @param idx index of page.
      * @param timeInSecond scrolling time.
      */
-    public scrollToPage(idx: number, timeInSecond = 0.3) {
+    public scrollToPage (idx: number, timeInSecond = 0.3) {
         if (idx < 0 || idx >= this._pages.length) {
             return;
         }
@@ -520,12 +513,12 @@ export class PageView extends ScrollView {
     }
 
     // override the method of ScrollView
-    public getScrollEndedEventTiming() {
+    public getScrollEndedEventTiming () {
         return this.pageTurningEventTiming;
     }
 
     // 刷新页面视图
-    protected _updatePageView() {
+    protected _updatePageView () {
         // 当页面数组变化时修改 content 大小
         if (!this.content) {
             return;
@@ -561,8 +554,8 @@ export class PageView extends ScrollView {
     }
 
     // 刷新所有页面的大小
-    protected _updateAllPagesSize() {
-        let viewTrans = this.view;
+    protected _updateAllPagesSize () {
+        const viewTrans = this.view;
         if (!this.content || !viewTrans) {
             return;
         }
@@ -577,7 +570,7 @@ export class PageView extends ScrollView {
         }
     }
 
-    protected _handleReleaseLogic() {
+    protected _handleReleaseLogic () {
         this._autoScrollToPage();
         if (this._scrolling) {
             this._scrolling = false;
@@ -587,36 +580,36 @@ export class PageView extends ScrollView {
         }
     }
 
-    protected _onTouchBegan(event: EventTouch, captureListeners: any) {
+    protected _onTouchBegan (event: EventTouch, captureListeners: any) {
         event.touch!.getUILocation(_temp_vec2);
         Vec3.set(this._touchBeganPosition, _temp_vec2.x, _temp_vec2.y, 0);
         super._onTouchBegan(event, captureListeners);
     }
 
-    protected _onTouchMoved(event: EventTouch, captureListeners: any) {
+    protected _onTouchMoved (event: EventTouch, captureListeners: any) {
         super._onTouchMoved(event, captureListeners);
     }
 
-    protected _onTouchEnded(event: EventTouch, captureListeners: any) {
+    protected _onTouchEnded (event: EventTouch, captureListeners: any) {
         event.touch!.getUILocation(_temp_vec2);
         Vec3.set(this._touchEndPosition, _temp_vec2.x, _temp_vec2.y, 0);
         super._onTouchEnded(event, captureListeners);
     }
 
-    protected _onTouchCancelled(event: EventTouch, captureListeners: any) {
+    protected _onTouchCancelled (event: EventTouch, captureListeners: any) {
         event.touch!.getUILocation(_temp_vec2);
         Vec3.set(this._touchEndPosition, _temp_vec2.x, _temp_vec2.y, 0);
         super._onTouchCancelled(event, captureListeners);
     }
 
-    protected _onMouseWheel() { }
+    protected _onMouseWheel () { }
 
-    protected _syncScrollDirection() {
+    protected _syncScrollDirection () {
         this.horizontal = this.direction === Direction.Horizontal;
         this.vertical = this.direction === Direction.Vertical;
     }
 
-    protected _syncSizeMode() {
+    protected _syncSizeMode () {
         const viewTrans = this.view;
         if (!this.content || !viewTrans) { return; }
         const layout = this.content.getComponent(Layout);
@@ -638,7 +631,7 @@ export class PageView extends ScrollView {
     }
 
     // 初始化页面
-    protected _initPages() {
+    protected _initPages () {
         if (!this.content) { return; }
         this._initContentPos = this.content.position;
         const children = this.content.children;
@@ -652,7 +645,7 @@ export class PageView extends ScrollView {
         this._updatePageView();
     }
 
-    protected _dispatchPageTurningEvent() {
+    protected _dispatchPageTurningEvent () {
         if (this._lastPageIdx === this._curPageIdx) { return; }
         this._lastPageIdx = this._curPageIdx;
         ComponentEventHandler.emitEvents(this.pageEvents, this, EventType.PAGE_TURNING);
@@ -660,7 +653,7 @@ export class PageView extends ScrollView {
     }
 
     // 快速滑动
-    protected _isQuicklyScrollable(touchMoveVelocity: Vec3) {
+    protected _isQuicklyScrollable (touchMoveVelocity: Vec3) {
         if (this.direction === Direction.Horizontal) {
             if (Math.abs(touchMoveVelocity.x) > this.autoPageTurningThreshold) {
                 return true;
@@ -675,7 +668,7 @@ export class PageView extends ScrollView {
     }
 
     // 通过 idx 获取偏移值数值
-    protected _moveOffsetValue(idx: number) {
+    protected _moveOffsetValue (idx: number) {
         const offset = new Vec3();
         if (this._sizeMode === SizeMode.Free) {
             if (this.direction === Direction.Horizontal) {
@@ -699,7 +692,7 @@ export class PageView extends ScrollView {
         return offset;
     }
 
-    protected _getDragDirection(moveOffset: Vec3) {
+    protected _getDragDirection (moveOffset: Vec3) {
         if (this._direction === Direction.Horizontal) {
             if (moveOffset.x === 0) {
                 return 0;
@@ -718,7 +711,7 @@ export class PageView extends ScrollView {
     }
 
     // 是否超过自动滚动临界值
-    protected _isScrollable(offset: Vec3, index: number, nextIndex: number) {
+    protected _isScrollable (offset: Vec3, index: number, nextIndex: number) {
         if (this._sizeMode === SizeMode.Free) {
             let curPageCenter = 0;
             let nextPageCenter = 0;
@@ -747,7 +740,7 @@ export class PageView extends ScrollView {
         }
     }
 
-    protected _autoScrollToPage() {
+    protected _autoScrollToPage () {
         const bounceBackStarted = this._startBounceBackIfNeeded();
         if (bounceBackStarted) {
             let bounceBackAmount = this._getHowMuchOutOfBoundary();

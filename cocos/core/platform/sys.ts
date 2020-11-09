@@ -33,9 +33,6 @@ import { EDITOR, TEST, COCOSPLAY, JSB, MINIGAME, HUAWEI, OPPO, VIVO, RUNTIME_BAS
 import { legacyCC } from '../global-exports';
 import { warnID, log, logID } from './debug';
 
-// tslint:disable
-
-// @ts-ignore
 const _global = typeof window === 'undefined' ? global : window;
 
 enum NetworkType {
@@ -61,7 +58,7 @@ enum NetworkType {
  * @zh 一系列系统相关环境变量
  * @main
  */
-export const sys: { [x: string]: any; } = {
+export const sys: Record<string, any> = {
     /**
      * @en
      * Network type enumeration
@@ -762,7 +759,7 @@ export const sys: { [x: string]: any; } = {
      */
     openURL (url) {
         if (JSB || RUNTIME_BASED) {
-            // @ts-ignore
+            // @ts-expect-error
             jsb.openURL(url);
         }
         else {
@@ -801,9 +798,9 @@ export const sys: { [x: string]: any; } = {
      * @return {Rect}
      */
     getSafeAreaRect () {
-        let visibleSize = legacyCC.view.getVisibleSize();
+        const visibleSize = legacyCC.view.getVisibleSize();
         return legacyCC.rect(0, 0, visibleSize.width, visibleSize.height);
-    }
+    },
 };
 
 // ============= Platform Adaptation ==============
@@ -821,7 +818,7 @@ if (_global.__globalAdapter && _global.__globalAdapter.adaptSys) {
 //         darwin: sys.OS_OSX,
 //         win32: sys.OS_WINDOWS,
 //         linux: sys.OS_LINUX,
-//     // @ts-ignore
+//     // @ts-expect-error
 //     })[process.platform] || sys.OS_UNKNOWN;
 //     sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
 //     sys.browserVersion = '';
@@ -843,7 +840,7 @@ else if (JSB || RUNTIME_BASED) {
         platform = sys.COCOSPLAY;
     }
     else {
-        // @ts-ignore
+        // @ts-expect-error
         platform = __getPlatform();
     }
     sys.platform = platform;
@@ -859,14 +856,14 @@ else if (JSB || RUNTIME_BASED) {
                     platform === sys.HUAWEI_QUICK_GAME ||
                     platform === sys.COCOSPLAY);
 
-    // @ts-ignore
+    // @ts-expect-error
     sys.os = __getOS();
-    // @ts-ignore
+    // @ts-expect-error
     sys.language = __getCurrentLanguage();
-    // @ts-ignore
-    let languageCode = JSB && __getCurrentLanguageCode();
+    // @ts-expect-error
+    const languageCode = JSB && __getCurrentLanguageCode();
     sys.languageCode = languageCode ? languageCode.toLowerCase() : 'unknown';
-    // @ts-ignore
+    // @ts-expect-error
     sys.osVersion = __getOSVersion();
     sys.osMainVersion = parseInt(sys.osVersion);
     sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
@@ -928,7 +925,7 @@ else {
 
     let currLanguage = nav.language;
     sys.languageCode = currLanguage.toLowerCase();
-    // @ts-ignore
+    // @ts-expect-error
     currLanguage = currLanguage ? currLanguage : nav.browserLanguage;
     currLanguage = currLanguage ? currLanguage.split('-')[0] : sys.LANGUAGE_ENGLISH;
     sys.language = currLanguage;
@@ -977,19 +974,19 @@ else {
         const typeReg1 = /mqqbrowser|micromessenger|qqbrowser|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
         const typeReg2 = /qq|qqbrowser|ucbrowser|ubrowser|edge/i;
         const typeReg3 = /chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
-        let browserTypes = typeReg1.exec(ua) || typeReg2.exec(ua) || typeReg3.exec(ua);
+        const browserTypes = typeReg1.exec(ua) || typeReg2.exec(ua) || typeReg3.exec(ua);
 
         let browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
-        if(COCOSPLAY) {
+        if (COCOSPLAY) {
             browserType = sys.BROWSER_TYPE_COCOSPLAY;
         }
-        else if(HUAWEI) {
+        else if (HUAWEI) {
             browserType = sys.BROWSER_TYPE_HUAWEI_GAME;
         }
-        else if(OPPO) {
+        else if (OPPO) {
             browserType = sys.BROWSER_TYPE_OPPO_GAME;
         }
-        else if(VIVO) {
+        else if (VIVO) {
             browserType = sys.BROWSER_TYPE_VIVO_GAME;
         }
         else if (browserType === 'safari' && isAndroid) {
@@ -998,7 +995,7 @@ else {
         else if (browserType === 'qq' && ua.match(/android.*applewebkit/i)) {
             browserType = sys.BROWSER_TYPE_ANDROID;
         }
-        let typeMap = {
+        const typeMap = {
             'micromessenger': sys.BROWSER_TYPE_WECHAT,
             'trident': sys.BROWSER_TYPE_IE,
             'edge': sys.BROWSER_TYPE_EDGE,
@@ -1091,7 +1088,6 @@ else {
     if (docEle.onkeyup !== undefined) {
         capabilities.keyboard = true;
     }
-    // @ts-ignore
     if (win.DeviceMotionEvent || win.DeviceOrientationEvent) {
         capabilities.accelerometer = true;
     }
@@ -1142,7 +1138,6 @@ else {
             Object.defineProperty(__audioSupport, 'context', {
                 get () {
                     if (this._context) { return this._context; }
-                    // @ts-ignore
                     return this._context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)();
                 },
             });
@@ -1152,7 +1147,7 @@ else {
         logID(5201);
     }
 
-    let formatSupport: string[] = [];
+    const formatSupport: string[] = [];
     (function () {
         const audio = document.createElement('audio');
         if (audio.canPlayType) {
@@ -1179,7 +1174,7 @@ else {
         const video = document.createElement('video');
         if (video.canPlayType) {
             const canPlayTypes = ['mp4', 'webm'];
-            let format = sys.__videoSupport.format;
+            const format = sys.__videoSupport.format;
             canPlayTypes.forEach((type) => {
                 if (video.canPlayType(`video/${type}`)) {
                     format.push(`.${type}`);

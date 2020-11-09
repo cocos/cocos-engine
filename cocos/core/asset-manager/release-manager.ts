@@ -163,7 +163,7 @@ class ReleaseManager {
         // transfer refs from persist nodes to new scene
         for (let i = 0, l = persistNodes.length; i < l; i++) {
             const node = persistNodes[i];
-            // @ts-ignore
+            // @ts-expect-error
             const sceneDeps = dependUtil._depends.get(newScene._id);
             const deps = this._persistNodeDeps.get(node.uuid) as string[];
             for (const dep of deps) {
@@ -182,7 +182,7 @@ class ReleaseManager {
 
         if (!oldScene) { return; }
 
-        // @ts-ignore
+        // @ts-expect-error
         const childs = dependUtil.getDeps(oldScene._id);
         for (let i = 0, l = childs.length; i < l; i++) {
             const asset = assets.get(childs[i]);
@@ -190,7 +190,7 @@ class ReleaseManager {
                 asset.decRef(TEST || oldScene.autoReleaseAssets);
             }
         }
-        // @ts-ignore
+        // @ts-expect-error
         const dependencies = dependUtil._depends.get(oldScene._id);
         if (dependencies && dependencies.persistDeps) {
             const persistDeps = dependencies.persistDeps;
@@ -201,7 +201,7 @@ class ReleaseManager {
                 }
             }
         }
-        // @ts-ignore
+        // @ts-expect-error
         dependUtil.remove(oldScene._id);
     }
 

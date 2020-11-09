@@ -12,7 +12,7 @@ import { EDITOR } from 'internal:constants';
 import { Texture2D } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
 
-// tslint:disable: max-line-length
+
 const SerializableTable = EDITOR && [
     [ '_mode', 'color' ],
     [ '_mode', 'gradient' ],

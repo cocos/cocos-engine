@@ -3,12 +3,12 @@
  * @module gfx
  */
 
-import { DescriptorType, Obj, ObjectType, ShaderStageFlagBit, ShaderStageFlags } from './define';
 import { Device } from './device';
 import { Sampler } from './sampler';
+import { DescriptorType, Obj, ObjectType, ShaderStageFlagBit, ShaderStageFlags } from './define';
 
 export class DescriptorSetLayoutBinding {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public binding: number = -1,
@@ -20,7 +20,7 @@ export class DescriptorSetLayoutBinding {
 }
 
 export class DescriptorSetLayoutInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public bindings: DescriptorSetLayoutBinding[] = []

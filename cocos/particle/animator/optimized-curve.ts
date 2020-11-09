@@ -7,7 +7,7 @@
 import { repeat } from '../../core/math';
 import { AnimationCurve, evalOptCurve, OptimizedKey } from '../../core/geometry/curve';
 
-// tslint:disable: max-line-length
+
 
 const CURVE_MODE_CONSTANT = 0;
 const CURVE_MODE_RANDOM_CONSTANT = 1;

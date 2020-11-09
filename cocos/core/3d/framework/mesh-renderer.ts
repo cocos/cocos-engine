@@ -371,7 +371,7 @@ export class MeshRenderer extends RenderableComponent {
             return;
         }
         const renderScene = this._getRenderScene();
-        if (this._model.scene != null) {
+        if (this._model.scene !== null) {
             this._detachFromScene();
         }
         renderScene.addModel(this._model);
@@ -414,7 +414,7 @@ export class MeshRenderer extends RenderableComponent {
             this.lightmapSettings.uvParam.x,
             this.lightmapSettings.uvParam.y,
             this.lightmapSettings.uvParam.z,
-            this.lightmapSettings.uvParam.w
+            this.lightmapSettings.uvParam.w,
         ]);
     }
 

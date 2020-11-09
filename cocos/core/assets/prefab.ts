@@ -81,7 +81,7 @@ export default class Prefab extends Asset {
     public static OptimizationPolicy = OptimizationPolicy;
 
     public static OptimizationPolicyThreshold = 3;
-    
+
     /**
      * @en The main [[Node]] in the prefab
      * @zh Prefab 中的根节点，[[Node]] 类型
@@ -109,13 +109,13 @@ export default class Prefab extends Asset {
     public optimizationPolicy = OptimizationPolicy.AUTO;
 
     /**
-     * @en Indicates the raw assets of this prefab can be load after prefab loaded.
+     * @en Indicates the native assets of this prefab can be load after prefab loaded.
      * @zh 指示该 Prefab 依赖的资源可否在 Prefab 加载后再延迟加载。
      * @default false
      */
     @serializable
     @editable
-    public asyncLoadAssets: Boolean = false;
+    public asyncLoadAssets = false;
 
     // Cache function to optimize instance creation.
     private _createFunction: Function | null;
@@ -140,8 +140,8 @@ export default class Prefab extends Asset {
      * but you can re-call to refresh the create function once you modified the original prefab data in script.
      * @zh
      * 将预制数据动态转换为最小化代码。<br/>
-     * 此方法将在第一次实例化预制件之前自动调用，<br/>
-     * 但是您可以在脚本中修改原始预制数据后重新调用以刷新创建功能。
+     * 此方法将在第一次实例化预制件之前自动调用，<br/>
+     * 但是您可以在脚本中修改原始预制数据后重新调用以刷新创建功能。
      */
     public compileCreateFunction (): void {
         this._createFunction = compile(this.data);
@@ -167,7 +167,7 @@ export default class Prefab extends Asset {
 
     private _instantiate () {
         let node;
-        let useJit: Boolean = false;
+        let useJit = false;
         if (SUPPORT_JIT) {
             if (this.optimizationPolicy === OptimizationPolicy.SINGLE_INSTANCE) {
                 useJit = false;

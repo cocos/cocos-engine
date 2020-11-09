@@ -1,7 +1,7 @@
 import { RenderingSubMesh } from '../../assets/mesh';
 import { RenderPriority } from '../../pipeline/define';
 import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
-import { DSPool, IAPool, SubModelPool, SubModelView, SubModelHandle, NULL_HANDLE, SubMeshPool } from '../core/memory-pools';
+import { DSPool, IAPool, SubModelPool, SubModelView, SubModelHandle, NULL_HANDLE } from '../core/memory-pools';
 import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 
@@ -31,7 +31,7 @@ export class SubModel {
         }
     }
 
-    get passes () {
+    get passes (): Pass[] {
         return this._passes!;
     }
 
@@ -39,11 +39,11 @@ export class SubModel {
         this._subMesh = subMesh;
         this._inputAssembler!.destroy();
         this._inputAssembler!.initialize(subMesh.iaInfo);
-        if(this._passes![0].batchingScheme === BatchingSchemes.VB_MERGING) this._subMesh.genFlatBuffers();
+        if (this._passes![0].batchingScheme === BatchingSchemes.VB_MERGING) { this._subMesh.genFlatBuffers(); }
         SubModelPool.set(this._handle, SubModelView.SUB_MESH, subMesh.handle);
     }
 
-    get subMesh () {
+    get subMesh (): RenderingSubMesh {
         return this._subMesh!;
     }
 
@@ -52,27 +52,27 @@ export class SubModel {
         SubModelPool.set(this._handle, SubModelView.PRIORITY, val);
     }
 
-    get priority () {
+    get priority (): RenderPriority {
         return this._priority;
     }
 
-    get handle () {
+    get handle (): SubModelHandle {
         return this._handle;
     }
 
-    get inputAssembler () {
+    get inputAssembler (): InputAssembler {
         return this._inputAssembler!;
     }
 
-    get descriptorSet () {
+    get descriptorSet (): DescriptorSet {
         return this._descriptorSet!;
     }
 
-    get patches () {
+    get patches (): IMacroPatch[] | null {
         return this._patches;
     }
 
-    public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null) {
+    public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null): void {
         this._device = legacyCC.director.root.device as Device;
 
         this._subMesh = subMesh;
@@ -81,7 +81,7 @@ export class SubModel {
 
         this._handle = SubModelPool.alloc();
         this._flushPassInfo();
-        if(passes[0].batchingScheme === BatchingSchemes.VB_MERGING) this._subMesh.genFlatBuffers();
+        if (passes[0].batchingScheme === BatchingSchemes.VB_MERGING) { this._subMesh.genFlatBuffers(); }
 
         _dsInfo.layout = passes[0].localSetLayout;
         const dsHandle = DSPool.alloc(this._device, _dsInfo);
@@ -95,10 +95,9 @@ export class SubModel {
         this._descriptorSet = DSPool.get(dsHandle);
     }
 
-    public destroy () {
+    public destroy (): void {
         DSPool.free(SubModelPool.get(this._handle, SubModelView.DESCRIPTOR_SET));
         IAPool.free(SubModelPool.get(this._handle, SubModelView.INPUT_ASSEMBLER));
-        SubMeshPool.free(SubModelPool.get(this._handle, SubModelView.SUB_MESH));
         SubModelPool.free(this._handle);
 
         this._descriptorSet = null;
@@ -111,7 +110,7 @@ export class SubModel {
         this._passes = null;
     }
 
-    public update () {
+    public update (): void {
         for (let i = 0; i < this._passes!.length; ++i) {
             const pass = this._passes![i];
             pass.update();
@@ -119,7 +118,7 @@ export class SubModel {
         this._descriptorSet!.update();
     }
 
-    public onPipelineStateChanged () {
+    public onPipelineStateChanged (): void {
         const passes = this._passes;
         if (!passes) { return; }
 
@@ -133,7 +132,7 @@ export class SubModel {
         this._flushPassInfo();
     }
 
-    public onMacroPatchesStateChanged (patches) {
+    public onMacroPatchesStateChanged (patches: IMacroPatch[] | null): void {
         this._patches = patches;
 
         const passes = this._passes;
@@ -149,7 +148,7 @@ export class SubModel {
         this._flushPassInfo();
     }
 
-    protected _flushPassInfo () {
+    protected _flushPassInfo (): void {
         const passes = this._passes;
         if (!passes) { return; }
 

@@ -73,7 +73,7 @@ export class PlanarShadowQueue {
                 const subModel = model.subModels[j];
                 const shader = ShaderPool.get(pass.getShaderVariant(subModel.patches));
                 const ia = subModel.inputAssembler!;
-                const pso = PipelineStateManager.getOrCreatePipelineState(device, pass.handle, shader, renderPass, ia);
+                const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, ia);
                 cmdBuff.bindPipelineState(pso);
                 cmdBuff.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);
                 cmdBuff.bindInputAssembler(ia);

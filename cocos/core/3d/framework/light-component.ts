@@ -94,12 +94,12 @@ class StaticLightSettings {
     }
 }
 
-// tslint:disable: no-shadowed-variable
+
 export declare namespace Light {
     export type Type = EnumAlias<typeof scene.LightType>;
     export type PhotometricTerm = EnumAlias<typeof PhotometricTerm>;
 }
-// tslint:enable: no-shadowed-variable
+
 
 @ccclass('cc.Light')
 export class Light extends Component {

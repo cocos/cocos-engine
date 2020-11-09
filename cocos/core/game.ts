@@ -198,7 +198,7 @@ export class Game extends EventTarget {
      * });
      * ```
      */
-    public static EVENT_HIDE: string = 'game_on_hide';
+    public static EVENT_HIDE = 'game_on_hide';
 
     /**
      * @en Event triggered when game back to foreground<br>
@@ -222,7 +222,7 @@ export class Game extends EventTarget {
      * @en Event triggered after game inited, at this point all engine objects and game scripts are loaded
      * @zh 游戏启动后的触发事件，此时加载所有的引擎对象和游戏脚本。
      */
-    public static EVENT_GAME_INITED: string = 'game_inited';
+    public static EVENT_GAME_INITED = 'game_inited';
 
     /**
      * @en Event triggered after engine inited, at this point you will be able to use all engine classes.<br>
@@ -232,7 +232,7 @@ export class Game extends EventTarget {
      * 它在 cocos creator v1.x 版本中名字为 EVENT_RENDERER_INITED ,在 v2.0 版本中更名为 EVENT_ENGINE_INITED
      * 并在 cocos creator 3d 版本中将 EVENT_RENDERER_INITED 用作为渲染器初始化的事件。
      */
-    public static EVENT_ENGINE_INITED: string = 'engine_inited';
+    public static EVENT_ENGINE_INITED = 'engine_inited';
 
     /**
      * @en Event triggered after renderer inited, at this point you will be able to use all gfx renderer feature.<br>
@@ -244,29 +244,29 @@ export class Game extends EventTarget {
      * @en Event triggered when game restart
      * @zh 调用restart后，触发事件
      */
-    public static EVENT_RESTART: string = 'game_on_restart';
+    public static EVENT_RESTART = 'game_on_restart';
 
     /**
      * @en Web Canvas 2d API as renderer backend.
      * @zh 使用 Web Canvas 2d API 作为渲染器后端。
      */
-    public static RENDER_TYPE_CANVAS: number = 0;
+    public static RENDER_TYPE_CANVAS = 0;
     /**
      * @en WebGL API as renderer backend.
      * @zh 使用 WebGL API 作为渲染器后端。
      */
-    public static RENDER_TYPE_WEBGL: number = 1;
+    public static RENDER_TYPE_WEBGL = 1;
     /**
      * @en OpenGL API as renderer backend.
      * @zh 使用 OpenGL API 作为渲染器后端。
      */
-    public static RENDER_TYPE_OPENGL: number = 2;
+    public static RENDER_TYPE_OPENGL = 2;
 
     /**
      * @en The outer frame of the game canvas; parent of game container.
      * @zh 游戏画布的外框，container 的父容器。
      */
-    public frame: Object | null = null;
+    public frame: Record<string, unknown> | null = null;
     /**
      * @en The container of game canvas.
      * @zh 游戏画布的容器。
@@ -282,7 +282,7 @@ export class Game extends EventTarget {
      * @en The renderer backend of the game.
      * @zh 游戏的渲染器类型。
      */
-    public renderType: number = -1;
+    public renderType = -1;
 
     public eventTargetOn = super.on;
     public eventTargetOnce = super.once;
@@ -312,14 +312,18 @@ export class Game extends EventTarget {
         return this._inited;
     }
 
+    public get frameTime () {
+        return this._frameTime;
+    }
+
     public _persistRootNodes = {};
 
     // states
-    public _paused: boolean = true; // whether the game is paused
-    public _configLoaded: boolean = false; // whether config loaded
-    public _isCloning: boolean = false;    // deserializing or instantiating
-    public _inited: boolean = false; // whether the engine has inited
-    public _rendererInitialized: boolean = false;
+    public _paused = true; // whether the game is paused
+    public _configLoaded = false; // whether config loaded
+    public _isCloning = false;    // deserializing or instantiating
+    public _inited = false; // whether the engine has inited
+    public _rendererInitialized = false;
 
     public _gfxDevice: Device | null = null;
 
@@ -388,7 +392,7 @@ export class Game extends EventTarget {
         // Because runtime platforms never actually stops the swap chain,
         // we draw some more frames here to (try to) make sure swap chain consistency
         if (RUNTIME_BASED || ALIPAY) {
-            let swapbuffers = 3;
+            let swapbuffers = 4;
             const cb = () => {
                 if (--swapbuffers > 1) {
                     window.rAF(cb);
@@ -426,9 +430,9 @@ export class Game extends EventTarget {
      */
     public restart (): Promise<void> {
         const afterDrawPromise = new Promise<void>((resolve) =>
-            legacyCC.director.once(legacyCC.Director.EVENT_AFTER_DRAW, () => resolve()));
+            legacyCC.director.once(legacyCC.Director.EVENT_AFTER_DRAW, () => resolve()) as void);
         return afterDrawPromise.then(() => {
-            // tslint:disable-next-line: forin
+
             for (const id in this._persistRootNodes) {
                 this.removePersistRootNode(this._persistRootNodes[id]);
             }
@@ -495,7 +499,7 @@ export class Game extends EventTarget {
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param target - The target (this object) to invoke the callback, can be null
      */
-    // @ts-ignore
+    // @ts-expect-error
     public once (type: string, callback: Function, target?: object) {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
         if (this._inited && type === Game.EVENT_ENGINE_INITED) {
@@ -522,7 +526,7 @@ export class Game extends EventTarget {
             if (!EDITOR) {
                 this._initEvents();
             }
-    
+
             legacyCC.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
             return this._inited;
         });
@@ -553,7 +557,7 @@ export class Game extends EventTarget {
         return Promise.resolve(initPromise).then(() => {
             this._setAnimFrame();
             this._runMainLoop();
-    
+
             // register system events
             if (!EDITOR && game.config.registerSystemEvent) {
                 inputManager.registerSystemEvent(game.canvas);
@@ -642,9 +646,8 @@ export class Game extends EventTarget {
         this._lastTime = performance.now();
         const frameRate = this.config.frameRate;
         this._frameTime = 1000 / frameRate;
-        legacyCC.director._maxParticleDeltaTime = this._frameTime / 1000 * 2;
         if (JSB || RUNTIME_BASED) {
-            // @ts-ignore
+            // @ts-expect-error
             jsb.setPreferredFramesPerSecond(frameRate);
             window.rAF = window.requestAnimationFrame;
             window.cAF = window.cancelAnimationFrame;
@@ -661,7 +664,7 @@ export class Game extends EventTarget {
             window.oRequestAnimationFrame ||
             window.msRequestAnimationFrame;
             if (frameRate !== 60 && frameRate !== 30) {
-                // @ts-ignore
+                // @ts-expect-error
                 window.rAF = rAF ? this._stTimeWithRAF : this._stTime;
                 window.cAF = this._ctTime;
             }
@@ -711,7 +714,7 @@ export class Game extends EventTarget {
         }
         const config = this.config;
         const director = legacyCC.director;
-        let skip: boolean = true;
+        let skip = true;
         const frameRate = config.frameRate;
 
         debug.setDisplayStats(!!config.showFPS);
@@ -846,7 +849,7 @@ export class Game extends EventTarget {
             );
             for (let i = 0; i < ctors.length; i++) {
                 this._gfxDevice = new ctors[i]();
-                if (this._gfxDevice!.initialize(opts)) { break; }
+                if (this._gfxDevice.initialize(opts)) { break; }
             }
         }
 
@@ -901,12 +904,12 @@ export class Game extends EventTarget {
                 'webkitvisibilitychange',
                 'qbrowserVisibilityChange',
             ];
-            // tslint:disable-next-line: prefer-for-of
+
             for (let i = 0; i < changeList.length; i++) {
                 document.addEventListener(changeList[i], (event) => {
                     let visible = document[hiddenPropName];
                     // QQ App
-                    // @ts-ignore
+                    // @ts-expect-error
                     visible = visible || event.hidden;
                     if (visible) {
                         onHidden();

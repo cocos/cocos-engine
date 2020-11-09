@@ -66,7 +66,7 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
     onTouchBegan (event: Touch) {
         this._isTouched = true;
 
-        let target = this._touchPoint.set(event.getLocation());
+        let target = this._touchPoint.set(event.getUILocation());
 
         let world = (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld);
         let colliders = world.testPoint(target);
@@ -85,7 +85,7 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
     }
 
     onTouchMove (event: Touch) {
-        this._touchPoint = event.getLocation();
+        this._touchPoint = event.getUILocation();
     }
 
     onTouchEnd (event: Touch) {

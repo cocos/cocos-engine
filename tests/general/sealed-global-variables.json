@@ -154,7 +154,6 @@
         "cc.ProgressBarComponent",
         "cc.Quat",
         "cc.RatioSampler",
-        "cc.RawAsset",
         "cc.Rect",
         "cc.RenderFlow",
         "cc.RenderPassStage",

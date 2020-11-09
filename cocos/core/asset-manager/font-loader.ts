@@ -124,7 +124,7 @@ function nativeCheckFontLoaded (start: number, font: string, callback: CompleteC
                 reject();
             }
             else {
-                // @ts-ignore
+                // @ts-expect-error
                 document.fonts.load('40px ' + font).then((fonts) => {
                     if (fonts.length >= 1) {
                         resolve();

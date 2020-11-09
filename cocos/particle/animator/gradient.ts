@@ -7,7 +7,7 @@ import { ccclass, serializable, editable } from 'cc.decorator';
 import { Color, lerp, repeat } from '../../core/math';
 import { Enum } from '../../core/value-types';
 
-// tslint:disable: max-line-length
+
 
 const Mode = Enum({
     Blend: 0,
@@ -16,11 +16,18 @@ const Mode = Enum({
 
 @ccclass('cc.ColorKey')
 export class ColorKey {
-
+    /**
+     * @en Color value.
+     * @zh 颜色值。
+     */
     @serializable
     @editable
     public color = Color.WHITE.clone();
 
+    /**
+     * @en Time value.
+     * @zh 时间值。
+     */
     @serializable
     @editable
     public time = 0;
@@ -28,11 +35,17 @@ export class ColorKey {
 
 @ccclass('cc.AlphaKey')
 export class AlphaKey {
-
+    /**
+     * @en Alpha value.
+     * @zh 透明度。
+     */
     @serializable
     @editable
     public alpha = 1;
-
+    /**
+     * @en Time.
+     * @zh 时间帧。
+     */
     @serializable
     @editable
     public time = 0;
@@ -42,15 +55,24 @@ export class AlphaKey {
 export default class Gradient {
 
     public static Mode = Mode;
-
+    /**
+     * @en Array of color key.
+     * @zh 颜色关键帧列表。
+     */
     @serializable
     @editable
     public colorKeys = new Array<ColorKey>();
-
+    /**
+     * @en Array of alpha key.
+     * @zh 透明度关键帧列表。
+     */
     @serializable
     @editable
     public alphaKeys = new Array<AlphaKey>();
-
+    /**
+     * @en Blend mode.
+     * @zh 混合模式。
+     */
     @serializable
     @editable
     public mode = Mode.Blend;

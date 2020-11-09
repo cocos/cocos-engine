@@ -10,6 +10,8 @@ import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { DSPool, ShaderPool, PassHandle, PassPool, PassView, SubModelPool,
     SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
+import { DSPool, ShaderPool, PassPool, PassView, SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
+import { Pass } from '../renderer/core/pass';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { BatchingSchemes } from '../renderer/core/pass';
 import { InstancedBuffer } from './instanced-buffer';
@@ -49,7 +51,7 @@ function getShadowPassIndex (subModels: SubModel[]) {
 export class RenderShadowMapBatchedQueue {
     private _pipeline: ForwardPipeline;
     private _subModelsArray: SubModel[] = [];
-    private _passArray: PassHandle[] = [];
+    private _passArray: Pass[] = [];
     private _shaderArray: Shader[] = [];
     private _shadowMapBuffer: Buffer;
 
@@ -155,10 +157,10 @@ export class RenderShadowMapBatchedQueue {
         for (let i = 0; i < this._subModelsArray.length; ++i) {
             const subModel = this._subModelsArray[i];
             const shader = this._shaderArray[i];
-            const hPass = this._passArray[i];
+            const pass = this._passArray[i];
             const ia = subModel.inputAssembler!;
-            const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, ia);
-            const descriptorSet = DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET));
+            const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, ia);
+            const descriptorSet = pass.descriptorSet;
 
             cmdBuff.bindPipelineState(pso);
             cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, descriptorSet);

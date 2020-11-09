@@ -19,7 +19,7 @@ import { Space, TextureMode, TrailMode } from '../enum';
 import { Particle } from '../particle';
 import { legacyCC } from '../../core/global-exports';
 
-// tslint:disable: max-line-length
+
 const PRE_TRIANGLE_INDEX = 1;
 const NEXT_TRIANGLE_INDEX = 1 << 2;
 const DIRECTION_THRESHOLD = Math.cos(toRadian(100));
@@ -32,8 +32,8 @@ const _temp_vec3_1 = new Vec3();
 const _temp_color = new Color();
 
 const barycentric = [1, 0, 0, 0, 1, 0, 0, 0, 1]; // <wireframe debug>
-// tslint:disable-next-line: prefer-const
-let _bcIdx = 0;
+
+const _bcIdx = 0;
 
 interface ITrailElement {
     position: Vec3;
@@ -281,12 +281,12 @@ export default class TrailModule {
     @serializable
     private _particleSystem: any = null;
 
-    private _minSquaredDistance: number = 0;
+    private _minSquaredDistance = 0;
     private _vertSize: number;
-    private _trailNum: number = 0;
-    private _trailLifetime: number = 0;
-    private vbOffset: number = 0;
-    private ibOffset: number = 0;
+    private _trailNum = 0;
+    private _trailLifetime = 0;
+    private vbOffset = 0;
+    private ibOffset = 0;
     private _trailSegments: Pool<TrailSegment> | null = null;
     private _particleTrail: Map<Particle, TrailSegment>;
     private _trailModel: scene.Model | null = null;
@@ -297,7 +297,7 @@ export default class TrailModule {
     private _vbF32: Float32Array | null = null;
     private _vbUint32: Uint32Array | null = null;
     private _iBuffer: Uint16Array | null = null;
-    private _needTransform: boolean = false;
+    private _needTransform = false;
     private _material: Material | null = null;
 
     constructor () {
@@ -546,8 +546,8 @@ export default class TrailModule {
         const subModels = this._trailModel && this._trailModel.subModels;
         if (subModels && subModels.length > 0) {
             const subModel = subModels[0];
-            subModel.inputAssembler!.vertexBuffers[0].update(this._vbF32!);
-            subModel.inputAssembler!.indexBuffer!.update(this._iBuffer!);
+            subModel.inputAssembler.vertexBuffers[0].update(this._vbF32!);
+            subModel.inputAssembler.indexBuffer!.update(this._iBuffer!);
             this._iaInfo.drawInfos[0].firstIndex = 0;
             this._iaInfo.drawInfos[0].indexCount = count;
             this._iaInfoBuffer!.update(this._iaInfo);
@@ -594,7 +594,7 @@ export default class TrailModule {
         this._iaInfo.drawInfos[0].indexCount = this._trailNum * 6;
         this._iaInfoBuffer.update(this._iaInfo);
 
-        this._subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs!, PrimitiveMode.TRIANGLE_LIST, indexBuffer, this._iaInfoBuffer);
+        this._subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs, PrimitiveMode.TRIANGLE_LIST, indexBuffer, this._iaInfoBuffer);
 
         const trailModel = this._trailModel;
         if (trailModel) {

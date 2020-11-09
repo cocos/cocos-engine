@@ -185,10 +185,10 @@ export class Parser {
 
     public parseAudio (file: ArrayBuffer | HTMLAudioElement, options: IDownloadParseOptions, onComplete: CompleteCallback<AudioBuffer|HTMLAudioElement>) {
         if (file instanceof ArrayBuffer) {
-            sys.__audioSupport.context.decodeAudioData(file).then((buffer) => {
+            sys.__audioSupport.context.decodeAudioData(file, (buffer) => {
                 onComplete(null, buffer);
             }, (e) => {
-                onComplete(e, null);
+                onComplete(new Error("Error with decoding audio data" + e.err), null);
             });
         }
         else {

@@ -153,7 +153,7 @@ export class DependUtil {
                 return this._depends.get(uuid)!;
             }
 
-            // @ts-ignore
+            // @ts-expect-error
             if (Array.isArray(json) && (!(BUILD || isCompiledJson(json)) || !hasNativeDep(json))) {
                 out = {
                     deps: this._parseDepsFromJson(json),
@@ -196,13 +196,13 @@ export class DependUtil {
             preventPreloadNativeObject: (asset.constructor as typeof Asset).preventPreloadNativeObject,
             preventDeferredLoadDependents: (asset.constructor as typeof Asset).preventDeferredLoadDependents,
         };
-        // @ts-ignore
+        // @ts-expect-error
         const deps = asset.__depends__ as IDependProp[];
         for (let i = 0, l = deps.length; i < l; i++) {
             out.deps.push(deps[i].uuid);
         }
 
-        // @ts-ignore
+        // @ts-expect-error
         if (asset.__nativeDepend__) {
             out.nativeDep = asset._nativeDep;
         }
@@ -214,7 +214,7 @@ export class DependUtil {
         let depends: string[] | null = null;
         if (DEV) {
             if (isCompiledJson(json)) {
-                // @ts-ignore
+                // @ts-expect-error
                 depends = getDependUuidList(json);
                 depends!.forEach((uuid, index) => depends![index] = decodeUuid(uuid));
                 return depends!;
@@ -242,7 +242,7 @@ export class DependUtil {
             return depends;
         }
         else {
-            // @ts-ignore
+            // @ts-expect-error
             depends = getDependUuidList(json);
             depends!.forEach((uuid, index) => depends![index] = decodeUuid(uuid));
         }

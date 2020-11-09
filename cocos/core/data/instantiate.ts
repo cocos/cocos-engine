@@ -106,10 +106,10 @@ export function instantiate (original: any, internalForce?: boolean) {
 
     let clone;
     if (original instanceof CCObject) {
-        // @ts-ignore
+        // @ts-expect-error
         if (original._instantiate) {
             legacyCC.game._isCloning = true;
-            // @ts-ignore
+            // @ts-expect-error
             clone = original._instantiate();
             legacyCC.game._isCloning = false;
             return clone;
@@ -175,7 +175,7 @@ function doInstantiate (obj, parent?) {
 
 function enumerateCCClass (klass, obj, clone, parent) {
     const props = klass.__values__;
-    // tslint:disable: prefer-for-of
+
     for (let p = 0; p < props.length; p++) {
         const key = props[p];
         const value = obj[key];
@@ -246,7 +246,7 @@ function instantiateObj (obj, parent) {
     if (ArrayBuffer.isView(obj)) {
         let len = (obj as any).length;
         clone = new ((obj as any).constructor)(len);
-        // @ts-ignore
+        // @ts-expect-error
         obj._iN$t = clone;
         objsToClearTmpVar.push(obj);
         for (let i = 0; i < len; ++i) {
@@ -257,7 +257,7 @@ function instantiateObj (obj, parent) {
     if (Array.isArray(obj)) {
         const len = obj.length;
         clone = new Array(len);
-        // @ts-ignore
+        // @ts-expect-error
         obj._iN$t = clone;
         objsToClearTmpVar.push(obj);
         for (let i = 0; i < len; ++i) {

@@ -63,7 +63,7 @@ const pool = new Pool((labelSeg: ILabelSegment) => {
         return false;
     }
     else {
-        let outline = labelSeg.node.getComponent(LabelOutline);
+        const outline = labelSeg.node.getComponent(LabelOutline);
         if (outline) {
             outline.width = 0;
         }
@@ -71,7 +71,7 @@ const pool = new Pool((labelSeg: ILabelSegment) => {
     return true;
 }, 20);
 
-// @ts-ignore
+// @ts-expect-error
 pool.get = function (str: string, richtext: RichText) {
     let labelSeg = this._get();
     if (!labelSeg) {
@@ -102,7 +102,7 @@ pool.get = function (str: string, richtext: RichText) {
     // label._forceUseCanvas = true;
 
     labelNode.setPosition(0, 0, 0);
-    let trans = labelNode._uiProps.uiTransformComp!;
+    const trans = labelNode._uiProps.uiTransformComp!;
     trans.setAnchorPoint(0.5, 0.5);
 
     const labelObj: ILabelSegment = {
@@ -413,11 +413,11 @@ export class RichText extends UIComponent {
     @serializable
     protected _maxWidth = 0;
     @serializable
-    protected _fontFamily: string = 'Arial';
+    protected _fontFamily = 'Arial';
     @serializable
     protected _font: TTFFont | null = null;
     @serializable
-    protected _isSystemFontUsed: boolean = true;
+    protected _isSystemFontUsed = true;
     @serializable
     protected _userDefinedFont: TTFFont | null = null;
     @serializable
@@ -508,8 +508,8 @@ export class RichText extends UIComponent {
     }
 
     protected _createFontLabel (str: string): ILabelSegment {
-        // @ts-ignore
-        return pool.get(str, this);
+        // @ts-expect-error
+        return pool.get(str, this)!;
     }
 
     protected _onTTFLoaded () {
@@ -519,11 +519,10 @@ export class RichText extends UIComponent {
                 this._updateRichText();
             }
             else {
-                const self = this;
                 assetManager.postLoadNative(this._font, (err) => {
-                    if (!self.isValid) { return; } 
-                    self._layoutDirty = true;
-                    self._updateRichText();
+                    if (!this.isValid) { return; }
+                    this._layoutDirty = true;
+                    this._updateRichText();
                 });
             }
         }
@@ -534,19 +533,18 @@ export class RichText extends UIComponent {
     }
 
     protected _measureText (styleIndex: number, string?: string) {
-        const self = this;
         const func = (s: string) => {
             let label: ILabelSegment;
-            if (self._labelSegmentsCache.length === 0) {
-                label = self._createFontLabel(s);
-                self._labelSegmentsCache.push(label);
+            if (this._labelSegmentsCache.length === 0) {
+                label = this._createFontLabel(s);
+                this._labelSegmentsCache.push(label);
             }
             else {
-                label = self._labelSegmentsCache[0];
+                label = this._labelSegmentsCache[0];
                 label.node.getComponent(Label)!.string = s;
             }
             label.styleIndex = styleIndex;
-            self._applyTextAttribute(label);
+            this._applyTextAttribute(label);
             const labelSize = label.node._uiProps.uiTransformComp!.contentSize;
             return labelSize.width;
         };
@@ -561,13 +559,12 @@ export class RichText extends UIComponent {
     protected _onTouchEnded (event: EventTouch) {
         const components = this.node.getComponents(Component);
 
-        const self = this;
         for (const seg of this._labelSegments) {
             const clickHandler = seg.clickHandler;
             const clickParam = seg.clickParam;
             if (clickHandler && this._containsTouchLocation(seg, event.touch!.getUILocation())) {
                 components.forEach((component) => {
-                    const func = component[clickHandler] as Function;
+                    const func = component[clickHandler];
                     if (component.enabledInHierarchy && func) {
                         func.call(component, event, clickParam);
                     }
@@ -588,7 +585,7 @@ export class RichText extends UIComponent {
     }
 
     protected _resetState () {
-        const children = this.node.children as Mutable<Node[]>;
+        const children = this.node.children ;
 
         for (let i = children.length - 1; i >= 0; i--) {
             const child = children[i];
@@ -650,7 +647,6 @@ export class RichText extends UIComponent {
         labelSegment.lineCount = this._lineCount;
         labelSegment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
         this._applyTextAttribute(labelSegment);
-        // @ts-ignore
         this.node.addChild(labelSegment.node);
         this._labelSegments.push(labelSegment);
 
@@ -729,7 +725,7 @@ export class RichText extends UIComponent {
             if (oldItem.text !== newItem.text) {
                 return true;
             } else {
-                let oldStyle = oldItem.style, newStyle = newItem.style;
+                const oldStyle = oldItem.style, newStyle = newItem.style;
                 if (oldStyle) {
                     if (newStyle) {
                         if (!!newStyle.outline !== !!oldStyle.outline) {
@@ -793,7 +789,6 @@ export class RichText extends UIComponent {
 
             // Why need to set spriteFrame before can add child ??
             sprite.spriteFrame = spriteFrame;
-            // @ts-ignore
             this.node.addChild(spriteNode);
             const obj: ILabelSegment = {
                 node: spriteNode,
@@ -845,7 +840,7 @@ export class RichText extends UIComponent {
 
             obj.clickHandler = '';
             obj.clickParam = '';
-            let event = style.event;
+            const event = style.event;
             if (event) {
                 obj.clickHandler = event['click'];
                 obj.clickParam = event['param'];
@@ -999,12 +994,12 @@ export class RichText extends UIComponent {
                 nextTokenX += segment.node._uiProps.uiTransformComp!.width;
             }
 
-            let sprite = segment.node.getComponent(Sprite);
+            const sprite = segment.node.getComponent(Sprite);
             if (sprite) {
-                let position = segment.node.position.clone();
+                const position = segment.node.position.clone();
                 // adjust img align (from <img align=top|center|bottom>)
-                let lineHeightSet = this._lineHeight;
-                let lineHeightReal = this._lineHeight * (1 + BASELINE_RATIO); //single line node height
+                const lineHeightSet = this._lineHeight;
+                const lineHeightReal = this._lineHeight * (1 + BASELINE_RATIO); //single line node height
                 switch (segment.node._uiProps.uiTransformComp!.anchorY) {
                     case 1:
                         position.y += (lineHeightSet + ((lineHeightReal - lineHeightSet) / 2));
@@ -1018,14 +1013,14 @@ export class RichText extends UIComponent {
                 }
                 // adjust img offset (from <img offset=12|12,34>)
                 if (segment.imageOffset) {
-                    let offsets = segment.imageOffset.split(',');
+                    const offsets = segment.imageOffset.split(',');
                     if (offsets.length === 1 && offsets[0]) {
-                        let offsetY = parseFloat(offsets[0]);
+                        const offsetY = parseFloat(offsets[0]);
                         if (Number.isInteger(offsetY)) position.y += offsetY;
                     }
                     else if (offsets.length === 2) {
-                        let offsetX = parseFloat(offsets[0]);
-                        let offsetY = parseFloat(offsets[1]);
+                        const offsetX = parseFloat(offsets[0]);
+                        const offsetY = parseFloat(offsets[1]);
                         if (Number.isInteger(offsetX)) position.x += offsetX;
                         if (Number.isInteger(offsetY)) position.y += offsetY;
                     }
@@ -1034,9 +1029,9 @@ export class RichText extends UIComponent {
             }
 
             //adjust y for label with outline
-            let outline = segment.node.getComponent(LabelOutline);
+            const outline = segment.node.getComponent(LabelOutline);
             if (outline) {
-                let position = segment.node.position.clone();
+                const position = segment.node.position.clone();
                 position.y = position.y - outline.width;
                 segment.node.position = position;
             }
@@ -1091,7 +1086,7 @@ export class RichText extends UIComponent {
 
             labelSeg.clickHandler = '';
             labelSeg.clickParam = '';
-            let event = textStyle.event;
+            const event = textStyle.event;
             if (event) {
                 labelSeg.clickHandler = event['click'] || '';
                 labelSeg.clickParam = event['param'] || '';
@@ -1103,7 +1098,7 @@ export class RichText extends UIComponent {
 
         label.cacheMode = this._cacheMode;
 
-        let isAsset = this._font instanceof Font;
+        const isAsset = this._font instanceof Font;
         if (isAsset && !this._isSystemFontUsed) {
             label.font = this._font;
         } else {

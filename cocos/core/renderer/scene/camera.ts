@@ -1,6 +1,9 @@
+import { JSB } from 'internal:constants';
 import { frustum, ray } from '../../geometry';
 import { ClearFlag, SurfaceTransform } from '../../gfx/define';
-import { lerp, Mat4, Rect, toRadian, Vec3, IVec4Like } from '../../math';
+import {
+    lerp, Mat4, Rect, toRadian, Vec3, IVec4Like,
+} from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { RenderView } from '../../pipeline';
 import { Node } from '../../scene-graph';
@@ -8,8 +11,9 @@ import { RenderScene } from './render-scene';
 import { Device, Color } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../core/render-window';
-import { CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, NULL_HANDLE, SceneHandle } from '../core/memory-pools';
-import { JSB } from 'internal:constants';
+import {
+    CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, NULL_HANDLE, SceneHandle,
+} from '../core/memory-pools';
 import { recordFrustumToSharedMemory } from '../../geometry/frustum';
 import { preTransforms } from '../../math/mat4';
 
@@ -98,22 +102,21 @@ export const SKYBOX_FLAG = ClearFlag.STENCIL << 1;
 const correctionMatrices: Mat4[] = [];
 
 export class Camera {
-
-    public isWindowSize: boolean = true;
+    public isWindowSize = true;
     public screenScale: number;
 
     private _device: Device;
     private _scene: RenderScene | null = null;
     private _node: Node | null = null;
     private _name: string | null = null;
-    private _enabled: boolean = false;
+    private _enabled = false;
     private _proj: CameraProjection = -1;
     private _aspect: number;
-    private _orthoHeight: number = 10.0;
+    private _orthoHeight = 10.0;
     private _fovAxis = CameraFOVAxis.VERTICAL;
     private _fov: number = toRadian(45);
-    private _nearClip: number = 1.0;
-    private _farClip: number = 1000.0;
+    private _nearClip = 1.0;
+    private _farClip = 1000.0;
     private _clearColor = new Color(0.2, 0.2, 0.2, 1);
     private _viewport: Rect = new Rect(0, 0, 1, 1);
     private _curTransform = SurfaceTransform.IDENTITY;
@@ -129,14 +132,14 @@ export class Camera {
     private _position: Vec3 = new Vec3();
     private _view: RenderView | null = null;
     private _visibility = CAMERA_DEFAULT_MASK;
-    private _priority: number = 0;
+    private _priority = 0;
     private _aperture: CameraAperture = CameraAperture.F16_0;
     private _apertureValue: number;
     private _shutter: CameraShutter = CameraShutter.D125;
-    private _shutterValue: number = 0.0;
+    private _shutterValue = 0.0;
     private _iso: CameraISO = CameraISO.ISO100;
-    private _isoValue: number = 0.0;
-    private _ec: number = 0.0;
+    private _isoValue = 0.0;
+    private _ec = 0.0;
     private _poolHandle: CameraHandle = NULL_HANDLE;
     private _frustumHandle: FrustumHandle = NULL_HANDLE;
 
@@ -186,8 +189,8 @@ export class Camera {
         legacyCC.director.root.attachCamera(this);
         this.changeTargetWindow(info.window);
 
-        console.log('Created Camera: ' + this._name + ' ' + CameraPool.get(handle
-            , CameraView.WIDTH) + 'x' + CameraPool.get(handle, CameraView.HEIGHT));
+        console.log(`Created Camera: ${this._name} ${CameraPool.get(handle,
+            CameraView.WIDTH)}x${CameraPool.get(handle, CameraView.HEIGHT)}`);
     }
 
     public destroy () {
@@ -391,30 +394,31 @@ export class Camera {
         const y = this._device.screenSpaceSignY < 0 ? 1 - val.y - height : val.y;
 
         switch (this._device.surfaceTransform) {
-            case SurfaceTransform.ROTATE_90:
-                this._viewport.x = 1 - y - height;
-                this._viewport.y = x;
-                this._viewport.width = height;
-                this._viewport.height = width;
-                break;
-            case SurfaceTransform.ROTATE_180:
-                this._viewport.x = 1 - x - width;
-                this._viewport.y = 1 - y - height;
-                this._viewport.width = width;
-                this._viewport.height = height;
-                break;
-            case SurfaceTransform.ROTATE_270:
-                this._viewport.x = y;
-                this._viewport.y = 1 - x - width;
-                this._viewport.width = height;
-                this._viewport.height = width;
-                break;
-            case SurfaceTransform.IDENTITY:
-                this._viewport.x = x;
-                this._viewport.y = y;
-                this._viewport.width = width;
-                this._viewport.height = height;
-                break;
+        case SurfaceTransform.ROTATE_90:
+            this._viewport.x = 1 - y - height;
+            this._viewport.y = x;
+            this._viewport.width = height;
+            this._viewport.height = width;
+            break;
+        case SurfaceTransform.ROTATE_180:
+            this._viewport.x = 1 - x - width;
+            this._viewport.y = 1 - y - height;
+            this._viewport.width = width;
+            this._viewport.height = height;
+            break;
+        case SurfaceTransform.ROTATE_270:
+            this._viewport.x = y;
+            this._viewport.y = 1 - x - width;
+            this._viewport.width = height;
+            this._viewport.height = width;
+            break;
+        case SurfaceTransform.IDENTITY:
+            this._viewport.x = x;
+            this._viewport.y = y;
+            this._viewport.width = width;
+            this._viewport.height = height;
+            break;
+        default:
         }
 
         CameraPool.setVec4(this._poolHandle, CameraView.VIEW_PORT, this._viewport);
@@ -693,8 +697,7 @@ export class Camera {
             Vec3.set(out,
                 (screenPos.x - cx) / cw * 2 - 1,
                 (screenPos.y - cy) / ch * 2 - 1,
-                1.0,
-            );
+                1.0);
 
             // transform to world
             const { x, y } = out;
@@ -710,8 +713,7 @@ export class Camera {
             Vec3.set(out,
                 (screenPos.x - cx) / cw * 2 - 1,
                 (screenPos.y - cy) / ch * 2 - 1,
-                screenPos.z * 2 - 1,
-            );
+                screenPos.z * 2 - 1);
 
             // transform to world
             const { x, y } = out;
@@ -775,6 +777,6 @@ export class Camera {
 
     private updateExposure () {
         const ev100 = Math.log2((this._apertureValue * this._apertureValue) / this._shutterValue * 100.0 / this._isoValue);
-        CameraPool.set(this._poolHandle, CameraView.EXPOSURE, 0.833333 / Math.pow(2.0, ev100));
+        CameraPool.set(this._poolHandle, CameraView.EXPOSURE, 0.833333 / (2.0 ** ev100));
     }
 }

@@ -47,12 +47,12 @@ import { IPipe, Pipeline } from './pipeline';
 import preprocess from './preprocess';
 import releaseManager from './release-manager';
 import RequestItem from './request-item';
-import { 
+import {
     CompleteCallback,
     CompleteCallbackNoData,
     ProgressCallback,
     IBundleOptions,
-    INativeAssetOptions, 
+    INativeAssetOptions,
     IOptions,
     IRemoteOptions,
     presets,
@@ -520,7 +520,7 @@ export class AssetManager {
     public postLoadNative (asset: Asset, options?: INativeAssetOptions | CompleteCallbackNoData | null, onComplete?: CompleteCallbackNoData | null) {
         const { options: opts, onComplete: onComp } = parseParameters(options, undefined, onComplete);
 
-        // @ts-ignore
+        // @ts-expect-error
         if (!asset._native || !asset.__nativeDepend__) {
             return asyncify(onComp)(null);
         }
@@ -536,10 +536,10 @@ export class AssetManager {
 
         this.loadAny(depend, opts, (err, native) => {
             if (!err) {
-                // @ts-ignore
+                // @ts-expect-error
                 if (asset.isValid && asset.__nativeDepend__) {
                     asset._nativeAsset = native;
-                    // @ts-ignore
+                    // @ts-expect-error
                     asset.__nativeDepend__ = false;
                 }
             }

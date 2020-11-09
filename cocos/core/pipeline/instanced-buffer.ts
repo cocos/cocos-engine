@@ -5,7 +5,7 @@
 
 import { Pass } from '../renderer';
 import { IInstancedAttributeBlock, SubModel } from '../renderer/scene';
-import { SubModelView, SubModelPool, ShaderHandle, DescriptorSetHandle, PassHandle, NULL_HANDLE } from '../renderer/core/memory-pools';
+import { SubModelView, SubModelPool, ShaderHandle, DescriptorSetHandle } from '../renderer/core/memory-pools';
 import { UNIFORM_LIGHTMAP_TEXTURE_BINDING } from './define';
 import { BufferUsageBit, MemoryUsageBit, Device, Texture, InputAssembler, InputAssemblerInfo,
     Attribute, Buffer, BufferInfo, CommandBuffer  } from '../gfx';
@@ -37,14 +37,14 @@ export class InstancedBuffer {
     }
 
     public instances: IInstancedItem[] = [];
-    public hPass: PassHandle = NULL_HANDLE;
+    public pass: Pass;
     public hasPendingModels = false;
     public dynamicOffsets: number[] = [];
     private _device: Device;
 
     constructor (pass: Pass) {
         this._device = pass.device;
-        this.hPass = pass.handle;
+        this.pass = pass;
     }
 
     public destroy () {

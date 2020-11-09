@@ -4,9 +4,11 @@
  */
 
 import { EDITOR } from 'internal:constants';
+import {
+    ccclass, type, displayOrder, displayName, serializable,
+} from 'cc.decorator';
 import { Material } from '../../assets/material';
 import { Component } from '../../components/component';
-import { ccclass, type, displayOrder, displayName, serializable } from 'cc.decorator';
 import { IMaterialInstanceInfo, MaterialInstance } from '../../renderer/core/material-instance';
 import { scene } from '../../renderer';
 import { Layers } from '../../scene-graph/layers';
@@ -40,7 +42,7 @@ export class RenderableComponent extends Component {
     @displayName('Materials')
     get sharedMaterials () {
         // if we don't create an array copy, the editor will modify the original array directly.
-        return EDITOR && this._materials.slice() || this._materials;
+        return (EDITOR && this._materials.slice()) || this._materials;
     }
 
     set sharedMaterials (val) {
@@ -79,7 +81,8 @@ export class RenderableComponent extends Component {
             }
         }
         for (let i = 0; i < this._materialInstances.length; i++) {
-            // tslint:disable-next-line: triple-equals // both of them may be undefined or null
+            // they could be either undefined or null
+            // eslint-disable-next-line eqeqeq
             if (this._materialInstances[i] != val[i]) {
                 this.setMaterialInstance(i, val[i]);
             }
@@ -87,6 +90,7 @@ export class RenderableComponent extends Component {
     }
 
     protected _materialInstances: (MaterialInstance | null)[] = [];
+
     protected _models: scene.Model[] = [];
 
     get sharedMaterial () {
@@ -166,10 +170,8 @@ export class RenderableComponent extends Component {
                 this._materialInstances[index] = matInst as MaterialInstance;
                 this._onMaterialModified(index, matInst);
             }
-        } else {
-            if (matInst !== this._materials[index]) {
-                this.setMaterial(matInst as Material, index);
-            }
+        } else if (matInst !== this._materials[index]) {
+            this.setMaterial(matInst as Material, index);
         }
     }
 

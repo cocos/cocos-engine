@@ -152,11 +152,14 @@ deviceProtos.forEach(function(item, index) {
 
         let oldDeviceCreatBufferFun = item.createBuffer;
         item.createBuffer = function(info) {
+            let buffer;
             if (info.buffer) {
-                return oldDeviceCreatBufferFun.call(this, info, true);
+                buffer = oldDeviceCreatBufferFun.call(this, info, true);
             } else {
-                return oldDeviceCreatBufferFun.call(this, info, false);
+                buffer = oldDeviceCreatBufferFun.call(this, info, false);
             }
+            buffer.cachedUsage = info.usage;
+            return buffer;
         }
 
         let oldDeviceCreatTextureFun = item.createTexture;
@@ -181,7 +184,6 @@ let oldUpdate = bufferProto.update;
 bufferProto.update = function(buffer, offset, size) {
     if(buffer.byteLength === 0) return;
     let buffSize;
-    if (this.cachedUsage === undefined) this.cachedUsage = this.usage;
 
     if (this.cachedUsage & 0x40) { // BufferUsageBit.INDIRECT
         // It is a IIndirectBuffer object.

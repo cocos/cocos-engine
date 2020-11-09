@@ -314,7 +314,7 @@ export class Color extends ValueType {
      * @zh 用十六进制颜色字符串中构造颜色。
      * @param hexString Hexadecimal color string.
      */
-    // tslint:disable-next-line: unified-signatures
+
     constructor (hexString: string);
 
     /**
@@ -439,7 +439,7 @@ export class Color extends ValueType {
         const g = parseInt(hexString.substr(2, 2), 16) || 0;
         const b = parseInt(hexString.substr(4, 2), 16) || 0;
         const a = parseInt(hexString.substr(6, 2), 16) || 255;
-        this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+        this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + (r|0);
         return this;
     }
 
@@ -466,8 +466,8 @@ export class Color extends ValueType {
             (this.g < 16 ? prefix : '') + (this.g).toString(16),
             (this.b < 16 ? prefix : '') + (this.b).toString(16),
         ];
-        let i = -1;
-        if ( fmt === '#rgb' ) {
+        const i = -1;
+        if (fmt === '#rgb') {
             hex[0] = hex[0][0];
             hex[1] = hex[1][0];
             hex[2] = hex[2][0];
@@ -564,7 +564,7 @@ export class Color extends ValueType {
         r *= 255;
         g *= 255;
         b *= 255;
-        this._val = ((this.a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+        this._val = ((this.a << 24) >>> 0) + (b << 16) + (g << 8) + (r|0);
         return this;
     }
 
@@ -617,7 +617,7 @@ export class Color extends ValueType {
      */
     public set(other: Color): Color;
     public set(r?: number, g?: number, b?: number, a?: number): Color;
-    public set(r?: number | Color, g?: number, b?: number, a?: number): Color {
+    public set (r?: number | Color, g?: number, b?: number, a?: number): Color {
         if (typeof r === 'object') {
             if (r._val != null) {
                 this._val = r._val;
@@ -626,14 +626,14 @@ export class Color extends ValueType {
                 b = r.b || 0;
                 a = typeof r.a === 'number' ? r.a : 255;
                 r = r.r || 0;
-                this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+                this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + (r|0);
             }
         } else {
             r = r || 0;
             g = g || 0;
             b = b || 0;
             a = typeof a === 'number' ? a : 255;
-            this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+            this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + (r|0);
         }
         return this;
     }

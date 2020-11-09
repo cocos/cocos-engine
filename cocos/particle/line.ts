@@ -71,7 +71,7 @@ export class Line extends Component {
             define[CC_USE_WORLD_SPACE] = this.worldSpace;
             this._materialInstance.recompileShaders(define);
             if (this._model) {
-                this._model.setSubModelMaterial(0, this._materialInstance!);
+                this._model.setSubModelMaterial(0, this._materialInstance);
             }
         }
     }
@@ -190,7 +190,7 @@ export class Line extends Component {
     public onLoad () {
         const model = this._model = legacyCC.director.root.createModel(LineModel);
         model.node = model.transform = this.node;
-        if (this._material == null) {
+        if (this._material === null) {
             this._material = new Material();
             this._material.copy(builtinResMgr.get<Material>('default-trail-material'));
             define[CC_USE_WORLD_SPACE] = this.worldSpace;
@@ -207,8 +207,8 @@ export class Line extends Component {
         if (!this._model) {
             return;
         }
-        this.attachToScene();
-        this.texture = this.texture;
+        this._attachToScene();
+        this.texture = this._texture;
         this.tile = this._tile;
         this.offset = this._offset;
         this._model.addLineVertexData(this._positions, this._width, this._color);
@@ -216,20 +216,20 @@ export class Line extends Component {
 
     public onDisable () {
         if (this._model) {
-            this.detachFromScene();
+            this._detachFromScene();
         }
     }
 
-    private attachToScene () {
+    protected _attachToScene () {
         if (this._model && this.node && this.node.scene) {
             if (this._model.scene) {
-                this.detachFromScene();
+                this._detachFromScene();
             }
             this._getRenderScene().addModel(this._model);
         }
     }
 
-    private detachFromScene () {
+    protected _detachFromScene () {
         if (this._model && this._model.scene) {
             this._model.scene.removeModel(this._model);
         }

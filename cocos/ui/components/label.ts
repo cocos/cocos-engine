@@ -415,10 +415,6 @@ export class Label extends UIRenderable {
         // if (value && this._isSystemFontUsed)
         //     this._isSystemFontUsed = false;
 
-        if (typeof value === 'string') {
-            warnID(4000);
-        }
-
         if (this._renderData) {
             this.destroyRenderData();
             this._renderData = null;
@@ -658,7 +654,7 @@ export class Label extends UIRenderable {
     @serializable
     protected _isUnderline = false;
     @serializable
-    protected _underlineHeight = 0;
+    protected _underlineHeight = 2;
     @serializable
     protected _cacheMode = CacheMode.NONE;
 

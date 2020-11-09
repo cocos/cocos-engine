@@ -38,7 +38,7 @@ import * as Attr from './utils/attribute';
 import MissingScript from '../components/missing-script';
 import { Details } from './deserialize';
 
-// tslint:disable: no-shadowed-variable
+
 
 // IMPLEMENT OF DESERIALIZATION
 
@@ -69,7 +69,7 @@ function _dereference (self) {
     }
 }
 
-function compileObjectTypeJit (sources, defaultValue, accessorToSet, propNameLiteralToSet, assumeHavePropIfIsValue, stillUseUrl) {
+function compileObjectTypeJit (sources, defaultValue, accessorToSet, propNameLiteralToSet, assumeHavePropIfIsValue) {
     if (defaultValue instanceof legacyCC.ValueType) {
         // fast case
         if (!assumeHavePropIfIsValue) {
@@ -83,10 +83,7 @@ function compileObjectTypeJit (sources, defaultValue, accessorToSet, propNameLit
     }
     else {
         sources.push('if(prop){');
-        sources.push('s._deserializeObjField(o,prop,' +
-                             propNameLiteralToSet +
-                             !!stillUseUrl +
-                         ');');
+        sources.push('s._deserializeObjField(o,prop,' + propNameLiteralToSet + ');');
         sources.push('}else o' + accessorToSet + '=null;');
     }
 }
@@ -95,7 +92,6 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
     const TYPE = Attr.DELIMETER + 'type';
     const EDITOR_ONLY = Attr.DELIMETER + 'editorOnly';
     const DEFAULT = Attr.DELIMETER + 'default';
-    const SAVE_URL_AS_ASSET = Attr.DELIMETER + 'saveUrlAsAsset';
     const FORMERLY_SERIALIZED_AS = Attr.DELIMETER + 'formerlySerializedAs';
     const attrs = Attr.getClassAttrs(klass);
 
@@ -106,7 +102,7 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
     ];
     const fastMode = misc.BUILTIN_CLASSID_RE.test(js._getClassId(klass));
     // sources.push('var vb,vn,vs,vo,vu,vf;');    // boolean, number, string, object, undefined, function
-    // tslint:disable-next-line: prefer-for-of
+
     for (let p = 0; p < props.length; p++) {
         const propName = props[p];
         if ((PREVIEW || (EDITOR && self._ignoreEditorOnly)) && attrs[propName + EDITOR_ONLY]) {
@@ -138,7 +134,6 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
         sources.push('prop=d' + accessorToGet + ';');
         sources.push(`if(typeof ${JSB ? '(prop)' : 'prop'}!=="undefined"){`);
 
-        const stillUseUrl = attrs[propName + SAVE_URL_AS_ASSET];
         // function undefined object(null) string boolean number
         const defaultValue = CCClass.getDefault(attrs[propName + DEFAULT]);
         if (fastMode) {
@@ -149,7 +144,7 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
             }
             else {
                 const defaultType = typeof defaultValue;
-                isPrimitiveType = (defaultType === 'string' && !stillUseUrl) ||
+                isPrimitiveType = defaultType === 'string' ||
                                   defaultType === 'number' ||
                                   defaultType === 'boolean';
             }
@@ -158,14 +153,14 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
                 sources.push(`o${accessorToSet}=prop;`);
             }
             else {
-                compileObjectTypeJit(sources, defaultValue, accessorToSet, propNameLiteralToSet, true, stillUseUrl);
+                compileObjectTypeJit(sources, defaultValue, accessorToSet, propNameLiteralToSet, true);
             }
         }
         else {
             sources.push(`if(typeof ${JSB ? '(prop)' : 'prop'}!=="object"){` +
                              'o' + accessorToSet + '=prop;' +
                          '}else{');
-            compileObjectTypeJit(sources, defaultValue, accessorToSet, propNameLiteralToSet, false, stillUseUrl);
+            compileObjectTypeJit(sources, defaultValue, accessorToSet, propNameLiteralToSet, false);
             sources.push('}');
         }
         sources.push('}');
@@ -197,7 +192,6 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
     let simplePropsToRead = simpleProps;
     const advancedProps: any = [];
     let advancedPropsToRead = advancedProps;
-    const advancedPropsUseUrl: any = [];
     const advancedPropsValueType: any = [];
 
     (() => {
@@ -207,17 +201,15 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
         const attrs = Attr.getClassAttrs(klass);
         const TYPE = Attr.DELIMETER + 'type';
         const DEFAULT = Attr.DELIMETER + 'default';
-        const SAVE_URL_AS_ASSET = Attr.DELIMETER + 'saveUrlAsAsset';
         const FORMERLY_SERIALIZED_AS = Attr.DELIMETER + 'formerlySerializedAs';
 
-        // tslint:disable-next-line: prefer-for-of
+
         for (let p = 0; p < props.length; p++) {
             const propName = props[p];
             let propNameToRead = propName;
             if (attrs[propName + FORMERLY_SERIALIZED_AS]) {
                 propNameToRead = attrs[propName + FORMERLY_SERIALIZED_AS];
             }
-            const stillUseUrl = attrs[propName + SAVE_URL_AS_ASSET];
             // function undefined object(null) string boolean number
             const defaultValue = CCClass.getDefault(attrs[propName + DEFAULT]);
             let isPrimitiveType = false;
@@ -228,7 +220,7 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
                 }
                 else {
                     const defaultType = typeof defaultValue;
-                    isPrimitiveType = (defaultType === 'string' && !stillUseUrl) ||
+                    isPrimitiveType = defaultType === 'string' ||
                                       defaultType === 'number' ||
                                       defaultType === 'boolean';
                 }
@@ -250,7 +242,6 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
                 if (advancedPropsToRead !== advancedProps) {
                     advancedPropsToRead.push(propNameToRead);
                 }
-                advancedPropsUseUrl.push(stillUseUrl);
                 advancedPropsValueType.push((defaultValue instanceof legacyCC.ValueType) && defaultValue.constructor);
             }
         }
@@ -285,7 +276,7 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
                 }
                 else {
                     if (prop) {
-                        s._deserializeObjField(o, prop, propName, advancedPropsUseUrl[i]);
+                        s._deserializeObjField(o, prop, propName);
                     }
                     else {
                         o[propName] = null;
@@ -368,7 +359,7 @@ function _deserializeFireClass (self, obj, serialized, klass) {
 //     }
 // }
 
-// tslint:disable-next-line: class-name
+
 class _Deserializer {
 
     public static pool: js.Pool<{}>;
@@ -405,10 +396,10 @@ class _Deserializer {
             for (let i = 0; i < refCount; i++) {
                 if (jsonArray[i]) {
                     if (EDITOR || TEST) {
-                        this.deserializedList[i] = this._deserializeObject(jsonArray[i], false, this.deserializedList, '' + i);
+                        this.deserializedList[i] = this._deserializeObject(jsonArray[i], this.deserializedList, '' + i);
                     }
                     else {
-                        this.deserializedList[i] = this._deserializeObject(jsonArray[i], false);
+                        this.deserializedList[i] = this._deserializeObject(jsonArray[i]);
                     }
                 }
             }
@@ -428,10 +419,10 @@ class _Deserializer {
             let deserializedData;
             this.deserializedList.length = 1;
             if (EDITOR || TEST) {
-                deserializedData = jsonObj ? this._deserializeObject(jsonObj, false, this.deserializedList, '0') : null;
+                deserializedData = jsonObj ? this._deserializeObject(jsonObj, this.deserializedList, '0') : null;
             }
             else {
-                deserializedData = jsonObj ? this._deserializeObject(jsonObj, false) : null;
+                deserializedData = jsonObj ? this._deserializeObject(jsonObj) : null;
             }
 
             // dereference
@@ -452,18 +443,17 @@ class _Deserializer {
 
     /**
      * @param {Object} serialized - The obj to deserialize, must be non-nil
-     * @param {Boolean} _stillUseUrl
      * @param {Object} [owner] - debug only
      * @param {String} [propName] - debug only
      */
-    private _deserializeObject (serialized, _stillUseUrl: Boolean, owner?: Object, propName?: String) {
+    private _deserializeObject (serialized, owner?: Object, propName?: string) {
         let prop;
         let obj: any = null;     // the obj to return
         let klass: any = null;
         const type = serialized.__type__;
         if (type === 'TypedArray') {
             const array = serialized.array;
-            // @ts-ignore
+            // @ts-expect-error
             obj = new window[serialized.ctor](array.length);
             for (let i = 0; i < array.length; ++i) {
                 obj[i] = array[i];
@@ -483,7 +473,6 @@ class _Deserializer {
                 return null;
             }
             const self = this;
-            // @ts-ignore
             function deserializeByType () {
                 // instantiate a new object
                 obj = new klass();
@@ -500,7 +489,6 @@ class _Deserializer {
                 }
             }
 
-            // @ts-ignore
             function checkDeserializeByType () {
                 try {
                     deserializeByType();
@@ -520,7 +508,7 @@ class _Deserializer {
                 deserializeByType();
             }
         }
-        else if ( !Array.isArray(serialized) ) {
+        else if (!Array.isArray(serialized)) {
 
             // embedded primitive javascript object
 
@@ -536,7 +524,7 @@ class _Deserializer {
             for (let i = 0; i < serialized.length; i++) {
                 prop = serialized[i];
                 if (typeof prop === 'object' && prop) {
-                    this._deserializeObjField(obj, prop, '' + i, _stillUseUrl);
+                    this._deserializeObjField(obj, prop, '' + i);
                 }
                 else {
                     obj[i] = prop;
@@ -547,19 +535,19 @@ class _Deserializer {
     }
 
     // 和 _deserializeObject 不同的地方在于会判断 id 和 uuid
-    private _deserializeObjField (obj, jsonObj, propName, _stillUseUrl?) {
+    private _deserializeObjField (obj, jsonObj, propName) {
         const id = jsonObj.__id__;
         if (id === undefined) {
             const uuid = jsonObj.__uuid__;
             if (uuid) {
-                this.result.push(obj, propName, uuid, _stillUseUrl);
+                this.result.push(obj, propName, uuid);
             }
             else {
                 if (EDITOR || TEST) {
-                    obj[propName] = this._deserializeObject(jsonObj, _stillUseUrl, obj, propName);
+                    obj[propName] = this._deserializeObject(jsonObj, obj, propName);
                 }
                 else {
-                    obj[propName] = this._deserializeObject(jsonObj, _stillUseUrl);
+                    obj[propName] = this._deserializeObject(jsonObj);
                 }
             }
         }
@@ -624,7 +612,7 @@ class _Deserializer {
         const DEFAULT = Attr.DELIMETER + 'default';
         const attrs = Attr.getClassAttrs(klass);
         const fastDefinedProps = klass.__props__ || Object.keys(instance);    // 遍历 instance，如果具有类型，才不会把 __type__ 也读进来
-        // tslint:disable-next-line: prefer-for-of
+
         for (let i = 0; i < fastDefinedProps.length; i++) {
             const propName = fastDefinedProps[i];
             let value = serialized[propName];
@@ -656,7 +644,7 @@ _Deserializer.pool = new js.Pool((obj: any) => {
     obj._idObjList.length = 0;
     obj._idPropList.length = 0;
 }, 1);
-// @ts-ignore
+// @ts-expect-error
 _Deserializer.pool.get = function (result, classFinder, customEnv, ignoreEditorOnly) {
     const cache: any = this._get();
     if (cache) {
@@ -676,7 +664,6 @@ _Deserializer.pool.get = function (result, classFinder, customEnv, ignoreEditorO
 export function deserializeDynamic (data, details: Details, options) {
     options = options || {};
     const classFinder = options.classFinder || js._getClassById;
-    // 启用 createAssetRefs 后，如果有 url 属性则会被统一强制设置为 { uuid: 'xxx' }，必须后面再特殊处理
     const createAssetRefs = options.createAssetRefs || legacyCC.sys.platform === legacyCC.sys.EDITOR_CORE;
     const customEnv = options.customEnv;
     const ignoreEditorOnly = options.ignoreEditorOnly;
@@ -685,7 +672,7 @@ export function deserializeDynamic (data, details: Details, options) {
 
     details.init();
 
-    // @ts-ignore
+    // @ts-expect-error
     const deserializer: _Deserializer = _Deserializer.pool.get(details, classFinder, customEnv, ignoreEditorOnly);
 
     legacyCC.game._isCloning = true;

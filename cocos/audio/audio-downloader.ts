@@ -44,13 +44,13 @@ export function downloadDomAudio (
     url: string,
     options: IDownloadParseOptions,
     onComplete: CompleteCallback<HTMLAudioElement>
-    ): void {
+): void {
 
     createDomAudio(url).then(dom => {
         onComplete(null, dom);
     }, errMsg => {
-    	log(errMsg);
-    	onComplete(new Error(errMsg), null);
+        log(errMsg);
+        onComplete(new Error(errMsg), null);
     });
 }
 
@@ -61,7 +61,8 @@ function downloadArrayBuffer (url: string, options: IDownloadParseOptions, onCom
 
 export function downloadAudio (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
     if (formatSupport.length === 0) {
-        return onComplete(new Error(getError(4927)));
+        onComplete(new Error(getError(4927)));
+        return;
     }
     let handler: DownloadHandler | null = null;
     if (!__audioSupport.WEB_AUDIO) {
@@ -77,4 +78,4 @@ export function downloadAudio (url: string, options: IDownloadParseOptions, onCo
         }
     }
     handler(url, options, onComplete);
-};
+}

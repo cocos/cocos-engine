@@ -3,9 +3,9 @@
  * @module gfx
  */
 
-import { Obj, ObjectType, ShaderStageFlagBit, Type } from './define';
-import { Device } from './device';
 import { Attribute } from './input-assembler';
+import { Device } from './device';
+import { Obj, ObjectType, ShaderStageFlagBit, Type } from './define';
 
 export interface IShaderStage {
     stage: ShaderStageFlagBit;
@@ -13,7 +13,7 @@ export interface IShaderStage {
 }
 
 export class ShaderStage implements IShaderStage {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public stage: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
@@ -32,7 +32,7 @@ export interface IUniform {
  * @zh GFX uniform。
  */
 export class Uniform implements IUniform {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public name: string = '',
@@ -46,7 +46,7 @@ export class Uniform implements IUniform {
  * @zh GFX uniform 块。
  */
 export class UniformBlock {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public set: number = -1,
@@ -62,7 +62,7 @@ export class UniformBlock {
  * @zh GFX Uniform 采样器。
  */
 export class UniformSampler {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public set: number = -1,
@@ -74,7 +74,7 @@ export class UniformSampler {
 }
 
 export class ShaderInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public name: string = '',
@@ -90,7 +90,7 @@ export class ShaderInfo {
  * @zh GFX 着色器。
  */
 export abstract class Shader extends Obj {
-    private static _shaderIdGen: number = 0;
+    private static _shaderIdGen = 0;
 
     /**
      * @en Get current shader id.
@@ -124,7 +124,7 @@ export abstract class Shader extends Obj {
 
     protected _id: number;
 
-    protected _name: string = '';
+    protected _name = '';
 
     protected _stages: ShaderStage[] = [];
 

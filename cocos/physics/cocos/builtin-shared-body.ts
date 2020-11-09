@@ -11,7 +11,7 @@ import { BuiltinShape } from './shapes/builtin-shape';
 import { Node } from '../../core';
 import { BuiltinRigidBody } from './builtin-rigid-body';
 import { PhysicsSystem } from '../framework';
-// tslint:disable: prefer-for-of
+
 
 const m4_0 = new Mat4();
 const v3_0 = new Vec3();
@@ -78,10 +78,10 @@ export class BuiltinSharedBody extends BuiltinObject {
     }
 
     /** id generator */
-    private static idCounter: number = 0;
+    private static idCounter = 0;
     private readonly _id: number;
-    private index: number = -1;
-    private ref: number = 0;
+    private index = -1;
+    private ref = 0;
 
     readonly node: Node;
     readonly world: BuiltInWorld;

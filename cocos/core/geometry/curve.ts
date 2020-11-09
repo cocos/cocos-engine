@@ -26,21 +26,25 @@ const WrapMode = Enum({
 export class Keyframe {
 
     /**
+     * @en Current frame time.
      * @zh 当前帧时间。
      */
     public time = 0;
 
     /**
+     * @en Current frame value.
      * @zh 当前帧的值。
      */
     public value = 0;
 
     /**
+     * @en In tangent value.
      * @zh 左切线。
      */
     public inTangent = 0;
 
     /**
+     * @en Out tangent value.
      * @zh 右切线。
      */
     public outTangent = 0;

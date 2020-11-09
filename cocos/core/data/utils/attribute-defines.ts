@@ -6,11 +6,6 @@ export interface IExposedAttributes {
     type?: any;
 
     /**
-     *
-     */
-    url?: string;
-
-    /**
      * 控制是否在编辑器中显示该属性。
      */
     visible?: boolean | (() => boolean);

@@ -70,6 +70,13 @@ export abstract class AudioPlayer {
         legacyCC.game.on(legacyCC.Game.EVENT_SHOW, this._onShow);
     }
 
+    public getState () { return this._state; }
+    public getDuration () { return this._duration; }
+    public destroy () {
+        legacyCC.game.off(legacyCC.Game.EVENT_HIDE, this._onHide);
+        legacyCC.game.off(legacyCC.Game.EVENT_SHOW, this._onShow);
+    }
+
     public abstract play (): void;
     public abstract pause (): void;
     public abstract stop (): void;
@@ -80,12 +87,6 @@ export abstract class AudioPlayer {
     public abstract getVolume (): number;
     public abstract setLoop (val: boolean): void;
     public abstract getLoop (): boolean;
-    public getState () { return this._state; }
-    public getDuration () { return this._duration; }
-    public destroy () {
-        legacyCC.game.off(legacyCC.Game.EVENT_HIDE, this._onHide);
-        legacyCC.game.off(legacyCC.Game.EVENT_SHOW, this._onShow);
-    }
 }
 
 legacyCC.internal.AudioPlayer = AudioPlayer;

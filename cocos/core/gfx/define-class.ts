@@ -3,7 +3,7 @@
  */
 
 export class Rect {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public x: number = 0,
@@ -14,7 +14,7 @@ export class Rect {
 }
 
 export class Viewport {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public left: number = 0,
@@ -27,7 +27,7 @@ export class Viewport {
 }
 
 export class Color {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public x: number = 0,
@@ -38,7 +38,7 @@ export class Color {
 }
 
 export class Offset {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public x: number = 0,
@@ -48,7 +48,7 @@ export class Offset {
 }
 
 export class Extent {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public width: number = 0,
@@ -58,7 +58,7 @@ export class Extent {
 }
 
 export class TextureSubres {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public mipLevel: number = 0,
@@ -68,7 +68,7 @@ export class TextureSubres {
 }
 
 export class TextureCopy {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public srcSubres = new TextureSubres(),
@@ -80,7 +80,7 @@ export class TextureCopy {
 }
 
 export class BufferTextureCopy {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public buffStride: number = 0,

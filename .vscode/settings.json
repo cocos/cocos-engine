@@ -15,5 +15,8 @@
     "eslint.validate": [
         "javascript",
         "typescript"
-    ]
+    ],
+    "editor.codeActionsOnSave": {
+        "source.fixAll": true,
+    },
 }

@@ -28,8 +28,10 @@
  * @module animation
  */
 
+import {
+    ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type, serializable, editable,
+} from 'cc.decorator';
 import { SkinnedMeshRenderer } from '../3d/framework/skinned-mesh-renderer';
-import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type, serializable, editable } from 'cc.decorator';
 import { Mat4 } from '../math';
 import { DataPoolManager } from '../renderer/data-pool-manager';
 import { Node } from '../scene-graph/node';
@@ -44,14 +46,13 @@ import { js } from '../utils/js';
 
 @ccclass('cc.SkeletalAnimation.Socket')
 export class Socket {
-
     /**
      * @en Path of the target joint.
      * @zh 此挂点的目标骨骼路径。
      */
     @serializable
     @editable
-    public path: string = '';
+    public path = '';
 
     /**
      * @en Transform output node.
@@ -99,7 +100,6 @@ function collectRecursively (node: Node, prefix = '', out: string[] = []) {
 @executeInEditMode
 @menu('Components/SkeletalAnimation')
 export class SkeletalAnimation extends Animation {
-
     public static Socket = Socket;
 
     /**
@@ -114,6 +114,7 @@ export class SkeletalAnimation extends Animation {
     get sockets () {
         return this._sockets;
     }
+
     set sockets (val) {
         if (!this._useBakedAnimation) {
             const animMgr = legacyCC.director.getAnimationManager() as AnimationManager;
@@ -137,6 +138,7 @@ export class SkeletalAnimation extends Animation {
     get useBakedAnimation () {
         return this._useBakedAnimation;
     }
+
     set useBakedAnimation (val) {
         this._useBakedAnimation = val;
         const comps = this.node.getComponentsInChildren(SkinnedMeshRenderer);
@@ -146,8 +148,11 @@ export class SkeletalAnimation extends Animation {
                 comp.setUseBakedAnimation(this._useBakedAnimation);
             }
         }
-        if (this._useBakedAnimation) { (legacyCC.director.getAnimationManager() as AnimationManager).removeSockets(this.node, this._sockets); }
-        else { (legacyCC.director.getAnimationManager() as AnimationManager).addSockets(this.node, this._sockets); }
+        if (this._useBakedAnimation) {
+            (legacyCC.director.getAnimationManager() as AnimationManager).removeSockets(this.node, this._sockets);
+        } else {
+            (legacyCC.director.getAnimationManager() as AnimationManager).addSockets(this.node, this._sockets);
+        }
     }
 
     @serializable
@@ -169,8 +174,8 @@ export class SkeletalAnimation extends Animation {
     }
 
     public querySockets () {
-        const animPaths = this._defaultClip && Object.keys(SkelAnimDataHub.getOrExtract(this._defaultClip).data).sort().reduce((acc, cur) =>
-            cur.startsWith(acc[acc.length - 1]) ? acc : (acc.push(cur), acc), [] as string[]) || [];
+        const animPaths = (this._defaultClip && Object.keys(SkelAnimDataHub.getOrExtract(this._defaultClip).data).sort()
+            .reduce((acc, cur) => (cur.startsWith(acc[acc.length - 1]) ? acc : (acc.push(cur), acc)), [] as string[])) || [];
         if (!animPaths.length) { return ['please specify a valid default animation clip first']; }
         const out: string[] = [];
         for (let i = 0; i < animPaths.length; i++) {
@@ -186,7 +191,7 @@ export class SkeletalAnimation extends Animation {
     public rebuildSocketAnimations () {
         for (const socket of this._sockets) {
             const joint = this.node.getChildByPath(socket.path);
-            const target = socket.target;
+            const { target } = socket;
             if (joint && target) {
                 target.name = `${socket.path.substring(socket.path.lastIndexOf('/') + 1)} Socket`;
                 target.parent = this.node;

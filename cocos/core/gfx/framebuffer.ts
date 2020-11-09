@@ -3,13 +3,13 @@
  * @module gfx
  */
 
-import { Obj, ObjectType } from './define';
 import { Device } from './device';
 import { RenderPass } from './render-pass';
 import { Texture } from './texture';
+import { Obj, ObjectType } from './define';
 
 export class FramebufferInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public renderPass: RenderPass,

@@ -3,25 +3,25 @@
  * @module gfx
  */
 
-import { DescriptorSet } from './descriptor-set';
 import { Buffer } from './buffer';
+import { DescriptorSet } from './descriptor-set';
+import { Device } from './device';
+import { Framebuffer } from './framebuffer';
+import { InputAssembler } from './input-assembler';
+import { PipelineState } from './pipeline-state';
+import { Queue } from './queue';
+import { RenderPass } from './render-pass';
+import { Texture } from './texture';
+import { BufferTextureCopy, Color, Rect, Viewport } from './define-class';
 import {
     CommandBufferType,
     Obj,
     ObjectType,
     StencilFace,
 } from './define';
-import { BufferTextureCopy, Color, Rect, Viewport } from './define-class';
-import { Device } from './device';
-import { Framebuffer } from './framebuffer';
-import { InputAssembler } from './input-assembler';
-import { PipelineState } from './pipeline-state';
-import { Texture } from './texture';
-import { RenderPass } from './render-pass';
-import { Queue } from './queue';
 
 export class CommandBufferInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public queue: Queue,
@@ -33,7 +33,7 @@ export class CommandBufferInfo {
  * @en GFX command buffer.
  * @zh GFX 命令缓冲。
  */
-// tslint:disable: max-line-length
+
 export abstract class CommandBuffer extends Obj {
 
     /**
@@ -122,7 +122,8 @@ export abstract class CommandBuffer extends Obj {
      * @param clearDepth The clearing depth.
      * @param clearStencil The clearing stencil.
      */
-    public abstract beginRenderPass (renderPass: RenderPass, framebuffer: Framebuffer, renderArea: Rect, clearColors: Color[], clearDepth: number, clearStencil: number): void;
+    public abstract beginRenderPass (renderPass: RenderPass, framebuffer: Framebuffer,
+        renderArea: Rect, clearColors: Color[], clearDepth: number, clearStencil: number): void;
 
     /**
      * @en End render pass.

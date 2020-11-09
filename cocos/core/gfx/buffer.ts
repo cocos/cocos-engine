@@ -3,6 +3,7 @@
  * @module gfx
  */
 
+import { Device } from './device';
 import {
     BufferFlagBit,
     BufferFlags,
@@ -13,10 +14,9 @@ import {
     Obj,
     ObjectType,
 } from './define';
-import { Device } from './device';
 
 export class DrawInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public vertexCount: number = 0,
@@ -29,10 +29,10 @@ export class DrawInfo {
     ) {}
 }
 
-export const DRAW_INFO_SIZE: number = 28;
+export const DRAW_INFO_SIZE = 28;
 
 export class IndirectBuffer {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public drawInfos: DrawInfo[] = [],
@@ -42,7 +42,7 @@ export class IndirectBuffer {
 export type BufferSource = ArrayBuffer | IndirectBuffer;
 
 export class BufferInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public usage: BufferUsage,
@@ -54,7 +54,7 @@ export class BufferInfo {
 }
 
 export class BufferViewInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public buffer: Buffer,
@@ -124,9 +124,9 @@ export abstract class Buffer extends Obj {
     protected _device: Device;
     protected _usage: BufferUsage = BufferUsageBit.NONE;
     protected _memUsage: MemoryUsage = MemoryUsageBit.NONE;
-    protected _size: number = 0;
-    protected _stride: number = 1;
-    protected _count: number = 0;
+    protected _size = 0;
+    protected _stride = 1;
+    protected _count = 0;
     protected _flags: BufferFlags = BufferFlagBit.NONE;
     protected _bakcupBuffer: Uint8Array | null = null;
     protected _indirectBuffer: IndirectBuffer | null = null;

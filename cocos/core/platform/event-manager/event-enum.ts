@@ -203,12 +203,18 @@ export enum SystemEventType {
      * @zh 目标节点的父节点改变时触发的事件。
      */
     PARENT_CHANGED = 'parent-changed',
-    
+
     /**
      * @en The event type for destroying the target node
      * @zh 目标节点被销毁时触发的事件。
      */
     NODE_DESTROYED = 'node-destroyed',
+
+    /**
+     * @en The event type for node layer change events.
+     * @zh 节点 layer 改变时触发的事件。
+     */
+    LAYER_CHANGED = 'layer-changed',
 }
 
 ccenum(SystemEventType);
