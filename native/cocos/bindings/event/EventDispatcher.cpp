@@ -157,18 +157,23 @@ void EventDispatcher::dispatchMouseEvent(const struct MouseEvent &mouseEvent) {
     }
 
     const char *eventName = nullptr;
+    const char *jsFunctionName = nullptr;
     switch (type) {
         case MouseEvent::Type::DOWN:
-            eventName = "onMouseDown";
+            eventName = EVENT_MOUSE_DOWN;
+            jsFunctionName = "onMouseDown";
             break;
         case MouseEvent::Type::MOVE:
-            eventName = "onMouseMove";
+            eventName = EVENT_MOUSE_MOVE;
+            jsFunctionName = "onMouseMove";
             break;
         case MouseEvent::Type::UP:
-            eventName = "onMouseUp";
+            eventName = EVENT_MOUSE_UP;
+            jsFunctionName = "onMouseUp";
             break;
         case MouseEvent::Type::WHEEL:
-            eventName = "onMouseWheel";
+            eventName = EVENT_MOUSE_WHEEL;
+            jsFunctionName = "onMouseWheel";
             break;
         default:
             assert(false);
@@ -177,7 +182,7 @@ void EventDispatcher::dispatchMouseEvent(const struct MouseEvent &mouseEvent) {
 
     se::ValueArray args;
     args.push_back(se::Value(_jsMouseEventObj));
-    EventDispatcher::doDispatchEvent(nullptr, eventName, args);
+    EventDispatcher::doDispatchEvent(eventName, jsFunctionName, args);
 }
 
 void EventDispatcher::dispatchKeyboardEvent(const struct KeyboardEvent &keyboardEvent) {
