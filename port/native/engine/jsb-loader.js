@@ -211,7 +211,7 @@ function downloadBundle (nameOrUrl, options, onComplete) {
             if (err) {
                 return onComplete(err, null);
             }
-            System.import('virtual:///prerequisite-imports/' + bundleName).then(function() {
+            downloader.importBundleEntry(bundleName).then(function() {
                 onComplete(null, out);
             }).catch(function(err) {
                 onComplete(err);
