@@ -20,7 +20,7 @@ class CanvasRenderingContext2D {
         this._attris = new Context2DAttribute();
     }
 
-    // Do not cache width and height, as these will change buffer and sync to JS.
+    // Do not cache width and height, as they will change buffer and sync to JS.
     get width () { return this._nativeObj.width; }
     set width (val) { this._nativeObj.width = val; }
     get height () { return this._nativeObj.height; }
