@@ -71,8 +71,8 @@ export const tilled: IAssembler = {
 
         this.hRepeat = centerWidth === 0 ? this.sizableWidth : this.sizableWidth / centerWidth;
         this.vRepeat = centerHeight === 0 ? this.sizableHeight : this.sizableHeight / centerHeight;
-        this.row = Math.ceil(this.hRepeat + 2);
-        this.col = Math.ceil(this.vRepeat + 2);
+        this.row = Math.ceil(this.vRepeat + 2);
+        this.col = Math.ceil(this.hRepeat + 2);
 
         renderData.dataLength = Math.max(8, this.row + 1, this.col + 1);
 
