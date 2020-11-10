@@ -46,14 +46,14 @@ public:
     CC_INLINE const InstancedItemList &getInstances() const { return _instances; }
     CC_INLINE const PassView *getPass() const { return _pass; }
     CC_INLINE bool hasPendingModels() const { return _hasPendingModels; }
-    CC_INLINE const DynamicOffsetList &dynamicOffsets() const { return _dynamicoffsets; }
+    CC_INLINE const DynamicOffsetList &dynamicOffsets() const { return _dynamicOffsets; }
 
 private:
     static map<uint, map<uint, InstancedBuffer *>> _buffers;
     InstancedItemList _instances;
     const PassView *_pass = nullptr;
     bool _hasPendingModels = false;
-    DynamicOffsetList _dynamicoffsets;
+    DynamicOffsetList _dynamicOffsets;
     gfx::Device *_device = nullptr;
 };
 

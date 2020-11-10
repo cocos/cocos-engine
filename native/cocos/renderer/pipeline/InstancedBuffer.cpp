@@ -128,7 +128,8 @@ void InstancedBuffer::clear() {
 }
 
 void InstancedBuffer::setDynamicOffset(uint idx, uint value) {
-    _dynamicoffsets[idx] = value;
+    if (_dynamicOffsets.size() <= idx) _dynamicOffsets.resize(idx + 1);
+    _dynamicOffsets[idx] = value;
 }
 } // namespace pipeline
 } // namespace cc
