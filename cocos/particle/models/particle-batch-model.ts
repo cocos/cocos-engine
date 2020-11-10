@@ -54,14 +54,13 @@ export default class ParticleBatchModel extends scene.Model {
     private _vdataF32: Float32Array | null;
     private _vdataUint32: Uint32Array | null;
     private _iaInfo: IndirectBuffer;
-    private _iaInfoBuffer: Buffer;
+    private _iaInfoBuffer: Buffer | null;
     private _subMeshData: RenderingSubMesh | null;
     private _mesh: Mesh | null;
     private _vertCount: number = 0;
     private _indexCount: number = 0;
     private _startTimeOffset: number = 0;
     private _lifeTimeOffset: number = 0;
-    private _iaInfoBufferReady: boolean = true;
     private _material: Material | null = null;
 
     constructor () {
@@ -179,14 +178,13 @@ export default class ParticleBatchModel extends scene.Model {
 
         this._iaInfo.drawInfos[0].vertexCount = this._capacity * this._vertCount;
         this._iaInfo.drawInfos[0].indexCount = this._capacity * this._indexCount;
-        if (!this._iaInfoBufferReady) {
-            this._iaInfoBuffer.initialize(new BufferInfo(
+        if (!this._iaInfoBuffer) {
+            this._iaInfoBuffer = this._device.createBuffer(new BufferInfo(
                 BufferUsageBit.INDIRECT,
                 MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
                 DRAW_INFO_SIZE,
                 DRAW_INFO_SIZE,
             ));
-            this._iaInfoBufferReady = true;
         }
         this._iaInfoBuffer.update(this._iaInfo);
 
@@ -316,7 +314,7 @@ export default class ParticleBatchModel extends scene.Model {
         ia.vertexBuffers[0].update(this._vdataF32!);
         this._iaInfo.drawInfos[0].firstIndex = 0;
         this._iaInfo.drawInfos[0].indexCount = this._indexCount * count;
-        this._iaInfoBuffer.update(this._iaInfo);
+        this._iaInfoBuffer!.update(this._iaInfo);
     }
 
     public clear () {
@@ -328,8 +326,10 @@ export default class ParticleBatchModel extends scene.Model {
         this._vBuffer = null;
         this._vdataF32 = null;
         this.destroySubMeshData();
-        this._iaInfoBuffer.destroy();
-        this._iaInfoBufferReady = false;
+        if (this._iaInfoBuffer) {
+            this._iaInfoBuffer.destroy();
+            this._iaInfoBuffer = null;
+        }
     }
 
     private rebuild () {

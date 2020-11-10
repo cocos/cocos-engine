@@ -12,15 +12,14 @@ import { ForwardPipeline } from './forward-pipeline';
 import { RenderView } from '../';
 import { Pool } from '../../memop';
 import { IRenderObject, UBOShadow } from '../define';
-import { Shadows, ShadowType } from '../../renderer/scene/shadows';
-import { SphereLight, DirectionalLight, Light} from '../../renderer/scene';
+import { ShadowType, Shadows } from '../../renderer/scene/shadows';
+import { SphereLight, DirectionalLight } from '../../renderer/scene';
 
 const _tempVec3 = new Vec3();
 const _dir_negate = new Vec3();
 const _vec3_p = new Vec3();
 const _mat4_trans = new Mat4();
 const _castWorldBounds = new aabb();
-const _receiveWorldBounds = new aabb();
 let _castBoundsInited = false;
 let _receiveBoundsInited = false;
 const _validLights: Light[] = [];
@@ -53,12 +52,13 @@ function getCastShadowRenderObject (model: Model, camera: Camera) {
     return ro;
 }
 
-export function getShadowWorldMatrix (pipeline: ForwardPipeline, rotation: Quat, dir: Vec3) {
+export function getShadowWorldMatrix (pipeline: ForwardPipeline, rotation: Quat, dir: Vec3, out: Vec3) {
     const shadows = pipeline.shadows;
     Vec3.negate(_dir_negate, dir);
     const distance: number = shadows.sphere.radius * Shadows.COEFFICIENT_OF_EXPANSION;
     Vec3.multiplyScalar(_vec3_p, _dir_negate, distance);
     Vec3.add(_vec3_p, _vec3_p, shadows.sphere.center);
+    out.set(_vec3_p);
 
     Mat4.fromRT(_mat4_trans, rotation, _vec3_p);
 
@@ -151,7 +151,6 @@ export function shadowCollecting (pipeline: ForwardPipeline, view: RenderView) {
     shadowPool.freeArray(shadowObjects); shadowObjects.length = 0;
 
     _castBoundsInited = false;
-    _receiveBoundsInited = false;
 
     const models = scene.models;
     for (let i = 0; i < models.length; i++) {

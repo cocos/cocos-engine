@@ -268,12 +268,6 @@ export class Shadows {
     public sphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
 
     /**
-     * @en get or set shadow auto control.
-     * @zh 获取或者设置阴影是否自动控制。
-     */
-    public receiveSphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
-
-    /**
      * @en get or set shadow max received.
      * @zh 阴影接收的最大灯光数量。
      */
@@ -336,7 +330,6 @@ export class Shadows {
         }
 
         this.sphere.destroy();
-        this.receiveSphere.destroy();
     }
 }
 

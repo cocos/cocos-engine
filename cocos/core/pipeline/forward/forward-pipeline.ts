@@ -26,6 +26,7 @@ import { Light } from '../../renderer/scene/light';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
+const vec3_center = new Vec3();
 
 /**
  * @en The forward render pipeline
@@ -197,13 +198,14 @@ export class ForwardPipeline extends RenderPipeline {
             let y: number = 0;
             let far: number = 0;
             if (shadowInfo.autoAdapt) {
-                shadowCameraView = getShadowWorldMatrix(this, mainLight.node?.getWorldRotation()!, mainLight.direction);
+                shadowCameraView = getShadowWorldMatrix(this, mainLight.node?.getWorldRotation()!, mainLight.direction, vec3_center);
                 // if orthoSize is the smallest, auto calculate orthoSize.
                 const radius = shadowInfo.sphere.radius;
                 x = radius * shadowInfo.aspect;
                 y = radius;
 
-                far = Math.min(shadowInfo.receiveSphere.radius * Shadows.COEFFICIENT_OF_EXPANSION, Shadows.MAX_FAR);
+                const halfFar = Vec3.distance(shadowInfo.sphere.center, vec3_center);
+                far =  Math.min(halfFar * Shadows.COEFFICIENT_OF_EXPANSION, Shadows.MAX_FAR);
             } else {
                 shadowCameraView = mainLight.node!.getWorldMatrix();
 
