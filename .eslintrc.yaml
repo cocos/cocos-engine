@@ -71,6 +71,7 @@ rules:
     no-continue: off # allow unlabeled continues
     no-mixed-operators: off # this is just cumbersome
     no-multi-assign: off # it is handy sometimes
+    no-nested-ternary: off # it is handy sometimes
     no-param-reassign: off # the output object is passed as parameters all the time
     no-restricted-syntax: off # for-in is a efficient choice for plain objects
     no-return-assign: off # it is handy sometimes

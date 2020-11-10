@@ -24,6 +24,7 @@
  THE SOFTWARE.
 */
 
+import { TEST, EDITOR } from 'internal:constants';
 import { MeshRenderer } from '../../3d/framework/mesh-renderer';
 import { Camera } from '../../3d/framework/camera-component';
 import { createMesh } from '../../3d/misc/utils';
@@ -35,7 +36,6 @@ import { Layers } from '../../scene-graph';
 import { Node } from '../../scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
-import { TEST, EDITOR } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
 import { Pass } from '../../renderer';
 import { preTransforms } from '../../math/mat4';
@@ -43,16 +43,16 @@ import { preTransforms } from '../../math/mat4';
 const _characters = '0123456789. ';
 
 const _string2offset = {
-    '0': 0,
-    '1': 1,
-    '2': 2,
-    '3': 3,
-    '4': 4,
-    '5': 5,
-    '6': 6,
-    '7': 7,
-    '8': 8,
-    '9': 9,
+    0: 0,
+    1: 1,
+    2: 2,
+    3: 3,
+    4: 4,
+    5: 5,
+    6: 6,
+    7: 7,
+    8: 8,
+    9: 9,
     '.': 10,
 };
 
@@ -79,7 +79,7 @@ const _profileInfo = {
     physics: { desc: 'Physics (ms)', min: 0, max: 50, average: 500 },
     render: { desc: 'Renderer (ms)', min: 0, max: 50, average: 500, color: '#f90' },
     textureMemory: { desc: 'GFX Texture Mem(M)' },
-    bufferMemory: { desc: 'GFX Buffer Mem(M)'},
+    bufferMemory: { desc: 'GFX Buffer Mem(M)' },
 };
 
 const _constants = {
@@ -91,7 +91,6 @@ const _constants = {
 };
 
 export class Profiler {
-
     public _stats: IProfilerState | null = null;
     public id = '__Profiler__';
 
@@ -152,11 +151,11 @@ export class Profiler {
     public showStats () {
         if (!this._showFPS) {
             if (!this._device) { this._device = legacyCC.director.root.device; }
-            if(!EDITOR) {
+            if (!EDITOR) {
                 this.generateCanvas();
             }
             this.generateStats();
-            if(!EDITOR) {
+            if (!EDITOR) {
                 legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this.generateNode, this);
                 legacyCC.game.on(legacyCC.Game.EVENT_RESTART, this.generateNode, this);
             } else {
@@ -180,7 +179,6 @@ export class Profiler {
     }
 
     public generateCanvas () {
-
         if (this._canvasDone) {
             return;
         }
@@ -224,7 +222,7 @@ export class Profiler {
         let i = 0;
         for (const id in _profileInfo) {
             const element = _profileInfo[id];
-            !EDITOR && this._ctx.fillText(element.desc, 0, i * this._lineHeight);
+            if (!EDITOR) this._ctx.fillText(element.desc, 0, i * this._lineHeight);
             element.counter = new PerfCounter(id, element, now);
             i++;
         }
@@ -243,7 +241,7 @@ export class Profiler {
 
         this._stats = _profileInfo as IProfilerState;
         this._canvasArr[0] = this._canvas;
-        !EDITOR && this._device!.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
+        if (!EDITOR) this._device!.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
     }
 
     public generateNode () {
@@ -276,10 +274,10 @@ export class Profiler {
         const scale = rowHeight / _constants.fontSize;
         const columnWidth = this._eachNumWidth * this._canvas!.width * scale;
         const vertexPos: number[] = [
-                 0, height, 0, // top-left
+            0, height, 0, // top-left
             lWidth, height, 0, // top-right
             lWidth,      0, 0, // bottom-right
-                 0,      0, 0, // bottom-left
+            0,      0, 0, // bottom-left
         ];
         const vertexindices: number[] = [
             0, 2, 1,
@@ -303,10 +301,10 @@ export class Profiler {
                 const idx = i * _constants.segmentsPerLine + j;
                 const z = Math.floor(idx / 4);
                 const w = idx - z * 4;
-                vertexUV.push(0, this._wordHeight, z, w ); // tl
-                vertexUV.push(this._eachNumWidth, this._wordHeight, z, w ); // tr
-                vertexUV.push(this._eachNumWidth, 1, z, w ); // br
-                vertexUV.push(0, 1, z, w ); // bl
+                vertexUV.push(0, this._wordHeight, z, w); // tl
+                vertexUV.push(this._eachNumWidth, this._wordHeight, z, w); // tr
+                vertexUV.push(this._eachNumWidth, 1, z, w); // br
+                vertexUV.push(0, 1, z, w); // bl
             }
         }
 
@@ -318,8 +316,7 @@ export class Profiler {
         });
 
         const _material = new Material();
-        _material.initialize({ effectName: 'util/profiler' });
-
+        _material.initialize({ effectName: 'profiler' });
 
         const pass = this.pass = _material.passes[0];
         const hTexture = pass.getBinding('mainTexture');
@@ -382,7 +379,7 @@ export class Profiler {
             return;
         }
 
-        if(!EDITOR) {
+        if (!EDITOR) {
             const { screenSpaceSignY, surfaceTransform } = this._device!;
             if (surfaceTransform !== this.offsetData[3]) {
                 const preTransform = preTransforms[surfaceTransform];
@@ -393,8 +390,7 @@ export class Profiler {
                 this.offsetData[3] = surfaceTransform;
             }
 
-
-            // @ts-expect-error
+            // @ts-expect-error using private members for efficiency
             this.pass._rootBufferDirty = true;
         }
 
@@ -424,7 +420,7 @@ export class Profiler {
         (this._stats.tricount.counter as PerfCounter).value = device.numTris;
 
         let i = 0;
-        if(!EDITOR) {
+        if (!EDITOR) {
             const view = this.digitsData;
             for (const id in this._stats) {
                 const stat = this._stats[id] as ICounterOption;
