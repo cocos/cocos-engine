@@ -17,6 +17,9 @@
         <meta-data
                 android:name="aia-compat-api-min-version"
                 android:value="1" />
+        <!-- Tell Cocos2dxActivity the name of our .so -->
+        <meta-data android:name="android.app.lib_name"
+                   android:value="cocos2djs" />
         <activity
                 android:name="org.cocos2dx.javascript.AppActivity"
                 android:screenOrientation="landscape"
@@ -36,9 +39,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        <!-- Tell Cocos2dxActivity the name of our .so -->
-        <meta-data android:name="android.app.lib_name"
-                   android:value="cocos2djs" />
         </activity>
         <activity
             android:name="org.cocos2dx.lib.Cocos2dxEditBoxActivity"
