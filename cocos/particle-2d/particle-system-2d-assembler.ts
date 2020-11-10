@@ -1,5 +1,6 @@
-/****************************************************************************
+/*
  Copyright (c) 2017-2018 Chukong Technologies Inc.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -21,7 +22,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+ */
 
 import { IAssembler, IAssemblerManager } from '../core/renderer/ui/base';
 import { ParticleSystem2D } from './particle-system-2d';
@@ -81,7 +82,7 @@ export const ParticleAssembler: IAssembler = {
         for (let i = 0; i < iLen; i++) {
             iBuf[indicesOffset++] = iData[i] + vertexId;
         }
-    }
+    },
 }
 
 export const ParticleSystem2DAssembler: IAssemblerManager = {

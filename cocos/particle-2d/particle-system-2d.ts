@@ -1,6 +1,6 @@
-/****************************************************************************
+/*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -22,13 +22,13 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+ */
 
 /**
  * @category particle2d
  */
 
-import {ccclass, editable, type, menu, executeInEditMode, serializable, playOnFocus, tooltip} from 'cc.decorator';
+import { ccclass, editable, type, menu, executeInEditMode, serializable, playOnFocus, tooltip } from 'cc.decorator';
 import { UIRenderable } from '../core/components/ui-base/ui-renderable';
 import { Color, Vec2 } from '../core/math';
 import { EDITOR } from 'internal:constants';
@@ -108,7 +108,7 @@ export enum ImageFormat {
      * @en Image Format:UNKNOWN
      * @zh 图片格式:UNKNOWN
      */
-    UNKNOWN
+    UNKNOWN,
 }
 
 export function getImageFormatByData (imgData) {
@@ -908,11 +908,11 @@ export class ParticleSystem2D extends UIRenderable {
     }
 
     public _initTextureWithDictionary (dict) {
-        if (dict["spriteFrameUuid"]) {
-            let spriteFrameUuid = dict["spriteFrameUuid"];
+        if (dict['spriteFrameUuid']) {
+            const spriteFrameUuid = dict['spriteFrameUuid'];
             assetManager.loadAny(spriteFrameUuid, (error: Error, spriteFrame: SpriteFrame) => {
                 if (error) {
-                    dict["spriteFrameUuid"] = undefined;
+                    dict['spriteFrameUuid'] = undefined;
                     this._initTextureWithDictionary(dict);
                     console.error(error);
                 }
@@ -923,40 +923,40 @@ export class ParticleSystem2D extends UIRenderable {
         }
         // texture
         else {
-            let imgPath = path.changeBasename(this._plistFile, dict["textureFileName"] || '');
-            if (dict["textureFileName"]) {
+            const imgPath = path.changeBasename(this._plistFile, dict['textureFileName'] || '');
+            if (dict['textureFileName']) {
                 // Try to get the texture from the cache
                 assetManager.loadRemote<ImageAsset>(imgPath, (error: Error | null, imageAsset: ImageAsset) => {
                     if (error) {
-                        dict["textureFileName"] = undefined;
+                        dict['textureFileName'] = undefined;
                         this._initTextureWithDictionary(dict);
                         console.error(error);
                     } else {
                         this.spriteFrame = SpriteFrame.createWithImage(imageAsset);
                     }
                 });
-            } else if (dict["textureImageData"]) {
-                let textureData = dict["textureImageData"];
+            } else if (dict['textureImageData']) {
+                const textureData = dict['textureImageData'];
 
                 if (textureData && textureData.length > 0) {
                     let imageAsset = assetManager.assets.get(imgPath) as ImageAsset;
 
                     if (!imageAsset) {
-                        let buffer = codec.unzipBase64AsArray(textureData, 1);
+                        const buffer = codec.unzipBase64AsArray(textureData, 1);
                         if (!buffer) {
                             warnID(6030, this._file!.name);
                             return false;
                         }
 
-                        let imageFormat = getImageFormatByData(buffer);
+                        const imageFormat = getImageFormatByData(buffer);
                         if (imageFormat !== ImageFormat.TIFF && imageFormat !== ImageFormat.PNG) {
                             warnID(6031, this._file!.name);
                             return false;
                         }
 
-                        let canvasObj = document.createElement("canvas");
+                        const canvasObj = document.createElement('canvas');
                         if (imageFormat === ImageFormat.PNG) {
-                            let myPngObj = new PNGReader(buffer);
+                            const myPngObj = new PNGReader(buffer);
                             myPngObj.render(canvasObj);
                         } else {
                             if (!this._tiffReader) {
@@ -983,14 +983,14 @@ export class ParticleSystem2D extends UIRenderable {
 
     // parsing process
     public _initWithDictionary (dict) {
-        this.totalParticles = parseInt(dict["maxParticles"] || 0);
+        this.totalParticles = parseInt(dict['maxParticles'] || 0);
 
         // life span
-        this.life = parseFloat(dict["particleLifespan"] || 0);
-        this.lifeVar = parseFloat(dict["particleLifespanVariance"] || 0);
+        this.life = parseFloat(dict['particleLifespan'] || 0);
+        this.lifeVar = parseFloat(dict['particleLifespanVariance'] || 0);
 
         // emission Rate
-        const _tempEmissionRate = dict["emissionRate"];
+        const _tempEmissionRate = dict['emissionRate'];
         if (_tempEmissionRate) {
             this.emissionRate = _tempEmissionRate;
         }
@@ -999,94 +999,94 @@ export class ParticleSystem2D extends UIRenderable {
         }
 
         // duration
-        this.duration = parseFloat(dict["duration"] || 0);
+        this.duration = parseFloat(dict['duration'] || 0);
 
         // blend function
-        this.srcBlendFactor = parseInt(dict["blendFuncSource"] || BlendFactor.SRC_ALPHA);
-        this.dstBlendFactor = parseInt(dict["blendFuncDestination"] || BlendFactor.ONE_MINUS_SRC_ALPHA);
+        this.srcBlendFactor = parseInt(dict['blendFuncSource'] || BlendFactor.SRC_ALPHA);
+        this.dstBlendFactor = parseInt(dict['blendFuncDestination'] || BlendFactor.ONE_MINUS_SRC_ALPHA);
 
         // color
         const locStartColor = this._startColor;
-        locStartColor.r = parseFloat(dict["startColorRed"] || 0) * 255;
-        locStartColor.g = parseFloat(dict["startColorGreen"] || 0) * 255;
-        locStartColor.b = parseFloat(dict["startColorBlue"] || 0) * 255;
-        locStartColor.a = parseFloat(dict["startColorAlpha"] || 0) * 255;
+        locStartColor.r = parseFloat(dict['startColorRed'] || 0) * 255;
+        locStartColor.g = parseFloat(dict['startColorGreen'] || 0) * 255;
+        locStartColor.b = parseFloat(dict['startColorBlue'] || 0) * 255;
+        locStartColor.a = parseFloat(dict['startColorAlpha'] || 0) * 255;
 
         const locStartColorVar = this._startColorVar;
-        locStartColorVar.r = parseFloat(dict["startColorVarianceRed"] || 0) * 255;
-        locStartColorVar.g = parseFloat(dict["startColorVarianceGreen"] || 0) * 255;
-        locStartColorVar.b = parseFloat(dict["startColorVarianceBlue"] || 0) * 255;
-        locStartColorVar.a = parseFloat(dict["startColorVarianceAlpha"] || 0) * 255;
+        locStartColorVar.r = parseFloat(dict['startColorVarianceRed'] || 0) * 255;
+        locStartColorVar.g = parseFloat(dict['startColorVarianceGreen'] || 0) * 255;
+        locStartColorVar.b = parseFloat(dict['startColorVarianceBlue'] || 0) * 255;
+        locStartColorVar.a = parseFloat(dict['startColorVarianceAlpha'] || 0) * 255;
 
         const locEndColor = this._endColor;
-        locEndColor.r = parseFloat(dict["finishColorRed"] || 0) * 255;
-        locEndColor.g = parseFloat(dict["finishColorGreen"] || 0) * 255;
-        locEndColor.b = parseFloat(dict["finishColorBlue"] || 0) * 255;
-        locEndColor.a = parseFloat(dict["finishColorAlpha"] || 0) * 255;
+        locEndColor.r = parseFloat(dict['finishColorRed'] || 0) * 255;
+        locEndColor.g = parseFloat(dict['finishColorGreen'] || 0) * 255;
+        locEndColor.b = parseFloat(dict['finishColorBlue'] || 0) * 255;
+        locEndColor.a = parseFloat(dict['finishColorAlpha'] || 0) * 255;
 
         const locEndColorVar = this._endColorVar;
-        locEndColorVar.r = parseFloat(dict["finishColorVarianceRed"] || 0) * 255;
-        locEndColorVar.g = parseFloat(dict["finishColorVarianceGreen"] || 0) * 255;
-        locEndColorVar.b = parseFloat(dict["finishColorVarianceBlue"] || 0) * 255;
-        locEndColorVar.a = parseFloat(dict["finishColorVarianceAlpha"] || 0) * 255;
+        locEndColorVar.r = parseFloat(dict['finishColorVarianceRed'] || 0) * 255;
+        locEndColorVar.g = parseFloat(dict['finishColorVarianceGreen'] || 0) * 255;
+        locEndColorVar.b = parseFloat(dict['finishColorVarianceBlue'] || 0) * 255;
+        locEndColorVar.a = parseFloat(dict['finishColorVarianceAlpha'] || 0) * 255;
 
         // particle size
-        this.startSize = parseFloat(dict["startParticleSize"] || 0);
-        this.startSizeVar = parseFloat(dict["startParticleSizeVariance"] || 0);
-        this.endSize = parseFloat(dict["finishParticleSize"] || 0);
-        this.endSizeVar = parseFloat(dict["finishParticleSizeVariance"] || 0);
+        this.startSize = parseFloat(dict['startParticleSize'] || 0);
+        this.startSizeVar = parseFloat(dict['startParticleSizeVariance'] || 0);
+        this.endSize = parseFloat(dict['finishParticleSize'] || 0);
+        this.endSizeVar = parseFloat(dict['finishParticleSizeVariance'] || 0);
 
         // position
         // Make empty positionType value and old version compatible
-        this.positionType = parseFloat(dict['positionType'] !== undefined ? dict['positionType'] : PositionType.FREE);
+        this.positionType = parseFloat(dict.positionType !== undefined ? dict.positionType : PositionType.FREE);
         // for
         this.sourcePos.set(0, 0);
-        this.posVar.set(parseFloat(dict["sourcePositionVariancex"] || 0), parseFloat(dict["sourcePositionVariancey"] || 0));
+        this.posVar.set(parseFloat(dict['sourcePositionVariancex'] || 0), parseFloat(dict['sourcePositionVariancey'] || 0));
         // angle
-        this.angle = parseFloat(dict["angle"] || 0);
-        this.angleVar = parseFloat(dict["angleVariance"] || 0);
+        this.angle = parseFloat(dict['angle'] || 0);
+        this.angleVar = parseFloat(dict['angleVariance'] || 0);
 
         // Spinning
-        this.startSpin = parseFloat(dict["rotationStart"] || 0);
-        this.startSpinVar = parseFloat(dict["rotationStartVariance"] || 0);
-        this.endSpin = parseFloat(dict["rotationEnd"] || 0);
-        this.endSpinVar = parseFloat(dict["rotationEndVariance"] || 0);
+        this.startSpin = parseFloat(dict['rotationStart'] || 0);
+        this.startSpinVar = parseFloat(dict['rotationStartVariance'] || 0);
+        this.endSpin = parseFloat(dict['rotationEnd'] || 0);
+        this.endSpinVar = parseFloat(dict['rotationEndVariance'] || 0);
 
-        this.emitterMode = parseInt(dict["emitterType"] || EmitterMode.GRAVITY);
+        this.emitterMode = parseInt(dict['emitterType'] || EmitterMode.GRAVITY);
 
         // Mode A: Gravity + tangential accel + radial accel
         if (this.emitterMode === EmitterMode.GRAVITY) {
             // gravity
-            this.gravity.set(parseFloat(dict["gravityx"] || 0), parseFloat(dict["gravityy"] || 0));
+            this.gravity.set(parseFloat(dict['gravityx'] || 0), parseFloat(dict['gravityy'] || 0));
             // speed
-            this.speed = parseFloat(dict["speed"] || 0);
-            this.speedVar = parseFloat(dict["speedVariance"] || 0);
+            this.speed = parseFloat(dict['speed'] || 0);
+            this.speedVar = parseFloat(dict['speedVariance'] || 0);
 
             // radial acceleration
-            this.radialAccel = parseFloat(dict["radialAcceleration"] || 0);
-            this.radialAccelVar = parseFloat(dict["radialAccelVariance"] || 0);
+            this.radialAccel = parseFloat(dict['radialAcceleration'] || 0);
+            this.radialAccelVar = parseFloat(dict['radialAccelVariance'] || 0);
 
             // tangential acceleration
-            this.tangentialAccel = parseFloat(dict["tangentialAcceleration"] || 0);
-            this.tangentialAccelVar = parseFloat(dict["tangentialAccelVariance"] || 0);
+            this.tangentialAccel = parseFloat(dict['tangentialAcceleration'] || 0);
+            this.tangentialAccelVar = parseFloat(dict['tangentialAccelVariance'] || 0);
 
             // rotation is dir
-            let locRotationIsDir = dict["rotationIsDir"] || "";
+            let locRotationIsDir = dict['rotationIsDir'] || '';
             if (locRotationIsDir !== null) {
                 locRotationIsDir = locRotationIsDir.toString().toLowerCase();
-                this.rotationIsDir = (locRotationIsDir === "true" || locRotationIsDir === "1");
+                this.rotationIsDir = (locRotationIsDir === 'true' || locRotationIsDir === '1');
             }
             else {
                 this.rotationIsDir = false;
             }
         } else if (this.emitterMode === EmitterMode.RADIUS) {
             // or Mode B: radius movement
-            this.startRadius = parseFloat(dict["maxRadius"] || 0);
-            this.startRadiusVar = parseFloat(dict["maxRadiusVariance"] || 0);
-            this.endRadius = parseFloat(dict["minRadius"] || 0);
-            this.endRadiusVar = parseFloat(dict["minRadiusVariance"] || 0);
-            this.rotatePerS = parseFloat(dict["rotatePerSecond"] || 0);
-            this.rotatePerSVar = parseFloat(dict["rotatePerSecondVariance"] || 0);
+            this.startRadius = parseFloat(dict['maxRadius'] || 0);
+            this.startRadiusVar = parseFloat(dict['maxRadiusVariance'] || 0);
+            this.endRadius = parseFloat(dict['minRadius'] || 0);
+            this.endRadiusVar = parseFloat(dict['minRadiusVariance'] || 0);
+            this.rotatePerS = parseFloat(dict['rotatePerSecond'] || 0);
+            this.rotatePerSVar = parseFloat(dict['rotatePerSecondVariance'] || 0);
         } else {
             warnID(6009);
             return false;
@@ -1128,7 +1128,7 @@ export class ParticleSystem2D extends UIRenderable {
     }
 
     public _updateMaterial () {
-        let mat = this.getRenderMaterial(0);
+        const mat = this.getRenderMaterial(0);
         if (!mat) return;
         // mat.recompileShaders({USE_LOCAL:this._positionType !== PositionType.FREE});
     }
