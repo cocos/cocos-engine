@@ -15,7 +15,7 @@ import { BatchingSchemes } from '../renderer/core/pass';
 import { InstancedBuffer } from './instanced-buffer';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { BatchedBuffer } from './batched-buffer';
-import { Color, Mat4, Vec4 } from '../math';
+import { Color, Mat4, Vec4, Vec3 } from '../math';
 import { Shadows, ShadowType } from '../renderer/scene/shadows';
 import { ForwardPipeline } from './forward/forward-pipeline';
 import { Light, LightType } from '../renderer/scene/light';
@@ -28,6 +28,7 @@ import { getShadowWorldMatrix } from './forward/scene-culling';
 const _matShadowView = new Mat4();
 const _matShadowViewProj = new Mat4();
 const _vec4ShadowInfo = new Vec4();
+const _vec3Center = new Vec3();
 
 const _phaseID = getPhaseID('shadow-caster');
 function getShadowPassIndex (subModels: SubModel[]) {
@@ -181,13 +182,14 @@ export class RenderShadowMapBatchedQueue {
                 let y: number = 0;
                 let far: number = 0;
                 if (this._shadowInfo.autoAdapt) {
-                    shadowCameraView = getShadowWorldMatrix(this._pipeline, mainLight.node?.getWorldRotation()!, mainLight.direction);
+                    shadowCameraView = getShadowWorldMatrix(this._pipeline, mainLight.node?.getWorldRotation()!, mainLight.direction, _vec3Center);
                     // if orthoSize is the smallest, auto calculate orthoSize.
                     const radius = this._shadowInfo.sphere.radius;
                     x = radius * this._shadowInfo.aspect;
                     y = radius;
 
-                    far = Math.min(this._shadowInfo.receiveSphere.radius * Shadows.COEFFICIENT_OF_EXPANSION, Shadows.MAX_FAR);
+                    const halfFar = Vec3.distance(this._shadowInfo.sphere.center, _vec3Center);
+                    far = Math.min(halfFar * Shadows.COEFFICIENT_OF_EXPANSION, Shadows.MAX_FAR);
                 } else {
                     shadowCameraView = mainLight.node!.getWorldMatrix();
 

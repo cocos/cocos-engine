@@ -13,7 +13,7 @@ import { RenderView } from '../';
 import { Pool } from '../../memop';
 import { IRenderObject, UBOShadow } from '../define';
 import { ShadowType, Shadows } from '../../renderer/scene/shadows';
-import { SphereLight, DirectionalLight } from '../../renderer/scene';
+import { SphereLight, DirectionalLight, Light } from '../../renderer/scene';
 
 const _tempVec3 = new Vec3();
 const _dir_negate = new Vec3();
@@ -21,7 +21,6 @@ const _vec3_p = new Vec3();
 const _mat4_trans = new Mat4();
 const _castWorldBounds = new aabb();
 let _castBoundsInited = false;
-let _receiveBoundsInited = false;
 const _validLights: Light[] = [];
 const _sphere = sphere.create(0, 0, 0, 1);
 
@@ -168,21 +167,9 @@ export function shadowCollecting (pipeline: ForwardPipeline, view: RenderView) {
                 aabb.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
                 shadowObjects.push(getCastShadowRenderObject(model, camera));
             }
-
-            // Even if the obstruction is not in the field of view,
-            // the shadow is still visible.
-            if (model.receiveShadow && model.worldBounds) {
-                if (!_receiveBoundsInited) {
-                    _receiveWorldBounds.copy(model.worldBounds);
-                    _receiveBoundsInited = true;
-                }
-                aabb.merge(_receiveWorldBounds, _receiveWorldBounds, model.worldBounds);
-            }
         }
 
         if (_castWorldBounds) { aabb.toBoundingSphere(shadows.sphere, _castWorldBounds); }
-
-        if (_receiveWorldBounds) { aabb.toBoundingSphere(shadows.receiveSphere, _receiveWorldBounds); }
     }
 }
 
