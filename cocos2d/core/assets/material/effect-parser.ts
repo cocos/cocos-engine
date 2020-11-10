@@ -31,7 +31,7 @@ function parseProperties (effectAsset, passJson) {
             prop = properties[name] = Object.assign({}, u),
             propInfo = propertiesJson[name];
 
-        let value = enums2default[u.type];
+        let value;
         if (propInfo) {
             if (propInfo.type === enums.PARAM_TEXTURE_2D) {
                 value = null;
@@ -45,6 +45,10 @@ function parseProperties (effectAsset, passJson) {
         }
         else {
             value = enums2default[u.type];
+        }
+
+        if (value === undefined) {
+            value = null;
         }
 
         prop.value = value;
