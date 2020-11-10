@@ -1,4 +1,4 @@
-/****************************************************************************
+/*
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
@@ -21,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+ */
 
 import b2 from '@cocos/box2d';
 import { Vec2 } from '../../core';
@@ -31,20 +31,20 @@ import { b2Shape2D } from './shapes/shape-2d';
 
 export type b2ContactExtends = b2.Contact & {
     m_userData: any
-} 
+}
 
 
-let pools: PhysicsContact[] = [];
+const pools: PhysicsContact[] = [];
 
 // temp world manifold
-let pointCache = [new Vec2, new Vec2];
+const pointCache = [new Vec2, new Vec2];
 
-let b2worldmanifold = new b2.WorldManifold();
+const b2worldmanifold = new b2.WorldManifold();
 
 /**
  * @class WorldManifold
  */
-let worldmanifold = {
+const worldmanifold = {
 
     /**
      * !#en
@@ -70,12 +70,12 @@ let worldmanifold = {
      * 世界坐标系下由 A 指向 B 的向量
      * @property {Vec2} normal
      */
-    normal: new Vec2()
+    normal: new Vec2(),
 };
 
 /**
  * !#en
- * A manifold point is a contact point belonging to a contact manifold. 
+ * A manifold point is a contact point belonging to a contact manifold.
  * It holds details related to the geometry and dynamics of the contact points.
  * Note: the impulses are used for internal caching and may not
  * provide reliable contact forces, especially for high speed collisions.
@@ -117,12 +117,12 @@ class ManifoldPoint {
     tangentImpulse = 0;
 }
 
-let manifoldPointCache = [new ManifoldPoint(), new ManifoldPoint()];
+const manifoldPointCache = [new ManifoldPoint(), new ManifoldPoint()];
 
 /**
  * @class Manifold
  */
-let manifold = {
+const manifold = {
     /**
      * !#en
      * Manifold type :  0: e_circles, 1: e_faceA, 2: e_faceB
@@ -166,7 +166,7 @@ let manifold = {
      * 接触点信息。
      * @property {[ManifoldPoint]} points
      */
-    points: [] as ManifoldPoint[]
+    points: [] as ManifoldPoint[],
 };
 
 /**
@@ -176,7 +176,7 @@ let manifold = {
  * 用于返回给回调的接触冲量。
  * @class PhysicsImpulse
  */
-let impulse = {
+const impulse = {
     /**
      * !#en
      * Normal impulses.
@@ -192,7 +192,7 @@ let impulse = {
      * 切线方向的冲量
      * @property tangentImpulses
      */
-    tangentImpulses: [] as number[]
+    tangentImpulses: [] as number[],
 };
 
 /**
@@ -217,7 +217,7 @@ export class PhysicsContact {
     }
 
     static put (b2contact: b2ContactExtends) {
-        let c: PhysicsContact = b2contact.m_userData as PhysicsContact;
+        const c: PhysicsContact = b2contact.m_userData as PhysicsContact;
         if (!c) return;
 
         pools.push(c);
@@ -274,19 +274,19 @@ export class PhysicsContact {
      * @return {WorldManifold}
      */
     getWorldManifold () {
-        let points = worldmanifold.points;
-        let separations = worldmanifold.separations;
-        let normal = worldmanifold.normal;
+        const points = worldmanifold.points;
+        const separations = worldmanifold.separations;
+        const normal = worldmanifold.normal;
 
         this._b2contact!.GetWorldManifold(b2worldmanifold);
-        let b2points = b2worldmanifold.points;
-        let b2separations = b2worldmanifold.separations;
+        const b2points = b2worldmanifold.points;
+        const b2separations = b2worldmanifold.separations;
 
-        let count = this._b2contact!.GetManifold().pointCount;
+        const count = this._b2contact!.GetManifold().pointCount;
         points.length = separations.length = count;
 
         for (let i = 0; i < count; i++) {
-            let p = pointCache[i];
+            const p = pointCache[i];
             p.x = b2points[i].x * PHYSICS_2D_PTM_RATIO;
             p.y = b2points[i].y * PHYSICS_2D_PTM_RATIO;
 
@@ -314,17 +314,17 @@ export class PhysicsContact {
      * @return {Manifold}
      */
     getManifold () {
-        let points = manifold.points;
-        let localNormal = manifold.localNormal;
-        let localPoint = manifold.localPoint;
+        const points = manifold.points;
+        const localNormal = manifold.localNormal;
+        const localPoint = manifold.localPoint;
 
-        let b2manifold = this._b2contact!.GetManifold();
-        let b2points = b2manifold.points;
-        let count = points.length = b2manifold.pointCount;
+        const b2manifold = this._b2contact!.GetManifold();
+        const b2points = b2manifold.points;
+        const count = points.length = b2manifold.pointCount;
 
         for (let i = 0; i < count; i++) {
-            let p = manifoldPointCache[i];
-            let b2p = b2points[i];
+            const p = manifoldPointCache[i];
+            const b2p = b2points[i];
             p.localPoint.x = b2p.localPoint.x * PHYSICS_2D_PTM_RATIO;
             p.localPoint.y = b2p.localPoint.y * PHYSICS_2D_PTM_RATIO;
             p.normalImpulse = b2p.normalImpulse * PHYSICS_2D_PTM_RATIO;
@@ -358,12 +358,12 @@ export class PhysicsContact {
      * @return {PhysicsImpulse}
      */
     getImpulse () {
-        let b2impulse = this._impulse;
+        const b2impulse = this._impulse;
         if (!b2impulse) return null;
 
-        let normalImpulses = impulse.normalImpulses;
-        let tangentImpulses = impulse.tangentImpulses;
-        let count = b2impulse.count;
+        const normalImpulses = impulse.normalImpulses;
+        const tangentImpulses = impulse.tangentImpulses;
+        const count = b2impulse.count;
         for (let i = 0; i < count; i++) {
             normalImpulses[i] = b2impulse.normalImpulses[i] * PHYSICS_2D_PTM_RATIO;
             tangentImpulses[i] = b2impulse.tangentImpulses[i];
@@ -391,11 +391,11 @@ export class PhysicsContact {
                 break;
         }
 
-        let colliderA = this.colliderA;
-        let colliderB = this.colliderB;
+        const colliderA = this.colliderA;
+        const colliderB = this.colliderB;
 
-        let bodyA = colliderA!.body;
-        let bodyB = colliderB!.body;
+        const bodyA = colliderA!.body;
+        const bodyB = colliderB!.body;
 
         if (bodyA!.enabledContactListener) {
             colliderA?.emit(contactType, this, colliderA, colliderB);
