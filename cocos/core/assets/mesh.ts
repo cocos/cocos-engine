@@ -262,23 +262,24 @@ export class RenderingSubMesh {
             const vbCount = prim.indexView ? prim.indexView.count : vertexBundle.view.count;
             const vbStride = vertexBundle.view.stride;
             const vbSize = vbStride * vbCount;
+            const view = new Uint8Array(mesh.data.buffer, vertexBundle.view.offset, vertexBundle.view.length);
 
-            const rawBufferSize = prim.indexView ? vertexBundle.view.length : vbSize;
-            const hBuffer = RawBufferPool.alloc(rawBufferSize);
-            const buffer = RawBufferPool.getBuffer(hBuffer);
-            const view = prim.indexView ? new Uint8Array(buffer) : new Uint8Array(rawBufferSize);
+            const hBuffer = RawBufferPool.alloc(prim.indexView ? vbSize : vertexBundle.view.length);
             const hFlatBuffer = FlatBufferPool.alloc();
-            view.set(mesh.data.subarray(vertexBundle.view.offset, vertexBundle.view.offset + vertexBundle.view.length));
+            FlatBufferPool.set(hFlatBuffer, FlatBufferView.STRIDE, vbStride);
+            FlatBufferPool.set(hFlatBuffer, FlatBufferView.AMOUNT, vbCount);
+            FlatBufferPool.set(hFlatBuffer, FlatBufferView.BUFFER, hBuffer);
+            FlatBufferArrayPool.push(fbArrayHandle, hFlatBuffer);
+
+            const buffer = RawBufferPool.getBuffer(hBuffer);
+            const sharedView = new Uint8Array(buffer);
 
             if (!prim.indexView) {
-                FlatBufferPool.set(hFlatBuffer, FlatBufferView.STRIDE, vbStride);
-                FlatBufferPool.set(hFlatBuffer, FlatBufferView.AMOUNT, vbCount);
-                FlatBufferPool.set(hFlatBuffer, FlatBufferView.BUFFER, hBuffer);
-                this._flatBuffers.push({ stride: vbStride, count: vbCount, buffer: view });
-                FlatBufferArrayPool.push(fbArrayHandle, hFlatBuffer);
+                sharedView.set(mesh.data.subarray(vertexBundle.view.offset, vertexBundle.view.offset + vertexBundle.view.length));
+                this._flatBuffers.push({ stride: vbStride, count: vbCount, buffer: sharedView });
                 continue;
             }
-            const vbView = new Uint8Array(buffer);
+
             const ibView = mesh.readIndices(this.subMeshIdx)!;
             // transform to flat buffer
             for (let n = 0; n < idxCount; ++n) {
@@ -286,14 +287,10 @@ export class RenderingSubMesh {
                 const offset = n * vbStride;
                 const srcOffset = idx * vbStride;
                 for (let m = 0; m < vbStride; ++m) {
-                    vbView[offset + m] = view[srcOffset + m];
+                    sharedView[offset + m] = view[srcOffset + m];
                 }
             }
-            FlatBufferPool.set(hFlatBuffer, FlatBufferView.STRIDE, vbStride);
-            FlatBufferPool.set(hFlatBuffer, FlatBufferView.AMOUNT, vbCount);
-            FlatBufferPool.set(hFlatBuffer, FlatBufferView.BUFFER, hBuffer);
-            FlatBufferArrayPool.push(fbArrayHandle, hFlatBuffer);
-            this._flatBuffers.push({ stride: vbStride, count: vbCount, buffer: vbView });
+            this._flatBuffers.push({ stride: vbStride, count: vbCount, buffer: sharedView });
         }
     }
 

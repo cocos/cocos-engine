@@ -23,6 +23,9 @@ CCEffect %{
         metallicRoughnessMap: { value: grey   }
         occlusionMap:   { value: white        }
         emissiveMap:    { value: grey         }
+      migrations:
+        properties:
+          pbrParams: { removeImmediately: true }
     - &forward-add
       vert: standard-vs:vert
       frag: standard-fs:frag
