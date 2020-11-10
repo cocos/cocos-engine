@@ -22,7 +22,9 @@ function inject () {
     window.HTMLMediaElement = require('./HTMLMediaElement');
     window.HTMLVideoElement = require('./HTMLVideoElement');
     window.HTMLScriptElement = require('./HTMLScriptElement');
-    window.__canvas = new HTMLCanvasElement(window.innerWidth, window.innerHeight);
+    window.__canvas = new HTMLCanvasElement();
+    window.__canvas._width = window.innerWidth;
+    window.__canvas._height = window.innerHeight;
     window.navigator = require('./navigator');
     window.Image = require('./Image');
     window.FileReader = require('./FileReader');

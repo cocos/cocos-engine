@@ -67,7 +67,7 @@ class HTMLCanvasElement extends HTMLElement {
         if (this._width !== width) {
             this._width = width;
             if (this._context2D) {
-                this._context2D._width = width;
+                this._context2D.width = width;
             }
         }
     }
@@ -81,7 +81,7 @@ class HTMLCanvasElement extends HTMLElement {
         if (this._height !== height) {
             this._height = height;
             if (this._context2D) {
-                this._context2D._height = height;
+                this._context2D.height = height;
             }
         }
     }
