@@ -53,7 +53,7 @@ const formatBytes = getAttributeFormatBytes(vfmtPosUvColor);
  * Image formats
  * @enum macro.ImageFormat
  */
-enum ImageFormat {
+export enum ImageFormat {
     /**
      * @en Image Format:JPG
      * @zh 图片格式:JPG
@@ -111,7 +111,7 @@ enum ImageFormat {
     UNKNOWN
 }
 
-function getImageFormatByData (imgData) {
+export function getImageFormatByData (imgData) {
     // if it is a png file buffer.
     if (imgData.length > 8 && imgData[0] === 0x89
         && imgData[1] === 0x50
@@ -190,15 +190,9 @@ export class ParticleSystem2D extends UIRenderable {
 
     static EmitterMode = EmitterMode;
     static PositionType = PositionType;
-    static DURATION_INFINITY = DURATION_INFINITY;
-    static START_SIZE_EQUAL_TO_END_SIZE = START_SIZE_EQUAL_TO_END_SIZE;
-    static START_RADIUS_EQUAL_TO_END_RADIUS = START_RADIUS_EQUAL_TO_END_RADIUS;
-
-    static codec = codec;
-    static getImageFormatByData = getImageFormatByData;
-    static ImageFormat = ImageFormat;
-    static TiffReader = TiffReader;
-    static PNGReader = PNGReader;
+    static readonly DURATION_INFINITY = DURATION_INFINITY;
+    static readonly START_SIZE_EQUAL_TO_END_SIZE = START_SIZE_EQUAL_TO_END_SIZE;
+    static readonly START_RADIUS_EQUAL_TO_END_RADIUS = START_RADIUS_EQUAL_TO_END_RADIUS;
 
     /**
      * @en If set custom to true, then use custom properties insteadof read particle file.
