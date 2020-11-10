@@ -9,6 +9,7 @@ export default class Pass {
         this._name = name;
         this._detailName = detailName;
         this._programName = programName;
+        this._programKey = null;
         this._stage = stage;
         this._properties = properties;
         this._defines = defines;
@@ -33,7 +34,7 @@ export default class Pass {
 
         // stencil
         this._stencilTest = gfx.STENCIL_INHERIT;
-        
+
         // front
         this._stencilFuncFront = gfx.DS_FUNC_ALWAYS;
         this._stencilRefFront = 0;
@@ -191,14 +192,16 @@ export default class Pass {
     }
 
     define (name, value, force) {
-        if (!force) {
-            let def = this._defines[name];
-            if (def === undefined) {
-                return false;
-            }
+        let oldValue = this._defines[name];
+
+        if (!force && oldValue === undefined) {
+            return false;
         }
 
-        this._defines[name] = value;
+        if (oldValue !== value) {
+            this._defines[name] = value;
+            this._programKey = null;
+        }
 
         return true;
     }
