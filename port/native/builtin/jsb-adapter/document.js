@@ -32,7 +32,7 @@ class Document extends Node {
 
   createElement(tagName) {
     if (tagName === 'canvas') {
-      return new HTMLCanvasElement()
+      return new HTMLCanvasElement(1, 1)
     } else if (tagName === 'img') {
       return new Image()
     } else if (tagName === 'video') {
