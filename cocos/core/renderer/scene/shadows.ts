@@ -26,7 +26,7 @@ export const ShadowType = Enum({
      * @readonly
      */
     ShadowMap: 1,
-})
+});
 
 /**
  * @zh pcf阴影等级。
@@ -62,9 +62,21 @@ export const PCFType = Enum({
      * @readonly
      */
     FILTER_X25: 3,
-})
+});
 
 export class Shadows {
+    /**
+     * @en MAX_FAR. This is shadow camera max far.
+     * @zh 阴影相机的最远视距。
+     */
+    public static readonly MAX_FAR: number = 2000.0;
+
+    /**
+     * @en EXPANSION_RATIO. This is shadow boundingBox Coefficient of expansion.
+     * @zh 阴影包围盒扩大系数。
+     */
+    public static readonly COEFFICIENT_OF_EXPANSION: number = 2.0 * Math.sqrt(3.0);
+
     /**
      * @en Whether activate planar shadow
      * @zh 是否启用平面阴影？
@@ -76,7 +88,7 @@ export class Shadows {
 
     set enabled (val: boolean) {
         ShadowsPool.set(this._handle, ShadowsView.ENABLE, val ? 1 : 0);
-        val ? this.activate() : this._updatePipeline();
+        if (val) this.activate(); else this._updatePipeline();
     }
 
     /**
@@ -242,12 +254,6 @@ export class Shadows {
      */
     public sphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
 
-    /**
-     * @en get or set shadow auto control
-     * @zh 获取或者设置阴影是否自动控制
-     */
-    public receiveSphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
-
     protected _normal = new Vec3(0, 1, 0);
     protected _shadowColor = new Color(0, 0, 0, 76);
     protected _matLight = new Mat4();
@@ -271,12 +277,12 @@ export class Shadows {
     protected _updatePlanarInfo () {
         if (!this._material) {
             this._material = new Material();
-            this._material.initialize({ effectName: 'pipeline/planar-shadow' });
+            this._material.initialize({ effectName: 'planar-shadow' });
             ShadowsPool.set(this._handle, ShadowsView.PLANAR_PASS, this._material.passes[0].handle);
         }
         if (!this._instancingMaterial) {
             this._instancingMaterial = new Material();
-            this._instancingMaterial.initialize({ effectName: 'pipeline/planar-shadow', defines: { USE_INSTANCING: true } });
+            this._instancingMaterial.initialize({ effectName: 'planar-shadow', defines: { USE_INSTANCING: true } });
             ShadowsPool.set(this._handle, ShadowsView.INSTANCE_PASS, this._instancingMaterial.passes[0].handle);
         }
     }
@@ -305,7 +311,6 @@ export class Shadows {
         }
 
         this.sphere.destroy();
-        this.receiveSphere.destroy();
     }
 }
 

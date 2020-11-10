@@ -400,8 +400,11 @@ export class RenderingSubMesh {
         const attributeIndex = this.attributes.length;
 
         const vertexIdBuffer = this._allocVertexIdBuffer(device);
-        this.vertexBuffers.push(vertexIdBuffer);
-        this.attributes.push(new Attribute('a_vertexId', Format.R32F, false, streamIndex));
+        this._vertexBuffers.push(vertexIdBuffer);
+        this._attributes.push(new Attribute('a_vertexId', Format.R32F, false, streamIndex));
+
+        this._iaInfo.attributes = this._attributes;
+        this._iaInfo.vertexBuffers = this._vertexBuffers;
 
         this._vertexIdChannel = {
             stream: streamIndex,
@@ -412,12 +415,12 @@ export class RenderingSubMesh {
     private _allocVertexIdBuffer (device: Device) {
         const vertexCount = (this.vertexBuffers.length === 0 || this.vertexBuffers[0].stride === 0)
             ? 0
-        // TODO: This depends on how stride of a vertex buffer is defined; Consider padding problem.
+            // TODO: This depends on how stride of a vertex buffer is defined; Consider padding problem.
             : this.vertexBuffers[0].size / this.vertexBuffers[0].stride;
         const vertexIds = new Float32Array(vertexCount);
         for (let iVertex = 0; iVertex < vertexCount; ++iVertex) {
-        // `+0.5` because on some platforms, the "fetched integer" may have small error.
-        // For example `26` may yield `25.99999`, which is convert to `25` instead of `26` using `int()`.
+            // `+0.5` because on some platforms, the "fetched integer" may have small error.
+            // For example `26` may yield `25.99999`, which is convert to `25` instead of `26` using `int()`.
             vertexIds[iVertex] = iVertex + 0.5;
         }
 

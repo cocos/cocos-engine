@@ -69,7 +69,9 @@ rules:
     no-plusplus: off # allow increment/decrement operators
     no-console: off # allow console statements
     no-continue: off # allow unlabeled continues
+    no-mixed-operators: off # this is just cumbersome
     no-multi-assign: off # it is handy sometimes
+    no-nested-ternary: off # it is handy sometimes
     no-param-reassign: off # the output object is passed as parameters all the time
     no-restricted-syntax: off # for-in is a efficient choice for plain objects
     no-return-assign: off # it is handy sometimes
@@ -78,6 +80,9 @@ rules:
     no-bitwise: off # we use this extensively
     no-use-before-define: off # just too much work
     no-useless-constructor: off # gives false-positives for empty constructor with parameter properties
+    object-curly-newline: off # we want manual control over this
+    one-var-declaration-per-line: off # auto-fix has order issues with `one-var`
+    prefer-destructuring: off # auto-fix is not smart enough to merge different instances
 
     ##### TYPESCRIPT-SPECIFIC RULE OVERRIDES #####
 
