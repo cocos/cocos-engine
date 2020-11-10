@@ -58,7 +58,6 @@ const _dsInfo = new DescriptorSetInfo(null!);
  * UI 渲染流程
  */
 export class UI {
-
     get renderScene (): RenderScene {
         return this._scene;
     }
@@ -81,9 +80,7 @@ export class UI {
 
     public device: Device;
     private _screens: Canvas[] = [];
-    private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => {
-        return new MeshBuffer(this);
-    }, 128);
+    private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => new MeshBuffer(this), 128);
     private _drawBatchPool: Pool<UIDrawBatch>;
     private _scene: RenderScene;
     private _attributes: Attribute[] = [];
@@ -103,13 +100,13 @@ export class UI {
     private _currMeshBuffer: MeshBuffer | null = null;
     private _currStaticRoot: UIStaticBatch | null = null;
     private _currComponent: UIRenderable | null = null;
-    private _currTextureHash: number = 0;
-    private _currSamplerHash: number = 0;
-    private _currMaterialHash: number = 0;
-    private _currMaterialUniformHash: number = 0;
+    private _currTextureHash = 0;
+    private _currSamplerHash = 0;
+    private _currMaterialHash = 0;
+    private _currMaterialUniformHash = 0;
     private _parentOpacity = 1;
     // DescriptorSet Cache Map
-    private _descriptorSetCacheMap: Map<number, Map<number, DescriptorSetHandle>> = new Map<number, Map<number, DescriptorSetHandle>>();
+    private _descriptorSetCacheMap = new Map<number, Map<number, DescriptorSetHandle>>();
 
     constructor (private _root: Root) {
         this.device = _root.device;
@@ -117,7 +114,7 @@ export class UI {
             name: 'GUIScene',
         });
         this._uiModelPool = new Pool(() => {
-            const model = legacyCC.director.root.createModel(UIBatchModel);
+            const model = legacyCC.director.root.createModel(UIBatchModel) as UIBatchModel;
             model.enabled = true;
             model.visFlags |= Layers.Enum.UI_3D;
             return model;
@@ -125,13 +122,10 @@ export class UI {
         this._modelInUse = new CachedArray<UIBatchModel>(10);
         this._batches = new CachedArray(64);
 
-        this._drawBatchPool = new Pool(() => {
-            return new UIDrawBatch();
-        }, 128);
+        this._drawBatchPool = new Pool(() => new UIDrawBatch(), 128);
     }
 
     public initialize () {
-
         this._attributes = UIVertexFormat.vfmtPosUvColor;
 
         this._requireBufferBatch();
@@ -178,12 +172,11 @@ export class UI {
     public _getUIMaterial (mat: Material): UIMaterial {
         if (this._uiMaterials.has(mat.hash)) {
             return this._uiMaterials.get(mat.hash)!;
-        } else {
-            const uiMat = new UIMaterial();
-            uiMat.initialize({ material: mat });
-            this._uiMaterials.set(mat.hash, uiMat);
-            return uiMat;
         }
+        const uiMat = new UIMaterial();
+        uiMat.initialize({ material: mat });
+        this._uiMaterials.set(mat.hash, uiMat);
+        return uiMat;
     }
 
     public _removeUIMaterial (hash: number) {
@@ -212,7 +205,7 @@ export class UI {
                 const visibility = screen.camera.view.visibility;
                 const matRecord = this._canvasMaterials.get(visibility);
                 if (matRecord) {
-                    const matHashInter = matRecord!.keys();
+                    const matHashInter = matRecord.keys();
                     let matHash = matHashInter.next();
                     while (!matHash.done) {
                         this._removeUIMaterial(matHash.value);
@@ -326,7 +319,6 @@ export class UI {
         this._modelInUse.clear();
 
         if (this._batches.length) {
-
             for (let i = 0; i < this._batches.length; ++i) {
                 const batch = this._batches.array[i];
 
@@ -447,8 +439,8 @@ export class UI {
         const matUniformHash = renderComp.updateMaterialUniformHash(mat!);
 
         // use material judgment merge is increasingly impossible, change to hash is more possible
-        if (this._currMaterialHash !== matHash || this._currMaterialUniformHash !== matUniformHash ||
-            this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash
+        if (this._currMaterialHash !== matHash || this._currMaterialUniformHash !== matUniformHash
+            || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash
         ) {
             this.autoMergeBatches(this._currComponent!);
             this._currComponent = renderComp;
@@ -557,7 +549,7 @@ export class UI {
             return;
         }
         if (renderComp) {
-            if(StencilManager.sharedManager!.handleMaterial(mat, renderComp)) {
+            if (StencilManager.sharedManager!.handleMaterial(mat, renderComp)) {
                 this._currMaterial = mat = renderComp.material!;
                 const state = StencilManager.sharedManager!.pattern;
                 StencilManager.sharedManager!.applyStencil(mat, state);
@@ -722,7 +714,7 @@ export class UI {
 
     private _applyOpacity (comp: UIRenderable) {
         const color = comp.color.a / 255;
-        const opacity = (this._parentOpacity = this._parentOpacity * color);
+        const opacity = (this._parentOpacity *= color);
         const byteOffset = this._currMeshBuffer!.byteOffset >> 2;
         const vbuf = this._currMeshBuffer!.vData!;
         const lastByteOffset = this._currMeshBuffer!.lastByteOffset >> 2;
@@ -736,7 +728,7 @@ export class UI {
     private _initDescriptorSet (batch: UIDrawBatch) {
         const root = legacyCC.director.root;
 
-        const programName = EffectAsset.get('builtin-sprite')!.shaders[0].name;
+        const programName = EffectAsset.get('sprite')!.shaders[0].name;
         _dsInfo.layout = programLib.getDescriptorSetLayout(root.device, programName, true);
         batch.hDescriptorSet = DSPool.alloc(root.device, _dsInfo);
     }

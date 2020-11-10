@@ -29,7 +29,7 @@ export class Skybox {
     }
 
     set enabled (val: boolean) {
-        val ? this.activate() : this._updatePipeline();
+        if (val) this.activate(); else this._updatePipeline();
         SkyboxPool.set(this._handle, SkyboxView.ENABLE, val ? 1 : 0);
     }
 
@@ -115,7 +115,7 @@ export class Skybox {
 
         if (!skybox_material) {
             const mat = new Material();
-            mat.initialize({ effectName: 'pipeline/skybox', defines: { USE_RGBE_CUBEMAP: this.isRGBE } });
+            mat.initialize({ effectName: 'skybox', defines: { USE_RGBE_CUBEMAP: this.isRGBE } });
             skybox_material = new MaterialInstance({ parent: mat });
         } else {
             skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
@@ -130,7 +130,7 @@ export class Skybox {
     }
 
     protected _updatePipeline () {
-        const value = this.useIBL ? this.isRGBE ? 2 : 1 : 0;
+        const value = this.useIBL ? (this.isRGBE ? 2 : 1) : 0;
         const root = legacyCC.director.root;
         const pipeline = root.pipeline;
         const current = pipeline.macros.CC_USE_IBL;
