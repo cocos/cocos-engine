@@ -33,15 +33,15 @@
 import { logID, errorID, Node } from '../../core';
 
 /**
- * !#en Base classAction for action classes.
- * !#zh Action 类是所有动作类型的基类。
+ * @en Base classAction for action classes.
+ * @zh Action 类是所有动作类型的基类。
  * @class Action
  */
 export class Action {
 
     /**
-     * !#en Default Action tag.
-     * !#zh 默认动作标签。
+     * @en Default Action tag.
+     * @zh 默认动作标签。
      * @constant
      * @static
      * @default -1
@@ -53,10 +53,10 @@ export class Action {
     protected tag = Action.TAG_INVALID;
 
     /**
-     * !#en
+     * @en
      * to copy object with deep copy.
      * returns a clone of action.
-     * !#zh 返回一个克隆的动作。
+     * @zh 返回一个克隆的动作。
      * @method clone
      * @return {Action}
      */
@@ -69,9 +69,9 @@ export class Action {
     }
 
     /**
-     * !#en
+     * @en
      * return true if the action has finished.
-     * !#zh 如果动作已完成就返回 true。
+     * @zh 如果动作已完成就返回 true。
      * @method isDone
      * @return {Boolean}
      */
@@ -101,8 +101,8 @@ export class Action {
     }
 
     /**
-     * !#en get the target.
-     * !#zh 获取当前目标节点。
+     * @en get the target.
+     * @zh 获取当前目标节点。
      * @method getTarget
      * @return {object}
      */
@@ -111,8 +111,8 @@ export class Action {
     }
 
     /**
-     * !#en The action will modify the target properties.
-     * !#zh 设置目标节点。
+     * @en The action will modify the target properties.
+     * @zh 设置目标节点。
      * @method setTarget
      * @param {object} target
      */
@@ -121,8 +121,8 @@ export class Action {
     }
 
     /**
-     * !#en get the original target.
-     * !#zh 获取原始目标节点。
+     * @en get the original target.
+     * @zh 获取原始目标节点。
      * @method getOriginalTarget
      * @return {object}
      */
@@ -138,8 +138,8 @@ export class Action {
     }
 
     /**
-     * !#en get tag number.
-     * !#zh 获取用于识别动作的标签。
+     * @en get tag number.
+     * @zh 获取用于识别动作的标签。
      * @method getTag
      * @return {Number}
      */
@@ -148,8 +148,8 @@ export class Action {
     }
 
     /**
-     * !#en set tag number.
-     * !#zh 设置标签，用于识别动作。
+     * @en set tag number.
+     * @zh 设置标签，用于识别动作。
      * @method setTag
      * @param {Number} tag
      */
@@ -158,13 +158,13 @@ export class Action {
     }
 
     /**
-     * !#en
+     * @en
      * Returns a reversed action. <br />
      * For example: <br />
      * - The action will be x coordinates of 0 move to 100. <br />
      * - The reversed action will be x of 100 move to 0.
      * - Will be rewritten
-     * !#zh 返回一个新的动作，执行与原动作完全相反的动作。
+     * @zh 返回一个新的动作，执行与原动作完全相反的动作。
      * @method reverse
      * @return {Action | null}
      */
@@ -185,14 +185,14 @@ export class Action {
 }
 
 /**
- * !#en
+ * @en
  * Base class actions that do have a finite time duration. <br/>
  * Possible actions: <br/>
  * - An action with a duration of 0 seconds. <br/>
  * - An action with a duration of 35.5 seconds.
  *
  * Infinite time actions are valid
- * !#zh 有限时间动作，这种动作拥有时长 duration 属性。
+ * @zh 有限时间动作，这种动作拥有时长 duration 属性。
  * @class FiniteTimeAction
  * @extends Action
  */
@@ -202,8 +202,8 @@ export class FiniteTimeAction extends Action {
     _timesForRepeat: number = 1;
 
     /**
-     * !#en get duration of the action. (seconds).
-     * !#zh 获取动作以秒为单位的持续时间。
+     * @en get duration of the action. (seconds).
+     * @zh 获取动作以秒为单位的持续时间。
      * @method getDuration
      * @return {Number}
      */
@@ -212,8 +212,8 @@ export class FiniteTimeAction extends Action {
     }
 
     /**
-     * !#en set duration of the action. (seconds).
-     * !#zh 设置动作以秒为单位的持续时间。
+     * @en set duration of the action. (seconds).
+     * @zh 设置动作以秒为单位的持续时间。
      * @method setDuration
      * @param {Number} duration
      */
@@ -222,10 +222,10 @@ export class FiniteTimeAction extends Action {
     }
 
     /**
-     * !#en
+     * @en
      * to copy object with deep copy.
      * returns a clone of action.
-     * !#zh 返回一个克隆的动作。
+     * @zh 返回一个克隆的动作。
      * @method clone
      * @return {FiniteTimeAction}
      */

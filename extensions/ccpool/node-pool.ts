@@ -1,13 +1,4 @@
-/**
- * @packageDocumentation
- * @hidden
- */
-
-import { Component } from '../../cocos/core/components/component';
-import { Node } from '../../cocos/core/scene-graph';
-import { legacyCC } from '../../cocos/core/global-exports';
-
-/****************************************************************************
+/*
  Copyright (c) 2016 Chukong Technologies Inc.
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
@@ -30,7 +21,16 @@ import { legacyCC } from '../../cocos/core/global-exports';
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+ */
+
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
+import { Component } from '../../cocos/core/components/component';
+import { Node } from '../../cocos/core/scene-graph';
+import { legacyCC } from '../../cocos/core/global-exports';
 
 type Constructor<T = {}> = new(...args: any[]) => T;
 

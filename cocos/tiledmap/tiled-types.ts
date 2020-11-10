@@ -1,4 +1,4 @@
-/****************************************************************************
+/*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
@@ -21,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+ */
 
 
 import { Color, Rect, Size, SpriteFrame, Texture2D, Vec2 } from '../core';
@@ -40,15 +40,15 @@ export interface TiledAnimation {
 }
 
 /**
- * !#en The orientation of tiled map.
- * !#zh Tiled Map 地图方向。
+ * @en The orientation of tiled map.
+ * @zh Tiled Map 地图方向。
  * @enum TiledMap.Orientation
  * @static
  */
 export enum Orientation {
     /**
-     * !#en Orthogonal orientation.
-     * !#zh 直角鸟瞰地图（90°地图）。
+     * @en Orthogonal orientation.
+     * @zh 直角鸟瞰地图（90°地图）。
      * @property ORTHO
      * @type {Number}
      * @static
@@ -56,8 +56,8 @@ export enum Orientation {
     ORTHO = 0,
 
     /**
-     * !#en Hexagonal orientation.
-     * !#zh 六边形地图
+     * @en Hexagonal orientation.
+     * @zh 六边形地图
      * @property HEX
      * @type {Number}
      * @static
@@ -172,8 +172,8 @@ export enum TileFlag {
 ccenum(TileFlag);
 
 /**
- * !#en The stagger axis of Hex tiled map.
- * !#zh 六边形地图的 stagger axis 值
+ * @en The stagger axis of Hex tiled map.
+ * @zh 六边形地图的 stagger axis 值
  * @enum TiledMap.StaggerAxis
  * @static
  */
@@ -196,8 +196,8 @@ export enum StaggerAxis {
 ccenum(StaggerAxis);
 
 /**
- * !#en The stagger index of Hex tiled map.
- * !#zh 六边形地图的 stagger index 值
+ * @en The stagger index of Hex tiled map.
+ * @zh 六边形地图的 stagger index 值
  * @enum TiledMap.RenderOrder
  * @static
  */
@@ -219,8 +219,8 @@ export enum StaggerIndex {
 ccenum(StaggerIndex);
 
 /**
- * !#en The render order of tiled map.
- * !#zh 地图的渲染顺序
+ * @en The render order of tiled map.
+ * @zh 地图的渲染顺序
  * @enum TiledMap.RenderOrder
  * @static
  */
@@ -254,8 +254,8 @@ export enum RenderOrder {
 ccenum(RenderOrder);
 
 /**
- * !#en TiledMap Object Type
- * !#zh 地图物体类型
+ * @en TiledMap Object Type
+ * @zh 地图物体类型
  * @enum TiledMap.TMXObjectType
  * @static
  */

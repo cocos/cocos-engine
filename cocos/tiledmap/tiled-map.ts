@@ -1,4 +1,4 @@
-/****************************************************************************
+/*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
@@ -21,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+ */
 
 /**
  * @packageDocumentation
@@ -49,8 +49,8 @@ interface ImageExtendedNode extends Node {
 }
 
 /**
- * !#en Renders a TMX Tile Map in the scene.
- * !#zh 在场景中渲染一个 tmx 格式的 Tile Map。
+ * @en Renders a TMX Tile Map in the scene.
+ * @zh 在场景中渲染一个 tmx 格式的 Tile Map。
  * @class TiledMap
  * @extends Component
  */
@@ -95,8 +95,8 @@ export class TiledMap extends Component {
     @serializable
     _tmxFile: TiledMapAsset | null = null;
     /**
-     * !#en The TiledMap Asset.
-     * !#zh TiledMap 资源。
+     * @en The TiledMap Asset.
+     * @zh TiledMap 资源。
      * @property {TiledMapAsset} tmxAsset
      * @default ""
      */
@@ -118,10 +118,10 @@ export class TiledMap extends Component {
 
 
     /**
-     * !#en
+     * @en
      * Whether or not enabled tiled map auto culling. If you set the TiledMap skew or rotation, then need to manually
      *  disable this, otherwise, the rendering will be wrong.
-     * !#zh
+     * @zh
      * 是否开启瓦片地图的自动裁减功能。瓦片地图如果设置了 skew, rotation 或者采用了摄像机的话，需要手动关闭，否则渲染会出错。
      */
     @serializable
@@ -142,8 +142,8 @@ export class TiledMap extends Component {
 
 
     /**
-     * !#en Gets the map size.
-     * !#zh 获取地图大小。
+     * @en Gets the map size.
+     * @zh 获取地图大小。
      * @method getMapSize
      * @return {Size}
      * @example
@@ -155,8 +155,8 @@ export class TiledMap extends Component {
     }
 
     /**
-     * !#en Gets the tile size.
-     * !#zh 获取地图背景中 tile 元素的大小。
+     * @en Gets the tile size.
+     * @zh 获取地图背景中 tile 元素的大小。
      * @method getTileSize
      * @return {Size}
      * @example
@@ -168,8 +168,8 @@ export class TiledMap extends Component {
     }
 
     /**
-     * !#en map orientation.
-     * !#zh 获取地图方向。
+     * @en map orientation.
+     * @zh 获取地图方向。
      * @method getMapOrientation
      * @return {Number}
      * @example
@@ -181,8 +181,8 @@ export class TiledMap extends Component {
     }
 
     /**
-     * !#en object groups.
-     * !#zh 获取所有的对象层。
+     * @en object groups.
+     * @zh 获取所有的对象层。
      * @method getObjectGroups
      * @return {TiledObjectGroup[]}
      * @example
@@ -196,8 +196,8 @@ export class TiledMap extends Component {
     }
 
     /**
-     * !#en Return the TMXObjectGroup for the specific group.
-     * !#zh 获取指定的 TMXObjectGroup。
+     * @en Return the TMXObjectGroup for the specific group.
+     * @zh 获取指定的 TMXObjectGroup。
      * @method getObjectGroup
      * @param {String} groupName
      * @return {TiledObjectGroup}
@@ -218,8 +218,8 @@ export class TiledMap extends Component {
     }
 
     /**
-     * !#en Gets the map properties.
-     * !#zh 获取地图的属性。
+     * @en Gets the map properties.
+     * @zh 获取地图的属性。
      * @method getProperties
      * @return {Object[]}
      * @example
@@ -233,8 +233,8 @@ export class TiledMap extends Component {
     }
 
     /**
-     * !#en Return All layers array.
-     * !#zh 返回包含所有 layer 的数组。
+     * @en Return All layers array.
+     * @zh 返回包含所有 layer 的数组。
      * @method getLayers
      * @returns {TiledLayer[]}
      * @example
@@ -248,8 +248,8 @@ export class TiledMap extends Component {
     }
 
     /**
-     * !#en return the cc.TiledLayer for the specific layer.
-     * !#zh 获取指定名称的 layer。
+     * @en return the cc.TiledLayer for the specific layer.
+     * @zh 获取指定名称的 layer。
      * @method getLayer
      * @param {String} layerName
      * @return {TiledLayer}
@@ -280,8 +280,8 @@ export class TiledMap extends Component {
     }
 
     /**
-     * !#en Return the value for the specific property name.
-     * !#zh 通过属性名称，获取指定的属性。
+     * @en Return the value for the specific property name.
+     * @zh 通过属性名称，获取指定的属性。
      * @method getProperty
      * @param {String} propertyName
      * @return {String}
@@ -294,8 +294,8 @@ export class TiledMap extends Component {
     }
 
     /**
-     * !#en Return properties dictionary for tile GID.
-     * !#zh 通过 GID ，获取指定的属性。
+     * @en Return properties dictionary for tile GID.
+     * @zh 通过 GID ，获取指定的属性。
      * @method getPropertiesForGID
      * @param {Number} GID
      * @return {Object}

@@ -1,4 +1,4 @@
-/****************************************************************************
+/*
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
@@ -21,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+ */
 
 import b2 from '@cocos/box2d';
 import { Vec2 } from '../../core';
@@ -31,66 +31,66 @@ import { b2Shape2D } from './shapes/shape-2d';
 
 export type b2ContactExtends = b2.Contact & {
     m_userData: any
-} 
+}
 
 
-let pools: PhysicsContact[] = [];
+const pools: PhysicsContact[] = [];
 
 // temp world manifold
-let pointCache = [new Vec2, new Vec2];
+const pointCache = [new Vec2, new Vec2];
 
-let b2worldmanifold = new b2.WorldManifold();
+const b2worldmanifold = new b2.WorldManifold();
 
 /**
  * @class WorldManifold
  */
-let worldmanifold = {
+const worldmanifold = {
 
     /**
-     * !#en
+     * @en
      * world contact point (point of intersection)
-     * !#zh
+     * @zh
      * 碰撞点集合
      * @property {[Vec2]} points
      */
     points: [] as Vec2[],
 
     /**
-     * !#en
+     * @en
      * a negative value indicates overlap
-     * !#zh
+     * @zh
      * 一个负数，用于指明重叠的部分
      */
     separations: [] as number[],
 
     /**
-     * !#en
+     * @en
      * world vector pointing from A to B
-     * !#zh
+     * @zh
      * 世界坐标系下由 A 指向 B 的向量
      * @property {Vec2} normal
      */
-    normal: new Vec2()
+    normal: new Vec2(),
 };
 
 /**
- * !#en
- * A manifold point is a contact point belonging to a contact manifold. 
+ * @en
+ * A manifold point is a contact point belonging to a contact manifold.
  * It holds details related to the geometry and dynamics of the contact points.
  * Note: the impulses are used for internal caching and may not
  * provide reliable contact forces, especially for high speed collisions.
- * !#zh
+ * @zh
  * ManifoldPoint 是接触信息中的接触点信息。它拥有关于几何和接触点的详细信息。
  * 注意：信息中的冲量用于系统内部缓存，提供的接触力可能不是很准确，特别是高速移动中的碰撞信息。
  * @class ManifoldPoint
  */
 /**
- * !#en
+ * @en
  * The local point usage depends on the manifold type:
  * -e_circles: the local center of circleB
  * -e_faceA: the local center of circleB or the clip point of polygonB
  * -e_faceB: the clip point of polygonA
- * !#zh
+ * @zh
  * 本地坐标点的用途取决于 manifold 的类型
  * - e_circles: circleB 的本地中心点
  * - e_faceA: circleB 的本地中心点 或者是 polygonB 的截取点
@@ -98,16 +98,16 @@ let worldmanifold = {
  * @property {Vec2} localPoint
  */
 /**
- * !#en
+ * @en
  * Normal impulse.
- * !#zh
+ * @zh
  * 法线冲量。
  * @property {Number} normalImpulse
  */
 /**
- * !#en
+ * @en
  * Tangent impulse.
- * !#zh
+ * @zh
  * 切线冲量。
  * @property {Number} tangentImpulse
  */
@@ -117,28 +117,28 @@ class ManifoldPoint {
     tangentImpulse = 0;
 }
 
-let manifoldPointCache = [new ManifoldPoint(), new ManifoldPoint()];
+const manifoldPointCache = [new ManifoldPoint(), new ManifoldPoint()];
 
 /**
  * @class Manifold
  */
-let manifold = {
+const manifold = {
     /**
-     * !#en
+     * @en
      * Manifold type :  0: e_circles, 1: e_faceA, 2: e_faceB
-     * !#zh
+     * @zh
      * Manifold 类型 :  0: e_circles, 1: e_faceA, 2: e_faceB
      * @property {Number} type
      */
     type: 0,
 
     /**
-     * !#en
+     * @en
      * The local point usage depends on the manifold type:
      * -e_circles: the local center of circleA
      * -e_faceA: the center of faceA
      * -e_faceB: the center of faceB
-     * !#zh
+     * @zh
      * 用途取决于 manifold 类型
      * -e_circles: circleA 的本地中心点
      * -e_faceA: faceA 的本地中心点
@@ -147,11 +147,11 @@ let manifold = {
      */
     localPoint: new Vec2(),
     /**
-     * !#en
+     * @en
      * -e_circles: not used
      * -e_faceA: the normal on polygonA
      * -e_faceB: the normal on polygonB
-     * !#zh
+     * @zh
      * -e_circles: 没被使用到
      * -e_faceA: polygonA 的法向量
      * -e_faceB: polygonB 的法向量
@@ -160,46 +160,46 @@ let manifold = {
     localNormal: new Vec2(),
 
     /**
-     * !#en
+     * @en
      * the points of contact.
-     * !#zh
+     * @zh
      * 接触点信息。
      * @property {[ManifoldPoint]} points
      */
-    points: [] as ManifoldPoint[]
+    points: [] as ManifoldPoint[],
 };
 
 /**
- * !#en
+ * @en
  * Contact impulses for reporting.
- * !#zh
+ * @zh
  * 用于返回给回调的接触冲量。
  * @class PhysicsImpulse
  */
-let impulse = {
+const impulse = {
     /**
-     * !#en
+     * @en
      * Normal impulses.
-     * !#zh
+     * @zh
      * 法线方向的冲量
      * @property normalImpulses
      */
     normalImpulses: [] as number[],
     /**
-     * !#en
+     * @en
      * Tangent impulses
-     * !#zh
+     * @zh
      * 切线方向的冲量
      * @property tangentImpulses
      */
-    tangentImpulses: [] as number[]
+    tangentImpulses: [] as number[],
 };
 
 /**
- * !#en
+ * @en
  * PhysicsContact will be generated during begin and end collision as a parameter of the collision callback.
  * Note that contacts will be reused for speed up cpu time, so do not cache anything in the contact.
- * !#zh
+ * @zh
  * 物理接触会在开始和结束碰撞之间生成，并作为参数传入到碰撞回调函数中。
  * 注意：传入的物理接触会被系统进行重用，所以不要在使用中缓存里面的任何信息。
  * @class PhysicsContact
@@ -217,7 +217,7 @@ export class PhysicsContact {
     }
 
     static put (b2contact: b2ContactExtends) {
-        let c: PhysicsContact = b2contact.m_userData as PhysicsContact;
+        const c: PhysicsContact = b2contact.m_userData as PhysicsContact;
         if (!c) return;
 
         pools.push(c);
@@ -266,27 +266,27 @@ export class PhysicsContact {
     }
 
     /**
-     * !#en
+     * @en
      * Get the world manifold.
-     * !#zh
+     * @zh
      * 获取世界坐标系下的碰撞信息。
      * @method getWorldManifold
      * @return {WorldManifold}
      */
     getWorldManifold () {
-        let points = worldmanifold.points;
-        let separations = worldmanifold.separations;
-        let normal = worldmanifold.normal;
+        const points = worldmanifold.points;
+        const separations = worldmanifold.separations;
+        const normal = worldmanifold.normal;
 
         this._b2contact!.GetWorldManifold(b2worldmanifold);
-        let b2points = b2worldmanifold.points;
-        let b2separations = b2worldmanifold.separations;
+        const b2points = b2worldmanifold.points;
+        const b2separations = b2worldmanifold.separations;
 
-        let count = this._b2contact!.GetManifold().pointCount;
+        const count = this._b2contact!.GetManifold().pointCount;
         points.length = separations.length = count;
 
         for (let i = 0; i < count; i++) {
-            let p = pointCache[i];
+            const p = pointCache[i];
             p.x = b2points[i].x * PHYSICS_2D_PTM_RATIO;
             p.y = b2points[i].y * PHYSICS_2D_PTM_RATIO;
 
@@ -306,25 +306,25 @@ export class PhysicsContact {
     }
 
     /**
-     * !#en
+     * @en
      * Get the manifold.
-     * !#zh
+     * @zh
      * 获取本地（局部）坐标系下的碰撞信息。
      * @method getManifold
      * @return {Manifold}
      */
     getManifold () {
-        let points = manifold.points;
-        let localNormal = manifold.localNormal;
-        let localPoint = manifold.localPoint;
+        const points = manifold.points;
+        const localNormal = manifold.localNormal;
+        const localPoint = manifold.localPoint;
 
-        let b2manifold = this._b2contact!.GetManifold();
-        let b2points = b2manifold.points;
-        let count = points.length = b2manifold.pointCount;
+        const b2manifold = this._b2contact!.GetManifold();
+        const b2points = b2manifold.points;
+        const count = points.length = b2manifold.pointCount;
 
         for (let i = 0; i < count; i++) {
-            let p = manifoldPointCache[i];
-            let b2p = b2points[i];
+            const p = manifoldPointCache[i];
+            const b2p = b2points[i];
             p.localPoint.x = b2p.localPoint.x * PHYSICS_2D_PTM_RATIO;
             p.localPoint.y = b2p.localPoint.y * PHYSICS_2D_PTM_RATIO;
             p.normalImpulse = b2p.normalImpulse * PHYSICS_2D_PTM_RATIO;
@@ -348,22 +348,22 @@ export class PhysicsContact {
     }
 
     /**
-     * !#en
+     * @en
      * Get the impulses.
      * Note: PhysicsImpulse can only used in onPostSolve callback.
-     * !#zh
+     * @zh
      * 获取冲量信息
      * 注意：这个信息只有在 onPostSolve 回调中才能获取到
      * @method getImpulse
      * @return {PhysicsImpulse}
      */
     getImpulse () {
-        let b2impulse = this._impulse;
+        const b2impulse = this._impulse;
         if (!b2impulse) return null;
 
-        let normalImpulses = impulse.normalImpulses;
-        let tangentImpulses = impulse.tangentImpulses;
-        let count = b2impulse.count;
+        const normalImpulses = impulse.normalImpulses;
+        const tangentImpulses = impulse.tangentImpulses;
+        const count = b2impulse.count;
         for (let i = 0; i < count; i++) {
             normalImpulses[i] = b2impulse.normalImpulses[i] * PHYSICS_2D_PTM_RATIO;
             tangentImpulses[i] = b2impulse.tangentImpulses[i];
@@ -391,11 +391,11 @@ export class PhysicsContact {
                 break;
         }
 
-        let colliderA = this.colliderA;
-        let colliderB = this.colliderB;
+        const colliderA = this.colliderA;
+        const colliderB = this.colliderB;
 
-        let bodyA = colliderA!.body;
-        let bodyB = colliderB!.body;
+        const bodyA = colliderA!.body;
+        const bodyB = colliderB!.body;
 
         if (bodyA!.enabledContactListener) {
             colliderA?.emit(contactType, this, colliderA, colliderB);
@@ -417,32 +417,32 @@ export class PhysicsContact {
 
 
     /**
-     * !#en
+     * @en
      * One of the collider that collided
-     * !#zh
+     * @zh
      * 发生碰撞的碰撞体之一
      * @property {Collider} colliderA
      */
     /**
-     * !#en
+     * @en
      * One of the collider that collided
-     * !#zh
+     * @zh
      * 发生碰撞的碰撞体之一
      * @property {Collider} colliderB
      */
     /**
-     * !#en
+     * @en
      * If set disabled to true, the contact will be ignored until contact end.
      * If you just want to disabled contact for current time step or sub-step, please use disabledOnce.
-     * !#zh
+     * @zh
      * 如果 disabled 被设置为 true，那么直到接触结束此接触都将被忽略。
      * 如果只是希望在当前时间步或子步中忽略此接触，请使用 disabledOnce 。
      * @property {Boolean} disabled
      */
     /**
-     * !#en
+     * @en
      * Disabled contact for current time step or sub-step.
-     * !#zh
+     * @zh
      * 在当前时间步或子步中忽略此接触。
      * @property {Boolean} disabledOnce
      */
@@ -451,9 +451,9 @@ export class PhysicsContact {
     }
 
     /**
-     * !#en
+     * @en
      * Is this contact touching?
-     * !#zh
+     * @zh
      * 返回碰撞体是否已经接触到。
      * @method isTouching
      * @return {Boolean}
@@ -463,9 +463,9 @@ export class PhysicsContact {
     }
 
     /**
-     * !#en
+     * @en
      * Set the desired tangent speed for a conveyor belt behavior.
-     * !#zh
+     * @zh
      * 为传送带设置期望的切线速度
      * @method setTangentSpeed
      * @param {Number} tangentSpeed
@@ -474,9 +474,9 @@ export class PhysicsContact {
         this._b2contact!.SetTangentSpeed(value);
     }
     /**
-     * !#en
+     * @en
      * Get the desired tangent speed.
-     * !#zh
+     * @zh
      * 获取切线速度
      * @method getTangentSpeed
      * @return {Number}
@@ -487,9 +487,9 @@ export class PhysicsContact {
     }
 
     /**
-     * !#en
+     * @en
      * Override the default friction mixture. You can call this in onPreSolve callback.
-     * !#zh
+     * @zh
      * 覆盖默认的摩擦力系数。你可以在 onPreSolve 回调中调用此函数。
      * @method setFriction
      * @param {Number} friction
@@ -498,9 +498,9 @@ export class PhysicsContact {
         this._b2contact!.SetFriction(value);
     }
     /**
-     * !#en
+     * @en
      * Get the friction.
-     * !#zh
+     * @zh
      * 获取当前摩擦力系数
      * @method getFriction
      * @return {Number}
@@ -509,9 +509,9 @@ export class PhysicsContact {
         return this._b2contact!.GetFriction();
     }
     /**
-     * !#en
+     * @en
      * Reset the friction mixture to the default value.
-     * !#zh
+     * @zh
      * 重置摩擦力系数到默认值
      * @method resetFriction
      */
@@ -519,9 +519,9 @@ export class PhysicsContact {
         return this._b2contact!.ResetFriction();
     }
     /**
-     * !#en
+     * @en
      * Override the default restitution mixture. You can call this in onPreSolve callback.
-     * !#zh
+     * @zh
      * 覆盖默认的恢复系数。你可以在 onPreSolve 回调中调用此函数。
      * @method setRestitution
      * @param {Number} restitution
@@ -530,9 +530,9 @@ export class PhysicsContact {
         this._b2contact!.SetRestitution(value);
     }
     /**
-     * !#en
+     * @en
      * Get the restitution.
-     * !#zh
+     * @zh
      * 获取当前恢复系数
      * @method getRestitution
      * @return {Number}
@@ -541,9 +541,9 @@ export class PhysicsContact {
         return this._b2contact!.GetRestitution();
     }
     /**
-     * !#en
+     * @en
      * Reset the restitution mixture to the default value.
-     * !#zh
+     * @zh
      * 重置恢复系数到默认值
      * @method resetRestitution
      */

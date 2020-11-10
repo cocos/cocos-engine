@@ -64,13 +64,13 @@ const bookOfChange = new Map<Node, number>();
  */
 
 /**
- * !#en
+ * @en
  * Class of all entities in Cocos Creator scenes.
  * Basic functionalities include:
  * * Hierarchy management with parent and children
  * * Components management
  * * Coordinate system with position, scale, rotation in 3d space
- * !#zh
+ * @zh
  * Cocos Creator 场景中的所有节点类。
  * 基本特性有：
  * * 具有层级关系

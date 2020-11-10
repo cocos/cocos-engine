@@ -1,5 +1,6 @@
-/****************************************************************************
+/*
  Copyright (c) 2017-2018 Chukong Technologies Inc.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -21,7 +22,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+ */
 
 import { IAssembler, IAssemblerManager } from '../core/renderer/ui/base';
 import { MotionStreak } from './motion-streak-2d';
@@ -109,7 +110,7 @@ export const MotionStreakAssembler: IAssembler = {
         if (points.length > 1) {
             const difx = points[0].point.x - tx;
             const dify = points[0].point.y - ty;
-            if ((difx*difx + dify*dify) < comp.minSeg) {
+            if ((difx * difx + dify * dify) < comp.minSeg) {
                 cur = points[0];
             }
         }
@@ -148,7 +149,7 @@ export const MotionStreakAssembler: IAssembler = {
         const data = renderData.data;
         const fadeTime = comp.fadeTime;
         let findLast = false;
-        for (let i = points.length - 1; i >=0 ; i--) {
+        for (let i = points.length - 1; i >= 0 ; i--) {
             const p = points[i];
             const point = p.point;
             const dir = p.dir;
@@ -175,8 +176,8 @@ export const MotionStreakAssembler: IAssembler = {
 
             normal(_normal, dir);
 
-            const da = progress*ca;
-            const c = ((da<<24) >>> 0) + (cb<<16) + (cg<<8) + cr;
+            const da = progress * ca;
+            const c = ((da << 24) >>> 0) + (cb << 16) + (cg << 8) + cr;
 
             let offset = verticesCount;
 
@@ -197,7 +198,7 @@ export const MotionStreakAssembler: IAssembler = {
             verticesCount += 2;
         }
 
-        indicesCount = verticesCount <= 2 ? 0 : (verticesCount - 2)*3;
+        indicesCount = verticesCount <= 2 ? 0 : (verticesCount - 2) * 3;
 
         renderData.vertexCount = verticesCount;
         renderData.indicesCount = indicesCount;
@@ -253,7 +254,7 @@ export const MotionStreakAssembler: IAssembler = {
 
     clear () {
         this._points.length = 0;
-    }
+    },
 }
 
 export const MotionStreakAssemblerManager: IAssemblerManager = {

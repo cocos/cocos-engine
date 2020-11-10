@@ -91,7 +91,7 @@ const BuiltinValueTypeSetters: ((obj: any, data: number[]) => void)[] = [
     },
     (obj: Mat4, data: number[]) => {
         Mat4.fromArray(obj, data, 1);
-    }
+    },
 ];
 
 function serializeBuiltinValueTypes (obj: ValueType): IValueTypeData | null {
@@ -504,12 +504,7 @@ interface ICustomHandler {
     result: Details,
     customEnv: any,
 }
-type ClassFinder = {
-
-    (type: string): AnyCtor;
-    // // for editor
-    // onDereferenced: (curOwner: object, curPropName: string, newOwner: object, newPropName: string) => void;
-};
+type ClassFinder = (type: string) => AnyCtor;
 interface IOptions extends Partial<ICustomHandler> {
     classFinder?: ClassFinder;
     _version?: number;
@@ -1102,7 +1097,7 @@ export function packCustomObjData (type: string, data: IClassObjectData|OtherObj
         EMPTY_PLACEHOLDER,
         [data],
         [0],
-        EMPTY_PLACEHOLDER, [], [], []
+        EMPTY_PLACEHOLDER, [], [], [],
     ];
 }
 
@@ -1119,7 +1114,7 @@ export function hasNativeDep (data: IFileData): boolean {
 
 export function getDependUuidList (json: IFileData): string[] {
     const sharedUuids = json[File.SharedUuids];
-    return json[File.DependUuidIndices].map(index => sharedUuids[index]);
+    return json[File.DependUuidIndices].map((index) => sharedUuids[index]);
 }
 
 if (PREVIEW) {

@@ -1,6 +1,6 @@
-/****************************************************************************
+/*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -22,7 +22,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+ */
 
 /**
  * @packageDocumentation
@@ -74,8 +74,8 @@ interface TiledSubNodeData {
 type TiledMeshDataArray = (TiledMeshData |TiledSubNodeData)[];
 
 /**
- * !#en Render the TMX layer.
- * !#zh 渲染 TMX layer。
+ * @en Render the TMX layer.
+ * @zh 渲染 TMX layer。
  * @class TiledLayer
  * @extends Component
  */
@@ -187,8 +187,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en enable or disable culling
-     * !#zh 开启或关闭裁剪。
+     * @en enable or disable culling
+     * @zh 开启或关闭裁剪。
      * @method enableCulling
      * @param value
      */
@@ -201,8 +201,8 @@ export class TiledLayer extends UIRenderable {
     get enableCulling () { return this._enableCulling!; }
 
     /**
-     * !#en Adds user's node into layer.
-     * !#zh 添加用户节点。
+     * @en Adds user's node into layer.
+     * @zh 添加用户节点。
      * @method addUserNode
      * @param {cc.Node} node
      * @return {Boolean}
@@ -233,8 +233,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Removes user's node.
-     * !#zh 移除用户节点。
+     * @en Removes user's node.
+     * @zh 移除用户节点。
      * @method removeUserNode
      * @param {cc.Node} node
      * @return {Boolean}
@@ -257,8 +257,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Destroy user's node.
-     * !#zh 销毁用户节点。
+     * @en Destroy user's node.
+     * @zh 销毁用户节点。
      * @method destroyUserNode
      * @param {cc.Node} node
      */
@@ -413,8 +413,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Gets the layer name.
-     * !#zh 获取层的名称。
+     * @en Gets the layer name.
+     * @zh 获取层的名称。
      * @method getLayerName
      * @return {String}
      * @example
@@ -426,8 +426,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Set the layer name.
-     * !#zh 设置层的名称
+     * @en Set the layer name.
+     * @zh 设置层的名称
      * @method SetLayerName
      * @param {String} layerName
      * @example
@@ -438,8 +438,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Return the value for the specific property name.
-     * !#zh 获取指定属性名的值。
+     * @en Return the value for the specific property name.
+     * @zh 获取指定属性名的值。
      * @method getProperty
      * @param {String} propertyName
      * @return {*}
@@ -452,8 +452,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Returns the position in pixels of a given tile coordinate.
-     * !#zh 获取指定 tile 的像素坐标。
+     * @en Returns the position in pixels of a given tile coordinate.
+     * @zh 获取指定 tile 的像素坐标。
      * @method getPositionAt
      * @param {Vec2|Number} pos position or x
      * @param {Number} [y]
@@ -569,9 +569,9 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en
+     * @en
      * Sets the tiles gid (gid = tile global id) at a given tiles rect.
-     * !#zh
+     * @zh
      * 设置给定区域的 tile 的 gid (gid = tile 全局 id)，
      * @method setTilesGIDAt
      * @param {Array} gids an array contains gid
@@ -597,11 +597,11 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en
+     * @en
      * Sets the tile gid (gid = tile global id) at a given tile coordinate.<br />
      * The Tile GID can be obtained by using the method "tileGIDAt" or by using the TMX editor . Tileset Mgr +1.<br />
      * If a tile is already placed at that position, then it will be removed.
-     * !#zh
+     * @zh
      * 设置给定坐标的 tile 的 gid (gid = tile 全局 id)，
      * tile 的 GID 可以使用方法 “tileGIDAt” 来获得。<br />
      * 如果一个 tile 已经放在那个位置，那么它将被删除。
@@ -655,10 +655,10 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en
+     * @en
      * Returns the tile gid at a given tile coordinate. <br />
      * if it returns 0, it means that the tile is empty. <br />
-     * !#zh
+     * @zh
      * 通过给定的 tile 坐标、flags（可选）返回 tile 的 GID. <br />
      * 如果它返回 0，则表示该 tile 为空。<br />
      * @method getTileGIDAt
@@ -683,9 +683,9 @@ export class TiledLayer extends UIRenderable {
         return ((tile & TileFlag.FLIPPED_MASK) >>> 0);
     }
     /**
-     * !#en
+     * @en
      * Returns the tile flags at a given tile coordinate. <br />
-     * !#zh
+     * @zh
      * 通过给定的 tile 坐标, 返回 tile 的 flags. <br />
      * 如果它返回 null，则表示该 tile 为空。<br />
      * @method getTileGIDAt
@@ -861,8 +861,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Layer orientation, which is the same as the map orientation.
-     * !#zh 获取 Layer 方向(同地图方向)。
+     * @en Layer orientation, which is the same as the map orientation.
+     * @zh 获取 Layer 方向(同地图方向)。
      * @method getLayerOrientation
      * @return {Number}
      * @example
@@ -874,8 +874,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en properties from the layer. They can be added using Tiled.
-     * !#zh 获取 layer 的属性，可以使用 Tiled 编辑器添加属性。
+     * @en properties from the layer. They can be added using Tiled.
+     * @zh 获取 layer 的属性，可以使用 Tiled 编辑器添加属性。
      * @method getProperties
      * @return {Object}
      * @example
@@ -1072,12 +1072,12 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en
+     * @en
      * Get the TiledTile with the tile coordinate.<br/>
      * If there is no tile in the specified coordinate and forceCreate parameter is true, <br/>
      * then will create a new TiledTile at the coordinate.
      * The renderer will render the tile with the rotation, scale, position and color property of the TiledTile.
-     * !#zh
+     * @zh
      * 通过指定的 tile 坐标获取对应的 TiledTile。 <br/>
      * 如果指定的坐标没有 tile，并且设置了 forceCreate 那么将会在指定的坐标创建一个新的 TiledTile 。<br/>
      * 在渲染这个 tile 的时候，将会使用 TiledTile 的节点的旋转、缩放、位移、颜色属性。<br/>
@@ -1115,9 +1115,9 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en
+     * @en
      * Change tile to TiledTile at the specified coordinate.
-     * !#zh
+     * @zh
      * 将指定的 tile 坐标替换为指定的 TiledTile。
      * @method setTiledTileAt
      * @param {Integer} x
@@ -1150,8 +1150,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Return texture.
-     * !#zh 获取纹理。
+     * @en Return texture.
+     * @zh 获取纹理。
      * @method getTexture
      * @param index The index of textures
      * @return {Texture2D}
@@ -1165,8 +1165,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Return texture.
-     * !#zh 获取纹理。
+     * @en Return texture.
+     * @zh 获取纹理。
      * @method getTextures
      * @return {Texture2D}
      */
@@ -1175,8 +1175,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Set the texture.
-     * !#zh 设置纹理。
+     * @en Set the texture.
+     * @zh 设置纹理。
      * @method setTexture
      * @param {SpriteFrame} texture
      */
@@ -1185,8 +1185,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Set the texture.
-     * !#zh 设置纹理。
+     * @en Set the texture.
+     * @zh 设置纹理。
      * @method setTexture
      * @param {SpriteFrame} textures
      */
@@ -1196,8 +1196,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Gets layer size.
-     * !#zh 获得层大小。
+     * @en Gets layer size.
+     * @zh 获得层大小。
      * @method getLayerSize
      * @return {Size}
      * @example
@@ -1209,8 +1209,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Size of the map's tile (could be different from the tile's size).
-     * !#zh 获取 tile 的大小( tile 的大小可能会有所不同)。
+     * @en Size of the map's tile (could be different from the tile's size).
+     * @zh 获取 tile 的大小( tile 的大小可能会有所不同)。
      * @method getMapTileSize
      * @return {Size}
      * @example
@@ -1222,8 +1222,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Gets Tile set first information for the layer.
-     * !#zh 获取 layer 索引位置为0的 Tileset 信息。
+     * @en Gets Tile set first information for the layer.
+     * @zh 获取 layer 索引位置为0的 Tileset 信息。
      * @method getTileSet
      * @param index The index of tilesets
      * @return {TMXTilesetInfo}
@@ -1237,8 +1237,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Gets tile set all information for the layer.
-     * !#zh 获取 layer 所有的 Tileset 信息。
+     * @en Gets tile set all information for the layer.
+     * @zh 获取 layer 所有的 Tileset 信息。
      * @method getTileSet
      * @return {TMXTilesetInfo}
      */
@@ -1247,8 +1247,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Sets tile set information for the layer.
-     * !#zh 设置 layer 的 tileset 信息。
+     * @en Sets tile set information for the layer.
+     * @zh 设置 layer 的 tileset 信息。
      * @method setTileSet
      * @param {TMXTilesetInfo} tileset
      */
@@ -1257,8 +1257,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Sets Tile set information for the layer.
-     * !#zh 设置 layer 的 Tileset 信息。
+     * @en Sets Tile set information for the layer.
+     * @zh 设置 layer 的 Tileset 信息。
      * @method setTileSets
      * @param {TMXTilesetInfo} tilesets
      */

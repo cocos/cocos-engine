@@ -1,5 +1,5 @@
-/****************************************************************************
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+/*
+ Copyright (c) 2018-2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -21,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+ */
 import { Vec2, Vec3, Color } from '../core/math';
 import Pool from '../core/utils/pool';
 import { clampf, degreesToRadians, radiansToDegrees } from '../core/utils/misc';
@@ -243,14 +243,14 @@ export class Simulator {
             const particleCount = this.particles.length;
             for (let i = start; i < particleCount; i++) {
                 const offset = i * formatBytes * 4;
-                vbuf[offset+3] = uv[0];
-                vbuf[offset+4] = uv[1];
-                vbuf[offset+12] = uv[2];
-                vbuf[offset+13] = uv[3];
-                vbuf[offset+21] = uv[4];
-                vbuf[offset+22] = uv[5];
-                vbuf[offset+30] = uv[6];
-                vbuf[offset+31] = uv[7];
+                vbuf[offset + 3] = uv[0];
+                vbuf[offset + 4] = uv[1];
+                vbuf[offset + 12] = uv[2];
+                vbuf[offset + 13] = uv[3];
+                vbuf[offset + 21] = uv[4];
+                vbuf[offset + 22] = uv[5];
+                vbuf[offset + 30] = uv[6];
+                vbuf[offset + 31] = uv[7];
             }
             this.uvFilled = particleCount;
         }
@@ -279,44 +279,44 @@ export class Simulator {
             const sr = Math.sin(rad);
             // bl
             vbuf[offset] = x1 * cr - y1 * sr + x;
-            vbuf[offset+1] = x1 * sr + y1 * cr + y;
-            vbuf[offset+2] = 0;
+            vbuf[offset + 1] = x1 * sr + y1 * cr + y;
+            vbuf[offset + 2] = 0;
             // br
-            vbuf[offset+9] = x2 * cr - y1 * sr + x;
-            vbuf[offset+10] = x2 * sr + y1 * cr + y;
-            vbuf[offset+11] = 0;
+            vbuf[offset + 9] = x2 * cr - y1 * sr + x;
+            vbuf[offset + 10] = x2 * sr + y1 * cr + y;
+            vbuf[offset + 11] = 0;
             // tl
-            vbuf[offset+18] = x1 * cr - y2 * sr + x;
-            vbuf[offset+19] = x1 * sr + y2 * cr + y;
-            vbuf[offset+20] = 0;
+            vbuf[offset + 18] = x1 * cr - y2 * sr + x;
+            vbuf[offset + 19] = x1 * sr + y2 * cr + y;
+            vbuf[offset + 20] = 0;
             // tr
-            vbuf[offset+27] = x2 * cr - y2 * sr + x;
-            vbuf[offset+28] = x2 * sr + y2 * cr + y;
-            vbuf[offset+29] = 0;
+            vbuf[offset + 27] = x2 * cr - y2 * sr + x;
+            vbuf[offset + 28] = x2 * sr + y2 * cr + y;
+            vbuf[offset + 29] = 0;
         }
         else {
             // bl
             vbuf[offset] = x - halfWidth;
-            vbuf[offset+1] = y - halfHeight;
-            vbuf[offset+2] = 0;
+            vbuf[offset + 1] = y - halfHeight;
+            vbuf[offset + 2] = 0;
             // br
-            vbuf[offset+9] = x + halfWidth;
-            vbuf[offset+10] = y - halfHeight;
-            vbuf[offset+11] = 0;
+            vbuf[offset + 9] = x + halfWidth;
+            vbuf[offset + 10] = y - halfHeight;
+            vbuf[offset + 11] = 0;
             // tl
-            vbuf[offset+18] = x - halfWidth;
-            vbuf[offset+19] = y + halfHeight;
-            vbuf[offset+20] = 0;
+            vbuf[offset + 18] = x - halfWidth;
+            vbuf[offset + 19] = y + halfHeight;
+            vbuf[offset + 20] = 0;
             // tr
-            vbuf[offset+27] = x + halfWidth;
-            vbuf[offset+28] = y + halfHeight;
-            vbuf[offset+29] = 0;
+            vbuf[offset + 27] = x + halfWidth;
+            vbuf[offset + 28] = y + halfHeight;
+            vbuf[offset + 29] = 0;
         }
         // color
-        Color.toArray(vbuf, particle.color, offset+5);
-        Color.toArray(vbuf, particle.color, offset+14);
-        Color.toArray(vbuf, particle.color, offset+23);
-        Color.toArray(vbuf, particle.color, offset+32);
+        Color.toArray(vbuf, particle.color, offset + 5);
+        Color.toArray(vbuf, particle.color, offset + 14);
+        Color.toArray(vbuf, particle.color, offset + 23);
+        Color.toArray(vbuf, particle.color, offset + 32);
     };
 
     public step (dt) {

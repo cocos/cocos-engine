@@ -1,6 +1,6 @@
-/****************************************************************************
+/*
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -22,7 +22,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+ */
 
 import { Component } from '../core/components';
 import { ccclass, help, type, requireComponent } from 'cc.decorator';
@@ -36,8 +36,8 @@ import { UITransform } from '../core/components/ui-base/ui-transform';
 import { CCBoolean, Node, Vec2, SpriteFrame, Color, PrivateNode } from '../core';
 
 /**
- * !#en Renders the TMX object group.
- * !#zh 渲染 tmx object group。
+ * @en Renders the TMX object group.
+ * @zh 渲染 tmx object group。
  * @class TiledObjectGroup
  * @extends Component
  */
@@ -58,8 +58,8 @@ export class TiledObjectGroup extends Component {
 
 
     /**
-     * !#en Offset position of child objects.
-     * !#zh 获取子对象的偏移位置。
+     * @en Offset position of child objects.
+     * @zh 获取子对象的偏移位置。
      * @method getPositionOffset
      * @return {Vec2}
      * @example
@@ -70,8 +70,8 @@ export class TiledObjectGroup extends Component {
     }
 
     /**
-     * !#en List of properties stored in a dictionary.
-     * !#zh 以映射的形式获取属性列表。
+     * @en List of properties stored in a dictionary.
+     * @zh 以映射的形式获取属性列表。
      * @method getProperties
      * @return {Object}
      * @example
@@ -82,8 +82,8 @@ export class TiledObjectGroup extends Component {
     }
 
     /**
-     * !#en Gets the Group name.
-     * !#zh 获取组名称。
+     * @en Gets the Group name.
+     * @zh 获取组名称。
      * @method getGroupName
      * @return {String}
      * @example
@@ -103,10 +103,10 @@ export class TiledObjectGroup extends Component {
     }
 
     /**
-     * !#en
+     * @en
      * Return the object for the specific object name. <br />
      * It will return the 1st object found on the array for the given name.
-     * !#zh 获取指定的对象。
+     * @zh 获取指定的对象。
      * @method getObject
      * @param {String} objectName
      * @return {Object|Null}
@@ -125,8 +125,8 @@ export class TiledObjectGroup extends Component {
     }
 
     /**
-     * !#en Gets the objects.
-     * !#zh 获取对象数组。
+     * @en Gets the objects.
+     * @zh 获取对象数组。
      * @method getObjects
      * @return {Array}
      * @example

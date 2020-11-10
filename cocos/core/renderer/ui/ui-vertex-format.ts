@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 

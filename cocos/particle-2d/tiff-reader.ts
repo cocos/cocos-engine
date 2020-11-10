@@ -1,11 +1,11 @@
-/****************************************************************************
+/*
  Copyright (c) 2011 Gordon P. Hemsley
  http://gphemsley.org/
 
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -27,7 +27,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+ */
 
 import { getError, logID } from '../core/platform/debug';
 
