@@ -3,7 +3,8 @@
  * @hidden
  */
 
-import { BufferUsageBit, Format, MemoryUsageBit, Device, DescriptorSet, InputAssembler, InputAssemblerInfo, Attribute, Buffer, BufferInfo } from '../gfx';
+import { BufferUsageBit, Format, MemoryUsageBit, Device, DescriptorSet, InputAssembler,
+    InputAssemblerInfo, Attribute, Buffer, BufferInfo } from '../gfx';
 import { Mat4 } from '../math';
 import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, UBOLocalBatched } from './define';
@@ -26,7 +27,6 @@ export interface IBatchedItem {
 }
 
 export class BatchedBuffer {
-
     private static _buffers = new Map<Pass, Record<number, BatchedBuffer>>();
 
     public static get (pass: Pass, extraKey = 0) {
@@ -159,7 +159,7 @@ export class BatchedBuffer {
         vbIdx.update(vbIdxData);
         totalVBs.push(vbIdx);
 
-        const attributes = subModel.inputAssembler!.attributes;
+        const attributes = subModel.inputAssembler.attributes;
         const attrs = new Array<Attribute>(attributes.length + 1);
         for (let a = 0; a < attributes.length; ++a) {
             attrs[a] = attributes[a];
@@ -184,7 +184,17 @@ export class BatchedBuffer {
 
         this.batches.push({
             mergeCount: 1,
-            vbs, vbDatas, vbIdx, vbIdxData, vbCount, ia, ubo, uboData, pass, hShader, descriptorSet,
+            vbs,
+            vbDatas,
+            vbIdx,
+            vbIdxData,
+            vbCount,
+            ia,
+            ubo,
+            uboData,
+            pass,
+            hShader,
+            descriptorSet,
         });
     }
 
