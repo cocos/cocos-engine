@@ -7,6 +7,9 @@ in vec4 v_shadowPos;
 #pragma builtin(global)
 layout(set = 0, binding = 2) uniform sampler2D cc_shadowMap;
 
+#pragma builtin(local)
+layout(set = 2, binding = 11) uniform sampler2D cc_spotLightingMap;
+
 float CCGetShadowFactorX1 () {
   vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
   if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
@@ -40,7 +43,7 @@ float CCGetShadowFactorX5 () {
   closestDepth = unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x + offsetx, clipPos.y + offsety)));
   shadow += step(closestDepth, clipPos.z - cc_shadowInfo.w);
 
-  return shadow /= 5.0;
+  return shadow / 5.0;
 }
 
 float CCGetShadowFactorX9 () {
@@ -59,7 +62,7 @@ float CCGetShadowFactorX9 () {
     }
   }
 
-  return shadow /= 9.0;
+  return shadow / 9.0;
 }
 
 float CCGetShadowFactorX25 () {
@@ -78,8 +81,93 @@ float CCGetShadowFactorX25 () {
     }
   }
 
-  return shadow /= 25.0;
+  return shadow / 25.0;
 }
+
+float CCGetDirLightShadowFactorX1 () {
+  vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
+  if (clipPos.x < 0.0 || clipPos.x > 1.0 || 
+	    clipPos.y < 0.0 || clipPos.y > 1.0 || 
+		  clipPos.z <-1.0 || clipPos.z > 1.0) { return 0.0; }
+
+  float closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, clipPos.xy));
+  float shadow = step(closestDepth, clipPos.z - cc_shadowInfo.w);
+
+  return shadow;
+}
+
+float CCGetDirLightShadowFactorX5 () {
+  vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
+  if (clipPos.x < 0.0 || clipPos.x > 1.0 || 
+	    clipPos.y < 0.0 || clipPos.y > 1.0 || 
+		  clipPos.z <-1.0 || clipPos.z > 1.0) { return 0.0; }
+
+  float offsetx = 1.0 / cc_shadowInfo.x;
+  float offsety = 1.0 / cc_shadowInfo.y;
+  float shadow = 0.0;
+  float closestDepth = 0.0;
+  closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x - offsetx, clipPos.y - offsety)));
+  shadow += step(closestDepth, clipPos.z - cc_shadowInfo.w);
+  closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x - offsetx, clipPos.y + offsety)));
+  shadow += step(closestDepth, clipPos.z - cc_shadowInfo.w);
+  closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos.y)));
+  shadow += step(closestDepth, clipPos.z - cc_shadowInfo.w);
+  closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x + offsetx, clipPos.y - offsety)));
+  shadow += step(closestDepth, clipPos.z - cc_shadowInfo.w);
+  closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x + offsetx, clipPos.y + offsety)));
+
+  return shadow / 5.0;
+}
+
+float CCGetDirLightShadowFactorX9 () {
+  vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
+  if (clipPos.x < 0.0 || clipPos.x > 1.0 || 
+	    clipPos.y < 0.0 || clipPos.y > 1.0 || 
+		  clipPos.z <-1.0 || clipPos.z > 1.0) { return 0.0; }
+
+  float offsetx = 1.0 / cc_shadowInfo.x;
+  float offsety = 1.0 / cc_shadowInfo.y;
+  float shadow = 0.0;
+  for (int i = -1; i <= 1; i++) {
+    for (int j = -1; j <= 1; j++) {
+      float closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, clipPos.xy + vec2(i, j) * vec2(offsetx, offsety)));
+      shadow += step(closestDepth, clipPos.z - cc_shadowInfo.w);
+    }
+  }
+
+  return shadow / 9.0;
+}
+
+float CCGetDirLightShadowFactorX25 () {
+  vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
+  if (clipPos.x < 0.0 || clipPos.x > 1.0 || 
+	    clipPos.y < 0.0 || clipPos.y > 1.0 || 
+		  clipPos.z <-1.0 || clipPos.z > 1.0) { return 0.0; }
+
+  float offsetx = 1.0 / cc_shadowInfo.x;
+  float offsety = 1.0 / cc_shadowInfo.y;
+  float shadow = 0.0;
+  for (int i = -2; i <= 2; i++) {
+    for (int j = -2; j <= 2; j++) {
+      float closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, clipPos.xy + vec2(i, j) * vec2(offsetx, offsety)));
+      shadow += step(closestDepth, clipPos.z - cc_shadowInfo.w);
+    }
+  }
+
+  return shadow / 25.0;
+}
+
+#define CC_DIR_SHADOW_FACTOR(finalColor)                                                                                  \
+  {                                                                                                                       \
+    float pcf = cc_shadowInfo.z + 0.001;                                                                                  \
+    float shadowAttenuation = 0.0;                                                                                        \
+    if (pcf > 3.0) shadowAttenuation = CCGetDirLightShadowFactorX25();                                                    \
+    else if (3.0 > pcf && pcf > 2.0) shadowAttenuation = CCGetDirLightShadowFactorX9();                                   \
+    else if (2.0 > pcf && pcf > 1.0) shadowAttenuation = CCGetDirLightShadowFactorX5();                                   \
+    else shadowAttenuation = CCGetDirLightShadowFactorX1();                                                               \
+    finalColor *= 1.0 - shadowAttenuation;                                                                                \
+  }                                                                                                                       \
+#pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
 
 #define CC_SHADOW_FACTOR(finalColor, atten)                                                                               \
   {                                                                                                                       \
@@ -92,4 +180,4 @@ float CCGetShadowFactorX25 () {
     vec3 shadowColor = cc_shadowColor.rgb * cc_shadowColor.a + finalColor.rgb * (1.0 - cc_shadowColor.a);                 \
     finalColor.rgb = shadowColor.rgb * shadowAttenuation * atten + finalColor.rgb * (1.0 - shadowAttenuation * atten);    \
   }                                                                                                                       \
-  #pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
+#pragma // empty pragma trick to get rid of trailing semicolons at effect compile time

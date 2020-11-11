@@ -103,6 +103,15 @@ export class SpotLight extends Light {
         this._needUpdate = true;
     }
 
+    set aspect (val: number) {
+        LightPool.set(this._handle, LightView.ASPECT, val);
+        this._needUpdate = true;
+    }
+
+    get aspect (): number {
+        return LightPool.get(this._handle, LightView.ASPECT);
+    }
+
     get aabb () {
         return this._aabb;
     }
@@ -127,8 +136,8 @@ export class SpotLight extends Light {
         LightPool.set(this._handle, LightView.SIZE, size);
         LightPool.set(this._handle, LightView.AABB, this._hAABB);
         LightPool.set(this._handle, LightView.ILLUMINANCE, 1700 / nt2lm(size));
-        LightPool.set(this._handle, LightView.RANGE, 5.0);
         LightPool.set(this._handle, LightView.RANGE, Math.cos(Math.PI / 6));
+        LightPool.set(this._handle, LightView.ASPECT, 1.0);
         LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
     }
 
@@ -144,7 +153,7 @@ export class SpotLight extends Light {
             this._node.getWorldRT(_matView);
             Mat4.invert(_matView, _matView);
 
-            Mat4.perspective(_matProj, this._angle, 1, 0.001, this._range);
+            Mat4.perspective(_matProj, this._angle, 1.0, 0.001, this._range);
 
             // view-projection
             Mat4.multiply(_matViewProj, _matProj, _matView);

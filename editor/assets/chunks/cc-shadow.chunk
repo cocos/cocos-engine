@@ -4,6 +4,6 @@
 layout(set = 0, binding = 1) uniform CCShadow {
   highp mat4 cc_matLightPlaneProj;
   highp mat4 cc_matLightViewProj;
-  lowp vec4 cc_shadowColor;
-  lowp vec4 cc_shadowInfo;         //x -> width; y -> height; z -> pcf; w -> bais;
+  lowp  vec4 cc_shadowColor;
+  lowp  vec4 cc_shadowInfo;         //x -> width; y -> height; z -> pcf; w -> bais;
 };

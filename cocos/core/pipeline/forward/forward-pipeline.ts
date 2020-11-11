@@ -33,9 +33,10 @@ import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
 import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
-import { IRenderObject, UBOGlobal, UBOShadow } from '../define';
+import { IRenderObject, UBOGlobal, UBOShadow, UNIFORM_SHADOWMAP_BINDING } from '../define';
 import { BufferUsageBit, MemoryUsageBit, ClearFlag } from '../../gfx/define';
-import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp, TextureLayout, RenderPassInfo, BufferInfo, Feature } from '../../gfx';
+import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp, TextureLayout,
+    RenderPassInfo, BufferInfo, Feature, Framebuffer } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
@@ -46,6 +47,7 @@ import { Skybox } from '../../renderer/scene/skybox';
 import { Shadows, ShadowType } from '../../renderer/scene/shadows';
 import { sceneCulling, getShadowWorldMatrix } from './scene-culling';
 import { UIFlow } from '../ui/ui-flow';
+import { Light } from '../../renderer/scene/light';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
@@ -109,6 +111,7 @@ export class ForwardPipeline extends RenderPipeline {
      */
     public renderObjects: IRenderObject[] = [];
     public shadowObjects: IRenderObject[] = [];
+    public shadowFrameBufferMap: Map<Light, Framebuffer> = new Map();
     protected _isHDR: boolean = false;
     protected _shadingScale: number = 1.0;
     protected _fpScale: number = 1.0 / 1024.0;
@@ -208,6 +211,10 @@ export class ForwardPipeline extends RenderPipeline {
         const shadowInfo = this.shadows;
 
         if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
+            if (this.shadowFrameBufferMap.has(mainLight)) {
+                this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, this.shadowFrameBufferMap.get(mainLight)!.colorTextures[0]!);
+            }
+
             // light view
             let shadowCameraView: Mat4;
 
