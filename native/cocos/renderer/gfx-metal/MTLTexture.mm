@@ -158,14 +158,7 @@ bool CCMTLTexture::createMTLTexture() {
     descriptor.sampleCount = mu::toMTLSampleCount(_samples);
     descriptor.mipmapLevelCount = _levelCount;
     descriptor.arrayLength = _flags & TextureFlagBit::CUBEMAP ? 1 : _layerCount;
-
-    //FIXME: should change to MTLStorageModeManaged if texture usage is TextureFlags::BAKUP_BUFFER?
-    if (_usage & TextureUsage::COLOR_ATTACHMENT ||
-        _usage & TextureUsage::DEPTH_STENCIL_ATTACHMENT ||
-        _usage & TextureUsage::INPUT_ATTACHMENT ||
-        _usage & TextureUsage::TRANSIENT_ATTACHMENT) {
-        descriptor.resourceOptions = MTLResourceStorageModePrivate;
-    }
+    descriptor.resourceOptions = MTLResourceStorageModePrivate; // use private storage mode since texture will always updated by blit command and access by GPU only.
 
     id<MTLDevice> mtlDevice = id<MTLDevice>(static_cast<CCMTLDevice *>(_device)->getMTLDevice());
     _mtlTexture = [mtlDevice newTextureWithDescriptor:descriptor];

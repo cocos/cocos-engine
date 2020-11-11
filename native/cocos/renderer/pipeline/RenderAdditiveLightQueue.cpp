@@ -158,14 +158,14 @@ void RenderAdditiveLightQueue::gatherLightPasses(const RenderView *view, gfx::Co
 
             if (batchingScheme == BatchingSchemes::INSTANCING) { // instancing
                 for (auto idx : _lightIndices) {
-                    auto buffer = InstancedBuffer::get(lightPassIdx, idx);
+                    auto buffer = InstancedBuffer::get(subModel->passID[lightPassIdx], idx);
                     buffer->merge(model, subModel, lightPassIdx);
                     buffer->setDynamicOffset(0, _lightBufferStride * idx);
                     _instancedQueue->add(buffer);
                 }
             } else if (batchingScheme == BatchingSchemes::VB_MERGING) { // vb-merging
                 for (auto idx : _lightIndices) {
-                    auto buffer = BatchedBuffer::get(lightPassIdx, idx);
+                    auto buffer = BatchedBuffer::get(subModel->passID[lightPassIdx], idx);
                     buffer->merge(subModel, lightPassIdx, model);
                     buffer->setDynamicOffset(0, _lightBufferStride * idx);
                     _batchedQueue->add(buffer);
