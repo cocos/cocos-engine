@@ -22,8 +22,7 @@
                 "--platform=NATIVE",
                 "--module=system",
                 "--sourcemap",
-                "--out=out",
-                "--split"
+                "--out=out"
             ]
         }
     ]

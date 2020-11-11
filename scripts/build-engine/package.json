@@ -1,8 +1,16 @@
 {
   "name": "@cocos/build-engine",
-  "version": "4.0.0-jsb.alpha.15",
+  "version": "4.0.0-beta.0",
   "description": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cocos-creator/engine.git",
+    "directory": "scripts/build-engine"
+  },
   "main": "dist/index.js",
+  "files": [
+    "dist/"
+  ],
   "dependencies": {
     "@babel/core": "^7.9.0",
     "@babel/plugin-transform-classes": "^7.8.6",
@@ -32,16 +40,19 @@
     "@types/node": "^13.1.7",
     "@types/resolve": "^1.17.1",
     "@types/semver": "^7.3.4",
-    "@types/yargs": "^15.0.4",
-    "rollup-plugin-visualizer": "^4.0.4"
+    "@types/yargs": "^15.0.4"
   },
   "peerDependencies": {
     "typescript": "^3.7.2"
   },
   "scripts": {
-    "build": "tsc",
-    "prepublishOnly": "npm run build"
+    "build": "npx tsc",
+    "clear": "node ./scripts/clear.mjs",
+    "prepublishOnly": "npm run clear & npm run build"
   },
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "optionalDependencies": {
+    "rollup-plugin-visualizer": "^4.2.0"
+  }
 }
