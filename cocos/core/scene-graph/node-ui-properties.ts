@@ -61,7 +61,7 @@ export class NodeUIProperties {
         return this._uiComp;
     }
     set uiComp (comp: UIComponent | UIRenderable | null) {
-        if (this._uiComp) {
+        if (this._uiComp && comp) {
             warnID(12002);
             return;
         }
