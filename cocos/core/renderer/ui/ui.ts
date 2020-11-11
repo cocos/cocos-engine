@@ -65,25 +65,26 @@ export class UI {
 
     get currBufferBatch () {
         if (this._currMeshBuffer) return this._currMeshBuffer;
-
+        // create if not set
         this._currMeshBuffer = this.acquireBufferBatch();
         return this._currMeshBuffer;
     }
 
-    set currBufferBatch (b: MeshBuffer|null) {
-        if (b) {
-            this._currMeshBuffer = b;
+    set currBufferBatch (buffer: MeshBuffer|null) {
+        if (buffer) {
+            this._currMeshBuffer = buffer;
         }
     }
 
+    /**
+     * Acquire a new mesh buffer if the vertex layout differs from the current one.
+     * @param attributes 
+     */
     public acquireBufferBatch (attributes: Attribute[] = vfmtPosUvColor) {
         const floatCnt = attributes === vfmtPosUvColor ? 9 : getAttributeFormatBytes(attributes);
-        if (!this._currMeshBuffer) {
+        if (!this._currMeshBuffer || (this._currMeshBuffer.vertexFormatBytes >> 2) !== floatCnt) {
             this._requireBufferBatch(attributes);
             return this._currMeshBuffer;
-        }
-        if ((this._currMeshBuffer.vertexFormatBytes >> 2) !== floatCnt) {
-            this._requireBufferBatch(attributes);
         }
         return this._currMeshBuffer;
     }
@@ -555,9 +556,9 @@ export class UI {
      * 根据合批条件，结束一段渲染数据并提交。
      */
     public autoMergeBatches (renderComp?: UIRenderable) {
-        const buffer = this.currBufferBatch!;
+        const buffer = this.currBufferBatch;
         const uiCanvas = this._currCanvas;
-        const hIA = buffer ? buffer.recordBatch() : null;
+        const hIA = buffer?.recordBatch();
         let mat = this._currMaterial;
 
         if (!hIA || !mat) {
@@ -585,9 +586,9 @@ export class UI {
 
         this._batches.push(curDrawBatch);
 
-        buffer.vertexStart = buffer.vertexOffset;
-        buffer.indicesStart = buffer.indicesOffset;
-        buffer.byteStart = buffer.byteOffset;
+        buffer!.vertexStart = buffer!.vertexOffset;
+        buffer!.indicesStart = buffer!.indicesOffset;
+        buffer!.byteStart = buffer!.byteOffset;
     }
 
     /**

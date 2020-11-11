@@ -1,7 +1,6 @@
 import { TrackEntryListeners } from './track-entry-listeners';
 import spine from './lib/spine-core.js';
 import { Texture2D } from '../core';
-import { SkeletonTexture } from './skeleton-texture';
 // Permit max cache time, unit is second.
 const MaxCacheTime = 30;
 const FrameTime = 1 / 60;
@@ -23,7 +22,6 @@ let _colorOffset = 0;
 let _preFinalColor: number | null = null;
 let _preDarkColor: number | null = null;
 // x y u v c1 c2
-// FIXME: bad
 const PerVertexSize = 6;
 // x y u v r1 g1 b1 a1 r2 g2 b2 a2
 const PerClipVertexSize = 12;

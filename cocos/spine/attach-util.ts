@@ -1,20 +1,10 @@
 import { Mat4, Node } from '../core';
 import { Skeleton } from './skeleton';
 import spine from './lib/spine-core.js';
-import { JSB } from '../../editor/exports/populate-internal-constants';
 import { FrameBoneInfo } from './skeleton-cache';
-import { TransformBit } from '../core/scene-graph/node-enum';
 
-const EmptyHandle = () => { };
-const ATTACHED_ROOT_NAME = 'ATTACHED_NODE_TREE';
-const ATTACHED_PRE_NAME = 'ATTACHED_NODE:';
 const _tempMat4 = new Mat4();
 
-interface BoneNode extends Node {
-    _bone:spine.Bone;
-    _boneIndex:number;
-    _toRemove:boolean;
-}
 
 /**
  * !#en Attach node tool

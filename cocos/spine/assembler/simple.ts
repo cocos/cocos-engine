@@ -1,7 +1,6 @@
 import spine from '../lib/spine-core.js';
 import { IAssembler } from '../../core/renderer/ui/base';
 import { UI } from '../../core/renderer/ui/ui';
-import { JSB } from '../../../editor/exports/populate-internal-constants';
 import { FrameColor } from '../skeleton-cache';
 import { MaterialInstance } from '../../core/renderer';
 import { SkeletonTexture } from '../skeleton-texture';
