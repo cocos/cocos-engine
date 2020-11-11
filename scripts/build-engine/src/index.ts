@@ -24,6 +24,7 @@ import { getModuleName } from './module-name';
 import tsConfigPaths from './ts-paths';
 import { getPlatformConstantNames, IBuildTimeConstants } from './build-time-constants';
 import removeDeprecatedFeatures from './remove-deprecated-features';
+import realFs from 'fs';
 
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
 
@@ -197,6 +198,17 @@ async function _doBuild ({
     moduleEntries?: string[];
     options: build.Options;
 }): Promise<build.Result> {
+    const realpath = typeof realFs.realpath.native === 'function' ? realFs.realpath.native : realFs.realpath;
+    const realPath = (file: string) => new Promise<string>((resolve, reject) => {
+        realpath(file, function (err, path) {
+            if (err && err.code !== 'ENOENT') {
+                reject(err);
+            } else {
+                resolve(err ? file : path)
+            }
+        });
+    });
+
     const doUglify = !!options.compress;
     const split = options.split ?? false;
     const engineRoot = ps.resolve(options.engine);
@@ -346,7 +358,7 @@ async function _doBuild ({
 
         resolve({
             extensions: ['.js', '.ts', '.json'],
-            jail: engineRoot,
+            jail: await realPath(engineRoot),
             rootDir: engineRoot,
         }),
 
