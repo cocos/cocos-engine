@@ -211,9 +211,6 @@ export class ForwardPipeline extends RenderPipeline {
         const shadowInfo = this.shadows;
 
         if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
-            if (this.shadowFrameBufferMap.has(mainLight)) {
-                this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, this.shadowFrameBufferMap.get(mainLight)!.colorTextures[0]!);
-            }
 
             // light view
             let shadowCameraView: Mat4;
@@ -279,6 +276,8 @@ export class ForwardPipeline extends RenderPipeline {
             UBOShadow.SIZE,
         ));
         this._descriptorSet.bindBuffer(UBOShadow.BINDING, shadowUBO);
+
+        this._descriptorSet.update();
 
         // update global defines when all states initialized.
         this.macros.CC_USE_HDR = this._isHDR;
