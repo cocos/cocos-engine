@@ -284,15 +284,15 @@ async function _doBuild ({
         babelHelpers: 'bundled',
         extensions: ['.js', '.ts'],
         exclude: [
-            /node_modules[/\\]@cocos[/\\]ammo/g,
-            /node_modules[/\\]@cocos[/\\]cannon/g,
+            /node_modules[/\\]@cocos[/\\]ammo/,
+            /node_modules[/\\]@cocos[/\\]cannon/,
         ],
         comments: false, // Do not preserve comments, even in debug build since we have source map
         overrides: [{
             // Eliminates the babel compact warning:
             // 'The code generator has deoptimised the styling of ...'
             // that came from node_modules/@cocos
-            test: /node_modules[/\\]@cocos[/\\]/g,
+            test: /node_modules[/\\]@cocos[/\\]/,
             compact: true,
         }],
         plugins: babelPlugins,
@@ -346,13 +346,20 @@ async function _doBuild ({
 
         resolve({
             extensions: ['.js', '.ts', '.json'],
+            jail: engineRoot,
+            rootDir: engineRoot,
         }),
 
         json({
             preferConst: true,
         }),
 
-        commonjs({}),
+        commonjs({
+            include: [
+                /node_modules[/\\]/,
+            ],
+            sourceMap: false,
+        }),
 
         rpBabel(babelOptions),
     );
