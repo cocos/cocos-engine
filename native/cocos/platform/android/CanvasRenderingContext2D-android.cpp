@@ -9,7 +9,7 @@
 #include <regex>
 
 #ifndef JCLS_CANVASIMPL
-#define JCLS_CANVASIMPL  "org/cocos2dx/lib/CanvasRenderingContext2DImpl"
+#define JCLS_CANVASIMPL  "com/cocos/lib/CanvasRenderingContext2DImpl"
 #endif
 
 using namespace cc;

@@ -43,7 +43,7 @@
 #include "base/Log.h"
 
 #ifndef JCLS_HTTPCLIENT
-#define JCLS_HTTPCLIENT  "org/cocos2dx/lib/Cocos2dxHttpURLConnection"
+#define JCLS_HTTPCLIENT  "com/cocos/lib/CocosHttpURLConnection"
 #endif
 
 namespace cc {

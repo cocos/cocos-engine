@@ -33,7 +33,7 @@
 #include "platform/android/jni/JniHelper.h"
 
 
-static const std::string className = "org/cocos2dx/lib/Cocos2dxWebViewHelper";
+static const std::string className = "com/cocos/lib/CocosWebViewHelper";
 
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,"",__VA_ARGS__)
 
@@ -65,13 +65,13 @@ static std::string getFixedBaseUrl(const std::string &baseUrl) {
 
 extern "C" {
 /*
- * Class:     org_cocos2dx_lib_Cocos2dxWebViewHelper
+ * Class:     com_cocos_lib_CocosWebViewHelper
  * Method:    shouldStartLoading
  * Signature: (ILjava/lang/String;)Z
  */
 JNIEXPORT jboolean JNICALL
-Java_org_cocos2dx_lib_Cocos2dxWebViewHelper_shouldStartLoading(JNIEnv *env, jclass, jint index,
-                                                               jstring jurl) {
+Java_com_cocos_lib_CocosWebViewHelper_shouldStartLoading(JNIEnv *env, jclass, jint index,
+                                                         jstring jurl) {
     auto charUrl = env->GetStringUTFChars(jurl, NULL);
     std::string url = charUrl;
     env->ReleaseStringUTFChars(jurl, charUrl);
@@ -79,13 +79,13 @@ Java_org_cocos2dx_lib_Cocos2dxWebViewHelper_shouldStartLoading(JNIEnv *env, jcla
 }
 
 /*
- * Class:     org_cocos2dx_lib_Cocos2dxWebViewHelper
+ * Class:     com_cocos_lib_CocosWebViewHelper
  * Method:    didFinishLoading
  * Signature: (ILjava/lang/String;)V
  */
 JNIEXPORT void JNICALL
-Java_org_cocos2dx_lib_Cocos2dxWebViewHelper_didFinishLoading(JNIEnv *env, jclass, jint index,
-                                                             jstring jurl) {
+Java_com_cocos_lib_CocosWebViewHelper_didFinishLoading(JNIEnv *env, jclass, jint index,
+                                                       jstring jurl) {
     // LOGD("didFinishLoading");
     auto charUrl = env->GetStringUTFChars(jurl, NULL);
     std::string url = charUrl;
@@ -94,13 +94,13 @@ Java_org_cocos2dx_lib_Cocos2dxWebViewHelper_didFinishLoading(JNIEnv *env, jclass
 }
 
 /*
- * Class:     org_cocos2dx_lib_Cocos2dxWebViewHelper
+ * Class:     com_cocos_lib_CocosWebViewHelper
  * Method:    didFailLoading
  * Signature: (ILjava/lang/String;)V
  */
 JNIEXPORT void JNICALL
-Java_org_cocos2dx_lib_Cocos2dxWebViewHelper_didFailLoading(JNIEnv *env, jclass, jint index,
-                                                           jstring jurl) {
+Java_com_cocos_lib_CocosWebViewHelper_didFailLoading(JNIEnv *env, jclass, jint index,
+                                                     jstring jurl) {
     // LOGD("didFailLoading");
     auto charUrl = env->GetStringUTFChars(jurl, NULL);
     std::string url = charUrl;
@@ -109,13 +109,13 @@ Java_org_cocos2dx_lib_Cocos2dxWebViewHelper_didFailLoading(JNIEnv *env, jclass, 
 }
 
 /*
- * Class:     org_cocos2dx_lib_Cocos2dxWebViewHelper
+ * Class:     com_cocos_lib_CocosWebViewHelper
  * Method:    onJsCallback
  * Signature: (ILjava/lang/String;)V
  */
 JNIEXPORT void JNICALL
-Java_org_cocos2dx_lib_Cocos2dxWebViewHelper_onJsCallback(JNIEnv *env, jclass, jint index,
-                                                         jstring jmessage) {
+Java_com_cocos_lib_CocosWebViewHelper_onJsCallback(JNIEnv *env, jclass, jint index,
+                                                   jstring jmessage) {
     // LOGD("jsCallback");
     auto charMessage = env->GetStringUTFChars(jmessage, NULL);
     std::string message = charMessage;

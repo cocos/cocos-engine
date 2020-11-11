@@ -30,12 +30,12 @@ namespace {
     }
 }
 extern "C" {
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_CocosKeyCodeHandler_handleKeyDown(JNIEnv *env, jobject obj, jint keyCode) {
+    JNIEXPORT void JNICALL Java_com_cocos_lib_CocosKeyCodeHandler_handleKeyDown(JNIEnv *env, jobject obj, jint keyCode) {
         keyboardEvent.action = cc::KeyboardEvent::Action::PRESS;
         dispatchKeyCodeEvent(keyCode,keyboardEvent);
     }
 
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_CocosKeyCodeHandler_handleKeyUp(JNIEnv *env, jobject obj, jint keyCode) {
+    JNIEXPORT void JNICALL Java_com_cocos_lib_CocosKeyCodeHandler_handleKeyUp(JNIEnv *env, jobject obj, jint keyCode) {
         keyboardEvent.action = cc::KeyboardEvent::Action::RELEASE;
         dispatchKeyCodeEvent(keyCode,keyboardEvent);
     }

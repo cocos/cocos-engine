@@ -38,7 +38,7 @@
 #define LOG_TAG "JavaScriptJavaBridge"
 
 #ifndef ORG_JAVABRIDGE_CLASS_NAME
-#define ORG_JAVABRIDGE_CLASS_NAME org_cocos2dx_lib_Cocos2dxJavascriptJavaBridge
+#define ORG_JAVABRIDGE_CLASS_NAME com_cocos_lib_CocosJavascriptJavaBridge
 #endif
 #define JNI_JSJAVABRIDGE(FUNC) JNI_METHOD1(ORG_JAVABRIDGE_CLASS_NAME,FUNC)
 

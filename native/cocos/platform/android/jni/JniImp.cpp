@@ -31,7 +31,7 @@
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,JNI_IMP_LOG_TAG,__VA_ARGS__)
 
 #ifndef JCLS_HELPER
-#define JCLS_HELPER "org/cocos2dx/lib/Cocos2dxHelper"
+#define JCLS_HELPER "com/cocos/lib/CocosHelper"
 #endif
 
 using namespace cc;

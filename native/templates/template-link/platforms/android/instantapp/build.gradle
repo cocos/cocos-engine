@@ -16,7 +16,7 @@ android {
 
         externalNativeBuild {
             cmake {
-                targets "cocos2djs"
+                targets "cocos"
                 arguments "-DRES_DIR=${projectDir.absolutePath.replace("\\", "/")}/../..", "-DANDROID_STL=c++_static", "-DANDROID_TOOLCHAIN=clang", "-DANDROID_ARM_NEON=TRUE"
                 cppFlags "-frtti -fexceptions -fsigned-char -DANDROID_INSTANT=1"
             }
@@ -98,5 +98,5 @@ dependencies {
     implementation fileTree(dir: '../libs', include: ['*.jar','*.aar'])
     implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
     implementation fileTree(dir: "/Users/wzm/cocos_creator/cocos2d-x-lite-3d/cocos/platform/android/java/libs", include: ['*.jar'])
-    implementation project(':libcocos2dx')
+    implementation project(':libcocos')
 }

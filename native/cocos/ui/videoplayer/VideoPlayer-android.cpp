@@ -36,7 +36,7 @@
 
 //-----------------------------------------------------------------------------------------------------------
 
-static const std::string videoHelperClassName = "org/cocos2dx/lib/Cocos2dxVideoHelper";
+static const std::string videoHelperClassName = "com/cocos/lib/CocosVideoHelper";
 
 using namespace cc;
 
@@ -45,7 +45,7 @@ static void executeVideoCallback(int index,int event);
 #define QUIT_FULLSCREEN 1000
 
 extern "C" {
-    void Java_org_cocos2dx_lib_Cocos2dxVideoHelper_nativeExecuteVideoCallback(JNIEnv * env, jobject obj, jint index,jint event) {
+    void Java_com_cocos_lib_CocosVideoHelper_nativeExecuteVideoCallback(JNIEnv * env, jobject obj, jint index, jint event) {
         executeVideoCallback(index,event);
     }
 }

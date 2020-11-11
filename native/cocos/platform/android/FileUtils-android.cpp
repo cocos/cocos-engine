@@ -43,7 +43,7 @@ THE SOFTWARE.
 #define  ASSETS_FOLDER_NAME          "@assets/"
 
 #ifndef JCLS_HELPER
-#define JCLS_HELPER "org/cocos2dx/lib/Cocos2dxHelper"
+#define JCLS_HELPER "com/cocos/lib/CocosHelper"
 #endif
 
 namespace cc {

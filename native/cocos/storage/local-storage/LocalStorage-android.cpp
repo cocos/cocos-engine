@@ -42,7 +42,7 @@
 #include "platform/android/jni/JniHelper.h"
 
 #ifndef JCLS_LOCALSTORAGE
-#define JCLS_LOCALSTORAGE  "org/cocos2dx/lib/Cocos2dxLocalStorage"
+#define JCLS_LOCALSTORAGE  "com/cocos/lib/CocosLocalStorage"
 #endif
 
 using namespace cc;

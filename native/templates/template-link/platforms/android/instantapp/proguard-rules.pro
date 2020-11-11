@@ -17,8 +17,8 @@
 #}
 
 # Proguard Cocos2d-x-lite for release
--keep public class org.cocos2dx.** { *; }
--dontwarn org.cocos2dx.**
+-keep public class com.cocos.** { *; }
+-dontwarn com.cocos.**
 
 # Proguard Apache HTTP for release
 -keep class org.apache.http.** { *; }

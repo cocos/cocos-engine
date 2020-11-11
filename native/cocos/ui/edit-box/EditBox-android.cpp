@@ -30,11 +30,11 @@
 #include "cocos/bindings/manual/jsb_global.h"
 
 #ifndef JCLS_EDITBOX
-#define JCLS_EDITBOX  "org/cocos2dx/lib/Cocos2dxEditBoxActivity"
+#define JCLS_EDITBOX  "com/cocos/lib/CocosEditBoxActivity"
 #endif
 
 #ifndef ORG_EDITBOX_CLASS_NAME
-#define ORG_EDITBOX_CLASS_NAME org_cocos2dx_lib_Cocos2dxEditBoxActivity
+#define ORG_EDITBOX_CLASS_NAME com_cocos_lib_CocosEditBoxActivity
 #endif
 #define JNI_EDITBOX(FUNC) JNI_METHOD1(ORG_EDITBOX_CLASS_NAME,FUNC)
 

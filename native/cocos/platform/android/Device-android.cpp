@@ -40,11 +40,11 @@ THE SOFTWARE.
 #include "platform/android/jni/JniHelper.h"
 
 #ifndef JCLS_HELPER
-#define JCLS_HELPER "org/cocos2dx/lib/Cocos2dxHelper"
+#define JCLS_HELPER "com/cocos/lib/CocosHelper"
 #endif
 
 #ifndef JCLS_SENSOR
-#define JCLS_SENSOR "org/cocos2dx/lib/CocosSensorHandler"
+#define JCLS_SENSOR "com/cocos/lib/CocosSensorHandler"
 #endif
 
 namespace {

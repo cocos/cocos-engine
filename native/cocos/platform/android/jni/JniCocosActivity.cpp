@@ -56,7 +56,7 @@ void glThreadEntry(ANativeWindow *window) {
         }
 
         // Handle java events send by UI thread. Input events are handled here too.
-		JniHelper::callStaticVoidMethod("org.cocos2dx.lib.Cocos2dxHelper", "flushTasksOnGameThread");
+		JniHelper::callStaticVoidMethod("com.cocos.lib.CocosHelper", "flushTasksOnGameThread");
 
 		game->tick();
 	}
@@ -66,7 +66,7 @@ void glThreadEntry(ANativeWindow *window) {
 
 extern "C" {
 
-JNIEXPORT void JNICALL Java_org_cocos2dx_lib_CocosActivity_onCreateNative(JNIEnv *env, jobject obj, jobject activity,
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onCreateNative(JNIEnv *env, jobject obj, jobject activity,
 	jobject assetMgr, jstring obbPath, jint sdkVersion) {
 	cc::cocosApp.sdkVersion = sdkVersion;
 	cc::JniHelper::init(env, activity);
@@ -84,7 +84,7 @@ JNIEXPORT void JNICALL Java_org_cocos2dx_lib_CocosActivity_onCreateNative(JNIEnv
 	}
 }
 
-JNIEXPORT void JNICALL Java_org_cocos2dx_lib_CocosActivity_onSurfaceCreatedNative(JNIEnv *env, jobject obj, jobject surface) {
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onSurfaceCreatedNative(JNIEnv *env, jobject obj, jobject surface) {
     static bool first = true;
     cc::cocosApp.window = ANativeWindow_fromSurface(env, surface);
     cc::writeCommand(APP_CMD_INIT_WINDOW);
@@ -99,14 +99,14 @@ JNIEXPORT void JNICALL Java_org_cocos2dx_lib_CocosActivity_onSurfaceCreatedNativ
         cc::animatingCond.notify_all();
     }
 }
-JNIEXPORT void JNICALL Java_org_cocos2dx_lib_CocosActivity_onStartNative(JNIEnv *env, jobject obj) {
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onStartNative(JNIEnv *env, jobject obj) {
 }
 
-JNIEXPORT void JNICALL Java_org_cocos2dx_lib_CocosActivity_onPauseNative(JNIEnv *env, jobject obj) {
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onPauseNative(JNIEnv *env, jobject obj) {
     cc::writeCommand(APP_CMD_PAUSE);
 }
 
-JNIEXPORT void JNICALL Java_org_cocos2dx_lib_CocosActivity_onResumeNative(JNIEnv *env, jobject obj) {
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onResumeNative(JNIEnv *env, jobject obj) {
     static bool first = true;
     if (first) {
         first = false;
@@ -115,22 +115,22 @@ JNIEXPORT void JNICALL Java_org_cocos2dx_lib_CocosActivity_onResumeNative(JNIEnv
     cc::writeCommand(APP_CMD_RESUME);
 }
 
-JNIEXPORT void JNICALL Java_org_cocos2dx_lib_CocosActivity_onStopNative(JNIEnv *env, jobject obj) {
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onStopNative(JNIEnv *env, jobject obj) {
 }
 
-JNIEXPORT void JNICALL Java_org_cocos2dx_lib_CocosActivity_onLowMemoryNative(JNIEnv *env, jobject obj) {
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onLowMemoryNative(JNIEnv *env, jobject obj) {
 	cc::writeCommand(APP_CMD_LOW_MEMORY);
 }
 
-JNIEXPORT void JNICALL Java_org_cocos2dx_lib_CocosActivity_onWindowFocusChangedNative(JNIEnv *env, jobject obj, jboolean has_focus) {
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onWindowFocusChangedNative(JNIEnv *env, jobject obj, jboolean has_focus) {
 
 }
 
-JNIEXPORT void JNICALL Java_org_cocos2dx_lib_CocosActivity_onSurfaceChangedNative(JNIEnv *env, jobject obj, jint width, jint height) {
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onSurfaceChangedNative(JNIEnv *env, jobject obj, jint width, jint height) {
 
 }
 
-JNIEXPORT void JNICALL Java_org_cocos2dx_lib_CocosActivity_onSurfaceDestroyNative(JNIEnv *env, jobject obj) {
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onSurfaceDestroyNative(JNIEnv *env, jobject obj) {
 	cc::writeCommand(APP_CMD_TERM_WINDOW);
     cc::animating = false;
 }

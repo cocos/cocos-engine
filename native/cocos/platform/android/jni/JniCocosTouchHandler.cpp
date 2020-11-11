@@ -9,7 +9,7 @@ namespace {
     struct cc::TouchEvent touchEvent;
 }
 extern "C" {
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_CocosTouchHandler_handleActionDown(JNIEnv *env, jobject obj, jint id,
+    JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionDown(JNIEnv *env, jobject obj, jint id,
                                                              jfloat x, jfloat y) {
         touchEvent.type = cc::TouchEvent::Type::BEGAN;
         touchEvent.touches.emplace_back(x, y, id);
@@ -17,7 +17,7 @@ extern "C" {
         touchEvent.touches.clear();
     }
 
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_CocosTouchHandler_handleActionUp(JNIEnv *env, jobject obj, jint id, jfloat x,
+    JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionUp(JNIEnv *env, jobject obj, jint id, jfloat x,
                                                            jfloat y) {
         touchEvent.type = cc::TouchEvent::Type::ENDED;
         touchEvent.touches.emplace_back(x, y, id);
@@ -25,7 +25,7 @@ extern "C" {
         touchEvent.touches.clear();
     }
 
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_CocosTouchHandler_handleActionMove(JNIEnv *env, jobject obj,
+    JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionMove(JNIEnv *env, jobject obj,
                                                              jintArray ids,
                                                              jfloatArray xs,
                                                              jfloatArray ys) {
@@ -48,7 +48,7 @@ extern "C" {
         touchEvent.touches.clear();
     }
 
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_CocosTouchHandler_handleActionCancel(JNIEnv *env, jobject obj,
+    JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionCancel(JNIEnv *env, jobject obj,
                                                                jintArray ids,
                                                                jfloatArray xs,
                                                                jfloatArray ys) {
