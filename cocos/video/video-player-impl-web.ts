@@ -227,9 +227,11 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
 
     public removeVideoPlayer () {
         let video = this._video;
-        if (contains(game.container, video)) {
-            game.container!.removeChild(video);
-            this.removeAllListeners();
+        if (video) {
+            if (contains(game.container, video)) {
+                game.container!.removeChild(video);
+                this.removeAllListeners();
+            }
         }
         this._cachedCurrentTime = 0;
         this._playing = false;
