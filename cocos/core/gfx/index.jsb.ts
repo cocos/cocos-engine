@@ -38,9 +38,7 @@ export const TextureViewInfo = gfx.TextureViewInfo;
 export const Texture = gfx.Texture;
 
 export const Device = gfx.Device;
-export const BindingMappingInfo = gfx.BindingMappingInfo;
-// DeviceInfo is different from native defination, so use JS defination instead.
-export { DeviceInfo } from './device';
+export { DeviceInfo, BindingMappingInfo } from './device';
 
 export const Shader = gfx.Shader;
 export const ShaderStage = gfx.ShaderStage;
