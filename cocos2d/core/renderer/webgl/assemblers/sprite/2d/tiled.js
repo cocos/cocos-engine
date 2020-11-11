@@ -297,22 +297,24 @@ export default class TiledAssembler extends Assembler2D {
                     else if (yindex === (row - 1)) {
                         verts[uvOffset] = uvSliced[8].u;
                     }
+                    var rBottomV = uvSliced[1].v + (uvSliced[2].v - uvSliced[1].v) * coefu;
                     if (xindex === 0) {
-                        verts[uvOffset + 1] = uvSliced[1].v + (uvSliced[2].v - uvSliced[1].v) * coefu;
+                        verts[uvOffset + 1] = rBottomV;
                     }
                     else if (xindex > 0 && xindex < (col - 1)) {
-                        verts[uvOffset + 1] = uvSliced[1].v + (uvSliced[2].v - uvSliced[1].v) * coefu;
+                        verts[uvOffset + 1] = rBottomV;
                     }
                     else if (xindex === (col - 1)) {
                         verts[uvOffset + 1] = uvSliced[3].v;
                     }
                     uvOffset += floatsPerVert;
                     // lt
+                    var lTopU = uvSliced[4].u + (uvSliced[8].u - uvSliced[4].u) * coefv;
                     if (yindex === 0) {
-                        verts[uvOffset] = uvSliced[4].u + (uvSliced[8].u - uvSliced[4].u) * coefv;
+                        verts[uvOffset] = lTopU;
                     }
                     else if (yindex > 0 && yindex < (row - 1)) {
-                        verts[uvOffset] = uvSliced[4].u + (uvSliced[8].u - uvSliced[4].u) * coefv;
+                        verts[uvOffset] = lTopU;
                     }
                     else if (yindex === (row - 1)){
                         verts[uvOffset] = uvSliced[12].u;
@@ -354,11 +356,12 @@ export default class TiledAssembler extends Assembler2D {
                     }
                     uvOffset += floatsPerVert;
                     // rb
+                    var rBottomU = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefu;
                     if (xindex === 0) {
-                        verts[uvOffset] = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefu;
+                        verts[uvOffset] = rBottomU;
                     }
                     else if (xindex > 0 && xindex < (col - 1)) {
-                        verts[uvOffset] = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefu;
+                        verts[uvOffset] = rBottomU;
                     }
                     else if (xindex === (col - 1)){
                         verts[uvOffset] = uvSliced[3].u;
@@ -383,11 +386,12 @@ export default class TiledAssembler extends Assembler2D {
                     else if (xindex === (col - 1)) {
                         verts[uvOffset] = uvSliced[2].u;
                     }
+                    var lTopV = uvSliced[4].v + (uvSliced[8].v - uvSliced[4].v) * coefv;
                     if (yindex === 0) {
-                        verts[uvOffset + 1] = uvSliced[4].v + (uvSliced[8].v - uvSliced[4].v) * coefv;
+                        verts[uvOffset + 1] = lTopV;
                     }
                     else if (yindex > 0 && yindex < (row - 1)) {
-                        verts[uvOffset + 1] = uvSliced[4].v + (uvSliced[8].v - uvSliced[4].v) * coefv;
+                        verts[uvOffset + 1] = lTopV;
                     }
                     else if (yindex === (row - 1)) {
                         verts[uvOffset + 1] = uvSliced[12].v;
