@@ -1,6 +1,7 @@
 #include "platform/CanvasRenderingContext2D.h"
 #include "base/csscolorparser.h"
 #include "base/UTF8.h"
+#include "math/Math.h"
 
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_platform.h"
@@ -561,12 +562,11 @@ if (CB) \
 }
 
 CanvasRenderingContext2D::CanvasRenderingContext2D(float width, float height)
-: __width(width)
-, __height(height)
+: _width(width)
+, _height(height)
 {
 //    SE_LOGD("CanvasRenderingContext2D constructor: %p, width: %f, height: %f\n", this, width, height);
     _impl = [[CanvasRenderingContext2DImpl alloc] init];
-    [_impl recreateBufferWithWidth:width height:height];
 }
 
 CanvasRenderingContext2D::~CanvasRenderingContext2D()
@@ -581,7 +581,7 @@ void CanvasRenderingContext2D::recreateBufferIfNeeded()
     {
         _isBufferSizeDirty = false;
 //        SE_LOGD("CanvasRenderingContext2D::recreateBufferIfNeeded %p, w: %f, h:%f\n", this, __width, __height);
-        [_impl recreateBufferWithWidth: __width height:__height];
+        [_impl recreateBufferWithWidth: _width height:_height];
         SEND_DATA_TO_JS(_canvasBufferUpdatedCB, _impl);
     }
 }
@@ -689,20 +689,23 @@ void CanvasRenderingContext2D::restore()
 void CanvasRenderingContext2D::setCanvasBufferUpdatedCallback(const CanvasBufferUpdatedCallback& cb)
 {
     _canvasBufferUpdatedCB = cb;
+    recreateBufferIfNeeded();
 }
 
-void CanvasRenderingContext2D::set__width(float width)
+void CanvasRenderingContext2D::set_width(float width)
 {
 //    SE_LOGD("CanvasRenderingContext2D::set__width: %f\n", width);
-    __width = width;
+    if (math::IsEqualF(width, _width)) return;
+    _width = width;
     _isBufferSizeDirty = true;
     recreateBufferIfNeeded();
 }
 
-void CanvasRenderingContext2D::set__height(float height)
+void CanvasRenderingContext2D::set_height(float height)
 {
 //    SE_LOGD("CanvasRenderingContext2D::set__height: %f\n", height);
-    __height = height;
+    if (math::IsEqualF(height, _height)) return;
+    _height = height;
     _isBufferSizeDirty = true;
     recreateBufferIfNeeded();
 }

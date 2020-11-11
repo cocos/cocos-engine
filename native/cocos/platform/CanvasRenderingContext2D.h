@@ -80,8 +80,8 @@ public:
     void setCanvasBufferUpdatedCallback(const CanvasBufferUpdatedCallback& cb);
 
     // functions for properties
-    void set__width(float width);
-    void set__height(float height);
+    void set_width(float width);
+    void set_height(float height);
     void set_lineWidth(float lineWidth);
     void set_lineJoin(const std::string& lineJoin);
     void set_lineCap(const std::string& lineCap);
@@ -108,8 +108,8 @@ private:
 
 public:
 
-    float __width = 0.0f;
-    float __height = 0.0f;
+    float _width = 0.0f;
+    float _height = 0.0f;
 
     // Line styles
     float _lineWidth = 1.0f;

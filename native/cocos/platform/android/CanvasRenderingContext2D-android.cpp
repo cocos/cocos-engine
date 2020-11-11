@@ -1,5 +1,6 @@
 #include "platform/CanvasRenderingContext2D.h"
 #include "base/csscolorparser.h"
+#include "math/Math.h"
 
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "platform/android/jni/JniHelper.h"
@@ -296,12 +297,11 @@ void CanvasGradient::addColorStop(float offset, const std::string& color)
 // CanvasRenderingContext2D
 
 CanvasRenderingContext2D::CanvasRenderingContext2D(float width, float height)
-: __width(width)
-, __height(height)
+: _width(width)
+, _height(height)
 {
     // SE_LOGD("CanvasRenderingContext2D constructor: %p, width: %f, height: %f\n", this, width, height);
     _impl = new CanvasRenderingContext2DImpl();
-    recreateBufferIfNeeded();
 }
 
 CanvasRenderingContext2D::~CanvasRenderingContext2D()
@@ -315,8 +315,8 @@ void CanvasRenderingContext2D::recreateBufferIfNeeded()
     if (_isBufferSizeDirty)
     {
         _isBufferSizeDirty = false;
-//        SE_LOGD("Recreate buffer %p, w: %f, h:%f\n", this, __width, __height);
-        _impl->recreateBuffer(__width, __height);
+//        SE_LOGD("Recreate buffer %p, w: %f, h:%f\n", this, _width, _height);
+        _impl->recreateBuffer(_width, _height);
         if (_canvasBufferUpdatedCB != nullptr)
             _canvasBufferUpdatedCB(_impl->getDataRef());
     }
@@ -430,20 +430,23 @@ void CanvasRenderingContext2D::restore()
 void CanvasRenderingContext2D::setCanvasBufferUpdatedCallback(const CanvasBufferUpdatedCallback& cb)
 {
     _canvasBufferUpdatedCB = cb;
+    recreateBufferIfNeeded();
 }
 
-void CanvasRenderingContext2D::set__width(float width)
+void CanvasRenderingContext2D::set_width(float width)
 {
 //    SE_LOGD("CanvasRenderingContext2D::set__width: %f\n", width);
-    __width = width;
+    if (math::IsEqualF(width, _width)) return;
+    _width = width;
     _isBufferSizeDirty = true;
     recreateBufferIfNeeded();
 }
 
-void CanvasRenderingContext2D::set__height(float height)
+void CanvasRenderingContext2D::set_height(float height)
 {
 //    SE_LOGD("CanvasRenderingContext2D::set__height: %f\n", height);
-    __height = height;
+    if (math::IsEqualF(height, _height)) return;
+    _height = height;
     _isBufferSizeDirty = true;
     recreateBufferIfNeeded();
 }
