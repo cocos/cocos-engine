@@ -41,7 +41,7 @@ import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderView } from '../render-view';
 import { ShadowType } from '../../renderer/scene/shadows';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-import { Light } from '../../renderer/scene/light';
+import { Light, LightType } from '../../renderer/scene/light';
 import { lightCollecting, shadowCollecting } from '../forward/scene-culling';
 import { Vec2 } from '../../math';
 
@@ -167,6 +167,10 @@ export class ShadowFlow extends RenderFlow {
         const shadowMapSamplerHash = genSamplerHash(_samplerInfo);
         const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
         pipeline.descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
+
+        if (light.type === LightType.DIRECTIONAL) {
+            pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, shadowFrameBuffer.colorTextures[0]!);
+        }
     }
 
     private resizeShadowMap (light: Light, size: Vec2) {
