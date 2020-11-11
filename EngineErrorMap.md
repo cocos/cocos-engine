@@ -2983,3 +2983,7 @@ WebGL context lost.
 ### 12001
 
 BlendFactors are disabled when using custom material, please modify the blend state in the material instead.
+
+### 12002
+
+Can't add renderable component to this node because it already have one.
