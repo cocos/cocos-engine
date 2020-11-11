@@ -50,8 +50,8 @@ export const InputAssembler = gfx.InputAssembler;
 export const Buffer = gfx.Buffer;
 export { DRAW_INFO_SIZE, BufferInfo, BufferViewInfo, DrawInfo, IndirectBuffer } from './buffer';
 
-export const SamplerInfo = gfx.SamplerInfo;
 export const Sampler = gfx.Sampler;
+export { SamplerInfo } from './sampler';
 
 export const FenceInfo = gfx.FenceInfo;
 export const Fence = gfx.Fence;
