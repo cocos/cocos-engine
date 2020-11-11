@@ -38,11 +38,11 @@ const _worldMatrix = new Mat4();
 
 export function fillVertices3D (node: Node, renderer: UI, renderData: RenderData, color: Color) {
     const dataList = renderData.data;
-    let buffer = renderer.currBufferBatch!;
+    let buffer = renderer.acquireBufferBatch()!;
     let vertexOffset = buffer.byteOffset >> 2;
 
     let vertexCount = renderData.vertexCount;
-    let indicesOffset = buffer!.indicesOffset;
+    let indicesOffset = buffer.indicesOffset;
     let vertexId = buffer.vertexOffset;
     const isRecreate = buffer.request(vertexCount, renderData.indicesCount);
     if (!isRecreate) {
@@ -66,20 +66,20 @@ export function fillVertices3D (node: Node, renderer: UI, renderData: RenderData
         vBuf[vertexOffset++] = vec3_temp.z;
         vBuf[vertexOffset++] = vert.u;
         vBuf[vertexOffset++] = vert.v;
-        Color.toArray(vBuf!, color, vertexOffset);
+        Color.toArray(vBuf, color, vertexOffset);
         vertexOffset += 4;
     }
 
     // buffer data may be realloc, need get reference after request.
     const iBuf = buffer.iData;
-    for (let i = 0; i < renderData!.dataLength; i++) {
+    for (let i = 0; i < renderData.dataLength; i++) {
         iBuf![indicesOffset + i] = vertexId + i;
     }
 }
 
 export function fillMeshVertices3D (node: Node, renderer: UI, renderData: RenderData, color: Color) {
     const dataList = renderData.data;
-    let buffer = renderer.currBufferBatch!;
+    let buffer = renderer.acquireBufferBatch()!;
     let vertexOffset = buffer.byteOffset >> 2;
 
     let vertexCount = renderData.vertexCount;
@@ -109,7 +109,7 @@ export function fillMeshVertices3D (node: Node, renderer: UI, renderData: Render
         vBuf[vertexOffset++] = vec3_temp.z;
         vBuf[vertexOffset++] = vert.u;
         vBuf[vertexOffset++] = vert.v;
-        Color.toArray(vBuf!, color, vertexOffset);
+        Color.toArray(vBuf, color, vertexOffset);
         vertexOffset += 4;
     }
 
@@ -127,7 +127,7 @@ export function fillMeshVertices3D (node: Node, renderer: UI, renderData: Render
 
 export function fillVerticesWithoutCalc3D (node: Node, renderer: UI, renderData: RenderData, color: Color) {
     const dataList = renderData.data;
-    let buffer = renderer.currBufferBatch!;
+    let buffer = renderer.acquireBufferBatch()!;
     let vertexOffset = buffer.byteOffset >> 2;
 
     // buffer
@@ -152,7 +152,7 @@ export function fillVerticesWithoutCalc3D (node: Node, renderer: UI, renderData:
         vBuf[vertexOffset++] = vert.z;
         vBuf[vertexOffset++] = vert.u;
         vBuf[vertexOffset++] = vert.v;
-        Color.toArray(vBuf!, color, vertexOffset);
+        Color.toArray(vBuf, color, vertexOffset);
         vertexOffset += 4;
     }
 

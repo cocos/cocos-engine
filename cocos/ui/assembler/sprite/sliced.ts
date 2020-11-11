@@ -46,14 +46,14 @@ export const sliced: IAssembler = {
     useModel: false,
 
     createData (sprite: Sprite) {
-        const renderData: RenderData | null = sprite.requestRenderData();
+        const renderData: RenderData | null = sprite.requestRenderData()!;
         // 0-4 for local vertex
         // 5-20 for world vertex
-        renderData!.dataLength = 20;
+        renderData.dataLength = 20;
 
-        renderData!.vertexCount = 16;
-        renderData!.indicesCount = 54;
-        return renderData as RenderData;
+        renderData.vertexCount = 16;
+        renderData.indicesCount = 54;
+        return renderData;
     },
 
     updateRenderData (sprite: Sprite) {
@@ -84,10 +84,10 @@ export const sliced: IAssembler = {
         const renderData: RenderData | null = sprite.renderData;
         const dataList: IRenderData[] = renderData!.data;
         const uiTrans = sprite.node._uiProps.uiTransformComp!;
-        const width = uiTrans.width!;
-        const height = uiTrans.height!;
-        const appX = uiTrans.anchorX! * width;
-        const appY = uiTrans.anchorY! * height;
+        const width = uiTrans.width;
+        const height = uiTrans.height;
+        const appX = uiTrans.anchorX * width;
+        const appY = uiTrans.anchorY * height;
 
         const frame: SpriteFrame|null = sprite.spriteFrame;
         const leftWidth = frame!.insetLeft;
@@ -121,7 +121,7 @@ export const sliced: IAssembler = {
             this.updateWorldVertexData(sprite);
         }
 
-        let buffer = renderer.currBufferBatch!;
+        let buffer = renderer.acquireBufferBatch()!;
         const renderData: RenderData|null = sprite.renderData;
         // const node: Node = sprite.node;
         // const color: Color = sprite.color;
@@ -132,7 +132,7 @@ export const sliced: IAssembler = {
         let indicesOffset: number = buffer.indicesOffset;
         let vertexId: number = buffer.vertexOffset;
 
-        const uvSliced: IUV[] = sprite!.spriteFrame!.uvSliced;
+        const uvSliced: IUV[] = sprite.spriteFrame!.uvSliced;
 
         const isRecreate = buffer.request(vertexCount, renderData!.indicesCount);
         if (!isRecreate) {
@@ -176,7 +176,7 @@ export const sliced: IAssembler = {
 
     updateWorldVertexData (sprite: Sprite) {
         const node = sprite.node;
-        const dataList: IRenderData[] = sprite!.renderData!.data;
+        const dataList: IRenderData[] = sprite.renderData!.data;
         node.getWorldMatrix(matrix);
         for (let row = 0; row < 4; ++row) {
             const rowD = dataList[row];

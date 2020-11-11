@@ -43,12 +43,11 @@ export interface IRenderData {
 
 export class BaseRenderData {
     public material: Material | null = null;
-    public vertexCount: number = 0;
-    public indicesCount: number = 0;
+    public vertexCount = 0;
+    public indicesCount = 0;
 }
 
 export class RenderData extends BaseRenderData {
-
     get dataLength () {
         return this._data.length;
     }
@@ -81,7 +80,7 @@ export class RenderData extends BaseRenderData {
 
     public static remove (data: RenderData) {
         const idx = _pool.data.indexOf(data);
-        if (idx === -1){
+        if (idx === -1) {
             return;
         }
 
@@ -90,20 +89,20 @@ export class RenderData extends BaseRenderData {
     }
     public vData: Float32Array | null = null;
 
-    public uvDirty: boolean = true;
-    public vertDirty: boolean = true;
+    public uvDirty = true;
+    public vertDirty = true;
     private _data: IRenderData[] = [];
     private _indices: number[] = [];
-    private _pivotX: number = 0;
-    private _pivotY: number = 0;
-    private _width: number = 0;
-    private _height: number = 0;
+    private _pivotX = 0;
+    private _pivotY = 0;
+    private _width = 0;
+    private _height = 0;
 
     public updateSizeNPivot (width: number, height: number, pivotX: number, pivotY: number) {
-        if (width !== this._width ||
-            height !== this._height ||
-            pivotX !== this._pivotX ||
-            pivotY !== this._pivotY) {
+        if (width !== this._width
+            || height !== this._height
+            || pivotX !== this._pivotX
+            || pivotY !== this._pivotY) {
             this._width = width;
             this._height = height;
             this._pivotX = pivotX;
@@ -128,13 +127,36 @@ export class RenderData extends BaseRenderData {
 }
 
 export class MeshRenderData extends BaseRenderData {
-    public vData: Float32Array = new Float32Array(256 * 9 * Float32Array.BYTES_PER_ELEMENT);
+    public vData: Float32Array;
     public iData: Uint16Array = new Uint16Array(256 * 6);
+    /**
+     * Each vertex contains multiple float numbers
+     */
     public vertexStart = 0;
+    /**
+     * Number of indices
+     */
     public indicesStart = 0;
     public byteStart = 0;
     public byteCount = 0;
-    private _formatByte = 9 * Float32Array.BYTES_PER_ELEMENT;
+    private _formatByte:number;
+
+    constructor (vertexFloatCnt = 9) {
+        super();
+        this._formatByte = vertexFloatCnt * Float32Array.BYTES_PER_ELEMENT;
+        this.vData = new Float32Array(256 * vertexFloatCnt * Float32Array.BYTES_PER_ELEMENT);
+        this.iData = new Uint16Array(256 * 6);
+    }
+
+    set formatByte (value: number) { this._formatByte = value; }
+    get formatByte () { return this._formatByte; }
+
+    get floatStride () { return this._formatByte >> 2; }
+
+    /**
+     * Index of Float32Array: vData
+     */
+    get vDataOffset () { return this.byteCount >>> 2; }
 
     public static add () {
         return _meshDataPool.add();
@@ -142,7 +164,7 @@ export class MeshRenderData extends BaseRenderData {
 
     public static remove (data: MeshRenderData) {
         const idx = _meshDataPool.data.indexOf(data);
-        if (idx === -1){
+        if (idx === -1) {
             return;
         }
 
@@ -159,7 +181,7 @@ export class MeshRenderData extends BaseRenderData {
         return true;
     }
 
-    public reserve(vertexCount: number, indicesCount: number) {
+    public reserve (vertexCount: number, indicesCount: number) {
         const newVBytes = this.byteCount + vertexCount * this._formatByte;
         const newICount = this.indicesCount + indicesCount;
 
@@ -167,8 +189,8 @@ export class MeshRenderData extends BaseRenderData {
             return false;
         }
 
-        let byteLength = this.vData!.byteLength;
-        let indicesLength = this.iData!.length;
+        let byteLength = this.vData.byteLength;
+        let indicesLength = this.iData.length;
         let vCount = this.vData.length;
         let iCount = this.iData.length;
         if (newVBytes > byteLength || newICount > indicesLength) {
@@ -182,9 +204,10 @@ export class MeshRenderData extends BaseRenderData {
 
             this._reallocBuffer(vCount, iCount);
         }
+        return true;
     }
 
-    public advance(vertexCount: number, indicesCount: number) {
+    public advance (vertexCount: number, indicesCount: number) {
         this.vertexCount += vertexCount; // vertexOffset
         this.indicesCount += indicesCount; // indicesOffset
         this.byteCount += vertexCount * this._formatByte;
@@ -230,23 +253,17 @@ export class QuadRenderData extends MeshRenderData {
         super._reallocBuffer(vCount, iCount);
         this._fillQuadBuffer();
     }
-};
+}
 
-const _dataPool = new Pool(() => {
-    return {
-        x: 0,
-        y: 0,
-        z: 0,
-        u: 0,
-        v: 0,
-        color: Color.WHITE.clone(),
-    };
-}, 128);
+const _dataPool = new Pool(() => ({
+    x: 0,
+    y: 0,
+    z: 0,
+    u: 0,
+    v: 0,
+    color: Color.WHITE.clone(),
+}), 128);
 
-const _pool = new RecyclePool(() => {
-    return new RenderData();
-}, 32);
+const _pool = new RecyclePool(() => new RenderData(), 32);
 
-const _meshDataPool: RecyclePool<MeshRenderData> = new RecyclePool(() =>  {
-    return new MeshRenderData();
-}, 32);
+const _meshDataPool: RecyclePool<MeshRenderData> = new RecyclePool(() => new MeshRenderData(), 32);

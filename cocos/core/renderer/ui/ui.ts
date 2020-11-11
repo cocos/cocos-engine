@@ -50,6 +50,7 @@ import { ModelLocalBindings } from '../../pipeline/define';
 import { EffectAsset, RenderTexture, SpriteFrame } from '../../assets';
 import { programLib } from '../core/program-lib';
 import { TextureBase } from '../../assets/texture-base';
+import { getAttributeFormatBytes, vfmtPosUvColor } from './ui-vertex-format';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 
@@ -63,15 +64,28 @@ export class UI {
     }
 
     get currBufferBatch () {
+        if (this._currMeshBuffer) return this._currMeshBuffer;
+
+        this._currMeshBuffer = this.acquireBufferBatch();
         return this._currMeshBuffer;
     }
 
-    set currBufferBatch (value) {
-        if (!value) {
-            return;
+    set currBufferBatch (b: MeshBuffer|null) {
+        if (b) {
+            this._currMeshBuffer = b;
         }
+    }
 
-        this._currMeshBuffer = value;
+    public acquireBufferBatch (attributes: Attribute[] = vfmtPosUvColor) {
+        const floatCnt = attributes === vfmtPosUvColor ? 9 : getAttributeFormatBytes(attributes);
+        if (!this._currMeshBuffer) {
+            this._requireBufferBatch(attributes);
+            return this._currMeshBuffer;
+        }
+        if ((this._currMeshBuffer.vertexFormatBytes >> 2) !== floatCnt) {
+            this._requireBufferBatch(attributes);
+        }
+        return this._currMeshBuffer;
     }
 
     set currStaticRoot (value: UIStaticBatch | null) {
@@ -83,9 +97,8 @@ export class UI {
     private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => new MeshBuffer(this), 128);
     private _drawBatchPool: Pool<UIDrawBatch>;
     private _scene: RenderScene;
-    private _attributes: Attribute[] = [];
-    private _meshBuffers: MeshBuffer[] = [];
-    private _meshBufferUseCount = 0;
+    private _meshBuffers: Map<number, MeshBuffer[]> = new Map();
+    private _meshBufferUseCount: Map<number, number> = new Map();
     private _uiMaterials: Map<number, UIMaterial> = new Map<number, UIMaterial>();
     private _canvasMaterials: Map<number, Map<number, number>> = new Map<number, Map<number, number>>();
     private _batches: CachedArray<UIDrawBatch>;
@@ -126,10 +139,6 @@ export class UI {
     }
 
     public initialize () {
-        this._attributes = UIVertexFormat.vfmtPosUvColor;
-
-        this._requireBufferBatch();
-
         return true;
     }
 
@@ -141,8 +150,11 @@ export class UI {
         }
         this._batches.destroy();
 
-        for (let i = 0; i < this._meshBuffers.length; i++) {
-            this._meshBuffers[i].destroy();
+        for (const size of this._meshBuffers.keys()) {
+            const buffers = this._meshBuffers.get(size);
+            if (buffers) {
+                buffers.forEach((buffer) => buffer.destroy());
+            }
         }
 
         if (this._drawBatchPool) {
@@ -161,7 +173,7 @@ export class UI {
             this._destoryDescriptorSet();
         }
 
-        this._meshBuffers.splice(0);
+        this._meshBuffers.clear();
         legacyCC.director.root.destroyScene(this._scene);
     }
 
@@ -373,10 +385,14 @@ export class UI {
     public uploadBuffers () {
         if (this._batches.length > 0) {
             const buffers = this._meshBuffers;
-            for (let i = 0; i < buffers.length; ++i) {
-                const bufferBatch = buffers[i];
-                bufferBatch.uploadBuffers();
-                bufferBatch.reset();
+            for (const i of buffers.keys()) {
+                const list = buffers.get(i);
+                if (list) {
+                    list.forEach((bb) => {
+                        bb.uploadBuffers();
+                        bb.reset();
+                    });
+                }
             }
         }
 
@@ -397,10 +413,9 @@ export class UI {
         this._currTexture = null;
         this._currSampler = null;
         this._currComponent = null;
-        this._meshBufferUseCount = 0;
+        this._meshBufferUseCount.clear();
         this._currMaterialHash = 0;
         this._currMaterialUniformHash = 0;
-        this._requireBufferBatch();
         StencilManager.sharedManager!.reset();
     }
 
@@ -540,9 +555,9 @@ export class UI {
      * 根据合批条件，结束一段渲染数据并提交。
      */
     public autoMergeBatches (renderComp?: UIRenderable) {
-        const buffer = this._currMeshBuffer!;
+        const buffer = this.currBufferBatch!;
         const uiCanvas = this._currCanvas;
-        const hIA = buffer.recordBatch();
+        const hIA = buffer ? buffer.recordBatch() : null;
         let mat = this._currMaterial;
 
         if (!hIA || !mat) {
@@ -687,21 +702,28 @@ export class UI {
         this.autoMergeBatches(this._currComponent!);
     }
 
-    private _createMeshBuffer (): MeshBuffer {
+    private _createMeshBuffer (attributes: Attribute[]): MeshBuffer {
         const batch = this._bufferBatchPool.add();
-        batch.initialize(this._attributes, this._requireBufferBatch.bind(this));
-        this._meshBuffers.push(batch);
+        batch.initialize(attributes, this._requireBufferBatch.bind(this, attributes));
+        const floatCnt = getAttributeFormatBytes(attributes);
+        let buffers = this._meshBuffers.get(floatCnt);
+        if (!buffers) { buffers = []; this._meshBuffers.set(floatCnt, buffers); }
+        buffers.push(batch);
         return batch;
     }
 
-    private _requireBufferBatch () {
-        if (this._meshBufferUseCount >= this._meshBuffers.length) {
-            this._currMeshBuffer = this._createMeshBuffer();
-        } else {
-            this._currMeshBuffer = this._meshBuffers[this._meshBufferUseCount];
-        }
+    private _requireBufferBatch (attributes: Attribute[]) {
+        const floatCnt = getAttributeFormatBytes(attributes);
+        let buffers = this._meshBuffers.get(floatCnt);
+        if (!buffers) { buffers = []; this._meshBuffers.set(floatCnt, buffers); }
+        const meshBufferUseCount = this._meshBufferUseCount.get(floatCnt) || 0;
 
-        this._meshBufferUseCount++;
+        if (meshBufferUseCount >= buffers.length) {
+            this._currMeshBuffer = this._createMeshBuffer(attributes);
+        } else {
+            this._currMeshBuffer = buffers[meshBufferUseCount];
+        }
+        this._meshBufferUseCount.set(floatCnt, meshBufferUseCount + 1);
         if (arguments.length === 2) {
             this._currMeshBuffer.request(arguments[0], arguments[1]);
         }
@@ -715,14 +737,16 @@ export class UI {
     private _applyOpacity (comp: UIRenderable) {
         const color = comp.color.a / 255;
         const opacity = (this._parentOpacity *= color);
-        const byteOffset = this._currMeshBuffer!.byteOffset >> 2;
-        const vbuf = this._currMeshBuffer!.vData!;
-        const lastByteOffset = this._currMeshBuffer!.lastByteOffset >> 2;
-        for (let i = lastByteOffset; i < byteOffset; i += 9) {
+        const currMeshBuffer = this.currBufferBatch!;
+        const byteOffset = currMeshBuffer.byteOffset >> 2;
+        const vbuf = currMeshBuffer.vData!;
+        const lastByteOffset = currMeshBuffer.lastByteOffset >> 2;
+        const stride = currMeshBuffer.vertexFormatBytes / 4;
+        for (let i = lastByteOffset; i < byteOffset; i += stride) {
             vbuf[i + MeshBuffer.OPACITY_OFFSET] = opacity;
         }
 
-        this._currMeshBuffer!.lastByteOffset = this._currMeshBuffer!.byteOffset;
+        currMeshBuffer.lastByteOffset = currMeshBuffer.byteOffset;
     }
 
     private _initDescriptorSet (batch: UIDrawBatch) {
