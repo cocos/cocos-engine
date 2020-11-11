@@ -1,6 +1,5 @@
 #include "ForwardPipeline.h"
 #include "../RenderView.h"
-#include "../helper/SharedMemory.h"
 #include "../shadow/ShadowFlow.h"
 #include "../ui/UIFlow.h"
 #include "ForwardFlow.h"
@@ -12,6 +11,7 @@
 #include "gfx/GFXQueue.h"
 #include "gfx/GFXRenderPass.h"
 #include "gfx/GFXTexture.h"
+#include "gfx/GFXFramebuffer.h"
 #include "platform/Application.h"
 
 namespace cc {
@@ -96,7 +96,6 @@ bool ForwardPipeline::initialize(const RenderPipelineInfo &info) {
         _flows.emplace_back(uiFlow);
     }
     _sphere = CC_NEW(Sphere);
-    _receivedSphere = CC_NEW(Sphere);
 
     return true;
 }
@@ -133,30 +132,30 @@ void ForwardPipeline::updateUBOs(RenderView *view) {
     const Light *mainLight = nullptr;
     if (scene->mainLightID) mainLight = scene->getMainLight();
     const auto shadowInfo = _shadows;
+    auto *device = gfx::Device::getInstance();
 
     if (mainLight && shadowInfo->getShadowType() == ShadowType::SHADOWMAP) {
+        if (_shadowFrameBufferMap.count(mainLight)) {
+            _descriptorSet->bindTexture(UNIFORM_SHADOWMAP.layout.binding, _shadowFrameBufferMap[mainLight]->getColorTextures()[0]);
+        }
+
         const auto node = mainLight->getNode();
-        cc::Mat4 shadowCameraView;
+        cc::Mat4 matShadowCamera;
 
         // light proj
-        float x = 0.0f;
-        float y = 0.0f;
-        float farClamp = 0.0f;
+        float x = 0.0f, y = 0.0f, farClamp = 0.0f;
         if (shadowInfo->autoAdapt) {
-            getShadowWorldMatrix(_sphere, node->worldRotation, mainLight->direction, shadowCameraView);
+            Vec3 tmpCenter;
+            getShadowWorldMatrix(_sphere, node->worldRotation, mainLight->direction, matShadowCamera, tmpCenter);
 
             const float radius = _sphere->radius;
             x = radius * shadowInfo->aspect;
             y = radius;
 
-            farClamp = std::min(_receivedSphere->radius * 2.0f * std::sqrt(2.0f), 2000.0f);
-            if (radius >= 500.0f) {
-                shadowInfo->size.set(2048, 2048);
-            } else if (radius < 500.0f && radius >= 100.0f) {
-                shadowInfo->size.set(1024, 1024);
-            }
+            const float halfFar = tmpCenter.distance(_sphere->center);
+            farClamp = std::min(halfFar * COEFFICIENT_OF_EXPANSION, SHADOW_CAMERA_MAX_FAR);
         } else {
-            shadowCameraView = mainLight->getNode()->worldMatrix;
+            matShadowCamera = mainLight->getNode()->worldMatrix;
 
             x = shadowInfo->orthoSize * shadowInfo->aspect;
             y = shadowInfo->orthoSize;
@@ -164,17 +163,16 @@ void ForwardPipeline::updateUBOs(RenderView *view) {
             farClamp = shadowInfo->farValue;
         }
 
-        const auto &matShadowView = shadowCameraView.getInversed();
+        const auto matShadowView = matShadowCamera.getInversed();
 
-        const auto projectionSinY = _device->getScreenSpaceSignY() * _device->getUVSpaceSignY();
         Mat4 matShadowViewProj;
-        Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, farClamp, _device->getClipSpaceMinZ(), projectionSinY, &matShadowViewProj);
+        const auto projectionSinY = device->getScreenSpaceSignY() * device->getUVSpaceSignY();
+        Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, shadowInfo->farValue, device->getClipSpaceMinZ(), projectionSinY, &matShadowViewProj);    
 
         matShadowViewProj.multiply(matShadowView);
         float shadowInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, (float)shadowInfo->pcfType, shadowInfo->bias};
-        float shadowColor[4] = {shadowInfo->color.x, shadowInfo->color.y, shadowInfo->color.z, shadowInfo->color.w};
         memcpy(_shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
-        memcpy(_shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &shadowColor, sizeof(shadowColor));
+        memcpy(_shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &shadowInfo->color, sizeof(Vec4));
         memcpy(_shadowUBO.data() + UBOShadow::SHADOW_INFO_OFFSET, &shadowInfos, sizeof(shadowInfos));
     }
 
@@ -332,7 +330,8 @@ void ForwardPipeline::destroy() {
     _commandBuffers.clear();
 
     CC_SAFE_DELETE(_sphere);
-    CC_SAFE_DELETE(_receivedSphere);
+
+    _shadowFrameBufferMap.clear();
 
     RenderPipeline::destroy();
 }

@@ -117,7 +117,7 @@ void ForwardStage::render(RenderView *view) {
                     _instancedQueue->add(instancedBuffer);
                 } else if (pass->getBatchingScheme() == BatchingSchemes::VB_MERGING) {
                     auto batchedBuffer = BatchedBuffer::get(subModel->passID[p]);
-                    batchedBuffer->merge(subModel, p, &ro);
+                    batchedBuffer->merge(subModel, p, model);
                     _batchedQueue->add(batchedBuffer);
                 } else {
                     for (k = 0; k < _renderQueues.size(); k++) {

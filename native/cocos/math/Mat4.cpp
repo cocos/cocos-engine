@@ -101,25 +101,35 @@ void Mat4::createPerspective(float fieldOfView, float aspectRatio,
                              float zNearPlane, float zFarPlane, Mat4 *dst) {
     GP_ASSERT(dst);
     GP_ASSERT(zFarPlane != zNearPlane);
+    GP_ASSERT(fieldOfView != 0.0f);
 
-    float f_n = 1.0f / (zFarPlane - zNearPlane);
-    float theta = MATH_DEG_TO_RAD(fieldOfView) * 0.5f;
-    if (std::abs(std::fmod(theta, MATH_PIOVER2)) < MATH_EPSILON) {
-        CC_LOG_ERROR("Invalid field of view value (%f) causes attempted calculation tan(%f), which is undefined.", fieldOfView, theta);
-        return;
-    }
-    float divisor = std::tan(theta);
-    GP_ASSERT(divisor);
-    float factor = 1.0f / divisor;
+    const float minClipZ = -1.0f;
+    const float projectionSignY = 1.0f;
 
-    memset(dst, 0, MATRIX_SIZE);
+    const float f = 1.0f / std::tanf(fieldOfView / 2.0f);
+    const float nf = 1.0f / (zNearPlane - zFarPlane);
 
-    GP_ASSERT(aspectRatio);
-    dst->m[0] = (1.0f / aspectRatio) * factor;
-    dst->m[5] = factor;
-    dst->m[10] = (-(zFarPlane + zNearPlane)) * f_n;
+    const float x = f / aspectRatio;
+    const float y = f * projectionSignY;
+
+    float const preTransform[] = {1.0, 0.0f, 0.0f, 1.0f};
+
+    dst->m[0] = x * preTransform[0];
+    dst->m[1] = x * preTransform[1];
+    dst->m[2] = 0.0f;
+    dst->m[3] = 0.0f;
+    dst->m[4] = y * preTransform[2];
+    dst->m[5] = y * preTransform[3];
+    dst->m[6] = 0.0f;
+    dst->m[7] = 0.0f;
+    dst->m[8] = 0.0f;
+    dst->m[9] = 0.0f;
+    dst->m[10] = (zFarPlane - minClipZ * zNearPlane) * nf;
     dst->m[11] = -1.0f;
-    dst->m[14] = -2.0f * zFarPlane * zNearPlane * f_n;
+    dst->m[12] = 0.0f;
+    dst->m[13] = 0.0f;
+    dst->m[14] = zFarPlane * zNearPlane * nf * (1.0f - minClipZ);
+    dst->m[15] = 0.0f;
 }
 
 void Mat4::createOrthographic(float left, float right, float bottom, float top, float zNearPlane, float zFarPlane, Mat4 *dst) {
@@ -137,14 +147,14 @@ void Mat4::createOrthographicOffCenter(float left, float right, float bottom, fl
     GP_ASSERT(top != bottom);
     GP_ASSERT(zFarPlane != zNearPlane);
 
-    memset(dst, 0, MATRIX_SIZE);
-    dst->m[0] = 2 / (right - left);
-    dst->m[5] = 2 / (top - bottom) * projectionSignY;
+    memset(dst, 0.0f, MATRIX_SIZE);
+    dst->m[0] = 2.0f / (right - left);
+    dst->m[5] = 2.0f / (top - bottom) * projectionSignY;
     dst->m[10] = (1.0f - minClipZ) / (zNearPlane - zFarPlane);
     dst->m[12] = (left + right) / (left - right);
     dst->m[13] = (top + bottom) / (bottom - top);
     dst->m[14] = (zNearPlane - minClipZ * zFarPlane) / (zNearPlane - zFarPlane);
-    dst->m[15] = 1;
+    dst->m[15] = 1.0f;
 }
 
 void Mat4::createBillboard(const Vec3 &objectPosition, const Vec3 &cameraPosition,

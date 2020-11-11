@@ -10,7 +10,7 @@
 #include "gfx/GFXFramebuffer.h"
 #include "gfx/GFXRenderPass.h"
 #include "gfx/GFXTexture.h"
-#include "math/Vec2.h"
+#include "../forward/SceneCulling.h"
 
 namespace cc {
 namespace pipeline {
@@ -38,53 +38,67 @@ bool ShadowFlow::initialize(const RenderFlowInfo &info) {
 void ShadowFlow::activate(RenderPipeline *pipeline) {
     RenderFlow::activate(pipeline);
 }
-    
 
 void ShadowFlow::render(RenderView *view) {
-    auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
-    const auto shadowInfo = pipeline->getShadows();
-    if (!shadowInfo->enabled) return;
+    auto *pipeline = static_cast<ForwardPipeline *>(_pipeline);
+    const auto *shadowInfo = pipeline->getShadows();
+    if (!shadowInfo->enabled || shadowInfo->getShadowType() != ShadowType::SHADOWMAP) return;
 
-    initShadowFrameBuffer();
-    
-    const auto shadowMapSize = shadowInfo->size;
-    if (_width != shadowMapSize.x || _height != shadowMapSize.y) {
-        resizeShadowMap(shadowMapSize.x, shadowMapSize.y);
-        _width = shadowMapSize.x;
-        _height = shadowMapSize.y;
-    }
+    lightCollecting(view, _validLights);
+    shadowCollecting(pipeline, view);
 
-    pipeline->updateUBOs(view);
-    RenderFlow::render(view);
-}
+    for (const auto *light : _validLights) {
+        if (!pipeline->getShadowFramebuffer().count(light)) {
+            initShadowFrameBuffer(pipeline, light);
+        }
 
-void ShadowFlow::resizeShadowMap(uint width, uint height) {
-    if (_depthTexture) {
-        _depthTexture->resize(width, height);
-    }
-
-    for (auto renderTarget : _renderTargets) {
-        if (renderTarget) {
-            renderTarget->resize(width, height);
+        auto *shadowFrameBuffer = pipeline->getShadowFramebuffer().at(light);
+        if (shadowInfo->shadowMapDirty) {
+            resizeShadowMap(light, (uint)shadowInfo->size.x, (uint)shadowInfo->size.y);
+        }
+        for (auto *_stage : _stages) {
+            auto *shadowStage = static_cast<ShadowStage *>(_stage);
+            shadowStage->setUseData(light, shadowFrameBuffer);
+            shadowStage->render(view);
         }
     }
+}
 
-    if (_framebuffer) {
-        _framebuffer->destroy();
-        _framebuffer->initialize({
+void ShadowFlow::resizeShadowMap(const Light *light, const uint width, const uint height) const {
+    auto *pipeline = static_cast<ForwardPipeline *>(_pipeline);
+
+    if (pipeline->getShadowFramebuffer().count(light)) {
+        auto *framebuffer = pipeline->getShadowFramebuffer().at(light);
+
+        if (!framebuffer) {
+            return;
+        }
+
+        auto &renderTargets = framebuffer->getColorTextures();
+        for (auto *renderTarget : renderTargets) {
+            renderTarget->resize(width, height);
+        }
+
+        auto *depth = framebuffer->getDepthStencilTexture();
+        if (depth) {
+            depth->resize(width, height);
+        }
+
+        framebuffer->destroy();
+        framebuffer->initialize({
             _renderPass,
-            _renderTargets,
-            _depthTexture,
+            renderTargets,
+            depth,
             {},
         });
     }
 }
 
-void ShadowFlow::initShadowFrameBuffer() {
+void ShadowFlow::initShadowFrameBuffer(ForwardPipeline *pipeline, const Light *light) {
     auto device = gfx::Device::getInstance();
     const auto shadowMapSize = static_cast<ForwardPipeline *>(this->_pipeline)->getShadows()->size;
-    _width = shadowMapSize.x;
-    _height = shadowMapSize.y;
+    const auto width = (uint)shadowMapSize.x;
+    const auto height = (uint)shadowMapSize.y;
 
     if (!_renderPass) {
         _renderPass = device->createRenderPass({
@@ -109,56 +123,64 @@ void ShadowFlow::initShadowFrameBuffer() {
         });
     }
 
-    if (_renderTargets.empty()) {
-        _renderTargets.emplace_back(device->createTexture({
-            gfx::TextureType::TEX2D,
-            gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
-            gfx::Format::RGBA8,
-            _width,
-            _height,
-        }));
-    }
+    vector<gfx::Texture *> renderTargets;
+    renderTargets.emplace_back(device->createTexture({
+        gfx::TextureType::TEX2D,
+        gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
+        gfx::Format::RGBA8,
+        width,
+        height,
+    }));
 
-    if (!_depthTexture) {
-        _depthTexture = device->createTexture({
-            gfx::TextureType::TEX2D,
-            gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
-            device->getDepthStencilFormat(),
-            _width,
-            _height,
-        });
-    }
+    gfx::Texture *depth = device->createTexture({
+        gfx::TextureType::TEX2D,
+        gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
+        device->getDepthStencilFormat(),
+        width,
+        height,
+    });
 
-    if (!_framebuffer) {
-        _framebuffer = device->createFramebuffer({
-            _renderPass,
-            _renderTargets,
-            _depthTexture,
-            {}, //colorMipmapLevels
-        });
+    gfx::Framebuffer *framebuffer = device->createFramebuffer({
+        _renderPass,
+        renderTargets,
+        depth,
+        {}, //colorMipmapLevels
+    });
 
-    for (const auto stage : _stages) {
-        static_cast<ShadowStage *>(stage)->setFramebuffer(_framebuffer);
-    }
+    pipeline->getShadowFramebuffer().emplace(map<const Light *, gfx::Framebuffer *>::value_type(light, framebuffer));
 
-        gfx::SamplerInfo info;
-        info.addressU = info.addressV = info.addressW = gfx::Address::CLAMP;
-        const auto shadowMapSamplerHash = genSamplerHash(std::move(info));
-        const auto shadowMapSampler = getSampler(shadowMapSamplerHash);
-        this->_pipeline->getDescriptorSet()->bindSampler(UNIFORM_SHADOWMAP.layout.binding, shadowMapSampler);
-        this->_pipeline->getDescriptorSet()->bindTexture(UNIFORM_SHADOWMAP.layout.binding, _framebuffer->getColorTextures()[0]);
-    }
+    gfx::SamplerInfo info{
+        gfx::Filter::LINEAR,
+        gfx::Filter::LINEAR,
+        gfx::Filter::NONE,
+        gfx::Address::CLAMP,
+        gfx::Address::CLAMP,
+        gfx::Address::CLAMP,
+    };
+    const auto shadowMapSamplerHash = genSamplerHash(std::move(info));
+    const auto shadowMapSampler = getSampler(shadowMapSamplerHash);
+    this->_pipeline->getDescriptorSet()->bindSampler(UNIFORM_SHADOWMAP.layout.binding, shadowMapSampler);
 }
 
 void ShadowFlow::destroy() {
-    for (auto renderTarget : _renderTargets) {
-        CC_SAFE_DESTROY(renderTarget);
+    auto *pipeline = static_cast<ForwardPipeline *>(_pipeline);
+    for (auto &pair : pipeline->getShadowFramebuffer()) {
+
+        auto &renderTargets = pair.second->getColorTextures();
+        for (auto *renderTarget : renderTargets) {
+            CC_SAFE_DELETE(renderTarget);
+        }
+
+        auto *depth = pair.second->getDepthStencilTexture();
+        CC_SAFE_DELETE(depth);
+
+        pair.second->destroy();
+        CC_SAFE_DESTROY(pair.second);
     }
-    _renderTargets.clear();
 
     CC_SAFE_DESTROY(_renderPass);
-    CC_SAFE_DESTROY(_depthTexture)
-    CC_SAFE_DESTROY(_framebuffer);
+
+    _validLights.clear();
 
     RenderFlow::destroy();
 }

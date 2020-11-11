@@ -45,6 +45,30 @@ void AABB::merge(const AABB &aabb) {
     halfExtents = subP * 0.5f;
 }
 
+int Sphere::interset(const Plane &plane) const {
+    const float dot = plane.normal.dot(center);
+    const float r = radius * plane.normal.length();
+    if (dot + r < plane.distance) {
+        return -1;
+    }
+
+    if (dot - r > plane.distance) {
+        return 0;
+    }
+
+    return 1;
+}
+
+bool Sphere::interset(const Frustum &frustum) const {
+    for (const auto &plane : frustum.planes) {
+        if (this->interset(plane) == -1) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void Sphere::mergePoint(const cc::Vec3 &point) {
     if (radius < 0.0f) {
         center = point;

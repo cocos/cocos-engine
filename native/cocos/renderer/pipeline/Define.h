@@ -167,6 +167,7 @@ enum class CC_DLL ModelLocalBindings {
     SAMPLER_MORPH_TANGENT,
     SAMPLER_LIGHTMAP,
     SAMPLER_SPRITE,
+    SAMPLER_SPOT_LIGHTING_MAP,
 
     COUNT,
 };
@@ -355,5 +356,6 @@ extern CC_DLL const SamplerInfo UniformNormalMorphTexture;
 extern CC_DLL const SamplerInfo UniformTangentMorphTexture;
 extern CC_DLL const SamplerInfo UniformLightingMapSampler;
 extern CC_DLL const SamplerInfo UniformSpriteSampler;
+extern CC_DLL const SamplerInfo UniformSpotLightingMapSampler;
 } // namespace pipeline
 } // namespace cc

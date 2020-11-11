@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/CoreStd.h"
+#include "helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {
@@ -23,6 +24,7 @@ struct AdditiveLightPass {
     const PassView *pass = nullptr;
     gfx::Shader *shader = nullptr;
     vector<uint> dynamicOffsets;
+    vector<const Light *> lights;
 };
 
 class RenderAdditiveLightQueue : public Object {
@@ -35,9 +37,12 @@ public:
 
 private:
     void updateUBOs(const RenderView *view, gfx::CommandBuffer *cmdBuffer);
+    int getLightPassIndex(const ModelView *model) const;
+    bool cullingLight(const Light *light, const ModelView *model);
+    void updateSpotUBO(gfx::DescriptorSet *, const Light *, gfx::CommandBuffer *cmdBufferer) const;
 
 private:
-    gfx::Device *_device = nullptr;
+    ForwardPipeline *_pipeline = nullptr;
     vector<vector<SubModelView *>> _sortedSubModelsArray;
     vector<vector<uint>> _sortedPSOCIArray;
     vector<const Light *> _validLights;
@@ -50,7 +55,7 @@ private:
     RenderBatchedQueue *_batchedQueue = nullptr;
     gfx::Buffer *_lightBuffer = nullptr;
     gfx::Buffer *_firstlightBufferView = nullptr;
-    ForwardPipeline *_forwardPipline = nullptr;
+    gfx::Sampler *_sampler = nullptr;
 
     float _fpScale = 0;
     bool _isHDR = false;

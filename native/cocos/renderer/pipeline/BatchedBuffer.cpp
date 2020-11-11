@@ -45,7 +45,7 @@ void BatchedBuffer::destroy() {
     _batches.clear();
 }
 
-void BatchedBuffer::merge(const SubModelView *subModel, uint passIdx, const RenderObject *renderObject) {
+void BatchedBuffer::merge(const SubModelView *subModel, uint passIdx, const ModelView *model) {
     const auto subMesh = subModel->getSubMesh();
     const auto flatBuffersID = subMesh->getFlatBufferArrayID();
     const auto flatBuffersCount = flatBuffersID ? flatBuffersID[0] : 0;
@@ -119,7 +119,7 @@ void BatchedBuffer::merge(const SubModelView *subModel, uint passIdx, const Rend
 
                 // update world matrix
                 const auto offset = UBOLocalBatched::MAT_WORLDS_OFFSET + batch.mergeCount * 16;
-                const auto &worldMatrix = renderObject->model->getTransform()->worldMatrix;
+                const auto &worldMatrix = model->getTransform()->worldMatrix;
                 memcpy(batch.uboData.data() + offset, worldMatrix.m, sizeof(worldMatrix));
 
                 if (!batch.mergeCount) {
@@ -196,7 +196,7 @@ void BatchedBuffer::merge(const SubModelView *subModel, uint passIdx, const Rend
     descriptorSet->update();
 
     std::array<float, UBOLocalBatched::COUNT> uboData;
-    const auto &worldMatrix = renderObject->model->getTransform()->worldMatrix;
+    const auto &worldMatrix = model->getTransform()->worldMatrix;
     memcpy(uboData.data() + UBOLocalBatched::MAT_WORLDS_OFFSET, worldMatrix.m, sizeof(worldMatrix));
     BatchedItem item = {
         std::move(vbs),                  //vbs

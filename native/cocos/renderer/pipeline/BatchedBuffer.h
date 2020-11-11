@@ -33,7 +33,7 @@ public:
     virtual ~BatchedBuffer();
 
     void destroy();
-    void merge(const SubModelView *, uint passIdx, const RenderObject *);
+    void merge(const SubModelView *, uint passIdx, const ModelView *);
     void clear();
     void setDynamicOffset(uint idx, uint value);
 

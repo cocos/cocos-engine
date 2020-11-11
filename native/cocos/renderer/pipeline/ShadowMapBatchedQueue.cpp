@@ -1,3 +1,5 @@
+#include <array>
+
 #include "ShadowMapBatchedQueue.h"
 #include "BatchedBuffer.h"
 #include "Define.h"
@@ -7,51 +9,85 @@
 #include "RenderInstancedQueue.h"
 #include "gfx/GFXCommandBuffer.h"
 #include "helper/SharedMemory.h"
+#include "forward/ForwardPipeline.h"
+#include "forward/SceneCulling.h"
+#include "gfx/GFXDescriptorSet.h"
+#include "gfx/GFXDevice.h"
 
 namespace cc {
 namespace pipeline {
-ShadowMapBatchedQueue::ShadowMapBatchedQueue()
+ShadowMapBatchedQueue::ShadowMapBatchedQueue(ForwardPipeline *pipeline)
 : _phaseID(getPhaseID("shadow-caster")) {
+    _pipeline = pipeline;
+    _buffer = pipeline->getDescriptorSet()->getBuffer(UBOShadow::BLOCK.layout.binding);
     _instancedQueue = CC_NEW(RenderInstancedQueue);
     _batchedQueue = CC_NEW(RenderBatchedQueue);
 }
 
-void ShadowMapBatchedQueue::clear(gfx::Buffer *buffer) {
+void ShadowMapBatchedQueue::gatherLightPasses(const Light *light, gfx::CommandBuffer *cmdBufferer) {
+    clear();
+
+    const auto *shadowInfo = _pipeline->getShadows();
+    const auto &shadowObjects = _pipeline->getShadowObjects();
+    if (light && shadowInfo->getShadowType() == ShadowType::SHADOWMAP) {
+        updateUBOs(light, cmdBufferer);
+
+        for (const auto ro : shadowObjects) {
+            const auto *model = ro.model;
+
+            switch (light->getType()) {
+                case LightType::DIRECTIONAL:
+                    add(model);
+                    break;
+                case LightType::SPOT:
+                    if (model->getWorldBounds() &&
+                        (aabb_aabb(model->getWorldBounds(), light->getAABB()) ||
+                         aabb_frustum(model->getWorldBounds(), light->getFrustum()))) {
+                        add(model);
+                    }
+                    break;
+                default:;
+            }
+        }
+    }
+}
+
+void ShadowMapBatchedQueue::clear() {
     _subModels.clear();
     _shaders.clear();
     _passes.clear();
     if (_instancedQueue) _instancedQueue->clear();
     if (_batchedQueue) _batchedQueue->clear();
-    _buffer = buffer;
 }
 
-void ShadowMapBatchedQueue::add(const RenderObject &renderObject, uint subModelIdx, uint passIdx) {
-    const auto subModelID = renderObject.model->getSubModelID();
-    const auto subModel = renderObject.model->getSubModelView(subModelID[subModelIdx]);
-    const auto pass = subModel->getPassView(passIdx);
+void ShadowMapBatchedQueue::add(const ModelView *model) {
+    // this assumes light pass index is the same for all submodels
+    const auto shadowPassIdx = getShadowPassIndex(model);
+    if (shadowPassIdx < 0) {
+        return;
+    }
 
-    if (pass->phase == _phaseID) {
-        if (_buffer) {
-            if (pass->getBatchingScheme() == BatchingSchemes::INSTANCING) { // instancing
-                const auto buffer = InstancedBuffer::get(passIdx);
-                buffer->merge(renderObject.model, subModel, passIdx);
-                _instancedQueue->add(buffer);
-            } else if (pass->getBatchingScheme() == BatchingSchemes::VB_MERGING) { // vb-merging
-                const auto buffer = BatchedBuffer::get(passIdx);
-                buffer->merge(subModel, passIdx, &renderObject);
-                _batchedQueue->add(buffer);
-            } else { // standard draw
-                auto shader = subModel->getShader(passIdx);
-                _subModels.emplace_back(subModel);
-                _shaders.emplace_back(shader);
-                _passes.emplace_back(pass);
-            }
-        } else {
-            _subModels.clear();
-            _shaders.clear();
-            _passes.clear();
-            _instancedQueue->clear();
-            _batchedQueue->clear();
+    const auto subModelID = model->getSubModelID();
+    const auto subModelCount = subModelID[0];
+    for (unsigned m = 1; m <= subModelCount; ++m) {
+        const auto subModel = model->getSubModelView(subModelID[m]);
+        const auto pass = subModel->getPassView(shadowPassIdx);
+        const auto batchingScheme = pass->getBatchingScheme();
+        subModel->getDescriptorSet()->bindBuffer(UBOShadow::BLOCK.layout.binding, _buffer);
+        subModel->getDescriptorSet()->update();
+
+        if (batchingScheme == BatchingSchemes::INSTANCING) {
+            auto *instancedBuffer = InstancedBuffer::get(subModel->passID[shadowPassIdx]);
+            instancedBuffer->merge(model, subModel, shadowPassIdx);
+            _instancedQueue->add(instancedBuffer);
+        } else if (batchingScheme == BatchingSchemes::VB_MERGING) {
+            auto *batchedBuffer = BatchedBuffer::get(subModel->passID[shadowPassIdx]);
+            batchedBuffer->merge(subModel, shadowPassIdx, model);
+            _batchedQueue->add(batchedBuffer);
+        } else { // standard draw
+            _subModels.emplace_back(subModel);
+            _shaders.emplace_back(subModel->getShader(shadowPassIdx));
+            _passes.emplace_back(pass);
         }
     }
 }
@@ -82,5 +118,80 @@ void ShadowMapBatchedQueue::destroy() {
 
     _buffer = nullptr;
 }
+
+void ShadowMapBatchedQueue::updateUBOs(const Light *light, gfx::CommandBuffer *cmdBufferer) const {
+    const auto *shadowInfo = _pipeline->getShadows();
+    auto shadowUBO = _pipeline->getShadowUBO();
+    auto* device = gfx::Device::getInstance();
+
+    switch (light->getType()) {
+        case LightType::DIRECTIONAL: {
+            cc::Mat4 matShadowCamera;
+
+            float x = 0.0f, y = 0.0f, farClamp = 0.0f;
+            if (shadowInfo->autoAdapt) {
+                Vec3 tmpCenter;
+                getShadowWorldMatrix(_pipeline->getSphere(), light->getNode()->worldRotation, light->direction, matShadowCamera, tmpCenter);
+            	
+                const auto radius = _pipeline->getSphere()->radius;
+                x = radius * shadowInfo->aspect;
+                y = radius;
+
+                const float halfFar = tmpCenter.distance(_pipeline ->getSphere()->center);
+                farClamp = std::min(halfFar * COEFFICIENT_OF_EXPANSION, SHADOW_CAMERA_MAX_FAR);
+            } else {
+                matShadowCamera = light->getNode()->worldMatrix;
+
+                x = shadowInfo->orthoSize * shadowInfo->aspect;
+                y = shadowInfo->orthoSize;
+
+                farClamp = shadowInfo->farValue;
+            }
+
+            const auto matShadowView = matShadowCamera.getInversed();
+
+            cc::Mat4 matShadowViewProj;
+            const auto projectionSinY = device->getScreenSpaceSignY() * device->getUVSpaceSignY();
+            Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, shadowInfo->farValue, device->getClipSpaceMinZ(), projectionSinY, &matShadowViewProj);
+
+            matShadowViewProj.multiply(matShadowView);
+            memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
+        } break;
+        case LightType::SPOT: {
+            const auto &matShadowCamera = light->getNode()->worldMatrix;
+
+	    const auto matShadowView = matShadowCamera.getInversed();
+
+            cc::Mat4 matShadowViewProj;
+            cc::Mat4::createPerspective(light->spotAngle, light->aspect, 0.001f, light->range, &matShadowViewProj);
+
+            matShadowViewProj.multiply(matShadowView);
+            memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
+        } break;
+        default:;
+    }
+
+    float shadowInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, (float)shadowInfo->pcfType, shadowInfo->bias};
+    memcpy(shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &shadowInfo->color, sizeof(Vec4));
+    memcpy(shadowUBO.data() + UBOShadow::SHADOW_INFO_OFFSET, &shadowInfos, sizeof(shadowInfos));
+
+    cmdBufferer->updateBuffer(_pipeline->getDescriptorSet()->getBuffer(UBOShadow::BLOCK.layout.binding), shadowUBO.data(), UBOShadow::SIZE);
+}
+
+int ShadowMapBatchedQueue::getShadowPassIndex(const ModelView *model) const {
+    const auto subModelArrayID = model->getSubModelID();
+    const auto count = subModelArrayID[0];
+    for (unsigned i = 1; i <= count; i++) {
+        const auto subModel = model->getSubModelView(subModelArrayID[i]);
+        for (unsigned passIdx = 0; passIdx < subModel->passCount; passIdx++) {
+            const auto pass = subModel->getPassView(passIdx);
+            if (pass->phase == _phaseID) {
+                return passIdx;
+            }
+        }
+    }
+    return -1;
+}
+
 } // namespace pipeline
 } // namespace cc

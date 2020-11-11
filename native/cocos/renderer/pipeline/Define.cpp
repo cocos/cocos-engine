@@ -331,6 +331,22 @@ const SamplerInfo UniformSpriteSampler = {
     },
 };
 
+const SamplerInfo UniformSpotLightingMapSampler = {
+    {
+        LOCAL_SET,
+        static_cast<uint>(ModelLocalBindings::SAMPLER_SPOT_LIGHTING_MAP),
+        "cc_spotLightingMap",
+        gfx::Type::SAMPLER2D,
+        1,
+    },
+    {
+        static_cast<uint>(ModelLocalBindings::SAMPLER_SPOT_LIGHTING_MAP),
+        gfx::DescriptorType::SAMPLER,
+        1,
+        gfx::ShaderStageFlagBit::FRAGMENT,
+    },
+};
+
 DescriptorSetLayoutInfos globalDescriptorSetLayout;
 DescriptorSetLayoutInfos localDescriptorSetLayout;
 
@@ -347,7 +363,7 @@ uint genSamplerHash(const gfx::SamplerInfo &info) {
     hash |= static_cast<uint>(info.minLOD) << 20;
     hash |= static_cast<uint>(info.maxLOD) << 24;
     hash |= static_cast<uint>(info.mipLODBias) << 28;
-    return 0;
+    return hash;
 }
 
 static uint defaultSamplerHash = genSamplerHash(gfx::SamplerInfo());

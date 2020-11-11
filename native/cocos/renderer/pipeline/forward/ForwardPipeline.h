@@ -1,10 +1,12 @@
 #pragma once
 
+#include <array>
+
 #include "../RenderPipeline.h"
+#include "../helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {
-struct Light;
 struct UBOGlobal;
 struct UBOShadow;
 struct Fog;
@@ -12,6 +14,7 @@ struct Ambient;
 struct Skybox;
 struct Shadows;
 struct Sphere;
+class Framebuffer;
 
 class CC_DLL ForwardPipeline : public RenderPipeline {
 public:
@@ -32,6 +35,8 @@ public:
     void setSkybox(uint);
     void setShadows(uint);
 
+    map<const Light *, gfx::Framebuffer *> &getShadowFramebuffer() { return _shadowFrameBufferMap; }
+
     CC_INLINE gfx::Buffer *getLightsUBO() const { return _lightsUBO; }
     CC_INLINE const LightList &getValidLights() const { return _validLights; }
     CC_INLINE const gfx::BufferList &getLightBuffers() const { return _lightBuffers; }
@@ -48,9 +53,9 @@ public:
     CC_INLINE const Skybox *getSkybox() const { return _skybox; }
     CC_INLINE Shadows *getShadows() const { return _shadows; }
     CC_INLINE Sphere *getSphere() const { return _sphere; }
-    CC_INLINE Sphere *getReceivedSphere() const { return _receivedSphere; }
+    CC_INLINE std::array<float, UBOShadow::COUNT> getShadowUBO() const { return _shadowUBO; }
 
-    void setRenderObjcts(const RenderObjectList &ro) { _renderObjects = std::move(ro); }
+    void setRenderObjects(const RenderObjectList &ro) { _renderObjects = std::move(ro); }
     void setShadowObjects(const RenderObjectList &ro) { _shadowObjects = std::move(ro); }
 
 private:
@@ -73,11 +78,12 @@ private:
     std::array<float, UBOGlobal::COUNT> _globalUBO;
     std::array<float, UBOShadow::COUNT> _shadowUBO;
     Sphere *_sphere = nullptr;
-    Sphere *_receivedSphere = nullptr;
 
     float _shadingScale = 1.0f;
     bool _isHDR = false;
     float _fpScale = 1.0f / 1024.0f;
+
+    map<const Light *, gfx::Framebuffer *> _shadowFrameBufferMap;
 };
 
 } // namespace pipeline

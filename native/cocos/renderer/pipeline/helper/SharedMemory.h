@@ -63,6 +63,9 @@ extern gfx::BlendState *getBlendStateImpl(uint index);
 // Get raw buffer or gfx object.
 #define GET_RAW_BUFFER(index, size) SharedMemory::getRawBuffer<uint8_t>(se::PoolType::RAW_BUFFER, index, size)
 
+static const float SHADOW_CAMERA_MAX_FAR = 2000.0f;
+static const float COEFFICIENT_OF_EXPANSION = 2.0f * std::sqrtf(3.0f);
+
 class CC_DLL SharedMemory : public Object {
 public:
     template <typename T>
@@ -163,8 +166,9 @@ struct CC_DLL Light {
     uint32_t lightType = 0;
     uint32_t aabbID = 0;
     uint32_t frustumID = 0;
-    float size;
-    float spotAngle;
+    float size = 0.15f;
+    float spotAngle = 0.0f;
+    float aspect = 1.0f;
     cc::Vec3 direction;
     cc::Vec3 color;
     cc::Vec3 colorTemperatureRGB;
@@ -359,6 +363,8 @@ struct CC_DLL Sphere {
     void define(const AABB &aabb);
     void mergeAABB(const AABB *aabb);
     void mergePoint(const cc::Vec3 &point);
+    bool interset(const Frustum &frustum) const;
+    int interset(const Plane &plane) const;
 
     const static se::PoolType type;
 };
@@ -373,15 +379,16 @@ struct CC_DLL Shadows {
     uint32_t enabled = 0;
     uint32_t dirty = 0;
     uint32_t shadowType = 0;
-    float distance = 0;
-    float instancePass = 0;
-    float planarPass = 0;
-    float nearValue = 0;
-    float farValue = 0;
-    float aspect = 0;
+    float distance = 0.0f;
+    float instancePass = 0.0f;
+    float planarPass = 0.0f;
+    float nearValue = 0.0f;
+    float farValue = 0.0f;
+    float aspect = 0.0f;
     uint32_t pcfType = 0;
-    float bias = 0;
-    float orthoSize = 0;
+    uint32_t shadowMapDirty = 0;
+    float bias = 0.0f;
+    float orthoSize = 0.0f;
     uint32_t autoAdapt = 0;
 
     cc::Vec4 color;
