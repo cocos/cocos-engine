@@ -27,6 +27,13 @@ SE_DECLARE_FUNC(js_pipeline_RenderPipeline_initialize);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_destroy);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getInstance);
 
+extern se::Object* __jsb_cc_pipeline_RenderWindow_proto;
+extern se::Class* __jsb_cc_pipeline_RenderWindow_class;
+
+bool js_register_cc_pipeline_RenderWindow(se::Object* obj);
+bool register_all_pipeline(se::Object* obj);
+SE_DECLARE_FUNC(js_pipeline_RenderWindow_getFramebuffer);
+
 extern se::Object* __jsb_cc_pipeline_ForwardPipeline_proto;
 extern se::Class* __jsb_cc_pipeline_ForwardPipeline_class;
 
@@ -34,7 +41,9 @@ bool js_register_cc_pipeline_ForwardPipeline(se::Object* obj);
 bool register_all_pipeline(se::Object* obj);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_setFog);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_getSphere);
+SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_setRenderObjects);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_setShadows);
+SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_getShadowFramebuffer);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_setSkybox);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_setAmbient);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_ForwardPipeline);
@@ -98,6 +107,7 @@ extern se::Class* __jsb_cc_pipeline_ShadowStage_class;
 
 bool js_register_cc_pipeline_ShadowStage(se::Object* obj);
 bool register_all_pipeline(se::Object* obj);
+SE_DECLARE_FUNC(js_pipeline_ShadowStage_setUseData);
 SE_DECLARE_FUNC(js_pipeline_ShadowStage_setFramebuffer);
 SE_DECLARE_FUNC(js_pipeline_ShadowStage_getInitializeInfo);
 SE_DECLARE_FUNC(js_pipeline_ShadowStage_ShadowStage);
@@ -134,13 +144,6 @@ SE_DECLARE_FUNC(js_pipeline_RenderView_destroy);
 SE_DECLARE_FUNC(js_pipeline_RenderView_getFlows);
 SE_DECLARE_FUNC(js_pipeline_RenderView_setWindow);
 SE_DECLARE_FUNC(js_pipeline_RenderView_RenderView);
-
-extern se::Object* __jsb_cc_pipeline_RenderWindow_proto;
-extern se::Class* __jsb_cc_pipeline_RenderWindow_class;
-
-bool js_register_cc_pipeline_RenderWindow(se::Object* obj);
-bool register_all_pipeline(se::Object* obj);
-SE_DECLARE_FUNC(js_pipeline_RenderWindow_getFramebuffer);
 
 extern se::Object* __jsb_cc_pipeline_InstancedBuffer_proto;
 extern se::Class* __jsb_cc_pipeline_InstancedBuffer_class;
