@@ -189,6 +189,8 @@ export class AnimationCurve {
             case WrapMode.PingPong:
                 wrappedTime = pingPong(time - startTime, endTime - startTime) + startTime;
                 break;
+            case WrapMode.Default:
+            case WrapMode.Normal:
             case WrapMode.Clamp:
                 wrappedTime = clamp(time, startTime, endTime);
                 break;
@@ -246,6 +248,8 @@ export class AnimationCurve {
             case WrapMode.PingPong:
                 wrappedTime = pingPong(time - startTime, endTime - startTime) + startTime;
                 break;
+            case WrapMode.Default:
+            case WrapMode.Normal:
             case WrapMode.Clamp:
                 wrappedTime = clamp(time, startTime, endTime);
                 break;
@@ -254,10 +258,7 @@ export class AnimationCurve {
             return this.cachedKey.evaluate(wrappedTime);
         } else {
             const leftIndex = this.findIndex(this.cachedKey, wrappedTime);
-            let rightIndex = leftIndex + 1;
-            if (rightIndex === this.keyFrames!.length) {
-                rightIndex -= 1;
-            }
+            const rightIndex = Math.min(leftIndex + 1, this.keyFrames!.length - 1);
             this.calcOptimizedKey(this.cachedKey, leftIndex, rightIndex);
             return this.cachedKey.evaluate(wrappedTime);
         }
