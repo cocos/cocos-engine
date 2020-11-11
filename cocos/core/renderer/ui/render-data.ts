@@ -128,7 +128,7 @@ export class RenderData extends BaseRenderData {
 
 export class MeshRenderData extends BaseRenderData {
     public vData: Float32Array;
-    public iData: Uint16Array = new Uint16Array(256 * 6);
+    public iData: Uint16Array;
     /**
      * Each vertex contains multiple float numbers
      */
@@ -149,6 +149,7 @@ export class MeshRenderData extends BaseRenderData {
     }
 
     set formatByte (value: number) { this._formatByte = value; }
+
     get formatByte () { return this._formatByte; }
 
     get floatStride () { return this._formatByte >> 2; }
