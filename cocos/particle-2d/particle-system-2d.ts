@@ -889,6 +889,8 @@ export class ParticleSystem2D extends UIRenderable {
                 }
                 self._plistFile = file.nativeUrl;
                 if (!self._custom) {
+                    var isDiffFrame = self._spriteFrame !== file.spriteFrame;
+                    if (isDiffFrame) self.spriteFrame = file.spriteFrame;
                     self._initWithDictionary(file._nativeAsset);
                 }
 

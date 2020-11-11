@@ -31,6 +31,7 @@
 import { UIComponent } from '../components/ui-base/ui-component';
 import { UITransform } from '../components/ui-base/ui-transform';
 import { UIRenderable } from '../components/ui-base/ui-renderable';
+import { warnID } from '../platform';
 
 /**
  * @en Node's UI properties abstraction
@@ -56,7 +57,19 @@ export class NodeUIProperties {
      * @en The base UI component
      * @zh UI 基类组件
      */
-    public uiComp: UIComponent | UIRenderable | null = null;
+    get uiComp () {
+        return this._uiComp;
+    }
+    set uiComp (comp: UIComponent | UIRenderable | null) {
+        if (this._uiComp) {
+            warnID(12002);
+            return;
+        }
+        this._uiComp = comp;
+    }
+    
+    private _uiComp: UIComponent | UIRenderable | null = null;
+
     /**
      * @en The opacity of the UI node
      * @zh UI 透明度

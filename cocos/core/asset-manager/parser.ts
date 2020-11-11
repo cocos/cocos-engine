@@ -34,8 +34,8 @@ import Cache from './cache';
 import deserialize from './deserialize';
 import { isScene } from './helper';
 import plistParser from './plist-parser';
-import { CompleteCallback, IDownloadParseOptions } from './shared';
-import { files, parsed } from './shared';
+import { CompleteCallback, IDownloadParseOptions, files, parsed } from './shared';
+
 import { PixelFormat } from '../assets/asset-enum';
 
 // PVR constants //
@@ -64,19 +64,19 @@ const ETC1_RGB_NO_MIPMAPS = 0;
 const ETC2_RGB_NO_MIPMAPS = 1;
 const ETC2_RGBA_NO_MIPMAPS = 3;
 
-//===============//
+//= ==============//
 // ASTC constants //
-//===============//
+//= ==============//
 
 // struct astc_header
 // {
-// 	uint8_t magic[4];
-// 	uint8_t blockdim_x;
-// 	uint8_t blockdim_y;
-// 	uint8_t blockdim_z;
-// 	uint8_t xsize[3];			// x-size = xsize[0] + xsize[1] + xsize[2]
-// 	uint8_t ysize[3];			// x-size, y-size and z-size are given in texels;
-// 	uint8_t zsize[3];			// block count is inferred
+//  uint8_t magic[4];
+//  uint8_t blockdim_x;
+//  uint8_t blockdim_y;
+//  uint8_t blockdim_z;
+//  uint8_t xsize[3]; // x-size = xsize[0] + xsize[1] + xsize[2]
+//  uint8_t ysize[3]; // x-size, y-size and z-size are given in texels;
+//  uint8_t zsize[3]; // block count is inferred
 // };
 const ASTC_MAGIC = 0x5CA1AB13;
 
@@ -88,49 +88,43 @@ const ASTC_HEADER_SIZE_X_BEGIN = 7;
 const ASTC_HEADER_SIZE_Y_BEGIN = 10;
 const ASTC_HEADER_SIZE_Z_BEGIN = 13;
 
-function getASTCFormat (xdim,ydim) {
+function getASTCFormat (xdim, ydim) {
     if (xdim === 4) {
         return PixelFormat.RGBA_ASTC_4x4;
-    } else if (xdim === 5) {
+    } if (xdim === 5) {
         if (ydim === 4) {
             return PixelFormat.RGBA_ASTC_5x4;
-        } else {
-            return PixelFormat.RGBA_ASTC_5x5;
         }
-    } else if (xdim === 6) {
+        return PixelFormat.RGBA_ASTC_5x5;
+    } if (xdim === 6) {
         if (ydim === 5) {
             return PixelFormat.RGBA_ASTC_6x5;
-        } else {
-            return PixelFormat.RGBA_ASTC_6x6;
         }
-    } else if (xdim === 8) {
+        return PixelFormat.RGBA_ASTC_6x6;
+    } if (xdim === 8) {
         if (ydim === 5) {
             return PixelFormat.RGBA_ASTC_8x5;
-        } else if (ydim === 6) {
+        } if (ydim === 6) {
             return PixelFormat.RGBA_ASTC_8x6;
-        } else {
-            return PixelFormat.RGBA_ASTC_8x8;
         }
-    } else if (xdim === 10) {
+        return PixelFormat.RGBA_ASTC_8x8;
+    } if (xdim === 10) {
         if (ydim === 5) {
             return PixelFormat.RGBA_ASTC_10x5;
-        } else if (ydim === 6) {
+        } if (ydim === 6) {
             return PixelFormat.RGBA_ASTC_10x6;
-        } else if (ydim === 8) {
+        } if (ydim === 8) {
             return PixelFormat.RGBA_ASTC_10x8;
-        } else {
-            return PixelFormat.RGBA_ASTC_10x10;
         }
-    } else {
-        if (ydim === 10) {
-            return PixelFormat.RGBA_ASTC_12x10;
-        } else {
-            return PixelFormat.RGBA_ASTC_12x12;
-        }
+        return PixelFormat.RGBA_ASTC_10x10;
     }
+    if (ydim === 10) {
+        return PixelFormat.RGBA_ASTC_12x10;
+    }
+    return PixelFormat.RGBA_ASTC_12x12;
 }
 
-function readBEUint16 (header, offset) {
+function readBEUint16 (header, offset: number) {
     return (header[offset] << 8) | header[offset + 1];
 }
 
@@ -145,38 +139,38 @@ export type ParseHandler = (file: any, options: IDownloadParseOptions, onComplet
  *
  */
 export class Parser {
-
     private _parsing = new Cache<CompleteCallback[]>();
 
     private _parsers: Record<string, ParseHandler> = {
-        '.png' : this.parseImage,
-        '.jpg' : this.parseImage,
-        '.bmp' : this.parseImage,
-        '.jpeg' : this.parseImage,
-        '.gif' : this.parseImage,
-        '.ico' : this.parseImage,
-        '.tiff' : this.parseImage,
-        '.webp' : this.parseImage,
-        '.image' : this.parseImage,
-        '.pvr' : this.parsePVRTex,
-        '.pkm' : this.parsePKMTex,
+        '.png': this.parseImage,
+        '.jpg': this.parseImage,
+        '.bmp': this.parseImage,
+        '.jpeg': this.parseImage,
+        '.gif': this.parseImage,
+        '.ico': this.parseImage,
+        '.tiff': this.parseImage,
+        '.webp': this.parseImage,
+        '.image': this.parseImage,
+        '.pvr': this.parsePVRTex,
+        '.pkm': this.parsePKMTex,
         '.astc': this.parseASTCTex,
         // Audio
-        '.mp3' : this.parseAudio,
-        '.ogg' : this.parseAudio,
-        '.wav' : this.parseAudio,
-        '.m4a' : this.parseAudio,
+        '.mp3': this.parseAudio,
+        '.ogg': this.parseAudio,
+        '.wav': this.parseAudio,
+        '.m4a': this.parseAudio,
 
         // plist
-        '.plist' : this.parsePlist,
-        'import' : this.parseImport,
+        '.plist': this.parsePlist,
+        import: this.parseImport,
     };
 
     public parseImage (file: HTMLImageElement | Blob, options: IDownloadParseOptions, onComplete: CompleteCallback<HTMLImageElement|ImageBitmap>) {
         if (file instanceof HTMLImageElement) {
-            return onComplete(null, file);
+            onComplete(null, file);
+            return;
         }
-        createImageBitmap(file).then((result) => {
+        createImageBitmap(file, { premultiplyAlpha: 'none' }).then((result) => {
             onComplete(null, result);
         }, (err) => {
             onComplete(err, null);
@@ -188,10 +182,9 @@ export class Parser {
             sys.__audioSupport.context.decodeAudioData(file, (buffer) => {
                 onComplete(null, buffer);
             }, (e) => {
-                onComplete(new Error("Error with decoding audio data" + e.err), null);
+                onComplete(new Error(`Error with decoding audio data${e.err}`), null);
             });
-        }
-        else {
+        } else {
             onComplete(null, file);
         }
     }
@@ -205,7 +198,7 @@ export class Parser {
             const header = new Int32Array(buffer, 0, PVR_HEADER_LENGTH);
 
             // Do some sanity checks to make sure this is a valid DDS file.
-            if(header[PVR_HEADER_MAGIC] === PVR_MAGIC) {
+            if (header[PVR_HEADER_MAGIC] === PVR_MAGIC) {
                 // Gather other basic metrics and a view of the raw the DXT data.
                 const width = header[PVR_HEADER_WIDTH];
                 const height = header[PVR_HEADER_HEIGHT];
@@ -216,12 +209,11 @@ export class Parser {
                 out = {
                     _data: pvrtcData,
                     _compressed: true,
-                    width: width,
-                    height: height,
+                    width,
+                    height,
                     format: 0,
                 };
-            }
-            else if (header[11] === 0x21525650) {
+            } else if (header[11] === 0x21525650) {
                 const headerLength = header[0];
                 const height = header[1];
                 const width = header[2];
@@ -231,16 +223,14 @@ export class Parser {
                 out = {
                     _data: pvrtcData,
                     _compressed: true,
-                    width: width,
-                    height: height,
+                    width,
+                    height,
                     format: 0,
                 };
-            }
-            else {
+            } else {
                 throw new Error('Invalid magic number in PVR header');
             }
-        }
-        catch (e) {
+        } catch (e) {
             err = e;
         }
         onComplete(err, out);
@@ -268,9 +258,7 @@ export class Parser {
                 height,
                 format: 0,
             };
-
-        }
-        catch (e) {
+        } catch (e) {
             err = e;
         }
         onComplete(err, out);
@@ -285,19 +273,19 @@ export class Parser {
 
             const magicval = header[0] + (header[1] << 8) + (header[2] << 16) + (header[3] << 24);
             if (magicval !== ASTC_MAGIC) {
-                return new Error('Invalid magic number in ASTC header');
+                throw new Error('Invalid magic number in ASTC header');
             }
 
             const xdim = header[ASTC_HEADER_MAGIC];
             const ydim = header[ASTC_HEADER_MAGIC + 1];
             const zdim = header[ASTC_HEADER_MAGIC + 2];
-            if ((xdim < 3 || xdim > 6 || ydim < 3 || ydim > 6 || zdim < 3 || zdim > 6) &&
-                (xdim < 4 || xdim === 7 || xdim === 9 || xdim === 11 || xdim > 12 ||
-                ydim < 4 || ydim === 7 || ydim === 9 || ydim === 11 || ydim > 12 || zdim !== 1)) {
-                return new Error('Invalid block number in ASTC header');
+            if ((xdim < 3 || xdim > 6 || ydim < 3 || ydim > 6 || zdim < 3 || zdim > 6)
+                && (xdim < 4 || xdim === 7 || xdim === 9 || xdim === 11 || xdim > 12
+                || ydim < 4 || ydim === 7 || ydim === 9 || ydim === 11 || ydim > 12 || zdim !== 1)) {
+                throw new Error('Invalid block number in ASTC header');
             }
 
-            const format = getASTCFormat(xdim,ydim);
+            const format = getASTCFormat(xdim, ydim);
 
             const xsize = header[ASTC_HEADER_SIZE_X_BEGIN] + (header[ASTC_HEADER_SIZE_X_BEGIN + 1] << 8) + (header[ASTC_HEADER_SIZE_X_BEGIN + 2] << 16);
             const ysize = header[ASTC_HEADER_SIZE_Y_BEGIN] + (header[ASTC_HEADER_SIZE_Y_BEGIN + 1] << 8) + (header[ASTC_HEADER_SIZE_Y_BEGIN + 2] << 16);
@@ -311,10 +299,9 @@ export class Parser {
                 _compressed: true,
                 width: xsize,
                 height: ysize,
-                format: format
+                format,
             };
-        }
-        catch (e) {
+        } catch (e) {
             err = e;
         }
         onComplete(err, out);
@@ -328,13 +315,15 @@ export class Parser {
     }
 
     public parseImport (file: Record<string, any>, options: IDownloadParseOptions, onComplete: CompleteCallback<Asset>) {
-        if (!file) { return onComplete(new Error('Json is empty')); }
+        if (!file) {
+            onComplete(new Error('Json is empty'));
+            return;
+        }
         let result: Asset | null = null;
         let err: Error | null = null;
         try {
             result = deserialize(file, options);
-        }
-        catch (e) {
+        } catch (e) {
             err = e;
         }
         onComplete(err, result);
@@ -367,8 +356,7 @@ export class Parser {
     public register (type: string | Record<string, ParseHandler>, handler?: ParseHandler) {
         if (typeof type === 'object') {
             js.mixin(this._parsers, type);
-        }
-        else {
+        } else {
             this._parsers[type] = handler as ParseHandler;
         }
     }
@@ -397,7 +385,8 @@ export class Parser {
     public parse (id: string, file: any, type: string, options: IDownloadParseOptions, onComplete: CompleteCallback): void {
         const parsedAsset = parsed.get(id);
         if (parsedAsset) {
-            return onComplete(null, parsedAsset);
+            onComplete(null, parsedAsset);
+            return;
         }
         const parsing = this._parsing.get(id);
         if (parsing) {
@@ -407,15 +396,15 @@ export class Parser {
 
         const parseHandler = this._parsers[type];
         if (!parseHandler) {
-            return onComplete(null, file);
+            onComplete(null, file);
+            return;
         }
 
         this._parsing.add(id, [onComplete]);
         parseHandler(file, options, (err, data) => {
             if (err) {
                 files.remove(id);
-            }
-            else if (!isScene(data)) {
+            } else if (!isScene(data)) {
                 parsed.add(id, data);
             }
             const callbacks = this._parsing.remove(id);
