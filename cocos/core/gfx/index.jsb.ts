@@ -41,11 +41,7 @@ export const Device = gfx.Device;
 export { DeviceInfo, BindingMappingInfo } from './device';
 
 export const Shader = gfx.Shader;
-export const Uniform = gfx.Uniform;
-export const UniformBlock = gfx.UniformBlock;
-export const UniformSampler = gfx.UniformSampler;
-export const ShaderInfo = gfx.ShaderInfo;
-export { ShaderStage } from './shader';
+export { ShaderStage, UniformSampler, UniformBlock, Uniform, ShaderInfo } from './shader';
 
 export const Attribute = gfx.Attribute;
 export const InputAssemblerInfo = gfx.InputAssemblerInfo;
