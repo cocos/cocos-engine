@@ -293,10 +293,7 @@ export class RenderAdditiveLightQueue {
 
             for (let j = 0; j < dynamicOffsets.length; ++j) {
                 const light = lights[j];
-                if (light.type === LightType.SPOT && this._pipeline.shadowFrameBufferMap.has(light) &&
-                this._pipeline.shadows.type === ShadowType.ShadowMap) {
-                    this._updateShadowUBO(localDS, light);
-                }
+                if (this._pipeline.shadows.type === ShadowType.ShadowMap) { this._updateShadowUBO(localDS, light); }
                 _dynamicOffsets[0] = dynamicOffsets[j];
                 cmdBuff.bindDescriptorSet(SetIndex.LOCAL, localDS, _dynamicOffsets);
                 cmdBuff.draw(ia);
@@ -308,24 +305,39 @@ export class RenderAdditiveLightQueue {
     protected _updateShadowUBO (descriptorSet: DescriptorSet, light: Light) {
         const shadowInfo = this._pipeline.shadows;
         const shadowUBO = this._pipeline.shadowUBO;
-        const spotLight = light as SpotLight;
-        // light view
-        Mat4.invert(_matShadowView, spotLight.node!.getWorldMatrix());
+        switch (light.type) {
+            case LightType.SPOT:
+                const spotLight = light as SpotLight;
+                // light view
+                Mat4.invert(_matShadowView, spotLight.node!.getWorldMatrix());
 
-        // light proj
-        Mat4.perspective(_matShadowViewProj, spotLight.spotAngle, spotLight.aspect, 0.001, spotLight.range);
+                // light proj
+                Mat4.perspective(_matShadowViewProj, spotLight.spotAngle, spotLight.aspect, 0.001, spotLight.range);
 
-        // light viewProj
-        Mat4.multiply(_matShadowViewProj, _matShadowViewProj, _matShadowView);
+                // light viewProj
+                Mat4.multiply(_matShadowViewProj, _matShadowViewProj, _matShadowView);
 
-        Mat4.toArray(shadowUBO, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
+                Mat4.toArray(shadowUBO, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-        Color.toArray(shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
+                Color.toArray(shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
 
-        _vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, shadowInfo.pcf, shadowInfo.bias / 100.0);
-        Vec4.toArray(shadowUBO, _vec4ShadowInfo, UBOShadow.SHADOW_INFO_OFFSET);
+                _vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, shadowInfo.pcf, shadowInfo.bias / 100.0);
+                Vec4.toArray(shadowUBO, _vec4ShadowInfo, UBOShadow.SHADOW_INFO_OFFSET);
 
-        descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, this._pipeline.shadowFrameBufferMap.get(light)!.colorTextures[0]!);
+                descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, this._pipeline.shadowFrameBufferMap.get(light)!.colorTextures[0]!);
+                break;
+            
+            case LightType.SPHERE:
+                let framebufferArray = Array.from(this._pipeline.shadowFrameBufferMap.values());
+                for (let i = 0; i < framebufferArray.length; i++) {
+                    if (framebufferArray[i].colorTextures[0]) {
+                        descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, framebufferArray[i].colorTextures[0]!);
+                        break;
+                    }
+                }
+                break;
+        }
+
         descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, this._sampler!);
         descriptorSet.update();
         this._pipeline.descriptorSet.getBuffer(UBOShadow.BINDING).update(shadowUBO);
