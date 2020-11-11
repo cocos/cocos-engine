@@ -53,7 +53,7 @@ export class StencilManager {
     private _maskStack: any[] = [];
     private _stencilPattern = {
         stencilTest: true,
-        func: ComparisonFunc.NEVER,
+        func: ComparisonFunc.ALWAYS,
         stencilMask: 0xffff,
         writeMask: 0xffff,
         failOp: StencilOp.KEEP,

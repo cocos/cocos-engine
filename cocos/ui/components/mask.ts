@@ -182,6 +182,10 @@ export class Mask extends UIRenderable {
         }
 
         this._inverted = value;
+        this.stencilStage = Stage.DISABLED;
+        if (this._graphics) {
+            this._graphics.stencilStage = Stage.DISABLED;
+        }
     }
 
     /**
