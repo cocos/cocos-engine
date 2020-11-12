@@ -730,7 +730,7 @@ export class Label extends UIRenderable {
     }
 
     protected _render (render: UI) {
-        render.commitComp(this, this._texture, this._assembler!);
+        render.commitComp(this, this._texture, this._assembler!, null);
     }
 
     protected _updateColor () {

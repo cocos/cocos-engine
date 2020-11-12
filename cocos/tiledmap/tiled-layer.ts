@@ -1432,7 +1432,7 @@ export class TiledLayer extends UIRenderable {
                     });
                 } else if ((m as TiledMeshData).texture) {
                     // NOTE: 由于 commitComp 只支持单张纹理, 故分多次提交
-                    ui.commitComp(this, (m as TiledMeshData).texture, this._assembler);
+                    ui.commitComp(this, (m as TiledMeshData).texture, this._assembler, null);
                 }
             }
             this.node._static = true;

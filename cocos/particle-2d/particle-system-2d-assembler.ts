@@ -48,13 +48,6 @@ export const ParticleAssembler: IAssembler = {
             return;
         }
 
-        let node;
-        if (comp.positionType === PositionType.RELATIVE) {
-            node = comp.node.parent;
-        } else {
-            node = comp.node;
-        }
-
         let buffer = renderer.acquireBufferBatch()!;
         let vertexOffset = buffer.byteOffset >> 2;
         let indicesOffset = buffer.indicesOffset;

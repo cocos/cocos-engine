@@ -113,6 +113,7 @@ export class UI {
     private _currMeshBuffer: MeshBuffer | null = null;
     private _currStaticRoot: UIStaticBatch | null = null;
     private _currComponent: UIRenderable | null = null;
+    private _currTransform: Node | null = null;
     private _currTextureHash = 0;
     private _currSamplerHash = 0;
     private _currMaterialHash = 0;
@@ -413,6 +414,7 @@ export class UI {
         this._currTexture = null;
         this._currSampler = null;
         this._currComponent = null;
+        this._currTransform = null;
         this._meshBufferUseCount.clear();
         this._currMaterialHash = 0;
         this._currMaterialUniformHash = 0;
@@ -433,7 +435,7 @@ export class UI {
      * @param frame - 当前执行组件贴图。
      * @param assembler - 当前组件渲染数据组装器。
      */
-    public commitComp (comp: UIRenderable, frame: TextureBase | SpriteFrame | RenderTexture | null, assembler: any) {
+    public commitComp (comp: UIRenderable, frame: TextureBase | SpriteFrame | RenderTexture | null, assembler: any, transform: Node | null) {
         const renderComp = comp;
         let texture;
         let samp;
@@ -455,10 +457,11 @@ export class UI {
 
         // use material judgment merge is increasingly impossible, change to hash is more possible
         if (this._currMaterialHash !== matHash || this._currMaterialUniformHash !== matUniformHash
-            || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash
+            || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform
         ) {
             this.autoMergeBatches(this._currComponent!);
             this._currComponent = renderComp;
+            this._currTransform = transform;
             this._currMaterial = mat!;
             this._currTexture = texture;
             this._currSampler = samp;
@@ -519,10 +522,12 @@ export class UI {
         curDrawBatch.material = mat;
         curDrawBatch.texture = null;
         curDrawBatch.sampler = null;
+        curDrawBatch.useLocalData = null;
 
         // reset current render state to null
         this._currMaterial = this._emptyMaterial;
         this._currComponent = null;
+        this._currTransform = null;
         this._currTexture = null;
         this._currSampler = null;
         this._currTextureHash = 0;
@@ -559,7 +564,6 @@ export class UI {
         const uiCanvas = this._currCanvas;
         const hIA = buffer?.recordBatch();
         let mat = this._currMaterial;
-
         if (!hIA || !mat) {
             return;
         }
@@ -579,7 +583,7 @@ export class UI {
         curDrawBatch.texture = this._currTexture!;
         curDrawBatch.sampler = this._currSampler;
         curDrawBatch.hInputAssembler = hIA;
-
+        curDrawBatch.useLocalData = this._currTransform;
         curDrawBatch.textureHash = this._currTextureHash;
         curDrawBatch.samplerHash = this._currSamplerHash;
 
@@ -628,6 +632,7 @@ export class UI {
         this._currMaterial = this._emptyMaterial;
         this._currTexture = null;
         this._currComponent = null;
+        this._currTransform = null;
         this._currTextureHash = 0;
         this._currSamplerHash = 0;
         this._currMaterialHash = 0;
