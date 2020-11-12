@@ -746,7 +746,7 @@ NSUInteger highestSupportedFeatureSet(id<MTLDevice> device) {
         maxKnownFeatureSet = MTLFeatureSet_macOS_GPUFamily1_v1;
     }
 #endif
-    for (auto featureSet = maxKnownFeatureSet; featureSet >= 0; --featureSet) {
+    for (int featureSet = maxKnownFeatureSet; featureSet >= 0; --featureSet) {
         if ([device supportsFeatureSet:MTLFeatureSet(featureSet)]) {
             return featureSet;
         }
