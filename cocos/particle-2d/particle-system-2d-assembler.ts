@@ -55,7 +55,7 @@ export const ParticleAssembler: IAssembler = {
             node = comp.node;
         }
 
-        let buffer = renderer.currBufferBatch!;
+        let buffer = renderer.acquireBufferBatch()!;
         let vertexOffset = buffer.byteOffset >> 2;
         let indicesOffset = buffer.indicesOffset;
         let vertexId = buffer.vertexOffset;
@@ -66,7 +66,7 @@ export const ParticleAssembler: IAssembler = {
             vertexId = 0;
         }
 
-         // buffer data may be realloc, need get reference after request.
+        // buffer data may be realloc, need get reference after request.
         const vBuf = buffer.vData!;
         const iBuf = buffer.iData!;
 
@@ -83,12 +83,12 @@ export const ParticleAssembler: IAssembler = {
             iBuf[indicesOffset++] = iData[i] + vertexId;
         }
     },
-}
+};
 
 export const ParticleSystem2DAssembler: IAssemblerManager = {
     getAssembler (comp: ParticleSystem2D) {
         if (!ParticleAssembler.maxParticleDeltaTime) {
-            ParticleAssembler.maxParticleDeltaTime = legacyCC.game.frameTime / 1000 * 2
+            ParticleAssembler.maxParticleDeltaTime = legacyCC.game.frameTime / 1000 * 2;
         }
         return ParticleAssembler;
     },

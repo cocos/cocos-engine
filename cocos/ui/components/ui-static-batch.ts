@@ -28,15 +28,14 @@
  * @module ui
  */
 
+import { ccclass, help, menu, executionOrder, visible, override } from 'cc.decorator';
 import { UIRenderable } from '../../core/components/ui-base/ui-renderable';
 import { UI } from '../../core/renderer/ui/ui';
 import { MeshBuffer } from '../../core/renderer/ui/mesh-buffer';
-import { ccclass, help, menu, executionOrder, visible, type, displayName, override } from 'cc.decorator';
 import { UIDrawBatch } from '../../core/renderer/ui/ui-draw-batch';
-import { director, Color, Material, warnID } from '../../core';
+import { director, Color, warnID } from '../../core';
 import { vfmtPosUvColor } from '../../core/renderer/ui/ui-vertex-format';
 import { BlendFactor } from '../../core/gfx';
-
 
 /**
  * @en
@@ -130,12 +129,11 @@ export class UIStaticBatch extends UIRenderable {
         super.onDestroy();
 
         this._clearData();
-        if(this._meshBuffer){
+        if (this._meshBuffer) {
             this._meshBuffer.destroy();
             this._meshBuffer = null;
         }
     }
-
 
     public updateAssembler (render: UI) {
         if (this._dirty) {
@@ -195,7 +193,7 @@ export class UIStaticBatch extends UIRenderable {
 
     protected _clearData () {
         if (this._meshBuffer) {
-            this._meshBuffer!.reset();
+            this._meshBuffer.reset();
 
             const ui = this._getUI()!;
             for (let i = 0; i < this._uiDrawBatchList.length; i++) {
@@ -208,8 +206,8 @@ export class UIStaticBatch extends UIRenderable {
         this._init = false;
     }
 
-    protected _getUI (){
-        if(director.root && director.root.ui) {
+    protected _getUI () {
+        if (director.root && director.root.ui) {
             return director.root.ui;
         }
 
@@ -217,7 +215,7 @@ export class UIStaticBatch extends UIRenderable {
         return null;
     }
 
-    protected _arrivalMaxBuffer (){
+    protected _arrivalMaxBuffer () {
         warnID(9300);
     }
 }

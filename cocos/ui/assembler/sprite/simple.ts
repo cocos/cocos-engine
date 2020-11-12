@@ -46,13 +46,13 @@ for (let i = 0; i < 4; i++) {
 export const simple: IAssembler = {
     createData (sprite: Sprite) {
         const renderData = sprite.requestRenderData();
-        renderData!.dataLength = 4;
-        renderData!.vertexCount = 4;
-        renderData!.indicesCount = 6;
+        renderData.dataLength = 4;
+        renderData.vertexCount = 4;
+        renderData.indicesCount = 6;
 
         renderData.vData = new Float32Array(4 * 9);
 
-        return renderData as RenderData;
+        return renderData;
     },
 
     updateRenderData (sprite: Sprite) {
@@ -90,10 +90,10 @@ export const simple: IAssembler = {
         //     sprite.renderData!.indicesCount,
         // );
         // const commitBuffer: IUIRenderData = renderer.createUIRenderData();
-        const dataList: IRenderData[] = sprite!.renderData!.data;
+        const dataList: IRenderData[] = sprite.renderData!.data;
         const node = sprite.node;
 
-        let buffer = renderer.currBufferBatch!;
+        let buffer = renderer.acquireBufferBatch()!;
         let vertexOffset = buffer.byteOffset >> 2;
         let indicesOffset = buffer.indicesOffset;
         let vertexId = buffer.vertexOffset;
@@ -109,7 +109,7 @@ export const simple: IAssembler = {
         // buffer data may be reallocated, need get reference after request.
         const vBuf = buffer.vData!;
         const iBuf = buffer.iData!;
-        const vData = sprite!.renderData!.vData!;
+        const vData = sprite.renderData!.vData!;
         const data0 = dataList[0];
         const data3 = dataList[3];
         const matrix = node.worldMatrix;
@@ -167,8 +167,7 @@ export const simple: IAssembler = {
             b = -appY;
             r = cw - appX;
             t = ch - appY;
-        }
-        else {
+        } else {
             const frame = sprite.spriteFrame!;
             const originSize = frame.getOriginalSize();
             const rect = frame.getRect();
@@ -203,7 +202,7 @@ export const simple: IAssembler = {
     updateUvs (sprite: Sprite) {
         const renderData = sprite.renderData!;
         const vData = renderData.vData!;
-        const uv = sprite!.spriteFrame!.uv;
+        const uv = sprite.spriteFrame!.uv;
         vData[3] = uv[0];
         vData[4] = uv[1];
         vData[12] = uv[2];

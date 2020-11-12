@@ -83,7 +83,7 @@ rules:
     object-curly-newline: off # we want manual control over this
     one-var-declaration-per-line: off # auto-fix has order issues with `one-var`
     prefer-destructuring: off # auto-fix is not smart enough to merge different instances
-
+    linebreak-style: off
     ##### TYPESCRIPT-SPECIFIC RULE OVERRIDES #####
 
     # TODO: this is just too much work
