@@ -320,7 +320,7 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     _gpuDevice->defaultBuffer.size = _gpuDevice->defaultBuffer.stride = 16u;
     _gpuDevice->defaultBuffer.count = 1u;
     CCVKCmdFuncCreateBuffer(this, &_gpuDevice->defaultBuffer);
-
+    
     VkPipelineCacheCreateInfo pipelineCacheInfo{VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO};
     VK_CHECK(vkCreatePipelineCache(_gpuDevice->vkDevice, &pipelineCacheInfo, nullptr, &_gpuDevice->vkPipelineCache));
 

@@ -37,7 +37,7 @@ public:
 
 private:
     void updateUBOs(const RenderView *view, gfx::CommandBuffer *cmdBuffer);
-    int getLightPassIndex(const ModelView *model) const;
+    bool getLightPassIndex(const ModelView *model, vector<uint> &lightPassIndices) const;
     bool cullingLight(const Light *light, const ModelView *model);
     void updateSpotUBO(gfx::DescriptorSet *, const Light *, gfx::CommandBuffer *cmdBufferer) const;
 

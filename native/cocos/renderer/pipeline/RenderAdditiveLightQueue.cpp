@@ -1,9 +1,9 @@
 #include <array>
 
-#include "RenderAdditiveLightQueue.h"
 #include "BatchedBuffer.h"
 #include "InstancedBuffer.h"
 #include "PipelineStateManager.h"
+#include "RenderAdditiveLightQueue.h"
 #include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
 #include "RenderView.h"
@@ -12,15 +12,14 @@
 #include "gfx/GFXCommandBuffer.h"
 #include "gfx/GFXDescriptorSet.h"
 #include "gfx/GFXDevice.h"
-#include "helper/SharedMemory.h"
 #include "gfx/GFXFramebuffer.h"
+#include "helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {
-RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline):
-_pipeline(static_cast<ForwardPipeline *>(pipeline)),
-    _instancedQueue(CC_NEW(RenderInstancedQueue)),
-    _batchedQueue(CC_NEW(RenderBatchedQueue)) {
+RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _pipeline(static_cast<ForwardPipeline *>(pipeline)),
+                                                                               _instancedQueue(CC_NEW(RenderInstancedQueue)),
+                                                                               _batchedQueue(CC_NEW(RenderBatchedQueue)) {
     _renderObjects = _pipeline->getRenderObjects();
     _fpScale = _pipeline->getFpScale();
     _isHDR = _pipeline->isHDR();
@@ -77,8 +76,8 @@ void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, gfx::Ren
 
         for (size_t i = 0; i < dynamicOffsets.size(); ++i) {
             const auto *light = lights[i];
-            if (light->getType() == LightType::SPOT && 
-                _pipeline->getShadowFramebuffer().count(light) && 
+            if (light->getType() == LightType::SPOT &&
+                _pipeline->getShadowFramebuffer().count(light) &&
                 _pipeline->getShadows()->getShadowType() == ShadowType::SHADOWMAP) {
                 updateSpotUBO(descriptorSet, light, cmdBuffer);
             }
@@ -90,6 +89,8 @@ void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, gfx::Ren
 }
 
 void RenderAdditiveLightQueue::gatherLightPasses(const RenderView *view, gfx::CommandBuffer *cmdBufferer) {
+    static vector<uint> lightPassIndices;
+
     _instancedQueue->clear();
     _batchedQueue->clear();
     _validLights.clear();
@@ -131,10 +132,7 @@ void RenderAdditiveLightQueue::gatherLightPasses(const RenderView *view, gfx::Co
     const auto &renderObjects = _pipeline->getRenderObjects();
     for (const auto &renderObject : renderObjects) {
         const auto model = renderObject.model;
-
-        // this assumes light pass index is the same for all submodels
-        const auto lightPassIdx = getLightPassIndex(model);
-        if (lightPassIdx < 0) continue;
+        if (!getLightPassIndex(model, lightPassIndices)) continue;
 
         _lightIndices.clear();
         for (size_t i = 0; i < _validLights.size(); i++) {
@@ -149,6 +147,8 @@ void RenderAdditiveLightQueue::gatherLightPasses(const RenderView *view, gfx::Co
         const auto subModelArrayID = model->getSubModelID();
         const auto subModelCount = subModelArrayID[0];
         for (unsigned j = 1; j <= subModelCount; j++) {
+            const auto lightPassIdx = lightPassIndices[j - 1];
+            if (lightPassIdx == UINT_MAX) continue;
             const auto subModel = model->getSubModelView(subModelArrayID[j]);
             const auto pass = subModel->getPassView(lightPassIdx);
             const auto batchingScheme = pass->getBatchingScheme();
@@ -290,19 +290,27 @@ void RenderAdditiveLightQueue::updateUBOs(const RenderView *view, gfx::CommandBu
     cmdBuffer->updateBuffer(_lightBuffer, _lightBufferData.data(), _lightBufferData.size() * sizeof(float));
 }
 
-int RenderAdditiveLightQueue::getLightPassIndex(const ModelView *model) const{
+bool RenderAdditiveLightQueue::getLightPassIndex(const ModelView *model, vector<uint> &lightPassIndices) const {
+    lightPassIndices.clear();
+    bool hasValidLightPass = false;
+
     const auto subModelArrayID = model->getSubModelID();
     const auto count = subModelArrayID[0];
     for (unsigned i = 1; i <= count; i++) {
         const auto subModel = model->getSubModelView(subModelArrayID[i]);
+        uint lightPassIndex = UINT_MAX;
         for (unsigned passIdx = 0; passIdx < subModel->passCount; passIdx++) {
             const auto pass = subModel->getPassView(passIdx);
             if (pass->phase == _phaseID) {
-                return passIdx;
+                lightPassIndex = passIdx;
+                hasValidLightPass = true;
+                break;
             }
         }
+        lightPassIndices.push_back(lightPassIndex);
     }
-    return -1;
+
+    return hasValidLightPass;
 }
 
 bool RenderAdditiveLightQueue::cullingLight(const Light *light, const ModelView *model) {

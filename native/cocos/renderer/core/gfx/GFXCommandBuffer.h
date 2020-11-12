@@ -2,6 +2,7 @@
 #define CC_CORE_GFX_COMMAND_BUFFER_H_
 
 #include "GFXDef.h"
+#include "GFXBuffer.h"
 
 namespace cc {
 namespace gfx {
@@ -38,6 +39,7 @@ public:
     CC_INLINE void begin(RenderPass *renderPass) { begin(renderPass, 0, nullptr); }
     CC_INLINE void begin(RenderPass *renderPass, uint subpass) { begin(renderPass, subpass, nullptr); }
     CC_INLINE void updateBuffer(Buffer *buff, const void *data, uint size) { updateBuffer(buff, data, size, 0); }
+    CC_INLINE void updateBuffer(Buffer *buff, const void *data) { updateBuffer(buff, data, buff->getSize(), 0); }
     CC_INLINE void execute(const CommandBufferList &cmdBuffs, uint32_t count) { execute(cmdBuffs.data(), count); }
     CC_INLINE void bindDescriptorSet(uint set, DescriptorSet *descriptorSet) { bindDescriptorSet(set, descriptorSet, 0, nullptr); }
     CC_INLINE void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, const vector<uint> &dynamicOffsets) {

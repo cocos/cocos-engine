@@ -67,7 +67,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(VkDebugReportFlagsEXT flags,
         return VK_FALSE;
     }
 
-    // We already handled this
+    // These are thrown when missing proper drivers, at which time we should try to shut down gracefully
     if (strstr(message, "setupLoaderTermPhysDevs") || strstr(message, "setupLoaderTrampPhysDevs")) {
         return VK_FALSE;
     }
