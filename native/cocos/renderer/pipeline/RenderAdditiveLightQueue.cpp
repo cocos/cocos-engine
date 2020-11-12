@@ -76,10 +76,8 @@ void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, gfx::Ren
 
         for (size_t i = 0; i < dynamicOffsets.size(); ++i) {
             const auto *light = lights[i];
-            if (light->getType() == LightType::SPOT &&
-                _pipeline->getShadowFramebuffer().count(light) &&
-                _pipeline->getShadows()->getShadowType() == ShadowType::SHADOWMAP) {
-                updateSpotUBO(descriptorSet, light, cmdBuffer);
+            if (_pipeline->getShadows()->getShadowType() == ShadowType::SHADOWMAP) {
+                updateShadowsUBO(descriptorSet, light, cmdBuffer);
             }
             _dynamicOffsets[0] = dynamicOffsets[i];
             cmdBuffer->bindDescriptorSet(LOCAL_SET, descriptorSet, _dynamicOffsets);
@@ -190,33 +188,48 @@ void RenderAdditiveLightQueue::gatherLightPasses(const RenderView *view, gfx::Co
     _batchedQueue->uploadBuffers(cmdBufferer);
 }
 
-void RenderAdditiveLightQueue::updateSpotUBO(gfx::DescriptorSet *descriptorSet, const Light *light, gfx::CommandBuffer *cmdBufferer) const {
+void RenderAdditiveLightQueue::updateShadowsUBO(gfx::DescriptorSet *descriptorSet, const Light *light, gfx::CommandBuffer *cmdBufferer) const {
     const auto *shadowInfo = _pipeline->getShadows();
     auto shadowUBO = _pipeline->getShadowUBO();
-    if (light->getType() != LightType::SPOT) {
-        return;
+    gfx::Texture *texture = nullptr;
+    switch (light->getType()) {
+        case LightType::SPOT: {
+            const auto &matShadowCamera = light->getNode()->worldMatrix;
+
+            const auto matShadowView = matShadowCamera.getInversed();
+
+            cc::Mat4 matShadowViewProj;
+            cc::Mat4::createPerspective(light->spotAngle, light->aspect, 0.001f, light->range, &matShadowViewProj);
+
+            matShadowViewProj.multiply(matShadowView);
+
+            // shadow info
+            float shadowInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, (float)shadowInfo->pcfType, shadowInfo->bias / 10.0f};
+            memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
+            memcpy(shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &shadowInfo->color, sizeof(Vec4));
+            memcpy(shadowUBO.data() + UBOShadow::SHADOW_INFO_OFFSET, &shadowInfos, sizeof(shadowInfos));
+
+            
+            if (_pipeline->getShadowFramebuffer().count(light)) {
+                texture = _pipeline->getShadowFramebuffer().at(light)->getColorTextures()[0];
+            }
+        } break;
+        case LightType::SPHERE: {
+            // Reserve sphere light shadow interface
+        } break;
+        default:;
     }
 
-    const auto &matShadowCamera = light->getNode()->worldMatrix;
-
-    const auto matShadowView = matShadowCamera.getInversed();
-
-    cc::Mat4 matShadowViewProj;
-    cc::Mat4::createPerspective(light->spotAngle, light->aspect, 0.001f, light->range, &matShadowViewProj);
-
-    matShadowViewProj.multiply(matShadowView);
-
-    // shadow info
-    float shadowInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, (float)shadowInfo->pcfType, shadowInfo->bias / 10.0f};
-    memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
-    memcpy(shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &shadowInfo->color, sizeof(Vec4));
-    memcpy(shadowUBO.data() + UBOShadow::SHADOW_INFO_OFFSET, &shadowInfos, sizeof(shadowInfos));
-
-    gfx::Texture *texture = nullptr;
-    if (_pipeline->getShadowFramebuffer().count(light)) {
-        texture = _pipeline->getShadowFramebuffer().at(light)->getColorTextures()[0];
-    } else {
-        return;
+    // must binding a sampler
+    if (texture == nullptr) {
+        map<const Light *, gfx::Framebuffer *>::iterator iter;
+        for (iter = _pipeline->getShadowFramebuffer().begin(); iter != _pipeline->getShadowFramebuffer().end(); ++iter) {
+            texture = iter->second->getColorTextures()[0];
+            if (texture) {
+                descriptorSet->bindTexture(UniformSpotLightingMapSampler.layout.binding, texture);
+                break;
+            }
+        }
     }
 
     descriptorSet->bindTexture(UniformSpotLightingMapSampler.layout.binding, texture);

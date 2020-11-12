@@ -147,9 +147,7 @@ void shadowCollecting(ForwardPipeline *pipeline, RenderView *view) {
     const auto scene = camera->getScene();
 
     AABB castWorldBounds;
-    AABB receiveWorldBounds;
     auto castBoundsInited = false;
-    auto receiveBoundsInited = false;
 
     RenderObjectList shadowObjects;
 
@@ -161,26 +159,17 @@ void shadowCollecting(ForwardPipeline *pipeline, RenderView *view) {
         // filter model by view visibility
         if (model->enabled) {
             const auto visibility = view->getVisibility();
-            const auto vis = visibility & static_cast<uint>(LayerList::UI_2D);
             const auto node = model->getNode();
             if ((model->nodeID && ((visibility & node->layer) == node->layer)) ||
                 (visibility & model->visFlags)) {
                 // shadow render Object
-                if (model->castShadow) {
+                if (model->castShadow && model->getWorldBounds()) {
                     if (!castBoundsInited) {
                         castWorldBounds = *model->getWorldBounds();
                         castBoundsInited = true;
                     }
                     castWorldBounds.merge(*model->getWorldBounds());
                     shadowObjects.emplace_back(genRenderObject(model, camera));
-                }
-
-                if (model->receiveShadow) {
-                    if (!receiveBoundsInited) {
-                        receiveWorldBounds = *model->getWorldBounds();
-                        receiveBoundsInited = true;
-                    }
-                    receiveWorldBounds.merge(*model->getWorldBounds());
                 }
             }
         }

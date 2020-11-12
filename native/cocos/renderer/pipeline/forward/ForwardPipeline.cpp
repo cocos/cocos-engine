@@ -135,10 +135,6 @@ void ForwardPipeline::updateUBOs(RenderView *view) {
     auto *device = gfx::Device::getInstance();
 
     if (mainLight && shadowInfo->getShadowType() == ShadowType::SHADOWMAP) {
-        if (_shadowFrameBufferMap.count(mainLight)) {
-            _descriptorSet->bindTexture(UNIFORM_SHADOWMAP.layout.binding, _shadowFrameBufferMap[mainLight]->getColorTextures()[0]);
-        }
-
         const auto node = mainLight->getNode();
         cc::Mat4 matShadowCamera;
 
@@ -308,6 +304,8 @@ bool ForwardPipeline::activeRenderer() {
         gfx::BufferFlagBit::NONE,
     });
     _descriptorSet->bindBuffer(UBOShadow::BLOCK.layout.binding, shadowUBO);
+
+    _descriptorSet->update();
 
     // update global defines when all states initialized.
     _macros.setValue("CC_USE_HDR", _isHDR);

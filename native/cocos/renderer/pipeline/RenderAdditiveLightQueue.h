@@ -39,7 +39,7 @@ private:
     void updateUBOs(const RenderView *view, gfx::CommandBuffer *cmdBuffer);
     bool getLightPassIndex(const ModelView *model, vector<uint> &lightPassIndices) const;
     bool cullingLight(const Light *light, const ModelView *model);
-    void updateSpotUBO(gfx::DescriptorSet *, const Light *, gfx::CommandBuffer *cmdBufferer) const;
+    void updateShadowsUBO(gfx::DescriptorSet *, const Light *, gfx::CommandBuffer *cmdBufferer) const;
 
 private:
     ForwardPipeline *_pipeline = nullptr;
