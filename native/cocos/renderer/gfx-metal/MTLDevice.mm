@@ -158,6 +158,9 @@ void CCMTLDevice::acquire() {
     queue->_numDrawCalls = 0;
     queue->_numInstances = 0;
     queue->_numTriangles = 0;
+    if(!static_cast<CCMTLCommandBuffer*>(_cmdBuff)->isCommandBufferBegan()) {
+        _gpuStagingBufferPool->reset();
+    }
 }
 
 void CCMTLDevice::present() {
@@ -165,7 +168,6 @@ void CCMTLDevice::present() {
     _numDrawCalls = queue->_numDrawCalls;
     _numInstances = queue->_numInstances;
     _numTriangles = queue->_numTriangles;
-    _gpuStagingBufferPool->reset();
 }
 
 Fence *CCMTLDevice::createFence(const FenceInfo &info) {
