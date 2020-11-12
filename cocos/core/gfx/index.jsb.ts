@@ -53,14 +53,11 @@ export { DRAW_INFO_SIZE, BufferInfo, BufferViewInfo, DrawInfo, IndirectBuffer } 
 export const Sampler = gfx.Sampler;
 export { SamplerInfo } from './sampler';
 
-export const FenceInfo = gfx.FenceInfo;
 export const Fence = gfx.Fence;
+export { FenceInfo } from './fence';
 
-export const ColorAttachment = gfx.ColorAttachment;
-export const DepthStencilAttachment = gfx.DepthStencilAttachment;
-export const SubPassInfo = gfx.SubPassInfo;
-export const RenderPassInfo = gfx.RenderPassInfo;
 export const RenderPass = gfx.RenderPass;
+export { ColorAttachment, DepthStencilAttachment, SubPassInfo, RenderPassInfo } from './render-pass';
 
 export const QueueInfo = gfx.QueueInfo;
 export const Queue = gfx.Queue;
