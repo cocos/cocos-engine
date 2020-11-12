@@ -50,7 +50,6 @@ import { ModelLocalBindings } from '../../pipeline/define';
 import { EffectAsset, RenderTexture, SpriteFrame } from '../../assets';
 import { programLib } from '../core/program-lib';
 import { TextureBase } from '../../assets/texture-base';
-import { getAttributeFormatBytes, vfmtPosUvColor } from './ui-vertex-format';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 
@@ -78,11 +77,11 @@ export class UI {
 
     /**
      * Acquire a new mesh buffer if the vertex layout differs from the current one.
-     * @param attributes 
+     * @param attributes
      */
-    public acquireBufferBatch (attributes: Attribute[] = vfmtPosUvColor) {
-        const floatCnt = attributes === vfmtPosUvColor ? 9 : getAttributeFormatBytes(attributes);
-        if (!this._currMeshBuffer || (this._currMeshBuffer.vertexFormatBytes >> 2) !== floatCnt) {
+    public acquireBufferBatch (attributes: Attribute[] = UIVertexFormat.vfmtPosUvColor) {
+        const strideBytes = attributes === UIVertexFormat.vfmtPosUvColor ? 36 /* 9x4 */ : UIVertexFormat.getAttributeStride(attributes);
+        if (!this._currMeshBuffer || (this._currMeshBuffer.vertexFormatBytes) !== strideBytes) {
             this._requireBufferBatch(attributes);
             return this._currMeshBuffer;
         }
@@ -706,25 +705,25 @@ export class UI {
     private _createMeshBuffer (attributes: Attribute[]): MeshBuffer {
         const batch = this._bufferBatchPool.add();
         batch.initialize(attributes, this._requireBufferBatch.bind(this, attributes));
-        const floatCnt = getAttributeFormatBytes(attributes);
-        let buffers = this._meshBuffers.get(floatCnt);
-        if (!buffers) { buffers = []; this._meshBuffers.set(floatCnt, buffers); }
+        const strideBytes = UIVertexFormat.getAttributeStride(attributes);
+        let buffers = this._meshBuffers.get(strideBytes);
+        if (!buffers) { buffers = []; this._meshBuffers.set(strideBytes, buffers); }
         buffers.push(batch);
         return batch;
     }
 
     private _requireBufferBatch (attributes: Attribute[]) {
-        const floatCnt = getAttributeFormatBytes(attributes);
-        let buffers = this._meshBuffers.get(floatCnt);
-        if (!buffers) { buffers = []; this._meshBuffers.set(floatCnt, buffers); }
-        const meshBufferUseCount = this._meshBufferUseCount.get(floatCnt) || 0;
+        const strideBytes = UIVertexFormat.getAttributeStride(attributes);
+        let buffers = this._meshBuffers.get(strideBytes);
+        if (!buffers) { buffers = []; this._meshBuffers.set(strideBytes, buffers); }
+        const meshBufferUseCount = this._meshBufferUseCount.get(strideBytes) || 0;
 
         if (meshBufferUseCount >= buffers.length) {
             this._currMeshBuffer = this._createMeshBuffer(attributes);
         } else {
             this._currMeshBuffer = buffers[meshBufferUseCount];
         }
-        this._meshBufferUseCount.set(floatCnt, meshBufferUseCount + 1);
+        this._meshBufferUseCount.set(strideBytes, meshBufferUseCount + 1);
         if (arguments.length === 2) {
             this._currMeshBuffer.request(arguments[0], arguments[1]);
         }

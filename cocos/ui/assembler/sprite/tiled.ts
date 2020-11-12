@@ -117,8 +117,12 @@ export const tilled: IAssembler = {
         const uv = frame.uv;
         const uvSliced = sprite.spriteFrame?.uvSliced!;
         const rect = frame.getRect();
-        const leftWidth = frame.insetLeft; const rightWidth = frame.insetRight; const centerWidth = rect.width - leftWidth - rightWidth;
-        const topHeight = frame.insetTop; const bottomHeight = frame.insetBottom; const centerHeight = rect.height - topHeight - bottomHeight;
+        const leftWidth = frame.insetLeft;
+        const rightWidth = frame.insetRight;
+        const centerWidth = rect.width - leftWidth - rightWidth;
+        const topHeight = frame.insetTop;
+        const bottomHeight = frame.insetBottom;
+        const centerHeight = rect.height - topHeight - bottomHeight;
 
         const matrix = node.worldMatrix;
 
