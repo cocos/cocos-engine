@@ -50,16 +50,16 @@ CCProgram terrain-vs %{
   in vec3 a_normal;
   in vec2 a_texCoord;
 
-  out vec3 v_position;
-  out vec3 v_normal;
-  out vec2 uvw;
-  out vec2 uv0;
-  out vec2 uv1;
-  out vec2 uv2;
-  out vec2 uv3;
-  out vec2 luv;
-  out vec3 diffuse;
-  out float v_fog_factor;
+  out highp vec3 v_position;
+  out mediump vec3 v_normal;
+  out mediump vec2 uvw;
+  out mediump vec2 uv0;
+  out mediump vec2 uv1;
+  out mediump vec2 uv2;
+  out mediump vec2 uv3;
+  out mediump vec2 luv;
+  out mediump vec3 diffuse;
+  out mediump float v_fog_factor;
 
   uniform TexCoords {
     vec4 UVScale;
@@ -103,16 +103,16 @@ CCProgram terrain-fs %{
   #include <cc-fog>
   #pragma define LAYERS range([0, 4])
 
-  in vec3 v_position;
-  in vec3 v_normal;
-  in vec2 uvw;
-  in vec2 uv0;
-  in vec2 uv1;
-  in vec2 uv2;
-  in vec2 uv3;
-  in vec3 diffuse;
-  in vec2 luv;
-  in float v_fog_factor;
+  in highp vec3 v_position;
+  in mediump vec3 v_normal;
+  in mediump vec2 uvw;
+  in mediump vec2 uv0;
+  in mediump vec2 uv1;
+  in mediump vec2 uv2;
+  in mediump vec2 uv3;
+  in mediump vec3 diffuse;
+  in mediump vec2 luv;
+  in mediump float v_fog_factor;
 
   uniform sampler2D weightMap;
   uniform sampler2D detailMap0;
