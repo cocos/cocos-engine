@@ -1,8 +1,8 @@
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -32,11 +32,9 @@ const CustomAssetMeta = Editor.metas['custom-asset'];
 class DragonBonesAtlasMeta extends CustomAssetMeta {
     constructor (assetdb) {
         super(assetdb);
-        this.atlasJson = '';
-        this.texture = '';
     }
 
-    static version () { return '1.0.0'; }
+    static version () { return '1.0.1'; }
     static defaultType () {
         return 'dragonbones-atlas';
     }
@@ -68,18 +66,14 @@ class DragonBonesAtlasMeta extends CustomAssetMeta {
                 return cb(e);
             }
 
-            // record the raw file data
-            this.atlasJson = data;
-
             // parse the depended texture
             var imgPath = Path.resolve(Path.dirname(fspath), json.imagePath);
-            var uuid = this._assetdb.fspathToUuid(imgPath);
-            if (uuid) {
+            var textureUUID = this._assetdb.fspathToUuid(imgPath);
+            if (textureUUID) {
                 console.log('UUID is initialized for "%s".', imgPath);
-                this.texture = uuid;
             }
             else if (!Fs.existsSync(imgPath)) {
-                console.error('Can not find texture "%s" for atlas "%s"', json.imagePath, fspath);
+                Editor.error('Can not find texture "%s" for atlas "%s"', json.imagePath, fspath);
             }
             else {
                 // AssetDB may call postImport more than once, we can get uuid in the next time.
@@ -88,8 +82,8 @@ class DragonBonesAtlasMeta extends CustomAssetMeta {
 
             var asset = new dragonBones.DragonBonesAtlasAsset();
             asset.name = Path.basenameNoExt(fspath);
-            asset.atlasJson = this.atlasJson;
-            asset.texture = EditorExtends.serialize.asAsset(this.texture);
+            asset.atlasJson = data;
+            asset.texture = Editor.serialize.asAsset(textureUUID);
             this._assetdb.saveAssetToLibrary(this.uuid, asset);
             cb();
         });
