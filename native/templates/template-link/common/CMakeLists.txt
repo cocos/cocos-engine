@@ -95,12 +95,16 @@ list(APPEND PROJ_COMMON_SOURCES ${CMAKE_CURRENT_LIST_DIR}/Classes/jsb_module_reg
 
 
 if(WINDOWS)
+    set(UI_RESOURCES
+        ${PROJ_SRC_DIR}/game.rc
+    )
     list(APPEND PROJ_SOURCES
         ${PROJ_SRC_DIR}/AppDelegate.h
         ${PROJ_SRC_DIR}/AppDelegate.cpp
         ${PROJ_SRC_DIR}/main.h
         ${PROJ_SRC_DIR}/main.cpp
         ${PROJ_SRC_DIR}/resource.h
+        ${UI_RESOURCES}
     )
 elseif(MACOSX)
     set(UI_RESOURCES
