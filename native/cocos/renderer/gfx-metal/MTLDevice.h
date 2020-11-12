@@ -45,8 +45,9 @@ public:
     CC_INLINE uint getMaximumBufferBindingIndex() const { return _maxBufferBindingIndex; }
     CC_INLINE bool isIndirectCommandBufferSupported() const { return _icbSuppored; }
     CC_INLINE bool isIndirectDrawSupported() const { return _indirectDrawSupported; }
-    CC_INLINE CCMTLGPUStagingBufferPool *gpuStagingBufferPool() { return _gpuStagingBufferPool; }
-
+    CC_INLINE CCMTLGPUStagingBufferPool *gpuStagingBufferPool() const { return _gpuStagingBufferPool; }
+    CC_INLINE bool isSamplerDescriptorCompareFunctionSupported() const { return _isSamplerDescriptorCompareFunctionSupported;}
+    
 private:
     CCMTLStateCache *_stateCache = nullptr;
 
@@ -59,6 +60,7 @@ private:
     uint _maxBufferBindingIndex = 0;
     bool _icbSuppored = false;
     bool _indirectDrawSupported = false;
+    bool _isSamplerDescriptorCompareFunctionSupported = false;
     CCMTLGPUStagingBufferPool *_gpuStagingBufferPool = nullptr;
 };
 

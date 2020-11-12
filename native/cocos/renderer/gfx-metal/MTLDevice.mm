@@ -69,6 +69,7 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _maxBufferBindingIndex = mu::getMaxEntriesInBufferArgumentTable(gpuFamily);
     _uboOffsetAlignment = mu::getMinBufferOffsetAlignment(gpuFamily);
     _icbSuppored = mu::isIndirectCommandBufferSupported(MTLFeatureSet(_mtlFeatureSet));
+    _isSamplerDescriptorCompareFunctionSupported = mu::isSamplerDescriptorCompareFunctionSupported(gpuFamily);
     static_cast<MTKView *>(_mtkView).depthStencilPixelFormat = mu::getSupportedDepthStencilFormat(mtlDevice, gpuFamily, _depthBits);
     _stencilBits = 8;
 

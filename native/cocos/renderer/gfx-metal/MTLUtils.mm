@@ -1464,6 +1464,15 @@ bool pixelFormatIsColorRenderable(Format format) {
     return !isCompressedFormat && !is422Format && !(pixelFormat == MTLPixelFormatInvalid);
 }
 
+//CompareFunction of MTLSamplerDescriptor is only supported on MTLFeatureSet_iOS_GPUFamily3_v1 and later
+bool isSamplerDescriptorCompareFunctionSupported(uint family) {
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+    return (static_cast<GPUFamily>(family) < GPUFamily::Apple3) ? false : true;
+#else
+    return true;
+#endif
+}
+
 } //namespace mu
 
 } // namespace gfx

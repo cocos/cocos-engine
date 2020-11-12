@@ -37,9 +37,11 @@ bool CCMTLSampler::initialize(const SamplerInfo &info) {
     descriptor.magFilter = mu::toMTLSamplerMinMagFilter(_magFilter);
     descriptor.mipFilter = mu::toMTLSamplerMipFilter(_mipFilter);
     descriptor.maxAnisotropy = _maxAnisotropy == 0 ? 1 : _maxAnisotropy;
-    descriptor.compareFunction = mu::toMTLCompareFunction(_cmpFunc);
     descriptor.lodMinClamp = _minLOD;
     descriptor.lodMaxClamp = _maxLOD;
+    if(static_cast<CCMTLDevice*>(_device)->isSamplerDescriptorCompareFunctionSupported()) {
+        descriptor.compareFunction = mu::toMTLCompareFunction(_cmpFunc);
+    }
 
     id<MTLDevice> mtlDevice = id<MTLDevice>(static_cast<CCMTLDevice *>(_device)->getMTLDevice());
     _mtlSamplerState = [mtlDevice newSamplerStateWithDescriptor:descriptor];

@@ -68,7 +68,7 @@ const uint8_t *const convertData(const uint8_t *source, uint length, Format type
 uint getBlockSzie(Format format);
 uint getBytesPerRow(Format format, uint width);
 bool pixelFormatIsColorRenderable(Format format);
-
+bool isSamplerDescriptorCompareFunctionSupported(uint family);
 CC_INLINE uint alignUp(uint inSize, uint align) { return ((inSize + align - 1) / align) * align; }
 } // namespace mu
 
