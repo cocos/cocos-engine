@@ -163,7 +163,10 @@ function run_compile()
     fi
 }
 
-run_compile
+# Compile pull request
+if [[ "$TRAVIS_PULL_REQUEST" != "false" ]]; then
+    run_compile
+fi
 
 cd $COCOS2DX_ROOT
 ## revert change
