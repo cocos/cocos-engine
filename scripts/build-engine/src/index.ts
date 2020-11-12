@@ -529,7 +529,7 @@ export { isWasm };
     result.dependencyGraph = {};
     for (const output of rollupOutput.output) {
         if (output.type === 'chunk') {
-            result.dependencyGraph[output.fileName] = output.imports;
+            result.dependencyGraph[output.fileName] = output.imports.concat(output.dynamicImports);
         }
     }
 
