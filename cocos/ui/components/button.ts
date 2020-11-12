@@ -104,7 +104,7 @@ export enum EventType {
 /**
  * @en
  * Button component. Can be pressed or clicked. Button has 4 Transition types:
- * 
+ *
  *   - Button.Transition.NONE   // Button will do nothing
  *   - Button.Transition.COLOR  // Button will change target's color
  *   - Button.Transition.SPRITE // Button will change target Sprite's sprite
@@ -112,12 +112,12 @@ export enum EventType {
  *
  * The button can bind events (but you must be on the button's node to bind events).<br/>
  * The following events can be triggered on all platforms.
- * 
+ *
  *  - cc.Node.EventType.TOUCH_START  // Press
  *  - cc.Node.EventType.TOUCH_MOVE   // After pressing and moving
  *  - cc.Node.EventType.TOUCH_END    // After pressing and releasing
  *  - cc.Node.EventType.TOUCH_CANCEL // Press to cancel
- * 
+ *
  * The following events are only triggered on the PC platform:
  *
  *   - cc.Node.EventType.MOUSE_DOWN
@@ -125,7 +125,7 @@ export enum EventType {
  *   - cc.Node.EventType.MOUSE_ENTER
  *   - cc.Node.EventType.MOUSE_LEAVE
  *   - cc.Node.EventType.MOUSE_UP
- * 
+ *
  * The developer can get the current clicked node with `event.target` from event object which is passed as parameter in the callback function of click event.
  *
  * @zh
@@ -267,7 +267,7 @@ export class Button extends Component {
         if (this._transition === value) {
             return;
         }
-        
+
         // Reset to normal data when change transition.
         if (this._transition === Transition.COLOR) {
             this._updateColorTransition(State.NORMAL);
@@ -392,7 +392,7 @@ export class Button extends Component {
      * @en
      * When user press the button, the button will zoom to a scale.
      * The final scale of the button equals (button original scale * zoomScale)
-     * NOTE: Setting zoomScale less than 1 is not adviced, which could fire the touchCancel event if the touch point is out of touch area after scaling. 
+     * NOTE: Setting zoomScale less than 1 is not adviced, which could fire the touchCancel event if the touch point is out of touch area after scaling.
      * if you need to do so, you should set target as another background node instead of the button node.
      *
      * @zh
@@ -635,21 +635,19 @@ export class Button extends Component {
             ratio = 1;
         }
 
-        const renderComp = target.getComponent(UIRenderable);
-        if (!renderComp) {
-            return;
-        }
-
         if (this._transition === Transition.COLOR) {
+            const renderComp = target._uiProps.uiComp as UIRenderable;
             Color.lerp(_tempColor, this._fromColor, this._toColor, ratio);
-            renderComp.color = _tempColor;
+            if(renderComp){
+                renderComp.color = _tempColor;
+            }
         } else if (this.transition === Transition.SCALE) {
             target.getScale(this._targetScale);
             this._targetScale.x = lerp(this._fromScale.x, this._toScale.x, ratio);
             this._targetScale.y = lerp(this._fromScale.y, this._toScale.y, ratio);
             target.setScale(this._targetScale);
         }
-        
+
         if (ratio === 1) {
             this._transitionFinished = true;
         }
