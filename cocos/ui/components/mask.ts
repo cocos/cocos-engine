@@ -446,7 +446,7 @@ export class Mask extends UIRenderable {
     }
 
     protected _render (render: UI) {
-        render.commitComp(this, null, this._assembler!);
+        render.commitComp(this, null, this._assembler!, null);
     }
 
     protected _postRender (render: UI) {
@@ -454,7 +454,7 @@ export class Mask extends UIRenderable {
             return;
         }
 
-        render.commitComp(this, null, this._postAssembler);
+        render.commitComp(this, null, this._postAssembler, null);
     }
 
     protected _nodeStateChange (type: TransformBit) {
