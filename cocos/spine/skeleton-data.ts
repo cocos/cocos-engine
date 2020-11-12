@@ -197,7 +197,7 @@ export class SkeletonData extends Asset {
 
         if (!(this.textures && this.textures.length > 0) && this.textureNames && this.textureNames.length > 0) {
             if (!quiet) {
-                errorID(7507, this.name);
+                console.error(`${this.name} no textures found!`);
             }
             return null;
         }
@@ -277,7 +277,7 @@ export class SkeletonData extends Asset {
                 return tex;
             }
         }
-        errorID(7506, line);
+        console.error(`${this.name} no textures found!`);
         return null;
     }
 
@@ -294,7 +294,7 @@ export class SkeletonData extends Asset {
 
         if (!this.atlasText) {
             if (!quiet) {
-                errorID(7508, this.name);
+                console.error(`${this.name} no atlas found!`);
             }
             return null;
         }

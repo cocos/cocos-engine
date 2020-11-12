@@ -246,7 +246,7 @@ export class Skeleton extends UIRenderable {
             skinsEnum = this.skeletonData.getSkinsEnum();
         }
         if (!skinsEnum) {
-            errorID(7501, this.name);
+            console.error(`${this.name} skin enums are invalid`);
             return;
         }
 
@@ -259,7 +259,7 @@ export class Skeleton extends UIRenderable {
                 this.markForUpdateRenderData();
             }
         } else {
-            errorID(7501, this.name);
+            console.error(`${this.name} skin enums are invalid`);
         }
     }
 
@@ -295,7 +295,7 @@ export class Skeleton extends UIRenderable {
             animsEnum = this.skeletonData.getAnimsEnum();
         }
         if (!animsEnum) {
-            errorID(7502, this.name);
+            console.error(`${this.name} animation enums are invalid`);
             return;
         }
         const animName = animsEnum[value];
@@ -308,7 +308,7 @@ export class Skeleton extends UIRenderable {
                 this.animation = animName;
             }
         } else {
-            errorID(7503, this.name);
+            console.error(`${this.name} animation enums are invalid`);
         }
     }
 
