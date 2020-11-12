@@ -182,7 +182,12 @@ void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descri
         descriptor.vertexDescriptor.layouts[index].stride = std::get<0>(map[index]);
         descriptor.vertexDescriptor.layouts[index].stepFunction = std::get<1>(map[index]) ? MTLVertexStepFunctionPerInstance : MTLVertexStepFunctionPerVertex;
         descriptor.vertexDescriptor.layouts[index].stepRate = 1;
+        //to improve performance: https://developer.apple.com/documentation/metal/mtlpipelinebufferdescriptor?language=objc
+        if (@available(iOS 11.0, macOS 10.13, *)) {
+            descriptor.vertexBuffers[index].mutability = MTLMutabilityImmutable;
+        }
     }
+    
     _GPUPipelineState->vertexBufferBindingInfo = std::move(layouts);
 }
 

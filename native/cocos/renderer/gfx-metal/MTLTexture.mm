@@ -7,16 +7,6 @@
 namespace cc {
 namespace gfx {
 
-namespace {
-const uint8_t *convertData(const uint8_t *source, uint length, Format type) {
-    switch (type) {
-        case Format::RGB8: return mu::convertRGB8ToRGBA8(source, length);
-        case Format::RGB32F: return mu::convertRGB32FToRGBA32F(source, length);
-        default: return source;
-    }
-}
-} // end of namespace
-
 CCMTLTexture::CCMTLTexture(Device *device) : Texture(device) {}
 CCMTLTexture::~CCMTLTexture() { destroy(); }
 
@@ -167,7 +157,7 @@ bool CCMTLTexture::createMTLTexture() {
 }
 
 void CCMTLTexture::destroy() {
-    if (_buffer) {
+     if (_buffer) {
         CC_FREE(_buffer);
         _device->getMemoryStatus().textureSize -= _size;
         _buffer = nullptr;
@@ -220,6 +210,5 @@ void CCMTLTexture::resize(uint width, uint height) {
 
     _device->getMemoryStatus().textureSize += _size;
 }
-
 } // namespace gfx
 } // namespace cc

@@ -359,7 +359,8 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
     vector<uint> bufferSize(count);
     vector<CCMTLGPUBufferImageCopy> stagingRegions(count);
     auto format = texture->getFormat();
-    auto convertedFormat = static_cast<CCMTLTexture *>(texture)->getConvertedFormat();
+    CCMTLTexture *mtlTexture = static_cast<CCMTLTexture *>(texture);
+    auto convertedFormat = mtlTexture->getConvertedFormat();
     for (size_t i = 0; i < count; i++) {
         const auto &region = regions[i];
         auto &stagingRegion = stagingRegions[i];
@@ -385,7 +386,7 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
 
     size_t offset = 0;
     id<MTLBlitCommandEncoder> encoder = [_mtlCommandBuffer blitCommandEncoder];
-    id<MTLTexture> dstTexture = static_cast<CCMTLTexture *>(texture)->getMTLTexture();
+    id<MTLTexture> dstTexture = mtlTexture->getMTLTexture();
     for (size_t i = 0; i < count; i++) {
         const auto &stagingRegion = stagingRegions[i];
         const auto convertedData = mu::convertData(buffers[i], bufferSize[i], format);
