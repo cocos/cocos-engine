@@ -32,49 +32,37 @@ import { PipelineState } from './pipeline-state.jsb';
 export * from './define';
 export * from './define-class';
 export * from './pipeline-state.jsb';
-
+export { DeviceInfo, BindingMappingInfo } from './device';
 export {TextureInfo } from './texture';
+export { ShaderStage, UniformSampler, UniformBlock, Uniform, ShaderInfo } from './shader';
+export { DRAW_INFO_SIZE, BufferInfo, BufferViewInfo, DrawInfo, IndirectBuffer } from './buffer';
+export { ColorAttachment, DepthStencilAttachment, SubPassInfo, RenderPassInfo } from './render-pass';
+export { SamplerInfo } from './sampler';
+export { DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE, DescriptorSetInfo } from './descriptor-set';
+export { DescriptorSetLayoutInfo, DescriptorSetLayoutBinding } from './descriptor-set-layout';
+export { CommandBufferInfo } from './command-buffer';
+export { FramebufferInfo } from './framebuffer';
+export { PipelineLayoutInfo } from './pipeline-layout';
+export { FenceInfo } from './fence';
+export { QueueInfo } from './queue';
+
 export const TextureViewInfo = gfx.TextureViewInfo;
 export const Texture = gfx.Texture;
-
 export const Device = gfx.Device;
-export { DeviceInfo, BindingMappingInfo } from './device';
-
 export const Shader = gfx.Shader;
-export { ShaderStage, UniformSampler, UniformBlock, Uniform, ShaderInfo } from './shader';
-
 export const Attribute = gfx.Attribute;
 export const InputAssemblerInfo = gfx.InputAssemblerInfo;
 export const InputAssembler = gfx.InputAssembler;
-
 export const Buffer = gfx.Buffer;
-export { DRAW_INFO_SIZE, BufferInfo, BufferViewInfo, DrawInfo, IndirectBuffer } from './buffer';
-
 export const Sampler = gfx.Sampler;
-export { SamplerInfo } from './sampler';
-
-export const Fence = gfx.Fence;
-export { FenceInfo } from './fence';
-
-export const RenderPass = gfx.RenderPass;
-export { ColorAttachment, DepthStencilAttachment, SubPassInfo, RenderPassInfo } from './render-pass';
-
-export const QueueInfo = gfx.QueueInfo;
+export const Fence = gfx.Fence
+export const RenderPass = gfx.RenderPass
 export const Queue = gfx.Queue;
-
-export const PipelineLayoutInfo = gfx.PipelineLayoutInfo;
 export const PipelineLayout = gfx.PipelineLayout;
-
-export const DescriptorSetLayoutBinding = gfx.DescriptorSetLayoutBinding;
-export const DescriptorSetLayoutInfo = gfx.DescriptorSetLayoutInfo;
 export const DescriptorSetLayout = gfx.DescriptorSetLayout;
-export { DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE, DescriptorSetInfo } from './descriptor-set';
-
-export const FramebufferInfo = gfx.FramebufferInfo;
 export const Framebuffer = gfx.Framebuffer;
-
-export const CommandBufferInfo = gfx.CommandBufferInfo;
 export const CommandBuffer = gfx.CommandBuffer;
+
 
 legacyCC.Device = Device;
 legacyCC.Buffer = Buffer;
