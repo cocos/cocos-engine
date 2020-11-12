@@ -192,10 +192,9 @@ export function shadowCollecting (pipeline: ForwardPipeline, view: RenderView) {
                 aabb.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
                 shadowObjects.push(getCastShadowRenderObject(model, camera));
             }
-        }
-
-        if (_castWorldBounds) { aabb.toBoundingSphere(shadows.sphere, _castWorldBounds); }
+        }       
     }
+    if (_castWorldBounds) { aabb.toBoundingSphere(shadows.sphere, _castWorldBounds); }
 }
 
 export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
