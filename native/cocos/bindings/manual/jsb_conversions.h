@@ -46,6 +46,26 @@ struct BufferInfo;
 struct BufferViewInfo;
 struct TextureInfo;
 struct DescriptorSetInfo;
+struct BindingMappingInfo;
+struct ShaderStage;
+struct UniformSampler;
+struct UniformBlock;
+struct Uniform;
+struct ShaderInfo;
+struct DrawInfo;
+struct IndirectBuffer;
+struct SamplerInfo;
+struct ColorAttachment;
+struct DepthStencilAttachment;
+struct SubPassInfo;
+struct RenderPassInfo;
+struct QueueInfo;
+struct PipelineLayoutInfo;
+struct DescriptorSetLayoutBinding;
+struct DescriptorSetLayoutInfo;
+struct FramebufferInfo;
+struct CommandBufferInfo;
+struct InputAssemblerInfo;
 }
 } // namespace cc
 
@@ -145,6 +165,26 @@ bool seval_to_gfx_buffer_info(const se::Value &v, cc::gfx::BufferInfo *bufferInf
 bool seval_to_gfx_buffer_view_info(const se::Value &v, cc::gfx::BufferViewInfo *bufferViewInfo);
 bool seval_to_gfx_texture_info(const se::Value &v, cc::gfx::TextureInfo *textureInfo);
 bool seval_to_gfx_descriptor_set_info(const se::Value &v, cc::gfx::DescriptorSetInfo *descriptorSetInfo);
+bool seval_to_gfx_binding_mapping_info(const se::Value &v, cc::gfx::BindingMappingInfo *bindingMappingInfo);
+bool seval_to_gfx_shader_stage(const se::Value &v, cc::gfx::ShaderStage *shaderStage);
+bool seval_to_gfx_uniform_sampler(const se::Value &v, cc::gfx::UniformSampler *uniformSampler);
+bool seval_to_gfx_uniform_block(const se::Value &v, cc::gfx::UniformBlock *uniformBlock);
+bool seval_to_gfx_uniform(const se::Value &v, cc::gfx::Uniform *uniform);
+bool seval_to_gfx_shader_info(const se::Value &v, cc::gfx::ShaderInfo *shaderInfo);
+bool seval_to_gfx_draw_info(const se::Value &v, cc::gfx::DrawInfo *drawInfo);
+bool seval_to_gfx_indirect_buffer(const se::Value &v, cc::gfx::IndirectBuffer *indirectBuffer);
+bool seval_to_gfx_sampler_info(const se::Value &v, cc::gfx::SamplerInfo *samplerInfo);
+bool seval_to_gfx_color_attachment(const se::Value &v, cc::gfx::ColorAttachment *colorAttachment);
+bool seval_to_gfx_depth_stencil_attachment(const se::Value &v, cc::gfx::DepthStencilAttachment *depthStencilAttachment);
+bool seval_to_gfx_sub_pass_info(const se::Value &v, cc::gfx::SubPassInfo *subPassInfo);
+bool seval_to_gfx_render_pass_info(const se::Value &v, cc::gfx::RenderPassInfo *renderPassInfo);
+bool seval_to_gfx_queue_info(const se::Value &v, cc::gfx::QueueInfo *queueInfo);
+bool seval_to_gfx_pipeline_layout_info(const se::Value &v, cc::gfx::PipelineLayoutInfo *pipelineLayoutInfo);
+bool seval_to_gfx_descriptor_set_layout_binding(const se::Value &v, cc::gfx::DescriptorSetLayoutBinding *dscriptorSetLayoutBinding);
+bool seval_to_gfx_descriptor_set_layout_info(const se::Value &v, cc::gfx::DescriptorSetLayoutInfo *dscriptorSetLayoutInfo);
+bool seval_to_gfx_frame_buffer_info(const se::Value &v, cc::gfx::FramebufferInfo *framebufferInfo);
+bool seval_to_gfx_command_buffer_info(const se::Value &v, cc::gfx::CommandBufferInfo *commandBufferInfo);
+bool seval_to_gfx_input_assembler_info(const se::Value &v, cc::gfx::InputAssemblerInfo *inputAssemblerInfo);
 
 #if USE_GFX_RENDERER
 #endif
@@ -400,6 +440,11 @@ bool std_map_string_string_to_seval(const std::map<std::string, std::string> &v,
 bool ManifestAsset_to_seval(const cc::extension::ManifestAsset &v, se::Value *ret);
 bool Data_to_seval(const cc::Data &v, se::Value *ret);
 bool DownloadTask_to_seval(const cc::network::DownloadTask &v, se::Value *ret);
+
+//TODO: should add these functions if only bind gfx.
+// gfx_color_attachment_to_seval
+// gfx_depth_stecil_attachment_to_seval
+// sub_pass_info_to_seval
 
 #if USE_GFX_RENDERER
 #endif

@@ -18,7 +18,7 @@ public:
     CC_INLINE Device *getDevice() const { return _device; }
     CC_INLINE const ColorAttachmentList &getColorAttachments() const { return _colorAttachments; }
     CC_INLINE const DepthStencilAttachment &getDepthStencilAttachment() const { return _depthStencilAttachment; }
-    CC_INLINE const SubPassList &getSubPasses() const { return _subPasses; }
+    CC_INLINE const SubPassInfoList &getSubPasses() const { return _subPasses; }
     CC_INLINE uint getHash() const { return _hash; }
 
 protected:
@@ -27,7 +27,7 @@ protected:
     Device *_device = nullptr;
     ColorAttachmentList _colorAttachments;
     DepthStencilAttachment _depthStencilAttachment;
-    SubPassList _subPasses;
+    SubPassInfoList _subPasses;
     uint _hash = 0;
 };
 

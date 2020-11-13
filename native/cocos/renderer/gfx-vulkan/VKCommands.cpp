@@ -226,8 +226,8 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
     if (subpassCount) { // pass on user-specified subpasses
         subpassDescriptions.resize(subpassCount);
         for (size_t i = 0u; i < subpassCount; i++) {
-            const SubPass &subpass = gpuRenderPass->subPasses[i];
-            subpassDescriptions[i].pipelineBindPoint = MapVkPipelineBindPoint(subpass.bindPoint);
+            const SubPassInfo &subPassInfo = gpuRenderPass->subPasses[i];
+            subpassDescriptions[i].pipelineBindPoint = MapVkPipelineBindPoint(subPassInfo.bindPoint);
             // TODO
         }
     } else { // generate a default subpass from attachment info

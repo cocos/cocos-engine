@@ -1094,6 +1094,632 @@ bool seval_to_gfx_descriptor_set_info(const se::Value &v, cc::gfx::DescriptorSet
     bool ok = obj->getProperty("layout", &val);
     SE_PRECONDITION2(ok && val.isObject(), false, "Can not get layout from TextureInfo!");
     descriptorSetInfo->layout = static_cast<cc::gfx::DescriptorSetLayout *>(val.toObject()->getPrivateData());
+
+    return true;
+}
+
+bool seval_to_gfx_binding_mapping_info(const se::Value &v, cc::gfx::BindingMappingInfo *bindingMappingInfo) {
+    assert(bindingMappingInfo != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::BindingMappingInfo failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    bool ok = obj->getProperty("bufferOffsets", &val);
+    SE_PRECONDITION2(ok && val.isObject(), false, "Can not get bufferOffsets from BindingMappingInfo!");
+    seval_to_std_vector(val, &bindingMappingInfo->bufferOffsets);
+
+    ok = obj->getProperty("samplerOffsets", &val);
+    SE_PRECONDITION2(ok && val.isObject(), false, "Can not get samplerOffsets from BindingMappingInfo!");
+    seval_to_std_vector(val, &bindingMappingInfo->samplerOffsets);
+
+    ok = obj->getProperty("flexibleSet", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get flexibleSet from BindingMappingInfo!");
+    bindingMappingInfo->flexibleSet = val.toUint();
+
+    return true;
+}
+
+bool seval_to_gfx_shader_stage(const se::Value &v, cc::gfx::ShaderStage *shaderStage) {
+    assert(shaderStage != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::ShaderStage failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    bool ok = obj->getProperty("stage", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get stage from ShaderStage!");
+    shaderStage->stage = (cc::gfx::ShaderStageFlags)val.toUint();
+
+    obj->getProperty("source", &val);
+    SE_PRECONDITION2(ok && val.isString(), false, "Can not get source from ShaderStage!");
+    seval_to_std_string(val, &shaderStage->source);
+
+    return true;
+}
+
+bool seval_to_gfx_uniform_sampler(const se::Value &v, cc::gfx::UniformSampler *uniformSampler) {
+    assert(uniformSampler != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::UniformSampler failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    bool ok = obj->getProperty("set", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get set from UniformSampler!");
+    uniformSampler->set = val.toUint();
+
+    ok = obj->getProperty("binding", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get binding from UniformSampler!");
+    uniformSampler->binding = val.toUint();
+
+    ok = obj->getProperty("name", &val);
+    SE_PRECONDITION2(ok && val.isString(), false, "Can not get name from UniformSampler!");
+    seval_to_std_string(val, &uniformSampler->name);
+
+    ok = obj->getProperty("type", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get type from UniformSampler!");
+    uniformSampler->type = (cc::gfx::Type)val.toUint();
+
+    ok = obj->getProperty("count", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get count from UniformSampler!");
+    uniformSampler->count = val.toUint();
+
+    return true;
+}
+
+bool seval_to_gfx_uniform(const se::Value &v, cc::gfx::Uniform *uniform) {
+    assert(uniform != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::Uniform failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    bool ok = obj->getProperty("name", &val);
+    SE_PRECONDITION2(ok && val.isString(), false, "Can not get name from Uniform!");
+    seval_to_std_string(val, &uniform->name);
+
+    ok = obj->getProperty("type", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get type from Uniform!");
+    uniform->type = (cc::gfx::Type)val.toUint();
+
+    ok = obj->getProperty("count", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get count from Uniform!");
+    uniform->count = val.toUint();
+
+    return true;
+}
+
+bool seval_to_gfx_uniform_block(const se::Value &v, cc::gfx::UniformBlock *uniformBlock) {
+    assert(uniformBlock != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::UniformBlock failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    bool ok = obj->getProperty("set", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get set from UniformBlock!");
+    uniformBlock->set = val.toUint();
+
+    ok = obj->getProperty("binding", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get binding from UniformBlock!");
+    uniformBlock->binding = val.toUint();
+
+    ok = obj->getProperty("name", &val);
+    SE_PRECONDITION2(ok && val.isString(), false, "Can not get name from UniformBlock!");
+    seval_to_std_string(val, &uniformBlock->name);
+
+    ok = obj->getProperty("members", &val);
+    SE_PRECONDITION2(ok && val.isObject() && val.toObject()->isArray(), false, "Can not get members from UniformBlock!");
+    auto membersObj = val.toObject();
+    uint32_t len;
+    if (membersObj->getArrayLength(&len)) {
+        uniformBlock->members.resize(len);
+        se::Value memberVal;
+        for (uint32_t i = 0; i < len; ++i) {
+            membersObj->getArrayElement(i, &memberVal);
+            seval_to_gfx_uniform(memberVal, &uniformBlock->members[i]);
+        }
+    }
+
+    ok = obj->getProperty("count", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get count from UniformBlock!");
+    uniformBlock->count = val.toUint();
+
+    return true;
+}
+
+bool seval_to_gfx_shader_info(const se::Value &v, cc::gfx::ShaderInfo *shaderInfo) {
+    assert(shaderInfo != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::UniformBlock failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    bool ok = obj->getProperty("name", &val);
+    SE_PRECONDITION2(ok && val.isString(), false, "Can not get set from ShaderInfo!");
+    seval_to_std_string(val, &shaderInfo->name);
+
+    ok = obj->getProperty("stages", &val);
+    SE_PRECONDITION2(ok && val.isObject() && val.toObject()->isArray(), false, "Can not get stages from ShaderInfo!");
+    auto stagesObj = val.toObject();
+    uint32_t len;
+    if (stagesObj->getArrayLength(&len)) {
+        shaderInfo->stages.resize(len);
+        se::Value stageVal;
+        for (uint32_t i = 0; i < len; ++i) {
+            stagesObj->getArrayElement(i, &stageVal);
+            seval_to_gfx_shader_stage(stageVal, &shaderInfo->stages[i]);
+        }
+    }
+
+    ok = obj->getProperty("attributes", &val);
+    SE_PRECONDITION2(ok && val.isObject() && val.toObject()->isArray(), false, "Can not get stages from ShaderInfo!");
+    auto attrubtesObj = val.toObject();
+    if (attrubtesObj->getArrayLength(&len)) {
+        se::Value attributeVal;
+        for (uint32_t i = 0; i < len; ++i) {
+            attrubtesObj->getArrayElement(i, &attributeVal);
+            shaderInfo->attributes.push_back(*static_cast<cc::gfx::Attribute *>(attributeVal.toObject()->getPrivateData()));
+        }
+    }
+
+    ok = obj->getProperty("blocks", &val);
+    SE_PRECONDITION2(ok && val.isObject() && val.toObject()->isArray(), false, "Can not get blocks from ShaderInfo!");
+    auto blocksObj = val.toObject();
+    if (blocksObj->getArrayLength(&len)) {
+        se::Value blockVal;
+        for (uint32_t i = 0; i < len; ++i) {
+            shaderInfo->blocks.resize(len);
+            blocksObj->getArrayElement(i, &blockVal);
+            seval_to_gfx_uniform_block(blockVal, &shaderInfo->blocks[i]);
+        }
+    }
+
+    ok = obj->getProperty("samplers", &val);
+    SE_PRECONDITION2(ok && val.isObject() && val.toObject()->isArray(), false, "Can not get samplers from ShaderInfo!");
+    auto samplersObj = val.toObject();
+    if (samplersObj->getArrayLength(&len)) {
+        shaderInfo->samplers.resize(len);
+        se::Value samplerVal;
+        for (uint32_t i = 0; i < len; ++i) {
+            samplersObj->getArrayElement(i, &samplerVal);
+            seval_to_gfx_uniform_sampler(samplerVal, &shaderInfo->samplers[i]);
+        }
+    }
+
+    return true;
+}
+
+bool seval_to_gfx_draw_info(const se::Value &v, cc::gfx::DrawInfo *drawInfo) {
+    assert(drawInfo != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::DrawInfo failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    bool ok = obj->getProperty("vertexCount", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get vertexCount from DrawInfo!");
+    drawInfo->vertexCount = val.toUint();
+
+    ok = obj->getProperty("firstVertex", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get firstVertex from DrawInfo!");
+    drawInfo->firstVertex = val.toUint();
+
+    ok = obj->getProperty("indexCount", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get indexCount from DrawInfo!");
+    drawInfo->indexCount = val.toUint();
+
+    ok = obj->getProperty("firstIndex", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get firstIndex from DrawInfo!");
+    drawInfo->firstIndex = val.toUint();
+
+    ok = obj->getProperty("vertexOffset", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get vertexOffset from DrawInfo!");
+    drawInfo->vertexOffset = val.toUint();
+
+    ok = obj->getProperty("instanceCount", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get instanceCount from DrawInfo!");
+    drawInfo->instanceCount = val.toUint();
+
+    ok = obj->getProperty("firstInstance", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get firstInstance from DrawInfo!");
+    drawInfo->firstInstance = val.toUint();
+
+    return true;
+}
+
+bool seval_to_gfx_indirect_buffer(const se::Value &v, cc::gfx::IndirectBuffer *indirectBuffer) {
+    assert(indirectBuffer != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::IndirectBuffer failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    bool ok = obj->getProperty("drawInfos", &val);
+    SE_PRECONDITION2(ok && val.isObject() && val.toObject()->isArray(), false, "Can not get drawInfos from IndirectBuffer!");
+    auto drawInfosObj = val.toObject();
+    uint32_t len = 0;
+    if (drawInfosObj->getArrayLength(&len)) {
+        indirectBuffer->drawInfos.resize(len);
+        se::Value drawInfoVal;
+        for (uint32_t i = 0; i < len; ++i) {
+            drawInfosObj->getArrayElement(i, &drawInfoVal);
+            seval_to_gfx_draw_info(drawInfoVal, &indirectBuffer->drawInfos[i]);
+        }
+    }
+
+    return true;
+}
+
+bool seval_to_gfx_sampler_info(const se::Value &v, cc::gfx::SamplerInfo *samplerInfo) {
+    assert(samplerInfo != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::SamplerInfo failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    bool ok = obj->getProperty("minFilter", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get minFilter from SamplerInfo!");
+    samplerInfo->minFilter = (cc::gfx::Filter)val.toUint();
+
+    ok = obj->getProperty("magFilter", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get magFilter from SamplerInfo!");
+    samplerInfo->magFilter = (cc::gfx::Filter)val.toUint();
+
+    obj->getProperty("mipFilter", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get mipFilter from SamplerInfo!");
+    samplerInfo->mipFilter = (cc::gfx::Filter)val.toUint();
+
+    obj->getProperty("addressU", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get addressU from SamplerInfo!");
+    samplerInfo->addressU = (cc::gfx::Address)val.toUint();
+
+    obj->getProperty("addressV", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get addressV from SamplerInfo!");
+    samplerInfo->addressV = (cc::gfx::Address)val.toUint();
+
+    obj->getProperty("addressW", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get addressW from SamplerInfo!");
+    samplerInfo->addressV = (cc::gfx::Address)val.toUint();
+
+    obj->getProperty("maxAnisotropy", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get maxAnisotropy from SamplerInfo!");
+    samplerInfo->maxAnisotropy = val.toUint();
+
+    obj->getProperty("cmpFunc", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get cmpFunc from SamplerInfo!");
+    samplerInfo->cmpFunc = (cc::gfx::ComparisonFunc)val.toUint();
+
+    obj->getProperty("borderColor", &val);
+    SE_PRECONDITION2(ok && val.isObject(), false, "Can not get borderColor from SamplerInfo!");
+    seval_to_gfx_color(val, &samplerInfo->borderColor);
+
+    obj->getProperty("minLOD", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get minLOD from SamplerInfo!");
+    samplerInfo->minLOD = val.toUint();
+
+    obj->getProperty("maxLOD", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get maxLOD from SamplerInfo!");
+    samplerInfo->maxLOD = val.toUint();
+
+    obj->getProperty("mipLODBias", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get mipLODBias from SamplerInfo!");
+    samplerInfo->mipLODBias = val.toFloat();
+
+    return true;
+}
+
+bool seval_to_gfx_depth_stencil_attachment(const se::Value &v, cc::gfx::DepthStencilAttachment *depthStencilAttachment) {
+    assert(depthStencilAttachment != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::DepthStencilAttachment failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    bool ok = obj->getProperty("format", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get format from DepthStencilAttachment!");
+    depthStencilAttachment->format = (cc::gfx::Format)val.toUint();
+
+    ok = obj->getProperty("sampleCount", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get sampleCount from DepthStencilAttachment!");
+    depthStencilAttachment->sampleCount = val.toUint();
+
+    ok = obj->getProperty("depthLoadOp", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get depthLoadOp from DepthStencilAttachment!");
+    depthStencilAttachment->depthLoadOp = (cc::gfx::LoadOp)val.toUint();
+
+    ok = obj->getProperty("depthStoreOp", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get depthStoreOp from DepthStencilAttachment!");
+    depthStencilAttachment->depthStoreOp = (cc::gfx::StoreOp)val.toUint();
+
+    ok = obj->getProperty("stencilLoadOp", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get stencilLoadOp from DepthStencilAttachment!");
+    depthStencilAttachment->stencilLoadOp = (cc::gfx::LoadOp)val.toUint();
+
+    ok = obj->getProperty("stencilStoreOp", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get stencilStoreOp from DepthStencilAttachment!");
+    depthStencilAttachment->stencilStoreOp = (cc::gfx::StoreOp)val.toUint();
+
+    ok = obj->getProperty("beginLayout", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get beginLayout from DepthStencilAttachment!");
+    depthStencilAttachment->beginLayout = (cc::gfx::TextureLayout)val.toUint();
+
+    ok = obj->getProperty("endLayout", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get endLayout from DepthStencilAttachment!");
+    depthStencilAttachment->endLayout = (cc::gfx::TextureLayout)val.toUint();
+
+    return true;
+}
+
+bool seval_to_gfx_color_attachment(const se::Value &v, cc::gfx::ColorAttachment *colorAttachment) {
+    assert(colorAttachment != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::ColorAttachment failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    bool ok = obj->getProperty("format", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get format from ColorAttachment!");
+    colorAttachment->format = (cc::gfx::Format)val.toUint();
+
+    ok = obj->getProperty("sampleCount", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get sampleCount from ColorAttachment!");
+    colorAttachment->sampleCount = val.toUint();
+
+    ok = obj->getProperty("loadOp", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get loadOp from ColorAttachment!");
+    colorAttachment->loadOp = (cc::gfx::LoadOp)val.toUint();
+
+    ok = obj->getProperty("storeOp", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get storeOp from ColorAttachment!");
+    colorAttachment->storeOp = (cc::gfx::StoreOp)val.toUint();
+
+    ok = obj->getProperty("beginLayout", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get beginLayout from ColorAttachment!");
+    colorAttachment->beginLayout = (cc::gfx::TextureLayout)val.toUint();
+
+    ok = obj->getProperty("endLayout", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get endLayout from ColorAttachment!");
+    colorAttachment->endLayout = (cc::gfx::TextureLayout)val.toUint();
+
+    return true;
+}
+
+bool seval_to_gfx_sub_pass_info(const se::Value &v, cc::gfx::SubPassInfo *subPassInfo) {
+    assert(subPassInfo != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::SubPassInfo failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    bool ok = obj->getProperty("bindPoint", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get format from SubPassInfo!");
+    subPassInfo->bindPoint = (cc::gfx::PipelineBindPoint)val.toUint();
+
+    obj->getProperty("inputs", &val);
+    SE_PRECONDITION2(ok && val.isObject(), false, "Can not get inputs from SubPassInfo!");
+    seval_to_std_vector(val, &subPassInfo->inputs);
+
+    obj->getProperty("colors", &val);
+    SE_PRECONDITION2(ok && val.isObject(), false, "Can not get colors from SubPassInfo!");
+    seval_to_std_vector(val, &subPassInfo->colors);
+
+    obj->getProperty("resolves", &val);
+    SE_PRECONDITION2(ok && val.isObject(), false, "Can not get resolves from SubPassInfo!");
+    seval_to_std_vector(val, &subPassInfo->resolves);
+
+    ok = obj->getProperty("depthStencil", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get depthStencil from SubPassInfo!");
+    subPassInfo->depthStencil = val.toUint();
+
+    obj->getProperty("preserves", &val);
+    SE_PRECONDITION2(ok && val.isObject(), false, "Can not get preserves from SubPassInfo!");
+    seval_to_std_vector(val, &subPassInfo->preserves);
+
+    return true;
+}
+
+bool seval_to_gfx_render_pass_info(const se::Value &v, cc::gfx::RenderPassInfo *renderPassInfo) {
+    assert(renderPassInfo != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::RenderPassInfo failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    bool ok = obj->getProperty("colorAttachments", &val);
+    SE_PRECONDITION2(ok && val.isObject() && val.toObject()->isArray(), false, "Can not get colorAttachments from RenderPassInfo!");
+    auto colorAttachmentsObj = val.toObject();
+    uint32_t len = 0;
+    if (colorAttachmentsObj->getArrayLength(&len)) {
+        renderPassInfo->colorAttachments.resize(len);
+        se::Value colorAttachmentVal;
+        for (uint32_t i = 0; i < len; ++i) {
+            colorAttachmentsObj->getArrayElement(i, &colorAttachmentVal);
+            seval_to_gfx_color_attachment(colorAttachmentVal, &renderPassInfo->colorAttachments[i]);
+        }
+    }
+
+    ok = obj->getProperty("depthStencilAttachment", &val);
+    SE_PRECONDITION2(ok && val.isObject(), false, "Can not get depthStencilAttachment from RenderPassInfo!");
+    seval_to_gfx_depth_stencil_attachment(val, &renderPassInfo->depthStencilAttachment);
+
+    ok = obj->getProperty("subPasses", &val);
+    SE_PRECONDITION2(ok && val.isObject() && val.toObject()->isArray(), false, "Can not get subPasses from RenderPassInfo!");
+    auto subPassesObj = val.toObject();
+    if (subPassesObj->getArrayLength(&len)) {
+        renderPassInfo->subPasses.resize(len);
+        se::Value subpassVal;
+        for (uint32_t i = 0; i < len; ++i) {
+            subPassesObj->getArrayElement(i, &subpassVal);
+            seval_to_gfx_sub_pass_info(subpassVal, &renderPassInfo->subPasses[i]);
+        }
+    }
+
+    return true;
+}
+
+bool seval_to_gfx_queue_info(const se::Value &v, cc::gfx::QueueInfo *queueInfo) {
+    assert(queueInfo != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::QueueInfo failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    bool ok = obj->getProperty("type", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get type from QueueInfo!");
+    queueInfo->type = (cc::gfx::QueueType)val.toUint();
+
+    return true;
+}
+
+bool seval_to_gfx_pipeline_layout_info(const se::Value &v, cc::gfx::PipelineLayoutInfo *pipelineLayoutInfo) {
+    assert(pipelineLayoutInfo != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::PipelineLayoutInfo failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    bool ok = obj->getProperty("setLayouts", &val);
+    SE_PRECONDITION2(ok && val.isObject() && val.toObject()->isArray(), false, "Can not get setLayouts from PipelineLayoutInfo!");
+    auto setLayoutsObj = val.toObject();
+    uint32_t len = 0;
+    if (setLayoutsObj->getArrayLength(&len)) {
+        pipelineLayoutInfo->setLayouts.resize(len);
+        se::Value setLayoutVal;
+        for (uint32_t i = 0; i < len; ++i) {
+            setLayoutsObj->getArrayElement(i, &setLayoutVal);
+            pipelineLayoutInfo->setLayouts[i] = static_cast<cc::gfx::DescriptorSetLayout *>(setLayoutVal.toObject()->getPrivateData());
+        }
+    }
+
+    return true;
+}
+
+bool seval_to_gfx_descriptor_set_layout_binding(const se::Value &v, cc::gfx::DescriptorSetLayoutBinding *dscriptorSetLayoutBinding) {
+    assert(dscriptorSetLayoutBinding != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::DescriptorSetLayoutBinding failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    bool ok = obj->getProperty("binding", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get binding from DescriptorSetLayoutBinding!");
+    dscriptorSetLayoutBinding->binding = val.toUint();
+
+    ok = obj->getProperty("descriptorType", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get descriptorType from DescriptorSetLayoutBinding!");
+    dscriptorSetLayoutBinding->descriptorType = (cc::gfx::DescriptorType)val.toUint();
+
+    ok = obj->getProperty("count", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get count from DescriptorSetLayoutBinding!");
+    dscriptorSetLayoutBinding->count = val.toUint();
+
+    ok = obj->getProperty("stageFlags", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get stageFlags from DescriptorSetLayoutBinding!");
+    dscriptorSetLayoutBinding->stageFlags = (cc::gfx::ShaderStageFlags)val.toUint();
+
+    ok = obj->getProperty("immutableSamplers", &val);
+    SE_PRECONDITION2(ok && val.isObject() && val.toObject()->isArray(), false, "Can not get immutableSamplers from DescriptorSetLayoutBinding!");
+    auto immutableSamplersObj = val.toObject();
+    uint32_t len = 0;
+    if (immutableSamplersObj->getArrayLength(&len)) {
+        dscriptorSetLayoutBinding->immutableSamplers.resize(len);
+        se::Value samplerVal;
+        for (uint32_t i = 0; i < len; ++i) {
+            immutableSamplersObj->getArrayElement(i, &samplerVal);
+            dscriptorSetLayoutBinding->immutableSamplers[i] = static_cast<cc::gfx::Sampler *>(samplerVal.toObject()->getPrivateData());
+        }
+    }
+
+    return true;
+}
+
+bool seval_to_gfx_descriptor_set_layout_info(const se::Value &v, cc::gfx::DescriptorSetLayoutInfo *dscriptorSetLayoutInfo) {
+    assert(dscriptorSetLayoutInfo != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::DescriptorSetLayoutInfo failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+
+    bool ok = obj->getProperty("bindings", &val);
+    SE_PRECONDITION2(ok && val.isObject() && val.toObject()->isArray(), false, "Can not get bindings from DescriptorSetLayoutInfo!");
+    auto bindingsObj = val.toObject();
+    uint32_t len = 0;
+    if (bindingsObj->getArrayLength(&len)) {
+        dscriptorSetLayoutInfo->bindings.resize(len);
+        se::Value bindingVal;
+        for (uint32_t i = 0; i < len; ++i) {
+            bindingsObj->getArrayElement(i, &bindingVal);
+            seval_to_gfx_descriptor_set_layout_binding(bindingVal, &dscriptorSetLayoutInfo->bindings[i]);
+        }
+    }
+
+    return true;
+}
+
+bool seval_to_gfx_frame_buffer_info(const se::Value &v, cc::gfx::FramebufferInfo *framebufferInfo) {
+    assert(framebufferInfo != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::FramebufferInfo failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    
+    bool ok = obj->getProperty("renderPass", &val);
+    SE_PRECONDITION2(ok, false, "Can not get renderPass from FramebufferInfo!");
+    if (!val.isNullOrUndefined()) framebufferInfo->renderPass = static_cast<cc::gfx::RenderPass *>(val.toObject()->getPrivateData());
+    
+     ok  = obj->getProperty("colorTextures", &val);
+    SE_PRECONDITION2(ok, false, "Can not get colorTextures from FramebufferInfo!");
+    se::Object *colorTexturesObj = val.toObject();
+    if (!val.isNullOrUndefined()) {
+        uint32_t len = 0;
+        if (colorTexturesObj->getArrayLength(&len)) {
+            framebufferInfo->colorTextures.resize(len);
+            se::Value colorTextureVal;
+            for (uint32_t i = 0; i < len; ++i) {
+                colorTexturesObj->getArrayElement(i, &colorTextureVal);
+                if (colorTextureVal.isNullOrUndefined()) framebufferInfo->colorTextures[i] = nullptr;
+                else framebufferInfo->colorTextures[i] = static_cast<cc::gfx::Texture *>(colorTextureVal.toObject()->getPrivateData());
+            }
+        }
+    }
+    
+    ok = obj->getProperty("depthStencilTexture", &val);
+    SE_PRECONDITION2(ok, false, "Can not get depthStencilTexture from FramebufferInfo!");
+    if (!val.isNullOrUndefined()) framebufferInfo->depthStencilTexture = static_cast<cc::gfx::Texture *>(val.toObject()->getPrivateData());
+    
+    ok = obj->getProperty("colorMipmapLevels", &val);
+    SE_PRECONDITION2(ok && val.isObject() && val.toObject()->isArray(), false, "Can not get colorMipmapLevels from FramebufferInfo!");
+    seval_to_std_vector(val, &framebufferInfo->colorMipmapLevels);
+    
+    ok = obj->getProperty("depStencilMipmapLevel", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get depStencilMipmapLevel from FramebufferInfo!");
+    framebufferInfo->depthStencilMipmapLevel = val.toUint();
+    
+    return true;
+}
+
+bool seval_to_gfx_command_buffer_info(const se::Value &v, cc::gfx::CommandBufferInfo *commandBufferInfo) {
+    assert(commandBufferInfo != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::CommandBufferInfo failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    
+    obj->getProperty("queue", &val);
+    if (!val.isNullOrUndefined()) commandBufferInfo->queue = static_cast<cc::gfx::Queue *>(val.toObject()->getPrivateData());
+    
+    bool ok = obj->getProperty("type", &val);
+    SE_PRECONDITION2(ok && val.isNumber(), false, "Can not get type from FramebufferInfo!");
+    commandBufferInfo->type = (cc::gfx::CommandBufferType)val.toUint();
+    
+    return true;
+}
+
+bool seval_to_gfx_input_assembler_info(const se::Value &v, cc::gfx::InputAssemblerInfo *inputAssemblerInfo) {
+    assert(inputAssemblerInfo != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to cc::gfx::InputAssemblerInfo failed!");
+    se::Object *obj = v.toObject();
+    se::Value val;
+    
+    bool ok = obj->getProperty("attributes", &val);
+    SE_PRECONDITION2(ok && val.isObject() && val.toObject()->isArray(), false, "Can not get attributes from cc::gfx::InputAssemblerInfo!");
+    se::Object *attributesObj = val.toObject();
+    uint32_t len = 0;
+    if (attributesObj->getArrayLength(&len)) {
+        inputAssemblerInfo->attributes.resize(len);
+        se::Value attributeVal;
+        for (uint32_t i = 0; i < len; ++i) {
+            attributesObj->getArrayElement(i, &attributeVal);
+            inputAssemblerInfo->attributes[i] = *static_cast<cc::gfx::Attribute *>(attributeVal.toObject()->getPrivateData());
+        }
+    }
+    
+    ok = obj->getProperty("vertexBuffers", &val);
+    SE_PRECONDITION2(ok && val.isObject() && val.toObject()->isArray(), false, "Can not get vertexBuffers from cc::gfx::InputAssemblerInfo!");
+    se::Object *vertexBuffersObj = val.toObject();
+    if (vertexBuffersObj->getArrayLength(&len)) {
+        inputAssemblerInfo->vertexBuffers.resize(len);
+        se::Value vertexBufferVal;
+        for (uint32_t i = 0; i < len; ++i) {
+            vertexBuffersObj->getArrayElement(i, &vertexBufferVal);
+            inputAssemblerInfo->vertexBuffers[i] = static_cast<cc::gfx::Buffer *>(vertexBufferVal.toObject()->getPrivateData());
+        }
+    }
+    
+    ok = obj->getProperty("indexBuffer", &val);
+    SE_PRECONDITION2(ok, false, "Can not get indexBuffer from cc::gfx::InputAssemblerInfo!");
+    if (!val.isNullOrUndefined()) inputAssemblerInfo->indexBuffer = static_cast<cc::gfx::Buffer *>(val.toObject()->getPrivateData());
+    
+    ok = obj->getProperty("indirectBuffer", &val);
+    SE_PRECONDITION2(ok, false, "Can not get indirectBuffer from cc::gfx::InputAssemblerInfo!");
+    if (!val.isNullOrUndefined()) inputAssemblerInfo->indirectBuffer = static_cast<cc::gfx::Buffer *>(val.toObject()->getPrivateData());
     
     return true;
 }
