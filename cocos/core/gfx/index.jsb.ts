@@ -45,13 +45,13 @@ export { FramebufferInfo } from './framebuffer';
 export { PipelineLayoutInfo } from './pipeline-layout';
 export { FenceInfo } from './fence';
 export { QueueInfo } from './queue';
+export { InputAssemblerInfo } from './input-assembler';
 
 export const TextureViewInfo = gfx.TextureViewInfo;
 export const Texture = gfx.Texture;
 export const Device = gfx.Device;
 export const Shader = gfx.Shader;
 export const Attribute = gfx.Attribute;
-export const InputAssemblerInfo = gfx.InputAssemblerInfo;
 export const InputAssembler = gfx.InputAssembler;
 export const Buffer = gfx.Buffer;
 export const Sampler = gfx.Sampler;
