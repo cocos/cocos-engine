@@ -1338,7 +1338,7 @@ export class Skeleton extends UIRenderable {
                 const m = this._meshRenderDataArray[i];
                 if (m.texture) {
                     // NOTE: 由于 commitComp 只支持单张纹理, 故分多次提交
-                    ui.commitComp(this, m.texture, this._assembler, null);
+                    ui.commitComp(this, m.texture, this._assembler);
                 }
             }
             // this.node._static = true;

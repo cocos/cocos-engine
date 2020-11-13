@@ -33,10 +33,7 @@ import { UIDrawBatch } from './ui-draw-batch';
 import { Pass } from '../core/pass';
 import { SubModelPool, InputAssemblerHandle, DescriptorSetHandle, SubModelView, IAPool, DSPool, NULL_HANDLE,
     SubModelArrayPool, ModelView, ModelPool } from '../core/memory-pools';
-import { RenderPriority, UBOLocal } from '../../pipeline/define';
-import { Mat4 } from '../../math';
-
-const m4_1 = new Mat4();
+import { RenderPriority } from '../../pipeline/define';
 
 export class UIBatchModel extends Model {
     constructor () {
@@ -54,15 +51,7 @@ export class UIBatchModel extends Model {
         SubModelArrayPool.assign(hSubModelArray, 0, subModel.handle);
     }
 
-    public updateTransform () {
-        if (!this.transform) return;
-        const node = this.transform;
-        // @ts-expect-error TS2445
-        if (node.hasChangedFlags || node._dirtyFlags) {
-            node.updateWorldTransform();
-            this._transformUpdated = true;
-        }
-    }
+    public updateTransform () {}
 
     public updateUBOs (stamp: number) {
         // Should updatePass when updateUBOs
@@ -73,22 +62,12 @@ export class UIBatchModel extends Model {
         this._updateStamp = stamp;
 
         if (!this._transformUpdated) { return; }
-
-        if (this.transform) {
-            // @ts-expect-error using private members here for efficiency
-           const worldMatrix = this.transform._mat;
-           Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
-           this._localBuffer!.update(this._localData);
-        }
-
         this._transformUpdated = false;
     }
 
     public directInitialize (batch: UIDrawBatch) {
         const subModel = this._subModels[0] as UISubModel;
         subModel.directInitialize(batch.material!.passes, batch.hInputAssembler, batch.hDescriptorSet!);
-        if (batch.useLocalData) this.node = this.transform = batch.useLocalData;
-        this._updateAttributesAndBinding(0);
     }
 }
 

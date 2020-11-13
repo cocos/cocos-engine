@@ -572,7 +572,7 @@ export class Sprite extends UIRenderable {
     }
 
     protected _render (render: UI) {
-        render.commitComp(this, this._spriteFrame, this._assembler!, null);
+        render.commitComp(this, this._spriteFrame, this._assembler!);
     }
 
     protected _canRender () {

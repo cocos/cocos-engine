@@ -43,9 +43,11 @@ import { PNGReader } from './png-reader';
 import { TiffReader } from './tiff-reader';
 import codec from '../../external/compression/ZipUtils';
 import { UI } from '../core/renderer/ui/ui';
+import { vfmtPosUvColor, getAttributeFormatBytes } from '../core/renderer/ui/ui-vertex-format';
 import { assetManager } from '../core/asset-manager';
 import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';
 
+const formatBytes = getAttributeFormatBytes(vfmtPosUvColor);
 
 /**
  * Image formats
@@ -733,11 +735,6 @@ export class ParticleSystem2D extends UIRenderable {
         this.initProperties();
     }
 
-    public onEnable () {
-        super.onEnable();
-        this._updateMaterial();
-    }
-
     public onDestroy () {
         super.onDestroy();
 
@@ -1133,8 +1130,9 @@ export class ParticleSystem2D extends UIRenderable {
     }
 
     public _updateMaterial () {
-        let mat = this.getMaterialInstance(0);
-        if (mat) mat.recompileShaders({ USE_LOCAL: this._positionType !== PositionType.FREE });
+        const mat = this.getRenderMaterial(0);
+        if (!mat) return;
+        // mat.recompileShaders({USE_LOCAL:this._positionType !== PositionType.FREE});
     }
 
     public _finishedSimulation () {
@@ -1157,8 +1155,6 @@ export class ParticleSystem2D extends UIRenderable {
     }
 
     protected _render (render: UI) {
-        let node;
-        if (this._positionType === PositionType.RELATIVE) node = this.node.parent;
-        render.commitComp(this, this._spriteFrame!, this._assembler!, node);
+        render.commitComp(this, this._spriteFrame!, this._assembler!);
     }
 }
