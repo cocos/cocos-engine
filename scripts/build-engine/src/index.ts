@@ -16,21 +16,17 @@ import rpProgress from 'rollup-plugin-progress';
 // @ts-expect-error: No typing
 import rpVirtual from '@rollup/plugin-virtual';
 import nodeResolve from 'resolve';
-import JSON5 from 'json5';
 import babelPluginDynamicImportVars from '@cocos/babel-plugin-dynamic-import-vars';
+import realFs from 'fs';
 import { ModuleOption, enumerateModuleOptionReps, parseModuleOption } from './module-option';
 import { generateCCSource } from './make-cc';
-import { getModuleName } from './module-name';
 import tsConfigPaths from './ts-paths';
-import { getPlatformConstantNames, IBuildTimeConstants } from './build-time-constants';
 import removeDeprecatedFeatures from './remove-deprecated-features';
-import realFs from 'fs';
+import overrideModules from './override-modules';
+import { filePathToModuleRequest } from './utils';
+import type { ConfigContext } from '../../who-am-i/lib/contextual-build-config';
 
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
-
-function makePathEqualityKey (path: string) {
-    return process.platform === 'win32' ? path.toLocaleLowerCase() : path;
-}
 
 async function build (options: build.Options) {
     console.debug(`Build-engine options: ${JSON.stringify(options, undefined, 2)}`);
@@ -59,6 +55,12 @@ namespace build {
          * 引擎仓库目录。
          */
         engine: string;
+
+        mode?: string;
+
+        platform?: string;
+
+        debug?: boolean;
 
         /**
          * 模块入口。
@@ -141,7 +143,7 @@ namespace build {
             file?: string;
         };
 
-        buildTimeConstants: IBuildTimeConstants;
+        buildTimeConstants?: Record<string, string>;
     }
 
     export interface Result {
@@ -162,35 +164,6 @@ namespace build {
 
 export { build };
 
-async function getEngineEntries (
-    engine: string,
-    moduleEntries?: string[],
-) {
-    const result: Record<string, string> = {};
-    const entryRootDir = ps.join(engine, 'exports');
-    const entryFileNames = await fs.readdir(entryRootDir);
-    for (const entryFileName of entryFileNames) {
-        const entryExtName = ps.extname(entryFileName);
-        if (!entryExtName.toLowerCase().endsWith('.ts')) {
-            continue;
-        }
-        const entryBaseNameNoExt = ps.basename(entryFileName, entryExtName);
-        if (moduleEntries && !moduleEntries.includes(entryBaseNameNoExt)) {
-            continue;
-        }
-        const entryFile = ps.join(entryRootDir, entryFileName);
-        const entryName = getModuleName(entryBaseNameNoExt, engine);
-        result[entryName] = entryFile;
-    }
-    return result;
-}
-
-interface CCConfig {
-    platforms?: Record<string, {
-        moduleOverrides?: Record<string, string>;
-    }>;
-}
-
 async function _doBuild ({
     moduleEntries,
     options,
@@ -200,11 +173,11 @@ async function _doBuild ({
 }): Promise<build.Result> {
     const realpath = typeof realFs.realpath.native === 'function' ? realFs.realpath.native : realFs.realpath;
     const realPath = (file: string) => new Promise<string>((resolve, reject) => {
-        realpath(file, function (err, path) {
+        realpath(file, (err, path) => {
             if (err && err.code !== 'ENOENT') {
                 reject(err);
             } else {
-                resolve(err ? file : path)
+                resolve(err ? file : path);
             }
         });
     });
@@ -223,211 +196,37 @@ async function _doBuild ({
         ammoJsWasm = false;
     }
 
-    const ccConfigFile = ps.join(engineRoot, 'cc.config.json');
-    const ccConfig: CCConfig = JSON5.parse(await fs.readFile(ccConfigFile, 'utf8'));
-
-    const engineEntries = await getEngineEntries(
-        engineRoot,
-        split ? undefined : moduleEntries,
-    );
-
     const rpVirtualOptions: Record<string, string> = {};
-    const vmInternalConstants = getModuleSourceInternalConstants(options.buildTimeConstants);
-    console.debug(`Module source "internal-constants":\n${vmInternalConstants}`);
-    rpVirtualOptions['internal:constants'] = vmInternalConstants;
 
-    const forceStandaloneModules = ['cc.wait-for-ammo-instantiation', 'cc.decorator'];
+    // Let's import some stuffs in lib 'who-am-i'.
+    const libWhoAmI = ps.join(engineRoot, 'scripts', 'who-am-i', 'lib');
+    const [
+        { getPublicModules, getForceStandaloneModules },
+        { generateBuildTimeConstants },
+        { default: buildConfigFunction },
+    ] = await Promise.all([
+        import(`${libWhoAmI}/public-modules`) as Promise<typeof import('../../who-am-i/lib/public-modules')>,
+        import(`${libWhoAmI}/build-time-constants`) as Promise<typeof import('../../who-am-i/lib/build-time-constants')>,
+        import(`${libWhoAmI}/contextual-build-config`) as Promise<typeof import('../../who-am-i/lib/contextual-build-config')>,
+    ]);
 
-    let rollupEntries: NonNullable<rollup.RollupOptions['input']> | undefined;
-    if (split) {
-        rollupEntries = { ...engineEntries };
-    } else {
-        rollupEntries = {
-            cc: 'cc',
-        };
-        const bundledModules = [];
-        for (const moduleName of Object.keys(engineEntries)) {
-            const moduleEntryFile = engineEntries[moduleName];
-            if (forceStandaloneModules.includes(moduleName)) {
-                rollupEntries[moduleName] = moduleEntryFile;
-            } else {
-                bundledModules.push(filePathToModuleRequest(moduleEntryFile));
-            }
-        }
+    // The modules included in this build.
+    const includedPublicModules = await filterIncludedPublicModules();
 
-        rpVirtualOptions.cc = generateCCSource(bundledModules);
-        rollupEntries.cc = 'cc';
+    // Make up 'internal:constants'.
+    await makeUpInternalConstantsModule();
 
-        console.debug(`Module source "cc":\n${rpVirtualOptions.cc}`);
-    }
+    // Build config.
+    const config = await getConfig();
 
-    const presetEnvOptions: babelPresetEnvOptions = {
-        loose: options.loose ?? true,
-        // We need explicitly specified targets.
-        // Ignore it to avoid the engine's parent dirs contain unexpected config.
-        ignoreBrowserslistConfig: true,
-    };
-    if (options.targets !== undefined) {
-        presetEnvOptions.targets = options.targets;
-    }
+    // Rollup inputs.
+    const rollupInput = getRollupInput(includedPublicModules);
 
-    const babelPlugins: any[] = [];
-    if (options.targets === undefined) {
-        babelPlugins.push([babelPluginTransformForOf, {
-            loose: true,
-        }]);
-    }
-
-    babelPlugins.push(
-        [babelPluginDynamicImportVars, {
-            resolve: {
-                forwardExt: 'resolved',
-            },
-        }],
-    );
-
-    interface BabelOverrides {
-        overrides?: Array<{
-            test: RegExp | string;
-        } & babel.TransformOptions>,
-    }
-
-    const babelOptions: RollupBabelInputPluginOptions & BabelOverrides = {
-        babelHelpers: 'bundled',
-        extensions: ['.js', '.ts'],
-        exclude: [
-            /node_modules[/\\]@cocos[/\\]ammo/,
-            /node_modules[/\\]@cocos[/\\]cannon/,
-        ],
-        comments: false, // Do not preserve comments, even in debug build since we have source map
-        overrides: [{
-            // Eliminates the babel compact warning:
-            // 'The code generator has deoptimised the styling of ...'
-            // that came from node_modules/@cocos
-            test: /node_modules[/\\]@cocos[/\\]/,
-            compact: true,
-        }],
-        plugins: babelPlugins,
-        presets: [
-            [babelPresetEnv, presetEnvOptions],
-            [babelPresetCc, {
-                allowDeclareFields: true,
-            } as babelPresetCc.Options],
-        ],
-    };
-
-    const moduleRedirects: Record<string, string> = {};
-    const platformConstant = getPlatformConstantNames().find((name) => options.buildTimeConstants[name] === true);
-    if (platformConstant) {
-        const moduleOverrides = ccConfig.platforms?.[platformConstant]?.moduleOverrides;
-        if (moduleOverrides) {
-            for (const [source, override] of Object.entries(moduleOverrides)) {
-                const normalizedSource = makePathEqualityKey(ps.resolve(engineRoot, source));
-                const normalizedOverride = ps.resolve(engineRoot, override);
-                moduleRedirects[normalizedSource] = normalizedOverride;
-            }
-        }
-    }
-
-    const rollupPlugins: rollup.Plugin[] = [];
-    if (options.noDeprecatedFeatures) {
-        rollupPlugins.push(removeDeprecatedFeatures(
-            typeof options.noDeprecatedFeatures === 'string' ? options.noDeprecatedFeatures : undefined,
-        ));
-    }
-
-    rollupPlugins.push(
-        {
-            name: '@cocos/build-engine|module-overrides',
-            load (this, id: string) {
-                const key = makePathEqualityKey(id);
-                if (!(key in moduleRedirects)) {
-                    return null;
-                }
-                const replacement = moduleRedirects[key];
-                console.debug(`Redirect module ${id} to ${replacement}`);
-                return `export * from '${filePathToModuleRequest(replacement)}';`;
-            },
-        },
-
-        rpVirtual(rpVirtualOptions),
-
-        tsConfigPaths({
-            configFileName: ps.resolve(options.engine, 'tsconfig.json'),
-        }),
-
-        resolve({
-            extensions: ['.js', '.ts', '.json'],
-            jail: await realPath(engineRoot),
-            rootDir: engineRoot,
-        }),
-
-        json({
-            preferConst: true,
-        }),
-
-        commonjs({
-            include: [
-                /node_modules[/\\]/,
-            ],
-            sourceMap: false,
-        }),
-
-        rpBabel(babelOptions),
-    );
-
-    if (options.progress) {
-        rollupPlugins.unshift(rpProgress());
-    }
-
-    if (doUglify) { // TODO: tree-shaking not clear!
-        rollupPlugins.push(rpTerser({
-            // see https://github.com/terser/terser#compress-options
-            compress: {
-                reduce_funcs: false, // reduce_funcs not suitable for ammo.js
-                keep_fargs: false,
-                unsafe_Function: true,
-                unsafe_math: true,
-                unsafe_methods: true,
-                passes: 2,  // first: remove deadcodes and const objects, second: drop variables
-            },
-            mangle: doUglify,
-            keep_fnames: !doUglify,
-            output: {
-                beautify: !doUglify,
-            },
-            sourcemap: !!options.sourceMap,
-
-            // https://github.com/rollup/rollup/issues/3315
-            // We only do this for CommonJS.
-            // Especially, we cannot do this for IIFE.
-            toplevel: rollupFormat === 'cjs',
-        }));
-    }
-
-    const visualizeOptions = typeof options.visualize === 'object'
-        ? options.visualize
-        : (options.visualize ? {} : undefined);
-    if (visualizeOptions) {
-        let rpVisualizer;
-        try {
-            // @ts-expect-error: No typing
-            rpVisualizer = await import('rollup-plugin-visualizer');
-        } catch {
-            console.warn('Visualizing needs \'rollup-plugin-visualizer\' to be installed. It\'s installed as dev-dependency.');
-        }
-        if (rpVisualizer) {
-            const visualizeFile = visualizeOptions.file ?? ps.join(options.out, 'visualize.html');
-            rollupPlugins.push(rpVisualizer({
-                filename: visualizeFile,
-                title: 'Cocos Creator 3D build visualizer',
-                template: 'treemap',
-            }));
-        }
-    }
+    // Rollup plugins.
+    const rollupPlugins = await collectRollupPlugins();
 
     const rollupOptions: rollup.InputOptions = {
-        input: rollupEntries,
+        input: rollupInput,
         plugins: rollupPlugins,
         cache: false,
     };
@@ -460,78 +259,16 @@ export { isWasm };
 
     const { incremental: incrementalFile } = options;
     if (incrementalFile) {
-        const watchFiles: Record<string, number> = {};
-        const files = rollupBuild.watchFiles.concat([
-            ccConfigFile,
-        ]);
-        await Promise.all(files.map(async (watchFile) => {
-            try {
-                const stat = await fs.stat(watchFile);
-                watchFiles[watchFile] = stat.mtimeMs;
-            } catch {
-                // the `watchFiles` may contain non-fs modules.
-            }
-        }));
-        await fs.ensureDir(ps.dirname(incrementalFile));
-        await fs.writeFile(incrementalFile, JSON.stringify(watchFiles, undefined, 2));
+        await writeIncrementalFile(rollupBuild, incrementalFile);
     }
+
+    const rollupOutput = await rollupBuild.write(getRollupOutputOptions());
 
     const result: build.Result = {
         exports: {},
     };
 
-    const rollupOutputOptions: rollup.OutputOptions = {
-        format: rollupFormat,
-        sourcemap: options.sourceMap,
-        sourcemapFile: options.sourceMapFile,
-        name: (rollupFormat === 'iife' ? 'ccm' : undefined),
-        dir: options.out,
-        // minifyInternalExports: false,
-        // preserveEntrySignatures: "allow-extension",
-    };
-
-    const rollupOutput = await rollupBuild.write(rollupOutputOptions);
-
-    const validEntryChunks: Record<string, string> = {};
-    for (const output of rollupOutput.output) {
-        if (output.type === 'chunk') {
-            if (output.isEntry) {
-                const chunkName = output.name;
-                if (chunkName in engineEntries || chunkName === 'cc') {
-                    validEntryChunks[chunkName] = output.fileName;
-                }
-            }
-        }
-    }
-
-    Object.assign(result.exports, validEntryChunks);
-
-    // // 构造模块 `"cc"`
-    // let ccModuleRequests: string[] | undefined;
-    // if (options.cc === 'bare') {
-    //     ccModuleRequests = [];
-    //     ccModuleRequests.push(...Object.keys(validEntryChunks));
-    // } else if (options.cc === 'unmapped') {
-    //     ccModuleRequests = [];
-    //     ccModuleRequests.push(...Object.values(validEntryChunks).map(fileName => `./${fileName}`));
-    // }
-    // if (ccModuleRequests !== undefined) {
-    //     let code = await makeModuleSourceCC(ccModuleRequests, moduleOption);
-    //     if (options.compress) {
-    //         code = terser.minify(code).code!;
-    //     }
-    //     const moduleCCFileName = 'cc.js';
-    //     await fs.ensureDir(options.out);
-    //     await fs.writeFile(ps.join(options.out, moduleCCFileName), code);
-    //     result.exports['cc'] = moduleCCFileName;
-    // }
-
-    result.dependencyGraph = {};
-    for (const output of rollupOutput.output) {
-        if (output.type === 'chunk') {
-            result.dependencyGraph[output.fileName] = output.imports.concat(output.dynamicImports);
-        }
-    }
+    await writeMetadata(rollupOutput);
 
     if (ammoJsWasm === 'fallback' || ammoJsWasm === true) {
         await fs.copy(
@@ -562,13 +299,300 @@ export { isWasm };
             });
         });
     }
+
+    interface BabelOverrides {
+        overrides?: Array<{
+            test: RegExp | string;
+        } & babel.TransformOptions>,
+    }
+
+    async function getConfig () {
+        const configContext: ConfigContext = {
+            mode: options.mode,
+            platform: options.platform,
+            entries: Object.keys(includedPublicModules),
+        };
+
+        const config = await buildConfigFunction(configContext);
+
+        return config;
+    }
+
+    async function filterIncludedPublicModules () {
+        const publicModules = await getPublicModules(engineRoot) as Record<string, string>;
+
+        if (split) {
+            return publicModules;
+        }
+
+        return (moduleEntries ?? []).reduce((result, entry) => {
+            const id = `cc.${entry}`; // TODO: `moduleEntries` should be module ids.
+            if (!(id in publicModules)) {
+                console.warn(`${id} is not a module`);
+            } else {
+                result[id] = publicModules[id];
+            }
+            return result;
+        }, {} as Record<string, string>);
+    }
+
+    async function makeUpInternalConstantsModule () {
+        const buildTimeConstants = await getBuildTimeConstants();
+
+        const vmInternalConstants = getModuleSourceInternalConstants(buildTimeConstants);
+        console.debug(`Module source "internal-constants":\n${vmInternalConstants}`);
+        rpVirtualOptions['internal:constants'] = vmInternalConstants;
+    }
+
+    async function getBuildTimeConstants () {
+        return options.buildTimeConstants ?? (async () =>
+            /* eslint-disable-next-line */
+             await generateBuildTimeConstants({
+                mode: options.mode,
+                platform: options.platform,
+                debug: options.debug,
+            })
+        )();
+    }
+
+    function getRollupInput (includedPublicModules: Record<string, string>) {
+        let rollupEntries: NonNullable<rollup.RollupOptions['input']> | undefined;
+        if (split) {
+            rollupEntries = { ...includedPublicModules };
+        } else {
+            rollupEntries = {
+                cc: 'cc',
+            };
+            const forceStandaloneModules = getForceStandaloneModules();
+            const bundledModules = [];
+            for (const [moduleName, moduleFile] of Object.entries(includedPublicModules)) {
+                if (forceStandaloneModules.includes(moduleName)) {
+                    rollupEntries[moduleName] = moduleFile;
+                } else {
+                    bundledModules.push(filePathToModuleRequest(moduleFile));
+                }
+            }
+
+            rpVirtualOptions.cc = generateCCSource(bundledModules);
+            rollupEntries.cc = 'cc';
+
+            console.debug(`Module source "cc":\n${rpVirtualOptions.cc}`);
+        }
+
+        return rollupEntries;
+    }
+
+    function getRollupOutputOptions () {
+        const rollupOutputOptions: rollup.OutputOptions = {
+            format: rollupFormat,
+            sourcemap: options.sourceMap,
+            sourcemapFile: options.sourceMapFile,
+            name: (rollupFormat === 'iife' ? 'ccm' : undefined),
+            dir: options.out,
+            // minifyInternalExports: false,
+            // preserveEntrySignatures: "allow-extension",
+        };
+        return rollupOutputOptions;
+    }
+
+    async function collectRollupPlugins () {
+        const rollupPlugins: rollup.Plugin[] = [];
+
+        if (options.noDeprecatedFeatures) {
+            rollupPlugins.push(removeDeprecatedFeatures(
+                typeof options.noDeprecatedFeatures === 'string' ? options.noDeprecatedFeatures : undefined,
+            ));
+        }
+
+        if (config.moduleOverrides) {
+            rollupPlugins.push(overrideModules(engineRoot, config.moduleOverrides));
+        }
+
+        rollupPlugins.push(
+            rpVirtual(rpVirtualOptions),
+
+            tsConfigPaths({
+                configFileName: ps.resolve(options.engine, 'tsconfig.json'),
+            }),
+
+            resolve({
+                extensions: ['.js', '.ts', '.json'],
+                jail: await realPath(engineRoot),
+                rootDir: engineRoot,
+            }),
+
+            json({
+                preferConst: true,
+            }),
+
+            commonjs({
+                include: [
+                    /node_modules[/\\]/,
+                ],
+                sourceMap: false,
+            }),
+
+            rpBabel(getBabelOptions()),
+        );
+
+        if (options.progress) {
+            rollupPlugins.unshift(rpProgress());
+        }
+
+        if (doUglify) { // TODO: tree-shaking not clear!
+            rollupPlugins.push(rpTerser(getTerserOptions()));
+        }
+
+        const visualizePlugin = await handleVisualizeOption();
+        if (visualizePlugin) {
+            await handleVisualizeOption();
+        }
+
+        return rollupPlugins;
+    }
+
+    function getBabelOptions () {
+        const presetEnvOptions: babelPresetEnvOptions = {
+            loose: options.loose ?? true,
+            // We need explicitly specified targets.
+            // Ignore it to avoid the engine's parent dirs contain unexpected config.
+            ignoreBrowserslistConfig: true,
+        };
+        if (options.targets !== undefined) {
+            presetEnvOptions.targets = options.targets;
+        }
+
+        const babelPlugins: any[] = [];
+
+        if (options.targets === undefined) {
+            babelPlugins.push([babelPluginTransformForOf, {
+                loose: true,
+            }]);
+        }
+
+        babelPlugins.push(
+            [babelPluginDynamicImportVars, {
+                resolve: {
+                    forwardExt: 'resolved',
+                },
+            }],
+        );
+
+        const babelOptions: RollupBabelInputPluginOptions & BabelOverrides = {
+            babelHelpers: 'bundled',
+            extensions: ['.js', '.ts'],
+            exclude: config.transformExcludes,
+            comments: false, // Do not preserve comments, even in debug build since we have source map
+            overrides: [{
+                // Eliminates the babel compact warning:
+                // 'The code generator has deoptimised the styling of ...'
+                // that came from node_modules/@cocos
+                test: /node_modules[/\\]@cocos[/\\]/,
+                compact: true,
+            }],
+            plugins: babelPlugins,
+            presets: [
+                [babelPresetEnv, presetEnvOptions],
+                [babelPresetCc, {
+                    allowDeclareFields: true,
+                } as babelPresetCc.Options],
+            ],
+        };
+        return babelOptions;
+    }
+
+    function getTerserOptions () {
+        return {
+            // see https://github.com/terser/terser#compress-options
+            compress: {
+                reduce_funcs: false, // reduce_funcs not suitable for ammo.js
+                keep_fargs: false,
+                unsafe_Function: true,
+                unsafe_math: true,
+                unsafe_methods: true,
+                passes: 2,  // first: remove deadcodes and const objects, second: drop variables
+            },
+            mangle: doUglify,
+            keep_fnames: !doUglify,
+            output: {
+                beautify: !doUglify,
+            },
+            sourcemap: !!options.sourceMap,
+
+            // https://github.com/rollup/rollup/issues/3315
+            // We only do this for CommonJS.
+            // Especially, we cannot do this for IIFE.
+            toplevel: rollupFormat === 'cjs',
+        };
+    }
+
+    async function handleVisualizeOption () {
+        const visualizeOptions = typeof options.visualize === 'object'
+            ? options.visualize
+            : (options.visualize ? {} : undefined);
+        if (visualizeOptions) {
+            let rpVisualizer;
+            try {
+                // @ts-expect-error: No typing
+                rpVisualizer = await import('rollup-plugin-visualizer');
+            } catch {
+                console.warn('Visualizing needs \'rollup-plugin-visualizer\' to be installed. It\'s installed as dev-dependency.');
+            }
+            if (rpVisualizer) {
+                const visualizeFile = visualizeOptions.file ?? ps.join(options.out, 'visualize.html');
+                return rpVisualizer({
+                    filename: visualizeFile,
+                    title: 'Cocos Creator 3D build visualizer',
+                    template: 'treemap',
+                }) as rollup.Plugin;
+            }
+        }
+    }
+
+    async function writeIncrementalFile (
+        rollupBuild: rollup.RollupBuild,
+        incrementalFile: string,
+    ) {
+        const watchFiles: Record<string, number> = {};
+        const files = rollupBuild.watchFiles.concat([
+        ]);
+        await Promise.all(files.map(async (watchFile) => {
+            try {
+                const stat = await fs.stat(watchFile);
+                watchFiles[watchFile] = stat.mtimeMs;
+            } catch {
+                // the `watchFiles` may contain non-fs modules.
+            }
+        }));
+        await fs.ensureDir(ps.dirname(incrementalFile));
+        await fs.writeFile(incrementalFile, JSON.stringify(watchFiles, undefined, 2));
+    }
+
+    async function writeMetadata (rollupOutput: rollup.RollupOutput) {
+        const validEntryChunks: Record<string, string> = {};
+        for (const output of rollupOutput.output) {
+            if (output.type === 'chunk') {
+                if (output.isEntry) {
+                    const chunkName = output.name;
+                    if (chunkName in includedPublicModules || chunkName === 'cc') {
+                        validEntryChunks[chunkName] = output.fileName;
+                    }
+                }
+            }
+        }
+
+        Object.assign(result.exports, validEntryChunks);
+
+        result.dependencyGraph = {};
+        for (const output of rollupOutput.output) {
+            if (output.type === 'chunk') {
+                result.dependencyGraph[output.fileName] = output.imports.concat(output.dynamicImports);
+            }
+        }
+    }
 }
 
-function filePathToModuleRequest (path: string) {
-    return path.replace(/\\/g, '\\\\');
-}
-
-function getModuleSourceInternalConstants (buildTimeConstants: IBuildTimeConstants) {
+function getModuleSourceInternalConstants (buildTimeConstants: Record<string, any>) {
     return Object.entries(buildTimeConstants).map(([k, v]) => `export const ${k} = ${v};`).join('\n');
 }
 

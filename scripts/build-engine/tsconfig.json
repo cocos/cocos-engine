@@ -7,9 +7,13 @@
     "sourceMap": true,
     "declaration": true,
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "composite": true
   },
   "exclude": [
       "dist"
-  ]
+  ],
+  "references": [{
+      "path": "../who-am-i"
+  }]
 }

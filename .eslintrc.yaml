@@ -65,6 +65,9 @@ rules:
     max-classes-per-file: off # helper classes are common
     max-len: [warn, 150] # more lenient on max length per line
     new-cap: off # some class still doesn't follow this yet
+    no-floating-promises: [error, {
+      ignoreIIFE: true
+    }]
     no-underscore-dangle: off # allow underscores
     no-plusplus: off # allow increment/decrement operators
     no-console: off # allow console statements

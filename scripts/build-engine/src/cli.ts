@@ -1,7 +1,6 @@
 import * as fs from 'fs-extra';
 import * as ps from 'path';
 import yargs from 'yargs';
-import { setupBuildTimeConstants } from './build-time-constants';
 import {
     build,
     enumerateModuleOptionReps,
@@ -113,17 +112,14 @@ async function main() {
 
     const sourceMap = yargs.argv.sourcemap === 'inline' ? 'inline' : !!yargs.argv.sourcemap;
 
-    const buildTimeConstants = setupBuildTimeConstants({
-        mode: yargs.argv.buildMode as (string | undefined),
-        platform: yargs.argv.platform as unknown as string,
-        flags,
-    });
-
     const noDeprecatedFeatures = yargs.argv.noDeprecatedFeatures as (boolean | string | undefined);
 
     const options: build.Options = {
         engine: yargs.argv.engine as string,
         split: yargs.argv.split as boolean,
+        mode: yargs.argv.buildMode as (string | undefined),
+        platform: yargs.argv.platform as string,
+        debug: flags.debug ?? true,
         moduleEntries: yargs.argv._ as (string[] | undefined),
         compress: yargs.argv.compress as (boolean | undefined),
         out: yargs.argv.out as string,
@@ -132,7 +128,6 @@ async function main() {
         incremental: yargs.argv['watch-files'] as (string | undefined),
         ammoJsWasm: yargs.argv['ammojs-wasm'] as (boolean | undefined | 'fallback'),
         noDeprecatedFeatures: noDeprecatedFeatures,
-        buildTimeConstants,
     };
     if (yargs.argv.module) {
         options.moduleFormat = parseModuleOption(yargs.argv['module'] as unknown as string);

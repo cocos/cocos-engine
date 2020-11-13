@@ -46,7 +46,7 @@
     "typescript": "^3.7.2"
   },
   "scripts": {
-    "build": "npx tsc",
+    "build": "npm run clear & npx tsc",
     "clear": "node ./scripts/clear.mjs",
     "prepublishOnly": "npm run clear & npm run build"
   },
