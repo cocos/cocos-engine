@@ -68,5 +68,6 @@ export class UIDrawBatch {
         this.sampler = null;
         this.model = null;
         this.isStatic = false;
+        this.useLocalData = null;
     }
 }
