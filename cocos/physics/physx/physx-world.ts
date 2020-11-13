@@ -55,7 +55,7 @@ export class PhysXWorld implements IPhysicsWorld {
     setAllowSleep (v: boolean) { };
     setDefaultMaterial (v: PhysicMaterial) { };
     setGravity (gravity: IVec3Like) {
-        if (!USE_BYTEDANCE) this.scene['setGravity'](gravity)
+        this.scene['setGravity'](gravity)
     };
     get impl () { return null; }
 
@@ -169,7 +169,14 @@ export class PhysXWorld implements IPhysicsWorld {
     }
 
     raycastClosest (worldRay: ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
-        return false;
+        const hit = new PX.PxRaycastBuffer();
+        const r = (this.scene as any).raycast(worldRay.o, worldRay.d, options.maxDistance, hit);
+        if (r && hit.hasBlock) {
+            const block = hit.block;
+            const collider = (PX.IMPL_PTR[block.getShape()['$$'].ptr] as PhysXShape).collider;
+            result._assign(block.position, block.distance, collider, block.normal);
+        }
+        return r;
     }
 
     getSharedBody (node: Node, wrappedBody?: PhysXRigidBody) {

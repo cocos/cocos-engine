@@ -59,6 +59,7 @@ export function select (id: IPhysicsEngineId, wrapper: IPhysicsWrapperObject) {
     legacyCC._global['CC_PHYSICS_BUILTIN'] = id == 'builtin';
     legacyCC._global['CC_PHYSICS_CANNON'] = id == "cannon.js";
     legacyCC._global['CC_PHYSICS_AMMO'] = id == "ammo.js";
-    
+
     WRAPPER = wrapper;
+    console.log(`[PHYSICS]: Using ${id}`);
 }

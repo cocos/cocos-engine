@@ -193,11 +193,6 @@ export class PhysXSharedBody {
             Vec3.copy(pos, node.worldPosition);
             Quat.copy(rot, node.worldRotation);
             if (USE_BYTEDANCE) {
-                // // _pxtrans.setPosition([pos.x, pos.y, pos.z]);
-                // // _pxtrans.setQuaternion([rot.x, rot.y, rot.z, rot.w]);
-                // // this.impl.setGlobalPose(_pxtrans, true);
-                // const pt = new PX.Transform([pos.x, pos.y, pos.z], [rot.x, rot.y, rot.z, rot.w]);
-                // this.impl.setGlobalPose(pt, true);
                 _pxtrans.setPosition(pos);
                 _pxtrans.setQuaternion(rot);
                 this.impl.setGlobalPose(_pxtrans, true);
@@ -214,10 +209,8 @@ export class PhysXSharedBody {
         if (USE_BYTEDANCE) {
             const pos = transform.getPosition();
             const rot = transform.getQuaternion();
-            // node.setWorldPosition(pos[0], pos[1], pos[2]);
-            node.setWorldRotation(rot[0], rot[1], rot[2], rot[3]);
             node.setWorldPosition(pos);
-            // node.setWorldRotation(rot);
+            node.setWorldRotation(rot);
         } else {
             node.setWorldPosition(transform.translation);
             node.setWorldRotation(transform.rotation);
@@ -265,13 +258,7 @@ export class PhysXSharedBody {
 
     updateFiltering () {
         for (let i = 0; i < this.wrappedShapes.length; i++) {
-            if (USE_BYTEDANCE) {
-                const fd = this._filterData;
-                // this.wrappedShapes[i].impl.setSimulationFilterData([fd.word0, fd.word1, fd.word2, fd.word3]);
-                this.wrappedShapes[i].impl.setSimulationFilterData(fd);
-            } else {
-                this.wrappedShapes[i].impl.setSimulationFilterData(this._filterData);
-            }
+            this.wrappedShapes[i].impl.setSimulationFilterData(this._filterData);
         }
     }
 

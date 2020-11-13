@@ -138,11 +138,6 @@ export class PhysXShape implements IBaseShape {
         if (USE_BYTEDANCE) {
             const pos = _trans.translation;
             const rot = _trans.rotation;
-            // // _pxtrans.setPosition([pos.x, pos.y, pos.z]);
-            // // _pxtrans.setQuaternion([rot.x, rot.y, rot.z, rot.w]);
-            // // this._impl.setLocalPose(_pxtrans);
-            // const pt = new PX.Transform([pos.x, pos.y, pos.z],[rot.x, rot.y, rot.z, rot.w]);            
-            // this._impl.setLocalPose(pt, true);
             _pxtrans.setPosition(pos);
             _pxtrans.setQuaternion(rot);
             this._impl.setLocalPose(_pxtrans);
