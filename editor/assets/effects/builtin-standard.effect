@@ -97,8 +97,10 @@ CCProgram standard-vs %{
   out vec3 v_position;
   out vec3 v_normal;
   out vec2 v_uv;
-  out vec2 v_uv1;
   out float v_fog_factor;
+  #if HAS_SECOND_UV
+    out vec2 v_uv1;
+  #endif
 
   #if USE_NORMAL_MAP
     out vec3 v_tangent;
@@ -163,9 +165,11 @@ CCProgram standard-fs %{
 
   in vec3 v_position;
   in vec2 v_uv;
-  in vec2 v_uv1;
   in vec3 v_normal;
   in float v_fog_factor;
+  #if HAS_SECOND_UV
+    in vec2 v_uv1;
+  #endif
 
   #if USE_VERTEX_COLOR
     in vec3 v_color;
@@ -281,7 +285,9 @@ CCProgram shadow-caster-vs %{
   #endif
 
   out vec2 v_uv;
-  out vec2 v_uv1;
+  #if HAS_SECOND_UV
+    out vec2 v_uv1;
+  #endif
 
   out float v_clip_depth;
 
@@ -312,8 +318,10 @@ CCProgram shadow-caster-fs %{
   #include <packing>
 
   in vec2 v_uv;
-  in vec2 v_uv1;
   in float v_clip_depth;
+  #if HAS_SECOND_UV
+    in vec2 v_uv1;
+  #endif
 
   #if USE_ALBEDO_MAP
     uniform sampler2D albedoMap;
