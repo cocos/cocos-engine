@@ -17,6 +17,7 @@
         "typescript"
     ],
     "editor.codeActionsOnSave": {
-        "source.fixAll": true,
+        "source.fixAll": false,
     },
+    "editor.formatOnSave": true
 }

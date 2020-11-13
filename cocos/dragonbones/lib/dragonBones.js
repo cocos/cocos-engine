@@ -14982,4 +14982,4 @@ var dragonBones;
     dragonBones.BuildArmaturePackage = BuildArmaturePackage;
 })(dragonBones || (dragonBones = {}));
 
-module.exports = dragonBones;
+export default dragonBones;

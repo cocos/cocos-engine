@@ -1,94 +1,89 @@
-/****************************************************************************
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+import { CCFactory } from './CCFactory';
+import dragonBones from './lib/dragonBones';
 
- https://www.cocos.com/
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
-
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
- ****************************************************************************/
 const MaxCacheTime = 30;
-const FrameTime = 1 / 60; 
+const FrameTime = 1 / 60;
 
-let _vertices = [];
-let _indices = [];
+const _vertices: number[] = [];
+const _indices: number[] = [];
 let _boneInfoOffset = 0;
 let _vertexOffset = 0;
 let _indexOffset = 0;
 let _vfOffset = 0;
-let _preTexUrl = null;
+let _preTexUrl: string | null = null;
 let _preBlendMode = null;
 let _segVCount = 0;
 let _segICount = 0;
 let _segOffset = 0;
 let _colorOffset = 0;
 let _preColor = null;
-let _x, _y;
+let _x: number;
+let _y: number;
+
+export interface ArmatureInfo {
+    curAnimationCache: AnimationCache | null;
+    armature: dragonBones.Armature;
+    animationsCache: { [key: string]: AnimationCache };
+}
+
+export interface ArmatureFrame {
+    segments: ArmatureFrameSegment[];
+}
+
+export interface ArmatureFrameSegment {
+
+}
 
 //Cache all frames in an animation
-let AnimationCache = cc.Class({
-    ctor () {
-        this._privateMode = false;
-        this._inited = false;
-        this._invalid = true;
-        this._enableCacheAttachedInfo = false;
-        this.frames = [];
-        this.totalTime = 0;
-        this.isCompleted = false;
-        this._frameIdx = -1;
+export class AnimationCache {
+    _privateMode = false;
+    _inited = false;
+    _invalid = true;
+    _enableCacheAttachedInfo = false;
+    frames: ArmatureFrame[] = [];
+    totalTime = 0;
+    isCompleted = false;
+    _frameIdx = -1;
 
-        this._armatureInfo = null;
-        this._animationName = null;
-        this._tempSegments = null;
-        this._tempColors = null;
-        this._tempBoneInfos = null;
-    },
+    _armatureInfo: ArmatureInfo | null = null;
+    _animationName: string | null = null;
+    _tempSegments = null;
+    _tempColors = null;
+    _tempBoneInfos = null;
 
-    init (armatureInfo, animationName) {
+    constructor () {
+    }
+
+    init (armatureInfo: ArmatureInfo, animationName: string) {
         this._inited = true;
         this._armatureInfo = armatureInfo;
         this._animationName = animationName;
-    },
+    }
 
     // Clear texture quote.
     clear () {
         this._inited = false;
         for (let i = 0, n = this.frames.length; i < n; i++) {
-            let frame = this.frames[i];
+            const frame = this.frames[i];
             frame.segments.length = 0;
         }
         this.invalidAllFrame();
-    },
+    }
 
     begin () {
         if (!this._invalid) return;
 
-        let armatureInfo = this._armatureInfo;
-        let curAnimationCache = armatureInfo.curAnimationCache;
-        if (curAnimationCache && curAnimationCache != this) {
+        const armatureInfo = this._armatureInfo!;
+        const curAnimationCache = armatureInfo.curAnimationCache;
+        if (curAnimationCache && curAnimationCache !== this) {
             if (this._privateMode) {
                 curAnimationCache.invalidAllFrame();
             } else {
                 curAnimationCache.updateToFrame();
             }
         }
-        let armature = armatureInfo.armature;
-        let animation = armature.animation;
+        const armature = armatureInfo.armature;
+        const animation = armature.animation;
         animation.play(this._animationName, 1);
 
         armatureInfo.curAnimationCache = this;
@@ -96,34 +91,34 @@ let AnimationCache = cc.Class({
         this._frameIdx = -1;
         this.totalTime = 0;
         this.isCompleted = false;
-    },
+    }
 
     end () {
         if (!this._needToUpdate()) {
-            this._armatureInfo.curAnimationCache = null;
+            this._armatureInfo!.curAnimationCache = null;
             this.frames.length = this._frameIdx + 1;
             this.isCompleted = true;
         }
-    },
+    }
 
-    _needToUpdate (toFrameIdx) {
-        let armatureInfo = this._armatureInfo;
-        let armature = armatureInfo.armature;
-        let animation = armature.animation;
-        return !animation.isCompleted && 
-                this.totalTime < MaxCacheTime && 
-                (toFrameIdx == undefined || this._frameIdx < toFrameIdx);
-    },
+    _needToUpdate (toFrameIdx?: number) {
+        const armatureInfo = this._armatureInfo!;
+        const armature = armatureInfo.armature;
+        const animation = armature.animation;
+        return !animation.isCompleted
+            && this.totalTime < MaxCacheTime
+            && (toFrameIdx === undefined || this._frameIdx < toFrameIdx);
+    }
 
-    updateToFrame (toFrameIdx) {
+    updateToFrame (toFrameIdx?: number) {
         if (!this._inited) return;
 
         this.begin();
 
         if (!this._needToUpdate(toFrameIdx)) return;
 
-        let armatureInfo = this._armatureInfo;
-        let armature = armatureInfo.armature;
+        const armatureInfo = this._armatureInfo!;
+        const armature = armatureInfo.armature;
 
         do {
             // Solid update frame rate 1/60.
@@ -132,34 +127,34 @@ let AnimationCache = cc.Class({
             this._updateFrame(armature, this._frameIdx);
             this.totalTime += FrameTime;
         } while (this._needToUpdate(toFrameIdx));
-       
+
         this.end();
-    },
+    }
 
     isInited () {
         return this._inited;
-    },
+    }
 
     isInvalid () {
         return this._invalid;
-    },
+    }
 
     invalidAllFrame () {
         this.isCompleted = false;
         this._invalid = true;
-    },
+    }
 
     updateAllFrame () {
         this.invalidAllFrame();
         this.updateToFrame();
-    },
+    }
 
     enableCacheAttachedInfo () {
         if (!this._enableCacheAttachedInfo) {
             this._enableCacheAttachedInfo = true;
             this.invalidAllFrame();
         }
-    },
+    }
 
     _updateFrame (armature, index) {
         _vfOffset = 0;
@@ -175,18 +170,19 @@ let AnimationCache = cc.Class({
         _preColor = null;
 
         this.frames[index] = this.frames[index] || {
-            segments : [],
-            colors : [],
-            boneInfos : [],
-            vertices : null,
-            uintVert : null,
-            indices : null,
+            segments: [],
+            colors: [],
+            boneInfos: [],
+            vertices: null,
+            uintVert: null,
+            indices: null,
         };
-        let frame = this.frames[index];
+        const frame = this.frames[index];
 
-        let segments = this._tempSegments = frame.segments;
-        let colors = this._tempColors = frame.colors;
-        let boneInfos = this._tempBoneInfos = frame.boneInfos;
+        const segments = this._tempSegments = frame.segments;
+        const colors = this._tempColors = frame.colors;
+        const boneInfos = this._tempBoneInfos = frame.boneInfos;
+
         this._traverseArmature(armature, 1.0);
         // At last must handle pre color and segment.
         // Because vertex count will right at the end.
@@ -196,7 +192,7 @@ let AnimationCache = cc.Class({
         }
         colors.length = _colorOffset;
         boneInfos.length = _boneInfoOffset;
-        
+
         // Handle pre segment
         let preSegOffset = _segOffset - 1;
         if (preSegOffset >= 0) {
@@ -243,7 +239,7 @@ let AnimationCache = cc.Class({
         frame.vertices = vertices;
         frame.uintVert = uintVert;
         frame.indices = indices;
-    },
+    }
 
     _traverseArmature (armature, parentOpacity) {
         let colors = this._tempColors;
@@ -278,7 +274,7 @@ let AnimationCache = cc.Class({
 
             slot.updateWorldMatrix();
             slotColor = slot._color;
-            
+
             if (slot.childArmature) {
                 this._traverseArmature(slot.childArmature, parentOpacity * slotColor.a / 255);
                 continue;
@@ -305,11 +301,11 @@ let AnimationCache = cc.Class({
                 }
                 // Handle now segment.
                 segments[_segOffset] = {
-                    tex : texture,
-                    blendMode : slot._blendMode,
-                    indexCount : 0,
-                    vertexCount : 0,
-                    vfCount : 0
+                    tex: texture,
+                    blendMode: slot._blendMode,
+                    indexCount: 0,
+                    vertexCount: 0,
+                    vfCount: 0
                 };
                 _segOffset++;
                 _segICount = 0;
@@ -324,11 +320,11 @@ let AnimationCache = cc.Class({
                     colors[_colorOffset - 1].vfOffset = _vfOffset;
                 }
                 colors[_colorOffset++] = {
-                    r : slotColor.r,
-                    g : slotColor.g,
-                    b : slotColor.b,
-                    a : slotColor.a * parentOpacity,
-                    vfOffset : 0
+                    r: slotColor.r,
+                    g: slotColor.g,
+                    b: slotColor.b,
+                    a: slotColor.a * parentOpacity,
+                    vfOffset: 0
                 }
             }
 
@@ -347,10 +343,10 @@ let AnimationCache = cc.Class({
                 gVertices[_vfOffset++] = slotVertices[j++];
                 gVertices[_vfOffset++] = colorVal;
             }
-            
+
             // This place must use segment vertex count to calculate vertex offset.
             // Assembler will calculate vertex offset again for different segment.
-            for (let ii = 0, il = slotIndices.length; ii < il; ii ++) {
+            for (let ii = 0, il = slotIndices.length; ii < il; ii++) {
                 gIndices[_indexOffset++] = _segVCount + slotIndices[ii];
             }
 
@@ -358,19 +354,21 @@ let AnimationCache = cc.Class({
             _segICount += slotIndices.length;
             _segVCount += slotVertices.length / 4;
         }
-    },
-});
+    }
+}
 
-let ArmatureCache = cc.Class({
-    ctor () {
-        this._privateMode = false;
-        this._animationPool = {};
-        this._armatureCache = {};
-    },
+export class ArmatureCache {
+
+    protected _privateMode: boolean = false;
+    protected _animationPool: Record<string, AnimationCache> = {};
+    protected _armatureCache: Record<string, ArmatureInfo> = {};
+
+    constructor () {
+    }
 
     enablePrivateMode () {
         this._privateMode = true;
-    },
+    }
 
     // If cache is private, cache will be destroy when dragonbones node destroy.
     dispose () {
@@ -381,11 +379,11 @@ let ArmatureCache = cc.Class({
                 armature && armature.dispose();
             }
         }
-        this._armatureCache = null;
-        this._animationPool = null;
-    },
+        this._armatureCache = {};
+        this._animationPool = {};
+    }
 
-    _removeArmature (armatureKey) {
+    _removeArmature (armatureKey: string) {
         var armatureInfo = this._armatureCache[armatureKey];
         let animationsCache = armatureInfo.animationsCache;
         for (var aniKey in animationsCache) {
@@ -400,24 +398,24 @@ let ArmatureCache = cc.Class({
         let armature = armatureInfo.armature;
         armature && armature.dispose();
         delete this._armatureCache[armatureKey];
-    },
+    }
 
     // When db assets be destroy, remove armature from db cache.
-    resetArmature (uuid) {
+    resetArmature (uuid: string) {
         for (var armatureKey in this._armatureCache) {
             if (armatureKey.indexOf(uuid) == -1) continue;
             this._removeArmature(armatureKey);
         }
-    },
+    }
 
-    getArmatureCache (armatureName, armatureKey, atlasUUID) {
+    getArmatureCache (armatureName: string, armatureKey: string, atlasUUID: string) {
         let armatureInfo = this._armatureCache[armatureKey];
-        let armature;
+        let armature: dragonBones.Armature;
         if (!armatureInfo) {
-            let factory = dragonBones.CCFactory.getInstance();
-            let proxy = factory.buildArmatureDisplay(armatureName, armatureKey, "", atlasUUID);
-            if (!proxy || !proxy._armature) return;
-            armature = proxy._armature;
+            let factory = CCFactory.getInstance();
+            let proxy = factory.buildArmatureDisplay(armatureName, armatureKey, "", atlasUUID) as CCArmatureDisplay;
+            if (!proxy || !proxy.armature) return;
+            armature = proxy.armature;
             // If armature has child armature, can not be cache, because it's
             // animation data can not be precompute.
             if (!ArmatureCache.canCache(armature)) {
@@ -426,17 +424,17 @@ let ArmatureCache = cc.Class({
             }
 
             this._armatureCache[armatureKey] = {
-                armature : armature,
+                armature: armature,
                 // Cache all kinds of animation frame.
                 // When armature is dispose, clear all animation cache.
-                animationsCache : {},
+                animationsCache: {},
                 curAnimationCache: null,
             };
         } else {
             armature = armatureInfo.armature;
         }
         return armature;
-    },
+    }
 
     getAnimationCache (armatureKey, animationName) {
         let armatureInfo = this._armatureCache[armatureKey];
@@ -444,7 +442,7 @@ let ArmatureCache = cc.Class({
 
         let animationsCache = armatureInfo.animationsCache;
         return animationsCache[animationName];
-    },
+    }
 
     initAnimationCache (armatureKey, animationName) {
         if (!animationName) return null;
@@ -472,7 +470,7 @@ let ArmatureCache = cc.Class({
             animationsCache[animationName] = animationCache;
         }
         return animationCache;
-    },
+    }
 
     invalidAnimationCache (armatureKey) {
         let armatureInfo = this._armatureCache[armatureKey];
@@ -484,7 +482,7 @@ let ArmatureCache = cc.Class({
             let animationCache = animationsCache[aniKey];
             animationCache.invalidAllFrame();
         }
-    },
+    }
 
     updateAnimationCache (armatureKey, animationName) {
         if (animationName) {
@@ -502,20 +500,20 @@ let ArmatureCache = cc.Class({
                 animationCache.updateAllFrame();
             }
         }
-    },
-});
-
-ArmatureCache.FrameTime = FrameTime;
-ArmatureCache.sharedCache = new ArmatureCache();
-ArmatureCache.canCache = function (armature) {
-    let slots = armature._slots;
-    for (let i = 0, l = slots.length; i < l; i++) {
-        let slot = slots[i];
-        if (slot.childArmature) {
-            return false;
-        }
     }
-    return true;
-},
 
-module.exports = ArmatureCache;
+    static canCache (armature: dragonBones.Armature) {
+        let slots = armature._slots;
+        for (let i = 0, l = slots.length; i < l; i++) {
+            let slot = slots[i];
+            if (slot.childArmature) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static FrameTime = FrameTime;
+    static sharedCache = new ArmatureCache();
+}
+
