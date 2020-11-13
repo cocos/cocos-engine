@@ -421,7 +421,7 @@ static bool js_engine_FileUtils_setSearchPaths(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         std::vector<std::string> arg0;
-        ok &= seval_to_std_vector_string(args[0], &arg0);
+        ok &= seval_to_std_vector(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_setSearchPaths : Error processing arguments");
         cobj->setSearchPaths(arg0);
         return true;

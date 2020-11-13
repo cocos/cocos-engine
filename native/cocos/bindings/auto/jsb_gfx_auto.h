@@ -3,30 +3,6 @@
 
 #include "cocos/bindings/jswrapper/SeApi.h"
 
-extern se::Object* __jsb_cc_gfx_TextureSubres_proto;
-extern se::Class* __jsb_cc_gfx_TextureSubres_class;
-
-bool js_register_cc_gfx_TextureSubres(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_TextureCopy_proto;
-extern se::Class* __jsb_cc_gfx_TextureCopy_class;
-
-bool js_register_cc_gfx_TextureCopy(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_BufferTextureCopy_proto;
-extern se::Class* __jsb_cc_gfx_BufferTextureCopy_class;
-
-bool js_register_cc_gfx_BufferTextureCopy(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_BindingMappingInfo_proto;
-extern se::Class* __jsb_cc_gfx_BindingMappingInfo_class;
-
-bool js_register_cc_gfx_BindingMappingInfo(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
 extern se::Object* __jsb_cc_gfx_DeviceInfo_proto;
 extern se::Class* __jsb_cc_gfx_DeviceInfo_class;
 
@@ -39,28 +15,10 @@ extern se::Class* __jsb_cc_gfx_ContextInfo_class;
 bool js_register_cc_gfx_ContextInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_DrawInfo_proto;
-extern se::Class* __jsb_cc_gfx_DrawInfo_class;
-
-bool js_register_cc_gfx_DrawInfo(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_IndirectBuffer_proto;
-extern se::Class* __jsb_cc_gfx_IndirectBuffer_class;
-
-bool js_register_cc_gfx_IndirectBuffer(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
 extern se::Object* __jsb_cc_gfx_TextureViewInfo_proto;
 extern se::Class* __jsb_cc_gfx_TextureViewInfo_class;
 
 bool js_register_cc_gfx_TextureViewInfo(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_SamplerInfo_proto;
-extern se::Class* __jsb_cc_gfx_SamplerInfo_class;
-
-bool js_register_cc_gfx_SamplerInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 extern se::Object* __jsb_cc_gfx_ShaderMacro_proto;
@@ -69,88 +27,10 @@ extern se::Class* __jsb_cc_gfx_ShaderMacro_class;
 bool js_register_cc_gfx_ShaderMacro(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cc_gfx_Uniform_proto;
-extern se::Class* __jsb_cc_gfx_Uniform_class;
-
-bool js_register_cc_gfx_Uniform(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_UniformBlock_proto;
-extern se::Class* __jsb_cc_gfx_UniformBlock_class;
-
-bool js_register_cc_gfx_UniformBlock(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_UniformSampler_proto;
-extern se::Class* __jsb_cc_gfx_UniformSampler_class;
-
-bool js_register_cc_gfx_UniformSampler(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_ShaderStage_proto;
-extern se::Class* __jsb_cc_gfx_ShaderStage_class;
-
-bool js_register_cc_gfx_ShaderStage(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
 extern se::Object* __jsb_cc_gfx_Attribute_proto;
 extern se::Class* __jsb_cc_gfx_Attribute_class;
 
 bool js_register_cc_gfx_Attribute(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_ShaderInfo_proto;
-extern se::Class* __jsb_cc_gfx_ShaderInfo_class;
-
-bool js_register_cc_gfx_ShaderInfo(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_InputAssemblerInfo_proto;
-extern se::Class* __jsb_cc_gfx_InputAssemblerInfo_class;
-
-bool js_register_cc_gfx_InputAssemblerInfo(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_ColorAttachment_proto;
-extern se::Class* __jsb_cc_gfx_ColorAttachment_class;
-
-bool js_register_cc_gfx_ColorAttachment(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_DepthStencilAttachment_proto;
-extern se::Class* __jsb_cc_gfx_DepthStencilAttachment_class;
-
-bool js_register_cc_gfx_DepthStencilAttachment(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_RenderPassInfo_proto;
-extern se::Class* __jsb_cc_gfx_RenderPassInfo_class;
-
-bool js_register_cc_gfx_RenderPassInfo(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_FramebufferInfo_proto;
-extern se::Class* __jsb_cc_gfx_FramebufferInfo_class;
-
-bool js_register_cc_gfx_FramebufferInfo(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_DescriptorSetLayoutBinding_proto;
-extern se::Class* __jsb_cc_gfx_DescriptorSetLayoutBinding_class;
-
-bool js_register_cc_gfx_DescriptorSetLayoutBinding(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_DescriptorSetLayoutInfo_proto;
-extern se::Class* __jsb_cc_gfx_DescriptorSetLayoutInfo_class;
-
-bool js_register_cc_gfx_DescriptorSetLayoutInfo(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_PipelineLayoutInfo_proto;
-extern se::Class* __jsb_cc_gfx_PipelineLayoutInfo_class;
-
-bool js_register_cc_gfx_PipelineLayoutInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 extern se::Object* __jsb_cc_gfx_InputState_proto;
@@ -163,18 +43,6 @@ extern se::Object* __jsb_cc_gfx_PipelineStateInfo_proto;
 extern se::Class* __jsb_cc_gfx_PipelineStateInfo_class;
 
 bool js_register_cc_gfx_PipelineStateInfo(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_CommandBufferInfo_proto;
-extern se::Class* __jsb_cc_gfx_CommandBufferInfo_class;
-
-bool js_register_cc_gfx_CommandBufferInfo(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cc_gfx_QueueInfo_proto;
-extern se::Class* __jsb_cc_gfx_QueueInfo_class;
-
-bool js_register_cc_gfx_QueueInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 extern se::Object* __jsb_cc_gfx_FormatInfo_proto;
@@ -222,6 +90,7 @@ SE_DECLARE_FUNC(js_gfx_Device_resize);
 SE_DECLARE_FUNC(js_gfx_Device_genShaderId);
 SE_DECLARE_FUNC(js_gfx_Device_createQueue);
 SE_DECLARE_FUNC(js_gfx_Device_bindingMappingInfo);
+SE_DECLARE_FUNC(js_gfx_Device_getUboOffsetAlignment);
 
 extern se::Object* __jsb_cc_gfx_Buffer_proto;
 extern se::Class* __jsb_cc_gfx_Buffer_class;
@@ -274,8 +143,10 @@ extern se::Class* __jsb_cc_gfx_RenderPass_class;
 
 bool js_register_cc_gfx_RenderPass(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_RenderPass_getSubPasses);
 SE_DECLARE_FUNC(js_gfx_RenderPass_initialize);
 SE_DECLARE_FUNC(js_gfx_RenderPass_destroy);
+SE_DECLARE_FUNC(js_gfx_RenderPass_getDepthStencilAttachment);
 SE_DECLARE_FUNC(js_gfx_RenderPass_RenderPass);
 
 extern se::Object* __jsb_cc_gfx_Framebuffer_proto;
@@ -292,6 +163,7 @@ extern se::Class* __jsb_cc_gfx_DescriptorSetLayout_class;
 
 bool js_register_cc_gfx_DescriptorSetLayout(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_getBindings);
 SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_initialize);
 SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_destroy);
 SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_DescriptorSetLayout);
@@ -303,6 +175,7 @@ bool js_register_cc_gfx_PipelineLayout(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_PipelineLayout_initialize);
 SE_DECLARE_FUNC(js_gfx_PipelineLayout_destroy);
+SE_DECLARE_FUNC(js_gfx_PipelineLayout_getSetLayouts);
 SE_DECLARE_FUNC(js_gfx_PipelineLayout_PipelineLayout);
 
 extern se::Object* __jsb_cc_gfx_PipelineState_proto;
