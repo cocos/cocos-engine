@@ -10,6 +10,7 @@ export enum DeferredStagePriority {
     GBUFFER = 10,
     LIGHTING = 15,
     TRANSPARENT = 18,
+    COPY = 19,
     UI = 20
 }
 

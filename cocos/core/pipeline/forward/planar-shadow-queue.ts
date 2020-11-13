@@ -35,7 +35,6 @@ export class PlanarShadowQueue {
         const instancedBuffer = model.isInstancingEnabled ? InstancedBuffer.get(material.passes[0]) : null;
         const subModels = model.subModels;
         for (let i = 0; i < subModels.length; i++) {
-            // const hShader = SubModelPool.get(subModels[i].handle, SubModelView.SHADER_0);
             const hShader = material!.passes[0].getShaderVariant(model.getMacroPatches(i));
             shaders.push(ShaderPool.get(hShader));
         }

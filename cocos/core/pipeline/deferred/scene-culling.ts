@@ -2,7 +2,7 @@ import { intersect, sphere } from '../../geometry';
 import { Model } from '../../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Layers } from '../../scene-graph/layers';
-import { Vec3, Mat4, Quat, Color } from '../../math';
+import { Vec3, Vec4, Mat4, Quat, Color, color} from '../../math';
 import { DeferredPipeline } from '../deferred/deferred-pipeline';
 import { RenderView } from '../';
 import { Pool } from '../../memop';
@@ -91,8 +91,7 @@ function updateSphereLight (pipeline: DeferredPipeline, light: SphereLight) {
     m.m14 = lz * d;
     m.m15 = NdL;
 
-    Mat4.toArray(_data, shadows.matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
-    pipeline.descriptorSet.getBuffer(UBOShadow.BINDING).update(_data);
+    Mat4.toArray(pipeline.shadowUBO, shadows.matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
 }
 
 function updateDirLight (pipeline: DeferredPipeline, light: DirectionalLight) {
@@ -127,8 +126,7 @@ function updateDirLight (pipeline: DeferredPipeline, light: DirectionalLight) {
     m.m14 = lz * d;
     m.m15 = 1;
 
-    Mat4.toArray(_data, shadows.matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
-    pipeline.descriptorSet.getBuffer(UBOShadow.BINDING).update(_data);
+    Mat4.toArray(pipeline.shadowUBO, shadows.matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
 }
 
 export function sceneCulling (pipeline: DeferredPipeline, view: RenderView) {
@@ -146,8 +144,12 @@ export function sceneCulling (pipeline: DeferredPipeline, view: RenderView) {
     shadowSphere.radius = 0.01;
 
     if (shadows.enabled && shadows.dirty) {
-        Color.toArray(_data, shadows.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
-        pipeline.descriptorSet.getBuffer(UBOShadow.BINDING).update(_data);
+        const vec4 = new Vec4();
+        vec4.set(shadows.shadowColor.r/255.0,
+                 shadows.shadowColor.g/255.0, 
+                 shadows.shadowColor.b/255.0, 
+                 shadows.shadowColor.a/255.0);
+        Vec4.toArray(pipeline.shadowUBO, vec4, UBOShadow.SHADOW_COLOR_OFFSET);
     }
 
     if (mainLight) {

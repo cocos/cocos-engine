@@ -19,8 +19,10 @@ import {
     GFXAddress,
     GFXTextureUsageBit } from '../../gfx/define';
 import { IRenderObject, UBOGlobal, UBOShadow,  UNIFORM_SHADOWMAP_BINDING, UNIFORM_GBUFFER_ALBEDOMAP_BINDING, 
-    UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING} from '../define';
-import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout, GFXRenderPassInfo, GFXBufferInfo } from '../../gfx';
+    UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING,
+    UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
+import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout, GFXRenderPassInfo, 
+         GFXBufferInfo, GFXTexture } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
@@ -78,6 +80,14 @@ export class DeferredPipeline extends RenderPipeline {
         return this._quadIA!;
     }
 
+    get gbufferDepth () {
+        return this._gbufferDepth;
+    }
+
+    set gbufferDepth (val) {
+        this._gbufferDepth = val;
+    }
+
     /**
      * @en Get shadow UBO.
      * @zh 获取阴影UBO。
@@ -116,6 +126,7 @@ export class DeferredPipeline extends RenderPipeline {
     protected _quadVB: GFXBuffer | null = null;
     protected _quadIB: GFXBuffer | null = null;
     protected _quadIA: GFXInputAssembler | null = null;
+    protected _gbufferDepth: GFXTexture|null = null;
 
     public initialize (info: IRenderPipelineInfo): boolean {
         super.initialize(info);
@@ -283,6 +294,7 @@ export class DeferredPipeline extends RenderPipeline {
         this._descriptorSet.bindSampler(UNIFORM_GBUFFER_POSITIONMAP_BINDING, shadowMapSampler);
         this._descriptorSet.bindSampler(UNIFORM_GBUFFER_NORMALMAP_BINDING, shadowMapSampler);
         this._descriptorSet.bindSampler(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, shadowMapSampler);
+        this._descriptorSet.bindSampler(UNIFORM_LIGHTING_RESULTMAP_BINDING, shadowMapSampler);
 
 
         // update global defines when all states initialized.

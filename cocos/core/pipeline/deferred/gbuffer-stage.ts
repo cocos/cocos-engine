@@ -50,22 +50,16 @@ export class GbufferStage extends RenderStage {
         ]
     };
 
-    public setGbufferFrameBuffer (gbufferFrameBuffer: GFXFramebuffer) {
-        this._gbufferFrameBuffer = gbufferFrameBuffer;
-    }
-
     @type([RenderQueueDesc])
     @serializable
     @displayOrder(2)
     protected renderQueues: RenderQueueDesc[] = [];
     protected _renderQueues: RenderQueue[] = [];
 
-    private _gbufferFrameBuffer: GFXFramebuffer | null = null;
     private _renderArea = new GFXRect();
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
     private _phaseID = getPhaseID('deferred-gbuffer');
-    private declare _planarQueue: PlanarShadowQueue;
 
     constructor () {
         super();
@@ -104,8 +98,6 @@ export class GbufferStage extends RenderStage {
                 sortFunc,
             });
         }
-
-        this._planarQueue = new PlanarShadowQueue(this._pipeline as DeferredPipeline);
     }
 
 
@@ -151,7 +143,6 @@ export class GbufferStage extends RenderStage {
         const cmdBuff = pipeline.commandBuffers[0];
 
         this._renderQueues.forEach(this.renderQueueSortFunc);
-        this._planarQueue.updateShadowList(view);
 
         const camera = view.camera;
         const vp = camera.viewport;
@@ -160,7 +151,7 @@ export class GbufferStage extends RenderStage {
         this._renderArea!.width = vp.width * camera.width * pipeline.shadingScale;
         this._renderArea!.height = vp.height * camera.height * pipeline.shadingScale;
 
-        const framebuffer = this._gbufferFrameBuffer!;
+        const framebuffer = (this._flow as GbufferFlow).gbufferFrameBuffer;
         const renderPass = framebuffer.renderPass;
 
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
@@ -173,7 +164,6 @@ export class GbufferStage extends RenderStage {
         }
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-        this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 
         cmdBuff.endRenderPass();
     }

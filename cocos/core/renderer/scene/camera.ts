@@ -246,7 +246,11 @@ export class Camera {
         // projection matrix
         if (this._isProjDirty) {
             let projectionSignY = this._device.screenSpaceSignY;
-            if (this._view && (this._view.window.hasOffScreenAttachments)) {
+            // if (this._view && (this._view.window.hasOffScreenAttachments)) {
+            if (this._view && 
+                (this._view.window.hasOffScreenAttachments || 
+                 this._view.flows.some((f) => f.name === 'GbufferFlow') ||
+                 this._view.flows.some((f) => f.name === 'LightingFlow'))) {
                 projectionSignY *= this._device.UVSpaceSignY; // need flipping if drawing on render targets
             }
             if (this._proj === CameraProjection.PERSPECTIVE) {

@@ -43,6 +43,8 @@ CCEffect %{
     - vert: lighting-vs
       frag: lighting-fs
       phase: deferred-lighting
+      depthStencilState:
+        depthTest: false
       embeddedMacros: { CC_FORWARD_ADD: true, USE_HW_PIPELINE: true}
       propertyIndex: 0
       blendState:
@@ -55,6 +57,7 @@ CCEffect %{
       phase: deferred-transparent
       depthStencilState:
         depthTest: true
+        depthFunc: less
         depthWrite: false
       blendState:
         targets:
@@ -143,7 +146,7 @@ CCProgram gbuffer-vs %{
     CCPassShadowParams(pos);
 
     gl_Position = cc_matProj * (cc_matView * matWorld) * In.position;
-    gl_Position.y = 1.0 - gl_Position.y;
+   // gl_Position.y = - gl_Position.y;
   }
 }%
 
@@ -277,6 +280,7 @@ CCProgram lighting-vs %{
     CCVertInput(In);
     
     gl_Position = In.position;
+    gl_Position.y = - gl_Position.y;
     v_uv = a_texCoord;
   }
 }%
@@ -394,7 +398,10 @@ CCProgram standard-vs %{
 
     CCPassShadowParams(pos);
 
-    return cc_matProj * (cc_matView * matWorld) * In.position;
+    vec4 temp_position = cc_matProj * (cc_matView * matWorld) * In.position;
+  //  temp_position.y = - temp_position.y;
+
+    return temp_position;
   }
 }%
 

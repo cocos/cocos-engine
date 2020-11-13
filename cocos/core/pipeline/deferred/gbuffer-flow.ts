@@ -33,10 +33,14 @@ export class GbufferFlow extends RenderFlow {
 
     private _gbufferRenderPass: GFXRenderPass|null = null;
     private _gbufferRenderTargets: GFXTexture[] = [];
-    private _gbufferFrameBuffer: GFXFramebuffer|null = null;
+    protected _gbufferFrameBuffer: GFXFramebuffer|null = null;
     private _depth: GFXTexture|null = null;
     private _width: number = 0;
     private _height: number = 0;
+
+    get gbufferFrameBuffer (): GFXFramebuffer {
+        return this._gbufferFrameBuffer!;
+    }
 
     public initialize (info: IRenderFlowInfo): boolean {
         super.initialize(info);
@@ -142,6 +146,7 @@ export class GbufferFlow extends RenderFlow {
                 this._width,
                 this._height,
             ));
+            (this.pipeline as DeferredPipeline).gbufferDepth = this._depth;
         }
 
         if(!this._gbufferFrameBuffer) {
@@ -152,19 +157,15 @@ export class GbufferFlow extends RenderFlow {
             ));
         }
 
-        for (let i = 0; i < this._stages.length; ++i) {
-            (this._stages[i] as GbufferStage).setGbufferFrameBuffer(this._gbufferFrameBuffer);
-        }
+        pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_ALBEDOMAP_BINDING, this._gbufferFrameBuffer!.colorTextures[0]!);
+        pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_POSITIONMAP_BINDING, this._gbufferFrameBuffer!.colorTextures[1]!);
+        pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_NORMALMAP_BINDING, this._gbufferFrameBuffer!.colorTextures[2]!);
+        pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, this._gbufferFrameBuffer!.colorTextures[3]!);
     }
 
     public render (view: RenderView) {
         const pipeline = this._pipeline as DeferredPipeline;
         pipeline.updateUBOs(view);
         super.render(view);
-        pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_ALBEDOMAP_BINDING, this._gbufferFrameBuffer!.colorTextures[0]!);
-        pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_POSITIONMAP_BINDING, this._gbufferFrameBuffer!.colorTextures[1]!);
-        pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_NORMALMAP_BINDING, this._gbufferFrameBuffer!.colorTextures[2]!);
-        pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, this._gbufferFrameBuffer!.colorTextures[3]!);
-
     }
 }

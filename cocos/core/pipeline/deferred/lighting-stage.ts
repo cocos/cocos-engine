@@ -65,6 +65,8 @@ export class LightingStage extends RenderStage {
     private _renderArea = new GFXRect();
     private declare _additiveLightQueue: RenderAdditiveLightQueue;
     private declare _planarQueue: PlanarShadowQueue;
+    private _tansprarentPhaseID = getPhaseID('deferred-transparent');
+
 
     @type(Material)
     @serializable
@@ -94,7 +96,7 @@ export class LightingStage extends RenderStage {
     private _deferredLitsBufs: GFXBuffer = null!;
     private _deferredLitsBufView: GFXBuffer = null!;
     private _maxDeferredLights = 10;
-    private _lightBufferData: Float32Array;
+    private _lightBufferData!: Float32Array;
     private _lightBufferStride: number = 0;
     private _lightBufferElementCount: number = 0;
     private _lightMeterScale: number = 10000.0;
@@ -251,6 +253,7 @@ export class LightingStage extends RenderStage {
         this.gatherLights(view);
         this._descriptorSet.bindBuffer(UBODeferredLight.BINDING, this._deferredLitsBufView);
         this._descriptorSet.update()        
+        this._planarQueue.updateShadowList(view);
         cmdBuff.bindDescriptorSet(SetIndex.LOCAL, this._descriptorSet);
 
         const camera = view.camera;
@@ -276,14 +279,15 @@ export class LightingStage extends RenderStage {
 
         colors[0].w = camera.clearColor.w;
 
-        const framebuffer = view.window.framebuffer;
-        const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
+        const framebuffer = (this._flow as LightingFlow).lightingFrameBuffer;
+        const renderPass = framebuffer.renderPass;
 
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
             colors, camera.clearDepth, camera.clearStencil);
 
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
+        // Lighting
         const hPass = this._deferredMaterial!.passes[LIGHTINGPASS_INDEX].handle;
         const shader = ShaderPool.get(this._deferredMaterial!.passes[LIGHTINGPASS_INDEX].getShaderVariant());
 
@@ -299,6 +303,35 @@ export class LightingStage extends RenderStage {
             cmdBuff.bindPipelineState(pso);
             cmdBuff.bindInputAssembler(inputAssembler);
             cmdBuff.draw(inputAssembler);
+        }
+        
+        // planarQueue
+        this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+
+        // Transparent
+        this._renderQueues.forEach(this.renderQueueClearFunc);
+
+        const renderObjects = pipeline.renderObjects;
+        let m = 0; let p = 0; let k = 0;
+        for (let i = 0; i < renderObjects.length; ++i) {
+            const ro = renderObjects[i];
+            const subModels = ro.model.subModels;
+            for (m = 0; m < subModels.length; ++m) {
+                const subModel = subModels[m];
+                const passes = subModel.passes;
+                for (p = 0; p < passes.length; ++p) {
+                    const pass = passes[p];
+                    if (pass.phase !== this._tansprarentPhaseID) continue;
+                    for (k = 0; k < this._renderQueues.length; k++) {
+                        this._renderQueues[k].insertRenderPass(ro, m, p);
+                    }
+                }
+            }
+        }
+
+        this._renderQueues.forEach(this.renderQueueSortFunc);
+        for (let i = 0; i < this.renderQueues.length; i++) {
+            this._renderQueues[i].recordCommandBuffer(device, renderPass, cmdBuff);
         }
 
         cmdBuff.endRenderPass();
