@@ -21,14 +21,15 @@ let Assembler3D = {
     },
 
     updateWorldVerts (comp) {
+        let z = comp.node.z;
         let matrix = comp.node._worldMatrix;
         let local = this._local;
         let world = this._renderData.vDatas[0];
         
-        Vec3.set(vec3_temps[0], local[0], local[1], 0);
-        Vec3.set(vec3_temps[1], local[2], local[1], 0);
-        Vec3.set(vec3_temps[2], local[0], local[3], 0);
-        Vec3.set(vec3_temps[3], local[2], local[3], 0);
+        Vec3.set(vec3_temps[0], local[0], local[1], z);
+        Vec3.set(vec3_temps[1], local[2], local[1], z);
+        Vec3.set(vec3_temps[2], local[0], local[3], z);
+        Vec3.set(vec3_temps[3], local[2], local[3], z);
 
         let floatsPerVert = this.floatsPerVert;
         for (let i = 0; i < 4; i++) {
