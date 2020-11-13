@@ -1157,8 +1157,6 @@ export class ParticleSystem2D extends UIRenderable {
     }
 
     protected _render (render: UI) {
-        let node;
-        if (this._positionType === PositionType.RELATIVE) node = this.node.parent;
-        render.commitComp(this, this._spriteFrame!, this._assembler!, node);
+        render.commitComp(this, this._spriteFrame!, this._assembler!, this._positionType === PositionType.RELATIVE ? this.node.parent : null);
     }
 }

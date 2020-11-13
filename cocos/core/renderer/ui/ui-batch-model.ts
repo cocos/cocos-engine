@@ -87,8 +87,10 @@ export class UIBatchModel extends Model {
     public directInitialize (batch: UIDrawBatch) {
         const subModel = this._subModels[0] as UISubModel;
         subModel.directInitialize(batch.material!.passes, batch.hInputAssembler, batch.hDescriptorSet!);
-        if (batch.useLocalData) this.node = this.transform = batch.useLocalData;
-        this._updateAttributesAndBinding(0);
+        if (batch.useLocalData) {
+            this.node = this.transform = batch.useLocalData;
+            this._updateAttributesAndBinding(0);
+        }
     }
 }
 
