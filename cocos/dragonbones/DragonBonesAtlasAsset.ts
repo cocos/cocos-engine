@@ -2,9 +2,12 @@
  * @module dragonBones
  */
 import { JSB } from '../../editor/exports/populate-internal-constants';
-import { Asset, Texture2D, Node } from '../core/assets';
-import { serializable, type } from '../core/data/decorators';
-import { sharedCache as ArmatureCache } from './ArmatureCache';
+import { Asset, Texture2D, Node } from '../core';
+import { ccclass, serializable, type } from '../core/data/decorators';
+import { ArmatureCache } from './ArmatureCache';
+import { ArmatureDisplay } from './ArmatureDisplay';
+import { CCFactory } from './CCFactory';
+import dragonBones from './lib/dragonBones';
 
 /**
  * !#en The skeleton atlas data of dragonBones.
@@ -12,6 +15,7 @@ import { sharedCache as ArmatureCache } from './ArmatureCache';
  * @class DragonBonesAtlasAsset
  * @extends Asset
  */
+@ccclass('dragonBones.DragonBonesAtlasAsset')
 export class DragonBonesAtlasAsset extends Asset {
     static preventDeferredLoadDependents: true
 
@@ -38,7 +42,7 @@ export class DragonBonesAtlasAsset extends Asset {
     @serializable
     _atlasJsonData: any = {};
 
-    _factory: CCFactory;
+    _factory: CCFactory| null = null;
     /**
      * @property {Texture2D} texture
      */
@@ -51,11 +55,11 @@ export class DragonBonesAtlasAsset extends Asset {
     }
 
     @serializable
-    _textureAtlasData: string | null = null;
+    _textureAtlasData: dragonBones.TextureAtlasData | null = null;
 
     createNode (callback: (error: Error | null, node: Node) => void) {
         const node = new Node(this.name);
-        const armatureDisplay = node.addComponent('dragonBones.ArmatureDisplay');
+        const armatureDisplay = node.addComponent('dragonBones.ArmatureDisplay') as ArmatureDisplay;
         armatureDisplay.dragonAtlasAsset = this;
 
         return callback(null, node);
@@ -87,7 +91,7 @@ export class DragonBonesAtlasAsset extends Asset {
     protected _clear () {
         if (JSB) return;
         if (this._factory) {
-            ArmatureCache.resetArmature(this._uuid);
+            ArmatureCache.sharedCache.resetArmature(this._uuid);
             this._factory.removeTextureAtlasData(this._uuid, true);
             this._factory.removeDragonBonesDataByUUID(this._uuid, true);
         }

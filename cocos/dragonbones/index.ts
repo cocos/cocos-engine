@@ -8,7 +8,7 @@ import { EDITOR } from '../../editor/exports/populate-internal-constants';
  * @example
  * dragonBones.timeScale = 0.8;
  */
-const _timeScale = 1.0;
+// const _timeScale = 1.0;
 
 // TODO timescale
 // Object.defineProperty(dragonBones, 'timeScale', {
@@ -82,3 +82,6 @@ export * from './ArmatureCache';
 export * from './DragonBonesAsset';
 export * from './DragonBonesAtlasAsset';
 export * from './ArmatureDisplay';
+export * from './AttachUtil';
+
+export * from './assembler';

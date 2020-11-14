@@ -5,6 +5,8 @@ import { EDITOR, JSB } from '../../editor/exports/populate-internal-constants.js
 import { CCTextureAtlasData } from './CCTextureData.js';
 import { TextureBase } from '../core/assets/texture-base.js';
 import { CCSlot } from './CCSlot.js';
+import { ArmatureDisplay } from './ArmatureDisplay.js';
+import { CCArmatureDisplay } from './CCArmatureDisplay.js';
 
 /**
  * @module dragonBones
@@ -39,7 +41,7 @@ export class CCFactory extends dragonBones.BaseFactory implements ISchedulable {
 
     constructor () {
         super();
-        const eventManager = new CCArmatureDisplay() as dragonBones.ArmatureDisplay;
+        const eventManager = new CCArmatureDisplay();
         this._dragonBones = new dragonBones.DragonBones(eventManager);
 
         if (!JSB && !EDITOR && director.getScheduler()) {
@@ -73,7 +75,7 @@ export class CCFactory extends dragonBones.BaseFactory implements ISchedulable {
     // Build sub armature from an exist armature component.
     // It will share dragonAsset and dragonAtlasAsset.
     // But node can not share,or will cause render error.
-    createArmatureNode (comp: Component, armatureName: string, node?: Node) {
+    createArmatureNode (comp: ArmatureDisplay, armatureName: string, node?: Node) {
         node = node || new Node();
         let display = node.getComponent('dragonBones.ArmatureDisplay') as ArmatureDisplay;
         if (!display) {
@@ -83,8 +85,8 @@ export class CCFactory extends dragonBones.BaseFactory implements ISchedulable {
         node.name = armatureName;
 
         display._armatureName = armatureName;
-        display._N$dragonAsset = comp.dragonAsset;
-        display._N$dragonAtlasAsset = comp.dragonAtlasAsset;
+        display._dragonAsset = comp.dragonAsset;
+        display._dragonAtlasAsset = comp.dragonAtlasAsset;
         display._init();
 
         return display;
@@ -134,7 +136,7 @@ export class CCFactory extends dragonBones.BaseFactory implements ISchedulable {
 
         const display = new CCArmatureDisplay();
 
-        armature.init(dataPackage.armature, display, display, this._dragonBones);
+        armature.init(dataPackage.armature, display as any, display, this._dragonBones);
 
         return armature;
     }

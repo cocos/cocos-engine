@@ -1,25 +1,37 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
 import { ccclass } from '../core/data/class-decorator.js';
-import { Vec2, EventTarget } from '../core';
+import { Vec2, EventTarget, Node } from '../core';
 import dragonBones from './lib/dragonBones.js';
 import { CCSlot } from './CCSlot.js';
 
 @ccclass('dragonBones.CCArmatureDisplay')
-export class CCArmatureDisplay {
-    get node () { return this; }
+export class CCArmatureDisplay extends dragonBones.DisplayData implements dragonBones.IEventDispatcher {
+    get node () { return this._ccNode; }
 
     shouldAdvanced = false;
+    _ccNode: Node|null = null;
+    _eventTarget: EventTarget;
 
-    protected _eventTarget: EventTarget;
-
-    protected _armature: dragonBones.Armature | null = null;
+    _armature: dragonBones.Armature | null = null;
 
     constructor () {
+        super();
         this._eventTarget = new EventTarget();
     }
 
-    setEventTarget (eventTarget) {
+    hasEvent (type: string): boolean {
+        console.warn('Method not implemented.');
+        return false;
+    }
+    addEvent (type: string, listener: any, thisObject: any): void {
+        console.warn('Method not implemented.');
+    }
+    removeEvent (type: string, listener: any, thisObject: any): void {
+        console.warn('Method not implemented.');
+    }
+
+    setEventTarget (eventTarget:EventTarget) {
         this._eventTarget = eventTarget;
     }
 

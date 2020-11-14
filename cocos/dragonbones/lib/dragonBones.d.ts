@@ -3069,7 +3069,7 @@ declare namespace dragonBones {
          * @private
          */
         _cacheFrameIndex: number;
-        private readonly _bones;
+        /* private */ readonly _bones;
         /* private */ public readonly _slots: Array<Slot>;
         /**
          * @internal
@@ -4142,11 +4142,11 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        protected _visible: boolean;
+        /* protected */ _visible: boolean;
         /**
          * @private
          */
-        protected _blendMode: BlendMode;
+        /* protected */ _blendMode: BlendMode;
         /**
          * @private
          */
@@ -4217,7 +4217,7 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        protected _displayData: DisplayData | null;
+        /* protected */ _displayData: DisplayData | null;
         /**
          * @private
          */
@@ -6987,7 +6987,7 @@ declare namespace dragonBones {
         /**
          * @private
          */
-        protected _dragonBones: DragonBones;
+        /* protected */ _dragonBones: DragonBones;
         /**
          * @private
          */

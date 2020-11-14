@@ -2,8 +2,9 @@
 import { EDITOR } from 'internal:constants';
 import { Asset } from '../core/assets';
 import { ccclass, serializable } from '../core/data/decorators';
-import { sharedCache } from './ArmatureCache';
+import { ArmatureCache } from './ArmatureCache';
 import { Enum, Node } from '../core';
+import { CCFactory } from './CCFactory';
 
 /**
  * !#en The skeleton data of dragonBones.
@@ -37,7 +38,7 @@ export class DragonBonesAsset extends Asset {
     }
 
     private _buffer?: ArrayBuffer;
-    private _factory: CCFactory;
+    private _factory: CCFactory| null = null;
     private _dragonBonesJsonData?: any;
 
     private _armaturesEnum: any = {};
@@ -65,14 +66,14 @@ export class DragonBonesAsset extends Asset {
         if (EDITOR) {
             this._factory = factory || new CCFactory();
         } else {
-            this._factory = factory;
+            this._factory = factory!;
         }
 
         if (!this._dragonBonesJsonData && this.dragonBonesJson) {
             this._dragonBonesJsonData = JSON.parse(this.dragonBonesJson);
         }
 
-        let rawData = null;
+        let rawData:any = null;
         if (this._dragonBonesJsonData) {
             rawData = this._dragonBonesJsonData;
         } else {
@@ -89,7 +90,7 @@ export class DragonBonesAsset extends Asset {
             }
         }
 
-        const armatureKey = `${this._uuid}#${atlasUUID}`;
+        const armatureKey = `${this._uuid}#${atlasUUID!}`;
         const dragonBonesData = this._factory.getDragonBonesData(armatureKey);
         if (dragonBonesData) return armatureKey;
 
@@ -104,7 +105,7 @@ export class DragonBonesAsset extends Asset {
             return this._armaturesEnum as unknown as any;
         }
         this.init();
-        const dragonBonesData = this._factory.getDragonBonesDataByUUID(this._uuid);
+        const dragonBonesData = this._factory!.getDragonBonesDataByUUID(this._uuid);
         if (dragonBonesData) {
             const armatureNames = dragonBonesData.armatureNames;
             const enumDef = {};
@@ -119,7 +120,7 @@ export class DragonBonesAsset extends Asset {
 
     public getAnimsEnum (armatureName: string) {
         this.init();
-        const dragonBonesData = this._factory.getDragonBonesDataByUUID(this._uuid);
+        const dragonBonesData = this._factory!.getDragonBonesDataByUUID(this._uuid);
         if (dragonBonesData) {
             const armature = dragonBonesData.getArmature(armatureName);
             if (!armature) {
@@ -130,6 +131,7 @@ export class DragonBonesAsset extends Asset {
             const anims = armature.animations;
             let i = 0;
             for (const animName in anims) {
+                // eslint-disable-next-line no-prototype-builtins
                 if (anims.hasOwnProperty(animName)) {
                     enumDef[animName] = i + 1;
                     i++;
@@ -147,9 +149,8 @@ export class DragonBonesAsset extends Asset {
 
     protected _clear () {
         if (this._factory) {
-            ArmatureCache.resetArmature(this._uuid);
+            ArmatureCache.sharedCache.resetArmature(this._uuid);
             this._factory.removeDragonBonesDataByUUID(this._uuid, true);
         }
     }
-
 }

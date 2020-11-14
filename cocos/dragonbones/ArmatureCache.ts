@@ -1,4 +1,8 @@
+import { Color, Mat4, RenderTexture } from '../core';
+import { TextureBase } from '../core/assets/texture-base';
+import { CCArmatureDisplay } from './CCArmatureDisplay';
 import { CCFactory } from './CCFactory';
+import { CCSlot } from './CCSlot';
 import dragonBones from './lib/dragonBones';
 
 const MaxCacheTime = 30;
@@ -11,12 +15,12 @@ let _vertexOffset = 0;
 let _indexOffset = 0;
 let _vfOffset = 0;
 let _preTexUrl: string | null = null;
-let _preBlendMode = null;
+let _preBlendMode: dragonBones.BlendMode | null = null;
 let _segVCount = 0;
 let _segICount = 0;
 let _segOffset = 0;
 let _colorOffset = 0;
-let _preColor = null;
+let _preColor = 0;
 let _x: number;
 let _y: number;
 
@@ -28,13 +32,34 @@ export interface ArmatureInfo {
 
 export interface ArmatureFrame {
     segments: ArmatureFrameSegment[];
+    colors: ArmatureFrameColor[];
+    boneInfos: ArmatureFrameBoneInfo[];
+    vertices: Float32Array;
+    uintVert: Uint32Array;
+    indices: Uint16Array;
+}
+
+export interface ArmatureFrameBoneInfo {
+    globalTransformMatrix: dragonBones.Matrix;
+}
+
+export interface ArmatureFrameColor {
+    r: number;
+    g: number;
+    b: number;
+    a: number;
+    vfOffset: number;
 }
 
 export interface ArmatureFrameSegment {
-
+    indexCount: number;
+    vfCount: number;
+    vertexCount: number;
+    tex: RenderTexture | TextureBase;
+    blendMode: dragonBones.BlendMode;
 }
 
-//Cache all frames in an animation
+// Cache all frames in an animation
 export class AnimationCache {
     _privateMode = false;
     _inited = false;
@@ -47,9 +72,9 @@ export class AnimationCache {
 
     _armatureInfo: ArmatureInfo | null = null;
     _animationName: string | null = null;
-    _tempSegments = null;
-    _tempColors = null;
-    _tempBoneInfos = null;
+    _tempSegments: ArmatureFrameSegment[] | null = null;
+    _tempColors: ArmatureFrameColor[] | null = null;
+    _tempBoneInfos: ArmatureFrameBoneInfo[] | null = null;
 
     constructor () {
     }
@@ -167,7 +192,7 @@ export class AnimationCache {
         _segICount = 0;
         _segOffset = 0;
         _colorOffset = 0;
-        _preColor = null;
+        _preColor = 0;
 
         this.frames[index] = this.frames[index] || {
             segments: [],
@@ -194,10 +219,10 @@ export class AnimationCache {
         boneInfos.length = _boneInfoOffset;
 
         // Handle pre segment
-        let preSegOffset = _segOffset - 1;
+        const preSegOffset = _segOffset - 1;
         if (preSegOffset >= 0) {
             if (_segICount > 0) {
-                let preSegInfo = segments[preSegOffset];
+                const preSegInfo = segments[preSegOffset];
                 preSegInfo.indexCount = _segICount;
                 preSegInfo.vfCount = _segVCount * 5;
                 preSegInfo.vertexCount = _segVCount;
@@ -241,35 +266,41 @@ export class AnimationCache {
         frame.indices = indices;
     }
 
-    _traverseArmature (armature, parentOpacity) {
-        let colors = this._tempColors;
-        let segments = this._tempSegments;
-        let boneInfos = this._tempBoneInfos;
-        let gVertices = _vertices;
-        let gIndices = _indices;
-        let slotVertices, slotIndices;
-        let slots = armature._slots, slot, slotMatrix, slotMatrixm, slotColor, colorVal;
-        let texture;
-        let preSegOffset, preSegInfo;
-        let bones = armature._bones;
+    _traverseArmature (armature: dragonBones.Armature, parentOpacity) {
+        const colors = this._tempColors!;
+        const segments = this._tempSegments!;
+        const boneInfos = this._tempBoneInfos!;
+        const gVertices = _vertices;
+        const gIndices = _indices;
+        const slots = armature._slots;
+        let slotVertices: number[];
+        let slotIndices: number[];
+        let slot: CCSlot;
+        let slotMatrix: Mat4;
+        let slotColor: Color;
+        let colorVal: number;
+        let texture: RenderTexture | TextureBase | null;
+        let preSegOffset: number;
+        let preSegInfo: ArmatureFrameSegment;
+        const bones = armature._bones;
 
         if (this._enableCacheAttachedInfo) {
             for (let i = 0, l = bones.length; i < l; i++, _boneInfoOffset++) {
-                let bone = bones[i];
+                const bone = bones[i];
                 let boneInfo = boneInfos[_boneInfoOffset];
                 if (!boneInfo) {
                     boneInfo = boneInfos[_boneInfoOffset] = {
                         globalTransformMatrix: new dragonBones.Matrix(),
                     };
                 }
-                let boneMat = bone.globalTransformMatrix;
-                let cacheBoneMat = boneInfo.globalTransformMatrix;
+                const boneMat = bone.globalTransformMatrix;
+                const cacheBoneMat = boneInfo.globalTransformMatrix;
                 cacheBoneMat.copyFrom(boneMat);
             }
         }
 
         for (let i = 0, l = slots.length; i < l; i++) {
-            slot = slots[i];
+            slot = slots[i] as CCSlot;
             if (!slot._visible || !slot._displayData) continue;
 
             slot.updateWorldMatrix();
@@ -305,7 +336,7 @@ export class AnimationCache {
                     blendMode: slot._blendMode,
                     indexCount: 0,
                     vertexCount: 0,
-                    vfCount: 0
+                    vfCount: 0,
                 };
                 _segOffset++;
                 _segICount = 0;
@@ -324,21 +355,20 @@ export class AnimationCache {
                     g: slotColor.g,
                     b: slotColor.b,
                     a: slotColor.a * parentOpacity,
-                    vfOffset: 0
-                }
+                    vfOffset: 0,
+                };
             }
 
             slotVertices = slot._localVertices;
             slotIndices = slot._indices;
 
             slotMatrix = slot._worldMatrix;
-            slotMatrixm = slotMatrix.m;
 
             for (let j = 0, vl = slotVertices.length; j < vl;) {
                 _x = slotVertices[j++];
                 _y = slotVertices[j++];
-                gVertices[_vfOffset++] = _x * slotMatrixm[0] + _y * slotMatrixm[4] + slotMatrixm[12];
-                gVertices[_vfOffset++] = _x * slotMatrixm[1] + _y * slotMatrixm[5] + slotMatrixm[13];
+                gVertices[_vfOffset++] = _x * slotMatrix.m00 + _y * slotMatrix.m04 + slotMatrix.m12;
+                gVertices[_vfOffset++] = _x * slotMatrix.m01 + _y * slotMatrix.m05 + slotMatrix.m13;
                 gVertices[_vfOffset++] = slotVertices[j++];
                 gVertices[_vfOffset++] = slotVertices[j++];
                 gVertices[_vfOffset++] = colorVal;
@@ -358,8 +388,7 @@ export class AnimationCache {
 }
 
 export class ArmatureCache {
-
-    protected _privateMode: boolean = false;
+    protected _privateMode = false;
     protected _animationPool: Record<string, AnimationCache> = {};
     protected _armatureCache: Record<string, ArmatureInfo> = {};
 
@@ -372,11 +401,11 @@ export class ArmatureCache {
 
     // If cache is private, cache will be destroy when dragonbones node destroy.
     dispose () {
-        for (var key in this._armatureCache) {
-            var armatureInfo = this._armatureCache[key];
+        for (const key in this._armatureCache) {
+            const armatureInfo = this._armatureCache[key];
             if (armatureInfo) {
-                let armature = armatureInfo.armature;
-                armature && armature.dispose();
+                const armature = armatureInfo.armature;
+                if (armature) armature.dispose();
             }
         }
         this._armatureCache = {};
@@ -384,47 +413,47 @@ export class ArmatureCache {
     }
 
     _removeArmature (armatureKey: string) {
-        var armatureInfo = this._armatureCache[armatureKey];
-        let animationsCache = armatureInfo.animationsCache;
-        for (var aniKey in animationsCache) {
+        const armatureInfo = this._armatureCache[armatureKey];
+        const animationsCache = armatureInfo.animationsCache;
+        for (const aniKey in animationsCache) {
             // Clear cache texture, and put cache into pool.
             // No need to create TypedArray next time.
-            let animationCache = animationsCache[aniKey];
+            const animationCache = animationsCache[aniKey];
             if (!animationCache) continue;
-            this._animationPool[armatureKey + "#" + aniKey] = animationCache;
+            this._animationPool[`${armatureKey}#${aniKey}`] = animationCache;
             animationCache.clear();
         }
 
-        let armature = armatureInfo.armature;
-        armature && armature.dispose();
+        const armature = armatureInfo.armature;
+        if (armature) armature.dispose();
         delete this._armatureCache[armatureKey];
     }
 
     // When db assets be destroy, remove armature from db cache.
     resetArmature (uuid: string) {
-        for (var armatureKey in this._armatureCache) {
-            if (armatureKey.indexOf(uuid) == -1) continue;
+        for (const armatureKey in this._armatureCache) {
+            if (armatureKey.indexOf(uuid) === -1) continue;
             this._removeArmature(armatureKey);
         }
     }
 
     getArmatureCache (armatureName: string, armatureKey: string, atlasUUID: string) {
-        let armatureInfo = this._armatureCache[armatureKey];
+        const armatureInfo = this._armatureCache[armatureKey];
         let armature: dragonBones.Armature;
         if (!armatureInfo) {
-            let factory = CCFactory.getInstance();
-            let proxy = factory.buildArmatureDisplay(armatureName, armatureKey, "", atlasUUID) as CCArmatureDisplay;
-            if (!proxy || !proxy.armature) return;
-            armature = proxy.armature;
+            const factory = CCFactory.getInstance();
+            const proxy = factory.buildArmatureDisplay(armatureName, armatureKey, '', atlasUUID) as CCArmatureDisplay;
+            if (!proxy || !proxy._armature) return null;
+            armature = proxy._armature;
             // If armature has child armature, can not be cache, because it's
             // animation data can not be precompute.
             if (!ArmatureCache.canCache(armature)) {
                 armature.dispose();
-                return;
+                return null;
             }
 
             this._armatureCache[armatureKey] = {
-                armature: armature,
+                armature,
                 // Cache all kinds of animation frame.
                 // When armature is dispose, clear all animation cache.
                 animationsCache: {},
@@ -437,28 +466,28 @@ export class ArmatureCache {
     }
 
     getAnimationCache (armatureKey, animationName) {
-        let armatureInfo = this._armatureCache[armatureKey];
+        const armatureInfo = this._armatureCache[armatureKey];
         if (!armatureInfo) return null;
 
-        let animationsCache = armatureInfo.animationsCache;
+        const animationsCache = armatureInfo.animationsCache;
         return animationsCache[animationName];
     }
 
-    initAnimationCache (armatureKey, animationName) {
+    initAnimationCache (armatureKey: string, animationName: string) {
         if (!animationName) return null;
 
-        let armatureInfo = this._armatureCache[armatureKey];
-        let armature = armatureInfo && armatureInfo.armature;
+        const armatureInfo = this._armatureCache[armatureKey];
+        const armature = armatureInfo && armatureInfo.armature;
         if (!armature) return null;
-        let animation = armature.animation;
-        let hasAni = animation.hasAnimation(animationName);
+        const animation = armature.animation;
+        const hasAni = animation.hasAnimation(animationName);
         if (!hasAni) return null;
 
-        let animationsCache = armatureInfo.animationsCache;
+        const animationsCache = armatureInfo.animationsCache;
         let animationCache = animationsCache[animationName];
         if (!animationCache) {
             // If cache exist in pool, then just use it.
-            let poolKey = armatureKey + "#" + animationName;
+            const poolKey = `${armatureKey}#${animationName}`;
             animationCache = this._animationPool[poolKey];
             if (animationCache) {
                 delete this._animationPool[poolKey];
@@ -472,40 +501,40 @@ export class ArmatureCache {
         return animationCache;
     }
 
-    invalidAnimationCache (armatureKey) {
-        let armatureInfo = this._armatureCache[armatureKey];
-        let armature = armatureInfo && armatureInfo.armature;
-        if (!armature) return null;
+    invalidAnimationCache (armatureKey: string) {
+        const armatureInfo = this._armatureCache[armatureKey];
+        const armature = armatureInfo && armatureInfo.armature;
+        if (!armature) return;
 
-        let animationsCache = armatureInfo.animationsCache;
-        for (var aniKey in animationsCache) {
-            let animationCache = animationsCache[aniKey];
+        const animationsCache = armatureInfo.animationsCache;
+        for (const aniKey in animationsCache) {
+            const animationCache = animationsCache[aniKey];
             animationCache.invalidAllFrame();
         }
     }
 
-    updateAnimationCache (armatureKey, animationName) {
+    updateAnimationCache (armatureKey: string, animationName: string) {
         if (animationName) {
-            let animationCache = this.initAnimationCache(armatureKey, animationName);
+            const animationCache = this.initAnimationCache(armatureKey, animationName);
             if (!animationCache) return;
             animationCache.updateAllFrame();
         } else {
-            let armatureInfo = this._armatureCache[armatureKey];
-            let armature = armatureInfo && armatureInfo.armature;
-            if (!armature) return null;
+            const armatureInfo = this._armatureCache[armatureKey];
+            const armature = armatureInfo && armatureInfo.armature;
+            if (!armature) return;
 
-            let animationsCache = armatureInfo.animationsCache;
-            for (var aniKey in animationsCache) {
-                let animationCache = animationsCache[aniKey];
+            const animationsCache = armatureInfo.animationsCache;
+            for (const aniKey in animationsCache) {
+                const animationCache = animationsCache[aniKey];
                 animationCache.updateAllFrame();
             }
         }
     }
 
     static canCache (armature: dragonBones.Armature) {
-        let slots = armature._slots;
+        const slots = armature._slots;
         for (let i = 0, l = slots.length; i < l; i++) {
-            let slot = slots[i];
+            const slot = slots[i];
             if (slot.childArmature) {
                 return false;
             }
@@ -516,4 +545,3 @@ export class ArmatureCache {
     static FrameTime = FrameTime;
     static sharedCache = new ArmatureCache();
 }
-

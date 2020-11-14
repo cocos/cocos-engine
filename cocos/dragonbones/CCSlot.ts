@@ -13,12 +13,12 @@ export class CCSlot extends dragonBones.Slot {
         return '[class dragonBones.CCSlot]';
     }
 
-    protected _localVertices: number[];
-    protected _indices: number[];
-    protected _matrix: Mat4;
+    /* protected */ _localVertices: number[];
+    /* protected */ _indices: number[];
+    /* protected */ _matrix: Mat4;
     public _worldMatrix: Mat4;
     protected _worldMatrixDirty: boolean;
-    protected _color: Color;
+    /* protected */ _color: Color;
 
     constructor () {
         super();
@@ -343,7 +343,7 @@ export class CCSlot extends dragonBones.Slot {
         }
     }
 
-    protected _mulMat (out: Mat4, a: Readonly<Mat4>, b: Readonly<Mat4>) {
+    /* protected */ _mulMat (out: Mat4, a: Readonly<Mat4>, b: Readonly<Mat4>) {
         const aa = a.m00; const ab = a.m01; const ac = a.m04; const ad = a.m05; const atx = a.m12; const aty = a.m13;
         const ba = b.m00; const bb = b.m01; const bc = b.m04; const bd = b.m05; const btx = b.m12; const bty = b.m13;
         if (ab !== 0 || ac !== 0) {
