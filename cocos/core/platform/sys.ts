@@ -556,6 +556,13 @@ export const sys: Record<string, any> = {
      */
     BROWSER_TYPE_SOUGOU: 'sogou',
     /**
+     *
+     * @property {String} BROWSER_TYPE_HUAWEI
+     * @readOnly
+     * @default "huawei"
+     */
+    BROWSER_TYPE_HUAWEI: "huawei",
+    /**
      * @en Browser Type - Unknown
      * @zh 浏览器类型 - 未知
      * @default "unknown"
@@ -959,7 +966,7 @@ else if (JSB || RUNTIME_BASED) {
     /* Determine the browser type */
     (function () {
         const typeReg1 = /mqqbrowser|micromessenger|qqbrowser|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
-        const typeReg2 = /qq|qqbrowser|ucbrowser|ubrowser|edge/i;
+        const typeReg2 = /qq|qqbrowser|ucbrowser|ubrowser|edge|HuaweiBrowser/i;
         const typeReg3 = /chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
         const browserTypes = typeReg1.exec(ua) || typeReg2.exec(ua) || typeReg3.exec(ua);
 
@@ -985,6 +992,7 @@ else if (JSB || RUNTIME_BASED) {
             mxbrowser: sys.BROWSER_TYPE_MAXTHON,
             'opr/': sys.BROWSER_TYPE_OPERA,
             ubrowser: sys.BROWSER_TYPE_UC,
+            huaweibrowser: sys.BROWSER_TYPE_HUAWEI,
         };
 
         sys.browserType = typeMap[browserType] || browserType;
