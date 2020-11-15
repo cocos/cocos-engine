@@ -74,6 +74,7 @@ private:
     vector<const uint *> _curDynamicOffsetPtrs;
     vector<uint> _curDynamicOffsetCounts;
     uint _firstDirtyDescriptorSet = UINT_MAX;
+    uint _firstDifferentDescriptorSet = UINT_MAX;
 
     CCVKGPUInputAssembler *_curGPUInputAssember = nullptr;
     CCVKGPUFramebuffer *_curGPUFBO = nullptr;

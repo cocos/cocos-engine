@@ -152,7 +152,7 @@ private:
     WriterContext                           mW;
     ReaderContext                           mR;
     EventCV                                 mN;
-    bool                                    mImmediateMode      { false };
+    bool                                    mImmediateMode      { true };
     bool                                    mWorkerAttached     { false };
     bool                                    mFreeChunksByUser   { false };   // 被回收的Chunk会被记录到一个队列里 由用户在生产者线程选择合适的时机来Free
 

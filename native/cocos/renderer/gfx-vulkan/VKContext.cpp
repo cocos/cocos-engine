@@ -293,10 +293,10 @@ bool CCVKContext::initialize(const ContextInfo &info) {
                 CCVKDevice* device = (CCVKDevice*)_device;
                 CCVKQueue *queue = (CCVKQueue *)device->getQueue();
 
-                if (!queue->gpuQueue()->fences.empty()) {
-                    VK_CHECK(vkWaitForFences(device->gpuDevice()->vkDevice, queue->gpuQueue()->fences.size(),
-                                             queue->gpuQueue()->fences.data(), VK_TRUE, DEFAULT_TIMEOUT));
-                    queue->gpuQueue()->fences.clear();
+                uint fenceCount = device->gpuFencePool()->getFenceCount();
+                if (fenceCount) {
+                    VK_CHECK(vkWaitForFences(device->gpuDevice()->vkDevice, fenceCount,
+                                             device->gpuFencePool()->getFences(), VK_TRUE, DEFAULT_TIMEOUT));
                 }
 
                 device->destroySwapchain();
@@ -494,6 +494,9 @@ bool CCVKContext::initialize(const ContextInfo &info) {
 
         // Determine the number of images
         uint desiredNumberOfSwapchainImages = std::max(3u, surfaceCapabilities.minImageCount + 1);
+        if (PREFERRED_SWAPCHAIN_IMAGE_COUNT) {
+            desiredNumberOfSwapchainImages = PREFERRED_SWAPCHAIN_IMAGE_COUNT;
+        }
 
         if ((surfaceCapabilities.maxImageCount > 0) && (desiredNumberOfSwapchainImages > surfaceCapabilities.maxImageCount)) {
             desiredNumberOfSwapchainImages = surfaceCapabilities.maxImageCount;
