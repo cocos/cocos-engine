@@ -65,6 +65,8 @@ var ToggleContainer = cc.Class({
             default: [],
             type: cc.Component.EventHandler
         },
+        
+        _hasMakeAtLeastOneToggleChecked: false,
     },
 
     updateToggles: function (toggle) {
@@ -106,19 +108,25 @@ var ToggleContainer = cc.Class({
                 toggleItems[0].check();
             }
         }
+        this._hasMakeAtLeastOneToggleChecked = true;
     },
 
     onEnable: function () {
+        if (!this._hasMakeAtLeastOneToggleChecked) {
+            this._makeAtLeastOneToggleChecked();
+        }
         this.node.on('child-added', this._allowOnlyOneToggleChecked, this);
         this.node.on('child-removed', this._makeAtLeastOneToggleChecked, this);
     },
 
     onDisable: function () {
+        this._hasMakeAtLeastOneToggleChecked = false;
         this.node.off('child-added', this._allowOnlyOneToggleChecked, this);
         this.node.off('child-removed', this._makeAtLeastOneToggleChecked, this);
     },
 
     start: function () {
+        this._hasMakeAtLeastOneToggleChecked = false;
         this._makeAtLeastOneToggleChecked();
     }
 });
