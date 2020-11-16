@@ -30,8 +30,6 @@ THE SOFTWARE.
 #include "MTLCommandBuffer.h"
 #include "MTLDevice.h"
 #include "MTLUtils.h"
-#include "MTLRenderCommandEncoder.h"
-#import <Metal/Metal.h>
 
 namespace cc {
 namespace gfx {

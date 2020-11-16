@@ -6,10 +6,11 @@ message(STATUS "Target: ${TARGET_NAME}...")
 # set include files
 
 set(INCLUDE_FILES 
-  ${GFX_EXTERNAL_PATH}/khronos
-  ${GFX_EXTERNAL_PATH}/boost
-  ${COCOS_SRC_PATH}/renderer/core
-  ${COCOS_SRC_PATH}/renderer/gfx-metal
+    ${GFX_EXTERNAL_PATH}/khronos
+    ${GFX_EXTERNAL_PATH}/boost
+    ${COCOS_SRC_PATH}/base
+    ${COCOS_SRC_PATH}/renderer/core
+    ${COCOS_SRC_PATH}/renderer/gfx-metal
 )
 
 include_directories( ${INCLUDE_FILES} )
