@@ -147,6 +147,33 @@ function updateDirLight (pipeline: ForwardPipeline, light: DirectionalLight) {
     Mat4.toArray(pipeline.shadowUBO, shadows.matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
 }
 
+export function updatePlanarPROJ (shadowInfo: Shadows, light: DirectionalLight, shadowUBO: Float32Array){
+    const dir = light.direction;
+    const n = shadowInfo.normal; const d = shadowInfo.distance + 0.001; // avoid z-fighting
+    const NdL = Vec3.dot(n, dir); const scale = 1 / NdL;
+    const lx = dir.x * scale; const ly = dir.y * scale; const lz = dir.z * scale;
+    const nx = n.x; const ny = n.y; const nz = n.z;
+    const m = shadowInfo.matLight;
+    m.m00 = 1 - nx * lx;
+    m.m01 = -nx * ly;
+    m.m02 = -nx * lz;
+    m.m03 = 0;
+    m.m04 = -ny * lx;
+    m.m05 = 1 - ny * ly;
+    m.m06 = -ny * lz;
+    m.m07 = 0;
+    m.m08 = -nz * lx;
+    m.m09 = -nz * ly;
+    m.m10 = 1 - nz * lz;
+    m.m11 = 0;
+    m.m12 = lx * d;
+    m.m13 = ly * d;
+    m.m14 = lz * d;
+    m.m15 = 1;
+
+    Mat4.toArray(shadowUBO, m, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
+}
+
 export function lightCollecting (view: RenderView, lightNumber: number) {
     _validLights.length = 0;
 
