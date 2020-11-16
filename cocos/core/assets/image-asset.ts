@@ -239,7 +239,7 @@ export class ImageAsset extends Asset {
         if (this.data && this.data instanceof HTMLImageElement) {
             this.data.src = "";
             this._setRawAsset("");
-            // JSB element should destroy native data.
+            //@ts-expect-error JSB element should destroy native data.
             if (JSB) this.data.destroy();
         } else if (isImageBitmap(this.data)) {
             this.data.close && this.data.close();
