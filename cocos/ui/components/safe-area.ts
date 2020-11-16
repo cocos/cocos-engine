@@ -100,7 +100,7 @@ export class SafeArea extends Component {
         const lastAnchorPoint = uiTransComp.anchorPoint;
         //
         widget.isAlignTop = widget.isAlignBottom = widget.isAlignLeft = widget.isAlignRight = true;
-        let screenWidth = legacyCC.winSize.width, screenHeight = legacyCC.winSize.height;
+        const screenWidth = legacyCC.winSize.width, screenHeight = legacyCC.winSize.height;
         const safeArea = sys.getSafeAreaRect();
         widget.top = screenHeight - safeArea.y - safeArea.height;
         widget.bottom = safeArea.y;
