@@ -1,5 +1,8 @@
 #include "ThreadPool.h"
 
+namespace cc {
+namespace gfx {
+
 uint8_t const ThreadPool::kCpuCoreCount = std::thread::hardware_concurrency();
 uint8_t const ThreadPool::kMaxThreadCount = kCpuCoreCount - 1;
 
@@ -9,9 +12,9 @@ void ThreadPool::Start() noexcept
     {
         return;
     }
-    
+
     mRunning = true;
-    
+
     for (uint8_t i = 0; i < kMaxThreadCount; ++i)
     {
         AddThread();
@@ -24,10 +27,10 @@ void ThreadPool::Stop() noexcept
     {
         return;
     }
-    
+
     mRunning = false;
     mEvent.SignalAll();
-    
+
     for (auto& worker : mWorkers)
     {
         if (worker.joinable())
@@ -35,7 +38,7 @@ void ThreadPool::Stop() noexcept
             worker.join();
         }
     }
-    
+
     mWorkers.clear();
 }
 
@@ -56,6 +59,9 @@ void ThreadPool::AddThread() noexcept
             }
         }
     };
-    
+
     mWorkers.emplace_back(workerLoop);
 }
+
+} // namespace gfx
+} // namespace cc

@@ -1,5 +1,8 @@
 #include "Semaphore.h"
 
+namespace cc {
+namespace gfx {
+
 #ifdef _WINDOWS
 
 Semaphore::Semaphore() noexcept
@@ -67,3 +70,6 @@ void Semaphore::Signal() noexcept
 }
 
 #endif
+
+} // namespace gfx
+} // namespace cc

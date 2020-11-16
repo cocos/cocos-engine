@@ -12,18 +12,24 @@ using NativeSemaphoreType = dispatch_semaphore_t;
 using NativeSemaphoreType = sem_t;
 #endif
 
+namespace cc {
+namespace gfx {
+
 class Semaphore final
 {
 public:
-    
+
     Semaphore() noexcept;
     ~Semaphore();
-    
+
     void                Wait() noexcept;
     void                Signal() noexcept;
     void                SignalAll() noexcept { assert(false); }
-    
+
 private:
-    
+
     NativeSemaphoreType mSemaphore;
 };
+
+} // namespace gfx
+} // namespace cc
