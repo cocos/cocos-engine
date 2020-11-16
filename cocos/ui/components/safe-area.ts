@@ -33,8 +33,10 @@ import { Component } from '../../core/components';
 import { UITransform } from '../../core/components/ui-base';
 import { view } from '../../core/platform';
 import { Widget } from './widget';
+import { widgetManager } from './widget-manager';
 import { legacyCC } from "../../core/global-exports";
 import { EDITOR } from 'internal:constants';
+import { sys } from "../../core/platform";
 
 /**
  * @en
@@ -87,8 +89,6 @@ export class SafeArea extends Component {
             return;
         }
 
-        const { winSize, sys } = legacyCC;
-
         if (EDITOR) {
             widget.top = widget.bottom = widget.left = widget.right = 0;
             widget.isAlignTop = widget.isAlignBottom = widget.isAlignLeft = widget.isAlignRight = true;
@@ -100,11 +100,8 @@ export class SafeArea extends Component {
         const lastAnchorPoint = uiTransComp.anchorPoint;
         //
         widget.isAlignTop = widget.isAlignBottom = widget.isAlignLeft = widget.isAlignRight = true;
-        const screenWidth = winSize.width, screenHeight = winSize.height;
+        let screenWidth = legacyCC.winSize.width, screenHeight = legacyCC.winSize.height;
         const safeArea = sys.getSafeAreaRect();
-
-        console.log(safeArea);
-
         widget.top = screenHeight - safeArea.y - safeArea.height;
         widget.bottom = safeArea.y;
         widget.left = safeArea.x;
@@ -116,6 +113,6 @@ export class SafeArea extends Component {
         const anchorY = lastAnchorPoint.y - (curPos.y - lastPos.y) / uiTransComp.height;
         uiTransComp.setAnchorPoint(anchorX, anchorY);
         // IMPORTANT: restore to lastPos even if widget is not ALWAYS
-        widget.enabled = true;
+        widgetManager.add(widget);
     }
 }
