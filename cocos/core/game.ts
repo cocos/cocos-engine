@@ -410,7 +410,6 @@ export class Game extends EventTarget {
      */
     public resume () {
         if (!this._paused) { return; }
-        this._paused = false;
         // Resume main loop
         this._runMainLoop();
     }
