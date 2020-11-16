@@ -490,8 +490,11 @@ export class UIRenderable extends RenderableComponent {
     }
 
     protected _canRender () {
-        return this.getMaterial(0) !== null && this.enabled
-            && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy) && this._color.a > 0;
+        return this.isValid &&
+               this.getMaterial(0) !== null &&
+               this.enabled &&
+               (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy) &&
+               this._color.a > 0;
     }
 
     protected _postCanRender () {}
