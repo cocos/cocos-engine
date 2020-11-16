@@ -1052,7 +1052,13 @@ else if (JSB || RUNTIME_BASED) {
         };
     }
 
-    const _supportWebp = TEST ? false : _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
+    let _supportWebp;
+    try {
+        _supportWebp = TEST ? false : _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
+    }
+    catch (e) {
+        _supportWebp  = false;
+    }  
     const _supportCanvas = TEST ? false : !!_tmpCanvas1.getContext('2d');
     let _supportWebGL = false;
     if (TEST) {
