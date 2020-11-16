@@ -13,6 +13,7 @@
 #include <fcntl.h>
 #include <mutex>
 #include <condition_variable>
+#include <vector>
 
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, "CocosActivity JNI", __VA_ARGS__)
 
@@ -23,10 +24,10 @@ CocosApp cocosApp;
 int messagePipe[2];
 int pipeRead = 0;
 int pipeWrite = 0;
-bool needToStop = false;
-bool animating = true;
 std::mutex animatingMutex;
 std::condition_variable animatingCond;
+std::vector<int> cachedCmds;
+bool needToCacheCmds = false;
 
 void writeCommand(int cmd) {
     write(pipeWrite, &cmd, sizeof(cmd));
@@ -45,20 +46,20 @@ void glThreadEntry(ANativeWindow *window) {
 
 	int cmd = 0;
 	while (1) {
-	    if (needToStop) break;
-
 	    while (readCommand(cmd) > 0) {
-	        View::engineHandleCmd(cmd);
+            View::engineHandleCmd(cmd);
+	        if (cmd == APP_CMD_TERM_WINDOW) {
+                std::unique_lock<std::mutex> lk(animatingMutex);
+                animatingCond.wait(lk);
+            }
 	    }
-        if (!animating) {
-            std::unique_lock<std::mutex> lk(animatingMutex);
-            animatingCond.wait(lk);
-        }
 
         // Handle java events send by UI thread. Input events are handled here too.
 		JniHelper::callStaticVoidMethod("com.cocos.lib.CocosHelper", "flushTasksOnGameThread");
 
 		game->tick();
+
+		if (cmd == APP_CMD_DESTROY) break;
 	}
 }
 
@@ -95,7 +96,14 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onSurfaceCreatedNative(J
         glThread.detach();
     }
     else {
-        cc::animating = true;
+        if (!cc::cachedCmds.empty()) {
+            for (int cmd : cc::cachedCmds) {
+                cc::writeCommand(cmd);
+            }
+            cc::cachedCmds.clear();
+        }
+
+        cc::needToCacheCmds = false;
         cc::animatingCond.notify_all();
     }
 }
@@ -103,23 +111,21 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onStartNative(JNIEnv *en
 }
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onPauseNative(JNIEnv *env, jobject obj) {
-    cc::writeCommand(APP_CMD_PAUSE);
+    if (cc::needToCacheCmds) cc::cachedCmds.push_back(APP_CMD_PAUSE);
+    else cc::writeCommand(APP_CMD_PAUSE);
 }
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onResumeNative(JNIEnv *env, jobject obj) {
-    static bool first = true;
-    if (first) {
-        first = false;
-        return;
-    }
-    cc::writeCommand(APP_CMD_RESUME);
+    if (cc::needToCacheCmds) cc::cachedCmds.push_back(APP_CMD_RESUME);
+    else cc::writeCommand(APP_CMD_RESUME);
 }
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onStopNative(JNIEnv *env, jobject obj) {
 }
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onLowMemoryNative(JNIEnv *env, jobject obj) {
-	cc::writeCommand(APP_CMD_LOW_MEMORY);
+    if (cc::needToCacheCmds) cc::cachedCmds.push_back(APP_CMD_LOW_MEMORY);
+	else cc::writeCommand(APP_CMD_LOW_MEMORY);
 }
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onWindowFocusChangedNative(JNIEnv *env, jobject obj, jboolean has_focus) {
@@ -132,7 +138,7 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onSurfaceChangedNative(J
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onSurfaceDestroyNative(JNIEnv *env, jobject obj) {
 	cc::writeCommand(APP_CMD_TERM_WINDOW);
-    cc::animating = false;
+    cc::needToCacheCmds = true;
 }
 
 }
