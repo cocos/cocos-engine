@@ -28,8 +28,9 @@
  * @module animation
  */
 
-import { Component } from '../components/component';
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type, serializable } from 'cc.decorator';
+import { EDITOR, TEST } from 'internal:constants';
+import { Component } from '../components/component';
 import { Eventify } from '../event/eventify';
 import { warnID } from '../platform/debug';
 import * as ArrayUtils from '../utils/array';
@@ -37,7 +38,6 @@ import { createMap } from '../utils/js-typed';
 import { AnimationClip } from './animation-clip';
 import { AnimationState, EventType } from './animation-state';
 import { CrossFade } from './cross-fade';
-import { EDITOR, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 
 /**
@@ -200,9 +200,8 @@ export class Animation extends Eventify(Component) {
         if (!name) {
             if (!this._defaultClip) {
                 return;
-            } else {
-                name = this._defaultClip.name;
             }
+            name = this._defaultClip.name;
         }
         this.crossFade(name, 0);
     }
@@ -353,16 +352,14 @@ export class Animation extends Eventify(Component) {
         }
 
         if (clip === this._defaultClip) {
-            if (force) { this._defaultClip = null; }
-            else {
+            if (force) { this._defaultClip = null; } else {
                 if (!TEST) { warnID(3902); }
                 return;
             }
         }
 
         if (removalState && removalState.isPlaying) {
-            if (force) { removalState.stop(); }
-            else {
+            if (force) { removalState.stop(); } else {
                 if (!TEST) { warnID(3903); }
                 return;
             }
@@ -399,7 +396,7 @@ export class Animation extends Eventify(Component) {
      * animation.on('play', this.onPlay, this);
      * ```
      */
-    public on<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any, once?: boolean) {
+    public on<TFunction extends (...any) => void> (type: EventType, callback: TFunction, thisArg?: any, once?: boolean) {
         const ret = super.on(type, callback, thisArg, once);
         if (type === EventType.LASTFRAME) {
             this._syncAllowLastFrameEvent();
@@ -407,7 +404,7 @@ export class Animation extends Eventify(Component) {
         return ret;
     }
 
-    public once<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any) {
+    public once<TFunction extends (...any) => void> (type: EventType, callback: TFunction, thisArg?: any) {
         const ret = super.once(type, callback, thisArg);
         if (type === EventType.LASTFRAME) {
             this._syncAllowLastFrameEvent();
@@ -429,7 +426,7 @@ export class Animation extends Eventify(Component) {
      * animation.off('play', this.onPlay, this);
      * ```
      */
-    public off (type: EventType, callback?: Function, thisArg?: any) {
+    public off (type: EventType, callback?: (...any) => void, thisArg?: any) {
         super.off(type, callback, thisArg);
         if (type === EventType.LASTFRAME) {
             this._syncDisallowLastFrameEvent();
@@ -455,20 +452,17 @@ export class Animation extends Eventify(Component) {
         if (!name) {
             if (!this._defaultClip) {
                 return null;
-            } else {
-                name = this._defaultClip.name;
             }
+            name = this._defaultClip.name;
         }
         const state = this._nameToState[name];
         if (state) {
             return state;
-        } else {
-            return null;
         }
+        return null;
     }
 
     private _removeStateOfAutomaticClip (clip: AnimationClip) {
-
         for (const name in this._nameToState) {
             const state = this._nameToState[name];
             if (equalClips(clip, state.clip)) {
