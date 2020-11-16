@@ -477,7 +477,7 @@ Object.assign(WebEditBoxImpl.prototype, {
         elem.style.active = 0;
         elem.style.outline = 'medium';
         elem.style.padding = '0';
-        elem.style.textTransform = 'uppercase';
+        elem.style.textTransform = 'none';
         elem.style.position = "absolute";
         elem.style.bottom = "0px";
         elem.style.left = LEFT_PADDING + "px";
