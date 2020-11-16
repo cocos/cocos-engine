@@ -168,6 +168,7 @@ let Mesh = cc.Class({
 
             if (CC_JSB && CC_NATIVERENDERER) {
                 meshData.vDirty = true;
+                this._subMeshes.push(new InputAssembler(null, null));
             } else {
                 let vbBuffer = new gfx.VertexBuffer(
                     renderer.device,
