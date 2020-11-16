@@ -1,33 +1,59 @@
-/**
- * @category gfx
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
-import {
-    GFXFormat,
-    GFXLoadOp,
-    GFXObject,
-    GFXObjectType,
-    GFXPipelineBindPoint,
-    GFXStoreOp,
-    GFXTextureLayout,
-} from './define';
-import { GFXDevice } from './device';
+/**
+ * @packageDocumentation
+ * @module gfx
+ */
+
+import { Device } from './device';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
+import {
+    Format,
+    LoadOp,
+    Obj,
+    ObjectType,
+    PipelineBindPoint,
+    StoreOp,
+    TextureLayout,
+} from './define';
 
 /**
  * @en Color attachment.
  * @zh GFX 颜色附件。
  */
-export class GFXColorAttachment {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class ColorAttachment {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public format: GFXFormat = GFXFormat.UNKNOWN,
+        public format: Format = Format.UNKNOWN,
         public sampleCount: number = 1,
-        public loadOp: GFXLoadOp = GFXLoadOp.CLEAR,
-        public storeOp: GFXStoreOp = GFXStoreOp.STORE,
-        public beginLayout: GFXTextureLayout = GFXTextureLayout.UNDEFINED,
-        public endLayout: GFXTextureLayout = GFXTextureLayout.PRESENT_SRC,
+        public loadOp: LoadOp = LoadOp.CLEAR,
+        public storeOp: StoreOp = StoreOp.STORE,
+        public beginLayout: TextureLayout = TextureLayout.UNDEFINED,
+        public endLayout: TextureLayout = TextureLayout.PRESENT_SRC,
     ) {}
 }
 
@@ -35,26 +61,26 @@ export class GFXColorAttachment {
  * @en Depth stencil attachment.
  * @zh GFX 深度模板附件。
  */
-export class GFXDepthStencilAttachment {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class DepthStencilAttachment {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public format: GFXFormat = GFXFormat.UNKNOWN,
+        public format: Format = Format.UNKNOWN,
         public sampleCount: number = 1,
-        public depthLoadOp: GFXLoadOp = GFXLoadOp.CLEAR,
-        public depthStoreOp: GFXStoreOp = GFXStoreOp.STORE,
-        public stencilLoadOp: GFXLoadOp = GFXLoadOp.CLEAR,
-        public stencilStoreOp: GFXStoreOp = GFXStoreOp.STORE,
-        public beginLayout: GFXTextureLayout = GFXTextureLayout.UNDEFINED,
-        public endLayout: GFXTextureLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+        public depthLoadOp: LoadOp = LoadOp.CLEAR,
+        public depthStoreOp: StoreOp = StoreOp.STORE,
+        public stencilLoadOp: LoadOp = LoadOp.CLEAR,
+        public stencilStoreOp: StoreOp = StoreOp.STORE,
+        public beginLayout: TextureLayout = TextureLayout.UNDEFINED,
+        public endLayout: TextureLayout = TextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
     ) {}
 }
 
-export class GFXSubPassInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class SubPassInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public bindPoint: GFXPipelineBindPoint = GFXPipelineBindPoint.GRAPHICS,
+        public bindPoint: PipelineBindPoint = PipelineBindPoint.GRAPHICS,
         public inputs: number[] = [],
         public colors: number[] = [],
         public resolves: number[] = [],
@@ -63,13 +89,13 @@ export class GFXSubPassInfo {
     ) {}
 }
 
-export class GFXRenderPassInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class RenderPassInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public colorAttachments: GFXColorAttachment[] = [],
-        public depthStencilAttachment: GFXDepthStencilAttachment | null = null,
-        public subPasses: GFXSubPassInfo[] = [],
+        public colorAttachments: ColorAttachment[] = [],
+        public depthStencilAttachment: DepthStencilAttachment | null = null,
+        public subPasses: SubPassInfo[] = [],
     ) {}
 }
 
@@ -77,31 +103,27 @@ export class GFXRenderPassInfo {
  * @en GFX render pass.
  * @zh GFX 渲染过程。
  */
-export abstract class GFXRenderPass extends GFXObject {
+export abstract class RenderPass extends Obj {
 
-    protected _device: GFXDevice;
+    protected _device: Device;
 
-    protected _colorInfos: GFXColorAttachment[] = [];
+    protected _colorInfos: ColorAttachment[] = [];
 
-    protected _depthStencilInfo: GFXDepthStencilAttachment | null = null;
+    protected _depthStencilInfo: DepthStencilAttachment | null = null;
 
-    protected _subPasses : GFXSubPassInfo[] = [];
+    protected _subPasses: SubPassInfo[] = [];
 
-    protected _hash: number = 0;
+    protected _hash = 0;
 
     get colorAttachments () { return this._colorInfos; }
     get depthStencilAttachment () { return this._depthStencilInfo; }
     get subPasses () { return this._subPasses; }
     get hash () { return this._hash; }
 
-    constructor (device: GFXDevice) {
-        super(GFXObjectType.RENDER_PASS);
+    constructor (device: Device) {
+        super(ObjectType.RENDER_PASS);
         this._device = device;
     }
-
-    public abstract initialize (info: GFXRenderPassInfo): boolean;
-
-    public abstract destroy (): void;
 
     // Based on render pass compatibility
     protected computeHash (): number {
@@ -142,4 +164,8 @@ export abstract class GFXRenderPass extends GFXObject {
 
         return murmurhash2_32_gc(res, 666);
     }
+
+    public abstract initialize (info: RenderPassInfo): boolean;
+
+    public abstract destroy (): void;
 }

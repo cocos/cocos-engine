@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -24,7 +24,8 @@
 */
 
 /**
- * @category model
+ * @packageDocumentation
+ * @module model
  */
 
 import { Texture2D } from '../../assets';
@@ -271,6 +272,8 @@ export class MeshRenderer extends RenderableComponent {
     // Redo, Undo, Prefab restore, etc.
     public onRestore () {
         this._updateModels();
+        this._updateCastShadow();
+        this._updateReceiveShadow();
     }
 
     public onEnable () {
@@ -305,10 +308,10 @@ export class MeshRenderer extends RenderableComponent {
 
     public setInstancedAttribute (name: string, value: ArrayLike<number>) {
         if (!this.model) { return; }
-        const list = this.model.instancedAttributes.list;
-        for (let i = 0; i < list.length; i++) {
-            if (list[i].name === name) {
-                (list[i].view as TypedArray).set(value);
+        const { attributes, views } = this.model.instancedAttributes;
+        for (let i = 0; i < attributes.length; i++) {
+            if (attributes[i].name === name) {
+                views[i].set(value);
                 break;
             }
         }
@@ -332,13 +335,17 @@ export class MeshRenderer extends RenderableComponent {
         const model = this._model;
         if (model) {
             model.destroy();
+            model.initialize();
             model.node = model.transform = this.node;
         } else {
             this._createModel();
         }
 
-        this._updateModelParams();
-        this._onUpdateLightingmap();
+        if (this._model) {
+            this._model.createBoundingShape(this._mesh.struct.minPosition, this._mesh.struct.maxPosition);
+            this._updateModelParams();
+            this._onUpdateLightingmap();
+        }
     }
 
     protected _createModel () {
@@ -366,7 +373,7 @@ export class MeshRenderer extends RenderableComponent {
             return;
         }
         const renderScene = this._getRenderScene();
-        if (this._model.scene != null) {
+        if (this._model.scene !== null) {
             this._detachFromScene();
         }
         renderScene.addModel(this._model);
@@ -383,18 +390,20 @@ export class MeshRenderer extends RenderableComponent {
         this.node.hasChangedFlags |= TransformBit.POSITION;
         this._model.transform.hasChangedFlags |= TransformBit.POSITION;
         this._model.isDynamicBatching = this._isBatchingEnabled();
-        const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
+        const meshCount = this._mesh ? this._mesh.renderingSubMeshes.length : 0;
         const renderingMesh = this._mesh.renderingSubMeshes;
         if (renderingMesh) {
             for (let i = 0; i < meshCount; ++i) {
-                const material = this.getRenderMaterial(i);
+                let material = this.getRenderMaterial(i);
+                if (material && !material.isValid) {
+                    material = null;
+                }
                 const subMeshData = renderingMesh[i];
                 if (subMeshData) {
                     this._model.initSubModel(i, subMeshData, material || this._getBuiltinMaterial());
                 }
             }
         }
-        this._model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
         this._model.enabled = true;
     }
 
@@ -407,7 +416,8 @@ export class MeshRenderer extends RenderableComponent {
             this.lightmapSettings.uvParam.x,
             this.lightmapSettings.uvParam.y,
             this.lightmapSettings.uvParam.z,
-            this.lightmapSettings.uvParam.w]);
+            this.lightmapSettings.uvParam.w,
+        ]);
     }
 
     protected _onMaterialModified (idx: number, material: Material | null) {

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,14 +25,14 @@
 
 /**
  * ui-assembler 相关模块
- * @category ui-assembler
+ * @module ui-assembler
  */
 
 import * as js from '../../../core/utils/js';
 import { Color, Vec3 } from '../../../core/math';
 import { UI } from '../../../core/renderer/ui/ui';
 import { Label } from '../../components/label';
-import { IAssembler} from '../../../core/renderer/ui/base';
+import { IAssembler } from '../../../core/renderer/ui/base';
 import { ttfUtils } from './ttfUtils';
 import { IRenderData } from '../../../core/renderer/ui/render-data';
 
@@ -44,11 +44,11 @@ const WHITE = Color.WHITE.clone();
  */
 export const ttf: IAssembler = {
     createData (comp: Label) {
-        const renderData = comp.requestRenderData();
+        const renderData = comp.requestRenderData()!;
 
-        renderData!.dataLength = 4;
-        renderData!.vertexCount = 4;
-        renderData!.indicesCount = 6;
+        renderData.dataLength = 4;
+        renderData.vertexCount = 4;
+        renderData.indicesCount = 6;
 
         const vData =  renderData.vData = new Float32Array(4 * 9);
 
@@ -67,7 +67,7 @@ export const ttf: IAssembler = {
         const dataList: IRenderData[] = renderData.data;
         const node = comp.node;
 
-        let buffer = renderer.currBufferBatch!;
+        let buffer = renderer.acquireBufferBatch()!;
         const vertexOffset = buffer.byteOffset >> 2;
         let indicesOffset = buffer.indicesOffset;
         let vertexId = buffer.vertexOffset;
@@ -86,8 +86,8 @@ export const ttf: IAssembler = {
         const data3 = dataList[3];
         /* */
         node.updateWorldTransform();
-        // @ts-ignore
-        const pos = node._pos as Vec3; const rot = node._rot; const scale = node._scale;
+        // @ts-expect-error
+        const pos = node._pos; const rot = node._rot; const scale = node._scale;
         const ax = data0.x * scale.x; const bx = data3.x * scale.x;
         const ay = data0.y * scale.y; const by = data3.y * scale.y;
         const qx = rot.x; const qy = rot.y; const qz = rot.z; const qw = rot.w;
@@ -125,7 +125,7 @@ export const ttf: IAssembler = {
 
     updateVertexData (comp: Label) {
         const renderData = comp.renderData;
-        if (!renderData){
+        if (!renderData) {
             return;
         }
 

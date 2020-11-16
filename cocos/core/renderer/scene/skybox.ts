@@ -1,3 +1,28 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 import { builtinResMgr } from '../../3d/builtin';
 import { createMesh } from '../../3d/misc/utils';
 import { Material } from '../../assets/material';
@@ -9,7 +34,7 @@ import { MaterialInstance } from '../core/material-instance';
 import { samplerLib } from '../core/sampler-lib';
 import { Model } from './model';
 import { legacyCC } from '../../global-exports';
-import { GFXDescriptorSet } from '../../gfx';
+import { DescriptorSet } from '../../gfx';
 import { SkyboxPool, NULL_HANDLE, SkyboxView, SkyboxHandle } from '../core/memory-pools';
 
 let skybox_mesh: Mesh | null = null;
@@ -29,7 +54,7 @@ export class Skybox {
     }
 
     set enabled (val: boolean) {
-        val ? this.activate() : this._updatePipeline();
+        if (val) this.activate(); else this._updatePipeline();
         SkyboxPool.set(this._handle, SkyboxView.ENABLE, val ? 1 : 0);
     }
 
@@ -85,7 +110,7 @@ export class Skybox {
     }
 
     protected _envmap: TextureCube | null = null;
-    protected _globalDescriptorSet: GFXDescriptorSet | null = null;
+    protected _globalDescriptorSet: DescriptorSet | null = null;
     protected _model: Model | null = null;
     protected _default: TextureCube | null = null;
     protected _handle: SkyboxHandle = NULL_HANDLE;
@@ -105,6 +130,8 @@ export class Skybox {
 
         if (!this._model) {
             this._model = new legacyCC.renderer.scene.Model() as Model;
+            // @ts-expect-error skybox don't need local buffers
+            this._model._initLocalDescriptors = () => {};
         }
 
         SkyboxPool.set(this._handle, SkyboxView.MODEL, this._model.handle);
@@ -113,7 +140,7 @@ export class Skybox {
 
         if (!skybox_material) {
             const mat = new Material();
-            mat.initialize({ effectName: 'pipeline/skybox', defines: { USE_RGBE_CUBEMAP: this.isRGBE } });
+            mat.initialize({ effectName: 'skybox', defines: { USE_RGBE_CUBEMAP: this.isRGBE } });
             skybox_material = new MaterialInstance({ parent: mat });
         } else {
             skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
@@ -128,7 +155,7 @@ export class Skybox {
     }
 
     protected _updatePipeline () {
-        const value = this.enabled ? (this.useIBL ? this.isRGBE ? 2 : 1 : 0) : 0;
+        const value = this.useIBL ? (this.isRGBE ? 2 : 1) : 0;
         const root = legacyCC.director.root;
         const pipeline = root.pipeline;
         const current = pipeline.macros.CC_USE_IBL;

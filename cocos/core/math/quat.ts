@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,7 +24,8 @@
 */
 
 /**
- * @category core/math
+ * @packageDocumentation
+ * @module core/math
  */
 
 import { CCClass } from '../data/class';
@@ -36,13 +37,15 @@ import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
 
 /**
- * 四元数。
+ * @en quaternion
+ * @zh 四元数
  */
 export class Quat extends ValueType {
 
     public static IDENTITY = Object.freeze(new Quat());
 
     /**
+     * @en Obtain a copy of the given quaternion
      * @zh 获得指定四元数的拷贝
      */
     public static clone<Out extends IQuatLike> (a: Out) {
@@ -50,6 +53,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Copy the given quaternion to the out quaternion
      * @zh 复制目标四元数
      */
     public static copy<Out extends IQuatLike, QuatLike extends IQuatLike> (out: Out, a: QuatLike) {
@@ -61,6 +65,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Sets the out quaternion with values of each component
      * @zh 设置四元数值
      */
     public static set<Out extends IQuatLike> (out: Out, x: number, y: number, z: number, w: number) {
@@ -72,6 +77,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Sets the out quaternion to an identity quaternion
      * @zh 将目标赋值为单位四元数
      */
     public static identity<Out extends IQuatLike> (out: Out) {
@@ -83,6 +89,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Sets the out quaternion with the shortest path orientation between two vectors, considering both vectors normalized
      * @zh 设置四元数为两向量间的最短路径旋转，默认两向量都已归一化
      */
     public static rotationTo<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, a: VecLike, b: VecLike) {
@@ -112,10 +119,11 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Gets the rotation axis and the arc of rotation from the quaternion
      * @zh 获取四元数的旋转轴和旋转弧度
-     * @param outAxis 旋转轴输出
-     * @param q 源四元数
-     * @return 旋转弧度
+     * @param outAxis output axis
+     * @param q input quaternion
+     * @return radius of rotation
      */
     public static getAxisAngle<Out extends IQuatLike, VecLike extends IVec3Like> (outAxis: VecLike, q: Out) {
         const rad = Math.acos(q.w) * 2.0;
@@ -134,6 +142,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Quaternion multiplication and save the results to out quaternion
      * @zh 四元数乘法
      */
     public static multiply<Out extends IQuatLike, QuatLike_1 extends IQuatLike, QuatLike_2 extends IQuatLike> (out: Out, a: QuatLike_1, b: QuatLike_2) {
@@ -149,6 +158,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Quaternion scalar multiplication and save the results to out quaternion
      * @zh 四元数标量乘法
      */
     public static multiplyScalar<Out extends IQuatLike> (out: Out, a: Out, b: number) {
@@ -160,6 +170,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Quaternion multiplication and addition: A + B * scale
      * @zh 四元数乘加：A + B * scale
      */
     public static scaleAndAdd<Out extends IQuatLike> (out: Out, a: Out, b: Out, scale: number) {
@@ -171,8 +182,9 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Sets the out quaternion to represent a radian rotation around x axis
      * @zh 绕 X 轴旋转指定四元数
-     * @param rad 旋转弧度
+     * @param rad radius of rotation
      */
     public static rotateX<Out extends IQuatLike> (out: Out, a: Out, rad: number) {
         rad *= 0.5;
@@ -189,8 +201,9 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Sets the out quaternion to represent a radian rotation around y axis
      * @zh 绕 Y 轴旋转指定四元数
-     * @param rad 旋转弧度
+     * @param rad radius of rotation
      */
     public static rotateY<Out extends IQuatLike> (out: Out, a: Out, rad: number) {
         rad *= 0.5;
@@ -207,8 +220,9 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Sets the out quaternion to represent a radian rotation around z axis
      * @zh 绕 Z 轴旋转指定四元数
-     * @param rad 旋转弧度
+     * @param rad radius of rotation
      */
     public static rotateZ<Out extends IQuatLike> (out: Out, a: Out, rad: number) {
         rad *= 0.5;
@@ -225,9 +239,10 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Sets the out quaternion to represent a radian rotation around a given rotation axis in world space
      * @zh 绕世界空间下指定轴旋转四元数
-     * @param axis 旋转轴，默认已归一化
-     * @param rad 旋转弧度
+     * @param axis axis of rotation, normalized by default
+     * @param rad radius of rotation
      */
     public static rotateAround<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, rot: Out, axis: VecLike, rad: number) {
         // get inv-axis (local to rot)
@@ -240,9 +255,10 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Sets the out quaternion to represent a radian rotation around a given rotation axis in local space
      * @zh 绕本地空间下指定轴旋转四元数
-     * @param axis 旋转轴
-     * @param rad 旋转弧度
+     * @param axis axis of rotation
+     * @param rad radius of rotation
      */
     public static rotateAroundLocal<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, rot: Out, axis: VecLike, rad: number) {
         Quat.fromAxisAngle(qt_1, axis, rad);
@@ -251,6 +267,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Calculates the w component with xyz components, considering the given quaternion normalized
      * @zh 根据 xyz 分量计算 w 分量，默认已归一化
      */
     public static calculateW<Out extends IQuatLike> (out: Out, a: Out) {
@@ -263,6 +280,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Quaternion dot product (scalar product)
      * @zh 四元数点积（数量积）
      */
     public static dot<Out extends IQuatLike> (a: Out, b: Out) {
@@ -270,6 +288,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Element by element linear interpolation: A + t * (B - A)
      * @zh 逐元素线性插值： A + t * (B - A)
      */
     public static lerp<Out extends IQuatLike> (out: Out, a: Out, b: Out, t: number) {
@@ -281,6 +300,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Spherical quaternion interpolation
      * @zh 四元数球面插值
      */
     public static slerp<Out extends IQuatLike, QuatLike_1 extends IQuatLike, QuatLike_2 extends IQuatLike>
@@ -328,6 +348,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Spherical quaternion interpolation with two control points
      * @zh 带两个控制点的四元数球面插值
      */
     public static sqlerp<Out extends IQuatLike> (out: Out, a: Out, b: Out, c: Out, d: Out, t: number) {
@@ -338,6 +359,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Sets the inverse of the given quaternion to out quaternion
      * @zh 四元数求逆
      */
     public static invert<Out extends IQuatLike, QuatLike extends IQuatLike> (out: Out, a: QuatLike) {
@@ -354,6 +376,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Conjugating a quaternion, it's equivalent to the inverse of the unit quaternion, but more efficient
      * @zh 求共轭四元数，对单位四元数与求逆等价，但更高效
      */
     public static conjugate<Out extends IQuatLike> (out: Out, a: Out) {
@@ -365,6 +388,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Calculates the length of the quaternion
      * @zh 求四元数长度
      */
     public static len<Out extends IQuatLike> (a: Out) {
@@ -372,6 +396,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Calculates the squared length of the quaternion
      * @zh 求四元数长度平方
      */
     public static lengthSqr<Out extends IQuatLike> (a: Out) {
@@ -379,6 +404,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Normalize the given quaternion
      * @zh 归一化四元数
      */
     public static normalize<Out extends IQuatLike> (out: Out, a: Out) {
@@ -394,6 +420,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Calculated the quaternion represents the given coordinates, considering all given vectors are normalized and mutually perpendicular
      * @zh 根据本地坐标轴朝向计算四元数，默认三向量都已归一化且相互垂直
      */
     public static fromAxes<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, xAxis: VecLike, yAxis: VecLike, zAxis: VecLike) {
@@ -406,9 +433,10 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Calculates the quaternion with the up direction and the direction of the viewport
      * @zh 根据视口的前方向和上方向计算四元数
-     * @param view 视口面向的前方向，必须归一化
-     * @param up 视口的上方向，必须归一化，默认为 (0, 1, 0)
+     * @param view The view direction, it`s must be normalized.
+     * @param up The view up direction, it`s must be normalized, default value is (0, 1, 0).
      */
     public static fromViewUp<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, view: VecLike, up?: Vec3) {
         Mat3.fromViewUp(m3_1, view, up);
@@ -416,6 +444,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Calculates the quaternion from a given rotary shaft and a radian rotation around it.
      * @zh 根据旋转轴和旋转弧度计算四元数
      */
     public static fromAxisAngle<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, axis: VecLike, rad: number) {
@@ -429,6 +458,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Calculates the quaternion with the three-dimensional transform matrix, considering no scale included in the matrix
      * @zh 根据三维矩阵信息计算四元数，默认输入矩阵不含有缩放信息
      */
     public static fromMat3<Out extends IQuatLike> (out: Out, m: Mat3) {
@@ -477,6 +507,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Calculates the quaternion with Euler angles, the rotation order is YZX
      * @zh 根据欧拉角信息计算四元数，旋转顺序为 YZX
      */
     public static fromEuler<Out extends IQuatLike> (out: Out, x: number, y: number, z: number) {
@@ -500,6 +531,22 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Calculates the quaternion with given 2D angle (0, 0, z).
+     * @zh 根据 2D 角度（0, 0, z）计算四元数
+     *
+     * @param out Output quaternion
+     * @param z Angle to rotate around Z axis in degrees.
+     */
+    public static fromAngleZ<Out extends IQuatLike>(out: Out, z: number) {
+        z *= halfToRad;
+        out.x = out.y = 0;
+        out.z = Math.sin(z);
+        out.w = Math.cos(z);
+        return out;
+    }
+
+    /**
+     * @en This returns the X-axis vector of the quaternion
      * @zh 返回定义此四元数的坐标系 X 轴向量
      */
     public static toAxisX (out: IVec3Like, q: IQuatLike) {
@@ -513,6 +560,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en This returns the Y-axis vector of the quaternion
      * @zh 返回定义此四元数的坐标系 Y 轴向量
      */
     public static toAxisY (out: IVec3Like, q: IQuatLike) {
@@ -527,6 +575,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en This returns the Z-axis vector of the quaternion
      * @zh 返回定义此四元数的坐标系 Z 轴向量
      */
     public static toAxisZ (out: IVec3Like, q: IQuatLike) {
@@ -541,8 +590,9 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Converts the quaternion to angles, result angle x, y in the range of [-180, 180], z in the range of [-90, 90] interval, the rotation order is YZX
      * @zh 根据四元数计算欧拉角，返回角度 x, y 在 [-180, 180] 区间内, z 默认在 [-90, 90] 区间内，旋转顺序为 YZX
-     * @param outerZ z 取值范围区间改为 [-180, -90] U [90, 180]
+     * @param outerZ change z value range to [-180, -90] U [90, 180]
      */
     public static toEuler (out: IVec3Like, q: IQuatLike, outerZ?: boolean) {
         const { x, y, z, w } = q;
@@ -576,8 +626,9 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Converts quaternion to an array
      * @zh 四元数转数组
-     * @param ofs 数组内的起始偏移量
+     * @param ofs Array Start Offset
      */
     public static toArray<Out extends IWritableArrayLike<number>> (out: Out, q: IQuatLike, ofs = 0) {
         out[ofs + 0] = q.x;
@@ -588,8 +639,9 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Array to a quaternion
      * @zh 数组转四元数
-     * @param ofs 数组起始偏移量
+     * @param ofs Array Start Offset
      */
     public static fromArray (out: IQuatLike, arr: IWritableArrayLike<number>, ofs = 0) {
         out.x = arr[ofs + 0];
@@ -600,6 +652,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Check whether two quaternions are equal
      * @zh 四元数等价判断
      */
     public static strictEquals (a: IQuatLike, b: IQuatLike) {
@@ -607,6 +660,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Check whether two quaternions are approximately equal
      * @zh 排除浮点数误差的四元数近似等价判断
      */
     public static equals (a: IQuatLike, b: IQuatLike, epsilon = EPSILON) {
@@ -617,22 +671,26 @@ export class Quat extends ValueType {
     }
 
     /**
-     * x 分量。
+     * @en x component.
+     * @zh x 分量。
      */
     public declare x: number;
 
     /**
-     * y 分量。
+     * @en y component.
+     * @zh y 分量。
      */
     public declare y: number;
 
     /**
-     * z 分量。
+     * @en z component.
+     * @zh z 分量。
      */
     public declare z: number;
 
     /**
-     * w 分量。
+     * @en w component.
+     * @zh w 分量。
      */
     public declare w: number;
 
@@ -656,6 +714,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en clone the current Quat
      * @zh 克隆当前四元数。
      */
     public clone () {
@@ -663,18 +722,16 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Set values with another quaternion
      * @zh 设置当前四元数使其与指定四元数相等。
-     * @param other 相比较的四元数。
+     * @param other Specified quaternion
      * @returns `this`
      */
     public set (other: Quat): Quat;
 
     /**
+     * @en Set the value of each component of the current quaternion
      * @zh 设置当前四元数指定元素值。
-     * @param x 四元数 x 元素值
-     * @param y 四元数 y 元素值
-     * @param z 四元数 z 元素值
-     * @param w 四元数 w 元素值
      * @returns `this`
      */
     public set (x?: number, y?: number, z?: number, w?: number): Quat;
@@ -695,10 +752,11 @@ export class Quat extends ValueType {
     }
 
     /**
-     * @zh 判断当前向量是否在误差范围内与指定向量相等。
-     * @param other 相比较的向量。
-     * @param epsilon 允许的误差，应为非负数。
-     * @returns 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
+     * @en Check whether the quaternion approximately equals another one
+     * @zh 判断当前四元数是否在误差范围内与指定向量相等。
+     * @param other Comparative quaternion
+     * @param epsilon The error allowed. It`s should be a non-negative number.
+     * @returns Returns `true' when the components of the two quaternions are equal within the specified error range; otherwise, returns `false'.
      */
     public equals (other: Quat, epsilon = EPSILON) {
         return (Math.abs(this.x - other.x) <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x)) &&
@@ -708,26 +766,29 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Check whether the current quaternion strictly equals other quaternion
      * @zh 判断当前四元数是否与指定四元数相等。
-     * @param other 相比较的四元数。
-     * @returns 两四元数的各分量都相等时返回 `true`；否则返回 `false`。
+     * @param other Comparative quaternion
+     * @returns Returns `true' when the components of the two quaternions are equal within the specified error range; otherwise, returns `false'.
      */
     public strictEquals (other: Quat) {
         return other && this.x === other.x && this.y === other.y && this.z === other.z && this.w === other.w;
     }
 
     /**
+     * @en Convert quaternion to Euler angles
      * @zh 将当前四元数转化为欧拉角（x-y-z）并赋值给出口向量。
-     * @param out 出口向量。
+     * @param out the output vector
      */
     public getEulerAngles (out: Vec3) {
         return Quat.toEuler(out, this);
     }
 
     /**
+     * @en Calculate the linear interpolation result between this quaternion and another one with given ratio
      * @zh 根据指定的插值比率，从当前四元数到目标四元数之间做线性插值。
-     * @param to 目标四元数。
-     * @param ratio 插值比率，范围为 [0,1]。
+     * @param to The target quaternion
+     * @param ratio The interpolation coefficient. The range is [0,1].
      */
     public lerp (to: Quat, ratio: number) {
         this.x = this.x + ratio * (to.x - this.x);
@@ -738,15 +799,17 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Calculates the spherical interpolation result between this quaternion and another one with the given ratio
      * @zh 根据指定的插值比率，从当前四元数到目标四元数之间做球面插值。
-     * @param to 目标四元数。
-     * @param ratio 插值比率，范围为 [0,1]。
+     * @param to The target quaternion
+     * @param ratio The interpolation coefficient. The range is [0,1].
      */
     public slerp (to: Quat, ratio: number) {
         return Quat.slerp(this, this, to, ratio);
     }
 
     /**
+     * @en Calculates the length of the quaternion
      * @zh 求四元数长度
      */
     public length () {
@@ -754,6 +817,7 @@ export class Quat extends ValueType {
     }
 
     /**
+     * @en Calculates the squared length of the quaternion
      * @zh 求四元数长度平方
      */
     public lengthSqr () {

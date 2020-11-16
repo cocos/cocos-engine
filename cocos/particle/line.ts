@@ -1,7 +1,32 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 
 /**
- * 粒子系统模块
- * @category particle
+ * @packageDocumentation
+ * @module particle
  */
 
 
@@ -71,7 +96,7 @@ export class Line extends Component {
             define[CC_USE_WORLD_SPACE] = this.worldSpace;
             this._materialInstance.recompileShaders(define);
             if (this._model) {
-                this._model.setSubModelMaterial(0, this._materialInstance!);
+                this._model.setSubModelMaterial(0, this._materialInstance);
             }
         }
     }
@@ -190,7 +215,7 @@ export class Line extends Component {
     public onLoad () {
         const model = this._model = legacyCC.director.root.createModel(LineModel);
         model.node = model.transform = this.node;
-        if (this._material == null) {
+        if (this._material === null) {
             this._material = new Material();
             this._material.copy(builtinResMgr.get<Material>('default-trail-material'));
             define[CC_USE_WORLD_SPACE] = this.worldSpace;
@@ -207,8 +232,8 @@ export class Line extends Component {
         if (!this._model) {
             return;
         }
-        this.attachToScene();
-        this.texture = this.texture;
+        this._attachToScene();
+        this.texture = this._texture;
         this.tile = this._tile;
         this.offset = this._offset;
         this._model.addLineVertexData(this._positions, this._width, this._color);
@@ -216,20 +241,20 @@ export class Line extends Component {
 
     public onDisable () {
         if (this._model) {
-            this.detachFromScene();
+            this._detachFromScene();
         }
     }
 
-    private attachToScene () {
+    protected _attachToScene () {
         if (this._model && this.node && this.node.scene) {
             if (this._model.scene) {
-                this.detachFromScene();
+                this._detachFromScene();
             }
             this._getRenderScene().addModel(this._model);
         }
     }
 
-    private detachFromScene () {
+    protected _detachFromScene () {
         if (this._model && this._model.scene) {
             this._model.scene.removeModel(this._model);
         }

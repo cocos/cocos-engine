@@ -1,8 +1,8 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -25,52 +25,69 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 // @ts-check
+import { EDITOR, TEST } from 'internal:constants';
 import {ccclass, serializable} from 'cc.decorator';
-import { GFXDevice } from '../gfx/device';
-import { GFXTexture } from '../gfx/texture';
 import { genSamplerHash, SamplerInfoIndex, samplerLib } from '../renderer/core/sampler-lib';
 import IDGenerator from '../utils/id-generator';
 import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
-import { GFXSampler } from '../gfx';
+import { Sampler, Texture, Device } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
+import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 
 const idGenerator = new IDGenerator('Tex');
 /**
- * 贴图资源基类。它定义了所有贴图共用的概念。
+ * @en The base texture class, it defines features shared by all textures.
+ * @zh 贴图资源基类。它定义了所有贴图共用的概念。
  */
 @ccclass('cc.TextureBase')
 export class TextureBase extends Asset {
     /**
-     * 此贴图是否为压缩的像素格式。
+     * @en Whether the pixel data is compressed.
+     * @zh 此贴图是否为压缩的像素格式。
      */
     public get isCompressed (): boolean {
         return this._format >= PixelFormat.RGB_ETC1 && this._format <= PixelFormat.RGBA_PVRTC_4BPPV1;
     }
 
     /**
-     * 此贴图的像素宽度。
+     * @en Pixel width of the texture
+     * @zh 此贴图的像素宽度。
      */
     public get width (): number {
         return this._width;
     }
 
     /**
-     * 此贴图的像素高度。
+     * @en Pixel height of the texture
+     * @zh 此贴图的像素高度。
      */
     public get height (): number {
         return this._height;
     }
 
+    /**
+     * @en The pixel format enum.
+     * @zh 像素格式枚举类型
+     */
     public static PixelFormat = PixelFormat;
 
+    /**
+     * @en The wrap mode enum.
+     * @zh 环绕模式枚举类型
+     */
     public static WrapMode = WrapMode;
 
+    /**
+     * @en The texture filter mode enum
+     * @zh 纹理过滤模式枚举类型
+     */
     public static Filter = Filter;
 
     @serializable
@@ -103,8 +120,10 @@ export class TextureBase extends Asset {
     private _id: string;
     private _samplerInfo: (number | undefined)[] = [];
     private _samplerHash: number = 0;
-    private _gfxSampler: GFXSampler | null = null;
-    private _gfxDevice: GFXDevice | null = null;
+    private _gfxSampler: Sampler | null = null;
+    private _gfxDevice: Device | null = null;
+
+    private _textureHash: number = 0;
 
     constructor () {
         super();
@@ -114,38 +133,44 @@ export class TextureBase extends Asset {
 
         this.loaded = false;
         this._gfxDevice = this._getGFXDevice();
+        this._textureHash = murmurhash2_32_gc(this._id, 666);
     }
 
     /**
-     * 获取标识符。
-     * @returns 此贴图的标识符。
+     * @en Gets the id of the texture
+     * @zh 获取标识符。
+     * @returns The id
      */
     public getId () {
         return this._id;
     }
 
     /**
-     * 获取像素格式。
-     * @returns 此贴图的像素格式。
+     * @en Gets the pixel format
+     * @zh 获取像素格式。
+     * @returns The pixel format
      */
     public getPixelFormat () {
         return this._format;
     }
 
     /**
-     * 获取各向异性。
-     * @returns 此贴图的各向异性。
+     * @en Gets the anisotropy
+     * @zh 获取各向异性。
+     * @returns The anisotropy
      */
     public getAnisotropy () {
         return this._anisotropy;
     }
 
     /**
-     * 设置此贴图的缠绕模式。
-     * 注意，若贴图尺寸不是 2 的整数幂，缠绕模式仅允许 `WrapMode.CLAMP_TO_EDGE`。
-     * @param wrapS S(U) 坐标的采样模式。
-     * @param wrapT T(V) 坐标的采样模式。
-     * @param wrapR R(W) 坐标的采样模式。
+     * @en Sets the wrap mode of the texture.
+     * Be noted, if the size of the texture is not power of two, only [[WrapMode.CLAMP_TO_EDGE]] is allowed.
+     * @zh 设置此贴图的缠绕模式。
+     * 注意，若贴图尺寸不是 2 的整数幂，缠绕模式仅允许 [[WrapMode.CLAMP_TO_EDGE]]。
+     * @param wrapS S(U) coordinate wrap mode
+     * @param wrapT T(V) coordinate wrap mode
+     * @param wrapR R(W) coordinate wrap mode
      */
     public setWrapMode (wrapS: WrapMode, wrapT: WrapMode, wrapR?: WrapMode) {
         this._wrapS = wrapS;
@@ -165,9 +190,10 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * 设置此贴图的过滤算法。
-     * @param minFilter 缩小过滤算法。
-     * @param magFilter 放大过滤算法。
+     * @en Sets the texture's filter mode
+     * @zh 设置此贴图的过滤算法。
+     * @param minFilter Filter mode for scale down
+     * @param magFilter Filter mode for scale up
      */
     public setFilters (minFilter: Filter, magFilter: Filter) {
         this._minFilter = minFilter;
@@ -181,8 +207,9 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * 设置此贴图的 mip 过滤算法。
-     * @param mipFilter mip 过滤算法。
+     * @en Sets the texture's mip filter
+     * @zh 设置此贴图的缩小过滤算法。
+     * @param mipFilter Filter mode for scale down
      */
     public setMipFilter (mipFilter: Filter) {
         this._mipFilter = mipFilter;
@@ -195,8 +222,9 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * 设置此贴图的各向异性。
-     * @param anisotropy 各向异性。
+     * @en Sets the texture's anisotropy
+     * @zh 设置此贴图的各向异性。
+     * @param anisotropy
      */
     public setAnisotropy (anisotropy: number) {
         this._anisotropy = anisotropy;
@@ -208,21 +236,36 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * 销毁此贴图，并释放占有的所有 GPU 资源。
+     * @en Destroy the current texture, clear up the related GPU resources.
+     * @zh 销毁此贴图，并释放占用的 GPU 资源。
      */
     public destroy () {
-        return super.destroy();
+        const destroyed = super.destroy();
+        if(destroyed && legacyCC.director.root && legacyCC.director.root.ui) {
+            legacyCC.director.root.ui._releaseDescriptorSetCache(this._textureHash);
+        }
+        return destroyed;
     }
 
     /**
-     * 获取此贴图底层的 GFX 纹理对象。
+     * @en Gets the texture hash.
+     * @zh 获取此贴图的哈希值。
      */
-    public getGFXTexture (): GFXTexture | null {
+    public getHash () {
+        return this._textureHash;
+    }
+
+    /**
+     * @en Gets the GFX Texture resource
+     * @zh 获取此贴图底层的 GFX 贴图对象。
+     */
+    public getGFXTexture (): Texture | null {
         return null;
     }
 
     /**
-     * 获取此贴图内部使用的 GFX 采样器信息。
+     * @en Gets the internal GFX sampler hash.
+     * @zh 获取此贴图内部使用的 GFX 采样器信息。
      * @private
      */
     public getSamplerHash () {
@@ -230,7 +273,8 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * 获取此贴图底层的 GFX 采样信息。
+     * @en Gets the sampler resource for the texture
+     * @zh 获取此贴图底层的 GFX 采样信息。
      */
     public getGFXSampler () {
         if (!this._gfxSampler) {
@@ -248,10 +292,12 @@ export class TextureBase extends Asset {
     /**
      * @return
      */
-    public _serialize (exporting?: any): any {
-        return this._minFilter + ',' + this._magFilter + ',' +
-            this._wrapS + ',' + this._wrapT + ',' +
-            this._mipFilter + ',' + this._anisotropy;
+    public _serialize (ctxForExporting: any): any {
+        if (EDITOR || TEST) {
+            return this._minFilter + ',' + this._magFilter + ',' +
+                this._wrapS + ',' + this._wrapT + ',' +
+                this._mipFilter + ',' + this._anisotropy;
+        }
     }
 
     /**
@@ -274,7 +320,7 @@ export class TextureBase extends Asset {
         }
     }
 
-    protected _getGFXDevice (): GFXDevice | null {
+    protected _getGFXDevice (): Device | null {
         return legacyCC.director.root && legacyCC.director.root.device;
     }
 

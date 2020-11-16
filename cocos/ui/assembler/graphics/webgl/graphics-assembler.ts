@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,15 +24,16 @@
 */
 
 /**
- * @category ui-assembler
+ * @packageDocumentation
+ * @module ui-assembler
  */
 
-import { GFXAttribute, GFXFormat } from '../../../../core/gfx';
+import { Attribute, Format } from '../../../../core/gfx';
 import { Color, Vec3 } from '../../../../core/math';
 import { IAssembler } from '../../../../core/renderer/ui/base';
 import { MeshRenderData } from '../../../../core/renderer/ui/render-data';
 import { UI } from '../../../../core/renderer/ui/ui';
-import { vfmt, getAttributeFormatBytes } from '../../../../core/renderer/ui/ui-vertex-format';
+import { vfmtPosColor, getAttributeFormatBytes } from '../../../../core/renderer/ui/ui-vertex-format';
 import { Graphics } from '../../../components';
 import { LineCap, LineJoin, PointFlags } from '../types';
 import { earcut as Earcut } from './earcut';
@@ -52,8 +53,8 @@ const atan2 = Math.atan2;
 
 const attrBytes = 8;
 
-const attributes = vfmt.concat([
-    new GFXAttribute('a_dist', GFXFormat.R32F),
+const attributes = vfmtPosColor.concat([
+    new Attribute('a_dist', Format.R32F),
 ]);
 
 const formatBytes = getAttributeFormatBytes(attributes);
@@ -93,10 +94,7 @@ export const graphicsAssembler: IAssembler = {
     },
 
     updateRenderData (graphics: Graphics) {
-        const dataList = graphics.impl ? graphics.impl.getRenderData() : [];
-        for (let i = 0, l = dataList.length; i < l; i++) {
-            dataList[i].material = graphics.getUIMaterialInstance();
-        }
+
     },
 
     fillBuffers (graphics: Graphics, renderer: UI) {
@@ -275,6 +273,8 @@ export const graphicsAssembler: IAssembler = {
                 end = pointsLength - 1;
             }
 
+            p1 = p1 || p0;
+
             if (!loop) {
                 // Add cap
                 const dPos = new Point(p1.x, p1.y);
@@ -345,10 +345,6 @@ export const graphicsAssembler: IAssembler = {
             }
 
             meshBuffer.indicesStart = indicesOffset;
-            if (indicesOffset !== meshBuffer.indicesCount) {
-                const arr = new Array(meshBuffer.indicesCount - indicesOffset);
-                meshBuffer.iData.set(arr, indicesOffset);
-            }
         }
         _renderData = null;
         _impl = null;
@@ -427,10 +423,6 @@ export const graphicsAssembler: IAssembler = {
             }
 
             meshBuffer.indicesStart = indicesOffset;
-            if (indicesOffset !== meshBuffer.indicesCount) {
-                const arr = new Array(meshBuffer.indicesCount - indicesOffset);
-                meshBuffer.iData.set(arr, indicesOffset);
-            }
         }
 
         _renderData = null;

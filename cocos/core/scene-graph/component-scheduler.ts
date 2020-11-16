@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,7 +24,8 @@
 */
 
 /**
- * @category scene-graph
+ * @packageDocumentation
+ * @module scene-graph
  */
 
 import { CCObject } from '../data/object';
@@ -36,11 +37,8 @@ import { legacyCC } from '../global-exports';
 import { error, assert } from '../platform/debug';
 const fastRemoveAt = array.fastRemoveAt;
 
-// @ts-ignore
 const IsStartCalled = CCObject.Flags.IsStartCalled;
-// @ts-ignore
 const IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
-// @ts-ignore
 const IsEditorOnEnableCalled = CCObject.Flags.IsEditorOnEnableCalled;
 
 const callerFunctor: any = EDITOR && tryCatchFunctor_EDITOR;
@@ -212,7 +210,7 @@ class ReusableInvoker extends LifeCycleInvoker {
 function enableInEditor (comp) {
     if (!(comp._objFlags & IsEditorOnEnableCalled)) {
         legacyCC.engine.emit('component-enabled', comp.uuid);
-        if(!legacyCC.GAME_VIEW) {
+        if (!legacyCC.GAME_VIEW) {
             comp._objFlags |= IsEditorOnEnableCalled;
         }
     }
@@ -232,8 +230,8 @@ export function createInvokeImplJit (code: string, useDt?, ensureFlag?) {
                 'var c=a[it.i];' +
                 code +
                 '}';
-    let fastPath = useDt ? Function('it', 'dt', body) : Function('it', body);
-    let singleInvoke = Function('c', 'dt', code);
+    const fastPath = useDt ? Function('it', 'dt', body) : Function('it', body);
+    const singleInvoke = Function('c', 'dt', code);
     return createInvokeImpl(singleInvoke, fastPath, ensureFlag);
 }
 export function createInvokeImpl (singleInvoke, fastPath, ensureFlag?) {
@@ -244,7 +242,7 @@ export function createInvokeImpl (singleInvoke, fastPath, ensureFlag?) {
         catch (e) {
             // slow path
             legacyCC._throw(e);
-            var array = iterator.array;
+            const array = iterator.array;
             if (ensureFlag) {
                 array[iterator.i]._objFlags |= ensureFlag;
             }
@@ -271,9 +269,9 @@ const invokeStart = SUPPORT_JIT ? createInvokeImplJit('c.start();c._objFlags|=' 
             c._objFlags |= IsStartCalled;
         },
         function (iterator) {
-            var array = iterator.array;
+            const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                let comp = array[iterator.i];
+                const comp = array[iterator.i];
                 comp.start();
                 comp._objFlags |= IsStartCalled;
             }
@@ -287,7 +285,7 @@ const invokeUpdate = SUPPORT_JIT ? createInvokeImplJit('c.update(dt)', true) :
             c.update(dt);
         },
         function (iterator, dt) {
-            var array = iterator.array;
+            const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 array[iterator.i].update(dt);
             }
@@ -300,7 +298,7 @@ const invokeLateUpdate = SUPPORT_JIT ? createInvokeImplJit('c.lateUpdate(dt)', t
             c.lateUpdate(dt);
         },
         function (iterator, dt) {
-            var array = iterator.array;
+            const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 array[iterator.i].lateUpdate(dt);
             }

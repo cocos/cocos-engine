@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -24,7 +24,8 @@
 */
 
 /**
- * @category component/camera
+ * @packageDocumentation
+ * @module component/camera
  */
 
 import { EDITOR } from 'internal:constants';
@@ -33,7 +34,7 @@ import { UITransform } from '../../components/ui-base';
 import { Component } from '../../components/component';
 import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { ray } from '../../geometry';
-import { GFXClearFlag } from '../../gfx/define';
+import { ClearFlag as GFXClearFlag } from '../../gfx/define';
 import { Color, Rect, toRadian, Vec3 } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { view } from '../../platform/view';
@@ -42,7 +43,6 @@ import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO
 import { Root } from '../../root';
 import { Node } from '../../scene-graph/node';
 import { Layers } from '../../scene-graph/layers';
-import { Scene } from '../../scene-graph/scene';
 import { Enum } from '../../value-types';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { legacyCC } from '../../global-exports';
@@ -67,7 +67,7 @@ const ClearFlag = Enum({
     DONT_CLEAR: GFXClearFlag.NONE,
 });
 
-// tslint:disable: no-shadowed-variable
+
 export declare namespace Camera {
     export type ProjectionType = EnumAlias<typeof ProjectionType>;
     export type FOVAxis = EnumAlias<typeof FOVAxis>;
@@ -76,7 +76,7 @@ export declare namespace Camera {
     export type Shutter = EnumAlias<typeof Shutter>;
     export type ISO = EnumAlias<typeof ISO>;
 }
-// tslint:enable: no-shadowed-variable
+
 
 /**
  * @en The Camera Component.
@@ -140,7 +140,7 @@ export class Camera extends Component {
     }
 
     /**
-     * @en Render priority of the camera, in ascending-order.
+     * @en Render priority of the camera. Cameras with higher depth are rendered after cameras with lower depth.
      * @zh 相机的渲染优先级，值越小越优先渲染。
      */
     @displayOrder(0)
@@ -459,7 +459,6 @@ export class Camera extends Component {
     }
 
     public onLoad () {
-        legacyCC.director.on(legacyCC.Director.EVENT_AFTER_SCENE_LAUNCH, this.onSceneChanged, this);
         this._createCamera();
     }
 
@@ -587,13 +586,6 @@ export class Camera extends Component {
     protected _detachFromScene () {
         if (this._camera && this._camera.scene) {
             this._camera.scene.removeCamera(this._camera);
-        }
-    }
-
-    protected onSceneChanged (_scene: Scene) {
-        // to handle scene switch of editor camera
-        if (this._camera && this._camera.scene == null) {
-            this._attachToScene();
         }
     }
 

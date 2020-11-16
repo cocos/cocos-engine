@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -23,15 +23,14 @@
  THE SOFTWARE.
  */
 
-import {legacyCC} from '../core/global-exports';
 import {mat4} from "../core/math";
-import {error, sys} from "../core/platform";
-import {UITransform} from "../core/components/ui-base";
-import {VideoPlayer} from "./video-player";
+import {error, sys, view, screen} from "../core/platform";
+import {game} from "../core";
 import {contains} from '../core/utils/misc';
 import {EventType, READY_STATE} from './video-player-enums';
-
-const { game, Game, view, screen, visibleRect, GFXClearFlag } = legacyCC;
+import {VideoPlayerImpl} from "./video-player-impl";
+import {ClearFlag} from "../core/gfx";
+import visibleRect from '../core/platform/visible-rect';
 
 const MIN_ZINDEX = -Math.pow(2, 15);
 
@@ -41,136 +40,132 @@ let _mat4_temp = mat4();
  * @category component/video
  */
 
-export class VideoPlayerImpl {
+export class VideoPlayerImplWeb extends VideoPlayerImpl {
 
-    protected _eventList: Map<number, Function> = new Map<number, Function>();
-    protected _state = EventType.NONE;
-    protected _video: any;
+    protected _eventList: Map<string, Function> = new Map<string, Function>();
 
-    protected _onHide: Function;
-    protected _onShow: Function;
-    protected _interrupted = false;
-
-    protected _loaded = false;
-    protected _loadedMeta = false;
-    protected _ignorePause = false;
-    protected _waitingFullscreen = false;
-    protected _fullScreenOnAwake = false;
-
-    protected _playing = false;
-    protected _cachedCurrentTime = -1;
-
-    protected _keepAspectRatio = false;
-
-    protected _videoComponent: VideoPlayer | null = null;
-    protected _uiTrans: UITransform | null = null;
-
-    protected _stayOnBottom = false;
-    protected _dirty = false;
-    protected _forceUpdate = false;
-    protected _w = 0;
-    protected _h = 0;
-    protected _m00 = 0;
-    protected _m01 = 0;
-    protected _m04 = 0;
-    protected _m05 = 0;
-    protected _m12 = 0;
-    protected _m13 = 0;
-
+    // use stay on bottom
     protected _clearColorA = -1;
     protected _clearFlag;
 
-    protected _loadedMetadataCb: (e) => void;
-    protected _canplayCb: (e) => void;
-    protected _playCb: (e) => void;
-    protected _pauseCb: (e) => void;
-    protected _playingCb: (e) => void;
-    protected _endedCb: (e) => void;
-    protected _errorCb: (e) => void;
-    protected _clickCb: (e) => void;
-
-    constructor (component) {
-        this._videoComponent = component;
-        this._uiTrans = component.node.getComponent(UITransform);
-        this._onHide = () => {
-            if (!this.video || this._state !== EventType.PLAYING) { return; }
-            this.video.pause();
-            this._interrupted = true;
-        };
-        this._onShow = () => {
-            if (!this._interrupted || !this.video) { return; }
-            this.video.play();
-            this._interrupted = false;
-        };
-        /* handle hide & show */
-        game.on(Game.EVENT_HIDE, this._onHide);
-        game.on(Game.EVENT_SHOW, this._onShow);
-
-        this._loadedMetadataCb = (e) => {
-            this._forceUpdate = true;
-            this._loadedMeta = true;
-            this.enable();
-            if (this._keepAspectRatio) {
-                this.syncTrans(e.target.videoWidth, e.target.videoHeight);
-            }
-            if (this._waitingFullscreen) {
-                this._waitingFullscreen = false;
-                this._toggleFullscreen(true);
-            }
-            this._dispatchEvent(EventType.META_LOADED);
-        };
-
-        this._canplayCb = (e) => {
-            if (this._loaded) {
-                return;
-            }
-            switch (e.target.readyState) {
-                case READY_STATE.HAVE_METADATA:
-                case READY_STATE.HAVE_ENOUGH_DATA: {
-                    this._loaded = true;
-                    this._dispatchEvent(EventType.READY_TO_PLAY);
-                    break;
-                }
-            }
-        };
-
-        this._playCb = (e) => {
-            this._dispatchEvent(EventType.PLAYING);
-        };
-
-        this._pauseCb = (e) => {
-            this._playing = false;
-            if (this._ignorePause) {
-                this._ignorePause = false;
-            }
-            else {
-                this._dispatchEvent(EventType.PAUSED);
-            }
-        };
-
-        this._playingCb = (e) => {
-            this._playing = true;
-            this._dispatchEvent(EventType.PLAYING);
-        };
-
-        this._endedCb = (e) => {
-            this._dispatchEvent(EventType.COMPLETED);
-        };
-
-        this._clickCb = (e) => {
-            this._dispatchEvent(EventType.CLICKED);
-        };
-
-        this._errorCb = (e) => {
-            this._dispatchEvent(EventType.ERROR);
-            let errorObj = e.target.error;
-            if (errorObj) {
-                error("Error " + errorObj.code + "; details: " + errorObj.message);
-            }
-        };
+    constructor(component) {
+        super(component);
     }
 
-    _toggleFullscreen (enabled) {
+    protected addListener(type: string, handler: Function) {
+        if (!this._video) {
+            return;
+        }
+        this._eventList.set(type, handler);
+        this._video.addEventListener(type, handler);
+    }
+    protected removeAllListeners() {
+        this._eventList.forEach((handler, type) => {
+            this._video.removeEventListener(type, handler);
+        });
+        this._eventList.clear();
+    }
+
+    public canPlay() {
+        if (this.video) {
+            let promise = this.video.play();
+            // the play API can only be initiated by user gesture.
+            if (window.Promise && promise instanceof Promise) {
+                promise.catch(error => {
+                    // Auto-play was prevented
+                    // Show a UI element to let the user manually start playback
+                }).then(() => {
+                    // calibration time
+                    this.syncCurrentTime();
+                });
+            }
+        }
+    }
+
+    public pause() {
+        if (this.video) {
+            this.video.pause();
+            this._cachedCurrentTime = this.video.currentTime;
+        }
+    }
+
+    public resume() {
+        this.play();
+    }
+
+    public stop() {
+        if (this.video) {
+            this._ignorePause = true;
+            this.video.currentTime = 0;
+            this.video.pause();
+            setTimeout(() => {
+                this._ignorePause = false;
+                this.dispatchEvent(EventType.STOPPED);
+            }, 0)
+        }
+    }
+
+    public syncClip(clip: any) {
+        this.removeVideoPlayer();
+        if (!clip) { return; }
+        this.createVideoPlayer(clip.nativeUrl);
+    }
+
+    public syncURL(url: string) {
+        this.removeVideoPlayer();
+        if (!url) { return; }
+        this.createVideoPlayer(url);
+    }
+
+    public syncPlaybackRate(val: number) {
+        if (sys.browserType === sys.BROWSER_TYPE_UC) {
+            console.warn('playbackRate is not supported by the uc mobile browser.');
+            return;
+        }
+        if (this.video) {
+            this.video.playbackRate = val;
+        }
+    }
+
+    public syncVolume(val: number) {
+        if (this.video) {
+            this.video.volume = val;
+        }
+    }
+
+    public syncMute(enabled: boolean) {
+        if (this.video) {
+            this.video.mute = enabled;
+        }
+    }
+
+    public syncLoop(enabled: boolean) {
+        if (this.video) {
+            this.video.loop = enabled;
+        }
+    }
+
+    public getDuration() {
+        if (!this.video) {
+            return 0;
+        }
+        return this.video.duration;
+    }
+
+    public getCurrentTime() {
+        if (this.video) {
+            return this.video.currentTime;
+        }
+        return -1;
+    }
+
+    public seekTo (val: number) {
+        if (this.video) {
+            this.video.currentTime = val;
+        }
+    }
+
+    canFullScreen (enabled: boolean) {
         let video = this._video;
         if (!video || video.readyState !== READY_STATE.HAVE_ENOUGH_DATA) {
             return;
@@ -215,101 +210,7 @@ export class VideoPlayerImpl {
         }
     }
 
-    get fullScreenOnAwake () {
-        return this._fullScreenOnAwake;
-    }
-
-    get loaded () {
-        return this._loaded;
-    }
-
-    get eventList () {
-        return this._eventList;
-    }
-
-    get video () {
-        return this._video;
-    }
-
-    get state () {
-        return this._state;
-    }
-
-    protected _dispatchEvent (key) {
-        let callback = this._eventList.get(key);
-        if (callback) {
-            this._state = key;
-            callback.call(this);
-        }
-    }
-
-    protected syncTrans (width, height) {
-        if (this._uiTrans) {
-            this._uiTrans.width = width;
-            this._uiTrans.height = height
-        }
-    }
-
-    public play () {
-        if (this.video) {
-            let promise = this.video.play();
-            // the play API can only be initiated by user gesture.
-            if (window.Promise && promise instanceof Promise) {
-                promise.catch(error => {
-                    // Auto-play was prevented
-                    // Show a UI element to let the user manually start playback
-                }).then(() => {
-                    // calibration time
-                    if (this._cachedCurrentTime !== -1 && this.video.currentTime !== this._cachedCurrentTime) {
-                        this.video.currentTime = this._cachedCurrentTime;
-                        this._cachedCurrentTime = -1;
-                    }
-                });
-            }
-        }
-    }
-
-    public pause () {
-        if (this.video) {
-            this.video.pause();
-            this._cachedCurrentTime = this.video.currentTime;
-        }
-    }
-
-    public stop () {
-        if (this.video) {
-            this._ignorePause = true;
-            this.video.currentTime = 0;
-            this.video.pause();
-            setTimeout(() => {
-                this._ignorePause = false;
-                this._dispatchEvent(EventType.STOPPED);
-            }, 0)
-        }
-    }
-
-    public syncClip (clip) {
-        this.removeDom();
-        if (!clip) { return; }
-        this.appendDom(clip._nativeAsset);
-    }
-
-    public syncURL (url) {
-        this.removeDom();
-        if (!url) { return; }
-        this.appendDom(document.createElement('video'), url);
-    }
-
-    public syncFullScreenOnAwake (enabled) {
-        if (!this._loadedMeta && enabled) {
-            this._waitingFullscreen = true;
-        }
-        else {
-            this._toggleFullscreen(enabled);
-        }
-    }
-
-    public syncStayOnBottom (enabled) {
+    public syncStayOnBottom (enabled: boolean) {
         if (this._video) {
             this._video.style['z-index'] = enabled ? MIN_ZINDEX : 0;
             this._stayOnBottom = enabled;
@@ -317,28 +218,31 @@ export class VideoPlayerImpl {
         this._dirty = true;
     }
 
-    public syncKeepAspectRatio (enabled) {
+    public syncKeepAspectRatio (enabled: boolean) {
         this._keepAspectRatio = enabled;
         if (enabled && this._loadedMeta) {
-            this.syncTrans(this._video.videoWidth, this._video.videoHeight);
+            this.syncUITransform(this._video.videoWidth, this._video.videoHeight);
         }
     }
 
-    public removeDom () {
+    public removeVideoPlayer () {
         let video = this._video;
-        if (contains(game.container, video)) {
-            game.container.removeChild(video);
-            this._removeEvent();
+        if (video) {
+            if (contains(game.container, video)) {
+                game.container!.removeChild(video);
+                this.removeAllListeners();
+            }
         }
         this._cachedCurrentTime = 0;
         this._playing = false;
         this._loaded = false;
+        this._loadedMeta = false;
         this._video = null;
 
     }
 
-    public appendDom (video, url?) {
-        this._video = video;
+    public createVideoPlayer (url: string) {
+        const video = this._video = document.createElement('video');
         video.className = "cocosVideo";
         video.style.visibility = 'hidden';
         video.style.position = "absolute";
@@ -352,88 +256,66 @@ export class VideoPlayerImpl {
         // This x5-playsinline tag must be added, otherwise the play, pause events will only fire once, in the qq browser.
         video.setAttribute("x5-playsinline", '');
         video.setAttribute('playsinline', '');
-        this._bindEvent();
-        game.container.appendChild(video);
-        if (url) {
-            // play remote clip
-            let source = document.createElement("source");
-            source.src = url;
-            video.appendChild(source);
+        this._bindDomEvent();
+        game.container!.appendChild(video);
+        let source = document.createElement("source");
+        video.appendChild(source);
+        source.src = url;
+    }
+
+    protected _bindDomEvent () {
+        let video = this._video;
+        this.addListener('loadedmetadata', this.onLoadedMetadata.bind(this));
+        this.addListener('canplay', this.onCanPlay.bind(this));
+        this.addListener('canplaythrough', this.onCanPlay.bind(this));
+        this.addListener('play', this.onPlay.bind(this));
+        this.addListener('playing', this.onPlaying.bind(this));
+        this.addListener('pause', this.onPause.bind(this));
+        this.addListener('click', this.onClick.bind(this));
+        this.addListener('ended', this.onEnded.bind(this));
+        this.addListener('error', this.onError.bind(this));
+    }
+
+    public onCanPlay(e) {
+        if (this._loaded) {
+            return;
         }
-        else {
-            // play local clip
-            this.enable();
-            if (this._keepAspectRatio) {
-                this.syncTrans(video.videoWidth, video.videoHeight);
+        switch (e.target.readyState) {
+            case READY_STATE.HAVE_METADATA:
+            case READY_STATE.HAVE_ENOUGH_DATA: {
+                super.onCanPlay(e);
+                break;
             }
         }
     }
 
-    public _removeEvent () {
-        let video = this._video;
-        video.removeEventListener('loadedmetadata', this._loadedMetadataCb);
-        video.removeEventListener('canplay', this._canplayCb);
-        video.removeEventListener('canplaythrough', this._canplayCb);
-        video.removeEventListener('play', this._playCb);
-        video.removeEventListener('pause', this._pauseCb);
-        video.removeEventListener('playing', this._playingCb);
-        video.removeEventListener('click', this._clickCb);
-        video.removeEventListener('ended', this._endedCb);
-        video.removeEventListener('error', this._errorCb);
-    }
-
-    public _bindEvent () {
-        let video = this._video;
-        video.addEventListener('loadedmetadata', this._loadedMetadataCb);
-        video.addEventListener('canplay', this._canplayCb);
-        video.addEventListener('canplaythrough', this._canplayCb);
-        video.addEventListener('play', this._playCb);
-        video.addEventListener('pause', this._pauseCb);
-        video.addEventListener('playing', this._playingCb);
-        video.addEventListener('click', this._clickCb);
-        video.addEventListener('ended', this._endedCb);
-        video.addEventListener('error', this._errorCb);
-    }
-
     public enable () {
         if (this._video) {
+            this._visible = true;
+            if (this._video.style.visibility === 'visible') {
+                return;
+            }
             this._video.style.visibility = 'visible';
         }
     }
 
-    public disable () {
+    public disable (noPause?: boolean) {
         if (this._video) {
+            if (!noPause && this._playing) {
+                this._video.pause();
+            }
+            this._visible = false;
+            if (this._video.style.visibility === 'hidden') {
+                return;
+            }
             this._video.style.visibility = 'hidden';
-            this._video.pause();
         }
-    }
-
-    public destroy () {
-        this.removeDom();
-        this._eventList.clear();
-        game.off(Game.EVENT_HIDE, this._onHide);
-        game.off(Game.EVENT_SHOW, this._onShow);
-    }
-
-    syncSize (w, h) {
-        let video = this._video;
-        if (!video) return;
-
-        video.style.width = w + 'px';
-        video.style.height = h + 'px';
-    }
-
-    getUICanvas () {
-        if (!this._uiTrans || !this._uiTrans._canvas) {
-            return null;
-        }
-        return this._uiTrans._canvas;
     }
 
     public syncMatrix () {
-        if (!this._video || this._video.style.visibility === 'hidden' || !this._videoComponent) return;
+        if (!this._video || !this._visible || !this._component) return;
 
-        const canvas = this.getUICanvas();
+        const canvas = this.UICanvas;
         if (!canvas) {
             return;
         }
@@ -453,7 +335,7 @@ export class VideoPlayerImpl {
                 this._clearColorA = canvas.color.a;
                 this._clearFlag = canvas.clearFlag;
                 canvas.color.a = 0;
-                canvas.clearFlag = GFXClearFlag.ALL;
+                canvas.clearFlag = ClearFlag.ALL;
             }
             else {
                 if (this._clearFlag) {
@@ -465,9 +347,9 @@ export class VideoPlayerImpl {
             }
         }
 
-        this._videoComponent.node.getWorldMatrix(_mat4_temp);
+        this._component.node.getWorldMatrix(_mat4_temp);
         camera.update(true);
-        camera.worldMatrixToScreen(_mat4_temp, _mat4_temp, game.canvas.width, game.canvas.height);
+        camera.worldMatrixToScreen(_mat4_temp, _mat4_temp, game.canvas!.width, game.canvas!.height);
 
         let width = 0, height = 0;
         if (this._fullScreenOnAwake) {
@@ -497,7 +379,7 @@ export class VideoPlayerImpl {
         this._w = width;
         this._h = height;
 
-        let dpr = view._devicePixelRatio;
+        let dpr = view.getDevicePixelRatio();
         let scaleX = 1 / dpr;
         let scaleY = 1 / dpr;
 
@@ -505,11 +387,18 @@ export class VideoPlayerImpl {
         let sx = _mat4_temp.m00 * scaleX, b = _mat4_temp.m01, c = _mat4_temp.m04, sy = _mat4_temp.m05 * scaleY;
 
         let w, h;
+        this._video.style.width = this._w + 'px';
+        this._video.style.height = this._h + 'px';
+
+        if (sys.browserType !== sys.BROWSER_TYPE_MOBILE_QQ) {
+            this._video.style.objectFit = this._keepAspectRatio ? 'none' : 'fill';
+        }
+        else {
+            console.warn('keepAspectRatio is not supported by the qq mobile browser.');
+        }
+
         w = this._w * scaleX;
         h = this._h * scaleY;
-        if (!this._keepAspectRatio) {
-            this.syncSize(this._w, this._h);
-        }
 
         const { x, y } = this._uiTrans!.anchorPoint;
         let appx = (w * _mat4_temp.m00) * x;
@@ -530,4 +419,3 @@ export class VideoPlayerImpl {
     }
 }
 
-legacyCC.internal.VideoPlayerImpl = VideoPlayerImpl;

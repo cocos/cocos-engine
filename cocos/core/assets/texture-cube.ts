@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,21 +24,24 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
+import { EDITOR, TEST } from "internal:constants";
 import { ccclass, serializable } from 'cc.decorator';
-import { GFXTextureFlagBit, GFXTextureType } from '../gfx/define';
+import { TextureFlagBit, TextureType } from '../gfx/define';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
 import { legacyCC } from '../global-exports';
-import { GFXTextureInfo } from '../gfx';
+import { TextureInfo } from '../gfx';
 
 export type ITextureCubeCreateInfo = ITexture2DCreateInfo;
 
 /**
- * 立方体贴图的 Mipmap。
+ * @en The texture cube mipmap interface
+ * @zh 立方体贴图的 Mipmap 接口。
  */
 interface ITextureCubeMipmap {
     front: ImageAsset;
@@ -50,7 +53,8 @@ interface ITextureCubeMipmap {
 }
 
 /**
- * 立方体每个面的约定索引。
+ * @en The index for all faces of the cube
+ * @zh 立方体每个面的约定索引。
  */
 enum FaceIndex {
     right = 0,
@@ -62,15 +66,19 @@ enum FaceIndex {
 }
 
 /**
- * 立方体贴图资源。
- * 立方体贴图资源的每个 Mipmap 层级都为 6 张图像资源，分别代表了立方体贴图的 6 个面。
+ * @en The texture cube asset.
+ * Each mipmap level of a texture cube have 6 [[ImageAsset]], represents 6 faces of the cube.
+ * @zh 立方体贴图资源。
+ * 立方体贴图资源的每个 Mipmap 层级都为 6 张 [[ImageAsset]]，分别代表了立方体贴图的 6 个面。
  */
 @ccclass('cc.TextureCube')
 export class TextureCube extends SimpleTexture {
     public static FaceIndex = FaceIndex;
 
     /**
-     * 所有层级 Mipmap，注意，这里不包含自动生成的 Mipmap。
+     * @en All levels of mipmap images, be noted, automatically generated mipmaps are not included.
+     * When setup mipmap, the size of the texture and pixel format could be modified.
+     * @zh 所有层级 Mipmap，注意，这里不包含自动生成的 Mipmap。
      * 当设置 Mipmap 时，贴图的尺寸以及像素格式可能会改变。
      */
     get mipmaps () {
@@ -103,8 +111,11 @@ export class TextureCube extends SimpleTexture {
     }
 
     /**
-     * 0 级 Mipmap。<br>
-     * 注意，`this.image = i` 等价于 `this.mipmaps = [i]`，
+     * @en Level 0 mipmap image.
+     * Be noted, `this.image = img` equals `this.mipmaps = [img]`,
+     * sets image will clear all previous mipmaps.
+     * @zh 0 级 Mipmap。
+     * 注意，`this.image = img` 等价于 `this.mipmaps = [img]`，
      * 也就是说，通过 `this.image` 设置 0 级 Mipmap 时将隐式地清除之前的所有 Mipmap。
      */
     get image () {
@@ -116,11 +127,12 @@ export class TextureCube extends SimpleTexture {
     }
 
     /**
-     * 通过二维贴图指定每个 Mipmap 的每个面创建立方体贴图。
-     * @param textures 数组长度必须是6的倍数。
-     * 每 6 个二维贴图依次构成立方体贴图的 Mipmap。6 个面应该按 `FaceIndex` 规定顺序排列。
-     * @param out 出口立方体贴图，若未定义则将创建为新的立方体贴图。
-     * @returns `out`
+     * @en Create a texture cube with an array of [[Texture2D]] which represents 6 faces of the texture cube.
+     * @zh 通过二维贴图数组指定每个 Mipmap 的每个面创建立方体贴图。
+     * @param textures Texture array, the texture count must be multiple of 6. Every 6 textures are 6 faces of a mipmap level.
+     * The order should obey [[FaceIndex]] order.
+     * @param out Output texture cube, if not given, will create a new texture cube.
+     * @returns The created texture cube.
      * @example
      * ```ts
      * const textures = new Array<Texture2D>(6);
@@ -162,9 +174,11 @@ export class TextureCube extends SimpleTexture {
     }
 
     /**
-     * 将当前贴图重置为指定尺寸、像素格式以及指定 mipmap 层级。重置后，贴图的像素数据将变为未定义。
-     * mipmap 图像的数据不会自动更新到贴图中，你必须显式调用 `this.uploadData` 来上传贴图数据。
-     * @param info 贴图重置选项。
+     * @en Reset the current texture with given size, pixel format and mipmap images.
+     * After reset, the gfx resource will become invalid, you must use [[uploadData]] explicitly to upload the new mipmaps to GPU resources.
+     * @zh 将当前贴图重置为指定尺寸、像素格式以及指定 mipmap 层级。重置后，贴图的像素数据将变为未定义。
+     * mipmap 图像的数据不会自动更新到贴图中，你必须显式调用 [[uploadData]] 来上传贴图数据。
+     * @param info The create information
      */
     public reset (info: ITextureCubeCreateInfo) {
         this._width = info.width;
@@ -200,32 +214,35 @@ export class TextureCube extends SimpleTexture {
     }
 
     /**
-     * 释放占用的 GPU 资源。
-     * @deprecated 请转用 `this.destroy()`。
+     * @en Release used GPU resources.
+     * @zh 释放占用的 GPU 资源。
+     * @deprecated please use [[destroy]] instead
      */
     public releaseTexture () {
         this.mipmaps = [];
     }
 
-    public _serialize (exporting?: any) {
-        return {
-            base: super._serialize(),
-            mipmaps: this._mipmaps.map((mipmap) => exporting ? {
-                front: EditorExtends.UuidUtils.compressUuid(mipmap.front._uuid, true),
-                back: EditorExtends.UuidUtils.compressUuid(mipmap.back._uuid, true),
-                left: EditorExtends.UuidUtils.compressUuid(mipmap.left._uuid, true),
-                right: EditorExtends.UuidUtils.compressUuid(mipmap.right._uuid, true),
-                top: EditorExtends.UuidUtils.compressUuid(mipmap.top._uuid, true),
-                bottom: EditorExtends.UuidUtils.compressUuid(mipmap.bottom._uuid, true),
-            } : {
-                front: mipmap.front._uuid,
-                back: mipmap.back._uuid,
-                left: mipmap.left._uuid,
-                right: mipmap.right._uuid,
-                top: mipmap.top._uuid,
-                bottom: mipmap.bottom._uuid,
-            }),
-        };
+    public _serialize (ctxForExporting: any): any {
+        if (EDITOR || TEST) {
+            return {
+                base: super._serialize(ctxForExporting),
+                mipmaps: this._mipmaps.map((mipmap) => (ctxForExporting && ctxForExporting._compressUuid) ? {
+                    front: EditorExtends.UuidUtils.compressUuid(mipmap.front._uuid, true),
+                    back: EditorExtends.UuidUtils.compressUuid(mipmap.back._uuid, true),
+                    left: EditorExtends.UuidUtils.compressUuid(mipmap.left._uuid, true),
+                    right: EditorExtends.UuidUtils.compressUuid(mipmap.right._uuid, true),
+                    top: EditorExtends.UuidUtils.compressUuid(mipmap.top._uuid, true),
+                    bottom: EditorExtends.UuidUtils.compressUuid(mipmap.bottom._uuid, true),
+                } : {
+                    front: mipmap.front._uuid,
+                    back: mipmap.back._uuid,
+                    left: mipmap.left._uuid,
+                    right: mipmap.right._uuid,
+                    top: mipmap.top._uuid,
+                    bottom: mipmap.bottom._uuid,
+                }),
+            };
+        }
     }
 
     public _deserialize (serializedData: ITextureCubeSerializeData, handle: any) {
@@ -253,13 +270,13 @@ export class TextureCube extends SimpleTexture {
         }
     }
 
-    protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): GFXTextureInfo {
-        const texInfo = new GFXTextureInfo(GFXTextureType.CUBE);
+    protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): TextureInfo {
+        const texInfo = new TextureInfo(TextureType.CUBE);
         texInfo.width = this._width;
         texInfo.height = this._height;
         texInfo.layerCount = 6;
         Object.assign(texInfo, presumed);
-        texInfo.flags = texInfo.flags | GFXTextureFlagBit.CUBEMAP;
+        texInfo.flags = texInfo.flags | TextureFlagBit.CUBEMAP;
         return texInfo;
     }
 }

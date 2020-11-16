@@ -1,10 +1,35 @@
-import { GFXInputAssembler, GFXInputAssemblerInfo } from '../input-assembler';
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+import { InputAssembler, InputAssemblerInfo } from '../input-assembler';
 import { WebGLBuffer } from './webgl-buffer';
 import { WebGLCmdFuncCreateInputAssember, WebGLCmdFuncDestroyInputAssembler } from './webgl-commands';
 import { WebGLDevice } from './webgl-device';
 import { IWebGLGPUInputAssembler, IWebGLGPUBuffer } from './webgl-gpu-objects';
 
-export class WebGLInputAssembler extends GFXInputAssembler {
+export class WebGLInputAssembler extends InputAssembler {
 
     get gpuInputAssembler (): IWebGLGPUInputAssembler {
         return  this._gpuInputAssembler!;
@@ -12,10 +37,10 @@ export class WebGLInputAssembler extends GFXInputAssembler {
 
     private _gpuInputAssembler: IWebGLGPUInputAssembler | null = null;
 
-    public initialize (info: GFXInputAssemblerInfo): boolean {
+    public initialize (info: InputAssemblerInfo): boolean {
 
         if (info.vertexBuffers.length === 0) {
-            console.error('GFXInputAssemblerInfo.vertexBuffers is null.');
+            console.error('InputAssemblerInfo.vertexBuffers is null.');
             return false;
         }
 

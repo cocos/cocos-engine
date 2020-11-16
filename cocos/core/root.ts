@@ -1,9 +1,34 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
- * @category core
+ * @packageDocumentation
+ * @module core
  */
 
 import { builtinResMgr } from './3d/builtin';
-import { GFXDevice } from './gfx/device';
 import { Pool } from './memop';
 import { RenderPipeline, ForwardPipeline, RenderView  } from './pipeline';
 import { IRenderViewInfo } from './pipeline/define';
@@ -16,7 +41,7 @@ import { SpotLight } from './renderer/scene/spot-light';
 import { UI } from './renderer/ui/ui';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
-import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPassInfo, GFXStoreOp } from './gfx';
+import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device } from './gfx';
 import { RootHandle, RootPool, RootView, NULL_HANDLE } from './renderer/core/memory-pools';
 
 /**
@@ -43,9 +68,9 @@ export class Root {
 
     /**
      * @zh
-     * GFX设备
+     * GFX 设备
      */
-    public get device (): GFXDevice {
+    public get device (): Device {
         return this._device;
     }
 
@@ -173,7 +198,7 @@ export class Root {
     public _createSceneFun: (root: Root) => RenderScene = null!;
     public _createWindowFun: (root: Root) => RenderWindow = null!;
 
-    private _device: GFXDevice;
+    private _device: Device;
     private _windows: RenderWindow[] = [];
     private _mainWindow: RenderWindow | null = null;
     private _curWindow: RenderWindow | null = null;
@@ -187,18 +212,18 @@ export class Root {
     private _modelPools = new Map<Constructor<Model>, Pool<Model>>();
     private _cameraPool: Pool<Camera> | null = null;
     private _lightPools = new Map<Constructor<Light>, Pool<Light>>();
-    private _fpsTime: number = 0;
-    private _frameCount: number = 0;
-    private _fps: number = 0;
-    private _fixedFPS: number = 0;
-    private _fixedFPSFrameTime: number = 0;
+    private _fpsTime = 0;
+    private _frameCount = 0;
+    private _fps = 0;
+    private _fixedFPS = 0;
+    private _fixedFPSFrameTime = 0;
     private _poolHandle: RootHandle = NULL_HANDLE;
 
     /**
      * 构造函数
-     * @param device GFX设备
+     * @param device GFX 设备
      */
-    constructor (device: GFXDevice) {
+    constructor (device: Device) {
         this._device = device;
         this._dataPoolMgr = new DataPoolManager(device);
 
@@ -213,13 +238,13 @@ export class Root {
      * 初始化函数
      * @param info Root描述信息
      */
-    public initialize (info: IRootInfo): boolean {
+    public initialize (info: IRootInfo): Promise<void> {
         this._poolHandle = RootPool.alloc();
-        const colorAttachment = new GFXColorAttachment();
-        const depthStencilAttachment = new GFXDepthStencilAttachment();
-        depthStencilAttachment.depthStoreOp = GFXStoreOp.DISCARD;
-        depthStencilAttachment.stencilStoreOp = GFXStoreOp.DISCARD;
-        const renderPassInfo = new GFXRenderPassInfo([colorAttachment], depthStencilAttachment);
+        const colorAttachment = new ColorAttachment();
+        const depthStencilAttachment = new DepthStencilAttachment();
+        depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
+        depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
+        const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
         this._mainWindow = this.createWindow({
             title: 'rootMainWindow',
             width: this._device.width,
@@ -229,15 +254,13 @@ export class Root {
         });
         this._curWindow = this._mainWindow;
 
-        builtinResMgr.initBuiltinRes(this._device);
-
-        legacyCC.view.on('design-resolution-changed', () => {
-            const width = legacyCC.game.canvas.width;
-            const height = legacyCC.game.canvas.height;
-            this.resize(width, height);
-        }, this);
-
-        return true;
+        return Promise.resolve(builtinResMgr.initBuiltinRes(this._device)).then(() => {
+            legacyCC.view.on('design-resolution-changed', () => {
+                const width = legacyCC.game.canvas.width;
+                const height = legacyCC.game.canvas.height;
+                this.resize(width, height);
+            }, this);
+        });
     }
 
     public destroy () {
@@ -299,12 +322,21 @@ export class Root {
         if (!this._pipeline.activate()) {
             return false;
         }
-        this.onGlobalPipelineStateChanged();
-        this._ui = new UI(this);
-        if (!this._ui.initialize()) {
-            this.destroy();
-            return false;
+
+        const scene = legacyCC.director.getScene();
+        if (scene) {
+            scene.globals.activate();
         }
+
+        this.onGlobalPipelineStateChanged();
+        if (!this._ui) {
+            this._ui = new UI(this);
+            if (!this._ui.initialize()) {
+                this.destroy();
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -326,7 +358,7 @@ export class Root {
     /**
      * @zh
      * 激活指定窗口为当前窗口
-     * @param window GFX窗口
+     * @param window GFX 窗口
      */
     public activeWindow (window: RenderWindow) {
         this._curWindow = window;
@@ -353,7 +385,7 @@ export class Root {
 
             const elapsed = this._frameTime * 1000.0;
             if (this._fixedFPSFrameTime > elapsed) {
-                // tslint:disable-next-line: only-arrow-functions
+
                 setTimeout(function () {}, this._fixedFPSFrameTime - elapsed);
             }
         }
@@ -367,12 +399,14 @@ export class Root {
             this._frameCount = 0;
             this._fpsTime = 0.0;
         }
+        if (this._ui) this._ui.update();
 
         if (this._pipeline) {
             this._device.acquire();
             this._views.length = 0;
             const views = this._cameras;
             const stamp = legacyCC.director.getTotalFrames();
+            if (this._ui) this._ui.uploadBuffers();
             for (let i = 0; i < views.length; i++) {
                 const camera = this._cameras[i];
                 const view = camera.view;
@@ -391,7 +425,7 @@ export class Root {
     /**
      * @zh
      * 创建窗口
-     * @param info GFX窗口描述信息
+     * @param info GFX 窗口描述信息
      */
     public createWindow (info: IRenderWindowInfo): RenderWindow | null {
         const window = this._createWindowFun(this);
@@ -403,7 +437,7 @@ export class Root {
     /**
      * @zh
      * 销毁指定的窗口
-     * @param window GFX窗口
+     * @param window GFX 窗口
      */
     public destroyWindow (window: RenderWindow) {
         for (let i = 0; i < this._windows.length; ++i) {

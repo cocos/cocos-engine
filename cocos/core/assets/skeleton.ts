@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,7 +24,8 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 import { ccclass, type, serializable } from 'cc.decorator';
@@ -36,8 +37,8 @@ import { Asset } from './asset';
 import { legacyCC } from '../global-exports';
 
 /**
- * @zh 骨骼资源。
- * 骨骼资源记录了每个关节（相对于 [[SkinnedMeshRenderer.skinningRoot]]）的路径以及它的绑定姿势矩阵。
+ * @en The skeleton asset. It stores the path related to [[SkinnedMeshRenderer.skinningRoot]] of all bones and its bind pose matrix.
+ * @zh 骨骼资源。骨骼资源记录了每个关节（相对于 [[SkinnedMeshRenderer.skinningRoot]]）的路径以及它的绑定姿势矩阵。
  */
 @ccclass('cc.Skeleton')
 export class Skeleton extends Asset {
@@ -54,7 +55,8 @@ export class Skeleton extends Asset {
     private _invBindposes: Mat4[] | null = null;
 
     /**
-     * 所有关节的路径。该数组的长度始终与 `this.bindposes` 的长度相同。
+     * @en The path of all bones, the length always equals the length of [[bindposes]]
+     * @zh 所有关节的路径。该数组的长度始终与 [[bindposes]] 的长度相同。
      */
     get joints () {
         return this._joints;
@@ -65,7 +67,8 @@ export class Skeleton extends Asset {
     }
 
     /**
-     * 所有关节的绑定姿势矩阵。该数组的长度始终与 `this.joints` 的长度相同。
+     * @en The bind poses matrix of all bones, the length always equals the length of [[joints]]
+     * @zh 所有关节的绑定姿势矩阵。该数组的长度始终与 [[joints]] 的长度相同。
      */
     get bindposes () {
         return this._bindposes;
@@ -75,6 +78,10 @@ export class Skeleton extends Asset {
         this._bindposes = value;
     }
 
+    /**
+     * @en Gets the inverse bind poses matrix
+     * @zh 获取反向绑定姿势矩阵
+     */
     get inverseBindposes () {
         if (!this._invBindposes) {
             this._invBindposes = [];
@@ -87,6 +94,10 @@ export class Skeleton extends Asset {
         return this._invBindposes;
     }
 
+    /**
+     * @en Gets the hash of the skeleton asset
+     * @zh 获取骨骼资源的哈希值
+     */
     get hash () {
         // hashes should already be computed offline, but if not, make one
         if (!this._hash) {

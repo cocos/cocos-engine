@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -33,9 +33,10 @@ import { UITransform } from '../core/components/ui-base';
 import { ccclass, displayOrder, executeInEditMode, help, menu, slide, range, requireComponent, tooltip, type, serializable } from 'cc.decorator';
 import { clamp } from '../core/math';
 import { VideoClip } from './assets/video-clip';
-import { VideoPlayerImpl } from './video-player-impl-web';
+import { VideoPlayerImplManager } from './video-player-impl-manager';
 import { EventType, ResourceType } from './video-player-enums';
 import { EDITOR } from 'internal:constants';
+import { legacyCC } from "../core/global-exports";
 
 /**
  * @en
@@ -69,8 +70,6 @@ export class VideoPlayer extends Component {
     protected _playbackRate = 1;
     @serializable
     protected _loop = false;
-    @serializable
-    protected _controls = false;
     @serializable
     protected _fullScreenOnAwake = false;
     @serializable
@@ -162,8 +161,8 @@ export class VideoPlayer extends Component {
     }
     set playbackRate(value: number) {
         this._playbackRate = value;
-        if (this.nativeVideo) {
-            this.nativeVideo.playbackRate = value;
+        if (this._impl) {
+            this._impl.syncPlaybackRate(value);
         }
     }
 
@@ -181,8 +180,8 @@ export class VideoPlayer extends Component {
     }
     set volume(value: number) {
         this._volume = value;
-        if (this.nativeVideo) {
-            this.nativeVideo.volume = value;
+        if (this._impl) {
+            this._impl.syncVolume(value);
         }
     }
 
@@ -198,8 +197,8 @@ export class VideoPlayer extends Component {
     }
     set mute(value) {
         this._mute = value;
-        if (this.nativeVideo) {
-            this.nativeVideo.mute = value;
+        if (this._impl) {
+            this._impl.syncMute(value);
         }
     }
 
@@ -215,8 +214,8 @@ export class VideoPlayer extends Component {
     }
     set loop(value) {
         this._loop = value;
-        if (this.nativeVideo) {
-            this.nativeVideo.loop = value;
+        if (this._impl) {
+            this._impl.syncLoop(value);
         }
     }
 
@@ -307,36 +306,20 @@ export class VideoPlayer extends Component {
 
     /**
      * @en
-     * Whether to display the video control bar
-     * @zh
-     * 是否显示视频控制栏
-     */
-    get controls () {
-        return this._controls;
-    }
-    set controls(value) {
-        this._controls = value;
-        if (this.nativeVideo) {
-            this.nativeVideo.controls = value;
-        }
-    }
-
-    /**
-     * @en
      * The current playback time of the now playing item in seconds, you could also change the start playback time.
      * @zh
      * 指定视频从什么时间点开始播放，单位是秒，也可以用来获取当前视频播放的时间进度。
      */
     get currentTime () {
-        if (!this.nativeVideo) { return this._cachedCurrentTime; }
-        return this.nativeVideo.currentTime;
+        if (!this._impl) { return this._cachedCurrentTime; }
+        return this._impl.getCurrentTime();
     }
     set currentTime (val: number) {
-        if (isNaN(val)) { warn('illegal video time!'); return; }
+        if (isNaN(val)) { warn(`illegal video time! value:${val}`); return; }
         val = clamp(val, 0, this.duration);
         this._cachedCurrentTime = val;
-        if (this.nativeVideo) {
-            this.nativeVideo.currentTime = val;
+        if (this._impl) {
+            this._impl.seekTo(val);
         }
     }
 
@@ -347,8 +330,8 @@ export class VideoPlayer extends Component {
      * 获取以秒为单位的视频总时长。
      */
     get duration () {
-        if (!this.nativeVideo) { return 0; }
-        return this.nativeVideo.duration;
+        if (!this._impl) { return 0; }
+        return this._impl.getDuration();
     }
 
     /**
@@ -382,31 +365,28 @@ export class VideoPlayer extends Component {
         }
     }
 
-    public onLoad () {
+    public __preload () {
         if (EDITOR) {
             return;
         }
-        this._impl = new VideoPlayerImpl(this);
+        this._impl = VideoPlayerImplManager.getImpl(this);
         this.syncSource();
-        if (this.nativeVideo) {
-            this.nativeVideo.loop = this._loop;
-            this.nativeVideo.volume = this._volume;
-            this.nativeVideo.muted = this._mute;
-            this.nativeVideo.playbackRate = this._playbackRate;
-            this.nativeVideo.currentTime = this._cachedCurrentTime;
-            this.nativeVideo.controls = this._controls;
-        }
+        this._impl.syncLoop(this._loop);
+        this._impl.syncVolume(this._volume);
+        this._impl.syncMute(this._mute);
+        this._impl.seekTo(this._cachedCurrentTime);
+        this._impl.syncPlaybackRate(this._playbackRate);
         this._impl.syncStayOnBottom(this._stayOnBottom);
         this._impl.syncKeepAspectRatio(this._keepAspectRatio);
         this._impl.syncFullScreenOnAwake(this._fullScreenOnAwake);
         //
-        this._impl.eventList.set(EventType.META_LOADED, this.onMetaLoaded.bind(this));
-        this._impl.eventList.set(EventType.READY_TO_PLAY, this.onReadyToPlay.bind(this));
-        this._impl.eventList.set(EventType.PLAYING, this.onPlaying.bind(this));
-        this._impl.eventList.set(EventType.PAUSED, this.onPasued.bind(this));
-        this._impl.eventList.set(EventType.STOPPED, this.onStopped.bind(this));
-        this._impl.eventList.set(EventType.COMPLETED, this.onCompleted.bind(this));
-        this._impl.eventList.set(EventType.ERROR, this.onError.bind(this));
+        this._impl.componentEventList.set(EventType.META_LOADED, this.onMetaLoaded.bind(this));
+        this._impl.componentEventList.set(EventType.READY_TO_PLAY, this.onReadyToPlay.bind(this));
+        this._impl.componentEventList.set(EventType.PLAYING, this.onPlaying.bind(this));
+        this._impl.componentEventList.set(EventType.PAUSED, this.onPasued.bind(this));
+        this._impl.componentEventList.set(EventType.STOPPED, this.onStopped.bind(this));
+        this._impl.componentEventList.set(EventType.COMPLETED, this.onCompleted.bind(this));
+        this._impl.componentEventList.set(EventType.ERROR, this.onError.bind(this));
         if (this._playOnAwake && this._impl.loaded) {
             this.play();
         }
@@ -445,32 +425,32 @@ export class VideoPlayer extends Component {
     public onReadyToPlay () {
         if (this._playOnAwake && !this.isPlaying) { this.play(); }
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.READY_TO_PLAY);
-        this.node.emit('ready-to-play', this);
+        this.node.emit(EventType.READY_TO_PLAY, this);
     }
 
     public onPlaying () {
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PLAYING);
-        this.node.emit('playing', this);
+        this.node.emit(EventType.PLAYING, this);
     }
 
     public onPasued () {
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PAUSED);
-        this.node.emit('paused', this);
+        this.node.emit(EventType.PAUSED, this);
     }
 
     public onStopped () {
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.STOPPED);
-        this.node.emit('stopped', this);
+        this.node.emit(EventType.STOPPED, this);
     }
 
     public onCompleted () {
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.COMPLETED);
-        this.node.emit('completed', this);
+        this.node.emit(EventType.COMPLETED, this);
     }
 
     public onError () {
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.ERROR);
-        this.node.emit('error', this);
+        this.node.emit(EventType.ERROR, this);
     }
 
     /**
@@ -486,6 +466,18 @@ export class VideoPlayer extends Component {
     public play () {
         if (this._impl) {
             this._impl.play();
+        }
+    }
+
+    /**
+     * @en
+     * If a video is paused, call this method to resume playing.
+     * @zh
+     * 如果一个视频播放被暂停播放了，调用这个接口可以继续播放。
+     */
+    public resume () {
+        if (this._impl) {
+            this._impl.resume();
         }
     }
 
@@ -513,3 +505,6 @@ export class VideoPlayer extends Component {
         }
     }
 }
+
+// TODO Since jsb adapter does not support import cc, put it on internal first and adjust it later.
+legacyCC.internal.VideoPlayer = VideoPlayer;

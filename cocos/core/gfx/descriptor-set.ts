@@ -1,25 +1,51 @@
-/**
- * @category gfx
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
-import { GFXBuffer } from './buffer';
-import { GFXDescriptorType, GFXObject, GFXObjectType } from './define';
-import { GFXDevice } from './device';
-import { GFXSampler } from './sampler';
-import { GFXTexture } from './texture';
-import { GFXDescriptorSetLayout } from './descriptor-set-layout';
+/**
+ * @packageDocumentation
+ * @module gfx
+ */
+
+import { Buffer } from './buffer';
+import { DescriptorSetLayout } from './descriptor-set-layout';
+import { Device } from './device';
+import { Sampler } from './sampler';
+import { Texture } from './texture';
+import { DescriptorType, Obj, ObjectType } from './define';
 
 export const DESCRIPTOR_BUFFER_TYPE =
-    GFXDescriptorType.UNIFORM_BUFFER | GFXDescriptorType.DYNAMIC_UNIFORM_BUFFER |
-    GFXDescriptorType.STORAGE_BUFFER | GFXDescriptorType.DYNAMIC_STORAGE_BUFFER;
+    DescriptorType.UNIFORM_BUFFER | DescriptorType.DYNAMIC_UNIFORM_BUFFER |
+    DescriptorType.STORAGE_BUFFER | DescriptorType.DYNAMIC_STORAGE_BUFFER;
 
-export const DESCRIPTOR_SAMPLER_TYPE = GFXDescriptorType.SAMPLER;
+export const DESCRIPTOR_SAMPLER_TYPE = DescriptorType.SAMPLER;
 
-export class GFXDescriptorSetInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class DescriptorSetInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public layout: GFXDescriptorSetLayout,
+        public layout: DescriptorSetLayout,
     ) {}
 }
 
@@ -27,27 +53,27 @@ export class GFXDescriptorSetInfo {
  * @en GFX descriptor sets.
  * @zh GFX 描述符集组。
  */
-export abstract class GFXDescriptorSet extends GFXObject {
+export abstract class DescriptorSet extends Obj {
 
     get layout () {
         return this._layout!;
     }
 
-    protected _device: GFXDevice;
+    protected _device: Device;
 
-    protected _layout: GFXDescriptorSetLayout | null = null;
-    protected _buffers: GFXBuffer[] = [];
-    protected _textures: GFXTexture[] = [];
-    protected _samplers: GFXSampler[] = [];
+    protected _layout: DescriptorSetLayout | null = null;
+    protected _buffers: Buffer[] = [];
+    protected _textures: Texture[] = [];
+    protected _samplers: Sampler[] = [];
 
     protected _isDirty = false;
 
-    constructor (device: GFXDevice) {
-        super(GFXObjectType.DESCRIPTOR_SET);
+    constructor (device: Device) {
+        super(ObjectType.DESCRIPTOR_SET);
         this._device = device;
     }
 
-    public abstract initialize (info: GFXDescriptorSetInfo): boolean;
+    public abstract initialize (info: DescriptorSetInfo): boolean;
 
     public abstract destroy (): void;
 
@@ -59,16 +85,17 @@ export abstract class GFXDescriptorSet extends GFXObject {
      * @param binding The target binding.
      * @param buffer The buffer to be bound.
      */
-    public bindBuffer (binding: number, buffer: GFXBuffer, index = 0) {
-        const info = this._layout!.bindings[binding];
-        const descriptorIndex = this._layout!.descriptorIndices[binding];
-        if (info && (info.descriptorType & DESCRIPTOR_BUFFER_TYPE)) {
+    public bindBuffer (binding: number, buffer: Buffer, index = 0) {
+        const bindingIndex = this._layout!.bindingIndices[binding];
+        const info = this._layout!.bindings[bindingIndex]; if (!info) { return; }
+        if (info.descriptorType & DESCRIPTOR_BUFFER_TYPE) {
+            const descriptorIndex = this._layout!.descriptorIndices[binding];
             if (this._buffers[descriptorIndex + index] !== buffer) {
                 this._buffers[descriptorIndex + index] = buffer;
                 this._isDirty = true;
             }
         } else {
-            console.error('Setting binding is not GFXDescriptorType.UNIFORM_BUFFER.');
+            console.warn('Setting binding is not DescriptorType.UNIFORM_BUFFER.');
         }
     }
 
@@ -78,16 +105,17 @@ export abstract class GFXDescriptorSet extends GFXObject {
      * @param binding The target binding.
      * @param sampler The sampler to be bound.
      */
-    public bindSampler (binding: number, sampler: GFXSampler, index = 0) {
-        const info = this._layout!.bindings[binding];
-        const descriptorIndex = this._layout!.descriptorIndices[binding];
-        if (info && (info.descriptorType & DESCRIPTOR_SAMPLER_TYPE)) {
+    public bindSampler (binding: number, sampler: Sampler, index = 0) {
+        const bindingIndex = this._layout!.bindingIndices[binding];
+        const info = this._layout!.bindings[bindingIndex]; if (!info) { return; }
+        if (info.descriptorType & DESCRIPTOR_SAMPLER_TYPE) {
+            const descriptorIndex = this._layout!.descriptorIndices[binding];
             if (this._samplers[descriptorIndex + index] !== sampler) {
                 this._samplers[descriptorIndex + index] = sampler;
                 this._isDirty = true;
             }
         } else {
-            console.error('Setting binding is not GFXDescriptorType.SAMPLER.');
+            console.warn('Setting binding is not DescriptorType.SAMPLER.');
         }
     }
 
@@ -97,16 +125,17 @@ export abstract class GFXDescriptorSet extends GFXObject {
      * @param binding The target binding.
      * @param texture The texture to be bound.
      */
-    public bindTexture (binding: number, texture: GFXTexture, index = 0) {
-        const info = this._layout!.bindings[binding];
-        const descriptorIndex = this._layout!.descriptorIndices[binding];
-        if (info && (info.descriptorType & DESCRIPTOR_SAMPLER_TYPE)) {
+    public bindTexture (binding: number, texture: Texture, index = 0) {
+        const bindingIndex = this._layout!.bindingIndices[binding];
+        const info = this._layout!.bindings[bindingIndex]; if (!info) { return; }
+        if (info.descriptorType & DESCRIPTOR_SAMPLER_TYPE) {
+            const descriptorIndex = this._layout!.descriptorIndices[binding];
             if (this._textures[descriptorIndex + index] !== texture) {
                 this._textures[descriptorIndex + index] = texture;
                 this._isDirty = true;
             }
         } else {
-            console.error('Setting binding is not GFXDescriptorType.SAMPLER.');
+            console.warn('Setting binding is not DescriptorType.SAMPLER.');
         }
     }
 

@@ -1,5 +1,31 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
- * @category geometry
+ * @packageDocumentation
+ * @module geometry
  */
 
 import { Vec3 } from '../math';
@@ -12,7 +38,7 @@ import { IVec3Like } from '../math/type-define';
  * @zh
  * 基础几何 射线。
  */
-// tslint:disable-next-line:class-name
+
 export default class ray {
 
     /**
@@ -28,7 +54,7 @@ export default class ray {
      * @param {number} dz 方向的 z 部分。
      * @return {ray} 射线。
      */
-    public static create (ox: number = 0, oy: number = 0, oz: number = 0, dx: number = 0, dy: number = 0, dz: number = 1): ray {
+    public static create (ox = 0, oy = 0, oz = 0, dx = 0, dy = 0, dz = 1): ray {
         return new ray(ox, oy, oz, dx, dy, dz);
     }
 
@@ -144,8 +170,8 @@ export default class ray {
      * @param {number} dy 方向的 y 部分。
      * @param {number} dz 方向的 z 部分。
      */
-    constructor (ox: number = 0, oy: number = 0, oz: number = 0,
-        dx: number = 0, dy: number = 0, dz: number = -1) {
+    constructor (ox = 0, oy = 0, oz = 0,
+        dx = 0, dy = 0, dz = -1) {
         this._type = enums.SHAPE_RAY;
         this.o = new Vec3(ox, oy, oz);
         this.d = new Vec3(dx, dy, dz);

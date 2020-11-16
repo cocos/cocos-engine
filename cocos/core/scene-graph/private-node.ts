@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,9 +24,11 @@
 */
 
 /**
- * @category scene-graph
+ * @packageDocumentation
+ * @module scene-graph
  */
 
+import { EDITOR } from 'internal:constants';
 import { ccclass } from 'cc.decorator';
 import { CCObject } from '../data/object';
 import { Node } from './node';
@@ -34,7 +36,6 @@ import { legacyCC } from '../global-exports';
 
 // const LocalDirtyFlag = Node._LocalDirtyFlag;
 // const POSITION_ON = 1 << 0;
-// @ts-ignore
 const HideInHierarchy = CCObject.Flags.HideInHierarchy;
 
 /**
@@ -100,7 +101,9 @@ export class PrivateNode extends Node {
     constructor (name: string) {
         super(name);
         // this._originPos = cc.v2();
-        this._objFlags |= HideInHierarchy;
+        if (EDITOR) {
+            this._objFlags |= HideInHierarchy;
+        }
     }
 
     // _posDirty (sendEvent) {
@@ -161,5 +164,17 @@ export class PrivateNode extends Node {
 
 // cc.js.getset(PrivateNode.prototype, 'parent', PrivateNode.prototype.getParent, PrivateNode.prototype.setParent);
 // cc.js.getset(PrivateNode.prototype, 'position', PrivateNode.prototype.getPosition, PrivateNode.prototype.setPosition);
+
+if (EDITOR) {
+    // check components to avoid missing node reference serialied in previous version
+    PrivateNode.prototype._onBatchCreated = function (dontSyncChildPrefab?: boolean) {
+        // @ts-expect-error
+        for (const comp of this._components) {
+            comp.node = this;
+        }
+
+        Node.prototype._onBatchCreated.call(this, dontSyncChildPrefab);
+    };
+}
 
 legacyCC.PrivateNode = PrivateNode;

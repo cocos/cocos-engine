@@ -1,6 +1,32 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 
 /**
- * @category particle
+ * @packageDocumentation
+ * @module particle
  */
 
 import { builtinResMgr } from '../core/3d/builtin';
@@ -8,7 +34,7 @@ import { createMesh } from '../core/3d/misc/utils';
 import { Material, Mesh, Texture2D } from '../core/assets';
 import { Component } from '../core/components/component';
 import { ccclass, help, executeInEditMode, menu, tooltip, type, serializable } from 'cc.decorator';
-import { GFXAttribute, GFXAttributeName, GFXFormat, GFXPrimitiveMode } from '../core/gfx';
+import { Attribute, AttributeName, Format, PrimitiveMode } from '../core/gfx';
 import { Color, toDegree, toRadian, Vec4 } from '../core/math';
 import { scene } from '../core/renderer';
 import { legacyCC } from '../core/global-exports';
@@ -141,7 +167,7 @@ export class Billboard extends Component {
 
     private createModel () {
         this._mesh = createMesh({
-            primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
+            primitiveMode: PrimitiveMode.TRIANGLE_LIST,
             positions: [0, 0, 0,
                 0, 0, 0,
                 0, 0, 0,
@@ -156,9 +182,9 @@ export class Billboard extends Component {
                 Color.WHITE.r, Color.WHITE.g, Color.WHITE.b, Color.WHITE.a,
                 Color.WHITE.r, Color.WHITE.g, Color.WHITE.b, Color.WHITE.a],
             attributes: [
-                new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),
-                new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RG32F),
-                new GFXAttribute(GFXAttributeName.ATTR_COLOR, GFXFormat.RGBA8UI, true),
+                new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
+                new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F),
+                new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8UI, true),
             ],
             indices: [0, 1, 2, 1, 2, 3],
         }, undefined, { calculateBounds: false });

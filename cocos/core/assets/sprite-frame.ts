@@ -2,7 +2,7 @@
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -26,8 +26,8 @@
 */
 
 /**
- * 内置资源
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 import { ccclass } from 'cc.decorator';
@@ -36,7 +36,7 @@ import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
 import { RenderTexture } from './render-texture';
 import { TextureBase } from './texture-base';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, TEST, BUILD } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { ImageAsset, ImageSource } from './image-asset';
 import { Texture2D } from './texture-2d';
@@ -82,44 +82,65 @@ interface ISpriteFrameOriginal {
     y: number;
 }
 
+/**
+ * @en Information object interface for initialize a [[SpriteFrame]] asset
+ * @zh 用于初始化 [[SpriteFrame]] 资源的对象接口描述
+ */
 interface ISpriteFrameInitInfo {
     /**
-     * @zh Texture 对象资源。
+     * @en The texture of the sprite frame, could be [[TextureBase]] or [[RenderTexture]]
+     * @zh 贴图对象资源，可以是 [[TextureBase]] 或 [[RenderTexture]] 类型
      */
     texture?: TextureBase | RenderTexture;
     /**
+     * @en The original size of the sprite frame
      * @zh 精灵帧原始尺寸。
      */
     originalSize?: Size;
     /**
+     * @en The rect of the sprite frame in atlas texture
      * @zh 精灵帧裁切矩形。
      */
     rect?: Rect;
     /**
+     * @en The offset of the sprite frame center from the original center of the original rect.
+     * Sprite frame in an atlas texture could be trimmed for clipping the transparent pixels, so the trimmed rect is smaller than the original one,
+     * the offset defines the distance from the original center to the trimmed center.
      * @zh 精灵帧偏移量。
+     * 在图集中的精灵帧可能会被剔除透明像素以获得更高的空间利用李，剔除后的矩形尺寸比剪裁前更小，偏移量指的是从原始矩形的中心到剪裁后的矩形中心的距离。
      */
     offset?: Vec2;
     /**
-     * @zh 上边界。
+     * @en Top side border for sliced 9 frame.
+     * @zh 九宫格精灵帧的上边界。
+     * @default 0
      */
     borderTop?: number;
     /**
-     * @zh 下边界。
+     * @en Bottom side border for sliced 9 frame.
+     * @zh 九宫格精灵帧的下边界。
+     * @default 0
      */
     borderBottom?: number;
     /**
-     * @zh 左边界
+     * @en Left side border for sliced 9 frame.
+     * @zh 九宫格精灵帧的左边界。
+     * @default 0
      */
     borderLeft?: number;
     /**
-     * @zh 右边界
+     * @en Right side border for sliced 9 frame.
+     * @zh 九宫格精灵帧的右边界。
+     * @default 0
      */
     borderRight?: number;
     /**
+     * @en Whether the content of sprite frame is rotated.
      * @zh 是否旋转。
      */
     isRotate?: boolean;
     /**
+     * @en Whether the uv is flipped
      * @zh 是否转置 UV。
      */
     isFlipUv?: boolean;
@@ -129,23 +150,39 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
 
 /**
  * @en
- * A `SpriteFrame` has:<br/>
- *  - texture: A `Texture2D` that will be used by render components<br/>
+ * A `SpriteFrame` support several types
+ *  1. Rectangle sprite frame
+ *  2. Sliced 9 sprite frame
+ *  3. Mesh sprite frame
+ * It mainly contains:<br/>
+ *  - texture: A [[TextureBase]] or [[RenderTexture]] that will be used by render process<br/>
  *  - rectangle: A rectangle of the texture
+ *  - Sliced 9 border insets: The distance of each side from the internal rect to the sprite frame rect
+ *  - vertices: Vertex list for the mesh type sprite frame
+ *  - uv: The quad uv
+ *  - uvSliced: The sliced 9 uv
  *
  * @zh
  * 精灵帧资源。
- * 一个 SpriteFrame 包含：<br/>
- *  - 纹理：会被渲染组件使用的 Texture2D 对象。<br/>
+ * 一个 SpriteFrame 支持多种类型
+ *  1. 矩形精灵帧
+ *  2. 九宫格精灵帧
+ *  3. 网格精灵帧
+ * 它主要包含下列数据：<br/>
+ *  - 纹理：会被渲染流程使用的 [[TextureBase]] or [[RenderTexture]] 资源。<br/>
  *  - 矩形：在纹理中的矩形区域。
+ *  - 九宫格信息：九宫格的内部矩形四个边距离 SpriteFrame 外部矩形的距离
+ *  - 网格信息：网格类型精灵帧的所有顶点列表
+ *  - uv: 四边形 UV
+ *  - uvSliced: 九宫格 UV
  * 可通过 `SpriteFrame` 获取该组件。
  *
  * @example
  * ```ts
- * import { loader } from 'cc';
+ * import { resources } from 'cc';
  * // First way to use a SpriteFrame
  * const url = "assets/PurpleMonster/icon/spriteFrame";
- * loader.loadRes(url, (err, spriteFrame) => {
+ * resources.load(url, (err, spriteFrame) => {
  *   const node = new Node("New Sprite");
  *   const sprite = node.addComponent(Sprite);
  *   sprite.spriteFrame = spriteFrame;
@@ -155,7 +192,7 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  * // Second way to use a SpriteFrame
  * const self = this;
  * const url = "test_assets/PurpleMonster";
- * loader.loadRes(url, (err, imageAsset) => {
+ * resources.load(url, (err, imageAsset) => {
  *  if(err){
  *    return;
  *  }
@@ -188,10 +225,8 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
 export class SpriteFrame extends Asset {
 
     /**
-     * @en
-     * Create a SpriteFrame object by an image asset or an native image asset
-     * @zh
-     * 通过 Image 资源或者原始 image 资源创建一个 SpriteFrame 对象
+     * @en Create a SpriteFrame object by an image asset or an native image asset
+     * @zh 通过 Image 资源或者平台相关 Image 对象创建一个 SpriteFrame 对象
      * @param imageSourceOrImageAsset ImageAsset or ImageSource, ImageSource support HTMLCanvasElement HTMLImageElement IMemoryImageSource
      */
     public static createWithImage (imageSourceOrImageAsset: ImageSource | ImageAsset) {
@@ -204,11 +239,8 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en
-     * Top border of the sprite.
-     *
-     * @zh
-     * sprite 的顶部边框。
+     * @en Top border distance of sliced 9 rect.
+     * @zh 九宫格内部矩形顶部边框距离 SpriteFrame 矩形的距离。
      */
     get insetTop () {
         return this._capInsets[INSET_TOP];
@@ -226,11 +258,8 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en
-     * Bottom border of the sprite.
-     *
-     * @zh
-     * sprite 的底部边框。
+     * @en Bottom border distance of sliced 9 rect.
+     * @zh 九宫格内部矩形底部边框距离 SpriteFrame 矩形的距离。
      */
     get insetBottom () {
         return this._capInsets[INSET_BOTTOM];
@@ -248,11 +277,8 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en
-     * Left border of the sprite.
-     *
-     * @zh
-     * sprite 的左边边框。
+     * @en Left border distance of sliced 9 rect.
+     * @zh 九宫格内部矩形左边框距离 SpriteFrame 矩形的距离。
      */
     get insetLeft () {
         return this._capInsets[INSET_LEFT];
@@ -270,11 +296,8 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en
-     * Right border of the sprite.
-     *
-     * @zh
-     * sprite 的右边边框。
+     * @en Right border distance of sliced 9 rect.
+     * @zh 九宫格内部矩形右边框距离 SpriteFrame 矩形的距离。
      */
     get insetRight () {
         return this._capInsets[INSET_RIGHT];
@@ -292,12 +315,9 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en
-     * Returns the rect of the sprite frame in the texture.
-     * If it's a atlas texture, a transparent pixel area is proposed for the actual mapping of the current texture.
-     *
-     * @zh
-     * 获取 SpriteFrame 的纹理矩形区域。
+     * @en Returns the rect of the sprite frame in the texture.
+     * If it's an atlas texture, a transparent pixel area is proposed for the actual mapping of the current texture.
+     * @zh 获取 SpriteFrame 的纹理矩形区域。
      * 如果是一个 atlas 的贴图，则为当前贴图的实际剔除透明像素区域。
      */
     get rect () {
@@ -316,11 +336,8 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en
-     * Returns the original size of the trimmed image.
-     *
-     * @zh
-     * 获取修剪前的原始大小。
+     * @en The original size before trimmed.
+     * @zh 修剪前的原始大小。
      */
     get originalSize () {
         return this._originalSize;
@@ -338,11 +355,11 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en
-     * Returns the offset of the frame in the texture.
-     *
-     * @zh
-     * 获取偏移量。
+     * @en The offset of the sprite frame center.
+     * Sprite frame in an atlas texture could be trimmed for clipping the transparent pixels, so the trimmed rect is smaller than the original one,
+     * the offset defines the distance from the original center to the trimmed center.
+     * @zh 精灵帧偏移量。
+     * 在图集中的精灵帧可能会被剔除透明像素以获得更高的空间利用李，剔除后的矩形尺寸比剪裁前更小，偏移量指的是从原始矩形的中心到剪裁后的矩形中心的距离。
      */
     get offset () {
         return this._offset;
@@ -353,11 +370,8 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en
-     * Returns whether the sprite frame is rotated in the texture.
-     *
-     * @zh
-     * 获取 SpriteFrame 是否旋转。
+     * @en Whether the content of sprite frame is rotated.
+     * @zh 是否旋转。
      */
     get rotated () {
         return this._rotated;
@@ -374,6 +388,10 @@ export class SpriteFrame extends Asset {
         }
     }
 
+    /**
+     * @en The texture of the sprite frame, could be [[TextureBase]] or [[RenderTexture]]
+     * @zh 贴图对象资源，可以是 [[TextureBase]] 或 [[RenderTexture]] 类型
+     */
     get texture () {
         return this._texture;
     }
@@ -387,6 +405,10 @@ export class SpriteFrame extends Asset {
         this.reset({ texture: value }, true);
     }
 
+    /**
+     * @en The uuid of the atlas asset, if exist
+     * @zh 图集资源的 uuid。
+     */
     get atlasUuid () {
         return this._atlasUuid;
     }
@@ -395,33 +417,52 @@ export class SpriteFrame extends Asset {
         this._atlasUuid = value;
     }
 
+    /**
+     * @en The pixel width of the sprite frame
+     * @zh 精灵帧的像素宽度
+     */
     get width () {
         return this._texture.width;
     }
 
+    /**
+     * @en The pixel height of the sprite frame
+     * @zh 精灵帧的像素高度
+     */
     get height () {
         return this._texture.height;
     }
 
     set _textureSource (value: TextureBase) {
+        // Optimization for build
+        if (window.Build) {
+            this._texture = value;
+            return;
+        }
         if (value) {
             this._refreshTexture(value);
             this._calculateUV();
         }
     }
 
+    /**
+     * @en Vertex list for the mesh type sprite frame
+     * @zh 网格类型精灵帧的所有顶点列表
+     */
     public vertices: IVertices | null = null;
 
     /**
-     * @zh
-     * 不带裁切的 UV。
+     * @en UV for quad vertices
+     * @zh 矩形的顶点 UV
      */
     public uv: number[] = [];
     public uvHash: number = 0;
 
+    public unbiasUV:number[] = [];
+
     /**
-     * @zh
-     * 带有裁切的 UV。
+     * @en UV for sliced 9 vertices
+     * @zh 九宫格的顶点 UV。
      */
     public uvSliced: IUV[] = [];
 
@@ -439,7 +480,7 @@ export class SpriteFrame extends Asset {
     protected _capInsets = [0, 0, 0, 0];
 
     protected _atlasUuid: string = '';
-    // @ts-ignore
+    // @ts-expect-error
     protected _texture: TextureBase | RenderTexture;
 
     protected _flipUv = false;
@@ -456,7 +497,6 @@ export class SpriteFrame extends Asset {
     /**
      * @en
      * Returns whether the texture have been loaded.
-     *
      * @zh
      * 返回是否已加载精灵帧。
      */
@@ -467,10 +507,9 @@ export class SpriteFrame extends Asset {
     /**
      * @en
      * Returns whether the sprite frame is rotated in the texture.
-     *
      * @zh
      * 获取 SpriteFrame 是否旋转。
-     * @deprecated 即将在 1.2 废除，请使用 `isRotated = rect.rotated`。
+     * @deprecated since v1.2, please use [[rotated]] instead
      */
     public isRotated () {
         return this._rotated;
@@ -479,25 +518,21 @@ export class SpriteFrame extends Asset {
     /**
      * @en
      * Set whether the sprite frame is rotated in the texture.
-     *
      * @zh
      * 设置 SpriteFrame 是否旋转。
      * @param value
-     * @deprecated 即将在 1.2 废除，请使用 `rect.rotated = true`。
+     * @deprecated since v1.2, please use [[rotated]] instead
      */
     public setRotated (rotated: boolean) {
        this.rotated = rotated;
     }
 
     /**
-     * @en
-     * Returns the rect of the sprite frame in the texture.
-     * If it's a atlas texture, a transparent pixel area is proposed for the actual mapping of the current texture.
-     *
-     * @zh
-     * 获取 SpriteFrame 的纹理矩形区域。
+     * @en Returns the rect of the sprite frame in the texture.
+     * If it's an atlas texture, a transparent pixel area is proposed for the actual mapping of the current texture.
+     * @zh 获取 SpriteFrame 的纹理矩形区域。
      * 如果是一个 atlas 的贴图，则为当前贴图的实际剔除透明像素区域。
-     * @deprecated 即将在 1.2 废除，请使用 `rect.set(spritFrame.rect)`。
+     * @deprecated since v1.2, please use [[rect]]
      */
     public getRect (out?: Rect) {
         if (out) {
@@ -509,24 +544,18 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en
-     * Sets the rect of the sprite frame in the texture.
-     *
-     * @zh
-     * 设置 SpriteFrame 的纹理矩形区域。
-     * @deprecated 即将在 1.2 废除，请使用 `spritFrame.rect = rect`。
+     * @en Sets the rect of the sprite frame in the texture.
+     * @zh 设置 SpriteFrame 的纹理矩形区域。
+     * @deprecated since v1.2, please use [[rect]]
      */
     public setRect (rect: Rect) {
        this.rect = rect;
     }
 
     /**
-     * @en
-     * Returns the original size of the trimmed image.
-     *
-     * @zh
-     * 获取修剪前的原始大小。
-     * @deprecated 即将在 1.2 废除，请使用 `size.set(spritFrame.originalSize)`。
+     * @en Returns the original size before trimmed.
+     * @zh 获取修剪前的原始大小。
+     * @deprecated since v1.2, please use [[originalSize]]
      */
     public getOriginalSize (out?: Size) {
         if (out) {
@@ -538,28 +567,20 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en
-     * Sets the original size of the trimmed image.
-     *
-     * @zh
-     * 设置修剪前的原始大小。
-     *
-     * @param size - 设置精灵原始大小。
-     * @deprecated 即将在 1.2 废除，请使用 `spritFrame.originalSize = size`。
+     * @en Sets the original size before trimmed.
+     * @zh 设置修剪前的原始大小。
+     * @param size The new original size
+     * @deprecated since v1.2, please use [[originalSize]]
      */
     public setOriginalSize (size: Size) {
         this.originalSize = size;
     }
 
     /**
-     * @en
-     * Returns the offset of the frame in the texture.
-     *
-     * @zh
-     * 获取偏移量。
-     *
-     * @param out - 可复用的偏移量。
-     * @deprecated 即将在 1.2 废除，请使用 `offset.set(spritFrame.offset)`。
+     * @en Returns the offset of the frame
+     * @zh 获取偏移量。
+     * @param out The output offset object
+     * @deprecated since v1.2, please use [[offset]]
      */
     public getOffset (out?: Vec2) {
         if (out) {
@@ -571,30 +592,51 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en
-     * Sets the offset of the frame in the texture.
-     *
-     * @zh
-     * 设置偏移量。
-     *
-     * @param offsets - 偏移量。
-     * @deprecated 即将在 1.2 废除，请使用 `spritFrame.offset = offset`。
+     * @en Sets the offset of the frame
+     * @zh 设置偏移量。
+     * @param offset The new offset
+     * @deprecated since v1.2, please use [[offset]]
      */
     public setOffset (offset: Vec2) {
         this.offset = offset;
     }
 
+    /**
+     * @en Gets the related GFX [[Texture]] resource
+     * @zh 获取渲染贴图的 GFX 资源
+     */
     public getGFXTexture () {
         return this._texture.getGFXTexture();
     }
 
+    /**
+     * @en Gets the sampler resource of its texture
+     * @zh 贴图资源的采样器
+     */
     public getGFXSampler () {
         return this._texture.getGFXSampler();
     }
 
     /**
-     * 重置 SpriteFrame 数据。
-     * @param info SpriteFrame 初始化数据。
+     * @en Gets the hash of its texture
+     * @zh 贴图资源的哈希值
+     */
+    public getHash () {
+        return this._texture.getHash();
+    }
+
+    /**
+     * @en Gets the sampler hash of its texture
+     * @zh 贴图资源的采样器哈希值
+     */
+    public getSamplerHash () {
+        return this._texture.getSamplerHash();
+    }
+
+    /**
+     * @en Resets the sprite frame data
+     * @zh 重置 SpriteFrame 数据。
+     * @param info SpriteFrame initialization information
      */
     public reset (info?: ISpriteFrameInitInfo, clearData = false) {
         let calUV = false;
@@ -662,9 +704,8 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @zh
-     * 判断精灵计算的矩形区域是否越界。
-     *
+     * @en Check whether the rect of the sprite frame is out of the texture boundary
+     * @zh 判断精灵计算的矩形区域是否越界。
      * @param texture
      */
     public checkRect (texture: TextureBase | RenderTexture) {
@@ -701,10 +742,7 @@ export class SpriteFrame extends Asset {
         return super.destroy();
     }
 
-    /*
-     * @zh
-     * 计算裁切的 UV。
-     */
+    // Calculate UV for sliced
     public _calculateSlicedUV () {
         const rect = this._rect;
         // const texture = this._getCalculateTarget()!;
@@ -765,13 +803,11 @@ export class SpriteFrame extends Asset {
         }
     }
 
-    /**
-     * @zh
-     * 计算 UV。
-     */
+    // Calculate UV
     public _calculateUV () {
         const rect = this._rect;
         const uv = this.uv;
+        const unbiasUV = this.unbiasUV;
         const tex = this.texture;
         const texw = tex.width;
         const texh = tex.height;
@@ -802,6 +838,30 @@ export class SpriteFrame extends Asset {
                 uv[6] = r;
                 uv[7] = b;
             }
+
+            const ul = texw === 0 ? 0 : (rect.x) / texw;
+            const ur = texw === 0 ? 0 : (rect.x + rect.height) / texw;
+            const ut = texh === 0 ? 0 : (rect.y) / texh;
+            const ub = texh === 0 ? 0 : (rect.y + rect.width) / texh;
+            if (this._flipUv) {
+                unbiasUV[0] = ul;
+                unbiasUV[1] = ut;
+                unbiasUV[2] = ul;
+                unbiasUV[3] = ub;
+                unbiasUV[4] = ur;
+                unbiasUV[5] = ut;
+                unbiasUV[6] = ur;
+                unbiasUV[7] = ub;
+            } else {
+                unbiasUV[0] = ul;
+                unbiasUV[1] = ut;
+                unbiasUV[2] = ul;
+                unbiasUV[3] = ub;
+                unbiasUV[4] = ur;
+                unbiasUV[5] = ut;
+                unbiasUV[6] = ur;
+                unbiasUV[7] = ub;
+            }
         } else {
             // Canceling out the floating-point rounding errors by slightly nudging the UV coordinates
             const l = texw === 0 ? 0 : (rect.x + 0.5) / texw;
@@ -827,6 +887,29 @@ export class SpriteFrame extends Asset {
                 uv[6] = r;
                 uv[7] = t;
             }
+            const ul = texw === 0 ? 0 : (rect.x ) / texw;
+            const ur = texw === 0 ? 0 : (rect.x + rect.width) / texw;
+            const ub = texh === 0 ? 0 : (rect.y + rect.height) / texh;
+            const ut = texh === 0 ? 0 : (rect.y) / texh;
+            if (this._flipUv) {
+                unbiasUV[0] = ul;
+                unbiasUV[1] = ut;
+                unbiasUV[2] = ur;
+                unbiasUV[3] = ut;
+                unbiasUV[4] = ul;
+                unbiasUV[5] = ub;
+                unbiasUV[6] = ur;
+                unbiasUV[7] = ub;
+            } else {
+                unbiasUV[0] = ul;
+                unbiasUV[1] = ub;
+                unbiasUV[2] = ur;
+                unbiasUV[3] = ub;
+                unbiasUV[4] = ul;
+                unbiasUV[5] = ut;
+                unbiasUV[6] = ur;
+                unbiasUV[7] = ut;
+            }
         }
 
         let uvHashStr = '';
@@ -849,48 +932,45 @@ export class SpriteFrame extends Asset {
     }
 
     // SERIALIZATION
-    public _serialize (exporting?: any): any {
-        const rect = this._rect;
-        const offset = this._offset;
-        const originalSize = this._originalSize;
-        let uuid = this._uuid;
-        let texture;
-        if (this._texture) {
-            texture = this._texture._uuid;
-        }
+    public _serialize (ctxForExporting: any): any {
+        if (EDITOR || TEST) {
+            const rect = this._rect;
+            const offset = this._offset;
+            const originalSize = this._originalSize;
+            let texture;
+            if (this._texture) {
+                texture = this._texture._uuid;
+                if (ctxForExporting) {
+                    ctxForExporting.dependsOn('_textureSource', texture);
+                }
+            }
 
-        if (uuid && exporting) {
-            uuid = EditorExtends.UuidUtils.compressUuid(uuid, true);
-        }
-        if (texture && exporting) {
-            texture = EditorExtends.UuidUtils.compressUuid(texture, true);
-        }
+            let vertices;
+            if (this.vertices) {
+                vertices = {
+                    triangles: this.vertices.triangles,
+                    x: this.vertices.x,
+                    y: this.vertices.y,
+                    u: this.vertices.u,
+                    v: this.vertices.v,
+                };
+            }
 
-        let vertices;
-        if (this.vertices) {
-            vertices = {
-                triangles: this.vertices.triangles,
-                x: this.vertices.x,
-                y: this.vertices.y,
-                u: this.vertices.u,
-                v: this.vertices.v,
+            const serialize = {
+                name: this._name,
+                atlas: ctxForExporting ? undefined : this._atlasUuid,  // strip from json if exporting
+                rect,
+                offset,
+                originalSize,
+                rotated: this._rotated,
+                capInsets: this._capInsets,
+                vertices,
+                texture,
             };
+
+            // 为 underfined 的数据则不在序列化文件里显示
+            return serialize;
         }
-
-        const serialize = {
-            name: this._name,
-            atlas: exporting ? undefined : this._atlasUuid,  // strip from json if exporting
-            rect,
-            offset,
-            originalSize,
-            rotated: this._rotated,
-            capInsets: this._capInsets,
-            vertices,
-            texture,
-        };
-
-        // 为 underfined 的数据则不在序列化文件里显示
-        return serialize;
     }
 
     public _deserialize (serializeData: any, handle: any) {
@@ -920,8 +1000,11 @@ export class SpriteFrame extends Asset {
             this._capInsets[INSET_BOTTOM] = capInsets[INSET_BOTTOM];
         }
 
-        if (data.texture) {
-            handle.result.push(this, '_textureSource', data.texture);
+        if (!BUILD) {
+            // manually load texture via _textureSetter
+            if (data.texture) {
+                handle.result.push(this, '_textureSource', data.texture);
+            }
         }
 
         if (EDITOR) {

@@ -1,9 +1,34 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 import {
-    GFXTextureType,
-    GFXTextureUsageBit,
-    GFXFormat,
+    TextureType,
+    TextureUsageBit,
+    Format,
 } from '../../gfx/define';
-import { GFXRenderPass, GFXTexture, GFXFramebuffer, GFXRenderPassInfo, GFXDevice, GFXTextureInfo, GFXFramebufferInfo } from '../../gfx';
+import { RenderPass, Texture, Framebuffer, RenderPassInfo, Device, TextureInfo, FramebufferInfo } from '../../gfx';
 import { Root } from '../../root';
 import { RenderWindowHandle, RenderWindowPool, RenderWindowView, FramebufferPool, NULL_HANDLE } from './memory-pools';
 
@@ -11,11 +36,15 @@ export interface IRenderWindowInfo {
     title?: string;
     width: number;
     height: number;
-    renderPassInfo: GFXRenderPassInfo;
+    renderPassInfo: RenderPassInfo;
     swapchainBufferIndices?: number;
     shouldSyncSizeWithSwapchain?: boolean;
 }
 
+/**
+ * @en The render window represents the render target, it could be an off screen frame buffer or the on screen buffer.
+ * @zh 渲染窗口代表了一个渲染目标，可以是离屏的帧缓冲，也可以是屏幕缓冲
+ */
 export class RenderWindow {
 
     /**
@@ -36,9 +65,9 @@ export class RenderWindow {
 
     /**
      * @en Get window frame buffer.
-     * @zh GFX帧缓冲。
+     * @zh 帧缓冲对象。
      */
-    get framebuffer (): GFXFramebuffer {
+    get framebuffer (): Framebuffer {
         return FramebufferPool.get(RenderWindowPool.get(this._poolHandle, RenderWindowView.FRAMEBUFFER));
     }
 
@@ -46,10 +75,18 @@ export class RenderWindow {
         return this._shouldSyncSizeWithSwapchain;
     }
 
+    /**
+     * @en Whether it has on screen attachments
+     * @zh 这个渲染窗口是否指向在屏缓冲
+     */
     get hasOnScreenAttachments () {
         return RenderWindowPool.get(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS) === 1 ? true : false;
     }
 
+    /**
+     * @en Whether it has off screen attachments
+     * @zh 这个渲染窗口是否指向离屏缓冲
+     */
     get hasOffScreenAttachments () {
         return RenderWindowPool.get(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS) === 1 ? true : false;
     }
@@ -58,18 +95,21 @@ export class RenderWindow {
         return this._poolHandle;
     }
 
+    /**
+     * @private
+     */
     public static registerCreateFunc (root: Root) {
         root._createWindowFun = (_root: Root): RenderWindow => new RenderWindow(_root);
     }
 
-    protected _title: string = '';
-    protected _width: number = 1;
-    protected _height: number = 1;
-    protected _nativeWidth: number = 1;
-    protected _nativeHeight: number = 1;
-    protected _renderPass: GFXRenderPass | null = null;
-    protected _colorTextures: (GFXTexture | null)[] = [];
-    protected _depthStencilTexture: GFXTexture | null = null;
+    protected _title = '';
+    protected _width = 1;
+    protected _height = 1;
+    protected _nativeWidth = 1;
+    protected _nativeHeight = 1;
+    protected _renderPass: RenderPass | null = null;
+    protected _colorTextures: (Texture | null)[] = [];
+    protected _depthStencilTexture: Texture | null = null;
     protected _swapchainBufferIndices = 0;
     protected _shouldSyncSizeWithSwapchain = false;
     protected _poolHandle: RenderWindowHandle = NULL_HANDLE;
@@ -77,7 +117,7 @@ export class RenderWindow {
     private constructor (root: Root) {
     }
 
-    public initialize (device: GFXDevice, info: IRenderWindowInfo): boolean {
+    public initialize (device: Device, info: IRenderWindowInfo): boolean {
         this._poolHandle = RenderWindowPool.alloc();
 
         if (info.title !== undefined) {
@@ -99,22 +139,22 @@ export class RenderWindow {
 
         const { colorAttachments, depthStencilAttachment } = info.renderPassInfo;
         for (let i = 0; i < colorAttachments.length; i++) {
-            if (colorAttachments[i].format === GFXFormat.UNKNOWN) {
+            if (colorAttachments[i].format === Format.UNKNOWN) {
                 colorAttachments[i].format = device.colorFormat;
             }
         }
-        if (depthStencilAttachment && depthStencilAttachment.format === GFXFormat.UNKNOWN) {
+        if (depthStencilAttachment && depthStencilAttachment.format === Format.UNKNOWN) {
             depthStencilAttachment.format = device.depthStencilFormat;
         }
 
         this._renderPass = device.createRenderPass(info.renderPassInfo);
 
         for (let i = 0; i < colorAttachments.length; i++) {
-            let colorTex: GFXTexture | null = null;
+            let colorTex: Texture | null = null;
             if (!(this._swapchainBufferIndices & (1 << i))) {
-                colorTex = device.createTexture(new GFXTextureInfo(
-                    GFXTextureType.TEX2D,
-                    GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                colorTex = device.createTexture(new TextureInfo(
+                    TextureType.TEX2D,
+                    TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
                     colorAttachments[i].format,
                     this._width,
                     this._height,
@@ -129,9 +169,9 @@ export class RenderWindow {
         // Use the sign bit to indicate depth attachment
         if (depthStencilAttachment) {
             if (this._swapchainBufferIndices >= 0) {
-                this._depthStencilTexture = device.createTexture(new GFXTextureInfo(
-                    GFXTextureType.TEX2D,
-                    GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                this._depthStencilTexture = device.createTexture(new TextureInfo(
+                    TextureType.TEX2D,
+                    TextureUsageBit.DEPTH_STENCIL_ATTACHMENT | TextureUsageBit.SAMPLED,
                     depthStencilAttachment.format,
                     this._width,
                     this._height,
@@ -142,7 +182,7 @@ export class RenderWindow {
             }
         }
 
-        const hFBO = FramebufferPool.alloc(device, new GFXFramebufferInfo(
+        const hFBO = FramebufferPool.alloc(device, new FramebufferInfo(
             this._renderPass,
             this._colorTextures,
             this._depthStencilTexture,
@@ -206,7 +246,7 @@ export class RenderWindow {
             const framebuffer = FramebufferPool.get(RenderWindowPool.get(this._poolHandle, RenderWindowView.FRAMEBUFFER));
             if (needRebuild && framebuffer) {
                 framebuffer.destroy();
-                framebuffer.initialize(new GFXFramebufferInfo(
+                framebuffer.initialize(new FramebufferInfo(
                     this._renderPass!,
                     this._colorTextures,
                     this._depthStencilTexture,

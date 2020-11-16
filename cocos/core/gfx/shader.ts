@@ -1,28 +1,54 @@
-/**
- * @category gfx
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
-import { GFXObject, GFXObjectType, GFXShaderStageFlagBit, GFXType } from './define';
-import { GFXDevice } from './device';
-import { GFXAttribute } from './input-assembler';
+/**
+ * @packageDocumentation
+ * @module gfx
+ */
 
-export interface IGFXShaderStage {
-    stage: GFXShaderStageFlagBit;
+import { Attribute } from './input-assembler';
+import { Device } from './device';
+import { Obj, ObjectType, ShaderStageFlagBit, Type } from './define';
+
+export interface IShaderStage {
+    stage: ShaderStageFlagBit;
     source: string;
 }
 
-export class GFXShaderStage implements IGFXShaderStage {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class ShaderStage implements IShaderStage {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public stage: GFXShaderStageFlagBit = GFXShaderStageFlagBit.NONE,
+        public stage: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
         public source: string = '',
     ) {}
 }
 
-export interface IGFXUniform {
+export interface IUniform {
     name: string;
-    type: GFXType;
+    type: Type;
     count: number;
 }
 
@@ -30,12 +56,12 @@ export interface IGFXUniform {
  * @en GFX uniform.
  * @zh GFX uniform。
  */
-export class GFXUniform implements IGFXUniform {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class Uniform implements IUniform {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public name: string = '',
-        public type: GFXType = GFXType.UNKNOWN,
+        public type: Type = Type.UNKNOWN,
         public count: number = 1,
     ) {}
 }
@@ -44,14 +70,14 @@ export class GFXUniform implements IGFXUniform {
  * @en GFX uniform block.
  * @zh GFX uniform 块。
  */
-export class GFXUniformBlock {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class UniformBlock {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public set: number = -1,
         public binding: number = -1,
         public name: string = '',
-        public members: GFXUniform[] = [],
+        public members: Uniform[] = [],
         public count: number = 1,
     ) {}
 }
@@ -60,27 +86,27 @@ export class GFXUniformBlock {
  * @en GFX uniform sampler.
  * @zh GFX Uniform 采样器。
  */
-export class GFXUniformSampler {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class UniformSampler {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public set: number = -1,
         public binding: number = -1,
         public name: string = '',
-        public type: GFXType = GFXType.UNKNOWN,
+        public type: Type = Type.UNKNOWN,
         public count: number = 1,
     ) {}
 }
 
-export class GFXShaderInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class ShaderInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public name: string = '',
-        public stages: GFXShaderStage[] = [],
-        public attributes: GFXAttribute[] = [],
-        public blocks: GFXUniformBlock[] = [],
-        public samplers: GFXUniformSampler[] = [],
+        public stages: ShaderStage[] = [],
+        public attributes: Attribute[] = [],
+        public blocks: UniformBlock[] = [],
+        public samplers: UniformSampler[] = [],
     ) {}
 }
 
@@ -88,8 +114,8 @@ export class GFXShaderInfo {
  * @en GFX shader.
  * @zh GFX 着色器。
  */
-export abstract class GFXShader extends GFXObject {
-    private static _shaderIdGen: number = 0;
+export abstract class Shader extends Obj {
+    private static _shaderIdGen = 0;
 
     /**
      * @en Get current shader id.
@@ -119,27 +145,27 @@ export abstract class GFXShader extends GFXObject {
         return this._samplers;
     }
 
-    protected _device: GFXDevice;
+    protected _device: Device;
 
     protected _id: number;
 
-    protected _name: string = '';
+    protected _name = '';
 
-    protected _stages: GFXShaderStage[] = [];
+    protected _stages: ShaderStage[] = [];
 
-    protected _attributes: GFXAttribute[] = [];
+    protected _attributes: Attribute[] = [];
 
-    protected _blocks: GFXUniformBlock[] = [];
+    protected _blocks: UniformBlock[] = [];
 
-    protected _samplers: GFXUniformSampler[] = [];
+    protected _samplers: UniformSampler[] = [];
 
-    constructor (device: GFXDevice) {
-        super(GFXObjectType.SHADER);
+    constructor (device: Device) {
+        super(ObjectType.SHADER);
         this._device = device;
-        this._id = GFXShader._shaderIdGen++;
+        this._id = Shader._shaderIdGen++;
     }
 
-    public abstract initialize (info: GFXShaderInfo): boolean;
+    public abstract initialize (info: ShaderInfo): boolean;
 
     public abstract destroy (): void;
 }

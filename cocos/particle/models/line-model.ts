@@ -1,22 +1,47 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
+ * @packageDocumentation
  * @hidden
  */
 
 import { RenderingSubMesh } from '../../core/assets/mesh';
-import { GFX_DRAW_INFO_SIZE, GFXBuffer, GFXIndirectBuffer } from '../../core/gfx/buffer';
-import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
+import { DRAW_INFO_SIZE, Buffer, IndirectBuffer, Attribute, BufferInfo, DrawInfo } from '../../core/gfx';
+import { AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../core/gfx/define';
 import { Vec3 } from '../../core/math';
 import { scene } from '../../core/renderer';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 import { Material } from '../../core/assets';
-import { GFXAttribute, GFXBufferInfo, GFXDrawInfo } from '../../core';
 
 const _vertex_attrs = [
-    new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F), // xyz:position
-    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RGBA32F), // x:index y:size zw:texcoord
-    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD1, GFXFormat.RGB32F), // xyz:velocity
-    new GFXAttribute(GFXAttributeName.ATTR_COLOR, GFXFormat.RGBA8, true),
+    new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F), // xyz:position
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGBA32F), // x:index y:size zw:texcoord
+    new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F), // xyz:velocity
+    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true),
 ];
 
 const _temp_v1 = new Vec3();
@@ -30,8 +55,8 @@ export class LineModel extends scene.Model {
     private _vertAttrsFloatCount: number = 0;
     private _vdataF32: Float32Array | null = null;
     private _vdataUint32: Uint32Array | null = null;
-    private _iaInfo: GFXIndirectBuffer;
-    private _iaInfoBuffer: GFXBuffer;
+    private _iaInfo: IndirectBuffer;
+    private _iaInfoBuffer: Buffer;
     private _subMeshData: RenderingSubMesh | null = null;
     private _vertCount: number = 0;
     private _indexCount: number = 0;
@@ -41,12 +66,12 @@ export class LineModel extends scene.Model {
         super();
         this.type = scene.ModelType.LINE;
         this._capacity = 100;
-        this._iaInfo = new GFXIndirectBuffer([new GFXDrawInfo()]);
-        this._iaInfoBuffer = this._device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.INDIRECT,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            GFX_DRAW_INFO_SIZE,
-            GFX_DRAW_INFO_SIZE,
+        this._iaInfo = new IndirectBuffer([new DrawInfo()]);
+        this._iaInfoBuffer = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.INDIRECT,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            DRAW_INFO_SIZE,
+            DRAW_INFO_SIZE,
         ));
     }
 
@@ -59,7 +84,7 @@ export class LineModel extends scene.Model {
         this._vertSize = 0;
         for (const a of _vertex_attrs) {
             (a as any).offset = this._vertSize;
-            this._vertSize += GFXFormatInfos[a.format].size;
+            this._vertSize += FormatInfos[a.format].size;
         }
         this._vertAttrsFloatCount = this._vertSize / 4; // number of float
         this._vBuffer = this.createSubMeshData();
@@ -78,9 +103,9 @@ export class LineModel extends scene.Model {
         }
         this._vertCount = 2;
         this._indexCount = 6;
-        const vertexBuffer = this._device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        const vertexBuffer = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             this._vertSize * this._capacity * this._vertCount,
             this._vertSize,
         ));
@@ -99,9 +124,9 @@ export class LineModel extends scene.Model {
             indices[dst++] = baseIdx + 1;
         }
 
-        const indexBuffer = this._device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        const indexBuffer = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             (this._capacity - 1) * this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
             Uint16Array.BYTES_PER_ELEMENT,
         ));
@@ -112,7 +137,7 @@ export class LineModel extends scene.Model {
         this._iaInfo.drawInfos[0].indexCount = (this._capacity - 1) * this._indexCount;
         this._iaInfoBuffer.update(this._iaInfo);
 
-        this._subMeshData = new RenderingSubMesh([vertexBuffer], _vertex_attrs, GFXPrimitiveMode.TRIANGLE_LIST, indexBuffer, this._iaInfoBuffer);
+        this._subMeshData = new RenderingSubMesh([vertexBuffer], _vertex_attrs, PrimitiveMode.TRIANGLE_LIST, indexBuffer, this._iaInfoBuffer);
         this.initSubModel(0, this._subMeshData, this._material!);
         return vBuffer;
     }

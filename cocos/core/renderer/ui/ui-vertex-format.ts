@@ -1,6 +1,5 @@
-import { GFXAttribute } from '../../gfx';
 /*
- Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,38 +22,53 @@ import { GFXAttribute } from '../../gfx';
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
 /**
- * @category ui
+ * @packageDocumentation
+ * @hidden
  */
-import { GFXAttributeName, GFXFormat, GFXFormatInfos } from '../../gfx/define';
+
+import { AttributeName, Format, FormatInfos } from '../../gfx/define';
+import { Attribute } from '../../gfx';
 
 export const vfmt = [
-    new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),
-    new GFXAttribute(GFXAttributeName.ATTR_COLOR, GFXFormat.RGBA32F),
+    new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
+]
+
+export const vfmtPosColor = [
+    new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
+    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA32F),
 ];
 
 export const vfmtPosUvColor = [
-    new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),
-    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RG32F),
-    new GFXAttribute(GFXAttributeName.ATTR_COLOR, GFXFormat.RGBA32F),
+    new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F),
+    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA32F),
 ];
 
-export function getAttributeFormatBytes (attrs: GFXAttribute[]) {
+export const vfmtPosUvTwoColor = [
+    new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F),
+    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA32F),
+    new Attribute(AttributeName.ATTR_COLOR2, Format.RGBA32F),
+];
+
+export function getAttributeFormatBytes (attrs: Attribute[]) {
     let count = 0;
     for (let i = 0; i < attrs.length; i++) {
         const attr = attrs[i];
-        const info = GFXFormatInfos[attr.format];
+        const info = FormatInfos[attr.format];
         count += info.count;
     }
 
     return count;
 }
 
-export function getAttributeStride (attrs: GFXAttribute[]) {
+export function getAttributeStride (attrs: Attribute[]) {
     let count = 0;
     for (let i = 0; i < attrs.length; i++) {
         const attr = attrs[i];
-        const info = GFXFormatInfos[attr.format];
+        const info = FormatInfos[attr.format];
         count += info.size;
     }
 

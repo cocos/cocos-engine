@@ -1,33 +1,56 @@
-/**
- * @category gfx
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
-import { GFXDescriptorSet } from './descriptor-set';
-import { GFXBuffer } from './buffer';
-import {
-    GFXBufferTextureCopy,
-    GFXCommandBufferType,
-    GFXObject,
-    GFXObjectType,
-    GFXStencilFace,
-    GFXColor,
-    GFXRect,
-    GFXViewport,
-} from './define';
-import { GFXDevice } from './device';
-import { GFXFramebuffer } from './framebuffer';
-import { GFXInputAssembler } from './input-assembler';
-import { GFXPipelineState } from './pipeline-state';
-import { GFXTexture } from './texture';
-import { GFXRenderPass } from './render-pass';
-import { GFXQueue } from './queue';
+/**
+ * @packageDocumentation
+ * @module gfx
+ */
 
-export class GFXCommandBufferInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+import { Buffer } from './buffer';
+import { DescriptorSet } from './descriptor-set';
+import { Device } from './device';
+import { Framebuffer } from './framebuffer';
+import { InputAssembler } from './input-assembler';
+import { PipelineState } from './pipeline-state';
+import { Queue } from './queue';
+import { RenderPass } from './render-pass';
+import { Texture } from './texture';
+import { BufferTextureCopy, Color, Rect, Viewport } from './define-class';
+import {
+    CommandBufferType,
+    Obj,
+    ObjectType,
+    StencilFace,
+} from './define';
+
+export class CommandBufferInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public queue: GFXQueue,
-        public type: GFXCommandBufferType = GFXCommandBufferType.PRIMARY
+        public queue: Queue,
+        public type: CommandBufferType = CommandBufferType.PRIMARY
     ) {}
 }
 
@@ -35,14 +58,14 @@ export class GFXCommandBufferInfo {
  * @en GFX command buffer.
  * @zh GFX 命令缓冲。
  */
-// tslint:disable: max-line-length
-export abstract class GFXCommandBuffer extends GFXObject {
+
+export abstract class CommandBuffer extends Obj {
 
     /**
      * @en Type of the command buffer.
      * @zh 命令缓冲类型。
      */
-    get type (): GFXCommandBufferType {
+    get type (): CommandBufferType {
         return this._type;
     }
 
@@ -50,7 +73,7 @@ export abstract class GFXCommandBuffer extends GFXObject {
      * @en Type of the command buffer.
      * @zh 命令缓冲类型。
      */
-    get queue (): GFXQueue {
+    get queue (): Queue {
         return this._queue!;
     }
 
@@ -78,11 +101,11 @@ export abstract class GFXCommandBuffer extends GFXObject {
         return this._numTris;
     }
 
-    protected _device: GFXDevice;
+    protected _device: Device;
 
-    protected _queue: GFXQueue | null = null;
+    protected _queue: Queue | null = null;
 
-    protected _type: GFXCommandBufferType = GFXCommandBufferType.PRIMARY;
+    protected _type: CommandBufferType = CommandBufferType.PRIMARY;
 
     protected _numDrawCalls: number = 0;
 
@@ -90,12 +113,12 @@ export abstract class GFXCommandBuffer extends GFXObject {
 
     protected _numTris: number = 0;
 
-    constructor (device: GFXDevice) {
-        super(GFXObjectType.COMMAND_BUFFER);
+    constructor (device: Device) {
+        super(ObjectType.COMMAND_BUFFER);
         this._device = device;
     }
 
-    public abstract initialize (info: GFXCommandBufferInfo): boolean;
+    public abstract initialize (info: CommandBufferInfo): boolean;
 
     public abstract destroy (): void;
 
@@ -106,7 +129,7 @@ export abstract class GFXCommandBuffer extends GFXObject {
      * @param subpass [Secondary Command Buffer Only] The subpass the subsequent commands will be executed in
      * @param frameBuffer [Secondary Command Buffer Only, Optional] The framebuffer to be used in the subpass
      */
-    public abstract begin (renderPass?: GFXRenderPass, subpass?: number, frameBuffer?: GFXFramebuffer): void;
+    public abstract begin (renderPass?: RenderPass, subpass?: number, frameBuffer?: Framebuffer): void;
 
     /**
      * @en End recording commands.
@@ -124,7 +147,8 @@ export abstract class GFXCommandBuffer extends GFXObject {
      * @param clearDepth The clearing depth.
      * @param clearStencil The clearing stencil.
      */
-    public abstract beginRenderPass (renderPass: GFXRenderPass, framebuffer: GFXFramebuffer, renderArea: GFXRect, clearColors: GFXColor[], clearDepth: number, clearStencil: number): void;
+    public abstract beginRenderPass (renderPass: RenderPass, framebuffer: Framebuffer,
+        renderArea: Rect, clearColors: Color[], clearDepth: number, clearStencil: number): void;
 
     /**
      * @en End render pass.
@@ -137,35 +161,35 @@ export abstract class GFXCommandBuffer extends GFXObject {
      * @zh 绑定 GFX 管线状态。
      * @param pipelineState The pipeline state to be bound.
      */
-    public abstract bindPipelineState (pipelineState: GFXPipelineState): void;
+    public abstract bindPipelineState (pipelineState: PipelineState): void;
 
     /**
      * @en Bind descriptor set.
      * @zh 绑定 GFX 描述符集。
      * @param descriptorSet The descriptor set to be bound.
      */
-    public abstract bindDescriptorSet (set: number, descriptorSets: GFXDescriptorSet, dynamicOffsets?: number[]): void;
+    public abstract bindDescriptorSet (set: number, descriptorSets: DescriptorSet, dynamicOffsets?: number[]): void;
 
     /**
      * @en Bind input assembler.
-     * @zh 绑定GFX输入汇集器。
+     * @zh 绑定 GFX 输入汇集器。
      * @param inputAssembler The input assembler to be bound.
      */
-    public abstract bindInputAssembler (inputAssembler: GFXInputAssembler): void;
+    public abstract bindInputAssembler (inputAssembler: InputAssembler): void;
 
     /**
      * @en Set viewport.
      * @zh 设置视口。
      * @param viewport The new viewport.
      */
-    public abstract setViewport (viewport: GFXViewport): void;
+    public abstract setViewport (viewport: Viewport): void;
 
     /**
      * @en Set scissor range.
      * @zh 设置剪裁区域。
      * @param scissor The new scissor range.
      */
-    public abstract setScissor (scissor: GFXRect): void;
+    public abstract setScissor (scissor: Rect): void;
 
     /**
      * @en Set line width.
@@ -204,7 +228,7 @@ export abstract class GFXCommandBuffer extends GFXObject {
      * @param face The effective triangle face.
      * @param writeMask The new stencil write mask.
      */
-    public abstract setStencilWriteMask (face: GFXStencilFace, writeMask: number): void;
+    public abstract setStencilWriteMask (face: StencilFace, writeMask: number): void;
 
     /**
      * @en Set stencil compare mask.
@@ -213,14 +237,14 @@ export abstract class GFXCommandBuffer extends GFXObject {
      * @param reference The new stencil reference constant.
      * @param compareMask The new stencil read mask.
      */
-    public abstract setStencilCompareMask (face: GFXStencilFace, reference: number, compareMask: number): void;
+    public abstract setStencilCompareMask (face: StencilFace, reference: number, compareMask: number): void;
 
     /**
      * @en Draw the specified primitives.
      * @zh 绘制。
      * @param inputAssembler The target input assembler.
      */
-    public abstract draw (inputAssembler: GFXInputAssembler): void;
+    public abstract draw (inputAssembler: InputAssembler): void;
 
     /**
      * @en Update buffer.
@@ -229,7 +253,7 @@ export abstract class GFXCommandBuffer extends GFXObject {
      * @param data The source data.
      * @param offset Offset into the buffer.
      */
-    public abstract updateBuffer (buffer: GFXBuffer, data: ArrayBuffer, offset?: number): void;
+    public abstract updateBuffer (buffer: Buffer, data: ArrayBuffer, offset?: number): void;
 
     /**
      * @en Copy buffer to texture.
@@ -239,7 +263,7 @@ export abstract class GFXCommandBuffer extends GFXObject {
      * @param dstLayout The target texture layout.
      * @param regions The region descriptions.
      */
-    public abstract copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]): void;
+    public abstract copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]): void;
 
     /**
      * @en Execute specified command buffers.
@@ -247,5 +271,5 @@ export abstract class GFXCommandBuffer extends GFXObject {
      * @param cmdBuffs The command buffers to be executed.
      * @param count The number of command buffers to be executed.
      */
-    public abstract execute (cmdBuffs: GFXCommandBuffer[], count: number): void;
+    public abstract execute (cmdBuffs: CommandBuffer[], count: number): void;
 }

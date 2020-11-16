@@ -1,60 +1,91 @@
-/**
- * @category gfx
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
-import { GFXDescriptorType, GFXObject, GFXObjectType, GFXShaderStageFlagBit, GFXShaderStageFlags } from './define';
-import { GFXDevice } from './device';
-import { GFXSampler } from './sampler';
+/**
+ * @packageDocumentation
+ * @module gfx
+ */
 
-export class GFXDescriptorSetLayoutBinding {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+import { Device } from './device';
+import { Sampler } from './sampler';
+import { DescriptorType, Obj, ObjectType, ShaderStageFlagBit, ShaderStageFlags } from './define';
+
+export class DescriptorSetLayoutBinding {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public descriptorType: GFXDescriptorType = GFXDescriptorType.UNKNOWN,
+        public binding: number = -1,
+        public descriptorType: DescriptorType = DescriptorType.UNKNOWN,
         public count: number = 0,
-        public stageFlags: GFXShaderStageFlags = GFXShaderStageFlagBit.NONE,
-        public immutableSamplers: GFXSampler[] = [],
+        public stageFlags: ShaderStageFlags = ShaderStageFlagBit.NONE,
+        public immutableSamplers: Sampler[] = [],
     ) {}
 }
 
-export class GFXDescriptorSetLayoutInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class DescriptorSetLayoutInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        // array index is used as the binding numbers,
-        // i.e. they should be strictly consecutive and start from 0
-        public bindings: GFXDescriptorSetLayoutBinding[] = []
+        public bindings: DescriptorSetLayoutBinding[] = []
     ) {}
 }
 
-export const DESCRIPTOR_DYNAMIC_TYPE = GFXDescriptorType.DYNAMIC_STORAGE_BUFFER | GFXDescriptorType.DYNAMIC_UNIFORM_BUFFER;
+export const DESCRIPTOR_DYNAMIC_TYPE = DescriptorType.DYNAMIC_STORAGE_BUFFER | DescriptorType.DYNAMIC_UNIFORM_BUFFER;
 
 /**
  * @en GFX descriptor sets layout.
  * @zh GFX 描述符集布局。
  */
-export abstract class GFXDescriptorSetLayout extends GFXObject {
+export abstract class DescriptorSetLayout extends Obj {
 
     get bindings () {
         return this._bindings;
+    }
+
+    get bindingIndices () {
+        return this._bindingIndices;
     }
 
     get descriptorIndices () {
         return this._descriptorIndices;
     }
 
-    protected _device: GFXDevice;
+    protected _device: Device;
 
-    protected _bindings: GFXDescriptorSetLayoutBinding[] = [];
+    protected _bindings: DescriptorSetLayoutBinding[] = [];
+
+    protected _bindingIndices: number[] = [];
 
     protected _descriptorIndices: number[] = [];
 
-    constructor (device: GFXDevice) {
-        super(GFXObjectType.DESCRIPTOR_SET_LAYOUT);
+    constructor (device: Device) {
+        super(ObjectType.DESCRIPTOR_SET_LAYOUT);
         this._device = device;
     }
 
-    public abstract initialize (info: GFXDescriptorSetLayoutInfo): boolean;
+    public abstract initialize (info: DescriptorSetLayoutInfo): boolean;
 
     public abstract destroy (): void;
 }

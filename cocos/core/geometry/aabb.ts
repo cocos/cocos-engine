@@ -1,10 +1,37 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
- * @category geometry
+ * @packageDocumentation
+ * @module geometry
  */
 
 import { Mat3, Mat4, Quat, Vec3 } from '../../core/math';
 import enums from './enums';
 import { IVec3Like } from '../math/type-define';
+import sphere from './sphere';
 
 const _v3_tmp = new Vec3();
 const _v3_tmp2 = new Vec3();
@@ -26,7 +53,7 @@ const transform_extent_m4 = (out: Vec3, extent: Vec3, m4: Mat4) => {
  * @zh
  * 基础几何  轴对齐包围盒，使用中心点和半长宽高的结构。
  */
-// tslint:disable-next-line: class-name
+
 export default class aabb {
 
     /**
@@ -131,6 +158,33 @@ export default class aabb {
         Vec3.max(_v3_tmp4, _v3_tmp3, _v3_tmp4);
         Vec3.min(_v3_tmp3, _v3_tmp, _v3_tmp2);
         return aabb.fromPoints(out, _v3_tmp3, _v3_tmp4);
+    }
+
+    /**
+     * @en
+     * aabb to sphere
+     * @zh
+     * 包围盒转包围球
+     * @param out 接受操作的 sphere。
+     * @param a 输入的 aabb。
+     */
+    public static toBoundingSphere (out: sphere, a: aabb) {
+        a.getBoundary(_v3_tmp, _v3_tmp2);
+
+        // Initialize sphere
+        out.center.set(_v3_tmp);
+        out.radius = 0.0;
+
+        // Calculate sphere
+        Vec3.subtract(_v3_tmp3, _v3_tmp2, out.center);
+        const dist = _v3_tmp3.length();
+
+        const half = dist * 0.5;
+        out.radius += half;
+        Vec3.multiplyScalar(_v3_tmp3, _v3_tmp3, half / dist);
+        Vec3.add(out.center, out.center, _v3_tmp3);
+
+        return out;
     }
 
     /**

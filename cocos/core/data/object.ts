@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,7 +24,8 @@
 */
 
 /**
- * @category core/data
+ * @packageDocumentation
+ * @module core/data
  */
 
 import * as js from '../utils/js';
@@ -98,7 +99,7 @@ function compileDestruct (obj, ctor) {
     if (CCClass._isCCClass(ctor)) {
         const attrs = legacyCC.Class.Attr.getClassAttrs(ctor);
         const propList = ctor.__props__;
-        // tslint:disable-next-line: prefer-for-of
+
         for (let i = 0; i < propList.length; i++) {
             key = propList[i];
             const attrKey = key + legacyCC.Class.Attr.DELIMETER + 'default';
@@ -125,7 +126,7 @@ function compileDestruct (obj, ctor) {
     if (SUPPORT_JIT) {
         // compile code
         let func = '';
-        // tslint:disable: forin
+
         for (key in propsToReset) {
             let statement;
             if (CCClass.IDENTIFIER_RE.test(key)) {
@@ -276,7 +277,7 @@ class CCObject {
 
         if (EDITOR && deferredDestroyTimer === null && legacyCC.engine && ! legacyCC.engine._isUpdating) {
             // auto destroy immediate in edit mode
-            // @ts-ignore
+            // @ts-expect-error
             deferredDestroyTimer = setImmediate(CCObject._deferredDestroy);
         }
         return true;
@@ -319,9 +320,9 @@ class CCObject {
             return;
         }
         // engine internal callback
-        // @ts-ignore
+        // @ts-expect-error
         if (this._onPreDestroy) {
-            // @ts-ignore
+            // @ts-expect-error
             this._onPreDestroy();
         }
 
@@ -349,7 +350,7 @@ if (EDITOR || TEST) {
     * @method realDestroyInEditor
     * @private
     */
-    // @ts-ignore
+    // @ts-expect-error
     prototype.realDestroyInEditor = function () {
         if ( !(this._objFlags & Destroyed) ) {
             warnID(5001);
@@ -367,7 +368,7 @@ if (EDITOR || TEST) {
 if (EDITOR) {
     js.value(CCObject, '_clearDeferredDestroyTimer', () => {
         if (deferredDestroyTimer !== null) {
-            // @ts-ignore
+            // @ts-expect-error
             clearImmediate(deferredDestroyTimer);
             deferredDestroyTimer = null;
         }
@@ -380,7 +381,7 @@ if (EDITOR) {
      * @return {object} the serialized json data object
      * @private
      */
-    // @ts-ignore
+    // @ts-expect-error
     prototype._serialize = null;
 }
 
@@ -391,14 +392,14 @@ if (EDITOR) {
  * @param {_Deserializer} ctx
  * @private
  */
-// @ts-ignore
+// @ts-expect-error
 prototype._deserialize = null;
 /*
  * Called before the object being destroyed.
  * @method _onPreDestroy
  * @private
  */
-// @ts-ignore
+// @ts-expect-error
 prototype._onPreDestroy = null;
 
 CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0 });
@@ -453,7 +454,7 @@ declare namespace CCObject {
 
         /**
          * @en Dont destroy automatically when loading a new scene.
-         * @zh 加载一个新场景时，不自动删除该对象
+         * @zh 加载一个新场景时，不自动删除该对象。
          * @private
          */
         DontDestroy,
@@ -473,7 +474,7 @@ declare namespace CCObject {
 
         /**
          * @en The lock node, when the node is locked, cannot be clicked in the scene.
-         * @zh 锁定节点，锁定后场景内不能点击
+         * @zh 锁定节点，锁定后场景内不能点击。
          * @private
          */
         LockedInEditor,
@@ -491,8 +492,8 @@ declare namespace CCObject {
         // FLAGS FOR EDITOR
 
         /// **
-        // * @en This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
-        // * @zh 该标记只读，它只能被用作 scene.addEntity()的一个参数。
+        // * @en Hide the object in editor.
+        // * @zh 在编辑器中隐藏该对象。
         // */
         HideInHierarchy,
 
@@ -505,9 +506,6 @@ declare namespace CCObject {
         // * 该标记只读，它只能被用作 scene.addEntity()的一个参数。
         // */
         // Hide: Hide,
-
-        //// UUID Registered in editor
-        // RegisteredInEditor: RegisteredInEditor,
 
         // FLAGS FOR COMPONENT
 
@@ -524,6 +522,10 @@ declare namespace CCObject {
         IsAnchorLocked,
         IsSizeLocked,
     }
+
+    // for @ccclass
+    let __props__: string[];
+    let __values__: string[];
 }
 
 /*

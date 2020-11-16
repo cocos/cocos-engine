@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,11 +23,12 @@
  THE SOFTWARE.
 */
 
-import { legacyCC } from '../global-exports';
-
 /**
- * @category scene-graph
+ * @packageDocumentation
+ * @module scene-graph
  */
+
+import { legacyCC } from '../global-exports';
 
 /**
  * @en Node's coordinate space

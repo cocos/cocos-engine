@@ -1,10 +1,35 @@
-import { GFXDescriptorSet } from '../descriptor-set';
-import { GFXBuffer, GFXBufferSource } from '../buffer';
-import { GFXCommandBuffer, GFXCommandBufferInfo } from '../command-buffer';
-import { GFXFramebuffer } from '../framebuffer';
-import { GFXInputAssembler } from '../input-assembler';
-import { GFXPipelineState } from '../pipeline-state';
-import { GFXTexture } from '../texture';
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+import { DescriptorSet } from '../descriptor-set';
+import { Buffer, BufferSource } from '../buffer';
+import { CommandBuffer, CommandBufferInfo } from '../command-buffer';
+import { Framebuffer } from '../framebuffer';
+import { InputAssembler } from '../input-assembler';
+import { PipelineState } from '../pipeline-state';
+import { Texture } from '../texture';
 import { WebGLDescriptorSet } from './webgl-descriptor-set';
 import { WebGLBuffer } from './webgl-buffer';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
@@ -14,10 +39,11 @@ import { IWebGLGPUInputAssembler, IWebGLGPUDescriptorSet, IWebGLGPUPipelineState
 import { WebGLInputAssembler } from './webgl-input-assembler';
 import { WebGLPipelineState } from './webgl-pipeline-state';
 import { WebGLTexture } from './webgl-texture';
-import { GFXRenderPass } from '../render-pass';
+import { RenderPass } from '../render-pass';
 import { WebGLRenderPass } from './webgl-render-pass';
-import { GFXBufferTextureCopy, GFXBufferUsageBit, GFXCommandBufferType,
-    GFXStencilFace, GFXColor, GFXRect, GFXViewport } from '../define';
+import { BufferUsageBit, CommandBufferType,
+    StencilFace } from '../define';
+import { BufferTextureCopy, Color, Rect, Viewport } from '../define-class';
 import { WebGLCmd, WebGLCmdBeginRenderPass, WebGLCmdBindStates, WebGLCmdCopyBufferToTexture,
     WebGLCmdDraw, WebGLCmdPackage, WebGLCmdUpdateBuffer } from './webgl-commands';
 
@@ -33,36 +59,36 @@ export interface IWebGLDepthBounds {
 }
 
 export interface IWebGLStencilWriteMask {
-    face: GFXStencilFace;
+    face: StencilFace;
     writeMask: number;
 }
 
 export interface IWebGLStencilCompareMask {
-    face: GFXStencilFace;
+    face: StencilFace;
     reference: number;
     compareMask: number;
 }
 
-export class WebGLCommandBuffer extends GFXCommandBuffer {
+export class WebGLCommandBuffer extends CommandBuffer {
 
     public cmdPackage: WebGLCmdPackage = new WebGLCmdPackage();
     protected _webGLAllocator: WebGLCommandAllocator | null = null;
-    protected _isInRenderPass: boolean = false;
+    protected _isInRenderPass = false;
     protected _curGPUPipelineState: IWebGLGPUPipelineState | null = null;
     protected _curGPUInputAssembler: IWebGLGPUInputAssembler | null = null;
     protected _curGPUDescriptorSets: IWebGLGPUDescriptorSet[] = [];
     protected _curDynamicOffsets: number[][] = [];
-    protected _curViewport: GFXViewport | null = null;
-    protected _curScissor: GFXRect | null = null;
+    protected _curViewport: Viewport | null = null;
+    protected _curScissor: Rect | null = null;
     protected _curLineWidth: number | null = null;
     protected _curDepthBias: IWebGLDepthBias | null = null;
     protected _curBlendConstants: number[] = [];
     protected _curDepthBounds: IWebGLDepthBounds | null = null;
     protected _curStencilWriteMask: IWebGLStencilWriteMask | null = null;
     protected _curStencilCompareMask: IWebGLStencilCompareMask | null = null;
-    protected _isStateInvalied: boolean = false;
+    protected _isStateInvalied = false;
 
-    public initialize (info: GFXCommandBufferInfo): boolean {
+    public initialize (info: CommandBufferInfo): boolean {
 
         this._type = info.type;
         this._queue = info.queue;
@@ -85,7 +111,7 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public begin (renderPass?: GFXRenderPass, subpass = 0, frameBuffer?: GFXFramebuffer) {
+    public begin (renderPass?: RenderPass, subpass = 0, frameBuffer?: Framebuffer) {
         this._webGLAllocator!.clearCmds(this.cmdPackage);
         this._curGPUPipelineState = null;
         this._curGPUInputAssembler = null;
@@ -115,10 +141,10 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
     }
 
     public beginRenderPass (
-        renderPass: GFXRenderPass,
-        framebuffer: GFXFramebuffer,
-        renderArea: GFXRect,
-        clearColors: GFXColor[],
+        renderPass: RenderPass,
+        framebuffer: Framebuffer,
+        renderArea: Rect,
+        clearColors: Color[],
         clearDepth: number,
         clearStencil: number) {
         const cmd = this._webGLAllocator!.beginRenderPassCmdPool.alloc(WebGLCmdBeginRenderPass);
@@ -142,7 +168,7 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
         this._isInRenderPass = false;
     }
 
-    public bindPipelineState (pipelineState: GFXPipelineState) {
+    public bindPipelineState (pipelineState: PipelineState) {
         const gpuPipelineState = (pipelineState as WebGLPipelineState).gpuPipelineState;
         if (gpuPipelineState !== this._curGPUPipelineState) {
             this._curGPUPipelineState = gpuPipelineState;
@@ -150,7 +176,7 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public bindDescriptorSet (set: number, descriptorSet: GFXDescriptorSet, dynamicOffsets?: number[]) {
+    public bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: number[]) {
         const gpuDescriptorSet = (descriptorSet as WebGLDescriptorSet).gpuDescriptorSet;
         if (gpuDescriptorSet !== this._curGPUDescriptorSets[set]) {
             this._curGPUDescriptorSets[set] = gpuDescriptorSet;
@@ -164,15 +190,15 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public bindInputAssembler (inputAssembler: GFXInputAssembler) {
+    public bindInputAssembler (inputAssembler: InputAssembler) {
         const gpuInputAssembler = (inputAssembler as WebGLInputAssembler).gpuInputAssembler;
         this._curGPUInputAssembler = gpuInputAssembler;
         this._isStateInvalied = true;
     }
 
-    public setViewport (viewport: GFXViewport) {
+    public setViewport (viewport: Viewport) {
         if (!this._curViewport) {
-            this._curViewport = new GFXViewport(viewport.left, viewport.top, viewport.width, viewport.height, viewport.minDepth, viewport.maxDepth);
+            this._curViewport = new Viewport(viewport.left, viewport.top, viewport.width, viewport.height, viewport.minDepth, viewport.maxDepth);
         } else {
             if (this._curViewport.left !== viewport.left ||
                 this._curViewport.top !== viewport.top ||
@@ -192,14 +218,15 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public setScissor (scissor: GFXRect) {
+    public setScissor (scissor: Rect) {
         if (!this._curScissor) {
-            this._curScissor = new GFXRect(scissor.x, scissor.y, scissor.width, scissor.height);
+            this._curScissor = new Rect(scissor.x, scissor.y, scissor.width, scissor.height);
         } else {
             if (this._curScissor.x !== scissor.x ||
                 this._curScissor.y !== scissor.y ||
                 this._curScissor.width !== scissor.width ||
                 this._curScissor.height !== scissor.height) {
+
                 this._curScissor.x = scissor.x;
                 this._curScissor.y = scissor.y;
                 this._curScissor.width = scissor.width;
@@ -268,7 +295,7 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public setStencilWriteMask (face: GFXStencilFace, writeMask: number) {
+    public setStencilWriteMask (face: StencilFace, writeMask: number) {
         if (!this._curStencilWriteMask) {
             this._curStencilWriteMask = {
                 face,
@@ -286,7 +313,7 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public setStencilCompareMask (face: GFXStencilFace, reference: number, compareMask: number) {
+    public setStencilCompareMask (face: StencilFace, reference: number, compareMask: number) {
         if (!this._curStencilCompareMask) {
             this._curStencilCompareMask = {
                 face,
@@ -307,9 +334,9 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public draw (inputAssembler: GFXInputAssembler) {
-        if (this._type === GFXCommandBufferType.PRIMARY && this._isInRenderPass ||
-            this._type === GFXCommandBufferType.SECONDARY) {
+    public draw (inputAssembler: InputAssembler) {
+        if (this._type === CommandBufferType.PRIMARY && this._isInRenderPass ||
+            this._type === CommandBufferType.SECONDARY) {
             if (this._isStateInvalied) {
                 this.bindStates();
             }
@@ -349,19 +376,19 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public updateBuffer (buffer: GFXBuffer, data: GFXBufferSource, offset?: number, size?: number) {
-        if (this._type === GFXCommandBufferType.PRIMARY && !this._isInRenderPass ||
-            this._type === GFXCommandBufferType.SECONDARY) {
+    public updateBuffer (buffer: Buffer, data: BufferSource, offset?: number, size?: number) {
+        if (this._type === CommandBufferType.PRIMARY && !this._isInRenderPass ||
+            this._type === CommandBufferType.SECONDARY) {
             const gpuBuffer = (buffer as WebGLBuffer).gpuBuffer;
             if (gpuBuffer) {
                 const cmd = this._webGLAllocator!.updateBufferCmdPool.alloc(WebGLCmdUpdateBuffer);
 
                 let buffSize = 0;
-                let buff: GFXBufferSource | null = null;
+                let buff: BufferSource | null = null;
 
                 // TODO: Have to copy to staging buffer first to make this work for the execution is deferred.
                 // But since we are using specialized primary command buffers in WebGL backends, we leave it as is for now
-                if (buffer.usage & GFXBufferUsageBit.INDIRECT) {
+                if (buffer.usage & BufferUsageBit.INDIRECT) {
                     buff = data;
                 } else {
                     if (size !== undefined) {
@@ -385,9 +412,9 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
-        if (this._type === GFXCommandBufferType.PRIMARY && !this._isInRenderPass ||
-            this._type === GFXCommandBufferType.SECONDARY) {
+    public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]) {
+        if (this._type === CommandBufferType.PRIMARY && !this._isInRenderPass ||
+            this._type === CommandBufferType.SECONDARY) {
             const gpuTexture = (texture as WebGLTexture).gpuTexture;
             if (gpuTexture) {
                 const cmd = this._webGLAllocator!.copyBufferToTextureCmdPool.alloc(WebGLCmdCopyBufferToTexture);
@@ -407,8 +434,8 @@ export class WebGLCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    // tslint:disable: max-line-length
-    public execute (cmdBuffs: GFXCommandBuffer[], count: number) {
+
+    public execute (cmdBuffs: CommandBuffer[], count: number) {
 
         for (let i = 0; i < count; ++i) {
             const webGLCmdBuff = cmdBuffs[i] as WebGLCommandBuffer;

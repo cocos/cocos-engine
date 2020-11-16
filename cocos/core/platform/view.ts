@@ -2,7 +2,7 @@
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -26,7 +26,8 @@
 */
 
 /**
- * @category core
+ * @packageDocumentation
+ * @module core
  */
 
 import '../data/class';
@@ -131,7 +132,6 @@ export class View extends EventTarget {
     private _isRotated: boolean;
     private _orientation: any;
     private _isAdjustViewport: boolean;
-    private _antiAliasEnabled: boolean;
     private _resolutionPolicy: ResolutionPolicy;
     private _rpExactFit: ResolutionPolicy;
     private _rpShowAll: ResolutionPolicy;
@@ -177,7 +177,6 @@ export class View extends EventTarget {
         this._isRotated = false;
         this._orientation = legacyCC.macro.ORIENTATION_AUTO;
         this._isAdjustViewport = true;
-        this._antiAliasEnabled = false;
 
         // Setup system default resolution policies
         this._rpExactFit = new ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.EXACT_FIT);
@@ -194,7 +193,6 @@ export class View extends EventTarget {
         __BrowserGetter.init();
 
         this._initFrameSize();
-        this.enableAntiAlias(true);
 
         const w = legacyCC.game.canvas.width;
         const h = legacyCC.game.canvas.height;
@@ -320,47 +318,6 @@ export class View extends EventTarget {
     }
 
     /**
-     * @en Whether to Enable on anti-alias
-     * @zh 控制抗锯齿是否开启
-     * @param enabled - Enable or not anti-alias
-     */
-    public enableAntiAlias (enabled: boolean) {
-        if (this._antiAliasEnabled === enabled) {
-            return;
-        }
-        this._antiAliasEnabled = enabled;
-        if (legacyCC.game.renderType === legacyCC.Game.RENDER_TYPE_WEBGL) {
-            const cache = legacyCC.loader._cache;
-            // tslint:disable-next-line: forin
-            for (const key in cache) {
-                const item = cache[key];
-                const tex = item && item.content instanceof legacyCC.Texture2D ? item.content : null;
-                if (tex) {
-                    const Filter = legacyCC.Texture2D.Filter;
-                    if (enabled) {
-                        tex.setFilters(Filter.LINEAR, Filter.LINEAR);
-                    }
-                    else {
-                        tex.setFilters(Filter.NEAREST, Filter.NEAREST);
-                    }
-                }
-            }
-        }
-        else if (legacyCC.game.renderType === legacyCC.Game.RENDER_TYPE_CANVAS) {
-            const ctx = legacyCC.game.canvas.getContext('2d');
-            ctx.imageSmoothingEnabled = enabled;
-            ctx.mozImageSmoothingEnabled = enabled;
-        }
-    }
-
-    /**
-     * @en Returns whether the current enable on anti-alias
-     * @zh 返回当前是否抗锯齿
-     */
-    public isAntiAliasEnabled (): boolean {
-        return this._antiAliasEnabled;
-    }
-    /**
      * @en
      * If enabled, the application will try automatically to enter full screen mode on mobile devices<br/>
      * You can pass true as parameter to enable it and disable it by passing false.<br/>
@@ -477,8 +434,8 @@ export class View extends EventTarget {
      * @zh 返回视图窗口可见区域像素尺寸。
      */
     public getVisibleSizeInPixel (): Size {
-        return new Size( this._visibleRect.width * this._scaleX,
-                        this._visibleRect.height * this._scaleY );
+        return new Size(this._visibleRect.width * this._scaleX,
+                        this._visibleRect.height * this._scaleY);
     }
 
     /**
@@ -538,7 +495,7 @@ export class View extends EventTarget {
         }
     }
 
-    // tslint:disable: max-line-length
+
     /**
      * @en Sets the resolution policy with designed view size in points.<br/>
      * The resolution policy include: <br/>
@@ -555,7 +512,7 @@ export class View extends EventTarget {
      */
     public setDesignResolutionSize (width: number, height: number, resolutionPolicy: ResolutionPolicy|number) {
         // Defensive code
-        if ( !(width > 0 || height > 0) ){
+        if (!(width > 0 && height > 0)) {
             errorID(2200);
             return;
         }
@@ -588,12 +545,12 @@ export class View extends EventTarget {
 
         const result = policy.apply(this, this._designResolutionSize);
 
-        if (result.scale && result.scale.length === 2){
+        if (result.scale && result.scale.length === 2) {
             this._scaleX = result.scale[0];
             this._scaleY = result.scale[1];
         }
 
-        if (result.viewport){
+        if (result.viewport) {
             const vp = this._viewportRect;
             const vb = this._visibleRect;
             const rv = result.viewport;
@@ -713,6 +670,10 @@ export class View extends EventTarget {
             result.x = x;
             result.y = y;
         }
+        if (legacyCC.GAME_VIEW) {
+            result.x /= legacyCC.gameView.canvas.width / legacyCC.game.canvas.width;
+            result.y /= legacyCC.gameView.canvas.height / legacyCC.game.canvas.height;
+        }
         return result;
     }
 
@@ -778,7 +739,7 @@ export class View extends EventTarget {
         const locFrameSize = this._frameSize;
         const w = __BrowserGetter.availWidth(legacyCC.game.frame);
         const h = __BrowserGetter.availHeight(legacyCC.game.frame);
-        const isLandscape: Boolean = w >= h;
+        const isLandscape: boolean = w >= h;
 
         if (EDITOR || !legacyCC.sys.isMobile ||
             (isLandscape && this._orientation & legacyCC.macro.ORIENTATION_LANDSCAPE) ||
@@ -847,7 +808,7 @@ export class View extends EventTarget {
             }
             else if (overwrite) {
                 pattern = new RegExp(key + '\s*=\s*[^,]+');
-                content.replace(pattern, key + '=' + metas[key]);
+                content = content.replace(pattern, key + '=' + metas[key]);
             }
         }
         if (/^,/.test(content)) {
@@ -870,12 +831,16 @@ export class View extends EventTarget {
         }
     }
 
-    private _convertMouseToLocation (in_out_point, relatedPos){
+    private _convertMouseToLocation (in_out_point, relatedPos) {
         in_out_point.x = this._devicePixelRatio * (in_out_point.x - relatedPos.left);
         in_out_point.y = this._devicePixelRatio * (relatedPos.top + relatedPos.height - in_out_point.y);
+        if (legacyCC.GAME_VIEW) {
+            in_out_point.x /= legacyCC.gameView.canvas.width / legacyCC.game.canvas.width;
+            in_out_point.y /= legacyCC.gameView.canvas.height / legacyCC.game.canvas.height;
+        }
     }
 
-    private _convertTouchWidthScale (selTouch){
+    private _convertTouchWidthScale (selTouch) {
         const viewport = this._viewportRect;
         const scaleX = this._scaleX;
         const scaleY = this._scaleY;
@@ -892,7 +857,7 @@ export class View extends EventTarget {
         const scaleY = this._scaleY;
         let selPoint;
         let selPrePoint;
-        // tslint:disable-next-line: prefer-for-of
+
         for (let i = 0; i < touches.length; i++) {
             const selTouch = touches[i];
             selPoint = selTouch._point;
@@ -919,7 +884,7 @@ interface AdaptResult {
     viewport?: null | Rect;
 }
 
-/** 
+/**
  * ContainerStrategy class is the root strategy class of container's scale strategy,
  * it controls the behavior of how to scale the cc.game.container and cc.game.canvas object
  */
@@ -927,7 +892,7 @@ class ContainerStrategy {
     public static EQUAL_TO_FRAME: any;
     public static PROPORTION_TO_FRAME: any;
 
-    public name: string = 'ContainerStrategy';
+    public name = 'ContainerStrategy';
 
     /**
      * @en Manipulation before appling the strategy
@@ -1053,10 +1018,10 @@ class ContentStrategy {
 
     public _buildResult (containerW, containerH, contentW, contentH, scaleX, scaleY): AdaptResult {
         // Makes content fit better the canvas
-        if ( Math.abs(containerW - contentW) < 2 ) {
+        if (Math.abs(containerW - contentW) < 2) {
             contentW = containerW;
         }
-        if ( Math.abs(containerH - contentH) < 2 ) {
+        if (Math.abs(containerH - contentH) < 2) {
             contentH = containerH;
         }
 
@@ -1136,7 +1101,6 @@ class ContentStrategy {
     }
 
     // need to adapt prototype before instantiating
-    // @ts-ignore
     const _global = typeof window === 'undefined' ? global : window;
     const globalAdapter = _global.__globalAdapter;
     if (globalAdapter) {
@@ -1256,35 +1220,35 @@ export class ResolutionPolicy {
      * The entire application is visible in the specified area without trying to preserve the original aspect ratio.<br/>
      * Distortion can occur, and the application may appear stretched or compressed.
      */
-    public static EXACT_FIT: number = 0;
+    public static EXACT_FIT = 0;
     /**
      * The entire application fills the specified area, without distortion but possibly with some cropping,<br/>
      * while maintaining the original aspect ratio of the application.
      */
-    public static NO_BORDER: number = 1;
+    public static NO_BORDER = 1;
     /**
      * The entire application is visible in the specified area without distortion while maintaining the original<br/>
      * aspect ratio of the application. Borders can appear on two sides of the application.
      */
-    public static SHOW_ALL: number = 2;
+    public static SHOW_ALL = 2;
     /**
      * The application takes the height of the design resolution size and modifies the width of the internal<br/>
      * canvas so that it fits the aspect ratio of the device<br/>
      * no distortion will occur however you must make sure your application works on different<br/>
      * aspect ratios
      */
-    public static FIXED_HEIGHT: number = 3;
+    public static FIXED_HEIGHT = 3;
     /**
      * The application takes the width of the design resolution size and modifies the height of the internal<br/>
      * canvas so that it fits the aspect ratio of the device<br/>
      * no distortion will occur however you must make sure your application works on different<br/>
      * aspect ratios
      */
-    public static FIXED_WIDTH: number = 4;
+    public static FIXED_WIDTH = 4;
     /**
      * Unknown policy
      */
-    public static UNKNOWN: number = 5;
+    public static UNKNOWN = 5;
     public static ContainerStrategy: typeof ContainerStrategy = ContainerStrategy;
     public static ContentStrategy: typeof ContentStrategy = ContentStrategy;
 

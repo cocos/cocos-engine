@@ -1,48 +1,104 @@
-/**
- * @category gfx
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
-import { GFXBuffer } from './buffer';
-import { GFXCommandBuffer } from './command-buffer';
-import * as GFXDefines from './define';
-import { GFXDevice } from './device';
-import { GFXFramebuffer } from './framebuffer';
-import { GFXInputAssembler } from './input-assembler';
-import { GFXQueue } from './queue';
-import { GFXRenderPass } from './render-pass';
-import { GFXSampler } from './sampler';
-import { GFXShader } from './shader';
-import { GFXTexture } from './texture';
-import { legacyCC } from '../global-exports';
+declare const gfx: any;
 
-export * from './descriptor-set';
-export * from './buffer';
-export * from './command-buffer';
+import * as Defines from './define';
+import { legacyCC } from '../global-exports';
+import { PipelineState } from './pipeline-state.jsb';
+
 export * from './define';
-export * from './device';
-export * from './framebuffer';
-export * from './input-assembler';
-export * from './descriptor-set-layout';
-export * from './pipeline-layout';
-export * from './fence';
-export * from './queue';
-export * from './render-pass';
-export * from './sampler';
-export * from './shader';
-export * from './texture';
+export * from './define-class';
 export * from './pipeline-state.jsb';
 
+export {TextureInfo } from './texture';
+export const TextureViewInfo = gfx.TextureViewInfo;
+export const Texture = gfx.Texture;
 
-legacyCC.GFXDevice = GFXDevice;
-legacyCC.GFXBuffer = GFXBuffer;
-legacyCC.GFXTexture = GFXTexture;
-legacyCC.GFXSampler = GFXSampler;
-legacyCC.GFXShader = GFXShader;
-legacyCC.GFXInputAssembler = GFXInputAssembler;
-legacyCC.GFXRenderPass = GFXRenderPass;
-legacyCC.GFXFramebuffer = GFXFramebuffer;
-legacyCC.GFXPipelineState = gfx.PipelineState;
-legacyCC.GFXCommandBuffer = GFXCommandBuffer;
-legacyCC.GFXQueue = GFXQueue;
+export const Device = gfx.Device;
+export const BindingMappingInfo = gfx.BindingMappingInfo;
+// DeviceInfo is different from native defination, so use JS defination instead.
+export { DeviceInfo } from './device';
 
-Object.assign(legacyCC, GFXDefines);
+export const Shader = gfx.Shader;
+export const ShaderStage = gfx.ShaderStage;
+export const Uniform = gfx.Uniform;
+export const UniformBlock = gfx.UniformBlock;
+export const UniformSampler = gfx.UniformSampler;
+export const ShaderInfo = gfx.ShaderInfo;
+
+export const Attribute = gfx.Attribute;
+export const InputAssemblerInfo = gfx.InputAssemblerInfo;
+export const InputAssembler = gfx.InputAssembler;
+
+export const DrawInfo = gfx.DrawInfo;
+export const IndirectBuffer = gfx.IndirectBuffer;
+export const Buffer = gfx.Buffer;
+export { DRAW_INFO_SIZE, BufferInfo, BufferViewInfo } from './buffer';
+
+export const SamplerInfo = gfx.SamplerInfo;
+export const Sampler = gfx.Sampler;
+
+export const FenceInfo = gfx.FenceInfo;
+export const Fence = gfx.Fence;
+
+export const ColorAttachment = gfx.ColorAttachment;
+export const DepthStencilAttachment = gfx.DepthStencilAttachment;
+export const SubPassInfo = gfx.SubPassInfo;
+export const RenderPassInfo = gfx.RenderPassInfo;
+export const RenderPass = gfx.RenderPass;
+
+export const QueueInfo = gfx.QueueInfo;
+export const Queue = gfx.Queue;
+
+export const PipelineLayoutInfo = gfx.PipelineLayoutInfo;
+export const PipelineLayout = gfx.PipelineLayout;
+
+export const DescriptorSetLayoutBinding = gfx.DescriptorSetLayoutBinding;
+export const DescriptorSetLayoutInfo = gfx.DescriptorSetLayoutInfo;
+export const DescriptorSetLayout = gfx.DescriptorSetLayout;
+export { DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE, DescriptorSetInfo } from './descriptor-set';
+
+export const FramebufferInfo = gfx.FramebufferInfo;
+export const Framebuffer = gfx.Framebuffer;
+
+export const CommandBufferInfo = gfx.CommandBufferInfo;
+export const CommandBuffer = gfx.CommandBuffer;
+
+legacyCC.Device = Device;
+legacyCC.Buffer = Buffer;
+legacyCC.Texture = Texture;
+legacyCC.Sampler = Sampler;
+legacyCC.Shader = Shader;
+legacyCC.InputAssembler = InputAssembler;
+legacyCC.RenderPass = RenderPass;
+legacyCC.Framebuffer = Framebuffer;
+legacyCC.PipelineState = PipelineState;
+legacyCC.CommandBuffer = CommandBuffer;
+legacyCC.Queue = Queue;
+
+Object.assign(legacyCC, Defines);
+
+export * from './deprecated-3.0.0';

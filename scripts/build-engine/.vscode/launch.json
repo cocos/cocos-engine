@@ -1,0 +1,31 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Build engine",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "stopOnEntry": true,
+            "program": "${workspaceFolder}\\dist\\cli.js",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ],
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "--engine=../..",
+                "--build-mode=BUILD",
+                "--platform=NATIVE",
+                "--module=system",
+                "--sourcemap",
+                "--out=out",
+                "--meta-file=out/meta.json"
+            ]
+        }
+    ]
+}

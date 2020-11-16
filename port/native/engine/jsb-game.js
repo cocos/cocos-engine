@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -24,14 +24,17 @@
  ****************************************************************************/
 
 cc.game.restart = function () {
+    // Need to clear scene, or native object destructor won't be invoke.
+    cc.director.getScene().destroy();
+    cc.Object._deferredDestroy();
     __restartVM();
 };
 
-jsb.onHide = function () {
+jsb.onPause = function () {
     cc.game.emit(cc.Game.EVENT_HIDE);
 };
 
-jsb.onShow = function () {
+jsb.onResume = function () {
     cc.game.emit(cc.Game.EVENT_SHOW);
 };
 
@@ -41,3 +44,6 @@ jsb.onResize = function (size) {
     cc.view.setCanvasSize(window.innerWidth, window.innerHeight);
 };
 
+jsb.onMemoryWarning = function () {
+    cc.game.emit(cc.Game.EVENT_LOW_MEMORY);
+}

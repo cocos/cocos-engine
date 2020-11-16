@@ -1,8 +1,8 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -25,19 +25,18 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 import {ccclass, string, override, serializable} from 'cc.decorator';
+import { extname } from '../utils/path';
 import { Font } from './font';
 import { legacyCC } from '../global-exports';
 
 /**
- * @en
- * Class for TTFFont handling.
- *
- * @zh
- * TTF 字体资源类。
+ * @en Class for TTFFont asset.
+ * @zh TTF 字体资源类。
  */
 @ccclass('cc.TTFFont')
 export class TTFFont extends Font {
@@ -51,6 +50,11 @@ export class TTFFont extends Font {
     }
     set _nativeAsset (value) {
         this._fontFamily = value || 'Arial';
+    }
+
+    @override
+    get _nativeDep () {
+        return { uuid: this._uuid, __nativeName__: this._native, ext: extname(this._native), __isNative__: true };
     }
 }
 

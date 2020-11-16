@@ -226,14 +226,9 @@
 
         var sprite = new Sprite();
         var resultInEditor = JSON.parse(EditorExtends.serialize(sprite));
-        var resultInPlayer = JSON.parse(EditorExtends.serialize(sprite, { exporting: true }));
 
         strictEqual(resultInEditor.trimThreshold, 2, 'serialize editor only in editor');
-
-        strictEqual(resultInPlayer.trimThreshold, undefined, 'should not serialize editor only in player');
-
         strictEqual(resultInEditor._isValid, undefined, 'should not serialize non-serialized in editor');
-        strictEqual(resultInPlayer._isValid, undefined, 'should not serialize non-serialized in player');
 
         cc.js.unregisterClass(Sprite);
     });
@@ -418,47 +413,6 @@
 
         cc._Test.nicifySerialized(data);
         deepEqual(data, expected, 'nicify success');
-    });
-
-    test('url array', function () {
-        var Data = cc.Class({
-            name: 'data',
-            properties: {
-                textures: {
-                    default: [],
-                    url: [cc.Texture2D]
-                }
-            }
-        });
-        var restore = Editor.Utils.UuidCache.urlToUuid;
-        Editor.Utils.UuidCache.urlToUuid = function (url) {
-            return {
-                foo: '01',
-                bar: '02'
-            }[url];
-        };
-
-        var data = new Data();
-        data.textures = ['foo', 'bar'];
-
-        var actual = JSON.parse(EditorExtends.serialize(data));
-        strictEqual(actual.image, undefined, 'should not serialize variable which not defined by property');
-
-        var expected = {
-            __type__: 'data',
-            textures: [
-                {
-                    __uuid__: '01'
-                },
-                {
-                    __uuid__: '02'
-                }
-            ]
-        };
-        deepEqual(actual, expected, 'could be serialized');
-
-        Editor.Utils.UuidCache.urlToUuid = restore;
-        cc.js.unregisterClass(Data);
     });
 
     test('node array', function () {

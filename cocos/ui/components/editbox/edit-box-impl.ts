@@ -2,7 +2,7 @@
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2012 James Chen
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -27,6 +27,7 @@
 */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 
@@ -81,7 +82,7 @@ export class EditBoxImpl extends EditBoxImplBase {
     private _placeholderLabelFontColor = null;
     private _placeholderLabelAlign = null;
     private _placeholderLineHeight = null;
-    private _placeholderStyleSheet: any = null;
+    private _placeholderStyleSheet: HTMLStyleElement | null = null;
     private _domId = `EditBoxId_${++_domCount}`;
 
     public init (delegate: EditBox) {
@@ -165,24 +166,31 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _addDomToGameContainer () {
-        if (game.container && this._edTxt) {
+        if(legacyCC.GAME_VIEW && this._edTxt) {
+            legacyCC.gameView.container.appendChild(this._edTxt);
+            legacyCC.gameView.head.appendChild(this._placeholderStyleSheet!);
+        } else if (game.container && this._edTxt) {
             game.container.appendChild(this._edTxt);
-            document.head.appendChild(this._placeholderStyleSheet);
+            document.head.appendChild(this._placeholderStyleSheet!);
         }
     }
 
     private _removeDomFromGameContainer () {
-        const hasElem = contains(game.container, this._edTxt);
+        const hasElem = legacyCC.GAME_VIEW ? contains(legacyCC.gameView.container, this._edTxt)
+        : contains(game.container, this._edTxt);
         if (hasElem && this._edTxt) {
-            game.container!.removeChild(this._edTxt);
+            legacyCC.GAME_VIEW ? legacyCC.gameView.container.removeChild(this._edTxt) 
+            : game.container!.removeChild(this._edTxt);
         }
-        const hasStyleSheet = contains(document.head, this._placeholderStyleSheet);
+        const hasStyleSheet = legacyCC.GAME_VIEW ? contains(legacyCC.gameView.head, this._placeholderStyleSheet)
+        : contains(document.head, this._placeholderStyleSheet);
         if (hasStyleSheet) {
-            document.head.removeChild(this._placeholderStyleSheet);
+            legacyCC.GAME_VIEW ? legacyCC.gameView.head.removeChild(this._placeholderStyleSheet)
+            : document.head.removeChild(this._placeholderStyleSheet!);
         }
 
         this._edTxt = null;
-        delete this._placeholderStyleSheet;
+        this._placeholderStyleSheet = null;
     }
 
     private _showDom () {
@@ -274,6 +282,14 @@ export class EditBoxImpl extends EditBoxImplBase {
         const node = this._delegate!.node;
         let scaleX = view.getScaleX();
         let scaleY = view.getScaleY();
+        let widthRatio = 1;
+        let heightRatio = 1;
+        if(legacyCC.GAME_VIEW) {
+            widthRatio = legacyCC.gameView.canvas.width / legacyCC.game.canvas.width;
+            heightRatio = legacyCC.gameView.canvas.height / legacyCC.game.canvas.height;
+        }
+        scaleX *= widthRatio;
+        scaleY *= heightRatio;
         const viewport = view.getViewportRect();
         const dpr = view.getDevicePixelRatio();
 
@@ -288,8 +304,10 @@ export class EditBoxImpl extends EditBoxImplBase {
         if (!node._uiProps.uiTransformComp) {
             return false;
         }
-
-        const canvas = director.root!.ui.getScreen(node._uiProps.uiTransformComp.visibility);
+        let canvas = director.root!.ui.getScreen(node._uiProps.uiTransformComp.visibility);
+        if(legacyCC.GAME_VIEW) {
+            canvas = legacyCC.gameView.preview.canvasComp;
+        }
         if (!canvas) {
             return;
         }
@@ -306,14 +324,14 @@ export class EditBoxImpl extends EditBoxImplBase {
         scaleX /= dpr;
         scaleY /= dpr;
 
-        const container = game.container;
+        const container = legacyCC.GAME_VIEW ? legacyCC.gameView.container : game.container;
         const a = _matrix_temp.m00 * scaleX;
         const b = _matrix.m01;
         const c = _matrix.m04;
         const d = _matrix_temp.m05 * scaleY;
 
         let offsetX = parseInt((container && container.style.paddingLeft) || '0');
-        offsetX += viewport.x / dpr;
+        offsetX += viewport.x * widthRatio / dpr;
         let offsetY = parseInt((container && container.style.paddingBottom) || '0');
         offsetY += viewport.y / dpr;
         const tx = _matrix_temp.m12 * scaleX + offsetX;
@@ -347,14 +365,14 @@ export class EditBoxImpl extends EditBoxImplBase {
         // FIX ME: TextArea actually dose not support password type.
         if (this._isTextArea) {
             // input flag
-            let textTrans = 'none';
+            let transform = 'none';
             if (inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
-                textTrans = 'uppercase';
+                transform = 'uppercase';
             }
             else if (inputFlag === InputFlag.INITIAL_CAPS_WORD) {
-                textTrans = 'capitalize';
+                transform = 'capitalize';
             }
-            elem!.style.textTransform = textTrans;
+            elem!.style.textTransform = transform;
             return;
         }
 
@@ -482,7 +500,7 @@ export class EditBoxImpl extends EditBoxImplBase {
 
         const elem = this._edTxt;
         elem.style.fontSize = `${fontSize}px`;
-        elem.style.color = textLabel.color.toCSS('rgba');
+        elem.style.color = textLabel.color.toCSS();
         elem.style.fontFamily = font;
 
         switch (textLabel.horizontalAlign) {
@@ -529,7 +547,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._placeholderLineHeight = placeholderLabel.fontSize;
 
         const styleEl = this._placeholderStyleSheet;
-        const fontColor = placeholderLabel.color.toCSS('rgba');
+        const fontColor = placeholderLabel.color.toCSS();
         const lineHeight = placeholderLabel.fontSize;
 
         let horizontalAlign = '';

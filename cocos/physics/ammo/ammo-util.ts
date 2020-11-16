@@ -1,6 +1,32 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 import Ammo from './ammo-instantiated';
 import { IVec3Like, IQuatLike } from '../../core/math/type-define';
-import { Mesh, GFXPrimitiveMode } from '../../core';
+import { Mesh } from '../../core/assets';
+import { PrimitiveMode } from '../../core/gfx';
 
 export function cocos2AmmoVec3 (out: Ammo.btVector3, v: IVec3Like): Ammo.btVector3 {
     out.setValue(v.x, v.y, v.z);
@@ -41,7 +67,7 @@ export function cocos2AmmoTriMesh (out: Ammo.btTriangleMesh, mesh: Mesh): Ammo.b
             const primitiveMode = subMesh.primitiveMode;
             const vb = geoInfo.positions;
             const ib = geoInfo.indices as any;
-            if (primitiveMode == GFXPrimitiveMode.TRIANGLE_LIST) {
+            if (primitiveMode == PrimitiveMode.TRIANGLE_LIST) {
                 const cnt = ib.length;
                 for (let j = 0; j < cnt; j += 3) {
                     var i0 = ib[j] * 3;
@@ -53,13 +79,14 @@ export function cocos2AmmoTriMesh (out: Ammo.btTriangleMesh, mesh: Mesh): Ammo.b
                     out.addTriangle(v0, v1, v2);
                     Ammo.destroy(v0); Ammo.destroy(v1); Ammo.destroy(v2);
                 }
-            } else if (primitiveMode == GFXPrimitiveMode.TRIANGLE_STRIP) {
+            } else if (primitiveMode == PrimitiveMode.TRIANGLE_STRIP) {
                 const cnt = ib.length - 2;
                 let rev = 0;
                 for (let j = 0; j < cnt; j += 1) {
                     const i0 = ib[j - rev] * 3;
                     const i1 = ib[j + rev + 1] * 3;
                     const i2 = ib[j + 2] * 3;
+                    rev = ~rev;
                     const v0 = new Ammo.btVector3(vb[i0], vb[i0 + 1], vb[i0 + 2]);
                     const v1 = new Ammo.btVector3(vb[i1], vb[i1 + 1], vb[i1 + 2]);
                     const v2 = new Ammo.btVector3(vb[i2], vb[i2 + 1], vb[i2 + 2]);
@@ -67,7 +94,7 @@ export function cocos2AmmoTriMesh (out: Ammo.btTriangleMesh, mesh: Mesh): Ammo.b
                     Ammo.destroy(v0); Ammo.destroy(v1); Ammo.destroy(v2);
                 }
 
-            } else if (primitiveMode == GFXPrimitiveMode.TRIANGLE_FAN) {
+            } else if (primitiveMode == PrimitiveMode.TRIANGLE_FAN) {
                 const cnt = ib.length - 1;
                 const i0 = ib[0] * 3;
                 const v0 = new Ammo.btVector3(vb[i0], vb[i0 + 1], vb[i0 + 2]);

@@ -1,6 +1,30 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 
 import { Color, Vec2 } from '../../../../core/math';
-import { RecyclePool } from '../../../../core/memop';
 import { MeshRenderData } from '../../../../core/renderer/ui/render-data';
 import { arc, ellipse, roundRect, tesselateBezier } from '../helper';
 import { LineCap, LineJoin, PointFlags} from '../types';
@@ -73,12 +97,7 @@ export class Impl {
     private _commandX = 0;
     private _commandY = 0;
     private _points: Point[] = [];
-
-    private _renderDataPool: RecyclePool<MeshRenderData> = new RecyclePool(() =>  {
-        return new MeshRenderData();
-    }, 16);
     private _renderDataList: MeshRenderData[] = [];
-
     private _curPath: Path | null = null;
 
     public moveTo (x: number, y: number) {
@@ -154,7 +173,7 @@ export class Impl {
         this._curPath!.complex = false;
     }
 
-    public clear (clean = false) {
+    public clear () {
         this.pathLength = 0;
         this.pathOffset = 0;
         this.pointsOffset = 0;
@@ -170,13 +189,10 @@ export class Impl {
                 continue;
             }
 
-            data.reset();
+            MeshRenderData.remove(data);
         }
 
         this._renderDataList.length = 0;
-        if (clean) {
-            this._renderDataPool.reset();
-        }
     }
 
     public close () {
@@ -184,7 +200,7 @@ export class Impl {
     }
 
     public requestRenderData () {
-        const renderData = this._renderDataPool.add();
+        const renderData = MeshRenderData.add();
         this._renderDataList.push(renderData);
 
         return renderData;

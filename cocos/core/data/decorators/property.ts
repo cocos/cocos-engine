@@ -1,5 +1,31 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
- * @category decorator
+ * @packageDocumentation
+ * @module decorator
  */
 
 import { CCString, CCInteger, CCFloat, CCBoolean } from '../utils/attribute';
@@ -7,7 +33,7 @@ import { IExposedAttributes } from '../utils/attribute-defines';
 import { LegacyPropertyDecorator, getSubDict, getClassCache } from './utils';
 import { warnID, errorID } from '../../platform/debug';
 import { js } from '../../utils/js';
-import { DEV } from 'internal:constants';
+import { DEV, EDITOR, TEST } from 'internal:constants';
 import { getFullFormOfProperty } from '../utils/preprocess-class';
 
 export type SimplePropertyType = Function | string | typeof CCString | typeof CCInteger | typeof CCFloat | typeof CCBoolean;
@@ -93,7 +119,7 @@ function getDefaultFromInitializer (initializer) {
     }
     else {
         // The default attribute will not be used in ES6 constructor actually,
-        // so we dont need to simplify into `{}` or `[]` or vec2 completely.
+        // so we don't need to simplify into `{}` or `[]` or vec2 completely.
         return initializer;
     }
 }
@@ -121,28 +147,27 @@ function genProperty (
     cache,
 ) {
     let fullOptions;
+    let isGetset = descriptor && (descriptor.get || descriptor.set);
     if (options) {
-        fullOptions = DEV ? getFullFormOfProperty(options, propertyKey, js.getClassName(ctor)) :
-            getFullFormOfProperty(options);
-        fullOptions = fullOptions || options;
+        fullOptions = getFullFormOfProperty(options, isGetset);
     }
     const existsPropertyRecord = properties[propertyKey];
-    const propertyRecord = js.mixin(existsPropertyRecord || {}, fullOptions || {});
+    const propertyRecord = js.mixin(existsPropertyRecord || {}, fullOptions || options || {});
 
-    if (descriptor && (descriptor.get || descriptor.set)) { // If the target property is accessor
+    if (isGetset) {
         // typescript or babel
-        if (DEV && options && (options.get || options.set)) {
+        if (DEV && options && ((fullOptions || options).get || (fullOptions || options).set)) {
             const errorProps = getSubDict(cache, 'errorProps');
             if (!errorProps[propertyKey]) {
                 errorProps[propertyKey] = true;
                 warnID(3655, propertyKey, js.getClassName(ctor), propertyKey, propertyKey);
             }
         }
-        if (descriptor.get) {
-            propertyRecord.get = descriptor.get;
+        if (descriptor!.get) {
+            propertyRecord.get = descriptor!.get;
         }
-        if (descriptor.set) {
-            propertyRecord.set = descriptor.set;
+        if (descriptor!.set) {
+            propertyRecord.set = descriptor!.set;
         }
     } else { // Target property is non-accessor
         if (DEV && (propertyRecord.get || propertyRecord.set)) {
@@ -171,8 +196,8 @@ function genProperty (
             }
         }
 
-        if (DEV) {
-            if (options && options.hasOwnProperty('default')) {
+        if ((EDITOR && !window.Build) || TEST) {
+            if (!fullOptions && options && options.hasOwnProperty('default')) {
                 warnID(3653, propertyKey, js.getClassName(ctor));
             } else if (!isDefaultValueSpecified) {
                 warnID(3654, js.getClassName(ctor), propertyKey);

@@ -1,5 +1,31 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
- * @category physics
+ * @packageDocumentation
+ * @module physics
  */
 
 import { Vec3 } from '../../core/math';
@@ -7,41 +33,16 @@ import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { createPhysicsWorld, checkPhysicsModule } from './instance';
 import { director, Director } from '../../core/director';
 import { System } from '../../core/components';
-import { PhysicMaterial } from './assets/physic-material';
+import { PhysicsMaterial } from './assets/physics-material';
 import { RecyclePool, error, game, Enum } from '../../core';
 import { ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
 import { EDITOR, DEBUG } from 'internal:constants';
 import { IPhysicsConfig, ICollisionMatrix } from './physics-config';
+import { CollisionMatrix } from './collision-matrix';
+import { PhysicsGroup } from './physics-enum';
 
-enum PhysicsGroup {
-    DEFAULT = 1,
-}
-Enum(PhysicsGroup);
 legacyCC.internal.PhysicsGroup = PhysicsGroup;
-
-class CollisionMatrix {
-    updateArray: number[] = [];
-    constructor () {
-        for (let i = 0; i < 32; i++) {
-            const key = 1 << i;
-            this[`_${key}`] = 0;
-            Object.defineProperty(this, key, {
-                'get': function () { return this[`_${key}`] },
-                'set': function (v: number) {
-                    const self = this as CollisionMatrix;
-                    if (self[`_${key}`] != v) {
-                        self[`_${key}`] = v;
-                        if (self.updateArray.indexOf(key) < 0) {
-                            self.updateArray.push(key);
-                        }
-                    }
-                }
-            })
-        }
-        this[`_1`] = PhysicsGroup.DEFAULT;
-    }
-}
 
 /**
  * @en
@@ -208,7 +209,7 @@ export class PhysicsSystem extends System {
      * @zh
      * 获取全局的默认物理材质。
      */
-    get defaultMaterial (): PhysicMaterial {
+    get defaultMaterial (): PhysicsMaterial {
         return this._material;
     }
 
@@ -238,19 +239,11 @@ export class PhysicsSystem extends System {
 
     /**
      * @en
-     * Gets the collision matrix。
+     * Gets the collision matrix that used for initialization only.
      * @zh
-     * 获取碰撞矩阵。
+     * 获取碰撞矩阵，它仅用于初始化。
      */
-    readonly collisionMatrix: ICollisionMatrix = new CollisionMatrix() as unknown as ICollisionMatrix;
-
-    /**
-     * @en
-     * Gets or sets whether to use a collision matrix.
-     * @zh
-     * 获取或设置是否开启碰撞矩阵。
-     */
-    readonly useCollisionMatrix: boolean;
+    readonly collisionMatrix: ICollisionMatrix = new CollisionMatrix() as ICollisionMatrix;
 
     readonly useNodeChains: boolean;
 
@@ -263,7 +256,7 @@ export class PhysicsSystem extends System {
     private _accumulator = 0;
     private _sleepThreshold = 0.1;
     private readonly _gravity = new Vec3(0, -10, 0);
-    private readonly _material = new PhysicMaterial();
+    private readonly _material = new PhysicsMaterial();
 
     private readonly raycastOptions: IRaycastOptions = {
         'group': -1,
@@ -287,7 +280,6 @@ export class PhysicsSystem extends System {
             this._sleepThreshold = config.sleepThreshold;
             this.autoSimulation = config.autoSimulation;
             this.useNodeChains = config.useNodeChains;
-            this.useCollisionMatrix = config.useCollsionMatrix;
 
             if (config.defaultMaterial) {
                 this._material.friction = config.defaultMaterial.friction;
@@ -299,11 +291,10 @@ export class PhysicsSystem extends System {
             if (config.collisionMatrix) {
                 for (const i in config.collisionMatrix) {
                     const key = 1 << parseInt(i);
-                    this.collisionMatrix[`_${key}`] = config.collisionMatrix[i];
+                    this.collisionMatrix[`${key}`] = config.collisionMatrix[i];
                 }
             }
         } else {
-            this.useCollisionMatrix = false;
             this.useNodeChains = false;
         }
         this._material.on('physics_material_update', this._updateMaterial, this);
@@ -322,7 +313,7 @@ export class PhysicsSystem extends System {
      * @param deltaTime the time since last frame.
      */
     postUpdate (deltaTime: number) {
-        if (EDITOR && !this._executeInEditMode) {
+        if (EDITOR && !legacyCC.GAME_VIEW && !this._executeInEditMode) {
             return;
         }
 
@@ -337,7 +328,6 @@ export class PhysicsSystem extends System {
             director.emit(Director.EVENT_BEFORE_PHYSICS);
             while (this._subStepCount < this._maxSubSteps) {
                 if (this._accumulator > this._fixedTimeStep) {
-                    this.updateCollisionMatrix();
                     this.physicsWorld.syncSceneToPhysics();
                     this.physicsWorld.step(this._fixedTimeStep);
                     this._accumulator -= this._fixedTimeStep;
@@ -397,80 +387,6 @@ export class PhysicsSystem extends System {
 
     /**
      * @en
-     * Updates the mask corresponding to the collision matrix for the lowLevel rigid-body instance.
-     * Automatic execution during automatic simulation.
-     * @zh
-     * 更新底层实例对应于碰撞矩阵的掩码，开启自动模拟时会自动更新。
-     */
-    updateCollisionMatrix () {
-        if (this.useCollisionMatrix) {
-            const ua = (this.collisionMatrix as unknown as CollisionMatrix).updateArray;
-            while (ua.length > 0) {
-                const group = ua.pop()!;
-                const mask = this.collisionMatrix[group];
-                this.physicsWorld.updateCollisionMatrix(group, mask);
-            }
-        }
-    }
-
-    /**
-     * @en
-     * Reset the mask corresponding to all groups of the collision matrix to the given value, the default given value is' 0xffffffff '.
-     * @zh
-     * 重置碰撞矩阵所有分组对应掩码为给定值，默认给定值为`0xffffffff`。
-     */
-    resetCollisionMatrix (mask = 0xffffffff) {
-        for (let i = 0; i < 32; i++) {
-            const key = 1 << i;
-            this.collisionMatrix[`${key}`] = mask;
-        }
-    }
-
-    /**
-     * @en
-     * Are collisions between `group1` and `group2`?
-     * @zh
-     * 两分组是否会产生碰撞？
-     */
-    isCollisionGroup (group1: number, group2: number) {
-        const cm = this.collisionMatrix;
-        const mask1 = cm[group1];
-        const mask2 = cm[group2];
-        if (DEBUG) {
-            if (mask1 == undefined || mask2 == undefined) {
-                error("[PHYSICS]: 'isCollisionGroup', the group do not exist in the collision matrix.");
-                return false;
-            }
-        }
-        return (group1 & mask2) && (group2 & mask1);
-    }
-
-    /**
-     * @en
-     * Sets whether collisions occur between `group1` and `group2`.
-     * @zh
-     * 设置两分组间是否产生碰撞。
-     * @param collision is collision occurs?
-     */
-    setCollisionGroup (group1: number, group2: number, collision: boolean = true) {
-        const cm = this.collisionMatrix;
-        if (DEBUG) {
-            if (cm[group1] == undefined || cm[group2] == undefined) {
-                error("[PHYSICS]: 'setCollisionGroup', the group do not exist in the collision matrix.");
-                return;
-            }
-        }
-        if (collision) {
-            cm[group1] |= group2;
-            cm[group2] |= group1;
-        } else {
-            cm[group1] &= ~group2;
-            cm[group2] &= ~group1;
-        }
-    }
-
-    /**
-     * @en
      * Collision detect all collider, and record all the detected results, through PhysicsSystem.Instance.RaycastResults access to the results.
      * @zh
      * 检测所有的碰撞盒，并记录所有被检测到的结果，通过 PhysicsSystem.instance.raycastResults 访问结果。
@@ -481,7 +397,6 @@ export class PhysicsSystem extends System {
      * @return boolean 表示是否有检测到碰撞盒
      */
     raycast (worldRay: ray, mask: number = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
-        this.updateCollisionMatrix();
         this.raycastResultPool.reset();
         this.raycastResults.length = 0;
         this.raycastOptions.mask = mask;
@@ -502,7 +417,6 @@ export class PhysicsSystem extends System {
      * @return boolean 表示是否有检测到碰撞盒
      */
     raycastClosest (worldRay: ray, mask: number = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
-        this.updateCollisionMatrix();
         this.raycastOptions.mask = mask;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;

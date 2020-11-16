@@ -1,5 +1,31 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
- * @category geometry
+ * @packageDocumentation
+ * @module geometry
  */
 
 import { Vec3 } from '../math';
@@ -59,12 +85,12 @@ export function pt_point_aabb (out: Vec3, point: Vec3, aabb_: aabb): Vec3 {
     Vec3.add(max, aabb_.center, aabb_.halfExtents);
 
     out.x = (out.x < min.x) ? min.x : out.x;
-    out.y = (out.y < min.x) ? min.y : out.y;
-    out.z = (out.z < min.x) ? min.z : out.z;
+    out.y = (out.y < min.y) ? min.y : out.y;
+    out.z = (out.z < min.z) ? min.z : out.z;
 
     out.x = (out.x > max.x) ? max.x : out.x;
-    out.y = (out.y > max.x) ? max.y : out.y;
-    out.z = (out.z > max.x) ? max.z : out.z;
+    out.y = (out.y > max.y) ? max.y : out.y;
+    out.z = (out.z > max.z) ? max.z : out.z;
     return out;
 }
 

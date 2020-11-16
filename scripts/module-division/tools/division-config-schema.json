@@ -58,6 +58,10 @@
                 "text": {
                     "description": "Display text.",
                     "type": "string"
+                },
+                "native": {
+                    "description": "Native Macro.",
+                    "type": "string"
                 }
             },
             "type": "object"
@@ -94,6 +98,10 @@
                 "text": {
                     "description": "Display text.",
                     "type": "string"
+                },
+                "native": {
+                    "description": "Native Macro.",
+                    "type": "string"
                 }
             },
             "type": "object"
@@ -126,6 +134,10 @@
                 },
                 "text": {
                     "description": "Display text.",
+                    "type": "string"
+                },
+                "native": {
+                    "description": "Native Macro.",
                     "type": "string"
                 }
             },

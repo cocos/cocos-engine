@@ -1,12 +1,36 @@
-/**
- * @category pipeline
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
-import { GFXCommandBuffer } from '../gfx/command-buffer';
+/**
+ * @packageDocumentation
+ * @module pipeline
+ */
+
 import { BatchedBuffer } from './batched-buffer';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { GFXDevice } from '../gfx/device';
-import { GFXRenderPass } from '../gfx';
+import { RenderPass, Device, CommandBuffer } from '../gfx';
 import { DSPool, ShaderPool, PassPool, PassView } from '../renderer/core/memory-pools';
 import { SetIndex } from './define';
 
@@ -35,14 +59,8 @@ export class RenderBatchedQueue {
         this.queue.clear();
     }
 
-    /**
-     * @en Record command buffer for the current queue
-     * @zh 记录命令缓冲。
-     * @param cmdBuff The command buffer to store the result
-     */
-    public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
-        // upload buffers
-        let it = this.queue.values(); let res = it.next();
+    public uploadBuffers (cmdBuff: CommandBuffer) {
+        const it = this.queue.values(); let res = it.next();
         while (!res.done) {
             for (let b = 0; b < res.value.batches.length; ++b) {
                 const batch = res.value.batches[b];
@@ -50,13 +68,20 @@ export class RenderBatchedQueue {
                 for (let v = 0; v < batch.vbs.length; ++v) {
                     batch.vbs[v].update(batch.vbDatas[v]);
                 }
-                batch.vbIdx.update(batch.vbIdxData.buffer);
-                batch.ubo.update(batch.uboData);
+                cmdBuff.updateBuffer(batch.vbIdx, batch.vbIdxData.buffer);
+                cmdBuff.updateBuffer(batch.ubo, batch.uboData);
             }
             res = it.next();
         }
-        // draw
-        it = this.queue.values(); res = it.next();
+    }
+
+    /**
+     * @en Record command buffer for the current queue
+     * @zh 记录命令缓冲。
+     * @param cmdBuff The command buffer to store the result
+     */
+    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
+        const it = this.queue.values(); let res = it.next();
         while (!res.done) {
             let boundPSO = false;
             for (let b = 0; b < res.value.batches.length; ++b) {
@@ -64,9 +89,9 @@ export class RenderBatchedQueue {
                 if (!batch.mergeCount) { continue; }
                 if (!boundPSO) {
                     const shader = ShaderPool.get(batch.hShader);
-                    const pso = PipelineStateManager.getOrCreatePipelineState(device, batch.hPass, shader, renderPass, batch.ia);
+                    const pso = PipelineStateManager.getOrCreatePipelineState(device, batch.pass, shader, renderPass, batch.ia);
                     cmdBuff.bindPipelineState(pso);
-                    cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(batch.hPass, PassView.DESCRIPTOR_SET)));
+                    cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, batch.pass.descriptorSet);
                     boundPSO = true;
                 }
                 cmdBuff.bindDescriptorSet(SetIndex.LOCAL, batch.descriptorSet, res.value.dynamicOffsets);

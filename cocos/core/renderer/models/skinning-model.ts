@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,6 +24,7 @@
 */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 
@@ -31,15 +32,15 @@ import { Material } from '../../assets/material';
 import { Mesh, RenderingSubMesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
-import { GFXBuffer, GFXBufferInfo } from '../../gfx/buffer';
-import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
+import { BufferUsageBit, MemoryUsageBit } from '../../gfx/define';
 import { Mat4, Vec3 } from '../../math';
 import { UBOSkinning } from '../../pipeline/define';
 import { Node } from '../../scene-graph/node';
 import { ModelType } from '../scene/model';
 import { uploadJointData } from './skeletal-animation-utils';
 import { MorphModel } from './morph-model';
-import { GFXDescriptorSet } from '../../gfx';
+import { DescriptorSet, Buffer, BufferInfo } from '../../gfx';
+import { AABBPool, AABBView } from '..';
 
 export interface IJointTransform {
     node: Node;
@@ -148,10 +149,9 @@ const ab_1 = new aabb();
  * 实时计算动画的蒙皮模型。
  */
 export class SkinningModel extends MorphModel {
-
     public uploadAnimation = null;
 
-    private _buffers: GFXBuffer[] = [];
+    private _buffers: Buffer[] = [];
     private _dataArray: Float32Array[] = [];
     private _joints: IJointInfo[] = [];
     private _bufferIndices: number[] | null = null;
@@ -191,15 +191,14 @@ export class SkinningModel extends MorphModel {
             const bindpose = skeleton.bindposes[index];
             const indices: number[] = [];
             const buffers: number[] = [];
-            if (!jointMaps) { indices.push(index); buffers.push(0); }
-            else { getRelevantBuffers(indices, buffers, jointMaps, index); }
+            if (!jointMaps) { indices.push(index); buffers.push(0); } else { getRelevantBuffers(indices, buffers, jointMaps, index); }
             this._joints.push({ indices, buffers, bound, target, bindpose, transform });
         }
     }
 
     public updateTransform (stamp: number) {
-        const root = this.transform!;
-        // @ts-ignore TS2445
+        const root = this.transform;
+        // @ts-expect-error TS2445
         if (root.hasChangedFlags || root._dirtyFlags) {
             root.updateWorldTransform();
             this._transformUpdated = true;
@@ -215,10 +214,13 @@ export class SkinningModel extends MorphModel {
             Vec3.min(v3_min, v3_min, v3_1);
             Vec3.max(v3_max, v3_max, v3_2);
         }
-        if (this._modelBounds && this._worldBounds) {
+        const worldBounds = this._worldBounds;
+        if (this._modelBounds && worldBounds) {
             aabb.fromPoints(this._modelBounds, v3_min, v3_max);
-            // @ts-ignore TS2445
+            // @ts-expect-error TS2445
             this._modelBounds.transform(root._mat, root._pos, root._rot, root._scale, this._worldBounds);
+            AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, worldBounds.center);
+            AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, worldBounds.halfExtents);
         }
     }
 
@@ -249,12 +251,11 @@ export class SkinningModel extends MorphModel {
         const superMacroPatches = super.getMacroPatches(subModelIndex);
         if (superMacroPatches) {
             return myPatches.concat(superMacroPatches);
-        } else {
-            return myPatches;
         }
+        return myPatches;
     }
 
-    public _updateLocalDescriptors (submodelIdx: number, descriptorSet: GFXDescriptorSet) {
+    public _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet) {
         super._updateLocalDescriptors(submodelIdx, descriptorSet);
         const buffer = this._buffers[this._bufferIndices![submodelIdx]];
         if (buffer) { descriptorSet.bindBuffer(UBOSkinning.BINDING, buffer); }
@@ -263,9 +264,9 @@ export class SkinningModel extends MorphModel {
     private _ensureEnoughBuffers (count: number) {
         for (let i = 0; i < count; i++) {
             if (!this._buffers[i]) {
-                this._buffers[i] = this._device.createBuffer(new GFXBufferInfo(
-                    GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                    GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                this._buffers[i] = this._device.createBuffer(new BufferInfo(
+                    BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+                    MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
                     UBOSkinning.SIZE,
                     UBOSkinning.SIZE,
                 ));

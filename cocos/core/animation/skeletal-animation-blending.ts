@@ -1,4 +1,30 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
+ * @packageDocumentation
  * @hidden
  */
 
@@ -6,9 +32,11 @@ import { Vec3, Quat } from '../math';
 import { Node } from '../scene-graph';
 import { IValueProxyFactory } from './value-proxy';
 import { assertIsNonNullable } from '../data/utils/asserts';
+import { AnimationState } from './animation-state';
 
 export class BlendStateBuffer {
     private _nodeBlendStates: Map<Node, NodeBlendState> = new Map();
+    private _states = new Set<AnimationState>();
 
     public ref (node: Node, property: BlendingProperty) {
         let nodeBlendState = this._nodeBlendStates.get(node);
@@ -84,16 +112,33 @@ export class BlendStateBuffer {
                 node.setRTS(r, t, s);
             }
         });
+
+        this._states.forEach((state) => {
+            state.onBlendFinished();
+        });
+    }
+
+    public bindState (state: AnimationState) {
+        this._states.add(state);
+    }
+
+    public unbindState (state: AnimationState) {
+        this._states.delete(state);
     }
 }
 
 export type IBlendStateWriter = IValueProxyFactory & { destroy: () => void };
 
+export interface IBlendStateWriterHost {
+    readonly weight: number;
+    readonly enabled: boolean;
+}
+
 export function createBlendStateWriter<P extends BlendingProperty> (
     blendState: BlendStateBuffer,
     node: Node,
     property: P,
-    weightProxy: { weight: number }, // Effectively equals to AnimationState
+    host: IBlendStateWriterHost,
     /**
      * True if this writer will write constant value each time.
      */
@@ -121,10 +166,10 @@ export function createBlendStateWriter<P extends BlendingProperty> (
                     return node[property];
                 },
                 set: (value: BlendingPropertyValue<P>) => {
-                    if (!propertyBlendState) {
+                    if (!propertyBlendState || !host.enabled) {
                         return;
                     }
-                    const weight = weightProxy.weight;
+                    const weight = host.weight;
                     if (constants) {
                         if (weight !== 1 ||
                             weight !== lastWeight) {

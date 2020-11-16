@@ -1,8 +1,34 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
+ * @packageDocumentation
  * @hidden
  */
 
-import { GFXAttributeName, GFXBuffer, GFXBufferUsageBit, GFXDevice, GFXFeature, GFXMemoryUsageBit, GFXDescriptorSet, GFXBufferInfo } from '../gfx';
+import { AttributeName, Buffer, BufferUsageBit, Device, Feature, MemoryUsageBit, DescriptorSet, BufferInfo } from '../gfx';
 import { Mesh } from './mesh';
 import { Texture2D } from './texture-2d';
 import { ImageAsset } from './image-asset';
@@ -31,7 +57,7 @@ export class StdMorphRendering implements MorphRendering {
     private _mesh: Mesh;
     private _subMeshRenderings: (SubMeshMorphRendering | null)[] = [];
 
-    constructor (mesh: Mesh, gfxDevice: GFXDevice) {
+    constructor (mesh: Mesh, gfxDevice: Device) {
         this._mesh = mesh;
         if (!this._mesh.struct.morph) {
             return;
@@ -91,20 +117,20 @@ export class StdMorphRendering implements MorphRendering {
                     { name: 'CC_USE_MORPH', value: true },
                     { name: 'CC_MORPH_TARGET_COUNT', value: subMeshMorph.targets.length }
                 ];
-                if (subMeshMorph.attributes.includes(GFXAttributeName.ATTR_POSITION)) {
+                if (subMeshMorph.attributes.includes(AttributeName.ATTR_POSITION)) {
                     patches.push({ name: 'CC_MORPH_TARGET_HAS_POSITION', value: true});
                 }
-                if (subMeshMorph.attributes.includes(GFXAttributeName.ATTR_NORMAL)) {
+                if (subMeshMorph.attributes.includes(AttributeName.ATTR_NORMAL)) {
                     patches.push({ name: 'CC_MORPH_TARGET_HAS_NORMAL', value: true});
                 }
-                if (subMeshMorph.attributes.includes(GFXAttributeName.ATTR_TANGENT)) {
+                if (subMeshMorph.attributes.includes(AttributeName.ATTR_TANGENT)) {
                     patches.push({ name: 'CC_MORPH_TARGET_HAS_TANGENT', value: true});
                 }
                 patches.push(...subMeshRenderingInstance.requiredPatches());
                 return patches;
             },
 
-            adaptPipelineState: (subMeshIndex: number, descriptorSet: GFXDescriptorSet) => {
+            adaptPipelineState: (subMeshIndex: number, descriptorSet: DescriptorSet) => {
                 subMeshInstances[subMeshIndex]?.adaptPipelineState(descriptorSet);
             },
 
@@ -146,7 +172,7 @@ interface SubMeshMorphRenderingInstance {
      * Adapts the pipelineState to apply the rendering.
      * @param pipelineState
      */
-    adaptPipelineState (descriptorSet: GFXDescriptorSet): void;
+    adaptPipelineState (descriptorSet: DescriptorSet): void;
 
     /**
      * Destroy this instance.
@@ -160,7 +186,7 @@ interface SubMeshMorphRenderingInstance {
  * Target displacements of each attribute are transferred through vertex texture, say, morph texture.
  */
 class GpuComputing implements SubMeshMorphRendering {
-    private _gfxDevice: GFXDevice;
+    private _gfxDevice: Device;
     private _subMeshMorph: SubMeshMorph;
     private _textureInfo: {
         width: number;
@@ -170,8 +196,9 @@ class GpuComputing implements SubMeshMorphRendering {
         name: string;
         morphTexture: MorphTexture;
     }[];
+    private _verticesCount: number;
 
-    constructor (mesh: Mesh, subMeshIndex: number, morph: Morph, gfxDevice: GFXDevice) {
+    constructor (mesh: Mesh, subMeshIndex: number, morph: Morph, gfxDevice: Device) {
         this._gfxDevice = gfxDevice;
         const subMeshMorph = morph.subMeshMorphs[subMeshIndex];
         assertIsNonNullable(subMeshMorph);
@@ -180,11 +207,9 @@ class GpuComputing implements SubMeshMorphRendering {
         enableVertexId(mesh, subMeshIndex, gfxDevice);
 
         const nVertices = mesh.struct.vertexBundles[mesh.struct.primitives[subMeshIndex].vertexBundelIndices[0]].view.count;
+        this._verticesCount = nVertices;
         const nTargets = subMeshMorph.targets.length;
-        // Head includes N vector 4, where N is number of targets.
-        // Every r channel of the pixel denotes the index of the data pixel of corresponding target.
-        // [ (target1_data_offset), (target2_data_offset), .... ] target_data
-        const vec4Required = nTargets + nVertices * nTargets;
+        const vec4Required = nVertices * nTargets;
 
         const vec4TextureFactory = createVec4TextureFactory(gfxDevice, vec4Required);
         this._textureInfo = {
@@ -201,25 +226,16 @@ class GpuComputing implements SubMeshMorphRendering {
             //         valueView[i * 4 + 3] = 1.0;
             //     }
             // }
-            {
-                let pHead = 0;
-                let nVec4s = subMeshMorph.targets.length;
-                subMeshMorph.targets.forEach((morphTarget) => {
-                    const displacementsView = morphTarget.displacements[attributeIndex];
-                    const displacements = new Float32Array(mesh.data.buffer, mesh.data.byteOffset + displacementsView.offset, displacementsView.count);
-                    const nVec3s = displacements.length / 3;
-                    // See `Mesh.prototype.enableVertexIdChannel` for the magic `0.5`.
-                    valueView[pHead] = nVec4s + 0.5;
-                    const displacementsOffset = nVec4s * 4;
-                    for (let iVec3 = 0; iVec3 < nVec3s; ++iVec3) {
-                        valueView[displacementsOffset + 4 * iVec3 + 0] = displacements[3 * iVec3 + 0];
-                        valueView[displacementsOffset + 4 * iVec3 + 1] = displacements[3 * iVec3 + 1];
-                        valueView[displacementsOffset + 4 * iVec3 + 2] = displacements[3 * iVec3 + 2];
-                    }
-                    pHead += 4;
-                    nVec4s += nVec3s;
-                });
-            }
+            subMeshMorph.targets.forEach((morphTarget, morphTargetIndex) => {
+                const displacementsView = morphTarget.displacements[attributeIndex];
+                const displacements = new Float32Array(mesh.data.buffer, mesh.data.byteOffset + displacementsView.offset, displacementsView.count);
+                const displacementsOffset = (nVertices * morphTargetIndex) * 4;
+                for (let iVertex = 0; iVertex < nVertices; ++iVertex) {
+                    valueView[displacementsOffset + 4 * iVertex + 0] = displacements[3 * iVertex + 0];
+                    valueView[displacementsOffset + 4 * iVertex + 1] = displacements[3 * iVertex + 1];
+                    valueView[displacementsOffset + 4 * iVertex + 2] = displacements[3 * iVertex + 2];
+                }
+            });
             vec4Tex.updatePixels();
             return {
                 name: attributeName,
@@ -237,6 +253,7 @@ class GpuComputing implements SubMeshMorphRendering {
     public createInstance () {
         const morphUniforms = new MorphUniforms(this._gfxDevice, this._subMeshMorph.targets.length);
         morphUniforms.setMorphTextureInfo(this._textureInfo.width, this._textureInfo.height);
+        morphUniforms.setVerticesCount(this._verticesCount);
         morphUniforms.commit();
         return {
             setWeights: (weights: number[]) => {
@@ -248,13 +265,13 @@ class GpuComputing implements SubMeshMorphRendering {
                 return [{ name: 'CC_MORPH_TARGET_USE_TEXTURE', value: true, }];
             },
 
-            adaptPipelineState: (descriptorSet: GFXDescriptorSet) => {
+            adaptPipelineState: (descriptorSet: DescriptorSet) => {
                 for (const attribute of this._attributes) {
                     let binding: number | undefined;
                     switch (attribute.name) {
-                        case GFXAttributeName.ATTR_POSITION: binding = UNIFORM_POSITION_MORPH_TEXTURE_BINDING; break;
-                        case GFXAttributeName.ATTR_NORMAL: binding = UNIFORM_NORMAL_MORPH_TEXTURE_BINDING; break;
-                        case GFXAttributeName.ATTR_TANGENT: binding = UNIFORM_TANGENT_MORPH_TEXTURE_BINDING; break;
+                        case AttributeName.ATTR_POSITION: binding = UNIFORM_POSITION_MORPH_TEXTURE_BINDING; break;
+                        case AttributeName.ATTR_NORMAL: binding = UNIFORM_NORMAL_MORPH_TEXTURE_BINDING; break;
+                        case AttributeName.ATTR_TANGENT: binding = UNIFORM_TANGENT_MORPH_TEXTURE_BINDING; break;
                         default:
                             warn(`Unexpected attribute!`); break;
                     }
@@ -280,7 +297,7 @@ class GpuComputing implements SubMeshMorphRendering {
  * The displacements, then, are passed to GPU.
  */
 class CpuComputing implements SubMeshMorphRendering {
-    private _gfxDevice: GFXDevice;
+    private _gfxDevice: Device;
     private _attributes: {
         name: string;
         targets: {
@@ -288,7 +305,7 @@ class CpuComputing implements SubMeshMorphRendering {
         }[];
     }[] = [];
 
-    constructor (mesh: Mesh, subMeshIndex: number, morph: Morph, gfxDevice: GFXDevice) {
+    constructor (mesh: Mesh, subMeshIndex: number, morph: Morph, gfxDevice: Device) {
         this._gfxDevice = gfxDevice;
         const subMeshMorph = morph.subMeshMorphs[subMeshIndex];
         assertIsNonNullable(subMeshMorph);
@@ -329,7 +346,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
     private _owner: CpuComputing;
     private _morphUniforms: MorphUniforms;
 
-    public constructor (owner: CpuComputing, nVertices: number, gfxDevice: GFXDevice) {
+    public constructor (owner: CpuComputing, nVertices: number, gfxDevice: Device) {
         this._owner = owner;
         this._morphUniforms = new MorphUniforms(gfxDevice, 0 /* TODO? */ );
 
@@ -414,14 +431,14 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
         ];
     }
 
-    public adaptPipelineState (descriptorSet: GFXDescriptorSet) {
+    public adaptPipelineState (descriptorSet: DescriptorSet) {
         for (const attribute of this._attributes) {
             const attributeName = attribute.attributeName;
             let binding: number | undefined;
             switch (attributeName) {
-                case GFXAttributeName.ATTR_POSITION: binding = UNIFORM_POSITION_MORPH_TEXTURE_BINDING; break;
-                case GFXAttributeName.ATTR_NORMAL: binding = UNIFORM_NORMAL_MORPH_TEXTURE_BINDING; break;
-                case GFXAttributeName.ATTR_TANGENT: binding = UNIFORM_TANGENT_MORPH_TEXTURE_BINDING; break;
+                case AttributeName.ATTR_POSITION: binding = UNIFORM_POSITION_MORPH_TEXTURE_BINDING; break;
+                case AttributeName.ATTR_NORMAL: binding = UNIFORM_NORMAL_MORPH_TEXTURE_BINDING; break;
+                case AttributeName.ATTR_TANGENT: binding = UNIFORM_TANGENT_MORPH_TEXTURE_BINDING; break;
                 default:
                     warn(`Unexpected attribute!`); break;
             }
@@ -449,14 +466,14 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
 class MorphUniforms {
     private _targetCount: number;
     private _localBuffer: DataView;
-    private _remoteBuffer: GFXBuffer;
+    private _remoteBuffer: Buffer;
 
-    constructor (gfxDevice: GFXDevice, targetCount: number) {
+    constructor (gfxDevice: Device, targetCount: number) {
         this._targetCount = targetCount;
         this._localBuffer = new DataView(new ArrayBuffer(UBOMorph.SIZE));
-        this._remoteBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        this._remoteBuffer = gfxDevice.createBuffer(new BufferInfo(
+            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             UBOMorph.SIZE,
             UBOMorph.SIZE,
         ));
@@ -482,6 +499,10 @@ class MorphUniforms {
         this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT, height, legacyCC.sys.isLittleEndian);
     }
 
+    public setVerticesCount (count: number) {
+        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_VERTICES_COUNT, count, legacyCC.sys.isLittleEndian);
+    }
+
     public commit () {
         this._remoteBuffer.update(
             this._localBuffer.buffer,
@@ -496,8 +517,8 @@ class MorphUniforms {
  * @param gfxDevice
  * @param vec4Capacity Capacity of vec4.
  */
-function createVec4TextureFactory (gfxDevice: GFXDevice, vec4Capacity: number) {
-    const hasFeatureFloatTexture = gfxDevice.hasFeature(GFXFeature.TEXTURE_FLOAT);
+function createVec4TextureFactory (gfxDevice: Device, vec4Capacity: number) {
+    const hasFeatureFloatTexture = gfxDevice.hasFeature(Feature.TEXTURE_FLOAT);
 
     let pixelRequired: number;
     let pixelFormat: PixelFormat;
@@ -594,7 +615,7 @@ type MorphTexture = ReturnType<ReturnType<typeof createVec4TextureFactory>['crea
  * @param subMeshIndex
  * @param gfxDevice
  */
-function enableVertexId (mesh: Mesh, subMeshIndex: number, gfxDevice: GFXDevice) {
+function enableVertexId (mesh: Mesh, subMeshIndex: number, gfxDevice: Device) {
     mesh.renderingSubMeshes[subMeshIndex].enableVertexIdChannel(gfxDevice);
 }
 

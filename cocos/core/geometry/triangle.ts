@@ -1,5 +1,31 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
- * @category geometry
+ * @packageDocumentation
+ * @module geometry
  */
 
 import { Vec3 } from '../math';
@@ -11,7 +37,7 @@ import enums from './enums';
  * @zh
  * 基础几何 三角形。
  */
-// tslint:disable-next-line:class-name
+
 export default class triangle {
 
     /**
@@ -30,9 +56,9 @@ export default class triangle {
      * @param {number} cz c 点的 z 部分。
      * @return {triangle} 一个新的 triangle。
      */
-    public static create (ax: number = 1, ay: number = 0, az: number = 0,
-                          bx: number = 0, by: number = 0, bz: number = 0,
-                          cx: number = 0, cy: number = 0, cz: number = 1): triangle {
+    public static create (ax = 1, ay = 0, az = 0,
+                          bx = 0, by = 0, bz = 0,
+                          cx = 0, cy = 0, cz = 1): triangle {
         return new triangle(ax, ay, az, bx, by, bz, cx, cy, cz);
     }
 
@@ -175,9 +201,9 @@ export default class triangle {
      * @param {number} cy c 点的 y 部分。
      * @param {number} cz c 点的 z 部分。
      */
-    constructor (ax: number = 0, ay: number = 0, az: number = 0,
-                 bx: number = 1, by: number = 0, bz: number = 0,
-                 cx: number = 0, cy: number = 1, cz: number = 0) {
+    constructor (ax = 0, ay = 0, az = 0,
+                 bx = 1, by = 0, bz = 0,
+                 cx = 0, cy = 1, cz = 0) {
         this._type = enums.SHAPE_TRIANGLE;
         this.a = new Vec3(ax, ay, az);
         this.b = new Vec3(bx, by, bz);

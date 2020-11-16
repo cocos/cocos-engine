@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -24,20 +24,22 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 // @ts-check
 import {ccclass, override} from 'cc.decorator';
-import { GFXDevice, GFXFeature } from '../gfx/device';
+import { Device, Feature } from '../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
-import { EDITOR, MINIGAME } from 'internal:constants';
+import { EDITOR, MINIGAME, ALIPAY, XIAOMI, JSB, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
-import { warnID } from '../platform/debug';
+import { warnID, getError } from '../platform/debug';
 
 /**
- * 内存图像源。
+ * @en Image source in memory
+ * @zh 内存图像源。
  */
 export interface IMemoryImageSource {
     _data: ArrayBufferView | null;
@@ -48,16 +50,36 @@ export interface IMemoryImageSource {
 }
 
 /**
- * 图像资源的原始图像源。可以来源于 HTML 元素也可以来源于内存。
+ * @en The image source, can be HTML canvas, image type or image in memory data
+ * @zh 图像资源的原始图像源。可以来源于 HTML 元素也可以来源于内存。
  */
-export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource;
+export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap;
+
+function isImageBitmap (imageSource: any): imageSource is ImageBitmap {
+    return legacyCC.sys.capabilities.imageBitmap && imageSource instanceof ImageBitmap;
+}
 
 function fetchImageSource (imageSource: ImageSource) {
     return '_data' in imageSource ? imageSource._data : imageSource;
 }
 
+// 返回该图像源是否是平台提供的图像对象。
+function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement | ImageBitmap) {
+    if (ALIPAY || XIAOMI) {
+        // We're unable to grab the constructors of Alipay native image or canvas object.
+        return !('_data' in imageSource);
+    }
+    else if (JSB && (imageSource as IMemoryImageSource)._compressed === true) {
+        return false;
+    }
+    else {
+        return imageSource instanceof HTMLImageElement || imageSource instanceof HTMLCanvasElement || isImageBitmap(imageSource);
+    }
+}
+
 /**
- * 图像资源。
+ * @en Image Asset.
+ * @zh 图像资源。
  */
 @ccclass('cc.ImageAsset')
 export class ImageAsset extends Asset {
@@ -69,46 +91,52 @@ export class ImageAsset extends Asset {
     }
 
     set _nativeAsset (value: ImageSource) {
-        if (!(value instanceof HTMLElement)) {
+        if (!(value instanceof HTMLElement) && !isImageBitmap(value)) {
             value.format = value.format || this._format;
         }
         this.reset(value);
     }
 
     /**
-     * 此图像资源的图像数据。
+     * @en Image data.
+     * @zh 此图像资源的图像数据。
      */
     get data () {
-        if (this._nativeData instanceof HTMLImageElement || this._nativeData instanceof HTMLCanvasElement) {
+        if (this._nativeData && isNativeImage(this._nativeData)) {
             return this._nativeData;
-        } else {
-            return this._nativeData._data;
+        }
+        else {
+            return this._nativeData && this._nativeData._data;
         }
     }
 
     /**
-     * 此图像资源的像素宽度。
+     * @en The pixel width of the image.
+     * @zh 此图像资源的像素宽度。
      */
     get width () {
         return this._nativeData.width || this._width;
     }
 
     /**
-     * 此图像资源的像素高度。
+     * @en The pixel height of the image.
+     * @zh 此图像资源的像素高度。
      */
     get height () {
         return this._nativeData.height || this._height;
     }
 
     /**
-     * 此图像资源的像素格式。
+     * @en The pixel format of the image.
+     * @zh 此图像资源的像素格式。
      */
     get format () {
         return this._format;
     }
 
     /**
-     * 此图像资源是否为压缩像素格式。
+     * @en Whether the image is in compressed texture format.
+     * @zh 此图像资源是否为压缩像素格式。
      */
     get isCompressed () {
         return (this._format >= PixelFormat.RGB_ETC1 && this._format <= PixelFormat.RGBA_ASTC_12x12) ||
@@ -116,13 +144,17 @@ export class ImageAsset extends Asset {
     }
 
     /**
-     * 此图像资源的原始图像源的 URL。当原始图像元不是 HTML 文件时可能为空。
-     * @deprecated 请转用 `this.nativeUrl`。
+     * @en The original source image URL, it could be empty.
+     * @zh 此图像资源的原始图像源的 URL。当原始图像元不是 HTML 文件时可能为空。
+     * @deprecated Please use [[nativeUrl]]
      */
     get url () {
-        return this._url;
+        return this.nativeUrl;
     }
 
+    /**
+     * @private
+     */
     set _texture (tex) {
         this._tex = tex;
     }
@@ -130,7 +162,7 @@ export class ImageAsset extends Asset {
     get _texture () {
         if (!this._tex) {
             const tex = new legacyCC.Texture2D();
-            tex.name = this._url;
+            tex.name = this.nativeUrl;
             tex.image = this;
             this._tex = tex;
         }
@@ -143,8 +175,6 @@ export class ImageAsset extends Asset {
 
     private _tex;
 
-    private _url: string;
-
     private _exportedExts: string[] | null | undefined = undefined;
 
     private _format: PixelFormat = PixelFormat.RGBA8888;
@@ -153,13 +183,9 @@ export class ImageAsset extends Asset {
 
     private _height: number = 0;
 
-    /**
-     * @param nativeAsset
-     */
     constructor (nativeAsset?: ImageSource) {
         super();
 
-        this._url = '';
         this.loaded = false;
 
         this._nativeData = {
@@ -180,11 +206,15 @@ export class ImageAsset extends Asset {
     }
 
     /**
-     * 重置此图像资源使用的原始图像源。
-     * @param data 新的原始图像源。
+     * @en Reset the source of the image asset.
+     * @zh 重置此图像资源使用的原始图像源。
+     * @param data The new source
      */
     public reset (data: ImageSource) {
-        if (!(data instanceof HTMLElement)) {
+        if (isImageBitmap(data)) {
+            this._nativeData = data;
+            this._onDataComplete();
+        } else if (!(data instanceof HTMLElement)) {
             // this._nativeData = Object.create(data);
             this._nativeData = data;
             this._format = data.format;
@@ -209,7 +239,8 @@ export class ImageAsset extends Asset {
         if (this.data && this.data instanceof HTMLImageElement) {
             this.data.src = "";
             this._setRawAsset("");
-            legacyCC.loader.removeItem(this.data.id);
+        } else if (isImageBitmap(this.data)) {
+            this.data.close && this.data.close();
         }
         return super.destroy();
     }
@@ -217,29 +248,31 @@ export class ImageAsset extends Asset {
     // SERIALIZATION
 
     public _serialize () {
-        let targetExtensions = this._exportedExts;
-        if (!targetExtensions && this._native) {
-            targetExtensions = [this._native];
-        }
-
-        if (!targetExtensions) {
-            return '';
-        }
-
-        const extensionIndices: string[] = [];
-        for (const targetExtension of targetExtensions) {
-            const extensionFormat = targetExtension.split('@');
-            const i = ImageAsset.extnames.indexOf(extensionFormat[0]);
-            let exportedExtensionID = i < 0 ? targetExtension : `${i}`;
-            if (extensionFormat[1]) {
-                exportedExtensionID += '@' + extensionFormat[1];
+        if (EDITOR || TEST) {
+            let targetExtensions = this._exportedExts;
+            if (!targetExtensions && this._native) {
+                targetExtensions = [this._native];
             }
-            extensionIndices.push(exportedExtensionID);
+
+            if (!targetExtensions) {
+                return '';
+            }
+
+            const extensionIndices: string[] = [];
+            for (const targetExtension of targetExtensions) {
+                const extensionFormat = targetExtension.split('@');
+                const i = ImageAsset.extnames.indexOf(extensionFormat[0]);
+                let exportedExtensionID = i < 0 ? targetExtension : `${i}`;
+                if (extensionFormat[1]) {
+                    exportedExtensionID += '@' + extensionFormat[1];
+                }
+                extensionIndices.push(exportedExtensionID);
+            }
+            return { fmt: extensionIndices.join('_'), w: this.width, h: this.height };
         }
-        return { fmt: extensionIndices.join('_'), w: this.width, h: this.height };
     }
 
-    public _deserialize (data: any, handle: any) {
+    public _deserialize (data: any) {
         let fmtStr = '';
         if (typeof data === 'string') {
             fmtStr = data;
@@ -252,6 +285,7 @@ export class ImageAsset extends Asset {
         const device = _getGlobalDevice();
         const extensionIDs = fmtStr.split('_');
 
+        let defaultExt = '';
         let preferedExtensionIndex = Number.MAX_VALUE;
         let format = this._format;
         let ext = '';
@@ -260,21 +294,21 @@ export class ImageAsset extends Asset {
             const extFormat = extensionID.split('@');
 
             const i = parseInt(extFormat[0], undefined);
-            const tmpExt = ImageAsset.extnames[i] || extFormat.join();
+            const tmpExt = ImageAsset.extnames[i] || extFormat[0];
 
             const index = SupportTextureFormats.indexOf(tmpExt);
             if (index !== -1 && index < preferedExtensionIndex) {
                 const fmt = extFormat[1] ? parseInt(extFormat[1]) : this._format;
                 // check whether or not support compressed texture
-                if ( tmpExt === '.astc' && (!device || !device.hasFeature(GFXFeature.FORMAT_ASTC))) {
+                if ( tmpExt === '.astc' && (!device || !device.hasFeature(Feature.FORMAT_ASTC))) {
                     continue;
-                } else if ( tmpExt === '.pvr' && (!device || !device.hasFeature(GFXFeature.FORMAT_PVRTC))) {
+                } else if ( tmpExt === '.pvr' && (!device || !device.hasFeature(Feature.FORMAT_PVRTC))) {
                     continue;
                 } else if ((fmt === PixelFormat.RGB_ETC1 || fmt === PixelFormat.RGBA_ETC1) &&
-                    (!device || !device.hasFeature(GFXFeature.FORMAT_ETC1))) {
+                    (!device || !device.hasFeature(Feature.FORMAT_ETC1))) {
                     continue;
                 } else if ((fmt === PixelFormat.RGB_ETC2 || fmt === PixelFormat.RGBA_ETC2) &&
-                    (!device || !device.hasFeature(GFXFeature.FORMAT_ETC2))) {
+                    (!device || !device.hasFeature(Feature.FORMAT_ETC2))) {
                     continue;
                 } else if (tmpExt === '.webp' && !legacyCC.sys.capabilities.webp) {
                     continue;
@@ -283,19 +317,21 @@ export class ImageAsset extends Asset {
                 ext = tmpExt;
                 format = fmt;
             }
+            else if (!defaultExt) {
+                defaultExt = tmpExt;
+            }
         }
 
         if (ext) {
             this._setRawAsset(ext);
             this._format = format;
         }
-
-        // preset uuid to get correct nativeUrl
-        const loadingItem = handle.customEnv;
-        const uuid = loadingItem && loadingItem.uuid;
-        if (uuid) {
-            this._uuid = uuid;
-            this._url = this.nativeUrl;
+        else if (defaultExt) {
+            this._setRawAsset(defaultExt);
+            warnID(3120, defaultExt, defaultExt);
+        }
+        else {
+            warnID(3121);
         }
     }
 
@@ -305,7 +341,7 @@ export class ImageAsset extends Asset {
     }
 }
 
-function _getGlobalDevice (): GFXDevice | null {
+function _getGlobalDevice (): Device | null {
     if (legacyCC.director.root) {
         return legacyCC.director.root.device;
     } else {
@@ -319,7 +355,7 @@ function _getGlobalDevice (): GFXDevice | null {
  * @en
  * This event is emitted when the asset is loaded
  *
- * @event loads
+ * @event load
  */
 
 legacyCC.ImageAsset = ImageAsset;

@@ -1,11 +1,36 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 import { aabb, intersect} from '../../geometry';
-import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { SetIndex} from '../../pipeline/define';
-import { GFXCommandBuffer, GFXDevice, GFXRenderPass, GFXShader} from '../../gfx';
+import { CommandBuffer, Device, RenderPass, Shader } from '../../gfx';
 import { InstancedBuffer } from '../instanced-buffer';
 import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
 import { Model } from '../../renderer/scene';
-import { DSPool, ShaderPool, PassPool, PassView, SubModelPool, SubModelView } from '../../renderer/core/memory-pools';
+import { DSPool, ShaderPool, PassPool, PassView } from '../../renderer/core/memory-pools';
+import { RenderInstancedQueue } from '../render-instanced-queue';
 import { ForwardPipeline } from './forward-pipeline';
 import { ShadowType } from '../../renderer/scene/shadows';
 import { RenderView } from '../render-view';
@@ -13,44 +38,30 @@ import { Layers } from '../../scene-graph/layers';
 
 const _ab = new aabb();
 
-interface IShadowRenderData {
-    model: Model;
-    shaders: GFXShader[];
-    instancedBuffer: InstancedBuffer | null;
-}
-
 export class PlanarShadowQueue {
-    private _pendingModels: IShadowRenderData[] = [];
-    private _record = new Map<Model, IShadowRenderData>();
-    protected declare _pipeline;
+    private _pendingModels: Model[] = [];
+    private _instancedQueue = new RenderInstancedQueue();
+    private _shaderCache = new Map<Model, Shader>();
+    private _pipeline: ForwardPipeline;
 
     constructor (pipeline: ForwardPipeline) {
         this._pipeline = pipeline;
     }
 
-    private createShadowData (model: Model): IShadowRenderData {
-        const shaders: GFXShader[] = [];
-        const shadows = this._pipeline.shadows;
-        const material = model.isInstancingEnabled ? shadows.instancingMaterial : shadows.material;
-        const instancedBuffer = model.isInstancingEnabled ? InstancedBuffer.get(material.passes[0]) : null;
-        const subModels = model.subModels;
-        for (let i = 0; i < subModels.length; i++) {
-            const hShader = material!.passes[0].getShaderVariant(model.getMacroPatches(i));
-            shaders.push(ShaderPool.get(hShader));
-        }
-        return { model, shaders, instancedBuffer };
-    }
-
-    public updateShadowList (view: RenderView) {
-        this._pendingModels.length = 0;
+    public gatherShadowPasses (view: RenderView, cmdBuff: CommandBuffer) {
         const shadows = this._pipeline.shadows;
         if (!shadows.enabled || shadows.type !== ShadowType.Planar) { return; }
+
         const camera = view.camera;
         const scene = camera.scene!;
         const frstm = camera.frustum;
         const shadowVisible =  (camera.visibility & Layers.BitMask.DEFAULT) !== 0;
         if (!scene.mainLight || !shadowVisible) { return; }
+
         const models = scene.models;
+        this._pendingModels.length = 0;
+        const instancedBuffer = InstancedBuffer.get(shadows.instancingMaterial.passes[0]);
+        this._instancedQueue.clear(); this._instancedQueue.queue.add(instancedBuffer);
 
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
@@ -59,57 +70,39 @@ export class PlanarShadowQueue {
                 aabb.transform(_ab, model.worldBounds, shadows.matLight);
                 if (!intersect.aabb_frustum(_ab, frstm)) { continue; }
             }
-            const data = this.createShadowData(model);
-            this._pendingModels.push(data);
-        }
-    }
-
-    public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
-        const shadows = this._pipeline.shadows;
-        if (!shadows.enabled || shadows.type !== ShadowType.Planar) { return; }
-
-        const models = this._pendingModels;
-        const modelLen = models.length;
-        if (!modelLen) { return; }
-        const buffer = InstancedBuffer.get(shadows.instancingMaterial.passes[0]);
-        if (buffer) { buffer.clear(); }
-        const hPass = shadows.material.passes[0].handle;
-        let descriptorSet = DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET));
-        cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, descriptorSet);
-        for (let i = 0; i < modelLen; i++) {
-            const { model, shaders, instancedBuffer } = models[i];
-            for (let j = 0; j < shaders.length; j++) {
-                const subModel = model.subModels[j];
-                const shader = shaders[j];
-                if (instancedBuffer) {
-                    instancedBuffer.merge(subModel, model.instancedAttributes, 0);
-                } else {
-                    const ia = subModel.inputAssembler!;
-                    const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, ia);
-                    cmdBuff.bindPipelineState(pso);
-                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);
-                    cmdBuff.bindInputAssembler(ia);
-                    cmdBuff.draw(ia);
+            if (model.isInstancingEnabled) {
+                for (let j = 0; j < model.subModels.length; j++) {
+                    instancedBuffer.merge(model.subModels[j], model.instancedAttributes, 0);
                 }
+            } else {
+                this._pendingModels.push(model);
             }
         }
-        if (buffer && buffer.hasPendingModels) {
-            buffer.uploadBuffers();
-            descriptorSet = DSPool.get(PassPool.get(buffer.hPass, PassView.DESCRIPTOR_SET));
-            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, descriptorSet);
-            let lastPSO: GFXPipelineState | null = null;
-            for (let b = 0; b < buffer.instances.length; ++b) {
-                const instance = buffer.instances[b];
-                if (!instance.count) { continue; }
-                const shader = ShaderPool.get(instance.hShader);
-                const pso = PipelineStateManager.getOrCreatePipelineState(device, buffer.hPass, shader, renderPass, instance.ia);
-                if (lastPSO !== pso) {
-                    cmdBuff.bindPipelineState(pso);
-                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, DSPool.get(instance.hDescriptorSet));
-                    lastPSO = pso;
-                }
-                cmdBuff.bindInputAssembler(instance.ia);
-                cmdBuff.draw(instance.ia);
+        this._instancedQueue.uploadBuffers(cmdBuff);
+    }
+
+    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
+        const shadows = this._pipeline.shadows;
+        if (!shadows.enabled || shadows.type !== ShadowType.Planar || !this._pendingModels.length) { return; }
+
+        this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+
+        const pass = shadows.material.passes[0];
+        const descriptorSet = DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET));
+        cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, descriptorSet);
+
+        const modelCount = this._pendingModels.length;
+        for (let i = 0; i < modelCount; i++) {
+            const model = this._pendingModels[i];
+            for (let j = 0; j < model.subModels.length; j++) {
+                const subModel = model.subModels[j];
+                const shader = ShaderPool.get(pass.getShaderVariant(subModel.patches));
+                const ia = subModel.inputAssembler!;
+                const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, ia);
+                cmdBuff.bindPipelineState(pso);
+                cmdBuff.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);
+                cmdBuff.bindInputAssembler(ia);
+                cmdBuff.draw(ia);
             }
         }
     }

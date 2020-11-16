@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,10 +24,11 @@
 */
 
 /**
- * @category scene-graph
+ * @packageDocumentation
+ * @module scene-graph
  */
 
-import { CCObject } from '../data/object';
+import { CCObject, isValid } from '../data/object';
 import { array, Pool } from '../utils/js';
 import { tryCatchFunctor_EDITOR } from '../utils/misc';
 import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
@@ -37,13 +38,9 @@ import { assert, errorID } from '../platform/debug';
 
 const MAX_POOL_SIZE = 4;
 
-// @ts-ignore
 const IsPreloadStarted = CCObject.Flags.IsPreloadStarted;
-// @ts-ignore
 const IsOnLoadStarted = CCObject.Flags.IsOnLoadStarted;
-// @ts-ignore
 const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
-// @ts-ignore
 const Deactivating = CCObject.Flags.Deactivating;
 
 const callPreloadInTryCatch = EDITOR && tryCatchFunctor_EDITOR('__preload');
@@ -58,7 +55,6 @@ const callOnLoadInTryCatch = EDITOR && function (c) {
     _onLoadInEditor(c);
 };
 const callOnDestroyInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onDestroy');
-const callResetInTryCatch = EDITOR && tryCatchFunctor_EDITOR('resetInEditor');
 const callOnFocusInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onFocusInEditor');
 const callOnLostFocusInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onLostFocusInEditor');
 
@@ -81,9 +77,9 @@ class UnsortedInvoker extends LifeCycleInvoker {
 
 const invokePreload = SUPPORT_JIT ? createInvokeImplJit('c.__preload();') :
     createInvokeImpl(
-        function (c) { c.__preload(); }, 
+        function (c) { c.__preload(); },
         function (iterator) {
-            var array = iterator.array;
+            const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 array[iterator.i].__preload();
             }
@@ -96,9 +92,9 @@ const invokeOnLoad = SUPPORT_JIT ? createInvokeImplJit('c.onLoad();c._objFlags|=
             c._objFlags |= IsOnLoadCalled;
         },
         function (iterator) {
-            var array = iterator.array;
+            const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                let comp = array[iterator.i];
+                const comp = array[iterator.i];
                 comp.onLoad();
                 comp._objFlags |= IsOnLoadCalled;
             }
@@ -143,7 +139,7 @@ function _componentCorrupted (node, comp, index) {
 
 function _onLoadInEditor (comp) {
     if (comp.onLoad && !legacyCC.GAME_VIEW) {
-        // @ts-ignore
+        // @ts-expect-error
         const focused = Editor.Selection.getLastSelected('node') === comp.node.uuid;
         if (focused) {
             if (comp.onFocusInEditor && callOnFocusInTryCatch) {
@@ -156,8 +152,8 @@ function _onLoadInEditor (comp) {
             }
         }
     }
-    if ( !TEST ) {
-        // @ts-ignore
+    if (!TEST) {
+        // @ts-expect-error
         _Scene.AssetsWatcher.start(comp);
     }
 }
@@ -226,6 +222,10 @@ export default class NodeActivator {
      * @param onEnableInvoker The invoker for `onEnable` method, normally from [[ComponentScheduler]]
      */
     public activateComp (comp, preloadInvoker?, onLoadInvoker?, onEnableInvoker?) {
+        if (!isValid(comp, true)) {
+            // destroyed before activating
+            return;
+        }
         if (!(comp._objFlags & IsPreloadStarted)) {
             comp._objFlags |= IsPreloadStarted;
             if (comp.__preload) {
@@ -359,6 +359,10 @@ export default class NodeActivator {
 
 if (EDITOR) {
     NodeActivator.prototype.activateComp = (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) => {
+        if (!isValid(comp, true)) {
+            // destroyed before activating
+            return;
+        }
         if (legacyCC.GAME_VIEW || comp.constructor._executeInEditMode) {
             if (!(comp._objFlags & IsPreloadStarted)) {
                 comp._objFlags |= IsPreloadStarted;
@@ -407,9 +411,14 @@ if (EDITOR) {
         }
     };
 
-    NodeActivator.prototype.resetComp = (comp) => {
-        if (comp.resetInEditor && callResetInTryCatch) {
-            callResetInTryCatch(comp);
+    NodeActivator.prototype.resetComp = (comp, didResetToDefault: boolean) => {
+        if (comp.resetInEditor) {
+            try {
+                comp.resetInEditor(didResetToDefault);
+            }
+            catch (e) {
+                legacyCC._throw(e);
+            }
         }
     };
 }

@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,9 +25,11 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
+import { EDITOR, TEST } from "internal:constants";
 import { ccclass, serializable, editable } from 'cc.decorator';
 import * as js from '../utils/js';
 import { Asset } from './asset';
@@ -46,7 +48,6 @@ interface ISpriteFrameList {
 /**
  * @en
  * Class for sprite atlas handling.
- *
  * @zh
  * 精灵图集资源类。
  */
@@ -57,10 +58,9 @@ export class SpriteAtlas extends Asset {
     public spriteFrames: ISpriteFrameList = js.createMap();
 
     /**
-     * @zh
-     * 获取精灵图集的贴图。请注意，由于结构调整优化，在 v1.1 版本之前，此函数的返回值为 imageAsset，在 v1.1 版本之后修正为 texture，想要获取 imageAsset 可使用 getTexture().image 获取
-     *
-     * @returns - 精灵贴图。
+     * @en Get the [[Texture2D]] asset of the atlas.
+     * @zh 获取精灵图集的贴图。请注意，由于结构调整优化，在 v1.1 版本之前，此函数的返回值为 imageAsset，在 v1.1 版本之后修正为 texture，想要获取 imageAsset 可使用 getTexture().image 获取
+     * @returns The texture2d asset
      */
     public getTexture () {
         const keys = Object.keys(this.spriteFrames);
@@ -74,11 +74,11 @@ export class SpriteAtlas extends Asset {
     }
 
     /**
-     * @zh
-     * 根据键值获取精灵。
+     * @en Gets the [[SpriteFrame]] correspond to the given key in sprite atlas.
+     * @zh 根据键值获取精灵。
      *
-     * @param key - 精灵名。
-     * @returns - 精灵。
+     * @param key The SpriteFrame name
+     * @returns The SpriteFrame asset
      */
     public getSpriteFrame (key: string) {
         const sf = this.spriteFrames[key];
@@ -92,10 +92,9 @@ export class SpriteAtlas extends Asset {
     }
 
     /**
-     * @zh
-     * 获取精灵图集所有精灵。
-     *
-     * @returns - 返回所有精灵。
+     * @en Returns all sprite frames in the sprite atlas.
+     * @zh 获取精灵图集所有精灵。
+     * @returns All sprite frames
      */
     public getSpriteFrames () {
         const frames: Array<SpriteFrame | null> = [];
@@ -108,22 +107,24 @@ export class SpriteAtlas extends Asset {
         return frames;
     }
 
-    public _serialize (exporting?: any) {
-        const frames: string[] = [];
-        for (const key of Object.keys(this.spriteFrames)) {
-            const spriteFrame = this.spriteFrames[key];
-            let id = spriteFrame ? spriteFrame._uuid : '';
-            if (id && exporting) {
-                id = EditorExtends.UuidUtils.compressUuid(id, true);
+    public _serialize (ctxForExporting: any): any {
+        if (EDITOR || TEST) {
+            const frames: string[] = [];
+            for (const key of Object.keys(this.spriteFrames)) {
+                const spriteFrame = this.spriteFrames[key];
+                let id = spriteFrame ? spriteFrame._uuid : '';
+                if (id && ctxForExporting && ctxForExporting._compressUuid) {
+                    id = EditorExtends.UuidUtils.compressUuid(id, true);
+                }
+                frames.push(key);
+                frames.push(id);
             }
-            frames.push(key);
-            frames.push(id);
-        }
 
-        return {
-            name: this._name,
-            spriteFrames: frames,
-        };
+            return {
+                name: this._name,
+                spriteFrames: frames,
+            };
+        }
     }
 
     public _deserialize (serializeData: any, handle: any){

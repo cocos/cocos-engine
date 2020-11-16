@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,10 +24,11 @@
  THE SOFTWARE.
 */
 
-// tslint:disable
+
 
 /**
- * @category component
+ * @packageDocumentation
+ * @module component
  */
 
 import { Script } from '../assets/scripts';
@@ -42,11 +43,9 @@ import { Node } from '../scene-graph';
 import { EDITOR, TEST, DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { errorID, warnID, assertID } from '../platform/debug';
+import { CompPrefabInfo } from '../utils';
 
 const idGenerator = new IDGenerator('Comp');
-// @ts-ignore
-const IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
-// @ts-ignore
 const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
 
 const NullNode = null as unknown as Node;
@@ -61,9 +60,6 @@ const NullNode = null as unknown as Node;
  * 所有附加到节点的基类。<br/>
  * <br/>
  * 注意：不允许使用组件的子类构造参数，因为组件是由引擎创建的。
- *
- * @class Component
- * @extends Object
  */
 @ccclass('cc.Component')
 class Component extends CCObject {
@@ -102,7 +98,7 @@ class Component extends CCObject {
     get __scriptAsset () { return null; }
 
     /**
-     * @en indicates whether this component is enabled or not.
+     * @en Indicates whether this component is enabled or not.
      * @zh 表示该组件自身是否启用。
      * @default true
      * @example
@@ -131,7 +127,7 @@ class Component extends CCObject {
     }
 
     /**
-     * @en indicates whether this component is enabled and its node is also active in the hierarchy.
+     * @en Indicates whether this component is enabled and its node is also active in the hierarchy.
      * @zh 表示该组件是否被启用并且所在的节点也处于激活状态。
      * @readOnly
      * @example
@@ -177,20 +173,33 @@ class Component extends CCObject {
     @serializable
     public _enabled = true;
 
+    /**
+     * @private
+     */
+    @serializable
+    public __prefab: CompPrefabInfo | null = null;
+
+    /**
+     * @private
+     */
     public _sceneGetter: null | (() => RenderScene) = null;
 
     /**
      * For internal usage.
+     * @private
      */
     public _id: string = idGenerator.getNewId();
 
     // private __scriptUuid = '';
 
+    /**
+     * @private
+     */
     public _getRenderScene (): RenderScene {
         if (this._sceneGetter) {
             return this._sceneGetter();
         } else {
-            return this.node.scene!._renderScene!;
+            return this.node.scene._renderScene!;
         }
     }
 
@@ -199,6 +208,7 @@ class Component extends CCObject {
     /**
      * @en Adds a component class to the node. You can also add component to node by passing in the name of the script.
      * @zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
+     * @param classConstructor The class of component to be retrieved or to be created
      * @example
      * ```ts
      * import { Sprite } from 'cc';
@@ -210,6 +220,7 @@ class Component extends CCObject {
     /**
      * @en Adds a component class to the node. You can also add component to node by passing in the name of the script.
      * @zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
+     * @param className A string for the class name of the component
      * @example
      * ```ts
      * const test = node.addComponent("Test");
@@ -228,6 +239,7 @@ class Component extends CCObject {
      * @zh
      * 获取节点上指定类型的组件，如果节点有附加指定类型的组件，则返回，如果没有则为空。<br/>
      * 传入参数也可以是脚本的名称。
+     * @param classConstructor The class of component to be retrieved or to be created
      * @example
      * ```ts
      * import { Sprite } from 'cc';
@@ -244,6 +256,7 @@ class Component extends CCObject {
      * @zh
      * 获取节点上指定类型的组件，如果节点有附加指定类型的组件，则返回，如果没有则为空。<br/>
      * 传入参数也可以是脚本的名称。
+     * @param className A string for the class name of the component
      * @example
      * ```ts
      * // get custom test calss.
@@ -259,6 +272,7 @@ class Component extends CCObject {
     /**
      * @en Returns all components of supplied type in the node.
      * @zh 返回节点上指定类型的所有组件。
+     * @param classConstructor The class of components to be retrieved
      * @example
      * ```ts
      * import { Sprite } from 'cc';
@@ -270,6 +284,7 @@ class Component extends CCObject {
     /**
      * @en Returns all components of supplied type in the node.
      * @zh 返回节点上指定类型的所有组件。
+     * @param className A string for the class name of the components
      * @example
      * ```ts
      * const tests = node.getComponents("Test");
@@ -284,6 +299,7 @@ class Component extends CCObject {
     /**
      * @en Returns the component of supplied type in any of its children using depth first search.
      * @zh 递归查找所有子节点中第一个匹配指定类型的组件。
+     * @param classConstructor The class of component to be retrieved
      * @example
      * ```ts
      * import { Sprite } from 'cc';
@@ -295,6 +311,7 @@ class Component extends CCObject {
     /**
      * @en Returns the component of supplied type in any of its children using depth first search.
      * @zh 递归查找所有子节点中第一个匹配指定类型的组件。
+     * @param className A string for the class name of the component
      * @example
      * ```ts
      * var Test = node.getComponentInChildren("Test");
@@ -309,6 +326,7 @@ class Component extends CCObject {
     /**
      * @en Returns all components of supplied type in self or any of its children.
      * @zh 递归查找自身或所有子节点中指定类型的组件。
+     * @param classConstructor The class of components to be retrieved
      * @example
      * ```ts
      * import { Sprite } from 'cc';
@@ -320,6 +338,7 @@ class Component extends CCObject {
     /**
      * @en Returns all components of supplied type in self or any of its children.
      * @zh 递归查找自身或所有子节点中指定类型的组件。
+     * @param className A string for the class name of the components
      * @example
      * ```ts
      * const tests = node.getComponentsInChildren("Test");
@@ -335,7 +354,7 @@ class Component extends CCObject {
 
     public destroy () {
         if (EDITOR) {
-            // @ts-ignore
+            // @ts-expect-error
             const depend = this.node._getDependComponent(this);
             if (depend) {
                 errorID(3626,
@@ -358,7 +377,7 @@ class Component extends CCObject {
 
         //
         if (EDITOR && !TEST) {
-            // @ts-ignore
+            // @ts-expect-error
             _Scene.AssetsWatcher.stop(this);
         }
 
@@ -381,23 +400,22 @@ class Component extends CCObject {
 
     /**
      * @en
-     * Schedules a custom selector.<br/>
-     * If the selector is already scheduled, then the interval parameter will be updated without scheduling it again.
+     * Schedules a custom task.<br/>
+     * If the task is already scheduled, then the interval parameter will be updated without scheduling it again.
      * @zh
-     * 调度一个自定义的回调函数。<br/>
-     * 如果回调函数已调度，那么将不会重复调度它，只会更新时间间隔参数。
-     * @method schedule
-     * @param {function} callback 回调函数。
-     * @param {Number} interval  时间间隔，0 表示每帧都重复。
-     * @param {Number} repeat    将被重复执行（repeat+ 1）次，您可以使用 cc.macro.REPEAT_FOREVER 进行无限次循环。
-     * @param {Number} delay     第一次执行前等待的时间（延时执行）。
+     * 调度一个自定义的回调任务。<br/>
+     * 如果回调任务已调度，那么将不会重复调度它，只会更新时间间隔参数。
+     * @param callback  The callback function of the task
+     * @param interval  The time interval between each invocation
+     * @param repeat    The repeat count of this task, the task will be invoked (repeat + 1) times, use [[macro.REPEAT_FOREVER]] to repeat a task forever
+     * @param delay     The delay time for the first invocation, Unit: s
      * @example
      * ```ts
      * import { log } from 'cc';
      * this.schedule((dt) => void log(`time: ${dt}`), 1);
      * ```
      */
-    public schedule (callback, interval: number = 0, repeat: number = legacyCC.macro.REPEAT_FOREVER, delay: number = 0) {
+    public schedule (callback, interval = 0, repeat: number = legacyCC.macro.REPEAT_FOREVER, delay = 0) {
         assertID(callback, 1619);
 
         interval = interval || 0;
@@ -418,26 +436,26 @@ class Component extends CCObject {
     }
 
     /**
-     * @en Schedules a callback function that runs only once, with a delay of 0 or larger.
-     * @zh 调度一个只运行一次的回调函数，可以指定 0 让回调函数在下一帧立即执行或者在一定的延时之后执行。
+     * @en Schedules a task that runs only once, with a delay of 0 or larger.
+     * @zh 调度一个只运行一次的回调任务，可以指定 0 让回调函数在下一帧立即执行或者在一定的延时之后执行。
      * @method scheduleOnce
      * @see [[schedule]]
-     * @param {function} callback  回调函数。
-     * @param {Number} delay  第一次执行前等待的时间（延时执行）。
+     * @param callback  The callback function of the task
+     * @param delay  The delay time for the first invocation, Unit: s
      * @example
      * ```ts
      * import { log } from 'cc';
      * this.scheduleOnce((dt) => void log(`time: ${dt}`), 2);
      * ```
      */
-    public scheduleOnce (callback, delay: number = 0) {
+    public scheduleOnce (callback, delay = 0) {
         this.schedule(callback, 0, 0, delay);
     }
 
     /**
-     * @en Un-schedules a custom callback function.
-     * @zh 取消调度一个自定义的回调函数。
-     * @param {function} callback_fn  回调函数。
+     * @en Un-schedules a custom task.
+     * @zh 取消调度一个自定义的回调任务。
+     * @param callback_fn  The callback function of the task
      * @example
      * ```ts
      * this.unschedule(_callback);
@@ -452,11 +470,8 @@ class Component extends CCObject {
     }
 
     /**
-     * @en
-     * unschedule all scheduled callback functions: custom callback functions, and the 'update' callback function.<br/>
-     * Actions are not affected by this method.
-     * @zh 取消调度所有已调度的回调函数：定制的回调函数以及 'update' 回调函数。动作不受此方法影响。
-     * @method unscheduleAllCallbacks
+     * @en unschedule all scheduled tasks.
+     * @zh 取消调度所有已调度的回调函数。
      * @example
      * ```ts
      * this.unscheduleAllCallbacks();
@@ -468,7 +483,7 @@ class Component extends CCObject {
 
     // LIFECYCLE METHODS
 
-    // Fireball provides lifecycle methods that you can specify to hook into this process.
+    // Cocos Creator provides lifecycle methods that you can specify to hook into this process.
     // We provide Pre methods, which are called right before something happens, and Post methods which are called right after something happens.
 
     /**
@@ -575,7 +590,8 @@ class Component extends CCObject {
      * @zh
      * 如果组件的包围盒与节点不同，您可以实现该方法以提供自定义的轴向对齐的包围盒（AABB），
      * 以便编辑器的场景视图可以正确地执行点选测试。
-     * @param out_rect - 提供包围盒的 Rect
+     * @param out_rect - The rect to store the result bounding rect
+     * @private
      */
     protected _getLocalBounds? (out_rect: Rect): void;
 
@@ -623,47 +639,47 @@ class Component extends CCObject {
 }
 
 const proto = Component.prototype;
-// @ts-ignore
+// @ts-expect-error
 proto.update = null;
-// @ts-ignore
+// @ts-expect-error
 proto.lateUpdate = null;
-// @ts-ignore
+// @ts-expect-error
 proto.__preload = null;
-// @ts-ignore
+// @ts-expect-error
 proto.onLoad = null;
-// @ts-ignore
+// @ts-expect-error
 proto.start = null;
-// @ts-ignore
+// @ts-expect-error
 proto.onEnable = null;
-// @ts-ignore
+// @ts-expect-error
 proto.onDisable = null;
-// @ts-ignore
+// @ts-expect-error
 proto.onDestroy = null;
-// @ts-ignore
+// @ts-expect-error
 proto.onFocusInEditor = null;
-// @ts-ignore
+// @ts-expect-error
 proto.onLostFocusInEditor = null;
-// @ts-ignore
+// @ts-expect-error
 proto.resetInEditor = null;
-// @ts-ignore
+// @ts-expect-error
 proto._getLocalBounds = null;
-// @ts-ignore
+// @ts-expect-error
 proto.onRestore = null;
-// @ts-ignore
+// @ts-expect-error
 Component._requireComponent = null;
-// @ts-ignore
+// @ts-expect-error
 Component._executionOrder = 0;
 
 if (EDITOR || TEST) {
 
     // INHERITABLE STATIC MEMBERS
-    // @ts-ignore
+    // @ts-expect-error
     Component._executeInEditMode = false;
-    // @ts-ignore
+    // @ts-expect-error
     Component._playOnFocus = false;
-    // @ts-ignore
+    // @ts-expect-error
     Component._disallowMultiple = null;
-    // @ts-ignore
+    // @ts-expect-error
     Component._help = '';
 
     // NON-INHERITED STATIC MEMBERS

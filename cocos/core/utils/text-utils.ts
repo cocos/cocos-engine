@@ -1,8 +1,8 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -24,11 +24,128 @@
  THE SOFTWARE.
 */
 
+import Pool from '../../core/utils/pool';
+import { RUNTIME_BASED } from 'internal:constants';
+
 /**
- * @hide
+ * @packageDocumentation
+ * @hidden
  */
 
 export const BASELINE_RATIO = 0.26;
+let _BASELINE_OFFSET = 0;
+if (RUNTIME_BASED) {
+    _BASELINE_OFFSET = BASELINE_RATIO * 2 / 3;
+}
+export const MIDDLE_RATIO = (BASELINE_RATIO + 1) / 2 - BASELINE_RATIO;
+export function getBaselineOffset () {
+    return _BASELINE_OFFSET;
+}
+
+const MAX_CACHE_SIZE = 100;
+
+interface ICacheNode {
+    key: string | null;
+    value: number,
+    prev: ICacheNode | null,
+    next: ICacheNode | null
+}
+
+const pool = new Pool<ICacheNode>(2);
+pool.get = function () {
+    return this._get() || {
+        key: '',
+        value: 0,
+        prev: null,
+        next: null
+    };
+};
+
+class LRUCache {
+    private count = 0;
+    private limit = 0;
+    private datas = {};
+    private declare head;
+    private declare tail;
+
+    constructor (size) {
+        this.limit = size;
+    }
+
+    public moveToHead (node) {
+        node.next = this.head;
+        node.prev = null;
+        if (this.head)
+            this.head.prev = node;
+        this.head = node;
+        if (!this.tail)
+            this.tail = node;
+        this.count++;
+        this.datas[node.key] = node;
+    }
+
+
+    public put (key, value) {
+        const node = pool.get();
+        node!.key = key;
+        node!.value = value;
+
+        if (this.count >= this.limit) {
+            const discard = this.tail;
+            delete this.datas[discard.key];
+            this.count--;
+            this.tail = discard.prev;
+            this.tail.next = null;
+            discard.prev = null;
+            discard.next = null;
+            pool.put(discard);
+        }
+        this.moveToHead(node);
+    }
+
+    public remove (node) {
+        if (node.prev) {
+            node.prev.next = node.next;
+        } else {
+            this.head = node.next;
+        }
+        if (node.next) {
+            node.next.prev = node.prev;
+        } else {
+            this.tail = node.prev;
+        }
+        delete this.datas[node.key];
+        this.count--;
+    }
+
+    public get (key) {
+        const node = this.datas[key];
+        if (node) {
+            this.remove(node);
+            this.moveToHead(node);
+            return node.value;
+        }
+        return null;
+    }
+
+    public clear () {
+        this.count = 0;
+        this.datas = {};
+        this.head = null;
+        this.tail = null;
+    }
+
+    public has (key) {
+        return !!this.datas[key];
+    }
+
+    public delete (key) {
+        const node = this.datas[key];
+        this.remove(node);
+    }
+}
+
+const measureCache = new LRUCache(MAX_CACHE_SIZE);
 
 const WORD_REG = /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûа-яА-ЯЁё]+|\S)/;
 const SYMBOL_REG = /^[!,.:;'}\]%\?>、‘“》？。，！]/;
@@ -65,9 +182,19 @@ export function isUnicodeSpace (ch: string) {
     chCode === 12288);
 }
 
-export function safeMeasureText (ctx: CanvasRenderingContext2D, string: string) {
+export function safeMeasureText (ctx: CanvasRenderingContext2D, string: string, desc: string) {
+    const font = desc || ctx.font;
+    const key = font + '\uD83C\uDFAE' + string;
+    const cache = measureCache.get(key);
+    if (cache !== null) {
+        return cache;
+    }
+
     const metric = ctx.measureText(string);
-    return metric && metric.width || 0;
+    const width = metric && metric.width || 0;
+    measureCache.put(key, width);
+
+    return width;
 }
 
 // in case truncate a character on the Supplementary Multilingual Plane

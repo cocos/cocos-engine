@@ -1,8 +1,35 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
- * @category geometry
+ * @packageDocumentation
+ * @module geometry
  */
 
 import { Mat4, Vec3 } from '../math';
+import { FrustumHandle, FrustumPool, FrustumView, NULL_HANDLE } from '../renderer/core/memory-pools';
 import enums from './enums';
 import plane from './plane';
 
@@ -22,7 +49,7 @@ _v[7] = new Vec3(1, -1, -1);
  * @zh
  * 基础几何 截头锥体。
  */
-// tslint:disable-next-line: class-name
+
 export class frustum {
 
     /**
@@ -212,5 +239,32 @@ export class frustum {
         plane.fromPoints(this.planes[3], this.vertices[0], this.vertices[4], this.vertices[5]);
         plane.fromPoints(this.planes[4], this.vertices[2], this.vertices[3], this.vertices[0]);
         plane.fromPoints(this.planes[0], this.vertices[7], this.vertices[6], this.vertices[5]);
+    }
+}
+
+/**
+ * @en
+ * Record frustum to shared memory.
+ * @zh
+ * 记录 frustum 数据到共享内存。并不是每个 frustum 都是需要记录到共享内存的。
+ * @param handle The frustum handle
+ * @param frstm The frustum object
+ */
+export function recordFrustumToSharedMemory (handle: FrustumHandle, frstm: frustum) {
+    if (!frstm || handle === NULL_HANDLE) {
+        return;
+    }
+
+    const vertices = frstm.vertices;
+    let vertexOffset = FrustumView.VERTICES as const;
+    for (let i = 0; i < 8; ++i) {
+        FrustumPool.setVec3(handle, vertexOffset, vertices[i]);
+        vertexOffset += 3;
+    }
+
+    const planes = frstm.planes;
+    let planeOffset = FrustumView.PLANES as const;
+    for (let i = 0; i < 6; i++, planeOffset += 4) {
+        FrustumPool.setVec4(handle, planeOffset, planes[i]);
     }
 }

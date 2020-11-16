@@ -1,12 +1,39 @@
-/**
- * @category pipeline
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
-import { ccclass, visible, displayOrder, type, serializable } from 'cc.decorator';
+/**
+ * @packageDocumentation
+ * @module pipeline
+ */
+
+import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { IRenderPass, SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
-import { GFXClearFlag, GFXColor, GFXRect } from '../../gfx/define';
+import { ClearFlag } from '../../gfx/define';
+import { Color, Rect } from '../../gfx';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';
@@ -22,7 +49,7 @@ import { ForwardPipeline } from './forward-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 import { PlanarShadowQueue } from './planar-shadow-queue';
 
-const colors: GFXColor[] = [ new GFXColor(0, 0, 0, 1) ];
+const colors: Color[] = [ new Color(0, 0, 0, 1) ];
 
 /**
  * @en The forward render stage
@@ -56,7 +83,7 @@ export class ForwardStage extends RenderStage {
     protected renderQueues: RenderQueueDesc[] = [];
     protected _renderQueues: RenderQueue[] = [];
 
-    private _renderArea = new GFXRect();
+    private _renderArea = new Rect();
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
     private _phaseID = getPhaseID('default');
@@ -135,7 +162,7 @@ export class ForwardStage extends RenderStage {
                         this._instancedQueue.queue.add(instancedBuffer);
                     } else if (batchingScheme === BatchingSchemes.VB_MERGING) {
                         const batchedBuffer = BatchedBuffer.get(pass);
-                        batchedBuffer.merge(subModel, p, ro);
+                        batchedBuffer.merge(subModel, p, ro.model);
                         this._batchedQueue.queue.add(batchedBuffer);
                     } else {
                         for (k = 0; k < this._renderQueues.length; k++) {
@@ -145,20 +172,26 @@ export class ForwardStage extends RenderStage {
                 }
             }
         }
+        this._renderQueues.forEach(this.renderQueueSortFunc);
+
         const cmdBuff = pipeline.commandBuffers[0];
 
-        this._renderQueues.forEach(this.renderQueueSortFunc);
+        this._instancedQueue.uploadBuffers(cmdBuff);
+        this._batchedQueue.uploadBuffers(cmdBuff);
         this._additiveLightQueue.gatherLightPasses(view, cmdBuff);
-        this._planarQueue.updateShadowList(view);
+        this._planarQueue.gatherShadowPasses(view, cmdBuff);
 
         const camera = view.camera;
         const vp = camera.viewport;
-        this._renderArea!.x = vp.x * camera.width;
-        this._renderArea!.y = vp.y * camera.height;
-        this._renderArea!.width = vp.width * camera.width * pipeline.shadingScale;
-        this._renderArea!.height = vp.height * camera.height * pipeline.shadingScale;
+        // render area is not oriented
+        const w = view.window.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.height : camera.width;
+        const h = view.window.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.width : camera.height;
+        this._renderArea!.x = vp.x * w;
+        this._renderArea!.y = vp.y * h;
+        this._renderArea!.width = vp.width * w * pipeline.shadingScale;
+        this._renderArea!.height = vp.height * h * pipeline.shadingScale;
 
-        if (camera.clearFlag & GFXClearFlag.COLOR) {
+        if (camera.clearFlag & ClearFlag.COLOR) {
             if (pipeline.isHDR) {
                 SRGBToLinear(colors[0], camera.clearColor);
                 const scale = pipeline.fpScale / camera.exposure;

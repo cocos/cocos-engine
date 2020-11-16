@@ -1,44 +1,70 @@
-/**
- * @category gfx
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
-import {
-    GFXFormat,
-    GFXObject,
-    GFXObjectType,
-    GFXSampleCount,
-    GFXTextureFlagBit,
-    GFXTextureFlags,
-    GFXTextureType,
-    GFXTextureUsage,
-    GFXTextureUsageBit,
-} from './define';
-import { GFXDevice } from './device';
+/**
+ * @packageDocumentation
+ * @module gfx
+ */
 
-export class GFXTextureInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+import { Device } from './device';
+import {
+    Format,
+    Obj,
+    ObjectType,
+    SampleCount,
+    TextureFlagBit,
+    TextureFlags,
+    TextureType,
+    TextureUsage,
+    TextureUsageBit,
+} from './define';
+
+export class TextureInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public type: GFXTextureType,
-        public usage: GFXTextureUsage = GFXTextureUsageBit.NONE,
-        public format: GFXFormat = GFXFormat.UNKNOWN,
+        public type: TextureType,
+        public usage: TextureUsage = TextureUsageBit.NONE,
+        public format: Format = Format.UNKNOWN,
         public width: number = 0,
         public height: number = 0,
-        public flags: GFXTextureFlags = GFXTextureFlagBit.NONE,
+        public flags: TextureFlags = TextureFlagBit.NONE,
         public layerCount: number = 1,
         public levelCount: number = 1,
-        public samples: GFXSampleCount = GFXSampleCount.X1,
+        public samples: SampleCount = SampleCount.X1,
         public depth: number = 1,
     ) {}
 }
 
-export class GFXTextureViewInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class TextureViewInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public texture: GFXTexture,
-        public type: GFXTextureType = GFXTextureType.TEX2D,
-        public format: GFXFormat = GFXFormat.UNKNOWN,
+        public texture: Texture,
+        public type: TextureType = TextureType.TEX2D,
+        public format: Format = Format.UNKNOWN,
         public baseLevel: number = 0,
         public levelCount: number = 1,
         public baseLayer: number = 0,
@@ -46,7 +72,7 @@ export class GFXTextureViewInfo {
     ) {}
 }
 
-export function IsPowerOf2 (x: number): boolean{
+export function IsPowerOf2 (x: number): boolean {
     return x > 0 && (x & (x - 1)) === 0;
 }
 
@@ -54,13 +80,13 @@ export function IsPowerOf2 (x: number): boolean{
  * @en GFX texture.
  * @zh GFX 纹理。
  */
-export abstract class GFXTexture extends GFXObject {
+export abstract class Texture extends Obj {
 
     /**
      * @en Get texture type.
      * @zh 纹理类型。
      */
-    get type (): GFXTextureType {
+    get type (): TextureType {
         return this._type;
     }
 
@@ -68,7 +94,7 @@ export abstract class GFXTexture extends GFXObject {
      * @en Get texture usage.
      * @zh 纹理使用方式。
      */
-    get usage (): GFXTextureUsage {
+    get usage (): TextureUsage {
         return this._usage;
     }
 
@@ -76,7 +102,7 @@ export abstract class GFXTexture extends GFXObject {
      * @en Get texture format.
      * @zh 纹理格式。
      */
-    get format (): GFXFormat {
+    get format (): Format {
         return this._format;
     }
 
@@ -124,7 +150,7 @@ export abstract class GFXTexture extends GFXObject {
      * @en Get texture samples.
      * @zh 纹理采样数。
      */
-    get samples (): GFXSampleCount {
+    get samples (): SampleCount {
         return this._samples;
     }
 
@@ -132,7 +158,7 @@ export abstract class GFXTexture extends GFXObject {
      * @en Get texture flags.
      * @zh 纹理标识位。
      */
-    get flags (): GFXTextureFlags {
+    get flags (): TextureFlags {
         return this._flags;
     }
 
@@ -152,28 +178,28 @@ export abstract class GFXTexture extends GFXObject {
         return this._buffer;
     }
 
-    protected _device: GFXDevice;
+    protected _device: Device;
 
-    protected _type: GFXTextureType = GFXTextureType.TEX2D;
-    protected _usage: GFXTextureUsage = GFXTextureUsageBit.NONE;
-    protected _format: GFXFormat = GFXFormat.UNKNOWN;
-    protected _width: number = 0;
-    protected _height: number = 0;
-    protected _depth: number = 1;
-    protected _layerCount: number = 1;
-    protected _levelCount: number = 1;
-    protected _samples: GFXSampleCount = GFXSampleCount.X1;
-    protected _flags: GFXTextureFlags = GFXTextureFlagBit.NONE;
-    protected _isPowerOf2: boolean = false;
-    protected _size: number = 0;
+    protected _type: TextureType = TextureType.TEX2D;
+    protected _usage: TextureUsage = TextureUsageBit.NONE;
+    protected _format: Format = Format.UNKNOWN;
+    protected _width = 0;
+    protected _height = 0;
+    protected _depth = 1;
+    protected _layerCount = 1;
+    protected _levelCount = 1;
+    protected _samples: SampleCount = SampleCount.X1;
+    protected _flags: TextureFlags = TextureFlagBit.NONE;
+    protected _isPowerOf2 = false;
+    protected _size = 0;
     protected _buffer: ArrayBuffer | null = null;
 
-    constructor (device: GFXDevice) {
-        super(GFXObjectType.TEXTURE);
+    constructor (device: Device) {
+        super(ObjectType.TEXTURE);
         this._device = device;
     }
 
-    public abstract initialize (info: GFXTextureInfo): boolean;
+    public abstract initialize (info: TextureInfo): boolean;
 
     public abstract destroy (): void;
 

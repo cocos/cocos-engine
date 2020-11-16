@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,7 +24,8 @@
 */
 
 /**
- * @category core/value-types
+ * @packageDocumentation
+ * @module core/value-types
  */
 
 import { value } from '../utils/js';
@@ -32,13 +33,21 @@ import { EDITOR, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
 
+/**
+ * @en
+ * Define an BitMask type.
+ * @zh
+ * 定义一个位掩码类型。
+ * @param obj A JavaScript literal object containing BitMask names and values
+ * @return The defined BitMask type
+ */
 export function BitMask<T> (obj: T): T {
     if ('__bitmask__' in obj) {
         return obj;
     }
     value(obj, '__bitmask__', null, true);
 
-    let lastIndex: number = -1;
+    let lastIndex = -1;
     const keys: string[] = Object.keys(obj);
 
     for (let i = 0; i < keys.length; i++) {
@@ -78,7 +87,7 @@ BitMask.getList = (BitMaskDef) => {
     }
 
     const bitlist: any[] = BitMaskDef.__bitmask__ = [];
-    // tslint:disable-next-line: forin
+
     for (const name in BitMaskDef) {
         const v = BitMaskDef[name];
         if (Number.isInteger(v)) {

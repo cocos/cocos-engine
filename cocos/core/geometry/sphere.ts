@@ -1,10 +1,37 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
- * @category geometry
+ * @packageDocumentation
+ * @module geometry
  */
 
 import { Mat4, Quat, Vec3 } from '../math';
 import enums from './enums';
 import aabb from './aabb';
+import { NULL_HANDLE, SphereHandle, SpherePool, SphereView } from '../renderer/core/memory-pools';
 
 const _v3_tmp = new Vec3();
 const _offset = new Vec3();
@@ -18,7 +45,7 @@ function maxComponent (v: Vec3) { return Math.max(Math.max(v.x, v.y), v.z); }
  * @zh
  * 基础几何 轴对齐球。
  */
-// tslint:disable-next-line: class-name
+
 export default class sphere {
 
     /**
@@ -107,8 +134,11 @@ export default class sphere {
      * 球跟点合并
      */
     public static mergePoint (out: sphere, s: sphere, point: Vec3) {
+        // if sphere.radius Less than 0,
+        // Set this point as anchor,
+        // And set radius to 0.
         if (s.radius < 0.0) {
-            out.center = point;
+            out.center.set(point);
             out.radius = 0.0;
             return out;
         }
@@ -145,15 +175,34 @@ export default class sphere {
      * @zh
      * 本地坐标的中心点。
      */
-    public center: Vec3;
+    protected _center: Vec3 = new Vec3(0, 0, 0);
+    get center () : Vec3 {
+        return this._center;
+    }
 
-    /**
-     * @en
-     * The radius of this sphere.
-     * @zh
-     * 半径。
-     */
-    public radius: number;
+    set center (val:Vec3) {
+        this._center = val;
+        SpherePool.setVec3(this._poolHandle, SphereView.CENTER, this._center);
+    }
+
+     /**
+      * @en
+      * The radius of this sphere.
+      * @zh
+      * 半径。
+      */
+    get radius () : number {
+        return SpherePool.get(this._poolHandle, SphereView.RADIUS);
+    }
+
+    set radius (val: number) {
+        SpherePool.set(this._poolHandle, SphereView.RADIUS, val);
+    }
+
+    protected _poolHandle: SphereHandle = NULL_HANDLE;
+    get handle () {
+        return this._poolHandle;
+    }
 
     /**
      * @en
@@ -177,10 +226,19 @@ export default class sphere {
      * @param cz 该球的世界坐标的 Z 坐标。
      * @param {number} r 半径。
      */
-    constructor (cx: number = 0, cy: number = 0, cz: number = 0, r: number = 1) {
+    constructor (cx = 0, cy = 0, cz = 0, r = 1) {
         this._type = enums.SHAPE_SPHERE;
-        this.center = new Vec3(cx, cy, cz);
-        this.radius = r;
+        this._center = new Vec3(cx, cy, cz);
+        this._poolHandle = SpherePool.alloc();
+        SpherePool.setVec3(this._poolHandle, SphereView.CENTER, this._center);
+        SpherePool.set(this._poolHandle, SphereView.RADIUS, r);
+    }
+
+    public destroy () {
+        if (this._poolHandle) {
+            SpherePool.free(this._poolHandle);
+            this._poolHandle = NULL_HANDLE;
+        }
     }
 
     /**

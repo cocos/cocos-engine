@@ -1,3 +1,28 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../core/math';
 import { IRigidBody } from '../spec/i-rigid-body';
@@ -5,7 +30,7 @@ import { CannonSharedBody } from './cannon-shared-body';
 import { Node } from '../../core';
 import { CannonWorld } from './cannon-world';
 import { PhysicsSystem } from '../framework/physics-system';
-import { RigidBody } from '../framework';
+import { ERigidBodyType, RigidBody } from '../framework';
 import { IVec3Like } from '../../core/math/type-define';
 
 const v3_cannon0 = new CANNON.Vec3();
@@ -37,34 +62,26 @@ export class CannonRigidBody implements IRigidBody {
 
     setMass (value: number) {
         this.impl.mass = value;
-        if (this.impl.mass == 0) {
-            this.impl.type = CANNON.Body.STATIC;
-        } else {
-            this.impl.type = this._rigidBody.isKinematic ? CANNON.Body.KINEMATIC : CANNON.Body.DYNAMIC;
-        }
-
         this.impl.updateMassProperties();
         this._wakeUpIfSleep()
     }
 
-    setIsKinematic (value: boolean) {
-        if (this.impl.mass == 0) {
-            this.impl.type = CANNON.Body.STATIC;
-        } else {
-            if (value) {
-                this.impl.type = CANNON.Body.KINEMATIC;
-            } else {
+    setType (v: ERigidBodyType) {
+        switch (v) {
+            case ERigidBodyType.DYNAMIC:
                 this.impl.type = CANNON.Body.DYNAMIC;
-            }
+                this.impl.updateMassProperties();
+                this._wakeUpIfSleep()
+                break;
+            case ERigidBodyType.KINEMATIC:
+                this.impl.type = CANNON.Body.KINEMATIC;
+                break;
+            case ERigidBodyType.STATIC:
+            default:
+                this.impl.type = CANNON.Body.STATIC;
+                break;
         }
     }
-
-    fixRotation (value: boolean) {
-        this.impl.fixedRotation = value;
-        this.impl.updateMassProperties();
-        this._wakeUpIfSleep()
-    }
-
     setLinearDamping (value: number) {
         this.impl.linearDamping = value;
     }
@@ -85,6 +102,11 @@ export class CannonRigidBody implements IRigidBody {
 
     setAngularFactor (value: IVec3Like) {
         Vec3.copy(this.impl.angularFactor, value);
+        const fixR = Vec3.equals(this.impl.angularFactor, Vec3.ZERO);
+        if (fixR != this.impl.fixedRotation) {
+            this.impl.fixedRotation = fixR;
+            this.impl.updateMassProperties();
+        }
         this._wakeUpIfSleep()
     }
 
@@ -114,7 +136,7 @@ export class CannonRigidBody implements IRigidBody {
 
     initialize (com: RigidBody) {
         this._rigidBody = com;
-        this._sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(this._rigidBody.node as Node);
+        this._sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(this._rigidBody.node as Node, this);
         this._sharedBody.reference = true;
         this._sharedBody.wrappedBody = this;
     }
@@ -124,18 +146,12 @@ export class CannonRigidBody implements IRigidBody {
 
     onEnable () {
         this._isEnabled = true;
-        // TODO: overwrite collider setGroup if runtime add.
-        this.setGroup(this._rigidBody.group);
-        if (PhysicsSystem.instance.useCollisionMatrix) {
-            this.setMask(PhysicsSystem.instance.collisionMatrix[this._rigidBody.group]);
-        }
         this.setMass(this._rigidBody.mass);
+        this.setType(this._rigidBody.type);
         this.setAllowSleep(this._rigidBody.allowSleep);
         this.setLinearDamping(this._rigidBody.linearDamping);
         this.setAngularDamping(this._rigidBody.angularDamping);
         this.useGravity(this._rigidBody.useGravity);
-        this.setIsKinematic(this._rigidBody.isKinematic);
-        this.fixRotation(this._rigidBody.fixedRotation);
         this.setLinearFactor(this._rigidBody.linearFactor);
         this.setAngularFactor(this._rigidBody.angularFactor);
         this._sharedBody.enabled = true;

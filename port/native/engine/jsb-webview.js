@@ -1,8 +1,8 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -23,268 +23,149 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+'use strict';
 
-(function () {
-    if (!(cc && cc.WebView && cc.WebView.Impl)) {
-        return;
+const { EventType } = cc.internal.WebView;
+
+let vec3 = cc.Vec3;
+let _mat4_temp = new cc.Mat4();
+
+let _topLeft = new vec3();
+let _bottomRight = new vec3();
+
+cc.internal.WebViewImplManager.getImpl = function(componenet) {
+    return new WebViewImplJSB(componenet);
+};
+
+class WebViewImplJSB extends cc.internal.WebViewImpl {
+
+    constructor(componenet) {
+        super(componenet);
+        this.jsCallback = null;
+        this.interfaceSchema = null;
     }
 
-    var vec3 = cc.Vec3;
-    var _worldMat = new cc.Mat4();
+    _bindEvent() {
+        let onLoaded = () => {
+            this._forceUpdate = true;
+            this.dispatchEvent(EventType.LOADED);
+        };
 
-    var _topLeft = new vec3();
-    var _bottomRight = new vec3();
-
-    cc.WebView.Impl = cc.Class({
-        extends: cc.WebView.Impl,
-        ctor () {
-            // keep webview data
-            this.jsCallback = null;
-            this.interfaceSchema = null;
-        }
-    });
-    var _impl = cc.WebView.Impl;
-    var _p = cc.WebView.Impl.prototype;
-
-    _p._updateVisibility = function () {
-        if (!this._iframe) return;
-        this._iframe.setVisible(this._visible);
-    };
-    _p._updateSize = function (w, h) {
-
-    };
-    _p._initEvent = function () {
-        let iframe = this._iframe;
-        if (iframe) {
-            let cbs = this.__eventListeners,
-                self = this;
-            cbs.load = function () {
-                self._dispatchEvent(_impl.EventType.LOADED);
-            };
-            cbs.error = function () {
-                self._dispatchEvent(_impl.EventType.ERROR);
-            };
-            // native event callback
-            this._iframe.setOnDidFinishLoading(cbs.load);
-            this._iframe.setOnDidFailLoading(cbs.error);
-        }
-    };
-    _p._initExtraSetting = function () {
+        let onError = () => {
+            this.dispatchEvent(EventType.ERROR);
+        };
+        this.webview.setOnDidFinishLoading(onLoaded);
+        this.webview.setOnDidFailLoading(onError);
         this.jsCallback && this.setOnJSCallback(this.jsCallback);
         this.interfaceSchema && this.setJavascriptInterfaceScheme(this.interfaceSchema);
         // remove obj
         this.jsCallback = null;
         this.interfaceSchema = null;
-    };
-    _p._setOpacity = function (opacity) {
-        let iframe = this._iframe;
-        if (iframe && iframe.style) {
-            iframe.style.opacity = opacity / 255;
-            // TODO, add impl to Native
-        }
-    };
-    _p.createDomElementIfNeeded = function (w, h) {
-        if (!jsb.WebView) {
-            cc.warn('WebView only supports mobile platform.');
-            return;
-        }
-        if (!this._iframe){
-            this._iframe = jsb.WebView.create();
-            this._initEvent();
-            this._initExtraSetting();
-        }
-    };
-    _p.removeDom = function () {
-        let iframe = this._iframe;
-        if (iframe) {
-            let cbs = this.__eventListeners;
-            cbs.load = null;
-            cbs.error = null;
-            iframe.destroy();
-            this._iframe = null;
-        }
-    };
+    }
 
-    _p.setOnJSCallback = function (callback) {
-        let iframe = this._iframe;
-        if (iframe) {
-            iframe.setOnJSCallback(callback);
+    createWebView() {
+        this._webview = jsb.WebView.create();
+        this._bindEvent();
+    }
+
+    removeWebView() {
+        let webview = this.webview;
+        if (webview) {
+            this.webview.destroy();
+            this.reset();
         }
-        else {
+    }
+
+    disable() {
+        if (this.webview) {
+            this.webview.setVisible(false);
+        }
+    }
+
+    enable() {
+        if (this.webview) {
+            this.webview.setVisible(true);
+        }
+    }
+
+    setOnJSCallback(callback) {
+        let webview = this.webview;
+        if (webview) {
+            webview.setOnJSCallback(callback);
+        } else {
             this.jsCallback = callback;
         }
-    };
-    _p.setJavascriptInterfaceScheme = function (scheme) {
-        let iframe = this._iframe;
-        if (iframe) {
-            iframe.setJavascriptInterfaceScheme(scheme);
-        }
-        else {
+    }
+
+    setJavascriptInterfaceScheme(scheme) {
+        let webview = this.webview;
+        if (webview) {
+            webview.setJavascriptInterfaceScheme(scheme);
+        } else {
             this.interfaceSchema = scheme;
         }
-    };
-    _p.loadData = function (data, MIMEType, encoding, baseURL) {
-        let iframe = this._iframe;
-        if (iframe) {
-            iframe.loadData(data, MIMEType, encoding, baseURL);
+    }
+
+    loadURL(url) {
+        let webview = this.webview;
+        if (webview) {
+            webview.src = url;
+            webview.loadURL(url);
+            this.dispatchEvent(EventType.LOADING);
         }
-    };
-    _p.loadHTMLString = function (string, baseURL) {
-        let iframe = this._iframe;
-        if (iframe) {
-            iframe.loadHTMLString(string, baseURL);
+    }
+
+    evaluateJS(str) {
+        let webview = this.webview;
+        if (webview) {
+            return webview.evaluateJS(str);
         }
-    };
-    /**
-     * Load an URL
-     * @param {String} url
-     */
-    _p.loadURL = function (url) {
-        let iframe = this._iframe;
-        if (iframe) {
-            iframe.src = url;
-            iframe.loadURL(url);
-            this._dispatchEvent(_impl.EventType.LOADING);
-        }
-    };
-    /**
-     * Stop loading
-     */
-    _p.stopLoading = function () {
-        cc.logID(7800);
-    };
-    /**
-     * Reload the WebView
-     */
-    _p.reload = function () {
-        let iframe = this._iframe;
-        if (iframe) {
-            iframe.reload();
-        }
-    };
-    /**
-     * Determine whether to go back
-     */
-    _p.canGoBack = function () {
-        let iframe = this._iframe;
-        if (iframe) {
-            return iframe.canGoBack();
-        }
-    };
-    /**
-     * Determine whether to go forward
-     */
-    _p.canGoForward = function () {
-        let iframe = this._iframe;
-        if (iframe) {
-            return iframe.canGoForward();
-        }
-    };
-    /**
-     * go back
-     */
-    _p.goBack = function () {
-        let iframe = this._iframe;
-        if (iframe) {
-            return iframe.goBack();
-        }
-    };
-    /**
-     * go forward
-     */
-    _p.goForward = function () {
-        let iframe = this._iframe;
-        if (iframe) {
-            return iframe.goForward();
-        }
-    };
-    /**
-     * In the webview execution within a period of js string
-     * @param {String} str
-     */
-    _p.evaluateJS = function (str) {
-        let iframe = this._iframe;
-        if (iframe) {
-            return iframe.evaluateJS(str);
-        }
-    };
-    /**
-     * Limited scale
-     */
-    _p.setScalesPageToFit = function () {
-        let iframe = this._iframe;
-        if (iframe) {
-            return iframe.setScalesPageToFit();
-        }
-    };
-    /**
-     * The binding event
-     * @param {_impl.EventType} event
-     * @param {Function} callback
-     */
-    _p.setEventListener = function (event, callback) {
-        this._EventList[event] = callback;
-    };
-    /**
-     * Delete events
-     * @param {_impl.EventType} event
-     */
-    _p.removeEventListener = function (event) {
-        this._EventList[event] = null;
-    };
-    _p._dispatchEvent = function (event) {
-        let callback = this._EventList[event];
-        if (callback)
-            callback.call(this, this, this._iframe.src);
-    };
-    _p._createRenderCmd = function () {
-        return new _impl.RenderCmd(this);
-    };
-    _p.destroy = function () {
-        this.removeDom();
-    };
-    _p.setVisible = function (visible) {
-        if (this._visible !== visible) {
-            this._visible = !!visible;
-            this._updateVisibility();
-        }
-    };
-    _p.updateMatrix = function (node) {
-        if (!this._iframe || !this._visible) return;
-        node.getWorldMatrix(_worldMat);
-        if (this._m00 === _worldMat.m[0] && this._m01 === _worldMat.m[1] &&
-            this._m04 === _worldMat.m[4] && this._m05 === _worldMat.m[5] &&
-            this._m12 === _worldMat.m[12] && this._m13 === _worldMat.m[13] &&
-            this._w === node._contentSize.width && this._h === node._contentSize.height) {
+    }
+
+    syncMatrix() {
+        if (!this._webview || !this._component) return;
+
+        const camera = this.UICamera;
+        if (!camera) {
             return;
         }
-        // update matrix cache
-        this._m00 = _worldMat.m[0];
-        this._m01 = _worldMat.m[1];
-        this._m04 = _worldMat.m[4];
-        this._m05 = _worldMat.m[5];
-        this._m12 = _worldMat.m[12];
-        this._m13 = _worldMat.m[13];
-        this._w = node._contentSize.width;
-        this._h = node._contentSize.height;
 
-        let camera = cc.Camera.findCamera(node)._camera;
+        this._component.node.getWorldMatrix(_mat4_temp);
+        const { width, height } = this._uiTrans.contentSize;
+        if (!this._forceUpdate &&
+            this._m00 === _mat4_temp.m00 && this._m01 === _mat4_temp.m01 &&
+            this._m04 === _mat4_temp.m04 && this._m05 === _mat4_temp.m05 &&
+            this._m12 === _mat4_temp.m12 && this._m13 === _mat4_temp.m13 &&
+            this._w === width && this._h === height) {
+            return;
+        }
+
+        // update matrix cache
+        this._m00 = _mat4_temp.m00;
+        this._m01 = _mat4_temp.m01;
+        this._m04 = _mat4_temp.m04;
+        this._m05 = _mat4_temp.m05;
+        this._m12 = _mat4_temp.m12;
+        this._m13 = _mat4_temp.m13;
+        this._w = width;
+        this._h = height;
 
         let canvas_width = cc.game.canvas.width;
         let canvas_height = cc.game.canvas.height;
-        let ap = node._anchorPoint;
+
+        let ap = this._uiTrans.anchorPoint;
         // Vectors in node space
-        vec3.set(_topLeft, - ap.x * this._w, (1.0 - ap.y) * this._h, 0);
-        vec3.set(_bottomRight, (1 - ap.x) * this._w, - ap.y * this._h, 0);
+        vec3.set(_topLeft, -ap.x * this._w, (1.0 - ap.y) * this._h, 0);
+        vec3.set(_bottomRight, (1 - ap.x) * this._w, -ap.y * this._h, 0);
         // Convert to world space
-        vec3.transformMat4(_topLeft, _topLeft, _worldMat);
-        vec3.transformMat4(_bottomRight, _bottomRight, _worldMat);
-        // Convert to screen space
+        vec3.transformMat4(_topLeft, _topLeft, _mat4_temp);
+        vec3.transformMat4(_bottomRight, _bottomRight, _mat4_temp);
+        // Convert to Screen space
         camera.worldToScreen(_topLeft, _topLeft, canvas_width, canvas_height);
         camera.worldToScreen(_bottomRight, _bottomRight, canvas_width, canvas_height);
 
         let finalWidth = _bottomRight.x - _topLeft.x;
         let finalHeight = _topLeft.y - _bottomRight.y;
-        this._iframe.setFrame(_topLeft.x, canvas_height - _topLeft.y, finalWidth, finalHeight);
+        this._webview.setFrame(_topLeft.x, canvas_height - _topLeft.y, finalWidth, finalHeight);
     }
-})();
+}

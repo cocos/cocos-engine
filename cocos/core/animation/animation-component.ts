@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,7 +24,8 @@
 */
 
 /**
- * @category animation
+ * @packageDocumentation
+ * @module animation
  */
 
 import { Component } from '../components/component';
@@ -467,7 +468,7 @@ export class Animation extends Eventify(Component) {
     }
 
     private _removeStateOfAutomaticClip (clip: AnimationClip) {
-        // tslint:disable-next-line:forin
+
         for (const name in this._nameToState) {
             const state = this._nameToState[name];
             if (equalClips(clip, state.clip)) {

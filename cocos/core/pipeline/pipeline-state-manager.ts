@@ -1,15 +1,44 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
+ * @packageDocumentation
  * @hidden
  */
 
-import { GFXShader, GFXRenderPass, GFXInputAssembler, GFXDevice, GFXPipelineState, GFXInputState, GFXPipelineStateInfo } from '../gfx';
-import { PassPool, PassView, RasterizerStatePool, BlendStatePool, DepthStencilStatePool, PassHandle, PipelineLayoutPool } from '../renderer/core/memory-pools';
+import { Shader, RenderPass, InputAssembler, Device, PipelineState, InputState, PipelineStateInfo } from '../gfx';
+import { PassPool, PassView, PassHandle, PipelineLayoutPool } from '../renderer/core/memory-pools';
+import { Pass } from '../renderer/core/pass';
 
 export class PipelineStateManager {
-    private static _PSOHashMap: Map<number, GFXPipelineState> = new Map<number, GFXPipelineState>();
+    private static _PSOHashMap: Map<number, PipelineState> = new Map<number, PipelineState>();
 
-    static getOrCreatePipelineState (device: GFXDevice, hPass: PassHandle, shader: GFXShader, renderPass: GFXRenderPass, ia: GFXInputAssembler) {
+    // pass is only needed on TS.
+    static getOrCreatePipelineState (device: Device, pass: Pass, shader: Shader, renderPass: RenderPass, ia: InputAssembler) {
 
+        const hPass = pass.handle;
         const hash1 = PassPool.get(hPass, PassView.HASH);
         const hash2 = renderPass.hash;
         const hash3 = ia.attributesHash;
@@ -19,13 +48,12 @@ export class PipelineStateManager {
         let pso = this._PSOHashMap.get(newHash);
         if (!pso) {
             const pipelineLayout = PipelineLayoutPool.get(PassPool.get(hPass, PassView.PIPELINE_LAYOUT));
-            const inputState = new GFXInputState();
-            inputState.attributes = ia.attributes;
-            const psoInfo = new GFXPipelineStateInfo(
+            const inputState = new InputState(ia.attributes);
+            const psoInfo = new PipelineStateInfo(
                 shader, pipelineLayout, renderPass, inputState,
-                RasterizerStatePool.get(PassPool.get(hPass, PassView.RASTERIZER_STATE)),
-                DepthStencilStatePool.get(PassPool.get(hPass, PassView.DEPTH_STENCIL_STATE)),
-                BlendStatePool.get(PassPool.get(hPass, PassView.BLEND_STATE)),
+                pass.rasterizerState,
+                pass.depthStencilState,
+                pass.blendState,
                 PassPool.get(hPass, PassView.PRIMITIVE),
                 PassPool.get(hPass, PassView.DYNAMIC_STATES),
             );

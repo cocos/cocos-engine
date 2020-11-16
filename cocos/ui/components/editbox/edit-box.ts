@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,7 +25,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { UITransform } from '../../../core/components/ui-base';
@@ -312,6 +313,7 @@ export class EditBox extends Component {
      * 开始编辑文本输入框触发的事件回调。
      */
     @type([ComponentEventHandler])
+    @serializable
     @displayOrder(11)
     @tooltip('该事件在用户点击输入框获取焦点的时候被触发')
     public editingDidBegan: ComponentEventHandler[] = [];
@@ -386,7 +388,7 @@ export class EditBox extends Component {
     }
 
     public onEnable () {
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this._registerEvent();
         }
         if (this._impl) {
@@ -401,7 +403,7 @@ export class EditBox extends Component {
     }
 
     public onDisable () {
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this._unregisterEvent();
         }
         if (this._impl) {

@@ -1,8 +1,8 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -25,7 +25,8 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 import {ccclass, serializable, editable} from 'cc.decorator';
@@ -39,16 +40,13 @@ import { legacyCC } from '../global-exports';
 @ccclass('cc.TextAsset')
 export default class TextAsset extends Asset {
     /**
-     * 此资源包含的文本。
+     * @en The text content.
+     * @zh 此资源包含的文本。
      */
     @serializable
     @editable
     public text = '';
 
-    /**
-     * @zh
-     * 重载标准的 `toString()` 方法。
-     */
     public toString () {
         return this.text;
     }

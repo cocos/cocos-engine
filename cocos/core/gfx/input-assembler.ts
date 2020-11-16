@@ -1,18 +1,53 @@
-/**
- * @category gfx
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
-import { GFXBuffer } from './buffer';
-import { GFXFormat, GFXObject, GFXObjectType } from './define';
-import { GFXDevice } from './device';
-import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
+/**
+ * @packageDocumentation
+ * @module gfx
+ */
 
-export class GFXAttribute {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+import { Buffer } from './buffer';
+import { Device } from './device';
+import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
+import { Format, Obj, ObjectType } from './define';
+
+export interface IAttribute {
+    name: string;
+    format: Format;
+    isNormalized: boolean;
+    tream: number;
+    isInstanced: boolean;
+    location: number;
+}
+
+export class Attribute {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
         public name: string = '',
-        public format: GFXFormat = GFXFormat.UNKNOWN,
+        public format: Format = Format.UNKNOWN,
         public isNormalized: boolean = false,
         public stream: number = 0,
         public isInstanced: boolean = false,
@@ -20,14 +55,14 @@ export class GFXAttribute {
     ) {}
 }
 
-export class GFXInputAssemblerInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+export class InputAssemblerInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public attributes: GFXAttribute[] = [],
-        public vertexBuffers: GFXBuffer[] = [],
-        public indexBuffer: GFXBuffer | null = null,
-        public indirectBuffer: GFXBuffer | null = null,
+        public attributes: Attribute[] = [],
+        public vertexBuffers: Buffer[] = [],
+        public indexBuffer: Buffer | null = null,
+        public indirectBuffer: Buffer | null = null,
     ) {}
 }
 
@@ -35,13 +70,13 @@ export class GFXInputAssemblerInfo {
  * @en GFX input assembler.
  * @zh GFX 输入汇集器。
  */
-export abstract class GFXInputAssembler extends GFXObject {
+export abstract class InputAssembler extends Obj {
 
     /**
      * @en Get current vertex buffers.
      * @zh 顶点缓冲数组。
      */
-    get vertexBuffers (): GFXBuffer[] {
+    get vertexBuffers (): Buffer[] {
         return this._vertexBuffers;
     }
 
@@ -49,7 +84,7 @@ export abstract class GFXInputAssembler extends GFXObject {
      * @en Get current index buffer.
      * @zh 索引缓冲。
      */
-    get indexBuffer (): GFXBuffer | null {
+    get indexBuffer (): Buffer | null {
         return this._indexBuffer;
     }
 
@@ -57,7 +92,7 @@ export abstract class GFXInputAssembler extends GFXObject {
      * @en Get current attributes.
      * @zh 顶点属性数组。
      */
-    get attributes (): GFXAttribute[] {
+    get attributes (): Attribute[] {
         return this._attributes;
     }
 
@@ -157,50 +192,47 @@ export abstract class GFXInputAssembler extends GFXObject {
      * @en Get the indirect buffer, if present.
      * @zh 间接绘制缓冲。
      */
-    get indirectBuffer (): GFXBuffer | null {
+    get indirectBuffer (): Buffer | null {
         return this._indirectBuffer;
     }
 
-    protected _device: GFXDevice;
+    protected _device: Device;
 
-    protected _attributes: GFXAttribute[] = [];
+    protected _attributes: Attribute[] = [];
 
-    protected _vertexBuffers: GFXBuffer[] = [];
+    protected _vertexBuffers: Buffer[] = [];
 
-    protected _indexBuffer: GFXBuffer | null = null;
+    protected _indexBuffer: Buffer | null = null;
 
-    protected _vertexCount: number = 0;
+    protected _vertexCount = 0;
 
-    protected _firstVertex: number = 0;
+    protected _firstVertex = 0;
 
-    protected _indexCount: number = 0;
+    protected _indexCount = 0;
 
-    protected _firstIndex: number = 0;
+    protected _firstIndex = 0;
 
-    protected _vertexOffset: number = 0;
+    protected _vertexOffset = 0;
 
-    protected _instanceCount: number = 0;
+    protected _instanceCount = 0;
 
-    protected _firstInstance: number = 0;
+    protected _firstInstance = 0;
 
-    protected _attributesHash: number = 0;
+    protected _attributesHash = 0;
 
-    protected _indirectBuffer: GFXBuffer | null = null;
+    protected _indirectBuffer: Buffer | null = null;
 
-    constructor (device: GFXDevice) {
-        super(GFXObjectType.INPUT_ASSEMBLER);
+    constructor (device: Device) {
+        super(ObjectType.INPUT_ASSEMBLER);
         this._device = device;
     }
-
-    public abstract initialize (info: GFXInputAssemblerInfo): boolean;
-    public abstract destroy (): void;
 
     /**
      * @en Get the specified vertex buffer.
      * @zh 获取顶点缓冲。
      * @param stream The stream index of the vertex buffer.
      */
-    public getVertexBuffer (stream: number = 0): GFXBuffer | null {
+    public getVertexBuffer (stream = 0): Buffer | null {
         if (stream < this._vertexBuffers.length) {
             return this._vertexBuffers[stream];
         } else {
@@ -216,4 +248,7 @@ export abstract class GFXInputAssembler extends GFXObject {
         }
         return murmurhash2_32_gc(res, 666);
     }
+
+    public abstract initialize (info: InputAssemblerInfo): boolean;
+    public abstract destroy (): void;
 }

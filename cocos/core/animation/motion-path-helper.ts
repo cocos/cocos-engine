@@ -1,4 +1,30 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
+ * @packageDocumentation
  * @hidden
  */
 
@@ -8,7 +34,7 @@ import { Vec2, Vec3 } from '../math';
 import { AnimCurve, computeRatioByType, CurveValue, EasingMethod } from './animation-curve';
 import { bezier } from './bezier';
 
-// tslint:disable:no-shadowed-variable
+
 
 export class Curve {
     public beziers: Bezier[] = [];
@@ -247,7 +273,7 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
         };
     };
 
-    // @ts-ignore
+    // @ts-expect-error
     const values = data.values = data.values.map((value) => {
         if (Array.isArray(value)) {
             value = value.length === 2 ? new Vec2(value[0], value[1]) : new Vec3(value[0], value[1], value[2]);
@@ -281,13 +307,13 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
     }
 
     const types = data.types;
-    // @ts-ignore
+    // @ts-expect-error
     const ratios = (data.ratioSampler ? data.ratioSampler.ratios : []);
 
-    // @ts-ignore
+    // @ts-expect-error
     const newValues: CurveValue[] = data.values = [];
     const newTypes: any[] = data.types = [];
-    // @ts-ignore
+    // @ts-expect-error
     const newRatios: number[] = data.ratios = [];
 
     function addNewDatas (value: CurveValue, type: any, ratio: number) {

@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -25,6 +25,7 @@
 */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 
@@ -381,9 +382,9 @@ class InputManager {
 
         this._glView = legacyCC.view;
 
-        let prohibition = sys.isMobile;
-        let supportMouse = ('mouse' in sys.capabilities);
-        let supportTouches = ('touches' in sys.capabilities);
+        const prohibition = sys.isMobile;
+        const supportMouse = ('mouse' in sys.capabilities);
+        const supportTouches = ('touches' in sys.capabilities);
 
         // Register mouse events.
         if (supportMouse) {
@@ -427,7 +428,7 @@ class InputManager {
         }
 
         if (JSB || RUNTIME_BASED) {
-            // @ts-ignore
+            // @ts-expect-error
             jsb.device.setMotionEnabled(isEnable);
         }
     }
@@ -444,7 +445,6 @@ class InputManager {
         let z = 0;
 
         // TODO
-        // @ts-ignore
         if (this._accelDeviceEvent === window.DeviceMotionEvent) {
             const deviceMotionEvent = eventData as DeviceMotionEvent;
             const eventAcceleration = deviceMotionEvent.accelerationIncludingGravity;
@@ -508,9 +508,9 @@ class InputManager {
             this._accelInterval = interval;
 
             if (JSB || RUNTIME_BASED) {
-                // @ts-ignore
+                // @ts-expect-error
                 if (jsb.device && jsb.device.setMotionInterval) {
-                    // @ts-ignore
+                    // @ts-expect-error
                     jsb.device.setMotionInterval(interval);
                 }
             }
@@ -570,8 +570,8 @@ class InputManager {
     private _registerPointerLockEvent () {
         const lockChangeAlert = () => {
             const canvas = legacyCC.game.canvas;
-            // @ts-ignore
-            if (document.pointerLockElement === canvas || document.mozPointerLockElement === canvas){
+            // @ts-expect-error
+            if (document.pointerLockElement === canvas || document.mozPointerLockElement === canvas) {
                 this._pointLocked = true;
             }
             else {
@@ -581,7 +581,7 @@ class InputManager {
         if ('onpointerlockchange' in document) {
             document.addEventListener('pointerlockchange', lockChangeAlert, false);
         } else if ('onmozpointerlockchange' in document) {
-            // @ts-ignore
+            // @ts-expect-error
             document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
         }
     }
@@ -657,14 +657,14 @@ class InputManager {
             });
         }
 
-        // @ts-ignore
+        // @ts-expect-error
         listenDOMMouseEvent('mousewheel', EventMouse.SCROLL, (event, mouseEvent, location, pos) => {
-            // @ts-ignore
+            // @ts-expect-error
             mouseEvent.setScrollData(0, event.wheelDelta);
         });
 
         /* firefox fix */
-        // @ts-ignore
+        // @ts-expect-error
         listenDOMMouseEvent('DOMMouseScroll', EventMouse.SCROLL, (event, mouseEvent, location, pos) => {
             mouseEvent.setScrollData(0, event.detail * -120);
         });
@@ -677,10 +677,10 @@ class InputManager {
             MSPointerUp       : this.handleTouchesEnd,
             MSPointerCancel   : this.handleTouchesCancel,
         };
-        // tslint:disable-next-line: forin
+
         for (const eventName in _pointerEventsMap) {
             const touchEvent = _pointerEventsMap[eventName];
-            // @ts-ignore
+            // @ts-expect-error
             element.addEventListener(eventName as MSPointerEventNames, (event: MSPointerEvent) => {
                 const pos = this.getHTMLElementPosition(element);
                 pos.left -= document.documentElement.scrollLeft;
@@ -742,22 +742,21 @@ class InputManager {
     private _registerAccelerometerEvent () {
         this._acceleration = new Acceleration();
         // TODO
-        // @ts-ignore
+        // @ts-expect-error
         this._accelDeviceEvent = window.DeviceMotionEvent || window.DeviceOrientationEvent;
 
         // TODO fix DeviceMotionEvent bug on QQ Browser version 4.1 and below.
         if (legacyCC.sys.browserType === legacyCC.sys.BROWSER_TYPE_MOBILE_QQ) {
             // TODO
-        // @ts-ignore
+        // @ts-expect-error
             this._accelDeviceEvent = window.DeviceOrientationEvent;
         }
 
         const _deviceEventType =
             // TODO
-            // @ts-ignore
             this._accelDeviceEvent === window.DeviceMotionEvent ? 'devicemotion' : 'deviceorientation';
 
-        // @ts-ignore
+        // @ts-expect-error
         _didAccelerateFun = (...args: any[]) => this.didAccelerate(...args);
         window.addEventListener(_deviceEventType, _didAccelerateFun, false);
     }
@@ -765,7 +764,6 @@ class InputManager {
     private _unregisterAccelerometerEvent () {
         const _deviceEventType =
             // TODO
-            // @ts-ignore
             this._accelDeviceEvent === window.DeviceMotionEvent ? 'devicemotion' : 'deviceorientation';
         if (_didAccelerateFun) {
             window.removeEventListener(_deviceEventType, _didAccelerateFun, false);

@@ -1,11 +1,39 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 
 /**
- * 可以自动分配内存的数据结构
- * @category memop
+ * @packageDocumentation
+ * @module memop
  */
 
 /**
- * @zh 对象池。
+ * @en Typed object pool.
+ * It's a traditional design, you can get elements out of the pool or recycle elements by putting back into the pool.
+ * @zh 支持类型的对象池。这是一个传统设计的对象池，你可以从对象池中取出对象或是放回不再需要对象来复用。
+ * @see [[RecyclePool]]
  */
 export class Pool<T> {
 
@@ -15,9 +43,10 @@ export class Pool<T> {
     private _freepool: T[] = [];
 
     /**
-     * 构造函数。
-     * @param ctor 元素构造函数。
-     * @param size 初始大小。
+     * @en Constructor with the allocator of elements and initial pool size
+     * @zh 使用元素的构造器和初始大小的构造函数
+     * @param ctor The allocator of elements in pool, it's invoked directly without `new`
+     * @param elementsPerBatch Initial pool size, this size will also be the incremental size when the pool is overloaded
      */
     constructor (ctor: () => T, elementsPerBatch: number) {
         this._ctor = ctor;
@@ -30,7 +59,9 @@ export class Pool<T> {
     }
 
     /**
+     * @en Take an object out of the object pool.
      * @zh 从对象池中取出一个对象。
+     * @return An object ready for use. This function always return an object.
      */
     public alloc (): T {
         if (this._nextAvail < 0) {
@@ -47,8 +78,9 @@ export class Pool<T> {
     }
 
     /**
+     * @en Put an object back into the object pool.
      * @zh 将一个对象放回对象池中。
-     * @param obj 释放的对象。
+     * @param obj The object to be put back into the pool
      */
     public free (obj: T) {
         this._freepool.push(obj);
@@ -56,8 +88,9 @@ export class Pool<T> {
     }
 
     /**
+     * @en Put multiple objects back into the object pool.
      * @zh 将一组对象放回对象池中。
-     * @param objs 一组要释放的对象。
+     * @param objs An array of objects to be put back into the pool
      */
     public freeArray (objs: T[]) {
         Array.prototype.push.apply(this._freepool, objs);
@@ -65,8 +98,9 @@ export class Pool<T> {
     }
 
     /**
-     * 释放对象池中所有资源。
-     * @param dtor 销毁回调，对每个释放的对象调用一次。
+     * @en Destroy all elements and clear the pool.
+     * @zh 释放对象池中所有资源并清空缓存池。
+     * @param dtor The destructor function, it will be invoked for all elements in the pool
      */
     public destroy (dtor?: (obj: T) => void) {
         if (dtor) {

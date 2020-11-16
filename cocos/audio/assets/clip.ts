@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -24,11 +24,14 @@
  */
 
 /**
- * @category component/audio
+ * @packageDocumentation
+ * @module component/audio
  */
 
+import {
+    ccclass, type, serializable, override,
+} from 'cc.decorator';
 import { Asset } from '../../core/assets/asset';
-import { ccclass, type, serializable } from 'cc.decorator';
 import { Enum } from '../../core/value-types';
 import { AudioPlayer, PlayingState } from './player';
 import { AudioPlayerDOM } from './player-dom';
@@ -56,7 +59,6 @@ export const AudioType = Enum({
  */
 @ccclass('cc.AudioClip')
 export class AudioClip extends Asset {
-
     public static PlayingState = PlayingState;
     public static AudioType = AudioType;
     public static preventDeferredLoadDependents = true;
@@ -67,7 +69,7 @@ export class AudioClip extends Asset {
     @type(AudioType)
     protected _loadMode = AudioType.UNKNOWN_AUDIO;
 
-    protected _audio: any = null;
+    protected _nativeAudio: any = null;
     protected _player: AudioPlayer | null = null;
 
     constructor () {
@@ -80,11 +82,11 @@ export class AudioClip extends Asset {
         return super.destroy();
     }
 
-    set _nativeAsset (clip: any) {
-        this._audio = clip;
-        if (clip) {
-            const ctor = this._getPlayer(clip);
-            this._player = new ctor({ clip, duration: this._duration, eventTarget: this });
+    set _nativeAsset (nativeAudio: any) {
+        this._nativeAudio = nativeAudio;
+        if (nativeAudio) {
+            const ctor = this._getPlayer(nativeAudio);
+            this._player = new ctor({ nativeAudio, duration: this._duration, audioClip: this });
             this.loaded = true;
             this.emit('load');
         } else {
@@ -96,7 +98,17 @@ export class AudioClip extends Asset {
     }
 
     get _nativeAsset () {
-        return this._audio;
+        return this._nativeAudio;
+    }
+
+    @override
+    get _nativeDep () {
+        return {
+            uuid: this._uuid,
+            audioLoadMode: this.loadMode,
+            ext: this._native,
+            __isNative__: true,
+        };
     }
 
     get loadMode () {
@@ -120,7 +132,7 @@ export class AudioClip extends Asset {
     public getLoop () { if (this._player) { return this._player.getLoop(); } return false; }
 
     private _getPlayer (clip: any) {
-        let ctor: any;
+        let ctor: Constructor<AudioPlayer>;
         if (typeof AudioBuffer !== 'undefined' && clip instanceof AudioBuffer) {
             ctor = AudioPlayerWeb;
             this._loadMode = AudioType.WEB_AUDIO;

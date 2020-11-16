@@ -1,11 +1,39 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
- * @category model
+ * @packageDocumentation
+ * @module model
  */
 
 import { EDITOR } from 'internal:constants';
+import {
+    ccclass, type, displayOrder, displayName, serializable,
+} from 'cc.decorator';
 import { Material } from '../../assets/material';
 import { Component } from '../../components/component';
-import { ccclass, type, visible, displayName, serializable } from 'cc.decorator';
 import { IMaterialInstanceInfo, MaterialInstance } from '../../renderer/core/material-instance';
 import { scene } from '../../renderer';
 import { Layers } from '../../scene-graph/layers';
@@ -35,10 +63,11 @@ export class RenderableComponent extends Component {
     }
 
     @type(Material)
+    @displayOrder(0)
     @displayName('Materials')
     get sharedMaterials () {
         // if we don't create an array copy, the editor will modify the original array directly.
-        return EDITOR && this._materials.slice() || this._materials;
+        return (EDITOR && this._materials.slice()) || this._materials;
     }
 
     set sharedMaterials (val) {
@@ -77,7 +106,8 @@ export class RenderableComponent extends Component {
             }
         }
         for (let i = 0; i < this._materialInstances.length; i++) {
-            // tslint:disable-next-line: triple-equals // both of them may be undefined or null
+            // they could be either undefined or null
+            // eslint-disable-next-line eqeqeq
             if (this._materialInstances[i] != val[i]) {
                 this.setMaterialInstance(i, val[i]);
             }
@@ -85,6 +115,7 @@ export class RenderableComponent extends Component {
     }
 
     protected _materialInstances: (MaterialInstance | null)[] = [];
+
     protected _models: scene.Model[] = [];
 
     get sharedMaterial () {
@@ -164,10 +195,8 @@ export class RenderableComponent extends Component {
                 this._materialInstances[index] = matInst as MaterialInstance;
                 this._onMaterialModified(index, matInst);
             }
-        } else {
-            if (matInst !== this._materials[index]) {
-                this.setMaterial(matInst as Material, index);
-            }
+        } else if (matInst !== this._materials[index]) {
+            this.setMaterial(matInst as Material, index);
         }
     }
 

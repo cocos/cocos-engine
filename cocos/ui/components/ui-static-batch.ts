@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2019 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,18 +24,18 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
+import { ccclass, help, menu, executionOrder, visible, override } from 'cc.decorator';
 import { UIRenderable } from '../../core/components/ui-base/ui-renderable';
 import { UI } from '../../core/renderer/ui/ui';
 import { MeshBuffer } from '../../core/renderer/ui/mesh-buffer';
-import { ccclass, help, menu, executionOrder, visible, type, displayName, override } from 'cc.decorator';
 import { UIDrawBatch } from '../../core/renderer/ui/ui-draw-batch';
-import { director, Color, Material, warnID } from '../../core';
+import { director, Color, warnID } from '../../core';
 import { vfmtPosUvColor } from '../../core/renderer/ui/ui-vertex-format';
-import { GFXBlendFactor } from '../../core/gfx';
-
+import { BlendFactor } from '../../core/gfx';
 
 /**
  * @en
@@ -63,7 +63,7 @@ export class UIStaticBatch extends UIRenderable {
         return this._dstBlendFactor;
     }
 
-    set dstBlendFactor (value: GFXBlendFactor) {
+    set dstBlendFactor (value: BlendFactor) {
         if (this._dstBlendFactor === value) {
             return;
         }
@@ -78,7 +78,7 @@ export class UIStaticBatch extends UIRenderable {
         return this._srcBlendFactor;
     }
 
-    set srcBlendFactor (value: GFXBlendFactor) {
+    set srcBlendFactor (value: BlendFactor) {
         if (this._srcBlendFactor === value) {
             return;
         }
@@ -101,18 +101,6 @@ export class UIStaticBatch extends UIRenderable {
         this._color.set(value);
         this._updateColor();
         this.markForUpdateRenderData();
-    }
-
-    @override
-    @type(Material)
-    @displayName('Materials')
-    @visible(false)
-    get sharedMaterials () {
-        return super.sharedMaterials;
-    }
-
-    set sharedMaterials (val) {
-        super.sharedMaterials = val;
     }
 
     get drawBatchList () {
@@ -141,12 +129,11 @@ export class UIStaticBatch extends UIRenderable {
         super.onDestroy();
 
         this._clearData();
-        if(this._meshBuffer){
+        if (this._meshBuffer) {
             this._meshBuffer.destroy();
             this._meshBuffer = null;
         }
     }
-
 
     public updateAssembler (render: UI) {
         if (this._dirty) {
@@ -171,7 +158,7 @@ export class UIStaticBatch extends UIRenderable {
             this._init = true;
             this.node._static = true;
 
-            this._meshBuffer!.uploadData();
+            this._meshBuffer!.uploadBuffers();
         }
     }
 
@@ -206,7 +193,7 @@ export class UIStaticBatch extends UIRenderable {
 
     protected _clearData () {
         if (this._meshBuffer) {
-            this._meshBuffer!.reset();
+            this._meshBuffer.reset();
 
             const ui = this._getUI()!;
             for (let i = 0; i < this._uiDrawBatchList.length; i++) {
@@ -219,8 +206,8 @@ export class UIStaticBatch extends UIRenderable {
         this._init = false;
     }
 
-    protected _getUI (){
-        if(director.root && director.root.ui) {
+    protected _getUI () {
+        if (director.root && director.root.ui) {
             return director.root.ui;
         }
 
@@ -228,7 +215,7 @@ export class UIStaticBatch extends UIRenderable {
         return null;
     }
 
-    protected _arrivalMaxBuffer (){
+    protected _arrivalMaxBuffer () {
         warnID(9300);
     }
 }

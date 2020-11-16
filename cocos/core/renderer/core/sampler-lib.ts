@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -24,12 +24,12 @@
 */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 
-import { GFXAddress, GFXComparisonFunc, GFXFilter, GFXColor } from '../../gfx/define';
-import { GFXDevice } from '../../gfx/device';
-import { GFXSampler, GFXSamplerInfo } from '../../gfx/sampler';
+import { Address, ComparisonFunc, Filter } from '../../gfx/define';
+import { Device, Sampler, SamplerInfo, Color } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 
 export enum SamplerInfoIndex {
@@ -48,21 +48,21 @@ export enum SamplerInfoIndex {
 }
 
 const defaultInfo = [
-  GFXFilter.LINEAR,
-  GFXFilter.LINEAR,
-  GFXFilter.NONE,
-  GFXAddress.WRAP,
-  GFXAddress.WRAP,
-  GFXAddress.WRAP,
+  Filter.LINEAR,
+  Filter.LINEAR,
+  Filter.NONE,
+  Address.WRAP,
+  Address.WRAP,
+  Address.WRAP,
   8,
-  GFXComparisonFunc.NEVER,
+  ComparisonFunc.NEVER,
   0, 0, 0,
 ];
 export const defaultSamplerHash = genSamplerHash(defaultInfo);
 
-const borderColor = new GFXColor();
+const borderColor = new Color();
 
-const _samplerInfo = new GFXSamplerInfo();
+const _samplerInfo = new SamplerInfo();
 
 export function genSamplerHash (info: (number | undefined)[]): number {
     let value = 0;
@@ -92,16 +92,16 @@ export function genSamplerHash (info: (number | undefined)[]): number {
  */
 class SamplerLib {
 
-    protected _cache: Record<number, GFXSampler> = {};
+    protected _cache: Record<number, Sampler> = {};
 
     /**
      * @zh
      * 获取指定属性的 sampler 资源。
-     * @param device 渲染设备 [GFXDevice]
+     * @param device 渲染设备 GFX [[Device]]
      * @param info 目标 sampler 属性
      */
-    public getSampler (device: GFXDevice, hash: number) {
-        if (hash === 0) { hash = defaultSamplerHash; }
+    public getSampler (device: Device, hash: number) {
+        if (!hash) { hash = defaultSamplerHash; }
         const cache = this._cache[hash];
         if (cache) { return cache; }
 

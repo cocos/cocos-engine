@@ -1,10 +1,35 @@
-/**
- * @category pipeline
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
-import { GFXCommandBuffer } from '../gfx/command-buffer';
+/**
+ * @packageDocumentation
+ * @module pipeline
+ */
+
 import { InstancedBuffer } from './instanced-buffer';
-import { GFXDevice, GFXRenderPass, GFXPipelineState } from '../gfx';
+import { Device, RenderPass, PipelineState, CommandBuffer } from '../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { DSPool, ShaderPool, PassPool, PassView } from '../renderer/core/memory-pools';
 import { SetIndex } from './define';
@@ -34,30 +59,31 @@ export class RenderInstancedQueue {
         this.queue.clear();
     }
 
+    public uploadBuffers (cmdBuff: CommandBuffer) {
+        const it = this.queue.values(); let res = it.next();
+        while (!res.done) {
+            if (res.value.hasPendingModels) res.value.uploadBuffers(cmdBuff);
+            res = it.next();
+        }
+    }
+
     /**
      * @en Record command buffer for the current queue
      * @zh 记录命令缓冲。
      * @param cmdBuff The command buffer to store the result
      */
-    public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
-        // upload buffers
-        let it = this.queue.values(); let res = it.next();
+    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
+        const it = this.queue.values(); let res = it.next();
         while (!res.done) {
-            if (res.value.hasPendingModels) res.value.uploadBuffers();
-            res = it.next();
-        }
-        // draw
-        it = this.queue.values(); res = it.next();
-        while (!res.done) {
-            const { instances, hPass, hasPendingModels } = res.value;
+            const { instances, pass, hasPendingModels } = res.value;
             if (hasPendingModels) {
-                cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET)));
-                let lastPSO: GFXPipelineState | null = null;
+                cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
+                let lastPSO: PipelineState | null = null;
                 for (let b = 0; b < instances.length; ++b) {
                     const instance = instances[b];
                     if (!instance.count) { continue; }
                     const shader = ShaderPool.get(instance.hShader);
-                    const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, instance.ia);
+                    const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, instance.ia);
                     if (lastPSO !== pso) {
                         cmdBuff.bindPipelineState(pso);
                         lastPSO = pso;

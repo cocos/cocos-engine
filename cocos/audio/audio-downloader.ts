@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,96 +24,58 @@
  THE SOFTWARE.
  */
 /**
- * @category loader
+ * @packageDocumentation
+ * @module asset-manager
  */
 
 import { getError, log } from '../core/platform/debug';
 import { sys } from '../core/platform/sys';
 import { AudioClip, AudioType } from './assets/clip';
 import { legacyCC } from '../core/global-exports';
+import { CompleteCallback, IDownloadParseOptions } from '../core/asset-manager/shared';
+import downloadFile from '../core/asset-manager/download-file';
+import { DownloadHandler } from '../core/asset-manager/downloader';
+import { createDomAudio } from './audio-utils';
 
 const __audioSupport = sys.__audioSupport;
 const formatSupport = __audioSupport.format;
 
-function loadDomAudio (item, callback) {
-    const dom = document.createElement('audio');
-    dom.src = item.url;
+export function downloadDomAudio (
+    url: string,
+    options: IDownloadParseOptions,
+    onComplete: CompleteCallback<HTMLAudioElement>
+): void {
 
-    const clearEvent = () => {
-        clearTimeout(timer);
-        dom.removeEventListener('canplaythrough', success, false);
-        dom.removeEventListener('error', failure, false);
-        if (__audioSupport.USE_LOADER_EVENT) {
-            dom.removeEventListener(__audioSupport.USE_LOADER_EVENT, success, false);
-        }
-    };
-    const timer = setTimeout(() => {
-        if (dom.readyState === 0) {
-            failure();
-        } else {
-            success();
-        }
-    }, 8000);
-    const success = () => {
-        clearEvent();
-        callback(null, dom);
-    };
-    const failure = () => {
-        clearEvent();
-        const message = 'load audio failure - ' + item.url;
-        log(message);
-        callback(message);
-    };
-    dom.addEventListener('canplaythrough', success, false);
-    dom.addEventListener('error', failure, false);
-    if (__audioSupport.USE_LOADER_EVENT) {
-        dom.addEventListener(__audioSupport.USE_LOADER_EVENT, success, false);
-    }
+    createDomAudio(url).then(dom => {
+        onComplete(null, dom);
+    }, errMsg => {
+        log(errMsg);
+        onComplete(new Error(errMsg), null);
+    });
 }
 
-function loadWebAudio (item, callback) {
-    const context = __audioSupport.context;
-    if (!context) {
-        callback(new Error(getError(4926)));
-    }
-
-    const request = legacyCC.loader.getXMLHttpRequest();
-    request.open('GET', item.url, true);
-    request.responseType = 'arraybuffer';
-
-    // Our asynchronous callback
-    request.onload = () => {
-        context.decodeAudioData(request.response, (buffer) => {
-            // success
-            callback(null, buffer);
-        }, () => {
-            // error
-            callback('decode error - ' + item.id, null);
-        });
-    };
-
-    request.onerror = () => {
-        callback('request error - ' + item.id, null);
-    };
-
-    request.send();
+function downloadArrayBuffer (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
+    options.xhrResponseType = 'arraybuffer';
+    downloadFile(url, options, options.onFileProgress, onComplete);
 }
 
-export function downloadAudio (item, callback) {
+export function downloadAudio (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
     if (formatSupport.length === 0) {
-        return new Error(getError(4927));
+        onComplete(new Error(getError(4927)));
+        return;
     }
-
-    let audioLoader;
+    let handler: DownloadHandler | null = null;
     if (!__audioSupport.WEB_AUDIO) {
-        audioLoader = loadDomAudio; // If WebAudio is not supported, load using DOM mode
-    } else {
-        const loadByDeserializedAudio = item._owner instanceof AudioClip;
-        if (loadByDeserializedAudio) {
-            audioLoader = (item._owner.loadMode === AudioType.WEB_AUDIO) ? loadWebAudio : loadDomAudio;
-        } else {
-            audioLoader = (item.urlParam && item.urlParam.useDom) ? loadDomAudio : loadWebAudio;
+        handler = downloadDomAudio;
+    }
+    else {
+        // web audio need to download file as arrayBuffer
+        if (options.audioLoadMode !== AudioType.DOM_AUDIO) {
+            handler = downloadArrayBuffer;
+        }
+        else {
+            handler = downloadDomAudio;
         }
     }
-    audioLoader(item, callback);
+    handler(url, options, onComplete);
 }

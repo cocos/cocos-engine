@@ -2,7 +2,7 @@
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -26,7 +26,8 @@
 */
 
 /**
- * @category core
+ * @packageDocumentation
+ * @module core
  */
 
 import { legacyCC } from '../global-exports';
@@ -934,15 +935,6 @@ const macro = {
 
     /**
      * @en
-     * The max concurrent task number for the downloader
-     * @zh
-     * 下载任务的最大并发数限制，在安卓平台部分机型或版本上可能需要限制在较低的水平
-     * @default 64
-     */
-    DOWNLOAD_MAX_CONCURRENT: 64,
-
-    /**
-     * @en
      * Boolean that indicates if the canvas contains an alpha channel, default sets to false for better performance.
      * Though if you want to make your canvas background transparent and show other dom elements at the background,
      * you can set it to true before {{game.init}}.
@@ -972,22 +964,20 @@ const macro = {
      * 同时，在少部分使用软件级别抗锯齿算法的设备或浏览器上，这个选项会对性能产生比较大的影响。
      * 你可以在 {{game.init}} 之前设置这个值，否则它不会生效。
      * 仅支持 Web
-     * @default false
+     * @default true
      */
-    ENABLE_WEBGL_ANTIALIAS: false,
+    ENABLE_WEBGL_ANTIALIAS: true,
 
     /**
      * @en
-     * Whether or not clear dom Image object cache after uploading to gl texture.
-     * Concretely, we are setting image.src to empty string to release the cache.
-     * Normally you don't need to enable this option, because on web the Image object doesn't consume too much memory.
+     * Whether to clear the original image cache after uploaded a texture to GPU. If cleared, [Dynamic Atlas](https://docs.cocos.com/creator/manual/en/advanced-topics/dynamic-atlas.html) will not be supported.
+     * Normally you don't need to enable this option on the web platform, because Image object doesn't consume too much memory.
      * But on Wechat Game platform, the current version cache decoded data in Image object, which has high memory usage.
      * So we enabled this option by default on Wechat, so that we can release Image cache immediately after uploaded to GPU.
      * Currently not useful in 3D engine
      * @zh
-     * 是否在将贴图上传至 GPU 之后删除 DOM Image 缓存。
-     * 具体来说，我们通过设置 image.src 为空字符串来释放这部分内存。
-     * 正常情况下，你不需要开启这个选项，因为在 web 平台，Image 对象所占用的内存很小。
+     * 是否在将贴图上传至 GPU 之后删除原始图片缓存，删除之后图片将无法进行 [动态合图](https://docs.cocos.com/creator/manual/zh/advanced-topics/dynamic-atlas.html)。
+     * 在 Web 平台，你通常不需要开启这个选项，因为在 Web 平台 Image 对象所占用的内存很小。
      * 但是在微信小游戏平台的当前版本，Image 对象会缓存解码后的图片数据，它所占用的内存空间很大。
      * 所以我们在微信平台默认开启了这个选项，这样我们就可以在上传 GL 贴图之后立即释放 Image 对象的内存，避免过高的内存占用。
      * 在 3D 引擎中暂时无效。

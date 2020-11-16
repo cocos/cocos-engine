@@ -1,6 +1,33 @@
-/**
- * @category terrain
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
+
+/**
+ * @packageDocumentation
+ * @module terrain
+ */
+import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
 import { builtinResMgr } from '../core/3d/builtin';
 import { RenderableComponent } from '../core/3d/framework/renderable-component';
 import { EffectAsset, Texture2D } from '../core/assets';
@@ -8,13 +35,10 @@ import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
 import { Material } from '../core/assets/material';
 import { RenderingSubMesh } from '../core/assets/mesh';
 import { Component } from '../core/components';
-import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
 import { isValid } from '../core/data/object';
 import { director } from '../core/director';
-import { GFXBuffer, GFXBufferInfo } from '../core/gfx/buffer';
-import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXPrimitiveMode } from '../core/gfx/define';
-import { GFXDevice } from '../core/gfx/device';
-import { GFXAttribute } from '../core/gfx/input-assembler';
+import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode } from '../core/gfx/define';
+import { Device, Attribute, Buffer, BufferInfo } from '../core/gfx';
 import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { MacroRecord } from '../core/renderer/core/pass-utils';
 import { scene } from '../core/renderer';
@@ -24,7 +48,11 @@ import { HeightField } from './height-field';
 import { legacyCC } from '../core/global-exports';
 import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY,
     TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
-    TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, } from './terrain-asset';
+    TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX } from './terrain-asset';
+import { CCBoolean, CCInteger } from '../core';
+
+const bbMin = new Vec3();
+const bbMax = new Vec3();
 
 /**
  * @en Terrain info
@@ -38,7 +66,7 @@ export class TerrainInfo {
      */
     @serializable
     @editable
-    public tileSize: number = 1;
+    public tileSize = 1;
 
     /**
      * @en block count
@@ -54,7 +82,7 @@ export class TerrainInfo {
      */
     @serializable
     @editable
-    public weightMapSize: number = 128;
+    public weightMapSize = 128;
 
     /**
      * @en light map size
@@ -62,7 +90,7 @@ export class TerrainInfo {
      */
     @serializable
     @editable
-    public lightMapSize: number = 128;
+    public lightMapSize = 128;
 
     /**
      * @en terrain size
@@ -121,7 +149,7 @@ export class TerrainLayer {
      */
     @serializable
     @editable
-    public tileSize: number = 1;
+    public tileSize = 1;
 }
 
 /**
@@ -134,7 +162,7 @@ class TerrainRenderable extends RenderableComponent {
 
     public _brushMaterial: Material | null = null;
     public _currentMaterial: Material | null = null;
-    public _currentMaterialLayers: number = 0;
+    public _currentMaterialLayers = 0;
 
     public destroy () {
         // this._invalidMaterial();
@@ -186,6 +214,7 @@ class TerrainRenderable extends RenderableComponent {
             this.setMaterial(this._currentMaterial, 0);
             this._currentMaterialLayers = nLayers;
             this._model.enabled = true;
+            this._model.receiveShadow = block.getTerrain().receiveShadow;
         }
     }
 
@@ -221,6 +250,7 @@ class TerrainRenderable extends RenderableComponent {
  */
 @ccclass('cc.TerrainBlockInfo')
 export class TerrainBlockInfo {
+    @type([CCInteger])
     @serializable
     @editable
     public layers: number[] = [-1, -1, -1, -1];
@@ -237,16 +267,16 @@ export class TerrainBlockLightmapInfo {
     public texture: Texture2D|null = null;
     @serializable
     @editable
-    public UOff: number = 0;
+    public UOff = 0;
     @serializable
     @editable
-    public VOff: number = 0;
+    public VOff = 0;
     @serializable
     @editable
-    public UScale: number = 0;
+    public UScale = 0;
     @serializable
     @editable
-    public VScale: number = 0;
+    public VScale = 0;
 }
 
 /**
@@ -271,20 +301,20 @@ export class TerrainBlock {
         this._lightmapInfo = t._getLightmapInfo(i, j);
 
         this._node = new PrivateNode('');
-        // @ts-ignore
         this._node.setParent(this._terrain.node);
-        // @ts-ignore
         this._node._objFlags |= legacyCC.Object.Flags.DontSave;
 
-        this._renderable = this._node.addComponent(TerrainRenderable) as TerrainRenderable;
+        this._renderable = this._node.addComponent(TerrainRenderable);
     }
 
     public build () {
-        const gfxDevice = director.root!.device as GFXDevice;
+        const gfxDevice = director.root!.device;
 
         // vertex buffer
         const vertexData = new Float32Array(TERRAIN_BLOCK_VERTEX_SIZE * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY);
         let index = 0;
+        bbMin.set(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+        bbMax.set(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE);
         for (let j = 0; j < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++j) {
             for (let i = 0; i < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++i) {
                 const x = this._index[0] * TERRAIN_BLOCK_TILE_COMPLEXITY + i;
@@ -300,29 +330,33 @@ export class TerrainBlock {
                 vertexData[index++] = normal.z;
                 vertexData[index++] = uv.x;
                 vertexData[index++] = uv.y;
+
+                Vec3.min(bbMin, bbMin, position);
+                Vec3.max(bbMax, bbMax, position);
             }
         }
 
-        const vertexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        const vertexBuffer = gfxDevice.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             TERRAIN_BLOCK_VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY,
             TERRAIN_BLOCK_VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT,
         ));
         vertexBuffer.update(vertexData);
 
         // initialize renderable
-        const gfxAttributes: GFXAttribute[] = [
-            new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),
-            new GFXAttribute(GFXAttributeName.ATTR_NORMAL, GFXFormat.RGB32F),
-            new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RG32F),
+        const gfxAttributes: Attribute[] = [
+            new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
+            new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F),
+            new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F),
         ];
 
         this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes,
-            GFXPrimitiveMode.TRIANGLE_LIST, this._terrain._getSharedIndexBuffer());
+            PrimitiveMode.TRIANGLE_LIST, this._terrain._getSharedIndexBuffer());
 
         const model = this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
         model.node = model.transform = this._node;
+        model.createBoundingShape(bbMin, bbMax);
         this._renderable._getRenderScene().addModel(model);
 
         // reset weightmap
@@ -369,12 +403,10 @@ export class TerrainBlock {
                     }
 
                     mtl.setProperty('detailMap0', l0 != null ? l0.detailMap : null);
-                }
-                else {
+                } else {
                     mtl.setProperty('detailMap0', legacyCC.builtinResMgr.get('default-texture'));
                 }
-            }
-            else if (nlayers === 1) {
+            } else if (nlayers === 1) {
                 const l0 = this._terrain.getLayer(this.layers[0]);
                 const l1 = this._terrain.getLayer(this.layers[1]);
 
@@ -388,8 +420,7 @@ export class TerrainBlock {
                 mtl.setProperty('weightMap', this._weightMap);
                 mtl.setProperty('detailMap0', l0 != null ? l0.detailMap : null);
                 mtl.setProperty('detailMap1', l1 != null ? l1.detailMap : null);
-            }
-            else if (nlayers === 2) {
+            } else if (nlayers === 2) {
                 const l0 = this._terrain.getLayer(this.layers[0]);
                 const l1 = this._terrain.getLayer(this.layers[1]);
                 const l2 = this._terrain.getLayer(this.layers[2]);
@@ -408,8 +439,7 @@ export class TerrainBlock {
                 mtl.setProperty('detailMap0', l0 != null ? l0.detailMap : null);
                 mtl.setProperty('detailMap1', l1 != null ? l1.detailMap : null);
                 mtl.setProperty('detailMap2', l2 != null ? l2.detailMap : null);
-            }
-            else if (nlayers === 3) {
+            } else if (nlayers === 3) {
                 const l0 = this._terrain.getLayer(this.layers[0]);
                 const l1 = this._terrain.getLayer(this.layers[1]);
                 const l2 = this._terrain.getLayer(this.layers[2]);
@@ -475,9 +505,8 @@ export class TerrainBlock {
         if (this._lightmapInfo != null) {
             return new Vec4(this._lightmapInfo.UOff, this._lightmapInfo.VOff, this._lightmapInfo.UScale, this._lightmapInfo.VScale);
         }
-        else {
-            return new Vec4(0, 0, 0, 0);
-        }
+
+        return new Vec4(0, 0, 0, 0);
     }
 
     /**
@@ -538,48 +567,22 @@ export class TerrainBlock {
         if (this.layers[3] >= 0) {
             return 3;
         }
-        else if (this.layers[2] >= 0) {
+        if (this.layers[2] >= 0) {
             return 2;
         }
-        else if (this.layers[1] >= 0) {
+        if (this.layers[1] >= 0) {
             return 1;
         }
-        else {
-            return 0;
-        }
+
+        return 0;
     }
 
     public _getMaterialDefines (nlayers: number): MacroRecord {
-        if (this.lightmap != null) {
-            if (nlayers === 0) {
-                return { LAYERS: 1, LIGHT_MAP: 1 };
-            }
-            else if (nlayers === 1) {
-                return { LAYERS: 2, LIGHT_MAP: 1 };
-            }
-            else if (nlayers === 2) {
-                return { LAYERS: 3, LIGHT_MAP: 1 };
-            }
-            else if (nlayers === 3) {
-                return { LAYERS: 4, LIGHT_MAP: 1 };
-            }
-        }
-        else {
-            if (nlayers === 0) {
-                return { LAYERS: 1 };
-            }
-            else if (nlayers === 1) {
-                return { LAYERS: 2 };
-            }
-            else if (nlayers === 2) {
-                return { LAYERS: 3 };
-            }
-            else if (nlayers === 3) {
-                return { LAYERS: 4 };
-            }
-        }
-
-        return { LAYERS: 0 };
+        return {
+            LAYERS: nlayers + 1,
+            USE_LIGHTMAP: this.lightmap !== null ? 1 : 0,
+            // CC_RECEIVE_SHADOW: this._terrain.receiveShadow ? 1 : 0,
+        };
     }
 
     public _invalidMaterial () {
@@ -598,6 +601,8 @@ export class TerrainBlock {
         const vertexData = new Float32Array(TERRAIN_BLOCK_VERTEX_SIZE * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY);
 
         let index = 0;
+        bbMin.set(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+        bbMax.set(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE);
         for (let j = 0; j < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++j) {
             for (let i = 0; i < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++i) {
                 const x = this._index[0] * TERRAIN_BLOCK_TILE_COMPLEXITY + i;
@@ -615,10 +620,14 @@ export class TerrainBlock {
                 vertexData[index++] = normal.z;
                 vertexData[index++] = uv.x;
                 vertexData[index++] = uv.y;
+
+                Vec3.min(bbMin, bbMin, position);
+                Vec3.max(bbMax, bbMax, position);
             }
         }
 
         this._renderable._meshData.vertexBuffers[0].update(vertexData);
+        this._renderable._model!.createBoundingShape(bbMin, bbMax);
     }
 
     public _updateWeightMap () {
@@ -632,13 +641,12 @@ export class TerrainBlock {
 
             return;
         }
-        else {
-            if (this._weightMap == null) {
-                this._weightMap = new Texture2D();
-                this._weightMap.create(this._terrain.weightMapSize, this._terrain.weightMapSize, PixelFormat.RGBA8888);
-                this._weightMap.setFilters(Filter.LINEAR, Filter.LINEAR);
-                this._weightMap.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
-            }
+
+        if (this._weightMap == null) {
+            this._weightMap = new Texture2D();
+            this._weightMap.create(this._terrain.weightMapSize, this._terrain.weightMapSize, PixelFormat.RGBA8888);
+            this._weightMap.setFilters(Filter.LINEAR, Filter.LINEAR);
+            this._weightMap.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
         }
 
         const weightData = new Uint8Array(this._terrain.weightMapSize * this._terrain.weightMapSize * 4);
@@ -691,23 +699,30 @@ export class Terrain extends Component {
     @disallowAnimation
     protected _layers: (TerrainLayer|null)[] = [];
 
+    @type(TerrainBlockInfo)
     @serializable
     @disallowAnimation
     protected _blockInfos: TerrainBlockInfo[] = [];
 
+    @type(TerrainBlockLightmapInfo)
     @serializable
     @disallowAnimation
     protected _lightmapInfos: TerrainBlockLightmapInfo[] = [];
 
-    protected _tileSize: number = 1;
+    @type(CCBoolean)
+    @serializable
+    @disallowAnimation
+    protected _receiveShadow = false;
+
+    protected _tileSize = 1;
     protected _blockCount: number[] = [1, 1];
-    protected _weightMapSize: number = 128;
-    protected _lightMapSize: number = 128;
+    protected _weightMapSize = 128;
+    protected _lightMapSize = 128;
     protected _heights: Uint16Array = new Uint16Array();
     protected _weights: Uint8Array = new Uint8Array();
     protected _normals: number[] = [];
     protected _blocks: TerrainBlock[] = [];
-    protected _sharedIndexBuffer: GFXBuffer|null = null;
+    protected _sharedIndexBuffer: Buffer|null = null;
 
     constructor () {
         super();
@@ -758,6 +773,22 @@ export class Terrain extends Component {
 
     public get effectAsset () {
         return this._effectAsset;
+    }
+
+    /**
+     * @en Receive shadow
+     * @zh 是否接受阴影
+     */
+    @editable
+    get receiveShadow () {
+        return this._receiveShadow;
+    }
+
+    set receiveShadow (val) {
+        this._receiveShadow = val;
+        for (let i = 0; i < this._blocks.length; i++) {
+            this._blocks[i]._invalidMaterial();
+        }
     }
 
     /**
@@ -1014,15 +1045,14 @@ export class Terrain extends Component {
 
     public getEffectAsset () {
         if (this._effectAsset === null) {
-            return legacyCC.EffectAsset.get('builtin-terrain');
+            return legacyCC.EffectAsset.get('terrain') as EffectAsset;
         }
-        else {
-            return this._effectAsset;
-        }
+
+        return this._effectAsset;
     }
 
     public onLoad () {
-        const gfxDevice = legacyCC.director.root.device as GFXDevice;
+        const gfxDevice = legacyCC.director.root.device as Device;
 
         // initialize shared index buffer
         const indexData = new Uint16Array(TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6);
@@ -1047,9 +1077,9 @@ export class Terrain extends Component {
             }
         }
 
-        this._sharedIndexBuffer = gfxDevice.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        this._sharedIndexBuffer = gfxDevice.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             Uint16Array.BYTES_PER_ELEMENT * TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6,
             Uint16Array.BYTES_PER_ELEMENT,
         ));
@@ -1097,7 +1127,8 @@ export class Terrain extends Component {
      */
     public addLayer (layer: TerrainLayer) {
         for (let i = 0; i < this._layers.length; ++i) {
-            if (this._layers[i] == null) {
+            if (this._layers[i] === null
+                || (this._layers[i] && this._layers[i]?.detailMap === null)) {
                 this._layers[i] = layer;
                 return i;
             }
@@ -1132,7 +1163,6 @@ export class Terrain extends Component {
         }
 
         return this._layers[id];
-
     }
 
     /**
@@ -1211,8 +1241,7 @@ export class Terrain extends Component {
 
         if (dx + dz <= 1.0) {
             d = m + (m - a);
-        }
-        else {
+        } else {
             a = m + (m - d);
         }
 
@@ -1283,8 +1312,7 @@ export class Terrain extends Component {
             d.set(m);
             d.subtract(a);
             d.add(m);
-        }
-        else {
+        } else {
             // a = m + (m - d);
             a.set(m);
             a.subtract(d);
@@ -1364,8 +1392,7 @@ export class Terrain extends Component {
         if (dx + dz <= 1.0) {
             d = new Vec4();
             Vec4.subtract(d, m, a).add(m);
-        }
-        else {
+        } else {
             a = new Vec4();
             Vec4.subtract(a, m, d).add(m);
         }
@@ -1406,17 +1433,13 @@ export class Terrain extends Component {
 
     /**
      * @en ray check
+     * @zh 射线检测
      * @param start ray start
      * @param dir ray direction
      * @param step ray step
      * @param worldSpace is world space
-     * @zh 射线检测
-     * @param start 射线原点
-     * @param dir 射线方向
-     * @param step 射线步长
-     * @param worldSpace 是否在世界空间
      */
-    public rayCheck (start: Vec3, dir: Vec3, step: number, worldSpace: boolean = true) {
+    public rayCheck (start: Vec3, dir: Vec3, step: number, worldSpace = true) {
         const MAX_COUNT = 2000;
 
         const trace = start;
@@ -1435,14 +1458,12 @@ export class Terrain extends Component {
             if (y != null && trace.y <= y) {
                 position = new Vec3(trace.x, y, trace.z);
             }
-        }
-        else if (dir.equals(new Vec3(0, -1, 0))) {
+        } else if (dir.equals(new Vec3(0, -1, 0))) {
             const y = this.getHeightAt(trace.x, trace.z);
             if (y != null && trace.y >= y) {
                 position = new Vec3(trace.x, y, trace.z);
             }
-        }
-        else {
+        } else {
             let i = 0;
 
             // 优先大步进查找
@@ -1505,16 +1526,14 @@ export class Terrain extends Component {
 
         if (x < this.vertexCount[0] - 1) {
             right = this.getPosition(x + 1, z);
-        }
-        else {
+        } else {
             flip *= -1;
             right = this.getPosition(x - 1, z);
         }
 
         if (z < this.vertexCount[1] - 1) {
             up = this.getPosition(x, z + 1);
-        }
-        else {
+        } else {
             flip *= -1;
             up = this.getPosition(x, z - 1);
         }
@@ -1545,37 +1564,33 @@ export class Terrain extends Component {
         }
     }
 
-    private _buildImp (restore: boolean = false) {
+    private _buildImp (restore = false) {
         if (this.valid) {
             return true;
         }
 
-        if (!restore && this.__asset != null) {
-            this._tileSize = this.__asset.tileSize;
-            this._blockCount = this.__asset.blockCount;
-            this._weightMapSize = this.__asset.weightMapSize;
-            this._lightMapSize = this.__asset.lightMapSize;
-            this._heights = this.__asset.heights;
-            this._weights = this.__asset.weights;
+        const terrainAsset = this.__asset;
+        if (!restore && terrainAsset !== null) {
+            this._tileSize = terrainAsset.tileSize;
+            this._blockCount = terrainAsset.blockCount;
+            this._weightMapSize = terrainAsset.weightMapSize;
+            this._lightMapSize = terrainAsset.lightMapSize;
+            this._heights = terrainAsset.heights;
+            this._weights = terrainAsset.weights;
 
             // build layers
-            let initial = true;
             for (let i = 0; i < this._layers.length; ++i) {
-                if (this._layers[i] != null) {
-                    initial = false;
-                }
+                this._layers[i] = null;
             }
 
-            if (initial && this._asset != null) {
-                for (const i of this._asset.layerInfos) {
-                    const layer = new TerrainLayer();
-                    layer.tileSize = i.tileSize;
-                    legacyCC.loader.loadRes(i.detailMap, Texture2D, (err, asset) => {
-                        layer.detailMap = asset;
-                    });
+            for (const i of terrainAsset.layerInfos) {
+                const layer = new TerrainLayer();
+                layer.tileSize = i.tileSize;
+                legacyCC.assetManager.loadAny(i.detailMap, (err, asset) => {
+                    layer.detailMap = asset;
+                });
 
-                    this._layers[i.slot] = layer;
-                }
+                this._layers[i.slot] = layer;
             }
         }
 
@@ -1595,8 +1610,7 @@ export class Terrain extends Component {
                 this._normals[i * 3 + 1] = 1;
                 this._normals[i * 3 + 2] = 0;
             }
-        }
-        else {
+        } else {
             this._normals = new Array<number>(vertexCount * 3);
             this._buildNormals();
         }
@@ -1656,8 +1670,8 @@ export class Terrain extends Component {
     }
 
     private _rebuildHeights (info: TerrainInfo) {
-        if (this.vertexCount[0] === info.vertexCount[0] &&
-            this.vertexCount[1] === info.vertexCount[1]) {
+        if (this.vertexCount[0] === info.vertexCount[0]
+            && this.vertexCount[1] === info.vertexCount[1]) {
             return false;
         }
 
@@ -1691,8 +1705,8 @@ export class Terrain extends Component {
         const weightMapComplexityU = info.weightMapSize * info.blockCount[0];
         const weightMapComplexityV = info.weightMapSize * info.blockCount[1];
 
-        if (weightMapComplexityU === oldWeightMapComplexityU &&
-            weightMapComplexityV === oldWeightMapComplexityV) {
+        if (weightMapComplexityU === oldWeightMapComplexityU
+            && weightMapComplexityV === oldWeightMapComplexityV) {
             return false;
         }
 
@@ -1741,8 +1755,7 @@ export class Terrain extends Component {
                 d.set(m);
                 d.subtract(a);
                 d.add(m);
-            }
-            else {
+            } else {
                 a.set(m);
                 a.subtract(d);
                 a.add(m);
@@ -1766,12 +1779,10 @@ export class Terrain extends Component {
 
                 for (let v = 0; v < info.weightMapSize; ++v) {
                     for (let u = 0; u < info.weightMapSize; ++u) {
-                        // tslint:disable-next-line: no-shadowed-variable
                         let w: Vec4;
                         if (info.weightMapSize === oldWeightMapSize) {
                             w = getOldWeight(u + uOff, v + vOff, this._weights);
-                        }
-                        else {
+                        } else {
                             const x = u / (info.weightMapSize - 1) * (oldWeightMapSize - 1);
                             const y = v / (info.weightMapSize - 1) * (oldWeightMapSize - 1);
                             w = sampleOldWeight(x, y, uOff, vOff, this._weights);

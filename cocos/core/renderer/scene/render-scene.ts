@@ -1,6 +1,31 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 import { IBArray } from '../../assets/mesh';
 import { aabb, intersect, ray, triangle } from '../../geometry';
-import { GFXPrimitiveMode } from '../../gfx/define';
+import { PrimitiveMode } from '../../gfx/define';
 import { Mat4, Vec3 } from '../../math';
 import { RecyclePool } from '../../memop';
 import { Root } from '../../root';
@@ -14,7 +39,7 @@ import { SpotLight } from './spot-light';
 import { PREVIEW } from 'internal:constants';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { legacyCC } from '../../global-exports';
-import { ScenePool, SceneView, ModelArrayPool, ModelArrayHandle, SceneHandle, NULL_HANDLE } from '../core/memory-pools';
+import { ScenePool, SceneView, ModelArrayPool, ModelArrayHandle, SceneHandle, NULL_HANDLE, freeHandleArray, ModelPool,LightArrayHandle, LightArrayPool } from '../core/memory-pools';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -112,6 +137,8 @@ export class RenderScene {
     private _modelId: number = 0;
     private _scenePoolHandle: SceneHandle = NULL_HANDLE;
     private _modelArrayHandle: ModelArrayHandle = NULL_HANDLE;
+    private _sphereLightsHandle: LightArrayHandle = NULL_HANDLE;
+    private _spotLightsHandle: LightArrayHandle = NULL_HANDLE;
 
     constructor (root: Root) {
         this._root = root;
@@ -160,9 +187,19 @@ export class RenderScene {
         this.removeModels();
         if (this._modelArrayHandle) {
             ModelArrayPool.free(this._modelArrayHandle);
-            ScenePool.free(this._scenePoolHandle);
             this._modelArrayHandle = NULL_HANDLE;
+        }
+        if (this._scenePoolHandle) {
+            ScenePool.free(this._scenePoolHandle);
             this._scenePoolHandle = NULL_HANDLE;
+        }
+        if (this._sphereLightsHandle) {
+            LightArrayPool.free(this._sphereLightsHandle);
+            this._sphereLightsHandle = NULL_HANDLE;
+        }
+        if (this._spotLightsHandle) {
+            LightArrayPool.free(this._spotLightsHandle);
+            this._spotLightsHandle = NULL_HANDLE;
         }
     }
 
@@ -225,6 +262,7 @@ export class RenderScene {
     public addSphereLight (pl: SphereLight) {
         pl.attachToScene(this);
         this._sphereLights.push(pl);
+        LightArrayPool.push(this._sphereLightsHandle, pl.handle);
     }
 
     public removeSphereLight (pl: SphereLight) {
@@ -232,6 +270,7 @@ export class RenderScene {
             if (this._sphereLights[i] === pl) {
                 pl.detachFromScene();
                 this._sphereLights.splice(i, 1);
+                LightArrayPool.erase(this._sphereLightsHandle, i)
                 return;
             }
         }
@@ -240,6 +279,7 @@ export class RenderScene {
     public addSpotLight (sl: SpotLight) {
         sl.attachToScene(this);
         this._spotLights.push(sl);
+        LightArrayPool.push(this._spotLightsHandle, sl.handle);
     }
 
     public removeSpotLight (sl: SpotLight) {
@@ -247,6 +287,7 @@ export class RenderScene {
             if (this._spotLights[i] === sl) {
                 sl.detachFromScene();
                 this._spotLights.splice(i, 1);
+                LightArrayPool.erase(this._spotLightsHandle, i);
                 return;
             }
         }
@@ -257,6 +298,7 @@ export class RenderScene {
             this._sphereLights[i].detachFromScene();
         }
         this._sphereLights.length = 0;
+        LightArrayPool.clear(this._sphereLightsHandle);
     }
 
     public removeSpotLights () {
@@ -264,6 +306,7 @@ export class RenderScene {
             this._spotLights[i].detachFromScene();
         }
         this._spotLights = [];
+        LightArrayPool.clear(this._spotLightsHandle);
     }
 
     public addModel (m: Model) {
@@ -286,6 +329,7 @@ export class RenderScene {
     public removeModels () {
         for (const m of this._models) {
             m.detachFromScene();
+            m.destroy();
         }
         this._models.length = 0;
         ModelArrayPool.clear(this._modelArrayHandle);
@@ -498,6 +542,12 @@ export class RenderScene {
             this._modelArrayHandle = ModelArrayPool.alloc();
             this._scenePoolHandle = ScenePool.alloc();
             ScenePool.set(this._scenePoolHandle, SceneView.MODEL_ARRAY, this._modelArrayHandle);
+
+            this._spotLightsHandle = LightArrayPool.alloc();
+            ScenePool.set(this._scenePoolHandle, SceneView.SPOT_LIGHT_ARRAY, this._spotLightsHandle);
+
+            this._sphereLightsHandle = LightArrayPool.alloc();
+            ScenePool.set(this._scenePoolHandle, SceneView.SPHERE_LIGHT_ARRAY, this._sphereLightsHandle);
         }
     }
 }
@@ -522,9 +572,9 @@ const resultAll: IRaycastResult[] = [];
 /** raycast single model */
 const resultSingleModel: IRaycastResult[] = [];
 
-const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, sides: boolean, distance = Infinity) => {
+const narrowphase = (vb: Float32Array, ib: IBArray, pm: PrimitiveMode, sides: boolean, distance = Infinity) => {
     narrowDis = distance;
-    if (pm === GFXPrimitiveMode.TRIANGLE_LIST) {
+    if (pm === PrimitiveMode.TRIANGLE_LIST) {
         const cnt = ib.length;
         for (let j = 0; j < cnt; j += 3) {
             const i0 = ib[j] * 3;
@@ -537,7 +587,7 @@ const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, sides:
             if (dist <= 0 || dist >= narrowDis) { continue; }
             narrowDis = dist;
         }
-    } else if (pm === GFXPrimitiveMode.TRIANGLE_STRIP) {
+    } else if (pm === PrimitiveMode.TRIANGLE_STRIP) {
         const cnt = ib.length - 2;
         let rev = 0;
         for (let j = 0; j < cnt; j += 1) {
@@ -552,7 +602,7 @@ const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, sides:
             if (dist <= 0 || dist >= narrowDis) { continue; }
             narrowDis = dist;
         }
-    } else if (pm === GFXPrimitiveMode.TRIANGLE_FAN) {
+    } else if (pm === PrimitiveMode.TRIANGLE_FAN) {
         const cnt = ib.length - 1;
         const i0 = ib[0] * 3;
         Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);

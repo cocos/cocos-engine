@@ -1,5 +1,30 @@
-import { GFXFilter } from '../define';
-import { GFXSampler, GFXSamplerInfo } from '../sampler';
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+import { Filter } from '../define';
+import { Sampler, SamplerInfo } from '../sampler';
 import { IWebGLGPUSampler } from './webgl-gpu-objects';
 
 const WebGLWraps: GLenum[] = [
@@ -9,7 +34,7 @@ const WebGLWraps: GLenum[] = [
     0x812F, // WebGLRenderingContext.CLAMP_TO_EDGE,
 ];
 
-export class WebGLSampler extends GFXSampler {
+export class WebGLSampler extends Sampler {
 
     public get gpuSampler (): IWebGLGPUSampler {
         return  this._gpuSampler!;
@@ -17,7 +42,7 @@ export class WebGLSampler extends GFXSampler {
 
     private _gpuSampler: IWebGLGPUSampler | null = null;
 
-    public initialize (info: GFXSamplerInfo): boolean {
+    public initialize (info: SamplerInfo): boolean {
 
         this._minFilter = info.minFilter;
         this._magFilter = info.magFilter;
@@ -39,25 +64,25 @@ export class WebGLSampler extends GFXSampler {
         const magFilter = this._magFilter;
         const mipFilter = this._mipFilter;
 
-        if (minFilter === GFXFilter.LINEAR || minFilter === GFXFilter.ANISOTROPIC) {
-            if (mipFilter === GFXFilter.LINEAR || mipFilter === GFXFilter.ANISOTROPIC) {
+        if (minFilter === Filter.LINEAR || minFilter === Filter.ANISOTROPIC) {
+            if (mipFilter === Filter.LINEAR || mipFilter === Filter.ANISOTROPIC) {
                 glMinFilter = 0x2703; // WebGLRenderingContext.LINEAR_MIPMAP_LINEAR;
-            } else if (mipFilter === GFXFilter.POINT) {
+            } else if (mipFilter === Filter.POINT) {
                 glMinFilter = 0x2701; // WebGLRenderingContext.LINEAR_MIPMAP_NEAREST;
             } else {
                 glMinFilter = 0x2601; // WebGLRenderingContext.LINEAR;
             }
         } else {
-            if (mipFilter === GFXFilter.LINEAR || mipFilter === GFXFilter.ANISOTROPIC) {
+            if (mipFilter === Filter.LINEAR || mipFilter === Filter.ANISOTROPIC) {
                 glMinFilter = 0x2702; // WebGLRenderingContext.NEAREST_MIPMAP_LINEAR;
-            } else if (mipFilter === GFXFilter.POINT) {
+            } else if (mipFilter === Filter.POINT) {
                 glMinFilter = 0x2700; // WebGLRenderingContext.NEAREST_MIPMAP_NEAREST;
             } else {
                 glMinFilter = 0x2600; // WebGLRenderingContext.NEAREST;
             }
         }
 
-        if (magFilter === GFXFilter.LINEAR || magFilter === GFXFilter.ANISOTROPIC) {
+        if (magFilter === Filter.LINEAR || magFilter === Filter.ANISOTROPIC) {
             glMagFilter = 0x2601; // WebGLRenderingContext.LINEAR;
         } else {
             glMagFilter = 0x2600; // WebGLRenderingContext.NEAREST;

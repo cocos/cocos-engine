@@ -1,3 +1,28 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 import Ammo from './ammo-instantiated';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Node } from '../../core';
@@ -34,7 +59,13 @@ export class AmmoSharedBody {
             newSB = new AmmoSharedBody(node, wrappedWorld);
             AmmoSharedBody.sharedBodesMap.set(node.uuid, newSB);
         }
-        if (wrappedBody) { newSB._wrappedBody = wrappedBody; }
+        if (wrappedBody) {
+            newSB._wrappedBody = wrappedBody;
+            const g = wrappedBody.rigidBody.group;
+            const m = PhysicsSystem.instance.collisionMatrix[g];
+            newSB._collisionFilterGroup = g;
+            newSB._collisionFilterMask = m;
+        }
         return newSB;
     }
 
@@ -172,7 +203,10 @@ export class AmmoSharedBody {
         const motionState = new Ammo.btDefaultMotionState(st);
         const localInertia = new Ammo.btVector3(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
         const bodyShape = new Ammo.btCompoundShape();
-        const rbInfo = new Ammo.btRigidBodyConstructionInfo(0, motionState, AmmoConstant.instance.EMPTY_SHAPE, localInertia);
+        let mass = 0;
+        if (this._wrappedBody && this._wrappedBody.rigidBody.isDynamic) mass = this._wrappedBody.rigidBody.mass;
+        if (mass == 0) localInertia.setValue(0, 0, 0);
+        const rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, AmmoConstant.instance.EMPTY_SHAPE, localInertia);
         const body = new Ammo.btRigidBody(rbInfo);
         const sleepTd = PhysicsSystem.instance.sleepThreshold;
         body.setSleepingThresholds(sleepTd, sleepTd);
@@ -190,7 +224,7 @@ export class AmmoSharedBody {
         }
         AmmoInstance.bodyStructs['KEY' + this._bodyStruct.id] = this._bodyStruct;
         this.body.setUserIndex(this._bodyStruct.id);
-        this.body.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
+        if (mass == 0) this.body.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);        
         if (Ammo['CC_CONFIG']['ignoreSelfBody'] && this._ghostStruct) this.ghost.setIgnoreCollisionCheck(this.body, true);
     }
 
@@ -293,12 +327,19 @@ export class AmmoSharedBody {
             cocos2AmmoVec3(wt.getOrigin(), this.node.worldPosition)
             cocos2AmmoQuat(this.bodyStruct.worldQuat, this.node.worldRotation);
             wt.setRotation(this.bodyStruct.worldQuat);
-            if (this.isBodySleeping()) this.body.activate();
 
             if (this.node.hasChangedFlags & TransformBit.SCALE) {
                 for (let i = 0; i < this.bodyStruct.wrappedShapes.length; i++) {
                     this.bodyStruct.wrappedShapes[i].setScale();
                 }
+            }
+
+            if (this.body.isKinematicObject()) {
+                // Kinematic objects must be updated using motion state
+                var ms = this.body.getMotionState();
+                if (ms) ms.setWorldTransform(wt);
+            } else {
+                if (this.isBodySleeping()) this.body.activate();
             }
         }
     }
@@ -307,13 +348,12 @@ export class AmmoSharedBody {
      * TODO: use motion state
      */
     syncPhysicsToScene () {
-        if (this.body.isStaticObject() || this.isBodySleeping()) {
+        if (this.body.isStaticOrKinematicObject() || this.isBodySleeping()) {
             return;
         }
-
-        // let transform = new Ammo.btTransform();
-        // this.body.getMotionState().getWorldTransform(transform);
-        const wt0 = this.body.getWorldTransform();
+        
+        const wt0 = this.bodyStruct.startTransform;
+        this.body.getMotionState().getWorldTransform(wt0);
         this.node.worldPosition = ammo2CocosVec3(v3_0, wt0.getOrigin());
         wt0.getBasis().getRotation(this.bodyStruct.worldQuat);
         this.node.worldRotation = ammo2CocosQuat(quat_0, this.bodyStruct.worldQuat);

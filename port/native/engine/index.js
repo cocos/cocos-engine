@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -29,8 +29,8 @@ require('./jsb-sys.js');
 require('./jsb-game.js');
 require('./jsb-gfx.js');
 require('./jsb-loader.js');
-// require('./jsb-videoplayer.js');
-// require('./jsb-webview.js');
+require('./jsb-videoplayer.js');
+require('./jsb-webview.js');
 require('./jsb-audio.js');
 require('./jsb-editbox.js');
 require('./jsb-pipeline.js');

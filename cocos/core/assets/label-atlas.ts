@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,22 +25,20 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 import { ccclass } from 'cc.decorator';
 import { BitmapFont } from './bitmap-font';
 import { legacyCC } from '../global-exports';
 /**
- * @en
- * Class for LabelAtlas handling.
- *
- * @zh
- * 艺术数字字体资源类。
+ * @en Class for LabelAtlas handling.
+ * @zh 艺术数字字体资源类。
  *
  */
 @ccclass('cc.LabelAtlas')
-export class LabelAtlas extends BitmapFont{
+export class LabelAtlas extends BitmapFont {
 }
 
 legacyCC.LabelAtlas = LabelAtlas;

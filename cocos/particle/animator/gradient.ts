@@ -1,4 +1,30 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
+ * @packageDocumentation
  * @hidden
  */
 
@@ -6,7 +32,7 @@ import { ccclass, serializable, editable } from 'cc.decorator';
 import { Color, lerp, repeat } from '../../core/math';
 import { Enum } from '../../core/value-types';
 
-// tslint:disable: max-line-length
+
 
 const Mode = Enum({
     Blend: 0,
@@ -15,51 +41,63 @@ const Mode = Enum({
 
 @ccclass('cc.ColorKey')
 export class ColorKey {
-
+    /**
+     * @en Color value.
+     * @zh 颜色值。
+     */
     @serializable
     @editable
     public color = Color.WHITE.clone();
 
+    /**
+     * @en Time value.
+     * @zh 时间值。
+     */
     @serializable
     @editable
     public time = 0;
 }
-
-// CCClass.fastDefine('cc.ColorKey', ColorKey, {
-//     color: cc.Color.WHITE.clone(),
-//     time: 0
-// });
 
 @ccclass('cc.AlphaKey')
 export class AlphaKey {
-
+    /**
+     * @en Alpha value.
+     * @zh 透明度。
+     */
     @serializable
     @editable
     public alpha = 1;
-
+    /**
+     * @en Time.
+     * @zh 时间帧。
+     */
     @serializable
     @editable
     public time = 0;
 }
-
-// CCClass.fastDefine('cc.AlphaKey', AlphaKey, {
-//     alpha: 1,
-//     time: 0
-// });
 
 @ccclass('cc.Gradient')
 export default class Gradient {
 
     public static Mode = Mode;
-
+    /**
+     * @en Array of color key.
+     * @zh 颜色关键帧列表。
+     */
     @serializable
     @editable
     public colorKeys = new Array<ColorKey>();
-
+    /**
+     * @en Array of alpha key.
+     * @zh 透明度关键帧列表。
+     */
     @serializable
     @editable
     public alphaKeys = new Array<AlphaKey>();
-
+    /**
+     * @en Blend mode.
+     * @zh 混合模式。
+     */
     @serializable
     @editable
     public mode = Mode.Blend;
@@ -156,9 +194,3 @@ export default class Gradient {
         }
     }
 }
-
-// CCClass.fastDefine('cc.Gradient', Gradient, {
-//     mode: Mode.Blend,
-//     colorKeys: [],
-//     alphaKeys: []
-// });

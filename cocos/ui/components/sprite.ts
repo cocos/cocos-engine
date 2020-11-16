@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,7 +25,8 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
 import { SpriteAtlas } from '../../core/assets/sprite-atlas';
@@ -226,7 +227,6 @@ export class Sprite extends UIRenderable {
         this.markForUpdateRenderData(false);
         this._applySpriteFrame(lastSprite);
         if (EDITOR) {
-            // @ts-ignore
             this.node.emit(EventType.SPRITE_FRAME_CHANGED, this);
         }
     }
@@ -415,7 +415,7 @@ export class Sprite extends UIRenderable {
         } else {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
-        this._uiMaterialDirty = true;
+        this.updateMaterial();
     }
 
     /**
@@ -438,7 +438,7 @@ export class Sprite extends UIRenderable {
         return this._sizeMode;
     }
     set sizeMode (value) {
-        if (this._sizeMode === value){
+        if (this._sizeMode === value) {
             return;
         }
 
@@ -486,7 +486,7 @@ export class Sprite extends UIRenderable {
             this.node.on(SystemEventType.SIZE_CHANGED, this._resized, this);
         }
 
-        if(this._spriteFrame){
+        if (this._spriteFrame) {
             this._spriteFrame.on('load', this._markForUpdateUvDirty, this);
             this._markForUpdateUvDirty();
         }
@@ -515,14 +515,9 @@ export class Sprite extends UIRenderable {
 
         // this._flushAssembler();
         this._activateMaterial();
-        // updateBlendFunc for custom material
-        if (this.getMaterial(0)) {
-            this._updateBlendFunc();
-        }
     }
 
     public onDestroy () {
-        super.onDestroy();
         this.destroyRenderData();
         if (EDITOR) {
             this.node.off(SystemEventType.SIZE_CHANGED, this._resized, this);
@@ -531,6 +526,7 @@ export class Sprite extends UIRenderable {
         if (this._spriteFrame) {
             this._spriteFrame.off('load');
         }
+        super.onDestroy();
     }
 
     /**
@@ -572,12 +568,11 @@ export class Sprite extends UIRenderable {
         } else {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
-        this._uiMaterialDirty = true;
+        this.updateMaterial();
     }
 
     protected _render (render: UI) {
-        render.commitComp(this, this._spriteFrame!.getGFXTexture(), this._assembler!, this._spriteFrame!.texture.getGFXSampler());
-        // render.commitComp(this, this._spriteFrame!.getGFXTextureView(), this._assembler!);
+        render.commitComp(this, this._spriteFrame, this._assembler!);
     }
 
     protected _canRender () {
@@ -592,7 +587,7 @@ export class Sprite extends UIRenderable {
         //     return false;
         // }
         // return true;
-        if (!super._canRender()){
+        if (!super._canRender()) {
             return false;
         }
 
@@ -707,7 +702,7 @@ export class Sprite extends UIRenderable {
             if (spriteFrame.atlasUuid.length > 0) {
                 if (!this._atlas || this._atlas._uuid !== spriteFrame.atlasUuid) {
                     const self = this;
-                    AssetLibrary.loadAsset(spriteFrame.atlasUuid, (err, asset) => {
+                    assetManager.loadAny(spriteFrame.atlasUuid, (err, asset) => {
                         self._atlas = asset;
                     });
                 }
@@ -738,11 +733,11 @@ export class Sprite extends UIRenderable {
         // }
 
         if (this._renderData) {
-            if(oldFrame){
+            if (oldFrame) {
                 oldFrame.off('load', this._markForUpdateUvDirty);
             }
 
-            if(spriteFrame){
+            if (spriteFrame) {
                 spriteFrame.on('load', this._markForUpdateUvDirty, this);
             }
 
@@ -750,11 +745,11 @@ export class Sprite extends UIRenderable {
                 if (oldFrame && spriteFrame) {
                     this._renderData.uvDirty = oldFrame.uvHash !== spriteFrame.uvHash;
                 } else {
-                    this._renderData!.uvDirty = true;
+                    this._renderData.uvDirty = true;
                 }
             }
 
-            this._renderDataFlag = this._renderData!.uvDirty
+            this._renderDataFlag = this._renderData.uvDirty
         }
 
         if (spriteFrame) {

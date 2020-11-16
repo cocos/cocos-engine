@@ -1,6 +1,30 @@
-import { GFXIndirectBuffer } from '../..';
-import { GFXBuffer, GFXBufferSource, GFXBufferInfo, GFXBufferViewInfo } from '../buffer';
-import { GFXBufferFlagBit, GFXBufferUsageBit } from '../define';
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+import { Buffer, BufferSource, BufferInfo, BufferViewInfo, IndirectBuffer } from '../buffer';
+import { BufferFlagBit, BufferUsageBit } from '../define';
 import {
     WebGL2CmdFuncCreateBuffer,
     WebGL2CmdFuncDestroyBuffer,
@@ -10,7 +34,7 @@ import {
 import { WebGL2Device } from './webgl2-device';
 import { IWebGL2GPUBuffer } from './webgl2-gpu-objects';
 
-export class WebGL2Buffer extends GFXBuffer {
+export class WebGL2Buffer extends Buffer {
 
     get gpuBuffer (): IWebGL2GPUBuffer {
         return  this._gpuBuffer!;
@@ -18,7 +42,7 @@ export class WebGL2Buffer extends GFXBuffer {
 
     private _gpuBuffer: IWebGL2GPUBuffer | null = null;
 
-    public initialize (info: GFXBufferInfo | GFXBufferViewInfo): boolean {
+    public initialize (info: BufferInfo | BufferViewInfo): boolean {
 
         if ('buffer' in info) { // buffer view
 
@@ -53,11 +77,11 @@ export class WebGL2Buffer extends GFXBuffer {
             this._count = this._size / this._stride;
             this._flags = info.flags;
 
-            if (this._usage & GFXBufferUsageBit.INDIRECT) {
-                this._indirectBuffer = new GFXIndirectBuffer();
+            if (this._usage & BufferUsageBit.INDIRECT) {
+                this._indirectBuffer = new IndirectBuffer();
             }
 
-            if (this._flags & GFXBufferFlagBit.BAKUP_BUFFER) {
+            if (this._flags & BufferFlagBit.BAKUP_BUFFER) {
                 this._bakcupBuffer = new Uint8Array(this._size);
                 this._device.memoryStatus.bufferSize += this._size;
             }
@@ -74,7 +98,7 @@ export class WebGL2Buffer extends GFXBuffer {
                 glOffset: 0,
             };
 
-            if (info.usage & GFXBufferUsageBit.INDIRECT) {
+            if (info.usage & BufferUsageBit.INDIRECT) {
                 this._gpuBuffer.indirects = this._indirectBuffer!.drawInfos;
             }
 
@@ -132,7 +156,7 @@ export class WebGL2Buffer extends GFXBuffer {
         }
     }
 
-    public update (buffer: GFXBufferSource, offset?: number, size?: number) {
+    public update (buffer: BufferSource, offset?: number, size?: number) {
         if (this._isBufferView) {
             console.warn('cannot update through buffer views!');
             return;
@@ -141,7 +165,7 @@ export class WebGL2Buffer extends GFXBuffer {
         let buffSize: number;
         if (size !== undefined ) {
             buffSize = size;
-        } else if (this._usage & GFXBufferUsageBit.INDIRECT) {
+        } else if (this._usage & BufferUsageBit.INDIRECT) {
             buffSize = 0;
         } else {
             buffSize = (buffer as ArrayBuffer).byteLength;

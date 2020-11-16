@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,7 +25,8 @@
 */
 
 /**
- * @category component
+ * @packageDocumentation
+ * @module component
  */
 
 import {ccclass, inspector, editorOnly, serializable, editable} from 'cc.decorator';
@@ -35,20 +36,6 @@ import { Component } from './component';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
-
-/**
- * @en
- * A temp fallback to contain the original serialized data which can not be loaded.
- * @zh
- * 包含无法加载的原始序列化数据的临时回退。
- */
-@ccclass('cc.MissingClass')
-class MissingClass {
-    // the serialized data for original object
-    @serializable
-    @editorOnly
-    public _$erialized = null;
-}
 
 /**
  * @en
@@ -74,25 +61,12 @@ export default class MissingScript extends Component {
      * @param {string} id
      * @return {function} constructor
      */
-    public static safeFindClass (id: string, data) {
+    public static safeFindClass (id: string) {
         const cls = _getClassById(id);
         if (cls) {
             return cls;
         }
-        if (id) {
-            legacyCC.deserialize.reportMissingClass(id);
-            return MissingScript.getMissingWrapper(id, data);
-        }
-        return null;
-    }
-    public static getMissingWrapper (id, data) {
-        if (data.node && (/^[0-9a-zA-Z+/]{23}$/.test(id) || BUILTIN_CLASSID_RE.test(id))) {
-            // is component
-            return MissingScript;
-        }
-        else {
-            return MissingClass;
-        }
+        legacyCC.deserialize.reportMissingClass(id);
     }
 
     @editable
@@ -106,7 +80,7 @@ export default class MissingScript extends Component {
     constructor () {
         super();
         if (EDITOR) {
-            // @ts-ignore
+            // @ts-expect-error
             this.compiled = _Scene.Sandbox.compiled;
         }
     }

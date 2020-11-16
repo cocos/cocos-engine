@@ -1,11 +1,37 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
+ * @packageDocumentation
  * @hidden
  */
 
 import { warnID, warn, easing } from '../core';
 import { ActionInterval } from './actions/action-interval';
 import { ITweenOption } from './export-api';
-import { legacyCC } from '../core/global-exports';
+import { legacyCC, VERSION } from '../core/global-exports';
 
 /** adapter */
 function TweenEasinAdapter (easingName: string) {
@@ -51,7 +77,7 @@ function TweenEasinAdapter (easingName: string) {
 /** checker */
 function TweenOptionChecker (opts: ITweenOption) {
     const header = ' [Tween:] ';
-    const message = ' option is not support in v' + legacyCC.ENGINE_VERSION;
+    const message = ` option is not support in v + ${VERSION}`;
     if (opts['delay']) {
         warn(header + 'delay' + message);
     }
@@ -102,8 +128,13 @@ export class TweenAction extends ActionInterval {
 
         this._props = Object.create(null);
         for (let name in props) {
+            // filtering if
+            // - it was not own property
+            // - it was a function
+            // - it was undefined / null
+            if (!props.hasOwnProperty(name)) continue;
             let value = props[name];
-
+            if (!value || typeof value === 'function') continue;
             // property may have custom easing or progress function
             let easing, progress;
             if (value.value !== undefined && (value.easing || value.progress)) {
@@ -156,6 +187,8 @@ export class TweenAction extends ActionInterval {
                 }
 
                 for (var k in value) {
+                    // filtering if it not a number
+                    if (isNaN(_t[k])) continue;
                     prop.start[k] = _t[k];
                     prop.current[k] = _t[k];
                     prop.end[k] = relative ? _t[k] + value[k] : value[k];

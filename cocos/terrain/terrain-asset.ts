@@ -1,5 +1,31 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
- * @category terrain
+ * @packageDocumentation
+ * @module terrain
  */
 import { Asset } from '../core/assets';
 import { ccclass } from 'cc.decorator';
@@ -203,9 +229,6 @@ export class TerrainAsset extends Asset {
     set _nativeAsset (value: ArrayBuffer) {
         if (this._data && this._data.byteLength === value.byteLength) {
             this._data.set(new Uint8Array(value));
-            if (legacyCC.loader._cache[this.nativeUrl]) {
-                legacyCC.loader._cache[this.nativeUrl].content = this._data.buffer;
-            }
         }
         else {
             this._data = new Uint8Array(value);
@@ -314,13 +337,10 @@ export class TerrainAsset extends Asset {
 
     /**
      * @en get layer
+     * @zh 获得纹理索引
      * @param xBlock block index x
      * @param yBlock block index y
      * @param layerId layer id
-     * @zh 获得纹理索引
-     * @param xBlock 地形块索引x
-     * @param yBlock 地形块索引y
-     * @param layerId 层Id
      */
     public getLayer (xBlock: number, yBlock: number, layerId: number) {
         const blockId = yBlock * this.blockCount[0] + xBlock;

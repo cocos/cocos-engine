@@ -1,6 +1,31 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 import { builtinResMgr } from '../../core/3d/builtin';
 import { Material } from '../../core/assets';
-import { GFXAttributeName, GFXFormat } from '../../core/gfx/define';
+import { AttributeName, Format, Attribute } from '../../core/gfx';
 import { Mat4, Vec2, Vec3, Vec4, pseudoRandom } from '../../core/math';
 import { RecyclePool } from '../../core/memop';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
@@ -8,7 +33,7 @@ import { MacroRecord } from '../../core/renderer/core/pass-utils';
 import { RenderMode, Space } from '../enum';
 import { Particle, IParticleModule, PARTICLE_MODULE_ORDER } from '../particle';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
-import { Component, GFXAttribute } from '../../core';
+import { Component } from '../../core';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
@@ -40,31 +65,31 @@ const RENDER_MODE_VERTICAL_BILLBOARD = 3;
 const RENDER_MODE_MESH = 4;
 
 const _vertex_attrs = [
-    new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),       // position
-    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RGB32F),      // uv,frame idx
-    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD1, GFXFormat.RGB32F),     // size
-    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD2, GFXFormat.RGB32F),     // rotation
-    new GFXAttribute(GFXAttributeName.ATTR_COLOR, GFXFormat.RGBA8, true),     // color
+    new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),       // position
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F),      // uv,frame idx
+    new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F),     // size
+    new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F),     // rotation
+    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true),     // color
 ];
 
 const _vertex_attrs_stretch = [
-    new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),       // position
-    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RGB32F),      // uv,frame idx
-    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD1, GFXFormat.RGB32F),     // size
-    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD2, GFXFormat.RGB32F),     // rotation
-    new GFXAttribute(GFXAttributeName.ATTR_COLOR, GFXFormat.RGBA8, true),     // color
-    new GFXAttribute(GFXAttributeName.ATTR_COLOR1, GFXFormat.RGB32F),         // particle velocity
+    new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),       // position
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F),      // uv,frame idx
+    new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F),     // size
+    new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F),     // rotation
+    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true),     // color
+    new Attribute(AttributeName.ATTR_COLOR1, Format.RGB32F),         // particle velocity
 ];
 
 const _vertex_attrs_mesh = [
-    new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F),       // particle position
-    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RGB32F),      // uv,frame idx
-    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD1, GFXFormat.RGB32F),     // size
-    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD2, GFXFormat.RGB32F),     // rotation
-    new GFXAttribute(GFXAttributeName.ATTR_COLOR, GFXFormat.RGBA8, true),     // particle color
-    new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD3, GFXFormat.RGB32F),     // mesh position
-    new GFXAttribute(GFXAttributeName.ATTR_NORMAL, GFXFormat.RGB32F),         // mesh normal
-    new GFXAttribute(GFXAttributeName.ATTR_COLOR1, GFXFormat.RGBA8, true),    // mesh color
+    new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),       // particle position
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F),      // uv,frame idx
+    new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F),     // size
+    new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F),     // rotation
+    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true),     // particle color
+    new Attribute(AttributeName.ATTR_TEX_COORD3, Format.RGB32F),     // mesh position
+    new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F),         // mesh normal
+    new Attribute(AttributeName.ATTR_COLOR1, Format.RGBA8, true),    // mesh color
 ];
 
 const _matInsInfo: IMaterialInstanceInfo = {

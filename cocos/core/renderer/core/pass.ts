@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,32 +24,35 @@
 */
 
 /**
- * @category material
+ * @packageDocumentation
+ * @module material
  */
 
 import { EDITOR } from 'internal:constants';
-import { builtinResMgr } from '../../3d/builtin/init';
-import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
-import { TextureBase } from '../../assets/texture-base';
-import { GFXDescriptorSet, GFXDescriptorSetInfo } from '../../gfx/descriptor-set';
-import { GFXBuffer, GFXBufferInfo, GFXBufferViewInfo } from '../../gfx/buffer';
-import { GFXFeature, GFXDevice } from '../../gfx/device';
-import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
-import { GFXSampler } from '../../gfx/sampler';
-import { GFXTexture } from '../../gfx/texture';
-import { RenderPassStage, RenderPriority, SetIndex } from '../../pipeline/define';
-import { getPhaseID } from '../../pipeline/pass-phase';
+import { Color } from '../../gfx/define-class';
 import { Root } from '../../root';
+import { TextureBase } from '../../assets/texture-base';
+import { builtinResMgr } from '../../3d/builtin/init';
+import { getPhaseID } from '../../pipeline/pass-phase';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
-import { IProgramInfo, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
-import { PassView, BlendStatePool, RasterizerStatePool, DepthStencilStatePool,
-    PassPool, DSPool, PassHandle, ShaderHandle, NULL_HANDLE } from './memory-pools';
-import { customizeType, getBindingFromHandle, getPropertyTypeFromHandle, getDefaultFromType,
-    getOffsetFromHandle, getTypeFromHandle, MacroRecord, MaterialProperty, type2reader, type2writer, PropertyType } from './pass-utils';
-import { GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode,
-    GFXType, GFXDynamicStateFlagBit, GFXDynamicStateFlags } from '../../gfx/define';
-import { GFXDescriptorSetLayoutInfo } from '../../gfx';
+import {
+    BlendState, BlendTarget, Buffer, BufferInfo, BufferViewInfo, DepthStencilState, DescriptorSet,
+    DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture,
+} from '../../gfx';
+import {
+    BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type,
+} from '../../gfx/define';
+import {
+    DSPool, NULL_HANDLE, PassHandle, PassPool, PassView, ShaderHandle,
+} from './memory-pools';
+import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
+import { IProgramInfo, programLib } from './program-lib';
+import {
+    MacroRecord, MaterialProperty, PropertyType, customizeType,
+    getBindingFromHandle, getDefaultFromType, getOffsetFromHandle, getPropertyTypeFromHandle, getTypeFromHandle, type2reader, type2writer,
+} from './pass-utils';
+import { RenderPassStage, RenderPriority } from '../../pipeline/define';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
@@ -66,27 +69,25 @@ export interface IMacroPatch {
 
 interface IPassDynamics {
     [type: number]: {
-        dirty: boolean,
-        value: number[],
+        dirty: boolean;
+        value: number;
     };
 }
 
-const _bufferInfo = new GFXBufferInfo(
-    GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-    GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+const _bufferInfo = new BufferInfo(
+    BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+    MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
 );
 
-const _bufferViewInfo = new GFXBufferViewInfo(null!);
-const _dsLayoutInfo = new GFXDescriptorSetLayoutInfo();
+const _bufferViewInfo = new BufferViewInfo(null!);
 
-const _dsInfo = new GFXDescriptorSetInfo(null!);
+const _dsInfo = new DescriptorSetInfo(null!);
 
 export enum BatchingSchemes {
     INSTANCING = 1,
     VB_MERGING = 2,
-};
+}
 
-// tslint:disable: no-shadowed-variable
 export declare namespace Pass {
     export type getPropertyTypeFromHandle = typeof getPropertyTypeFromHandle;
     export type getTypeFromHandle = typeof getTypeFromHandle;
@@ -96,97 +97,130 @@ export declare namespace Pass {
     export type getOffsetFromHandle = typeof getOffsetFromHandle;
     export type PropertyType = typeof PropertyType;
 }
-// tslint:enable: no-shadowed-variable
 
 /**
- * @zh
- * 渲染 pass，储存实际描述绘制过程的各项资源。
+ * @en Render pass, store actual resources for the rendering process
+ * @zh 渲染 pass，储存实际描述绘制过程的各项资源。
  */
 export class Pass {
     /**
-     * @zh
-     * 根据 handle 获取 unform 的绑定类型（UBO 或贴图等）。
+     * @en The binding type enums of the property
+     * @zh Uniform 的绑定类型（UBO 或贴图等）
      */
     public static PropertyType = PropertyType;
+
+    /**
+     * @en Gets the binding type of the property with handle
+     * @zh 根据 handle 获取 uniform 的绑定类型（UBO 或贴图等）。
+     */
     public static getPropertyTypeFromHandle = getPropertyTypeFromHandle;
 
     /**
-     * @zh
-     * 根据 handle 获取 UBO member 的具体类型。
+     * @en Gets the type of member in uniform buffer object with the handle
+     * @zh 根据 handle 获取 UBO member 的具体类型。
      */
     public static getTypeFromHandle = getTypeFromHandle;
 
     /**
-     * @zh
-     * 根据 handle 获取 binding。
+     * @en Gets the binding with handle
+     * @zh 根据 handle 获取 binding。
      */
     public static getBindingFromHandle = getBindingFromHandle;
 
+    protected static getOffsetFromHandle = getOffsetFromHandle;
 
-    public static fillPipelineInfo (hPass: PassHandle, info: PassOverrides) {
+    /**
+     * @en Fill a pass represented by the given pass handle with the given override info
+     * @param hPass The pass handle point to the pass
+     * @param info The pass override info
+     */
+    public static fillPipelineInfo (pass: Pass, info: PassOverrides): void {
+        const hPass = pass.handle;
         if (info.priority !== undefined) { PassPool.set(hPass, PassView.PRIORITY, info.priority); }
         if (info.primitive !== undefined) { PassPool.set(hPass, PassView.PRIMITIVE, info.primitive); }
         if (info.stage !== undefined) { PassPool.set(hPass, PassView.STAGE, info.stage); }
         if (info.dynamicStates !== undefined) { PassPool.set(hPass, PassView.DYNAMIC_STATES, info.dynamicStates); }
         if (info.phase !== undefined) { PassPool.set(hPass, PassView.PHASE, getPhaseID(info.phase)); }
 
-        const bs = BlendStatePool.get(PassPool.get(hPass, PassView.BLEND_STATE));
+        const bs = pass._bs;
         if (info.blendState) {
             const bsInfo = info.blendState;
-            if (bsInfo.targets) {
-                bsInfo.targets.forEach((t, i) => {
-                    if (!bs.targets[i]) bs.setTarget(i, new GFXBlendTarget());
-                    Object.assign(bs.targets[i], t);
+            const { targets } = bsInfo;
+            if (targets) {
+                targets.forEach((t, i) => {
+                    bs.setTarget(i, t as BlendTarget);
                 });
             }
+
             if (bsInfo.isA2C !== undefined) { bs.isA2C = bsInfo.isA2C; }
             if (bsInfo.isIndepend !== undefined) { bs.isIndepend = bsInfo.isIndepend; }
-            if (bsInfo.blendColor !== undefined) { Object.assign(bs.blendColor, bsInfo.blendColor); }
+            if (bsInfo.blendColor !== undefined) { bs.blendColor = bsInfo.blendColor as Color; }
         }
-        Object.assign(RasterizerStatePool.get(PassPool.get(hPass, PassView.RASTERIZER_STATE)), info.rasterizerState);
-        Object.assign(DepthStencilStatePool.get(PassPool.get(hPass, PassView.DEPTH_STENCIL_STATE)), info.depthStencilState);
+        pass._rs.assign(info.rasterizerState as RasterizerState);
+        pass._dss.assign(info.depthStencilState as DepthStencilState);
     }
 
     /**
-     * @en
-     * Get pass hash value by [[Pass]] hash information.
-     * @zh
-     * 根据 [[Pass]] 的哈希信息获取哈希值。
+     * @en Get pass hash value by [[Pass]] hash information.
+     * @zh 根据 [[Pass]] 的哈希信息获取哈希值。
      *
      * @param hPass Handle of the pass info used to compute hash value.
      */
-    public static getPassHash (hPass: PassHandle, hShader: ShaderHandle) {
-        let res = hShader + ',' + PassPool.get(hPass, PassView.PRIMITIVE) + ',' + PassPool.get(hPass, PassView.DYNAMIC_STATES);
-        res += serializeBlendState(BlendStatePool.get(PassPool.get(hPass, PassView.BLEND_STATE)));
-        res += serializeDepthStencilState(DepthStencilStatePool.get(PassPool.get(hPass, PassView.DEPTH_STENCIL_STATE)));
-        res += serializeRasterizerState(RasterizerStatePool.get(PassPool.get(hPass, PassView.RASTERIZER_STATE)));
+    public static getPassHash (pass: Pass, hShader: ShaderHandle): number {
+        const hPass = pass.handle;
+        let res = `${hShader as unknown as number},${PassPool.get(hPass, PassView.PRIMITIVE)},${PassPool.get(hPass, PassView.DYNAMIC_STATES)}`;
+        res += serializeBlendState(pass._bs);
+        res += serializeDepthStencilState(pass._dss);
+        res += serializeRasterizerState(pass._rs);
+
         return murmurhash2_32_gc(res, 666);
     }
 
-    protected static getOffsetFromHandle = getOffsetFromHandle;
-
     // internal resources
-    protected _rootBuffer: GFXBuffer | null = null;
+    protected _rootBuffer: Buffer | null = null;
+
     protected _rootBufferDirty = false;
-    protected _buffers: GFXBuffer[] = [];
-    protected _descriptorSet: GFXDescriptorSet = null!;
+
+    protected _buffers: Buffer[] = [];
+
+    protected _descriptorSet: DescriptorSet = null!;
+
     // internal data
     protected _passIndex = 0;
+
     protected _propertyIndex = 0;
+
     protected _programName = '';
+
     protected _dynamics: IPassDynamics = {};
+
     protected _propertyHandleMap: Record<string, number> = {};
+
     protected _rootBlock: ArrayBuffer | null = null;
+
     protected _blocks: Float32Array[] = [];
+
     protected _shaderInfo: IProgramInfo = null!;
+
     protected _defines: MacroRecord = {};
+
     protected _properties: Record<string, IPropertyInfo> = {};
+
     // external references
     protected _root: Root;
-    protected _device: GFXDevice;
+
+    protected _device: Device;
+
     // native data
     protected _hShaderDefault: ShaderHandle = NULL_HANDLE;
+
     protected _handle: PassHandle = NULL_HANDLE;
+
+    protected _bs: BlendState = new BlendState();
+
+    protected _dss: DepthStencilState = new DepthStencilState();
+
+    protected _rs: RasterizerState = new RasterizerState();
 
     constructor (root: Root) {
         this._root = root;
@@ -194,10 +228,10 @@ export class Pass {
     }
 
     /**
-     * @zh
-     * 根据指定参数初始化当前 pass，shader 会在这一阶段就尝试编译。
+     * @en Initialize the pass with given pass info, shader will be compiled in the init process
+     * @zh 根据指定参数初始化当前 pass，shader 会在这一阶段就尝试编译。
      */
-    public initialize (info: IPassInfoFull) {
+    public initialize (info: IPassInfoFull): void {
         this._doInit(info);
         this.resetUBOs();
         this.resetTextures();
@@ -205,50 +239,51 @@ export class Pass {
     }
 
     /**
-     * @en
-     * Get the handle of a UBO member, or specific channels of it.
-     * @zh
-     * 获取指定 UBO 成员，或其更具体分量的读写句柄。默认以成员自身的类型为目标读写类型（即读写时必须传入与成员类型相同的变量）。
+     * @en Get the handle of a UBO member, or specific channels of it.
+     * @zh 获取指定 UBO 成员，或其更具体分量的读写句柄。默认以成员自身的类型为目标读写类型（即读写时必须传入与成员类型相同的变量）。
      * @param name Name of the target UBO member.
      * @param offset Channel offset into the member.
      * @param targetType Target type of the handle, i.e. the type of data when read/write to it.
      * @example
      * ```
-     * import { Vec3, GFXType } from 'cc';
+     * import { Vec3, gfx } from 'cc';
      * // say 'pbrParams' is a uniform vec4
      * const hParams = pass.getHandle('pbrParams'); // get the default handle
      * pass.setUniform(hAlbedo, new Vec3(1, 0, 0)); // wrong! pbrParams.w is NaN now
      *
      * // say 'albedoScale' is a uniform vec4, and we only want to modify the w component in the form of a single float
-     * const hThreshold = pass.getHandle('albedoScale', 3, GFXType.FLOAT);
+     * const hThreshold = pass.getHandle('albedoScale', 3, gfx.Type.FLOAT);
      * pass.setUniform(hThreshold, 0.5); // now, albedoScale.w = 0.5
      * ```
      */
-    public getHandle (name: string, offset = 0, targetType = GFXType.UNKNOWN) {
+    public getHandle (name: string, offset = 0, targetType = Type.UNKNOWN): number {
         let handle = this._propertyHandleMap[name]; if (!handle) { return 0; }
-        if (targetType) { handle = customizeType(handle, targetType); }
-        else if (offset) { handle = customizeType(handle, getTypeFromHandle(handle) - offset); }
+        if (targetType) {
+            handle = customizeType(handle, targetType);
+        } else if (offset) {
+            handle = customizeType(handle, getTypeFromHandle(handle) - offset);
+        }
         return handle + offset;
     }
 
     /**
-     * @zh
-     * 获取指定 uniform 的 binding。
-     * @param name 目标 uniform 名。
+     * @en Gets the uniform binding with its name
+     * @zh 获取指定 uniform 的 binding。
+     * @param name The name of target uniform
      */
-    public getBinding (name: string) {
+    public getBinding (name: string): number {
         const handle = this.getHandle(name);
         if (!handle) { return -1; }
         return Pass.getBindingFromHandle(handle);
     }
 
     /**
-     * @zh
-     * 设置指定普通向量类 uniform 的值，如果需要频繁更新请尽量使用此接口。
-     * @param handle 目标 uniform 的 handle。
-     * @param value 目标值。
+     * @en Sets a vector type uniform value, if a uniform requires frequent update, please use this method.
+     * @zh 设置指定普通向量类 uniform 的值，如果需要频繁更新请尽量使用此接口。
+     * @param handle The handle for the target uniform
+     * @param value New value
      */
-    public setUniform (handle: number, value: MaterialProperty) {
+    public setUniform (handle: number, value: MaterialProperty): void {
         const binding = Pass.getBindingFromHandle(handle);
         const type = Pass.getTypeFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
@@ -258,29 +293,29 @@ export class Pass {
     }
 
     /**
-     * @zh
-     * 获取指定普通向量类 uniform 的值。
-     * @param handle 目标 uniform 的 handle。
-     * @param out 输出向量。
+     * @en Gets a uniform's value.
+     * @zh 获取指定普通向量类 uniform 的值。
+     * @param handle The handle for the target uniform
+     * @param out The output property to store the result
      */
-    public getUniform (handle: number, out: MaterialProperty) {
+    public getUniform<T extends MaterialProperty> (handle: number, out: T): T {
         const binding = Pass.getBindingFromHandle(handle);
         const type = Pass.getTypeFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
         const block = this._blocks[binding];
-        return type2reader[type](block, out, ofs);
+        return type2reader[type](block, out, ofs) as T;
     }
 
     /**
-     * @zh
-     * 设置指定数组类 uniform 的值，如果需要频繁更新请尽量使用此接口。
-     * @param handle 目标 uniform 的 handle。
-     * @param value 目标值。
+     * @en Sets an array type uniform value, if a uniform requires frequent update, please use this method.
+     * @zh 设置指定数组类 uniform 的值，如果需要频繁更新请尽量使用此接口。
+     * @param handle The handle for the target uniform
+     * @param value New value
      */
-    public setUniformArray (handle: number, value: MaterialProperty[]) {
+    public setUniformArray (handle: number, value: MaterialProperty[]): void {
         const binding = Pass.getBindingFromHandle(handle);
         const type = Pass.getTypeFromHandle(handle);
-        const stride = GFXGetTypeSize(type) >> 2;
+        const stride = GetTypeSize(type) >> 2;
         const block = this._blocks[binding];
         let ofs = Pass.getOffsetFromHandle(handle);
         for (let i = 0; i < value.length; i++, ofs += stride) {
@@ -291,52 +326,52 @@ export class Pass {
     }
 
     /**
-     * @zh
-     * 绑定实际 [[GFXTexture]] 到指定 binding。
-     * @param binding 目标贴图类 uniform 的 binding。
-     * @param value 目标 texture
+     * @en Bind a GFX [[Texture]] the the given uniform binding
+     * @zh 绑定实际 GFX [[Texture]] 到指定 binding。
+     * @param binding The binding for target uniform of texture type
+     * @param value Target texture
      */
-    public bindTexture (binding: number, value: GFXTexture, index?: number) {
+    public bindTexture (binding: number, value: Texture, index?: number): void {
         this._descriptorSet.bindTexture(binding, value, index || 0);
     }
 
     /**
-     * @zh
-     * 绑定实际 [[GFXSampler]] 到指定 binding。
-     * @param binding 目标贴图类 uniform 的 binding。
-     * @param value 目标 sampler。
+     * @en Bind a GFX [[Sampler]] the the given uniform binding
+     * @zh 绑定实际 GFX [[Sampler]] 到指定 binding。
+     * @param binding The binding for target uniform of sampler type
+     * @param value Target sampler
      */
-    public bindSampler (binding: number, value: GFXSampler, index?: number) {
+    public bindSampler (binding: number, value: Sampler, index?: number): void {
         this._descriptorSet.bindSampler(binding, value, index || 0);
     }
 
     /**
-     * @zh
-     * 设置运行时 pass 内可动态更新的管线状态属性。
-     * @param state 目标管线状态。
-     * @param value 目标值。
+     * @en Sets the dynamic pipeline state property at runtime
+     * @zh 设置运行时 pass 内可动态更新的管线状态属性。
+     * @param state Target dynamic state
+     * @param value Target value
      */
-    public setDynamicState (state: GFXDynamicStateFlagBit, value: any) {
+    public setDynamicState (state: DynamicStateFlagBit, value: number): void {
         const ds = this._dynamics[state];
         if (ds && ds.value === value) { return; }
         ds.value = value; ds.dirty = true;
     }
 
     /**
-     * @zh
-     * 重载当前所有管线状态。
-     * @param original 原始管线状态。
-     * @param value 管线状态重载值。
+     * @en Override all pipeline states with the given pass override info.
+     * @zh 重载当前所有管线状态。
+     * @param original The original pass info
+     * @param value The override pipeline state info
      */
-    public overridePipelineStates (original: IPassInfo, overrides: PassOverrides) {
+    public overridePipelineStates (original: IPassInfo, overrides: PassOverrides): void {
         console.warn('base pass cannot override states, please use pass instance instead.');
     }
 
     /**
-     * @zh
-     * 更新当前 Uniform 数据。
+     * @en Update the current uniforms data.
+     * @zh 更新当前 Uniform 数据。
      */
-    public update () {
+    public update (): void {
         if (this._rootBufferDirty && this._rootBuffer) {
             this._rootBuffer.update(this._rootBlock!);
             this._rootBufferDirty = false;
@@ -345,10 +380,10 @@ export class Pass {
     }
 
     /**
-     * @zh
-     * 销毁当前 pass。
+     * @en Destroy the current pass.
+     * @zh 销毁当前 pass。
      */
-    public destroy () {
+    public destroy (): void {
         for (let i = 0; i < this._shaderInfo.blocks.length; i++) {
             const u = this._shaderInfo.blocks[i];
             this._buffers[u.binding].destroy();
@@ -363,57 +398,59 @@ export class Pass {
         // textures are reused
         this._descriptorSet = null!;
 
+        this._rs.destroy();
+        this._dss.destroy();
+        this._bs.destroy();
+
         if (this._handle) {
-            RasterizerStatePool.free(PassPool.get(this._handle, PassView.RASTERIZER_STATE));
-            DepthStencilStatePool.free(PassPool.get(this._handle, PassView.DEPTH_STENCIL_STATE));
-            BlendStatePool.free(PassPool.get(this._handle, PassView.BLEND_STATE));
             DSPool.free(PassPool.get(this._handle, PassView.DESCRIPTOR_SET));
             PassPool.free(this._handle); this._handle = NULL_HANDLE;
         }
     }
 
     /**
-     * @zh
-     * 重置指定（非数组） Uniform 为 Effect 默认值。
+     * @en Resets the value of the given uniform by name to the default value in [[EffectAsset]].
+     * This method does not support array type uniform.
+     * @zh 重置指定（非数组） Uniform 为 [[EffectAsset]] 默认值。
      */
-    public resetUniform (name: string) {
-        const handle = this.getHandle(name)!;
-        if (!handle) return;
+    public resetUniform (name: string): void {
+        const handle = this.getHandle(name);
+        if (!handle) { return; }
         const type = Pass.getTypeFromHandle(handle);
         const binding = Pass.getBindingFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
         const block = this._blocks[binding];
         const info = this._properties[name];
-        const value = info && info.value || getDefaultFromType(type);
+        const value = (info && info.value) || getDefaultFromType(type);
         type2writer[type](block, value, ofs);
         this._rootBufferDirty = true;
     }
 
     /**
-     * @zh
-     * 重置指定贴图为 Effect 默认值。
+     * @en Resets the value of the given texture by name to the default value in [[EffectAsset]].
+     * @zh 重置指定贴图为 [[EffectAsset]] 默认值。
      */
-    public resetTexture (name: string, index?: number) {
+    public resetTexture (name: string, index?: number): void {
         const handle = this.getHandle(name);
-        if (!handle) return;
+        if (!handle) { return; }
         const type = Pass.getTypeFromHandle(handle);
         const binding = Pass.getBindingFromHandle(handle);
         const info = this._properties[name];
         const value = info && info.value;
-        const texName = value ? value + '-texture' : getDefaultFromType(type) as string;
+        const texName = value ? `${value as string}-texture` : getDefaultFromType(type) as string;
         const textureBase = builtinResMgr.get<TextureBase>(texName);
         const texture = textureBase && textureBase.getGFXTexture()!;
-        const samplerHash = info && (info.samplerHash !== undefined) ? info.samplerHash : textureBase.getSamplerHash();
+        const samplerHash = info && (info.samplerHash !== undefined) ? info.samplerHash : textureBase && textureBase.getSamplerHash();
         const sampler = samplerLib.getSampler(this._device, samplerHash);
         this._descriptorSet.bindSampler(binding, sampler, index);
         this._descriptorSet.bindTexture(binding, texture, index);
     }
 
     /**
-     * @zh
-     * 重置所有 UBO 为默认值。
+     * @en Resets all uniform buffer objects to the default values in [[EffectAsset]]
+     * @zh 重置所有 UBO 为默认值。
      */
-    public resetUBOs () {
+    public resetUBOs (): void {
         for (let i = 0; i < this._shaderInfo.blocks.length; i++) {
             const u = this._shaderInfo.blocks[i];
             const block = this._blocks[u.binding];
@@ -422,8 +459,8 @@ export class Pass {
                 const cur = u.members[j];
                 const info = this._properties[cur.name];
                 const givenDefault = info && info.value;
-                const value = (givenDefault ? givenDefault : getDefaultFromType(cur.type)) as number[];
-                const size = (GFXGetTypeSize(cur.type) >> 2) * cur.count;
+                const value = (givenDefault || getDefaultFromType(cur.type)) as number[];
+                const size = (GetTypeSize(cur.type) >> 2) * cur.count;
                 for (let k = 0; k + value.length <= size; k += value.length) { block.set(value, ofs + k); }
                 ofs += size;
             }
@@ -432,10 +469,10 @@ export class Pass {
     }
 
     /**
-     * @zh
-     * 重置所有 texture 和 sampler 为初始默认值。
+     * @en Resets all textures and samplers to the default values in [[EffectAsset]]
+     * @zh 重置所有 texture 和 sampler 为初始默认值。
      */
-    public resetTextures () {
+    public resetTextures (): void {
         for (let i = 0; i < this._shaderInfo.samplers.length; i++) {
             const u = this._shaderInfo.samplers[i];
             for (let j = 0; j < u.count; j++) {
@@ -445,25 +482,29 @@ export class Pass {
     }
 
     /**
-     * @zh
-     * 尝试编译 shader 并获取相关资源引用。
-     * @param defineOverrides shader 预处理宏定义重载
+     * @en Try to compile the shader and retrieve related resources references.
+     * @zh 尝试编译 shader 并获取相关资源引用。
      */
-    public tryCompile () {
-        const pipeline = this._root.pipeline;
-        if (!pipeline) { return null; }
+    public tryCompile (): boolean {
+        const { pipeline } = this._root;
+        if (!pipeline) { return false; }
         this._syncBatchingScheme();
         this._hShaderDefault = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
         if (!this._hShaderDefault) { console.warn(`create shader ${this._programName} failed`); return false; }
-        PassPool.set(this._handle, PassView.PIPELINE_LAYOUT, programLib.getPipelineLayout(this._programName).hPipelineLayout);
-        PassPool.set(this._handle, PassView.HASH, Pass.getPassHash(this._handle, this._hShaderDefault));
+        PassPool.set(this._handle, PassView.PIPELINE_LAYOUT, programLib.getTemplate(this._programName).hPipelineLayout);
+        PassPool.set(this._handle, PassView.HASH, Pass.getPassHash(this, this._hShaderDefault));
         return true;
     }
 
+    /**
+     * @en Gets the shader variant of the current pass and given macro patches
+     * @zh 结合指定的编译宏组合获取当前 Pass 的 Shader Variant
+     * @param patches The macro patches
+     */
     public getShaderVariant (patches: IMacroPatch[] | null = null): ShaderHandle {
         if (!this._hShaderDefault && !this.tryCompile()) {
-            console.warn(`pass resources incomplete`);
-            return NULL_HANDLE;
+            console.warn('pass resources incomplete');
+            return NULL_HANDLE as ShaderHandle;
         }
 
         if (!patches) {
@@ -474,12 +515,12 @@ export class Pass {
             for (let i = 0; i < patches.length; i++) {
                 if (!patches[i].name.startsWith('CC_')) {
                     console.warn('cannot patch non-builtin macros');
-                    return NULL_HANDLE;
+                    return NULL_HANDLE as ShaderHandle;
                 }
             }
         }
 
-        const pipeline = this._root.pipeline!;
+        const { pipeline } = this._root;
         for (let i = 0; i < patches.length; i++) {
             const patch = patches[i];
             this._defines[patch.name] = patch.value;
@@ -495,37 +536,39 @@ export class Pass {
     }
 
     // internal use
-    public beginChangeStatesSilently () {}
-    public endChangeStatesSilently () {}
+    /**
+     * @private
+     */
+    public beginChangeStatesSilently (): void {}
 
-    protected _doInit (info: IPassInfoFull, copyDefines = false) {
+    /**
+     * @private
+     */
+    public endChangeStatesSilently (): void {}
+
+    protected _doInit (info: IPassInfoFull, copyDefines = false): void {
         const handle = this._handle = PassPool.alloc();
         PassPool.set(handle, PassView.PRIORITY, RenderPriority.DEFAULT);
         PassPool.set(handle, PassView.STAGE, RenderPassStage.DEFAULT);
         PassPool.set(handle, PassView.PHASE, getPhaseID('default'));
-        PassPool.set(handle, PassView.PRIMITIVE, GFXPrimitiveMode.TRIANGLE_LIST);
-        PassPool.set(handle, PassView.RASTERIZER_STATE, RasterizerStatePool.alloc());
-        PassPool.set(handle, PassView.DEPTH_STENCIL_STATE, DepthStencilStatePool.alloc());
-        PassPool.set(handle, PassView.BLEND_STATE, BlendStatePool.alloc());
+        PassPool.set(handle, PassView.PRIMITIVE, PrimitiveMode.TRIANGLE_LIST);
+        PassPool.set(handle, PassView.RASTERIZER_STATE, this._rs.handle);
+        PassPool.set(handle, PassView.DEPTH_STENCIL_STATE, this._dss.handle);
+        PassPool.set(handle, PassView.BLEND_STATE, this._bs.handle);
 
         this._passIndex = info.passIndex;
         this._propertyIndex = info.propertyIndex !== undefined ? info.propertyIndex : info.passIndex;
         this._programName = info.program;
-        this._defines = copyDefines ? Object.assign({}, info.defines) : info.defines;
+        this._defines = copyDefines ? ({ ...info.defines }) : info.defines;
         this._shaderInfo = programLib.getTemplate(info.program);
         this._properties = info.properties || this._properties;
         // pipeline state
         const device = this._device;
-        Pass.fillPipelineInfo(handle, info);
-        if (info.stateOverrides) { Pass.fillPipelineInfo(handle, info.stateOverrides); }
+        Pass.fillPipelineInfo(this, info);
+        if (info.stateOverrides) { Pass.fillPipelineInfo(this, info.stateOverrides); }
 
         // init descriptor set
-        const setLayouts = programLib.getPipelineLayout(info.program).setLayouts;
-        if (!setLayouts[SetIndex.MATERIAL]) {
-            _dsLayoutInfo.bindings = this._shaderInfo.bindings;
-            setLayouts[SetIndex.MATERIAL] = device.createDescriptorSetLayout(_dsLayoutInfo);
-        }
-        _dsInfo.layout = setLayouts[SetIndex.MATERIAL];
+        _dsInfo.layout = programLib.getDescriptorSetLayout(this._device, info.program);
         const dsHandle = DSPool.alloc(this._device, _dsInfo);
         PassPool.set(this._handle, PassView.DESCRIPTOR_SET, dsHandle);
         this._descriptorSet = DSPool.get(dsHandle);
@@ -551,11 +594,11 @@ export class Pass {
         }
         // create buffer views
         for (let i = 0, count = 0; i < blocks.length; i++) {
-            const binding = blocks[i].binding;
+            const { binding } = blocks[i];
             const size = blockSizes[i];
             _bufferViewInfo.buffer = this._rootBuffer!;
             _bufferViewInfo.offset = startOffsets[count++];
-            _bufferViewInfo.range = size;
+            _bufferViewInfo.range = Math.ceil(size / 16) * 16;
             const bufferView = this._buffers[binding] = device.createBuffer(_bufferViewInfo);
             // non-builtin UBO data pools, note that the effect compiler
             // guarantees these bindings to be consecutive, starting from 0 and non-array-typed
@@ -574,9 +617,9 @@ export class Pass {
         Object.assign(directHandleMap, indirectHandleMap);
     }
 
-    protected _syncBatchingScheme () {
+    protected _syncBatchingScheme (): void {
         if (this._defines.USE_INSTANCING) {
-            if (this._device.hasFeature(GFXFeature.INSTANCED_ARRAYS)) {
+            if (this._device.hasFeature(Feature.INSTANCED_ARRAYS)) {
                 PassPool.set(this._handle, PassView.BATCHING_SCHEME, BatchingSchemes.INSTANCING);
             } else {
                 this._defines.USE_INSTANCING = false;
@@ -590,34 +633,59 @@ export class Pass {
     }
 
     // infos
-    get root () { return this._root; }
-    get device () { return this._device; }
-    get shaderInfo () { return this._shaderInfo; }
-    get setLayouts () { return programLib.getPipelineLayout(this._programName).setLayouts; }
-    get program () { return this._programName; }
-    get properties () { return this._properties; }
-    get defines () { return this._defines; }
-    get passIndex () { return this._passIndex; }
-    get propertyIndex () { return this._propertyIndex; }
+    get root (): Root { return this._root; }
+
+    get device (): Device { return this._device; }
+
+    get shaderInfo (): IProgramInfo { return this._shaderInfo; }
+
+    get localSetLayout (): DescriptorSetLayout { return programLib.getDescriptorSetLayout(this._device, this._programName, true); }
+
+    get program (): string { return this._programName; }
+
+    get properties (): Record<string, IPropertyInfo> { return this._properties; }
+
+    get defines (): Record<string, string | number | boolean> { return this._defines; }
+
+    get passIndex (): number { return this._passIndex; }
+
+    get propertyIndex (): number { return this._propertyIndex; }
+
     // data
-    get dynamics () { return this._dynamics; }
-    get blocks () { return this._blocks; }
+    get dynamics (): IPassDynamics { return this._dynamics; }
+
+    get blocks (): Float32Array[] { return this._blocks; }
+
     // states
-    get handle () { return this._handle; }
-    get priority () { return PassPool.get(this._handle, PassView.PRIORITY); }
-    get primitive () { return PassPool.get(this._handle, PassView.PRIMITIVE); }
-    get stage () { return PassPool.get(this._handle, PassView.STAGE); }
-    get phase () { return PassPool.get(this._handle, PassView.PHASE); }
-    get rasterizerState () { return RasterizerStatePool.get(PassPool.get(this._handle, PassView.RASTERIZER_STATE)); }
-    get depthStencilState () { return DepthStencilStatePool.get(PassPool.get(this._handle, PassView.DEPTH_STENCIL_STATE)); }
-    get blendState () { return BlendStatePool.get(PassPool.get(this._handle, PassView.BLEND_STATE)); }
-    get dynamicStates () { return PassPool.get(this._handle, PassView.DYNAMIC_STATES); }
-    get batchingScheme () { return PassPool.get(this._handle, PassView.BATCHING_SCHEME); }
-    get hash () { return PassPool.get(this._handle, PassView.HASH); }
+    get handle (): PassHandle { return this._handle; }
+
+    get priority (): RenderPriority { return PassPool.get(this._handle, PassView.PRIORITY); }
+
+    get primitive (): PrimitiveMode { return PassPool.get(this._handle, PassView.PRIMITIVE); }
+
+    get stage (): RenderPassStage { return PassPool.get(this._handle, PassView.STAGE); }
+
+    get phase (): number { return PassPool.get(this._handle, PassView.PHASE); }
+
+    get rasterizerState (): RasterizerState { return this._rs; }
+
+    get depthStencilState (): DepthStencilState { return this._dss; }
+
+    get blendState (): BlendState { return this._bs; }
+
+    get dynamicStates (): DynamicStateFlags { return PassPool.get(this._handle, PassView.DYNAMIC_STATES); }
+
+    get batchingScheme (): BatchingSchemes { return PassPool.get(this._handle, PassView.BATCHING_SCHEME); }
+
+    get descriptorSet (): DescriptorSet { return this._descriptorSet; }
+
+    get hash (): number { return PassPool.get(this._handle, PassView.HASH); }
+
+    get rootBufferDirty (): boolean { return this._rootBufferDirty; }
 }
 
-function serializeBlendState (bs: GFXBlendState) {
-    let res = `,bs,${bs.isA2C},${bs.blendColor}`;
+function serializeBlendState (bs: BlendState): string {
+    let res = `,bs,${bs.isA2C}`;
     for (const t of bs.targets) {
         res += `,bt,${t.blend},${t.blendEq},${t.blendAlphaEq},${t.blendColorMask}`;
         res += `,${t.blendSrc},${t.blendDst},${t.blendSrcAlpha},${t.blendDstAlpha}`;
@@ -625,23 +693,15 @@ function serializeBlendState (bs: GFXBlendState) {
     return res;
 }
 
-function serializeRasterizerState (rs: GFXRasterizerState) {
-    return ',rs,' + rs.cullMode + ',' + rs.depthBias + ',' + rs.isFrontFaceCCW;
+function serializeRasterizerState (rs: RasterizerState): string {
+    return `,rs,${rs.cullMode},${rs.depthBias},${rs.isFrontFaceCCW}`;
 }
 
-function serializeDepthStencilState (dss: GFXDepthStencilState) {
+function serializeDepthStencilState (dss: DepthStencilState): string {
     let res = `,dss,${dss.depthTest},${dss.depthWrite},${dss.depthFunc}`;
     res += `,${dss.stencilTestFront},${dss.stencilFuncFront},${dss.stencilRefFront},${dss.stencilReadMaskFront}`;
     res += `,${dss.stencilFailOpFront},${dss.stencilZFailOpFront},${dss.stencilPassOpFront},${dss.stencilWriteMaskFront}`;
     res += `,${dss.stencilTestBack},${dss.stencilFuncBack},${dss.stencilRefBack},${dss.stencilReadMaskBack}`;
     res += `,${dss.stencilFailOpBack},${dss.stencilZFailOpBack},${dss.stencilPassOpBack},${dss.stencilWriteMaskBack}`;
-    return res;
-}
-
-function serializeDynamicState (dynamicStates: GFXDynamicStateFlags[]) {
-    let res = ',ds';
-    for (const ds in dynamicStates) {
-        res += ',' + ds;
-    }
     return res;
 }

@@ -1,6 +1,32 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 
 /**
- * @category memop
+ * @packageDocumentation
+ * @module memop
  */
 
 import { Pool } from './pool';
@@ -15,7 +41,8 @@ interface INode {
 type NodeAllocator = () => INode;
 
 /**
- * @zh 链表，可以自动分配对象。
+ * @en Linked list, it can pre-allocate objects for the given size in constructor.
+ * @zh 链表，在构造时可以自动预创建指定数量的对象。
  */
 export default class LinkedArray<T = {}> {
     private _fn: NodeAllocator;
@@ -25,9 +52,8 @@ export default class LinkedArray<T = {}> {
     private _pool: Pool<INode>;
 
     /**
-     * 构造函数。
-     * @param fn 对象构建函数。
-     * @param size 内置元素个数。
+     * @param fn Allocator function
+     * @param size Initial size of the linked array
      */
     constructor (fn: NodeAllocator, size: number) {
         this._fn = fn;
@@ -39,6 +65,7 @@ export default class LinkedArray<T = {}> {
     }
 
     /**
+     * @en Get the head of the linked list.
      * @zh 获取链表头。
      */
     get head () {
@@ -46,6 +73,7 @@ export default class LinkedArray<T = {}> {
     }
 
     /**
+     * @en Get the tail of the linked list.
      * @zh 获取链表尾。
      */
     get tail () {
@@ -53,6 +81,7 @@ export default class LinkedArray<T = {}> {
     }
 
     /**
+     * @en Number of objects in the linked list.
      * @zh 链表结点个数。
      */
     get length () {
@@ -60,6 +89,7 @@ export default class LinkedArray<T = {}> {
     }
 
     /**
+     * @en Add an element to the end of the linked list.
      * @zh 在链表尾添加一个元素。
      */
     public add () {
@@ -78,8 +108,9 @@ export default class LinkedArray<T = {}> {
     }
 
     /**
+     * @en Remove an element in the linked list.
      * @zh 删除链表中的一个结点。
-     * @param node 要删除的结点。
+     * @param node The element to be deleted
      */
     public remove (node) {
         if (node._prev) {
@@ -101,10 +132,12 @@ export default class LinkedArray<T = {}> {
     }
 
     /**
+     * @en
+     * Execute an action on all elements of the linked list.
      * @zh
-     * 遍历整个链表。
-     * @param fn 遍历函数。
-     * @param binder 遍历函数的this对象。
+     * 遍历整个链表并执行目标函数，可以指定调用者。
+     * @param fn Function to be executed for each element
+     * @param binder The caller `this` to execute the function
      */
     public forEach (fn, binder) {
         let cursor = this._head;

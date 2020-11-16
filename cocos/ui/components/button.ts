@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,11 +25,11 @@
 */
 
 /**
- * 用户界面组件
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
 
-import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin, rangeMax, serializable } from 'cc.decorator';
+import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin, rangeMax, serializable, executeInEditMode } from 'cc.decorator';
 import { SpriteFrame } from '../../core/assets';
 import { Component, EventHandler as ComponentEventHandler } from '../../core/components';
 import { UITransform, UIRenderable } from '../../core/components/ui-base';
@@ -88,30 +88,48 @@ enum State {
     DISABLED = 'disabled',
 }
 
+/**
+ * @en The event types of [[Button]]. All button events are distributed by the owner Node, not the component
+ * @zh [[Button]] 的事件类型，注意：事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
+ */
 export enum EventType {
+    /**
+     * @event click
+     * @param {Event.EventCustom} event
+     * @param {Button} button - The Button component.
+     */
     CLICK = 'click',
 }
 
 /**
  * @en
- * Button has 4 Transition types<br/>
- * When Button state changed:<br/>
- *  If Transition type is Button.Transition.NONE, Button will do nothing<br/>
- *  If Transition type is Button.Transition.COLOR, Button will change target's color<br/>
- *  If Transition type is Button.Transition.SPRITE, Button will change target Sprite's sprite<br/>
- *  If Transition type is Button.Transition.SCALE, Button will change target node's scale<br/>
+ * Button component. Can be pressed or clicked. Button has 4 Transition types:
  *
- * Button will trigger 5 events:<br/>
- *  Button.EVENT_TOUCH_DOWN<br/>
- *  Button.EVENT_TOUCH_UP<br/>
- *  Button.EVENT_HOVER_IN<br/>
- *  Button.EVENT_HOVER_MOVE<br/>
- *  Button.EVENT_HOVER_OUT<br/>
- *  User can get the current clicked node with 'event.target' from event object which is passed as parameter in the callback function of click event.
+ *   - Button.Transition.NONE   // Button will do nothing
+ *   - Button.Transition.COLOR  // Button will change target's color
+ *   - Button.Transition.SPRITE // Button will change target Sprite's sprite
+ *   - Button.Transition.SCALE  // Button will change target node's scale
+ *
+ * The button can bind events (but you must be on the button's node to bind events).<br/>
+ * The following events can be triggered on all platforms.
+ *
+ *  - cc.Node.EventType.TOUCH_START  // Press
+ *  - cc.Node.EventType.TOUCH_MOVE   // After pressing and moving
+ *  - cc.Node.EventType.TOUCH_END    // After pressing and releasing
+ *  - cc.Node.EventType.TOUCH_CANCEL // Press to cancel
+ *
+ * The following events are only triggered on the PC platform:
+ *
+ *   - cc.Node.EventType.MOUSE_DOWN
+ *   - cc.Node.EventType.MOUSE_MOVE
+ *   - cc.Node.EventType.MOUSE_ENTER
+ *   - cc.Node.EventType.MOUSE_LEAVE
+ *   - cc.Node.EventType.MOUSE_UP
+ *
+ * The developer can get the current clicked node with `event.target` from event object which is passed as parameter in the callback function of click event.
  *
  * @zh
- * 按钮组件。可以被按下，或者点击。
- *
+ * 按钮组件。可以被按下，或者点击。<br>
  * 按钮可以通过修改 Transition 来设置按钮状态过渡的方式：
  *
  *   - Button.Transition.NONE   // 不做任何过渡
@@ -119,7 +137,7 @@ export enum EventType {
  *   - Button.Transition.SPRITE // 进行精灵之间过渡
  *   - Button.Transition.SCALE // 进行缩放过渡
  *
- * 按钮可以绑定事件（但是必须要在按钮的 Node 上才能绑定事件）：<br/>
+ * 按钮可以绑定事件（但是必须要在按钮的 Node 上才能绑定事件）。<br/>
  * 以下事件可以在全平台上都触发：
  *
  *   - cc.Node.EventType.TOUCH_START  // 按下时事件
@@ -134,9 +152,8 @@ export enum EventType {
  *   - cc.Node.EventType.MOUSE_ENTER // 鼠标进入目标事件
  *   - cc.Node.EventType.MOUSE_LEAVE // 鼠标离开目标事件
  *   - cc.Node.EventType.MOUSE_UP    // 鼠标松开事件
- *   - cc.Node.EventType.MOUSE_WHEEL // 鼠标滚轮事件
  *
- * 用户可以通过获取 __点击事件__ 回调函数的参数 event 的 target 属性获取当前点击对象。
+ * 开发者可以通过获取 **点击事件** 回调函数的参数 event 的 target 属性获取当前点击对象。
  *
  * @example
  * ```ts
@@ -146,8 +163,8 @@ export enum EventType {
  *     log("This is a callback after the trigger event");
  * });
  * // You could also add a click event
- * //Note: In this way, you can't get the touch event info, so use it wisely.
- * button.node.on('click', (button) => {
+ * // Note: In this way, you can't get the touch event info, so use it wisely.
+ * button.node.on(Node.EventType.CLICK, (button) => {
  *    //The event is a custom event, you could get the Button component via first argument
  * })
  * ```
@@ -157,22 +174,25 @@ export enum EventType {
 @executionOrder(110)
 @menu('UI/Button')
 @requireComponent(UITransform)
+@executeInEditMode
 export class Button extends Component {
 
     /**
      * @en
-     * Transition target.
+     * Transition target.<br/>
      * When Button state changed:
-     * - If Transition type is Button.Transition.NONE, Button will do nothing.
-     * - If Transition type is Button.Transition.COLOR, Button will change target's color.
-     * - If Transition type is Button.Transition.SPRITE, Button will change target Sprite's sprite.
+     * - Button.Transition.NONE   // Button will do nothing
+     * - Button.Transition.COLOR  // Button will change target's color
+     * - Button.Transition.SPRITE // Button will change target Sprite's sprite
+     * - Button.Transition.SCALE  // Button will change target node's scale
      *
      * @zh
      * 需要过渡的目标。<br/>
-     * 当前按钮状态改变规则：<br/>
-     * - 如果 Transition type 选择 Button.Transition.NONE，按钮不做任何过渡。
-     * - 如果 Transition type 选择 Button.Transition.COLOR，按钮会对目标颜色进行颜色之间的过渡。
-     * - 如果 Transition type 选择 Button.Transition.Sprite，按钮会对目标 Sprite 进行 Sprite 之间的过渡。
+     * 按钮可以通过修改 Transition 来设置按钮状态过渡的方式：
+     * - Button.Transition.NONE   // 不做任何过渡
+     * - Button.Transition.COLOR  // 进行颜色之间过渡
+     * - Button.Transition.SPRITE // 进行 Sprite 之间的过渡
+     * - Button.Transition.SCALE // 进行缩放过渡
      */
     @type(Node)
     @displayOrder(0)
@@ -247,7 +267,7 @@ export class Button extends Component {
         if (this._transition === value) {
             return;
         }
-        
+
         // Reset to normal data when change transition.
         if (this._transition === Transition.COLOR) {
             this._updateColorTransition(State.NORMAL);
@@ -372,7 +392,7 @@ export class Button extends Component {
      * @en
      * When user press the button, the button will zoom to a scale.
      * The final scale of the button equals (button original scale * zoomScale)
-     * NOTE: Setting zoomScale less than 1 is not adviced, which could fire the touchCancel event if the touch point is out of touch area after scaling. 
+     * NOTE: Setting zoomScale less than 1 is not adviced, which could fire the touchCancel event if the touch point is out of touch area after scaling.
      * if you need to do so, you should set target as another background node instead of the button node.
      *
      * @zh
@@ -506,7 +526,7 @@ export class Button extends Component {
     @serializable
     protected _transition = Transition.NONE;
     @serializable
-    protected _normalColor: Color = new Color(214, 214, 214, 255);
+    protected _normalColor: Color = Color.WHITE.clone();
     @serializable
     protected _hoverColor: Color = new Color(211, 211, 211, 255);
     @serializable
@@ -615,21 +635,19 @@ export class Button extends Component {
             ratio = 1;
         }
 
-        const renderComp = target.getComponent(UIRenderable);
-        if (!renderComp) {
-            return;
-        }
-
         if (this._transition === Transition.COLOR) {
+            const renderComp = target._uiProps.uiComp as UIRenderable;
             Color.lerp(_tempColor, this._fromColor, this._toColor, ratio);
-            renderComp.color = _tempColor;
+            if(renderComp){
+                renderComp.color = _tempColor;
+            }
         } else if (this.transition === Transition.SCALE) {
             target.getScale(this._targetScale);
             this._targetScale.x = lerp(this._fromScale.x, this._toScale.x, ratio);
             this._targetScale.y = lerp(this._fromScale.y, this._toScale.y, ratio);
             target.setScale(this._targetScale);
         }
-        
+
         if (ratio === 1) {
             this._transitionFinished = true;
         }
@@ -962,11 +980,3 @@ export class Button extends Component {
     }
 
 }
-
-/**
- * @zh
- * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
- * @event click
- * @param {Event.EventCustom} event
- * @param {Button} button - The Button component.
- */

@@ -1,10 +1,38 @@
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
-import { GFXAttribute, GFXBuffer, GFXBufferInfo, GFXDevice, GFXInputAssemblerInfo } from '../gfx';
-import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit } from '../gfx/define';
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
+import { Attribute, Buffer, BufferInfo, Device, InputAssemblerInfo } from '../gfx';
+import { AttributeName, BufferUsageBit, Format, MemoryUsageBit } from '../gfx/define';
 import { IGeometry } from '../primitive/define';
 
-export function createIA (device: GFXDevice, data: IGeometry) {
+export function createIA (device: Device, data: IGeometry) {
     if (!data.positions) {
         console.error('The data must have positions field');
         return null;
@@ -27,32 +55,32 @@ export function createIA (device: GFXDevice, data: IGeometry) {
         }
     }
 
-    const vfmt: GFXAttribute[] = [];
-    vfmt.push(new GFXAttribute(GFXAttributeName.ATTR_POSITION, GFXFormat.RGB32F));
+    const vfmt: Attribute[] = [];
+    vfmt.push(new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F));
     if (data.normals) {
-        vfmt.push(new GFXAttribute(GFXAttributeName.ATTR_NORMAL, GFXFormat.RGB32F));
+        vfmt.push(new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F));
     }
     if (data.uvs) {
-        vfmt.push(new GFXAttribute(GFXAttributeName.ATTR_TEX_COORD, GFXFormat.RG32F));
+        vfmt.push(new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F));
     }
     if (data.colors) {
-        vfmt.push(new GFXAttribute(GFXAttributeName.ATTR_COLOR, GFXFormat.RGB32F));
+        vfmt.push(new Attribute(AttributeName.ATTR_COLOR, Format.RGB32F));
     }
 
-    const vb = device.createBuffer(new GFXBufferInfo(
-        GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-        GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+    const vb = device.createBuffer(new BufferInfo(
+        BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+        MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
         verts.length * 4,
         verts.length * 4 / vcount,
     ));
 
     vb.update(new Float32Array(verts));
 
-    let ib: GFXBuffer | null = null;
+    let ib: Buffer | null = null;
     if (data.indices) {
-        ib = device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        ib = device.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             data.indices.length * 2,
             2,
         ));
@@ -60,5 +88,5 @@ export function createIA (device: GFXDevice, data: IGeometry) {
         ib.update(new Uint16Array(data.indices));
     }
 
-    return device.createInputAssembler(new GFXInputAssemblerInfo(vfmt, [vb], ib));
+    return device.createInputAssembler(new InputAssemblerInfo(vfmt, [vb], ib));
 }

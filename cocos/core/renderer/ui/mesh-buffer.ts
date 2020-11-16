@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -24,12 +24,11 @@
 */
 
 /**
- * @category ui
+ * @packageDocumentation
+ * @module ui
  */
-
-import { GFXBuffer, GFXBufferInfo } from '../../gfx/buffer';
-import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
-import { GFXInputAssemblerInfo, GFXAttribute } from '../../gfx/input-assembler';
+import { BufferUsageBit, MemoryUsageBit } from '../../gfx/define';
+import { InputAssemblerInfo, Attribute, Buffer, BufferInfo } from '../../gfx';
 import { UI } from './ui';
 import { InputAssemblerHandle, NULL_HANDLE, IAPool } from '../core/memory-pools';
 import { getAttributeFormatBytes } from './ui-vertex-format';
@@ -52,10 +51,10 @@ export class MeshBuffer {
     public vertexOffset = 0;
     public lastByteOffset = 1;
 
-    private _attributes: GFXAttribute[] = null!;
-    private _vertexBuffers: GFXBuffer[] = [];
-    private _indexBuffer: GFXBuffer = null!;
-    private _iaInfo: GFXInputAssemblerInfo = null!;
+    private _attributes: Attribute[] = null!;
+    private _vertexBuffers: Buffer[] = [];
+    private _indexBuffer: Buffer = null!;
+    private _iaInfo: InputAssemblerInfo = null!;
 
     // NOTE:
     // actually 256 * 4 * (vertexFormat._bytes / 4)
@@ -73,7 +72,11 @@ export class MeshBuffer {
         this._batcher = batcher;
     }
 
-    public initialize (attrs: GFXAttribute[], outOfCallback: ((...args: number[]) => void) | null) {
+    get vertexFormatBytes (): number {
+        return this._vertexFormatBytes;
+    }
+
+    public initialize (attrs: Attribute[], outOfCallback: ((...args: number[]) => void) | null) {
         this._outOfCallback = outOfCallback;
         const formatBytes = getAttributeFormatBytes(attrs);
         this._vertexFormatBytes = formatBytes * Float32Array.BYTES_PER_ELEMENT;
@@ -81,9 +84,9 @@ export class MeshBuffer {
         const vbStride = Float32Array.BYTES_PER_ELEMENT * formatBytes;
 
         if (!this.vertexBuffers.length) {
-            this.vertexBuffers.push(this._batcher.device.createBuffer(new GFXBufferInfo(
-                GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-                GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            this.vertexBuffers.push(this._batcher.device.createBuffer(new BufferInfo(
+                BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
                 vbStride,
                 vbStride,
             )));
@@ -92,16 +95,16 @@ export class MeshBuffer {
         const ibStride = Uint16Array.BYTES_PER_ELEMENT;
 
         if (!this.indexBuffer) {
-            this._indexBuffer = this._batcher.device.createBuffer(new GFXBufferInfo(
-                GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-                GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            this._indexBuffer = this._batcher.device.createBuffer(new BufferInfo(
+                BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
                 ibStride,
                 ibStride,
             ));
         }
 
         this._attributes = attrs;
-        this._iaInfo = new GFXInputAssemblerInfo(this.attributes, this.vertexBuffers, this.indexBuffer);
+        this._iaInfo = new InputAssemblerInfo(this.attributes, this.vertexBuffers, this.indexBuffer);
 
         this._reallocBuffer();
     }
@@ -189,7 +192,7 @@ export class MeshBuffer {
         return hIA;
     }
 
-    public uploadData () {
+    public uploadBuffers () {
         if (this.byteOffset === 0 || !this._dirty) {
             return;
         }
@@ -202,10 +205,10 @@ export class MeshBuffer {
         }
         this.vertexBuffers[0].update(verticesData);
 
-        if (this.indicesOffset * 2 > this.indexBuffer!.size) {
-            this.indexBuffer!.resize(this.indicesOffset * 2);
+        if (this.indicesOffset * 2 > this.indexBuffer.size) {
+            this.indexBuffer.resize(this.indicesOffset * 2);
         }
-        this.indexBuffer!.update(indicesData);
+        this.indexBuffer.update(indicesData);
     }
 
     private _reallocBuffer () {

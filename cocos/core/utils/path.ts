@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,6 +23,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+/**
+ * @packageDocumentation
+ * @module core
+ */
 
 import { legacyCC } from '../global-exports';
 
@@ -81,7 +86,7 @@ export function basename (path: string, extName?: string) {
     const reg = /(\/|\\)([^\/\\]+)$/g;
     const result = reg.exec(path.replace(/(\/|\\)$/, ''));
     if (!result) {
-        return '';
+        return path;
     }
     const baseName = result[2];
     if (extName && path.substring(path.length - extName.length).toLowerCase() === extName.toLowerCase()) {

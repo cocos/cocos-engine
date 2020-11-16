@@ -1,23 +1,50 @@
-/**
- * @category gfx
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
-import { GFXAddress, GFXComparisonFunc, GFXFilter, GFXObject, GFXObjectType, GFXColor } from './define';
-import { GFXDevice } from './device';
+/**
+ * @packageDocumentation
+ * @module gfx
+ */
 
-export class GFXSamplerInfo {
-    declare private token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+import { Color } from './define-class';
+import { Device } from './device';
+import { Address, ComparisonFunc, Filter, Obj, ObjectType } from './define';
+
+export class SamplerInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public minFilter: GFXFilter = GFXFilter.LINEAR,
-        public magFilter: GFXFilter = GFXFilter.LINEAR,
-        public mipFilter: GFXFilter = GFXFilter.NONE,
-        public addressU: GFXAddress = GFXAddress.WRAP,
-        public addressV: GFXAddress = GFXAddress.WRAP,
-        public addressW: GFXAddress = GFXAddress.WRAP,
+        public minFilter: Filter = Filter.LINEAR,
+        public magFilter: Filter = Filter.LINEAR,
+        public mipFilter: Filter = Filter.NONE,
+        public addressU: Address = Address.WRAP,
+        public addressV: Address = Address.WRAP,
+        public addressW: Address = Address.WRAP,
         public maxAnisotropy: number = 16,
-        public cmpFunc: GFXComparisonFunc = GFXComparisonFunc.NEVER,
-        public borderColor: GFXColor = new GFXColor(),
+        public cmpFunc: ComparisonFunc = ComparisonFunc.NEVER,
+        public borderColor: Color = new Color(),
         public minLOD: number = 0,
         public maxLOD: number = 0,
         public mipLODBias: number = 0.0,
@@ -28,7 +55,7 @@ export class GFXSamplerInfo {
  * @en GFX sampler.
  * @zh GFX 采样器。
  */
-export abstract class GFXSampler extends GFXObject {
+export abstract class Sampler extends Obj {
 
     get minFilter () { return this._minFilter; }
     get magFilter () { return this._magFilter; }
@@ -43,27 +70,27 @@ export abstract class GFXSampler extends GFXObject {
     get maxLOD () { return this._maxLOD; }
     get mipLODBias () { return this._mipLODBias; }
 
-    protected _device: GFXDevice;
+    protected _device: Device;
 
-    protected _minFilter: GFXFilter = GFXFilter.LINEAR;
-    protected _magFilter: GFXFilter = GFXFilter.LINEAR;
-    protected _mipFilter: GFXFilter = GFXFilter.NONE;
-    protected _addressU: GFXAddress = GFXAddress.WRAP;
-    protected _addressV: GFXAddress = GFXAddress.WRAP;
-    protected _addressW: GFXAddress = GFXAddress.WRAP;
-    protected _maxAnisotropy: number = 16;
-    protected _cmpFunc: GFXComparisonFunc = GFXComparisonFunc.NEVER;
-    protected _borderColor: GFXColor = new GFXColor();
-    protected _minLOD: number = 0;
-    protected _maxLOD: number = 0;
-    protected _mipLODBias: number = 0.0;
+    protected _minFilter: Filter = Filter.LINEAR;
+    protected _magFilter: Filter = Filter.LINEAR;
+    protected _mipFilter: Filter = Filter.NONE;
+    protected _addressU: Address = Address.WRAP;
+    protected _addressV: Address = Address.WRAP;
+    protected _addressW: Address = Address.WRAP;
+    protected _maxAnisotropy = 16;
+    protected _cmpFunc: ComparisonFunc = ComparisonFunc.NEVER;
+    protected _borderColor: Color = new Color();
+    protected _minLOD = 0;
+    protected _maxLOD = 0;
+    protected _mipLODBias = 0.0;
 
-    constructor (device: GFXDevice) {
-        super(GFXObjectType.SAMPLER);
+    constructor (device: Device) {
+        super(ObjectType.SAMPLER);
         this._device = device;
     }
 
-    public abstract initialize (info: GFXSamplerInfo): boolean;
+    public abstract initialize (info: SamplerInfo): boolean;
 
     public abstract destroy (): void;
 }
