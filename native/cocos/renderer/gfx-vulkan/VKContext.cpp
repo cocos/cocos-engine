@@ -290,12 +290,13 @@ bool CCVKContext::initialize(const ContextInfo &info) {
         EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [=](const CustomEvent &) -> void {
             if (_gpuContext && _gpuContext->vkSurface != VK_NULL_HANDLE) {
 
+                CCVKDevice* device = (CCVKDevice*)_device;
                 CCVKQueue *queue = (CCVKQueue *)device->getQueue();
 
-                uint fenceCount = device->gpuFencePool()->size();
-                if (fenceCount) {
-                    VK_CHECK(vkWaitForFences(device->gpuDevice()->vkDevice, fenceCount,
-                                             device->gpuFencePool()->data(), VK_TRUE, DEFAULT_TIMEOUT));
+                if (!queue->gpuQueue()->fences.empty()) {
+                    VK_CHECK(vkWaitForFences(device->gpuDevice()->vkDevice, queue->gpuQueue()->fences.size(),
+                                             queue->gpuQueue()->fences.data(), VK_TRUE, DEFAULT_TIMEOUT));
+                    queue->gpuQueue()->fences.clear();
                 }
 
                 device->destroySwapchain();

@@ -25,9 +25,7 @@ set(CC_BASE_SOURCES
 set(INCLUDE_FILES
   ${GFX_EXTERNAL_PATH}/nedmalloc
   ${GFX_EXTERNAL_PATH}/tommyds
-  ${GFX_EXTERNAL_PATH}/concurrentqueue
-  ${GFX_EXTERNAL_PATH}/taskflow
-  ${COCOS_SRC_PATH}/base
+  ${GFX_EXTERNAL_PATH}/boost
   ${COCOS_SRC_PATH}/renderer/core
 )
 

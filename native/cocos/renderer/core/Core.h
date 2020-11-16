@@ -28,6 +28,10 @@ THE SOFTWARE.
 #include "base/CachedArray.h"
 #include "base/StringUtil.h"
 
+#include "Thread/ThreadPool.h"
+
+#include "gfx/GFXDevice.h"
+#include "gfx/GFXContext.h"
 #include "gfx/GFXBuffer.h"
 #include "gfx/GFXCommand.h"
 #include "gfx/GFXCommandBuffer.h"
