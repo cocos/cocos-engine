@@ -449,11 +449,11 @@ export class SpriteFrame extends Asset {
      * @zh 延 X 轴方向, 翻转 UV
      */
     get flipUVX () {
-        return this._flipUvX;
+        return this._isFlipUVX;
     }
 
     set flipUVX (value) {
-        this._flipUvX = value;
+        this._isFlipUVX = value;
         this._calculateUV();
     }
 
@@ -462,11 +462,11 @@ export class SpriteFrame extends Asset {
      * @zh 延 Y 轴方向, 翻转 UV
      */
     get flipUVY () {
-        return this._flipUvY;
+        return this._isFlipUVY;
     }
 
     set flipUVY (value) {
-        this._flipUvY = value;
+        this._isFlipUVY = value;
         this._calculateUV();
     }
 
@@ -508,9 +508,9 @@ export class SpriteFrame extends Asset {
     // @ts-expect-error
     protected _texture: TextureBase | RenderTexture;
 
-    protected _flipUvY = false;
+    protected _isFlipUVY = false;
 
-    protected _flipUvX = false;
+    protected _isFlipUVX = false;
 
     constructor () {
         super();
@@ -719,7 +719,7 @@ export class SpriteFrame extends Asset {
             }
 
             if (info.isFlipUv !== undefined) {
-                this._flipUvY = !!info.isFlipUv;
+                this._isFlipUVY = !!info.isFlipUv;
             }
 
             calUV = true;
@@ -846,7 +846,7 @@ export class SpriteFrame extends Asset {
             const t = texh === 0 ? 0 : (rect.y + 0.5) / texh;
             const b = texh === 0 ? 0 : (rect.y + rect.width - 0.5) / texh;
 
-            if (this._flipUvX && this._flipUvY) {
+            if (this._isFlipUVX && this._isFlipUVY) {
                 /*
                 3 - 1
                 |   |
@@ -860,7 +860,7 @@ export class SpriteFrame extends Asset {
                 uv[5] = b;
                 uv[6] = l;
                 uv[7] = t;
-            } else if (this._flipUvX) {
+            } else if (this._isFlipUVX) {
                 /*
                 2 - 0
                 |   |
@@ -874,7 +874,7 @@ export class SpriteFrame extends Asset {
                 uv[5] = t;
                 uv[6] = l;
                 uv[7] = b;
-            } else if (this._flipUvY) {
+            } else if (this._isFlipUVY) {
                 /*
                 1 - 3
                 |   |
@@ -908,7 +908,7 @@ export class SpriteFrame extends Asset {
             const ur = texw === 0 ? 0 : (rect.x + rect.height) / texw;
             const ut = texh === 0 ? 0 : (rect.y) / texh;
             const ub = texh === 0 ? 0 : (rect.y + rect.width) / texh;
-            if (this._flipUvX && this._flipUvY) {
+            if (this._isFlipUVX && this._isFlipUVY) {
                 unbiasUV[0] = ur;
                 unbiasUV[1] = ub;
                 unbiasUV[2] = ur;
@@ -917,7 +917,7 @@ export class SpriteFrame extends Asset {
                 unbiasUV[5] = ub;
                 unbiasUV[6] = ul;
                 unbiasUV[7] = ut;
-            } else if (this._flipUvX) {
+            } else if (this._isFlipUVX) {
                 unbiasUV[0] = ur;
                 unbiasUV[1] = ut;
                 unbiasUV[2] = ur;
@@ -926,7 +926,7 @@ export class SpriteFrame extends Asset {
                 unbiasUV[5] = ut;
                 unbiasUV[6] = ul;
                 unbiasUV[7] = ub;
-            } else if (this._flipUvY) {
+            } else if (this._isFlipUVY) {
                 unbiasUV[0] = ul;
                 unbiasUV[1] = ub;
                 unbiasUV[2] = ul;
@@ -951,7 +951,7 @@ export class SpriteFrame extends Asset {
             const r = texw === 0 ? 0 : (rect.x + rect.width - 0.5) / texw;
             const b = texh === 0 ? 0 : (rect.y + rect.height - 0.5) / texh;
             const t = texh === 0 ? 0 : (rect.y + 0.5) / texh;
-            if (this._flipUvX && this._flipUvY) {
+            if (this._isFlipUVX && this._isFlipUVY) {
                 /*
                 1 - 0
                 |   |
@@ -965,7 +965,7 @@ export class SpriteFrame extends Asset {
                 uv[5] = b;
                 uv[6] = l;
                 uv[7] = b;
-            } else if (this._flipUvX) {
+            } else if (this._isFlipUVX) {
                 /*
                 3 - 2
                 |   |
@@ -979,7 +979,7 @@ export class SpriteFrame extends Asset {
                 uv[5] = t;
                 uv[6] = l;
                 uv[7] = t;
-            } else if (this._flipUvY) {
+            } else if (this._isFlipUVY) {
                 /*
                 0 - 1
                 |   |
@@ -1012,7 +1012,7 @@ export class SpriteFrame extends Asset {
             const ur = texw === 0 ? 0 : (rect.x + rect.width) / texw;
             const ub = texh === 0 ? 0 : (rect.y + rect.height) / texh;
             const ut = texh === 0 ? 0 : (rect.y) / texh;
-            if (this._flipUvX && this._flipUvY) {
+            if (this._isFlipUVX && this._isFlipUVY) {
                 unbiasUV[0] = ur;
                 unbiasUV[1] = ut;
                 unbiasUV[2] = ul;
@@ -1021,7 +1021,7 @@ export class SpriteFrame extends Asset {
                 unbiasUV[5] = ub;
                 unbiasUV[6] = ul;
                 unbiasUV[7] = ub;
-            } else if (this._flipUvX) {
+            } else if (this._isFlipUVX) {
                 unbiasUV[0] = ur;
                 unbiasUV[1] = ub;
                 unbiasUV[2] = ul;
@@ -1030,7 +1030,7 @@ export class SpriteFrame extends Asset {
                 unbiasUV[5] = ut;
                 unbiasUV[6] = ul;
                 unbiasUV[7] = ut;
-            } else if (this._flipUvY) {
+            } else if (this._isFlipUVY) {
                 unbiasUV[0] = ul;
                 unbiasUV[1] = ut;
                 unbiasUV[2] = ur;
@@ -1170,19 +1170,19 @@ export class SpriteFrame extends Asset {
             nv: v.nv?.slice(0),
             v: v.v?.slice(0),
         } : null as any;
-        sp.uv = this.uv.slice(0);
+        sp.uv.splice(0, sp.uv.length, ...this.uv);
         sp.uvHash = this.uvHash;
-        sp.unbiasUV = this.unbiasUV.slice(0);
-        sp.uvSliced = this.uvSliced.slice(0);
-        sp._rect = this._rect.clone();
-        sp._offset = this._offset.clone();
-        sp._originalSize = this._originalSize.clone();
+        sp.unbiasUV.splice(0, sp.unbiasUV.length, ... this.unbiasUV);
+        sp.uvSliced.splice(0, sp.uvSliced.length, ... this.uvSliced);
+        sp._rect.set(this._rect);
+        sp._offset.set(this._offset);
+        sp._originalSize.set(this._originalSize);
         sp._rotated = this._rotated;
-        sp._capInsets = this._capInsets.slice(0);
+        sp._capInsets.splice(0, sp._capInsets.length, ... this._capInsets);
         sp._atlasUuid = this._atlasUuid;
         sp._texture = this._texture;
-        sp._flipUvX = this._flipUvX;
-        sp._flipUvY = this._flipUvX;
+        sp._isFlipUVX = this._isFlipUVX;
+        sp._isFlipUVY = this._isFlipUVY;
         return sp;
     }
 
