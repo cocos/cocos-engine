@@ -617,7 +617,6 @@ export class ShadowsInfo {
 
     public activate (resource: Shadows) {
         this._resource = resource;
-        this._resource.enabled = this._enabled;
         this._resource.type = this._type;
         this._resource.autoAdapt = this._autoAdapt;
         this._resource.near = this._near;

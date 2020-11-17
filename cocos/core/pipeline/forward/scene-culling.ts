@@ -32,7 +32,7 @@ import { aabb, intersect, sphere } from '../../geometry';
 import { Model } from '../../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Layers } from '../../scene-graph/layers';
-import { Vec3, Vec4, Mat4, Quat, Color, color } from '../../math';
+import { Vec3, Mat4, Quat, Color } from '../../math';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderView } from '../';
 import { Pool } from '../../memop';
@@ -114,6 +114,7 @@ function updateSphereLight (pipeline: ForwardPipeline, light: SphereLight) {
     m.m13 = ly * d;
     m.m14 = lz * d;
     m.m15 = NdL;
+
     Mat4.toArray(pipeline.shadowUBO, shadows.matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
 }
 

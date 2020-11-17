@@ -148,7 +148,6 @@ export enum ModelLocalBindings {
     SAMPLER_LIGHTMAP,
     SAMPLER_SPRITE,
     SAMPLER_SPOT_LIGHTING_MAP,
-    
 
     COUNT,
 }

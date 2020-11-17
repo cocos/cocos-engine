@@ -156,6 +156,7 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     public render (views: RenderView[]) {
+        this._commandBuffers[0].begin();
         for (let i = 0; i < views.length; i++) {
             const view = views[i];
             sceneCulling(this, view);
