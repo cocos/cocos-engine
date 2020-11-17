@@ -72,6 +72,9 @@ static bool ${signature_name}(se::State& s)
                                     "ntype": str($ret_type),
                                     "level": 2})};
         SE_PRECONDITION2(ok, false, "${signature_name} : Error processing arguments");
+            #if $generator.should_obtain_return_value($class_name, $func_name)
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
+            #end if
         #else
         cobj->${func_name}($arg_list);
         #end if

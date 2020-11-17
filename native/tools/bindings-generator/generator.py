@@ -1328,6 +1328,7 @@ class Generator(object):
         self.head_file = None
         self.skip_classes = {}
         self.bind_fields = {}
+        self.obtain_return_value = {}
         self.generated_classes = {}
         self.rename_functions = {}
         self.rename_classes = {}
@@ -1381,6 +1382,16 @@ class Generator(object):
                     self.bind_fields[class_name] = match.group(1).split(" ")
                 else:
                     raise Exception("invalid list of bind fields")
+        if opts['obtain_return_value']:
+            list_of_fields = re.split(",\n?", opts['obtain_return_value'])
+            for field in list_of_fields:
+                class_name, fields = field.split("::")
+                self.obtain_return_value[class_name] = []
+                match = re.match("\[([^]]+)\]", fields)
+                if match:
+                    self.obtain_return_value[class_name] = match.group(1).split(" ")
+                else:
+                    raise Exception("invalid list of bind obtain_return_value")
         if opts['rename_functions']:
             list_of_function_renames = re.split(",\n?", opts['rename_functions'])
             for rename in list_of_function_renames:
@@ -1456,6 +1467,18 @@ class Generator(object):
             # print >> sys.stderr, "will rename %s to %s" % (method_name, self.rename_functions[class_name][method_name])
             return self.rename_classes[class_name]
         return class_name
+
+    def should_obtain_return_value(self, class_name, method_name):
+        # print "should_obtain_return_value (%s, %s) in %s" % (class_name, method_name, self.obtain_return_value)
+        if self.obtain_return_value.has_key(class_name):
+            methods = self.obtain_return_value[class_name]
+            # print "obtain_return_value %s:%s in %s" % (class_name, method_name, methods)
+            for key in methods:
+                if key == method_name or re.match("^" + key + "$", method_name):
+                    # print " - yes"
+                    return True
+            # print " - no"
+        return False
 
     def should_skip(self, class_name, method_name, verbose=False):
         if class_name == "*" and self.skip_classes.has_key("*"):
@@ -1852,6 +1875,7 @@ def main():
                 'classes_owned_by_cpp': config.get(s, 'classes_owned_by_cpp') if config.has_option(s, 'classes_owned_by_cpp') else None,
                 'skip': config.get(s, 'skip'),
                 'field': config.get(s, 'field') if config.has_option(s, 'field') else None,
+                'obtain_return_value': config.get(s, 'obtain_return_value') if config.has_option(s, 'obtain_return_value') else None,
                 'rename_functions': config.get(s, 'rename_functions'),
                 'rename_classes': config.get(s, 'rename_classes'),
                 'out_file': opts.out_file or config.get(s, 'prefix'),
