@@ -1,5 +1,8 @@
 #include "CoreStd.h"
 #include "GFXCommandBufferProxy.h"
+#include "GFXDescriptorSetProxy.h"
+#include "GFXBufferProxy.h"
+#include "GFXTextureProxy.h"
 
 namespace cc {
 namespace gfx {
@@ -38,7 +41,7 @@ void CommandBufferProxy::bindPipelineState(PipelineState *pso) {
 }
 
 void CommandBufferProxy::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) {
-    _remote->bindDescriptorSet(set, descriptorSet, dynamicOffsetCount, dynamicOffsets);
+    _remote->bindDescriptorSet(set, ((DescriptorSetProxy*)descriptorSet)->GetRemote(), dynamicOffsetCount, dynamicOffsets);
 }
 
 void CommandBufferProxy::bindInputAssembler(InputAssembler *ia) {
@@ -82,15 +85,19 @@ void CommandBufferProxy::draw(InputAssembler *ia) {
 }
 
 void CommandBufferProxy::updateBuffer(Buffer *buff, const void *data, uint size, uint offset) {
-    _remote->updateBuffer(buff, data, size, offset);
+    _remote->updateBuffer(((BufferProxy*)buff)->GetRemote(), data, size, offset);
 }
 
 void CommandBufferProxy::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
-    _remote->copyBuffersToTexture(buffers, texture, regions, count);
+    _remote->copyBuffersToTexture(buffers, ((TextureProxy*)texture)->GetRemote(), regions, count);
 }
 
 void CommandBufferProxy::execute(const CommandBuffer *const *cmdBuffs, uint32_t count) {
-    _remote->execute(cmdBuffs, count);
+    _cmdBuffs.reserve(count);
+    for (uint i = 0u; i < count; i++) {
+        _cmdBuffs[i] = ((CommandBufferProxy*)cmdBuffs[i])->GetRemote();
+    }
+    _remote->execute(_cmdBuffs.data(), count);
 }
 
 } // namespace gfx

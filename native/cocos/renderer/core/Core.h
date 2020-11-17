@@ -32,4 +32,5 @@
 #include "gfx-proxy/GFXBufferProxy.h"
 #include "gfx-proxy/GFXTextureProxy.h"
 #include "gfx-proxy/GFXShaderProxy.h"
+#include "gfx-proxy/GFXDescriptorSetProxy.h"
 #include "gfx-proxy/GFXCommandBufferProxy.h"

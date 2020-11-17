@@ -36,6 +36,9 @@ public:
     virtual uint getNumDrawCalls() const override { return _remote->getNumDrawCalls(); }
     virtual uint getNumInstances() const override { return _remote->getNumInstances(); }
     virtual uint getNumTris() const override { return _remote->getNumTris(); }
+
+protected:
+    CommandBufferList _cmdBuffs;
 };
 
 } // namespace gfx

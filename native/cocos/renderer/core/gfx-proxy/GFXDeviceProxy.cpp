@@ -49,7 +49,7 @@ bool DeviceProxy::initialize(const DeviceInfo &info) {
     _uboOffsetAlignment = _remote->getUboOffsetAlignment();
     _depthBits = _remote->getDepthBits();
     _stencilBits = _remote->getStencilBits();
-    memcpy(_features, ((DeviceProxy*)_remote.get())->_features, (size_t)Feature::COUNT);
+    memcpy(_features, ((DeviceProxy*)_remote.get())->_features, (uint)Feature::COUNT * sizeof(bool));
 
     _thread = std::make_unique<DeviceThread>(this);
     _thread->Run();
@@ -155,7 +155,7 @@ PipelineState *DeviceProxy::createPipelineState(const PipelineStateInfo &info) {
 }
 
 void DeviceProxy::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
-    _remote->copyBuffersToTexture(buffers, dst, regions, count);
+    _remote->copyBuffersToTexture(buffers, ((TextureProxy*)dst)->GetRemote(), regions, count);
 }
 
 } // namespace gfx

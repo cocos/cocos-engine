@@ -64,6 +64,10 @@ public:
     virtual uint getNumInstances() const { return _numInstances; }
     virtual uint getNumTris() const { return _numTriangles; }
 
+    // TODO: device proxy hack, remove this
+    Device(Device *device): Device() {};
+    CC_INLINE Device *getDevice() const { return (Device*)this; }
+
     Format getColorFormat() const;
     Format getDepthStencilFormat() const;
     CC_INLINE API getGfxAPI() const { return _API; }
