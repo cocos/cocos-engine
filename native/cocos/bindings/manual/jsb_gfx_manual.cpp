@@ -117,9 +117,9 @@ bool js_gfx_Device_copyTexImagesToTexture(se::State &s) {
                 if (dataObj->getArrayElement(i, &value)) {
                     if (value.isObject()) {
                         CC_UNUSED size_t dataLength = 0;
-                        cc::Data bufferData;
-                        ok &= seval_to_Data(value, &bufferData);
-                        arg0[i] = bufferData.takeBuffer();
+                        uint8_t *address = nullptr;
+                        value.toObject()->getTypedArrayData(&address, &dataLength);
+                        arg0[i] = address;
                     } else {
                         unsigned long dataPtr = 0;
                         seval_to_ulong(value, &dataPtr);
@@ -162,6 +162,7 @@ static bool js_gfx_Device_createBuffer(se::State &s) {
             seval_to_gfx_buffer_info(args[0], &bufferInfo);
             buffer = cobj->createBuffer(bufferInfo);
         }
+        se::NonRefNativePtrCreatedByCtorMap::emplace(buffer);
 
         CC_UNUSED bool ok = native_ptr_to_seval(buffer, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createBuffer : Error processing arguments");
@@ -191,6 +192,7 @@ static bool js_gfx_Device_createTexture(se::State &s) {
             seval_to_gfx_texture_info(args[0], &textureInfo);
             texture = cobj->createTexture(textureInfo);
         }
+        se::NonRefNativePtrCreatedByCtorMap::emplace(texture);
 
         CC_UNUSED bool ok = native_ptr_to_seval(texture, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createTexture : Error processing arguments");

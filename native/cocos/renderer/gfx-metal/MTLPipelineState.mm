@@ -114,6 +114,7 @@ bool CCMTLPipelineState::createMTLDepthStencilState() {
 
     id<MTLDevice> mtlDevice = id<MTLDevice>(((CCMTLDevice *)_device)->getMTLDevice());
     _mtlDepthStencilState = [mtlDevice newDepthStencilStateWithDescriptor:descriptor];
+    [descriptor release];
 
     if (!_mtlDepthStencilState) {
         CC_LOG_ERROR("Failed to create MTLDepthStencilState.");
