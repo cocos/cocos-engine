@@ -52,9 +52,12 @@ const MOVEMENT_FACTOR = 0.7;
 const ZERO = new Vec2();
 const _tempVec3 = new Vec3();
 const _tempVec3_1 = new Vec3();
+const _tempVec3A = new Vec3();
 const _tempVec2 = new Vec2();
 const _tempVec2_1 = new Vec2();
 const _tempVec2Anchor = new Vec2();
+const _tempVec2A = new Vec2();
+const _tempVec2B = new Vec2();
 
 const quintEaseOut = (time: number) => {
     time -= 1;
@@ -1231,17 +1234,18 @@ export class ScrollView extends ViewGroup {
         }, totalTime);
 
         if (totalTime <= 0 || totalTime >= 0.5) {
-            return new Vec2();
+            return ZERO;
         }
 
-        let totalMovement = new Vec2();
+        let totalMovement = _tempVec2A;
         totalMovement = this._touchMoveDisplacements.reduce((a, b) => {
             a.add(b);
             return a;
         }, totalMovement);
 
-        return new Vec2(totalMovement.x * (1 - this.brake) / totalTime,
+        _tempVec2B.set(totalMovement.x * (1 - this.brake) / totalTime,
             totalMovement.y * (1 - this.brake) / totalTime);
+        return _tempVec2B;
     }
 
     protected _flattenVectorByDirection (vector: Vec2) {
@@ -1461,7 +1465,7 @@ export class ScrollView extends ViewGroup {
 
     protected _getLocalAxisAlignDelta (touch: Touch){
         const uiTransformComp = this.node._uiProps.uiTransformComp;
-        const vec = new Vec3();
+        const vec = _tempVec3A;
 
         if (uiTransformComp) {
             touch.getUILocation(_tempVec2);
@@ -1472,7 +1476,8 @@ export class ScrollView extends ViewGroup {
             uiTransformComp.convertToNodeSpaceAR(_tempVec3_1, _tempVec3_1);
             Vec3.subtract(vec, _tempVec3, _tempVec3_1);
         }
-        return new Vec2(vec.x, vec.y);
+        _tempVec2A.set(vec.x, vec.y);
+        return _tempVec2A;
     }
 
     protected _scrollChildren (deltaMove: Vec2) {
