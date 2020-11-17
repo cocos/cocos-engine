@@ -136,6 +136,7 @@ void ForwardStage::render(RenderView *view) {
     _instancedQueue->uploadBuffers(cmdBuff);
     _batchedQueue->uploadBuffers(cmdBuff);
     _additiveLightQueue->gatherLightPasses(view, cmdBuff);
+    _planarShadowQueue->gatherShadowPasses(view, cmdBuff);
 
     auto camera = view->getCamera();
     // render area is not oriented
@@ -174,7 +175,7 @@ void ForwardStage::render(RenderView *view) {
     _instancedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
     _batchedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
     _additiveLightQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
-    //    _planarShadowQueue->recordCommandBuffer(device, renderPass, cmdBuff);
+    _planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
     _renderQueues[1]->recordCommandBuffer(_device, renderPass, cmdBuff);
 
     cmdBuff->endRenderPass();

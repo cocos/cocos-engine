@@ -10,8 +10,15 @@ class Shader;
 } // namespace gfx
 namespace pipeline {
 class RenderPipeline;
+class ForwardPipeline;
 struct ModelView;
+struct SubModelView;
+struct PassView;
 class InstanceBuffer;
+class RenderInstancedQueue;
+class RenderBatchedQueue;
+struct RenderView;
+struct AABB;
 
 struct ShadowRenderData {
     const ModelView *model = nullptr;
@@ -24,13 +31,15 @@ public:
     PlanarShadowQueue(RenderPipeline *);
     ~PlanarShadowQueue() = default;
 
+    void clear();
+    void gatherShadowPasses(RenderView *view , gfx::CommandBuffer *cmdBufferer);
     void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *);
-
-private:
-    ShadowRenderData createShadowData(const ModelView *model);
+    void destroy();
     
 private:
-    RenderPipeline *_pipeline = nullptr;
+    ForwardPipeline *_pipeline = nullptr;
+    RenderInstancedQueue *_instancedQueue = nullptr;
+    std::vector<const ModelView *> _pendingModels;
 };
 } // namespace pipeline
 } // namespace cc

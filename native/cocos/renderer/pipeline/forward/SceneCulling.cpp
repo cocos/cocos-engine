@@ -1,4 +1,5 @@
 #include <vector>
+#include <array>
 
 #include "SceneCulling.h"
 #include "../Define.h"
@@ -120,6 +121,48 @@ void updateDirLight(Shadows *shadows, const Light *light, gfx::DescriptorSet *de
     descriptorSet->getBuffer(UBOShadow::BLOCK.layout.binding)->update(matLight.m, UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, sizeof(matLight));
 }
 
+void updateDirLight(Shadows *shadows, const Light *light, std::array<float, UBOShadow::COUNT>& shadowUBO) {
+    const auto node = light->getNode();
+    if (!node->flagsChanged && !shadows->dirty) {
+        return;
+    }
+
+    shadows->dirty = false;
+    const auto rotation = node->worldRotation;
+    Quaternion _qt(rotation.x, rotation.y, rotation.z, rotation.w);
+    Vec3 forward(0, 0, -1.0f);
+    forward.transformQuat(_qt);
+    const auto &normal = shadows->normal;
+    const auto distance = shadows->distance + 0.001f; // avoid z-fighting
+    const auto NdL = normal.dot(forward);
+    const auto scale = 1.0f / NdL;
+    const auto lx = forward.x * scale;
+    const auto ly = forward.y * scale;
+    const auto lz = forward.z * scale;
+    const auto nx = normal.x;
+    const auto ny = normal.y;
+    const auto nz = normal.z;
+    auto &matLight = shadows->matLight;
+    matLight.m[0] = 1 - nx * lx;
+    matLight.m[1] = -nx * ly;
+    matLight.m[2] = -nx * lz;
+    matLight.m[3] = 0;
+    matLight.m[4] = -ny * lx;
+    matLight.m[5] = 1 - ny * ly;
+    matLight.m[6] = -ny * lz;
+    matLight.m[7] = 0;
+    matLight.m[8] = -nz * lx;
+    matLight.m[9] = -nz * ly;
+    matLight.m[10] = 1 - nz * lz;
+    matLight.m[11] = 0;
+    matLight.m[12] = lx * distance;
+    matLight.m[13] = ly * distance;
+    matLight.m[14] = lz * distance;
+    matLight.m[15] = 1;
+
+    memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, matLight.m, sizeof(matLight));
+}
+
  void lightCollecting(RenderView *view, std::vector<const Light *>& validLights) {
     validLights.clear();
     auto *sphere = CC_NEW(Sphere);
@@ -189,15 +232,6 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
     const Light *mainLight = nullptr;
     if (scene->mainLightID) mainLight = scene->getMainLight();
     RenderObjectList renderObjects;
-
-    if (shadows->enabled && shadows->dirty) {
-        float color[3] = {shadows->color.x, shadows->color.y, shadows->color.z};
-        pipeline->getDescriptorSet()->getBuffer(UBOShadow::BLOCK.layout.binding)->update(color, UBOShadow::SHADOW_COLOR_OFFSET, sizeof(color));
-    }
-
-    if (mainLight && shadows->getShadowType() == ShadowType::PLANAR) {
-        updateDirLight(shadows, mainLight, pipeline->getDescriptorSet());
-    }
 
     if (skyBox->enabled && skyBox->modelID && (camera->clearFlag & SKYBOX_FLAG)) {
         renderObjects.emplace_back(genRenderObject(skyBox->getModel(), camera));
