@@ -1,4 +1,4 @@
-#include "ExecutionBuffer.h"
+#include "CommandEncoder.h"
 #include <cassert>
 
 namespace cc {
@@ -11,13 +11,13 @@ uint32_t constexpr kMemoryChunkPoolCapacity = 64;
 uint32_t constexpr kSwitchChunkMemoryRequirement = sizeof(MemoryChunkSwitchCommand) + sizeof(DummyCommand);
 }
 
-ExecutionBuffer::MemoryAllocator& ExecutionBuffer::MemoryAllocator::GetInstance() noexcept
+CommandEncoder::MemoryAllocator& CommandEncoder::MemoryAllocator::GetInstance() noexcept
 {
-    static ExecutionBuffer::MemoryAllocator instance;
+    static CommandEncoder::MemoryAllocator instance;
     return instance;
 }
 
-uint8_t* ExecutionBuffer::MemoryAllocator::Request() noexcept
+uint8_t* CommandEncoder::MemoryAllocator::Request() noexcept
 {
     uint8_t* newChunk = nullptr;
 
@@ -33,7 +33,7 @@ uint8_t* ExecutionBuffer::MemoryAllocator::Request() noexcept
     return newChunk;
 }
 
-void ExecutionBuffer::MemoryAllocator::Recycle(uint8_t* const chunk, bool const freeByUser) noexcept
+void CommandEncoder::MemoryAllocator::Recycle(uint8_t* const chunk, bool const freeByUser) noexcept
 {
     if (freeByUser)
     {
@@ -45,7 +45,7 @@ void ExecutionBuffer::MemoryAllocator::Recycle(uint8_t* const chunk, bool const 
     }
 }
 
-void ExecutionBuffer::MemoryAllocator::Free(uint8_t* const chunk) noexcept
+void CommandEncoder::MemoryAllocator::Free(uint8_t* const chunk) noexcept
 {
     if (mChunkCount.load(std::memory_order_acquire) >= kMemoryChunkPoolCapacity)
     {
@@ -58,7 +58,7 @@ void ExecutionBuffer::MemoryAllocator::Free(uint8_t* const chunk) noexcept
     }
 }
 
-ExecutionBuffer::ExecutionBuffer()
+CommandEncoder::CommandEncoder()
 {
     uint8_t* const chunk = MemoryAllocator::GetInstance().Request();
 
@@ -73,13 +73,13 @@ ExecutionBuffer::ExecutionBuffer()
     --mR.mNewCommandCount;
 }
 
-void ExecutionBuffer::Kick() noexcept
+void CommandEncoder::Kick() noexcept
 {
     PushCommands();
     mN.Signal();
 }
 
-void ExecutionBuffer::KickAndWait() noexcept
+void CommandEncoder::KickAndWait() noexcept
 {
     EventSem event;
     EventSem* const pEvent = &event;
@@ -94,19 +94,19 @@ void ExecutionBuffer::KickAndWait() noexcept
     event.Wait();
 }
 
-void ExecutionBuffer::RunConsumerThread() noexcept
+void CommandEncoder::RunConsumerThread() noexcept
 {
     if (mWorkerAttached)
     {
         return;
     }
 
-    std::thread consumerThread(std::bind(&ExecutionBuffer::ConsumerThreadLoop, this));
+    std::thread consumerThread(std::bind(&CommandEncoder::ConsumerThreadLoop, this));
     consumerThread.detach();
     mWorkerAttached = true;
 }
 
-void ExecutionBuffer::TerminateConsumerThread() noexcept
+void CommandEncoder::TerminateConsumerThread() noexcept
 {
     if (! mWorkerAttached)
     {
@@ -131,7 +131,7 @@ void ExecutionBuffer::TerminateConsumerThread() noexcept
     event.Wait();
 }
 
-void ExecutionBuffer::FinishWriting() noexcept
+void CommandEncoder::FinishWriting() noexcept
 {
     bool* const flushingFinished = &mR.mFlushingFinished;
 
@@ -144,17 +144,17 @@ void ExecutionBuffer::FinishWriting() noexcept
     Kick();
 }
 
-void ExecutionBuffer::RecycleMemoryChunk(uint8_t* const chunk) const noexcept
+void CommandEncoder::RecycleMemoryChunk(uint8_t* const chunk) const noexcept
 {
-    ExecutionBuffer::MemoryAllocator::GetInstance().Recycle(chunk, mFreeChunksByUser);
+    CommandEncoder::MemoryAllocator::GetInstance().Recycle(chunk, mFreeChunksByUser);
 }
 
-void ExecutionBuffer::FreeChunksInFreeQueue() noexcept
+void CommandEncoder::FreeChunksInFreeQueue() noexcept
 {
     // TODO
 }
 
-uint8_t* ExecutionBuffer::AllocateImpl(uint32_t& allocatedSize, uint32_t const requestSize) noexcept
+uint8_t* CommandEncoder::AllocateImpl(uint32_t& allocatedSize, uint32_t const requestSize) noexcept
 {
     uint32_t const alignedSize = Align(requestSize, 16);
     assert(alignedSize + kSwitchChunkMemoryRequirement <= kMemoryChunkSize);    // 一个Command直接把整个Chunk填满了
@@ -170,7 +170,7 @@ uint8_t* ExecutionBuffer::AllocateImpl(uint32_t& allocatedSize, uint32_t const r
     }
     else
     {
-        uint8_t* const newChunk = ExecutionBuffer::MemoryAllocator::GetInstance().Request();
+        uint8_t* const newChunk = CommandEncoder::MemoryAllocator::GetInstance().Request();
         MemoryChunkSwitchCommand* const switchCommand = reinterpret_cast<MemoryChunkSwitchCommand*>(mW.mCurrentMemoryChunk + mW.mOffset);
         new(switchCommand) MemoryChunkSwitchCommand(this, newChunk, mW.mCurrentMemoryChunk);
         switchCommand->mNext = reinterpret_cast<Command*>(newChunk);  // 注意这里还指向原位置
@@ -194,20 +194,20 @@ uint8_t* ExecutionBuffer::AllocateImpl(uint32_t& allocatedSize, uint32_t const r
     }
 }
 
-void ExecutionBuffer::PushCommands() noexcept
+void CommandEncoder::PushCommands() noexcept
 {
     mW.mWrittenCommandCount.fetch_add(mW.mPendingCommandCount, std::memory_order_acq_rel);
     mW.mPendingCommandCount = 0;
 }
 
-void ExecutionBuffer::PullCommands() noexcept
+void CommandEncoder::PullCommands() noexcept
 {
     uint32_t const writtenCommandCountNew = mW.mWrittenCommandCount.load(std::memory_order_acquire);
     mR.mNewCommandCount = writtenCommandCountNew - mR.mWrittenCommandCountSnap;
     mR.mWrittenCommandCountSnap = writtenCommandCountNew;
 }
 
-void ExecutionBuffer::FlushCommands() noexcept
+void CommandEncoder::FlushCommands() noexcept
 {
     while (! mR.mFlushingFinished)
     {
@@ -217,7 +217,7 @@ void ExecutionBuffer::FlushCommands() noexcept
     mR.mFlushingFinished = false;
 }
 
-void ExecutionBuffer::ExecuteCommand() noexcept
+void CommandEncoder::ExecuteCommand() noexcept
 {
     Command* const cmd = ReadCommand();
 
@@ -230,7 +230,7 @@ void ExecutionBuffer::ExecuteCommand() noexcept
     cmd->~Command();
 }
 
-Command* ExecutionBuffer::ReadCommand() noexcept
+Command* CommandEncoder::ReadCommand() noexcept
 {
     while (! HasNewCommand())
     {
@@ -252,7 +252,7 @@ Command* ExecutionBuffer::ReadCommand() noexcept
     return cmd;
 }
 
-void ExecutionBuffer::ConsumerThreadLoop() noexcept
+void CommandEncoder::ConsumerThreadLoop() noexcept
 {
     while (! mR.mTerminateConsumerThread)
     {
@@ -267,7 +267,7 @@ char const* DummyCommand::GetName() const noexcept
     return "Dummy";
 }
 
-MemoryChunkSwitchCommand::MemoryChunkSwitchCommand(ExecutionBuffer* const cb, uint8_t* const newChunk, uint8_t* const oldChunk) noexcept
+MemoryChunkSwitchCommand::MemoryChunkSwitchCommand(CommandEncoder* const cb, uint8_t* const newChunk, uint8_t* const oldChunk) noexcept
     : mCommandBuffer(cb)
     , mNewChunk(newChunk)
     , mOldChunk(oldChunk)

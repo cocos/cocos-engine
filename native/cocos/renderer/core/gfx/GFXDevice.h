@@ -54,7 +54,6 @@ public:
         copyBuffersToTexture(buffers.data(), dst, regions.data(), static_cast<uint>(regions.size()) );
     }
 
-    virtual void setMultithreaded(bool multithreaded) {}
     virtual SurfaceTransform getSurfaceTransform() const { return _transform; }
     virtual uint getWidth() const { return _width; }
     virtual uint getHeight() const { return _height; }

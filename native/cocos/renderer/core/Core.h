@@ -6,7 +6,7 @@
 #include "base/StringUtil.h"
 
 #include "thread/ThreadPool.h"
-#include "thread/ExecutionBuffer.h"
+#include "thread/CommandEncoder.h"
 
 #include "gfx/GFXDevice.h"
 #include "gfx/GFXContext.h"
@@ -26,3 +26,10 @@
 #include "gfx/GFXQueue.h"
 #include "gfx/GFXCommand.h"
 #include "gfx/GFXCommandPool.h"
+
+#include "gfx-proxy/GFXDeviceThread.h"
+#include "gfx-proxy/GFXDeviceProxy.h"
+#include "gfx-proxy/GFXBufferProxy.h"
+#include "gfx-proxy/GFXTextureProxy.h"
+#include "gfx-proxy/GFXShaderProxy.h"
+#include "gfx-proxy/GFXCommandBufferProxy.h"
