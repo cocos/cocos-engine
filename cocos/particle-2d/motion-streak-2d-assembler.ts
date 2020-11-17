@@ -84,10 +84,6 @@ function computeMiter (miter, lineA, lineB, halfThick, maxMultiple) {
 }
 
 export const MotionStreakAssembler: IAssembler = {
-    _buffer: null,
-    _ia: null,
-    _points: [],
-
     createData (comp: MotionStreak) {
         const renderData = comp.requestRenderData();
         renderData.dataLength = 4;
@@ -104,14 +100,15 @@ export const MotionStreakAssembler: IAssembler = {
         const tx = matrix.m12;
         const ty = matrix.m13;
 
-        const points = this._points;
+        const points = comp.points;
 
         let cur;
         if (points.length > 1) {
-            const difx = points[0].point.x - tx;
-            const dify = points[0].point.y - ty;
+            const point = points[0] as any;
+            const difx = point.x - tx;
+            const dify = point.y - ty;
             if ((difx * difx + dify * dify) < comp.minSeg) {
-                cur = points[0];
+                cur = point;
             }
         }
 
@@ -250,10 +247,6 @@ export const MotionStreakAssembler: IAssembler = {
             iBuf[indicesOffset++] = start + 2;
             iBuf[indicesOffset++] = start + 3;
         }
-    },
-
-    clear () {
-        this._points.length = 0;
     },
 };
 
