@@ -135,7 +135,13 @@ struct StandardSurface {
     finalColor *= (diffuseContrib + specularContrib);
 
     float fAmb = 0.5 - N.y * 0.5;
-    vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb) * cc_ambientSky.w;
+    #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+      vec3 skyColor = mix(cc_ambientGround.rgb, cc_ambientSky.rgb, s.lightmap.rgb);
+      skyColor = s.lightmap.a * skyColor + (1.0 - s.lightmap.a) * cc_ambientSky.rgb;
+      vec3 ambDiff = mix(skyColor, cc_ambientGround.rgb, fAmb) * cc_ambientSky.w;
+    #else
+      vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb) * cc_ambientSky.w;
+    #endif
     finalColor += (ambDiff.rgb * diffuse);
 
     #if CC_USE_IBL

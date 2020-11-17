@@ -29,6 +29,11 @@ import { Color, Mat4, Vec3, Vec2 } from '../../math';
 import { legacyCC } from '../../global-exports';
 import { Enum } from '../../value-types';
 import { ShadowsPool, NULL_HANDLE, ShadowsView, ShadowsHandle } from '../core/memory-pools';
+import { IMacroPatch } from '../core/pass';
+
+const shadowPatches: IMacroPatch[] = [
+    { name: 'CC_RECEIVE_SHADOW', value: true },
+];
 
 /**
  * @zh 阴影类型。
@@ -323,6 +328,7 @@ export class Shadows {
             this._material = new Material();
             this._material.initialize({ effectName: 'planar-shadow' });
             ShadowsPool.set(this._handle, ShadowsView.PLANAR_PASS, this._material.passes[0].handle);
+            ShadowsPool.set(this._handle, ShadowsView.PLANAR_SHADER,this._material.passes[0].getShaderVariant(shadowPatches));
         }
         if (!this._instancingMaterial) {
             this._instancingMaterial = new Material();

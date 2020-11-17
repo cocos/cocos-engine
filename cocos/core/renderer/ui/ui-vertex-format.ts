@@ -46,6 +46,13 @@ export const vfmtPosUvColor = [
     new Attribute(AttributeName.ATTR_COLOR, Format.RGBA32F),
 ];
 
+export const vfmtPosUvTwoColor = [
+    new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F),
+    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA32F),
+    new Attribute(AttributeName.ATTR_COLOR2, Format.RGBA32F),
+];
+
 export function getAttributeFormatBytes (attrs: Attribute[]) {
     let count = 0;
     for (let i = 0; i < attrs.length; i++) {

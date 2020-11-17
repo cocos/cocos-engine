@@ -33,9 +33,8 @@ import { IAssembler } from '../../core/renderer/ui/base';
 import { MeshRenderData } from '../../core/renderer/ui/render-data';
 import { UI } from '../../core/renderer/ui/ui';
 import { TiledLayer, TiledMeshData, TiledTile } from '..';
-import { GID, MixedGID, RenderOrder, TiledGrid, TileFlag } from '../../tiledmap/tiled-types';
+import { GID, MixedGID, RenderOrder, TiledGrid, TileFlag } from '../tiled-types';
 import { Texture2D, Node } from '../../core';
-
 
 const MaxGridsLimit = Math.ceil(65535 / 6);
 
@@ -58,7 +57,6 @@ let _vfOffset = 0;
 let _moveX = 0;
 let _moveY = 0;
 
-
 let flipTexture: (grid: TiledGrid, gid: MixedGID) => void;
 
 /**
@@ -67,17 +65,15 @@ let flipTexture: (grid: TiledGrid, gid: MixedGID) => void;
  */
 export const simple: IAssembler = {
     createData (layer: TiledLayer) {
-
         const renderData = layer.requestMeshRenderData();
         const maxGrids = layer.rightTop.col * layer.rightTop.row;
         if (maxGrids * 4 > 65535) {
-            console.error(`Vertex count exceeds 65535`);
+            console.error('Vertex count exceeds 65535');
         }
         return renderData;
     },
 
     updateRenderData (comp: TiledLayer, ui: UI) {
-
         comp.updateCulling();
         const renderData = comp.meshRenderDataArray![0];
 
@@ -102,34 +98,31 @@ export const simple: IAssembler = {
             }
 
             switch (comp.renderOrder) {
-                // left top to right down, col add, row sub,
-                case RenderOrder.RightDown:
-                    traverseGrids(leftDown, rightTop, -1, 1, comp);
-                    break;
+            // left top to right down, col add, row sub,
+            case RenderOrder.RightDown:
+                traverseGrids(leftDown, rightTop, -1, 1, comp);
+                break;
                 // right top to left down, col sub, row sub
-                case RenderOrder.LeftDown:
-                    traverseGrids(leftDown, rightTop, -1, -1, comp);
-                    break;
+            case RenderOrder.LeftDown:
+                traverseGrids(leftDown, rightTop, -1, -1, comp);
+                break;
                 // left down to right up, col add, row add
-                case RenderOrder.RightUp:
-                    traverseGrids(leftDown, rightTop, 1, 1, comp);
-                    break;
+            case RenderOrder.RightUp:
+                traverseGrids(leftDown, rightTop, 1, 1, comp);
+                break;
                 // right down to left up, col sub, row add
-                case RenderOrder.LeftUp:
-                    traverseGrids(leftDown, rightTop, 1, -1, comp);
-                    break;
+            case RenderOrder.LeftUp:
+                traverseGrids(leftDown, rightTop, 1, -1, comp);
+                break;
             }
             comp.setCullingDirty(false);
             comp.setUserNodeDirty(false);
-
         }
 
         _renderData = null;
-
     },
 
     updateColor (tiled: TiledLayer) {
-
         const color = tiled.color;
         const colorV = new Float32Array(4);
         colorV[0] = color.r / 255;
@@ -139,7 +132,7 @@ export const simple: IAssembler = {
         const rs = tiled.meshRenderDataArray;
         if (rs) {
             for (const r of rs) {
-                if(!(r as any).renderData) continue;
+                if (!(r as any).renderData) continue;
                 const renderData = (r as any).renderData;
                 const vs = renderData.vData;
                 for (let i = renderData.vertexStart, l = renderData.vertexCount; i < l; i++) {
@@ -152,10 +145,10 @@ export const simple: IAssembler = {
     fillBuffers (layer: TiledLayer, renderer: UI) {
         if (!layer || !layer.meshRenderDataArray) return;
 
-        const dataArray = layer.meshRenderDataArray!;
+        const dataArray = layer.meshRenderDataArray;
         const node = layer.node;
 
-        let buffer = renderer.currBufferBatch!;
+        let buffer = renderer.acquireBufferBatch()!;
         let vertexOffset = buffer.byteOffset >> 2;
         let indicesOffset = buffer.indicesOffset;
         let vertexId = buffer.vertexOffset;
@@ -201,9 +194,8 @@ export const simple: IAssembler = {
             indicesOffset += 6;
             vertexId += 4;
         }
-    }
+    },
 };
-
 
 /*
 texture coordinate
@@ -342,16 +334,12 @@ function switchRenderData (curTexIdx: Texture2D | null, grid: TiledGrid, comp: T
 function _renderNodes (row: number, col: number, comp: TiledLayer) {
     const nodesInfo = comp.getNodesByRowCol(row, col);
     if (!nodesInfo || nodesInfo.count === 0) return;
-
-
 }
-
 
 // rowMoveDir is -1 or 1, -1 means decrease, 1 means increase
 // colMoveDir is -1 or 1, -1 means decrease, 1 means increase
 function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col: number, row: number },
     rowMoveDir: number, colMoveDir: number, comp: TiledLayer) {
-
     // show nothing
     if (rightTop.row < 0 || rightTop.col < 0) return;
 
@@ -362,7 +350,6 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
     _vfOffset = 0;
 
     const tiledTiles = comp.tiledTiles;
-
 
     const texGrids = comp.texGrids!;
     const tiles = comp.tiles;
@@ -425,14 +412,13 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
 
         // traverse col
         for (; (cols - col) * colMoveDir >= 0; col += colMoveDir) {
-
             colData = rowData && rowData[col];
             if (!colData) {
                 // only render users nodes because map data is empty
                 if (colNodesCount > 0) {
                     const nodes = comp.requestSubNodesData();
                     const celData = comp.getNodesByRowCol(row, col);
-                    if(celData) {
+                    if (celData) {
                         nodes.subNodes = comp.getNodesByRowCol(row, col)!.list;
                         curTexIdx = null;
                         _renderData = comp.requestMeshRenderData();
@@ -532,7 +518,6 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
 
             _renderData!.renderData.advance(4, 6);
 
-
             // check render users node
             // if (colNodesCount > 0) _renderNodes(row, col);
 
@@ -544,7 +529,6 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
         }
     }
 }
-
 
 function fillByTiledNode (tiledNode: Node, color: Float32Array, vbuf: Float32Array,
     left: number, right: number, top: number, bottom: number, diamondTile: boolean) {

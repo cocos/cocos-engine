@@ -5,7 +5,6 @@ class HTMLImageElement extends HTMLElement {
     constructor(width, height, isCalledFromImage) {
         if (!isCalledFromImage) {
             throw new TypeError("Illegal constructor, use 'new Image(w, h); instead!'");
-            return;
         }
         super('img')
         this.width = width ? width : 0;
@@ -16,8 +15,17 @@ class HTMLImageElement extends HTMLElement {
         this.crossOrigin = null;
     }
 
+    destroy() {
+        if (this._data) {
+            jsb.destroyImage(this._data);
+            this._data = null;
+        }
+        this._src = null;
+    }
+
     set src(src) {
         this._src = src;
+        if (src === '') return;
         jsb.loadImage(src, (info) => {
             if (!info) {
                 this._data = null;

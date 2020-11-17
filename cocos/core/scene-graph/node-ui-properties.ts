@@ -31,7 +31,7 @@
 import { UIComponent } from '../components/ui-base/ui-component';
 import { UITransform } from '../components/ui-base/ui-transform';
 import { UIRenderable } from '../components/ui-base/ui-renderable';
-import { warnID } from '../platform';
+import { warnID } from '../platform/debug';
 
 /**
  * @en Node's UI properties abstraction
@@ -67,7 +67,7 @@ export class NodeUIProperties {
         }
         this._uiComp = comp;
     }
-    
+
     private _uiComp: UIComponent | UIRenderable | null = null;
 
     /**

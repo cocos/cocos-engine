@@ -40,6 +40,7 @@ import { ModelType } from '../scene/model';
 import { uploadJointData } from './skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { DescriptorSet, Buffer, BufferInfo } from '../../gfx';
+import { AABBPool, AABBView } from '..';
 
 export interface IJointTransform {
     node: Node;
@@ -148,7 +149,6 @@ const ab_1 = new aabb();
  * 实时计算动画的蒙皮模型。
  */
 export class SkinningModel extends MorphModel {
-
     public uploadAnimation = null;
 
     private _buffers: Buffer[] = [];
@@ -191,14 +191,13 @@ export class SkinningModel extends MorphModel {
             const bindpose = skeleton.bindposes[index];
             const indices: number[] = [];
             const buffers: number[] = [];
-            if (!jointMaps) { indices.push(index); buffers.push(0); }
-            else { getRelevantBuffers(indices, buffers, jointMaps, index); }
+            if (!jointMaps) { indices.push(index); buffers.push(0); } else { getRelevantBuffers(indices, buffers, jointMaps, index); }
             this._joints.push({ indices, buffers, bound, target, bindpose, transform });
         }
     }
 
     public updateTransform (stamp: number) {
-        const root = this.transform!;
+        const root = this.transform;
         // @ts-expect-error TS2445
         if (root.hasChangedFlags || root._dirtyFlags) {
             root.updateWorldTransform();
@@ -215,10 +214,13 @@ export class SkinningModel extends MorphModel {
             Vec3.min(v3_min, v3_min, v3_1);
             Vec3.max(v3_max, v3_max, v3_2);
         }
-        if (this._modelBounds && this._worldBounds) {
+        const worldBounds = this._worldBounds;
+        if (this._modelBounds && worldBounds) {
             aabb.fromPoints(this._modelBounds, v3_min, v3_max);
             // @ts-expect-error TS2445
             this._modelBounds.transform(root._mat, root._pos, root._rot, root._scale, this._worldBounds);
+            AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, worldBounds.center);
+            AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, worldBounds.halfExtents);
         }
     }
 
@@ -249,9 +251,8 @@ export class SkinningModel extends MorphModel {
         const superMacroPatches = super.getMacroPatches(subModelIndex);
         if (superMacroPatches) {
             return myPatches.concat(superMacroPatches);
-        } else {
-            return myPatches;
         }
+        return myPatches;
     }
 
     public _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet) {

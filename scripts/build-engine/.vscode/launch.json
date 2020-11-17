@@ -23,7 +23,8 @@
                 "--platform=NATIVE",
                 "--module=system",
                 "--sourcemap",
-                "--out=out"
+                "--out=out",
+                "--meta-file=out/meta.json"
             ]
         }
     ]

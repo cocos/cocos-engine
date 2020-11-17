@@ -205,8 +205,8 @@ export class Model {
     protected _handle: ModelHandle = NULL_HANDLE;
     protected _hWorldBounds: AABBHandle = NULL_HANDLE;
 
-    private _localData = new Float32Array(UBOLocal.COUNT);
-    private _localBuffer: Buffer | null = null;
+    protected _localData = new Float32Array(UBOLocal.COUNT);
+    protected _localBuffer: Buffer | null = null;
     private _instMatWorldIdx = -1;
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
@@ -249,6 +249,8 @@ export class Model {
         this._subModels.length = 0;
         this._inited = false;
         this._transformUpdated = true;
+        this._transform = null!;
+        this._node = null!;
         this.isDynamicBatching = false;
 
         if (this._handle) {

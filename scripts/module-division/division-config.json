@@ -137,6 +137,12 @@
             "description": "TimedMap support",
             "entry": "tiled-map",
             "default": true
+        },
+        {
+            "text": "Spine",
+            "description": "Spine support",
+            "entry": "spine",
+            "default": true
         }
     ]
 }

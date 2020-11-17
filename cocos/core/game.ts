@@ -869,6 +869,9 @@ export class Game extends EventTarget {
         const win = window;
         let hiddenPropName: string;
 
+        // Ensure rAF and cAF
+        this._setAnimFrame();
+
         if (typeof document.hidden !== 'undefined') {
             hiddenPropName = 'hidden';
         } else if (typeof document.mozHidden !== 'undefined') {
