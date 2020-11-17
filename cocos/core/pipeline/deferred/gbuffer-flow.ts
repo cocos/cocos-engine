@@ -3,7 +3,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { PIPELINE_FLOW_GBUFFER, UNIFORM_SHADOWMAP_BINDING, UNIFORM_GBUFFER_ALBEDOMAP_BINDING, 
+import { PIPELINE_FLOW_GBUFFER, UNIFORM_GBUFFER_ALBEDOMAP_BINDING, 
     UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
@@ -11,9 +11,15 @@ import { DeferredFlowPriority } from './enum';
 import { GbufferStage } from './gbuffer-stage';
 import { DeferredPipeline } from './deferred-pipeline';
 import { RenderPipeline } from '../render-pipeline';
-import { GFXFramebuffer, GFXRenderPass, GFXLoadOp,
-    GFXStoreOp, GFXTextureLayout, GFXFormat, GFXTexture,
-    GFXTextureType, GFXTextureUsageBit, GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPassInfo, GFXTextureInfo, GFXFramebufferInfo } from '../../gfx';
+import { Framebuffer, RenderPass, LoadOp,
+    StoreOp, TextureLayout, Format, Texture,
+    TextureType, TextureUsageBit, ColorAttachment, DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo } from '../../gfx';
+import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
+
+
+import { Address, Filter} from '../../gfx/define';
+
+
 /**
  * @en The gbuffer flow in deferred render pipeline
  * @zh 前向渲染流程。
@@ -21,9 +27,16 @@ import { GFXFramebuffer, GFXRenderPass, GFXLoadOp,
 @ccclass('GbufferFlow')
 export class GbufferFlow extends RenderFlow {
 
+    private _gbufferRenderPass: RenderPass|null = null;
+    private _gbufferRenderTargets: Texture[] = [];
+    protected _gbufferFrameBuffer: Framebuffer|null = null;
+    private _depth: Texture|null = null;
+    private _width: number = 0;
+    private _height: number = 0;
+
     /**
      * @en The shared initialization information of gbuffer render flow
-     * @zh 共享的前向渲染流程初始化参数
+     * @zh 共享的延迟渲染流程初始化参数
      */
     public static initInfo: IRenderFlowInfo = {
         name: PIPELINE_FLOW_GBUFFER,
@@ -31,14 +44,7 @@ export class GbufferFlow extends RenderFlow {
         stages: []
     };
 
-    private _gbufferRenderPass: GFXRenderPass|null = null;
-    private _gbufferRenderTargets: GFXTexture[] = [];
-    protected _gbufferFrameBuffer: GFXFramebuffer|null = null;
-    private _depth: GFXTexture|null = null;
-    private _width: number = 0;
-    private _height: number = 0;
-
-    get gbufferFrameBuffer (): GFXFramebuffer {
+    get gbufferFrameBuffer (): Framebuffer {
         return this._gbufferFrameBuffer!;
     }
 
@@ -61,87 +67,87 @@ export class GbufferFlow extends RenderFlow {
 
         if(!this._gbufferRenderPass) {
 
-            const colorAttachment0 = new GFXColorAttachment();
-            colorAttachment0.format = GFXFormat.RGBA32F;
-            colorAttachment0.loadOp = GFXLoadOp.CLEAR; // should clear color attachment
-            colorAttachment0.storeOp = GFXStoreOp.STORE;
+            const colorAttachment0 = new ColorAttachment();
+            colorAttachment0.format = Format.RGBA32F;
+            colorAttachment0.loadOp = LoadOp.CLEAR; // should clear color attachment
+            colorAttachment0.storeOp = StoreOp.STORE;
             colorAttachment0.sampleCount = 1;
-            colorAttachment0.beginLayout = GFXTextureLayout.UNDEFINED;
-            colorAttachment0.endLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
+            colorAttachment0.beginLayout = TextureLayout.UNDEFINED;
+            colorAttachment0.endLayout = TextureLayout.COLOR_ATTACHMENT_OPTIMAL;
 
-            const colorAttachment1 = new GFXColorAttachment();
-            colorAttachment1.format = GFXFormat.RGBA32F;
-            colorAttachment1.loadOp = GFXLoadOp.CLEAR; // should clear color attachment
-            colorAttachment1.storeOp = GFXStoreOp.STORE;
+            const colorAttachment1 = new ColorAttachment();
+            colorAttachment1.format = Format.RGBA32F;
+            colorAttachment1.loadOp = LoadOp.CLEAR; // should clear color attachment
+            colorAttachment1.storeOp = StoreOp.STORE;
             colorAttachment1.sampleCount = 1;
-            colorAttachment1.beginLayout = GFXTextureLayout.UNDEFINED;
-            colorAttachment1.endLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
+            colorAttachment1.beginLayout = TextureLayout.UNDEFINED;
+            colorAttachment1.endLayout = TextureLayout.COLOR_ATTACHMENT_OPTIMAL;
 
-            const colorAttachment2 = new GFXColorAttachment();
-            colorAttachment2.format = GFXFormat.RGBA32F;
-            colorAttachment2.loadOp = GFXLoadOp.CLEAR; // should clear color attachment
-            colorAttachment2.storeOp = GFXStoreOp.STORE;
+            const colorAttachment2 = new ColorAttachment();
+            colorAttachment2.format = Format.RGBA32F;
+            colorAttachment2.loadOp = LoadOp.CLEAR; // should clear color attachment
+            colorAttachment2.storeOp = StoreOp.STORE;
             colorAttachment2.sampleCount = 1;
-            colorAttachment2.beginLayout = GFXTextureLayout.UNDEFINED;
-            colorAttachment2.endLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
+            colorAttachment2.beginLayout = TextureLayout.UNDEFINED;
+            colorAttachment2.endLayout = TextureLayout.COLOR_ATTACHMENT_OPTIMAL;
 
-            const colorAttachment3 = new GFXColorAttachment();
-            colorAttachment3.format = GFXFormat.RGBA32F;
-            colorAttachment3.loadOp = GFXLoadOp.CLEAR; // should clear color attachment
-            colorAttachment3.storeOp = GFXStoreOp.STORE;
+            const colorAttachment3 = new ColorAttachment();
+            colorAttachment3.format = Format.RGBA32F;
+            colorAttachment3.loadOp = LoadOp.CLEAR; // should clear color attachment
+            colorAttachment3.storeOp = StoreOp.STORE;
             colorAttachment3.sampleCount = 1;
-            colorAttachment3.beginLayout = GFXTextureLayout.UNDEFINED;
-            colorAttachment3.endLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
+            colorAttachment3.beginLayout = TextureLayout.UNDEFINED;
+            colorAttachment3.endLayout = TextureLayout.COLOR_ATTACHMENT_OPTIMAL;
 
-            const depthStencilAttachment = new GFXDepthStencilAttachment();
+            const depthStencilAttachment = new DepthStencilAttachment();
             depthStencilAttachment.format = device.depthStencilFormat;
-            depthStencilAttachment.depthLoadOp = GFXLoadOp.CLEAR;
-            depthStencilAttachment.depthStoreOp = GFXStoreOp.STORE;
-            depthStencilAttachment.stencilLoadOp = GFXLoadOp.CLEAR;
-            depthStencilAttachment.stencilStoreOp = GFXStoreOp.STORE;
+            depthStencilAttachment.depthLoadOp = LoadOp.CLEAR;
+            depthStencilAttachment.depthStoreOp = StoreOp.STORE;
+            depthStencilAttachment.stencilLoadOp = LoadOp.CLEAR;
+            depthStencilAttachment.stencilStoreOp = StoreOp.STORE;
             depthStencilAttachment.sampleCount = 1;
-            depthStencilAttachment.beginLayout = GFXTextureLayout.UNDEFINED;
-            depthStencilAttachment.endLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            depthStencilAttachment.beginLayout = TextureLayout.UNDEFINED;
+            depthStencilAttachment.endLayout = TextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-            const renderPassInfo = new GFXRenderPassInfo([colorAttachment0, colorAttachment1, colorAttachment2, colorAttachment3], depthStencilAttachment);
+            const renderPassInfo = new RenderPassInfo([colorAttachment0, colorAttachment1, colorAttachment2, colorAttachment3], depthStencilAttachment);
             this._gbufferRenderPass = device.createRenderPass(renderPassInfo);
         }
 
         if(this._gbufferRenderTargets.length < 1) {
-            this._gbufferRenderTargets.push(device.createTexture(new GFXTextureInfo(
-                GFXTextureType.TEX2D,
-                GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                GFXFormat.RGBA32F,
+            this._gbufferRenderTargets.push(device.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+                Format.RGBA32F,
                 this._width,
                 this._height,
             )));
-            this._gbufferRenderTargets.push(device.createTexture(new GFXTextureInfo(
-                GFXTextureType.TEX2D,
-                GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                GFXFormat.RGBA32F,
+            this._gbufferRenderTargets.push(device.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+                Format.RGBA32F,
                 this._width,
                 this._height,
             )));
-            this._gbufferRenderTargets.push(device.createTexture(new GFXTextureInfo(
-                GFXTextureType.TEX2D,
-                GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                GFXFormat.RGBA32F,
+            this._gbufferRenderTargets.push(device.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+                Format.RGBA32F,
                 this._width,
                 this._height,
             )));
-            this._gbufferRenderTargets.push(device.createTexture(new GFXTextureInfo(
-                GFXTextureType.TEX2D,
-                GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                GFXFormat.RGBA32F,
+            this._gbufferRenderTargets.push(device.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+                Format.RGBA32F,
                 this._width,
                 this._height,
             )));
         }
 
         if(!this._depth) {
-            this._depth = device.createTexture(new GFXTextureInfo(
-                GFXTextureType.TEX2D,
-                GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
+            this._depth = device.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
                 device.depthStencilFormat,
                 this._width,
                 this._height,
@@ -150,7 +156,7 @@ export class GbufferFlow extends RenderFlow {
         }
 
         if(!this._gbufferFrameBuffer) {
-            this._gbufferFrameBuffer = device.createFramebuffer(new GFXFramebufferInfo(
+            this._gbufferFrameBuffer = device.createFramebuffer(new FramebufferInfo(
                 this._gbufferRenderPass,
                 this._gbufferRenderTargets,
                 this._depth,
@@ -161,11 +167,30 @@ export class GbufferFlow extends RenderFlow {
         pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_POSITIONMAP_BINDING, this._gbufferFrameBuffer!.colorTextures[1]!);
         pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_NORMALMAP_BINDING, this._gbufferFrameBuffer!.colorTextures[2]!);
         pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, this._gbufferFrameBuffer!.colorTextures[3]!);
+        
+        const gbufferSamplerHash = genSamplerHash([
+            Filter.LINEAR,
+            Filter.LINEAR,
+            Filter.NONE,
+            Address.CLAMP,
+            Address.CLAMP,
+            Address.CLAMP,
+        ]);
+        const gbufferSampler = samplerLib.getSampler(device, gbufferSamplerHash);
+        pipeline.descriptorSet.bindSampler(UNIFORM_GBUFFER_ALBEDOMAP_BINDING, gbufferSampler);
+        pipeline.descriptorSet.bindSampler(UNIFORM_GBUFFER_POSITIONMAP_BINDING, gbufferSampler);
+        pipeline.descriptorSet.bindSampler(UNIFORM_GBUFFER_NORMALMAP_BINDING, gbufferSampler);
+        pipeline.descriptorSet.bindSampler(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, gbufferSampler);
+    
     }
 
     public render (view: RenderView) {
         const pipeline = this._pipeline as DeferredPipeline;
         pipeline.updateUBOs(view);
         super.render(view);
+    }
+
+    public destroy () {
+        super.destroy();
     }
 }

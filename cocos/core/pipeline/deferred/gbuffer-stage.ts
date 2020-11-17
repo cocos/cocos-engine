@@ -6,7 +6,9 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { IRenderPass, SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
-import { GFXColor, GFXRect } from '../../gfx/define';
+import { ClearFlag } from '../../gfx/define';
+import { Color, Rect } from '../../gfx';
+import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
@@ -20,10 +22,10 @@ import { GbufferFlow } from './gbuffer-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 import { PlanarShadowQueue } from './planar-shadow-queue';
-import { GFXFramebuffer } from '../../gfx';
+import { Framebuffer } from '../../gfx';
 
 
-const colors: GFXColor[] = [ new GFXColor(0, 0, 0, 0), new GFXColor(0, 0, 0, 0), new GFXColor(0, 0, 0, 0), new GFXColor(0, 0, 0, 0) ];
+const colors: Color[] = [ new Color(0, 0, 0, 1), new Color(0, 0, 0, 1), new Color(0, 0, 0, 1), new Color(0, 0, 0, 1) ];
 
 /**
  * @en The gbuffer render stage
@@ -45,7 +47,7 @@ export class GbufferStage extends RenderStage {
             {
                 isTransparent: true,
                 sortMode: RenderQueueSortMode.BACK_TO_FRONT,
-                stages: ['default', 'planarShadow'],
+                stages: ['default'],
             },
         ]
     };
@@ -56,7 +58,7 @@ export class GbufferStage extends RenderStage {
     protected renderQueues: RenderQueueDesc[] = [];
     protected _renderQueues: RenderQueue[] = [];
 
-    private _renderArea = new GFXRect();
+    private _renderArea = new Rect();
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
     private _phaseID = getPhaseID('deferred-gbuffer');
@@ -130,7 +132,7 @@ export class GbufferStage extends RenderStage {
                         this._instancedQueue.queue.add(instancedBuffer);
                     } else if (batchingScheme === BatchingSchemes.VB_MERGING) {
                         const batchedBuffer = BatchedBuffer.get(pass);
-                        batchedBuffer.merge(subModel, p, ro);
+                        batchedBuffer.merge(subModel, p, ro.model);
                         this._batchedQueue.queue.add(batchedBuffer);
                     } else {
                         for (k = 0; k < this._renderQueues.length; k++) {
@@ -140,16 +142,38 @@ export class GbufferStage extends RenderStage {
                 }
             }
         }
+        this._renderQueues.forEach(this.renderQueueSortFunc);
+
         const cmdBuff = pipeline.commandBuffers[0];
 
-        this._renderQueues.forEach(this.renderQueueSortFunc);
+        this._instancedQueue.uploadBuffers(cmdBuff);
+        this._batchedQueue.uploadBuffers(cmdBuff);
 
         const camera = view.camera;
         const vp = camera.viewport;
-        this._renderArea!.x = vp.x * camera.width;
-        this._renderArea!.y = vp.y * camera.height;
-        this._renderArea!.width = vp.width * camera.width * pipeline.shadingScale;
-        this._renderArea!.height = vp.height * camera.height * pipeline.shadingScale;
+        // render area is not oriented
+        const w = view.window.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.height : camera.width;
+        const h = view.window.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.width : camera.height;
+        this._renderArea!.x = vp.x * w;
+        this._renderArea!.y = vp.y * h;
+        this._renderArea!.width = vp.width * w * pipeline.shadingScale;
+        this._renderArea!.height = vp.height * h * pipeline.shadingScale;
+
+        if (camera.clearFlag & ClearFlag.COLOR) {
+            if (pipeline.isHDR) {
+                SRGBToLinear(colors[0], camera.clearColor);
+                const scale = pipeline.fpScale / camera.exposure;
+                colors[0].x *= scale;
+                colors[0].y *= scale;
+                colors[0].z *= scale;
+            } else {
+                colors[0].x = camera.clearColor.x;
+                colors[0].y = camera.clearColor.y;
+                colors[0].z = camera.clearColor.z;
+            }
+        }
+
+        colors[0].w = camera.clearColor.w;
 
         const framebuffer = (this._flow as GbufferFlow).gbufferFrameBuffer;
         const renderPass = framebuffer.renderPass;

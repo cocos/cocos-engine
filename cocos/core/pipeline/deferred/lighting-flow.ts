@@ -10,28 +10,26 @@ import { DeferredFlowPriority } from './enum';
 import { LightingStage } from './lighting-stage';
 import { DeferredPipeline } from './deferred-pipeline';
 import { RenderPipeline } from '../render-pipeline';
-import { GFXFramebuffer, GFXRenderPass, GFXLoadOp,
-    GFXStoreOp, GFXTextureLayout, GFXFormat, GFXTexture,
-    GFXTextureType, GFXTextureUsageBit, GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPassInfo, GFXTextureInfo, GFXFramebufferInfo } from '../../gfx';
+import { Framebuffer, RenderPass, LoadOp,
+    StoreOp, TextureLayout, Format, Texture,
+    TextureType, TextureUsageBit, ColorAttachment, DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo } from '../../gfx';
 import { UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
+import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
+import { Address, Filter} from '../../gfx/define';
 
-    /**
+/**
  * @en The lighting flow in lighting render pipeline
  * @zh 前向渲染流程。
  */
 @ccclass('LightingFlow')
 export class LightingFlow extends RenderFlow {
 
-    private _lightingRenderPass: GFXRenderPass|null = null;
-    private _lightingRenderTargets: GFXTexture[] = [];
-    protected _lightingFrameBuffer: GFXFramebuffer|null = null;
-    private _depth: GFXTexture|null = null;
+    private _lightingRenderPass: RenderPass|null = null;
+    private _lightingRenderTargets: Texture[] = [];
+    protected _lightingFrameBuffer: Framebuffer|null = null;
+    private _depth: Texture|null = null;
     private _width: number = 0;
     private _height: number = 0;
-
-    get lightingFrameBuffer (): GFXFramebuffer {
-        return this._lightingFrameBuffer!;
-    }
 
     /**
      * @en The shared initialization information of lighting render flow
@@ -42,6 +40,10 @@ export class LightingFlow extends RenderFlow {
         priority: DeferredFlowPriority.LIGHTING,
         stages: []
     };
+
+    get lightingFrameBuffer (): Framebuffer {
+        return this._lightingFrameBuffer!;
+    }
 
     public initialize (info: IRenderFlowInfo): boolean {
         super.initialize(info);
@@ -61,33 +63,33 @@ export class LightingFlow extends RenderFlow {
         this._height = device.height;
 
         if(!this._lightingRenderPass) {
-            const colorAttachment = new GFXColorAttachment();
-            colorAttachment.format = GFXFormat.RGBA32F;
-            colorAttachment.loadOp = GFXLoadOp.CLEAR; // should clear color attachment
-            colorAttachment.storeOp = GFXStoreOp.STORE;
+            const colorAttachment = new ColorAttachment();
+            colorAttachment.format = Format.RGBA32F;
+            colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
+            colorAttachment.storeOp = StoreOp.STORE;
             colorAttachment.sampleCount = 1;
-            colorAttachment.beginLayout = GFXTextureLayout.UNDEFINED;
-            colorAttachment.endLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
+            colorAttachment.beginLayout = TextureLayout.UNDEFINED;
+            colorAttachment.endLayout = TextureLayout.COLOR_ATTACHMENT_OPTIMAL;
 
-            const depthStencilAttachment = new GFXDepthStencilAttachment();
+            const depthStencilAttachment = new DepthStencilAttachment();
             depthStencilAttachment.format = device.depthStencilFormat;
-            depthStencilAttachment.depthLoadOp = GFXLoadOp.LOAD;
-            depthStencilAttachment.depthStoreOp = GFXStoreOp.DISCARD;
-            depthStencilAttachment.stencilLoadOp = GFXLoadOp.DISCARD;
-            depthStencilAttachment.stencilStoreOp = GFXStoreOp.DISCARD;
+            depthStencilAttachment.depthLoadOp = LoadOp.LOAD;
+            depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
+            depthStencilAttachment.stencilLoadOp = LoadOp.DISCARD;
+            depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
             depthStencilAttachment.sampleCount = 1;
-            depthStencilAttachment.beginLayout = GFXTextureLayout.UNDEFINED;
-            depthStencilAttachment.endLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            depthStencilAttachment.beginLayout = TextureLayout.UNDEFINED;
+            depthStencilAttachment.endLayout = TextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-            const renderPassInfo = new GFXRenderPassInfo([colorAttachment], depthStencilAttachment);
+            const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
             this._lightingRenderPass = device.createRenderPass(renderPassInfo);
         }
 
         if(this._lightingRenderTargets.length < 1) {
-            this._lightingRenderTargets.push(device.createTexture(new GFXTextureInfo(
-                GFXTextureType.TEX2D,
-                GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                GFXFormat.RGBA32F,
+            this._lightingRenderTargets.push(device.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+                Format.RGBA32F,
                 this._width,
                 this._height,
             )));
@@ -98,13 +100,25 @@ export class LightingFlow extends RenderFlow {
         }
 
         if(!this._lightingFrameBuffer) {
-            this._lightingFrameBuffer = device.createFramebuffer(new GFXFramebufferInfo(
+            this._lightingFrameBuffer = device.createFramebuffer(new FramebufferInfo(
                 this._lightingRenderPass,
                 this._lightingRenderTargets,
                 this._depth,
             ));
         }
+
         pipeline.descriptorSet.bindTexture(UNIFORM_LIGHTING_RESULTMAP_BINDING, this._lightingFrameBuffer!.colorTextures[0]!);
+
+        const copySamplerHash = genSamplerHash([
+            Filter.LINEAR,
+            Filter.LINEAR,
+            Filter.NONE,
+            Address.CLAMP,
+            Address.CLAMP,
+            Address.CLAMP,
+        ]);
+        const copySampler = samplerLib.getSampler(device, copySamplerHash);
+        pipeline.descriptorSet.bindSampler(UNIFORM_LIGHTING_RESULTMAP_BINDING, copySampler);
     }
 
     public render (view: RenderView) {

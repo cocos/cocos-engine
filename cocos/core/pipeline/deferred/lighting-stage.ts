@@ -6,8 +6,7 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { IRenderPass, localDescriptorSetLayout, UBODeferredLight, SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
-import { GFXClearFlag, GFXColor, GFXRect } from '../../gfx/define';
-import { SRGBToLinear } from '../pipeline-funcs';
+import { Color, Rect } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { DeferredStagePriority } from './enum';
@@ -19,16 +18,14 @@ import { PlanarShadowQueue } from './planar-shadow-queue';
 import { Material } from '../../assets/material';
 import { ShaderPool } from '../../renderer/core/memory-pools';
 import { PipelineStateManager } from '../pipeline-state-manager';
-import { GFXPipelineState } from '../../gfx/pipeline-state';
-import { Light } from "../../renderer/scene/light";
+import { PipelineState } from '../../gfx/pipeline-state';
 import { sphere, intersect } from '../../geometry';
-import { color, Vec2, Vec3, Vec4 } from '../../math';
-import { LightComponent } from '../../3d';
-import { GFXDevice, GFXRenderPass, GFXBuffer, GFXBufferUsageBit, GFXMemoryUsageBit, GFXBufferInfo, GFXBufferViewInfo, GFXDescriptorSet, GFXDescriptorSetLayoutInfo, GFXDescriptorSetLayout, GFXDescriptorSetInfo } from '../../gfx';
-import { RenderPipeline } from '../render-pipeline';
-import { IRenderObject, UBOForwardLight } from '../define';
+import { Vec3 } from '../../math';
+import { Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet, DescriptorSetLayoutInfo, 
+    DescriptorSetLayout, DescriptorSetInfo } from '../../gfx';
+import { UBOForwardLight } from '../define';
 
-const colors: GFXColor[] = [ new GFXColor(0, 0, 0, 1) ];
+const colors: Color[] = [ new Color(0, 0, 0, 1) ];
 const LIGHTINGPASS_INDEX = 1;
 
 /**
@@ -37,6 +34,32 @@ const LIGHTINGPASS_INDEX = 1;
  */
 @ccclass('LightingStage')
 export class LightingStage extends RenderStage {
+
+    private _deferredLitsBufs: Buffer = null!;
+    private _maxDeferredLights = 10;
+    private _lightBufferData!: Float32Array;
+    private _lightBufferStride: number = 0;
+    private _lightBufferElementCount: number = 0;
+    private _lightMeterScale: number = 10000.0;
+    private _descriptorSet: DescriptorSet = null!;
+    private _descriptorSetLayout!: DescriptorSetLayout;
+    private totalLits: number = 0;
+
+    private _renderArea = new Rect();
+    private declare _additiveLightQueue: RenderAdditiveLightQueue;
+    private declare _planarQueue: PlanarShadowQueue;
+    private _tansprarentPhaseID = getPhaseID('deferred-transparent');
+
+    @type(Material)
+    @serializable
+    @displayOrder(3)
+    private _deferredMaterial: Material | null = null;
+
+    @type([RenderQueueDesc])
+    @serializable
+    @displayOrder(2)
+    protected renderQueues: RenderQueueDesc[] = [];
+    protected _renderQueues: RenderQueue[] = [];
 
     public static initInfo: IRenderStageInfo = {
         name: 'LightingStage',
@@ -55,23 +78,6 @@ export class LightingStage extends RenderStage {
             },
         ]
     };
-
-    @type([RenderQueueDesc])
-    @serializable
-    @displayOrder(2)
-    protected renderQueues: RenderQueueDesc[] = [];
-    protected _renderQueues: RenderQueue[] = [];
-
-    private _renderArea = new GFXRect();
-    private declare _additiveLightQueue: RenderAdditiveLightQueue;
-    private declare _planarQueue: PlanarShadowQueue;
-    private _tansprarentPhaseID = getPhaseID('deferred-transparent');
-
-
-    @type(Material)
-    @serializable
-    @displayOrder(3)
-    private _deferredMaterial: Material | null = null;
 
     set material (val) {
         if (this._deferredMaterial === val) {
@@ -92,17 +98,6 @@ export class LightingStage extends RenderStage {
         }
         return true;
     }
-
-    private _deferredLitsBufs: GFXBuffer = null!;
-    private _deferredLitsBufView: GFXBuffer = null!;
-    private _maxDeferredLights = 10;
-    private _lightBufferData!: Float32Array;
-    private _lightBufferStride: number = 0;
-    private _lightBufferElementCount: number = 0;
-    private _lightMeterScale: number = 10000.0;
-    private _descriptorSet: GFXDescriptorSet = null!;
-    private _descriptorSetLayout!: GFXDescriptorSetLayout;
-    private totalLits: number = 0;
     
     public gatherLights(view: RenderView) {
         const pipeline = this._pipeline as DeferredPipeline;
@@ -195,25 +190,27 @@ export class LightingStage extends RenderStage {
 
         const device = pipeline.device;        
 
+        // init descriptorSet
         this._lightBufferStride = Math.ceil(UBOForwardLight.SIZE / device.uboOffsetAlignment) * device.uboOffsetAlignment;
         this._lightBufferElementCount = this._lightBufferStride / Float32Array.BYTES_PER_ELEMENT;
 
-        this._deferredLitsBufs = this._flow.pipeline.device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        this._deferredLitsBufs = this._flow.pipeline.device.createBuffer(new BufferInfo(
+            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             this._lightBufferStride * this._maxDeferredLights,
             this._lightBufferStride,
         ));
             
         let len = this._lightBufferElementCount * this._maxDeferredLights + 0;
-        this._deferredLitsBufView = device.createBuffer(new GFXBufferViewInfo(this._deferredLitsBufs, 0, len * 4));
-        //this._deferredLitsBufView = device.createBuffer(new GFXBufferViewInfo(this._deferredLitsBufs, 0, UBOForwardLight.SIZE));
+        const deferredLitsBufView = device.createBuffer(new BufferViewInfo(this._deferredLitsBufs, 0, len * 4));
         this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._maxDeferredLights + 0);  
         
-        const layoutInfo = new GFXDescriptorSetLayoutInfo(localDescriptorSetLayout.bindings);
+        const layoutInfo = new DescriptorSetLayoutInfo(localDescriptorSetLayout.bindings);
         this._descriptorSetLayout = device.createDescriptorSetLayout(layoutInfo);
-        this._descriptorSet = device.createDescriptorSet(new GFXDescriptorSetInfo(this._descriptorSetLayout));
+        this._descriptorSet = device.createDescriptorSet(new DescriptorSetInfo(this._descriptorSetLayout));
+        this._descriptorSet.bindBuffer(UBODeferredLight.BINDING, deferredLitsBufView);
 
+        // activate queue
         for (let i = 0; i < this.renderQueues.length; i++) {
             let phase = 0;
             for (let j = 0; j < this.renderQueues[i].stages.length; j++) {
@@ -251,34 +248,20 @@ export class LightingStage extends RenderStage {
 
         // light信息
         this.gatherLights(view);
-        this._descriptorSet.bindBuffer(UBODeferredLight.BINDING, this._deferredLitsBufView);
         this._descriptorSet.update()        
-        this._planarQueue.updateShadowList(view);
+        this._planarQueue.gatherShadowPasses(view, cmdBuff);
         cmdBuff.bindDescriptorSet(SetIndex.LOCAL, this._descriptorSet);
 
         const camera = view.camera;
         const vp = camera.viewport;
-        this._renderArea!.x = vp.x * camera.width;
-        this._renderArea!.y = vp.y * camera.height;
-        this._renderArea!.width = vp.width * camera.width * pipeline.shadingScale;
-        this._renderArea!.height = vp.height * camera.height * pipeline.shadingScale;
-
-        if (camera.clearFlag & GFXClearFlag.COLOR) {
-            if (pipeline.isHDR) {
-                SRGBToLinear(colors[0], camera.clearColor);
-                const scale = pipeline.fpScale / camera.exposure;
-                colors[0].x *= scale;
-                colors[0].y *= scale;
-                colors[0].z *= scale;
-            } else {
-                colors[0].x = camera.clearColor.x;
-                colors[0].y = camera.clearColor.y;
-                colors[0].z = camera.clearColor.z;
-            }
-        }
-
-        colors[0].w = camera.clearColor.w;
-
+        // render area is not oriented
+        const w = view.window.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.height : camera.width;
+        const h = view.window.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.width : camera.height;
+        this._renderArea!.x = vp.x * w;
+        this._renderArea!.y = vp.y * h;
+        this._renderArea!.width = vp.width * w * pipeline.shadingScale;
+        this._renderArea!.height = vp.height * h * pipeline.shadingScale;
+        
         const framebuffer = (this._flow as LightingFlow).lightingFrameBuffer;
         const renderPass = framebuffer.renderPass;
 
@@ -288,14 +271,14 @@ export class LightingStage extends RenderStage {
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         // Lighting
-        const hPass = this._deferredMaterial!.passes[LIGHTINGPASS_INDEX].handle;
+        const pass = this._deferredMaterial!.passes[LIGHTINGPASS_INDEX];
         const shader = ShaderPool.get(this._deferredMaterial!.passes[LIGHTINGPASS_INDEX].getShaderVariant());
 
         const inputAssembler = pipeline.quadIA;
-        var pso:GFXPipelineState|null = null;
-        if (hPass != null && shader != null && inputAssembler != null)
+        var pso:PipelineState|null = null;
+        if (pass != null && shader != null && inputAssembler != null)
         {
-            pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, inputAssembler);
+            pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
         }
 
         if(pso != null)

@@ -8,40 +8,33 @@ import { GbufferFlow } from './gbuffer-flow';
 import { LightingFlow } from './lighting-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
-import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import {
-    GFXBufferUsageBit,
-    GFXFormat,
-    GFXFormatInfos,
-    GFXMemoryUsageBit,
-    GFXClearFlag,
-    GFXFilter, 
-    GFXAddress,
-    GFXTextureUsageBit } from '../../gfx/define';
-import { IRenderObject, UBOGlobal, UBOShadow,  UNIFORM_SHADOWMAP_BINDING, UNIFORM_GBUFFER_ALBEDOMAP_BINDING, 
-    UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING,
-    UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
-import { GFXColorAttachment, GFXDepthStencilAttachment, GFXRenderPass, GFXLoadOp, GFXTextureLayout, GFXRenderPassInfo, 
-         GFXBufferInfo, GFXTexture } from '../../gfx';
+    BufferUsageBit,
+    Format,
+    MemoryUsageBit,
+    ClearFlag } from '../../gfx/define';
+import { IRenderObject, UBOGlobal, UBOShadow } from '../define';
+import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp, TextureLayout, RenderPassInfo, 
+         BufferInfo, Texture } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
 import { Mat4, Vec3, Vec4} from '../../math';
-import { GFXFeature } from '../../gfx/device';
+import { Feature } from '../../gfx/define';
 import { Fog } from '../../renderer/scene/fog';
 import { Ambient } from '../../renderer/scene/ambient';
 import { Skybox } from '../../renderer/scene/skybox';
 import { Shadows, ShadowType } from '../../renderer/scene/shadows';
 import { sceneCulling, getShadowWorldMatrix } from './scene-culling';
 import { UIFlow } from '../ui/ui-flow';
-import { GFXInputAssembler, GFXInputAssemblerInfo, GFXAttribute } from '../../gfx/input-assembler';
-import { GFXBuffer } from '../../gfx/buffer';
+import { InputAssembler, InputAssemblerInfo, Attribute } from '../../gfx/input-assembler';
+import { Buffer } from '../../gfx/buffer';
 
 
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
-const vec4 = new Vec4();
+const vec3_center = new Vec3();
 
 /**
  * @en The deferred render pipeline
@@ -49,6 +42,39 @@ const vec4 = new Vec4();
  */
 @ccclass('DeferredPipeline')
 export class DeferredPipeline extends RenderPipeline {
+
+    /**
+     * @en The list for render objects, only available after the scene culling of the current frame.
+     * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
+     * @readonly
+     */
+    public renderObjects: IRenderObject[] = [];
+    public shadowObjects: IRenderObject[] = [];
+    protected _isHDR: boolean = false;
+    protected _shadingScale: number = 1.0;
+    protected _fpScale: number = 1.0 / 1024.0;
+    protected _renderPasses = new Map<ClearFlag, RenderPass>();
+    protected _globalUBO = new Float32Array(UBOGlobal.COUNT);
+    protected _shadowUBO = new Float32Array(UBOShadow.COUNT);
+    protected _quadVB: Buffer | null = null;
+    protected _quadIB: Buffer | null = null;
+    protected _quadIA: InputAssembler | null = null;
+    protected _gbufferDepth: Texture|null = null;
+
+    public fog: Fog = new Fog();
+    public ambient: Ambient = new Ambient();
+    public skybox: Skybox = new Skybox();
+    public shadows: Shadows = new Shadows();
+
+    @type([RenderTextureConfig])
+    @serializable
+    @displayOrder(2)
+    protected renderTextures: RenderTextureConfig[] = [];
+
+    @type([MaterialConfig])
+    @serializable
+    @displayOrder(3)
+    protected materials: MaterialConfig[] = [];
 
     get isHDR () {
         return this._isHDR;
@@ -76,7 +102,7 @@ export class DeferredPipeline extends RenderPipeline {
      * @zh
      * 四边形输入汇集器。
      */
-    public get quadIA (): GFXInputAssembler {
+    public get quadIA (): InputAssembler {
         return this._quadIA!;
     }
 
@@ -95,38 +121,6 @@ export class DeferredPipeline extends RenderPipeline {
     get shadowUBO (): Float32Array {
         return this._shadowUBO;
     }
-
-    @type([RenderTextureConfig])
-    @serializable
-    @displayOrder(2)
-    protected renderTextures: RenderTextureConfig[] = [];
-
-    @type([MaterialConfig])
-    @serializable
-    @displayOrder(3)
-    protected materials: MaterialConfig[] = [];
-
-    public fog: Fog = new Fog();
-    public ambient: Ambient = new Ambient();
-    public skybox: Skybox = new Skybox();
-    public shadows: Shadows = new Shadows();
-    /**
-     * @en The list for render objects, only available after the scene culling of the current frame.
-     * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
-     * @readonly
-     */
-    public renderObjects: IRenderObject[] = [];
-    public shadowObjects: IRenderObject[] = [];
-    protected _isHDR: boolean = false;
-    protected _shadingScale: number = 1.0;
-    protected _fpScale: number = 1.0 / 1024.0;
-    protected _renderPasses = new Map<GFXClearFlag, GFXRenderPass>();
-    protected _globalUBO = new Float32Array(UBOGlobal.COUNT);
-    protected _shadowUBO = new Float32Array(UBOShadow.COUNT);
-    protected _quadVB: GFXBuffer | null = null;
-    protected _quadIB: GFXBuffer | null = null;
-    protected _quadIA: GFXInputAssembler | null = null;
-    protected _gbufferDepth: GFXTexture|null = null;
 
     public initialize (info: IRenderPipelineInfo): boolean {
         super.initialize(info);
@@ -180,32 +174,32 @@ export class DeferredPipeline extends RenderPipeline {
         this._device.queue.submit(this._commandBuffers);
     }
 
-    public getRenderPass (clearFlags: GFXClearFlag): GFXRenderPass {
+    public getRenderPass (clearFlags: ClearFlag): RenderPass {
         let renderPass = this._renderPasses.get(clearFlags);
         if (renderPass) { return renderPass; }
 
         const device = this.device!;
-        const colorAttachment = new GFXColorAttachment();
-        const depthStencilAttachment = new GFXDepthStencilAttachment();
+        const colorAttachment = new ColorAttachment();
+        const depthStencilAttachment = new DepthStencilAttachment();
         colorAttachment.format = device.colorFormat;
         depthStencilAttachment.format = device.depthStencilFormat;
 
-        if (!(clearFlags & GFXClearFlag.COLOR)) {
+        if (!(clearFlags & ClearFlag.COLOR)) {
             if (clearFlags & SKYBOX_FLAG) {
-                colorAttachment.loadOp = GFXLoadOp.DISCARD;
+                colorAttachment.loadOp = LoadOp.DISCARD;
             } else {
-                colorAttachment.loadOp = GFXLoadOp.LOAD;
-                colorAttachment.beginLayout = GFXTextureLayout.PRESENT_SRC;
+                colorAttachment.loadOp = LoadOp.LOAD;
+                colorAttachment.beginLayout = TextureLayout.PRESENT_SRC;
             }
         }
 
-        if ((clearFlags & GFXClearFlag.DEPTH_STENCIL) !== GFXClearFlag.DEPTH_STENCIL) {
-            if (!(clearFlags & GFXClearFlag.DEPTH)) depthStencilAttachment.depthLoadOp = GFXLoadOp.LOAD;
-            if (!(clearFlags & GFXClearFlag.STENCIL)) depthStencilAttachment.stencilLoadOp = GFXLoadOp.LOAD;
-            depthStencilAttachment.beginLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        if ((clearFlags & ClearFlag.DEPTH_STENCIL) !== ClearFlag.DEPTH_STENCIL) {
+            if (!(clearFlags & ClearFlag.DEPTH)) depthStencilAttachment.depthLoadOp = LoadOp.LOAD;
+            if (!(clearFlags & ClearFlag.STENCIL)) depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
+            depthStencilAttachment.beginLayout = TextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
         }
 
-        const renderPassInfo = new GFXRenderPassInfo([colorAttachment], depthStencilAttachment);
+        const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
         renderPass = device.createRenderPass(renderPassInfo);
         this._renderPasses.set(clearFlags, renderPass!);
 
@@ -223,35 +217,44 @@ export class DeferredPipeline extends RenderPipeline {
         const shadowInfo = this.shadows;
 
         if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
+
             // light view
-            const shadowCameraView = getShadowWorldMatrix(this, mainLight!.node!.worldRotation, mainLight!.direction);
-            Mat4.invert(matShadowView, shadowCameraView);
+            let shadowCameraView: Mat4;
 
             // light proj
             let x: number = 0;
             let y: number = 0;
-            if (shadowInfo.orthoSize > shadowInfo.sphere.radius) {
+            let far: number = 0;
+            if (shadowInfo.autoAdapt) {
+                shadowCameraView = getShadowWorldMatrix(this, mainLight.node?.getWorldRotation()!, mainLight.direction, vec3_center);
+                // if orthoSize is the smallest, auto calculate orthoSize.
+                const radius = shadowInfo.sphere.radius;
+                x = radius * shadowInfo.aspect;
+                y = radius;
+
+                const halfFar = Vec3.distance(shadowInfo.sphere.center, vec3_center);
+                far =  Math.min(halfFar * Shadows.COEFFICIENT_OF_EXPANSION, Shadows.MAX_FAR);
+            } else {
+                shadowCameraView = mainLight.node!.getWorldMatrix();
+
                 x = shadowInfo.orthoSize * shadowInfo.aspect;
                 y = shadowInfo.orthoSize;
-            } else {
-                // if orthoSize is the smallest, auto calculate orthoSize.
-                x = shadowInfo.sphere.radius * shadowInfo.aspect;
-                y = shadowInfo.sphere.radius;
+
+                far = shadowInfo.far;
             }
+
+            Mat4.invert(matShadowView, shadowCameraView!);
+
             const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY; // always offscreen
-            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, shadowInfo.far,
+            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, far,
                 device.clipSpaceMinZ, projectionSignY);
-
-            // light viewProj
             Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
-
             Mat4.toArray(this._shadowUBO, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-            vec4.set(shadowInfo.pcf);
-            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_PCF_OFFSET);
-
-            vec4.set(shadowInfo.size.x, shadowInfo.size.y);
-            Vec4.toArray(this._shadowUBO, vec4, UBOShadow.SHADOW_SIZE_OFFSET);
+            this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET]     = shadowInfo.size.x;
+            this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 1] = shadowInfo.size.y;
+            this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 2] = shadowInfo.pcf;
+            this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 3] = shadowInfo.bias;
         }
 
         // update ubos
@@ -264,43 +267,29 @@ export class DeferredPipeline extends RenderPipeline {
 
         this._commandBuffers.push(device.commandBuffer);
 
-        const globalUBO = device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        const globalUBO = device.createBuffer(new BufferInfo(
+            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             UBOGlobal.SIZE,
             UBOGlobal.SIZE,
         ));
         this._descriptorSet.bindBuffer(UBOGlobal.BINDING, globalUBO);
 
-        const shadowUBO = device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        const shadowUBO = device.createBuffer(new BufferInfo(
+            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             UBOShadow.SIZE,
             UBOShadow.SIZE,
         ));
         this._descriptorSet.bindBuffer(UBOShadow.BINDING, shadowUBO);
 
-        const shadowMapSamplerHash = genSamplerHash([
-            GFXFilter.LINEAR,
-            GFXFilter.LINEAR,
-            GFXFilter.NONE,
-            GFXAddress.CLAMP,
-            GFXAddress.CLAMP,
-            GFXAddress.CLAMP,
-        ]);
-        const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
-        this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
-        this._descriptorSet.bindSampler(UNIFORM_GBUFFER_ALBEDOMAP_BINDING, shadowMapSampler);
-        this._descriptorSet.bindSampler(UNIFORM_GBUFFER_POSITIONMAP_BINDING, shadowMapSampler);
-        this._descriptorSet.bindSampler(UNIFORM_GBUFFER_NORMALMAP_BINDING, shadowMapSampler);
-        this._descriptorSet.bindSampler(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, shadowMapSampler);
-        this._descriptorSet.bindSampler(UNIFORM_LIGHTING_RESULTMAP_BINDING, shadowMapSampler);
-
+        this._descriptorSet.update();
 
         // update global defines when all states initialized.
         this.macros.CC_USE_HDR = this._isHDR;
-        this.macros.CC_SUPPORT_FLOAT_TEXTURE = this.device.hasFeature(GFXFeature.TEXTURE_FLOAT);
+        this.macros.CC_SUPPORT_FLOAT_TEXTURE = this.device.hasFeature(Feature.TEXTURE_FLOAT);
 
+        // create quadInputAssembler
         if (!this.createQuadInputAssembler()) {
             return false;
         }
@@ -445,9 +434,9 @@ export class DeferredPipeline extends RenderPipeline {
         const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
         const vbSize = vbStride * 4;
 
-        this._quadVB = this._device.createBuffer(new GFXBufferInfo(
-            GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        this._quadVB = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             vbSize,
             vbStride,
         ));
@@ -469,9 +458,9 @@ export class DeferredPipeline extends RenderPipeline {
         const ibStride = Uint8Array.BYTES_PER_ELEMENT;
         const ibSize = ibStride * 6;
 
-        this._quadIB = this._device.createBuffer(new GFXBufferInfo( 
-            GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+        this._quadIB = this._device.createBuffer(new BufferInfo( 
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             ibSize,
             ibStride,
         ));
@@ -488,11 +477,11 @@ export class DeferredPipeline extends RenderPipeline {
 
         // create input assembler
 
-        const attributes = new Array<GFXAttribute>(2);
-        attributes[0] = new GFXAttribute('a_position', GFXFormat.RG32F);
-        attributes[1] = new GFXAttribute('a_texCoord', GFXFormat.RG32F);
+        const attributes = new Array<Attribute>(2);
+        attributes[0] = new Attribute('a_position', Format.RG32F);
+        attributes[1] = new Attribute('a_texCoord', Format.RG32F);
 
-        this._quadIA = this._device.createInputAssembler(new GFXInputAssemblerInfo(
+        this._quadIA = this._device.createInputAssembler(new InputAssemblerInfo(
             attributes,
             [this._quadVB],
             this._quadIB,
