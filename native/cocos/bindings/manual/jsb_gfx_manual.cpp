@@ -61,16 +61,23 @@ bool js_gfx_Device_copyBuffersToTexture(se::State &s) {
                 if (dataObj->getArrayElement(i, &value)) {
                     uint8_t *ptr = nullptr;
                     CC_UNUSED size_t dataLength = 0;
-                    se::Object *obj = value.toObject();
-                    if (obj->isArrayBuffer()) {
-                        ok = obj->getArrayBufferData(&ptr, &dataLength);
-                        SE_PRECONDITION2(ok, false, "getArrayBufferData failed!");
-                    } else if (obj->isTypedArray()) {
-                        ok = obj->getTypedArrayData(&ptr, &dataLength);
-                        SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
+                    if (value.isObject()) {
+                        se::Object *obj = value.toObject();
+                        if (obj->isArrayBuffer()) {
+                            ok = obj->getArrayBufferData(&ptr, &dataLength);
+                            SE_PRECONDITION2(ok, false, "getArrayBufferData failed!");
+                        } else if (obj->isTypedArray()) {
+                            ok = obj->getTypedArrayData(&ptr, &dataLength);
+                            SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
+                        } else {
+                            assert(false);
+                        }
                     } else {
-                        assert(false);
+                        unsigned long address = 0;
+                        seval_to_ulong(value, &address);
+                        ptr = (uint8_t *)address;
                     }
+                    
                     arg0[i] = ptr;
                 }
             }
@@ -108,10 +115,16 @@ bool js_gfx_Device_copyTexImagesToTexture(se::State &s) {
             se::Value value;
             for (uint32_t i = 0; i < length; ++i) {
                 if (dataObj->getArrayElement(i, &value)) {
-                    CC_UNUSED size_t dataLength = 0;
-                    cc::Data bufferData;
-                    ok &= seval_to_Data(value, &bufferData);
-                    arg0[i] = bufferData.takeBuffer();
+                    if (value.isObject()) {
+                        CC_UNUSED size_t dataLength = 0;
+                        cc::Data bufferData;
+                        ok &= seval_to_Data(value, &bufferData);
+                        arg0[i] = bufferData.takeBuffer();
+                    } else {
+                        unsigned long dataPtr = 0;
+                        seval_to_ulong(value, &dataPtr);
+                        arg0[i] = (uint8_t *)dataPtr;
+                    }
                 }
             }
         } else {

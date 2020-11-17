@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -808,6 +808,8 @@ namespace
         return imgInfo;
     }
 }
+
+std::unordered_map<uint8_t *, Image*> _cachedImages;
 bool jsb_global_load_image(const std::string& path, const se::Value& callbackVal) {
     if (path.empty())
     {
@@ -852,9 +854,7 @@ bool jsb_global_load_image(const std::string& path, const se::Value& callbackVal
                 if (loadSucceed)
                 {
                     se::HandleObject retObj(se::Object::createPlainObject());
-                    Data data;
-                    data.copy(imgInfo->data, imgInfo->length);
-                    Data_to_seval(data, &dataVal);
+                    ulong_to_seval((unsigned long)imgInfo->data, &dataVal);
                     retObj->setProperty("data", dataVal);
                     retObj->setProperty("width", se::Value(imgInfo->width));
                     retObj->setProperty("height", se::Value(imgInfo->height));
@@ -868,7 +868,7 @@ bool jsb_global_load_image(const std::string& path, const se::Value& callbackVal
                     SE_REPORT_ERROR("initWithImageFile: %s failed!", path.c_str());
                 }
                 callbackPtr->toObject()->call(seArgs, nullptr);
-                img->release();
+                _cachedImages.emplace(imgInfo->data, img);
             });
 
         });
@@ -930,6 +930,28 @@ static bool js_loadImage(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_loadImage)
+
+static bool js_destroyImage(se::State& s) {
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        unsigned long data = 0;
+        ok &= seval_to_ulong(args[0], &data);
+        SE_PRECONDITION2(ok, false, "js_destroyImage : Error processing arguments");
+        uint8_t *dataPtr = (uint8_t *)data;
+        auto inter = _cachedImages.find(dataPtr);
+        if (inter != _cachedImages.end()) {
+            inter->second->release();
+            _cachedImages.erase(inter);
+        }
+        
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_destroyImage)
 
 static bool JSB_openURL(se::State& s)
 {
@@ -1101,6 +1123,7 @@ bool jsb_register_global_variables(se::Object* global)
     __jsbObj->defineFunction("openURL", _SE(JSB_openURL));
     __jsbObj->defineFunction("copyTextToClipboard", _SE(JSB_copyTextToClipboard));
     __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));
+    __jsbObj->defineFunction("destroyImage", _SE(js_destroyImage));
     #if CC_USE_EDITBOX
     __jsbObj->defineFunction("showInputBox", _SE(JSB_showInputBox));
     __jsbObj->defineFunction("hideInputBox", _SE(JSB_hideInputBox));
