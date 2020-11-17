@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { aabb, frustum } from '../../geometry';
+import { AABB, frustum } from '../../geometry';
 import { Mat4, Quat, Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
 import {
@@ -47,7 +47,7 @@ export class SpotLight extends Light {
 
     protected _pos: Vec3;
 
-    protected _aabb: aabb;
+    protected _aabb: AABB;
 
     protected _frustum: frustum;
 
@@ -122,7 +122,7 @@ export class SpotLight extends Light {
 
     constructor () {
         super();
-        this._aabb = aabb.create();
+        this._aabb = AABB.create();
         this._frustum = frustum.create();
         this._pos = new Vec3();
     }
@@ -147,7 +147,7 @@ export class SpotLight extends Light {
             Vec3.transformQuat(this._dir, _forward, this._node.getWorldRotation(_qt));
             Vec3.normalize(this._dir, this._dir);
             LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
-            aabb.set(this._aabb, this._pos.x, this._pos.y, this._pos.z, this._range, this._range, this._range);
+            AABB.set(this._aabb, this._pos.x, this._pos.y, this._pos.z, this._range, this._range, this._range);
 
             // view matrix
             this._node.getWorldRT(_matView);

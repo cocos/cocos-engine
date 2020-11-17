@@ -31,17 +31,18 @@
 export { default as enums } from './enums';
 import * as distance from './distance';
 export { distance };
-export { default as intersect } from './intersect';
-export { default as line } from './line';
-export { default as plane } from './plane';
-export { default as ray } from './ray';
-export { default as triangle } from './triangle';
-export { default as sphere } from './sphere';
-export { default as aabb } from './aabb';
-export { default as obb } from './obb';
-export { capsule } from './capsule';
-export { frustum } from './frustum';
+export { default as Intersect } from './intersect';
+export { Line } from './line';
+export { Plane } from './plane';
+export { Ray } from './ray';
+export { Triangle } from './triangle';
+export { Sphere } from './sphere';
+export { AABB } from './aabb';
+export { OBB } from './obb';
+export { Capsule } from './capsule';
+export { Frustum } from './frustum';
 export { Keyframe, AnimationCurve } from './curve';
 export * from './spec';
 
 import './deprecated';
+export * from './deprecated-3.0.0';

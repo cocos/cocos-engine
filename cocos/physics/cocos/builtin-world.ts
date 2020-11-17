@@ -33,7 +33,7 @@ import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { BuiltinSharedBody } from './builtin-shared-body';
 import { BuiltinShape } from './shapes/builtin-shape';
 import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
-import { ray, intersect } from '../../core/geometry';
+import { ray, Intersect } from '../../core/geometry';
 import { RecyclePool, Node } from '../../core';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { IVec3Like } from '../../core/math/type-define';
@@ -109,7 +109,7 @@ export class BuiltInWorld implements IPhysicsWorld {
             if (!(body.collisionFilterGroup & mask)) continue;
             for (let i = 0; i < body.shapes.length; i++) {
                 const shape = body.shapes[i];
-                const distance = intersect.resolve(worldRay, shape.worldShape);
+                const distance = Intersect.resolve(worldRay, shape.worldShape);
                 if (distance == 0 || distance > max_d) {
                     continue;
                 }
@@ -133,7 +133,7 @@ export class BuiltInWorld implements IPhysicsWorld {
             if (!(body.collisionFilterGroup & mask)) continue;
             for (let i = 0; i < body.shapes.length; i++) {
                 const shape = body.shapes[i];
-                const distance = intersect.resolve(worldRay, shape.worldShape);
+                const distance = Intersect.resolve(worldRay, shape.worldShape);
                 if (distance == 0 || distance > max_d) {
                     continue;
                 } else {

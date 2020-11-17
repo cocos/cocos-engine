@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { aabb, intersect} from '../../geometry';
+import { AABB, Intersect} from '../../geometry';
 import { SetIndex} from '../../pipeline/define';
 import { CommandBuffer, Device, RenderPass, Shader } from '../../gfx';
 import { InstancedBuffer } from '../instanced-buffer';
@@ -36,7 +36,7 @@ import { ShadowType } from '../../renderer/scene/shadows';
 import { RenderView } from '../render-view';
 import { Layers } from '../../scene-graph/layers';
 
-const _ab = new aabb();
+const _ab = new AABB();
 
 export class PlanarShadowQueue {
     private _pendingModels: Model[] = [];
@@ -66,8 +66,8 @@ export class PlanarShadowQueue {
             const model = models[i];
             if (!model.enabled || !model.node || !model.castShadow) { continue; }
             if (model.worldBounds) {
-                aabb.transform(_ab, model.worldBounds, shadows.matLight);
-                if (!intersect.aabb_frustum(_ab, frstm)) { continue; }
+                AABB.transform(_ab, model.worldBounds, shadows.matLight);
+                if (!Intersect.aabbFrustum(_ab, frstm)) { continue; }
             }
             if (model.isInstancingEnabled) {
                 for (let j = 0; j < model.subModels.length; j++) {

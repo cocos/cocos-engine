@@ -31,10 +31,10 @@ import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { BuiltInWorld } from '../builtin-world';
 import { Node } from '../../../core';
-import { aabb, sphere } from '../../../core/geometry';
+import { AABB, sphere } from '../../../core/geometry';
 
 export class BuiltinShape implements IBaseShape {
-    getAABB (v: aabb) { }
+    getAABB (v: AABB) { }
     getBoundingSphere (v: sphere) { }
     setMaterial (v: PhysicMaterial | null) { }
     setAsTrigger (v: boolean) { }

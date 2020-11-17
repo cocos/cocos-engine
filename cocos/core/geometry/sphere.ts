@@ -30,7 +30,7 @@
 
 import { Mat4, Quat, Vec3 } from '../math';
 import enums from './enums';
-import aabb from './aabb';
+import { AABB } from './aabb';
 import { NULL_HANDLE, SphereHandle, SpherePool, SphereView } from '../renderer/core/memory-pools';
 
 const _v3_tmp = new Vec3();
@@ -41,12 +41,12 @@ function maxComponent (v: Vec3) { return Math.max(Math.max(v.x, v.y), v.z); }
 
 /**
  * @en
- * Basic Geometry: sphere.
+ * Basic Geometry: Sphere.
  * @zh
  * 基础几何 轴对齐球。
  */
 
-export default class sphere {
+export class Sphere {
 
     /**
      * @en
@@ -57,10 +57,10 @@ export default class sphere {
      * @param cy 形状的相对于原点的 Y 坐标。
      * @param cz 形状的相对于原点的 Z 坐标。
      * @param r 球体的半径
-     * @return {sphere} 返回一个 sphere。
+     * @return {Sphere} 返回一个 sphere。
      */
-    public static create (cx: number, cy: number, cz: number, r: number): sphere {
-        return new sphere(cx, cy, cz, r);
+    public static create (cx: number, cy: number, cz: number, r: number): Sphere {
+        return new Sphere(cx, cy, cz, r);
     }
 
     /**
@@ -68,11 +68,11 @@ export default class sphere {
      * clone a new sphere
      * @zh
      * 克隆一个新的 sphere 实例。
-     * @param {sphere} p 克隆的目标。
-     * @return {sphere} 克隆出的示例。
+     * @param {Sphere} p 克隆的目标。
+     * @return {Sphere} 克隆出的示例。
      */
-    public static clone (p: sphere): sphere {
-        return new sphere(p.center.x, p.center.y, p.center.z, p.radius);
+    public static clone (p: Sphere): Sphere {
+        return new Sphere(p.center.x, p.center.y, p.center.z, p.radius);
     }
 
     /**
@@ -80,11 +80,11 @@ export default class sphere {
      * copy the values from one sphere to another
      * @zh
      * 将从一个 sphere 的值复制到另一个 sphere。
-     * @param {sphere} out 接受操作的 sphere。
-     * @param {sphere} a 被复制的 sphere。
-     * @return {sphere} out 接受操作的 sphere。
+     * @param {Sphere} out 接受操作的 sphere。
+     * @param {Sphere} a 被复制的 sphere。
+     * @return {Sphere} out 接受操作的 sphere。
      */
-    public static copy (out: sphere, p: sphere): sphere {
+    public static copy (out: Sphere, p: Sphere): Sphere {
         Vec3.copy(out.center, p.center);
         out.radius = p.radius;
 
@@ -99,9 +99,9 @@ export default class sphere {
      * @param out - 接受操作的 sphere。
      * @param minPos - sphere 的最小点。
      * @param maxPos - sphere 的最大点。
-     * @returns {sphere} out 接受操作的 sphere。
+     * @returns {Sphere} out 接受操作的 sphere。
      */
-    public static fromPoints (out: sphere, minPos: Vec3, maxPos: Vec3): sphere {
+    public static fromPoints (out: Sphere, minPos: Vec3, maxPos: Vec3): Sphere {
         Vec3.multiplyScalar(out.center, Vec3.add(_v3_tmp, minPos, maxPos), 0.5);
         out.radius = Vec3.subtract(_v3_tmp, maxPos, minPos).length() * 0.5;
         return out;
@@ -112,15 +112,15 @@ export default class sphere {
      * Set the components of a sphere to the given values
      * @zh
      * 将球体的属性设置为给定的值。
-     * @param {sphere} out 接受操作的 sphere。
+     * @param {Sphere} out 接受操作的 sphere。
      * @param cx 形状的相对于原点的 X 坐标。
      * @param cy 形状的相对于原点的 Y 坐标。
      * @param cz 形状的相对于原点的 Z 坐标。
      * @param {number} r 半径。
-     * @return {sphere} out 接受操作的 sphere。
+     * @return {Sphere} out 接受操作的 sphere。
      * @function
      */
-    public static set (out: sphere, cx: number, cy: number, cz: number, r: number): sphere {
+    public static set (out: Sphere, cx: number, cy: number, cz: number, r: number): Sphere {
         out.center.x = cx;
         out.center.y = cy;
         out.center.z = cz;
@@ -133,7 +133,7 @@ export default class sphere {
      * @zh
      * 球跟点合并
      */
-    public static mergePoint (out: sphere, s: sphere, point: Vec3) {
+    public static mergePoint (out: Sphere, s: Sphere, point: Vec3) {
         // if sphere.radius Less than 0,
         // Set this point as anchor,
         // And set radius to 0.
@@ -160,11 +160,11 @@ export default class sphere {
      * @zh
      * 球跟立方体合并
      */
-    public static mergeAABB (out: sphere, s:sphere, a: aabb) {
+    public static mergeAABB (out: Sphere, s:Sphere, a: AABB) {
         a.getBoundary(_min, _max);
 
-        sphere.mergePoint(out, s, _min);
-        sphere.mergePoint(out, s, _max);
+        Sphere.mergePoint(out, s, _min);
+        Sphere.mergePoint(out, s, _max);
 
         return out;
     }
@@ -248,7 +248,7 @@ export default class sphere {
      * 获得克隆。
      */
     public clone () {
-        return sphere.clone(this);
+        return Sphere.clone(this);
     }
 
     /**
@@ -258,8 +258,8 @@ export default class sphere {
      * 拷贝对象。
      * @param a 拷贝的目标。
      */
-    public copy (a: sphere) {
-        return sphere.copy(this, a);
+    public copy (a: Sphere) {
+        return Sphere.copy(this, a);
     }
 
     /**
@@ -286,7 +286,7 @@ export default class sphere {
      * @param scale 变换的缩放部分。
      * @param out 变换的目标。
      */
-    public transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3, out: sphere) {
+    public transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3, out: Sphere) {
         Vec3.transformMat4(out.center, this.center, m);
         out.radius = this.radius * maxComponent(scale);
     }
@@ -300,7 +300,7 @@ export default class sphere {
      * @param rot 变换的旋转部分。
      * @param out 变换的目标。
      */
-    public translateAndRotate (m: Mat4, rot: Quat, out: sphere) {
+    public translateAndRotate (m: Mat4, rot: Quat, out: Sphere) {
         Vec3.transformMat4(out.center, this.center, m);
     }
 
@@ -312,7 +312,7 @@ export default class sphere {
      * @param scale 缩放值。
      * @param out 缩放的目标。
      */
-    public setScale (scale: Vec3, out: sphere) {
+    public setScale (scale: Vec3, out: Sphere) {
         out.radius = this.radius * maxComponent(scale);
     }
 }

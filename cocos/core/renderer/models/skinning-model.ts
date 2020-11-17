@@ -31,7 +31,7 @@
 import { Material } from '../../assets/material';
 import { Mesh, RenderingSubMesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
-import { aabb } from '../../geometry';
+import { AABB } from '../../geometry';
 import { BufferUsageBit, MemoryUsageBit } from '../../gfx/define';
 import { Mat4, Vec3 } from '../../math';
 import { UBOSkinning } from '../../pipeline/define';
@@ -127,7 +127,7 @@ function getRelevantBuffers (outIndices: number[], outBuffers: number[], jointMa
 }
 
 interface IJointInfo {
-    bound: aabb;
+    bound: AABB;
     target: Node;
     bindpose: Mat4;
     transform: IJointTransform;
@@ -140,7 +140,7 @@ const v3_max = new Vec3();
 const v3_1 = new Vec3();
 const v3_2 = new Vec3();
 const m4_1 = new Mat4();
-const ab_1 = new aabb();
+const ab_1 = new AABB();
 
 /**
  * @en
@@ -209,14 +209,14 @@ export class SkinningModel extends MorphModel {
         for (let i = 0; i < this._joints.length; i++) {
             const { bound, transform } = this._joints[i];
             const worldMatrix = getWorldMatrix(transform, stamp);
-            aabb.transform(ab_1, bound, worldMatrix);
+            AABB.transform(ab_1, bound, worldMatrix);
             ab_1.getBoundary(v3_1, v3_2);
             Vec3.min(v3_min, v3_min, v3_1);
             Vec3.max(v3_max, v3_max, v3_2);
         }
         const worldBounds = this._worldBounds;
         if (this._modelBounds && worldBounds) {
-            aabb.fromPoints(this._modelBounds, v3_min, v3_max);
+            AABB.fromPoints(this._modelBounds, v3_min, v3_max);
             // @ts-expect-error TS2445
             this._modelBounds.transform(root._mat, root._pos, root._rot, root._scale, this._worldBounds);
             AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, worldBounds.center);

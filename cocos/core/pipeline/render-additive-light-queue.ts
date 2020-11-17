@@ -36,7 +36,7 @@ import { PipelineStateManager } from './pipeline-state-manager';
 import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView,
     ShaderHandle } from '../renderer/core/memory-pools';
 import { Vec3, nextPow2, Mat4, Vec4, Color } from '../../core/math';
-import { sphere, intersect } from '../geometry';
+import { sphere, Intersect } from '../geometry';
 import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
     BufferInfo, BufferViewInfo, CommandBuffer, Filter, Address, Sampler, DescriptorSet, Texture } from '../gfx';
 import { Pool } from '../memop';
@@ -79,12 +79,12 @@ const _matShadowViewProj = new Mat4();
 const _vec4ShadowInfo = new Vec4();
 
 function cullSphereLight (light: SphereLight, model: Model) {
-    return !!(model.worldBounds && !intersect.aabb_aabb(model.worldBounds, light.aabb));
+    return !!(model.worldBounds && !Intersect.aabbWithAABB(model.worldBounds, light.aabb));
 }
 
 function cullSpotLight (light: SpotLight, model: Model) {
     return !!(model.worldBounds
-        && (!intersect.aabb_aabb(model.worldBounds, light.aabb) || !intersect.aabb_frustum(model.worldBounds, light.frustum)));
+        && (!Intersect.aabbWithAABB(model.worldBounds, light.aabb) || !Intersect.aabbFrustum(model.worldBounds, light.frustum)));
 }
 
 const _phaseID = getPhaseID('forward-add');
@@ -189,7 +189,7 @@ export class RenderAdditiveLightQueue {
         for (let i = 0; i < sphereLights.length; i++) {
             const light = sphereLights[i];
             sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-            if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
+            if (Intersect.sphereFrustum(_sphere, view.camera.frustum)) {
                 validLights.push(light);
             }
         }
@@ -197,7 +197,7 @@ export class RenderAdditiveLightQueue {
         for (let i = 0; i < spotLights.length; i++) {
             const light = spotLights[i];
             sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-            if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
+            if (Intersect.sphereFrustum(_sphere, view.camera.frustum)) {
                 validLights.push(light);
             }
         }

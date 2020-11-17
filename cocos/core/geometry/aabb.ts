@@ -31,7 +31,7 @@
 import { Mat3, Mat4, Quat, Vec3 } from '../../core/math';
 import enums from './enums';
 import { IVec3Like } from '../math/type-define';
-import sphere from './sphere';
+import { Sphere } from './sphere';
 
 const _v3_tmp = new Vec3();
 const _v3_tmp2 = new Vec3();
@@ -39,7 +39,7 @@ const _v3_tmp3 = new Vec3();
 const _v3_tmp4 = new Vec3();
 const _m3_tmp = new Mat3();
 
-// https://zeuxcg.org/2010/10/17/aabb-from-obb-with-component-wise-abs/
+// https://zeuxcg.org/2010/10/17/AABB-from-obb-with-component-wise-abs/
 const transform_extent_m4 = (out: Vec3, extent: Vec3, m4: Mat4) => {
     _m3_tmp.m00 = Math.abs(m4.m00); _m3_tmp.m01 = Math.abs(m4.m01); _m3_tmp.m02 = Math.abs(m4.m02);
     _m3_tmp.m03 = Math.abs(m4.m04); _m3_tmp.m04 = Math.abs(m4.m05); _m3_tmp.m05 = Math.abs(m4.m06);
@@ -54,48 +54,48 @@ const transform_extent_m4 = (out: Vec3, extent: Vec3, m4: Mat4) => {
  * 基础几何  轴对齐包围盒，使用中心点和半长宽高的结构。
  */
 
-export default class aabb {
+export class AABB {
 
     /**
      * @en
-     * create a new aabb
+     * create a new AABB
      * @zh
-     * 创建一个新的 aabb 实例。
-     * @param px - aabb 的原点的 X 坐标。
-     * @param py - aabb 的原点的 Y 坐标。
-     * @param pz - aabb 的原点的 Z 坐标。
-     * @param hw - aabb 宽度的一半。
-     * @param hh - aabb 高度的一半。
-     * @param hl - aabb 长度的一半。
-     * @returns 返回新创建的 aabb 实例。
+     * 创建一个新的 AABB 实例。
+     * @param px - AABB 的原点的 X 坐标。
+     * @param py - AABB 的原点的 Y 坐标。
+     * @param pz - AABB 的原点的 Z 坐标。
+     * @param hw - AABB 宽度的一半。
+     * @param hh - AABB 高度的一半。
+     * @param hl - AABB 长度的一半。
+     * @returns 返回新创建的 AABB 实例。
      */
     public static create (px?: number, py?: number, pz?: number, hw?: number, hh?: number, hl?: number) {
-        return new aabb(px, py, pz, hw, hh, hl);
+        return new AABB(px, py, pz, hw, hh, hl);
     }
 
     /**
      * @en
-     * clone a new aabb
+     * clone a new AABB
      * @zh
-     * 克隆一个 aabb。
+     * 克隆一个 AABB。
      * @param a - 克隆的目标。
-     * @returns 克隆出的 aabb。
+     * @returns 克隆出的 AABB。
      */
-    public static clone (a: aabb) {
-        return new aabb(a.center.x, a.center.y, a.center.z,
+    public static clone (a: AABB) {
+        return new AABB(a.center.x, a.center.y, a.center.z,
             a.halfExtents.x, a.halfExtents.y, a.halfExtents.z);
     }
 
     /**
      * @en
-     * copy the values from one aabb to another
+     * copy the values from one AABB to another
      * @zh
-     * 将从一个 aabb 的值复制到另一个 aabb。
-     * @param {aabb} out 接受操作的 aabb。
-     * @param {aabb} a 被复制的 aabb。
-     * @return {aabb} out 接受操作的 aabb。
+     * 将从一个 AABB 的值复制到另一个 AABB。
+     * @param {AABB} out 接受操作的 AABB。
+     * @param {AABB} a 被复制的 AABB。
+     * @return {AABB} out 接受操作的 AABB。
      */
-    public static copy (out: aabb, a: aabb): aabb {
+    public static copy (out: AABB, a: AABB): AABB {
         Vec3.copy(out.center, a.center);
         Vec3.copy(out.halfExtents, a.halfExtents);
 
@@ -104,15 +104,15 @@ export default class aabb {
 
     /**
      * @en
-     * create a new aabb from two corner points
+     * create a new AABB from two corner points
      * @zh
-     * 从两个点创建一个新的 aabb。
-     * @param out - 接受操作的 aabb。
-     * @param minPos - aabb 的最小点。
-     * @param maxPos - aabb 的最大点。
-     * @returns {aabb} out 接受操作的 aabb。
+     * 从两个点创建一个新的 AABB。
+     * @param out - 接受操作的 AABB。
+     * @param minPos - AABB 的最小点。
+     * @param maxPos - AABB 的最大点。
+     * @returns {AABB} out 接受操作的 AABB。
      */
-    public static fromPoints (out: aabb, minPos: IVec3Like, maxPos: IVec3Like): aabb {
+    public static fromPoints (out: AABB, minPos: IVec3Like, maxPos: IVec3Like): AABB {
         Vec3.add(_v3_tmp, maxPos, minPos);
         Vec3.subtract(_v3_tmp2, maxPos, minPos);
         Vec3.multiplyScalar(out.center, _v3_tmp, 0.5);
@@ -122,19 +122,19 @@ export default class aabb {
 
     /**
      * @en
-     * Set the components of a aabb to the given values
+     * Set the components of a AABB to the given values
      * @zh
-     * 将 aabb 的属性设置为给定的值。
-     * @param {aabb} out 接受操作的 aabb。
-     * @param px - aabb 的原点的 X 坐标。
-     * @param py - aabb 的原点的 Y 坐标。
-     * @param pz - aabb 的原点的 Z 坐标。
-     * @param hw - aabb 宽度的一半。
-     * @param hh - aabb 高度的一半。
-     * @param hl - aabb 长度度的一半。
-     * @return {aabb} out 接受操作的 aabb。
+     * 将 AABB 的属性设置为给定的值。
+     * @param {AABB} out 接受操作的 AABB。
+     * @param px - AABB 的原点的 X 坐标。
+     * @param py - AABB 的原点的 Y 坐标。
+     * @param pz - AABB 的原点的 Z 坐标。
+     * @param hw - AABB 宽度的一半。
+     * @param hh - AABB 高度的一半。
+     * @param hl - AABB 长度度的一半。
+     * @return {AABB} out 接受操作的 AABB。
      */
-    public static set (out: aabb, px: number, py: number, pz: number, hw: number, hh: number, hl: number): aabb {
+    public static set (out: AABB, px: number, py: number, pz: number, hw: number, hh: number, hl: number): AABB {
         Vec3.set(out.center, px, py, pz);
         Vec3.set(out.halfExtents, hw, hh, hl);
         return out;
@@ -142,33 +142,33 @@ export default class aabb {
 
     /**
      * @en
-     * Merge tow aabb.
+     * Merge tow AABB.
      * @zh
-     * 合并两个 aabb 到 out。
-     * @param out 接受操作的 aabb。
-     * @param a 输入的 aabb。
-     * @param b 输入的 aabb。
-     * @returns {aabb} out 接受操作的 aabb。
+     * 合并两个 AABB 到 out。
+     * @param out 接受操作的 AABB。
+     * @param a 输入的 AABB。
+     * @param b 输入的 AABB。
+     * @returns {AABB} out 接受操作的 AABB。
      */
-    public static merge (out: aabb, a: aabb, b: aabb): aabb {
+    public static merge (out: AABB, a: AABB, b: AABB): AABB {
         Vec3.subtract(_v3_tmp, a.center, a.halfExtents);
         Vec3.subtract(_v3_tmp2, b.center, b.halfExtents);
         Vec3.add(_v3_tmp3, a.center, a.halfExtents);
         Vec3.add(_v3_tmp4, b.center, b.halfExtents);
         Vec3.max(_v3_tmp4, _v3_tmp3, _v3_tmp4);
         Vec3.min(_v3_tmp3, _v3_tmp, _v3_tmp2);
-        return aabb.fromPoints(out, _v3_tmp3, _v3_tmp4);
+        return AABB.fromPoints(out, _v3_tmp3, _v3_tmp4);
     }
 
     /**
      * @en
-     * aabb to sphere
+     * AABB to sphere
      * @zh
      * 包围盒转包围球
      * @param out 接受操作的 sphere。
-     * @param a 输入的 aabb。
+     * @param a 输入的 AABB。
      */
-    public static toBoundingSphere (out: sphere, a: aabb) {
+    public static toBoundingSphere (out: Sphere, a: AABB) {
         a.getBoundary(_v3_tmp, _v3_tmp2);
 
         // Initialize sphere
@@ -189,15 +189,15 @@ export default class aabb {
 
     /**
      * @en
-     * Transform this aabb.
+     * Transform this AABB.
      * @zh
-     * 变换一个 aabb 到 out 中。
-     * @param out 接受操作的 aabb。
-     * @param a 输入的源 aabb。
+     * 变换一个 AABB 到 out 中。
+     * @param out 接受操作的 AABB。
+     * @param a 输入的源 AABB。
      * @param matrix 矩阵。
-     * @returns {aabb} out 接受操作的 aabb。
+     * @returns {AABB} out 接受操作的 AABB。
      */
-    public static transform (out: aabb, a: aabb, matrix: Mat4): aabb {
+    public static transform (out: AABB, a: AABB, matrix: Mat4): AABB {
         Vec3.transformMat4(out.center, a.center, matrix);
         transform_extent_m4(out.halfExtents, a.halfExtents, matrix);
         return out;
@@ -237,7 +237,7 @@ export default class aabb {
      * @en
      * Get the bounding points of this shape
      * @zh
-     * 获取 aabb 的最小点和最大点。
+     * 获取 AABB 的最小点和最大点。
      * @param {Vec3} minPos 最小点。
      * @param {Vec3} maxPos 最大点。
      */
@@ -250,14 +250,14 @@ export default class aabb {
      * @en
      * Transform this shape
      * @zh
-     * 将 out 根据这个 aabb 的数据进行变换。
+     * 将 out 根据这个 AABB 的数据进行变换。
      * @param m 变换的矩阵。
      * @param pos 变换的位置部分。
      * @param rot 变换的旋转部分。
      * @param scale 变换的缩放部分。
      * @param out 变换的目标。
      */
-    public transform (m: Mat4, pos: Vec3 | null, rot: Quat | null, scale: Vec3 | null, out: aabb) {
+    public transform (m: Mat4, pos: Vec3 | null, rot: Quat | null, scale: Vec3 | null, out: AABB) {
         Vec3.transformMat4(out.center, this.center, m);
         transform_extent_m4(out.halfExtents, this.halfExtents, m);
     }
@@ -265,19 +265,19 @@ export default class aabb {
     /**
      * @zh
      * 获得克隆。
-     * @returns {aabb}
+     * @returns {AABB}
      */
-    public clone (): aabb {
-        return aabb.clone(this);
+    public clone (): AABB {
+        return AABB.clone(this);
     }
 
     /**
      * @zh
      * 拷贝对象。
      * @param a 拷贝的目标。
-     * @returns {aabb}
+     * @returns {AABB}
      */
-    public copy (a: aabb): aabb {
-        return aabb.copy(this, a);
+    public copy (a: AABB): AABB {
+        return AABB.copy(this, a);
     }
 }

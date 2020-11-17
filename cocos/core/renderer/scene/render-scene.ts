@@ -24,7 +24,7 @@
  */
 
 import { IBArray } from '../../assets/mesh';
-import { aabb, intersect, ray, triangle } from '../../geometry';
+import { AABB, Intersect, ray, triangle } from '../../geometry';
 import { PrimitiveMode } from '../../gfx/define';
 import { Mat4, Vec3 } from '../../math';
 import { RecyclePool } from '../../memop';
@@ -395,7 +395,7 @@ export class RenderScene {
             const transform = m.transform;
             if (!transform || !m.enabled || !(m.node.layer & (mask & ~Layers.Enum.IGNORE_RAYCAST)) || !m.worldBounds) { continue; }
             // broadphase
-            let d = intersect.ray_aabb(worldRay, m.worldBounds);
+            let d = Intersect.rayAABB(worldRay, m.worldBounds);
             if (d <= 0 || d >= distance) { continue; }
             if (m.type === ModelType.DEFAULT) {
                 // transform ray back to model space
@@ -448,7 +448,7 @@ export class RenderScene {
         const transform = m.transform;
         if (!transform || !m.enabled || !(m.node.layer & (mask & ~Layers.Enum.IGNORE_RAYCAST)) || !m.worldBounds) { return false; }
         // broadphase
-        let d = intersect.ray_aabb(worldRay, m.worldBounds);
+        let d = Intersect.rayAABB(worldRay, m.worldBounds);
         if (d <= 0 || d >= distance) { return false; }
         if (m.type === ModelType.DEFAULT) {
             // transform ray back to model space
@@ -513,7 +513,7 @@ export class RenderScene {
         const uiTransform = ui2dNode._uiProps.uiTransformComp;
         if (uiTransform == null || ui2dNode.layer & Layers.Enum.IGNORE_RAYCAST || !(ui2dNode.layer & mask)) { return; }
         uiTransform.getComputeAABB(aabbUI);
-        const d = intersect.ray_aabb(worldRay, aabbUI);
+        const d = Intersect.rayAABB(worldRay, aabbUI);
 
         if (d <= 0) {
             return;
@@ -562,7 +562,7 @@ const pool = new RecyclePool<IRaycastResult>(() => {
 }, 8);
 const resultModels: IRaycastResult[] = [];
 /** Canvas raycast result pool */
-const aabbUI = new aabb();
+const aabbUI = new AABB();
 const poolUI = new RecyclePool<IRaycastResult>(() => {
     return { node: null!, distance: Infinity };
 }, 8);
@@ -583,7 +583,7 @@ const narrowphase = (vb: Float32Array, ib: IBArray, pm: PrimitiveMode, sides: bo
             Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
             Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
             Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
-            const dist = intersect.ray_triangle(modelRay, tri, sides);
+            const dist = Intersect.rayTriangle(modelRay, tri, sides);
             if (dist <= 0 || dist >= narrowDis) { continue; }
             narrowDis = dist;
         }
@@ -598,7 +598,7 @@ const narrowphase = (vb: Float32Array, ib: IBArray, pm: PrimitiveMode, sides: bo
             Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
             Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
             rev = ~rev;
-            const dist = intersect.ray_triangle(modelRay, tri, sides);
+            const dist = Intersect.rayTriangle(modelRay, tri, sides);
             if (dist <= 0 || dist >= narrowDis) { continue; }
             narrowDis = dist;
         }
@@ -611,7 +611,7 @@ const narrowphase = (vb: Float32Array, ib: IBArray, pm: PrimitiveMode, sides: bo
             const i2 = ib[j + 1] * 3;
             Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
             Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
-            const dist = intersect.ray_triangle(modelRay, tri, sides);
+            const dist = Intersect.rayTriangle(modelRay, tri, sides);
             if (dist <= 0 || dist >= narrowDis) { continue; }
             narrowDis = dist;
         }

@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { aabb, intersect, sphere } from '../../geometry';
+import { AABB, Intersect, sphere } from '../../geometry';
 import { Model } from '../../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Layers } from '../../scene-graph/layers';
@@ -44,7 +44,7 @@ const _tempVec3 = new Vec3();
 const _dir_negate = new Vec3();
 const _vec3_p = new Vec3();
 const _mat4_trans = new Mat4();
-const _castWorldBounds = new aabb();
+const _castWorldBounds = new AABB();
 let _castBoundsInited = false;
 const _validLights: Light[] = [];
 const _sphere = sphere.create(0, 0, 0, 1);
@@ -185,7 +185,7 @@ export function lightCollecting (view: RenderView, lightNumber: number) {
     for (let i = 0; i < spotLights.length; i++) {
         const light = spotLights[i];
         sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-        if (intersect.sphere_frustum(_sphere, view.camera.frustum) &&
+        if (Intersect.sphereFrustum(_sphere, view.camera.frustum) &&
          lightNumber > _validLights.length) {
             _validLights.push(light);
         }
@@ -216,12 +216,12 @@ export function shadowCollecting (pipeline: ForwardPipeline, view: RenderView) {
                     _castWorldBounds.copy(model.worldBounds);
                     _castBoundsInited = true;
                 }
-                aabb.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
+                AABB.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
                 shadowObjects.push(getCastShadowRenderObject(model, camera));
             }
         }       
     }
-    if (_castWorldBounds) { aabb.toBoundingSphere(shadows.sphere, _castWorldBounds); }
+    if (_castWorldBounds) { AABB.toBoundingSphere(shadows.sphere, _castWorldBounds); }
 }
 
 export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
@@ -265,7 +265,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                     (view.visibility & model.visFlags)) {
 
                     // frustum culling
-                    if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, camera.frustum)) {
+                    if (model.worldBounds && !Intersect.aabbFrustum(model.worldBounds, camera.frustum)) {
                         continue;
                     }
 
