@@ -1,7 +1,7 @@
 import { Node, Mat4 } from '../core';
 import { ccclass } from '../core/data/class-decorator';
-import { CCArmatureDisplay } from './CCArmatureDisplay';
-import dragonBones from './lib/dragonBones';
+import { ArmatureDisplay } from './ArmatureDisplay';
+import { dragonBones } from './lib/dragonBones.js';
 
 const _tempMat4 = new Mat4();
 
@@ -20,12 +20,12 @@ export class AttachUtil {
     _inited = false;
     _armature: dragonBones.Armature | null= null;
     _armatureNode:Node|null = null;
-    _armatureDisplay:CCArmatureDisplay|null = null;
+    _armatureDisplay:ArmatureDisplay|null = null;
     constructor () {
 
     }
 
-    init (armatureDisplay: CCArmatureDisplay) {
+    init (armatureDisplay: ArmatureDisplay) {
         this._inited = true;
         this._armature = armatureDisplay._armature;
         this._armatureNode = armatureDisplay.node;

@@ -83,5 +83,6 @@ export * from './DragonBonesAsset';
 export * from './DragonBonesAtlasAsset';
 export * from './ArmatureDisplay';
 export * from './AttachUtil';
-
 export * from './assembler';
+
+export { dragonBones } from './lib/dragonBones.js';

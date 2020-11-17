@@ -2,7 +2,7 @@ import { RenderTexture, Size, SpriteFrame, Vec2 } from '../core';
 import { TextureBase } from '../core/assets/texture-base';
 import { ccclass } from '../core/data/decorators';
 import { Rect } from '../core/math/rect';
-import dragonBones from './lib/dragonBones';
+import { dragonBones } from './lib/dragonBones.js';
 
 @ccclass('dragonBones.CCTextureAtlasData')
 export class CCTextureAtlasData extends dragonBones.TextureAtlasData {

@@ -1,4 +1,4 @@
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * @internal
      * @private
@@ -32,7 +32,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * @internal
      * @private
@@ -293,7 +293,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - The BaseObject is the base class for all objects in the DragonBones framework.
      * All BaseObject instances are cached to the object pool to reduce the performance consumption of frequent requests for memory or memory recovery.
@@ -407,7 +407,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - 2D Transform matrix.
      * @version DragonBones 3.0
@@ -602,7 +602,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - 2D Transform.
      * @version DragonBones 3.0
@@ -761,7 +761,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * @internal
      * @private
@@ -802,7 +802,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - The Point object represents a location in a two-dimensional coordinate system.
      * @version DragonBones 3.0
@@ -887,7 +887,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - A Rectangle object is an area defined by its position, as indicated by its top-left corner point (x, y) and by its
      * width and its height.<br/>
@@ -995,7 +995,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - The user custom data.
      * @version DragonBones 5.0
@@ -1130,7 +1130,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - The DragonBones data.
      * A DragonBones data contains multiple armature data.
@@ -1311,7 +1311,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - The armature data.
      * @version DragonBones 3.0
@@ -1743,7 +1743,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * @internal
      * @private
@@ -1790,7 +1790,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * @internal
      * @private
@@ -1828,7 +1828,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - The skin data, typically a armature data instance contains at least one skinData.
      * @version DragonBones 3.0
@@ -1901,7 +1901,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * @internal
      * @private
@@ -2007,7 +2007,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - The base class of bounding box data.
      * @see dragonBones.RectangleData
@@ -2278,7 +2278,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - The animation data.
      * @version DragonBones 3.0
@@ -2508,7 +2508,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - The animation config is used to describe all the information needed to play an animation state.
      * The API is still in the experimental phase and may encounter bugs or stability or compatibility issues when used.
@@ -2807,7 +2807,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - The texture atlas data.
      * @version DragonBones 3.0
@@ -2921,7 +2921,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - The armature proxy interface, the docking engine needs to implement it concretely.
      * @see dragonBones.Armature
@@ -3017,7 +3017,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - Armature is the core of the skeleton animation system.
      * @see dragonBones.ArmatureData
@@ -3583,7 +3583,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - The base class of the transform object.
      * @see dragonBones.Transform
@@ -3752,7 +3752,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - Bone is one of the most important logical units in the armature animation system,
      * and is responsible for the realization of translate, rotation, scaling in the animations.
@@ -3991,7 +3991,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * @internal
      * @private
@@ -4064,7 +4064,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - The slot attached to the armature, controls the display status and properties of the display object.
      * A bone can contain multiple slots.
@@ -4633,7 +4633,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * @internal
      * @private
@@ -4712,7 +4712,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - Play animation interface. (Both Armature and Wordclock implement the interface)
      * Any instance that implements the interface can be added to the Worldclock instance and advance time by Worldclock instance uniformly.
@@ -4788,7 +4788,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - Worldclock provides clock support for animations, advance time for each IAnimatable object added to the instance.
      * @see dragonBones.IAnimateble
@@ -4947,7 +4947,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - The animation player is used to play the animation data and manage the animation states.
      * @see dragonBones.AnimationData
@@ -5424,7 +5424,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - The animation state is generated when the animation data is played.
      * @see dragonBones.Animation
@@ -5914,7 +5914,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * @internal
      * @private
@@ -6028,7 +6028,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * @internal
      * @private
@@ -6202,7 +6202,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - The properties of the object carry basic information about an event,
      * which are passed as parameter or parameter's parameter to event listeners when an event occurs.
@@ -6441,7 +6441,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * @private
      */
@@ -6580,7 +6580,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * @internal
      * @private
@@ -6755,7 +6755,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * @internal
      * @private
@@ -6882,7 +6882,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * @internal
      * @private
@@ -6940,7 +6940,7 @@ declare namespace dragonBones {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-declare namespace dragonBones {
+declare namespace dragonBonesPri {
     /**
      * - Base class for the factory that create the armatures. (Typically only one global factory instance is required)
      * The factory instance create armatures by parsed and added DragonBonesData instances and TextureAtlasData instances.
@@ -7506,4 +7506,4 @@ declare namespace dragonBones {
     }
 }
 
-export default dragonBones;
+export { dragonBonesPri as dragonBones };

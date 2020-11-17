@@ -3,7 +3,7 @@ import { EDITOR } from 'internal:constants';
 import { Asset } from '../core/assets';
 import { ccclass, serializable } from '../core/data/decorators';
 import { ArmatureCache } from './ArmatureCache';
-import { Enum, Node } from '../core';
+import { Enum, JsonAsset, Node } from '../core';
 import { CCFactory } from './CCFactory';
 
 /**
@@ -28,6 +28,12 @@ export class DragonBonesAsset extends Asset {
         return this._dragonBonesJson;
     }
 
+    set dragonBonesJson(value) {
+        this._dragonBonesJson = value;
+        this._dragonBonesJsonData = JSON.parse(value);
+        this.reset();
+    }
+
     get _nativeAsset () {
         return this._buffer!;
     }
@@ -41,7 +47,7 @@ export class DragonBonesAsset extends Asset {
     private _factory: CCFactory| null = null;
     private _dragonBonesJsonData?: any;
 
-    private _armaturesEnum: any = {};
+    private _armaturesEnum: any = null;
 
     constructctor () {
         this.reset();

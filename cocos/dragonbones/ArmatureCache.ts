@@ -3,7 +3,7 @@ import { TextureBase } from '../core/assets/texture-base';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
 import { CCFactory } from './CCFactory';
 import { CCSlot } from './CCSlot';
-import dragonBones from './lib/dragonBones';
+import { dragonBones } from './lib/dragonBones.js';
 
 const MaxCacheTime = 30;
 const FrameTime = 1 / 60;
@@ -48,7 +48,7 @@ export interface ArmatureFrameColor {
     g: number;
     b: number;
     a: number;
-    vfOffset: number;
+    vfOffset?: number;
 }
 
 export interface ArmatureFrameSegment {

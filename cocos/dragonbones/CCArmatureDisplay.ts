@@ -1,16 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
-import { ccclass } from '../core/data/class-decorator.js';
+import { ccclass } from '../core/data/class-decorator';
 import { Vec2, EventTarget, Node } from '../core';
-import dragonBones from './lib/dragonBones.js';
-import { CCSlot } from './CCSlot.js';
+import { dragonBones } from './lib/dragonBones.js';
+import { CCSlot } from './CCSlot';
+import { ArmatureDisplay } from './ArmatureDisplay';
 
 @ccclass('dragonBones.CCArmatureDisplay')
 export class CCArmatureDisplay extends dragonBones.DisplayData implements dragonBones.IEventDispatcher {
-    get node () { return this._ccNode; }
+    get node () { return this; }
 
     shouldAdvanced = false;
     _ccNode: Node|null = null;
+    _ccComponent: ArmatureDisplay |null = null;
     _eventTarget: EventTarget;
 
     _armature: dragonBones.Armature | null = null;
@@ -85,7 +87,9 @@ export class CCArmatureDisplay extends dragonBones.DisplayData implements dragon
     }
 
     dbUpdate () {
-
+        if (this._ccComponent) {
+            this._ccComponent.markForUpdateRenderData();
+        }
     }
 
     advanceTimeBySelf (on: boolean | number) {

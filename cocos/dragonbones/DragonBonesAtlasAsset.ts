@@ -7,7 +7,7 @@ import { ccclass, serializable, type } from '../core/data/decorators';
 import { ArmatureCache } from './ArmatureCache';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { CCFactory } from './CCFactory';
-import dragonBones from './lib/dragonBones';
+import { dragonBones } from './lib/dragonBones.js';
 
 /**
  * !#en The skeleton atlas data of dragonBones.

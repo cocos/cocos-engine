@@ -1,12 +1,12 @@
-import dragonBones from './lib/dragonBones.js';
+import { dragonBones } from './lib/dragonBones.js';
 import { Component, director, Game, game, ISchedulable, Node, RenderTexture, Scheduler, systemEvent, SystemEventType } from '../core';
-import { ccclass } from '../core/data/class-decorator.js';
-import { EDITOR, JSB } from '../../editor/exports/populate-internal-constants.js';
-import { CCTextureAtlasData } from './CCTextureData.js';
-import { TextureBase } from '../core/assets/texture-base.js';
-import { CCSlot } from './CCSlot.js';
-import { ArmatureDisplay } from './ArmatureDisplay.js';
-import { CCArmatureDisplay } from './CCArmatureDisplay.js';
+import { ccclass } from '../core/data/class-decorator';
+import { EDITOR, JSB } from '../../editor/exports/populate-internal-constants';
+import { CCTextureAtlasData } from './CCTextureData';
+import { TextureBase } from '../core/assets/texture-base';
+import { CCSlot } from './CCSlot';
+import { ArmatureDisplay } from './ArmatureDisplay';
+import { CCArmatureDisplay } from './CCArmatureDisplay';
 
 /**
  * @module dragonBones

@@ -1,7 +1,7 @@
-import { Color, mat4, Mat4 } from '../core';
+import { Color, ImageAsset, mat4, Mat4, Texture2D } from '../core';
 import { ccclass } from '../core/data/class-decorator';
 import { CCTextureData } from './CCTextureData';
-import dragonBones from './lib/dragonBones.js';
+import { dragonBones } from './lib/dragonBones.js';
 
 const BoneType = dragonBones.BoneType;
 const BinaryOffset = dragonBones.BinaryOffset;
@@ -33,13 +33,19 @@ export class CCSlot extends dragonBones.Slot {
 
     // return dragonBones.CCTexture2D
     getTexture () {
-        return this._textureData && (this._textureData as CCTextureData).spriteFrame && (this._textureData as CCTextureData).spriteFrame!.texture;
+        if (this._textureData) {
+            const sp = (this._textureData as any).spriteFrame;
+            const tex = sp.texture instanceof ImageAsset ? sp.texture._texture : sp.texture;
+            return tex as Texture2D;
+        }
+        return null;
     }
 
     calculWorldMatrix () {
         const parent = this._armature._parent as CCSlot;
         if (parent) {
             this._mulMat(this._worldMatrix, parent._worldMatrix, this._matrix);
+            // Mat4.multiply(this._worldMatrix, parent._worldMatrix, this._matrix);
         } else {
             Mat4.copy(this._worldMatrix, this._matrix);
         }
@@ -91,7 +97,7 @@ export class CCSlot extends dragonBones.Slot {
     // just for adapt to dragonbones api,no need to do any thing
     _updateZOrder () {
     }
-
+    
     _updateBlendMode () {
         if (this._childArmature) {
             const childSlots = this._childArmature.getSlots();
@@ -133,8 +139,8 @@ export class CCSlot extends dragonBones.Slot {
             const intArray = data.intArray;
             const floatArray = data.floatArray;
             const vertexCount = intArray[currentVerticesData.offset + dragonBones.BinaryOffset.MeshVertexCount];
-            const triangleCount = intArray[currentVerticesData.offset + BinaryOffset.MeshTriangleCount];
-            let vertexOffset: number = intArray[currentVerticesData.offset + BinaryOffset.MeshFloatOffset];
+            const triangleCount = intArray[currentVerticesData.offset + dragonBones.BinaryOffset.MeshTriangleCount];
+            let vertexOffset: number = intArray[currentVerticesData.offset + dragonBones.BinaryOffset.MeshFloatOffset];
 
             if (vertexOffset < 0) {
                 vertexOffset += 65536; // Fixed out of bouds bug.

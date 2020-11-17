@@ -9,7 +9,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var dragonBones;
+let dragonBones = {};
 (function (dragonBones) {
 })(dragonBones || (dragonBones = {}));
 /**
@@ -34,7 +34,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * @private
@@ -152,7 +151,6 @@ var __extends = function (t, e) {
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * - The BaseObject is the base class for all objects in the DragonBones framework.
@@ -335,7 +333,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * - 2D Transform matrix.
@@ -598,7 +595,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * - 2D Transform.
@@ -789,7 +785,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * @internal
@@ -853,7 +848,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * - The Point object represents a location in a two-dimensional coordinate system.
@@ -925,7 +919,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * - A Rectangle object is an area defined by its position, as indicated by its top-left corner point (x, y) and by its
@@ -1001,7 +994,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * - The user custom data.
@@ -1172,7 +1164,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * - The DragonBones data.
@@ -1317,7 +1308,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * - The armature data.
@@ -1838,7 +1828,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * @internal
@@ -1935,7 +1924,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * @internal
@@ -1982,7 +1970,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * - The skin data, typically a armature data instance contains at least one skinData.
@@ -2085,7 +2072,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * @internal
@@ -2304,7 +2290,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * - The base class of bounding box data.
@@ -2882,7 +2867,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * - The animation data.
@@ -3175,7 +3159,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * - The animation config is used to describe all the information needed to play an animation state.
@@ -3354,7 +3337,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * - The texture atlas data.
@@ -3492,7 +3474,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * @internal
@@ -3580,7 +3561,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones_1) {
     /**
      * - Armature is the core of the skeleton animation system.
@@ -4517,7 +4497,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * - The base class of the transform object.
@@ -4660,7 +4639,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * - Bone is one of the most important logical units in the armature animation system,
@@ -5213,7 +5191,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * @internal
@@ -5661,7 +5638,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * - The slot attached to the armature, controls the display status and properties of the display object.
@@ -6709,7 +6685,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * @internal
@@ -7417,7 +7392,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * - Worldclock provides clock support for animations, advance time for each IAnimatable object added to the instance.
@@ -7677,7 +7651,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * - The animation player is used to play the animation data and manage the animation states.
@@ -8659,7 +8632,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * - The animation state is generated when the animation data is played.
@@ -9775,7 +9747,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * @internal
@@ -10119,7 +10090,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * @internal
@@ -11181,7 +11151,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * - The properties of the object carry basic information about an event,
@@ -11360,7 +11329,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * @internal
@@ -11712,7 +11680,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * @internal
@@ -13551,7 +13518,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * @internal
@@ -13959,7 +13925,6 @@ var dragonBones;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var dragonBones;
 (function (dragonBones) {
     /**
      * - Base class for the factory that create the armatures. (Typically only one global factory instance is required)
@@ -14982,4 +14947,139 @@ var dragonBones;
     dragonBones.BuildArmaturePackage = BuildArmaturePackage;
 })(dragonBones || (dragonBones = {}));
 
-export default dragonBones;
+(function(dragonBones){
+
+        /**
+     * @internal
+     * @private
+     */
+    dragonBones.BinaryOffset = {
+        WeigthBoneCount : 0,
+        WeigthFloatOffset : 1,
+        WeigthBoneIndices : 2,
+        MeshVertexCount : 0,
+        MeshTriangleCount : 1,
+        MeshFloatOffset : 2,
+        MeshWeightOffset : 3,
+        MeshVertexIndices : 4,
+        TimelineScale : 0,
+        TimelineOffset : 1,
+        TimelineKeyFrameCount : 2,
+        TimelineFrameValueCount : 3,
+        TimelineFrameValueOffset : 4,
+        TimelineFrameOffset : 5,
+        FramePosition : 0,
+        FrameTweenType : 1,
+        FrameTweenEasingOrCurveSampleCount : 2,
+        FrameCurveSamples : 3,
+        DeformMeshOffset : 0,
+        DeformCount : 1,
+        DeformValueCount : 2,
+        DeformValueOffset : 3,
+        DeformFloatOffset : 4,
+    }
+    /**
+     * @internal
+     * @private
+     */
+    dragonBones.ArmatureType= {
+        Armature : 0,
+        MovieClip : 1,
+        Stage : 2,
+    }
+    /**
+     * @internal
+     * @private
+     */
+    dragonBones.BoneType ={
+        Bone : 0,
+        Surface : 1,
+    }
+    /**
+     * @private
+     */
+    dragonBones.DisplayType = {
+        Image : 0,
+        Armature : 1,
+        Mesh : 2,
+        BoundingBox : 3,
+    }
+    /**
+     * - Bounding box type.
+     * @version DragonBones 5.0
+     * @language en_US
+     */
+    /**
+     * - 边界框类型。
+     * @version DragonBones 5.0
+     * @language zh_CN
+     */
+    dragonBones.BoundingBoxType ={
+        Rectangle : 0,
+        Ellipse : 1,
+        Polygon : 2,
+    }
+    /**
+     * @internal
+     * @private
+     */
+    dragonBones.ActionType = {
+        Play : 0,
+        Frame : 10,
+        Sound : 11,
+    }
+    /**
+     * @internal
+     * @private
+     */
+    dragonBones.BlendMode= {
+        Normal : 0,
+        Add : 1,
+        Alpha : 2,
+        Darken : 3,
+        Difference : 4,
+        Erase : 5,
+        HardLight : 6,
+        Invert : 7,
+        Layer : 8,
+        Lighten : 9,
+        Multiply : 10,
+        Overlay : 11,
+        Screen : 12,
+        Subtract : 13,
+    }
+    /**
+     * @internal
+     * @private
+     */
+    dragonBones.TweenType = {
+        None : 0,
+        Line : 1,
+        Curve : 2,
+        QuadIn : 3,
+        QuadOut : 4,
+        QuadInOut : 5,
+    }
+    /**
+     * @internal
+     * @private
+     */
+    dragonBones.TimelineType ={
+        Action : 0,
+        ZOrder : 1,
+        BoneAll : 10,
+        BoneTranslate : 11,
+        BoneRotate : 12,
+        BoneScale : 13,
+        Surface : 50,
+        SlotDisplay : 20,
+        SlotColor : 21,
+        SlotFFD : 22,
+        IKConstraint : 30,
+        AnimationTime : 40,
+        AnimationWeight : 41,
+    }
+
+})(dragonBones || (dragonBones = {}));
+
+export { dragonBones };

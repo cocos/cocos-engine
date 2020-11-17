@@ -1,17 +1,20 @@
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { UIRenderable } from '../core/components/ui-base/ui-renderable';
-import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID } from '../core';
+import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID, Texture2D, GFXBlendFactor } from '../core';
 import { displayName, editable, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { EDITOR } from '../../editor/exports/populate-internal-constants';
 
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
 import { CCFactory } from './CCFactory';
-import dragonBones from './lib/dragonBones';
+import { dragonBones } from './lib/dragonBones.js';
 import { DragonBonesAsset } from './DragonBonesAsset';
 import { DragonBonesAtlasAsset } from './DragonBonesAtlasAsset';
 import { Graphics } from '../ui/components';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
+import { MeshRenderData } from '../core/renderer/ui/render-data';
+import { UI } from '../core/renderer/ui/ui';
+import { MaterialInstance } from '../core/renderer/core/material-instance';
 
 enum DefaultArmaturesEnum {
     default = -1,
@@ -61,6 +64,11 @@ ccenum(AnimationCacheMode);
 function setEnumAttr (obj, propName, enumDef) {
     CCClass.Attr.setClassAttr(obj, propName, 'type', 'Enum');
     CCClass.Attr.setClassAttr(obj, propName, 'enumList', Enum.getList(enumDef));
+}
+
+export interface ArmatureDisplayMeshData {
+    renderData: MeshRenderData;
+    texture: Texture2D | null;
 }
 
 /**
@@ -325,13 +333,15 @@ export class ArmatureDisplay extends UIRenderable {
     @tooltip('i18n:COMPONENT.dragon_bones.enabled_batch')
     get enableBatch () { return this._enableBatch; }
     set enableBatch (value) {
-        this._debugBones = value;
+        this._enableBatch = value;
         this._updateBatch();
     }
 
-    /* protected */ _armature:dragonBones.Armature|null = null;
+    /* protected */ _armature: dragonBones.Armature | null = null;
 
-    public attachUtil:AttachUtil;
+    public attachUtil: AttachUtil;
+
+    get meshRenderDataArray () { return this._meshRenderDataArray; }
 
     @serializable
     protected _defaultArmatureIndexValue: DefaultArmaturesEnum = DefaultArmaturesEnum.default;
@@ -341,13 +351,14 @@ export class ArmatureDisplay extends UIRenderable {
     /* protected */ _dragonAtlasAsset: DragonBonesAtlasAsset | null = null;
     @serializable
     /* protected */ _armatureName = '';
+    @serializable
     protected _animationName = '';
     @serializable
     protected _animationIndexValue: DefaultAnimsEnum = 0;
     protected _preCacheMode = -1;
     protected _cacheMode: AnimationCacheMode = AnimationCacheMode.REALTIME;
     @serializable
-    protected _defaultCacheModeValue: AnimationCacheMode = 0;
+    protected _defaultCacheModeValue: AnimationCacheMode = AnimationCacheMode.REALTIME;
     @serializable
     protected _timeScale = 1;
     @serializable
@@ -355,7 +366,7 @@ export class ArmatureDisplay extends UIRenderable {
 
     @serializable
     protected _debugBones = false;
-    /* protected */ _debugDraw:Graphics|null =null;
+    /* protected */ _debugDraw: Graphics | null = null;
 
     @serializable
     protected _enableBatch = false;
@@ -369,20 +380,27 @@ export class ArmatureDisplay extends UIRenderable {
     // Play times counter
     protected _playCount = 0;
     // Frame cache
-    protected _frameCache:AnimationCache|null = null;
+    protected _frameCache: AnimationCache | null = null;
     // Cur frame
-    /* protected */ _curFrame:ArmatureFrame|null = null;
+    /* protected */ _curFrame: ArmatureFrame | null = null;
     // Playing flag
     protected _playing = false;
     // Armature cache
-    protected _armatureCache : ArmatureCache|null = null;
+    protected _armatureCache: ArmatureCache | null = null;
 
     protected _eventTarget: EventTarget;
 
     protected _factory: CCFactory;
 
+    protected _displayProxy: CCArmatureDisplay | null = null;
+
+    protected _meshRenderDataArray: ArmatureDisplayMeshData[] = [];
+    protected _materialCache: { [key: string]: MaterialInstance } = {} as any;
+
+    protected _enumArmatures: any = Enum({});
+    protected _enumAnimations: any = Enum({});
+
     private _inited;
-    protected _displayProxy:CCArmatureDisplay|null =null;
 
     constructor () {
         super();
@@ -395,6 +413,9 @@ export class ArmatureDisplay extends UIRenderable {
         this._inited = false;
         this.attachUtil = new AttachUtil();
         this._factory = CCFactory.getInstance();
+        this._cacheMode = this._defaultCacheMode;
+        setEnumAttr(this, '_animationIndex', this._enumAnimations);
+        setEnumAttr(this, '_defaultArmatureIndex', this._enumArmatures);
     }
 
     onLoad () {
@@ -410,12 +431,77 @@ export class ArmatureDisplay extends UIRenderable {
         }
     }
 
+    public requestMeshRenderData () {
+        const arr = this._meshRenderDataArray;
+        if (arr.length > 0 && arr[arr.length - 1].renderData.vertexCount === 0) {
+            return arr[arr.length - 1];
+        }
+        const renderData = new MeshRenderData();
+        const comb = { renderData, texture: null };
+        arr.push(comb);
+        return comb;
+    }
+
+    public destroyRenderData () {
+        if (this._meshRenderDataArray) {
+            this._meshRenderDataArray.forEach((rd) => { rd.renderData.reset(); });
+            this._meshRenderDataArray.length = 0;
+        }
+    }
+
+    public resetRenderData () {
+        if (this._meshRenderDataArray) {
+            this._meshRenderDataArray.forEach((rd) => { rd.renderData.reset(); });
+        }
+    }
+
+    public getMaterialForBlend (src: GFXBlendFactor, dst: GFXBlendFactor): MaterialInstance {
+        const key = `${src}/${dst}`;
+        let inst = this._materialCache[key];
+        if (inst) {
+            return inst;
+        }
+        const material = this.getMaterial(0)!;
+        const matInfo = {
+            parent: material,
+            subModelIdx: 0,
+            owner: this,
+        };
+        inst = new MaterialInstance(matInfo);
+        inst.recompileShaders({ USE_LOCAL: true }, 0);
+        this._materialCache[key] = inst;
+        inst.overridePipelineStates({
+            blendState: {
+                targets: [{
+                    blendSrc: src, blendDst: dst,
+                }],
+            },
+        });
+        return inst;
+    }
+
+    public _meshRenderDataArrayIdx = 0;
+    protected _render (ui: UI) {
+        if (this._meshRenderDataArray) {
+            for (let i = 0; i < this._meshRenderDataArray.length; i++) {
+                this._meshRenderDataArrayIdx = i;
+                const m = this._meshRenderDataArray[i];
+                if (m.texture) {
+                    ui.commitComp(this, m.texture, this._assembler);
+                }
+            }
+        }
+    }
+
     // if change use batch mode, just clear material cache
     _updateBatch () {
         // const baseMaterial = this.getMaterial(0);
         // if (baseMaterial) {
         //     baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
         // }
+        this._materialCache = {};
+        this.destroyRenderData();
+        this.markForUpdateRenderData();
     }
 
     // override base class _updateMaterial to set define value and clear material cache
@@ -436,23 +522,13 @@ export class ArmatureDisplay extends UIRenderable {
         //         dstBlendFactor, dstBlendFactor
         //     );
         // }
+        this.markForUpdateRenderData();
     }
 
     // override base class disableRender to clear post render flag
     disableRender () {
         // this._super();
         // this.node._renderFlag &= ~FLAG_POST_RENDER;
-    }
-
-    // override base class disableRender to add post render flag
-    markForRender () {
-        // this._super(enable);
-        // if (enable) {
-        //     this.node._renderFlag |= FLAG_POST_RENDER;
-        // } else {
-        //     this.node._renderFlag &= ~FLAG_POST_RENDER;
-        // }
-        this.markForUpdateRenderData();
     }
 
     _validateRender () {
@@ -465,6 +541,7 @@ export class ArmatureDisplay extends UIRenderable {
     }
 
     __preload () {
+        super.__preload();
         this._init();
     }
 
@@ -521,7 +598,6 @@ export class ArmatureDisplay extends UIRenderable {
         if (this._preCacheMode !== cacheMode) {
             this._cacheMode = cacheMode;
             this._buildArmature();
-
             if (this._armature && !this.isAnimationCached()) {
                 this._factory._dragonBones.clock.add(this._armature);
             }
@@ -545,6 +621,7 @@ export class ArmatureDisplay extends UIRenderable {
         if (this._armature && !this.isAnimationCached()) {
             this._factory._dragonBones.clock.add(this._armature);
         }
+        this._flushAssembler();
     }
 
     onDisable () {
@@ -637,6 +714,7 @@ export class ArmatureDisplay extends UIRenderable {
             this._armature.dispose();
             this._armature = null;
         }
+        this.destroyRenderData();
     }
 
     _updateDebugDraw () {
@@ -654,6 +732,8 @@ export class ArmatureDisplay extends UIRenderable {
         } else if (this._debugDraw) {
             this._debugDraw.node.parent = null;
         }
+        this.destroyRenderData();
+        this.markForUpdateRenderData();
     }
 
     _buildArmature () {
@@ -706,6 +786,7 @@ export class ArmatureDisplay extends UIRenderable {
             this._displayProxy = this._factory.buildArmatureDisplay(this.armatureName, this._armatureKey, '', atlasUUID) as CCArmatureDisplay;
             if (!this._displayProxy) return;
             this._displayProxy._ccNode = this.node;
+            this._displayProxy._ccComponent = this;
             this._displayProxy.setEventTarget(this._eventTarget);
             this._armature = this._displayProxy._armature;
             this._armature!.animation.timeScale = this.timeScale;
@@ -725,13 +806,13 @@ export class ArmatureDisplay extends UIRenderable {
 
         this._updateBatch();
         this.attachUtil.init(this);
-        this.attachUtil._associateAttachedNode();
 
         if (this.animationName) {
             this.playAnimation(this.animationName, this.playTimes);
         }
 
-        this.markForRender();
+        this.destroyRenderData();
+        this.markForUpdateRenderData();
     }
 
     _parseDragonAtlasAsset () {
@@ -751,13 +832,17 @@ export class ArmatureDisplay extends UIRenderable {
             // Editor.Utils.refreshSelectedInspector('node', this.node.uuid);
         }
     }
+
+    _cacheModeEnum: any;
     // EDITOR
     _updateCacheModeEnum () {
+        this._cacheModeEnum = Enum({});
         if (this._armature) {
-            setEnumAttr(this, '_defaultCacheMode', AnimationCacheMode);
+            Object.assign(this._cacheModeEnum, AnimationCacheMode);
         } else {
-            setEnumAttr(this, '_defaultCacheMode', DefaultCacheMode);
+            Object.assign(this._cacheModeEnum, DefaultCacheMode);
         }
+        setEnumAttr(this, '_defaultCacheMode', this._cacheModeEnum);
     }
 
     // update animation list for editor
@@ -765,9 +850,15 @@ export class ArmatureDisplay extends UIRenderable {
         let animEnum;
         if (this.dragonAsset) {
             animEnum = this.dragonAsset.getAnimsEnum(this.armatureName);
+        } else {
+            animEnum = DefaultAnimsEnum;
         }
+
+        this._enumAnimations = Enum({});
+        Object.assign(this._enumAnimations, animEnum || DefaultAnimsEnum);
+        Enum.update(this._enumAnimations);
         // change enum
-        setEnumAttr(this, '_animationIndex', animEnum || DefaultAnimsEnum);
+        setEnumAttr(this, '_animationIndex', this._enumAnimations);
     }
 
     // update armature list for editor
@@ -775,9 +866,15 @@ export class ArmatureDisplay extends UIRenderable {
         let armatureEnum;
         if (this.dragonAsset) {
             armatureEnum = this.dragonAsset.getArmatureEnum();
+        } else {
+            armatureEnum = DefaultArmaturesEnum;
         }
+
+        this._enumArmatures = Enum({});
+        Object.assign(this._enumArmatures, armatureEnum || DefaultArmaturesEnum);
+        Enum.update(this._enumArmatures);
         // change enum
-        setEnumAttr(this, '_defaultArmatureIndex', armatureEnum || DefaultArmaturesEnum);
+        setEnumAttr(this, '_defaultArmatureIndex', this._enumArmatures);
     }
 
     /**
@@ -796,7 +893,7 @@ export class ArmatureDisplay extends UIRenderable {
      * 0 为无限循环播放。
      * >0 为动画的重复次数。
      */
-    playAnimation (animName:string, playTimes:number) {
+    playAnimation (animName: string, playTimes: number) {
         this.playTimes = (playTimes === undefined) ? -1 : playTimes;
         this.animationName = animName;
 
@@ -809,9 +906,10 @@ export class ArmatureDisplay extends UIRenderable {
                 this._accTime = 0;
                 this._playCount = 0;
                 this._frameCache = cache;
-                if (this.attachUtil._hasAttachedNode()) {
-                    this._frameCache.enableCacheAttachedInfo();
-                }
+                // FIXME: sync code
+                // if (this.attachUtil._hasAttachedNode()) {
+                //     this._frameCache.enableCacheAttachedInfo();
+                // }
                 this._frameCache.updateToFrame(0);
                 this._playing = true;
                 this._curFrame = this._frameCache.frames[0];
@@ -819,6 +917,7 @@ export class ArmatureDisplay extends UIRenderable {
         } else if (this._armature) {
             return this._armature.animation.play(animName, this.playTimes);
         }
+        this.markForUpdateRenderData();
         return null;
     }
 
@@ -833,7 +932,7 @@ export class ArmatureDisplay extends UIRenderable {
      * @method updateAnimationCache
      * @param {String} animName
      */
-    updateAnimationCache (animName:string) {
+    updateAnimationCache (animName: string) {
         if (!this.isAnimationCached()) return;
         this._armatureCache!.updateAnimationCache(this._armatureKey, animName);
     }
@@ -872,8 +971,8 @@ export class ArmatureDisplay extends UIRenderable {
      * @param {String} armatureName
      * @returns {Array}
      */
-    getAnimationNames (armatureName:string) {
-        const ret:string[] = [];
+    getAnimationNames (armatureName: string) {
+        const ret: string[] = [];
         const dragonBonesData = this._factory.getDragonBonesData(this._armatureKey);
         if (dragonBonesData) {
             const armatureData = dragonBonesData.getArmature(armatureName);
@@ -900,7 +999,7 @@ export class ArmatureDisplay extends UIRenderable {
      * @param {Event} listener.event event
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      */
-    on (eventType:string, listener, target) {
+    on (eventType: string, listener, target) {
         this.addEventListener(eventType, listener, target);
     }
 
@@ -914,7 +1013,7 @@ export class ArmatureDisplay extends UIRenderable {
      * @param {Function} [listener]
      * @param {Object} [target]
      */
-    off (eventType:string, listener, target) {
+    off (eventType: string, listener, target) {
         this.removeEventListener(eventType, listener, target);
     }
 
@@ -929,7 +1028,7 @@ export class ArmatureDisplay extends UIRenderable {
      * @param {Event} listener.event event
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      */
-    once (eventType:string, listener, target) {
+    once (eventType: string, listener, target) {
         this._eventTarget.once(eventType, listener, target);
     }
 
@@ -972,7 +1071,7 @@ export class ArmatureDisplay extends UIRenderable {
      * @param {Node} node
      * @return {dragonBones.ArmatureDisplay}
      */
-    buildArmature (armatureName:string, node?:Node) {
+    buildArmature (armatureName: string, node?: Node) {
         return this._factory.createArmatureNode(this, armatureName, node);
     }
 
@@ -986,6 +1085,20 @@ export class ArmatureDisplay extends UIRenderable {
      */
     armature () {
         return this._armature;
+    }
+
+    protected _flushAssembler () {
+        const assembler = ArmatureDisplay.Assembler!.getAssembler(this);
+        if (this._assembler !== assembler) {
+            this._assembler = assembler;
+        }
+        if (this._meshRenderDataArray.length === 0) {
+            if (this._assembler && this._assembler.createData) {
+                this._assembler.createData(this);
+                this.markForUpdateRenderData();
+                this._updateColor();
+            }
+        }
     }
 }
 
