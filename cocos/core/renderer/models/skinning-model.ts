@@ -40,7 +40,7 @@ import { ModelType } from '../scene/model';
 import { uploadJointData } from './skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { DescriptorSet, Buffer, BufferInfo } from '../../gfx';
-import { AABBPool, AABBView } from '..';
+import { AABBPool, AABBView } from '../core/memory-pools';
 
 export interface IJointTransform {
     node: Node;
