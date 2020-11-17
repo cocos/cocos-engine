@@ -355,7 +355,7 @@ export class TerrainBlock {
             PrimitiveMode.TRIANGLE_LIST, this._terrain._getSharedIndexBuffer());
 
         const model = this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
-        model.node = model.transform = this._node;
+        model.node = model.transform = this._terrain.node;
         model.createBoundingShape(bbMin, bbMax);
         this._renderable._getRenderScene().addModel(model);
 
