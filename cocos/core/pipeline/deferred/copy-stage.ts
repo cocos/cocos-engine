@@ -3,32 +3,19 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { IRenderPass, localDescriptorSetLayout, UBODeferredLight, SetIndex } from '../define';
-import { getPhaseID } from '../pass-phase';
-import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
-import { GFXClearFlag, GFXColor, GFXRect } from '../../gfx/define';
-import { SRGBToLinear } from '../pipeline-funcs';
+import { SetIndex } from '../define';
+import { Color, Rect } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { DeferredStagePriority } from './enum';
-import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { LightingFlow } from './lighting-flow';
 import { DeferredPipeline } from './deferred-pipeline';
-import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
-import { PlanarShadowQueue } from './planar-shadow-queue';
 import { Material } from '../../assets/material';
 import { ShaderPool } from '../../renderer/core/memory-pools';
 import { PipelineStateManager } from '../pipeline-state-manager';
-import { GFXPipelineState } from '../../gfx/pipeline-state';
-import { Light } from "../../renderer/scene/light";
-import { sphere, intersect } from '../../geometry';
-import { color, Vec2, Vec3, Vec4 } from '../../math';
-import { LightComponent } from '../../3d';
-import { GFXDevice, GFXRenderPass, GFXBuffer, GFXBufferUsageBit, GFXMemoryUsageBit, GFXBufferInfo, GFXBufferViewInfo, GFXDescriptorSet, GFXDescriptorSetLayoutInfo, GFXDescriptorSetLayout, GFXDescriptorSetInfo } from '../../gfx';
-import { RenderPipeline } from '../render-pipeline';
-import { IRenderObject, UBOForwardLight } from '../define';
+import { PipelineState } from '../../gfx/pipeline-state';
 
-const colors: GFXColor[] = [ new GFXColor(0, 0, 0, 1) ];
+const colors: Color[] = [ new Color(0, 0, 0, 1) ];
 const COPYPASS_INDEX = 0;
 
 /**
@@ -38,26 +25,13 @@ const COPYPASS_INDEX = 0;
 @ccclass('CopyStage')
 export class CopyStage extends RenderStage {
 
+    private _renderArea = new Rect();
+
     public static initInfo: IRenderStageInfo = {
         name: 'CopyStage',
         priority: DeferredStagePriority.COPY,
-        tag: 0,
-        renderQueues: [
-            {
-                isTransparent: false,
-                sortMode: RenderQueueSortMode.FRONT_TO_BACK,
-                stages: ['default'],
-            },
-            {
-                isTransparent: true,
-                sortMode: RenderQueueSortMode.BACK_TO_FRONT,
-                stages: ['default', 'planarShadow'],
-            },
-        ]
+        tag: 0
     };
-
-    private _renderArea = new GFXRect();
-    private _PhaseID = getPhaseID('copy');
 
     @type(Material)
     @serializable
@@ -109,15 +83,15 @@ export class CopyStage extends RenderStage {
 
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
-        // Lighting
-        const hPass = this._copyMaterial!.passes[COPYPASS_INDEX].handle;
+        // Copy
+        const pass = this._copyMaterial!.passes[COPYPASS_INDEX];
         const shader = ShaderPool.get(this._copyMaterial!.passes[COPYPASS_INDEX].getShaderVariant());
 
         const inputAssembler = pipeline.quadIA;
-        var pso:GFXPipelineState|null = null;
-        if (hPass != null && shader != null && inputAssembler != null)
+        var pso:PipelineState|null = null;
+        if (pass != null && shader != null && inputAssembler != null)
         {
-            pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, inputAssembler);
+            pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
         }
 
         if(pso != null)
@@ -128,23 +102,5 @@ export class CopyStage extends RenderStage {
         }
 
         cmdBuff.endRenderPass();
-    }
-
-    /**
-     * @en Clear the given render queue
-     * @zh 清空指定的渲染队列
-     * @param rq The render queue
-     */
-    protected renderQueueClearFunc (rq: RenderQueue) {
-        rq.clear();
-    }
-
-    /**
-     * @en Sort the given render queue
-     * @zh 对指定的渲染队列执行排序
-     * @param rq The render queue
-     */
-    protected renderQueueSortFunc (rq: RenderQueue) {
-        rq.sort();
     }
 }
