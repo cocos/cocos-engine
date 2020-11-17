@@ -660,7 +660,7 @@ export class PageView extends ScrollView {
     }
 
     // 快速滑动
-    protected _isQuicklyScrollable(touchMoveVelocity: Vec3) {
+    protected _isQuicklyScrollable(touchMoveVelocity: Vec2) {
         if (this.direction === Direction.Horizontal) {
             if (Math.abs(touchMoveVelocity.x) > this.autoPageTurningThreshold) {
                 return true;
@@ -676,7 +676,7 @@ export class PageView extends ScrollView {
 
     // 通过 idx 获取偏移值数值
     protected _moveOffsetValue(idx: number) {
-        const offset = new Vec3();
+        const offset = new Vec2();
         if (this._sizeMode === SizeMode.Free) {
             if (this.direction === Direction.Horizontal) {
                 offset.x = this._scrollCenterOffsetX[idx];
