@@ -16,11 +16,16 @@ class HTMLImageElement extends HTMLElement {
     }
 
     destroy() {
-        jsb.destroyImage(this._data);
+        if (this._data) {
+            jsb.destroyImage(this._data);
+            this._data = null;
+        }
+        this._src = null;
     }
 
     set src(src) {
         this._src = src;
+        if (src === '') return;
         jsb.loadImage(src, (info) => {
             if (!info) {
                 this._data = null;
