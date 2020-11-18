@@ -29,7 +29,7 @@
  * @module core
  */
 
-import { EDITOR, TEST, COCOSPLAY, JSB, MINIGAME, HUAWEI, OPPO, VIVO, RUNTIME_BASED } from 'internal:constants';
+import { EDITOR, TEST, COCOSPLAY, JSB, MINIGAME, HUAWEI, OPPO, VIVO, RUNTIME_BASED, LINKSURE, QTT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID, log, logID } from './debug';
 
@@ -841,6 +841,10 @@ else if (JSB || RUNTIME_BASED) {
         platform = sys.HUAWEI_QUICK_GAME;
     } else if (COCOSPLAY) {
         platform = sys.COCOSPLAY;
+    } else if (LINKSURE) {
+        platform = sys.LINKSURE_MINI_GAME;
+    } else if (QTT) {
+        platform = sys.QTT_MINI_GAME;
     } else {
         // @ts-expect-error
         platform = __getPlatform();
