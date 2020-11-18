@@ -60,8 +60,8 @@ const _tempVec2_2 = new Vec2();
 const _tempVec2Anchor = new Vec2();
 const _tempVec2A = new Vec2();
 const _tempVec2B = new Vec2();
-
 const _tempVec2C = new Vec2();
+const _tempVec2D = new Vec2();
 
 const quintEaseOut = (time: number) => {
     time -= 1;
@@ -1749,7 +1749,7 @@ export class ScrollView extends ViewGroup {
         let leftDelta = this._getContentLeftBoundary() - this._leftBoundary;
         leftDelta = -leftDelta;
 
-        const moveDelta = new Vec2();
+        const moveDelta = _tempVec2D;
         if (this._content && this.view) {
             let totalScrollDelta = 0;
             const uiTrans = this._content!._uiProps.uiTransformComp!;
