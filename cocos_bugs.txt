@@ -9,3 +9,5 @@
 9.统计数据是累加的？
 10.以swapchain buffer为默认rt,不利于高精度渲染。->渲染部分以rgba32f rt，ui stage进行转换->present rt
 11.抗锯齿没了？
+12.shadowmap应该走depth rt而非color rt
+13.deferred rendering camera clear color错误

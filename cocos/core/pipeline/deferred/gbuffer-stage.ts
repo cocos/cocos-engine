@@ -25,7 +25,7 @@ import { PlanarShadowQueue } from './planar-shadow-queue';
 import { Framebuffer } from '../../gfx';
 
 
-const colors: Color[] = [ new Color(0, 0, 0, 1), new Color(0, 0, 0, 1), new Color(0, 0, 0, 1), new Color(0, 0, 0, 1) ];
+const colors: Color[] = [ new Color(0, 0, 0, 0), new Color(0, 0, 0, 0), new Color(0, 0, 0, 0), new Color(0, 0, 0, 0) ];
 
 /**
  * @en The gbuffer render stage
@@ -158,22 +158,6 @@ export class GbufferStage extends RenderStage {
         this._renderArea!.y = vp.y * h;
         this._renderArea!.width = vp.width * w * pipeline.shadingScale;
         this._renderArea!.height = vp.height * h * pipeline.shadingScale;
-
-        if (camera.clearFlag & ClearFlag.COLOR) {
-            if (pipeline.isHDR) {
-                SRGBToLinear(colors[0], camera.clearColor);
-                const scale = pipeline.fpScale / camera.exposure;
-                colors[0].x *= scale;
-                colors[0].y *= scale;
-                colors[0].z *= scale;
-            } else {
-                colors[0].x = camera.clearColor.x;
-                colors[0].y = camera.clearColor.y;
-                colors[0].z = camera.clearColor.z;
-            }
-        }
-
-        colors[0].w = camera.clearColor.w;
 
         const framebuffer = (this._flow as GbufferFlow).gbufferFrameBuffer;
         const renderPass = framebuffer.renderPass;
