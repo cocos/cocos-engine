@@ -55,6 +55,7 @@ const _tempVec3_1 = new Vec3();
 const _tempVec3A = new Vec3();
 const _tempVec2 = new Vec2();
 const _tempVec2_1 = new Vec2();
+const _tempVec2_2 = new Vec2();
 const _tempVec2Anchor = new Vec2();
 const _tempVec2A = new Vec2();
 const _tempVec2B = new Vec2();
@@ -904,7 +905,8 @@ export class ScrollView extends ViewGroup {
         }
 
         this._contentPos.set(this._content.position);
-        return new Vec2(this._contentPos.x, this._contentPos.y);
+        _tempVec2_2.set(this._contentPos.x, this._contentPos.y);
+        return _tempVec2_2;
     }
 
     /**
