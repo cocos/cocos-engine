@@ -29,7 +29,7 @@
  * @module core
  */
 
-import { EDITOR, TEST, COCOSPLAY, JSB, MINIGAME, HUAWEI, OPPO, VIVO, RUNTIME_BASED } from 'internal:constants';
+import { EDITOR, TEST, COCOSPLAY, JSB, MINIGAME, HUAWEI, OPPO, VIVO, RUNTIME_BASED, LINKSURE, QTT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID, log, logID } from './debug';
 
@@ -381,11 +381,11 @@ export const sys: Record<string, any> = {
      */
     ALIPAY_MINI_GAME: 113,
     /**
-     * @property {Number} QTT_GAME
+     * @property {Number} QTT_MINI_GAME
      * @readOnly
      * @default 116
      */
-    QTT_GAME: 116,
+    QTT_MINI_GAME: 116,
     /**
      * @property {Number} BYTEDANCE_MINI_GAME
      * @readOnly
@@ -393,11 +393,11 @@ export const sys: Record<string, any> = {
      */
     BYTEDANCE_MINI_GAME: 117,
     /**
-     * @property {Number} LINKSURE
+     * @property {Number} LINKSURE_MINI_GAME
      * @readOnly
      * @default 119
      */
-    LINKSURE: 119,
+    LINKSURE_MINI_GAME: 119,
 
     /**
      * @en Browser Type - WeChat inner browser
@@ -841,6 +841,10 @@ else if (JSB || RUNTIME_BASED) {
         platform = sys.HUAWEI_QUICK_GAME;
     } else if (COCOSPLAY) {
         platform = sys.COCOSPLAY;
+    } else if (LINKSURE) {
+        platform = sys.LINKSURE_MINI_GAME;
+    } else if (QTT) {
+        platform = sys.QTT_MINI_GAME;
     } else {
         // @ts-expect-error
         platform = __getPlatform();
@@ -1052,7 +1056,13 @@ else if (JSB || RUNTIME_BASED) {
         };
     }
 
-    const _supportWebp = TEST ? false : _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
+    let _supportWebp;
+    try {
+        _supportWebp = TEST ? false : _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
+    }
+    catch (e) {
+        _supportWebp  = false;
+    }  
     const _supportCanvas = TEST ? false : !!_tmpCanvas1.getContext('2d');
     let _supportWebGL = false;
     if (TEST) {

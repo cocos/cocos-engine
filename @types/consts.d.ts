@@ -79,6 +79,16 @@ declare module "internal:constants" {
      * Running in the vivo's mini game.
      */
     export const VIVO: boolean;
+
+    /**
+     * Running in the qtt's quick game.
+     */
+    export const QTT: boolean;
+
+    /**
+     * Running in the linksure's quick game.
+     */
+    export const LINKSURE: boolean;
     
     /**
      * Running in mini game.
