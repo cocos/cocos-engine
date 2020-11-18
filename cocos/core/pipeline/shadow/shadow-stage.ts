@@ -81,13 +81,12 @@ export class ShadowStage extends RenderStage {
         const pipeline = this._pipeline as ForwardPipeline;
         const shadowInfo = pipeline.shadows;
 
-        if (!this._light || !this._shadowFrameBuffer) { return; }
-        this._additiveShadowQueue.gatherLightPasses(this._light);
-
-        const camera = view.camera;
-
         const cmdBuff = pipeline.commandBuffers[0];
 
+        if (!this._light || !this._shadowFrameBuffer) { return; }
+        this._additiveShadowQueue.gatherLightPasses(this._light, cmdBuff);
+
+        const camera = view.camera;
         const vp = camera.viewport;
         const shadowMapSize = shadowInfo.size;
         this._renderArea!.x = vp.x * shadowMapSize.x;
