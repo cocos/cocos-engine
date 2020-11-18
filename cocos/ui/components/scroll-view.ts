@@ -67,6 +67,8 @@ const _tempVec2F = new Vec2();
 const _tempVec2G = new Vec2();
 const _tempVec2H = new Vec2();
 const _tempVec2I = new Vec2();
+const _tempVec2J = new Vec2();
+const _tempVec2K = new Vec2();
 
 const quintEaseOut = (time: number) => {
     time -= 1;
@@ -1174,7 +1176,8 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _startAttenuatingAutoScroll (deltaMove: Vec2, initialVelocity: Vec2) {
-        const targetDelta = new Vec2(deltaMove);
+        _tempVec2J.set(deltaMove);
+        const targetDelta = _tempVec2J;
         targetDelta.normalize();
         if (this._content && this.view) {
             const contentSize = this._content!._uiProps.uiTransformComp!.contentSize;
@@ -1196,7 +1199,8 @@ export class ScrollView extends ViewGroup {
 
         if (this.brake > 0 && factor > 7) {
             factor = Math.sqrt(factor);
-            const a = new Vec2(deltaMove);
+            _tempVec2K.set(deltaMove);
+            const a = _tempVec2K;
             a.multiplyScalar(factor);
             targetDelta.set(a);
             targetDelta.add(deltaMove);
