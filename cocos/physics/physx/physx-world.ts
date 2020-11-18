@@ -100,13 +100,20 @@ const triggerCallback = {
 // eTOUCH = 1,	//!< a hit on the shape touches the intersection geometry of the query but does not block it
 // eBLOCK = 2		//!< a hit on the shape blocks the query (does not block overlap queries)
 const queryCallback = {
-    preFilter (a: any, b: any, c: any) {
-        console.log(a, b, c);
-        return 1;
+    preFilter (filterData: any, shape: any, actor: any, out: any) {
+        // trigger filter
+        // 0 for mask filter
+        // 1 for trigger toggle
+        // 2 for single hit
+        const shapeFlags = shape.getFlags();
+        if ((filterData.word3 & 2) && shapeFlags.isSet(PX.PxShapeFlag.eTRIGGER_SHAPE)) {
+            return PX.PxQueryHitType.eNONE;
+        }
+        return filterData.word3 & 4 ? PX.PxQueryHitType.eBLOCK : PX.PxQueryHitType.eTOUCH;
     },
-    postFilter (a: any, b: any) {
-        return 1;
-    }
+    // postFilter (a: any, b: any) {
+    //     return PX.PxQueryHitType.eTOUCH;
+    // }
 };
 
 const persistShapes: string[] = [];
@@ -233,8 +240,10 @@ export class PhysXWorld implements IPhysicsWorld {
     raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         const blocks = this.mutipleResults;
         const flags = (1 << 0) | (1 << 1) | (1 << 10);
+        const word3 = 1 | (options.queryTrigger ? 0 : 2);
+        this.queryfilterData.setWords(word3, 3);
         this.queryfilterData.setWords(options.mask >>> 0, 0);
-        // this.queryfilterData.setFlags();
+        this.queryfilterData.setFlags((1 << 0) | (1 << 1) | (1 << 2) | (1 << 5));
         const r = this.scene['raycastMultiple'](worldRay.o, worldRay.d, options.maxDistance, flags, blocks, blocks.size(), this.queryfilterData, this.queryFilterCB, null);
         if (r > 0) {
             for (let i = 0; i < r; i++) {
@@ -253,11 +262,12 @@ export class PhysXWorld implements IPhysicsWorld {
 
     raycastClosest (worldRay: ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
         const block = this.singleResult;
-        const flags = (1 << 0) | (1 << 1) | (1 << 10);
-        // this.queryfilterData.setFlags();
+        const flags = (1 << 0) | (1 << 1) //| (1 << 10);
+        const word3 = 1 | (options.queryTrigger ? 0 : 2) | 4;
+        this.queryfilterData.setWords(word3, 3);
         this.queryfilterData.setWords(options.mask >>> 0, 0);
-        // if (this.scene['raycastSingle'](worldRay.o, worldRay.d, options.maxDistance, flags, block, this.queryfilterData, null, null)) {
-        const r = this.scene['raycastSingle'](worldRay.o, worldRay.d, options.maxDistance, block, this.queryfilterData);
+        this.queryfilterData.setFlags((1 << 0) | (1 << 1) | (1 << 2));
+        const r = this.scene['raycastSingle'](worldRay.o, worldRay.d, options.maxDistance, flags, block, this.queryfilterData, this.queryFilterCB, null);
         if (r) {
             const collider = (PX.IMPL_PTR[block.getShape()['$$'].ptr] as PhysXShape).collider;
             result._assign(block.position, block.distance, collider, block.normal);
