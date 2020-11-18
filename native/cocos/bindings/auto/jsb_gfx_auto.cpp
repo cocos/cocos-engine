@@ -2758,6 +2758,7 @@ static bool js_gfx_Device_createFence(se::State& s)
         cc::gfx::Fence* result = cobj->createFence(*arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createFence : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -2851,6 +2852,7 @@ static bool js_gfx_Device_createDescriptorSetLayout(se::State& s)
         cc::gfx::DescriptorSetLayout* result = cobj->createDescriptorSetLayout(arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createDescriptorSetLayout : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -3016,6 +3018,7 @@ static bool js_gfx_Device_createCommandBuffer(se::State& s)
         cc::gfx::CommandBuffer* result = cobj->createCommandBuffer(arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createCommandBuffer : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -3037,6 +3040,7 @@ static bool js_gfx_Device_createPipelineState(se::State& s)
         cc::gfx::PipelineState* result = cobj->createPipelineState(*arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createPipelineState : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -3058,6 +3062,7 @@ static bool js_gfx_Device_createDescriptorSet(se::State& s)
         cc::gfx::DescriptorSet* result = cobj->createDescriptorSet(arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createDescriptorSet : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -3127,6 +3132,7 @@ static bool js_gfx_Device_createFramebuffer(se::State& s)
         cc::gfx::Framebuffer* result = cobj->createFramebuffer(arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createFramebuffer : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -3166,6 +3172,7 @@ static bool js_gfx_Device_createRenderPass(se::State& s)
         cc::gfx::RenderPass* result = cobj->createRenderPass(arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createRenderPass : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -3187,6 +3194,7 @@ static bool js_gfx_Device_createPipelineLayout(se::State& s)
         cc::gfx::PipelineLayout* result = cobj->createPipelineLayout(arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createPipelineLayout : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -3277,6 +3285,7 @@ static bool js_gfx_Device_createShader(se::State& s)
         cc::gfx::Shader* result = cobj->createShader(arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createShader : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -3298,6 +3307,7 @@ static bool js_gfx_Device_createInputAssembler(se::State& s)
         cc::gfx::InputAssembler* result = cobj->createInputAssembler(arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createInputAssembler : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -3340,6 +3350,7 @@ static bool js_gfx_Device_createSampler(se::State& s)
         cc::gfx::Sampler* result = cobj->createSampler(arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createSampler : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -3457,6 +3468,7 @@ static bool js_gfx_Device_createQueue(se::State& s)
         cc::gfx::Queue* result = cobj->createQueue(arg0);
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_Device_createQueue : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
