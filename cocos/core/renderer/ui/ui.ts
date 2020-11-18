@@ -52,7 +52,7 @@ import { programLib } from '../core/program-lib';
 import { TextureBase } from '../../assets/texture-base';
 import { sys } from '../../platform/sys';
 
-const isIOS14OrIPadOS14Device = sys.os === sys.OS_IOS
+const isWebIOS14OrIPadOS14Env = sys.os === sys.OS_IOS
     && sys.isBrowser
     && /(iPhone OS 1[4-9])|(Version\/1[4-9][\.\d]*)|(iOS 1[4-9])/.test(window.navigator.userAgent);
 
@@ -600,8 +600,8 @@ export class UI {
 
         // HACK: After sharing buffer between drawcalls, the performance degradation a lots on iOS 14 or iPad OS 14 device
         // TODO: Maybe it can be removed after Apple fixes it?
-        if (isIOS14OrIPadOS14Device) {
-            this._requireBufferBatch();
+        if (isWebIOS14OrIPadOS14Env) {
+            this._currMeshBuffer = null;
         }
     }
 
