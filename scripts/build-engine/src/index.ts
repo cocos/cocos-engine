@@ -24,7 +24,7 @@ import tsConfigPaths from './ts-paths';
 import removeDeprecatedFeatures from './remove-deprecated-features';
 import overrideModules from './override-modules';
 import { filePathToModuleRequest } from './utils';
-import type { ConfigContext } from '../../who-am-i/lib/contextual-build-config';
+import type { ConfigContext } from '../../conf/lib/contextual-build-config';
 
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
 
@@ -198,16 +198,16 @@ async function _doBuild ({
 
     const rpVirtualOptions: Record<string, string> = {};
 
-    // Let's import some stuffs in lib 'who-am-i'.
-    const libWhoAmI = ps.join(engineRoot, 'scripts', 'who-am-i', 'lib');
+    // Let's import some stuffs in lib 'conf'.
+    const libConf = ps.join(engineRoot, 'scripts', 'conf', 'lib');
     const [
         { getPublicModules, getForceStandaloneModules },
         { generateBuildTimeConstants },
         { default: buildConfigFunction },
     ] = await Promise.all([
-        import(`${libWhoAmI}/public-modules`) as Promise<typeof import('../../who-am-i/lib/public-modules')>,
-        import(`${libWhoAmI}/build-time-constants`) as Promise<typeof import('../../who-am-i/lib/build-time-constants')>,
-        import(`${libWhoAmI}/contextual-build-config`) as Promise<typeof import('../../who-am-i/lib/contextual-build-config')>,
+        import(`${libConf}/public-modules`) as Promise<typeof import('../../conf/lib/public-modules')>,
+        import(`${libConf}/build-time-constants`) as Promise<typeof import('../../conf/lib/build-time-constants')>,
+        import(`${libConf}/contextual-build-config`) as Promise<typeof import('../../conf/lib/contextual-build-config')>,
     ]);
 
     // The modules included in this build.

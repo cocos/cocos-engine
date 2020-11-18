@@ -14,6 +14,6 @@
       "dist"
   ],
   "references": [{
-      "path": "../who-am-i"
+      "path": "../conf"
   }]
 }

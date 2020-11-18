@@ -21,4 +21,4 @@ playground/library
 scripts/build-engine/node_modules
 scripts/build-engine/dist
 *.tsbuildinfo
-/scripts/who-am-i/lib
+/scripts/conf/lib
