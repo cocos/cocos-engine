@@ -35,7 +35,7 @@ export function setupBuildTimeConstants ({
 
     result.DEV = result.EDITOR || result.PREVIEW || result.TEST;
     result.DEBUG = result.DEBUG || result.DEV;
-    result.RUNTIME_BASED = result.OPPO || result.VIVO || result.HUAWEI || result.COCOSPLAY;
+    result.RUNTIME_BASED = result.OPPO || result.VIVO || result.HUAWEI || result.COCOSPLAY || result.LINKSURE || result.QTT;
     result.MINIGAME = result.WECHAT || result.ALIPAY || result.XIAOMI || result.BYTEDANCE || result.BAIDU;
     result.JSB = result.NATIVE;
     result.SUPPORT_JIT = !(result.MINIGAME || result.RUNTIME_BASED);
@@ -43,7 +43,7 @@ export function setupBuildTimeConstants ({
 }
 
 export function getPlatformConstantNames () {
-    return ['HTML5', 'WECHAT', 'ALIPAY', 'BAIDU', 'XIAOMI', 'BYTEDANCE', 'OPPO', 'VIVO', 'HUAWEI', 'NATIVE', 'COCOSPLAY'];
+    return ['HTML5', 'WECHAT', 'ALIPAY', 'BAIDU', 'XIAOMI', 'BYTEDANCE', 'OPPO', 'VIVO', 'HUAWEI', 'NATIVE', 'COCOSPLAY', 'LINKSURE', 'QTT'];
 }
 
 export function getBuildModeConstantNames () {
