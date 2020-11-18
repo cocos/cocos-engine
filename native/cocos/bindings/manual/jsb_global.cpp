@@ -712,12 +712,6 @@ namespace
 {
     struct ImageInfo
     {
-        ~ImageInfo()
-        {
-            if (freeData)
-                delete [] data;
-        }
-
         uint32_t length = 0;
         uint32_t width = 0;
         uint32_t height = 0;
@@ -725,8 +719,6 @@ namespace
         cc::gfx::Format format = cc::gfx::Format::UNKNOWN;
         bool hasAlpha = false;
         bool compressed = false;
-
-        bool freeData = false;
     };
 
     uint8_t* convertRGB2RGBA (uint32_t length, uint8_t* src) {
@@ -802,14 +794,12 @@ namespace
 
             imgInfo->data = dst;
             imgInfo->hasAlpha = true;
-            imgInfo->freeData = true;
         }
 
         return imgInfo;
     }
 }
 
-std::unordered_map<uint8_t *, Image*> _cachedImages;
 bool jsb_global_load_image(const std::string& path, const se::Value& callbackVal) {
     if (path.empty())
     {
@@ -868,7 +858,6 @@ bool jsb_global_load_image(const std::string& path, const se::Value& callbackVal
                     SE_REPORT_ERROR("initWithImageFile: %s failed!", path.c_str());
                 }
                 callbackPtr->toObject()->call(seArgs, nullptr);
-                _cachedImages.emplace(imgInfo->data, img);
             });
 
         });
@@ -939,12 +928,7 @@ static bool js_destroyImage(se::State& s) {
         unsigned long data = 0;
         ok &= seval_to_ulong(args[0], &data);
         SE_PRECONDITION2(ok, false, "js_destroyImage : Error processing arguments");
-        uint8_t *dataPtr = (uint8_t *)data;
-        auto inter = _cachedImages.find(dataPtr);
-        if (inter != _cachedImages.end()) {
-            inter->second->release();
-            _cachedImages.erase(inter);
-        }
+        delete (void*)data;
         
         return true;
     }
