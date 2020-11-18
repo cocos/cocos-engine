@@ -99,7 +99,7 @@ export class PhysXRigidBody implements IRigidBody {
             this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Y, v);
             this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Z, v);
         }
-        if (!v) this.setAngularFactor(this._rigidBody.angularFactor);
+        if (!v) { this.setAngularFactor(this._rigidBody.angularFactor); }
     }
 
     setLinearFactor (v: IVec3Like): void {

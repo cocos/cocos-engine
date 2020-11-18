@@ -146,14 +146,9 @@ export class PhysXSharedBody {
 
     addShape (ws: PhysXShape) {
         const index = this.wrappedShapes.indexOf(ws);
-        if (index < 0) {
-            if (USE_BYTEDANCE) {
-                const fd = this._filterData;
-                // ws.impl.setSimulationFilterData([fd.word0, fd.word1, fd.word2, fd.word3]);
-                ws.impl.setSimulationFilterData(fd);
-            } else {
-                ws.impl.setSimulationFilterData(this._filterData);
-            }
+        if (index < 0) {            
+            ws.impl.setQueryFilterData(this._filterData);
+            ws.impl.setSimulationFilterData(this._filterData);
             this.impl.attachShape(ws.impl);
 
             if (!this._isStatic) {
@@ -258,6 +253,7 @@ export class PhysXSharedBody {
 
     updateFiltering () {
         for (let i = 0; i < this.wrappedShapes.length; i++) {
+            this.wrappedShapes[i].impl.setQueryFilterData(this._filterData);
             this.wrappedShapes[i].impl.setSimulationFilterData(this._filterData);
         }
     }

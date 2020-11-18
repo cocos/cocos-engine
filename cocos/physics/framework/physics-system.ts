@@ -403,7 +403,7 @@ export class PhysicsSystem extends System {
     raycast (worldRay: Ray, mask: number = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
         this.raycastResultPool.reset();
         this.raycastResults.length = 0;
-        this.raycastOptions.mask = mask;
+        this.raycastOptions.mask = mask >>> 0;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
         return this.physicsWorld.raycast(worldRay, this.raycastOptions, this.raycastResultPool, this.raycastResults);
