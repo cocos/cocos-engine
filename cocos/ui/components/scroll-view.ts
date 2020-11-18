@@ -50,6 +50,7 @@ const EPSILON = 1e-4;
 const TOLERANCE = 1e4;
 const MOVEMENT_FACTOR = 0.7;
 const ZERO = new Vec2();
+const ONE = new Vec2(1, 1);
 const _tempVec3 = new Vec3();
 const _tempVec3_1 = new Vec3();
 const _tempVec3A = new Vec3();
@@ -1738,7 +1739,7 @@ export class ScrollView extends ViewGroup {
         const applyToVertical = options.applyToVertical;
         this._calculateBoundary();
 
-        anchor.clampf(new Vec2(0, 0), new Vec2(1, 1));
+        anchor.clampf(ZERO, ONE);
 
         let bottomDelta = this._getContentBottomBoundary() - this._bottomBoundary;
         bottomDelta = -bottomDelta;
