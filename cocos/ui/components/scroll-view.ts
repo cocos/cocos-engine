@@ -62,6 +62,9 @@ const _tempVec2A = new Vec2();
 const _tempVec2B = new Vec2();
 const _tempVec2C = new Vec2();
 const _tempVec2D = new Vec2();
+const _tempVec2E = new Vec2();
+const _tempVec2F = new Vec2();
+const _tempVec2G = new Vec2();
 
 const quintEaseOut = (time: number) => {
     time -= 1;
@@ -1665,10 +1668,12 @@ export class ScrollView extends ViewGroup {
         if (this._autoScrollAttenuate) {
             percentage = quintEaseOut(percentage);
         }
-
-        const a = new Vec2(this._autoScrollTargetDelta);
+	
+        _tempVec2E.set(this._autoScrollTargetDelta);
+        const a = _tempVec2E;
         a.multiplyScalar(percentage);
-        const newPosition = new Vec2(this._autoScrollStartPosition);
+        _tempVec2F.set(this._autoScrollStartPosition);
+        const newPosition = _tempVec2F;
         newPosition.add(a);
         let reachedEnd = Math.abs(percentage - 1) <= EPSILON;
 
@@ -1679,7 +1684,8 @@ export class ScrollView extends ViewGroup {
         }
 
         if (this.elastic) {
-            const brakeOffsetPosition = new Vec2(newPosition);
+            _tempVec2E.set(newPosition);
+            const brakeOffsetPosition = _tempVec2E;
             brakeOffsetPosition.subtract(this._autoScrollBrakingStartPosition);
             if (isAutoScrollBrake) {
                 brakeOffsetPosition.multiplyScalar(brakingFactor);
@@ -1687,7 +1693,8 @@ export class ScrollView extends ViewGroup {
             newPosition.set(this._autoScrollBrakingStartPosition);
             newPosition.add(brakeOffsetPosition);
         } else {
-            const moveDelta = new Vec2(newPosition);
+            _tempVec2E.set(newPosition);
+            const moveDelta = _tempVec2E;
             moveDelta.subtract(this._getContentPosition());
             const outOfBoundary = this._getHowMuchOutOfBoundary(moveDelta);
             if (!outOfBoundary.equals(ZERO, EPSILON)) {
@@ -1700,7 +1707,8 @@ export class ScrollView extends ViewGroup {
             this._autoScrolling = false;
         }
 
-        const deltaMove = new Vec2(newPosition);
+        _tempVec2G.set(newPosition);
+        const deltaMove = _tempVec2G;
         deltaMove.subtract(this._getContentPosition());
         this._moveContent(this._clampDelta(deltaMove), reachedEnd);
         this._dispatchEvent(EventType.SCROLLING);
