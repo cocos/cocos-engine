@@ -1,11 +1,14 @@
 {
     "version": "0.1",
     "words": [
+        "ALIPAY",
         "Arial",
+        "BYTEDANCE",
         "ccclass",
         "ccenum",
         "Chukong",
         "clampf",
+        "COCOSPLAY",
         "deinterleave",
         "deserialize",
         "earcut",
@@ -18,10 +21,14 @@
         "lerp",
         "lerpable",
         "lightmap",
+        "LINKSURE",
+        "MINIGAME",
         "mipmaps",
         "octree",
         "OPENGL",
+        "OPPO",
         "polyfill",
+        "QTT",
         "quadtree",
         "raycast",
         "realloc",
@@ -35,6 +42,7 @@
         "wasm",
         "WECHAT",
         "WECHATGAME",
+        "XIAOMI",
         "Yaji"
     ]
 }
