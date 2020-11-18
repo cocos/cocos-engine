@@ -50,6 +50,11 @@ import { ModelLocalBindings } from '../../pipeline/define';
 import { EffectAsset, RenderTexture, SpriteFrame } from '../../assets';
 import { programLib } from '../core/program-lib';
 import { TextureBase } from '../../assets/texture-base';
+import { sys } from '../../platform/sys';
+
+const isWebIOS14OrIPadOS14Env = sys.os === sys.OS_IOS
+    && sys.isBrowser
+    && /(iPhone OS 1[4-9])|(Version\/1[4-9][\.\d]*)|(iOS 1[4-9])/.test(window.navigator.userAgent);
 
 const _dsInfo = new DescriptorSetInfo(null!);
 
@@ -592,6 +597,12 @@ export class UI {
         buffer!.vertexStart = buffer!.vertexOffset;
         buffer!.indicesStart = buffer!.indicesOffset;
         buffer!.byteStart = buffer!.byteOffset;
+
+        // HACK: After sharing buffer between drawcalls, the performance degradation a lots on iOS 14 or iPad OS 14 device
+        // TODO: Maybe it can be removed after Apple fixes it?
+        if (isWebIOS14OrIPadOS14Env) {
+            this._currMeshBuffer = null;
+        }
     }
 
     /**
