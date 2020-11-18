@@ -65,6 +65,8 @@ const _tempVec2D = new Vec2();
 const _tempVec2E = new Vec2();
 const _tempVec2F = new Vec2();
 const _tempVec2G = new Vec2();
+const _tempVec2H = new Vec2();
+const _tempVec2I = new Vec2();
 
 const quintEaseOut = (time: number) => {
     time -= 1;
@@ -1019,7 +1021,7 @@ export class ScrollView extends ViewGroup {
             return;
         }
 
-        const deltaMove = new Vec2();
+        const deltaMove = _tempVec2H;
         const wheelPrecision = -0.1;
         const scrollY = event.getScrollY();
         if (this.vertical) {
@@ -1156,7 +1158,8 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _startInertiaScroll (touchMoveVelocity: Vec2) {
-        const inertiaTotalMovement = new Vec2(touchMoveVelocity);
+        _tempVec2I.set(touchMoveVelocity);
+        const inertiaTotalMovement = _tempVec2I;
         inertiaTotalMovement.multiplyScalar(MOVEMENT_FACTOR);
         this._startAttenuatingAutoScroll(inertiaTotalMovement, touchMoveVelocity);
     }
