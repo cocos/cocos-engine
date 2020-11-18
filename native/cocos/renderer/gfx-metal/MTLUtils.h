@@ -11,6 +11,7 @@
 namespace cc {
 namespace gfx {
 class CCMTLGPUShader;
+class CCMTLDevice;
 namespace mu {
 MTLResourceOptions toMTLResourseOption(MemoryUsage usage);
 MTLLoadAction toMTLLoadAction(LoadOp op);
@@ -69,6 +70,7 @@ uint getBlockSzie(Format format);
 uint getBytesPerRow(Format format, uint width);
 bool pixelFormatIsColorRenderable(Format format);
 bool isSamplerDescriptorCompareFunctionSupported(uint family);
+void clearRenderArea(CCMTLDevice* device, id<MTLCommandBuffer> commandBuffer, CGSize drawableSize, RenderPass *renderPass, MTLRenderPassDescriptor *renderPassDescriptor, const Rect &renderArea, const Color *colors, float depth, int stencil, bool &hasScreenClean);
 CC_INLINE uint alignUp(uint inSize, uint align) { return ((inSize + align - 1) / align) * align; }
 } // namespace mu
 

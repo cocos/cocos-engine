@@ -71,7 +71,8 @@ bool CCMTLPipelineState::createGPUPipelineState() {
     _GPUPipelineState->stencilRefFront = _depthStencilState.stencilRefFront;
     _GPUPipelineState->stencilRefBack = _depthStencilState.stencilRefBack;
     _GPUPipelineState->primitiveType = mu::toMTLPrimitiveType(_primitive);
-    _GPUPipelineState->gpuPipelineLayout = static_cast<CCMTLPipelineLayout *>(_pipelineLayout)->gpuPipelineLayout();
+    if(_pipelineLayout)
+        _GPUPipelineState->gpuPipelineLayout = static_cast<CCMTLPipelineLayout *>(_pipelineLayout)->gpuPipelineLayout();
     _GPUPipelineState->gpuShader = static_cast<CCMTLShader *>(_shader)->gpuShader();
     return true;
 }

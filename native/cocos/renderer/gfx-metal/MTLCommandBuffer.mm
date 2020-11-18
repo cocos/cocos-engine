@@ -78,6 +78,10 @@ void CCMTLCommandBuffer::end() {
     _commandBufferBegan = false;
 }
 
+bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect) {
+    return rect.x == 0 && rect.y == 0 && rect.width == _mtkView.drawableSize.width && rect.height == _mtkView.drawableSize.height;
+}
+
 void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil) {
 
     auto isOffscreen = static_cast<CCMTLFramebuffer *>(fbo)->isOffscreen();
@@ -86,15 +90,21 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         static_cast<CCMTLRenderPass *>(renderPass)->setDepthStencilAttachment(_mtkView.depthStencilTexture, 0);
     }
     MTLRenderPassDescriptor *mtlRenderPassDescriptor = static_cast<CCMTLRenderPass *>(renderPass)->getMTLRenderPassDescriptor();
-    auto colorAttachmentCount = renderPass->getColorAttachments().size();
-
-    for (size_t slot = 0; slot < colorAttachmentCount; slot++) {
-        mtlRenderPassDescriptor.colorAttachments[slot].clearColor = mu::toMTLClearColor(colors[slot]);
+    if(!isRenderingEntireDrawable(renderArea)){
+        //Metal doesn't apply the viewports and scissors to renderpass load-action clearing.
+        mu::clearRenderArea(_mtlDevice, _mtlCommandBuffer, _mtkView.drawableSize, renderPass, mtlRenderPassDescriptor, renderArea, colors, depth, stencil, _hasScreenClean);
+    } else {
+        const auto &colorAttachments = renderPass->getColorAttachments();
+        const auto colorAttachmentCount = colorAttachments.size();
+        for (size_t slot = 0u; slot < colorAttachmentCount; slot++) {
+            mtlRenderPassDescriptor.colorAttachments[slot].clearColor = mu::toMTLClearColor(colors[slot]);
+            mtlRenderPassDescriptor.colorAttachments[0].loadAction = colorAttachments[slot].loadOp == LoadOp::CLEAR ? MTLLoadActionClear : MTLLoadActionLoad;
+        }
+        
+        mtlRenderPassDescriptor.depthAttachment.clearDepth = depth;
+        mtlRenderPassDescriptor.stencilAttachment.clearStencil = stencil;
     }
-
-    mtlRenderPassDescriptor.depthAttachment.clearDepth = depth;
-    mtlRenderPassDescriptor.stencilAttachment.clearStencil = stencil;
-
+    
     _mtlEncoder = [_mtlCommandBuffer renderCommandEncoderWithDescriptor:mtlRenderPassDescriptor];
     _currentViewport = {renderArea.x, renderArea.y, renderArea.width, renderArea.height};
     _currentScissor = renderArea;

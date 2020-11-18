@@ -47,6 +47,7 @@ public:
 
 private:
     void bindDescriptorSets();
+    bool isRenderingEntireDrawable(const Rect &rect);
 
 private:
     CCMTLGPUPipelineState *_gpuPipelineState = nullptr;
@@ -61,6 +62,7 @@ private:
     vector<vector<uint>> _dynamicOffsets;
     uint _firstDirtyDescriptorSet = UINT_MAX;
 
+    bool _hasScreenClean = false;
     bool _indirectDrawSuppotred = false;
     bool _commandBufferBegan = false;
     CCMTLDevice *_mtlDevice = nullptr;

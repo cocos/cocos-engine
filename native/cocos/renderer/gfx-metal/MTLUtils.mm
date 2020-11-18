@@ -8,6 +8,9 @@
 #include "gfx/GFXDef.h"
 #include "glslang/SPIRV/GlslangToSpv.h"
 #include "spirv_cross/spirv_msl.hpp"
+#include "MTLDevice.h"
+#include "MTLShader.h"
+#include "MTLPipelineState.h"
 #include <vector>
 
 namespace cc {
@@ -1471,6 +1474,132 @@ bool isSamplerDescriptorCompareFunctionSupported(uint family) {
 #else
     return true;
 #endif
+}
+
+gfx::Shader* createShader(CCMTLDevice *device) {
+    String vs = R"(
+            layout(location = 0) in vec2 a_position;
+            void main() {
+                gl_Position = vec4(a_position, 0.0, 1.0);
+            }
+    )";
+    String fs = R"(
+            precision mediump float;
+            layout(set = 0, binding = 0) uniform Color {
+                vec4 u_color;
+            };
+            layout(location = 0) out vec4 o_color;
+
+            void main() {
+                o_color = u_color;
+            }
+    )";
+    gfx::ShaderStageList shaderStageList;
+    gfx::ShaderStage vertexShaderStage;
+    vertexShaderStage.stage = gfx::ShaderStageFlagBit::VERTEX;
+    vertexShaderStage.source = std::move(vs);
+    shaderStageList.emplace_back(std::move(vertexShaderStage));
+
+    gfx::ShaderStage fragmentShaderStage;
+    fragmentShaderStage.stage = gfx::ShaderStageFlagBit::FRAGMENT;
+    fragmentShaderStage.source = std::move(fs);
+    shaderStageList.emplace_back(std::move(fragmentShaderStage));
+    
+    gfx::UniformBlockList uniformBlockList = {
+        {0, 0, "Color", {{"u_color", gfx::Type::FLOAT4, 1}}, 1},
+    };
+    gfx::AttributeList attributeList = {{"a_position", gfx::Format::RG32F, false, 0, false, 0}};
+
+    gfx::ShaderInfo shaderInfo;
+    shaderInfo.name = "Clear Render Area";
+    shaderInfo.stages = std::move(shaderStageList);
+    shaderInfo.attributes = std::move(attributeList);
+    shaderInfo.blocks = std::move(uniformBlockList);
+    return device->createShader(shaderInfo);
+}
+
+//TODO need release pipelineState
+gfx::PipelineState *pipelineState = nullptr;
+CCMTLGPUPipelineState* getClearRenderPassPipelineState(CCMTLDevice *device, RenderPass *renderPass) {
+    if(pipelineState) return static_cast<CCMTLPipelineState*>(pipelineState)->getGPUPipelineState();
+    
+    gfx::Attribute position = {"a_position", gfx::Format::RG32F, false, 0, false};
+    gfx::PipelineStateInfo pipelineInfo;
+    pipelineInfo.primitive = gfx::PrimitiveMode::TRIANGLE_LIST;
+    pipelineInfo.shader = createShader(device);
+    pipelineInfo.inputState = {{position}};
+    pipelineInfo.renderPass = renderPass;
+
+    pipelineState = gfx::Device::getInstance()->createPipelineState(std::move(pipelineInfo));
+    CC_DELETE(pipelineInfo.shader);
+    return static_cast<CCMTLPipelineState*>(pipelineState)->getGPUPipelineState();
+}
+
+void clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer, CGSize drawableSize, RenderPass *renderPass, MTLRenderPassDescriptor *renderPassDescriptor, const Rect &renderArea, const Color *colors, float depth, int stencil, bool &hasScreenClean) {
+    const auto gpuPSO = getClearRenderPassPipelineState(device, renderPass);
+    
+    if(!hasScreenClean) {
+        renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+        renderPassDescriptor.colorAttachments[0].clearColor = toMTLClearColor(colors[0]);
+        renderPassDescriptor.depthAttachment.clearDepth = depth;
+        renderPassDescriptor.stencilAttachment.clearStencil = stencil;
+    }
+    
+    float halfWidth = drawableSize.width * 0.5f ;
+    float halfHeight = drawableSize.height * 0.5f;
+    float rcpWidth = 1.0f / halfWidth ;
+    float rcpHeight = 1.0f / halfHeight;
+    float width = renderArea.x+ renderArea.width;
+    float height = renderArea.height + renderArea.y;
+    Vec2 leftTop{(renderArea.x -  halfWidth ) * rcpWidth, (halfHeight - renderArea.y) * rcpHeight};
+    Vec2 rightTop{(width - halfWidth) * rcpWidth, (halfHeight - renderArea.y) * rcpHeight};
+    Vec2 rightBottom{(width - halfWidth) * rcpWidth, (halfHeight - height) * rcpHeight};
+    Vec2 leftBottom{(renderArea.x - halfWidth) * rcpWidth, (halfHeight - height) * rcpHeight};
+    Vec2 vertexes[] = { leftTop, leftBottom, rightBottom, leftTop, rightBottom, rightTop};
+
+    bool isClearingColor = false;
+    bool isClearingDepth = false;
+    bool isClearingStencil = false;
+    const auto &colorAttachments = renderPass->getColorAttachments();
+    const auto &depthStencilAttachment = renderPass->getDepthStencilAttachment();
+    if(colorAttachments.size() && colorAttachments[0].loadOp == LoadOp::CLEAR) {
+        isClearingColor = true;
+    }
+    if(depthStencilAttachment.depthLoadOp == LoadOp::CLEAR) {
+        isClearingDepth = true;
+    }
+    if(depthStencilAttachment.stencilLoadOp == LoadOp::CLEAR) {
+        isClearingStencil = true;
+    }
+    
+    id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+    [renderEncoder setViewport:(MTLViewport){0, 0, drawableSize.width, drawableSize.height}];
+    [renderEncoder setScissorRect:(MTLScissorRect){0, 0, (NSUInteger)drawableSize.width, (NSUInteger)drawableSize.height}];
+    [renderEncoder setRenderPipelineState:gpuPSO->mtlRenderPipelineState];
+    if (gpuPSO->mtlDepthStencilState) {
+        [renderEncoder setStencilFrontReferenceValue:gpuPSO->stencilRefFront
+                                backReferenceValue:gpuPSO->stencilRefBack];
+        [renderEncoder setDepthStencilState:gpuPSO->mtlDepthStencilState];
+    }
+    
+    [renderEncoder setVertexBytes:vertexes
+                           length:sizeof(vertexes)
+                          atIndex:30];
+
+    [renderEncoder setFragmentBytes:&colors[0]
+                           length:sizeof(colors[0])
+                          atIndex:0];
+
+    uint count = sizeof(vertexes) / sizeof(Vec2);
+    [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
+                      vertexStart:0
+                      vertexCount:count];
+
+    [renderEncoder endEncoding];
+    if(!hasScreenClean) {
+        hasScreenClean = true;
+        renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionLoad;
+    }
 }
 
 } //namespace mu
