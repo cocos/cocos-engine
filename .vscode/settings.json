@@ -19,5 +19,5 @@
     "editor.codeActionsOnSave": {
         "source.fixAll": false,
     },
-    "editor.formatOnSave": true
+    "editor.formatOnSave": false
 }

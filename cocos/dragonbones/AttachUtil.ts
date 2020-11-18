@@ -1,5 +1,6 @@
 import { Node, Mat4 } from '../core';
 import { ccclass } from '../core/data/class-decorator';
+import { ArmatureFrameBoneInfo } from './ArmatureCache';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { dragonBones } from './lib/dragonBones.js';
 
@@ -18,9 +19,9 @@ const _tempMat4 = new Mat4();
 @ccclass('dragonBones.AttachUtil')
 export class AttachUtil {
     _inited = false;
-    _armature: dragonBones.Armature | null= null;
-    _armatureNode:Node|null = null;
-    _armatureDisplay:ArmatureDisplay|null = null;
+    _armature: dragonBones.Armature | null = null;
+    _armatureNode: Node | null = null;
+    _armatureDisplay: ArmatureDisplay | null = null;
     constructor () {
 
     }
@@ -40,50 +41,46 @@ export class AttachUtil {
     }
 
     _syncAttachedNode () {
-        // if (!this._inited) return;
-        // const rootMatrix = this._armatureNode!.worldMatrix;
-        // Mat4.copy(rootNode._worldMatrix, rootMatrix);
-        // rootNode._renderFlag &= ~FLAG_TRANSFORM;
+        if (!this._inited) return;
+        const rootMatrix = this._armatureNode!.worldMatrix;
 
-        // let boneInfos = null;
-        // let isCached = this._armatureDisplay.isAnimationCached();
-        // if (isCached) {
-        //     boneInfos = this._armatureDisplay._curFrame && this._armatureDisplay._curFrame.boneInfos;
-        //     if (!boneInfos) return;
-        // }
+        let boneInfos: ArmatureFrameBoneInfo[] | null = null;
+        const isCached = this._armatureDisplay!.isAnimationCached();
+        if (isCached && this._armatureDisplay) {
+            boneInfos = this._armatureDisplay._curFrame && this._armatureDisplay._curFrame.boneInfos;
+            if (!boneInfos) return;
+        }
 
-        // let mulMat = this._armatureNode._mulMat;
-        // let matrixHandle = function (nodeMat, parentMat, boneMat) {
-        //     let tm = _tempMat4.m;
-        //     tm[0] = boneMat.a;
-        //     tm[1] = boneMat.b;
-        //     tm[4] = -boneMat.c;
-        //     tm[5] = -boneMat.d;
-        //     tm[12] = boneMat.tx;
-        //     tm[13] = boneMat.ty;
-        //     mulMat(nodeMat, parentMat, _tempMat4);
-        // };
+        const socketNodes = this._armatureDisplay!.socketNodes;
 
-        // let nodeArrayDirty = false;
-        // for (let i = 0, n = nodeArray.length; i < n; i++) {
-        //     let boneNode = nodeArray[i];
-        //     // Node has been destroy
-        //     if (!boneNode || !boneNode.isValid) {
-        //         nodeArray[i] = null;
-        //         nodeArrayDirty = true;
-        //         continue;
-        //     }
-        //     let bone = isCached ? boneInfos[boneNode._boneIndex] : boneNode._bone;
-        //     // Bone has been destroy
-        //     if (!bone || bone._isInPool) {
-        //         boneNode.removeFromParent(true);
-        //         boneNode.destroy();
-        //         nodeArray[i] = null;
-        //         nodeArrayDirty = true;
-        //         continue;
-        //     }
-        //     matrixHandle(boneNode._worldMatrix, boneNode._rootNode._worldMatrix, bone.globalTransformMatrix);
-        //     boneNode._renderFlag &= ~FLAG_TRANSFORM;
-        // }
+        const matrixHandle = (node: Node, boneMat: dragonBones.Matrix) => {
+            const tm = _tempMat4;
+            tm.m00 = boneMat.a;
+            tm.m01 = boneMat.b;
+            tm.m04 = -boneMat.c;
+            tm.m05 = -boneMat.d;
+            tm.m12 = boneMat.tx;
+            tm.m13 = boneMat.ty;
+            node.matrix = _tempMat4;
+            node.scale = this._armatureNode!.scale;
+        };
+
+        for (const bone of socketNodes.keys()) {
+            const boneNode = socketNodes.get(bone);
+
+            // Node has been destroy
+            if (!boneNode || !boneNode.isValid) {
+                socketNodes.delete(bone);
+                continue;
+            }
+            // Bone has been destroy
+            if (!bone) {
+                boneNode.removeFromParent();
+                boneNode.destroy();
+                socketNodes.delete(bone);
+                continue;
+            }
+            matrixHandle(boneNode, bone.globalTransformMatrix);
+        }
     }
 }

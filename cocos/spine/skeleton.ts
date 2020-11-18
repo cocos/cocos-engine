@@ -423,7 +423,7 @@ export class Skeleton extends UIRenderable {
     /**
      * @en
      * The bone sockets this animation component maintains.<br>
-     * Sockets have to be registered here before attaching custom nodes to animated bons.
+     * Sockets have to be registered here before attaching custom nodes to animated bones.
      * @zh
      * 当前动画组件维护的挂点数组。要挂载自定义节点到受动画驱动的骨骼上，必须先在此注册挂点。
      */

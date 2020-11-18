@@ -1,6 +1,6 @@
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { UIRenderable } from '../core/components/ui-base/ui-renderable';
-import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID, Texture2D, GFXBlendFactor } from '../core';
+import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID, Texture2D, GFXBlendFactor, js, CCObject } from '../core';
 import { displayName, editable, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { EDITOR } from '../../editor/exports/populate-internal-constants';
 
@@ -70,6 +70,33 @@ export interface ArmatureDisplayMeshData {
     renderData: MeshRenderData;
     texture: Texture2D | null;
 }
+
+@ccclass('dragonBones.ArmatureDisplay.DragonBoneSocket')
+export class DragonBoneSocket {
+    /**
+     * @en Path of the target joint.
+     * @zh 此挂点的目标骨骼路径。
+     */
+    @serializable
+    @editable
+    public path = '';
+
+    /**
+     * @en Transform output node.
+     * @zh 此挂点的变换信息输出节点。
+     */
+    @type(Node)
+    @editable
+    @serializable
+    public target: Node | null = null;
+
+    constructor (path = '', target: Node | null = null) {
+        this.path = path;
+        this.target = target;
+    }
+}
+
+js.setClassAlias(DragonBoneSocket, 'dragonBones.ArmatureDisplay.DragonBoneSocket');
 
 /**
  * !#en
@@ -337,6 +364,30 @@ export class ArmatureDisplay extends UIRenderable {
         this._updateBatch();
     }
 
+    /**
+     * @en
+     * The bone sockets this animation component maintains.<br>
+     * Sockets have to be registered here before attaching custom nodes to animated bones.
+     * @zh
+     * 当前动画组件维护的挂点数组。要挂载自定义节点到受动画驱动的骨骼上，必须先在此注册挂点。
+     */
+    @type([DragonBoneSocket])
+    @tooltip('i18n:animation.sockets')
+    get sockets (): DragonBoneSocket[] {
+        return this._sockets;
+    }
+
+    set sockets (val: DragonBoneSocket[]) {
+        if (EDITOR) {
+            this._verifySockets(val);
+        }
+        this._sockets = val;
+        this._updateSocketBindings();
+        this.attachUtil._syncAttachedNode();
+    }
+
+    get socketNodes () { return this._socketNodes; }
+
     /* protected */ _armature: dragonBones.Armature | null = null;
 
     public attachUtil: AttachUtil;
@@ -399,6 +450,12 @@ export class ArmatureDisplay extends UIRenderable {
 
     protected _enumArmatures: any = Enum({});
     protected _enumAnimations: any = Enum({});
+
+    protected _socketNodes: Map<dragonBones.Bone, Node> = new Map();
+    protected _cachedSockets: Map<string, dragonBones.Bone> = new Map();
+
+    @serializable
+    protected _sockets: DragonBoneSocket[] = [];
 
     private _inited;
 
@@ -546,6 +603,12 @@ export class ArmatureDisplay extends UIRenderable {
     }
 
     _init () {
+        if (EDITOR) {
+            const Flags = CCObject.Flags;
+            this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);
+            // this._refreshInspector();
+        }
+
         if (this._inited) return;
         this._inited = true;
 
@@ -563,6 +626,8 @@ export class ArmatureDisplay extends UIRenderable {
             }
         }
         this._updateDebugDraw();
+        this._indexBoneSockets();
+        this._updateSocketBindings();
     }
 
     /**
@@ -601,6 +666,7 @@ export class ArmatureDisplay extends UIRenderable {
             if (this._armature && !this.isAnimationCached()) {
                 this._factory._dragonBones.clock.add(this._armature);
             }
+            this._updateSocketBindings();
         }
     }
 
@@ -815,6 +881,16 @@ export class ArmatureDisplay extends UIRenderable {
         this.markForUpdateRenderData();
     }
 
+    public querySockets () {
+        if (!this._armature) {
+            return [];
+        }
+        if (this._cachedSockets.size === 0) {
+            this._indexBoneSockets();
+        }
+        return Array.from(this._cachedSockets.keys()).sort();
+    }
+
     _parseDragonAtlasAsset () {
         if (this.dragonAtlasAsset) {
             this.dragonAtlasAsset.init(this._factory);
@@ -875,6 +951,41 @@ export class ArmatureDisplay extends UIRenderable {
         Enum.update(this._enumArmatures);
         // change enum
         setEnumAttr(this, '_defaultArmatureIndex', this._enumArmatures);
+    }
+
+    _indexBoneSockets () {
+        if (!this._armature) {
+            return;
+        }
+        this._cachedSockets.clear();
+        const nameToBone = this._cachedSockets;
+        const cacheBoneName = (bone: dragonBones.Bone, cache: Map<dragonBones.Bone, string>): string => {
+            if (cache.has(bone)) { return cache.get(bone)!; }
+            if (!bone.parent) {
+                cache.set(bone, bone.name);
+                return bone.name;
+            }
+            const name = `${cacheBoneName(bone.parent, cache)}/${bone.name}`;
+            cache.set(bone, name);
+            return name;
+        };
+        const walkArmature = (prefix: string, armature: dragonBones.Armature) => {
+            const bones = armature.getBones();
+            const boneToName = new Map<dragonBones.Bone, string>();
+            for (let i = 0; i < bones.length; i++) {
+                cacheBoneName(bones[i], boneToName);
+            }
+            for (const bone of boneToName.keys()) {
+                nameToBone.set(`${prefix}${boneToName.get(bone)!}`, bone);
+            }
+            const slots = armature.getSlots();
+            for (let i = 0; i < slots.length; i++) {
+                if (slots[i].childArmature) {
+                    walkArmature(slots[i].name, slots[i].childArmature!);
+                }
+            }
+        };
+        walkArmature('/', this._armature);
     }
 
     /**
@@ -1097,6 +1208,34 @@ export class ArmatureDisplay extends UIRenderable {
                 this._assembler.createData(this);
                 this.markForUpdateRenderData();
                 this._updateColor();
+            }
+        }
+    }
+
+    protected _updateSocketBindings () {
+        if (!this._armature) return;
+        this._socketNodes.clear();
+        for (let i = 0, l = this._sockets.length; i < l; i++) {
+            const socket = this._sockets[i];
+            if (socket.path && socket.target) {
+                const bone = this._cachedSockets.get(socket.path);
+                if (!bone) {
+                    console.error(`Skeleton data does not contain path ${socket.path}`);
+                    continue;
+                }
+                this._socketNodes.set(bone, socket.target);
+            }
+        }
+    }
+
+    private _verifySockets (sockets: DragonBoneSocket[]) {
+        for (let i = 0, l = sockets.length; i < l; i++) {
+            const target = sockets[i].target;
+            if (target) {
+                if (!target.parent || (target.parent !== this.node)) {
+                    console.error(`Target node ${target.name} is expected to be a direct child of ${this.node.name}`);
+                    continue;
+                }
             }
         }
     }

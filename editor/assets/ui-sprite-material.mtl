@@ -9,10 +9,21 @@
   "_techIdx": 0,
   "_defines": [
     {
-      "USE_TEXTURE": true
+      "USE_TEXTURE": true,
+      "IS_GRAY": true
     }
   ],
-  "_states": [],
+  "_states": [
+    {
+      "blendState": {
+        "targets": [
+          {}
+        ]
+      },
+      "depthStencilState": {},
+      "rasterizerState": {}
+    }
+  ],
   "_props": [
     {}
   ]
