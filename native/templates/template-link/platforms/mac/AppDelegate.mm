@@ -15,7 +15,7 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     NSRect rect = NSMakeRect(200, 200, 960, 640);
     _window = [[NSWindow alloc] initWithContentRect:rect
-                                          styleMask:NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskTitled | NSWindowStyleMaskClosable
+                                          styleMask:NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable
                                             backing:NSBackingStoreBuffered
                                               defer:NO];
     if (!_window) {
