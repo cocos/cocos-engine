@@ -32,7 +32,7 @@
  */
 
 import { Script } from '../assets/scripts';
-import { ccclass, tooltip, displayName, type, serializable } from 'cc.decorator';
+import { ccclass, tooltip, displayName, type, serializable, disallowAnimation} from 'cc.decorator';
 import { CCObject } from '../data/object';
 import IDGenerator from '../utils/id-generator';
 import { getClassName, value } from '../utils/js';
@@ -95,6 +95,7 @@ class Component extends CCObject {
     @displayName('Script')
     @type(Script)
     @tooltip('i18n:INSPECTOR.component.script')
+    @disallowAnimation
     get __scriptAsset () { return null; }
 
     /**
