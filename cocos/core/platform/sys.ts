@@ -381,11 +381,11 @@ export const sys: Record<string, any> = {
      */
     ALIPAY_MINI_GAME: 113,
     /**
-     * @property {Number} QTT_GAME
+     * @property {Number} QTT_MINI_GAME
      * @readOnly
      * @default 116
      */
-    QTT_GAME: 116,
+    QTT_MINI_GAME: 116,
     /**
      * @property {Number} BYTEDANCE_MINI_GAME
      * @readOnly
@@ -393,11 +393,11 @@ export const sys: Record<string, any> = {
      */
     BYTEDANCE_MINI_GAME: 117,
     /**
-     * @property {Number} LINKSURE
+     * @property {Number} LINKSURE_MINI_GAME
      * @readOnly
      * @default 119
      */
-    LINKSURE: 119,
+    LINKSURE_MINI_GAME: 119,
 
     /**
      * @en Browser Type - WeChat inner browser
