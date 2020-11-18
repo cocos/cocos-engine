@@ -623,8 +623,6 @@ export class Label extends UIRenderable {
     public static _canvasPool = CanvasPool.getInstance();
 
     @serializable
-    protected _useOriginalSize = true;
-    @serializable
     protected _string = 'label';
     @serializable
     protected _horizontalAlign = HorizontalTextAlignment.CENTER;

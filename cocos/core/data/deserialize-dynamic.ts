@@ -38,7 +38,7 @@ import * as Attr from './utils/attribute';
 import MissingScript from '../components/missing-script';
 import { Details } from './deserialize';
 
-
+// TODO remove default support
 
 // IMPLEMENT OF DESERIALIZATION
 
