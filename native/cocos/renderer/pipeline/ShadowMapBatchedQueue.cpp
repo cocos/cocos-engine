@@ -37,13 +37,13 @@ void ShadowMapBatchedQueue::gatherLightPasses(const Light *light, gfx::CommandBu
 
             switch (light->getType()) {
                 case LightType::DIRECTIONAL:
-                    add(model);
+                    add(model, cmdBufferer);
                     break;
                 case LightType::SPOT:
                     if (model->getWorldBounds() &&
                         (aabb_aabb(model->getWorldBounds(), light->getAABB()) ||
                          aabb_frustum(model->getWorldBounds(), light->getFrustum()))) {
-                        add(model);
+                        add(model, cmdBufferer);
                     }
                     break;
                 default:;
@@ -60,7 +60,7 @@ void ShadowMapBatchedQueue::clear() {
     if (_batchedQueue) _batchedQueue->clear();
 }
 
-void ShadowMapBatchedQueue::add(const ModelView *model) {
+void ShadowMapBatchedQueue::add(const ModelView *model, gfx::CommandBuffer *cmdBufferer) {
     // this assumes light pass index is the same for all submodels
     const auto shadowPassIdx = getShadowPassIndex(model);
     if (shadowPassIdx < 0) {
@@ -90,6 +90,9 @@ void ShadowMapBatchedQueue::add(const ModelView *model) {
             _passes.emplace_back(pass);
         }
     }
+
+    _instancedQueue->uploadBuffers(cmdBufferer);
+    _batchedQueue->uploadBuffers(cmdBufferer);
 }
 
 void ShadowMapBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) const {

@@ -69,6 +69,8 @@ void PlanarShadowQueue::gatherShadowPasses(RenderView *view, gfx::CommandBuffer 
             }
         }
     }
+
+    _instancedQueue->uploadBuffers(cmdBufferer);
 }
 
 void PlanarShadowQueue::clear() {

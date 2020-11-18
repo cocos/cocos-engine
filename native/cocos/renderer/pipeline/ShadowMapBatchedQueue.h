@@ -26,12 +26,12 @@ public:
     void destroy();
 
     void clear();
-    void gatherLightPasses(const Light *, gfx::CommandBuffer *cmdBufferer);
-    void add(const ModelView *);
-    void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) const;
+    void gatherLightPasses(const Light *, gfx::CommandBuffer *);
+    void add(const ModelView *, gfx::CommandBuffer *);
+    void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *) const;
 
 private:
-    void updateUBOs(const Light *, gfx::CommandBuffer *cmdBufferer) const;
+    void updateUBOs(const Light *, gfx::CommandBuffer *) const;
     int getShadowPassIndex(const ModelView *model) const;
 
 private:
