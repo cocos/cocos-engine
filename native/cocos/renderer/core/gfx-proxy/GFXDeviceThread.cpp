@@ -13,14 +13,9 @@ DeviceThread::DeviceThread(DeviceProxy *device) noexcept
     uint8_t const commandBufferCount = false ? std::thread::hardware_concurrency() : 1;
     mSubmitContexts.resize(commandBufferCount);
 
-    CommandBufferInfo info;
-    info.type = CommandBufferType::PRIMARY;
-    info.queue = device->getQueue();
-
     for (auto& context : mSubmitContexts)
     {
         context.mEncoder = std::make_unique<CommandEncoder>();
-        context.mCommandBuffer.reset(device->createCommandBuffer(info));
     }
 }
 
@@ -42,6 +37,17 @@ void DeviceThread::Terminate() noexcept
     for (auto& context : mSubmitContexts)
     {
         context.mEncoder->TerminateConsumerThread();
+    }
+}
+
+void DeviceThread::InitCommandBuffers(DeviceProxy *device) noexcept {
+    CommandBufferInfo info;
+    info.type = CommandBufferType::PRIMARY;
+    info.queue = device->getQueue();
+
+    for (auto& context : mSubmitContexts)
+    {
+        context.mCommandBuffer.reset(device->createCommandBuffer(info));
     }
 }
 

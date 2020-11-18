@@ -4,6 +4,11 @@
 #include "GFXBufferProxy.h"
 #include "GFXTextureProxy.h"
 #include "GFXShaderProxy.h"
+#include "GFXDescriptorSetProxy.h"
+#include "GFXInputAssemblerProxy.h"
+#include "GFXPipelineStateProxy.h"
+#include "GFXFramebufferProxy.h"
+#include "GFXQueueProxy.h"
 #include "GFXDeviceThread.h"
 
 namespace cc {
@@ -28,134 +33,187 @@ bool DeviceProxy::initialize(const DeviceInfo &info) {
         _bindingMappingInfo.samplerOffsets.push_back(0);
     }
 
-    bool res = _remote->initialize(info);
-
-    _context = _remote->getContext();
-    _API = _remote->getGfxAPI();
-    _deviceName = _remote->getDeviceName();
-    _queue = _remote->getQueue();
-    _cmdBuff = _remote->getCommandBuffer();
-    _renderer = _remote->getRenderer();
-    _vendor = _remote->getVendor();
-    _maxVertexAttributes = _remote->getMaxVertexAttributes();
-    _maxVertexUniformVectors = _remote->getMaxVertexUniformVectors();
-    _maxFragmentUniformVectors = _remote->getMaxFragmentUniformVectors();
-    _maxTextureUnits = _remote->getMaxTextureUnits();
-    _maxVertexTextureUnits = _remote->getMaxVertexTextureUnits();
-    _maxUniformBufferBindings = _remote->getMaxUniformBufferBindings();
-    _maxUniformBlockSize = _remote->getMaxUniformBlockSize();
-    _maxTextureSize = _remote->getMaxTextureSize();
-    _maxCubeMapTextureSize = _remote->getMaxCubeMapTextureSize();
-    _uboOffsetAlignment = _remote->getUboOffsetAlignment();
-    _depthBits = _remote->getDepthBits();
-    _stencilBits = _remote->getStencilBits();
-    memcpy(_features, ((DeviceProxy*)_remote.get())->_features, (uint)Feature::COUNT * sizeof(bool));
-
     _thread = std::make_unique<DeviceThread>(this);
+    _thread->GetMainCommandEncoder()->RunConsumerThread();
     _thread->Run();
 
-    return res;
+    ENCODE_COMMAND_3(
+        _thread->GetMainCommandEncoder(),
+        DeviceInit,
+        remote, GetRemote(),
+        info, info,
+        device, this,
+        {
+            remote->initialize(info);
+
+            device->_context = remote->getContext();
+            device->_API = remote->getGfxAPI();
+            device->_deviceName = remote->getDeviceName();
+            device->_queue = CC_NEW(QueueProxy(remote->getQueue(), device));
+            device->_cmdBuff = CC_NEW(CommandBufferProxy(remote->getCommandBuffer(), device));
+            device->_renderer = remote->getRenderer();
+            device->_vendor = remote->getVendor();
+            device->_maxVertexAttributes = remote->getMaxVertexAttributes();
+            device->_maxVertexUniformVectors = remote->getMaxVertexUniformVectors();
+            device->_maxFragmentUniformVectors = remote->getMaxFragmentUniformVectors();
+            device->_maxTextureUnits = remote->getMaxTextureUnits();
+            device->_maxVertexTextureUnits = remote->getMaxVertexTextureUnits();
+            device->_maxUniformBufferBindings = remote->getMaxUniformBufferBindings();
+            device->_maxUniformBlockSize = remote->getMaxUniformBlockSize();
+            device->_maxTextureSize = remote->getMaxTextureSize();
+            device->_maxCubeMapTextureSize = remote->getMaxCubeMapTextureSize();
+            device->_uboOffsetAlignment = remote->getUboOffsetAlignment();
+            device->_depthBits = remote->getDepthBits();
+            device->_stencilBits = remote->getStencilBits();
+            memcpy(device->_features, ((DeviceProxy*)remote)->_features, (uint)Feature::COUNT * sizeof(bool));
+
+            device->_thread->InitCommandBuffers(device);
+        });
+
+    _thread->GetMainCommandEncoder()->FinishWriting(true);
+
+    return true;
 }
 
 void DeviceProxy::destroy() {
-    _thread->Terminate();
-    _thread.reset();
-
-    _remote->destroy();
+    ENCODE_COMMAND_2(
+        getDeviceThread()->GetMainCommandEncoder(),
+        DeviceDestroy,
+        remote, GetRemote(),
+        device, this,
+        {
+            remote->destroy();
+            CC_SAFE_DELETE(device->_queue);
+            CC_SAFE_DELETE(device->_cmdBuff);
+            device->_thread->Terminate();
+            device->_thread->GetMainCommandEncoder()->TerminateConsumerThread();
+            device->_thread.reset();
+        });
 }
 
 void DeviceProxy::resize(uint width, uint height) {
     _width = _nativeWidth = width;
     _height = _nativeHeight = height;
-    _remote->resize(width, height);
+
+    ENCODE_COMMAND_3(
+        getDeviceThread()->GetMainCommandEncoder(),
+        DeviceResize,
+        remote, GetRemote(),
+        width, width,
+        height, height,
+        {
+            remote->resize(width, height);
+        });
 }
 
 void DeviceProxy::acquire() {
-    _remote->acquire();
+    ENCODE_COMMAND_1(
+        getDeviceThread()->GetMainCommandEncoder(),
+        DeviceAcquire,
+        remote, GetRemote(),
+        {
+            remote->acquire();
+        });
 }
 
 void DeviceProxy::present() {
-    _remote->present();
+    ENCODE_COMMAND_1(
+        getDeviceThread()->GetMainCommandEncoder(),
+        DevicePresent,
+        remote, GetRemote(),
+        {
+            remote->present();
+        });
+
+    getDeviceThread()->GetMainCommandEncoder()->Kick();
 }
 
-CommandBuffer *DeviceProxy::createCommandBuffer(const CommandBufferInfo &info) {
-    CommandBuffer *remote = _remote->createCommandBuffer(info);
-    CommandBufferProxy *proxy = CC_NEW(CommandBufferProxy(remote));
+CommandBuffer *DeviceProxy::createCommandBuffer() {
+    CommandBuffer *remote = _remote->createCommandBuffer();
+    CommandBufferProxy *proxy = CC_NEW(CommandBufferProxy(remote, this));
     return proxy;
 }
 
-Buffer *DeviceProxy::createBuffer(const BufferInfo &info) {
-    Buffer *remote = _remote->createBuffer(info);
-    BufferProxy *proxy = CC_NEW(BufferProxy(remote));
+Fence *DeviceProxy::createFence() {
+    return _remote->createFence();
+}
+
+Queue *DeviceProxy::createQueue() {
+    Queue *remote = _remote->createQueue();
+    QueueProxy *proxy = CC_NEW(QueueProxy(remote, this));
     return proxy;
 }
 
-Buffer *DeviceProxy::createBuffer(const BufferViewInfo &info) {
-    Buffer *remote = _remote->createBuffer(info);
-    BufferProxy *proxy = CC_NEW(BufferProxy(remote));
+Buffer *DeviceProxy::createBuffer() {
+    Buffer *remote = _remote->createBuffer();
+    BufferProxy *proxy = CC_NEW(BufferProxy(remote, this));
     return proxy;
 }
 
-Texture *DeviceProxy::createTexture(const TextureInfo &info) {
-    Texture *remote = _remote->createTexture(info);
-    TextureProxy *proxy = CC_NEW(TextureProxy(remote));
+Texture *DeviceProxy::createTexture() {
+    Texture *remote = _remote->createTexture();
+    TextureProxy *proxy = CC_NEW(TextureProxy(remote, this));
     return proxy;
 }
 
-Texture *DeviceProxy::createTexture(const TextureViewInfo &info) {
-    Texture *remote = _remote->createTexture(info);
-    TextureProxy *proxy = CC_NEW(TextureProxy(remote));
+Sampler *DeviceProxy::createSampler() {
+    return _remote->createSampler();
+}
+
+Shader *DeviceProxy::createShader() {
+    Shader *remote = _remote->createShader();
+    ShaderProxy *proxy = CC_NEW(ShaderProxy(remote, this));
     return proxy;
 }
 
-Shader *DeviceProxy::createShader(const ShaderInfo &info) {
-    Shader *remote = _remote->createShader(info);
-    ShaderProxy *proxy = CC_NEW(ShaderProxy(remote));
+InputAssembler *DeviceProxy::createInputAssembler() {
+    InputAssembler *remote = _remote->createInputAssembler();
+    InputAssemblerProxy *proxy = CC_NEW(InputAssemblerProxy(remote, this));
     return proxy;
 }
 
-Fence *DeviceProxy::createFence(const FenceInfo &info) {
-    return _remote->createFence(info);
+RenderPass *DeviceProxy::createRenderPass() {
+    return _remote->createRenderPass();
 }
 
-Queue *DeviceProxy::createQueue(const QueueInfo &info) {
-    return _remote->createQueue(info);
+Framebuffer *DeviceProxy::createFramebuffer() {
+    Framebuffer *remote = _remote->createFramebuffer();
+    FramebufferProxy *proxy = CC_NEW(FramebufferProxy(remote, this));
+    return proxy;
 }
 
-Sampler *DeviceProxy::createSampler(const SamplerInfo &info) {
-    return _remote->createSampler(info);
+DescriptorSet *DeviceProxy::createDescriptorSet() {
+    DescriptorSet *remote = _remote->createDescriptorSet();
+    DescriptorSetProxy *proxy = CC_NEW(DescriptorSetProxy(remote, this));
+    return proxy;
 }
 
-InputAssembler *DeviceProxy::createInputAssembler(const InputAssemblerInfo &info) {
-    return _remote->createInputAssembler(info);
+DescriptorSetLayout *DeviceProxy::createDescriptorSetLayout() {
+    return _remote->createDescriptorSetLayout();
 }
 
-RenderPass *DeviceProxy::createRenderPass(const RenderPassInfo &info) {
-    return _remote->createRenderPass(info);
+PipelineLayout *DeviceProxy::createPipelineLayout() {
+    return _remote->createPipelineLayout();
 }
 
-Framebuffer *DeviceProxy::createFramebuffer(const FramebufferInfo &info) {
-    return _remote->createFramebuffer(info);
-}
-
-DescriptorSet *DeviceProxy::createDescriptorSet(const DescriptorSetInfo &info) {
-    return _remote->createDescriptorSet(info);
-}
-
-DescriptorSetLayout *DeviceProxy::createDescriptorSetLayout(const DescriptorSetLayoutInfo &info) {
-    return _remote->createDescriptorSetLayout(info);
-}
-
-PipelineLayout *DeviceProxy::createPipelineLayout(const PipelineLayoutInfo &info) {
-    return _remote->createPipelineLayout(info);
-}
-
-PipelineState *DeviceProxy::createPipelineState(const PipelineStateInfo &info) {
-    return _remote->createPipelineState(info);
+PipelineState *DeviceProxy::createPipelineState() {
+    PipelineState *remote = _remote->createPipelineState();
+    PipelineStateProxy *proxy = CC_NEW(PipelineStateProxy(remote, this));
+    return proxy;
 }
 
 void DeviceProxy::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
-    _remote->copyBuffersToTexture(buffers, ((TextureProxy*)dst)->GetRemote(), regions, count);
+    ENCODE_COMMAND_5(
+        getDeviceThread()->GetMainCommandEncoder(),
+        DeviceCopyBuffersToTexture,
+        remote, GetRemote(),
+        buffers, buffers,
+        dst, ((TextureProxy*)dst)->GetRemote(),
+        regions, regions,
+        count, count,
+        {
+            remote->copyBuffersToTexture(buffers, dst, regions, count);
+        });
 }
 
 } // namespace gfx

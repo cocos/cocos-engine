@@ -10,28 +10,42 @@ namespace gfx {
 class CC_DLL DeviceProxy : public Proxy<Device> {
 public:
     using Proxy::Proxy;
+    using Device::createCommandBuffer;
+    using Device::createFence;
+    using Device::createQueue;
+    using Device::createBuffer;
+    using Device::createTexture;
+    using Device::createSampler;
+    using Device::createShader;
+    using Device::createInputAssembler;
+    using Device::createRenderPass;
+    using Device::createFramebuffer;
+    using Device::createDescriptorSet;
+    using Device::createDescriptorSetLayout;
+    using Device::createPipelineLayout;
+    using Device::createPipelineState;
+    using Device::copyBuffersToTexture;
 
     virtual bool initialize(const DeviceInfo &info) override;
     virtual void destroy() override;
     virtual void resize(uint width, uint height) override;
     virtual void acquire() override;
     virtual void present() override;
-    virtual CommandBuffer *createCommandBuffer(const CommandBufferInfo &info) override;
-    virtual Fence *createFence(const FenceInfo &info) override;
-    virtual Queue *createQueue(const QueueInfo &info) override;
-    virtual Buffer *createBuffer(const BufferInfo &info) override;
-    virtual Buffer *createBuffer(const BufferViewInfo &info) override;
-    virtual Texture *createTexture(const TextureInfo &info) override;
-    virtual Texture *createTexture(const TextureViewInfo &info) override;
-    virtual Sampler *createSampler(const SamplerInfo &info) override;
-    virtual Shader *createShader(const ShaderInfo &info) override;
-    virtual InputAssembler *createInputAssembler(const InputAssemblerInfo &info) override;
-    virtual RenderPass *createRenderPass(const RenderPassInfo &info) override;
-    virtual Framebuffer *createFramebuffer(const FramebufferInfo &info) override;
-    virtual DescriptorSet *createDescriptorSet(const DescriptorSetInfo &info) override;
-    virtual DescriptorSetLayout *createDescriptorSetLayout(const DescriptorSetLayoutInfo &info) override;
-    virtual PipelineLayout *createPipelineLayout(const PipelineLayoutInfo &info) override;
-    virtual PipelineState *createPipelineState(const PipelineStateInfo &info) override;
+
+    virtual CommandBuffer *createCommandBuffer() override;
+    virtual Fence *createFence() override;
+    virtual Queue *createQueue() override;
+    virtual Buffer *createBuffer() override;
+    virtual Texture *createTexture() override;
+    virtual Sampler *createSampler() override;
+    virtual Shader *createShader() override;
+    virtual InputAssembler *createInputAssembler() override;
+    virtual RenderPass *createRenderPass() override;
+    virtual Framebuffer *createFramebuffer() override;
+    virtual DescriptorSet *createDescriptorSet() override;
+    virtual DescriptorSetLayout *createDescriptorSetLayout() override;
+    virtual PipelineLayout *createPipelineLayout() override;
+    virtual PipelineState *createPipelineState() override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
 
     virtual SurfaceTransform getSurfaceTransform() const override { return _remote->getSurfaceTransform(); }
@@ -43,6 +57,8 @@ public:
     virtual uint getNumDrawCalls() const override { return _remote->getNumDrawCalls(); }
     virtual uint getNumInstances() const override { return _remote->getNumInstances(); }
     virtual uint getNumTris() const override { return _remote->getNumTris(); }
+
+    DeviceThread *getDeviceThread() const { return _thread.get(); }
 
 protected:
 

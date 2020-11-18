@@ -24,8 +24,9 @@ public:
 
     void                                    Run() noexcept;
     void                                    Terminate() noexcept;
-    inline CommandEncoder*                   GetMainCommandEncoder() const noexcept { return mMainCommandEncoder.get(); }
+    inline CommandEncoder*                  GetMainCommandEncoder() const noexcept { return mMainCommandEncoder.get(); }
 
+    void                                    InitCommandBuffers(DeviceProxy *device) noexcept;
 private:
 
     std::unique_ptr<CommandEncoder>         mMainCommandEncoder  {};

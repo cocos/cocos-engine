@@ -185,8 +185,16 @@ bool GLES2Device::initialize(const DeviceInfo &info) {
 }
 
 void GLES2Device::destroy() {
-    CC_SAFE_DESTROY(_queue);
-    CC_SAFE_DESTROY(_cmdBuff);
+    // these two are managed by their proxies
+    if (_queue) {
+        _queue->destroy();
+        _queue = nullptr;
+    }
+    if (_cmdBuff) {
+        _cmdBuff->destroy();
+        _cmdBuff = nullptr;
+    }
+    CC_SAFE_DESTROY(_context);
     CC_SAFE_DELETE(_gpuStagingBufferPool);
     CC_SAFE_DELETE(_gpuStateCache);
     CC_SAFE_DESTROY(_deviceContext);
@@ -216,34 +224,7 @@ void GLES2Device::present() {
     queue->_numTriangles = 0;
 }
 
-void GLES2Device::bindRenderContext(bool bound) {
-    _renderContext->MakeCurrent(bound);
-    _context = bound ? _renderContext : nullptr;
-
-    if (bound) {
-        _threadID = std::hash<std::thread::id>()(std::this_thread::get_id());
-    }
-}
-
-void GLES2Device::bindDeviceContext(bool bound) {
-    if (!_deviceContext) {
-        ContextInfo ctxInfo;
-        ctxInfo.windowHandle = _windowHandle;
-        ctxInfo.sharedCtx = _renderContext;
-
-        _deviceContext = CC_NEW(GLES2Context(this));
-        _deviceContext->initialize(ctxInfo);
-    }
-    _deviceContext->MakeCurrent(bound);
-    _context = bound ? _deviceContext : nullptr;
-
-    if (bound) {
-        _threadID = std::hash<std::thread::id>()(std::this_thread::get_id());
-    }
-}
-
-CommandBuffer *GLES2Device::doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
-    if (hasAgent || info.type == CommandBufferType::PRIMARY) return CC_NEW(GLES2PrimaryCommandBuffer(this));
+CommandBuffer *GLES2Device::createCommandBuffer() {
     return CC_NEW(GLES2CommandBuffer(this));
 }
 

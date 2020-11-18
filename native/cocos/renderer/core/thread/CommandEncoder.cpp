@@ -131,7 +131,7 @@ void CommandEncoder::TerminateConsumerThread() noexcept
     event.Wait();
 }
 
-void CommandEncoder::FinishWriting() noexcept
+void CommandEncoder::FinishWriting(bool wait) noexcept
 {
     bool* const flushingFinished = &mR.mFlushingFinished;
 
@@ -141,7 +141,7 @@ void CommandEncoder::FinishWriting() noexcept
                 *flushingFinished = true;
             });
 
-    Kick();
+    wait ? KickAndWait() : Kick();
 }
 
 void CommandEncoder::RecycleMemoryChunk(uint8_t* const chunk) const noexcept
@@ -203,7 +203,7 @@ void CommandEncoder::PushCommands() noexcept
 void CommandEncoder::PullCommands() noexcept
 {
     uint32_t const writtenCommandCountNew = mW.mWrittenCommandCount.load(std::memory_order_acquire);
-    mR.mNewCommandCount = writtenCommandCountNew - mR.mWrittenCommandCountSnap;
+    mR.mNewCommandCount += writtenCommandCountNew - mR.mWrittenCommandCountSnap;
     mR.mWrittenCommandCountSnap = writtenCommandCountNew;
 }
 
@@ -241,9 +241,8 @@ Command* CommandEncoder::ReadCommand() noexcept
         if (! HasNewCommand())
         {
             mN.Wait();
+            PullCommands();
         }
-
-        PullCommands();
     }
 
     Command* const cmd = mR.mLastCommand->GetNext();

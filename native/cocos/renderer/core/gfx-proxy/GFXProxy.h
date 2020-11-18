@@ -11,11 +11,10 @@ public:
 
     Proxy() noexcept = delete;
 
-    explicit Proxy(Remote *const remote) noexcept
-    : Remote(remote->getDevice()) // TODO: handle the initial device references
-    { _remote.reset(remote); }
+    explicit Proxy(Remote *const remote, Device *const device) noexcept
+    : Remote(device) { _remote.reset(remote); }
 
-    virtual                     ~Proxy() { _remote.reset(); }
+    virtual ~Proxy() { _remote.reset(); }
 
     Proxy(Proxy const &) = delete;
 

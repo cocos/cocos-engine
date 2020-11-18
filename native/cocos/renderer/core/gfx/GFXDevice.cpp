@@ -1,9 +1,6 @@
 #include "CoreStd.h"
 
 #include "GFXContext.h"
-#include "GFXDevice.h"
-#include "cocos/bindings/event/CustomEventTypes.h"
-#include "cocos/bindings/event/EventDispatcher.h"
 
 namespace cc {
 namespace gfx {

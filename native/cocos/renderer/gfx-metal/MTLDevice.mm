@@ -175,12 +175,15 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
 }
 
 void CCMTLDevice::destroy() {
-    if (_memoryAlarmListenerId != 0) {
-        EventDispatcher::removeCustomEventListener(EVENT_MEMORY_WARNING, _memoryAlarmListenerId);
-        _memoryAlarmListenerId = 0;
+    // these two are managed by their proxies
+    if (_queue) {
+        _queue->destroy();
+        _queue = nullptr;
     }
-    CC_SAFE_DESTROY(_queue);
-    CC_SAFE_DESTROY(_cmdBuff);
+    if (_cmdBuff) {
+        _cmdBuff->destroy();
+        _cmdBuff = nullptr;
+    }
     CC_SAFE_DESTROY(_context);
     CC_SAFE_DELETE(_inFlightSemaphore);
 
@@ -207,20 +210,6 @@ void CCMTLDevice::present() {
     _numDrawCalls = queue->_numDrawCalls;
     _numInstances = queue->_numInstances;
     _numTriangles = queue->_numTriangles;
-
-    //hold this pointer before update _currentFrameIndex
-    CCMTLGPUStagingBufferPool *bufferPool = _gpuStagingBufferPools[_currentFrameIndex];
-    _currentFrameIndex = (_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
-
-    auto mtlCommandBuffer = static_cast<CCMTLCommandBuffer *>(_cmdBuff)->getMTLCommandBuffer();
-    auto mtkView = static_cast<MTKView *>(_mtkView);
-    [mtlCommandBuffer presentDrawable:mtkView.currentDrawable];
-    [mtlCommandBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
-        [commandBuffer release];
-        bufferPool->reset();
-        _inFlightSemaphore->signal();
-    }];
-    [mtlCommandBuffer commit];
 }
 
 Fence *CCMTLDevice::createFence() {
@@ -231,7 +220,7 @@ Queue *CCMTLDevice::createQueue() {
     return CC_NEW(CCMTLQueue(this));
 }
 
-CommandBuffer *CCMTLDevice::doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
+CommandBuffer *CCMTLDevice::createCommandBuffer() {
     return CC_NEW(CCMTLCommandBuffer(this));
 }
 

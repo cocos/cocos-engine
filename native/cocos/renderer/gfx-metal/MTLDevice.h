@@ -53,25 +53,28 @@ public:
     using Device::createPipelineState;
     using Device::copyBuffersToTexture;
 
+    using Device::createCommandBuffer;
+    using Device::createFence;
+    using Device::createQueue;
+    using Device::createBuffer;
+    using Device::createTexture;
+    using Device::createSampler;
+    using Device::createShader;
+    using Device::createInputAssembler;
+    using Device::createRenderPass;
+    using Device::createFramebuffer;
+    using Device::createDescriptorSet;
+    using Device::createDescriptorSetLayout;
+    using Device::createPipelineLayout;
+    using Device::createPipelineState;
+    using Device::copyBuffersToTexture;
+
     virtual bool initialize(const DeviceInfo &info) override;
     virtual void destroy() override;
     virtual void resize(uint width, uint height) override;
     virtual void acquire() override;
     virtual void present() override;
-
-    CC_INLINE void *getMTLCommandQueue() const { return _mtlCommandQueue; }
-    CC_INLINE void *getMTKView() const { return _mtkView; }
-    CC_INLINE void *getMTLDevice() const { return _mtlDevice; }
-    CC_INLINE uint getMaximumSamplerUnits() const { return _maxSamplerUnits; }
-    CC_INLINE uint getMaximumColorRenderTargets() const { return _maxColorRenderTargets; }
-    CC_INLINE uint getMaximumBufferBindingIndex() const { return _maxBufferBindingIndex; }
-    CC_INLINE bool isIndirectCommandBufferSupported() const { return _icbSuppored; }
-    CC_INLINE bool isIndirectDrawSupported() const { return _indirectDrawSupported; }
-    CC_INLINE CCMTLGPUStagingBufferPool *gpuStagingBufferPool() const { return _gpuStagingBufferPools[_currentFrameIndex]; }
-    CC_INLINE bool isSamplerDescriptorCompareFunctionSupported() const { return _isSamplerDescriptorCompareFunctionSupported; }
-
-protected:
-    virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
+    virtual CommandBuffer *createCommandBuffer() override;
     virtual Fence *createFence() override;
     virtual Queue *createQueue() override;
     virtual Buffer *createBuffer() override;
@@ -86,6 +89,18 @@ protected:
     virtual PipelineLayout *createPipelineLayout() override;
     virtual PipelineState *createPipelineState() override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
+    virtual void blitBuffer(void *srcBuffer, uint offset, uint size, void *dstBuffer);
+
+    CC_INLINE void *getMTLCommandQueue() const { return _mtlCommandQueue; }
+    CC_INLINE void *getMTKView() const { return _mtkView; }
+    CC_INLINE void *getMTLDevice() const { return _mtlDevice; }
+    CC_INLINE uint getMaximumSamplerUnits() const { return _maxSamplerUnits; }
+    CC_INLINE uint getMaximumColorRenderTargets() const { return _maxColorRenderTargets; }
+    CC_INLINE uint getMaximumBufferBindingIndex() const { return _maxBufferBindingIndex; }
+    CC_INLINE bool isIndirectCommandBufferSupported() const { return _icbSuppored; }
+    CC_INLINE bool isIndirectDrawSupported() const { return _indirectDrawSupported; }
+    CC_INLINE CCMTLGPUStagingBufferPool *gpuStagingBufferPool() const { return _gpuStagingBufferPool; }
+    CC_INLINE bool isSamplerDescriptorCompareFunctionSupported() const { return _isSamplerDescriptorCompareFunctionSupported;}
 
 private:
     void onMemoryWarning();

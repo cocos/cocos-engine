@@ -1,5 +1,6 @@
 #include "CoreStd.h"
 #include "GFXShaderProxy.h"
+#include "GFXDeviceProxy.h"
 
 namespace cc {
 namespace gfx {
@@ -11,13 +12,26 @@ bool ShaderProxy::initialize(const ShaderInfo &info) {
     _blocks = info.blocks;
     _samplers = info.samplers;
 
-    bool res = _remote->initialize(info);
+    ENCODE_COMMAND_2(
+        ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
+        ShaderInit,
+        remote, GetRemote(),
+        info, info,
+        {
+            remote->initialize(info);
+        });
 
-    return res;
+    return true;
 }
 
 void ShaderProxy::destroy() {
-    _remote->destroy();
+    ENCODE_COMMAND_1(
+        ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
+        ShaderDestroy,
+        remote, GetRemote(),
+        {
+            remote->destroy();
+        });
 }
 
 } // namespace gfx
