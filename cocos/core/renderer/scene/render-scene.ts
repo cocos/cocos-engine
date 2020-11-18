@@ -24,7 +24,7 @@
  */
 
 import { IBArray } from '../../assets/mesh';
-import { AABB, Intersect, ray, triangle } from '../../geometry';
+import { AABB, intersect, Ray, Triangle } from '../../geometry';
 import { PrimitiveMode } from '../../gfx/define';
 import { Mat4, Vec3 } from '../../math';
 import { RecyclePool } from '../../memop';
@@ -361,7 +361,7 @@ export class RenderScene {
      * @returns boolean , 射线是否有击中
      * @note 通过 this.rayResultAll 可以获取到最近的结果
      */
-    public raycastAll (worldRay: ray, mask = Layers.Enum.DEFAULT | Layers.Enum.UI_2D, distance = Infinity): boolean {
+    public raycastAll (worldRay: Ray, mask = Layers.Enum.DEFAULT | Layers.Enum.UI_2D, distance = Infinity): boolean {
         const r_3d = this.raycastAllModels(worldRay, mask, distance);
         const r_ui2d = this.raycastAllCanvas(worldRay, mask, distance);
         const isHit = r_3d || r_ui2d;
@@ -389,13 +389,13 @@ export class RenderScene {
      * @returns boolean , 射线是否有击中
      * @note 通过 this.rayResultModels 可以获取到最近的结果
      */
-    public raycastAllModels (worldRay: ray, mask = Layers.Enum.DEFAULT, distance = Infinity): boolean {
+    public raycastAllModels (worldRay: Ray, mask = Layers.Enum.DEFAULT, distance = Infinity): boolean {
         pool.reset();
         for (const m of this._models) {
             const transform = m.transform;
             if (!transform || !m.enabled || !(m.node.layer & (mask & ~Layers.Enum.IGNORE_RAYCAST)) || !m.worldBounds) { continue; }
             // broadphase
-            let d = Intersect.rayAABB(worldRay, m.worldBounds);
+            let d = intersect.rayAABB(worldRay, m.worldBounds);
             if (d <= 0 || d >= distance) { continue; }
             if (m.type === ModelType.DEFAULT) {
                 // transform ray back to model space
@@ -439,7 +439,7 @@ export class RenderScene {
      * @param distance 射线检测的最大距离, 默认为 Infinity
      * @returns boolean , 射线是否有击中
      */
-    public raycastSingleModel (worldRay: ray, model: Model, mask = Layers.Enum.DEFAULT, distance = Infinity): boolean {
+    public raycastSingleModel (worldRay: Ray, model: Model, mask = Layers.Enum.DEFAULT, distance = Infinity): boolean {
         if (PREVIEW) {
             if (model == null) { console.error(' 检测前请保证 model 不为 null '); }
         }
@@ -448,7 +448,7 @@ export class RenderScene {
         const transform = m.transform;
         if (!transform || !m.enabled || !(m.node.layer & (mask & ~Layers.Enum.IGNORE_RAYCAST)) || !m.worldBounds) { return false; }
         // broadphase
-        let d = Intersect.rayAABB(worldRay, m.worldBounds);
+        let d = intersect.rayAABB(worldRay, m.worldBounds);
         if (d <= 0 || d >= distance) { return false; }
         if (m.type === ModelType.DEFAULT) {
             // transform ray back to model space
@@ -491,7 +491,7 @@ export class RenderScene {
      * @returns boolean , 射线是否有击中
      * @note 通过 this.rayResultCanvas 可以获取到最近的结果
      */
-    public raycastAllCanvas (worldRay: ray, mask = Layers.Enum.UI_2D, distance = Infinity): boolean {
+    public raycastAllCanvas (worldRay: Ray, mask = Layers.Enum.UI_2D, distance = Infinity): boolean {
         poolUI.reset();
         const canvasComs = legacyCC.director.getScene().getComponentsInChildren(legacyCC.Canvas);
         if (canvasComs != null && canvasComs.length > 0) {
@@ -506,14 +506,14 @@ export class RenderScene {
         return resultCanvas.length > 0;
     }
 
-    private _raycastUI2DNode (worldRay: ray, ui2dNode: Node, mask = Layers.Enum.UI_2D, distance = Infinity) {
+    private _raycastUI2DNode (worldRay: Ray, ui2dNode: Node, mask = Layers.Enum.UI_2D, distance = Infinity) {
         if (PREVIEW) {
             if (ui2dNode == null) { console.error('make sure UINode is not null'); }
         }
         const uiTransform = ui2dNode._uiProps.uiTransformComp;
         if (uiTransform == null || ui2dNode.layer & Layers.Enum.IGNORE_RAYCAST || !(ui2dNode.layer & mask)) { return; }
         uiTransform.getComputeAABB(aabbUI);
-        const d = Intersect.rayAABB(worldRay, aabbUI);
+        const d = intersect.rayAABB(worldRay, aabbUI);
 
         if (d <= 0) {
             return;
@@ -525,7 +525,7 @@ export class RenderScene {
         }
     }
 
-    private _raycastUI2DNodeRecursiveChildren (worldRay: ray, parent: Node, mask = Layers.Enum.UI_2D, distance = Infinity) {
+    private _raycastUI2DNodeRecursiveChildren (worldRay: Ray, parent: Node, mask = Layers.Enum.UI_2D, distance = Infinity) {
         const result = this._raycastUI2DNode(worldRay, parent, mask, distance);
         if (result != null) {
             resultCanvas[poolUI.length - 1] = result;
@@ -552,11 +552,11 @@ export class RenderScene {
     }
 }
 
-const modelRay = ray.create();
+const modelRay = Ray.create();
 const v3 = new Vec3();
 const m4 = new Mat4();
 let narrowDis = Infinity;
-const tri = triangle.create();
+const tri = Triangle.create();
 const pool = new RecyclePool<IRaycastResult>(() => {
     return { node: null!, distance: Infinity };
 }, 8);
@@ -583,7 +583,7 @@ const narrowphase = (vb: Float32Array, ib: IBArray, pm: PrimitiveMode, sides: bo
             Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
             Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
             Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
-            const dist = Intersect.rayTriangle(modelRay, tri, sides);
+            const dist = intersect.rayTriangle(modelRay, tri, sides);
             if (dist <= 0 || dist >= narrowDis) { continue; }
             narrowDis = dist;
         }
@@ -598,7 +598,7 @@ const narrowphase = (vb: Float32Array, ib: IBArray, pm: PrimitiveMode, sides: bo
             Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
             Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
             rev = ~rev;
-            const dist = Intersect.rayTriangle(modelRay, tri, sides);
+            const dist = intersect.rayTriangle(modelRay, tri, sides);
             if (dist <= 0 || dist >= narrowDis) { continue; }
             narrowDis = dist;
         }
@@ -611,7 +611,7 @@ const narrowphase = (vb: Float32Array, ib: IBArray, pm: PrimitiveMode, sides: bo
             const i2 = ib[j + 1] * 3;
             Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
             Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
-            const dist = Intersect.rayTriangle(modelRay, tri, sides);
+            const dist = intersect.rayTriangle(modelRay, tri, sides);
             if (dist <= 0 || dist >= narrowDis) { continue; }
             narrowDis = dist;
         }

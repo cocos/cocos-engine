@@ -34,7 +34,7 @@ import { IVec3Like } from '../../core/math/type-define';
 import { Collider, RigidBody, PhysicMaterial, SimplexCollider } from '../../../exports/physics-framework';
 import { Mesh } from '../../core';
 import { ITerrainAsset } from './i-external';
-import { AABB, sphere } from '../../core/geometry';
+import { AABB, Sphere } from '../../core/geometry';
 
 export interface IBaseShape extends ILifecycle, IGroupMask {
     readonly impl: any;
@@ -46,7 +46,7 @@ export interface IBaseShape extends ILifecycle, IGroupMask {
     setCenter: (v: IVec3Like) => void;
     // setAttachedBody: (body: RigidBody | null) => void;
     getAABB: (v: AABB) => void;
-    getBoundingSphere: (v: sphere) => void;
+    getBoundingSphere: (v: Sphere) => void;
 }
 
 export interface IBoxShape extends IBaseShape {

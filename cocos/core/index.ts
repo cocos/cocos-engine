@@ -64,4 +64,4 @@ export * from './utils/profiler/profiler';
 
 import './splash-screen';
 import './deprecated';
-import './deprecated-3.0.0';
+

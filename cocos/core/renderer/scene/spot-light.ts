@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { AABB, frustum } from '../../geometry';
+import { AABB, Frustum } from '../../geometry';
 import { Mat4, Quat, Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
 import {
@@ -49,7 +49,7 @@ export class SpotLight extends Light {
 
     protected _aabb: AABB;
 
-    protected _frustum: frustum;
+    protected _frustum: Frustum;
 
     protected _angle = 0;
 
@@ -123,7 +123,7 @@ export class SpotLight extends Light {
     constructor () {
         super();
         this._aabb = AABB.create();
-        this._frustum = frustum.create();
+        this._frustum = Frustum.create();
         this._pos = new Vec3();
     }
 

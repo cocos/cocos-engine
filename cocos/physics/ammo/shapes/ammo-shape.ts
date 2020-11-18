@@ -33,7 +33,7 @@ import { Node } from '../../../core';
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { AmmoSharedBody } from '../ammo-shared-body';
-import { AABB, sphere } from '../../../core/geometry';
+import { AABB, Sphere } from '../../../core/geometry';
 import { AmmoConstant, CC_V3_0 } from '../ammo-const';
 
 const v3_0 = CC_V3_0;
@@ -122,7 +122,7 @@ export class AmmoShape implements IBaseShape {
         Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }
 
-    getBoundingSphere (v: sphere) {
+    getBoundingSphere (v: Sphere) {
         v.radius = this._btShape.getLocalBoundingSphere();
         Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }

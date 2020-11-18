@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { AABB, Intersect, sphere } from '../../geometry';
+import { AABB, intersect, Sphere } from '../../geometry';
 import { Model } from '../../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Layers } from '../../scene-graph/layers';
@@ -47,7 +47,7 @@ const _mat4_trans = new Mat4();
 const _castWorldBounds = new AABB();
 let _castBoundsInited = false;
 const _validLights: Light[] = [];
-const _sphere = sphere.create(0, 0, 0, 1);
+const _sphere = Sphere.create(0, 0, 0, 1);
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 const shadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
@@ -184,8 +184,8 @@ export function lightCollecting (view: RenderView, lightNumber: number) {
     const spotLights = scene.spotLights;
     for (let i = 0; i < spotLights.length; i++) {
         const light = spotLights[i];
-        sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-        if (Intersect.sphereFrustum(_sphere, view.camera.frustum) &&
+        Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+        if (intersect.sphereFrustum(_sphere, view.camera.frustum) &&
          lightNumber > _validLights.length) {
             _validLights.push(light);
         }
@@ -265,7 +265,7 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                     (view.visibility & model.visFlags)) {
 
                     // frustum culling
-                    if (model.worldBounds && !Intersect.aabbFrustum(model.worldBounds, camera.frustum)) {
+                    if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, camera.frustum)) {
                         continue;
                     }
 

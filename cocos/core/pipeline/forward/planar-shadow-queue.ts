@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { AABB, Intersect} from '../../geometry';
+import { AABB, intersect} from '../../geometry';
 import { SetIndex} from '../../pipeline/define';
 import { CommandBuffer, Device, RenderPass, Shader } from '../../gfx';
 import { InstancedBuffer } from '../instanced-buffer';
@@ -67,7 +67,7 @@ export class PlanarShadowQueue {
             if (!model.enabled || !model.node || !model.castShadow) { continue; }
             if (model.worldBounds) {
                 AABB.transform(_ab, model.worldBounds, shadows.matLight);
-                if (!Intersect.aabbFrustum(_ab, frstm)) { continue; }
+                if (!intersect.aabbFrustum(_ab, frstm)) { continue; }
             }
             if (model.isInstancingEnabled) {
                 for (let j = 0; j < model.subModels.length; j++) {

@@ -33,7 +33,7 @@ import { RenderTexture } from '../../assets/render-texture';
 import { UITransform } from '../../components/ui-base';
 import { Component } from '../../components/component';
 import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
-import { ray } from '../../geometry';
+import { Ray } from '../../geometry';
 import { ClearFlag as GFXClearFlag } from '../../gfx/define';
 import { Color, Rect, toRadian, Vec3 } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
@@ -487,8 +487,8 @@ export class Camera extends Component {
         }
     }
 
-    public screenPointToRay (x: number, y: number, out?: ray) {
-        if (!out) { out = ray.create(); }
+    public screenPointToRay (x: number, y: number, out?: Ray) {
+        if (!out) { out = Ray.create(); }
         if (this._camera) { this._camera.screenPointToRay(out, x, y); }
         return out;
     }

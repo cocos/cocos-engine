@@ -284,7 +284,7 @@ const rayCapsule = (function () {
         if (BA.equals(Vec3.ZERO)) {
             sphere_0.radius = capsule.radius;
             sphere_0.center.set(capsule.ellipseCenter0);
-            return Intersect.raySphere(ray, sphere_0);
+            return intersect.raySphere(ray, sphere_0);
         }
 
         const O = ray.o;
@@ -299,7 +299,7 @@ const rayCapsule = (function () {
             } else {
                 sphere_0.center.set(capsule.ellipseCenter1);
             }
-            return Intersect.raySphere(ray, sphere_0);
+            return intersect.raySphere(ray, sphere_0);
         }
 
         const OAxBA = Vec3.cross(v3_4, OA, BA);
@@ -319,7 +319,7 @@ const rayCapsule = (function () {
             } else {
                 sphere_0.center.set(capsule.ellipseCenter1);
             }
-            return Intersect.raySphere(ray, sphere_0);
+            return intersect.raySphere(ray, sphere_0);
         } else {
             // Limit intersection between the bounds of the cylinder's end caps.
             const iPos = Vec3.scaleAndAdd(v3_5, ray.o, vRayNorm, t);
@@ -331,11 +331,11 @@ const rayCapsule = (function () {
             } else if (tLimit < 0) {
                 sphere_0.radius = capsule.radius;
                 sphere_0.center.set(capsule.ellipseCenter0);
-                return Intersect.raySphere(ray, sphere_0);
+                return intersect.raySphere(ray, sphere_0);
             } else if (tLimit > 1) {
                 sphere_0.radius = capsule.radius;
                 sphere_0.center.set(capsule.ellipseCenter1);
-                return Intersect.raySphere(ray, sphere_0);
+                return intersect.raySphere(ray, sphere_0);
             } else {
                 return 0;
             }
@@ -387,7 +387,7 @@ const raySubMesh = (function () {
                 Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
                 Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
                 Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
-                const dist = Intersect.rayTriangle(ray, tri, opt.doubleSided);
+                const dist = intersect.rayTriangle(ray, tri, opt.doubleSided);
                 if (dist === 0 || dist > opt.distance) continue;
                 fillResult(opt.mode, dist, i0, i1, i2, opt.result);
                 if (opt.mode === ERaycastMode.ANY) return dist;
@@ -403,7 +403,7 @@ const raySubMesh = (function () {
                 Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
                 Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
                 rev = ~rev;
-                const dist = Intersect.rayTriangle(ray, tri, opt.doubleSided);
+                const dist = intersect.rayTriangle(ray, tri, opt.doubleSided);
                 if (dist === 0 || dist > opt.distance) continue;
                 fillResult(opt.mode, dist, i0, i1, i2, opt.result);
                 if (opt.mode === ERaycastMode.ANY) return dist;
@@ -417,7 +417,7 @@ const raySubMesh = (function () {
                 const i2 = ib[j + 1] * 3;
                 Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
                 Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
-                const dist = Intersect.rayTriangle(ray, tri, opt.doubleSided);
+                const dist = intersect.rayTriangle(ray, tri, opt.doubleSided);
                 if (dist === 0 || dist > opt.distance) continue;
                 fillResult(opt.mode, dist, i0, i1, i2, opt.result);
                 if (opt.mode === ERaycastMode.ANY) return dist;
@@ -1128,7 +1128,7 @@ const obbCapsule = (function () {
         if (h === 0) {
             sphere_0.radius = capsule.radius;
             sphere_0.center.set(capsule.ellipseCenter0);
-            return Intersect.sphereOBB(sphere_0, obb);
+            return intersect.sphereOBB(sphere_0, obb);
         } else {
             v3_0.x = obb.orientation.m00;
             v3_0.y = obb.orientation.m01;
@@ -1421,7 +1421,7 @@ const capsuleWithCapsule = (function () {
  * @zh
  * 基础几何的相交性检测算法。
  */
-const Intersect = {
+const intersect = {
     raySphere,
     rayAABB,
     rayOBB,
@@ -1477,39 +1477,39 @@ const Intersect = {
     },
 };
 
-Intersect[enums.SHAPE_RAY | enums.SHAPE_SPHERE] = raySphere;
-Intersect[enums.SHAPE_RAY | enums.SHAPE_AABB] = rayAABB;
-Intersect[enums.SHAPE_RAY | enums.SHAPE_OBB] = rayOBB;
-Intersect[enums.SHAPE_RAY | enums.SHAPE_PLANE] = rayPlane;
-Intersect[enums.SHAPE_RAY | enums.SHAPE_TRIANGLE] = rayTriangle;
-Intersect[enums.SHAPE_RAY | enums.SHAPE_CAPSULE] = rayCapsule;
+intersect[enums.SHAPE_RAY | enums.SHAPE_SPHERE] = raySphere;
+intersect[enums.SHAPE_RAY | enums.SHAPE_AABB] = rayAABB;
+intersect[enums.SHAPE_RAY | enums.SHAPE_OBB] = rayOBB;
+intersect[enums.SHAPE_RAY | enums.SHAPE_PLANE] = rayPlane;
+intersect[enums.SHAPE_RAY | enums.SHAPE_TRIANGLE] = rayTriangle;
+intersect[enums.SHAPE_RAY | enums.SHAPE_CAPSULE] = rayCapsule;
 
-Intersect[enums.SHAPE_LINE | enums.SHAPE_SPHERE] = lineSphere;
-Intersect[enums.SHAPE_LINE | enums.SHAPE_AABB] = lineAABB;
-Intersect[enums.SHAPE_LINE | enums.SHAPE_OBB] = lineOBB;
-Intersect[enums.SHAPE_LINE | enums.SHAPE_PLANE] = linePlane;
-Intersect[enums.SHAPE_LINE | enums.SHAPE_TRIANGLE] = lineTriangle;
+intersect[enums.SHAPE_LINE | enums.SHAPE_SPHERE] = lineSphere;
+intersect[enums.SHAPE_LINE | enums.SHAPE_AABB] = lineAABB;
+intersect[enums.SHAPE_LINE | enums.SHAPE_OBB] = lineOBB;
+intersect[enums.SHAPE_LINE | enums.SHAPE_PLANE] = linePlane;
+intersect[enums.SHAPE_LINE | enums.SHAPE_TRIANGLE] = lineTriangle;
 
-Intersect[enums.SHAPE_SPHERE] = sphereWithSphere;
-Intersect[enums.SHAPE_SPHERE | enums.SHAPE_AABB] = sphereAABB;
-Intersect[enums.SHAPE_SPHERE | enums.SHAPE_OBB] = sphereOBB;
-Intersect[enums.SHAPE_SPHERE | enums.SHAPE_PLANE] = spherePlane;
-Intersect[enums.SHAPE_SPHERE | enums.SHAPE_FRUSTUM] = sphereFrustum;
-Intersect[enums.SHAPE_SPHERE | enums.SHAPE_FRUSTUM_ACCURATE] = sphereFrustumAccurate;
-Intersect[enums.SHAPE_SPHERE | enums.SHAPE_CAPSULE] = sphereCapsule;
+intersect[enums.SHAPE_SPHERE] = sphereWithSphere;
+intersect[enums.SHAPE_SPHERE | enums.SHAPE_AABB] = sphereAABB;
+intersect[enums.SHAPE_SPHERE | enums.SHAPE_OBB] = sphereOBB;
+intersect[enums.SHAPE_SPHERE | enums.SHAPE_PLANE] = spherePlane;
+intersect[enums.SHAPE_SPHERE | enums.SHAPE_FRUSTUM] = sphereFrustum;
+intersect[enums.SHAPE_SPHERE | enums.SHAPE_FRUSTUM_ACCURATE] = sphereFrustumAccurate;
+intersect[enums.SHAPE_SPHERE | enums.SHAPE_CAPSULE] = sphereCapsule;
 
-Intersect[enums.SHAPE_AABB] = aabbWithAABB;
-Intersect[enums.SHAPE_AABB | enums.SHAPE_OBB] = aabbWithOBB;
-Intersect[enums.SHAPE_AABB | enums.SHAPE_PLANE] = aabbPlane;
-Intersect[enums.SHAPE_AABB | enums.SHAPE_FRUSTUM] = aabbFrustum;
-Intersect[enums.SHAPE_AABB | enums.SHAPE_FRUSTUM_ACCURATE] = aabbFrustumAccurate;
+intersect[enums.SHAPE_AABB] = aabbWithAABB;
+intersect[enums.SHAPE_AABB | enums.SHAPE_OBB] = aabbWithOBB;
+intersect[enums.SHAPE_AABB | enums.SHAPE_PLANE] = aabbPlane;
+intersect[enums.SHAPE_AABB | enums.SHAPE_FRUSTUM] = aabbFrustum;
+intersect[enums.SHAPE_AABB | enums.SHAPE_FRUSTUM_ACCURATE] = aabbFrustumAccurate;
 
-Intersect[enums.SHAPE_OBB] = obbWithOBB;
-Intersect[enums.SHAPE_OBB | enums.SHAPE_PLANE] = obbPlane;
-Intersect[enums.SHAPE_OBB | enums.SHAPE_FRUSTUM] = obbFrustum;
-Intersect[enums.SHAPE_OBB | enums.SHAPE_FRUSTUM_ACCURATE] = obbFrustumAccurate;
-Intersect[enums.SHAPE_OBB | enums.SHAPE_CAPSULE] = obbCapsule;
+intersect[enums.SHAPE_OBB] = obbWithOBB;
+intersect[enums.SHAPE_OBB | enums.SHAPE_PLANE] = obbPlane;
+intersect[enums.SHAPE_OBB | enums.SHAPE_FRUSTUM] = obbFrustum;
+intersect[enums.SHAPE_OBB | enums.SHAPE_FRUSTUM_ACCURATE] = obbFrustumAccurate;
+intersect[enums.SHAPE_OBB | enums.SHAPE_CAPSULE] = obbCapsule;
 
-Intersect[enums.SHAPE_CAPSULE] = capsuleWithCapsule;
+intersect[enums.SHAPE_CAPSULE] = capsuleWithCapsule;
 
-export default Intersect;
+export default intersect;

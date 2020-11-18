@@ -35,7 +35,7 @@ import { CannonWorld } from '../cannon-world';
 import { TriggerEventType } from '../../framework/physics-interface';
 import { PhysicsSystem } from '../../framework/physics-system';
 import { Collider, RigidBody } from '../../framework';
-import { AABB, sphere } from '../../../core/geometry';
+import { AABB, Sphere } from '../../../core/geometry';
 
 const TriggerEventObject = {
     type: 'onTriggerEnter' as TriggerEventType,
@@ -118,7 +118,7 @@ export class CannonShape implements IBaseShape {
         Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }
 
-    getBoundingSphere (v: sphere) {
+    getBoundingSphere (v: Sphere) {
         v.radius = this._shape.boundingSphereRadius;
         Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }

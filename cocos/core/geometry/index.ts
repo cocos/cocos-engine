@@ -31,7 +31,7 @@
 export { default as enums } from './enums';
 import * as distance from './distance';
 export { distance };
-export { default as Intersect } from './intersect';
+export { default as intersect } from './intersect';
 export { Line } from './line';
 export { Plane } from './plane';
 export { Ray } from './ray';

@@ -1,6 +1,6 @@
-import { replaceProperty, removeProperty } from '../utils/x-deprecated';
+import { replaceProperty } from '../utils/x-deprecated';
 
-import Intersect from './intersect';
+import intersect from './intersect';
 import { Line } from './line';
 import { Plane } from './plane';
 import { Ray } from './ray';
@@ -11,7 +11,7 @@ import { OBB } from './obb';
 import { Capsule } from './capsule';
 import { Frustum } from './frustum';
 
-replaceProperty(Intersect, 'Intersect', [
+replaceProperty(intersect, 'intersect', [
     {
         name: 'ray_aabb',
         newName: 'rayAABB',
@@ -146,65 +146,108 @@ replaceProperty(Intersect, 'Intersect', [
     },
 ]);
 
-/**
- * Alias of [[Intersect]]
- * @deprecated Since v3.0
- */
-// export const intersect = Intersect;
+function deprecatedClassMessage(oldClassName: string , newClassName) {
+    console.warn(`${oldClassName} is deprecated, please use ${newClassName} instead.`);
+}
 
 /**
  * Alias of [[Line]]
  * @deprecated Since v3.0
  */
-export class line extends Line{};
+export class line extends Line{
+    constructor() {
+        super();
+        deprecatedClassMessage('line', 'Line');
+    }
+};
 
 /**
  * Alias of [[Plane]]
  * @deprecated Since v3.0
  */
-export class plane extends Plane{};
+export class plane extends Plane{
+    constructor() {
+        super();
+        deprecatedClassMessage('plane', 'Plane');
+    }
+};
 
 /**
  * Alias of [[Ray]]
  * @deprecated Since v3.0
  */
-export class ray extends Ray{};
+export class ray extends Ray{
+    constructor() {
+        super();
+        deprecatedClassMessage('ray', 'Ray');
+    }
+};
 
 /**
  * Alias of [[Triangle]]
  * @deprecated Since v3.0
  */
-export class triangle extends Triangle{};
+export class triangle extends Triangle{
+    constructor() {
+        super();
+        deprecatedClassMessage('triangle', 'Triangle');
+    }
+};
 
 /**
  * Alias of [[Sphere]]
  * @deprecated Since v3.0
  */
-export class sphere extends Sphere{};
+export class sphere extends Sphere{
+    constructor() {
+        super();
+        deprecatedClassMessage('sphere', 'Sphere');
+    }
+};
 
 /**
  * Alias of [[AABB]]
  * @deprecated Since v3.0
  */
-export class aabb extends AABB{};
+export class aabb extends AABB{
+    constructor() {
+        super();
+        deprecatedClassMessage('aabb', 'AABB');
+    }
+};
 
 /**
  * Alias of [[OBB]]
  * @deprecated Since v3.0
  */
-export class obb extends OBB{};
+export class obb extends OBB{
+    constructor() {
+        super();
+        deprecatedClassMessage('obb', 'OBB');
+    }
+};
 
 /**
  * Alias of [[Capsule]]
  * @deprecated Since v3.0
  */
-export class capsule extends Capsule{};
+export class capsule extends Capsule{
+    constructor() {
+        super();
+        deprecatedClassMessage('capsule', 'Capsule');
+    }
+};
 
 /**
  * Alias of [[Frustum]]
  * @deprecated Since v3.0
  */
-export class frustum extends Frustum{};
+export class frustum extends Frustum{
+    constructor() {
+        super();
+        deprecatedClassMessage('frustum', 'Frustum');
+    }
+};
 
 
 
