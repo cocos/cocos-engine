@@ -123,7 +123,7 @@ void BatchedBuffer::merge(const SubModelView *subModel, uint passIdx, const Mode
                 memcpy(batch.uboData.data() + offset, worldMatrix.m, sizeof(worldMatrix));
 
                 if (!batch.mergeCount) {
-                    descriptorSet->bindBuffer(UBOLocalBatched::BLOCK.layout.binding, batch.ubo);
+                    descriptorSet->bindBuffer(UBOLocalBatched::BINDING, batch.ubo);
                     descriptorSet->update();
                     batch.pass = pass;
                     batch.shader = shader;
@@ -192,7 +192,7 @@ void BatchedBuffer::merge(const SubModelView *subModel, uint passIdx, const Mode
         UBOLocalBatched::SIZE,
     });
 
-    descriptorSet->bindBuffer(UBOLocalBatched::BLOCK.layout.binding, ubo);
+    descriptorSet->bindBuffer(UBOLocalBatched::BINDING, ubo);
     descriptorSet->update();
 
     std::array<float, UBOLocalBatched::COUNT> uboData;

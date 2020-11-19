@@ -1,25 +1,25 @@
 #include <array>
 
-#include "ShadowMapBatchedQueue.h"
 #include "BatchedBuffer.h"
 #include "Define.h"
 #include "InstancedBuffer.h"
 #include "PipelineStateManager.h"
 #include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
-#include "gfx/GFXCommandBuffer.h"
-#include "helper/SharedMemory.h"
+#include "ShadowMapBatchedQueue.h"
 #include "forward/ForwardPipeline.h"
 #include "forward/SceneCulling.h"
+#include "gfx/GFXCommandBuffer.h"
 #include "gfx/GFXDescriptorSet.h"
 #include "gfx/GFXDevice.h"
+#include "helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {
 ShadowMapBatchedQueue::ShadowMapBatchedQueue(ForwardPipeline *pipeline)
 : _phaseID(getPhaseID("shadow-caster")) {
     _pipeline = pipeline;
-    _buffer = pipeline->getDescriptorSet()->getBuffer(UBOShadow::BLOCK.layout.binding);
+    _buffer = pipeline->getDescriptorSet()->getBuffer(UBOShadow::BINDING);
     _instancedQueue = CC_NEW(RenderInstancedQueue);
     _batchedQueue = CC_NEW(RenderBatchedQueue);
 }
@@ -73,7 +73,7 @@ void ShadowMapBatchedQueue::add(const ModelView *model, gfx::CommandBuffer *cmdB
         const auto subModel = model->getSubModelView(subModelID[m]);
         const auto pass = subModel->getPassView(shadowPassIdx);
         const auto batchingScheme = pass->getBatchingScheme();
-        subModel->getDescriptorSet()->bindBuffer(UBOShadow::BLOCK.layout.binding, _buffer);
+        subModel->getDescriptorSet()->bindBuffer(UBOShadow::BINDING, _buffer);
         subModel->getDescriptorSet()->update();
 
         if (batchingScheme == BatchingSchemes::INSTANCING) {
@@ -125,7 +125,7 @@ void ShadowMapBatchedQueue::destroy() {
 void ShadowMapBatchedQueue::updateUBOs(const Light *light, gfx::CommandBuffer *cmdBufferer) const {
     const auto *shadowInfo = _pipeline->getShadows();
     auto shadowUBO = _pipeline->getShadowUBO();
-    auto* device = gfx::Device::getInstance();
+    auto *device = gfx::Device::getInstance();
 
     switch (light->getType()) {
         case LightType::DIRECTIONAL: {
@@ -135,12 +135,12 @@ void ShadowMapBatchedQueue::updateUBOs(const Light *light, gfx::CommandBuffer *c
             if (shadowInfo->autoAdapt) {
                 Vec3 tmpCenter;
                 getShadowWorldMatrix(_pipeline->getSphere(), light->getNode()->worldRotation, light->direction, matShadowCamera, tmpCenter);
-            	
+
                 const auto radius = _pipeline->getSphere()->radius;
                 x = radius * shadowInfo->aspect;
                 y = radius;
 
-                const float halfFar = tmpCenter.distance(_pipeline ->getSphere()->center);
+                const float halfFar = tmpCenter.distance(_pipeline->getSphere()->center);
                 farClamp = std::min(halfFar * COEFFICIENT_OF_EXPANSION, SHADOW_CAMERA_MAX_FAR);
             } else {
                 matShadowCamera = light->getNode()->worldMatrix;
@@ -163,7 +163,7 @@ void ShadowMapBatchedQueue::updateUBOs(const Light *light, gfx::CommandBuffer *c
         case LightType::SPOT: {
             const auto &matShadowCamera = light->getNode()->worldMatrix;
 
-	    const auto matShadowView = matShadowCamera.getInversed();
+            const auto matShadowView = matShadowCamera.getInversed();
 
             cc::Mat4 matShadowViewProj;
             cc::Mat4::createPerspective(light->spotAngle, light->aspect, 0.001f, light->range, &matShadowViewProj);
@@ -178,7 +178,7 @@ void ShadowMapBatchedQueue::updateUBOs(const Light *light, gfx::CommandBuffer *c
     memcpy(shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &shadowInfo->color, sizeof(Vec4));
     memcpy(shadowUBO.data() + UBOShadow::SHADOW_INFO_OFFSET, &shadowInfos, sizeof(shadowInfos));
 
-    cmdBufferer->updateBuffer(_pipeline->getDescriptorSet()->getBuffer(UBOShadow::BLOCK.layout.binding), shadowUBO.data(), UBOShadow::SIZE);
+    cmdBufferer->updateBuffer(_pipeline->getDescriptorSet()->getBuffer(UBOShadow::BINDING), shadowUBO.data(), UBOShadow::SIZE);
 }
 
 int ShadowMapBatchedQueue::getShadowPassIndex(const ModelView *model) const {

@@ -151,7 +151,7 @@ void RenderAdditiveLightQueue::gatherLightPasses(const RenderView *view, gfx::Co
             const auto pass = subModel->getPassView(lightPassIdx);
             const auto batchingScheme = pass->getBatchingScheme();
             auto descriptorSet = subModel->getDescriptorSet();
-            descriptorSet->bindBuffer(UBOForwardLight::BLOCK.layout.binding, _firstlightBufferView);
+            descriptorSet->bindBuffer(UBOForwardLight::BINDING, _firstlightBufferView);
             descriptorSet->update();
 
             if (batchingScheme == BatchingSchemes::INSTANCING) { // instancing
@@ -209,7 +209,6 @@ void RenderAdditiveLightQueue::updateShadowsUBO(gfx::DescriptorSet *descriptorSe
             memcpy(shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &shadowInfo->color, sizeof(Vec4));
             memcpy(shadowUBO.data() + UBOShadow::SHADOW_INFO_OFFSET, &shadowInfos, sizeof(shadowInfos));
 
-            
             if (_pipeline->getShadowFramebuffer().count(light)) {
                 texture = _pipeline->getShadowFramebuffer().at(light)->getColorTextures()[0];
             }
@@ -226,17 +225,17 @@ void RenderAdditiveLightQueue::updateShadowsUBO(gfx::DescriptorSet *descriptorSe
         for (iter = _pipeline->getShadowFramebuffer().begin(); iter != _pipeline->getShadowFramebuffer().end(); ++iter) {
             texture = iter->second->getColorTextures()[0];
             if (texture) {
-                descriptorSet->bindTexture(UniformSpotLightingMapSampler.layout.binding, texture);
+                descriptorSet->bindTexture(SPOT_LIGHTING_MAP::BINDING, texture);
                 break;
             }
         }
     }
 
-    descriptorSet->bindTexture(UniformSpotLightingMapSampler.layout.binding, texture);
-    descriptorSet->bindSampler(UniformSpotLightingMapSampler.layout.binding, _sampler);
+    descriptorSet->bindTexture(SPOT_LIGHTING_MAP::BINDING, texture);
+    descriptorSet->bindSampler(SPOT_LIGHTING_MAP::BINDING, _sampler);
     descriptorSet->update();
 
-    cmdBufferer->updateBuffer(_pipeline->getDescriptorSet()->getBuffer(UBOShadow::BLOCK.layout.binding), shadowUBO.data(), UBOShadow::SIZE);
+    cmdBufferer->updateBuffer(_pipeline->getDescriptorSet()->getBuffer(UBOShadow::BINDING), shadowUBO.data(), UBOShadow::SIZE);
 }
 
 void RenderAdditiveLightQueue::updateUBOs(const RenderView *view, gfx::CommandBuffer *cmdBuffer) {

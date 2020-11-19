@@ -76,7 +76,7 @@ void updateSphereLight(Shadows *shadows, const Light *light, gfx::DescriptorSet 
     matLight.m[14] = lz * distance;
     matLight.m[15] = NdL;
 
-    descriptorSet->getBuffer(UBOShadow::BLOCK.layout.binding)->update(matLight.m, UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, sizeof(matLight));
+    descriptorSet->getBuffer(UBOShadow::BINDING)->update(matLight.m, UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, sizeof(matLight));
 }
 
 void updateDirLight(Shadows *shadows, const Light *light, gfx::DescriptorSet *descriptorSet) {
@@ -118,7 +118,7 @@ void updateDirLight(Shadows *shadows, const Light *light, gfx::DescriptorSet *de
     matLight.m[14] = lz * distance;
     matLight.m[15] = 1;
 
-    descriptorSet->getBuffer(UBOShadow::BLOCK.layout.binding)->update(matLight.m, UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, sizeof(matLight));
+    descriptorSet->getBuffer(UBOShadow::BINDING)->update(matLight.m, UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, sizeof(matLight));
 }
 
 void updateDirLight(Shadows *shadows, const Light *light, std::array<float, UBOShadow::COUNT>& shadowUBO) {

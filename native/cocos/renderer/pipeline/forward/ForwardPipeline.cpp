@@ -176,8 +176,8 @@ void ForwardPipeline::updateUBOs(RenderView *view) {
     memcpy(_shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &shadowInfo->color, sizeof(Vec4));
 
     // update ubos
-    _commandBuffers[0]->updateBuffer(_descriptorSet->getBuffer(UBOGlobal::BLOCK.layout.binding), _globalUBO.data(), UBOGlobal::SIZE);
-    _commandBuffers[0]->updateBuffer(_descriptorSet->getBuffer(UBOShadow::BLOCK.layout.binding), _shadowUBO.data(), UBOShadow::SIZE);
+    _commandBuffers[0]->updateBuffer(_descriptorSet->getBuffer(UBOGlobal::BINDING), _globalUBO.data(), UBOGlobal::SIZE);
+    _commandBuffers[0]->updateBuffer(_descriptorSet->getBuffer(UBOShadow::BINDING), _shadowUBO.data(), UBOShadow::SIZE);
 }
 
 void ForwardPipeline::updateUBO(RenderView *view) {
@@ -297,7 +297,7 @@ bool ForwardPipeline::activeRenderer() {
         UBOGlobal::SIZE,
         gfx::BufferFlagBit::NONE,
     });
-    _descriptorSet->bindBuffer(UBOGlobal::BLOCK.layout.binding, globalUBO);
+    _descriptorSet->bindBuffer(UBOGlobal::BINDING, globalUBO);
 
     auto shadowUBO = _device->createBuffer({
         gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
@@ -306,7 +306,7 @@ bool ForwardPipeline::activeRenderer() {
         UBOShadow::SIZE,
         gfx::BufferFlagBit::NONE,
     });
-    _descriptorSet->bindBuffer(UBOShadow::BLOCK.layout.binding, shadowUBO);
+    _descriptorSet->bindBuffer(UBOShadow::BINDING, shadowUBO);
 
     _descriptorSet->update();
 
@@ -319,8 +319,8 @@ bool ForwardPipeline::activeRenderer() {
 
 void ForwardPipeline::destroy() {
     if (_descriptorSet) {
-        _descriptorSet->getBuffer(UBOGlobal::BLOCK.layout.binding)->destroy();
-        _descriptorSet->getBuffer(UBOShadow::BLOCK.layout.binding)->destroy();
+        _descriptorSet->getBuffer(UBOGlobal::BINDING)->destroy();
+        _descriptorSet->getBuffer(UBOShadow::BINDING)->destroy();
     }
 
     for (auto &it : _renderPasses) {
