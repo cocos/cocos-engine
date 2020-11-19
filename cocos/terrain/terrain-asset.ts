@@ -49,6 +49,7 @@ export const TERRAIN_EAST_INDEX = 3;
 export const TERRAIN_DATA_VERSION = 0x01010001;
 export const TERRAIN_DATA_VERSION2 = 0x01010002;
 export const TERRAIN_DATA_VERSION3 = 0x01010003;
+export const TERRAIN_DATA_VERSION4 = 0x01010004;
 export const TERRAIN_DATA_VERSION_DEFAULT = 0x01010111;
 
 class TerrainBuffer {
@@ -199,6 +200,9 @@ export class TerrainLayerInfo {
     public slot: number = 0;
     public tileSize: number = 1;
     public detailMap: string = '';
+    public normalMap: string = '';
+    public roughness: number = 1;
+    public metallic: number = 0;
 }
 
 /**
@@ -383,7 +387,8 @@ export class TerrainAsset extends Asset {
         }
         if (version !== TERRAIN_DATA_VERSION &&
             version !== TERRAIN_DATA_VERSION2 &&
-            version !== TERRAIN_DATA_VERSION3) {
+            version !== TERRAIN_DATA_VERSION3 &&
+            version !== TERRAIN_DATA_VERSION4) {
             return false;
         }
 
@@ -425,7 +430,11 @@ export class TerrainAsset extends Asset {
                 this.layerInfos[i].slot = stream.readInt();
                 this.layerInfos[i].tileSize = stream.readFloat();
                 this.layerInfos[i].detailMap = stream.readString();
-
+                if (version >= TERRAIN_DATA_VERSION4) {
+                    this.layerInfos[i].normalMap = stream.readString();
+                    this.layerInfos[i].roughness = stream.readFloat();
+                    this.layerInfos[i].metallic = stream.readFloat();
+                }
             }
         }
 
@@ -436,7 +445,7 @@ export class TerrainAsset extends Asset {
         const stream = new TerrainBuffer();
 
         // version
-        stream.writeInt32(TERRAIN_DATA_VERSION3);
+        stream.writeInt32(TERRAIN_DATA_VERSION4);
 
         // geometry info
         stream.writeFloat(this.tileSize);
@@ -468,6 +477,9 @@ export class TerrainAsset extends Asset {
             stream.writeInt32(this.layerInfos[i].slot);
             stream.writeFloat(this.layerInfos[i].tileSize);
             stream.writeString(this.layerInfos[i].detailMap);
+            stream.writeString(this.layerInfos[i].normalMap);
+            stream.writeFloat(this.layerInfos[i].roughness);
+            stream.writeFloat(this.layerInfos[i].metallic);
         }
 
         return stream.buffer;
@@ -477,6 +489,5 @@ export class TerrainAsset extends Asset {
         const stream = new TerrainBuffer();
         stream.writeInt32(TERRAIN_DATA_VERSION_DEFAULT);
         return stream.buffer;
-
     }
 }
