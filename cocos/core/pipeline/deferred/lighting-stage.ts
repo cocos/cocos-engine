@@ -24,6 +24,8 @@ import { Vec3 } from '../../math';
 import { Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet, DescriptorSetLayoutInfo, 
     DescriptorSetLayout, DescriptorSetInfo } from '../../gfx';
 import { UBOForwardLight } from '../define';
+import { ClearFlag } from '../../gfx/define';
+import { SRGBToLinear } from '../pipeline-funcs';
 
 const colors: Color[] = [ new Color(0, 0, 0, 1) ];
 const LIGHTINGPASS_INDEX = 1;
@@ -262,6 +264,22 @@ export class LightingStage extends RenderStage {
         this._renderArea!.width = vp.width * w * pipeline.shadingScale;
         this._renderArea!.height = vp.height * h * pipeline.shadingScale;
         
+        if (camera.clearFlag & ClearFlag.COLOR) {
+            if (pipeline.isHDR) {
+                SRGBToLinear(colors[0], camera.clearColor);
+                const scale = pipeline.fpScale / camera.exposure;
+                colors[0].x *= scale;
+                colors[0].y *= scale;
+                colors[0].z *= scale;
+            } else {
+                colors[0].x = camera.clearColor.x;
+                colors[0].y = camera.clearColor.y;
+                colors[0].z = camera.clearColor.z;
+            }
+        }
+
+        colors[0].w = camera.clearColor.w;
+
         const framebuffer = (this._flow as LightingFlow).lightingFrameBuffer;
         const renderPass = framebuffer.renderPass;
 

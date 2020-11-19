@@ -44,7 +44,9 @@ CCEffect %{
       frag: lighting-fs
       phase: deferred-lighting
       depthStencilState:
-        depthTest: false
+        depthFunc: greater
+        depthTest: true
+        depthWrite: false
       embeddedMacros: { CC_FORWARD_ADD: true, USE_HW_PIPELINE: true}
       propertyIndex: 0
       blendState:
@@ -292,6 +294,7 @@ CCProgram lighting-vs %{
     
     gl_Position = In.position;
     gl_Position.y = - gl_Position.y;
+    gl_Position.zw = vec2(1.0, 1.0);
     v_uv = a_texCoord;
   }
 }%
