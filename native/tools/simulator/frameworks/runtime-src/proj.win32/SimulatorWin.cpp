@@ -465,7 +465,7 @@ int SimulatorWin::run()
     auto frameWidth = (int) (_project.getFrameScale() * frameSize.width);
     auto frameHeight = (int) (_project.getFrameScale() * frameSize.height);
 
-    _view = std::make_shared<cc::View>(title.str(), frameWidth, frameWidth);
+    _view = std::make_shared<cc::View>(title.str(), frameWidth, frameHeight);
 
     // create opengl view, and init app
     _app.reset(new Game(frameWidth, frameHeight));
@@ -473,7 +473,7 @@ int SimulatorWin::run()
     // path for looking Lang file, Studio Default images
     FileUtils::getInstance()->addSearchPath(getApplicationPath().c_str());
 
-    if (!_view->init()) return false;
+    if (!_view->init()) return 1;
 
     gView = _view;
 
@@ -519,7 +519,7 @@ int SimulatorWin::run()
     bool resume, pause;
     se::ScriptEngine::getInstance()->addRegisterCallback(setCanvasCallback);
 
-    if (!_app->init()) return false;
+    if (!_app->init()) return 1;
     _quit = false;
 
     PVRFrameEnableControlWindow(false);
@@ -589,7 +589,7 @@ int SimulatorWin::run()
     if (wTimerRes != 0)
         timeEndPeriod(wTimerRes);
 
-    return true;
+    return 0;
 }
 
 // services
