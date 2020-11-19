@@ -1,3 +1,3 @@
-import * as dragonBones from '../cocos/dragonBones';
+import * as dragonBones from '../cocos/dragonbones';
 
 export { dragonBones };
