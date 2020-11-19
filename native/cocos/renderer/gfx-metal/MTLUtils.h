@@ -6,6 +6,7 @@
 #import <Metal/MTLSampler.h>
 #import <Metal/MTLTexture.h>
 #import <Metal/MTLVertexDescriptor.h>
+#import <CoreGraphics/CGGeometry.h>
 #include <unordered_map>
 
 namespace cc {
