@@ -35,7 +35,8 @@ enum class CanvasTextAlign {
 enum class CanvasTextBaseline {
     TOP,
     MIDDLE,
-    BOTTOM
+    BOTTOM,
+    ALPHABETIC
 };
 
 @interface CanvasRenderingContext2DImpl : NSObject {
@@ -310,6 +311,11 @@ enum class CanvasTextBaseline {
     {
         // drawAtPoint default
     }
+    else if (_textBaseLine == CanvasTextBaseline::ALPHABETIC)
+    {
+        point.y -= _font.descender;
+        point.y = _height - point.y;
+    }
 #else
     if (_textBaseLine == CanvasTextBaseline::TOP)
     {
@@ -322,6 +328,10 @@ enum class CanvasTextBaseline {
     else if (_textBaseLine == CanvasTextBaseline::BOTTOM)
     {
         point.y += -textSize.height;
+    }
+    else if (_textBaseLine == CanvasTextBaseline::ALPHABETIC)
+    {
+        point.y -= _font.ascender;
     }
 #endif
 
@@ -783,9 +793,13 @@ void CanvasRenderingContext2D::set_textBaseline(const std::string& textBaseline)
     {
         _impl.textBaseLine = CanvasTextBaseline::MIDDLE;
     }
-    else if (textBaseline == "bottom" || textBaseline == "alphabetic") //REFINE:, how to deal with alphabetic, currently we handle it as bottom mode.
+    else if (textBaseline == "bottom") //REFINE:, how to deal with alphabetic, currently we handle it as bottom mode.
     {
         _impl.textBaseLine = CanvasTextBaseline::BOTTOM;
+    }
+    else if (textBaseline == "alphabetic")
+    {
+        _impl.textBaseLine = CanvasTextBaseline::ALPHABETIC;
     }
     else
     {

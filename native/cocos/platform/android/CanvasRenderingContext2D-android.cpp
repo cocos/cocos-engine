@@ -23,7 +23,8 @@ enum class CanvasTextAlign {
 enum class CanvasTextBaseline {
     TOP,
     MIDDLE,
-    BOTTOM
+    BOTTOM,
+    ALPHABETIC
 };
 
 class CanvasRenderingContext2DImpl
@@ -543,9 +544,13 @@ void CanvasRenderingContext2D::set_textBaseline(const std::string& textBaseline)
     {
         _impl->setTextBaseline(CanvasTextBaseline::MIDDLE);
     }
-    else if (textBaseline == "bottom" || textBaseline == "alphabetic") //REFINE:, how to deal with alphabetic, currently we handle it as bottom mode.
+    else if (textBaseline == "bottom") //REFINE:, how to deal with alphabetic, currently we handle it as bottom mode.
     {
         _impl->setTextBaseline(CanvasTextBaseline::BOTTOM);
+    }
+    else if (textBaseline == "alphabetic")
+    {
+        _impl->setTextBaseline(CanvasTextBaseline::ALPHABETIC);
     }
     else
     {

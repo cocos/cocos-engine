@@ -51,6 +51,7 @@ public class CanvasRenderingContext2DImpl {
     private static final int TEXT_BASELINE_TOP = 0;
     private static final int TEXT_BASELINE_MIDDLE = 1;
     private static final int TEXT_BASELINE_BOTTOM = 2;
+    private static final int TEXT_BASELINE_ALPHABETIC = 3;
 
     private static WeakReference<Context> sContext;
     private TextPaint mTextPaint;
