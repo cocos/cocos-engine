@@ -56,23 +56,23 @@ function _getSlotMaterial (tex: RenderTexture | TextureBase | null, blendMode: B
     let src: GFXBlendFactor;
     let dst: GFXBlendFactor;
     switch (blendMode) {
-        case 1:// additive
-            src = _premultipliedAlpha ? GFXBlendFactor.ONE : GFXBlendFactor.SRC_ALPHA;
-            dst = GFXBlendFactor.ONE;
-            break;
-        case 10:// multiply
-            src = GFXBlendFactor.DST_COLOR;
-            dst = GFXBlendFactor.ONE_MINUS_SRC_ALPHA;
-            break;
-        case 12:// screen
-            src = GFXBlendFactor.ONE;
-            dst = GFXBlendFactor.ONE_MINUS_SRC_COLOR;
-            break;
-        case 0:// normal
-        default:
-            src = _premultipliedAlpha ? GFXBlendFactor.ONE : GFXBlendFactor.SRC_ALPHA;
-            dst = GFXBlendFactor.ONE_MINUS_SRC_ALPHA;
-            break;
+    case 1:// additive
+        src = _premultipliedAlpha ? GFXBlendFactor.ONE : GFXBlendFactor.SRC_ALPHA;
+        dst = GFXBlendFactor.ONE;
+        break;
+    case 10:// multiply
+        src = GFXBlendFactor.DST_COLOR;
+        dst = GFXBlendFactor.ONE_MINUS_SRC_ALPHA;
+        break;
+    case 12:// screen
+        src = GFXBlendFactor.ONE;
+        dst = GFXBlendFactor.ONE_MINUS_SRC_COLOR;
+        break;
+    case 0:// normal
+    default:
+        src = _premultipliedAlpha ? GFXBlendFactor.ONE : GFXBlendFactor.SRC_ALPHA;
+        dst = GFXBlendFactor.ONE_MINUS_SRC_ALPHA;
+        break;
     }
 
     // const useModel = !_comp!.enableBatch;

@@ -63,7 +63,7 @@ export class AttachUtil {
             tm.m05 = -boneMat.d;
             tm.m12 = boneMat.tx;
             tm.m13 = boneMat.ty;
-            if (!node._oldScale) { 
+            if (!node._oldScale) {
                 // back origin scale info
                 node._oldScale = node.scale.clone();
             }

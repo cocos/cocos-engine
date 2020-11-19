@@ -30,7 +30,7 @@ export class DragonBonesAsset extends Asset {
         return this._dragonBonesJson;
     }
 
-    set dragonBonesJson(value) {
+    set dragonBonesJson (value) {
         this._dragonBonesJson = value;
         this._dragonBonesJsonData = JSON.parse(value);
         this.reset();

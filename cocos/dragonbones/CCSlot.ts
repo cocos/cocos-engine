@@ -130,7 +130,7 @@ export class CCSlot extends Slot {
         const textureAtlasHeight = texture.height;
         const region = currentTextureData.region;
 
-        if (textureAtlasWidth === 0 || textureAtlasHeight) {
+        if (textureAtlasWidth === 0 || textureAtlasHeight === 0) {
             console.error(`SpriteFrame ${currentTextureData.spriteFrame.name} incorrect size ${textureAtlasWidth} x ${textureAtlasHeight}`);
             return;
         }

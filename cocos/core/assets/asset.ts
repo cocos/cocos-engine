@@ -107,7 +107,7 @@ export class Asset extends Eventify(CCObject) {
     public _native: string = '';
     public _nativeUrl: string = '';
 
-    protected _file: any = null;
+    private _file: any = null;
     private _ref: number = 0;
 
     /**
