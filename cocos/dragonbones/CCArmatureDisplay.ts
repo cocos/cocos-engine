@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
 import { ccclass } from '../core/data/class-decorator';
-import { Vec2, EventTarget, Node } from '../core';
-import { dragonBones } from './lib/dragonBones.js';
+import { Vec2, EventTarget, Node, Vec3 } from '../core';
+// eslint-disable-next-line import/named
+import { Armature, DisplayData, IEventDispatcher, Slot } from './lib/dragonBones.js';
 import { CCSlot } from './CCSlot';
 import { ArmatureDisplay } from './ArmatureDisplay';
 
 @ccclass('dragonBones.CCArmatureDisplay')
-export class CCArmatureDisplay extends dragonBones.DisplayData implements dragonBones.IEventDispatcher {
+export class CCArmatureDisplay extends DisplayData implements IEventDispatcher {
     get node () { return this; }
 
     shouldAdvanced = false;
@@ -15,7 +16,7 @@ export class CCArmatureDisplay extends dragonBones.DisplayData implements dragon
     _ccComponent: ArmatureDisplay |null = null;
     _eventTarget: EventTarget;
 
-    _armature: dragonBones.Armature | null = null;
+    _armature: Armature | null = null;
 
     constructor () {
         super();
@@ -37,13 +38,13 @@ export class CCArmatureDisplay extends dragonBones.DisplayData implements dragon
         this._eventTarget = eventTarget;
     }
 
-    getRootDisplay () {
+    getRootDisplay () : CCArmatureDisplay {
         let parentSlot = this._armature!._parent;
         if (!parentSlot) {
             return this;
         }
 
-        let slot: dragonBones.Slot;
+        let slot: Slot;
         while (parentSlot) {
             slot = parentSlot;
             parentSlot = parentSlot._armature._parent;
@@ -51,7 +52,7 @@ export class CCArmatureDisplay extends dragonBones.DisplayData implements dragon
         return slot!._armature.display;
     }
 
-    convertToRootSpace (pos: Vec2) {
+    convertToRootSpace (pos: Vec3) {
         const slot = this._armature!._parent as CCSlot;
         if (!slot) {
             return pos;
@@ -59,17 +60,16 @@ export class CCArmatureDisplay extends dragonBones.DisplayData implements dragon
         slot.updateWorldMatrix();
 
         const worldMatrix = slot._worldMatrix;
-        const newPos = new Vec2(0, 0);
+        const newPos = new Vec3(0, 0);
         newPos.x = pos.x * worldMatrix.m00 + pos.y * worldMatrix.m04 + worldMatrix.m12;
         newPos.y = pos.x * worldMatrix.m01 + pos.y * worldMatrix.m05 + worldMatrix.m13;
         return newPos;
     }
 
-    convertToWorldSpace (point: Vec2) {
+    convertToWorldSpace (point: Vec3) {
         const newPos = this.convertToRootSpace(point);
         const ccNode = this.getRootNode();
-        const finalPos = ccNode.convertToWorldSpaceAR(newPos);
-        return finalPos;
+        return ccNode?._uiProps.uiTransformComp?.convertToWorldSpaceAR(newPos);
     }
 
     getRootNode () {
@@ -78,7 +78,7 @@ export class CCArmatureDisplay extends dragonBones.DisplayData implements dragon
     }
 
     // dragonbones api
-    dbInit (armature: dragonBones.Armature | null) {
+    dbInit (armature: Armature | null) {
         this._armature = armature;
     }
 

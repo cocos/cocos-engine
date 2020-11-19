@@ -4,9 +4,9 @@ import { MaterialInstance } from '../../core/renderer/core/material-instance';
 import { IAssembler } from '../../core/renderer/ui/base';
 import { UI } from '../../core/renderer/ui/ui';
 import { ArmatureFrame, ArmatureFrameColor } from '../ArmatureCache';
-import { ArmatureDisplay as Armature, ArmatureDisplay, ArmatureDisplayMeshData } from '../ArmatureDisplay';
+import { ArmatureDisplay, ArmatureDisplayMeshData } from '../ArmatureDisplay';
 import { CCSlot } from '../CCSlot';
-import { dragonBones } from '../lib/dragonBones.js';
+import { Armature, BlendMode } from '../lib/dragonBones.js';
 
 const NEED_COLOR = 0x01;
 const NEED_BATCH = 0x10;
@@ -17,10 +17,15 @@ const _boneColor = new Color(255, 0, 0, 255);
 const _slotColor = new Color(0, 0, 255, 255);
 const _originColor = new Color(0, 255, 0, 255);
 
+/** node R [0,1] */
 let _nodeR: number;
+/** node G [0,1] */
 let _nodeG: number;
+/** node B [0,1] */
 let _nodeB: number;
+/** node alpha [0,1] */
 let _nodeA: number;
+
 let _premultipliedAlpha: boolean;
 let _multiply: number;
 let _mustFlush: boolean;
@@ -45,7 +50,7 @@ let _m05: number;
 let _m13: number;
 const _vec3u_temp = new Vec3();
 
-function _getSlotMaterial (tex: RenderTexture | TextureBase | null, blendMode: dragonBones.BlendMode) {
+function _getSlotMaterial (tex: RenderTexture | TextureBase | null, blendMode: BlendMode) {
     if (!tex) return null;
 
     let src: GFXBlendFactor;
@@ -74,7 +79,7 @@ function _getSlotMaterial (tex: RenderTexture | TextureBase | null, blendMode: d
     return _comp!.getMaterialForBlend(src, dst);
 }
 
-function _handleColor (color: ArmatureFrameColor, parentOpacity: number) {
+function _handleColor (color: {r:number, g:number, b:number, a:number}, parentOpacity: number) {
     const _a = color.a * parentOpacity * _nodeA;
     const _multiply = _premultipliedAlpha ? _a / 255.0 : 1.0;
     const _r = color.r * _nodeR * _multiply / 255.0;
@@ -153,14 +158,14 @@ export const simple: IAssembler = {
     },
 };
 
-function realTimeTraverse (armature: dragonBones.Armature, parentMat: Mat4|undefined, parentOpacity: number) {
+function realTimeTraverse (armature: Armature, parentMat: Mat4|undefined, parentOpacity: number) {
     const slots = armature._slots;
     let vbuf: Float32Array;
     let ibuf: Uint16Array;
     let material: MaterialInstance;
     let vertices: number[];
     let indices: number[];
-    let slotColor: ArmatureFrameColor;
+    let slotColor: Color;
     let slot: CCSlot;
     const slotMat = new Mat4();
 
@@ -187,7 +192,7 @@ function realTimeTraverse (armature: dragonBones.Armature, parentMat: Mat4|undef
             continue;
         }
 
-        if (_buffer!.renderData.material) {
+        if (!_buffer!.renderData.material) {
             _buffer!.renderData.material = material;
         }
 
@@ -195,7 +200,7 @@ function realTimeTraverse (armature: dragonBones.Armature, parentMat: Mat4|undef
             _buffer!.texture = slot.getTexture();
         }
 
-        if (_mustFlush || material === _buffer!.renderData.material
+        if (_mustFlush || material !== _buffer!.renderData.material
             || _buffer!.texture !== slot.getTexture()
         ) {
             _mustFlush = false;

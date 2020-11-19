@@ -7,7 +7,7 @@ import { EDITOR } from '../../editor/exports/populate-internal-constants';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
 import { CCFactory } from './CCFactory';
-import { dragonBones } from './lib/dragonBones.js';
+import { Armature, Bone, EventObject } from './lib/dragonBones.js';
 import { DragonBonesAsset } from './DragonBonesAsset';
 import { DragonBonesAtlasAsset } from './DragonBonesAtlasAsset';
 import { Graphics } from '../ui/components';
@@ -237,6 +237,8 @@ export class ArmatureDisplay extends UIRenderable {
         } else {
             errorID(7401, this.name);
         }
+        this.resetRenderData();
+        this.markForUpdateRenderData();
     }
 
     @editable
@@ -388,7 +390,7 @@ export class ArmatureDisplay extends UIRenderable {
 
     get socketNodes () { return this._socketNodes; }
 
-    /* protected */ _armature: dragonBones.Armature | null = null;
+    /* protected */ _armature: Armature | null = null;
 
     public attachUtil: AttachUtil;
 
@@ -451,8 +453,8 @@ export class ArmatureDisplay extends UIRenderable {
     protected _enumArmatures: any = Enum({});
     protected _enumAnimations: any = Enum({});
 
-    protected _socketNodes: Map<dragonBones.Bone, Node> = new Map();
-    protected _cachedSockets: Map<string, dragonBones.Bone> = new Map();
+    protected _socketNodes: Map<Bone, Node> = new Map();
+    protected _cachedSockets: Map<string, Bone> = new Map();
 
     @serializable
     protected _sockets: DragonBoneSocket[] = [];
@@ -701,11 +703,11 @@ export class ArmatureDisplay extends UIRenderable {
     _emitCacheCompleteEvent () {
         // Animation loop complete, the event diffrent from dragonbones inner event,
         // It has no event object.
-        this._eventTarget.emit(dragonBones.EventObject.LOOP_COMPLETE);
+        this._eventTarget.emit(EventObject.LOOP_COMPLETE);
 
         // Animation complete the event diffrent from dragonbones inner event,
         // It has no event object.
-        this._eventTarget.emit(dragonBones.EventObject.COMPLETE);
+        this._eventTarget.emit(EventObject.COMPLETE);
     }
 
     update (dt) {
@@ -731,7 +733,7 @@ export class ArmatureDisplay extends UIRenderable {
         // Animation Start, the event diffrent from dragonbones inner event,
         // It has no event object.
         if (this._accTime === 0 && this._playCount === 0) {
-            this._eventTarget.emit(dragonBones.EventObject.START);
+            this._eventTarget.emit(EventObject.START);
         }
 
         const globalTimeScale = timeScale;
@@ -959,7 +961,7 @@ export class ArmatureDisplay extends UIRenderable {
         }
         this._cachedSockets.clear();
         const nameToBone = this._cachedSockets;
-        const cacheBoneName = (bone: dragonBones.Bone, cache: Map<dragonBones.Bone, string>): string => {
+        const cacheBoneName = (bone: Bone, cache: Map<Bone, string>): string => {
             if (cache.has(bone)) { return cache.get(bone)!; }
             if (!bone.parent) {
                 cache.set(bone, bone.name);
@@ -969,9 +971,9 @@ export class ArmatureDisplay extends UIRenderable {
             cache.set(bone, name);
             return name;
         };
-        const walkArmature = (prefix: string, armature: dragonBones.Armature) => {
+        const walkArmature = (prefix: string, armature: Armature) => {
             const bones = armature.getBones();
-            const boneToName = new Map<dragonBones.Bone, string>();
+            const boneToName = new Map<Bone, string>();
             for (let i = 0; i < bones.length; i++) {
                 cacheBoneName(bones[i], boneToName);
             }
@@ -1004,7 +1006,7 @@ export class ArmatureDisplay extends UIRenderable {
      * 0 为无限循环播放。
      * >0 为动画的重复次数。
      */
-    playAnimation (animName: string, playTimes: number) {
+    playAnimation (animName: string, playTimes?: number) {
         this.playTimes = (playTimes === undefined) ? -1 : playTimes;
         this.animationName = animName;
 
@@ -1017,10 +1019,9 @@ export class ArmatureDisplay extends UIRenderable {
                 this._accTime = 0;
                 this._playCount = 0;
                 this._frameCache = cache;
-                // FIXME: sync code
-                // if (this.attachUtil._hasAttachedNode()) {
-                //     this._frameCache.enableCacheAttachedInfo();
-                // }
+                if (this._sockets.length > 0) {
+                    this._frameCache.enableCacheAttachedInfo();
+                }
                 this._frameCache.updateToFrame(0);
                 this._playing = true;
                 this._curFrame = this._frameCache.frames[0];

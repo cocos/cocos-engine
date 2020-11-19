@@ -125,11 +125,7 @@ js.setClassAlias(SpineSocket, 'sp.Skeleton.SpineSocket');
 @menu('Components/SpineSkeleton')
 @executeInEditMode
 export class Skeleton extends UIRenderable {
-    // editor: EDITOR && {
-    //     menu: 'i18n:MAIN_MENU.component.renderers/Spine Skeleton',
-    //     help: 'app://docs/html/components/spine.html',
-    //     inspector: 'packages://inspector/inspectors/comps/skeleton2d.js',
-    // },
+
     public static SpineSocket = SpineSocket;
 
     public static AnimationCacheMode = AnimationCacheMode;

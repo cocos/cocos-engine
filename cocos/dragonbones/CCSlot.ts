@@ -1,14 +1,12 @@
 import { Color, ImageAsset, mat4, Mat4, Texture2D } from '../core';
 import { ccclass } from '../core/data/class-decorator';
 import { CCTextureData } from './CCTextureData';
-import { dragonBones } from './lib/dragonBones.js';
+import { BoneType, BinaryOffset, Slot } from './lib/dragonBones.js';
 
-const BoneType = dragonBones.BoneType;
-const BinaryOffset = dragonBones.BinaryOffset;
 // @skipLibCheck
 
 @ccclass('dragonBones.CCSlot')
-export class CCSlot extends dragonBones.Slot {
+export class CCSlot extends Slot {
     static toString () {
         return '[class dragonBones.CCSlot]';
     }
@@ -97,7 +95,7 @@ export class CCSlot extends dragonBones.Slot {
     // just for adapt to dragonbones api,no need to do any thing
     _updateZOrder () {
     }
-    
+
     _updateBlendMode () {
         if (this._childArmature) {
             const childSlots = this._childArmature.getSlots();
@@ -138,9 +136,9 @@ export class CCSlot extends dragonBones.Slot {
             const data = currentVerticesData.data;
             const intArray = data.intArray;
             const floatArray = data.floatArray;
-            const vertexCount = intArray[currentVerticesData.offset + dragonBones.BinaryOffset.MeshVertexCount];
-            const triangleCount = intArray[currentVerticesData.offset + dragonBones.BinaryOffset.MeshTriangleCount];
-            let vertexOffset: number = intArray[currentVerticesData.offset + dragonBones.BinaryOffset.MeshFloatOffset];
+            const vertexCount = intArray[currentVerticesData.offset + BinaryOffset.MeshVertexCount];
+            const triangleCount = intArray[currentVerticesData.offset + BinaryOffset.MeshTriangleCount];
+            let vertexOffset: number = intArray[currentVerticesData.offset + BinaryOffset.MeshFloatOffset];
 
             if (vertexOffset < 0) {
                 vertexOffset += 65536; // Fixed out of bouds bug.

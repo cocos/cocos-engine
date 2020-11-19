@@ -1,4 +1,3 @@
-import { dragonBones } from './lib/dragonBones.js';
 import { Component, director, Game, game, ISchedulable, Node, RenderTexture, Scheduler, systemEvent, SystemEventType } from '../core';
 import { ccclass } from '../core/data/class-decorator';
 import { EDITOR, JSB } from '../../editor/exports/populate-internal-constants';
@@ -7,6 +6,7 @@ import { TextureBase } from '../core/assets/texture-base';
 import { CCSlot } from './CCSlot';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
+import { Armature, BaseObject, Animation, BaseFactory, DragonBones } from './lib/dragonBones';
 
 /**
  * @module dragonBones
@@ -17,14 +17,14 @@ import { CCArmatureDisplay } from './CCArmatureDisplay';
  * @class CCFactory
  * @extends BaseFactory
 */
-@ccclass('dragonBones.CCFactory')
-export class CCFactory extends dragonBones.BaseFactory implements ISchedulable {
+@ccclass('CCFactory')
+export class CCFactory extends BaseFactory implements ISchedulable {
     /**
      * @method getInstance
      * @return {CCFactory}
      * @static
      * @example
-     * let factory = dragonBones.CCFactory.getInstance();
+     * let factory = CCFactory.getInstance();
     */
     static _factory: CCFactory | null = null;
     static getInstance () {
@@ -42,13 +42,13 @@ export class CCFactory extends dragonBones.BaseFactory implements ISchedulable {
     constructor () {
         super();
         const eventManager = new CCArmatureDisplay();
-        this._dragonBones = new dragonBones.DragonBones(eventManager);
+        this._dragonBones = new DragonBones(eventManager);
 
         if (!JSB && !EDITOR && director.getScheduler()) {
             game.on(Game.EVENT_RESTART, this.initUpdate, this);
             this.initUpdate();
         }
-        this.id = this.uuid = 'dragonBones.CCFactory';
+        this.id = this.uuid = 'CCFactory';
     }
 
     initUpdate (dt?: number) {
@@ -62,7 +62,7 @@ export class CCFactory extends dragonBones.BaseFactory implements ISchedulable {
     }
 
     getDragonBonesDataByRawData (rawData: any) {
-        const dataParser = rawData instanceof ArrayBuffer ? dragonBones.BaseFactory._binaryParser : this._dataParser;
+        const dataParser = rawData instanceof ArrayBuffer ? BaseFactory._binaryParser : this._dataParser;
         return dataParser.parseDragonBonesData(rawData, 1.0);
     }
 
@@ -96,7 +96,7 @@ export class CCFactory extends dragonBones.BaseFactory implements ISchedulable {
         if (textureAtlasData) {
             textureAtlasData.renderTexture = textureAtlas!;
         } else {
-            textureAtlasData = dragonBones.BaseObject.borrowObject(CCTextureAtlasData);
+            textureAtlasData = BaseObject.borrowObject(CCTextureAtlasData);
         }
         return textureAtlasData;
     }
@@ -122,10 +122,10 @@ export class CCFactory extends dragonBones.BaseFactory implements ISchedulable {
         this._slots = sortedSlots;
     }
     _buildArmature (dataPackage) {
-        const armature = dragonBones.BaseObject.borrowObject(dragonBones.Armature);
+        const armature = BaseObject.borrowObject(Armature);
 
         armature._skinData = dataPackage.skin;
-        armature._animation = dragonBones.BaseObject.borrowObject(dragonBones.Animation);
+        armature._animation = BaseObject.borrowObject(Animation);
         armature._animation._armature = armature;
         armature._animation.animations = dataPackage.armature.animations;
 
@@ -142,7 +142,7 @@ export class CCFactory extends dragonBones.BaseFactory implements ISchedulable {
     }
 
     _buildSlot (dataPackage, slotData, displays) {
-        const slot = dragonBones.BaseObject.borrowObject(CCSlot);
+        const slot = BaseObject.borrowObject(CCSlot);
         const display = slot;
         slot.init(slotData, displays, display, display);
         return slot;

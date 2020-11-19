@@ -2,10 +2,10 @@ import { RenderTexture, Size, SpriteFrame, Vec2 } from '../core';
 import { TextureBase } from '../core/assets/texture-base';
 import { ccclass } from '../core/data/decorators';
 import { Rect } from '../core/math/rect';
-import { dragonBones } from './lib/dragonBones.js';
+import { BaseObject, TextureAtlasData, TextureData } from './lib/dragonBones.js';
 
 @ccclass('dragonBones.CCTextureAtlasData')
-export class CCTextureAtlasData extends dragonBones.TextureAtlasData {
+export class CCTextureAtlasData extends TextureAtlasData {
     get renderTexture () {
         return this._renderTexture;
     }
@@ -48,7 +48,7 @@ export class CCTextureAtlasData extends dragonBones.TextureAtlasData {
     }
 
     createTexture () {
-        return dragonBones.BaseObject.borrowObject(CCTextureData);
+        return BaseObject.borrowObject(CCTextureData);
     }
 
     _onClear () {
@@ -58,7 +58,7 @@ export class CCTextureAtlasData extends dragonBones.TextureAtlasData {
 }
 
 @ccclass('dragonBones.CCTextureData')
-export class CCTextureData extends dragonBones.TextureData {
+export class CCTextureData extends TextureData {
     spriteFrame: SpriteFrame | null = null
 
     static toString () {

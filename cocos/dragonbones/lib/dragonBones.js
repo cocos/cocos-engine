@@ -15025,6 +15025,11 @@ var __extends = function (t, e) {
      */
     dragonBones.ActionType = {
         Play : 0,
+        Stop : 1,
+        GotoAndPlay : 2,
+        GotoAndStop : 3,
+        FadeIn : 4,
+        FadeOut : 5,
         Frame : 10,
         Sound : 11,
     }
@@ -15082,4 +15087,88 @@ var __extends = function (t, e) {
 
 })(dragonBones || (dragonBones = {}));
 
-export { dragonBones };
+
+// auto generated
+export const DragonBones = dragonBones.DragonBones;
+export const BaseObject = dragonBones.BaseObject;
+export const Matrix = dragonBones.Matrix;
+export const Transform = dragonBones.Transform;
+export const ColorTransform = dragonBones.ColorTransform;
+export const Point = dragonBones.Point;
+export const Rectangle = dragonBones.Rectangle;
+export const UserData = dragonBones.UserData;
+export const ActionData = dragonBones.ActionData;
+export const DragonBonesData = dragonBones.DragonBonesData;
+export const ArmatureData = dragonBones.ArmatureData;
+export const BoneData = dragonBones.BoneData;
+export const SurfaceData = dragonBones.SurfaceData;
+export const SlotData = dragonBones.SlotData;
+export const ConstraintData = dragonBones.ConstraintData;
+export const IKConstraintData = dragonBones.IKConstraintData;
+export const PathConstraintData = dragonBones.PathConstraintData;
+export const CanvasData = dragonBones.CanvasData;
+export const SkinData = dragonBones.SkinData;
+export const VerticesData = dragonBones.VerticesData;
+export const DisplayData = dragonBones.DisplayData;
+export const ImageDisplayData = dragonBones.ImageDisplayData;
+export const ArmatureDisplayData = dragonBones.ArmatureDisplayData;
+export const MeshDisplayData = dragonBones.MeshDisplayData;
+export const BoundingBoxDisplayData = dragonBones.BoundingBoxDisplayData;
+export const PathDisplayData = dragonBones.PathDisplayData;
+export const WeightData = dragonBones.WeightData;
+export const BoundingBoxData = dragonBones.BoundingBoxData;
+export const RectangleBoundingBoxData = dragonBones.RectangleBoundingBoxData;
+export const EllipseBoundingBoxData = dragonBones.EllipseBoundingBoxData;
+export const PolygonBoundingBoxData = dragonBones.PolygonBoundingBoxData;
+export const AnimationData = dragonBones.AnimationData;
+export const TimelineData = dragonBones.TimelineData;
+export const AnimationConfig = dragonBones.AnimationConfig;
+export const TextureAtlasData = dragonBones.TextureAtlasData;
+export const TextureData = dragonBones.TextureData;
+export const DeformVertices = dragonBones.DeformVertices;
+export const Armature = dragonBones.Armature;
+export const TransformObject = dragonBones.TransformObject;
+export const Bone = dragonBones.Bone;
+export const Surface = dragonBones.Surface;
+export const Slot = dragonBones.Slot;
+export const Constraint = dragonBones.Constraint;
+export const IKConstraint = dragonBones.IKConstraint;
+export const PathConstraint = dragonBones.PathConstraint;
+export const WorldClock = dragonBones.WorldClock;
+export const Animation = dragonBones.Animation;
+export const AnimationState = dragonBones.AnimationState;
+export const BonePose = dragonBones.BonePose;
+export const BlendState = dragonBones.BlendState;
+export const TimelineState = dragonBones.TimelineState;
+export const TweenTimelineState = dragonBones.TweenTimelineState;
+export const BoneTimelineState = dragonBones.BoneTimelineState;
+export const SlotTimelineState = dragonBones.SlotTimelineState;
+export const ConstraintTimelineState = dragonBones.ConstraintTimelineState;
+export const ActionTimelineState = dragonBones.ActionTimelineState;
+export const ZOrderTimelineState = dragonBones.ZOrderTimelineState;
+export const BoneAllTimelineState = dragonBones.BoneAllTimelineState;
+export const BoneTranslateTimelineState = dragonBones.BoneTranslateTimelineState;
+export const BoneRotateTimelineState = dragonBones.BoneRotateTimelineState;
+export const BoneScaleTimelineState = dragonBones.BoneScaleTimelineState;
+export const SurfaceTimelineState = dragonBones.SurfaceTimelineState;
+export const SlotDislayTimelineState = dragonBones.SlotDislayTimelineState;
+export const SlotColorTimelineState = dragonBones.SlotColorTimelineState;
+export const DeformTimelineState = dragonBones.DeformTimelineState;
+export const IKConstraintTimelineState = dragonBones.IKConstraintTimelineState;
+export const AnimationTimelineState = dragonBones.AnimationTimelineState;
+export const EventObject = dragonBones.EventObject;
+export const DataParser = dragonBones.DataParser;
+export const ObjectDataParser = dragonBones.ObjectDataParser;
+export const ActionFrame = dragonBones.ActionFrame;
+export const BinaryDataParser = dragonBones.BinaryDataParser;
+export const BaseFactory = dragonBones.BaseFactory;
+export const BuildArmaturePackage = dragonBones.BuildArmaturePackage;
+export const BinaryOffset = dragonBones.BinaryOffset;
+export const ArmatureType = dragonBones.ArmatureType;
+export const BoneType = dragonBones.BoneType;
+export const DisplayType = dragonBones.DisplayType;
+export const BoundingBoxType = dragonBones.BoundingBoxType;
+export const ActionType = dragonBones.ActionType;
+export const BlendMode = dragonBones.BlendMode;
+export const TweenType = dragonBones.TweenType;
+export const TimelineType = dragonBones.TimelineType;

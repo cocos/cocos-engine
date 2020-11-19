@@ -23,17 +23,17 @@ import { EDITOR } from '../../editor/exports/populate-internal-constants';
 //     configurable: true,
 // });
 
-export enum DisplayType {
-    Image = 0,
-    Armature = 1,
-    Mesh = 2
-}
+// export enum DisplayType {
+//     Image = 0,
+//     Armature = 1,
+//     Mesh = 2
+// }
 
-export enum ArmatureType {
-    Armature = 0,
-    MovieClip = 1,
-    Stage = 2
-}
+// export enum ArmatureType {
+//     Armature = 0,
+//     MovieClip = 1,
+//     Stage = 2
+// }
 
 export enum ExtensionType {
     FFD = 0,
@@ -51,14 +51,14 @@ export enum EventType {
     Sound = 1
 }
 
-export enum ActionType {
-    Play = 0,
-    Stop = 1,
-    GotoAndPlay = 2,
-    GotoAndStop = 3,
-    FadeIn = 4,
-    FadeOut = 5
-}
+// export enum ActionType {
+//     Play = 0,
+//     Stop = 1,
+//     GotoAndPlay = 2,
+//     GotoAndStop = 3,
+//     FadeIn = 4,
+//     FadeOut = 5
+// }
 
 export enum AnimationFadeOutMode {
     None = 0,
@@ -68,10 +68,10 @@ export enum AnimationFadeOutMode {
     All = 4
 }
 
-export enum BoneType {
-    Bone = 0,
-    Surface = 1
-}
+// export enum BoneType {
+//     Bone = 0,
+//     Surface = 1
+// }
 
 export * from './CCFactory';
 export * from './CCSlot';
@@ -85,4 +85,4 @@ export * from './ArmatureDisplay';
 export * from './AttachUtil';
 export * from './assembler';
 
-export { dragonBones } from './lib/dragonBones.js';
+export * from './lib/dragonBones.js';

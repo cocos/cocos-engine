@@ -7,7 +7,7 @@ import { ccclass, serializable, type } from '../core/data/decorators';
 import { ArmatureCache } from './ArmatureCache';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { CCFactory } from './CCFactory';
-import { dragonBones } from './lib/dragonBones.js';
+import { TextureAtlasData } from './lib/dragonBones.js';
 
 /**
  * !#en The skeleton atlas data of dragonBones.
@@ -55,7 +55,7 @@ export class DragonBonesAtlasAsset extends Asset {
     }
 
     @serializable
-    _textureAtlasData: dragonBones.TextureAtlasData | null = null;
+    _textureAtlasData: TextureAtlasData | null = null;
 
     createNode (callback: (error: Error | null, node: Node) => void) {
         const node = new Node(this.name);

@@ -3,7 +3,7 @@ import { TextureBase } from '../core/assets/texture-base';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
 import { CCFactory } from './CCFactory';
 import { CCSlot } from './CCSlot';
-import { dragonBones } from './lib/dragonBones.js';
+import { Armature, BlendMode, Matrix } from './lib/dragonBones.js';
 
 const MaxCacheTime = 30;
 const FrameTime = 1 / 60;
@@ -15,7 +15,7 @@ let _vertexOffset = 0;
 let _indexOffset = 0;
 let _vfOffset = 0;
 let _preTexUrl: string | null = null;
-let _preBlendMode: dragonBones.BlendMode | null = null;
+let _preBlendMode: BlendMode | null = null;
 let _segVCount = 0;
 let _segICount = 0;
 let _segOffset = 0;
@@ -26,7 +26,7 @@ let _y: number;
 
 export interface ArmatureInfo {
     curAnimationCache: AnimationCache | null;
-    armature: dragonBones.Armature;
+    armature: Armature;
     animationsCache: { [key: string]: AnimationCache };
 }
 
@@ -40,7 +40,7 @@ export interface ArmatureFrame {
 }
 
 export interface ArmatureFrameBoneInfo {
-    globalTransformMatrix: dragonBones.Matrix;
+    globalTransformMatrix: Matrix;
 }
 
 export interface ArmatureFrameColor {
@@ -56,7 +56,7 @@ export interface ArmatureFrameSegment {
     vfCount: number;
     vertexCount: number;
     tex: RenderTexture | TextureBase;
-    blendMode: dragonBones.BlendMode;
+    blendMode: BlendMode;
 }
 
 // Cache all frames in an animation
@@ -266,7 +266,7 @@ export class AnimationCache {
         frame.indices = indices;
     }
 
-    _traverseArmature (armature: dragonBones.Armature, parentOpacity) {
+    _traverseArmature (armature: Armature, parentOpacity) {
         const colors = this._tempColors!;
         const segments = this._tempSegments!;
         const boneInfos = this._tempBoneInfos!;
@@ -290,7 +290,7 @@ export class AnimationCache {
                 let boneInfo = boneInfos[_boneInfoOffset];
                 if (!boneInfo) {
                     boneInfo = boneInfos[_boneInfoOffset] = {
-                        globalTransformMatrix: new dragonBones.Matrix(),
+                        globalTransformMatrix: new Matrix(),
                     };
                 }
                 const boneMat = bone.globalTransformMatrix;
@@ -439,7 +439,7 @@ export class ArmatureCache {
 
     getArmatureCache (armatureName: string, armatureKey: string, atlasUUID: string) {
         const armatureInfo = this._armatureCache[armatureKey];
-        let armature: dragonBones.Armature;
+        let armature: Armature;
         if (!armatureInfo) {
             const factory = CCFactory.getInstance();
             const proxy = factory.buildArmatureDisplay(armatureName, armatureKey, '', atlasUUID) as CCArmatureDisplay;
@@ -531,7 +531,7 @@ export class ArmatureCache {
         }
     }
 
-    static canCache (armature: dragonBones.Armature) {
+    static canCache (armature: Armature) {
         const slots = armature._slots;
         for (let i = 0, l = slots.length; i < l; i++) {
             const slot = slots[i];

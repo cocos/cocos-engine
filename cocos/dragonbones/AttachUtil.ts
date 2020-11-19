@@ -2,7 +2,7 @@ import { Node, Mat4 } from '../core';
 import { ccclass } from '../core/data/class-decorator';
 import { ArmatureFrameBoneInfo } from './ArmatureCache';
 import { ArmatureDisplay } from './ArmatureDisplay';
-import { dragonBones } from './lib/dragonBones.js';
+import { Armature, Matrix } from './lib/dragonBones.js';
 
 const _tempMat4 = new Mat4();
 
@@ -19,7 +19,7 @@ const _tempMat4 = new Mat4();
 @ccclass('dragonBones.AttachUtil')
 export class AttachUtil {
     _inited = false;
-    _armature: dragonBones.Armature | null = null;
+    _armature: Armature | null = null;
     _armatureNode: Node | null = null;
     _armatureDisplay: ArmatureDisplay | null = null;
     constructor () {
@@ -53,7 +53,7 @@ export class AttachUtil {
 
         const socketNodes = this._armatureDisplay!.socketNodes;
 
-        const matrixHandle = (node: Node, boneMat: dragonBones.Matrix) => {
+        const matrixHandle = (node: Node, boneMat: Matrix) => {
             const tm = _tempMat4;
             tm.m00 = boneMat.a;
             tm.m01 = boneMat.b;
