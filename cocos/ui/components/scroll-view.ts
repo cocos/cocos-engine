@@ -60,11 +60,6 @@ const _tempVec2_2 = new Vec2();
 const _tempVec2Anchor = new Vec2();
 const _tempVec2A = new Vec2();
 const _tempVec2B = new Vec2();
-const _tempVec2D = new Vec2();
-const _tempVec2H = new Vec2();
-const _tempVec2I = new Vec2();
-const _tempVec2J = new Vec2();
-const _tempVec2K = new Vec2();
 
 const quintEaseOut = (time: number) => {
     time -= 1;
@@ -1019,7 +1014,7 @@ export class ScrollView extends ViewGroup {
             return;
         }
 
-        const deltaMove = _tempVec2H;
+        const deltaMove = _tempVec2A;
         const wheelPrecision = -0.1;
         const scrollY = event.getScrollY();
         if (this.vertical) {
@@ -1156,8 +1151,8 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _startInertiaScroll (touchMoveVelocity: Vec2) {
-        _tempVec2I.set(touchMoveVelocity);
-        const inertiaTotalMovement = _tempVec2I;
+        _tempVec2A.set(touchMoveVelocity);
+        const inertiaTotalMovement = _tempVec2A;
         inertiaTotalMovement.multiplyScalar(MOVEMENT_FACTOR);
         this._startAttenuatingAutoScroll(inertiaTotalMovement, touchMoveVelocity);
     }
@@ -1172,8 +1167,8 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _startAttenuatingAutoScroll (deltaMove: Vec2, initialVelocity: Vec2) {
-        _tempVec2J.set(deltaMove);
-        const targetDelta = _tempVec2J;
+        _tempVec2A.set(deltaMove);
+        const targetDelta = _tempVec2A;
         targetDelta.normalize();
         if (this._content && this.view) {
             const contentSize = this._content!._uiProps.uiTransformComp!.contentSize;
@@ -1195,8 +1190,8 @@ export class ScrollView extends ViewGroup {
 
         if (this.brake > 0 && factor > 7) {
             factor = Math.sqrt(factor);
-            _tempVec2K.set(deltaMove);
-            const a = _tempVec2K;
+            _tempVec2B.set(deltaMove);
+            const a = _tempVec2B;
             a.multiplyScalar(factor);
             targetDelta.set(a);
             targetDelta.add(deltaMove);
@@ -1760,7 +1755,7 @@ export class ScrollView extends ViewGroup {
         let leftDelta = this._getContentLeftBoundary() - this._leftBoundary;
         leftDelta = -leftDelta;
 
-        const moveDelta = _tempVec2D;
+        const moveDelta = _tempVec2A;
         if (this._content && this.view) {
             let totalScrollDelta = 0;
             const uiTrans = this._content!._uiProps.uiTransformComp!;
