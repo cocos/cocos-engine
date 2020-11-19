@@ -313,8 +313,7 @@ enum class CanvasTextBaseline {
     }
     else if (_textBaseLine == CanvasTextBaseline::ALPHABETIC)
     {
-        point.y -= _font.descender;
-        point.y = _height - point.y;
+        point.y += _font.descender;
     }
 #else
     if (_textBaseLine == CanvasTextBaseline::TOP)
