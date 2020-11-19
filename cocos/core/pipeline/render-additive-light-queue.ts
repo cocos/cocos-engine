@@ -326,7 +326,7 @@ export class RenderAdditiveLightQueue {
                 texture = this._pipeline.shadowFrameBufferMap.get(light)!.colorTextures[0]!;
             }
             
-            const descriptorSet = this._descriptorSetMap.get(light);
+            const descriptorSet = this._getOrCreateDescriptorSet(light);
             if(!descriptorSet) { return; }
             descriptorSet.update();
             this._updateGlobalDescriptorSet(view, cmdBuff);
@@ -565,8 +565,8 @@ export class RenderAdditiveLightQueue {
 
     protected _getOrCreateDescriptorSet (light: Light) {
         if (!this._descriptorSetMap.has(light)) {
-            const descriptorSet = this._device.createDescriptorSet(new DescriptorSetInfo(this._pipeline.descriptorSetLayout));
-            const device = this._pipeline.device;
+            const device = this._device;
+            const descriptorSet = device.createDescriptorSet(new DescriptorSetInfo(this._pipeline.descriptorSetLayout));
 
             const globalUBO = device.createBuffer(new BufferInfo(
                 BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
@@ -589,8 +589,8 @@ export class RenderAdditiveLightQueue {
             this._descriptorSetMap.set(light, descriptorSet);
 
             return descriptorSet;
-        } else {
-            return this._descriptorSetMap.get(light);
         }
+
+        return this._descriptorSetMap.get(light);
     }
 }
