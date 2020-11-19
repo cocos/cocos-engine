@@ -232,7 +232,10 @@ async function _doBuild ({
     );
 
     const rpVirtualOptions: Record<string, string> = {};
-    const vmInternalConstants = getModuleSourceInternalConstants(options.buildTimeConstants);
+    const vmInternalConstants = getModuleSourceInternalConstants({
+        EXPORT_TO_GLOBAL: true,
+        ...options.buildTimeConstants,
+    });
     console.debug(`Module source "internal-constants":\n${vmInternalConstants}`);
     rpVirtualOptions['internal:constants'] = vmInternalConstants;
 
