@@ -38,7 +38,7 @@ import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView,
 import { Vec3, nextPow2, Mat4, Vec4, Color } from '../../core/math';
 import { sphere, intersect } from '../geometry';
 import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
-    BufferInfo, BufferViewInfo, CommandBuffer, Filter, Address, Sampler, DescriptorSet, Texture } from '../gfx';
+    BufferInfo, BufferViewInfo, CommandBuffer, Filter, Address, Sampler, DescriptorSet, Texture, DescriptorSetInfo } from '../gfx';
 import { Pool } from '../memop';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { RenderInstancedQueue } from './render-instanced-queue';
@@ -47,10 +47,10 @@ import { SphereLight } from '../renderer/scene/sphere-light';
 import { SpotLight } from '../renderer/scene/spot-light';
 import { SubModel } from '../renderer/scene/submodel';
 import { getPhaseID } from './pass-phase';
-import { genSamplerHash, samplerLib } from '../renderer';
-import { ShadowType } from '../renderer/scene/shadows';
 import { Light, LightType } from '../renderer/scene/light';
-import { IRenderObject, SetIndex, UBOForwardLight, UBOShadow, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from './define';
+import { IRenderObject, SetIndex, UBOForwardLight, UBOGlobal, UBOShadow, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from './define';
+import { legacyCC } from '../global-exports';
+import { genSamplerHash, samplerLib } from '../renderer/core/sampler-lib';
 
 const _samplerInfo = [
     Filter.LINEAR,
@@ -76,7 +76,6 @@ const _dynamicOffsets: number[] = [];
 const _lightIndices: number[] = [];
 const _matShadowView = new Mat4();
 const _matShadowViewProj = new Mat4();
-const _vec4ShadowInfo = new Vec4();
 
 function cullSphereLight (light: SphereLight, model: Model) {
     return !!(model.worldBounds && !intersect.aabb_aabb(model.worldBounds, light.aabb));
@@ -118,6 +117,12 @@ export class RenderAdditiveLightQueue {
 
     private _lightPasses: IAdditiveLightPass[] = [];
 
+    private _descriptorSetMap: Map<Light, DescriptorSet> = new Map();
+
+    private _globalUBO = new Float32Array(UBOGlobal.COUNT);
+
+    private _shadowUBO = new Float32Array(UBOShadow.COUNT);
+
     private _lightBufferCount = 16;
 
     private _lightBufferStride: number;
@@ -126,7 +131,7 @@ export class RenderAdditiveLightQueue {
 
     private _lightBuffer: Buffer;
 
-    private _firstlightBufferView: Buffer;
+    private _firstLightBufferView: Buffer;
 
     private _lightBufferData: Float32Array;
 
@@ -162,7 +167,7 @@ export class RenderAdditiveLightQueue {
             this._lightBufferStride,
         ));
 
-        this._firstlightBufferView = this._device.createBuffer(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
+        this._firstLightBufferView = this._device.createBuffer(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
 
         this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
 
@@ -170,13 +175,11 @@ export class RenderAdditiveLightQueue {
         this._sampler = samplerLib.getSampler(this._device, shadowMapSamplerHash);
     }
 
-    public gatherLightPasses (view: RenderView, cmdBuff: CommandBuffer) {
-        const validLights = this._validLights;
-        const { sphereLights } = view.camera.scene!;
-
+    public clear () {
         this._instancedQueue.clear();
         this._batchedQueue.clear();
-        validLights.length = 0;
+
+        this._validLights.length = 0;
 
         for (let i = 0; i < this._lightPasses.length; i++) {
             const lp = this._lightPasses[i];
@@ -185,12 +188,20 @@ export class RenderAdditiveLightQueue {
         }
         _lightPassPool.freeArray(this._lightPasses);
         this._lightPasses.length = 0;
+    }
+
+    public gatherLightPasses (view: RenderView, cmdBuff: CommandBuffer) {
+        const validLights = this._validLights;
+        const { sphereLights } = view.camera.scene!;
+
+        this.clear();
 
         for (let i = 0; i < sphereLights.length; i++) {
             const light = sphereLights[i];
             sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
             if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
                 validLights.push(light);
+                this._getOrCreateDescriptorSet(light)!;
             }
         }
         const { spotLights } = view.camera.scene!;
@@ -199,12 +210,14 @@ export class RenderAdditiveLightQueue {
             sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
             if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
                 validLights.push(light);
+                this._getOrCreateDescriptorSet(light)!;
             }
         }
 
         if (!validLights.length) { return; }
 
         this._updateUBOs(view, cmdBuff);
+        this._updateLightDescriptorSet(view, cmdBuff);
 
         for (let i = 0; i < this._renderObjects.length; i++) {
             const ro = this._renderObjects[i];
@@ -238,7 +251,7 @@ export class RenderAdditiveLightQueue {
                 const subModel = subModels[j];
                 const pass = subModel.passes[lightPassIdx];
                 const { batchingScheme } = pass;
-                subModel.descriptorSet.bindBuffer(UBOForwardLight.BINDING, this._firstlightBufferView);
+                subModel.descriptorSet.bindBuffer(UBOForwardLight.BINDING, this._firstLightBufferView);
                 subModel.descriptorSet.update();
 
                 if (batchingScheme === BatchingSchemes.INSTANCING) { // instancing
@@ -293,74 +306,193 @@ export class RenderAdditiveLightQueue {
 
             for (let j = 0; j < dynamicOffsets.length; ++j) {
                 const light = lights[j];
-                if (this._pipeline.shadows.type === ShadowType.ShadowMap) { this._updateShadowUBO(localDS, light); }
+                const descriptorSet = this._getOrCreateDescriptorSet(light);
                 _dynamicOffsets[0] = dynamicOffsets[j];
+                cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, descriptorSet!);
                 cmdBuff.bindDescriptorSet(SetIndex.LOCAL, localDS, _dynamicOffsets);
                 cmdBuff.draw(ia);
             }
         }
     }
 
-    // update spot light UBO
-    protected _updateShadowUBO (descriptorSet: DescriptorSet, light: Light) {
+    // update light DescriptorSet
+    protected _updateLightDescriptorSet (view: RenderView, cmdBuff: CommandBuffer) {
         const shadowInfo = this._pipeline.shadows;
-        const shadowUBO = this._pipeline.shadowUBO;
-        let texture: Texture | null = null;
-        switch (light.type) {
-            case LightType.SPOT:
-                const spotLight = light as SpotLight;
-                // light view
-                Mat4.invert(_matShadowView, spotLight.node!.getWorldMatrix());
-
-                // light proj
-                Mat4.perspective(_matShadowViewProj, spotLight.spotAngle, spotLight.aspect, 0.001, spotLight.range);
-
-                // light viewProj
-                Mat4.multiply(_matShadowViewProj, _matShadowViewProj, _matShadowView);
-
-                Mat4.toArray(shadowUBO, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
-
-                Color.toArray(shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
-
-                _vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, shadowInfo.pcf, shadowInfo.bias / 100.0);
-                Vec4.toArray(shadowUBO, _vec4ShadowInfo, UBOShadow.SHADOW_INFO_OFFSET);
-
+        
+        for (let i = 0; i < this._validLights.length; i++) {
+            const light = this._validLights[i];
+            let texture: Texture|null = null;
+            if (this._pipeline.shadowFrameBufferMap.has(light)) {
                 texture = this._pipeline.shadowFrameBufferMap.get(light)!.colorTextures[0]!;
-                break;
+            }
             
-            case LightType.SPHERE:
-                // Reserve sphere light shadow interface
-                break;
-        }
+            const descriptorSet = this._descriptorSetMap.get(light);
+            if(!descriptorSet) { return; }
+            descriptorSet.update();
+            this._updateGlobalDescriptorSet(view, cmdBuff);
 
-        // must binding a sampler
-        if (texture === null) {
-            let framebufferArray = Array.from(this._pipeline.shadowFrameBufferMap.values());
-            for (let i = 0; i < framebufferArray.length; i++) {
-                if (framebufferArray[i].colorTextures[0]) {
-                    texture = framebufferArray[i].colorTextures[0]!;
+            switch (light.type) {
+                case LightType.SPHERE:
+                    // Reserve sphere light shadow interface
+                    Color.toArray(this._shadowUBO, shadowInfo.shadowColor,UBOShadow.SHADOW_COLOR_OFFSET);
+
+                    this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 0] = shadowInfo.size.x;
+                    this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 1] = shadowInfo.size.y;
+                    this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 2] = shadowInfo.pcf;
+                    this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 3] = shadowInfo.bias;
                     break;
+                case LightType.SPOT:
+                    const spotLight = light as SpotLight;
+
+                    // light view
+                    Mat4.invert(_matShadowView, spotLight.node!.getWorldMatrix());
+
+                    // light proj
+                    Mat4.perspective(_matShadowViewProj, spotLight.spotAngle, spotLight.aspect, 0.001, spotLight.range);
+
+                    // light viewProj
+                    Mat4.multiply(_matShadowViewProj, _matShadowViewProj, _matShadowView);
+
+                    Mat4.toArray(this._shadowUBO, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
+
+                    Color.toArray(this._shadowUBO, shadowInfo.shadowColor,UBOShadow.SHADOW_COLOR_OFFSET);
+
+                    this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 0] = shadowInfo.size.x;
+                    this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 1] = shadowInfo.size.y;
+                    this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 2] = shadowInfo.pcf;
+                    this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 3] = shadowInfo.bias;
+                    break;
+                default:        
+            }
+
+            // must binding a sampler
+            if (texture === null) {
+                let framebufferArray = Array.from(this._pipeline.shadowFrameBufferMap.values());
+                for (let i = 0; i < framebufferArray.length; i++) {
+                    if (framebufferArray[i].colorTextures[0]) {
+                        texture = framebufferArray[i].colorTextures[0]!;
+                        break;
+                    }
                 }
             }
-        }
 
-        descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, texture!);
-        descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, this._sampler!);
-        descriptorSet.update();
-        this._pipeline.descriptorSet.getBuffer(UBOShadow.BINDING).update(shadowUBO);
+            descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, this._sampler!);
+            descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, texture!);
+            descriptorSet.update();
+
+            cmdBuff.updateBuffer(descriptorSet.getBuffer(UBOGlobal.BINDING)!, this._globalUBO);
+            cmdBuff.updateBuffer(descriptorSet.getBuffer(UBOShadow.BINDING)!, this._shadowUBO);
+        }
+    }
+
+    protected _updateGlobalDescriptorSet (view: RenderView, cmdBuff: CommandBuffer) {
+        const root = legacyCC.director.root;
+        const device = this._pipeline.device;
+        const pipeline = this._pipeline;
+        const camera = view.camera;
+        const scene = camera.scene!;
+        const mainLight = scene.mainLight;
+        const ambient = pipeline.ambient;
+        const fog = pipeline.fog;
+        const fv = this._globalUBO;
+        const shadingScale = pipeline.shadingScale;
+        
+
+        const shadingWidth = Math.floor(device.width);
+        const shadingHeight = Math.floor(device.height);
+
+         // update UBOGlobal
+         fv[UBOGlobal.TIME_OFFSET] = root.cumulativeTime;
+         fv[UBOGlobal.TIME_OFFSET + 1] = root.frameTime;
+         fv[UBOGlobal.TIME_OFFSET + 2] = legacyCC.director.getTotalFrames();
+ 
+         fv[UBOGlobal.SCREEN_SIZE_OFFSET] = device.width;
+         fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1] = device.height;
+         fv[UBOGlobal.SCREEN_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.SCREEN_SIZE_OFFSET];
+         fv[UBOGlobal.SCREEN_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1];
+ 
+         fv[UBOGlobal.SCREEN_SCALE_OFFSET] = camera.width / shadingWidth * shadingScale;
+         fv[UBOGlobal.SCREEN_SCALE_OFFSET + 1] = camera.height / shadingHeight * shadingScale;
+         fv[UBOGlobal.SCREEN_SCALE_OFFSET + 2] = 1.0 / fv[UBOGlobal.SCREEN_SCALE_OFFSET];
+         fv[UBOGlobal.SCREEN_SCALE_OFFSET + 3] = 1.0 / fv[UBOGlobal.SCREEN_SCALE_OFFSET + 1];
+ 
+         fv[UBOGlobal.NATIVE_SIZE_OFFSET] = shadingWidth;
+         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1] = shadingHeight;
+         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET];
+         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1];
+ 
+         Mat4.toArray(fv, camera.matView, UBOGlobal.MAT_VIEW_OFFSET);
+         Mat4.toArray(fv, camera.node.worldMatrix, UBOGlobal.MAT_VIEW_INV_OFFSET);
+         Mat4.toArray(fv, camera.matProj, UBOGlobal.MAT_PROJ_OFFSET);
+         Mat4.toArray(fv, camera.matProjInv, UBOGlobal.MAT_PROJ_INV_OFFSET);
+         Mat4.toArray(fv, camera.matViewProj, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
+         Mat4.toArray(fv, camera.matViewProjInv, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
+         Vec3.toArray(fv, camera.position, UBOGlobal.CAMERA_POS_OFFSET);
+         let projectionSignY = device.screenSpaceSignY;
+         if (view.window.hasOffScreenAttachments) {
+             projectionSignY *= device.UVSpaceSignY; // need flipping if drawing on render targets
+         }
+         fv[UBOGlobal.CAMERA_POS_OFFSET + 3] = projectionSignY;
+ 
+         const exposure = camera.exposure;
+         fv[UBOGlobal.EXPOSURE_OFFSET] = exposure;
+         fv[UBOGlobal.EXPOSURE_OFFSET + 1] = 1.0 / exposure;
+         fv[UBOGlobal.EXPOSURE_OFFSET + 2] = this._isHDR ? 1.0 : 0.0;
+         fv[UBOGlobal.EXPOSURE_OFFSET + 3] = this._fpScale / exposure;
+ 
+         if (mainLight) {
+             Vec3.toArray(fv, mainLight.direction, UBOGlobal.MAIN_LIT_DIR_OFFSET);
+             Vec3.toArray(fv, mainLight.color, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
+             if (mainLight.useColorTemperature) {
+                 const colorTempRGB = mainLight.colorTemperatureRGB;
+                 fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET] *= colorTempRGB.x;
+                 fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 1] *= colorTempRGB.y;
+                 fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 2] *= colorTempRGB.z;
+             }
+ 
+             if (this._isHDR) {
+                 fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * this._fpScale;
+             } else {
+                 fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * exposure;
+             }
+         } else {
+             Vec3.toArray(fv, Vec3.UNIT_Z, UBOGlobal.MAIN_LIT_DIR_OFFSET);
+             Vec4.toArray(fv, Vec4.ZERO, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
+         }
+ 
+         const skyColor = ambient.colorArray;
+         if (this._isHDR) {
+             skyColor[3] = ambient.skyIllum * this._fpScale;
+         } else {
+             skyColor[3] = ambient.skyIllum * exposure;
+         }
+         fv.set(skyColor, UBOGlobal.AMBIENT_SKY_OFFSET);
+         fv.set(ambient.albedoArray, UBOGlobal.AMBIENT_GROUND_OFFSET);
+ 
+         if (fog.enabled) {
+             fv.set(fog.colorArray, UBOGlobal.GLOBAL_FOG_COLOR_OFFSET);
+ 
+             fv[UBOGlobal.GLOBAL_FOG_BASE_OFFSET] = fog.fogStart;
+             fv[UBOGlobal.GLOBAL_FOG_BASE_OFFSET + 1] = fog.fogEnd;
+             fv[UBOGlobal.GLOBAL_FOG_BASE_OFFSET + 2] = fog.fogDensity;
+ 
+             fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET] = fog.fogTop;
+             fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 1] = fog.fogRange;
+             fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 2] = fog.fogAtten;
+         }
     }
 
     protected _updateUBOs (view: RenderView, cmdBuff: CommandBuffer) {
         const { exposure } = view.camera;
 
         if (this._validLights.length > this._lightBufferCount) {
-            this._firstlightBufferView.destroy();
+            this._firstLightBufferView.destroy();
 
             this._lightBufferCount = nextPow2(this._validLights.length);
             this._lightBuffer.resize(this._lightBufferStride * this._lightBufferCount);
             this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
 
-            this._firstlightBufferView.initialize(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
+            this._firstLightBufferView.initialize(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
         }
 
         for (let l = 0, offset = 0; l < this._validLights.length; l++, offset += this._lightBufferElementCount) {
@@ -368,12 +500,15 @@ export class RenderAdditiveLightQueue {
 
             switch (light.type) {
             case LightType.SPHERE:
-                Vec3.toArray(_vec4Array, (light as SphereLight).position);
+                const sphereLight = light as SphereLight;
+
+                // UBOForwardLight
+                Vec3.toArray(_vec4Array, sphereLight.position);
                 _vec4Array[3] = 0;
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_POS_OFFSET);
 
-                _vec4Array[0] = (light as SphereLight).size;
-                _vec4Array[1] = (light as SphereLight).range;
+                _vec4Array[0] = sphereLight.size;
+                _vec4Array[1] = sphereLight.range;
                 _vec4Array[2] = 0.0;
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
@@ -385,23 +520,26 @@ export class RenderAdditiveLightQueue {
                     _vec4Array[2] *= tempRGB.z;
                 }
                 if (this._isHDR) {
-                    _vec4Array[3] = (light as SphereLight).luminance * this._fpScale * this._lightMeterScale;
+                    _vec4Array[3] = sphereLight.luminance * this._fpScale * this._lightMeterScale;
                 } else {
-                    _vec4Array[3] = (light as SphereLight).luminance * exposure * this._lightMeterScale;
+                    _vec4Array[3] = sphereLight.luminance * exposure * this._lightMeterScale;
                 }
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
                 break;
             case LightType.SPOT:
-                Vec3.toArray(_vec4Array, (light as SpotLight).position);
+                const spotLight = light as SpotLight;
+
+                // UBOForwardLight
+                Vec3.toArray(_vec4Array, spotLight.position);
                 _vec4Array[3] = 1;
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_POS_OFFSET);
 
-                _vec4Array[0] = (light as SpotLight).size;
-                _vec4Array[1] = (light as SpotLight).range;
-                _vec4Array[2] = (light as SpotLight).spotAngle;
+                _vec4Array[0] = spotLight.size;
+                _vec4Array[1] = spotLight.range;
+                _vec4Array[2] = spotLight.spotAngle;
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
-                Vec3.toArray(_vec4Array, (light as SpotLight).direction);
+                Vec3.toArray(_vec4Array, spotLight.direction);
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_DIR_OFFSET);
 
                 Vec3.toArray(_vec4Array, light.color);
@@ -412,9 +550,9 @@ export class RenderAdditiveLightQueue {
                     _vec4Array[2] *= tempRGB.z;
                 }
                 if (this._isHDR) {
-                    _vec4Array[3] = (light as SpotLight).luminance * this._fpScale * this._lightMeterScale;
+                    _vec4Array[3] = spotLight.luminance * this._fpScale * this._lightMeterScale;
                 } else {
-                    _vec4Array[3] = (light as SpotLight).luminance * exposure * this._lightMeterScale;
+                    _vec4Array[3] = spotLight.luminance * exposure * this._lightMeterScale;
                 }
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
                 break;
@@ -423,5 +561,36 @@ export class RenderAdditiveLightQueue {
         }
 
         cmdBuff.updateBuffer(this._lightBuffer, this._lightBufferData);
+    }
+
+    protected _getOrCreateDescriptorSet (light: Light) {
+        if (!this._descriptorSetMap.has(light)) {
+            const descriptorSet = this._device.createDescriptorSet(new DescriptorSetInfo(this._pipeline.descriptorSetLayout));
+            const device = this._pipeline.device;
+
+            const globalUBO = device.createBuffer(new BufferInfo(
+                BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                UBOGlobal.SIZE,
+                UBOGlobal.SIZE,
+            ));
+            descriptorSet.bindBuffer(UBOGlobal.BINDING, globalUBO);
+
+            const shadowBUO = device.createBuffer(new BufferInfo(
+                BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                UBOShadow.SIZE,
+                UBOShadow.SIZE,
+            ));
+            descriptorSet.bindBuffer(UBOShadow.BINDING, shadowBUO);
+
+            descriptorSet.update();
+
+            this._descriptorSetMap.set(light, descriptorSet);
+
+            return descriptorSet;
+        } else {
+            return this._descriptorSetMap.get(light);
+        }
     }
 }

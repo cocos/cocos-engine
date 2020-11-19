@@ -29,7 +29,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP_BINDING } from '../define';
+import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
@@ -168,7 +168,7 @@ export class ShadowFlow extends RenderFlow {
         const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
         pipeline.descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
 
-        if (light.type === LightType.DIRECTIONAL) {
+        if (light && light.type === LightType.DIRECTIONAL) {
             pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, shadowFrameBuffer.colorTextures[0]!);
         }
     }
