@@ -29,6 +29,7 @@ import { Color, Mat4, Vec3, Vec2 } from '../../math';
 import { legacyCC } from '../../global-exports';
 import { Enum } from '../../value-types';
 import { ShadowsPool, NULL_HANDLE, ShadowsView, ShadowsHandle } from '../core/memory-pools';
+import { ShadowsInfo } from '../../scene-graph/scene-globals';
 import { IMacroPatch } from '../core/pass';
 
 const shadowPatches: IMacroPatch[] = [
@@ -94,6 +95,8 @@ export const PCFType = Enum({
     FILTER_X25: 3,
 });
 
+const SHADOW_TYPE_NONE = ShadowType.ShadowMap + 1;
+
 export class Shadows {
 
     /**
@@ -119,6 +122,7 @@ export class Shadows {
 
     set enabled (val: boolean) {
         ShadowsPool.set(this._handle, ShadowsView.ENABLE, val ? 1 : 0);
+        if (!val) ShadowsPool.set(this._handle, ShadowsView.TYPE, SHADOW_TYPE_NONE);
         if (val) this.activate(); else this._updatePipeline();
     }
 
@@ -168,7 +172,7 @@ export class Shadows {
         return ShadowsPool.get(this._handle, ShadowsView.TYPE);
     }
     set type (val: number) {
-        ShadowsPool.set(this._handle, ShadowsView.TYPE, val);
+        ShadowsPool.set(this._handle, ShadowsView.TYPE, this.enabled ? val : SHADOW_TYPE_NONE);
         this._updatePipeline();
         this._updatePlanarInfo();
     }
@@ -313,6 +317,26 @@ export class Shadows {
 
     constructor () {
         this._handle = ShadowsPool.alloc();
+    }
+
+    public initialize (shadowsInfo: ShadowsInfo) {
+        ShadowsPool.set(this._handle, ShadowsView.TYPE, shadowsInfo.enabled ? shadowsInfo.type : SHADOW_TYPE_NONE);
+        ShadowsPool.set(this._handle, ShadowsView.NEAR, shadowsInfo.near);
+        ShadowsPool.set(this._handle, ShadowsView.FAR, shadowsInfo.far);
+        ShadowsPool.set(this._handle, ShadowsView.ASPECT, shadowsInfo.aspect);
+        ShadowsPool.set(this._handle, ShadowsView.ORTHO_SIZE, shadowsInfo.orthoSize);
+        this._size = shadowsInfo.shadowMapSize;
+        ShadowsPool.setVec2(this._handle, ShadowsView.SIZE, this._size);
+        ShadowsPool.set(this._handle, ShadowsView.PCF_TYPE, shadowsInfo.pcf);
+        Vec3.copy(this._normal, shadowsInfo.normal);
+        ShadowsPool.setVec3(this._handle, ShadowsView.NORMAL, this._normal);
+        ShadowsPool.set(this._handle, ShadowsView.DISTANCE, shadowsInfo.distance);
+        this._shadowColor.set(shadowsInfo.shadowColor);
+        ShadowsPool.setVec4(this._handle, ShadowsView.COLOR, this._shadowColor);
+        ShadowsPool.set(this._handle, ShadowsView.BIAS, shadowsInfo.bias);
+        ShadowsPool.set(this._handle, ShadowsView.ENABLE, shadowsInfo.enabled ? 1 : 0);
+        this.maxReceived = shadowsInfo.maxReceived;
+        ShadowsPool.set(this._handle, ShadowsView.AUTO_ADAPT, shadowsInfo.autoAdapt ? 1 : 0);
     }
 
     public activate () {

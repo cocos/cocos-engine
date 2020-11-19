@@ -36,6 +36,7 @@ import { Model } from './model';
 import { legacyCC } from '../../global-exports';
 import { DescriptorSet } from '../../gfx';
 import { SkyboxPool, NULL_HANDLE, SkyboxView, SkyboxHandle } from '../core/memory-pools';
+import { SkyboxInfo } from '../../scene-graph/scene-globals';
 
 let skybox_mesh: Mesh | null = null;
 let skybox_material: Material | null = null;
@@ -123,20 +124,29 @@ export class Skybox {
         this._handle = SkyboxPool.alloc();
     }
 
+    public initialize (skyboxInfo: SkyboxInfo) {
+        SkyboxPool.set(this._handle, SkyboxView.ENABLE, skyboxInfo.enabled ? 1 : 0);
+        SkyboxPool.set(this._handle, SkyboxView.USE_IBL, skyboxInfo.useIBL ? 1 : 0);
+        SkyboxPool.set(this._handle, SkyboxView.IS_RGBE, skyboxInfo.isRGBE ? 1 : 0);
+        this._envmap = skyboxInfo.envmap;
+    }
+
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;
         this._globalDescriptorSet = pipeline.descriptorSet;
         this._default = builtinResMgr.get<TextureCube>('default-cube-texture');
 
         if (!this._model) {
-            this._model = new legacyCC.renderer.scene.Model() as Model;
-            // @ts-expect-error skybox don't need local buffers
+            this._model = legacyCC.director.root.createModel(legacyCC.renderer.scene.Model) as Model;
+            // @ts-ignore skybox don't need local buffers
             this._model._initLocalDescriptors = () => {};
         }
 
         SkyboxPool.set(this._handle, SkyboxView.MODEL, this._model.handle);
-
-        pipeline.ambient.groundAlbedo[3] = this._envmap ? this._envmap.mipmapLevel : this._default.mipmapLevel;
+        if (!this._envmap) {
+            this._envmap = this._default;
+        }
+        pipeline.ambient.groundAlbedo[3] = this._envmap.mipmapLevel;
 
         if (!skybox_material) {
             const mat = new Material();
@@ -148,8 +158,6 @@ export class Skybox {
 
         if (!skybox_mesh) { skybox_mesh = createMesh(box({ width: 2, height: 2, length: 2 })); }
         this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
-
-        this.envmap = this._envmap;
         this._updateGlobalBinding();
         this._updatePipeline();
     }

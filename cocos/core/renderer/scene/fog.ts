@@ -27,6 +27,7 @@ import { Enum } from '../../value-types';
 import { Color } from '../../../core/math';
 import { legacyCC } from '../../global-exports';
 import { FogPool, NULL_HANDLE, FogView, FogHandle } from '../core/memory-pools';
+import { FogInfo } from '../../scene-graph/scene-globals';
 
 /**
  * @zh
@@ -71,6 +72,8 @@ export const FogType = Enum({
     LAYERED: 3,
 });
 
+const FOG_TYPE_NONE = FogType.LAYERED + 1;
+
 export class Fog {
     /**
      * @zh 是否启用全局雾效
@@ -78,7 +81,7 @@ export class Fog {
      */
     set enabled (val: boolean) {
         FogPool.set(this._handle, FogView.ENABLE, val ? 1 : 0);
-        FogPool.set(this._handle, FogView.TYPE, val ? this._type + 1 : 0);
+        if (!val) FogPool.set(this._handle, FogView.TYPE, FOG_TYPE_NONE);
         val ? this.activate() : this._updatePipeline();
     }
 
@@ -101,17 +104,22 @@ export class Fog {
     }
 
     /**
-     * @zh 全局雾类型
-     * @en Global fog type
+     * @zh 当前雾化类型。
+     * @en The current global fog type.
+     * @returns {FogType}
+     * Returns the current global fog type
+     * - -1:Disable global Fog
+     * - 0:Linear fog
+     * - 1:Exponential fog
+     * - 2:Exponential square fog
+     * - 3:Layered fog
      */
     get type (): number {
-        return this._type;
+        return FogPool.get(this._handle, FogView.TYPE);
     }
-
     set type (val: number) {
-        this._type = val;
+        FogPool.set(this._handle, FogView.TYPE, this.enabled ? val : FOG_TYPE_NONE);
         if (this.enabled) this._updatePipeline();
-        FogPool.set(this._handle, FogView.TYPE, this.enabled ? this._type + 1 : 0);
     }
 
     /**
@@ -185,26 +193,10 @@ export class Fog {
     set fogRange (val: number) {
         FogPool.set(this._handle, FogView.RANGE, val);
     }
-    /**
-     * @zh 当前雾化类型。
-     * @en The current global fog type.
-     * @returns {FogType}
-     * Returns the current global fog type
-     * - 0:Disable global Fog
-     * - 1:Linear fog
-     * - 2:Exponential fog
-     * - 3:Exponential square fog
-     * - 4:Layered fog
-     */
-    get currType (): number {
-        return FogPool.get(this._handle, FogView.TYPE);
-    }
 
     get colorArray (): Float32Array {
         return this._colorArray;
     }
-
-    protected _type = FogType.LINEAR;
     protected _fogColor = new Color('#C8C8C8');
     protected _colorArray: Float32Array = new Float32Array([0.2, 0.2, 0.2, 1.0]);
     protected _handle: FogHandle = NULL_HANDLE;
@@ -217,16 +209,27 @@ export class Fog {
         this._handle = FogPool.alloc();
     }
 
-    public activate () {
+    public initialize (fogInfo : FogInfo) {
+        FogPool.set(this._handle, FogView.ENABLE, fogInfo.enabled ? 1 : 0);
+        FogPool.set(this._handle, FogView.TYPE, fogInfo.enabled ? fogInfo.type : FOG_TYPE_NONE);
+        this._fogColor.set(fogInfo.fogColor);
         Color.toArray(this._colorArray, this._fogColor);
         FogPool.setVec4(this._handle, FogView.COLOR, this._fogColor);
-        FogPool.set(this._handle, FogView.TYPE, this.enabled ? this._type + 1 : 0);
+        FogPool.set(this._handle, FogView.DENSITY, fogInfo.fogDensity);
+        FogPool.set(this._handle, FogView.START, fogInfo.fogStart);
+        FogPool.set(this._handle, FogView.END, fogInfo.fogEnd);
+        FogPool.set(this._handle, FogView.ATTEN, fogInfo.fogAtten);
+        FogPool.set(this._handle, FogView.TOP, fogInfo.fogTop);
+        FogPool.set(this._handle, FogView.RANGE, fogInfo.fogRange);
+    }
+
+    public activate () {
         this._updatePipeline();
     }
 
     protected _updatePipeline () {
         const root = legacyCC.director.root
-        const value = this.currType;
+        const value = this.enabled ? this.type : FOG_TYPE_NONE;
         const pipeline = root.pipeline;
         if (pipeline.macros.CC_USE_FOG === value) { return; }
         pipeline.macros.CC_USE_FOG = value;
