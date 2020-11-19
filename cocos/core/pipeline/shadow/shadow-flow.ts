@@ -110,6 +110,30 @@ export class ShadowFlow extends RenderFlow {
         }
     }
 
+    public destroy () {
+        super.destroy();
+        let shadowFrameBuffers = Array.from((this._pipeline as ForwardPipeline).shadowFrameBufferMap.values());
+        for (let i = 0; i < shadowFrameBuffers.length; i++) {
+            const frameBuffer = shadowFrameBuffers[i];
+
+            if (!frameBuffer) { continue; }
+            const renderTargets = frameBuffer.colorTextures;
+            for (let j = 0; j < renderTargets.length; j++) {
+                const renderTarget = renderTargets[i];
+                if (renderTarget) { renderTarget.destroy() };
+            }
+            renderTargets.length = 0;
+
+            const depth = frameBuffer.depthStencilTexture;
+            if (depth) { depth.destroy(); }
+
+            frameBuffer.destroy();
+        }
+
+        (this._pipeline as ForwardPipeline).shadowFrameBufferMap.clear();
+
+        if(this._shadowRenderPass) { this._shadowRenderPass.destroy() };
+    }
 
     public _initShadowFrameBuffer  (pipeline: ForwardPipeline, light: Light) {
         const device = pipeline.device;

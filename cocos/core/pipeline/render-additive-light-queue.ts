@@ -190,6 +190,19 @@ export class RenderAdditiveLightQueue {
         this._lightPasses.length = 0;
     }
 
+    public destroy () {
+        let descriptorSets = Array.from(this._descriptorSetMap.values());
+        for (let i = 0; i < descriptorSets.length; ++i) {
+            const descriptorSet = descriptorSets[i];
+            if (descriptorSet) {
+                descriptorSet.getBuffer(UBOGlobal.BINDING).destroy();
+                descriptorSet.getBuffer(UBOShadow.BINDING).destroy();
+                descriptorSet.destroy();
+            }
+        }
+        this._descriptorSetMap.clear();
+    }
+
     public gatherLightPasses (view: RenderView, cmdBuff: CommandBuffer) {
         const validLights = this._validLights;
         const { sphereLights } = view.camera.scene!;
