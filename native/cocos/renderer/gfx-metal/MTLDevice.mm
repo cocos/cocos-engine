@@ -61,7 +61,7 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     const auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
     _indirectDrawSupported = mu::isIndirectDrawSupported(gpuFamily);
     _maxVertexAttributes = mu::getMaxVertexAttributes(gpuFamily);
-    _maxTextureUnits = mu::getMaxEntriesInTextureArgumentTable(gpuFamily);
+    _maxTextureUnits = _maxVertexTextureUnits = mu::getMaxEntriesInTextureArgumentTable(gpuFamily);
     _maxSamplerUnits = mu::getMaxEntriesInSamplerStateArgumentTable(gpuFamily);
     _maxTextureSize = mu::getMaxTexture2DWidthHeight(gpuFamily);
     _maxCubeMapTextureSize = mu::getMaxCubeMapTextureWidthHeight(gpuFamily);
