@@ -423,7 +423,7 @@ async function _doBuild ({
             const visualizeFile = visualizeOptions.file ?? ps.join(options.out, 'visualize.html');
             rollupPlugins.push(rpVisualizer({
                 filename: visualizeFile,
-                title: 'Cocos Creator 3D build visualizer',
+                title: 'Cocos Creator build visualizer',
                 template: 'treemap',
             }));
         }
