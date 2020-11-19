@@ -26,6 +26,7 @@ set(INCLUDE_FILES
   ${GFX_EXTERNAL_PATH}/nedmalloc
   ${GFX_EXTERNAL_PATH}/tommyds
   ${GFX_EXTERNAL_PATH}/boost
+  ${GFX_EXTERNAL_PATH}/concurrentqueue
   ${COCOS_SRC_PATH}/renderer/core
 )
 

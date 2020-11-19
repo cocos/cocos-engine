@@ -7,6 +7,7 @@ message(STATUS "Target: ${TARGET_NAME}...")
 set(INCLUDE_FILES
   ${GFX_EXTERNAL_PATH}/khronos
   ${GFX_EXTERNAL_PATH}/boost
+  ${GFX_EXTERNAL_PATH}/concurrentqueue
   ${COCOS_EXTERNAL_PATH}/win32/include/glslang
   ${COCOS_SRC_PATH}/renderer/core
   ${COCOS_SRC_PATH}/renderer/gfx-vulkan

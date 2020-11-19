@@ -5,9 +5,10 @@ message(STATUS "Target: ${TARGET_NAME}...")
 # ---------------------------------------------------------------------
 # set include files
 
-set(INCLUDE_FILES 
+set(INCLUDE_FILES
     ${GFX_EXTERNAL_PATH}/khronos
     ${GFX_EXTERNAL_PATH}/boost
+    ${GFX_EXTERNAL_PATH}/concurrentqueue
     ${COCOS_SRC_PATH}/base
     ${COCOS_SRC_PATH}/renderer/core
     ${COCOS_SRC_PATH}/renderer/gfx-metal
@@ -50,7 +51,3 @@ set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME_DEBUG CCGFXMetal_d)
 use_precompiled_header("${CMAKE_CURRENT_SOURCE_DIR}/MTLStd.h" "${CMAKE_CURRENT_SOURCE_DIR}/MTLStd.cpp" ${SOURCE_CPP_FILES} ${SOURCE_OBJC_FILES} ${SOURCE_C_FILES})
 
 message(STATUS "${TARGET_NAME} configuration completed.")
-
-target_compile_definitions(${TARGET_NAME} PUBLIC
-    $<$<CONFIG:Debug>:CC_DEBUG=1>
-)

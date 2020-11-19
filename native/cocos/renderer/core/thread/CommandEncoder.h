@@ -151,8 +151,8 @@ private:
 
     WriterContext                           mW;
     ReaderContext                           mR;
-    EventSem                                mN;
-    bool                                    mImmediateMode      { true };
+    EventCV                                 mN;
+    bool                                    mImmediateMode      { false };
     bool                                    mWorkerAttached     { false };
     bool                                    mFreeChunksByUser   { false };   // 被回收的Chunk会被记录到一个队列里 由用户在生产者线程选择合适的时机来Free
 
@@ -179,7 +179,7 @@ public:
 
 private:
 
-    CommandEncoder*                          mCommandBuffer              {nullptr };
+    CommandEncoder*                         mCommandBuffer              { nullptr };
     uint8_t*                                mNewChunk                   { nullptr };
     uint8_t*                                mOldChunk                   { nullptr };
 };

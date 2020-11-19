@@ -81,8 +81,8 @@ void CommandEncoder::Kick() noexcept
 
 void CommandEncoder::KickAndWait() noexcept
 {
-    EventCV event;
-    EventCV *const pEvent = &event;
+    EventSem event;
+    EventSem *const pEvent = &event;
 
     ENCODE_COMMAND_1(
         this, WaitUntilFinish,

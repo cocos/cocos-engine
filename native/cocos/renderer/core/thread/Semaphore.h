@@ -1,35 +1,21 @@
 #pragma once
 
 #include <cassert>
-#ifdef _WINDOWS
-#include <windows.h>
-using NativeSemaphoreType = HANDLE;
-#elif defined(__APPLE__)
-#include <dispatch/dispatch.h>
-using NativeSemaphoreType = dispatch_semaphore_t;
-#else // Android
-#include <semaphore.h>
-using NativeSemaphoreType = sem_t;
-#endif
-
-namespace cc {
-namespace gfx {
+#include "concurrentqueue.h"
+#include "lightweightsemaphore.h"
 
 class Semaphore final
 {
 public:
 
-    Semaphore() noexcept;
-    ~Semaphore();
+                                    Semaphore() noexcept;
+    explicit                        Semaphore(uint32_t const initialCount) noexcept;
 
-    void                Wait() noexcept;
-    void                Signal() noexcept;
-    void                SignalAll() noexcept { assert(false); }
+    void                            Wait() noexcept;
+    void                            Signal() noexcept;
+    void                            SignalAll() noexcept { assert(false); }
 
 private:
 
-    NativeSemaphoreType mSemaphore;
+    moodycamel::details::Semaphore  mSemaphore;
 };
-
-} // namespace gfx
-} // namespace cc
