@@ -2,7 +2,7 @@ import { Vec3 } from '../../core/math';
 import { ray } from '../../core/geometry';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { CollisionEventType, PhysicMaterial, PhysicsRayResult, TriggerEventType } from '../framework';
-import { Node, RecyclePool } from '../../core';
+import { director, Node, RecyclePool } from '../../core';
 import { IVec3Like } from '../../core/math/type-define';
 import { IBaseConstraint } from '../spec/i-physics-constraint';
 import { PhysXSharedBody } from './physx-shared-body';
@@ -118,15 +118,17 @@ const queryCallback = {
 
 const persistShapes: string[] = [];
 
+// interface IEventQueue {
+// }
+
 export class PhysXWorld implements IPhysicsWorld {
     setAllowSleep (v: boolean) { }
     setDefaultMaterial (v: PhysicMaterial) { }
     setGravity (gravity: IVec3Like) {
         this.scene['setGravity'](gravity);
     }
-    get impl () {
-        return null;
-    }
+
+    get impl () { return this.scene; }
 
     readonly physics: PhysX.Physics;
     readonly scene: PhysX.Scene;
@@ -155,18 +157,16 @@ export class PhysXWorld implements IPhysicsWorld {
 
                     const events = cp.getPairFlags();
                     const shapes = cp.getShapes();
+                    const a = shapes[0] as any;
+                    const b = shapes[1] as any;
+                    const shapeA = PX.IMPL_PTR[a.getQueryFilterData().word2] as PhysXShape;
+                    const shapeB = PX.IMPL_PTR[b.getQueryFilterData().word2] as PhysXShape;
                     if (events & 4) {
-                        var a = shapes[0] as any as PhysXShape;
-                        var b = shapes[1] as any as PhysXShape;
-                        onCollision('onCollisionEnter', a, b);
+                        onCollision('onCollisionEnter', shapeA, shapeB);
                     } else if (events & 8) {
-                        var a = shapes[0] as any as PhysXShape;
-                        var b = shapes[1] as any as PhysXShape;
-                        onCollision('onCollisionStay', a, b);
+                        onCollision('onCollisionStay', shapeA, shapeB);
                     } else if (events & 16) {
-                        var a = shapes[0] as any as PhysXShape;
-                        var b = shapes[1] as any as PhysXShape;
-                        onCollision('onCollisionExit', a, b);
+                        onCollision('onCollisionExit', shapeA, shapeB);
                     }
                 }
             });
@@ -176,14 +176,17 @@ export class PhysXWorld implements IPhysicsWorld {
                     if (cp.getFlags() & (1 | 2)) continue;
 
                     const events = cp.getStatus();
-                    var a = cp.getTriggerShape() as any as PhysXShape;
-                    var b = cp.getOtherShape() as any as PhysXShape;
+                    const a = cp.getTriggerShape() as any;
+                    const b = cp.getOtherShape() as any;
+                    const shapeA = PX.IMPL_PTR[a.getQueryFilterData().word2] as PhysXShape;
+                    const shapeB = PX.IMPL_PTR[b.getQueryFilterData().word2] as PhysXShape;
+
                     if (events & 4) {
-                        onTrigger('onTriggerEnter', a, b);
+                        onTrigger('onTriggerEnter', shapeA, shapeB);
                     } else if (events & 8) {
-                        onTrigger('onTriggerStay', a, b);
+                        onTrigger('onTriggerStay', shapeA, shapeB);
                     } else if (events & 16) {
-                        onTrigger('onTriggerExit', a, b);
+                        onTrigger('onTriggerExit', shapeA, shapeB);
                     }
                 }
             });

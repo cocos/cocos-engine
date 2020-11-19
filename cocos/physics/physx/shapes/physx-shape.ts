@@ -53,7 +53,13 @@ export class PhysXShape implements IBaseShape {
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as PhysXWorld).getSharedBody(v.node);
         this._sharedBody.reference = true;
         this.onComponentSet();
-        if (!USE_BYTEDANCE && this._impl) PX.IMPL_PTR[this._impl.$$.ptr] = this;
+        if (this._impl) {
+            if (USE_BYTEDANCE) {
+                PX.IMPL_PTR[this.id] = this
+            } else {
+                PX.IMPL_PTR[this._impl.$$.ptr] = this
+            }
+        }
     }
 
     // virtual
@@ -78,7 +84,11 @@ export class PhysXShape implements IBaseShape {
 
     onDestroy (): void {
         this._sharedBody.reference = false;
-        if (!USE_BYTEDANCE) {
+        if (USE_BYTEDANCE) {
+            PX.IMPL_PTR[this.id] = null;
+            delete PX.IMPL_PTR[this.id];
+            // this._impl.release();
+        } else {
             PX.IMPL_PTR[this._impl.$$.ptr] = null;
             delete PX.IMPL_PTR[this._impl.$$.ptr];
             this._impl.release();

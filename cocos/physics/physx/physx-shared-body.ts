@@ -141,12 +141,18 @@ export class PhysXSharedBody {
             this._isStatic = true;
             this._impl = this.wrappedWorld.physics.createRigidStatic(t as any);
         }
-        if (!USE_BYTEDANCE && this._impl) PX.IMPL_PTR[this._impl.$$.ptr] = this;
+        if (this._impl) {
+            if (USE_BYTEDANCE) {
+            } else {
+                PX.IMPL_PTR[this._impl.$$.ptr] = this
+            }
+        }
     }
 
     addShape (ws: PhysXShape) {
         const index = this.wrappedShapes.indexOf(ws);
-        if (index < 0) {            
+        if (index < 0) {
+            this._filterData.word2 = ws.id;
             ws.impl.setQueryFilterData(this._filterData);
             ws.impl.setSimulationFilterData(this._filterData);
             this.impl.attachShape(ws.impl);
@@ -253,16 +259,21 @@ export class PhysXSharedBody {
 
     updateFiltering () {
         for (let i = 0; i < this.wrappedShapes.length; i++) {
+            this._filterData.word2 = this.wrappedShapes[i].id;
             this.wrappedShapes[i].impl.setQueryFilterData(this._filterData);
             this.wrappedShapes[i].impl.setSimulationFilterData(this._filterData);
         }
     }
 
     destroy () {
-        if (!USE_BYTEDANCE) {
-            PX.IMPL_PTR[this._impl.$$.ptr] = null;
-            delete PX.IMPL_PTR[this._impl.$$.ptr];
-            this._impl.release();
+        if (this._impl) {
+            if (USE_BYTEDANCE) {
+                // this._impl.release();
+            } else {
+                PX.IMPL_PTR[this._impl.$$.ptr] = null;
+                delete PX.IMPL_PTR[this._impl.$$.ptr];
+                this._impl.release();
+            }
         }
         PhysXSharedBody.sharedBodesMap.delete(this.node.uuid);
     }
