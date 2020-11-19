@@ -39,6 +39,7 @@ import { Pool } from '../../memop';
 import { IRenderObject, UBOShadow } from '../define';
 import { ShadowType, Shadows } from '../../renderer/scene/shadows';
 import { SphereLight, DirectionalLight, Light } from '../../renderer/scene';
+import { RenderPipeline } from '..';
 
 const _tempVec3 = new Vec3();
 const _dir_negate = new Vec3();
@@ -166,7 +167,7 @@ export function lightCollecting (view: RenderView, lightNumber: number) {
     return _validLights;
 }
 
-export function shadowCollecting (pipeline: DeferredPipeline, view: RenderView) {
+export function shadowCollecting (pipeline: RenderPipeline, view: RenderView) {
     const camera = view.camera;
     const scene = camera.scene!;
     const shadows = pipeline.shadows;

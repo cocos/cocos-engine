@@ -34,8 +34,12 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 import { MacroRecord } from '../renderer/core/pass-utils';
-import { Device, DescriptorSet, CommandBuffer, DescriptorSetLayout, DescriptorSetLayoutInfo, DescriptorSetInfo } from '../gfx';
-import { globalDescriptorSetLayout } from './define';
+import { Device, DescriptorSet, CommandBuffer, DescriptorSetLayout, DescriptorSetLayoutInfo, DescriptorSetInfo, 
+    Framebuffer } from '../gfx';
+import { globalDescriptorSetLayout, IRenderObject } from './define';
+import { Shadows, ShadowType } from '../renderer/scene/shadows';
+import { Light } from '../renderer/scene/light';
+
 
 /**
  * @en Render pipeline information descriptor
@@ -125,6 +129,10 @@ export abstract class RenderPipeline extends Asset {
     protected _descriptorSetLayout!: DescriptorSetLayout;
     protected _descriptorSet!: DescriptorSet;
     protected _commandBuffers: CommandBuffer[] = [];
+
+    public shadowFrameBufferMap: Map<Light, Framebuffer> = new Map();
+    public shadows: Shadows = new Shadows();
+    public shadowObjects: IRenderObject[] = [];
 
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.

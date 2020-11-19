@@ -50,6 +50,12 @@ CCEffect %{
       blendState:
         targets:
         - blend: false
+    - vert: shadow-caster-vs:vert
+      frag: shadow-caster-fs:frag
+      phase: shadow-caster
+      propertyIndex: 0
+      rasterizerState:
+        cullMode: front
   - name: deferrd-transparent
     passes:
     - vert: standard-vs:vert
@@ -67,6 +73,12 @@ CCEffect %{
           blendDstAlpha: one_minus_src_alpha
       properties: *props
       migrations: *migs
+    - vert: shadow-caster-vs:vert
+      frag: shadow-caster-fs:frag
+      phase: shadow-caster
+      propertyIndex: 0
+      rasterizerState:
+        cullMode: front
 }%
 
 CCProgram shared-ubos %{
@@ -146,7 +158,6 @@ CCProgram gbuffer-vs %{
     CCPassShadowParams(pos);
 
     gl_Position = cc_matProj * (cc_matView * matWorld) * In.position;
-   // gl_Position.y = - gl_Position.y;
   }
 }%
 
@@ -399,7 +410,6 @@ CCProgram standard-vs %{
     CCPassShadowParams(pos);
 
     vec4 temp_position = cc_matProj * (cc_matView * matWorld) * In.position;
-  //  temp_position.y = - temp_position.y;
 
     return temp_position;
   }
@@ -516,5 +526,75 @@ CCProgram standard-fs %{
     vec4 color = CCStandardShading(s);
     color = CC_APPLY_FOG(color, v_fog_factor);
     return CCFragOutput(color);
+  }
+}%
+
+CCProgram shadow-caster-vs %{
+  precision highp float;
+  #include <input-standard>
+  #include <cc-local-batch>
+  #include <shared-ubos>
+  #include <cc-shadow>
+
+  #if HAS_SECOND_UV || USE_LIGHTMAP
+    in vec2 a_texCoord1;
+  #endif
+
+  out vec2 v_uv;
+  out vec2 v_uv1;
+
+  out float v_clip_depth;
+
+  vec4 vert () {
+    StandardVertInput In;
+    CCVertInput(In);
+
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+
+    vec4 worldPos = matWorld * In.position;
+    vec4 clipPos = cc_matLightViewProj * worldPos;
+
+    v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
+    #if HAS_SECOND_UV
+      v_uv1 = a_texCoord1 * tilingOffset.xy + tilingOffset.zw;
+    #endif
+
+    v_clip_depth = clipPos.z / clipPos.w * 0.5 + 0.5;
+
+    return clipPos;
+  }
+}%
+
+CCProgram shadow-caster-fs %{
+  precision highp float;
+  #include <shared-ubos>
+  #include <packing>
+
+  in vec2 v_uv;
+  in vec2 v_uv1;
+  in float v_clip_depth;
+
+  #if USE_ALBEDO_MAP
+    uniform sampler2D albedoMap;
+    #pragma define ALBEDO_UV options([v_uv, v_uv1])
+  #endif
+
+  #if USE_ALPHA_TEST
+    #pragma define ALPHA_TEST_CHANNEL options([a, r])
+  #endif
+
+  vec4 frag () {
+    vec4 color = albedo;
+
+    #if USE_ALBEDO_MAP
+      color *= texture(albedoMap, ALBEDO_UV);
+    #endif
+
+    #if USE_ALPHA_TEST
+      if (color.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
+    #endif
+
+    return packDepthToRGBA(v_clip_depth);
   }
 }%

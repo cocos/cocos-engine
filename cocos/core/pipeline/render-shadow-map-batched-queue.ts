@@ -182,6 +182,7 @@ export class RenderShadowMapBatchedQueue {
             const subModel = this._subModelsArray[i];
             const shader = this._shaderArray[i];
             const pass = this._passArray[i];
+            pass.tryCompile();
             const ia = subModel.inputAssembler!;
             const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, ia);
             const descriptorSet = pass.descriptorSet;

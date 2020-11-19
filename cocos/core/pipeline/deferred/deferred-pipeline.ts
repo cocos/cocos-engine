@@ -49,7 +49,6 @@ export class DeferredPipeline extends RenderPipeline {
      * @readonly
      */
     public renderObjects: IRenderObject[] = [];
-    public shadowObjects: IRenderObject[] = [];
     protected _isHDR: boolean = false;
     protected _shadingScale: number = 1.0;
     protected _fpScale: number = 1.0 / 1024.0;
@@ -64,7 +63,6 @@ export class DeferredPipeline extends RenderPipeline {
     public fog: Fog = new Fog();
     public ambient: Ambient = new Ambient();
     public skybox: Skybox = new Skybox();
-    public shadows: Shadows = new Shadows();
 
     @type([RenderTextureConfig])
     @serializable

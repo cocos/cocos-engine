@@ -10,8 +10,8 @@ layout(set = 0, binding = 2) uniform sampler2D cc_shadowMap;
 #pragma builtin(local)
 layout(set = 2, binding = 11) uniform sampler2D cc_spotLightingMap;
 
-float CCGetShadowFactorX1 () {
-  vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
+float CCGetShadowFactorX1 (vec4 shadowPos) {
+  vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
   if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
 	    clipPos.y < 0.0 || clipPos.y > 1.0 ||
 		  clipPos.z <-1.0 || clipPos.z > 1.0) { return 0.0; }
@@ -22,8 +22,8 @@ float CCGetShadowFactorX1 () {
   return shadow;
 }
 
-float CCGetShadowFactorX5 () {
-  vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
+float CCGetShadowFactorX5 (vec4 shadowPos) {
+  vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
   if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
 	    clipPos.y < 0.0 || clipPos.y > 1.0 ||
 		  clipPos.z <-1.0 || clipPos.z > 1.0) { return 0.0; }
@@ -46,8 +46,8 @@ float CCGetShadowFactorX5 () {
   return shadow / 5.0;
 }
 
-float CCGetShadowFactorX9 () {
-  vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
+float CCGetShadowFactorX9 (vec4 shadowPos) {
+  vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
   if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
 	    clipPos.y < 0.0 || clipPos.y > 1.0 ||
 		  clipPos.z <-1.0 || clipPos.z > 1.0) { return 0.0; }
@@ -65,8 +65,8 @@ float CCGetShadowFactorX9 () {
   return shadow / 9.0;
 }
 
-float CCGetShadowFactorX25 () {
-  vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
+float CCGetShadowFactorX25 (vec4 shadowPos) {
+  vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
   if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
 	    clipPos.y < 0.0 || clipPos.y > 1.0 ||
 		  clipPos.z <-1.0 || clipPos.z > 1.0) { return 0.0; }
@@ -84,8 +84,8 @@ float CCGetShadowFactorX25 () {
   return shadow / 25.0;
 }
 
-float CCGetDirLightShadowFactorX1 () {
-  vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
+float CCGetDirLightShadowFactorX1 (vec4 shadowPos) {
+  vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
   if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
 	    clipPos.y < 0.0 || clipPos.y > 1.0 ||
 		  clipPos.z <-1.0 || clipPos.z > 1.0) { return 0.0; }
@@ -96,8 +96,8 @@ float CCGetDirLightShadowFactorX1 () {
   return shadow;
 }
 
-float CCGetDirLightShadowFactorX5 () {
-  vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
+float CCGetDirLightShadowFactorX5 (vec4 shadowPos) {
+  vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
   if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
 	    clipPos.y < 0.0 || clipPos.y > 1.0 ||
 		  clipPos.z <-1.0 || clipPos.z > 1.0) { return 0.0; }
@@ -119,8 +119,8 @@ float CCGetDirLightShadowFactorX5 () {
   return shadow / 5.0;
 }
 
-float CCGetDirLightShadowFactorX9 () {
-  vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
+float CCGetDirLightShadowFactorX9 (vec4 shadowPos) {
+  vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
   if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
 	    clipPos.y < 0.0 || clipPos.y > 1.0 ||
 		  clipPos.z <-1.0 || clipPos.z > 1.0) { return 0.0; }
@@ -138,8 +138,8 @@ float CCGetDirLightShadowFactorX9 () {
   return shadow / 9.0;
 }
 
-float CCGetDirLightShadowFactorX25 () {
-  vec3 clipPos = v_shadowPos.xyz / v_shadowPos.w * 0.5 + 0.5;
+float CCGetDirLightShadowFactorX25 (vec4 shadowPos) {
+  vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
   if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
 	    clipPos.y < 0.0 || clipPos.y > 1.0 ||
 		  clipPos.z <-1.0 || clipPos.z > 1.0) { return 0.0; }
@@ -161,10 +161,10 @@ float CCGetDirLightShadowFactorX25 () {
   {                                                                                                                       \
     float pcf = cc_shadowInfo.z + 0.001;                                                                                  \
     float shadowAttenuation = 0.0;                                                                                        \
-    if (pcf > 3.0) shadowAttenuation = CCGetDirLightShadowFactorX25();                                                    \
-    else if (3.0 > pcf && pcf > 2.0) shadowAttenuation = CCGetDirLightShadowFactorX9();                                   \
-    else if (2.0 > pcf && pcf > 1.0) shadowAttenuation = CCGetDirLightShadowFactorX5();                                   \
-    else shadowAttenuation = CCGetDirLightShadowFactorX1();                                                               \
+    if (pcf > 3.0) shadowAttenuation = CCGetDirLightShadowFactorX25(v_shadowPos);                                                    \
+    else if (3.0 > pcf && pcf > 2.0) shadowAttenuation = CCGetDirLightShadowFactorX9(v_shadowPos);                                   \
+    else if (2.0 > pcf && pcf > 1.0) shadowAttenuation = CCGetDirLightShadowFactorX5(v_shadowPos);                                   \
+    else shadowAttenuation = CCGetDirLightShadowFactorX1(v_shadowPos);                                                               \
     finalColor *= 1.0 - shadowAttenuation;                                                                                \
   }                                                                                                                       \
 #pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
@@ -173,10 +173,10 @@ float CCGetDirLightShadowFactorX25 () {
   {                                                                                                                       \
     float pcf = cc_shadowInfo.z + 0.001;                                                                                  \
     float shadowAttenuation = 0.0;                                                                                        \
-    if (pcf > 3.0) shadowAttenuation = CCGetShadowFactorX25();                                                            \
-    else if (3.0 > pcf && pcf > 2.0) shadowAttenuation = CCGetShadowFactorX9();                                           \
-    else if (2.0 > pcf && pcf > 1.0) shadowAttenuation = CCGetShadowFactorX5();                                           \
-    else shadowAttenuation = CCGetShadowFactorX1();                                                                       \
+    if (pcf > 3.0) shadowAttenuation = CCGetShadowFactorX25(v_shadowPos);                                                            \
+    else if (3.0 > pcf && pcf > 2.0) shadowAttenuation = CCGetShadowFactorX9(v_shadowPos);                                           \
+    else if (2.0 > pcf && pcf > 1.0) shadowAttenuation = CCGetShadowFactorX5(v_shadowPos);                                           \
+    else shadowAttenuation = CCGetShadowFactorX1(v_shadowPos);                                                                       \
     vec3 shadowColor = cc_shadowColor.rgb * cc_shadowColor.a + finalColor.rgb * (1.0 - cc_shadowColor.a);                 \
     finalColor.rgb = shadowColor.rgb * shadowAttenuation * atten + finalColor.rgb * (1.0 - shadowAttenuation * atten);    \
   }                                                                                                                       \

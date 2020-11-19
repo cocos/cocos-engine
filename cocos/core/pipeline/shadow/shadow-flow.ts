@@ -37,7 +37,7 @@ import { RenderPass, LoadOp, StoreOp,
     TextureLayout, Format, Texture, TextureType, TextureUsageBit, Filter, Address,
     ColorAttachment, DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
-import { ForwardPipeline } from '../forward/forward-pipeline';
+import { RenderPipeline } from '..';
 import { RenderView } from '../render-view';
 import { ShadowType } from '../../renderer/scene/shadows';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
@@ -86,7 +86,7 @@ export class ShadowFlow extends RenderFlow {
     }
 
     public render (view: RenderView) {
-        const pipeline = this._pipeline as ForwardPipeline;
+        const pipeline = this._pipeline as RenderPipeline;
         const shadowInfo = pipeline.shadows;
         if (shadowInfo.type !== ShadowType.ShadowMap) { return; }
 
@@ -111,7 +111,7 @@ export class ShadowFlow extends RenderFlow {
     }
 
 
-    public _initShadowFrameBuffer  (pipeline: ForwardPipeline, light: Light) {
+    public _initShadowFrameBuffer  (pipeline: RenderPipeline, light: Light) {
         const device = pipeline.device;
         const shadowMapSize = pipeline.shadows.size;
 
@@ -176,7 +176,7 @@ export class ShadowFlow extends RenderFlow {
     private resizeShadowMap (light: Light, size: Vec2) {
         const width = size.x;
         const height = size.y;
-        const pipeline = this._pipeline as ForwardPipeline;
+        const pipeline = this._pipeline as RenderPipeline;
 
         if (pipeline.shadowFrameBufferMap.has(light)) {
             const frameBuffer = pipeline.shadowFrameBufferMap.get(light);
