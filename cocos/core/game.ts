@@ -227,10 +227,10 @@ export class Game extends EventTarget {
     /**
      * @en Event triggered after engine inited, at this point you will be able to use all engine classes.<br>
      * It was defined as EVENT_RENDERER_INITED in cocos creator v1.x and renamed in v2.0.
-     * In cocos creator 3d, EVENT_RENDERER_INITED is a new event, look up define for details.
+     * Since Cocos Creator v3.0, EVENT_RENDERER_INITED is a new event, look up define for details.
      * @zh 在引擎初始化之后触发的事件，此时您能够使用引擎所有的类。<br>
-     * 它在 cocos creator v1.x 版本中名字为 EVENT_RENDERER_INITED ,在 v2.0 版本中更名为 EVENT_ENGINE_INITED
-     * 并在 cocos creator 3d 版本中将 EVENT_RENDERER_INITED 用作为渲染器初始化的事件。
+     * 它在 Cocos Creator v1.x 版本中名字为 EVENT_RENDERER_INITED，在 v2.0 更名为 EVENT_ENGINE_INITED
+     * 并在 Cocos Creator v3.0 中将 EVENT_RENDERER_INITED 用作为渲染器初始化的事件。
      */
     public static EVENT_ENGINE_INITED = 'engine_inited';
 
@@ -633,7 +633,7 @@ export class Game extends EventTarget {
         this._initDevice();
         return Promise.resolve(legacyCC.director._init()).then(() => {
             // Log engine version
-            debug.log(`Cocos Creator 3D v${VERSION}`);
+            debug.log(`Cocos Creator v${VERSION}`);
             this.emit(Game.EVENT_ENGINE_INITED);
             this._inited = true;
         });
