@@ -42,7 +42,7 @@ import { BatchingSchemes } from './pass';
 import {
     Vec2, Vec3, Quat, Color, Rect, Mat4, IVec2Like, IVec3Like, IVec4Like, IMat4Like,
 } from '../../math';
-import { plane } from '../../geometry';
+import { Plane } from '../../geometry';
 
 interface IMemoryPool<P extends PoolType> {
     free (handle: IHandle<P>): void;
@@ -995,7 +995,7 @@ export enum FrustumView {
 }
 interface IFrustumViewType extends BufferTypeManifest<typeof FrustumView> {
     [FrustumView.VERTICES]: Vec3;
-    [FrustumView.PLANES]: plane;
+    [FrustumView.PLANES]: Plane;
     [FrustumView.COUNT]: never;
 }
 const frustumViewDataType: BufferDataTypeManifest<typeof FrustumView> = {

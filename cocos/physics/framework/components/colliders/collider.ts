@@ -38,7 +38,7 @@ import { PhysicsSystem } from '../../physics-system';
 import { Component, error, Node } from '../../../../core';
 import { IBaseShape } from '../../../spec/i-physics-shape';
 import { EDITOR } from 'internal:constants';
-import { aabb, sphere } from '../../../../core/geometry';
+import { AABB, Sphere } from '../../../../core/geometry';
 import { EColliderType, EAxisDirection } from '../../physics-enum';
 import { createShape } from '../../instance';
 
@@ -191,14 +191,14 @@ export class Collider extends Eventify(Component) {
         return this._shape;
     }
 
-    public get worldBounds (): Readonly<aabb> {
-        if (this._aabb == null) this._aabb = new aabb();
+    public get worldBounds (): Readonly<AABB> {
+        if (this._aabb == null) this._aabb = new AABB();
         if (this._shape) this._shape.getAABB(this._aabb);
         return this._aabb;
     }
 
-    public get boundingSphere (): Readonly<sphere> {
-        if (this._boundingSphere == null) this._boundingSphere = new sphere();
+    public get boundingSphere (): Readonly<Sphere> {
+        if (this._boundingSphere == null) this._boundingSphere = new Sphere();
         if (this._shape) this._shape.getBoundingSphere(this._boundingSphere);
         return this._boundingSphere;
     }
@@ -216,8 +216,8 @@ export class Collider extends Eventify(Component) {
     /// PROTECTED PROPERTY ///
 
     protected _shape: IBaseShape | null = null;
-    protected _aabb: aabb | null = null;
-    protected _boundingSphere: sphere | null = null;
+    protected _aabb: AABB | null = null;
+    protected _boundingSphere: Sphere | null = null;
     protected _isSharedMaterial: boolean = true;
     protected _needTriggerEvent: boolean = false;
     protected _needCollisionEvent: boolean = false;

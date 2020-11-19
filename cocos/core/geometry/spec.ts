@@ -104,9 +104,9 @@ export interface IRaySubMeshResult {
 
 /**
  * @en
- * The optional param structure of the `ray_subMesh`.
+ * The optional param structure of the `raySubMesh`.
  * @zh
- * `ray_subMesh`的可选参数结构。
+ * `raySubMesh`的可选参数结构。
  */
 export interface IRaySubMeshOptions {
 
@@ -145,9 +145,9 @@ export interface IRaySubMeshOptions {
 
 /**
  * @en
- * The optional param structure of the `ray_mesh`.
+ * The optional param structure of the `rayMesh`.
  * @zh
- * `ray_mesh`的可选参数结构。
+ * `rayMesh`的可选参数结构。
  */
 export interface IRayMeshOptions extends IRaySubMeshOptions {
 
@@ -162,9 +162,9 @@ export interface IRayMeshOptions extends IRaySubMeshOptions {
 
 /**
  * @en
- * The optional param structure of the `ray_model`.
+ * The optional param structure of the `rayModel`.
  * @zh
- * `ray_model`的可选参数结构。
+ * `rayModel`的可选参数结构。
  */
 export interface IRayModelOptions extends IRayMeshOptions {
 }

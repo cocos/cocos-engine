@@ -33,7 +33,7 @@ import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { BuiltinSharedBody } from './builtin-shared-body';
 import { BuiltinShape } from './shapes/builtin-shape';
 import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
-import { ray, intersect } from '../../core/geometry';
+import { Ray, intersect } from '../../core/geometry';
 import { RecyclePool, Node } from '../../core';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { IVec3Like } from '../../core/math/type-define';
@@ -100,7 +100,7 @@ export class BuiltInWorld implements IPhysicsWorld {
         this.emitTriggerEvent();
     }
 
-    raycastClosest (worldRay: ray, options: IRaycastOptions, out: PhysicsRayResult): boolean {
+    raycastClosest (worldRay: Ray, options: IRaycastOptions, out: PhysicsRayResult): boolean {
         let tmp_d = Infinity;
         const max_d = options.maxDistance!;
         const mask = options.mask!;
@@ -125,7 +125,7 @@ export class BuiltInWorld implements IPhysicsWorld {
         return !(tmp_d == Infinity);
     }
 
-    raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         const max_d = options.maxDistance!;
         const mask = options.mask!;
         for (let i = 0; i < this.bodies.length; i++) {

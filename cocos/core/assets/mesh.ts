@@ -32,7 +32,7 @@ import { ccclass, serializable } from 'cc.decorator';
 import { Asset } from './asset';
 import { BufferBlob } from '../3d/misc/buffer-blob';
 import { Skeleton } from './skeleton';
-import { aabb } from '../geometry';
+import { AABB } from '../geometry';
 import { legacyCC } from '../global-exports';
 import { mapBuffer } from '../3d/misc/buffer';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
@@ -667,7 +667,7 @@ export class Mesh extends Asset {
 
     private _renderingSubMeshes: RenderingSubMesh[] | null = null;
 
-    private _boneSpaceBounds: Map<number, (aabb | null)[]> = new Map();
+    private _boneSpaceBounds: Map<number, (AABB | null)[]> = new Map();
 
     private _jointBufferIndices: number[] | null = null;
 
@@ -827,12 +827,12 @@ export class Mesh extends Asset {
         if (this._boneSpaceBounds.has(skeleton.hash)) {
             return this._boneSpaceBounds.get(skeleton.hash)!;
         }
-        const bounds: (aabb | null)[] = [];
+        const bounds: (AABB | null)[] = [];
         this._boneSpaceBounds.set(skeleton.hash, bounds);
         const valid: boolean[] = [];
         const { bindposes } = skeleton;
         for (let i = 0; i < bindposes.length; i++) {
-            bounds.push(new aabb(Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity));
+            bounds.push(new AABB(Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity));
             valid.push(false);
         }
         const { primitives } = this._struct;
@@ -858,7 +858,7 @@ export class Mesh extends Asset {
         }
         for (let i = 0; i < bindposes.length; i++) {
             const b = bounds[i]!;
-            if (!valid[i]) { bounds[i] = null; } else { aabb.fromPoints(b, b.center, b.halfExtents); }
+            if (!valid[i]) { bounds[i] = null; } else { AABB.fromPoints(b, b.center, b.halfExtents); }
         }
         return bounds;
     }
@@ -880,7 +880,7 @@ export class Mesh extends Asset {
 
         const vec3_temp = new Vec3();
         const rotate = worldMatrix && new Quat();
-        const boundingBox = worldMatrix && new aabb();
+        const boundingBox = worldMatrix && new AABB();
         if (rotate) {
             worldMatrix!.getRotation(rotate);
         }
@@ -893,7 +893,7 @@ export class Mesh extends Asset {
                     Vec3.multiplyScalar(boundingBox!.center, boundingBox!.center, 0.5);
                     Vec3.subtract(boundingBox!.halfExtents, struct.maxPosition, struct.minPosition);
                     Vec3.multiplyScalar(boundingBox!.halfExtents, boundingBox!.halfExtents, 0.5);
-                    aabb.transform(boundingBox!, boundingBox!, worldMatrix);
+                    AABB.transform(boundingBox!, boundingBox!, worldMatrix);
                     Vec3.add(struct.maxPosition, boundingBox!.center, boundingBox!.halfExtents);
                     Vec3.subtract(struct.minPosition, boundingBox!.center, boundingBox!.halfExtents);
                 }
@@ -1138,7 +1138,7 @@ export class Mesh extends Asset {
                 Vec3.multiplyScalar(boundingBox!.center, boundingBox!.center, 0.5);
                 Vec3.subtract(boundingBox!.halfExtents, mesh._struct.maxPosition, mesh._struct.minPosition);
                 Vec3.multiplyScalar(boundingBox!.halfExtents, boundingBox!.halfExtents, 0.5);
-                aabb.transform(boundingBox!, boundingBox!, worldMatrix);
+                AABB.transform(boundingBox!, boundingBox!, worldMatrix);
                 Vec3.add(vec3_temp, boundingBox!.center, boundingBox!.halfExtents);
                 Vec3.max(meshStruct.maxPosition, meshStruct.maxPosition, vec3_temp);
                 Vec3.subtract(vec3_temp, boundingBox!.center, boundingBox!.halfExtents);

@@ -33,7 +33,7 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displa
 import { SystemEventType } from '../../platform/event-manager/event-enum';
 import { EventListener, IListenerMask } from '../../platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../math';
-import { aabb } from '../../geometry';
+import { AABB } from '../../geometry';
 import { Canvas } from './canvas';
 import { Node } from '../../scene-graph';
 import { EDITOR } from 'internal:constants';
@@ -578,7 +578,7 @@ export class UITransform extends Component {
      * @zh
      * 计算出此 UI_2D 节点在世界空间下的 aabb 包围盒
      */
-    public getComputeAABB (out?: aabb) {
+    public getComputeAABB (out?: AABB) {
         const width = this._contentSize.width;
         const height = this._contentSize.height;
         _rect.set(
@@ -594,9 +594,9 @@ export class UITransform extends Component {
         const h = _rect.height / 2;
         const l = 0.001;
         if (out != null) {
-            aabb.set(out, px, py, pz, w, h, l);
+            AABB.set(out, px, py, pz, w, h, l);
         } else {
-            return new aabb(px, py, pz, w, h, l);
+            return new AABB(px, py, pz, w, h, l);
         }
     }
 

@@ -35,7 +35,7 @@ import { CannonWorld } from '../cannon-world';
 import { TriggerEventType } from '../../framework/physics-interface';
 import { PhysicsSystem } from '../../framework/physics-system';
 import { Collider, RigidBody } from '../../framework';
-import { aabb, sphere } from '../../../core/geometry';
+import { AABB, Sphere } from '../../../core/geometry';
 
 const TriggerEventObject = {
     type: 'onTriggerEnter' as TriggerEventType,
@@ -109,7 +109,7 @@ export class CannonShape implements IBaseShape {
         }
     }
 
-    getAABB (v: aabb) {
+    getAABB (v: AABB) {
         Quat.copy(cannonQuat_0, this._collider.node.worldRotation);
         // TODO: typing
         (this._shape as any).calculateWorldAABB(CANNON.Vec3.ZERO, cannonQuat_0, cannonVec3_0, cannonVec3_1);
@@ -118,7 +118,7 @@ export class CannonShape implements IBaseShape {
         Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }
 
-    getBoundingSphere (v: sphere) {
+    getBoundingSphere (v: Sphere) {
         v.radius = this._shape.boundingSphereRadius;
         Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }
