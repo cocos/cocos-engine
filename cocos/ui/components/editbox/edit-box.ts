@@ -685,7 +685,7 @@ export class EditBox extends Component {
         const textLabel = this._textLabel;
         if (textLabel) {
             textLabel.node._uiProps.uiTransformComp!.setContentSize(size.width - LEFT_PADDING, size.height);
-            textLabel.node.position = new Vec3 (offX + LEFT_PADDING, offY + size.height, textLabel.node.position.z);
+            textLabel.node.setPosition(offX + LEFT_PADDING, offY + size.height, textLabel.node.position.z);
             textLabel.verticalAlign = this._inputMode === InputMode.ANY ? VerticalTextAlignment.TOP : VerticalTextAlignment.CENTER;
             textLabel.enableWrapText = this._inputMode === InputMode.ANY ? true : false;
         }
@@ -693,7 +693,7 @@ export class EditBox extends Component {
         if (placeholderLabel) {
             placeholderLabel.node._uiProps.uiTransformComp!.setContentSize(size.width - LEFT_PADDING, size.height);
             placeholderLabel.lineHeight = size.height;
-            placeholderLabel.node.position = new Vec3 (offX + LEFT_PADDING, offY + size.height, placeholderLabel.node.position.z);
+            placeholderLabel.node.setPosition(offX + LEFT_PADDING, offY + size.height, placeholderLabel.node.position.z);
             placeholderLabel.verticalAlign = this._inputMode === InputMode.ANY ?
                 VerticalTextAlignment.TOP : VerticalTextAlignment.CENTER;
             placeholderLabel.enableWrapText = this._inputMode === InputMode.ANY ? true : false;
@@ -704,12 +704,12 @@ export class EditBox extends Component {
         let trans = this.node._uiProps.uiTransformComp!;
         const textLabelNode = this._textLabel && this._textLabel.node;
         if (textLabelNode) {
-            textLabelNode.position = new Vec3(-trans.width / 2, trans.height / 2, textLabelNode.position.z);
+            textLabelNode.setPosition(-trans.width / 2, trans.height / 2, textLabelNode.position.z);
             textLabelNode._uiProps.uiTransformComp!.setContentSize(trans.contentSize);
         }
         const placeholderLabelNode = this._placeholderLabel && this._placeholderLabel.node;
         if (placeholderLabelNode) {
-            placeholderLabelNode.position = new Vec3(-trans.width / 2, trans.height / 2, placeholderLabelNode.position.z);
+            placeholderLabelNode.setPosition(-trans.width / 2, trans.height / 2, placeholderLabelNode.position.z);
             placeholderLabelNode._uiProps.uiTransformComp!.setContentSize(trans.contentSize);
         }
         const backgroundNode = this._background && this._background.node;
