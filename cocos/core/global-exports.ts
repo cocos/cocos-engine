@@ -48,6 +48,7 @@ import {
     HUAWEI,
     OPPO,
     VIVO,
+    EXPORT_TO_GLOBAL,
 } from 'internal:constants';
 
 const _global = typeof window === 'undefined' ? global : window;
@@ -68,7 +69,7 @@ export const legacyCC: Record<string, any> & {
 // For internal usage
 legacyCC.internal = {};
 
-if (BUILD) {
+if (EXPORT_TO_GLOBAL) {
     // Supports dynamically access from external scripts such as adapters and debugger.
     // So macros should still defined in global even if inlined in engine.
     /**
