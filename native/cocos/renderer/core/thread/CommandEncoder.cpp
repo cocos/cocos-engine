@@ -6,8 +6,8 @@ namespace gfx {
 
 namespace
 {
-uint32_t constexpr kMemoryChunkSize = 4096 * 16;
-uint32_t constexpr kMemoryChunkPoolCapacity = 64;
+uint32_t constexpr kMemoryChunkSize = 8 * 1024 * 1024;
+uint32_t constexpr kMemoryChunkPoolCapacity = 16;
 uint32_t constexpr kSwitchChunkMemoryRequirement = sizeof(MemoryChunkSwitchCommand) + sizeof(DummyCommand);
 }
 
@@ -81,14 +81,15 @@ void CommandEncoder::Kick() noexcept
 
 void CommandEncoder::KickAndWait() noexcept
 {
-    EventSem event;
-    EventSem* const pEvent = &event;
+    EventCV event;
+    EventCV *const pEvent = &event;
 
-    ENCODE_COMMAND_1(this, WaitUntilFinish,
-            pEvent, pEvent,
-            {
-                pEvent->Signal();
-            });
+    ENCODE_COMMAND_1(
+        this, WaitUntilFinish,
+        pEvent, pEvent,
+        {
+            pEvent->Signal();
+        });
 
     Kick();
     event.Wait();
@@ -101,7 +102,7 @@ void CommandEncoder::RunConsumerThread() noexcept
         return;
     }
 
-    std::thread consumerThread(std::bind(&CommandEncoder::ConsumerThreadLoop, this));
+    std::thread consumerThread(&CommandEncoder::ConsumerThreadLoop, this);
     consumerThread.detach();
     mWorkerAttached = true;
 }
@@ -133,15 +134,18 @@ void CommandEncoder::TerminateConsumerThread() noexcept
 
 void CommandEncoder::FinishWriting(bool wait) noexcept
 {
-    bool* const flushingFinished = &mR.mFlushingFinished;
+    if (!mImmediateMode)
+    {
+        bool* const flushingFinished = &mR.mFlushingFinished;
 
-    ENCODE_COMMAND_1(this, FinishWriting,
-            flushingFinished, flushingFinished,
-            {
-                *flushingFinished = true;
-            });
+        ENCODE_COMMAND_1(this, FinishWriting,
+                         flushingFinished, flushingFinished,
+                         {
+                             *flushingFinished = true;
+                         });
 
-    wait ? KickAndWait() : Kick();
+        wait ? KickAndWait() : Kick();
+    }
 }
 
 void CommandEncoder::RecycleMemoryChunk(uint8_t* const chunk) const noexcept
@@ -253,7 +257,7 @@ Command* CommandEncoder::ReadCommand() noexcept
 
 void CommandEncoder::ConsumerThreadLoop() noexcept
 {
-    while (! mR.mTerminateConsumerThread)
+    while (!mR.mTerminateConsumerThread)
     {
         FlushCommands();
     }

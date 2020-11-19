@@ -60,11 +60,16 @@ void BufferProxy::destroy() {
 }
 
 void BufferProxy::update(void *buffer, uint offset, uint size) {
+    CommandEncoder *encoder = ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder();
+
+    uint8_t *remoteBuffer = encoder->Allocate<uint8_t>(size);
+    memcpy(remoteBuffer, buffer, size);
+
     ENCODE_COMMAND_4(
-        ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
+        encoder,
         BufferUpdate,
         remote, GetRemote(),
-        buffer, buffer,
+        buffer, remoteBuffer,
         offset, offset,
         size, size,
         {
@@ -78,7 +83,7 @@ void BufferProxy::resize(uint size) {
 
     ENCODE_COMMAND_2(
         ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
-        BufferUpdate,
+        BufferResize,
         remote, GetRemote(),
         size, size,
         {

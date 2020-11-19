@@ -56,7 +56,7 @@ void DescriptorSetProxy::bindBuffer(uint binding, Buffer *buffer, uint index) {
 
     ENCODE_COMMAND_4(
         ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
-        DescriptorBindBuffer,
+        DescriptorSetBindBuffer,
         remote, GetRemote(),
         binding, binding,
         buffer, ((BufferProxy*)buffer)->GetRemote(),
@@ -71,7 +71,7 @@ void DescriptorSetProxy::bindTexture(uint binding, Texture *texture, uint index)
 
     ENCODE_COMMAND_4(
         ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
-        DescriptorBindTexture,
+        DescriptorSetBindTexture,
         remote, GetRemote(),
         binding, binding,
         texture, ((TextureProxy*)texture)->GetRemote(),
@@ -86,7 +86,7 @@ void DescriptorSetProxy::bindSampler(uint binding, Sampler *sampler, uint index)
 
     ENCODE_COMMAND_4(
         ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
-        DescriptorBindSampler,
+        DescriptorSetBindSampler,
         remote, GetRemote(),
         binding, binding,
         sampler, sampler,

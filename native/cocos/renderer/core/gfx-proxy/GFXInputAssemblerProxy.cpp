@@ -1,6 +1,8 @@
 #include "CoreStd.h"
 #include "GFXInputAssemblerProxy.h"
 #include "GFXBufferProxy.h"
+#include "GFXDeviceProxy.h"
+#include "GFXDeviceThread.h"
 
 namespace cc {
 namespace gfx {
@@ -32,13 +34,26 @@ bool InputAssemblerProxy::initialize(const InputAssemblerInfo &info) {
         remoteInfo.indirectBuffer = ((BufferProxy *)remoteInfo.indirectBuffer)->GetRemote();
     }
 
-    bool res = _remote->initialize(remoteInfo);
+    ENCODE_COMMAND_2(
+        ((DeviceProxy *)_device)->getDeviceThread()->GetMainCommandEncoder(),
+        InputAssemblerInit,
+        remote, GetRemote(),
+        info, remoteInfo,
+        {
+            remote->initialize(info);
+        });
 
-    return res;
+    return true;
 }
 
 void InputAssemblerProxy::destroy() {
-    _remote->destroy();
+    ENCODE_COMMAND_1(
+        ((DeviceProxy *)_device)->getDeviceThread()->GetMainCommandEncoder(),
+        InputAssemblerDestroy,
+        remote, GetRemote(),
+        {
+            remote->destroy();
+        });
 }
 
 } // namespace gfx

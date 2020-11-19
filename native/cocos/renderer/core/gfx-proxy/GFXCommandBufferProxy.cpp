@@ -102,14 +102,22 @@ void CommandBufferProxy::bindPipelineState(PipelineState *pso) {
 }
 
 void CommandBufferProxy::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) {
+    CommandEncoder *encoder = ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder();
+
+    uint *remoteDynamicOffsets = nullptr;
+    if (dynamicOffsetCount) {
+        remoteDynamicOffsets = encoder->Allocate<uint>(dynamicOffsetCount);
+        memcpy(remoteDynamicOffsets, dynamicOffsets, dynamicOffsetCount * sizeof(uint));
+    }
+
     ENCODE_COMMAND_5(
-        ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
+        encoder,
         CommandBufferBindDescriptorSet,
         remote, GetRemote(),
         set, set,
         descriptorSet, ((DescriptorSetProxy*)descriptorSet)->GetRemote(),
         dynamicOffsetCount, dynamicOffsetCount,
-        dynamicOffsets, dynamicOffsets,
+        dynamicOffsets, remoteDynamicOffsets,
         {
             remote->bindDescriptorSet(set, descriptorSet, dynamicOffsetCount, dynamicOffsets);
         });
@@ -232,12 +240,17 @@ void CommandBufferProxy::draw(InputAssembler *ia) {
 }
 
 void CommandBufferProxy::updateBuffer(Buffer *buff, const void *data, uint size, uint offset) {
+    CommandEncoder *encoder = ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder();
+
+    uint8_t *remoteData = encoder->Allocate<uint8_t>(size);
+    memcpy(remoteData, data, size);
+
     ENCODE_COMMAND_5(
-        ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
+        encoder,
         CommandBufferUpdateBuffer,
         remote, GetRemote(),
         buff, ((BufferProxy*)buff)->GetRemote(),
-        data, data,
+        data, remoteData,
         size, size,
         offset, offset,
         {
@@ -246,13 +259,33 @@ void CommandBufferProxy::updateBuffer(Buffer *buff, const void *data, uint size,
 }
 
 void CommandBufferProxy::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
+    CommandEncoder *encoder = ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder();
+
+    BufferTextureCopy *remoteRegions = encoder->Allocate<BufferTextureCopy>(count);
+    memcpy(remoteRegions, regions, count * sizeof(BufferTextureCopy));
+
+    uint bufferCount = 0u;
+    for (uint i = 0u, n = 0u; i < count; i++) {
+        bufferCount += regions[i].texSubres.layerCount;
+    }
+    const uint8_t **remoteBuffers = encoder->Allocate<const uint8_t *>(bufferCount);
+    for (uint i = 0u, n = 0u; i < count; i++) {
+        const BufferTextureCopy &region = regions[i];
+        uint size = FormatSize(texture->getFormat(), region.texExtent.width, region.texExtent.height, 1);
+        for (uint l = 0; l < region.texSubres.layerCount; l++) {
+            uint8_t *buffer = encoder->Allocate<uint8_t>(size);
+            memcpy(buffer, buffers[n], size);
+            remoteBuffers[n++] = buffer;
+        }
+    }
+
     ENCODE_COMMAND_5(
-        ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
+        encoder,
         CommandBufferCopyBuffersToTexture,
         remote, GetRemote(),
-        buffers, buffers,
+        buffers, remoteBuffers,
         texture, ((TextureProxy*)texture)->GetRemote(),
-        regions, regions,
+        regions, remoteRegions,
         count, count,
         {
             remote->copyBuffersToTexture(buffers, texture, regions, count);
