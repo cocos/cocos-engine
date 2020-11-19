@@ -389,4 +389,4 @@ namespace cc {
     }
 } //namespace cc
 
-#endif // (USE_WEBVIEW > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#endif
