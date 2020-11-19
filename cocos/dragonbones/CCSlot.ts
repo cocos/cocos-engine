@@ -130,6 +130,11 @@ export class CCSlot extends Slot {
         const textureAtlasHeight = texture.height;
         const region = currentTextureData.region;
 
+        if (textureAtlasWidth === 0 || textureAtlasHeight) {
+            console.error(`SpriteFrame ${currentTextureData.spriteFrame.name} incorrect size ${textureAtlasWidth} x ${textureAtlasHeight}`);
+            return;
+        }
+
         const currentVerticesData = (this._deformVertices !== null && this._display === this._meshDisplay) ? this._deformVertices.verticesData : null;
 
         if (currentVerticesData) {
@@ -206,13 +211,6 @@ export class CCSlot extends Slot {
 
             localVertices.length = vfOffset;
             indices.length = 6;
-        }
-        // FIXME: remove
-        for (let i = 0; i < localVertices.length; i++) {
-            // eslint-disable-next-line no-restricted-globals
-            if (localVertices[i] === Infinity || isNaN(localVertices[i])) {
-                console.error(`bad value ${i}`);
-            }
         }
 
         this._visibleDirty = true;
@@ -301,14 +299,6 @@ export class CCSlot extends Slot {
 
         if (weightData) {
             this._identityTransform();
-        }
-
-        // FIXME: remove
-        for (let i = 0; i < localVertices.length; i++) {
-            // eslint-disable-next-line no-restricted-globals
-            if (localVertices[i] === Infinity || isNaN(localVertices[i])) {
-                console.error(`bad value ${i}`);
-            }
         }
     }
 
