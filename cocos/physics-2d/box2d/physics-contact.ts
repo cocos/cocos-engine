@@ -398,11 +398,11 @@ export class PhysicsContact {
         const bodyB = colliderB!.body;
 
         if (bodyA!.enabledContactListener) {
-            colliderA?.emit(contactType, this, colliderA, colliderB);
+            colliderA?.emit(contactType, colliderA, colliderB, this);
         }
 
         if (bodyB!.enabledContactListener) {
-            colliderB?.emit(contactType, this, colliderB, colliderA);
+            colliderB?.emit(contactType, colliderB, colliderA, this);
         }
 
         if (bodyA!.enabledContactListener || bodyB!.enabledContactListener) {

@@ -38,7 +38,7 @@ import { IVec3Like, IQuatLike } from "../math/type-define";
  * @zh
  * 基础几何，胶囊体。
  */
-export class capsule {
+export class Capsule {
 
     /**
      * @en
@@ -116,7 +116,7 @@ export class capsule {
      * @zh
      * 变换此胶囊体。
      */
-    transform (m: Mat4, pos: IVec3Like, rot: IQuatLike, scale: IVec3Like, out: capsule) {
+    transform (m: Mat4, pos: IVec3Like, rot: IQuatLike, scale: IVec3Like, out: Capsule) {
         const ws = scale;
         const s = absMaxComponent(ws as Vec3);
         out.radius = this.radius * Math.abs(s);

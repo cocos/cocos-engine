@@ -26,17 +26,17 @@
 
 import { BuiltinShape } from './builtin-shape';
 import { ICapsuleShape } from '../../spec/i-physics-shape';
-import { capsule } from '../../../core/geometry';
+import { Capsule } from '../../../core/geometry';
 import { EAxisDirection, CapsuleCollider } from '../../framework';
 
 export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
 
     get localCapsule () {
-        return this._localShape as capsule;
+        return this._localShape as Capsule;
     }
 
     get worldCapsule () {
-        return this._worldShape as capsule;
+        return this._worldShape as Capsule;
     }
 
     get collider () {
@@ -47,8 +47,8 @@ export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
         super();
         const halfHeight = (height - radius * 2) / 2;
         const h = halfHeight < 0 ? 0 : halfHeight;
-        this._localShape = new capsule(radius, h, direction);
-        this._worldShape = new capsule(radius, h, direction);
+        this._localShape = new Capsule(radius, h, direction);
+        this._worldShape = new Capsule(radius, h, direction);
     }
 
     setRadius (v: number) {

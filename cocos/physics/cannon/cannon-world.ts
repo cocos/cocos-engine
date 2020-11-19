@@ -28,7 +28,7 @@ import { Vec3, Quat } from '../../core/math';
 import { fillRaycastResult, toCannonRaycastOptions } from './cannon-util';
 import { CannonConstraint } from './constraints/cannon-constraint';
 import { CannonShape } from './shapes/cannon-shape';
-import { ray } from '../../core/geometry';
+import { Ray } from '../../core/geometry';
 import { RecyclePool, Node } from '../../core';
 import { CannonSharedBody } from './cannon-shared-body';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
@@ -100,7 +100,7 @@ export class CannonWorld implements IPhysicsWorld {
         }
     }
 
-    raycastClosest (worldRay: ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    raycastClosest (worldRay: Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
         setupFromAndTo(worldRay, options.maxDistance);
         toCannonRaycastOptions(raycastOpt, options);
         const hit = this._world.raycastClosest(from, to, raycastOpt, this._raycastResult);
@@ -110,7 +110,7 @@ export class CannonWorld implements IPhysicsWorld {
         return hit;
     }
 
-    raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         setupFromAndTo(worldRay, options.maxDistance);
         toCannonRaycastOptions(raycastOpt, options);
         const hit = this._world.raycastAll(from, to, raycastOpt, (result: CANNON.RaycastResult): any => {
@@ -173,7 +173,7 @@ export class CannonWorld implements IPhysicsWorld {
 
 const from = new CANNON.Vec3();
 const to = new CANNON.Vec3();
-function setupFromAndTo (worldRay: ray, distance: number) {
+function setupFromAndTo (worldRay: Ray, distance: number) {
     Vec3.copy(from, worldRay.o);
     worldRay.computeHit(to, distance);
 }

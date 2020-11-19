@@ -31,7 +31,7 @@
 import { Mat4, Vec3 } from '../math';
 import { FrustumHandle, FrustumPool, FrustumView, NULL_HANDLE } from '../renderer/core/memory-pools';
 import enums from './enums';
-import plane from './plane';
+import { Plane } from './plane';
 
 const _v = new Array(8);
 _v[0] = new Vec3(1, 1, 1);
@@ -50,7 +50,7 @@ _v[7] = new Vec3(1, -1, -1);
  * 基础几何 截头锥体。
  */
 
-export class frustum {
+export class Frustum {
 
     /**
      * @en
@@ -73,11 +73,11 @@ export class frustum {
      * @param near 正交视锥体的近平面值。
      * @param far 正交视锥体的远平面值。
      * @param transform 正交视锥体的变换矩阵。
-     * @return {frustum} frustum.
+     * @return {Frustum} frustum.
      */
     public static createOrtho = (() => {
         const _temp_v3 = new Vec3();
-        return (out: frustum, width: number, height: number, near: number, far: number, transform: Mat4) => {
+        return (out: Frustum, width: number, height: number, near: number, far: number, transform: Mat4) => {
             const halfWidth = width / 2;
             const halfHeight = height / 2;
             Vec3.set(_temp_v3, halfWidth, halfHeight, near);
@@ -97,12 +97,12 @@ export class frustum {
             Vec3.set(_temp_v3, halfWidth, -halfHeight, far);
             Vec3.transformMat4(out.vertices[7], _temp_v3, transform);
 
-            plane.fromPoints(out.planes[0], out.vertices[1], out.vertices[6], out.vertices[5]);
-            plane.fromPoints(out.planes[1], out.vertices[3], out.vertices[4], out.vertices[7]);
-            plane.fromPoints(out.planes[2], out.vertices[6], out.vertices[3], out.vertices[7]);
-            plane.fromPoints(out.planes[3], out.vertices[0], out.vertices[5], out.vertices[4]);
-            plane.fromPoints(out.planes[4], out.vertices[2], out.vertices[0], out.vertices[3]);
-            plane.fromPoints(out.planes[0], out.vertices[7], out.vertices[5], out.vertices[6]);
+            Plane.fromPoints(out.planes[0], out.vertices[1], out.vertices[6], out.vertices[5]);
+            Plane.fromPoints(out.planes[1], out.vertices[3], out.vertices[4], out.vertices[7]);
+            Plane.fromPoints(out.planes[2], out.vertices[6], out.vertices[3], out.vertices[7]);
+            Plane.fromPoints(out.planes[3], out.vertices[0], out.vertices[5], out.vertices[4]);
+            Plane.fromPoints(out.planes[4], out.vertices[2], out.vertices[0], out.vertices[3]);
+            Plane.fromPoints(out.planes[0], out.vertices[7], out.vertices[5], out.vertices[6]);
         };
     })();
 
@@ -111,10 +111,10 @@ export class frustum {
      * create a new frustum.
      * @zh
      * 创建一个新的截锥体。
-     * @return {frustum} frustum.
+     * @return {Frustum} frustum.
      */
-    public static create (): frustum {
-        return new frustum();
+    public static create (): Frustum {
+        return new Frustum();
     }
 
     /**
@@ -123,8 +123,8 @@ export class frustum {
      * @zh
      * 克隆一个截锥体。
      */
-    public static clone (f: frustum): frustum {
-        return frustum.copy(new frustum(), f);
+    public static clone (f: Frustum): Frustum {
+        return Frustum.copy(new Frustum(), f);
     }
 
     /**
@@ -133,10 +133,10 @@ export class frustum {
      * @zh
      * 从一个截锥体拷贝到另一个截锥体。
      */
-    public static copy (out: frustum, f: frustum): frustum {
+    public static copy (out: Frustum, f: Frustum): Frustum {
         out._type = f._type;
         for (let i = 0; i < 6; ++i) {
-            plane.copy(out.planes[i], f.planes[i]);
+            Plane.copy(out.planes[i], f.planes[i]);
         }
         for (let i = 0; i < 8; ++i) {
             Vec3.copy(out.vertices[i], f.vertices[i]);
@@ -156,14 +156,14 @@ export class frustum {
 
     protected _type: number;
 
-    public planes: plane[];
+    public planes: Plane[];
     public vertices: Vec3[];
 
     constructor () {
         this._type = enums.SHAPE_FRUSTUM;
         this.planes = new Array(6);
         for (let i = 0; i < 6; ++i) {
-            this.planes[i] = plane.create(0, 0, 0, 0);
+            this.planes[i] = Plane.create(0, 0, 0, 0);
         }
         this.vertices = new Array(8);
         for (let i = 0; i < 8; ++i) {
@@ -233,12 +233,12 @@ export class frustum {
         for (let i = 0; i < 8; i++) {
             Vec3.transformMat4(this.vertices[i], this.vertices[i], mat);
         }
-        plane.fromPoints(this.planes[0], this.vertices[1], this.vertices[5], this.vertices[6]);
-        plane.fromPoints(this.planes[1], this.vertices[3], this.vertices[7], this.vertices[4]);
-        plane.fromPoints(this.planes[2], this.vertices[6], this.vertices[7], this.vertices[3]);
-        plane.fromPoints(this.planes[3], this.vertices[0], this.vertices[4], this.vertices[5]);
-        plane.fromPoints(this.planes[4], this.vertices[2], this.vertices[3], this.vertices[0]);
-        plane.fromPoints(this.planes[0], this.vertices[7], this.vertices[6], this.vertices[5]);
+        Plane.fromPoints(this.planes[0], this.vertices[1], this.vertices[5], this.vertices[6]);
+        Plane.fromPoints(this.planes[1], this.vertices[3], this.vertices[7], this.vertices[4]);
+        Plane.fromPoints(this.planes[2], this.vertices[6], this.vertices[7], this.vertices[3]);
+        Plane.fromPoints(this.planes[3], this.vertices[0], this.vertices[4], this.vertices[5]);
+        Plane.fromPoints(this.planes[4], this.vertices[2], this.vertices[3], this.vertices[0]);
+        Plane.fromPoints(this.planes[0], this.vertices[7], this.vertices[6], this.vertices[5]);
     }
 }
 
@@ -250,7 +250,7 @@ export class frustum {
  * @param handle The frustum handle
  * @param frstm The frustum object
  */
-export function recordFrustumToSharedMemory (handle: FrustumHandle, frstm: frustum) {
+export function recordFrustumToSharedMemory (handle: FrustumHandle, frstm: Frustum) {
     if (!frstm || handle === NULL_HANDLE) {
         return;
     }

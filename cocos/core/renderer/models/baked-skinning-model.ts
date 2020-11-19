@@ -31,7 +31,7 @@
 import { AnimationClip } from '../../animation/animation-clip';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
-import { aabb } from '../../geometry';
+import { AABB } from '../../geometry';
 import { BufferUsageBit, MemoryUsageBit } from '../../gfx/define';
 import { Vec3 } from '../../math';
 import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UNIFORM_JOINT_TEXTURE_BINDING } from '../../pipeline/define';
@@ -51,7 +51,7 @@ interface IJointsInfo {
     jointTextureInfo: Float32Array;
     texture: IJointTextureHandle | null;
     animInfo: IAnimInfo;
-    boundsInfo: aabb[] | null;
+    boundsInfo: AABB[] | null;
 }
 
 const myPatches = [

@@ -29,9 +29,9 @@
  */
 
 import { Vec3 } from '../math';
-import aabb from './aabb';
-import obb from './obb';
-import plane from './plane';
+import { AABB } from './aabb';
+import { OBB } from './obb';
+import { Plane } from './plane';
 const X = new Vec3();
 const Y = new Vec3();
 const Z = new Vec3();
@@ -47,10 +47,10 @@ const e = new Array(3);
  * @zh
  * 计算点和平面之间的距离。
  * @param {Vec3} point 点。
- * @param {plane} plane 平面。
+ * @param {Plane} plane 平面。
  * @return 距离。
  */
-export function point_plane (point: Vec3, plane_: plane) {
+export function point_plane (point: Vec3, plane_: Plane) {
     return Vec3.dot(plane_.n, point) - plane_.d;
 }
 
@@ -64,7 +64,7 @@ export function point_plane (point: Vec3, plane_: plane) {
  * @param plane 平面。
  * @return 最近点。
  */
-export function pt_point_plane (out: Vec3, point: Vec3, plane_: plane) {
+export function pt_point_plane (out: Vec3, point: Vec3, plane_: Plane) {
     const t = point_plane(point, plane_);
     return Vec3.subtract(out, point, Vec3.multiplyScalar(out, plane_.n, t));
 }
@@ -76,10 +76,10 @@ export function pt_point_plane (out: Vec3, point: Vec3, plane_: plane) {
  * 计算 aabb 上最接近给定点的点。
  * @param {Vec3} out 最近点。
  * @param {Vec3} point 给定点。
- * @param {aabb} aabb 轴对齐包围盒。
+ * @param {AABB} aabb 轴对齐包围盒。
  * @return {Vec3} 最近点。
  */
-export function pt_point_aabb (out: Vec3, point: Vec3, aabb_: aabb): Vec3 {
+export function pt_point_aabb (out: Vec3, point: Vec3, aabb_: AABB): Vec3 {
     Vec3.copy(out, point);
     Vec3.subtract(min, aabb_.center, aabb_.halfExtents);
     Vec3.add(max, aabb_.center, aabb_.halfExtents);
@@ -101,10 +101,10 @@ export function pt_point_aabb (out: Vec3, point: Vec3, aabb_: aabb): Vec3 {
  * 计算 obb 上最接近给定点的点。
  * @param {Vec3} out 最近点。
  * @param {Vec3} point 给定点。
- * @param {obb} obb 方向包围盒。
+ * @param {OBB} obb 方向包围盒。
  * @return {Vec3} 最近点。
  */
-export function pt_point_obb (out: Vec3, point: Vec3, obb_: obb): Vec3 {
+export function pt_point_obb (out: Vec3, point: Vec3, obb_: OBB): Vec3 {
     Vec3.set(X, obb_.orientation.m00, obb_.orientation.m01, obb_.orientation.m02);
     Vec3.set(Y, obb_.orientation.m03, obb_.orientation.m04, obb_.orientation.m05);
     Vec3.set(Z, obb_.orientation.m06, obb_.orientation.m07, obb_.orientation.m08);

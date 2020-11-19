@@ -24,7 +24,7 @@
  */
 
 import { Material } from '../../assets/material';
-import { sphere } from '../../geometry';
+import { Sphere } from '../../geometry';
 import { Color, Mat4, Vec3, Vec2 } from '../../math';
 import { legacyCC } from '../../global-exports';
 import { Enum } from '../../value-types';
@@ -295,7 +295,7 @@ export class Shadows {
      * @en The bounding sphere of the shadow map.
      * @zh 用于计算阴影 Shadow map 的场景包围球.
      */
-    public sphere: sphere = new sphere(0.0, 0.0, 0.0, 0.01);
+    public sphere: Sphere = new Sphere(0.0, 0.0, 0.0, 0.01);
 
     /**
      * @en get or set shadow max received.

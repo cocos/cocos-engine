@@ -32,7 +32,7 @@ import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
 import { TupleDictionary } from '../utils/tuple-dictionary';
 import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1 } from './ammo-const';
 import { ammo2CocosVec3, cocos2AmmoVec3, cocos2AmmoQuat } from './ammo-util';
-import { ray } from '../../core/geometry';
+import { Ray } from '../../core/geometry';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
 import { PhysicsRayResult, PhysicMaterial } from '../framework';
 import { Node, RecyclePool } from '../../core';
@@ -110,7 +110,7 @@ export class AmmoWorld implements IPhysicsWorld {
         }
     }
 
-    raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         let from = cocos2AmmoVec3(this.allHitsCB.m_rayFromWorld, worldRay.o);
         worldRay.computeHit(v3_0, options.maxDistance);
         let to = cocos2AmmoVec3(this.allHitsCB.m_rayToWorld, v3_0);
@@ -158,7 +158,7 @@ export class AmmoWorld implements IPhysicsWorld {
      * Ray cast, and return information of the closest hit.
      * @return True if any body was hit.
      */
-    raycastClosest (worldRay: ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    raycastClosest (worldRay: Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
         let from = cocos2AmmoVec3(this.closeHitCB.m_rayFromWorld, worldRay.o);
         worldRay.computeHit(v3_0, options.maxDistance);
         let to = cocos2AmmoVec3(this.closeHitCB.m_rayToWorld, v3_0);

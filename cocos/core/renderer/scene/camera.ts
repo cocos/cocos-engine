@@ -24,7 +24,7 @@
  */
 
 import { JSB } from 'internal:constants';
-import { frustum, ray } from '../../geometry';
+import { Frustum, Ray } from '../../geometry';
 import { ClearFlag, SurfaceTransform } from '../../gfx/define';
 import {
     lerp, Mat4, Rect, toRadian, Vec3, IVec4Like,
@@ -152,7 +152,7 @@ export class Camera {
     private _matProjInv: Mat4 = new Mat4();
     private _matViewProj: Mat4 = new Mat4();
     private _matViewProjInv: Mat4 = new Mat4();
-    private _frustum: frustum = new frustum();
+    private _frustum: Frustum = new Frustum();
     private _forward: Vec3 = new Vec3();
     private _position: Vec3 = new Vec3();
     private _view: RenderView | null = null;
@@ -670,7 +670,7 @@ export class Camera {
     /**
      * transform a screen position (in oriented space) to a world space ray
      */
-    public screenPointToRay (out: ray, x: number, y: number): ray {
+    public screenPointToRay (out: Ray, x: number, y: number): Ray {
         if (!this._node) return null!;
 
         const handle = this._poolHandle;
@@ -695,7 +695,7 @@ export class Camera {
         if (isProj) {
             // camera origin
             this._node.getWorldPosition(v_b);
-            ray.fromPoints(out, v_b, v_a);
+            Ray.fromPoints(out, v_b, v_a);
         } else {
             Vec3.transformQuat(out.d, Vec3.FORWARD, this._node.worldRotation);
         }

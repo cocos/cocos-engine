@@ -35,7 +35,7 @@ import { director, Director } from '../../core/director';
 import { System } from '../../core/components';
 import { PhysicsMaterial } from './assets/physics-material';
 import { RecyclePool, error, game, Enum } from '../../core';
-import { ray } from '../../core/geometry';
+import { Ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
 import { EDITOR, DEBUG } from 'internal:constants';
 import { IPhysicsConfig, ICollisionMatrix } from './physics-config';
@@ -396,7 +396,7 @@ export class PhysicsSystem extends System {
      * @param queryTrigger 是否检测触发器
      * @return boolean 表示是否有检测到碰撞盒
      */
-    raycast (worldRay: ray, mask: number = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+    raycast (worldRay: Ray, mask: number = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
         this.raycastResultPool.reset();
         this.raycastResults.length = 0;
         this.raycastOptions.mask = mask;
@@ -416,7 +416,7 @@ export class PhysicsSystem extends System {
      * @param queryTrigger 是否检测触发器
      * @return boolean 表示是否有检测到碰撞盒
      */
-    raycastClosest (worldRay: ray, mask: number = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+    raycastClosest (worldRay: Ray, mask: number = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
         this.raycastOptions.mask = mask;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;

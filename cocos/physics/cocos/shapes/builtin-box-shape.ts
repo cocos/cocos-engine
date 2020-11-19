@@ -24,7 +24,7 @@
  */
 
 import { Vec3 } from '../../../core/math';
-import { obb } from '../../../core/geometry';
+import { OBB } from '../../../core/geometry';
 import { BuiltinShape } from './builtin-shape';
 import { IBoxShape } from '../../spec/i-physics-shape';
 import { BoxCollider } from '../../../../exports/physics-framework';
@@ -33,11 +33,11 @@ import { IVec3Like } from '../../../core/math/type-define';
 export class BuiltinBoxShape extends BuiltinShape implements IBoxShape {
 
     get localObb () {
-        return this._localShape as obb;
+        return this._localShape as OBB;
     }
 
     get worldObb () {
-        return this._worldShape as obb;
+        return this._worldShape as OBB;
     }
 
     get collider () {
@@ -46,8 +46,8 @@ export class BuiltinBoxShape extends BuiltinShape implements IBoxShape {
 
     constructor () {
         super();
-        this._localShape = new obb();
-        this._worldShape = new obb();
+        this._localShape = new OBB();
+        this._worldShape = new OBB();
     }
 
     setSize (size: IVec3Like) {
