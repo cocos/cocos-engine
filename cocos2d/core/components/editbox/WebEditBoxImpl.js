@@ -421,6 +421,7 @@ Object.assign(WebEditBoxImpl.prototype, {
         // begin to updateInputType
         if (inputFlag === InputFlag.PASSWORD) {
             elem.type = 'password';
+            elem.style.textTransform = 'none';
             return;
         }
     
