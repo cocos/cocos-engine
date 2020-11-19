@@ -90,6 +90,8 @@ export class DragonBoneSocket {
     @serializable
     public target: Node | null = null;
 
+    public boneIndex: number | null = null;
+
     constructor (path = '', target: Node | null = null) {
         this.path = path;
         this.target = target;
@@ -97,6 +99,10 @@ export class DragonBoneSocket {
 }
 
 js.setClassAlias(DragonBoneSocket, 'dragonBones.ArmatureDisplay.DragonBoneSocket');
+
+interface BoneIndex extends Number {
+    _any: number;
+}
 
 /**
  * !#en
@@ -300,7 +306,7 @@ export class ArmatureDisplay extends UIRenderable {
     @tooltip('i18n:COMPONENT.dragon_bones.time_scale')
     @serializable
     get timeScale () { return this._timeScale; }
-    set tileset (value) {
+    set timeScale (value) {
         this._timeScale = value;
 
         if (this._armature && !this.isAnimationCached()) {
@@ -380,12 +386,10 @@ export class ArmatureDisplay extends UIRenderable {
     }
 
     set sockets (val: DragonBoneSocket[]) {
-        if (EDITOR) {
-            this._verifySockets(val);
-        }
+        this._verifySockets(val);
         this._sockets = val;
         this._updateSocketBindings();
-        this.attachUtil._syncAttachedNode();
+        // this.attachUtil._syncAttachedNode();
     }
 
     get socketNodes () { return this._socketNodes; }
@@ -453,8 +457,8 @@ export class ArmatureDisplay extends UIRenderable {
     protected _enumArmatures: any = Enum({});
     protected _enumAnimations: any = Enum({});
 
-    protected _socketNodes: Map<Bone, Node> = new Map();
-    protected _cachedSockets: Map<string, Bone> = new Map();
+    protected _socketNodes: Map<string, Node> = new Map();
+    protected _cachedSockets: Map<string, BoneIndex> = new Map();
 
     @serializable
     protected _sockets: DragonBoneSocket[] = [];
@@ -669,6 +673,7 @@ export class ArmatureDisplay extends UIRenderable {
                 this._factory._dragonBones.clock.add(this._armature);
             }
             this._updateSocketBindings();
+            this.markForUpdateRenderData();
         }
     }
 
@@ -713,6 +718,9 @@ export class ArmatureDisplay extends UIRenderable {
     update (dt) {
         if (!this.isAnimationCached()) return;
         if (!this._frameCache) return;
+
+        this.markForUpdateRenderData();
+        this.attachUtil._syncAttachedNode();
 
         const frameCache = this._frameCache;
         if (!frameCache.isInited()) {
@@ -893,6 +901,21 @@ export class ArmatureDisplay extends UIRenderable {
         return Array.from(this._cachedSockets.keys()).sort();
     }
 
+    /**
+     * @en Query socket path with slot or bone name.
+     * @zh 查询 Socket 路径
+     * @param name Slot name or Bone name
+     */
+    public querySocketPathByName (name: string) {
+        const ret: string[] = [];
+        for (const key of this._cachedSockets.keys()) {
+            if (key.endsWith(name)) {
+                ret.push(key);
+            }
+        }
+        return ret;
+    }
+
     _parseDragonAtlasAsset () {
         if (this.dragonAtlasAsset) {
             this.dragonAtlasAsset.init(this._factory);
@@ -909,6 +932,7 @@ export class ArmatureDisplay extends UIRenderable {
             this._updateCacheModeEnum();
             // Editor.Utils.refreshSelectedInspector('node', this.node.uuid);
         }
+        this.markForUpdateRenderData();
     }
 
     _cacheModeEnum: any;
@@ -961,21 +985,27 @@ export class ArmatureDisplay extends UIRenderable {
         }
         this._cachedSockets.clear();
         const nameToBone = this._cachedSockets;
-        const cacheBoneName = (bone: Bone, cache: Map<Bone, string>): string => {
-            if (cache.has(bone)) { return cache.get(bone)!; }
+        const cacheBoneName = (bi: BoneIndex, bones: Bone[], cache: Map<BoneIndex, string>): string => {
+            if (cache.has(bi)) { return cache.get(bi)!; }
+            const bone = bones[bi as unknown as number];
             if (!bone.parent) {
-                cache.set(bone, bone.name);
+                cache.set(bi, bone.name);
+                (bone as any).path = bone.name;
                 return bone.name;
             }
-            const name = `${cacheBoneName(bone.parent, cache)}/${bone.name}`;
-            cache.set(bone, name);
+            const name = `${cacheBoneName((bone.parent as any)._boneIndex, bones, cache)}/${bone.name}`;
+            cache.set(bi, name);
+            (bone as any).path = name;
             return name;
         };
         const walkArmature = (prefix: string, armature: Armature) => {
             const bones = armature.getBones();
-            const boneToName = new Map<Bone, string>();
+            const boneToName = new Map<BoneIndex, string>();
             for (let i = 0; i < bones.length; i++) {
-                cacheBoneName(bones[i], boneToName);
+                (bones[i] as any)._boneIndex = i;
+            }
+            for (let i = 0; i < bones.length; i++) {
+                cacheBoneName(i as unknown as BoneIndex, bones, boneToName);
             }
             for (const bone of boneToName.keys()) {
                 nameToBone.set(`${prefix}${boneToName.get(bone)!}`, bone);
@@ -987,7 +1017,7 @@ export class ArmatureDisplay extends UIRenderable {
                 }
             }
         };
-        walkArmature('/', this._armature);
+        walkArmature('', this._armature);
     }
 
     /**
@@ -1224,7 +1254,8 @@ export class ArmatureDisplay extends UIRenderable {
                     console.error(`Skeleton data does not contain path ${socket.path}`);
                     continue;
                 }
-                this._socketNodes.set(bone, socket.target);
+                socket.boneIndex = bone as unknown as number;
+                this._socketNodes.set(socket.path, socket.target);
             }
         }
     }

@@ -5,6 +5,8 @@ import { ccclass, serializable } from '../core/data/decorators';
 import { ArmatureCache } from './ArmatureCache';
 import { Enum, JsonAsset, Node } from '../core';
 import { CCFactory } from './CCFactory';
+import { BinaryDataParser, DragonBonesData } from './lib/dragonBones';
+import { property } from '../core/data/class-decorator';
 
 /**
  * !#en The skeleton data of dragonBones.
@@ -34,18 +36,8 @@ export class DragonBonesAsset extends Asset {
         this.reset();
     }
 
-    get _nativeAsset () {
-        return this._buffer!;
-    }
-
-    set _nativeAsset (bin: ArrayBuffer) {
-        this._buffer = bin instanceof ArrayBuffer ? bin : (bin as any).buffer;
-        this.reset();
-    }
-
-    private _buffer?: ArrayBuffer;
     private _factory: CCFactory| null = null;
-    private _dragonBonesJsonData?: any;
+    protected _dragonBonesJsonData?: ArrayBuffer;
 
     private _armaturesEnum: any = null;
 

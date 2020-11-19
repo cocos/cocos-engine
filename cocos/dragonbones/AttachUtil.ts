@@ -1,4 +1,4 @@
-import { Node, Mat4 } from '../core';
+import { Node, Mat4, Vec3 } from '../core';
 import { ccclass } from '../core/data/class-decorator';
 import { ArmatureFrameBoneInfo } from './ArmatureCache';
 import { ArmatureDisplay } from './ArmatureDisplay';
@@ -51,9 +51,11 @@ export class AttachUtil {
             if (!boneInfos) return;
         }
 
+        const sockets = this._armatureDisplay!.sockets;
         const socketNodes = this._armatureDisplay!.socketNodes;
+        const scale = new Vec3();
 
-        const matrixHandle = (node: Node, boneMat: Matrix) => {
+        const matrixHandle = (node: NodeExt, boneMat: Matrix) => {
             const tm = _tempMat4;
             tm.m00 = boneMat.a;
             tm.m01 = boneMat.b;
@@ -61,26 +63,44 @@ export class AttachUtil {
             tm.m05 = -boneMat.d;
             tm.m12 = boneMat.tx;
             tm.m13 = boneMat.ty;
+            if (!node._oldScale) { 
+                // back origin scale info
+                node._oldScale = node.scale.clone();
+            }
+            scale.set(node._oldScale);
             node.matrix = _tempMat4;
-            node.scale = this._armatureNode!.scale;
+            node.scale = scale.multiply(this._armatureNode!.scale);
         };
 
-        for (const bone of socketNodes.keys()) {
-            const boneNode = socketNodes.get(bone);
+        const bones = this._armature!.getBones();
 
+        for (let l = sockets.length - 1; l >= 0; l--) {
+            const sock = sockets[l];
+            const boneNode = sock.target;
+
+            if (!boneNode) continue;
             // Node has been destroy
-            if (!boneNode || !boneNode.isValid) {
-                socketNodes.delete(bone);
+            if (!boneNode.isValid) {
+                socketNodes.delete(sock.path);
+                sockets.splice(l, 1);
                 continue;
             }
             // Bone has been destroy
-            if (!bone) {
-                boneNode.removeFromParent();
-                boneNode.destroy();
-                socketNodes.delete(bone);
-                continue;
-            }
+            const bone = isCached ? boneInfos![sock.boneIndex!] : bones[sock.boneIndex as unknown as number];
+            if (!bone) continue;
+
+            // if (!bone) {
+            //     boneNode.removeFromParent();
+            //     boneNode.destroy();
+            //     socketNodes.delete(sock.path);
+            //     sockets.splice(l, 1);
+            //     continue;
+            // }
             matrixHandle(boneNode, bone.globalTransformMatrix);
         }
     }
+}
+
+interface NodeExt extends Node{
+    _oldScale?:Vec3;
 }

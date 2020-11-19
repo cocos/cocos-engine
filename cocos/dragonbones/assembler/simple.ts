@@ -90,7 +90,12 @@ function _handleColor (color: {r:number, g:number, b:number, a:number}, parentOp
     _c[2] = _b;
     _c[3] = _premultipliedAlpha ? 1.0 : _a / 255.0;
 }
-
+function _intToColor (v:number) {
+    _c[0] = (0xFF & (v >>> 24)) / 255.0;
+    _c[1] = (0xFF & (v >>> 16)) / 255.0;
+    _c[2] = (0xFF & (v >>> 8)) / 255.0;
+    _c[3] = (0xFF & (v >>> 0)) / 255.0;
+}
 /**
  * simple 组装器
  * 可通过 `UI.simple` 获取该组装器。
@@ -246,7 +251,6 @@ function realTimeTraverse (armature: Armature, parentMat: Mat4|undefined, parent
             vbuf[_vfOffset + 4] = vertices[vi++]; // v
 
             vbuf.set(_c, _vfOffset + 5);// color
-
             _vfOffset += STRIDE_FLOAT;
         }
 
@@ -268,6 +272,7 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
     let material: MaterialInstance;
     // let offsetInfo;
     const vertices = frame.vertices;
+    const colorArray = new Uint32Array(vertices.buffer);
     const indices = frame.indices;
 
     let frameVFOffset = 0; let frameIndexOffset = 0; let segVFCount = 0;
@@ -324,8 +329,17 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
         }
 
         segVFCount = segInfo.vfCount;
-        // TODO: transform data
-        vbuf.set(vertices.subarray(frameVFOffset, frameVFOffset + segVFCount), _vfOffset);
+        // vbuf.set(vertices.subarray(frameVFOffset, frameVFOffset + segVFCount), _vfOffset);
+        for (let ii = frameVFOffset, jj = _vfOffset; ii < frameVFOffset + segVFCount;) {
+            vbuf[jj] =  vertices[ii++];
+            vbuf[jj + 1] =  vertices[ii++];
+            vbuf[jj + 3] =  vertices[ii++];
+            vbuf[jj + 4] =  vertices[ii++];
+            _intToColor(colorArray[ii++]);
+            vbuf.set(_c, jj + 5);
+            jj += STRIDE_FLOAT;
+        }
+
         frameVFOffset += segVFCount;
 
         if (calcTranslate) {
@@ -364,6 +378,7 @@ function updateComponentRenderData (comp: ArmatureDisplay, ui: UI) {
     const armature = comp._armature;
     if (!armature) return;
 
+    comp.markForUpdateRenderData();
     comp.destroyRenderData();
 
     // Init temp var.

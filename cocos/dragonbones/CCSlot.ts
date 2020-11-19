@@ -207,6 +207,13 @@ export class CCSlot extends Slot {
             localVertices.length = vfOffset;
             indices.length = 6;
         }
+        // FIXME: remove
+        for (let i = 0; i < localVertices.length; i++) {
+            // eslint-disable-next-line no-restricted-globals
+            if (localVertices[i] === Infinity || isNaN(localVertices[i])) {
+                console.error(`bad value ${i}`);
+            }
+        }
 
         this._visibleDirty = true;
         this._blendModeDirty = true;
@@ -294,6 +301,14 @@ export class CCSlot extends Slot {
 
         if (weightData) {
             this._identityTransform();
+        }
+
+        // FIXME: remove
+        for (let i = 0; i < localVertices.length; i++) {
+            // eslint-disable-next-line no-restricted-globals
+            if (localVertices[i] === Infinity || isNaN(localVertices[i])) {
+                console.error(`bad value ${i}`);
+            }
         }
     }
 
