@@ -29,7 +29,7 @@
  * @module core
  */
 
-import { EDITOR, TEST, COCOSPLAY, JSB, MINIGAME, HUAWEI, OPPO, VIVO, RUNTIME_BASED } from 'internal:constants';
+import { EDITOR, TEST, COCOSPLAY, JSB, MINIGAME, HUAWEI, OPPO, VIVO, RUNTIME_BASED, LINKSURE, QTT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID, log, logID } from './debug';
 
@@ -381,11 +381,11 @@ export const sys: Record<string, any> = {
      */
     ALIPAY_MINI_GAME: 113,
     /**
-     * @property {Number} QTT_GAME
+     * @property {Number} QTT_MINI_GAME
      * @readOnly
      * @default 116
      */
-    QTT_GAME: 116,
+    QTT_MINI_GAME: 116,
     /**
      * @property {Number} BYTEDANCE_MINI_GAME
      * @readOnly
@@ -393,11 +393,11 @@ export const sys: Record<string, any> = {
      */
     BYTEDANCE_MINI_GAME: 117,
     /**
-     * @property {Number} LINKSURE
+     * @property {Number} LINKSURE_MINI_GAME
      * @readOnly
      * @default 119
      */
-    LINKSURE: 119,
+    LINKSURE_MINI_GAME: 119,
 
     /**
      * @en Browser Type - WeChat inner browser
@@ -434,7 +434,7 @@ export const sys: Record<string, any> = {
      * @zh 浏览器类型 - 小米小游戏
      * @default "xiaomigame"
      */
-    BROWSER_TYPE_XIAOMI_GAME: "xiaomigame",
+    BROWSER_TYPE_XIAOMI_GAME: 'xiaomigame',
     /**
      * @en Browser Type - Android Browser
      * @zh 浏览器类型 - 安卓浏览器
@@ -452,7 +452,7 @@ export const sys: Record<string, any> = {
      * @zh 浏览器类型 - 微软 Edge
      * @default "edge"
      */
-    BROWSER_TYPE_EDGE: "edge",
+    BROWSER_TYPE_EDGE: 'edge',
     /**
      * @en Browser Type - QQ Browser
      * @zh 浏览器类型 - QQ 浏览器
@@ -555,6 +555,13 @@ export const sys: Record<string, any> = {
      * @default "sogou"
      */
     BROWSER_TYPE_SOUGOU: 'sogou',
+    /**
+     *
+     * @property {String} BROWSER_TYPE_HUAWEI
+     * @readOnly
+     * @default "huawei"
+     */
+    BROWSER_TYPE_HUAWEI: "huawei",
     /**
      * @en Browser Type - Unknown
      * @zh 浏览器类型 - 未知
@@ -684,7 +691,6 @@ export const sys: Record<string, any> = {
      */
     __audioSupport: null,
 
-
     /**
      * Video support in the browser
      * @private
@@ -730,9 +736,8 @@ export const sys: Record<string, any> = {
         if (obj === null || obj === undefined) {
             return false;
         }
-        else {
-            return true;
-        }
+
+        return true;
     },
 
     /**
@@ -741,15 +746,15 @@ export const sys: Record<string, any> = {
      */
     dump () {
         let str = '';
-        str += 'isMobile : ' + this.isMobile + '\r\n';
-        str += 'language : ' + this.language + '\r\n';
-        str += 'browserType : ' + this.browserType + '\r\n';
-        str += 'browserVersion : ' + this.browserVersion + '\r\n';
-        str += 'capabilities : ' + JSON.stringify(this.capabilities) + '\r\n';
-        str += 'os : ' + this.os + '\r\n';
-        str += 'osVersion : ' + this.osVersion + '\r\n';
-        str += 'platform : ' + this.platform + '\r\n';
-        str += 'Using ' + (legacyCC.game.renderType === legacyCC.game.RENDER_TYPE_WEBGL ? 'WEBGL' : 'CANVAS') + ' renderer.' + '\r\n';
+        str += `isMobile : ${this.isMobile}\r\n`;
+        str += `language : ${this.language}\r\n`;
+        str += `browserType : ${this.browserType}\r\n`;
+        str += `browserVersion : ${this.browserVersion}\r\n`;
+        str += `capabilities : ${JSON.stringify(this.capabilities)}\r\n`;
+        str += `os : ${this.os}\r\n`;
+        str += `osVersion : ${this.osVersion}\r\n`;
+        str += `platform : ${this.platform}\r\n`;
+        str += `Using ${legacyCC.game.renderType === legacyCC.game.RENDER_TYPE_WEBGL ? 'WEBGL' : 'CANVAS'} renderer.` + '\r\n';
         log(str);
     },
 
@@ -761,8 +766,7 @@ export const sys: Record<string, any> = {
         if (JSB || RUNTIME_BASED) {
             // @ts-expect-error
             jsb.openURL(url);
-        }
-        else {
+        } else {
             window.open(url);
         }
     },
@@ -775,9 +779,8 @@ export const sys: Record<string, any> = {
         if (Date.now) {
             return Date.now();
         }
-        else {
-            return +(new Date);
-        }
+
+        return +(new Date());
     },
 
     /**
@@ -790,10 +793,10 @@ export const sys: Record<string, any> = {
 
     /**
      * @en
-     * Returns the safe area of the screen. If the screen is not notched, the design resolution will be returned by default.
-     * Only supported on Android, iOS and WeChat Mini Game platform.
+     * Returns the safe area of the screen (in design resolution). If the screen is not notched, the visibleRect will be returned by default.
+     * Currently supports Android, iOS and WeChat Mini Game platform.
      * @zh
-     * 返回手机屏幕安全区域，如果不是异形屏将默认返回设计分辨率尺寸。目前只支持安卓、iOS 原生平台和微信小游戏平台。
+     * 返回手机屏幕安全区域（设计分辨率为单位），如果不是异形屏将默认返回 visibleRect。目前支持安卓、iOS 原生平台和微信小游戏平台。
      * @method getSafeAreaRect
      * @return {Rect}
      */
@@ -838,23 +841,26 @@ else if (JSB || RUNTIME_BASED) {
         platform = sys.HUAWEI_QUICK_GAME;
     } else if (COCOSPLAY) {
         platform = sys.COCOSPLAY;
-    }
-    else {
+    } else if (LINKSURE) {
+        platform = sys.LINKSURE_MINI_GAME;
+    } else if (QTT) {
+        platform = sys.QTT_MINI_GAME;
+    } else {
         // @ts-expect-error
         platform = __getPlatform();
     }
     sys.platform = platform;
-    sys.isMobile = (platform === sys.ANDROID ||
-                    platform === sys.IPAD ||
-                    platform === sys.IPHONE ||
-                    platform === sys.WP8 ||
-                    platform === sys.TIZEN ||
-                    platform === sys.BLACKBERRY ||
-                    platform === sys.XIAOMI_QUICK_GAME ||
-                    platform === sys.VIVO_MINI_GAME ||
-                    platform === sys.OPPO_MINI_GAME ||
-                    platform === sys.HUAWEI_QUICK_GAME ||
-                    platform === sys.COCOSPLAY);
+    sys.isMobile = (platform === sys.ANDROID
+                    || platform === sys.IPAD
+                    || platform === sys.IPHONE
+                    || platform === sys.WP8
+                    || platform === sys.TIZEN
+                    || platform === sys.BLACKBERRY
+                    || platform === sys.XIAOMI_QUICK_GAME
+                    || platform === sys.VIVO_MINI_GAME
+                    || platform === sys.OPPO_MINI_GAME
+                    || platform === sys.HUAWEI_QUICK_GAME
+                    || platform === sys.COCOSPLAY);
 
     // @ts-expect-error
     sys.os = __getOS();
@@ -905,20 +911,17 @@ else if (JSB || RUNTIME_BASED) {
     };
 
     sys.__videoSupport = {
-        format: ['.mp4']
-    }
-
-}
-else {
+        format: ['.mp4'],
+    };
+} else {
     // browser or runtime
-    const win = window, nav = win.navigator, doc = document, docEle = doc.documentElement;
+    const win = window; const nav = win.navigator; const doc = document; const docEle = doc.documentElement;
     const ua = nav.userAgent.toLowerCase();
 
     if (EDITOR) {
         sys.isMobile = false;
         sys.platform = sys.EDITOR_PAGE;
-    }
-    else {
+    } else {
         sys.isMobile = /mobile|android|iphone|ipad/.test(ua);
         sys.platform = sys.isMobile ? sys.MOBILE_BROWSER : sys.DESKTOP_BROWSER;
     }
@@ -926,12 +929,12 @@ else {
     let currLanguage = nav.language;
     sys.languageCode = currLanguage.toLowerCase();
     // @ts-expect-error
-    currLanguage = currLanguage ? currLanguage : nav.browserLanguage;
+    currLanguage = currLanguage || nav.browserLanguage;
     currLanguage = currLanguage ? currLanguage.split('-')[0] : sys.LANGUAGE_ENGLISH;
     sys.language = currLanguage;
 
     // Get the os of system
-    let isAndroid = false, iOS = false, osVersion = '', osMajorVersion = 0;
+    let isAndroid = false; let iOS = false; let osVersion = ''; let osMajorVersion = 0;
     let uaResult = /android\s*(\d+(?:\.\d+)*)/i.exec(ua) || /android\s*(\d+(?:\.\d+)*)/i.exec(nav.platform);
     if (uaResult) {
         isAndroid = true;
@@ -957,12 +960,7 @@ else {
     }
 
     let osName = sys.OS_UNKNOWN;
-    if (nav.appVersion.indexOf('Win') !== -1) { osName = sys.OS_WINDOWS; }
-    else if (iOS) { osName = sys.OS_IOS; }
-    else if (nav.appVersion.indexOf('Mac') !== -1) { osName = sys.OS_OSX; }
-    else if (nav.appVersion.indexOf('X11') !== -1 && nav.appVersion.indexOf('Linux') === -1) { osName = sys.OS_UNIX; }
-    else if (isAndroid) { osName = sys.OS_ANDROID; }
-    else if (nav.appVersion.indexOf('Linux') !== -1 || ua.indexOf('ubuntu') !== -1) { osName = sys.OS_LINUX; }
+    if (nav.appVersion.indexOf('Win') !== -1) { osName = sys.OS_WINDOWS; } else if (iOS) { osName = sys.OS_IOS; } else if (nav.appVersion.indexOf('Mac') !== -1) { osName = sys.OS_OSX; } else if (nav.appVersion.indexOf('X11') !== -1 && nav.appVersion.indexOf('Linux') === -1) { osName = sys.OS_UNIX; } else if (isAndroid) { osName = sys.OS_ANDROID; } else if (nav.appVersion.indexOf('Linux') !== -1 || ua.indexOf('ubuntu') !== -1) { osName = sys.OS_LINUX; }
 
     sys.os = osName;
     sys.osVersion = osVersion;
@@ -972,41 +970,37 @@ else {
     /* Determine the browser type */
     (function () {
         const typeReg1 = /mqqbrowser|micromessenger|qqbrowser|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
-        const typeReg2 = /qq|qqbrowser|ucbrowser|ubrowser|edge/i;
+        const typeReg2 = /qq|qqbrowser|ucbrowser|ubrowser|edge|HuaweiBrowser/i;
         const typeReg3 = /chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
         const browserTypes = typeReg1.exec(ua) || typeReg2.exec(ua) || typeReg3.exec(ua);
 
         let browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
         if (COCOSPLAY) {
             browserType = sys.BROWSER_TYPE_COCOSPLAY;
-        }
-        else if (HUAWEI) {
+        } else if (HUAWEI) {
             browserType = sys.BROWSER_TYPE_HUAWEI_GAME;
-        }
-        else if (OPPO) {
+        } else if (OPPO) {
             browserType = sys.BROWSER_TYPE_OPPO_GAME;
-        }
-        else if (VIVO) {
+        } else if (VIVO) {
             browserType = sys.BROWSER_TYPE_VIVO_GAME;
-        }
-        else if (browserType === 'safari' && isAndroid) {
+        } else if (browserType === 'safari' && isAndroid) {
             browserType = sys.BROWSER_TYPE_ANDROID;
-        }
-        else if (browserType === 'qq' && ua.match(/android.*applewebkit/i)) {
+        } else if (browserType === 'qq' && ua.match(/android.*applewebkit/i)) {
             browserType = sys.BROWSER_TYPE_ANDROID;
         }
         const typeMap = {
-            'micromessenger': sys.BROWSER_TYPE_WECHAT,
-            'trident': sys.BROWSER_TYPE_IE,
-            'edge': sys.BROWSER_TYPE_EDGE,
+            micromessenger: sys.BROWSER_TYPE_WECHAT,
+            trident: sys.BROWSER_TYPE_IE,
+            edge: sys.BROWSER_TYPE_EDGE,
             '360 aphone': sys.BROWSER_TYPE_360,
-            'mxbrowser': sys.BROWSER_TYPE_MAXTHON,
+            mxbrowser: sys.BROWSER_TYPE_MAXTHON,
             'opr/': sys.BROWSER_TYPE_OPERA,
-            'ubrowser': sys.BROWSER_TYPE_UC
+            ubrowser: sys.BROWSER_TYPE_UC,
+            huaweibrowser: sys.BROWSER_TYPE_HUAWEI,
         };
 
         sys.browserType = typeMap[browserType] || browserType;
-    })();
+    }());
 
     sys.browserVersion = '';
     /* Determine the browser version number */
@@ -1016,7 +1010,7 @@ else {
         let tmp = ua.match(versionReg1);
         if (!tmp) { tmp = ua.match(versionReg2); }
         sys.browserVersion = tmp ? tmp[4] : '';
-    })();
+    }());
 
     const w = window.innerWidth || document.documentElement.clientWidth;
     const h = window.innerHeight || document.documentElement.clientHeight;
@@ -1036,13 +1030,12 @@ else {
             } catch (e) {
                 return null;
             }
-        }
-        else {
-            return create3DContext(canvas, opt_attribs, 'webgl') ||
-                create3DContext(canvas, opt_attribs, 'experimental-webgl') ||
-                create3DContext(canvas, opt_attribs, 'webkit-3d') ||
-                create3DContext(canvas, opt_attribs, 'moz-webgl') ||
-                null;
+        } else {
+            return create3DContext(canvas, opt_attribs, 'webgl')
+                || create3DContext(canvas, opt_attribs, 'experimental-webgl')
+                || create3DContext(canvas, opt_attribs, 'webkit-3d')
+                || create3DContext(canvas, opt_attribs, 'moz-webgl')
+                || null;
         }
     };
 
@@ -1063,13 +1056,18 @@ else {
         };
     }
 
-    const _supportWebp = TEST ? false : _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
+    let _supportWebp;
+    try {
+        _supportWebp = TEST ? false : _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
+    }
+    catch (e) {
+        _supportWebp  = false;
+    }  
     const _supportCanvas = TEST ? false : !!_tmpCanvas1.getContext('2d');
     let _supportWebGL = false;
     if (TEST) {
         _supportWebGL = false;
-    }
-    else if (win.WebGLRenderingContext) {
+    } else if (win.WebGLRenderingContext) {
         _supportWebGL = true;
     }
 
@@ -1077,8 +1075,18 @@ else {
         canvas: _supportCanvas,
         opengl: _supportWebGL,
         webp: _supportWebp,
-        imageBitmap: typeof createImageBitmap !== 'undefined' && typeof Blob !== 'undefined',
+        imageBitmap: false,
     } as { [x: string]: any; };
+
+    if (!TEST && typeof createImageBitmap !== 'undefined' && typeof Blob !== 'undefined') {
+        _tmpCanvas1.width = _tmpCanvas1.height = 2;
+        createImageBitmap(_tmpCanvas1, {}).then((imageBitmap) => {
+            capabilities.imageBitmap = true;
+            if (imageBitmap.close) {
+                imageBitmap.close();
+            }
+        }).catch((err) => {});
+    }
     if (docEle.ontouchstart !== undefined || doc.ontouchstart !== undefined || nav.msPointerEnabled) {
         capabilities.touches = true;
     }
@@ -1122,15 +1130,15 @@ else {
         }
 
         if (DEBUG) {
-            setTimeout(function () {
-                log('browse type: ' + sys.browserType);
-                log('browse version: ' + version);
-                log('MULTI_CHANNEL: ' + __audioSupport.MULTI_CHANNEL);
-                log('WEB_AUDIO: ' + __audioSupport.WEB_AUDIO);
-                log('AUTOPLAY: ' + __audioSupport.AUTOPLAY);
+            setTimeout(() => {
+                log(`browse type: ${sys.browserType}`);
+                log(`browse version: ${version}`);
+                log(`MULTI_CHANNEL: ${__audioSupport.MULTI_CHANNEL}`);
+                log(`WEB_AUDIO: ${__audioSupport.WEB_AUDIO}`);
+                log(`AUTOPLAY: ${__audioSupport.AUTOPLAY}`);
             }, 0);
         }
-    })();
+    }());
 
     try {
         if (__audioSupport.WEB_AUDIO) {
@@ -1162,13 +1170,13 @@ else {
             const m4a = audio.canPlayType('audio/x-m4a');
             if (m4a) { formatSupport.push('.m4a'); }
         }
-    })();
+    }());
     __audioSupport.format = formatSupport;
 
     sys.__audioSupport = __audioSupport;
 
     sys.__videoSupport = {
-        format: []
+        format: [],
     };
     (function () {
         const video = document.createElement('video');
@@ -1182,8 +1190,7 @@ else {
             });
             sys.__videoSupport.format = format;
         }
-    })();
-
+    }());
 }
 
 legacyCC.sys = sys;

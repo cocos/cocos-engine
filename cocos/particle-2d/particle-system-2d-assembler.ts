@@ -1,5 +1,6 @@
-/****************************************************************************
+/*
  Copyright (c) 2017-2018 Chukong Technologies Inc.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -21,7 +22,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+ */
 
 import { IAssembler, IAssemblerManager } from '../core/renderer/ui/base';
 import { ParticleSystem2D } from './particle-system-2d';
@@ -47,14 +48,7 @@ export const ParticleAssembler: IAssembler = {
             return;
         }
 
-        let node;
-        if (comp.positionType === PositionType.RELATIVE) {
-            node = comp.node.parent;
-        } else {
-            node = comp.node;
-        }
-
-        let buffer = renderer.currBufferBatch!;
+        let buffer = renderer.acquireBufferBatch()!;
         let vertexOffset = buffer.byteOffset >> 2;
         let indicesOffset = buffer.indicesOffset;
         let vertexId = buffer.vertexOffset;
@@ -65,7 +59,7 @@ export const ParticleAssembler: IAssembler = {
             vertexId = 0;
         }
 
-         // buffer data may be realloc, need get reference after request.
+        // buffer data may be realloc, need get reference after request.
         const vBuf = buffer.vData!;
         const iBuf = buffer.iData!;
 
@@ -81,13 +75,13 @@ export const ParticleAssembler: IAssembler = {
         for (let i = 0; i < iLen; i++) {
             iBuf[indicesOffset++] = iData[i] + vertexId;
         }
-    }
-}
+    },
+};
 
 export const ParticleSystem2DAssembler: IAssemblerManager = {
     getAssembler (comp: ParticleSystem2D) {
         if (!ParticleAssembler.maxParticleDeltaTime) {
-            ParticleAssembler.maxParticleDeltaTime = legacyCC.game.frameTime / 1000 * 2
+            ParticleAssembler.maxParticleDeltaTime = legacyCC.game.frameTime / 1000 * 2;
         }
         return ParticleAssembler;
     },

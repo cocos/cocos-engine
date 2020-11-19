@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -53,7 +53,7 @@ export class StencilManager {
     private _maskStack: any[] = [];
     private _stencilPattern = {
         stencilTest: true,
-        func: ComparisonFunc.NEVER,
+        func: ComparisonFunc.ALWAYS,
         stencilMask: 0xffff,
         writeMask: 0xffff,
         failOp: StencilOp.KEEP,

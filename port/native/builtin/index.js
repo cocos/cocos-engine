@@ -1,6 +1,3 @@
-window.CanvasRenderingContext2D = jsb.CanvasRenderingContext2D;
-delete jsb.CanvasRenderingContext2D;
-
 jsb.device = jsb.Device; // cc namespace will be reset to {} in creator, use jsb namespace instead.
 
 const { btoa, atob } = require('./base64/base64.min');

@@ -31,7 +31,7 @@
 import { Texture2D } from '../../assets';
 import { Material } from '../../assets/material';
 import { Mesh } from '../../assets/mesh';
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type, formerlySerializedAs, serializable, editable } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type, formerlySerializedAs, serializable, editable, disallowAnimation } from 'cc.decorator';
 import { Vec4 } from '../../math';
 import { scene, models } from '../../renderer';
 import { Root } from '../../root';
@@ -165,6 +165,7 @@ export class MeshRenderer extends RenderableComponent {
 
     @serializable
     @editable
+    @disallowAnimation
     public lightmapSettings = new ModelLightmapSettings();
 
     @serializable
@@ -182,6 +183,7 @@ export class MeshRenderer extends RenderableComponent {
      */
     @type(ModelShadowCastingMode)
     @tooltip('i18n:model.shadow_casting_model')
+    @disallowAnimation
     get shadowCastingMode () {
         return this._shadowCastingMode;
     }
@@ -197,6 +199,7 @@ export class MeshRenderer extends RenderableComponent {
      */
     @type(ModelShadowReceivingMode)
     @tooltip('i18n:model.shadow_receiving_model')
+    @disallowAnimation
     get receiveShadow () {
         return this._shadowReceivingMode;
     }
@@ -239,6 +242,7 @@ export class MeshRenderer extends RenderableComponent {
             this.mesh.struct.morph.subMeshMorphs.some((subMeshMorph) => !!subMeshMorph)
         );
     })
+    @disallowAnimation
     get enableMorph () {
         return this._enableMorph;
     }
@@ -272,6 +276,8 @@ export class MeshRenderer extends RenderableComponent {
     // Redo, Undo, Prefab restore, etc.
     public onRestore () {
         this._updateModels();
+        this._updateCastShadow();
+        this._updateReceiveShadow();
     }
 
     public onEnable () {

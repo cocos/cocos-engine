@@ -1,9 +1,34 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
  * @packageDocumentation
  * @hidden
  */
 
-import { aabb, intersect, frustum } from '../../geometry';
+import { AABB, intersect, Sphere } from '../../geometry';
 import { Model } from '../../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Layers } from '../../scene-graph/layers';
@@ -13,17 +38,16 @@ import { RenderView } from '../';
 import { Pool } from '../../memop';
 import { IRenderObject, UBOShadow } from '../define';
 import { ShadowType, Shadows } from '../../renderer/scene/shadows';
-import { SphereLight, DirectionalLight, RenderScene} from '../../renderer/scene';
-import { ShadowsPool, ShadowsView } from '../../renderer';
+import { SphereLight, DirectionalLight, Light } from '../../renderer/scene';
 
 const _tempVec3 = new Vec3();
 const _dir_negate = new Vec3();
 const _vec3_p = new Vec3();
 const _mat4_trans = new Mat4();
-const _castWorldBounds = new aabb();
-const _receiveWorldBounds = new aabb();
+const _castWorldBounds = new AABB();
 let _castBoundsInited = false;
-let _receiveBoundsInited = false;
+const _validLights: Light[] = [];
+const _sphere = Sphere.create(0, 0, 0, 1);
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 const shadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
@@ -52,12 +76,13 @@ function getCastShadowRenderObject (model: Model, camera: Camera) {
     return ro;
 }
 
-export function getShadowWorldMatrix (pipeline: ForwardPipeline, rotation: Quat, dir: Vec3) {
+export function getShadowWorldMatrix (pipeline: ForwardPipeline, rotation: Quat, dir: Vec3, out: Vec3) {
     const shadows = pipeline.shadows;
     Vec3.negate(_dir_negate, dir);
-    const distance: number = 2.0 * Math.sqrt(3.0) * shadows.sphere.radius;
+    const distance: number = shadows.sphere.radius * Shadows.COEFFICIENT_OF_EXPANSION;
     Vec3.multiplyScalar(_vec3_p, _dir_negate, distance);
     Vec3.add(_vec3_p, _vec3_p, shadows.sphere.center);
+    out.set(_vec3_p);
 
     Mat4.fromRT(_mat4_trans, rotation, _vec3_p);
 
@@ -122,6 +147,83 @@ function updateDirLight (pipeline: ForwardPipeline, light: DirectionalLight) {
     Mat4.toArray(pipeline.shadowUBO, shadows.matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
 }
 
+export function updatePlanarPROJ (shadowInfo: Shadows, light: DirectionalLight, shadowUBO: Float32Array){
+    const dir = light.direction;
+    const n = shadowInfo.normal; const d = shadowInfo.distance + 0.001; // avoid z-fighting
+    const NdL = Vec3.dot(n, dir); const scale = 1 / NdL;
+    const lx = dir.x * scale; const ly = dir.y * scale; const lz = dir.z * scale;
+    const nx = n.x; const ny = n.y; const nz = n.z;
+    const m = shadowInfo.matLight;
+    m.m00 = 1 - nx * lx;
+    m.m01 = -nx * ly;
+    m.m02 = -nx * lz;
+    m.m03 = 0;
+    m.m04 = -ny * lx;
+    m.m05 = 1 - ny * ly;
+    m.m06 = -ny * lz;
+    m.m07 = 0;
+    m.m08 = -nz * lx;
+    m.m09 = -nz * ly;
+    m.m10 = 1 - nz * lz;
+    m.m11 = 0;
+    m.m12 = lx * d;
+    m.m13 = ly * d;
+    m.m14 = lz * d;
+    m.m15 = 1;
+
+    Mat4.toArray(shadowUBO, m, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
+}
+
+export function lightCollecting (view: RenderView, lightNumber: number) {
+    _validLights.length = 0;
+
+    const camera = view.camera;
+    const scene = camera.scene!;
+    _validLights.push(scene.mainLight!);
+
+    const spotLights = scene.spotLights;
+    for (let i = 0; i < spotLights.length; i++) {
+        const light = spotLights[i];
+        Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+        if (intersect.sphereFrustum(_sphere, view.camera.frustum) &&
+         lightNumber > _validLights.length) {
+            _validLights.push(light);
+        }
+    }
+
+    return _validLights;
+}
+
+export function shadowCollecting (pipeline: ForwardPipeline, view: RenderView) {
+    const camera = view.camera;
+    const scene = camera.scene!;
+    const shadows = pipeline.shadows;
+    const shadowObjects = pipeline.shadowObjects;
+    shadowPool.freeArray(shadowObjects); shadowObjects.length = 0;
+
+    _castBoundsInited = false;
+
+    const models = scene.models;
+    for (let i = 0; i < models.length; i++) {
+        const model = models[i];
+        // filter model by view visibility
+        if (model.node && ((view.visibility & model.node.layer) === model.node.layer) ||
+            (view.visibility & model.visFlags)) {
+
+            // shadow render Object
+            if (model.castShadow && model.worldBounds) {
+                if (!_castBoundsInited) {
+                    _castWorldBounds.copy(model.worldBounds);
+                    _castBoundsInited = true;
+                }
+                AABB.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
+                shadowObjects.push(getCastShadowRenderObject(model, camera));
+            }
+        }       
+    }
+    if (_castWorldBounds) { AABB.toBoundingSphere(shadows.sphere, _castWorldBounds); }
+}
+
 export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
     const camera = view.camera;
     const scene = camera.scene!;
@@ -130,13 +232,6 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
 
     const renderObjects = pipeline.renderObjects;
     roPool.freeArray(renderObjects); renderObjects.length = 0;
-    const shadowObjects = pipeline.shadowObjects;
-    shadowPool.freeArray(shadowObjects); shadowObjects.length = 0;
-
-    // Each time the calculation,
-    // reset the flag.
-    _castBoundsInited = false;
-    _receiveBoundsInited = false;
 
     if (shadows.enabled) {
         Color.toArray(pipeline.shadowUBO, shadows.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
@@ -169,28 +264,8 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                 if (model.node && ((view.visibility & model.node.layer) === model.node.layer) ||
                     (view.visibility & model.visFlags)) {
 
-                    // shadow render Object
-                    if (model.castShadow && model.worldBounds) {
-                        if (!_castBoundsInited) {
-                            _castWorldBounds.copy(model.worldBounds);
-                            _castBoundsInited = true;
-                        }
-                        aabb.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
-                        shadowObjects.push(getCastShadowRenderObject(model, camera));
-                    }
-
-                    // Even if the obstruction is not in the field of view,
-                    // the shadow is still visible.
-                    if (model.receiveShadow && model.worldBounds) {
-                        if(!_receiveBoundsInited) {
-                            _receiveWorldBounds.copy(model.worldBounds);
-                            _receiveBoundsInited = true;
-                        }
-                        aabb.merge(_receiveWorldBounds, _receiveWorldBounds, model.worldBounds);
-                    }
-
                     // frustum culling
-                    if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, camera.frustum)) {
+                    if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, camera.frustum)) {
                         continue;
                     }
 
@@ -198,13 +273,5 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
                 }
             }
         }
-    }
-
-    if (_castWorldBounds) {
-        aabb.toBoundingSphere(shadows.sphere, _castWorldBounds);
-    }
-
-    if (_receiveWorldBounds) {
-        aabb.toBoundingSphere(shadows.receiveSphere, _receiveWorldBounds);
     }
 }

@@ -34,8 +34,8 @@ import { FiniteTimeAction, Action } from "./action";
 import { RenderableComponent } from "../../core";
 
 /**
- * !#en Instant actions are immediate actions. They don't have a duration like the ActionInterval actions.
- * !#zh 即时动作，这种动作立即就会执行，继承自 FiniteTimeAction。
+ * @en Instant actions are immediate actions. They don't have a duration like the ActionInterval actions.
+ * @zh 即时动作，这种动作立即就会执行，继承自 FiniteTimeAction。
  * @class ActionInstant
  * @extends FiniteTimeAction
  */
@@ -93,8 +93,8 @@ export class Show extends ActionInstant {
 }
 
 /**
- * !#en Show the Node.
- * !#zh 立即显示。
+ * @en Show the Node.
+ * @zh 立即显示。
  * @method show
  * @return {ActionInstant}
  * @example
@@ -130,8 +130,8 @@ export class Hide extends ActionInstant {
 }
 
 /**
- * !#en Hide the node.
- * !#zh 立即隐藏。
+ * @en Hide the node.
+ * @zh 立即隐藏。
  * @method hide
  * @return {ActionInstant}
  * @example
@@ -167,8 +167,8 @@ export class ToggleVisibility extends ActionInstant {
 }
 
 /**
- * !#en Toggles the visibility of a node.
- * !#zh 显隐状态切换。
+ * @en Toggles the visibility of a node.
+ * @zh 显隐状态切换。
  * @method toggleVisibility
  * @return {ActionInstant}
  * @example
@@ -219,8 +219,8 @@ export class RemoveSelf extends ActionInstant {
 }
 
 /**
- * !#en Create a RemoveSelf object with a flag indicate whether the target should be cleaned up while removing.
- * !#zh 从父节点移除自身。
+ * @en Create a RemoveSelf object with a flag indicate whether the target should be cleaned up while removing.
+ * @zh 从父节点移除自身。
  * @method removeSelf
  * @param {Boolean} [isNeedCleanUp = true]
  * @return {ActionInstant}
@@ -327,8 +327,8 @@ export class CallFunc extends ActionInstant {
 }
 
 /**
- * !#en Creates the action with the callback.
- * !#zh 执行回调函数。
+ * @en Creates the action with the callback.
+ * @zh 执行回调函数。
  * @method callFunc
  * @param {function} selector
  * @param {object} [selectorTarget=null]

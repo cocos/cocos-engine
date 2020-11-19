@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -58,8 +58,7 @@ function visitComponent (comp: any, deps: string[]) {
                         visitAsset(val, deps);
                     }
                 }
-            }
-            else if (!value.constructor || value.constructor === Object) {
+            } else if (!value.constructor || value.constructor === Object) {
                 const keys = Object.getOwnPropertyNames(value);
                 for (let j = 0; j < keys.length; j++) {
                     const val = value[keys[j]];
@@ -67,8 +66,7 @@ function visitComponent (comp: any, deps: string[]) {
                         visitAsset(val, deps);
                     }
                 }
-            }
-            else if (value instanceof Asset) {
+            } else if (value instanceof Asset) {
                 visitAsset(value, deps);
             }
         }
@@ -93,8 +91,7 @@ function descendOpRef (asset: Asset, refs: Record<string, number>, exclude: stri
         const uuid = dependAsset._uuid;
         if (!(uuid in refs)) {
             refs[uuid] = dependAsset.refCount + op;
-        }
-        else {
+        } else {
             refs[uuid] += op;
         }
         if (exclude.includes(uuid)) { continue; }
@@ -122,10 +119,9 @@ function checkCircularReference (asset: Asset) {
 }
 
 class ReleaseManager {
-
     private _persistNodeDeps = new Cache<string[]>();
     private _toDelete = new Cache<Asset>();
-    private _eventListener: boolean = false;
+    private _eventListener = false;
 
     public init (): void {
         this._persistNodeDeps.clear();
@@ -159,7 +155,6 @@ class ReleaseManager {
 
     // do auto release
     public _autoRelease (oldScene: Scene, newScene: Scene, persistNodes: Node[]) {
-
         // transfer refs from persist nodes to new scene
         for (let i = 0, l = persistNodes.length; i < l; i++) {
             const node = persistNodes[i];
@@ -235,8 +230,6 @@ class ReleaseManager {
         this._toDelete.remove(uuid);
 
         if (!isValid(asset, true)) { return; }
-        // HACK, don't release effect in runtime
-        if (!EDITOR && asset instanceof EffectAsset) { return; }
 
         if (!force) {
             if (asset.refCount > 0) {

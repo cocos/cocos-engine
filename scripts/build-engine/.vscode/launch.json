@@ -11,6 +11,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
+            "stopOnEntry": true,
             "program": "${workspaceFolder}\\dist\\cli.js",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
@@ -23,7 +24,7 @@
                 "--module=system",
                 "--sourcemap",
                 "--out=out",
-                "--split"
+                "--meta-file=out/meta.json"
             ]
         }
     ]

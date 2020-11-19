@@ -399,9 +399,9 @@ export class RigidBody2D extends Component {
         return out;
     }
     /**
-     * !#en
+     * @en
      * Converts a world coordinate point to the given rigid body coordinate.
-     * !#zh
+     * @zh
      * 将一个给定的世界坐标系下的向量转换为刚体本地坐标系下的向量
      * @method getLocalVector
      * @param worldVector - a vector in world coordinates.

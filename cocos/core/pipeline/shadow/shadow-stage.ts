@@ -1,3 +1,28 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
  * @packageDocumentation
  * @module pipeline.forward
@@ -10,7 +35,9 @@ import { RenderView } from '../render-view';
 import { ForwardStagePriority } from '../forward/enum';
 import { RenderShadowMapBatchedQueue } from '../render-shadow-map-batched-queue';
 import { ForwardPipeline } from '../forward/forward-pipeline';
-import { SetIndex, UBOShadow } from '../define';
+import { SetIndex } from '../define';
+import { Light } from '../../renderer/scene/light';
+import { ShadowFlow } from './shadow-flow';
 
 const colors: Color[] = [ new Color(1, 1, 1, 1) ];
 
@@ -33,48 +60,33 @@ export class ShadowStage extends RenderStage {
     /**
      * @en Sets the frame buffer for shadow map
      * @zh 设置阴影渲染的 FrameBuffer
+     * @param light
      * @param shadowFrameBuffer
      */
-    public setShadowFrameBuffer (shadowFrameBuffer: Framebuffer) {
+    public setUsage (light: Light, shadowFrameBuffer: Framebuffer) {
+        this._light = light;
         this._shadowFrameBuffer = shadowFrameBuffer;
     }
 
-    private _additiveShadowQueue: RenderShadowMapBatchedQueue;
+    private _additiveShadowQueue!: RenderShadowMapBatchedQueue;
     private _shadowFrameBuffer: Framebuffer | null = null;
     private _renderArea = new Rect();
-
-    constructor () {
-        super();
-        this._additiveShadowQueue = new RenderShadowMapBatchedQueue();
-    }
+    private _light: Light | null = null;
 
     public destroy () {
+        this._additiveShadowQueue.clear();
     }
 
     public render (view: RenderView) {
         const pipeline = this._pipeline as ForwardPipeline;
         const shadowInfo = pipeline.shadows;
-        this._additiveShadowQueue.clear(pipeline.descriptorSet.getBuffer(UBOShadow.BINDING));
-
-        if (view.camera.scene?.mainLight) {
-            const shadowObjects = pipeline.shadowObjects;
-            let m = 0; let p = 0;
-            for (let i = 0; i < shadowObjects.length; ++i) {
-                const ro = shadowObjects[i];
-                const subModels = ro.model.subModels;
-                for (m = 0; m < subModels.length; m++) {
-                    const passes = subModels[m].passes;
-                    for (p = 0; p < passes.length; p++) {
-                        this._additiveShadowQueue.add(ro, m, p);
-                    }
-                }
-            }
-        }
-
-        const camera = view.camera;
 
         const cmdBuff = pipeline.commandBuffers[0];
 
+        if (!this._light || !this._shadowFrameBuffer) { return; }
+        this._additiveShadowQueue.gatherLightPasses(this._light, cmdBuff);
+
+        const camera = view.camera;
         const vp = camera.viewport;
         const shadowMapSize = shadowInfo.size;
         this._renderArea!.x = vp.x * shadowMapSize.x;
@@ -90,8 +102,13 @@ export class ShadowStage extends RenderStage {
 
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
-        this._additiveShadowQueue.recordCommandBuffer(device, renderPass!, cmdBuff);
+        this._additiveShadowQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 
         cmdBuff.endRenderPass();
+    }
+
+    public activate (pipeline: ForwardPipeline, flow: ShadowFlow) {
+        super.activate(pipeline, flow);
+        this._additiveShadowQueue = new RenderShadowMapBatchedQueue(pipeline);
     }
 }

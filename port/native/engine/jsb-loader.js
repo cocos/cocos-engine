@@ -211,7 +211,7 @@ function downloadBundle (nameOrUrl, options, onComplete) {
             if (err) {
                 return onComplete(err, null);
             }
-            System.import('virtual:///prerequisite-imports/' + bundleName).then(function() {
+            downloader.importBundleEntry(bundleName).then(function() {
                 onComplete(null, out);
             }).catch(function(err) {
                 onComplete(err);
@@ -235,20 +235,18 @@ function loadFont (url, options, onComplete) {
     });
 }
 
-function parsePlist (url, options, onComplete) {
+const originParsePlist = parser.parsePlist;
+let parsePlist = function (url, options, onComplete) {
     readText(url, function (err, file) {
-        var result = null;
-        if (!err) {
-            result = cc.plistParser.parse(file);
-            if (!result) err = new Error('parse failed');
-        }
-        onComplete && onComplete(err, result);
+        if (err) return onComplete(err);
+        originParsePlist(file, options, onComplete);
     });
-}
+};
 
 parser.parsePVRTex = downloader.downloadDomImage;
 parser.parsePKMTex = downloader.downloadDomImage;
 parser.parseASTCTex = downloader.downloadDomImage;
+parser.parsePlist = parsePlist;
 downloader.downloadScript = downloadScript;
 
 downloader.register({

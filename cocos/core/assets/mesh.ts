@@ -32,7 +32,7 @@ import { ccclass, serializable } from 'cc.decorator';
 import { Asset } from './asset';
 import { BufferBlob } from '../3d/misc/buffer-blob';
 import { Skeleton } from './skeleton';
-import { aabb } from '../geometry';
+import { AABB } from '../geometry';
 import { legacyCC } from '../global-exports';
 import { mapBuffer } from '../3d/misc/buffer';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
@@ -262,23 +262,24 @@ export class RenderingSubMesh {
             const vbCount = prim.indexView ? prim.indexView.count : vertexBundle.view.count;
             const vbStride = vertexBundle.view.stride;
             const vbSize = vbStride * vbCount;
+            const view = new Uint8Array(mesh.data.buffer, vertexBundle.view.offset, vertexBundle.view.length);
 
-            const rawBufferSize = prim.indexView ? vertexBundle.view.length : vbSize;
-            const hBuffer = RawBufferPool.alloc(rawBufferSize);
-            const buffer = RawBufferPool.getBuffer(hBuffer);
-            const view = prim.indexView ? new Uint8Array(buffer) : new Uint8Array(rawBufferSize);
+            const hBuffer = RawBufferPool.alloc(prim.indexView ? vbSize : vertexBundle.view.length);
             const hFlatBuffer = FlatBufferPool.alloc();
-            view.set(mesh.data.subarray(vertexBundle.view.offset, vertexBundle.view.offset + vertexBundle.view.length));
+            FlatBufferPool.set(hFlatBuffer, FlatBufferView.STRIDE, vbStride);
+            FlatBufferPool.set(hFlatBuffer, FlatBufferView.AMOUNT, vbCount);
+            FlatBufferPool.set(hFlatBuffer, FlatBufferView.BUFFER, hBuffer);
+            FlatBufferArrayPool.push(fbArrayHandle, hFlatBuffer);
+
+            const buffer = RawBufferPool.getBuffer(hBuffer);
+            const sharedView = new Uint8Array(buffer);
 
             if (!prim.indexView) {
-                FlatBufferPool.set(hFlatBuffer, FlatBufferView.STRIDE, vbStride);
-                FlatBufferPool.set(hFlatBuffer, FlatBufferView.AMOUNT, vbCount);
-                FlatBufferPool.set(hFlatBuffer, FlatBufferView.BUFFER, hBuffer);
-                this._flatBuffers.push({ stride: vbStride, count: vbCount, buffer: view });
-                FlatBufferArrayPool.push(fbArrayHandle, hFlatBuffer);
+                sharedView.set(mesh.data.subarray(vertexBundle.view.offset, vertexBundle.view.offset + vertexBundle.view.length));
+                this._flatBuffers.push({ stride: vbStride, count: vbCount, buffer: sharedView });
                 continue;
             }
-            const vbView = new Uint8Array(buffer);
+
             const ibView = mesh.readIndices(this.subMeshIdx)!;
             // transform to flat buffer
             for (let n = 0; n < idxCount; ++n) {
@@ -286,14 +287,10 @@ export class RenderingSubMesh {
                 const offset = n * vbStride;
                 const srcOffset = idx * vbStride;
                 for (let m = 0; m < vbStride; ++m) {
-                    vbView[offset + m] = view[srcOffset + m];
+                    sharedView[offset + m] = view[srcOffset + m];
                 }
             }
-            FlatBufferPool.set(hFlatBuffer, FlatBufferView.STRIDE, vbStride);
-            FlatBufferPool.set(hFlatBuffer, FlatBufferView.AMOUNT, vbCount);
-            FlatBufferPool.set(hFlatBuffer, FlatBufferView.BUFFER, hBuffer);
-            FlatBufferArrayPool.push(fbArrayHandle, hFlatBuffer);
-            this._flatBuffers.push({ stride: vbStride, count: vbCount, buffer: vbView });
+            this._flatBuffers.push({ stride: vbStride, count: vbCount, buffer: sharedView });
         }
     }
 
@@ -400,8 +397,11 @@ export class RenderingSubMesh {
         const attributeIndex = this.attributes.length;
 
         const vertexIdBuffer = this._allocVertexIdBuffer(device);
-        this.vertexBuffers.push(vertexIdBuffer);
-        this.attributes.push(new Attribute('a_vertexId', Format.R32F, false, streamIndex));
+        this._vertexBuffers.push(vertexIdBuffer);
+        this._attributes.push(new Attribute('a_vertexId', Format.R32F, false, streamIndex));
+
+        this._iaInfo.attributes = this._attributes;
+        this._iaInfo.vertexBuffers = this._vertexBuffers;
 
         this._vertexIdChannel = {
             stream: streamIndex,
@@ -412,12 +412,12 @@ export class RenderingSubMesh {
     private _allocVertexIdBuffer (device: Device) {
         const vertexCount = (this.vertexBuffers.length === 0 || this.vertexBuffers[0].stride === 0)
             ? 0
-        // TODO: This depends on how stride of a vertex buffer is defined; Consider padding problem.
+            // TODO: This depends on how stride of a vertex buffer is defined; Consider padding problem.
             : this.vertexBuffers[0].size / this.vertexBuffers[0].stride;
         const vertexIds = new Float32Array(vertexCount);
         for (let iVertex = 0; iVertex < vertexCount; ++iVertex) {
-        // `+0.5` because on some platforms, the "fetched integer" may have small error.
-        // For example `26` may yield `25.99999`, which is convert to `25` instead of `26` using `int()`.
+            // `+0.5` because on some platforms, the "fetched integer" may have small error.
+            // For example `26` may yield `25.99999`, which is convert to `25` instead of `26` using `int()`.
             vertexIds[iVertex] = iVertex + 0.5;
         }
 
@@ -667,7 +667,7 @@ export class Mesh extends Asset {
 
     private _renderingSubMeshes: RenderingSubMesh[] | null = null;
 
-    private _boneSpaceBounds: Map<number, (aabb | null)[]> = new Map();
+    private _boneSpaceBounds: Map<number, (AABB | null)[]> = new Map();
 
     private _jointBufferIndices: number[] | null = null;
 
@@ -827,12 +827,12 @@ export class Mesh extends Asset {
         if (this._boneSpaceBounds.has(skeleton.hash)) {
             return this._boneSpaceBounds.get(skeleton.hash)!;
         }
-        const bounds: (aabb | null)[] = [];
+        const bounds: (AABB | null)[] = [];
         this._boneSpaceBounds.set(skeleton.hash, bounds);
         const valid: boolean[] = [];
         const { bindposes } = skeleton;
         for (let i = 0; i < bindposes.length; i++) {
-            bounds.push(new aabb(Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity));
+            bounds.push(new AABB(Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity));
             valid.push(false);
         }
         const { primitives } = this._struct;
@@ -858,7 +858,7 @@ export class Mesh extends Asset {
         }
         for (let i = 0; i < bindposes.length; i++) {
             const b = bounds[i]!;
-            if (!valid[i]) { bounds[i] = null; } else { aabb.fromPoints(b, b.center, b.halfExtents); }
+            if (!valid[i]) { bounds[i] = null; } else { AABB.fromPoints(b, b.center, b.halfExtents); }
         }
         return bounds;
     }
@@ -880,7 +880,7 @@ export class Mesh extends Asset {
 
         const vec3_temp = new Vec3();
         const rotate = worldMatrix && new Quat();
-        const boundingBox = worldMatrix && new aabb();
+        const boundingBox = worldMatrix && new AABB();
         if (rotate) {
             worldMatrix!.getRotation(rotate);
         }
@@ -893,7 +893,7 @@ export class Mesh extends Asset {
                     Vec3.multiplyScalar(boundingBox!.center, boundingBox!.center, 0.5);
                     Vec3.subtract(boundingBox!.halfExtents, struct.maxPosition, struct.minPosition);
                     Vec3.multiplyScalar(boundingBox!.halfExtents, boundingBox!.halfExtents, 0.5);
-                    aabb.transform(boundingBox!, boundingBox!, worldMatrix);
+                    AABB.transform(boundingBox!, boundingBox!, worldMatrix);
                     Vec3.add(struct.maxPosition, boundingBox!.center, boundingBox!.halfExtents);
                     Vec3.subtract(struct.minPosition, boundingBox!.center, boundingBox!.halfExtents);
                 }
@@ -1138,7 +1138,7 @@ export class Mesh extends Asset {
                 Vec3.multiplyScalar(boundingBox!.center, boundingBox!.center, 0.5);
                 Vec3.subtract(boundingBox!.halfExtents, mesh._struct.maxPosition, mesh._struct.minPosition);
                 Vec3.multiplyScalar(boundingBox!.halfExtents, boundingBox!.halfExtents, 0.5);
-                aabb.transform(boundingBox!, boundingBox!, worldMatrix);
+                AABB.transform(boundingBox!, boundingBox!, worldMatrix);
                 Vec3.add(vec3_temp, boundingBox!.center, boundingBox!.halfExtents);
                 Vec3.max(meshStruct.maxPosition, meshStruct.maxPosition, vec3_temp);
                 Vec3.subtract(vec3_temp, boundingBox!.center, boundingBox!.halfExtents);

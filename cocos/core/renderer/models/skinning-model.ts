@@ -31,7 +31,7 @@
 import { Material } from '../../assets/material';
 import { Mesh, RenderingSubMesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
-import { aabb } from '../../geometry';
+import { AABB } from '../../geometry';
 import { BufferUsageBit, MemoryUsageBit } from '../../gfx/define';
 import { Mat4, Vec3 } from '../../math';
 import { UBOSkinning } from '../../pipeline/define';
@@ -40,6 +40,7 @@ import { ModelType } from '../scene/model';
 import { uploadJointData } from './skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { DescriptorSet, Buffer, BufferInfo } from '../../gfx';
+import { AABBPool, AABBView } from '../core/memory-pools';
 
 export interface IJointTransform {
     node: Node;
@@ -126,7 +127,7 @@ function getRelevantBuffers (outIndices: number[], outBuffers: number[], jointMa
 }
 
 interface IJointInfo {
-    bound: aabb;
+    bound: AABB;
     target: Node;
     bindpose: Mat4;
     transform: IJointTransform;
@@ -139,7 +140,7 @@ const v3_max = new Vec3();
 const v3_1 = new Vec3();
 const v3_2 = new Vec3();
 const m4_1 = new Mat4();
-const ab_1 = new aabb();
+const ab_1 = new AABB();
 
 /**
  * @en
@@ -148,7 +149,6 @@ const ab_1 = new aabb();
  * 实时计算动画的蒙皮模型。
  */
 export class SkinningModel extends MorphModel {
-
     public uploadAnimation = null;
 
     private _buffers: Buffer[] = [];
@@ -191,14 +191,13 @@ export class SkinningModel extends MorphModel {
             const bindpose = skeleton.bindposes[index];
             const indices: number[] = [];
             const buffers: number[] = [];
-            if (!jointMaps) { indices.push(index); buffers.push(0); }
-            else { getRelevantBuffers(indices, buffers, jointMaps, index); }
+            if (!jointMaps) { indices.push(index); buffers.push(0); } else { getRelevantBuffers(indices, buffers, jointMaps, index); }
             this._joints.push({ indices, buffers, bound, target, bindpose, transform });
         }
     }
 
     public updateTransform (stamp: number) {
-        const root = this.transform!;
+        const root = this.transform;
         // @ts-expect-error TS2445
         if (root.hasChangedFlags || root._dirtyFlags) {
             root.updateWorldTransform();
@@ -210,15 +209,18 @@ export class SkinningModel extends MorphModel {
         for (let i = 0; i < this._joints.length; i++) {
             const { bound, transform } = this._joints[i];
             const worldMatrix = getWorldMatrix(transform, stamp);
-            aabb.transform(ab_1, bound, worldMatrix);
+            AABB.transform(ab_1, bound, worldMatrix);
             ab_1.getBoundary(v3_1, v3_2);
             Vec3.min(v3_min, v3_min, v3_1);
             Vec3.max(v3_max, v3_max, v3_2);
         }
-        if (this._modelBounds && this._worldBounds) {
-            aabb.fromPoints(this._modelBounds, v3_min, v3_max);
+        const worldBounds = this._worldBounds;
+        if (this._modelBounds && worldBounds) {
+            AABB.fromPoints(this._modelBounds, v3_min, v3_max);
             // @ts-expect-error TS2445
             this._modelBounds.transform(root._mat, root._pos, root._rot, root._scale, this._worldBounds);
+            AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, worldBounds.center);
+            AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, worldBounds.halfExtents);
         }
     }
 
@@ -249,9 +251,8 @@ export class SkinningModel extends MorphModel {
         const superMacroPatches = super.getMacroPatches(subModelIndex);
         if (superMacroPatches) {
             return myPatches.concat(superMacroPatches);
-        } else {
-            return myPatches;
         }
+        return myPatches;
     }
 
     public _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet) {

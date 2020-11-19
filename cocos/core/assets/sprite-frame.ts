@@ -31,12 +31,12 @@
  */
 
 import { ccclass } from 'cc.decorator';
+import { EDITOR, TEST, BUILD } from 'internal:constants';
 import { Rect, Size, Vec2 } from '../math';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
 import { RenderTexture } from './render-texture';
 import { TextureBase } from './texture-base';
-import { EDITOR, TEST, BUILD } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { ImageAsset, ImageSource } from './image-asset';
 import { Texture2D } from './texture-2d';
@@ -223,7 +223,6 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  */
 @ccclass('cc.SpriteFrame')
 export class SpriteFrame extends Asset {
-
     /**
      * @en Create a SpriteFrame object by an image asset or an native image asset
      * @zh 通过 Image 资源或者平台相关 Image 对象创建一个 SpriteFrame 对象
@@ -247,7 +246,7 @@ export class SpriteFrame extends Asset {
     }
 
     set insetTop (value) {
-        if (this._capInsets[INSET_TOP] === value){
+        if (this._capInsets[INSET_TOP] === value) {
             return;
         }
 
@@ -266,7 +265,7 @@ export class SpriteFrame extends Asset {
     }
 
     set insetBottom (value) {
-        if (this._capInsets[INSET_BOTTOM] === value){
+        if (this._capInsets[INSET_BOTTOM] === value) {
             return;
         }
 
@@ -285,7 +284,7 @@ export class SpriteFrame extends Asset {
     }
 
     set insetLeft (value) {
-        if (this._capInsets[INSET_LEFT] === value){
+        if (this._capInsets[INSET_LEFT] === value) {
             return;
         }
 
@@ -304,7 +303,7 @@ export class SpriteFrame extends Asset {
     }
 
     set insetRight (value) {
-        if (this._capInsets[INSET_RIGHT] === value){
+        if (this._capInsets[INSET_RIGHT] === value) {
             return;
         }
 
@@ -446,6 +445,32 @@ export class SpriteFrame extends Asset {
     }
 
     /**
+     * @en Whether flip the uv in X direction
+     * @zh 延 X 轴方向, 翻转 UV
+     */
+    get flipUVX () {
+        return this._isFlipUVX;
+    }
+
+    set flipUVX (value) {
+        this._isFlipUVX = value;
+        this._calculateUV();
+    }
+
+    /**
+     * @en Whether flip the uv in Y direction
+     * @zh 延 Y 轴方向, 翻转 UV
+     */
+    get flipUVY () {
+        return this._isFlipUVY;
+    }
+
+    set flipUVY (value) {
+        this._isFlipUVY = value;
+        this._calculateUV();
+    }
+
+    /**
      * @en Vertex list for the mesh type sprite frame
      * @zh 网格类型精灵帧的所有顶点列表
      */
@@ -456,7 +481,7 @@ export class SpriteFrame extends Asset {
      * @zh 矩形的顶点 UV
      */
     public uv: number[] = [];
-    public uvHash: number = 0;
+    public uvHash = 0;
 
     public unbiasUV:number[] = [];
 
@@ -479,11 +504,13 @@ export class SpriteFrame extends Asset {
 
     protected _capInsets = [0, 0, 0, 0];
 
-    protected _atlasUuid: string = '';
+    protected _atlasUuid = '';
     // @ts-expect-error
     protected _texture: TextureBase | RenderTexture;
 
-    protected _flipUv = false;
+    protected _isFlipUVY = false;
+
+    protected _isFlipUVX = false;
 
     constructor () {
         super();
@@ -524,7 +551,7 @@ export class SpriteFrame extends Asset {
      * @deprecated since v1.2, please use [[rotated]] instead
      */
     public setRotated (rotated: boolean) {
-       this.rotated = rotated;
+        this.rotated = rotated;
     }
 
     /**
@@ -549,7 +576,7 @@ export class SpriteFrame extends Asset {
      * @deprecated since v1.2, please use [[rect]]
      */
     public setRect (rect: Rect) {
-       this.rect = rect;
+        this.rect = rect;
     }
 
     /**
@@ -642,9 +669,9 @@ export class SpriteFrame extends Asset {
         let calUV = false;
         if (clearData) {
             this._originalSize.set(0, 0);
-            this._rect.set(0, 0, 0 , 0);
+            this._rect.set(0, 0, 0, 0);
             this._offset.set(0, 0);
-            this._capInsets = [0 , 0, 0, 0];
+            this._capInsets = [0, 0, 0, 0];
             this._rotated = false;
             calUV = true;
         }
@@ -692,7 +719,7 @@ export class SpriteFrame extends Asset {
             }
 
             if (info.isFlipUv !== undefined) {
-                this._flipUv = !!info.isFlipUv;
+                this._isFlipUVY = !!info.isFlipUv;
             }
 
             calUV = true;
@@ -721,12 +748,12 @@ export class SpriteFrame extends Asset {
         }
 
         if (maxX > texture.width) {
-            errorID(3300, this.name + '/' + texture.name, maxX, texture.width);
+            errorID(3300, `${this.name}/${texture.name}`, maxX, texture.width);
             return false;
         }
 
         if (maxY > texture.height) {
-            errorID(3301, this.name + '/' + texture.name, maxY, texture.height);
+            errorID(3301, `${this.name}/${texture.name}`, maxY, texture.height);
             return false;
         }
 
@@ -818,17 +845,55 @@ export class SpriteFrame extends Asset {
             const r = texw === 0 ? 0 : (rect.x + rect.height - 0.5) / texw;
             const t = texh === 0 ? 0 : (rect.y + 0.5) / texh;
             const b = texh === 0 ? 0 : (rect.y + rect.width - 0.5) / texh;
-            if (this._flipUv) {
-                uv[0] = l;
+
+            if (this._isFlipUVX && this._isFlipUVY) {
+                /*
+                3 - 1
+                |   |
+                2 - 0
+                */
+                uv[0] = r;
+                uv[1] = b;
+                uv[2] = r;
+                uv[3] = t;
+                uv[4] = l;
+                uv[5] = b;
+                uv[6] = l;
+                uv[7] = t;
+            } else if (this._isFlipUVX) {
+                /*
+                2 - 0
+                |   |
+                3 - 1
+                */
+                uv[0] = r;
                 uv[1] = t;
-                uv[2] = l;
+                uv[2] = r;
                 uv[3] = b;
-                uv[4] = r;
+                uv[4] = l;
                 uv[5] = t;
-                uv[6] = r;
+                uv[6] = l;
                 uv[7] = b;
-            }
-            else {
+            } else if (this._isFlipUVY) {
+                /*
+                1 - 3
+                |   |
+                0 - 2
+                */
+                uv[0] = l;
+                uv[1] = b;
+                uv[2] = l;
+                uv[3] = t;
+                uv[4] = r;
+                uv[5] = b;
+                uv[6] = r;
+                uv[7] = t;
+            } else {
+                /*
+                0 - 2
+                |   |
+                1 - 3
+                */
                 uv[0] = l;
                 uv[1] = t;
                 uv[2] = l;
@@ -843,15 +908,33 @@ export class SpriteFrame extends Asset {
             const ur = texw === 0 ? 0 : (rect.x + rect.height) / texw;
             const ut = texh === 0 ? 0 : (rect.y) / texh;
             const ub = texh === 0 ? 0 : (rect.y + rect.width) / texh;
-            if (this._flipUv) {
-                unbiasUV[0] = ul;
+            if (this._isFlipUVX && this._isFlipUVY) {
+                unbiasUV[0] = ur;
+                unbiasUV[1] = ub;
+                unbiasUV[2] = ur;
+                unbiasUV[3] = ut;
+                unbiasUV[4] = ul;
+                unbiasUV[5] = ub;
+                unbiasUV[6] = ul;
+                unbiasUV[7] = ut;
+            } else if (this._isFlipUVX) {
+                unbiasUV[0] = ur;
                 unbiasUV[1] = ut;
-                unbiasUV[2] = ul;
+                unbiasUV[2] = ur;
                 unbiasUV[3] = ub;
-                unbiasUV[4] = ur;
+                unbiasUV[4] = ul;
                 unbiasUV[5] = ut;
-                unbiasUV[6] = ur;
+                unbiasUV[6] = ul;
                 unbiasUV[7] = ub;
+            } else if (this._isFlipUVY) {
+                unbiasUV[0] = ul;
+                unbiasUV[1] = ub;
+                unbiasUV[2] = ul;
+                unbiasUV[3] = ut;
+                unbiasUV[4] = ur;
+                unbiasUV[5] = ub;
+                unbiasUV[6] = ur;
+                unbiasUV[7] = ut;
             } else {
                 unbiasUV[0] = ul;
                 unbiasUV[1] = ut;
@@ -868,7 +951,40 @@ export class SpriteFrame extends Asset {
             const r = texw === 0 ? 0 : (rect.x + rect.width - 0.5) / texw;
             const b = texh === 0 ? 0 : (rect.y + rect.height - 0.5) / texh;
             const t = texh === 0 ? 0 : (rect.y + 0.5) / texh;
-            if (this._flipUv) {
+            if (this._isFlipUVX && this._isFlipUVY) {
+                /*
+                1 - 0
+                |   |
+                3 - 2
+                */
+                uv[0] = r;
+                uv[1] = t;
+                uv[2] = l;
+                uv[3] = t;
+                uv[4] = r;
+                uv[5] = b;
+                uv[6] = l;
+                uv[7] = b;
+            } else if (this._isFlipUVX) {
+                /*
+                3 - 2
+                |   |
+                1 - 0
+                */
+                uv[0] = r;
+                uv[1] = b;
+                uv[2] = l;
+                uv[3] = b;
+                uv[4] = r;
+                uv[5] = t;
+                uv[6] = l;
+                uv[7] = t;
+            } else if (this._isFlipUVY) {
+                /*
+                0 - 1
+                |   |
+                2 - 3
+                */
                 uv[0] = l;
                 uv[1] = t;
                 uv[2] = r;
@@ -878,6 +994,11 @@ export class SpriteFrame extends Asset {
                 uv[6] = r;
                 uv[7] = b;
             } else {
+                /*
+                2 - 3
+                |   |
+                0 - 1
+                */
                 uv[0] = l;
                 uv[1] = b;
                 uv[2] = r;
@@ -887,11 +1008,29 @@ export class SpriteFrame extends Asset {
                 uv[6] = r;
                 uv[7] = t;
             }
-            const ul = texw === 0 ? 0 : (rect.x ) / texw;
+            const ul = texw === 0 ? 0 : (rect.x) / texw;
             const ur = texw === 0 ? 0 : (rect.x + rect.width) / texw;
             const ub = texh === 0 ? 0 : (rect.y + rect.height) / texh;
             const ut = texh === 0 ? 0 : (rect.y) / texh;
-            if (this._flipUv) {
+            if (this._isFlipUVX && this._isFlipUVY) {
+                unbiasUV[0] = ur;
+                unbiasUV[1] = ut;
+                unbiasUV[2] = ul;
+                unbiasUV[3] = ut;
+                unbiasUV[4] = ur;
+                unbiasUV[5] = ub;
+                unbiasUV[6] = ul;
+                unbiasUV[7] = ub;
+            } else if (this._isFlipUVX) {
+                unbiasUV[0] = ur;
+                unbiasUV[1] = ub;
+                unbiasUV[2] = ul;
+                unbiasUV[3] = ub;
+                unbiasUV[4] = ur;
+                unbiasUV[5] = ut;
+                unbiasUV[6] = ul;
+                unbiasUV[7] = ut;
+            } else if (this._isFlipUVY) {
                 unbiasUV[0] = ul;
                 unbiasUV[1] = ut;
                 unbiasUV[2] = ur;
@@ -1019,6 +1158,34 @@ export class SpriteFrame extends Asset {
         }
     }
 
+    public clone ():SpriteFrame {
+        const sp = new SpriteFrame();
+        const v = this.vertices;
+        sp.vertices = v ? {
+            x: v.x,
+            y: v.y,
+            triangles: v.triangles, /* need clone ? */
+            nu: v.nu?.slice(0),
+            u: v.u?.slice(0),
+            nv: v.nv?.slice(0),
+            v: v.v?.slice(0),
+        } : null as any;
+        sp.uv.splice(0, sp.uv.length, ...this.uv);
+        sp.uvHash = this.uvHash;
+        sp.unbiasUV.splice(0, sp.unbiasUV.length, ... this.unbiasUV);
+        sp.uvSliced.splice(0, sp.uvSliced.length, ... this.uvSliced);
+        sp._rect.set(this._rect);
+        sp._offset.set(this._offset);
+        sp._originalSize.set(this._originalSize);
+        sp._rotated = this._rotated;
+        sp._capInsets.splice(0, sp._capInsets.length, ... this._capInsets);
+        sp._atlasUuid = this._atlasUuid;
+        sp._texture = this._texture;
+        sp._isFlipUVX = this._isFlipUVX;
+        sp._isFlipUVY = this._isFlipUVY;
+        return sp;
+    }
+
     protected _textureLoaded () {
         const tex = this._texture;
         const config: ISpriteFrameInitInfo = {};
@@ -1029,9 +1196,9 @@ export class SpriteFrame extends Asset {
         }
 
         // If original size is not set or rect check failed, we should reset the original size
-        if (this._originalSize.width === 0 ||
-            this._originalSize.height === 0 ||
-            isReset
+        if (this._originalSize.width === 0
+            || this._originalSize.height === 0
+            || isReset
         ) {
             config.originalSize = new Size(tex.width, tex.height);
             isReset = true;

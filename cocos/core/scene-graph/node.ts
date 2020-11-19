@@ -64,13 +64,13 @@ const bookOfChange = new Map<Node, number>();
  */
 
 /**
- * !#en
+ * @en
  * Class of all entities in Cocos Creator scenes.
  * Basic functionalities include:
  * * Hierarchy management with parent and children
  * * Components management
  * * Coordinate system with position, scale, rotation in 3d space
- * !#zh
+ * @zh
  * Cocos Creator 场景中的所有节点类。
  * 基本特性有：
  * * 具有层级关系
@@ -195,7 +195,6 @@ export class Node extends BaseNode {
 
     public set worldPosition (val: Readonly<Vec3>) {
         this.setWorldPosition(val);
-        NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, val);
     }
 
     /**
@@ -287,7 +286,6 @@ export class Node extends BaseNode {
 
     public set worldScale (val: Readonly<Vec3>) {
         this.setWorldScale(val);
-        NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, val);
     }
 
     /**
@@ -392,7 +390,7 @@ export class Node extends BaseNode {
 
     public _onBatchCreated (dontSyncChildPrefab?: boolean) {
         super._onBatchCreated();
-        bookOfChange.set(this, TransformBit.TRS);
+        this.hasChangedFlags = TransformBit.TRS;
         this._dirtyFlags = TransformBit.TRS;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
@@ -513,7 +511,7 @@ export class Node extends BaseNode {
         const hasChanegdFlags = this.hasChangedFlags;
         if ((this._dirtyFlags & hasChanegdFlags & dirtyBit) === dirtyBit) { return; }
         this._dirtyFlags |= dirtyBit;
-        bookOfChange.set(this, hasChanegdFlags | dirtyBit);
+        this.hasChangedFlags = hasChanegdFlags | dirtyBit;
         const newDirtyBit = dirtyBit | TransformBit.POSITION;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {

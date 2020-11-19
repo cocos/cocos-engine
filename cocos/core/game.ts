@@ -392,7 +392,7 @@ export class Game extends EventTarget {
         // Because runtime platforms never actually stops the swap chain,
         // we draw some more frames here to (try to) make sure swap chain consistency
         if (RUNTIME_BASED || ALIPAY) {
-            let swapbuffers = 3;
+            let swapbuffers = 4;
             const cb = () => {
                 if (--swapbuffers > 1) {
                     window.rAF(cb);
@@ -868,6 +868,9 @@ export class Game extends EventTarget {
     private _initEvents () {
         const win = window;
         let hiddenPropName: string;
+
+        // Ensure rAF and cAF
+        this._setAnimFrame();
 
         if (typeof document.hidden !== 'undefined') {
             hiddenPropName = 'hidden';

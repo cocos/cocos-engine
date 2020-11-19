@@ -1,3 +1,28 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 import { Asset } from '../../assets/asset';
 import { ImageAsset } from '../../assets/image-asset';
 import { SpriteFrame } from '../../assets/sprite-frame';
@@ -134,7 +159,7 @@ class BuiltinResMgr {
         // builtin effects
         const shaderVersionKey = getDeviceShaderVersion(device);
         if (!shaderVersionKey) {
-            return Promise.reject(Error(`Failed to initialize builtin shaders: unknown device.`));
+            return Promise.reject(Error('Failed to initialize builtin shaders: unknown device.'));
         }
         return import(`./shader-sources/${shaderVersionKey}.js`).then(({ default: shaderSources }) => {
             effects.forEach((e, effectIndex) => {
@@ -157,12 +182,12 @@ class BuiltinResMgr {
 
     private _initMaterials () {
         const resources = this._resources;
-        
+
         // standard material
         const standardMtl = new legacyCC.Material();
         standardMtl._uuid = 'standard-material';
         standardMtl.initialize({
-            effectName: 'builtin-standard',
+            effectName: 'standard',
         });
         resources[standardMtl._uuid] = standardMtl;
 
@@ -170,7 +195,7 @@ class BuiltinResMgr {
         const missingEfxMtl = new legacyCC.Material();
         missingEfxMtl._uuid = 'missing-effect-material';
         missingEfxMtl.initialize({
-            effectName: 'builtin-unlit',
+            effectName: 'unlit',
             defines: { USE_COLOR: true },
         });
         missingEfxMtl.setProperty('mainColor', legacyCC.color('#ffff00'));
@@ -180,82 +205,91 @@ class BuiltinResMgr {
         const missingMtl = new legacyCC.Material();
         missingMtl._uuid = 'missing-material';
         missingMtl.initialize({
-            effectName: 'builtin-unlit',
+            effectName: 'unlit',
             defines: { USE_COLOR: true },
         });
         missingMtl.setProperty('mainColor', legacyCC.color('#ff00ff'));
         resources[missingMtl._uuid] = missingMtl;
 
         const clearStencilMtl = new legacyCC.Material();
-        clearStencilMtl._uuid = 'builtin-clear-stencil';
-        clearStencilMtl.initialize({ defines: { USE_TEXTURE: false }, effectName: 'builtin-clear-stencil' });
+        clearStencilMtl._uuid = 'default-clear-stencil';
+        clearStencilMtl.initialize({ defines: { USE_TEXTURE: false }, effectName: 'clear-stencil' });
         resources[clearStencilMtl._uuid] = clearStencilMtl;
 
         // sprite material
         const spriteMtl = new legacyCC.Material();
         spriteMtl._uuid = 'ui-base-material';
-        spriteMtl.initialize({ defines: { USE_TEXTURE: false }, effectName: 'builtin-sprite' });
+        spriteMtl.initialize({ defines: { USE_TEXTURE: false }, effectName: 'sprite' });
         resources[spriteMtl._uuid] = spriteMtl;
 
         // sprite material
         const spriteColorMtl = new legacyCC.Material();
         spriteColorMtl._uuid = 'ui-sprite-material';
-        spriteColorMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false }, effectName: 'builtin-sprite' });
+        spriteColorMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false }, effectName: 'sprite' });
         resources[spriteColorMtl._uuid] = spriteColorMtl;
 
         // sprite alpha test material
         const alphaTestMaskMtl = new legacyCC.Material();
         alphaTestMaskMtl._uuid = 'ui-alpha-test-material';
-        alphaTestMaskMtl.initialize({ defines: { USE_TEXTURE: true, USE_ALPHA_TEST: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false }, effectName: 'builtin-sprite' });
+        alphaTestMaskMtl.initialize({
+            defines: { USE_TEXTURE: true, USE_ALPHA_TEST: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false },
+            effectName: 'sprite',
+        });
         resources[alphaTestMaskMtl._uuid] = alphaTestMaskMtl;
 
         // sprite gray material
         const spriteGrayMtl = new legacyCC.Material();
         spriteGrayMtl._uuid = 'ui-sprite-gray-material';
-        spriteGrayMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: true }, effectName: 'builtin-sprite' });
+        spriteGrayMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: true }, effectName: 'sprite' });
         resources[spriteGrayMtl._uuid] = spriteGrayMtl;
 
         // sprite alpha material
         const spriteAlphaMtl = new legacyCC.Material();
         spriteAlphaMtl._uuid = 'ui-sprite-alpha-sep-material';
-        spriteAlphaMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: false }, effectName: 'builtin-sprite' });
+        spriteAlphaMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: false }, effectName: 'sprite' });
         resources[spriteAlphaMtl._uuid] = spriteAlphaMtl;
 
         // sprite alpha & gray material
         const spriteAlphaGrayMtl = new legacyCC.Material();
         spriteAlphaGrayMtl._uuid = 'ui-sprite-gray-alpha-sep-material';
-        spriteAlphaGrayMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: true }, effectName: 'builtin-sprite' });
+        spriteAlphaGrayMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: true }, effectName: 'sprite' });
         resources[spriteAlphaGrayMtl._uuid] = spriteAlphaGrayMtl;
 
         // ui graphics material
         const defaultGraphicsMtl = new legacyCC.Material();
         defaultGraphicsMtl._uuid = 'ui-graphics-material';
-        defaultGraphicsMtl.initialize({ effectName: 'builtin-graphics' });
+        defaultGraphicsMtl.initialize({ effectName: 'graphics' });
         resources[defaultGraphicsMtl._uuid] = defaultGraphicsMtl;
 
         // default particle material
         const defaultParticleMtl = new legacyCC.Material();
         defaultParticleMtl._uuid = 'default-particle-material';
-        defaultParticleMtl.initialize({ effectName: 'builtin-particle' });
+        defaultParticleMtl.initialize({ effectName: 'particle' });
         resources[defaultParticleMtl._uuid] = defaultParticleMtl;
 
         // default particle gpu material
         const defaultParticleGPUMtl = new legacyCC.Material();
         defaultParticleGPUMtl._uuid = 'default-particle-gpu-material';
-        defaultParticleGPUMtl.initialize({ effectName: 'builtin-particle-gpu' });
+        defaultParticleGPUMtl.initialize({ effectName: 'particle-gpu' });
         resources[defaultParticleGPUMtl._uuid] = defaultParticleGPUMtl;
 
         // default particle material
         const defaultTrailMtl = new legacyCC.Material();
         defaultTrailMtl._uuid = 'default-trail-material';
-        defaultTrailMtl.initialize({ effectName: 'builtin-particle-trail' });
+        defaultTrailMtl.initialize({ effectName: 'particle-trail' });
         resources[defaultTrailMtl._uuid] = defaultTrailMtl;
 
         // default particle material
         const defaultBillboardMtl = new legacyCC.Material();
         defaultBillboardMtl._uuid = 'default-billboard-material';
-        defaultBillboardMtl.initialize({ effectName: 'builtin-billboard' });
+        defaultBillboardMtl.initialize({ effectName: 'billboard' });
         resources[defaultBillboardMtl._uuid] = defaultBillboardMtl;
+
+        // ui spine two color material
+        const spineTwoColorMtl = new legacyCC.Material();
+        spineTwoColorMtl._uuid = 'ui-spine-two-colored-material';
+        spineTwoColorMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: false }, effectName: 'spine-two-colored' });
+        resources[spineTwoColorMtl._uuid] = spineTwoColorMtl;
     }
 }
 

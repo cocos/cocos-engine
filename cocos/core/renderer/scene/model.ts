@@ -1,22 +1,48 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 import { builtinResMgr } from '../../3d/builtin/init';
 import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/mesh';
-import { aabb } from '../../geometry';
+import { AABB } from '../../geometry';
 import { Pool } from '../../memop';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from './render-scene';
 import { Texture2D } from '../../assets/texture-2d';
 import { SubModel } from './submodel';
-import { Pass, IMacroPatch } from '../core/pass';
+import { Pass, IMacroPatch, BatchingSchemes } from '../core/pass';
 import { legacyCC } from '../../global-exports';
 import { InstancedBuffer } from '../../pipeline';
-import { BatchingSchemes } from '../core/pass';
+
 import { Mat4, Vec3, Vec4 } from '../../math';
-import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
+import { genSamplerHash, samplerLib } from '../core/sampler-lib';
 import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool, ModelPool,
-    ModelView, AABBHandle, AABBPool, AABBView, NULL_HANDLE, AttributeArrayPool as AttrArrayPool, RawBufferPool, freeHandleArray, ObjectPool, PoolType } from '../core/memory-pools';
+    ModelView, AABBHandle, AABBPool, AABBView, NULL_HANDLE, AttributeArrayPool,
+    RawBufferPool, freeHandleArray, ObjectPool, PoolType } from '../core/memory-pools';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
 import { getTypedArrayConstructor, BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature } from '../../gfx/define';
@@ -74,7 +100,6 @@ const lightmapSamplerWithMipHash = genSamplerHash([
  * A representation of a model
  */
 export class Model {
-
     get subModels () {
         return this._subModels;
     }
@@ -166,8 +191,8 @@ export class Model {
     public isDynamicBatching = false;
     public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, views: [], attributes: [] };
 
-    protected _worldBounds: aabb | null = null;
-    protected _modelBounds: aabb | null = null;
+    protected _worldBounds: AABB | null = null;
+    protected _modelBounds: AABB | null = null;
     protected _subModels: SubModel[] = [];
     protected _node: Node = null!;
     protected _transform: Node = null!;
@@ -180,8 +205,8 @@ export class Model {
     protected _handle: ModelHandle = NULL_HANDLE;
     protected _hWorldBounds: AABBHandle = NULL_HANDLE;
 
-    private _localData = new Float32Array(UBOLocal.COUNT);
-    private _localBuffer: Buffer | null = null;
+    protected _localData = new Float32Array(UBOLocal.COUNT);
+    protected _localBuffer: Buffer | null = null;
     private _instMatWorldIdx = -1;
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
@@ -197,7 +222,7 @@ export class Model {
         if (!this._inited) {
             this._handle = ModelPool.alloc();
             const hSubModelArray = SubModelArrayPool.alloc();
-            const hInstancedAttrArray = AttrArrayPool.alloc();
+            const hInstancedAttrArray = AttributeArrayPool.alloc();
             ModelPool.set(this._handle, ModelView.INSTANCED_ATTR_ARRAY, hInstancedAttrArray);
             ModelPool.set(this._handle, ModelView.SUB_MODEL_ARRAY, hSubModelArray);
             ModelPool.set(this._handle, ModelView.VIS_FLAGS, Layers.Enum.NONE);
@@ -224,6 +249,8 @@ export class Model {
         this._subModels.length = 0;
         this._inited = false;
         this._transformUpdated = true;
+        this._transform = null!;
+        this._node = null!;
         this.isDynamicBatching = false;
 
         if (this._handle) {
@@ -234,7 +261,7 @@ export class Model {
             const hOldBuffer = ModelPool.get(this._handle, ModelView.INSTANCED_BUFFER);
             if (hOldBuffer) RawBufferPool.free(hOldBuffer);
             const hAttrArray = ModelPool.get(this._handle, ModelView.INSTANCED_ATTR_ARRAY);
-            if (hAttrArray) freeHandleArray(hAttrArray, AttrArrayPool, AttrPool);
+            if (hAttrArray) freeHandleArray(hAttrArray, AttributeArrayPool, AttrPool);
 
             ModelPool.free(this._handle);
             this._handle = NULL_HANDLE;
@@ -280,11 +307,11 @@ export class Model {
         if (!this._transformUpdated) { return; }
         this._transformUpdated = false;
 
-        // @ts-expect-error
+        // @ts-expect-error using private members here for efficiency
         const worldMatrix = this.transform._mat;
         const idx = this._instMatWorldIdx;
         if (idx >= 0) {
-            const attrs = this.instancedAttributes!.views;
+            const attrs = this.instancedAttributes.views;
             uploadMat4AsVec4x3(worldMatrix, attrs[idx], attrs[idx + 1], attrs[idx + 2]);
         } else if (this._localBuffer) {
             Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
@@ -301,8 +328,8 @@ export class Model {
      */
     public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
         if (!minPos || !maxPos) { return; }
-        this._modelBounds = aabb.fromPoints(aabb.create(), minPos, maxPos);
-        this._worldBounds = aabb.clone(this._modelBounds);
+        this._modelBounds = AABB.fromPoints(AABB.create(), minPos, maxPos);
+        this._worldBounds = AABB.clone(this._modelBounds);
         if (this._hWorldBounds === NULL_HANDLE) {
             this._hWorldBounds = AABBPool.alloc();
             ModelPool.set(this._handle, ModelView.WORLD_BOUNDS, this._hWorldBounds);
@@ -369,14 +396,12 @@ export class Model {
             const sampler = samplerLib.getSampler(this._device, texture.mipmaps.length > 1 ? lightmapSamplerWithMipHash : lightmapSamplerHash);
             const subModels = this._subModels;
             for (let i = 0; i < subModels.length; i++) {
-                const descriptorSet = subModels[i].descriptorSet;
+                const { descriptorSet } = subModels[i];
                 // TODO: should manage lightmap macro switches automatically
                 // USE_LIGHTMAP -> CC_USE_LIGHTMAP
-                if (subModels[i].passes[0].defines.USE_LIGHTMAP) {
-                    descriptorSet.bindTexture(UNIFORM_LIGHTMAP_TEXTURE_BINDING, gfxTexture);
-                    descriptorSet.bindSampler(UNIFORM_LIGHTMAP_TEXTURE_BINDING, sampler);
-                    descriptorSet.update();
-                }
+                descriptorSet.bindTexture(UNIFORM_LIGHTMAP_TEXTURE_BINDING, gfxTexture);
+                descriptorSet.bindSampler(UNIFORM_LIGHTMAP_TEXTURE_BINDING, sampler);
+                descriptorSet.update();
             }
         }
     }
@@ -397,7 +422,7 @@ export class Model {
     }
 
     protected _getInstancedAttributeIndex (name: string) {
-        const attributes = this.instancedAttributes.attributes;
+        const { attributes } = this.instancedAttributes;
         for (let i = 0; i < attributes.length; i++) {
             if (attributes[i].name === name) { return i; }
         }
@@ -413,7 +438,7 @@ export class Model {
         const hOldBuffer = ModelPool.get(this._handle, ModelView.INSTANCED_BUFFER);
         if (hOldBuffer) RawBufferPool.free(hOldBuffer);
         const hAttrArray = ModelPool.get(this._handle, ModelView.INSTANCED_ATTR_ARRAY);
-        if (hAttrArray) freeHandleArray(hAttrArray, AttrArrayPool, AttrPool, false);
+        if (hAttrArray) freeHandleArray(hAttrArray, AttributeArrayPool, AttrPool, false);
 
         let size = 0;
         for (let j = 0; j < attributes.length; j++) {
@@ -439,7 +464,7 @@ export class Model {
             attr.isNormalized = attribute.isNormalized;
             attr.location = attribute.location;
             attrs.attributes.push(attr);
-            AttrArrayPool.push(hAttrArray, hAttr);
+            AttributeArrayPool.push(hAttrArray, hAttr);
 
             const info = FormatInfos[attribute.format];
             attrs.views.push(new (getTypedArrayConstructor(info))(buffer, offset, info.count));

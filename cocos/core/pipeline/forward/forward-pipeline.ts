@@ -1,3 +1,28 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
  * @packageDocumentation
  * @module pipeline
@@ -8,22 +33,25 @@ import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
 import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
-import { IRenderObject, UBOGlobal, UBOShadow } from '../define';
+import { IRenderObject, UBOGlobal, UBOShadow, UNIFORM_SHADOWMAP_BINDING } from '../define';
 import { BufferUsageBit, MemoryUsageBit, ClearFlag } from '../../gfx/define';
-import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp, TextureLayout, RenderPassInfo, BufferInfo, Feature } from '../../gfx';
+import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp, TextureLayout,
+    RenderPassInfo, BufferInfo, Feature, Framebuffer } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
-import { Mat4, Vec3, Vec4} from '../../math';
+import { Color, color, Mat4, Vec3, Vec4} from '../../math';
 import { Fog } from '../../renderer/scene/fog';
 import { Ambient } from '../../renderer/scene/ambient';
 import { Skybox } from '../../renderer/scene/skybox';
 import { Shadows, ShadowType } from '../../renderer/scene/shadows';
-import { sceneCulling, getShadowWorldMatrix } from './scene-culling';
+import { sceneCulling, getShadowWorldMatrix, updatePlanarPROJ } from './scene-culling';
 import { UIFlow } from '../ui/ui-flow';
+import { Light } from '../../renderer/scene/light';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
+const vec3_center = new Vec3();
 
 /**
  * @en The forward render pipeline
@@ -83,6 +111,7 @@ export class ForwardPipeline extends RenderPipeline {
      */
     public renderObjects: IRenderObject[] = [];
     public shadowObjects: IRenderObject[] = [];
+    public shadowFrameBufferMap: Map<Light, Framebuffer> = new Map();
     protected _isHDR: boolean = false;
     protected _shadingScale: number = 1.0;
     protected _fpScale: number = 1.0 / 1024.0;
@@ -182,6 +211,7 @@ export class ForwardPipeline extends RenderPipeline {
         const shadowInfo = this.shadows;
 
         if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
+
             // light view
             let shadowCameraView: Mat4;
 
@@ -190,15 +220,14 @@ export class ForwardPipeline extends RenderPipeline {
             let y: number = 0;
             let far: number = 0;
             if (shadowInfo.autoAdapt) {
-                shadowCameraView = getShadowWorldMatrix(this, mainLight.node?.getWorldRotation()!, mainLight.direction);
+                shadowCameraView = getShadowWorldMatrix(this, mainLight.node?.getWorldRotation()!, mainLight.direction, vec3_center);
                 // if orthoSize is the smallest, auto calculate orthoSize.
                 const radius = shadowInfo.sphere.radius;
                 x = radius * shadowInfo.aspect;
                 y = radius;
 
-                far = Math.min(shadowInfo.receiveSphere.radius * 2.0 * Math.sqrt(2.0), 2000.0);
-                if(radius >= 500) { shadowInfo.size.set(2048, 2048); }
-                else if (radius < 500 && radius >= 100) { shadowInfo.size.set(1024, 1024); }
+                const halfFar = Vec3.distance(shadowInfo.sphere.center, vec3_center);
+                far =  Math.min(halfFar * Shadows.COEFFICIENT_OF_EXPANSION, Shadows.MAX_FAR);
             } else {
                 shadowCameraView = mainLight.node!.getWorldMatrix();
 
@@ -220,7 +249,11 @@ export class ForwardPipeline extends RenderPipeline {
             this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 1] = shadowInfo.size.y;
             this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 2] = shadowInfo.pcf;
             this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 3] = shadowInfo.bias;
+        } else if (mainLight && shadowInfo.type === ShadowType.Planar) {
+            updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO);
         }
+
+        Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
 
         // update ubos
         this._commandBuffers[0].updateBuffer(this._descriptorSet.getBuffer(UBOGlobal.BINDING), this._globalUBO);
@@ -247,6 +280,8 @@ export class ForwardPipeline extends RenderPipeline {
             UBOShadow.SIZE,
         ));
         this._descriptorSet.bindBuffer(UBOShadow.BINDING, shadowUBO);
+
+        this._descriptorSet.update();
 
         // update global defines when all states initialized.
         this.macros.CC_USE_HDR = this._isHDR;

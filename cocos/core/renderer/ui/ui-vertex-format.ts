@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -44,6 +44,13 @@ export const vfmtPosUvColor = [
     new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
     new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F),
     new Attribute(AttributeName.ATTR_COLOR, Format.RGBA32F),
+];
+
+export const vfmtPosUvTwoColor = [
+    new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F),
+    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA32F),
+    new Attribute(AttributeName.ATTR_COLOR2, Format.RGBA32F),
 ];
 
 export function getAttributeFormatBytes (attrs: Attribute[]) {

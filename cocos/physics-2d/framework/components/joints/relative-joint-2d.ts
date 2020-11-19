@@ -85,9 +85,9 @@ export class RelativeJoint2D extends Joint2D {
     }
 
     /**
-     * !#en
+     * @en
      * The angular offset from connected rigidbody to rigidbody.
-     * !#zh
+     * @zh
      * 关节另一端的刚体相对于起始端刚体的角度偏移量
      */
     @property

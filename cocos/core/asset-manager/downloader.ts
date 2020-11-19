@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -120,7 +120,7 @@ const downloadBundle = (nameOrUrl: string, options: IBundleOptions, onComplete: 
             }
         }
         else {
-            import('virtual:///prerequisite-imports/' + bundleName).then(() => {
+            downloader.importBundleEntry(bundleName).then(() => {
                 count++;
                 if (count === 2) {
                     onComplete(error, out);
@@ -341,6 +341,10 @@ export class Downloader {
         else {
             this._downloaders[type] = handler as DownloadHandler;
         }
+    }
+
+    public importBundleEntry (bundleName: string): Promise<any> {
+        return import('virtual:///prerequisite-imports/' + bundleName);
     }
 
     /**

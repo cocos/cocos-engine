@@ -1,22 +1,46 @@
-import { aabb, intersect} from '../../geometry';
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+import { AABB, intersect} from '../../geometry';
 import { SetIndex} from '../../pipeline/define';
 import { CommandBuffer, Device, RenderPass, Shader } from '../../gfx';
 import { InstancedBuffer } from '../instanced-buffer';
 import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
 import { Model } from '../../renderer/scene';
-import { DSPool, ShaderPool, PassPool, PassView } from '../../renderer/core/memory-pools';
+import { DSPool, ShaderPool, PassPool, PassView, ShadowsPool, ShadowsView } from '../../renderer/core/memory-pools';
 import { RenderInstancedQueue } from '../render-instanced-queue';
 import { ForwardPipeline } from './forward-pipeline';
 import { ShadowType } from '../../renderer/scene/shadows';
 import { RenderView } from '../render-view';
 import { Layers } from '../../scene-graph/layers';
 
-const _ab = new aabb();
+const _ab = new AABB();
 
 export class PlanarShadowQueue {
     private _pendingModels: Model[] = [];
     private _instancedQueue = new RenderInstancedQueue();
-    private _shaderCache = new Map<Model, Shader>();
     private _pipeline: ForwardPipeline;
 
     constructor (pipeline: ForwardPipeline) {
@@ -42,8 +66,8 @@ export class PlanarShadowQueue {
             const model = models[i];
             if (!model.enabled || !model.node || !model.castShadow) { continue; }
             if (model.worldBounds) {
-                aabb.transform(_ab, model.worldBounds, shadows.matLight);
-                if (!intersect.aabb_frustum(_ab, frstm)) { continue; }
+                AABB.transform(_ab, model.worldBounds, shadows.matLight);
+                if (!intersect.aabbFrustum(_ab, frstm)) { continue; }
             }
             if (model.isInstancingEnabled) {
                 for (let j = 0; j < model.subModels.length; j++) {
@@ -65,13 +89,13 @@ export class PlanarShadowQueue {
         const pass = shadows.material.passes[0];
         const descriptorSet = DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET));
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, descriptorSet);
+        const shader = ShaderPool.get(ShadowsPool.get(shadows.handle, ShadowsView.PLANAR_SHADER));
 
         const modelCount = this._pendingModels.length;
         for (let i = 0; i < modelCount; i++) {
             const model = this._pendingModels[i];
             for (let j = 0; j < model.subModels.length; j++) {
                 const subModel = model.subModels[j];
-                const shader = ShaderPool.get(pass.getShaderVariant(subModel.patches));
                 const ia = subModel.inputAssembler!;
                 const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, ia);
                 cmdBuff.bindPipelineState(pso);

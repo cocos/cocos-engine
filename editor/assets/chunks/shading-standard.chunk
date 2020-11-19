@@ -10,6 +10,10 @@
   #include <texture-lod>
 #endif
 
+#if CC_RECEIVE_SHADOW
+  #include <cc-shadow-map-fs>
+#endif
+
 #include <common>
 #include <gamma>
 
@@ -90,7 +94,12 @@ struct StandardSurface {
         att *= GetAngleAtt(SL, -cc_lightDir[i].xyz, litAngleScale, litAngleOffset);
       }
 
-      finalColor += SNL * cc_lightColor[i].rgb * cc_lightColor[i].w * illum * att * (diffuseContrib + lspec);
+      vec3 lightColor = cc_lightColor[i].rgb;
+    #if CC_RECEIVE_SHADOW
+      CC_DIR_SHADOW_FACTOR(lightColor);
+    #endif
+
+      finalColor += SNL * lightColor * cc_lightColor[i].w * illum * att * (diffuseContrib + lspec);
     }
 
     finalColor = finalColor * s.occlusion;
@@ -98,10 +107,6 @@ struct StandardSurface {
     return vec4(finalColor, 0.0);
   }
 #else
-  #if CC_RECEIVE_SHADOW
-    #include <cc-shadow-map-fs>
-  #endif
-
   vec4 CCStandardShading (StandardSurface s) {
     // Calculate diffuse & specular
     vec3 diffuse = s.albedo.rgb * (1.0 - s.metallic);
@@ -130,7 +135,13 @@ struct StandardSurface {
     finalColor *= (diffuseContrib + specularContrib);
 
     float fAmb = 0.5 - N.y * 0.5;
-    vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb) * cc_ambientSky.w;
+    #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+      vec3 skyColor = mix(cc_ambientGround.rgb, cc_ambientSky.rgb, s.lightmap.rgb);
+      skyColor = s.lightmap.a * skyColor + (1.0 - s.lightmap.a) * cc_ambientSky.rgb;
+      vec3 ambDiff = mix(skyColor, cc_ambientGround.rgb, fAmb) * cc_ambientSky.w;
+    #else
+      vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb) * cc_ambientSky.w;
+    #endif
     finalColor += (ambDiff.rgb * diffuse);
 
     #if CC_USE_IBL

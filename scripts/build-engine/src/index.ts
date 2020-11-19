@@ -1,4 +1,3 @@
-
 import fs from 'fs-extra';
 import ps from 'path';
 import rpBabel, { RollupBabelInputPluginOptions } from '@rollup/plugin-babel';
@@ -9,22 +8,23 @@ import { terser as rpTerser } from 'rollup-plugin-terser';
 import babelPresetEnv from '@babel/preset-env';
 import type { Options as babelPresetEnvOptions } from '@babel/preset-env';
 import babelPresetCc from '@cocos/babel-preset-cc';
-// @ts-ignore
+// @ts-expect-error: No typing
 import babelPluginTransformForOf from '@babel/plugin-transform-for-of';
 import * as rollup from 'rollup';
-// @ts-ignore
+// @ts-expect-error: No typing
 import rpProgress from 'rollup-plugin-progress';
-// @ts-ignore
+// @ts-expect-error: No typing
 import rpVirtual from '@rollup/plugin-virtual';
+import nodeResolve from 'resolve';
+import JSON5 from 'json5';
+import babelPluginDynamicImportVars from '@cocos/babel-plugin-dynamic-import-vars';
 import { ModuleOption, enumerateModuleOptionReps, parseModuleOption } from './module-option';
 import { generateCCSource } from './make-cc';
-import nodeResolve from 'resolve';
 import { getModuleName } from './module-name';
 import tsConfigPaths from './ts-paths';
-import JSON5 from 'json5';
 import { getPlatformConstantNames, IBuildTimeConstants } from './build-time-constants';
 import removeDeprecatedFeatures from './remove-deprecated-features';
-import babelPluginDynamicImportVars from '@cocos/babel-plugin-dynamic-import-vars';
+import realFs from 'fs';
 
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
 
@@ -37,7 +37,7 @@ async function build (options: build.Options) {
 
     let moduleEntries: string[];
     if (!options.moduleEntries || options.moduleEntries.length === 0) {
-        console.debug(`No module entry specified, default module entries will be used.`);
+        console.debug('No module entry specified, default module entries will be used.');
         moduleEntries = await getDefaultModuleEntries(options.engine);
     } else {
         moduleEntries = options.moduleEntries;
@@ -107,7 +107,7 @@ namespace build {
          * - 为 `true` 时使用 WebAssembly 版本的 ammo.js；
          * - 为 `false` 时使用 asm.js 版本的 ammo.js；
          * - 为 `'fallback` 时同时在结果中包含两个版本的 ammo.js，并自动根据环境 fallback 选择。
-         * 
+         *
          * 注意，`'fallback'` 只有在 SystemJS 和 Async functions 同时支持时才有效。
          * @default false
          */
@@ -156,7 +156,6 @@ namespace build {
          */
         exports: Record<string, string>;
 
-
         dependencyGraph?: Record<string, string[]>;
     }
 }
@@ -199,6 +198,17 @@ async function _doBuild ({
     moduleEntries?: string[];
     options: build.Options;
 }): Promise<build.Result> {
+    const realpath = typeof realFs.realpath.native === 'function' ? realFs.realpath.native : realFs.realpath;
+    const realPath = (file: string) => new Promise<string>((resolve, reject) => {
+        realpath(file, function (err, path) {
+            if (err && err.code !== 'ENOENT') {
+                reject(err);
+            } else {
+                resolve(err ? file : path)
+            }
+        });
+    });
+
     const doUglify = !!options.compress;
     const split = options.split ?? false;
     const engineRoot = ps.resolve(options.engine);
@@ -207,9 +217,9 @@ async function _doBuild ({
     const rollupFormat = moduleOptionsToRollupFormat(moduleOption);
 
     let { ammoJsWasm } = options;
-    if (ammoJsWasm === 'fallback' &&
-        moduleOption !== ModuleOption.system) {
-        console.warn(`--ammojs-wasm=fallback is only available under SystemJS target.`);
+    if (ammoJsWasm === 'fallback'
+        && moduleOption !== ModuleOption.system) {
+        console.warn('--ammojs-wasm=fallback is only available under SystemJS target.');
         ammoJsWasm = false;
     }
 
@@ -226,14 +236,14 @@ async function _doBuild ({
     console.debug(`Module source "internal-constants":\n${vmInternalConstants}`);
     rpVirtualOptions['internal:constants'] = vmInternalConstants;
 
-    const forceStandaloneModules = [ 'cc.wait-for-ammo-instantiation', 'cc.decorator' ];
+    const forceStandaloneModules = ['cc.wait-for-ammo-instantiation', 'cc.decorator'];
 
     let rollupEntries: NonNullable<rollup.RollupOptions['input']> | undefined;
     if (split) {
-        rollupEntries = Object.assign({}, engineEntries);
+        rollupEntries = { ...engineEntries };
     } else {
         rollupEntries = {
-            'cc': 'cc',
+            cc: 'cc',
         };
         const bundledModules = [];
         for (const moduleName of Object.keys(engineEntries)) {
@@ -245,14 +255,17 @@ async function _doBuild ({
             }
         }
 
-        rpVirtualOptions['cc'] = generateCCSource(bundledModules);
-        rollupEntries['cc'] = 'cc';
+        rpVirtualOptions.cc = generateCCSource(bundledModules);
+        rollupEntries.cc = 'cc';
 
-        console.debug(`Module source "cc":\n${rpVirtualOptions['cc']}`);
+        console.debug(`Module source "cc":\n${rpVirtualOptions.cc}`);
     }
 
     const presetEnvOptions: babelPresetEnvOptions = {
         loose: options.loose ?? true,
+        // We need explicitly specified targets.
+        // Ignore it to avoid the engine's parent dirs contain unexpected config.
+        ignoreBrowserslistConfig: true,
     };
     if (options.targets !== undefined) {
         presetEnvOptions.targets = options.targets;
@@ -273,14 +286,27 @@ async function _doBuild ({
         }],
     );
 
-    const babelOptions: RollupBabelInputPluginOptions = {
+    interface BabelOverrides {
+        overrides?: Array<{
+            test: RegExp | string;
+        } & babel.TransformOptions>,
+    }
+
+    const babelOptions: RollupBabelInputPluginOptions & BabelOverrides = {
         babelHelpers: 'bundled',
         extensions: ['.js', '.ts'],
         exclude: [
-            /node_modules[\/\\]@cocos[\/\\]ammo/g,
-            /node_modules[\/\\]@cocos[\/\\]cannon/g,
+            /node_modules[/\\]@cocos[/\\]ammo/,
+            /node_modules[/\\]@cocos[/\\]cannon/,
         ],
-        highlightCode: true,
+        comments: false, // Do not preserve comments, even in debug build since we have source map
+        overrides: [{
+            // Eliminates the babel compact warning:
+            // 'The code generator has deoptimised the styling of ...'
+            // that came from node_modules/@cocos
+            test: /node_modules[/\\]@cocos[/\\]/,
+            compact: true,
+        }],
         plugins: babelPlugins,
         presets: [
             [babelPresetEnv, presetEnvOptions],
@@ -306,13 +332,14 @@ async function _doBuild ({
     const rollupPlugins: rollup.Plugin[] = [];
     if (options.noDeprecatedFeatures) {
         rollupPlugins.push(removeDeprecatedFeatures(
-            typeof options.noDeprecatedFeatures === 'string' ? options.noDeprecatedFeatures : undefined));
+            typeof options.noDeprecatedFeatures === 'string' ? options.noDeprecatedFeatures : undefined,
+        ));
     }
 
     rollupPlugins.push(
         {
             name: '@cocos/build-engine|module-overrides',
-            load: function (this, id: string) {
+            load (this, id: string) {
                 const key = makePathEqualityKey(id);
                 if (!(key in moduleRedirects)) {
                     return null;
@@ -331,13 +358,20 @@ async function _doBuild ({
 
         resolve({
             extensions: ['.js', '.ts', '.json'],
+            jail: await realPath(engineRoot),
+            rootDir: engineRoot,
         }),
 
         json({
             preferConst: true,
         }),
 
-        commonjs({}),
+        commonjs({
+            include: [
+                /node_modules[/\\]/,
+            ],
+            sourceMap: false,
+        }),
 
         rpBabel(babelOptions),
     );
@@ -363,7 +397,7 @@ async function _doBuild ({
                 beautify: !doUglify,
             },
             sourcemap: !!options.sourceMap,
-    
+
             // https://github.com/rollup/rollup/issues/3315
             // We only do this for CommonJS.
             // Especially, we cannot do this for IIFE.
@@ -371,15 +405,16 @@ async function _doBuild ({
         }));
     }
 
-    const visualizeOptions = typeof options.visualize === 'object' ?
-        options.visualize:
-        (options.visualize ? {} : undefined);
+    const visualizeOptions = typeof options.visualize === 'object'
+        ? options.visualize
+        : (options.visualize ? {} : undefined);
     if (visualizeOptions) {
         let rpVisualizer;
         try {
-            rpVisualizer = require('rollup-plugin-visualizer');
+            // @ts-expect-error: No typing
+            rpVisualizer = await import('rollup-plugin-visualizer');
         } catch {
-            console.warn(`Visualizing needs 'rollup-plugin-visualizer' to be installed. It's installed as dev-dependency.`);
+            console.warn('Visualizing needs \'rollup-plugin-visualizer\' to be installed. It\'s installed as dev-dependency.');
         }
         if (rpVisualizer) {
             const visualizeFile = visualizeOptions.file ?? ps.join(options.out, 'visualize.html');
@@ -426,16 +461,17 @@ export { isWasm };
     const { incremental: incrementalFile } = options;
     if (incrementalFile) {
         const watchFiles: Record<string, number> = {};
-        for (const watchFile of rollupBuild.watchFiles.concat([
+        const files = rollupBuild.watchFiles.concat([
             ccConfigFile,
-        ])) {
+        ]);
+        await Promise.all(files.map(async (watchFile) => {
             try {
                 const stat = await fs.stat(watchFile);
                 watchFiles[watchFile] = stat.mtimeMs;
             } catch {
                 // the `watchFiles` may contain non-fs modules.
             }
-        }
+        }));
         await fs.ensureDir(ps.dirname(incrementalFile));
         await fs.writeFile(incrementalFile, JSON.stringify(watchFiles, undefined, 2));
     }
@@ -493,14 +529,15 @@ export { isWasm };
     result.dependencyGraph = {};
     for (const output of rollupOutput.output) {
         if (output.type === 'chunk') {
-            result.dependencyGraph[output.fileName] = output.imports;
+            result.dependencyGraph[output.fileName] = output.imports.concat(output.dynamicImports);
         }
     }
 
     if (ammoJsWasm === 'fallback' || ammoJsWasm === true) {
         await fs.copy(
             ps.join(ammoJsWasmModule, '..', 'ammo.wasm.wasm'),
-            ps.join(options.out, 'ammo.wasm.wasm'));
+            ps.join(options.out, 'ammo.wasm.wasm'),
+        );
     }
 
     return result;
@@ -520,14 +557,14 @@ export { isWasm };
                 if (err) {
                     reject(err);
                 } else {
-                    r(resolved);
+                    r(resolved as string);
                 }
             });
         });
     }
 }
 
-function filePathToModuleRequest(path: string) {
+function filePathToModuleRequest (path: string) {
     return path.replace(/\\/g, '\\\\');
 }
 
@@ -535,17 +572,17 @@ function getModuleSourceInternalConstants (buildTimeConstants: IBuildTimeConstan
     return Object.entries(buildTimeConstants).map(([k, v]) => `export const ${k} = ${v};`).join('\n');
 }
 
-function moduleOptionsToRollupFormat(moduleOptions: ModuleOption): rollup.ModuleFormat {
+function moduleOptionsToRollupFormat (moduleOptions: ModuleOption): rollup.ModuleFormat {
     switch (moduleOptions) {
-        case ModuleOption.cjs: return 'cjs';
-        case ModuleOption.esm: return 'esm';
-        case ModuleOption.system: return 'system';
-        case ModuleOption.iife: return 'iife';
-        default: throw new Error(`Unknown module format ${moduleOptions}`);
+    case ModuleOption.cjs: return 'cjs';
+    case ModuleOption.esm: return 'esm';
+    case ModuleOption.system: return 'system';
+    case ModuleOption.iife: return 'iife';
+    default: throw new Error(`Unknown module format ${moduleOptions}`);
     }
 }
 
-export async function isSourceChanged(incrementalFile: string) {
+export async function isSourceChanged (incrementalFile: string) {
     let record: Record<string, number>;
     try {
         record = await fs.readJSON(incrementalFile);
@@ -556,6 +593,7 @@ export async function isSourceChanged(incrementalFile: string) {
     for (const file of Object.keys(record)) {
         const mtime = record[file];
         try {
+            /* eslint-disable-next-line no-await-in-loop */
             const mtimeNow = (await fs.stat(file)).mtimeMs;
             if (mtimeNow !== mtime) {
                 console.debug(`Source ${file} in watch files record ${incrementalFile} has a different time stamp - rebuild is needed.`);
@@ -574,9 +612,7 @@ async function getDefaultModuleEntries (engine: string) {
     type GroupItem = any; // import('../../scripts/module-division/tools/division-config').GroupItem;
     type Item = any; // import('../../scripts/module-division/tools/division-config').Item;
 
-    const isGroupItem = (item: Item): item is GroupItem => {
-        return 'options' in item;
-    };
+    const isGroupItem = (item: Item): item is GroupItem => 'options' in item;
 
     const divisionConfig: ModuleDivision = await fs.readJSON(ps.join(engine, 'scripts', 'module-division', 'division-config.json'));
     const result: string[] = [];
@@ -594,7 +630,7 @@ async function getDefaultModuleEntries (engine: string) {
                 if (isGroupItem(item)) {
                     addEntry(item.options[item.defaultOption || 0].entry);
                 } else {
-                    // @ts-ignore
+                    // @ts-expect-error: By convention
                     addEntry(item.entry);
                 }
             }

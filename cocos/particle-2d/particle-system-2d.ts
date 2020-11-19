@@ -1,6 +1,6 @@
-/****************************************************************************
+/*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -22,38 +22,36 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+ */
 
 /**
  * @category particle2d
  */
 
-import { ccclass, editable, type, menu, executeInEditMode, serializable } from 'cc.decorator';
-import { UIRenderable } from '../core/components/ui-base';
+import { ccclass, editable, type, menu, executeInEditMode, serializable, playOnFocus, tooltip } from 'cc.decorator';
+import { UIRenderable } from '../core/components/ui-base/ui-renderable';
 import { Color, Vec2 } from '../core/math';
 import { EDITOR } from 'internal:constants';
-import { warnID, errorID } from '../core/platform/debug';
+import { warnID, errorID, error } from '../core/platform/debug';
 import { Simulator } from './particle-simulator-2d';
-import { SpriteFrame, Texture2D } from '../core/assets';
+import { SpriteFrame } from '../core/assets/sprite-frame';
+import { ImageAsset } from '../core/assets/image-asset';
 import { ParticleAsset } from './particle-asset';
 import { BlendFactor } from '../core/gfx';
 import { path } from '../core/utils';
-import { ImageAsset } from '../core/assets/image-asset';
 import { PNGReader } from './png-reader';
 import { TiffReader } from './tiff-reader';
 import codec from '../../external/compression/ZipUtils';
 import { UI } from '../core/renderer/ui/ui';
-import { vfmtPosUvColor, getAttributeFormatBytes } from '../core/renderer/ui/ui-vertex-format';
 import { assetManager } from '../core/asset-manager';
-import { PositionType, EmitterMode } from './define';
+import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';
 
-const formatBytes = getAttributeFormatBytes(vfmtPosUvColor);
 
 /**
  * Image formats
  * @enum macro.ImageFormat
  */
-enum ImageFormat {
+export enum ImageFormat {
     /**
      * @en Image Format:JPG
      * @zh 图片格式:JPG
@@ -108,10 +106,10 @@ enum ImageFormat {
      * @en Image Format:UNKNOWN
      * @zh 图片格式:UNKNOWN
      */
-    UNKNOWN
-};
+    UNKNOWN,
+}
 
-function getImageFormatByData (imgData) {
+export function getImageFormatByData (imgData) {
     // if it is a png file buffer.
     if (imgData.length > 8 && imgData[0] === 0x89
         && imgData[1] === 0x50
@@ -184,29 +182,29 @@ function getParticleComponents (node) {
  */
 @ccclass('cc.ParticleSystem2D')
 @menu('Components/ParticleSystem2D')
+@playOnFocus
 @executeInEditMode
 export class ParticleSystem2D extends UIRenderable {
-    /**
-     * @en Play particle in edit mode.
-     * @zh 在编辑器模式下预览粒子，启用后选中粒子时，粒子将自动播放。
-     */
-    @serializable
-    @editable
-    private preview = true;
+
+    static EmitterMode = EmitterMode;
+    static PositionType = PositionType;
+    static readonly DURATION_INFINITY = DURATION_INFINITY;
+    static readonly START_SIZE_EQUAL_TO_END_SIZE = START_SIZE_EQUAL_TO_END_SIZE;
+    static readonly START_RADIUS_EQUAL_TO_END_RADIUS = START_RADIUS_EQUAL_TO_END_RADIUS;
+
     /**
      * @en If set custom to true, then use custom properties insteadof read particle file.
      * @zh 是否自定义粒子属性。
      */
-    @serializable
-    private _custom = false;
-
     @editable
+    @tooltip('i18n:particle_system.custom')
     public get custom () {
         return this._custom;
     }
     public set custom (value) {
         if (EDITOR && !value && !this._file) {
             warnID(6000);
+            return;
         }
         if (this._custom !== value) {
             this._custom = value;
@@ -218,10 +216,8 @@ export class ParticleSystem2D extends UIRenderable {
      * @en The plist file.
      * @zh plist 格式的粒子配置文件。
      */
-    @serializable
-    private _file: ParticleAsset | null = null;
-
     @type(ParticleAsset)
+    @tooltip('i18n:particle_system.file')
     public get file (): ParticleAsset | null {
         return this._file;
     }
@@ -242,9 +238,8 @@ export class ParticleSystem2D extends UIRenderable {
      * @en SpriteFrame used for particles display
      * @zh 用于粒子呈现的 SpriteFrame
      */
-    @serializable
-    private _spriteFrame: SpriteFrame | null = null;
     @type(SpriteFrame)
+    @tooltip('i18n:particle_system.spriteFrame')
     public get spriteFrame (): SpriteFrame | null {
         return this._spriteFrame;
     }
@@ -267,26 +262,6 @@ export class ParticleSystem2D extends UIRenderable {
         }
     }
 
-
-    // just used to read data from 1.x
-    @serializable
-    private _texture = null;
-
-    /**
-     * @en Texture of Particle System, readonly, please use spriteFrame to setup new texture。
-     * @zh 粒子贴图，只读属性，请使用 spriteFrame 属性来替换贴图。
-     * @readonly
-     */
-    public get texture () {
-        return this._getTexture();
-    }
-
-    public set texture (val) {
-        if (val) {
-            warnID(6017);
-        }
-    }
-
     /**
      * @en Current quantity of particles that are being simulated.
      * @zh 当前播放的粒子数量。
@@ -297,45 +272,11 @@ export class ParticleSystem2D extends UIRenderable {
     }
 
     /**
-     * @en Indicate whether the system simulation have stopped.
-     * @zh 指示粒子播放是否完毕。
-     */
-    private _stopped = true;
-    public get stopped () {
-        return this._stopped;
-    }
-
-    /**
-     * @en If set to true, the particle system will automatically start playing on onLoad.
-     * @zh 如果设置为 true 运行时会自动发射粒子。
-     */
-    @serializable
-    @editable
-    private playOnLoad = true;
-
-    /**
-     * @en Indicate whether the owner node will be auto-removed when it has no particles left.
-     * @zh 粒子播放完毕后自动销毁所在的节点。
-     */
-    @serializable
-    @editable
-    private autoRemoveOnFinish = false;
-
-    /**
-     * @en Indicate whether the particle system is activated.
-     * @zh 是否激活粒子。
-     * @readonly
-     */
-    public get active () {
-        return this._simulator.active;
-    }
-    @serializable
-    private _totalParticles = 150;
-    /**
      * @en Maximum particles of the system.
      * @zh 粒子最大数量。
      */
     @editable
+    @tooltip('i18n:particle_system.totalParticles')
     public get totalParticles () {
         return this._totalParticles;
     }
@@ -343,42 +284,49 @@ export class ParticleSystem2D extends UIRenderable {
         if (this._totalParticles === value) return;
         this._totalParticles = value;
     }
+
     /**
      * @en How many seconds the emitter wil run. -1 means 'forever'.
      * @zh 发射器生存时间，单位秒，-1表示持续发射。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.duration')
     public duration = -1;
+
     /**
      * @en Emission rate of the particles.
      * @zh 每秒发射的粒子数目。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.emissionRate')
     public emissionRate = 10;
+
     /**
      * @en Life of each particle setter.
      * @zh 粒子的运行时间。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.life')
     public life = 1;
+
     /**
      * @en Variation of life.
      * @zh 粒子的运行时间变化范围。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.lifeVar')
     public lifeVar = 0;
 
     /**
      * @en Start color of each particle.
      * @zh 粒子初始颜色。
      */
-    @serializable
-    private _startColor: Color = new Color(255, 255, 255, 255);
     @editable
+    @tooltip('i18n:particle_system.startColor')
     public get startColor () {
         return this._startColor;
     }
@@ -389,13 +337,13 @@ export class ParticleSystem2D extends UIRenderable {
         this._startColor.b = val.b;
         this._startColor.a = val.a;
     }
+
     /**
      * @en Variation of the start color.
      * @zh 粒子初始颜色变化范围。
      */
-    @serializable
-    private _startColorVar: Color = new Color(0, 0, 0, 0);
     @editable
+    @tooltip('i18n:particle_system.startColorVar')
     public get startColorVar (): Color {
         return this._startColorVar;
     }
@@ -406,13 +354,13 @@ export class ParticleSystem2D extends UIRenderable {
         this._startColorVar.b = val.b;
         this._startColorVar.a = val.a;
     }
+
     /**
      * @en Ending color of each particle.
      * @zh 粒子结束颜色。
      */
-    @serializable
-    private _endColor: Color = new Color(255, 255, 255, 0);
     @editable
+    @tooltip('i18n:particle_system.endColor')
     public get endColor (): Color {
         return this._endColor;
     }
@@ -423,13 +371,13 @@ export class ParticleSystem2D extends UIRenderable {
         this._endColor.b = val.b;
         this._endColor.a = val.a;
     }
+
     /**
      * @en Variation of the end color.
      * @zh 粒子结束颜色变化范围。
      */
-    @serializable
-    private _endColorVar: Color = new Color(0, 0, 0, 0);
     @editable
+    @tooltip('i18n:particle_system.endColorVar')
     public get endColorVar (): Color {
         return this._endColorVar;
     }
@@ -447,69 +395,88 @@ export class ParticleSystem2D extends UIRenderable {
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.angle')
     public angle = 90;
+
     /**
      * @en Variation of angle of each particle setter.
      * @zh 粒子角度变化范围。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.angleVar')
     public angleVar = 20;
+
     /**
      * @en Start size in pixels of each particle.
      * @zh 粒子的初始大小。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.startSize')
     public startSize = 50;
+
     /**
      * @en Variation of start size in pixels.
      * @zh 粒子初始大小的变化范围。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.startSizeVar')
     public startSizeVar = 0;
+
     /**
      * @en End size in pixels of each particle.
      * @zh 粒子结束时的大小。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.endSize')
     public endSize = 0;
+
     /**
      * @en Variation of end size in pixels.
      * @zh 粒子结束大小的变化范围。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.endSizeVar')
     public endSizeVar = 0;
+
     /**
      * @en Start angle of each particle.
      * @zh 粒子开始自旋角度。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.startSpin')
     public startSpin = 0;
+
     /**
      * @en Variation of start angle.
      * @zh 粒子开始自旋角度变化范围。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.startSpinVar')
     public startSpinVar = 0;
+
     /**
      * @en End angle of each particle.
      * @zh 粒子结束自旋角度。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.endSpin')
     public endSpin = 0;
+
     /**
      * @en Variation of end angle.
      * @zh 粒子结束自旋角度变化范围。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.endSpinVar')
     public endSpinVar = 0;
 
     /**
@@ -525,15 +492,15 @@ export class ParticleSystem2D extends UIRenderable {
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.posVar')
     public posVar = Vec2.ZERO.clone();
 
     /**
      * @en Particles movement type.
      * @zh 粒子位置类型。
      */
-    @serializable
-    _positionType = PositionType.FREE;
     @type(PositionType)
+    @tooltip('i18n:particle_system.positionType')
     public get positionType () {
         return this._positionType;
     }
@@ -550,6 +517,7 @@ export class ParticleSystem2D extends UIRenderable {
     @serializable
     @editable
     @type(EmitterMode)
+    @tooltip('i18n:particle_system.emitterMode')
     public emitterMode = EmitterMode.GRAVITY;
 
     // GRAVITY MODE
@@ -560,48 +528,61 @@ export class ParticleSystem2D extends UIRenderable {
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.gravity')
     public gravity = Vec2.ZERO.clone();
+
     /**
      * @en Speed of the emitter.
      * @zh 速度。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.speed')
     public speed = 180;
+
     /**
      * @en Variation of the speed.
      * @zh 速度变化范围。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.speedVar')
     public speedVar = 50;
+
     /**
      * @en Tangential acceleration of each particle. Only available in 'Gravity' mode.
      * @zh 每个粒子的切向加速度，即垂直于重力方向的加速度，只有在重力模式下可用。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.tangentialAccel')
     public tangentialAccel = 80;
+
     /**
      * @en Variation of the tangential acceleration.
      * @zh 每个粒子的切向加速度变化范围。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.tangentialAccelVar')
     public tangentialAccelVar = 0;
+
     /**
      * @en Acceleration of each particle. Only available in 'Gravity' mode.
      * @zh 粒子径向加速度，即平行于重力方向的加速度，只有在重力模式下可用。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.radialAccel')
     public radialAccel = 0;
+
     /**
      * @en Variation of the radial acceleration.
      * @zh 粒子径向加速度变化范围。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.radialAccelVar')
     public radialAccelVar = 0;
 
     /**
@@ -610,6 +591,7 @@ export class ParticleSystem2D extends UIRenderable {
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.rotationIsDir')
     public rotationIsDir = false;
 
     // RADIUS MODE
@@ -620,42 +602,71 @@ export class ParticleSystem2D extends UIRenderable {
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.startRadius')
     public startRadius = 0;
+
     /**
      * @en Variation of the starting radius.
      * @zh 初始半径变化范围。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.startRadiusVar')
     public startRadiusVar = 0;
+
     /**
      * @en Ending radius of the particles. Only available in 'Radius' mode.
      * @zh 结束半径，只有在半径模式下可用。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.endRadius')
     public endRadius = 0;
+
     /**
      * @en Variation of the ending radius.
      * @zh 结束半径变化范围。
      */
     @serializable
     @editable
-    public  endRadiusVar = 0;
+    @tooltip('i18n:particle_system.endRadiusVar')
+    public endRadiusVar = 0;
+
     /**
      * @en Number of degress to rotate a particle around the source pos per second. Only available in 'Radius' mode.
      * @zh 粒子每秒围绕起始点的旋转角度，只有在半径模式下可用。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.rotatePerS')
     public rotatePerS = 0;
+
     /**
      * @en Variation of the degress to rotate a particle around the source pos per second.
      * @zh 粒子每秒围绕起始点的旋转角度变化范围。
      */
     @serializable
     @editable
+    @tooltip('i18n:particle_system.rotatePerSVar')
     public rotatePerSVar = 0;
+
+    /**
+     * @en Indicate whether the system simulation have stopped.
+     * @zh 指示粒子播放是否完毕。
+     */
+    public get stopped () {
+        return this._stopped;
+    }
+
+    /**
+     * @en Indicate whether the particle system is activated.
+     * @zh 是否激活粒子。
+     * @readonly
+     */
+    public get active () {
+        return this._simulator.active;
+    }
+
     public get assembler () {
         return this._assembler
     }
@@ -663,6 +674,54 @@ export class ParticleSystem2D extends UIRenderable {
     // The temporary SpriteFrame object used for the renderer. Because there is no corresponding asset, it can't be serialized.
     public declare _renderSpriteFrame: SpriteFrame | null;
     public declare _simulator: Simulator;
+
+    /**
+     * @en Play particle in edit mode.
+     * @zh 在编辑器模式下预览粒子，启用后选中粒子时，粒子将自动播放。
+     */
+    @serializable
+    @editable
+    @tooltip('i18n:particle_system.preview')
+    private preview = true;
+
+    /**
+     * @en If set to true, the particle system will automatically start playing on onLoad.
+     * @zh 如果设置为 true 运行时会自动发射粒子。
+     */
+    @serializable
+    @editable
+    @tooltip('i18n:particle_system.playOnLoad')
+    private playOnLoad = true;
+
+    /**
+     * @en Indicate whether the owner node will be auto-removed when it has no particles left.
+     * @zh 粒子播放完毕后自动销毁所在的节点。
+     */
+    @serializable
+    @editable
+    @tooltip('i18n:particle_system.autoRemoveOnFinish')
+    private autoRemoveOnFinish = false;
+
+    @serializable
+    private _custom = false;
+    @serializable
+    private _file: ParticleAsset | null = null;
+    @serializable
+    private _spriteFrame: SpriteFrame | null = null;
+    @serializable
+    private _totalParticles = 150;
+    @serializable
+    private _startColor: Color = new Color(255, 255, 255, 255);
+    @serializable
+    private _startColorVar: Color = new Color(0, 0, 0, 0);
+    @serializable
+    private _endColor: Color = new Color(255, 255, 255, 0);
+    @serializable
+    private _endColorVar: Color = new Color(0, 0, 0, 0);
+    @serializable
+    private _positionType = PositionType.FREE;
+
+    private _stopped = true;
     private declare _previewTimer;
     private declare _focused: boolean;
     private declare _plistFile;
@@ -672,6 +731,11 @@ export class ParticleSystem2D extends UIRenderable {
     constructor () {
         super();
         this.initProperties();
+    }
+
+    public onEnable () {
+        super.onEnable();
+        this._updateMaterial();
     }
 
     public onDestroy () {
@@ -707,7 +771,7 @@ export class ParticleSystem2D extends UIRenderable {
             components[i]._stopPreview();
         }
     }
-bv
+
     private _startPreview () {
         if (this.preview) {
             this.resetSystem();
@@ -724,42 +788,8 @@ bv
         }
     }
 
-    private _convertTextureToSpriteFrame () {
-        if (this._spriteFrame) {
-            return;
-        }
-        const texture = this.texture;
-        if (!texture || !texture._uuid) {
-            return;
-        }
-
-        // const _this = this;
-        // Editor.assetdb.queryMetaInfoByUuid(texture._uuid, (err, metaInfo) => {
-        //     if (err) return Editor.error(err);
-        //     let meta = JSON.parse(metaInfo.json);
-        //     if (meta.type === 'raw') {
-        //         const NodeUtils = Editor.require('app://editor/page/scene-utils/utils/node');
-        //         let nodePath = NodeUtils.getNodePath(_this.node);
-        //         return Editor.warn(`The texture ${metaInfo.assetUrl} used by particle ${nodePath} does not contain any SpriteFrame, please set the texture type to Sprite and reassign the SpriteFrame to the particle component.`);
-        //     }
-        //     else {
-        //         let Url = require('fire-url');
-        //         let name = Url.basenameNoExt(metaInfo.assetPath);
-        //         let uuid = meta.subMetas[name].uuid;
-        //         cc.assetManager.loadAny(uuid, function (err, sp) {
-        //             if (err) return Editor.error(err);
-        //             _this.spriteFrame = sp;
-        //         });
-        //     }
-        // });
-    }
-
     public __preload () {
         super.__preload();
-
-        if (EDITOR) {
-            this._convertTextureToSpriteFrame();
-        }
 
         if (this._custom && this.spriteFrame && !this._renderSpriteFrame) {
             this._applySpriteFrame();
@@ -781,14 +811,6 @@ bv
             if (this.playOnLoad) {
                 this.resetSystem();
             }
-        }
-
-        // Upgrade color type from v2.0.0
-        if (EDITOR && !(this._startColor instanceof Color)) {
-            this._startColor = new Color(this._startColor);
-            this._startColorVar = new Color(this._startColorVar);
-            this._endColor = new Color(this._endColor);
-            this._endColorVar = new Color(this._endColorVar);
         }
     }
 
@@ -855,23 +877,6 @@ bv
         return (this.particleCount >= this.totalParticles);
     }
 
-    /**
-     * @en Sets a new texture with a rect. The rect is in texture position and size.
-     * Please use spriteFrame property instead, this function is deprecated since v1.9
-     * @zh 设置一张新贴图和关联的矩形。
-     * 请直接设置 spriteFrame 属性，这个函数从 v1.9 版本开始已经被废弃
-     * @param texture 纹理
-     * @param rect 矩形区域
-     * @deprecated since v1.9
-     */
-    public setTextureWithRect (texture, rect) {
-        if (texture instanceof Texture2D) {
-            this.spriteFrame = new SpriteFrame();
-            this.spriteFrame.texture = texture;
-            this.spriteFrame.rect = rect;
-        }
-    }
-
     // PRIVATE METHODS
     public _applyFile () {
         const file = this._file;
@@ -887,6 +892,8 @@ bv
                 }
                 self._plistFile = file.nativeUrl;
                 if (!self._custom) {
+                    var isDiffFrame = self._spriteFrame !== file.spriteFrame;
+                    if (isDiffFrame) self.spriteFrame = file.spriteFrame;
                     self._initWithDictionary(file._nativeAsset);
                 }
 
@@ -906,61 +913,74 @@ bv
     }
 
     public _initTextureWithDictionary (dict) {
-        let imgPath = path.changeBasename(this._plistFile, dict["textureFileName"] || '');
-        // texture
-        if (dict["textureFileName"]) {
-            // Try to get the texture from the cache
-            assetManager.loadRemote<ImageAsset>(imgPath, (error, texture) => {
+        if (dict['spriteFrameUuid']) {
+            const spriteFrameUuid = dict['spriteFrameUuid'];
+            assetManager.loadAny(spriteFrameUuid, (error: Error, spriteFrame: SpriteFrame) => {
                 if (error) {
-                    dict["textureFileName"] = undefined;
+                    dict['spriteFrameUuid'] = undefined;
                     this._initTextureWithDictionary(dict);
+                    console.error(error);
                 }
                 else {
-                    this.spriteFrame = new SpriteFrame();
-                    this.spriteFrame.texture = texture!._texture;
+                    this.spriteFrame = spriteFrame;
                 }
             });
-        } else if (dict["textureImageData"]) {
-            let textureData = dict["textureImageData"];
-
-            if (textureData && textureData.length > 0) {
-                let tex = assetManager.assets.get(imgPath) as ImageAsset;
-
-                if (!tex) {
-                    let buffer = codec.unzipBase64AsArray(textureData, 1);
-                    if (!buffer) {
-                        warnID(6030, this._file!.name);
-                        return false;
-                    }
-
-                    let imageFormat = getImageFormatByData(buffer);
-                    if (imageFormat !== ImageFormat.TIFF && imageFormat !== ImageFormat.PNG) {
-                        warnID(6031, this._file!.name);
-                        return false;
-                    }
-
-                    let canvasObj = document.createElement("canvas");
-                    if(imageFormat === ImageFormat.PNG){
-                        let myPngObj = new PNGReader(buffer);
-                        myPngObj.render(canvasObj);
+        }
+        // texture
+        else {
+            const imgPath = path.changeBasename(this._plistFile, dict['textureFileName'] || '');
+            if (dict['textureFileName']) {
+                // Try to get the texture from the cache
+                assetManager.loadRemote<ImageAsset>(imgPath, (error: Error | null, imageAsset: ImageAsset) => {
+                    if (error) {
+                        dict['textureFileName'] = undefined;
+                        this._initTextureWithDictionary(dict);
+                        console.error(error);
                     } else {
-                        if (!this._tiffReader) {
-                            this._tiffReader = new TiffReader();
-                        }
-                        this._tiffReader.parseTIFF(buffer,canvasObj);
+                        this.spriteFrame = SpriteFrame.createWithImage(imageAsset);
                     }
-                    const tex = new ImageAsset(canvasObj);
-                    assetManager.assets.add(imgPath, tex);
-                }
+                });
+            } else if (dict['textureImageData']) {
+                const textureData = dict['textureImageData'];
 
-                if (!tex)
-                    warnID(6032, this._file!.name);
-                // TODO: Use cc.assetManager to load asynchronously the SpriteFrame object, avoid using textureUtil
-                this.spriteFrame = new SpriteFrame();
-                this.spriteFrame.texture = tex._texture;
-            }
-            else {
-                return false;
+                if (textureData && textureData.length > 0) {
+                    let imageAsset = assetManager.assets.get(imgPath) as ImageAsset;
+
+                    if (!imageAsset) {
+                        const buffer = codec.unzipBase64AsArray(textureData, 1);
+                        if (!buffer) {
+                            warnID(6030, this._file!.name);
+                            return false;
+                        }
+
+                        const imageFormat = getImageFormatByData(buffer);
+                        if (imageFormat !== ImageFormat.TIFF && imageFormat !== ImageFormat.PNG) {
+                            warnID(6031, this._file!.name);
+                            return false;
+                        }
+
+                        const canvasObj = document.createElement('canvas');
+                        if (imageFormat === ImageFormat.PNG) {
+                            const myPngObj = new PNGReader(buffer);
+                            myPngObj.render(canvasObj);
+                        } else {
+                            if (!this._tiffReader) {
+                                this._tiffReader = new TiffReader();
+                            }
+                            this._tiffReader.parseTIFF(buffer, canvasObj);
+                        }
+                        imageAsset = new ImageAsset(canvasObj);
+                        assetManager.assets.add(imgPath, imageAsset);
+                    }
+
+                    if (!imageAsset) {
+                        warnID(6032, this._file!.name);
+                    }
+                    // TODO: Use cc.assetManager to load asynchronously the SpriteFrame object, avoid using textureUtil
+                    this.spriteFrame = SpriteFrame.createWithImage(imageAsset);
+                } else {
+                    return false;
+                }
             }
         }
         return true;
@@ -968,14 +988,14 @@ bv
 
     // parsing process
     public _initWithDictionary (dict) {
-        this.totalParticles = parseInt(dict["maxParticles"] || 0);
+        this.totalParticles = parseInt(dict['maxParticles'] || 0);
 
         // life span
-        this.life = parseFloat(dict["particleLifespan"] || 0);
-        this.lifeVar = parseFloat(dict["particleLifespanVariance"] || 0);
+        this.life = parseFloat(dict['particleLifespan'] || 0);
+        this.lifeVar = parseFloat(dict['particleLifespanVariance'] || 0);
 
         // emission Rate
-        const _tempEmissionRate = dict["emissionRate"];
+        const _tempEmissionRate = dict['emissionRate'];
         if (_tempEmissionRate) {
             this.emissionRate = _tempEmissionRate;
         }
@@ -984,94 +1004,94 @@ bv
         }
 
         // duration
-        this.duration = parseFloat(dict["duration"] || 0);
+        this.duration = parseFloat(dict['duration'] || 0);
 
         // blend function
-        this.srcBlendFactor = parseInt(dict["blendFuncSource"] || BlendFactor.SRC_ALPHA);
-        this.dstBlendFactor = parseInt(dict["blendFuncDestination"] || BlendFactor.ONE_MINUS_SRC_ALPHA);
+        this.srcBlendFactor = parseInt(dict['blendFuncSource'] || BlendFactor.SRC_ALPHA);
+        this.dstBlendFactor = parseInt(dict['blendFuncDestination'] || BlendFactor.ONE_MINUS_SRC_ALPHA);
 
         // color
         const locStartColor = this._startColor;
-        locStartColor.r = parseFloat(dict["startColorRed"] || 0) * 255;
-        locStartColor.g = parseFloat(dict["startColorGreen"] || 0) * 255;
-        locStartColor.b = parseFloat(dict["startColorBlue"] || 0) * 255;
-        locStartColor.a = parseFloat(dict["startColorAlpha"] || 0) * 255;
+        locStartColor.r = parseFloat(dict['startColorRed'] || 0) * 255;
+        locStartColor.g = parseFloat(dict['startColorGreen'] || 0) * 255;
+        locStartColor.b = parseFloat(dict['startColorBlue'] || 0) * 255;
+        locStartColor.a = parseFloat(dict['startColorAlpha'] || 0) * 255;
 
         const locStartColorVar = this._startColorVar;
-        locStartColorVar.r = parseFloat(dict["startColorVarianceRed"] || 0) * 255;
-        locStartColorVar.g = parseFloat(dict["startColorVarianceGreen"] || 0) * 255;
-        locStartColorVar.b = parseFloat(dict["startColorVarianceBlue"] || 0) * 255;
-        locStartColorVar.a = parseFloat(dict["startColorVarianceAlpha"] || 0) * 255;
+        locStartColorVar.r = parseFloat(dict['startColorVarianceRed'] || 0) * 255;
+        locStartColorVar.g = parseFloat(dict['startColorVarianceGreen'] || 0) * 255;
+        locStartColorVar.b = parseFloat(dict['startColorVarianceBlue'] || 0) * 255;
+        locStartColorVar.a = parseFloat(dict['startColorVarianceAlpha'] || 0) * 255;
 
         const locEndColor = this._endColor;
-        locEndColor.r = parseFloat(dict["finishColorRed"] || 0) * 255;
-        locEndColor.g = parseFloat(dict["finishColorGreen"] || 0) * 255;
-        locEndColor.b = parseFloat(dict["finishColorBlue"] || 0) * 255;
-        locEndColor.a = parseFloat(dict["finishColorAlpha"] || 0) * 255;
+        locEndColor.r = parseFloat(dict['finishColorRed'] || 0) * 255;
+        locEndColor.g = parseFloat(dict['finishColorGreen'] || 0) * 255;
+        locEndColor.b = parseFloat(dict['finishColorBlue'] || 0) * 255;
+        locEndColor.a = parseFloat(dict['finishColorAlpha'] || 0) * 255;
 
         const locEndColorVar = this._endColorVar;
-        locEndColorVar.r = parseFloat(dict["finishColorVarianceRed"] || 0) * 255;
-        locEndColorVar.g = parseFloat(dict["finishColorVarianceGreen"] || 0) * 255;
-        locEndColorVar.b = parseFloat(dict["finishColorVarianceBlue"] || 0) * 255;
-        locEndColorVar.a = parseFloat(dict["finishColorVarianceAlpha"] || 0) * 255;
+        locEndColorVar.r = parseFloat(dict['finishColorVarianceRed'] || 0) * 255;
+        locEndColorVar.g = parseFloat(dict['finishColorVarianceGreen'] || 0) * 255;
+        locEndColorVar.b = parseFloat(dict['finishColorVarianceBlue'] || 0) * 255;
+        locEndColorVar.a = parseFloat(dict['finishColorVarianceAlpha'] || 0) * 255;
 
         // particle size
-        this.startSize = parseFloat(dict["startParticleSize"] || 0);
-        this.startSizeVar = parseFloat(dict["startParticleSizeVariance"] || 0);
-        this.endSize = parseFloat(dict["finishParticleSize"] || 0);
-        this.endSizeVar = parseFloat(dict["finishParticleSizeVariance"] || 0);
+        this.startSize = parseFloat(dict['startParticleSize'] || 0);
+        this.startSizeVar = parseFloat(dict['startParticleSizeVariance'] || 0);
+        this.endSize = parseFloat(dict['finishParticleSize'] || 0);
+        this.endSizeVar = parseFloat(dict['finishParticleSizeVariance'] || 0);
 
         // position
         // Make empty positionType value and old version compatible
-        this.positionType = parseFloat(dict['positionType'] !== undefined ? dict['positionType'] : PositionType.FREE);
+        this.positionType = parseFloat(dict.positionType !== undefined ? dict.positionType : PositionType.FREE);
         // for
-        this.sourcePos.set(0, 0)
-        this.posVar.set(parseFloat(dict["sourcePositionVariancex"] || 0), parseFloat(dict["sourcePositionVariancey"] || 0));
+        this.sourcePos.set(0, 0);
+        this.posVar.set(parseFloat(dict['sourcePositionVariancex'] || 0), parseFloat(dict['sourcePositionVariancey'] || 0));
         // angle
-        this.angle = parseFloat(dict["angle"] || 0);
-        this.angleVar = parseFloat(dict["angleVariance"] || 0);
+        this.angle = parseFloat(dict['angle'] || 0);
+        this.angleVar = parseFloat(dict['angleVariance'] || 0);
 
         // Spinning
-        this.startSpin = parseFloat(dict["rotationStart"] || 0);
-        this.startSpinVar = parseFloat(dict["rotationStartVariance"] || 0);
-        this.endSpin = parseFloat(dict["rotationEnd"] || 0);
-        this.endSpinVar = parseFloat(dict["rotationEndVariance"] || 0);
+        this.startSpin = parseFloat(dict['rotationStart'] || 0);
+        this.startSpinVar = parseFloat(dict['rotationStartVariance'] || 0);
+        this.endSpin = parseFloat(dict['rotationEnd'] || 0);
+        this.endSpinVar = parseFloat(dict['rotationEndVariance'] || 0);
 
-        this.emitterMode = parseInt(dict["emitterType"] || EmitterMode.GRAVITY);
+        this.emitterMode = parseInt(dict['emitterType'] || EmitterMode.GRAVITY);
 
         // Mode A: Gravity + tangential accel + radial accel
         if (this.emitterMode === EmitterMode.GRAVITY) {
             // gravity
-            this.gravity.set(parseFloat(dict["gravityx"] || 0), parseFloat(dict["gravityy"] || 0));
+            this.gravity.set(parseFloat(dict['gravityx'] || 0), parseFloat(dict['gravityy'] || 0));
             // speed
-            this.speed = parseFloat(dict["speed"] || 0);
-            this.speedVar = parseFloat(dict["speedVariance"] || 0);
+            this.speed = parseFloat(dict['speed'] || 0);
+            this.speedVar = parseFloat(dict['speedVariance'] || 0);
 
             // radial acceleration
-            this.radialAccel = parseFloat(dict["radialAcceleration"] || 0);
-            this.radialAccelVar = parseFloat(dict["radialAccelVariance"] || 0);
+            this.radialAccel = parseFloat(dict['radialAcceleration'] || 0);
+            this.radialAccelVar = parseFloat(dict['radialAccelVariance'] || 0);
 
             // tangential acceleration
-            this.tangentialAccel = parseFloat(dict["tangentialAcceleration"] || 0);
-            this.tangentialAccelVar = parseFloat(dict["tangentialAccelVariance"] || 0);
+            this.tangentialAccel = parseFloat(dict['tangentialAcceleration'] || 0);
+            this.tangentialAccelVar = parseFloat(dict['tangentialAccelVariance'] || 0);
 
             // rotation is dir
-            let locRotationIsDir = dict["rotationIsDir"] || "";
+            let locRotationIsDir = dict['rotationIsDir'] || '';
             if (locRotationIsDir !== null) {
                 locRotationIsDir = locRotationIsDir.toString().toLowerCase();
-                this.rotationIsDir = (locRotationIsDir === "true" || locRotationIsDir === "1");
+                this.rotationIsDir = (locRotationIsDir === 'true' || locRotationIsDir === '1');
             }
             else {
                 this.rotationIsDir = false;
             }
         } else if (this.emitterMode === EmitterMode.RADIUS) {
             // or Mode B: radius movement
-            this.startRadius = parseFloat(dict["maxRadius"] || 0);
-            this.startRadiusVar = parseFloat(dict["maxRadiusVariance"] || 0);
-            this.endRadius = parseFloat(dict["minRadius"] || 0);
-            this.endRadiusVar = parseFloat(dict["minRadiusVariance"] || 0);
-            this.rotatePerS = parseFloat(dict["rotatePerSecond"] || 0);
-            this.rotatePerSVar = parseFloat(dict["rotatePerSecondVariance"] || 0);
+            this.startRadius = parseFloat(dict['maxRadius'] || 0);
+            this.startRadiusVar = parseFloat(dict['maxRadiusVariance'] || 0);
+            this.endRadius = parseFloat(dict['minRadius'] || 0);
+            this.endRadiusVar = parseFloat(dict['minRadiusVariance'] || 0);
+            this.rotatePerS = parseFloat(dict['rotatePerSecond'] || 0);
+            this.rotatePerSVar = parseFloat(dict['rotatePerSecondVariance'] || 0);
         } else {
             warnID(6009);
             return false;
@@ -1109,13 +1129,12 @@ bv
     }
 
     public _getTexture () {
-        return (this._renderSpriteFrame && this._renderSpriteFrame.texture) || this._texture;
+        return (this._renderSpriteFrame && this._renderSpriteFrame.texture);
     }
 
     public _updateMaterial () {
-        let mat = this.getRenderMaterial(0);
-        if (!mat) return;
-        // mat.recompileShaders({USE_LOCAL:this._positionType !== PositionType.FREE});
+        let mat = this.getMaterialInstance(0);
+        if (mat) mat.recompileShaders({ USE_LOCAL: this._positionType !== PositionType.FREE });
     }
 
     public _finishedSimulation () {
@@ -1138,7 +1157,6 @@ bv
     }
 
     protected _render (render: UI) {
-        render.commitComp(this, this._spriteFrame!, this._assembler!);
+        render.commitComp(this, this._spriteFrame!, this._assembler!, this._positionType === PositionType.RELATIVE ? this.node.parent : null);
     }
 }
-

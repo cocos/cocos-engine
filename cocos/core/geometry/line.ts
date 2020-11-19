@@ -1,3 +1,28 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
  * @packageDocumentation
  * @module geometry
@@ -8,12 +33,12 @@ import enums from './enums';
 
 /**
  * @en
- * Basic Geometry: line.
+ * Basic Geometry: Line.
  * @zh
  * 基础几何 line。
  */
 
-export default class line {
+export class Line {
 
     /**
      * @en
@@ -29,19 +54,19 @@ export default class line {
      * @return
      */
     public static create (sx: number, sy: number, sz: number, ex: number, ey: number, ez: number) {
-        return new line(sx, sy, sz, ex, ey, ez);
+        return new Line(sx, sy, sz, ex, ey, ez);
     }
 
     /**
      * @en
-     * Creates a new line initialized with values from an existing line
+     * Creates a new Line initialized with values from an existing Line
      * @zh
      * 克隆一个新的 line。
      * @param a 克隆的来源。
      * @return 克隆出的对象。
      */
-    public static clone (a: line) {
-        return new line(
+    public static clone (a: Line) {
+        return new Line(
             a.s.x, a.s.y, a.s.z,
             a.e.x, a.e.y, a.e.z,
         );
@@ -49,14 +74,14 @@ export default class line {
 
     /**
      * @en
-     * Copy the values from one line to another
+     * Copy the values from one Line to another
      * @zh
      * 复制一个线的值到另一个。
      * @param out 接受操作的对象。
      * @param a 复制的来源。
      * @return 接受操作的对象。
      */
-    public static copy (out: line, a: line) {
+    public static copy (out: Line, a: Line) {
         Vec3.copy(out.s, a.s);
         Vec3.copy(out.e, a.e);
 
@@ -73,7 +98,7 @@ export default class line {
      * @param end 终点。
      * @return out 接受操作的对象。
      */
-    public static fromPoints (out: line, start: Vec3, end: Vec3) {
+    public static fromPoints (out: Line, start: Vec3, end: Vec3) {
         Vec3.copy(out.s, start);
         Vec3.copy(out.e, end);
         return out;
@@ -93,7 +118,7 @@ export default class line {
      * @param ez 终点的 z 部分。
      * @return out 接受操作的对象。
      */
-    public static set (out: line, sx: number, sy: number, sz: number, ex: number, ey: number, ez: number) {
+    public static set (out: Line, sx: number, sy: number, sz: number, ex: number, ey: number, ez: number) {
         out.s.x = sx;
         out.s.y = sy;
         out.s.z = sz;
@@ -110,7 +135,7 @@ export default class line {
      * @param a 要计算的线。
      * @return 长度。
      */
-    public static len (a: line) {
+    public static len (a: Line) {
         return Vec3.distance(a.s, a.e);
     }
 

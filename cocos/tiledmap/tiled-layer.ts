@@ -1,6 +1,6 @@
-/****************************************************************************
+/*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -22,7 +22,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+ */
 
 /**
  * @packageDocumentation
@@ -31,17 +31,17 @@
 
 import { ccclass } from 'cc.decorator';
 
+import { EDITOR } from 'internal:constants';
 import { UIRenderable } from '../core/components/ui-base/ui-renderable';
 import { Component } from '../core/components';
 import { TMXMapInfo } from './tmx-xml-parser';
 import { Color, IVec2Like, Mat4, Size, SpriteFrame, SystemEventType, Texture2D, Vec2, Vec3, Node, warn, logID, CCBoolean } from '../core';
 import { TiledTile } from './tiled-tile';
-import { EDITOR } from 'internal:constants';
 import { MeshRenderData } from '../core/renderer/ui/render-data';
 import { UI } from '../core/renderer/ui/ui';
 import {
     MixedGID, GID, Orientation, TiledTextureGrids, TMXTilesetInfo, RenderOrder, StaggerAxis, StaggerIndex, TileFlag,
-    GIDFlags, TiledGrid, TiledAnimationType, PropertiesInfo, TMXLayerInfo
+    GIDFlags, TiledGrid, TiledAnimationType, PropertiesInfo, TMXLayerInfo,
 } from './tiled-types';
 import { fillTextureGrids, loadAllTextures } from './tiled-utils';
 
@@ -74,14 +74,13 @@ interface TiledSubNodeData {
 type TiledMeshDataArray = (TiledMeshData |TiledSubNodeData)[];
 
 /**
- * !#en Render the TMX layer.
- * !#zh 渲染 TMX layer。
+ * @en Render the TMX layer.
+ * @zh 渲染 TMX layer。
  * @class TiledLayer
  * @extends Component
  */
 @ccclass('cc.TiledLayer')
 export class TiledLayer extends UIRenderable {
-
     // [row][col] = {count: 0, nodesList: []};
     protected _userNodeGrid: { [key: number]: { count: number;[key: number]: { count: number, list: (TiledUserNodeData | null)[] } } } = {};
     protected _userNodeMap: { [key: string]: TiledUserNodeData } = {};// [id] = node;
@@ -98,7 +97,7 @@ export class TiledLayer extends UIRenderable {
     protected _viewPort = { x: -1, y: -1, width: -1, height: -1 };
     protected _cullingRect = {
         leftDown: { row: -1, col: -1 },
-        rightTop: { row: -1, col: -1 }
+        rightTop: { row: -1, col: -1 },
     };
     get cullingRect () { return this._cullingRect; }
 
@@ -170,7 +169,7 @@ export class TiledLayer extends UIRenderable {
 
     protected _meshRenderDataArray: TiledMeshDataArray | null = null;
 
-    get meshRenderDataArray () { return this._meshRenderDataArray; };
+    get meshRenderDataArray () { return this._meshRenderDataArray; }
     get leftDownToCenterX () { return this._leftDownToCenterX; }
     get leftDownToCenterY () { return this._leftDownToCenterY; }
 
@@ -187,8 +186,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en enable or disable culling
-     * !#zh 开启或关闭裁剪。
+     * @en enable or disable culling
+     * @zh 开启或关闭裁剪。
      * @method enableCulling
      * @param value
      */
@@ -201,8 +200,8 @@ export class TiledLayer extends UIRenderable {
     get enableCulling () { return this._enableCulling!; }
 
     /**
-     * !#en Adds user's node into layer.
-     * !#zh 添加用户节点。
+     * @en Adds user's node into layer.
+     * @zh 添加用户节点。
      * @method addUserNode
      * @param {cc.Node} node
      * @return {Boolean}
@@ -233,8 +232,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Removes user's node.
-     * !#zh 移除用户节点。
+     * @en Removes user's node.
+     * @zh 移除用户节点。
      * @method removeUserNode
      * @param {cc.Node} node
      * @return {Boolean}
@@ -257,8 +256,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Destroy user's node.
-     * !#zh 销毁用户节点。
+     * @en Destroy user's node.
+     * @zh 销毁用户节点。
      * @method destroyUserNode
      * @param {cc.Node} node
      */
@@ -388,14 +387,16 @@ export class TiledLayer extends UIRenderable {
     }
 
     onEnable () {
-        super.onEnable()
+        super.onEnable();
         this.node.on(SystemEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
+        this.node.on(SystemEventType.TRANSFORM_CHANGED, this.updateCulling, this);
         this.markForUpdateRenderData();
     }
 
     onDisable () {
         super.onDisable();
         this.node.off(SystemEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
+        this.node.off(SystemEventType.TRANSFORM_CHANGED, this.updateCulling, this);
     }
 
     protected _syncAnchorPoint () {
@@ -413,8 +414,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Gets the layer name.
-     * !#zh 获取层的名称。
+     * @en Gets the layer name.
+     * @zh 获取层的名称。
      * @method getLayerName
      * @return {String}
      * @example
@@ -426,8 +427,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Set the layer name.
-     * !#zh 设置层的名称
+     * @en Set the layer name.
+     * @zh 设置层的名称
      * @method SetLayerName
      * @param {String} layerName
      * @example
@@ -438,8 +439,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Return the value for the specific property name.
-     * !#zh 获取指定属性名的值。
+     * @en Return the value for the specific property name.
+     * @zh 获取指定属性名的值。
      * @method getProperty
      * @param {String} propertyName
      * @return {*}
@@ -452,8 +453,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Returns the position in pixels of a given tile coordinate.
-     * !#zh 获取指定 tile 的像素坐标。
+     * @en Returns the position in pixels of a given tile coordinate.
+     * @zh 获取指定 tile 的像素坐标。
      * @method getPositionAt
      * @param {Vec2|Number} pos position or x
      * @param {Number} [y]
@@ -469,19 +470,18 @@ export class TiledLayer extends UIRenderable {
         if (y !== undefined) {
             x = Math.floor(pos as number);
             y = Math.floor(y);
-        }
-        else {
+        } else {
             x = Math.floor((pos as IVec2Like).x);
             y = Math.floor((pos as IVec2Like).y);
         }
 
         switch (this._layerOrientation) {
-            case Orientation.ORTHO:
-                return this._positionForOrthoAt(x, y);
-            case Orientation.ISO:
-                return this._positionForIsoAt(x, y);
-            case Orientation.HEX:
-                return this._positionForHexAt(x, y);
+        case Orientation.ORTHO:
+            return this._positionForOrthoAt(x, y);
+        case Orientation.ISO:
+            return this._positionForIsoAt(x, y);
+        case Orientation.HEX:
+            return this._positionForHexAt(x, y);
         }
         return null;
     }
@@ -505,7 +505,7 @@ export class TiledLayer extends UIRenderable {
 
         return new Vec2(
             this._mapTileSize!.width * 0.5 * (this._layerSize!.height + x - y - 1) + offsetX,
-            this._mapTileSize!.height * 0.5 * (this._layerSize!.width - x + this._layerSize!.height - y - 2) - offsetY
+            this._mapTileSize!.height * 0.5 * (this._layerSize!.width - x + this._layerSize!.height - y - 2) - offsetY,
         );
     }
 
@@ -524,7 +524,7 @@ export class TiledLayer extends UIRenderable {
 
         return new Vec2(
             x * this._mapTileSize!.width + offsetX,
-            (this._layerSize!.height - y - 1) * this._mapTileSize!.height - offsetY
+            (this._layerSize!.height - y - 1) * this._mapTileSize!.height - offsetY,
         );
     }
 
@@ -539,7 +539,7 @@ export class TiledLayer extends UIRenderable {
         if (this.texGrids!.get(gid as unknown as GID)) {
             offset = this.texGrids!.get(gid as unknown as GID)!.tileset.tileOffset;
         } else {
-            offset = { x: 0, y: 0 }
+            offset = { x: 0, y: 0 };
         }
 
         const odd_even = (this._staggerIndex === StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
@@ -548,30 +548,30 @@ export class TiledLayer extends UIRenderable {
         let diffX = 0;
         let diffY = 0;
         switch (this._staggerAxis) {
-            case StaggerAxis.STAGGERAXIS_Y:
-                diffX = 0;
-                if (row % 2 === 1) {
-                    diffX = tileWidth / 2 * odd_even;
-                }
-                x = col * tileWidth + diffX + offset.x;
-                y = (rows - row - 1) * (tileHeight - (tileHeight - this._hexSideLength!) / 2) - offset.y;
-                break;
-            case StaggerAxis.STAGGERAXIS_X:
-                diffY = 0;
-                if (col % 2 === 1) {
-                    diffY = tileHeight / 2 * -odd_even;
-                }
-                x = col * (tileWidth - (tileWidth - this._hexSideLength!) / 2) + offset.x;
-                y = (rows - row - 1) * tileHeight + diffY - offset.y;
-                break;
+        case StaggerAxis.STAGGERAXIS_Y:
+            diffX = 0;
+            if (row % 2 === 1) {
+                diffX = tileWidth / 2 * odd_even;
+            }
+            x = col * tileWidth + diffX + offset.x;
+            y = (rows - row - 1) * (tileHeight - (tileHeight - this._hexSideLength!) / 2) - offset.y;
+            break;
+        case StaggerAxis.STAGGERAXIS_X:
+            diffY = 0;
+            if (col % 2 === 1) {
+                diffY = tileHeight / 2 * -odd_even;
+            }
+            x = col * (tileWidth - (tileWidth - this._hexSideLength!) / 2) + offset.x;
+            y = (rows - row - 1) * tileHeight + diffY - offset.y;
+            break;
         }
         return new Vec2(x, y);
     }
 
     /**
-     * !#en
+     * @en
      * Sets the tiles gid (gid = tile global id) at a given tiles rect.
-     * !#zh
+     * @zh
      * 设置给定区域的 tile 的 gid (gid = tile 全局 id)，
      * @method setTilesGIDAt
      * @param {Array} gids an array contains gid
@@ -597,11 +597,11 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en
+     * @en
      * Sets the tile gid (gid = tile global id) at a given tile coordinate.<br />
      * The Tile GID can be obtained by using the method "tileGIDAt" or by using the TMX editor . Tileset Mgr +1.<br />
      * If a tile is already placed at that position, then it will be removed.
-     * !#zh
+     * @zh
      * 设置给定坐标的 tile 的 gid (gid = tile 全局 id)，
      * tile 的 GID 可以使用方法 “tileGIDAt” 来获得。<br />
      * 如果一个 tile 已经放在那个位置，那么它将被删除。
@@ -614,7 +614,6 @@ export class TiledLayer extends UIRenderable {
      * tiledLayer.setTileGIDAt(1001, 10, 10, 1)
      */
     public setTileGIDAt (gid: MixedGID, x: number, y: number, flags?: number) {
-
         const ugid = ((gid as unknown as number) & TileFlag.FLIPPED_MASK) >>> 0;
 
         x = Math.floor(x);
@@ -655,10 +654,10 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en
+     * @en
      * Returns the tile gid at a given tile coordinate. <br />
      * if it returns 0, it means that the tile is empty. <br />
-     * !#zh
+     * @zh
      * 通过给定的 tile 坐标、flags（可选）返回 tile 的 GID. <br />
      * 如果它返回 0，则表示该 tile 为空。<br />
      * @method getTileGIDAt
@@ -683,9 +682,9 @@ export class TiledLayer extends UIRenderable {
         return ((tile & TileFlag.FLIPPED_MASK) >>> 0);
     }
     /**
-     * !#en
+     * @en
      * Returns the tile flags at a given tile coordinate. <br />
-     * !#zh
+     * @zh
      * 通过给定的 tile 坐标, 返回 tile 的 flags. <br />
      * 如果它返回 null，则表示该 tile 为空。<br />
      * @method getTileGIDAt
@@ -696,7 +695,6 @@ export class TiledLayer extends UIRenderable {
      * let tileGid = tiledLayer.getTileGIDAt(0, 0);
      */
     public getTileFlagsAt (x:number, y:number) {
-
         if (this.isInvalidPosition(x, y)) {
             throw new Error('TiledLayer.getTileFlagsAt: invalid position');
         }
@@ -723,10 +721,10 @@ export class TiledLayer extends UIRenderable {
     // 'x, y' is the position of viewPort, which's anchor point is at the center of rect.
     // 'width, height' is the size of viewPort.
     public updateViewPort (x: number, y: number, width: number, height: number): void {
-        if (this._viewPort.width === width &&
-            this._viewPort.height === height &&
-            this._viewPort.x === x &&
-            this._viewPort.y === y) {
+        if (this._viewPort.width === width
+            && this._viewPort.height === height
+            && this._viewPort.x === x
+            && this._viewPort.y === y) {
             return;
         }
         this._viewPort.x = x;
@@ -789,12 +787,12 @@ export class TiledLayer extends UIRenderable {
             rightTop.row = _tempRowCol.row;
             rightTop.col = _tempRowCol.col;
             this._cullingDirty = true;
+            this.markForUpdateRenderData();
         }
     }
 
     // the result may not precise, but it dose't matter, it just uses to be got range
     protected _positionToRowCol (x: number, y: number, result: { col: number, row: number }): { col: number, row: number } {
-
         const maptw = this._mapTileSize!.width;
         const mapth = this._mapTileSize!.height;
         const maptw2 = maptw * 0.5;
@@ -806,29 +804,29 @@ export class TiledLayer extends UIRenderable {
         const axis = this._staggerAxis;
 
         switch (this._layerOrientation) {
-            // left top to right dowm
-            case Orientation.ORTHO:
-                col = Math.floor(x / maptw);
-                row = Math.floor(y / mapth);
-                break;
+        // left top to right dowm
+        case Orientation.ORTHO:
+            col = Math.floor(x / maptw);
+            row = Math.floor(y / mapth);
+            break;
             // right top to left down
             // iso can be treat as special hex whose hex side length is 0
-            case Orientation.ISO:
-                col = Math.floor(x / maptw2);
-                row = Math.floor(y / mapth2);
-                break;
+        case Orientation.ISO:
+            col = Math.floor(x / maptw2);
+            row = Math.floor(y / mapth2);
+            break;
             // left top to right dowm
-            case Orientation.HEX:
-                if (axis === StaggerAxis.STAGGERAXIS_Y) {
-                    row = Math.floor(y / (mapth - this._diffY1!));
-                    diffX2 = row % 2 === 1 ? maptw2 * this._odd_even! : 0;
-                    col = Math.floor((x - diffX2) / maptw);
-                } else {
-                    col = Math.floor(x / (maptw - this._diffX1!));
-                    diffY2 = col % 2 === 1 ? mapth2 * -this._odd_even! : 0;
-                    row = Math.floor((y - diffY2) / mapth);
-                }
-                break;
+        case Orientation.HEX:
+            if (axis === StaggerAxis.STAGGERAXIS_Y) {
+                row = Math.floor(y / (mapth - this._diffY1!));
+                diffX2 = row % 2 === 1 ? maptw2 * this._odd_even! : 0;
+                col = Math.floor((x - diffX2) / maptw);
+            } else {
+                col = Math.floor(x / (maptw - this._diffX1!));
+                diffY2 = col % 2 === 1 ? mapth2 * -this._odd_even! : 0;
+                row = Math.floor((y - diffY2) / mapth);
+            }
+            break;
         }
         result.row = row;
         result.col = col;
@@ -861,8 +859,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Layer orientation, which is the same as the map orientation.
-     * !#zh 获取 Layer 方向(同地图方向)。
+     * @en Layer orientation, which is the same as the map orientation.
+     * @zh 获取 Layer 方向(同地图方向)。
      * @method getLayerOrientation
      * @return {Number}
      * @example
@@ -874,8 +872,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en properties from the layer. They can be added using Tiled.
-     * !#zh 获取 layer 的属性，可以使用 Tiled 编辑器添加属性。
+     * @en properties from the layer. They can be added using Tiled.
+     * @zh 获取 layer 的属性，可以使用 Tiled 编辑器添加属性。
      * @method getProperties
      * @return {Object}
      * @example
@@ -908,8 +906,8 @@ export class TiledLayer extends UIRenderable {
         const grids = this.texGrids!;
 
         let gid: MixedGID;
-        let left: number = 0;
-        let bottom: number = 0;
+        let left = 0;
+        let bottom = 0;
         let axis: StaggerAxis;
         let diffX1: number;
         let diffY1: number;
@@ -948,38 +946,38 @@ export class TiledLayer extends UIRenderable {
         }
 
         switch (layerOrientation) {
-            // left top to right dowm
-            case Orientation.ORTHO:
-                cullingCol = col;
-                cullingRow = rows - row - 1;
-                left = cullingCol * maptw;
-                bottom = cullingRow * mapth;
-                break;
+        // left top to right dowm
+        case Orientation.ORTHO:
+            cullingCol = col;
+            cullingRow = rows - row - 1;
+            left = cullingCol * maptw;
+            bottom = cullingRow * mapth;
+            break;
             // right top to left down
-            case Orientation.ISO:
-                // if not consider about col, then left is 'w/2 * (rows - row - 1)'
-                // if consider about col then left must add 'w/2 * col'
-                // so left is 'w/2 * (rows - row - 1) + w/2 * col'
-                // combine expression is 'w/2 * (rows - row + col -1)'
-                cullingCol = rows + col - row - 1;
-                // if not consider about row, then bottom is 'h/2 * (cols - col -1)'
-                // if consider about row then bottom must add 'h/2 * (rows - row - 1)'
-                // so bottom is 'h/2 * (cols - col -1) + h/2 * (rows - row - 1)'
-                // combine expressionn is 'h/2 * (rows + cols - col - row - 2)'
-                cullingRow = rows + cols - col - row - 2;
-                left = maptw2 * cullingCol;
-                bottom = mapth2 * cullingRow;
-                break;
+        case Orientation.ISO:
+            // if not consider about col, then left is 'w/2 * (rows - row - 1)'
+            // if consider about col then left must add 'w/2 * col'
+            // so left is 'w/2 * (rows - row - 1) + w/2 * col'
+            // combine expression is 'w/2 * (rows - row + col -1)'
+            cullingCol = rows + col - row - 1;
+            // if not consider about row, then bottom is 'h/2 * (cols - col -1)'
+            // if consider about row then bottom must add 'h/2 * (rows - row - 1)'
+            // so bottom is 'h/2 * (cols - col -1) + h/2 * (rows - row - 1)'
+            // combine expressionn is 'h/2 * (rows + cols - col - row - 2)'
+            cullingRow = rows + cols - col - row - 2;
+            left = maptw2 * cullingCol;
+            bottom = mapth2 * cullingRow;
+            break;
             // left top to right dowm
-            case Orientation.HEX:
-                diffX2 = (axis! === StaggerAxis.STAGGERAXIS_Y && row % 2 === 1) ? maptw2 * odd_even! : 0;
-                diffY2 = (axis! === StaggerAxis.STAGGERAXIS_X && col % 2 === 1) ? mapth2 * -odd_even! : 0;
+        case Orientation.HEX:
+            diffX2 = (axis! === StaggerAxis.STAGGERAXIS_Y && row % 2 === 1) ? maptw2 * odd_even! : 0;
+            diffY2 = (axis! === StaggerAxis.STAGGERAXIS_X && col % 2 === 1) ? mapth2 * -odd_even! : 0;
 
-                left = col * (maptw - diffX1!) + diffX2;
-                bottom = (rows - row - 1) * (mapth - diffY1!) + diffY2;
-                cullingCol = col;
-                cullingRow = rows - row - 1;
-                break;
+            left = col * (maptw - diffX1!) + diffX2;
+            bottom = (rows - row - 1) * (mapth - diffY1!) + diffY2;
+            cullingCol = col;
+            cullingRow = rows - row - 1;
+            break;
         }
 
         const rowData = vertices[cullingRow] = vertices[cullingRow] || { minCol: 0, maxCol: 0 };
@@ -1006,7 +1004,7 @@ export class TiledLayer extends UIRenderable {
         // _offset is whole layer offset
         // tileOffset is tileset offset which is related to each grid
         // tileOffset coordinate system's y axis is opposite with engine's y axis.
-        tileOffset = grid.tileset.tileOffset!;
+        tileOffset = grid.tileset.tileOffset;
         left += this._offset!.x + tileOffset!.x + grid.offsetX;
         bottom += this._offset!.y - tileOffset!.y - grid.offsetY;
 
@@ -1072,12 +1070,12 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en
+     * @en
      * Get the TiledTile with the tile coordinate.<br/>
      * If there is no tile in the specified coordinate and forceCreate parameter is true, <br/>
      * then will create a new TiledTile at the coordinate.
      * The renderer will render the tile with the rotation, scale, position and color property of the TiledTile.
-     * !#zh
+     * @zh
      * 通过指定的 tile 坐标获取对应的 TiledTile。 <br/>
      * 如果指定的坐标没有 tile，并且设置了 forceCreate 那么将会在指定的坐标创建一个新的 TiledTile 。<br/>
      * 在渲染这个 tile 的时候，将会使用 TiledTile 的节点的旋转、缩放、位移、颜色属性。<br/>
@@ -1115,9 +1113,9 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en
+     * @en
      * Change tile to TiledTile at the specified coordinate.
-     * !#zh
+     * @zh
      * 将指定的 tile 坐标替换为指定的 TiledTile。
      * @method setTiledTileAt
      * @param {Integer} x
@@ -1141,17 +1139,15 @@ export class TiledLayer extends UIRenderable {
         if (tiledTile) {
             this._hasTiledNodeGrid = true;
         } else {
-            this._hasTiledNodeGrid = this.tiledTiles.some((tiledNode) => {
-                return !!tiledNode;
-            });
+            this._hasTiledNodeGrid = this.tiledTiles.some((tiledNode) => !!tiledNode);
         }
 
         return tiledTile;
     }
 
     /**
-     * !#en Return texture.
-     * !#zh 获取纹理。
+     * @en Return texture.
+     * @zh 获取纹理。
      * @method getTexture
      * @param index The index of textures
      * @return {Texture2D}
@@ -1165,8 +1161,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Return texture.
-     * !#zh 获取纹理。
+     * @en Return texture.
+     * @zh 获取纹理。
      * @method getTextures
      * @return {Texture2D}
      */
@@ -1175,8 +1171,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Set the texture.
-     * !#zh 设置纹理。
+     * @en Set the texture.
+     * @zh 设置纹理。
      * @method setTexture
      * @param {SpriteFrame} texture
      */
@@ -1185,8 +1181,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Set the texture.
-     * !#zh 设置纹理。
+     * @en Set the texture.
+     * @zh 设置纹理。
      * @method setTexture
      * @param {SpriteFrame} textures
      */
@@ -1196,8 +1192,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Gets layer size.
-     * !#zh 获得层大小。
+     * @en Gets layer size.
+     * @zh 获得层大小。
      * @method getLayerSize
      * @return {Size}
      * @example
@@ -1209,8 +1205,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Size of the map's tile (could be different from the tile's size).
-     * !#zh 获取 tile 的大小( tile 的大小可能会有所不同)。
+     * @en Size of the map's tile (could be different from the tile's size).
+     * @zh 获取 tile 的大小( tile 的大小可能会有所不同)。
      * @method getMapTileSize
      * @return {Size}
      * @example
@@ -1222,8 +1218,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Gets Tile set first information for the layer.
-     * !#zh 获取 layer 索引位置为0的 Tileset 信息。
+     * @en Gets Tile set first information for the layer.
+     * @zh 获取 layer 索引位置为0的 Tileset 信息。
      * @method getTileSet
      * @param index The index of tilesets
      * @return {TMXTilesetInfo}
@@ -1237,8 +1233,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Gets tile set all information for the layer.
-     * !#zh 获取 layer 所有的 Tileset 信息。
+     * @en Gets tile set all information for the layer.
+     * @zh 获取 layer 所有的 Tileset 信息。
      * @method getTileSet
      * @return {TMXTilesetInfo}
      */
@@ -1247,8 +1243,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Sets tile set information for the layer.
-     * !#zh 设置 layer 的 tileset 信息。
+     * @en Sets tile set information for the layer.
+     * @zh 设置 layer 的 tileset 信息。
      * @method setTileSet
      * @param {TMXTilesetInfo} tileset
      */
@@ -1257,8 +1253,8 @@ export class TiledLayer extends UIRenderable {
     }
 
     /**
-     * !#en Sets Tile set information for the layer.
-     * !#zh 设置 layer 的 Tileset 信息。
+     * @en Sets Tile set information for the layer.
+     * @zh 设置 layer 的 Tileset 信息。
      * @method setTileSets
      * @param {TMXTilesetInfo} tilesets
      */
@@ -1286,7 +1282,6 @@ export class TiledLayer extends UIRenderable {
     }
 
     public init (layerInfo: TMXLayerInfo, mapInfo: TMXMapInfo, tilesets: TMXTilesetInfo[], textures: SpriteFrame[], texGrids: TiledTextureGrids) {
-
         this._cullingDirty = true;
         this._layerInfo = layerInfo;
         this._mapInfo = mapInfo;
@@ -1330,7 +1325,6 @@ export class TiledLayer extends UIRenderable {
         const layerH = this._layerSize.height;
 
         if (this._layerOrientation === Orientation.HEX) {
-
             let width = 0;
             let height = 0;
 
@@ -1369,21 +1363,21 @@ export class TiledLayer extends UIRenderable {
 
     public requestMeshRenderData () {
         if (!this._meshRenderDataArray) {
-            this._meshRenderDataArray = new Array();
+            this._meshRenderDataArray = [];
         }
         const renderData = new MeshRenderData();
         const comb = { renderData, texture: null };
-        Object.defineProperty(renderData, 'material', { get: () => { return this.getRenderMaterial(0); } });
+        Object.defineProperty(renderData, 'material', { get: () => this.getRenderMaterial(0) });
         this._meshRenderDataArray.push(comb);
         return comb;
     }
 
     public requestSubNodesData () {
         if (!this._meshRenderDataArray) {
-            this._meshRenderDataArray = new Array();
+            this._meshRenderDataArray = [];
         }
         const renderData:(TiledUserNodeData|null)[] = [];
-        const comb = {subNodes: renderData};
+        const comb = { subNodes: renderData };
         this._meshRenderDataArray.push(comb);
         return comb;
     }
@@ -1401,7 +1395,7 @@ export class TiledLayer extends UIRenderable {
         }
     }
 
-    public markForUpdateRenderData (enable: boolean = true) {
+    public markForUpdateRenderData (enable = true) {
         this._renderFlag = this._canRender();
         if (enable && this._renderFlag) {
             this._renderDataFlag = enable;
@@ -1425,20 +1419,20 @@ export class TiledLayer extends UIRenderable {
     }
 
     // 当前的 _meshRenderDataArray 的索引, 以便 fillBuffers 选取 RenderData
-    public _meshRenderDataArrayIdx: number = 0;
+    public _meshRenderDataArrayIdx = 0;
     protected _render (ui: UI) {
         if (this._meshRenderDataArray) {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
                 this._meshRenderDataArrayIdx = i;
                 const m = this._meshRenderDataArray[i];
-                if ((m as TiledSubNodeData).subNodes!) {
+                if ((m as TiledSubNodeData).subNodes) {
                     // 提前处理 User Nodes
                     (m as TiledSubNodeData).subNodes.forEach((c) => {
-                        if(c) ui.walk(c.node);
+                        if (c) ui.walk(c.node);
                     });
                 } else if ((m as TiledMeshData).texture) {
                     // NOTE: 由于 commitComp 只支持单张纹理, 故分多次提交
-                    ui.commitComp(this, (m as TiledMeshData).texture, this._assembler);
+                    ui.commitComp(this, (m as TiledMeshData).texture, this._assembler, null);
                 }
             }
             this.node._static = true;

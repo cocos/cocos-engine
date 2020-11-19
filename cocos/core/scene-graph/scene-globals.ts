@@ -26,7 +26,7 @@
 
 import { TextureCube } from '../assets/texture-cube';
 import { ccclass, visible, type, displayOrder, slide, range, rangeStep, editable, serializable, rangeMin } from 'cc.decorator';
-import { CCFloat, CCBoolean } from '../data/utils/attribute';
+import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
 import { Shadows, ShadowType, PCFType } from '../renderer/scene/shadows';
@@ -394,7 +394,7 @@ export class ShadowsInfo {
     @serializable
     protected _pcf = PCFType.HARD;
     @serializable
-    protected _bias = 0.0035;
+    protected _bias = 0.00001;
     @serializable
     protected _near: number = 1;
     @serializable
@@ -403,6 +403,8 @@ export class ShadowsInfo {
     protected _aspect: number = 1;
     @serializable
     protected _orthoSize: number = 5;
+    @serializable
+    protected _maxReceived: number = 4;
     @serializable
     protected _size: Vec2 = new Vec2(512, 512);
 
@@ -547,13 +549,30 @@ export class ShadowsInfo {
     }
 
     /**
+     * @en get or set shadow max received
+     * @zh 获取或者设置阴影接收的最大光源数量
+     */
+    @type(CCInteger)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
+    set maxReceived (val: number) {
+        this._maxReceived = val;
+        if (this._resource) {this._resource.maxReceived = val;}
+    }
+    get maxReceived () {
+        return this._maxReceived;
+    }
+
+    /**
      * @en get or set shadow camera orthoSize
      * @zh 获取或者设置阴影纹理大小
      */
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
     set shadowMapSize (val: Vec2) {
         this._size.set(val);
-        if (this._resource) { this._resource.size = val; }
+        if (this._resource) {
+            this._resource.size = val;
+            this._resource.shadowMapDirty = true;
+        }
     }
     get shadowMapSize () {
         return this._size;

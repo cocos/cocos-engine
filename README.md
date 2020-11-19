@@ -1,12 +1,42 @@
-# Cocos Creator 3D
+<p align="center">
+    <a href="https://www.cocos.com/">
+        <img src="https://user-images.githubusercontent.com/1503156/50446380-ad88c980-094f-11e9-8eff-0094bde708d0.png">
+    </a>
+</p>
+<p align="center">
+    <a href="https://github.com/cocos-creator/engine/stargazers">
+        <img src="https://img.shields.io/github/stars/cocos-creator/engine.svg?style=flat-square&colorB=4183c4"
+             alt="stars">
+    </a>
+    <a href="https://github.com/cocos-creator/engine/network">
+        <img src="https://img.shields.io/github/forks/cocos-creator/engine.svg?style=flat-square&colorB=4183c4"
+             alt="forks">
+    </a>
+    <a href="https://github.com/cocos-creator/engine/releases">
+        <img src="https://img.shields.io/github/tag/cocos-creator/engine.svg?label=version&style=flat-square&colorB=4183c4"
+             alt="version">
+    </a>
+    <a href="./licenses/LICENSE">
+        <img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square&colorB=4183c4"
+             alt="license">
+    </a>
+    <a href="https://twitter.com/cocos2dx">
+        <img src="https://img.shields.io/twitter/follow/cocos2dx.svg?logo=twitter&label=follow&style=flat-square&colorB=4183c4"
+             alt="twitter">
+    </a>
+</p>
 
-Cocos Creator 3D is the new generation of game development tool in Cocos family, it brings a complete set of 3d features and provides an intuitive, low cost and collaboration friendly workflow to game developers.
+# Cocos Creator
 
-Cocos Creator 3D inherited many good qualities and cool features from its previous versions, such as cross-platform support including instant gaming platforms like WeChat mini game, asset management, powerful animation editing, etc. Furthermore, Cocos Creator 3D has pushed our technology to a whole new level. Our GFX implementation is designed to adapt to the latest graphic backend APIs, it already supports WebGL 2 and can be seamlessly fall back to WebGL 1, it will support Vulkan and Metal in the native build. The material system is built on our own effect format which uses GLSL 300 and can be easily adapted to lower version on low end devices. Developers can produce high performance, extremely expressive shaders with good compatibility. Along with physical based camera and lighting, high level game graphic can be easily achieved. Our pure GPU driven skeleton animation also make sure your game runs as smooth as possible. Besides all these exciting features, Cocos Creator 3D have builtin physics support, terrain editing support, visual effect editing, ui system, TypeScript support, instant preview etc.
+![image](https://user-images.githubusercontent.com/1503156/67261891-3cfdfb00-f4d5-11e9-9b2d-15ff2cb015f4.png)
 
-This repo is the engine part of Cocos Creator 3D, it's mainly written in TypeScript and support users to use TypeScript or ES6 to write game logics. The engine itself is mostly self-contained, with full-fledged runtime modules including lighting, material, particle, animation, physical, UI, terrain, sound, resource and scene-graph management, etc. It supports both native and web platforms, including Windows, Mac, iOS, Android, Web. What's more exciting is that it supports rapidly expanding instant gaming platforms like WeChat Mini Game and Facebook Instant Games.
+Cocos Creator is the new generation of game development tool in Cocos family, it brings a complete set of 3D features and provides an intuitive, low cost and collaboration friendly workflow to game developers.
 
-The engine is naturally integrated within Cocos Creator 3D, designed to only be the essential runtime library and not to be used independently.
+Cocos Creator inherited many good qualities and cool features from its previous versions, such as cross-platform support including instant gaming platforms like WeChat mini game, asset management, powerful animation editing, etc. Furthermore, Cocos Creator has pushed our technology to a whole new level. Our GFX implementation is designed to adapt to the latest graphic backend APIs, it already supports WebGL 2 and can be seamlessly fall back to WebGL 1, it will support Vulkan and Metal in the native build. The material system is built on our own effect format which uses GLSL 300 and can be easily adapted to lower version on low end devices. Developers can produce high performance, extremely expressive shaders with good compatibility. Along with physical based camera and lighting, high level game graphic can be easily achieved. Our pure GPU driven skeleton animation also make sure your game runs as smooth as possible. Besides all these exciting features, Cocos Creator have builtin physics support, terrain editing support, visual effect editing, ui system, TypeScript support, instant preview etc.
+
+This repo is the engine part of Cocos Creator, it's mainly written in TypeScript and support users to use TypeScript or ES6 to write game logics. The engine itself is mostly self-contained, with full-fledged runtime modules including lighting, material, particle, animation, physical, UI, terrain, sound, resource and scene-graph management, etc. It supports both native and web platforms, including Windows, Mac, iOS, Android, Web. What's more exciting is that it supports rapidly expanding instant gaming platforms like WeChat Mini Game and Facebook Instant Games.
+
+The engine is naturally integrated within Cocos Creator, designed to only be the essential runtime library and not to be used independently.
 
 ## Developer
 
@@ -28,7 +58,7 @@ This is all you have to do to setup engine development environment.
 
 ### Build
 
-- If running inside Cocos Creator 3D, the engine will automatically compile and build after the editor window is opened.
+- If running inside Cocos Creator, the engine will automatically compile and build after the editor window is opened.
 
 - Outside the editor, you need to run the following command to build:
 
@@ -45,9 +75,9 @@ This is all you have to do to setup engine development environment.
 
 ## Links
 
-- [Official site](http://www.cocos.com/en)
-- [Forum](https://forum.cocos.org/c/3D)
-- [Documentation](https://docs.cocos.com/creator3d/manual/zh)
-- [API Referencess](https://docs.cocos.com/creator3d/api/zh)
-- [Download](https://www.cocos.com/creator3d)
+- [Official site](https://www.cocos.com/products#CocosCreator)
+- [Download](https://www.cocos.com/creator)
+- [Documentation](https://docs.cocos.com/creator/manual/)
+- [API References](https://docs.cocos.com/creator/api/)
+- [Forum](https://discuss.cocos2d-x.org/c/creator)
 - Road Map: To be announced

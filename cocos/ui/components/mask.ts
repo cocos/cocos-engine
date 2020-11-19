@@ -182,6 +182,10 @@ export class Mask extends UIRenderable {
         }
 
         this._inverted = value;
+        this.stencilStage = Stage.DISABLED;
+        if (this._graphics) {
+            this._graphics.stencilStage = Stage.DISABLED;
+        }
     }
 
     /**
@@ -442,7 +446,7 @@ export class Mask extends UIRenderable {
     }
 
     protected _render (render: UI) {
-        render.commitComp(this, null, this._assembler!);
+        render.commitComp(this, null, this._assembler!, null);
     }
 
     protected _postRender (render: UI) {
@@ -450,7 +454,7 @@ export class Mask extends UIRenderable {
             return;
         }
 
-        render.commitComp(this, null, this._postAssembler);
+        render.commitComp(this, null, this._postAssembler, null);
     }
 
     protected _nodeStateChange (type: TransformBit) {
@@ -518,8 +522,7 @@ export class Mask extends UIRenderable {
             graphics.rect(x, y, width, height);
         } else if (this._type === MaskType.ELLIPSE) {
             const center = new Vec3(x + width / 2, y + height / 2, 0);
-            const radius = new Vec3(width / 2, height / 2, 0,
-            );
+            const radius = new Vec3(width / 2, height / 2, 0);
             const points = _calculateCircle(center, radius, this._segments);
             for (let i = 0; i < points.length; ++i) {
                 const point = points[i];
@@ -537,7 +540,7 @@ export class Mask extends UIRenderable {
 
     protected _createClearModel () {
         if (!this._clearModel) {
-            const mtl = builtinResMgr.get<Material>('builtin-clear-stencil');
+            const mtl = builtinResMgr.get<Material>('default-clear-stencil');
             this._clearStencilMtl = new MaterialInstance({
                 parent: mtl,
                 owner: this,
@@ -621,10 +624,10 @@ export class Mask extends UIRenderable {
     }
 
     protected _attachClearModel () {
-       if (this._clearModel) {
-           const renderScene = director.root!.ui.renderScene;
-           renderScene.addModel(this._clearModel);
-       }
+        if (this._clearModel) {
+            const renderScene = director.root!.ui.renderScene;
+            renderScene.addModel(this._clearModel);
+        }
     }
 
     protected _detachClearModel () {
@@ -634,6 +637,5 @@ export class Mask extends UIRenderable {
         }
     }
 }
-
 
 legacyCC.Mask = Mask;

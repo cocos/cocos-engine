@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -70,6 +70,10 @@ export class MeshBuffer {
 
     constructor (batcher: UI) {
         this._batcher = batcher;
+    }
+
+    get vertexFormatBytes (): number {
+        return this._vertexFormatBytes;
     }
 
     public initialize (attrs: Attribute[], outOfCallback: ((...args: number[]) => void) | null) {
@@ -201,10 +205,10 @@ export class MeshBuffer {
         }
         this.vertexBuffers[0].update(verticesData);
 
-        if (this.indicesOffset * 2 > this.indexBuffer!.size) {
-            this.indexBuffer!.resize(this.indicesOffset * 2);
+        if (this.indicesOffset * 2 > this.indexBuffer.size) {
+            this.indexBuffer.resize(this.indicesOffset * 2);
         }
-        this.indexBuffer!.update(indicesData);
+        this.indexBuffer.update(indicesData);
     }
 
     private _reallocBuffer () {

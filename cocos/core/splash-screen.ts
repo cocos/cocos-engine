@@ -1,18 +1,43 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
  * @packageDocumentation
  * @hidden
  */
 
+import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
 import * as easing from './animation/easing';
 import { Material } from './assets/material';
 import { preTransforms } from './math/mat4';
 import { clamp01 } from './math/utils';
-import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
 import { sys } from './platform/sys';
 import {
     Sampler, SamplerInfo, Shader, Texture, TextureInfo, Device, InputAssembler, InputAssemblerInfo, Attribute, Buffer,
     BufferInfo, Rect, Color, BufferTextureCopy, Framebuffer, CommandBuffer, BufferUsageBit, Format,
-    MemoryUsageBit, TextureType, TextureUsageBit, Address
+    MemoryUsageBit, TextureType, TextureUsageBit, Address,
 } from './gfx';
 import { PipelineStateManager } from './pipeline';
 import { legacyCC } from './global-exports';
@@ -31,6 +56,8 @@ export interface ISplashSetting {
     readonly displayWatermark: boolean;
 }
 
+type Writable<T> = { -readonly [K in keyof T]: T[K] };
+
 export class SplashScreen {
     private set splashFinish (v: boolean) {
         this._splashFinish = v;
@@ -41,10 +68,10 @@ export class SplashScreen {
         this._tryToStart();
     }
 
-    private handle: number = 0;
-    private callBack: Function | null = null;
-    private cancelAnimate: boolean = false;
-    private startTime: number = -1;
+    private handle = 0;
+    private callBack: (() => void) | null = null;
+    private cancelAnimate = false;
+    private startTime = -1;
     private setting!: ISplashSetting;
     private image!: TexImageSource;
     private root!: Root;
@@ -62,9 +89,9 @@ export class SplashScreen {
     private texture!: Texture;
     private clearColors!: Color[];
 
-    private _splashFinish: boolean = false;
-    private _loadFinish: boolean = false;
-    private _directCall: boolean = false;
+    private _splashFinish = false;
+    private _loadFinish = false;
+    private _directCall = false;
 
     /** text */
     private textImg!: TexImageSource;
@@ -80,16 +107,19 @@ export class SplashScreen {
     private screenHeight!: number;
 
     public main (root: Root) {
-        if (root == null) return console.error('RENDER ROOT IS NULL.');
+        if (root == null) {
+            console.error('RENDER ROOT IS NULL.');
+            return;
+        }
 
         if (window._CCSettings && window._CCSettings.splashScreen) {
-            this.setting = window._CCSettings.splashScreen;
-            (this.setting.totalTime as number) = this.setting.totalTime != null ? this.setting.totalTime : 3000;
-            (this.setting.base64src as string) = this.setting.base64src || '';
-            (this.setting.effect as SplashEffectType) = this.setting.effect || 'FADE-INOUT';
-            (this.setting.clearColor as Color) = this.setting.clearColor || new Color(0.88, 0.88, 0.88, 1);
-            (this.setting.displayRatio as number) = this.setting.displayRatio != null ? this.setting.displayRatio : 0.4;
-            (this.setting.displayWatermark as boolean) = this.setting.displayWatermark != null ? this.setting.displayWatermark : true;
+            const setting: Writable<ISplashSetting> = this.setting = window._CCSettings.splashScreen;
+            (setting.totalTime) = this.setting.totalTime != null ? this.setting.totalTime : 3000;
+            (setting.base64src) = this.setting.base64src || '';
+            (setting.effect) = this.setting.effect || 'FADE-INOUT';
+            (setting.clearColor) = this.setting.clearColor || new Color(0.88, 0.88, 0.88, 1);
+            (setting.displayRatio) = this.setting.displayRatio != null ? this.setting.displayRatio : 0.4;
+            (setting.displayWatermark) = this.setting.displayWatermark != null ? this.setting.displayWatermark : true;
         } else {
             this.setting = {
                 totalTime: 3000,
@@ -97,7 +127,7 @@ export class SplashScreen {
                 effect: 'FADE-INOUT',
                 clearColor: new Color(0.88, 0.88, 0.88, 1),
                 displayRatio: 0.4,
-                displayWatermark: true
+                displayWatermark: true,
             };
         }
 
@@ -106,7 +136,6 @@ export class SplashScreen {
             this.callBack = null;
             (this.setting as any) = null;
             this._directCall = true;
-            return;
         } else {
             legacyCC.view.enableRetina(true);
             const designRes = window._CCSettings.designResolution;
@@ -140,11 +169,11 @@ export class SplashScreen {
         }
     }
 
-    public setOnFinish (cb: Function) {
+    public setOnFinish (cb: () => void) {
         if (this._directCall) {
             if (cb) {
                 SplashScreen._ins = undefined;
-                return cb();
+                cb(); return;
             }
         }
         this.callBack = cb;
@@ -267,7 +296,8 @@ export class SplashScreen {
 
         if (this.setting.displayWatermark && this.textShader && this.textAssmebler) {
             const passText = this.textMaterial.passes[0];
-            const psoWatermark = PipelineStateManager.getOrCreatePipelineState(device, passText, this.textShader, framebuffer.renderPass, this.textAssmebler);
+            const psoWatermark = PipelineStateManager.getOrCreatePipelineState(device,
+                passText, this.textShader, framebuffer.renderPass, this.textAssmebler);
             cmdBuff.bindPipelineState(psoWatermark);
             cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, passText.descriptorSet);
             cmdBuff.bindInputAssembler(this.textAssmebler);
@@ -290,7 +320,7 @@ export class SplashScreen {
         this.textImg.style.height = `${this.textImg.height}`;
 
         const ctx = this.textImg.getContext('2d')!;
-        ctx.font = `${18}px Arial`
+        ctx.font = `${18}px Arial`;
         ctx.textBaseline = 'top';
         ctx.textAlign = 'left';
         ctx.fillStyle = '`#424242`';
@@ -313,14 +343,13 @@ export class SplashScreen {
 
         this.device.copyTexImagesToTexture([this.textImg], this.textTexture, [this.textRegion]);
 
-
         /** PSO */
         this.textMaterial = new Material();
-        this.textMaterial.initialize({ effectName: 'util/splash-screen' });
+        this.textMaterial.initialize({ effectName: 'splash-screen' });
 
         const pass = this.textMaterial.passes[0];
         const binding = pass.getBinding('mainTexture');
-        pass.bindTexture(binding, this.textTexture!);
+        pass.bindTexture(binding, this.textTexture);
 
         this.textShader = ShaderPool.get(pass.getShaderVariant());
         DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET)).update();
@@ -338,7 +367,7 @@ export class SplashScreen {
 
         const verts = new Float32Array(4 * 4);
         let w = -this.textImg.width / 2;
-        let h = -this.textImg!.height / 2;
+        let h = -this.textImg.height / 2;
         if (this.screenWidth < this.screenHeight) {
             w = -this.screenWidth / 2 * 0.5;
             h = w / (this.textImg.width / this.textImg.height);
@@ -354,8 +383,8 @@ export class SplashScreen {
 
         // translate to bottom
         for (let i = 0; i < verts.length; i += 4) {
-            verts[i] = verts[i] + this.screenWidth / 2;
-            verts[i + 1] = verts[i + 1] + this.screenHeight * 0.1;
+            verts[i] += this.screenWidth / 2;
+            verts[i + 1] += this.screenHeight * 0.1;
         }
 
         // doing the screen adaptation here will not support dynamic screen orientation changes
@@ -396,7 +425,7 @@ export class SplashScreen {
     }
 
     private initCMD () {
-        const device = this.device as Device;
+        const device = this.device;
         if (JSB && (sys.os === legacyCC.sys.OS_OSX || sys.os === legacyCC.sys.OS_IOS)) {
             this.renderArea = new Rect(0, 0, device.nativeWidth, device.nativeHeight);
         } else {
@@ -408,7 +437,7 @@ export class SplashScreen {
     }
 
     private initIA () {
-        const device = this.device as Device;
+        const device = this.device;
 
         // create vertex buffer
         const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
@@ -422,7 +451,7 @@ export class SplashScreen {
 
         const verts = new Float32Array(4 * 4);
         let w = -this.image.width / 2;
-        let h = -this.image!.height / 2;
+        let h = -this.image.height / 2;
         if (this.screenWidth < this.screenHeight) {
             w = -this.screenWidth / 2 * this.setting.displayRatio;
             h = w / (this.image.width / this.image.height);
@@ -438,8 +467,8 @@ export class SplashScreen {
 
         // translate to center
         for (let i = 0; i < verts.length; i += 4) {
-            verts[i] = verts[i] + this.screenWidth / 2;
-            verts[i + 1] = verts[i + 1] + this.screenHeight / 2;
+            verts[i] += this.screenWidth / 2;
+            verts[i + 1] += this.screenHeight / 2;
         }
 
         // doing the screen adaptation here will not support dynamic screen orientation changes
@@ -480,11 +509,10 @@ export class SplashScreen {
     }
 
     private initPSO () {
-
-        const device = this.device as Device;
+        const device = this.device;
 
         this.material = new Material();
-        this.material.initialize({ effectName: 'util/splash-screen' });
+        this.material.initialize({ effectName: 'splash-screen' });
 
         const samplerInfo = new SamplerInfo();
         samplerInfo.addressU = Address.CLAMP;
@@ -501,18 +529,18 @@ export class SplashScreen {
 
         const pass = this.material.passes[0];
         const binding = pass.getBinding('mainTexture');
-        pass.bindTexture(binding, this.texture!);
+        pass.bindTexture(binding, this.texture);
 
         this.shader = ShaderPool.get(pass.getShaderVariant());
         const descriptorSet = DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET));
-        descriptorSet.bindSampler(binding!, this.sampler);
+        descriptorSet.bindSampler(binding, this.sampler);
         descriptorSet.update();
 
         this.region = new BufferTextureCopy();
         this.region.texExtent.width = this.image.width;
         this.region.texExtent.height = this.image.height;
         this.region.texExtent.depth = 1;
-        device.copyTexImagesToTexture([this.image!], this.texture, [this.region]);
+        device.copyTexImagesToTexture([this.image], this.texture, [this.region]);
     }
 
     private destroy () {
