@@ -339,8 +339,9 @@ export class RenderAdditiveLightQueue {
             const descriptorSet = this._getOrCreateDescriptorSet(light);
             if(!descriptorSet) { return; }
 
-            // Main light sampler binding
             descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, this._sampler!);
+            descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, this._sampler!);
+            // Main light sampler binding
             descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
             descriptorSet.update();
             this._updateGlobalDescriptorSet(view, cmdBuff);
@@ -354,8 +355,7 @@ export class RenderAdditiveLightQueue {
                     this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 1] = shadowInfo.size.y;
                     this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 2] = shadowInfo.pcf;
                     this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 3] = shadowInfo.bias;
-
-                    descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, this._sampler!);
+                    // Spot light sampler binding
                     descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
                     break;
                 case LightType.SPOT:
@@ -378,7 +378,7 @@ export class RenderAdditiveLightQueue {
                     this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 1] = shadowInfo.size.y;
                     this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 2] = shadowInfo.pcf;
                     this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 3] = shadowInfo.bias;
-                    descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, this._sampler!);
+                    // Spot light sampler binding
                     if (this._pipeline.shadowFrameBufferMap.has(light)) {
                         descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, this._pipeline.shadowFrameBufferMap.get(light)?.colorTextures[0]!);
                     } else {
