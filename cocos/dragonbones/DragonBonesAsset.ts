@@ -92,7 +92,7 @@ export class DragonBonesAsset extends Asset {
         const dragonBonesData = this._factory.getDragonBonesData(armatureKey);
         if (dragonBonesData) return armatureKey;
 
-        this._factory.parseDragonBonesData(rawData, armatureKey);
+        this._factory.parseDragonBonesData(rawData instanceof ArrayBuffer ? rawData : rawData.buffer, armatureKey);
         return armatureKey;
     }
 
