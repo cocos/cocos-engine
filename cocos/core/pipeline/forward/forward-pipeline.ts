@@ -210,7 +210,7 @@ export class ForwardPipeline extends RenderPipeline {
         const device = this.device;
         const shadowInfo = this.shadows;
 
-        if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
+        if (mainLight && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
 
             // light view
             let shadowCameraView: Mat4;

@@ -29,7 +29,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP_BINDING } from '../define';
+import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
@@ -110,6 +110,30 @@ export class ShadowFlow extends RenderFlow {
         }
     }
 
+    public destroy () {
+        super.destroy();
+        let shadowFrameBuffers = Array.from((this._pipeline as ForwardPipeline).shadowFrameBufferMap.values());
+        for (let i = 0; i < shadowFrameBuffers.length; i++) {
+            const frameBuffer = shadowFrameBuffers[i];
+
+            if (!frameBuffer) { continue; }
+            const renderTargets = frameBuffer.colorTextures;
+            for (let j = 0; j < renderTargets.length; j++) {
+                const renderTarget = renderTargets[i];
+                if (renderTarget) { renderTarget.destroy() };
+            }
+            renderTargets.length = 0;
+
+            const depth = frameBuffer.depthStencilTexture;
+            if (depth) { depth.destroy(); }
+
+            frameBuffer.destroy();
+        }
+
+        (this._pipeline as ForwardPipeline).shadowFrameBufferMap.clear();
+
+        if(this._shadowRenderPass) { this._shadowRenderPass.destroy() };
+    }
 
     public _initShadowFrameBuffer  (pipeline: ForwardPipeline, light: Light) {
         const device = pipeline.device;
@@ -168,7 +192,7 @@ export class ShadowFlow extends RenderFlow {
         const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
         pipeline.descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
 
-        if (light.type === LightType.DIRECTIONAL) {
+        if (light && light.type === LightType.DIRECTIONAL) {
             pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, shadowFrameBuffer.colorTextures[0]!);
         }
     }

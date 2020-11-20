@@ -104,7 +104,7 @@ export class RenderShadowMapBatchedQueue {
 
     public gatherLightPasses (light: Light, cmdBuff: CommandBuffer) {
         this.clear();
-        if (light && this._shadowInfo.type === ShadowType.ShadowMap) {
+        if (light && this._shadowInfo.enabled && this._shadowInfo.type === ShadowType.ShadowMap) {
             this._updateUBOs(light);
 
             for (let i = 0; i < this._shadowObjects.length; i++) {
