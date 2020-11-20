@@ -1,6 +1,6 @@
 #pragma once
 #include "base/Config.h"
-#if (USE_WEBVIEW > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#if (USE_WEBVIEW > 0) && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS)
 
 #include "cocos/bindings/jswrapper/SeApi.h"
 
@@ -36,4 +36,4 @@ SE_DECLARE_FUNC(js_webview_WebView_setOnDidFinishLoading);
 SE_DECLARE_FUNC(js_webview_WebView_getOnDidFinishLoading);
 SE_DECLARE_FUNC(js_webview_WebView_create);
 
-#endif //#if (USE_WEBVIEW > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#endif //#if (USE_WEBVIEW > 0) && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS)

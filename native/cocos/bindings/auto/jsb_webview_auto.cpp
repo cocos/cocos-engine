@@ -1,5 +1,5 @@
 #include "cocos/bindings/auto/jsb_webview_auto.h"
-#if (USE_WEBVIEW > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#if (USE_WEBVIEW > 0) && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS)
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "ui/webview/WebView.h"
@@ -710,4 +710,4 @@ bool register_all_webview(se::Object* obj)
     return true;
 }
 
-#endif //#if (USE_WEBVIEW > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#endif //#if (USE_WEBVIEW > 0) && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS)
