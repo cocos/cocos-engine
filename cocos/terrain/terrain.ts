@@ -375,9 +375,6 @@ export class TerrainBlock {
     }
 
     public destroy () {
-        if (this._renderable != null) {
-            this._renderable.destroy();
-        }
         if (this._node != null) {
             this._node.destroy();
         }
