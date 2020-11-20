@@ -48,9 +48,11 @@ import { SpotLight } from '../renderer/scene/spot-light';
 import { SubModel } from '../renderer/scene/submodel';
 import { getPhaseID } from './pass-phase';
 import { Light, LightType } from '../renderer/scene/light';
-import { IRenderObject, SetIndex, UBOForwardLight, UBOGlobal, UBOShadow, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from './define';
+import { IRenderObject, SetIndex, UBOForwardLight, UBOGlobal, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from './define';
 import { legacyCC } from '../global-exports';
 import { genSamplerHash, samplerLib } from '../renderer/core/sampler-lib';
+import { builtinResMgr } from '../3d/builtin/init';
+import { Texture2D } from '../assets/texture-2d';
 
 const _samplerInfo = [
     Filter.LINEAR,
@@ -333,14 +335,14 @@ export class RenderAdditiveLightQueue {
         const shadowInfo = this._pipeline.shadows;
         
         for (let i = 0; i < this._validLights.length; i++) {
-            const light = this._validLights[i];
-            let texture: Texture|null = null;
-            if (this._pipeline.shadowFrameBufferMap.has(light)) {
-                texture = this._pipeline.shadowFrameBufferMap.get(light)!.colorTextures[0]!;
-            }
-            
+            const light = this._validLights[i];           
             const descriptorSet = this._getOrCreateDescriptorSet(light);
             if(!descriptorSet) { return; }
+
+            descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, this._sampler!);
+            descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, this._sampler!);
+            // Main light sampler binding
+            descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
             descriptorSet.update();
             this._updateGlobalDescriptorSet(view, cmdBuff);
 
@@ -353,6 +355,8 @@ export class RenderAdditiveLightQueue {
                     this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 1] = shadowInfo.size.y;
                     this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 2] = shadowInfo.pcf;
                     this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 3] = shadowInfo.bias;
+                    // Spot light sampler binding
+                    descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
                     break;
                 case LightType.SPOT:
                     const spotLight = light as SpotLight;
@@ -374,23 +378,15 @@ export class RenderAdditiveLightQueue {
                     this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 1] = shadowInfo.size.y;
                     this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 2] = shadowInfo.pcf;
                     this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 3] = shadowInfo.bias;
+                    // Spot light sampler binding
+                    if (this._pipeline.shadowFrameBufferMap.has(light)) {
+                        descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, this._pipeline.shadowFrameBufferMap.get(light)?.colorTextures[0]!);
+                    } else {
+                        descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+                    }
                     break;
                 default:        
             }
-
-            // must binding a sampler
-            if (texture === null) {
-                let framebufferArray = Array.from(this._pipeline.shadowFrameBufferMap.values());
-                for (let i = 0; i < framebufferArray.length; i++) {
-                    if (framebufferArray[i].colorTextures[0]) {
-                        texture = framebufferArray[i].colorTextures[0]!;
-                        break;
-                    }
-                }
-            }
-
-            descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, this._sampler!);
-            descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, texture!);
             descriptorSet.update();
 
             cmdBuff.updateBuffer(descriptorSet.getBuffer(UBOGlobal.BINDING)!, this._globalUBO);
