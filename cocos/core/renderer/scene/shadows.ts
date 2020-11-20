@@ -340,7 +340,7 @@ export class Shadows {
     }
 
     public activate () {
-        if (this.type === ShadowType.ShadowMap) {
+        if (!this.enabled || this.type === ShadowType.ShadowMap) {
             this._updatePipeline();
         } else {
             this._updatePlanarInfo();
