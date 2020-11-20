@@ -44,7 +44,7 @@ export class CCFactory extends BaseFactory implements ISchedulable {
         const eventManager = new CCArmatureDisplay();
         this._dragonBones = new DragonBones(eventManager);
 
-        if (!JSB && !EDITOR && director.getScheduler()) {
+        if (!EDITOR && director.getScheduler()) {
             game.on(Game.EVENT_RESTART, this.initUpdate, this);
             this.initUpdate();
         }
