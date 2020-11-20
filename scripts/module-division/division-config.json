@@ -143,6 +143,12 @@
             "description": "Spine support",
             "entry": "spine",
             "default": true
+        },
+        {
+            "text": "DragonBones",
+            "description": "Description support",
+            "entry": "dragonbones",
+            "default": true
         }
     ]
 }
