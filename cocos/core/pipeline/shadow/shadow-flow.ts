@@ -44,6 +44,8 @@ import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { Light, LightType } from '../../renderer/scene/light';
 import { lightCollecting, shadowCollecting } from '../forward/scene-culling';
 import { Vec2 } from '../../math';
+import { builtinResMgr } from '../../3d/builtin/init';
+import { Texture2D } from '../../assets/texture-2d';
 
 const _samplerInfo = [
     Filter.LINEAR,
@@ -73,6 +75,7 @@ export class ShadowFlow extends RenderFlow {
     };
 
     private _shadowRenderPass: RenderPass|null = null;
+    private _globalBinding: boolean = false;
 
     public initialize (info: IRenderFlowInfo): boolean {
         super.initialize(info);
@@ -133,6 +136,8 @@ export class ShadowFlow extends RenderFlow {
         (this._pipeline as ForwardPipeline).shadowFrameBufferMap.clear();
 
         if(this._shadowRenderPass) { this._shadowRenderPass.destroy() };
+
+        this._globalBinding = false;
     }
 
     public _initShadowFrameBuffer  (pipeline: ForwardPipeline, light: Light) {
@@ -188,9 +193,16 @@ export class ShadowFlow extends RenderFlow {
         // Cache frameBuffer
         pipeline.shadowFrameBufferMap.set(light, shadowFrameBuffer);
 
-        const shadowMapSamplerHash = genSamplerHash(_samplerInfo);
-        const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
-        pipeline.descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
+
+        if (!this._globalBinding) {
+            const shadowMapSamplerHash = genSamplerHash(_samplerInfo);
+            const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
+            pipeline.descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
+            pipeline.descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+            pipeline.descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, shadowMapSampler);
+            pipeline.descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+            this._globalBinding = true;
+        }
 
         if (light && light.type === LightType.DIRECTIONAL) {
             pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, shadowFrameBuffer.colorTextures[0]!);
