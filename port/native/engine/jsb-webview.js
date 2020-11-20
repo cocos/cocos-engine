@@ -25,147 +25,150 @@
 
 'use strict';
 
-const { EventType } = cc.internal.WebView;
+if (cc.internal.WebView) {
 
-let vec3 = cc.Vec3;
-let _mat4_temp = new cc.Mat4();
+    const { EventType } = cc.internal.WebView;
 
-let _topLeft = new vec3();
-let _bottomRight = new vec3();
+    let vec3 = cc.Vec3;
+    let _mat4_temp = new cc.Mat4();
 
-cc.internal.WebViewImplManager.getImpl = function(componenet) {
-    return new WebViewImplJSB(componenet);
-};
+    let _topLeft = new vec3();
+    let _bottomRight = new vec3();
 
-class WebViewImplJSB extends cc.internal.WebViewImpl {
+    cc.internal.WebViewImplManager.getImpl = function(componenet) {
+        return new WebViewImplJSB(componenet);
+    };
 
-    constructor(componenet) {
-        super(componenet);
-        this.jsCallback = null;
-        this.interfaceSchema = null;
-    }
+    class WebViewImplJSB extends cc.internal.WebViewImpl {
 
-    _bindEvent() {
-        let onLoaded = () => {
-            this._forceUpdate = true;
-            this.dispatchEvent(EventType.LOADED);
-        };
-
-        let onError = () => {
-            this.dispatchEvent(EventType.ERROR);
-        };
-        this.webview.setOnDidFinishLoading(onLoaded);
-        this.webview.setOnDidFailLoading(onError);
-        this.jsCallback && this.setOnJSCallback(this.jsCallback);
-        this.interfaceSchema && this.setJavascriptInterfaceScheme(this.interfaceSchema);
-        // remove obj
-        this.jsCallback = null;
-        this.interfaceSchema = null;
-    }
-
-    createWebView() {
-        this._webview = jsb.WebView.create();
-        this._bindEvent();
-    }
-
-    removeWebView() {
-        let webview = this.webview;
-        if (webview) {
-            this.webview.destroy();
-            this.reset();
-        }
-    }
-
-    disable() {
-        if (this.webview) {
-            this.webview.setVisible(false);
-        }
-    }
-
-    enable() {
-        if (this.webview) {
-            this.webview.setVisible(true);
-        }
-    }
-
-    setOnJSCallback(callback) {
-        let webview = this.webview;
-        if (webview) {
-            webview.setOnJSCallback(callback);
-        } else {
-            this.jsCallback = callback;
-        }
-    }
-
-    setJavascriptInterfaceScheme(scheme) {
-        let webview = this.webview;
-        if (webview) {
-            webview.setJavascriptInterfaceScheme(scheme);
-        } else {
-            this.interfaceSchema = scheme;
-        }
-    }
-
-    loadURL(url) {
-        let webview = this.webview;
-        if (webview) {
-            webview.src = url;
-            webview.loadURL(url);
-            this.dispatchEvent(EventType.LOADING);
-        }
-    }
-
-    evaluateJS(str) {
-        let webview = this.webview;
-        if (webview) {
-            return webview.evaluateJS(str);
-        }
-    }
-
-    syncMatrix() {
-        if (!this._webview || !this._component) return;
-
-        const camera = this.UICamera;
-        if (!camera) {
-            return;
+        constructor(componenet) {
+            super(componenet);
+            this.jsCallback = null;
+            this.interfaceSchema = null;
         }
 
-        this._component.node.getWorldMatrix(_mat4_temp);
-        const { width, height } = this._uiTrans.contentSize;
-        if (!this._forceUpdate &&
-            this._m00 === _mat4_temp.m00 && this._m01 === _mat4_temp.m01 &&
-            this._m04 === _mat4_temp.m04 && this._m05 === _mat4_temp.m05 &&
-            this._m12 === _mat4_temp.m12 && this._m13 === _mat4_temp.m13 &&
-            this._w === width && this._h === height) {
-            return;
+        _bindEvent() {
+            let onLoaded = () => {
+                this._forceUpdate = true;
+                this.dispatchEvent(EventType.LOADED);
+            };
+
+            let onError = () => {
+                this.dispatchEvent(EventType.ERROR);
+            };
+            this.webview.setOnDidFinishLoading(onLoaded);
+            this.webview.setOnDidFailLoading(onError);
+            this.jsCallback && this.setOnJSCallback(this.jsCallback);
+            this.interfaceSchema && this.setJavascriptInterfaceScheme(this.interfaceSchema);
+            // remove obj
+            this.jsCallback = null;
+            this.interfaceSchema = null;
         }
 
-        // update matrix cache
-        this._m00 = _mat4_temp.m00;
-        this._m01 = _mat4_temp.m01;
-        this._m04 = _mat4_temp.m04;
-        this._m05 = _mat4_temp.m05;
-        this._m12 = _mat4_temp.m12;
-        this._m13 = _mat4_temp.m13;
-        this._w = width;
-        this._h = height;
+        createWebView() {
+            this._webview = jsb.WebView.create();
+            this._bindEvent();
+        }
 
-        let canvas_width = cc.game.canvas.width;
-        let canvas_height = cc.game.canvas.height;
+        removeWebView() {
+            let webview = this.webview;
+            if (webview) {
+                this.webview.destroy();
+                this.reset();
+            }
+        }
 
-        let ap = this._uiTrans.anchorPoint;
-        // Vectors in node space
-        vec3.set(_topLeft, -ap.x * this._w, (1.0 - ap.y) * this._h, 0);
-        vec3.set(_bottomRight, (1 - ap.x) * this._w, -ap.y * this._h, 0);
-        // Convert to world space
-        vec3.transformMat4(_topLeft, _topLeft, _mat4_temp);
-        vec3.transformMat4(_bottomRight, _bottomRight, _mat4_temp);
-        // Convert to Screen space
-        camera.worldToScreen(_topLeft, _topLeft, canvas_width, canvas_height);
-        camera.worldToScreen(_bottomRight, _bottomRight, canvas_width, canvas_height);
+        disable() {
+            if (this.webview) {
+                this.webview.setVisible(false);
+            }
+        }
 
-        let finalWidth = _bottomRight.x - _topLeft.x;
-        let finalHeight = _topLeft.y - _bottomRight.y;
-        this._webview.setFrame(_topLeft.x, canvas_height - _topLeft.y, finalWidth, finalHeight);
+        enable() {
+            if (this.webview) {
+                this.webview.setVisible(true);
+            }
+        }
+
+        setOnJSCallback(callback) {
+            let webview = this.webview;
+            if (webview) {
+                webview.setOnJSCallback(callback);
+            } else {
+                this.jsCallback = callback;
+            }
+        }
+
+        setJavascriptInterfaceScheme(scheme) {
+            let webview = this.webview;
+            if (webview) {
+                webview.setJavascriptInterfaceScheme(scheme);
+            } else {
+                this.interfaceSchema = scheme;
+            }
+        }
+
+        loadURL(url) {
+            let webview = this.webview;
+            if (webview) {
+                webview.src = url;
+                webview.loadURL(url);
+                this.dispatchEvent(EventType.LOADING);
+            }
+        }
+
+        evaluateJS(str) {
+            let webview = this.webview;
+            if (webview) {
+                return webview.evaluateJS(str);
+            }
+        }
+
+        syncMatrix() {
+            if (!this._webview || !this._component) return;
+
+            const camera = this.UICamera;
+            if (!camera) {
+                return;
+            }
+
+            this._component.node.getWorldMatrix(_mat4_temp);
+            const { width, height } = this._uiTrans.contentSize;
+            if (!this._forceUpdate &&
+                this._m00 === _mat4_temp.m00 && this._m01 === _mat4_temp.m01 &&
+                this._m04 === _mat4_temp.m04 && this._m05 === _mat4_temp.m05 &&
+                this._m12 === _mat4_temp.m12 && this._m13 === _mat4_temp.m13 &&
+                this._w === width && this._h === height) {
+                return;
+            }
+
+            // update matrix cache
+            this._m00 = _mat4_temp.m00;
+            this._m01 = _mat4_temp.m01;
+            this._m04 = _mat4_temp.m04;
+            this._m05 = _mat4_temp.m05;
+            this._m12 = _mat4_temp.m12;
+            this._m13 = _mat4_temp.m13;
+            this._w = width;
+            this._h = height;
+
+            let canvas_width = cc.game.canvas.width;
+            let canvas_height = cc.game.canvas.height;
+
+            let ap = this._uiTrans.anchorPoint;
+            // Vectors in node space
+            vec3.set(_topLeft, -ap.x * this._w, (1.0 - ap.y) * this._h, 0);
+            vec3.set(_bottomRight, (1 - ap.x) * this._w, -ap.y * this._h, 0);
+            // Convert to world space
+            vec3.transformMat4(_topLeft, _topLeft, _mat4_temp);
+            vec3.transformMat4(_bottomRight, _bottomRight, _mat4_temp);
+            // Convert to Screen space
+            camera.worldToScreen(_topLeft, _topLeft, canvas_width, canvas_height);
+            camera.worldToScreen(_bottomRight, _bottomRight, canvas_width, canvas_height);
+
+            let finalWidth = _bottomRight.x - _topLeft.x;
+            let finalHeight = _topLeft.y - _bottomRight.y;
+            this._webview.setFrame(_topLeft.x, canvas_height - _topLeft.y, finalWidth, finalHeight);
+        }
     }
 }
