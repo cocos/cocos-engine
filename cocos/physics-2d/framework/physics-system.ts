@@ -231,13 +231,13 @@ export class PhysicsSystem2D extends Eventify(System) {
 
         this._steping = true;
 
-        let i = 0;
         let fixedTimeStep = this._fixedTimeStep;
         let velocityIterations = this.velocityIterations;
         let positionIterations = this.positionIterations;
 
         this._accumulator += deltaTime;
-        while (i < this._maxSubSteps && this._accumulator > fixedTimeStep) {
+        let substepIndex = 0;
+        while (substepIndex++ < this._maxSubSteps && this._accumulator > fixedTimeStep) {
             this.physicsWorld.step(fixedTimeStep, velocityIterations, positionIterations);
             this._accumulator -= fixedTimeStep;
         }
