@@ -1661,6 +1661,31 @@ export class Mat4 extends ValueType {
     }
 
     /**
+     * @en set the current matrix to an zero matrix.
+     * @zh 将当前矩阵设为 0矩阵。
+     * @return `this`
+     */
+    public zero () {
+        this.m00 = 0;
+        this.m01 = 0;
+        this.m02 = 0;
+        this.m03 = 0;
+        this.m04 = 0;
+        this.m05 = 0;
+        this.m06 = 0;
+        this.m07 = 0;
+        this.m08 = 0;
+        this.m09 = 0;
+        this.m10 = 0;
+        this.m11 = 0;
+        this.m12 = 0;
+        this.m13 = 0;
+        this.m14 = 0;
+        this.m15 = 0;
+        return this;
+    }
+
+    /**
      * @en Transposes the current matrix.
      * @zh 计算当前矩阵的转置矩阵。
      */

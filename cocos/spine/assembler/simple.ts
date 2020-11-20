@@ -178,16 +178,16 @@ export const simple: IAssembler = {
         const renderData = data.renderData;
 
         let buffer = renderer.acquireBufferBatch(renderData.floatStride === 9 ? vfmtPosUvColor : vfmtPosUvTwoColor)!;
-        let vertexOffset = buffer.byteOffset >> 2;
+        let floatOffset = buffer.byteOffset >> 2;
         let indicesOffset = buffer.indicesOffset;
-        let vertexId = buffer.vertexOffset;
+        let vertexOffset = buffer.vertexOffset;
 
         const isRecreate = buffer.request(renderData.vertexCount, renderData.indicesCount);
         if (!isRecreate) {
             buffer = renderer.currBufferBatch!;
-            vertexOffset = 0;
+            floatOffset = 0;
             indicesOffset = 0;
-            vertexId = 0;
+            vertexOffset = 0;
         }
 
         const vBuf = buffer.vData!;
@@ -200,9 +200,9 @@ export const simple: IAssembler = {
 
         // copy all vertexData
         const strideFloat = renderData.floatStride;
-        vBuf.set(srcVBuf.subarray(srcVIdx, srcVIdx + renderData.vertexCount * strideFloat), vertexOffset);
+        vBuf.set(srcVBuf.subarray(srcVIdx, srcVIdx + renderData.vertexCount * strideFloat), floatOffset);
         for (let i = 0; i < renderData.vertexCount; i++) {
-            const pOffset = vertexOffset + i * strideFloat;
+            const pOffset = floatOffset + i * strideFloat;
             _vec3u_temp.set(vBuf[pOffset], vBuf[pOffset + 1], vBuf[pOffset + 2]);
             _vec3u_temp.transformMat4(matrix);
             vBuf[pOffset] = _vec3u_temp.x;

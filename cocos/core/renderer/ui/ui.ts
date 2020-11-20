@@ -759,7 +759,7 @@ export class UI {
         const lastByteOffset = currMeshBuffer.lastByteOffset >> 2;
         const stride = currMeshBuffer.vertexFormatBytes / 4;
         for (let i = lastByteOffset; i < byteOffset; i += stride) {
-            vbuf[i + MeshBuffer.OPACITY_OFFSET] = opacity;
+            vbuf[i + MeshBuffer.OPACITY_OFFSET] *= opacity;
         }
 
         currMeshBuffer.lastByteOffset = currMeshBuffer.byteOffset;

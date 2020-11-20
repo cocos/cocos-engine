@@ -8,11 +8,17 @@ CCEffect %{
       properties: &props
         UVScale:      { value: [1, 1, 1, 1] }
         lightMapUVParam: { value: [0, 0, 0, 0] }
+        metallic:     { value: [0, 0, 0, 0] }
+        roughness:    { value: [1, 1, 1, 1] }
         weightMap:    { value: black }
         detailMap0:   { value: grey }
         detailMap1:   { value: grey }
         detailMap2:   { value: grey }
         detailMap3:   { value: grey }
+        normalMap0:   { value: normal-texture }
+        normalMap1:   { value: normal-texture }
+        normalMap2:   { value: normal-texture }
+        normalMap3:   { value: normal-texture }
         lightMap:     { value: grey }
     - vert: terrain-vs:vert
       frag: terrain-fs:frag
@@ -52,6 +58,10 @@ CCProgram terrain-vs %{
 
   out highp vec3 v_position;
   out mediump vec3 v_normal;
+  #if USE_NORMALMAP
+    out mediump vec3 v_tangent;
+    out mediump vec3 v_binormal;
+  #endif
   out mediump vec2 uvw;
   out mediump vec2 uv0;
   out mediump vec2 uv1;
@@ -74,19 +84,27 @@ CCProgram terrain-vs %{
 
     vec4 pos = vec4(worldPos, 1.0);
     pos = cc_matViewProj * pos;
-
+    
     uvw = a_texCoord;
     uv0 = a_position.xz * UVScale.x;
     uv1 = a_position.xz * UVScale.y;
     uv2 = a_position.xz * UVScale.z;
     uv3 = a_position.xz * UVScale.w;
-#if USE_LIGHTMAP
-    luv = lightMapUVParam.xy + a_texCoord * lightMapUVParam.zw;
-#endif
+    #if USE_LIGHTMAP
+      luv = lightMapUVParam.xy + a_texCoord * lightMapUVParam.zw;
+    #endif
 
     v_position = worldPos;
     v_normal = a_normal;
     v_fog_factor = CC_TRANSFER_FOG(vec4(worldPos, 1.0));
+
+    #if USE_NORMALMAP
+      v_tangent = vec3(1.0, 0.0, 0.0);
+      v_binormal = vec3(0.0, 0.0, 1.0);
+
+      v_binormal = cross(v_tangent, a_normal);
+      v_tangent = cross(a_normal, v_binormal);      
+    #endif
 
     CCPassShadowParams(vec4(worldPos, 1.0));
 
@@ -105,6 +123,10 @@ CCProgram terrain-fs %{
 
   in highp vec3 v_position;
   in mediump vec3 v_normal;
+  #if USE_NORMALMAP
+    in mediump vec3 v_tangent;
+    in mediump vec3 v_binormal;
+  #endif
   in mediump vec2 uvw;
   in mediump vec2 uv0;
   in mediump vec2 uv1;
@@ -114,32 +136,38 @@ CCProgram terrain-fs %{
   in mediump vec2 luv;
   in mediump float v_fog_factor;
 
+  uniform PbrParams {
+    vec4 metallic;
+    vec4 roughness;
+  };
+
   uniform sampler2D weightMap;
   uniform sampler2D detailMap0;
   uniform sampler2D detailMap1;
   uniform sampler2D detailMap2;
   uniform sampler2D detailMap3;
+  uniform sampler2D normalMap0;
+  uniform sampler2D normalMap1;
+  uniform sampler2D normalMap2;
+  uniform sampler2D normalMap3;
   uniform sampler2D lightMap;
 
   void surf (out StandardSurface s) {
-    vec4 baseColor = vec4(0, 0, 0, 0);
+    #if LAYERS > 1
+      vec4 w = texture(weightMap, uvw);
+    #endif
 
+    vec4 baseColor = vec4(0, 0, 0, 0);
     #if LAYERS == 1
       baseColor = texture(detailMap0, uv0);
     #elif LAYERS == 2
-      vec4 w = texture(weightMap, uvw);
-
       baseColor += texture(detailMap0, uv0) * w.r;
       baseColor += texture(detailMap1, uv1) * w.g;
     #elif LAYERS == 3
-      vec4 w = texture(weightMap, uvw);
-
       baseColor += texture(detailMap0, uv0) * w.r;
       baseColor += texture(detailMap1, uv1) * w.g;
       baseColor += texture(detailMap2, uv2) * w.b;
     #elif LAYERS == 4
-      vec4 w = texture(weightMap, uvw);
-
       baseColor += texture(detailMap0, uv0) * w.r;
       baseColor += texture(detailMap1, uv1) * w.g;
       baseColor += texture(detailMap2, uv2) * w.b;
@@ -149,12 +177,79 @@ CCProgram terrain-fs %{
     #endif
 
     s.position = v_position;
-    s.normal = v_normal;
+    #if USE_NORMALMAP
+      vec4 baseNormal = vec4(0, 0, 0, 0);
+      #if LAYERS == 1
+        baseNormal = texture(normalMap0, uv0);
+      #elif LAYERS == 2
+        baseNormal += texture(normalMap0, uv0) * w.r;
+        baseNormal += texture(normalMap1, uv1) * w.g;
+      #elif LAYERS == 3
+        baseNormal += texture(normalMap0, uv0) * w.r;
+        baseNormal += texture(normalMap1, uv1) * w.g;
+        baseNormal += texture(normalMap2, uv2) * w.b;
+      #elif LAYERS == 4
+        baseNormal += texture(normalMap0, uv0) * w.r;
+        baseNormal += texture(normalMap1, uv1) * w.g;
+        baseNormal += texture(normalMap2, uv2) * w.b;
+        baseNormal += texture(normalMap3, uv3) * w.a;
+      #else
+        baseNormal = texture(normalMap0, uv0);
+      #endif
+
+      vec3 nmmp = baseNormal.xyz - vec3(0.5);
+      s.normal =
+        nmmp.x * normalize(v_tangent) +
+        nmmp.y * normalize(v_binormal) +
+        nmmp.z * normalize(v_normal);
+    #else
+      s.normal = v_normal;
+    #endif
 
     s.albedo = vec4(SRGBToLinear(baseColor.rgb), 1.0);
     s.occlusion = 1.0;
-    s.roughness = 1.0;
-    s.metallic = 0.0;
+    #if USE_PBR
+      s.roughness = 0.0;
+      #if LAYERS == 1
+        s.roughness = roughness.x;
+      #elif LAYERS == 2
+        s.roughness += roughness.x * w.r;
+        s.roughness += roughness.y * w.g;
+      #elif LAYERS == 3
+        s.roughness += roughness.x * w.r;
+        s.roughness += roughness.y * w.g;
+        s.roughness += roughness.z * w.b;
+      #elif LAYERS == 4
+        s.roughness += roughness.x * w.r;
+        s.roughness += roughness.y * w.g;
+        s.roughness += roughness.z * w.b;
+        s.roughness += roughness.w * w.a;
+      #else
+        s.roughness = 1.0;
+      #endif
+
+      s.metallic = 0.0;
+      #if LAYERS == 1
+        s.metallic = metallic.x;
+      #elif LAYERS == 2
+        s.metallic += metallic.x * w.r;
+        s.metallic += metallic.y * w.g;
+      #elif LAYERS == 3
+        s.metallic += metallic.x * w.r;
+        s.metallic += metallic.y * w.g;
+        s.metallic += metallic.z * w.b;
+      #elif LAYERS == 4
+        s.metallic += metallic.x * w.r;
+        s.metallic += metallic.y * w.g;
+        s.metallic += metallic.z * w.b;
+        s.metallic += metallic.w * w.a;
+      #else
+        s.metallic = 0.0;
+      #endif
+    #else
+      s.roughness = 1.0;
+      s.metallic = 0.0;
+    #endif
     s.emissive = vec3(0.0, 0.0, 0.0);
 
     #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
