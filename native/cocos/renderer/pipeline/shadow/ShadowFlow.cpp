@@ -161,7 +161,7 @@ void ShadowFlow::initShadowFrameBuffer(ForwardPipeline *pipeline, const Light *l
     const auto shadowMapSampler = getSampler(shadowMapSamplerHash);
     this->_pipeline->getDescriptorSet()->bindSampler(SHADOWMAP::BINDING, shadowMapSampler);
 
-    if (light->getType() == LightType::DIRECTIONAL) {
+    if (light && light->getType() == LightType::DIRECTIONAL) {
         this->_pipeline->getDescriptorSet()->bindTexture(SHADOWMAP::BINDING, framebuffer->getColorTextures()[0]);
     }
 }

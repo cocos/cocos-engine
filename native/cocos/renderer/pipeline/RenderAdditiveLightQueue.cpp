@@ -4,6 +4,8 @@
 #include "InstancedBuffer.h"
 #include "PipelineStateManager.h"
 #include "RenderAdditiveLightQueue.h"
+
+#include "Application.h"
 #include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
 #include "RenderView.h"
@@ -14,9 +16,24 @@
 #include "gfx/GFXDevice.h"
 #include "gfx/GFXFramebuffer.h"
 #include "helper/SharedMemory.h"
+#include "gfx/GFXDescriptorSet.h"
+#include "gfx/GFXTexture.h"
+#include "Define.h"
 
 namespace cc {
 namespace pipeline {
+namespace {
+#define TO_VEC3(dst, src, offset) \
+    dst[offset] = src.x;          \
+    dst[offset + 1] = src.y;      \
+    dst[offset + 2] = src.z;
+#define TO_VEC4(dst, src, offset) \
+    dst[offset] = src.x;          \
+    dst[offset + 1] = src.y;      \
+    dst[offset + 2] = src.z;      \
+    dst[offset + 3] = src.w;
+} // namespace
+
 RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _pipeline(static_cast<ForwardPipeline *>(pipeline)),
                                                                                _instancedQueue(CC_NEW(RenderInstancedQueue)),
                                                                                _batchedQueue(CC_NEW(RenderBatchedQueue)) {
@@ -33,7 +50,7 @@ RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _
         _lightBufferStride * _lightBufferCount,
         _lightBufferStride,
     });
-    _firstlightBufferView = device->createBuffer({_lightBuffer, 0, UBOForwardLight::SIZE});
+    _firstLightBufferView = device->createBuffer({_lightBuffer, 0, UBOForwardLight::SIZE});
     _lightBufferData.resize(_lightBufferElementCount * _lightBufferCount);
     _dynamicOffsets.resize(1, 0);
 
@@ -49,6 +66,9 @@ RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _
     _sampler = getSampler(shadowMapSamplerHash);
 
     _phaseID = getPhaseID("forward-add");
+
+    _globalUBO.fill(0.f);
+    _shadowUBO.fill(0.f);
 }
 
 RenderAdditiveLightQueue ::~RenderAdditiveLightQueue() {
@@ -76,10 +96,9 @@ void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, gfx::Ren
 
         for (size_t i = 0; i < dynamicOffsets.size(); ++i) {
             const auto *light = lights[i];
-            if (_pipeline->getShadows()->getShadowType() == ShadowType::SHADOWMAP) {
-                updateShadowsUBO(descriptorSet, light, cmdBuffer);
-            }
+            auto *globalDescriptorSet = getOrCreateDescriptorSet(light);
             _dynamicOffsets[0] = dynamicOffsets[i];
+            cmdBuffer->bindDescriptorSet(GLOBAL_SET, globalDescriptorSet);
             cmdBuffer->bindDescriptorSet(LOCAL_SET, descriptorSet, _dynamicOffsets);
             cmdBuffer->draw(ia);
         }
@@ -89,15 +108,7 @@ void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, gfx::Ren
 void RenderAdditiveLightQueue::gatherLightPasses(const RenderView *view, gfx::CommandBuffer *cmdBufferer) {
     static vector<uint> lightPassIndices;
 
-    _instancedQueue->clear();
-    _batchedQueue->clear();
-    _validLights.clear();
-
-    for (auto lightPass : _lightPasses) {
-        lightPass.dynamicOffsets.clear();
-        lightPass.lights.clear();
-    }
-    _lightPasses.clear();
+    clear();
 
     const auto camera = view->getCamera();
     const auto scene = camera->getScene();
@@ -110,6 +121,7 @@ void RenderAdditiveLightQueue::gatherLightPasses(const RenderView *view, gfx::Co
         sphere.setRadius(light->range);
         if (sphere_frustum(&sphere, camera->getFrustum())) {
             _validLights.emplace_back(light);
+            getOrCreateDescriptorSet(light);
         }
     }
     const auto spotLightArrayID = scene->getSpotLightArrayID();
@@ -120,12 +132,14 @@ void RenderAdditiveLightQueue::gatherLightPasses(const RenderView *view, gfx::Co
         sphere.setRadius(light->range);
         if (sphere_frustum(&sphere, camera->getFrustum())) {
             _validLights.emplace_back(light);
+            getOrCreateDescriptorSet(light);
         }
     }
 
     if (_validLights.empty()) return;
 
     updateUBOs(view, cmdBufferer);
+    updateLightDescriptorSet(view, cmdBufferer);
 
     const auto &renderObjects = _pipeline->getRenderObjects();
     for (const auto &renderObject : renderObjects) {
@@ -151,7 +165,7 @@ void RenderAdditiveLightQueue::gatherLightPasses(const RenderView *view, gfx::Co
             const auto pass = subModel->getPassView(lightPassIdx);
             const auto batchingScheme = pass->getBatchingScheme();
             auto descriptorSet = subModel->getDescriptorSet();
-            descriptorSet->bindBuffer(UBOForwardLight::BINDING, _firstlightBufferView);
+            descriptorSet->bindBuffer(UBOForwardLight::BINDING, _firstLightBufferView);
             descriptorSet->update();
 
             if (batchingScheme == BatchingSchemes::INSTANCING) { // instancing
@@ -188,66 +202,38 @@ void RenderAdditiveLightQueue::gatherLightPasses(const RenderView *view, gfx::Co
     _batchedQueue->uploadBuffers(cmdBufferer);
 }
 
-void RenderAdditiveLightQueue::updateShadowsUBO(gfx::DescriptorSet *descriptorSet, const Light *light, gfx::CommandBuffer *cmdBufferer) const {
-    const auto *shadowInfo = _pipeline->getShadows();
-    auto shadowUBO = _pipeline->getShadowUBO();
-    gfx::Texture *texture = nullptr;
-    switch (light->getType()) {
-        case LightType::SPOT: {
-            const auto &matShadowCamera = light->getNode()->worldMatrix;
-
-            const auto matShadowView = matShadowCamera.getInversed();
-
-            cc::Mat4 matShadowViewProj;
-            cc::Mat4::createPerspective(light->spotAngle, light->aspect, 0.001f, light->range, &matShadowViewProj);
-
-            matShadowViewProj.multiply(matShadowView);
-
-            // shadow info
-            float shadowInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, (float)shadowInfo->pcfType, shadowInfo->bias / 10.0f};
-            memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
-            memcpy(shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &shadowInfo->color, sizeof(Vec4));
-            memcpy(shadowUBO.data() + UBOShadow::SHADOW_INFO_OFFSET, &shadowInfos, sizeof(shadowInfos));
-
-            if (_pipeline->getShadowFramebuffer().count(light)) {
-                texture = _pipeline->getShadowFramebuffer().at(light)->getColorTextures()[0];
-            }
-        } break;
-        case LightType::SPHERE: {
-            // Reserve sphere light shadow interface
-        } break;
-        default:;
+void RenderAdditiveLightQueue::destroy() {
+    for (auto &pair : _descriptorSetMap) {
+        auto *descriptorSet = pair.second;
+        descriptorSet->getBuffer(UBOGlobal::BINDING)->destroy();
+        descriptorSet->getBuffer(UBOShadow::BINDING)->destroy();
+        descriptorSet->destroy();
     }
+    _descriptorSetMap.clear();
+}
 
-    // must binding a sampler
-    if (texture == nullptr) {
-        map<const Light *, gfx::Framebuffer *>::iterator iter;
-        for (iter = _pipeline->getShadowFramebuffer().begin(); iter != _pipeline->getShadowFramebuffer().end(); ++iter) {
-            texture = iter->second->getColorTextures()[0];
-            if (texture) {
-                descriptorSet->bindTexture(SPOT_LIGHTING_MAP::BINDING, texture);
-                break;
-            }
-        }
+void RenderAdditiveLightQueue::clear() {
+    _instancedQueue->clear();
+    _batchedQueue->clear();
+    _validLights.clear();
+
+    for (auto lightPass : _lightPasses) {
+        lightPass.dynamicOffsets.clear();
+        lightPass.lights.clear();
     }
-
-    descriptorSet->bindTexture(SPOT_LIGHTING_MAP::BINDING, texture);
-    descriptorSet->bindSampler(SPOT_LIGHTING_MAP::BINDING, _sampler);
-    descriptorSet->update();
-
-    cmdBufferer->updateBuffer(_pipeline->getDescriptorSet()->getBuffer(UBOShadow::BINDING), shadowUBO.data(), UBOShadow::SIZE);
+    _lightPasses.clear();
 }
 
 void RenderAdditiveLightQueue::updateUBOs(const RenderView *view, gfx::CommandBuffer *cmdBuffer) {
     const auto exposure = view->getCamera()->exposure;
     const auto validLightCount = _validLights.size();
     if (validLightCount > _lightBufferCount) {
-        _firstlightBufferView->destroy();
+        _firstLightBufferView->destroy();
 
         _lightBufferCount = nextPow2(validLightCount);
         _lightBuffer->resize(_lightBufferStride * _lightBufferCount);
         _lightBufferData.resize(_lightBufferElementCount * _lightBufferCount);
-        _firstlightBufferView->initialize({_lightBuffer, 0, UBOForwardLight::SIZE});
+        _firstLightBufferView->initialize({_lightBuffer, 0, UBOForwardLight::SIZE});
     }
 
     for (unsigned l = 0, offset = 0; l < validLightCount; l++, offset += _lightBufferElementCount) {
@@ -302,6 +288,170 @@ void RenderAdditiveLightQueue::updateUBOs(const RenderView *view, gfx::CommandBu
     cmdBuffer->updateBuffer(_lightBuffer, _lightBufferData.data(), _lightBufferData.size() * sizeof(float));
 }
 
+void RenderAdditiveLightQueue::updateLightDescriptorSet(const RenderView *view, gfx::CommandBuffer *cmdBuffer) {
+    const auto *shadowInfo = _pipeline->getShadows();
+    for (const auto *light : _validLights) {
+        gfx::Texture *texture = nullptr;
+        if (_pipeline->getShadowFramebuffer().count(light)) {
+            texture = _pipeline->getShadowFramebuffer().at(light)->getColorTextures()[0];
+        }
+
+        auto *descriptorSet = getOrCreateDescriptorSet(light);
+        if (!descriptorSet) { return; }
+        descriptorSet->update();
+
+        _globalUBO.fill(0.0f);
+        _shadowUBO.fill(0.0f);
+        updateGlobalDescriptorSet(view, cmdBuffer);
+
+        switch (light->getType()) {
+            case LightType::SPOT: {
+                const auto &matShadowCamera = light->getNode()->worldMatrix;
+
+                const auto matShadowView = matShadowCamera.getInversed();
+
+                cc::Mat4 matShadowViewProj;
+                cc::Mat4::createPerspective(light->spotAngle, light->aspect, 0.001f, light->range, &matShadowViewProj);
+
+                matShadowViewProj.multiply(matShadowView);
+
+                // shadow info
+                float shadowInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, (float)shadowInfo->pcfType, shadowInfo->bias};
+                memcpy(_shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
+                memcpy(_shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &shadowInfo->color, sizeof(Vec4));
+                memcpy(_shadowUBO.data() + UBOShadow::SHADOW_INFO_OFFSET, &shadowInfos, sizeof(shadowInfos));
+            } break;
+            case LightType::SPHERE: {
+                // Reserve sphere light shadow interface
+            } break;
+            default:;
+        }
+
+         // must binding a sampler
+        if (texture == nullptr) {
+            std::unordered_map<const Light *, gfx::Framebuffer *>::iterator iter;
+            for (iter = _pipeline->getShadowFramebuffer().begin(); iter != _pipeline->getShadowFramebuffer().end(); ++iter) {
+                texture = iter->second->getColorTextures()[0];
+                if (texture) {
+                    descriptorSet->bindTexture(SPOT_LIGHTING_MAP::BINDING, texture);
+                    break;
+                }
+            }
+        }
+
+        descriptorSet->bindTexture(SPOT_LIGHTING_MAP::BINDING, texture);
+        descriptorSet->bindSampler(SPOT_LIGHTING_MAP::BINDING, _sampler);
+        descriptorSet->update();
+
+        cmdBuffer->updateBuffer(descriptorSet->getBuffer(UBOShadow::BINDING), _shadowUBO.data(), UBOShadow::SIZE);
+        cmdBuffer->updateBuffer(descriptorSet->getBuffer(UBOGlobal::BINDING), _globalUBO.data(),UBOGlobal::SIZE);
+    }
+}
+
+void RenderAdditiveLightQueue::updateGlobalDescriptorSet(const RenderView *view, gfx::CommandBuffer *cmdBuffer) {
+    const auto root = GET_ROOT();
+    const auto camera = view->getCamera();
+    const auto scene = camera->getScene();
+
+    const Light *mainLight = nullptr;
+    if (scene->mainLightID) mainLight = scene->getMainLight();
+
+    const auto ambient = _pipeline->getAmbient();
+    const auto fog = _pipeline->getFog();
+    const auto shadingScale = _pipeline->getShadingScale();
+    auto &uboGlobalView = _globalUBO;
+    auto *device = gfx::Device::getInstance();
+
+    const auto shadingWidth = std::floor(device->getWidth());
+    const auto shadingHeight = std::floor(device->getHeight());
+
+    // update UBOGlobal
+    uboGlobalView[UBOGlobal::TIME_OFFSET] = root->cumulativeTime;
+    uboGlobalView[UBOGlobal::TIME_OFFSET + 1] = root->frameTime;
+    uboGlobalView[UBOGlobal::TIME_OFFSET + 2] = Application::getInstance()->getTotalFrames();
+
+    uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET] = device->getWidth();
+    uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET + 1] = device->getHeight();
+    uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET + 2] = 1.0f / uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET];
+    uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET + 3] = 1.0f / uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET + 1];
+
+    uboGlobalView[UBOGlobal::SCREEN_SCALE_OFFSET] = camera->width / shadingWidth * shadingScale;
+    uboGlobalView[UBOGlobal::SCREEN_SCALE_OFFSET + 1] = camera->height / shadingHeight * shadingScale;
+    uboGlobalView[UBOGlobal::SCREEN_SCALE_OFFSET + 2] = 1.0 / uboGlobalView[UBOGlobal::SCREEN_SCALE_OFFSET];
+    uboGlobalView[UBOGlobal::SCREEN_SCALE_OFFSET + 3] = 1.0 / uboGlobalView[UBOGlobal::SCREEN_SCALE_OFFSET + 1];
+
+    uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET] = shadingWidth;
+    uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 1] = shadingHeight;
+    uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 2] = 1.0f / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET];
+    uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 3] = 1.0f / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 1];
+
+    memcpy(uboGlobalView.data() + UBOGlobal::MAT_VIEW_OFFSET, camera->matView.m, sizeof(cc::Mat4));
+    memcpy(uboGlobalView.data() + UBOGlobal::MAT_VIEW_INV_OFFSET, camera->getNode()->worldMatrix.m, sizeof(cc::Mat4));
+    memcpy(uboGlobalView.data() + UBOGlobal::MAT_PROJ_OFFSET, camera->matProj.m, sizeof(cc::Mat4));
+    memcpy(uboGlobalView.data() + UBOGlobal::MAT_PROJ_INV_OFFSET, camera->matProjInv.m, sizeof(cc::Mat4));
+    memcpy(uboGlobalView.data() + UBOGlobal::MAT_VIEW_PROJ_OFFSET, camera->matViewProj.m, sizeof(cc::Mat4));
+    memcpy(uboGlobalView.data() + UBOGlobal::MAT_VIEW_PROJ_INV_OFFSET, camera->matViewProjInv.m, sizeof(cc::Mat4));
+    TO_VEC3(uboGlobalView, camera->position, UBOGlobal::CAMERA_POS_OFFSET);
+
+    auto projectionSignY = device->getScreenSpaceSignY();
+    if (view->getWindow()->hasOffScreenAttachments) {
+        projectionSignY *= device->getUVSpaceSignY(); // need flipping if drawing on render targets
+    }
+    uboGlobalView[UBOGlobal::CAMERA_POS_OFFSET + 3] = projectionSignY;
+
+    const auto exposure = camera->exposure;
+    uboGlobalView[UBOGlobal::EXPOSURE_OFFSET] = exposure;
+    uboGlobalView[UBOGlobal::EXPOSURE_OFFSET + 1] = 1.0f / exposure;
+    uboGlobalView[UBOGlobal::EXPOSURE_OFFSET + 2] = _isHDR ? 1.0f : 0.0;
+    uboGlobalView[UBOGlobal::EXPOSURE_OFFSET + 3] = _fpScale / exposure;
+
+    if (mainLight) {
+        TO_VEC3(uboGlobalView, mainLight->direction, UBOGlobal::MAIN_LIT_DIR_OFFSET);
+        TO_VEC3(uboGlobalView, mainLight->color, UBOGlobal::MAIN_LIT_COLOR_OFFSET);
+        if (mainLight->useColorTemperature) {
+            const auto colorTempRGB = mainLight->colorTemperatureRGB;
+            uboGlobalView[UBOGlobal::MAIN_LIT_COLOR_OFFSET] *= colorTempRGB.x;
+            uboGlobalView[UBOGlobal::MAIN_LIT_COLOR_OFFSET + 1] *= colorTempRGB.y;
+            uboGlobalView[UBOGlobal::MAIN_LIT_COLOR_OFFSET + 2] *= colorTempRGB.z;
+        }
+
+        if (_isHDR) {
+            uboGlobalView[UBOGlobal::MAIN_LIT_COLOR_OFFSET + 3] = mainLight->luminance * _fpScale;
+        } else {
+            uboGlobalView[UBOGlobal::MAIN_LIT_COLOR_OFFSET + 3] = mainLight->luminance * exposure;
+        }
+    } else {
+        TO_VEC3(uboGlobalView, Vec3::UNIT_Z, UBOGlobal::MAIN_LIT_DIR_OFFSET);
+        TO_VEC4(uboGlobalView, Vec4::ZERO, UBOGlobal::MAIN_LIT_COLOR_OFFSET);
+    }
+
+    Vec4 skyColor = ambient->skyColor;
+    if (_isHDR) {
+        skyColor.w = ambient->skyIllum * _fpScale;
+    } else {
+        skyColor.w = ambient->skyIllum * exposure;
+    }
+    TO_VEC4(uboGlobalView, skyColor, UBOGlobal::AMBIENT_SKY_OFFSET);
+
+    uboGlobalView[UBOGlobal::AMBIENT_GROUND_OFFSET] = ambient->groundAlbedo.x;
+    uboGlobalView[UBOGlobal::AMBIENT_GROUND_OFFSET + 1] = ambient->groundAlbedo.y;
+    uboGlobalView[UBOGlobal::AMBIENT_GROUND_OFFSET + 2] = ambient->groundAlbedo.z;
+    const auto *envmap = _pipeline->getDescriptorSet()->getTexture((uint)PipelineGlobalBindings::SAMPLER_ENVIRONMENT);
+    if (envmap) uboGlobalView[UBOGlobal::AMBIENT_GROUND_OFFSET + 3] = envmap->getLevelCount();
+
+    if (fog->enabled) {
+        TO_VEC4(uboGlobalView, fog->fogColor, UBOGlobal::GLOBAL_FOG_COLOR_OFFSET);
+
+        uboGlobalView[UBOGlobal::GLOBAL_FOG_BASE_OFFSET] = fog->fogStart;
+        uboGlobalView[UBOGlobal::GLOBAL_FOG_BASE_OFFSET + 1] = fog->fogEnd;
+        uboGlobalView[UBOGlobal::GLOBAL_FOG_BASE_OFFSET + 2] = fog->fogDensity;
+
+        uboGlobalView[UBOGlobal::GLOBAL_FOG_ADD_OFFSET] = fog->fogTop;
+        uboGlobalView[UBOGlobal::GLOBAL_FOG_ADD_OFFSET + 1] = fog->fogRange;
+        uboGlobalView[UBOGlobal::GLOBAL_FOG_ADD_OFFSET + 2] = fog->fogAtten;
+    }
+}
+
 bool RenderAdditiveLightQueue::getLightPassIndex(const ModelView *model, vector<uint> &lightPassIndices) const {
     lightPassIndices.clear();
     bool hasValidLightPass = false;
@@ -333,6 +483,39 @@ bool RenderAdditiveLightQueue::cullingLight(const Light *light, const ModelView 
             return model->worldBoundsID && (!aabb_aabb(model->getWorldBounds(), light->getAABB()) || !aabb_frustum(model->getWorldBounds(), light->getFrustum()));
         default: return false;
     }
+}
+
+gfx::DescriptorSet *RenderAdditiveLightQueue::getOrCreateDescriptorSet(const Light *light) {
+    if (!_descriptorSetMap.count(light)) {
+        auto *device = gfx::Device::getInstance();
+        auto *descriptorSet = device->createDescriptorSet({_pipeline->getDescriptorSetLayout()});
+
+        auto globalUBO = device->createBuffer({
+            gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
+            gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
+            UBOGlobal::SIZE,
+            UBOGlobal::SIZE,
+            gfx::BufferFlagBit::NONE,
+        });
+        descriptorSet->bindBuffer(UBOGlobal::BINDING, globalUBO);
+
+        auto shadowUBO = device->createBuffer({
+            gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
+            gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
+            UBOShadow::SIZE,
+            UBOShadow::SIZE,
+            gfx::BufferFlagBit::NONE,
+        });
+        descriptorSet->bindBuffer(UBOShadow::BINDING, shadowUBO);
+
+        descriptorSet->update();
+
+        _descriptorSetMap.emplace(map<const Light *, gfx::DescriptorSet *>::value_type(light, descriptorSet));
+
+        return descriptorSet;
+    }
+
+    return _descriptorSetMap.at(light);
 }
 
 } // namespace pipeline

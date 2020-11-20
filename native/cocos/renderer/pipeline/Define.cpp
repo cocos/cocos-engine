@@ -223,6 +223,21 @@ const gfx::UniformSampler ENVIRONMENT::LAYOUT = {
     1,
 };
 
+const String SPOT_LIGHTING_MAP::NAME = "cc_spotLightingMap";
+const gfx::DescriptorSetLayoutBinding SPOT_LIGHTING_MAP::DESCRIPTOR = {
+    SPOT_LIGHTING_MAP::BINDING,
+    gfx::DescriptorType::SAMPLER,
+    1,
+    gfx::ShaderStageFlagBit::FRAGMENT,
+};
+const gfx::UniformSampler SPOT_LIGHTING_MAP::LAYOUT = {
+    GLOBAL_SET,
+    SPOT_LIGHTING_MAP::BINDING,
+    SPOT_LIGHTING_MAP::NAME,
+    gfx::Type::SAMPLER2D,
+    1,
+};
+
 const String JOINT_TEXTURE::NAME = "cc_jointTexture";
 const gfx::DescriptorSetLayoutBinding JOINT_TEXTURE::DESCRIPTOR = {
     JOINT_TEXTURE::BINDING,
@@ -309,21 +324,6 @@ const gfx::UniformSampler SPRITE_TEXTURE::LAYOUT = {
     LOCAL_SET,
     static_cast<uint>(ModelLocalBindings::SAMPLER_SPRITE),
     "cc_spriteTexture",
-    gfx::Type::SAMPLER2D,
-    1,
-};
-
-const String SPOT_LIGHTING_MAP::NAME = "cc_spotLightingMap";
-const gfx::DescriptorSetLayoutBinding SPOT_LIGHTING_MAP::DESCRIPTOR = {
-    SPOT_LIGHTING_MAP::BINDING,
-    gfx::DescriptorType::SAMPLER,
-    1,
-    gfx::ShaderStageFlagBit::FRAGMENT,
-};
-const gfx::UniformSampler SPOT_LIGHTING_MAP::LAYOUT = {
-    LOCAL_SET,
-    SPOT_LIGHTING_MAP::BINDING,
-    SPOT_LIGHTING_MAP::NAME,
     gfx::Type::SAMPLER2D,
     1,
 };

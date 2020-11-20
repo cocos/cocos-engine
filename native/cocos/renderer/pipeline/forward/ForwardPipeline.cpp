@@ -134,7 +134,7 @@ void ForwardPipeline::updateUBOs(RenderView *view) {
     const auto shadowInfo = _shadows;
     auto *device = gfx::Device::getInstance();
 
-    if (mainLight && shadowInfo->getShadowType() == ShadowType::SHADOWMAP) {
+    if (mainLight && shadowInfo->enabled && shadowInfo->getShadowType() == ShadowType::SHADOWMAP) {
         const auto node = mainLight->getNode();
         cc::Mat4 matShadowCamera;
 

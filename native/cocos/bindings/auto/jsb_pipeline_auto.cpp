@@ -882,7 +882,7 @@ static bool js_pipeline_ForwardPipeline_getShadowFramebuffer(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        std::map<const cc::pipeline::Light *, cc::gfx::Framebuffer *>& result = cobj->getShadowFramebuffer();
+        std::unordered_map<const cc::pipeline::Light *, cc::gfx::Framebuffer *> &result = cobj->getShadowFramebuffer();
         ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_pipeline_ForwardPipeline_getShadowFramebuffer : Error processing arguments");
         return true;

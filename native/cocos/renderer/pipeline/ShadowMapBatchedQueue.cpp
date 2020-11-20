@@ -29,7 +29,7 @@ void ShadowMapBatchedQueue::gatherLightPasses(const Light *light, gfx::CommandBu
 
     const auto *shadowInfo = _pipeline->getShadows();
     const auto &shadowObjects = _pipeline->getShadowObjects();
-    if (light && shadowInfo->getShadowType() == ShadowType::SHADOWMAP) {
+    if (light && shadowInfo->enabled && shadowInfo->getShadowType() == ShadowType::SHADOWMAP) {
         updateUBOs(light, cmdBufferer);
 
         for (const auto ro : shadowObjects) {

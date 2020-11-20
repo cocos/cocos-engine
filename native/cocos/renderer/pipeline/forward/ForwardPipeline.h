@@ -35,7 +35,7 @@ public:
     void setSkybox(uint);
     void setShadows(uint);
 
-    map<const Light *, gfx::Framebuffer *> &getShadowFramebuffer() { return _shadowFrameBufferMap; }
+    std::unordered_map<const Light *, gfx::Framebuffer *> &getShadowFramebuffer() { return _shadowFrameBufferMap; }
 
     CC_INLINE gfx::Buffer *getLightsUBO() const { return _lightsUBO; }
     CC_INLINE const LightList &getValidLights() const { return _validLights; }
@@ -83,7 +83,7 @@ private:
     bool _isHDR = false;
     float _fpScale = 1.0f / 1024.0f;
 
-    map<const Light *, gfx::Framebuffer *> _shadowFrameBufferMap;
+    std::unordered_map<const Light *, gfx::Framebuffer *> _shadowFrameBufferMap;
 };
 
 } // namespace pipeline

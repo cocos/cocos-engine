@@ -150,6 +150,7 @@ enum class CC_DLL PipelineGlobalBindings {
 
     SAMPLER_SHADOWMAP,
     SAMPLER_ENVIRONMENT, // don't put this as the first sampler binding due to Mac GL driver issues: cubemap at texture unit 0 causes rendering issues
+    SAMPLER_SPOT_LIGHTING_MAP,
 
     COUNT,
 };
@@ -167,7 +168,6 @@ enum class CC_DLL ModelLocalBindings {
     SAMPLER_MORPH_TANGENT,
     SAMPLER_LIGHTMAP,
     SAMPLER_SPRITE,
-    SAMPLER_SPOT_LIGHTING_MAP,
 
     COUNT,
 };
@@ -374,6 +374,13 @@ struct CC_DLL ENVIRONMENT : public Object {
     static const String NAME;
 };
 
+struct CC_DLL SPOT_LIGHTING_MAP : public Object {
+    static constexpr uint BINDING = static_cast<uint>(PipelineGlobalBindings::SAMPLER_SPOT_LIGHTING_MAP);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformSampler LAYOUT;
+    static const String NAME;
+};
+
 struct CC_DLL JOINT_TEXTURE : public Object {
     static constexpr uint BINDING = static_cast<uint>(ModelLocalBindings::SAMPLER_JOINTS);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
@@ -411,13 +418,6 @@ struct CC_DLL LIGHTMAP_TEXTURE : public Object {
 
 struct CC_DLL SPRITE_TEXTURE : public Object {
     static constexpr uint BINDING = static_cast<uint>(ModelLocalBindings::SAMPLER_SPRITE);
-    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSampler LAYOUT;
-    static const String NAME;
-};
-
-struct CC_DLL SPOT_LIGHTING_MAP : public Object {
-    static constexpr uint BINDING = static_cast<uint>(ModelLocalBindings::SAMPLER_SPOT_LIGHTING_MAP);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::UniformSampler LAYOUT;
     static const String NAME;

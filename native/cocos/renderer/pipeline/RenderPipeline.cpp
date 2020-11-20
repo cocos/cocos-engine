@@ -35,6 +35,8 @@ void RenderPipeline::setDescriptorSetLayout() {
     globalDescriptorSetLayout.bindings[SHADOWMAP::BINDING] = SHADOWMAP::DESCRIPTOR;
     globalDescriptorSetLayout.samplers[ENVIRONMENT::NAME] = ENVIRONMENT::LAYOUT;
     globalDescriptorSetLayout.bindings[ENVIRONMENT::BINDING] = ENVIRONMENT::DESCRIPTOR;
+    globalDescriptorSetLayout.samplers[SPOT_LIGHTING_MAP::NAME] = SPOT_LIGHTING_MAP::LAYOUT;
+    globalDescriptorSetLayout.bindings[SPOT_LIGHTING_MAP::BINDING] = SPOT_LIGHTING_MAP::DESCRIPTOR;
 
     localDescriptorSetLayout.bindings.resize(static_cast<size_t>(ModelLocalBindings::COUNT));
     localDescriptorSetLayout.blocks[UBOLocalBatched::NAME] = UBOLocalBatched::LAYOUT;
@@ -63,8 +65,6 @@ void RenderPipeline::setDescriptorSetLayout() {
     localDescriptorSetLayout.bindings[LIGHTMAP_TEXTURE::BINDING] = LIGHTMAP_TEXTURE::DESCRIPTOR;
     localDescriptorSetLayout.samplers[SPRITE_TEXTURE::NAME] = SPRITE_TEXTURE::LAYOUT;
     localDescriptorSetLayout.bindings[SPRITE_TEXTURE::BINDING] = SPRITE_TEXTURE::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[SPOT_LIGHTING_MAP::NAME] = SPOT_LIGHTING_MAP::LAYOUT;
-    localDescriptorSetLayout.bindings[SPOT_LIGHTING_MAP::BINDING] = SPOT_LIGHTING_MAP::DESCRIPTOR;
 }
 
 bool RenderPipeline::initialize(const RenderPipelineInfo &info) {

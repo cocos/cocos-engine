@@ -18,6 +18,7 @@ class Device;
 struct Sphere;
 class Shader;
 class ForwardPipeline;
+class DescriptorSet;
 
 struct AdditiveLightPass {
     const SubModelView *subModel = nullptr;
@@ -34,12 +35,16 @@ public:
 
     void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer);
     void gatherLightPasses(const RenderView *view, gfx::CommandBuffer *cmdBuffer);
+    void destroy();
 
 private:
+    void clear();
     void updateUBOs(const RenderView *view, gfx::CommandBuffer *cmdBuffer);
+    void updateLightDescriptorSet(const RenderView *view, gfx::CommandBuffer *cmdBuffer);
+    void updateGlobalDescriptorSet(const RenderView *view, gfx::CommandBuffer *cmdBuffer);
     bool getLightPassIndex(const ModelView *model, vector<uint> &lightPassIndices) const;
     bool cullingLight(const Light *light, const ModelView *model);
-    void updateShadowsUBO(gfx::DescriptorSet *, const Light *, gfx::CommandBuffer *cmdBufferer) const;
+    gfx::DescriptorSet *getOrCreateDescriptorSet(const Light *);
 
 private:
     ForwardPipeline *_pipeline = nullptr;
@@ -54,8 +59,12 @@ private:
     RenderInstancedQueue *_instancedQueue = nullptr;
     RenderBatchedQueue *_batchedQueue = nullptr;
     gfx::Buffer *_lightBuffer = nullptr;
-    gfx::Buffer *_firstlightBufferView = nullptr;
+    gfx::Buffer *_firstLightBufferView = nullptr;
     gfx::Sampler *_sampler = nullptr;
+
+    std::unordered_map<const Light *, gfx::DescriptorSet *> _descriptorSetMap;
+    std::array<float, UBOGlobal::COUNT> _globalUBO;
+    std::array<float, UBOShadow::COUNT> _shadowUBO;
 
     float _fpScale = 0;
     bool _isHDR = false;
