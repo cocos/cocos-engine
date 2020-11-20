@@ -1,4 +1,3 @@
-
 import { select } from '../framework/physics-selector';
 
 import { PhysXWorld } from './physx-world';
@@ -28,4 +27,3 @@ select('physx', {
     // PointToPointConstraint: PhysXPointToPointConstraint,
     // HingeConstraint: PhysXHingeConstraint,
 });
-

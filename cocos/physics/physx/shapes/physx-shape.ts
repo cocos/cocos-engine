@@ -1,12 +1,10 @@
-
-import { IVec3Like, Quat, Vec3 } from "../../../core";
-import { aabb, sphere } from "../../../core/geometry";
-import { Collider, RigidBody, PhysicMaterial, PhysicsSystem } from "../../framework";
-import { IBaseShape } from "../../spec/i-physics-shape";
-import { setWrap } from "../../utils/util";
-import { PX, USE_BYTEDANCE, _pxtrans, _trans } from "../export-physx";
-import { PhysXSharedBody } from "../physx-shared-body";
-import { PhysXWorld } from "../physx-world";
+import { IVec3Like, Quat, Vec3 } from '../../../core';
+import { aabb, sphere } from '../../../core/geometry';
+import { Collider, RigidBody, PhysicMaterial, PhysicsSystem } from '../../framework';
+import { IBaseShape } from '../../spec/i-physics-shape';
+import { PX, USE_BYTEDANCE, _pxtrans, _trans } from '../export-physx';
+import { PhysXSharedBody } from '../physx-shared-body';
+import { PhysXWorld } from '../physx-world';
 
 export enum EPhysXShapeType {
     SPHERE,
@@ -18,10 +16,9 @@ export enum EPhysXShapeType {
 }
 
 export class PhysXShape implements IBaseShape {
-
-    get impl () { return this._impl; }
-    get collider () { return this._collider; }
-    get attachedRigidBody () { return null; }
+    get impl (): any { return this._impl; }
+    get collider (): Collider { return this._collider; }
+    get attachedRigidBody (): RigidBody | null { return null; }
 
     private static idCounter = 0;
 
@@ -53,11 +50,12 @@ export class PhysXShape implements IBaseShape {
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as PhysXWorld).getSharedBody(v.node);
         this._sharedBody.reference = true;
         this.onComponentSet();
+        this.setMaterial(this._collider.sharedMaterial);
         if (this._impl) {
             if (USE_BYTEDANCE) {
-                PX.IMPL_PTR[this.id] = this
+                PX.IMPL_PTR[this.id] = this;
             } else {
-                PX.IMPL_PTR[this._impl.$$.ptr] = this
+                PX.IMPL_PTR[this._impl.$$.ptr] = this;
             }
         }
     }
@@ -66,7 +64,7 @@ export class PhysXShape implements IBaseShape {
     onComponentSet (): void { }
 
     // virtual
-    updateScale () { }
+    updateScale (): void { }
 
     onLoad (): void {
         this.setCenter(this._collider.center);
@@ -98,47 +96,46 @@ export class PhysXShape implements IBaseShape {
     setMaterial (v: PhysicMaterial | null): void {
         if (v && this._impl) {
             const mat = this.getSharedMaterial(v);
-            // if (PX.VECTOR_MAT.size() > 0) {
-            //     PX.VECTOR_MAT.set(0, mat);
-            // } else {
-            //     PX.VECTOR_MAT.push_back(mat);
-            // }
-            // this._impl.setMaterials(PX.VECTOR_MAT);
+            if (PX.VECTOR_MAT.size() > 0) {
+                PX.VECTOR_MAT.set(0, mat);
+            } else {
+                PX.VECTOR_MAT.push_back(mat);
+            }
+            this._impl.setMaterials(PX.VECTOR_MAT);
         }
     }
 
-    protected getSharedMaterial (v: PhysicMaterial) {
+    protected getSharedMaterial (v: PhysicMaterial): any {
         if (!PX.CACHE_MAT[v._uuid]) {
             const physics = this._sharedBody.wrappedWorld.physics;
             const mat = physics.createMaterial(v.friction, v.friction, v.restitution);
+            mat.setFrictionCombineMode(PX.PxCombineMode.eMULTIPLY);
+            mat.setRestitutionCombineMode(PX.PxCombineMode.eMULTIPLY);
             PX.CACHE_MAT[v._uuid] = mat;
             return mat;
-        } else {
-            const mat = PX.CACHE_MAT[v._uuid]
-            mat.setStaticFriction(v.friction);
-            mat.setDynamicFriction(v.friction);
-            mat.setRestitution(v.restitution);
-            return mat;
         }
+        const mat = PX.CACHE_MAT[v._uuid];
+        mat.setStaticFriction(v.friction);
+        mat.setDynamicFriction(v.friction);
+        mat.setRestitution(v.restitution);
+        return mat;
     }
 
     setAsTrigger (v: boolean): void {
         if (USE_BYTEDANCE) {
             if (v) {
-                this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v)
+                this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v);
                 this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
             } else {
                 this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
-                this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v)
+                this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v);
             }
+        } else if (v) {
+            this._impl.setFlag(PX.PxShapeFlag.eSIMULATION_SHAPE, !v);
+            this._impl.setFlag(PX.PxShapeFlag.eTRIGGER_SHAPE, v);
         } else {
-            if (v) {
-                this._impl.setFlag(PX.PxShapeFlag.eSIMULATION_SHAPE, !v)
-                this._impl.setFlag(PX.PxShapeFlag.eTRIGGER_SHAPE, v);
-            } else {
-                this._impl.setFlag(PX.PxShapeFlag.eTRIGGER_SHAPE, v);
-                this._impl.setFlag(PX.PxShapeFlag.eSIMULATION_SHAPE, !v)
-            }
+            this._impl.setFlag(PX.PxShapeFlag.eTRIGGER_SHAPE, v);
+            this._impl.setFlag(PX.PxShapeFlag.eSIMULATION_SHAPE, !v);
         }
     }
 
@@ -154,6 +151,8 @@ export class PhysXShape implements IBaseShape {
         } else {
             this._impl.setLocalPose(_trans);
         }
+
+        if (this._collider.enabled) this._sharedBody.updateCenterOfMass();
     }
 
     getAABB (v: aabb): void { }
@@ -191,6 +190,4 @@ export class PhysXShape implements IBaseShape {
     removeMask (v: number): void {
         this._sharedBody.removeMask(v);
     }
-
 }
-

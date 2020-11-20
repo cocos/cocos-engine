@@ -74,9 +74,9 @@ export class PhysXRigidBody implements IRigidBody {
 
     setIsKinematic (v: boolean): void {
         if (USE_BYTEDANCE) {
-            this.impl.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, !!v);
+            this._sharedBody.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, !!v);
         } else {
-            this.impl.setRigidBodyFlag(PX.PxRigidBodyFlag.eKINEMATIC, v);
+            this._sharedBody.setRigidBodyFlag(PX.PxRigidBodyFlag.eKINEMATIC, v);
         }
     }
 

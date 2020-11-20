@@ -1,15 +1,17 @@
-import { BYTEDANCE } from "internal:constants";
+/* eslint-disable import/no-mutable-exports */
+/* eslint-disable no-undef */
+import { BYTEDANCE } from 'internal:constants';
 
 export let USE_BYTEDANCE = false;
 if (BYTEDANCE) USE_BYTEDANCE = true;
 
-let _px = globalThis['PhysX'] as any;
-if (USE_BYTEDANCE) _px = globalThis['phy'] as any;
+let _px = globalThis.PhysX as any;
+if (USE_BYTEDANCE) _px = globalThis.phy;
 export const PX = _px;
 
 if (PX) {
     PX.CACHE_MAT = {};
-    PX.VECTOR_MAT = {};
+    PX.VECTOR_MAT = new PX.PxMaterialVector();
     PX.IMPL_PTR = {};
     PX.MESH_CONVEX = {};
     PX.MESH_STATIC = {};
