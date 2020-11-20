@@ -390,6 +390,9 @@ export class ArmatureDisplay extends UIRenderable {
         this._sockets = val;
         this._updateSocketBindings();
         // this.attachUtil._syncAttachedNode();
+        if (val.length > 0 && this._frameCache) {
+            this._frameCache.enableCacheAttachedInfo();
+        }
     }
 
     get socketNodes () { return this._socketNodes; }
@@ -720,7 +723,6 @@ export class ArmatureDisplay extends UIRenderable {
         if (!this._frameCache) return;
 
         this.markForUpdateRenderData();
-        this.attachUtil._syncAttachedNode();
 
         const frameCache = this._frameCache;
         if (!frameCache.isInited()) {
@@ -760,6 +762,7 @@ export class ArmatureDisplay extends UIRenderable {
                 this._playing = false;
                 this._playCount = 0;
                 this._emitCacheCompleteEvent();
+                this.attachUtil._syncAttachedNode();
                 return;
             }
             this._accTime = 0;
@@ -768,6 +771,7 @@ export class ArmatureDisplay extends UIRenderable {
         }
 
         this._curFrame = frames[frameIdx];
+        this.attachUtil._syncAttachedNode();
     }
 
     onDestroy () {
