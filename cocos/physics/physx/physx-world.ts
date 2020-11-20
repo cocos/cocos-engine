@@ -1,8 +1,7 @@
-import { Vec3 } from '../../core/math';
 import { ray } from '../../core/geometry';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { CollisionEventType, PhysicMaterial, PhysicsRayResult, TriggerEventType } from '../framework';
-import { director, Node, RecyclePool } from '../../core';
+import { Node, RecyclePool } from '../../core';
 import { IVec3Like } from '../../core/math/type-define';
 import { IBaseConstraint } from '../spec/i-physics-constraint';
 import { PhysXSharedBody } from './physx-shared-body';
@@ -16,7 +15,7 @@ import { PX, USE_BYTEDANCE } from './export-physx';
  * @param a
  * @param b
  */
-function onTrigger (type: TriggerEventType, wpa: PhysXShape, wpb: PhysXShape) {
+function onTrigger (type: TriggerEventType, wpa: PhysXShape, wpb: PhysXShape): void {
     if (wpa && wpb) {
         TriggerEventObject.type = type;
         if (wpa.collider.needTriggerEvent) {
@@ -37,7 +36,7 @@ function onTrigger (type: TriggerEventType, wpa: PhysXShape, wpb: PhysXShape) {
  * @param a
  * @param b
  */
-function onCollision (type: CollisionEventType, wpa: PhysXShape, wpb: PhysXShape) {
+function onCollision (type: CollisionEventType, wpa: PhysXShape, wpb: PhysXShape): void {
     if (wpa && wpb) {
         CollisionEventObject.type = type;
         if (wpa.collider.needCollisionEvent) {
@@ -53,26 +52,27 @@ function onCollision (type: CollisionEventType, wpa: PhysXShape, wpb: PhysXShape
     }
 }
 
+const persistShapes: string[] = [];
 const triggerCallback = {
-    onContactBegin: (a: any, b: any) => {
-        const wpa = PX.IMPL_PTR[a['$$'].ptr] as PhysXShape;
-        const wpb = PX.IMPL_PTR[b['$$'].ptr] as PhysXShape;
+    onContactBegin: (a: any, b: any): void => {
+        const wpa = PX.IMPL_PTR[a.$$.ptr] as PhysXShape;
+        const wpb = PX.IMPL_PTR[b.$$.ptr] as PhysXShape;
         onCollision('onCollisionEnter', wpa, wpb);
     },
-    onContactEnd: (a: any, b: any) => {
-        const wpa = PX.IMPL_PTR[a['$$'].ptr] as PhysXShape;
-        const wpb = PX.IMPL_PTR[b['$$'].ptr] as PhysXShape;
+    onContactEnd: (a: any, b: any): void => {
+        const wpa = PX.IMPL_PTR[a.$$.ptr] as PhysXShape;
+        const wpb = PX.IMPL_PTR[b.$$.ptr] as PhysXShape;
         onCollision('onCollisionExit', wpa, wpb);
     },
-    onContactPersist: (a: any, b: any) => {
-        const wpa = PX.IMPL_PTR[a['$$'].ptr] as PhysXShape;
-        const wpb = PX.IMPL_PTR[b['$$'].ptr] as PhysXShape;
+    onContactPersist: (a: any, b: any): void => {
+        const wpa = PX.IMPL_PTR[a.$$.ptr] as PhysXShape;
+        const wpb = PX.IMPL_PTR[b.$$.ptr] as PhysXShape;
         onCollision('onCollisionStay', wpa, wpb);
     },
-    onTriggerBegin: (a: any, b: any) => {
-        const pa = a['$$'].ptr;
-        const pb = b['$$'].ptr;
-        const key = pa + '-' + pb;
+    onTriggerBegin: (a: any, b: any): void => {
+        const pa = a.$$.ptr as number;
+        const pb = b.$$.ptr as number;
+        const key = `${pa}-${pb}`;
         const i = persistShapes.indexOf(key);
         if (i < 0) {
             persistShapes.push(key);
@@ -81,10 +81,10 @@ const triggerCallback = {
         const wpb = PX.IMPL_PTR[pb] as PhysXShape;
         onTrigger('onTriggerEnter', wpa, wpb);
     },
-    onTriggerEnd: (a: any, b: any) => {
-        const pa = a['$$'].ptr;
-        const pb = b['$$'].ptr;
-        const key = pa + '-' + pb;
+    onTriggerEnd: (a: any, b: any): void => {
+        const pa = a.$$.ptr as number;
+        const pb = b.$$.ptr as number;
+        const key = `${pa}-${pb}`;
         const i = persistShapes.indexOf(key);
         if (i >= 0) {
             persistShapes.splice(i, 1);
@@ -96,11 +96,11 @@ const triggerCallback = {
     // onTriggerPersist: (...a: any) => { console.log('onTriggerPersist', a); },
 };
 
-// eNONE = 0,	//!< the query should ignore this shape
-// eTOUCH = 1,	//!< a hit on the shape touches the intersection geometry of the query but does not block it
-// eBLOCK = 2		//!< a hit on the shape blocks the query (does not block overlap queries)
+// eNONE = 0,   //!< the query should ignore this shape
+// eTOUCH = 1,  //!< a hit on the shape touches the intersection geometry of the query but does not block it
+// eBLOCK = 2   //!< a hit on the shape blocks the query (does not block overlap queries)
 const queryCallback = {
-    preFilter (filterData: any, shape: any, actor: any, out: any) {
+    preFilter (filterData: any, shape: any, _actor: any, _out: any): void {
         // trigger filter
         // 0 for mask filter
         // 1 for trigger toggle
@@ -116,22 +116,17 @@ const queryCallback = {
     // }
 };
 
-const persistShapes: string[] = [];
-
-// interface IEventQueue {
-// }
-
 export class PhysXWorld implements IPhysicsWorld {
-    setAllowSleep (v: boolean) { }
-    setDefaultMaterial (v: PhysicMaterial) { }
-    setGravity (gravity: IVec3Like) {
-        this.scene['setGravity'](gravity);
+    setAllowSleep (_v: boolean): void { }
+    setDefaultMaterial (_v: PhysicMaterial): void { }
+    setGravity (gravity: IVec3Like): void {
+        this.scene.setGravity(gravity);
     }
 
-    get impl () { return this.scene; }
+    get impl (): any { return this.scene; }
 
-    readonly physics: PhysX.Physics;
-    readonly scene: PhysX.Scene;
+    readonly physics: any;
+    readonly scene: any;
     readonly cooking: any;
 
     readonly queryfilterData: any;
@@ -142,7 +137,7 @@ export class PhysXWorld implements IPhysicsWorld {
 
     readonly wrappedBodies: PhysXSharedBody[] = [];
 
-    constructor (options?: any) {
+    constructor (_options?: any) {
         if (USE_BYTEDANCE) {
             // const physics = PX.createPhysics();
             const physics = PX.physics;
@@ -150,15 +145,15 @@ export class PhysXWorld implements IPhysicsWorld {
             const cooking = PX.createCooking(cp);
             const sceneDesc = physics.createSceneDesc();
             const simulation = new PX.SimulationEventCallback();
-            simulation.setOnContact(function (header, pairs) {
+            simulation.setOnContact((_header, pairs) => {
                 for (let i = 0; i < pairs.length; i++) {
                     const cp = pairs[i];
                     if (cp.getContactPairFlags() & (1 | 2)) continue;
 
                     const events = cp.getPairFlags();
                     const shapes = cp.getShapes();
-                    const a = shapes[0] as any;
-                    const b = shapes[1] as any;
+                    const a = shapes[0];
+                    const b = shapes[1];
                     const shapeA = PX.IMPL_PTR[a.getQueryFilterData().word2] as PhysXShape;
                     const shapeB = PX.IMPL_PTR[b.getQueryFilterData().word2] as PhysXShape;
                     if (events & 4) {
@@ -170,14 +165,14 @@ export class PhysXWorld implements IPhysicsWorld {
                     }
                 }
             });
-            simulation.setOnTrigger(function (pairs) {
+            simulation.setOnTrigger((pairs) => {
                 for (let i = 0; i < pairs.length; i++) {
                     const cp = pairs[i];
                     if (cp.getFlags() & (1 | 2)) continue;
 
                     const events = cp.getStatus();
-                    const a = cp.getTriggerShape() as any;
-                    const b = cp.getOtherShape() as any;
+                    const a = cp.getTriggerShape();
+                    const b = cp.getOtherShape();
                     const shapeA = PX.IMPL_PTR[a.getQueryFilterData().word2] as PhysXShape;
                     const shapeB = PX.IMPL_PTR[b.getQueryFilterData().word2] as PhysXShape;
 
@@ -210,21 +205,21 @@ export class PhysXWorld implements IPhysicsWorld {
             this.cooking = PX.PxCreateCooking(version, foundation, new PX.PxCookingParams(scale));
             this.physics = PX.PxCreatePhysics(version, foundation, scale, false, null);
             PX.PxInitExtensions(this.physics, null);
-            const sceneDesc = PX.getDefaultSceneDesc(this.physics['getTolerancesScale'](), 0, this.simulationCB);
+            const sceneDesc = PX.getDefaultSceneDesc(this.physics.getTolerancesScale(), 0, this.simulationCB);
             this.scene = this.physics.createScene(sceneDesc);
         }
         window.PP = this;
     }
 
-    step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep: number = 0) {
-        if (this.wrappedBodies.length == 0) {
+    step (deltaTime: number, _timeSinceLastCalled?: number, _maxSubStep = 0): void {
+        if (this.wrappedBodies.length === 0) {
             return;
         }
         const scene = this.scene;
         if (USE_BYTEDANCE) {
-            (scene as any).simulate(deltaTime);
+            (scene).simulate(deltaTime);
         } else {
-            (scene as any).simulate(deltaTime, true);
+            (scene).simulate(deltaTime, true);
         }
         scene.fetchResults(true);
         for (let i = 0; i < this.wrappedBodies.length; i++) {
@@ -247,69 +242,77 @@ export class PhysXWorld implements IPhysicsWorld {
         this.queryfilterData.setWords(word3, 3);
         this.queryfilterData.setWords(options.mask >>> 0, 0);
         this.queryfilterData.setFlags((1 << 0) | (1 << 1) | (1 << 2) | (1 << 5));
-        const r = this.scene['raycastMultiple'](worldRay.o, worldRay.d, options.maxDistance, flags, blocks, blocks.size(), this.queryfilterData, this.queryFilterCB, null);
+        const r = this.scene.raycastMultiple(worldRay.o, worldRay.d, options.maxDistance, flags,
+            blocks, blocks.size(), this.queryfilterData, this.queryFilterCB, null);
         if (r > 0) {
             for (let i = 0; i < r; i++) {
                 const block = blocks.get(i);
-                const collider = (PX.IMPL_PTR[block.getShape()['$$'].ptr] as PhysXShape).collider;
+                const collider = (PX.IMPL_PTR[block.getShape().$$.ptr] as PhysXShape).collider;
                 const result = pool.add();
                 result._assign(block.position, block.distance, collider, block.normal);
                 results.push(result);
             }
             return true;
-        } else if (r == -1) {
-            console.error("not enough memory.");
+        } if (r === -1) {
+            console.error('not enough memory.');
         }
         return false;
     }
 
     raycastClosest (worldRay: ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
         const block = this.singleResult;
-        const flags = (1 << 0) | (1 << 1) //| (1 << 10);
+        const flags = (1 << 0) | (1 << 1); // | (1 << 10);
         const word3 = 1 | (options.queryTrigger ? 0 : 2) | 4;
         this.queryfilterData.setWords(word3, 3);
         this.queryfilterData.setWords(options.mask >>> 0, 0);
         this.queryfilterData.setFlags((1 << 0) | (1 << 1) | (1 << 2));
-        const r = this.scene['raycastSingle'](worldRay.o, worldRay.d, options.maxDistance, flags, block, this.queryfilterData, this.queryFilterCB, null);
+        const r = this.scene.raycastSingle(worldRay.o, worldRay.d, options.maxDistance, flags, block, this.queryfilterData, this.queryFilterCB, null);
         if (r) {
-            const collider = (PX.IMPL_PTR[block.getShape()['$$'].ptr] as PhysXShape).collider;
+            const collider = (PX.IMPL_PTR[block.getShape().$$.ptr] as PhysXShape).collider;
             result._assign(block.position, block.distance, collider, block.normal);
             return true;
         }
         return false;
     }
 
-    getSharedBody (node: Node, wrappedBody?: PhysXRigidBody) {
+    getSharedBody (node: Node, wrappedBody?: PhysXRigidBody): PhysXSharedBody {
         return PhysXSharedBody.getSharedBody(node, this, wrappedBody);
     }
 
-    addActor (body: PhysXSharedBody) {
+    addActor (body: PhysXSharedBody): void {
         const index = this.wrappedBodies.indexOf(body);
         if (index < 0) {
             if (USE_BYTEDANCE) {
-                this.scene['addActor'](body.impl);
+                this.scene.addActor(body.impl);
             } else {
-                this.scene['addActor'](body.impl, null);
+                this.scene.addActor(body.impl, null);
             }
             this.wrappedBodies.push(body);
         }
     }
 
-    removeActor (body: PhysXSharedBody) {
+    removeActor (body: PhysXSharedBody): void {
         const index = this.wrappedBodies.indexOf(body);
         if (index >= 0) {
-            this.scene['removeActor'](body.impl, true);
+            this.scene.removeActor(body.impl, true);
             this.wrappedBodies.splice(index, 1);
         }
     }
 
-    addConstraint (constraint: IBaseConstraint) { }
+    addConstraint (_constraint: IBaseConstraint): void { }
 
-    removeConstraint (constraint: IBaseConstraint) { }
+    removeConstraint (_constraint: IBaseConstraint): void { }
 
-    updateCollisionMatrix (group: number, mask: number) { }
+    updateCollisionMatrix (_group: number, _mask: number): void {
+        for (let i = 0; i < this.wrappedBodies.length; i++) {
+            const g = this.wrappedBodies[i];
+            if (g.getGroup() === _group) {
+                g.setMask(_mask);
+            }
+        }
+    }
 
-    emitEvents () {
+    emitEvents (): void {
         const l = persistShapes.length;
         for (let i = 0; i < l; i++) {
             const key = persistShapes[i];

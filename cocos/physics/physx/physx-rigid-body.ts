@@ -1,23 +1,22 @@
-import { IVec3Like, Node, Vec3 } from "../../core";
-import { TransformBit } from "../../core/scene-graph/node-enum";
-import { PhysicsSystem, RigidBody } from "../framework";
-import { IRigidBody } from "../spec/i-rigid-body";
-import { PX as PX, USE_BYTEDANCE, _trans } from "./export-physx";
-import { PhysXSharedBody } from "./physx-shared-body";
-import { PhysXWorld } from "./physx-world";
+import { IVec3Like, Node, Vec3 } from '../../core';
+import { TransformBit } from '../../core/scene-graph/node-enum';
+import { PhysicsSystem, RigidBody } from '../framework';
+import { IRigidBody } from '../spec/i-rigid-body';
+import { PX, USE_BYTEDANCE, _trans } from './export-physx';
+import { PhysXSharedBody } from './physx-shared-body';
+import { PhysXWorld } from './physx-world';
 
-const v3_0 = new Vec3();
+const v30 = new Vec3();
 
 export class PhysXRigidBody implements IRigidBody {
+    get impl (): any { return this._sharedBody.impl; }
 
-    get impl () { return this._sharedBody.impl; }
+    get isAwake (): boolean { return !this.impl.isSleeping(); }
+    isSleepy = false;
+    get isSleeping (): boolean { return this.impl.isSleeping(); }
 
-    get isAwake () { return !this.impl.isSleeping(); }
-    isSleepy: boolean = false;
-    get isSleeping () { return this.impl.isSleeping(); }
-
-    get isEnabled () { return this._isEnabled; }
-    get rigidBody () { return this._rigidBody; }
+    get isEnabled (): boolean { return this._isEnabled; }
+    get rigidBody (): RigidBody { return this._rigidBody; }
 
     private _isEnabled = false;
     private _rigidBody!: RigidBody;
@@ -137,15 +136,17 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     sleep (): void {
-        throw new Error("Method not implemented.");
+        this.impl.putToSleep();
     }
 
     clearState (): void {
-        throw new Error("Method not implemented.");
+        this.clearForces();
+        this.clearVelocity();
     }
 
     clearForces (): void {
-        throw new Error("Method not implemented.");
+        this.impl.clearForce(PX.PxForceMode.eFORCE); // this.impl.clearForce(PX.PxForceMode.eACCELERATION);
+        this.impl.clearForce(PX.PxForceMode.eIMPULSE); // this.impl.clearForce(PX.PxForceMode.eVELOCITY_CHANGE);
     }
 
     clearVelocity (): void {
@@ -179,7 +180,7 @@ export class PhysXRigidBody implements IRigidBody {
 
     applyForce (force: IVec3Like, relativePoint?: IVec3Like): void {
         this._sharedBody.syncSceneToPhysics();
-        const rp = relativePoint ? relativePoint : Vec3.ZERO;
+        const rp = relativePoint || Vec3.ZERO;
         if (USE_BYTEDANCE) {
             this.impl.addForce(force, PX.ForceMode.eFORCE, true);
         } else {
@@ -189,7 +190,7 @@ export class PhysXRigidBody implements IRigidBody {
 
     applyLocalForce (force: IVec3Like, relativePoint?: IVec3Like): void {
         this._sharedBody.syncSceneToPhysics();
-        const rp = relativePoint ? relativePoint : Vec3.ZERO;
+        const rp = relativePoint || Vec3.ZERO;
         if (USE_BYTEDANCE) {
             this.impl.addForce(force, PX.ForceMode.eFORCE, true);
         } else {
@@ -199,7 +200,7 @@ export class PhysXRigidBody implements IRigidBody {
 
     applyImpulse (force: IVec3Like, relativePoint?: IVec3Like): void {
         this._sharedBody.syncSceneToPhysics();
-        const rp = relativePoint ? relativePoint : Vec3.ZERO;
+        const rp = relativePoint || Vec3.ZERO;
         if (USE_BYTEDANCE) {
             this.impl.addForce(force, PX.ForceMode.eIMPULSE, true);
         } else {
@@ -209,7 +210,7 @@ export class PhysXRigidBody implements IRigidBody {
 
     applyLocalImpulse (force: IVec3Like, relativePoint?: IVec3Like): void {
         this._sharedBody.syncSceneToPhysics();
-        const rp = relativePoint ? relativePoint : Vec3.ZERO;
+        const rp = relativePoint || Vec3.ZERO;
         if (USE_BYTEDANCE) {
             this.impl.addForce(force, PX.ForceMode.eIMPULSE, true);
         } else {
@@ -227,11 +228,11 @@ export class PhysXRigidBody implements IRigidBody {
 
     applyLocalTorque (torque: IVec3Like): void {
         this._sharedBody.syncSceneToPhysics();
-        Vec3.transformQuat(v3_0, torque, this._sharedBody.node.worldRotation);
+        Vec3.transformQuat(v30, torque, this._sharedBody.node.worldRotation);
         if (USE_BYTEDANCE) {
-            this.impl.addTorque(v3_0, PX.ForceMode.eFORCE, true);
+            this.impl.addTorque(v30, PX.ForceMode.eFORCE, true);
         } else {
-            this.impl.addTorque(v3_0);
+            this.impl.addTorque(v30);
         }
     }
 
@@ -266,5 +267,4 @@ export class PhysXRigidBody implements IRigidBody {
     removeMask (v: number): void {
         this._sharedBody.removeMask(v);
     }
-
 }
