@@ -92,7 +92,7 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     MTLRenderPassDescriptor *mtlRenderPassDescriptor = static_cast<CCMTLRenderPass *>(renderPass)->getMTLRenderPassDescriptor();
     if(!isRenderingEntireDrawable(renderArea)){
         //Metal doesn't apply the viewports and scissors to renderpass load-action clearing.
-        mu::clearRenderArea(_mtlDevice, _mtlCommandBuffer, _mtkView.drawableSize, renderPass, mtlRenderPassDescriptor, renderArea, colors, depth, stencil, _hasScreenClean);
+        mu::clearRenderArea(_mtlDevice, _mtlCommandBuffer, renderPass, renderArea, colors, depth, stencil, _hasScreenClean);
     } else {
         const auto &colorAttachments = renderPass->getColorAttachments();
         const auto colorAttachmentCount = colorAttachments.size();

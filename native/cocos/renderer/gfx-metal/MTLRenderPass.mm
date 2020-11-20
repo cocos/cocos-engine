@@ -54,6 +54,10 @@ void CCMTLRenderPass::setColorAttachment(size_t slot, id<MTLTexture> texture, in
 
     _mtlRenderPassDescriptor.colorAttachments[slot].texture = texture;
     _mtlRenderPassDescriptor.colorAttachments[slot].level = level;
+    if(slot == 0) {
+        _renderTargetWidth = texture.width;
+        _renderTargetHeight = texture.height;
+    }
 }
 
 void CCMTLRenderPass::setDepthStencilAttachment(id<MTLTexture> texture, int level) {

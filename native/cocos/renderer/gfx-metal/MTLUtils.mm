@@ -11,6 +11,7 @@
 #include "MTLDevice.h"
 #include "MTLShader.h"
 #include "MTLPipelineState.h"
+#include "MTLRenderPass.h"
 #include <vector>
 
 namespace cc {
@@ -1535,18 +1536,20 @@ CCMTLGPUPipelineState* getClearRenderPassPipelineState(CCMTLDevice *device, Rend
     return static_cast<CCMTLPipelineState*>(pipelineState)->getGPUPipelineState();
 }
 
-void clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer, CGSize drawableSize, RenderPass *renderPass, MTLRenderPassDescriptor *renderPassDescriptor, const Rect &renderArea, const Color *colors, float depth, int stencil, bool &hasScreenClean) {
+void clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer, RenderPass *renderPass, const Rect &renderArea, const Color *colors, float depth, int stencil, bool &hasScreenClean) {
     const auto gpuPSO = getClearRenderPassPipelineState(device, renderPass);
-    
+    const auto mtlRenderPass = static_cast<CCMTLRenderPass *>(renderPass);
+    MTLRenderPassDescriptor *renderPassDescriptor = mtlRenderPass->getMTLRenderPassDescriptor();
     if(!hasScreenClean) {
         renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
         renderPassDescriptor.colorAttachments[0].clearColor = toMTLClearColor(colors[0]);
         renderPassDescriptor.depthAttachment.clearDepth = depth;
         renderPassDescriptor.stencilAttachment.clearStencil = stencil;
     }
-    
-    float halfWidth = drawableSize.width * 0.5f ;
-    float halfHeight = drawableSize.height * 0.5f;
+    uint renderTargetWidth = mtlRenderPass->getRenderTargetWidth();
+    uint renderTargetHeight = mtlRenderPass->getRenderTargetHeight();
+    float halfWidth = renderTargetWidth * 0.5f ;
+    float halfHeight = renderTargetHeight * 0.5f;
     float rcpWidth = 1.0f / halfWidth ;
     float rcpHeight = 1.0f / halfHeight;
     float width = renderArea.x+ renderArea.width;
@@ -1573,8 +1576,8 @@ void clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer, CG
     }
     
     id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-    [renderEncoder setViewport:(MTLViewport){0, 0, drawableSize.width, drawableSize.height}];
-    [renderEncoder setScissorRect:(MTLScissorRect){0, 0, (NSUInteger)drawableSize.width, (NSUInteger)drawableSize.height}];
+    [renderEncoder setViewport:(MTLViewport){0, 0, static_cast<double>(renderTargetWidth), static_cast<double>(renderTargetHeight)}];
+    [renderEncoder setScissorRect:(MTLScissorRect){0, 0, renderTargetWidth, renderTargetHeight}];
     [renderEncoder setRenderPipelineState:gpuPSO->mtlRenderPipelineState];
     if (gpuPSO->mtlDepthStencilState) {
         [renderEncoder setStencilFrontReferenceValue:gpuPSO->stencilRefFront

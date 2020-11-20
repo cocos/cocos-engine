@@ -6,7 +6,6 @@
 #import <Metal/MTLSampler.h>
 #import <Metal/MTLTexture.h>
 #import <Metal/MTLVertexDescriptor.h>
-#import <CoreGraphics/CGGeometry.h>
 #include <unordered_map>
 
 namespace cc {
@@ -71,7 +70,7 @@ uint getBlockSzie(Format format);
 uint getBytesPerRow(Format format, uint width);
 bool pixelFormatIsColorRenderable(Format format);
 bool isSamplerDescriptorCompareFunctionSupported(uint family);
-void clearRenderArea(CCMTLDevice* device, id<MTLCommandBuffer> commandBuffer, CGSize drawableSize, RenderPass *renderPass, MTLRenderPassDescriptor *renderPassDescriptor, const Rect &renderArea, const Color *colors, float depth, int stencil, bool &hasScreenClean);
+void clearRenderArea(CCMTLDevice* device, id<MTLCommandBuffer> commandBuffer, RenderPass *renderPass, const Rect &renderArea, const Color *colors, float depth, int stencil, bool &hasScreenClean);
 CC_INLINE uint alignUp(uint inSize, uint align) { return ((inSize + align - 1) / align) * align; }
 } // namespace mu
 

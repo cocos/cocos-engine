@@ -22,10 +22,14 @@ public:
 
     CC_INLINE MTLRenderPassDescriptor *getMTLRenderPassDescriptor() const { return _mtlRenderPassDescriptor; }
     CC_INLINE size_t getColorRenderTargetNums() const { return _colorRenderTargetNums; }
+    CC_INLINE uint getRenderTargetWidth() const { return _renderTargetWidth; }
+    CC_INLINE uint getRenderTargetHeight() const { return _renderTargetHeight; }
 
 private:
     MTLRenderPassDescriptor *_mtlRenderPassDescriptor = nil;
     size_t _colorRenderTargetNums = 0;
+    uint _renderTargetWidth = 0;
+    uint _renderTargetHeight = 0;
 };
 
 } // namespace gfx
