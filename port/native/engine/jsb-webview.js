@@ -66,6 +66,10 @@ if (cc.internal.WebView) {
         }
 
         createWebView() {
+            if (!jsb.WebView) {
+                console.warn('jsb.WebView is null');
+                return;
+            }
             this._webview = jsb.WebView.create();
             this._bindEvent();
         }
