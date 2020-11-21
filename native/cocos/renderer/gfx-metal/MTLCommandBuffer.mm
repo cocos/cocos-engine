@@ -76,6 +76,7 @@ void CCMTLCommandBuffer::end() {
     }];
     [_mtlCommandBuffer commit];
     _commandBufferBegan = false;
+    _hasSubRegionCleared = false;
 }
 
 bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect) {
@@ -90,21 +91,21 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         static_cast<CCMTLRenderPass *>(renderPass)->setDepthStencilAttachment(_mtkView.depthStencilTexture, 0);
     }
     MTLRenderPassDescriptor *mtlRenderPassDescriptor = static_cast<CCMTLRenderPass *>(renderPass)->getMTLRenderPassDescriptor();
-    if(!isRenderingEntireDrawable(renderArea)){
+    if (!isRenderingEntireDrawable(renderArea)) {
         //Metal doesn't apply the viewports and scissors to renderpass load-action clearing.
-        mu::clearRenderArea(_mtlDevice, _mtlCommandBuffer, renderPass, renderArea, colors, depth, stencil, _hasScreenClean);
+        mu::clearRenderArea(_mtlDevice, _mtlCommandBuffer, renderPass, renderArea, colors, depth, stencil, _hasSubRegionCleared);
     } else {
         const auto &colorAttachments = renderPass->getColorAttachments();
         const auto colorAttachmentCount = colorAttachments.size();
         for (size_t slot = 0u; slot < colorAttachmentCount; slot++) {
             mtlRenderPassDescriptor.colorAttachments[slot].clearColor = mu::toMTLClearColor(colors[slot]);
-            mtlRenderPassDescriptor.colorAttachments[0].loadAction = colorAttachments[slot].loadOp == LoadOp::CLEAR ? MTLLoadActionClear : MTLLoadActionLoad;
+            mtlRenderPassDescriptor.colorAttachments[slot].loadAction = colorAttachments[slot].loadOp == LoadOp::CLEAR ? MTLLoadActionClear : MTLLoadActionLoad;
         }
-        
+
         mtlRenderPassDescriptor.depthAttachment.clearDepth = depth;
         mtlRenderPassDescriptor.stencilAttachment.clearStencil = stencil;
     }
-    
+
     _mtlEncoder = [_mtlCommandBuffer renderCommandEncoderWithDescriptor:mtlRenderPassDescriptor];
     _currentViewport = {renderArea.x, renderArea.y, renderArea.width, renderArea.height};
     _currentScissor = renderArea;

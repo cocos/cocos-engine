@@ -84,7 +84,7 @@ bool CCMTLBuffer::initialize(const BufferInfo &info) {
         CCASSERT(false, "Unsupported BufferType, create buffer failed.");
         return false;
     }
-    if (_mtlBuffer && _mtlResourceOptions != MTLResourceStorageModePrivate) {
+    if (_tripleEnabled) {
         CCMTLBufferManager::addBuffer(this);
     }
     return true;

@@ -13,6 +13,7 @@ CCMTLRenderPass::~CCMTLRenderPass() { destroy(); }
 bool CCMTLRenderPass::initialize(const RenderPassInfo &info) {
     _colorAttachments = info.colorAttachments;
     _depthStencilAttachment = info.depthStencilAttachment;
+    _renderTargetSizes.resize(_colorAttachments.size());
 
     _mtlRenderPassDescriptor = [[MTLRenderPassDescriptor alloc] init];
 
@@ -54,10 +55,7 @@ void CCMTLRenderPass::setColorAttachment(size_t slot, id<MTLTexture> texture, in
 
     _mtlRenderPassDescriptor.colorAttachments[slot].texture = texture;
     _mtlRenderPassDescriptor.colorAttachments[slot].level = level;
-    if(slot == 0) {
-        _renderTargetWidth = texture.width;
-        _renderTargetHeight = texture.height;
-    }
+    _renderTargetSizes[slot] = {static_cast<float>(texture.width), static_cast<float>(texture.height)};
 }
 
 void CCMTLRenderPass::setDepthStencilAttachment(id<MTLTexture> texture, int level) {
