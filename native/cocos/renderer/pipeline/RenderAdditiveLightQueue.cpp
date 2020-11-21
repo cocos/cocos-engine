@@ -291,13 +291,13 @@ void RenderAdditiveLightQueue::updateUBOs(const RenderView *view, gfx::CommandBu
 void RenderAdditiveLightQueue::updateLightDescriptorSet(const RenderView *view, gfx::CommandBuffer *cmdBuffer) {
     const auto *shadowInfo = _pipeline->getShadows();
     for (const auto *light : _validLights) {
-        gfx::Texture *texture = nullptr;
-        if (_pipeline->getShadowFramebuffer().count(light)) {
-            texture = _pipeline->getShadowFramebuffer().at(light)->getColorTextures()[0];
-        }
-
         auto *descriptorSet = getOrCreateDescriptorSet(light);
         if (!descriptorSet) { return; }
+
+        descriptorSet->bindSampler(SHADOWMAP::BINDING, _sampler);
+        descriptorSet->bindSampler(SPOT_LIGHTING_MAP::BINDING, _sampler);
+        // Main light sampler binding
+        descriptorSet->bindTexture(SHADOWMAP::BINDING, _pipeline->getDefaultTexture());
         descriptorSet->update();
 
         _globalUBO.fill(0.0f);
@@ -320,27 +320,21 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const RenderView *view, 
                 memcpy(_shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &shadowInfo->color, sizeof(Vec4));
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_INFO_OFFSET, &shadowInfos, sizeof(shadowInfos));
+                // Spot light sampler binding
+                auto *texture = _pipeline->getShadowFramebuffer().at(light)->getColorTextures()[0];
+                if (texture) {
+                    descriptorSet->bindTexture(SPOT_LIGHTING_MAP::BINDING, texture);
+                } else {
+                    descriptorSet->bindTexture(SPOT_LIGHTING_MAP::BINDING, _pipeline->getDefaultTexture());
+                }
             } break;
             case LightType::SPHERE: {
                 // Reserve sphere light shadow interface
+                // Spot light sampler binding
+                descriptorSet->bindTexture(SPOT_LIGHTING_MAP::BINDING, _pipeline->getDefaultTexture());
             } break;
             default:;
         }
-
-         // must binding a sampler
-        if (texture == nullptr) {
-            std::unordered_map<const Light *, gfx::Framebuffer *>::iterator iter;
-            for (iter = _pipeline->getShadowFramebuffer().begin(); iter != _pipeline->getShadowFramebuffer().end(); ++iter) {
-                texture = iter->second->getColorTextures()[0];
-                if (texture) {
-                    descriptorSet->bindTexture(SPOT_LIGHTING_MAP::BINDING, texture);
-                    break;
-                }
-            }
-        }
-
-        descriptorSet->bindTexture(SPOT_LIGHTING_MAP::BINDING, texture);
-        descriptorSet->bindSampler(SPOT_LIGHTING_MAP::BINDING, _sampler);
         descriptorSet->update();
 
         cmdBuffer->updateBuffer(descriptorSet->getBuffer(UBOShadow::BINDING), _shadowUBO.data(), UBOShadow::SIZE);

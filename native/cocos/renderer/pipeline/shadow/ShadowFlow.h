@@ -26,6 +26,8 @@ private:
     void initShadowFrameBuffer(ForwardPipeline *pipeline, const Light *light);
 
 private:
+    bool _globalBinding = false;
+
     static RenderFlowInfo _initInfo;
 
     gfx::RenderPass *_renderPass = nullptr;
