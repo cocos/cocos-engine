@@ -18,6 +18,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$DIR/../.."
 TOJS_ROOT="$PROJECT_ROOT/tools/tojs"
 JS_AUTO_GENERATED_DIR="$PROJECT_ROOT/cocos/bindings/auto"
+CCFILES_AUTO_GENERATED_DIR="$PROJECT_ROOT/templates/cocos2dx_files.json"
 COMMITTAG="[ci skip][AUTO]: updating jsbinding automatically"
 ELAPSEDSECS=`date +%s`
 COCOS_BRANCH="update_js_bindings_$ELAPSEDSECS"
@@ -33,18 +34,15 @@ if [ "$TRAVIS_OS_NAME" == "windows" ]; then
   export PATH="/c/Python27":$PATH
 fi
 
-generate_bindings_glue_codes()
+generate_cocosfiles_json()
 {
-    echo "Create auto-generated jsbinding glue codes."
+    echo "Updates cocos_files.json"
     pushd "$TOJS_ROOT"
-    python -V 
-    python ./genbindings.py
-    rm userconf.ini
+    ./generate-template-files.py
     popd
 }
 
-# 1. Generate js bindings
-generate_bindings_glue_codes
+
 
 if [ "$TRAVIS_OS_NAME" != "linux" ]; then
   exit 0
@@ -54,6 +52,9 @@ if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
   exit 0
 fi
 
+
+# 1. Generate js bindings
+generate_cocosfiles_json
 
 
 if [ -z "${GH_EMAIL}" ]; then
@@ -122,7 +123,10 @@ fi
 # Exit on error
 set -e
 
+set -x
+
 git add -f --all "$JS_AUTO_GENERATED_DIR"
+git add -f "$CCFILES_AUTO_GENERATED_DIR"
 git checkout -b "$COCOS_BRANCH"
 git commit -m "$COMMITTAG"
 
@@ -134,8 +138,14 @@ echo "Pushing to Robot's repo ..."
 # git push -fq upstream "$COCOS_BRANCH" 2> /dev/null
 git push -fq upstream "$COCOS_BRANCH"
 
+echo "  finish push ..."
+
+set +x
+
 # 7.
 echo "Sending Pull Request to base repo ..."
 curl --user "${GH_USER}:${GH_PASSWORD}" --request POST --data "{ \"title\": \"$COMMITTAG\", \"body\": \"\", \"head\": \"${GH_USER}:${COCOS_BRANCH}\", \"base\": \"${TRAVIS_BRANCH}\"}" "${PULL_REQUEST_REPO}" 2> /dev/null > /dev/null
+
+echo "  finish sending PR ..."
 
 popd
