@@ -491,7 +491,7 @@ export class Pass {
         this._syncBatchingScheme();
         this._hShaderDefault = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
         if (!this._hShaderDefault) { console.warn(`create shader ${this._programName} failed`); return false; }
-        PassPool.set(this._handle, PassView.PIPELINE_LAYOUT, programLib.getTemplate(this._programName).hPipelineLayout);
+        PassPool.set(this._handle, PassView.PIPELINE_LAYOUT, programLib.getTemplateInfo(this._programName).hPipelineLayout);
         PassPool.set(this._handle, PassView.HASH, Pass.getPassHash(this, this._hShaderDefault));
         return true;
     }
@@ -574,7 +574,9 @@ export class Pass {
         this._descriptorSet = DSPool.get(dsHandle);
 
         // calculate total size required
-        const { blocks, blockSizes } = this._shaderInfo;
+        const blocks = this._shaderInfo.blocks;
+        const tmplInfo = programLib.getTemplateInfo(info.program);
+        const { blockSizes, handleMap }= tmplInfo;
         const alignment = device.uboOffsetAlignment;
         const startOffsets: number[] = [];
         let lastSize = 0; let lastOffset = 0;
@@ -607,7 +609,7 @@ export class Pass {
             this._descriptorSet.bindBuffer(binding, bufferView);
         }
         // store handles
-        const directHandleMap = this._propertyHandleMap = this._shaderInfo.handleMap;
+        const directHandleMap = this._propertyHandleMap = handleMap;
         const indirectHandleMap: Record<string, number> = {};
         for (const name in this._properties) {
             const prop = this._properties[name];
