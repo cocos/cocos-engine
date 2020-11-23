@@ -198,7 +198,7 @@ export class ShadowFlow extends RenderFlow {
             const shadowMapSamplerHash = genSamplerHash(_samplerInfo);
             const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
             pipeline.descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
-            pipeline.descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+            pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
             pipeline.descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, shadowMapSampler);
             pipeline.descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
             this._globalBinding = true;
