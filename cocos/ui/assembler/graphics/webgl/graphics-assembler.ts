@@ -77,7 +77,7 @@ function clamp (v: number, minNum: number, maxNum: number) {
     if (v < minNum) {
         return minNum;
     }
-    else if (v > maxNum) {
+    if (v > maxNum) {
         return maxNum;
     }
     return v;
@@ -94,7 +94,24 @@ export const graphicsAssembler: IAssembler = {
     },
 
     updateRenderData (graphics: Graphics) {
+    },
 
+    uploadData (graphics: Graphics) {
+        // this.renderIA!(graphics, renderer);
+        if (!graphics.impl) return;
+        const renderDataList = graphics.impl.getRenderData();
+        const subModelList = graphics.model!.subModels;
+        for (let i = 0; i < renderDataList.length; i++) {
+            const renderData = renderDataList[i];
+            const ia = subModelList[i].inputAssembler;
+            const vertexFormatBytes = Float32Array.BYTES_PER_ELEMENT * formatBytes;
+            const byteOffset = renderData.vertexStart * vertexFormatBytes;
+            const verticesData = renderData.vData.subarray(0, byteOffset >> 2);
+            ia.vertexBuffers[0].update(verticesData);
+            const indicesData = renderData.iData.subarray(0, renderData.indicesStart);
+            ia.indexCount = renderData.indicesStart;
+            ia.indexBuffer!.update(indicesData);
+        }
     },
 
     fillBuffers (graphics: Graphics, renderer: UI) {
@@ -123,12 +140,10 @@ export const graphicsAssembler: IAssembler = {
 
             if (_impl.dataOffset < renderDataList.length) {
                 renderData = renderDataList[_impl.dataOffset];
-            }
-            else {
+            } else {
                 renderData = _impl.requestRenderData();
                 renderDataList[_impl.dataOffset] = renderData;
             }
-
             meshBuffer = renderData;
         }
 
@@ -182,21 +197,6 @@ export const graphicsAssembler: IAssembler = {
             }
         }
 
-        const subModelList = graphics.model.subModels;
-        for (let i = 0; i < renderDataList.length; i++){
-            const renderData = renderDataList[i];
-            const ia = subModelList[i].inputAssembler;
-            const vertexFormatBytes = Float32Array.BYTES_PER_ELEMENT * formatBytes;
-            const byteOffset = renderData.vertexStart * vertexFormatBytes;
-            const verticesData = new Float32Array(renderData.vData!.buffer, 0, byteOffset >> 2);
-            ia.vertexCount = renderData.vertexStart;
-            ia.vertexBuffers[0].update(verticesData);
-
-            const indicesData = new Uint16Array(renderData.iData!.buffer, 0, renderData.indicesStart);
-            ia.indexCount = renderData.indicesStart;
-            ia.indexBuffer!.update(indicesData);
-        }
-
         graphics.markForUpdateRenderData();
     },
 
@@ -245,8 +245,8 @@ export const graphicsAssembler: IAssembler = {
         if (!meshBuffer) {
             return;
         }
-        const vData = meshBuffer.vData!;
-        const iData = meshBuffer.iData!;
+        const vData = meshBuffer.vData;
+        const iData = meshBuffer.iData;
 
         for (let i = _impl.pathOffset, l = _impl.pathLength; i < l; i++) {
             const path = paths[i];
@@ -286,11 +286,9 @@ export const graphicsAssembler: IAssembler = {
 
                 if (lineCap === LineCap.BUTT) {
                     this._buttCapStart!(p0, dx, dy, w, 0);
-                }
-                else if (lineCap === LineCap.SQUARE) {
+                } else if (lineCap === LineCap.SQUARE) {
                     this._buttCapStart!(p0, dx, dy, w, w);
-                }
-                else if (lineCap === LineCap.ROUND) {
+                } else if (lineCap === LineCap.ROUND) {
                     this._roundCapStart!(p0, dx, dy, w, nCap);
                 }
             }
@@ -298,11 +296,9 @@ export const graphicsAssembler: IAssembler = {
             for (let j = start; j < end; ++j) {
                 if (lineJoin === LineJoin.ROUND) {
                     this._roundJoin(p0, p1, w, w, nCap);
-                }
-                else if ((p1.flags & (PointFlags.PT_BEVEL | PointFlags.PT_INNERBEVEL)) !== 0) {
+                } else if ((p1.flags & (PointFlags.PT_BEVEL | PointFlags.PT_INNERBEVEL)) !== 0) {
                     this._bevelJoin(p0, p1, w, w);
-                }
-                else {
+                } else {
                     this._vSet!(p1.x + p1.dmx * w, p1.y + p1.dmy * w, 1);
                     this._vSet!(p1.x - p1.dmx * w, p1.y - p1.dmy * w, -1);
                 }
@@ -327,11 +323,9 @@ export const graphicsAssembler: IAssembler = {
 
                 if (lineCap === LineCap.BUTT) {
                     this._buttCapEnd!(p1, dx, dy, w, 0);
-                }
-                else if (lineCap === LineCap.SQUARE) {
+                } else if (lineCap === LineCap.SQUARE) {
                     this._buttCapEnd!(p1, dx, dy, w, w);
-                }
-                else if (lineCap === LineCap.ROUND) {
+                } else if (lineCap === LineCap.ROUND) {
                     this._roundCapEnd!(p1, dx, dy, w, nCap);
                 }
             }
@@ -412,8 +406,7 @@ export const graphicsAssembler: IAssembler = {
                 for (let j = 0, nIndices = newIndices.length; j < nIndices; j++) {
                     iData[indicesOffset++] = newIndices[j] + vertexOffset;
                 }
-            }
-            else {
+            } else {
                 const first = vertexOffset;
                 for (let start = vertexOffset + 2, end = meshBuffer.vertexStart; start < end; start++) {
                     iData[indicesOffset++] = first;
@@ -488,9 +481,9 @@ export const graphicsAssembler: IAssembler = {
 
                 // Check to see if the corner needs to be beveled.
                 if (p1.flags & PointFlags.PT_CORNER) {
-                    if (dmr2 * miterLimit * miterLimit < 1 ||
-                        lineJoin === LineJoin.BEVEL ||
-                        lineJoin === LineJoin.ROUND) {
+                    if (dmr2 * miterLimit * miterLimit < 1
+                        || lineJoin === LineJoin.BEVEL
+                        || lineJoin === LineJoin.ROUND) {
                         p1.flags |= PointFlags.PT_BEVEL;
                     }
                 }
@@ -724,14 +717,14 @@ export const graphicsAssembler: IAssembler = {
 
         const meshBuffer = _renderData;
         let dataOffset = meshBuffer.vertexStart * attrBytes;
-        const vData = meshBuffer.vData!;
+        const vData = meshBuffer.vData;
         // vec3.set(_tempVec3, x, y, 0);
         // vec3.transformMat4(_tempVec3, _tempVec3, _currMatrix);
 
         vData[dataOffset++] = x;
         vData[dataOffset++] = y;
         vData[dataOffset++] = 0;
-        Color.toArray(vData!, _curColor, dataOffset);
+        Color.toArray(vData, _curColor, dataOffset);
         dataOffset += 4;
         vData[dataOffset++] = distance;
         meshBuffer.vertexStart++;
