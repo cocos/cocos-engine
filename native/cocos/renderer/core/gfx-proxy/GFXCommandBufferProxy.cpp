@@ -265,7 +265,7 @@ void CommandBufferProxy::copyBuffersToTexture(const uint8_t *const *buffers, Tex
     memcpy(remoteRegions, regions, count * sizeof(BufferTextureCopy));
 
     uint bufferCount = 0u;
-    for (uint i = 0u, n = 0u; i < count; i++) {
+    for (uint i = 0u; i < count; i++) {
         bufferCount += regions[i].texSubres.layerCount;
     }
     const uint8_t **remoteBuffers = encoder->Allocate<const uint8_t *>(bufferCount);

@@ -3,8 +3,8 @@
 namespace cc {
 namespace gfx {
 
-uint8_t const ThreadPool::kCpuCoreCount = std::thread::hardware_concurrency();
-uint8_t const ThreadPool::kMaxThreadCount = kCpuCoreCount - 1;
+uint32_t const ThreadPool::kCpuCoreCount = std::thread::hardware_concurrency();
+uint32_t const ThreadPool::kMaxThreadCount = kCpuCoreCount - 1;
 
 void ThreadPool::Start() noexcept
 {

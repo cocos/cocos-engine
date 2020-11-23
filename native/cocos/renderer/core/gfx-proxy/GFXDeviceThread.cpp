@@ -10,7 +10,7 @@ DeviceThread::DeviceThread(DeviceProxy *device) noexcept
 {
     mMainCommandEncoder = std::make_unique<CommandEncoder>();
 
-    uint8_t const commandBufferCount = false ? std::thread::hardware_concurrency() : 1;
+    uint32_t const commandBufferCount = false ? std::thread::hardware_concurrency() : 1u;
     mSubmitContexts.resize(commandBufferCount);
 
     for (auto& context : mSubmitContexts)

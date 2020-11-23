@@ -20,8 +20,8 @@ public:
 
     using Task                      = std::function<void()>;
 
-    static uint8_t const            kCpuCoreCount;
-    static uint8_t const            kMaxThreadCount;
+    static uint32_t const            kCpuCoreCount;
+    static uint32_t const kMaxThreadCount;
 
                                     ThreadPool() noexcept = default;
                                     ~ThreadPool() = default;
@@ -45,7 +45,7 @@ private:
     std::list<std::thread>          mWorkers        {};
     Event                           mEvent          {};
     std::atomic<bool>               mRunning        { false };
-    uint8_t                         mWorkerCount    { kMaxThreadCount };
+    uint32_t                        mWorkerCount    { kMaxThreadCount };
 };
 
 template <typename Function, typename... Args>

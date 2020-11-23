@@ -1580,11 +1580,9 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                         GL_CHECK(glDisable(GL_CULL_FACE));
                         cache->isCullFaceEnabled = false;
                     }
-                } break;
-                case CullMode::FRONT: {
-                    if (!cache->isCullFaceEnabled) {
-                        GL_CHECK(glEnable(GL_CULL_FACE));
-                        cache->isCullFaceEnabled = true;
+                    if (cache->dss.depthWrite != gpuPipelineState->dss.depthWrite) {
+                        glDepthMask(!!gpuPipelineState->dss.depthWrite);
+                        cache->dss.depthWrite = gpuPipelineState->dss.depthWrite;
                     }
                     GL_CHECK(glCullFace(GL_FRONT));
                 } break;
