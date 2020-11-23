@@ -279,7 +279,7 @@ export class Mask extends UIRenderable {
     public onDisable () {
         super.onDisable();
         this._disableGraphics();
-        view.off('design-resolution-changed', this._updateClearGraphics);
+        view.off('design-resolution-changed', this._updateClearGraphics, this);
     }
 
     public onDestroy () {
