@@ -576,7 +576,7 @@ export class Pass {
         // calculate total size required
         const blocks = this._shaderInfo.blocks;
         const tmplInfo = programLib.getTemplateInfo(info.program);
-        const { blockSizes, handleMap }= tmplInfo;
+        const { blockSizes, handleMap } = tmplInfo;
         const alignment = device.uboOffsetAlignment;
         const startOffsets: number[] = [];
         let lastSize = 0; let lastOffset = 0;
