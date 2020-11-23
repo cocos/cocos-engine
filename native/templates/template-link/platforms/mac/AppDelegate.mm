@@ -42,7 +42,8 @@
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
     delete _game;
-    [_window release];
+    //FIXME: will crash if relase it here.
+    // [_window release];
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication {
