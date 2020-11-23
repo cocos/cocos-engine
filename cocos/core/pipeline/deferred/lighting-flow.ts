@@ -109,7 +109,7 @@ export class LightingFlow extends RenderFlow {
 
         pipeline.descriptorSet.bindTexture(UNIFORM_LIGHTING_RESULTMAP_BINDING, this._lightingFrameBuffer!.colorTextures[0]!);
 
-        const copySamplerHash = genSamplerHash([
+        const samplerHash = genSamplerHash([
             Filter.LINEAR,
             Filter.LINEAR,
             Filter.NONE,
@@ -117,8 +117,8 @@ export class LightingFlow extends RenderFlow {
             Address.CLAMP,
             Address.CLAMP,
         ]);
-        const copySampler = samplerLib.getSampler(device, copySamplerHash);
-        pipeline.descriptorSet.bindSampler(UNIFORM_LIGHTING_RESULTMAP_BINDING, copySampler);
+        const sampler = samplerLib.getSampler(device, samplerHash);
+        pipeline.descriptorSet.bindSampler(UNIFORM_LIGHTING_RESULTMAP_BINDING, sampler);
     }
 
     public render (view: RenderView) {

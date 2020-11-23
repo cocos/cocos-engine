@@ -16,34 +16,34 @@ import { PipelineStateManager } from '../pipeline-state-manager';
 import { PipelineState } from '../../gfx/pipeline-state';
 
 const colors: Color[] = [ new Color(0, 0, 0, 1) ];
-const COPYPASS_INDEX = 0;
+const POSTPROCESSPASS_INDEX = 0;
 
 /**
- * @en The copy render stage
+ * @en The postprocess render stage
  * @zh 前向渲染阶段。
  */
-@ccclass('CopyStage')
-export class CopyStage extends RenderStage {
+@ccclass('PostprocessStage')
+export class PostprocessStage extends RenderStage {
 
     private _renderArea = new Rect();
 
     public static initInfo: IRenderStageInfo = {
-        name: 'CopyStage',
-        priority: DeferredStagePriority.COPY,
+        name: 'PostprocessStage',
+        priority: DeferredStagePriority.POSTPROCESS,
         tag: 0
     };
 
     @type(Material)
     @serializable
     @displayOrder(3)
-    private _copyMaterial: Material | null = null;
+    private _postprocessMaterial: Material | null = null;
 
     set material (val) {
-        if (this._copyMaterial === val) {
+        if (this._postprocessMaterial === val) {
             return
         }
 
-        this._copyMaterial = val;
+        this._postprocessMaterial = val;
     }
     
     constructor () {
@@ -83,9 +83,9 @@ export class CopyStage extends RenderStage {
 
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
-        // Copy
-        const pass = this._copyMaterial!.passes[COPYPASS_INDEX];
-        const shader = ShaderPool.get(this._copyMaterial!.passes[COPYPASS_INDEX].getShaderVariant());
+        // Postprocess
+        const pass = this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX];
+        const shader = ShaderPool.get(this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX].getShaderVariant());
 
         const inputAssembler = pipeline.quadIA;
         var pso:PipelineState|null = null;
