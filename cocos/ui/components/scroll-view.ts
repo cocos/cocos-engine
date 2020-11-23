@@ -876,8 +876,14 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 设置当前视图内容的坐标点。
      *
-     * @param position - 当前视图坐标点.
+     * @param position current content position.
+     * @deprecated Since 3.0, setContentPosition is deprecated, please use scrollToOffset instead.
      */
+    public setContentPosition (position: Vec3) {
+        _tempVec2A.set(position.x, position.y);
+        this._setContentPosition(_tempVec2A);
+    }
+
     protected _setContentPosition (position: Vec2) {
         if (!this._content) {
             return;
@@ -898,8 +904,13 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 获取当前视图内容的坐标点。
      *
-     * @returns - 当前视图内容的坐标点.
+     * @returns current content position.
+     * @deprecated Since 3.0, getContentPosition is deprecated.
      */
+    public getContentPosition () {
+        return this._getContentPosition();
+    }
+
     protected _getContentPosition () {
         if (!this._content){
             return ZERO;
