@@ -7,8 +7,8 @@
 namespace cc {
 namespace gfx {
 
-// ÓÉÓÚÏµÍ³µÄÄÚ´æ·ÖÅäÊÇ´ÓÒ»¸öÈ«¾Ö¶ÑÀïÉêÇë ·ÖÅä¹ı³Ì»áÉÏËøµ¼ÖÂ½µµÍ²¢ĞĞ¶È ÔÚ¶àÏß³ÌµÄ»·¾³ÏÂÈç¹ûÆµ·±µÄÉêÇëÊÍ·ÅÄÚ´æ»á½µµÍĞÔÄÜ
-// ËùÒÔÕâÀïÏÈ¼Ó¸ö½Ó¿ÚÀ´Í³Ò»µ÷ÓÃ Î´À´»á»»³Éµ¥¶À·şÎñÓÚÏß³ÌµÄÎŞËø·ÖÅäÆ÷
+// ç”±äºç³»ç»Ÿçš„å†…å­˜åˆ†é…æ˜¯ä»ä¸€ä¸ªå…¨å±€å †é‡Œç”³è¯· åˆ†é…è¿‡ç¨‹ä¼šä¸Šé”å¯¼è‡´é™ä½å¹¶è¡Œåº¦ åœ¨å¤šçº¿ç¨‹çš„ç¯å¢ƒä¸‹å¦‚æœé¢‘ç¹çš„ç”³è¯·é‡Šæ”¾å†…å­˜ä¼šé™ä½æ€§èƒ½
+// æ‰€ä»¥è¿™é‡Œå…ˆåŠ ä¸ªæ¥å£æ¥ç»Ÿä¸€è°ƒç”¨ æœªæ¥ä¼šæ¢æˆå•ç‹¬æœåŠ¡äºçº¿ç¨‹çš„æ— é”åˆ†é…å™¨
 template <typename T>
 inline T* MemoryAllocateForMultiThread(uint32_t const count) noexcept
 {
@@ -68,9 +68,9 @@ struct alignas(64) ReaderContext final
     bool                                    mFlushingFinished           { false };
 };
 
-// Ö§³Öµ¥Éú²úÕßµ¥Ïû·ÑÕßµÄ»·ĞÎ»º³åÇø
-// Éú²úÕßÏß³ÌAllocate Ïû·ÑÕßÏß³ÌExecute
-// ³ıÁËCommandÖ®Íâ Ö´ĞĞCommandĞèÒªµÄÊı¾İÒ²ĞèÒª¿½±´µ½ÕâÀï À´ÊµÏÖÏß³Ì°²È«µÄÊı¾İ·ÃÎÊ
+// æ”¯æŒå•ç”Ÿäº§è€…å•æ¶ˆè´¹è€…çš„ç¯å½¢ç¼“å†²åŒº
+// ç”Ÿäº§è€…çº¿ç¨‹Allocate æ¶ˆè´¹è€…çº¿ç¨‹Execute
+// é™¤äº†Commandä¹‹å¤– æ‰§è¡ŒCommandéœ€è¦çš„æ•°æ®ä¹Ÿéœ€è¦æ‹·è´åˆ°è¿™é‡Œ æ¥å®ç°çº¿ç¨‹å®‰å…¨çš„æ•°æ®è®¿é—®
 class alignas(64) CommandEncoder final
 {
 public:
@@ -82,12 +82,12 @@ public:
                                             CommandEncoder& operator=(CommandEncoder const&) = delete;
                                             CommandEncoder& operator=(CommandEncoder&&) = delete;
 
-    // ·ÖÅäCommand
+    // åˆ†é…Command
     template <typename T>
     std::enable_if_t<std::is_base_of<Command, T>::value, T*>
                                             Allocate(uint32_t const count) noexcept;
 
-    // ·ÖÅäÊı¾İ
+    // åˆ†é…æ•°æ®
     template <typename T>
     std::enable_if_t<! std::is_base_of<Command, T>::value, T*>
                                             Allocate(uint32_t const count) noexcept;
@@ -96,13 +96,13 @@ public:
     template <typename T>
     T*                                      AllocateAndZero(uint32_t const count) noexcept;
 
-    // Í¨ÖªÏû·ÑÕßÏß³Ì¿ªÊ¼¹¤×÷
+    // é€šçŸ¥æ¶ˆè´¹è€…çº¿ç¨‹å¼€å§‹å·¥ä½œ
     void                                    Kick() noexcept;
 
-    // Í¨ÖªÏû·ÑÕßÏß³Ì¿ªÊ¼¹¤×÷²¢×èÈûÉú²úÕßÏß³Ì Ö±µ½Ïû·ÑÕßÏß³ÌÖ´ĞĞÍêËùÓĞÃüÁî
+    // é€šçŸ¥æ¶ˆè´¹è€…çº¿ç¨‹å¼€å§‹å·¥ä½œå¹¶é˜»å¡ç”Ÿäº§è€…çº¿ç¨‹ ç›´åˆ°æ¶ˆè´¹è€…çº¿ç¨‹æ‰§è¡Œå®Œæ‰€æœ‰å‘½ä»¤
     void                                    KickAndWait() noexcept;
 
-    // Ö»Ö§³Öµ¥Ïû·ÑÕß
+    // åªæ”¯æŒå•æ¶ˆè´¹è€…
     void                                    RunConsumerThread() noexcept;
     void                                    TerminateConsumerThread() noexcept;
     void                                    FinishWriting(bool wait) noexcept;
@@ -141,7 +141,7 @@ private:
     uint8_t*                                AllocateImpl(uint32_t& allocatedSize, uint32_t const requestSize) noexcept;
     void                                    PushCommands() noexcept;
 
-    // ÔÚÏû·ÑÕßÏß³ÌÖ´ĞĞ
+    // åœ¨æ¶ˆè´¹è€…çº¿ç¨‹æ‰§è¡Œ
     void                                    PullCommands() noexcept;
     void                                    FlushCommands() noexcept;
     void                                    ExecuteCommand() noexcept;
@@ -154,7 +154,7 @@ private:
     EventCV                                 mN;
     bool                                    mImmediateMode      { true };
     bool                                    mWorkerAttached     { false };
-    bool                                    mFreeChunksByUser   { false };   // ±»»ØÊÕµÄChunk»á±»¼ÇÂ¼µ½Ò»¸ö¶ÓÁĞÀï ÓÉÓÃ»§ÔÚÉú²úÕßÏß³ÌÑ¡ÔñºÏÊÊµÄÊ±»úÀ´Free
+    bool                                    mFreeChunksByUser   { false };   // è¢«å›æ”¶çš„Chunkä¼šè¢«è®°å½•åˆ°ä¸€ä¸ªé˜Ÿåˆ—é‡Œ ç”±ç”¨æˆ·åœ¨ç”Ÿäº§è€…çº¿ç¨‹é€‰æ‹©åˆé€‚çš„æ—¶æœºæ¥Free
 
     friend class MemoryChunkSwitchCommand;
 };
@@ -224,7 +224,7 @@ T* CommandEncoder::AllocateAndZero(uint32_t const count) noexcept
     return allocatedMemory;
 }
 
-// Éú²úÕßÏß³ÌÓÃÀ´ÏòCommandBufferÌî³äCommandµÄ¹¤¾ßºê
+// ç”Ÿäº§è€…çº¿ç¨‹ç”¨æ¥å‘CommandBufferå¡«å……Commandçš„å·¥å…·å®
 
 #define WRITE_COMMAND(CB, CommandName, Params)                      \
     {                                                               \
