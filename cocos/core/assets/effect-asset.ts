@@ -28,7 +28,7 @@
  * @module material
  */
 
-import { ccclass, serializable, editable } from 'cc.decorator';
+import { ccclass, serializable, editable, editorOnly } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Root } from '../root';
 import { BlendState, DepthStencilState, RasterizerState, DescriptorType,
@@ -191,6 +191,10 @@ export class EffectAsset extends Asset {
     @serializable
     @editable
     public combinations: IPreCompileInfo[] = [];
+
+    @serializable
+    @editorOnly
+    public hideInEditor = false;
 
     /**
      * @en The loaded callback which should be invoked by the [[Loader]], will automatically register the effect.
