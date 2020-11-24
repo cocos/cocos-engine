@@ -3,6 +3,9 @@
 #include "GFXProxy.h"
 #include "GFXDeviceThread.h"
 #include "../gfx/GFXDevice.h"
+#include "../thread/Semaphore.h"
+
+#define MAX_CPU_FRAME_AHEAD 2
 
 namespace cc {
 namespace gfx {
@@ -65,6 +68,7 @@ protected:
     friend class DeviceThread;
 
     std::unique_ptr<DeviceThread> _thread{};
+    Semaphore _frameBoundarySemaphore {MAX_CPU_FRAME_AHEAD};
 };
 
 } // namespace gfx
