@@ -79,6 +79,14 @@ void ForwardPipeline::setShadows(uint shadows) {
     _shadows = GET_SHADOWS(shadows);
 }
 
+void ForwardPipeline::destroyShadowFrameBuffers() {
+    for (auto &pair : _shadowFrameBufferMap) {
+        pair.second->destroy();
+        delete pair.second;
+    }
+    _shadowFrameBufferMap.clear();
+}
+
 bool ForwardPipeline::initialize(const RenderPipelineInfo &info) {
     RenderPipeline::initialize(info);
 
@@ -163,7 +171,7 @@ void ForwardPipeline::updateUBOs(RenderView *view) {
 
         Mat4 matShadowViewProj;
         const auto projectionSinY = device->getScreenSpaceSignY() * device->getUVSpaceSignY();
-        Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, shadowInfo->farValue, device->getClipSpaceMinZ(), projectionSinY, &matShadowViewProj);    
+        Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, shadowInfo->farValue, device->getClipSpaceMinZ(), projectionSinY, &matShadowViewProj);
 
         matShadowViewProj.multiply(matShadowView);
         float shadowInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, (float)shadowInfo->pcfType, shadowInfo->bias};

@@ -1535,17 +1535,11 @@ CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, Rend
     return static_cast<CCMTLPipelineState *>(pipelineState)->getGPUPipelineState();
 }
 
-void clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer, RenderPass *renderPass, const Rect &renderArea, const Color *colors, float depth, int stencil, bool &hasSubRegionCleared) {
+void clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer, RenderPass *renderPass, const Rect &renderArea, const Color *colors, float depth, int stencil) {
     const auto gpuPSO = getClearRenderPassPipelineState(device, renderPass);
     const auto mtlRenderPass = static_cast<CCMTLRenderPass *>(renderPass);
     uint slot = 0u;
     MTLRenderPassDescriptor *renderPassDescriptor = mtlRenderPass->getMTLRenderPassDescriptor();
-    if (!hasSubRegionCleared) {
-        renderPassDescriptor.colorAttachments[slot].loadAction = MTLLoadActionClear;
-        renderPassDescriptor.colorAttachments[slot].clearColor = toMTLClearColor(colors[0]);
-        renderPassDescriptor.depthAttachment.clearDepth = depth;
-        renderPassDescriptor.stencilAttachment.clearStencil = stencil;
-    }
     const auto &renderTargetSizes = mtlRenderPass->getRenderTargetSizes();
     float renderTargetWidth = renderTargetSizes[slot].x;
     float renderTargetHeight = renderTargetSizes[slot].y;
@@ -1600,10 +1594,7 @@ void clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer, Re
                       vertexCount:count];
 
     [renderEncoder endEncoding];
-    if (!hasSubRegionCleared) {
-        hasSubRegionCleared = true;
-        renderPassDescriptor.colorAttachments[slot].loadAction = MTLLoadActionLoad;
-    }
+    renderPassDescriptor.colorAttachments[slot].loadAction = MTLLoadActionLoad;
 }
 
 } //namespace mu

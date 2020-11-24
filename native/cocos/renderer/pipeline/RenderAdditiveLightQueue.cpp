@@ -321,12 +321,16 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const RenderView *view, 
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &shadowInfo->color, sizeof(Vec4));
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_INFO_OFFSET, &shadowInfos, sizeof(shadowInfos));
                 // Spot light sampler binding
-                auto *texture = _pipeline->getShadowFramebuffer().at(light)->getColorTextures()[0];
-                if (texture) {
-                    descriptorSet->bindTexture(SPOT_LIGHTING_MAP::BINDING, texture);
-                } else {
-                    descriptorSet->bindTexture(SPOT_LIGHTING_MAP::BINDING, _pipeline->getDefaultTexture());
+                const auto &shadowFramebufferMap = _pipeline->getShadowFramebufferMap();
+                if (shadowFramebufferMap.count(light) > 0) {
+                    auto *texture = shadowFramebufferMap.at(light)->getColorTextures()[0];
+                    if (texture) {
+                        descriptorSet->bindTexture(SPOT_LIGHTING_MAP::BINDING, texture);
+                    } else {
+                        descriptorSet->bindTexture(SPOT_LIGHTING_MAP::BINDING, _pipeline->getDefaultTexture());
+                    }
                 }
+                
             } break;
             case LightType::SPHERE: {
                 // Reserve sphere light shadow interface

@@ -76,24 +76,23 @@ void CCMTLCommandBuffer::end() {
     }];
     [_mtlCommandBuffer commit];
     _commandBufferBegan = false;
-    _hasSubRegionCleared = false;
 }
 
-bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect) {
-    return rect.x == 0 && rect.y == 0 && rect.width == _mtkView.drawableSize.width && rect.height == _mtkView.drawableSize.height;
+bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass) {
+    const auto &renderTargetSize = renderPass->getRenderTargetSizes()[0];
+    return rect.x == 0 && rect.y == 0 && rect.width == renderTargetSize.x && rect.height == renderTargetSize.y;
 }
 
 void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil) {
-
     auto isOffscreen = static_cast<CCMTLFramebuffer *>(fbo)->isOffscreen();
-    if (!isOffscreen) {
+    if (! isOffscreen) {
         static_cast<CCMTLRenderPass *>(renderPass)->setColorAttachment(0, _mtkView.currentDrawable.texture, 0);
         static_cast<CCMTLRenderPass *>(renderPass)->setDepthStencilAttachment(_mtkView.depthStencilTexture, 0);
     }
     MTLRenderPassDescriptor *mtlRenderPassDescriptor = static_cast<CCMTLRenderPass *>(renderPass)->getMTLRenderPassDescriptor();
-    if (!isRenderingEntireDrawable(renderArea)) {
+    if (!isRenderingEntireDrawable(renderArea, static_cast<CCMTLRenderPass *>(renderPass))) {
         //Metal doesn't apply the viewports and scissors to renderpass load-action clearing.
-        mu::clearRenderArea(_mtlDevice, _mtlCommandBuffer, renderPass, renderArea, colors, depth, stencil, _hasSubRegionCleared);
+        mu::clearRenderArea(_mtlDevice, _mtlCommandBuffer, renderPass, renderArea, colors, depth, stencil);
     } else {
         const auto &colorAttachments = renderPass->getColorAttachments();
         const auto colorAttachmentCount = colorAttachments.size();

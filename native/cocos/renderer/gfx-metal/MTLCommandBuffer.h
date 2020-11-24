@@ -14,6 +14,7 @@ struct CCMTLGPUPipelineState;
 struct CCMTLGPUBuffer;
 class CCMTLInputAssembler;
 class CCMTLDevice;
+class CCMTLRenderPass;
 
 class CCMTLCommandBuffer : public CommandBuffer {
     friend class CCMTLQueue;
@@ -47,7 +48,7 @@ public:
 
 private:
     void bindDescriptorSets();
-    bool isRenderingEntireDrawable(const Rect &rect);
+    bool isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass);
 
 private:
     CCMTLGPUPipelineState *_gpuPipelineState = nullptr;
@@ -62,7 +63,6 @@ private:
     vector<vector<uint>> _dynamicOffsets;
     uint _firstDirtyDescriptorSet = UINT_MAX;
 
-    bool _hasSubRegionCleared = false;
     bool _indirectDrawSuppotred = false;
     bool _commandBufferBegan = false;
     CCMTLDevice *_mtlDevice = nullptr;

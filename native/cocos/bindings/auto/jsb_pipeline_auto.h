@@ -43,7 +43,6 @@ SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_setFog);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_getSphere);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_setRenderObjects);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_setShadows);
-SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_getShadowFramebuffer);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_setSkybox);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_setAmbient);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_ForwardPipeline);

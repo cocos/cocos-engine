@@ -47,12 +47,13 @@ void ShadowFlow::render(RenderView *view) {
     lightCollecting(view, _validLights);
     shadowCollecting(pipeline, view);
 
+    const auto &shadowFramebufferMap = pipeline->getShadowFramebufferMap();
     for (const auto *light : _validLights) {
-        if (!pipeline->getShadowFramebuffer().count(light)) {
+        if (!shadowFramebufferMap.count(light)) {
             initShadowFrameBuffer(pipeline, light);
         }
 
-        auto *shadowFrameBuffer = pipeline->getShadowFramebuffer().at(light);
+        auto *shadowFrameBuffer = shadowFramebufferMap.at(light);
         if (shadowInfo->shadowMapDirty) {
             resizeShadowMap(light, (uint)shadowInfo->size.x, (uint)shadowInfo->size.y);
         }
@@ -67,8 +68,8 @@ void ShadowFlow::render(RenderView *view) {
 void ShadowFlow::resizeShadowMap(const Light *light, const uint width, const uint height) const {
     auto *pipeline = static_cast<ForwardPipeline *>(_pipeline);
 
-    if (pipeline->getShadowFramebuffer().count(light)) {
-        auto *framebuffer = pipeline->getShadowFramebuffer().at(light);
+    if (pipeline->getShadowFramebufferMap().count(light)) {
+        auto *framebuffer = pipeline->getShadowFramebufferMap().at(light);
 
         if (!framebuffer) {
             return;
@@ -147,7 +148,7 @@ void ShadowFlow::initShadowFrameBuffer(ForwardPipeline *pipeline, const Light *l
         {}, //colorMipmapLevels
     });
 
-    pipeline->getShadowFramebuffer().emplace(map<const Light *, gfx::Framebuffer *>::value_type(light, framebuffer));
+    pipeline->setShadowFramebuffer(light, framebuffer);
 
     gfx::SamplerInfo info{
         gfx::Filter::LINEAR,
@@ -176,22 +177,12 @@ void ShadowFlow::initShadowFrameBuffer(ForwardPipeline *pipeline, const Light *l
 }
 
 void ShadowFlow::destroy() {
-    auto *pipeline = static_cast<ForwardPipeline *>(_pipeline);
-    for (auto &pair : pipeline->getShadowFramebuffer()) {
+    static_cast<ForwardPipeline *>(_pipeline)->destroyShadowFrameBuffers();
 
-        auto &renderTargets = pair.second->getColorTextures();
-        for (auto *renderTarget : renderTargets) {
-            CC_SAFE_DELETE(renderTarget);
-        }
-
-        auto *depth = pair.second->getDepthStencilTexture();
-        CC_SAFE_DELETE(depth);
-
-        pair.second->destroy();
-        CC_SAFE_DESTROY(pair.second);
+    if (_renderPass) {
+        _renderPass->destroy();
+        _renderPass = nullptr;
     }
-
-    CC_SAFE_DESTROY(_renderPass);
 
     _validLights.clear();
 

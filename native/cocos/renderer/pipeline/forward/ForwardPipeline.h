@@ -34,9 +34,10 @@ public:
     void setAmbient(uint);
     void setSkybox(uint);
     void setShadows(uint);
+    void destroyShadowFrameBuffers();
 
-    std::unordered_map<const Light *, gfx::Framebuffer *> &getShadowFramebuffer() { return _shadowFrameBufferMap; }
-
+    CC_INLINE void setShadowFramebuffer(const Light *light, gfx::Framebuffer *framebuffer) { _shadowFrameBufferMap.emplace(light, framebuffer); }
+    CC_INLINE const std::unordered_map<const Light *, gfx::Framebuffer *> &getShadowFramebufferMap() const { return _shadowFrameBufferMap; }
     CC_INLINE gfx::Buffer *getLightsUBO() const { return _lightsUBO; }
     CC_INLINE const LightList &getValidLights() const { return _validLights; }
     CC_INLINE const gfx::BufferList &getLightBuffers() const { return _lightBuffers; }
