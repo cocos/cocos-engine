@@ -435,7 +435,7 @@ async function _doBuild ({
         cache: false,
     };
 
-    const ammoJsAsmJsModule = await nodeResolveAsync('@cocos/ammo/builds/ammo.full.js');
+    const ammoJsAsmJsModule = await nodeResolveAsync('@cocos/ammo/builds/ammo.js');
     const ammoJsWasmModule = await nodeResolveAsync('@cocos/ammo/builds/ammo.wasm.js');
     if (ammoJsWasm === 'fallback') {
         rpVirtualOptions['@cocos/ammo'] = `
@@ -454,7 +454,7 @@ export { isWasm };
         rpVirtualOptions['@cocos/ammo'] = `
 import Ammo from '${filePathToModuleRequest(ammoJsWasmModule)}';
 export default Ammo;
-const isWasm = false;
+const isWasm = true;
 export { isWasm };
 `;
     }
