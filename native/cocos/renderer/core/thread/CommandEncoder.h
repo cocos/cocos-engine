@@ -112,6 +112,10 @@ public:
 
     void                                    RecycleMemoryChunk(uint8_t* const chunk) const noexcept;
     static void                             FreeChunksInFreeQueue() noexcept;
+    
+    inline int                              GetPendingCommandCount() const noexcept { return mW.mPendingCommandCount; }
+    inline int                              GetWrittenCommandCount() const noexcept { return mW.mWrittenCommandCount; }
+    inline int                              GetNewCommandCount() const noexcept { return mR.mNewCommandCount; }
 
 private:
 
