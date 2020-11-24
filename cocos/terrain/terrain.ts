@@ -198,6 +198,14 @@ class TerrainRenderable extends RenderableComponent {
         return super.destroy();
     }
 
+    public _destroyModel () {
+        // this._invalidMaterial();
+        if (this._model != null) {
+            legacyCC.director.root.destroyModel(this._model);
+            this._model = null;
+        }
+    }
+
     public _invalidMaterial () {
         if (this._currentMaterial == null) {
             return;
@@ -399,6 +407,8 @@ export class TerrainBlock {
     }
 
     public destroy () {
+        this._renderable._destroyModel();
+
         if (this._node != null) {
             this._node.destroy();
         }
@@ -1228,6 +1238,11 @@ export class Terrain extends Component {
     }
 
     public onDestroy () {
+        for (const i of this._blocks) {
+            i.destroy();
+        }
+        this._blocks = [];
+
         for (let i = 0; i < this._layers.length; ++i) {
             this._layers[i] = null;
         }
