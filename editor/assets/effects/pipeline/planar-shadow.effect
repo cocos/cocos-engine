@@ -29,6 +29,7 @@ CCProgram planar-shadow-vs %{
   #include <cc-global>
   #include <cc-local-batch>
   #include <cc-shadow>
+  #include <cc-forward-light>
 
   vec4 vert () {
     vec4 position;
