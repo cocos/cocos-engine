@@ -29,9 +29,9 @@
  * @module ui
  */
 
-import { ccclass, help, executionOrder, menu, tooltip, type, visible, override, editable, serializable } from 'cc.decorator';
 import { builtinResMgr } from '../../core/3d/builtin';
 import { InstanceMaterialType, UIRenderable } from '../../core/components/ui-base/ui-renderable';
+import { ccclass, help, executionOrder, menu, tooltip, type, visible, override, editable, serializable } from 'cc.decorator';
 import { director } from '../../core/director';
 import { Color } from '../../core/math';
 import { IMaterialInstanceInfo, MaterialInstance, scene } from '../../core/renderer';
@@ -68,6 +68,7 @@ const stride = getAttributeStride(attributes);
 @executionOrder(110)
 @menu('UI/Render/Graphics')
 export class Graphics extends UIRenderable {
+
     /**
      * @en
      * Current line width.
@@ -81,7 +82,7 @@ export class Graphics extends UIRenderable {
     }
     set lineWidth (value) {
         this._lineWidth = value;
-        if (!this.impl) {
+        if (!this.impl){
             return;
         }
 
@@ -168,7 +169,7 @@ export class Graphics extends UIRenderable {
     }
 
     set fillColor (value) {
-        if (!this.impl) {
+        if (!this.impl){
             return;
         }
 
@@ -246,7 +247,7 @@ export class Graphics extends UIRenderable {
 
     protected _isDrawing = false;
 
-    constructor () {
+    constructor (){
         super();
         this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
     }
@@ -257,11 +258,11 @@ export class Graphics extends UIRenderable {
         }
     }
 
-    public __preload () {
+    public __preload (){
         super.__preload();
 
         // this._flushAssembler();
-        this.impl = this._assembler && (this._assembler).createImpl!(this);
+        this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
     }
 
     public onLoad () {
@@ -269,9 +270,9 @@ export class Graphics extends UIRenderable {
         this.model = director.root!.createModel(scene.Model);
         this.model.node = this.model.transform = this.node;
 
-        if (!this.impl) {
+        if (!this.impl){
             this._flushAssembler();
-            this.impl = this._assembler && (this._assembler).createImpl!(this);
+            this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
         }
     }
 
@@ -280,7 +281,7 @@ export class Graphics extends UIRenderable {
         this._updateMtlForGraphics();
     }
 
-    public onDisable () {
+    public onDisable (){
         super.onDisable();
         this._detachFromScene();
     }
@@ -619,13 +620,10 @@ export class Graphics extends UIRenderable {
     }
 
     protected _render (render: UI) {
-        if (this._assembler && this._assembler.uploadData) {
-            this._assembler.uploadData(this);
-        }
         render.commitModel(this, this.model, this.getMaterialInstance(0));
     }
 
-    protected _flushAssembler () {
+    protected _flushAssembler (){
         const assembler = Graphics.Assembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {
@@ -633,8 +631,8 @@ export class Graphics extends UIRenderable {
         }
     }
 
-    protected _canRender () {
-        if (!super._canRender()) {
+    protected _canRender (){
+        if (!super._canRender()){
             return false;
         }
 
@@ -643,14 +641,14 @@ export class Graphics extends UIRenderable {
 
     protected _attachToScene () {
         const renderScene = director.root!.ui.renderScene;
-        if (!this.model || this.model.scene === renderScene) {
+        if (!this.model || this.model!.scene === renderScene) {
             return;
         }
 
-        if (this.model.scene !== null) {
+        if (this.model!.scene !== null) {
             this._detachFromScene();
         }
-        renderScene.addModel(this.model);
+        renderScene.addModel(this.model!);
     }
 
     protected _detachFromScene () {
