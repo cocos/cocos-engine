@@ -33,6 +33,23 @@
         
     _game = new Game(rect.size.width, rect.size.height);
     _game->init();
+
+    [[NSNotificationCenter defaultCenter] addObserver:self 
+        selector:@selector(windowWillMiniaturizeNotification)name:NSWindowWillMiniaturizeNotification 
+        object:_window];
+    [[NSNotificationCenter defaultCenter] addObserver:self 
+        selector:@selector(windowDidDeminiaturizeNotification)name:NSWindowDidDeminiaturizeNotification 
+        object:_window];
+}
+
+- (void)windowWillMiniaturizeNotification
+{
+    _game->onPause();
+}
+
+- (void)windowDidDeminiaturizeNotification
+{
+    _game->onResume();
 }
 
 - (NSWindow*)getWindow

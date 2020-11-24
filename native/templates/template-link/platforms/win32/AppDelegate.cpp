@@ -133,6 +133,8 @@ void AppDelegage::start()
     {
         desiredInterval = (LONGLONG)(1.0 / _game->getPreferredFramesPerSecond() * nFreq.QuadPart);
         
+        resume = false;
+        pause = false;
         while (_view->pollEvent(&_quit, &resume, &pause)) {}
 
         if(pause) _game->onPause();

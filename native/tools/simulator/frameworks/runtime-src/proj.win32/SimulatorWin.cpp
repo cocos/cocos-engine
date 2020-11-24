@@ -559,6 +559,8 @@ int SimulatorWin::run()
     {
         desiredInterval = (LONGLONG)(1.0 / _app->getPreferredFramesPerSecond() * nFreq.QuadPart);
 
+        resume = false;
+        pause = false;
         while (_view->pollEvent(&_quit, &resume, &pause)) {}
 
         if (pause) _app->onPause();

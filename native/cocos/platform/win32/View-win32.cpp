@@ -157,8 +157,6 @@ bool View::pollEvent(bool * quit, bool *resume, bool *pause)
 {
     int cnt = SDL_PollEvent(&sdlEvent);
     if (cnt == 0) return false;
-    *resume = false;
-    *pause = false;
     cc::TouchEvent  touch;
     cc::MouseEvent mouse;
     cc::KeyboardEvent  keyboard;
@@ -182,6 +180,7 @@ bool View::pollEvent(bool * quit, bool *resume, bool *pause)
             cc::EventDispatcher::dispatchResizeEvent(wevent.data1, wevent.data2);
             break;
         case SDL_WINDOWEVENT_HIDDEN:
+        case SDL_WINDOWEVENT_MINIMIZED:
             *pause = true;
             break;
         case SDL_WINDOWEVENT_ENTER:
