@@ -19,14 +19,13 @@ class CC_DLL DeviceThread final
 {
 public:
 
-    explicit                                DeviceThread(DeviceProxy *device) noexcept;
+    explicit                                DeviceThread() noexcept;
                                             ~DeviceThread();
 
+    void                                    InitSubmitContexts(DeviceProxy *device);
     void                                    Run() noexcept;
     void                                    Terminate() noexcept;
     inline CommandEncoder*                  GetMainCommandEncoder() const noexcept { return mMainCommandEncoder.get(); }
-
-    void                                    InitCommandBuffers(DeviceProxy *device) noexcept;
 private:
 
     std::unique_ptr<CommandEncoder>         mMainCommandEncoder  {};

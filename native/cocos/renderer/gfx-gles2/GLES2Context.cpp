@@ -261,7 +261,7 @@ bool GLES2Context::initialize(const ContextInfo &info) {
 
         _eglSharedContext = _eglContext;
 
-    #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
         EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [=](const CustomEvent &) -> void {
             if (_eglSurface != EGL_NO_SURFACE) {
                 eglDestroySurface(_eglDisplay, _eglSurface);
@@ -281,15 +281,15 @@ bool GLES2Context::initialize(const ContextInfo &info) {
             uint height = _device->getHeight();
             ANativeWindow_setBuffersGeometry((ANativeWindow *)_windowHandle, width, height, nFmt);
 
-            EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, NULL));
+            _eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, NULL);
             if (_eglSurface == EGL_NO_SURFACE) {
                 CC_LOG_ERROR("Recreate window surface failed.");
                 return;
             }
 
-            ((GLES2Context *)_device->getContext())->MakeCurrent();
+            ((GLES2Context*)_device->getContext())->MakeCurrent();
         });
-    #endif
+#endif
 
     } else {
         GLES2Context *sharedCtx = (GLES2Context *)info.sharedCtx;
@@ -305,8 +305,6 @@ bool GLES2Context::initialize(const ContextInfo &info) {
         _depthStencilFmt = sharedCtx->getDepthStencilFormat();
         _majorVersion = sharedCtx->major_ver();
         _minorVersion = sharedCtx->minor_ver();
-        _extensions = sharedCtx->_extensions;
-        _isInitialized = sharedCtx->_isInitialized;
 
         bool hasKHRCreateCtx = CheckExtension(CC_TOSTR(EGL_KHR_create_context));
         if (!hasKHRCreateCtx) {
@@ -342,7 +340,8 @@ bool GLES2Context::initialize(const ContextInfo &info) {
         }
     }
 
-    return true;
+    return MakeCurrent();
+
 }
 
 void GLES2Context::destroy() {
@@ -372,12 +371,11 @@ void GLES2Context::destroy() {
 }
 
 bool GLES2Context::MakeCurrentImpl(bool bound) {
-    bool succeeded;
-    EGL_CHECK(succeeded = eglMakeCurrent(_eglDisplay,
-                                         bound ? _eglSurface : EGL_NO_SURFACE,
-                                         bound ? _eglSurface : EGL_NO_SURFACE,
-                                         bound ? _eglContext : EGL_NO_CONTEXT));
-    return succeeded;
+    return eglMakeCurrent(_eglDisplay,
+        bound ? _eglSurface : EGL_NO_SURFACE,
+        bound ? _eglSurface : EGL_NO_SURFACE,
+        bound ? _eglContext : EGL_NO_CONTEXT
+    );
 }
 
 void GLES2Context::present() {
@@ -388,7 +386,6 @@ void GLES2Context::present() {
 
 bool GLES2Context::MakeCurrent(bool bound) {
     if (!bound) {
-        CC_LOG_DEBUG("eglMakeCurrent() - UNBOUNDED, Context: 0x%p", this);
         return MakeCurrentImpl(false);
     }
 

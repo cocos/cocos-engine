@@ -21,7 +21,7 @@ uint8_t* CommandEncoder::MemoryAllocator::Request() noexcept
 {
     uint8_t* newChunk = nullptr;
 
-    if (mChunkPool.pop(newChunk))
+    if (mChunkPool.try_dequeue(newChunk))
     {
         mChunkCount.fetch_sub(1, std::memory_order_acq_rel);
     }
@@ -37,12 +37,31 @@ void CommandEncoder::MemoryAllocator::Recycle(uint8_t* const chunk, bool const f
 {
     if (freeByUser)
     {
-        mChunkFreeQueue.push(chunk);
+        mChunkFreeQueue.enqueue(chunk);
     }
     else
     {
         Free(chunk);
     }
+}
+
+void CommandEncoder::MemoryAllocator::FreeByUser(CommandEncoder* const mainCommandbuffer) noexcept
+{
+    auto queue = &mChunkFreeQueue;
+
+    ENCODE_COMMAND_1(
+            mainCommandbuffer, FreeChunksInFreeQueue,
+            queue, queue,
+            {
+                uint8_t* chunk = nullptr;
+
+                while(queue->try_dequeue(chunk))
+                {
+                    CommandEncoder::MemoryAllocator::GetInstance().Free(chunk);
+                }
+            });
+
+    mainCommandbuffer->Kick();
 }
 
 void CommandEncoder::MemoryAllocator::Free(uint8_t* const chunk) noexcept
@@ -53,13 +72,16 @@ void CommandEncoder::MemoryAllocator::Free(uint8_t* const chunk) noexcept
     }
     else
     {
-        mChunkPool.push(chunk);
+        mChunkPool.enqueue(chunk);
         mChunkCount.fetch_add(1, std::memory_order_acq_rel);
     }
 }
 
 CommandEncoder::CommandEncoder()
 {
+//    mImmediateMode = true;
+    mFreeChunksByUser = false;
+
     uint8_t* const chunk = MemoryAllocator::GetInstance().Request();
 
     mW.mCurrentMemoryChunk = chunk;
@@ -82,14 +104,13 @@ void CommandEncoder::Kick() noexcept
 void CommandEncoder::KickAndWait() noexcept
 {
     EventSem event;
-    EventSem *const pEvent = &event;
+    EventSem* const pEvent = &event;
 
-    ENCODE_COMMAND_1(
-        this, WaitUntilFinish,
-        pEvent, pEvent,
-        {
-            pEvent->Signal();
-        });
+    ENCODE_COMMAND_1(this, WaitUntilFinish,
+            pEvent, pEvent,
+            {
+                pEvent->Signal();
+            });
 
     Kick();
     event.Wait();
@@ -102,7 +123,7 @@ void CommandEncoder::RunConsumerThread() noexcept
         return;
     }
 
-    std::thread consumerThread(&CommandEncoder::ConsumerThreadLoop, this);
+    std::thread consumerThread(std::bind(&CommandEncoder::ConsumerThreadLoop, this));
     consumerThread.detach();
     mWorkerAttached = true;
 }
@@ -132,19 +153,19 @@ void CommandEncoder::TerminateConsumerThread() noexcept
     event.Wait();
 }
 
-void CommandEncoder::FinishWriting(bool wait) noexcept
+void CommandEncoder::FinishWriting() noexcept
 {
     if (!mImmediateMode)
     {
         bool* const flushingFinished = &mR.mFlushingFinished;
 
         ENCODE_COMMAND_1(this, FinishWriting,
-                         flushingFinished, flushingFinished,
-                         {
-                             *flushingFinished = true;
-                         });
+                flushingFinished, flushingFinished,
+                {
+                    *flushingFinished = true;
+                });
 
-        wait ? KickAndWait() : Kick();
+        Kick();
     }
 }
 
@@ -153,9 +174,9 @@ void CommandEncoder::RecycleMemoryChunk(uint8_t* const chunk) const noexcept
     CommandEncoder::MemoryAllocator::GetInstance().Recycle(chunk, mFreeChunksByUser);
 }
 
-void CommandEncoder::FreeChunksInFreeQueue() noexcept
+void CommandEncoder::FreeChunksInFreeQueue(CommandEncoder* const mainCommandbuffer) noexcept
 {
-    // TODO
+    CommandEncoder::MemoryAllocator::GetInstance().FreeByUser(mainCommandbuffer);
 }
 
 uint8_t* CommandEncoder::AllocateImpl(uint32_t& allocatedSize, uint32_t const requestSize) noexcept
@@ -190,6 +211,7 @@ uint8_t* CommandEncoder::AllocateImpl(uint32_t& allocatedSize, uint32_t const re
         {
             PushCommands();
             PullCommands();
+            assert(mR.mNewCommandCount == 2);
             ExecuteCommand();
             ExecuteCommand();
         }
@@ -252,12 +274,13 @@ Command* CommandEncoder::ReadCommand() noexcept
     Command* const cmd = mR.mLastCommand->GetNext();
     mR.mLastCommand = cmd;
     --mR.mNewCommandCount;
+    assert(cmd);
     return cmd;
 }
 
 void CommandEncoder::ConsumerThreadLoop() noexcept
 {
-    while (!mR.mTerminateConsumerThread)
+    while (! mR.mTerminateConsumerThread)
     {
         FlushCommands();
     }

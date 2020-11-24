@@ -628,24 +628,32 @@ private:
 constexpr size_t chunkSize = 32 * 1024 * 1024; // 32M per block by default
 class CCVKGPUStagingBufferPool final : public Object {
 public:
-    CCVKGPUStagingBufferPool(CCVKGPUDevice *device)
+    CCVKGPUStagingBufferPool(CCVKGPUDevice *device, CCVKGPUSwapchain *gpuSwapchain)
     : _device(device) {
+        _pools.resize(gpuSwapchain->swapchainImages.size());
+        _gpuSwapchain = gpuSwapchain;
     }
 
     ~CCVKGPUStagingBufferPool() {
-        for (Buffer &buffer : _pool) {
-            vmaDestroyBuffer(_device->memoryAllocator, buffer.vkBuffer, buffer.vmaAllocation);
+        for (vector<Buffer> &pool : _pools) {
+            for (Buffer &buffer : pool) {
+                vmaDestroyBuffer(_device->memoryAllocator, buffer.vkBuffer, buffer.vmaAllocation);
+            }
+            pool.clear();
         }
-        _pool.clear();
+        _pools.clear();
     }
 
     CC_INLINE void alloc(CCVKGPUBuffer *gpuBuffer) { alloc(gpuBuffer, 1u); }
     void alloc(CCVKGPUBuffer *gpuBuffer, uint alignment) {
-        size_t bufferCount = _pool.size();
+        uint index = _gpuSwapchain->curImageIndex;
+        vector<Buffer> &pool = _pools[index];
+
+        size_t bufferCount = pool.size();
         Buffer *buffer = nullptr;
         VkDeviceSize offset = 0u;
         for (size_t idx = 0u; idx < bufferCount; idx++) {
-            Buffer *cur = &_pool[idx];
+            Buffer *cur = &pool[idx];
             offset = roundUp(cur->curOffset, alignment);
             if (chunkSize - offset >= gpuBuffer->size) {
                 buffer = cur;
@@ -653,8 +661,8 @@ public:
             }
         }
         if (!buffer) {
-            _pool.resize(bufferCount + 1);
-            buffer = &_pool.back();
+            pool.resize(bufferCount + 1);
+            buffer = &pool.back();
             VkBufferCreateInfo bufferInfo{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
             bufferInfo.size = chunkSize;
             bufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
@@ -673,7 +681,10 @@ public:
     }
 
     void reset() {
-        for (Buffer &buffer : _pool) {
+        uint index = _gpuSwapchain->curImageIndex;
+        vector<Buffer> &pool = _pools[index];
+
+        for (Buffer &buffer : pool) {
             buffer.curOffset = 0u;
         }
     }
@@ -688,7 +699,8 @@ private:
     };
 
     CCVKGPUDevice *_device = nullptr;
-    vector<Buffer> _pool;
+    vector<vector<Buffer>> _pools;
+    CCVKGPUSwapchain *_gpuSwapchain;
 };
 
 /**
@@ -880,59 +892,9 @@ private:
     }
 
     CCVKGPUDevice *_device = nullptr;
-    vector<unordered_set<CCVKGPUDescriptorSet *>> _setsToBeUpdated;
-};
-
-/**
- * Manages buffer update events, across all back buffer instances.
- */
-class CCVKGPUBufferHub final : public Object {
-public:
-    CCVKGPUBufferHub(CCVKGPUDevice *device)
-    : _device(device) {
-        _buffersToBeUpdated.resize(device->backBufferCount);
-    }
-
-    void record(CCVKGPUBuffer *gpuBuffer, const void *src, size_t size) {
-        src = update(gpuBuffer, src, size); // copy from self afterwards
-        for (uint i = 0u; i < _device->backBufferCount; ++i) {
-            if (i == _device->curBackBufferIndex) {
-                _buffersToBeUpdated[i].erase(gpuBuffer);
-            } else {
-                _buffersToBeUpdated[i][gpuBuffer] = {src, size};
-            }
-        }
-    }
-
-    void erase(CCVKGPUBuffer *gpuBuffer) {
-        for (uint i = 0u; i < _device->backBufferCount; ++i) {
-            if (_buffersToBeUpdated[i].count(gpuBuffer)) {
-                _buffersToBeUpdated[i].erase(gpuBuffer);
-            }
-        }
-    }
-
-    void flush() {
-        unordered_map<CCVKGPUBuffer *, BufferUpdate> &buffers = _buffersToBeUpdated[_device->curBackBufferIndex];
-        for (unordered_map<CCVKGPUBuffer *, BufferUpdate>::iterator it = buffers.begin(); it != buffers.end(); ++it) {
-            update(it->first, it->second.src, it->second.size);
-        }
-        buffers.clear();
-    }
-
-private:
-    struct BufferUpdate {
-        const void *src = nullptr;
-        size_t size = 0u;
-    };
-    uint8_t *update(CCVKGPUBuffer *gpuBuffer, const void *src, size_t size) {
-        uint8_t *dst = gpuBuffer->mappedData + _device->curBackBufferIndex * gpuBuffer->instanceSize;
-        memcpy(dst, src, size);
-        return dst;
-    }
-
-    CCVKGPUDevice *_device = nullptr;
-    vector<unordered_map<CCVKGPUBuffer *, BufferUpdate>> _buffersToBeUpdated;
+    map<const CCVKGPUBufferView *, CachedArray<VkDescriptorBufferInfo *>> _buffers;
+    map<const CCVKGPUTextureView *, CachedArray<VkDescriptorImageInfo *>> _textures;
+    map<const CCVKGPUSampler *, CachedArray<VkDescriptorImageInfo *>> _samplers;
 };
 
 /**

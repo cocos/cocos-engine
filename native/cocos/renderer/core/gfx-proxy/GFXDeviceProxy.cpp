@@ -33,44 +33,40 @@ bool DeviceProxy::initialize(const DeviceInfo &info) {
         _bindingMappingInfo.samplerOffsets.push_back(0);
     }
 
-    _thread = std::make_unique<DeviceThread>(this);
-    _thread->GetMainCommandEncoder()->RunConsumerThread();
+    _remote->initialize(info);
+
+    _context = _remote->getContext();
+    _API = _remote->getGfxAPI();
+    _deviceName = _remote->getDeviceName();
+    _queue = CC_NEW(QueueProxy(_remote->getQueue(), this));
+    _cmdBuff = CC_NEW(CommandBufferProxy(_remote->getCommandBuffer(), this));
+    _renderer = _remote->getRenderer();
+    _vendor = _remote->getVendor();
+    _maxVertexAttributes = _remote->getMaxVertexAttributes();
+    _maxVertexUniformVectors = _remote->getMaxVertexUniformVectors();
+    _maxFragmentUniformVectors = _remote->getMaxFragmentUniformVectors();
+    _maxTextureUnits = _remote->getMaxTextureUnits();
+    _maxVertexTextureUnits = _remote->getMaxVertexTextureUnits();
+    _maxUniformBufferBindings = _remote->getMaxUniformBufferBindings();
+    _maxUniformBlockSize = _remote->getMaxUniformBlockSize();
+    _maxTextureSize = _remote->getMaxTextureSize();
+    _maxCubeMapTextureSize = _remote->getMaxCubeMapTextureSize();
+    _uboOffsetAlignment = _remote->getUboOffsetAlignment();
+    _depthBits = _remote->getDepthBits();
+    _stencilBits = _remote->getStencilBits();
+    memcpy(_features, ((DeviceProxy*)GetRemote())->_features, (uint)Feature::COUNT * sizeof(bool));
+
+    _thread = std::make_unique<DeviceThread>();
+    _thread->InitSubmitContexts(this);
     _thread->Run();
 
-    ENCODE_COMMAND_3(
-        _thread->GetMainCommandEncoder(),
-        DeviceInit,
-        remote, GetRemote(),
-        info, info,
-        device, this,
-        {
-            remote->initialize(info);
-
-            device->_context = remote->getContext();
-            device->_API = remote->getGfxAPI();
-            device->_deviceName = remote->getDeviceName();
-            device->_queue = CC_NEW(QueueProxy(remote->getQueue(), device));
-            device->_cmdBuff = CC_NEW(CommandBufferProxy(remote->getCommandBuffer(), device));
-            device->_renderer = remote->getRenderer();
-            device->_vendor = remote->getVendor();
-            device->_maxVertexAttributes = remote->getMaxVertexAttributes();
-            device->_maxVertexUniformVectors = remote->getMaxVertexUniformVectors();
-            device->_maxFragmentUniformVectors = remote->getMaxFragmentUniformVectors();
-            device->_maxTextureUnits = remote->getMaxTextureUnits();
-            device->_maxVertexTextureUnits = remote->getMaxVertexTextureUnits();
-            device->_maxUniformBufferBindings = remote->getMaxUniformBufferBindings();
-            device->_maxUniformBlockSize = remote->getMaxUniformBlockSize();
-            device->_maxTextureSize = remote->getMaxTextureSize();
-            device->_maxCubeMapTextureSize = remote->getMaxCubeMapTextureSize();
-            device->_uboOffsetAlignment = remote->getUboOffsetAlignment();
-            device->_depthBits = remote->getDepthBits();
-            device->_stencilBits = remote->getStencilBits();
-            memcpy(device->_features, ((DeviceProxy*)remote)->_features, (uint)Feature::COUNT * sizeof(bool));
-
-            device->_thread->InitCommandBuffers(device);
-        });
-
-    _thread->GetMainCommandEncoder()->FinishWriting(true);
+    ENCODE_COMMAND_1(
+            getDeviceThread()->GetMainCommandEncoder(),
+            DeviceMakeCurrent,
+            remote, GetRemote(),
+            {
+                remote->makeCurrent();
+            });
 
     return true;
 }
@@ -86,7 +82,6 @@ void DeviceProxy::destroy() {
             CC_SAFE_DELETE(device->_queue);
             CC_SAFE_DELETE(device->_cmdBuff);
             device->_thread->Terminate();
-            device->_thread->GetMainCommandEncoder()->TerminateConsumerThread();
             device->_thread.reset();
         });
 }
@@ -108,18 +103,22 @@ void DeviceProxy::resize(uint width, uint height) {
 
 void DeviceProxy::acquire() {
     _frameBoundarySemaphore.Wait();
-    ENCODE_COMMAND_1(
-        getDeviceThread()->GetMainCommandEncoder(),
+    CommandEncoder *encoder = getDeviceThread()->GetMainCommandEncoder();
+    ENCODE_COMMAND_2(
+        encoder,
         DeviceAcquire,
         remote, GetRemote(),
+        encoder, encoder,
         {
             remote->acquire();
+//            CommandEncoder::FreeChunksInFreeQueue(encoder);
         });
 }
 
 void DeviceProxy::present() {
+    CommandEncoder *encoder = getDeviceThread()->GetMainCommandEncoder();
     ENCODE_COMMAND_2(
-        getDeviceThread()->GetMainCommandEncoder(),
+        encoder,
         DevicePresent,
         remote, GetRemote(),
         frameBoundarySemaphore, &_frameBoundarySemaphore,
@@ -128,7 +127,7 @@ void DeviceProxy::present() {
             frameBoundarySemaphore->Signal();
         });
 
-    getDeviceThread()->GetMainCommandEncoder()->FinishWriting();
+    encoder->FinishWriting();
 }
 
 CommandBuffer *DeviceProxy::createCommandBuffer() {

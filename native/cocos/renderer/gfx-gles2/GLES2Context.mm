@@ -210,8 +210,7 @@ void GLES2Context::present() {
 }
 
 bool GLES2Context::MakeCurrentImpl(bool bound) {
-    if (!bound) return [EAGLContext setCurrentContext: nil];
-    return [EAGLContext setCurrentContext: (EAGLContext*)_eaglContext] && createCustomFrameBuffer();
+  return [EAGLContext setCurrentContext: bound ? (EAGLContext*)_eaglContext : nil];
 }
 
 #endif

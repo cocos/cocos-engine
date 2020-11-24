@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include "boost/lockfree/queue.hpp"
+#include "concurrentqueue.h"
 #include "Event.h"
 
 namespace cc {
@@ -105,14 +105,14 @@ public:
     // 只支持单消费者
     void                                    RunConsumerThread() noexcept;
     void                                    TerminateConsumerThread() noexcept;
-    void                                    FinishWriting(bool wait) noexcept;
+    void                                    FinishWriting() noexcept;
+    void                                    FlushCommands() noexcept;
 
-    inline void                             FinishWriting() noexcept { FinishWriting(false); }
     inline bool                             IsImmediateMode() const noexcept { return mImmediateMode; }
 
     void                                    RecycleMemoryChunk(uint8_t* const chunk) const noexcept;
-    static void                             FreeChunksInFreeQueue() noexcept;
-    
+    static void                             FreeChunksInFreeQueue(CommandEncoder* const mainCommandbuffer) noexcept;
+
     inline int                              GetPendingCommandCount() const noexcept { return mW.mPendingCommandCount; }
     inline int                              GetWrittenCommandCount() const noexcept { return mW.mWrittenCommandCount; }
     inline int                              GetNewCommandCount() const noexcept { return mR.mNewCommandCount; }
@@ -133,13 +133,16 @@ private:
         static MemoryAllocator&             GetInstance() noexcept;
         uint8_t*                            Request() noexcept;
         void                                Recycle(uint8_t* const chunk, bool const freeByUser) noexcept;
+        void                                FreeByUser(CommandEncoder* const mainCommandbuffer) noexcept;
 
     private:
 
+        using ChunkQueue                    = moodycamel::ConcurrentQueue<uint8_t*>;
+
         void                                Free(uint8_t* const chunk) noexcept;
         std::atomic<uint32_t>               mChunkCount         { 0 };
-        boost::lockfree::queue<uint8_t*>    mChunkPool          { 64 };
-        boost::lockfree::queue<uint8_t*>    mChunkFreeQueue     { 64 };
+        ChunkQueue                          mChunkPool          {};
+        ChunkQueue                          mChunkFreeQueue     {};
     };
 
     uint8_t*                                AllocateImpl(uint32_t& allocatedSize, uint32_t const requestSize) noexcept;
@@ -147,7 +150,6 @@ private:
 
     // 在消费者线程执行
     void                                    PullCommands() noexcept;
-    void                                    FlushCommands() noexcept;
     void                                    ExecuteCommand() noexcept;
     Command*                                ReadCommand() noexcept;
     inline bool                             HasNewCommand() const noexcept { return mR.mNewCommandCount > 0 && ! mR.mFlushingFinished; }
@@ -156,9 +158,9 @@ private:
     WriterContext                           mW;
     ReaderContext                           mR;
     EventCV                                 mN;
-    bool                                    mImmediateMode      { true };
+    bool                                    mImmediateMode      { false };
     bool                                    mWorkerAttached     { false };
-    bool                                    mFreeChunksByUser   { false };   // 被回收的Chunk会被记录到一个队列里 由用户在生产者线程选择合适的时机来Free
+    bool                                    mFreeChunksByUser   { true }; // 被回收的Chunk会被记录到一个队列里 由用户在生产者线程选择合适的时机来Free
 
     friend class MemoryChunkSwitchCommand;
 };
@@ -247,13 +249,14 @@ T* CommandEncoder::AllocateAndZero(uint32_t const count) noexcept
     class CommandName final : public Command                        \
     {                                                               \
     public:                                                         \
-    virtual void Execute() noexcept override                        \
-        Code                                                        \
-                                                                    \
-    virtual char const* GetName() const noexcept override           \
-    {                                                               \
-        return (#CommandName);                                      \
-    }                                                               \
+        virtual void Execute() noexcept override                    \
+        {                                                           \
+            Code;                                                   \
+        }                                                           \
+        virtual char const* GetName() const noexcept override       \
+        {                                                           \
+            return (#CommandName);                                  \
+        }                                                           \
     };                                                              \
     WRITE_COMMAND(CB, CommandName, );
 
@@ -271,8 +274,9 @@ T* CommandEncoder::AllocateAndZero(uint32_t const count) noexcept
     {                                                               \
     }                                                               \
     virtual void Execute() noexcept override                        \
-        Code                                                        \
-                                                                    \
+    {                                                               \
+        Code;                                                       \
+    }                                                               \
     virtual char const* GetName() const noexcept override           \
     {                                                               \
         return (#CommandName);                                      \
@@ -302,8 +306,9 @@ T* CommandEncoder::AllocateAndZero(uint32_t const count) noexcept
     {                                                               \
     }                                                               \
     virtual void Execute() noexcept override                        \
-        Code                                                        \
-                                                                    \
+    {                                                               \
+        Code;                                                       \
+    }                                                               \
     virtual char const* GetName() const noexcept override           \
     {                                                               \
         return (#CommandName);                                      \
@@ -338,8 +343,9 @@ T* CommandEncoder::AllocateAndZero(uint32_t const count) noexcept
     {                                                               \
     }                                                               \
     virtual void Execute() noexcept override                        \
-        Code                                                        \
-                                                                    \
+    {                                                               \
+        Code;                                                       \
+    }                                                               \
     virtual char const* GetName() const noexcept override           \
     {                                                               \
         return (#CommandName);                                      \
@@ -379,8 +385,9 @@ T* CommandEncoder::AllocateAndZero(uint32_t const count) noexcept
     {                                                               \
     }                                                               \
     virtual void Execute() noexcept override                        \
-        Code                                                        \
-                                                                    \
+    {                                                               \
+        Code;                                                       \
+    }                                                               \
     virtual char const* GetName() const noexcept override           \
     {                                                               \
         return (#CommandName);                                      \
@@ -425,8 +432,9 @@ T* CommandEncoder::AllocateAndZero(uint32_t const count) noexcept
     {                                                               \
     }                                                               \
     virtual void Execute() noexcept override                        \
-        Code                                                        \
-                                                                    \
+    {                                                               \
+        Code;                                                       \
+    }                                                               \
     virtual char const* GetName() const noexcept override           \
     {                                                               \
         return (#CommandName);                                      \
@@ -476,8 +484,9 @@ T* CommandEncoder::AllocateAndZero(uint32_t const count) noexcept
     {                                                               \
     }                                                               \
     virtual void Execute() noexcept                                 \
-        Code                                                        \
-                                                                    \
+    {                                                               \
+        Code;                                                       \
+    }                                                               \
     virtual char const* GetName() const noexcept override           \
     {                                                               \
         return (#CommandName);                                      \
@@ -532,8 +541,9 @@ T* CommandEncoder::AllocateAndZero(uint32_t const count) noexcept
     {                                                               \
     }                                                               \
     virtual void Execute() noexcept override                        \
-        Code                                                        \
-                                                                    \
+    {                                                               \
+        Code;                                                       \
+    }                                                               \
     virtual const char* GetName() const noexcept override           \
     {                                                               \
         return (#CommandName);                                      \
@@ -593,8 +603,9 @@ T* CommandEncoder::AllocateAndZero(uint32_t const count) noexcept
     {                                                               \
     }                                                               \
     virtual void Execute() noexcept override                        \
-        Code                                                        \
-                                                                    \
+    {                                                               \
+        Code;                                                       \
+    }                                                               \
     virtual char const* GetName() const noexcept override           \
     {                                                               \
         return (#CommandName);                                      \

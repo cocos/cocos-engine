@@ -72,6 +72,7 @@ public:
     virtual PipelineLayout *createPipelineLayout() override;
     virtual PipelineState *createPipelineState() override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
+    virtual void makeCurrent() override;
 
     CC_INLINE GLES3GPUStateCache *stateCache() const { return _gpuStateCache; }
     CC_INLINE GLES3GPUStagingBufferPool *stagingBufferPool() const { return _gpuStagingBufferPool; }
@@ -108,8 +109,8 @@ protected:
     virtual void bindDeviceContext(bool bound) override;
 
 private:
+    GLES3Context *_initContext = nullptr;
     GLES3Context *_renderContext = nullptr;
-    GLES3Context *_deviceContext = nullptr;
     GLES3GPUStateCache *_gpuStateCache = nullptr;
     GLES3GPUStagingBufferPool *_gpuStagingBufferPool = nullptr;
 

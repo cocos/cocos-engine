@@ -74,8 +74,8 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     ctxInfo.windowHandle = _windowHandle;
     ctxInfo.sharedCtx = info.sharedCtx;
 
-    _renderContext = CC_NEW(GLES3Context(this));
-    if (!_renderContext->initialize(ctxInfo)) {
+    _initContext = CC_NEW(GLES3Context(this));
+    if (!_initContext->initialize(ctxInfo)) {
         destroy();
         return false;
     }
@@ -171,6 +171,9 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
 
     _gpuStateCache->initialize(_maxTextureUnits, _maxUniformBufferBindings, _maxVertexAttributes);
 
+    _initContext->MakeCurrent(false);
+    _context = _initContext;
+
     return true;
 }
 
@@ -184,11 +187,10 @@ void GLES3Device::destroy() {
         _cmdBuff->destroy();
         _cmdBuff = nullptr;
     }
-    CC_SAFE_DESTROY(_context);
     CC_SAFE_DELETE(_gpuStagingBufferPool);
     CC_SAFE_DELETE(_gpuStateCache);
-    CC_SAFE_DESTROY(_deviceContext);
     CC_SAFE_DESTROY(_renderContext);
+    CC_SAFE_DESTROY(_initContext);
 }
 
 void GLES3Device::resize(uint width, uint height) {
@@ -212,6 +214,20 @@ void GLES3Device::present() {
     queue->_numDrawCalls = 0;
     queue->_numInstances = 0;
     queue->_numTriangles = 0;
+}
+
+void GLES3Device::makeCurrent() {
+    if (!_renderContext) {
+        ContextInfo ctxInfo;
+        ctxInfo.windowHandle = _windowHandle;
+        ctxInfo.sharedCtx = _initContext;
+
+        _renderContext = CC_NEW(GLES3Context(this));
+        _renderContext->initialize(ctxInfo);
+        _context = _renderContext;
+    } else {
+        _renderContext->MakeCurrent();
+    }
 }
 
 CommandBuffer *GLES3Device::createCommandBuffer() {

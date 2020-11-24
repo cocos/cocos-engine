@@ -264,7 +264,7 @@ bool GLES3Context::initialize(const ContextInfo &info) {
 
         _eglSharedContext = _eglContext;
 
-    #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
         EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [=](const CustomEvent &) -> void {
             if (_eglSurface != EGL_NO_SURFACE) {
                 eglDestroySurface(_eglDisplay, _eglSurface);
@@ -284,15 +284,15 @@ bool GLES3Context::initialize(const ContextInfo &info) {
             uint height = _device->getHeight();
             ANativeWindow_setBuffersGeometry((ANativeWindow *)_windowHandle, width, height, nFmt);
 
-            EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, NULL));
+            _eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, NULL);
             if (_eglSurface == EGL_NO_SURFACE) {
                 CC_LOG_ERROR("Recreate window surface failed.");
                 return;
             }
 
-            ((GLES3Context *)_device->getContext())->MakeCurrent();
+            ((GLES3Context*)_device->getContext())->MakeCurrent();
         });
-    #endif
+#endif
 
     } else {
         GLES3Context *sharedCtx = (GLES3Context *)info.sharedCtx;
@@ -344,7 +344,7 @@ bool GLES3Context::initialize(const ContextInfo &info) {
         }
     }
 
-    return true;
+    return MakeCurrent();
 }
 
 void GLES3Context::destroy() {
@@ -374,12 +374,11 @@ void GLES3Context::destroy() {
 }
 
 bool GLES3Context::MakeCurrentImpl(bool bound) {
-    bool succeeded;
-    EGL_CHECK(succeeded = eglMakeCurrent(_eglDisplay,
-                                         bound ? _eglSurface : EGL_NO_SURFACE,
-                                         bound ? _eglSurface : EGL_NO_SURFACE,
-                                         bound ? _eglContext : EGL_NO_CONTEXT));
-    return succeeded;
+    return eglMakeCurrent(_eglDisplay,
+        bound ? _eglSurface : EGL_NO_SURFACE,
+        bound ? _eglSurface : EGL_NO_SURFACE,
+        bound ? _eglContext : EGL_NO_CONTEXT
+    );
 }
 
 void GLES3Context::present() {
@@ -390,7 +389,6 @@ void GLES3Context::present() {
 
 bool GLES3Context::MakeCurrent(bool bound) {
     if (!bound) {
-        CC_LOG_DEBUG("eglMakeCurrent() - UNBOUNDED, Context: 0x%p", this);
         return MakeCurrentImpl(false);
     }
 

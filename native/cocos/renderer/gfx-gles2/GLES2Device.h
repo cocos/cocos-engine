@@ -80,6 +80,7 @@ public:
     virtual PipelineLayout *createPipelineLayout() override;
     virtual PipelineState *createPipelineState() override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
+    virtual void makeCurrent() override;
     bool checkForETC2() const;
 
     CC_INLINE bool useVAO() const { return _useVAO; }
@@ -122,11 +123,8 @@ protected:
     virtual void bindDeviceContext(bool bound) override;
 
 private:
-
-    bool checkForETC2() const;
-
+    GLES2Context *_initContext = nullptr;
     GLES2Context *_renderContext = nullptr;
-    GLES2Context *_deviceContext = nullptr;
     GLES2GPUStateCache *_gpuStateCache = nullptr;
     GLES2GPUStagingBufferPool *_gpuStagingBufferPool = nullptr;
 
