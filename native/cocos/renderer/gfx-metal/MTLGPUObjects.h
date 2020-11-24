@@ -150,20 +150,28 @@ public:
 };
 
 constexpr size_t chunkSize = 16 * 1024 * 1024; // 16M per block by default
-class CCMTLGPUStagingBufferPool : public Object {
+class CCMTLGPUStagingBufferPool : public Object
+{
 public:
     CCMTLGPUStagingBufferPool(id<MTLDevice> device)
-    : _device(device) {}
+    : _device(device)
+    {}
 
-    ~CCMTLGPUStagingBufferPool() {
-        for (auto &buffer : _pool) {
-            if (_tripleEnabled) {
-                for (id<MTLBuffer> mtlBuf : buffer.dynamicDataBuffers) {
+    ~CCMTLGPUStagingBufferPool()
+    {
+        for (auto &buffer : _pool)
+        {
+            if (_tripleEnabled)
+            {
+                for (id<MTLBuffer> mtlBuf : buffer.dynamicDataBuffers)
+                {
                     [mtlBuf release];
                 }
                 buffer.dynamicDataBuffers.clear();
                 buffer.mtlBuffer = nil;
-            } else {
+            }
+            else
+            {
                 [buffer.mtlBuffer release];
                 buffer.mtlBuffer = nil;
             }
@@ -172,7 +180,8 @@ public:
     }
 
     CC_INLINE void alloc(CCMTLGPUBuffer *gpuBuffer) { alloc(gpuBuffer, 1); }
-    void alloc(CCMTLGPUBuffer *gpuBuffer, uint alignment) {
+    void alloc(CCMTLGPUBuffer *gpuBuffer, uint alignment)
+    {
         size_t bufferCount = _pool.size();
         Buffer *buffer = nullptr;
         size_t offset = 0;
@@ -187,14 +196,17 @@ public:
         if (!buffer) {
             _pool.resize(bufferCount + 1);
             buffer = &_pool.back();
-            if (_tripleEnabled) {
-                for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
+            if (_tripleEnabled)
+            {
+                for (int i = 0; i < MAX_INFLIGHT_BUFFER; ++i) {
                     // Create a new buffer with enough capacity to store one instance of the dynamic buffer data
                     id<MTLBuffer> dataBuffer = [_device newBufferWithLength:chunkSize options:MTLResourceStorageModeShared];
                     buffer->dynamicDataBuffers[i] = dataBuffer;
                 }
                 buffer->mtlBuffer = buffer->dynamicDataBuffers[0];
-            } else {
+            }
+            else
+            {
                 buffer->mtlBuffer = [_device newBufferWithLength:chunkSize options:MTLResourceStorageModeShared];
             }
             buffer->mappedData = (uint8_t *)buffer->mtlBuffer.contents;
@@ -204,6 +216,21 @@ public:
         gpuBuffer->startOffset = offset;
         gpuBuffer->mappedData = buffer->mappedData + offset;
         buffer->curOffset = offset + gpuBuffer->size;
+    }
+    
+    void updateInflightBuffer()
+    {
+        if (_tripleEnabled) {
+            _inflightIndex = ((_inflightIndex + 1) % MAX_INFLIGHT_BUFFER);
+            
+            size_t bufferCount = _pool.size();
+            Buffer *buffer = nullptr;
+            for (size_t idx = 0; idx < bufferCount; idx++)
+            {
+                buffer = &_pool[idx];
+                buffer->mtlBuffer = buffer->dynamicDataBuffers[_inflightIndex];
+            }
+        }
     }
 
     void updateInflightBuffer() {
@@ -242,12 +269,12 @@ public:
 private:
     struct Buffer {
         id<MTLBuffer> mtlBuffer = nil;
-        vector<id<MTLBuffer>> dynamicDataBuffers{MAX_FRAMES_IN_FLIGHT};
+        vector<id<MTLBuffer>> dynamicDataBuffers {MAX_INFLIGHT_BUFFER};
         uint8_t *mappedData = nullptr;
         size_t curOffset = 0;
     };
-
-    bool _tripleEnabled = false;
+    
+    bool _tripleEnabled = true;
     uint _inflightIndex = 0;
     id<MTLDevice> _device = nil;
     vector<Buffer> _pool;
