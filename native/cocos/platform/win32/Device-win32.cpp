@@ -96,7 +96,7 @@ cc::Vec4 Device::getSafeAreaEdge()
     return cc::Vec4();
 }
 
-int Device::getDevicePixelRatio()
+float Device::getDevicePixelRatio()
 {
     return 1;
 }

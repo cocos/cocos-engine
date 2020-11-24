@@ -36,12 +36,12 @@
 
 namespace cc {
 
-int Device::getDevicePixelRatio() {
+float Device::getDevicePixelRatio() {
 #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     return [[[[NSApplication sharedApplication] delegate] getWindow] backingScaleFactor];
     ;
 #else
-    return [[UIScreen mainScreen] scale];
+    return  [[UIScreen mainScreen] nativeScale];
 #endif //CC_USE_METAL
 }
 

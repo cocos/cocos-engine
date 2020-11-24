@@ -856,8 +856,8 @@ static bool js_engine_Device_getDevicePixelRatio(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = cc::Device::getDevicePixelRatio();
-        ok &= int32_to_seval((int)result, &s.rval());
+        float result = cc::Device::getDevicePixelRatio();
+        ok &= float_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_engine_Device_getDevicePixelRatio : Error processing arguments");
         return true;
     }

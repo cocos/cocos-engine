@@ -77,7 +77,7 @@ public:
     /**
      * Get device pixel ratio.
      */
-    static int getDevicePixelRatio();
+    static float getDevicePixelRatio();
     
     /**
      * To enable or disable accelerometer.
