@@ -60,7 +60,7 @@ void PlanarShadowQueue::gatherShadowPasses(RenderView *view, gfx::CommandBuffer 
                     const auto subModelCount = subModelID[0];
                     for (uint m = 1; m <= subModelCount; ++m) {
                         const auto *subModel = model->getSubModelView(subModelID[m]);
-                        instancedBuffer->merge(model, subModel, m);
+                        instancedBuffer->merge(model, subModel, m - 1);
                         _instancedQueue->add(instancedBuffer);
                     }
                 } else {
