@@ -939,8 +939,13 @@ class ContainerStrategy {
             _view._devicePixelRatio = Math.min(_view._maxPixelRatio, window.devicePixelRatio || 1);
         }
         // Setup canvas
-        locCanvas.width = sys.windowPixelResolution.width;
-        locCanvas.height = sys.windowPixelResolution.height;
+        if (JSB) {
+            locCanvas.width = sys.windowPixelResolution.width;
+            locCanvas.height = sys.windowPixelResolution.height;
+        } else {
+            locCanvas.width = w * _view._devicePixelRatio;
+            locCanvas.height = h * _view._devicePixelRatio;
+        }
     }
 
     protected _fixContainer () {
