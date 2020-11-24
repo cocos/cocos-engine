@@ -38,6 +38,7 @@ import visibleRect from './visible-rect';
 import { EDITOR, MINIGAME, JSB, RUNTIME_BASED } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { logID, errorID } from './debug';
+import { sys } from './sys';
 
 class BrowserGetter {
 
@@ -364,8 +365,8 @@ export class View extends EventTarget {
         const canvas = legacyCC.game.canvas;
         const container = legacyCC.game.container;
         this._devicePixelRatio = window.devicePixelRatio;
-        canvas.width = width * this._devicePixelRatio;
-        canvas.height = height * this._devicePixelRatio;
+        canvas.width = sys.windowPixelResolution.width;
+        canvas.height = sys.windowPixelResolution.height;
 
         // canvas.width = width;
         // canvas.height = height;
@@ -933,13 +934,13 @@ class ContainerStrategy {
         locContainer.style.width = locCanvas.style.width = w + 'px';
         locContainer.style.height = locCanvas.style.height = h + 'px';
         // Setup pixel ratio for retina display
-        let devicePixelRatio = _view._devicePixelRatio = 1;
+        _view._devicePixelRatio = 1;
         if (_view.isRetinaEnabled()) {
-            devicePixelRatio = _view._devicePixelRatio = Math.min(_view._maxPixelRatio, window.devicePixelRatio || 1);
+            _view._devicePixelRatio = Math.min(_view._maxPixelRatio, window.devicePixelRatio || 1);
         }
         // Setup canvas
-        locCanvas.width = w * devicePixelRatio;
-        locCanvas.height = h * devicePixelRatio;
+        locCanvas.width = sys.windowPixelResolution.width;
+        locCanvas.height = sys.windowPixelResolution.height;
     }
 
     protected _fixContainer () {

@@ -879,8 +879,8 @@ else if (JSB || RUNTIME_BASED) {
     const h = window.innerHeight;
     const ratio = window.devicePixelRatio || 1;
     sys.windowPixelResolution = {
-        width: ratio * w,
-        height: ratio * h,
+        width: window.nativeWidth || ratio * w,
+        height: window.nativeHeight || ratio * h,
     };
 
     sys.localStorage = window.localStorage;
