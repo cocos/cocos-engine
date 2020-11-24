@@ -6,7 +6,7 @@ namespace gfx {
 
 namespace
 {
-uint32_t constexpr kMemoryChunkSize = 8 * 1024 * 1024;
+uint32_t constexpr kMemoryChunkSize = 16 * 1024 * 1024;
 uint32_t constexpr kMemoryChunkPoolCapacity = 16;
 uint32_t constexpr kSwitchChunkMemoryRequirement = sizeof(MemoryChunkSwitchCommand) + sizeof(DummyCommand);
 }
