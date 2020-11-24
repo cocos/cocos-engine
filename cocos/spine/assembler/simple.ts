@@ -445,7 +445,7 @@ function realTimeTraverse (worldMat?: Mat4) {
     _debugMesh = _comp!.debugMesh;
     if (graphics && (_debugBones || _debugSlots || _debugMesh)) {
         graphics.clear();
-        graphics.lineWidth = 2;
+        graphics.lineWidth = 5;
     }
 
     // x y u v r1 g1 b1 a1 r2 g2 b2 a2 or x y u v r g b a
