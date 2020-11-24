@@ -14,9 +14,7 @@
 namespace cc {
 namespace pipeline {
 bool castBoundsInitialized = false;
-bool receiveBoundsInitialized = false;
 AABB castWorldBounds;
-AABB receiveWorldBounds;
 
 RenderObject genRenderObject(const ModelView *model, const Camera *camera) {
     float depth = 0;
@@ -189,8 +187,7 @@ void shadowCollecting(ForwardPipeline *pipeline, RenderView *view) {
     const auto camera = view->getCamera();
     const auto scene = camera->getScene();
 
-    AABB castWorldBounds;
-    auto castBoundsInited = false;
+    castBoundsInitialized = false;
 
     RenderObjectList shadowObjects;
 
@@ -207,9 +204,9 @@ void shadowCollecting(ForwardPipeline *pipeline, RenderView *view) {
                 (visibility & model->visFlags)) {
                 // shadow render Object
                 if (model->castShadow && model->getWorldBounds()) {
-                    if (!castBoundsInited) {
+                    if (!castBoundsInitialized) {
                         castWorldBounds = *model->getWorldBounds();
-                        castBoundsInited = true;
+                        castBoundsInitialized = true;
                     }
                     castWorldBounds.merge(*model->getWorldBounds());
                     shadowObjects.emplace_back(genRenderObject(model, camera));
