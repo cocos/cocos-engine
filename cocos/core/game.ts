@@ -843,8 +843,8 @@ export class Game extends EventTarget {
                 EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
                 false,
                 window.devicePixelRatio,
-                Math.floor(screen.width * window.devicePixelRatio),
-                Math.floor(screen.height * window.devicePixelRatio),
+                sys.windowPixelResolution.width,
+                sys.windowPixelResolution.height,
                 bindingMappingInfo,
             );
             for (let i = 0; i < ctors.length; i++) {
