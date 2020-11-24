@@ -36,7 +36,7 @@ import { Texture2D } from '../../assets/texture-2d';
 import { SubModel } from './submodel';
 import { Pass, IMacroPatch, BatchingSchemes } from '../core/pass';
 import { legacyCC } from '../../global-exports';
-import { InstancedBuffer } from '../../pipeline';
+import { ForwardPipeline, InstancedBuffer } from '../../pipeline';
 
 import { Mat4, Vec3, Vec4 } from '../../math';
 import { genSamplerHash, samplerLib } from '../core/sampler-lib';
@@ -46,6 +46,8 @@ import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool,
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
 import { getTypedArrayConstructor, BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature } from '../../gfx/define';
+import { Root } from '../../root';
+import { ShadowType } from './shadows';
 
 const AttrPool = new ObjectPool(PoolType.ATTRIBUTE, (_: never[], obj?: Attribute) => obj || new Attribute());
 
@@ -135,6 +137,19 @@ export class Model {
 
     set receiveShadow (val) {
         ModelPool.set(this._handle, ModelView.RECEIVE_SHADOW, val ? 1 : 0);
+        if (val) {
+            if (!this._planarMat) {
+                this._planarMat = new Material();
+                this._planarMat.initialize({ effectName: 'planar-shadow' });
+            }
+            for (let i = 0; i < this.subModels.length; i++) {
+                const subModel = this.subModels[i];
+                const usePatches = subModel.patches;
+                const shaderHandel = this._planarMat.passes[0].getShaderVariant(usePatches);
+                const shader = ShaderPool.get(shaderHandel);
+                SubModelPool.set(subModel.handle, SubModelView.PLANAR_SHADER, shaderHandel);
+            }
+        }
         this.onMacroPatchesStateChanged();
     }
 
@@ -204,6 +219,7 @@ export class Model {
     protected _transformUpdated = true;
     protected _handle: ModelHandle = NULL_HANDLE;
     protected _hWorldBounds: AABBHandle = NULL_HANDLE;
+    protected _planarMat: Material | null = null;
 
     protected _localData = new Float32Array(UBOLocal.COUNT);
     protected _localBuffer: Buffer | null = null;
@@ -407,7 +423,9 @@ export class Model {
     }
 
     public getMacroPatches (subModelIndex: number) {
-        return this.receiveShadow ? shadowMapPatches : null;
+        const root = legacyCC.director.root as Root;
+        const pipeline = root.pipeline as ForwardPipeline;
+        return (this.receiveShadow && pipeline.shadows.type === ShadowType.ShadowMap) ? shadowMapPatches : null;
     }
 
     protected _updateAttributesAndBinding (subModelIndex: number) {

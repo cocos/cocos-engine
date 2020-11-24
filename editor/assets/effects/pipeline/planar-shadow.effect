@@ -25,14 +25,14 @@ CCEffect %{
 
 CCProgram planar-shadow-vs %{
   precision highp float;
-  #include <input>
+  #include <decode>
   #include <cc-global>
   #include <cc-local-batch>
   #include <cc-shadow>
 
   vec4 vert () {
-    vec4 position;
-    CCVertInput(position);
+    vec4 position; 
+    CCDecode(position);
 
     mat4 matWorld;
     CCGetWorldMatrix(matWorld);
