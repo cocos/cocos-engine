@@ -48,6 +48,13 @@ jsb.onResize = function (size) {
     cc.view.setCanvasSize(window.innerWidth, window.innerHeight);
 };
 
+jsb.onOrientationChanged = function (event) {
+    window.orientation  = event.orientation;
+    window.dispatchEvent({
+        type: 'orientationchange',
+    });
+};
+
 jsb.onMemoryWarning = function () {
     cc.game.emit(cc.Game.EVENT_LOW_MEMORY);
 }
