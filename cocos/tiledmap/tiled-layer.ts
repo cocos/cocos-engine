@@ -390,13 +390,19 @@ export class TiledLayer extends UIRenderable {
         super.onEnable();
         this.node.on(SystemEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
         this.node.on(SystemEventType.TRANSFORM_CHANGED, this.updateCulling, this);
+        this.node.on(SystemEventType.SIZE_CHANGED, this.updateCulling, this);
+        this.node.parent!.on(SystemEventType.TRANSFORM_CHANGED, this.updateCulling, this);
+        this.node.parent!.on(SystemEventType.SIZE_CHANGED, this.updateCulling, this);
         this.markForUpdateRenderData();
     }
 
     onDisable () {
         super.onDisable();
-        this.node.off(SystemEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
+        this.node.parent!.off(SystemEventType.SIZE_CHANGED, this.updateCulling, this);
+        this.node.parent!.off(SystemEventType.TRANSFORM_CHANGED, this.updateCulling, this);
+        this.node.off(SystemEventType.SIZE_CHANGED, this.updateCulling, this);
         this.node.off(SystemEventType.TRANSFORM_CHANGED, this.updateCulling, this);
+        this.node.off(SystemEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
     }
 
     protected _syncAnchorPoint () {
