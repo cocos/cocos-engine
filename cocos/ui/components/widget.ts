@@ -814,7 +814,7 @@ export class Widget extends Component {
     }
 
     public _adjustWidgetToAllowMovingInEditor (eventType: TransformBit) {
-        if (/*!EDITOR ||*/ !(eventType & TransformBit.POSITION)) {
+        if (!EDITOR || !(eventType & TransformBit.POSITION)) {
             return;
         }
 
@@ -866,11 +866,7 @@ export class Widget extends Component {
     }
 
     public _adjustWidgetToAllowResizingInEditor () {
-        // if (!EDITOR) {
-        //     return;
-        // }
-
-        if (legacyCC._widgetManager.isAligning) {
+        if (!EDITOR || legacyCC._widgetManager.isAligning) {
             return;
         }
 
@@ -928,15 +924,19 @@ export class Widget extends Component {
     }
 
     protected _registerEvent () {
-        this.node.on(SystemEventType.TRANSFORM_CHANGED, this._adjustWidgetToAllowMovingInEditor, this);
-        this.node.on(SystemEventType.SIZE_CHANGED, this._adjustWidgetToAllowResizingInEditor, this);
+        if (EDITOR && !legacyCC.GAME_VIEW) {
+            this.node.on(SystemEventType.TRANSFORM_CHANGED, this._adjustWidgetToAllowMovingInEditor, this);
+            this.node.on(SystemEventType.SIZE_CHANGED, this._adjustWidgetToAllowResizingInEditor, this);
+        }
         this.node.on(SystemEventType.ANCHOR_CHANGED, this._adjustWidgetToAnchorChanged, this);
         this.node.on(SystemEventType.PARENT_CHANGED, this._adjustTargetToParentChanged, this);
     }
 
     protected _unregisterEvent () {
-        this.node.off(SystemEventType.TRANSFORM_CHANGED, this._adjustWidgetToAllowMovingInEditor, this);
-        this.node.off(SystemEventType.SIZE_CHANGED, this._adjustWidgetToAllowResizingInEditor, this);
+        if (EDITOR && !legacyCC.GAME_VIEW) {
+            this.node.off(SystemEventType.TRANSFORM_CHANGED, this._adjustWidgetToAllowMovingInEditor, this);
+            this.node.off(SystemEventType.SIZE_CHANGED, this._adjustWidgetToAllowResizingInEditor, this);
+        }
         this.node.off(SystemEventType.ANCHOR_CHANGED, this._adjustWidgetToAnchorChanged, this);
     }
 

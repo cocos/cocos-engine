@@ -44,14 +44,11 @@ jsb.onResume = function () {
 
 jsb.onResize = function (size) {
     if (size.width === 0 || size.height === 0) return;
-    window.resize(size.width, size.height);
-
     cc.sys.windowPixelResolution = {
         width: size.width,
         height: size.height,
     };
-
-    cc.view.setCanvasSize(window.innerWidth, window.innerHeight);
+    window.resize(size.width, size.height);
 };
 
 jsb.onOrientationChanged = function (event) {
@@ -63,4 +60,4 @@ jsb.onOrientationChanged = function (event) {
 
 jsb.onMemoryWarning = function () {
     cc.game.emit(cc.Game.EVENT_LOW_MEMORY);
-}
+};

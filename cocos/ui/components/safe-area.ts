@@ -83,8 +83,8 @@ export class SafeArea extends Component {
      */
     public updateArea () {
         // TODO Remove Widget dependencies in the future
-        const widget = this.node.getComponent(Widget);
-        const uiTransComp = this.node.getComponent(UITransform);
+        const widget = this.node.getComponent(Widget) as Widget;
+        const uiTransComp = this.node.getComponent(UITransform) as UITransform;
         if (!widget || !uiTransComp) {
             return;
         }
@@ -96,11 +96,12 @@ export class SafeArea extends Component {
         }
         // IMPORTANT: need to update alignment to get the latest position
         widget.updateAlignment();
-        const lastPos = this.node.position;
-        const lastAnchorPoint = uiTransComp.anchorPoint;
+        const lastPos = this.node.position.clone();
+        const lastAnchorPoint = uiTransComp.anchorPoint.clone();
         //
         widget.isAlignTop = widget.isAlignBottom = widget.isAlignLeft = widget.isAlignRight = true;
-        const screenWidth = legacyCC.winSize.width, screenHeight = legacyCC.winSize.height;
+        const screenWidth = legacyCC.winSize.width;
+        const screenHeight = legacyCC.winSize.height;
         const safeArea = sys.getSafeAreaRect();
         widget.top = screenHeight - safeArea.y - safeArea.height;
         widget.bottom = safeArea.y;
@@ -108,7 +109,7 @@ export class SafeArea extends Component {
         widget.right = screenWidth - safeArea.x - safeArea.width;
         widget.updateAlignment();
         // set anchor, keep the original position unchanged
-        const curPos = this.node.position;
+        const curPos = this.node.position.clone();
         const anchorX = lastAnchorPoint.x - (curPos.x - lastPos.x) / uiTransComp.width;
         const anchorY = lastAnchorPoint.y - (curPos.y - lastPos.y) / uiTransComp.height;
         uiTransComp.setAnchorPoint(anchorX, anchorY);
