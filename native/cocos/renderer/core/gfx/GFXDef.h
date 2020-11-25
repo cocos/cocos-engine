@@ -26,7 +26,7 @@ class Context;
 #define GFX_MAX_ATTACHMENTS 4
 #define GFX_INVALID_BINDING ((uint8_t)-1)
 #define GFX_INVALID_HANDLE  ((uint)-1)
-#define MAX_INFLIGHT_BUFFER 3
+#define MAX_INFLIGHT_BUFFER 1
 
 enum class ObjectType {
     UNKNOWN,

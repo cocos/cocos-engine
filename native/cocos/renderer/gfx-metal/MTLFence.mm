@@ -6,7 +6,10 @@
 namespace cc {
 namespace gfx {
 
-CCMTLFence::CCMTLFence(Device *device) : Fence(device) {}
+CCMTLFence::CCMTLFence(Device *device)
+: Fence(device),
+  _frameBoundarySemaphore(dispatch_semaphore_create(MAX_INFLIGHT_BUFFER)) {
+}
 
 CCMTLFence::~CCMTLFence() {
     destroy();
@@ -19,15 +22,19 @@ bool CCMTLFence::initialize(const FenceInfo &info) {
 }
 
 void CCMTLFence::destroy() {
-    // TODO
+    dispatch_semaphore_signal(_frameBoundarySemaphore);
+}
+
+void CCMTLFence::signal() {
+    dispatch_semaphore_signal(_frameBoundarySemaphore);
 }
 
 void CCMTLFence::wait() {
-    // TODO
+    dispatch_semaphore_wait(_frameBoundarySemaphore, DISPATCH_TIME_FOREVER);
 }
 
 void CCMTLFence::reset() {
-    // TODO
+    dispatch_semaphore_signal(_frameBoundarySemaphore);
 }
 
 } // namespace gfx

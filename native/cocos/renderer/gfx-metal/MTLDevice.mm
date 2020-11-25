@@ -70,8 +70,8 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _uboOffsetAlignment = mu::getMinBufferOffsetAlignment(gpuFamily);
     _icbSuppored = mu::isIndirectCommandBufferSupported(MTLFeatureSet(_mtlFeatureSet));
     _isSamplerDescriptorCompareFunctionSupported = mu::isSamplerDescriptorCompareFunctionSupported(gpuFamily);
-    MTKView *view = static_cast<MTKView*>(_mtkView);
-    if(view.colorPixelFormat == MTLPixelFormatInvalid) view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
+    MTKView *view = static_cast<MTKView *>(_mtkView);
+    if (view.colorPixelFormat == MTLPixelFormatInvalid) view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
     view.depthStencilPixelFormat = mu::getSupportedDepthStencilFormat(mtlDevice, gpuFamily, _depthBits);
     _stencilBits = 8;
 
@@ -154,11 +154,12 @@ void CCMTLDevice::resize(uint width, uint height) {}
 void CCMTLDevice::acquire() {
     CCMTLQueue *queue = (CCMTLQueue *)_queue;
 
+    queue->getFence()->wait();
     // Clear queue stats
     queue->_numDrawCalls = 0;
     queue->_numInstances = 0;
     queue->_numTriangles = 0;
-    if(!static_cast<CCMTLCommandBuffer*>(_cmdBuff)->isCommandBufferBegan()) {
+    if (!static_cast<CCMTLCommandBuffer *>(_cmdBuff)->isCommandBufferBegan()) {
         _gpuStagingBufferPool->reset();
     }
 }

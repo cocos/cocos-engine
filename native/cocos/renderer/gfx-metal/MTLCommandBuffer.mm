@@ -13,6 +13,8 @@
 #include "MTLShader.h"
 #include "MTLTexture.h"
 #include "MTLUtils.h"
+#include "MTLFence.h"
+#include "MTLQueue.h"
 #include "TargetConditionals.h"
 
 namespace cc {
@@ -22,8 +24,7 @@ CCMTLCommandBuffer::CCMTLCommandBuffer(Device *device)
 : CommandBuffer(device),
   _mtlDevice((CCMTLDevice *)device),
   _mtlCommandQueue(id<MTLCommandQueue>(((CCMTLDevice *)device)->getMTLCommandQueue())),
-  _mtkView((MTKView *)(((CCMTLDevice *)device)->getMTKView())),
-  _frameBoundarySemaphore(dispatch_semaphore_create(MAX_INFLIGHT_BUFFER)) {
+  _mtkView((MTKView *)(((CCMTLDevice *)device)->getMTKView())) {
     const auto setCount = device->bindingMappingInfo().bufferOffsets.size();
     _GPUDescriptorSets.resize(setCount);
     _dynamicOffsets.resize(setCount);
@@ -35,17 +36,17 @@ CCMTLCommandBuffer::~CCMTLCommandBuffer() { destroy(); }
 bool CCMTLCommandBuffer::initialize(const CommandBufferInfo &info) {
     _type = info.type;
     _queue = info.queue;
+    const auto mtlQueue = static_cast<CCMTLQueue*>(_queue);
+    _fence = static_cast<CCMTLFence*>(mtlQueue->getFence());
     return true;
 }
 
 void CCMTLCommandBuffer::destroy() {
-    dispatch_semaphore_signal(_frameBoundarySemaphore);
 }
 
 void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
     if (_commandBufferBegan) return;
 
-    dispatch_semaphore_wait(_frameBoundarySemaphore, DISPATCH_TIME_FOREVER);
     _mtlCommandBuffer = [_mtlCommandQueue commandBuffer];
     [_mtlCommandBuffer enqueue];
     [_mtlCommandBuffer retain];
@@ -70,8 +71,8 @@ void CCMTLCommandBuffer::end() {
     [_mtlCommandBuffer presentDrawable:_mtkView.currentDrawable];
     [_mtlCommandBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
         // GPU work is complete
-        // Signal the semaphore to start the CPU work
-        dispatch_semaphore_signal(_frameBoundarySemaphore);
+        // Signal the fence to start the CPU work
+        _fence->signal();
         [commandBuffer release];
     }];
     [_mtlCommandBuffer commit];

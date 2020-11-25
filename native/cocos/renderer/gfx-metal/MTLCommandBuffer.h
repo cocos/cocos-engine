@@ -15,6 +15,7 @@ struct CCMTLGPUBuffer;
 class CCMTLInputAssembler;
 class CCMTLDevice;
 class CCMTLRenderPass;
+class CCMTLFence;
 
 class CCMTLCommandBuffer : public CommandBuffer {
     friend class CCMTLQueue;
@@ -54,6 +55,7 @@ private:
     CCMTLGPUPipelineState *_gpuPipelineState = nullptr;
     Viewport _currentViewport;
     Rect _currentScissor;
+    CCMTLFence *_fence = nullptr;
 
     CCMTLDepthBias _depthBias;
     CCMTLDepthBounds _depthBounds;
@@ -70,7 +72,6 @@ private:
     MTKView *_mtkView = nil;
     id<MTLCommandBuffer> _mtlCommandBuffer = nil;
     id<MTLRenderCommandEncoder> _mtlEncoder = nil;
-    dispatch_semaphore_t _frameBoundarySemaphore;
     CCMTLGPUBuffer _gpuIndexBuffer;
     CCMTLGPUBuffer _gpuIndirectBuffer;
     CCMTLInputAssembler *_inputAssembler = nullptr;
