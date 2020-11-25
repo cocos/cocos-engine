@@ -319,7 +319,7 @@ void CCMTLCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size)
         return;
     }
     _mtlDevice->gpuStagingBufferPool()->updateInflightBuffer();
-    
+
     CCMTLGPUBuffer stagingBuffer;
     stagingBuffer.size = size;
     _mtlDevice->gpuStagingBufferPool()->alloc(&stagingBuffer);

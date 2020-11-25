@@ -67,7 +67,7 @@ void CommandBufferProxy::end() {
 void CommandBufferProxy::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil) {
     CommandEncoder *encoder = ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder();
 
-    uint attachmentCount = renderPass->getColorAttachments().size();
+    uint attachmentCount = (uint)renderPass->getColorAttachments().size();
     Color *remoteColors = encoder->Allocate<Color>(attachmentCount);
     memcpy(remoteColors, colors, sizeof(Color) * attachmentCount);
 
