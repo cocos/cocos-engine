@@ -51,7 +51,7 @@
 }
 
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size {
-    CC_LOG_WARNING("CCView::mtkView: drawable size will change: %f x %f", size.width, size.height);
+    cc::EventDispatcher::dispatchResizeEvent(static_cast<int>(size.width), static_cast<int>(size.height));
 }
 #endif
 
