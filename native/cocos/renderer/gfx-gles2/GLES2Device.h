@@ -1,6 +1,14 @@
 #ifndef CC_GFXGLES2_DEVICE_H_
 #define CC_GFXGLES2_DEVICE_H_
 
+#ifndef GL_COMPRESSED_RGB8_ETC2
+#define GL_COMPRESSED_RGB8_ETC2           0x9274
+#endif
+
+#ifndef GL_COMPRESSED_RGBA8_ETC2_EAC
+#define GL_COMPRESSED_RGBA8_ETC2_EAC      0x9278
+#endif
+
 namespace cc {
 namespace gfx {
 
@@ -36,6 +44,7 @@ public:
     virtual PipelineLayout *createPipelineLayout(const PipelineLayoutInfo &info) override;
     virtual PipelineState *createPipelineState(const PipelineStateInfo &info) override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
+    bool checkForETC2() const;
 
     CC_INLINE bool useVAO() const { return _useVAO; }
     CC_INLINE bool useDrawInstanced() const { return _useDrawInstanced; }

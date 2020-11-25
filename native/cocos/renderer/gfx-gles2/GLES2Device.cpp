@@ -96,8 +96,10 @@ bool GLES2Device::initialize(const DeviceInfo &info) {
         compressedFmts += "etc1 ";
     }
 
-    _features[(int)Feature::FORMAT_ETC2] = true;
-    compressedFmts += "etc2 ";
+    if (checkForETC2()) {
+        _features[(int)Feature::FORMAT_ETC2] = true;
+        compressedFmts += "etc2 ";
+    }
 
     if (checkExtension("texture_compression_pvrtc")) {
         _features[(int)Feature::FORMAT_PVRTC] = true;
@@ -337,6 +339,22 @@ PipelineState *GLES2Device::createPipelineState(const PipelineStateInfo &info) {
 
 void GLES2Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
     GLES2CmdFuncCopyBuffersToTexture(this, buffers, ((GLES2Texture *)dst)->gpuTexture(), regions, count);
+}
+
+bool GLES2Device::checkForETC2() const {
+    GLint numFormats = 0;
+    glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
+    GLint* formats = new GLint[numFormats];
+    glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS, formats);
+
+    int supportNum = 0;
+    for (GLint i = 0; i < numFormats; ++i) {
+        if (formats[i] == GL_COMPRESSED_RGB8_ETC2 || formats[i] == GL_COMPRESSED_RGBA8_ETC2_EAC)
+            supportNum++;
+    }
+    delete [] formats;
+
+    return supportNum >= 2;
 }
 
 } // namespace gfx

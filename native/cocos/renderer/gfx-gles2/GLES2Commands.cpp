@@ -82,6 +82,8 @@ GLenum MapGLInternalFormat(Format format) {
         case Format::BC3_SRGB: return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
 
         case Format::ETC_RGB8: return GL_ETC1_RGB8_OES;
+        case Format::ETC2_RGB8: return GL_COMPRESSED_RGB8_ETC2;
+        case Format::ETC2_RGBA8: return GL_COMPRESSED_RGBA8_ETC2_EAC;
 
         case Format::PVRTC_RGB2: return GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
         case Format::PVRTC_RGBA2: return GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
@@ -193,6 +195,8 @@ GLenum MapGLFormat(Format format) {
         case Format::BC3_SRGB: return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
 
         case Format::ETC_RGB8: return GL_ETC1_RGB8_OES;
+        case Format::ETC2_RGB8: return GL_COMPRESSED_RGB8_ETC2;
+        case Format::ETC2_RGBA8: return GL_COMPRESSED_RGBA8_ETC2_EAC;
 
         case Format::PVRTC_RGB2: return GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
         case Format::PVRTC_RGBA2: return GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
