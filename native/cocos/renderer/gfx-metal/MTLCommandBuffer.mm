@@ -389,12 +389,6 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
         totalSize += stagingRegion.sourceBytesPerImage;
     }
 
-    MTLBlitOption options = mu::getBlitOption(convertedFormat);
-    CCMTLGPUBuffer stagingBuffer;
-    stagingBuffer.size = totalSize;
-    auto texelSize = mu::getBlockSize(convertedFormat);
-    _mtlDevice->gpuStagingBufferPool()->alloc(&stagingBuffer, texelSize);
-
     size_t offset = 0;
     id<MTLBlitCommandEncoder> encoder = [_mtlCommandBuffer blitCommandEncoder];
     id<MTLTexture> dstTexture = mtlTexture->getMTLTexture();
@@ -402,18 +396,16 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
     for (size_t i = 0; i < count; i++) {
         const auto &stagingRegion = stagingRegions[i];
         const auto convertedData = mu::convertData(buffers[i], bufferSize[i], format);
-        memcpy(stagingBuffer.mappedData + offset, convertedData, stagingRegion.sourceBytesPerImage);
         const auto sourceBytesPerImage = isArrayTexture ? stagingRegion.sourceBytesPerImage : 0;
-        [encoder copyFromBuffer:stagingBuffer.mtlBuffer
-                   sourceOffset:stagingBuffer.startOffset + offset
-              sourceBytesPerRow:stagingRegion.sourceBytesPerRow
-            sourceBytesPerImage:sourceBytesPerImage
-                     sourceSize:stagingRegion.sourceSize
-                      toTexture:dstTexture
-               destinationSlice:stagingRegion.destinationSlice
-               destinationLevel:stagingRegion.destinationLevel
-              destinationOrigin:stagingRegion.destinationOrigin
-                        options:options];
+        MTLRegion region = {stagingRegion.destinationOrigin, stagingRegion.sourceSize};
+        auto bytesPerRow = mtlTexture->isPVRTC() ? 0 : stagingRegion.sourceBytesPerRow;
+        auto bytesPerImage = mtlTexture->isPVRTC() ? 0 : sourceBytesPerImage;
+        [dstTexture replaceRegion:region
+                      mipmapLevel:stagingRegion.destinationLevel
+                            slice:stagingRegion.destinationSlice
+                        withBytes:convertedData
+                      bytesPerRow:bytesPerRow
+                    bytesPerImage:bytesPerImage];
 
         offset += stagingRegion.sourceBytesPerImage;
         if (convertedData != buffers[i]) {

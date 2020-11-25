@@ -23,6 +23,15 @@ bool CCMTLTexture::initialize(const TextureInfo &info) {
     _flags = info.flags;
     _size = FormatSize(_format, _width, _height, _depth);
     _isArray = _type == TextureType::TEX1D_ARRAY || _type == TextureType::TEX2D_ARRAY;
+    if (_format == Format::PVRTC_RGB2 ||
+        _format == Format::PVRTC_RGBA2 ||
+        _format == Format::PVRTC_RGB4 ||
+        _format == Format::PVRTC_RGBA4 ||
+        _format == Format::PVRTC2_2BPP ||
+        _format == Format::PVRTC2_4BPP) {
+        _isPVRTC = true;
+    }
+
 #if CC_DEBUG > 0
     switch (_format) { // device feature validation
         case Format::D16:
@@ -95,6 +104,14 @@ bool CCMTLTexture::initialize(const TextureViewInfo &info) {
     _flags = info.texture->getFlags();
     _size = info.texture->getSize();
     _isArray = _type == TextureType::TEX1D_ARRAY || _type == TextureType::TEX2D_ARRAY;
+    if (_format == Format::PVRTC_RGB2 ||
+        _format == Format::PVRTC_RGBA2 ||
+        _format == Format::PVRTC_RGB4 ||
+        _format == Format::PVRTC_RGBA4 ||
+        _format == Format::PVRTC2_2BPP ||
+        _format == Format::PVRTC2_4BPP) {
+        _isPVRTC = true;
+    }
     _convertedFormat = mu::convertGFXPixelFormat(_format);
     auto mtlTextureType = mu::toMTLTextureType(_type);
     _mtlTexture = [id<MTLTexture>(info.texture) newTextureViewWithPixelFormat:mu::toMTLPixelFormat(_convertedFormat)
@@ -148,7 +165,12 @@ bool CCMTLTexture::createMTLTexture() {
     descriptor.sampleCount = mu::toMTLSampleCount(_samples);
     descriptor.mipmapLevelCount = _levelCount;
     descriptor.arrayLength = _flags & TextureFlagBit::CUBEMAP ? 1 : _layerCount;
-    descriptor.resourceOptions = MTLResourceStorageModePrivate; // use private storage mode since texture will always updated by blit command and access by GPU only.
+    if (_usage & TextureUsage::COLOR_ATTACHMENT ||
+        _usage & TextureUsage::DEPTH_STENCIL_ATTACHMENT ||
+        _usage & TextureUsage::INPUT_ATTACHMENT ||
+        _usage & TextureUsage::TRANSIENT_ATTACHMENT) {
+        descriptor.resourceOptions = MTLResourceStorageModePrivate;
+    }
 
     id<MTLDevice> mtlDevice = id<MTLDevice>(static_cast<CCMTLDevice *>(_device)->getMTLDevice());
     _mtlTexture = [mtlDevice newTextureWithDescriptor:descriptor];
