@@ -250,6 +250,7 @@ class ReleaseManager {
                 this._free(dependAsset, false);
             }
         }
+        // only release non-gc asset in editor
         if (!EDITOR || !(asset instanceof ImageAsset || asset instanceof TextureBase)) {
             asset.destroy();
         }
