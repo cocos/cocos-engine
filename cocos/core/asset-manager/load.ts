@@ -22,8 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+import { EDITOR } from 'internal:constants';
 import { Asset } from '../assets';
-import { error } from '../platform/debug';
+import { error, warn } from '../platform/debug';
 import packManager from './pack-manager';
 import parser from './parser';
 import { Pipeline } from './pipeline';
@@ -51,7 +52,6 @@ interface ILoadingRequest {
 }
 
 export default function load (task: Task, done: CompleteCallbackNoData) {
-
     let firstTask = false;
     if (!task.progress) {
         task.progress = { finish: 0, total: task.input.length, canInvoke: true };
@@ -65,7 +65,6 @@ export default function load (task: Task, done: CompleteCallbackNoData) {
     task.output = [];
 
     forEach(task.input as RequestItem[], (item, cb) => {
-
         const subTask = Task.create({
             input: item,
             onProgress: task.onProgress,
@@ -74,7 +73,9 @@ export default function load (task: Task, done: CompleteCallbackNoData) {
             onComplete: (err, result) => {
                 if (err && !task.isFinish) {
                     if (!legacyCC.assetManager.force || firstTask) {
-                        error(err.message, err.stack);
+                        if (!EDITOR) {
+                            error(err.message, err.stack);
+                        }
                         progress.canInvoke = false;
                         done(err);
                     } else if (progress.canInvoke) {
@@ -88,9 +89,7 @@ export default function load (task: Task, done: CompleteCallbackNoData) {
         });
 
         loadOneAssetPipeline.async(subTask);
-
     }, () => {
-
         options!.__exclude__ = null;
 
         if (task.isFinish) {
@@ -120,7 +119,6 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
     },
 
     function parse (task, done) {
-
         const item: RequestItem = task.output = task.input;
         const progress: IProgress = task.progress;
         const exclude: Record<string, ILoadingRequest> = task.options!.__exclude__;
@@ -137,11 +135,9 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                 parsed.remove(id);
                 done();
             });
-        }
-        else {
+        } else {
             const { uuid } = item;
             if (uuid in exclude) {
-
                 const { finish, content, err, callbacks } = exclude[uuid];
                 if (progress.canInvoke) {
                     task.dispatch('progress', ++progress.finish, progress.total, item);
@@ -150,41 +146,34 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                 if (finish || checkCircleReference(uuid, uuid, exclude)) {
                     if (content) { content.addRef(); }
                     item.content = content;
-                    done!(err);
-                }
-                else {
+                    done(err);
+                } else {
                     callbacks.push({ done, item });
                 }
-            }
-            else {
-                if (!options.reloadAsset && assets.has(uuid)) {
-                    const asset = assets.get(uuid)!;
-                    // @ts-expect-error
-                    if (options.__asyncLoadAssets__ || !asset.__asyncLoadAssets__) {
-                        item.content = asset.addRef();
-                        if (progress.canInvoke) {
-                            task.dispatch('progress', ++progress.finish, progress.total, item);
-                        }
-                        done();
+            } else if (!options.reloadAsset && assets.has(uuid)) {
+                const asset = assets.get(uuid)!;
+                // @ts-expect-error
+                if (options.__asyncLoadAssets__ || !asset.__asyncLoadAssets__) {
+                    item.content = asset.addRef();
+                    if (progress.canInvoke) {
+                        task.dispatch('progress', ++progress.finish, progress.total, item);
                     }
-                    else {
-                        loadDepends(task, asset, done, false);
-                    }
+                    done();
+                } else {
+                    loadDepends(task, asset, done, false);
                 }
-                else {
-                    options.__uuid__ = uuid;
-                    parser.parse(id, file, 'import', options, (err, asset: Asset) => {
-                        if (err) { return done(err); }
-                        loadDepends(task, asset, done, true);
-                    });
-                }
+            } else {
+                options.__uuid__ = uuid;
+                parser.parse(id, file, 'import', options, (err, asset: Asset) => {
+                    if (err) { return done(err); }
+                    loadDepends(task, asset, done, true);
+                });
             }
         }
     },
 ]);
 
 function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, init: boolean) {
-
     const { input: item, progress } = task;
     const { uuid, id, options, config } = item as RequestItem;
     const { __asyncLoadAssets__, cacheAsset } = options;
@@ -213,39 +202,33 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
             repeatItem.err = err;
 
             if (!err) {
-
                 const output = Array.isArray(subTask.output) ? subTask.output : [subTask.output];
                 const map: Record<string, any> = Object.create(null);
                 for (const dependAsset of output) {
                     if (!dependAsset) { continue; }
-                    map[dependAsset instanceof Asset ? dependAsset._uuid + '@import' : uuid + '@native'] = dependAsset;
+                    map[dependAsset instanceof Asset ? `${dependAsset._uuid}@import` : `${uuid}@native`] = dependAsset;
                 }
 
                 if (!init) {
                     // @ts-expect-error
                     if (asset.__nativeDepend__) {
-                        if (!setProperties(uuid, asset, map)) {
-                            try {
-                                if (asset.onLoaded) {
-                                    asset.onLoaded();
-                                }
-                            }
-                            catch (e) {
-                                error(e.message, e.stack);
-                            }
-                        }
-                    }
-                }
-                else {
-                    if (!setProperties(uuid, asset, map)) {
+                        setProperties(uuid, asset, map);
                         try {
                             if (asset.onLoaded) {
                                 asset.onLoaded();
                             }
-                        }
-                        catch (e) {
+                        } catch (e) {
                             error(e.message, e.stack);
                         }
+                    }
+                } else {
+                    setProperties(uuid, asset, map);
+                    try {
+                        if (asset.onLoaded) {
+                            asset.onLoaded();
+                        }
+                    } catch (e) {
+                        error(e.message, e.stack);
                     }
                     files.remove(id);
                     parsed.remove(id);
@@ -257,12 +240,10 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
             const callbacks = repeatItem.callbacks;
 
             for (let i = 0, l = callbacks.length; i < l; i++) {
-
                 const cb = callbacks[i];
                 asset.addRef && asset.addRef();
                 cb.item.content = asset;
                 cb.done(err);
-
             }
 
             callbacks.length = 0;
