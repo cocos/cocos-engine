@@ -41,6 +41,12 @@ jsb.onResume = function () {
 jsb.onResize = function (size) {
     if (size.width === 0 || size.height === 0) return;
     window.resize(size.width, size.height);
+
+    cc.sys.windowPixelResolution = {
+        width: size.width,
+        height: size.height,
+    };
+
     cc.view.setCanvasSize(window.innerWidth, window.innerHeight);
 };
 
