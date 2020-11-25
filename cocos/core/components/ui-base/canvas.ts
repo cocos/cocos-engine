@@ -29,10 +29,11 @@
  * @module ui
  */
 
+import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, serializable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { Camera } from '../../3d/framework/camera-component';
 import { Widget } from '../../../ui/components/widget';
 import { RenderTexture } from '../../assets/render-texture';
-import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, serializable } from 'cc.decorator';
 import { game } from '../../game';
 import { ClearFlag } from '../../gfx/define';
 import { Color, Vec3, Rect, Size } from '../../math';
@@ -43,7 +44,6 @@ import { Node } from '../../scene-graph/node';
 import { Enum } from '../../value-types';
 import { Component } from '../component';
 import { UITransform } from './ui-transform';
-import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../../renderer/core/render-window';
 import { SystemEventType } from '../../platform/event-manager';
@@ -167,7 +167,7 @@ export class Canvas extends Component {
             this._camera.priority = this._getViewPriority();
         }
 
-        if (legacyCC.director.root && legacyCC.director.root.ui){
+        if (legacyCC.director.root && legacyCC.director.root.ui) {
             legacyCC.director.root.ui.sortScreens();
         }
     }
@@ -181,7 +181,7 @@ export class Canvas extends Component {
      */
     @type(RenderTexture)
     @tooltip('目标渲染纹理')
-    get targetTexture (){
+    get targetTexture () {
         return this._targetTexture;
     }
 
@@ -221,7 +221,7 @@ export class Canvas extends Component {
     @type(CanvasClearFlag)
     protected _clearFlag = CanvasClearFlag.DEPTH_ONLY;
     @serializable
-    protected _color = new Color(0, 0, 0, 0);
+    protected _color = new Color(0, 0, 0, 255);
     @type(RenderMode)
     protected _renderMode = RenderMode.OVERLAY;
 
@@ -260,20 +260,19 @@ export class Canvas extends Component {
 
     public __preload () {
         // Stretch to matched size during the scene initialization
-        let widget = this.getComponent(Widget);
+        const widget = this.getComponent(Widget);
         if (widget) {
             widget.updateAlignment();
-        }
-        else if (EDITOR) {
+        } else if (EDITOR) {
             this._fitDesignResolution!();
         }
 
-        const cameraNode = new Node('UICamera_' + this.node.name);
+        const cameraNode = new Node(`UICamera_${this.node.name}`);
         cameraNode.setPosition(0, 0, 1000);
         if (!EDITOR) {
             this._camera = legacyCC.director.root!.createCamera() as scene.Camera;
             this._camera.initialize({
-                name: 'ui_' + this.node.name,
+                name: `ui_${this.node.name}`,
                 node: cameraNode,
                 projection: Camera.ProjectionType.ORTHO,
                 priority: this._getViewPriority(),
