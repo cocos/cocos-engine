@@ -128,7 +128,7 @@ struct StandardSurface {
       finalColor = s.lightmap.a * s.lightmap.rgb + (1.0 - s.lightmap.a) * finalColor;
     #endif
 
-    vec3 diffuseContrib = diffuse;
+    vec3 diffuseContrib = diffuse / PI;
     // Cook-Torrance Microfacet Specular BRDF
     vec3 specularContrib = specular * CalcSpecular(s.roughness, NH, H, N);
 
