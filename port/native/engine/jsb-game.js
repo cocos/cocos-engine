@@ -30,6 +30,10 @@ cc.game.restart = function () {
     __restartVM();
 };
 
+jsb.onError(function (location, message, stack) {
+    console.error(location, message, stack);
+});
+
 jsb.onPause = function () {
     cc.game.emit(cc.Game.EVENT_HIDE);
 };
@@ -48,6 +52,13 @@ jsb.onResize = function (size) {
     };
 
     cc.view.setCanvasSize(window.innerWidth, window.innerHeight);
+};
+
+jsb.onOrientationChanged = function (event) {
+    window.orientation  = event.orientation;
+    window.dispatchEvent({
+        type: 'orientationchange',
+    });
 };
 
 jsb.onMemoryWarning = function () {
