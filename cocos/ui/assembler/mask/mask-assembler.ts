@@ -67,6 +67,7 @@ export const maskAssembler: IAssembler = {
     updateRenderData (mask: Mask){
         if (mask.type === MaskType.IMAGE_STENCIL){
             simple.updateRenderData(mask);
+            simple.updateColor(mask);
         }
     },
 
