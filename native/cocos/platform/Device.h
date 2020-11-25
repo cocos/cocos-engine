@@ -47,6 +47,14 @@ struct FontDefinition;
 class CC_DLL Device
 {
 public:
+    // https://developer.mozilla.org/en-US/docs/Web/API/Window/orientation
+    enum class Orientation {
+        PORTRAIT = 0,
+        LANDSCAPE_LEFT = -90,
+        PORTRAIT_UPSIDE_DOWN = 180,
+        LANDSCAPE_RIGHT = 90
+    };
+    // TODO: remove Rotation
     enum class Rotation {
         _0 = 0,
         _90,

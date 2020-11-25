@@ -34,6 +34,7 @@ se::Object *_jsTouchObjArray = nullptr;
 se::Object *_jsMouseEventObj = nullptr;
 se::Object *_jsKeyboardEventObj = nullptr;
 se::Object *_jsResizeEventObj = nullptr;
+se::Object* _jsOrientationEventObj = nullptr;
 bool _inited = false;
 } // namespace
 
@@ -248,6 +249,32 @@ void EventDispatcher::dispatchResizeEvent(int width, int height) {
     se::ValueArray args;
     args.push_back(se::Value(_jsResizeEventObj));
     EventDispatcher::doDispatchEvent(EVENT_RESIZE, "onResize", args);
+}
+
+void EventDispatcher::dispatchOrientationChangeEvent(int orientation)
+{
+    if (!se::ScriptEngine::getInstance()->isValid())
+        return;
+
+    se::AutoHandleScope scope;
+    assert(_inited);
+
+    if (_jsOrientationEventObj == nullptr)
+    {
+        _jsOrientationEventObj = se::Object::createPlainObject();
+        _jsOrientationEventObj->root();
+    }
+
+    se::Value func;
+    __jsbObj->getProperty("onOrientationChanged", &func);
+    if (func.isObject() && func.toObject()->isFunction())
+    {
+        _jsOrientationEventObj->setProperty("orientation", se::Value(orientation));
+
+        se::ValueArray args;
+        args.push_back(se::Value(_jsOrientationEventObj));
+        func.toObject()->call(args, nullptr);
+    }
 }
 
 void EventDispatcher::dispatchEnterBackgroundEvent() {

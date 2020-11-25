@@ -31,6 +31,8 @@
 #include "SDKWrapper.h"
 #include "Game.h"
 
+cc::Device::Orientation _lastOrientation;
+
 @implementation AppDelegate
 
 Game* game = nullptr;
@@ -55,9 +57,43 @@ Game* game = nullptr;
     game = new Game(bounds.size.width, bounds.size.height);
     game->init();
 
+    [[NSNotificationCenter defaultCenter] addObserver:self
+        selector:@selector(statusBarOrientationChanged:)name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
+
     [self.window makeKeyAndVisible];
 
     return YES;
+}
+
+
+- (void) statusBarOrientationChanged:(NSNotification *)note
+{
+    // https://developer.apple.com/documentation/uikit/uideviceorientation
+    // NOTE: do not use API [UIDevice currentDevice].orientation to get the device orientation
+    // when the device rotates to LandscapeLeft, device.orientation returns UIDeviceOrientationLandscapeRight
+    // when the device rotates to LandscapeRight, device.orientation returns UIDeviceOrientationLandscapeLeft
+    cc::Device::Orientation orientation;
+    switch([[UIApplication sharedApplication] statusBarOrientation])
+    {
+        case UIInterfaceOrientationLandscapeRight:
+            orientation = cc::Device::Orientation::LANDSCAPE_RIGHT;
+            break;
+        case UIInterfaceOrientationLandscapeLeft:
+            orientation = cc::Device::Orientation::LANDSCAPE_LEFT;
+            break;
+        case UIInterfaceOrientationPortraitUpsideDown:
+            orientation = cc::Device::Orientation::PORTRAIT_UPSIDE_DOWN;
+            break;
+        case UIInterfaceOrientationPortrait:
+            orientation = cc::Device::Orientation::PORTRAIT;
+            break;
+        default:
+            break;
+    }
+    if(_lastOrientation != orientation){
+        cc::EventDispatcher::dispatchOrientationChangeEvent((int) orientation);
+        _lastOrientation = orientation;
+    }
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
