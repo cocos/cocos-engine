@@ -77,12 +77,13 @@ function getBitCount (cnt: number) {
 
 function mapDefine (info: IDefineInfo, def: number | string | boolean) {
     switch (info.type) {
-        case 'boolean': return typeof def === 'number' ? def.toString() : (def ? '1' : '0');
-        case 'string': return def !== undefined ? def as string : info.options![0];
-        case 'number': return def !== undefined ? def.toString() : info.range![0].toString();
+    case 'boolean': return typeof def === 'number' ? def.toString() : (def ? '1' : '0');
+    case 'string': return def !== undefined ? def as string : info.options![0];
+    case 'number': return def !== undefined ? def.toString() : info.range![0].toString();
+    default:
+        console.warn(`unknown define type '${info.type}'`);
+        return '-1'; // should neven happen
     }
-    console.warn(`unknown define type '${info.type}'`);
-    return '-1'; // should neven happen
 }
 
 function prepareDefines (defs: MacroRecord, tDefs: IDefineInfo[]) {
@@ -99,10 +100,13 @@ function prepareDefines (defs: MacroRecord, tDefs: IDefineInfo[]) {
 }
 
 function getShaderInstanceName (name: string, macros: IMacroInfo[]) {
-    return name + macros.reduce((acc, cur) => cur.isDefault ? acc : `${acc}|${cur.name}${cur.value}`, '');
+    return name + macros.reduce((acc, cur) => (cur.isDefault ? acc : `${acc}|${cur.name}${cur.value}`), '');
 }
 
-function insertBuiltinBindings (tmpl: IProgramInfo, tmplInfo: ITemplateInfo, source: IDescriptorSetLayoutInfo, type: string, outBindings?: DescriptorSetLayoutBinding[]) {
+function insertBuiltinBindings (
+    tmpl: IProgramInfo, tmplInfo: ITemplateInfo, source: IDescriptorSetLayoutInfo,
+    type: string, outBindings?: DescriptorSetLayoutBinding[],
+) {
     const target = tmpl.builtins[type] as IBuiltinInfo;
     const tempBlocks: UniformBlock[] = [];
     for (let i = 0; i < target.blocks.length; i++) {
@@ -161,8 +165,11 @@ function genHandles (tmpl: IProgramInfo) {
 function dependencyCheck (dependencies: string[], defines: MacroRecord) {
     for (let i = 0; i < dependencies.length; i++) {
         const d = dependencies[i];
-        if (d[0] === '!') { if (defines[d.slice(1)]) { return false; } } // negative dependency
-        else if (!defines[d]) { return false; }
+        if (d[0] === '!') { // negative dependency
+            if (defines[d.slice(1)]) { return false; }
+        } else if (!defines[d]) {
+            return false;
+        }
     }
     return true;
 }
@@ -204,26 +211,26 @@ class ProgramLib {
     public define (shader: IShaderInfo) {
         const curTmpl = this._templates[shader.name];
         if (curTmpl && curTmpl.hash === shader.hash) { return curTmpl; }
-        const tmpl = Object.assign({}, shader) as IProgramInfo;
-         // calculate option mask offset
-         let offset = 0;
-         for (let i = 0; i < tmpl.defines.length; i++) {
-             const def = tmpl.defines[i];
-             let cnt = 1;
-             if (def.type === 'number') {
-                 const range = def.range!;
-                 cnt = getBitCount(range[1] - range[0] + 1); // inclusive on both ends
-                 def._map = (value: number) => value - range[0];
-             } else if (def.type === 'string') {
-                 cnt = getBitCount(def.options!.length);
-                 def._map = (value: any) => Math.max(0, def.options!.findIndex((s) => s === value));
-             } else if (def.type === 'boolean') {
-                 def._map = (value: any) => value ? 1 : 0;
-             }
-             def._offset = offset;
-             offset += cnt;
-         }
-         if (offset > 31) { tmpl.uber = true; }
+        const tmpl = ({ ...shader }) as IProgramInfo;
+        // calculate option mask offset
+        let offset = 0;
+        for (let i = 0; i < tmpl.defines.length; i++) {
+            const def = tmpl.defines[i];
+            let cnt = 1;
+            if (def.type === 'number') {
+                const range = def.range!;
+                cnt = getBitCount(range[1] - range[0] + 1); // inclusive on both ends
+                def._map = (value: number) => value - range[0];
+            } else if (def.type === 'string') {
+                cnt = getBitCount(def.options!.length);
+                def._map = (value: any) => Math.max(0, def.options!.findIndex((s) => s === value));
+            } else if (def.type === 'boolean') {
+                def._map = (value: any) => (value ? 1 : 0);
+            }
+            def._offset = offset;
+            offset += cnt;
+        }
+        if (offset > 31) { tmpl.uber = true; }
         // store it
         this._templates[shader.name] = tmpl;
         const curTmplInfo = this._templateInfos[tmpl.hash];
@@ -236,7 +243,8 @@ class ProgramLib {
             for (let i = 0; i < tmpl.blocks.length; i++) {
                 const block = tmpl.blocks[i];
                 tmplInfo.blockSizes.push(getSize(block));
-                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(block.binding, block.descriptorType || DescriptorType.UNIFORM_BUFFER, 1, block.stageFlags));
+                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(block.binding,
+                    block.descriptorType || DescriptorType.UNIFORM_BUFFER, 1, block.stageFlags));
                 tmplInfo.gfxBlocks.push(new UniformBlock(SetIndex.MATERIAL, block.binding, block.name,
                     block.members.map((m) => new Uniform(m.name, m.type, m.count)), 1)); // effect compiler guarantees block count = 1
             }
@@ -244,21 +252,21 @@ class ProgramLib {
                 const sampler = tmpl.samplers[i];
                 tmplInfo.bindings.push(new DescriptorSetLayoutBinding(sampler.binding, sampler.descriptorType || DescriptorType.SAMPLER,
                     sampler.count, sampler.stageFlags));
-                    tmplInfo.gfxSamplers.push(new UniformSampler(SetIndex.MATERIAL, sampler.binding, sampler.name, sampler.type, sampler.count));
+                tmplInfo.gfxSamplers.push(new UniformSampler(SetIndex.MATERIAL, sampler.binding, sampler.name, sampler.type, sampler.count));
             }
             tmplInfo.gfxAttributes = [];
             for (let i = 0; i < tmpl.attributes.length; i++) {
                 const attr = tmpl.attributes[i];
                 tmplInfo.gfxAttributes.push(new Attribute(attr.name, attr.format, attr.isNormalized, 0, attr.isInstanced, attr.location));
             }
-    
+
             tmplInfo.gfxStages = [];
             tmplInfo.gfxStages.push(new ShaderStage(ShaderStageFlagBit.VERTEX, ''));
             tmplInfo.gfxStages.push(new ShaderStage(ShaderStageFlagBit.FRAGMENT, ''));
             tmplInfo.handleMap = genHandles(tmpl);
             tmplInfo.hPipelineLayout = NULL_HANDLE;
             tmplInfo.setLayouts = [];
-    
+
             this._templateInfos[tmpl.hash] = tmplInfo;
         }
 
@@ -295,7 +303,7 @@ class ProgramLib {
         if (!tmplInfo.setLayouts.length) {
             _dsLayoutInfo.bindings = tmplInfo.bindings;
             tmplInfo.setLayouts[SetIndex.MATERIAL] = device.createDescriptorSetLayout(_dsLayoutInfo);
-            _dsLayoutInfo.bindings = this._localBindings[tmpl.effectName];
+            _dsLayoutInfo.bindings = localDescriptorSetLayout.bindings;
             tmplInfo.setLayouts[SetIndex.LOCAL] = device.createDescriptorSetLayout(_dsLayoutInfo);
         }
         return tmplInfo.setLayouts[isLocal ? SetIndex.LOCAL : SetIndex.MATERIAL];
@@ -334,20 +342,19 @@ class ProgramLib {
                 key += `${offset}${mapped}|`;
             }
             return `${key}${tmpl.hash}`;
-        } else {
-            let key = 0;
-            for (let i = 0; i < tmplDefs.length; i++) {
-                const tmplDef = tmplDefs[i];
-                const value = defines[tmplDef.name];
-                if (!value || !tmplDef._map) {
-                    continue;
-                }
-                const mapped = tmplDef._map(value);
-                const offset = tmplDef._offset;
-                key |= mapped << offset;
-            }
-            return `${key.toString(16)}|${tmpl.hash}`;
         }
+        let key = 0;
+        for (let i = 0; i < tmplDefs.length; i++) {
+            const tmplDef = tmplDefs[i];
+            const value = defines[tmplDef.name];
+            if (!value || !tmplDef._map) {
+                continue;
+            }
+            const mapped = tmplDef._map(value);
+            const offset = tmplDef._offset;
+            key |= mapped << offset;
+        }
+        return `${key.toString(16)}|${tmpl.hash}`;
     }
 
     /**
@@ -396,7 +403,7 @@ class ProgramLib {
         }
 
         const macroArray = prepareDefines(defines, tmpl.defines);
-        const prefix = macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '') + '\n';
+        const prefix = `${macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '')}\n`;
 
         let src = tmpl.glsl3;
         const deviceShaderVersion = getDeviceShaderVersion(device);
@@ -417,16 +424,13 @@ class ProgramLib {
     }
 }
 
-export function getDeviceShaderVersion (device: Device): 'glsl1' | 'glsl3' | 'glsl4' | undefined {
+export function getDeviceShaderVersion (device: Device): 'glsl1' | 'glsl3' | 'glsl4' {
     switch (device.gfxAPI) {
-        case API.GLES2:
-        case API.WEBGL: return 'glsl1';
-        case API.GLES3:
-        case API.WEBGL2: return 'glsl3';
-        case API.VULKAN:
-        case API.METAL:
-        case API.WEBGPU: return 'glsl4';
-        default: return;
+    case API.GLES2:
+    case API.WEBGL: return 'glsl1';
+    case API.GLES3:
+    case API.WEBGL2: return 'glsl3';
+    default: return 'glsl4';
     }
 }
 
