@@ -1,6 +1,6 @@
 {
   "name": "@cocos/build-engine",
-  "version": "4.0.2",
+  "version": "4.0.1-wechat-wasm",
   "description": "",
   "repository": {
     "type": "git",
