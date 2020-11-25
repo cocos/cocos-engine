@@ -928,7 +928,7 @@ static bool js_destroyImage(se::State& s) {
         unsigned long data = 0;
         ok &= seval_to_ulong(args[0], &data);
         SE_PRECONDITION2(ok, false, "js_destroyImage : Error processing arguments");
-        delete (void*)data;
+        delete reinterpret_cast<char*>(data);
         
         return true;
     }

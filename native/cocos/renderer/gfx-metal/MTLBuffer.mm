@@ -84,9 +84,11 @@ bool CCMTLBuffer::initialize(const BufferInfo &info) {
         CCASSERT(false, "Unsupported BufferType, create buffer failed.");
         return false;
     }
+
     if (_tripleEnabled) {
         CCMTLBufferManager::addBuffer(this);
     }
+
     return true;
 }
 
@@ -121,6 +123,10 @@ bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
         CCASSERT(false, "Failed to create MTLBuffer.");
         return false;
     }
+
+    if (_tripleEnabled) _device->getMemoryStatus().bufferSize += 3 * _size;
+    else _device->getMemoryStatus().bufferSize += size;
+
     return true;
 }
 
@@ -156,6 +162,9 @@ void CCMTLBuffer::destroy() {
         _buffer = nullptr;
     }
     _indirects.clear();
+    
+    if (_tripleEnabled) _device->getMemoryStatus().bufferSize -= 3 * _size;
+    else _device->getMemoryStatus().bufferSize -= _size;
 }
 
 void CCMTLBuffer::resize(uint size) {

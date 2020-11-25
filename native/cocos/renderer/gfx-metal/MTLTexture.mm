@@ -166,6 +166,7 @@ void CCMTLTexture::destroy() {
     if (_mtlTexture) {
         [_mtlTexture release];
         _mtlTexture = nil;
+        _device->getMemoryStatus().textureSize -= _size;
     }
 }
 
