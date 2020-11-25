@@ -22,7 +22,7 @@ bool CCMTLTexture::initialize(const TextureInfo &info) {
     _samples = info.samples;
     _flags = info.flags;
     _size = FormatSize(_format, _width, _height, _depth);
-
+    _isArray = _type == TextureType::TEX1D_ARRAY || _type == TextureType::TEX2D_ARRAY;
 #if CC_DEBUG > 0
     switch (_format) { // device feature validation
         case Format::D16:
@@ -94,7 +94,7 @@ bool CCMTLTexture::initialize(const TextureViewInfo &info) {
     _samples = info.texture->getSamples();
     _flags = info.texture->getFlags();
     _size = info.texture->getSize();
-
+    _isArray = _type == TextureType::TEX1D_ARRAY || _type == TextureType::TEX2D_ARRAY;
     _convertedFormat = mu::convertGFXPixelFormat(_format);
     auto mtlTextureType = mu::toMTLTextureType(_type);
     _mtlTexture = [id<MTLTexture>(info.texture) newTextureViewWithPixelFormat:mu::toMTLPixelFormat(_convertedFormat)
@@ -157,7 +157,7 @@ bool CCMTLTexture::createMTLTexture() {
 }
 
 void CCMTLTexture::destroy() {
-     if (_buffer) {
+    if (_buffer) {
         CC_FREE(_buffer);
         _device->getMemoryStatus().textureSize -= _size;
         _buffer = nullptr;

@@ -17,6 +17,7 @@ public:
 
     CC_INLINE id<MTLTexture> getMTLTexture() const { return _mtlTexture; }
     CC_INLINE Format getConvertedFormat() const { return _convertedFormat; }
+    CC_INLINE bool isArray() const { return _isArray; }
 
 private:
     bool createMTLTexture();
@@ -25,6 +26,7 @@ private:
 private:
     id<MTLTexture> _mtlTexture = nil;
     Format _convertedFormat = Format::UNKNOWN;
+    bool _isArray = false;
 };
 
 } // namespace gfx

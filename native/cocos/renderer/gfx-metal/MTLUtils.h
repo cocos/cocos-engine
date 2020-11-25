@@ -1,5 +1,6 @@
 #pragma once
 
+#import <Metal/MTLBlitCommandEncoder.h>
 #import <Metal/MTLDepthStencil.h>
 #import <Metal/MTLRenderPass.h>
 #import <Metal/MTLRenderPipeline.h>
@@ -66,8 +67,9 @@ MTLPixelFormat getSupportedDepthStencilFormat(id<MTLDevice> device, uint family,
 bool isIndirectDrawSupported(uint family);
 String featureSetToString(MTLFeatureSet featureSet);
 const uint8_t *const convertData(const uint8_t *source, uint length, Format type);
-uint getBlockSzie(Format format);
+uint getBlockSize(Format format);
 uint getBytesPerRow(Format format, uint width);
+MTLBlitOption getBlitOption(Format format);
 bool pixelFormatIsColorRenderable(Format format);
 bool isSamplerDescriptorCompareFunctionSupported(uint family);
 void clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer, RenderPass *renderPass, const Rect &renderArea, const Color *colors, float depth, int stencil);

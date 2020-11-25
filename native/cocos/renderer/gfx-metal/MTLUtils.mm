@@ -329,6 +329,8 @@ MTLPixelFormat toMTLPixelFormat(Format format) {
         case Format::ETC2_SRGB8: return MTLPixelFormatETC2_RGB8_sRGB;
         case Format::ETC2_RGB8_A1: return MTLPixelFormatETC2_RGB8A1;
         case Format::ETC2_SRGB8_A1: return MTLPixelFormatETC2_RGB8A1_sRGB;
+        case Format::ETC2_RGBA8: return MTLPixelFormatEAC_RGBA8;
+        case Format::ETC2_SRGB8_A8: return MTLPixelFormatEAC_RGBA8_sRGB;
 
         case Format::EAC_R11: return MTLPixelFormatEAC_R11Unorm;
         case Format::EAC_R11SN: return MTLPixelFormatEAC_R11Snorm;
@@ -1334,7 +1336,7 @@ bool isASTCFormat(Format format) {
     }
 }
 
-uint getBlockSzie(Format format) {
+uint getBlockSize(Format format) {
     switch (format) {
         case Format::ASTC_RGBA_4x4:
         case Format::ASTC_SRGBA_4x4:
@@ -1377,7 +1379,9 @@ uint getBlockSzie(Format format) {
         case Format::ETC2_SRGB8_A1:
         case Format::EAC_R11:
         case Format::EAC_R11SN:
-            return 8u;
+            return 8u; // blockWidth = 4, blockHeight = 4
+        case Format::ETC2_RGBA8:
+        case Format::ETC2_SRGB8_A8:
         case Format::EAC_RG11:
         case Format::EAC_RG11SN: // blockWidth = 4, blockHeight = 4;
             return 16u;
@@ -1387,7 +1391,7 @@ uint getBlockSzie(Format format) {
 }
 
 uint getBytesPerRow(Format format, uint width) {
-    uint blockSize = getBlockSzie(format);
+    uint blockSize = getBlockSize(format);
     uint widthInBlock = 1u;
     switch (format) {
         case Format::ASTC_RGBA_4x4:
@@ -1432,9 +1436,12 @@ uint getBytesPerRow(Format format, uint width) {
             break;
         case Format::PVRTC_RGB2:
         case Format::PVRTC_RGBA2:
+            widthInBlock = width / 2;
+            break;
         case Format::PVRTC_RGB4:
         case Format::PVRTC_RGBA4:
-            return 0;
+            widthInBlock = width / 4;
+            break;
         case Format::ETC2_RGB8:
         case Format::ETC2_SRGB8:
         case Format::ETC2_RGB8_A1:
@@ -1443,6 +1450,8 @@ uint getBytesPerRow(Format format, uint width) {
         case Format::EAC_R11SN:
         case Format::EAC_RG11:
         case Format::EAC_RG11SN:
+        case Format::ETC2_RGBA8:
+        case Format::ETC2_SRGB8_A8:
             widthInBlock = width / 4;
             break;
         default:
@@ -1465,6 +1474,16 @@ bool pixelFormatIsColorRenderable(Format format) {
     BOOL is422Format = (pixelFormat == MTLPixelFormatGBGR422 || pixelFormat == MTLPixelFormatBGRG422);
 
     return !isCompressedFormat && !is422Format && !(pixelFormat == MTLPixelFormatInvalid);
+}
+
+MTLBlitOption getBlitOption(Format format) {
+    const MTLPixelFormat pixelFormat = toMTLPixelFormat(format);
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+    if (pixelFormat >= MTLPixelFormatPVRTC_RGB_2BPP && pixelFormat <= MTLPixelFormatPVRTC_RGBA_4BPP_sRGB) {
+        return MTLBlitOptionRowLinearPVRTC;
+    }
+#endif
+    return MTLBlitOptionNone;
 }
 
 //CompareFunction of MTLSamplerDescriptor is only supported on MTLFeatureSet_iOS_GPUFamily3_v1 and later
