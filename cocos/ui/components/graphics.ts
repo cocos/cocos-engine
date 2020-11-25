@@ -41,7 +41,7 @@ import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
 import { RenderingSubMesh } from '../../core';
 import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, MemoryUsageBit } from '../../core/gfx';
-import { vfmtPosColor, getAttributeStride } from '../../core/renderer/ui/ui-vertex-format';
+import { vfmtPosColor, getAttributeStride, getAttributeFormatBytes } from '../../core/renderer/ui/ui-vertex-format';
 import { legacyCC } from '../../core/global-exports';
 
 const _matInsInfo: IMaterialInstanceInfo = {
@@ -53,6 +53,8 @@ const _matInsInfo: IMaterialInstanceInfo = {
 const attributes = vfmtPosColor.concat([
     new Attribute('a_dist', Format.R32F),
 ]);
+
+const formatBytes = getAttributeFormatBytes(attributes);
 
 const stride = getAttributeStride(attributes);
 
@@ -246,6 +248,7 @@ export class Graphics extends UIRenderable {
     protected _miterLimit = 10;
 
     protected _isDrawing = false;
+    protected _isNeedUploadData = true;
 
     constructor (){
         super();
@@ -556,6 +559,7 @@ export class Graphics extends UIRenderable {
         }
 
         this._isDrawing = true;
+        this._isNeedUploadData = true;
         (this._assembler as IAssembler).stroke!(this);
         this._attachToScene();
     }
@@ -573,6 +577,7 @@ export class Graphics extends UIRenderable {
         }
 
         this._isDrawing = true;
+        this._isNeedUploadData = true;
         (this._assembler as IAssembler).fill!(this);
         this._attachToScene();
     }
@@ -608,8 +613,8 @@ export class Graphics extends UIRenderable {
             const indexBuffer = gfxDevice.createBuffer(new BufferInfo(
                 BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
                 MemoryUsageBit.DEVICE,
-                65535 * 2,
-                2,
+                65535 * Uint16Array.BYTES_PER_ELEMENT * 2,
+                Uint16Array.BYTES_PER_ELEMENT,
             ));
 
             renderMesh = new RenderingSubMesh([vertexBuffer], attributes, PrimitiveMode.TRIANGLE_LIST, indexBuffer);
@@ -619,7 +624,53 @@ export class Graphics extends UIRenderable {
         }
     }
 
+    protected _uploadData(render: UI) {
+        const impl = this.impl;
+        const renderDataList = impl && impl.getRenderData();
+        if (!renderDataList || !this.model) {
+            return;
+        }
+
+        const subModelCount = this.model.subModels.length;
+        const listLength = renderDataList.length;
+        const delta = listLength - subModelCount;
+        if (delta > 0) {
+            for (let k = subModelCount; k < listLength; k++) {
+                this.activeSubModel(k);
+            }
+        }
+
+        const subModelList = this.model.subModels;
+        for (let i = 0; i < renderDataList.length; i++) {
+            const renderData = renderDataList[i];
+            const ia = subModelList[i].inputAssembler;
+            const vertexFormatBytes = formatBytes * Float32Array.BYTES_PER_ELEMENT;
+            const offset = renderData.lastFilledVertex * vertexFormatBytes;
+            const byteOffset = renderData.vertexStart * vertexFormatBytes;
+            if (offset === byteOffset) {
+                continue;
+            }
+
+            const verticesData = new Float32Array(renderData.vData!.buffer, offset, (byteOffset - offset) >> 2);
+            ia.vertexBuffers[0].update(verticesData, offset);
+            ia.vertexCount = renderData.vertexStart;
+            const indicesData = new Uint16Array(renderData.iData!.buffer, renderData.lastFilledIndices * Uint16Array.BYTES_PER_ELEMENT, renderData.indicesStart - renderData.lastFilledIndices);
+            ia.indexBuffer!.update(indicesData, renderData.lastFilledIndices * Uint16Array.BYTES_PER_ELEMENT);
+            ia.indexCount = renderData.indicesStart;
+
+            renderData.lastFilledVertex = renderData.vertexStart;
+            renderData.lastFilledIndices = renderData.indicesStart;
+        }
+
+        render.removeUploadBuffersFunc(this);
+        this._isNeedUploadData = false;
+    }
+
     protected _render (render: UI) {
+        if (this._isNeedUploadData) {
+            render.addUploadBuffersFunc(this, this._uploadData);
+        }
+
         render.commitModel(this, this.model, this.getMaterialInstance(0));
     }
 

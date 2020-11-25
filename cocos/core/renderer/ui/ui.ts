@@ -107,6 +107,7 @@ export class UI {
     private _uiMaterials: Map<number, UIMaterial> = new Map<number, UIMaterial>();
     private _canvasMaterials: Map<number, Map<number, number>> = new Map<number, Map<number, number>>();
     private _batches: CachedArray<UIDrawBatch>;
+    private _doUploadBuffersCall: Map<any, Function> = new Map();
     private _uiModelPool: Pool<UIBatchModel> | null = null;
     private _modelInUse: CachedArray<UIBatchModel>;
     // batcher
@@ -176,7 +177,7 @@ export class UI {
         }
 
         if (this._descriptorSetCacheMap) {
-            this._destoryDescriptorSet();
+            this._destroyDescriptorSet();
         }
 
         this._meshBuffers.clear();
@@ -316,6 +317,14 @@ export class UI {
         this._screens.sort(this._screenSort);
     }
 
+    public addUploadBuffersFunc(target: any, func: Function) {
+        this._doUploadBuffersCall.set(target, func);
+    }
+
+    public removeUploadBuffersFunc(target: any) {
+        this._doUploadBuffersCall.delete(target);
+    }
+
     public update () {
         const screens = this._screens;
         for (let i = 0; i < screens.length; ++i) {
@@ -390,6 +399,12 @@ export class UI {
 
     public uploadBuffers () {
         if (this._batches.length > 0) {
+            const calls = this._doUploadBuffersCall;
+            for (const key of calls.keys()) {
+                const list = calls.get(key);
+                list!.call(key, this);
+            }
+
             const buffers = this._meshBuffers;
             for (const i of buffers.keys()) {
                 const list = buffers.get(i);
@@ -678,7 +693,7 @@ export class UI {
         const parentOpacity = this._parentOpacity;
         this._parentOpacity *= node._uiProps.opacity;
 
-        this._preprocess(node);
+        this._preProcess(node);
         if (len > 0 && !node._static) {
             const children = node.children;
             for (let i = 0; i < children.length; ++i) {
@@ -687,13 +702,13 @@ export class UI {
             }
         }
 
-        this._postprocess(node);
+        this._postProcess(node);
         this._parentOpacity = parentOpacity;
 
         level += 1;
     }
 
-    private _preprocess (node: Node) {
+    private _preProcess (node: Node) {
         if (!node._uiProps.uiTransformComp) {
             return;
         }
@@ -706,7 +721,7 @@ export class UI {
         }
     }
 
-    private _postprocess (node: Node) {
+    private _postProcess (node: Node) {
         const render = node._uiProps.uiComp;
         if (render && render.enabledInHierarchy) {
             render.postUpdateAssembler(this);
@@ -755,11 +770,11 @@ export class UI {
         const opacity = (this._parentOpacity *= color);
         const currMeshBuffer = this.currBufferBatch!;
         const byteOffset = currMeshBuffer.byteOffset >> 2;
-        const vbuf = currMeshBuffer.vData!;
+        const vBuf = currMeshBuffer.vData!;
         const lastByteOffset = currMeshBuffer.lastByteOffset >> 2;
         const stride = currMeshBuffer.vertexFormatBytes / 4;
         for (let i = lastByteOffset; i < byteOffset; i += stride) {
-            vbuf[i + MeshBuffer.OPACITY_OFFSET] *= opacity;
+            vBuf[i + MeshBuffer.OPACITY_OFFSET] *= opacity;
         }
 
         currMeshBuffer.lastByteOffset = currMeshBuffer.byteOffset;
@@ -782,7 +797,7 @@ export class UI {
         }
     }
 
-    private _destoryDescriptorSet () {
+    private _destroyDescriptorSet () {
         this._descriptorSetCacheMap.forEach((value, key, map) => {
             value.forEach((hDescriptorSet) => {
                 DSPool.free(hDescriptorSet);

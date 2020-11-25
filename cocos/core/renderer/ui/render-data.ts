@@ -139,6 +139,10 @@ export class MeshRenderData extends BaseRenderData {
     public indicesStart = 0;
     public byteStart = 0;
     public byteCount = 0;
+    // only for graphics
+    public lastFilledIndices = 0;
+    public lastFilledVertex = 0;
+
     private _formatByte:number;
 
     constructor (vertexFloatCnt = 9) {
@@ -221,6 +225,8 @@ export class MeshRenderData extends BaseRenderData {
         this.vertexStart = 0;
         this.indicesStart = 0;
         this.byteStart = 0;
+        this.lastFilledIndices = 0;
+        this.lastFilledVertex = 0;
     }
 
     protected _reallocBuffer (vCount, iCount) {

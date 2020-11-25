@@ -566,8 +566,8 @@ export class Mask extends UIRenderable {
             const indexBuffer = gfxDevice.createBuffer(new BufferInfo(
                 BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
                 MemoryUsageBit.DEVICE,
-                6 * 2,
-                2,
+                6 * Uint16Array.BYTES_PER_ELEMENT,
+                Uint16Array.BYTES_PER_ELEMENT,
             ));
 
             const ib = new Uint16Array([0, 1, 2, 2, 1, 3]);
