@@ -66,6 +66,7 @@ public:
     void update(float dt);
 
 private:
+    bool _checkAudioIdValid(int audioID);
     void _play2d(AudioCache *cache, int audioID);
     ALuint findValidSource();
 

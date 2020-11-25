@@ -292,6 +292,9 @@ void AudioEngineImpl::_play2d(AudioCache *cache, int audioID)
 
 void AudioEngineImpl::setVolume(int audioID,float volume)
 {
+    if (!_checkAudioIdValid(audioID)) {
+        return;
+    }
     auto player = _audioPlayers[audioID];
     player->_volume = volume;
 
@@ -307,6 +310,9 @@ void AudioEngineImpl::setVolume(int audioID,float volume)
 
 void AudioEngineImpl::setLoop(int audioID, bool loop)
 {
+    if (!_checkAudioIdValid(audioID)) {
+        return;
+    }
     auto player = _audioPlayers[audioID];
 
     if (player->_ready) {
@@ -332,6 +338,9 @@ void AudioEngineImpl::setLoop(int audioID, bool loop)
 
 bool AudioEngineImpl::pause(int audioID)
 {
+    if (!_checkAudioIdValid(audioID)) {
+        return false;
+    }
     bool ret = true;
     alSourcePause(_audioPlayers[audioID]->_alSource);
 
@@ -346,6 +355,9 @@ bool AudioEngineImpl::pause(int audioID)
 
 bool AudioEngineImpl::resume(int audioID)
 {
+    if (!_checkAudioIdValid(audioID)) {
+        return false;
+    }
     bool ret = true;
     alSourcePlay(_audioPlayers[audioID]->_alSource);
 
@@ -360,6 +372,9 @@ bool AudioEngineImpl::resume(int audioID)
 
 void AudioEngineImpl::stop(int audioID)
 {
+    if (!_checkAudioIdValid(audioID)) {
+        return;
+    }
     auto player = _audioPlayers[audioID];
     player->destroy();
     //Note: Don't set the flag to false here, it should be set in 'update' function.
@@ -389,6 +404,9 @@ void AudioEngineImpl::stopAll()
 
 float AudioEngineImpl::getDuration(int audioID)
 {
+    if (!_checkAudioIdValid(audioID)) {
+        return 0.0f;
+    }
     auto player = _audioPlayers[audioID];
     if(player->_ready){
         return player->_audioCache->_duration;
@@ -410,6 +428,9 @@ float AudioEngineImpl::getDurationFromFile(const std::string &filePath)
 
 float AudioEngineImpl::getCurrentTime(int audioID)
 {
+    if (!_checkAudioIdValid(audioID)) {
+        return 0.0f;
+    }
     float ret = 0.0f;
     auto player = _audioPlayers[audioID];
     if(player->_ready){
@@ -430,6 +451,9 @@ float AudioEngineImpl::getCurrentTime(int audioID)
 
 bool AudioEngineImpl::setCurrentTime(int audioID, float time)
 {
+    if (!_checkAudioIdValid(audioID)) {
+        return false;
+    }
     bool ret = false;
     auto player = _audioPlayers[audioID];
 
@@ -464,6 +488,9 @@ bool AudioEngineImpl::setCurrentTime(int audioID, float time)
 
 void AudioEngineImpl::setFinishCallback(int audioID, const std::function<void (int, const std::string &)> &callback)
 {
+    if (!_checkAudioIdValid(audioID)) {
+        return;
+    }
     _audioPlayers[audioID]->_finishCallbak = callback;
 }
 
@@ -533,6 +560,10 @@ void AudioEngineImpl::uncache(const std::string &filePath)
 void AudioEngineImpl::uncacheAll()
 {
     _audioCaches.clear();
+}
+
+bool AudioEngineImpl::_checkAudioIdValid(int audioID) {
+    return _audioPlayers.find(audioID) != _audioPlayers.end();
 }
 
 #endif
