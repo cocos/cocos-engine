@@ -299,31 +299,14 @@ Device::NetworkType Device::getNetworkType()
 
 cc::Vec4 Device::getSafeAreaEdge()
 {
-    //TODO:minggo
-//    UIView* screenView = (UIView*)Application::getInstance()->getView();
-//
-//#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
-//    float version = [[UIDevice currentDevice].systemVersion floatValue];
-//    if (version >= 11.0f)
-//    {
-//#pragma clang diagnostic push
-//#pragma clang diagnostic ignored "-Wpartial-availability"
-//        UIEdgeInsets safeAreaEdge = screenView.safeAreaInsets;
-//#pragma clang diagnostic pop
-//
-//        // Multiply contentScaleFactor since safeAreaInsets return points.
-//        uint8_t scale = screenView.contentScaleFactor;
-//        safeAreaEdge.left *= scale;
-//        safeAreaEdge.right *= scale;
-//        safeAreaEdge.top *= scale;
-//        safeAreaEdge.bottom *= scale;
-//
-//        return cc::Vec4(safeAreaEdge.top, safeAreaEdge.left, safeAreaEdge.bottom, safeAreaEdge.right);
-//    }
-//#endif
-//
-//    // If running on iOS devices lower than 11.0, return ZERO Vec4.
-//    return cc::Vec4();
+   UIView* screenView = UIApplication.sharedApplication.delegate.window.rootViewController.view;
+
+   if (@available(iOS 11.0, *))
+   {
+       UIEdgeInsets safeAreaEdge = screenView.safeAreaInsets;
+       return cc::Vec4(safeAreaEdge.top, safeAreaEdge.left, safeAreaEdge.bottom, safeAreaEdge.right);
+   }
+   // If running on iOS devices lower than 11.0, return ZERO Vec4.
     return cc::Vec4();
 }
 }

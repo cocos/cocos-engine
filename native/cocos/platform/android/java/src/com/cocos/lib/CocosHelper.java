@@ -46,6 +46,7 @@ import android.os.Vibrator;
 import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
+import android.view.WindowInsets;
 import android.view.WindowManager;
 
 import com.android.vending.expansion.zipfile.APKExpansionSupport;
@@ -81,7 +82,7 @@ public class CocosHelper {
 
     // The absolute path to the OBB if it exists.
     private static String sObbFilePath = "";
-    
+
     // The OBB file
     private static ZipResourceFile sOBBFile = null;
 
@@ -215,7 +216,7 @@ public class CocosHelper {
         }
     }
 
-    public static boolean openURL(String url) { 
+    public static boolean openURL(String url) {
         boolean ret = false;
         try {
             Intent i = new Intent(Intent.ACTION_VIEW);
@@ -237,7 +238,7 @@ public class CocosHelper {
             }
         });
     }
-    
+
     public static long[] getObbAssetFileDescriptor(final String path) {
         long[] array = new long[3];
         if (CocosHelper.sOBBFile != null) {
@@ -305,5 +306,44 @@ public class CocosHelper {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static float[] getSafeArea() {
+        if (android.os.Build.VERSION.SDK_INT >= 28) {
+            do {
+                Object windowInsectObj = GlobalObject.getActivity().getWindow().getDecorView().getRootWindowInsets();
+
+                if(windowInsectObj == null) break;
+
+                Class<?> windowInsets = WindowInsets.class;
+                try {
+                    Method wiGetDisplayCutout = windowInsets.getMethod("getDisplayCutout");
+                    Object cutout = wiGetDisplayCutout.invoke(windowInsectObj);
+
+                    if(cutout == null) break;
+
+                    Class<?> displayCutout = cutout.getClass();
+                    Method dcGetLeft = displayCutout.getMethod("getSafeInsetLeft");
+                    Method dcGetRight = displayCutout.getMethod("getSafeInsetRight");
+                    Method dcGetBottom = displayCutout.getMethod("getSafeInsetBottom");
+                    Method dcGetTop = displayCutout.getMethod("getSafeInsetTop");
+
+                    if (dcGetLeft != null && dcGetRight != null && dcGetBottom != null && dcGetTop != null) {
+                        int left = (Integer) dcGetLeft.invoke(cutout);
+                        int right = (Integer) dcGetRight.invoke(cutout);
+                        int top = (Integer) dcGetTop.invoke(cutout);
+                        int bottom = (Integer) dcGetBottom.invoke(cutout);
+                        return new float[]{top, left, bottom, right};
+                    }
+                } catch (NoSuchMethodException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+            }while(false);
+        }
+        return new float[]{0,0,0,0};
     }
 }
