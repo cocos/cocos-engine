@@ -34,7 +34,8 @@ import Cache from './cache';
 import dependUtil from './depend-util';
 import { assets, references } from './shared';
 import { legacyCC } from '../global-exports';
-import { EffectAsset } from '../assets/effect-asset';
+import { ImageAsset } from '../assets/image-asset';
+import { TextureBase } from '../assets/texture-base';
 
 function visitAsset (asset: Asset, deps: string[]) {
     // Skip assets generated programmatically or by user (e.g. label texture)
@@ -247,7 +248,10 @@ class ReleaseManager {
                 this._free(dependAsset, false);
             }
         }
-        asset.destroy();
+        // only release non-gc asset in editor
+        if (!EDITOR || (asset instanceof ImageAsset || asset instanceof TextureBase)) {
+            asset.destroy();
+        }
         dependUtil.remove(uuid);
         if (EDITOR) {
             references!.remove(uuid);
