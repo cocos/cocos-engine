@@ -18,7 +18,7 @@ if (SafeArea) {
         },
 
         adaptSafeAreaChange(){
-            if (CC_JSB && (cc.sys.os === cc.sys.OS_IOS || cc.sys.os === cc.sys.OS_ANDROID)) {
+            if (JSB && (cc.sys.os === cc.sys.OS_IOS || cc.sys.os === cc.sys.OS_ANDROID)) {
                 setTimeout(() => {
                     this.updateArea();
                 }, 200);
