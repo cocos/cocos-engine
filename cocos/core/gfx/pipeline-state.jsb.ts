@@ -298,7 +298,7 @@ export class DepthStencilState {
         if (stencilFuncBack !== undefined) this.stencilFuncBack = stencilFuncBack;
         if (stencilReadMaskBack !== undefined) this.stencilReadMaskBack = stencilReadMaskBack;
         if (stencilWriteMaskBack !== undefined) this.stencilWriteMaskBack = stencilWriteMaskBack;
-        if (stencilFailOpBack !== undefined) this.stencilFailOpFront = stencilFailOpBack;
+        if (stencilFailOpBack !== undefined) this.stencilFailOpBack = stencilFailOpBack;
         if (stencilZFailOpBack !== undefined) this.stencilZFailOpBack = stencilZFailOpBack;
         if (stencilPassOpBack !== undefined) this.stencilPassOpBack = stencilPassOpBack;
         if (stencilRefBack !== undefined) this.stencilRefBack = stencilRefBack;
