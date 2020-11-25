@@ -253,7 +253,23 @@ void CCMTLBuffer::encodeBuffer(CCMTLRenderCommandEncoder &encoder, uint offset, 
     }
 
     if (stages & ShaderStageFlagBit::FRAGMENT) {
-        encoder.setFragmentBuffer(_mtlBuffer, offset, binding);
+        [encoder setFragmentBuffer:_mtlBuffer
+                            offset:offset
+                           atIndex:binding];
+    }
+}
+
+void CCMTLBuffer::begin() {
+    _inflightDirty = true;
+}
+
+void CCMTLBuffer::updateInflightBuffer(uint offset, uint size) {
+    if (_tripleEnabled && _mtlResourceOptions != MTLResourceStorageModePrivate && _inflightDirty) {
+        _inflightIndex = ((_inflightIndex + 1) % MAX_INFLIGHT_BUFFER);
+        id<MTLBuffer> prevFrameBuffer = _mtlBuffer;
+        _mtlBuffer = _dynamicDataBuffers[_inflightIndex];
+        memcpy((uint8_t *)_mtlBuffer.contents, prevFrameBuffer.contents, offset + size);
+        _inflightDirty = false;
     }
 }
 
