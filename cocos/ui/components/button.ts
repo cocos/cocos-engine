@@ -549,7 +549,7 @@ export class Button extends Component {
         } else {
             this.node.on(Sprite.EventType.SPRITE_FRAME_CHANGED, (comp: Sprite) => {
                 if (this._transition === Transition.SPRITE) {
-                    this._normalSprite = comp.spriteFrame;
+                    this._setCurrentStateSprite(comp.spriteFrame);
                 } else {
                     // avoid serialization data loss when in no-sprite mode
                     this._normalSprite = null;
@@ -651,6 +651,23 @@ export class Button extends Component {
 
         this.node.on(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
         this.node.on(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+    }
+
+    protected _setCurrentStateSprite (spriteFrame) {
+        switch ( this._getButtonState() ) {
+            case State.NORMAL:
+                this.normalSprite = spriteFrame;
+                break;
+            case State.HOVER:
+                this.hoverSprite = spriteFrame;
+                break;
+            case State.PRESSED:
+                this.pressedSprite = spriteFrame;
+                break;
+            case State.DISABLED:
+                this.disabledSprite = spriteFrame;
+                break;
+        }
     }
 
     protected _getTargetSprite (target: Node | null) {
