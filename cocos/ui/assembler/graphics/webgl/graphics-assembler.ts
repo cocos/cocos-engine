@@ -28,12 +28,10 @@
  * @module ui-assembler
  */
 
-import { Attribute, Format } from '../../../../core/gfx';
 import { Color, Vec3 } from '../../../../core/math';
 import { IAssembler } from '../../../../core/renderer/ui/base';
 import { MeshRenderData } from '../../../../core/renderer/ui/render-data';
 import { UI } from '../../../../core/renderer/ui/ui';
-import { vfmtPosColor, getAttributeFormatBytes } from '../../../../core/renderer/ui/ui-vertex-format';
 import { Graphics } from '../../../components';
 import { LineCap, LineJoin, PointFlags } from '../types';
 import { earcut as Earcut } from './earcut';
@@ -52,12 +50,6 @@ const sin = Math.sin;
 const atan2 = Math.atan2;
 
 const attrBytes = 8;
-
-const attributes = vfmtPosColor.concat([
-    new Attribute('a_dist', Format.R32F),
-]);
-
-const formatBytes = getAttributeFormatBytes(attributes);
 
 let _renderData: MeshRenderData | null = null;
 let _impl: Impl | null = null;
@@ -117,7 +109,8 @@ export const graphicsAssembler: IAssembler = {
 
         let meshBuffer = renderData;
 
-        const maxVertexCount = meshBuffer ? meshBuffer.vertexCount + vertexCount : 0;
+
+        const maxVertexCount = meshBuffer ? meshBuffer.vertexStart + vertexCount : 0;
         if (maxVertexCount > MAX_VERTEX || maxVertexCount * 3 > MAX_INDICES) {
             ++_impl.dataOffset;
 
@@ -167,36 +160,6 @@ export const graphicsAssembler: IAssembler = {
     },
 
     end (graphics: Graphics) {
-        const impl = graphics.impl;
-        const renderDataList = impl && impl.getRenderData();
-        if (!renderDataList || !graphics.model) {
-            return;
-        }
-
-        const subModelCount = graphics.model.subModels.length;
-        const listLength = renderDataList.length;
-        const delta = listLength - subModelCount;
-        if (delta > 0) {
-            for (let k = subModelCount; k < listLength; k++) {
-                graphics.activeSubModel(k);
-            }
-        }
-
-        const subModelList = graphics.model.subModels;
-        for (let i = 0; i < renderDataList.length; i++){
-            const renderData = renderDataList[i];
-            const ia = subModelList[i].inputAssembler;
-            const vertexFormatBytes = Float32Array.BYTES_PER_ELEMENT * formatBytes;
-            const byteOffset = renderData.vertexStart * vertexFormatBytes;
-            const verticesData = new Float32Array(renderData.vData!.buffer, 0, byteOffset >> 2);
-            ia.vertexCount = renderData.vertexStart;
-            ia.vertexBuffers[0].update(verticesData);
-
-            const indicesData = new Uint16Array(renderData.iData!.buffer, 0, renderData.indicesStart);
-            ia.indexCount = renderData.indicesStart;
-            ia.indexBuffer!.update(indicesData);
-        }
-
         graphics.markForUpdateRenderData();
     },
 
