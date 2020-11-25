@@ -44,6 +44,7 @@ import {
     NULL_HANDLE, NodeHandle, NodePool, NodeView,
 } from '../renderer/core/memory-pools';
 import { NodeSpace, TransformBit } from './node-enum';
+import type { Scene } from './scene';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -78,7 +79,7 @@ const bookOfChange = new Map<Node, number>();
  * * 维护 3D 空间左边变换（坐标、旋转、缩放）信息
  */
 @ccclass('cc.Node')
-export class Node extends BaseNode {
+export class Node extends BaseNode<Node | Scene, Node> {
     public static bookOfChange = bookOfChange;
 
     /**
@@ -528,7 +529,7 @@ export class Node extends BaseNode {
         if (!this._dirtyFlags) { return; }
         // we need to recursively iterate this
         // eslint-disable-next-line @typescript-eslint/no-this-alias
-        let cur: this | null = this;
+        let cur: Node | null = this;
         let i = 0;
         while (cur && cur._dirtyFlags) {
             // top level node
@@ -757,7 +758,7 @@ export class Node extends BaseNode {
         Vec3.copy(out, p);
         // we need to recursively iterate this
         // eslint-disable-next-line @typescript-eslint/no-this-alias
-        let cur = this;
+        let cur: Node = this;
         let i = 0;
         while (cur._parent) {
             array_a[i++] = cur;

@@ -38,6 +38,7 @@ import { BaseNode } from './base-node';
 import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
 import { SceneGlobals } from './scene-globals';
+import type { Node } from './node';
 
 /**
  * @en
@@ -48,7 +49,7 @@ import { SceneGlobals } from './scene-globals';
  * 它由 [[Director]] 管理，用户可以使用 [[Director.loadScene]] 来切换场景
  */
 @ccclass('cc.Scene')
-export class Scene extends BaseNode {
+export class Scene extends BaseNode<Scene, Node> {
     /**
      * @en The renderer scene, normally user don't need to use it
      * @zh 渲染层场景，一般情况下用户不需要关心它
@@ -239,6 +240,10 @@ export class Scene extends BaseNode {
 
     // life-cycle call backs
 
+    protected _doSetScene () {
+        this._scene = this;
+    }
+
     protected _instantiate () { }
 
     protected _load () {
@@ -249,7 +254,6 @@ export class Scene extends BaseNode {
             this._onBatchCreated();
             this._inited = true;
         }
-        // static methode can't use this as parameter type
         this.walk(BaseNode._setScene);
     }
 

@@ -41,8 +41,10 @@ import { CallbacksInvoker } from '../event/callbacks-invoker';
 import { errorID } from '../platform/debug';
 import { legacyCC } from '../global-exports';
 
-const _cachedArray = new Array<BaseNode>(16);
-let _currentHovered: BaseNode | null = null;
+type UnknownBaseNode = BaseNode<any, any>;
+
+const _cachedArray = new Array<UnknownBaseNode>(16);
+let _currentHovered: UnknownBaseNode | null = null;
 let pos = new Vec2();
 
 const _touchEvents = [
@@ -150,11 +152,11 @@ function _mouseMoveHandler (this: EventListener, event: EventMouse) {
     if (hit) {
         if (!this._previousIn) {
             // Fix issue when hover node switched, previous hovered node won't get MOUSE_LEAVE notification
-            if (_currentHovered && _currentHovered!.eventProcessor.mouseListener) {
+            if (_currentHovered && _currentHovered.eventProcessor.mouseListener) {
                 event.type = SystemEventType.MOUSE_LEAVE;
-                _currentHovered!.dispatchEvent(event);
-                if (_currentHovered!.eventProcessor.mouseListener) {
-                    _currentHovered!.eventProcessor.mouseListener!._previousIn = false;
+                _currentHovered.dispatchEvent(event);
+                if (_currentHovered.eventProcessor.mouseListener) {
+                    _currentHovered.eventProcessor.mouseListener._previousIn = false;
                 }
             }
             _currentHovered = node;
@@ -214,8 +216,8 @@ function _mouseWheelHandler (this: EventListener, event: EventMouse) {
     }
 }
 
-function _doDispatchEvent (owner: BaseNode, event: Event) {
-    let target: BaseNode;
+function _doDispatchEvent (owner: UnknownBaseNode, event: Event) {
+    let target: UnknownBaseNode;
     let i = 0;
     event.target = owner;
 
@@ -288,7 +290,7 @@ function _searchMaskInParent (node: Node | null) {
     return null;
 }
 
-function _checkListeners (node: BaseNode, events: string[]) {
+function _checkListeners (node: UnknownBaseNode, events: string[]) {
     if (!node._persistNode) {
         if (node.eventProcessor.bubblingTargets) {
             for (let i = 0; i < events.length; ++i) {
@@ -340,9 +342,9 @@ export class NodeEventProcessor {
      */
     public mouseListener: EventListener | null = null;
 
-    private _node: BaseNode;
+    private _node: UnknownBaseNode;
 
-    constructor (node: BaseNode) {
+    constructor (node: UnknownBaseNode) {
         this._node = node;
     }
 
@@ -352,8 +354,7 @@ export class NodeEventProcessor {
             if (this.mouseListener) {
                 this.mouseListener.mask = mask;
             }
-        }
-        else if (this.mouseListener) {
+        } else if (this.mouseListener) {
             this.mouseListener.mask = _searchMaskInParent(this._node as Node);
         }
     }
@@ -417,29 +418,28 @@ export class NodeEventProcessor {
         const forDispatch = this._checknSetupSysEvent(type);
         if (forDispatch) {
             return this._onDispatch(type, callback, target, useCapture);
-        } else {
-            // switch (type) {
-            //     case EventType.POSITION_CHANGED:
-            //         this._eventMask |= POSITION_ON;
-            //         break;
-            //     case EventType.SCALE_CHANGED:
-            //         this._eventMask |= SCALE_ON;
-            //         break;
-            //     case EventType.ROTATION_CHANGED:
-            //         this._eventMask |= ROTATION_ON;
-            //         break;
-            //     case EventType.SIZE_CHANGED:
-            //         this._eventMask |= SIZE_ON;
-            //         break;
-            //     case EventType.ANCHOR_CHANGED:
-            //         this._eventMask |= ANCHOR_ON;
-            //         break;
-            // }
-            if (!this.bubblingTargets) {
-                this.bubblingTargets = new CallbacksInvoker();
-            }
-            return this.bubblingTargets.on(type, callback, target);
         }
+        // switch (type) {
+        //     case EventType.POSITION_CHANGED:
+        //         this._eventMask |= POSITION_ON;
+        //         break;
+        //     case EventType.SCALE_CHANGED:
+        //         this._eventMask |= SCALE_ON;
+        //         break;
+        //     case EventType.ROTATION_CHANGED:
+        //         this._eventMask |= ROTATION_ON;
+        //         break;
+        //     case EventType.SIZE_CHANGED:
+        //         this._eventMask |= SIZE_ON;
+        //         break;
+        //     case EventType.ANCHOR_CHANGED:
+        //         this._eventMask |= ANCHOR_ON;
+        //         break;
+        // }
+        if (!this.bubblingTargets) {
+            this.bubblingTargets = new CallbacksInvoker();
+        }
+        return this.bubblingTargets.on(type, callback, target);
     }
 
     /**
@@ -468,8 +468,7 @@ export class NodeEventProcessor {
         let listeners: CallbacksInvoker;
         if (forDispatch && useCapture) {
             listeners = this.capturingTargets = this.capturingTargets || new CallbacksInvoker();
-        }
-        else {
+        } else {
             listeners = this.bubblingTargets = this.bubblingTargets || new CallbacksInvoker();
         }
 
@@ -556,7 +555,7 @@ export class NodeEventProcessor {
      * eventTarget.emit('fire', message, emitter);
      * ```
      */
-public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
+    public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
         if (this.bubblingTargets) {
             this.bubblingTargets.emit(type, arg0, arg1, arg2, arg3, arg4);
         }
@@ -626,7 +625,7 @@ public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?
      * @param type - 一个监听事件类型的字符串。
      * @param array - 接收目标的数组。
      */
-    public getCapturingTargets (type: string, targets: BaseNode[]) {
+    public getCapturingTargets (type: string, targets: UnknownBaseNode[]) {
         let parent = this._node.parent;
         while (parent) {
             if (parent.eventProcessor.capturingTargets && parent.eventProcessor.capturingTargets.hasEventListener(type)) {
@@ -645,7 +644,7 @@ public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?
      * @param type - 一个监听事件类型的字符串。
      * @param array - 接收目标的数组。
      */
-    public getBubblingTargets (type: string, targets: BaseNode[]) {
+    public getBubblingTargets (type: string, targets: UnknownBaseNode[]) {
         let parent = this._node.parent;
         while (parent) {
             if (parent.eventProcessor.bubblingTargets && parent.eventProcessor.bubblingTargets.hasEventListener(type)) {
@@ -736,11 +735,11 @@ public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?
             target = undefined;
         } else { useCapture = !!useCapture; }
         if (!callback) {
-            if (this.capturingTargets){
+            if (this.capturingTargets) {
                 this.capturingTargets.removeAll(type);
             }
 
-            if (this.bubblingTargets){
+            if (this.bubblingTargets) {
                 this.bubblingTargets.removeAll(type);
             }
         } else {

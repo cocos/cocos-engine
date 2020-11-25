@@ -38,113 +38,113 @@ import { Scene } from './scene';
 
 replaceProperty(BaseNode.prototype, 'BaseNode', [
     {
-        'name': 'childrenCount',
-        'newName': 'children.length',
-        'customGetter': function (this: BaseNode) {
+        name: 'childrenCount',
+        newName: 'children.length',
+        customGetter (this: BaseNode<any, any>) {
             return this.children.length;
-        }
-    }
+        },
+    },
 ]);
 
 replaceProperty(Node.prototype, 'Node', [
     {
-        'name': 'width',
-        'targetName': 'node.getComponent(UITransform)',
-        'customGetter': function (this: Node) {
+        name: 'width',
+        targetName: 'node.getComponent(UITransform)',
+        customGetter (this: Node) {
             return this._uiProps.uiTransformComp!.width;
         },
-        'customSetter': function (this: Node, value: number) {
+        customSetter (this: Node, value: number) {
             this._uiProps.uiTransformComp!.width = value;
-        }
+        },
     },
     {
-        'name': 'height',
-        'targetName': 'node.getComponent(UITransform)',
-        'customGetter': function (this: Node) {
+        name: 'height',
+        targetName: 'node.getComponent(UITransform)',
+        customGetter (this: Node) {
             return this._uiProps.uiTransformComp!.height;
         },
-        'customSetter': function (this: Node, value: number) {
+        customSetter (this: Node, value: number) {
             this._uiProps.uiTransformComp!.height = value;
-        }
+        },
     },
     {
-        'name': 'anchorX',
-        'targetName': 'node.getComponent(UITransform)',
-        'customGetter': function (this: Node) {
+        name: 'anchorX',
+        targetName: 'node.getComponent(UITransform)',
+        customGetter (this: Node) {
             return this._uiProps.uiTransformComp!.anchorX;
         },
-        'customSetter': function (this: Node, value: number) {
+        customSetter (this: Node, value: number) {
             this._uiProps.uiTransformComp!.anchorX = value;
-        }
+        },
     },
     {
-        'name': 'anchorY',
-        'targetName': 'node.getComponent(UITransform)',
-        'customGetter': function (this: Node) {
+        name: 'anchorY',
+        targetName: 'node.getComponent(UITransform)',
+        customGetter (this: Node) {
             return this._uiProps.uiTransformComp!.anchorY;
         },
-        'customSetter': function (this: Node, value: number) {
+        customSetter (this: Node, value: number) {
             this._uiProps.uiTransformComp!.anchorY = value;
-        }
+        },
     },
     {
-        'name': 'getAnchorPoint',
-        'targetName': 'node.getComponent(UITransform)',
-        'customFunction': function (this: Node, out?: Vec2) {
+        name: 'getAnchorPoint',
+        targetName: 'node.getComponent(UITransform)',
+        customFunction (this: Node, out?: Vec2) {
             if (!out) {
                 out = new Vec2();
             }
             out.set(this._uiProps.uiTransformComp!.anchorPoint);
             return out;
-        }
+        },
     },
     {
-        'name': 'setAnchorPoint',
-        'targetName': 'node.getComponent(UITransform)',
-        'customFunction': function (this: Node, point: Vec2 | number, y?: number) {
+        name: 'setAnchorPoint',
+        targetName: 'node.getComponent(UITransform)',
+        customFunction (this: Node, point: Vec2 | number, y?: number) {
             this._uiProps.uiTransformComp!.setAnchorPoint(point, y);
-        }
+        },
     },
     {
-        'name': 'getContentSize',
-        'targetName': 'node.getComponent(UITransform)',
-        'customFunction': function (this: Node, out?: Size): Size {
+        name: 'getContentSize',
+        targetName: 'node.getComponent(UITransform)',
+        customFunction (this: Node, out?: Size): Size {
             if (!out) {
                 out = new Size();
             }
-    
+
             out.set(this._uiProps.uiTransformComp!.contentSize);
             return out;
-        }
+        },
     },
     {
-        'name': 'setContentSize',
-        'targetName': 'node.getComponent(UITransform)',
-        'customFunction': function (this: Node, size: Size | number, height?: number) {
+        name: 'setContentSize',
+        targetName: 'node.getComponent(UITransform)',
+        customFunction (this: Node, size: Size | number, height?: number) {
             this._uiProps.uiTransformComp!.setContentSize(size, height);
-        }
+        },
     },
 ]);
 
 removeProperty(Node.prototype, 'Node.prototype', [
     {
-        'name': 'addLayer',
+        name: 'addLayer',
     },
     {
-        'name': 'removeLayer',
-    }
+        name: 'removeLayer',
+    },
 ]);
 
 removeProperty(Layers, 'Layers', [
     {
-        'name': 'All',
+        name: 'All',
     },
     {
-        'name': 'RaycastMask',
+        name: 'RaycastMask',
     },
     {
-        'name': 'check',
-    }
+        name: 'check',
+    },
 ]);
 
 replaceProperty(Layers, 'Layers', [
@@ -210,14 +210,14 @@ replaceProperty(Layers, 'Layers', [
     },
 ]);
 
-removeProperty(Layers.Enum,'Layers.Enum',[
+removeProperty(Layers.Enum, 'Layers.Enum', [
     {
-        'name': 'ALWAYS',
-    }
+        name: 'ALWAYS',
+    },
 ]);
 
-removeProperty(Layers.BitMask,'Layers.BitMask',[
+removeProperty(Layers.BitMask, 'Layers.BitMask', [
     {
-        'name': 'ALWAYS',
-    }
+        name: 'ALWAYS',
+    },
 ]);
