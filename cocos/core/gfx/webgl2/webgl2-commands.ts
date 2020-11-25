@@ -1705,7 +1705,8 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
     for (let i = 0; i < gpuShader.samplers.length; ++i) {
         const sampler = gpuShader.samplers[i];
         const glLoc = gl.getUniformLocation(gpuShader.glProgram, sampler.name);
-        if (glLoc) {
+        // Note: getUniformLocation return Object on wechat platform.
+        if (glLoc !== null && (typeof glLoc === 'number' || (glLoc as any).id !== -1)) {
             glActiveSamplers.push(gpuShader.glSamplers[i]);
             glActiveSamplerLocations.push(glLoc);
         }
