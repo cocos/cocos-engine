@@ -267,38 +267,40 @@ export default class TiledAssembler extends Assembler2D {
 
                 if (rotated) {
                     if (yindex === 0) {
-                        tempYVerts[0] = uvSliced[0].u;
-                        tempYVerts[1] = uvSliced[0].u;
-                        tempYVerts[2] = uvSliced[4].u + (uvSliced[8].u - uvSliced[4].u) * coefv;
-                    } else if (yindex > 0 && yindex < (row - 1)) {
-                        tempYVerts[0] = uvSliced[4].u;
-                        tempYVerts[1] = uvSliced[4].u;
-                        tempYVerts[2] = uvSliced[4].u + (uvSliced[8].u - uvSliced[4].u) * coefv;
+                        tempXVerts[0] = uvSliced[0].u;
+                        tempXVerts[1] = uvSliced[0].u;
+                        tempXVerts[2] = uvSliced[4].u + (uvSliced[8].u - uvSliced[4].u) * coefv;
+                    } else if (yindex < (row - 1)) {
+                        tempXVerts[0] = uvSliced[4].u;
+                        tempXVerts[1] = uvSliced[4].u;
+                        tempXVerts[2] = uvSliced[4].u + (uvSliced[8].u - uvSliced[4].u) * coefv;
                     } else if (yindex === (row - 1)) {
-                        tempYVerts[0] = uvSliced[8].u;
-                        tempYVerts[1] = uvSliced[8].u;
-                        tempYVerts[2] = uvSliced[12].u;
+                        tempXVerts[0] = uvSliced[8].u;
+                        tempXVerts[1] = uvSliced[8].u;
+                        tempXVerts[2] = uvSliced[12].u;
                     }
                     if (xindex === 0) {
-                        tempXVerts[0] = uvSliced[0].v;
-                        tempXVerts[1] = uvSliced[1].v + (uvSliced[2].v - uvSliced[1].v) * coefu;
-                        tempXVerts[2] = uvSliced[0].v;
-                    } else if (xindex > 0 && xindex < (col - 1)) {
-                        tempXVerts[0] = uvSliced[1].v;
-                        tempXVerts[1] = uvSliced[1].v + (uvSliced[2].v - uvSliced[1].v) * coefu;
-                        tempXVerts[2] = uvSliced[1].v;
+                        tempYVerts[0] = uvSliced[0].v;
+                        tempYVerts[1] = uvSliced[1].v + (uvSliced[2].v - uvSliced[1].v) * coefu;
+                        tempYVerts[2] = uvSliced[0].v;
+                    } else if (xindex < (col - 1)) {
+                        tempYVerts[0] = uvSliced[1].v;
+                        tempYVerts[1] = uvSliced[1].v + (uvSliced[2].v - uvSliced[1].v) * coefu;
+                        tempYVerts[2] = uvSliced[1].v;
                     } else if (xindex === (col - 1)) {
-                        tempXVerts[0] = uvSliced[2].v;
-                        tempXVerts[1] = uvSliced[3].v;
-                        tempXVerts[2] = uvSliced[2].v;
+                        tempYVerts[0] = uvSliced[2].v;
+                        tempYVerts[1] = uvSliced[3].v;
+                        tempYVerts[2] = uvSliced[2].v;
                     }
+                    tempXVerts[3] = tempXVerts[2];
+                    tempYVerts[3] = tempYVerts[1];
                 }
                 else {
                     if (xindex === 0) {
                         tempXVerts[0] = uvSliced[0].u;
                         tempXVerts[1] = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefu;
                         tempXVerts[2] = uv[0];
-                    } else if (xindex > 0 && xindex < (col - 1)) {
+                    } else if (xindex < (col - 1)) {
                         tempXVerts[0] = uvSliced[1].u;
                         tempXVerts[1] = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefu;
                         tempXVerts[2] = uvSliced[1].u;
@@ -311,7 +313,7 @@ export default class TiledAssembler extends Assembler2D {
                         tempYVerts[0] = uvSliced[0].v;
                         tempYVerts[1] = uvSliced[0].v;
                         tempYVerts[2] = uvSliced[4].v + (uvSliced[8].v - uvSliced[4].v) * coefv;
-                    } else if (yindex > 0 && yindex < (row - 1)) {
+                    } else if (yindex < (row - 1)) {
                         tempYVerts[0] = uvSliced[4].v;
                         tempYVerts[1] = uvSliced[4].v;
                         tempYVerts[2] = uvSliced[4].v + (uvSliced[8].v - uvSliced[4].v) * coefv;
@@ -320,6 +322,8 @@ export default class TiledAssembler extends Assembler2D {
                         tempYVerts[1] = uvSliced[8].v;
                         tempYVerts[2] = uvSliced[12].v;
                     }
+                    tempXVerts[3] = tempXVerts[1];
+                    tempYVerts[3] = tempYVerts[2];
                 }
                 // lb
                 verts[uvOffset] = tempXVerts[0];
@@ -334,13 +338,8 @@ export default class TiledAssembler extends Assembler2D {
                 verts[uvOffset + 1] = tempYVerts[2];
                 uvOffset += floatsPerVert;
                 // rt
-                if (rotated) {
-                    verts[uvOffset] = verts[uvOffset - floatsPerVert];
-                    verts[uvOffset + 1] = verts[uvOffset + 1 - floatsPerVert * 2];
-                } else {
-                    verts[uvOffset] = verts[uvOffset - floatsPerVert * 2];
-                    verts[uvOffset + 1] = verts[uvOffset + 1 - floatsPerVert];
-                }
+                verts[uvOffset] = tempXVerts[3];
+                verts[uvOffset + 1] = tempYVerts[3];
                 uvOffset += floatsPerVert;
             }
         }
